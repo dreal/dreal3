@@ -1,6 +1,6 @@
 SUBDIRS = src
 
-bin_PROGRAMS = dReal
+bin_PROGRAMS = opensmt
 
 INCLUDES = $(config_includedirs)
 

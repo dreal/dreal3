@@ -1,5 +1,5 @@
 AC_PREREQ(2.59)
-AC_INIT([dReal 2.0], [(unstable)], [{sicung,soonhok}@cs.cmu.edu])
+AC_INIT([OpenSMT 1.0.1], [(unstable)], [roberto.bruttomesso@gmail.com])
 AC_CONFIG_AUX_DIR(autotools)
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
