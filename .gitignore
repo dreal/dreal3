@@ -1,4 +1,13 @@
 aclocal.m4
 autom4te.cache/
+autoscan.log
+autotools/
+config.log
+config.status
 configure
 todo.org
+Makefile
+Makefile.in
+.deps/
+src/opensmt/parsers/smt/smtparser.cc
+src/opensmt/parsers/smt/smtparser.hh
