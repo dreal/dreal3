@@ -1,7 +1,7 @@
 
 noinst_LTLIBRARIES 	= 	librealpaver.la
 
-INCLUDES 		=	$(config_includedirs) 
+AM_CPPFLAGS 		=	$(config_includedirs) 
 
 librealpaver_la_SOURCES	= 	rp_box.c rp_constant.c \
 				rp_container.c rp_expression_symbol.c \

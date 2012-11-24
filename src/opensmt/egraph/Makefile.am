@@ -1,6 +1,6 @@
 noinst_LTLIBRARIES = libegraph.la
 
-INCLUDES=$(config_includedirs) 
+AM_CPPFLAGS=$(config_includedirs)
 
 libegraph_la_SOURCES = EgraphSolver.C \
 		       EgraphStore.C \

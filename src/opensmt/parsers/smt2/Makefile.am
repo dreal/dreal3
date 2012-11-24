@@ -2,7 +2,7 @@ noinst_LTLIBRARIES = libsmt2parser.la
 
 BUILT_SOURCES = smt2parser.cc smt2parser.h
 
-INCLUDES = $(config_includedirs)
+AM_CPPFLAGS = $(config_includedirs)
 
 AM_YFLAGS = -d --name-prefix=smt2
 AM_LFLAGS = -olex.yy.c -Psmt2

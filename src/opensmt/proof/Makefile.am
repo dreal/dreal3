@@ -1,6 +1,6 @@
 noinst_LTLIBRARIES = libproof.la
 
-INCLUDES=$(config_includedirs) 
+AM_CPPFLAGS=$(config_includedirs)
 
 libproof_la_SOURCES = UFInterpolator.h UFInterpolator.C \
 		      ProofGlobal.h \
