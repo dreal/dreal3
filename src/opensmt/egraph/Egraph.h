@@ -177,8 +177,8 @@ public:
   Enode * mkSelect	     ( Enode *, Enode * );	
   Enode * mkStore	     ( Enode *, Enode *, Enode * );
   
-  Enode * mkCostIncur        ( Enode * );
-  Enode * mkCostBound        ( Enode * );
+//  Enode * mkCostIncur        ( Enode * );
+//  Enode * mkCostBound        ( Enode * );
 
   Enode * mkLeq              ( Enode * );
 

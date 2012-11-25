@@ -21,7 +21,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define COSTSOLVER_H
 
 #include "TSolver.h"
-#include "FastRationals.h"
+//#include "FastRationals.h"
 
 #include <stack>
 #include <list>

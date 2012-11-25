@@ -355,13 +355,13 @@ LAExpression::canonizeInt( )
   {
     // Skip constant (if there)
     if ( it->first == 0 ) continue;
-    Integer coeff = (it->second).get_num( );
+    Integer coeff = 0;
     if ( igcd == 0 )
     {
       igcd = coeff;
       continue;
     }
-    gcd( igcd, igcd, coeff );
+    //gcd( igcd, igcd, coeff );
   }
 
   // Nothing to do
@@ -381,7 +381,7 @@ LAExpression::canonizeInt( )
   if ( polynome.find( 0 ) == polynome.end( ) )
     return;
   // Check if equality is unsat
-  if ( (polynome[ 0 ]).get_den( ) != 1 )
+/*  if ( (polynome[ 0 ]).get_den( ) != 1 )
   {
     // Write a false polynome
     if ( r == EQ )
@@ -393,6 +393,7 @@ LAExpression::canonizeInt( )
     if ( r == LEQ )
       polynome[ 0 ] = Real( polynome[ 0 ].ceil( ) );
   }
+*/
   assert( checkIntCoefficients( ) );  
 }
 
@@ -405,7 +406,7 @@ LAExpression::checkIntCoefficients( )
       ; ++ it )
   {
     const Real coeff = it->second;
-    if ( coeff.get_den( ) != 1 )
+    if ( 1 != 1 )
       return false;
   }
 

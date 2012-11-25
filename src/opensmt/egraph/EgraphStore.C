@@ -129,23 +129,7 @@ void Egraph::initializeStore( )
 
   newSymbol( "store"   , sarray_index_elem_array ); assert( ENODE_ID_STORE  == id_to_enode.size( ) - 1 );
   newSymbol( "select"  , sarray_index_elem       ); assert( ENODE_ID_SELECT == id_to_enode.size( ) - 1 );
-  //
-  // Cost theory symbols
-  //
-  Snode * scost0 = sort_store.mkCost( );
-  Snode * snum0 = sort_store.mkInt( );
-
-  Snode * sct_incur = sort_store.mkDot( sort_store.cons( scost0
-                                      , sort_store.cons( snum0
-		                      , sort_store.cons( snum0 
-		                      , sort_store.cons( sbool0 ) ) ) ) );
-  Snode * sct_bound = sort_store.mkDot( sort_store.cons( scost0
-		                      , sort_store.cons( snum0 
-		                      , sort_store.cons( sbool0 ) ) ) );
-
-  newSymbol( "incur", sct_incur ); assert( ENODE_ID_CTINCUR == id_to_enode.size( ) - 1 );
-  newSymbol( "bound", sct_bound ); assert( ENODE_ID_CTBOUND == id_to_enode.size( ) - 1 );
-  //
+ //
   // Set top node to empty
   //
   top = NULL;
@@ -669,33 +653,6 @@ Enode * Egraph::mkStore( Enode * a, Enode * i, Enode * e )
   Enode * newSto = cons( id_to_enode[ ENODE_ID_STORE ], cons( a, cons( i, cons( e ) ) ) );
 
   return newSto;
-}
-
-Enode * Egraph::mkCostIncur( Enode * args )
-{
-  assert( args );
-  assert( args->getArity( ) == 3 );
-
-  // Enode * var  = args->getCar();
-  // Enode * cost = args->getCdr()->getCar();
-  // Enode * id   = args->getCdr()->getCdr()->getCar();
-
-  // assert( cost->isConstant() );
-
-  return cons( id_to_enode[ ENODE_ID_CTINCUR ], args );
-}
-
-Enode * Egraph::mkCostBound( Enode * args )
-{
-  assert( args );
-  assert( args->getArity( ) == 2 );
-
-  // Enode * var  = args->getCar();
-  // Enode * cost = args->getCdr()->getCar();
-
-  // assert( cost->isConstant() );
-
-  return cons( id_to_enode[ ENODE_ID_CTBOUND ], args );
 }
 
 Enode * Egraph::mkEq( Enode * args )

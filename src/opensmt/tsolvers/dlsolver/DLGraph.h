@@ -387,7 +387,7 @@ private:
   inline Real & getPosWeight ( Real & weight ) { (void)weight; return tmp_edge_weight; }
   inline long & getPosWeight ( long & weight ) 
   { 
-    weight = atol( tmp_edge_weight.get_str( ).c_str( ) ); 
+//    weight = atol( tmp_edge_weight.get_str( ).c_str( ) ); 
     return weight; 
   }
 

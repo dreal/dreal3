@@ -23,6 +23,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "Global.h"
 #include "Otl.h"
 #include "Egraph.h"
+#include "LA.h"
 
 class TopLevelProp
 {

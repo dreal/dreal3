@@ -23,7 +23,6 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "SolverTypes.h"
 #include "Global.h"
 #include "Snode.h"
-
 //
 // IMPORTANT: CHANGE THESE VALUES ONLY IF YOU KNOW WHAT YOU ARE DOING !!!
 // IMPORTANT: CHANGE THESE VALUES ONLY IF YOU KNOW WHAT YOU ARE DOING !!!

@@ -167,9 +167,6 @@ public:
   inline Enode * mkGeq       ( Enode * e )       { assert( e ); return egraph.mkGeq   ( e ); }
   inline Enode * mkGt        ( Enode * e )       { assert( e ); return egraph.mkGt    ( e ); }
 
-  inline Enode * mkCostBound ( Enode * e )       { assert( e ); return egraph.mkCostBound( e ); }
-  inline Enode * mkCostIncur ( Enode * e )       { assert( e ); return egraph.mkCostIncur( e ); }
-                                             
   inline Enode * mkCons   ( Enode * car
                           , Enode * cdr = NULL )        
   { 
@@ -198,7 +195,6 @@ public:
   inline Snode * mkSortArray ( )           { return sstore.mkArray ( ); }
   inline Snode * mkSortElem  ( )           { return sstore.mkElem  ( ); }
   inline Snode * mkSortIndex ( )           { return sstore.mkIndex ( ); }
-  inline Snode * mkSortCost  ( )           { return sstore.mkCost  ( ); }
 
   inline Snode * mkSort      ( Snode * a )      { return sstore.mkDot( a ); }
   inline Snode * mkSortVar   ( const char * n ) { return sstore.mkVar( n ); }

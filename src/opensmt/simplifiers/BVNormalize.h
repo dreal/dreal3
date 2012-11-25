@@ -40,13 +40,14 @@ public:
 private:
 
   Enode * normalize                       ( Enode * ); 
-  Enode * makeNumberFromGmp               ( mpz_class &, const int );
+/*  Enode * makeNumberFromGmp               ( mpz_class &, const int );
   void    scanPolynome                    ( Enode *
 	                                  , map< enodeid_t, mpz_class * > &
 			                  , mpz_class &
 			                  , map< enodeid_t, Enode * > &
 			                  , vector< mpz_class * > &
 			                  , bool );
+*/
   Enode * propagateUnconstrainedVariables ( Enode * );
   Enode * replaceUnconstrainedTerms       ( Enode *, vector< int > & , bool & );
   void    computeIncomingEdges            ( Enode *, vector< int > & );

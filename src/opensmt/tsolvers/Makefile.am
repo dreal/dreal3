@@ -5,9 +5,4 @@ noinst_LTLIBRARIES = libtsolvers.la
 AM_CPPFLAGS=$(config_includedirs)
 
 libtsolvers_la_SOURCES = TSolver.h THandler.C THandler.h
-libtsolvers_la_LIBADD = axsolver/libaxsolver.la \
-			bvsolver/libbvsolver.la \
-			dlsolver/libdlsolver.la \
-			lrasolver/liblrasolver.la \
-			ctsolver/libctsolver.la \
-			emptysolver/libemptysolver.la
+libtsolvers_la_LIBADD = emptysolver/libemptysolver.la

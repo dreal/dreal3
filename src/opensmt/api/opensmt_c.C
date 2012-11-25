@@ -307,7 +307,6 @@ opensmt_expr opensmt_mk_bv_var( opensmt_context c, char * s, unsigned w )
   Enode * res = context.mkVar( s, true );
   return static_cast< void * >( res );
 }
-*/
 
 opensmt_expr opensmt_mk_cost_var( opensmt_context c, char * s )
 {
@@ -320,7 +319,7 @@ opensmt_expr opensmt_mk_cost_var( opensmt_context c, char * s )
   Enode * res = context.mkVar( s, true );
   return static_cast< void * >( res );
 }
-
+*/
 opensmt_expr opensmt_mk_or( opensmt_context c, opensmt_expr * expr_list, unsigned n )
 {
   assert( c );
@@ -397,7 +396,7 @@ opensmt_expr opensmt_mk_num_from_string( opensmt_context c, const char * s )
   Enode * res = context.mkNum( s );
   return res;
 }
-
+/*
 opensmt_expr opensmt_mk_num_from_mpz( opensmt_context c, const mpz_t n )
 {
   assert( c );
@@ -421,7 +420,7 @@ opensmt_expr opensmt_mk_num_from_mpq( opensmt_context c, const mpq_t n )
   Enode * res = context.mkNum( num );
   return res;
 }
-
+*/
 opensmt_expr opensmt_mk_plus( opensmt_context c, opensmt_expr * expr_list, unsigned n )
 {
   list< Enode * > args;
@@ -774,7 +773,6 @@ opensmt_expr opensmt_mk_bv_sge( opensmt_context c, opensmt_expr lhs, opensmt_exp
   Enode * res = context.mkBvsge( args_list );
   return static_cast< void * >( res );
 }
-*/
 
 opensmt_expr opensmt_mk_ct_incur( opensmt_context c
                                 , opensmt_expr    var
@@ -817,7 +815,7 @@ opensmt_expr opensmt_mk_ct_bound( opensmt_context c
   Enode * result = context.mkCostBound( args );
   return static_cast< void * >( result );
 }
-
+*/
 unsigned opensmt_conflicts( opensmt_context c )
 {
   assert( c );
@@ -846,7 +844,7 @@ opensmt_expr opensmt_get_value( opensmt_context c, opensmt_expr v )
   Enode * res = context.mkNum( value );
   return static_cast< void * >( res );
 }
-
+/*
 void opensmt_get_num( opensmt_expr n, mpz_t val )
 {
   assert( n );
@@ -855,7 +853,7 @@ void opensmt_get_num( opensmt_expr n, mpz_t val )
   Real r = num->getValue();
   mpz_set( val, r.get_num().get_mpz_t() );
 }
-
+*/
 opensmt_result opensmt_get_bool( opensmt_context c, opensmt_expr p )
 {
   assert( c );

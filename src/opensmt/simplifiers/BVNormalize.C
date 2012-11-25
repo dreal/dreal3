@@ -257,12 +257,12 @@ BVNormalize::normalize( Enode * term )
   return term;
 }
 
+  /*
 Enode *
 BVNormalize::makeNumberFromGmp( mpz_class & //n
                               , const int //width 
 			      )
 {
-  /*
   assert( n >= 0 );
   string s = n.get_str( 2 );
   string new_bin_value;
@@ -279,7 +279,6 @@ BVNormalize::makeNumberFromGmp( mpz_class & //n
     new_bin_value.insert( 0, width - s.size( ), '0' );
   new_bin_value += s;
   return egraph.mkBvnum( const_cast< char * >(new_bin_value.c_str( )) );
-  */
   return NULL;
 }
 
@@ -292,7 +291,6 @@ BVNormalize::scanPolynome( Enode *                         //p
 			 , bool                            //negate 
 			 )
 {
-  /*
   vector< Enode * >     unprocessed_enodes;
   vector< mpz_class * > unprocessed_coeffs;
 
@@ -395,5 +393,5 @@ BVNormalize::scanPolynome( Enode *                         //p
       }
     }
   }
-*/
 }
+*/

@@ -194,7 +194,7 @@ const Delta LAVar::overBound( )
 
 bool LAVar::isModelInteger( )
 {
-  return !( M( ).hasDelta() || M().R().get_den() != 1);
+//  return !( M( ).hasDelta() || M().R().get_den() != 1);
 }
 
 bool LAVar::isEquality( )

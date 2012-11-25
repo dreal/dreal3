@@ -20,7 +20,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef LA_H
 #define LA_H
 
-#include <Egraph.h>
+#include "Egraph.h"
 
 class LAExpression
 {
@@ -111,7 +111,7 @@ private:
     LAExpression::polynome_t::iterator qit = poly_q.find( var ); 
     if ( qit == poly_q.end( ) )
       return;
-    Real icoeff = Real( -1 )/(qit->second);
+    Real icoeff = (-1)/(qit->second);
     //
     // Compute p + q*icoeff
     //

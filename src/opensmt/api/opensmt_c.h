@@ -20,7 +20,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef OPENSMT_C_H
 #define OPENSMT_C_H
 
-#include "gmp.h"
+//#include "gmp.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,7 +63,7 @@ opensmt_result   opensmt_check_lim_assump          ( opensmt_context, opensmt_ex
 unsigned         opensmt_conflicts                 ( opensmt_context );
 unsigned         opensmt_decisions                 ( opensmt_context );
 opensmt_expr     opensmt_get_value                 ( opensmt_context, opensmt_expr );
-void             opensmt_get_num                   ( opensmt_expr n, mpz_t val );
+//void             opensmt_get_num                   ( opensmt_expr n, mpz_t val );
 opensmt_result   opensmt_get_bool                  ( opensmt_context c, opensmt_expr p );
 void             opensmt_prefer                    ( opensmt_expr a );
 void             opensmt_polarity                  ( opensmt_context c, opensmt_expr a, int pos );
@@ -93,8 +93,8 @@ opensmt_expr     opensmt_mk_diseq                  ( opensmt_context, opensmt_ex
 opensmt_expr     opensmt_mk_ite                    ( opensmt_context, opensmt_expr, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_not                    ( opensmt_context, opensmt_expr );
 opensmt_expr     opensmt_mk_num_from_string        ( opensmt_context, const char * );
-opensmt_expr     opensmt_mk_num_from_mpz           ( opensmt_context, const mpz_t );
-opensmt_expr     opensmt_mk_num_from_mpq           ( opensmt_context, const mpq_t );
+//opensmt_expr     opensmt_mk_num_from_mpz           ( opensmt_context, const mpz_t );
+//opensmt_expr     opensmt_mk_num_from_mpq           ( opensmt_context, const mpq_t );
 opensmt_expr     opensmt_mk_plus                   ( opensmt_context, opensmt_expr *, unsigned );
 opensmt_expr     opensmt_mk_minus                  ( opensmt_context, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_times                  ( opensmt_context, opensmt_expr *, unsigned );
@@ -128,10 +128,9 @@ opensmt_expr     opensmt_mk_bv_slt                 ( opensmt_context, opensmt_ex
 opensmt_expr     opensmt_mk_bv_sle                 ( opensmt_context, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_bv_sgt                 ( opensmt_context, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_bv_sge                 ( opensmt_context, opensmt_expr, opensmt_expr );
-*/
 opensmt_expr     opensmt_mk_ct_incur               ( opensmt_context, opensmt_expr, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_ct_bound               ( opensmt_context, opensmt_expr, opensmt_expr );
-
+*/
 #ifdef __cplusplus
 }
 #endif

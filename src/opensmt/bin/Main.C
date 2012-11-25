@@ -20,6 +20,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "Egraph.h"
 #include "OpenSMTContext.h"
 #include "SimpSMTSolver.h"
+/*
 #include "Tseitin.h"
 #include "ExpandITEs.h"
 #include "ArraySimplify.h"
@@ -27,7 +28,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "TopLevelProp.h"
 #include "DLRescale.h"
 #include "Ackermanize.h"
-
+*/
 #include <cstdlib>
 #include <cstdio>
 #include <csignal>

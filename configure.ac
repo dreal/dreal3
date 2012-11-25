@@ -77,7 +77,6 @@ config_includedirs="-I\${top_srcdir}/src/opensmt \\\
 -I\${top_srcdir}/src/opensmt/tsolvers/ctsolver \\\
 -I\${top_srcdir}/src/opensmt/tsolvers/axsolver \\\
 -I\${top_srcdir}/src/opensmt/tsolvers/dlsolver \\\
--I\${top_srcdir}/src/opensmt/tsolvers/dRsolver \\\
 -I\${top_srcdir}/src/realpaver \\\
 -I\${top_srcdir}/src/capd/include/"
 AC_SUBST(config_includedirs)
@@ -98,12 +97,6 @@ AC_CONFIG_FILES([Makefile
                  src/opensmt/smtsolvers/Makefile
                  src/opensmt/sorts/Makefile
                  src/opensmt/tsolvers/Makefile
-                 src/opensmt/tsolvers/axsolver/Makefile
-                 src/opensmt/tsolvers/bvsolver/Makefile
-                 src/opensmt/tsolvers/bvsolver/minisatp/Makefile
-                 src/opensmt/tsolvers/ctsolver/Makefile
-                 src/opensmt/tsolvers/dlsolver/Makefile
                  src/opensmt/tsolvers/emptysolver/Makefile
-                 src/opensmt/tsolvers/lrasolver/Makefile
                  src/realpaver/Makefile])
 AC_OUTPUT

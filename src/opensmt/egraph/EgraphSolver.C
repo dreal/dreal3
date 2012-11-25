@@ -24,12 +24,12 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // IT IS USED BY CREATE_THEORY.SH SCRIPT !!
 // NEW_THEORY_HEADER
 #include "EmptySolver.h"
-#include "BVSolver.h"
-#include "LRASolver.h"
-#include "DLSolver.h"
-#include "CostSolver.h"
+//#include "BVSolver.h"
+//#include "LRASolver.h"
+//#include "DLSolver.h"
+//#include "CostSolver.h"
 // Added to support compiling templates
-#include "DLSolver.C"
+//#include "DLSolver.C"
 #include "SimpSMTSolver.h"
 
 #define VERBOSE 0
@@ -283,13 +283,6 @@ bool Egraph::assertLit_ ( Enode * e )
   // Considers <= as uninterpreted if pushed positively
   else if ( e->isUp   ( )
          || e->isLeq  ( ))
-  {
-    if ( n )
-      res = assertEq( e, mkFalse( ), s );
-    else
-      res = assertEq( e, mkTrue( ), s );
-  }
-  else if ( e->isCostIncur() || e->isCostBound() )
   {
     if ( n )
       res = assertEq( e, mkFalse( ), s );
@@ -617,54 +610,6 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
     tsolvers_stats.push_back( new TSolverStats( ) );
 #endif
   }
-  else if ( config.logic == QF_BV )
-  {
-    if ( !config.bv_disable )
-    {
-      tsolvers      .push_back( new BVSolver( tsolvers.size( ), "BV Solver", config, *this, sort_store, explanation, deductions, suggestions ) );
-#ifdef STATISTICS
-      tsolvers_stats.push_back( new TSolverStats( ) );
-#endif
-    }
-  }
-  else if ( config.logic == QF_RDL
-         || config.logic == QF_IDL
-         || config.logic == QF_UFIDL )
-  {
-    if ( !config.dl_disable )
-    {
-      if ( getUseGmp( ) )
-	tsolvers    .push_back( new DLSolver<Real>( tsolvers.size( ), "DL Solver", config, *this, sort_store, explanation, deductions, suggestions ) );
-      else
-	tsolvers    .push_back( new DLSolver<long>( tsolvers.size( ), "DL Solver", config, *this, sort_store, explanation, deductions, suggestions ) );
-#ifdef STATISTICS
-      tsolvers_stats.push_back( new TSolverStats( ) );
-#endif
-    }
-  }
-  else if ( config.logic == QF_LRA
-         || config.logic == QF_UFLRA )
-  {
-    if ( !config.lra_disable )
-    {
-      tsolvers      .push_back( new LRASolver( tsolvers.size( ), "LRA Solver", config, *this, sort_store, explanation, deductions, suggestions ) );
-#ifdef STATISTICS
-      tsolvers_stats.push_back( new TSolverStats( ) );
-#endif
-    }
-  }
-  else if ( config.logic == QF_CT )
-  {
-    // Allocating a cost solver (we always do this, unless in QF_UF)
-    tsolvers.push_back( new CostSolver( tsolvers.size( ), "Cost Solver", config, *this, sort_store, explanation, deductions, suggestions ) );
-#ifdef STATISTICS
-    tsolvers_stats.push_back( new TSolverStats( ) );
-#endif
-  }
-  else if ( config.logic == QF_AX )
-    ; // Do nothing
-  else if ( config.logic == QF_BOOL )
-    ; // Do nothing
   // DO NOT REMOVE THIS COMMENT !!
   // IT IS USED BY CREATE_THEORY.SH SCRIPT !!
   // NEW_THEORY_INIT
