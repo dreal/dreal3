@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([dReal], [2.0.0], [scungao@gmail.com])
-AC_CONFIG_SRCDIR([src/opensmt/api/opensmt_c.C])
+#AC_CONFIG_SRCDIR([src/opensmt/api/opensmt_c.C])
 AC_CONFIG_AUX_DIR(autotools)
 
 #AC_CONFIG_HEADERS([config.h])
@@ -52,6 +52,35 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([floor getpagesize pow sqrt strdup strrchr strtol strtoul])
+
+# Added by Soonho Kong
+#
+# List of directories to include
+#
+config_includedirs="-I\${top_srcdir}/src/opensmt \\\
+-I\${top_srcdir}/src/opensmt/minisat/mtl \\\
+-I\${top_srcdir}/src/opensmt/minisat/core \\\
+-I\${top_srcdir}/src/opensmt/smtsolvers \\\
+-I\${top_srcdir}/src/opensmt/simplifiers \\\
+-I\${top_srcdir}/src/opensmt/common \\\
+-I\${top_srcdir}/src/opensmt/egraph \\\
+-I\${top_srcdir}/src/opensmt/sorts \\\
+-I\${top_srcdir}/src/opensmt/cnfizers \\\
+-I\${top_srcdir}/src/opensmt/proof \\\
+-I\${top_srcdir}/src/opensmt/api \\\
+-I\${top_srcdir}/src/opensmt/tsolvers \\\
+-I\${top_srcdir}/src/opensmt/tsolvers/emptysolver \\\
+-I\${top_srcdir}/src/opensmt/tsolvers/bvsolver \\\
+-I\${top_srcdir}/src/opensmt/tsolvers/bvsolver/minisatp \\\
+-I\${top_srcdir}/src/opensmt/tsolvers/lrasolver \\\
+-I\${top_srcdir}/src/opensmt/tsolvers/liasolver \\\
+-I\${top_srcdir}/src/opensmt/tsolvers/ctsolver \\\
+-I\${top_srcdir}/src/opensmt/tsolvers/axsolver \\\
+-I\${top_srcdir}/src/opensmt/tsolvers/dlsolver \\\
+-I\${top_srcdir}/src/opensmt/tsolvers/dRsolver \\\
+-I\${top_srcdir}/src/realpaver \\\
+-I\${top_srcdir}/src/capd/include/"
+AC_SUBST(config_includedirs)
 
 AC_CONFIG_FILES([Makefile
                  src/opensmt/Makefile

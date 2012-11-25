@@ -1,2 +1,12 @@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = src
+SUBDIRS = src/opensmt src/realpaver
+bin_PROGRAMS = dReal
+
+AM_CPPFLAGS = $(config_includedirs)
+
+dReal_SOURCES = src/opensmt/bin/Main.C
+dReal_LDFLAGS =
+
+LDADD = src/opensmt/libopensmt.la
+
+ACLOCAL_AMFLAGS=-I m4
