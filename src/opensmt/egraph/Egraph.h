@@ -222,7 +222,7 @@ public:
   Enode * mkLet              ( Enode * );
   Enode * getDefine          ( const char * );
 
-  Enode * makeNumberFromGmp  ( mpz_class &, const int );
+  //Enode * makeNumberFromGmp  ( mpz_class &, const int );
 
   Enode * getUncheckedAssertions  ( );
 #ifdef PRODUCE_PROOF
@@ -261,7 +261,7 @@ public:
   Enode * copyEnodeEtypeTermWithCache   ( Enode *, bool = false );
   Enode * copyEnodeEtypeListWithCache   ( Enode *, bool = false );
 
-  inline void         setRescale        ( Real & r ) { rescale_factor = r; rescale_factor_l = atol( r.get_str( ).c_str( ) ); }
+  inline void         setRescale        ( Real & r ) {} //rescale_factor = r; rescale_factor_l = atol( r.get_str( ).c_str( ) ); }
   inline const Real & getRescale        ( Real & p ) { (void)p; return rescale_factor; }
   inline const long & getRescale        ( long & p ) { (void)p; return rescale_factor_l; }
 

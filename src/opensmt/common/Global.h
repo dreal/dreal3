@@ -20,7 +20,6 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#include <gmpxx.h>
 #include <cassert>
 #include <string>
 #include <vector>
@@ -84,8 +83,8 @@ using std::stringstream;
 using std::ofstream;
 using std::ifstream;
 
-#define USE_GMP        1
-#define FAST_RATIONALS 1
+#define USE_GMP        0
+#define FAST_RATIONALS 0
 
 #if FAST_RATIONALS
 #include "FastRationals.h"
