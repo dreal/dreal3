@@ -15,7 +15,6 @@ install-sh
 libtool
 m4/
 missing
-todo.org
 ylwrap
 *.o
 *.la

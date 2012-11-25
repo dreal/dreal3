@@ -1,0 +1,6 @@
+* TODO Add .dr parser
+* TODO Add DR theory solver
+* TODO fix .dr parser to support ITE properly
+* TODO refactor code to remove unnecessary global variables
+* TODO interface between opensmt and realpaver
+* TODO language binding for C/C++/OCaml
