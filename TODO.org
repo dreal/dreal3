@@ -1,6 +1,14 @@
 * TODO Add .dr parser
+	- yes lets put the parser outside. 
 * TODO Add DR theory solver
 * TODO fix .dr parser to support ITE properly
+	- if we have a clean data structure, we don't have intermediate variables and the ITEs would be properly handled. 
 * TODO refactor code to remove unnecessary global variables
+	- We don't have those global variables yet now. 
 * TODO interface between opensmt and realpaver
+	- need an rp_solver class that can take in literals and call realpaver to check for consistency
+	- each solving step in realpaver should be logged. 
+	- assert and backtrack utilities
 * TODO language binding for C/C++/OCaml
+* TODO put the interfaces with hybrid models and c programs in interfaces/ 
+

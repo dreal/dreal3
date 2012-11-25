@@ -4,7 +4,7 @@ bin_PROGRAMS = dReal
 
 AM_CPPFLAGS = $(config_includedirs)
 
-dReal_SOURCES = src/opensmt/bin/Main.C
+dReal_SOURCES = src/main.cpp
 dReal_LDFLAGS =
 
 LDADD = src/opensmt/libopensmt.la
