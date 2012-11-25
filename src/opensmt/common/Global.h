@@ -21,7 +21,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define GLOBAL_H
 
 #include <cassert>
-#include <string>
+#include <cstring>
 #include <vector>
 #include <map>
 #include <set>
