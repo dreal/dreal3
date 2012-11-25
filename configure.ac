@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
+AC_PREREQ([2.68])
 AC_INIT([dReal], [2.0.0], [scungao@gmail.com])
 #AC_CONFIG_SRCDIR([src/opensmt/api/opensmt_c.C])
 AC_CONFIG_AUX_DIR(autotools)
@@ -37,7 +37,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CHECK_HEADERS([fenv.h float.h limits.h memory.h stdint.h stdlib.h string.h sys/time.h unistd.h values.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_HEADER_STDBOOL
+#AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
 AC_TYPE_INT32_T
 AC_TYPE_INT64_T
