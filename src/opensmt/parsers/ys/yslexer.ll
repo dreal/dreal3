@@ -23,7 +23,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 /* Keep the following headers in their original order */
 #include "Egraph.h"
-#include "ysparser.h"
+#include "ysparser.hh"
 
 %}
 

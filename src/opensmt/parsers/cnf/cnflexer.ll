@@ -23,7 +23,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 /* Keep the following headers in their original order */
 #include "Egraph.h"
-#include "cnfparser.h"
+#include "cnfparser.hh"
 
 %}
 

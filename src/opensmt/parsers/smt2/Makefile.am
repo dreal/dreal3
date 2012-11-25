@@ -1,6 +1,6 @@
 noinst_LTLIBRARIES = libsmt2parser.la
 
-BUILT_SOURCES = smt2parser.cc smt2parser.h
+BUILT_SOURCES = smt2parser.cc smt2parser.hh
 
 AM_CPPFLAGS = $(config_includedirs)
 

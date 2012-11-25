@@ -1,6 +1,6 @@
 noinst_LTLIBRARIES = libcnfparser.la
 
-BUILT_SOURCES = cnfparser.cc cnfparser.h
+BUILT_SOURCES = cnfparser.cc cnfparser.hh
 
 AM_CPPFLAGS = $(config_includedirs)
 
