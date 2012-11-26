@@ -1,6 +1,6 @@
 noinst_LTLIBRARIES = libysparser.la
 
-BUILT_SOURCES = ysparser.cc ysparser.h
+BUILT_SOURCES = ysparser.cc ysparser.hh
 
 AM_CPPFLAGS = $(config_includedirs)
 
