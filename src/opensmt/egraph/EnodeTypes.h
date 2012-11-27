@@ -58,6 +58,19 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define ENODE_ID_SELECT	          (21)
 #define ENODE_ID_CTINCUR          (22)
 #define ENODE_ID_CTBOUND          (23)
+
+/* added for dReal2 */
+#define ENODE_ID_EXP		  (24)
+#define ENODE_ID_LOG		  (25)
+#define ENODE_ID_SIN		  (26)
+#define ENODE_ID_COS		  (27)
+#define ENODE_ID_TAN		  (28)
+#define ENODE_ID_ARCSIN		  (29)
+#define ENODE_ID_ARCCOS		  (30)
+#define ENODE_ID_ARCTAN		  (31)
+#define ENODE_ID_POW		  (32)
+/* ------------------- */
+
 /*
 #define ENODE_ID_BVSLT            (22)
 #define ENODE_ID_BVSGT            (23)
@@ -88,24 +101,24 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define ENODE_ID_WORD1CAST        (48)
 #define ENODE_ID_BOOLCAST         (49)
 */
-//                                
+//
 // IMPORTANT:
 // This must be equal to the last predefined ID
 // it is used to check whether a function symbol
 // is predefined or uninterpreted
 //
-#define ENODE_ID_LAST		  (23)
+#define ENODE_ID_LAST		  (32)  /* modified for dReal2 */
 
 //
 // Properties stored in integers
 //  31       28 27 26                20 19       16 15                                            0
 // |EE|EE|EE|EE|NN|AA|AA|AA|AA|AA|AA|AA|TT|TT|TT|TT|WW|WW|WW|WW|WW|WW|WW|WW|WW|WW|WW|WW|WW|WW|WW|WW|
-//   
+//
 // |<- etype ->|<------ arity -------->|<- dtype ->|<------------------ width -------------------->|
 //
 // Enode types
-enum etype_t 
-{ 
+enum etype_t
+{
    ETYPE_UNDEF   = 0x00000000 // 0000 0000 0000 0000 0000 0000 0000 0000
  , ETYPE_SYMB    = 0x10000000 // 0001 0000 0000 0000 0000 0000 0000 0000
  , ETYPE_NUMB    = 0x20000000 // 0010 0000 0000 0000 0000 0000 0000 0000
@@ -119,7 +132,7 @@ enum etype_t
 #define ARITY_MASK  0x07F00000 // 0000 0111 1111 0000 0000 0000 0000 0000
 #define DTYPE_MASK  0x000F0000 // 0000 0000 0000 1111 0000 0000 0000 0000
 #define WIDTH_MASK  0x0000FFFF // 0000 0000 0000 0000 1111 1111 1111 1111
-#define MAX_WIDTH   (WIDTH_MASK) 
+#define MAX_WIDTH   (WIDTH_MASK)
 #define ARITY_SHIFT 20
 #define MAX_ARITY   (ARITY_MASK >> ARITY_SHIFT)
 
@@ -157,7 +170,7 @@ struct Elist
 struct TermData
 {
   TermData ( Enode * e )
-    : value            ( NULL )
+    : value            ( 0.0 )
     , exp_reason       ( NULL )
     , exp_parent       ( NULL )
     , exp_root         ( e )
@@ -168,7 +181,7 @@ struct TermData
     , cb               ( e )
   { }
 
-  Real *            value;            // The value
+  double            value;            // The value
   Enode *           exp_reason;       // Reason for the merge of this and exp_parent
   Enode *           exp_parent;       // Parent in the explanation tree
   Enode *           exp_root;         // Compressed parent in the eq classes of the explanations
@@ -255,7 +268,7 @@ struct SymbData
            , const etype_t        etype_
 	   , Snode *              sort_ )
       : name  ( NULL )
-      , value ( NULL )
+      , value ( 0.0 )
       , lsb   ( -1 )
       , sort  ( sort_ )
   {
@@ -272,15 +285,15 @@ struct SymbData
     //
     else if ( etype_ == ETYPE_NUMB )
     {
-#if USE_GMP
-      value = new Real( name_ );
-      const int size_value = strlen( value->get_str( ).c_str( ) ) + 1;
-      name = new char[ size_value ];
-      strcpy( name, value->get_str( ).c_str( ) );
-      assert( strlen( name ) == strlen( value->get_str( ).c_str( ) ) );
-#else
-      value = new Real;
-      *value = atof( name_ );
+/* #if USE_GMP */
+/*       value = new Real( name_ ); */
+/*       const int size_value = strlen( value->get_str( ).c_str( ) ) + 1; */
+/*       name = new char[ size_value ]; */
+/*       strcpy( name, value->get_str( ).c_str( ) ); */
+/*       assert( strlen( name ) == strlen( value->get_str( ).c_str( ) ) ); */
+/* #else */
+      value = 0.0;                 /* modified for dReal2 */
+      value = atof( name_ );       /* modified for dReal2 */
       name = new char[ strlen(name_) + 1 ];
       strcpy( name, name_ );
 #endif
@@ -291,12 +304,13 @@ struct SymbData
   {
     assert( name );
     delete [] name;
-    if ( value )
-      delete value;
+    /* commented out for dReal2, no need */
+    /* if ( value ) */
+    /*   delete value; */
   }
 
   char *             name;
-  Real *             value;
+  double             value;
   int                lsb;        // lsb for extraction, if -1 not extraction
   Snode *            sort;
 };
