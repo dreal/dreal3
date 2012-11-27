@@ -30,7 +30,7 @@ Enode::Enode( )
   , cong_data ( NULL )
   , atom_data ( NULL )
   , value     ( NULL )
-{ 
+{
   setEtype( ETYPE_LIST );
   // dynamic = this;
 }
@@ -38,7 +38,7 @@ Enode::Enode( )
 // Constructor for new Symbols
 //
 Enode::Enode( const enodeid_t      id_
-	    , const char *         name_ 
+	    , const char *         name_
 	    , const etype_t        etype_
 	    , Snode *              sort_
 	    )
@@ -47,7 +47,7 @@ Enode::Enode( const enodeid_t      id_
   , car        ( NULL )
   , cdr        ( NULL )
   , atom_data  ( NULL )
-  , value      ( NULL )
+  , value      ( 0.0 )
 {
   setEtype( etype_ );
   setArity( sort_->getArity( ) - 1 ); // Sort arity includes return value ...
@@ -66,7 +66,7 @@ Enode::Enode( const enodeid_t id_
   , cdr        ( cdr_ )
   , cong_data  ( NULL )
   , atom_data  ( NULL )
-  , value      ( NULL )
+  , value      ( 0.0 )
   // , dynamic   ( NULL )
 {
   assert( car );
@@ -103,7 +103,7 @@ Enode::Enode( const enodeid_t id_
     atom_data = new AtomData( );
 
   if ( car->isNumb( ) )
-    setValue( *(car->symb_data->value) );
+    setValue( car->symb_data->value );
 
   assert( isTerm( ) || isList( ) );
 }
@@ -204,7 +204,7 @@ void Enode::addParentTail ( Enode * p )
     else
       p->setSameCar( p );
   }
-  // Otherwise adds p in the samecar/cdr of the 
+  // Otherwise adds p in the samecar/cdr of the
   // parent of this node at the end of the circular list
   else if ( isList( ) )
   {
@@ -287,7 +287,7 @@ void Enode::print( ostream & os )
     if ( false ) { }
     else
     {
-      Real r = *(symb_data->value);
+      double r = symb_data->value;
 #if USE_GMP
       if (r < 0)
       {

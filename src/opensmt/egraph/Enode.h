@@ -85,6 +85,19 @@ public:
   inline bool isUminus            ( ) const { return hasSymbolId( ENODE_ID_UMINUS      ); }
   inline bool isTimes             ( ) const { return hasSymbolId( ENODE_ID_TIMES       ); }
   inline bool isDiv               ( ) const { return hasSymbolId( ENODE_ID_DIV	       ); }
+
+  /* added for dReal2 */
+  inline bool isArcCos	          ( ) const { return hasSymbolId( ENODE_ID_ARCCOS	       ); }
+  inline bool isArcSin	          ( ) const { return hasSymbolId( ENODE_ID_ARCSIN	       ); }
+  inline bool isArcTan	          ( ) const { return hasSymbolId( ENODE_ID_ARCTAN	       ); }
+  inline bool isCos               ( ) const { return hasSymbolId( ENODE_ID_COS	       ); }
+  inline bool isExp	          ( ) const { return hasSymbolId( ENODE_ID_EXP	       ); }
+  inline bool isLog	          ( ) const { return hasSymbolId( ENODE_ID_LOG	       ); }
+  inline bool isPow               ( ) const { return hasSymbolId( ENODE_ID_POW	       ); }
+  inline bool isSin               ( ) const { return hasSymbolId( ENODE_ID_SIN	       ); }
+  inline bool isTan               ( ) const { return hasSymbolId( ENODE_ID_TAN	       ); }
+  /* ---------------------- */
+
   inline bool isEq                ( ) const { return hasSymbolId( ENODE_ID_EQ	       ); }
   inline bool isLeq               ( ) const { return hasSymbolId( ENODE_ID_LEQ	       ); }
   inline bool isGeq               ( ) const { return hasSymbolId( ENODE_ID_GEQ	       ); }
@@ -150,47 +163,47 @@ public:
   bool        isArithmeticOp      ( ); // True if root is an arith term
   bool        isUFOp              ( ); // True if root is UF
 
-  inline bool hasSortBool( ) 
-  { 
-    assert( isTerm( ) ); 
+  inline bool hasSortBool( )
+  {
+    assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortBool( );
-    return car->symb_data->sort->hasSortBool( ); 
+    return car->symb_data->sort->hasSortBool( );
   }
-  inline bool hasSortReal( ) 
-  { 
-    assert( isTerm( ) ); 
+  inline bool hasSortReal( )
+  {
+    assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortReal( );
-    return car->symb_data->sort->hasSortReal( ); 
+    return car->symb_data->sort->hasSortReal( );
   }
-  inline bool hasSortInt( ) 
-  { 
-    assert( isTerm( ) ); 
+  inline bool hasSortInt( )
+  {
+    assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortInt( );
-    return car->symb_data->sort->hasSortInt( ); 
+    return car->symb_data->sort->hasSortInt( );
   }
-  inline bool hasSortArray( ) 
-  { 
-    assert( isTerm( ) ); 
+  inline bool hasSortArray( )
+  {
+    assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortArray( );
-    return car->symb_data->sort->hasSortArray( ); 
+    return car->symb_data->sort->hasSortArray( );
   }
-  inline bool hasSortIndex( ) 
-  { 
-    assert( isTerm( ) ); 
+  inline bool hasSortIndex( )
+  {
+    assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortIndex( );
-    return car->symb_data->sort->hasSortIndex( ); 
+    return car->symb_data->sort->hasSortIndex( );
   }
-  inline bool hasSortElem( ) 
-  { 
-    assert( isTerm( ) ); 
+  inline bool hasSortElem( )
+  {
+    assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortElem( );
-    return car->symb_data->sort->hasSortElem( ); 
+    return car->symb_data->sort->hasSortElem( );
   }
-  inline bool hasSortUndef( ) 
-  { 
-    assert( isTerm( ) ); 
+  inline bool hasSortUndef( )
+  {
+    assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortUndef( );
-    return car->symb_data->sort->hasSortUndef( ); 
+    return car->symb_data->sort->hasSortUndef( );
   }
 
   inline bool hasCongData         ( ) { return cong_data != NULL; }
@@ -210,7 +223,7 @@ public:
   inline Enode *  getCar                 ( ) const { return car; }
   inline Enode *  getCdr                 ( ) const { return cdr; }
   inline Enode *  getDef                 ( ) const { assert( isDef( ) ); assert( car ); return car; }
-                  
+
   inline Enode *  getNext                ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->next; }
   inline int      getSize                ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->size; }
   inline Enode *  getParent              ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->parent; }
@@ -220,7 +233,7 @@ public:
   inline Enode *  getCgPtr               ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->cg_ptr; }
   inline Elist *  getForbid              ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->forbid; }
   inline dist_t   getDistClasses         ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->dist_classes; }
-                  
+
   const Real &    getValue               ( ) const;
   const Real      getComplexValue        ( ) const;
   void            setValue               ( const Real & );
@@ -228,7 +241,7 @@ public:
   Enode *         getRoot                ( ) const;
   enodeid_t       getCid                 ( ) const;
   Enode *         getConstant            ( ) const;
-                  
+
   inline Enode *  getExpReason           ( ) const { assert( isTerm( ) && cong_data && cong_data->term_data ); return cong_data->term_data->exp_reason; }
   inline Enode *  getExpParent           ( ) const { assert( isTerm( ) && cong_data && cong_data->term_data ); return cong_data->term_data->exp_parent; }
   inline Enode *  getExpRoot             ( ) const { assert( isTerm( ) && cong_data && cong_data->term_data ); return cong_data->term_data->exp_root; }
@@ -245,7 +258,7 @@ public:
   inline int      getWeightInc           ( )       { assert( isAtom( ) && atom_data ); return atom_data->weight_inc; }
   inline int      getDedIndex            ( ) const { assert( isTerm( ) && atom_data ); return atom_data->ded_index; }
   inline int      getDistIndex           ( ) const { assert( isTerm( ) && atom_data ); return atom_data->dist_index; }
-                  
+
   inline Enode *  getCb                  ( ) const { assert( isTerm( ) && cong_data && cong_data->term_data ); return cong_data->term_data->cb; }
   inline Enode *  getRef                 ( ) const { assert( isTerm( ) && cong_data && cong_data->term_data ); return cong_data->root; }
   inline int      getWidth               ( ) const { assert( isTerm( ) || isSymb( ) || isNumb( ) ); return (properties & WIDTH_MASK); }
@@ -361,7 +374,7 @@ private:
   SymbData *        symb_data;  // For symbols/numbers
   };
   AtomData *        atom_data;  // For atom terms only
-  Real *            value;      // Pointer to enode value
+  double            value;      // enode value (modified for dReal2)
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
 #endif
@@ -502,7 +515,7 @@ inline bool Enode::isConstant( )
 inline bool Enode::isBooleanOperator( )
 {
   return isAnd( ) || isOr( )  || isNot( )
-      || isIff( ) 
+      || isIff( )
       || isXor( ) || isImplies( )
       ;
 }
@@ -581,10 +594,10 @@ inline bool Enode::isArithmeticOp( )
   //
   // Put the exhaustive list of arithmetic operators here
   //
-  if ( isPlus    ( ) 
+  if ( isPlus    ( )
     || isUminus  ( )
     || isTimes   ( )
-    || isLeq     ( ) 
+    || isLeq     ( )
     || isEq      ( ) )
     return true;
 
@@ -596,9 +609,9 @@ inline bool Enode::isUFOp( )
   //
   // Put the exhaustive list of uf operators here
   //
-  if ( isUf       ( ) 
-    || isUp       ( ) 
-    || isDistinct ( ) 
+  if ( isUf       ( )
+    || isUp       ( )
+    || isDistinct ( )
     || isEq       ( ) )
     return true;
 
