@@ -35,6 +35,7 @@ typedef enum { l_false=-1, l_undef, l_true } opensmt_result;
 typedef enum
 {
     qf_uf         // Uninterpreted Functions
+  , qf_nlr        // Non-Linear Real Arithmetic
   , qf_bv         // BitVectors
   , qf_rdl        // Real difference logics
   , qf_idl        // Integer difference logics
@@ -43,7 +44,7 @@ typedef enum
   , qf_ufidl      // UF + IDL
   , qf_uflra      // UF + LRA
   , qf_bool       // Only booleans
-  , qf_ct         // Cost 
+  , qf_ct         // Cost
 } opensmt_logic;
 //
 // Communication APIs

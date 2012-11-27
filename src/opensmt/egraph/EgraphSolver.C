@@ -58,6 +58,7 @@ lbool Egraph::inform( Enode * e )
 
     assert( id_to_belong_mask[ e->getId( ) ] == 0 );
     bool unassigned_atom = config.logic != QF_UF
+                        && config.logic != QF_NLR
                         && config.logic != QF_UFIDL
                         && config.logic != QF_UFLRA
                         && config.logic != QF_AX
@@ -169,15 +170,15 @@ void Egraph::initializeCong( Enode * e )
 bool Egraph::assertLit_ ( Enode * e )
 {
 #if VERBOSE
-  cerr << "========= Asserting: " 
-       << e 
-       << " " 
-       << e->getId( ) 
+  cerr << "========= Asserting: "
+       << e
+       << " "
+       << e->getId( )
        << " | "
        << e->getCar( )->getId( )
        << ", "
        << e->getCdr( )->getId( )
-       << " ==================" 
+       << " =================="
        << endl;
 #endif
 
@@ -204,7 +205,7 @@ bool Egraph::assertLit_ ( Enode * e )
   // Make sure the received node has been
   // initialized
   //
-  if ( config.incremental 
+  if ( config.incremental
     && initialized.find( e->getId( ) ) == initialized.end( ) )
     initializeCongInc( e );
 
@@ -350,7 +351,7 @@ bool Egraph::assertLit_ ( Enode * e )
 bool Egraph::assertLit( Enode * e, bool reason )
 {
   if ( config.verbosity > 3 )
-    cerr << "# Egraph::Asserting Literal: " 
+    cerr << "# Egraph::Asserting Literal: "
          << ( e->getPolarity( ) == l_True ? "     " : "(not " )
          << e
          << ( e->getPolarity( ) == l_True ? "" : ")" )
@@ -547,6 +548,7 @@ Enode * Egraph::getSuggestion( )
 
 //
 // Communicate conflict
+
 //
 vector< Enode * > & Egraph::getConflict( bool deduction )
 {
@@ -610,6 +612,26 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
     tsolvers_stats.push_back( new TSolverStats( ) );
 #endif
   }
+
+  /* added for dReal2 */
+  if ( config.logic == QF_NLR )
+  {
+    tsolvers.push_back( new NLRSolver( tsolvers.size(),
+                                       "NLR Solver",
+                                       config,
+                                       *this,
+                                       sort_store,
+                                       explanation,
+                                       deductions,
+                                       suggestions,
+                                       problem));
+#ifdef STATISTICS
+    tsolvers_stats.push_back( new TSolverStats() );
+#endif
+  }
+  /* -------------------- */
+
+
   // DO NOT REMOVE THIS COMMENT !!
   // IT IS USED BY CREATE_THEORY.SH SCRIPT !!
   // NEW_THEORY_INIT
@@ -1073,7 +1095,7 @@ void Egraph::backtrackToStackSize ( size_t size )
       assert( car );
       assert( cdr );
 
-      // Node must be there if its a congruence 
+      // Node must be there if its a congruence
       // root and it has to be removed
       if ( e->getCgPtr( ) == e )
       {
@@ -1142,7 +1164,7 @@ bool Egraph::checkDupClause( Enode * c1, Enode * c2 )
 
 void Egraph::splitOnDemand( vector< Enode * > & c, const int
 #ifdef STATISTICS
-    id 
+    id
 #endif
     )
 {
@@ -1173,7 +1195,7 @@ void Egraph::splitOnDemand( vector< Enode * > & c, const int
 
 void Egraph::splitOnDemand( Enode * c, const int
 #ifdef STATISTICS
-    id 
+    id
 #endif
     )
 {
@@ -1416,7 +1438,7 @@ void Egraph::deduce( Enode * x, Enode * y )
     // that we previously deduced on this branch
     Enode * sv = v;
     if ( !sv->hasPolarity( )
-      && !sv->isDeduced( ) 
+      && !sv->isDeduced( )
       // Also when incrementality is used, node should be explicitly informed
       && ( config.incremental == 0 || informed.find( sv->getId( ) ) != informed.end( ) )
       )
@@ -1742,7 +1764,7 @@ void Egraph::initializeCongInc( Enode * top )
   {
     Enode * e = unprocessed_enodes.back( );
     assert( e );
-    
+
     if ( initialized.find( e->getId( ) ) != initialized.end( ) )
     {
       unprocessed_enodes.pop_back( );
@@ -1750,13 +1772,13 @@ void Egraph::initializeCongInc( Enode * top )
     }
 
     bool unprocessed_children = false;
-    if ( e->getCar( )->isTerm( ) 
+    if ( e->getCar( )->isTerm( )
       && initialized.find( e->getCar( )->getId( ) ) == initialized.end( ) )
     {
       unprocessed_enodes.push_back( e->getCar( ) );
       unprocessed_children = true;
     }
-    if ( !e->getCdr( )->isEnil( ) 
+    if ( !e->getCdr( )->isEnil( )
       && initialized.find( e->getCdr( )->getId( ) ) == initialized.end( ) )
     {
       unprocessed_enodes.push_back( e->getCdr( ) );
@@ -1767,7 +1789,7 @@ void Egraph::initializeCongInc( Enode * top )
       continue;
 
     unprocessed_enodes.pop_back( );
-    // 
+    //
     // Initialization happens here
     //
     assert( e->isTerm( ) || e->isList( ) );
@@ -1775,7 +1797,7 @@ void Egraph::initializeCongInc( Enode * top )
     assert( !e->isTerm( ) || !e->isTrue( ) );
     assert( !e->isTerm( ) || !e->isFalse( ) );
     // If it's safe to initialize
-    if ( e->getCar( ) == e->getCar( )->getRoot( ) 
+    if ( e->getCar( ) == e->getCar( )->getRoot( )
       && e->getCdr( ) == e->getCdr( )->getRoot( ) )
       initializeCong( e );
     // Otherwise specialized initialization
@@ -1801,7 +1823,7 @@ void Egraph::initializeAndMerge( Enode * e )
   // Node initialized
   initialized.insert( e->getId( ) );
 
-  // Now we need to adjust data structures as 
+  // Now we need to adjust data structures as
   // either car != car->root or cdr != cdr->root
 
   Enode * eq = cons( e->getCar( )->getRoot( )
@@ -1861,9 +1883,9 @@ void Egraph::initializeAndMerge( Enode * e )
 #endif
 
 #ifdef PEDANTIC_DEBUG
-  assert( !e->isList( ) 
+  assert( !e->isList( )
        || checkParents( e->getCar( ) ) );
-  assert( e->getCdr( )->isEnil( ) 
+  assert( e->getCdr( )->isEnil( )
        || checkParents( e->getCdr( ) ) );
 #endif
 
