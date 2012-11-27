@@ -616,15 +616,16 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
   /* added for dReal2 */
   if ( config.logic == QF_NLR )
   {
-    tsolvers.push_back( new NLRSolver( tsolvers.size(),
-                                       "NLR Solver",
-                                       config,
-                                       *this,
-                                       sort_store,
-                                       explanation,
-                                       deductions,
-                                       suggestions,
-                                       problem));
+    /* TODO: Implement NLRSolver ! */
+    // tsolvers.push_back( new NLRSolver( tsolvers.size(),
+    //                                    "NLR Solver",
+    //                                    config,
+    //                                    *this,
+    //                                    sort_store,
+    //                                    explanation,
+    //                                    deductions,
+    //                                    suggestions,
+    //                                    problem));
 #ifdef STATISTICS
     tsolvers_stats.push_back( new TSolverStats() );
 #endif
@@ -665,7 +666,7 @@ void Egraph::computeModel( )
   {
     Enode * var = top_level_substs[i].first;
     Enode * term = top_level_substs[i].second;
-    Real r;
+    double r;
     // Compute value for term
     evaluateTerm( term, r );
     // Set value for variable

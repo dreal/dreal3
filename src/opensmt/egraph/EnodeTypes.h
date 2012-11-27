@@ -170,7 +170,7 @@ struct Elist
 struct TermData
 {
   TermData ( Enode * e )
-    : value            ( 0.0 )
+    : value            ( NULL )
     , exp_reason       ( NULL )
     , exp_parent       ( NULL )
     , exp_root         ( e )
@@ -181,7 +181,7 @@ struct TermData
     , cb               ( e )
   { }
 
-  double            value;            // The value
+  double *          value;            // The value
   Enode *           exp_reason;       // Reason for the merge of this and exp_parent
   Enode *           exp_parent;       // Parent in the explanation tree
   Enode *           exp_root;         // Compressed parent in the eq classes of the explanations
@@ -268,7 +268,7 @@ struct SymbData
            , const etype_t        etype_
 	   , Snode *              sort_ )
       : name  ( NULL )
-      , value ( 0.0 )
+      , value ( NULL )
       , lsb   ( -1 )
       , sort  ( sort_ )
   {
@@ -292,8 +292,7 @@ struct SymbData
 /*       strcpy( name, value->get_str( ).c_str( ) ); */
 /*       assert( strlen( name ) == strlen( value->get_str( ).c_str( ) ) ); */
 /* #else */
-      value = 0.0;                 /* modified for dReal2 */
-      value = atof( name_ );       /* modified for dReal2 */
+      *value = atof( name_ );       /* modified for dReal2 */
       name = new char[ strlen(name_) + 1 ];
       strcpy( name, name_ );
 #endif
@@ -310,9 +309,9 @@ struct SymbData
   }
 
   char *             name;
-  double             value;
+  double *           value;
   int                lsb;        // lsb for extraction, if -1 not extraction
   Snode *            sort;
 };
 
-#endif
+/* #endif */

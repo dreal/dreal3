@@ -543,7 +543,6 @@ Enode * Egraph::mkNum(const double v)
   char buf[ 128 ];
   sprintf( buf, "%lf", v );
   return mkNum( buf );
-#endif
 }
 
 // Enode * Egraph::mkNum( const Real & real_value )
@@ -563,15 +562,14 @@ Enode * Egraph::mkNum( const char * num, const char * den )
 {
   string s = (string)num + "/" + (string)den;
 
-#if FAST_RATIONALS
-  Real real_value( s.c_str() );
-  return mkNum( const_cast< char * >(real_value.get_str( ).c_str( )) );
-#else
-  Real num_d = atof( num );
-  Real den_d = atof( den );
-  Real value = num_d / den_d;
+// #if FAST_RATIONALS
+//   Real real_value( s.c_str() );
+//   return mkNum( const_cast< char * >(real_value.get_str( ).c_str( )) );
+// #else
+  double num_d = atof( num );
+  double den_d = atof( den );
+  double value = num_d / den_d;
   return mkNum( value );
-#endif
 }
 
 Enode * Egraph::mkFun( const char * name, Enode * args )
@@ -837,7 +835,7 @@ Enode * Egraph::mkPlus( Enode * args )
   {
     const double xval = x->getValue( );
     const double yval = y->getValue( );
-    Real sum = xval + yval;
+    double sum = xval + yval;
     res = mkNum( sum );
   }
   else
@@ -889,7 +887,7 @@ Enode * Egraph::mkTimes( Enode * args )
   Enode * x = args->getCar( );
   Enode * y = args->getCdr( )->getCar( );
 
-  Real zero_ = 0;
+  double zero_ = 0;
   Enode * zero = mkNum( zero_ );
   //
   // x * 0 --> 0
@@ -903,9 +901,9 @@ Enode * Egraph::mkTimes( Enode * args )
   //
   else if ( x->isConstant( ) && y->isConstant( ) )
   {
-    const Real & xval = x->getValue( );
-    const Real & yval = y->getValue( );
-    Real times = xval * yval;
+    const double xval = x->getValue( );
+    const double yval = y->getValue( );
+    double times = xval * yval;
     res = mkNum( times );
   }
   else
@@ -925,7 +923,7 @@ Enode * Egraph::mkDiv( Enode * args )
   Enode * x = args->getCar( );
   Enode * y = args->getCdr( )->getCar( );
 
-  Real zero_ = 0;
+  double zero_ = 0;
   Enode * zero = mkNum( zero_ );
 
   if ( y == zero )
@@ -943,9 +941,9 @@ Enode * Egraph::mkDiv( Enode * args )
   //
   else if ( x->isConstant( ) && y->isConstant( ) )
   {
-    const Real & xval = x->getValue( );
-    const Real & yval = y->getValue( );
-    Real div = xval / yval;
+    const double xval = x->getValue( );
+    const double yval = y->getValue( );
+    double div = xval / yval;
     res = mkNum( div );
   }
   else
@@ -2257,12 +2255,12 @@ void Egraph::computePolarities( Enode * formula )
 	     || enode->get2nd( )->isConstant( ) );
 	if ( enode->get1st( )->isConstant( ) )
 	{
-	  const Real & weight = enode->get1st( )->getValue( );
+	  const double weight = enode->get1st( )->getValue( );
 	  enode->setDecPolarity( weight > 0 ? l_True : l_False );
 	}
 	if ( enode->get2nd( )->isConstant( ) )
 	{
-	  const Real & weight = enode->get2nd( )->getValue( );
+	  const double weight = enode->get2nd( )->getValue( );
 	  enode->setDecPolarity( weight < 0 ? l_True : l_False );
 	}
       }
@@ -2454,7 +2452,7 @@ Enode * Egraph::canonize( Enode * formula, bool split_eqs )
 //
 // Functions for evaluating an expression
 //
-void Egraph::evaluateTerm( Enode * e, Real & v )
+void Egraph::evaluateTerm( Enode * e, double& v )
 {
   assert( model_computed );
   assert( e->hasSortReal( ) );
@@ -2462,7 +2460,7 @@ void Egraph::evaluateTerm( Enode * e, Real & v )
   evaluateTermRec( e, v );
 }
 
-void Egraph::evaluateTermRec( Enode * e, Real & v )
+void Egraph::evaluateTermRec( Enode * e, double&  v )
 {
   assert( false );
   //
@@ -2481,7 +2479,7 @@ void Egraph::evaluateTermRec( Enode * e, Real & v )
   }
   else
   {
-    Real a, b = 0;
+    double a, b = 0;
     if ( e->isPlus( ) )
     {
       Enode * l;

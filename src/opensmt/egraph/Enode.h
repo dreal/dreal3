@@ -234,9 +234,9 @@ public:
   inline Elist *  getForbid              ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->forbid; }
   inline dist_t   getDistClasses         ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->dist_classes; }
 
-  const Real &    getValue               ( ) const;
-  const Real      getComplexValue        ( ) const;
-  void            setValue               ( const Real & );
+  const double    getValue               ( ) const;
+  const double    getComplexValue        ( ) const;
+  void            setValue               ( const double );
   bool            hasValue               ( ) const;
   Enode *         getRoot                ( ) const;
   enodeid_t       getCid                 ( ) const;
@@ -374,7 +374,8 @@ private:
   SymbData *        symb_data;  // For symbols/numbers
   };
   AtomData *        atom_data;  // For atom terms only
-  double            value;      // enode value (modified for dReal2)
+  double *          value;      // enode value (modified for dReal2)
+  double *          value_;     // enode value_
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
 #endif
@@ -382,13 +383,13 @@ private:
   inline bool       hasSymbolId    ( const enodeid_t id ) const { assert( isTerm( ) ); return car->getId( ) == id; }
 };
 
-inline const Real & Enode::getValue ( ) const
+inline const double Enode::getValue ( ) const
 {
   assert( hasValue( ) );
   return *value;
 }
 
-inline const Real Enode::getComplexValue( ) const
+inline const double Enode::getComplexValue( ) const
 {
   if( isDiv( ) )
     return get1st( )->getCar( )->getComplexValue( ) / get2nd( )->getCar( )->getComplexValue( );
@@ -398,10 +399,9 @@ inline const Real Enode::getComplexValue( ) const
     return *value;
 }
 
-inline void Enode::setValue ( const Real & v )
+inline void Enode::setValue ( const double v )
 {
   assert( isTerm( ) );
-  value = new Real;
   *value = v;
 }
 
@@ -555,7 +555,7 @@ inline unsigned Enode::sizeInMem( ) const
     assert( symb_data );
     assert( symb_data->name );
     assert( symb_data->value );
-    size += sizeof( SymbData ) + strlen( symb_data->name ) + sizeof( Real );
+    size += sizeof( SymbData ) + strlen( symb_data->name ) + sizeof( double );
   }
   if ( atom_data ) size += sizeof( AtomData );
   if ( cong_data )

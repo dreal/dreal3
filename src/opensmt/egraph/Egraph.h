@@ -245,7 +245,7 @@ public:
 
   void    printEnodeList          ( ostream & );
   void    addAssertion            ( Enode * );
-  void    evaluateTerm            ( Enode *, Real & );
+  void    evaluateTerm            ( Enode *, double& );
 
   void          initializeStore   ( );
 #ifndef SMTCOMP
@@ -274,10 +274,10 @@ public:
   Enode * copyEnodeEtypeTermWithCache   ( Enode *, bool = false );
   Enode * copyEnodeEtypeListWithCache   ( Enode *, bool = false );
 
-  /* commented out for dReal2 */
- /* inline void         setRescale        ( Real & r ) {} //rescale_factor = r; rescale_factor_l = atol( r.get_str( ).c_str( ) ); } */
- /*  inline const Real & getRescale        ( Real & p ) { (void)p; return rescale_factor; } */
- /*  inline const long & getRescale        ( long & p ) { (void)p; return rescale_factor_l; } */
+ /* commented out for dReal2 */
+  //  inline void         setRescale        ( Real & r ) {} //rescale_factor = r; rescale_factor_l = atol( r.get_str( ).c_str( ) ); }
+  //  inline const Real & getRescale        ( Real & p ) { (void)p; return rescale_factor; }
+  //  inline const long & getRescale        ( long & p ) { (void)p; return rescale_factor_l; }
 
   inline bool hasItes                   ( ) { return has_ites; }
 
@@ -415,7 +415,7 @@ private:
   Enode * insertStore  ( const enodeid_t, Enode *, Enode * );   // Insert node into the global store
   void    removeStore  ( Enode * );                             // Remove a node from the global store
 #ifndef SMTCOMP
-  void    evaluateTermRec ( Enode *, Real & );                  // Evaluate node
+  void    evaluateTermRec ( Enode *, double& );                  // Evaluate node
 #endif
   //
   // Related to congruence closure
@@ -545,8 +545,9 @@ private:
   int                         time_stamp;                       // Need for finding NCA
   int                         conf_index;                       // Index of theory solver that caused conflict
 
-  Real                        rescale_factor;                   // Rescale factor for DL
-  long                        rescale_factor_l;                 // Rescale factor for DL
+  /* commented out for dReal2 */
+  /* Real                        rescale_factor;                   // Rescale factor for DL */
+  /* long                        rescale_factor_l;                 // Rescale factor for DL */
   bool                        use_gmp;                          // Do we have to use gmp?
 
   void    initializeCongInc ( Enode * );                        // Initialize a node in the congruence at runtime

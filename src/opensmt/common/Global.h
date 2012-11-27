@@ -227,7 +227,6 @@ typedef uint64_t cgcolor_t;
 #endif
 
 } // namespace opensmt
-
 using opensmt::Real;
 using opensmt::Integer;
 using opensmt::enodeid_t;
@@ -237,6 +236,7 @@ using opensmt::encode;
 using opensmt::logic_t;
 using opensmt::UNDEF;
 using opensmt::EMPTY;
+using opensmt::QF_NLR;
 using opensmt::QF_UF;
 using opensmt::QF_BV;
 using opensmt::QF_RDL;

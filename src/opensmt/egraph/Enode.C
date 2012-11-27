@@ -47,7 +47,7 @@ Enode::Enode( const enodeid_t      id_
   , car        ( NULL )
   , cdr        ( NULL )
   , atom_data  ( NULL )
-  , value      ( 0.0 )
+  , value      ( NULL )
 {
   setEtype( etype_ );
   setArity( sort_->getArity( ) - 1 ); // Sort arity includes return value ...
@@ -66,7 +66,7 @@ Enode::Enode( const enodeid_t id_
   , cdr        ( cdr_ )
   , cong_data  ( NULL )
   , atom_data  ( NULL )
-  , value      ( 0.0 )
+  , value      ( NULL )
   // , dynamic   ( NULL )
 {
   assert( car );
@@ -103,7 +103,7 @@ Enode::Enode( const enodeid_t id_
     atom_data = new AtomData( );
 
   if ( car->isNumb( ) )
-    setValue( car->symb_data->value );
+    setValue( *(car->symb_data->value) );
 
   assert( isTerm( ) || isList( ) );
 }
@@ -287,7 +287,7 @@ void Enode::print( ostream & os )
     if ( false ) { }
     else
     {
-      double r = symb_data->value;
+      double r = *(symb_data->value);
 #if USE_GMP
       if (r < 0)
       {
