@@ -32,15 +32,15 @@ void Egraph::initializeStore( )
 
   assert( config.logic != UNDEF );
 
-  // 
-  // Create default sorts 
+  //
+  // Create default sorts
   //
   Snode * sbool0  = sort_store.mkBool( );
   Snode * spara0  = sort_store.mkPara( "A" );
   sarith0 = config.logic == QF_LIA
          || config.logic == QF_IDL
-	 || config.logic == QF_UFIDL 
-	  ? sort_store.mkInt ( ) 
+	 || config.logic == QF_UFIDL
+	  ? sort_store.mkInt ( )
 	  : sort_store.mkReal( );
   Snode * sarray0 = sort_store.mkArray( );
   Snode * selem0  = sort_store.mkElem ( );
@@ -58,7 +58,7 @@ void Egraph::initializeStore( )
   Snode * sbool3_left  = sort_store.mkDot( sbool3_list, LEFT_ASSOC );
 
   Snode * spara2_bool = sort_store.mkDot( sort_store.cons( spara0
-                                        , sort_store.cons( spara0 
+                                        , sort_store.cons( spara0
                                         , sort_store.cons( sbool0 ) ) ) );
 
   Snode * sbool_para3 = sort_store.mkDot( sort_store.cons( sbool0
@@ -90,7 +90,7 @@ void Egraph::initializeStore( )
   //
   // Arithmetic predefined operators and predicates
   //
-  // TODO: from here down this has to be changed to something 
+  // TODO: from here down this has to be changed to something
   //       that parses the signature ...
   //
   //
@@ -121,7 +121,7 @@ void Egraph::initializeStore( )
   Snode * sarray_index_elem_array = sort_store.mkDot( sort_store.cons( sarray0
                                                     , sort_store.cons( sindex0
 					            , sort_store.cons( selem0
-					            , sort_store.cons( sarray0 ) ) ) ) );	
+					            , sort_store.cons( sarray0 ) ) ) ) );
 
   Snode * sarray_index_elem = sort_store.mkDot( sort_store.cons( sarray0
                                               , sort_store.cons( sindex0
@@ -129,6 +129,19 @@ void Egraph::initializeStore( )
 
   newSymbol( "store"   , sarray_index_elem_array ); assert( ENODE_ID_STORE  == id_to_enode.size( ) - 1 );
   newSymbol( "select"  , sarray_index_elem       ); assert( ENODE_ID_SELECT == id_to_enode.size( ) - 1 );
+
+  /* added for dReal2 */
+  newSymbol( "exp"       , sarith1 ); assert( ENODE_ID_EXP   == id_to_enode.size( ) - 1 );
+  newSymbol( "log"       , sarith1 ); assert( ENODE_ID_LOG   == id_to_enode.size( ) - 1 );
+  newSymbol( "sin"       , sarith1 ); assert( ENODE_ID_SIN   == id_to_enode.size( ) - 1 );
+  newSymbol( "cos"       , sarith1 ); assert( ENODE_ID_COS   == id_to_enode.size( ) - 1 );
+  newSymbol( "tan"       , sarith1 ); assert( ENODE_ID_TAN   == id_to_enode.size( ) - 1 );
+  newSymbol( "asin"       , sarith1 ); assert( ENODE_ID_ARCSIN   == id_to_enode.size( ) - 1 );
+  newSymbol( "acos"       , sarith1 ); assert( ENODE_ID_ARCCOS   == id_to_enode.size( ) - 1 );
+  newSymbol( "atan"       , sarith1 ); assert( ENODE_ID_ARCTAN   == id_to_enode.size( ) - 1 );
+  newSymbol( "^"	  , sarith2_left); assert (ENODE_ID_POW  == id_to_enode.size() - 1 );
+  /* ---------------- */
+
  //
   // Set top node to empty
   //
@@ -487,11 +500,15 @@ Enode * Egraph::cons( Enode * car, Enode * cdr )
 //
 // Create a variable
 //
+
+/*
+   TODO: create mkVar which takes LB and RB of a variable
+ */
 Enode * Egraph::mkVar( const char * name, bool model_var )
 {
   Enode * e = lookupSymbol( name );
   // Not a variable, is it a define ?
-  if ( e == NULL ) 
+  if ( e == NULL )
   {
     e = lookupDefine( name );
     // Not a define, abort
@@ -521,18 +538,26 @@ Enode * Egraph::mkNum( const char * value )
   return cons( res );
 }
 
-Enode * Egraph::mkNum( const Real & real_value )
+Enode * Egraph::mkNum(const double v)
 {
-#if FAST_RATIONALS
-  return mkNum( const_cast< char * >(real_value.get_str( ).c_str( )) );
-#elif USE_GMP
-  return mkNum( const_cast< char * >(real_value.get_str( ).c_str( )) );
-#else
   char buf[ 128 ];
-  sprintf( buf, "%lf", real_value );
+  sprintf( buf, "%lf", v );
   return mkNum( buf );
 #endif
 }
+
+// Enode * Egraph::mkNum( const Real & real_value )
+// {
+// #if FAST_RATIONALS
+//   return mkNum( const_cast< char * >(real_value.get_str( ).c_str( )) );
+// #elif USE_GMP
+//   return mkNum( const_cast< char * >(real_value.get_str( ).c_str( )) );
+// #else
+//   char buf[ 128 ];
+//   sprintf( buf, "%lf", real_value );
+//   return mkNum( buf );
+// #endif
+// }
 
 Enode * Egraph::mkNum( const char * num, const char * den )
 {
@@ -559,14 +584,14 @@ Enode * Egraph::mkFun( const char * name, Enode * args )
   ss << name;
   for ( Enode * l = args ; !l->isEnil( ) ; l = l->getCdr( ) )
   {
-    ss << " ";  
+    ss << " ";
     l->getCar( )->getLastSort( )->print( ss, false );
   }
 
   Enode * e = lookupSymbol( ss.str( ).c_str( ) );
   if ( e == NULL ) opensmt_error2( "undeclared function symbol ", ss.str( ).c_str( ) );
 
-  Enode * ret = cons( e, args ); 
+  Enode * ret = cons( e, args );
 
   return ret;
 }
@@ -592,7 +617,7 @@ Enode * Egraph::newSymbol( const char * name, Snode * s )
                                , ETYPE_SYMB
 			       , s );
 
-  insertSymbol( new_enode );	           
+  insertSymbol( new_enode );
   assert( lookupSymbol( ss.str( ).c_str( ) ) == new_enode );
   return new_enode;
 }
@@ -711,6 +736,89 @@ Enode * Egraph::mkLeq( Enode * args )
   return res;
 }
 
+
+/* added for dReal2 */
+//transcendental functions
+Enode * Egraph::mkPow (Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 2 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_POW], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkSin              ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_SIN], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkCos              ( Enode * args)
+{
+  Enode * res = cons( id_to_enode[ ENODE_ID_COS], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkTan              ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_TAN], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkArcSin              ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_ARCSIN], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkArcCos              ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_ARCCOS], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkArcTan              ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_ARCTAN], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkExp              ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_EXP], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkLog              ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_LOG], args );
+  assert( res );
+  return res;
+
+}
+
 Enode * Egraph::mkPlus( Enode * args )
 {
   assert( args );
@@ -727,8 +835,8 @@ Enode * Egraph::mkPlus( Enode * args )
   //
   if ( x->isConstant( ) && y->isConstant( ) && args->getArity( ) == 2 )
   {
-    const Real & xval = x->getValue( );
-    const Real & yval = y->getValue( );
+    const double xval = x->getValue( );
+    const double yval = y->getValue( );
     Real sum = xval + yval;
     res = mkNum( sum );
   }
@@ -1583,7 +1691,7 @@ Enode * Egraph::mkBvlshr ( Enode * args )
       l_zeros.insert( 0, t2->getWidth( ) - i - 1, '0' );
       t_zeros.insert( 0, i, '0' );
       string num_str_1 = l_zeros + "1" + t_zeros;
-      Enode * ite_t = mkBvlshr( cons( res, cons( mkBvnum( const_cast< char * >( num_str_1.c_str( ) ) ) ) ) ); 
+      Enode * ite_t = mkBvlshr( cons( res, cons( mkBvnum( const_cast< char * >( num_str_1.c_str( ) ) ) ) ) );
       res = mkIte( ite_i, ite_t, res );
     }
 
@@ -1764,7 +1872,7 @@ Enode * Egraph::mkBvshl ( Enode * args )
       l_zeros.insert( 0, t2->getWidth( ) - i - 1, '0' );
       t_zeros.insert( 0, i, '0' );
       string num_str_1 = l_zeros + "1" + t_zeros;
-      Enode * ite_t = mkBvshl( cons( res, cons( mkBvnum( const_cast< char * >( num_str_1.c_str( ) ) ) ) ) ); 
+      Enode * ite_t = mkBvshl( cons( res, cons( mkBvnum( const_cast< char * >( num_str_1.c_str( ) ) ) ) ) );
       res = mkIte( ite_i, ite_t, res );
     }
 
@@ -1974,7 +2082,7 @@ Enode * Egraph::mkSignExtend( int i, Enode * x )
   {
     // If already there
     Enode * e = NULL;
-    if ( i < static_cast< int >( se_store.size( ) ) 
+    if ( i < static_cast< int >( se_store.size( ) )
       && se_store[ i ] != NULL )
       e = se_store[ i ];
     else
@@ -2135,11 +2243,13 @@ void Egraph::computePolarities( Enode * formula )
     // including difference logic constraints
     //
     else if ( config.logic == QF_IDL
-	   || config.logic == QF_RDL
-           || config.logic == QF_LRA
-           || config.logic == QF_LIA
-           || config.logic == QF_UFIDL
-           || config.logic == QF_UFLRA)
+              || config.logic == QF_RDL
+              || config.logic == QF_LRA
+              || config.logic == QF_LIA
+              || config.logic == QF_UFIDL
+              || config.logic == QF_UFLRA
+              || config.logic == QF_NLR  /* added for dReal */
+              )
     {
       if ( enode->isLeq( ) )
       {
@@ -2209,7 +2319,7 @@ void Egraph::addAssertion( Enode * e )
   // (might not be necessary, but we do it)
   assert( formulae_to_tag.empty( ) );
   formulae_to_tag.push_back( assertions.back( ) );
-  addIFormula( ); 
+  addIFormula( );
   formulae_to_tag.clear( );
 #endif
 
@@ -2268,7 +2378,7 @@ Enode * Egraph::canonize( Enode * formula, bool split_eqs )
     //
     // Replace arithmetic atoms with canonized version
     //
-    if (  enode->isTAtom( ) 
+    if (  enode->isTAtom( )
       && !enode->isUp( ) )
     {
       LAExpression a( enode );
@@ -2278,7 +2388,7 @@ Enode * Egraph::canonize( Enode * formula, bool split_eqs )
       assert( partitions != 0 );
       setIPartitions( result, partitions );
 #endif
-      
+
       if ( split_eqs && result->isEq( ) )
       {
 #ifdef PRODUCE_PROOF
@@ -2544,7 +2654,7 @@ Enode * Egraph::mkLet( Enode * t )
     //
     if ( enode->isDef( ) )
       result = enode->getDef( );
-    else 
+    else
       result = copyEnodeEtypeTermWithCache( enode );
 
     assert( valDupMap1( enode ) == NULL );
@@ -2690,9 +2800,9 @@ void Egraph::dumpHeaderToFile( ostream & dump_out )
 {
   dump_out << "(set-logic " << logicStr( config.logic ) << ")" << endl;
   dump_out << "(set-info :source |" << endl
-           << "Dumped with " 
+           << "Dumped with "
            << PACKAGE_STRING
-	   << " on " 
+	   << " on "
 	   << __DATE__ << "." << endl
 	   << "For info contact Roberto Bruttomesso <roberto.bruttomesso@gmail.com>" << endl
 	   << "|)"
@@ -2702,7 +2812,7 @@ void Egraph::dumpHeaderToFile( ostream & dump_out )
   sort_store.dumpSortsToFile( dump_out );
   // Dump function declarations
   for ( map< string, Enode * >::iterator it = name_to_symbol.begin( )
-      ; it != name_to_symbol.end( ) 
+      ; it != name_to_symbol.end( )
       ; it ++ )
   {
     Enode * s = it->second;
@@ -2721,7 +2831,7 @@ void Egraph::dumpFormulaToFile( ostream & dump_out, Enode * formula, bool negate
   unprocessed_enodes.push_back( formula );
   // Open assert and let
   dump_out << "(assert" << endl;
-  dump_out << "(let ("; 
+  dump_out << "(let (";
   //
   // Visit the DAG of the formula from the leaves to the root
   //
@@ -2769,7 +2879,7 @@ void Egraph::dumpFormulaToFile( ostream & dump_out, Enode * formula, bool negate
     // Open binding
     dump_out << "(" << buf << " ";
 
-    if ( enode->getArity( ) > 0 ) 
+    if ( enode->getArity( ) > 0 )
       dump_out << "(";
     dump_out << enode->getCar( );
     for ( Enode * list = enode->getCdr( )
@@ -2783,7 +2893,7 @@ void Egraph::dumpFormulaToFile( ostream & dump_out, Enode * formula, bool negate
 	dump_out << " " << arg;
     }
     if ( enode->getArity( ) > 0 ) dump_out << ")";
-    
+
     // Closes binding
     dump_out << ")" << endl;
 
