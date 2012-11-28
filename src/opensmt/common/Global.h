@@ -134,8 +134,9 @@ typedef enodeid_pair_t snodeid_pair_t;
 
 typedef enum
 {
-    UNDEF         // Undefined logic
+  UNDEF         // Undefined logic
   , EMPTY         // Empty, for the template solver
+  , QF_NLR        // Non-Linear Real Arithmetic (added for dReal2)
   , QF_UF         // Uninterpreted Functions
   , QF_BV         // BitVectors
   , QF_RDL        // Real difference logics
@@ -213,9 +214,9 @@ static inline uint64_t memUsed() {return 0; }
 
 #ifdef PRODUCE_PROOF
 // Used by graph-based algorithms
-// to compute interpolants 
+// to compute interpolants
 enum CGCOLOR
-{ 
+{
    CG_UNDEF = 0x0
  , CG_A     = 0x1
  , CG_B     = 0x2
@@ -226,7 +227,6 @@ typedef uint64_t cgcolor_t;
 #endif
 
 } // namespace opensmt
-
 using opensmt::Real;
 using opensmt::Integer;
 using opensmt::enodeid_t;
@@ -235,24 +235,25 @@ using opensmt::enodeid_pair_t;
 using opensmt::encode;
 using opensmt::logic_t;
 using opensmt::UNDEF;
-using opensmt::EMPTY;        
-using opensmt::QF_UF;        
-using opensmt::QF_BV;        
-using opensmt::QF_RDL;        
-using opensmt::QF_IDL;       
-using opensmt::QF_LRA;       
-using opensmt::QF_LIA;       
-using opensmt::QF_UFRDL;      
+using opensmt::EMPTY;
+using opensmt::QF_NLR;
+using opensmt::QF_UF;
+using opensmt::QF_BV;
+using opensmt::QF_RDL;
+using opensmt::QF_IDL;
+using opensmt::QF_LRA;
+using opensmt::QF_LIA;
+using opensmt::QF_UFRDL;
 using opensmt::QF_UFIDL;
-using opensmt::QF_UFLRA;     
-using opensmt::QF_UFLIA;     
-using opensmt::QF_UFBV;     
-using opensmt::QF_AUFBV;      
-using opensmt::QF_AX;  
-using opensmt::QF_BOOL;       
-using opensmt::QF_CT;       
-using opensmt::cpuTime;       
-using opensmt::memUsed;       
+using opensmt::QF_UFLRA;
+using opensmt::QF_UFLIA;
+using opensmt::QF_UFBV;
+using opensmt::QF_AUFBV;
+using opensmt::QF_AX;
+using opensmt::QF_BOOL;
+using opensmt::QF_CT;
+using opensmt::cpuTime;
+using opensmt::memUsed;
 #ifdef PRODUCE_PROOF
 using opensmt::cgcolor_t;
 using opensmt::CG_UNDEF;

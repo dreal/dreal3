@@ -1,4 +1,4 @@
-SUBDIRS = axsolver bvsolver dlsolver emptysolver lrasolver ctsolver
+SUBDIRS = axsolver bvsolver emptysolver lrasolver ctsolver
 
 noinst_LTLIBRARIES = libtsolvers.la
 
