@@ -133,6 +133,16 @@ char * pbuffer2;
 "Real"                       { return TK_REAL; }
 "Bool"                       { return TK_BOOL; }
 
+"sin"			{ return TK_SIN; /* added for dReal2 */ }
+"cos"			{ return TK_COS; }
+"exp"			{ return TK_EXP; }
+"log"			{ return TK_LOG; }
+"arcsin"		{ return TK_ARCSIN; }
+"arccos"		{ return TK_ARCCOS; }
+"tan"			{ return TK_TAN; }
+"arctan"		{ return TK_ARCTAN; }
+"^"|"pow"		{ return TK_POW; }
+
 
 "-"?((([0-9]+)|([0-9]*\.?[0-9]+))([eE][-+]?[0-9]+)?) 	                       { smt2lval.str = strdup(yytext); return TK_NUM; }
 #x[a-fA-F0-9]+                                                                 { smt2lval.str = strdup( yytext ); return TK_HEX; }
