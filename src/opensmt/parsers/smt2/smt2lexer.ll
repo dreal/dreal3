@@ -29,7 +29,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 char   buffer2[ BUFFER2_LENGTH ];
 char * pbuffer2;
 
-  
+
 %}
 
 %x start_source
@@ -133,9 +133,18 @@ char * pbuffer2;
 "Real"                       { return TK_REAL; }
 "Bool"                       { return TK_BOOL; }
 
+"sin"			{ return TK_SIN; /* added for dReal2 */ }
+"cos"			{ return TK_COS; }
+"exp"			{ return TK_EXP; }
+"log"			{ return TK_LOG; }
+"arcsin"		{ return TK_ARCSIN; }
+"arccos"		{ return TK_ARCCOS; }
+"tan"			{ return TK_TAN; }
+"arctan"		{ return TK_ARCTAN; }
+"^"|"pow"		{ return TK_POW; }
 
-0|[1-9][0-9]*                                                                  { smt2lval.str = strdup( yytext ); return TK_NUM; }
-[0-9]+\.0*[0-9]+                                                               { smt2lval.str = strdup( yytext ); return TK_DEC; }
+
+"-"?((([0-9]+)|([0-9]*\.?[0-9]+))([eE][-+]?[0-9]+)?) 	                       { smt2lval.str = strdup(yytext); return TK_NUM; }
 #x[a-fA-F0-9]+                                                                 { smt2lval.str = strdup( yytext ); return TK_HEX; }
 #b[0-1]+                                                                       { smt2lval.str = strdup( yytext ); return TK_BIN; }
 \:[a-zA-Z0-9~!@\$\%\^&\*_\-\+=\<\>\.\?\/]+                                     { smt2lval.str = strdup( yytext ); return TK_KEY; }
@@ -149,7 +158,7 @@ char * pbuffer2;
                    BEGIN(INITIAL); return TK_SYM; }
 }
 
-\".*\"          { smt2lval.str = strdup( yytext ); return TK_STR; }    
+\".*\"          { smt2lval.str = strdup( yytext ); return TK_STR; }
 [()]            { return *yytext; }
 .               { printf( "Syntax error at line %d near %s\n", yylineno, yytext ); exit( 1 ); }
 

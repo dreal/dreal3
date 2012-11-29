@@ -34,16 +34,16 @@ bool stop;
 
 } // namespace opensmt
 
-void 
-OpenSMTContext::SetLogic( logic_t l ) 
-{ 
-  config.logic = l; 
+void
+OpenSMTContext::SetLogic( logic_t l )
+{
+  config.logic = l;
 
 #ifdef SMTCOMP
   loadCustomSettings( );
 #endif
 
-  egraph.initializeStore( ); 
+  egraph.initializeStore( );
   solver.initialize( );
   // Also initialize theory solvers
   egraph.initializeTheorySolvers( &solver );
@@ -55,6 +55,7 @@ OpenSMTContext::SetLogic( const char * str )
 {
        if ( strcmp( str, "EMPTY" )    == 0 ) config.logic = EMPTY;
   else if ( strcmp( str, "QF_UF" )    == 0 ) config.logic = QF_UF;
+  else if ( strcmp( str, "QF_NLR" )   == 0 ) config.logic = QF_NLR;
   else if ( strcmp( str, "QF_BV" )    == 0 ) config.logic = QF_BV;
   else if ( strcmp( str, "QF_RDL" )   == 0 ) config.logic = QF_RDL;
   else if ( strcmp( str, "QF_IDL" )   == 0 ) config.logic = QF_IDL;
@@ -62,7 +63,7 @@ OpenSMTContext::SetLogic( const char * str )
   else if ( strcmp( str, "QF_LIA" )   == 0 ) config.logic = QF_LIA;
   else if ( strcmp( str, "QF_UFRDL" ) == 0 ) config.logic = QF_UFRDL;
   else if ( strcmp( str, "QF_UFIDL" ) == 0 ) config.logic = QF_UFIDL;
-  else if ( strcmp( str, "QF_UFLRA" ) == 0 ) config.logic = QF_UFLRA; 
+  else if ( strcmp( str, "QF_UFLRA" ) == 0 ) config.logic = QF_UFLRA;
   else if ( strcmp( str, "QF_UFLIA" ) == 0 ) config.logic = QF_UFLIA;
   else if ( strcmp( str, "QF_UFBV" )  == 0 ) config.logic = QF_UFBV;
   else if ( strcmp( str, "QF_AX" )    == 0 ) config.logic = QF_AX;
@@ -302,7 +303,7 @@ int OpenSMTContext::executeStatic( )
 	staticCheckSATIterp( );
       else
 #endif
-	staticCheckSAT( ); 
+	staticCheckSAT( );
     }
     else if ( c.command == EXIT )
       Exit( );
@@ -317,7 +318,7 @@ int OpenSMTContext::executeStatic( )
   return 0;
 }
 
-void OpenSMTContext::staticCheckSAT( ) 
+void OpenSMTContext::staticCheckSAT( )
 {
   if ( config.verbosity > 1 )
     cerr << "# OpenSMTContext::Statically Checking" << endl;
@@ -449,7 +450,7 @@ void OpenSMTContext::staticCheckSAT( )
 }
 
 #ifdef PRODUCE_PROOF
-void OpenSMTContext::staticCheckSATIterp( ) 
+void OpenSMTContext::staticCheckSATIterp( )
 {
   assert( config.produce_inter > 0 );
 
@@ -465,7 +466,7 @@ void OpenSMTContext::staticCheckSATIterp( )
   if ( config.logic == QF_UFIDL
     || config.logic == QF_UFLRA )
     opensmt_error( "Interpolation not supported (yet) for theory combination" );
-  
+
   // Top-Level Propagator. It also canonize atoms
   TopLevelProp propagator( egraph, config );
 
@@ -559,8 +560,8 @@ void OpenSMTContext::loadCustomSettings( )
 void OpenSMTContext::DeclareSort( const char * name, int arity )
 {
   if ( config.verbosity > 1 )
-    cerr << "# OpenSMTContext::Declaring sort " 
-         << name 
+    cerr << "# OpenSMTContext::Declaring sort "
+         << name
 	 << " of arity "
 	 << arity
 	 << endl;
@@ -571,8 +572,8 @@ void OpenSMTContext::DeclareSort( const char * name, int arity )
 void OpenSMTContext::DeclareFun( const char * name, Snode * s )
 {
   if ( config.verbosity > 1 )
-    cerr << "# OpenSMTContext::Declaring function " 
-         << name 
+    cerr << "# OpenSMTContext::Declaring function "
+         << name
 	 << " of sort "
 	 << s
 	 << endl;
@@ -581,11 +582,11 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
 }
 
 void OpenSMTContext::Push( )
-{ 
+{
   if ( config.verbosity > 1 )
     cerr << "# OpenSMTContext::Pushing backtrack point" << endl;
 
-  solver.pushBacktrackPoint( ); 
+  solver.pushBacktrackPoint( );
 }
 
 void OpenSMTContext::Pop( )
@@ -615,7 +616,7 @@ void OpenSMTContext::Assert( Enode * e )
   }
 
   // Move an assertion into the Egraph
-  // They are stored and might be preprocessed 
+  // They are stored and might be preprocessed
   // before entering the actual solver
   egraph.addAssertion( e );
 }
@@ -745,7 +746,7 @@ lbool OpenSMTContext::CheckSAT( vec< Enode * > & assumptions, unsigned limit )
 }
 
 void OpenSMTContext::Exit( )
-{ 
+{
   PrintResult( state, config.status );
 }
 

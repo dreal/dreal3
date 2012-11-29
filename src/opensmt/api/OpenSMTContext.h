@@ -65,14 +65,14 @@ public:
     , nof_checksat ( 0 )
     , counter      ( 0 )
     , init         ( false )
-  { 
+  {
     config.incremental = 1;
   }
 
   ~OpenSMTContext( )
   {
     assert( config_p );
-    assert( sstore_p ); 
+    assert( sstore_p );
     assert( egraph_p );
     assert( solver_p );
     assert( cnfizer_p );
@@ -111,7 +111,7 @@ public:
   void          GetProof             ( );
   void          GetInterpolants      ( );
 
-  void          Assert               ( Enode * );               // Pushes assertion 
+  void          Assert               ( Enode * );               // Pushes assertion
   lbool         CheckSAT             ( );                       // Command for (check-sat)
   void          Exit                 ( );                       // Command for (exit)
 
@@ -121,7 +121,7 @@ public:
   void          PrintResult          ( const lbool &
                                      , const lbool & = l_Undef );
 
-  // 
+  //
   // For script: add a command to the queue
   //
   void          addAssert            ( Enode * );               // Command for (assert ...)
@@ -144,8 +144,8 @@ public:
   //
   // Core functions
   //
-  inline Enode * mkTrue      ( )                 { return egraph.mkTrue( ); }       
-  inline Enode * mkFalse     ( )                 { return egraph.mkFalse( ); }       
+  inline Enode * mkTrue      ( )                 { return egraph.mkTrue( ); }
+  inline Enode * mkFalse     ( )                 { return egraph.mkFalse( ); }
   inline Enode * mkAnd       ( Enode * e )       { assert( e ); return egraph.mkAnd     ( e ); }
   inline Enode * mkOr        ( Enode * e )       { assert( e ); return egraph.mkOr      ( e ); }
   inline Enode * mkNot       ( Enode * e )       { assert( e ); return egraph.mkNot     ( e ); }
@@ -167,18 +167,29 @@ public:
   inline Enode * mkGeq       ( Enode * e )       { assert( e ); return egraph.mkGeq   ( e ); }
   inline Enode * mkGt        ( Enode * e )       { assert( e ); return egraph.mkGt    ( e ); }
 
+  // added for dReal2
+  inline Enode * mkExp	     ( Enode * e )	 { assert(e); return egraph.mkExp(e);}
+  inline Enode * mkLog        ( Enode * e )       { assert( e ); return egraph.mkLog(e); }
+  inline Enode * mkPow	     ( Enode * e )	 { assert(e); return egraph.mkPow(e);}
+  inline Enode * mkSin	     ( Enode * e ) 	 { assert(e); return egraph.mkSin(e);}
+  inline Enode * mkCos	     ( Enode * e ) 	 { assert(e); return egraph.mkCos(e);}
+  inline Enode * mkTan	     ( Enode * e ) 	 { assert(e); return egraph.mkTan(e);}
+  inline Enode * mkArcSin    ( Enode * e ) 	 { assert(e); return egraph.mkArcSin(e);}
+  inline Enode * mkArcCos    ( Enode * e ) 	 { assert(e); return egraph.mkArcCos(e);}
+  inline Enode * mkArcTan    ( Enode * e ) 	 { assert(e); return egraph.mkArcTan(e);}
+
   inline Enode * mkCons   ( Enode * car
-                          , Enode * cdr = NULL )        
-  { 
-    assert( car ); 
-    return cdr == NULL ? egraph.cons( car ) : egraph.cons( car, cdr ); 
+                          , Enode * cdr = NULL )
+  {
+    assert( car );
+    return cdr == NULL ? egraph.cons( car ) : egraph.cons( car, cdr );
   }
 
   inline Enode * mkCons   ( list< Enode * > & l )            { return egraph.cons( l ); }
   inline Snode * mkCons   ( list< Snode * > & l )            { return sstore.cons( l ); }
 
   inline void    mkBind   ( const char * v, Enode * t )      { assert( v ); assert( t ); egraph.mkDefine( v, t ); }
-                                                        
+
   inline Enode * mkVar    ( const char * n, bool m = false ) { assert( n ); return egraph.mkVar( n, m ); }
   inline Enode * mkFun    ( const char * n, Enode * a )      { assert( n ); return egraph.mkFun( n, a ); }
   inline Enode * mkNum    ( const char * n )                 { assert( n ); return egraph.mkNum( n ); }
@@ -188,7 +199,7 @@ public:
   //
   // Sort Creation API
   //
-  
+
   inline Snode * mkSortBool  ( )           { return sstore.mkBool  ( ); }
   inline Snode * mkSortInt   ( )           { return sstore.mkInt   ( ); }
   inline Snode * mkSortReal  ( )           { return sstore.mkReal  ( ); }
@@ -208,7 +219,7 @@ public:
   inline unsigned    getDecisions ( )           { return solver.decisions; }
   inline lbool       getStatus    ( )           { return state; }
 #ifndef SMTCOMP
-  inline lbool       getModel     ( Enode * a ) { return solver.getModel( a ); } 
+  inline lbool       getModel     ( Enode * a ) { return solver.getModel( a ); }
 #endif
 
   //======================================================================
@@ -229,12 +240,12 @@ private:
   SimpSMTSolver &    solver;                                     // Reference to solver
   Tseitin *          cnfizer_p;                                  // Pointer to cnfizer
   Tseitin &          cnfizer;                                    // Reference to cnfizer
-                                                                 
-  typedef enum                                                   
-  {                                                              
+
+  typedef enum
+  {
       CMD_UNDEF                                                  // undefined command
     , SET_LOGIC                                                  // (set-logic)
-    , SET_OPTION                                                 // (set-option)  
+    , SET_OPTION                                                 // (set-option)
     , SET_INFO                                                   // (set-info)
     , DECLARE_SORT                                               // (declare-sort)
     , DEFINE_SORT                                                // (define-sort)
@@ -253,7 +264,7 @@ private:
     , GET_OPTION                                                 // (get-option)
     , GET_INFO                                                   // (get-info)
     , EXIT                                                       // (exit)
-  } command_name_t;                                                   
+  } command_name_t;
 
   struct Command
   {
@@ -277,7 +288,7 @@ private:
   void    staticCheckSATIterp( );                                // For when only one check is required
 #endif
   void    loadCustomSettings ( );                                // Loads custom settings for SMTCOMP
-                                                                 
+
   lbool              state;                                      // Current state of the solver
   vector< Command >  command_list;                               // Store commands to execute
   unsigned           nof_checksat;                               // Counter for CheckSAT commands
