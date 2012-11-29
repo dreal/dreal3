@@ -56,19 +56,17 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define ENODE_ID_GT	          (19)
 #define ENODE_ID_STORE	          (20)
 #define ENODE_ID_SELECT	          (21)
-#define ENODE_ID_CTINCUR          (22)
-#define ENODE_ID_CTBOUND          (23)
 
 /* added for dReal2 */
-#define ENODE_ID_EXP		  (24)
-#define ENODE_ID_LOG		  (25)
-#define ENODE_ID_SIN		  (26)
-#define ENODE_ID_COS		  (27)
-#define ENODE_ID_TAN		  (28)
-#define ENODE_ID_ARCSIN		  (29)
-#define ENODE_ID_ARCCOS		  (30)
-#define ENODE_ID_ARCTAN		  (31)
-#define ENODE_ID_POW		  (32)
+#define ENODE_ID_EXP		  (22)
+#define ENODE_ID_LOG		  (23)
+#define ENODE_ID_SIN		  (24)
+#define ENODE_ID_COS		  (25)
+#define ENODE_ID_TAN		  (26)
+#define ENODE_ID_ARCSIN		  (27)
+#define ENODE_ID_ARCCOS		  (28)
+#define ENODE_ID_ARCTAN		  (29)
+#define ENODE_ID_POW		  (30)
 /* ------------------- */
 
 /*
@@ -107,7 +105,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // it is used to check whether a function symbol
 // is predefined or uninterpreted
 //
-#define ENODE_ID_LAST		  (32)  /* modified for dReal2 */
+#define ENODE_ID_LAST		  (30)  /* modified for dReal2 */
 
 //
 // Properties stored in integers
@@ -285,6 +283,7 @@ struct SymbData
     //
     else if ( etype_ == ETYPE_NUMB )
     {
+      value = new double;
 /* #if USE_GMP */
 /*       value = new Real( name_ ); */
 /*       const int size_value = strlen( value->get_str( ).c_str( ) ) + 1; */
@@ -292,6 +291,7 @@ struct SymbData
 /*       strcpy( name, value->get_str( ).c_str( ) ); */
 /*       assert( strlen( name ) == strlen( value->get_str( ).c_str( ) ) ); */
 /* #else */
+      printf("DEBUG: %s\n", name_);
       *value = atof( name_ );       /* modified for dReal2 */
       name = new char[ strlen(name_) + 1 ];
       strcpy( name, name_ );
