@@ -1,8 +1,8 @@
-SUBDIRS = axsolver bvsolver emptysolver lrasolver ctsolver
+SUBDIRS = emptysolver
 
 noinst_LTLIBRARIES = libtsolvers.la
 
 AM_CPPFLAGS=$(config_includedirs)
 
 libtsolvers_la_SOURCES = TSolver.h THandler.C THandler.h
-libtsolvers_la_LIBADD = emptysolver/libemptysolver.la
+libtsolvers_la_LIBADD = emptysolver/libemptysolver.la 

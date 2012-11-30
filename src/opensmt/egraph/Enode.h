@@ -150,8 +150,8 @@ public:
   inline bool isUp                ( )       { return car->id > ENODE_ID_LAST && isAtom( ) && getArity( ) > 0; }
   inline bool isUf                ( )       { return car->id > ENODE_ID_LAST && !isAtom( ) && getArity( ) > 0; }
 
-  inline bool isCostIncur       ( ) const { return hasSymbolId( ENODE_ID_CTINCUR ); }
-  inline bool isCostBound       ( ) const { return hasSymbolId( ENODE_ID_CTBOUND ); }
+  //  inline bool isCostIncur       ( ) const { return hasSymbolId( ENODE_ID_CTINCUR ); }
+  //  inline bool isCostBound       ( ) const { return hasSymbolId( ENODE_ID_CTBOUND ); }
 
   bool        isVar               ( ); // True if it is a variable
   bool        isConstant          ( ); // True if it is a constant
@@ -402,6 +402,7 @@ inline const double Enode::getComplexValue( ) const
 inline void Enode::setValue ( const double v )
 {
   assert( isTerm( ) );
+  value = new double;
   *value = v;
 }
 
