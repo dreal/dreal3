@@ -60,6 +60,7 @@ formula:
   | GE exp exp       { Dr.Ge  ($2, $3) }
   | LE exp exp       { Dr.Le  ($2, $3) }
   | EQ exp exp       { Dr.Eq  ($2, $3) }
+  | exp EQ exp       { Dr.Eq  ($1, $3) }
 ;
 
 exp:
