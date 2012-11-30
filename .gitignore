@@ -38,3 +38,5 @@ src/opensmt/parsers/smt2/smt2parser.h
 src/opensmt/parsers/smt2/smt2parser.hh
 ylwrap
 ID
+TAGS
+
