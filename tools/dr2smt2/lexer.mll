@@ -36,17 +36,22 @@
      ("then", THEN);
      ("else", ELSE);
     ]
+  type state = Normal | Comment
+  let curr_state = ref Normal
+
 }
+
 
 let blank = [' ' '\t']+
 let id = ['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z' '0'-'9' '_'])*
 let float_number = ('+'|'-')? ['0'-'9']+('.'(['0'-'9']*))?
 let comment = '/' '/' [^ '\n']*
-  rule start =
-  parse blank { start lexbuf }
-  | "\r\n"  { incr_ln (); start lexbuf}
-  | '\n'    { incr_ln (); start lexbuf}
-  | comment { start lexbuf } (* Comment *)
+  rule main = parse
+    blank   { main lexbuf }
+  | "\r\n"  { incr_ln (); main lexbuf}
+  | '\n'    { incr_ln (); main lexbuf}
+  | "/*"    { c_style_comment lexbuf }
+  | comment { main lexbuf } (* Comment *)
   | "->"    { verbose (Lexing.lexeme lexbuf); ARROW }
   | "["     { verbose (Lexing.lexeme lexbuf); LB }
   | "]"     { verbose (Lexing.lexeme lexbuf); RB }
@@ -78,3 +83,6 @@ let comment = '/' '/' [^ '\n']*
     FNUM (float_of_string(Lexing.lexeme lexbuf))
   } (* float *)
   | eof { verbose "eof"; EOF}
+and c_style_comment = parse
+    "*/"    { main lexbuf }
+  | _       { c_style_comment lexbuf }

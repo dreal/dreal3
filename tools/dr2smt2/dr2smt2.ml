@@ -54,7 +54,7 @@ let run () =
     Error.init ();
     let lexbuf =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
-    let (vardecls, formula) = Parser.main Lexer.start lexbuf in
+    let (vardecls, formula) = Parser.main Lexer.main lexbuf in
     let out = BatIO.stdout in
     process out vardecls formula
   with v -> Error.handle_exn v
