@@ -291,7 +291,6 @@ struct SymbData
 /*       strcpy( name, value->get_str( ).c_str( ) ); */
 /*       assert( strlen( name ) == strlen( value->get_str( ).c_str( ) ) ); */
 /* #else */
-      printf("DEBUG: %s\n", name_);
       *value = atof( name_ );       /* modified for dReal2 */
       name = new char[ strlen(name_) + 1 ];
       strcpy( name, name_ );
