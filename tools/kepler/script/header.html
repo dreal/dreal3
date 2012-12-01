@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Kepler Project</title>
+    <meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
+    <style type="text/css" title="currentStyle">
+      @import "./demo_page.css";
+      @import "./header.ccss";
+      @import "./demo_table.css";
+    </style>
+    <script type="text/javascript" src="./jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="./jquery.dataTables.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+      /* Initialisation */
+      $(document).ready(function() {
+      $('#example').dataTable( {
+      "aaSorting": [[ 2, "desc" ], [0, "asc"]],
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bFilter": true,
+      "bInfo": true,
+      "bAutoWidth": false
+      } );
+      } );
+    </script>
+
+  </head>
+  <body id="dt_example" class="ex_highlight_row">
+  <h1>Kepler Project Result Page</h1>
+

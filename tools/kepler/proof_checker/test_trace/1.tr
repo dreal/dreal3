@@ -1,0 +1,618 @@
+(= 0 (+ (+ (* (+ (+ 1.5 (* -1 x1)) (* x1 x2)) (+ (+ 1.5 (* -1 x1)) (* x1 x2))) (* (+ (+ 2.25 (* -1 x1)) (* x1 (* x2 x2))) (+ (+ 2.25 (* -1 x1)) (* x1 (* x2 x2))))) (* (+ (+ 2.625 (* -1 x1)) (* x1 (* (* x2 x2) x2))) (+ (+ 2.625 (* -1 x1)) (* x1 (* (* x2 x2) x2))))))
+
+[before pruning] 
+x0 is in: [-3 , -1];
+x1 is in: [-3 , -1];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-3 , -1];
+x1 is in: [-3 , -1];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x0]
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -1];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -1];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -1];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x1]
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x2]
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-3 , -1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-3 , -1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x3]
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x4]
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-1 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x4]
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-1 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x2]
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-3 , -1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-3 , -1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x3]
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x4]
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-1 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x4]
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-3 , -2];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-1 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -1];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -1];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x1]
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x2]
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-3 , -1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-3 , -1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x3]
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x4]
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-1 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x4]
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-3 , -2];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-1 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-3 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x2]
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-3 , -1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-3 , -1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x3]
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x4]
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-3 , -1];
+x4 is in: [-1 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+[after pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , +1];
+x5 is in: [-3 , +1]
+
+[branched on x4]
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-3 , -1];
+x5 is in: [-3 , +1]
+[conflict detected]
+
+[before pruning] 
+x0 is in: [-2 , -1];
+x1 is in: [-2 , -1];
+x2 is in: [-1 , +1];
+x3 is in: [-1 , +1];
+x4 is in: [-1 , +1];
+x5 is in: [-3 , +1]
+[conflict detected]
