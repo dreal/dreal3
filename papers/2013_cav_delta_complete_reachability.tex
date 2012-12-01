@@ -1,0 +1,278 @@
+\documentclass[envcountsect]{llncs}
+%\usepackage{stmaryrd,amsmath,amssymb,newlfont,graphicx,caption,verbatim}
+\usepackage{stmaryrd,amsmath,amssymb,newlfont,graphicx,caption,verbatim}
+\usepackage[ruled,lined,boxed,commentsnumbered,linesnumbered]{algorithm2e}
+\newcommand{\dom}{\mathrm{dom}}
+\newtheorem{notation}[theorem]{Notation}
+\newcommand{\len}{\mathit{len}}
+\newcommand{\poly}{\mathsf{poly}}
+
+\newcommand{\flow}{\mathsf{flow}}
+\newcommand{\jump}{\mathsf{jump}}
+\newcommand{\inv}{\mathsf{inv}}
+\newcommand{\init}{\mathsf{init}}
+\newcommand{\guard}{\mathsf{guard}}
+\newcommand{\reset}{\mathsf{reset}}
+\newcommand{\reach}{\mathsf{Reach}}
+\newcommand{\unsafe}{\mathsf{unsafe}}
+
+\newcommand{\safe}{\mathsf{safe}}
+\newcommand{\p}{\mathsf{P}}
+\newcommand{\np}{\mathsf{NP}}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\lrf}{\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}}
+%\setlength{\textwidth}{5.7in}
+%\setlength{\textheight}{8.2in}
+%\setlength{\topmargin}{0in}
+%\setlength{\oddsidemargin}{.4in}
+%\setlength{\evensidemargin}{.4in}
+
+\title{$\delta$-Complete Reachability Analysis for Hybrid Systems}
+\institute{Carnegie Mellon University, Pittsburgh, PA 15213}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\section{Introduction}
+
+\section{Computable Analysis and $\delta$-Complete Decision Procedures}
+
+\section{Hybrid Systems and Their Representations}
+
+\subsection{Basic Definitions}
+
+A hybrid automaton is an infinite-state machine whose state has a discrete part, ranging over the vertices of a graph, and a continuous part, ranging over some Euclidean space. 
+\begin{definition}[Hybrid Automata]\label{auto-def}
+An $n$-dimensional hybrid automaton is a tuple $$\langle X, Q, \flow, \guard, \reset, \inv, \init\rangle,$$ where:
+\begin{itemize}
+\item $X\subseteq \mathbb{R}^n$ specifies the range of the {\bf continuous variables} $\vec x$ of the system. 
+\item $Q=\{q_0,...,q_m\}$ is a finite set of discrete {\bf control modes}. 
+\item $\flow \subseteq Q\times X\times \R \times X$ is a predicate that specifies the {\bf continuous dynamics} for each mode. Namely, 
+\begin{quote}
+$\flow = \{(q, \vec a_0, t, \vec a_t):$ In mode $q$, there is a continuous flow from the initial value $\vec x = \vec a_0$ to $\vec x = \vec a_t$, after time $t$.\}
+\end{quote}
+It is usually given either as explicit mappings from $\vec x_0$ and $t$ to $\vec x_t$, or as solutions of systems of differential equations/inclusions that specify the derivative of $\vec x$ over time, with initial conditions given by $\vec x_0$. 
+
+\item $\jump\subseteq Q\times X\times Q\times X$ is a predicate that specifies the {\bf jump conditions} between two modes. That is,  
+\begin{quote}
+$\jump$ = \{$(q,q',\vec a,\vec a'):$ In mode $q$, if the continuous variables are of value $\vec x = \vec a$, the automaton may switch to mode $q'$ and change the continuous variables to value $\vec x = \vec a'$.\}
+\end{quote}
+
+\item $\inv \subseteq Q\times X$ specifies the {\bf invariant conditions} for the system to stay in a location. Namely,
+\begin{quote}
+$\inv$ = \{$(q,\vec a)$: When the automaton is in mode $q$, $\vec x = \vec a$ is a possible value for its continuous variables.\}
+\end{quote}
+
+\item $\init \subseteq Q\times X$ specifies the set of {\bf initial configurations} of the system. 
+\begin{quote}
+$\init$ = \{$(q, \vec a)$: The initial configuration of the automaton can be $\vec x = \vec a$ in mode $q$.\}
+\end{quote}
+It is easy to see that we can require that the system always starts from a single mode. (When there are multiple initial modes, an additional mode can be added to act as the only initial mode.) Thus, without loss of generality we always require that $q=q_0$ in $\init$. 
+\end{itemize}
+\end{definition}
+
+%\begin{remark}[Jumps]
+%The guard conditions and reset functions, put together, define what is often called the {\bf jump conditions}. In fact, sometimes we write 
+%$$H = \langle X, Q, \flow, \jump, \inv, \init\rangle,$$
+%implicitly assuming that $\jump$ contains the definitions for both $\guard$ and $\reset$. We will give the precise definitions of the jump conditions using logical representations of hybrid automata, in Definition~\ref{lrf-definition}. 
+%\end{remark}
+
+\begin{remark}[$\guard$ and $\reset$]
+In the $\jump$ conditions, the first two elements $(q, \vec a)$ are sometimes called the $\guard$ conditions, and the other two elements $(q, \vec a')$ are called the $\reset$ conditions. 
+\end{remark}
+
+\begin{remark}[Nondeterminism]
+According to the definition, a hybrid automaton can be nondeterministic in various ways. For instance: 
+\begin{itemize}
+\item The $\flow$ and $\jump$ conditions are not restricted to single valued functions. Thus, multiple continuous flows are allowed in each mode, and different discrete jumps are allowed frim each state. 
+\item The $\jump$ conditions only specify that a system {\em may} make a transition when the conditions are met. 
+\end{itemize}
+\end{remark}
+
+\begin{remark}[$\jump$ vs $\inv$] The jump conditions specify when an automaton {\em may} switch to another mode. The invariants (when violated) specify when an automaton {\em must} switch to another mode. In principle, all may-jumps can be reduced to nondeterministic must-jumps. However, it is better to separate the two, and we will later see that they give rise to different logical structures. 
+\end{remark}
+
+\begin{definition}[Invariant-Free Hybrid Automata]\index{Invariant-free Hybrid Automata}
+We say a hybrid automata $H = \langle X, Q, \flow, \jump, \inv, \init\rangle$ is {\bf invariant-free} if $$\inv = Q\times X.$$ 
+We say its invariant is {\em trivial} in this case.  
+\end{definition}
+
+\subsection{$\lrf$-Representations}
+
+We now define logical representations of hybrid automata, so that we can express properties of hybrid automata with first-order formulas. 
+
+\begin{definition}[$\lrf$-Representations]\label{lrf-definition}
+\index{$\lrf$-Representation}
+Let $H$ be an $n$-dimensional hybrid automaton, given as in Definition \ref{auto-def}. Let $\mathcal{F}$ be a set of real functions, and $\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}$ the corresponding first-order language. 
+
+We say that $H$ has an $\lrf$-representation if for every $q,q'\in Q$, there exists quantifier-free $\lrf$-formulas $\phi^q_{\flow}(\vec x, \vec x_0, t)$, $\phi^{q\rightarrow q'}_{\jump}(\vec x, \vec x')$, $\phi^{q}_{\inv}(\vec x)$, $\phi^q_{\init}(\vec x)$ such that for all $\vec a ,\vec a'\in \mathbb{R}^n$, $t\in\mathbb{R}$:
+\begin{itemize}
+\item $\mathbb{R}\models \phi^q_{\flow}(\vec a, \vec a_0, t)$ iff $(q, \vec a, \vec a_0, t)\in \flow$. 
+\item $\mathbb{R}\models \phi^{q\rightarrow q'}_{\jump}(\vec a, \vec a')$, iff, $(q, q', \vec a, \vec a')\in \jump$.
+\item $\mathbb{R}\models \phi^q_{\inv}(\vec a)$, iff, $(q, \vec a)\in \inv.$
+\item $\mathbb{R}\models \phi^q_{\init}(\vec a)$, iff, $q = q_0$ and $\vec a\in \init_{q_0}$.  
+\end{itemize}
+We can write $H = \langle X, Q, \phi_{\flow}, \phi_{\jump}, \phi_{\inv}, \phi_{\init}\rangle$ to emphasize that $H$ is represented in this way. But when the context is clear, we simply write $\flow, \jump, \inv, \init$ to denote their logical representations. 
+\end{definition}
+
+\begin{remark}
+We have not restricted the form of the formulas for defining hybrid automata. This makes the definition more general than necessary. For instance, the flow should be a continuous mapping from $\vec x_0$ and $t$ to $\vec x_t$ (and thus a conjunction of equations of the form $\vec x_t = f(\vec x_0, t)$), instead of arbitrary formulas. Different classes of hybrid systems can be defined by refining this definition.  
+\end{remark}
+
+
+\begin{definition}[Computable Representation]\index{Computable Representation}
+%the goal is to prove that computable hybrid automata define computable functions in the skorokhod sense. and then delta-reachability is decidable just because you are deciding computable functions. 
+We say a hybrid automaton $H$ has a {\bf computable representation}, if $H$ has an $\lrf$-representation, and all functions in $\mathcal{F}$ are Type 2 computable. 
+\end{definition}
+
+From now on we will only consider hybrid automata that have computable representations. 
+
+\section{Hybrid Time Domain and Trajectories}
+
+We now specify how the descriptions of hybrid systems are interpreted: They define {\em hybrid trajectories} in the Euclidean space. 
+
+Hybrid automata model systems that exhibit both continuous and discrete behaviors. Consequently the trajectories of hybrid automata are {\em piecewise continuous}. This motivates a two-dimensional structure of time, so that we can keep track of both the discrete changes and the duration of each continuous flow.  
+
+\subsection{Hybrid Time Domain}
+
+\begin{definition}[Hybrid time structure~\cite{Davoren09}]
+The {\bf\em hybrid time structure} $\mathbb{H}$ is a partially-ordered Abelian group $\mathbb{Z}\times\mathbb{R}$ with pairwise addition and group identity $(0,0)$, partially-ordered by $$\leq =_{df} \{ ((i,t),(i',t')) : i\leq i' \wedge t\leq t'\}\subseteq \mathbb{Z}\times\mathbb{R}.$$
+ $\mathbb{H}$ is equipped with the norm: $$\|(i,t)\| = \max\{|i|,|t|\},$$
+where $|\cdot|$ denotes absolute values. The {\bf\em hybrid future time structure} $\mathbb{H}^+=\mathbb{N}\times \mathbb{R}^+$ is the positive cone of $\mathbb{H}$ equipped with the same norm.
+\end{definition}
+
+\begin{remark}
+Naturally, $\|\cdot\|$ induces the norm topology $\mathcal{T}_{norm}$ on $\mathbb{H}$ with a basis consisting of $B_{\delta}(t) = \{t'\in \mathbb{H}: \|t'-t\|<\delta, \delta\in \mathbb{R}^+\}.$
+\end{remark}
+
+\begin{definition}[Hybrid time domain]
+A {\bf\em hybrid time domain} $T$ is a subset, linearly ordered under $\leq$, of $\mathbb{H}^+$ of the form
+$$T=\{(i, t): i<m \mbox{ and } t\in [t_i, t_i']\mbox{ or }[t_i, +\infty)\},$$ where%, \mbox{ or }i=m \mbox{ and }t\in [t_m, t_m]\}$$
+\begin{itemize}
+ \item $i\in \mathbb{N}$, $m\in \mathbb{N}\cup\{+\infty\}$; 
+  \item $\{t_i\}_{i=0}^m$ is an increasing sequence in $\mathbb{R}^+$; 
+ \item $t_0= 0$ and $t_i'=t_{i+1}$.
+ \end{itemize} 
+We write the set of all hybrid time domains in $\mathbb{H}^+$ as $D(\mathbb{H})$.
+\end{definition}
+
+\begin{remark}
+Note how a two-dimensional time domain avoids ``break points'' on the continuous dimension: At the discrete change points, $(i,t_i')$ and $(i+1, t_{i+1})$ are distinguished at the first coordinate. Thus the time intervals for each $i$ can always include both endpoints. 
+\end{remark}
+
+
+\subsection{Hybrid Trajectories with Skorokhod Topology}
+
+\begin{definition}[Hybrid Trajectory Space]
+ Let $X\subseteq\mathbb{R}^n$ be an Euclidean space and let $T$ be a hybrid time domain. A {\bf\em hybrid trajectory} is a continuous function 
+$$\xi: T \rightarrow X.$$
+We write $\Xi_X$ to denote the set of all possible hybrid trajectories from $D(\mathbb{H}^+)$ to $X$. 
+ \end{definition}
+
+Now we can define trajectories of a given hybrid automaton. 
+
+\begin{definition}[Trajectories of a Hybrid Automaton]\label{trajec}
+Let $H$ be a hybrid automaton, and $\xi: T\rightarrow X$ a hybrid trajectory, where $T$ is of the form:
+$$T = \{(i,t): i< m, m\in \mathbb{N}\cup\{+\infty\}, t\in [t_i, t_i'] \mbox{ or } [t_i, +\infty) \}$$
+We say that $\xi$ is {\bf\em a trajectory of $H$} of {\bf\em (discrete) depth} $m$, if there exists a function $\sigma^H_{\xi}: \mathbb{N}\rightarrow Q$ such that:
+\begin{itemize}
+\item $\sigma^H_{\xi}(0) = q_0$ and $\xi(0,0)\in \init_{q_0}$;
+\item For all $(i, t)\in T$, $(\sigma^H_{\xi}(i), \xi(i,t))\in \inv$;
+\item For $i=0$,
+$$\xi(0,t) = \flow(q_0, \xi(0,0), t)$$ 
+\item For $i = k+1$ ($0< k+1<m$)
+$$\xi(k+1, t) = \flow( \sigma^H_{\xi}(k+1), \xi(k+1, t_{k+1}), t - t_{k+1})$$
+where 
+$$(\sigma^H(k), \sigma^H(k+1), \xi(k, t_k'), \xi(k+1,t_{k+1}))\in \jump.$$ 
+\end{itemize}
+We write $\llbracket H\rrbracket$ to denote the set of all trajectories of $H$. We call $\sigma^H_{\xi}$ the {\bf\em labeling function} between $\xi$ and $H$.
+\end{definition}
+
+The intuition behind the definition is straightforward. The labeling function $\sigma_{\xi}^H$ is used to label the mode that the system switches to, corresponding to each discrete transition. In each mode, the system flows continuously following the dynamics defined by $\flow(q, \vec x_0, t)$. Note that as defined in the trajectories, $t$ is counted from the initial time stamp. Consequently, $t-t_k$ is the actual duration in the $k$-th mode. When a switch between  two modes is performed, it is required that $\xi(k+1, t_{k+1})$ is updated from the exit value $\xi(k, t_k')$ in the previous mode, following the jump conditions.
+
+%We can also define trajectories using the $\lrf$-descriptions of a hybrid automaton. This will be done when we introduce bounded model checking in Section~\ref{}. 
+
+We now briefly introduce an appropriate topological structure given by the generalized {\em Skorokhod metric} on the hybrid trajectory domain $\Xi$~\cite{Collins04,Davoren09}.
+
+In continuous systems, the trajectories of dynamical system are continuous with respect to the one-dimensional time domain $\mathbb{R}^+$, and the closeness between two continuous trajectories $\xi_1,\xi_2$ can be simply measured by the Euclidean distance $||\xi_1(t)-\xi_2(t)||$ at each time point $t\in \mathbb{R}^+$. Yet this direct definition can be counter-intuitive in hybrid trajectories. For two hybrid trajectories $\xi_1, \xi_2$, it may be the case that they behave almost the same, although $\xi_1$ makes a discrete jump at time-point $t_1$ and $\xi_2$ at a later point $t_2$. $|t_1-t_2|$ can be arbitrarily small, but for some $t\in (t_1,t_2)$, the distance between $\xi_1(t)$ and $\xi_2(t)$ can be large, since the discrete jump has been made only by $\xi_1$. 
+
+Consequently, to compare the distance between hybrid trajectories, we need to first ``rescale'' their time domains, so that the difference in the jump points are taken into account. This leads to the following definition:
+
+\begin{definition}[Retiming functions]
+A {\bf retiming function} is an order-preserving and surjective function $\rho: \mathbb{R}^+\rightarrow \mathbb{R}^+$. The {\bf temporal deviation} of $\rho$ is defined as $$dev(\rho) = \sup_{t\in \mathbb{R}^+}|t-\rho(t)|.$$ The set of all retiming functions is denoted as $Ret(\mathbb{R}^+)$. 
+\end{definition}
+
+We can now measure the distance between two hybrid trajectories by measuring their Euclidean difference after their time domains have been re-fitted. Formally we have:
+
+\begin{definition}[Skorokhod metric~\cite{Davoren09}]
+ Let $\xi, \xi'\in \Xi$ be two hybrid trajectories, their {\bf Skorokhod distance} is defined as
+\begin{multline*}
+d_{Skor}= \inf\{\epsilon>0:\\ \exists \rho\in Ret(\mathbb{R}^+)\  \bigg( dev(\rho)<\epsilon\wedge
+ \sup_{t\in dom_c(\xi)}d_X(\xi(t), \xi'(\rho(t)))<\epsilon\bigg)\}.
+\end{multline*}
+Note that $\inf \emptyset = +\infty$.
+\end{definition}
+
+\begin{remark}
+Based on the Skorokhod topology, we can define approximate bisimulation relations between hybrid automata in a general way. This would allow extend the work of \cite{DBLP:journals/deds/GirardJP08,DBLP:journals/automatica/GirardP07} to arbitrary hybrid automata with computable representations. However, our framework will focus on approximations on the {\em representations} of hybrid automata, instead of in the trajectory space.  
+\end{remark}
+
+\section{Safety and Reachability}
+
+The safety/reachability problem for hybrid automata asks whether a subset of the state space of an automaton can be reached by some trajectory of it. 
+
+\subsection{Reachability Problems}
+
+\begin{definition}[Reachability]\label{reachability}\index{Reachability}
+Let $H$ be an $n$-dimensional hybrid automaton, and $U$ a subset of its state space. We say $U$ is reachable by $H$, if there exists $\xi\in\llbracket H \rrbracket$ with its time domain $T_{\mathcal{\xi}}$ and labeling function $\sigma_{\xi}^H$, such that there exists $(i,t)\in T$ satisfying
+$$(\sigma^H_{\xi}(i), \xi(i,t))\in U.$$
+\end{definition}
+
+\begin{remark}
+Although in the definition $U$ is a subset of the hybrid state space $Q\times X$, sometimes we only ask whether a region of the Euclidean space is reachable. Naturally, that is to ask whether the region is reachable in any discrete mode. 
+\end{remark}
+
+\begin{example}
+Consider the hybrid automaton modelling a bouncing ball in Example~\ref{bball}. It is not hard to see that if the initial value of $x_1$ (height) is some $h\in \mathbb{R}^+$, then in any trajectory of $H_{BB}$, $x_1> h$ can not be reached. On the other hand, any $x_1\in [0, h]$ can be reached by many trajectories of the system. 
+\end{example}
+
+In the seminal work of \cite{DBLP:conf/rex/AlurD91,DBLP:conf/hybrid/AlurCHH92}, it is already shown that the reachability problem for simple classes of hybrid automata is already undecidable. In fact, clear boundaries of the decidable and undecidable classes has been given~\cite{DBLP:journals/jcss/HenzingerKPV98}.
+
+\begin{definition}[Linear Hybrid Automata]
+Let $\mathcal{F} = \{+\}\cup \mathbb{Q}$ (the rational numbers are considered as 0-ary functions). We say a hybrid automaton $H$ is a {\bf\em linear hybrid automaton} if it has an $\lrf$-representation. 
+\end{definition}
+
+Note that a linear hybrid automaton only allow constant dynamics $dx/dt = a$ (otherwise the $\flow$ functions can not be linear in $t$). Also, only rational coefficients are allowed to appear in the jump and invariant conditions. These requirements make it a very limited class of models. However, the reachability problem is already undecidable for the class. 
+
+\begin{proposition}[Undecidability of Reachability for LHA~\cite{DBLP:conf/hybrid/AlurCHH92}]
+The reachability problem for Linear Hybrid Automata is undecidable. 
+\end{proposition}
+
+It is standard in the existing results that all the constants used in the description of a hybrid automaton are rational, so that symbolic algorithms can be used. This will not be a necessary restriction in our framework. We allow any computable signature $\mathcal{F}$, and any computable real numbers can be used as constants in the describing hybrid automata. It is worth noting that, however, allowing arbitrary computable reals in the description would render the reachability problem for even more trivial classes of hybrid automata to be undecidable. Indeed, since the equality test $x=a$ is undecidable, the question of whether a flow of $dx/dt = 1$ can reach some point $a$ is undecidable already.
+
+\begin{remark}
+The reachability problem for timed automata, defined as linear hybrid automata with dynamics of constant 1, is decidable~\cite{DBLP:conf/rex/AlurD91}. In light of the previous remark, such results require the use of rational constants only. Thus we choose not to further discuss the boundaries between decidable and undecidable classes in a traditional setting. 
+\end{remark}
+
+\section{Bounded Model Checking}
+
+\section{Invariant Validation}
+
+\section{Experiments}
+
+\section{Conclusion}
+
+
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{tau}
+
+
+\end{document}
+
