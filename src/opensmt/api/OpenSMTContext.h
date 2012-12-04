@@ -221,6 +221,7 @@ public:
 #ifndef SMTCOMP
   inline lbool       getModel     ( Enode * a ) { return solver.getModel( a ); }
 #endif
+  inline Egraph *    getEgraphP   ( )           { return egraph_p; }
 
   //======================================================================
   //

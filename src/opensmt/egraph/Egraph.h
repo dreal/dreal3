@@ -367,6 +367,9 @@ public:
   void                splitOnDemand           ( Enode *, int );             // Splitting on demand
   bool                checkDupClause          ( Enode *, Enode * );         // Check if a clause is duplicate
 
+  // added for dReal2 (implemented in EgraphStore.C
+  void                postProcessing          ( );
+
 private:
 
   //===========================================================================

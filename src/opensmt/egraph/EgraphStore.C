@@ -2910,3 +2910,21 @@ void Egraph::dumpFormulaToFile( ostream & dump_out, Enode * formula, bool negate
   // Closes assert
   dump_out << ")" << endl;
 }
+
+// added for dReal2
+void Egraph::postProcessing ()
+{
+  cerr << "Assertions:" << assertions.empty() << endl;
+
+  cerr << "Variables:" << variables.empty() << endl;
+
+  cerr << "Assertions:" << endl;
+  for (list<Enode *>::iterator it=assertions.begin() ; it != assertions.end(); it++ )
+    cerr << *it << endl;
+
+  cerr << "Variables:" << endl;
+  for (set<Enode *>::iterator it=variables.begin() ; it != variables.end(); it++ )
+    cerr << *it << endl;
+
+  return;
+}
