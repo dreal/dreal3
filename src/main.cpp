@@ -98,6 +98,38 @@ int main( int argc, char * argv[] )
 
   fclose( fin );
 
+  // added by dReal2
+  // 1) extract the constraints representing variable ranges.
+  // 2) add them to the Egraph
+  //
+  // For example, we transform a formulae
+  //
+  // (and
+  //      (and (x_1 >= lb_1) (x_1 <= ub_1))
+  //      (and (x_i >= lb_2) (x_i <= ub_2))
+  //      ...
+  //      (and (x_n >= l_n) (x_n <= u_n))
+  //      f
+  // )
+  //
+  // into
+  //
+  // f
+  //
+  // where x_1, ..., x_n in f are annotated with (lb_1, ub_1), ...,
+  // (lb_n, ub_n).
+
+  cerr << "Get the Egraph" << endl;
+  Egraph * eg = context.getEgraphP();
+
+  //  cerr << "Before transformation" << endl;
+  //  eg->printEnodeList(cerr);
+
+  eg->postProcessing();
+
+  //  cerr << "after transformation" << endl;
+  //  eg->printEnodeList(cerr);
+
 #ifndef SMTCOMP
   if ( context.getConfig( ).verbosity > 0 )
   {
@@ -136,7 +168,7 @@ int main( int argc, char * argv[] )
 #ifndef OPTIMIZE
   opensmt_warning( "this binary is compiled with optimizations disabled (slow)" );
 #endif
-  // 
+  //
   // Execute accumulated commands
   // function defined in OpenSMTContext.C
   //
