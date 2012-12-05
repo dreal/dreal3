@@ -235,8 +235,12 @@ public:
   inline dist_t   getDistClasses         ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->dist_classes; }
 
   const double    getValue               ( ) const;
+  const double    getLowerBound          ( ) const; //added for dReal2
+  const double    getUpperBound          ( ) const; //added for dReal2
   const double    getComplexValue        ( ) const;
   void            setValue               ( const double );
+  void            setLowerBound          ( const double ); //added for dReal2
+  void            setUpperBound          ( const double ); //added for dReal2
   bool            hasValue               ( ) const;
   Enode *         getRoot                ( ) const;
   enodeid_t       getCid                 ( ) const;
@@ -389,6 +393,19 @@ inline const double Enode::getValue ( ) const
   return *value;
 }
 
+inline const double Enode::getLowerBound ( ) const
+{
+  assert( hasValue( ) );
+  return *value;
+}
+
+inline const double Enode::getUpperBound ( ) const
+{
+  assert( hasValue( ) );
+  return *value_;
+}
+
+
 inline const double Enode::getComplexValue( ) const
 {
   if( isDiv( ) )
@@ -405,6 +422,21 @@ inline void Enode::setValue ( const double v )
   value = new double;
   *value = v;
 }
+
+inline void Enode::setLowerBound ( const double v )
+{
+  assert( isTerm( ) );
+  value = new double;
+  *value = v;
+}
+
+inline void Enode::setUpperBound ( const double v )
+{
+  assert( isTerm( ) );
+  value_ = new double;
+  *value_ = v;
+}
+
 
 inline bool Enode::hasValue( ) const
 {

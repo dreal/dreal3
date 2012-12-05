@@ -169,7 +169,7 @@ public:
 
   // added for dReal2
   inline Enode * mkExp	     ( Enode * e )	 { assert(e); return egraph.mkExp(e);}
-  inline Enode * mkLog        ( Enode * e )       { assert( e ); return egraph.mkLog(e); }
+  inline Enode * mkLog       ( Enode * e )       { assert(e); return egraph.mkLog(e);}
   inline Enode * mkPow	     ( Enode * e )	 { assert(e); return egraph.mkPow(e);}
   inline Enode * mkSin	     ( Enode * e ) 	 { assert(e); return egraph.mkSin(e);}
   inline Enode * mkCos	     ( Enode * e ) 	 { assert(e); return egraph.mkCos(e);}
