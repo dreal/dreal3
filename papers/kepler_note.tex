@@ -1,0 +1,273 @@
+\documentclass{article}
+
+\usepackage{amsmath, amssymb}
+\usepackage{pxfonts}
+\usepackage{mathpartir}
+\usepackage{hyperref}
+
+\title{Note on Kepler's Conjecture Project}
+\author{Sicun Gao \and Soonho Kong}
+
+\newcommand{\Var}{\mathop{\mathit{Var}}}
+\newcommand{\Env}{\mathop{\mathit{Env}}}
+
+\begin{document}
+\maketitle
+\section{Preliminaries}
+
+Real interval $\mathbb{IR} = \{ [a, b] \in \mathbb{R} \times
+\mathbb{R} \mid a \le b \}$ denotes a set of closed ranges of real
+numbers. Let $\Var$ be the set of all variables. An environment $e \in
+\Env : \Var \to \mathbb{IR}$ maps a variable $x \in \Var$ to a
+corresponding real interval $e[x] \in \mathbb{IR}$. Interval
+abstraction function $\alpha : 2^{\mathbb{R}} \to \mathbb{IR}$ takes a
+set of real numbers $S$ and returns a minimal interval which covers
+the given set:
+\[
+\alpha(S) = [\min(S), \max(S)].
+\]
+Similarly, we define concretization function $\gamma : \mathbb{IR} \to
+2^{\mathbb{R}}$:
+\[
+\alpha([a, b]) = \{ x \mid a \le x \le b \},
+\]
+and join operator $\sqcup : \mathbb{IR} \times \mathbb{IR} \to
+\mathbb{IR}$:
+\[
+[a,b] \sqcup [c, d] = [\min(a,c), \max(b, d)].
+\]
+
+
+For a function $f : \mathbb{R}^n \to \mathbb{R}$, we define its
+interval extension $f^I : \mathbb{IR}^n \to \mathbb{IR}$ as
+\[
+f^I ([l_1, u_1], \dots, [l_n, u_n]) =
+\alpha(\{ f(x_1, \dots, x_n) \mid x_i  \in [l_i, u_i] \}).
+\]
+Let $\mathcal{F}$ be a finite subset of real functions such that
+$\mathcal{F} \subseteq \{f_i \mid f_i : \mathbb{R}^n \to \mathbb{R}
+\}$. We define the interval extension $\mathcal{F}^I$ of $\mathcal{F}$
+by taking interval extension of each real function $f \in
+\mathcal{F}$:
+\[
+\mathcal{F}^I = \{ f^I \mid f \in \mathcal{F} \}.
+\]
+
+\section{Interval Arithmetic}
+\paragraph{Over-Approximated  function}
+
+A function $\widehat{f^I} : \mathbb{IR}^n \to \mathbb{IR}$ is an
+over-approximated function for an interval extension of function $f$ if
+$f^I$ satisfies the following condition:
+\[
+\forall I \in \mathbb{IR}^n. \
+f^I(I) \subseteq \widehat{f^I}(I)
+\]
+
+\paragraph{Over-Approximated Interval Arithmetic}
+\begin{mathpar}
+  % ADD
+  \inferrule{
+    f^I_1[a, b] \subseteq [a_1, b_1]
+    \and
+    f^I_2[a, b] \subseteq [a_2, b_2]
+  }
+  {
+    (f_1 + f_2)^I[a, b] \subseteq [a_1 + a_2, b_1 + b_2]
+  }
+  \and
+  % SUBTRACT
+  \inferrule{
+    f^I_1[a, b] \subseteq [a_1, b_1]
+    \and
+    f^I_2[a, b] \subseteq [a_2, b_2]
+  }
+  {
+    (f_1 - f_2)^I[a, b] \subseteq [a_1 - b_2, b_1 - a_2]
+  }
+  \and
+  % MULTIPLY
+  \inferrule{
+    f^I_1[a, b] \subseteq [a_1, b_1]
+    \and
+    f^I_2[a, b] \subseteq [a_2, b_2]
+  }
+  {
+    (f_1 \times f_2)^I[a, b] \subseteq
+    [
+    \min (a_1 \times a_2, a_1 \times b_2, b_1 \times a_2, b_1 \times b_2),
+    \max (a_1 \times a_2, a_1 \times b_2, b_1 \times a_2, b_1 \times b_2)
+    ]
+  }
+  \and
+  % DIVIDE
+  \inferrule{
+    f^I_1[a, b] \subseteq [a_1, b_1]
+    \and
+    f^I_2[a, b] \subseteq [a_2, b_2]
+    \and
+    0 \not \in [a_2, b_2]
+  }
+  {
+    (f_1 / f_2)^I[a, b] \subseteq
+    [
+    \min (a_1 / a_2, a_1 / b_2, b_1 / a_2, b_1 / b_2),
+    \max (a_1 / a_2, a_1 / b_2, b_1 / a_2, b_1 / b_2)
+    ]
+  }
+  % SQRT
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b']
+    \and
+    a' \ge 0
+  }
+  {
+    (\sqrt f)^I [a, b] \subseteq
+    [\sqrt a', \sqrt b']
+  }
+  % LOG
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b']
+    \and
+    a' > 0
+  }
+  {
+    (\log f)^I [a, b] \subseteq
+    [\log a', \log b']
+  }
+  % EXP
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b']
+  }
+  {
+    (\exp f)^I [a, b] \subseteq
+    [\exp a', \exp b']
+  }
+  % SIN
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b'] \and
+    \widehat{\sin} [a', b'] = [a'', b'']
+  }
+  {
+    (\sin f)^I [a, b] \subseteq
+    [a'', b'']
+  }
+  % COS
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b'] \and
+    \widehat{\cos} [a', b'] = [a'', b'']
+  }
+  {
+    (\cos f)^I [a, b] \subseteq
+    [a'', b'']
+  }
+  % TAN
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b'] \and
+    \widehat{\tan} [a', b'] = [a'', b'']
+  }
+  {
+    (\tan f)^I [a, b] \subseteq
+    [a'', b'']
+  }
+  % ARCSIN
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b'] \and
+    \widehat{\arcsin} [a', b'] = [a'', b'']
+  }
+  {
+    (\arcsin f)^I [a, b] \subseteq
+    [a'', b'']
+  }
+  % ARCCOS
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b'] \and
+    \widehat{\arccos} [a', b'] = [a'', b'']
+  }
+  {
+    (\arccos f)^I [a, b] \subseteq
+    [a'', b'']
+  }
+  % ARCTAN
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b'] \and
+    \widehat{\arctan} [a', b'] = [a'', b'']
+  }
+  {
+    (\arctan f)^I [a, b] \subseteq
+    [a'', b'']
+  }
+  % SINH
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b'] \and
+    \widehat{\sinh} [a', b'] = [a'', b'']
+  }
+  {
+    (\sinh f)^I [a, b] \subseteq
+    [a'', b'']
+  }
+  % COSH
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b'] \and
+    \widehat{\cosh} [a', b'] = [a'', b'']
+  }
+  {
+    (\cosh f)^I [a, b] \subseteq
+    [a'', b'']
+  }
+  % TANH
+  \and
+  \inferrule{
+    f^I [a, b] \subseteq [a', b'] \and
+    \widehat{\tanh} [a', b'] = [a'', b'']
+  }
+  {
+    (\tanh f)^I [a, b] \subseteq
+    [a'', b'']
+  }
+\end{mathpar}
+
+\section{Proof}
+For a given set of constraints $\mathcal{F}$, our SMT solver
+generates a proof if the result is unsatisfiable. The proof system is
+given as follows
+
+\paragraph{Axiom}
+\begin{mathpar}
+  \inferrule{
+    \forall f^I \in \mathcal{F}^I. \
+    f^I(I) \subseteq [a,b] \land
+    0 \not \in [a, b]
+  }
+  {
+    0 \not \in \mathcal{F}^I(I)
+  }
+\end{mathpar}
+
+\paragraph{Branch}
+\begin{mathpar}
+  \inferrule{
+    0 \not \in F(I_1) \\
+    0 \not \in F(I_2) \\
+    \gamma(I_1) \cup \gamma(I_2) = \gamma(I_1 \sqcup I_2)
+  }{
+    0 \not \in F(I_1 \cup I_2)
+  }
+\end{mathpar}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master:
+%%% End:
