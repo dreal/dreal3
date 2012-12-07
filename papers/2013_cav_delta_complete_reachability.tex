@@ -39,9 +39,79 @@
 
 \section{Introduction}
 
-\section{Computable Analysis and $\delta$-Complete Decision Procedures}
+Hybrid systems with constant dynamics, linear dynamics, differential equations described by polynomials are important classes that have received much attention. However, the generality of the theory of hybrid systems has been restrictive. Exisintg techniques are mostly specific to the systems at hand, and can not go beyond those classes. 
 
-\section{Hybrid Systems and Their Representations}
+It is well known that such lack of general results come from the evident intractability of the verification problems of hybrid systems. The undeccidability results of simple linear hybrid systems seem to suggest that most of the problems in the area can only be handled in a heuristic manner. 
+
+In this paper we propose a new perspective. 
+
+Using first-order logic to describe verification problems of hybrid systems has become standard in state-of-the-art sofware and hardware verification practices. However, the use of first-order logic formulations in the domain of hybrid systems is not widespread. This is largely affected by the difficulty of logic-based methods in handling the real numbers. 
+
+Our results are built on our recent results on the so-called $\delta$-decidability of the theory over the reals with computable functions. It is a general result confirming the decidability of a large class of logic formulas over the real numbers, as long as numerical errors are taken into account in the decision procedures. Such errors have been the topic in hybrid system literature as well. In the work of~\cite{}, it has been argued that admitting errors can save much of the decidability results. However, on the other hand, a different definition of errors has been shown not effective in eliminating the undecidability results. 
+
+  
+
+
+\section{Computable Real Functions and $\delta$-Complete Decision Procedures}
+
+\subsection{Computable Real Functions}
+
+Real numbers can be encoded as infinite strings, and a computability theory of real functions can be developed with oracle machines that perform operations using function-oracles encoding real numbers. This is the approach developed in Computable Analysis or Type 2 Computability~\cite{CAbook,Kobook,vasco}. We briefly review results of importance to us.
+
+Any real number can be encoded by an infinite sequence of rational numbers converging to it. 
+\begin{definition}[Names]
+A name of a real number $a\in \mathbb{R}$ is a function $\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{Q}$ satisfying that for all $i\in \mathbb{N}$, $|\gamma_a(i) - a|<2^{-i}.$ For $\vec a\in \mathbb{R}^n$, $\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$.  
+\end{definition}
+
+For $\vec a\in \mathbb{R}^n$, we write $\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$. 
+
+A real function $f$ is computable if there is an oracle Turing machine that can take any argument $x$ of $f$ as a function oracle, and output the value of $f(x)$ up to an arbitrary precision. 
+
+\begin{definition}[Computable Real Functions] We say $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable if there exists an oracle Turing machine $\mathcal{M}_f$ such that does the following computation: let $\vec a$ be arbitrary in the domain of $f$, and $\gamma(\vec a)$ be any name of $\vec a$. $\mathcal{M}_f^{\gamma(\vec a)}$ uses $\gamma(\vec a)$ as an oracle, and computes, on any input $i\in \mathbb{N}$, a $2^{-i}$-approximation to $f(\vec a)$. 
+\end{definition}
+
+
+
+In the definition, $i$ specifies the desired error bound on the output of $M_f$ with respect to $f(\vec x)$. For any $\vec x\in \dom(f)$, $M_f$ has access to an oracle encoding the name $\gamma_{\vec x}$ of $\vec x$, and output a $2^{-i}$-approximation of $f(\vec x)$. In other words, the sequence $M_f^{\gamma_{\vec x}}(1), M_f^{\gamma_{\vec x}}(2), ...$ is a name of $f(\vec x)$. Intuitively, $f$ is computable if an arbitrarily good approximation of $f(\vec x)$ can be obtained using any good enough approximation to any $\vec x\in\dom(f)$. A key property of this notion of computability is that computable functions over reals are continuous~\cite{CAbook}. Moreover, over any compact set $D\subseteq \mathbb{R}^n$, computable functions are uniformly continuous with a {\em computable modulus of continuity} defined as follows. 
+
+Most common continuous real functions are computable~\cite{CAbook}. Addition, multiplication, absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of Lipschitz-continuous ordinary differential equations are all computable functions. Compositions of computable functions are computable.
+
+
+Moreover, complexity of real functions can be defined over compact domains. 
+
+\begin{definition}[\cite{Ko92}] Let $D\subseteq \mathbb{R}^n$ be compact. A real function $f:D\rightarrow\mathbb{R}$ is $\mathsf{P}$-computable ($\mathsf{PSPACE}$-computable), if it is computable by an oracle Turing machine $M_{f}^{\gamma(\vec x)}(i)$ that halts in polynomial-time (polynomial-space) for every $i\in \mathbb{N}$ and every $\vec x\in \dom(f)$. 
+\end{definition}
+
+
+
+We say $f$ is in Type 2 complexity class $\mathsf{C}$ if it is $\mathsf{C}$-computable. $f$ is $\mathsf{C}$-complete if it is $\mathsf{C}$-computable and $\mathsf{C}$-hard~\cite{Kobook}. If $f:D\rightarrow \mathbb{R}$ is $\mathsf{C}$-computable, then it has a $\mathsf{C}$-computable modulus of continuity over $D$. Polynomials, $\exp$, and $\sin$ are all $\mathsf{P}$-computable functions. A recent result~\cite{Kawamura09} established that the complexity of computing solutions of Lipschitz-continuous ODEs over compact domains is a {\sf PSPACE}-complete problem. 
+
+\subsection{$\delta$-Decidability}
+
+We are now able to discuss the decision problems of first-order logic formulas.
+
+\begin{definition}[Bounded Quantifiers]
+\end{definition}
+
+\begin{definition}[Normal Forms]
+\end{definition}
+
+
+\begin{definition}[$\delta$-Perturbation]
+\end{definition}
+
+\begin{definition}[$\delta$-Decisions]
+\end{definition}
+
+\begin{theorem}[$\delta$-Decidability]
+\end{theorem}
+
+
+\begin{theorem}[Complexity]
+\end{theorem}
+
+
+\section{Hybrid Systems and $\lrf$-Representations}
 
 \subsection{Basic Definitions}
 
