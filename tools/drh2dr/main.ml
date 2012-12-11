@@ -18,7 +18,7 @@ let run () =
     let hm = Parser.main Lexer.start lexbuf in
     let dr = Drh2dr.transform hm in
     begin
-      Dr.print_formula BatIO.stdout dr;
+      Dr.print BatIO.stdout dr;
       BatString.println BatIO.stdout ""
     end
   with v -> Error.handle_exn v

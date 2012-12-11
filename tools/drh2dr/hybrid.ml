@@ -14,7 +14,7 @@ type exp = Exp.t
 type mode = Mode.t
 
 (* 3. Init and Goal *)
-type init = (modeId * formula) list
+type init = modeId * formula
 type goal = (modeId * formula) list
 type t = varDecl list * mode list * init * goal
 
@@ -46,7 +46,7 @@ let mf_print out (id, f) =
     BatString.print out ")";
   end
 
-let print out (varDeclList, (modeList : mode list), init, goal) =
+let print out ((varDeclList, (modeList : mode list), init, goal) : t)=
   let print_header out str =
     begin
       BatString.print out "====================\n";
@@ -63,7 +63,7 @@ let print out (varDeclList, (modeList : mode list), init, goal) =
     BatList.print (~first:"") (~sep:"\n") (~last:"\n") Mode.print out modeList;
     (* print init *)
     print_header out "Init";
-    BatList.print (~first:"") (~sep:"\n") (~last:"\n") mf_print out init;
+    BatList.print (~first:"") (~sep:"\n") (~last:"\n") mf_print out [init];
     (* print goal *)
     print_header out "Goal";
     BatList.print (~first:"") (~sep:"\n") (~last:"\n") mf_print out goal;

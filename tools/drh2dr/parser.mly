@@ -100,7 +100,7 @@ jump:
   formula IMPLY AT FNUM formula SEMICOLON { ($1, int_of_float $4, $5) }
 ;
 
-init: INIT COLON mode_formula_list { $3 }
+init: INIT COLON mode_formula { $3 }
 ;
 
 goal: GOAL COLON mode_formula_list { $3 }

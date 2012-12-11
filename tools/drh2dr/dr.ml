@@ -2,6 +2,8 @@
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
 
+type vardecl = string * float * float
+
 type exp =
 | Var   of string
 | Const of float
@@ -36,6 +38,8 @@ and formula =
 | Ge  of exp * exp
 | Le  of exp * exp
 | Eq  of exp * exp
+
+type t = vardecl list * formula
 
 let rec print_exp out =
   let print_exps op exps =
@@ -135,3 +139,20 @@ and print_formula out =
   | Ge  (e1, e2) -> print_exps ">=" [e1; e2]
   | Le  (e1, e2) -> print_exps "<=" [e1; e2]
   | Eq  (e1, e2) -> print_exps "="  [e1; e2]
+
+let print_vardecl out (v, lb, ub) =
+  begin
+    BatString.print out v;
+    BatString.print out ": ";
+    BatString.print out "[";
+    BatString.print out (BatFloat.to_string lb);
+    BatString.print out ", ";
+    BatString.print out (BatFloat.to_string ub);
+    BatString.print out "]";
+  end
+
+let print out ((vardecls, f) : (vardecl list * formula)) : unit =
+  begin
+    BatList.print print_vardecl out vardecls;
+    print_formula out f
+  end
