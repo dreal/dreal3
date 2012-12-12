@@ -1,4 +1,5 @@
 //wrapper for realpaver
+#include "realpaver.h"
 
 class icp_solver
 {

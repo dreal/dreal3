@@ -1,7 +1,7 @@
 //icp solver
 
 #include "icp_solver.h"
-#include "realpaver.h"
+using namespace std;
 
 icp_solver::icp_solver(rp_problem * p,
                          double improve,
@@ -91,14 +91,14 @@ rp_box icp_solver::compute_next()
                 if (_propag.apply(_boxes.get()))
                 {
                         int i;
-                        if ((i=_vselect->apply(_boxes.get()))>=0) 
+                        if ((i=_vselect->apply(_boxes.get()))>=0)
                         {
                                 ++_nsplit;
                                 _dsplit->apply(_boxes,i);
 
                                 //monitoring
                                 cout<<endl<<"[branched on x"<<i<<"]"<<endl;
-                                rp_box_cout(_boxes.get(), 5, RP_INTERVAL_MODE_BOUND );
+                                //rp_box_cout(_boxes.get(), 5, RP_INTERVAL_MODE_BOUND );
 
 
 
