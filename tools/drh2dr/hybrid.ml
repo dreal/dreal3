@@ -9,8 +9,8 @@ type varDecl = var * value
 
 (* 2. Mode *)
 type modeId = Mode.id
-type formula = Formula.t
-type exp = Exp.t
+type formula = Dr.formula
+type exp = Dr.formula
 type mode = Mode.t
 
 (* 3. Init and Goal *)
@@ -42,7 +42,7 @@ let mf_print out (id, f) =
     BatString.print out "(";
     BatInt.print out id;
     BatString.print out ", ";
-    Formula.print out f;
+    Dr.print_formula out f;
     BatString.print out ")";
   end
 

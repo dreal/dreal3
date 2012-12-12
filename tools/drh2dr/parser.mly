@@ -12,7 +12,7 @@
 %token SINH COSH TANH
 %token LOG EXP
 %token MODE MACR INVT FLOW JUMP INIT GOAL TRUE FALSE
-%token AND
+%token AND OR
 %token EOF
 %token <float> FNUM
 %token <string> ID
@@ -63,26 +63,27 @@ formula_list: /* */ { [] }
 ;
 
 formula:
-    TRUE                { Formula.True }
-  | FALSE               { Formula.False }
+    TRUE                { Dr.True }
+  | FALSE               { Dr.False }
   | LP formula RP       { $2 }
-  | AND formula formula { Formula.And ($2, $3) }
-  | EQ  exp exp         { Formula.Eq  ($2, $3) }
-  | GT  exp exp         { Formula.Gt  ($2, $3) }
-  | LT  exp exp         { Formula.Lt  ($2, $3) }
-  | GTE exp exp         { Formula.Gte ($2, $3) }
-  | LTE exp exp         { Formula.Lte ($2, $3) }
+  | AND formula formula { Dr.And [$2; $3] }
+  | OR  formula formula { Dr.Or  [$2; $3] }
+  | EQ  exp exp         { Dr.Eq  ($2, $3) }
+  | GT  exp exp         { Dr.Gt  ($2, $3) }
+  | LT  exp exp         { Dr.Lt  ($2, $3) }
+  | GTE exp exp         { Dr.Ge ($2, $3) }
+  | LTE exp exp         { Dr.Le ($2, $3) }
 ; /* TODO: add "And" and "Or". maybe "and" is unnecessary... */
 
 exp:
-   ID            { Exp.Var $1 }
- | FNUM          { Exp.Const $1 }
+   ID            { Dr.Var $1 }
+ | FNUM          { Dr.Const $1 }
  | LP exp RP     { $2 }
- | PLUS exp exp  { Exp.Add ($2, $3) }
- | MINUS exp exp { Exp.Sub ($2, $3) }
- | AST exp exp   { Exp.Mul ($2, $3) }
- | SLASH exp exp { Exp.Div ($2, $3) }
- | EXP exp       { Exp.Exp $2 }
+ | PLUS exp exp  { Dr.Add ($2, $3) }
+ | MINUS exp exp { Dr.Sub ($2, $3) }
+ | AST exp exp   { Dr.Mul ($2, $3) }
+ | SLASH exp exp { Dr.Div ($2, $3) }
+ | EXP exp       { Dr.Exp $2 }
 ; /* TODO: support other functions such as sin, cos, ... */
 
 ode_list: /* */ { [] }

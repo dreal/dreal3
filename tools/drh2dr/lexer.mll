@@ -31,6 +31,7 @@
      ("true", TRUE);
      ("false", FALSE);
      ("and", AND);
+     ("or", OR);
     ]
 }
 

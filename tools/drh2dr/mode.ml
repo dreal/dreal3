@@ -3,8 +3,8 @@
  *)
 
 type id = int
-type formula = Formula.t
-type exp = Exp.t
+type formula = Dr.formula
+type exp = Dr.exp
 type var = string
 type macro = formula list
 type inv = formula list
@@ -18,18 +18,18 @@ let ode_print out (v, e) =
     BatString.print out "(";
     BatString.print out v;
     BatString.print out ", ";
-    Exp.print out e;
+    Dr.print_exp out e;
     BatString.print out ")";
   end
 
 let fmf_print out (f1, id, f2) =
   begin
     BatString.print out "(";
-    Formula.print out f1;
+    Dr.print_formula out f1;
     BatString.print out ", ";
     BatInt.print out id;
     BatString.print out ",";
-    Formula.print out f2;
+    Dr.print_formula out f2;
     BatString.print out ")";
   end
 
@@ -39,9 +39,9 @@ let print out (id, macro, inv, flow, jump) =
     BatString.print out "ModeID = ";
     BatInt.print out id;
     BatString.print out "\nMacro = ";
-    BatList.print Formula.print out macro;
+    BatList.print Dr.print_formula out macro;
     BatString.print out "\nInvariant = ";
-    BatList.print Formula.print out inv;
+    BatList.print Dr.print_formula out inv;
     BatString.print out "\nFlow = ";
     BatList.print ode_print out flow;
     BatString.print out "\nJump = ";
