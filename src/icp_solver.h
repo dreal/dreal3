@@ -7,7 +7,7 @@ public:
               double improve,
               rp_selector * vs,
               rp_splitter * ds,
-              rp_existence_prover * ep = 0);
+              rp_existence_prover * ep);
 
   ~icp_solver();
 
