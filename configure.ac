@@ -58,6 +58,7 @@ AC_CHECK_FUNCS([floor getpagesize pow sqrt strdup strrchr strtol strtoul])
 # List of directories to include
 #
 config_includedirs="-I\${top_srcdir}/src/opensmt \\\
+-I\${top_srcdir}/src \\\
 -I\${top_srcdir}/src/opensmt/minisat/mtl \\\
 -I\${top_srcdir}/src/opensmt/minisat/core \\\
 -I\${top_srcdir}/src/opensmt/smtsolvers \\\
@@ -82,6 +83,7 @@ config_includedirs="-I\${top_srcdir}/src/opensmt \\\
 AC_SUBST(config_includedirs)
 
 AC_CONFIG_FILES([Makefile
+                 src/Makefile
                  src/opensmt/Makefile
                  src/opensmt/api/Makefile
                  src/opensmt/cnfizers/Makefile

@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = src/opensmt src/realpaver
+SUBDIRS = src/opensmt src/realpaver src
 bin_PROGRAMS = dReal
 
 AM_CPPFLAGS = $(config_includedirs)
