@@ -7,6 +7,6 @@ AM_CPPFLAGS = $(config_includedirs)
 dReal_SOURCES = src/main.cpp
 dReal_LDFLAGS =
 
-LDADD = src/opensmt/libopensmt.la
+LDADD = src/opensmt/libtheorysolver.la
 
 ACLOCAL_AMFLAGS=-I m4
