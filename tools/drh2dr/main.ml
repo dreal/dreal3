@@ -17,9 +17,13 @@ let run () =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let hm = Parser.main Lexer.start lexbuf in
     let dr = Drh2dr.transform hm in
+    let out = BatIO.stdout in
     begin
-      Dr.print BatIO.stdout dr;
-      BatString.println BatIO.stdout ""
+      BatString.println out "=========== Input Hybrid System ===========";
+      Hybrid.print out hm;
+      BatString.println out "=========== Output Dr Formula   ===========";
+      Dr.print out dr;
+      BatString.println out ""
     end
   with v -> Error.handle_exn v
 let _ = Printexc.catch run ()

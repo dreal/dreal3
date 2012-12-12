@@ -153,6 +153,10 @@ let print_vardecl out (v, lb, ub) =
 
 let print out ((vardecls, f) : (vardecl list * formula)) : unit =
   begin
-    BatList.print print_vardecl out vardecls;
+    BatList.print
+      (~first:"")
+      (~sep:";\n")
+      (~last:";\n")
+      print_vardecl out vardecls;
     print_formula out f
   end

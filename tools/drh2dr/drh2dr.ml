@@ -7,6 +7,5 @@ let transform (hm : Hybrid.t) : Dr.t =
       vardecl_list in
   let out = BatIO.stdout in
   begin
-    Hybrid.print out hm;
     (new_vardecls, Dr.True)
   end
