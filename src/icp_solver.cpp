@@ -69,6 +69,11 @@ icp_solver::icp_solver(rp_problem * p,
 }
 
 
+icp_solver::~icp_solver()
+{
+}
+
+
 rp_box icp_solver::compute_next()
 {
 

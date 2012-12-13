@@ -24,12 +24,13 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // IT IS USED BY CREATE_THEORY.SH SCRIPT !!
 // NEW_THEORY_HEADER
 #include "EmptySolver.h"
-//#include "BVSolver.h"
-//#include "LRASolver.h"
-//#include "DLSolver.h"
-//#include "CostSolver.h"
+#include "BVSolver.h"
+#include "LRASolver.h"
+#include "DLSolver.h"
+#include "CostSolver.h"
 // Added to support compiling templates
 //#include "DLSolver.C"
+#include "theory_solver.h"
 #include "SimpSMTSolver.h"
 
 #define VERBOSE 0
@@ -601,31 +602,18 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
 #endif
 
   // No need to instantiate any other solver
-  if ( config.logic == QF_UF )
-    return;
-  // Empty theory solver, a template for user-defined solvers
-  if ( config.logic == EMPTY )
-  {
-    cerr << "# WARNING: Empty solver activated" << endl;
-    tsolvers      .push_back( new EmptySolver( tsolvers.size( ), "Empty Solver", config, *this, sort_store, explanation, deductions, suggestions ) );
-#ifdef STATISTICS
-    tsolvers_stats.push_back( new TSolverStats( ) );
-#endif
-  }
-
   /* added for dReal2 */
   if ( config.logic == QF_NLR )
   {
     /* TODO: Implement NLRSolver ! */
-    // tsolvers.push_back( new NLRSolver( tsolvers.size(),
-    //                                    "NLR Solver",
-    //                                    config,
-    //                                    *this,
-    //                                    sort_store,
-    //                                    explanation,
-    //                                    deductions,
-    //                                    suggestions,
-    //                                    problem));
+     tsolvers.push_back( new NLRSolver( tsolvers.size(),
+                                        "NLR Solver",
+                                        config,
+                                        *this,
+                                        sort_store,
+                                        explanation,
+                                        deductions,
+                                        suggestions));
 #ifdef STATISTICS
     tsolvers_stats.push_back( new TSolverStats() );
 #endif
@@ -644,6 +632,7 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
   }
 
 #ifdef STATISTICS
+  cout<< "tsolver size:"<< tsolvers.size( )<<" stat size: "<< tsolvers_stats.size( );
   assert( tsolvers.size( ) == tsolvers_stats.size( ) );
 #endif
 }

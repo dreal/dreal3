@@ -1,26 +1,3 @@
-/*********************************************************************
-Author: Roberto Bruttomesso <roberto.bruttomesso@gmail.com>
-
-OpenSMT -- Copyright (C) 2010, Roberto Bruttomesso
-
-OpenSMT is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-OpenSMT is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
-*********************************************************************/
-
-//
-// This is an empty solver to be used as a template for the 
-// development of ordinary theory solvers. 
-//
 
 #include "theory_solver.h"
 
@@ -31,10 +8,23 @@ NLRSolver::NLRSolver( const int           i
 			, SStore &            t
 	                , vector< Enode * > & x
 	                , vector< Enode * > & d
-                        , vector< Enode * > & s )
+                        , vector< Enode * > & s)
   : OrdinaryTSolver ( i, n, c, e, t, x, d, s )
 { 
-  // Here Allocate External Solver
+//initialize icp solver first
+	rp_init_library();
+
+	rp_problem problem;
+	_problem = &problem; 	
+
+	rp_selector * select;
+	rp_new( select, rp_selector_roundrobin, (_problem) );
+
+	rp_splitter * split;
+	rp_new( split, rp_splitter_mixed, (_problem) );
+
+	icp_solver solver( (_problem), 10, select, split);
+	_solver = &solver;	//solver created
 
 }
 
@@ -53,7 +43,9 @@ NLRSolver::~NLRSolver( )
 lbool NLRSolver::inform( Enode * e )  
 { 
   (void)e;
-  assert( e );
+  assert( e -> isAtom() );
+
+
   assert( belongsToT( e ) );
   return l_Undef;
 }
