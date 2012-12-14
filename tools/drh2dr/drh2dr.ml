@@ -1,11 +1,30 @@
+type varDecl = Dr.vardecl
+type formula = Dr.formula
+type hybrid = Hybrid.t
+type dr = Dr.t
+type id = int
+type mode = Mode.t
+type jump = Mode.jump
+type ode = Mode.ode
+type flow = ode list
+
 let add_index (n : int) (s : string) : string =
   s ^ "_" ^ (string_of_int n)
 
 type jumpmap = (int, int list) BatMap.t
 
-let extract_jumpmap (hm : Hybrid.t) : jumpmap =
+let extract_jumpmap (hm : hybrid) : jumpmap =
   let (_, mode_list, _, _) = hm in
-  let process_mode (jm : jumpmap) (mode : Mode.t) : jumpmap =
+  let process_mode (jm : jumpmap) (mode : mode) : jumpmap =
+    let (id, _, _, _, jump) = mode in
+    let target_list = List.fold_left (fun l (_, t, _) -> t::l) [] jump in
+    BatMap.add id target_list jm
+  in
+  List.fold_left process_mode BatMap.empty mode_list
+
+let extract_rjumpmap (hm : hybrid) : jumpmap =
+  let (_, mode_list, _, _) = hm in
+  let process_mode (jm : jumpmap) (mode : mode) : jumpmap =
     let (id, _, _, _, jump) = mode in
     let target_list = List.fold_left (fun l (_, t, _) -> t::l) [] jump in
     BatMap.add id target_list jm
@@ -19,18 +38,43 @@ let print_jumpmap out (jm : jumpmap) =
     out
     jm
 
-let flow_q (n : int) (ml : Mode.t list) (v : string) : (Mode.ode * Mode.formula) =
-  let (id, macro, inv, flow, jump) = List.nth ml n in
-  let ode = List.find (fun (var, e) -> v = var) flow in
-  raise Not_found
-
-let reach (k : int) (s : int) (v : string) : (Mode.ode * Mode.formula)
-    = raise Not_found
-
-let init_q (n : int) (i : Dr.formula) : Dr.formula =
+let process_init (n : int) (i : formula) : formula =
   Dr.subst_formula (add_index n) i
 
-let transform (hm : Hybrid.t) : Dr.t =
+let process_flow (q : int) (modes : mode list) : (flow * formula) =
+  let (id, macro, inv, flow, jump) = List.nth modes q in
+  (flow, Dr.True)
+
+let process_jump (jumps : jump list) (q : int) (next_q : int) (k : int) (next_k : int) : formula =
+  let (cond, _, change) = List.find (fun (_, id, _) -> id = q) jumps in
+  (* TODO: replace this ID function *)
+  let cond' = Dr.subst_formula (fun x -> x) cond in
+  let change' =
+    Dr.subst_formula
+      (* TODO: replace this function *)
+      (fun v -> match BatString.ends_with v "'" with
+        true -> v
+      | false -> v
+      )
+      change in
+  (* TODO: Need to check the following *)
+  Dr.Or [Dr.Not cond'; change']
+
+let reach (k : int) (q : int) (v : string) (hm : hybrid) : (flow * formula)
+    = let (vardecls, modes, (init_id, init_formula), goal) = hm in
+      match k with
+        0 ->
+          begin
+            let init_q0 : formula = process_init 0 init_formula in
+            let (odes, f) = process_flow q modes in
+            (odes, Dr.And [init_q0; f])
+          end
+      | _ ->
+        begin
+          raise Not_found
+        end
+
+let transform (hm : hybrid) : Dr.t =
   let (vardecl_list, mode_list, init, goal) = hm in
   let jm = extract_jumpmap hm in
   let _ = print_jumpmap BatIO.stdout jm in
@@ -42,5 +86,5 @@ let transform (hm : Hybrid.t) : Dr.t =
       vardecl_list in
   let out = BatIO.stdout in
   begin
-    (new_vardecls, [], init_q 0 init_formula)
+    (new_vardecls, [], process_init 0 init_formula)
   end

@@ -9,9 +9,9 @@ type var = string
 type macro = formula list
 type inv = formula list
 type ode = Dr.ode
-type flow = ode list
-type jump = (formula * id * formula) list
-type t = id * macro * inv * flow * jump
+type flow = ode
+type jump = formula * id * formula
+type t = id * macro * inv * flow list * jump list
 
 let print_fmf out (f1, id, f2) =
   begin
