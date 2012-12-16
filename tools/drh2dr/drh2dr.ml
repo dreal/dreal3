@@ -13,6 +13,10 @@ let add_index (n : int) (s : string) : string =
 
 type jumpmap = (int, int list) BatMap.t
 
+
+(*
+   (extract_jumpmap hm)[id] : successor of id
+*)
 let extract_jumpmap (hm : hybrid) : jumpmap =
   let (_, mode_list, _, _) = hm in
   let process_mode (jm : jumpmap) (mode : mode) : jumpmap =
@@ -22,12 +26,22 @@ let extract_jumpmap (hm : hybrid) : jumpmap =
   in
   List.fold_left process_mode BatMap.empty mode_list
 
+(*
+   (extract_rjumpmap hm)[id] : predecessor of id
+*)
 let extract_rjumpmap (hm : hybrid) : jumpmap =
   let (_, mode_list, _, _) = hm in
   let process_mode (jm : jumpmap) (mode : mode) : jumpmap =
-    let (id, _, _, _, jump) = mode in
-    let target_list = List.fold_left (fun l (_, t, _) -> t::l) [] jump in
-    BatMap.add id target_list jm
+    let (from_id, _, _, _, jump) = mode in
+    List.fold_left
+      (fun jm (_, to_id, _) ->
+        match BatMap.mem to_id jm with
+          true ->
+            let id_set = BatMap.find to_id jm in
+            BatMap.add to_id (from_id::id_set) jm
+        | false ->
+          BatMap.add to_id [from_id] jm
+      ) jm jump
   in
   List.fold_left process_mode BatMap.empty mode_list
 
@@ -76,7 +90,7 @@ let reach (k : int) (q : int) (v : string) (hm : hybrid) : (flow * formula)
 
 let transform (hm : hybrid) : Dr.t =
   let (vardecl_list, mode_list, init, goal) = hm in
-  let jm = extract_jumpmap hm in
+  let jm = extract_rjumpmap hm in
   let _ = print_jumpmap BatIO.stdout jm in
   let (init_mode, init_formula) = init in
   let new_vardecls =
