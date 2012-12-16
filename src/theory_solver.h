@@ -15,13 +15,19 @@ public:
 
   	~NLRSolver ( );
 
+	void		icp_solve		( rp_problem * );
+
+
   	lbool  		inform              	( Enode * );
   	bool            assertLit           	( Enode *, bool = false );
   	void            pushBacktrackPoint  	( );
   	void            popBacktrackPoint   	( );
   	bool            check               	( bool );
   	bool            belongsToT          	( Enode * );
+
   	void            computeModel        	( );
+
+	void	 	get_variables	( Enode * , vector< Enode * > );
 
 private:
 

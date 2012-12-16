@@ -16,22 +16,52 @@ NLRSolver::NLRSolver( const int           i
 
 	rp_problem problem;
 	_problem = &problem; 	
-
-	rp_selector * select;
-	rp_new( select, rp_selector_roundrobin, (_problem) );
-
-	rp_splitter * split;
-	rp_new( split, rp_splitter_mixed, (_problem) );
-
-	icp_solver solver( (_problem), 10, select, split);
-	_solver = &solver;	//solver created
-
 }
 
 NLRSolver::~NLRSolver( )
 {
   // Here Deallocate External Solver
 
+}
+
+
+void NLRSolver::icp_solve(rp_problem * p)
+{
+	rp_selector * select;
+	rp_new( select, rp_selector_roundrobin, (p) );
+
+	rp_splitter * split;
+	rp_new( split, rp_splitter_mixed, (p) );
+
+	icp_solver solver( (p), 10, select, split);
+	_solver = &solver;	//solver created
+
+
+}
+
+void NLRSolver::get_variables(Enode * e, vector<Enode *> vl)
+{
+
+  Enode * p = NULL;
+
+  if ( e -> isTerm( ) )
+  {
+	if ( e -> isVar() )
+	{
+		//to do: handle ITEs
+		cout << e <<" is in [" << e-> getLowerBound() << " , "<< e -> getUpperBound() << "]"<<endl;
+		 
+	    	get_variables( e->getCar(), vl );
+    	}
+
+	p = e -> getCdr();
+    	
+	while ( !p->isEnil( ) )
+    	{
+		get_variables( p->getCar(), vl );
+      		p = p -> getCdr() ;
+    	}
+  }
 }
 
 //
@@ -42,12 +72,15 @@ NLRSolver::~NLRSolver( )
 // 
 lbool NLRSolver::inform( Enode * e )  
 { 
-  (void)e;
-  assert( e -> isAtom() );
+	assert( e -> isAtom() );
+
+	//to do: change this to a list of variable objects, and extract the bounds on variables
+  	vector<Enode *> vl;
+  	get_variables( e, vl ); 
 
 
-  assert( belongsToT( e ) );
-  return l_Undef;
+	assert( belongsToT( e ) );
+  	return l_Undef;
 }
 
 // 

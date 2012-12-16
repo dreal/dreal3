@@ -632,7 +632,6 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
   }
 
 #ifdef STATISTICS
-  cout<< "tsolver size:"<< tsolvers.size( )<<" stat size: "<< tsolvers_stats.size( );
   assert( tsolvers.size( ) == tsolvers_stats.size( ) );
 #endif
 }
