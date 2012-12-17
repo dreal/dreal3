@@ -74,7 +74,7 @@ let process_jump (jumps : jump list) (q : int) (next_q : int) (k : int) (next_k 
   (* TODO: Need to check the following *)
   Dr.Or [Dr.Not cond'; change']
 
-let reach (k : int) (q : int) (v : string) (hm : hybrid) : (flow * formula)
+let rec reach (k : int) (q : int) (hm : hybrid) : (flow * formula)
     = let (vardecls, modes, (init_id, init_formula), goal) = hm in
       match k with
         0 ->
@@ -85,7 +85,18 @@ let reach (k : int) (q : int) (v : string) (hm : hybrid) : (flow * formula)
           end
       | _ ->
         begin
-          raise Not_found
+          let rjumpmap = extract_rjumpmap hm in
+          let prev_states = BatMap.find q rjumpmap in
+          let process (q' : int) : (flow * formula) =
+            let (id, macro, inv, flows, jumps) = List.find (fun (id, _, _, _, _) -> id = q') modes in
+            let (flow', formula') = reach (k-1) q' hm in
+            let formula'' = process_jump jumps q' q (k-1) k in
+            begin
+              raise Not_found
+            end
+          in
+          let (flows, formulas) = BatList.split (List.map process prev_states) in
+            (BatList.concat flows, Dr.Or formulas)
         end
 
 let transform (hm : hybrid) : Dr.t =
