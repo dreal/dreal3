@@ -1,4 +1,3 @@
-
 #include "theory_solver.h"
 
 NLRSolver::NLRSolver( const int           i
@@ -14,8 +13,14 @@ NLRSolver::NLRSolver( const int           i
 //initialize icp solver first
 	rp_init_library();
 
-	rp_problem problem;
-	_problem = &problem; 	
+	_ts = new rp_table_symbol;
+	_b = new rp_box;
+	
+	rp_table_symbol_create( _ts );
+	rp_box_create ( _b, 100 );	//TODO: change 100 to the number of variables
+	
+	_problem = new rp_problem; 	
+	
 }
 
 NLRSolver::~NLRSolver( )
@@ -36,10 +41,27 @@ void NLRSolver::icp_solve(rp_problem * p)
 	icp_solver solver( (p), 10, select, split);
 	_solver = &solver;	//solver created
 
+}
+
+variable * NLRSolver::add_variable( Enode * e )
+{
+  	for (vector<variable *>::iterator it = v_list.begin() ; it != v_list.end(); it++)
+	{
+		if ( e == (*it) -> get_enode() )
+		{
+			return NULL; 
+		}
+	}
+
+	variable * var = new variable(e, _b, _ts);	
+	var-> mk_rp_variable( (e->getCar() -> getName()).c_str() );
+	
+	return var;
 
 }
 
-void NLRSolver::get_variables(Enode * e, vector<Enode *> vl)
+
+void NLRSolver::get_variables(Enode * e, vector<variable *> & vl)
 {
 
   Enode * p = NULL;
@@ -48,9 +70,8 @@ void NLRSolver::get_variables(Enode * e, vector<Enode *> vl)
   {
 	if ( e -> isVar() )
 	{
-		//to do: handle ITEs
-		cout << e <<" is in [" << e-> getLowerBound() << " , "<< e -> getUpperBound() << "]"<<endl;
-		 
+		variable * var = add_variable( e ); 
+		if (var != NULL ) vl.push_back(var);
 	    	get_variables( e->getCar(), vl );
     	}
 
@@ -64,20 +85,40 @@ void NLRSolver::get_variables(Enode * e, vector<Enode *> vl)
   }
 }
 
+
+void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
+{
+  	for (vector<literal *>::iterator it = ll.begin() ; it != ll.end(); it++)
+	{
+		if ( e == (*it) -> get_enode() )
+		{
+			return; 
+		}
+	}
+
+	literal * lit = new literal( e );	
+	cout << lit -> get_enode();
+
+	ll.push_back(lit);
+
+}
+
+
 //
 // The solver is informed of the existence of
 // atom e. It might be useful for initializing
 // the solver's data structures. This function is 
 // called before the actual solving starts.
-// 
+//
+
 lbool NLRSolver::inform( Enode * e )  
 { 
 	assert( e -> isAtom() );
 
-	//to do: change this to a list of variable objects, and extract the bounds on variables
-  	vector<Enode *> vl;
-  	get_variables( e, vl ); 
+  	get_variables( e, v_list ); 
+	add_literal ( e, l_list );	
 
+	cout << " has polarity " << toInt(e->getPolarity()) << " "<<endl;
 
 	assert( belongsToT( e ) );
   	return l_Undef;
@@ -93,6 +134,12 @@ bool NLRSolver::assertLit ( Enode * e, bool reason )
 {
   (void)e;
   (void)reason;
+
+	//TODO: add things to take care of polarity
+
+	add_literal (e, temp_l_list);
+	cout<< " has polarity " << toInt(e->getPolarity()) << endl;
+
   assert( e );
   assert( belongsToT( e ) );
   return true;
@@ -129,9 +176,25 @@ void NLRSolver::popBacktrackPoint ( )
 //
 bool NLRSolver::check( bool complete )    
 { 
-  (void)complete;
-  // Here check for consistency
-  return true;
+	cout<<"This is a "<< complete<<" check\n";
+
+	if (complete)	
+	{
+		explanation.clear();
+
+		cout<<"#explanation provided: ";
+		for (vector<literal *>::iterator it = temp_l_list.begin(); it!= temp_l_list.end(); it++)
+		{
+			explanation.push_back( (*it) -> get_enode() );
+			cout << (*it)->get_enode() <<" with polarity "
+			     << toInt((*it)->get_enode()->getPolarity()) << " ";
+		}
+		cout<< endl;
+		
+		temp_l_list.clear();
+	}
+
+  return !complete;
 }
 
 //

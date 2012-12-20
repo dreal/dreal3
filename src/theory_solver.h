@@ -19,7 +19,7 @@ public:
 
 
   	lbool  		inform              	( Enode * );
-  	bool            assertLit           	( Enode *, bool = false );
+  	bool           	assertLit           	( Enode *, bool = false );
   	void            pushBacktrackPoint  	( );
   	void            popBacktrackPoint   	( );
   	bool            check               	( bool );
@@ -27,14 +27,23 @@ public:
 
   	void            computeModel        	( );
 
-	void	 	get_variables	( Enode * , vector< Enode * > );
+	void	 	get_variables	( Enode * , vector< variable * > & );
+	variable *	add_variable	( Enode * );
+
+	void		add_literal	( Enode * , vector< literal * > & );
+
 
 private:
 
 	vector< variable * >	v_list;
 	vector< literal * >	l_list;
+	vector< literal * >	temp_l_list;
 
 	icp_solver * 		_solver;
+	
+	rp_table_symbol *	_ts;
+	rp_box *		_b;
+
 	rp_problem * 		_problem;
 
 };
