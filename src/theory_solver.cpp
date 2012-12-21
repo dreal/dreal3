@@ -13,13 +13,11 @@ NLRSolver::NLRSolver( const int           i
 //initialize icp solver first
 	rp_init_library();
 
-	_ts = new rp_table_symbol;
-	_b = new rp_box;
-	
-	rp_table_symbol_create( _ts );
-	rp_box_create ( _b, 100 );	//TODO: change 100 to the number of variables
-	
 	_problem = new rp_problem; 	
+	rp_problem_create( _problem, "icp_holder" );
+	
+	_ts = &rp_problem_symb (*_problem);
+	_b  = &rp_problem_box (*_problem);
 	
 }
 
@@ -27,6 +25,9 @@ NLRSolver::~NLRSolver( )
 {
   // Here Deallocate External Solver
 
+    rp_problem_destroy(_problem);
+    rp_reset_library();
+  
 }
 
 
@@ -96,8 +97,12 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 		}
 	}
 
-	literal * lit = new literal( e );	
+	literal * lit = new literal( e , _ts );	
 	cout << lit -> get_enode();
+	
+	stringstream s;
+	e -> print(s);
+	lit->mk_constraint( s.str().c_str() );
 
 	ll.push_back(lit);
 

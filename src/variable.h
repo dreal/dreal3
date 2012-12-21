@@ -1,6 +1,10 @@
 #include "realpaver.h"
 #include "Enode.h"
 
+void rp_interval_cout(rp_interval , int , int );
+void rp_box_cout(rp_box , int , int );
+void rp_box_stack_cout(rp_box_stack, int, int);
+
 class variable
 {
 public:

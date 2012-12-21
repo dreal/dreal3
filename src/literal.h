@@ -3,21 +3,21 @@
 class literal
 {
 public:
-	literal ( Enode * );
+	literal ( Enode *, rp_table_symbol * );
 	~literal();
 
-	rp_ctr_num 	c;	//realpaver constraint, defined in rp_constraint.h
-
-	lbool polarity;	//whether it's negated
-
-	vector< variable * >	v_list;
-
-	inline Enode * get_enode()	{ return _e; }
-
+	inline Enode * 	get_enode()	{ return _e; }
+	void		mk_constraint( const char * );
+		
 private:
-
-	Enode *		_e;	//original enode position
-
-
+  
+	vector< variable * >	v_list;
+	lbool polarity;	//whether it's negated
+	
+	Enode *			_e;	//original enode position
+	rp_constraint *		_c;
+	rp_table_symbol * 	_ts; //pointer to an outside symbol table
+	
 };
 
+void infix ( Enode *, string & s);
