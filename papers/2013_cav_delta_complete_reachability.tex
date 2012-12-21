@@ -36,7 +36,7 @@
 \maketitle
 
 \begin{abstract}
-We propose reachability analysis techniques for a wide range of hybrid systems based on the use of $\delta$-complete decision procedures. Our method can handle any hybrid systems that can be described by first-order formulas over the reals with computable real functions, which we will call $\lrf$-representable hybrid systems. We show how bounded model checking and invariant validation techniques can be done, guaranteeing $\delta$-completeness, and study the theoretical properties of these problems including decidability and complexity. We show experimental results on nonlinear benchmarks. 
+We propose the notion of ``$\delta$-complete reachability analysis'' for a wide range of hybrid systems. Essentially, a method is called $\delta$-complete if it provides answers with possible but only one-sided  and ``$\delta$-bounded'' errors. Such methods can be applied to any hybrid system that is ``$\lrf$-representable'' (definable by first-order formulas over the reals with an arbitrary set of computable real functions $\mathcal{F}$), following the availability of $\delta$-complete decision procedures. We show how to use bounded model checking and invariant validation techniques to perform $\delta$-complete analysis, and study the theoretical properties of these techniques in this context. We then show promising experimental results of $\delta$-complete techniques on hybrid systems beyond the reach of existing tools. 
 \end{abstract}
 
 \section{Introduction}
@@ -58,20 +58,18 @@ Our results are built on our recent results on the so-called $\delta$-decidabili
   
 
 
-\section{Computable Real Functions and $\delta$-Complete Decision Procedures}
+\section{Computable Functions over the Reals and $\delta$-Complete Decision Procedures}
 
 \subsection{Computable Real Functions}
 
-Real numbers can be encoded as infinite strings, and a computability theory of real functions can be developed with oracle machines that perform operations using function-oracles encoding real numbers. This is the approach developed in Computable Analysis or Type 2 Computability~\cite{CAbook,Kobook,vasco}. We briefly review results of importance to us.
+A computability theory of real functions can be developed with machines that use infinite tapes to encode the real numbers. This approach has been well-developed in {\em Computable Analysis}~\cite{CAbook,Kobook,vasco}, following the initial conception by Turing~\cite{}.
 
-Any real number can be encoded by an infinite sequence of rational numbers converging to it. 
+First, to perform any computation over the reals we need a way of representing the real numbers. It is clear that no finite representation is possible. However, if we allow the use of infinite tapes, then any real number can be encoded by an infinite sequence of rational numbers converging to it. 
 \begin{definition}[Names]
-A name of a real number $a\in \mathbb{R}$ is a function $\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{Q}$ satisfying that for all $i\in \mathbb{N}$, $|\gamma_a(i) - a|<2^{-i}.$ For $\vec a\in \mathbb{R}^n$, $\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$.  
+A name of a real number $a\in \mathbb{R}$ is a function $\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{Q}$ satisfying that for all $i\in \mathbb{N}$, $|\gamma_a(i) - a|<2^{-i}.$ For $\vec a\in \mathbb{R}^n$, $\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$. For $\vec a\in \mathbb{R}^n$, we write $\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$. 
 \end{definition}
 
-For $\vec a\in \mathbb{R}^n$, we write $\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$. 
-
-A real function $f$ is computable if there is an oracle Turing machine that can take any argument $x$ of $f$ as a function oracle, and output the value of $f(x)$ up to an arbitrary precision. 
+Next, we define a real function $f$ to be computable if there is an oracle Turing machine that can take any argument $x$ of $f$ as a function oracle, and output the value of $f(x)$ up to an arbitrary precision. 
 
 \begin{definition}[Computable Real Functions] We say $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable if there exists an oracle Turing machine $\mathcal{M}_f$ such that does the following computation: let $\vec a$ be arbitrary in the domain of $f$, and $\gamma(\vec a)$ be any name of $\vec a$. $\mathcal{M}_f^{\gamma(\vec a)}$ uses $\gamma(\vec a)$ as an oracle, and computes, on any input $i\in \mathbb{N}$, a $2^{-i}$-approximation to $f(\vec a)$. 
 \end{definition}
@@ -80,7 +78,7 @@ A real function $f$ is computable if there is an oracle Turing machine that can 
 
 In the definition, $i$ specifies the desired error bound on the output of $M_f$ with respect to $f(\vec x)$. For any $\vec x\in \dom(f)$, $M_f$ has access to an oracle encoding the name $\gamma_{\vec x}$ of $\vec x$, and output a $2^{-i}$-approximation of $f(\vec x)$. In other words, the sequence $M_f^{\gamma_{\vec x}}(1), M_f^{\gamma_{\vec x}}(2), ...$ is a name of $f(\vec x)$. Intuitively, $f$ is computable if an arbitrarily good approximation of $f(\vec x)$ can be obtained using any good enough approximation to any $\vec x\in\dom(f)$. A key property of this notion of computability is that computable functions over reals are continuous~\cite{CAbook}. Moreover, over any compact set $D\subseteq \mathbb{R}^n$, computable functions are uniformly continuous with a {\em computable modulus of continuity} defined as follows. 
 
-Most common continuous real functions are computable~\cite{CAbook}. Addition, multiplication, absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of Lipschitz-continuous ordinary differential equations are all computable functions. Compositions of computable functions are computable.
+Most common continuous real functions are computable, such as addition, multiplication, absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of Lipschitz-continuous ordinary differential equations.~\cite{CAbook} Compositions of computable functions are computable.
 
 
 Moreover, complexity of real functions can be defined over compact domains. 
@@ -655,49 +653,6 @@ in the generalized Skorokhod topology.
 $(\reach_{H,q}^n(\vec a))^{-\delta}$ iff there is a trajectory $\xi\in \llbracket H^{\delta}\rrbracket$ such that $\xi(n, t) = \vec a$ and $\sigma_{\xi}(n) = q$.  
 \end{proposition}
 
-\begin{proof}
-Prove by induction on $n$.
-
-(i) Case $n=0$.
-
-Suppose $(\reach^0_{H,q}(\vec a_0^t))^{-\delta}$ is true, where $\vec a_0\in \mathbb{R}^n$. Then there exists $\vec a_0^t\in \mathbb{R}^n$ and $t_0\in \mathbb{R}$ such that
-$$(\init_{q_0}(\vec a_0))^{-\delta}\wedge(\flow_{q_0}(\vec a_t, \vec a_0, t_0))^{-\delta}.$$
-Following Definition~\ref{trajec} and Definition~\ref{lrf-definition}, there exists a trajectory $\xi\in \llbracket H\rrbracket$ such that
-$$\xi(0,0) = \vec a_0$$
-and 
-$$\xi(0,t_0) = \vec a_0^t$$
-with 
-$$\sigma^H_{\xi}(0) = q_0.$$
-Then, since $\unsafe(\vec a^t)$, we know that $H$ reaches $\unsafe$ by Definition~\ref{reachability}.
-
-On the other hand, if there is a $\xi\in \llbracket H\rrbracket$ such that $\xi(0,t)$ is in $\unsafe$ for some $t$. Then let $\vec a_0 = \xi(0,0)$, $\vec a_0^t = \xi(0,t)$, and $t_0 = t$. Following the definitions, they witness that $\reach^0_{H,\unsafe}$ is true. 
-
-(ii) Case $n=k+1$. 
- 
-Suppose $\reach_{H,q}^{k+1}(\vec a^t)$ is true for some $\vec a^t\in\mathbb{R}^n$. Then there exists $\vec b\in \mathbb{R}^n$, $\vec a\in \mathbb{R}$, $t_a\in \mathbb{R}$, and $q'\in Q$ such that
-$$\reach_{H,q'}^k(\vec b) \wedge \jump_{q\rightarrow q'}(\vec b, \vec a)\wedge \flow(\vec a^t, \vec a, t_a).$$ 
-By inductive hypothesis, since $\reach_{H,q'}^k(\vec b)$, there exists $\xi\in\llbracket H\rrbracket$ and $t_b\in mathbb{R}$ such that $\xi(k, t_b) = \vec b$. 
-
-
-Now consider the extension of $\xi$ into $\xi'$ satisfying:
-$$(q', q, \vec b, \vec a)\in \llbracket \jump_{q\rightarrow q'}\rrbracket$$
-and 
-$$(\vec a, \vec a^t, t_a)\in \llbracket \flow_q \rrbracket$$
-where $\xi'(k,t_b) = \vec b$ and $\xi'(k+1, t_a) = \vec a^t$. Following Definition~\ref{trajec} and Definition~\ref{lrf-definition}, $\xi'\in \llbracket H\rrbracket$. 
-
-On the other hand, suppose there is a trajectory $\xi\in\llbracket H\rrbracket$ such that $\xi(k+1, t_a) = \vec a$. By Definition~\ref{trajec} and Definition~\ref{lrf-definition}, for some $q'\in Q$ we have
-$$\reach^n_{H,q'}(\xi(k,t_b))$$
-where $t_b\in\mathbb{R}$ satisfying
-$$(q', q, \xi(k,t_b), \xi(k+1,t_b))\in \llbracket \jump_{q'\rightarrow q} \rrbracket$$
-and
-$$(\xi(k+1,t_a), \xi(k+1,t_b), t_a - t_b)\in \llbracket \flow_q\rrbracket$$
-Thus we have 
-$$\reach_{H,q'}(\vec b)\wedge \jump(q',q,\vec b, \vec a)\wedge \flow(\vec a, \vec a^t, t_a-t_b),$$
-which means that $\reach_{H,q}(\vec a^t)$ is true. 
-
-
-\end{proof}
-
 \subsection{Bounded $\delta$-Reachability}
 
 We focus on the problem of bounded $\delta$-Reachability, defined as follows. 
@@ -839,6 +794,54 @@ The input parameters of the $\delta$-reachability problem are: the depth $n$, th
 
 \bibliographystyle{abbrv}
 \bibliography{tau}
+
+\newpage
+\section*{Appendix}
+
+\subsection*{Proof of Proposition \ref{equiv-delta}}
+\begin{proof}
+Prove by induction on $n$.
+
+(i) Case $n=0$.
+
+Suppose $(\reach^0_{H,q}(\vec a_0^t))^{-\delta}$ is true, where $\vec a_0\in \mathbb{R}^n$. Then there exists $\vec a_0^t\in \mathbb{R}^n$ and $t_0\in \mathbb{R}$ such that
+$$(\init_{q_0}(\vec a_0))^{-\delta}\wedge(\flow_{q_0}(\vec a_t, \vec a_0, t_0))^{-\delta}.$$
+Following Definition~\ref{trajec} and Definition~\ref{lrf-definition}, there exists a trajectory $\xi\in \llbracket H\rrbracket$ such that
+$$\xi(0,0) = \vec a_0$$
+and 
+$$\xi(0,t_0) = \vec a_0^t$$
+with 
+$$\sigma^H_{\xi}(0) = q_0.$$
+Then, since $\unsafe(\vec a^t)$, we know that $H$ reaches $\unsafe$ by Definition~\ref{reachability}.
+
+On the other hand, if there is a $\xi\in \llbracket H\rrbracket$ such that $\xi(0,t)$ is in $\unsafe$ for some $t$. Then let $\vec a_0 = \xi(0,0)$, $\vec a_0^t = \xi(0,t)$, and $t_0 = t$. Following the definitions, they witness that $\reach^0_{H,\unsafe}$ is true. 
+
+(ii) Case $n=k+1$. 
+ 
+Suppose $\reach_{H,q}^{k+1}(\vec a^t)$ is true for some $\vec a^t\in\mathbb{R}^n$. Then there exists $\vec b\in \mathbb{R}^n$, $\vec a\in \mathbb{R}$, $t_a\in \mathbb{R}$, and $q'\in Q$ such that
+$$\reach_{H,q'}^k(\vec b) \wedge \jump_{q\rightarrow q'}(\vec b, \vec a)\wedge \flow(\vec a^t, \vec a, t_a).$$ 
+By inductive hypothesis, since $\reach_{H,q'}^k(\vec b)$, there exists $\xi\in\llbracket H\rrbracket$ and $t_b\in mathbb{R}$ such that $\xi(k, t_b) = \vec b$. 
+
+
+Now consider the extension of $\xi$ into $\xi'$ satisfying:
+$$(q', q, \vec b, \vec a)\in \llbracket \jump_{q\rightarrow q'}\rrbracket$$
+and 
+$$(\vec a, \vec a^t, t_a)\in \llbracket \flow_q \rrbracket$$
+where $\xi'(k,t_b) = \vec b$ and $\xi'(k+1, t_a) = \vec a^t$. Following Definition~\ref{trajec} and Definition~\ref{lrf-definition}, $\xi'\in \llbracket H\rrbracket$. 
+
+On the other hand, suppose there is a trajectory $\xi\in\llbracket H\rrbracket$ such that $\xi(k+1, t_a) = \vec a$. By Definition~\ref{trajec} and Definition~\ref{lrf-definition}, for some $q'\in Q$ we have
+$$\reach^n_{H,q'}(\xi(k,t_b))$$
+where $t_b\in\mathbb{R}$ satisfying
+$$(q', q, \xi(k,t_b), \xi(k+1,t_b))\in \llbracket \jump_{q'\rightarrow q} \rrbracket$$
+and
+$$(\xi(k+1,t_a), \xi(k+1,t_b), t_a - t_b)\in \llbracket \flow_q\rrbracket$$
+Thus we have 
+$$\reach_{H,q'}(\vec b)\wedge \jump(q',q,\vec b, \vec a)\wedge \flow(\vec a, \vec a^t, t_a-t_b),$$
+which means that $\reach_{H,q}(\vec a^t)$ is true. 
+
+
+\end{proof}
+
 
 
 \end{document}
