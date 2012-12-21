@@ -64,14 +64,14 @@ Our results are built on our recent results on the so-called $\delta$-decidabili
 
 A computability theory of real functions can be developed with machines that use infinite tapes to encode the real numbers. This approach has been well-developed in {\em Computable Analysis}~\cite{CAbook,Kobook,vasco}, following the initial conception by Turing~\cite{}.
 
-First, to perform any computation over the reals we need a way of representing the real numbers. It is clear that no finite representation is possible. However, if we allow the use of infinite tapes, then any real number can be encoded by an infinite sequence of rational numbers converging to it. 
+First, to perform any computation over the reals we need a way of representing the real numbers. It is clear that no finite representation is possible. However, any real number can be encoded by an infinite sequence of rational numbers converging to it. 
 \begin{definition}[Names]
 A name of a real number $a\in \mathbb{R}$ is a function $\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{Q}$ satisfying that for all $i\in \mathbb{N}$, $|\gamma_a(i) - a|<2^{-i}.$ For $\vec a\in \mathbb{R}^n$, $\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$. For $\vec a\in \mathbb{R}^n$, we write $\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$. 
 \end{definition}
 
-Next, we define a real function $f$ to be computable if there is an oracle Turing machine that can take any argument $x$ of $f$ as a function oracle, and output the value of $f(x)$ up to an arbitrary precision. 
+Next, we define a real function $f$ to be computable if there is an oracle Turing machine that can take any argument $x$ of $f$ (an infinite tape) as an oracle, and output an infinite sequence of rational approximations to $f(x)$. 
 
-\begin{definition}[Computable Real Functions] We say $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable if there exists an oracle Turing machine $\mathcal{M}_f$ such that does the following computation: let $\vec a$ be arbitrary in the domain of $f$, and $\gamma(\vec a)$ be any name of $\vec a$. $\mathcal{M}_f^{\gamma(\vec a)}$ uses $\gamma(\vec a)$ as an oracle, and computes, on any input $i\in \mathbb{N}$, a $2^{-i}$-approximation to $f(\vec a)$. 
+\begin{definition}[Computable Real Functions] We say $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable, if there exists an oracle Turing machine $\mathcal{M}_f$ that performs the following computation: Let $\vec a\in \dom(f)$ be any argument of $f$ and $\gamma(\vec a)$ any name of $\vec a$. On any input $i\in \mathbb{N}$, $\mathcal{M}_f^{\gamma(\vec a)}(i)$ uses $\gamma(\vec a)$ as an oracle, and computes a $2^{-i}$-approximation to $f(\vec a)$. 
 \end{definition}
 
 
