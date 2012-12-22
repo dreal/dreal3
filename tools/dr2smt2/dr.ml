@@ -2,6 +2,13 @@
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
 
+type float_option =
+  Float       (* Floating point:     3.141592 *)
+| IntRatio (* Ratio of integers: (3141592 / 1000000 *)
+
+(* Change this to switch the printing format of float constants *)
+let fop = IntRatio
+
 type exp =
 | Var   of string
 | Const of float
@@ -69,13 +76,30 @@ let rec print_exp out =
     in
     BatString.print out (filter x)
   | Const n ->
-    (* If n ends with ".", add "0" to make ".0" *)
-    let s = BatFloat.to_string n in
-    let s' = match BatString.ends_with s "." with
-      | true -> s ^ "0"
-      | false -> s
-    in
-    BatString.print out s'
+    begin
+      let s = BatFloat.to_string n in
+      let s' =
+        match fop with
+        | Float ->
+            begin
+              (* If n ends with ".", add "0" to make ".0" *)
+              match BatString.ends_with s "." with
+              | true -> s ^ "0"
+              | false -> s
+            end
+        | IntRatio ->
+          begin
+            let (int_part, deci_part) = BatString.split s "." in
+            let int_part = if int_part = "0" then "" else int_part in
+            let l = String.length deci_part in
+            let (num, denom) = (int_part ^ deci_part, BatInt.to_string (BatInt.pow 10 l)) in
+            match (num, denom) with
+            | ("", _) -> "0"           (* 0.0  *)
+            | (_, "1") -> int_part     (* x / 1 = x  *)
+            | (_, _) -> ("(/ " ^ num ^ " " ^ denom ^ ")")
+          end
+      in BatString.print out s'
+    end
   | Neg e' -> print_exps "-" [e']
   | Add (e1, e2) -> print_exps "+" [e1; e2]
   | Sub (e1, e2) -> print_exps "-" [e1; e2]
@@ -93,10 +117,12 @@ let rec print_exp out =
       BatString.print out ")"
     end
   | Sqrt e -> (* print_exps "sqrt" [e] *)
-    (* MATH HACK *)
+    (* SQRT: MATH HACK
+       sqrt(x) = pow(x, 0.5) *)
     print_exp out (Pow(e, Const 0.5))
   | Abs  e -> (* print_exps "abs"  [e] *)
-    (* MATH HACK *)
+    (* ABS: MATH HACK
+       abs(x) = sqrt(pow(x, 2)) *)
     print_exp out (Sqrt (Pow(e, Const 2.0)))
   | Log  e -> print_exps "log"  [e]
   | Exp  e -> print_exps "exp"  [e]

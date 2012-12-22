@@ -1,20 +1,20 @@
 ----- done ------
 @ Add .dr parser
-	- yes lets put the parser outside. 
+	- yes lets put the parser outside.
 @ Add DR theory solver
-	- if we have a clean data structure, we don't have intermediate variables and the ITEs would be properly handled. 
+	- if we have a clean data structure, we don't have intermediate variables and the ITEs would be properly handled.
 @ refactor code to remove unnecessary global variables
-	- We don't have those global variables yet now. 
+	- We don't have those global variables yet now.
 @ interface between opensmt and realpaver
 	- need an rp_solver class that can take in literals and call realpaver to check for consistency
-	- each solving step in realpaver should be logged. 
+	- each solving step in realpaver should be logged.
 	- assert and backtrack utilities
-@ put the interfaces with hybrid models and c programs in interfaces/ 
+@ put the interfaces with hybrid models and c programs in interfaces/
 
+@ preprocess constants represented as ratios of integers.
+        - there is an option in tools/dr2smt2/dr.ml (line: 10)
 ---- to do below, in order of priority ----
 
 # fix .dr parser to support ITE properly
-
-# preprocess constants represented as ratios of integers.
 
 # language binding for C/C++/OCaml

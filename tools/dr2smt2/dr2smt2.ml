@@ -7,7 +7,7 @@ let print_ast = ref false
 let spec = []
 let usage = "Usage: dr2smt2.native <.dr>\n"
 
-let process out vardecls f =
+let process out (vardecls : Vardecl.t list) (f : Dr.formula) =
   begin
     (* Set Logic *)
     BatString.println out "(set-logic QF_NLR)";
