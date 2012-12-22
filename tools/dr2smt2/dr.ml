@@ -6,8 +6,7 @@ type float_option =
   Float       (* Floating point:     3.141592 *)
 | IntRatio (* Ratio of integers: (3141592 / 1000000 *)
 
-(* Change this to switch the printing format of float constants *)
-let fop = IntRatio
+let fop = ref IntRatio
 
 type exp =
 | Var   of string
@@ -79,7 +78,7 @@ let rec print_exp out =
     begin
       let s = BatFloat.to_string n in
       let s' =
-        match fop with
+        match !fop with
         | Float ->
             begin
               (* If n ends with ".", add "0" to make ".0" *)
