@@ -41,21 +41,17 @@ We propose the notion of ``$\delta$-complete reachability analysis'' for a wide 
 
 \section{Introduction}
 
-Hybrid systems with constant dynamics, linear dynamics, differential equations described by polynomials are important classes that have received much attention. However, the generality of the theory of hybrid systems has been restrictive. Exisintg techniques are mostly specific to the systems at hand, and can not go beyond those classes. 
+Hybrid systems combine discrete and continuous systems and are usually used to model safety-critical embedded systems. Formal verification of hybrid systems is important and very challenging. It is well known that safety verification problems for hybrid systems with simple dynamics are undecidable (high up in the analytic hierarchy)~\cite{}. Practically, systems with constant-rate dynamics, and some systems with linear dynamics but simple discrete control structure can be handled algorithmically, and proof-theoretic approaches handle specific nonlinear systems with ad-hoc proofs. The gap between existing technology and the hope of automatic verification of large-scale realistic hybrid systems is still wide. 
 
-It is well known that such lack of general results come from the evident intractability of the verification problems of hybrid systems. The undeccidability results of simple linear hybrid systems seem to suggest that most of the problems in the area can only be handled in a heuristic manner. 
+It is often argued that the difficulty with the theory and practice of verifying hybrid systems follows from the fact that we are dealing with too hard a problem. Formal work along this line started in the work~\cite{}. Franzle defined a notion of noise in hybrid systems, and proved that problems with polynomial maps are solvable in a compact space. Raschan later generalizes this result in \cite{} and obtained more positive result (Quasi-semidecidablity). However, results like this has been very sensitive to the definition of noise or approximations. For instance, in \cite{} it is shown that other definitions of noise and robustness still leads to undecidability. These results are in general theoretical in nature and does not lend themselves to practical solving techniques. 
 
-In this paper we propose a new perspective. 
+In this work we follow up in this direction, equipped with a new framework for reasoning about nonlinear theories over the reals. In hybrid system verification, we need to reason about first-order formulas over the real numbers, allowing various real functions. Such theories are well-known to be undecidable when we introduce trignometric functions, and have very high complexity if only polynomials are involved. In our work~\cite{}, we proposed a new theory called ``$\delta$-decidability'' for such theories, and obtained strong positive results about the solvability and reasonable complexity of them. Such a theory directly leads to the development of 
 
-Our goal is two fold. First, we give a new way of characterizing hybrid systems. We provide a language that is broader than the existing ones. 
+Equipped with a rich first-order theory over the reals, 
 
-It is standard to discuss problems about hybrid systems using the terminology of rational descriptions. This is not in the same line as the normal representation of 
 
-Using first-order logic to describe verification problems of hybrid systems has become standard in state-of-the-art sofware and hardware verification practices. However, the use of first-order logic formulations in the domain of hybrid systems is not widespread. This is largely affected by the difficulty of logic-based methods in handling the real numbers. 
 
-Our results are built on our recent results on the so-called $\delta$-decidability of the theory over the reals with computable functions. It is a general result confirming the decidability of a large class of logic formulas over the real numbers, as long as numerical errors are taken into account in the decision procedures. Such errors have been the topic in hybrid system literature as well. In the work of~\cite{}, it has been argued that admitting errors can save much of the decidability results. However, on the other hand, a different definition of errors has been shown not effective in eliminating the undecidability results. 
-
-  
+ 
 
 
 \section{Computable Functions over the Reals and $\delta$-Complete Decision Procedures}
@@ -370,7 +366,7 @@ Bounded model checking is a well-known technique for verifying a transition syst
 
 
 
-\section{Encoding Reachable Sets}
+\subsection{Encoding Reachable Sets}
 
 We consider hybrid automata with computable representations. We write $\flow$, $\jump$, $\inv$, and $\init$ to denote the corresponding formulas in the $\lrf$-representations of hybrid automata. 
 
@@ -381,7 +377,7 @@ Recall the definition of depth in Definition~\ref{trajec}: We only count the num
 It will be clear that when we encode reachability for hybrid automata with nontrivial invariant conditions, the logical formulas are more complex. Thus we first consider automata with no invariant conditions, and then the general case. 
 
 
-\subsection{Automata without Invariants}
+\subsubsection{Automata without Invariants}
 
 A hybrid automaton evolves continuously following $\flow$ in each mode, and in a transition between two modes, the $\jump$ conditions are followed. We define the logic encodings inductively on the number of discrete transitions as follows. 
 
@@ -496,7 +492,7 @@ $H$ reaches $\unsafe$ in $n$ steps iff there is some $\xi\in \llbracket H\rrbrac
 \end{proof}
 
 
-\subsection{Automata with Invariants}\label{auto_inv}
+\subsubsection{Automata with Invariants}\label{auto_inv}
 
 If the invariant conditions of a hybrid automaton is nontrivial, we need to ensure that before making a jump, the system always stays in the invariant of its current mode. This requires the use of $\exists\forall$-sentences in the encoding. 
 
@@ -599,7 +595,7 @@ which means that $\reach_{H,q}(\vec a^t)$ is true.
 
 
 
-\section{Solving Bounded $\delta$-Reachability}
+\subsection{Solving Bounded $\delta$-Reachability}
 
 
 \subsection{Perturbations on Hybrid Automata}
@@ -653,7 +649,7 @@ in the generalized Skorokhod topology.
 $(\reach_{H,q}^n(\vec a))^{-\delta}$ iff there is a trajectory $\xi\in \llbracket H^{\delta}\rrbracket$ such that $\xi(n, t) = \vec a$ and $\sigma_{\xi}(n) = q$.  
 \end{proposition}
 
-\subsection{Bounded $\delta$-Reachability}
+\subsubsection{Bounded $\delta$-Reachability}
 
 We focus on the problem of bounded $\delta$-Reachability, defined as follows. 
 
