@@ -6,7 +6,7 @@
 \newtheorem{notation}[theorem]{Notation}
 \newcommand{\len}{\mathit{len}}
 \newcommand{\poly}{\mathsf{poly}}
-
+\newcommand{\dreach}{{\tt dReach}}
 %\setlength{\textwidth}{5.7in}
 %\setlength{\textheight}{8.2in}
 %\setlength{\topmargin}{0in}
@@ -14,15 +14,39 @@
 %\setlength{\evensidemargin}{.4in}
 
 \title{The {\tt dReach} Tool}
-\author{}
+\author{Sicun Gao \and Soonho Kong \and Edmund M. Clarke}
 \institute{Carnegie Mellon University, Pittsburgh, PA 15213}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
+We present our tool {\tt dReach}, which performs bounded model checking
+and invariant validation on nonlinear hybrid systems. The tool provides
+correctness guarantees under the framework of $\delta$-complete reachability
+analysis. For instance, for bounded model checking, if {\tt dReach} returns that
+a system is ``safe'' within some bound, then the system guaranteed to be same
+within the bound; on the other hand, if it returns ``$\delta$-unsafe'' (with a
+counterexample trace), then there exists some $\delta$-perturbation on the
+system that would render it unsafe. Here, $\delta$ is a small numerical error
+bound chosen by the user. {\tt dReach} is able to handle various challenging
+nonlinear benchmarks. 
 \end{abstract}
 
+\section{Introduction}
+
+\section{Design of the \dreach}
+
+\subsection{Unwinding Hybrid Automata}
+
+\subsection{Encoding Invariant Conditions}
+
+\subsection{The Background SMT Solver}
+
+\section{Input Format and Parameters}
+
+
+\section{Examples}
 
 
 \bibliographystyle{abbrv}
