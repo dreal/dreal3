@@ -11,13 +11,14 @@ type inv = formula list
 type ode = Dr.ode
 type flow = ode
 type jump = Jump.t
-type t = id * macro * inv * flow list * jump list
+type jumpmap = Jumpmap.t
+type t = id * macro * inv * flow list * jumpmap
 
 let extract_id m =
   let (id, _, _, _, _) = m in
   id
 
-let print out (id, macro, inv, flow, jump) =
+let print out (id, macro, inv, flow, jm) =
   begin
     BatString.print out "{\n";
     BatString.print out "ModeID = ";
@@ -29,6 +30,6 @@ let print out (id, macro, inv, flow, jump) =
     BatString.print out "\nFlow = ";
     BatList.print (~first:"") (~sep:"\n    ") (~last:"\n") Dr.print_ode out flow;
     BatString.print out "\nJump = ";
-    BatList.print (~first:"") (~sep:"\n    ") (~last:"\n") Jump.print out jump;
+    Jumpmap.print Id.print Jump.print out jm;
     BatString.print out "\n}";
   end

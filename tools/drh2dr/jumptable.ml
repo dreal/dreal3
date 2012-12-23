@@ -22,20 +22,20 @@ type t = (id, id list) BatMap.t
 (*
    (extract_rjumpmap hm)[id] : predecessor of id
 *)
-let extract_rjumpmap (modes : mode list) : t =
-  let process_mode (jm : t) (mode : mode) : t =
-    let (from_id, _, _, _, jump) = mode in
-    List.fold_left
-      (fun jm (_, to_id, _) ->
-        match BatMap.mem to_id jm with
+let extract_rjumptable (modemap : Modemap.t) : t =
+  let process_mode (mode : mode) (jt : t)  : t =
+    let (from_id, _, _, _, jm) = mode in
+    BatMap.fold
+      (fun (_, to_id, _) jt ->
+        match BatMap.mem to_id jt with
           true ->
-            let id_set = BatMap.find to_id jm in
-            BatMap.add to_id (from_id::id_set) jm
+            let id_set = BatMap.find to_id jt in
+            BatMap.add to_id (from_id::id_set) jt
         | false ->
-          BatMap.add to_id [from_id] jm
-      ) jm jump
+          BatMap.add to_id [from_id] jt
+      ) jm jt
   in
-  List.fold_left process_mode BatMap.empty modes
+  BatMap.fold process_mode modemap BatMap.empty
 
 let find = BatMap.find
 

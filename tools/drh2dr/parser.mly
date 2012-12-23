@@ -24,7 +24,13 @@
 
 %%
 
-main: varDecl_list DP mode_list DP init goal { ($1, $3, $5, $6) }
+main: varDecl_list DP mode_list DP init goal {
+  let vardecls = $1 in
+  let modes = Modemap.of_list $3 in
+  let (init_mode, init_formula) = $5 in
+  let goals = $6 in
+  (vardecls, modes, (init_mode, init_formula), goals)
+}
 ;
 
 varDecl_list: /* */ { [] }
@@ -40,7 +46,10 @@ mode_list: /* */ { [] }
   | mode mode_list { $1::$2 }
 ;
 
-mode: LC mode_id macrs invts flows jumps RC { ($2, $3, $4, $5, $6) }
+mode: LC mode_id macrs invts flows jumps RC
+  {
+    ($2, $3, $4, $5, Jumpmap.of_list $6)
+  }
 ;
 
 mode_id: MODE FNUM SEMICOLON { int_of_float $2 }

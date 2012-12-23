@@ -28,9 +28,9 @@ let process_flow (k : int) (q : id) (m : mode) : (flow * formula) =
   let (id, macro, inv, flow, jump) = m in
   (flow, Dr.True)
 
-let process_jump (jumps : jump list) (q : id) (next_q : id) (k : int) (next_k : int)
+let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
     : formula =
-  let (cond, _, change) = List.find (fun (_, id, _) -> id = q) jumps in
+  let (cond, _, change) = jump in
   (* TODO: replace this ID function *)
   let cond' = Dr.subst_formula (fun x -> x) cond in
   let change' =
@@ -44,9 +44,8 @@ let process_jump (jumps : jump list) (q : id) (next_q : id) (k : int) (next_k : 
   (* TODO: Need to check the following *)
   Dr.Or [Dr.Not cond'; change']
 
-let rec reach (k : int) (q : id) (hm : hybrid) : (flow * formula)
-    = let (vardecls, modes, (init_id, init_formula), goal) = hm in
-      let modemap = Modemap.of_list modes in
+let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
+    = let (vardecls, modemap, (init_id, init_formula), goal) = hm in
       match (k, q) with
       | (0, init_id) ->
         begin
@@ -64,12 +63,12 @@ let rec reach (k : int) (q : id) (hm : hybrid) : (flow * formula)
       | _ ->
         begin
           (* Inductive Case: *)
-          let rjumpmap = Jumptable.extract_rjumpmap modes in
+          let rjumpmap = Jumptable.extract_rjumptable modemap in
           let prev_modes : id list = Jumptable.find q rjumpmap in
           let process (q' : id (* prev mode *)) : (flow * formula) =
-            let (id, macro, inv, flows, jumps) = Modemap.find q' modemap in
-            let (flow', formula') = reach (k-1) q' hm in
-            let formula'' = process_jump jumps q' q (k-1) k in
+            let (id, macro, inv, flows, jm) = Modemap.find q' modemap in
+            let (flow', formula') = reach_kq (k-1) q' hm in
+            let formula'' = process_jump (Jumpmap.find q' jm) q' q (k-1) k in
             begin
               raise Not_found
             end
@@ -80,7 +79,7 @@ let rec reach (k : int) (q : id) (hm : hybrid) : (flow * formula)
 
 let transform (k : int) (hm : hybrid) : Dr.t =
   let (vardecl_list, modes, init, goal) = hm in
-  let jt = Jumptable.extract_rjumpmap modes in
+  let jt = Jumptable.extract_rjumptable modes in
   let _ = Jumptable.print BatIO.stdout jt in
   let (init_mode, init_formula) = init in
   let new_vardecls =
