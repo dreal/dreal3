@@ -15,7 +15,6 @@ let of_list (modes : mode list) : t
     BatMap.empty
     modes
 
-let print = BatMap.print
+let print out = BatMap.print Id.print Mode.print out
 
 let find = BatMap.find
-

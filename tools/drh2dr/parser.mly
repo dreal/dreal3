@@ -25,11 +25,11 @@
 %%
 
 main: varDecl_list DP mode_list DP init goal {
-  let vardecls = $1 in
-  let modes = Modemap.of_list $3 in
+  let vardeclmap = Vardeclmap.of_list $1 in
+  let modemap = Modemap.of_list $3 in
   let (init_mode, init_formula) = $5 in
   let goals = $6 in
-  (vardecls, modes, (init_mode, init_formula), goals)
+  (vardeclmap, modemap, (init_mode, init_formula), goals)
 }
 ;
 

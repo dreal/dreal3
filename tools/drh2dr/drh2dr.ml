@@ -78,15 +78,22 @@ let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
         end
 
 let transform (k : int) (hm : hybrid) : Dr.t =
-  let (vardecl_list, modes, init, goal) = hm in
-  let jt = Jumptable.extract_rjumptable modes in
+  let (vardeclmap, modemap, init, goal) = hm in
+  let jt = Jumptable.extract_rjumptable modemap in
   let _ = Jumptable.print BatIO.stdout jt in
   let (init_mode, init_formula) = init in
   let new_vardecls =
-    List.map
-      (function (v, Value.Num n) -> (v, n, n)
-      | (v, Value.Intv (lb, ub)) -> (v, lb, ub))
-      vardecl_list in
+    BatMap.foldi
+      (fun var value vardecls ->
+        let new_item =
+          match value with
+          | Value.Num n -> (var, n, n)
+          | Value.Intv (lb, ub) -> (var, lb, ub)
+        in
+        new_item::vardecls)
+      vardeclmap
+      []
+  in
   let out = BatIO.stdout in
   begin
     (new_vardecls, [], process_init 0 init_formula)
