@@ -77,6 +77,17 @@ let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
             (BatList.concat flows, Dr.Or formulas)
         end
 
+let reach_k (k : int) (hm : hybrid) : (flow * formula) =
+  let (vardeclmap, modemap, init, goal) = hm in
+  let mode_ids = BatMap.keys modemap in
+  begin
+    let results = BatList.of_enum (BatEnum.map (fun q -> reach_kq k q hm) mode_ids) in
+    let (flows, formulas) = BatList.split results in
+    let flow = BatList.concat flows in
+    let formula = Dr.make_or formulas in
+    raise Not_found
+  end
+
 let transform (k : int) (hm : hybrid) : Dr.t =
   let (vardeclmap, modemap, init, goal) = hm in
   let jt = Jumptable.extract_rjumptable modemap in

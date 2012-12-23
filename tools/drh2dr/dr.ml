@@ -45,6 +45,14 @@ type ode = var * exp
 
 type t = vardecl list * ode list * formula
 
+(* TODO: optimize this *)
+let make_or (fs : formula list) =
+  Or fs
+
+(* TODO: optimize this *)
+let make_and (fs : formula list) =
+  And fs
+
 let rec subst_exp (f: string -> string) : (exp -> exp) =
   function Var s -> Var (f s)
   | Const n -> Const n
