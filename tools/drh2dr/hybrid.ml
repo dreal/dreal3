@@ -16,29 +16,10 @@ type init = modeId * formula
 type goal = (modeId * formula) list
 type t = vardecl list * mode list * init * goal
 
-let val_print out v =
-  match v with
-      Value.Num n -> BatFloat.print out n
-    | Value.Intv (n, m) ->
-      begin
-        BatString.print out "[";
-        BatFloat.print out n;
-        BatString.print out ", ";
-        BatFloat.print out m;
-        BatString.print out "]";
-      end
-
-let vardecl_print out (var, value) =
-  begin
-    BatString.print out var;
-    BatString.print out " := ";
-    val_print out value;
-  end
-
 let mf_print out (id, f) =
   begin
     BatString.print out "(";
-    BatInt.print out id;
+    Id.print out id;
     BatString.print out ", ";
     Dr.print_formula out f;
     BatString.print out ")";
@@ -55,7 +36,7 @@ let print out ((varDeclList, (modeList : mode list), init, goal) : t)=
   begin
     (* print varDecl list *)
     print_header out "VarDecl List";
-    BatList.print (~first:"") (~sep:"\n") (~last:"\n") vardecl_print out varDeclList;
+    BatList.print (~first:"") (~sep:"\n") (~last:"\n") Vardecl.print out varDeclList;
     (* print mode list *)
     print_header out "Mode List";
     BatList.print (~first:"") (~sep:"\n") (~last:"\n") Mode.print out modeList;
