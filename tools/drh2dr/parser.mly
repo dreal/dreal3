@@ -32,8 +32,8 @@ varDecl_list: /* */ { [] }
 ;
 
 varDecl:
-    LB FNUM RB ID SEMICOLON { ($4, Hybrid.Num $2) }
-  | LB FNUM COMMA FNUM RB ID SEMICOLON { ($6, Hybrid.Intv ($2, $4)) }
+    LB FNUM RB ID SEMICOLON { ($4, Value.Num $2) }
+  | LB FNUM COMMA FNUM RB ID SEMICOLON { ($6, Value.Intv ($2, $4)) }
 ;
 
 mode_list: /* */ { [] }

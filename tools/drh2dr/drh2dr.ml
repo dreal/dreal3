@@ -106,8 +106,8 @@ let transform (hm : hybrid) : Dr.t =
   let (init_mode, init_formula) = init in
   let new_vardecls =
     List.map
-      (function (v, Hybrid.Num n) -> (v, n, n)
-      | (v, Hybrid.Intv (lb, ub)) -> (v, lb, ub))
+      (function (v, Value.Num n) -> (v, n, n)
+      | (v, Value.Intv (lb, ub)) -> (v, lb, ub))
       vardecl_list in
   let out = BatIO.stdout in
   begin

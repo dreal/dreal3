@@ -3,25 +3,23 @@
  *)
 
 (* 1. Variable Declaration *)
-type value = Num of float | Intv of float * float
-type var = string
-type varDecl = var * value
+type vardecl = Vardecl.t
 
 (* 2. Mode *)
 type modeId = Mode.id
+type mode = Mode.t
 type formula = Dr.formula
 type exp = Dr.formula
-type mode = Mode.t
 
 (* 3. Init and Goal *)
 type init = modeId * formula
 type goal = (modeId * formula) list
-type t = varDecl list * mode list * init * goal
+type t = vardecl list * mode list * init * goal
 
 let val_print out v =
   match v with
-      Num n -> BatFloat.print out n
-    | Intv (n, m) ->
+      Value.Num n -> BatFloat.print out n
+    | Value.Intv (n, m) ->
       begin
         BatString.print out "[";
         BatFloat.print out n;
