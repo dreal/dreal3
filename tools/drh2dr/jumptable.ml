@@ -4,7 +4,6 @@
 
 type id = Mode.id
 type jump = Jump.t
-type hybrid = Hybrid.t
 type mode = Mode.t
 type t = (id, id list) BatMap.t
 
@@ -23,8 +22,7 @@ type t = (id, id list) BatMap.t
 (*
    (extract_rjumpmap hm)[id] : predecessor of id
 *)
-let extract_rjumpmap (hm : hybrid) : t =
-  let (_, mode_list, _, _) = hm in
+let extract_rjumpmap (modes : mode list) : t =
   let process_mode (jm : t) (mode : mode) : t =
     let (from_id, _, _, _, jump) = mode in
     List.fold_left
@@ -37,7 +35,7 @@ let extract_rjumpmap (hm : hybrid) : t =
           BatMap.add to_id [from_id] jm
       ) jm jump
   in
-  List.fold_left process_mode BatMap.empty mode_list
+  List.fold_left process_mode BatMap.empty modes
 
 let find = BatMap.find
 

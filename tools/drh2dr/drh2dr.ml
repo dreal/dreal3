@@ -12,7 +12,7 @@ type jump = Mode.jump
 type ode = Mode.ode
 type flow = ode list
 
-let add_index (k : int) (q : int) (t : bool) (s : string) : string =
+let add_index (k : int) (q : id) (t : bool) (s : string) : string =
   let str_step = string_of_int k in
   let str_mode_id = string_of_int q in
   let suffix = if t then "t" else "0" in
@@ -21,14 +21,14 @@ let add_index (k : int) (q : int) (t : bool) (s : string) : string =
                       str_mode_id;
                       suffix]
 
-let process_init (q : int) (i : formula) : formula =
+let process_init (q : id) (i : formula) : formula =
   Dr.subst_formula (add_index 0 q false) i
 
-let process_flow (k : int) (q : int) (m : mode) : (flow * formula) =
+let process_flow (k : int) (q : id) (m : mode) : (flow * formula) =
   let (id, macro, inv, flow, jump) = m in
   (flow, Dr.True)
 
-let process_jump (jumps : jump list) (q : int) (next_q : int) (k : int) (next_k : int)
+let process_jump (jumps : jump list) (q : id) (next_q : id) (k : int) (next_k : int)
     : formula =
   let (cond, _, change) = List.find (fun (_, id, _) -> id = q) jumps in
   (* TODO: replace this ID function *)
@@ -44,7 +44,7 @@ let process_jump (jumps : jump list) (q : int) (next_q : int) (k : int) (next_k 
   (* TODO: Need to check the following *)
   Dr.Or [Dr.Not cond'; change']
 
-let rec reach (k : int) (q : int) (hm : hybrid) : (flow * formula)
+let rec reach (k : int) (q : id) (hm : hybrid) : (flow * formula)
     = let (vardecls, modes, (init_id, init_formula), goal) = hm in
       let modemap = Modemap.of_list modes in
       match (k, q) with
@@ -64,25 +64,24 @@ let rec reach (k : int) (q : int) (hm : hybrid) : (flow * formula)
       | _ ->
         begin
           (* Inductive Case: *)
-          let rjumpmap = Jumptable.extract_rjumpmap hm in
-          let prev_states : int list = Jumptable.find q rjumpmap in
-          let process (q' : int (* prev state *)) : (flow * formula) =
-            let (id, macro, inv, flows, jumps) =
-              List.find (fun (id, _, _, _, _) -> id = q') modes in
+          let rjumpmap = Jumptable.extract_rjumpmap modes in
+          let prev_modes : id list = Jumptable.find q rjumpmap in
+          let process (q' : id (* prev mode *)) : (flow * formula) =
+            let (id, macro, inv, flows, jumps) = Modemap.find q' modemap in
             let (flow', formula') = reach (k-1) q' hm in
             let formula'' = process_jump jumps q' q (k-1) k in
             begin
               raise Not_found
             end
           in
-          let (flows, formulas) = BatList.split (List.map process prev_states) in
+          let (flows, formulas) = BatList.split (List.map process prev_modes) in
             (BatList.concat flows, Dr.Or formulas)
         end
 
-let transform (hm : hybrid) : Dr.t =
-  let (vardecl_list, mode_list, init, goal) = hm in
-  let jm = Jumptable.extract_rjumpmap hm in
-  let _ = Jumptable.print BatIO.stdout jm in
+let transform (k : int) (hm : hybrid) : Dr.t =
+  let (vardecl_list, modes, init, goal) = hm in
+  let jt = Jumptable.extract_rjumpmap modes in
+  let _ = Jumptable.print BatIO.stdout jt in
   let (init_mode, init_formula) = init in
   let new_vardecls =
     List.map
