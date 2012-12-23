@@ -1,2 +1,3 @@
 2012/12/23:
 * dr2smt2: preprocess constants represented as ratios of integers.
+* drh2dr: keep working on this. refactor the structure.

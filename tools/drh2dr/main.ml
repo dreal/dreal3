@@ -2,8 +2,10 @@
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
 
-let print_ast = ref false
-let spec = []
+let k = ref 3 (* default unrolling value is 3 *)
+let spec = [("-k",
+             Arg.Int (fun n -> k := n),
+             ": number of unrolling (Default: " ^ (string_of_int !k) ^ ")" );]
 let usage = "Usage: main.native [<options>] <.drh>\n<options> are: "
 
 let run () =
@@ -16,7 +18,7 @@ let run () =
     let lexbuf =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let hm = Parser.main Lexer.start lexbuf in
-    let dr = Drh2dr.transform hm in
+    let dr = Drh2dr.transform !k hm in
     let out = BatIO.stdout in
     begin
       BatString.println out "=========== Input Hybrid System ===========";

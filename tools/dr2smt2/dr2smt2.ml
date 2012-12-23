@@ -3,8 +3,11 @@
  *)
 open Error
 
-let print_ast = ref false
-let spec = []
+let spec = [("-i", Arg.Unit (fun () -> Dr.fop := Dr.IntRatio),
+             ": print number as a ratio of two integers (Default option).");
+            ("-f", Arg.Unit (fun () -> Dr.fop := Dr.Float),
+             ": print number as a decimal fraction.");
+           ]
 let usage = "Usage: dr2smt2.native <.dr>\n"
 
 let process out (vardecls : Vardecl.t list) (f : Dr.formula) =
