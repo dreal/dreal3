@@ -31,7 +31,6 @@ let process_flow (k : int) (q : id) (m : mode) : (flow * formula) =
 let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
     : formula =
   let (cond, _, change) = jump in
-  (* TODO: replace this ID function *)
   let cond' = Dr.subst_formula (add_index k q true) cond in
   let change' =
     Dr.subst_formula
@@ -40,13 +39,14 @@ let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
       | false -> add_index k q true v
       )
       change in
+  (* TODO: Need to add equality relations for the unmodified variables *)
   (* TODO: Need to check the following *)
-  Dr.make_or [Dr.Not cond'; change']
+  Dr.make_and [cond'; change']
 
 let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
     = let (vardecls, modemap, (init_id, init_formula), goal) = hm in
       match (k, q) with
-      | (0, init_id) ->
+      | (0, q) when q = init_id ->
         begin
           (* Base Case where q = init mode *)
           let init_q0 : formula = process_init init_id init_formula in
@@ -64,16 +64,16 @@ let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
           (* Inductive Case: *)
           let rjumpmap = Jumptable.extract_rjumptable modemap in
           let prev_modes : id list = Jumptable.find q rjumpmap in
-          let process (q' : id (* prev mode *)) : (flow * formula) =
-            let (id, macro, inv, flows, jm) = Modemap.find q' modemap in
-            let (flow', formula') = reach_kq (k-1) q' hm in
-            let formula'' = process_jump (Jumpmap.find q' jm) q' q (k-1) k in
-            begin
-              raise Not_found
-            end
+          let process (prev_q : id) : (flow * formula) =
+            let (id, macro, inv, flows, jm) = Modemap.find prev_q modemap in
+            let (r_flow, r_formula) = reach_kq (k-1) prev_q hm in
+            let j_formula = process_jump (Jumpmap.find prev_q jm) prev_q q (k-1) k in
+            (r_flow, Dr.make_and [r_formula; j_formula])
           in
           let (flows, formulas) = BatList.split (List.map process prev_modes) in
-            (BatList.concat flows, Dr.make_or formulas)
+          let (flow_1, formula_1) = (BatList.concat flows, Dr.make_or formulas) in
+          let (flow_2, formula_2) = process_flow k q (Modemap.find q modemap) in
+          (flow_1 @ flow_2, Dr.make_and [formula_1; formula_2])
         end
 
 let reach_k (k : int) (hm : hybrid) : (flow * formula) =
@@ -104,7 +104,6 @@ let transform (k : int) (hm : hybrid) : Dr.t =
       vardeclmap
       []
   in
-  let out = BatIO.stdout in
   begin
     (new_vardecls, [], process_init 0 init_formula)
   end
