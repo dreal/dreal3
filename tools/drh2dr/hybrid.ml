@@ -14,7 +14,8 @@ type exp = Dr.formula
 
 (* 3. Init and Goal *)
 type init = modeId * formula
-type goals = (modeId * formula) list
+type goal = modeId * formula
+type goals = goal list
 type t = vardeclmap * modemap * init * goals
 
 let mf_print out (id, f) =

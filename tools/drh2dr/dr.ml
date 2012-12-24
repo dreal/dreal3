@@ -107,6 +107,8 @@ and subst_formula (f: string -> string) : (formula -> formula) =
   | Ge (e1, e2) -> Ge (subst_exp f e1, subst_exp f e2)
   | Le (e1, e2) -> Le (subst_exp f e1, subst_exp f e2)
   | Eq (e1, e2) -> Eq (subst_exp f e1, subst_exp f e2)
+and subst_ode (f: string -> string) : (ode -> ode) =
+  function (var, exp) -> (f var, subst_exp f exp)
 
 let rec print_exp (out : 'a BatInnerIO.output) : exp -> unit =
   let print_exps (op : string) (exps : exp list) =

@@ -2,6 +2,8 @@
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
 
+open BatPervasives
+
 type varDecl = Dr.vardecl
 type formula = Dr.formula
 type hybrid = Hybrid.t
@@ -26,7 +28,8 @@ let process_init (q : id) (i : formula) : formula =
 
 let process_flow (k : int) (q : id) (m : mode) : (flow * formula) =
   let (id, macro, inv, flow, jump) = m in
-  (flow, Dr.True)
+  let flow' = List.map (fun ode -> Dr.subst_ode (fun v -> v) ode) flow in
+  (flow', Dr.True)
 
 let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
     : formula =
@@ -65,13 +68,13 @@ let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
           let rjumpmap = Jumptable.extract_rjumptable modemap in
           let prev_modes : id list = Jumptable.find q rjumpmap in
           let process (prev_q : id) : (flow * formula) =
-            let (id, macro, inv, flows, jm) = Modemap.find prev_q modemap in
+            let (id, macro, inv, flow, jm) = Modemap.find prev_q modemap in
             let (r_flow, r_formula) = reach_kq (k-1) prev_q hm in
             let j_formula = process_jump (Jumpmap.find prev_q jm) prev_q q (k-1) k in
             (r_flow, Dr.make_and [r_formula; j_formula])
           in
-          let (flows, formulas) = BatList.split (List.map process prev_modes) in
-          let (flow_1, formula_1) = (BatList.concat flows, Dr.make_or formulas) in
+          let (flow, formulas) = BatList.split (List.map process prev_modes) in
+          let (flow_1, formula_1) = (BatList.concat flow, Dr.make_or formulas) in
           let (flow_2, formula_2) = process_flow k q (Modemap.find q modemap) in
           (flow_1 @ flow_2, Dr.make_and [formula_1; formula_2])
         end
@@ -81,17 +84,15 @@ let reach_k (k : int) (hm : hybrid) : (flow * formula) =
   let mode_ids = BatMap.keys modemap in
   begin
     let results = BatList.of_enum (BatEnum.map (fun q -> reach_kq k q hm) mode_ids) in
-    let (flows, formulas) = BatList.split results in
-    let flow = BatList.concat flows in
+    let (flow, formulas) = BatList.split results in
+    let flow' = BatList.concat flow in
     let formula = Dr.make_or formulas in
-    (flow, formula)
+    (flow', formula)
   end
 
 let transform (k : int) (hm : hybrid) : Dr.t =
-  let (vardeclmap, modemap, init, goal) = hm in
-  let jt = Jumptable.extract_rjumptable modemap in
-  let _ = Jumptable.print BatIO.stdout jt in
-  let (init_mode, init_formula) = init in
+  let (vardeclmap, modemap, init, goals) = hm in
+  (* 1. Translate Variable Declarations *)
   let new_vardecls =
     BatMap.foldi
       (fun var value vardecls ->
@@ -102,8 +103,29 @@ let transform (k : int) (hm : hybrid) : Dr.t =
         in
         new_item::vardecls)
       vardeclmap
-      []
-  in
-  begin
-    (new_vardecls, [], process_init 0 init_formula)
-  end
+      [] in
+  (* 2. Collect odes(flow) and formulae of reach_k for (1 -- k) *)
+  let (flows, formulas) =
+    BatList.split
+      (BatList.of_enum
+         (BatEnum.map (fun k -> reach_k k hm) (1 -- k))) in
+  let (flow, formula) = (List.concat flows, Dr.make_or formulas) in
+  (* 3. Unsafe *)
+
+  let safe_conditions =
+    BatList.concat
+      (BatList.of_enum
+         (BatEnum.map
+            (fun k ->
+              List.map
+                (fun (id, goal_formula) -> Dr.subst_formula (add_index k id true) goal_formula)
+                goals
+            )
+            (1 -- k)
+         )
+      ) in
+  let unsafe_condition = Dr.Not (Dr.make_and safe_conditions) in
+  (new_vardecls,
+   flow,
+   Dr.make_and [formula; unsafe_condition]
+  )
