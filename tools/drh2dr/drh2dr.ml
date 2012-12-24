@@ -32,17 +32,16 @@ let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
     : formula =
   let (cond, _, change) = jump in
   (* TODO: replace this ID function *)
-  let cond' = Dr.subst_formula (fun x -> x) cond in
+  let cond' = Dr.subst_formula (add_index k q true) cond in
   let change' =
     Dr.subst_formula
-      (* TODO: replace this function *)
       (fun v -> match BatString.ends_with v "'" with
-        true -> v
-      | false -> v
+        true -> add_index (k+1) next_q false v
+      | false -> add_index k q true v
       )
       change in
   (* TODO: Need to check the following *)
-  Dr.Or [Dr.Not cond'; change']
+  Dr.make_or [Dr.Not cond'; change']
 
 let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
     = let (vardecls, modemap, (init_id, init_formula), goal) = hm in
@@ -52,7 +51,7 @@ let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
           (* Base Case where q = init mode *)
           let init_q0 : formula = process_init init_id init_formula in
           let (odes, f) = process_flow k q (Modemap.find q modemap) in
-          (odes, Dr.And [init_q0; f])
+          (odes, Dr.make_and [init_q0; f])
         end
       | (0, _) ->
         begin
@@ -74,7 +73,7 @@ let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
             end
           in
           let (flows, formulas) = BatList.split (List.map process prev_modes) in
-            (BatList.concat flows, Dr.Or formulas)
+            (BatList.concat flows, Dr.make_or formulas)
         end
 
 let reach_k (k : int) (hm : hybrid) : (flow * formula) =
@@ -85,7 +84,7 @@ let reach_k (k : int) (hm : hybrid) : (flow * formula) =
     let (flows, formulas) = BatList.split results in
     let flow = BatList.concat flows in
     let formula = Dr.make_or formulas in
-    raise Not_found
+    (flow, formula)
   end
 
 let transform (k : int) (hm : hybrid) : Dr.t =
