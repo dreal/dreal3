@@ -45,13 +45,33 @@ type ode = var * exp
 
 type t = vardecl list * ode list * formula
 
-(* TODO: optimize this *)
 let make_or (fs : formula list) =
-  Or fs
+  let reduced_fs_opt = List.fold_left
+    (fun fs f -> match (fs, f) with
+    | (Some _, False) -> fs
+    | (_, True) -> None
+    | (None, _) -> None
+    | (Some fs', f) -> Some (f::fs'))
+    (Some [])
+    fs
+  in
+  match reduced_fs_opt with
+    Some fs' -> Or fs'
+  | None -> True
 
-(* TODO: optimize this *)
 let make_and (fs : formula list) =
-  And fs
+  let reduced_fs_opt = List.fold_left
+    (fun fs f -> match (fs, f) with
+    | (Some _, True) -> fs
+    | (_, False) -> None
+    | (None, _) -> None
+    | (Some fs', f) -> Some (f::fs'))
+    (Some [])
+    fs
+  in
+  match reduced_fs_opt with
+    Some fs' -> And fs'
+  | None -> False
 
 let rec subst_exp (f: string -> string) : (exp -> exp) =
   function Var s -> Var (f s)

@@ -32,6 +32,7 @@ let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
     : formula =
   let (cond, _, change) = jump in
   let cond' = Dr.subst_formula (add_index k q true) cond in
+  (* TODO: Need to add equality relations for the unmodified variables *)
   let change' =
     Dr.subst_formula
       (fun v -> match BatString.ends_with v "'" with
@@ -39,7 +40,6 @@ let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
       | false -> add_index k q true v
       )
       change in
-  (* TODO: Need to add equality relations for the unmodified variables *)
   (* TODO: Need to check the following *)
   Dr.make_and [cond'; change']
 
