@@ -17,5 +17,12 @@ let of_list (vardecls : vardecl list) : t
     vardecls
 
 let print out = BatMap.print BatString.print Value.print out
-let find = BatMap.find
 
+let find key map =
+  try
+    BatMap.find key map
+  with e ->
+    begin
+      BatPrintexc.print_backtrace BatIO.stdout;
+      raise e
+    end

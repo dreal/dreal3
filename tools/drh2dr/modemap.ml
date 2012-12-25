@@ -17,4 +17,11 @@ let of_list (modes : mode list) : t
 
 let print out = BatMap.print Id.print Mode.print out
 
-let find = BatMap.find
+let find key map =
+  try
+    BatMap.find key map
+  with e ->
+    begin
+      BatPrintexc.print_backtrace BatIO.stdout;
+      raise e
+    end

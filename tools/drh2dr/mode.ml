@@ -30,6 +30,6 @@ let print out (id, macro, inv, flow, jm) =
     BatString.print out "\nFlow = ";
     BatList.print (~first:"") (~sep:"\n    ") (~last:"\n") Dr.print_ode out flow;
     BatString.print out "\nJump = ";
-    Jumpmap.print Id.print Jump.print out jm;
+    Jumpmap.print out jm;
     BatString.print out "\n}";
   end
