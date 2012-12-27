@@ -28,7 +28,7 @@ let process_init (q : id) (i : formula) : formula =
 
 let process_flow (k : int) (q : id) (m : mode) : (flow * formula) =
   let (id, macro, inv, flow, jump) = m in
-  let flow' = List.map (fun ode -> Dr.subst_ode (fun v -> v) ode) flow in
+  let flow' = List.map (fun ode -> Dr.subst_ode (add_index k q false) ode) flow in
   (flow', Dr.True)
 
 let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
