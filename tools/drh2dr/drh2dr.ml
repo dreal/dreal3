@@ -65,12 +65,12 @@ let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
       | _ ->
         begin
           (* Inductive Case: *)
-          let rjumpmap = Jumptable.extract_rjumptable modemap in
-          let prev_modes : id list = Jumptable.find q rjumpmap in
+          let rjumptbl = Jumptable.extract_rjumptable modemap in
+          let prev_modes : id list = Jumptable.find q rjumptbl in
           let process (prev_q : id) : (flow * formula) =
             let (id, macro, inv, flow, jm) = Modemap.find prev_q modemap in
             let (r_flow, r_formula) = reach_kq (k-1) prev_q hm in
-            let j_formula = process_jump (Jumpmap.find prev_q jm) prev_q q (k-1) k in
+            let j_formula = process_jump (Jumpmap.find q jm) prev_q q (k-1) k in
             (r_flow, Dr.make_and [r_formula; j_formula])
           in
           let (flow, formulas) = BatList.split (List.map process prev_modes) in

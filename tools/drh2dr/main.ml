@@ -21,9 +21,6 @@ let run () =
     let dr = Drh2dr.transform !k hm in
     let out = BatIO.stdout in
     begin
-      BatString.println out "=========== Input Hybrid System ===========";
-      Hybrid.print out hm;
-      BatString.println out "=========== Output Dr Formula   ===========";
       Dr.print out dr;
       BatString.println out ""
     end
