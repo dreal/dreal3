@@ -330,7 +330,9 @@ public:
   bool           addToCongruence        ( ) const;
   unsigned       sizeInMem              ( ) const;
 
-  void           print	                ( ostream & ); // Prints the enode
+  void           print	                ( ostream & ); // Prints the
+  void           print_infix	        ( ostream & ); // Prints the enode
+
   string         stripName              ( string );
   void           printSig	        ( ostream & ); // Prints the enode signature
 
