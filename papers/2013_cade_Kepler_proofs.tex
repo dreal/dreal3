@@ -11,6 +11,7 @@
 \newtheorem{notation}[theorem]{Notation}
 \newcommand{\len}{\mathit{len}}
 \newcommand{\poly}{\mathsf{poly}}
+\newcommand{\ir}{\mathbb{IR}_{\cup}}
 
 \setlength{\textwidth}{5.3in}
 %\setlength{\textheight}{8.2in}
@@ -20,298 +21,426 @@
 
 
 \title{Extracting Proofs from a $\delta$-Complete Decision Procedure}
-\author{Sicun Gao \and Soonho Kong \and Edmund M. Clarke}
+\author{Sicun Gao \and Soonho Kong \and Michael Wang \and Edmund M. Clarke}
 \institute{Carnegie Mellon University, Pittsburgh, PA 15213}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
+$\delta$-Complete decision procedures can solve SMT problems over the
+reals with a wide range of nonlinear functions, allowing ``$\delta$-bounded
+errors''. The scalability of such procedures depends on the use of various
+numerical procedures, whose implementation can be error-prone in practice.
+Consequently, it is important for $\delta$-complete solvers to
+provide proof certificates for their answers to ensure correctness. We show how to do this on a powerful solving framework based
+on Interval Constraint Propagation, by providing witnesses for ``$\delta$-sat''
+answers, as well as verifiable proof-trees for the ``unsat'' answers. One
+example application of such proofs is for establishing nonlinear lemmas in the
+proof of the Kepler Conjecture. 
 \end{abstract}
 
 \section{Introduction}
 
-\section{$\delta$-Complete Decision Procedures}
+SMT formulas over the real numbers can encode a wide range of problems in 
+theorem proving, formal verification, control theory, etc. However, such SMT
+formulas are hard to solve when nonlinear functions are invovled -- with
+polynomials the formulas have very high complexity~\cite{} and with
+transcdental functions such as trigonmetic functions the formulas are
+undecidable~\cite{}. Our recent work on $\delta$-complete decision procedures
+provided a new framework for handling general nonlinear formulas~\cite{}. Fix
+any posiive rational number $\delta$ and any input formula $\varphi$, a
+$\delta$-complete decision procedures returns on of the following answers:
+\begin{itemize}
+ \item {\sf unsat}: $\varphi$ is unsatisfiable.
+ \item {\sf $\delta$-sat}: $\varphi^{\delta}$ is satisfiable. 
+\end{itemize}
+Here, $\varphi^{\delta}$ is a syntactic variation of $\varphi$ that encodes a
+notion of numerical perturbation on the logic formula. (We will review more 
+details in Section \ref{review}.) In other words, we allow such a procedure to
+give answers with one-sided, $\delta$-bounded errors. Because of the
+relaxations, $\delta$-complete decision procedures can fully exploit the
+power of various numerical algorithms and can be highly scalable on
+nonlinear problems. The $\delta$-completeness guarantees can be suitably
+applied to solving various correctness-critical problems in formal verification
+and theorem proving~\cite{}. 
 
-\section{Interval Constraint Propagation}
+An important problem for SMT solvers in practice is that the correctness of
+their answers should be certified. This means that when the solver returns that
+a formula is satisfiable, it should also return a solution under which the
+formula indeed evaluates to true. On the other hand, when the solver
+decides that a formula is unsatisfiable, it should provide a proof that
+certifies the answer. For instance, in the simplest case, a SAT solver can
+provide a resolution proof tree that shows the unsatisfiability of a Boolean
+formula. Such a tree needs to be extracted from the solving process, and should
+be easily checkable using simple rules by external proof checkers. 
+
+In the context of $\delta$-complete decision procedures, certificates for
+correctness are even more important. Numerical algorithms usually contain
+complex heuristics and floating point arithmetic. There is no simple way to
+establish the correctness of them statically. In constrast, the certificates
+provided by a solver can be checked using external checkers that are much
+simpler. Once the certificates are checked, the correctness of the formula no
+longer depends on the solver itself. In this way the difficult task of verifying
+a numerically-intensive program is circumvented. 
+
+In this paper we show how to extract proofs of correctness in the
+DPLL$\langle$ICP$\rangle$ framework, which has been proved to be a
+$\delta$-complete decision procedure~\cite{}. In this framework, the theory
+solver performs Interval Constraint Propagation (ICP), which is a
+branch-and-prune algorithm for solving systems of real constraints. The
+algorithm maintains an interval assignment to all the variables, and update the 
+assignments based on their consistency with the constraints. In a ``pruning''
+step, ICP constracts the intervals by pruning away subintervals that do not
+contain any solution; in a ``branching'' step, ICP subdivides an interval and
+performs further pruning. (We describe the algorithm in the form of abstract
+DPLL in Section~\ref{}.)
 
 
 
-\section{A Proof System over Intervals}
+\section{$\delta$-Complete Decision Procedures}\label{review}
 
+The key for bridging numerical procedures and SMT problems is to introduce
+syntactic perturbations on $\Sigma_1$-sentences in $\mathcal{L}_{\mathcal{F}}$. 
+
+\begin{definition}[$\delta$-Weakening and Perturbations]\label{weak-def}
+Let $\delta\in \mathbb{Q}^+\cup\{0\}$ be a constant and $\varphi$ be a
+$\Sigma_1$-sentence in standard form:
+%\vspace{-.3cm}
+\[\varphi:= \exists^{\vec I}\vec x.\bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i}
+f_{ij}(\vec x)= 0).
+%\vspace{-.3cm}
+\]
+The $\delta$-weakening of $\varphi$ defined as:
+%\vspace{-.3cm}
+\[\varphi^{\delta}:= \exists^{\vec I} \vec x.\bigwedge_{i=1}^m(\bigvee_{j=1}^k
+|f_{ij}(\vec x)|\leq \delta).\]
+Also, a $\delta$-perturbation is a constant vector $\vec c =
+(c_{11},...,c_{mk_m})$, $c_{ij}\in\mathbb{Q}$, satisfying $||\vec
+c||\leq\delta$, such that the $\vec c$-perturbed form of $\varphi$ is given by:
+%\vspace{-.2cm}
+\[\varphi^{\vec c}:= \exists^{\vec I} \vec x.\bigwedge_{i=1}^m(\bigvee_{j=1}^k
+f_{ij}(\vec x) = c_{ij}).\]
+\end{definition}
+
+\begin{definition}[Bounded $\delta$-SMT in $\mathcal{L}_{\mathcal{F}}$] Let
+$\mathcal{F}$ be a finite collection of Type 2 computable functions. Let
+$\varphi$ be a bounded $\Sigma_1$-sentence in $\mathcal{L}_{\mathcal{F}}$ in
+standard form. The {\em bounded $\delta$-SMT problem} asks for one of the
+following two decisions on $\varphi$:
+\begin{itemize}
+\item $\mathsf{unsat}:$ $\varphi$ is false.
+\item $\delta$-$\mathsf{sat}:$ $\varphi^{\delta}$ is true. 
+\end{itemize}
+When the two cases overlap, either decision can be returned. 
+\end{definition}
+The main theoretical result is that the bounded $\delta$-SMT problem is
+decidable for $\delta\in \mathbb{Q}^+$. 
+\begin{theorem}[Decidability] Let $\mathcal{F}$ be a finite collection of Type 2
+computable functions and $\delta\in \mathbb{Q}^+$. The bounded $\delta$-SMT
+problem in $\mathcal{L}_{\mathcal{F}}$ is decidable.  
+\end{theorem}
+
+
+\begin{theorem}[Complexity]
+Let $\mathcal{F}$ be a finite set of functions in Type 2 complexity class
+$\mathsf{C}$, $\mathsf{P}\subseteq\mathsf{C}\subseteq\mathsf{PSPACE}$. The
+$\delta$-SMT problem for uniformly bounded $\Sigma_1$-classes in
+$\mathcal{L}_{\mathcal{F}}$ is in $\mathsf{NP^C}$. 
+\end{theorem}
+\begin{corollary}
+Let $\mathcal{F}$ be a finite set of $\mathsf{P}$-time computable real
+functions, such as $\{+, \times, \exp, \sin\}$. The uniformly-bounded
+$\delta$-SMT problem for $\mathcal{L}_{\mathcal{F}}$ is $\mathsf{NP}$-complete.
+\end{corollary}
+\begin{corollary}
+Let $\mathcal{F}$ be a finite set of Lipschitz-continuous ODEs over compact
+domains. Then the uniformly-bounded $\delta$-SMT problem in
+$\mathcal{L}_{\mathcal{F}}$ is in $\mathsf{PSPACE}$, and there exists
+$\mathcal{L}_{\mathcal{F}}$ such that it is $\mathsf{PSPACE}$-complete.
+\end{corollary}
+
+
+\section{A Proof System for Interval Constraint Progagation}
+
+\subsection{Interval Constraint Propagation}
+
+The ICP algorithm is a branch and prune algorithm. We give a brief description
+and focusing on providing an abstract representation of the algorithm.  
+
+\begin{algorithm}\label{algo1}
+\SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
+\SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
+\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+\Input{Constraints $f_1(x_1,...,x_n)=0,...,f_m(x_1,...,x_n)=0$, initial box $B^0
+= I^0_1\times \cdots \times I^0_n$, box stack $S=\emptyset$, and precision
+$\varepsilon\in \mathbb{Q}^+$.}
+\Output{{\sf sat} or {\sf unsat}.}
+\BlankLine
+$S.\mathrm{push}(B_0)$\;
+\While{$S\neq \emptyset$}{\label{while}
+$B\leftarrow S.\mathrm{pop}()$ \;
+\While{$\exists 1\leq i \leq m, B\neq \mathrm{Prune}(B,f_i)$}{
+%\For{$j\leftarrow 1$ \KwTo $m$}{
+        $B\leftarrow\mathrm{Prune}(B, f_i)$ \;
+%       \If{$B=\emptyset$}{break\;}
+}
+\If{$B\neq \emptyset$}
+{\eIf{$\exists 1\leq i\leq n, |I_i|\geq \varepsilon$}{$\{B_1,B_2\}\leftarrow
+\mathrm{Branch}(B, i)$\;$S.\mathrm{push}(\{B_1,B_2\})$\;}{return {\sf sat}\;}}
+}
+return {\sf unsat}\;
+\caption{High-Level ICP$_{\varepsilon}$ (decision version of Branch-and-Prune)}
+\end{algorithm}
+
+
+\begin{definition}[ICP Transitions]
+An {\em ICP transition} is defined as one of the following:
+\begin{eqnarray*}
+I_1,...,I_n \parallel c_1, ..., c_m &\Longrightarrow&  \emptyset\parallel
+c_1,...,c_m,
+\mbox{ (Contradiction) }\\ & &\mbox{if $\forall \vec a\in
+I_1\times\cdots\times I_n$, $c_i(\vec a)$ is false for some $c_i$.}\\
+I_1,...,I_i,...,I_n \parallel c_1,...,c_m &\Longrightarrow&
+I_1,...,I_i',...,I_n\parallel c_1,...,c_m, \mbox{ (Prune) }\\& & \mbox{if
+$I_1,...,I_i\setminus I_i',...,I_n\parallel c_1,...,c_m\Longrightarrow
+\emptyset \parallel c_1,...,c_m$.}\\
+I_1,...,I_i,...,I_n \parallel c_1,...,c_m &\Longrightarrow&
+I_1,...,I_i,...,I_n \parallel c_1,...,c_m, x_i\in I_i, \mbox{ (Branch) }\\&
+&\mbox{if $I_i'\subseteq I_i$ and $I_i' \neq \emptyset$.}\\
+I_1,...,I_i,...,I_n \parallel c_1,...,c_m, x_i\in I_i &\Longrightarrow&
+I_1,...,I_i,...,I_n \parallel c_1,...,c_m,\mbox{ (Backtrack) }\\& & \mbox{if
+$I_1,...,I_i,...,I_n\parallel c_1,...,c_m, x_i\in I_i \Longrightarrow
+\emptyset\parallel c_1,...,c_m, x\in I_i$.}
+\end{eqnarray*}
+\end{definition}
+Note that the transitions are all {\em may} transitions, not {\em must}
+transitions. 
+\begin{definition}[Abstract ICP]
+An ICP framework is a transition system 
+$$\langle \mathbb{IR}^n, \mathcal{C}, \Longrightarrow, \varepsilon\rangle$$
+where $\mathcal{C}$ is any set of constraints over $\mathbb{R}^n$,
+$\Longrightarrow: \mathbb{IR}^n\times
+\mathcal{C}\rightarrow \mathbb{IR}^n\times \mathcal{C}$ is the transition
+relation of all possible ICP steps, and $\varepsilon\in \mathbb{Q}^+$ is an
+error bound. 
+
+A {\em run} of ICP is any sequence
+$$\vec I \parallel \vec c \Longrightarrow \cdots \Longrightarrow \vec
+I'\parallel \vec c'$$
+where $t$ is either $I'$ is $\emptyset$, or $\vec I'\neq \emptyset$ and $||\vec
+I'||<\varepsilon$.
+\end{definition}
+\begin{remark}
+We have defined ICP in a general way, without mentioning the well-definedness of
+the pruning operators. Thus, many invalid ICP runs can be generated. This is
+because here we will treat ICP as a proof searching algorithm, and rely on the
+proof checkers to determine the correctness of an ICP run. In practice, of
+course, only
+``correct" ICP algorithms can provide proofs that can always be validated.    
+\end{remark}
+
+\paragraph{Witness of $\delta$-Satisfiability}
+For satisfiable formulas, a witness for $\delta$-satisfiability can be obtained. 
+
+
+\subsection{First-Order Proofs of Unsatisfiability}
+
+We focus on proving the unsatisfiability of SMT problems of the form
+$$\exists^{I_1} x_1\cdots \exists^{I_n} x_n \bigwedge_{i=1}^m
+f_i(x_1,...,x_n)\sim 0$$
+where $\sim \in \{=,\neq, >, \geq, <, \leq\}$. That is, we prove the validity
+of formulas of the form:
+$$\forall x_1 \cdots \forall x_n (x_1\in I_1\wedge \cdots \wedge x_n\in I_n
+\rightarrow \bigvee_{i=1}^m f_i(x_1,...,x_n)\sim 0)$$
+
+We will show that the steps in ICP can be ceritifed by translating them
+reversely to a standard first-order proof. Although various real functions are
+involved, to verify the proof correctness of ICP sequences we only need a weak
+system of first-order logic reasoning.  
 \begin{definition}[Language]
-We work under the first-order theory with the following signature 
-$$\mathcal{L}_{I} = \langle \emptyset, \cap, \cup, \subseteq,
-\mathcal{F}\rangle$$
-\end{definition}
-
-\begin{notation}
-To emphasize that we work over intervals, we write the variables using capital
-letters $A, B, C, ...$
-\end{notation}
-
-
-\begin{definition}[Semantics]
 
 \end{definition}
 
-
-
-\begin{definition}[Axioms]
- 
-\end{definition}
-
-
-
-
-
-Real interval $\mathbb{IR} = \{ [a, b] \in \mathbb{R} \times
-\mathbb{R} \mid a \le b \}$ denotes a set of closed ranges of real
-numbers. Let $\Var$ be the set of all variables. An environment $e \in
-\Env : \Var \to \mathbb{IR}$ maps a variable $x \in \Var$ to a
-corresponding real interval $e[x] \in \mathbb{IR}$. Interval
-abstraction function $\alpha : 2^{\mathbb{R}} \to \mathbb{IR}$ takes a
-set of real numbers $S$ and returns a minimal interval which covers
-the given set:
-\[
-\alpha(S) = [\min(S), \max(S)].
-\]
-Similarly, we define concretization function $\gamma : \mathbb{IR} \to
-2^{\mathbb{R}}$:
-\[
-\alpha([a, b]) = \{ x \mid a \le x \le b \},
-\]
-and join operator $\sqcup : \mathbb{IR} \times \mathbb{IR} \to
-\mathbb{IR}$:
-\[
-[a,b] \sqcup [c, d] = [\min(a,c), \max(b, d)].
-\]
-
-
-For a function $f : \mathbb{R}^n \to \mathbb{R}$, we define its
-interval extension $f^I : \mathbb{IR}^n \to \mathbb{IR}$ as
-\[
-f^I ([l_1, u_1], \dots, [l_n, u_n]) =
-\alpha(\{ f(x_1, \dots, x_n) \mid x_i  \in [l_i, u_i] \}).
-\]
-Let $\mathcal{F}$ be a finite subset of real functions such that
-$\mathcal{F} \subseteq \{f_i \mid f_i : \mathbb{R}^n \to \mathbb{R}
-\}$. We define the interval extension $\mathcal{F}^I$ of $\mathcal{F}$
-by taking interval extension of each real function $f \in
-\mathcal{F}$:
-\[
-\mathcal{F}^I = \{ f^I \mid f \in \mathcal{F} \}.
-\]
-
-\paragraph{Over-Approximated  function}
-
-A function $\widehat{f^I} : \mathbb{IR}^n \to \mathbb{IR}$ is an
-over-approximated function for an interval extension of function $f$ if
-$f^I$ satisfies the following condition:
-\[
-\forall I \in \mathbb{IR}^n. \
-f^I(I) \subseteq \widehat{f^I}(I)
-\]
-
-
-For a given set of constraints $\mathcal{F}$, our SMT solver
-generates a proof if the result is unsatisfiable. The proof system is
-given as follows
-
-\paragraph{Branch}
-\begin{mathpar}
+\begin{definition}[System $\mathbb{D}$]
+We define $\mathbb{D}$ to be the following first-order proof system. 
+\paragraph{$\vee$-Rule}\begin{mathpar}
   \inferrule{
-    A \cap C_1 \subseteq \emptyset \\ \cdots \\
-    A \cap C_n \subseteq \emptyset \\
-    B \subseteq C_1 \cup \cdots \cup C_n
-  }{
-    A \cap B \subseteq \emptyset
+  \forall x (A(x) \rightarrow \varphi)
+    \and
+  \forall x (B(x) \rightarrow \varphi)
+  }
+  {
+  \forall x ( A(x)\vee B(x) \rightarrow \varphi)
   }
 \end{mathpar}
-
-\paragraph{Over-Approximated Interval Arithmetic}
+\paragraph{$\forall$-MP}
 \begin{mathpar}
-  % ADD
   \inferrule{
-    f^I_1[a, b] \subseteq [a_1, b_1]
+  \forall x (A(x) \rightarrow \varphi)
     \and
-    f^I_2[a, b] \subseteq [a_2, b_2]
+  \forall x (B(x) \rightarrow A(x))
   }
   {
-    (f_1 + f_2)^I[a, b] \subseteq [a_1 + a_2, b_1 + b_2]
-  }
-  \and
-  % SUBTRACT
-  \inferrule{
-    f^I_1[a, b] \subseteq [a_1, b_1]
-    \and
-    f^I_2[a, b] \subseteq [a_2, b_2]
-  }
-  {
-    (f_1 - f_2)^I[a, b] \subseteq [a_1 - b_2, b_1 - a_2]
-  }
-  \and
-  % MULTIPLY
-  \inferrule{
-    f^I_1[a, b] \subseteq [a_1, b_1]
-    \and
-    f^I_2[a, b] \subseteq [a_2, b_2]
-  }
-  {
-    (f_1 \times f_2)^I[a, b] \subseteq
-    [
-    \min (a_1 \times a_2, a_1 \times b_2, b_1 \times a_2, b_1 \times b_2),
-    \max (a_1 \times a_2, a_1 \times b_2, b_1 \times a_2, b_1 \times b_2)
-    ]
-  }
-  \and
-  % DIVIDE
-  \inferrule{
-    f^I_1[a, b] \subseteq [a_1, b_1]
-    \and
-    f^I_2[a, b] \subseteq [a_2, b_2]
-    \and
-    0 \not \in [a_2, b_2]
-  }
-  {
-    (f_1 / f_2)^I[a, b] \subseteq
-    [
-    \min (a_1 / a_2, a_1 / b_2, b_1 / a_2, b_1 / b_2),
-    \max (a_1 / a_2, a_1 / b_2, b_1 / a_2, b_1 / b_2)
-    ]
-  }
-  % SQRT
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b']
-    \and
-    a' \ge 0
-  }
-  {
-    (\sqrt f)^I [a, b] \subseteq
-    [\sqrt a', \sqrt b']
-  }
-  % LOG
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b']
-    \and
-    a' > 0
-  }
-  {
-    (\log f)^I [a, b] \subseteq
-    [\log a', \log b']
-  }
-  % EXP
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b']
-  }
-  {
-    (\exp f)^I [a, b] \subseteq
-    [\exp a', \exp b']
-  }
-  % SIN
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b'] \and
-    \widehat{\sin} [a', b'] = [a'', b'']
-  }
-  {
-    (\sin f)^I [a, b] \subseteq
-    [a'', b'']
-  }
-  % COS
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b'] \and
-    \widehat{\cos} [a', b'] = [a'', b'']
-  }
-  {
-    (\cos f)^I [a, b] \subseteq
-    [a'', b'']
-  }
-  % TAN
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b'] \and
-    \widehat{\tan} [a', b'] = [a'', b'']
-  }
-  {
-    (\tan f)^I [a, b] \subseteq
-    [a'', b'']
-  }
-  % ARCSIN
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b'] \and
-    \widehat{\arcsin} [a', b'] = [a'', b'']
-  }
-  {
-    (\arcsin f)^I [a, b] \subseteq
-    [a'', b'']
-  }
-  % ARCCOS
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b'] \and
-    \widehat{\arccos} [a', b'] = [a'', b'']
-  }
-  {
-    (\arccos f)^I [a, b] \subseteq
-    [a'', b'']
-  }
-  % ARCTAN
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b'] \and
-    \widehat{\arctan} [a', b'] = [a'', b'']
-  }
-  {
-    (\arctan f)^I [a, b] \subseteq
-    [a'', b'']
-  }
-  % SINH
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b'] \and
-    \widehat{\sinh} [a', b'] = [a'', b'']
-  }
-  {
-    (\sinh f)^I [a, b] \subseteq
-    [a'', b'']
-  }
-  % COSH
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b'] \and
-    \widehat{\cosh} [a', b'] = [a'', b'']
-  }
-  {
-    (\cosh f)^I [a, b] \subseteq
-    [a'', b'']
-  }
-  % TANH
-  \and
-  \inferrule{
-    f^I [a, b] \subseteq [a', b'] \and
-    \widehat{\tanh} [a', b'] = [a'', b'']
-  }
-  {
-    (\tanh f)^I [a, b] \subseteq
-    [a'', b'']
+  \forall x ( B(x) \rightarrow \varphi)
   }
 \end{mathpar}
+\paragraph{Interval Axioms}
+\begin{mathpar}
+\inferrule{ }{\forall x(x\in I_1 \vee x\in I_2 \rightarrow x\in I)}
+\end{mathpar}
+\paragraph{Function Properties}
+\begin{mathpar}
+\inferrule{ }{\forall x ( x\in I \rightarrow f(x)\sim 0)}
+\end{mathpar}
+
+\end{definition}
+\begin{theorem}[Soundness of $\mathbb{D}$]
+If $D\vdash \varphi$, and for each axiom $A$ used in the proof
+$\mathbb{R}\models A$, then $\mathbb{R}\models \varphi$. 
+\end{theorem}
+We now show that each transition rule in ICP corresponds reversely to a
+first-order proof rule. 
+\paragraph{Contradiction.} $I_1,...,I_n \parallel c_1, ..., c_m \Longrightarrow\emptyset\parallel
+c_1,...,c_m$ corresponds to an axiom
+\begin{mathpar}
+\inferrule{ }{\forall x ( x\in I \rightarrow f(x)\sim 0)}
+\end{mathpar}
+
+\paragraph{Pruning.}
+$I_1,...,I_i,...,I_n \parallel c_1,...,c_m \Longrightarrow
+I_1,...,I_i',...,I_n\parallel c_1,...,c_m$
+corresponds to an inference
+\begin{mathpar}
+  \inferrule
+{\inferrule{
+  \forall x (x\in I_i \rightarrow \varphi)
+    \and
+  \forall x (x\in I_i' \rightarrow \varphi)
+  } 
+  {
+  \forall x (x\in I_i \vee x\in I_i'\rightarrow \varphi)
+  } \and 
+  \inferrule{ }
+  { \forall x (x\in I_1\vee x\in I_2 \rightarrow x\in I)}
+}
+{
+  \forall x ( x\in I \rightarrow \varphi)
+}
+\end{mathpar}
+\paragraph{Branching.}
+
+\paragraph{Backtracking.}
+
+\begin{example}
+Give an example of tree construction. 
+\end{example}
+
+\begin{definition}[Tree Generation]
+Define the construction recursively, backwards from the root. 
+\end{definition}
+
+\begin{theorem}[ST-Correspondence]
+Each ICP sequence $S$ corresponds to a proof tree $\pi(S)$.
+\end{theorem}
+
+In this way, we see ICP as a proof searching algorithm for valid universal
+formulas. Note that following soundness, once the proof tree is constructed and
+can be validated, the details of the ICP algorithm no longer matter. This serves
+our goal of obtaining a stand-alone certificate that can be checked with
+external checkers. 
+
+\begin{definition}[System $\mathbb{I}$]
+We have the following rules. 
+
+\end{definition}
 
 
-\section{Proof Checking Algorithms}
+\subsection{Validating Axioms}
 
-write about the overall flow, the loop between running dReal and checking. 
+In the proof tree constructed from ICP runs, we introduced axioms in various
+steps. Following soundness, the validity of the formulas now rely on the
+correctness of these axioms. 
+
+For the interval axioms without functions of the form $\forall x(x\in I_1\vee
+x\in I_2\rightarrow x\in I)$, we only need to check that $I$ is a superset of
+$I_1\cup I_2$. This is an easy task. 
+
+For the axioms with functions, which are of the form 
+$$\forall x (x\in I \rightarrow f(x)\sim 0)$$
+we need to verify them using nontrivial properties of the functions. Note that
+the form of these axioms is the same as the full problem. However, the
+difference is that these axioms are envoked when $I$ is relatively small, and
+the value of $f$ can usually be determined. In general, these axioms are
+verified if we can use basic interval arithmetic facts to cerify them, which is
+a topic of this section. 
+
+\begin{definition}[Interval Extensions]
+Let $f: \mathbb{R}^n\rightarrow \mathbb{R}$ be a real function. An interval
+function $F: \mathbb{IR}^n \rightarrow \mathbb{IR}$ is a function that
+satisfies: 
+$$\forall I\in \dom(F), \{f(x): x\in I\}\subseteq F(I).$$
+\end{definition}
+
+A simple example of interval extensions is the natural interval extension for
+arithmetic operations, based computations of the end points of the intervals. 
+\begin{example}[Natural Extensions]
+The natural extensions of $\{+, -, \times, \div\}$ are as follows. 
+\end{example}
+
+\begin{proposition}
+Let $F$ be an interval extension of $f$, and $I\subseteq \dom(f)$. We have:
+\begin{center}
+If $F(I)\subseteq A$, then $\forall x (x\in I \rightarrow f(x)\in A)$. 
+\end{center}
+\end{proposition}
+Thus, if we can verify that all the interval extensions are consistent with the
+function axioms, then we can validate the axioms. 
+
+\begin{remark}
+We regard simple real arithmetic as easy tasks. 
+As is the case in validating the witnesses, the interval axioms, the function
+axioms. This needs to be justified, since numerical computations always involve
+floating point computations that are fallible. In practice, once a proof is
+obtained, there can be multiple ways to verify the proof. For instance, symbolic
+computations with precise arithmetic can be used.  
+\end{remark}
+
+\section{Proof Refinement Algorithm: Branch and Prove}
+
+The challenge for a proof checking algorithm is that the pruning operations in
+ICP usually implements complicated heuristics that is more powerful than
+interval arithmetic. However, in the proof we can hardly simulate those
+heurstics, which involve too much numerical computation. Thus, we propose to use
+a high-level ``Branch and Prove" loop that pushes the solver itself to refine
+the solving traces. 
+
+\begin{example}
+Give an example of how dReal solves in one step that is beyond the validation
+power of simple interval arithmetic. 
+\end{example}
+
+\begin{algorithm}\label{algo1}
+\SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
+\SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
+\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+\Input{
+A proof tree $T$.
+}
+\Output{{\sf validated} or {\sf rejected}.}
+\BlankLine
+\While{Axioms are not validated}{\label{while}
+Loop between solver and checker\;
+}
+return {\sf rejected}\;
+\caption{Branch and Prove}
+\end{algorithm}
+
+
 
 \section{Case Study: Kepler Conjecture Benchmarks}
 
-
-
+\section{Discussion}
 
 \bibliographystyle{abbrv}
 \bibliography{tau}
