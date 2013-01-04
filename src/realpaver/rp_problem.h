@@ -83,7 +83,7 @@ typedef rp_problem_def * rp_problem;
 #define rp_problem_nctr(p)  rp_vector_size(rp_problem_ctrs(p))
 
 /* Creation of a problem */
-void rp_problem_create (rp_problem * p, char * name);
+void rp_problem_create (rp_problem * p, const char * name);
 
 /* Destruction of a problem */
 void rp_problem_destroy (rp_problem * p);

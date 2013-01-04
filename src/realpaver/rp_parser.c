@@ -97,7 +97,7 @@ int rp_parse_problem_file(rp_problem * problem,
 
 /* Parse a constraint from a string */
 int rp_parse_constraint_string(rp_constraint * c,
-			       char * src,
+			       const char * src,
 			       rp_table_symbol ts)
 {
   rp_parser p;
@@ -762,8 +762,8 @@ int rp_rule_problem_variable_block(rp_parser p, rp_problem problem)
   rp_variable aux;
   if (rp_rule_variable(p,&aux))
   {
-    return( rp_rule_problem_variable_next(p,problem) );  
-	//s: note that the parsing is done recursively. 
+    return( rp_rule_problem_variable_next(p,problem) );
+	//s: note that the parsing is done recursively.
   }
   else
   {

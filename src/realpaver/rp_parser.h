@@ -165,7 +165,7 @@ int rp_parse_constant_file (rp_constant * out,
 
 /* Parsing of constraint from a string, return false if failure */
 int rp_parse_constraint_string (rp_constraint * c,
-				char * src,
+				const char * src,
 				rp_table_symbol ts);
 
 /* Parsing of constraint from a file, return false if failure */

@@ -49,7 +49,7 @@ rp_ofilter_text::~rp_ofilter_text()
 {}
 
 // Output of box b for problem p
-void rp_ofilter_text::apply_box(const rp_box& b, char * msg)
+void rp_ofilter_text::apply_box(const rp_box& b, const char * msg)
 {
   // Width of the box on the decision variables
   double w = 0.0, vol = 1.0;
@@ -129,7 +129,7 @@ rp_ofilter_pstricks::~rp_ofilter_pstricks()
 {}
 
 // Output of box b for problem p
-void rp_ofilter_pstricks::apply_box(const rp_box& b, char * msg)
+void rp_ofilter_pstricks::apply_box(const rp_box& b, const char * msg)
 {
   rp_interval x, y;
   int i, n;
@@ -268,7 +268,7 @@ int rp_ofilter_merge::close_enough(const rp_box& b1, const rp_box& b2)
 
 
 // Output of box b for problem p
-void rp_ofilter_merge::apply_box(const rp_box& b, char * msg)
+void rp_ofilter_merge::apply_box(const rp_box& b, const char * msg)
 {
   // First try to gather b with another box
   for (int i=0; i<_stack.size(); ++i)

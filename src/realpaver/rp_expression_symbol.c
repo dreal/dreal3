@@ -33,7 +33,7 @@ void rp_erep_create_var(rp_erep * f, int v)
 
 /* Creation of an expression equivalent to a number */
 /* which is enclosed by i and represented by s      */
-void rp_erep_create_cst(rp_erep * f, char * s, rp_interval i)
+void rp_erep_create_cst(rp_erep * f, const char * s, rp_interval i)
 {
   rp_malloc(*f,struct rp_erep_cell*,sizeof(struct rp_erep_cell));
   rp_erep_ref(*f) = 1;
@@ -1164,7 +1164,7 @@ int rp_erep_simplify_prod(rp_erep * f)
 	nnodenew = rp_erep_count_node(*f);
 	rp_erep_destroy(&aux1);
 	rp_erep_destroy(&aux2);
-	
+
 	/* the product is considered to be modified only if at least
 	   one node has been removed */
 	result = (nnodenew < nnode);

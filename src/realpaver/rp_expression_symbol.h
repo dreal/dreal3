@@ -155,7 +155,7 @@ void rp_erep_create_var (rp_erep * f, int v);
 
 /* Creation of an expression equivalent to a number */
 /* which is enclosed by i and represented by s      */
-void rp_erep_create_cst (rp_erep * f, char * s, rp_interval i);
+void rp_erep_create_cst (rp_erep * f, const char * s, rp_interval i);
 
 /* Creation of an expression equivalent to op(l) */
 void rp_erep_create_unary (rp_erep * f, int op, rp_erep l);

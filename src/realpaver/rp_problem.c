@@ -35,7 +35,7 @@ void rp_table_symbol_destroy(rp_table_symbol * t)
 }
 
 /* Creation of a problem */
-void rp_problem_create(rp_problem * p, char * name)
+void rp_problem_create(rp_problem * p, const char * name)
 {
   rp_malloc(*p,rp_problem_def*,sizeof(rp_problem_def));
   if (name!=NULL)

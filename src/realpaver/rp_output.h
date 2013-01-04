@@ -33,7 +33,7 @@ public:
   virtual ~rp_ofilter();
 
   // Output of box b for problem p
-  virtual void apply_box(const rp_box& b, char * msg) = 0;
+  virtual void apply_box(const rp_box& b, const char * msg) = 0;
 
 protected:
   // Copy
@@ -59,7 +59,7 @@ public:
   ~rp_ofilter_text();
 
   // Output of box b for problem p
-  void apply_box(const rp_box& b, char * msg);
+  void apply_box(const rp_box& b, const char * msg);
 
 private:
   std::ostream * _os;  // output stream
@@ -83,7 +83,7 @@ public:
   ~rp_ofilter_pstricks();
 
   // Output of box b for problem p
-  void apply_box(const rp_box& b, char * msg);
+  void apply_box(const rp_box& b, const char * msg);
 
 private:
   std::ostream * _os;  // output stream
@@ -115,7 +115,7 @@ public:
   void compact();
 
   // Output of box b for problem p
-  void apply_box(const rp_box& b, char * msg);
+  void apply_box(const rp_box& b, const char * msg);
 
   // Output of all boxes using filter o
   int apply_all(rp_ofilter& o);
