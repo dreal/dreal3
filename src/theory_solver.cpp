@@ -9,16 +9,16 @@ NLRSolver::NLRSolver( const int           i
 	                , vector< Enode * > & d
                         , vector< Enode * > & s)
   : OrdinaryTSolver ( i, n, c, e, t, x, d, s )
-{ 
+{
 //initialize icp solver first
 	rp_init_library();
 
-	_problem = new rp_problem; 	
+	_problem = new rp_problem;
 	rp_problem_create( _problem, "icp_holder" );
-	
+
 	_ts = &rp_problem_symb (*_problem);
 	_b  = &rp_problem_box (*_problem);
-	
+
 }
 
 NLRSolver::~NLRSolver( )
@@ -27,7 +27,7 @@ NLRSolver::~NLRSolver( )
 
     rp_problem_destroy(_problem);
     rp_reset_library();
-  
+
 }
 
 
@@ -50,13 +50,13 @@ variable * NLRSolver::add_variable( Enode * e )
 	{
 		if ( e == (*it) -> get_enode() )
 		{
-			return NULL; 
+			return NULL;
 		}
 	}
 
-	variable * var = new variable(e, _b, _ts);	
+	variable * var = new variable(e, _b, _ts);
 	var-> mk_rp_variable( (e->getCar() -> getName()).c_str() );
-	
+
 	return var;
 
 }
@@ -71,13 +71,13 @@ void NLRSolver::get_variables(Enode * e, vector<variable *> & vl)
   {
 	if ( e -> isVar() )
 	{
-		variable * var = add_variable( e ); 
+		variable * var = add_variable( e );
 		if (var != NULL ) vl.push_back(var);
 	    	get_variables( e->getCar(), vl );
     	}
 
 	p = e -> getCdr();
-    	
+
 	while ( !p->isEnil( ) )
     	{
 		get_variables( p->getCar(), vl );
@@ -93,16 +93,29 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 	{
 		if ( e == (*it) -> get_enode() )
 		{
-			return; 
+			return;
 		}
 	}
 
-	literal * lit = new literal( e , _ts );	
-	cout << lit -> get_enode();
-	
-	stringstream s;
-	e -> print(s);
-	lit->mk_constraint( s.str().c_str() );
+	literal * lit = new literal( e , _ts );
+
+        cout << endl << "-----------------------------" << endl;
+
+	cout << "Print: " << lit -> get_enode() << endl;
+
+        cout << "infix(e)... " << endl;
+
+        stringstream buf;
+        e->print_infix(buf);
+        const char* src1 = buf.str().c_str();
+
+        cout << "infix(e) = " << src1 << endl;
+
+        rp_constraint c1;
+
+        rp_parse_constraint_string(&c1,src1,*_ts);
+
+	lit->mk_constraint( src1 );
 
 	ll.push_back(lit);
 
@@ -112,16 +125,16 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 //
 // The solver is informed of the existence of
 // atom e. It might be useful for initializing
-// the solver's data structures. This function is 
+// the solver's data structures. This function is
 // called before the actual solving starts.
 //
 
-lbool NLRSolver::inform( Enode * e )  
-{ 
+lbool NLRSolver::inform( Enode * e )
+{
 	assert( e -> isAtom() );
 
-  	get_variables( e, v_list ); 
-	add_literal ( e, l_list );	
+  	get_variables( e, v_list );
+	add_literal ( e, l_list );
 
 	cout << " has polarity " << toInt(e->getPolarity()) << " "<<endl;
 
@@ -129,7 +142,7 @@ lbool NLRSolver::inform( Enode * e )
   	return l_Undef;
 }
 
-// 
+//
 // Asserts a literal into the solver. If by chance
 // you are able to discover inconsistency you may
 // return false. The real consistency state will
@@ -164,8 +177,8 @@ void NLRSolver::pushBacktrackPoint ( )
 //
 // Restore a previous state. You can now retrieve
 // the size of the stack when you pushed the last
-// backtrack point. You have to implement the 
-// necessary backtrack operations 
+// backtrack point. You have to implement the
+// necessary backtrack operations
 // (see for instance backtrackToStackSize( )
 // in EgraphSolver)
 // Also make sure you clean the deductions you
@@ -179,11 +192,11 @@ void NLRSolver::popBacktrackPoint ( )
 // Check for consistency. If flag is
 // set make sure you run a complete check
 //
-bool NLRSolver::check( bool complete )    
-{ 
+bool NLRSolver::check( bool complete )
+{
 	cout<<"This is a "<< complete<<" check\n";
 
-	if (complete)	
+	if (complete)
 	{
 		explanation.clear();
 
@@ -195,7 +208,7 @@ bool NLRSolver::check( bool complete )
 			     << toInt((*it)->get_enode()->getPolarity()) << " ";
 		}
 		cout<< endl;
-		
+
 		temp_l_list.clear();
 	}
 
