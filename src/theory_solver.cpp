@@ -96,26 +96,12 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 			return;
 		}
 	}
-
 	literal * lit = new literal( e , _ts );
-
-        cout << endl << "-----------------------------" << endl;
-
-	cout << "Print: " << lit -> get_enode() << endl;
-
-        cout << "infix(e)... " << endl;
-
-        const char* src1 = infix(e);
-
-        cout << "infix(e) = " << src1 << endl;
-
-        rp_constraint c1;
-
-        rp_parse_constraint_string(&c1,src1,*_ts);
-
+        const char* src1 = infix(e).c_str();
 	lit->mk_constraint( src1 );
-
 	ll.push_back(lit);
+        rp_vector_insert(rp_problem_ctrs(*_problem),*(lit->_c));
+        rp_problem_display(stdout, *_problem);
 }
 
 
