@@ -218,8 +218,8 @@ public:
   inline unsigned             getArity   ( ) const { return ((properties & ARITY_MASK) >> ARITY_SHIFT); }
   Snode *                     getSort    ( ) const { assert( isTerm( ) || isSymb( ) ); return isTerm( ) ? car->symb_data->sort : symb_data->sort; }
   Snode *                     getLastSort( );
-  inline string   getName                ( )       { assert( isSymb( ) || isNumb( ) ); assert( symb_data ); return stripName( symb_data->name ); }
-  inline string   getNameFull            ( )       { assert( isSymb( ) || isNumb( ) ); assert( symb_data ); return symb_data->name; }
+  inline string   getName                ( ) const { assert( isSymb( ) || isNumb( ) ); assert( symb_data ); return stripName( symb_data->name ); }
+  inline string   getNameFull            ( ) const { assert( isSymb( ) || isNumb( ) ); assert( symb_data ); return symb_data->name; }
   inline Enode *  getCar                 ( ) const { return car; }
   inline Enode *  getCdr                 ( ) const { return cdr; }
   inline Enode *  getDef                 ( ) const { assert( isDef( ) ); assert( car ); return car; }
@@ -332,7 +332,7 @@ public:
 
   void           print	                ( ostream & ); // Prints the
 
-  string         stripName              ( string );
+  string         stripName              ( string ) const;
   void           printSig	        ( ostream & ); // Prints the enode signature
 
 #ifdef BUILD_64

@@ -369,7 +369,7 @@ void Enode::printSig( ostream & os )
 #endif
 }
 
-string Enode::stripName( string s )
+string Enode::stripName( string s ) const
 {
   return s.substr( 0, s.find( ' ', 0 ) );
 }
