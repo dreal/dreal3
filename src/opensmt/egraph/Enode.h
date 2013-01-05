@@ -331,7 +331,6 @@ public:
   unsigned       sizeInMem              ( ) const;
 
   void           print	                ( ostream & ); // Prints the
-  void           print_infix	        ( ostream & ); // Prints the enode
 
   string         stripName              ( string );
   void           printSig	        ( ostream & ); // Prints the enode signature

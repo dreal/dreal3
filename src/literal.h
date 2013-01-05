@@ -19,3 +19,5 @@ private:
 	rp_table_symbol * 	_ts; //pointer to an outside symbol table
 
 };
+
+const char * infix(Enode *e);

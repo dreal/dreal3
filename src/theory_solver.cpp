@@ -105,9 +105,7 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 
         cout << "infix(e)... " << endl;
 
-        stringstream buf;
-        e->print_infix(buf);
-        const char* src1 = buf.str().c_str();
+        const char* src1 = infix(e);
 
         cout << "infix(e) = " << src1 << endl;
 
@@ -118,7 +116,6 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 	lit->mk_constraint( src1 );
 
 	ll.push_back(lit);
-
 }
 
 
