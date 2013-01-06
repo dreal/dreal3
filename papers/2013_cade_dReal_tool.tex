@@ -21,15 +21,16 @@
 \maketitle
 
 \begin{abstract}
-We present the tool {\tt dReal}, a $\delta$-complete SMT solver for bounded
-nonlinear formulas over the reals. The tool handles various nonlinear functions
-including polynomials, trignometric functions, exponential functions, and
-solutions of many ordinary differential equation systems. {\tt dReal} is
-numerically-driven and $\delta$-complete, providing the following correctness
-guarantees: if a formula is UNSAT, then it is indeed unsatisfiable; if a
-formula is $\delta$-SAT, then under some $\delta$-bounded perturbation it would
-be satisfiable. The tool provides witness solutions for $\delta$-SAT answers,
-and proof trees for UNSAT answers. We show examples of its promising
+We present the tool {\tt dReal}, an SMT solver for bounded
+nonlinear formulas over the reals in the framework of $\delta$-complete decision
+procedures. The tool handles various nonlinear functions including polynomials,
+trignometric functions, exponential functions, as well as  many ordinary
+differential equations. 
+{\tt dReal} is numerically-driven, but provides the following correctness
+guarantees: if a formula is ``unsat'', then it is indeed unsatisfiable and a proof
+of unsatisfiability is constructed; if a
+formula is ``$\delta$-sat'', then under some $\delta$-bounded syntactic perturbation it would
+be satisfiable, with a witness solution returned. We show examples of its promising
 performance on various nonlinear benchmarks. 
 \end{abstract}
 

@@ -20,7 +20,7 @@
 \setlength{\evensidemargin}{.6in}
 
 
-\title{Extracting Proofs from a $\delta$-Complete Decision Procedure}
+\title{Extracting Proofs from a Numerically-Driven Decision Procedure}
 \author{Sicun Gao \and Soonho Kong \and Michael Wang \and Edmund M. Clarke}
 \institute{Carnegie Mellon University, Pittsburgh, PA 15213}
 
@@ -30,14 +30,15 @@
 \begin{abstract}
 $\delta$-Complete decision procedures can solve SMT problems over the
 reals with a wide range of nonlinear functions, allowing ``$\delta$-bounded
-errors''. The scalability of such procedures depends on the use of various
+errors''. The scalability of such procedures usually depends on efficient
 numerical procedures, whose implementation can be error-prone in practice.
-Consequently, it is important for $\delta$-complete solvers to
-provide proof certificates for their answers to ensure correctness. We show how to do this on a powerful solving framework based
-on Interval Constraint Propagation, by providing witnesses for ``$\delta$-sat''
-answers, as well as verifiable proof-trees for the ``unsat'' answers. One
-example application of such proofs is for establishing nonlinear lemmas in the
-proof of the Kepler Conjecture. 
+It is important for $\delta$-complete solvers to provide proof certificates 
+for their answers to ensure correctness. 
+We show how to do this in a powerful solving framework based
+on Interval Constraint Propagation. Besides providing witnesses for ``$\delta$-sat''
+answers, we concentrate on how to construct proof-trees for the ``unsat''
+answers and how to verify their correctness. One immediate application of such proofs 
+is for establishing many nonlinear lemmas in the formal proof of the Kepler Conjecture. 
 \end{abstract}
 
 \section{Introduction}
@@ -214,8 +215,14 @@ $I_1,...,I_i,...,I_n\parallel c_1,...,c_m, x_i\in I_i \Longrightarrow
 \emptyset\parallel c_1,...,c_m, x\in I_i$.}
 \end{eqnarray*}
 \end{definition}
-Note that the transitions are all {\em may} transitions, not {\em must}
+As usual, the transitions are all {\em may} transitions, not {\em must}
 transitions. 
+\begin{remark}
+The difference between the transitions here from abstract DPLL is:
+1. The assignments are not starting from empty, but contracted.
+2. backtracking? 
+3. branching can be very nondeterministic
+\end{remark}
 \begin{definition}[Abstract ICP]
 An ICP framework is a transition system 
 $$\langle \mathbb{IR}^n, \mathcal{C}, \Longrightarrow, \varepsilon\rangle$$
@@ -240,6 +247,9 @@ course, only
 ``correct" ICP algorithms can provide proofs that can always be validated.    
 \end{remark}
 
+
+
+
 \paragraph{Witness of $\delta$-Satisfiability}
 For satisfiable formulas, a witness for $\delta$-satisfiability can be obtained. 
 
@@ -259,58 +269,77 @@ reversely to a standard first-order proof. Although various real functions are
 involved, to verify the proof correctness of ICP sequences we only need a weak
 system of first-order logic reasoning.  
 \begin{definition}[Language]
-
+We fix a signature $\mathcal{L}_I = \langle \mathbb{IR}, <, \mathcal{F} \rangle$ where $\mathbb{IR}$ is the union closure of real intervals, but used as {\em unary 
+predicates}. Naturally, for any $I\in \mathbb{R}$, $I(x)$ can be written as
+$x\in I$. $\mathcal{F}$ is a set of computable real functions. 
 \end{definition}
 
-\begin{definition}[System $\mathbb{D}$]
-We define $\mathbb{D}$ to be the following first-order proof system. 
-\paragraph{$\vee$-Rule}\begin{mathpar}
+\begin{definition}[System $\mathbb{D}_A$]
+We define $\mathbb{D}_A$ to be the first-order proof system consisting of only the
+following two rules:
+\paragraph{$\vee$-Intro}\begin{mathpar}
   \inferrule{
-  \forall x (A(x) \rightarrow \varphi)
+  \forall x (\psi \rightarrow \varphi)
     \and
-  \forall x (B(x) \rightarrow \varphi)
+  \forall x (\psi' \rightarrow \varphi)
   }
   {
-  \forall x ( A(x)\vee B(x) \rightarrow \varphi)
-  }
-\end{mathpar}
+  \forall x ( \psi\vee \psi' \rightarrow \varphi)
+  }\end{mathpar}
 \paragraph{$\forall$-MP}
 \begin{mathpar}
   \inferrule{
-  \forall x (A(x) \rightarrow \varphi)
+  \forall x (\psi \rightarrow \varphi)
     \and
-  \forall x (B(x) \rightarrow A(x))
+  \forall x (\psi' \rightarrow \psi)
   }
   {
-  \forall x ( B(x) \rightarrow \varphi)
+  \forall x (\psi' \rightarrow \varphi)
   }
 \end{mathpar}
+and a set $A$ of axioms of the following two types:
 \paragraph{Interval Axioms}
 \begin{mathpar}
-\inferrule{ }{\forall x(x\in I_1 \vee x\in I_2 \rightarrow x\in I)}
+\inferrule{ }{\forall x (x\in I \rightarrow x\in I_1 \vee x\in I_2 )}
 \end{mathpar}
-\paragraph{Function Properties}
+\paragraph{Function Axioms}
 \begin{mathpar}
-\inferrule{ }{\forall x ( x\in I \rightarrow f(x)\sim 0)}
+\inferrule{ }{\forall x ( x\in I \rightarrow f(x)\in I')}
 \end{mathpar}
-
 \end{definition}
-\begin{theorem}[Soundness of $\mathbb{D}$]
-If $D\vdash \varphi$, and for each axiom $A$ used in the proof
-$\mathbb{R}\models A$, then $\mathbb{R}\models \varphi$. 
-\end{theorem}
-We now show that each transition rule in ICP corresponds reversely to a
-first-order proof rule. 
-\paragraph{Contradiction.} $I_1,...,I_n \parallel c_1, ..., c_m \Longrightarrow\emptyset\parallel
-c_1,...,c_m$ corresponds to an axiom
+
+Derivations in $\mathbb{D}_A$ are as standardly defined. Clearly, the two 
+first-order rules are valid. Thus, as long as the axioms chosen are valid,
+ the system can only produce valid formulas over $\mathbb{R}$. 
+
+\begin{remark}
+Relations to resolution proofs. 
+\end{remark}
+
+
+\begin{proposition}[Relative Soundness of $\mathbb{D}_A$]
+If $\mathbb{D}_A\vdash \varphi$ and $\mathbb{R}\models \bigwedge A$, then $\mathbb{R}\models \varphi$. 
+\end{proposition}
+
+Next, we show that each transition rule in ICP corresponds reversely to an
+inference step in $\mathbb{D}_A$. 
+
+\begin{definition}
+Let $s$ be an ICP step. The correspondence function $\pi(s)$ is defined as
+follows. 
+
+\paragraph{Contradiction.} Suppose $s$ is 
+$$I_1,...,I_n \parallel c_1, ..., c_m \Longrightarrow\emptyset\parallel
+c_1,...,c_m.$$ Then $\pi(s)$ is of the form:
 \begin{mathpar}
 \inferrule{ }{\forall x ( x\in I \rightarrow f(x)\sim 0)}
 \end{mathpar}
 
 \paragraph{Pruning.}
-$I_1,...,I_i,...,I_n \parallel c_1,...,c_m \Longrightarrow
-I_1,...,I_i',...,I_n\parallel c_1,...,c_m$
-corresponds to an inference
+Suppose $s$ is 
+$$I_1,...,I_i,...,I_n \parallel c_1,...,c_m \Longrightarrow
+I_1,...,I_i',...,I_n\parallel c_1,...,c_m.$$
+Then $\pi(s)$ is an inference:
 \begin{mathpar}
   \inferrule
 {\inferrule{
@@ -322,7 +351,7 @@ corresponds to an inference
   \forall x (x\in I_i \vee x\in I_i'\rightarrow \varphi)
   } \and 
   \inferrule{ }
-  { \forall x (x\in I_1\vee x\in I_2 \rightarrow x\in I)}
+  { \forall x (x\in I \rightarrow x\in I_1\vee x\in I_2)}
 }
 {
   \forall x ( x\in I \rightarrow \varphi)
@@ -331,18 +360,48 @@ corresponds to an inference
 \paragraph{Branching.}
 
 \paragraph{Backtracking.}
+\end{definition}
 
-\begin{example}
-Give an example of tree construction. 
-\end{example}
+We now describe the construction of proof trees from ICP runs. The proof trees in
+our case will be labelled binary trees. We describe a tree as a tuple $T = \langle V,
+\Gamma, l, r, 
+\sigma\rangle$. $V = \{v_0, ..., v_k\}$, $k\in \mathbb{N}$, is a finite set of nodes, where $v_0\in V$ always denotes the root
+node. $\Gamma$ is a set of labels, which in our case is the set of
+$\mathcal{L}_I$-formulas. $l: V \rightarrow V\cup\{v_e\}$ and $r: V\rightarrow V\cup\{v_e\}$ are
+mappings from a node to
+its left and right child nodes, respectively. Here $v_e$ is an extra special symbol
+such that for any $v\in V$, $l(v) = r(v) = v_e$ if and only if $v$ is a leaf
+node. $\sigma: V\rightarrow \Gamma$ is a labeling function that maps each node
+$v\in V$ to a formula $\sigma(v) \in \Gamma$.
 
 \begin{definition}[Tree Generation]
-Define the construction recursively, backwards from the root. 
+%Define the construction recursively, backwards from the root. 
+Let $$(I_1, c_1)\Longrightarrow \cdots \Longrightarrow (I_m, c_m)$$ be an ICP run. 
+We define the procedure by induction on $s_i$.
+\paragraph{Case $i= m$.} $\sigma(v_0) = c_k$. $l(v_0) = r(v_0) = v_e$. {\tt it's
+probably better to define a leaf set and make the children mappings partial.
+Otherwise it's cumbersome to talk about the leaves and the ones without
+assigned formulas. } 
+\paragraph{Case $i = k-1$ ($1< k \leq m$). }
+Suppose $T$ is defined for $s_k,...,s_m$. Let $\bar V$ denote the current leaf
+nodes. Write $s_i = (I_i, c_i)$ and $s_{i+1} = (I_{i+1}, c_{i+1})$. Now we split
+the cases of the step from $s_i$ to $s_{i+1}$. 
+\begin{itemize}
+\item Suppose it is a branching. Then set $l(v_{k+1})$
+\end{itemize}
+
+
 \end{definition}
 
 \begin{theorem}[ST-Correspondence]
 Each ICP sequence $S$ corresponds to a proof tree $\pi(S)$.
 \end{theorem}
+
+
+\begin{example}
+Give an example of tree construction. 
+\end{example}
+
 
 In this way, we see ICP as a proof searching algorithm for valid universal
 formulas. Note that following soundness, once the proof tree is constructed and
@@ -350,16 +409,12 @@ can be validated, the details of the ICP algorithm no longer matter. This serves
 our goal of obtaining a stand-alone certificate that can be checked with
 external checkers. 
 
-\begin{definition}[System $\mathbb{I}$]
-We have the following rules. 
-
-\end{definition}
+\subsection{Validating the Axioms}
 
 
-\subsection{Validating Axioms}
-
-In the proof tree constructed from ICP runs, we introduced axioms in various
-steps. Following soundness, the validity of the formulas now rely on the
+It is clear that the proof rules in the proof trees are simple first-ordere
+rules. The tricky part is the axioms that are introduced in various
+steps. Following relative soundness, the validity of the formulas now rely on the
 correctness of these axioms. 
 
 For the interval axioms without functions of the form $\forall x(x\in I_1\vee
