@@ -39,6 +39,9 @@ private:
 	vector< literal * >	l_list;
 	vector< literal * >	temp_l_list;
 
+        vector< Enode* >        v_ctrs;
+        vector<rp_box *>        v_box;
+
 	icp_solver * 		_solver;
 
 	rp_table_symbol *	_ts;
