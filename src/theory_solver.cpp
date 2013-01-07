@@ -56,10 +56,14 @@ variable * NLRSolver::add_variable( Enode * e )
 	}
 	variable * var = new variable(e, _b, _ts);
         const char* name = (e->getCar() -> getName()).c_str();
-        const double lb = e->hasValue() ? e->getLowerBound() : - (std::numeric_limits<const double>::infinity());
-        const double ub = e->hasValue() ? e->getUpperBound() : std::numeric_limits<const double>::infinity();
+        const double lb = e->hasValue() ? e->getLowerBound() : -std::numeric_limits<double>::infinity();
+        const double ub = e->hasValue() ? e->getUpperBound() : std::numeric_limits<double>::infinity();
         cerr << "Name: " << name << endl;
 	var -> mk_rp_variable(name, lb, ub);
+        cerr << "Name: " << name << "\t"
+             << "LB: " << lb << "\t"
+             << "UB: " << ub << endl;
+
 	return var;
 }
 
