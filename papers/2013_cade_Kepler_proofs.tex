@@ -161,7 +161,7 @@ $\mathcal{L}_{\mathcal{F}}$ is in $\mathsf{PSPACE}$, and there exists
 $\mathcal{L}_{\mathcal{F}}$ such that it is $\mathsf{PSPACE}$-complete.
 \end{corollary}
 
-
+\newpage
 \section{A Proof System for Interval Constraint Progagation}
 
 \subsection{Interval Constraint Propagation}
@@ -169,11 +169,11 @@ $\mathcal{L}_{\mathcal{F}}$ such that it is $\mathsf{PSPACE}$-complete.
 The ICP algorithm is a branch and prune algorithm. We give a brief description
 and focusing on providing an abstract representation of the algorithm.  
 
-\begin{algorithm}\label{algo1}
+\begin{algorithm}[h!]\label{algo1}
 \SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
 \SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
 \SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-\Input{Constraints $f_1(x_1,...,x_n)=0,...,f_m(x_1,...,x_n)=0$, initial box $B^0
+\Input{Constraints $c_1,...,c_m$, initial box $B^0
 = I^0_1\times \cdots \times I^0_n$, box stack $S=\emptyset$, and precision
 $\varepsilon\in \mathbb{Q}^+$.}
 \Output{{\sf sat} or {\sf unsat}.}
@@ -194,27 +194,36 @@ return {\sf unsat}\;
 \caption{High-Level ICP$_{\varepsilon}$ (decision version of Branch-and-Prune)}
 \end{algorithm}
 
+\begin{definition}[ICP Transitions] We define the following transition rules. 
 
-\begin{definition}[ICP Transitions]
-An {\em ICP transition} is defined as one of the following:
+\paragraph{Pruning:}
 \begin{eqnarray*}
-I_1,...,I_n \parallel c_1, ..., c_m &\Longrightarrow&  \emptyset\parallel
-c_1,...,c_m,
-\mbox{ (Contradiction) }\\ & &\mbox{if $\forall \vec a\in
-I_1\times\cdots\times I_n$, $c_i(\vec a)$ is false for some $c_i$.}\\
-I_1,...,I_i,...,I_n \parallel c_1,...,c_m &\Longrightarrow&
-I_1,...,I_i',...,I_n\parallel c_1,...,c_m, \mbox{ (Prune) }\\& & \mbox{if
-$I_1,...,I_i\setminus I_i',...,I_n\parallel c_1,...,c_m\Longrightarrow
-\emptyset \parallel c_1,...,c_m$.}\\
-I_1,...,I_i,...,I_n \parallel c_1,...,c_m &\Longrightarrow&
-I_1,...,I_i,...,I_n \parallel c_1,...,c_m, x_i\in I_i, \mbox{ (Branch) }\\&
-&\mbox{if $I_i'\subseteq I_i$ and $I_i' \neq \emptyset$.}\\
-I_1,...,I_i,...,I_n \parallel c_1,...,c_m, x_i\in I_i &\Longrightarrow&
-I_1,...,I_i,...,I_n \parallel c_1,...,c_m,\mbox{ (Backtrack) }\\& & \mbox{if
-$I_1,...,I_i,...,I_n\parallel c_1,...,c_m, x_i\in I_i \Longrightarrow
-\emptyset\parallel c_1,...,c_m, x\in I_i$.}
+E, x_i\in I_i\parallel c &\Longrightarrow& E, x_i\in I_i'\parallel c,
 \end{eqnarray*}
+under the condition that $\forall a_i\in I_i\setminus I_i'$, $\forall a_1,...,a_n\in E$,
+$c(\vec a)$ is false.
+
+\paragraph{Branching:}
+\begin{eqnarray*}
+E\parallel c &\Longrightarrow& E, (x_i\in I_i)^d \parallel c,
+\end{eqnarray*}
+under the condition that $I_i\subseteq E(x_i)$.
+
+\paragraph{Backtracking:}
+\begin{eqnarray*}
+E, (x_i\in I_i)^d, N\parallel c &\Longrightarrow& E, x_i\in
+I_i\setminus I_i'\parallel c, 
+\end{eqnarray*}
+under the condition that $E, (x_i\in I_i)^d, N \models \neg c$.
+
+\paragraph{Fail:}
+\begin{eqnarray*}
+E\parallel c &\Longrightarrow& \bot 
+\end{eqnarray*}
+under the condition that $E \models \neg c$ and there is no decision in $E$. 
 \end{definition}
+
+
 As usual, the transitions are all {\em may} transitions, not {\em must}
 transitions. 
 \begin{remark}
@@ -269,7 +278,8 @@ reversely to a standard first-order proof. Although various real functions are
 involved, to verify the proof correctness of ICP sequences we only need a weak
 system of first-order logic reasoning.  
 \begin{definition}[Language]
-We fix a signature $\mathcal{L}_I = \langle \mathbb{IR}, <, \mathcal{F} \rangle$ where $\mathbb{IR}$ is the union closure of real intervals, but used as {\em unary 
+We fix a signature $\mathcal{L}_I = \langle \mathbb{IR}, <, \mathcal{F} \rangle$
+ where $\mathbb{IR}$ is the union closure of real intervals, but used as {\em unary 
 predicates}. Naturally, for any $I\in \mathbb{R}$, $I(x)$ can be written as
 $x\in I$. $\mathcal{F}$ is a set of computable real functions. 
 \end{definition}
@@ -390,7 +400,6 @@ the cases of the step from $s_i$ to $s_{i+1}$.
 \item Suppose it is a branching. Then set $l(v_{k+1})$
 \end{itemize}
 
-
 \end{definition}
 
 \begin{theorem}[ST-Correspondence]
@@ -492,8 +501,11 @@ return {\sf rejected}\;
 \end{algorithm}
 
 
+\section{Experimental Results}
 
-\section{Case Study: Kepler Conjecture Benchmarks}
+\subsection{Kepler Conjecture Benchmarks}
+
+\subsection{SMT-LIB Benchmarks}
 
 \section{Discussion}
 

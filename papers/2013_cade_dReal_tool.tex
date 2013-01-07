@@ -30,13 +30,45 @@ differential equations.
 guarantees: if a formula is ``unsat'', then it is indeed unsatisfiable and a proof
 of unsatisfiability is constructed; if a
 formula is ``$\delta$-sat'', then under some $\delta$-bounded syntactic perturbation it would
-be satisfiable, with a witness solution returned. We show examples of its promising
+be satisfiable, with a witness solution returned. We show its promising
 performance on various nonlinear benchmarks. 
 \end{abstract}
 
 \section{Introduction}
 
+Given a first-order signature $\mathcal{L}$ and a 
+structure $\mathcal{M}$, the {\em Satisfiability Modulo Theories} (SMT) problem
+asks whether a quantifier-free $\mathcal{L}$-formula is satisfiable over
+$\mathcal{M}$. SMT problems in theories over the real
+numbers are of particular interest because of their applications in formal
+verification, theorem proving, control theory, etc. While efficient
+algorithms~\cite{linear06} exist for deciding SMT problems with only linear real
+arithmetic, practical problems normally contain nonlinear polynomials,
+transcendental functions, and differential equations. Solving formulas with
+these functions is inherently intractable.
+
+Our recent work on $\delta$-complete decision procedures
+provided a new framework for handling general nonlinear formulas~\cite{}. Fix
+any posiive rational number $\delta$ and any input formula $\varphi$, a
+$\delta$-complete decision procedures returns on of the following answers:
+\begin{itemize}
+ \item {\sf unsat}: $\varphi$ is unsatisfiable.
+ \item {\sf $\delta$-sat}: $\varphi^{\delta}$ is satisfiable.
+\end{itemize}
+Here, $\varphi^{\delta}$ is a syntactic variation of $\varphi$ that encodes a
+notion of numerical perturbation on the logic formula. (We will review more
+details in Section \ref{review}.) In other words, we allow such a procedure to
+give answers with one-sided, $\delta$-bounded errors. Because of the
+relaxations, $\delta$-complete decision procedures can fully exploit the
+power of various numerical algorithms and can be highly scalable on
+nonlinear problems. The $\delta$-completeness guarantees can be suitably
+applied to solving various correctness-critical problems in formal verification
+and theorem proving~\cite{}.
+
 \section{$\delta$-Complete Decision Procedures}
+
+
+
 
 \section{Tool Design}
 
