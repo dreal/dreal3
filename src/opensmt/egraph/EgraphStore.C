@@ -2915,9 +2915,9 @@ void Egraph::dumpFormulaToFile( ostream & dump_out, Enode * formula, bool negate
 void Egraph::postProcessing ()
 {
   // 1. Find top formula
-  cerr << "2. Find top formula." << endl;
+  // cerr << "2. Find top formula." << endl;
   Enode * top = *(id_to_enode.rbegin());
-  cerr << "top : " << top << endl;
+  // cerr << "top : " << top << endl;
 
   // 2. Extract interval constraints
 
@@ -2928,8 +2928,8 @@ void Egraph::postProcessing ()
   //
   // In general, it can be more flexible than this and we should be
   // able to support more general templates.
-  cerr << "3. Extract interval constraints and add them into the variables." << endl;
-  if(top->isAnd()) {
+  // cerr << "3. Extract interval constraints and add them into the variables!!." << endl;
+  if(top->isTerm() && top->isAnd()) {
     for ( Enode * alist = top->getCdr() ; !alist->isEnil() ; alist = alist->getCdr() ) {
       Enode * e = alist->getCar();
       Enode * e1 = e->get1st();
@@ -2941,16 +2941,16 @@ void Egraph::postProcessing ()
         Enode * var = e1->get2nd();
         double lb = e1->get1st()->getValue();
         double ub = e2->get2nd()->getValue();
-        cerr << lb << " <= " << var << " <= " << ub << endl;
+        // cerr << lb << " <= " << var << " <= " << ub << endl;
         var->setLowerBound(lb);
         var->setUpperBound(ub);
       }
     }
   } else {
-    cerr << "Top Node is not AND node." << endl;
+    // cerr << "Top Node is not AND node." << endl;
   }
 
-  // 3. Remove interval constraints from the top (optional)
-  cerr << "4. Remove interval constraints from the top." << endl;
+  // 4. Remove interval constraints from the top (optional)
+  // cerr << "4. Remove interval constraints from the top." << endl;
   return;
 }
