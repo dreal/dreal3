@@ -6,3 +6,4 @@ parser.ml
 parser.mli
 parser.output
 lexer.ml
+*.native
