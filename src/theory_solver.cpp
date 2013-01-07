@@ -25,14 +25,13 @@ NLRSolver::NLRSolver( const int           i
 NLRSolver::~NLRSolver( )
 {
   // Here Deallocate External Solver
-
     rp_problem_destroy(_problem);
     rp_reset_library();
 
 }
 
 
-void NLRSolver::icp_solve(rp_problem * p)
+bool NLRSolver::icp_solve(rp_problem * p)
 {
 	rp_selector * select;
 	rp_new( select, rp_selector_roundrobin, (p) );
@@ -43,6 +42,53 @@ void NLRSolver::icp_solve(rp_problem * p)
 	icp_solver solver( (p), 10, select, split);
 	_solver = &solver;	//solver created
 
+	if (rp_box_empty(rp_problem_box(*p)))
+	{
+//		cout<<"The selected set of theory atoms is unsatisfiable.\n";
+	}
+	else
+	{
+   		int clock_solve = rp_clock_create();
+      		rp_clock_start(clock_solve);
+
+      		rp_box b;
+		int nb_isafe = 0;
+
+   		if ((b=solver.compute_next())!=NULL)
+		//was a while statement
+      		{
+			char tmp[100];
+			sprintf(tmp,"[%ld ms]",rp_clock_elapsed_time(clock_solve));
+
+			if (rp_box_interval_safe(b))
+			{
+				++nb_isafe;
+			}
+
+
+			cout<<endl<<"------------------"<<endl;
+			cout<<"The formula is satisfiable under perturbations, which can be witnessed by ANY point in the following box:"<<endl;
+			rp_box_cout(b, 5, RP_INTERVAL_MODE_BOUND);
+			cout<<"------------------"<<endl;
+
+      		}
+      		rp_clock_stop(clock_solve);
+
+		cout << "Solved in "<< rp_clock_get(clock_solve) << "ms"<<endl;
+//			   << std::endl << solver.solution() << " solution(s)"
+//			   << std::endl << solver.nsplit() << " split(s)"
+//			   << std::endl << solver.nboxes() << " box(es) created in memory"
+//			   << std::endl;
+
+	       	if (solver.solution() )
+		{
+                  //			rp_problem_destroy(p);
+			return true;
+		}
+	}
+
+        //	rp_problem_destroy(p);
+	return false;
 }
 
 variable * NLRSolver::add_variable( Enode * e )
@@ -58,11 +104,10 @@ variable * NLRSolver::add_variable( Enode * e )
         const char* name = (e->getCar() -> getName()).c_str();
         const double lb = e->hasValue() ? e->getLowerBound() : -std::numeric_limits<double>::infinity();
         const double ub = e->hasValue() ? e->getUpperBound() : std::numeric_limits<double>::infinity();
-        cerr << "Name: " << name << endl;
 	var -> mk_rp_variable(name, lb, ub);
-        cerr << "Name: " << name << "\t"
-             << "LB: " << lb << "\t"
-             << "UB: " << ub << endl;
+        // cerr << "Name: " << name << "\t"
+        //      << "LB: " << lb << "\t"
+        //      << "UB: " << ub << endl;
 
 	return var;
 }
@@ -92,7 +137,6 @@ void NLRSolver::get_variables(Enode * e, vector<variable *> & vl)
   }
 }
 
-
 void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 {
   	for (vector<literal *>::iterator it = ll.begin() ; it != ll.end(); it++)
@@ -113,7 +157,7 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
           {
             ++rp_variable_constrained(rp_problem_var(*_problem,rp_constraint_var(*(lit->_c),i)));
           }
-        rp_problem_display(stdout, *_problem);
+        //        rp_problem_display(stdout, *_problem);
 }
 
 
@@ -189,25 +233,27 @@ void NLRSolver::popBacktrackPoint ( )
 //
 bool NLRSolver::check( bool complete )
 {
-	cout<<"This is a "<< complete<<" check\n";
+  bool result = true;
+  cout<<"This is a "<< complete<<" check\n";
+  if (complete)
+    {
+      rp_problem_display(stdout, *_problem);
 
-	if (complete)
-	{
-		explanation.clear();
-
-		cout<<"#explanation provided: ";
-		for (vector<literal *>::iterator it = temp_l_list.begin(); it!= temp_l_list.end(); it++)
-		{
-			explanation.push_back( (*it) -> get_enode() );
-			cout << (*it)->get_enode() <<" with polarity "
-			     << toInt((*it)->get_enode()->getPolarity()) << " ";
-		}
-		cout<< endl;
-
-		temp_l_list.clear();
-	}
-
-  return !complete;
+      explanation.clear();
+      result = icp_solve(_problem);
+      if(!result) {
+        cout<<"#explanation provided: ";
+        for (vector<literal *>::iterator it = temp_l_list.begin(); it!= temp_l_list.end(); it++)
+          {
+            explanation.push_back( (*it) -> get_enode() );
+            cout << (*it)->get_enode() <<" with polarity "
+                 << toInt((*it)->get_enode()->getPolarity()) << " ";
+          }
+        cout<< endl;
+      }
+      //      temp_l_list.clear();
+    }
+  return result;
 }
 
 //
