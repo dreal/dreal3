@@ -9,13 +9,13 @@ class NLRSolver : public OrdinaryTSolver
 public:
 
   	NLRSolver( const int, const char *, SMTConfig &, Egraph &, SStore &
-		, vector< Enode * > & 
-	     	, vector< Enode * > & 
+		, vector< Enode * > &
+	     	, vector< Enode * > &
              	, vector< Enode * > & );
 
   	~NLRSolver ( );
 
-	void		icp_solve		( rp_problem * );
+	bool		icp_solve		( rp_problem * );
 
 
   	lbool  		inform              	( Enode * );
@@ -40,7 +40,7 @@ private:
 	vector< literal * >	temp_l_list;
 
 	icp_solver * 		_solver;
-	
+
 	rp_table_symbol *	_ts;
 	rp_box *		_b;
 
