@@ -107,7 +107,13 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 	lit->mk_constraint( src1 );
 	ll.push_back(lit);
         rp_vector_insert(rp_problem_ctrs(*_problem),*(lit->_c));
-        // rp_problem_display(stdout, *_problem);
+
+        /* creation of relation var -> number of constraints containing var */
+        for (int i=0; i<rp_constraint_arity(*(lit->_c)); ++i)
+          {
+            ++rp_variable_constrained(rp_problem_var(*_problem,rp_constraint_var(*(lit->_c),i)));
+          }
+        rp_problem_display(stdout, *_problem);
 }
 
 
