@@ -20,4 +20,4 @@ private:
 
 };
 
-const string infix(const Enode *e);
+const string infix(const Enode *e, lbool polarity);
