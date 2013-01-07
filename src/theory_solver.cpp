@@ -25,9 +25,8 @@ NLRSolver::NLRSolver( const int           i
 NLRSolver::~NLRSolver( )
 {
   // Here Deallocate External Solver
-    rp_problem_destroy(_problem);
-    rp_reset_library();
-
+  rp_problem_destroy(_problem);
+  rp_reset_library();
 }
 
 
@@ -82,12 +81,12 @@ bool NLRSolver::icp_solve(rp_problem * p)
 
 	       	if (solver.solution() )
 		{
-                  //			rp_problem_destroy(p);
+                  //	rp_problem_destroy(p);
 			return true;
 		}
 	}
 
-        //	rp_problem_destroy(p);
+       	// rp_problem_destroy(p);
 	return false;
 }
 
@@ -101,7 +100,8 @@ variable * NLRSolver::add_variable( Enode * e )
 		}
 	}
 	variable * var = new variable(e, _b, _ts);
-        const char* name = (e->getCar() -> getName()).c_str();
+        const string tmp_str = e->getCar() -> getName();
+        const char* name = tmp_str.c_str();
         const double lb = e->hasValue() ? e->getLowerBound() : -std::numeric_limits<double>::infinity();
         const double ub = e->hasValue() ? e->getUpperBound() : std::numeric_limits<double>::infinity();
 	var -> mk_rp_variable(name, lb, ub);
@@ -147,7 +147,10 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 		}
 	}
 	literal * lit = new literal( e , _ts );
-        const char* src1 = infix(e).c_str();
+        // cerr << "Org Str: |" << e << "|" << endl;
+        const string tmp_str = infix(e, e->getPolarity());
+        const char* src1 = tmp_str.c_str();
+        // cerr << "Infix Str: |" << src1 << "|" << endl;
 	lit->mk_constraint( src1 );
 	ll.push_back(lit);
         rp_vector_insert(rp_problem_ctrs(*_problem),*(lit->_c));
@@ -157,7 +160,7 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
           {
             ++rp_variable_constrained(rp_problem_var(*_problem,rp_constraint_var(*(lit->_c),i)));
           }
-        //        rp_problem_display(stdout, *_problem);
+        // rp_problem_display(stdout, *_problem);
 }
 
 
@@ -192,10 +195,10 @@ bool NLRSolver::assertLit ( Enode * e, bool reason )
   (void)e;
   (void)reason;
 
-	//TODO: add things to take care of polarity
+  // cerr << "AssertLit with " << reason << " " << e << endl;
 
-	add_literal (e, temp_l_list);
-	cout<< " has polarity " << toInt(e->getPolarity()) << endl;
+  add_literal (e, temp_l_list);
+  // cerr << " has polarity " << toInt(e->getPolarity()) << endl;
 
   assert( e );
   assert( belongsToT( e ) );
@@ -251,7 +254,7 @@ bool NLRSolver::check( bool complete )
           }
         cout<< endl;
       }
-      //      temp_l_list.clear();
+      temp_l_list.clear();
     }
   return result;
 }
