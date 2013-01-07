@@ -71,6 +71,9 @@ icp_solver::icp_solver(rp_problem * p,
 
 icp_solver::~icp_solver()
 {
+	rp_delete(_vselect);
+	rp_delete(_dsplit);
+	if (_ep) rp_delete(_ep);
 }
 
 
@@ -139,6 +142,8 @@ int icp_solver::nsplit()
         return( _nsplit );
 }
 
-
-
+icp_solver& icp_solver::operator=(const icp_solver& s)
+{
+  	return( *this );
+}
 
