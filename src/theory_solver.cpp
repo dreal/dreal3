@@ -1,4 +1,5 @@
 #include "theory_solver.h"
+#include <limits>
 
 NLRSolver::NLRSolver( const int           i
                         , const char *        n
@@ -53,12 +54,13 @@ variable * NLRSolver::add_variable( Enode * e )
 			return NULL;
 		}
 	}
-
 	variable * var = new variable(e, _b, _ts);
-	var-> mk_rp_variable( (e->getCar() -> getName()).c_str() );
-
+        const char* name = (e->getCar() -> getName()).c_str();
+        const double lb = e->hasValue() ? e->getLowerBound() : - (std::numeric_limits<const double>::infinity());
+        const double ub = e->hasValue() ? e->getUpperBound() : std::numeric_limits<const double>::infinity();
+        cerr << "Name: " << name << endl;
+	var -> mk_rp_variable(name, lb, ub);
 	return var;
-
 }
 
 
@@ -101,7 +103,7 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 	lit->mk_constraint( src1 );
 	ll.push_back(lit);
         rp_vector_insert(rp_problem_ctrs(*_problem),*(lit->_c));
-        rp_problem_display(stdout, *_problem);
+        // rp_problem_display(stdout, *_problem);
 }
 
 

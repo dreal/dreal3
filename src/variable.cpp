@@ -8,7 +8,7 @@ variable::variable( Enode * e, rp_box * b, rp_table_symbol * ts )
 }
 
 
-void variable::mk_rp_variable( const char * name )
+void variable::mk_rp_variable( const char * name, const double lb, const double ub )
 {
     _v = new rp_variable;
 
@@ -28,7 +28,7 @@ void variable::mk_rp_variable( const char * name )
     rp_union_interval u;
     rp_interval i;
     rp_union_create(&u);
-    rp_interval_set(i, 0.0, 1.0);
+    rp_interval_set(i, lb, ub);
     rp_union_insert(u, i);
     rp_union_copy(rp_variable_domain(*_v),u);
     rp_union_destroy(&u);
