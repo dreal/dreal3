@@ -104,12 +104,12 @@ int rp_vector_insert(rp_vector v, void * x)
 int rp_vector_pop(rp_vector v, void * x)
 {
   // v should be already allocated
-  assert(rp_vector_ptr(v) != NULL);
+  //  assert(rp_vector_ptr(v) != NULL);
 
   int i;
   rp_vector_contains(v,x,&i);
   // x should be at the last position of v
-  assert(i == --rp_vector_size(v));
+  //  assert(i == --rp_vector_size(v));
 
   rp_realloc(rp_vector_ptr(v),void**,rp_vector_size(v)*sizeof(void*));
   return( i );
