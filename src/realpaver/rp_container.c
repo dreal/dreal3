@@ -98,6 +98,23 @@ int rp_vector_insert(rp_vector v, void * x)
   return( i );
 }
 
+/* remove the last element of v, which should be x:
+ * x should be the last element of v (that is why it's called "POP")
+ */
+int rp_vector_pop(rp_vector v, void * x)
+{
+  // v should be already allocated
+  assert(rp_vector_ptr(v) != NULL);
+
+  int i;
+  rp_vector_contains(v,x,&i);
+  // x should be at the last position of v
+  assert(i == --rp_vector_size(v));
+
+  rp_realloc(rp_vector_ptr(v),void**,rp_vector_size(v)*sizeof(void*));
+  return( i );
+}
+
 /* Display v on out */
 void rp_vector_display(FILE * out, rp_vector v)
 {

@@ -74,6 +74,8 @@ int rp_vector_contains (rp_vector v, const void * x, int * index);
 /* Insertion of an element x in v that returns its index */
 int rp_vector_insert (rp_vector v, void * x);
 
+int rp_vector_pop(rp_vector v, void * x);
+
 /* Display v on out */
 void rp_vector_display (FILE * out, rp_vector v);
 
