@@ -31,15 +31,14 @@ public:
 	variable *	add_variable	( Enode * );
 
 	void		add_literal	( Enode * , vector< literal * > & );
+	void		pop_literal	( vector< literal * > & );
 
 private:
 
 	vector< variable * >	v_list;
 	vector< literal * >	l_list;
-	vector< literal * >	temp_l_list;
-
-        vector< Enode* >        v_ctrs;
-        vector<rp_box *>        v_box;
+	vector< literal * >	assigned_lits;
+        vector< rp_box * >      history_boxes;
 
 	icp_solver * 		_solver;
 

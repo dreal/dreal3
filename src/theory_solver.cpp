@@ -45,9 +45,8 @@ bool NLRSolver::icp_prop(rp_problem * p)
     {
       int clock_solve = rp_clock_create();
       rp_clock_start(clock_solve);
-      rp_box b;
-
-      if ((b=solver.prop())!=NULL)
+      rp_box b = solver.prop();
+      if (!rp_box_empty(b))
         {
           char tmp[100];
           sprintf(tmp,"[%ld ms]",rp_clock_elapsed_time(clock_solve));
@@ -55,23 +54,17 @@ bool NLRSolver::icp_prop(rp_problem * p)
           cout<<"PROP: It's possible to have the solution in the following box:"<<endl;
           rp_box_cout(b, 5, RP_INTERVAL_MODE_BOUND);
           cout<<"------------------"<<endl;
+          result = true;
         }
       rp_clock_stop(clock_solve);
-
-      cout << "Solved in "<< rp_clock_get(clock_solve) << "ms"<<endl;
-      //			   << std::endl << solver.solution() << " solution(s)"
-      //			   << std::endl << solver.nsplit() << " split(s)"
-      //			   << std::endl << solver.nboxes() << " box(es) created in memory"
-      //			   << std::endl;
-
-      if (solver.solution() )
-        {
-          //	rp_problem_destroy(p);
-          return true;
-        }
+      // if (solver.solution() )
+      //   {
+      //     //	rp_problem_destroy(p);
+      //     result = true;
+      //   }
     }
-
   // rp_problem_destroy(p);
+  cerr << "NLRSolver::icp_prop: " << (result ? "sat" : "unsat") << endl;
   return result;
 }
 
@@ -182,30 +175,40 @@ void NLRSolver::get_variables(Enode * e, vector<variable *> & vl)
   }
 }
 
+void NLRSolver::pop_literal (vector<literal *> & ll)
+{
+  literal * lit = ll.back();
+  ll.pop_back();
+  rp_vector_pop(rp_problem_ctrs(*_problem),*(lit->_c));
+}
+
 void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 {
-  	for (vector<literal *>::iterator it = ll.begin() ; it != ll.end(); it++)
-	{
-		if ( e == (*it) -> get_enode() )
-		{
-			return;
-		}
-	}
-	literal * lit = new literal( e , _ts );
-        // cerr << "Org Str: |" << e << "|" << endl;
-        const string tmp_str = infix(e, e->getPolarity());
-        const char* src1 = tmp_str.c_str();
-        // cerr << "Infix Str: |" << src1 << "|" << endl;
-	lit->mk_constraint( src1 );
-	ll.push_back(lit);
-        rp_vector_insert(rp_problem_ctrs(*_problem),*(lit->_c));
+  // If `e` is already added, then skip
+  for (vector<literal *>::iterator it = ll.begin() ; it != ll.end(); it++)
+    {
+      if ( e == (*it) -> get_enode() )
+        {
+          return;
+        }
+    }
 
-        /* creation of relation var -> number of constraints containing var */
-        for (int i=0; i<rp_constraint_arity(*(lit->_c)); ++i)
-          {
-            ++rp_variable_constrained(rp_problem_var(*_problem,rp_constraint_var(*(lit->_c),i)));
-          }
-        // rp_problem_display(stdout, *_problem);
+  literal * lit = new literal( e , _ts );
+  // cerr << "Org Str: |" << e << "|" << endl;
+  const string infix_str = infix(e, e->getPolarity());
+  const char* infix_cstr = infix_str.c_str();
+  // cerr << "Infix Str: |" << infix_cstr << "|" << endl;
+  lit->mk_constraint( infix_cstr );
+
+  ll.push_back(lit);
+  rp_vector_insert(rp_problem_ctrs(*_problem),*(lit->_c));
+
+  /* creation of relation var -> number of constraints containing var */
+  for (int i=0; i<rp_constraint_arity(*(lit->_c)); ++i)
+    {
+      ++rp_variable_constrained(rp_problem_var(*_problem,rp_constraint_var(*(lit->_c),i)));
+    }
+  // rp_problem_display(stdout, *_problem);
 }
 
 
@@ -218,6 +221,7 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 
 lbool NLRSolver::inform( Enode * e )
 {
+  cerr << "inform: " << e << endl;
 	assert( e -> isAtom() );
 
   	get_variables( e, v_list );
@@ -237,12 +241,13 @@ lbool NLRSolver::inform( Enode * e )
 //
 bool NLRSolver::assertLit ( Enode * e, bool reason )
 {
+  cerr << "asserLit: (" << e << ", " << reason << ")" << endl;
   (void)e;
   (void)reason;
 
   // cerr << "AssertLit with " << reason << " " << e << endl;
 
-  add_literal (e, temp_l_list);
+  add_literal (e, assigned_lits);
   // cerr << " has polarity " << toInt(e->getPolarity()) << endl;
 
   assert( e );
@@ -259,7 +264,12 @@ bool NLRSolver::assertLit ( Enode * e, bool reason )
 //
 void NLRSolver::pushBacktrackPoint ( )
 {
-  cerr << "pushBTpoint" << endl;
+  cerr << "pushBacktrackPoint:" << endl;
+
+  // Save the current box into the history_boxes (stack of boxes)
+  rp_box* new_box;
+  rp_box_clone(new_box, rp_problem_box(*_problem));
+  history_boxes.push_back(new_box);
 }
 
 //
@@ -274,7 +284,16 @@ void NLRSolver::pushBacktrackPoint ( )
 //
 void NLRSolver::popBacktrackPoint ( )
 {
-  cerr << "popBTpoint" << endl;
+  cerr << "popBacktrackPoint" << endl;
+
+  // Pop a box from the history stack and restore
+  rp_box* old_box = history_boxes.back();
+  history_boxes.pop_back();
+  rp_box_copy(rp_problem_box(*_problem), *old_box);
+  rp_box_destroy(old_box);
+
+  // pop literal from assigned_lits
+  pop_literal(assigned_lits);
 }
 
 //
@@ -284,7 +303,7 @@ void NLRSolver::popBacktrackPoint ( )
 bool NLRSolver::check( bool complete )
 {
   bool result = true;
-  cout<<"This is a "<< complete<<" check\n";
+  cerr << "check: "<< (complete ? "complete" : "incomplete") << endl;
   if (complete)
     {
       // Complete Check
@@ -292,7 +311,7 @@ bool NLRSolver::check( bool complete )
       result = icp_solve(_problem);
       if(!result) {
         cout<<"#explanation provided: ";
-        for (vector<literal *>::iterator it = temp_l_list.begin(); it!= temp_l_list.end(); it++)
+        for (vector<literal *>::iterator it = assigned_lits.begin(); it!= assigned_lits.end(); it++)
           {
             explanation.push_back( (*it) -> get_enode() );
             cout << (*it)->get_enode() <<" with polarity "
@@ -300,7 +319,6 @@ bool NLRSolver::check( bool complete )
           }
         cout<< endl;
       }
-      temp_l_list.clear();
     }
   else {
     // incomplete check
@@ -309,9 +327,6 @@ bool NLRSolver::check( bool complete )
     // 2.1. empty? => UNSAT
     // 2.2. non-empty? => SAT (possibly)
     result = icp_prop(_problem);
-    if (!result) {
-      temp_l_list.clear();
-    }
   }
   return result;
 }
