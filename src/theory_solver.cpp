@@ -265,11 +265,12 @@ bool NLRSolver::assertLit ( Enode * e, bool reason )
 void NLRSolver::pushBacktrackPoint ( )
 {
   cerr << "pushBacktrackPoint:" << endl;
-
   // Save the current box into the history_boxes (stack of boxes)
   rp_box* new_box;
   rp_box_clone(new_box, rp_problem_box(*_problem));
+  cerr << "box cloned:" << endl;
   history_boxes.push_back(new_box);
+  cerr << "box added:" << endl;
 }
 
 //
@@ -329,6 +330,7 @@ bool NLRSolver::check( bool complete )
     result = icp_prop(_problem);
   }
   return result;
+
 }
 
 //
