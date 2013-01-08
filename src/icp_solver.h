@@ -15,6 +15,8 @@ public:
   	~icp_solver();
 
   	rp_box 		compute_next();	//computation of the next solution
+        rp_box          prop();          //only propagate
+
   	int 		solution();	//number of solutions
   	int 		nboxes();	//number of boxes
   	int 		nsplit();	//number of branching

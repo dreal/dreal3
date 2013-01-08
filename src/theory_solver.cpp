@@ -29,6 +29,51 @@ NLRSolver::~NLRSolver( )
   rp_reset_library();
 }
 
+bool NLRSolver::icp_prop(rp_problem * p)
+{
+  rp_selector * select;
+  rp_new( select, rp_selector_roundrobin, (p) );
+  bool result = false;
+
+  rp_splitter * split;
+  rp_new( split, rp_splitter_mixed, (p) );
+
+  icp_solver solver( (p), 10, select, split);
+  _solver = &solver;	//solver created
+
+  if (!rp_box_empty(rp_problem_box(*p)))
+    {
+      int clock_solve = rp_clock_create();
+      rp_clock_start(clock_solve);
+      rp_box b;
+
+      if ((b=solver.prop())!=NULL)
+        {
+          char tmp[100];
+          sprintf(tmp,"[%ld ms]",rp_clock_elapsed_time(clock_solve));
+          cout<<endl<<"------------------"<<endl;
+          cout<<"PROP: It's possible to have the solution in the following box:"<<endl;
+          rp_box_cout(b, 5, RP_INTERVAL_MODE_BOUND);
+          cout<<"------------------"<<endl;
+        }
+      rp_clock_stop(clock_solve);
+
+      cout << "Solved in "<< rp_clock_get(clock_solve) << "ms"<<endl;
+      //			   << std::endl << solver.solution() << " solution(s)"
+      //			   << std::endl << solver.nsplit() << " split(s)"
+      //			   << std::endl << solver.nboxes() << " box(es) created in memory"
+      //			   << std::endl;
+
+      if (solver.solution() )
+        {
+          //	rp_problem_destroy(p);
+          return true;
+        }
+    }
+
+  // rp_problem_destroy(p);
+  return result;
+}
 
 bool NLRSolver::icp_solve(rp_problem * p)
 {
@@ -214,6 +259,7 @@ bool NLRSolver::assertLit ( Enode * e, bool reason )
 //
 void NLRSolver::pushBacktrackPoint ( )
 {
+  cerr << "pushBTpoint" << endl;
 }
 
 //
@@ -228,6 +274,7 @@ void NLRSolver::pushBacktrackPoint ( )
 //
 void NLRSolver::popBacktrackPoint ( )
 {
+  cerr << "popBTpoint" << endl;
 }
 
 //
@@ -240,8 +287,7 @@ bool NLRSolver::check( bool complete )
   cout<<"This is a "<< complete<<" check\n";
   if (complete)
     {
-      rp_problem_display(stdout, *_problem);
-
+      // Complete Check
       explanation.clear();
       result = icp_solve(_problem);
       if(!result) {
@@ -256,6 +302,17 @@ bool NLRSolver::check( bool complete )
       }
       temp_l_list.clear();
     }
+  else {
+    // incomplete check
+    // 1. run prop
+    // 2. check emptyness
+    // 2.1. empty? => UNSAT
+    // 2.2. non-empty? => SAT (possibly)
+    result = icp_prop(_problem);
+    if (!result) {
+      temp_l_list.clear();
+    }
+  }
   return result;
 }
 
@@ -277,6 +334,7 @@ bool NLRSolver::belongsToT( Enode * e )
 //
 void NLRSolver::computeModel( )
 {
+    cerr << "computeModel" << endl;
 }
 
 #ifdef PRODUCE_PROOF

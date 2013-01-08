@@ -16,7 +16,7 @@ public:
   	~NLRSolver ( );
 
 	bool		icp_solve		( rp_problem * );
-
+        bool            icp_prop                (rp_problem * );
 
   	lbool  		inform              	( Enode * );
   	bool           	assertLit           	( Enode *, bool = false );
@@ -31,7 +31,6 @@ public:
 	variable *	add_variable	( Enode * );
 
 	void		add_literal	( Enode * , vector< literal * > & );
-
 
 private:
 
@@ -50,5 +49,4 @@ private:
 	rp_problem * 		_problem;
 
 };
-
 #endif
