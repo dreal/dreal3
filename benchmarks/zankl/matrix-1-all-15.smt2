@@ -1,0 +1,33 @@
+(set-logic QF_NRA)
+(set-info :source |
+From termination analysis of term rewriting.
+
+Submitted by Harald Roman Zankl <Harald.Zankl@uibk.ac.at>
+
+|)
+(set-info :smt-lib-version 2.0)
+(set-info :category "industrial")
+(set-info :status unknown)
+(declare-fun x6 () Real)
+(declare-fun x3 () Real)
+(declare-fun x0 () Real)
+(declare-fun x7 () Real)
+(declare-fun x4 () Real)
+(declare-fun x1 () Real)
+(declare-fun x8 () Real)
+(declare-fun x5 () Real)
+(declare-fun x2 () Real)
+(declare-fun x9 () Real)
+(assert (>= x6 0))
+(assert (>= x3 0))
+(assert (>= x0 0))
+(assert (>= x7 0))
+(assert (>= x4 0))
+(assert (>= x1 0))
+(assert (>= x8 0))
+(assert (>= x5 0))
+(assert (>= x2 0))
+(assert (>= x9 0))
+(assert (let ((?v_1 (+ x0 (* x1 x7))) (?v_2 (+ x5 (* x6 x7))) (?v_11 (+ x5 (* x6 x2)))) (let ((?v_12 (+ ?v_2 (* x9 ?v_11)))) (let ((?v_0 (+ (+ x0 (* x1 x2)) (* x4 ?v_12))) (?v_10 (* x6 x8))) (let ((?v_9 (* x4 ?v_10)) (?v_4 (* x4 (* x9 x9))) (?v_5 (+ x2 (* x3 x2)))) (let ((?v_3 (+ (+ x0 (* x1 ?v_5)) (* x4 ?v_2))) (?v_8 (* x3 x3)) (?v_7 (* x1 x3)) (?v_13 (+ (+ x5 (* x6 ?v_5)) (* x9 ?v_2)))) (let ((?v_6 (+ x0 (* x4 ?v_13))) (?v_17 (* x6 ?v_8)) (?v_18 (* x9 ?v_10)) (?v_16 (* x6 x3))) (let ((?v_19 (* x9 ?v_16))) (let ((?v_20 (and (and (and (and (and (> ?v_0 ?v_1) (>= ?v_0 ?v_1)) (>= ?v_9 (* x1 x8))) (>= ?v_4 x4)) (and (and (and (> ?v_0 ?v_3) (>= ?v_0 ?v_3)) (>= ?v_7 (* x1 ?v_8))) (>= ?v_4 (* x4 x9)))) (and (and (and (and (> ?v_0 ?v_6) (>= ?v_0 ?v_6)) (>= ?v_7 (* x4 ?v_17))) (>= ?v_9 (* x4 ?v_18))) (>= (* x4 ?v_19) x1)))) (?v_15 (+ x5 (* x9 ?v_13))) (?v_14 (+ ?v_11 (* x9 ?v_12)))) (and (and ?v_20 (and (and (and (and (> ?v_14 ?v_15) (>= ?v_14 ?v_15)) (>= ?v_16 (* x9 ?v_17))) (>= ?v_18 (* x9 ?v_18))) (>= (* x9 ?v_19) x6))) ?v_20))))))))))
+(check-sat)
+(exit)
