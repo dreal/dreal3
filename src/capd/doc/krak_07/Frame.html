@@ -1,0 +1,464 @@
+<HTML>
+<TITLE>Class Frame</TITLE>
+<BODY bgcolor=#ffffff link=#0000ff vlink=#00007f text=#000000>
+
+<H1>Frame</H1>
+
+<H3>public:</H3>
+<ul>
+<li>void <b>initFrm</b>(int arglti,int argltj,int argrbi, int argrbj, int bgc=WHITE, int fgc=BLACK, int im=fontHght/2, int jm=fontWdth/2)<br>
+<li><a href=#id169><b>Frame</b>(void)</a><br>
+<li><a href=#id157><b>Frame</b>(int lti,int ltj,int rbi,int rbj, int bgc=WHITE,int fgc=BLACK, int im=fontWdth/2, int jm=fontHght/2)</a><br>
+<li><a href=#id138><b>Frame</b>(Frame &amp;prntFrm,const At &amp;lt,const At &amp;rb, int bgc=WHITE,int fgc=BLACK, int im=fontWdth/2, int jm=fontHght/2)</a><br>
+<li><a href=#id116><b>Frame</b>(Frame &amp;prntFrm,int lti,int ltj,int rbi,int rbj, int bgc=WHITE,int fgc=BLACK, int im=fontHght/2, int jm=fontWdth/2)</a><br>
+<li><a href=#id193><b>Frame</b>(Frame &amp;prntFrm,int lti,int ltj,int rbi,int rbj, double swx,double swy,double nex,double ney, int bgc=WHITE,int fgc=BLACK, int im=fontHght/2, int jm=fontWdth/2)</a><br>
+<li><a href=#id95>void <b>Locate</b>(Frame &amp;prntFrm, At &amp;lt, At &amp;rb)</a><br>
+<li><a href=#id78>void <b>Locate</b>(Frame &amp;prntFrm,int lti,int ltj,int rbi,int rbj)</a><br>
+<li><a href=#id213>void <b>setWorldCoord</b>(double swx,double swy,double nex,double ney)</a><br>
+<li>void <b>adjust</b>(void)<br>
+<li><a href=#id194>int <b>NoCol</b>(void)</a><br>
+<li><a href=#id202>int <b>NoRow</b>(void)</a><br>
+<li><a href=#id222>void <b>Clear</b>(void)</a><br>
+<li><a href=#id235>void <b>Clear</b>(int color)</a><br>
+<li><a href=#id247>void <b>Bound</b>(int color=BLACK)</a><br>
+<li><a href=#id256>void <b>SetBgColor</b>(int c)</a><br>
+<li><a href=#id264>void <b>SetFgColor</b>(int c)</a><br>
+<li><a href=#id272>int <b>getRow</b>(PXL &amp;pxl)</a><br>
+<li><a href=#id280>int <b>getCol</b>(PXL &amp;pxl)</a><br>
+<li><a href=#id334>int <b>x2i</b>(double x)</a><br>
+<li><a href=#id342>int <b>y2j</b>(double y)</a><br>
+<li><a href=#id350>double <b>x2p</b>(double x)</a><br>
+<li><a href=#id358>double <b>y2q</b>(double y)</a><br>
+<li><a href=#id366>double <b>i2x</b>(int i)</a><br>
+<li><a href=#id374>double <b>j2y</b>(int j)</a><br>
+<li><a href=#id382>void <b>jump</b>(int i,int j)</a><br>
+<li><a href=#id213>void <b>draw</b>(int i,int j,int color=FRAME_FG)</a><br>
+<li><a href=#id229>void <b>dot</b>(int i,int j,int color=FRAME_FG)</a><br>
+<li><a href=#id260>void <b>line</b>(int i1,int j1,int i2,int j2,int color=FRAME_FG)</a><br>
+<li><a href=#id390>void <b>jump</b>(double x,double y)</a><br>
+<li><a href=#id399>void <b>draw</b>(double x,double y,int color=FRAME_FG)</a><br>
+<li><a href=#id244>void <b>dot</b>(double x,double y,int color=FRAME_FG)</a><br>
+<li><a href=#id273>void <b>line</b>(double x1,double y1,double x2,double y2, int color=FRAME_FG)</a><br>
+<li><a href=#id411>void <b>box</b>(int lti,int ltj,int rbi,int rbj,int color=FRAME_FG)</a><br>
+<li><a href=#id427>void <b>box</b>(double swx,double swy, double nex, double ney,int color=FRAME_FG)</a><br>
+<li><a href=#id437>void <b>boxFill</b>(double swx,double swy, double nex, double ney,int col)</a><br>
+<li><a href=#id284>void <b>Xcrss</b>(double x,double y,int size=1, int color=FRAME_FG)</a><br>
+<li><a href=#id314>Frame <b>&amp;operator&lt;&lt;</b>(char c)</a><br>
+<li><a href=#id339>Frame <b>&amp;operator&lt;&lt;</b>(int n)</a><br>
+<li><a href=#id326>Frame <b>&amp;operator&lt;&lt;</b>(long n)</a><br>
+<li><a href=#id355>Frame <b>&amp;operator&lt;&lt;</b>(double r)</a><br>
+<li><a href=#id368>Frame <b>&amp;operator&lt;&lt;</b>(const frstring &amp;a_string)</a><br>
+<li><a href=#id379>Frame <b>&amp;operator&lt;&lt;</b>(char *text)</a><br>
+<li><a href=#id299>Frame <b>&amp;operator&lt;&lt;</b>(colstring &amp;a_colstring)</a><br>
+<li><a href=#id291>Frame <b>&amp;operator&lt;&lt;</b>(FgColor &amp;c)</a><br>
+<li><a href=#id303>Frame <b>&amp;operator&lt;&lt;</b>(BgColor &amp;c)</a><br>
+<li>friend Frame <b>&amp;operator&lt;&lt;</b>(Frame &amp;f,const At &amp;at)<br>
+<li><a href=#id325>Frame <b>&amp;operator&lt;&lt;</b>(Tab tab)</a><br>
+<li><a href=#id447>Frame <b>&amp;operator&gt;&gt;</b>(const At &amp;at)</a><br>
+<li><a href=#id457>Frame <b>&amp;operator&gt;&gt;</b>(FgColor &amp;c)</a><br>
+<li><a href=#id466>Frame <b>&amp;operator&gt;&gt;</b>(BgColor &amp;c)</a><br>
+<li><a href=#id475>int <b>isInside</b>(PXL &amp;p)</a><br>
+<li><a href=#id419>Frame <b>&amp;operator&gt;&gt;</b>(frstring &amp;a_string)</a><br>
+<li><a href=#id429>Frame <b>&amp;operator&gt;&gt;</b>(int &amp;n)</a><br>
+<li><a href=#id442>Frame <b>&amp;operator&gt;&gt;</b>(long &amp;n)</a><br>
+<li><a href=#id455>Frame <b>&amp;operator&gt;&gt;</b>(double &amp;r)</a><br>
+<li><a href=#id474>int <b>Edit</b>(At at, int no_col, frstring &amp;s)</a><br>
+</ul>
+
+<hr>
+
+<a name=id169>
+<FONT size=4><b>Frame(void)</b></FONT><br>
+Generates a new frame as a subframe of rootFrm
+  with left top corner at the top left corner of
+  rootFrm, right bottom corner at the botton right
+  bottom cornet of rootFrm, and black and white colors
+
+<p>
+
+<a name=id157>
+<FONT size=4><b>Frame(int lti,int ltj,int rbi,int rbj, int bgc,int fgc, int im, int jm)</b></FONT><br>
+It generates a new frame as a subframe of rootFrame
+  with left top corner (<i>lti</i>,<i>ltj</i>), right bottom corner at
+  (<i>rbi</i>,<i>rbj</i>). <i>bgc</i> and <i>fgc</i> are the background and foreground color,
+  <i>im</i> and <i>jm</i> are the margins.
+
+<p>
+
+<a name=id138>
+<FONT size=4><b>Frame(Frame &amp;prntFrm,const At &amp;lt,const At &amp;rb, int bgc,int fgc, int im, int jm)</b></FONT><br>
+Generates a new frame as a subframe of <i>prntFrm</i>
+  with left top corner <i>lt</i>, right bottom corner at <i>rb</i>,
+  where the coordinates are given in columns and rows of
+  the parent frame
+  <table><tr><td><i>bgc</i></td><td>Background color
+  </td></tr><tr><td><i>jgc</i></td><td>Foreground color
+  </td></tr><tr><td><i>im,jm</i></td><td>Margins
+
+</td></tr></table><p>
+
+<a name=id116>
+<FONT size=4><b>Frame(Frame &amp;prntFrm,int lti,int ltj,int rbi,int rbj, int bgc,int fgc, int im, int jm)</b></FONT><br>
+Generates a new frame as a subframe of <i>prntFrm</i>
+  with left top corner (<i>lti</i>,<i>ltj</i>),right bottom corner at (<i>rbi</i>,<i>rbj</i>),
+  where the coordinates are given in percentage
+  of the horizontal and vertical size of the parent frame
+  <table><tr><td><i>bgc</i></td><td>Background color
+  </td></tr><tr><td><i>jgc</i></td><td>Foreground color
+  </td></tr><tr><td><i>im,jm</i></td><td>Margins
+
+</td></tr></table><p>
+
+<a name=id193>
+<FONT size=4><b>Frame(Frame &amp;prntFrm,int lti,int ltj,int rbi,int rbj, double swx,double swy,double nex,double ney, int bgc,int fgc, int im, int jm)</b></FONT><br>
+Generates a new frame as a subframe of <i>prntFrm</i> and sets the world
+  coordinates and colors
+<table><tr><td><i>lti,ltj</i></td><td>The coordinates of the left top corner in percentage of the
+   parent frame
+</td></tr><tr><td><i>rbi,rbj</i></td><td>The coordinates of the right botton corner in percentage of
+   the parent frame
+</td></tr><tr><td><i>swx,swy,nex,ney</i></td><td>The world coordinates. Check setWorldCoord for details
+</td></tr><tr><td><i>bgc,fgc</i></td><td>The background and foreground color
+</td></tr><tr><td><i>im,jm</i></td><td>The margins for text in device coordinates
+
+</td></tr></table><p>
+
+<a name=id95>
+<FONT size=4><b>void Locate(Frame &amp;prntFrm, At &amp;lt, At &amp;rb)</b></FONT><br>
+Moves the left top corner to <i>lt</i> and the left botton
+  corner to <i>rb</i> where the coordinates are given in
+  text cells. This function in used internally by some constructors
+
+<p>
+
+<a name=id78>
+<FONT size=4><b>void Locate(Frame &amp;prntFrm,int lti,int ltj,int rbi,int rbj)</b></FONT><br>
+Moves the left top corner to (<i>arglti</i>, <i>argltj</i>) and the left botton
+  corner to (<i>argrbi</i>, <i>argrbj</i>) where the coordinates are given in
+  percentage. This function in used internally by some constructors
+
+<p>
+
+<a name=id213>
+<FONT size=4><b>void setWorldCoord(double swx,double swy,double nex,double ney)</b></FONT><br>
+Sets to world coordinates. 
+  <table><tr><td><i>swx,swy</i></td><td>the coordinates of the bottom-left (southwest) corner
+  </td></tr><tr><td><i>nex,ney</i></td><td>the coordinates of the upper-right (northeast) corner
+
+</td></tr></table><p>
+
+<a name=id194>
+<FONT size=4><b>int NoCol(void)</b></FONT><br>
+Return the number of columns in the frame
+
+<p>
+
+<a name=id202>
+<FONT size=4><b>int NoRow(void)</b></FONT><br>
+Return the number of rows in the frame
+
+<p>
+
+<a name=id222>
+<FONT size=4><b>void Clear(void)</b></FONT><br>
+Clears the frame with the background color and moves
+  the current position to (0,0)
+
+<p>
+
+<a name=id235>
+<FONT size=4><b>void Clear(int color)</b></FONT><br>
+Clears the frame with the color <i>color</i> and moves
+  the current position to (0,0)
+
+<p>
+
+<a name=id247>
+<FONT size=4><b>void Bound(int color)</b></FONT><br>
+Draw a boundary around the frame in color <i>color</i>
+
+<p>
+
+<a name=id256>
+<FONT size=4><b>void SetBgColor(int c)</b></FONT><br>
+Sets the background color to <i>c</i>.
+
+<p>
+
+<a name=id264>
+<FONT size=4><b>void SetFgColor(int c)</b></FONT><br>
+Sets the foreground color to <i>c</i>.
+
+<p>
+
+<a name=id272>
+<FONT size=4><b>int getRow(PXL &amp;pxl)</b></FONT><br>
+returns the character row that correspond to the pixel <i>pxl</i>
+
+<p>
+
+<a name=id280>
+<FONT size=4><b>int getCol(PXL &amp;pxl)</b></FONT><br>
+returns the character column that correspond to the pixel <i>pxl</i>
+
+<p>
+
+<a name=id334>
+<FONT size=4><b>int x2i(double x)</b></FONT><br>
+Translates world coordinate <i>x</i> to a device coordinate
+
+<p>
+
+<a name=id342>
+<FONT size=4><b>int y2j(double y)</b></FONT><br>
+Translates world coordinate <i>y</i> to a device coordinate
+
+<p>
+
+<a name=id350>
+<FONT size=4><b>double x2p(double x)</b></FONT><br>
+Same as <a href="Frame.html#id334">x2i()</a> but returns a double
+
+<p>
+
+<a name=id358>
+<FONT size=4><b>double y2q(double y)</b></FONT><br>
+Same as <a href="Frame.html#id342">y2j()</a> but returns a double
+
+<p>
+
+<a name=id366>
+<FONT size=4><b>double i2x(int i)</b></FONT><br>
+Translates device coordinate <i>i</i> to a world coordinate
+
+<p>
+
+<a name=id374>
+<FONT size=4><b>double j2y(int j)</b></FONT><br>
+Translates device coordinate <i>j</i> to a world coordinate
+
+<p>
+
+<a name=id382>
+<FONT size=4><b>void jump(int i,int j)</b></FONT><br>
+Moves the current position to (<i>i</i>, <i>j</i>), in device coordinates
+
+<p>
+
+<a name=id213>
+<FONT size=4><b>void draw(int i,int j,int color)</b></FONT><br>
+draws a line from the current position to (<i>i</i>, <i>j</i>)
+  using the color <i>color</i>. If color is FRAME_FG then the
+  frame foreground color is used.
+
+<p>
+
+<a name=id229>
+<FONT size=4><b>void dot(int i,int j,int color)</b></FONT><br>
+Draw a dot at position (<i>i</i>, <i>j</i>) (in pixel coordinates)
+  and color <i>color</i>
+
+<p>
+
+<a name=id260>
+<FONT size=4><b>void line(int i1,int j1,int i2,int j2,int color)</b></FONT><br>
+Draws a line from the point (<i>x1</i>, <i>y1</i>) to (<i>x2</i>, <i>y2</i>) (in pixel
+  coordinates)in the color <i>color</i>. The current position is moved to the
+  end of the line
+
+<p>
+
+<a name=id390>
+<FONT size=4><b>void jump(double x,double y)</b></FONT><br>
+Moves the current position to (<i>x</i>, <i>y</i>), in world coordinates
+
+<p>
+
+<a name=id399>
+<FONT size=4><b>void draw(double x,double y,int color)</b></FONT><br>
+Draws a line from from the current position to (<i>x</i>, <i>y</i>) (in world
+  coordinates) using the color <i>color</i>
+
+<p>
+
+<a name=id244>
+<FONT size=4><b>void dot(double x,double y,int color)</b></FONT><br>
+Draw a dot at position (<i>x</i>, <i>y</i>) (in world coordinates)
+  and color <i>color</i>
+
+<p>
+
+<a name=id273>
+<FONT size=4><b>void line(double x1,double y1,double x2,double y2, int color)</b></FONT><br>
+Draws a line from the point (<i>x1</i>, <i>y1</i>) to (<i>x2</i>, <i>y2</i>) (in world
+  coordinates)in the color <i>color</i>. The current position is moved to the
+  end of the line
+
+<p>
+
+<a name=id411>
+<FONT size=4><b>void box(int lti,int ltj,int rbi,int rbj,int color)</b></FONT><br>
+draws a box (an empty rectangle) with the left top corner in 
+  (<i>lti</i>, <i>ltj</i>) and the right botton corner in (<i>rbi</i>, <i>rbj</i>), in
+  device coordinates.
+<table><tr><td><i>color</i></td><td>The color of the box. If it is FRAME_FG then the frame
+  foreground color is used
+
+</td></tr></table><p>
+
+<a name=id427>
+<FONT size=4><b>void box(double swx,double swy, double nex, double ney,int color)</b></FONT><br>
+draws a box (an empty rectangle) with the left botton corner in 
+  (<i>swx</i>, <i>swy</i>) and the right top corner in (<i>nex</i>, <i>ney</i>), in
+  world coordinates.
+<table><tr><td><i>color</i></td><td>The color of the box. If it is FRAME_FG then the frame
+  foreground color is used
+
+</td></tr></table><p>
+
+<a name=id437>
+<FONT size=4><b>void boxFill(double swx,double swy, double nex, double ney,int col)</b></FONT><br>
+Draws a filled box with the botton left corner at (<i>swx</i>, <i>swy</i>) and
+  the right top corner at (<i>nex</i>, <i>ney</i>). The box is filled with color
+  <i>color</i>
+
+<p>
+
+<a name=id284>
+<FONT size=4><b>void Xcrss(double x,double y,int size, int color)</b></FONT><br>
+Draw a cross at position (<i>x</i>, <i>y</i>) (in world coordinates),
+  color <i>color</i> and size <i>size</i>
+
+<p>
+
+<a name=id314>
+<FONT size=4><b>Frame &amp;operator&lt;&lt;(char c)</b></FONT><br>
+Prints the character <i>c</i> at the current position
+
+<p>
+
+<a name=id339>
+<FONT size=4><b>Frame &amp;operator&lt;&lt;(int n)</b></FONT><br>
+Prints the number <i>n</i> at the current position
+
+<p>
+
+<a name=id326>
+<FONT size=4><b>Frame &amp;operator&lt;&lt;(long n)</b></FONT><br>
+Prints the number <i>n</i> at the current position
+
+<p>
+
+<a name=id355>
+<FONT size=4><b>Frame &amp;operator&lt;&lt;(double r)</b></FONT><br>
+Outputs the double <i>r</i>, eg.:
+<pre>
+frm<<3.14159;
+</pre> 
+
+<p>
+
+<a name=id368>
+<FONT size=4><b>Frame &amp;operator&lt;&lt;(const frstring &amp;a_string)</b></FONT><br>
+Outputs the string <i>a_string</i> on the frame.
+
+<p>
+
+<a name=id379>
+<FONT size=4><b>Frame &amp;operator&lt;&lt;(char *text)</b></FONT><br>
+Outputs the string <i>text</i> on the frame.
+
+<p>
+
+<a name=id299>
+<FONT size=4><b>Frame &amp;operator&lt;&lt;(colstring &amp;a_colstring)</b></FONT><br>
+Print a color text on the frame. The current color isn't changed by that
+  function
+
+<p>
+
+<a name=id291>
+<FONT size=4><b>Frame &amp;operator&lt;&lt;(FgColor &amp;c)</b></FONT><br>
+Changes the foreground color of the frame, like:
+<pre>
+frm<< FgColor(RED)<<"red "<< FgColor(BLUE)<<"blue"
+</pre>
+
+<p>
+
+<a name=id303>
+<FONT size=4><b>Frame &amp;operator&lt;&lt;(BgColor &amp;c)</b></FONT><br>
+Changes the background color of the frame, like:
+<pre>
+frm<< BgColor(YELLOW)<<"yellow"<< BgColor(GREEN)<<"green"
+</pre>
+
+<p>
+
+<a name=id325>
+<FONT size=4><b>Frame &amp;operator&lt;&lt;(Tab tab)</b></FONT><br>
+Moves the current position to the column refered by <i>tab</i>
+
+<p>
+
+<a name=id447>
+<FONT size=4><b>Frame &amp;operator&gt;&gt;(const At &amp;at)</b></FONT><br>
+The same as operator<< - changes the current position to <i>at</i>
+
+<p>
+
+<a name=id457>
+<FONT size=4><b>Frame &amp;operator&gt;&gt;(FgColor &amp;c)</b></FONT><br>
+The same as operator<< - changes the foreground color to <i>c</i>
+
+<p>
+
+<a name=id466>
+<FONT size=4><b>Frame &amp;operator&gt;&gt;(BgColor &amp;c)</b></FONT><br>
+The same as operator<< - changes the background color to <i>c</i>
+
+<p>
+
+<a name=id475>
+<FONT size=4><b>int isInside(PXL &amp;p)</b></FONT><br>
+Checks if the pixel <i>pxl</i> (in device coordinates) is inside the frame
+
+<p>
+
+<a name=id419>
+<FONT size=4><b>Frame &amp;operator&gt;&gt;(frstring &amp;a_string)</b></FONT><br>
+Reads a string from the keyboard. The same, as getText.
+
+<p>
+
+<a name=id429>
+<FONT size=4><b>Frame &amp;operator&gt;&gt;(int &amp;n)</b></FONT><br>
+Reads a number from the keyboard using getText().
+
+<p>
+
+<a name=id442>
+<FONT size=4><b>Frame &amp;operator&gt;&gt;(long &amp;n)</b></FONT><br>
+Reads a number from the keyboard using getText().
+
+<p>
+
+<a name=id455>
+<FONT size=4><b>Frame &amp;operator&gt;&gt;(double &amp;r)</b></FONT><br>
+Reads a double from the keyboard using getText().
+
+<p>
+
+<a name=id474>
+<FONT size=4><b>int Edit(At at, int no_col, frstring &amp;s)</b></FONT><br>
+A more sophisticated version of getText. Reads a text from the keybord and
+  allows the user to use arrows backspace and delete. Returns the key used to
+  end the edition (eg. Enter, Escape)
+<table><tr><td><i>at</i></td><td>The position of the begining of the edition
+</td></tr><tr><td><i>no_col</i></td><td>The number of columns used for the edition
+</td></tr><tr><td><i>s</i></td><td>The string. Then calling it contains the text that should appear
+  in the edition. The result string in also returned here.
+
+</td></tr></table><p>
+
+</HTML>

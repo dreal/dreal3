@@ -1,0 +1,23 @@
+# settings for MinGW32 with wxWidgets 2.5.2/2.5.3 compiled as a static library
+
+GDIR    = c:/dev-cpp/
+SYSLIB  = -lwsock32
+SYSLIBG = ${GDIR}lib/libwx_msw_html-2.5.a ${GDIR}lib/libwx_msw_adv-2.5.a \
+	${GDIR}lib/libwx_msw_core-2.5.a ${GDIR}lib/libwx_base_xml-2.5.a \
+	${GDIR}lib/libwx_base_net-2.5.a ${GDIR}lib/libwx_base-2.5.a \
+	-lrpcrt4 -loleaut32 -lole32 -luuid -lwinspool -lwinmm -lshell32 \
+	-lcomctl32 -lcomdlg32 -lctl3d32 -ladvapi32 -lwsock32 -lgdi32 \
+	-lwxregex -lwxexpat -lwxtiff -lwxjpeg -lwxpng -lwxzlib
+SYSINCL = -I${GDIR}lib/wx/include/msw-2.5 \
+	-I${GDIR}include/wx-2.5 -I${GDIR}lib/wx/include/msw-ansi-release-static-2.5
+COMPILE = g++ -mwindows -mthreads -O2 -Wall -frounding-math -D__WXMSW__
+LINK    = g++ -mthreads -s
+LINKGUI = g++ -mwindows -mthreads -Wl,--subsystem,windows -s
+MAKELIB = ar cru
+IDXLIB  = ranlib
+REMOVE  = perl ${HOME}make/slashes.pl del
+MKDIR   = perl ${HOME}make/slashes.pl mkdir
+EXE     = .exe
+LIBEXT  = .a
+OBJEXT  = .o
+

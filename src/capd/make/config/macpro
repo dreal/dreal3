@@ -1,0 +1,20 @@
+# Settings for the GNU C++ compiler at Mac OS X v. 10.5 (64-bit).
+# The X Window library and OpenGL are used for graphics.
+
+SYSLIB  = -lpthread
+SYSLIBG = -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lX11 -lGL -lXpm -lpthread -dylib_file \
+/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:\
+/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
+SYSINCL =
+CXX = g++ -m64
+COMPILE = $(CXX) -O2 -ansi -pedantic -Wall -frounding-math
+LINK    = $(CXX)
+LINKGUI = $(CXX)
+MAKELIB = ar cru
+IDXLIB  = ranlib
+REMOVE  = rm -f
+MKDIR   = mkdir
+EXE     = 
+LIBEXT  = .a
+OBJEXT  = .o
+

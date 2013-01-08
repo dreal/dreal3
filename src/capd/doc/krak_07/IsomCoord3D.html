@@ -1,0 +1,80 @@
+<HTML>
+<TITLE>Class IsomCoord3D</TITLE>
+<BODY bgcolor=#ffffff link=#0000ff vlink=#00007f text=#000000>
+
+<H1>IsomCoord3D</H1>
+
+<a href="#descr">description...</a><p>
+<H3>public:</H3>
+<ul>
+<li><b>IsomCoord3D</b>(Frame *frm=NULL, int orient=0)<br>
+<li>virtual <b>~IsomCoord3D</b>()<br>
+<li><a href=#id282>virtual int <b>orientation</b>()</a><br>
+<li><a href=#id297>virtual int <b>setOrientation</b>(int i)</a><br>
+<li><a href=#id267>virtual void <b>map</b>(double x, double y, double z, int *i, int *j)</a><br>
+<li><a href=#id320>virtual void <b>drawAxis</b>()</a><br>
+</ul>
+
+<hr>
+
+<a name=descr>
+<h2>Description:</h2>
+<a name=id157>
+
+This is a class for isomteric 3D drawing. Most function are inherited
+  from <a href="Coord3D.html">Coord3D</a>.<p>
+  Example use:
+  <pre>
+    IsomCoord3D c(frm);      // c will draw on the frame frm
+    c.setFgColor(BLACK);     // this function sets the color of
+                             // the attached frame
+    c.setScale(0.1);         // this sets the size of a logical unit
+
+    c.jump(15.2, 17, 44);
+    c.lineTo(33.2, 32, 45);
+    c.box(45, 56, 67,
+          -123, -23, -56, RED);
+    //etc...
+  </pre>
+
+<p><hr>
+<p>
+
+<a name=id282>
+<FONT size=4><b>virtual int orientation()</b></FONT><br>
+Returns the orientation of the system
+  <TABLE>
+  <TR><TD>0</TD><TD>the <i>z</i> axis is down (<i>default</i>)</TD></TR>
+  <TR><TD>1</TD><TD>the <i>z</i> axis is up</TD></TR>
+  </TABLE>
+
+<p>
+
+<a name=id297>
+<FONT size=4><b>virtual int setOrientation(int i)</b></FONT><br>
+Sets the orientation of the system.<p>
+  <b>Note:</b> you should use this function before drawing anything or redraw
+  the screen.
+  <TABLE>
+  <TR><TD>0</TD><TD>the <i>z</i> axis is down (<i>default</i>)</TD></TR>
+  <TR><TD>1</TD><TD>the <i>z</i> axis is up</TD></TR>
+  </TABLE>
+
+<p>
+
+<a name=id267>
+<FONT size=4><b>virtual void map(double x, double y, double z, int *i, int *j)</b></FONT><br>
+Maps the 3D coordinates of the point (<i>x</i>, <i>y</i>, <i>z</i>) to the
+  frame pixel coordinates.
+<p><FONT size=3><b>See also:</b></FONT><br>
+<a href="Coord3D.html#id56">Coord3D::map</a>
+
+<p>
+
+<a name=id320>
+<FONT size=4><b>virtual void drawAxis()</b></FONT><br>
+Draws the axis of the system.
+
+<p>
+
+</HTML>

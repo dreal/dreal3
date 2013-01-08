@@ -1,0 +1,17 @@
+# Settings for a typical GNU C++ compiler in Linux/Unix.
+# The standard X Window library is used for graphics (if any).
+
+SYSLIB  = -lpthread
+SYSLIBG = -L/usr/X11R6/lib/ -lX11 -lGL -lXpm -lpthread
+SYSINCL =
+COMPILE = g++ -O2 -ansi -pedantic -Wall -frounding-math
+LINK    = g++ -s -static -static-libgcc
+LINKGUI = g++ -s
+MAKELIB = ar cru
+IDXLIB  = ranlib
+REMOVE  = rm -f
+MKDIR   = mkdir
+EXE     = 
+LIBEXT  = .a
+OBJEXT  = .o
+INSTALLDIR = /usr/local/

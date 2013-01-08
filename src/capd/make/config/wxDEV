@@ -1,0 +1,21 @@
+# Settings for the wxDevCpp 6.10.2 package of the MinGW GNU C++ compiler set
+# and the wxWidgets 2.8 library, precompiled for Windows.
+# Note: PERL presence is recommended.
+
+GDIR    = c:/bin/wxDevCpp/
+SYSLIB  = -lwsock32
+SYSLIBG = -mwindows -lwxmsw28 -lwxtiff -lwxjpeg -lwxpng -lwxzlib \
+	-lcomdlg32 -lcomctl32 -lole32 -loleaut32 -luuid -lwsock32
+SYSINCL = 
+COMPILE = g++ -mwindows -mthreads -O2 -Wall -D__WXMSW__ -D__GNUWIN32__ \
+	-D__WIN95__ -frounding-math -I$(GDIR)include/common
+LINK    = g++ -mthreads -s
+LINKGUI = g++ -mwindows -s
+MAKELIB = ar cru
+IDXLIB  = ranlib
+REMOVE  = perl ${HOME}make/slashes.pl del
+MKDIR   = perl ${HOME}make/slashes.pl mkdir
+EXE     = .exe
+LIBEXT  = .a
+OBJEXT  = .o
+

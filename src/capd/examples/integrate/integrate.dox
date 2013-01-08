@@ -1,0 +1,16 @@
+/** \page examples_integrate ODE integration
+ *
+ * The sources of the following examples can be found in the <tt>examples/integrate</tt> directory of the CAPD package.
+ *
+ * \section integrate_ODE Integration of an ordinary differential equation
+ *
+ * \dontinclude integrate.cpp
+ * \skip include
+ * \until END
+ *
+ * \section integrate_variational Integration of ODE along with a variational equations
+ *
+ * \dontinclude integrateVariationalEquation.cpp
+ * \skip include
+ * \until END
+ */

@@ -1,0 +1,834 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+
+  <link rel="stylesheet" href="../tutorial.css" type="text/css">
+  
+
+
+  <title>Interval Arithmetics</title><meta content="Tomasz Kapela" name="author"></head>
+
+<body><br><br><h2><span class="headParam"><span class="keyword">template
+class</span></span>
+Interval&nbsp;<span class="headParam">&lt;
+<span class="keyword">typename</span>&nbsp;BoundType,
+&nbsp;<span class="keyword">typename</span>&nbsp;Rounding&gt;</span></h2>
+<h4><a href="intervalExample.cpp">C++
+source of an example</a></h4>
+This file provides tutorial on how to use inteval arithmetics included
+in CAPD package. For exact information on interface of class Interval
+see the header file <span class="fileName">"include/capd/interval/Interval.h"</span>
+
+<a href="intervalExample.cpp"> 
+</a>
+<h3><a href="intervalExample.cpp">Content of this
+file:</a></h3>
+
+<ul>
+
+  <li><a href="#temp_param">Template parameters</a></li>
+
+  <li><a href="#create">How to create an interval?</a></li>
+
+  <li><a href="#ends">How to access interval end
+points?</a></li>
+
+  <li><a href="#in_out">Writting and reading
+intervals</a></li>
+
+  <li><a href="#logic_oper">Logical operators and
+inclusions</a></li>
+
+  <li><a href="#arithm_oper">Arithmetic operators</a></li>
+
+  <li><a href="#basic_fun">Elementary functions</a></li>
+
+  <li><a href="#intv_fun">Interval specific functions</a></li>
+
+  <li><a href="#const">Constants</a></li>
+
+  <li><a href="#intv_settings">Interval Settings</a></li>
+
+</ul>
+
+<br>
+
+<h3><a name="temp_param"></a>Template
+parameters</h3>
+
+Template class Interval has two parameters <br>
+<pre><span class="keyword">template class</span> <span class="funcName">Interval</span> &lt;<span class="keyword">typename</span> BoundType, <span class="keyword">typename</span> Rounding = BoundType&gt;</pre>
+
+<ul>
+
+  <li><span class="code" style="font-weight: bold;">BoundType</span>
+- type of interval ends (e.g. int, double, MpfrClass)</li>
+
+  <li><span class="code" style="font-weight: bold;">Rounding</span>
+- class that switches rounding.&nbsp;<br>
+
+By default it is equal to&nbsp;BoundType, but for build-in types
+special classes are needed:<br>
+
+    <ul>
+
+      <li><span class="code" style="font-weight: bold;">DoubleRounding</span>
+for &nbsp;double&nbsp;</li>
+
+      <li><span class="code" style="font-weight: bold;">IntRounding</span>
+for all integer types: int, long ...</li>
+
+    </ul>
+
+  </li>
+
+</ul>
+
+The following lines defines new names for intervals with&nbsp;endpoints&nbsp;type:
+double, int, MpfrClass correspondigly<br>
+
+<pre><span class="keyword">typedef</span> capd::intervals::Interval&lt; <span class="keyword">double</span>, capd::rounding::DoubleRounding&gt; DInterval;<br><span class="keyword">typedef</span> capd::intervals::Interval&lt; <span class="keyword">int</span>, capd::rounding::IntRounding&gt; IntInterval;<br><span class="keyword">typedef</span> capd::intervals::Interval&lt; capd::multiPrec::MpfrClass&gt; MpfrInterval;<br></pre>
+
+<p>Because most of the functions are common for intervals with
+arbitrary endpoints we use general type <span class="code">interval</span>&nbsp;in the following
+sections.&nbsp;<br>
+For an example it can be defined as follows </p>
+
+<pre>typedef DInterval interval;<br></pre>
+
+
+<p><span style="font-weight: bold;">Remark:</span>
+if you include file <span class="fileName">"capd/interval/DoubleInterval.h"</span>
+then <span class="funcName">interval </span>is
+already defined as <span class="code">Interval&lt;
+double, DoubleRounding&gt;</span>.</p>
+
+<h3><a name="create"></a>How to create an
+interval?</h3>
+
+We can construct interval by :<br>
+
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+
+  <tbody>
+
+    <tr>
+
+      <td>
+      <pre>interval a;<br>interval b(1.0); <br>interval c(2.0, 3.0); <br>interval d(c); </pre>
+
+      </td>
+
+      <td class="comment">
+      <pre>// a is in general not initialized<br>// b = [1.0, 1.0]<br>// c = [2.0, 3.0]<br>// d = [2.0, 3.0]</pre>
+
+      </td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<p><span class="">The state of interval a depends on
+flag __INTERVAL_INIT_0__.<br>
+
+If this flag is set in file include/capd/interval/intervalSettings.h than a
+= [0.0, 0.0],<br>
+
+otherwise a is not initialized (this is the default behaviour). </span></p>
+
+<h3><a name="ends"></a>How to access interval
+end points?</h3>
+
+To obtain left or right end point of the interval&nbsp;we can
+use <span class="funcName">leftBound</span> or <span class="funcName">rightBound</span> functions. They are
+implemented&nbsp; both as member and global functions.<br>
+
+<br>
+
+Example:<br>
+
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+
+  <tbody>
+
+    <tr>
+
+      <td>
+      <pre>interval c(2.0, 3.0);<br><br><span class="comment">// member functions</span><br>c.leftBound(); <br>c.rightBound(); <br><br><span class="comment">// or global functions</span><br>leftBound(c); <br>rightBound(c); </pre>
+
+      </td>
+
+      <td>
+      <pre><br><span class="comment"></span><br><br><span class="comment">// the result is 2.0</span><br><span class="comment">// the result is 3.0</span><br><br><span class="comment"></span><br><span class="comment">// the result is 2.0</span><br><span class="comment">// the result is 3.0</span></pre>
+
+      </td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<span style="font-family: monospace;"><span style="font-weight: bold;"></span></span><br>
+
+To get point interval that contains left or right end point we use
+function <span class="funcName">left</span> or<span class="funcName"> right</span> correspondigly <br>
+
+<br>
+
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+
+  <tbody>
+
+    <tr>
+
+      <td>
+      <pre>c.left(); <br>left(c);<br><br>c.right(); <br>right(c);</pre>
+
+      </td>
+
+      <td>
+      <pre>// or<br><span class="comment">// in both cases the result is an interval [2.0, 2.0]<br><br></span>// or<br><span class="comment">//</span><span class="comment"> in both cases</span><span class="comment"> the result is an interval [3.0, 3.0]</span></pre>
+
+      </td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<br>
+
+<span style="font-weight: bold;">Remark:</span>
+there is no function to change only one of the endpoints. For
+example to change only left end point you can use the following code<br>
+
+<pre>c = interval(1.0, c.rightBound());<br></pre>
+
+In this way e.g. you can force constructor to check if interval
+endpoints are in good order (see <a href="#intv_settings">Interval
+Options</a>). <br>
+
+<br>
+
+<h3><a name="in_out"></a>Writting and reading
+intervals</h3>
+
+Intervals can be written to any stream in C++ way using <span class="funcName">operator</span> <span class="funcName">&lt;&lt;.</span>
+&nbsp;The output depends on parameters of a stream e.g precision. <br>
+
+<table style="text-align: left; width: 100%;" border="0" cellpadding="5" cellspacing="0">
+
+  <tbody>
+
+    <tr>
+
+      <td>
+      <pre>interval a(1.0, 2.0);<br>std::cout &lt;&lt; a; <br>std::cout &lt;&lt; fixed &lt;&lt; setprecision(6) &lt;&lt; a; </pre>
+
+      </td>
+
+      <td>
+      <pre><br><span class="comment">// output: [1,2]</span><br class="comment"><span class="comment">// output: [1.000000,2.000000]</span></pre>
+
+      </td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<br>
+
+To read intervals from given stream (e.g. keyboard, file or
+memory) use <span class="funcName">operator
+&gt;&gt;</span>. &nbsp;Input should be of the form :<br>
+
+<span class="code">[leftEnd,rightEnd]</span><br>
+
+where leftEnd and rightEnd should be of the form that can be read with operator &gt;&gt;
+and converted to BoundType object.<br>
+
+<pre>interval a;<br>std::istringstream myStr("[3.21312312, 4.324324324]");<br>myStr &gt;&gt; a;</pre>
+
+<h3><a name="logic_oper"></a>Logical operators
+and inclusions</h3>
+
+<table style="text-align: left; width: 100%;" border="1" cellpadding="5" cellspacing="0">
+
+  <tbody>
+
+    <tr>
+
+      <td>Operator</td>
+
+      <td>True if</td>
+
+    </tr>
+
+    <tr>
+
+      <td>
+      <pre>b==c;</pre>
+
+      </td>
+
+      <td>both end points are the same</td>
+
+    </tr>
+
+    <tr>
+
+      <td>
+      <pre>b!=c;</pre>
+
+      </td>
+
+      <td>at least one end point&nbsp;differs</td>
+
+    </tr>
+
+    <tr>
+
+      <td>
+      <pre>b&gt;c;<br>b&gt;=c;<br>b&lt;c; <br>b&lt;=c;</pre>
+
+      </td>
+
+      <td>it is true for any two points from intervals b and c.<br>
+
+For example: &nbsp;<span class="code">b&gt;c</span>
+if &nbsp;<span class="code">leftBound(b) &gt;
+rightBound(c)</span></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<br>
+
+The same operators can be applied if one of the intervals is repleaced
+by a number (in fact it is treated as point interval) e.g. &nbsp;
+&nbsp;<span class="code">b == 1.0; &nbsp;
+&nbsp;b &lt; 2.0;</span><br>
+
+<br>
+
+For two intervals one can&nbsp;check inclusions.<br>
+
+<br>
+
+<table style="text-align: left; width: 100%;" border="1" cellpadding="5" cellspacing="0">
+
+  <tbody>
+
+    <tr>
+
+      <td></td>
+
+      <td>True if </td>
+
+    </tr>
+
+    <tr>
+
+      <td>
+      <pre>c.contains(b);<br>c.contains(2.5);</pre>
+
+      </td>
+
+      <td>c contains b<br>
+
+c contains number 2.5</td>
+
+    </tr>
+
+    <tr>
+
+      <td>
+      <pre>c.containsInInterior(b);</pre>
+
+      </td>
+
+      <td>c contains b in the interior</td>
+
+    </tr>
+
+    <tr>
+
+      <td>
+      <pre>c.subset(b);</pre>
+
+      </td>
+
+      <td>c&nbsp;is subset of b</td>
+
+    </tr>
+
+    <tr>
+
+      <td>
+      <pre>c.subsetInterior(b);</pre>
+
+      </td>
+
+      <td>c&nbsp;is subset of the interior of b</td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<br>
+
+Note: on standard output<span style="font-weight: bold;">
+true</span>
+is converted into integer value 1 and <span style="font-weight: bold;">false</span>
+into 0.<br>
+
+<br>
+
+<h3><a name="arithm_oper"></a>Arithmetic
+operators</h3>
+
+Arithmetic operations for intervals are implemented in this way that their result
+always contains all possible results.<br>
+
+<br>
+
+For example if &nbsp;<br>
+
+<pre>interval a(-1,0, 2.0), b(1.0, 2.0);</pre>
+
+then <br>
+
+<br>
+
+<table style="text-align: left; width: 100%;" border="1" cellpadding="5" cellspacing="0">
+
+  <tbody>
+
+    <tr>
+
+      <td>Operation</td>
+
+      <td>Code</td>
+
+      <td>Result</td>
+
+    </tr>
+
+    <tr>
+
+      <td>Sum</td>
+
+      <td>
+      <pre>a + b;</pre>
+
+      </td>
+
+      <td>[0.0, 4.0]</td>
+
+    </tr>
+
+    <tr>
+
+      <td>Substraction</td>
+
+      <td>
+      <pre>a - b;</pre>
+
+      </td>
+
+      <td>[-3.0, 1.0]</td>
+
+    </tr>
+
+    <tr>
+
+      <td>Product</td>
+
+      <td>
+      <pre>a * b;</pre>
+
+      </td>
+
+      <td>[-2.0, 4.0]</td>
+
+    </tr>
+
+    <tr>
+
+      <td>Division</td>
+
+      <td>
+      <pre>a / b;</pre>
+
+      </td>
+
+      <td>[-1.0, 2.0]</td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<br>
+
+If in division b contains 0 then an exception is thrown.<br>
+
+<br>
+
+Every arithmetic operation of form &nbsp;<br>
+
+<pre>a = a + b; <br>a = a - b; <br>a = a * b; <br>a = a / b; <br></pre>
+
+can be also shorten to<br>
+
+<pre>a += b;<br>a -= b;<br>a *= b;<br>a /= b;<br></pre>
+
+<h3><a name="basic_fun"></a>Elementary
+functions</h3>
+
+Most of the basic functions has his interval version. To be rigorous
+returned value is always an interval which is upper estimate of the
+true
+result. Functions are called exactly in the same way like standard
+functions operating on doubles. <br>
+
+List of all implemented functions:<br>
+
+<br>
+
+<table style="text-align: left; width: 100%;" border="1" cellpadding="5" cellspacing="0">
+
+  <tbody>
+
+    <tr>
+
+      <th>Function</th>
+
+      <th>For an interval x it returns: </th>
+
+    </tr>
+
+    <tr>
+
+      <td class="code">power(x, n)</td>
+
+      <td>x<sup>n</sup>, where n is an integer</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="code">power(x, a)</td>
+
+      <td>x<sup>a</sup>, where a is an interval</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="code">sqrt(x)</td>
+
+      <td>square root of x</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="code">sin(x), cos(x), tan(x), cot(x)</td>
+
+      <td>sinus of x, etc.</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="code">sinh(x), cosh(x), tanh(x), coth(x)</td>
+
+      <td>hyperbolic sinus of x, etc.</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="code">exp(x)</td>
+
+      <td>exponens of x</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="code">log(x)</td>
+
+      <td>&nbsp;natural logarithm of x</td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<h3><a name="intv_fun"></a>Interval specific
+functions </h3>
+
+In this section we collect&nbsp;several usefull functions.<br>
+
+<ul>
+
+  <li> <b><span class="funcName">mid - </span></b><b>middle
+point of the interval&nbsp;&nbsp;<span class="funcName"></span>
+    </b>
+    <pre>interval a(1.0, 5.0);<br>std::cout &lt;&lt; a.<span class="funcName">mid</span>(); <span class="comment">// displays on the screen [3.0,3.0] (the middle point of interval [1.0, 5.0])</span><br>std::cout &lt;&lt; <span class="funcName">mid</span>(a);</pre>
+
+  </li>
+
+  <li><span class="funcName">diam - </span><span style="font-weight: bold;">diameter of the interval</span>
+    <br>
+
+    <pre>interval a(1.0, 5.0);<br>std::cout &lt;&lt; <span class="funcName">diam</span>(a); <span class="comment">// displays on the screen [4.0, 4.0] </span><br></pre>
+
+  </li>
+
+  <li><span class="funcName">intersection</span>
+    <span style="font-weight: bold;">- intersection of two
+intervals</span><br>
+
+function <span class="funcName">bool intersection(a, b,
+result)</span> for given two intervals <span class="code">a</span>
+and <span class="code">b</span> returns:</li>
+
+  <ul>
+
+    <li><span class="keyword">true</span>
+and&nbsp;intersection in the <span class="code">result</span>
+variable if&nbsp;
+intersecton is non empty.</li>
+
+    <li><span class="keyword">false</span> if
+intersection is empty.<br>
+
+    </li>
+
+  </ul>
+
+  <pre>interval a(1.0, 3.0), b(2.0, 4.0), c(5.0, 6.0), r1, r2; <br><span class="funcName">intersection</span>(a, b, r1); <br>if(!<span class="funcName">intersection</span>(a,c,r2)) <br> std::cout &lt;&lt; "intersection is empty";<br><span class="comment">// r1 is equal to [2.0, 3.0], r2 is not initialized </span><br></pre>
+
+  <li><span class="funcName">intervalHull</span>
+&nbsp;- <span style="font-weight: bold;">interval
+containing two given intervals</span><br>
+
+For given two intervals <span class="code">iv1</span>
+and <span class="code">iv2</span> function <span class="code">intervalHull(iv1, iv2)</span> returns the
+smallest possible interval containing <span class="code">iv1</span>
+and<span class="code"> iv2<br>
+
+    </span>
+    <pre>interval a(1.0, 3.0), b(5.0, 6.0), result; <br>result = <span class="funcName">intervalHull</span>(a, b);<br class="comment"><span class="comment">// result is equal to [1.0, 6.0]</span><br></pre>
+
+    <br>
+
+  </li>
+
+  <li><b><span class="funcName">split </span>-
+splitting
+interval into the center and the radius/the remainder<br>
+
+    </b>There
+are 4 functions that split interval. They differ in&nbsp;the output
+    <br>
+
+    <br>
+
+Suppose that we defined<br>
+
+    <pre>interval a(1.0,3.0);<br>interval center, remainder, radius;<br>double r;<br></pre>
+
+then<br>
+
+    <table style="text-align: left; width: 100%;" border="1" cellpadding="5" cellspacing="0">
+
+      <tbody>
+
+        <tr>
+
+          <td>Command</td>
+
+          <td>Result</td>
+
+        </tr>
+
+        <tr>
+
+          <td>
+          <pre>a.split(center,remainder);</pre>
+
+          </td>
+
+          <td>a = [1.0, 3.0]<br>
+
+center = [2.0, 2.0]<br>
+
+remainder = [-1.0, 1.0]</td>
+
+        </tr>
+
+        <tr>
+
+          <td>
+          <pre>a.split(remainder);</pre>
+
+          </td>
+
+          <td>a = [2.0, 2.0]<br>
+
+remainder = [-1.0, 1.0]</td>
+
+        </tr>
+
+        <tr>
+
+          <td>
+          <pre>split(a, center,radius);</pre>
+
+          </td>
+
+          <td>a = [1.0, 3.0]<br>
+
+center = [2.0, 2.0]<br>
+
+radius = [1.0, 1.0] &nbsp; &nbsp; &nbsp; &nbsp; !!!</td>
+
+        </tr>
+
+        <tr>
+
+          <td>
+          <pre>split(a, center,r);</pre>
+
+          </td>
+
+          <td>a = [1.0, 3.0]<br>
+
+center = [2.0, 2.0]<br>
+
+radius = 1.0</td>
+
+        </tr>
+
+      </tbody>
+    </table>
+
+  </li>
+
+</ul>
+
+<h3><a name="const"></a>Constants</h3>
+
+Two constants&nbsp;: pi and euler&nbsp;are provided by static
+member fuctions<span class="funcName"> pi</span> and
+<span class="funcName">euler</span> <br>
+
+<br>
+
+Example:<br>
+
+<pre><span class="comment">// returns interval that contains pi constant</span><br><span class="funcName">interval::pi();</span> <br><br><span class="comment">// returns interval that contains euler constant </span><br><span class="funcName">interval::euler();</span>&nbsp; </pre>
+
+Note that an output is an interval that containts true value of the
+constant,<br>
+
+so it strongly depends on type of interval endpoints used.<br>
+
+<br>
+
+Remark: When using MpfrClass as an endpoint, the returned value depends
+also on the precision currently used.<br>
+
+<h3><a name="intv_settings"></a>Interval
+Settings</h3>
+
+In file <span class="fileName">"include/capd/interval/IntervalSetting.h"</span>
+there are several flags which can be switched on/off&nbsp; by
+(un)commenting appropriate line of code:<br>
+
+<br>
+
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+
+  <tbody>
+
+    <tr>
+
+      <td><span style="font-weight: bold;">Flag</span></td>
+
+      <td><span style="font-weight: bold;">If
+switched on</span></td>
+
+      <td>Default</td>
+
+    </tr>
+
+    <tr>
+
+      <td><span class="keyword">__DEBUGGING__&nbsp;</span>
+      </td>
+
+      <td>it turns on debugging mode. We check intervals
+&nbsp;during each operation and throw exception if interval is not
+valid.</td>
+
+      <td>off</td>
+
+    </tr>
+
+    <tr>
+
+      <td><span class="keyword">__INTERVAL_INIT_0__</span><br>
+
+      </td>
+
+      <td>default constructor initializes intervals to be [0.0,
+0.0]. <br>
+
+By default this option is switched off and an interval is not
+initialized.</td>
+
+      <td>off</td>
+
+    </tr>
+
+    <tr>
+
+      <td><span class="keyword">__INTERVAL_SPEED_OPTIMIZED__</span>
+      </td>
+
+      <td>it speeds up computations but enlarges programm size.<br>
+
+It couses many functions to be defined as <span class="code">inline</span></td>
+
+      <td>on</td>
+
+    </tr>
+
+    <tr>
+
+      <td><span class="keyword">__INTERVAL_DEPRECATED__</span><br>
+
+      </td>
+
+      <td>it allows use of deprecated functions for backward
+compatibility. </td>
+
+      <td>off</td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+</body></html>

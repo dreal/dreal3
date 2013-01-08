@@ -1,0 +1,133 @@
+/** @defgroup dynset dynset
+ * Module \link capd::dynset dynset \endlink  provides various set representations along with algorithms to propagate them using  discrete or  continuous dynamical systems.
+ * Read detailed description of \ref dynset_module for more details.
+ *
+ */
+
+/**
+ * \page dynset_module DynSets
+
+Module \link capd::dynset dynset \endlink  provides various set representations along with algorithms to propagate them using  discrete or  continuous dynamical systems.
+
+- \ref dynset_setnames
+- \ref dynset_create
+- \ref dynset_move
+- \ref dynset_info
+- \ref dynset_recommendedsets
+ 
+\section dynset_setnames Sets names
+
+Names of the sets in general follow the rule:
+
+  [Class]Method[2][Details]Set
+
+where:
+- [Class] - denotes the "class" of the set e.g. C0, C1, C2, Cn 
+  - "class" tells which derivatives (up to which order) we can store int the set, e.g. C1 sets can store position of the set and its derivatives,
+  - symbol C0 sometimes is omitted for sets that store only position of the set,
+- Method - describes method how the set is represented and propagated <br>
+  - recommended methods:
+    - Rect : set has "rectangular" shape, in general it is the best choice for integration of ODE's especially when the eigenvalues are of a different magnitude. Overestimation is introduced due to orthogonalization. 
+    - Pped : set is a parallelepiped, can store exactly more sets than Rect method, performs good in rotations and when all eigenvalues are of the same magnitude. 
+    - Intv : errors are stored in the interval vector, can be faster than other methods but is prone to wrapping method. 
+  - methods implemented in the past but now not recommended : Ball, FlowBall, Ellipsoid.
+- [2] - denotes that set is stored as doubleton x+C*r0+B*r, where x, r, r0 are interval vectors and C, B are matrices,
+  - x is a center point of the set,
+  - r0 stores initial set size, its deformations are reflected in the matrix C,
+  - in B*r we store all errors (round-off errors, numerical method errors, etc.),
+  - the form of a matrix B comes for Method,
+  - in doubleton sets the derivatives are often represented as doubletons.
+- [Details] gives more details on implementation, it sometimes helps to distinguish sets of the same geometrical structure but moved by different methods.
+  - single R for doubleton sets denotes that set has built-in Reorganization.
+
+\section dynset_create How to create a set?
+
+DynSets in general are templates with one parameter \b MatrixType which describes the type of interval matrix used. 
+Other types as VectorType, ScalarType come from internal definitions in MatrixType.
+
+To  define a two dimensional doubleton set which stores only C0 information (position) and propagate using QR algorithm 
+and is  based on interval matrices with double interval ends you can write all-in-one command
+\code
+capd::dynset::C0Rect2Set<capd::vectalg::Matrix<capd::intervals::Interval<double, capd::rounding::DoubleRounding>, 2, 2 > >   mySet(2);
+\endcode
+But we recommend you to do this step by step defining your own intermediate types
+\code 
+typedef capd::intervals::Interval<double, capd::rounding::DoubleRounding>  MyInterval;            
+typedef capd::vectalg::Matrix<MyInterval, 2, 2 >   MyIntervalMatrix;                                                
+typedef capd::dynset::C0Rect2Set<MyIntervalMatix>  MyC0Set; 
+MyC0Set mySet(2);
+\endcode
+You can also use capd facades
+\code
+typedef capd::dynset::C0Rect2Set< capd::IMatrix > MyC0Set;
+MyC0Set mySet(2);
+\endcode
+or even
+\code
+capd::IC0Rect2Set mySet(2);
+\endcode
+Facades are simpler to use but they implement only common used sets 
+and are a little bit slower while the first approach gives you full flexibility to choose building bricks of your set. 
+
+Parameters of constructors heavily depend on the set representation and their class (which derivatives it stores):
+C0  sets usually have constructors from interval vector, which they splits to their internal representation,
+C1 sets additionally need logarithmic norm to bound derivatives.
+
+To know what you can pass as constructor parameters you check 'geomset' base for your 'dynset',
+e.g. for C0RectSet and C0PpedSet you can use  all constructors from their base class AffineSet,
+and for C0Rect2Set and C0Pped2Set constructors come from DoubletonSet. 
+
+\section dynset_move How to move a set?
+
+Once your  dynset is created and contains initial set, you can move it with given dynamical system dynsys.  So the command is
+\code
+dynset.move(dynsys);
+\endcode
+For a set of a class Cr you need at least a Cr dynamical system.  In general dynset knows how to move itself preserving his structure. 
+
+If you want the original dynset to be unchanged and the result to be stored in the resultDynset you can call
+\code
+dynset.move(dynsys, resultDynset);
+\endcode
+
+\section dynset_info How to extract informations from a set?
+
+To obtain set as a interval vector (C0 information) you simply convert a set to an interval vector
+\code
+IVector v = (IVector)set;
+\endcode
+or
+\code
+IVector v = static_cast<IVector>(set);
+\endcode
+
+If you have some affine coordinate change and you want to have result expressed in new coordinate frame 
+it is better to use set's affineTransformation function than to transform interval vector obtained before 
+\code
+IVector vInNewCoordinates = set.affineTransformation( transformationMatrix, centerOfNewCoordinateSystem);  
+\endcode
+
+To get derivatives (C1 information) you can do a conversion of a set to an interval matrix
+\code
+IMatrix derivative = (IMatrix) set;
+\endcode
+
+\section dynset_recommendedsets Recommended sets
+
+In general we use doubleton sets based on Rect method:
+\code
+C0Rect2Set, C1Rect2Set, CnRect2Set
+\endcode
+depending which derivatives we want to compute.
+For small initial sets reorganization can improve result a lot so we recommend use of sets with built-in reorganization
+\code
+C0Rect2RSet, C1Rect2RSet, CnRect2Set
+\endcode
+In some special cases e.g. near the elliptic fixed point Pped method can perform better 
+but in general it blow up quickly because during propagation dominant directions contracts all others and coordinates system becomes almost singular.
+
+\section dynset_seealso See also
+- \subpage dynset_reorganization
+- \subpage dynset_reorganizedset
+
+*/

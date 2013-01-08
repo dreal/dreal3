@@ -1,0 +1,22 @@
+# Points to the root of Google Test, relative to where this file is.
+# Remember to tweak this if you move this file.
+GTEST_DIR = /usr/local
+
+#CAPD directory
+CAPD_DIR = ../..
+
+#Values, that need to be passed to preprocessor.
+GTEST_HEADER=\"gtest/gtest.h\"
+
+# Where to find user code.
+USER_DIR = .
+
+# Flags passed to the preprocessor.
+CPPFLAGS +=  -I$(GTEST_DIR) -I$(GTEST_DIR)/include  -I$(CAPD_DIR)/include
+
+# Flags passed to the C++ compiler.
+CXXFLAGS += -g
+
+BIN = ../bin
+
+OBJ = ../obj
