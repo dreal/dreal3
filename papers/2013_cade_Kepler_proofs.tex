@@ -32,96 +32,186 @@ $\delta$-Complete decision procedures can solve SMT problems over the
 reals with a wide range of nonlinear functions, allowing ``$\delta$-bounded
 errors''. The scalability of such procedures usually depends on efficient
 numerical procedures, whose implementation can be error-prone in practice.
-It is important for $\delta$-complete solvers to provide proof certificates 
-for their answers to ensure correctness. 
+It is important for $\delta$-complete solvers to provide certificates to prove
+the correctness of their answers. 
 We show how to do this in a powerful solving framework based
 on Interval Constraint Propagation. Besides providing witnesses for ``$\delta$-sat''
 answers, we concentrate on how to construct proof-trees for the ``unsat''
-answers and how to verify their correctness. One immediate application of such proofs 
+answers and how to verify their correctness. One direct application of such proofs 
 is for establishing many nonlinear lemmas in the formal proof of the Kepler Conjecture. 
 \end{abstract}
 
 \section{Introduction}
 
 SMT formulas over the real numbers can encode a wide range of problems in 
-theorem proving, formal verification, control theory, etc. However, such SMT
-formulas are hard to solve when nonlinear functions are invovled -- with
-polynomials the formulas have very high complexity~\cite{} and with
-transcdental functions such as trigonmetic functions the formulas are
-undecidable~\cite{}. Our recent work on $\delta$-complete decision procedures
-provided a new framework for handling general nonlinear formulas~\cite{}. Fix
-any posiive rational number $\delta$ and any input formula $\varphi$, a
-$\delta$-complete decision procedures returns on of the following answers:
+theorem proving, formal verification, control theory, etc. However, these 
+formulas are very hard to solve when nonlinear functions are invovled~\cite{}. 
+Our recent work on {$\delta$-complete decision procedures}
+provided a new general framework for handling nonlinear SMT problems over the
+reals~\cite{}. Let $\delta$ be an arbitrary positive rational number. We say a decision
+procedure is {\em $\delta$-complete} for a set of SMT formulas $S$, if for any
+$\varphi$ from $S$ the procedure returns
+one of the following answers:
 \begin{itemize}
  \item {\sf unsat}: $\varphi$ is unsatisfiable.
  \item {\sf $\delta$-sat}: $\varphi^{\delta}$ is satisfiable. 
 \end{itemize}
 Here, $\varphi^{\delta}$ is a syntactic variation of $\varphi$ that encodes a
-notion of numerical perturbation on the logic formula. (We will review more 
-details in Section \ref{review}.) In other words, we allow such a procedure to
-give answers with one-sided, $\delta$-bounded errors. Because of the
-relaxations, $\delta$-complete decision procedures can fully exploit the
-power of various numerical algorithms and can be highly scalable on
-nonlinear problems. The $\delta$-completeness guarantees can be suitably
-applied to solving various correctness-critical problems in formal verification
-and theorem proving~\cite{}. 
+notion of numerical perturbation on the logic formula (more 
+details in Section \ref{review}.) Essentially, we allow such a procedure to
+give answers with one-sided, $\delta$-bounded errors. With such relaxations,
+$\delta$-complete decision procedures can fully exploit the
+power of scalable numerical algorithms for nonlinear
+problems. In fact, $\delta$-completeness serves as a suitable correctness
+guarantee for many correctness-critical problems in formal
+verification and theorem proving~\cite{}. 
 
-An important problem for SMT solvers in practice is that the correctness of
-their answers should be certified. This means that when the solver returns that
-a formula is satisfiable, it should also return a solution under which the
-formula indeed evaluates to true. On the other hand, when the solver
-decides that a formula is unsatisfiable, it should provide a proof that
-certifies the answer. For instance, in the simplest case, a SAT solver can
-provide a resolution proof tree that shows the unsatisfiability of a Boolean
-formula. Such a tree needs to be extracted from the solving process, and should
-be easily checkable using simple rules by external proof checkers. 
+An important problem for practical SMT solvers is that the correctness
+of
+their answers should be certified. A ``static'' way for doing this is to prove
+the correctness of the actual code of a solver using program verification
+techniques. However, modern SMT solvers are usually too complicated and
+fast-evolving for such an approach. In comparison, the alternative ``dynamic''
+approach is more appealing: a solver can provide certificates on-the-fly along
+with its answers, as follows. When the solver determines that a formula
+$\varphi(\vec x)$ is ``sat'', it can produce an assignment $\vec a$ to all the
+variables such that the ground formula $\varphi(\vec a)$ is easily checked to be
+true. On the other hand, when $\varphi(\vec x)$ is determined to be ``unsat'',
+the solver can produce a proof $P$ that establishes the validity of $\forall
+\vec x \varphi(\vec x)$ in a suitable proof system. Here, $P$ is usually called
+a {\em proof of unsatisfiability}, which is a well-studied topic for SAT solvers
+and some SMT solvers~\cite{}. For instance, for Boolean unsatisfiability,
+resolution proofs can be extracted from modern DPLL-based SAT solvers to certify
+the ``unsat'' answers. 
 
-In the context of $\delta$-complete decision procedures, certificates for
-correctness are even more important. Numerical algorithms usually contain
-complex heuristics and floating point arithmetic. There is no simple way to
-establish the correctness of them statically. In constrast, the certificates
-provided by a solver can be checked using external checkers that are much
-simpler. Once the certificates are checked, the correctness of the formula no
-longer depends on the solver itself. In this way the difficult task of verifying
-a numerically-intensive program is circumvented. 
+In the framework of $\delta$-complete decision procedures, certificates for
+the correctness of numerically-driven SMT solvers are especially important.
+Numerical algorithms usually contain complex heuristics and floating-point
+arithmetic, and it is very hard to perform static verification on the programs
+directly. On the other hand, if the solutions witnessing ``$\delta$-sat''
+answers, and proofs of unsatisfiability for the ``unsat'' answers are extracted,
+we can check the correctness of them as stand-alone certificates using symbolic
+arbitrary-precision computations. The inner mechanisms of the numerical
+algorithms do not matter in the cerification process any more. Such an approach
+ would combine the best of two worlds: numerical procedures are
+fast but error-prone, and are used as oracles for the scalable exploration of
+the search space (either searching for a $\delta$-solution, or a proof of
+unsatisfiability); symbolic algorithms are precise but slow, and are used for
+validating the outcome certificates, which is a much less
+computationally-intensive task. The challenge lies in
+extracting symbolic proofs of unsatisfiability that do not carry over any
+possible numerical errors, and the validation of them as theorems in a sound
+proof system for, in our case, nonlinear first-order theories over the reals.
+(We will see that witnesses for the ``$\delta$-sat'' answers are easy to
+obtain.)
 
-In this paper we show how to extract proofs of correctness in the
-DPLL$\langle$ICP$\rangle$ framework, which has been proved to be a
-$\delta$-complete decision procedure~\cite{}. In this framework, the theory
-solver performs Interval Constraint Propagation (ICP), which is a
-branch-and-prune algorithm for solving systems of real constraints. The
-algorithm maintains an interval assignment to all the variables, and update the 
-assignments based on their consistency with the constraints. In a ``pruning''
+In this paper, we show how to extract and validate such proofs
+of correctness for SMT solvers that implement the DPLL$\langle$ICP$\rangle$
+framework. 
+
+{\bf (expand this paragraph with more details)}
+Interval Constraint Propagation (ICP) is a branch-and-prune algorithm for
+solving systems of real constraints. The algorithm maintains an interval
+assignment to all the variables, and update the  assignments based on their
+consistency with the constraints. In a ``pruning''
 step, ICP constracts the intervals by pruning away subintervals that do not
 contain any solution; in a ``branching'' step, ICP subdivides an interval and
-performs further pruning. (We describe the algorithm in the form of abstract
-DPLL in Section~\ref{}.)
+performs further pruning (more details in Section~\ref{icp}). The similarity
+between ICP and SAT solving techniques has been exhibited in the work~\cite{}.
+Consequently, we give a formalization of the ICP algorithm in the same fashion
+as Abstract DPLL~\cite{}. We then construct a first-order proof system,
+relativized to some set of real equalities, and show how to transform solving
+process of the abstract ICP into a proof tree in the system. Next, we show how
+such proof trees reduce the problems to axioms checking. We give the algorithms
+for validating the proof trees. 
 
+\newpage
 
+\section{A Brief Review of $\delta$-Complete Decision Procedures}\label{review}
 
-\section{$\delta$-Complete Decision Procedures}\label{review}
+We first briefly review the framework of $\delta$-complete decision procedures.
+It formulates a reasonable correctness requirement for solving nonlinear
+formulas over the reals. We have shown that $\delta$-complete procedures exist,
+with reasonable complexity bounds, for bounded SMT formulas over the reals with
+arbitrary computable real functions. 
 
-The key for bridging numerical procedures and SMT problems is to introduce
-syntactic perturbations on $\Sigma_1$-sentences in $\mathcal{L}_{\mathcal{F}}$. 
+To formalize computations over the reals, we first need to encode the real
+numbers, as infinite strings. We can then model
+computations of real functions with machines that can use infinite strings as
+input and output. That is, a real function is computable if there exists a
+machine that computes, using oracles that encode the arguments of the function,
+the values of the function to an arbitrary precision. More precisely, these
+notions are captured by the following definitions. 
+\begin{definition}[Encoding Real Numbers]
+A {\em name} of a real number $a\in \mathbb{R}$ is a function
+$\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{Q}$ satisfying that for all
+$i\in \mathbb{N}$, $|\gamma_a(i) - a|<2^{-i}.$ For $\vec a\in \mathbb{R}^n$,
+$\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$, and
+$\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$. 
+\end{definition}
+\begin{definition}[Computable Real Functions] We say
+$f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable, if there exists
+an oracle Turing machine $\mathcal{M}_f$ that performs the following
+computation: Let $\vec a\in \dom(f)$ be any argument of $f$ and $\gamma(\vec a)$
+any name of $\vec a$. On any input $i\in \mathbb{N}$,
+$\mathcal{M}_f^{\gamma(\vec a)}(i)$ uses $\gamma(\vec a)$ as an oracle, and
+computes a $2^{-i}$-approximation to $f(\vec a)$. 
+\end{definition}
+Most common continuous real functions are computable, such as addition,
+multiplication,  absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of
+Lipschitz-continuous ordinary differential equations~\cite{CAbook}. Compositions
+of computable functions are computable.
 
+We now let $\mathcal{F}$ denote an arbitrary collection of computable real
+functions. $\mathcal{L}_{\mathcal{F}}$ denotes the first-order signature over
+the structure $\mathbb{R}_{\mathcal{F}} = \langle
+\mathbb{R}, \leq, \mathcal{F}\rangle$. We can then consider SMT problems
+over $\mathbb{R}_{\mathcal{F}}$, namely, satisfiability of quantifier-free
+$\mathcal{L}_{\mathcal{F}}$-formulas over $\mathbb{R}_{\mathcal{F}}$. We
+consider bounded SMT problems, which is more conveniently expressed as
+$\Sigma_1$-sentences with bounded quantifiers as follows. We say a
+$\Sigma_1$-sentence is bounded, if it can be written in the form
+$$\varphi:\ \exists^{I_1}x_1\cdots \exists^{I_n}x_n. \psi(x_1,...,x_n)$$
+where: for all $i$, $I_i\subseteq \mathbb{R}$ is a bounded (open or closed)
+interval; each bounded quantifier $\exists^{I_i}x_i.\phi$ denotes $\exists
+x_i.(x_i\in I_i\wedge \phi)$. $\psi(x_1,...,x_n)$ is a quantifier-free
+$\mathcal{L}_{\mathcal{F}}$-formula, i.e., a Boolean combination of atomic
+formulas of the form $f(x_1,...,x_n)\circ 0$, where $f$ is a composition of
+functions in $\mathcal{F}$ and $\circ\in\{<,\leq, >, \geq, =, \neq \}$. 
+All the functions occurring in $\psi(\vec x)$ should be defined everywhere over
+the closure of $I_1\times\cdots \times I_n$. 
+
+An immediate observation is that any bounded $\Sigma_1$-sentence
+can be put into the following standard form, where inequalities are implicitly
+expressed by the bounds on quantifiers (introducing slack variables) and the
+atomic formulas only involve equalities. 
+\begin{proposition}[Standard Form]\label{pre1}
+Any bounded $\Sigma_1$-sentence $\varphi$ in $\mathcal{L}_{\mathcal{F}}$ is
+equivalent over $\mathbb{R}_{\mathcal{F}}$ to a sentence of the form 
+$\exists^{I_1}x_1\cdots \exists^{I_n}x_n(\bigwedge_{i=1}^m(\bigvee_{j=1}^{k_i}
+f_{ij}(\vec x)=0)).$
+\end{proposition}
+
+We can now define the notion of ``$\delta$-perturbations'' on these
+formulas. 
 \begin{definition}[$\delta$-Weakening and Perturbations]\label{weak-def}
 Let $\delta\in \mathbb{Q}^+\cup\{0\}$ be a constant and $\varphi$ be a
 $\Sigma_1$-sentence in standard form:
 %\vspace{-.3cm}
-\[\varphi:= \exists^{\vec I}\vec x.\bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i}
-f_{ij}(\vec x)= 0).
+\[\varphi:= \exists^{\vec I}\vec x\;(\bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i}
+f_{ij}(\vec x)= 0)).
 %\vspace{-.3cm}
 \]
 The $\delta$-weakening of $\varphi$ defined as:
 %\vspace{-.3cm}
-\[\varphi^{\delta}:= \exists^{\vec I} \vec x.\bigwedge_{i=1}^m(\bigvee_{j=1}^k
-|f_{ij}(\vec x)|\leq \delta).\]
+\[\varphi^{\delta}:= \exists^{\vec I} \vec x\;(\bigwedge_{i=1}^m(\bigvee_{j=1}^k
+|f_{ij}(\vec x)|\leq \delta)).\]
 Also, a $\delta$-perturbation is a constant vector $\vec c =
-(c_{11},...,c_{mk_m})$, $c_{ij}\in\mathbb{Q}$, satisfying $||\vec
+(c_{11},...,c_{mk_m})$, where $c_{ij}\in\mathbb{R}$ and $||\vec
 c||\leq\delta$, such that the $\vec c$-perturbed form of $\varphi$ is given by:
 %\vspace{-.2cm}
-\[\varphi^{\vec c}:= \exists^{\vec I} \vec x.\bigwedge_{i=1}^m(\bigvee_{j=1}^k
-f_{ij}(\vec x) = c_{ij}).\]
+\[\varphi^{\vec c}:= \exists^{\vec I} \vec x\;(\bigwedge_{i=1}^m(\bigvee_{j=1}^k
+f_{ij}(\vec x) = c_{ij})).\]
 \end{definition}
 
 \begin{definition}[Bounded $\delta$-SMT in $\mathcal{L}_{\mathcal{F}}$] Let
@@ -135,41 +225,47 @@ following two decisions on $\varphi$:
 \end{itemize}
 When the two cases overlap, either decision can be returned. 
 \end{definition}
-The main theoretical result is that the bounded $\delta$-SMT problem is
-decidable for $\delta\in \mathbb{Q}^+$. 
-\begin{theorem}[Decidability] Let $\mathcal{F}$ be a finite collection of Type 2
-computable functions and $\delta\in \mathbb{Q}^+$. The bounded $\delta$-SMT
+
+The main theoretical result in this framework is that for any positive
+$\delta$, the bounded $\delta$-SMT problems in $\mathcal{L}_{\mathcal{F}}$ are
+decidable (namely, $\delta$-decision
+procedures exist). 
+\begin{theorem}[Decidability] Let $\mathcal{F}$ be any collection
+of computable real functions and $\delta\in \mathbb{Q}^+$. The bounded
+$\delta$-SMT
 problem in $\mathcal{L}_{\mathcal{F}}$ is decidable.  
 \end{theorem}
 
-
+The $\delta$-SMT problems also have reasonable complexity bounds for various
+signatures that would otherwise define undecidable theories.
 \begin{theorem}[Complexity]
 Let $\mathcal{F}$ be a finite set of functions in Type 2 complexity class
 $\mathsf{C}$, $\mathsf{P}\subseteq\mathsf{C}\subseteq\mathsf{PSPACE}$. The
 $\delta$-SMT problem for uniformly bounded $\Sigma_1$-classes in
 $\mathcal{L}_{\mathcal{F}}$ is in $\mathsf{NP^C}$. 
-\end{theorem}
-\begin{corollary}
-Let $\mathcal{F}$ be a finite set of $\mathsf{P}$-time computable real
-functions, such as $\{+, \times, \exp, \sin\}$. The uniformly-bounded
-$\delta$-SMT problem for $\mathcal{L}_{\mathcal{F}}$ is $\mathsf{NP}$-complete.
-\end{corollary}
-\begin{corollary}
-Let $\mathcal{F}$ be a finite set of Lipschitz-continuous ODEs over compact
-domains. Then the uniformly-bounded $\delta$-SMT problem in
-$\mathcal{L}_{\mathcal{F}}$ is in $\mathsf{PSPACE}$, and there exists
-$\mathcal{L}_{\mathcal{F}}$ such that it is $\mathsf{PSPACE}$-complete.
-\end{corollary}
 
-\newpage
-\section{A Proof System for Interval Constraint Progagation}
+For instance, when $\mathcal{F}$ only contains polynomial-time
+computable real functions such as $\{+, \times, \exp, \sin\}$,
+the $\delta$-SMT problem is $\mathsf{NP}$-complete. 
+\end{theorem}
+
+These results lead to a
+new perspective on decision problems over the reals in general.
+This framework provides a theoretical basis for the development of
+numerically-driven decision procedures such as~\cite{}.
+
+\section{Proof Systems for Interval Constraint Progagation}\label{icp}
 
 \subsection{Interval Constraint Propagation}
 
-The ICP algorithm is a branch and prune algorithm. We give a brief description
-and focusing on providing an abstract representation of the algorithm.  
-
-\begin{algorithm}[h!]\label{algo1}
+The method of Interval Constraint Propagation (ICP)~\cite{handbookICP} finds
+solutions of real constraints using a ``branch-and-prune" method, combining
+interval arithmetic and constraint propagation. The idea is to use interval
+extensions of functions to ``prune'' out sets of points that are not in the
+solution set, and ``branch'' on intervals when such pruning can not be done,
+until a small enough box that may contain a solution is found. A high-level
+description of ICP is given in Algorithm~\ref{algo1}. 
+\begin{algorithm}[h!]
 \SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
 \SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
 \SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
@@ -191,36 +287,79 @@ $B\leftarrow S.\mathrm{pop}()$ \;
 \mathrm{Branch}(B, i)$\;$S.\mathrm{push}(\{B_1,B_2\})$\;}{return {\sf sat}\;}}
 }
 return {\sf unsat}\;
-\caption{High-Level ICP$_{\varepsilon}$ (decision version of Branch-and-Prune)}
+\caption{High-Level ICP$_{\varepsilon}$ (decision version of
+Branch-and-Prune)\label{algo1}}
 \end{algorithm}
 
-\begin{definition}[ICP Transitions] We define the following transition rules. 
+In Algorithm~\ref{algo1}, Branch$(B,i)$ is an operator that returns two smaller
+boxes $B' = I_1\times\cdots\times I_i'\times\cdots\times I_n$ and $B''=I_1\times
+\cdots\times I_i''\times \cdots\times I_n$, where $I_i\subseteq I_i'\cup
+I_i''$. The $\mathrm{Prune}(B, f)$ operation is a key component of the power of
+ICP. In principle, any operation that contracts the interval assignments on the
+variables can be used as pruning. In practice, various rules for pruning
+operators need to be used to ensure correctness and efficiency~\cite{}, and we
+do not go into more details now.  
+
+Our focus now is to formalize ICP algorithms so that we can extract symbolic proofs from
+its computation process. The branch-and-prune structure of ICP is very similar
+to DPLL SAT solving, and we follow the representation framework of abstract
+DPLL~\cite{}. We represent ICP as a transition system, with states consisting of
+interval assignments and constraints.  
+\begin{definition}[Intervals]
+An interval $I$ is any connected subset of $\mathbb{R}$. We write $\mathbb{IR}$
+to denote all the set of all intervals in $\mathbb{R}$. The set of all finite
+unions of intervals is
+$$\mathbb{IR}_{\cup} = \{\cup_{i=1}^k I_i: I_i\in\mathbb{IR}\}.$$
+\end{definition}
+\begin{definition}[Interval Assignment Sequence]
+Let $x_1,...,x_n$ be real variables. An interval assignment sequence over
+$\vec x$ is a sequence of the form $(s_1,...,s_m)$, where 
+$$s_i\in \{x_i\in I_j: 1\leq i\leq n, I_j\in
+\mathbb{IR}_{\cup}\}\cup\{(x_i\in I_j)^d: 1\leq i\leq n, I_j\in
+\mathbb{IR}_{\cup}\}.
+$$
+We write $(S_1, S_2)$ to denote the concatenation of two sequences $S_1$ and
+$S_2$. 
+\end{definition}
+\begin{definition}[Box Domain]
+Let $S$ be an interval assignment sequence over variables $x_1,...,x_n$. The box
+domain associated with $S$ is defined by 
+$$B^S = I_1\times\cdots \times I_n, \mbox{ where }I_i = \bigcap\{ I: (x_i\in
+I)\mbox{ or } (x_i\in I)^d \mbox{ occurs in } S\}.$$ 
+Also, we write $B^S_i$ to denote $I_i$. 
+\end{definition}
+
+\begin{definition}[ICP Transitions] We define the following transition rules.
+We write $c(\vec x)$ to denote an arbitrary constraint over $\mathbb{R}^n$, and
+$S$ an interval assigment sequence over $\vec x$. 
 
 \paragraph{Pruning:}
 \begin{eqnarray*}
-E, x_i\in I_i\parallel c &\Longrightarrow& E, x_i\in I_i'\parallel c,
+S\parallel c &\Longrightarrow& S, x_i\in I_i'\parallel c,
 \end{eqnarray*}
-under the condition that $\forall a_i\in I_i\setminus I_i'$, $\forall a_1,...,a_n\in E$,
-$c(\vec a)$ is false.
-
+under the condition that $\forall \vec a\in B^{(S,x_i\in
+I_i\setminus I_i')}$,
+$c(\vec a)$ is false, where $B^S_i = I_i$. 
 \paragraph{Branching:}
 \begin{eqnarray*}
-E\parallel c &\Longrightarrow& E, (x_i\in I_i)^d \parallel c,
+S\parallel c &\Longrightarrow& S, (x_i\in I_i)^d \parallel c,
 \end{eqnarray*}
-under the condition that $I_i\subseteq E(x_i)$.
+under the condition that $I_i\subseteq B^S_i$.
 
 \paragraph{Backtracking:}
 \begin{eqnarray*}
-E, (x_i\in I_i)^d, N\parallel c &\Longrightarrow& E, x_i\in
+S, (x_i\in I_i)^d, S'\parallel c &\Longrightarrow& S, x_i\in
 I_i\setminus I_i'\parallel c, 
 \end{eqnarray*}
-under the condition that $E, (x_i\in I_i)^d, N \models \neg c$.
+under the condition that $\forall a\in B^{(S, (x_i\in I_i)^d, S')}$, $c(\vec a)$
+is false.
 
 \paragraph{Fail:}
 \begin{eqnarray*}
-E\parallel c &\Longrightarrow& \bot 
+S\parallel c &\Longrightarrow& \emptyset \parallel c 
 \end{eqnarray*}
-under the condition that $E \models \neg c$ and there is no decision in $E$. 
+under the condition that $\forall \vec a\in B^S$, $c(\vec a)$ is false and there
+is no decision in $S$. 
 \end{definition}
 
 
@@ -234,22 +373,23 @@ The difference between the transitions here from abstract DPLL is:
 \end{remark}
 \begin{definition}[Abstract ICP]
 An ICP framework is a transition system 
-$$\langle \mathbb{IR}^n, \mathcal{C}, \Longrightarrow, \varepsilon\rangle$$
-where $\mathcal{C}$ is any set of constraints over $\mathbb{R}^n$,
-$\Longrightarrow: \mathbb{IR}^n\times
-\mathcal{C}\rightarrow \mathbb{IR}^n\times \mathcal{C}$ is the transition
-relation of all possible ICP steps, and $\varepsilon\in \mathbb{Q}^+$ is an
+$$\langle \mathbb{IR}_{\cup}^n, \mathcal{C}, \Longrightarrow,
+\varepsilon\rangle$$
+where $\mathcal{C}$ is any set of constraints over $\mathbb{R}^n$. 
+$\Longrightarrow: \mathbb{IR}_{\cup}^n\times
+\mathcal{C}\rightarrow \mathbb{IR}_{\cup}^n\times \mathcal{C}$ is the transition
+relations defined above, and $\varepsilon\in \mathbb{Q}^+$ is an
 error bound. 
 
 A {\em run} of ICP is any sequence
-$$\vec I \parallel \vec c \Longrightarrow \cdots \Longrightarrow \vec
-I'\parallel \vec c'$$
-where $t$ is either $I'$ is $\emptyset$, or $\vec I'\neq \emptyset$ and $||\vec
-I'||<\varepsilon$.
+$$S_1\parallel c, ... , S_k\parallel c$$
+where $S_k$ is either $\emptyset$, or $S_k\neq \emptyset$ and
+$||B^{S_k}||<\varepsilon$. 
 \end{definition}
 \begin{remark}
-We have defined ICP in a general way, without mentioning the well-definedness of
-the pruning operators. Thus, many invalid ICP runs can be generated. This is
+We have defined ICP in a general way, without enforcing conditions
+on the pruning operators, such as well-definedness as in~\cite{}. Thus, many
+invalid ICP runs can be generated. This is
 because here we will treat ICP as a proof searching algorithm, and rely on the
 proof checkers to determine the correctness of an ICP run. In practice, of
 course, only
@@ -260,7 +400,8 @@ course, only
 
 
 \paragraph{Witness of $\delta$-Satisfiability}
-For satisfiable formulas, a witness for $\delta$-satisfiability can be obtained. 
+For satisfiable formulas, a witness for $\delta$-satisfiability can be
+easily obtained. 
 
 
 \subsection{First-Order Proofs of Unsatisfiability}
@@ -508,6 +649,11 @@ return {\sf rejected}\;
 \subsection{SMT-LIB Benchmarks}
 
 \section{Discussion}
+
+\paragraph{Related Work} 
+Franzle's paper. Old validation papers. proof of unsatisfiability of SAT and
+SMT solvers. Theorem proving papers.
+
 
 \bibliographystyle{abbrv}
 \bibliography{tau}

@@ -36,18 +36,18 @@
 \maketitle
 
 \begin{abstract}
-We propose the notion of ``$\delta$-complete reachability analysis'' for a wide
-range of hybrid systems. Essentially, a method is called $\delta$-complete if it
-provides answers with possible but only one-sided  and ``$\delta$-bounded''
-errors. Such methods can be applied to any hybrid system that is
-``$\lrf$-representable'' (definable by first-order formulas over the reals with
-an arbitrary set of computable real functions $\mathcal{F}$), following the
-availability of $\delta$-complete decision procedures. We show how to use
-bounded model checking and invariant validation techniques to perform
-$\delta$-complete analysis, and study the theoretical properties of these
-techniques in this context. We then show promising experimental results of
-$\delta$-complete techniques on hybrid systems beyond the reach of existing
-tools. 
+We propose the framework of ``$\delta$-complete reachability analysis'' for a
+wide range of hybrid systems. Essentially, a reachability analysis technique is
+called $\delta$-complete if it provides answers with possible but only
+one-sided and ``$\delta$-bounded'' errors. Such techniques can exploit the full
+power of various numerical algorithms in a formal way, and are applicable to any
+hybrid system that can be described using first-order formulas over the reals
+with any computable real functions (polynomials, transcendental functions,
+nonlinear ODEs, etc.). Applying our recent results on $\delta$-complete decision
+procedures, we show how bounded model checking and invariant validation
+techniques can perform $\delta$-complete analysis, and study the theoretical
+properties of these techniques in this context. We show promising experimental
+results of $\delta$-complete methods on nonlinear hybrid systems. 
 \end{abstract}
 
 \section{Introduction}
@@ -125,8 +125,8 @@ Section~\ref{} we do the same for invariant validation techniques. As last we
 show experimental results in Section~\ref{} and conclude in Section~\ref{}.
 
  
-
-\section{Computable Functions over the Reals and $\delta$-Complete Decision Procedures}
+\section{Computable Functions over the Reals and $\delta$-Complete Decision
+Procedures}
 
 \subsection{Computable Real Functions}
 

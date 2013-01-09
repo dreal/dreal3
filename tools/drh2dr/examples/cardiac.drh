@@ -37,7 +37,7 @@
 	macr:
 		true;
 
-    invt:
+    	invt:
 		(<= thetav u);
 		(< u uu);
 	flow:
