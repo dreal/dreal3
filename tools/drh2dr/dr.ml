@@ -56,7 +56,8 @@ let make_or (fs : formula list) =
     fs
   in
   match reduced_fs_opt with
-    Some fs' -> Or fs'
+  | Some [] -> False
+  | Some fs' -> Or fs'
   | None -> True
 
 let make_and (fs : formula list) =
@@ -70,7 +71,8 @@ let make_and (fs : formula list) =
     fs
   in
   match reduced_fs_opt with
-    Some fs' -> And fs'
+  | Some [] -> True
+  | Some fs' -> And fs'
   | None -> False
 
 let rec subst_exp (f: string -> string) : (exp -> exp) =

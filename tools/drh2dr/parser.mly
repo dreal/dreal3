@@ -75,8 +75,8 @@ formula:
     TRUE                { Dr.True }
   | FALSE               { Dr.False }
   | LP formula RP       { $2 }
-  | AND formula formula { Dr.And [$2; $3] }
-  | OR  formula formula { Dr.Or  [$2; $3] }
+  | AND formula formula { Dr.make_and [$2; $3] }
+  | OR  formula formula { Dr.make_or  [$2; $3] }
   | EQ  exp exp         { Dr.Eq  ($2, $3) }
   | GT  exp exp         { Dr.Gt  ($2, $3) }
   | LT  exp exp         { Dr.Lt  ($2, $3) }
