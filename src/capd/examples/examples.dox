@@ -1,0 +1,18 @@
+/**
+ * \page capd_examples Examples
+ *
+ * All examples can be found in the <b>capd/examples</b> directory. Here we list only documented examples:
+ *
+ * CAPD basics
+ * - \subpage examples_multiprec
+ * - \subpage examples_alglibdemo
+ *
+ * Dynamical Systems
+ * - \subpage examples_integrate
+ * - \subpage examples_encloseTrajectory
+ * - \subpage examples_cndemo
+ * - \subpage examples_RosslerPeriodicOrbit
+ * - \subpage examples_diffInclExample
+ *
+ *
+ */

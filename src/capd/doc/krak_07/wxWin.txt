@@ -1,0 +1,150 @@
+
+The wxWindows Library: Quick installation guide by Pawel Pilarczyk
+(first version: June 23, 2004; most recent update: November 24, 2004)
+
+This note is supposed to save some of your time if you want to compile
+and use wxWindows (in particular, with the Krak package).
+
+WxWindows is a portable library for programming GUI for programs that
+can be compiled in most Unix/Linux systems, as well as in MS Windows.
+The library includes support for menus, dialogs, drawing, bitmaps,
+as well as keyboard/mouse event handling. For more information see
+http://www.wxwindows.org. In general, it must be compiled before it can be
+used, but some compiled versions are available (Linux RPMs, for instance).
+
+When downloading an appropriate version of wxWindows, remember to download
+the documentation, as it is not included in the sources.
+
+
+1. Linux RPMs [tested with Linux Mandrake 10.0 Official on a PC]
+
+If you use Linux on a PC, you may be able to install the wxWindows library
+from compiled RPMs, which saves a lot of time.
+
+Download the following files from the wxwindows.org website:
+
+	wx-base-2.5.2-1.i386.rpm
+	wx-base-devel-2.5.2-1.i386.rpm
+	wx-gtk2-2.5.2-1.i386.rpm
+	wx-gtk2-gl-2.5.2-1.i386.rpm
+	wx-gtk2-devel-2.5.2-1.i386.rpm
+
+Install these RPMs in this order. It may be necessary to install some
+packages on which these ones depend, GTK2, for example.
+
+After the installation has been completed, make sure that the "wx-config"
+symbolic link points to the GTK2 version of wx-config, not the BASE one
+(or modify the "settings/makedefs.wx" file in the CAPD package accordingly).
+
+
+2. Unix/Linux [tested with Linux Mandrake 10.0 Official on a PC
+and with Linux Gentoo 2004.2 on a Sun Ultra 1]
+
+If your system is Unix or Linux, you should first install GTK2,
+including the "gtk2-devel" package.
+
+Download "wxGTK-2.5.2.tar.gz" and save it in your home directory.
+Then do the following:
+
+	tar xfz wxGTK-2.5.2.tar.gz
+	cd wxGTK-2.5.2
+	./configure --with-gtk --enable-gtk2 --with-opengl --previx=/usr
+	make
+	su
+	make install
+	ldconfig
+	exit
+
+Note that after "su" you must type root's password.
+
+Now you should be able to compile your programs with a command like below
+(see also "makedefs.wx" in the "capd/setting" subdirectory):
+
+	g++ `wx-config --cxxflags` prog.cpp `wx-config --libs` -o prog
+
+
+3. Windows [tested with Windows 2000]
+
+If your system is MS-Windows, then you can use a variety of compilers
+(including MSVC++, Borland, and MinGW). The following instructions are
+for MinGW:
+
+Go to http://www.mingw.org and download "MinGW-3.1.0-1.exe"; install it
+into "c:/bin/MinGW". (Note: if you are using the MinGW C++ compiler bundled
+with Dev-Cpp, you will have to add appropriate paths -I and -L yourself.)
+Download also "MSYS-1.0.10.exe" and "msysDTK-1.0.1.exe", and install them
+into "c:/bin/mSYS".
+
+Go to http://www.wxwindows.org and download "wxMSW-2.5.2.zip", unzip it to
+the directory "c:/bin" and rename the directory "wxWidgets-2.5.2" to "wxWin".
+Download "extra.zip" and unzip it to "c:/bin/MinGW", and then set the
+following environment variables:
+
+	set BISON_SIMPLE=c:\bin\MinGW\share\bison.simple
+	set BISON_HAIRY= c:\bin\MinGW\share\bison.hairy
+
+You can also set "WXWIN=c:/bin/wxWin", but this is probably not necessary.
+In Windows 9x you need to restart your computer for the SETs to take effect.
+
+Note: If you are using the MinGW C++ version 3.4.1 or 3.4.2 instead of the
+one suggested above, you must correct two errors in the source code of the
+wxWindows library before proceeding. [This is not necessary
+in wxWidgets 2.5.3.] Suggested corrections are:
+- in c:/bin/wxWin/include/wx/msw/private.h, line 328:
+  add "this ->" before "cbSize"
+- at the beginning of c:/bin/wxWin/include/wx/rawbmp.h (e.g., after line 15)
+  add the following line: #include "image.h"
+
+Run mSYS (click the blue "M" icon on your desktop), and then do the following:
+
+	cd /c/bin/wxwin
+	./configure --with-msw --prefix=c:/bin/mingw --disable-shared --with-opengl
+	make
+	make install
+
+Now you should be able to compile your programs with the following command
+within the mSYS environment:
+
+	g++ `wx-config --cxxflags` prog.cpp `wx-config --libs` -o prog
+
+Outside the mSYS environment you may need to use the following command
+(should be one line):
+
+g++ -Ic:/bin/mingw/lib/wx/include/msw-2.5 -D__WXMSW__ -mthreads prog.cpp
+-Lc:/bin/mingw/lib -mthreads -Wl,--subsystem,windows -mwindows
+c:/bin/mingw/lib/libwx_msw_html-2.5.a c:/bin/mingw/lib/libwx_msw_adv-2.5.a
+c:/bin/mingw/lib/libwx_msw_core-2.5.a c:/bin/mingw/lib/libwx_base_xml-2.5.a
+c:/bin/mingw/lib/libwx_base_net-2.5.a c:/bin/mingw/lib/libwx_base-2.5.a
+-lrpcrt4 -loleaut32 -lole32 -luuid -lwinspool -lwinmm -lshell32 -lcomctl32
+-lcomdlg32 -lctl3d32 -ladvapi32 -lwsock32 -lgdi32 -lwxregex -lwxexpat
+-lwxtiff -lwxjpeg -lwxpng -lwxzlib -o prog.exe
+
+Note: If you prefer to compile the wxWindows library as DLLs, you must omit
+the "--disable-shared" switch, add the c:/bin/mingw/lib directory to your PATH
+(or move the DLLs to ../bin) and then the compilation command would look like
+(note that `wx-config --libs` may provide insufficient options):
+
+g++ -Ic:/bin/mingw/lib/wx/include/msw-2.5 -D__WXMSW__ -mthreads
+-DWXUSINGDLL=1 -DWX_PRECOMP -DNO_GCC_PRAGMA prog.cpp
+-Lc:/bin/mingw/lib -mthreads -Wl,--subsystem,windows -mwindows
+-lwx_msw_html-2.5 -lwx_msw_adv-2.5 -lwx_msw_core-2.5 -lwx_base_xml-2.5
+-lwx_base_net-2.5 -lwx_msw_gl-2.5 -lwx_base-2.5 -lrpcrt4 -loleaut32  -lole32
+-luuid -lwinspool -lwinmm -lshell32 -lcomctl32 -lcomdlg32 -lctl3d32 -ladvapi32
+-lwsock32 -lgdi32 -lopengl32 -lglu32
+
+
+-----------------------------------------------------
+
+
+Various notes and remarks:
+
+* The "libwx..." RPM packages for Linux Mandrake 10.0 seem to have some
+  errors and the fill patterns don't work as desired. [August 28, 2004]
+  Download the RPM packages from the wxwindows.org website instead.
+
+* When starting a Krak5 wxWin program from the MSYS environment, the Save
+  bitmap dialog box does not appear (who knows why?). [August 28, 2004]
+
+* Successfully tested in Linux Mandrake 10 with wxWidgets 2.5.3
+[November 24, 2004].
+

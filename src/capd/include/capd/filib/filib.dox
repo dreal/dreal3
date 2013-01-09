@@ -1,0 +1,11 @@
+/** @defgroup filib
+ *
+ * Module \ref filib_module "filib" defines interval arithmethics based on the filib library.
+ *
+ */
+
+/** @page filib_module Fast Interval Library (filib)
+ *
+ * Module filib provides port of the Fast Interval Library (filib) to the CAPD package.
+ *
+*/

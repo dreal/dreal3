@@ -1,0 +1,11 @@
+/** \page examples_diffInclExample  Integration of differential inclusions
+ *
+ * The sources of the following examples can be found in the <tt>examples/diffIncldemo</tt> directory of the CAPD package.
+ *
+ * The following example show how to integrate differential inclusions with two different methods.
+ *
+ * \dontinclude diffInclExample.cpp
+ * \skip include
+ * \until END
+ *
+ */

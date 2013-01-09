@@ -1,0 +1,11 @@
+NAME            KRAK
+
+DESCRIPTION     'KRAK graphic package'
+
+CODE            PRELOAD MOVEABLE DISCARDABLE
+DATA            PRELOAD MOVEABLE MULTIPLE
+
+HEAPSIZE        5120
+
+STACKSIZE       18000
+

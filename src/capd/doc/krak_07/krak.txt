@@ -1,0 +1,416 @@
+ ############################### KRAK - primitive version ######################
+ Author: Marian Mrozek(c), Atlanta-Krakow, 1992-
+
+
+ ############# opening and closing of the graphics package ####################
+
+void openGW(int hrs,int vrs,int bgcol,int fgcol)
+
+  It opens a graphic window with hrs horizontal and vrs vertical pixels.
+  bgcol and fgcol specify the backgrounnd and foreground color. It associates
+  with this window a frame, called root frame. The root frame may be referenced
+  via the variable rootFrm
+
+void dcsrGW(double swx,double swy,double nex,double ney)
+
+   It assigns world coordinates to the graphics window. Coordinates (swx,swy)
+are assigned to the left bottom corner of the graphic window and coordinates
+(nex,ney) are assigned to the right top corner.
+
+void closeGW()
+
+  It closes the graphics window.
+
+
+    ############## Basic drawing routines ###################################
+
+void moveTo(double x,double y)
+void MoveTo(int i,int j)
+
+   It moves the current position to the point (x,y) or pixel (i,j)
+  
+void lineTo(double x,double y)
+void LineTo(int i,int j)
+
+   It draws a line from the current position to the point (x,y) or pixel (i,j)  
+
+void plotDot(double x,double y)
+void PlotDot(int i,int j)
+
+   It marks the point (x,y) or the pixel (i,j)
+
+void segment(double x0,double y0,double x1,double y1)
+void Segment(int i0,int j0,int i1,int j1)
+
+  It draws a segment joining the pixels (i0,j0), (i1,j1) or the points 
+  (x0,y0), (x1,y1).
+
+void rctngl(double swx,double swy,double nex,double ney)
+void Rctngl(int lti,int ltj,int rbi,int rbj)
+
+  It draws a rectangle. 
+
+############### opening and handling of subframes #############################
+
+   World coordinates can also be assigned to parts of the screen by
+means of frames. A frame is a rectangular region of the screen with its own
+world coordinates. The screen is covered by the root frame (which can be 
+reffered to via rootFrm variable). All functions using world coordinate system
+which do not specify the frame to which they refer actually refer to the so 
+called  current frame. Originally the current frame is the root frame but the
+current frame can be changed by means of the selFrm function.
+
+FRAME *openFrm(int lti,int ltj,int rbi,int rbj)
+
+   It generates a new frame as a subframe of the root frame
+   with left top corner (lti,ltj),right bottom corner at (rbi,rbj),
+   where the coordinates are given in percentage
+   of the horizontal and vertical size of the root frame.
+
+
+FRAME *opdsFrm(int lti,int ltj,int rbi,int rbj,
+               double swx,double swy,double nex,double ney)
+
+  As openFrm but additionally it assigns world coordinates to the frame 
+
+FRAME *openRelFrm(FRAME *parentFrm,int lti,int ltj,int rbi,int rbj)
+
+   It generates a new frame as a subframe of parentFrm
+   with left top corner (lti,ltj),right bottom corner at (rbi,rbj),
+   where the coordinates are given in percentage
+   of the horizontal and vertical size of the parent frame
+
+
+FRAME *opdsRelFrm(FRAME *parentFrm,
+                  int lti,int ltj,int rbi,int rbj,
+                  double swx,double swy,double nex,double ney)
+
+  As openRelFrm but additionally it assigns world coordinates to the frame 
+
+void dscrFrm(FRAME *frm,double swx,double swy,double nex,double ney)
+
+ It assigns the specified world coordinates to the specified frame.
+
+void clseFrm(FRAME *frm)
+frm;
+
+  It closes the specified frame.
+
+void drawFrm(FRAME *frmPtr)
+
+  It draws (the boundary of) the specified frame.
+
+void clrFrm(FRAME *frm)
+
+  It clears the specified frame.
+
+void selFrm(FRAME *frmPtr)
+
+ It makes the specified frame the current frame 
+
+
+   #################### printf facilities in graphic mode ################## 
+
+   Each frame is devided into (invisible) cells. Each cell can be occupied
+by one character. Text is written from left to right and from top to bottom
+into the consequtive cells starting from the current printing position.
+The original printing position is at the 0th row and 0th column (top left
+corner of the frame). The '\n' character causes change of line but tab is not 
+implemented.
+   
+gprintf(FRAME *frm,char *fmt,...) 
+
+   It acts like printf but in graphic mode with text starting from the current 
+   position. It moves the current position to the end of the printed text. 
+
+gprintf_at(FRAME *frm,int row,int col,char *fmt,...)
+
+   It acts like gprintf but first it moves the current position
+   to the specified row and column
+ 
+gcprintf(char *fmt,...) 
+
+   Like gprintf but with respect to the current frame.
+ 
+gcprintf_at(int row,int col,char *fmt,...) 
+
+   Like gprintf_at but with respect to the current frame.
+
+ ########################### Color related functions #########################
+
+   All drawing is performed using the foreground color. The SetFgCol function
+can be used to change the foreground color.
+
+void SetFgCol(int col)
+
+   SetFgCol changes the foreground color to col 
+
+void SetBgCol(int col)
+
+
+   SetBgCol changes the background color to col 
+
+The following constants defining colors can be used
+
+WHITE       0
+BLACK       1
+RED         2
+GREEN       3
+BLUE        4
+YELLOW      5
+MAGENTA     6
+CYAN        7
+ORANGE      8
+VIOLET      9
+PINE       10
+BROWN      11
+OLIVE      12
+DARKBLUE   13
+ORANGERED  14
+BLUEGREEN  15
+
+  ############# coordinate conversion functions ##############################
+
+int sc_i(double x)
+
+   It converts the x world coordinate of the current frame
+   to the pixel i coordinate relative to the root frame 
+
+int sc_j(double y)
+
+
+   It converts the y world coordinate of the current frame
+   to the pixel j coordinate relative to the root frame 
+
+double x_sc(int i)
+
+   It acts like sc_x but in the reverse order 
+
+double y_sc(int j)
+
+   It acts like sc_y but in the reverse order
+
+  ########################## Mouse and keyboard related functions ######################
+
+int Button()
+
+   Function Button returns:
+   1 if any mouse button is pressed,
+   0 if no button is pressed 
+
+void GetMouse(struct {int j,i} *pt)
+
+   Function GetMouse returns the current position of the pointer in pixel 
+   coordinates or (-1,-1) when the pointer is not in the graphic window 
+
+void waitBt()
+
+   it suspends the execution of the program until a mouse or keybord button is pressed 
+
+int MouseInFrm(FRAME *f)
+
+   It returns 1 if the currrent mouse location is in the specified frame
+   otherwise it returns 0 
+
+int GetKey()
+
+   It returns the constant NO_KEY if no key is pressed, otherwise it returns 
+   the (usually ASCII) code if a key is pressed.
+
+   The following list of predefined for respective computers constants may be used:
+       BSKey,TabKey,CRKey,PgUpKey,PgDnKey,EndKey,HomeKey,
+       LeftKey,UpKey,RightKey,DownKey,
+       InsKey,DelKey,EscKey=27,
+       F1Key,F2Key,F3Key,F4Key,F5Key,F6Key,F7Key,F8Key,F9Key,
+       DragKey - returned if mouse is dragged - may not work
+       ButtonKey - if a mouse button is pressed
+       NoKey
+
+int inchar(void)
+ 
+   Waits until a key or mouse button is pressed and returns its code. 
+
+ void getline(FRAME *frm, int row, int col, char *txt)
+   
+   Prompts the user for entering a line of text starting form the given
+   window position and reads the consecutive characters into the table 
+   referenced by *txt. Allows the use of the Backspace key but (unfortunately)
+   not the arrow keys. It returns when the user hits the ENTER key.
+
+
+  #####################  RCT and PXL data types ############################
+
+RCT and PXL data types are used to represent respectively a rectangle and a pixel.
+They are defined as follows:
+
+struct Rct{
+  int ltj,lti,rbj,rbi;
+};
+struct Pxl{
+  int j,i;
+};
+
+typedef struct Rct RCT;
+typedef struct Pxl PXL;
+
+
+
+  ##################### Location testing functions ###########################
+ 
+int in_cFrm(double x,double y)
+
+   It returns 1 if the specified point (in world coordinates with respect 
+   to the current frame) is in the specified frame;
+   otherwise it returns 0 
+
+int PxlInFrm(FRAME *frm,PXL *p)
+
+   It returns 1 if the specified pixel is in the specified frame;
+   otherwise it returns 0
+
+int inscr(int i,int j)
+
+   It returns 1 if the specified pixel is in the specified frame;
+   otherwise it returns 0 
+
+ ##################### Error handling routines #############################
+
+errorExit(char *fmt,...) 
+   
+   It prints the specified arguments following the specified format:
+   - on standart output in a non-graphic run
+   -in the middle of the graphics screen in a graphic run
+   and it exits 
+
+warning(char *fmt,...) 
+
+   Like errorExit but it exits only after 100 calls 
+
+ ################# Basic shape drawing routines ########################## 
+
+void Crcl(int i,int j,int size)                
+void crcl(double x,double y,int size)
+
+   It draws a circle of a given size centered at the pixel (i,j) or
+   at the point (x,y). Its size is always given in pixels.  
+
+void Square(int i,int j,int size)
+void square(double x,double y,int size)
+
+   It draws a square of a given size centered at the pixel (i,j) or
+   at the point (x,y). Its size is always given in pixels.  
+
+void Cross(int i,int j,int size)
+void cross(double x,double y,int size)
+
+   It draws a cross of a given size centered at the pixel (i,j) or
+   at the point (x,y). Its size is always given in pixels.  
+
+void Diamond(int i,int j,int size)             
+void diamond(double x,double y,int size)
+
+   It draws a diamond of a given size centered at the pixel (i,j) or
+   at the point (x,y). Its size is always given in pixels.  
+
+
+void Xcross(int i,int j,int size)              
+void xcross(double x,double y,int size)
+
+   It draws an X shaped cross of a given size centered at the pixel (i,j) or
+   at the point (x,y). Its size is always given in pixels.  
+
+
+  ########### Defining and filling rectangles ###############################
+ 
+void SetRct(RCT *r,int lti,int ltj,int rbi,int rbj)    
+void setRct(RCT *r,double swx,double swy,double nex,double ney)
+
+   It assigns given pixel or world coordinates to the rectangle *r.
+   In case of world coordinates they are translated to pixel coordinates. 
+
+
+void FillRct(RCT *r,int pattern,int color)
+
+   Function FillRct fills the rectangle r with the given pattern in the given 
+   color. It does not change the current foreground color.
+
+   The following constants defining patterns can be used
+
+EMPTY_P     0   
+SOLID_P     1   
+HLINE_P     2   horizontal lines
+VLINE_P     3   vertical lines
+DHLINE_P    4   double horizontal lines
+DVLINE_P    5   double vertical lines
+DOT_P       6   dotted pattern
+DDOT_P      7   double dotted pattern
+DUST_P      8
+DDUST_P     9
+SLASH_P    10
+ISLASH_P   11
+WHDLINE_P  12
+HASH_P     13
+WHASH_P    14
+WVLINE_P   15
+VDOT_P     16
+
+ ############# PAUSE & EXIT TESTS ######################################## 
+
+void openCtrlFrm(int lti,int ltj,int rbi,int rbj)
+
+ It opens a control frame at the location relative to the root frame
+ (in percentages of the root frame height and width). It contains two
+ subframes in which information concerning pause and exit is displayed. 
+
+void testExit()
+
+   Whenever mouse is in the exit frame (defined by openCntrlFrm) it suspends the
+   execution and asks if the user wants to exit 
+
+void testPause()
+
+   Whenever mouse is in the stop frame (defined by openCntrlFrm) it suspends the
+   execution and asks if the user wants to proceed 
+
+
+ ################# SOME AUXILIARY FUNCTIONS ############################## 
+
+double time_meter()
+
+  It returns time passsed from the last call to clock_marker 
+
+void bp()
+
+   It makes a short beep 
+
+void stop()
+
+   It terminates the execution of the program but first closes
+   the graphics package
+
+   ################# SIMPLE DEBUGGING FACILITIES ########################### 
+
+void openDbgFrm(int lti,int ltj,int rbi,int rbj)
+
+   It opens windows for debugging in the specified region 
+   of the screen ( in percentage of the screen sizes)
+   
+void vv(int i,double r)
+
+   It prints the double r in the line i of the debug window 
+
+void ww(int i,double r)
+
+   It acts as the above function but only when the mouse is in the stop 
+   window 
+
+void qq(int b)
+
+   It halts the execution reporting Break b
+   and waits for Button being pressed. 
+   If the mouse is in the stop frame when the 
+   button is pressed, the program is terminated
+
+void pp()
+
+ It halts the execution if mouse is in the stop frame 

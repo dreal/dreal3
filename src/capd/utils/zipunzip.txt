@@ -1,0 +1,14 @@
+The source files found in the entire package are zipped together with 
+their paths into the file "capd_src.zip". All the files inside this 
+archive are text files in DOS format (CR-LF instead of LF), so you 
+should unzip the entire archive with the "-aa" option under Unix. 
+It is recommended that you use the script files "srczip" and "srcunzip" 
+for compression and decompression under Unix. 
+Under DOS/Windows you are welcome to use the batch files "srczip.bat" 
+and "srcunzip.bat". They use the 32-bit version of Info-ZIP's programs 
+"zip.exe" and "unzip.exe" (or rather "unzip32.exe" renamed to "unzip.exe"). 
+These command-line-driven utilities, in contrast with PKZIP 2.04g, 
+handle properly long file names under Windows 95.
+
+Pawel Pilarczyk
+April 23, 2000

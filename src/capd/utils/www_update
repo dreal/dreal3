@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# zarys skryptu do tworzenia si-wi-es-snapszotu biblioteki,
+# np. automatycznie codziennie o polnocy (przy pomocy krona)
+# [ta wersja zapewne wymaga jeszcze poprawek]
+
+cd /capd
+rm -R -f tmp
+mkdir tmp
+cd tmp
+cvs checkout -P capd
+cd capd
+utils/srczip
+chmod 664 capd_src.zip
+rm /capd/www/snapshot/capd_src.zip
+mv capd_src.zip /capd/www/snapshot/
+cd /capd
+rm -R -f tmp
+

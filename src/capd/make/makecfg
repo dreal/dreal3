@@ -1,0 +1,61 @@
+# This file defines the target system for the compilation.
+# Copyright (C) 2004-2010 by the CAPD Group.
+# This is free software. No warranty. Consult 'license.txt' for details.
+# Initial version created on October 26, 2004 by Pawel Pilarczyk.
+
+
+# ===========================================================================
+# System-dependent settings.
+# ===========================================================================
+
+# Set the following variable to the extension of a "makedefs" file
+# with system-dependent definitions.
+# Note: You can specify this setting in the command line
+# by invoking "make target=win" or so instead of using "make" alone.
+target = X11
+TARGET = ${target}
+
+
+# ===========================================================================
+# The main library name/prefix.
+# ===========================================================================
+CAPDLIBNAME = capd
+
+
+# ===========================================================================
+# Current library name/prefix.
+# You can specify this setting in the command line by invoking
+# i.e. "make libname=mpcapd" 
+# ===========================================================================
+libname = ${CAPDLIBNAME}
+LIBNAME = ${libname}
+
+# ===========================================================================
+#  Multiple precision support.
+#  By default it is turned off (=0) except for the mpcapd library.
+#  If your program uses multiple precision turn it on on command line 
+#  i.e "make multipleprecision=1"  
+# ===========================================================================
+mp = ${multiprecision}
+ifneq (${mp},)
+MULTIPRECISION = ${mp}
+else
+ifeq (${MULTIPRECISION},)
+ifeq (${LIBNAME},mpcapd)
+MULTIPRECISION = 1
+else
+MULTIPRECISION = 0
+endif
+endif
+endif
+
+# ===========================================================================
+# Graphical User Interface
+# For capd library it decides if krak module should be compiled and included. 
+# For programs gui=0 produces console application.  
+# ===========================================================================
+gui = 1
+ifeq (${GUI},)
+GUI = ${gui}
+endif
+

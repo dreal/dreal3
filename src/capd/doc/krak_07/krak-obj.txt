@@ -1,0 +1,185 @@
+ ################ KRAK - object oriented version ##################################
+
+ Author: Marian Mrozek(c), Atlanta-Krakow, 1992-
+
+    KRAK is intended to be a simple graphics package for programs in C/C++,
+which can be relatively easily implemented on various machines.
+It is built over a simple kernel and only the kernel must be rewritten
+when the package is transferred to another enviroment or another machine.
+The kernel is implemented for INTEL based machines running DOS/Windows 3.1/Windows 95
+and SUN SPARC machines running SOLARIS. A very old implementation for
+APPLE computers is very much out of date.
+   The package enables combining text and graphics, gives control over
+keyboard and mouse and includes a simple subwindow system.
+   The package is opened by calling the function openGW. This call must
+precede all other calls of functions in the package. To ensure proper
+termination of the program the function closeGW should be called before exit.
+   When openGW is called a graphics window of requested size is opened. Since
+the rest of the screen cannot be seen from the package, all future references
+to the screen should be understood as references to the graphics window.
+   The package uses two coordinate systems. The pixel coordinate system
+(in integers) corresponds to the actual pixels of the screen. In this
+coordinate system the top left point of the screen has coordinates 
+(0,0) and the right bottom corner the coordinates corresponding to the width 
+and the height (in pixels) of the screen. The size of the screen
+is determined by the user when the package is opened and cannot be changed
+later on. 
+   The world coordinate system (in double's) is determined by the user by
+means of respective  functions described below and can be changed any time.
+   The kernel for SUN under XWindows is essentially the tool for adding 
+graphics to C-programs written by Ron Shonkwiler (with minor changes). The
+author gratefully acknowledges his permission to use his software.
+   Every program using KRAK must #include "krak.h".
+
+ ############# opening and closing the graphics package ####################
+
+Before using any of the functions of the package one must call
+
+   void openGW(int hrs,int vrs,int bgcol,int fgcol)
+
+It opens a graphic window with hrs horizontal and vrs vertical pixels.
+bgcol and fgcol specify the backgrounnd and foreground color. It associates
+with this window a frame, called root frame. The root frame is always available
+to the user as an object rootFrame.
+
+One should also call
+
+   void closeGW()
+
+to closes the graphics window before exiting.
+
+################ working with frames ########################################
+
+All input/uotput is performed in frames. These are objects implementing a very
+primitive window system. On opening the package, a rootFrame object is 
+automatically generated, which covers the full graphic window.
+
+In simple applications it is enough to use the root Frame only.
+
+   #################### input/ouput  ################## 
+
+   Each frame is devided into (invisible) cells. Each cell can be occupied
+by one character. Text is written from left to right and from top to bottom
+into the consequtive cells starting from the current printing position.
+The original printing position is at the 0th row and 0th column (top left
+corner of the frame). The '\n' character causes change of line but tab is not 
+implemented. The examples below use the rootFrame but obviously other
+frames may be used too. (How to define subframes of rootFrame, see in the sequel). 
+   
+Use
+       rootFrame << "text" << x  << i;
+to obtain something like
+       cout << "text" << x  << i;
+but in graphic mode with text starting from the current 
+position. It moves the current position to the end of the printed text. 
+
+Use
+       rootFrame << At(i,j) << "text" << x  << i;
+to first move the printing position to line i, column j and then act as before.
+ 
+Use
+       rootFrame >> x;
+to input a number or text. A cursor is displayed at the current position and
+the user can type a number (integer or double). 
+If x is an object of class frstring (see frstring.h), 
+the whole text up to CR typed by the user is assigned to x.
+One can use At(i,j) as above.
+
+    ############## Basic drawing routines ###################################
+
+Use  
+  int i,j;
+  ...
+  rootFrame.jump(i,j)
+to move the current position of the pen to the pixel position (i,j) or
+  double x,y;
+  ...
+  rootFrame.jump(x,y)
+to move the current position of the pen to the world coordinates position (x,y).
+
+Use  
+  int i,j;
+  ...
+  rootFrame.draw(i,j)
+to draw a line from the current position of the pen to the pixel position (i,j) or
+  double x,y;
+  ...
+  rootFrame.draw(x,y)
+to draw a line from the current position of the pen to the world coordinates position (x,y).
+
+Use  
+  int i,j;
+  ...
+  rootFrame.dot(i,j)
+to mark a dot at the pixel position (i,j) or
+  double x,y;
+  ...
+  rootFrame.dot(x,y)
+to mark a dot at the world coordinates position (x,y).
+
+Use  
+  int lti,ltj,rbi,rbj;
+  ...
+  rootFrame.box(lti,ltj,rbi,rbj)
+to draw a box in pixel coordinats or
+  double swx,swy,rbx,rxy;
+  ...
+  rootFrame.box(swx,swy,rbx,rxy)
+to draw a box in world coordinats.
+You may also fill the box with a given color (see color.h) using
+  rootFrame.boxFill(swx,swy,nex,ney,col);
+
+
+
+
+############### Defining subframes and world coordinates #############################
+
+   In this primitive version of KRAK frames are just pointers to respective
+data structures (hidden from the user) whereas in the object oriented
+version of KRAK frames are classes. In the primitive version you generate a new
+frame by
+
+   FRAME *newFrm=openFrm(parentFrm,lti,ltj,rbi,rbj);
+
+or something similar and in the object oriented version by
+
+   FRAME newFrame(parentFrame,lti,ltj,rbi,rbj);
+
+which generartes a frame newFrame at the location given by
+lti,ltj,rbi,rbj - integer percentages of the parentFrame.
+
+*** NOTE:
+In the primitive version frm and parentFrm are pointers.
+In the object oriented version frame and parentFrame are objects.
+To avoid confusion, a convention is used that ...Frm denotes a pointer
+and ...Frame an object.
+
+The full list of constructors for frames may be inspected in frame.h
+
+If necessary, you may send the address of the FRAME object to 
+a primitive frame function. For instance to assign a world coordinate system
+to a frame use
+
+FRAME frame(rootFrame,10,10,30,30);
+dscrFrm(*frame, 1.0,1.0,5.0,5.0);
+
+################# other methods #################################
+
+Some other self explanatory methods defined in class frame are:
+
+  int NoCol(void);     // frame.NoCol(); returns the number of printing columns in the frame
+  int NoRow(void);     // frame.NoRow(); returns the number of printing rawss in the frame
+
+  void Clear(void);               // frame.Clear();  - cleares the frame
+  void Bound(int color=BLACK);    // frame.Bound(col); - draws frame boundary
+
+  int x2i(double x);  // frame.x2i(x) returns horizontal pixel coordinate equivalent 
+                      // of world coordinate x
+  int y2j(double y);  // frame.y2j(y) returns vertical pixel coordinate equivalent 
+                      // of world coordinate y
+
+
+
+  double i2x(int i);  // reverse conversion
+  double j2y(int j);  // reverse conversion
+

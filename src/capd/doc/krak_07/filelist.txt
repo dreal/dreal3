@@ -1,0 +1,100 @@
+################## KRAK package - file list ####################
+========================
+(c) Marian Mrozek, Kraków/Atlanta 1992-
+
+The basic package consists of files 1-17 plus two or three
+files for a particular system (files 18-34). A universal #include
+to the basic package is krak.h
+
+An example, kraktest (files 35-37), which may be used for simple tests is provided.
+
+Under development is a further extension of the package (files 38-45)
+
+To get started, you need to select an appropriate #define for the system in the file
+setting.h and C++ compile files 2,4,6,8,10 and the file which uses the package,
+for instance kraktest.
+
+ 
+################# Basic KRAK package ###########################################
+
+1.  color.h        color definitions and
+2.  color.cpp      initialization routine for color tables
+
+3.  frame.h        classes frame, UsrMove, At which enable screen/mouse
+4.  frame.cpp      oriented input/output
+
+5.  frstring.h     class frstring which gives very flexible and automatized
+6.  frstring.cpp   treatment of strings
+
+7.  kernel.h       hardware dependent basic routines. Depending on the #define
+8.  kernel.cpp     in setting.h they call a respective driver from the list below
+
+9.  primitiv.h     screen/mouse oriented input/output in the C spirit, no classes
+10. primitiv.cpp
+
+11. atom.h         an abstract class from which many other classes are derived
+12. hardware.h     selection of hardware dependent #includes
+13. keys.h         keyboard codes
+14. krak.h         a universal #include for the package
+15. myc.h          some #defines to get PASCAL flavour
+16. pattern.h      pattern definitions
+17. setting.h      here you define what version of kernel to use
+
+############# Kernel implementations ###########################################
+
+18. appl-mac.c         Apple MacIntosh kernel, very outdated
+19. appl-mac.h
+
+20. linux.c            PC Linux kernel, tested on Linux 1.2.13
+21. linux.h
+
+22. ms-dos.c           MS DOS kernel, probably outdated
+23. ms-dos.h
+
+24. ms-win31.c         Windows 3.1 kernel, should work
+25. ms-win31.h
+
+26. ms-win95.c         Windows 95 kernel
+27. ms-win95.h
+
+28. sun.c              SUN kernel, should work
+29. sun.h
+
+30. unix_ch.h          any UNIX in text only mode, may work
+31. unix_ch.c
+
+32. dos16.c            common files for DOS and Windows 3.1
+33. dos16.h
+
+34. unix.h             a common file for UNIX type operating systems
+
+############### An example for test ############################################
+
+35. kraktest.cpp       a simple demonstration of the package, good for tests
+
+36. kraktst.ide        Borland C++ 5 project file for kraktest.cpp
+37. makefile           makefile for kraktest.cpp
+
+################ An extension of KRAK - less tested than the rest ##############
+
+38. chain.cpp          basic classes defining queues 
+39. chain.h
+
+40. item.cpp           classes for lists, records with arbitrary 
+41. item.h             items, like strings or other lists
+
+42. job.cpp            paralel processing of independent jobs in their own windows
+43. job.h
+
+44. krak3d.cpp         three dimensional graphics
+45. krak3d.h
+
+############################   documentation   ################################
+
+46. readme.txt         a brief introduction
+47. filelist.txt       this file
+48. krak.txt           a guide to non object functions
+49. krak-obj.txt       a brief guide to object functions
+50. frstring.txt       a very brief guide to the frstring class
+
+###############################################################################

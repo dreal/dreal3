@@ -1,0 +1,47 @@
+/** \page examples_alglibdemo Non-rigorous computations of eigenvalues and eigenvectors
+ *
+ * \dontinclude "alglibdemo.cpp"
+ *
+ * For computation of eigenvalues and eigenvectors we use <a href="http://www.alglib.net/">alglib package</a>   (version 1.3)
+ * which is now part of the CAPD.
+ *
+ * - \ref alglibdemo_eigenvalues
+ * - \ref alglibdemo_eigenvectors
+ * - \ref alglibdemo_example
+ *
+ * \section alglibdemo_header Header file
+ * In file
+ * \skipline capd2alglib.h
+ * there are functions which translate data types between the CAPD  and the alglib.
+ *
+ * To use alglib with CAPD you need to include <b> only this file </b>.
+ *
+ * \section alglibdemo_eigenvalues How to compute eigenvalues?
+ *
+ * To compute eigenvalues of given matrix A
+ * \skip DMatrix
+ * \until A[1][1]
+ * first you need to prepare place for output
+ * \skipline rV
+ * Remark: Dimensions of rV and iV must be set properly!
+ *
+ * Then simply call
+ * \skipline computeEigenvalues
+ * and real and imaginary part of eigenvalues will be placed in rV and iV correspondingly.
+ *
+ * For convenient output you can use
+ * \skipline eigenvaluesToString
+ *
+ * \section alglibdemo_eigenvectors How to compute eigenvectors?
+ *
+ * To compute eigenvectors along with eigenvalues first prepare place for output
+ * \skip rV
+ * \until iVec
+ * and then call
+ * \skipline computeEigenvaluesAndEigenvectors
+ *
+ * \section alglibdemo_example Example
+ * The following example can be found in the <b>capd/examples/alglibdemo</b> directory.
+ * \include alglibdemo.cpp
+ *
+ */

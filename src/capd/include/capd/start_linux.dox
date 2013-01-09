@@ -1,0 +1,64 @@
+
+/**
+ * \page getting_started_linux CAPD under Linux with GCC
+
+ <h2>How to compile, install and use the CAPD library under Linux with GCC</h2>
+
+In this tutorial we will explain how to compile your first program with the CAPD library under Linux/Unix ditributions.
+
+The basic steps are:
+- \ref linux_requirements
+  - \ref linux_req_gmp
+  - \ref linux_req_wx
+- \ref linux_compile
+
+\section linux_requirements Requirements
+
+The CAPD library is almost independent on the other libraries. This means, that all the necessary libraries you will find in the standard repositories for most popular linux distributions. Use your package manager in your system and install:
+
+- gcc, g++
+- libX11-devel
+- make
+
+The packages listed below are optional.
+
+\subsection linux_req_gmp Support for multiprecision
+
+If you would like to compute with multiprecision and/or intervals with multiprecision, you have to install
+
+- libgmp, libgmp-dev
+- libgmpxx
+- libmpfr, libmpfr-dev
+
+packages.
+
+\subsection linux_req_wx The wxWidgets graphical enviroment
+
+The graphics kernel form the CAPD library based on libX11 is the simplest and in fact deprecated kernel.
+If you expect to write often graphics applications in the CAPD library, we strongly recommend you to install wxWidgets kernel. Use your package manager and install
+
+- libwxbase, for example libwxbase2.8-0
+- libwxbase-devel, for example libwxbase2.8-dev
+- wx-headers, eg. wx2.8-headers
+
+It was enough to install these packages on my computer. I recommend you to check, whether 'wx-config' command is recognized by your system. If not, definitely your wxWidgets installation is not complete.
+
+\section linux_compile Compile the library
+
+First, you should decide which additional futures you would like to build with the CAPD. You can choose from
+
+- standard compilation (double, long double precisions, libX11 graphics kernel)
+- with multiprecision (double, long double, gmp, libX11 graphics kernel)
+- with wxWidgets (double, long double, wxWidgets graphics kernel)
+- with multiprecision and with wxWidgets
+
+Before you compile the library, make sure you have installed all the packages required for the version you want to built (as listed above). In order to build one of the versions [1-4], go to the subdirectory capd/make and call
+
+- make target=X11  (or just make)
+- make target=X11-gmp
+- make target=wx
+- make target=wx-gmp
+
+respectively.
+
+*/

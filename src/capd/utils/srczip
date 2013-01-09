@@ -1,0 +1,6 @@
+echo Packing the CAPD source files under Unix...
+cd utils
+cd ..
+zip -u -9 capd_src utils/obj/
+zip -u -9 capd_src lib/ bin/ obj/ obj/*/ -x */CVS/
+zip -l -u -9 -r capd_src * -x .cvsignore */.cvsignore */*/.cvsignore bin/* obj/* obj/*/* utils/obj/* lib/* private*/* projects/* CVS/* CVS/ */CVS/* */CVS/ */*/CVS/* */*/CVS/ */*/*/CVS/* */*/*/CVS/ doc/html/* doc/rtf/* doc/latex/* doc/man/* _*

@@ -1,0 +1,55 @@
+################ KRAK - frstring class ##########################
+
+frstring is a class designed to keep strings of arbitrary length.
+You just declare 
+
+  frstring r,s,t;
+
+and perform operations like
+  r="alfa";
+  s="beta";
+  t=r^s;
+  if (r<s){
+    rootFrame << t;
+  }
+to display the text "alfabeta".
+Apart from concatenation the class includes several constructors,
+addition of string representing numbers, lexicographical string comparision,
+conversion to/from numbers and many other useful things.
+
+Below is the list of methods in the class
+
+    frstring(void);                              //constructor
+    frstring(const frstring &from);              //constructor
+    frstring(char *init_string);                 //constructor
+    frstring(double number);                     //constructor
+    virtual ~frstring(void);                     //destructor
+    virtual atom *copy();
+
+    frstring operator^(frstring &second_string); //concatenation
+    int operator+(frstring &second_string);      //addition
+    int operator+(int an_int);                   //addition
+    frstring &operator=(frstring &second_string);//substitution
+    frstring &operator=(int an_int );            //substitution
+    frstring operator++(void);                   //return the first token
+    frstring operator++(int);                    //extract the first token
+    frstring operator--(void);                   //return the last token
+    int operator<=(frstring &second_string);     //lexicographical inequality
+    int operator>=(frstring &second_string);     //lexicographical inequality
+    int operator==(frstring &second_string);     //identity
+    int operator!=(frstring &second_string);     //not identity
+    int operator<=(atom &an_atom);               //lexicographical inequality
+    int operator>=(atom &an_atom);               //lexicographical inequality
+    int operator==(atom &an_atom);               //identity
+
+    virtual void resize(int len);                //resize to "len" and initialize with empty frstring
+    frstring operator[](int last);               //substring up to the "last" char
+    frstring operator()(int first);              //substring from the "first" char
+    frstring operator()(int first,int last);     //substring from "first" to "last"
+    frstring rmqm(void);                         //remove question marks
+    void insert(int pos,char c);                 //insert "c" at "pos"
+    void remove(int pos);                        //delete the char at "pos"
+    void split(int ncol);                        //remove \r and \n and insert \n after each ncol characters
+    frstring virtual descriptor(void);
+    virtual void put(ostream &out);
+ }

@@ -1,0 +1,17 @@
+# Settings for the Borland C++ 32-bit compiler for Windows (CBuilderX).
+# Note: PERL must be installed!
+
+SYSLIB  =
+SYSLIBG =
+SYSINCL =
+COMPILE = perl ${HOME}make/tcc.pl
+LINK    = perl ${HOME}make/tlink.pl
+LINKGUI = perl ${HOME}make/tlinkgui.pl
+MAKELIB = perl ${HOME}make/tlib.pl
+IDXLIB  = perl ${HOME}make/slashes.pl rem Library created or updated:
+REMOVE  = perl ${HOME}make/slashes.pl del
+MKDIR   = perl ${HOME}make/slashes.pl mkdir
+EXE     = .exe
+LIBEXT  = .lib
+OBJEXT  = .obj
+

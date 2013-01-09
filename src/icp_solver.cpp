@@ -76,12 +76,20 @@ icp_solver::~icp_solver()
 	if (_ep) rp_delete(_ep);
 }
 
+rp_box icp_solver::prop()
+{
+  cerr << "icp_solver::prop" << endl;
+  assert(_boxes.size() == 1);
+
+  _propag.apply(_boxes.get());
+  return( _boxes.get() );
+}
 
 rp_box icp_solver::compute_next()
 {
 
         cout<<"------------------"<<endl;
-
+        cout<<"SIZE!!!!:" << _boxes.size() << endl;
         cout<<"The interval pruning and branching trace is:";
 
         if (_sol>0) //if you already have a solution, discard this obtained solution box and backtrack

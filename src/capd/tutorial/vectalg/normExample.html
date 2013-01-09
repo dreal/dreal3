@@ -1,0 +1,84 @@
+<html>
+<head>
+<link rel=stylesheet type="text/css" href="../tutorial.css">
+</head>
+<body>
+
+<h2><span class="keyword">template class</span> Norm&lt;<span class="keyword">typename</span> VectorType,<span class="keyword">typename</span> MatrixType&gt; - see the <a href="normExample.cpp">c++ source</a> of an example</h2>
+
+<p>
+This file provides a short description on how to use class Norm and inherited classes from CAPD package - for more details see header file <font face="monospace" color="maroon"><b>"capd/vectalg/Norm.h"</b></font>
+</p>
+<h3>See also</h3>
+<ul>
+<li><a href="vectorExample.html">class Vector</a></li>
+<li><a href="matrixExample.html">class Matrix</a></li>
+<li><a href="../matrixAlgorithms/matrixAlgorithms.html">matrixAlgorithms module</a> for algorithms on matrices</li>
+</ul>
+
+<h3>Content of this file:</h3>
+<ul>
+<li><a href="#interface">Abstract class Norm</a></li>
+<li><a href="#instances">Inherited classes</a></li>
+<li><a href="#example">Example of usage</a></li>
+</ul>
+
+<a name="interface"></a>
+<h3>Abstract class Norm</h3>
+<p>
+The template class Norm is defined in the namespace <span class="keyword">capd::vectalg</span> and it has two parameters - type of vector and type of matrix whose norms will be computed. Class <b>Norm</b>
+is an abstract class that defines two purely virtual operators for computing norms of vectors and matrices.
+</p>
+<pre>
+<span class="keyword">template</span>&lt;<span class="keyword">typename</span> VectorType,<span class="keyword">typename</span> MatrixType&gt;
+class Norm{
+public:
+   <span class="keyword">typedef typename</span> VectorType::ScalarType ScalarType;
+
+   <span class="keyword">virtual</span> ScalarType operator()(<span class="keyword">const</span> VectorType &amp;iv) <span class="keyword">const</span> = 0;
+   <span class="keyword">virtual</span> ScalarType operator()(<span class="keyword">const</span> MatrixType &amp;iv) <span class="keyword">const</span> = 0;
+   <span class="keyword">virtual</span> std::string show(void) <span class="keyword">const</span> = 0;
+   <span class="keyword">virtual</span> Norm *clone(void) <span class="keyword">const</span> = 0;
+   <span class="keyword">virtual</span> ~Norm() {}
+};
+</pre>
+
+<a name="instances"></a>
+<h3>Known inherited classes</h3>
+<p>The CAPD package implements six inherited classes from abstract class <font face="monospace">Norm</font></p>
+<ul>
+<li><b><font face="monospace"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> VectorType,<span class="keyword">typename</span> MatrixType&gt; <span class="keyword">class</span> EuclNorm;</font></b> - euclidean norm</li>
+<li><b><font face="monospace"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> VectorType,<span class="keyword">typename</span> MatrixType&gt; <span class="keyword">class</span> MaxNorm;</font></b>  - maximum norm</li>
+<li><b><font face="monospace"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> VectorType,<span class="keyword">typename</span> MatrixType&gt; <span class="keyword">class</span> SumNorm;</font></b>  - sum norm</li>
+<li><b><font face="monospace"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> VectorType,<span class="keyword">typename</span> MatrixType&gt; <span class="keyword">class</span> EuclLNorm;</font></b> - euclidean logarithmic norm</li>
+<li><b><font face="monospace"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> VectorType,<span class="keyword">typename</span> MatrixType&gt; <span class="keyword">class</span> MaxLNorm;</font></b>  - maximum logarithmic norm</li>
+<li><b><font face="monospace"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> VectorType,<span class="keyword">typename</span> MatrixType&gt; <span class="keyword">class</span> SumLNorm;</font></b>  - sum logarithmic norm</li>
+</ul>
+
+<a name="example"></a>
+<h3>Example of usage:</h3>
+<p>
+In order to compute a norm of vector or matrix one needs to create an instance of one of the inherited classes and call the suitable virtual operator.
+</p>
+<pre>
+   <span class="keyword">typedef</span> capd::vectalg::Vector&lt;<span class="keyword">double</span>,<span class="const">0</span>&gt; DVector;
+   <span class="keyword">typedef</span> capd::vectalg::Matrix&lt;<span class="keyword">double</span>,<span class="const">0</span>,<span class="const">0</span>&gt; DMatrix;
+
+   <span class="keyword">double</span> data[] = {-10.,1.,1.,1.,2.,-20.,0.,-1.,1.,2.,-30.,4.,3.,1.,2.,0.};
+   // we create a matrix from given table of numbers
+   DMatrix P(<span class="const">4</span>,<span class="const">4</span>,data);
+   // vector v will be first row of matrix P
+   DVector v = P.row(<span class="const">0</span>);
+
+   capd::vectalg::EuclNorm&lt;DVector,DMatrix&gt; euclNorm;
+   capd::vectalg::SumLNorm&lt;DVector,DMatrix&gt; sumLogNorm;
+   // now we can compute norms of vectors and matrices by using operator()
+      
+   std::cout &lt;&lt; "EuclNorm(P)=" &lt;&lt; euclNorm(P) &lt;&lt; std::endl;
+   std::cout &lt;&lt; "SumLNorm(v)=" &lt;&lt; sumLogNorm(v) &lt;&lt; std::endl;
+</pre>
+<hr>
+<p><small>Author: Daniel Wilczak, last modified on July 7, 2008.</small></p>
+
+</body>
+</html>

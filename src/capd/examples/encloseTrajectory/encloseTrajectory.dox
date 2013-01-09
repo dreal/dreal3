@@ -1,0 +1,16 @@
+/** \page examples_encloseTrajectory  Enclosure for a trajectory between time steps
+ *
+ * The sources of the following examples can be found in the <tt>examples/encloseTrajectory</tt> directory of the CAPD package.
+ *
+ * \section encloseTrajectory_encloseTrajectoryBetweenTimeSteps Enclosure for a trajectory between time steps
+ *
+ * \dontinclude encloseTrajectoryBetweenTimeSteps.cpp
+ * \skip include
+ * \until END
+ *
+ * \section encloseTrajectory_encloseMonodromyMatrixBetweenTimeSteps Enclosure for derivatives (monodromy matrix) between time steps
+ *
+ * \dontinclude encloseMonodromyMatrixBetweenTimeSteps.cpp
+ * \skip include
+ * \until END
+ */
