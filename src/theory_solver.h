@@ -38,7 +38,7 @@ private:
 	vector< variable * >	v_list;
 	vector< literal * >	l_list;
 	vector< literal * >	assigned_lits;
-        vector< rp_box * >      history_boxes;
+        rp_box_stack *          history_boxes;
 
 	icp_solver * 		_solver;
 

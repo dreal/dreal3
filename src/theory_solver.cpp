@@ -264,13 +264,19 @@ bool NLRSolver::assertLit ( Enode * e, bool reason )
 //
 void NLRSolver::pushBacktrackPoint ( )
 {
+  static bool history_inited = false;
+  if(!history_inited) {
+    history_boxes = new rp_box_stack(rp_box_size(*_b), rp_box_size(*_b));
+    history_inited = true;
+  }
+
   cerr << "pushBacktrackPoint:" << endl;
   // Save the current box into the history_boxes (stack of boxes)
-  rp_box* new_box;
-  rp_box_clone(new_box, rp_problem_box(*_problem));
-  cerr << "box cloned:" << endl;
-  history_boxes.push_back(new_box);
-  cerr << "box added:" << endl;
+  cerr << "Current Box:" << endl;
+  rp_box_display_simple(*_b);
+  cerr << endl;
+  history_boxes->insert(*_b);
+  cerr << "box added: history_boxes->size() = " << history_boxes->size() << endl;
 }
 
 //
@@ -286,12 +292,19 @@ void NLRSolver::pushBacktrackPoint ( )
 void NLRSolver::popBacktrackPoint ( )
 {
   cerr << "popBacktrackPoint" << endl;
+  cerr << "Current Box (before pop):" << endl;
+  rp_box_display_simple(*_b);
 
   // Pop a box from the history stack and restore
-  rp_box* old_box = history_boxes.back();
-  history_boxes.pop_back();
-  rp_box_copy(rp_problem_box(*_problem), *old_box);
-  rp_box_destroy(old_box);
+  rp_box old_box = history_boxes->get();
+  history_boxes->remove();
+  rp_box_copy(*_b, old_box);
+  rp_box_destroy(&old_box);
+
+  cerr << "box popped: history_boxes->size() = " << history_boxes->size() << endl;
+
+  cerr << "Current Box (after pop):" << endl;
+  rp_box_display_simple(*_b);
 
   // pop literal from assigned_lits
   pop_literal(assigned_lits);
