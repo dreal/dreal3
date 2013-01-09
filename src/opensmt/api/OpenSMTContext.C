@@ -55,7 +55,8 @@ OpenSMTContext::SetLogic( const char * str )
 {
        if ( strcmp( str, "EMPTY" )    == 0 ) config.logic = EMPTY;
   else if ( strcmp( str, "QF_UF" )    == 0 ) config.logic = QF_UF;
-  else if ( strcmp( str, "QF_NLR" )   == 0 ) config.logic = QF_NLR;
+  else if ( strcmp( str, "QF_NRA" )   == 0 ) config.logic = QF_NRA;
+  else if ( strcmp( str, "QF_NRA_ODE" )   == 0 ) config.logic = QF_NRA_ODE;
   else if ( strcmp( str, "QF_BV" )    == 0 ) config.logic = QF_BV;
   else if ( strcmp( str, "QF_RDL" )   == 0 ) config.logic = QF_RDL;
   else if ( strcmp( str, "QF_IDL" )   == 0 ) config.logic = QF_IDL;

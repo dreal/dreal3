@@ -136,7 +136,8 @@ typedef enum
 {
   UNDEF         // Undefined logic
   , EMPTY         // Empty, for the template solver
-  , QF_NLR        // Non-Linear Real Arithmetic (added for dReal2)
+  , QF_NRA        // Non-Linear Real Arithmetic (added for dReal2)
+  , QF_NRA_ODE    // Non-Linear Real Arithmetic with ODE (added for dReal2)
   , QF_UF         // Uninterpreted Functions
   , QF_BV         // BitVectors
   , QF_RDL        // Real difference logics
@@ -236,7 +237,8 @@ using opensmt::encode;
 using opensmt::logic_t;
 using opensmt::UNDEF;
 using opensmt::EMPTY;
-using opensmt::QF_NLR;
+using opensmt::QF_NRA;
+using opensmt::QF_NRA_ODE;
 using opensmt::QF_UF;
 using opensmt::QF_BV;
 using opensmt::QF_RDL;

@@ -2246,7 +2246,8 @@ void Egraph::computePolarities( Enode * formula )
               || config.logic == QF_LIA
               || config.logic == QF_UFIDL
               || config.logic == QF_UFLRA
-              || config.logic == QF_NLR  /* added for dReal */
+              || config.logic == QF_NRA     /* added for dReal */
+              || config.logic == QF_NRA_ODE /* added for dReal */
               )
     {
       if ( enode->isLeq( ) )

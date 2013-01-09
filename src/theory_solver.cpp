@@ -1,14 +1,16 @@
 #include "theory_solver.h"
 #include <limits>
 
-NLRSolver::NLRSolver( const int           i
+NRASolver::NRASolver( const int           i
                         , const char *        n
 	                , SMTConfig &         c
 	                , Egraph &            e
 			, SStore &            t
 	                , vector< Enode * > & x
 	                , vector< Enode * > & d
-                        , vector< Enode * > & s)
+                        , vector< Enode * > & s
+                        , bool ode
+    )
   : OrdinaryTSolver ( i, n, c, e, t, x, d, s )
 {
 //initialize icp solver first
@@ -19,17 +21,17 @@ NLRSolver::NLRSolver( const int           i
 
 	_ts = &rp_problem_symb (*_problem);
 	_b  = &rp_problem_box (*_problem);
-
+        _contain_ode = ode;
 }
 
-NLRSolver::~NLRSolver( )
+NRASolver::~NRASolver( )
 {
   // Here Deallocate External Solver
   rp_problem_destroy(_problem);
   rp_reset_library();
 }
 
-bool NLRSolver::icp_prop(rp_problem * p)
+bool NRASolver::icp_prop(rp_problem * p)
 {
   rp_selector * select;
   rp_new( select, rp_selector_roundrobin, (p) );
@@ -64,11 +66,11 @@ bool NLRSolver::icp_prop(rp_problem * p)
       //   }
     }
   // rp_problem_destroy(p);
-  cerr << "NLRSolver::icp_prop: " << (result ? "sat" : "unsat") << endl;
+  cerr << "NRASolver::icp_prop: " << (result ? "sat" : "unsat") << endl;
   return result;
 }
 
-bool NLRSolver::icp_solve(rp_problem * p)
+bool NRASolver::icp_solve(rp_problem * p)
 {
 	rp_selector * select;
 	rp_new( select, rp_selector_roundrobin, (p) );
@@ -128,7 +130,7 @@ bool NLRSolver::icp_solve(rp_problem * p)
 	return false;
 }
 
-variable * NLRSolver::add_variable( Enode * e )
+variable * NRASolver::add_variable( Enode * e )
 {
   	for (vector<variable *>::iterator it = v_list.begin() ; it != v_list.end(); it++)
 	{
@@ -151,7 +153,7 @@ variable * NLRSolver::add_variable( Enode * e )
 }
 
 
-void NLRSolver::get_variables(Enode * e, vector<variable *> & vl)
+void NRASolver::get_variables(Enode * e, vector<variable *> & vl)
 {
 
   Enode * p = NULL;
@@ -175,14 +177,14 @@ void NLRSolver::get_variables(Enode * e, vector<variable *> & vl)
   }
 }
 
-void NLRSolver::pop_literal (vector<literal *> & ll)
+void NRASolver::pop_literal (vector<literal *> & ll)
 {
   literal * lit = ll.back();
   ll.pop_back();
   rp_vector_pop(rp_problem_ctrs(*_problem),*(lit->_c));
 }
 
-void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
+void NRASolver::add_literal ( Enode * e, vector< literal *> & ll )
 {
   // If `e` is already added, then skip
   for (vector<literal *>::iterator it = ll.begin() ; it != ll.end(); it++)
@@ -219,7 +221,7 @@ void NLRSolver::add_literal ( Enode * e, vector< literal *> & ll )
 // called before the actual solving starts.
 //
 
-lbool NLRSolver::inform( Enode * e )
+lbool NRASolver::inform( Enode * e )
 {
   cerr << "inform: " << e << endl;
 	assert( e -> isAtom() );
@@ -239,7 +241,7 @@ lbool NLRSolver::inform( Enode * e )
 // return false. The real consistency state will
 // be checked with "check"
 //
-bool NLRSolver::assertLit ( Enode * e, bool reason )
+bool NRASolver::assertLit ( Enode * e, bool reason )
 {
   cerr << "asserLit: (" << e << ", " << reason << ")" << endl;
   (void)e;
@@ -262,7 +264,7 @@ bool NLRSolver::assertLit ( Enode * e, bool reason )
 // called "undo_stack_term", as happens
 // in EgraphSolver
 //
-void NLRSolver::pushBacktrackPoint ( )
+void NRASolver::pushBacktrackPoint ( )
 {
   static bool history_inited = false;
   if(!history_inited) {
@@ -289,7 +291,7 @@ void NLRSolver::pushBacktrackPoint ( )
 // Also make sure you clean the deductions you
 // did not communicate
 //
-void NLRSolver::popBacktrackPoint ( )
+void NRASolver::popBacktrackPoint ( )
 {
   cerr << "popBacktrackPoint" << endl;
   cerr << "Current Box (before pop):" << endl;
@@ -314,7 +316,7 @@ void NLRSolver::popBacktrackPoint ( )
 // Check for consistency. If flag is
 // set make sure you run a complete check
 //
-bool NLRSolver::check( bool complete )
+bool NRASolver::check( bool complete )
 {
   bool result = true;
   cerr << "check: "<< (complete ? "complete" : "incomplete") << endl;
@@ -352,7 +354,7 @@ bool NLRSolver::check( bool complete )
 // the structure of the node to see
 // if it matches the theory operators
 //
-bool NLRSolver::belongsToT( Enode * e )
+bool NRASolver::belongsToT( Enode * e )
 {
   (void)e;
   assert( e );
@@ -362,13 +364,19 @@ bool NLRSolver::belongsToT( Enode * e )
 //
 // Copy the model into enode's data
 //
-void NLRSolver::computeModel( )
+void NRASolver::computeModel( )
 {
     cerr << "computeModel" << endl;
 }
 
+bool NRASolver::contain_ode( )
+{
+    return _contain_ode;
+}
+
+
 #ifdef PRODUCE_PROOF
-Enode * NLRSolver::getInterpolants( )
+Enode * NRASolver::getInterpolants( )
 {
   return NULL;
 }

@@ -59,7 +59,8 @@ lbool Egraph::inform( Enode * e )
 
     assert( id_to_belong_mask[ e->getId( ) ] == 0 );
     bool unassigned_atom = config.logic != QF_UF
-                        && config.logic != QF_NLR
+                        && config.logic != QF_NRA
+                        && config.logic != QF_NRA_ODE
                         && config.logic != QF_UFIDL
                         && config.logic != QF_UFLRA
                         && config.logic != QF_AX
@@ -603,17 +604,19 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
 
   // No need to instantiate any other solver
   /* added for dReal2 */
-  if ( config.logic == QF_NLR )
+  if ( config.logic == QF_NRA || config.logic == QF_NRA_ODE)
   {
-    /* TODO: Implement NLRSolver ! */
-     tsolvers.push_back( new NLRSolver( tsolvers.size(),
-                                        "NLR Solver",
+     tsolvers.push_back( new NRASolver( tsolvers.size(),
+                                        "NRA Solver",
                                         config,
                                         *this,
                                         sort_store,
                                         explanation,
                                         deductions,
-                                        suggestions));
+                                        suggestions,
+                                        // true if we need to handle ODE
+                                        config.logic == QF_NRA_ODE
+                             ));
 #ifdef STATISTICS
     tsolvers_stats.push_back( new TSolverStats() );
 #endif

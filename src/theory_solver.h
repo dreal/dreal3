@@ -4,16 +4,17 @@
 #include "TSolver.h"
 #include "icp_solver.h"
 
-class NLRSolver : public OrdinaryTSolver
+class NRASolver : public OrdinaryTSolver
 {
 public:
 
-  	NLRSolver( const int, const char *, SMTConfig &, Egraph &, SStore &
+  	NRASolver( const int, const char *, SMTConfig &, Egraph &, SStore &
 		, vector< Enode * > &
 	     	, vector< Enode * > &
-             	, vector< Enode * > & );
+             	, vector< Enode * > &
+                , bool);
 
-  	~NLRSolver ( );
+  	~NRASolver ( );
 
 	bool		icp_solve		( rp_problem * );
         bool            icp_prop                (rp_problem * );
@@ -32,6 +33,7 @@ public:
 
 	void		add_literal	( Enode * , vector< literal * > & );
 	void		pop_literal	( vector< literal * > & );
+        bool            contain_ode     ( );
 
 private:
 
@@ -46,6 +48,7 @@ private:
 	rp_box *		_b;
 
 	rp_problem * 		_problem;
+        bool                    _contain_ode;
 
 };
 #endif

@@ -13,7 +13,8 @@ let usage = "Usage: dr2smt2.native <.dr>\n"
 let process out (vardecls : Vardecl.t list) (f : Dr.formula) =
   begin
     (* Set Logic *)
-    BatString.println out "(set-logic QF_NLR)";
+    (* TODO: support QF_NRA_ODE *)
+    BatString.println out "(set-logic QF_NRA)";
 
     (* Declare variables *)
     List.iter (fun (_, v) ->
