@@ -61,6 +61,7 @@ char * pbuffer2;
 "define-sort"                { return TK_DEFINESORT; }
 "declare-fun"                { return TK_DECLAREFUN; }
 "define-fun"                 { return TK_DEFINEFUN; }
+"define-ode"                 { return TK_DEFINEODE; } /* added for dReal2 */
 "push"                       { return TK_PUSH; }
 "pop"                        { return TK_POP; }
 "check-sat"                  { return TK_CHECKSAT; }

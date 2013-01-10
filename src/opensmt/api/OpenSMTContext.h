@@ -100,6 +100,7 @@ public:
   void          SetInfo              ( const char *, const char * ); // Set info
   void          DeclareSort          ( const char *, int );          // Declares a new sort
   void          DeclareFun           ( const char *, Snode * );      // Declares a new function symbol
+  void          DefineODE            ( const char * n, Enode * );      // Define an ODE
 
   void          Push                 ( );
   void          Pop                  ( );
@@ -252,6 +253,7 @@ private:
     , DEFINE_SORT                                                // (define-sort)
     , DECLARE_FUN                                                // (declare-fun)
     , DEFINE_FUN                                                 // (define-fun)
+    , DEFINE_ODE    /* added for dReal2 */                       // (define-ode)
     , PUSH                                                       // (push)
     , POP                                                        // (pop)
     , ASSERT                                                     // (assert)

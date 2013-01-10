@@ -66,6 +66,7 @@ void smt2error( const char * s )
 %token TK_PUSH TK_POP TK_CHECKSAT TK_GETASSERTIONS TK_GETPROOF TK_GETUNSATCORE TK_GETINTERPOLANTS
 %token TK_GETVALUE TK_GETASSIGNMENT TK_GETOPTION TK_GETINFO TK_EXIT
 %token TK_AS TK_LET TK_FORALL TK_EXISTS TK_ANNOT TK_DISTINCT TK_DEFINEFUN
+%token TK_DEFINEODE
 %token TK_ASSERT
 %token TK_REAL TK_INT
 %token TK_PLUS TK_MINUS TK_TIMES TK_UMINUS TK_DIV
@@ -130,6 +131,13 @@ command: '(' TK_SETLOGIC symbol ')'
        | '(' TK_DEFINEFUN symbol '(' ')' sort term ')'
 	 { opensmt_error2( "command not supported (yet)", "" ); }
        */
+       /* Added for dReal2. */
+       /*
+       | '(' TK_DEFINEODE '(' TK_EQ identifier term ')' ')'
+         {
+           parser_ctx->DefineODE($5, $6);
+           free( $5 );
+         }
        | '(' TK_PUSH numeral ')'
 	 { parser_ctx->addPush( atoi( $3 ) ); free( $3 ); }
        | '(' TK_POP numeral ')'

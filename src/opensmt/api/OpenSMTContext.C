@@ -232,6 +232,9 @@ int OpenSMTContext::executeIncremental( )
       case DEFINE_FUN:
 	opensmt_error( "construct define-fun not yet supported" );
 	break;
+      case DEFINE_ODE:
+        DefineODE( c.str, c.enode ); /* added for dReal2 */
+	break;
       case PUSH:
 	Push( );
 	break;
@@ -580,6 +583,19 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
 	 << endl;
 
   egraph.newSymbol( name, s );
+}
+
+void OpenSMTContext::DefineODE( const char * name, Enode * e )
+{
+  if ( config.verbosity > 1 )
+    cerr << "# OpenSMTContext::Declaring ODE "
+         << "d/dt["
+         << name
+         << "]"
+         << " = "
+	 << e
+	 << endl;
+  egraph.addODE(mkCons(mkVar(name), e));
 }
 
 void OpenSMTContext::Push( )

@@ -235,6 +235,8 @@ public:
   inline dist_t   getDistClasses         ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->dist_classes; }
 
   const double    getValue               ( ) const;
+  const set < Enode * > & getODEs        ( ) const;   // added for dReal2
+  void            addODE                 ( Enode * ); // added for dReal2
   const double    getLowerBound          ( ) const; //added for dReal2
   const double    getUpperBound          ( ) const; //added for dReal2
   const double    getComplexValue        ( ) const;
@@ -385,6 +387,8 @@ private:
   Enode *           dynamic;    // Pointer to dynamic equivalent
 #endif
 
+  set< Enode * > odes;       // related ODEs
+
   inline bool       hasSymbolId    ( const enodeid_t id ) const { assert( isTerm( ) ); return car->getId( ) == id; }
 };
 
@@ -392,6 +396,16 @@ inline const double Enode::getValue ( ) const
 {
   assert( hasValue( ) );
   return *value;
+}
+
+inline const set < Enode * > & Enode::getODEs ( ) const
+{
+    return odes;
+}
+
+inline void Enode::addODE (Enode* e)
+{
+    odes.insert(e);
 }
 
 inline const double Enode::getLowerBound ( ) const

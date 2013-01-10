@@ -245,6 +245,8 @@ public:
 
   void    printEnodeList          ( ostream & );
   void    addAssertion            ( Enode * );
+  void    addODE                  ( Enode * );
+
   void    evaluateTerm            ( Enode *, double& );
 
   void          initializeStore   ( );
