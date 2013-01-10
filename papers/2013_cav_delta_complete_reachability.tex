@@ -22,13 +22,13 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\lrf}{\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}}
 
-\setlength{\textwidth}{5.3in}
+\setlength{\textwidth}{5.1in}
 %\setlength{\textheight}{8.2in}
 %\setlength{\topmargin}{0in}
-\setlength{\oddsidemargin}{.6in}
-\setlength{\evensidemargin}{.6in}
+\setlength{\oddsidemargin}{.7in}
+\setlength{\evensidemargin}{.7in}
 
-\title{$\delta$-Complete Reachability Analysis for Hybrid Systems}
+\title{$\delta$-Complete Reachability Analysis for Hybrid~Systems}
 \author{Sicun Gao \and Soonho Kong \and Edmund M. Clarke}
 \institute{Carnegie Mellon University, Pittsburgh, PA 15213}
 
@@ -59,7 +59,7 @@ problems for hybrid systems with simple dynamics are undecidable (high up in the
 analytic hierarchy)~\cite{}. Practically, systems with constant-rate dynamics,
 and some systems with linear dynamics but simple discrete control structure can
 be handled algorithmically, and proof-theoretic approaches handle specific
-nonlinear systems with ad-hoc proofs. The gap between existing technology and
+nonlinear systems with manual help. The gap between existing technology and
 the hope of automatic verification of large-scale realistic hybrid systems is
 still wide. 
 
@@ -96,7 +96,7 @@ clear syntax and semantics expressive enough for handling any realistic hybrid
 system. Clearly, existing classes of hybrid systems can all be easily defined by
 restricting $\mathcal{F}$. 
 
-2. The decidability of the $\delta$-decision problem over the reals leads  us to
+2. The decidability of the $\delta$-decision problem over the reals leads us to
 consider the corresponding $\delta$-reachability problem of hybrid systems.
 Reachability asks for whether a system can reach a region in its state space in
 any possible trajectory, while $\delta$-reachability asks whether this can
@@ -111,7 +111,7 @@ theories.
 practical tools that can solve $\delta$-reachability problems. We present
 promising experimental results on various nonlinear benchmarks. 
 
-In all, we aim to provide a new and more positive perspective for hybrid system
+In all, we aim to provide a new and positive perspective for hybrid system
 verification in general. To this end we define a new class of verification
 problems ($\delta$-reachability), analyze its properties, and show that
 promising results can be obtained with practical techniques. 
@@ -124,108 +124,55 @@ analyze bounded model checking in detail, study its complexity. In
 Section~\ref{} we do the same for invariant validation techniques. As last we
 show experimental results in Section~\ref{} and conclude in Section~\ref{}.
 
- 
-\section{Computable Functions over the Reals and $\delta$-Complete Decision
-Procedures}
+\section{A Brief Review of $\delta$-Decidability over the Reals}\label{review}
 
-\subsection{Computable Real Functions}
+We first briefly review the framework of $\delta$-complete decision procedures.
+It formulates a reasonable correctness requirement for solving nonlinear
+formulas over the reals. We have shown that $\delta$-complete procedures exist,
+with reasonable complexity bounds, for bounded SMT formulas over the reals with
+arbitrary computable real functions.
 
-A computability theory of real functions can be developed with machines that 
-use infinite tapes to encode the real numbers. This approach has been
-well-developed in {\em Computable Analysis}~\cite{CAbook,Kobook,vasco},
-following the initial conception by Turing~\cite{}.
-
-First, to perform any computation over the reals we need a way of representing 
-the real numbers. It is clear that no finite representation is possible.
-However, any real number can be encoded by an infinite sequence of rational
-numbers converging to it. 
-\begin{definition}[Names]
-A name of a real number $a\in \mathbb{R}$ is a function
+To formalize computations over the reals, we first need to encode the real
+numbers, as infinite strings. We can then model
+computations of real functions with machines that can use infinite strings as
+input and output. That is, a real function is computable if there exists a
+machine that computes, using oracles that encode the arguments of the function,
+the values of the function to an arbitrary precision. More precisely, these
+notions are captured by the following definitions.
+\begin{definition}[Encoding Real Numbers]
+A {\em name} of a real number $a\in \mathbb{R}$ is a function
 $\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{Q}$ satisfying that for all
 $i\in \mathbb{N}$, $|\gamma_a(i) - a|<2^{-i}.$ For $\vec a\in \mathbb{R}^n$,
-$\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$. For
-$\vec a\in \mathbb{R}^n$, we write $\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a
-name of }\vec a\}$. 
+$\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$, and
+$\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$.
 \end{definition}
-
-Next, we define a real function $f$ to be computable if there is an oracle 
-Turing machine that can take any argument $x$ of $f$ (an infinite tape) as an
-oracle, and output an infinite sequence of rational approximations to $f(x)$. 
-
 \begin{definition}[Computable Real Functions] We say
 $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable, if there exists
 an oracle Turing machine $\mathcal{M}_f$ that performs the following
 computation: Let $\vec a\in \dom(f)$ be any argument of $f$ and $\gamma(\vec a)$
 any name of $\vec a$. On any input $i\in \mathbb{N}$,
 $\mathcal{M}_f^{\gamma(\vec a)}(i)$ uses $\gamma(\vec a)$ as an oracle, and
-computes a $2^{-i}$-approximation to $f(\vec a)$. 
+computes a $2^{-i}$-approximation to $f(\vec a)$.
 \end{definition}
-
-
-
-In the definition, $i$ specifies the desired error bound on the output of $M_f$ 
-with respect to $f(\vec x)$. For any $\vec x\in \dom(f)$, $M_f$ has access to an
-oracle encoding the name $\gamma_{\vec x}$ of $\vec x$, and output a
-$2^{-i}$-approximation of $f(\vec x)$. In other words, the sequence
-$M_f^{\gamma_{\vec x}}(1), M_f^{\gamma_{\vec x}}(2), ...$ is a name of $f(\vec
-x)$. Intuitively, $f$ is computable if an arbitrarily good approximation of
-$f(\vec x)$ can be obtained using any good enough approximation to any $\vec
-x\in\dom(f)$. A key property of this notion of computability is that computable
-functions over reals are continuous~\cite{CAbook}. Moreover, over any compact
-set $D\subseteq \mathbb{R}^n$, computable functions are uniformly continuous
-with a {\em computable modulus of continuity} defined as follows. 
-
 Most common continuous real functions are computable, such as addition,
 multiplication,  absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of
-Lipschitz-continuous ordinary differential equations.~\cite{CAbook} Compositions
+Lipschitz-continuous ordinary differential equations~\cite{CAbook}. Compositions
 of computable functions are computable.
 
-
-Moreover, complexity of real functions can be defined over compact domains. 
-
-\begin{definition}[\cite{Ko92}] Let $D\subseteq \mathbb{R}^n$ be compact. A 
-real function $f:D\rightarrow\mathbb{R}$ is $\mathsf{P}$-computable
-($\mathsf{PSPACE}$-computable), if it is computable by an oracle Turing machine
-$M_{f}^{\gamma(\vec x)}(i)$ that halts in polynomial-time (polynomial-space) for
-every $i\in \mathbb{N}$ and every $\vec x\in \dom(f)$. 
-\end{definition}
-
-
-
-We say $f$ is in Type 2 complexity class $\mathsf{C}$ if it is
-$\mathsf{C}$-computable.  $f$ is $\mathsf{C}$-complete if it is
-$\mathsf{C}$-computable and $\mathsf{C}$-hard~\cite{Kobook}. If $f:D\rightarrow
-\mathbb{R}$ is $\mathsf{C}$-computable, then it has a $\mathsf{C}$-computable
-modulus of continuity over $D$. Polynomials, $\exp$, and $\sin$ are all
-$\mathsf{P}$-computable functions. A recent result~\cite{Kawamura09} established
-that the complexity of computing solutions of Lipschitz-continuous ODEs over
-compact domains is a {\sf PSPACE}-complete problem. 
-
-\subsection{$\delta$-Decidability}
-
-We consider first-order formulas with Type 2 computable functions interpreted 
+We consider first-order formulas with computable real functions interpreted 
 over the reals. We write $\mathcal{F}$ to denote an arbitrary collection of
-symbols representing Type 2 computable functions over $\mathbb{R}^n$ for various
+symbols representing computable functions over $\mathbb{R}^n$ for various
 $n$. We always assume that $\mathcal{F}$ contains at least the constant $0$,
 unary negation, addition, and the absolute value. (Constants are seen as
 constant functions.) Let $\mathcal{L_{\mathcal{F}}}$ be the signature $\langle
-\mathcal{F}, >\rangle$. $\mathcal{L}_{\mathcal{F}}$-formulas are always
+\mathcal{F}, >\rangle$. $\lrf$-formulas are always
 evaluated in the standard way over the corresponding structure
-$\mathbb{R}_{\mathcal{F}}= \langle \mathbb{R}, \mathcal{F}, >\rangle$.  
-
-It is not hard to see that we only need to use atomic formulas of the form 
+$\mathbb{R}_{\mathcal{F}}= \langle \mathbb{R}, \mathcal{F}, >\rangle$.  It is
+not hard to see that we only need to use atomic formulas of the form 
 $t(x_1,...,x_n)>0$ or $t(x_1,...,x_n)\geq 0$, where $t(x_1,...,x_n)$ are built
-up from functions in $\mathcal{F}$. This follows from the fact that $t(\vec
-x)=0$ can be written as $-|t(\vec x)|\geq 0$, $t(\vec x)<0$ as $-t(\vec x)>0$,
-and $t(\vec x)\leq 0$ as $-t(\vec x)\geq 0$. We can then take expressions $s <t
-$ and $s \leq t$ to abbreviate $t - s > 0$ and $t - s \geq 0$, respectively.
-Moreover, when a formula is in negation normal form, the negations in front of
-atomic formulas can be eliminated by replacing $\neg t(\vec x) > 0$ with
-$-t(\vec x)\geq 0$, and $\neg t(\vec x)\geq 0$ with $-t(\vec x)>0$. In summary,
-to avoid extra preprocessing of formulas, we give an explicit definition of
-$\mathcal{L}_{\mathcal{F}}$-formulas as follows.
-
-\begin{definition}[$\mathcal{L}_{\mathcal{F}}$-Formulas]
+up from functions in $\mathcal{F}$. To avoid extra preprocessing of formulas, we
+give an explicit definition of $\lrf$-formulas as follows.
+\begin{definition}[$\lrf$-Formulas]
 Let $\mathcal{F}$ be a collection of Type 2 functions, which contains at least 
 $0$, unary negation -, addition $+$, and absolute value $|\cdot|$. We define:
 \begin{align*}
@@ -240,270 +187,203 @@ with $-t>0$, switches $\wedge$ and $\vee$, and switches $\forall$ and $\exists$.
 Implication $\varphi_1\rightarrow\varphi_2$ is defined as
 $\neg\varphi_1\vee\varphi_2$.
 \end{definition}
-
-For notational convenience, from now on we assume that $\mathcal{F}$ always 
-contains all rational constants. 
-
 \begin{definition}[Bounded Quantifiers]
-We use the notation of {\em bounded quantifiers}, defined as
+We define
 \begin{align*}
 \exists^{[u,v]}x.\varphi &=_{df}\exists x. ( u \leq x \land x \leq v \wedge 
 \varphi),\\
 \forall^{[u,v]}x.\varphi &=_{df} \forall x. ( (u \leq x \land x \leq v) 
 \rightarrow \varphi),
 \end{align*}
-where $u$ and $v$ denote $\mathcal{L}_{\mathcal{F}}$ terms whose variables only
+where $u$ and $v$ denote $\lrf$ terms whose variables only
 contain free variables in $\varphi$, excluding $x$. It is easy to check that
 $\exists^{[u,v]}x. \varphi \leftrightarrow \neg \forall^{[u,v]}x. \neg\varphi$. 
 \end{definition}
-
 We say a sentence is bounded if it only involves bounded quantifiers. 
-
-\begin{definition}[Bounded $\mathcal{L}_{\mathcal{F}}$-Sentences]
-A {\em bounded $\mathcal{L}_{\mathcal{F}}$-sentence} is of the form
-$$Q_1^{[u_1,v_1]}x_1\cdots Q_n^{[u_n,v_n]}x_n. \psi(x_1,...,x_n)$$
-where $Q_i^{[u_i,v_i]}$s are bounded quantifiers, and $\psi(x_1,...,x_n)$ is a 
-quantifier-free $\mathcal{L}_{\mathcal{F}}$-formula (the matrix). We sometimes
-write a bounded sentence as $\vec Q^{[\vec u,\vec v]}\vec x.\psi(\vec x)$. 
- 
+\begin{definition}[Bounded $\lrf$-Sentences]
+A {\em bounded $\lrf$-sentence} is of the form
+$$Q_1^{[u_1,v_1]}x_1\cdots Q_n^{[u_n,v_n]}x_n\;\psi(x_1,...,x_n).$$
+$Q_i^{[u_i,v_i]}$s are bounded quantifiers. $\psi(x_1,...,x_n)$ is a 
+quantifier-free $\lrf$-formula.
 \end{definition}
-
-\begin{remark} Note that by the definition of bounded quantifier, in the bound 
-$[u_1,v_1]$ on the first quantifier, the terms $u_1$ and $v_1$ can only be built
-from constants in $\mathcal{F}$ since there is no other free variables in 
-$$Q_2^{[u_2,v_2]}x_2\cdots Q_n^{[u_n,v_n]}x_n.\psi(x_1,...,x_n),$$ excluding $x_1$. 
-\end{remark}
-
-
-\begin{notation}
 We will often write a matrix $\psi(x_1,...,x_n)$ as 
 $$\psi[t_1(\vec x)>0,...,t_k(\vec x)>0; t_{k+1}(\vec x)\geq 0,...,t_m(\vec
-x)\geq 0]$$
-to emphasize the fact that $\psi(\vec x)$ is a positive Boolean combination of
-the atomic formulas shown. 
-\end{notation}
-
-We use the conventional notations for the alternation hierarchy. Namely,
-$\Sigma_n$  (resp. $\Pi_n$) denotes the set of all
-$\mathcal{L}_{\mathcal{F}}$-sentences in prenex form with $n$ alternating {\em
-quantifier blocks} starting with $\exists$ (resp. $\forall$). 
-
-
-We will write a bound $[u,v]$ as $I$ for short. 
-
+x)\geq 0]$$ to emphasize the fact that $\psi(\vec x)$ is a positive Boolean
+combination of the atomic formulas shown. We will write a bound $[u,v]$ as $I$
+for short. 
 \begin{definition}[$\delta$-Variants]
-Let $\delta\in \mathbb{Q}^+\cup\{0\}$, and $\varphi$ a bounded
-$\mathcal{L}_{\mathcal{F}}$-sentence  of the form
-$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>0; t_j\geq 0],$$
-where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$. The {\em $\delta$-strengthening}
- $\varphi^{+\delta}$ of $\varphi$ is defined to be the result of replacing each
-atomic formula $t_i > 0$ by $t_i > \delta$ and each atomic formula $t_j \geq 0$
-by $t_j \geq \delta$, that is,
-$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>\delta; t_j\geq \delta],$$
-where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$.
-Similarly, the {\em $\delta$-weakening} $\varphi^{-\delta}$ of $\varphi$ is
+Let $\delta\in \mathbb{Q}^+\cup\{0\}$, and $\varphi$ an
+$\lrf$-formula of the form
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec y)>0; t_j(\vec x, \vec
+y)\geq 0],$$ where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$.
+
+The {\em $\delta$-weakening} $\varphi^{-\delta}$ of $\varphi$ is
 defined to  be the result of replacing each atomic formula $t_i > 0$ by $t_i >
--\delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq -\delta$, that is,
-$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>-\delta; t_j\geq -\delta].$$
+-\delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq -\delta$:
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec y)>-\delta; t_j(\vec x,
+\vec y)\geq -\delta].$$
+
+Similarly, the {\em $\delta$-strengthening} $\varphi^{+\delta}$ of $\varphi$ is
+defined to be the result of replacing each atomic formula $t_i > 0$ by $t_i >
+\delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq \delta$:
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec y)>\delta; t_j(\vec x,
+\vec y)\geq \delta].$$
 \end{definition}
-
-Note that in the definition, the bounds on the quantifiers are not changed. In 
-fact, we can talk about $\delta$-variants of unbounded formulas as well, which
-will be mentioned in Section~\ref{negative}. Note also that $\varphi^{+0}$ and
-$\varphi^{-0}$ are both equivalent to $\varphi$, and that the notions of
-strengthening and weakening could have been given a uniform definition by
-allowing $\delta$ to range over positive and negative numbers. We find it a
-useful mnemonic, however, to have $\varphi^{+\delta}$ denote a slight
-strengthening of $\varphi$ (the modified atomic constraints make it slightly
-harder for $\varphi^{+\delta}$ to be true), and to have $\varphi^{-\delta}$
-denote a slight weakening.
-
-\begin{theorem}\label{main}
-There is an algorithm which, given any bounded
-$\mathcal{L}_{\mathcal{F}}$-sentence  $\varphi$ and $\delta\in \mathbb{Q}^+$,
+\begin{theorem}[$\delta$-Decidability] Let $\delta\in\mathbb{Q}^+$ be
+arbitrary. There is an algorithm which, given any bounded $\varphi$, 
 correctly returns one of the following two answers:
+\begin{itemize}
+\item ``$\delta$-$\mathsf{True}$'': $\varphi^{-\delta}$ is true. 
+\item ``$\mathsf{False}$'': $\varphi$ is false. 
+\end{itemize}
+Note that the two cases can overlap. If $\varphi$ is false and
+$\varphi^{-\delta}$ is true, the algorithm is allowed to return either
+one. Dually, there is an algorithm that correctly returns, on the same input,
+one of the following answers:
 \begin{itemize}
 \item ``$\mathsf{True}$'': $\varphi$ is true. 
 \item ``$\delta$-$\mathsf{False}$": $\varphi^{+\delta}$ is false. 
 \end{itemize}
 \end{theorem}
 
-Note that the two cases can overlap. If $\varphi$ is true and
-$\varphi^{+\delta}$  is false, then the algorithm is allowed to return either
-one. 
-
-\begin{corollary}
-There is an algorithm which, given any bounded $\varphi$ and $\delta\in
-\mathbb{Q}^+$,  correctly returns one of the following two answers:
-\begin{itemize}
-\item ``$\delta$-$\mathsf{True}$'': $\varphi^{-\delta}$ is true. 
-\item ``$\mathsf{False}$'': $\varphi$ is false. 
-\end{itemize} 
-\end{corollary}
-
-\begin{proof}
-Apply the previous algorithm to $\neg\varphi$. Proposition~\ref{trivial}, we
-have  $\neg(\varphi)^{+\delta}\leftrightarrow (\neg\varphi)^{-\delta}$. So if
-$\neg\varphi$ is $\mathsf{True}$ we can report that $\varphi$ is
-$\mathsf{False}$, and if $\neg\varphi$ is $\delta$-$\mathsf{False}$ we can
-report that $\varphi$ is $\delta$-$\mathsf{True}$.
-\end{proof}
-
-\begin{theorem}\label{compmain}
+We call this new decision problem the $\delta$-decision problem for
+$\lrf$-sentences. 
+\begin{theorem}[Complexity]\label{compmain}
 Let $\mathcal{F}$ be a class of computable functions. Let $S$ be a class of 
-$\mathcal{L}_{\mathcal{F}}$-sentences, such that for any $\varphi$ in $S$, the
+$\lrf$-sentences, such that for any $\varphi$ in $S$, the
 terms in $\varphi_{[0,1]}$ are computable in complexity class $\mathsf{C}$ where
 $\mathsf{P_{C[0,1]}\subseteq \mathsf{C}\subseteq \mathsf{PSPACE_{C[0,1]}}}$.
 Then, for any $\delta\in \mathbb{Q}^+$, the $\delta$-decision problem for
 bounded $\Sigma_n$-sentences in $S$ is in $\mathsf{(\Sigma_n^P)^C}$.
 \end{theorem}
 
+These results lead to a
+new perspective on decision problems over the reals in general.
+This framework provides a theoretical basis for the development of
+numerically-driven decision procedures such as~\cite{}.
+
+
 
 \section{Hybrid Systems, $\lrf$-Representations, and Reachability}
+
+
+
 
 \subsection{Basic Definitions}
 
 A hybrid automaton is an infinite-state machine whose state has a discrete part,
  ranging over the vertices of a graph, and a continuous part, ranging over some
-Euclidean space. 
+Euclidean space.  The following is a standard general definition~\cite{}. 
 \begin{definition}[Hybrid Automata]\label{auto-def}
-An $n$-dimensional hybrid automaton is a tuple $$\langle X, Q, \flow,
-\guard, \reset, \inv, \init\rangle,$$ where:
-\begin{itemize}
-\item $X\subseteq \mathbb{R}^n$ specifies the range of the {\bf continuous
-variables}  $\vec x$ of the system. 
-\item $Q=\{q_0,...,q_m\}$ is a finite set of discrete {\bf control modes}. 
-\item $\flow \subseteq Q\times X\times \R \times X$ is a predicate that
-specifies  the {\bf continuous dynamics} for each mode. Namely, 
-\begin{quote}
-$\flow = \{(q, \vec a_0, t, \vec a_t):$ In mode $q$, there is a continuous flow 
-from the initial value $\vec x = \vec a_0$ to $\vec x = \vec a_t$, after time
-$t$.\}
-\end{quote}
-It is usually given either as explicit mappings from $\vec x_0$ and $t$ to $\vec
-x_t$,  or as solutions of systems of differential equations/inclusions that
-specify the derivative of $\vec x$ over time, with initial conditions given by
-$\vec x_0$. 
+An $n$-dimensional hybrid automaton $$H   = \langle X, Q, \flow,
+\guard, \reset, \inv, \init\rangle$$ consists of the following elements: 
+\paragraph{\bf State Space.} $X\subseteq \mathbb{R}^n$ specifies the range of
+the {\em continuous variables}  $\vec x$ of the system. $Q=\{q_0,...,q_m\}$ is
+a finite set of discrete {\em control modes}. 
 
-\item $\jump\subseteq Q\times X\times Q\times X$ is a predicate that specifies 
-the {\bf jump conditions} between two modes. That is,  
-\begin{quote}
-$\jump$ = \{$(q,q',\vec a,\vec a'):$ In mode $q$, if the continuous variables 
-are of value $\vec x = \vec a$, the automaton may switch to mode $q'$ and change
-the continuous variables to value $\vec x = \vec a'$.\}
-\end{quote}
+\paragraph{\bf Continuous Components.} $\flow \subseteq Q\times
+X\times \R \times X$ specifies the {\em continuous dynamics}
+for each mode: $(q, \vec a_0, t, \vec a_t)\in \flow$, if in mode $q$,
+there is a continuous flow from $\vec x =\vec a_0$ to $\vec x = \vec a_t$
+after a time duration of $t$. 
 
-\item $\inv \subseteq Q\times X$ specifies the {\bf invariant conditions} for 
-the system to stay in a location. Namely,
-\begin{quote}
-$\inv$ = \{$(q,\vec a)$: When the automaton is in mode $q$, $\vec x = \vec a$ 
-is a possible value for its continuous variables.\}
-\end{quote}
+The $\flow$ predicate is usually defined either as explicit mappings from
+$\vec a_0$ and $t$ to $\vec a_t$,  or as solutions of systems of differential
+equations/inclusions that specify the derivative of $\vec x$ over time, with
+initial conditions given by $\vec x_0$. 
 
-\item $\init \subseteq Q\times X$ specifies the set of {\bf initial
-configurations}  of the system. 
-\begin{quote}
-$\init$ = \{$(q, \vec a)$: The initial configuration of the automaton can be 
-$\vec x = \vec a$ in mode $q$.\}
-\end{quote}
-It is easy to see that we can require that the system always starts from a
-single mode.  (When there are multiple initial modes, an additional mode can be
-added to act as the only initial mode.) Thus, without loss of generality we
-always require that $q=q_0$ in $\init$. 
-\end{itemize}
+\paragraph{\bf Discrete Components.} $\jump\subseteq Q\times
+X\times Q\times X$ specifies the {\em jump conditions}
+between two modes: $(q,q',\vec a,\vec a')\in \jump$ if in mode $q$,
+when the continuous variables are of value $\vec x = \vec a$, the automaton may
+switch to mode $q'$, and set the continuous variables to $\vec x = \vec
+a'$.  Here, the first two elements $(q, \vec a)$ are sometimes called the
+$\guard$ conditions, and the other two elements $(q, \vec a')$ are called the
+$\reset$ conditions. 
+
+\paragraph{\bf Initial and Invariant Conditions.} $\inv \subseteq Q\times X$
+specifies the {\em invariant conditions} for 
+the system to stay in a control mode: $(q,\vec a)\in \inv$, if when the
+automaton is in mode $q$, $\vec x = \vec a$ is a possible value for its
+continuous variables.
+
+$\init \subseteq Q\times X$ specifies the set of {\em
+initial configurations} of the system: $(q, \vec a)\in \init$, if the
+automaton can start from an initial configuration $\vec x = \vec a$ in mode
+$q$.\} Without loss of generality, we always set $q=q_0$ in $\init$. (When there
+are multiple initial modes, an additional mode can be
+added to act as the only initial mode.)  
 \end{definition}
-
-%\begin{remark}[Jumps]
-%The guard conditions and reset functions, put together, define what is often called the {\bf jump conditions}. In fact, sometimes we write 
-%$$H = \langle X, Q, \flow, \jump, \inv, \init\rangle,$$
-%implicitly assuming that $\jump$ contains the definitions for both $\guard$ and $\reset$. We will give the precise definitions of the jump conditions using logical representations of hybrid automata, in Definition~\ref{lrf-definition}. 
-%\end{remark}
-
-\begin{remark}[$\guard$ and $\reset$]
-In the $\jump$ conditions, the first two elements $(q, \vec a)$ are sometimes 
-called the $\guard$ conditions, and the other two elements $(q, \vec a')$ are
-called the $\reset$ conditions. 
-\end{remark}
-
-\begin{remark}[Nondeterminism]
 According to the definition, a hybrid automaton can be nondeterministic in
-various ways.  For instance: 
-\begin{itemize}
-\item The $\flow$ and $\jump$ conditions are not restricted to single valued
-functions.  Thus, multiple continuous flows are allowed in each mode, and
-different discrete jumps are allowed frim each state. 
-\item The $\jump$ conditions only specify that a system {\em may} make a
-transition  when the conditions are met. 
-\end{itemize}
-\end{remark}
-
+various ways.  The $\flow$ and $\jump$ conditions are not
+restricted to single valued functions. 
 \begin{remark}[$\jump$ vs $\inv$] The jump conditions specify when an automaton
 {\em may}  switch to another mode. The invariants (when violated) specify when
 an automaton {\em must} switch to another mode. In principle, all may-jumps can
 be reduced to nondeterministic must-jumps. However, it is better to separate the
 two, and we will later see that they give rise to different logical structures. 
 \end{remark}
-
 \begin{definition}[Invariant-Free Hybrid Automata]\index{Invariant-free
 Hybrid Automata}
 We say a hybrid automata $H = \langle X, Q, \flow, \jump, \inv, \init\rangle$ is
- {\bf invariant-free} if $$\inv = Q\times X.$$ 
-We say its invariant is {\em trivial} in this case.  
+ {\em invariant-free} if $\inv = Q\times X$ and the invariant is called {\em
+trivial} in this case.  
 \end{definition}
 
 \subsection{$\lrf$-Representations}
 
 We now define logical representations of hybrid automata, so that we can express
- properties of hybrid automata with first-order formulas. 
+ properties of hybrid automata using first-order formulas. 
 
 \begin{definition}[$\lrf$-Representations]\label{lrf-definition}
 \index{$\lrf$-Representation}
-Let $H$ be an $n$-dimensional hybrid automaton, given as in Definition
-\ref{auto-def}.  Let $\mathcal{F}$ be a set of real functions, and
-$\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}$ the corresponding first-order
-language. 
-
-We say that $H$ has an $\lrf$-representation if for every $q,q'\in Q$, there
-exists  quantifier-free $\lrf$-formulas $\phi^q_{\flow}(\vec x, \vec x_0, t)$,
-$\phi^{q\rightarrow q'}_{\jump}(\vec x, \vec x')$, $\phi^{q}_{\inv}(\vec x)$,
-$\phi^q_{\init}(\vec x)$ such that for all $\vec a ,\vec a'\in \mathbb{R}^n$,
+Let $H$ be an $n$-dimensional hybrid automaton.  Let $\mathcal{F}$
+be a set of real functions, and $\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}$ the
+corresponding first-order language. We say that $H$ has an $\lrf$-representation
+if for every $q,q'\in Q$, there exists  quantifier-free $\lrf$-formulas
+$$\phi^q_{\flow}(\vec x, \vec x_0, t), \phi^{q\rightarrow q'}_{\jump}(\vec x,
+\vec x'), \phi^{q}_{\inv}(\vec x), \phi^q_{\init}(\vec x)$$ 
+such that for all
+$\vec a ,\vec a'\in \mathbb{R}^n$,
 $t\in\mathbb{R}$:
 \begin{itemize}
-\item $\mathbb{R}\models \phi^q_{\flow}(\vec a, \vec a_0, t)$ iff $(q, \vec a, 
+\item $\mathbb{R}\models \phi^q_{\flow}(\vec a, \vec a_0, t)$ iff $(q, \vec
+a, 
 \vec a_0, t)\in \flow$. 
-\item $\mathbb{R}\models \phi^{q\rightarrow q'}_{\jump}(\vec a, \vec a')$, iff, 
+\item $\mathbb{R}\models \phi^{q\rightarrow q'}_{\jump}(\vec a, \vec a')$ iff 
 $(q, q', \vec a, \vec a')\in \jump$.
-\item $\mathbb{R}\models \phi^q_{\inv}(\vec a)$, iff, $(q, \vec a)\in \inv.$
-\item $\mathbb{R}\models \phi^q_{\init}(\vec a)$, iff, $q = q_0$ and $\vec a\in
+\item $\mathbb{R}\models \phi^q_{\inv}(\vec a)$ iff $(q, \vec a)\in \inv.$
+\item $\mathbb{R}\models \phi^q_{\init}(\vec a)$ iff $q = q_0$ and $\vec a\in
 \init_{q_0}$.  
 \end{itemize}
 We can write $H = \langle X, Q, \phi_{\flow}, \phi_{\jump}, \phi_{\inv}, 
 \phi_{\init}\rangle$ to emphasize that $H$ is represented in this way. But when
 the context is clear, we simply write $\flow, \jump, \inv, \init$ to denote
-their logical representations. 
+their equivalent logical representations. 
 \end{definition}
 
 \begin{remark}
-We have not restricted the form of the formulas for defining hybrid automata. 
-This makes the definition more general than necessary. For instance, the flow
-should be a continuous mapping from $\vec x_0$ and $t$ to $\vec x_t$ (and thus a
-conjunction of equations of the form $\vec x_t = f(\vec x_0, t)$), instead of
-arbitrary formulas. Different classes of hybrid systems can be defined by
-refining this definition.  
+We have not restricted the structures of the formulas defining each
+predicate. This makes the definition more general
+than necessary. For instance, the flow should be a continuous mapping from $\vec
+x_0$ and $t$ to $\vec x_t$, and thus $\phi^q_{\flow}(\vec a,
+\vec a_0, t)$ is usually a conjunction of equations of the form $\vec x_t =
+f(\vec x_0, t)$, instead of arbitrary formulas. Different classes of hybrid
+systems can be defined by refining this definition.  
 \end{remark}
 
-
-\begin{definition}[Computable Representation]\index{Computable Representation}
-%the goal is to prove that computable hybrid automata define computable
-functions  in the skorokhod sense. and then delta-reachability is decidable just
-because you are deciding computable functions. 
-We say a hybrid automaton $H$ has a {\bf computable representation}, if $H$ has 
-an $\lrf$-representation, and all functions in $\mathcal{F}$ are Type 2
-computable. 
+\begin{definition}[Computable Representation]
+We say a hybrid automaton $H$ has a {\em computable representation}, if $H$ has 
+an $\lrf$-representation, $\mathcal{F}$ is a set of computable functions. 
 \end{definition}
 
-From now on we will only consider hybrid automata that have computable 
-representations. 
+Again, this definition allows us to consider a very general class of hybrid
+systems, since $\mathcal{F}$ can contain arbitrary computable functions such as 
+polynomials, transcendental functions, Lipschitz-continuous ODEs and many PDEs.
+In fact, since the designs of practical hybrid systems should only involve
+functions that can be at least numerically computed, $\lrf$-representable hybrid
+systems should be expressive enough to model most of them. From now on we will
+only consider hybrid automata that have computable representations. 
 
 \subsection{Hybrid Time Domains and Trajectories}
 
@@ -515,27 +395,9 @@ behaviors.  Consequently the trajectories of hybrid automata are {\em piecewise
 continuous}. This motivates a two-dimensional structure of time, so that we can
 keep track of both the discrete changes and the duration of each continuous
 flow.  
-
-\begin{definition}[Hybrid time structure~\cite{Davoren09}]
-The {\bf\em hybrid time structure} $\mathbb{H}$ is a partially-ordered Abelian 
-group $\mathbb{Z}\times\mathbb{R}$ with pairwise addition and group identity
-$(0,0)$, partially-ordered by $$\leq =_{df} \{ ((i,t),(i',t')) : i\leq i' \wedge
-t\leq t'\}\subseteq \mathbb{Z}\times\mathbb{R}.$$
- $\mathbb{H}$ is equipped with the norm: $$\|(i,t)\| = \max\{|i|,|t|\},$$
-where $|\cdot|$ denotes absolute values. The {\bf\em hybrid future time
-structure}  $\mathbb{H}^+=\mathbb{N}\times \mathbb{R}^+$ is the positive cone of
-$\mathbb{H}$ equipped with the same norm.
-\end{definition}
-
-\begin{remark}
-Naturally, $\|\cdot\|$ induces the norm topology $\mathcal{T}_{norm}$ on
-$\mathbb{H}$  with a basis consisting of $B_{\delta}(t) = \{t'\in \mathbb{H}:
-\|t'-t\|<\delta, \delta\in \mathbb{R}^+\}.$
-\end{remark}
-
 \begin{definition}[Hybrid time domain]
-A {\bf\em hybrid time domain} $T$ is a subset, linearly ordered under $\leq$, of
- $\mathbb{H}^+$ of the form
+A {\em hybrid time domain} $T$ is a subset, linearly ordered under $\leq$, of
+ $\mathbb{N}\times \mathbb{R}^+$ of the form
 $$T=\{(i, t): i<m \mbox{ and } t\in [t_i, t_i']\mbox{ or }[t_i, +\infty)\},$$ 
 where%, \mbox{ or }i=m \mbox{ and }t\in [t_m, t_m]\}$$
 \begin{itemize}
@@ -547,19 +409,17 @@ We write the set of all hybrid time domains in $\mathbb{H}^+$ as $D(\mathbb{H})$
 \end{definition}
 
 \begin{remark}
-Note how a two-dimensional time domain avoids ``break points'' on the continuous
- dimension: At the discrete change points, $(i,t_i')$ and $(i+1, t_{i+1})$ are
+A two-dimensional time domain avoids ``break points'' on the continuous
+ dimension. At the discrete change points, $(i,t_i')$ and $(i+1, t_{i+1})$ are
 distinguished at the first coordinate. Thus the time intervals for each $i$ can
 always include both endpoints. 
 \end{remark}
 
-
 \begin{definition}[Hybrid Trajectory Space]
  Let $X\subseteq\mathbb{R}^n$ be an Euclidean space and let $T$ be a hybrid 
-time domain. A {\bf\em hybrid trajectory} is a continuous function 
-$$\xi: T \rightarrow X.$$
-We write $\Xi_X$ to denote the set of all possible hybrid trajectories from 
-$D(\mathbb{H}^+)$ to $X$. 
+time domain. A {\bf\em hybrid trajectory} is any continuous function 
+$\xi: T \rightarrow X.$ We write $\Xi_X$ to denote the set of all possible
+hybrid trajectories from  $D(\mathbb{H}^+)$ to $X$. 
  \end{definition}
 
 Now we can define trajectories of a given hybrid automaton. 
@@ -595,6 +455,54 @@ Consequently, $t-t_k$ is the actual duration in the $k$-th mode. When a switch
 between  two modes is performed, it is required that $\xi(k+1, t_{k+1})$ is
 updated from the exit value $\xi(k, t_k')$ in the previous mode, following the
 jump conditions.
+
+\subsection{Perturbations on Hybrid Automata}
+Perturbations on hybrid automata is defined as follows. 
+
+\begin{definition}[Perturbations on Hybrid Automata]
+Suppose $\delta\in\mathbb{Q}^+\cup\{0\}$, and 
+$$H = \langle X, Q, \flow, \jump, \inv, \init\rangle$$
+is an $\lrf$-represented hybrid automaton. We define the {\bf \em
+$\delta$-weakening} of $H$ as
+$$H^{\delta} = \langle X, Q, \flow^{-\delta}, \jump^{-\delta}, \inv^{-\delta},
+\init^{-\delta}\rangle$$
+\end{definition}
+
+\begin{remark}
+Note that we only defined the weakening of a hybrid automaton here, because
+weakening essentially corresponds to overapproximations of the reachable states.
+It is conceivable that for other tasks, strengthening will be needed (for
+instance for synthesizing parameters). But this will not be our focus for now. 
+\end{remark}
+
+Since the predicates in the definition of $H$ are all quantifier free. It is
+clear that $H^{\delta}$ is an overapproximation of $H$. 
+\begin{proposition} Let $\delta\in\mathbb{Q}^+\cup \{0\}$ and $H$ be given. We
+always have
+$$\llbracket H\rrbracket\subseteq \llbracket H^{\delta}\rrbracket.$$
+\end{proposition}
+\begin{proof}
+Let $\xi\in \llbracket H\rrbracket$ be any trajectory of $H$. Recall that for
+any $\lrf$ sentence $\varphi$, $\varphi\rightarrow\varphi^{-\delta}$. Now since
+$\xi$ satisfies the conditions in Definition~\ref{trajec}, by replacing each
+predicate in the definition by their $\delta$-weakenings, we know $\xi\in
+\llbracket H^{\delta}\rrbracket$.
+\end{proof}
+\begin{remark}
+The $\delta$-weakening of any deterministic hybrid automaton is
+nondeterministic. 
+\end{remark}
+
+\begin{remark}
+$H^{\delta}$ approximates $H$ {\em syntactically}. Semantically, it can be
+tricky to quantify the effect of $\delta$. If we are dealing with a continuous
+system, it is clear that the the Hausdorff distance between $\llbracket
+H^{\delta}\rrbracket$ and $\llbracket H\rrbracket$ is a continuous function in
+$\delta$. However, for hybrid trajectories, relaxing the guards in a system can
+generate very different trajectory sets. It is worth noting how the syntactic
+definition avoids such complications. 
+\end{remark}
+
 
 \subsection{Reachability and Safety Verification}
 
@@ -662,6 +570,7 @@ of the previous remark, such results require the use of rational constants only.
 Thus we choose not to further discuss the boundaries between decidable and
 undecidable classes in a traditional setting. 
 \end{remark}
+
 
 \section{Bounded Model Checking}
 
@@ -1006,70 +915,8 @@ which means that $\reach_{H,q}(\vec a^t)$ is true.
 \end{proof}
 
 
-
-
-
-
-
-
-
-
-
 \subsection{Solving Bounded $\delta$-Reachability}
 
-
-\subsection{Perturbations on Hybrid Automata}
-Perturbations on hybrid automata is defined as follows. 
-
-\begin{definition}[Perturbations on Hybrid Automata]
-Suppose $\delta\in\mathbb{Q}^+\cup\{0\}$, and 
-$$H = \langle X, Q, \flow, \jump, \inv, \init\rangle$$
-is an $\lrf$-represented hybrid automaton. We define the {\bf \em $\delta$-weakening} of $H$ as
-$$H^{\delta} = \langle X, Q, \flow^{-\delta}, \jump^{-\delta}, \inv^{-\delta}, \init^{-\delta}\rangle$$
-\end{definition}
-
-\begin{remark}
-Note that we only defined the weakening of a hybrid automaton here, because weakening essentially corresponds to overapproximations of the reachable states. It is conceivable that for other tasks, strengthening will be needed (for instance for synthesizing parameters). But this will not be our focus for now. 
-\end{remark}
-
-Since the predicates in the definition of $H$ are all quantifier free. It is clear that $H^{\delta}$ is an overapproximation of $H$. 
-\begin{proposition} Let $\delta\in\mathbb{Q}^+\cup \{0\}$ and $H$ be given. We always have
-$$\llbracket H\rrbracket\subseteq \llbracket H^{\delta}\rrbracket.$$
-\end{proposition}
-\begin{proof}
-Let $\xi\in \llbracket H\rrbracket$ be any trajectory of $H$. Recall that for any $\lrf$ sentence $\varphi$, $\varphi\rightarrow\varphi^{-\delta}$. Now since $\xi$ satisfies the conditions in Definition~\ref{trajec}, by replacing each predicate in the definition by their $\delta$-weakenings, we know $\xi\in \llbracket H^{\delta}\rrbracket$.
-\end{proof}
-\begin{remark}
-The $\delta$-weakening of any deterministic hybrid automaton is nondeterministic. 
-\end{remark}
-
-\begin{remark}
-$H^{\delta}$ approximates $H$ {\em syntactically}. Semantically, it can be tricky to quantify the effect of $\delta$. If we are dealing with a continuous system, it is clear that the the Hausdorff distance between $\llbracket H^{\delta}\rrbracket$ and $\llbracket H\rrbracket$ is a continuous function in $\delta$. However, for hybrid trajectories, relaxing the guards in a system can generate very different trajectory sets. It is worth noting how the syntactic definition avoids such complications. 
-\end{remark}
-\begin{example}
-Let $H$ be defined as:
-\begin{eqnarray*} 
-X &:& \mathbb{R}\\
-Q &:& \{q_0, q_1\}\\
-\flow_{q_0} &:& x = 1\\
-\flow_{q_1} &:& dx/dt = 1\\
-\jump_{q_0\rightarrow q_1} &:& x >1 \wedge x' = x\\
-\init_{q_0} &:& x=1
-\end{eqnarray*}
-Note that the jump condition is not met for any trajectory of $H$. Thus for all $\xi\in \llbracket H\rrbracket$, 
-$$\xi(0, t) = 1\mbox{ and }\xi(k,t)\mbox{ is undefined for any $k>0$.}$$
-On the other hand, for any $\delta\in \mathbb{Q}^+$, we have that for any $a > 1$, there is some $\xi\in \llbracket H^{\delta}$ and some $t\in \mathbb{R}$ such that
-$$\xi(1, t) = a.$$
-Consequently for any such $\delta$, the Hausdorff distance between the two trajectory sets is
-$$d_{H}(\llbracket H\rrbracket, \llbracket H^{\delta}\rrbracket) = \infty$$
-in the generalized Skorokhod topology. 
-\end{example}
-
-\begin{proposition}\label{equiv-delta}
-$(\reach_{H,q}^n(\vec a))^{-\delta}$ iff there is a trajectory $\xi\in \llbracket H^{\delta}\rrbracket$ such that $\xi(n, t) = \vec a$ and $\sigma_{\xi}(n) = q$.  
-\end{proposition}
-
-\subsubsection{Bounded $\delta$-Reachability}
 
 We focus on the problem of bounded $\delta$-Reachability, defined as follows. 
 
@@ -1102,6 +949,13 @@ is true. Thus $H^{\delta}$ is unsafe, witnessed by $\vec a$.
 
 On the other hand, suppose $\reach^n_{H,\unsafe}$ is false. Following Proposition~\ref{equiv-delta}, there does not exists any $\xi$ such that $\xi(n,t) = \vec a$ and $\unsafe(\vec a)$ is true. Consequently, $H$ is safe up to depth $n$. 
 \end{proof}
+
+
+\begin{proposition}\label{equiv-delta}
+$(\reach_{H,q}^n(\vec a))^{-\delta}$ iff there is a trajectory $\xi\in
+\llbracket H^{\delta}\rrbracket$ such that $\xi(n, t) = \vec a$ and
+$\sigma_{\xi}(n) = q$.  
+\end{proposition}
 
 
 
@@ -1257,6 +1111,30 @@ which means that $\reach_{H,q}(\vec a^t)$ is true.
 
 
 \end{proof}
+
+\subsection*{Some Examples}
+\begin{example}
+Let $H$ be defined as:
+\begin{eqnarray*} 
+X &:& \mathbb{R}\\
+Q &:& \{q_0, q_1\}\\
+\flow_{q_0} &:& x = 1\\
+\flow_{q_1} &:& dx/dt = 1\\
+\jump_{q_0\rightarrow q_1} &:& x >1 \wedge x' = x\\
+\init_{q_0} &:& x=1
+\end{eqnarray*}
+Note that the jump condition is not met for any trajectory of $H$. Thus for all
+$\xi\in \llbracket H\rrbracket$, 
+$$\xi(0, t) = 1\mbox{ and }\xi(k,t)\mbox{ is undefined for any $k>0$.}$$
+On the other hand, for any $\delta\in \mathbb{Q}^+$, we have that for any $a >
+1$, there is some $\xi\in \llbracket H^{\delta}$ and some $t\in \mathbb{R}$ such
+that
+$$\xi(1, t) = a.$$
+Consequently for any such $\delta$, the Hausdorff distance between the two
+trajectory sets is
+$$d_{H}(\llbracket H\rrbracket, \llbracket H^{\delta}\rrbracket) = \infty$$
+in the generalized Skorokhod topology. 
+\end{example}
 
 
 

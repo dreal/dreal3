@@ -13,11 +13,11 @@
 \newcommand{\poly}{\mathsf{poly}}
 \newcommand{\ir}{\mathbb{IR}_{\cup}}
 
-\setlength{\textwidth}{5.3in}
+%\setlength{\textwidth}{5.3in}
 %\setlength{\textheight}{8.2in}
 %\setlength{\topmargin}{0in}
-\setlength{\oddsidemargin}{.6in}
-\setlength{\evensidemargin}{.6in}
+%\setlength{\oddsidemargin}{.6in}
+%\setlength{\evensidemargin}{.6in}
 
 
 \title{Extracting Proofs from a Numerically-Driven Decision Procedure}
@@ -308,25 +308,26 @@ interval assignments and constraints.
 \begin{definition}[Intervals]
 An interval $I$ is any connected subset of $\mathbb{R}$. We write $\mathbb{IR}$
 to denote all the set of all intervals in $\mathbb{R}$. The set of all finite
-unions of intervals is
-$$\mathbb{IR}_{\cup} = \{\cup_{i=1}^k I_i: I_i\in\mathbb{IR}\}.$$
+unions of intervals is $\mathbb{IR}_{\cup} = \{\bigcup_{i=1}^k I_i:
+I_i\in\mathbb{IR}\}.$
 \end{definition}
 \begin{definition}[Interval Assignment Sequence]
 Let $x_1,...,x_n$ be real variables. An interval assignment sequence over
 $\vec x$ is a sequence of the form $(s_1,...,s_m)$, where
-$$s_i\in \{x_i\in I_j: 1\leq i\leq n, I_j\in
+$$s_i\in \{(x_i\in I_j): 1\leq i\leq n, I_j\in
 \mathbb{IR}_{\cup}\}\cup\{(x_i\in I_j)^d: 1\leq i\leq n, I_j\in
 \mathbb{IR}_{\cup}\}.
 $$
 We write $(S_1, S_2)$ to denote the concatenation of two sequences $S_1$ and
-$S_2$.
+$S_2$. The parentheses can be omitted when appropriate. 
 \end{definition}
 \begin{definition}[Box Domain]
 Let $S$ be an interval assignment sequence over variables $x_1,...,x_n$. The box
 domain associated with $S$ is defined by
-$$B^S = I_1\times\cdots \times I_n, \mbox{ where }I_i = \bigcap\{ I: (x_i\in
+$$\beta(S) = I_1\times\cdots \times I_n, \mbox{ where }I_i = \bigcap\{ I:
+(x_i\in
 I)\mbox{ or } (x_i\in I)^d \mbox{ occurs in } S\}.$$
-Also, we write $B^S_i$ to denote $I_i$.
+Also, we write $\beta(S)_i$ to denote $I_i$. 
 \end{definition}
 
 \begin{definition}[ICP Transitions] We define the following transition rules.
@@ -335,31 +336,32 @@ $S$ an interval assignment sequence over $\vec x$.
 
 \paragraph{Pruning:}
 \begin{eqnarray*}
-S\parallel c &\Longrightarrow& S, x_i\in I_i'\parallel c,
+S\parallel c &\Longrightarrow& S, (x_i\in I_i')\parallel c,
 \end{eqnarray*}
-under the condition that $\forall \vec a\in B^{(S,x_i\in
-I_i\setminus I_i')}$,
-$c(\vec a)$ is false, where $B^S_i = I_i$.
+under the condition that $\forall \vec a\in \beta(S,x_i\in
+I_i\setminus I_i')$,
+$c(\vec a)$ is false, where $\beta(S_i) = I_i$.
 \paragraph{Branching:}
 \begin{eqnarray*}
 S\parallel c &\Longrightarrow& S, (x_i\in I_i)^d \parallel c,
 \end{eqnarray*}
-under the condition that $I_i\subseteq B^S_i$.
+under the condition that $I_i\subseteq \beta(S_i)$.
 
 \paragraph{Backtracking:}
 \begin{eqnarray*}
-S, (x_i\in I_i)^d, S'\parallel c &\Longrightarrow& S, x_i\in
-I_i\setminus I_i'\parallel c,
+S, (x_i\in I_i)^d, S'\parallel c &\Longrightarrow& S, (x_i\in
+I_i\setminus I_i') \parallel c,
 \end{eqnarray*}
-under the condition that $\forall a\in B^{(S, (x_i\in I_i)^d, S')}$, $c(\vec a)$
+under the condition that $\forall a\in \beta(S, (x_i\in I_i)^d, S')$, $c(\vec
+a)$
 is false.
 
 \paragraph{Fail:}
 \begin{eqnarray*}
 S\parallel c &\Longrightarrow& \emptyset \parallel c
 \end{eqnarray*}
-under the condition that $\forall \vec a\in B^S$, $c(\vec a)$ is false and there
-is no decision in $S$.
+under the condition that $\forall \vec a\in \beta(S)$, $c(\vec a)$ is false and
+ $S$ has no decision elements.
 \end{definition}
 
 
@@ -384,7 +386,7 @@ error bound.
 A {\em run} of ICP is any sequence
 $$S_1\parallel c, ... , S_k\parallel c$$
 where $S_k$ is either $\emptyset$, or $S_k\neq \emptyset$ and
-$||B^{S_k}||<\varepsilon$.
+$||\beta(S_k)||<\varepsilon$.
 \end{definition}
 \begin{remark}
 We have defined ICP in a general way, without enforcing conditions
@@ -478,40 +480,45 @@ inference step in $\mathbb{D}_A$.
 \begin{definition}
 Let $s$ be an ICP step. The correspondence function $\pi(s)$ is defined as
 follows.
-
-\paragraph{Contradiction.} Suppose $s$ is
-$$I_1,...,I_n \parallel c_1, ..., c_m \Longrightarrow\emptyset\parallel
-c_1,...,c_m.$$ Then $\pi(s)$ is of the form:
+\paragraph{Pruning:}
+A pruning step 
+$$S\parallel c \Longrightarrow S, (x_i\in I_i')\parallel c$$ 
+where $I_i=\beta(S)_i$, corresponds to a proof step
 \begin{mathpar}
-\inferrule{ }{\forall x ( x\in I \rightarrow f(x)\sim 0)}
-\end{mathpar}
-
-\paragraph{Pruning.}
-Suppose $s$ is
-$$I_1,...,I_i,...,I_n \parallel c_1,...,c_m \Longrightarrow
-I_1,...,I_i',...,I_n\parallel c_1,...,c_m.$$
-Then $\pi(s)$ is an inference:
-\begin{mathpar}
-  \inferrule
-{\inferrule{
-  \forall x (x\in I_i \rightarrow \varphi)
-    \and
-  \forall x (x\in I_i' \rightarrow \varphi)
+  \inferrule{
+    \forall \vec x (\vec x\in \beta(S,x_i\in I_i') \rightarrow c(\vec x))\\
+    \forall \vec x (\vec x\in \beta(S,x_i\in I_i\setminus I_i') \rightarrow
+c(\vec x))
   }
   {
-  \forall x (x\in I_i \vee x\in I_i'\rightarrow \varphi)
-  } \and
-  \inferrule{ }
-  { \forall x (x\in I \rightarrow x\in I_1\vee x\in I_2)}
-}
-{
-  \forall x ( x\in I \rightarrow \varphi)
-}
+    \forall \vec x (\vec x\in \beta(S,x_i\in I_i) \rightarrow c(\vec x))
+  }
 \end{mathpar}
-\paragraph{Branching.}
 
-\paragraph{Backtracking.}
+\paragraph{Branching:}
+A branching step 
+\begin{eqnarray*}
+S\parallel c &\Longrightarrow& S, (x_i\in I_i)^d \parallel c,
+\end{eqnarray*}
+corresponds to 
+
+\paragraph{Backtracking:}
+\begin{eqnarray*}
+S, (x_i\in I_i)^d, S'\parallel c &\Longrightarrow& S, (x_i\in
+I_i\setminus I_i') \parallel c,
+\end{eqnarray*}
+under the condition that $\forall a\in \beta(S, (x_i\in I_i)^d, S')$, $c(\vec
+a)$
+is false.
+
+\paragraph{Fail:}
+\begin{eqnarray*}
+S\parallel c &\Longrightarrow& \emptyset \parallel c
+\end{eqnarray*}
+under the condition that $\forall \vec a\in \beta(S)$, $c(\vec a)$ is false and
+ $S$ has no decision elements.
 \end{definition}
+
 
 We now describe the construction of proof trees from ICP runs. The proof trees in
 our case will be labelled binary trees. We describe a tree as a tuple $T = \langle V,
@@ -641,7 +648,7 @@ return {\sf rejected}\;
 \caption{Branch and Prove}
 \end{algorithm}
 
-
+\newpage
 \section{Experimental Results}
 
 \subsection{Kepler Conjecture Benchmarks}
