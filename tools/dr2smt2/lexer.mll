@@ -52,6 +52,7 @@ let comment = '/' '/' [^ '\n']*
   | '\n'    { incr_ln (); main lexbuf}
   | "/*"    { c_style_comment lexbuf }
   | comment { main lexbuf } (* Comment *)
+  | "d/dt"  { verbose (Lexing.lexeme lexbuf); DDT }
   | "->"    { verbose (Lexing.lexeme lexbuf); ARROW }
   | "["     { verbose (Lexing.lexeme lexbuf); LB }
   | "]"     { verbose (Lexing.lexeme lexbuf); RB }

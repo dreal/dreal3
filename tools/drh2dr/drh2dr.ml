@@ -95,13 +95,7 @@ let transform (k : int) (hm : hybrid) : Dr.t =
   (* 1. Translate Variable Declarations *)
   let new_vardecls =
     BatMap.foldi
-      (fun var value vardecls ->
-        let new_item =
-          match value with
-          | Value.Num n -> (var, n, n)
-          | Value.Intv (lb, ub) -> (var, lb, ub)
-        in
-        new_item::vardecls)
+      (fun var value vardecls -> (var, value)::vardecls)
       vardeclmap
       [] in
   (* 2. Collect odes(flow) and formulae of reach_k for (1 -- k) *)

@@ -3,8 +3,8 @@
  *)
 
 type float_option =
-  Float       (* Floating point:     3.141592 *)
-| IntRatio (* Ratio of integers: (3141592 / 1000000 *)
+  Float    (* Floating point   : 3.141592            *)
+| IntRatio (* Ratio of integers: (3141592 / 1000000) *)
 
 let fop = ref IntRatio
 

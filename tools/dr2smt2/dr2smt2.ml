@@ -10,7 +10,7 @@ let spec = [("-i", Arg.Unit (fun () -> Dr.fop := Dr.IntRatio),
            ]
 let usage = "Usage: dr2smt2.native <.dr>\n"
 
-let process out (vardecls : Vardecl.t list) (f : Dr.formula) =
+let process out (vardecls : Vardecl.t list) (odes: Ode.t list) (f : Dr.formula) =
   begin
     (* Set Logic *)
     (* TODO: support QF_NRA_ODE *)
@@ -24,6 +24,15 @@ let process out (vardecls : Vardecl.t list) (f : Dr.formula) =
         BatString.println out " () Real)";
       end)
       vardecls;
+
+    (* ODEs *)
+    BatList.print
+      (~first:"")
+      (~sep:"\n")
+      (~last:"")
+      Ode.print
+      out
+      odes;
 
     (* Assert *)
     BatString.println out "(assert";
@@ -58,8 +67,8 @@ let run () =
     Error.init ();
     let lexbuf =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
-    let (vardecls, formula) = Parser.main Lexer.main lexbuf in
+    let (vardecls, odes, formula) = Parser.main Lexer.main lexbuf in
     let out = BatIO.stdout in
-    process out vardecls formula
+    process out vardecls odes formula
   with v -> Error.handle_exn v
 let _ = Printexc.catch run ()
