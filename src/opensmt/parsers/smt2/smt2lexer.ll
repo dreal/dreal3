@@ -81,6 +81,9 @@ char * pbuffer2;
 "exists"                     { return TK_EXISTS; }
 "!"                          { return TK_ANNOT; }
 "assert"                     { return TK_ASSERT; }
+"d/dt"                       { return TK_DDT; } /* added for dReal2 */
+"["                          { return TK_LB; }  /* added for dReal2 */
+"]"                          { return TK_RB; }  /* added for dReal2 */
 "+"                          { return TK_PLUS; }
 "-"                          { return TK_MINUS; }
 "*"                          { return TK_TIMES; }
