@@ -29,7 +29,7 @@ let process out (vardecls : Vardecl.t list) (odes: Ode.t list) (f : Dr.formula) 
     BatList.print
       (~first:"")
       (~sep:"\n")
-      (~last:"")
+      (~last:"\n")
       Ode.print
       out
       odes;
