@@ -13,7 +13,7 @@
 %\setlength{\oddsidemargin}{.4in}
 %\setlength{\evensidemargin}{.4in}
 
-\title{The {\tt dReach} Tool}
+\title{{\tt dReach}: A Reachability Analysis Tool for Nonlinear Hybrid Systems}
 \author{Sicun Gao \and Soonho Kong \and Edmund M. Clarke}
 \institute{Carnegie Mellon University, Pittsburgh, PA 15213}
 
@@ -21,32 +21,152 @@
 \maketitle
 
 \begin{abstract}
-We present our tool {\tt dReach}, which performs bounded model checking
+We present our tool {\tt dReach} for bounded model checking
 and invariant validation on nonlinear hybrid systems. The tool provides
 correctness guarantees under the framework of $\delta$-complete reachability
 analysis. For instance, for bounded model checking, if {\tt dReach} returns that
-a system is ``safe'' within some bound, then the system guaranteed to be same
+a system is ``safe'' within some bound, then the system is guaranteed to be safe
 within the bound; on the other hand, if it returns ``$\delta$-unsafe'' (with a
-counterexample trace), then there exists some $\delta$-perturbation on the
+counterexample trace), then there exists some $\delta$-bounded perturbation on the
 system that would render it unsafe. Here, $\delta$ is a small numerical error
-bound chosen by the user. {\tt dReach} is able to handle various challenging
-nonlinear benchmarks. 
+bound chosen by the user. In this framework, {\tt dReach} relies on logical
+reasoning engines that can exploit the full power of various numerical
+algorithms in a formal way, and can be scalable on nonlinear problems. 
+We show experiments using {\tt dReach} to handle challenging nonlinear
+benchmarks. 
 \end{abstract}
 
 \section{Introduction}
 
-\section{Tool Design}
+We introduce the tool {\tt dReach} for solving hybrid
+system verification problems. Let $H$ be a hybrid system, whose description can
+contain various nonlinear functions such as polynomials, trignometric
+and exponential functions, and Lipschitz-continuous ODEs. Let $\delta\in
+\mathbb{Q}^+$ be a user-selected error bound. The problems are:
+\paragraph{Bounded Model Checking.} Let $n\in \mathbb{N}$ be a bound and
+$T\in \mathbb{R}^+$ be an upper bound of time duration, and $U$ be a subset of
+the state space of $H$. The bounded model checking problem asks whether $H$ can
+reach $U$ within a time duration of $T$ and within $n$ steps of mode change.
+{\tt dReach} returns one of the following answers:
+\begin{itemize}
+ \item $H$ can not reach $U$ in $n$ steps within time bound $T$. 
+ \item $H^{\delta}$ can reach $U^{\delta}$ in $n$ steps within time bound $T$. 
+\end{itemize}
+\paragraph{Invariant Validation.} Let $Inv$ be a user-proposed inductive
+invariant and $U$ a subset of the state space of $H$. The invariant validation
+problem asks whether $Inv$ is an inductive invariant of $H$, which implies that
+$H$ does not reach $U$. 
+{\tt dReach} returns
+one of the following answers:
+\begin{itemize}
+ \item $Inv$ is an inductive invariant for $H$, and $H$ can never reach $U$.
+ \item $Inv^{\delta}$ is an inductive invariant for $H^{\delta}$. 
+ \end{itemize}
 
-\subsection{Unwinding Hybrid Automata}
+When we write $H^{\delta}, U^{\delta}, Inv^{\delta}$ in the description, we
+mean a $\delta$-perturbation on the first-order formulas that encode these
+descriptions. This follows our framework of $\delta$-reachability
+analysis~\cite{}. Essentially, 
 
-\subsection{Encoding Invariant Conditions}
+\section{Using {\tt dReach}}
 
-\subsection{The Background SMT Solver}
+The input format of the tool is defined as follows. 
+\begin{verbatim}
+<variable_declarations>
+%%
+<automaton_declarations>
+%%
+<property_declarations>
+\end{verbatim}
 
-\section{Input Format and Parameters}
+\paragraph{Variable Declarations.} Variables are declared first, which are
+bounded by intervals that give a coarse estimate of their ranges. The infinity
+signs can be used for variables whose ranges can be inferred from other
+variables.
+\begin{verbatim}
+[lower_bound, upper_bound] variable_name;
+\end{verbatim}
+The lower\_bound and upper\_bound are floating point numbers. 
+
+For instance,
+\begin{verbatim}
+[-1000.1, 1.2e+12] x;
+\end{verbatim}
+declares variable $x$ to be a real number in the interval $x\in [-1000.1,
+1.2\times 10^{12}].$
+
+\paragraph{Automaton Declarations.}
+
+Hybrid automata are finite automata with continuous variables; the continuous
+variables can follow different dynamics in each location. In each location, we
+need to specify the dynamics and constraints on the transitions between the
+modes. 
+
+Each mode is given as a block in the automata declaration:
+\begin{verbatim}
+{  	mode: i;
+    dynamics: <continuous_equations>;
+    jump: <transition_rules>; }
+\end{verbatim}
+The dynamics are usually given by differential equations. For instance,
+\begin{verbatim}
+[d/dt]x = x*y + y;
+[d/dt]y = sin(x);
+\end{verbatim}
+The transition rules are given as follows. Suppose $x$ is a variable, we write
+the updated value of $x$ as $x'$. The rules specify the next control location as
+well as the updated variables. The rules are written using format:
+\begin{verbatim}
+<guard_conditions> ==> @location <reset_conditions>
+\end{verbatim}
+For instance,
+\begin{verbatim}
+(and (> x 10)  (< y 5)) ==> @i (and (= x' (+ x y)) (= y' (sin x)) ; 
+\end{verbatim}
+
+\paragraph{Property Declarations.}
+
+Safety properties can be given by any first-order formula. For instance
+\begin{verbatim}
+x < 10 & y+x^2 > 5;
+\end{verbatim}
+is a legitimate safety property. 
+\begin{figure}[h!]
+\label{dreach}
+\begin{verbatim}
+#file automata_example.drh
+[1,10] x; [-10, 311] y; [0, 21] t;
+%%
+{   mode: 1;
+    dynamics: [d/dt]x = x + y; [d/dt]y = x*y - 10;
+    jump: x>10 ==> @2 (= x' (+ (* 5 x) y)); (< y 5) ==> @2 (= y' x*y);
+}
+{   mode: 2;
+    dynamics: [d/dt]x = y; [d/dt]y = sin(x);
+    jump: x<5 ==> @1 (= x' 1); y>10 ==> @2 (= y' 2);
+}    
+%%
+x>10 | y<10 ;
+\end{verbatim}
+\caption{dReach file example automata\_example.drh}
+\end{figure}
+
+\section{Design and Implementation}
+
+{\tt dReach} consists of a front end that encodes the verification problems
+using first-order formulas, and a backend SMT solvers that provide
+$\delta$-decisions on the formulas.
+
+\subsection{$\delta$-Complete Methods}
+
+\subsection{Encoding Bounded Model Checking}
+
+\subsection{Encoding Invariant Validation}
+
+\subsection{The Underlying Decision Procedures}
 
 
-\section{Examples and Result}
+\section{Examples}
 
 
 \bibliographystyle{abbrv}
