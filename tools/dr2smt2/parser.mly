@@ -48,11 +48,11 @@ ode:
   DDT LB ID RB EQ exp SEMICOLON { ($3, $6) }
 ;
 
-ode_list: ode { [] }
+ode_list: /* nothing */ { [] }
   | ode ode_list { $1::$2 }
 ;
 
-formula_list: formula { [] }
+formula_list: formula { [$1] }
   | formula formula_list { $1::$2 }
 ;
 
