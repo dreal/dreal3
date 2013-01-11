@@ -45,7 +45,7 @@ let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
   Dr.make_and [cond'; change']
 
 let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
-    = let (vardecls, modemap, (init_id, init_formula), goal) = hm in
+    = let (vardecls, env, modemap, (init_id, init_formula), goal) = hm in
       match (k, q) with
       | (0, q) when q = init_id ->
         begin
@@ -78,7 +78,7 @@ let rec reach_kq (k : int) (q : id) (hm : hybrid) : (flow * formula)
         end
 
 let reach_k (k : int) (hm : hybrid) : (flow * formula) =
-  let (vardeclmap, modemap, init, goal) = hm in
+  let (vardeclmap, env, modemap, init, goal) = hm in
   let mode_ids = BatMap.keys modemap in
   begin
     let results = BatList.of_enum (BatEnum.map (fun q -> reach_kq k q hm) mode_ids) in
@@ -89,7 +89,7 @@ let reach_k (k : int) (hm : hybrid) : (flow * formula) =
   end
 
 let transform (k : int) (hm : hybrid) : Dr.t =
-  let (vardeclmap, modemap, init, goals) = hm in
+  let (vardeclmap, env, modemap, init, goals) = hm in
   let num_of_modes = BatEnum.count (BatMap.keys modemap) in
   (* 1. Translate Variable Declarations *)
   let new_vardecls =

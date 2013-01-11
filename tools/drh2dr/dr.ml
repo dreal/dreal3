@@ -75,6 +75,41 @@ let make_and (fs : formula list) =
   | Some fs' -> And fs'
   | None -> False
 
+let rec preprocess_exp (f: string -> exp) : (exp -> exp) =
+  function Var s -> f s
+  | Const n -> Const n
+  | Neg e'  -> Neg (preprocess_exp f e')
+  | Add (e1, e2) -> Add (preprocess_exp f e1, preprocess_exp f e2)
+  | Sub (e1, e2) -> Sub (preprocess_exp f e1, preprocess_exp f e2)
+  | Mul (e1, e2) -> Mul (preprocess_exp f e1, preprocess_exp f e2)
+  | Div (e1, e2) -> Div (preprocess_exp f e1, preprocess_exp f e2)
+  | Pow (e1, e2) -> Pow (preprocess_exp f e1, preprocess_exp f e2)
+  | Ite (f', e1, e2) -> Ite (preprocess_formula f f', preprocess_exp f e1, preprocess_exp f e2)
+  | Sqrt e' -> Sqrt (preprocess_exp f e')
+  | Abs  e' -> Abs  (preprocess_exp f e')
+  | Log  e' -> Log  (preprocess_exp f e')
+  | Exp  e' -> Exp  (preprocess_exp f e')
+  | Sin  e' -> Sin  (preprocess_exp f e')
+  | Cos  e' -> Cos  (preprocess_exp f e')
+  | Tan  e' -> Tan  (preprocess_exp f e')
+  | Asin e' -> Asin (preprocess_exp f e')
+  | Acos e' -> Acos (preprocess_exp f e')
+  | Atan e' -> Atan (preprocess_exp f e')
+  | Sinh e' -> Sinh (preprocess_exp f e')
+  | Cosh e' -> Cosh (preprocess_exp f e')
+  | Tanh e' -> Tanh (preprocess_exp f e')
+and preprocess_formula (f: string -> exp) : (formula -> formula) =
+  function True -> True
+  | False  -> False
+  | Not f' -> Not (preprocess_formula f f')
+  | And fl -> And (List.map (preprocess_formula f) fl)
+  | Or fl  -> Or (List.map (preprocess_formula f) fl)
+  | Gt (e1, e2) -> Gt (preprocess_exp f e1, preprocess_exp f e2)
+  | Lt (e1, e2) -> Lt (preprocess_exp f e1, preprocess_exp f e2)
+  | Ge (e1, e2) -> Ge (preprocess_exp f e1, preprocess_exp f e2)
+  | Le (e1, e2) -> Le (preprocess_exp f e1, preprocess_exp f e2)
+  | Eq (e1, e2) -> Eq (preprocess_exp f e1, preprocess_exp f e2)
+
 let rec subst_exp (f: string -> string) : (exp -> exp) =
   function Var s -> Var (f s)
   | Const n -> Const n

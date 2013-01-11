@@ -16,7 +16,38 @@ type exp = Dr.formula
 type init = modeId * formula
 type goal = modeId * formula
 type goals = goal list
-type t = vardeclmap * modemap * init * goals
+type t = vardeclmap * vardeclmap * modemap * init * goals
+
+let preprocess ((vm : Vardeclmap.t), (env : Vardeclmap.t), (mm : Modemap.t), (init_id, init_f), goals) : t =
+  let subst s =
+    match BatMap.mem s env with
+    | true ->
+      begin
+        match Vardeclmap.find s env with
+          Value.Num n -> Dr.Const n
+        | _ -> raise Not_found
+      end
+    | false ->
+      Dr.Var s
+  in
+  let mm' =
+    BatMap.map
+      (fun (id, macro, inv, flow, jm) ->
+        (id,
+         List.map (Dr.preprocess_formula subst) macro,
+         List.map (Dr.preprocess_formula subst) inv,
+         List.map (fun (v, e) -> (v, Dr.preprocess_exp subst e)) flow,
+         BatMap.map
+           (fun (f1, x, f2) -> (Dr.preprocess_formula subst f1,
+                             x,
+                             Dr.preprocess_formula subst f2))
+           jm
+        )
+      )
+      mm in
+  let init' = (init_id, Dr.preprocess_formula subst init_f) in
+  let goals' = List.map (fun (id, goal) -> (id, Dr.preprocess_formula subst goal)) goals in
+  (vm, env, mm', init', goals')
 
 let mf_print out (id, f) =
   begin
@@ -27,7 +58,7 @@ let mf_print out (id, f) =
     BatString.print out ")";
   end
 
-let print out (((vm : Vardeclmap.t), (mm : Modemap.t), init, goals) : t)=
+let print out (((vm : Vardeclmap.t), (env : Vardeclmap.t), (mm : Modemap.t), init, goals) : t)=
   let print_header out str =
     begin
       BatString.print out "====================\n";

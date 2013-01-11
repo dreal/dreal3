@@ -15,11 +15,12 @@ let run () =
       else raise (Arg.Bad (x^": No such file"))) usage in
   try
     Error.init ();
+    let out = BatIO.stdout in
     let lexbuf =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let hm = Parser.main Lexer.start lexbuf in
-    let dr = Drh2dr.transform !k hm in
-    let out = BatIO.stdout in
+    let hm' = Hybrid.preprocess hm in
+    let dr = Drh2dr.transform !k hm' in
     begin
       Dr.print out dr;
       BatString.println out ""
