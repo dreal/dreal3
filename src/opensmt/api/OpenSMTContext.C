@@ -595,7 +595,7 @@ void OpenSMTContext::DefineODE( const char * name, Enode * e )
          << " = "
 	 << e
 	 << endl;
-  egraph.addODE(mkCons(mkVar(name), e));
+  egraph.addODE(name, e);
 }
 
 void OpenSMTContext::Push( )

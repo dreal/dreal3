@@ -2325,55 +2325,11 @@ void Egraph::addAssertion( Enode * e )
   assert( !assertions.empty( ) );
 }
 
-void addODE_aux ( Enode * e, Enode * ode )
+void Egraph::addODE ( const char * name, Enode * e )
 {
-    Enode * p = NULL;
-    if( e->isSymb( ) ) {
-        e->addODE(e);
-    }
-    else if ( e->isNumb( ) )
-    {
-        // do nothing
-    }
-    else if ( e->isTerm( ) )
-    {
-        addODE_aux(e->getCar(), ode);
-        p = e->getCdr();
-        while ( !p->isEnil( ) )
-        {
-            addODE_aux(p->getCar(), ode);
-            p = p->getCdr();
-        }
-    }
-    else if ( e->isList( ) )
-    {
-        if ( !e->isEnil( ) )
-        {
-            addODE_aux(p->getCar(), ode);
-            p = e->getCdr();
-            while ( !p->isEnil( ) )
-            {
-                addODE_aux(p->getCar(), ode);
-                p = p->getCdr();
-            }
-        }
-    }
-    else if ( e->isDef( ) )
-    {
-        // do nothing
-    }
-    else if ( e->isEnil( ) )
-    {
-        // do nothing
-    }
-    else
-        opensmt_error( "unknown case value" );
-}
-
-void Egraph::addODE ( Enode * e )
-{
-    // For each variable `v` in `e`, we need to call v->addODE(e)
-    addODE_aux(e, e);
+    stringstream buf;
+    e->print_infix(buf, lbool(true));
+    var_to_ode[name] = buf.str();
 }
 
 Enode * Egraph::canonize( Enode * formula, bool split_eqs )

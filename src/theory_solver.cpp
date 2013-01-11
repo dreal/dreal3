@@ -1,5 +1,6 @@
 #include "theory_solver.h"
 #include <limits>
+#include <boost/algorithm/string/predicate.hpp>
 
 NRASolver::NRASolver( const int           i
                         , const char *        n
@@ -213,6 +214,66 @@ void NRASolver::add_literal ( Enode * e, vector< literal *> & ll )
   // rp_problem_display(stdout, *_problem);
 }
 
+set<string> retrieve_ode_set(map <string, string> & m, Enode * e)
+{
+    boost::algorithm::ends_with("mystring", "ing");
+    set<string> result;
+
+    Enode * p = NULL;
+    if( e->isSymb( ) ) {
+        // Check it ends with "_t" or "_0".
+        string name = e->getName();
+        if (boost::algorithm::ends_with(name, "_0") ||
+            boost::algorithm::ends_with(name, "_t")) {
+            string prefix = name.substr(0, name.size() - 2);
+            result.insert(m[prefix]);
+        }
+    }
+    else if ( e->isNumb( ) )
+    {
+        // do nothing
+    }
+    else if ( e->isTerm( ) )
+    {
+        set <string> tmp_set = retrieve_ode_set(m, e->getCar());
+        result.insert(tmp_set.begin(), tmp_set.end());
+        p = e->getCdr();
+        while ( !p->isEnil( ) )
+        {
+            tmp_set = retrieve_ode_set(m, p->getCar());
+            result.insert(tmp_set.begin(), tmp_set.end());
+            p = p->getCdr();
+        }
+    }
+    else if ( e->isList( ) )
+    {
+        if ( !e->isEnil( ) )
+        {
+            set <string> tmp_set = retrieve_ode_set(m, e->getCar());
+            result.insert(tmp_set.begin(), tmp_set.end());
+
+            p = e->getCdr();
+            while ( !p->isEnil( ) )
+            {
+                tmp_set = retrieve_ode_set(m, p->getCar());
+                result.insert(tmp_set.begin(), tmp_set.end());
+
+                p = p->getCdr();
+            }
+        }
+    }
+    else if ( e->isDef( ) )
+    {
+        // do nothing
+    }
+    else if ( e->isEnil( ) )
+    {
+        // do nothing
+    }
+    else
+        opensmt_error( "unknown case value" );
+    return result;
+}
 
 //
 // The solver is informed of the existence of
@@ -220,19 +281,23 @@ void NRASolver::add_literal ( Enode * e, vector< literal *> & ll )
 // the solver's data structures. This function is
 // called before the actual solving starts.
 //
-
 lbool NRASolver::inform( Enode * e )
 {
-  cerr << "inform: " << e << endl;
-	assert( e -> isAtom() );
+    if (contain_ode()) {
+        // update ODE set of e
+        retrieve_ode_set(egraph.var_to_ode, e);
+    }
 
-  	get_variables( e, v_list );
-	add_literal ( e, l_list );
+    cerr << "inform: " << e << endl;
+    assert( e -> isAtom() );
 
-	cout << " has polarity " << toInt(e->getPolarity()) << " "<<endl;
+    get_variables( e, v_list );
+    add_literal ( e, l_list );
 
-	assert( belongsToT( e ) );
-  	return l_Undef;
+    cout << " has polarity " << toInt(e->getPolarity()) << " "<<endl;
+
+    assert( belongsToT( e ) );
+    return l_Undef;
 }
 
 //

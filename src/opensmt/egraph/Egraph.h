@@ -245,7 +245,7 @@ public:
 
   void    printEnodeList          ( ostream & );
   void    addAssertion            ( Enode * );
-  void    addODE                  ( Enode * );
+  void    addODE                  ( const char *, Enode * );
 
   void    evaluateTerm            ( Enode *, double& );
 
@@ -332,6 +332,9 @@ public:
   // Not used but left there
   bool    isPureUF                 ( Enode * );
   bool    isPureLA                 ( Enode * );
+
+  // added for dReal
+  map< string, string > var_to_ode;
 
 private:
 

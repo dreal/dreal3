@@ -2,6 +2,7 @@
 #define THEORY_SOLVER_H
 
 #include "TSolver.h"
+#include "Egraph.h"
 #include "icp_solver.h"
 
 class NRASolver : public OrdinaryTSolver
