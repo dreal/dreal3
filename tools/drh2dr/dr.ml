@@ -4,7 +4,7 @@
 
 type var = string
 
-type vardecl = var * float * float
+type vardecl = Vardecl.t
 
 type exp =
 | Var   of string
@@ -215,17 +215,6 @@ and print_formula (out : 'a BatInnerIO.output) : formula -> unit =
   | Le  (e1, e2) -> print_exps "<=" [e1; e2]
   | Eq  (e1, e2) -> print_exps "="  [e1; e2]
 
-let print_vardecl (out : 'a BatInnerIO.output) (v, lb, ub)  =
-  begin
-    BatString.print out v;
-    BatString.print out ": ";
-    BatString.print out "[";
-    BatString.print out (BatFloat.to_string lb);
-    BatString.print out ", ";
-    BatString.print out (BatFloat.to_string ub);
-    BatString.print out "]";
-  end
-
 let print_ode out (v, e) =
   begin
     BatString.print out "d/dt[";
@@ -241,7 +230,9 @@ let print out ((vardecls, odes, f) : t) : unit =
       (~first:"")
       (~sep:";\n")
       (~last:";\n")
-      print_vardecl out vardecls;
+      Vardecl.print
+      out
+      vardecls;
     (* print variable declarations *)
     BatList.print
       (~first:"{\n")

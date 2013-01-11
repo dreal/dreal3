@@ -4,7 +4,7 @@ type t = var * value
 
 let print out (var, value) =
   begin
-    BatString.print out var;
-    BatString.print out " := ";
     Value.print out value;
+    BatString.print out " ";
+    BatString.print out var;
   end
