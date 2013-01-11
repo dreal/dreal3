@@ -21,12 +21,12 @@
 
 %start main
 
-%type <Vardecl.t list * Dr.formula> main
+%type <Vardecl.t list * Ode.t list * Dr.formula> main
 %type <Dr.formula> formula
 %type <Dr.exp> exp
 
 %%
-main: varDecl_list formula { ($1, $2) }
+main: varDecl_list LC ode_list RC formula { ($1, $3, $5) }
 ;
 
 varDecl_list: varDecl { [$1] }
@@ -42,6 +42,14 @@ var: ID { $1 }
   | AST var { "ptr_" ^ $2 }
   | var ARROW var { $1 ^ "_" ^ $3 }
   | var DOT var { $1 ^ "_" ^ $3 }
+;
+
+ode:
+  DDT LB ID RB EQ exp SEMICOLON { ($3, $6) }
+;
+
+ode_list: ode { [] }
+  | ode ode_list { $1::$2 }
 ;
 
 formula_list: formula { [] }
