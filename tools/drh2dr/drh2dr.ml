@@ -92,20 +92,39 @@ let reach_k (k : int) (hm : hybrid) : (flow * formula) =
 
 let transform (k : int) (hm : hybrid) : Dr.t =
   let (vardeclmap, modemap, init, goals) = hm in
+  let num_of_modes = BatEnum.count (BatMap.keys modemap) in
   (* 1. Translate Variable Declarations *)
   let new_vardecls =
     BatMap.foldi
       (fun var value vardecls -> (var, value)::vardecls)
       vardeclmap
       [] in
+  let new_vardecls' =
+    List.concat
+      (List.map
+         (fun (var, value) ->
+           let t1 =
+             BatList.cartesian_product
+               (BatList.of_enum ( 1 -- k ))
+               (BatList.of_enum ( 0 --^ num_of_modes ))
+           in
+           List.concat
+             (List.map
+                (fun (k, q) -> [(add_index k q true var, value);
+                             (add_index k q false var, value)])
+                t1
+             )
+         )
+         new_vardecls)
+  in
   (* 2. Collect odes(flow) and formulae of reach_k for (1 -- k) *)
   let (flows, formulas) =
     BatList.split
       (BatList.of_enum
          (BatEnum.map (fun k -> reach_k k hm) (1 -- k))) in
   let (flow, formula) = (List.concat flows, Dr.make_or formulas) in
-  (* 3. Unsafe *)
 
+  (* 3. Unsafe *)
   let safe_conditions =
     BatList.concat
       (BatList.of_enum
@@ -119,7 +138,7 @@ let transform (k : int) (hm : hybrid) : Dr.t =
          )
       ) in
   let unsafe_condition = Dr.Not (Dr.make_and safe_conditions) in
-  (new_vardecls,
+  (new_vardecls',
    flow,
    Dr.make_and [formula; unsafe_condition]
   )
