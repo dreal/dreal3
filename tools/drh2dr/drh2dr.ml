@@ -14,33 +14,31 @@ type jump = Mode.jump
 type ode = Mode.ode
 type flow = ode list
 
-let add_index (k : int) (q : id) (t : bool) (s : string) : string =
+let add_index (k : int) (q : id) (suffix : string) (s : string) : string =
   let str_step = string_of_int k in
   let str_mode_id = string_of_int q in
-  let suffix = if t then "t" else "0" in
-  BatString.join "_" [s;
+  (BatString.join "_" [s;
                       str_step;
-                      str_mode_id;
-                      suffix]
+                      str_mode_id;]) ^ suffix
 
 let process_init (q : id) (i : formula) : formula =
-  Dr.subst_formula (add_index 0 q false) i
+  Dr.subst_formula (add_index 0 q "_0") i
 
 let process_flow (k : int) (q : id) (m : mode) : (flow * formula) =
   let (id, macro, inv, flow, jump) = m in
-  let flow' = List.map (fun ode -> Dr.subst_ode (add_index k q false) ode) flow in
+  let flow' = List.map (fun ode -> Dr.subst_ode (add_index k q "") ode) flow in
   (flow', Dr.True)
 
 let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
     : formula =
   let (cond, _, change) = jump in
-  let cond' = Dr.subst_formula (add_index k q true) cond in
+  let cond' = Dr.subst_formula (add_index k q "_t") cond in
   (* TODO: Need to add equality relations for the unmodified variables *)
   let change' =
     Dr.subst_formula
       (fun v -> match BatString.ends_with v "'" with
-        true -> add_index (k+1) next_q false v
-      | false -> add_index k q true v
+        true -> add_index (k+1) next_q "_0" v
+      | false -> add_index k q "_t" v
       )
       change in
   (* TODO: Need to check the following *)
@@ -110,8 +108,8 @@ let transform (k : int) (hm : hybrid) : Dr.t =
            in
            List.concat
              (List.map
-                (fun (k, q) -> [(add_index k q true var, value);
-                             (add_index k q false var, value)])
+                (fun (k, q) -> [(add_index k q "_t" var, value);
+                             (add_index k q "_0" var, value)])
                 t1
              )
          )
@@ -131,7 +129,7 @@ let transform (k : int) (hm : hybrid) : Dr.t =
          (BatEnum.map
             (fun k ->
               List.map
-                (fun (id, goal_formula) -> Dr.subst_formula (add_index k id true) goal_formula)
+                (fun (id, goal_formula) -> Dr.subst_formula (add_index k id "_t") goal_formula)
                 goals
             )
             (1 -- k)
