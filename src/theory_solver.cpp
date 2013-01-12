@@ -41,7 +41,7 @@ bool NRASolver::icp_prop(rp_problem * p)
   rp_splitter * split;
   rp_new( split, rp_splitter_mixed, (p) );
 
-  icp_solver solver( (p), 10, select, split);
+  icp_solver solver( (p), _odes, 10, select, split);
   _solver = &solver;	//solver created
 
   if (!rp_box_empty(rp_problem_box(*p)))
@@ -79,7 +79,7 @@ bool NRASolver::icp_solve(rp_problem * p)
 	rp_splitter * split;
 	rp_new( split, rp_splitter_mixed, (p) );
 
-	icp_solver solver( (p), 10, select, split);
+	icp_solver solver( (p), _odes, 10, select, split);
 	_solver = &solver;	//solver created
 
 	if (rp_box_empty(rp_problem_box(*p)))
@@ -94,7 +94,7 @@ bool NRASolver::icp_solve(rp_problem * p)
       		rp_box b;
 		int nb_isafe = 0;
 
-   		if ((b=solver.compute_next())!=NULL)
+   		if ((b=solver.compute_next(_contain_ode))!=NULL)
 		//was a while statement
       		{
 			char tmp[100];
@@ -178,40 +178,40 @@ void NRASolver::get_variables(Enode * e, vector<variable *> & vl)
   }
 }
 
-void NRASolver::pop_literal (vector<literal *> & ll)
+void NRASolver::pop_literal ( )
 {
-  literal * lit = ll.back();
-  ll.pop_back();
+  literal * lit = assigned_lits.back();
+  assigned_lits.pop_back();
+  _odes.clear();
   rp_vector_pop(rp_problem_ctrs(*_problem),*(lit->_c));
 }
 
-void NRASolver::add_literal ( Enode * e, vector< literal *> & ll )
+void NRASolver::add_literal ( Enode * e )
 {
-  // If `e` is already added, then skip
-  for (vector<literal *>::iterator it = ll.begin() ; it != ll.end(); it++)
+    // If `e` is already added, then skip
+    for (vector<literal *>::iterator it = assigned_lits.begin() ; it != assigned_lits.end(); it++)
     {
-      if ( e == (*it) -> get_enode() )
+        if ( e == (*it) -> get_enode() )
         {
-          return;
+            return;
         }
     }
 
-  literal * lit = new literal( e , _ts );
-  // cerr << "Org Str: |" << e << "|" << endl;
-  const string infix_str = infix(e, e->getPolarity());
-  const char* infix_cstr = infix_str.c_str();
-  // cerr << "Infix Str: |" << infix_cstr << "|" << endl;
-  lit->mk_constraint( infix_cstr );
+    literal * lit = new literal( e , _ts );
+    const string infix_str = infix(e, e->getPolarity());
+    const char* infix_cstr = infix_str.c_str();
+    lit->mk_constraint( infix_cstr );
 
-  ll.push_back(lit);
-  rp_vector_insert(rp_problem_ctrs(*_problem),*(lit->_c));
+    const set<string> ode_in_lit = e->getODEs();
+    _odes.insert(ode_in_lit.begin(), ode_in_lit.end());
+    assigned_lits.push_back(lit);
+    rp_vector_insert(rp_problem_ctrs(*_problem),*(lit->_c));
 
-  /* creation of relation var -> number of constraints containing var */
-  for (int i=0; i<rp_constraint_arity(*(lit->_c)); ++i)
+    /* creation of relation var -> number of constraints containing var */
+    for (int i=0; i<rp_constraint_arity(*(lit->_c)); ++i)
     {
-      ++rp_variable_constrained(rp_problem_var(*_problem,rp_constraint_var(*(lit->_c),i)));
+        ++rp_variable_constrained(rp_problem_var(*_problem,rp_constraint_var(*(lit->_c),i)));
     }
-  // rp_problem_display(stdout, *_problem);
 }
 
 set<string> retrieve_ode_set(map <string, string> & m, Enode * e)
@@ -292,7 +292,7 @@ lbool NRASolver::inform( Enode * e )
     assert( e -> isAtom() );
 
     get_variables( e, v_list );
-    add_literal ( e, l_list );
+//  add_literal ( e, l_list );
 
     cout << " has polarity " << toInt(e->getPolarity()) << " "<<endl;
 
@@ -314,7 +314,7 @@ bool NRASolver::assertLit ( Enode * e, bool reason )
 
   // cerr << "AssertLit with " << reason << " " << e << endl;
 
-  add_literal (e, assigned_lits);
+  add_literal (e);
   // cerr << " has polarity " << toInt(e->getPolarity()) << endl;
 
   assert( e );
@@ -373,8 +373,8 @@ void NRASolver::popBacktrackPoint ( )
   cerr << "Current Box (after pop):" << endl;
   rp_box_display_simple(*_b);
 
-  // pop literal from assigned_lits
-  pop_literal(assigned_lits);
+  // pop literal
+  pop_literal( );
 }
 
 //

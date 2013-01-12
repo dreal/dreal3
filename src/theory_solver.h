@@ -32,14 +32,14 @@ public:
 	void	 	get_variables	( Enode * , vector< variable * > & );
 	variable *	add_variable	( Enode * );
 
-	void		add_literal	( Enode * , vector< literal * > & );
-	void		pop_literal	( vector< literal * > & );
+	void		add_literal	( Enode * );
+	void		pop_literal	( );
         bool            contain_ode     ( );
 
 private:
 
 	vector< variable * >	v_list;
-	vector< literal * >	l_list;
+//	vector< literal * >	l_list;
 	vector< literal * >	assigned_lits;
         rp_box_stack *          history_boxes;
 
@@ -50,6 +50,8 @@ private:
 
 	rp_problem * 		_problem;
         bool                    _contain_ode;
+
+        set < string >       _odes;
 
 };
 #endif
