@@ -1,3 +1,6 @@
+#ifndef VARIABLE_H
+#define VARIABLE_H
+
 #include "realpaver.h"
 #include "Enode.h"
 
@@ -36,3 +39,4 @@ private:
 
 };
 
+#endif
