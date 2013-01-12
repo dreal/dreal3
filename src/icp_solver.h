@@ -11,6 +11,7 @@ public:
 
   	icp_solver( rp_problem * p,
                     set < string > & odes,
+                    set < variable* > & ode_vars,
                     double improve, rp_selector * vs,
                     rp_splitter * ds, rp_existence_prover * ep = 0);
 
@@ -36,6 +37,7 @@ private:
   	rp_splitter * _dsplit;     /* split function of variable domain       */
   	rp_existence_prover * _ep; /* existence prover                        */
         set < string > & _odes;
+        set < variable* > & _ode_vars;
   	int _sol;                  /* number of computed solutions            */
   	int _nsplit;               /* number of split steps                   */
   	double _improve;           /* improvement factor of iterative methods */

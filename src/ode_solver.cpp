@@ -2,11 +2,16 @@
 
 #include "ode_solver.h"
 #include "capd/capdlib.h"
+#include <boost/algorithm/string/join.hpp>
+
 using namespace capd;
 using namespace std;
 
-ode_solver::ode_solver(set < string > & odes ) :
-    _odes(odes)
+ode_solver::ode_solver(set < string > & odes,
+                       set < variable* > & ode_vars
+    ) :
+    _odes(odes),
+    _ode_vars(ode_vars)
 {
 }
 
@@ -21,54 +26,38 @@ bool ode_solver::solve(rp_box box)
     cout.precision(12);
     try {
         // 1. Construct diff_sys, which are the ODE
-        string diff_sys, diff_var, diff_fun;
-        std::vector<Enode *>  diff_list;
-        std::vector<Enode *>  diff_var_list;
+        //std::vector<Enode *>  diff_list;
+        //std::vector<Enode *>  diff_var_list;
         std::map<int, int>    variables_to_intervals;
         std::vector<int> var_code; //stores the ids of variables in the formula
 
-        // string tmp;
+        vector<string> var_list;
+        vector<string> ode_list;
 
-        // diff_var += "var:";
-        // diff_fun += "fun:";
+        // 1. extract variables & functions
+        for(set< string >::iterator ite = _odes.begin();
+            ite != _odes.end();
+            ite++)
+        {
+            size_t pos = ite->find("=");
+            string var = ite->substr(0, pos - 1);
+            string ode = ite->substr(pos + 1);
+            cerr << "String : " << *ite << endl;
+            cerr << "Var : " << var << endl;
+            cerr << "Ode : " << ode << endl;
 
-        // int i = 0;
-        // set<int>::iterator ite;
+            var_list.push_back(var);
+            var_list.push_back(ode);
+        }
 
-        // for (ite = diff_group.begin(); ite!= diff_group.end(); ite++)
-        // {
-        //     int head_index;
+        // 2. join var_list to make diff_var, ode_list to diff_fun
+        string diff_var = "var:" + boost::algorithm::join(var_list, ", ");
+        string diff_fun = "fun:" + boost::algorithm::join(ode_list, ", ");
 
-        //     if (*ite>0)
-        //     {
-        //         head_index = diff_right_marker[*ite-1];
-        //     }
-        //     else
-        //     {
-        //         head_index = 0;
-        //     }
+        cerr << "diff_var : " << diff_var << endl;
+        cerr << "diff_fun : " << diff_fun << endl;
 
-        //     int tail_index = diff_right_marker[*ite];
-
-        //     for (i= head_index; i<= tail_index; i++)
-        //     {
-        //         diff_var_list[i]->print_str(tmp);
-        //         diff_var+= tmp;
-        //         diff_var+= ",";
-        //         tmp.clear();
-
-        //         diff_list[i]->print_str(tmp);
-        //         diff_fun+= tmp;
-        //         diff_fun+= ",";
-        //         tmp.clear();
-        //     }
-        // }
-
-        // diff_var.erase(diff_var.end()-1);
-        // diff_var += ";";
-        // diff_fun.erase(diff_fun.end()-1);
-        // diff_fun += ";";
-        // diff_sys = diff_var + diff_fun;
+        string diff_sys = diff_var + diff_fun;
 
         //pass the problem with variables
         IMap vectorField(diff_sys);
@@ -78,26 +67,41 @@ bool ode_solver::solve(rp_box box)
         ITimeMap timeMap(solver);
 
         //initial conditions
-        IVector x(diff_var_list.size());
-        IVector y(diff_var_list.size());
+        IVector x(var_list.size());
+        IVector y(var_list.size());
 
         y = x; //set the initial comparison
 
-        for (int i = 0; i < diff_var_list.size(); i++)
+        int idx = 0, i=0;
+        for (vector<string>::iterator var_ite = var_list.begin();
+             var_ite != var_list.end();
+             var_ite++)
         {
-            //this is getting the initial intervals from the variables
-            //and give them to the initial conditions of odes in
-            //mkVar, a cons is added to the variable name
-            var_code.push_back(diff_var_list[i]->getCar()->getId());
+            double lb, ub;
+            for(set<variable*>::iterator ode_var_ite = _ode_vars.begin();
+                ode_var_ite != _ode_vars.end();
+                ode_var_ite++)
+            {
+                if((*ode_var_ite)->get_enode()->getName().compare(*var_ite)) {
+                    lb = (*ode_var_ite)->get_lb();
+                    ub = (*ode_var_ite)->get_ub();
+                    x[idx++] = interval(lb, ub);
+                }
+            }
 
-            x[i]=interval(rp_box_elem(box,variables_to_intervals[var_code[i]])[0].inf,
-                          rp_box_elem(box,variables_to_intervals[var_code[i]])[0].sup);
+            // //this is getting the initial intervals from the variables
+            // //and give them to the initial conditions of odes in
+            // //mkVar, a cons is added to the variable name
+            // var_code.push_back(diff_var_list[i]->getCar()->getId());
 
-            //note!! now the only problem is in this part. boxes are
-            //given to the wrong variables. wonder why. after fixing
-            //this, you are gonna give new bounds on variables based
-            //on the results from ode solving!
-            cout<<"The interval on x"<<i<<" is"<<x[i]<<endl;
+            // x[i]=interval(rp_box_elem(box,variables_to_intervals[var_code[i]])[0].inf,
+            //               rp_box_elem(box,variables_to_intervals[var_code[i]])[0].sup);
+
+            // //note!! now the only problem is in this part. boxes are
+            // //given to the wrong variables. wonder why. after fixing
+            // //this, you are gonna give new bounds on variables based
+            // //on the results from ode solving!
+            cout<<"The interval on " << *var_ite << " is"<<x[i]<<endl;
         }
 
         // define a doubleton representation of the interval vector x
@@ -111,7 +115,7 @@ bool ode_solver::solve(rp_box box)
         interval prevTime(0.);
 
         IVector v;
-        IVector v_union(diff_var_list.size());
+        IVector v_union(var_list.size());
 
         do
         {

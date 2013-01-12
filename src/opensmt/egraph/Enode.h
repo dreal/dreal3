@@ -236,6 +236,7 @@ public:
 
   const double    getValue               ( ) const;
   const set < string > & getODEs         ( ) const;   // added for dReal2
+  void            setODEs                ( set < string > o );
   void            addODE                 ( const string ); // added for dReal2
   const double    getLowerBound          ( ) const; //added for dReal2
   const double    getUpperBound          ( ) const; //added for dReal2
@@ -402,6 +403,11 @@ inline const double Enode::getValue ( ) const
 inline const set < string > & Enode::getODEs ( ) const
 {
     return odes;
+}
+
+inline void Enode::setODEs ( set < string > o )
+{
+    odes = o;
 }
 
 inline void Enode::addODE (string ode)
