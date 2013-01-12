@@ -21,8 +21,15 @@ public:
 
 	inline double get_ub() { return u_bound; }
 	inline double get_lb()	{ return l_bound; }
-	inline void set_ub( double b ) { u_bound = b ; }
-	inline void set_lb( double b ) { l_bound = b ; }
+	inline void set_ub( double b )
+        {
+            _e->setUpperBound(b);
+            u_bound = b ;
+        }
+	inline void set_lb( double b ) {
+            _e->setLowerBound(b);
+            l_bound = b ;
+        }
 
 private:
 
