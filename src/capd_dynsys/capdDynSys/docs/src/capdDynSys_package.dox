@@ -1,0 +1,21 @@
+/*! \page capdDynSys_package  The capdDynSys package
+
+The \b capdDynSys package contains modules that was originally intended for rigorous computations in dynamical systems 
+but currently they are go far beyond this. It consist of the following modules:
+- \ref capd::map "map"  - computation of values and derivatives of maps. It is also the core for the solvers in dynsys module,
+- \ref capd::dynsys "dynsys" - various nonrigorous and rigorous solvers to ODEs, 
+       for computations of the solutions and partial derivatives w.r.t. initial conditions up to arbitrary order,
+- \subpage geomset_module "geomset", \subpage dynset_module "dynset" - various representations of sets and Lohner-type algorithms,
+- \ref capd::poincare "poincare" - computation of Poincare maps and their derivatives; both rigorous and nonrigorous,
+- \ref capd::diffIncl "diffIncl" - rigorous computations of the solutions to differential inclusions,
+- \ref capd::newton "newton" - utils related to interval Newton and Krawczyk method,
+- \ref capd::covrel "covrel"  - h-set representations and methods for checking covering relations, 
+- \ref capd::normalForms "normalForms" - operations on Taylor series and routines for normal forms of a planar map
+- \ref capd::facade "facade" - \ref capd_facades of the most commonly used classes,
+
+In development:
+- \ref capd::diffAlgebra "diffAlgebra"
+- \ref capd::pdes "pdes"
+
+
+*/

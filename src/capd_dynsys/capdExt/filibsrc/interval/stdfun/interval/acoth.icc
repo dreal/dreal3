@@ -1,0 +1,117 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(ACOTH_ICC)
+#define ACOTH_ICC
+
+#include <interval/stdfun/point/q_acth.icc>
+
+namespace filib 
+{
+	template <rounding_strategy K, interval_mode E > 
+	interval<double,K,E> acoth(interval<double,K,E> const & x)
+	{
+		if ( E )
+			if ((x.inf() > -1 && x.sup() < 1) || x.isEmpty())
+				return interval<double,K,E>::EMPTY();
+
+		if (x.sup()<-1)
+		{
+			double rinf, rsup;
+			if (x.isPoint())
+			{ 
+				rinf  = q_acth<K,E>(x.inf());
+				rsup  = rinf*filib_consts<double>::q_actm;
+				rinf *= filib_consts<double>::q_actp;
+			}
+			else
+			{
+				rinf = q_acth<K,E>(x.sup())*filib_consts<double>::q_actp;
+				rsup = q_acth<K,E>(x.inf())*filib_consts<double>::q_actm;
+			} 
+			return interval<double,K,E>(rinf,rsup);
+		}    
+		else if(x.inf()>1)
+		{
+			double rinf, rsup;
+			if (x.isPoint())
+			{ 
+				rinf  = q_acth<K,E>(x.inf());
+				rsup  = rinf*filib_consts<double>::q_actp;
+				rinf *= filib_consts<double>::q_actm;
+			}
+			else
+			{
+				rinf= q_acth<K,E>(x.sup())*filib_consts<double>::q_actm;
+				rsup= q_acth<K,E>(x.inf())*filib_consts<double>::q_actp;
+			}  
+			return interval<double,K,E>(rinf,rsup);
+		}
+		else   
+		{
+			if ( E )
+			{
+				if (x.inf() < -1.0) 
+				{
+					if (x.sup() < 1.0) 
+					{
+						double rinf, rsup;
+						rinf = fp_traits<double,K>::ninfinity();
+						rsup = q_acth<K,E>(x.inf())*filib_consts<double>::q_actm;
+						return interval<double,K,E>(rinf,rsup);
+					}
+					else 
+						return interval<double,K,E>::ENTIRE();
+				}
+				else if (x.inf() == -1.0) 
+				{
+					if (x.sup() < 1.0)
+						return interval<double,K,E>::NEG_INFTY();
+					else
+						return interval<double,K,E>::ENTIRE();
+				}
+				else 
+				{  // -1 < x.inf() < 1
+					if (x.sup() == 1.0)
+						return interval<double,K,E>::POS_INFTY();
+					else 
+					{ // x.sup() >= 1
+						double rinf, rsup;
+						rinf = q_acth<K,E>(x.sup())*filib_consts<double>::q_actp;
+						rsup = fp_traits<double,K>::infinity();
+						return interval<double,K,E>(rinf,rsup);
+					}
+				}
+			}
+			else
+			{
+				std::cerr << "filib: acoth called with invalid argument." << std::endl;
+				std::terminate();
+			}
+		}
+	}
+}
+#endif

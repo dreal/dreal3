@@ -1,9 +1,0 @@
-echo Unpacking the CAPD source files in Linux/Unix...
-unzip -aa capd_src
-mkdir bin
-mkdir obj
-mkdir lib
-echo Setting appropriate access atributes...
-chmod -R a+r *
-chmod a+x */ */*/
-echo Done. Thank you.

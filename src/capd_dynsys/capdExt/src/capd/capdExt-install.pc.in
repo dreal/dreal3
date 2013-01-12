@@ -1,0 +1,9 @@
+prefix=@prefix@
+
+Name: capdExt
+Description: @PACKAGE_NAME@  library.
+Requires: capdalglib
+Version: @PACKAGE_VERSION@
+Libs: @filib_LIBS_INSTALL@
+Cflags: @capdExt_CFLAGS@  @filib_CFLAGS_INSTALL@
+

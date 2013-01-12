@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/mpcapd/map
+includedir=@abs_top_srcdir@/include
+
+Name: mpcapdmap
+Description: mpcapdmap module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:  ${libdir}/libmpcapdmap.a @mpcapdmap_LIBS@
+Cflags: @mpcapdmap_CFLAGS@  -I${includedir}

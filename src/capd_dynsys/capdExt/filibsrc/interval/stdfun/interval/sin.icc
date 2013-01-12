@@ -1,0 +1,318 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(SIN_ICC)
+#define SIN_ICC
+
+#include <interval/stdfun/point/q_sin.icc>
+#include <interval/stdfun/point/q_sin1.icc>
+
+namespace filib
+{
+	template <rounding_strategy K, interval_mode E > 
+	interval<double,K,E> sin(interval<double,K,E> const & x)
+	{
+		if ( E )
+			if (x.isEmpty())
+				return interval<double,K,E>::EMPTY();
+
+		double rinf,rsup;
+		double erg1,erg2,y1,y2;
+		long int k1,k2,q1,q2;
+  
+		if (x.isPoint()) 
+		{ 
+			if ((x.inf()<-filib_consts<double>::q_sint[2])||(x.sup()>filib_consts<double>::q_sint[2]))
+			{
+				rinf=-1.0;
+				rsup=1.0;
+			}
+			else
+			{ 
+				if ((x.inf()>=-filib_consts<double>::q_sint[3])&&(x.inf()<0))
+				{
+					rinf=x.inf();
+					rsup=primitive::succ(x.inf());
+				}
+				else if ((x.inf()>=0)&&(x.inf()<=filib_consts<double>::q_sint[3]))
+				{         
+					rsup=x.inf();
+
+					if (x.inf()==0)
+						rinf=0; 
+					else
+						rinf=primitive::pred(x.inf());
+				}
+				else
+				{
+					rinf=q_sin<K,E>(x.inf());
+
+					if (rinf<0)
+					{
+						rsup=rinf*filib_consts<double>::q_sinm;
+						rinf*=filib_consts<double>::q_sinp;
+					}
+					else
+					{
+						rsup=rinf*filib_consts<double>::q_sinp;
+						rinf*=filib_consts<double>::q_sinm;
+					}
+				}
+			}
+		}
+		else
+		{
+			if ((x.sup()-x.inf())>=(2.0*filib_consts<double>::q_pi)) 
+			{
+				rinf=-1.0;
+				rsup=1.0;
+			}
+			else if ((x.inf()<-filib_consts<double>::q_sint[2])||(x.sup()>filib_consts<double>::q_sint[2]))
+			{
+				rinf=-1.0;
+				rsup=1.0;
+			}
+			else 
+			{
+				/* argument reduction infimum */
+				erg1=x.inf()*filib_consts<double>::q_pi2i; 
+
+				if (erg1>0) {k1=long_int_cast(erg1+0.5);
+					q1=(long_int_cast(erg1))%4; }
+				else
+				{
+					k1=long_int_cast(erg1-0.5);
+					q1=((long_int_cast(erg1))-1)%4; 
+				}
+
+				y1=q_rtrg<double>(x.inf(),k1); 
+            
+				/* argument reduction supremum */
+				erg2=x.sup()*filib_consts<double>::q_pi2i; 
+
+				if (erg2>0) 
+				{
+					k2=long_int_cast(erg2+0.5);
+					q2=(long_int_cast(erg2))%4;
+				}
+				else
+				{
+					k2=long_int_cast(erg2-0.5);
+					q2=((long_int_cast(erg2))-1)%4;
+				}
+
+				y2=q_rtrg<double>(x.sup(),k2);
+
+				if (q1<0)
+					q1+=4;
+				if (q2<0)
+					q2+=4;
+
+				if (q1==q2) 
+				{
+					if ((x.sup()-x.inf())>=filib_consts<double>::q_pi) 
+					{
+						rinf=-1.0; 
+						rsup=1.0;
+					}
+					else if ((q1==1) || (q1==2))
+					{
+						rinf=q_sin1<K,E>(y2,k2);
+						if (rinf<0) 
+							rinf*=filib_consts<double>::q_sinp; 
+						else 
+							rinf*=filib_consts<double>::q_sinm;
+
+						rsup=q_sin1<K,E>(y1,k1);
+
+						if (rsup<0) 
+							rsup*=filib_consts<double>::q_sinm; 
+						else 
+							rsup*=filib_consts<double>::q_sinp; 
+					}
+					else if (q1==0)
+					{
+						if ((x.inf()>0) && (x.inf()<=filib_consts<double>::q_sint[3]))
+							rinf=primitive::pred(x.inf());
+						else
+							rinf=q_sin1<K,E>(y1,k1)*filib_consts<double>::q_sinm;
+
+						if ((x.sup()>0) && (x.sup()<=filib_consts<double>::q_sint[3]))
+							rsup=x.sup();
+						else
+							rsup=q_sin1<K,E>(y2,k2)*filib_consts<double>::q_sinp;
+					}
+					else   /* q1 == 3 */
+					{
+						if ((x.inf()>=-filib_consts<double>::q_sint[3]) && (x.inf()<0))
+							rinf=x.inf();
+						else
+							rinf=q_sin1<K,E>(y1,k1)*filib_consts<double>::q_sinp;
+
+						if ((x.sup()>=-filib_consts<double>::q_sint[3]) && (x.sup()<0))
+							rsup=primitive::succ(x.sup());
+						else
+							rsup=q_sin1<K,E>(y2,k2)*filib_consts<double>::q_sinm;                   
+					}
+				}
+				else  /* now we have q1<>q2 */
+				{ 
+					if (q1==0)
+					{
+						if (q2==1)
+						{
+							if ((x.inf()>0) && (x.inf()<=filib_consts<double>::q_sint[3]))
+								rinf=primitive::pred(x.inf());
+							else
+							{
+								erg1=q_sin1<K,E>(y1,k1);
+								erg2=q_sin1<K,E>(y2,k2);
+
+								if (erg1<erg2) 
+									rinf=erg1*filib_consts<double>::q_sinm;
+								else
+									rinf=erg2*filib_consts<double>::q_sinm;
+							}
+
+							rsup=1.0;
+						}
+						else if (q2==2)
+						{
+							rinf=q_sin1<K,E>(y2,k2)*filib_consts<double>::q_sinp;
+							rsup=1.0;
+						}
+						else  /* q2==3 */
+						{
+							rinf=-1.0;
+							rsup=1.0;
+						}
+					}
+					else if (q1==1)
+					{
+						if (q2==0)
+						{
+							rinf=-1.0;
+							erg1=q_sin1<K,E>(y1,k1);
+							erg2=q_sin1<K,E>(y2,k2);
+							if (erg1>erg2) 
+								rsup=erg1*filib_consts<double>::q_sinp; 
+							else 
+								rsup=erg2*filib_consts<double>::q_sinp;
+						}
+						else if (q2==2)
+						{
+							rinf=q_sin1<K,E>(y2,k2)*filib_consts<double>::q_sinp;
+							rsup=q_sin1<K,E>(y1,k1)*filib_consts<double>::q_sinp;
+						}
+						else  /* q2==3 */
+						{
+							rinf=-1.0;
+							rsup=q_sin1<K,E>(y1,k1)*filib_consts<double>::q_sinp;
+						}
+					}
+					else if (q1==2)
+					{
+						if (q2==0)
+						{
+							rinf=-1.0;
+
+							if ((x.sup()>0) && (x.sup()<=filib_consts<double>::q_sint[3]))
+								rsup=x.sup();
+							else
+								rsup=q_sin1<K,E>(y2,k2)*filib_consts<double>::q_sinp;
+						}
+						else if (q2==1)
+						{
+							rinf=-1.0;
+							rsup=1.0;
+						}
+						else  /* q2==3 */
+						{
+							rinf=-1.0;
+
+							if ((x.sup()>=-filib_consts<double>::q_sint[3]) && (x.sup()<0))
+								rsup=primitive::succ(x.sup());
+							else
+							{
+								erg1=q_sin1<K,E>(y1,k1);
+								erg2=q_sin1<K,E>(y2,k2);
+
+								if (erg1>erg2) 
+									rsup=erg1*filib_consts<double>::q_sinm;
+								else 
+									rsup=erg2*filib_consts<double>::q_sinm;
+							}
+						}
+					}
+					else  /* now we have q1==3 */            
+					{
+						if (q2==0)
+						{
+							if ((x.inf()>=-filib_consts<double>::q_sint[3]) && (x.inf()<0))
+								rinf=x.inf();
+							else
+								rinf=q_sin1<K,E>(y1,k1)*filib_consts<double>::q_sinp;
+
+							if ((x.sup()>0) && (x.sup()<=filib_consts<double>::q_sint[3]))
+								rsup=x.sup();
+							else
+								rsup=q_sin1<K,E>(y2,k2)*filib_consts<double>::q_sinp;
+						}
+						else if (q2==1)
+						{
+							if ((x.inf()>=-filib_consts<double>::q_sint[3]) && (x.inf()<0))
+								rinf=x.inf();
+							else
+								rinf=q_sin1<K,E>(y1,k1)*filib_consts<double>::q_sinp;
+
+							rsup=1.0;
+						}
+						else  /* q2==2 */
+						{
+							erg1=q_sin1<K,E>(y1,k1);
+							erg2=q_sin1<K,E>(y2,k2);
+
+							if (erg1<erg2)
+								rinf=erg1*filib_consts<double>::q_sinp; 
+							else 
+								rinf=erg2*filib_consts<double>::q_sinp;
+
+							rsup=1.0;
+						}
+					}
+				}
+			}
+		}
+
+		if (rinf<-1.0)
+			rinf=-1.0;
+		if (rsup>1.0) 
+			rsup=1.0;
+
+		return interval<double,K,E>(rinf,rsup);
+	}
+}
+#endif

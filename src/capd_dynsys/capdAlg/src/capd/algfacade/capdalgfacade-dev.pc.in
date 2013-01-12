@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/capd/algfacade
+includedir=@abs_top_srcdir@/include
+
+Name: capdalgfacade
+Description: capdfacade module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:   ${libdir}/libcapdalgfacade.a @capdalgfacade_LIBS@
+Cflags: @capdalgfacade_CFLAGS@  -I${includedir}

@@ -1,0 +1,79 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(FILIB_ATN1)
+#define FILIB_ATN1
+
+namespace filib
+{
+	inline double q_atn1(double const & x)
+	{
+		double res;
+		double absx,ym,y,ysq;
+		int ind,sgn;
+     
+		if (x < 0.0)
+			absx=-x; 
+		else 
+			absx=x;   
+
+		if (absx <= filib_consts<double>::q_atnt)
+			res=x;
+		else 
+		{
+			if (absx<8) 
+			{
+				sgn=1; 
+				ym=0;
+			}
+			else
+			{
+				sgn=-1;
+				ym=filib_consts<double>::q_piha;
+				absx=1/absx;
+			}
+
+			ind=0;
+
+			while (absx >= filib_consts<double>::q_atnb[ind+1])
+				ind+=1;
+
+			y=(absx-filib_consts<double>::q_atnc[ind])/(1+absx*filib_consts<double>::q_atnc[ind]);    
+			ysq=y*y;
+			res =
+				(y+y*(ysq*(((((filib_consts<double>::q_atnd[5]*ysq+filib_consts<double>::q_atnd[4])
+				*ysq+filib_consts<double>::q_atnd[3])*ysq+filib_consts<double>::q_atnd[2])
+				*ysq+filib_consts<double>::q_atnd[1])*ysq+filib_consts<double>::q_atnd[0])))+filib_consts<double>::q_atna[ind]; 
+
+			if (x<0)
+				res=-(res*sgn+ym);
+			else
+				res= (res*sgn+ym);    
+		}
+		return(res);
+	}
+}
+#endif

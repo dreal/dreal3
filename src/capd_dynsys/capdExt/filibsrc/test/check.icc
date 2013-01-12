@@ -1,0 +1,2060 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#include "test/testSet.cpp"
+
+template <typename T>
+std::ostream & bitImage(std::ostream &os, T const & t)
+{
+	os << t << std::endl;
+	return os;
+}
+
+std::ostream & bitImage(std::ostream &os, double const & t)
+{
+	filib::primitive::bitImage(t,os);
+	return os;
+}
+
+template <typename N, filib::rounding_strategy K, filib::interval_mode E>
+std::ostream & bitImage(std::ostream &os, filib::interval<N,K,E> const & t)
+{
+	return t.bitImage(os);
+}
+std::ostream & bitImage(std::ostream &os, bool const & c)
+{
+	return os << (c ? "true" : "false") << std::endl;	
+}
+
+template <typename T>
+class TestSet
+{
+	size_t n;
+	T * a;
+
+	public:
+		TestSet(size_t size, T testSet[])
+		: n(size), a(&testSet[0]) {}
+		size_t size() const { return n; }
+		T operator[](size_t i)
+		{ assert(i<n); return a[i]; }
+};
+
+template <typename N, filib::rounding_strategy K, filib::interval_mode E>
+class TestSet< filib::interval<N,K,E> >
+{
+	size_t n;
+	unsigned int (*a)[2][4];
+
+	public:
+		TestSet(size_t size, unsigned int (*testSet)[2][4])
+		: n(size), a(testSet) {}
+		size_t size() const { return n; }
+		filib::interval<N,K,E> operator[](size_t i)
+		{ 
+			assert(i<n); 
+			return filib::interval<N,K,E>(
+				filib::primitive::compose(a[i][0][0],a[i][0][1],a[i][0][2],a[i][0][3]),
+				filib::primitive::compose(a[i][1][0],a[i][1][1],a[i][1][2],a[i][1][3]));
+		}
+};
+
+template<>
+class TestSet<double>
+{
+	unsigned int (*a)[4];
+	size_t n;
+
+	public:
+		TestSet(size_t size, unsigned int testSet[][4])
+		: a(testSet), n(size) {}
+		size_t size() const { return n; }
+		double operator[] (size_t i)
+		{
+			assert(i<n);
+			return filib::primitive::compose(a[i][0],a[i][1],a[i][2],a[i][3]);
+		}
+};
+
+template<>
+class TestSet<bool>
+{
+	bool *a;
+	size_t n;
+
+	public:
+			TestSet(size_t size, bool testSet[])
+			: a(testSet), n(size) {}
+			size_t size() const { return n; }
+			bool operator[] (size_t i)
+			{
+				assert(i < n);
+				return a[i];
+			} 
+};
+
+template <typename T>
+class Comparator
+{
+	public:
+		bool operator() (T t1, T t2)
+		{ return t1==t2; }
+		void comment(std::ostream &) {}
+};
+
+template<>
+class Comparator<double>
+{
+		static bool isNaN(unsigned int e, unsigned int m0, unsigned int m1)
+		{
+			return e == 0x7FF && (m0 || m1);
+		}
+	public:
+		bool operator()(double x, double y)
+		{
+			unsigned int sign_x, exp_x, mant0_x, mant1_x;
+			unsigned int sign_y, exp_y, mant0_y, mant1_y;
+			filib::primitive::decompose(x,sign_x,exp_x,mant0_x,mant1_x);
+			filib::primitive::decompose(y,sign_y,exp_y,mant0_y,mant1_y);
+
+			return (x == y) || 
+				(sign_x   == sign_y  &&
+				exp_x    == exp_y   &&
+				mant0_x  == mant0_y &&
+				mant1_x  == mant1_y )
+				|| (isNaN(exp_x,mant0_x,mant1_x) && isNaN(exp_y,mant0_y,mant1_y))
+			;
+		}
+		void comment(std::ostream &) {}
+};
+
+template <typename N, filib::rounding_strategy K, filib::interval_mode E>
+class Comparator< filib::interval<N,K,E> >
+{
+	public:
+		bool operator() (filib::interval<N,K,E> res, filib::interval<N,K,E> expected)
+		{
+			if ( E )
+				return (res.isEmpty() && expected.isEmpty())
+					|| ( res.inf() <= expected.inf()
+					&& res.sup() >= expected.sup());
+			else
+				return res.inf() <= expected.inf()
+					&& res.sup() >= expected.sup();
+		}
+		void comment(std::ostream & os)
+		{
+			os << "( Expected result is not contained in computed result )";
+		}
+};
+
+template <typename T>
+class UlpComparator {};
+
+template<>
+class UlpComparator<double>
+{
+	public:
+		UlpComparator(unsigned int ulps)
+		: ulps_(ulps) { }
+  
+		bool operator()(double res, double expected) 
+		{
+			Comparator<double> comp;
+
+			if (! comp(res, expected)) 
+			{
+				// res may be ulps_ ulp greater than expected
+				int i = ulps_;
+				while (i > 0 && expected != res) 
+				{
+					i--;
+					expected = filib::primitive::succ(expected);
+				}
+      
+				return expected == res;
+
+			}
+
+			return true;
+		}
+
+		void comment(std::ostream &os) 
+		{
+			os << "( Within a tolerance of " << ulps_ << " ulp)" << std::endl;
+		}
+	private:
+		unsigned int ulps_;
+};
+
+template <typename N, filib::rounding_strategy K, filib::interval_mode E>
+class UlpComparator< filib::interval<N,K,E> >
+{
+	public:
+		UlpComparator(unsigned int ulps)
+		: ulps_(ulps) { }
+  
+		bool operator()(filib::interval<N,K,E> res, filib::interval<N,K,E> expected) 
+		{
+			Comparator< filib::interval<N,K,E> > comp;
+
+			if (! comp(res, expected)) 
+			{
+				// make sure that res lies in expected with required ulp accuracy
+				double z;
+				int i;
+
+				// lower bound
+				i = ulps_;
+				z = expected.inf();
+
+				while (i > 0 && z != res.inf()) 
+				{
+					i--;
+					z = filib::primitive::pred(z);
+				}
+      
+				if (z != res.inf())
+					return false;
+      
+				// upper bound
+				i = ulps_;
+				z = expected.sup();
+
+				while (i > 0 && z != res.sup()) 
+				{
+					i--;
+					z = filib::primitive::succ(z);
+				}
+
+				return z == res.sup();
+			}
+
+			return true;
+		}
+
+		void comment(std::ostream &os) 
+		{
+			os << "( Within a tolerance of " << ulps_ << " ulp)" << std::endl;
+		}
+  
+	private:
+		unsigned int ulps_;
+};
+
+template <typename T, bool ignore>
+class ArgTypeTraits
+{
+	public:
+		typedef T ArgT;
+};
+
+template <typename N, filib::rounding_strategy K, filib::interval_mode E>
+class ArgTypeTraits<filib::interval<N,K,E>, true>
+{
+	public:
+		typedef filib::interval<N,K,E> ArgT;
+};
+
+template <typename N, filib::rounding_strategy K, filib::interval_mode E>
+class ArgTypeTraits<filib::interval<N,K,E>, false>
+{
+	public:
+		typedef filib::interval<N,K,E> ArgT;
+};
+
+template <typename ArgT, typename ResT, typename Comparator>
+int UnCheck(
+	std::string name_, 
+	filib::unary_virtual_fo<ResT,ArgT> const & f_, 
+	TestSet<ArgT> testSet_,
+	TestSet<ResT> expected_,
+	Comparator equals) 
+{
+	int errors = 0;
+	ArgT arg;
+	ResT res;
+	ResT expt;
+
+	for (int i=0; i<75; i++)
+		std::cout << '-';
+	std::cout << std::endl << "Checking: " << name_ << std::endl;
+	for (int i=0; i<75; i++)
+		std::cout << '-';
+	std::cout << std::endl;
+
+	for (size_t i=0; i<testSet_.size(); i++) 
+	{
+		arg = testSet_[i];
+		expt = expected_[i];
+		res = f_(arg);
+	
+		if (!equals(res, expt)) 
+		{
+			std::cout << "*****" << std::endl
+			<< "Error in " << name_ << " for test case " 
+			<< i+1 << ": " << std::endl
+			<< "*****" << std::endl
+			<< "Argument: x = " << arg << std::endl;
+			bitImage(std::cout,arg);
+			std::cout << std::endl;
+	
+			std::cout << "Computed:     " << res << std::endl;
+			bitImage(std::cout,res);
+			std::cout << std::endl;
+		
+			std::cout << "Expected:     " << expt << std::endl;
+			bitImage(std::cout, expt);
+			std::cout << std::endl;
+	
+			equals.comment(std::cout);
+			std::cout << std::endl << std::endl;
+			errors++;
+		}
+	}
+
+	std::cout << std::endl;
+	if (errors > 0)
+		std::cout << "*** " << errors << " error(s). ***";
+	else
+		std::cout << "Passed.";
+	std::cout << std::endl << std::endl;
+    
+	return errors;
+}
+
+template < typename ArgT1, typename ArgT2, typename ResT, typename Comparator >
+int BinCheck(
+		std::string name_, 
+		filib::binary_virtual_fo<ResT,ArgT1,ArgT2> const & f_,
+		TestSet<ArgT1> testSet1_, 
+		TestSet<ArgT2> testSet2_,
+		TestSet<ResT> expected_,
+		Comparator equals
+		) 
+{
+	int errors = 0;
+	ArgT1 arg1;
+	ArgT2 arg2;
+	ResT res;
+	ResT expt;
+
+	for (int i=0; i<75; i++)
+		std::cout << '-';
+	std::cout << std::endl << "Checking: " << name_ << std::endl;
+
+	for (int i=0; i<75; i++)
+		std::cout << '-';
+	std::cout << std::endl;
+
+	for (size_t i=0; i<testSet1_.size(); i++) 
+	{
+		arg1 = testSet1_[i];
+		arg2 = testSet2_[i];
+		expt = expected_[i];
+		res = f_(arg1, arg2);
+
+		if (!equals(res, expt)) 
+		{
+			std::cout << "*****" << std::endl 
+				<< "Error in " << name_ << " for test case " 
+				<< i+1 << ": " << std::endl
+				<< "*****" << std::endl
+				<< "Argument: x = " << arg1 << std::endl;
+			bitImage(std::cout,arg1);
+			std::cout << std::endl;
+
+			std::cout << "Argument: y = " << arg2 << std::endl;
+			bitImage(std::cout,arg2);
+			std::cout << std::endl;
+	
+			std::cout << "Computed:     " << res << std::endl;
+			bitImage(std::cout,res);
+			std::cout << std::endl;
+
+			std::cout << "Expected:     " << expt << std::endl;
+			bitImage(std::cout,expt);
+			std::cout << std::endl;
+
+			equals.comment(std::cout);
+			std::cout << std::endl << std::endl;
+			errors++;
+		}
+	}
+    
+	std::cout << std::endl;
+
+	if (errors > 0)
+		std::cout << "*** " << errors << " error(s). ***";
+	else
+		std::cout << "Passed.";
+	std::cout << std::endl << std::endl;
+    
+	return errors;
+}
+
+#if 0
+// common interval test set
+extern int ciTestSetSize;
+extern unsigned int ciTestSet[][2][4];
+
+// set relations test sets
+extern int srTestSetSize;
+extern unsigned int srTestSet1[][2][4];
+extern unsigned int srTestSet2[][2][4];
+#endif
+
+void header(char const *s) 
+{
+  for (unsigned int i=0; i<75; i++)
+    std::cout << '-';
+  std::cout << std::endl << "Checking: " << s << std::endl;
+  for (unsigned int i=0; i<75; i++)
+    std::cout << '-';
+  std::cout << std::endl;
+}
+
+void diag(int error) 
+{
+  std::cout << std::endl;
+  if (error > 0)
+    std::cout << "*** " << error << " error(s). ***";
+  else
+    std::cout << "Passed.";
+  std::cout << std::endl << std::endl;
+}
+
+double composeDouble(unsigned int x[4]) 
+{
+  return filib::primitive::compose(x[0], x[1], x[2], x[3]);
+}
+
+template <typename N, filib::rounding_strategy K, filib::interval_mode E>
+filib::interval<N,K,E> composeInterval(unsigned int x[2][4]) 
+{
+  return filib::interval<N,K,E>(
+		filib::primitive::compose(x[0][0], x[0][1], x[0][2], x[0][3]),
+		filib::primitive::compose(x[1][0], x[1][1], x[1][2], x[1][3]));
+}
+
+bool compareDouble(double x, double y)
+{
+  unsigned int sign_x, exp_x, mant0_x, mant1_x;
+  unsigned int sign_y, exp_y, mant0_y, mant1_y;
+  filib::primitive::decompose(x, sign_x, exp_x, mant0_x, mant1_x);
+  filib::primitive::decompose(y, sign_y, exp_y, mant0_y, mant1_y);
+  return 
+    x == y ||
+    (sign_x == sign_y 
+    && exp_x == exp_y 
+    && mant0_x == mant0_y 
+    && mant1_x == mant1_y);
+}
+
+int allErrors = 0;
+
+// -----------------------------------------------------------------------
+// pred and succ
+// -----------------------------------------------------------------------
+#if 0
+extern int predSuccTestSetSize;
+extern unsigned int predSuccTestSet[][4];
+extern unsigned int predExpected[][4];
+extern unsigned int succExpected[][4];
+#endif
+
+void checkPredSucc() 
+{
+  int n = predSuccTestSetSize[0];
+  TestSet<double> testSet(n, predSuccTestSet);
+
+  // pred()
+  filib::pred_fo<double> pred_fo;
+  allErrors += UnCheck<double, double>("pred", pred_fo,
+				testSet,
+				TestSet<double>(n, predExpected),
+				Comparator<double>()
+				);
+
+  // succ()
+  filib::succ_fo<double> succ_fo;
+  allErrors += UnCheck<double, double> ("succ", succ_fo,
+					testSet,
+					TestSet<double>(n, succExpected),
+					Comparator<double>()
+				);
+}
+
+template<typename N, filib::rounding_strategy K, filib::interval_mode E> struct specialTestSetStruct {};
+
+template<typename N, filib::rounding_strategy K> struct specialTestSetStruct<N,K,filib::i_mode_extended> {
+	filib::interval<N,K,filib::i_mode_extended> array[6];
+
+	specialTestSetStruct()
+	{
+		array[0] = filib::interval<N,K,filib::i_mode_extended>::EMPTY();
+		array[1] = filib::interval<N,K,filib::i_mode_extended>::ENTIRE();
+		array[2] = filib::interval<N,K,filib::i_mode_extended>::NEG_INFTY();
+		array[3] = filib::interval<N,K,filib::i_mode_extended>::POS_INFTY();
+		array[4] = filib::interval<N,K,filib::i_mode_extended>::ZERO();
+		array[5] = filib::interval<N,K,filib::i_mode_extended>::ONE();
+	}
+
+	filib::interval<N,K,filib::i_mode_extended> const & operator[]
+		(size_t s) const { return array[s]; }
+};
+
+template<typename N, filib::rounding_strategy K> struct specialTestSetStruct<N,K,filib::i_mode_normal> {
+	filib::interval<N,K,filib::i_mode_normal> array[2];
+
+	specialTestSetStruct()
+	{
+		array[0] = filib::interval<N,K,filib::i_mode_normal>::ZERO();
+		array[1] = filib::interval<N,K,filib::i_mode_normal>::ONE();
+	}
+
+	filib::interval<N,K,filib::i_mode_normal> const & operator[]
+		(size_t s) const { return array[s]; }
+};
+
+template<typename N, filib::rounding_strategy K, filib::interval_mode E>
+struct infExpectedStruct {};
+
+template<typename N, filib::rounding_strategy K> struct infExpectedStruct<N,K,filib::i_mode_extended>
+{
+	N array[6];
+
+	infExpectedStruct()
+	{
+		array[0] = filib::fp_traits<N,K>::quiet_NaN();
+		array[1] = filib::fp_traits<N,K>::ninfinity();
+		array[2] = filib::fp_traits<N,K>::ninfinity();
+		array[3] = filib::fp_traits<N,K>::max();
+		array[4] = 0.0;
+		array[5] = 1.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }
+};
+
+template<typename N, filib::rounding_strategy K> struct infExpectedStruct<N,K,filib::i_mode_normal>
+{
+	N array[2];
+
+	infExpectedStruct()
+	{
+		array[0] = 0.0;
+		array[1] = 1.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }
+};
+
+template<typename N, filib::rounding_strategy K ,filib::interval_mode E>
+struct supExpectedStruct {};
+
+template<typename N, filib::rounding_strategy K> struct supExpectedStruct<N,K,filib::i_mode_extended>
+{
+	N array[6];
+
+	supExpectedStruct()
+	{
+		array[0] = filib::fp_traits<N,K>::quiet_NaN();
+		array[1] = filib::fp_traits<N,K>::infinity();
+		array[2] = -filib::fp_traits<N,K>::max();
+		array[3] = filib::fp_traits<N,K>::infinity();
+		array[4] = 0.0;
+		array[5] = 1.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }
+};
+
+template<typename N, filib::rounding_strategy K> struct supExpectedStruct<N,K,filib::i_mode_normal>
+{
+	N array[2];
+
+	supExpectedStruct()
+	{
+		array[0] = 0.0;
+		array[1] = 1.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }
+};
+
+
+
+// -----------------------------------------------------------------------
+// special intervals
+// -----------------------------------------------------------------------
+template <typename N, filib::rounding_strategy K, filib::interval_mode E>
+void checkSpecialIntervals() 
+{	
+	specialTestSetStruct<N,K,E> specialTestSet;
+	infExpectedStruct<N,K,E> infExpected;
+	supExpectedStruct<N,K,E> supExpected;
+
+	int error = 0;
+
+	header("Special intervals");  
+  
+	size_t n = sizeof(specialTestSet)/sizeof(filib::interval<N,K,E>);
+  
+	for (size_t i=0; i<n; i++) 
+	{
+		if (!compareDouble(specialTestSet[i].inf(), infExpected[i])) 
+		{
+			std::cout << "Error: inf(" << specialTestSet[i] << ") != "
+			<< infExpected[i] << std::endl;
+			error++;
+		}
+		if (!compareDouble(specialTestSet[i].sup(), supExpected[i])) 
+		{
+			std::cout << "Error: sup(" << specialTestSet[i] << ") != "
+			<< supExpected[i] << std::endl;
+			error++;
+		}
+	}
+
+	// test for pi
+	if (! (filib::interval<N,K,E>::PI() <= 4.0 * atan(filib::interval<N,K,E>(1.0)))) 
+	{
+		std::cout << "Error: 4.0*atan(filib::interval<N,K,E>(1.0)) doesn't contain "
+		<< "filib::interval<N,K,E>::PI()" << std::endl;
+		error++;
+	}
+
+	diag(error);
+	allErrors += error;
+}
+
+template<typename N, filib::rounding_strategy K, filib::interval_mode E> struct unConstrTestSetStruct {};
+
+template<typename N, filib::rounding_strategy K> struct unConstrTestSetStruct<N,K,filib::i_mode_extended> {
+	N array[7];
+
+	unConstrTestSetStruct()
+	{
+		array[0] = filib::fp_traits<N,K>::ninfinity();
+		array[1] = filib::fp_traits<N,K>::infinity();
+		array[2] = filib::fp_traits<N,K>::quiet_NaN();
+		array[3] = filib::fp_traits<N,K>::max();
+		array[4] = -1.0;
+		array[5] = 0.0;
+		array[6] = 2.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }
+};
+
+template<typename N, filib::rounding_strategy K> struct unConstrTestSetStruct<N,K,filib::i_mode_normal> {
+	N array[4];
+
+	unConstrTestSetStruct()
+	{
+		array[0] = filib::fp_traits<N,K>::max();
+		array[1] = -1.0;
+		array[2] = 0.0;
+		array[3] = 2.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }
+};
+
+template<typename N, filib::rounding_strategy K, filib::interval_mode E> struct unConstrInfExpectedStruct {};
+template<typename N, filib::rounding_strategy K> struct unConstrInfExpectedStruct<N,K,filib::i_mode_extended> {
+	N array[7];
+
+	unConstrInfExpectedStruct() {
+		array[0] = filib::fp_traits<N,K>::ninfinity();
+		array[1] = filib::fp_traits<N,K>::max();
+		array[2] = filib::fp_traits<N,K>::quiet_NaN();
+		array[3] = filib::fp_traits<N,K>::max();
+		array[4] = -1.0;
+		array[5] = 0.0;
+		array[6] = 2.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }		
+};
+template<typename N, filib::rounding_strategy K> struct unConstrInfExpectedStruct<N,K,filib::i_mode_normal> {
+	N array[4];
+
+	unConstrInfExpectedStruct() {
+		array[0] = filib::fp_traits<N,K>::max();
+		array[1] = -1.0;
+		array[2] = 0.0;
+		array[3] = 2.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }		
+};
+
+template<typename N, filib::rounding_strategy K, filib::interval_mode E> struct unConstrSupExpectedStruct {};
+template<typename N, filib::rounding_strategy K> struct unConstrSupExpectedStruct<N,K,filib::i_mode_extended> {
+	N array[7];
+
+	unConstrSupExpectedStruct() {
+		array[0] = -filib::fp_traits<N,K>::max();
+		array[1] = filib::fp_traits<N,K>::infinity();
+		array[2] = filib::fp_traits<N,K>::quiet_NaN();
+		array[3] = filib::fp_traits<N,K>::max();
+		array[4] = -1.0;
+		array[5] = 0.0;
+		array[6] = 2.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }		
+};
+template<typename N, filib::rounding_strategy K> struct unConstrSupExpectedStruct<N,K,filib::i_mode_normal> {
+	N array[4];
+
+	unConstrSupExpectedStruct() {
+		array[0] = filib::fp_traits<N,K>::max();
+		array[1] = -1.0;
+		array[2] = 0.0;
+		array[3] = 2.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }		
+};
+
+template<typename N, filib::rounding_strategy K, filib::interval_mode E> struct binConstrTestSetStruct {};
+template<typename N, filib::rounding_strategy K> struct binConstrTestSetStruct<N,K,filib::i_mode_extended> {
+	N array[19][2];
+
+	binConstrTestSetStruct() {
+		array[0][0] = filib::fp_traits<N,K>::infinity();
+		array[0][1] = filib::fp_traits<N,K>::infinity();
+		array[1][0] = filib::fp_traits<N,K>::ninfinity();
+		array[1][1] = filib::fp_traits<N,K>::ninfinity(); 
+		array[2][0] = filib::fp_traits<N,K>::ninfinity();
+		array[2][1] = filib::fp_traits<N,K>::infinity(); 
+		array[3][0] = filib::fp_traits<N,K>::infinity();
+		array[3][1] = filib::fp_traits<N,K>::ninfinity(); 
+		array[4][0] = filib::fp_traits<N,K>::ninfinity();
+		array[4][1] = -1.1;
+
+		array[5][0] =  0.1;
+		array[5][1] =  filib::fp_traits<N,K>::infinity();
+		array[6][0] =  -1.234;
+		array[6][1] =  filib::fp_traits<N,K>::ninfinity(); 
+		array[7][0] =  filib::fp_traits<N,K>::infinity();
+		array[7][1] =  filib::fp_traits<N,K>::max();
+		array[8][0] =  filib::fp_traits<N,K>::quiet_NaN();
+		array[8][1] =  filib::fp_traits<N,K>::quiet_NaN(); 
+		array[9][0] =  filib::fp_traits<N,K>::quiet_NaN();
+		array[9][1] =  filib::fp_traits<N,K>::infinity();
+
+		array[10][0] =  filib::fp_traits<N,K>::ninfinity();
+		array[10][1] =  filib::fp_traits<N,K>::quiet_NaN(); 
+		array[11][0] =  filib::fp_traits<N,K>::quiet_NaN();
+		array[11][1] =  1.0;
+		array[12][0] =  -1.1;
+		array[12][1] =  filib::fp_traits<N,K>::quiet_NaN();
+		array[13][0] =  1;
+		array[13][1] =  0.2;
+		array[14][0] =  -2.5;
+		array[14][1] =  -1e50; 
+
+		array[15][0] =  -1.0;
+		array[15][1] =  1.0;
+		array[16][0] =  0.0;
+		array[16][1] =  5.0; 
+		array[17][0] =  -2.0;
+		array[17][1] =  -2.0; 
+		array[18][0] =  1.0;
+		array[18][1] =  0.0;
+	}
+
+	N const * operator[](size_t s) const { return array[s]; }		
+};
+
+template<typename N, filib::rounding_strategy K> struct binConstrTestSetStruct<N,K,filib::i_mode_normal> {
+	N array[4][2];
+
+	binConstrTestSetStruct() {
+		array[0][0] =  -1.0;
+		array[0][1] =  1.0;
+		array[1][0] =  0.0;
+		array[1][1] =  5.0; 
+		array[2][0] =  -2.0;
+		array[2][1] =  -2.0; 
+		array[3][0] =  1.0;
+		array[3][1] =  0.0;
+	}
+
+	N const * operator[](size_t s) const { return array[s]; }		
+};
+
+template<typename N, filib::rounding_strategy K, filib::interval_mode E> struct binConstrInfExpectedStruct {};
+template<typename N, filib::rounding_strategy K> struct binConstrInfExpectedStruct<N,K,filib::i_mode_extended> {
+	N array[19];
+
+	binConstrInfExpectedStruct() {
+		array[0] = filib::fp_traits<N,K>::max();
+		array[1] = filib::fp_traits<N,K>::ninfinity();
+		array[2] = filib::fp_traits<N,K>::ninfinity();
+		array[3] = filib::fp_traits<N,K>::quiet_NaN();
+		array[4] = filib::fp_traits<N,K>::ninfinity();
+		array[5] = 0.1;
+		array[6] = filib::fp_traits<N,K>::quiet_NaN();
+		array[7] = filib::fp_traits<N,K>::quiet_NaN();
+		array[8] = filib::fp_traits<N,K>::quiet_NaN();
+		array[9] = filib::fp_traits<N,K>::quiet_NaN();
+		array[10] = filib::fp_traits<N,K>::quiet_NaN();
+		array[11] = filib::fp_traits<N,K>::quiet_NaN();
+		array[12] = filib::fp_traits<N,K>::quiet_NaN();
+		array[13] = filib::fp_traits<N,K>::quiet_NaN();
+		array[14] = filib::fp_traits<N,K>::quiet_NaN();
+		array[15] = -1.0;
+		array[16] = 0.0;
+		array[17] = -2.0;
+		array[18] = filib::fp_traits<N,K>::quiet_NaN();
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }		
+};
+template<typename N, filib::rounding_strategy K> struct binConstrInfExpectedStruct<N,K,filib::i_mode_normal> {
+	N array[4];
+
+	binConstrInfExpectedStruct() {
+		array[0] = -1.0;
+		array[1] = 0.0;
+		array[2] = -2.0;
+		array[3] = 1.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }		
+};
+
+template<typename N, filib::rounding_strategy K, filib::interval_mode E> struct binConstrSupExpectedStruct {};
+template<typename N, filib::rounding_strategy K> struct binConstrSupExpectedStruct<N,K,filib::i_mode_extended> {
+	N array[19];
+
+	binConstrSupExpectedStruct() {
+		array[0] = filib::fp_traits<N,K>::infinity();
+		array[1] = -filib::fp_traits<N,K>::max();
+		array[2] = filib::fp_traits<N,K>::infinity();
+		array[3] = filib::fp_traits<N,K>::quiet_NaN();
+		array[4] = -1.1;
+		array[5] = filib::fp_traits<N,K>::infinity();
+		array[6] = filib::fp_traits<N,K>::quiet_NaN();
+		array[7] = filib::fp_traits<N,K>::quiet_NaN();
+		array[8] = filib::fp_traits<N,K>::quiet_NaN();
+		array[9] = filib::fp_traits<N,K>::quiet_NaN();
+		array[10] = filib::fp_traits<N,K>::quiet_NaN();
+		array[11] = filib::fp_traits<N,K>::quiet_NaN();
+		array[12] = filib::fp_traits<N,K>::quiet_NaN();
+		array[13] = filib::fp_traits<N,K>::quiet_NaN();
+		array[14] = filib::fp_traits<N,K>::quiet_NaN();
+		array[15] = 1.0;
+		array[16] = 5.0; 
+		array[17] = -2.0;
+		array[18] = filib::fp_traits<N,K>::quiet_NaN();
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }		
+};
+template<typename N, filib::rounding_strategy K> struct binConstrSupExpectedStruct<N,K,filib::i_mode_normal> {
+	N array[4];
+
+	binConstrSupExpectedStruct() {
+		array[0] = 1.0;
+		array[1] = 5.0; 
+		array[2] = -2.0;
+		array[3] = 0.0;
+	}
+
+	N const & operator[](size_t s) const { return array[s]; }		
+};
+
+// -----------------------------------------------------------------------
+// Constructors
+// -----------------------------------------------------------------------
+template <typename N, filib::rounding_strategy K, filib::interval_mode E>
+void checkConstructors() 
+{
+	int error, n;
+
+	unConstrTestSetStruct<N,K,E> unConstrTestSet;
+	unConstrInfExpectedStruct<N,K,E> unConstrInfExpected;
+	unConstrSupExpectedStruct<N,K,E> unConstrSupExpected;
+	binConstrTestSetStruct<N,K,E> binConstrTestSet;
+	binConstrInfExpectedStruct<N,K,E> binConstrInfExpected;
+	binConstrSupExpectedStruct<N,K,E> binConstrSupExpected;
+
+	error = 0;
+	header("Default interval constructor");
+	if (inf(filib::interval<N,K,E>()) != 0.0) 
+	{
+		std::cout << "Error: inf(filib::interval<N,K,E>()) != 0.0" << std::endl;
+		error++;
+	}
+	if (sup(filib::interval<N,K,E>()) != 0.0) 
+	{
+		std::cout << "Error: sup(filib::interval<N,K,E>()) != 0.0" << std::endl;
+		error++;
+	}
+	diag(error);
+	allErrors += error;
+
+	error = 0;
+	n = sizeof(unConstrTestSet)/sizeof(N);
+	header("Unary interval constructor");
+
+	for (int i=0; i<n; i++) 
+	{
+		if (!compareDouble(inf(filib::interval<N,K,E>(unConstrTestSet[i])),
+			unConstrInfExpected[i])) 
+		{
+			std::cout << "Error: inf(filib::interval<N,K,E>("
+			<< unConstrTestSet[i] << ")) != "
+			<< unConstrInfExpected[i] << std::endl;
+			error++;
+		}
+		if (!compareDouble(sup(filib::interval<N,K,E>(unConstrTestSet[i])),
+			unConstrSupExpected[i])) {
+			std::cout << "Error: sup(filib::interval<N,K,E>("
+			<< unConstrTestSet[i] << ")) != "
+			<< unConstrSupExpected[i] << std::endl;
+			error++;
+		}
+	}
+	diag(error);
+	allErrors += error;
+
+	error = 0;
+	n = (sizeof(binConstrTestSet)/sizeof(N))/2;
+	header("Binary interval constructor");
+	for (int i=0; i<n; i++) 
+	{
+		if (!compareDouble(inf(filib::interval<N,K,E>(binConstrTestSet[i][0], 
+			binConstrTestSet[i][1])),
+			binConstrInfExpected[i])) 
+		{
+			std::cout << "Error: inf(filib::interval<N,K,E>("
+				<< binConstrTestSet[i][0] << ", " 
+				<< binConstrTestSet[i][1] << ")) != "
+				<< binConstrInfExpected[i] << std::endl;
+			error++;
+		}
+		if (!compareDouble(sup(filib::interval<N,K,E>(binConstrTestSet[i][0],
+			binConstrTestSet[i][1])),
+			binConstrSupExpected[i])) 
+		{
+			std::cout << "Error: sup(filib::interval<N,K,E>("
+				<< binConstrTestSet[i][0] << ", " 
+				<< binConstrTestSet[i][1] << ")) != "
+				<< binConstrSupExpected[i] << std::endl;
+			error++;
+		}
+	}
+	diag(error);
+	allErrors += error;
+}
+
+// -----------------------------------------------------------------------
+// filib::interval<N,K,E> bounds
+// -----------------------------------------------------------------------
+
+#if 0
+extern unsigned int infExpected[][4];
+extern unsigned int supExpected[][4];
+#endif
+
+template <typename N, filib::rounding_strategy K, filib::interval_mode E>
+void checkBounds() 
+{
+	size_t n = ciTestSetSize[E];
+	TestSet< filib::interval<N,K,E> > testSet(ciTestSetSize[E], ciTestSet);
+
+	filib::inf_fo<N,K,E> inf_fo;
+	// inf()
+	allErrors += UnCheck< filib::interval<N,K,E> , N> (
+		std::string("inf"), inf_fo,
+		testSet,
+		TestSet<N>(n, infExpected),
+		Comparator<double>()
+		);
+  
+	filib::sup_fo<N,K,E> sup_fo;
+	// sup()
+	allErrors += UnCheck< filib::interval<N,K,E> , N> 
+		(std::string("sup"), sup_fo,
+		testSet,
+		TestSet<N>(n, supExpected),
+		Comparator<double>()
+		);
+}
+
+// -----------------------------------------------------------------------
+// Info functions
+// -----------------------------------------------------------------------
+
+#if 0
+extern bool isPointExpected[];
+extern int hasUlpAccTestSetSize;
+extern unsigned int hasUlpAccTestSet1[][2][4];
+extern unsigned int hasUlpAccTestSet2[];
+extern bool hasUlpAccExpected[];
+#endif
+
+template <typename N, filib::rounding_strategy K, filib::interval_mode E>
+void checkInfo() 
+{ 
+	size_t n = ciTestSetSize[E];
+	TestSet< filib::interval<N,K,E> > testSet(ciTestSetSize[E], ciTestSet);
+
+	filib::isPoint_fo<N,K,E> isPoint_fo;
+	// isPoint()
+	allErrors += UnCheck< filib::interval<N,K,E> , bool>("isPoint", isPoint_fo,
+		testSet,
+		TestSet<bool>(n, isPointExpected),
+		Comparator<bool>()
+		);
+					    
+	if ( E )
+	{
+		#if 0
+		extern bool isEmptyExpected[];
+		extern bool isInfiniteExpected[];
+		#endif
+
+		// isEmpty()
+		filib::isEmpty_fo<N,K,E> isEmpty_fo;
+		allErrors += UnCheck< filib::interval<N,K,E> , bool> ("isEmpty", isEmpty_fo,
+			testSet,
+			TestSet<bool>(n, isEmptyExpected), Comparator<bool>());
+
+		// isInfinite()
+		filib::isInfinite_fo<N,K,E> isInfinite_fo;
+		allErrors += UnCheck< filib::interval<N,K,E> , bool> ("isInfinite", isInfinite_fo,
+			testSet,
+			TestSet<bool>(n, isInfiniteExpected), Comparator<bool>());
+	}
+
+	filib::hasUlpAcc_fo<N,K,E> hasUlpAcc_fo;
+	// hasUlpAcc
+	allErrors += BinCheck< filib::interval<N,K,E> , unsigned int, bool>
+		(std::string("hasUlpAcc"), hasUlpAcc_fo,
+		TestSet< filib::interval<N,K,E> >(hasUlpAccTestSetSize[E], hasUlpAccTestSet1),
+		TestSet< unsigned int >(hasUlpAccTestSetSize[E], hasUlpAccTestSet2),
+		TestSet< bool >(hasUlpAccTestSetSize[E], hasUlpAccExpected),
+		Comparator<bool>()
+		);
+}
+
+// -----------------------------------------------------------------------
+// Utility functions
+// -----------------------------------------------------------------------
+
+#if 0
+extern unsigned int midExpected[][4];
+extern unsigned int diamExpected[][4];
+extern unsigned int relDiamExpected[][4];
+extern unsigned int radExpected[][4];
+extern unsigned int migExpected[][4];
+extern unsigned int magExpected[][4];
+extern unsigned int absExpected[][2][4];
+
+extern int minmaxTestSetSize;
+extern unsigned int  minmaxTestSet1[][2][4], minmaxTestSet2[][2][4], iminExpected[][2][4], imaxExpected[][2][4];
+
+extern int distTestSetSize;
+extern unsigned int  distTestSet1[][2][4], distTestSet2[][2][4];
+extern unsigned int distExpected[][4];
+
+extern int blowTestSetSize;
+extern unsigned int blowTestSet1[][2][4];
+extern unsigned int blowTestSet2[][4];
+extern unsigned int blowExpected[][2][4];
+#endif
+
+template < typename N, filib::rounding_strategy K, filib::interval_mode E > 
+void checkUtility() 
+{
+	int n = ciTestSetSize[E];
+	TestSet< filib::interval<N,K,E> > testSet(ciTestSetSize[E], ciTestSet);
+ 
+	// mid()
+	filib::mid_fo<N,K,E> mid_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> , N> ("mid", mid_fo,
+		testSet,
+		TestSet<N>(n, midExpected), UlpComparator<N>(1));
+  
+	// diam()
+	filib::diam_fo<N,K,E> diam_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> , N> ("diam", diam_fo,
+		testSet,
+		TestSet<N>(n, diamExpected), UlpComparator<N>(1));
+  
+	// relDiam()
+	filib::relDiam_fo<N,K,E> relDiam_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> , N> ("relDiam", relDiam_fo,
+		testSet,
+		TestSet<N>(n, relDiamExpected), UlpComparator<N>(1));
+  
+	// rad()
+	filib::rad_fo<N,K,E> rad_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> , N> ("rad", rad_fo,
+		testSet,
+		TestSet<N>(n, radExpected), UlpComparator<N>(1));
+
+	// mig()
+	filib::mig_fo<N,K,E> mig_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> , N> ("mig", mig_fo,
+		testSet,
+		TestSet<N>(n, migExpected), Comparator<N>());
+  
+	// mag()
+	filib::mag_fo<N,K,E> mag_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> , N> ("mag", mag_fo,
+		testSet,
+		TestSet<N>(n, magExpected), Comparator<N>());
+  
+	// abs()
+	filib::abs_fo<N,K,E> abs_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> > ("abs", abs_fo,
+		testSet,
+		TestSet< filib::interval<N,K,E> >(n, absExpected), Comparator< filib::interval<N,K,E> >());
+  
+	n = minmaxTestSetSize[E];  
+
+	// imin()
+	filib::imin_fo<N,K,E> imin_fo;
+	allErrors +=
+	BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("imin", imin_fo,
+		TestSet< filib::interval<N,K,E> >(n, minmaxTestSet1),
+		TestSet< filib::interval<N,K,E> >(n, minmaxTestSet2),
+		TestSet< filib::interval<N,K,E> >(n, iminExpected),
+		Comparator< filib::interval<N,K,E> >()
+		);
+
+	// imax()
+	filib::imax_fo<N,K,E> imax_fo;
+	allErrors +=
+	BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("imax", imax_fo,
+		TestSet< filib::interval<N,K,E> >(n, minmaxTestSet1),
+		TestSet< filib::interval<N,K,E> >(n, minmaxTestSet2),
+		TestSet< filib::interval<N,K,E> >(n, imaxExpected),
+		Comparator< filib::interval<N,K,E> >()
+		);
+
+	// dist()
+	filib::dist_fo<N,K,E> dist_fo;
+	allErrors +=
+	BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , N> 
+		("dist", dist_fo,
+		TestSet< filib::interval<N,K,E> >(n, distTestSet1),
+		TestSet< filib::interval<N,K,E> >(n, distTestSet2),
+		TestSet<N>(n, distExpected),
+		UlpComparator<N>(1)
+		);
+
+	// blow()
+	filib::blow_fo<N,K,E> blow_fo;
+	allErrors +=
+	BinCheck< filib::interval<N,K,E> , N,  filib::interval<N,K,E> > 
+		("blow", blow_fo,
+		TestSet< filib::interval<N,K,E> >(n, blowTestSet1),
+		TestSet<N>(n, blowTestSet2),
+		TestSet< filib::interval<N,K,E> >(n, blowExpected),
+		UlpComparator< filib::interval<N,K,E> >(5)
+		);
+}
+
+// -----------------------------------------------------------------------
+// Set operations
+// -----------------------------------------------------------------------
+
+#if 0
+extern int intsHullTestSetSize;
+extern unsigned int intsHullTestSet1[][2][4];
+extern unsigned int intsHullTestSet2[][2][4];
+
+extern unsigned int intersectExpected[][2][4];
+extern unsigned int hullExpected[][2][4];
+
+extern int hullIDTestSetSize;
+extern unsigned int hullIDTestSet1[][2][4];
+extern unsigned int hullIDTestSet2[][4];
+extern unsigned int hullIDExpected[][2][4];
+
+extern int hullDDTestSetSize;
+extern unsigned int hullDDTestSet1[][4];
+extern unsigned int hullDDTestSet2[][4];
+extern unsigned int hullDDExpected[][2][4];
+
+extern bool disjointExpected[];
+
+extern int inTestSetSize;
+extern unsigned int inTestSet1[][4];
+extern unsigned int inTestSet2[][2][4];
+extern bool inExpected[];
+
+extern bool interiorExpected[];
+extern bool proper_subsetExpected[];
+extern bool subsetExpected[];
+extern bool proper_supersetExpected[];
+extern bool supersetExpected[];
+extern bool seqExpected[];
+extern bool sneExpected[];
+extern bool sgeExpected[];
+extern bool sgtExpected[];
+extern bool sleExpected[];
+extern bool sltExpected[];
+extern bool ceqExpected[];
+extern bool cneExpected[];
+extern bool cgeExpected[];
+extern bool cgtExpected[];
+extern bool cleExpected[];
+extern bool cltExpected[];
+extern bool peqExpected[];
+extern bool pneExpected[];
+extern bool pgeExpected[];
+extern bool pgtExpected[];
+extern bool pleExpected[];
+extern bool pltExpected[];
+#endif
+
+template < typename N, filib::rounding_strategy K, filib::interval_mode E> 
+void checkSetOp() 
+{
+	// intersect()
+	filib::intersect_fo<N,K,E> intersect_fo;
+	allErrors +=
+	BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("intersect", intersect_fo,
+		TestSet< filib::interval<N,K,E> >(intsHullTestSetSize[E], intsHullTestSet1),
+		TestSet< filib::interval<N,K,E> >(intsHullTestSetSize[E], intsHullTestSet2),
+		TestSet< filib::interval<N,K,E> >(intsHullTestSetSize[E], intersectExpected),
+		Comparator< filib::interval<N,K,E> >()
+		);
+
+	// hull()
+	filib::hull_interval_interval_fo<N,K,E> hull_interval_interval_fo;
+	allErrors +=
+	BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("hull", hull_interval_interval_fo,
+		TestSet< filib::interval<N,K,E> >(intsHullTestSetSize[E], intsHullTestSet1),
+		TestSet< filib::interval<N,K,E> >(intsHullTestSetSize[E], intsHullTestSet2),
+		TestSet< filib::interval<N,K,E> >(intsHullTestSetSize[E], hullExpected),
+		Comparator< filib::interval<N,K,E> >()
+		);
+
+	// hull() of  filib::interval<N,K,E> /N
+	filib::hull_argtype_interval_fo<N,K,E> hull_argtype_interval_fo;
+	allErrors +=
+	BinCheck< N, filib::interval<N,K,E>, filib::interval<N,K,E> > 
+		("hull of  filib::interval<N,K,E> /N", hull_argtype_interval_fo,
+		TestSet<N>(hullIDTestSetSize[E], hullIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(hullIDTestSetSize[E], hullIDTestSet1),
+		TestSet< filib::interval<N,K,E> >(hullIDTestSetSize[E], hullIDExpected),
+		Comparator< filib::interval<N,K,E> >()
+		);
+  
+	// hull() of N/N
+	filib::hull_argtype_argtype_fo<N,K,E> hull_argtype_argtype_fo;
+	allErrors +=
+	BinCheck<N, N,  filib::interval<N,K,E> > 
+		("hull of N/N", hull_argtype_argtype_fo,
+		TestSet<N>(hullDDTestSetSize[E], hullDDTestSet1),
+		TestSet<N>(hullDDTestSetSize[E], hullDDTestSet2),
+		TestSet< filib::interval<N,K,E> >(hullDDTestSetSize[E], hullDDExpected),
+		Comparator< filib::interval<N,K,E> >()
+		);
+
+	// disjoint()
+	filib::disjoint_fo<N,K,E> disjoint_fo;
+	allErrors +=
+	BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("disjoint", disjoint_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], disjointExpected),
+		Comparator<bool>()
+		);
+
+	// in() (and contains())
+	filib::in_fo<N,K,E> in_fo;
+	allErrors +=
+	BinCheck<N,  filib::interval<N,K,E> , bool> 
+		("in and contains", in_fo,
+		TestSet<N>(inTestSetSize[E], inTestSet1),
+		TestSet< filib::interval<N,K,E> >(inTestSetSize[E], inTestSet2),
+		TestSet<bool>(inTestSetSize[E], inExpected),
+		Comparator<bool>()
+		);
+
+	// interior()
+	filib::interior_fo<N,K,E> interior_fo;
+	allErrors +=
+	BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("interior", interior_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], interiorExpected),
+		Comparator<bool>()
+		);
+
+	// psb()
+	filib::proper_subset_fo<N,K,E> proper_subset_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("proper_subset", proper_subset_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], proper_subsetExpected), Comparator<bool>());
+
+	// sb()
+	filib::subset_fo<N,K,E> subset_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("subset and operator <=", subset_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], subsetExpected), Comparator<bool>());
+
+	// psp()
+	filib::proper_superset_fo<N,K,E> proper_superset_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("proper_superset", proper_superset_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], proper_supersetExpected), Comparator<bool>());
+
+	// sp()
+	filib::superset_fo<N,K,E> superset_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("superset", superset_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], supersetExpected), Comparator<bool>());
+
+	// seq()
+	filib::seq_fo<N,K,E> seq_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("seq and operator ==", seq_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], seqExpected), Comparator<bool>());
+
+	// sne()
+	filib::sne_fo<N,K,E> sne_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("sne and operator !=", sne_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], sneExpected), Comparator<bool>());
+
+	// sge()
+	filib::sge_fo<N,K,E> sge_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("sge", sge_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], sgeExpected), Comparator<bool>());
+
+	// sgt()
+	filib::sgt_fo<N,K,E> sgt_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("sgt", sgt_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], sgtExpected), Comparator<bool>());
+
+	// sle()
+	filib::sle_fo<N,K,E> sle_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("sle", sle_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], sleExpected), Comparator<bool>());
+
+	// slt()
+	filib::slt_fo<N,K,E> slt_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("slt", slt_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], sltExpected), Comparator<bool>());
+
+	// ceq()
+	filib::ceq_fo<N,K,E> ceq_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("ceq", ceq_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], ceqExpected), Comparator<bool>());
+
+	// cne()
+	filib::cne_fo<N,K,E> cne_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("cne", cne_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], cneExpected), Comparator<bool>());
+
+	// cge()
+	filib::cge_fo<N,K,E> cge_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("cge", cge_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], cgeExpected), Comparator<bool>());
+
+	// cgt()
+	filib::cgt_fo<N,K,E> cgt_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("cgt", cgt_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], cgtExpected), Comparator<bool>());
+
+	// cle()
+	filib::cle_fo<N,K,E> cle_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("cle", cle_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], cleExpected), Comparator<bool>());
+
+	// clt()
+	filib::clt_fo<N,K,E> clt_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("clt", clt_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], cltExpected), Comparator<bool>());
+
+	// peq()
+	filib::peq_fo<N,K,E> peq_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("peq", peq_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], peqExpected), Comparator<bool>());
+
+	// pne()
+	filib::pne_fo<N,K,E> pne_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("pne", pne_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], pneExpected), Comparator<bool>());
+
+	// pge()
+	filib::pge_fo<N,K,E> pge_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("pge", pge_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], pgeExpected), Comparator<bool>());
+
+	// pgt()
+	filib::pgt_fo<N,K,E> pgt_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("pgt", pgt_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], pgtExpected), Comparator<bool>());
+
+	// ple()
+	filib::ple_fo<N,K,E> ple_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("ple", ple_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], pleExpected), Comparator<bool>());
+
+	// plt()
+	filib::plt_fo<N,K,E> plt_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> , bool> 
+		("plt", plt_fo,
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet1),
+		TestSet< filib::interval<N,K,E> >(srTestSetSize[E], srTestSet2),
+		TestSet<bool>(srTestSetSize[E], pltExpected), Comparator<bool>());
+}
+
+#if 0
+extern int negTestSetSize;
+extern unsigned int negTestSet[][2][4];
+extern unsigned int negExpected[][2][4];
+
+extern int addIITestSetSize;
+extern unsigned int addIITestSet1[][2][4];
+extern unsigned int addIITestSet2[][2][4];
+extern unsigned int addIIExpected[][2][4];
+extern unsigned int addUpdIIExpected[][2][4];
+
+extern int addIDTestSetSize;
+extern unsigned int addIDTestSet1[][2][4];
+extern unsigned int addIDTestSet2[][4];
+extern unsigned int addIDExpected[][2][4];
+extern unsigned int addDIExpected[][2][4];
+extern unsigned int addUpdIDExpected[][2][4];
+
+extern int subIITestSetSize;
+extern unsigned int subIITestSet1[][2][4];
+extern unsigned int subIITestSet2[][2][4];
+extern unsigned int subIIExpected[][2][4];
+extern unsigned int subUpdIIExpected[][2][4];
+
+extern int subIDTestSetSize;
+extern unsigned int subIDTestSet1[][2][4];
+extern unsigned int subIDTestSet2[][4];
+extern unsigned int subIDExpected[][2][4];
+extern unsigned int subDIExpected[][2][4];
+extern unsigned int subUpdIDExpected[][2][4];
+
+extern int mulIITestSetSize;
+extern unsigned int mulIITestSet1[][2][4];
+extern unsigned int mulIITestSet2[][2][4];
+extern unsigned int mulIIExpected[][2][4];
+extern unsigned int mulUpdIIExpected[][2][4];
+
+extern int mulIDTestSetSize;
+extern unsigned int mulIDTestSet1[][2][4];
+extern unsigned int mulIDTestSet2[][4];
+extern unsigned int mulIDExpected[][2][4];
+extern unsigned int mulDIExpected[][2][4];
+extern unsigned int mulUpdIDExpected[][2][4];
+
+extern int divIITestSetSize;
+extern unsigned int divIITestSet1[][2][4];
+extern unsigned int divIITestSet2[][2][4];
+extern unsigned int divIIExpected[][2][4];
+extern unsigned int divUpdIIExpected[][2][4];
+
+extern int divIDTestSetSize;
+extern unsigned int divIDTestSet1[][2][4];
+extern unsigned int divIDTestSet2[][4];
+extern unsigned int divIDExpected[][2][4];
+extern unsigned int divDIExpected[][2][4];
+extern unsigned int divUpdIDExpected[][2][4];
+#endif
+
+template < typename N, filib::rounding_strategy K, filib::interval_mode E> 
+void checkAri() 
+{
+	// unary -
+	filib::unary_minus_fo<N,K,E> unary_minus_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("unary -", unary_minus_fo,
+		TestSet< filib::interval<N,K,E> >(negTestSetSize[E], negTestSet),
+		TestSet< filib::interval<N,K,E> >(negTestSetSize[E], negExpected), Comparator< filib::interval<N,K,E> >());
+
+	// operator +:  filib::interval<N,K,E>  x  filib::interval<N,K,E> 
+	filib::plus_interval_interval_fo<N,K,E> plus_interval_interval_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		(std::string("operator +:  filib::interval<N,K,E>  x  filib::interval<N,K,E> "), 
+		plus_interval_interval_fo,
+		TestSet< filib::interval<N,K,E> >(addIITestSetSize[E], addIITestSet1),
+		TestSet< filib::interval<N,K,E> >(addIITestSetSize[E], addIITestSet2),
+		TestSet< filib::interval<N,K,E> >(addIITestSetSize[E], addIIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator +=:  filib::interval<N,K,E>  x  filib::interval<N,K,E> 
+	filib::plus_upd_interval_interval_copy_fo<N,K,E> plus_upd_interval_interval_copy_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("operator +=:  filib::interval<N,K,E>  x  filib::interval<N,K,E> ", 
+		plus_upd_interval_interval_copy_fo,
+		TestSet< filib::interval<N,K,E> >(addIITestSetSize[E], addIITestSet1),
+		TestSet< filib::interval<N,K,E> >(addIITestSetSize[E], addIITestSet2),
+		TestSet< filib::interval<N,K,E> >(addIITestSetSize[E], addUpdIIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator +:  filib::interval<N,K,E>  x N
+	filib::plus_interval_argtype_fo<N,K,E> plus_interval_argtype_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> , N,  filib::interval<N,K,E> > 
+		("operator +:  filib::interval<N,K,E>  x N", 
+		plus_interval_argtype_fo,
+		TestSet< filib::interval<N,K,E> >(addIDTestSetSize[E], addIDTestSet1),
+		TestSet<N>(addIDTestSetSize[E], addIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(addIDTestSetSize[E], addIDExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator +: N x  filib::interval<N,K,E> 
+	filib::plus_argtype_interval_fo<N,K,E> plus_argtype_interval_fo;
+	allErrors += BinCheck<N,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("operator +: N x  filib::interval<N,K,E> ", 
+		plus_argtype_interval_fo,
+		TestSet<N>(addIDTestSetSize[E], addIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(addIDTestSetSize[E], addIDTestSet1),
+		TestSet< filib::interval<N,K,E> >(addIDTestSetSize[E], addDIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+  
+	// operator +=:  filib::interval<N,K,E>  x N
+	filib::plus_upd_interval_argtype_copy_fo<N,K,E> plus_upd_interval_argtype_copy_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> , N,  filib::interval<N,K,E> > 
+		("operator +=:  filib::interval<N,K,E>  x N", 
+		plus_upd_interval_argtype_copy_fo,
+		TestSet< filib::interval<N,K,E> >(addIDTestSetSize[E], addIDTestSet1),
+		TestSet<N>(addIDTestSetSize[E], addIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(addIDTestSetSize[E], addUpdIDExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator -:  filib::interval<N,K,E>  x  filib::interval<N,K,E> 
+	filib::minus_interval_interval_fo<N,K,E> minus_interval_interval_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("operator -:  filib::interval<N,K,E>  x  filib::interval<N,K,E> ", 
+		minus_interval_interval_fo,
+		TestSet< filib::interval<N,K,E> >(subIITestSetSize[E], subIITestSet1),
+		TestSet< filib::interval<N,K,E> >(subIITestSetSize[E], subIITestSet2),
+		TestSet< filib::interval<N,K,E> >(subIITestSetSize[E], subIIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+  
+	// operator -=:  filib::interval<N,K,E>  x  filib::interval<N,K,E> 
+	filib::minus_upd_interval_interval_copy_fo<N,K,E> minus_upd_interval_interval_copy_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("operator -=:  filib::interval<N,K,E>  x  filib::interval<N,K,E> ", 
+		minus_upd_interval_interval_copy_fo,
+		TestSet< filib::interval<N,K,E> >(subIITestSetSize[E], subIITestSet1),
+		TestSet< filib::interval<N,K,E> >(subIITestSetSize[E], subIITestSet2),
+		TestSet< filib::interval<N,K,E> >(subIITestSetSize[E], subUpdIIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator -:  filib::interval<N,K,E>  x N
+	filib::minus_interval_argtype_fo<N,K,E> minus_interval_argtype_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> , N,  filib::interval<N,K,E> > 
+		("operator -:  filib::interval<N,K,E>  x N", 
+		minus_interval_argtype_fo,
+		TestSet< filib::interval<N,K,E> >(subIDTestSetSize[E], subIDTestSet1),
+		TestSet<N>(subIDTestSetSize[E], subIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(subIDTestSetSize[E], subIDExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator -: N x  filib::interval<N,K,E> 
+	filib::minus_argtype_interval_fo<N,K,E> minus_argtype_interval_fo;
+	allErrors += BinCheck<N,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("operator -: N x  filib::interval<N,K,E> ", 
+		minus_argtype_interval_fo,
+		TestSet<N>(subIDTestSetSize[E], subIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(subIDTestSetSize[E], subIDTestSet1),
+		TestSet< filib::interval<N,K,E> >(subIDTestSetSize[E], subDIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+  
+	// operator -=:  filib::interval<N,K,E>  x N
+	filib::minus_upd_interval_argtype_copy_fo<N,K,E> minus_upd_interval_argtype_copy_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> , N,  filib::interval<N,K,E> > 
+		("operator -=:  filib::interval<N,K,E>  x N", 
+		minus_upd_interval_argtype_copy_fo,
+		TestSet< filib::interval<N,K,E> >(subIDTestSetSize[E], subIDTestSet1),
+		TestSet<N>(subIDTestSetSize[E], subIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(subIDTestSetSize[E], subUpdIDExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator *:  filib::interval<N,K,E>  x  filib::interval<N,K,E> 
+	filib::multiplies_interval_interval_fo<N,K,E> multiplies_interval_interval_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("operator *:  filib::interval<N,K,E>  x  filib::interval<N,K,E> ", 
+		multiplies_interval_interval_fo,
+		TestSet< filib::interval<N,K,E> >(mulIITestSetSize[E], mulIITestSet1),
+		TestSet< filib::interval<N,K,E> >(mulIITestSetSize[E], mulIITestSet2),
+		TestSet< filib::interval<N,K,E> >(mulIITestSetSize[E], mulIIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator *=:  filib::interval<N,K,E>  x  filib::interval<N,K,E> 
+	filib::multiplies_upd_interval_interval_copy_fo<N,K,E> multiplies_upd_interval_interval_copy_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("operator *=:  filib::interval<N,K,E>  x  filib::interval<N,K,E> ", 
+		multiplies_upd_interval_interval_copy_fo,
+		TestSet< filib::interval<N,K,E> >(mulIITestSetSize[E], mulIITestSet1),
+		TestSet< filib::interval<N,K,E> >(mulIITestSetSize[E], mulIITestSet2),
+		TestSet< filib::interval<N,K,E> >(mulIITestSetSize[E], mulIIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator *:  filib::interval<N,K,E>  x N
+	filib::multiplies_interval_argtype_fo<N,K,E> multiplies_interval_argtype_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> , N,  filib::interval<N,K,E> > 
+		("operator *:  filib::interval<N,K,E>  x N", 
+		multiplies_interval_argtype_fo,
+		TestSet< filib::interval<N,K,E> >(mulIDTestSetSize[E], mulIDTestSet1),
+		TestSet<N>(mulIDTestSetSize[E], mulIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(mulIDTestSetSize[E], mulIDExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator *: N x  filib::interval<N,K,E> 
+	filib::multiplies_argtype_interval_fo<N,K,E> multiplies_argtype_interval_fo;
+	allErrors += BinCheck<N,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("operator *: N x  filib::interval<N,K,E> ", 
+		multiplies_argtype_interval_fo,
+		TestSet<N>(mulIDTestSetSize[E], mulIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(mulIDTestSetSize[E], mulIDTestSet1),
+		TestSet< filib::interval<N,K,E> >(mulIDTestSetSize[E], mulDIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+  
+	// operator *=:  filib::interval<N,K,E>  x N
+	filib::multiplies_upd_interval_argtype_copy_fo<N,K,E> multiplies_upd_interval_argtype_copy_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> , N,  filib::interval<N,K,E> > 
+		("operator *=:  filib::interval<N,K,E>  x N", 
+		multiplies_upd_interval_argtype_copy_fo,
+		TestSet< filib::interval<N,K,E> >(mulIDTestSetSize[E], mulIDTestSet1),
+		TestSet<N>(mulIDTestSetSize[E], mulIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(mulIDTestSetSize[E], mulUpdIDExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator /:  filib::interval<N,K,E>  x  filib::interval<N,K,E> 
+	filib::divides_interval_interval_fo<N,K,E> divides_interval_interval_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("operator /:  filib::interval<N,K,E>  x  filib::interval<N,K,E> ",
+		divides_interval_interval_fo,
+		TestSet< filib::interval<N,K,E> >(divIITestSetSize[E], divIITestSet1),
+		TestSet< filib::interval<N,K,E> >(divIITestSetSize[E], divIITestSet2),
+		TestSet< filib::interval<N,K,E> >(divIITestSetSize[E], divIIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator /=:  filib::interval<N,K,E>  x  filib::interval<N,K,E> 
+	filib::divides_upd_interval_interval_copy_fo<N,K,E> divides_upd_interval_interval_copy_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("operator /=:  filib::interval<N,K,E>  x  filib::interval<N,K,E> ",
+		divides_upd_interval_interval_copy_fo,
+		TestSet< filib::interval<N,K,E> >(divIITestSetSize[E], divIITestSet1),
+		TestSet< filib::interval<N,K,E> >(divIITestSetSize[E], divIITestSet2),
+		TestSet< filib::interval<N,K,E> >(divIITestSetSize[E], divIIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator /:  filib::interval<N,K,E>  x N
+	filib::divides_interval_argtype_fo<N,K,E> divides_interval_argtype_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> , N,  filib::interval<N,K,E> > 
+		("operator /:  filib::interval<N,K,E>  x N", 
+		divides_interval_argtype_fo,
+		TestSet< filib::interval<N,K,E> >(divIDTestSetSize[E], divIDTestSet1),
+		TestSet<N>(divIDTestSetSize[E], divIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(divIDTestSetSize[E], divIDExpected), UlpComparator< filib::interval<N,K,E> >(1));
+
+	// operator /: N x  filib::interval<N,K,E> 
+	filib::divides_argtype_interval_fo<N,K,E> divides_argtype_interval_fo;
+	allErrors += BinCheck<N,  filib::interval<N,K,E> ,  filib::interval<N,K,E> > 
+		("operator /: N x  filib::interval<N,K,E> ",
+		divides_argtype_interval_fo,
+		TestSet<N>(divIDTestSetSize[E], divIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(divIDTestSetSize[E], divIDTestSet1),
+		TestSet< filib::interval<N,K,E> >(divIDTestSetSize[E], divDIExpected), UlpComparator< filib::interval<N,K,E> >(1));
+  
+	// operator /=:  filib::interval<N,K,E>  x N
+	filib::divides_upd_interval_argtype_copy_fo<N,K,E> divides_upd_interval_argtype_copy_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> , N,  filib::interval<N,K,E> > 
+		("operator /=:  filib::interval<N,K,E>  x N",
+		divides_upd_interval_argtype_copy_fo,
+		TestSet< filib::interval<N,K,E> >(divIDTestSetSize[E], divIDTestSet1),
+		TestSet<N>(divIDTestSetSize[E], divIDTestSet2),
+		TestSet< filib::interval<N,K,E> >(divIDTestSetSize[E], divUpdIDExpected), UlpComparator< filib::interval<N,K,E> >(1));
+}
+
+// -----------------------------------------------------------------------
+// Standard functions
+// -----------------------------------------------------------------------
+
+#if 0
+extern int expTestSetSize;
+extern unsigned int expTestSet[][2][4];
+extern unsigned int expExpected[][2][4];
+
+extern int exp2TestSetSize;
+extern unsigned int exp2TestSet[][2][4];
+extern unsigned int exp2Expected[][2][4];
+
+extern int exp10TestSetSize;
+extern unsigned int exp10TestSet[][2][4];
+extern unsigned int exp10Expected[][2][4];
+
+extern int logTestSetSize;
+extern unsigned int logTestSet[][2][4];
+extern unsigned int logExpected[][2][4];
+
+extern int log2TestSetSize;
+extern unsigned int log2TestSet[][2][4];
+extern unsigned int log2Expected[][2][4];
+
+extern int log10TestSetSize;
+extern unsigned int log10TestSet[][2][4];
+extern unsigned int log10Expected[][2][4];
+
+extern int sinTestSetSize;
+extern unsigned int sinTestSet[][2][4];
+extern unsigned int sinExpected[][2][4];
+
+extern int cosTestSetSize;
+extern unsigned int cosTestSet[][2][4];
+extern unsigned int cosExpected[][2][4];
+
+extern int tanTestSetSize;
+extern unsigned int tanTestSet[][2][4];
+extern unsigned int tanExpected[][2][4];
+
+extern int cotTestSetSize;
+extern unsigned int cotTestSet[][2][4];
+extern unsigned int cotExpected[][2][4];
+
+extern int asinTestSetSize;
+extern unsigned int asinTestSet[][2][4];
+extern unsigned int asinExpected[][2][4];
+
+extern int acosTestSetSize;
+extern unsigned int acosTestSet[][2][4];
+extern unsigned int acosExpected[][2][4];
+
+extern int atanTestSetSize;
+extern unsigned int atanTestSet[][2][4];
+extern unsigned int atanExpected[][2][4];
+
+extern int acotTestSetSize;
+extern unsigned int acotTestSet[][2][4];
+extern unsigned int acotExpected[][2][4];
+
+extern int sinhTestSetSize;
+extern unsigned int sinhTestSet[][2][4];
+extern unsigned int sinhExpected[][2][4];
+
+extern int coshTestSetSize;
+extern unsigned int coshTestSet[][2][4];
+extern unsigned int coshExpected[][2][4];
+
+extern int tanhTestSetSize;
+extern unsigned int tanhTestSet[][2][4];
+extern unsigned int tanhExpected[][2][4];
+
+extern int cothTestSetSize;
+extern unsigned int cothTestSet[][2][4];
+extern unsigned int cothExpected[][2][4];
+
+extern int asinhTestSetSize;
+extern unsigned int asinhTestSet[][2][4];
+extern unsigned int asinhExpected[][2][4];
+
+extern int acoshTestSetSize;
+extern unsigned int acoshTestSet[][2][4];
+extern unsigned int acoshExpected[][2][4];
+
+extern int atanhTestSetSize;
+extern unsigned int atanhTestSet[][2][4];
+extern unsigned int atanhExpected[][2][4];
+
+extern int acothTestSetSize;
+extern unsigned int acothTestSet[][2][4];
+extern unsigned int acothExpected[][2][4];
+
+extern int expm1TestSetSize;
+extern unsigned int expm1TestSet[][2][4];
+extern unsigned int expm1Expected[][2][4];
+
+extern int log1pTestSetSize;
+extern unsigned int log1pTestSet[][2][4];
+extern unsigned int log1pExpected[][2][4];
+
+extern int sqrtTestSetSize;
+extern unsigned int sqrtTestSet[][2][4];
+extern unsigned int sqrtExpected[][2][4];
+
+extern int powTestSetSize;
+extern unsigned int powTestSet1[][2][4];
+extern int powTestSet2[];
+extern unsigned int powExpected[][2][4];
+#endif
+
+template < typename N, filib::rounding_strategy K, filib::interval_mode E> 
+void checkStdFun() 
+{
+	// exp
+	filib::exp_fo<N,K,E> exp_fo;
+	allErrors += 
+		UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		(
+		"exp", 
+		exp_fo,
+		TestSet< filib::interval<N,K,E> >(expTestSetSize[E], expTestSet),
+		TestSet< filib::interval<N,K,E> >(expTestSetSize[E], expExpected), 
+		Comparator< filib::interval<N,K,E> >()
+		);
+
+	// exp2
+	filib::exp2_fo<N,K,E> exp2_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("exp2", exp2_fo,
+		TestSet< filib::interval<N,K,E> >(exp2TestSetSize[E], exp2TestSet),
+		TestSet< filib::interval<N,K,E> >(exp2TestSetSize[E], exp2Expected), Comparator< filib::interval<N,K,E> >());
+
+	// exp10
+	filib::exp10_fo<N,K,E> exp10_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("exp10", exp10_fo,
+		TestSet< filib::interval<N,K,E> >(exp10TestSetSize[E], exp10TestSet),
+		TestSet< filib::interval<N,K,E> >(exp10TestSetSize[E], exp10Expected), Comparator< filib::interval<N,K,E> >());
+
+	// log
+	filib::log_fo<N,K,E> log_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("log", log_fo,
+		TestSet< filib::interval<N,K,E> >(logTestSetSize[E], logTestSet),
+		TestSet< filib::interval<N,K,E> >(logTestSetSize[E], logExpected), Comparator< filib::interval<N,K,E> >());
+
+	// log2
+	filib::log2_fo<N,K,E> log2_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("log2", log2_fo,
+		TestSet< filib::interval<N,K,E> >(log2TestSetSize[E], log2TestSet),
+		TestSet< filib::interval<N,K,E> >(log2TestSetSize[E], log2Expected), Comparator< filib::interval<N,K,E> >());
+
+	// log10
+	filib::log10_fo<N,K,E> log10_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("log10", log10_fo,
+		TestSet< filib::interval<N,K,E> >(log10TestSetSize[E], log10TestSet),
+		TestSet< filib::interval<N,K,E> >(log10TestSetSize[E], log10Expected), Comparator< filib::interval<N,K,E> >());
+
+	// sin
+	filib::sin_fo<N,K,E> sin_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("sin", sin_fo,
+		TestSet< filib::interval<N,K,E> >(sinTestSetSize[E], sinTestSet),
+		TestSet< filib::interval<N,K,E> >(sinTestSetSize[E], sinExpected), Comparator< filib::interval<N,K,E> >());
+
+	// cos
+	filib::cos_fo<N,K,E> cos_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("cos", cos_fo,
+		TestSet< filib::interval<N,K,E> >(cosTestSetSize[E], cosTestSet),
+		TestSet< filib::interval<N,K,E> >(cosTestSetSize[E], cosExpected), Comparator< filib::interval<N,K,E> >());
+
+	// tan
+	filib::tan_fo<N,K,E> tan_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("tan", tan_fo,
+		TestSet< filib::interval<N,K,E> >(tanTestSetSize[E], tanTestSet),
+		TestSet< filib::interval<N,K,E> >(tanTestSetSize[E], tanExpected), Comparator< filib::interval<N,K,E> >());
+
+	// cot
+	filib::cot_fo<N,K,E> cot_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("cot", cot_fo,
+		TestSet< filib::interval<N,K,E> >(cotTestSetSize[E], cotTestSet),
+		TestSet< filib::interval<N,K,E> >(cotTestSetSize[E], cotExpected), Comparator< filib::interval<N,K,E> >());
+
+	// asin
+	filib::asin_fo<N,K,E> asin_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("asin", asin_fo,
+		TestSet< filib::interval<N,K,E> >(asinTestSetSize[E], asinTestSet),
+		TestSet< filib::interval<N,K,E> >(asinTestSetSize[E], asinExpected), Comparator< filib::interval<N,K,E> >());
+
+	// acos
+	filib::acos_fo<N,K,E> acos_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("acos", acos_fo,
+		TestSet< filib::interval<N,K,E> >(acosTestSetSize[E], acosTestSet),
+		TestSet< filib::interval<N,K,E> >(acosTestSetSize[E], acosExpected), Comparator< filib::interval<N,K,E> >());
+
+	// atan
+	filib::atan_fo<N,K,E> atan_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("atan", atan_fo,
+		TestSet< filib::interval<N,K,E> >(atanTestSetSize[E], atanTestSet),
+		TestSet< filib::interval<N,K,E> >(atanTestSetSize[E], atanExpected), Comparator< filib::interval<N,K,E> >());
+
+	// acot
+	filib::acot_fo<N,K,E> acot_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("acot", acot_fo,
+		TestSet< filib::interval<N,K,E> >(acotTestSetSize[E], acotTestSet),
+		TestSet< filib::interval<N,K,E> >(acotTestSetSize[E], acotExpected), Comparator< filib::interval<N,K,E> >());
+
+	// sinh
+	filib::sinh_fo<N,K,E> sinh_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("sinh", sinh_fo,
+		TestSet< filib::interval<N,K,E> >(sinhTestSetSize[E], sinhTestSet),
+		TestSet< filib::interval<N,K,E> >(sinhTestSetSize[E], sinhExpected), Comparator< filib::interval<N,K,E> >());
+
+	// cosh
+	filib::cosh_fo<N,K,E> cosh_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("cosh", cosh_fo,
+		TestSet< filib::interval<N,K,E> >(coshTestSetSize[E], coshTestSet),
+		TestSet< filib::interval<N,K,E> >(coshTestSetSize[E], coshExpected), Comparator< filib::interval<N,K,E> >());
+
+	// tanh
+	filib::tanh_fo<N,K,E> tanh_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("tanh", tanh_fo,
+		TestSet< filib::interval<N,K,E> >(tanhTestSetSize[E], tanhTestSet),
+		TestSet< filib::interval<N,K,E> >(tanhTestSetSize[E], tanhExpected), Comparator< filib::interval<N,K,E> >());
+
+	// coth
+	filib::coth_fo<N,K,E> coth_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("coth", coth_fo,
+		TestSet< filib::interval<N,K,E> >(cothTestSetSize[E], cothTestSet),
+		TestSet< filib::interval<N,K,E> >(cothTestSetSize[E], cothExpected), Comparator< filib::interval<N,K,E> >());
+
+	// asinh
+	filib::asinh_fo<N,K,E> asinh_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("asinh", asinh_fo,
+		TestSet< filib::interval<N,K,E> >(asinhTestSetSize[E], asinhTestSet),
+		TestSet< filib::interval<N,K,E> >(asinhTestSetSize[E], asinhExpected), Comparator< filib::interval<N,K,E> >());
+
+	// acosh
+	filib::acosh_fo<N,K,E> acosh_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("acosh", acosh_fo,
+		TestSet< filib::interval<N,K,E> >(acoshTestSetSize[E], acoshTestSet),
+		TestSet< filib::interval<N,K,E> >(acoshTestSetSize[E], acoshExpected), Comparator< filib::interval<N,K,E> >());
+
+	// atanh
+	filib::atanh_fo<N,K,E> atanh_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("atanh", atanh_fo,
+		TestSet< filib::interval<N,K,E> >(atanhTestSetSize[E], atanhTestSet),
+		TestSet< filib::interval<N,K,E> >(atanhTestSetSize[E], atanhExpected), Comparator< filib::interval<N,K,E> >());
+
+	// acoth
+	filib::acoth_fo<N,K,E> acoth_fo;
+	allErrors += UnCheck< filib::interval<N,K,E> ,  filib::interval<N,K,E> >
+		("acoth", acoth_fo,
+		TestSet< filib::interval<N,K,E> >(acothTestSetSize[E], acothTestSet),
+		TestSet< filib::interval<N,K,E> >(acothTestSetSize[E], acothExpected), Comparator< filib::interval<N,K,E> >());
+
+	// pow  filib::interval<N,K,E>  ^ int
+	filib::power_interval_integer_fo<N,K,E> power_interval_integer_fo;
+	allErrors += BinCheck< filib::interval<N,K,E> , int,  filib::interval<N,K,E> > 
+		("pow:  filib::interval<N,K,E>  x int", power_interval_integer_fo,
+		TestSet< filib::interval<N,K,E> >(powTestSetSize[E], powTestSet1),
+		TestSet<int>(powTestSetSize[E], powTestSet2),
+		TestSet< filib::interval<N,K,E> >(powTestSetSize[E], powExpected),
+		UlpComparator< filib::interval<N,K,E> >(20)
+		);
+}
+
+template < typename N, filib::rounding_strategy K, filib::interval_mode E> 
+int checkAll()
+{
+	std::cout << std::setprecision(10);
+	filib::interval<N,K,E>::precision(10);
+
+	checkPredSucc();
+	checkSpecialIntervals<N,K,E>();
+	checkConstructors<N,K,E>();
+	checkBounds<N,K,E>();
+	checkInfo<N,K,E>();
+	checkUtility<N,K,E>();
+	checkSetOp<N,K,E>();
+	checkAri<N,K,E>();
+	checkStdFun<N,K,E>();
+
+	std::cout << std::endl;
+	if (allErrors == 0)
+		std::cout << "All checks passed !" << std::endl;
+	else
+		std::cout << "A total of " << allErrors << " error(s) detected !" << std::endl;
+
+	return allErrors;
+}

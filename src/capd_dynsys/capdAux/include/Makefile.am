@@ -1,0 +1,67 @@
+include ${capdMake}/make/common_makefile.mkf
+
+nobase_include_HEADERS = \
+capd/auxil/AdvStopwatch.h \
+capd/auxil/CRef.h \
+capd/auxil/Counter.h \
+capd/auxil/EmbDimException.h \
+capd/auxil/Functor.h \
+capd/auxil/OutputStream.h \
+capd/auxil/Stopwatch.h \
+capd/auxil/arg.h \
+capd/auxil/clock.h \
+capd/auxil/commandLineArgs.h \
+capd/auxil/config.h \
+capd/auxil/debuger.h \
+capd/auxil/embeddingDim.h \
+capd/auxil/handleUnexpectedTerminate.h \
+capd/auxil/log.h \
+capd/auxil/logger.h \
+capd/auxil/memSize.h \
+capd/auxil/minmax.h \
+capd/auxil/ofstreamcout.h \
+capd/auxil/skipCommentsIstream.h \
+capd/auxil/stringOstream.h \
+capd/auxil/timeused.h \
+capd/krak/appl-mac.h \
+capd/krak/atom.h \
+capd/krak/chain.h \
+capd/krak/color.h \
+capd/krak/coord3d.h \
+capd/krak/debug.h \
+capd/krak/dos16.h \
+capd/krak/frame.h \
+capd/krak/frstring.h \
+capd/krak/hardware.h \
+capd/krak/io-templ.h \
+capd/krak/item.h \
+capd/krak/job.h \
+capd/krak/kernel.h \
+capd/krak/keys.h \
+capd/krak/krak-lib.h \
+capd/krak/krak-library.h \
+capd/krak/krak.h \
+capd/krak/krakSetting.h \
+capd/krak/linux.h \
+capd/krak/manip.h \
+capd/krak/ms-dos.h \
+capd/krak/ms-win31.h \
+capd/krak/ms-win95.h \
+capd/krak/noframe.h \
+capd/krak/pattern.h \
+capd/krak/primitiv.h \
+capd/krak/record.h \
+capd/krak/sun-ch.h \
+capd/krak/sun-os.h \
+capd/krak/sun.h \
+capd/krak/system.h \
+capd/krak/unix-ch.h \
+capd/krak/unix.h \
+capd/krak/usermove.h \
+capd/krak/virt-mon.h \
+capd/krak/wxWin.h \
+capd/settings/archSetting.h \
+capd/settings/compilerSetting.h \
+capd/settings/operatingSystemSetting.h
+
+

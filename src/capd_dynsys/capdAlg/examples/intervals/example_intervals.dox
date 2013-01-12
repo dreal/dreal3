@@ -1,0 +1,438 @@
+/** \page example_intervals Interval arithmetics
+
+- \ref ex_int_template_parameters
+- \ref ex_int_constructor
+- \ref ex_int_endpoints
+- \ref ex_int_inout
+- \ref ex_int_arithmetic
+- \ref ex_int_functions
+- \ref ex_int_logic_op
+- \ref ex_int_inclusion
+- \ref ex_int_ifunctions
+- \ref ex_int_constants
+
+\section ex_int_choosing_intervals Choosing between CAPD and FILIB intervals 
+When configuring CAPD library you can choose which of interval arithmetic packages, 
+native CAPD intervals or wrapper for FILIB, will be used as default one for double precision. 
+To do that pass the flag <code>--without-filib</code> or <code>--with-filib</code> 
+to the <code>configure</code> script.
+\note
+For the moment we recommend FILIB intervals because GCC optimization of the native CAPD intervals 
+with build-in floating point types can produce not correct results.     
+
+Both interval arithmetics have the same interface. 
+If you include file <tt>capd/intervals/lib.h</tt> 
+then the name <code>capd::DInterval</code> points always to the current intervals.
+This allows to write code that will work with both interval arithmetics.
+
+The native CAPD interval arithmetics is more general and has end point type as template parameter.        
+The following example uses explicitly CAPD intervals but almost everything applies 
+to the FILIB intervals as well.  
+
+\section ex_int_template_parameters Template parameters
+
+Template class Interval has two parameters
+\code
+template class Interval <typename BoundType, typename Rounding>
+\endcode
+- \b BoundType - type of interval ends (e.g. int, double, MpFloat)
+- \b Rounding - class that switches rounding. <br/>
+  If \e Rounding is not given then default values are taken:
+  - \b DoubleRounding for  double, long double
+  - \b IntRounding for all integer types: int, long ...
+  - \b BoundType for user other types
+
+The following lines define new names for intervals with the endpoint's type: double, int, MpFloat correspondigly
+\code
+typedef capd::intervals::Interval< double > DInterval;
+typedef capd::intervals::Interval< int > ZInterval;
+typedef capd::intervals::Interval< capd::MpFloat > MpInterval;
+\endcode
+
+In the following we will use type <tt>DInterval</tt> but in most of the cases any of the above can be used.
+
+\note
+If you include file "capd/intervals/lib.h" then <tt>capd::DInterval</tt> is already defined as interval with double endpoints.
+
+\section ex_int_constructor How to create an interval?
+\dontinclude "intervalExample.cpp"
+We can construct intervals by :
+\skipline DInterval a
+\until DInterval e("2.5","3.0");
+
+\note
+If you create an interval by  
+\code 
+DInterval x(0.1, 0.1) 
+\endcode 
+it <b>will NOT contain 0.1</b>.
+The reason is that 0.1 is not representable and it will be rounded to the nearest representable
+by compiler before passing to the constructor.<br/>
+The most appropriate way to enclose not-representable number is to do the following
+\code
+DInterval x(1);
+x /= 10;
+\endcode 
+
+(*)The state of the interval \e a depends on a flag <tt>__INTERVAL_INIT_0__</tt>.
+If this flag is set in file <tt>capdAlg/include/capd/interval/intervalSettings.h</tt> then <tt>a = [0.0, 0.0]</tt>,
+otherwise \e a is not initialized (this is the default behaviour).
+
+\section ex_int_endpoints How to access interval end points?
+
+To obtain left or right end point of the interval one can use leftBound or rightBound functions.
+They are implemented  both as member and global functions.
+
+\code
+DInterval c(2.0, 3.0);
+
+// member functions
+c.leftBound();                   // the result is 2.0
+c.rightBound();                  // the result is 3.0
+
+// or global functions
+leftBound(c);                    // the result is 2.0
+rightBound(c);                   // the result is 3.0
+
+\endcode
+
+To get point interval that contains left or right end point use function \b left or \b right correspondigly
+
+\code
+c.left();          // or
+left(c);           // in both cases the result is an interval [2.0, 2.0]
+
+c.right();         // or
+right(c);          // in both cases the result is an interval [3.0, 3.0]
+\endcode
+
+\note
+To change one of the the endpoints use \b setLeftBound or \b setRightBound.
+\code
+c.setLeftBound(3.2);
+\endcode
+
+
+
+\section ex_int_inout Writing and reading intervals
+
+Intervals can be written to any C++ stream using operator <<.
+The output depends on parameters of a stream e.g precision.
+\skipline DInterval x(1.0, 2.0);
+\until fixed
+
+To read intervals from given stream (e.g. keyboard, file or memory) use operator >>.
+Input should be of the form :
+\code
+[leftEnd,rightEnd]
+\endcode
+where <tt>leftEnd</tt> and <tt>rightEnd</tt> should be of the form
+that can be read with operator >> as endpoint type (BoundType).
+\skipline istringstream
+\until a;
+
+
+
+\section ex_int_arithmetic Arithmetic operators
+
+Arithmetic operations for intervals are implemented in this way that their result
+always contains all possible results.
+
+For example if
+\code
+ DInterval a(-1,0, 2.0), b(1.0, 2.0);
+\endcode
+then
+<table>
+ <tr> <th>Operation    </th>  <th>Code                 </th>  <th>Result</th>  </tr>
+ <tr> <td> Sum         </td>  <td> <pre>a + b;</pre>   </td>  <td>[0.0, 4.0]</td> </tr>
+ <tr> <td> Substraction</td>  <td> <pre>a - b;</pre>   </td>  <td>[-3.0, 1.0]</td></tr>
+ <tr> <td> Product     </td>  <td> <pre>a * b;</pre>   </td>  <td>[-2.0, 4.0]</td></tr>
+ <tr> <td>Division     </td>  <td> <pre>a / b;</pre>   </td>  <td>[-1.0, 2.0]</td></tr>
+</table>
+\note
+If in division b contains 0 then an exception is thrown.
+
+Every arithmetic operation of form
+\code
+a = a + b;
+a = a - b;
+a = a * b;
+a = a / b;
+\endcode
+can be also shorten to
+\code
+a += b;
+a -= b;
+a *= b;
+a /= b;
+\endcode
+
+\section ex_int_functions Elementary functions
+
+Most of the basic functions has its interval version.
+To be rigorous returned value is always an upper estimate of the true result.
+Functions are called exactly in the same way as its corresponding floating point versions.
+
+List of all implemented functions:
+
+<table>
+     <tr>
+       <th>Function</th>
+       <th>For an interval x it returns: </th>
+     </tr>
+     <tr>
+       <td class="code">power(x, n)</td>
+       <td>x<sup>n</sup>, where n is an integer</td>
+     </tr>
+     <tr>
+       <td class="code">power(x, a)</td>
+       <td>x<sup>a</sup>, where a is an interval</td>
+     </tr>
+     <tr>
+       <td class="code">sqrt(x)</td>
+       <td>square root of x</td>
+     </tr>
+     <tr>
+       <td class="code">sin(x), cos(x), tan(x), cot(x)</td>
+       <td>sinus of x, etc.</td>
+     </tr>
+     <tr>
+       <td class="code">sinh(x), cosh(x), tanh(x), coth(x)</td>
+       <td>hyperbolic sinus of x, etc.</td>
+     </tr>
+     <tr>
+       <td class="code">exp(x)</td>
+       <td>exponens of x</td>
+     </tr>
+     <tr>
+       <td class="code">log(x)</td>
+       <td>&nbsp;natural logarithm of x</td>
+     </tr>
+</table>
+
+\section ex_int_logic_op Logical operators and inclusions
+
+<table>
+ <tr>
+   <th>Operator</th> <th>True if</th>
+ </tr> <tr>
+   <td> <pre> b==c; </pre> </td>
+   <td>both end points are the same.</td>
+ </tr><tr>
+   <td><pre> b!=c; </pre> </td>
+   <td>at least one end point differs.</td>
+ </tr><tr>
+  <td>
+<pre>
+ b>c;
+ b>=c;
+ b<c;
+ b<=c;
+</pre>
+ </td>
+ <td>
+    it is true for any two points from intervals b and c.<br>
+    For example: <tt>b>c</tt> if <code>leftBound(b) > rightBound(c)</code>.
+ </td>
+</tr>
+</table>
+
+
+The same operators can be applied if one of the intervals is replaced by a number
+(the number is treated as point interval) e.g.   <code> b == 1.0;    b < 2.0;</code>
+
+\note
+Both <code>b>c</code> and  <code>b<=c</code> can be false at the same time
+e.g. in the case when intervals <tt>b</tt> and <tt>c</tt> overlap.
+
+\section ex_int_inclusion Inclusions
+
+For two intervals one can check inclusions.
+
+<table>
+<tr>
+  <th></th><th>True if</th>
+</tr><tr>
+<td>
+<pre>
+ c.contains(b);
+ c.contains(2.5);
+</pre>
+</td>
+  <td>
+     c contains b <br/>
+     c contains number 2.5
+  </td>
+</tr><tr>
+   <td> <pre>c.containsInInterior(b);</pre> </td>
+   <td> c contains b in the interior </td>
+</tr><tr>
+   <td> <pre>c.subset(b);</pre> </td>
+   <td> c is subset of b</td>
+</tr><tr>
+   <td> <pre> c.subsetInterior(b);</pre> </td>
+   <td> c is subset of the interior of b </td>
+</tr>
+</table>
+
+\note
+On standard output true is converted into integer value 1 and false into 0.
+
+
+\section ex_int_ifunctions Interval specific functions
+
+In this section we collect several useful functions.
+<ul>
+<li> \b mid - middle point of the interval <br/>
+  \code
+DInterval a(1.0, 5.0);
+std::cout << a.mid(); // displays on the screen [3.0,3.0] (the middle point of interval [1.0, 5.0])
+std::cout << mid(a);
+\endcode </li>
+<li> \b diam - diameter of the interval <br/>
+  \code
+DInterval a(1.0, 5.0);
+std::cout << diam(a); // displays on the screen [4.0, 4.0]
+\endcode </li>
+<li> \b intersection - intersection of two intervals <br/>
+  function <tt>bool intersection(a, b, result)</tt> for given two intervals a and b returns:
+  <ul>
+   <li> true and intersection in the result variable if  intersecton is non empty.</li>
+   <li> false if intersection is empty.</li>
+  </ul>
+\code
+DInterval a(1.0, 3.0), b(2.0, 4.0), c(5.0, 6.0), r1, r2;
+intersection(a, b, r1);
+if(!intersection(a,c,r2))
+   std::cout << "intersection is empty";
+// r1 is equal to [2.0, 3.0], r2 is not initialized
+\endcode
+</li>
+<li>
+\b intervalHull  - interval hull of two given intervals <br/>
+     For given two intervals iv1 and iv2 function <tt>intervalHull(iv1, iv2)</tt>
+     returns the smallest possible interval containing iv1 and iv2
+\code
+ DInterval a(1.0, 3.0), b(5.0, 6.0), result;
+result = intervalHull(a, b);
+// result is equal to [1.0, 6.0]
+\endcode
+</li>
+<li>
+\b imin, \b imax - minimum and maximum of two intervals <br/>
+     for any element a of <tt>ia</tt> and any element b of <tt>ib</tt> we have that <tt>imin(ia,ib)</tt> contains <tt>min(a,b)</tt>
+     and <tt>imax(ia,ib)</tt> contains <tt>max(a,b)</tt>
+\code
+ DInterval ia(1.0, 10.0), ib(3.0, 5.0);
+ imin(ia,ib);                  // result:  [1.0, 5.0]
+ imax(ia,ib);                  // result:  [3.0, 10.0]
+\endcode
+</li>
+<li>
+\b iabs - interval containing absolute values of all elements of given interval
+</li>
+<li> \b split - splits interval into the center and the radius/the remainder <br/>
+There are 4 functions that split interval. They differ in the output. <br/>
+Suppose that we have
+\code
+DInterval a(1.0,3.0);
+interval center, remainder, radius;
+double r;
+\endcode
+then
+<table>
+        <tr>
+          <th>Command</th>
+          <th>Result</th>
+        </tr>
+        <tr>
+          <td>
+          <pre>a.split(center,remainder);</pre>
+          </td>
+          <td>a = [1.0, 3.0]<br>
+center = [2.0, 2.0]<br>
+remainder = [-1.0, 1.0]</td>
+         </tr>
+         <tr>
+           <td>
+          <pre>a.split(remainder);</pre>
+           </td>
+           <td>a = [2.0, 2.0]<br>
+ remainder = [-1.0, 1.0]</td>
+         </tr>
+         <tr>
+           <td>
+          <pre>split(a, center,radius);</pre>
+           </td>
+           <td>a = [1.0, 3.0]<br>
+ center = [2.0, 2.0]<br>
+radius = [1.0, 1.0] &nbsp; &nbsp; &nbsp; &nbsp; !!!</td>
+        </tr>
+        <tr>
+          <td>
+          <pre>split(a, center,r);</pre>
+          </td>
+          <td>a = [1.0, 3.0]<br>
+center = [2.0, 2.0]<br>
+radius = 1.0</td>
+   </tr>
+</table> </li>
+</ul>
+
+\section ex_int_constants Constants
+
+Two constants : \b pi and \b euler are provided by static member fuctions \e pi and \e euler.
+Their output is an interval that containts true value of the constant.
+\code
+Example:
+// returns interval that contains pi constant
+DInterval::pi();
+
+// returns interval that contains euler constant
+DInterval::euler();
+\endcode
+
+\note
+When using multiple precision endpoints, the returned value depends also on the precision currently used.
+
+\section ex_int_settings Interval Settings
+
+In file "capdAlg/include/capd/interval/IntervalSetting.h" there are several flags which can be switched on/off
+by (un)commenting appropriate line of code:
+<table>
+    <tr>
+      <th>Flag</th>
+      <th>If switched on</th>
+      <th>Default</th>
+    </tr>
+    <tr>
+      <td><pre>__DEBUGGING__</pre> </td>
+      <td>it turns on debugging mode. We check intervals
+&nbsp;during each operation and throw exception if interval is not
+valid.</td>
+      <td>off</td>
+     </tr>
+     <tr>
+       <td><pre>__INTERVAL_INIT_0__</pre>
+       </td>
+       <td>default constructor initializes intervals to be [0.0,0.0]. <br/>
+By default this option is switched off and an interval is not
+initialized.</td>
+      <td>off</td>
+    </tr>
+    <tr>
+      <td><pre>__INTERVAL_SPEED_OPTIMIZED__</pre>
+     </td>
+      <td>it speeds up computations but enlarges programm size.<br/>
+ It couses many functions to be defined as <span class="code">inline</span></td>
+       <td>on</td>
+     </tr>
+     <tr>
+       <td><pre class="keyword">__INTERVAL_DEPRECATED__</pre>
+       </td>
+       <td>it allows use of deprecated functions for backward compatibility. </td>
+       <td>off</td>
+     </tr>
+</table>
+*/

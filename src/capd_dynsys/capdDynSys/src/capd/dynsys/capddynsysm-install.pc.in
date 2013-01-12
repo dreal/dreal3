@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: capddynsys
+Description: capddynsys module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:   -L${libdir} -lcapddynsys @capddynsysm_LIBS@
+Cflags: @capddynsysm_CFLAGS@  -I${includedir}

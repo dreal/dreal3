@@ -1,0 +1,108 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(Q_EXP2_ICC)
+#define Q_EXP2_ICC
+
+namespace filib
+{
+	template <rounding_strategy K, interval_mode E > 
+	double q_exp2(double const & x)
+	{
+		int j;
+		long int n,m;
+		double r,q,s;
+		double res;
+
+		/* Step 1: Special cases  */
+		if (fp_traits<double,K>::IsNaN(x))
+		{
+			if ( E )
+				return fp_traits<double,K>::quiet_NaN();
+			else
+			{
+				std::cerr << "filib: q_exp2 called with NaN value." << std::endl;
+				std::terminate();
+			}
+		}
+		else
+		{
+			if ((-filib_consts<double>::q_ext1<x) && (x<filib_consts<double>::q_ext1))                      /* |x|<2^-54 */
+				res=x+1;
+			else
+			{
+				if (1023<x)
+				{
+					if ( E )
+						res = fp_traits<double,K>::infinity();
+					else
+						{
+							std::cerr << "filib: q_exp2 overflow." << std::endl;
+							std::terminate();
+						}
+				}
+				else
+				{ 
+					if (x<-1022)
+						res=0;                                     /* Result: Underflow */ 
+					else
+					{
+						if (long_int_cast(x)==x)                        /* x is integer */
+						{ 
+							res=1.0; 
+							res = ldexp(res,static_cast<long int>(x));
+						}
+						else
+						{                                   /* x is not integer */
+							/* Step 2 */
+							if (x>0) n=long_int_cast((x*32)+0.5);
+							else     n=long_int_cast((x*32)-0.5);         /* round (x)      */
+
+							j=n % 32;                              /* j=n mod 32     */
+
+							if (j<0) j+=32;                        /* We force j>=0  */
+
+							m=(n-j)/32;
+							r=x-n*0.03125;
+	     
+							/* Step 3 */	  
+							q=(((((filib_consts<double>::q_exc[6]*r+filib_consts<double>::q_exc[5])*r+filib_consts<double>::q_exc[4])*r+filib_consts<double>::q_exc[3])*r+filib_consts<double>::q_exc[2])*r 
+								+filib_consts<double>::q_exc[1])*r+filib_consts<double>::q_exc[0];
+							q=r*q;
+	     
+							/* Step 4 */
+							s=filib_consts<double>::q_exld[j]+filib_consts<double>::q_extl[j];
+							res=(filib_consts<double>::q_exld[j]+(filib_consts<double>::q_extl[j]+s*q));
+							res = ldexp(res,m);
+						}
+					}
+				}
+			}
+		}
+		return(res);
+	}
+}
+#endif

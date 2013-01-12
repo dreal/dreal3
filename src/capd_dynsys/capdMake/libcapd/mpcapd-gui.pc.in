@@ -1,0 +1,6 @@
+Name: mpcapd-gui
+Description: mpcapd library with gui.
+Requires:  @CAPD_PACKAGES_GUI@ @MPCAPD_PACKAGES@
+Version: @PACKAGE_VERSION@
+Libs:
+Cflags: 

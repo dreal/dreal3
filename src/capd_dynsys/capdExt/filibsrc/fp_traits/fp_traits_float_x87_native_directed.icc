@@ -1,0 +1,168 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wix87nschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+	TEMPLATE_EMPTY
+	inline void filib::fp_traits<float,filib::native_directed>::setup()
+	{
+	}
+	TEMPLATE_EMPTY
+	inline void filib::fp_traits<float,filib::native_directed>::reset()
+	{
+	}
+
+	TEMPLATE_EMPTY
+	inline filib::fp_traits<float,filib::native_directed>::fp_traits()
+	{
+	}
+
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::upward_plus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87add(op1,op2,::filib::x87::dir_up,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::downward_plus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87add(op1,op2,::filib::x87::dir_down,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::tozero_plus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87add(op1,op2,::filib::x87::dir_trunc,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::tonearest_plus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87add(op1,op2,::filib::x87::dir_nearest,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::upward_minus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87sub(op1,op2,::filib::x87::dir_up,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::downward_minus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87sub(op1,op2,::filib::x87::dir_down,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::tozero_minus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87sub(op1,op2,::filib::x87::dir_trunc,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::tonearest_minus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87sub(op1,op2,::filib::x87::dir_nearest,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::upward_multiplies(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87mul(op1,op2,::filib::x87::dir_up,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::downward_multiplies(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87mul(op1,op2,::filib::x87::dir_down,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::tozero_multiplies(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87mul(op1,op2,::filib::x87::dir_trunc,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::tonearest_multiplies(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87mul(op1,op2,::filib::x87::dir_nearest,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::upward_divides(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87div(op1,op2,::filib::x87::dir_up,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::downward_divides(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87div(op1,op2,::filib::x87::dir_down,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::tozero_divides(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87div(op1,op2,::filib::x87::dir_trunc,false);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_directed>::tonearest_divides(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::x87::x87div(op1,op2,::filib::x87::dir_nearest,false);
+	}

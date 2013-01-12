@@ -1,0 +1,153 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(COT_ICC)
+#define COT_ICC
+
+#include <interval/stdfun/point/q_cot.icc>
+
+namespace filib
+{
+	template <rounding_strategy K, interval_mode E > 
+	interval<double,K,E> cot(interval<double,K,E> const & x)
+	{
+		if ( E )
+			if (x.isEmpty())
+				return interval<double,K,E>::EMPTY();
+
+		double rinf,rsup;
+		double h1,h2;
+		long int k1,k2,q1;
+
+		if ((x.inf()<-filib_consts<double>::q_sint[2])||(x.sup()>filib_consts<double>::q_sint[2]))
+		{
+			if ( E )
+				return interval<double,K,E>::ENTIRE();
+			else
+				{
+					std::cerr << "filib: cot called with invalid argument." << std::endl;
+					std::terminate();
+				}
+		}
+		else if (x.isPoint())
+		{ 
+			if ( E )
+				if (x.inf() == 0.0)
+					return interval<double,K,E>::ENTIRE();
+
+			rinf=q_cot<K,E>(x.inf());
+
+			if ( E )
+			{
+				// this may still be the case for |x| < filib_consts<double>::q_minr !
+				if (fp_traits<double,K>::IsNaN(rinf))
+                                {
+						if (x.inf() < 0.0)
+						return interval<double,K,E>::NEG_INFTY();
+					else
+						return interval<double,K,E>::POS_INFTY();
+                                }
+			}
+     
+			if (rinf<0)
+			{
+				rsup=rinf*filib_consts<double>::q_cotm;
+				rinf*=filib_consts<double>::q_cotp;
+			}
+			else
+			{
+				rsup=rinf*filib_consts<double>::q_cotp;
+				rinf*=filib_consts<double>::q_cotm;
+			}
+		}
+		else if (((x.inf()<=0)&(x.sup()>=0))||((x.sup()<0)&(x.sup()>-filib_consts<double>::q_minr))
+                          ||((x.inf()>0)&&(x.inf()<filib_consts<double>::q_minr)))
+		{
+			if ( E )
+				return interval<double,K,E>::ENTIRE();
+			else
+				{
+					std::cerr << "filib: cot singularity." << std::endl;
+					std::terminate();
+				}
+		}
+		else
+		{
+			if (x.sup()<0) 
+			{
+				h1=x.inf()*filib_consts<double>::q_pi2u;
+				h2=x.sup()*filib_consts<double>::q_pi2d;
+			}
+			else
+			{
+				h1=x.inf()*filib_consts<double>::q_pi2d;
+				h2=x.sup()*filib_consts<double>::q_pi2u;
+			}
+
+			k1=long_int_cast(h1);
+
+			if (k1<0) 
+				q1=(k1-1)%2;	
+			else 
+				q1=k1%2; 
+			
+			if (q1<0) 
+				q1+=2;
+
+			k2=long_int_cast(h2); 
+
+			if ((k1==k2) || ((q1==0)&&(k1==k2-1)))
+			{
+				rinf=q_cot<K,E>(x.sup());
+
+				if (rinf>=0)
+					rinf*=filib_consts<double>::q_cotm;
+				else
+					rinf*=filib_consts<double>::q_cotp;
+
+				rsup=q_cot<K,E>(x.inf());
+
+				if (rsup>=0)
+					rsup*=filib_consts<double>::q_cotp;
+				else
+					rsup*=filib_consts<double>::q_cotm;
+			}
+			else                                          /* invalid argument */
+			{
+				if ( E )
+					return interval<double,K,E>::ENTIRE();
+				else
+					{
+						std::cerr << "filib: cot called with invalid argument." << std::endl;
+						std::terminate();
+					}
+			}
+		}   
+
+		return interval<double,K,E>(rinf,rsup);
+	}
+}
+#endif

@@ -1,0 +1,6 @@
+Name: mpcapdDynSys
+Description: mpcapdDynSys library.
+Requires: mpcapddiffIncl  mpcapddynsysm  mpcapdmap mpcapddiffAlgebra mpcapddynset mpcapdgeomset mpcapdAlg capdDynSys
+Version: @PACKAGE_VERSION@
+Libs:
+Cflags:

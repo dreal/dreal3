@@ -1,0 +1,149 @@
+//////////////////////////////////////////////////////////////////////////////
+//   Package:          CAPD
+
+/////////////////////////////////////////////////////////////////////////////
+/// @file multiprec.dox
+///
+/// Doxygen documentation for multiplecExample
+///
+/// @author kapela  @date 2010-01-06
+/////////////////////////////////////////////////////////////////////////////
+
+// Copyright (C) CAPD group 
+//
+// This file constitutes a part of the CAPD library, 
+// distributed under the terms of the GNU General Public License.
+// Consult  http://capd.ii.uj.edu.pl/ for details. 
+
+/**
+\page examples_multiprec Multiple-precision in CAPD
+
+  - \ref multiprec_requirements
+  - \ref multiprec_datatypes
+  - \ref multiprec_example
+
+\section multiprec_requirements Requirements
+To use multiple-precision you need to install packages
+  - libgmp, libgmp-dev
+  - libgmpxx
+  - libmpfr, libmpfr-dev.
+.
+<i>They can be also compiled and installed from sources even under Windows,
+but in this tutorial we assume for simplicity that you are under Linux.</i>
+
+The \e configure script will automatically detect those libraries and compile
+\b mpcapd library (multiple precision version of the CAPD library).
+
+\section multiprec_datatypes Multiple-precision data types
+
+The CAPD library uses generic programming (templates) therefore switching from double precision to multiple precision is really simple.
+You only have to replace the base building blocs (types) of the CAPD classes.
+
+Use capd::multiPrec::MpReal instead of \b double. MpReal is a C++ class which represents <b>m</b>ultiple-<b>p</b>recision
+<b>f</b>loating point number with correct <b>r</b>ounding.
+
+To define multiple-precision interval you can write
+\code
+typedef capd::intervals::Interval<capd::multiPrec::MpReal> MpInterval;
+\endcode
+Then in your code use \p MpInterval instead of \p DInterval (interval with double precision endpoints).
+To define \p MpInterval include <b>capd/intervals/MpInterval.h</b> instead of <b>DoubleInterval.h</b> or <b>Interval.h</b>.
+
+If you use typedef's in your programs then most probably you need to change only two lines.
+
+
+
+\section multiprec_example Examples
+
+The following examples shows how to define multiple-precision variables, initiate them and use them as base types for other CAPD classes: Interval, Vector and Function.
+
+These examples can be found in the <b>capd/capdDynSys/examples/multiprecExample</b> directory.
+
+To compile first example one can invoke:
+\code
+g++ -o mpExample1 mpExample1.cpp `CAPD_DIR/bin/mpcapd-config --cflags --libs`
+\endcode
+where CAPD_DIR is a root directory of the CAPD library or directory to which the CAPD library was installed.
+
+You can also use provided Makefile and simply call
+\code
+ make mpExample1
+\endcode
+
+
+
+\section ex3_1 Basic usage of multiple precision floating points
+\dontinclude mpExample1.cpp
+
+First we include definition of MpReal and define shorter name MpFloat
+\skipline MpReal.h
+\until MpFloat
+
+Then we  set precision to 100 mantisa bits (about 30 decimal digits)
+\skipline setDefaultPrecision
+and we set MpFloat to round numbers to the nearest representable.
+\skipline setDefaultRndMode
+
+Now we create several MpFloat objects using different possible constructors
+\skip MpFloat a
+\until long double type
+
+and print them on a screen 
+\skip cout
+\until << "\n e = "
+
+
+
+\section ex3_2 Intervals with multiple-precision endpoints
+
+\dontinclude mpExample2.cpp
+\skip capd/intervals/MpInterval.h
+\until }
+
+
+
+\section ex3_3 Multiple-precision vectors and functions 
+\dontinclude mpExample3.cpp
+\skip capd/multiPrec/MpReal.h
+\until }
+
+\section ex3_4 Multiple-precision types from the mpcapd library
+Instead of including a lot of header files, "building" your own types and defining new names for them (using typedef),
+you can include just one header file
+\code
+#include "capd/mpcapdlib.h"
+\endcode
+and use types which are included in the mpcapd library. It lets you to start writing your code without
+repeating every time the same tedious things (i.e. including a lot of files and making many typedefs).
+It also shorten compilation time, because they are not recompiled when
+your program is built.
+
+In general names defined in the mpcapd library agree with those defined in examples above,
+with one difference: they are defined in the <tt>capd</tt> namespace.
+Therefore you can simply replace all "includes" and "typedefs" in the above examples by two lines
+\code
+#include "capd/mpcapdlib.h"
+using namespace capd;
+\endcode
+and they should compile and work exactly the same.
+
+The naming convention is as follows:
+- <tt>MpFloat</tt> is the name of the base multiple precision type,
+- if <tt>CLASS</tt> is the name of the template class then the name of a multiple precision type will be
+  - <tt>MpCLASS</tt>  for "nonrigorous" type   <br>
+    <i> e.g. MpInterval, MpVector, MpMatrix, MpFunction, MpMap, MpTaylor etc.</i>
+  - <tt>MpICLASS</tt> for rigorous, interval type<br>
+    e.g. MpIVector, MpIMatrix, MpIFunction, MpIMap, MpITaylor etc.
+
+Remark: Not all possible templates are compiled into mpcapd library e.g vectors of a fixed size are not included.
+Instead we include only those that are often used. The list of types and their names can be found in the <tt>mplib.h</tt> file
+in the "include" directory of the corresponding module (e.g. <tt>capd/include/intervals/mplib.h</tt>).
+
+\dontinclude mpExample4.cpp
+
+\skip mpcapdlib
+\until }
+ *
+ */
+
+

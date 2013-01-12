@@ -1,0 +1,44 @@
+/*! \page capd_requirements CAPD requirements
+
+\section capd_requirements_linux Linux 
+
+For CAPD users:
+- \b gcc, \b g++,
+- \b make,  
+- \b pkg-config,
+- to enable <b>graphical enviroment \e krak </b>:
+  - We recommend \b wxWidgets  with \b gtk library (e.g. from <tt>libwxgtk2.8-dev</tt> package).
+  - It is possible to use older \b X11 library (require <tt>libX11-dev</tt> package).
+  - In both cases you should install packages for developers (usually with postfix \e dev).
+- to enable <b>multiple precision</b> support in the CAPD the libraries \b gmp and \b mpfr are required.<br/>
+  One should install packages <tt>libgmp, libgmp-dev, libgmpxx, libmpfr, libmpfr-dev</tt>.
+
+For CAPD developers one require also 
+- \e autoreconf (along with autoconf, automake, aclocal) - version 2.61 (recommended),  2.65 (tested)
+- \e libtool  version 2.2.6b (recommended)
+
+The CAPD package was tested on Linux distributions: Debian, Ubuntu, SuSe.
+
+\section capd_requirements_windows Windows
+
+The current version of CAPD uses automated compilation tools therefore it needs
+linux like shell console and selection of other tools.
+We recommend use of MinGW - Minimalist GNU for Windows.
+
+To prepare MinGW enviroment for CAPD compilation do the following:
+- Download \b mingw-get-inst from
+ <a href="http://sourceforge.net/projects/mingw/files/Automated%20MinGW%20Installer/">Automated MinGW Installer</a> section
+ of <a href="http://sourceforge.net/projects/mingw/files/">http://sourceforge.net/projects/mingw/files/</a>
+ and run it.
+- Install the following modules of MinGW system:
+  - \b C++,
+  - <b> MSys Basic System</b>,
+  - <b>MinGW Developer ToolKit</b>.
+- Download \b GTK+ <i>“All-in-one bundles”</i> from <a href=http://www.gtk.org/download/>www.gtk.org</a>,
+  (at least version 2.22).<br/>
+  Extract GTK+ into the directory where the MinGW is installed.
+  Most probably you will need to overwrite some files.
+- Start \e msys shell and call <pre>mingw-get install msys-libtool</pre>
+
+The CAPD \ref capd_compilation "compilation" should be performed from msys shell.
+*/

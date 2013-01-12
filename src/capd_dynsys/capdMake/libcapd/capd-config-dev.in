@@ -1,0 +1,19 @@
+#!/bin/sh
+
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+pkgconfigdir=@PKG_CONFIG_DEV_DIR@
+PATH_SEPARATOR="@PATH_SEPARATOR@"
+
+if test "x$PKG_CONFIG_PATH" = "x"; then
+   PKG_CONFIG_PATH="${pkgconfigdir}"
+else
+   PKG_CONFIG_PATH="${pkgconfigdir}${PATH_SEPARATOR}${PKG_CONFIG_PATH}"
+fi
+
+export PKG_CONFIG_PATH
+
+
+pkg-config $* capd

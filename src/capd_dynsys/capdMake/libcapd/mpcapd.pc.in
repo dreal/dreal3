@@ -1,0 +1,6 @@
+Name: mpcapd
+Description: mpcapd library.
+Requires: @MPCAPD_PACKAGES@
+Version: @PACKAGE_VERSION@
+Libs:
+Cflags: 

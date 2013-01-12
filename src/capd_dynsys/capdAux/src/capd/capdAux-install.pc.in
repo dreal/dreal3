@@ -1,0 +1,6 @@
+Name: capdAux
+Description: capdAux library.
+Requires: @CAPD_MODULES@
+Version: @PACKAGE_VERSION@
+Libs:
+Cflags: @capdAux_CFLAGS@ 

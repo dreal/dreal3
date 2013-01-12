@@ -1,0 +1,168 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(ATANH_ICC)
+#define ATANH_ICC
+
+#include <interval/stdfun/point/q_atnh.icc>
+
+namespace filib
+{
+	template <rounding_strategy K, interval_mode E> 
+	interval<double,K,E> atanh(interval<double,K,E> const & y)
+	{
+		interval<double,K,E> x = y;
+
+		double rinf,rsup;
+
+			if ( E == i_mode_extended )
+			{
+				interval<double,K,E> ATNH_DOMAIN(-1.0, 1.0);
+				x = x.intersect(ATNH_DOMAIN);
+			}
+			if ( E == i_mode_extended_flag )
+			{
+				interval<double,K,E> ATNH_DOMAIN(-1.0, 1.0);
+				interval<double,K,E> z = x.intersect(ATNH_DOMAIN);
+				
+				if ( x != z )
+					interval<double,K,E>::extended_error_flag = true;
+				
+				x = z;
+			}
+			
+			if ( E && x.isEmpty())
+				return interval<double,K,E>::EMPTY();
+			else if ( ! E && (x.inf() <= -1 || x.sup() >= 1))
+			{
+				std::cerr << "filib: atanh called with invalid argument." << std::endl;
+				std::terminate();
+			}
+  			else
+			{
+				if (x.isPoint())
+				{ 
+					if (x.inf()<0)
+					{
+						if (x.inf()>-filib_consts<double>::q_minr) 
+						{
+							rinf=primitive::pred(x.inf());
+							rsup=x.inf();
+						}
+						else 
+						{
+							rinf=q_atnh<K,E>(x.inf());
+
+							if (E && fp_traits<double,K>::IsNaN(rinf))
+								return interval<double,K,E>::NEG_INFTY();
+							else
+	    						{
+								rsup=rinf*filib_consts<double>::q_atnm;
+								rinf*=filib_consts<double>::q_atnp;
+								if (rsup>x.inf()) rsup=x.inf();
+							} 
+						}
+					}
+					else
+					{
+						if (x.inf()<filib_consts<double>::q_minr)
+						{ 
+							rinf=x.inf();
+
+							if (x.inf()==0)
+								rsup=0; 
+							else
+								rsup=primitive::succ(x.inf());
+						}
+						else 
+						{
+							rinf=q_atnh<K,E>(x.inf());
+	  
+								if (E && fp_traits<double,K>::IsNaN(rinf))
+									return interval<double,K,E>::POS_INFTY();
+								else 
+								{
+									rsup=rinf*filib_consts<double>::q_atnp;
+									rinf*=filib_consts<double>::q_atnm;
+									if (rinf<x.inf()) rinf=x.inf();
+								}
+						}
+					}
+				}
+				else
+				{
+					if (x.inf()<0)
+					{
+						if (x.inf()>-filib_consts<double>::q_minr)
+							rinf=primitive::pred(x.inf()); 
+						else 
+							rinf=q_atnh<K,E>(x.inf())*filib_consts<double>::q_atnp;
+					}
+					else  /* x.inf()>=0 */ 
+					{
+						if (x.inf()<filib_consts<double>::q_minr)
+							rinf=x.inf();         /* includes the case x.inf()=0 */     
+						else
+						{
+							rinf=q_atnh<K,E>(x.inf())*filib_consts<double>::q_atnm;
+
+							if (rinf<x.inf()) 
+								rinf=x.inf();
+						}
+					}
+
+					if (x.sup()<=0)
+					{
+						if (x.sup()>-filib_consts<double>::q_minr)
+							rsup=x.sup();        /* includes the case x.sup()=0 */
+						else 
+						{
+							rsup=q_atnh<K,E>(x.sup())*filib_consts<double>::q_atnm;
+							if (rsup>x.sup()) 
+								rsup=x.sup();
+						}          
+					}
+					else  /* x.sup()>0 */ 
+					{
+						if (x.sup()<filib_consts<double>::q_minr)
+							rsup=primitive::succ(x.sup());        
+						else 
+							rsup=q_atnh<K,E>(x.sup())*filib_consts<double>::q_atnp;
+					}
+
+					if ( E )
+					{
+						if (fp_traits<double,K>::IsNaN(rinf))
+							rinf = fp_traits<double,K>::ninfinity();
+						if (fp_traits<double,K>::IsNaN(rsup))
+							rsup = fp_traits<double,K>::infinity();
+					}
+				}
+			}
+		return interval<double,K,E>(rinf,rsup);
+	}
+}
+#endif

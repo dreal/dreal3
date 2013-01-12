@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/capd/basicalg
+includedir=@abs_top_srcdir@/include
+
+Name: capdbasicalg
+Description: capdbasicalg module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:   ${libdir}/libcapdbasicalg.a @capdbasicalg_LIBS@
+Cflags: @capdbasicalg_CFLAGS@  -I${includedir}

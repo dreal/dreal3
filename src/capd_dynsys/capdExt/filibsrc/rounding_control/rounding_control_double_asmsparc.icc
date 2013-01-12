@@ -1,0 +1,118 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+			/**
+			 * SPARC FP Modes
+			 **/ 
+
+			#if ! defined(SPARC_MODES)
+			#define SPARC_MODES
+			#define SPARC_ROUND_NEAR  (0x0 << 30)
+			#define SPARC_ROUND_DOWN  (0x3 << 30)
+			#define SPARC_ROUND_UP    (0x2 << 30)
+			#define SPARC_ROUND_TRUNC (0x1 << 30)
+			#define SPARC_MASK        (~(0x03 << 30))
+			#endif
+
+			#include <exception>
+			#include <stdexcept>
+
+			#include <ieeefp.h>
+
+			/**
+			 * construct rounding control
+			 **/
+			template<bool C>
+			inline void filib::rounding_control<double,C>::setup() 
+			{
+				/**
+				 * set rounding mode
+				 **/
+				filib::rounding_control<double,C>::tonearest();
+			}
+			/**
+			 * set rounding to towards minus infinity
+			 **/
+			template<bool C>			
+			inline void filib::rounding_control<double,C>::downward() 
+			{
+                                volatile unsigned long status_word;
+                                __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+                                status_word |= (0x3 << 30);
+                                __asm__("ld %0,%%fsr" : : "m" (*&status_word) : "memory");
+			}
+			/**
+			 * set rounding to towards plus infinity
+			 **/
+			template<bool C>
+			inline void filib::rounding_control<double,C>::upward() 
+			{
+                                volatile unsigned long status_word;
+                                __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+                                status_word =
+                                        (status_word & ~(0x3 << 30))
+                                        | (0x2 << 30);
+                                __asm__("ld %0,%%fsr" : : "m" (*&status_word) : "memory");
+			}
+			/**
+			 * set rounding to truncate (round to zero)
+			 **/
+			template<bool C>			
+			inline void filib::rounding_control<double,C>::tozero() 
+			{
+                                volatile unsigned long status_word;
+                                __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+                                status_word =
+                                        (status_word & ~(0x3 << 30)) 
+                                        | (0x1 << 30);
+                                __asm__("ld %0,%%fsr" : : "m" (*&status_word) : "memory");
+			}
+			/**
+			 * set rounding to round to nearest (see ieee)
+			 **/
+			template<bool C>
+			inline void filib::rounding_control<double,C>::tonearest() 
+			{
+                                volatile unsigned long status_word;
+                                __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+                                status_word = (status_word & ~(0x3 << 30)); 
+                                __asm__("ld %0,%%fsr" : : "m" (*&status_word) : "memory");
+			}
+			/**
+			 * reset rounding fake
+			 **/
+			template<>
+			inline void filib::rounding_control<double,false>::reset()
+			{
+			}
+			/**
+			 * really reset rounding
+			 **/
+			template<>
+			inline void filib::rounding_control<double,true>::reset()
+			{
+				filib::rounding_control<double,true>::tonearest();
+			}

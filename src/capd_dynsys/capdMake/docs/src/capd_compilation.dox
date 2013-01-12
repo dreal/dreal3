@@ -1,0 +1,99 @@
+/*! \page capd_compilation Compilation
+
+
+\section  capd_compilation_1 Preparing configure script 
+This step is needed if you have a fresh version from the SVN repositories or if you changed one of the \e configure.in files.  
+If you downloaded the CAPD source code from the webpage, this step can be skipped.
+  
+In \e capd directory invoke 
+\code
+ autoreconf --install
+\endcode
+
+\note
+Packages \e autoconf and \e libtool need to be installed.
+
+\section  capd_compilation_2 Configuration
+
+The \b configure script checks system configuration and generates Makefiles with proper parameters for compilation (from Makefile.in files).
+Typically it is called with one parameter
+\verbatim
+ ./configure --prefix \<prefix\>
+\endverbatim
+where \<prefix\> is localization where libraries and header files will be installed after successful compilation e.g.
+<tt>./configure --prefix $HOME/local/capd</tt>
+
+See also \ref capd_compilation_options "list of other configure options".
+
+
+\section  capd_compilation_options List of configure options 
+
+All available \e configure options for a current package are displayed by typing 
+<pre>  ./configure --help </pre>
+and for all packages by
+<pre> ./configure --help=recursive</pre>
+
+Important options are:
+-#  \b prefix  
+   - <code>--prefix \<path\></code> - sets path where library will be installed,
+-#  \b filib  - Fast Interval library 
+   - <code>--with-filib=check</code> - if package \e capdDynSys is present then \e internal version of \e filib from capdExt is used, otherwise \e filib is not compiled nor used. 
+   - <code>--with-filib=no</code> - \e filib is not compiled nor used, we use CAPD intervals, 
+   - <code>--with-filib=internal</code> -  version of \e filib from capdExt is compiled and used,
+   - <code>--with-filib=\<path\></code> - \e filib version installed in <code>\<path\></code> is used, "internal" version in capdExt is not compiled.
+-# \b boost  - Boost C++ library
+   - <code>--with-boost=check</code> - if package \e capdRedHom is present then \e internal version of \e boost from capdExt is used, otherwise \e boost is not compiled nor used. 
+   - <code>--with-boost=no</code> - \e boost is not compiled nor used, we use CAPD intervals, 
+   - <code>--with-boost=internal</code> -  version of \e boost from capdExt is compiled and used,
+   - <code>--with-boost=\<path\></code> - \e boost version installed in <code>\<path\></code> is used, "internal" version in capdExt is not compiled.
+-# \b mpfr  - Multi-Precission library
+   - <code>--with-mpfr=check</code> - checks if mpfr package is installed. If mpfr is present, then multi-precision version of CAPD library and examples will be compiled
+   - <code>--with-mpfr=yes</code> - assumes that mpfr package is installed, multi-precision CAPD will be compiled and installed
+   - <code>--with-mpfr=no</code> - does not use mpfr, multi-precision CAPD is not available 
+-# \b gui - decides if versions of the CAPD that contains graphic module \b krak  (e.g. capd-gui ) will be created. By default this option is enabled if required graphical libraries are present.
+   - <code>--without-gui</code> - disable support for graphic.
+   - The following options allows to choose kernel of graphic module \b krak:
+     - <code>--with-wx-config=\<path\></code> - krak graphic module will use wxWidgets (this is default setting). It sets the path where \e wx-config is installed. If <code>\<path\></code> is not given it search for \e wx-config on \e PATH.
+     - <code>--with-wx-config=no</code>, <code>--without-wx-config</code> - krak does not use wxWidgets, it will search for X11 library,
+     - <code>--with-x</code> - the X11 graphic library will be used in \b krak.
+
+\section  capd_compilation_installation Compilation and Installation 
+
+In \e capd directory call
+<table border="0">
+<tr>
+  <td>  <code>make</code>       </td><td>  it compiles libraries, programs and examples.  </td>
+</tr><tr>
+<td>  <code>make check</code>  </td><td>   it compiles and runs tests.  </td>
+</tr><tr>
+<td>  <code>make install</code> </td><td>  it copies  header files, programs, libraries and files for pkg-config to <code>\<prefix\></code>. </td>
+</tr></table>  
+
+\note
+The above steps can be made in some subdirectory, so that only one package or module will be compiled.  
+
+\note
+The last command can require \e administrator rights depending on <code>\<prefix\></code>.
+
+If all the above steps succeeds then 
+- <code>\<prefix\>/bin</code> will contain all programs.
+- <code>\<prefix\>/lib</code> will contain libraries.
+- <code>\<prefix\>/lib/pkgconfig</code> will contain files for pkg-config.
+
+
+\section capd_compilation_outside Compilation outside source directory
+
+We recommend to create directory outside the \e capd directory and call <tt>configure</tt> script and <tt>make</tt> from this directory. <br/>
+This way all binary files won't be mixed with source code. Moreover it allows to have
+at the same time several versions of the CAPD library compiled with different options.
+
+Suppose that we are just outside capd directory.
+Then the compilation of CAPD library that uses only double precision and without graphics might be done by
+\code
+mkdir capd_nogui
+cd capd_nogui
+../capd/configure --prefix=/usr/local --without-gui --without-mpfr
+make
+\endcode
+
+*/

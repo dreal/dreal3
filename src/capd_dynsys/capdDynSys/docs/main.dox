@@ -1,0 +1,30 @@
+//////////////////////////////////////////////////////////////////////////////
+//   Package:          CAPD
+
+// ///////////////////////////////////////////////////////////////////////////
+/// @file main.dox
+/// @brief  Main documentation file for CAPD DynSys library
+///
+/// @author Tomasz Kapela   @date 2009-12-17
+// ///////////////////////////////////////////////////////////////////////////
+
+// Copyright (C) Tomasz Kapela 2009
+//
+// This file constitutes a part of the CAPD library,
+// distributed under the terms of the GNU General Public License.
+// Consult  http://capd.ii.uj.edu.pl/ for details.
+
+/*!
+\mainpage
+
+The \b CAPD-DynSys library is a collection of flexible C++ modules which are mainly designed 
+for validated numerics for dynamical systems.
+
+- \subpage capd_requirements "Requirements"
+- \subpage directory_structure 
+- \subpage capd_repositories 
+- \subpage capd_compilation
+- \subpage user_programs 
+
+- \subpage capd_examples
+*/

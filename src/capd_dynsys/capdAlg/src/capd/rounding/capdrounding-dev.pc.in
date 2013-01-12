@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/capd/rounding
+includedir=@abs_top_srcdir@/include
+
+Name: capdrounding
+Description: capdmatrixAlgorithms module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:   ${libdir}/libcapdrounding.a @capdrounding_LIBS@
+Cflags: @capdrounding_CFLAGS@  -I${includedir}

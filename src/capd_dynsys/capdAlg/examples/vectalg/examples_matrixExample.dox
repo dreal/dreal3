@@ -1,0 +1,217 @@
+/*! \page examples_matrixExample Matrices
+
+This file provides a short description on how to use class Matrix from CAPD package - for more details see header file "capd/vectalg/Matrix.h"
+
+Content of this file:
+- \ref ex_matrix_1
+- \ref ex_matrix_2
+- \ref ex_matrix_3
+- \ref ex_matrix_4
+- \ref ex_matrix_5
+- \ref ex_matrix_6
+- \ref ex_matrix_7
+- \ref ex_matrix_8
+
+\section ex_matrix_1 Template arguments
+
+The class Matrix is defined in the namespace \ref capd::vectalg.
+The template class Matrix has three parameters - \b type of elements stored in a matrix, number of \b rows and number of \b columns
+\code
+ template class Matrix<typename ScalarType, int rows, int cols>
+\endcode
+If both arguments rows and cols are greater than zero, the matrix is represented as an internal one-dimensional array with suitable indexing. If rows or cols is equal to zero, the matrix has a pointer to the allocated array
+
+The following lines define new names for four dimensional vectors
+\code
+   typedef capd::vectalg::Vector<double,4> DVector4D;
+   typedef capd::vectalg::Vector<interval,4> IVector4D;
+\endcode
+The following lines define new names for vectors of arbitrary length
+\code
+   typedef capd::vectalg::Vector<double,0> DVector;
+   typedef capd::vectalg::Vector<interval,0> IVector;
+\endcode
+The following lines define new names for square matrices 4x4 both for doubles and intervals
+\code
+   typedef capd::vectalg::Matrix<double,4,4> DMatrix4D;
+   typedef capd::vectalg::Matrix<interval,4,4> IMatrix4D;
+\endcode
+The following lines define new names for matrices of arbitrary size
+\code
+   typedef capd::vectalg::Matrix<double,0,0> DMatrix;
+   typedef capd::vectalg::Matrix<interval,0,0> IMatrix;
+\endcode
+
+\section ex_matrix_2 How to create a matrix
+
+The following line creates a 4x4 matrix filled with zeros
+\code
+   DMatrix4D M;
+\endcode
+The matrix N will be a 4x5 dimensional interval matrix filled with zeros
+\code
+   IMatrix N(4,5);
+\endcode
+If one wishes to initialize the matrix when creating an object, he or she can define a table which contains the rows of a matrix and send it to constructor. The following line creates a matrix from a given table of numbers. The number of elements in a table should be greater or equal to the number of coefficients in created matrix. The table should contain rows of the matrix.
+\code
+   double data[] = {1.,2.,3.,4.,4.,3.,2.,1.,1.,2.,3.,4.};
+   const DMatrix P(3,4,data);
+   DMatrix Q(6,2,data);
+\endcode
+
+\section ex_matrix_3 How to create an array of matrices
+
+When one needs to create an array of matrices which have undefined size at compilation time, the following solution is available.
+\code
+   DMatrix *tab = new (2,4) DMatrix[10];
+\endcode
+which means that tab contains an adress of a table of 10 matrices, each of size 2x4. When the same method is applied to the matrices of fixed dimensions, there will be no effect
+\code
+   DMatrix4D *tab2 = new (5,6) DMatrix4D[10];
+\endcode
+The pointer tab2 contains the address of a table of 10 matrices each of size 4x4 (the parameters 5,6 are ingorred because type DMatrix4D has fixed size).
+
+Indexing
+
+One can change or access a coefficient in a matrix by using operator() or iterators. The operator() has two arguments - number of row and number of column of the coefficient that is to be accessed. Rows and columns are numbered from 1 to the number of rows and the number of columns, respectively. See an example below.
+\code
+   for(int i=1;i<=P.numberOfRows();++i)
+   {
+      for(int j=1;j<=P.numberOfColumns();++j)
+      {
+         std::cout << "P(" << i << "," << j << ")=" << P(i,j) << std::endl;
+         //one can change a coefficient in nonconstant matrix
+         P(i,j) = i*j;
+         std::cout << "new value of P(" << i << "," << j << ")=" << P(i,j) << std::endl;
+      }
+   }
+\endcode
+
+\section ex_matrix_4 Rows and columns of matrices as vectors
+
+The rows and columns of a matrix can be seen as vectors. The vectalg module provides two classes: RowVector and ColumnVector that can be used as references to rows and columns of matrices. Objects of these classes don't have their own allocated memory but only a pointer to a proper coefficient in a matrix.
+
+These classes have almost the same properties as class Vector (indexing, iterators, normalization), hence they can be used as vectors in generic algorithms. Objects of these classes are created by methods of class Matrix
+\code
+   std::cout << "Reference to first row of matrix Q: " << Q.row(0) << std::endl;
+   std::cout << "Reference to first column of matrix Q: " << Q.column(0) << std::endl;
+   Q.row(0).normalize();
+   std::cout << "After normalization of first row of matrix Q:" << std::endl;
+   std::cout << "Q=" << Q << std::endl;
+\endcode
+Rows and columns of a matrix are indexed from zero to number of rows minus 1 and number of columns minus 1, respectively. Class Martix defines two special types for references to rows and columns
+\code
+   DMatrix::RefRowVectorType r = P.row(0);
+   DMatrix::RefColumnVectorType c = P.column(0);
+\endcode
+which are useful when one needs to perform many operations on fixed row or column.
+
+
+\section ex_matrix_5 Low level iterators
+
+The class Matrix provides low level iterators to a container which stores all the coefficients. They are useful when one needs to perform some operation on each element of a matrix, as in the Hadamard product of two matrices. The following code implements operation Q = Q*P, where symbol '*' denotes the Hadamard product.
+\code
+   // we assume matrices P and Q have the same dimensions
+   DMatrix::iterator b = Q.begin(), e = Q.end(), i=P.begin();
+   while(b!=e)
+   {
+      (*b) *= (*i);
+      ++b;
+      ++i;
+   }
+\endcode
+Functions begin and end return low level iterators for the container of a matrix.
+
+Const iterators for constant objects are defined in a similar way. An example below computes sum of all numbers in a matrix P
+\code
+   DMatrix::const_iterator p = P.begin(), k = P.end();
+   DMatrix::ScalarType sum(0);
+   while(p!=k)
+   {
+      sum += (*p);
+      ++p;
+   }
+   std::cout << sum;
+\endcode
+
+\section ex_matrix_6 Matrix iterators
+
+One can use in generic algorithms types MatrixIterator and const_MatrixIterator for manipulating on coefficients in a matrix. These iterators are returned by functions beginMatrix, endMatrix, beginOfRow, endOfRow, beginOfColumn, endOfColumn
+\code
+   MatrixIterator<DMatrix> i = P.begin(); // iterator is set to the first coefficient in P
+   MatrixIterator<DMatrix> j = P.beginOfRow(1); // iterator is set to the first element in the first row (rows indexed from 1)
+   const_MatrixIterator<DMatrix> b = Q.beginOfColumn(2); // iterator is set to the first element in the second column (columns indexed from 1)
+   const_MatrixIterator<DMatrix> e = Q.endOfColumn(2);
+\endcode
+The following member functions are available for moving those iterators
+\code
+   i.moveToNextColumn();
+   i.moveToPrevColumn();
+   i.moveToNextRow();
+   i.moveToPrevRow();
+\endcode
+One can access a coefficient pointed by iterator by using operator*
+\code
+   std::cout << "value pointed by iterator i: " << (*i) << std::endl;
+\endcode
+For more details about MatrixIterator and const_MatrixIterator see the header file "capd/vectalg/MatrixIterator.h".
+
+
+\section ex_matrix_7 Basic operations on matrices
+
+The following operations on matrices and vectors are available
+\code
+   transposition of a matrix: DMatrix R = Transpose(Q);
+   sum: P+R
+   subtraction: P-R
+   multiplication of two matrices or matices and vectors: Q*R
+   multiplication by scalar: 2.*P, P*2.
+   multiplication by reference to column or row of a matrix: Q*R.column(0)
+\endcode
+Moreover, the standard operations like +=, -= etc. whenever possible are available
+
+
+\section ex_matrix_8 Member functions
+
+Transpose - if Q is a square matrix, it can be transposed by calling
+\code
+   Q.Transpose();
+\endcode
+clear - this member function assigns zero to each coefficient in the matrix
+\code
+   Q.clear();
+\endcode
+Identity - this static function returns the identity matrix of a given dimension
+ \code
+  DMatrix Id = DMatrix::Identity(10);
+\endcode
+
+\section ex_matrix_9 Operations for interval matrices only
+
+The following operations are available for interval matrices only - compare similar methods for the class Vector
+
+- \b taking a center of a matrix. Function midMatrix returns an interval matrix in which each coefficient is the center of the corresponding coefficient (an interval) in argument.
+  \code
+   // create an interval matrix
+   interval d1[] = {interval(-1.,1.),interval(2.,2.),interval(3.,3.1), interval(4.,4.1)};
+   IMatrix m1(2,2,d1);
+   std::cout << midMatrix(m1) << std::endl;
+   // one should obtain on the screen {{[0,0],[2,2]},{[3.05,3.05],[4.05,4.05]}}
+  \endcode
+- \b splitting. This operation is usefull in Lohner algorithm. The function split(m1,m2) has two arguments which are modified by this function in the following way (the actual implementation uses equivalent but optimized version):
+  \code
+   m2 = m1-midMatrix(m1);
+   m1 = midMatrix(m1);
+  \endcode
+  After calling (m1 as in the previous example)
+  \code
+   split(m1,m2);
+   std::cout << "m1=" << m1 << std::endl;
+   std::cout << "m2=" << m2 << std::endl;
+   \endcode
+   one should obtain on the screen
+  \code
+   m1={{[0,0],[2,2]},{[3.05,3.05],[4.05,4.05]}}
+   m2={{[-1,1],[0,0]},{[-0.05,0.05],[-0.05,0.05]}}
+  \endcode
+ */

@@ -1,0 +1,187 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#include <cstdio>
+#include <cstdlib>   /* for exit */
+
+#define Exit(n)	exit(n)
+
+/* ----------- error handling for argument == NaN ---------------*/
+template <typename N>
+double q_abortnan(int n, const N *x, int fctn)
+{
+  printf("\n*** Error in filib_consts (V1.1): Function: ");
+  switch(fctn){
+    case  0: printf("q_sqrt"); break; 
+    case  1: printf("q_sqr "); break; 
+    case  2: printf("q_exp "); break; 
+    case  3: printf("q_epm1"); break; 
+    case  4: printf("q_exp2"); break; 
+    case  5: printf("q_ex10"); break; 
+    case  6: printf("q_log "); break; 
+    case  7: printf("q_lg1p"); break; 
+    case  8: printf("q_log2"); break; 
+    case  9: printf("q_lg10"); break; 
+    case 10: printf("q_sin "); break; 
+    case 11: printf("q_cos "); break; 
+    case 12: printf("q_tan "); break; 
+    case 13: printf("q_cot "); break; 
+    case 14: printf("q_asin"); break; 
+    case 15: printf("q_acos"); break; 
+    case 16: printf("q_atan"); break; 
+    case 17: printf("q_acot"); break; 
+    case 18: printf("q_sinh"); break; 
+    case 19: printf("q_cosh"); break; 
+    case 20: printf("q_tanh"); break; 
+    case 21: printf("q_coth"); break; 
+    case 22: printf("q_asnh"); break; 
+    case 23: printf("q_acnh"); break; 
+    case 24: printf("q_atnh"); break; 
+    case 25: printf("q_acth"); break; 
+  }
+  printf("\n*** Error in filib_consts (V1.1): Argument == NaN ! ***\n");
+  Exit(n);
+  return(*x); 
+}
+
+/* ------------ error handling for point arguments ---------------*/
+template <typename N>
+double q_abortr1(int n, const N *x, int fctn)
+{
+  printf("\n*** Error in filib_consts (V1.1): Function: ");
+  switch(fctn){
+    case  0: printf("q_sqrt"); break; 
+    case  1: printf("q_sqr "); break; 
+    case  2: printf("q_exp "); break; 
+    case  3: printf("q_epm1"); break; 
+    case  4: printf("q_exp2"); break; 
+    case  5: printf("q_ex10"); break; 
+    case  6: printf("q_log "); break; 
+    case  7: printf("q_lg1p"); break; 
+    case  8: printf("q_log2"); break; 
+    case  9: printf("q_lg10"); break; 
+    case 10: printf("q_sin "); break; 
+    case 11: printf("q_cos "); break; 
+    case 12: printf("q_tan "); break; 
+    case 13: printf("q_cot "); break; 
+    case 14: printf("q_asin"); break; 
+    case 15: printf("q_acos"); break; 
+    case 16: printf("q_atan"); break; 
+    case 17: printf("q_acot"); break; 
+    case 18: printf("q_sinh"); break; 
+    case 19: printf("q_cosh"); break; 
+    case 20: printf("q_tanh"); break; 
+    case 21: printf("q_coth"); break; 
+    case 22: printf("q_asnh"); break; 
+    case 23: printf("q_acnh"); break; 
+    case 24: printf("q_atnh"); break; 
+    case 25: printf("q_acth"); break; 
+    case 26: printf("q_comp"); break;
+  }
+  if (n==INV_ARG) 
+    printf("\n*** Error in filib_consts (V1.1): Invalid argument ! ***\n");
+  else
+    printf("\n*** Error in filib_consts (V1.1): Overflow (result) ! ***\n");
+    printf("*** Error in filib_consts (V1.1): Argument x = %24.15e \n",*x);
+  Exit(n);
+  return(*x);
+}
+
+
+/* ------------- error handling for interval arguments -------------*/
+template <rounding_strategy K, interval_mode E > 
+interval<double,K> q_abortr2(int n, const double *x1, const N *x2, int fctn)
+{
+  printf("\n*** Error in filib_consts (V1.1): Function: ");
+  switch(fctn){
+    case  0: printf("j_sqrt"); break; 
+    case  1: printf("j_sqr "); break; 
+    case  2: printf("j_exp "); break; 
+    case  3: printf("j_epm1"); break; 
+    case  4: printf("j_exp2"); break; 
+    case  5: printf("j_ex10"); break; 
+    case  6: printf("j_log "); break; 
+    case  7: printf("j_lg1p"); break; 
+    case  8: printf("j_log2"); break; 
+    case  9: printf("j_lg10"); break; 
+    case 10: printf("j_sin "); break; 
+    case 11: printf("j_cos "); break; 
+    case 12: printf("j_tan "); break; 
+    case 13: printf("j_cot "); break; 
+    case 14: printf("j_asin"); break; 
+    case 15: printf("j_acos"); break; 
+    case 16: printf("j_atan"); break; 
+    case 17: printf("j_acot"); break; 
+    case 18: printf("j_sinh"); break; 
+    case 19: printf("j_cosh"); break; 
+    case 20: printf("j_tanh"); break; 
+    case 21: printf("j_coth"); break; 
+    case 22: printf("j_asnh"); break; 
+    case 23: printf("j_acnh"); break; 
+    case 24: printf("j_atnh"); break; 
+    case 25: printf("j_acth"); break; 
+  }
+  if (n==INV_ARG) 
+    printf("\n*** Error in filib_consts (V1.1): Invalid argument ! ***\n");
+  else 
+    printf("\n*** Error in filib_consts (V1.1): Overflow (result) ! ***\n");
+  printf("*** Error in filib_consts (V1.1): Argument x.INF = %24.15e \n",*x1);
+  printf("*** Error in filib_consts (V1.1): Argument x.SUP = %24.15e \n",*x2);
+
+  Exit(n);
+
+  interval<double,K> res(*x1, *x2);
+
+  return(res);
+}
+
+/* ------------ error handling for point arguments ---------------*/
+double q_abortdivd(int n, const N *x)
+{
+  printf("\n*** Error in filib_consts (V1.1): Function: div_id");
+  printf("\n*** Error in filib_consts (V1.1): Division by zero ! ***\n");
+  printf("*** Error in filib_consts (V1.1): x = %24.15e \n",*x);
+
+  Exit(n);
+
+  return(*x);
+}
+
+/* ------------- error handling for interval arguments -------------*/
+template <rounding_strategy K, interval_mode E > 
+interval<double,K> q_abortdivi(int n, const double *x1, const N *x2)
+{
+  printf("\n*** Error in filib_consts (V1.1): Function: div_ii");
+  printf("\n*** Error in filib_consts (V1.1): Division by zero ! ***\n");
+  printf("*** Error in filib_consts (V1.1): x.INF = %24.15e \n",*x1);
+  printf("*** Error in filib_consts (V1.1): x.SUP = %24.15e \n",*x2);
+
+  Exit(n);
+
+  interval<double,K> res(*x1, *x2);
+
+  return(res);
+}

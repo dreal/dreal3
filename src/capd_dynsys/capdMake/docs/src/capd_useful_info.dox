@@ -1,0 +1,38 @@
+/** \page capd_useful_info  Useful information
+ *
+
+\section capd_info_naming Naming convention
+
+We use CamelCase convention for names (compound words or phases are joined (without underscope)
+ with each element's initial letter capitalized within the compound and the first letter either upper or lower case)
+ e.g. PoincareMap, SetWithCoordinates, generateFunction.
+
+- Class names start with capital letter.
+- Function names start with lower case letter.
+- Class \b AAA from module \b XXX is contained in the namespace <tt>capd::XXX</tt>
+  and is declared in header file <tt>include/capd/XXX/AAA.h</tt> of a given package.
+  Definitions can be found in <tt>src/capd/XXX/AAA.cpp</tt> in case of \e ordinary classes
+  or in <tt>include/capd/XXX/AAA.hpp</tt> in the case of \e template classes.
+
+
+\section capd_info_include Headers
+
+In your programs always give path relative to some 'include' directory
+e.g. to include file <tt>capd/capdAlg/include/capd/intervals/Interval.h</tt> use
+\code
+  #include "capd/intervals/Interval.h"
+\endcode
+
+In case of template classes if concretization is already compiled into the CAPD library
+then it is enough to include header file with <tt>.h</tt> extension.
+This speeds up compilation.
+But if you want to use non standard template parameters or you are not sure if given
+type is in CAPD library then you should include corresponding
+header file with <tt>.hpp</tt> extension and given class will be recompiled every time
+you compile your program.
+
+
+
+
+
+ */

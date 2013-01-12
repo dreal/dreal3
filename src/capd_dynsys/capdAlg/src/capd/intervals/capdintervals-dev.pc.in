@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/capd/intervals
+includedir=@abs_top_srcdir@/include
+
+Name: capdintervals
+Description: capdintervals module
+Requires: capdauxil capdrounding
+Version: @PACKAGE_VERSION@
+Libs:   ${libdir}/libcapdintervals.a @capdintervals_LIBS@
+Cflags: @capdintervals_CFLAGS@  -I${includedir}

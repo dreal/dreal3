@@ -1,0 +1,100 @@
+/** \page devel_new_files  How to add new files and directories to CAPD
+
+
+- \ref sec_dev_new_header
+- \ref sec_dev_new_files
+- \ref sec_dev_new_directory
+
+
+When adding new files or directories to  automated build system it is very important
+to modify \b only <tt>configure.ac</tt> and <tt>Makefile.am</tt> files.
+After each modification we need to generate new \e configure scripts and \e Makefile.in by
+\code
+  autoreconf -i
+\endcode
+and then new <tt>Makefile</tt>s using
+\code
+  ./configure [parameters]
+\endcode
+A list of last used parameters can be obtained by running
+\code
+ ./config.status --config
+\endcode
+
+\section sec_dev_new_header New header files
+
+After adding <b>new header file</b> to some subfolder of \e include directory
+one needs to add its name to the list of files in the file <tt>include/Makefile.am</tt>
+of corresponding package. Without this header file will not be copied during installation.
+
+File <tt>Makefile.am</tt> containing list of all header files in the package \b capdXXX
+can be created using script <tt>listHeaderFiles.sh</tt>.
+It needs to be called from the \e include directory.
+\code
+   cd capdXXX/include
+   ../../capdMake/utils/listHeaderFiles.sh > Makefile.am
+\endcode
+
+To correct lists of header files in all packages use
+\code
+   cd capdMake/utils
+   ./generateMakefiles.sh
+\endcode
+It generates new \e Makefile.am only if there are some changes.
+
+\section sec_dev_new_files New source files
+
+To add new source file to the existing folder in
+- \b src directory <br/>
+    to add <tt>source.cpp</tt> to folder <tt>src/capd/moduleName</tt>
+    one needs to add in <tt>src/capd/moduleName/Makefile.am</tt>
+    the name <tt>source.cpp</tt> to the list of files stored in variable
+    <tt>libmoduleName_a_SOURCES</tt>
+- \b examples, \b programs and \b test directory</tt> <br/>
+  assume that executable \e XXXX will be created from source files <tt>XXXX.cpp</tt> and <tt>ZZZZ.cpp</tt>
+  and will be linked with module or package <tt>YYYY</tt> (e.g.  YYYY=capdintervals or YYYY=capdDynSys).
+  - Add the following to the file <tt>Makefile.am</tt>:
+     \code
+  XXXX_SOURCES=XXXX.cpp ZZZZ.cpp
+  XXXX_libs=${YYYY_LIBS}
+  XXXX_LDADD=${XXXX_libs}
+  XXXX_DEPENDENCIES=${XXXX_libs:-%=}
+  XXXX_CXXFLAGS=${YYYY_CFLAGS}
+     \endcode
+  - Add <tt>XXXX</tt>  to the list
+     - <tt>noinst_PROGRAMS</tt> in case of \b examples directory,
+       (they will be compiled by calling <tt>make</tt> for library)
+     - <tt>bin_PROGRAMS</tt> in case of \b programs directory,
+       (they will be compiled by <tt>make</tt> and installed to bin directory by <tt>make install</tt>)
+     - <tt>check_PROGRAMS</tt> in case of \b tests directory
+       (they are compiled and executed by <tt>make check</tt>).
+
+ \section sec_dev_new_directory New module
+
+ Assume we want to add new module \b XXXX to package \b YYYY:
+ - create directories <tt>YYYY/src/capd/XXXX</tt> and
+   <tt>YYYY/src/capd/XXXX</tt>
+ - in the directory <tt>YYYY/src/capd/XXXX</tt> create (or copy from other module)
+    - <tt>Makefile.am</tt>
+    - <tt>capdXXXX-dev.pc.in</tt> - description of module for pkg-config
+     (dependencies, compilation flags, directories) for developer version of library
+    - <tt>capdXXXX-install.pc.in</tt> - description of module for pkg-config
+      for version of library that will be installed.
+ - to <tt>YYYY/src/capd/Makefile.am</tt> add <tt>XXXX</tt> to <tt>SUBDIRS</tt> list
+ \code
+   SUBDIRS =  modul1 modul2 XXXX
+ \endcode
+ - to <tt>YYYY/configure.ac</tt> add
+ \code
+   AC_CONFIG_FILES([src/capd/XXXX/Makefile])
+   AC_SUBST(capdXXXX_CFLAGS, ["compilation flags for XXXX module"])
+   AC_SUBST(capdXXXX_LIBS)
+   AC_CONFIG_FILES([${top_capd_build}/lib/pkgconfig-dev/capdXXXX.pc:src/capd/XXXX/capdXXXX-dev.pc.in])
+   AC_CONFIG_FILES([src/capd/XXXX/capdXXXX.pc:src/capd/XXXX/capdXXXX-install.pc.in])
+ \endcode
+
+
+
+
+
+ */

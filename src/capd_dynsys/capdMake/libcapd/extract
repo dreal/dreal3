@@ -1,0 +1,16 @@
+#!/bin/sh -e
+
+rm -fr extract-${1}
+mkdir extract-${1}
+cd extract-${1}
+
+for lib in $2; do
+    if [ -f "$lib" ] && [ `expr "$lib" : ".*lib\w*.a"` != 0 ]; then
+	echo "Extracting ${lib}"
+	ar ox ${lib}
+    fi
+done
+
+cd ../
+
+echo > extract-${1}.o

@@ -1,0 +1,86 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(EXP_ICC)
+#define EXP_ICC
+
+#include <interval/stdfun/point/q_exp.icc>
+
+namespace filib
+{
+	template <rounding_strategy K, interval_mode E > 
+	interval<double,K,E> exp(interval<double,K,E> const & x)
+	{
+		if ( E )
+			if (x.isEmpty()) 
+				return interval<double,K,E>::EMPTY();
+
+		double rinf, rsup;
+
+		if (x.isPoint()) 
+		{ 
+			if (x.inf()==0) 
+				rinf=rsup=1.0;
+			else if (x.inf()<=filib_consts<double>::q_mine)
+			{ 
+				rinf=0.0;
+				rsup=filib_consts<double>::q_minr;
+			}
+			else 
+			{ 
+				rinf=q_exp<K,E>(x.inf());
+				rsup=rinf*filib_consts<double>::q_exep;
+				rinf*=filib_consts<double>::q_exem;
+			}
+		}
+		else 
+		{
+			if (x.inf()<=filib_consts<double>::q_mine) 
+				rinf=0.0;
+			else 
+				rinf=q_exp<K,E>(x.inf())*filib_consts<double>::q_exem;
+
+			if (x.sup()<=filib_consts<double>::q_mine)
+				rsup=filib_consts<double>::q_minr;
+			else
+				rsup=q_exp<K,E>(x.sup())*filib_consts<double>::q_exep;
+		}   
+  
+		if (rinf<0.0) 
+			rinf=0.0;
+		if ((x.sup()<=0.0) && (rsup>1.0)) 
+			rsup=1.0;
+		if ((x.inf()>=0.0) && (rinf<1.0)) 
+			rinf=1.0;
+
+		if ( E )
+			if (rinf == fp_traits<double,K>::infinity())
+				rinf = fp_traits<double,K>::max();
+
+		return interval<double,K,E>(rinf,rsup);
+	}
+}
+#endif

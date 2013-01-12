@@ -1,0 +1,1228 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+	/**
+	 * unary +=
+	 **/
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> & interval<N,K,E>::operator +=(interval<N,K,E> const & o)
+	{
+		FILIB_DOWNWARD_PLUS(INF,INF,o.INF,false);
+		FILIB_UPWARD_PLUS(SUP,SUP,o.SUP,true);
+
+		if ( E )
+			checkInf();
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+
+		return *this;
+	}
+	
+	/**
+	 * unary += for number
+	 **/
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> & interval<N,K,E>::operator +=(N const & a)
+	{
+		if ( E )
+			if ( FILIB_ISINF(a) )
+				return (*this += interval<N,K,E>(a));
+
+		FILIB_DOWNWARD_PLUS(INF,INF,a,false);
+		FILIB_UPWARD_PLUS(SUP,SUP,a,true);
+
+		if ( E )
+			checkInf();
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+
+		return *this;
+	}
+
+	/**
+	 * unary -=
+	 **/
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> & interval<N,K,E>::operator -=(interval<N,K,E> const & o)
+	{
+		if ( this == &o )
+		{
+			interval<N,K,E> t = *this-o;
+			*this = t;
+		}
+		else
+		{
+			FILIB_DOWNWARD_MINUS(INF,INF,o.SUP,false);
+			FILIB_UPWARD_MINUS(SUP,SUP,o.INF,true);
+
+			if ( E )
+				checkInf();
+		}
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+			
+		return *this;
+	}
+	/**
+	 * unary -= for number
+	 **/
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> & interval<N,K,E>::operator -=(N const & a)
+	{
+		if ( E )
+			if ( FILIB_ISINF(a) )
+				return (*this -= interval<N,K,E>(a));
+
+		FILIB_DOWNWARD_MINUS(INF,INF,a,false);
+		FILIB_UPWARD_MINUS(SUP,SUP,a,true);
+
+		if ( E )
+			checkInf();
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+
+		return *this;	
+	}
+	/**
+	 * unary operator*=
+	 **/
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> & interval<N,K,E>::operator *= (interval<N,K,E> const & a)
+	{
+		if ( this == &a )
+		{
+			interval<N,K,E> t = *this*a;
+			*this = t;
+			return *this;
+		}
+
+		bool was_empty;
+
+		if ( E )
+		{
+			was_empty = isEmpty();
+			/**
+			 * this is completely positive
+			 **/
+			if ( INF > 0.0 )
+			{
+				/**
+				 * interval a is positive
+				 **/
+				if ( a.INF > 0.0 )
+				{
+					FILIB_DOWNWARD_MULTIPLIES(INF,INF,a.INF,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,SUP,a.SUP,true);
+				}
+				/**
+				 * interval a is negative
+				 **/
+				else if ( a.SUP < 0.0 )
+				{
+					N tmp = INF;
+					FILIB_DOWNWARD_MULTIPLIES(INF,SUP,a.INF,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,tmp,a.SUP,true);
+				}
+				/**
+				 * interval a contains zero
+				 **/
+				else
+				{
+					FILIB_DOWNWARD_MULTIPLIES(INF,SUP,a.INF,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,SUP,a.SUP,true);
+				}
+			}
+			/**
+			 * this is negative
+			 **/
+			else if ( SUP < 0.0 )
+			{
+				/**
+				 * a is positive
+				 **/
+				if ( a.INF > 0.0 )
+				{
+					FILIB_DOWNWARD_MULTIPLIES(INF,INF,a.SUP,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,SUP,a.INF,true);
+				}
+				/**
+				 * a is negative
+				 **/
+				else if ( a.SUP < 0.0 )
+				{
+					N tmp = INF;
+					FILIB_DOWNWARD_MULTIPLIES(INF,SUP,a.SUP,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,tmp,a.INF,true);
+				}
+				/**
+				 * a contains zero
+				 **/
+				else
+				{
+					N tmp = INF;
+					FILIB_DOWNWARD_MULTIPLIES(INF,INF,a.SUP,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,tmp,a.INF,true);
+				}
+			}
+			/**
+			 * this contains 0.0
+			 **/
+			else
+			{
+				if ( a.INF > 0.0 )
+				{
+					FILIB_DOWNWARD_MULTIPLIES(INF,INF,a.SUP,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,SUP,a.SUP,true);
+				}
+				else if ( a.SUP < 0.0 )
+				{
+					N tmp = INF;
+					FILIB_DOWNWARD_MULTIPLIES(INF,SUP,a.INF,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,tmp,a.INF,true);
+				}
+				else
+				{
+					if (
+						(isInfinite()   && ! a.isEmpty()) ||
+						(a.isInfinite() && !   isEmpty())
+					)
+					{
+						*this = ENTIRE();
+						return *this;
+					}
+					else
+					{
+						N tmp, tmp2 = INF;
+
+						FILIB_DOWNWARD_MULTIPLIES(INF,INF, a.SUP,false);
+						FILIB_DOWNWARD_MULTIPLIES(tmp,SUP, a.INF,true);
+						INF = std::min(tmp,INF);
+
+						FILIB_UPWARD_MULTIPLIES(SUP,SUP,a.SUP,false);
+						FILIB_UPWARD_MULTIPLIES(tmp,tmp2,a.INF,true);
+						SUP = std::max(tmp,SUP);
+					} 
+				}
+			}
+		}
+		else
+		{
+			if ( INF >= 0 )
+			{
+				if ( a.INF >= 0.0 )
+				{
+					FILIB_DOWNWARD_MULTIPLIES(INF,INF,a.INF,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,SUP,a.SUP,true);
+				}
+				else if ( a.SUP <= 0.0 )
+				{
+					N tmp = INF;
+					FILIB_DOWNWARD_MULTIPLIES(INF,SUP,a.INF,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,tmp,a.SUP,true);
+				}
+				else
+				{
+					FILIB_DOWNWARD_MULTIPLIES(INF,SUP,a.INF,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,SUP,a.SUP,true);
+				}
+			}
+			else if ( SUP <= 0 )
+			{
+				if ( a.INF >= 0.0 )
+				{
+					FILIB_DOWNWARD_MULTIPLIES(INF,INF, a.SUP,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,SUP, a.INF,true);
+				}
+				else if ( a.SUP <= 0.0 )
+				{
+					N tmp = INF;
+					FILIB_DOWNWARD_MULTIPLIES(INF,SUP, a.SUP,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,tmp, a.INF,true);
+				}
+				else
+				{
+					N tmp = INF;
+					FILIB_DOWNWARD_MULTIPLIES(INF,INF,a.SUP,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,tmp,a.INF,true);
+				}
+			}
+			else
+			{
+				if ( a.INF >= 0.0 )
+				{
+					FILIB_DOWNWARD_MULTIPLIES(INF,INF,a.SUP,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,SUP,a.SUP,true);
+				}
+				else if ( a.SUP <= 0.0 )
+				{
+					N tmp = INF;
+					FILIB_DOWNWARD_MULTIPLIES(INF,SUP,a.INF,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,tmp,a.INF,true);
+				}
+				else
+				{
+					N tmp, tmp2 = INF;
+
+					FILIB_DOWNWARD_MULTIPLIES(INF,INF,a.SUP,false);
+					FILIB_DOWNWARD_MULTIPLIES(tmp,SUP,a.INF,true);
+					INF = std::min(tmp,INF);
+
+					FILIB_UPWARD_MULTIPLIES(SUP,SUP,a.SUP,false);
+					FILIB_UPWARD_MULTIPLIES(tmp,tmp2,a.INF,true);
+					SUP = std::max(SUP,tmp);
+				}
+			}
+		}
+
+		if ( E )
+			checkInf();
+
+		if ( E )
+			if ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) )
+				if ( ! ( was_empty || a.isEmpty() ) )
+					*this = ENTIRE();
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+
+		return *this;
+	}
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> & interval<N,K,E>::operator *=(N const & a)
+	{
+			if ( E && isEmpty() )
+				return *this;
+			else if ( E && FILIB_ISNAN(a) )
+			{
+				*this = EMPTY();
+				if ( E == i_mode_extended_flag )
+					interval<N,K,E>::extended_error_flag = true;
+				return *this;
+			}
+			else
+			{
+				if ( a >= 0.0 )
+				{
+					FILIB_DOWNWARD_MULTIPLIES(INF,INF,a,false);
+					FILIB_UPWARD_MULTIPLIES(SUP,SUP,a,true);
+				}
+				else /* if ( a < 0 ), XXX is this necessary ??? */
+				{
+					N tmp = INF;
+					FILIB_DOWNWARD_MULTIPLIES(INF,SUP,a,false);	
+					FILIB_UPWARD_MULTIPLIES(SUP,tmp,a,true);
+				}
+			}
+			
+			if ( E )
+			{
+				if ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) )
+					*this = ENTIRE();
+				else
+					checkInf();
+			}
+
+			if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP)) )
+				interval<N,K,E>::extended_error_flag = true;
+
+			return *this;
+	}
+
+	/**
+	 * unary operator /=
+	 **/
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> & interval<N,K,E>::operator /= (interval<N,K,E> const & a)
+	{
+		if ( this == &a )
+		{
+			interval<N,K,E> t = *this/a;
+			*this = t;
+			return *this;
+		}
+
+			if ( E && isEmpty() )
+				return *this;
+			else if ( E && a.isEmpty() )
+			{
+				*this = EMPTY();
+				return *this;
+			}
+			else
+			{
+				if ( a.INF > 0.0 )
+				{
+					if ( INF >= 0.0 )
+					{
+						FILIB_DOWNWARD_DIVIDES(INF,INF,a.SUP,false);
+						FILIB_UPWARD_DIVIDES(SUP,SUP,a.INF,true);
+					}
+					else if ( SUP <= 0.0 )
+					{
+						FILIB_DOWNWARD_DIVIDES(INF,INF,a.INF,false);
+						FILIB_UPWARD_DIVIDES(SUP,SUP,a.SUP,true);
+					}
+					else
+					{
+						FILIB_DOWNWARD_DIVIDES(INF,INF,a.INF,false);
+						FILIB_UPWARD_DIVIDES(SUP,SUP,a.INF,true);
+					}
+				}
+				else if ( a.SUP < 0.0 )
+				{
+					if ( INF >= 0.0 )
+					{
+						N tmp = INF;
+						FILIB_DOWNWARD_DIVIDES(INF,SUP,a.SUP,false);
+						FILIB_UPWARD_DIVIDES(SUP,tmp,a.INF,true);
+					}
+					else if ( SUP <= 0.0 )
+					{
+						N tmp = INF;
+						FILIB_DOWNWARD_DIVIDES(INF,SUP,a.INF,false);
+						FILIB_UPWARD_DIVIDES(SUP,tmp,a.SUP,true);
+					}
+					else
+					{
+						N tmp = INF;
+						FILIB_DOWNWARD_DIVIDES(INF,SUP,a.SUP,false);
+						FILIB_UPWARD_DIVIDES(SUP,tmp,a.SUP,true);
+					}
+				}
+				else
+				{
+					if ( E )
+					{
+						if ( contains(0.) )
+						{
+							*this = ENTIRE();
+						}
+						else if ( a.inf() == 0. )
+						{
+							if ( sup() < 0. )
+							{
+								N nSUP; FILIB_UPWARD_DIVIDES(nSUP,SUP,a.SUP,true);
+								INF = FILIB_NINFINITY;
+								SUP = nSUP;
+							}
+							else
+							{
+								N nINF; FILIB_DOWNWARD_DIVIDES(nINF,inf(),a.sup(),true);
+								INF = nINF;
+								SUP = FILIB_INFINITY;
+							}
+						}
+						else if ( a.sup() == 0. )
+						{
+							if ( sup() < 0. )
+							{
+								N nINF; FILIB_DOWNWARD_DIVIDES(nINF,sup(),a.inf(),true);
+								INF = nINF;
+								SUP = FILIB_INFINITY;
+							}
+							else
+							{
+								N nSUP; FILIB_UPWARD_DIVIDES(nSUP,inf(),a.inf(),true);
+								INF = FILIB_NINFINITY;
+								SUP = nSUP;
+							}
+						}
+						else
+						{
+							*this = ENTIRE();
+						}
+					}
+					else
+					{
+						std::cerr
+							<< std::endl 
+							<< "error in filib-- operator/=, division by zero."
+							<< std::endl
+							<< "divident: " << *this << " "
+							<< "divisor: " << a
+							<< std::endl;
+						std::terminate();
+					}
+				}
+
+				if ( E )
+					checkInf();
+
+				if ( E == i_mode_extended_flag && ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) ) )
+					interval<N,K,E>::extended_error_flag = true;
+				if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+					interval<N,K,E>::extended_error_flag = true;
+
+				return *this;
+			}
+	}
+
+	/**
+	 * unary operator /= for point
+	 **/
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> & interval<N,K,E>::operator/= (N const & a)
+	{
+			if ( E && FILIB_ISINF(a) )
+				return (*this /= interval<N,K,E>(a));
+			else if ( E && isEmpty() )
+				return *this;
+			else if ( E && FILIB_ISNAN(a) )
+			{
+				*this = EMPTY();
+				return *this;
+			}
+			else
+			{
+				if ( a == 0.0 )
+				{
+					if ( E )
+					{
+						*this = ENTIRE();
+						return *this;	
+					}
+					else
+					{
+						std::cerr
+							<< std::endl 
+							<< "error in filib.2 operator/=, division by zero."
+							<< std::endl
+							<< "divident: " << *this << " "
+							<< "divisor: " << interval<N,K,E>(a)
+							<< std::endl;
+						std::terminate();
+					}
+				}
+				else if ( a > 0.0 )
+				{
+					FILIB_DOWNWARD_DIVIDES(INF,INF,a,false);
+					FILIB_UPWARD_DIVIDES(SUP,SUP,a,true);
+				}
+				else
+				{
+					N tmp = INF;
+					FILIB_DOWNWARD_DIVIDES(INF,SUP,a,false);
+					FILIB_UPWARD_DIVIDES(SUP,tmp,a,true);
+				}
+
+				if ( E )
+				{
+					if ( FILIB_ISNAN(INF) )
+						INF = FILIB_NINFINITY;
+					if ( FILIB_ISNAN(SUP) )
+						SUP = FILIB_INFINITY;
+				}
+
+				if ( E )
+					checkInf();
+
+				if ( E == i_mode_extended_flag && ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) ) )
+					interval<N,K,E>::extended_error_flag = true;
+				if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+					interval<N,K,E>::extended_error_flag = true;
+
+				return *this;
+			}
+	}
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> operator+(
+		interval<N,K,E> const & a, 
+		interval<N,K,E> const & b)
+	{
+		N INF; FILIB_DOWNWARD_PLUS(INF,a.inf(),b.inf(),false);
+		N SUP; FILIB_UPWARD_PLUS  (SUP,a.sup(),b.sup(),true);
+		interval<N,K,E> r(INF,SUP);
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+		return r;
+	} 
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> operator+ (
+		interval<N,K,E> const & a,
+		N const & b)
+	{
+		if ( E )
+			if ( FILIB_ISINF(b) )
+				return a+interval<N,K,E>(b);
+
+		N INF; FILIB_DOWNWARD_PLUS(INF,a.inf(),b,false);
+		N SUP; FILIB_UPWARD_PLUS(SUP,a.sup(),b,true);
+		interval<N,K,E> r(INF,SUP);
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+
+		return r;
+	}
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> operator+ (
+		N const & b,
+		interval<N,K,E> const & a)
+	{
+		if ( E )
+			if ( FILIB_ISINF(b) )
+				return a+interval<N,K,E>(b);
+
+		N INF; FILIB_DOWNWARD_PLUS(INF,a.inf(),b,false);
+		N SUP; FILIB_UPWARD_PLUS  (SUP,a.sup(),b,true);
+		interval<N,K,E> r(INF,SUP);
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+
+		return r;
+	}
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> operator-(
+		interval<N,K,E> const & a, 
+		interval<N,K,E> const & b)
+	{
+		N INF; FILIB_DOWNWARD_MINUS(INF,a.inf(),b.sup(),false);
+		N SUP; FILIB_UPWARD_MINUS(SUP,a.sup(),b.inf(),true);
+		interval<N,K,E> r(INF,SUP);
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+
+		return r;
+	} 
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> cancel(
+		interval<N,K,E> const & a, 
+		interval<N,K,E> const & b)
+	{
+		N INF; FILIB_DOWNWARD_MINUS(INF,a.inf(),b.inf(),false);
+		N SUP; FILIB_UPWARD_MINUS(SUP,a.sup(),b.sup(),true);
+		interval<N,K,E> r(INF,SUP);
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+
+		return r;
+	} 
+
+	template<typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> operator- (
+			interval<N,K,E> const & a, 
+			N const & b)
+	{
+		if ( E )
+			if ( FILIB_ISINF(b) )
+				return (a-interval<N,K,E>(b));
+
+		N INF; FILIB_DOWNWARD_MINUS(INF,a.inf(),b,false);
+		N SUP; FILIB_UPWARD_MINUS(SUP,a.sup(),b,true);
+		interval<N,K,E> r(INF,SUP);
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+
+		return r;		
+	}
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> operator- (
+			N const & b,
+			interval<N,K,E> const & a)
+	{
+		if ( E )
+			if ( FILIB_ISINF(b) )
+				return (interval<N,K,E>(b)-a);
+
+		N INF; FILIB_DOWNWARD_MINUS(INF,b,a.sup(),false);
+		N SUP; FILIB_UPWARD_MINUS(SUP,b,a.inf(),true);
+		interval<N,K,E> r(INF,SUP);
+
+		if ( E == i_mode_extended_flag && ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+		if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+			interval<N,K,E>::extended_error_flag = true;
+
+		return r;		
+	}
+
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> operator*(
+		interval<N,K,E> const & a,
+		interval<N,K,E> const & b)
+	{
+		struct { N INF; N SUP; } res;
+
+		if ( E )
+		{
+			// x > 0
+			if (a.inf() > 0) 
+			{                      
+				// y > 0
+				if (b.inf() > 0.0) 
+				{                    
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.inf(), b.inf(),false);      // res.INF = a.inf() *< b.inf()      
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.sup(), b.sup(),true);        // res.SUP = a.sup() *> b.sup()
+				}
+				// y <= 0
+				else if (b.sup() < 0.0)
+				{               
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.sup(), b.inf(),false);      // res.INF = a.sup() *< b.inf()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.inf(), b.sup(),true);        // res.SUP = a.inf() *> b.sup()
+				}
+				else 
+                                // 0 in y
+				{
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.sup(), b.inf(),false);      // res.INF = a.sup() *< b.inf()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.sup(), b.sup(),true);        // res.SUP = a.sup() *< b.sup();
+				}
+			}
+			// x < 0
+			else if (a.sup() <  0.0) 
+			{              
+				// y >= 0
+				if (b.inf() > 0.0) 
+				{                    
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.inf(), b.sup(),false);      // res.INF = a.inf() *< b.sup()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.sup(), b.inf(),true);        // res.SUP = a.sup() *> b.inf()
+				}
+				// y <= 0
+				else if (b.sup() < 0.0) 
+				{               
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.sup(), b.sup(),false);      // res.INF = a.sup() *< b.sup()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.inf(), b.inf(),true);        // res.SUP = a.inf() *> b.inf()
+				}
+                                // 0 in y
+				else 
+				{
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.inf(), b.sup(),false);      // res.INF = a.inf() *<= b.sup()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.inf(), b.inf(),true);        // res.SUP = a.inf() *> b.inf()
+				}
+			}
+			// 0 in x 
+			else 
+			{
+				// y >= 0
+				if (b.inf() > 0.0) 
+				{
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.inf(), b.sup(),false);      // res.INF = a.inf() *< b.sup()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.sup(), b.sup(),true);        // res.SUP = a.sup() *> b.sup()
+				}
+				// y <= 0
+				else if (b.sup() < 0.0) 
+				{
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.sup(), b.inf(),false);      // res.INF = a.sup() *< b.inf()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.inf(), b.inf(),true);        // res.SUP = a.inf() *> b.inf()
+				}
+				// 0 in y
+				else 
+				{
+					if (
+						(a.isInfinite() && !b.isEmpty()) || 
+						(b.isInfinite() && !a.isEmpty())
+					)
+						return interval<N,K,E>::ENTIRE();
+					else 
+					{
+						N tmp;                         // res.INF = 
+						FILIB_DOWNWARD_MULTIPLIES(res.INF,a.inf(), b.sup(),false);    //  min{a.inf()*<b.sup(), a.sup()*<b.inf()}
+						FILIB_DOWNWARD_MULTIPLIES(tmp,a.sup(), b.inf(),false);
+
+						if (tmp < res.INF)
+							res.INF = tmp;
+	
+						FILIB_UPWARD_MULTIPLIES(res.SUP,a.sup(), b.sup(),false);      // res.SUP = 
+						FILIB_UPWARD_MULTIPLIES(tmp,a.inf(), b.inf(),true);          //  max{a.inf()*>b.inf(), b.sup()*>b.sup()}
+
+						if (tmp > res.SUP)
+							res.SUP = tmp;
+					}
+				}
+			}
+		}
+		else
+		{
+			if (a.inf() >= 0) 
+			{                     // x >= 0
+				if (b.inf() >= 0.0) 
+				{                   // y >= 0
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.inf(), b.inf(),false);      // res.INF = a.inf() *< b.inf()      
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.sup(), b.sup(),true);        // res.SUP = a.sup() *> b.sup()
+				}
+				else if (b.sup() <=0.0) 
+				{               // y <= 0
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.sup(), b.inf(),false);      // res.INF = a.sup() *< b.inf()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.inf(), b.sup(),true);        // res.SUP = a.inf() *> b.sup()
+				}
+				else 
+				{                                // 0 in y
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.sup(), b.inf(),false);      // res.INF = a.sup() *< b.inf()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.sup(), b.sup(),true);        // res.SUP = a.sup() *< b.sup();
+				}
+			}
+			else if (a.sup() <= 0.0) 
+			{              // x <= 0
+				if (b.inf() >= 0.0) 
+				{                   // y >= 0
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.inf(), b.sup(),false);      // res.INF = a.inf() *< b.sup()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.sup(), b.inf(),true);        // res.SUP = a.sup() *> b.inf()
+				}
+				else if (b.sup() <=0.0) 
+				{               // y <= 0
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.sup(), b.sup(),false);      // res.INF = a.sup() *< b.sup()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.inf(), b.inf(),true);        // res.SUP = a.inf() *> b.inf()
+				}
+				else 
+				{                                // 0 in y
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.inf(), b.sup(),false);      // res.INF = a.inf() *<= b.sup()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.inf(), b.inf(),true);        // res.SUP = a.inf() *> b.inf()
+				}
+			}
+			else 
+			{                                // 0 in x 
+				if (b.inf() >= 0.0) 
+				{                   // y >= 0
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.inf(), b.sup(),false);      // res.INF = a.inf() *< b.sup()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.sup(), b.sup(),true);        // res.SUP = a.sup() *> b.sup()
+				}
+				else if (b.sup() <=0.0) 
+				{               // y <= 0
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.sup(), b.inf(),false);      // res.INF = a.sup() *< b.inf()
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.inf(), b.inf(),true);        // res.SUP = a.inf() *> b.inf()
+				}
+				else 
+				{                              // 0 in y
+					N tmp;                          // res.INF = 
+					FILIB_DOWNWARD_MULTIPLIES(res.INF,a.inf(), b.sup(),false);     //  min{a.inf()*<b.sup(), a.sup()*<b.inf()}
+					FILIB_DOWNWARD_MULTIPLIES(tmp,a.sup(), b.inf(),false);
+
+					if (tmp < res.INF)
+						res.INF = tmp;
+
+					FILIB_UPWARD_MULTIPLIES(res.SUP,a.sup(), b.sup(),false);       // res.SUP = 
+					FILIB_UPWARD_MULTIPLIES(tmp,a.inf(), b.inf(),true);           //  max{a.inf()*>b.inf(), b.sup()*>b.sup()}
+
+					if (tmp > res.SUP)
+						res.SUP = tmp;
+				}
+			}
+		}
+
+		if ( E )
+		{
+			if ( FILIB_ISNAN(res.INF) || FILIB_ISNAN(res.SUP))
+				if (! (a.isEmpty() || b.isEmpty()))
+					return interval<N,K,E>::ENTIRE();
+		}
+	  
+		return interval<N,K,E>(res.INF,res.SUP);
+	}
+
+	template<typename N, rounding_strategy K, interval_mode E>
+	interval<N,K,E> operator* (
+		interval<N,K,E> const & a,
+		N const & b)
+	{
+			if ( E &&  a.isEmpty() )
+				return a;
+			else if ( E && FILIB_ISNAN(b) )
+				return interval<N,K,E>::EMPTY();
+			else
+			{
+				if ( b >= 0.0 )
+				{
+					N INF; FILIB_DOWNWARD_MULTIPLIES(INF,a.inf(),b,false);
+					N SUP; FILIB_UPWARD_MULTIPLIES(SUP,a.sup(),b,true);
+					interval<N,K,E> r(INF,SUP);
+
+					if ( E )
+					{
+						if ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) )
+							r = interval<N,K,E>::ENTIRE();
+						else
+							r.checkInf();
+					}
+
+					if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+						interval<N,K,E>::extended_error_flag = true;
+
+					return r;
+				}
+				else
+				{
+					N INF; FILIB_DOWNWARD_MULTIPLIES(INF,a.sup(),b,false);
+					N SUP; FILIB_UPWARD_MULTIPLIES(SUP,a.inf(),b,true);
+					interval<N,K,E> r(INF,SUP);
+
+					if ( E )
+					{
+						if ( FILIB_ISNAN(r.inf()) || FILIB_ISNAN(r.sup()) )
+							r = interval<N,K,E>::ENTIRE();
+						else
+							r.checkInf();
+					}
+
+					if ( E == i_mode_extended_flag && ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) ) )
+						interval<N,K,E>::extended_error_flag = true;
+					if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+						interval<N,K,E>::extended_error_flag = true;
+			
+					return r;
+				}
+			}
+	}
+
+	template<typename N, rounding_strategy K, interval_mode E>
+	interval<N,K,E> operator* (
+		N const & b,
+		interval<N,K,E> const & a)
+	{
+			if ( E && a.isEmpty() )
+				return a;
+			else if ( E && FILIB_ISNAN(b) )
+				return interval<N,K,E>::EMPTY();
+			else
+			{
+				if ( b >= 0.0 )
+				{
+					N INF; FILIB_DOWNWARD_MULTIPLIES(INF,a.inf(),b,false);
+					N SUP; FILIB_UPWARD_MULTIPLIES(SUP,a.sup(),b,true);
+					interval<N,K,E> r(INF,SUP);
+
+					if ( E )
+					{
+						if ( FILIB_ISNAN(r.inf()) || FILIB_ISNAN(r.sup()) )
+							r = interval<N,K,E>::ENTIRE();
+						else
+							r.checkInf();
+					}
+
+					if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+						interval<N,K,E>::extended_error_flag = true;
+			
+					return r;
+				}
+				else
+				{
+					N INF; FILIB_DOWNWARD_MULTIPLIES(INF,a.sup(),b,false);
+					N SUP; FILIB_UPWARD_MULTIPLIES(SUP,a.inf(),b,true);
+					interval<N,K,E> r(INF,SUP);
+
+					if ( E )
+					{
+						if ( FILIB_ISNAN(r.inf()) || FILIB_ISNAN(r.sup()) )
+							r = interval<N,K,E>::ENTIRE();
+						else
+							r.checkInf();
+					}
+
+					if ( E == i_mode_extended_flag && ( FILIB_ISNAN(INF) || FILIB_ISNAN(SUP) ) )
+						interval<N,K,E>::extended_error_flag = true;
+					if ( E == i_mode_extended_flag && ( FILIB_ISINF(INF) || FILIB_ISINF(SUP) ) )
+						interval<N,K,E>::extended_error_flag = true;
+
+					return r;
+				}
+			}
+	}
+	
+	template <typename N, rounding_strategy K, interval_mode E>
+	interval<N,K,E> operator/ (interval<N,K,E> const & a, interval<N,K,E> const & b)
+	{
+		if ( E && ( a.isEmpty() || b.isEmpty() ) )
+			return interval<N,K,E>::EMPTY();
+
+		/**
+		 * interval b is completely positive
+		 **/
+		if ( b.inf() > 0.0 )
+		{
+			/**
+			 * interval a is completely positive
+			 **/
+			if ( a.inf() >= 0.0 )
+			{
+				N INF; FILIB_DOWNWARD_DIVIDES(INF,a.inf(),b.sup(),false);
+				N SUP; FILIB_UPWARD_DIVIDES(SUP,a.sup(),b.inf(),true);
+				interval<N,K,E> r(INF,SUP);
+				return r;
+			}
+			/**
+			 * interval a is completely negative
+			 **/
+			else if ( a.sup() <= 0.0 )
+			{
+				N INF; FILIB_DOWNWARD_DIVIDES(INF,a.inf(),b.inf(),false);
+				N SUP; FILIB_UPWARD_DIVIDES(SUP,a.sup(),b.sup(),true);
+				interval<N,K,E> r(INF,SUP);
+				return r;
+			}
+			/**
+			 * interval a contains 0.0
+			 **/
+			else
+			{
+				N INF; FILIB_DOWNWARD_DIVIDES(INF,a.inf(),b.inf(),false);
+				N SUP; FILIB_UPWARD_DIVIDES(SUP,a.sup(),b.inf(),true);
+				interval<N,K,E> r(INF,SUP);
+				return r;
+			}
+		}
+		/**
+		 * interval b is completely negative
+		 **/
+		else if ( b.sup() < 0.0 )
+		{
+			/**
+			 * interval a is completely positive
+			 **/
+			if ( a.inf() >= 0.0 )
+			{
+				N INF; FILIB_DOWNWARD_DIVIDES(INF,a.sup(),b.sup(),false);
+				N SUP; FILIB_UPWARD_DIVIDES(SUP,a.inf(),b.inf(),true);
+				interval<N,K,E> r(INF,SUP);
+				return r;
+			}
+			/**
+			 * interval a is completely negative
+			 **/
+			else if ( a.sup() <= 0.0 )
+			{
+				N INF; FILIB_DOWNWARD_DIVIDES(INF,a.sup(),b.inf(),false);
+				N SUP; FILIB_UPWARD_DIVIDES(SUP,a.inf(),b.sup(),true);
+				interval<N,K,E> r(INF,SUP);
+				return r;
+			}
+			/**
+			 * interval a contains 0.0
+			 **/
+			else
+			{
+				N INF; FILIB_DOWNWARD_DIVIDES(INF,a.sup(),b.sup(),false);
+				N SUP; FILIB_UPWARD_DIVIDES(SUP,a.inf(),b.sup(),true);
+				interval<N,K,E> r(INF,SUP);
+				return r;
+			}
+		}
+		/**
+		 * interval b contains 0.0
+		 **/
+		else
+		{
+			if ( E )
+			{
+				interval<N,K,E>::extended_error_flag = true;
+
+				if(a.contains(0.))
+					return interval<N,K,E>::ENTIRE();
+				if(b.inf() == 0.)
+				{
+					if(a.sup() < 0.)
+					{
+						N SUP; FILIB_UPWARD_DIVIDES(SUP,a.sup(),b.sup(),true);
+						interval<N,K,E> r(FILIB_NINFINITY,SUP);
+						return r;
+					}
+					/**
+					 * a.inf() > 0.
+					 **/
+					else
+					{
+						N INF; FILIB_DOWNWARD_DIVIDES(INF,a.inf(),b.sup(),true);
+						interval<N,K,E> r(INF,FILIB_INFINITY);
+						return r;
+					}
+				}
+				else if(b.sup() == 0.)
+				{
+					if(a.sup() < 0.)
+					{
+						N INF; FILIB_DOWNWARD_DIVIDES(INF,a.sup(),b.inf(),true);
+						interval<N,K,E> r(INF,FILIB_INFINITY);
+						return r;
+					}
+					/**
+					 * a.inf() > 0.
+					 **/
+					else
+					{
+						N SUP; FILIB_UPWARD_DIVIDES(SUP,a.inf(),b.inf(),true);
+						interval<N,K,E> r(FILIB_NINFINITY,SUP);
+						return r;
+					}
+				}
+				/**
+				 * 0. is in the interior of b
+				 **/
+				else
+					return interval<N,K,E>::ENTIRE();
+			}
+			else
+			{
+				std::cerr
+					<< std::endl 
+					<< "error in filib.2 operator/, division by zero."
+					<< std::endl
+					<< "divident: " << a << " "
+					<< "divisor: " << b
+					<< std::endl;
+				std::terminate();
+			}
+		}
+	}
+	
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline interval<N,K,E> operator/(
+		interval<N,K,E> const & a,
+		N const & b)
+	{
+			if ( E && FILIB_ISINF(b) )
+				return (a/interval<N,K,E>(b));
+
+			if ( b == 0.0 )
+			{
+				if ( E )
+				{
+					if ( a.isEmpty() )
+						return interval<N,K,E>::EMPTY();
+					else
+						return interval<N,K,E>::ENTIRE();
+				}
+				else
+				{
+					std::cerr
+						<< std::endl 
+						<< "error in filib.2 operator/, division by zero."
+						<< std::endl
+						<< "divident: " << a << " "
+						<< "divisor: " << interval<N,K,E>(b)
+						<< std::endl;
+					std::terminate();
+				}
+			}
+			else if ( b > 0.0 )
+			{
+				N INF; FILIB_DOWNWARD_DIVIDES(INF,a.inf(),b,false);
+				N SUP; FILIB_UPWARD_DIVIDES(SUP,a.sup(),b,true);
+				interval<N,K,E> r(INF,SUP);
+				return r;
+			}
+			else
+			{
+				N INF; FILIB_DOWNWARD_DIVIDES(INF,a.sup(),b,false);
+				N SUP; FILIB_UPWARD_DIVIDES(SUP,a.inf(),b,true);
+				interval<N,K,E> r(INF,SUP);
+				return r;
+			}
+	}
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline N interval<N,K,E>::diam() const
+	{
+		N t; 
+		FILIB_UPWARD_MINUS(t,SUP,INF,true);
+		return t;
+	}
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline N interval<N,K,E>::width() const
+	{
+		N t; 
+
+		FILIB_UPWARD_MINUS(t,SUP,INF,true);
+		return t;
+	}
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline N interval<N,K,E>::relDiam() const
+	{
+		if ( isPoint() )
+			return 0.0;
+		else if ( contains(static_cast<N>(0.0)) || mig() < FILIB_MIN )
+			return diam();
+		else
+		{
+			N res = diam();
+
+			FILIB_UPWARD_DIVIDES(res, res, mig(),true);
+			return res;
+		}
+	}
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline N interval<N,K,E>::rad() const
+	{
+		if ( -INF == SUP )
+			return SUP;
+		else
+		{
+			N res; 
+			FILIB_UPWARD_MINUS(res,static_cast<N>(0.5)*SUP,static_cast<N>(0.5)*INF,true);
+			return res;
+		}
+	}
+
+	template <typename N, rounding_strategy K, interval_mode E>
+	inline N interval<N,K,E>::dist(interval<N,K,E> const & a) const
+	{
+			if ( E && (isEmpty() || a.isEmpty()) )
+				return FILIB_QUIET_NAN;
+
+			if ( *this == a )
+				return static_cast<N>(0.0);
+
+			if ( E && ( isInfinite() || a.isInfinite() ) )
+				return FILIB_INFINITY;
+
+			N tmp1; FILIB_UPWARD_MINUS(tmp1,INF,a.INF,false);
+			N tmp2; FILIB_UPWARD_MINUS(tmp2,SUP,a.SUP,true);
+
+			N res = std::max(
+				FILIB_ABS(tmp1),
+				FILIB_ABS(tmp2));
+			
+			if ( E && FILIB_ISNAN(res) )
+				return FILIB_QUIET_NAN;
+			else
+				return res;
+	}

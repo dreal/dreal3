@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/mpcapd/dynset
+includedir=@abs_top_srcdir@/include
+
+Name: mpcapddynset
+Description: mpcapddynset module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:  ${libdir}/libmpcapddynset.a @mpcapddynset_LIBS@
+Cflags: @mpcapddynset_CFLAGS@  -I${includedir}

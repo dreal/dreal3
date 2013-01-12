@@ -1,0 +1,220 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(POW_ICC)
+#define POW_ICC
+
+// ---------------------------------------------------------------------------
+// Modified code from i_util.cpp from C-XSC
+// ---------------------------------------------------------------------------
+
+#include <interval/stdfun/point/q_exp.icc>
+
+namespace filib
+{
+	//----------------------------------------------------------------------------
+	// Purpose: The local function 'Power()' is used to compute a lower or an
+	//    upper bound for the power function with real argument and integer
+	//    exponent, respectively.
+	// Parameters:
+	//    In: 'x'      : real argument
+	//        'n'      : integer exponent
+	//        'RndMode': rounding mode,
+	//                   (-1 = downwardly directed, +1 = upwardly directed)
+	// Description:
+	//    This function is used to speed up the interval power function defined
+	//    below. The exponentiation is reduced to multiplications using the
+	//    binary shift method. Depending on 'n', this function is up to 40 times
+	//    as fast as the standard power function for real argument and real
+	//    exponent. However, its accuracy is less than one ulp (unit in the last
+	//    place of the mantissa) since about log2(n) multiplications are executed
+	//    during computation. Since directed roundings are antisymmetric, one
+	//    gets
+	//
+	//       down(x^n) = -up((-x)^n)   and   up(x^n) = -down((-x)^n)
+	//
+	//    for x < 0 and odd n, where 'down' and 'up' denote the downwardly and
+	//    upwardly directed roundings, respectively.
+	//----------------------------------------------------------------------------
+	template <rounding_strategy K, interval_mode E > 
+	static double Power (double x, int n, int RndMode )
+	{                         // Signals change of the rounding mode
+		int  ChangeRndMode;     // for x < 0 and odd n
+		double p, z;
+
+		typedef double N;
+
+		// special case x == 0
+		if (x == 0.0)
+			return n == 0 ? 1.0 : 0.0;
+
+		ChangeRndMode = ( (x < 0.0) && (n % 2 == 1) );
+
+		if (ChangeRndMode) 
+		{
+			z = -x;
+			RndMode = -RndMode;
+		}
+		else
+			z = x;
+
+		p = 1.0;
+
+		switch (RndMode) 
+		{                    // Separate while-loops used
+			case -1 : 
+				while (n > 0) 
+				{          // to gain speed at runtime
+					if (n % 2 == 1) {
+						FILIB_DOWNWARD_MULTIPLIES(p,p,z,true);
+					}
+	
+					n = n / 2;
+
+					if (n > 0) {
+						FILIB_DOWNWARD_MULTIPLIES(z,z,z,true);
+					}
+				}
+			break;
+     
+			case 1 : 
+				while (n > 0) 
+				{
+					typedef double N;
+	
+					if (n % 2 == 1) {
+						FILIB_UPWARD_MULTIPLIES(p,p,z,true);
+					}
+
+					n = n / 2;
+	
+					if (n > 0) {
+						FILIB_UPWARD_MULTIPLIES(z,z,z,true);
+					}
+				}
+			break;
+		}
+
+		if (ChangeRndMode)
+			return -p;
+		else
+			return p;
+	}
+
+	//----------------------------------------------------------------------------
+	// Purpose: This version of the function 'pow()' is used to compute an
+	//    enclosure for the power function with interval argument and integer
+	//    exponent.
+	// Parameters:
+	//    In: 'x': interval argument
+	//        'n': integer exponent
+	// Description:
+	//    In general, this implementation does not deliver a result of maximum
+	//    accuracy, but it is about 30-40 times faster than the standard power
+	//    function for interval arguments and interval exponents. The resulting
+	//    interval has a width of approximately 2*log2(n) ulps. Since x^n is
+	//    considered as a monomial, we define x^0 := 1. For negative exponents
+	//    and 0 in 'x', the division at the end of the function will cause a
+	//    runtime error (division by zero).
+	//----------------------------------------------------------------------------
+	template <rounding_strategy K, interval_mode E > 
+	interval<double,K,E> power(interval<double,K,E> const & x, int const & n)
+	{
+		bool invert = false;
+
+		if ( E )
+			if (x.isEmpty())
+				return interval<double,K,E>::EMPTY();
+
+		if (n == 0) 
+			return(interval<double,K,E>(1.0,1.0));
+
+		if (n == 1)
+			return x;
+
+		int  m;
+
+		double rinf,rsup;
+  
+		if (n > 0)  
+			m = n;  
+		else  
+			m = -n;
+  
+		if ( (0.0 < inf(x)) || (m % 2 == 1) ) 
+		{
+			rinf = Power<K,E>(inf(x),m,-1);
+			rsup = Power<K,E>(sup(x),m,+1);
+		}
+		else if (0.0 > sup(x)) 
+		{
+			rinf = Power<K,E>(sup(x),m,-1);
+			rsup = Power<K,E>(inf(x),m,+1);
+		}
+		else 
+		{
+			rinf = 0.0;
+			rsup = Power<K,E>(mag(x),m,+1);
+		}
+
+		if (n < 0) 
+		{
+			if (n % 2)
+				invert = true;
+			else 
+			{
+				if (x.contains(0.0)) 
+				{
+					rinf = 0.0;
+					rsup = fp_traits<double,K>::infinity();
+				}
+				else
+					invert = true;
+			}
+		}
+
+		/* fp_traits<double,K>::reset(); */
+
+		return invert ? 
+			  1.0/interval<double,K,E>(rinf,rsup)
+			: interval<double,K,E>(rinf,rsup);
+	}
+
+	template <rounding_strategy K, interval_mode E > 
+	interval<double,K,E> pow(interval<double,K,E> const & x, interval<double,K,E> const & y) 
+	{
+			if (E && (x.isEmpty() || y.isEmpty()))
+				return interval<double,K,E>::EMPTY();
+			else if ( ! E && ( inf(x) <= 0.0 ) )
+			{
+				std::cerr << "base is not positive in pow()." << std::endl;
+				std::terminate();
+			}
+			else
+				return exp(y * log(x));
+	}
+}
+#endif

@@ -1,0 +1,9 @@
+/*! \page capd_facades  Facades
+
+The source code of the CAPD library heavily uses advanced template techniques. 
+If you are beginner in the C++ programming, the facade module is for you. 
+This module might be a bit slower (up to 10%) than the regular classes 
+but it provides non-template interfaces for most often used classes from the CAPD library. 
+It can be also recommended for a user who just would like to try the CAPD library.
+
+*/

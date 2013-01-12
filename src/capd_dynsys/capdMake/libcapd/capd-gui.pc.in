@@ -1,0 +1,6 @@
+Name: capd-gui
+Description: capd library with gui.
+Requires: @CAPD_PACKAGES_GUI@ @CAPD_PACKAGES@
+Version: @PACKAGE_VERSION@
+Libs:
+Cflags: 

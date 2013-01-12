@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/mpcapd/intervals
+includedir=@abs_top_srcdir@/include
+
+Name: mpcapdintervals
+Description: mpcapdintervals module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:  ${libdir}/libmpcapdintervals.a @mpcapdintervals_LIBS@
+Cflags: @mpcapdintervals_CFLAGS@  -I${includedir}

@@ -1,0 +1,117 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(Q_COS_ICC)
+#define Q_COS_ICC
+
+#include <interval/stdfun/point/q_rtrg.icc>
+
+namespace filib
+{
+	template <rounding_strategy K, interval_mode E > 
+	double q_cos(double const & x)
+	{
+		double res;
+
+		if (fp_traits<double,K>::IsNaN(x))
+		{
+			if ( E )
+				return fp_traits<double,K>::quiet_NaN();
+			else
+			{
+				std::cerr << "filib: q_cos called with NaN value." << std::endl; 
+				std::terminate();
+			}
+		}
+
+		long int m,n,k;
+		double ysq,y,q;
+
+		if ((x<-filib_consts<double>::q_sint[2])||(x>filib_consts<double>::q_sint[2]))
+		{
+			if ( E )
+				return fp_traits<double,K>::quiet_NaN();
+			else
+			{
+				std::cerr << "filib: q_cos called with out of range value." << std::endl; 
+				std::terminate();
+			}
+		}
+
+		/* Argument reduction */
+		y=x*filib_consts<double>::q_pi2i; 
+
+		if (y>0)
+			k=long_int_cast(y+0.5);
+		else 
+			k=long_int_cast(y-0.5);
+
+		y=q_rtrg<double>(x,k); 
+		n=(k+1)%4; 
+		if(n<0)
+			n+=4;
+		m=n%2;
+
+		/* Approximation */
+		ysq=y*y;
+
+		if (m==0)
+		{        /* Approximation sine-function, scheme of Horner */
+			if ((-filib_consts<double>::q_sint[3]<y)&&(y<filib_consts<double>::q_sint[3]))
+			{
+				if (n==0) res=y; 
+				else res=-y;
+			}
+			else 
+			{
+				q=ysq*(((((((filib_consts<double>::q_sins[5]*ysq)+filib_consts<double>::q_sins[4])
+				*ysq+filib_consts<double>::q_sins[3])*ysq+filib_consts<double>::q_sins[2])*ysq+filib_consts<double>::q_sins[1])*ysq)+filib_consts<double>::q_sins[0]);
+
+				if (n==0)
+					res=y+y*q;
+				else
+					res=-(y+y*q);
+    			}
+		}
+		else 
+		{           /* Approximation cosine-function, scheme of Horner */
+			q=ysq*ysq*(((((((filib_consts<double>::q_sinc[5]*ysq)+filib_consts<double>::q_sinc[4])
+				*ysq+filib_consts<double>::q_sinc[3])*ysq+filib_consts<double>::q_sinc[2])*ysq+filib_consts<double>::q_sinc[1])*ysq)+filib_consts<double>::q_sinc[0]);
+    
+			if (ysq >= filib_consts<double>::q_sint[0])
+				res=0.625+(0.375-(0.5*ysq)+q);
+			else if (ysq >= filib_consts<double>::q_sint[1])
+				res=0.8125+((0.1875-(0.5*ysq))+q);
+			else
+				res=1.0-(0.5*ysq - q);
+			if (n==3)
+				res=-res; 
+		}  /* end if */
+
+		return(res);
+	}
+}
+#endif

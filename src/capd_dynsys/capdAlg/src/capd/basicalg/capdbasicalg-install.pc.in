@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: capdbasicalg
+Description: capdbasicalg module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:   -L${libdir} -lcapdbasicalg @capdbasicalg_LIBS@
+Cflags: @capdbasicalg_CFLAGS@  -I${includedir}

@@ -1,0 +1,55 @@
+/*! \page capd_repositories CAPD repositories
+
+\section capd_repositories_1 SVN repositories 
+
+The CAPD packages are splited among three <a href="http://subversion.apache.org/">Subversion</a> repositories:
+
+<table>
+<tr>
+<th> repository  </th><th> packages    </th>                          
+</tr><tr>
+<td>capd       </td><td> capdAlg, capdAux, capdExt, capdMake  </td>
+</tr><tr>
+<td>capdDynSys </td><td> capdDynSys </td> 
+</tr><tr>
+<td>capdRedHom </td><td> capdRedHom </td>
+</tr>
+</table>
+
+
+\section capd_repositories_2 Getting the source code 
+
+A source code can be downloaded from <a href="http://capd.ii.uj.edu.pl/download.php"> CAPD webpage</a> or obtained from a repository. 
+
+If an <code><user></code> wants to work with a repository, he has to have
+an <a href="http://en.wikipedia.org/wiki/SSH">ssh</a> access to the server and at least read access to the repository.
+We suggest to use login with a <a href="http://en.wikipedia.org/wiki/Public-key_cryptography"><b>public key</b></a>.
+
+\subsection capd_repositories_3 Using SVN from command line 
+
+To checkout the latest version of the code:
+- checkout base packages   <br> <pre> svn co svn+ssh://<user>\@mnich.ii.uj.edu.pl/capd/capd</pre>
+- enter capd directory <pre>cd capd</pre>
+- checkout capdDynsys package <pre>svn co svn+ssh://<user>\@mnich.ii.uj.edu.pl/capd/capdDynSys</pre>
+- checkout capdRedHom package <pre>svn co svn+ssh://<user>\@mnich.ii.uj.edu.pl/capd/capdRedHom</pre>
+Two last steps are optional.
+
+\subsection capd_repositories_4 Using SVN GUI 
+
+Under construction.
+
+\section capd_repositories_5 Working with SVN 
+
+To commit changes you can do the following  
+<table border="0">
+<tr>
+<td><code>svn status</code>                          </td><td> shows changes. </td>
+</tr><tr>
+<td><code>svn update</code>                          </td><td> updates your copy to the latest version. </td>
+</tr><tr>
+<td><code>svn add newfile.cpp</code>                 </td><td> adds newfile.cpp to version control (it does not submit it). </td>
+</tr><tr>
+<td><code>svn commit file -m "Commit message"</code> </td><td> commits ''file'' to the repository. If file name is not given it submits all added and changed files.</td>
+</tr>
+</table>
+*/

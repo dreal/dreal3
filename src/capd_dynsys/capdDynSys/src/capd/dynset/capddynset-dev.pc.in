@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/capd/dynset
+includedir=@abs_top_srcdir@/include
+
+Name: capddynset
+Description: capddynset module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:   ${libdir}/libcapddynset.a @capddynset_LIBS@
+Cflags: @capddynset_CFLAGS@  -I${includedir}

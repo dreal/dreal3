@@ -1,0 +1,35 @@
+/*! \page devel_documentation CAPD documentation style
+
+We use Doxygen to generate documentation.
+Comments need to follow the rules to produce readable documentation.
+In the examples below
+- \b obligatory comments are marked in \b red,
+- a \b recommended comments in \b orange
+- in \b yellow an \b optional ones.
+
+-#  Comments to be parsed by Doxygen should begin with three slashes  (<tt>///</tt>).
+    Multiline comments can also use <code>/**  * /</code>syntax (e.g. see module documentation). <br/>
+    Doxygen tags should begin with \c \@
+-#  Each file has to begin with the following comment: <a href="http://krzesanica.ii.uj.edu.pl/~kapela/file_documentation.html">MyClass.h</a>.
+-#  In each module one should create file \b moduleName.dox that contains description of the module.<br/>
+    Classes, files, functions can be added to module documentation by directive \c \@addtogroup (we recommend to add good selection of them to make documentation more readible).
+    <a href="http://krzesanica.ii.uj.edu.pl/~kapela/module_documentation.html">MyClass.h</a>.
+-#  Each class, struct or union has to be preceded by comment: <a href="http://krzesanica.ii.uj.edu.pl/~kapela/class_documentation.html">MyClass.h</a>.
+-#  Each function definition must be preceded by a commentary of the following structure:
+    <a href="http://krzesanica.ii.uj.edu.pl/~kapela/functions_documentation.html">MyClass.cpp</a> or
+    <a href="http://krzesanica.ii.uj.edu.pl/~kapela/function_documentation2.html">MyTemplate.hpp</a>. <br/>
+    The second form ensures that the number and names of variables are the same in the code and in the documentation. <br/>
+    Note: Sections \@param, \@return and \@exception can be ignored only if the function has no arguments,
+    the value passed by the function is void or function does not throw any exceptions.
+-#  Comments for class members, methods should be placed directly before them using <tt>///</tt>
+    or just after them using <tt>///\<</tt> e.g. <a href="http://krzesanica.ii.uj.edu.pl/~kapela/members_documentation.html">MyClass.h</a>.
+-# In comments for doxygen, you can use most of the html tags.
+-# General documentation (e.g. of compilation process, requirements) should be placed in <tt>docs/src</tt> directory in files with <tt>.dox</tt> extension.
+
+<a href="http://krzesanica.ii.uj.edu.pl/~kapela/capd_doc.zip">Code of an example</a> was used to generate this
+<a href="http://krzesanica.ii.uj.edu.pl/~kapela/capd_doc/index.html">documentation</a>.
+It can be produced by invoking <code> make doc </code> in the capd_doc directory.
+
+Full documentation of Doxygen can be found at <a href="http://www.stack.nl/~dimitri/doxygen/">http://www.stack.nl/~dimitri/doxygen/</a>.
+
+*/

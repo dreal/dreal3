@@ -1,0 +1,8 @@
+ChangeLog for filib++
+
+filib 3.0:
+
+- first version using the GNU autoconf tools
+- stripped away onesided modes, too many versions of GCC miscompile them
+  (we may add the ONESIDED_GLOBAL mode again later)
+- added code for x87 and SSE directed floating point computation

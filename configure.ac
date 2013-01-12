@@ -4,7 +4,8 @@
 AC_PREREQ([2.68])
 AC_INIT([dReal], [2.0.0], [scungao@gmail.com])
 #AC_CONFIG_SRCDIR([src/opensmt/api/opensmt_c.C])
-AC_CONFIG_AUX_DIR(autotools)
+AC_CONFIG_SUBDIRS([src/capd_dynsys])
+#AC_CONFIG_AUX_DIR(autotools)
 
 #AC_CONFIG_HEADERS([config.h])
 
@@ -79,7 +80,11 @@ config_includedirs="-I\${top_srcdir}/src/opensmt \\\
 -I\${top_srcdir}/src/opensmt/tsolvers/axsolver \\\
 -I\${top_srcdir}/src/opensmt/tsolvers/dlsolver \\\
 -I\${top_srcdir}/src/realpaver \\\
--I\${top_srcdir}/src/capd/include/"
+-I\${top_srcdir}/src/capd_dynsys/capdExt/include \\\
+-I\${top_srcdir}/src/capd_dynsys/capdAlg/include \\\
+-I\${top_srcdir}/src/capd_dynsys/capdAux/include \\\
+-I\${top_srcdir}/src/capd_dynsys/capdDynSys/include"
+
 AC_SUBST(config_includedirs)
 
 AC_CONFIG_FILES([Makefile

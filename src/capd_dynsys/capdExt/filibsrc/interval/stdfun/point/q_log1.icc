@@ -1,0 +1,194 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(Q_LOG1_ICC)
+#define Q_LOG1_ICC
+
+/* --------------------------------------------------------------------- */
+/* - Computation of log(x), table lookup method                        - */
+/* - We use the idea of Mr. P.T.P. Tang                                - */
+/* - Version without argument check                                    - */
+/* --------------------------------------------------------------------- */
+
+namespace filib
+{
+	/* --- Computation of log(x): Range I  --------------------------------- */
+	template <rounding_strategy K, interval_mode E>
+	inline static double q_p1l1(int m, double fg, double fk, double y)
+	{
+		int j;
+		double l_lead,l_trail,u,q;
+		double v;       
+
+		/* Step 1 */
+		j=cutint((fg-1.0)*128);              /* floor */
+		l_lead =m*filib_consts<double>::q_lgld[128]+filib_consts<double>::q_lgld[j];
+		l_trail=m*filib_consts<double>::q_lgtl[128]+filib_consts<double>::q_lgtl[j];
+
+		/* Step 2: Approximation  */
+		u=(fk+fk)/(y+fg);
+		v=u*u;
+		q=u*v*(filib_consts<double>::q_lgb[0]+v*filib_consts<double>::q_lgb[1]);
+
+		/* Step 3 */
+		return(l_lead+(u+(q+l_trail)));
+	}
+	
+
+	/* ---  Computation of log(x): Range II --------------------------------- */
+	template <rounding_strategy K, interval_mode E>
+	inline static double q_p2l1(double fk)
+	{  
+		double g,q,u,v,u1,f1,f2,u2;
+
+		/* Step 1 */
+		g=1/(2+fk);
+		u=2*fk*g;
+		v=u*u;
+
+		/* Step 2 */
+		q=u*v*(filib_consts<double>::q_lgc[0]+v*(filib_consts<double>::q_lgc[1]+v*(filib_consts<double>::q_lgc[2]+v*filib_consts<double>::q_lgc[3])));
+
+		/* Step 3 */
+		u1=cut24(u);                        /* u1 = 24 leading bits of u   */
+		f1=cut24(fk);                       /* f1 = 24 leading bits von fk */
+		f2=fk-f1;
+		u2=((2*(fk-u1)-u1*f1)-u1*f2)*g;
+
+		/* Step 4 */
+		return(u1+(u2+q));
+	}
+
+	/* --- Version without argument check !!! ----------------------------- */
+
+	template <rounding_strategy K, interval_mode E>
+	double q_log1(double x)
+	{  
+		int m;
+		double fg,fk,y,res;
+
+		/* main program with different cases */
+		if (x<filib_consts<double>::q_minr)                  /* only positive normalised arguments */
+		{
+			if ( E )
+				res = fp_traits<double,K>::ninfinity();
+			else
+				{
+					/* res=q_abortr1(INV_ARG,&x,6); */
+					std::cerr << "filib: out of range arguemtn in q_log1" << std::endl;
+					std::terminate();
+				}
+		}
+
+		else if (E && (x == fp_traits<double,K>::infinity()))
+			res = fp_traits<double,K>::infinity();
+     
+		else if (x==1) res=0.0;
+		else if ((filib_consts<double>::q_lgt1<x) && (x<filib_consts<double>::q_lgt2)) 
+		{
+			fk=x-1;
+			res=q_p2l1<K,E>(fk);
+		}
+		else 
+		{
+			frexpo(x,m); 
+			m-=1023; 
+                                 
+			y=x;
+			power2(y,-m);
+			fg=cutint(128*y+0.5);          /* exp2(+7)=128       */
+			fg=0.0078125*fg;               /* exp2(-7)=0.0078125 */  
+			fk=y-fg;
+
+			res=q_p1l1<K,E>(m,fg,fk,y);
+		}
+
+		return(res);
+
+	}  /* function q_log1 */
+
+	/* --------------------------------------------------------------------- */
+	/* - Computation of log1p(x)=log(1+x), table lookup method             - */
+	/* --------------------------------------------------------------------- */
+
+	template <rounding_strategy K, interval_mode E>
+	double q_l1p1(double x)
+	{
+		int m;
+		double fg,fk,y,t,h,res;
+
+		/* main program with different cases */
+		if (x<=-1) 
+		{
+			/* res=q_abortr1(INV_ARG,&x,7); */
+			std::cerr << "filib: out of range arguemtn in q_l1p1" << std::endl;
+			std::terminate();
+		}
+		else if (x==0) res=x;
+		else if ((-filib_consts<double>::q_lgt5<x) && (x<filib_consts<double>::q_lgt5)) res=x;
+			/* res=(8*x-ldexp(1.0,-1074))*0.125; */
+		else if ((filib_consts<double>::q_lgt3<x) && (x<filib_consts<double>::q_lgt4)) 
+		{
+			fk=x;
+			res=q_p2l1<K,E>(fk);
+		}
+		else 
+		{
+			t=filib_consts<double>::q_lgt6;
+			if (x<t) y=1+x;
+			else y=x;
+			frexpo(y,m);
+			m-=1023;
+        
+			power2(y,-m);
+			fg=cutint(128*y+0.5);       /* exp2(+7)=128       */
+			fg=0.0078125*fg;            /* exp2(-7)=0.0078125 */
+        
+			if (m<=-2) 
+				fk=y-fg;
+			else if ((-1<=m) && (m<=52))
+			{
+				fk=1.0;
+				power2(fk,-m);
+				h=x;
+				power2(h,-m); 
+				fk=(fk-fg)+h;
+			}
+			else
+			{
+				fk=1.0;
+				power2(fk,-m);
+				h=x;
+				power2(h,-m);
+				fk=(h-fg)+fk;
+			}
+
+			res=q_p1l1<K,E>(m,fg,fk,y);
+		}
+		return(res);
+	}    /* function q_l1p1 */
+}
+#endif

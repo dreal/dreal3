@@ -1,0 +1,14 @@
+/** \page capd_news  What's new in the CAPD
+
+ This version contains major changes in comparison to the previous one. In particular:
+- there is a new \ref capd_compilation "compilation system" of the CAPD library,
+- it is easier to \ref user_programs "build your own programs" with capd-config-* scripts or general makefile,
+- you can choose what \ref directory_structure "part of the CAPD library" you would like to build when configuring the library,
+- The g++ compilation with -O2 flag is reordering some rounding operations in CAPD native intervals. 
+  Therefore we recommend use of FILIB interval library that is now part of CAPD package 
+  and the default option in configure script.  
+
+We are waiting for your tests and feedback from usage of the new release
+ *
+ *
+ */

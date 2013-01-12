@@ -1,0 +1,54 @@
+/*!  \page directory_structure Packages and directories structure
+
+\section directory_structure_packages Packages 
+ 
+The CAPD library is divided into packages
+- \b capdAlg  : interval arithmetic, vector and matrix algebra, common matrix algorithms, multiple precision data types,
+- \b capdAux  : a portable graphical environment (krak),  auxiliary tools 
+- \b capdExt  : external libraries : alglib, filib++, fadbad, boost, chomp, 
+- \b capdMake  : common scripts to compile and install all packages and the CAPD library,
+- \subpage capdDynSys_package "capdDynSys" : modules for rigorous computations in dynamical systems (see  \ref capdDynSys_package "list of modules"),
+- \b capdRedHom  : modules for efficient computation of the homology of sets. 
+
+Each package is stored in separate directory, which name is equivalent to the package name. 
+We call this developers form of CAPD library. After compilation the CAPD library 
+can be used in that form, but we advice to install the library by calling <tt>make install</tt>.   
+It will merge all packages into a single directory.
+
+\section directory_structure_package_structure Package structure 
+
+All packages (except \e capdMake) contain a set of modules, programs, examples and tests.
+Each package directory has the following structure
+- \b include  - contains header files. Each module is in separated subdirectory. In most of the cases its path relative to ''include'' directory agrees with module namespace e.g. class <tt>capd::intervals::Interval</tt> is defined in header file <tt>include/capd/intervals/Interval.h</tt>.  During installation they will be copied to <tt>PREFIX/include</tt> directory (the <tt>PREFIX</tt> directory is set by <tt>configure</tt> script). 
+- \b src  - source files that will be compiled into two libraries: \b capd  and \b mpcapd  (multiple precision version of the CAPD).
+- \b programs  -  stand-alone programs that will be installed to <tt>PREFIX/bin</tt> directory,
+- \b examples  - contains examples how to use features provided by the current package,
+- \b tests  - self tests that are compiled and executed when target <tt>make check</tt> is called,
+- \b docs  - contains package documentation after calling <tt>make doc</tt>.
+
+The \e capdMake package contains scripts used to compile other packages. After successful compilation it will contain binary files of the CAPD libraries. Those libraries will be installed to <tt>PREFIX/lib</tt> directory.
+
+\section directory_structure_packages_dependancies Packages dependencies 
+
+Some packages require other packages to compile. The dependencies are as follows:
+ 
+<table>
+<tr>
+  <th> Package  </th><th> Depends on </th>
+</tr><tr>
+  <td> capdMake </td><td> - </td>
+</tr><tr>
+  <td> capdAux   </td><td> capdMake </td>
+</tr><tr>
+  <td> capdExt   </td><td> capdMake </td>
+</tr><tr>
+  <td> capdAlg   </td><td> capdAux, capdExt, capdMake </td>
+</tr><tr>
+  <td> capdDynSys </td><td> capdAlg, capdAux, capdMake, <br/>capdExt (only alglib, fadbad, filib++ libraries) </td>
+</tr><tr>
+  <td> capdRedHom </td><td> capdAlg, capdAux, capdExt, capdMake </td>
+</tr>
+</table>
+
+
+*/

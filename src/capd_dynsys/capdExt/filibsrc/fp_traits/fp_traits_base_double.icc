@@ -1,0 +1,86 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+
+	TEMPLATE_EMPTY
+	inline bool filib::fp_traits_base<double>::sign(double const & n) 
+	{
+		filib::a_diee const * t = reinterpret_cast<filib::a_diee const *>(&n);
+		return t->ieee.sign;
+	}
+	TEMPLATE_EMPTY
+	inline bool filib::fp_traits_base<double>::IsNaN(double const & n) 
+	{
+		return (n != n);
+	}
+	TEMPLATE_EMPTY
+	inline bool filib::fp_traits_base<double>::IsInf(double const & n) 
+	{
+		return (n < -max_val) || (n > max_val);
+	}
+	TEMPLATE_EMPTY
+	inline double filib::fp_traits_base<double>::abs(double const & n)
+	{
+		filib::a_diee d; 
+		d.f = n; 
+		d.ieee.sign = false; 
+		return d.f;
+	}
+	TEMPLATE_EMPTY
+	inline double const & filib::fp_traits_base<double>::infinity() 
+	{
+		return inf_val;
+	}
+	TEMPLATE_EMPTY
+	inline double const & filib::fp_traits_base<double>::ninfinity() 
+	{
+		return ninf_val;
+	}
+	TEMPLATE_EMPTY
+	inline double const & filib::fp_traits_base<double>::quiet_NaN() 
+	{
+		return nan_val;
+	}
+	TEMPLATE_EMPTY
+	inline double const & filib::fp_traits_base<double>::min() 
+	{
+		return min_val;
+	}
+	TEMPLATE_EMPTY
+	inline double const & filib::fp_traits_base<double>::max() 
+	{
+		return max_val;
+	}
+	TEMPLATE_EMPTY
+	inline double const & filib::fp_traits_base<double>::l_pi() 
+	{
+		return l_pi_val;
+	}
+	TEMPLATE_EMPTY
+	inline double const & filib::fp_traits_base<double>::u_pi() 
+	{
+		return u_pi_val;
+	}

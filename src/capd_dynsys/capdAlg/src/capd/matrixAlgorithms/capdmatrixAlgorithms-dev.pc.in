@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/capd/matrixAlgorithms
+includedir=@abs_top_srcdir@/include
+
+Name: capdmatrixAlgorithms
+Description: capdmatrixAlgorithms module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:   ${libdir}/libcapdmatrixAlgorithms.a @capdmatrixAlgorithms_LIBS@
+Cflags: @capdmatrixAlgorithms_CFLAGS@  -I${includedir}

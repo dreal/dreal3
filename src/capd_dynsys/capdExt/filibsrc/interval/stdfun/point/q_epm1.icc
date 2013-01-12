@@ -1,0 +1,159 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(Q_EPM1_ICC)
+#define Q_EPM1_ICC
+
+/* --------------------------------------------------------------------- */
+/* - Computation of exp(x)-1, table lookup method                      - */
+/* - We use the idea of Mr. P.T.P. Tang                                - */
+/* --------------------------------------------------------------------- */
+
+/* ------   Prozedure for Range 1   ------------------------------------ */
+
+namespace filib
+{
+	inline static double q_p1e1(double const & x)
+	{
+		int j;
+		long int n,m;
+		double r,r1,r2,q,s;
+		double res;
+
+		/* Step 1 */
+		if (x>0) n=long_int_cast((x*filib_consts<double>::q_exil)+0.5);
+		else     n=long_int_cast((x*filib_consts<double>::q_exil)-0.5);      /* round (x)       */
+		j=n % 32;                               /* n2=n mod 32     */
+		if (j<0) j+=32;                         /* We force n2>=0  */
+		m=(n-j)/32;
+		r1=x-n*filib_consts<double>::q_exl1;
+		r2=-(n*filib_consts<double>::q_exl2);
+
+		/* Step 2 */
+		r=r1+r2;
+		q=(((filib_consts<double>::q_exa[4]*r+filib_consts<double>::q_exa[3])*r+filib_consts<double>::q_exa[2])*r+filib_consts<double>::q_exa[1])*r+filib_consts<double>::q_exa[0];
+		q=r*r*q;
+		q=r1+(r2+q);
+
+		/* Step 3 */
+		s=filib_consts<double>::q_exld[j]+filib_consts<double>::q_extl[j];
+		if (m>=53)
+		{
+			if (m<1023) 
+			{ 
+				res=1.0; 
+				res = ldexp(res,-m);
+			} 
+			else 
+				res=0.0;
+			res=(filib_consts<double>::q_exld[j]+(s*q+(filib_consts<double>::q_extl[j]-res)));
+			res = ldexp(res,m);
+		}
+		else
+		{ 
+			if (m<=-8)
+			{
+				res=(filib_consts<double>::q_exld[j]+(s*q+filib_consts<double>::q_extl[j]));
+				res = ldexp(res,m);
+				res-=1;
+			}
+			else
+			{
+				res=1.0;  
+				res = ldexp(res,-m);
+				res=((filib_consts<double>::q_exld[j]-res)+(filib_consts<double>::q_exld[j]*q+filib_consts<double>::q_extl[j]*(1+q)));
+				res = ldexp(res,m);
+			}
+		}
+
+		return(res);
+	}
+
+	/* ------   Prozedure for Range 2   ------------------------------------ */
+	inline static double q_p2e1(double const & x)
+	{
+		double  u,v,y,z,q;
+
+		/* Step 1 */
+		u=static_cast<double>(float_cast(x));
+		v=x-u;
+		y=u*u*0.5;
+		z=v*(x+u)*0.5;
+
+		/* Step 2 */   
+		q=(((((((filib_consts<double>::q_exb[8]*x+filib_consts<double>::q_exb[7])*x+filib_consts<double>::q_exb[6])*x+filib_consts<double>::q_exb[5])
+			*x+filib_consts<double>::q_exb[4])*x+filib_consts<double>::q_exb[3])*x+filib_consts<double>::q_exb[2])*x+filib_consts<double>::q_exb[1])*x+filib_consts<double>::q_exb[0];
+		q=x*x*x*q;
+
+		/* Schritt 3 */
+		if (y>=7.8125e-3)              /* = 2^-7 */
+			return ((u+y)+(q+(v+z)) );
+		else
+			return (x+(y+(q+z)) );
+	}
+
+	/* ------   Main program with different cases   ----------------------- */
+
+	inline double q_epm1(double const & x)
+	{ 
+		double fabsx,res;
+  
+		fabsx = x < 0 ? -x : x;
+		if (fabsx<filib_consts<double>::q_ext1)
+		{
+			res = (filib_consts<double>::q_p2h * x + fabsx) * filib_consts<double>::q_p2mh; 
+		}
+		else
+		{ 
+			if (filib_consts<double>::q_ex2a<x)
+			{
+				std::cerr << "filib: q_coth called with out of range value." << std::endl;
+				std::terminate();
+			}
+			else
+			{
+				if (x<filib_consts<double>::q_ext3)
+				{
+					res=-1.0+filib_consts<double>::q_p2mh;
+				}
+				else
+				{
+					if (x==0)
+						res=x;
+					else
+					{ 
+						if ((filib_consts<double>::q_ext4<x) && (x<filib_consts<double>::q_ext5))
+							res=q_p2e1(x);
+						else
+							res=q_p1e1(x);
+					}
+				}
+			}
+		}
+		return(res);
+	}
+}
+#endif

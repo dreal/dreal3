@@ -1,0 +1,17 @@
+include ${capdMake}/make/common_makefile.mkf
+
+noinst_PROGRAMS=encloseMonodromyMatrixBetweenTimeSteps encloseTrajectoryBetweenTimeSteps
+
+
+encloseMonodromyMatrixBetweenTimeSteps_SOURCES=encloseMonodromyMatrixBetweenTimeSteps.cpp
+encloseMonodromyMatrixBetweenTimeSteps_CXXFLAGS=${capdDynSys_CFLAGS}
+encloseMonodromyMatrixBetweenTimeSteps_libs=${capdDynSys_LIBS}
+encloseMonodromyMatrixBetweenTimeSteps_LDADD=${encloseMonodromyMatrixBetweenTimeSteps_libs}
+encloseMonodromyMatrixBetweenTimeSteps_DEPENDENCIES=${encloseMonodromyMatrixBetweenTimeSteps_libs:-%=}
+
+encloseTrajectoryBetweenTimeSteps_SOURCES=encloseTrajectoryBetweenTimeSteps.cpp
+encloseTrajectoryBetweenTimeSteps_CXXFLAGS=${capdDynSys_CFLAGS}
+encloseTrajectoryBetweenTimeSteps_libs=${capdDynSys_LIBS}
+encloseTrajectoryBetweenTimeSteps_LDADD=${encloseTrajectoryBetweenTimeSteps_libs}
+encloseTrajectoryBetweenTimeSteps_DEPENDENCIES=${encloseTrajectoryBetweenTimeSteps_libs:-%=}
+

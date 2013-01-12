@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/capd/diffAlgebra
+includedir=@abs_top_srcdir@/include
+
+Name: capddiffAlgebra
+Description: capddiffAlgebra module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:   ${libdir}/libcapddiffAlgebra.a @capddiffAlgebra_LIBS@
+Cflags: @capddiffAlgebra_CFLAGS@  -I${includedir}

@@ -1,0 +1,6 @@
+Name: capd
+Description: capd library.
+Requires: @CAPD_PACKAGES@
+Version: @PACKAGE_VERSION@
+Libs:
+Cflags: 

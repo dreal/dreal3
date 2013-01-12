@@ -1,0 +1,170 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+	TEMPLATE_EMPTY
+	inline void filib::fp_traits<float,filib::native_switched>::setup()
+	{
+		::filib::sse::sseroundnear();
+	}
+	TEMPLATE_EMPTY
+	inline void filib::fp_traits<float,filib::native_switched>::reset()
+	{
+		::filib::sse::sseroundnear();
+	}
+
+	TEMPLATE_EMPTY
+	inline filib::fp_traits<float,filib::native_switched>::fp_traits()
+	{
+	}
+
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::upward_plus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::sseadd(op1,op2,::filib::sse::dir_up,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::downward_plus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::sseadd(op1,op2,::filib::sse::dir_down,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::tozero_plus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::sseadd(op1,op2,::filib::sse::dir_trunc,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::tonearest_plus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::sseadd(op1,op2,::filib::sse::dir_nearest,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::upward_minus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssesub(op1,op2,::filib::sse::dir_up,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::downward_minus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssesub(op1,op2,::filib::sse::dir_down,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::tozero_minus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssesub(op1,op2,::filib::sse::dir_trunc,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::tonearest_minus(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssesub(op1,op2,::filib::sse::dir_nearest,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::upward_multiplies(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssemul(op1,op2,::filib::sse::dir_up,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::downward_multiplies(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssemul(op1,op2,::filib::sse::dir_down,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::tozero_multiplies(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssemul(op1,op2,::filib::sse::dir_trunc,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::tonearest_multiplies(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssemul(op1,op2,::filib::sse::dir_nearest,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::upward_divides(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssediv(op1,op2,::filib::sse::dir_up,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::downward_divides(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssediv(op1,op2,::filib::sse::dir_down,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::tozero_divides(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssediv(op1,op2,::filib::sse::dir_trunc,r);
+	}
+	TEMPLATE_EMPTY
+	template<bool r> inline float filib::fp_traits<float,filib::native_switched>::tonearest_divides(
+			float const & op1,
+			float const & op2
+		)
+	{
+		return ::filib::sse::ssediv(op1,op2,::filib::sse::dir_nearest,r);
+	}

@@ -1,0 +1,57 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(ACOT_ICC)
+#define ACOT_ICC
+
+#include <interval/stdfun/point/q_acot.icc>
+
+namespace filib
+{
+	template <rounding_strategy K, interval_mode E>
+           interval<double,K,E> acot(interval<double,K,E> const & x)
+	{
+		if (E && x.isEmpty()) 
+			return interval<double,K,E>::EMPTY();
+	
+		double rinf, rsup;
+
+		if (x.isPoint())
+		{ 
+			rinf	= q_acot<K,E>(x.inf());
+			rsup	= rinf*filib_consts<double>::q_cctp;
+			rinf	*= filib_consts<double>::q_cctm;
+		}
+		else
+		{
+			rinf	=q_acot<K,E>(x.sup())*filib_consts<double>::q_cctm;
+			rsup	=q_acot<K,E>(x.inf())*filib_consts<double>::q_cctp;
+		}
+
+		return interval<double,K,E>(rinf,rsup);
+	}
+}
+#endif

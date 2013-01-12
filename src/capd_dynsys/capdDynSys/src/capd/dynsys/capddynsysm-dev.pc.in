@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/capd/dynsys
+includedir=@abs_top_srcdir@/include
+
+Name: capddynsys
+Description: capddynsys module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:   ${libdir}/libcapddynsys.a @capddynsysm_LIBS@
+Cflags: @capddynsysm_CFLAGS@  -I${includedir}

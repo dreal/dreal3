@@ -1,0 +1,56 @@
+
+###########
+# AC_PREFIX_DEFAULT(/usr/local/)
+	
+AC_LANG([C++])
+AC_ARG_WITH([top_capd],
+	[AS_HELP_STRING([--with-top_capd=<path>],
+           [path to top capd directory @<:@default=../@:>@])],
+        [top_capd=$withval],
+	[top_capd=${default_top_capd}])
+
+AC_SUBST(top_capd)
+
+capdMake=${PWD}/${top_capd}/capdMake
+AC_SUBST(capdMake)
+
+AC_CHECK_FILE([${capdMake}], [], [
+			     AC_MSG_ERROR([could not find capdMake in ${top_capd}. Set --top_capd to a direcotry where you have capdMake. There we will put binaries and libraries])
+			     exit -1])
+
+pkg_config_dev="${PWD}/${top_capd_build}/lib/pkgconfig-dev"
+
+if test ! -d ${pkg_config_dev}; then
+   mkdir -p ${pkg_config_dev}
+fi
+
+pkg_config_dev=`cd ${pkg_config_dev}; pwd`
+pkg_config_dev_is_on_path=`expr "${PKG_CONFIG_PATH}" : "${pkg_config_dev}"`
+
+AS_IF([test "${pkg_config_dev_is_on_path}" = "0" ],
+      [ AS_IF([ test "x$PKG_CONFIG_PATH" = "x" ],		
+	          [ PKG_CONFIG_PATH="${pkg_config_dev}"],
+	          [PKG_CONFIG_PATH="${pkg_config_dev}${PATH_SEPARATOR}${PKG_CONFIG_PATH}"]) 
+        export PKG_CONFIG_PATH]
+)
+
+echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
+echo "pkg_config_dev_is_on_path: ${pkg_config_dev_is_on_path}"
+echo "pkg_config_dev: ${pkg_config_dev}"
+
+AC_SUBST(PKG_CONFIG_DIR,[\${libdir}/pkgconfig])
+AC_SUBST(PKG_CONFIG_DEV_DIR,[${pkg_config_dev}])
+
+
+AM_INIT_AUTOMAKE([foreign dist-zip dist-tarZ no-define subdir-objects])
+AM_PROG_CC_C_O
+
+if test "${enable_maintainer_mode+set}" != "set"; then
+   if test -e "${capdMake}/.git" || test -e "${capdMake}/.svn"; then
+      enable_maintainer_mode=yes
+   fi
+fi
+
+AM_MAINTAINER_MODE
+
+#########

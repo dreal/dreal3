@@ -1,0 +1,97 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(Q_RTRG)
+#define Q_RTRG
+
+namespace filib
+{
+	template <typename N> double q_r2tr(N r, long int k);
+
+	template <typename N>
+	double q_rtrg(N x, long int k)
+	{
+		double red,h;
+		a_diee r1,r2;
+
+		if ((-512<k)&&(k<512))
+		{
+			r2.f = x-k*(filib_consts<double>::q_pih[0]+filib_consts<double>::q_pih[1]);
+			red = q_r2tr<double>(r2.f,k);
+		}
+		else
+		{
+			r1.f =  x-k*filib_consts<double>::q_pih[0];
+			h    = k*filib_consts<double>::q_pih[1];
+			r2.f = r1.f-h;
+			if (r1.ieee.expo == r2.ieee.expo ) 
+				red = r1.f - ( ((((k*filib_consts<double>::q_pih[6] + k*filib_consts<double>::q_pih[5]) + k*filib_consts<double>::q_pih[4]) 
+					+ k*filib_consts<double>::q_pih[3]) + k*filib_consts<double>::q_pih[2]) + h );
+			else
+				red = q_r2tr<double>(r2.f,k);  
+		} 
+		return(red);
+	}
+
+	template <typename N>
+	double q_r2tr(N r, long int k)
+	{
+		double red,h;
+		a_diee r1,r2;
+  
+		r2.f = r;
+		h    = k*filib_consts<double>::q_pih[2];
+		r1.f = r2.f-h;
+		if (r1.ieee.expo == r2.ieee.expo ) 
+			red = r2.f - ( (((k*filib_consts<double>::q_pih[6] + k*filib_consts<double>::q_pih[5]) + k*filib_consts<double>::q_pih[4]) 
+				+ k*filib_consts<double>::q_pih[3]) + h);
+		else 
+		{
+			h    = k*filib_consts<double>::q_pih[3];
+			r2.f = r1.f-h;
+			if (r1.ieee.expo == r2.ieee.expo ) 
+				red = r1.f - ( ((k*filib_consts<double>::q_pih[6] + k*filib_consts<double>::q_pih[5]) + k*filib_consts<double>::q_pih[4]) + h);
+			else
+			{
+				h    = k*filib_consts<double>::q_pih[4];
+				r1.f = r2.f-h;
+				if (r1.ieee.expo == r2.ieee.expo ) 
+					red = r2.f - ( (k*filib_consts<double>::q_pih[6] + k*filib_consts<double>::q_pih[5]) + h);
+				else 
+				{
+					h    = k*filib_consts<double>::q_pih[5];
+					r2.f = r1.f-h;
+					if (r1.ieee.expo == r2.ieee.expo ) 
+						red = r1.f - (k*filib_consts<double>::q_pih[6] + h);
+					else
+						red = r2.f - k*filib_consts<double>::q_pih[6];
+				}       
+			}
+		}
+		return(red);
+	}
+}
+#endif

@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/capd/vectalg
+includedir=@abs_top_srcdir@/include
+
+Name: capdvectalg
+Description: capdvectalg module
+Requires: capdauxil capdintervals
+Version: @PACKAGE_VERSION@
+Libs:   ${libdir}/libcapdvectalg.a @capdvectalg_LIBS@
+Cflags: @capdvectalg_CFLAGS@  -I${includedir}

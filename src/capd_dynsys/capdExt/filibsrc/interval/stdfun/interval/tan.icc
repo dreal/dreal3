@@ -1,0 +1,160 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(TAN_ICC)
+#define TAN_ICC
+
+#include <interval/stdfun/point/q_tan.icc>
+
+namespace filib
+{
+	template <rounding_strategy K, interval_mode E > 
+	interval<double,K,E> tan(interval<double,K,E> const & x)
+	{
+		if ( E )
+			if (x.isEmpty())
+				return interval<double,K,E>::EMPTY();
+
+		double rinf,rsup;
+		double h1,h2;
+		long int k1,k2,q1;
+
+
+		if ((x.inf()<-filib_consts<double>::q_sint[2])||(x.sup()>filib_consts<double>::q_sint[2]))
+		{
+			if ( E )
+				return interval<double,K,E>::ENTIRE();
+			else
+				{
+					std::cerr << "filib: tan called with invalid argument." << std::endl;
+					std::terminate();
+				}
+		}
+		else
+		{
+			if (x.isPoint())
+			{ 
+				if ((x.inf()>=-filib_consts<double>::q_sint[4])&&(x.inf()<0))
+				{
+					rinf=primitive::pred(x.inf());
+					rsup=x.inf();
+				}
+				else if ((x.inf()>=0)&&(x.inf()<=filib_consts<double>::q_sint[4]))
+				{         
+					rinf=x.inf();
+
+					if (x.inf()==0)
+						rsup=0; 
+					else
+						rsup=primitive::succ(x.inf());
+				}
+				else
+				{
+					rinf=q_tan<K,E>(x.inf());
+	
+					if (rinf<0)
+					{
+						rsup=rinf*filib_consts<double>::q_tanm;
+						rinf*=filib_consts<double>::q_tanp;
+					}
+					else
+					{
+						rsup=rinf*filib_consts<double>::q_tanp;
+						rinf*=filib_consts<double>::q_tanm;
+					}
+				}
+			}
+			else                                      /* x is not a point interval */
+			{
+				if (x.sup()<0) 
+				{
+					h1=x.inf()*filib_consts<double>::q_pi2u;
+					h2=x.sup()*filib_consts<double>::q_pi2d;
+				}
+				else
+				{
+					h1=x.inf()*filib_consts<double>::q_pi2d;
+					h2=x.sup()*filib_consts<double>::q_pi2u;
+				}
+
+				k1=long_int_cast(h1);
+
+				if (k1<0) 
+					q1=(k1-1)%2; 
+				else 
+					q1=k1%2; 
+
+				if (q1<0) 
+					q1+=2;
+
+				k2=long_int_cast(h2); 
+
+				if ((k1==k2) || (q1==1)&(k1==k2-1))
+				{
+					if ((-filib_consts<double>::q_sint[4]<x.inf())&&(x.inf()<0))
+						rinf=primitive::pred(x.inf());
+					else if ((0<=x.inf())&&(x.inf()<filib_consts<double>::q_sint[4]))
+						rinf=x.inf();
+					else
+					{ 
+						rinf=q_tan<K,E>(x.inf());
+
+						if (rinf>=0)
+							rinf*=filib_consts<double>::q_tanm;
+						else
+							rinf*=filib_consts<double>::q_tanp;
+					}
+
+					if ((-filib_consts<double>::q_sint[4]<x.sup())&&(x.sup()<=0))
+						rsup=x.sup();
+					else if ((0<x.sup())&&(x.sup()<filib_consts<double>::q_sint[4]))
+						rsup=primitive::succ(x.sup());
+					else
+					{ 
+						rsup=q_tan<K,E>(x.sup());
+
+						if (rsup>=0)
+							rsup*=filib_consts<double>::q_tanp;
+						else
+							rsup*=filib_consts<double>::q_tanm;
+					}
+				}
+				else                                           /* invalid argument */
+				{
+					if ( E )
+						return interval<double,K,E>::ENTIRE();
+					{
+						std::cerr << "filib: tan invalid argument." << std::endl;
+						std::terminate();
+					}
+				}
+			}   
+		}
+
+		return interval<double,K,E>(rinf,rsup);
+	}
+}
+#endif

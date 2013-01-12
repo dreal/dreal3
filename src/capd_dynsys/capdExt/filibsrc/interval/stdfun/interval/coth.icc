@@ -1,0 +1,128 @@
+/*                                                                           
+**  fi_lib++  --- A fast interval library (Version 2.0)                     
+**                                                                  
+**  Copyright (C) 2001:                                                        
+**                                                     
+**  Werner Hofschuster, Walter Kraemer                               
+**  Wissenschaftliches Rechnen/Softwaretechnologie (WRSWT)  
+**  Universitaet Wuppertal, Germany                                           
+**  Michael Lerch, German Tischler, Juergen Wolff von Gudenberg       
+**  Institut fuer Informatik                                         
+**  Universitaet Wuerzburg, Germany                                           
+** 
+**  This library is free software; you can redistribute it and/or
+**  modify it under the terms of the GNU Library General Public
+**  License as published by the Free Software Foundation; either
+**  version 2 of the License, or (at your option) any later version.
+**
+**  This library is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+**  Library General Public License for more details.
+**
+**  You should have received a copy of the GNU Library General Public
+**  License along with this library; if not, write to the Free
+**  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+*/
+#if ! defined(COTH_ICC)
+#define COTH_ICC
+
+#include <interval/stdfun/point/q_coth.icc>
+
+namespace filib
+{
+	template <rounding_strategy K, interval_mode E > 
+	interval<double,K,E> coth(interval<double,K,E> const & x)
+	{
+		fp_traits<double,K>::reset();
+
+		if ( E ) 
+			if (x.isEmpty()) 
+				return interval<double,K,E>::EMPTY();
+
+		double rinf,rsup;
+  
+		if (x.sup()<0)
+		{
+			if (x.isPoint())
+			{ 
+				rinf=q_coth<K,E>(x.inf());
+
+					// this may be the case for x > -filib_consts<double>::q_ctht
+					if (E && fp_traits<double,K>::IsNaN(rinf))
+						return interval<double,K,E>::NEG_INFTY();
+					else
+					{
+						rsup=rinf*filib_consts<double>::q_cthm;
+						rinf*=filib_consts<double>::q_cthp;
+					}
+			}
+			else
+			{
+				rinf=q_coth<K,E>(x.sup())*filib_consts<double>::q_cthp;
+				rsup=q_coth<K,E>(x.inf())*filib_consts<double>::q_cthm;
+
+				if ( E )
+				{
+					// this may be the case for x.sup() > -filib_consts<double>::q_ctht
+					if (fp_traits<double,K>::IsNaN(rinf))
+						rinf = fp_traits<double,K>::ninfinity();
+
+					// this may be the case for x.inf() > -filib_consts<double>::q_ctht
+					if (fp_traits<double,K>::IsNaN(rsup))
+						rsup = -fp_traits<double,K>::max();
+				}
+			}
+ 
+			if (rsup>-1)
+				rsup=-1.0;
+		}    /* end  if (x.sup()<0) */
+		else if(x.inf()>0)
+		{
+			if (x.isPoint())
+			{ 
+				rinf=q_coth<K,E>(x.inf());
+
+					// this may be the case for x < filib_consts<double>::q_ctht
+					if (E && fp_traits<double,K>::IsNaN(rinf))
+						return interval<double,K,E>::POS_INFTY();
+					else
+					{
+						rsup=rinf*filib_consts<double>::q_cthp;
+						rinf*=filib_consts<double>::q_cthm;
+					}
+			}
+			else
+			{
+				rinf=q_coth<K,E>(x.sup())*filib_consts<double>::q_cthm;
+				rsup=q_coth<K,E>(x.inf())*filib_consts<double>::q_cthp;
+
+				if ( E )
+				{
+					// this may be the case for x.inf() < filib_consts<double>::q_ctht
+					if (fp_traits<double,K>::IsNaN(rsup))
+						rsup = fp_traits<double,K>::infinity();
+					// this may be the case for x.sup() < filib_consts<double>::q_ctht
+					if (fp_traits<double,K>::IsNaN(rinf))
+						rinf = fp_traits<double,K>::max();
+				}
+			}  
+
+			if (rinf<1)
+				rinf=1.0;
+		}
+		else   
+		{
+			if ( E )
+				return interval<double,K,E>::ENTIRE();
+			else
+			{
+				std::cerr << "filib: coth called with invalid argument." << std::endl;
+				std::terminate();
+			}
+		}
+
+		return interval<double,K,E>(rinf,rsup);
+	}
+}
+#endif

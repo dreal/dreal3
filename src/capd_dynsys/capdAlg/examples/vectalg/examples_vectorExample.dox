@@ -1,0 +1,176 @@
+/*! \page examples_vectorExample Vectors
+
+  This file provides a short description on how to use class Vector from CAPD package - for more details see header file "capd/vectalg/Vector.h".
+
+  Content of this file:
+- \ref ex_vect_parameters
+- \ref ex_vect_construct
+- \ref ex_vect_array
+- \ref ex_vect_Indexing
+- \ref ex_vect_Iterators
+- \ref ex_vect_norms
+- \ref ex_vect_ivectors
+
+\section ex_vect_parameters Template parameters
+
+  The template class Vector is defined in the namespace \ref capd::vectalg and it has two parameters - \b type of \b elements stored in a vector and \b capacity.<br/>
+  If capacity is larger than zero, vector is represented as an array of given length inside the object.<br/>
+  If capacity is set to zero, the capacity of a vector must be set when the object is created.
+
+\dontinclude "vectorExample.cpp"
+
+\skipline new names
+\until IVector;
+
+\section ex_vect_construct How to create a vector
+
+\skipline creates
+\until y(5)
+
+\skipline create
+\until b(4,data2);
+
+\section ex_vect_array How to create an array of vectors
+
+\skipline When
+\until DVector *tab
+
+\skipline The above
+\until tab
+
+\skipline When
+\until tab2
+
+
+
+\section ex_vect_Indexing Indexing
+One can change or access a coefficient in a vector by using operator[] or iterators. The following operations are available for vectors a,b
+\code
+   std::cout << b[i]; // prints on the screen i-th coordinate of a vector b
+   a[i] = i*i;        // sets i-th coordinate of a vector 'a' to be equal to i*i
+\endcode
+
+The index \e 'i' should be between 0 and the dimension of a vector minus 1, which can be easily obtained by a member function \e dimension as in the example below
+\code
+   for(int i=0; i<a.dimension(); ++i){
+      std::cout << "a[" << i << "]=" << a[i] << std::endl;
+      a[i] = i*i;
+      std::cout << "New value of a[" << i << "]=" << a[i] << std::endl;
+   }
+\endcode
+
+
+
+
+\section ex_vect_Iterators Iterators
+
+The other way to access a coefficient in a vector is to use iterators instead of indexing. Class Vector provides type definitions for iterators and constant iterators.
+\skipline DVector::iterator
+\until }
+
+Constant iterators for constant objects are defined in the similar way
+\skipline c(4,data1)
+\until }
+
+\section ex_vect_op Basic operations on vectors
+
+The following standard operations on vectors are available
+<pre>
+   sum: a+b
+   subtraction: a-b
+   euclidean scalar product: a*b
+   multiplication by scalar: 2*a, a*2
+   unary operator: -a
+   equality: a==b, a!=b
+</pre>
+Moreover, the standard operations like +=, -= etc. are available when possible.
+
+
+
+
+\section ex_vect_norms Norms and normalization
+
+The \e euclidean norm of a vector can be computed be using member function \b euclNorm
+\skipline   b.euclNorm()
+
+The vector can be \e normalized with respect to the euclidean norm by calling member function \b normalize
+\skipline   a.normalize();
+
+
+
+
+\section ex_vect_ivectors Operations for interval vectors only
+
+Many operations are suitable for interval vectors only. The most important are
+<ul>
+<li>
+<b>taking a center of an interval vector</b>.
+Function \b midVector returns an interval vector in which each coefficient
+is the center of the corresponding coefficient (an interval) in argument.
+\code
+   // create an interval vector
+   DInterval d1[] = {DInterval(-1.,1.), DInterval(2.,2.), DInterval(3.,3.1), DInterval(4.,4.1)};
+   IVector v1(4,d1);
+   std::cout << midVector(v1);
+   // result :  {[0,0],[2,2],[3.05,3.05],[4.05,4.05]}
+\endcode
+</li>
+<li>
+\b splitting - this operation is useful in Lohner algorithm. The function <tt>split(v1,v2)</tt> has two arguments,
+which are modified by this function in the following way (the actual implementation uses equivalent but optimized version):
+   v2 = v1-midVector(v1);
+   v1 = midVector(v1);
+After calling
+\code
+   split(v1,v2);      // assume v1 is as in the previous example
+\endcode
+one should obtain
+\code
+   v1={[0,0],[2,2],[3.05,3.05],[4.05,4.05]}
+   v2={[-1,1],[0,0],[-0.05,0.05],[-0.05,0.05]}
+\endcode
+</li>
+
+<li>
+<b>taking the left and right vectors</b>.
+Functions \b leftVector, \b rightVector return vector of left or right ends, respectively.
+After calling (with v2 as above)
+\code
+   std::cout << "\nleftVector(v2)= " << leftVector(v2) << std::endl;
+   std::cout << "rightVector(v2)= " << rightVector(v2) << std::endl;
+\endcode
+one should obtain on the screen
+\code
+   leftVector(v2)= {[-1,-1],[0,0],[-0.05,-0.05],[-0.05,-0.05]}
+   rightVector(v2)= {[1,1],[0,0],[0.05,0.05],[0.05,0.05]}
+\endcode
+</li>
+<li>
+<b>diameter of a vector</b>.
+This operation returns a vector which contains diameters of each coefficient in the argument.
+
+After calling (with v2 as above)
+\code
+   std::cout << "diam(v2) = " << diam(v2) << std::endl;
+\endcode
+one should obtain
+\code
+   diam(v2) = {[2,2],[0,0],[0.1,0.1],[0.1,0.1]}
+\endcode
+</li>
+<li>
+\b inclusions.
+There are two functions for verifying inclusions of vectors.
+Function <tt>subset(v1,v2)</tt> verifies if the set represented as interval vector v1 is a subset of v2.
+Similar function <tt>subsetInterior(v1,v2)</tt> verifies if v1 is a subset of the interior of v2.
+</li>
+<li>
+\b intersections. The function
+\code
+   template<typename IVector>
+   IVector intersection(const IVector& x, const IVector& y);
+\endcode
+returns an intersection of two interval vectors or throws an exception if their intersection is empty.
+</li>
+</ul>
+ */

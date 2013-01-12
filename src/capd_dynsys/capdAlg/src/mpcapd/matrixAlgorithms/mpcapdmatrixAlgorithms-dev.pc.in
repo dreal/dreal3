@@ -1,0 +1,11 @@
+prefix=@top_capd@
+exec_prefix=@exec_prefix@
+libdir=@abs_top_builddir@/src/mpcapd/matrixAlgorithms
+includedir=@abs_top_srcdir@/include
+
+Name: mpcapdmatrixAlgorithms
+Description: mpcapdmatrixAlgorithms module
+Requires:
+Version: @PACKAGE_VERSION@
+Libs:  ${libdir}/libmpcapdmatrixAlgorithms.a @mpcapdmatrixAlgorithms_LIBS@
+Cflags: @mpcapdmatrixAlgorithms_CFLAGS@  -I${includedir}

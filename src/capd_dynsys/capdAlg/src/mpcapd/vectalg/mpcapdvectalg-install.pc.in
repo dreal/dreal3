@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: mpcapdvectalg
+Description: mpcapdvectalg module
+Requires: capdauxil
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir}  -lmpcapdvectalg @mpcapdvectalg_LIBS@
+Cflags: @mpcapdvectalg_CFLAGS@  -I${includedir}
