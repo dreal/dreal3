@@ -3,18 +3,20 @@
 #define ICPSOLVER_H
 
 #include "literal.h"
+#include "ode_solver.h"
 
 class icp_solver
 {
 public:
 
   	icp_solver( rp_problem * p,
-		double improve, rp_selector * vs,
-		rp_splitter * ds, rp_existence_prover * ep = 0);
+                    set < string > & odes,
+                    double improve, rp_selector * vs,
+                    rp_splitter * ds, rp_existence_prover * ep = 0);
 
   	~icp_solver();
 
-  	rp_box 		compute_next();	//computation of the next solution
+  	rp_box 		compute_next(bool hasDiff); //computation of the next solution
         rp_box          prop();          //only propagate
 
   	int 		solution();	//number of solutions
@@ -33,6 +35,7 @@ private:
   	rp_selector * _vselect;    /* selection of variable to be split       */
   	rp_splitter * _dsplit;     /* split function of variable domain       */
   	rp_existence_prover * _ep; /* existence prover                        */
+        set < string > & _odes;
   	int _sol;                  /* number of computed solutions            */
   	int _nsplit;               /* number of split steps                   */
   	double _improve;           /* improvement factor of iterative methods */

@@ -4,11 +4,14 @@
 using namespace std;
 
 icp_solver::icp_solver(rp_problem * p,
-                         double improve,
-                         rp_selector * vs,
-                         rp_splitter * ds,
-                         rp_existence_prover * ep):
+                       set < string > & odes,
+                       double improve,
+                       rp_selector * vs,
+                       rp_splitter * ds,
+                       rp_existence_prover * ep
+    ):
         _problem(p),
+        _odes(odes),
         _propag(p),
         _boxes(rp_problem_nvar(*p)), //number of variables
         _vselect(vs),
@@ -85,54 +88,56 @@ rp_box icp_solver::prop()
   return( _boxes.get() );
 }
 
-rp_box icp_solver::compute_next()
+rp_box icp_solver::compute_next(bool hasDiff)
 {
 
-        cout<<"------------------"<<endl;
-        cout<<"SIZE!!!!:" << _boxes.size() << endl;
-        cout<<"The interval pruning and branching trace is:";
+    cout<<"------------------"<<endl;
+    cout<<"The interval pruning and branching trace is:";
 
-        if (_sol>0) //if you already have a solution, discard this obtained solution box and backtrack
+    if (_sol>0) //if you already have a solution, discard this obtained solution box and backtrack
+    {
+        _boxes.remove();
+    }
+    while (!_boxes.empty()) //if there's no more box on the stack, you are done with compute_next
+    {
+
+    /*moved the following lines to rp_prop
+      cout<<endl<<"[before pruning] "<<endl;
+      rp_box_cout(_boxes.get(), 5, RP_INTERVAL_MODE_BOUND );
+    */
+        if (_propag.apply(_boxes.get()))
         {
-                _boxes.remove();
+            if (hasDiff) {
+                ode_solver odeSolver(_odes);
+                if (odeSolver.solve(_boxes.get()))
+                {
+                    int i;
+                    if ((i=_vselect->apply(_boxes.get()))>=0)
+                    {
+                        ++_nsplit;
+                        _dsplit->apply(_boxes,i);
+
+                        //monitoring
+                        cout<<endl<<"[branched on x"<<i<<"]"<<endl;
+                        //rp_box_cout(_boxes.get(), 5, RP_INTERVAL_MODE_BOUND );
+
+                    }
+                    else
+                    {
+                        ++_sol;
+                        if (_ep) _ep->prove(_boxes.get());
+                        return( _boxes.get() );
+                    }
+                }
+            }
         }
-        while (!_boxes.empty()) //if there's no more box on the stack, you are done with compute_next
+        else
         {
-
-/*moved the following lines to rp_prop
-                cout<<endl<<"[before pruning] "<<endl;
-                rp_box_cout(_boxes.get(), 5, RP_INTERVAL_MODE_BOUND );
-*/
-
-                if (_propag.apply(_boxes.get()))
-                {
-                        int i;
-                        if ((i=_vselect->apply(_boxes.get()))>=0)
-                        {
-                                ++_nsplit;
-                                _dsplit->apply(_boxes,i);
-
-                                //monitoring
-                                cout<<endl<<"[branched on x"<<i<<"]"<<endl;
-                                //rp_box_cout(_boxes.get(), 5, RP_INTERVAL_MODE_BOUND );
-
-
-
-                        }
-                        else
-                        {
-                                ++_sol;
-                                if (_ep) _ep->prove(_boxes.get());
-                                return( _boxes.get() );
-                        }
-                }
-                else
-                {
-                        cout<<"[conflict detected]"<<endl;
-                        _boxes.remove();
-                }
+            cout<<"[conflict detected]"<<endl;
+            _boxes.remove();
         }
-        return( NULL );
+    }
+    return( NULL );
 }
 
 int icp_solver::solution()
