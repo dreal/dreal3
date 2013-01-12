@@ -4,6 +4,7 @@
 #include "TSolver.h"
 #include "Egraph.h"
 #include "icp_solver.h"
+#include "variable.h"
 
 class NRASolver : public OrdinaryTSolver
 {
@@ -29,7 +30,9 @@ public:
 
   	void            computeModel        	( );
 
-	void	 	get_variables	( Enode * , vector< variable * > & );
+//	void	 	get_variables	( Enode * , vector< variable *> & );
+        set<variable *> get_variables   (Enode * e, vector<variable *> & vl);
+
 	variable *	add_variable	( Enode * );
 
 	void		add_literal	( Enode * );
@@ -51,7 +54,8 @@ private:
 	rp_problem * 		_problem;
         bool                    _contain_ode;
 
-        set < string >       _odes;
-
+        set < string >           _odes;
+        set < variable* >       _ode_vars;
+        map < Enode*, set < variable* > > _enode_to_vars;
 };
 #endif

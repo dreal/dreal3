@@ -41,7 +41,7 @@ bool NRASolver::icp_prop(rp_problem * p)
   rp_splitter * split;
   rp_new( split, rp_splitter_mixed, (p) );
 
-  icp_solver solver( (p), _odes, 10, select, split);
+  icp_solver solver( (p), _odes, _ode_vars, 10, select, split);
   _solver = &solver;	//solver created
 
   if (!rp_box_empty(rp_problem_box(*p)))
@@ -79,7 +79,7 @@ bool NRASolver::icp_solve(rp_problem * p)
 	rp_splitter * split;
 	rp_new( split, rp_splitter_mixed, (p) );
 
-	icp_solver solver( (p), _odes, 10, select, split);
+	icp_solver solver( (p), _odes, _ode_vars, 10, select, split);
 	_solver = &solver;	//solver created
 
 	if (rp_box_empty(rp_problem_box(*p)))
@@ -153,36 +153,99 @@ variable * NRASolver::add_variable( Enode * e )
 	return var;
 }
 
-
-void NRASolver::get_variables(Enode * e, vector<variable *> & vl)
+set<variable *> NRASolver::get_variables (Enode * e, vector<variable *> & vl)
 {
+    set<variable *> result;
+    Enode * p = NULL;
+    if( e->isSymb( ) ) {
+        // do nothing
+    }
+    else if ( e->isNumb( ) )
+    {
+        // do nothing
+    }
+    else if ( e->isTerm( ) )
+    {
+        if ( e -> isVar() ) {
+            variable * var = add_variable( e );
+            if (var != NULL ) vl.push_back(var);
 
-  Enode * p = NULL;
+            // Check it ends with "_t" or "_0".
+            string name = e->getName();
+            if (boost::algorithm::ends_with(name, "_0") ||
+                boost::algorithm::ends_with(name, "_t")) {
+                result.insert(var);
+            }
+        }
 
-  if ( e -> isTerm( ) )
-  {
-	if ( e -> isVar() )
-	{
-		variable * var = add_variable( e );
-		if (var != NULL ) vl.push_back(var);
-	    	get_variables( e->getCar(), vl );
-    	}
+        set <variable*> tmp_set = get_variables(e->getCar(), vl);
+        result.insert(tmp_set.begin(), tmp_set.end());
+        p = e->getCdr();
+        while ( !p->isEnil( ) )
+        {
+            tmp_set = get_variables(p->getCar(), vl);
+            result.insert(tmp_set.begin(), tmp_set.end());
+            p = p->getCdr();
+        }
+    }
+    else if ( e->isList( ) )
+    {
+        if ( !e->isEnil( ) )
+        {
+            set <variable*> tmp_set = get_variables(e->getCar(), vl);
+            result.insert(tmp_set.begin(), tmp_set.end());
 
-	p = e -> getCdr();
-
-	while ( !p->isEnil( ) )
-    	{
-		get_variables( p->getCar(), vl );
-      		p = p -> getCdr() ;
-    	}
-  }
+            p = e->getCdr();
+            while ( !p->isEnil( ) )
+            {
+                tmp_set = get_variables(p->getCar(), vl);
+                result.insert(tmp_set.begin(), tmp_set.end());
+                p = p->getCdr();
+            }
+        }
+    }
+    else if ( e->isDef( ) )
+    {
+        // do nothing
+    }
+    else if ( e->isEnil( ) )
+    {
+        // do nothing
+    }
+    else
+        opensmt_error( "unknown case value" );
+    return result;
 }
+// void NRASolver::get_variables(Enode * e, vector<variable *> & vl)
+// {
+
+//   Enode * p = NULL;
+
+//   if ( e -> isTerm( ) )
+//   {
+// 	if ( e -> isVar() )
+// 	{
+// 		variable * var = add_variable( e );
+// 		if (var != NULL ) vl.push_back(var);
+// 	    	get_variables( e->getCar(), vl );
+//     	}
+
+// 	p = e -> getCdr();
+
+// 	while ( !p->isEnil( ) )
+//     	{
+// 		get_variables( p->getCar(), vl );
+//       		p = p -> getCdr() ;
+//     	}
+//   }
+// }
 
 void NRASolver::pop_literal ( )
 {
   literal * lit = assigned_lits.back();
   assigned_lits.pop_back();
   _odes.clear();
+  _ode_vars.clear();
   rp_vector_pop(rp_problem_ctrs(*_problem),*(lit->_c));
 }
 
@@ -202,8 +265,16 @@ void NRASolver::add_literal ( Enode * e )
     const char* infix_cstr = infix_str.c_str();
     lit->mk_constraint( infix_cstr );
 
-    const set<string> ode_in_lit = e->getODEs();
-    _odes.insert(ode_in_lit.begin(), ode_in_lit.end());
+    if(_contain_ode) {
+        // add corresponding ODEs to _odes
+        const set<string> ode_in_lit = e->getODEs();
+        _odes.insert(ode_in_lit.begin(), ode_in_lit.end());
+
+        // add corresponding ODE variables to _odes_vars
+        const set<variable*> ode_vars_in_lit = _enode_to_vars[e];
+        _ode_vars.insert(ode_vars_in_lit.begin(), ode_vars_in_lit.end());
+    }
+
     assigned_lits.push_back(lit);
     rp_vector_insert(rp_problem_ctrs(*_problem),*(lit->_c));
 
@@ -216,9 +287,7 @@ void NRASolver::add_literal ( Enode * e )
 
 set<string> retrieve_ode_set(map <string, string> & m, Enode * e)
 {
-    boost::algorithm::ends_with("mystring", "ing");
     set<string> result;
-
     Enode * p = NULL;
     if( e->isSymb( ) ) {
         // Check it ends with "_t" or "_0".
@@ -283,16 +352,18 @@ set<string> retrieve_ode_set(map <string, string> & m, Enode * e)
 //
 lbool NRASolver::inform( Enode * e )
 {
-    if (contain_ode()) {
-        // update ODE set of e
-        retrieve_ode_set(egraph.var_to_ode, e);
-    }
-
     cerr << "inform: " << e << endl;
     assert( e -> isAtom() );
 
-    get_variables( e, v_list );
+    set<variable *> ode_vars = get_variables( e, v_list );
 //  add_literal ( e, l_list );
+
+    if (contain_ode()) {
+        // update ODE set of e
+        e->setODEs(retrieve_ode_set(egraph.var_to_ode, e));
+        // update a mapping from `e` to the corresponding ODE vars.
+        _enode_to_vars.insert( std::pair<Enode*, set<variable*> >(e, ode_vars ) );
+    }
 
     cout << " has polarity " << toInt(e->getPolarity()) << " "<<endl;
 
