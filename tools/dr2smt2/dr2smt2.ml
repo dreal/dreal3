@@ -10,11 +10,25 @@ let spec = [("-i", Arg.Unit (fun () -> Dr.fop := Dr.IntRatio),
            ]
 let usage = "Usage: dr2smt2.native <.dr>\n"
 
-let process out (vardecls : Vardecl.t list) (odes: Ode.t list) (f : Dr.formula) =
-  begin
+let process
+    out
+    (vardecls : Vardecl.t list)
+    (odes_opt: (Ode.t list) option)
+    (f : Dr.formula) =
     (* Set Logic *)
     (* TODO: support QF_NRA_ODE *)
-    BatString.println out "(set-logic QF_NRA)";
+  begin
+    let contain_ode =
+      match odes_opt with
+      | Some _ -> true
+      | None   -> false
+    in
+    let logic_string =
+      match contain_ode with
+      | true  -> "QF_NRA_ODE"
+      | false -> "QF_NRA"
+    in
+    BatString.println out ("(set-logic " ^ logic_string ^ ")");
 
     (* Declare variables *)
     List.iter (fun (_, v) ->
@@ -26,13 +40,16 @@ let process out (vardecls : Vardecl.t list) (odes: Ode.t list) (f : Dr.formula) 
       vardecls;
 
     (* ODEs *)
-    BatList.print
+    match odes_opt with
+    | Some odes  ->
+      BatList.print
       (~first:"")
       (~sep:"\n")
-      (~last:"\n")
-      Ode.print
-      out
-      odes;
+        (~last:"\n")
+        Ode.print
+        out
+        odes;
+    | None -> ();
 
     (* Assert *)
     BatString.println out "(assert";
@@ -42,8 +59,8 @@ let process out (vardecls : Vardecl.t list) (odes: Ode.t list) (f : Dr.formula) 
     List.iter (fun ((lb, ub), v) ->
       Dr.print_formula out
         (Dr.And
-          [Dr.Le(Dr.Const lb, Dr.Var v);
-          Dr.Le(Dr.Var v, Dr.Const ub)]
+           [Dr.Le(Dr.Const lb, Dr.Var v);
+            Dr.Le(Dr.Var v, Dr.Const ub)]
         ))
       vardecls;
 
@@ -67,8 +84,8 @@ let run () =
     Error.init ();
     let lexbuf =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
-    let (vardecls, odes, formula) = Parser.main Lexer.main lexbuf in
+    let (vardecls, odes_opt, formula) = Parser.main Lexer.main lexbuf in
     let out = BatIO.stdout in
-    process out vardecls odes formula
+    process out vardecls odes_opt formula
   with v -> Error.handle_exn v
 let _ = Printexc.catch run ()
