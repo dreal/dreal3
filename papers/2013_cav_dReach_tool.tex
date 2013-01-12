@@ -13,6 +13,17 @@
 %\setlength{\oddsidemargin}{.4in}
 %\setlength{\evensidemargin}{.4in}
 
+\newcommand{\flow}{\mathsf{flow}}
+\newcommand{\jump}{\mathsf{jump}}
+\newcommand{\inv}{\mathsf{inv}}
+\newcommand{\init}{\mathsf{init}}
+\newcommand{\guard}{\mathsf{guard}}
+\newcommand{\reset}{\mathsf{reset}}
+\newcommand{\reach}{\mathsf{Reach}}
+\newcommand{\unsafe}{\mathsf{unsafe}}
+\newcommand{\safe}{\mathsf{safe}}
+
+
 \title{{\tt dReach}: A Reachability Analysis Tool for Nonlinear Hybrid Systems}
 \author{Sicun Gao \and Soonho Kong \and Edmund M. Clarke}
 \institute{Carnegie Mellon University, Pittsburgh, PA 15213}
@@ -69,6 +80,25 @@ descriptions. This follows our framework of $\delta$-reachability
 analysis~\cite{}. Essentially, 
 
 \section{Using {\tt dReach}}
+\begin{figure}[h!]
+\label{dreach}
+\begin{verbatim}
+#file automata_example.drh
+[1,10] x; [-10, 311] y; [0, 21] t;
+%%
+{   mode: 1;
+    dynamics: [d/dt]x = x + y; [d/dt]y = x*y - 10;
+    jump: x>10 ==> @2 (= x' (+ (* 5 x) y)); (< y 5) ==> @2 (= y' x*y);
+}
+{   mode: 2;
+    dynamics: [d/dt]x = y; [d/dt]y = sin(x);
+    jump: x<5 ==> @1 (= x' 1); y>10 ==> @2 (= y' 2);
+}    
+%%
+x>10 | y<10 ;
+\end{verbatim}
+\caption{dReach file example automata\_example.drh}
+\end{figure}
 
 The input format of the tool is defined as follows. 
 \begin{verbatim}
@@ -131,26 +161,110 @@ Safety properties can be given by any first-order formula. For instance
 x < 10 & y+x^2 > 5;
 \end{verbatim}
 is a legitimate safety property. 
+
+\newpage
+
+\section{Compact Format}
+
+\begin{verbatim}
+<variable_declaration>
+%%
+<automaton_declaration>
+%%
+<property_declaration>
+\end{verbatim}
+$\flow$ is given for each mode separately. 
+\begin{verbatim}
+flow:
+@1
+{
+[d/dt] x = y;
+[d/dt] y = (* 2 x);
+}
+
+@2
+{
+[d/dt] x = (- 1 y);
+[d/dt] y = x;
+}
+\end{verbatim}
+$\jump$ is given as follows.
+\begin{verbatim}
+jump:
+(> x 0) ==> @2 (and (= x' x) (= y' x));
+(< x 0) ==> @1 (= x' x);
+\end{verbatim}
+Note that when the assumptions overlap, it means a nondeterministic choice, not
+with respet to the mode itself. Note that the assumptions do not have numbers
+in them. 
+
+The invariant conditions are coupled with the flows. 
+\begin{verbatim}
+inv:
+@1 (> x 0);
+@2 (< y 0);
+\end{verbatim}
+The initial conditions is
+\begin{verbatim}
+init:
+@1 (< x 0);
+\end{verbatim}
+
+
+\paragraph{Unwinding} The automaton is unrolled as follows. 
+
+Suppose there are $m$ modes. Suppose we have invariants but do not check them
+until the end points. 
+
+The transition relation is the following formula
+$$\mathsf{Trans}(\vec x_i^t, \vec x_{i+1}^t) = \bigvee_{j=1}^m (\jump_j(\vec
+x_i^t, \vec x_{i+1}) \wedge \flow_j(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1})
+\wedge \inv_j(\vec x_{i+1}^t))$$
+and the whole formula is
+$$\reach_{k} = \init(\vec x_0)\wedge \flow_1(\vec x_0, \vec x_0^t)\wedge 
+\bigwedge_{i=0}^{k-1} \mathsf{Trans}(\vec x_i^t, \vec x_{i+1}^t)\wedge
+\unsafe(\vec x_{k}^t)$$
+
+In all, an example:
 \begin{figure}[h!]
 \label{dreach}
 \begin{verbatim}
-#file automata_example.drh
+#file compact_automata_example.drh
 [1,10] x; [-10, 311] y; [0, 21] t;
 %%
-{   mode: 1;
-    dynamics: [d/dt]x = x + y; [d/dt]y = x*y - 10;
-    jump: x>10 ==> @2 (= x' (+ (* 5 x) y)); (< y 5) ==> @2 (= y' x*y);
+flow:
+@1
+{
+[d/dt] x = y;
+[d/dt] y = (* 2 x);
 }
-{   mode: 2;
-    dynamics: [d/dt]x = y; [d/dt]y = sin(x);
-    jump: x<5 ==> @1 (= x' 1); y>10 ==> @2 (= y' 2);
-}    
+
+@2
+{
+[d/dt] x = (- 1 y);
+[d/dt] y = x;
+}
+jump:
+(> x 0) ==> @2 (and (= x' x) (= y' x));
+(< x 0) ==> @1 (= x' x);
+inv:
+@1 (> x 0);
+@2 (< y 0);
+init:
+@1 (< x 0);
 %%
-x>10 | y<10 ;
+goal:
+(< x 0);
 \end{verbatim}
-\caption{dReach file example automata\_example.drh}
+\caption{Compact dReach file example automata\_example.drh}
 \end{figure}
 
+
+
+
+
+
+\newpage
 \section{Design and Implementation}
 
 {\tt dReach} consists of a front end that encodes the verification problems
@@ -162,6 +276,11 @@ $\delta$-decisions on the formulas.
 \subsection{Encoding Bounded Model Checking}
 
 \subsection{Encoding Invariant Validation}
+
+
+
+
+
 
 \subsection{The Underlying Decision Procedures}
 

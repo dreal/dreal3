@@ -22,13 +22,14 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\lrf}{\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}}
 
+
 \setlength{\textwidth}{5.1in}
 %\setlength{\textheight}{8.2in}
 %\setlength{\topmargin}{0in}
 \setlength{\oddsidemargin}{.7in}
 \setlength{\evensidemargin}{.7in}
 
-\title{$\delta$-Complete Reachability Analysis of Hybrid Systems}
+\title{Bounded $\delta$-Reachability for Hybrid Systems}
 \author{Sicun Gao \and Soonho Kong \and Edmund M. Clarke}
 \institute{Carnegie Mellon University, Pittsburgh, PA 15213}
 
@@ -43,10 +44,10 @@ one-sided and ``$\delta$-bounded'' errors. Such techniques can exploit the full
 power of various numerical algorithms in a formal way, and are applicable to any
 hybrid system that can be described using first-order formulas over the reals
 with any computable real functions (polynomials, transcendental functions,
-nonlinear ODEs, etc.). Applying our recent results on $\delta$-complete decision
-procedures, we show how bounded model checking and invariant validation
-techniques can perform $\delta$-complete analysis, and study the theoretical
-properties of these techniques in this context. We show promising experimental
+nonlinear ODEs, etc.). We show how bounded model checking can be
+applied in its full scale to perform $\delta$-complete analysis to a broad range
+of hybrid systems, and study the theoretical properties of the problems.
+We show promising experimental
 results of $\delta$-complete methods on nonlinear hybrid systems. 
 \end{abstract}
 
@@ -87,7 +88,8 @@ broaden our
 perspectives for hybrid system verification in theory and practice, in the
 following aspects.   
 
-First of all, the study of first-order theories with arbitrary computable real functions provides us a rich language for describing hybrid systems. 
+1. The study of first-order theories with arbitrary computable real
+functions provides us a rich language for describing hybrid systems. 
 We define $\lrf$-representable hybrid systems, where $\mathcal{F}$ is any set
 of computable functions. Existing classes of hybrid systems can all be easily
 defined by restricting $\mathcal{F}$. The $\lrf$-representations are
@@ -96,7 +98,8 @@ hybrid systems. Also, a notion of perturbations on hybrid systems is naturally d
 through syntactic perturbations on their $\lrf$-representations, which will be the key
 for unifying with our notion of $\delta$-decisions. 
 
-Second, we introduce notion of $\delta$-complete reachability analysis. Reachability 
+2. We introduce notion of $\delta$-complete reachability analysis.
+Reachability 
 asks whether a system can reach a region in its state space in
 any possible trajectory, while $\delta$-reachability asks whether this can
 happen if we consider a $\delta$-perturbation on the system. We give the general encoding for logic problems, and
@@ -104,7 +107,7 @@ study the complexity of bounded model checking and invariant validation through
 their representation as decision problems in the correponding first-order
 theories. {\bf (More details here)}
 
-Thrid, the framework and theoretical results directly lead to the development of 
+3. The framework and theoretical results directly lead to the development of 
 practical tools that can solve $\delta$-reachability problems. The verification
 problems are encoded as decision problems of logic formulas, which can be solved
 using $\delta$-complete decision procedures. We present
@@ -839,18 +842,58 @@ where $q_1,...,q_{n-1}$ are random modes in $Q$ ($q_0$ is always the initial one
 & &\wedge \unsafe(\vec x_{n-1}')\Big)
 \end{eqnarray*}
 where $q_1,...,q_{n-1}$ are random modes in $Q$. Using a nondeterministic Turing machine, such a formula is first selected in polynomial time, and its truth value is $\delta$-decided as a $\Sigma_2$-sentence. Thus similarly as the invariant-free case, it follows from Theorem~\ref{compmain} and Corollary~\ref{Completeness} that the $\delta$-reachability problem is $\mathsf{\Sigma_2^C}$-complete. 
-
 \end{proof}
 
 \begin{remark}
 The input parameters of the $\delta$-reachability problem are: the depth $n$, the time bound $T$, the length of the $\lrf$-description of $H$, and the error bound $\delta$. 
 \end{remark}
 
+\section{Discussions}
+
+We believe the notion of $\delta$-complete methods lead to a new framework that
+resolves other problems as well, which can be of considerable theoretical
+interest. Currently the precise versions of these problems are open, but we
+believe in a $\delta$-perturbed picture they all allow definite answers. We
+will show discuss these directions for short and leave some conjectures here. 
+
+\paragraph{Invariant Validation}
+Suppose the automaton is given as 
+$$H = \langle X, Q, \flow, \jump, \inv, \init \rangle$$
+where we assume that for each $q$, $flow_q$ is given as a solution of
+$$d\vec x/dt = f(\vec x, t)$$
+\begin{definition}[$\delta$-Invariants]
+
+\end{definition}
+
+\begin{conjecture} 
+ There is a simple set of proof rules that can prove $\delta$-Invariants for
+any $\lrf$-representable hybrid systems. 
+\end{conjecture}
+
+\begin{proposition}
+Suppose Conjecture~\ref{} is true, then the $\delta$-invariant problem for
+hybrid systems is in $\Pi_1$. 
+\end{proposition}
+
+\paragraph{Zeno Behaviors}
+\begin{conjecture}
+In a bounded domain, for any Zeno system $H$, there exists a non-Zeno system
+$H'$ such that $H$ $\delta$-reaches $U$ if and only if $H'$ $\delta$-reaches
+$U$.  
+\end{conjecture}
+Note that the condition of bounded domain is important. It is possible to
+define an extra dimension that does not converge. This is usually not the case
+considered in research of Zeno behaviors. 
+
+\begin{proposition}
+Suppose Conjecture~\ref{} is true, then bounded-Time Reachability of 
+$\lrf$-representable hybrid systems is decidable. 
+\end{proposition}
+We have only proved that bounded-depth and bounded-time together lead to
+decidability. If there is no Zeno behaviors, then bounded time implies bounded
+depth. 
 
 
-
-
-\section{Invariant Validation}
 
 \section{Experiments}
 
