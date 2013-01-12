@@ -1,14 +1,27 @@
 //solver for ODEs
 
 #include "ode_solver.h"
+#include "capd/capdlib.h"
 using namespace capd;
+using namespace std;
+
+ode_solver::ode_solver(set < string > & odes ) :
+    _odes(odes)
+{
+}
+
+ode_solver::~ode_solver()
+{
+
+}
+
 
 bool ode_solver::solve(rp_box box)
 {
     cout.precision(12);
     try {
         // 1. Construct diff_sys, which are the ODE
-        string diff_sys;           //, diff_var, diff_fun;
+        string diff_sys, diff_var, diff_fun;
         std::vector<Enode *>  diff_list;
         std::vector<Enode *>  diff_var_list;
         std::map<int, int>    variables_to_intervals;
