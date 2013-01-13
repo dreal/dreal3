@@ -86,3 +86,17 @@ capdDynSys/include/capd/config-capdDynSys.h.in
 capdDynSys/tests/config.h.in
 capdExt/include/capd/config-capdExt.h.in
 capdMake/compile
+capdAlg/examples/BigIntegers/MpIntExample
+capdAlg/src/mpcapd/intervals/mpcapdintervals.pc
+capdAlg/src/mpcapd/matrixAlgorithms/mpcapdmatrixAlgorithms.pc
+capdAlg/src/mpcapd/mpcapdAlg.pc
+capdAlg/src/mpcapd/vectalg/mpcapdvectalg.pc
+capdDynSys/src/mpcapd/diffAlgebra/mpcapddiffAlgebra.pc
+capdDynSys/src/mpcapd/diffIncl/mpcapddiffIncl.pc
+capdDynSys/src/mpcapd/dynset/mpcapddynset.pc
+capdDynSys/src/mpcapd/dynsys/mpcapddynsysm.pc
+capdDynSys/src/mpcapd/geomset/mpcapdgeomset.pc
+capdDynSys/src/mpcapd/map/mpcapdmap.pc
+capdDynSys/src/mpcapd/mpcapdDynSys.pc
+capdMake/libcapd/mpcapd-config
+capdMake/libcapd/mpcapd.pc
