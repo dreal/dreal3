@@ -37,18 +37,21 @@
 \maketitle
 
 \begin{abstract}
-We propose the framework of ``$\delta$-complete reachability analysis'' for a
-wide range of hybrid systems. Essentially, a reachability analysis technique is
-called $\delta$-complete if it provides answers with possible but only
-one-sided and ``$\delta$-bounded'' errors. Such techniques can exploit the full
-power of various numerical algorithms in a formal way, and are applicable to any
-hybrid system that can be described using first-order formulas over the reals
-with any computable real functions (polynomials, transcendental functions,
-nonlinear ODEs, etc.). We show how bounded model checking can be
-applied in its full scale to perform $\delta$-complete analysis to a broad range
-of hybrid systems, and study the theoretical properties of the problems.
-We show promising experimental
-results of $\delta$-complete methods on nonlinear hybrid systems.
+We study the bounded ``$\delta$-reachability'' problem for a broad
+range of nonlinear hybrid systems. Let $\delta$ denote
+a desirable error bound, we say a hybrid system $H$ can $\delta$-reach a set
+$U$ if under some $\delta$-perturbation, $H^{\delta}$ reaches
+$U^{\delta}$, which are formally defined on their representations
+($\lrf$-representations) given by first-order formulas over the reals. We show
+how bounded model checking can solve the bounded $\delta$-reachability problem,
+and study theoretical properties of the problem using our recent
+results of bounded $\delta$-decidability of first-order theories over the reals
+with arbitrary computable real functions (polynomials, transcendental functions,
+nonlinear ODEs, etc.). Following this new framework, practical verification
+tools can be developed using powerful decision procedures that exploit
+the full power of numerical algorithms in a formal way. We show promising
+experimental results of such techniques on nonlinear hybrid systems. 
+
 \end{abstract}
 
 \section{Introduction}
@@ -57,74 +60,91 @@ Hybrid systems combine discrete and continuous components to
 model cyber-physical systems. Formal verification of hybrid systems is
 important and challenging. It is well known that safety verification
 problems for hybrid systems with simple dynamics are undecidable (high up in the
-analytic hierarchy)~\cite{}. In practice, systems with constant-rate dynamics
+analytic
+hierarchy)~\cite{DBLP:journals/tse/AlurHH96,DBLP:journals/jcss/HenzingerKPV98,DBLP:journals/tcs/Bournez99}. In practice, systems
+with constant-rate dynamics
 and some systems with linear dynamics (but simple discrete control structures)
-can often be handled algorithmically~\cite{}; proof-theoretic approaches
-can verify some nonlinear systems with manual help~\cite{}.
-The gap between existing technology
-and the goal of automatic verification of realistic hybrid systems on a
+can often be handled
+algorithmically~\cite{DBLP:journals/tse/AlurHH96,lpw:sttt97,DBLP:conf/hybrid/ChutinanK99,DBLP:conf/hybrid/AsarinDMB00,DBLP:conf/cav/AsarinDM02,DBLP:conf/hybrid/GirardGM06,DBLP:conf/cav/GuernicG09}; proof-theoretic
+approaches can verify some nonlinear systems after manual analysis~\cite{DBLP:journals/logcom/Platzer10,DBLP:conf/hybrid/Sankaranarayanan10}.
+However, the gap between existing technology
+and the goal of automatic verification of realistic hybrid systems of a
 reasonable scale is still wide.
 
 We recently developed a new approach~\cite{} for reasoning about
-nonlinear first-order theories over the reals, which is a bottleneck problem
-for hybrid systems verification. These nonlinear theories are well-known to be
-very hard or undecidable~\cite{}. We proposed a change of
-framework and defined the notion of ``$\delta$-decision problems'' for these
-theories. We say a theory is $\delta$-decidable if there is an algorithm that
-can decide, given any sentence $\varphi$ in the theory, whether $\varphi$ is
+nonlinear first-order theories over the reals, which is a bottleneck problem in
+hybrid systems verification. The decision problem for these nonlinear theories
+are well-known to be very
+hard or undecidable~\cite{}. We studied the
+``$\delta$-decision'' problem for these
+theories instead. A theory is $\delta$-decidable, if an algorithm can decide, 
+given any sentence $\varphi$ in the theory, whether $\varphi$ is
 false or some $\delta$-relaxation of $\varphi$ is true. This slight relaxation
-of the standard decision problem leads to a new and positive outlook. We proved
+ leads to a very different and positive outlook.
+We proved
 that bounded
-sentences over the reals with arbitrary computable real functions (such as
-polynomials, transcendental functions, solutions of Lipschitz-continuous ODEs) are
+sentences over the reals with any computable real functions (as
+defined in computable analysis~\cite{CAbook}, including polynomials,
+transcendental functions, solutions of Lipschitz-continuous ODEs, etc.) are
 $\delta$-decidable, with reasonable complexity bounds. This framework serves as
 a theoretical basis for the development of numerically-driven decision
 procedures, which can exploit the full power of efficient numerical algorithms
 and still provide formal correctness guarantees. Such solvers
 have shown very promising performance~\cite{}.
 
-In this paper we show how the results of $\delta$-decidability significantly
-broaden our
-perspectives for hybrid system verification in theory and practice, in the
-following aspects.
+In this paper, we show how $\delta$-decidability results can broaden our
+perspective on hybrid system verification in the following aspects.
 
 1. The study of first-order theories with arbitrary computable real
-functions provides us a rich language for describing hybrid systems.
-We define $\lrf$-representable hybrid systems, where $\mathcal{F}$ is any set
-of computable functions. Existing classes of hybrid systems can all be easily
-defined by restricting $\mathcal{F}$. The $\lrf$-representations are
-then interpreted to define hybrid trajectories, as a precise semantics for
-hybrid systems. Also, a notion of perturbations on hybrid systems is naturally defined
-through syntactic perturbations on their $\lrf$-representations, which will be the key
-for unifying with our notion of $\delta$-decisions.
+functions equips us with a rich language for describing hybrid systems.
+We define $\lrf$-representable hybrid systems,
+where $\mathcal{F}$ can be any set of computable real functions. The classes of
+hybrid systems that have been studied in the existing literature can all be
+easily defined by restricting $\mathcal{F}$. The $\lrf$-representations are then
+interpreted to generate hybrid trajectories~\cite{}, which are mappings between
+a two-dimensional time structure and the Euclidean space, as a precise semantics
+of hybrid systems. We further define the notion of perturbations on hybrid
+systems as syntactic perturbations on their $\lrf$-representations, which
+provides the key link to $\delta$-decidability results. 
 
-2. We introduce notion of $\delta$-complete reachability analysis.
-Reachability
-asks whether a system can reach a region in its state space in
-any possible trajectory, while $\delta$-reachability asks whether this can
-happen if we consider a $\delta$-perturbation on the system. We give the general encoding for logic problems, and
-study the complexity of bounded model checking and invariant validation through
-their representation as decision problems in the corresponding first-order
-theories. {\bf (More details here)}
+2. We then define the $\delta$-reachability problem as a one-sided
+relaxation of the standard reachability problem. Let $\delta\in \mathbb{Q}^+$ be
+arbitrary. Give a hybrid system $H$ and a region $U$ of its state
+space, both $\lrf$-represented, the $\delta$-reachability problem asks for
+one of the following answers:
+\begin{itemize}
+ \item {\sf safe}: $H$ can not reach $U$.
+ \item {\sf $\delta$-unsafe}: Under some $\delta$-perturbation, $H^{\delta}$ can
+reach $U^{\delta}$. 
+\end{itemize}
+Note that these answers are in fact not weaker than the precise ones. When {\sf
+safe} is the answer, we know for certain that $H$ does not reach the unsafe
+region; when {\sf $\delta$-unsafe} is the answer, we know that there exists some
+$\delta$-bounded perturbation in the system that would render it unsafe. Since
+the error-bound $\delta$ can be chosen to be arbitrarily small, the
+$\delta$-unsafe answer discovers robustness problem in the original system,
+which should be regarded as unsafe in practice. We show how to encode the
+problem of bounded $\delta$-reachability as $\lrf$-sentences, so that bounded
+model checking can be performed using decision procedures. Using results on
+$\delta$-decidability of the underlying first-order theories, We prove that the
+bounded $\delta$-reachability problem is decidable for arbitrary
+$\lrf$-representable hybrid systems, with complexity bounds
+$\mathsf{NP^C}$ (trivial invariants) and $\mathsf{(\Sigma_2^P)^C}$ (general
+case) where $\mathsf{C}$ is the complexity class that $\mathcal{F}$ lies in.
+Compared to the undecidability of reachability in simple classes of hybrid
+systems, our results lead to a new and reasonably positive outlook for
+general hybrid system verification. In addition, we also discuss implications
+of $\delta$-decisions for proof-theoretic (invariant-validation) techniques and
+elimination of Zeno behaviors. 
 
-3. The framework and theoretical results directly lead to the development of
-practical tools that can solve $\delta$-reachability problems. The verification
-problems are encoded as decision problems of logic formulas, which can be solved
-using $\delta$-complete decision procedures. We present
-promising experimental results on various nonlinear benchmarks.
-
-The paper is organized as follows. In Section~\ref{} we briefly review results
-about computable real functions and $\delta$-decidability results over the
-reals. We then give a formal description of the language using $\lrf$-formulas
-for representing hybrid systems, and reachability problems. In Section~\ref{} we
-analyze bounded model checking in detail, study its complexity. In
-Section~\ref{} we do the same for invariant validation techniques. As last we
-show experimental results in Section~\ref{} and conclude in Section~\ref{}.
+3. The theoretical framework directly leads to practical techniques for solving
+$\delta$-reachability of nonlinear hybrid systems. Since the verification
+problem is encoded as decision problems of $\lrf$-formulas, using a
+powerful decision procedure, we observe promising experimental results on many
+nonlinear hybrid systems. 
 
 \paragraph{Related Work}
-It is sometimes argued that the difficulty with the theory and practice
-of verifying hybrid systems has its root in the fact that we are dealing with
-too hard a problem. Formal work along this line started in the work~\cite{}.
+Formal work along this line started in the work~\cite{}.
 Franzle defined a notion of noise in hybrid systems, and proved that problems
 with polynomial maps are solvable in a compact space. Raschan later generalizes
 this result in \cite{} and obtained more positive result
@@ -132,7 +152,7 @@ this result in \cite{} and obtained more positive result
 the definition of noise or approximations. For instance, in \cite{} it is shown
 that other definitions of noise and robustness still leads to undecidability.
 These results are in general theoretical in nature and does not lend themselves
-to practical solving techniques.
+to practical solving techniques. {\bf More papers on nonlinear tools ()}
 
 
 
@@ -274,7 +294,8 @@ new perspective on decision problems over the reals in general.
 This framework provides a theoretical basis for the development of
 numerically-driven decision procedures such as~\cite{}.
 
-\section{Hybrid Systems, $\lrf$-Representations, and Reachability}
+\section{Hybrid Systems, $\lrf$-Representations, and
+Reachability}\label{language}
 
 \subsection{Basic Definitions}
 
