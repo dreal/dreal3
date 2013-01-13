@@ -16,7 +16,6 @@ let process
     (odes_opt: (Ode.t list) option)
     (f : Dr.formula) =
     (* Set Logic *)
-    (* TODO: support QF_NRA_ODE *)
   begin
     let contain_ode =
       match odes_opt with
@@ -40,16 +39,18 @@ let process
       vardecls;
 
     (* ODEs *)
-    match odes_opt with
-    | Some odes  ->
-      BatList.print
-      (~first:"")
-      (~sep:"\n")
-        (~last:"\n")
-        Ode.print
-        out
-        odes;
-    | None -> ();
+    begin
+      match odes_opt with
+      | Some odes  ->
+        BatList.print
+          (~first:"")
+          (~sep:"\n")
+          (~last:"\n")
+          Ode.print
+          out
+          odes;
+      | None -> ();
+    end;
 
     (* Assert *)
     BatString.println out "(assert";
@@ -86,6 +87,6 @@ let run () =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let (vardecls, odes_opt, formula) = Parser.main Lexer.main lexbuf in
     let out = BatIO.stdout in
-    process out vardecls odes_opt formula
+      process out vardecls odes_opt formula
   with v -> Error.handle_exn v
 let _ = Printexc.catch run ()
