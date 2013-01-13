@@ -1,0 +1,107 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,newlfont,graphicx,caption,verbatim}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\len}{\mathit{len}}
+\newcommand{\poly}{\mathsf{poly}}
+\newcommand{\flow}{\mathsf{flow}}
+\newcommand{\jump}{\mathsf{jump}}
+\newcommand{\inv}{\mathsf{inv}}
+\newcommand{\init}{\mathsf{init}}
+\newcommand{\guard}{\mathsf{guard}}
+\newcommand{\reset}{\mathsf{reset}}
+\newcommand{\reach}{\mathsf{Reach}}
+\newcommand{\unsafe}{\mathsf{unsafe}}
+\newcommand{\safe}{\mathsf{safe}}
+
+\title{The Cardiac Cells Model}
+\author{Collected by the dReach Group}
+\begin{document}
+\maketitle
+
+The model is defined as follows. 
+
+\paragraph{Mode 1 (Green)}
+The $\flow_1$ condition is defined by the following differential equations.
+\begin{eqnarray*}
+dU/dt &=& e  + ( U - \theta_v)(u_u - U)g_{fi}V + g_{si}WS-g_{so}U\\
+dV/dt &=& -g_v^+ V\\
+dW/dt &=& -g_w^+ W\\
+dS/dt &=& g_{s_2} (\frac{1}{1+e^{-2k_s(U-u_s)}}- S)
+\end{eqnarray*}
+The $\jump_{1\rightarrow 2}$ condition is
+\begin{eqnarray*}
+U < \theta_v \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S' =
+S
+\end{eqnarray*}
+The invariant condition $\inv_1$ is
+$$\theta_v \leq U < u_u.$$
+
+\paragraph{Mode 2 (Purple)}
+The $\flow_2$ condition is defined by the following differential equations.
+\begin{eqnarray*}
+dU/dt &=& e  + g_{si}\cdot W\cdot S -g_{so}U\\
+dV/dt &=& -g_{v_2}^+ V\\
+dW/dt &=& -g_w^+ W\\
+dS/dt &=& \frac{1}{1+e^{-2k_s(U-u_s)}}g_{s_2} - g_{s_2}S
+\end{eqnarray*}
+The $\jump_{2\rightarrow 1}$ condition is given by:
+\begin{eqnarray*}
+U \geq \theta_v \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S'
+= S
+\end{eqnarray*}
+The $\jump_{2\rightarrow 3}$ condition is given by:
+\begin{eqnarray*}
+U < \theta_w \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S'
+= S
+\end{eqnarray*}
+The invariant condition $\inv_2$ is
+$$\theta_w\leq u< \theta_v.$$
+
+\paragraph{Mode 3 (Blue)}
+The $\flow_3$ condition is defined by the following differential equations.
+\begin{eqnarray*}
+dU/dt &=& e  -g_{o2}U\\
+dV/dt &=& -g_{v_2}^- V\\
+dW/dt &=& (w^*_{\infty} - w) g_w^- U\\
+dS/dt &=& \frac{1}{1+e^{-2k_s(U-u_s)}}g_{s_1} - g_{s_1}S
+\end{eqnarray*}
+The $\jump_{3\rightarrow 2}$ condition is given by:
+\begin{eqnarray*}
+U \geq \theta_w \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S'
+= S
+\end{eqnarray*}
+The $\jump_{3\rightarrow 4}$ condition is given by:
+\begin{eqnarray*}
+U < \theta_o \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S'
+= S
+\end{eqnarray*}
+The invariant condition $\inv_3$ is
+$$\theta_o\leq u< \theta_w.$$
+
+
+\paragraph{Mode 4 (Orange)}
+The $\flow_4$ condition is defined by the following differential equations.
+\begin{eqnarray*}
+dU/dt &=& e  -g_{o1}U\\
+dV/dt &=& -g_{v_1}^-(1- V)\\
+dW/dt &=& (1 - ug_{w_{\infty}} - w) g_w^- U\\
+dS/dt &=& g_{s1}(\frac{1}{1+e^{-2k_s(U-u_s)}} - S)
+\end{eqnarray*}
+The $\jump_{4\rightarrow 3}$ condition is given by:
+\begin{eqnarray*}
+U \geq \theta_o \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S'
+= S
+\end{eqnarray*}
+The invariant condition $\inv_4$ is
+$$0\leq u< \theta_o.$$
+
+\paragraph{Constants} The constants that are used in the description have the
+following values. 
+
+\paragraph{Properties}
+The following properties can be checked on the model. 
+
+
+
+
+\end{document}

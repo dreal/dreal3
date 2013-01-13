@@ -1,0 +1,156 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,newlfont,graphicx,caption,verbatim}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\len}{\mathit{len}}
+\newcommand{\poly}{\mathsf{poly}}
+\newcommand{\flow}{\mathsf{flow}}
+\newcommand{\jump}{\mathsf{jump}}
+\newcommand{\inv}{\mathsf{inv}}
+\newcommand{\init}{\mathsf{init}}
+\newcommand{\guard}{\mathsf{guard}}
+\newcommand{\reset}{\mathsf{reset}}
+\newcommand{\reach}{\mathsf{Reach}}
+\newcommand{\unsafe}{\mathsf{unsafe}}
+\newcommand{\safe}{\mathsf{safe}}
+
+\title{A Power Grid Model}
+\author{}
+\begin{document}
+\maketitle
+
+The model~\cite{source} is defined as follows. 
+
+\paragraph{Mode 1 (fault-on)}
+The $\flow_1$ condition:
+\begin{eqnarray*}
+d\delta_1/dt &=& \omega_1\\
+d\delta_2/dt &=& \omega_2\\
+d\omega_1/dt &=& \frac{\omega_s}{2H_1a}(P_{m1} - D\omega_1 - P_{e1}^1(x))\\
+d\omega_2/dt &=& \frac{\omega_s}{2H_1a}(P_{m2} - D\omega_2 - P_{e2}^1(x))\\
+dz/dt &=& 1
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+P_{e1}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)\\
+P_{e2}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)
+\end{eqnarray*}
+The jump condition $\jump_{1 \rightarrow 2}:$
+$$z = t_cl.$$
+
+\paragraph{Mode 2 (1 line operation)}
+The $\flow_2$ condition:
+\begin{eqnarray*}
+d\delta_1/dt &=& \omega_1\\
+d\delta_2/dt &=& \omega_2\\
+d\omega_1/dt &=& \frac{\omega_s}{2H_1a}(P_{m1} - D\omega_1 - P_{e1}^1(x))\\
+d\omega_2/dt &=& \frac{\omega_s}{2H_1a}(P_{m2} - D\omega_2 - P_{e2}^1(x))\\
+dz/dt &=& 1
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+P_{e1}^2 &=& G_{22}^1V_2^2 + \Big(G_{22}^1 V_1V_2\cos(\delta_2-\delta_1) +
+B_{21}^2 V_1V_2\sin(\delta_2-\delta_1)\\
+&+& G_{2\infty}^2
+V_2V_{\infty}\cos(\delta_2-\delta_{\infty}) + B_{2\infty}^1
+V_2V_{\infty}\sin(\delta_2-\delta_{\infty}) \Big)\\
+P_{e2}^2 &=& G_{22}^1V_2^2 + \Big(G_{22}^1 V_1V_2\cos(\delta_2-\delta_1) +
+B_{21}^2 V_1V_2\sin(\delta_2-\delta_1)\\
+&+& G_{2\infty}^2
+V_2V_{\infty}\cos(\delta_2-\delta_{\infty}) + B_{2\infty}^1
+V_2V_{\infty}\sin(\delta_2-\delta_{\infty}) \Big)
+\end{eqnarray*}
+The jump condition $\jump_{2 \rightarrow 3}:$
+$$z_2(x) = 0 \wedge d(z2)/dt < 0.$$
+where
+\begin{eqnarray*}
+z2 &=& \frac{V_2}{|I_2^(2)|^2}\Big( \cos\delta_2 \sum_{j\in
+\{1,2,\infty\}}V_j(G_{2j}^{(2)}\cos\delta_j - B_{2j}^{2}\sin \delta_j)\\
+&+&\sin \delta_2 \sum_{j\in \{1,2,\infty\}}V_j(G_{2j}^{(2)}\sin \delta_j +
+B_{2j}^{(2)}\cos\delta_j )\Big).
+\end{eqnarray*}
+
+
+\paragraph{Mode 3 ()}
+The $\flow_1$ condition:
+\begin{eqnarray*}
+d\delta_1/dt &=& \omega_1\\
+d\delta_2/dt &=& \omega_2\\
+d\omega_1/dt &=& \frac{\omega_s}{2H_1a}(P_{m1} - D\omega_1 - P_{e1}^1(x))\\
+d\omega_2/dt &=& \frac{\omega_s}{2H_1a}(P_{m2} - D\omega_2 - P_{e2}^1(x))\\
+dz/dt &=& 1
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+P_{e1}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)\\
+P_{e2}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)
+\end{eqnarray*}
+The jump condition $\jump_{1 \rightarrow 2}:$
+$$z = t_cl.$$
+
+
+\paragraph{Mode 4 ()}
+The $\flow_1$ condition:
+\begin{eqnarray*}
+d\delta_1/dt &=& \omega_1\\
+d\delta_2/dt &=& \omega_2\\
+d\omega_1/dt &=& \frac{\omega_s}{2H_1a}(P_{m1} - D\omega_1 - P_{e1}^1(x))\\
+d\omega_2/dt &=& \frac{\omega_s}{2H_1a}(P_{m2} - D\omega_2 - P_{e2}^1(x))\\
+dz/dt &=& 1
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+P_{e1}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)\\
+P_{e2}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)
+\end{eqnarray*}
+The jump condition $\jump_{1 \rightarrow 2}:$
+$$z = t_cl.$$
+
+
+\paragraph{Constants} The constants that are used in the description have the
+following values. 
+\begin{align*}
+\alpha_x = 0.0204 && \alpha_y = 0.0242 && \beta_x = 0.0076 && \beta_y = 0.0168
+\\
+k_1 = 0 && k_2 = 2 && k_3 = 0.8 && k_4 = 0.5 \\
+d\in [0,1] && m_1 = 5\times 10^{-5} && z_0 = 20 && \tau = 62.5 \\
+r_1 = 10 && r_0 = 4
+\end{align*}
+\paragraph{Properties}
+The following properties can be checked on the model. 
+
+
+\begin{thebibliography}{1}
+\bibitem{source} Yoshihiko Susuki, T. John Koo, Hiroaki Ebina, Takuya Yamazaki,
+Takashi Ochi, Takuji Uemura, and Takashi Hikihara. {\em A Hybrid System
+Approach to the Analysis and Design of Power Grid Dynamic Peformance.}
+Proceedings of the IEEE, Vol 100, No.1, 2012.
+
+
+  \end{thebibliography}
+
+
+\end{document}

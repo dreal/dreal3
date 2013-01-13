@@ -1,0 +1,32 @@
+[0, 20] x;
+[9.8, 9.8] g;
+[-1000, 1000] v;
+%%
+{ mode 1;
+  flow:
+	d/dt[x] = v;
+	d/dt[v] = g;
+  jump:
+	(= x 0) ==> @2 (and (= x' x) (= v' (- 0 v));
+  inv:
+	(>= x 0);
+}
+{
+  mode 2;
+  flow:
+	d/dt[x] = v;
+	d/dt[v] = -g;
+  jump:
+	(= v 0) ==> @1 true;
+  inv: 
+	(>= x 0);
+}
+%%
+init:
+@1	(and (= x 10) (= v 0));
+
+goal:
+@2	(= x 9);
+  
+
+
