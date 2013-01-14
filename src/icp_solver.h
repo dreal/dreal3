@@ -16,6 +16,7 @@ public:
 
   	~icp_solver();
 
+        bool            propagation_with_ode (rp_box , bool );
   	rp_box 		compute_next(bool hasDiff); //computation of the next solution
         rp_box          prop();          //only propagate
 

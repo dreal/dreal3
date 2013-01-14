@@ -88,6 +88,32 @@ rp_box icp_solver::prop()
   return( _boxes.get() );
 }
 
+bool icp_solver::propagation_with_ode (rp_box b, bool hasDiff)
+{
+    if(_propag.apply(b))
+    {
+        if (hasDiff)
+        {
+            rp_box current_box = _boxes.get();
+
+            for(set<variable*>::iterator ite = _ode_vars.begin();
+                ite != _ode_vars.end();
+                ite++)
+            {
+                (*ite)->set_top_box(&current_box);
+            }
+            (*_ode_vars.begin())->getODEtimevar()->set_top_box(&current_box);
+
+            ode_solver odeSolver(_ode_vars);
+            return odeSolver.solve();
+        }
+        else {
+            return true;
+        }
+    }
+    return false;
+}
+
 rp_box icp_solver::compute_next(bool hasDiff)
 {
 
@@ -100,55 +126,28 @@ rp_box icp_solver::compute_next(bool hasDiff)
     }
     while (!_boxes.empty()) //if there's no more box on the stack, you are done with compute_next
     {
-
-    /*moved the following lines to rp_prop
-      cout<<endl<<"[before pruning] "<<endl;
-      rp_box_cout(_boxes.get(), 5, RP_INTERVAL_MODE_BOUND );
-    */
-        if (_propag.apply(_boxes.get()))
+        /*moved the following lines to rp_prop
+          cout<<endl<<"[before pruning] "<<endl;
+          rp_box_cout(_boxes.get(), 5, RP_INTERVAL_MODE_BOUND );
+        */
+        if (propagation_with_ode(_boxes.get(), hasDiff))
         {
-            if (hasDiff) {
+            int i;
+            if ((i=_vselect->apply(_boxes.get()))>=0)
+            {
+                ++_nsplit;
+                _dsplit->apply(_boxes,i);
 
-                rp_box current_box = _boxes.get();
+                //monitoring
+                cout<<endl<<"[branched on x"<<i<<"]"<<endl;
+                //rp_box_cout(_boxes.get(), 5, RP_INTERVAL_MODE_BOUND );
 
-                for(set<variable*>::iterator ite = _ode_vars.begin();
-                    ite != _ode_vars.end();
-                    ite++)
-                {
-                    (*ite)->set_lb(
-                        rp_binf(
-                            rp_box_elem(current_box, (*ite)->get_rpid())
-                            )
-                        );
-                    (*ite)->set_ub(
-                        rp_bsup(
-                            rp_box_elem(current_box, (*ite)->get_rpid())
-                            )
-                        );
-                }
-
-                ode_solver odeSolver(_ode_vars);
-
-                if (odeSolver.solve())
-                {
-                    int i;
-                    if ((i=_vselect->apply(_boxes.get()))>=0)
-                    {
-                        ++_nsplit;
-                        _dsplit->apply(_boxes,i);
-
-                        //monitoring
-                        cout<<endl<<"[branched on x"<<i<<"]"<<endl;
-                        //rp_box_cout(_boxes.get(), 5, RP_INTERVAL_MODE_BOUND );
-
-                    }
-                    else
-                    {
-                        ++_sol;
-                        if (_ep) _ep->prove(_boxes.get());
-                        return( _boxes.get() );
-                    }
-                }
+            }
+            else
+            {
+                ++_sol;
+                if (_ep) _ep->prove(_boxes.get());
+                return( _boxes.get() );
             }
         }
         else
