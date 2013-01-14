@@ -29,19 +29,52 @@ public:
 	inline rp_variable * get_rp_variable() { return _v; }
 	void mk_rp_variable( const char *, const double, const double );
 
-	inline double get_ub() { return rp_bsup(*bounds); }
-	inline double get_lb() { return rp_binf(*bounds); }
         inline string getName() const { return _e->getCar()->getName(); }
+
+
 	inline void set_ub( double b )
         {
-            rp_bsup(*bounds) = b;
+            rp_bsup(rp_box_elem(*_b, rp_id)) = b;
         }
+
 	inline void set_lb( double b ) {
-            rp_binf(*bounds) = b ;
+            rp_binf(rp_box_elem(*_b, rp_id)) = b ;
+        }
+
+	inline double get_ub()
+        {
+            return rp_bsup(rp_box_elem(*_b, rp_id));
+        }
+	inline double get_lb()
+        {
+            return rp_binf(rp_box_elem(*_b, rp_id));
+        }
+
+	inline void set_top_ub( double b )
+        {
+            rp_bsup(rp_box_elem(*_b_top, rp_id)) = b;
+        }
+
+	inline void set_top_lb( double b ) {
+            rp_binf(rp_box_elem(*_b_top, rp_id)) = b ;
+        }
+
+	inline double get_top_ub()
+        {
+            return rp_bsup(rp_box_elem(*_b_top, rp_id));
+        }
+	inline double get_top_lb()
+        {
+            return rp_binf(rp_box_elem(*_b_top, rp_id));
+        }
+
+
+        inline void set_top_box(rp_box * _new_b) {
+            _b_top = _new_b;
         }
 
         inline void set_empty_interval() {
-            rp_interval_set_empty(*bounds);
+            rp_interval_set_empty(rp_box_elem(*_b, rp_id));
         }
 
         inline int get_rpid () {
@@ -54,14 +87,14 @@ public:
         }
 
 private:
-
-	rp_interval* bounds;	//bounds as stored in rp_format
-
+	// rp_interval* bounds;	//bounds as stored in rp_format
 	Enode * _e;	//original enode of the variable
 	rp_variable * _v;
 	int rp_id;		//id in the interval box
 
 	rp_box * _b;	//pointer to an outside rp_box
+        rp_box * _b_top;
+
 	rp_table_symbol * _ts; //pointer to an outside symbol table
         variable* timevar; // poitner to time variable
 };

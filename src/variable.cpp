@@ -12,29 +12,20 @@ void variable::mk_rp_variable( const char * name, const double lb, const double 
 {
     cerr << "mk_rp_variable " << name << ", " << lb << ", " << ub << endl;
     _v = new rp_variable;
-
     rp_variable_create( _v, name);
-
     rp_id = rp_vector_insert(rp_table_symbol_vars(*_ts), (*_v));
-
     rp_box_enlarge_size( _b, 1);
-
-    bounds = &rp_box_elem ( (*_b), rp_id);
-    rp_interval_set(*bounds, lb, ub );
+    set_lb(lb);
+    set_ub(ub);
 
     //    rp_variable_set_real(*_v);
-
     rp_union_interval u;
     rp_union_create(&u);
-    rp_union_insert(u, *bounds);
+    rp_union_insert(u, rp_box_elem(*_b, rp_id));
     rp_union_copy(rp_variable_domain(*_v),u);
     rp_union_destroy(&u);
 
     rp_box_cout( (*_b) , 2 , 0);
-
-    set_lb(lb);
-    set_ub(ub);
-
 }
 
 void rp_interval_cout(rp_interval i, int digits, int mode)
