@@ -2325,13 +2325,6 @@ void Egraph::addAssertion( Enode * e )
   assert( !assertions.empty( ) );
 }
 
-void Egraph::addODE ( const char * name, Enode * e )
-{
-    stringstream buf;
-    e->print_infix(buf, lbool(true));
-    var_to_ode[name] = string(name) + "=" + buf.str();
-}
-
 Enode * Egraph::canonize( Enode * formula, bool split_eqs )
 {
   assert( config.logic != QF_UFIDL || config.sat_lazy_dtc == 0 );
