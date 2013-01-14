@@ -58,6 +58,10 @@ bool NRASolver::icp_prop(rp_problem * p)
           cout<<"------------------"<<endl;
           result = true;
         }
+
+      // update the current box with `b`
+      rp_box_copy(*_b, b);
+
       rp_clock_stop(clock_solve);
       // if (solver.solution() )
       //   {
@@ -242,11 +246,14 @@ set<variable *> NRASolver::get_variables (Enode * e, vector<variable *> & vl)
 //   }
 // }
 
-void NRASolver::pop_literal ( )
+void NRASolver::pop_literal (vector<literal*>::size_type prev_size )
 {
-  literal * lit = assigned_lits.back();
-  assigned_lits.pop_back();
-  rp_vector_pop(rp_problem_ctrs(*_problem),*(lit->_c));
+    while(assigned_lits.size() > prev_size) {
+        cerr << "Pop_literal" << endl << endl;
+        literal * lit = assigned_lits.back();
+        assigned_lits.pop_back();
+        rp_vector_pop(rp_problem_ctrs(*_problem),*(lit->_c));
+    }
 }
 
 void NRASolver::add_literal ( Enode * e )
@@ -403,7 +410,7 @@ lbool NRASolver::inform( Enode * e )
 //
 bool NRASolver::assertLit ( Enode * e, bool reason )
 {
-  cerr << "asserLit: (" << e << ", " << reason << ")" << endl;
+  cerr << endl << "asserLit: (" << e << ", " << reason << ")" << endl;
 
   // cerr << "AssertLit with " << reason << " " << e << endl;
 
@@ -430,12 +437,14 @@ void NRASolver::pushBacktrackPoint ( )
     history_inited = true;
   }
 
-  cerr << "pushBacktrackPoint:" << endl;
+  cerr << endl << "pushBacktrackPoint:" << endl;
   // Save the current box into the history_boxes (stack of boxes)
   cerr << "Current Box:" << endl;
   rp_box_display_simple(*_b);
   cerr << endl;
   history_boxes->insert(*_b);
+  history_num_lits.push_back(assigned_lits.size());
+
   cerr << "box added: history_boxes->size() = " << history_boxes->size() << endl;
 }
 
@@ -451,7 +460,7 @@ void NRASolver::pushBacktrackPoint ( )
 //
 void NRASolver::popBacktrackPoint ( )
 {
-  cerr << "popBacktrackPoint" << endl;
+  cerr << endl << "popBacktrackPoint" << endl;
   cerr << "Current Box (before pop):" << endl;
   rp_box_display_simple(*_b);
   cerr << endl;
@@ -459,18 +468,20 @@ void NRASolver::popBacktrackPoint ( )
   // Pop a box from the history stack and restore
   rp_box old_box = history_boxes->get();
   history_boxes->remove();
-
   rp_box_copy(*_b, old_box);
   rp_box_destroy(&old_box);
 
-  cerr << "box popped: history_boxes->size() = " << history_boxes->size() << endl;
+  // Pop a num_lits from the history
+  vector<literal*>::size_type prev_size = history_num_lits.back();
+  history_num_lits.pop_back();
 
+  cerr << "box popped: history_boxes->size() = " << history_boxes->size() << endl;
   cerr << "Current Box (after pop):" << endl;
   rp_box_display_simple(*_b);
   cerr << endl;
 
   // pop literal
-  pop_literal( );
+  pop_literal(prev_size);
 
   _ode_vars.clear();
 }
@@ -482,7 +493,7 @@ void NRASolver::popBacktrackPoint ( )
 bool NRASolver::check( bool complete )
 {
   bool result = true;
-  cerr << "check: "<< (complete ? "complete" : "incomplete") << endl;
+  cerr << endl << "check: "<< (complete ? "complete" : "incomplete") << endl;
   if (complete)
     {
       // Complete Check

@@ -36,7 +36,7 @@ public:
 	variable *	add_variable	( Enode * );
 
 	void		add_literal	( Enode * );
-	void		pop_literal	( );
+	void		pop_literal	( vector<literal*>::size_type );
         bool            contain_ode     ( );
 
 private:
@@ -44,7 +44,9 @@ private:
 	vector< variable * >	v_list;
 //	vector< literal * >	l_list;
 	vector< literal * >	assigned_lits;
+
         rp_box_stack *          history_boxes;
+        vector< vector<literal*>::size_type >        history_num_lits;
 
 	icp_solver * 		_solver;
 
