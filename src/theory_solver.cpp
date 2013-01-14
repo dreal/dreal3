@@ -454,6 +454,7 @@ void NRASolver::popBacktrackPoint ( )
   cerr << "popBacktrackPoint" << endl;
   cerr << "Current Box (before pop):" << endl;
   rp_box_display_simple(*_b);
+  cerr << endl;
 
   // Pop a box from the history stack and restore
   rp_box old_box = history_boxes->get();
@@ -466,6 +467,7 @@ void NRASolver::popBacktrackPoint ( )
 
   cerr << "Current Box (after pop):" << endl;
   rp_box_display_simple(*_b);
+  cerr << endl;
 
   // pop literal
   pop_literal( );
