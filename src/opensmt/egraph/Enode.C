@@ -30,6 +30,9 @@ Enode::Enode( )
   , cong_data ( NULL )
   , atom_data ( NULL )
   , value     ( NULL )
+  , lb        ( NULL )
+  , ub        ( NULL )
+  , ode_vartype ( l_Undef )
 {
   setEtype( ETYPE_LIST );
   // dynamic = this;
@@ -48,6 +51,9 @@ Enode::Enode( const enodeid_t      id_
   , cdr        ( NULL )
   , atom_data  ( NULL )
   , value      ( NULL )
+  , lb        ( NULL )
+  , ub        ( NULL )
+  , ode_vartype ( l_Undef )
 {
   setEtype( etype_ );
   setArity( sort_->getArity( ) - 1 ); // Sort arity includes return value ...
@@ -67,6 +73,9 @@ Enode::Enode( const enodeid_t id_
   , cong_data  ( NULL )
   , atom_data  ( NULL )
   , value      ( NULL )
+  , lb        ( NULL )
+  , ub        ( NULL )
+  , ode_vartype ( l_Undef )
   // , dynamic   ( NULL )
 {
   assert( car );
@@ -118,6 +127,9 @@ Enode::Enode( const enodeid_t	id_
   , cong_data  ( NULL )
   , atom_data  ( NULL )
   , value      ( NULL )
+  , lb        ( NULL )
+  , ub        ( NULL )
+  , ode_vartype ( l_Undef )
   // , dynamic   ( NULL )
 { }
 

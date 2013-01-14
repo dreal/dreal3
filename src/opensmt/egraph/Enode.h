@@ -22,6 +22,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "EnodeTypes.h"
 #include "Otl.h"
+#include <limits>
+
 
 class Enode
 {
@@ -235,9 +237,19 @@ public:
   inline dist_t   getDistClasses         ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->dist_classes; }
 
   const double    getValue               ( ) const;
-  const set < string > & getODEs         ( ) const;   // added for dReal2
-  void            setODEs                ( set < string > o );
-  void            addODE                 ( const string ); // added for dReal2
+
+  void            setODEvartype          ( lbool );        // added for dReal2
+  const lbool     getODEvartype          ( ) const;        // added for dReal2
+
+  void            setODE                 ( const string ); // added for dReal2
+  const string    getODE                 ( ) const;        // added for dReal2
+
+  void            setODEvarname          (string varname);
+  const string    getODEvarname          ( ) const;
+
+  void            setODEtimevar          (Enode* );
+  Enode*          getODEtimevar          ( ) const;
+
   const double    getLowerBound          ( ) const; //added for dReal2
   const double    getUpperBound          ( ) const; //added for dReal2
   const double    getComplexValue        ( ) const;
@@ -384,7 +396,15 @@ private:
   };
   AtomData *        atom_data;  // For atom terms only
   double *          value;      // enode value (modified for dReal2)
-  double *          value_;     // enode value_
+  double *          lb;     // enode lower bound
+  double *          ub;     // enode upper bound
+
+
+  string            ode_varname;
+  string            ode;
+  lbool             ode_vartype;
+  Enode*            ode_timevar;
+
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
 #endif
@@ -400,31 +420,59 @@ inline const double Enode::getValue ( ) const
   return *value;
 }
 
-inline const set < string > & Enode::getODEs ( ) const
+inline void        Enode::setODEvartype ( lbool l )
 {
-    return odes;
+    ode_vartype = l;
+}
+inline const lbool Enode::getODEvartype ( ) const
+{
+    return ode_vartype;
 }
 
-inline void Enode::setODEs ( set < string > o )
+inline void        Enode::setODEtimevar ( Enode* e )
 {
-    odes = o;
+    ode_timevar = e;
+}
+inline Enode* Enode::getODEtimevar ( ) const
+{
+    return ode_timevar;
 }
 
-inline void Enode::addODE (string ode)
+inline void Enode::setODE (string o)
 {
-    odes.insert(ode);
+    ode = o;
 }
+
+inline const string Enode::getODE () const
+{
+    return ode;
+}
+
+inline void Enode::setODEvarname (string varname)
+{
+    ode_varname = varname;
+}
+
+inline const string Enode::getODEvarname () const
+{
+    return ode_varname;
+}
+
 
 inline const double Enode::getLowerBound ( ) const
 {
-  assert( hasValue( ) );
-  return *value;
+    if (lb != NULL)
+        return *lb;
+    else
+        return -std::numeric_limits<double>::infinity();
 }
 
 inline const double Enode::getUpperBound ( ) const
 {
-  assert( hasValue( ) );
-  return *value_;
+    if (ub != NULL)
+        return *ub;
+    else
+        return +std::numeric_limits<double>::infinity();
 }
 
 
@@ -448,15 +496,15 @@ inline void Enode::setValue ( const double v )
 inline void Enode::setLowerBound ( const double v )
 {
   assert( isTerm( ) );
-  value = new double;
-  *value = v;
+  lb = new double;
+  *lb = v;
 }
 
 inline void Enode::setUpperBound ( const double v )
 {
   assert( isTerm( ) );
-  value_ = new double;
-  *value_ = v;
+  ub = new double;
+  *ub = v;
 }
 
 
@@ -672,5 +720,4 @@ inline bool Enode::isUFOp( )
 
   return false;
 }
-
 #endif
