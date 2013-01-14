@@ -10,12 +10,10 @@ variable::variable( Enode * e, rp_box * b, rp_table_symbol * ts )
 
 void variable::mk_rp_variable( const char * name, const double lb, const double ub )
 {
+    cerr << "mk_rp_variable " << name << ", " << lb << ", " << ub << endl;
     _v = new rp_variable;
 
     rp_variable_create( _v, name);
-
-    //TODO make these consistent with the new pointers to symbolc table inside rp_problem
-    //
 
     rp_id = rp_vector_insert(rp_table_symbol_vars(*_ts), (*_v));
 
@@ -31,6 +29,9 @@ void variable::mk_rp_variable( const char * name, const double lb, const double 
     rp_union_destroy(&u);
 
     rp_box_cout( (*_b) , 2 , 0);
+
+    set_lb(lb);
+    set_ub(ub);
 
 }
 

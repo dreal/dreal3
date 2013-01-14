@@ -14,13 +14,14 @@ public:
 	variable( Enode *, rp_box *, rp_table_symbol * );
 	~variable();
 
-	inline Enode * get_enode() { return _e; }
+	inline Enode * get_enode() const { return _e; }
 
 	inline rp_variable * get_rp_variable() { return _v; }
 	void mk_rp_variable( const char *, const double, const double );
 
 	inline double get_ub() { return u_bound; }
 	inline double get_lb()	{ return l_bound; }
+        inline string getName() const { return _e->getCar()->getName(); }
 	inline void set_ub( double b )
         {
             _e->setUpperBound(b);
@@ -29,6 +30,15 @@ public:
 	inline void set_lb( double b ) {
             _e->setLowerBound(b);
             l_bound = b ;
+        }
+
+        inline int get_rpid () {
+            return rp_id;
+        }
+
+        bool operator<(const variable &rhs) const
+        {
+            return getName() < rhs.getName();
         }
 
 private:
