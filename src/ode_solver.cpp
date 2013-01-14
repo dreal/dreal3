@@ -104,13 +104,20 @@ void ode_solver::prune(vector<variable*>& _t_vars,
     bool candidate = true;
     for(int i = 0; candidate && i < v.size(); i++)
     {
+        cerr << endl
+             << "  v[" << i << "] = "
+             << "[" << v[i].leftBound() << ", " << v[i].rightBound() << "]"
+             << endl;
+        cerr << "x_t[" << i << "] = "
+             << "[" << _t_vars[i]->get_lb() << ", " << _t_vars[i]->get_ub() << "]"
+             << endl;
         if (v[i].leftBound() > _t_vars[i]->get_ub() ||
-            v[i].rightBound() > _t_vars[i]->get_lb())
+            v[i].rightBound() < _t_vars[i]->get_lb())
         {
             candidate = false;
         }
     }
-
+    cerr << "IS " << (candidate ? "CANDIDATE" : "NOT CANDIDATE") << endl;
     if (candidate) {
         out_v_list.push_back(v);
         out_time_list.push_back(time);
@@ -148,8 +155,10 @@ bool ode_solver::solve()
 
         //time range
         /* TODO: This should be of type variable, not Enode* */
-        Enode* time = (*_0_vars.begin())->get_enode()->getODEtimevar();
-        interval T = interval(time->getLowerBound(), time->getUpperBound());
+        // Enode* time = (*_0_vars.begin())->get_enode()->getODEtimevar();
+        variable* time = (*_0_vars.begin())->getODEtimevar();
+        interval T = interval(time->get_lb(), time->get_ub());
+
         // double T = 100;
 
         timeMap.stopAfterStep(true);
@@ -192,35 +201,62 @@ bool ode_solver::solve()
             ite != out_v_list.end();
             ite++)
         {
+            cerr << "U(" << vector_union << ", " << *ite << ") = ";
             vector_union = intervalHull (vector_union, *ite);
+            cerr << vector_union << endl;
         }
-        end = intersection(end, vector_union);
-        IVector_to_varlist(end, _t_vars);
 
+        bool end_empty = false;
+        // end = intersection \cap end;
+        cerr << "Intersect(" << vector_union << ", " << end << ") = ";
+        if(intersection(vector_union, end, end))
+        {
+            IVector_to_varlist(end, _t_vars);
+            cerr << end << endl;
+        }
+        else {
+            // intersection is empty!!
+            end_empty = true;
+            cerr << "empty" << endl;
+            // for(int i = 0; end.size(); i++)
+            // {
+            //     end[i] = interval(+std::numeric_limits<double>::infinity(),
+            //                       -std::numeric_limits<double>::infinity());
+            // }
+        }
+
+        bool time_empty = false;
         // 2. Union all the out_time_list and intersect with T
         interval time_union = *out_time_list.begin();
         for(vector<interval>::iterator ite = out_time_list.begin();
             ite != out_time_list.end();
             ite++)
         {
+            cerr << "U(" << time_union << ", " << *ite << ") = ";
             time_union = intervalHull(time_union, *ite);
+            cerr << time_union << endl;
         }
 
         /* T = \cap (time_union, T) */
-        double lb = +std::numeric_limits<double>::infinity();
-        double ub = +std::numeric_limits<double>::infinity();
+        // double lb = +std::numeric_limits<double>::infinity();
+        // double ub = -std::numeric_limits<double>::infinity();
 
+        cerr << "Intersect(" << time_union << ", " << T << ") = ";
         if(intersection(time_union, T, T))
         {
-            lb = T.leftBound();
-            ub = T.rightBound();
+            time->set_lb(T.leftBound());
+            time->set_ub(T.rightBound());
+            cerr << T << endl;
         }
         else {
             /* there is no intersection, use empty interval [+oo, -oo] */
+            time_empty = true;
+            cerr << "empty" << endl;
         }
-        // update Time using T
-        time->setLowerBound(lb);
-        time->setUpperBound(ub);
+
+        // ...
+
+
 
         //the following line detects conflicts in the trace
         // if(rp_box_empty(box)) {
