@@ -18,13 +18,15 @@ void variable::mk_rp_variable( const char * name, const double lb, const double 
     rp_id = rp_vector_insert(rp_table_symbol_vars(*_ts), (*_v));
 
     rp_box_enlarge_size( _b, 1);
-    rp_interval_set( rp_box_elem ( (*_b), rp_id), lb, ub );
+
+    bounds = &rp_box_elem ( (*_b), rp_id);
+    rp_interval_set(*bounds, lb, ub );
 
     //    rp_variable_set_real(*_v);
 
     rp_union_interval u;
     rp_union_create(&u);
-    rp_union_insert(u, rp_box_elem ( (*_b), rp_id));
+    rp_union_insert(u, *bounds);
     rp_union_copy(rp_variable_domain(*_v),u);
     rp_union_destroy(&u);
 

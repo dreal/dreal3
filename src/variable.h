@@ -29,17 +29,19 @@ public:
 	inline rp_variable * get_rp_variable() { return _v; }
 	void mk_rp_variable( const char *, const double, const double );
 
-	inline double get_ub() { return u_bound; }
-	inline double get_lb()	{ return l_bound; }
+	inline double get_ub() { return rp_bsup(*bounds); }
+	inline double get_lb() { return rp_binf(*bounds); }
         inline string getName() const { return _e->getCar()->getName(); }
 	inline void set_ub( double b )
         {
-            _e->setUpperBound(b);
-            u_bound = b ;
+            rp_bsup(*bounds) = b;
         }
 	inline void set_lb( double b ) {
-            _e->setLowerBound(b);
-            l_bound = b ;
+            rp_binf(*bounds) = b ;
+        }
+
+        inline void set_empty_interval() {
+            rp_interval_set_empty(*bounds);
         }
 
         inline int get_rpid () {
@@ -53,9 +55,7 @@ public:
 
 private:
 
-	rp_interval bounds;	//bounds as stored in rp_format
-	double u_bound;
-	double l_bound;
+	rp_interval* bounds;	//bounds as stored in rp_format
 
 	Enode * _e;	//original enode of the variable
 	rp_variable * _v;
