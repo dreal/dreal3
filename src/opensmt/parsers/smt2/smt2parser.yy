@@ -54,6 +54,7 @@ void smt2error( const char * s )
   vector< string > *        str_list;
   Enode *                   enode;
   Snode *                   snode;
+  std::string *             string_ptr;
   list< Snode * > *         snode_list;
   map< Enode *, Enode * > * binding_list;
 }
@@ -89,8 +90,12 @@ void smt2error( const char * s )
 
 %type <str> TK_NUM TK_DEC TK_HEX TK_STR TK_SYM TK_KEY numeral decimal hexadecimal binary symbol
 %type <str> identifier spec_const b_value s_expr
+%type <str> TK_LEQ TK_GEQ TK_LT TK_GT
+%type <str> TK_PLUS TK_MINUS TK_TIMES TK_UMINUS TK_DIV
+%type <str> TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW
 %type <str_list> numeral_list
 %type <enode> term_list term
+%type <string_ptr> infix_term
 %type <snode> sort
 %type <snode_list> sort_list
 
@@ -125,7 +130,9 @@ command: '(' TK_SETLOGIC symbol ')'
 	   destroySortList( $5 ); free( $3 );
 	 }
        | '(' TK_DECLAREFUN symbol '(' ')' sort ')'
-	 { parser_ctx->DeclareFun( $3, $6 ); free( $3 ); }
+	 {
+            parser_ctx->DeclareFun( $3, $6 ); free( $3 );
+          }
        /*
        | '(' TK_DEFINEFUN symbol '(' sorted_var_list ')' sort term ')'
 	 { opensmt_error2( "command not supported (yet)", "" ); }
@@ -133,15 +140,65 @@ command: '(' TK_SETLOGIC symbol ')'
 	 { opensmt_error2( "command not supported (yet)", "" ); }
        */
        /* Added for dReal2. */
-       | '(' TK_DEFINEODE '(' TK_EQ TK_DDT TK_LB symbol TK_RB term ')' ')'
+       | '(' TK_DEFINEODE '(' TK_EQ TK_DDT TK_LB symbol TK_RB infix_term ')' ')'
          {
-           parser_ctx->DefineODE($7, $9);
+           parser_ctx->DefineODE($7, *$9);
            free( $7 );
+           delete $9;
          }
        | '(' TK_PUSH numeral ')'
 	 { parser_ctx->addPush( atoi( $3 ) ); free( $3 ); }
        | '(' TK_POP numeral ')'
 	 { parser_ctx->addPop( atoi( $3 ) ); free( $3 );}
+
+       /* added for dReal2 */
+       | '(' TK_ASSERT '(' TK_LT identifier spec_const ')' ')'
+         {
+            Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
+            parser_ctx->addIntvCtr( "<", e, atof($6 ) );
+         }
+       | '(' TK_ASSERT '(' TK_GT identifier spec_const ')' ')'
+         {
+            Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
+            parser_ctx->addIntvCtr( ">", e, atof($6) );
+         }
+
+       | '(' TK_ASSERT '(' TK_LEQ identifier spec_const ')' ')'
+         {
+            Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
+            parser_ctx->addIntvCtr( "<=", e, atof($6) );
+         }
+
+       | '(' TK_ASSERT '(' TK_GEQ identifier spec_const ')' ')'
+         {
+            Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
+            parser_ctx->addIntvCtr( ">=", e, atof($6) );
+         }
+
+       | '(' TK_ASSERT '(' TK_LT spec_const identifier')' ')'
+         {
+            Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
+            parser_ctx->addIntvCtrR( "<", atof($5), e );
+         }
+
+       | '(' TK_ASSERT '(' TK_GT spec_const identifier ')' ')'
+         {
+            Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
+            parser_ctx->addIntvCtrR( ">", atof($5), e );
+          }
+
+       | '(' TK_ASSERT '(' TK_LEQ spec_const identifier ')' ')'
+         {
+            Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
+            parser_ctx->addIntvCtrR( "<=", atof($5), e );
+          }
+
+       | '(' TK_ASSERT '(' TK_GEQ spec_const identifier ')' ')'
+         {
+            Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
+            parser_ctx->addIntvCtrR( ">=", atof($5), e );
+          }
+
        | '(' TK_ASSERT term ')'
          { parser_ctx->addAssert( $3 ); }
        | '(' TK_CHECKSAT ')'
@@ -447,6 +504,112 @@ b_value: TK_TRUE
 	   $$ = buf;
 	 }
        ;
+
+infix_term: spec_const
+      {
+        string* ret = new string($1);
+        $$ = ret;
+      }
+    | '(' infix_term ')'
+      {
+        string* ret = new string( '(' + *($2) + ')' );
+        delete $2;
+        $$ = ret;
+      }
+    | infix_term TK_PLUS infix_term
+      {
+        string* ret = new string (*$1 + string($2) + *$3);
+        delete $1;
+        delete $3;
+        $$ = ret;
+      }
+    | infix_term TK_MINUS infix_term
+      {
+        string* ret = new string (*$1 + string($2) + *$3);
+        delete $1;
+        delete $3;
+        $$ = ret;
+      }
+    | infix_term TK_TIMES infix_term
+      {
+        string* ret = new string (*$1 + string($2) + *$3);
+        delete $1;
+        delete $3;
+        $$ = ret;
+      }
+    | TK_UMINUS infix_term
+      {
+        string* ret = new string (string($1) + *$2);
+        delete $2;
+        $$ = ret;
+      }
+    | infix_term TK_DIV infix_term
+      {
+        string* ret = new string (*$1 + string($2) + *$3);
+        delete $1;
+        delete $3;
+        $$ = ret;
+      }
+    | identifier
+      {
+        string* ret = new string($1);
+        $$ = ret;
+      }
+    | TK_SIN '(' infix_term ')'
+      {
+        string* ret = new string ($1 + '(' + *$3 + ')');
+        delete $3;
+        $$ = ret;
+      }
+    | TK_COS '(' infix_term ')'
+      {
+        string* ret = new string ($1 + '(' + *$3 + ')');
+        delete $3;
+        $$ = ret;
+      }
+    | TK_TAN '(' infix_term ')'
+      {
+        string* ret = new string ($1 + '(' + *$3 + ')');
+        delete $3;
+        $$ = ret;
+      }
+    | TK_ARCSIN '(' infix_term ')'
+      {
+        string* ret = new string ($1 + '(' + *$3 + ')');
+        delete $3;
+        $$ = ret;
+      }
+    | TK_ARCCOS '(' infix_term ')'
+      {
+        string* ret = new string ($1 + '(' + *$3 + ')');
+        delete $3;
+        $$ = ret;
+      }
+    | TK_ARCTAN '(' infix_term ')'
+      {
+        string* ret = new string ($1 + '(' + *$3 + ')');
+        delete $3;
+        $$ = ret;
+      }
+    | TK_EXP '(' infix_term ')'
+      {
+        string* ret = new string ($1 + '(' + *$3 + ')');
+        delete $3;
+        $$ = ret;
+      }
+    | TK_LOG '(' infix_term ')'
+      {
+        string* ret = new string ($1 + '(' + *$3 + ')');
+        delete $3;
+        $$ = ret;
+      }
+    | TK_POW '(' infix_term ')'
+      {
+        string* ret = new string ($1 + '(' + *$3 + ')');
+        delete $3;
+        $$ = ret;
+      }
+    ;
 
 %%
 
