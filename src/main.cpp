@@ -119,13 +119,13 @@ int main( int argc, char * argv[] )
   // where x_1, ..., x_n in f are annotated with (lb_1, ub_1), ...,
   // (lb_n, ub_n).
 
-  cerr << "Get the Egraph" << endl;
-  Egraph * eg = context.getEgraphP();
+  // cerr << "Get the Egraph" << endl;
+  // Egraph * eg = context.getEgraphP();
 
   //  cerr << "Before transformation" << endl;
   //  eg->printEnodeList(cerr);
 
-  eg->postProcessing();
+  // eg->postProcessing();
 
   //  cerr << "after transformation" << endl;
   //  eg->printEnodeList(cerr);
