@@ -112,7 +112,12 @@ int rp_vector_pop(rp_vector v, void * x)
   // x should be at the last position of v
   assert(i == --rp_vector_size(v));
 
-  rp_realloc(rp_vector_ptr(v),void**,rp_vector_size(v)*sizeof(void*));
+  if (rp_vector_size(v) == 0)  {
+      rp_vector_ptr(v) = NULL;
+  }
+  else {
+      rp_realloc(rp_vector_ptr(v),void**,rp_vector_size(v)*sizeof(void*));
+  }
   return( i );
 }
 
