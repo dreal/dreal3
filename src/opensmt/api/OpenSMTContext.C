@@ -233,7 +233,7 @@ int OpenSMTContext::executeIncremental( )
 	opensmt_error( "construct define-fun not yet supported" );
 	break;
       case DEFINE_ODE:
-        DefineODE( c.str, c.enode ); /* added for dReal2 */
+        DefineODE( c.str, string(c.str) ); /* added for dReal2 */
 	break;
       case PUSH:
 	Push( );
@@ -585,7 +585,7 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
   egraph.newSymbol( name, s );
 }
 
-void OpenSMTContext::DefineODE( const char * name, Enode * e )
+void OpenSMTContext::DefineODE( const char * name, string ode )
 {
   if ( config.verbosity > 1 )
     cerr << "# OpenSMTContext::Declaring ODE "
@@ -593,9 +593,29 @@ void OpenSMTContext::DefineODE( const char * name, Enode * e )
          << name
          << "]"
          << " = "
-	 << e
+	 << ode
 	 << endl;
-  egraph.addODE(name, e);
+  // Create two variable _0, _t
+  string name_0 = string(name) + "_0";
+  string name_t = string(name) + "_t";
+  Enode* e_0 = mkVar(name_0.c_str());
+  Enode* e_t = mkVar(name_t.c_str());
+
+  Enode* time_var = mkVar("time");
+
+  // Assign properties (vartype, ode, time)
+  e_0->setODEvartype(l_False);
+  e_t->setODEvartype(l_True);
+
+  e_0->setODE(ode);
+  e_t->setODE(ode);
+
+  e_0->setODEvarname(name);
+  e_t->setODEvarname(name);
+
+  e_0->setODEtimevar(time_var);
+  e_t->setODEtimevar(time_var);
+
 }
 
 void OpenSMTContext::Push( )

@@ -100,7 +100,7 @@ public:
   void          SetInfo              ( const char *, const char * ); // Set info
   void          DeclareSort          ( const char *, int );          // Declares a new sort
   void          DeclareFun           ( const char *, Snode * );      // Declares a new function symbol
-  void          DefineODE            ( const char * n, Enode * );      // Define an ODE
+  void          DefineODE            ( const char * n, string );      // Define an ODE
 
   void          Push                 ( );
   void          Pop                  ( );
