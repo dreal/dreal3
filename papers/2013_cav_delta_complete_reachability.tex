@@ -56,8 +56,8 @@ experimental results of such techniques on nonlinear hybrid systems.
 
 \section{Introduction}
 
-Hybrid systems combine discrete and continuous components to
-model cyber-physical systems. Formal verification of hybrid systems is
+Hybrid systems model the tight coupling of discrete and continuous components
+in cyber-physical systems. Formal verification of hybrid systems is
 important and challenging. It is well known that safety verification
 problems for hybrid systems with simple dynamics are undecidable (high up in the
 analytic
@@ -117,25 +117,25 @@ one of the following answers:
  \item {\sf $\delta$-unsafe}: Under some $\delta$-perturbation, $H^{\delta}$ can
 reach $U^{\delta}$. 
 \end{itemize}
-Note that these answers are in fact not weaker than the precise ones. When {\sf
-safe} is the answer, we know for certain that $H$ does not reach the unsafe
-region; when {\sf $\delta$-unsafe} is the answer, we know that there exists some
-$\delta$-bounded perturbation in the system that would render it unsafe. Since
-the error-bound $\delta$ can be chosen to be arbitrarily small, the
-$\delta$-unsafe answer discovers robustness problem in the original system,
-which should be regarded as unsafe in practice. We show how to encode the
-problem of bounded $\delta$-reachability as $\lrf$-sentences, so that bounded
-model checking can be performed using decision procedures. Using results on
-$\delta$-decidability of the underlying first-order theories, We prove that the
+Note that these answers are in fact not weaker than the precise ones for
+verification purposes. When {\sf safe} is the answer, we still know for certain
+that $H$ does not reach the unsafe region; when {\sf $\delta$-unsafe} is the
+answer, we now know that there exists some $\delta$-bounded perturbation in the
+system that would render it unsafe. Since the error-bound $\delta$ can be chosen
+to be arbitrarily small, the $\delta$-unsafe answer discovers robustness problem
+in the system, which should be regarded as unsafe indeed. We show the encoding
+ of bounded $\delta$-reachability as $\lrf$-sentences, so that bounded model
+checking can be performed using decision procedures. Using results on
+$\delta$-decidability of the underlying first-order theories, we prove that the
 bounded $\delta$-reachability problem is decidable for arbitrary
-$\lrf$-representable hybrid systems, with complexity bounds
-$\mathsf{NP^C}$ (trivial invariants) and $\mathsf{(\Sigma_2^P)^C}$ (general
-case) where $\mathsf{C}$ is the complexity class that $\mathcal{F}$ lies in.
-Compared to the undecidability of reachability in simple classes of hybrid
-systems, our results lead to a new and reasonably positive outlook for
-general hybrid system verification. In addition, we also discuss implications
-of $\delta$-decisions for proof-theoretic (invariant-validation) techniques and
-elimination of Zeno behaviors. 
+$\lrf$-representable hybrid systems, with complexity bounds $\mathsf{NP^C}$
+(trivial invariants) and $\mathsf{(\Sigma_2^P)^C}$ (general case) where
+$\mathsf{C}$ is the complexity class that $\mathcal{F}$ lies in. Compared to the
+undecidability of bounded reachability in very simple hybrid systems, our
+results lead to a new and positive outlook for general hybrid system
+verification. In addition, we discuss implications of $\delta$-decisions
+for proof-theoretic (invariant-validation) techniques and Zeno
+behaviors in hybrid systems.  
 
 3. The theoretical framework directly leads to practical techniques for solving
 $\delta$-reachability of nonlinear hybrid systems. Since the verification
@@ -143,18 +143,12 @@ problem is encoded as decision problems of $\lrf$-formulas, using a
 powerful decision procedure, we observe promising experimental results on many
 nonlinear hybrid systems. 
 
-\paragraph{Related Work}
-Formal work along this line started in the work~\cite{}.
-Franzle defined a notion of noise in hybrid systems, and proved that problems
-with polynomial maps are solvable in a compact space. Raschan later generalizes
-this result in \cite{} and obtained more positive result
-(Quasi-semidecidablity). However, results like this has been very sensitive to
-the definition of noise or approximations. For instance, in \cite{} it is shown
-that other definitions of noise and robustness still leads to undecidability.
-These results are in general theoretical in nature and does not lend themselves
-to practical solving techniques. {\bf More papers on nonlinear tools ()}
-
-
+The paper is organized as follows. The three aspects above will be the focus
+of Section~\ref{language}, Section~\ref{main} and~\ref{discuss}, and
+Section~\ref{experiments}, respectively. We give a quick review of
+first-order theories over the reals with computable functions and the 
+$\delta$-decision problems in Section~\ref{review}. More discussion about
+closely related work is a part of Section~\ref{discuss}. 
 
 \section{A Brief Review of $\delta$-Decidability over the Reals}\label{review}
 
@@ -180,8 +174,8 @@ $\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$.
 \end{definition}
 \begin{definition}[Computable Real Functions] We say
 $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable, if there exists
-an oracle Turing machine $\mathcal{M}_f$ that performs the following
-computation: Let $\vec a\in \dom(f)$ be any argument of $f$ and $\gamma(\vec a)$
+an oracle Turing machine $\mathcal{M}_f$ as follows. Let $\vec a\in
+\dom(f)$ be any argument of $f$ and $\gamma(\vec a)$
 any name of $\vec a$. On any input $i\in \mathbb{N}$,
 $\mathcal{M}_f^{\gamma(\vec a)}(i)$ uses $\gamma(\vec a)$ as an oracle, and
 computes a $2^{-i}$-approximation to $f(\vec a)$.
@@ -580,7 +574,7 @@ instance, the decidablility of timed automata~\cite{DBLP:conf/rex/AlurD91}
 require the use of rational constants only.
 \end{remark}
 
-\section{Bounded Model Checking}
+\section{Bounded $\delta$-Reachability}\label{main}
 
 \subsection{Encoding Reachability}
 
@@ -869,7 +863,7 @@ where $q_1,...,q_{n-1}$ are random modes in $Q$. Using a nondeterministic Turing
 The input parameters of the $\delta$-reachability problem are: the depth $n$, the time bound $T$, the length of the $\lrf$-description of $H$, and the error bound $\delta$.
 \end{remark}
 
-\section{Discussions}
+\section{Discussions}\label{discuss}
 
 We believe the notion of $\delta$-complete methods lead to a new framework that
 resolves other problems as well, which can be of considerable theoretical
@@ -877,7 +871,7 @@ interest. Currently the precise versions of these problems are open, but we
 believe in a $\delta$-perturbed picture they all allow definite answers. We
 will show discuss these directions for short and leave some conjectures here.
 
-\paragraph{Invariant Validation}
+\subsection{Invariant Validation}
 Suppose the automaton is given as
 $$H = \langle X, Q, \flow, \jump, \inv, \init \rangle$$
 where we assume that for each $q$, $flow_q$ is given as a solution of
@@ -896,7 +890,7 @@ Suppose Conjecture~\ref{} is true, then the $\delta$-invariant problem for
 hybrid systems is in $\Pi_1$.
 \end{proposition}
 
-\paragraph{Zeno Behaviors}
+\subsection{Zeno Behaviors}
 \begin{conjecture}
 In a bounded domain, for any Zeno system $H$, there exists a non-Zeno system
 $H'$ such that $H$ $\delta$-reaches $U$ if and only if $H'$ $\delta$-reaches
@@ -915,8 +909,84 @@ decidability. If there is no Zeno behaviors, then bounded time implies bounded
 depth.
 
 
+\subsection{Related Work}
+Formal work along this line started in the work~\cite{}.
+Franzle defined a notion of noise in hybrid systems, and proved that problems
+with polynomial maps are solvable in a compact space. Raschan later generalizes
+this result in \cite{} and obtained more positive result
+(Quasi-semidecidablity). However, results like this has been very sensitive to
+the definition of noise or approximations. For instance, in \cite{} it is shown
+that other definitions of noise and robustness still leads to undecidability.
+These results are in general theoretical in nature and does not lend themselves
+to practical solving techniques. {\bf More papers on nonlinear tools ()}
 
-\section{Experiments}
+\section{Experiments}\label{experiments}
+
+We implemented a bounded model checking {\tt dReach} using the
+techniques shown above. The tool relies on our SMT solver {\tt dReal}~\cite{},
+which provides $\delta$-decisions on $\lrf$-formulas. The tool is open-source
+(built on opensmt, minisat, realpaver, CAPD); the latest version and all the
+benchmarks are at {\tt http://cmacs.cs.cmu.edu/dReach}.We describe more details
+of our tool in~\cite{}. All the experiments are ran on a {\bf what} machine. 
+
+Here we list results on several nonlinear hybrid models that we believe are
+beyond the scope of existing tools.
+The {\sf Cardiac Cell Model}... The {\sf Power Grid Model}... The {\sf Legged
+Robotics Model}... All of them contain nonlinear ODEs and frequent use of
+trignometric and exponential functions, and model realistic systems in practice.
+More details of the models are in the Appendix. 
+
+\vspace{-0.7cm}
+\begin{center}
+\begin{table}[h]
+\centering
+\begin{tabular}{||c|c| c| c| c|c|c|c||c|c|c||}
+\hline
+depth & $\delta$ & \#vars  &\#atoms &\#ODEs &\#icp-solve &
+\#ode-solve& \#DPLL & result & time & mem \\
+\hline
+\multicolumn{11}{|c|}{Benchmark Set: AddArray} \\
+\hline
+ 6 & 10 & 3 & 0  & 1& {\tt UNSAT}& 0.06s &0.04s\\
+ 8 & 36 & 10 & 0 & 1 &{\tt UNSAT}& 0.09s &303.03s \\
+ 31 & 1634 & 735 & 0 & 1& {\tt UNSAT}& 0.93s & mem-out \\
+ 6 & 10 & 3 & 0  & 1& {\tt UNSAT}& 0.06s &0.04s\\
+ 8 & 36 & 10 & 0 & 1 &{\tt UNSAT}& 0.09s &303.03s \\
+ 31 & 1634 & 735 & 0 & 1& {\tt UNSAT}& 0.93s & mem-out \\
+\hline
+\multicolumn{11}{|c|}{Benchmark Set: MultiArray-1} \\
+\hline
+ 5 & 10 & 3 & 20 & 1&{\tt UNSAT}& 0.23s  & 0.02s   \\
+ 7 & 30 & 8 & 28 & 1 &{\tt UNSAT}& 0.04s & 7.21s   \\
+ 8 & 121 & 40 & 32 &1 &{\tt UNSAT}& 0.12s & 56.46s   \\
+ 16 & 817 & 320 & 64 & 1 &{\tt UNSAT}& 0.32s  & mem-out\\
+26 & 1687 & 670 & 104 & 2 &{\tt SAT} & 87.45s & mem-out\\
+\hline
+\multicolumn{11}{|c|}{Benchmark Set: MultiArray-2} \\
+\hline
+ 9 & 208 & 75 & 36 & 1 &{\tt UNSAT}& 0.73s & 244.85s \\
+ 10 & 295 & 110 & 40 & 1 &{\tt UNSAT}& 0.11s & 123.02s \\
+ 11 & 382 & 145 & 44 & 1 &{\tt UNSAT}& 0.12s & 3.96s \\
+ 20 & 1165 & 460 & 80 & 1 &{\tt UNSAT}& 0.30s & mem-out  \\
+26 & 1687 & 670 & 104 & 2 &{\tt SAT} & 65.72s & mem-out \\
+\hline
+\end{tabular}
+\caption{Experimental Results}
+\end{table}
+\end{center}
+\vspace{-1.5cm}
+The columns in the table shows the following data, from left to right. {\sf
+depth} is the unwinded depth of the model for bounded model checking. Again, we
+only count the number of discrete mode switching, which is usually small in
+practice. {\sf $\delta$} is error bound we set, which in this case is the size
+of the interval on the output solution. {\sf \#vars} is the number of real
+variables and {\sf \#atoms} is the number of atomic
+formulas in the formula. {\sf \#ODE} shows the number of differential equations
+involved. \#{\sf icp-solve} \#{ode-solve} are the number of ICP solving steps (a
+pair of pruning and branching steps) and ODE solving steps, respectively. \#{\sf
+DPLL} is the number of loops in the DPLL(T) framework. {result} is the final
+answer of the tool. {\sf time} and {\sf mem} show that CPU time and memory
+cost. 
 
 \section{Conclusion}
 
