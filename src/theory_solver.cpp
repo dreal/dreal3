@@ -369,6 +369,14 @@ lbool NRASolver::inform( Enode * e )
 //    add_literal ( e );
 
     if (contain_ode()) {
+        /* Add ODE time variable into v_list */
+        if(time_is_already_assigned == false && ode_vars.empty() == false) {
+            Enode * time = (*ode_vars.begin())->get_enode()->getODEtimevar();
+            variable * var = add_variable(time);
+            if(var != NULL)
+                v_list.push_back(var);
+        }
+
         // update ODE set of e
         // e->setODEs(retrieve_ode_set(egraph.var_to_ode, e));
         // update a mapping from `e` to the corresponding ODE vars.
