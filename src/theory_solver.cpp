@@ -1,5 +1,4 @@
 #include "theory_solver.h"
-#include <limits>
 #include <boost/algorithm/string/predicate.hpp>
 
 NRASolver::NRASolver( const int           i
@@ -41,7 +40,7 @@ bool NRASolver::icp_prop(rp_problem * p)
   rp_splitter * split;
   rp_new( split, rp_splitter_mixed, (p) );
 
-  icp_solver solver( (p), _odes, _ode_vars, 10, select, split);
+  icp_solver solver( (p), _ode_vars, 10, select, split);
   _solver = &solver;	//solver created
 
   if (!rp_box_empty(rp_problem_box(*p)))
@@ -79,7 +78,7 @@ bool NRASolver::icp_solve(rp_problem * p)
 	rp_splitter * split;
 	rp_new( split, rp_splitter_mixed, (p) );
 
-	icp_solver solver( (p), _odes, _ode_vars, 10, select, split);
+	icp_solver solver( (p), _ode_vars, 10, select, split);
 	_solver = &solver;	//solver created
 
 	if (rp_box_empty(rp_problem_box(*p)))
@@ -141,15 +140,15 @@ variable * NRASolver::add_variable( Enode * e )
 		}
 	}
 	variable * var = new variable(e, _b, _ts);
-        const string tmp_str = e->getCar() -> getName();
+        const string tmp_str = e->getCar()->getName();
         const char* name = tmp_str.c_str();
-        const double lb = e->hasValue() ? e->getLowerBound() : -std::numeric_limits<double>::infinity();
-        const double ub = e->hasValue() ? e->getUpperBound() : std::numeric_limits<double>::infinity();
+        const double lb = e->getLowerBound();
+        const double ub = e->getUpperBound();
 	var -> mk_rp_variable(name, lb, ub);
-        // cerr << "Name: " << name << "\t"
-        //      << "LB: " << lb << "\t"
-        //      << "UB: " << ub << endl;
-
+        cerr << "NRASolver::add_variable" << endl;
+        cerr << "Name: " << name << "\t"
+             << "LB: " << lb << "\t"
+             << "UB: " << ub << endl;
 	return var;
 }
 
@@ -157,6 +156,7 @@ set<variable *> NRASolver::get_variables (Enode * e, vector<variable *> & vl)
 {
     set<variable *> result;
     Enode * p = NULL;
+
     if( e->isSymb( ) ) {
         // do nothing
     }
@@ -168,13 +168,15 @@ set<variable *> NRASolver::get_variables (Enode * e, vector<variable *> & vl)
     {
         if ( e -> isVar() ) {
             variable * var = add_variable( e );
-            if (var != NULL ) vl.push_back(var);
+            if (var != NULL ) {
+                vl.push_back(var);
 
-            // Check it ends with "_t" or "_0".
-            string name = e->getName();
-            if (boost::algorithm::ends_with(name, "_0") ||
-                boost::algorithm::ends_with(name, "_t")) {
-                result.insert(var);
+                // Add it to result set if `var` is a ODE variable.
+                if (var->get_enode()->getODEvartype() != l_Undef) {
+                    result.insert(var);
+                }
+
+
             }
         }
 
@@ -244,8 +246,6 @@ void NRASolver::pop_literal ( )
 {
   literal * lit = assigned_lits.back();
   assigned_lits.pop_back();
-  _odes.clear();
-  _ode_vars.clear();
   rp_vector_pop(rp_problem_ctrs(*_problem),*(lit->_c));
 }
 
@@ -261,17 +261,25 @@ void NRASolver::add_literal ( Enode * e )
     }
 
     literal * lit = new literal( e , _ts );
+
     const string infix_str = infix(e, e->getPolarity());
     const char* infix_cstr = infix_str.c_str();
     lit->mk_constraint( infix_cstr );
 
     if(_contain_ode) {
-        // add corresponding ODEs to _odes
-        const set<string> ode_in_lit = e->getODEs();
-        _odes.insert(ode_in_lit.begin(), ode_in_lit.end());
+        cerr << "NRASolver::add_literal _enode_to_vars[" << e << "]" << endl;
 
         // add corresponding ODE variables to _odes_vars
         const set<variable*> ode_vars_in_lit = _enode_to_vars[e];
+
+        // for(set<variable*>::iterator ite = ode_vars_in_lit.begin();
+        //     ite != ode_vars_in_lit.end();
+        //     ite++)
+        // {
+        //     cerr << "ODE Vars in Lit " << endl
+        //          << "Name: " << (*ite)->get_enode()->getCar()->getName() << endl;
+        // }
+
         _ode_vars.insert(ode_vars_in_lit.begin(), ode_vars_in_lit.end());
     }
 
@@ -355,12 +363,14 @@ lbool NRASolver::inform( Enode * e )
     cerr << "inform: " << e << endl;
     assert( e -> isAtom() );
 
+    // 1. get_variables collects all the variables and push them to v_list
+    // 2. get_variables collects all the `ode` variables in `e` and return
     set<variable *> ode_vars = get_variables( e, v_list );
-//  add_literal ( e, l_list );
+//    add_literal ( e );
 
     if (contain_ode()) {
         // update ODE set of e
-        e->setODEs(retrieve_ode_set(egraph.var_to_ode, e));
+        // e->setODEs(retrieve_ode_set(egraph.var_to_ode, e));
         // update a mapping from `e` to the corresponding ODE vars.
         _enode_to_vars.insert( std::pair<Enode*, set<variable*> >(e, ode_vars ) );
     }
@@ -380,8 +390,6 @@ lbool NRASolver::inform( Enode * e )
 bool NRASolver::assertLit ( Enode * e, bool reason )
 {
   cerr << "asserLit: (" << e << ", " << reason << ")" << endl;
-  (void)e;
-  (void)reason;
 
   // cerr << "AssertLit with " << reason << " " << e << endl;
 
@@ -436,6 +444,7 @@ void NRASolver::popBacktrackPoint ( )
   // Pop a box from the history stack and restore
   rp_box old_box = history_boxes->get();
   history_boxes->remove();
+
   rp_box_copy(*_b, old_box);
   rp_box_destroy(&old_box);
 
@@ -446,6 +455,8 @@ void NRASolver::popBacktrackPoint ( )
 
   // pop literal
   pop_literal( );
+
+  _ode_vars.clear();
 }
 
 //

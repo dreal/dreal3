@@ -54,7 +54,7 @@ private:
 	rp_problem * 		_problem;
         bool                    _contain_ode;
 
-        set < string >           _odes;
+        // set of ODE variables assigned so far
         set < variable* >       _ode_vars;
         map < Enode*, set < variable* > > _enode_to_vars;
 };
