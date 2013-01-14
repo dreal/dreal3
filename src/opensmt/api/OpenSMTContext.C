@@ -894,3 +894,30 @@ void OpenSMTContext::addGetInterpolants( )
   command_list.push_back( c );
 }
 
+void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v)
+{
+    if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
+        e->setUpperBound(v);
+        cerr << "addIntvCtr: " << e << " " << op << " " << e->getUpperBound()<< endl;
+    }
+    else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
+        e->setLowerBound(v);
+        cerr << "addIntvCtr: " << e << " " << op << " " << e->getLowerBound() << endl;
+    }
+    else {
+        opensmt_error2( "command not supported (yet)", "" );
+    }
+}
+
+void OpenSMTContext::addIntvCtrR( const char* op, double v, Enode * e)
+{
+    if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
+        addIntvCtr( ">=", e, v);
+    }
+    else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
+        addIntvCtr( "<=", e, v);
+    }
+    else {
+        opensmt_error2( "command not supported (yet)", "" );
+    }
+}
