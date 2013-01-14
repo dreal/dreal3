@@ -372,9 +372,15 @@ lbool NRASolver::inform( Enode * e )
         /* Add ODE time variable into v_list */
         if(ode_vars.empty() == false) {
             Enode * time = (*ode_vars.begin())->get_enode()->getODEtimevar();
-            variable * var = add_variable(time);
+            variable * time_var = add_variable(time);
             if(var != NULL)
-                v_list.push_back(var);
+                v_list.push_back(time_var);
+            for(set<variable*>::iterator ite = ode_vars.begin();
+                ite != ode_vars.end();
+                ite++)
+            {
+                (*ite)->setODEtimevar(time_var);
+            }
         }
 
         // update ODE set of e

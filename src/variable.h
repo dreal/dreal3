@@ -16,6 +16,16 @@ public:
 
 	inline Enode * get_enode() const { return _e; }
 
+        inline void            setODEtimevar          (variable* tv)
+        {
+            timevar = tv;
+        }
+        inline variable*       getODEtimevar          ( ) const
+        {
+            return timevar;
+        }
+
+
 	inline rp_variable * get_rp_variable() { return _v; }
 	void mk_rp_variable( const char *, const double, const double );
 
@@ -53,7 +63,7 @@ private:
 
 	rp_box * _b;	//pointer to an outside rp_box
 	rp_table_symbol * _ts; //pointer to an outside symbol table
-
+        variable* timevar; // poitner to time variable
 };
 
 #endif
