@@ -47,7 +47,7 @@ TopLevelProp::doit( Enode * formula )
     || config.logic == QF_UFIDL
     || config.logic == QF_UFLRA )
   {
-    if ( ( config.logic == QF_UFIDL 
+    if ( ( config.logic == QF_UFIDL
 	|| config.logic == QF_UFLRA )
 	&& config.sat_lazy_dtc != 0 )
       formula = egraph.canonizeDTC( formula );
@@ -279,6 +279,10 @@ TopLevelProp::retrieveSubstitutions( Enode * formula
 	top_level_arith.push_back( enode );
       }
       else if ( config.logic == QF_BV )
+      {
+	// TODO: do something for BV
+      }
+      else if ( config.logic == QF_NRA || config.logic == QF_NRA_ODE )
       {
 	// TODO: do something for BV
       }
@@ -783,7 +787,7 @@ TopLevelProp::propagateUnconstrainedVariables( Enode * formula, bool & unc_stop 
 Enode *
 TopLevelProp::replaceUnconstrainedTerms( Enode * formula
     , vector< int > & //id_to_inc_edges
-    , bool & //fix_point_not_reached 
+    , bool & //fix_point_not_reached
     )
 {
   /*
@@ -1054,10 +1058,10 @@ TopLevelProp::splitEqs( Enode * formula )
     //
     // Replace arithmetic atoms with canonized version
     //
-    if ( enode->isTAtom( ) 
+    if ( enode->isTAtom( )
       && enode->isEq( ) )
     {
-      // 
+      //
       // If DTC is active
       //
       if ( ( config.logic == QF_UFIDL
@@ -1065,9 +1069,9 @@ TopLevelProp::splitEqs( Enode * formula )
 	  && config.sat_lazy_dtc != 0 )
       {
 	//
-	// These equalities will be given to the arithmetic 
-	// solvers, and hence split, only if they are not 
-	// "purely" uf (at the root level -- we assume we 
+	// These equalities will be given to the arithmetic
+	// solvers, and hence split, only if they are not
+	// "purely" uf (at the root level -- we assume we
 	// did purification before).
 	//
 	if ( !egraph.isRootUF( enode ) )
