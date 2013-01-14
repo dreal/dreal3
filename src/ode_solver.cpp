@@ -200,65 +200,73 @@ bool ode_solver::solve()
         } while (!timeMap.completed());
 
         // 1. Union all the out_v_list and intersect with end
-        IVector vector_union = *(out_v_list.begin());
-        for(vector<IVector>::iterator ite = out_v_list.begin();
-            ite != out_v_list.end();
-            ite++)
-        {
-            cerr << "U(" << vector_union << ", " << *ite << ") = ";
-            vector_union = intervalHull (vector_union, *ite);
-            cerr << vector_union << endl;
-        }
-
+        IVector vector_union;
         bool end_empty = false;
-        // end = intersection \cap end;
-        cerr << "Intersect(" << vector_union << ", " << end << ") = ";
-        if(intersection(vector_union, end, end))
-        {
-            IVector_to_varlist(end, _t_vars);
-            cerr << end << endl;
-        }
-        else {
-            // intersection is empty!!
+        if(out_v_list.size() == 0) {
+            cerr << "There is nothing to collect for V" << endl;
             end_empty = true;
-            cerr << "empty" << endl;
-            // for(int i = 0; end.size(); i++)
-            // {
-            //     end[i] = interval(+std::numeric_limits<double>::infinity(),
-            //                       -std::numeric_limits<double>::infinity());
-            // }
+        } else {
+            vector_union = *(out_v_list.begin());
+            for(vector<IVector>::iterator ite = ++(out_v_list.begin());
+                ite != out_v_list.end();
+                ite++)
+            {
+                cerr << "U(" << vector_union << ", " << *ite << ") = ";
+                vector_union = intervalHull (vector_union, *ite);
+                cerr << vector_union << endl;
+            }
+            // end = intersection \cap end;
+            cerr << "Intersect(" << vector_union << ", " << end << ") = ";
+            if(intersection(vector_union, end, end))
+            {
+                IVector_to_varlist(end, _t_vars);
+                cerr << end << endl;
+            }
+            else {
+                // intersection is empty!!
+                end_empty = true;
+                cerr << "empty" << endl;
+                // for(int i = 0; end.size(); i++)
+                // {
+                //     end[i] = interval(+std::numeric_limits<double>::infinity(),
+                //                       -std::numeric_limits<double>::infinity());
+                // }
+            }
         }
 
         bool time_empty = false;
         // 2. Union all the out_time_list and intersect with T
-        interval time_union = *out_time_list.begin();
-        for(vector<interval>::iterator ite = out_time_list.begin();
-            ite != out_time_list.end();
-            ite++)
-        {
-            cerr << "U(" << time_union << ", " << *ite << ") = ";
-            time_union = intervalHull(time_union, *ite);
-            cerr << time_union << endl;
-        }
+        interval time_union;
 
-        /* T = \cap (time_union, T) */
-        // double lb = +std::numeric_limits<double>::infinity();
-        // double ub = -std::numeric_limits<double>::infinity();
+        if(out_time_list.size() == 0) {
+            cerr << "There is nothing to collect for time" << endl;
+            time_union = true;
+        } else {
+            time_union = *out_time_list.begin();
+            for(vector<interval>::iterator ite = ++(out_time_list.begin());
+                ite != out_time_list.end();
+                ite++)
+            {
+                cerr << "U(" << time_union << ", " << *ite << ") = ";
+                time_union = intervalHull(time_union, *ite);
+                cerr << time_union << endl;
+            }
 
-        cerr << "Intersect(" << time_union << ", " << T << ") = ";
-        if(intersection(time_union, T, T))
-        {
-            time->set_top_lb(T.leftBound());
-            time->set_top_ub(T.rightBound());
-            cerr << T << endl;
-        }
-        else {
-            /* there is no intersection, use empty interval [+oo, -oo] */
-            time_empty = true;
-            cerr << "empty" << endl;
-        }
+            /* T = \cap (time_union, T) */
 
-        // ...
+            cerr << "Intersect(" << time_union << ", " << T << ") = ";
+            if(intersection(time_union, T, T))
+            {
+                time->set_top_lb(T.leftBound());
+                time->set_top_ub(T.rightBound());
+                cerr << T << endl;
+            }
+            else {
+                /* there is no intersection, use empty interval [+oo, -oo] */
+                time_empty = true;
+                cerr << "empty" << endl;
+            }
+        }
 
         if(end_empty) {
             for(vector<variable*>::iterator ite = _t_vars.begin();
