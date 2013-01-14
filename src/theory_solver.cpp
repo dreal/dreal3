@@ -370,7 +370,7 @@ lbool NRASolver::inform( Enode * e )
 
     if (contain_ode()) {
         /* Add ODE time variable into v_list */
-        if(time_is_already_assigned == false && ode_vars.empty() == false) {
+        if(ode_vars.empty() == false) {
             Enode * time = (*ode_vars.begin())->get_enode()->getODEtimevar();
             variable * var = add_variable(time);
             if(var != NULL)
