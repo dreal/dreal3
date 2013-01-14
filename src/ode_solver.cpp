@@ -16,6 +16,84 @@ ode_solver::~ode_solver()
 
 }
 
+
+string ode_solver::create_diffsys_string(set < variable* > & ode_vars,
+                                         vector<variable*> & _0_vars,
+                                         vector<variable*> & _t_vars)
+{
+    vector<string> var_list;
+    vector<string> ode_list;
+
+    // 1. partition ode_vars into _0_vars and _t_vars by their ODE_vartype
+    for(set< variable* >::iterator ite = ode_vars.begin();
+        ite != ode_vars.end();
+        ite++)
+    {
+        if ((*ite)->get_enode()->getODEvartype() == l_True) {
+            _t_vars.push_back(*ite);
+        }
+        else if ((*ite)->get_enode()->getODEvartype() == l_False) {
+            _0_vars.push_back(*ite);
+            var_list.push_back((*ite)->get_enode()->getODEvarname());
+            ode_list.push_back((*ite)->get_enode()->getODE());
+        }
+    }
+
+    // 2. Sort _0_vars and _t_vars
+    sort(_0_vars.begin(), _0_vars.end());
+    sort(_t_vars.begin(), _t_vars.end());
+
+    // 3. join var_list to make diff_var, ode_list to diff_fun
+    string diff_var = "var:" + boost::algorithm::join(var_list, ", ") + ";";
+    string diff_fun = "fun:" + boost::algorithm::join(ode_list, ", ") + ";";
+
+    // 4. construct diff_sys (string to CAPD)
+    cerr << "diff_var : " << diff_var << endl;
+    cerr << "diff_fun : " << diff_fun << endl;
+    string diff_sys = diff_var + diff_fun;
+    cerr << "diff_sys : " << diff_sys << endl;
+
+    return diff_sys;
+}
+
+
+IVector ode_solver::varlist_to_IVector(vector<variable*> vars)
+{
+    IVector ret (vars.size());
+
+    /* Assign current interval values */
+    int i = 0;
+    for (vector<variable*>::iterator var_ite = vars.begin();
+         var_ite != vars.end();
+         var_ite++, i++)
+    {
+        double lb, ub;
+        lb = (*var_ite)->get_lb();
+        ub = (*var_ite)->get_ub();
+        ret[i] = interval(lb, ub);
+        cout << "The interval on "
+             << (*var_ite)->getName()
+             << " is "<< ret[i] <<endl;
+    }
+
+    return ret;
+}
+
+void ode_solver::IVector_to_varlist(IVector & v, vector<variable*> & vars)
+{
+    for(int i = 0; i < v.size(); i++)
+    {
+        double lb = vars[i]->get_lb();
+        double ub = vars[i]->get_ub();;
+        if (lb < v[i].leftBound())
+            vars[i]->set_lb(v[i].leftBound());
+        if (ub > v[i].rightBound())
+            vars[i]->set_ub(v[i].rightBound());
+    }
+}
+
+
+
 void ode_solver::prune(vector<variable*>& _t_vars,
                        IVector v,
                        interval time,
@@ -41,61 +119,16 @@ void ode_solver::prune(vector<variable*>& _t_vars,
 
 bool ode_solver::solve()
 {
-    cerr << "==============================" << endl;
     cerr << "ODE_Solver::solve" << endl;
-    for(set<variable*>::iterator ite = _ode_vars.begin();
-        ite != _ode_vars.end();
-        ite++)
-    {
-        cerr << "ODE Vars" << "\t";
-        cerr << "Name: " << (*ite)->getName() << "\t";
-        cerr << "[" << (*ite)->get_lb() << ", ";
-        cerr << (*ite)->get_ub() << "]" << endl;
-    }
-
     cout.precision(12);
     try {
         // 1. Construct diff_sys, which are the ODE
-        //std::vector<Enode *>  diff_list;
-        //std::vector<Enode *>  diff_var_list;
-        std::map<int, int>    variables_to_intervals;
-        std::vector<int> var_code; //stores the ids of variables in the formula
-
-        vector<string> var_list;
-        vector<string> ode_list;
-
-
         vector<variable*> _0_vars;
         vector<variable*> _t_vars;
 
-        // 1. partition _ode_vars into _0_vars and _t_vars by their ODE_vartype
-        for(set< variable* >::iterator ite = _ode_vars.begin();
-            ite != _ode_vars.end();
-            ite++)
-        {
-            if ((*ite)->get_enode()->getODEvartype() == l_True) {
-                _t_vars.push_back(*ite);
-            }
-            else if ((*ite)->get_enode()->getODEvartype() == l_False) {
-                _0_vars.push_back(*ite);
-                var_list.push_back((*ite)->get_enode()->getODEvarname());
-                ode_list.push_back((*ite)->get_enode()->getODE());
-            }
-        }
-
-        // 2. Sort _0_vars and _t_vars
-        sort(_0_vars.begin(), _0_vars.end());
-        sort(_t_vars.begin(), _t_vars.end());
-
-        // 3. join var_list to make diff_var, ode_list to diff_fun
-        string diff_var = "var:" + boost::algorithm::join(var_list, ", ") + ";";
-        string diff_fun = "fun:" + boost::algorithm::join(ode_list, ", ") + ";";
-
-        // 4. construct diff_sys (string to CAPD)
-        cerr << "diff_var : " << diff_var << endl;
-        cerr << "diff_fun : " << diff_fun << endl;
-        string diff_sys = diff_var + diff_fun;
-        cerr << "diff_sys : " << diff_sys << endl;
+        string diff_sys = create_diffsys_string(_ode_vars,
+                                                _0_vars,
+                                                _t_vars);
 
         //pass the problem with variables
         IMap vectorField(diff_sys);
@@ -105,25 +138,10 @@ bool ode_solver::solve()
         ITimeMap timeMap(solver);
 
         //initial conditions
-        IVector start(_0_vars.size());
-        IVector end(_t_vars.size());
+        IVector start = varlist_to_IVector(_0_vars);
+        IVector end = varlist_to_IVector(_t_vars);
 
-        end = start; //set the initial comparison
-
-        /* Assign current interval values as X0 */
-        int idx = 0;
-        for (vector<variable*>::iterator var_ite = _0_vars.begin();
-             var_ite != _0_vars.end();
-             var_ite++, idx++)
-        {
-            double lb, ub;
-            lb = (*var_ite)->get_lb();
-            ub = (*var_ite)->get_ub();
-            start[idx] = interval(lb, ub);
-            cout << "The interval on "
-                 << (*var_ite)->getName()
-                 << " is "<< start[idx] <<endl;
-        }
+        //end = start; //set the initial comparison
 
         // define a doubleton representation of the interval vector start
         C0Rect2Set s(start);
@@ -137,12 +155,8 @@ bool ode_solver::solve()
         timeMap.stopAfterStep(true);
         interval prevTime(0.);
 
-        // IVector v;
-        // IVector v_union(var_list.size());
-
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
-
         do
         {
             timeMap(T,s);
@@ -172,68 +186,41 @@ bool ode_solver::solve()
 
         } while (!timeMap.completed());
 
-        // 1. Union all the out_v_list & out_time_list
-        // 1-1. Union over out_v_list
-        IVector union_result(_t_vars.size());
-        for(int i = 0; i < union_result.size(); i++)
-        {
-            union_result[i] = interval(+std::numeric_limits<double>::infinity(),
-                                       -std::numeric_limits<double>::infinity());
-        }
+        // 1. Union all the out_v_list and intersect with end
+        IVector vector_union = *(out_v_list.begin());
         for(vector<IVector>::iterator ite = out_v_list.begin();
             ite != out_v_list.end();
             ite++)
         {
-            for(int i = 0; i < union_result.size(); i++)
-            {
-                double tmp_lb = (*ite)[i].leftBound();
-                double tmp_ub = (*ite)[i].rightBound();
-
-                if (tmp_lb >= union_result[i].leftBound())
-                    tmp_lb = union_result[i].leftBound();
-
-                if (tmp_ub <= union_result[i].rightBound())
-                    tmp_ub = union_result[i].rightBound();
-
-                union_result[i] = interval(tmp_lb, tmp_ub);
-            }
+            vector_union = intervalHull (vector_union, *ite);
         }
+        end = intersection(end, vector_union);
+        IVector_to_varlist(end, _t_vars);
 
-        // 1-2. intersection with out_v_list and X_t
-        for(int i = 0; i < union_result.size(); i++)
-        {
-            double x_t_i_lb = _t_vars[i]->get_lb();
-            double x_t_i_ub = _t_vars[i]->get_ub();;
-
-            if (x_t_i_lb < union_result[i].leftBound())
-                _t_vars[i]->set_lb(union_result[i].leftBound());
-
-            if (x_t_i_ub > union_result[i].rightBound())
-                _t_vars[i]->set_ub(union_result[i].rightBound());
-        }
-
-        // 2-1. Union over out_time_list
-        double lb = +std::numeric_limits<double>::infinity();
-        double ub = -std::numeric_limits<double>::infinity();
+        // 2. Union all the out_time_list and intersect with T
+        interval time_union = *out_time_list.begin();
         for(vector<interval>::iterator ite = out_time_list.begin();
             ite != out_time_list.end();
             ite++)
         {
-            double tmp_lb = (*ite).leftBound();
-            double tmp_ub = (*ite).rightBound();
-
-            if (tmp_lb < lb)
-                lb = tmp_lb;
-
-            if (tmp_ub > ub)
-                ub = tmp_ub;
+            time_union = intervalHull(time_union, *ite);
         }
 
-        // 2-2. intersection with out_time_list and time
-        if (lb > T.leftBound())
-            time->setLowerBound(lb);
-        if (ub < T.rightBound())
-            time->setUpperBound(ub);
+        /* T = \cap (time_union, T) */
+        double lb = +std::numeric_limits<double>::infinity();
+        double ub = +std::numeric_limits<double>::infinity();
+
+        if(intersection(time_union, T, T))
+        {
+            lb = T.leftBound();
+            ub = T.rightBound();
+        }
+        else {
+            /* there is no intersection, use empty interval [+oo, -oo] */
+        }
+        // update Time using T
+        time->setLowerBound(lb);
+        time->setUpperBound(ub);
 
         //the following line detects conflicts in the trace
         // if(rp_box_empty(box)) {
