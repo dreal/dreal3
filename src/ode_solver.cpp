@@ -128,6 +128,7 @@ bool ode_solver::solve()
 {
     cerr << "ODE_Solver::solve" << endl;
     cout.precision(12);
+    bool ret = true;
     try {
         // 1. Construct diff_sys, which are the ODE
         vector<variable*> _0_vars;
@@ -256,7 +257,22 @@ bool ode_solver::solve()
 
         // ...
 
+        if(!end_empty) {
+            IVector_to_varlist(end, _t_vars);
+        } else {
+            for(vector<variable*>::iterator ite = _t_vars.begin();
+                ite != _t_vars.end();
+                ite++)
+            {
+                (*ite)->set_empty_interval();
+            }
+            ret = false;
+        }
 
+        if(!time_empty) {
+            time->set_empty_interval();
+            ret = false;
+        }
 
         //the following line detects conflicts in the trace
         // if(rp_box_empty(box)) {
@@ -273,6 +289,5 @@ bool ode_solver::solve()
              << "Exception caught!" << endl
              << e.what() << endl << endl;
     }
-    return true;
-
+    return ret;
 }
