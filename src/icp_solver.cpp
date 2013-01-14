@@ -4,7 +4,6 @@
 using namespace std;
 
 icp_solver::icp_solver(rp_problem * p,
-                       set < string > & odes,
                        set < variable* > & ode_vars,
                        double improve,
                        rp_selector * vs,
@@ -12,7 +11,6 @@ icp_solver::icp_solver(rp_problem * p,
                        rp_existence_prover * ep
     ):
         _problem(p),
-        _odes(odes),
         _ode_vars(ode_vars),
         _propag(p),
         _boxes(rp_problem_nvar(*p)), //number of variables
@@ -110,8 +108,28 @@ rp_box icp_solver::compute_next(bool hasDiff)
         if (_propag.apply(_boxes.get()))
         {
             if (hasDiff) {
-                ode_solver odeSolver(_odes, _ode_vars);
-                if (odeSolver.solve(_boxes.get()))
+
+                rp_box current_box = _boxes.get();
+
+                for(set<variable*>::iterator ite = _ode_vars.begin();
+                    ite != _ode_vars.end();
+                    ite++)
+                {
+                    (*ite)->set_lb(
+                        rp_binf(
+                            rp_box_elem(current_box, (*ite)->get_rpid())
+                            )
+                        );
+                    (*ite)->set_ub(
+                        rp_bsup(
+                            rp_box_elem(current_box, (*ite)->get_rpid())
+                            )
+                        );
+                }
+
+                ode_solver odeSolver(_ode_vars);
+
+                if (odeSolver.solve())
                 {
                     int i;
                     if ((i=_vselect->apply(_boxes.get()))>=0)
