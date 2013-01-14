@@ -1,11 +1,10 @@
 //solver for ODEs
 
 #include "ode_solver.h"
-#include "capd/capdlib.h"
 #include <boost/algorithm/string/join.hpp>
+#include <limits>
 
 using namespace capd;
-using namespace std;
 
 ode_solver::ode_solver(set < variable* > & ode_vars) :
     _ode_vars(ode_vars)
@@ -17,10 +16,31 @@ ode_solver::~ode_solver()
 
 }
 
+void ode_solver::prune(vector<variable*>& _t_vars,
+                       IVector v,
+                       interval time,
+                       vector<IVector> & out_v_list,
+                       vector<interval> & out_time_list
+    )
+{
+    bool candidate = true;
+    for(int i = 0; candidate && i < v.size(); i++)
+    {
+        if (v[i].leftBound() > _t_vars[i]->get_ub() ||
+            v[i].rightBound() > _t_vars[i]->get_lb())
+        {
+            candidate = false;
+        }
+    }
+
+    if (candidate) {
+        out_v_list.push_back(v);
+        out_time_list.push_back(time);
+    }
+}
 
 bool ode_solver::solve()
 {
-
     cerr << "==============================" << endl;
     cerr << "ODE_Solver::solve" << endl;
     for(set<variable*>::iterator ite = _ode_vars.begin();
@@ -109,6 +129,7 @@ bool ode_solver::solve()
         C0Rect2Set s(start);
 
         //time range
+        /* TODO: This should be of type variable, not Enode* */
         Enode* time = (*_0_vars.begin())->get_enode()->getODEtimevar();
         interval T = interval(time->getLowerBound(), time->getUpperBound());
         // double T = 100;
@@ -118,6 +139,9 @@ bool ode_solver::solve()
 
         // IVector v;
         // IVector v_union(var_list.size());
+
+        vector<IVector> out_v_list;
+        vector<interval> out_time_list;
 
         do
         {
@@ -141,71 +165,75 @@ bool ode_solver::solve()
                 std::cout << "\nenclosure for t=" << prevTime + subsetOfDomain << ":  " << v;
                 std::cout << "\ndiam(enclosure): " << diam(v);
 
-                // //collect the intervals
-
-                // for(int j = 0; j < var_code.size(); j++)
-                // {
-                //     if (v_union[j].leftBound() == 0.0 && v_union[j].rightBound() == 0.0)
-                //     {
-                //         v_union = v;
-                //     }
-
-                //     if (v[j].leftBound()< v_union[j].leftBound())
-                //     {
-                //         v_union[j].setLeftBound(v[j].leftBound());
-                //     }
-
-                //     if (v[j].rightBound()> v_union[j].rightBound())
-                //     {
-                //         v_union[j].setRightBound(v[j].rightBound());
-                //     }
-
-                // }
-
-                // cout<<endl<<"current collection of points"<<v_union<<endl;
-                //the following line controls whether you collect the set
-                //	v_union = v;
-
+                prune(_t_vars, v, subsetOfDomain, out_v_list, out_time_list);
             }
             prevTime = timeMap.getCurrentTime();
             cout << "\ncurrent time: " << prevTime << endl;
 
         } while (!timeMap.completed());
 
-        // //change this into time-sensitive
-        // //v_union = v;
-        // int j = 0;
-        // for(set<variable*>::iterator ite = _ode_vars.begin();
-        //     ite != _ode_vars.end();
-        //     ite++, j++)
-        // {
-        //     if (v_union[j].leftBound() > (*ite)->get_lb())
-        //     {
-        //         cout<<"reassigned left"<<endl;
-        //         (*ite)->set_lb(v_union[j].leftBound());
-        //     }
+        // 1. Union all the out_v_list & out_time_list
+        // 1-1. Union over out_v_list
+        IVector union_result(_t_vars.size());
+        for(int i = 0; i < union_result.size(); i++)
+        {
+            union_result[i] = interval(+std::numeric_limits<double>::infinity(),
+                                       -std::numeric_limits<double>::infinity());
+        }
+        for(vector<IVector>::iterator ite = out_v_list.begin();
+            ite != out_v_list.end();
+            ite++)
+        {
+            for(int i = 0; i < union_result.size(); i++)
+            {
+                double tmp_lb = (*ite)[i].leftBound();
+                double tmp_ub = (*ite)[i].rightBound();
 
-        //     if (v_union[j].rightBound() < (*ite)->get_ub())
-        //     {
-        //         cout << "reassigned right"<<endl;
-        //         (*ite)->set_ub(v_union[j].rightBound());
-        //     }
-        // }
+                if (tmp_lb >= union_result[i].leftBound())
+                    tmp_lb = union_result[i].leftBound();
 
-        // for(int j = 0; j < var_code.size(); j++)
-        // {
-        //     if (v_union[j].leftBound()> rp_binf(rp_box_elem(box,variables_to_intervals[var_code[j]]+1)) )
-        //     {
-        //         //			cout<<"reassigned left"<<endl;
-        //         rp_binf(rp_box_elem(box,variables_to_intervals[var_code[j]]+1)) = v_union[j].leftBound();
-        //     }
+                if (tmp_ub <= union_result[i].rightBound())
+                    tmp_ub = union_result[i].rightBound();
 
-        //     if (v_union[j].rightBound()< rp_bsup(rp_box_elem(box,variables_to_intervals[var_code[j]]+1)))
-        //     {
-        //         //			cout<<"reassigned right"<<endl;
-        //         rp_bsup(rp_box_elem(box,variables_to_intervals[var_code[j]]+1)) = v_union[j].rightBound();
-        //     }
-        // }
+                union_result[i] = interval(tmp_lb, tmp_ub);
+            }
+        }
+
+        // 1-2. intersection with out_v_list and X_t
+        for(int i = 0; i < union_result.size(); i++)
+        {
+            double x_t_i_lb = _t_vars[i]->get_lb();
+            double x_t_i_ub = _t_vars[i]->get_ub();;
+
+            if (x_t_i_lb < union_result[i].leftBound())
+                _t_vars[i]->set_lb(union_result[i].leftBound());
+
+            if (x_t_i_ub > union_result[i].rightBound())
+                _t_vars[i]->set_ub(union_result[i].rightBound());
+        }
+
+        // 2-1. Union over out_time_list
+        double lb = +std::numeric_limits<double>::infinity();
+        double ub = -std::numeric_limits<double>::infinity();
+        for(vector<interval>::iterator ite = out_time_list.begin();
+            ite != out_time_list.end();
+            ite++)
+        {
+            double tmp_lb = (*ite).leftBound();
+            double tmp_ub = (*ite).rightBound();
+
+            if (tmp_lb < lb)
+                lb = tmp_lb;
+
+            if (tmp_ub > ub)
+                ub = tmp_ub;
+        }
+
+        // 2-2. intersection with out_time_list and time
+        if (lb > T.leftBound())
+            time->setLowerBound(lb);
+        if (ub < T.rightBound())
+            time->setUpperBound(ub);
 
         //the following line detects conflicts in the trace
         // if(rp_box_empty(box)) {
