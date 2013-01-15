@@ -5,6 +5,8 @@
 open BatPervasives
 open Smt_cmd
 
+exception SMTException of string
+
 type varDecl = Dr.vardecl
 type formula = Dr.formula
 type hybrid = Hybrid.t
@@ -14,6 +16,7 @@ type mode = Mode.t
 type jump = Mode.jump
 type ode = Mode.ode
 type flow = ode list
+type flow_annot = (int * int * ode) list
 
 type smt_cmd = Smt_cmd.t
 type t = smt_cmd list
@@ -22,15 +25,15 @@ let add_index (k : int) (q : id) (suffix : string) (s : string) : string =
   let str_step = string_of_int k in
   let str_mode_id = string_of_int q in
   (BatString.join "_" [s;
-                      str_step;
-                      str_mode_id;]) ^ suffix
+                       str_step;
+                       str_mode_id;]) ^ suffix
 
 let process_init (q : id) (i : formula) : formula =
   Dr.subst_formula (add_index 0 q "_0") i
 
-let process_flow (k : int) (q : id) (m : mode) : (flow * formula) =
+let process_flow (k : int) (q : id) (m : mode) : (flow_annot * formula) =
   let (id, inv_op, flow, jump) = m in
-  let flow' = List.map (fun ode -> Dr.subst_ode (add_index k q "") ode) flow in
+  let flow' = List.map (fun ode -> (k, q, Dr.subst_ode (add_index k q "") ode)) flow in
   let f = match inv_op with
       None -> Dr.True
     | Some invt ->
@@ -56,7 +59,7 @@ let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
   Dr.make_and [gurad'; change']
 
 let trans (hm) (q : id) (next_q : id) (k : int) (next_k : int)
-    : (flow * formula)
+    : (flow_annot * formula)
     =
   let (vardecls, _, modemap, (init_id, init_formula), goal) = hm in
   let (id, inv, flow, jm) = (Modemap.find q modemap) in
@@ -67,7 +70,7 @@ let trans (hm) (q : id) (next_q : id) (k : int) (next_k : int)
    Dr.make_and [jump_result; flow_k_next])
 
 let transform (hm) (k : int) (next_k : int)
-    : (flow * formula)
+    : (flow_annot * formula)
     =
   let (vardecls, _, modemap, (init_id, init_formula), goal) = hm in
   let num_of_modes = BatEnum.count (BatMap.keys modemap) in
@@ -86,7 +89,7 @@ let transform (hm) (k : int) (next_k : int)
          all_modes
       )
   in
-  let trans_result_list : (flow * formula) list =
+  let trans_result_list : (flow_annot * formula) list =
     List.map
       (fun (q, next_q) ->
         trans hm q next_q k next_k
@@ -105,67 +108,95 @@ let process_goals (hm : Hybrid.t) (k : int) (goals : (int * formula) list) =
   in
   Dr.make_or goal_formulas
 
-let process_vardecls (hm : hybrid) (k : int) =
-  let (vardeclmap, env, modemap, init, goals) = hm in
-  let num_of_modes = BatEnum.count (BatMap.keys modemap) in
-  (* 1. Translate Variable Declarations *)
-  let new_vardecls =
-    BatMap.foldi
-      (fun var value vardecls -> (var, value)::vardecls)
-      vardeclmap
-      [] in
-  let new_vardecls' =
-    List.concat
-      (List.map
-         (fun (var, value) ->
-           let t1 =
-             BatList.cartesian_product
-               (BatList.of_enum ( 1 -- k ))
-               (BatList.of_enum ( 0 --^ num_of_modes ))
-           in
-           List.concat
-             (List.map
-                (fun (k, q) -> [(add_index k q "_t" var, value);
-                             (add_index k q "_0" var, value)])
-                t1
-             )
-         )
-         new_vardecls)
-  in
-  new_vardecls'
+let varmap_to_list vardeclmap =
+  BatMap.foldi
+    (fun var value vardecls -> (var, value)::vardecls)
+    vardeclmap
+    []
+
+let process_vardecls (vardecls) (num_of_modes : int) (k : int) =
+  List.concat
+    (List.map
+       (fun (var, value) ->
+         let t1 =
+           BatList.cartesian_product
+             (BatList.of_enum ( 1 -- k ))
+             (BatList.of_enum ( 0 --^ num_of_modes ))
+         in
+         List.concat
+           (List.map
+              (fun (k, q) -> [(add_index k q "_t" var, value);
+                           (add_index k q "_0" var, value)])
+              t1
+           )
+       )
+       vardecls)
 
 let reach (k : int) (hm : Hybrid.t) :
-    (varDecl list * flow * formula)
+    (varDecl list * flow_annot * formula * Value.t)
     =
   let (vardeclmap, _, modemap, (init_id, init_formula), goals) = hm in
-  let vardecls = process_vardecls hm k in
+  let num_of_modes = BatEnum.count (BatMap.keys modemap) in
+  let vardecls = varmap_to_list vardeclmap in
+  let (time_var_l, vardecls') =
+    BatList.partition (fun (name, _) -> name = "time") vardecls in
+  let time_intv =
+    match time_var_l with
+      (_, intv)::[] -> intv
+    | _ -> raise (SMTException "time should be defined once and only once.") in
+  let vardecls'' = process_vardecls vardecls' num_of_modes k in
   let init_result = process_init init_id init_formula in
   let (flow_0_ode, flow_0) = process_flow 0 init_id (Modemap.find init_id modemap) in
   let k_list : int list = BatList.of_enum (0 --^ k) in
-  let trans_result : (flow * formula) list =
+  let trans_result : (flow_annot * formula) list =
     List.map (fun k -> transform hm k (k + 1)) k_list
   in
   let (trans_flows, trans_formula) = BatList.split trans_result in
   let goal_formula = process_goals hm k goals in
-  (vardecls,
+  (vardecls'',
    BatList.concat (flow_0_ode::trans_flows),
    Dr.make_and
      (BatList.concat
         [[init_result];
          [flow_0];
          trans_formula;
-         [goal_formula]])
+         [goal_formula]]),
+   time_intv
   )
 
 let make_smt2
     (vardecls : varDecl list)
-    (flow : flow)
+    (flow_annot : flow_annot)
     (formula : formula)
+    (time_intv : Value.t)
     : t
     =
   let make_lb name v = Dr.Le (Dr.Const v,  Dr.Var name) in
   let make_ub name v = Dr.Le (Dr.Var name, Dr.Const v ) in
   let logic_cmd = SetLogic QF_NRA_ODE in
+  let num_of_modes = BatList.max (BatList.map (fun (_, q, _) -> q) flow_annot) in
+  let defineodes =
+    BatList.map
+      (fun (k, q, (x, e)) ->
+        let group_num = k * num_of_modes + q in
+        DefineODE (group_num, x, e)
+      )
+      flow_annot
+  in
+  let diff_groups =
+    BatList.unique
+      (BatList.map
+         (function
+         | DefineODE (n, _, _) -> n
+         | _ -> raise (SMTException "only contains DefineODE"))
+         defineodes)
+  in
+  let time_vardecls =
+    BatList.map
+      (fun n -> ("time_" ^ (BatInt.to_string n), time_intv))
+      diff_groups
+  in
+  let new_vardecls = vardecls@time_vardecls in
   let (vardecl_cmds, assert_cmds_list) =
     BatList.split
       (BatList.map
@@ -174,25 +205,17 @@ let make_smt2
            (DeclareFun name,
             [Assert (make_lb name lb);
              Assert (make_ub name ub)])
-         | _ -> raise Not_found)
-         vardecls) in
-  let defineodes =
-    BatList.map
-      (fun (x, e) ->
-        DefineODE (x, e)
-      )
-      flow
-  in
+         | _ -> raise (SMTException "We should only have interval here."))
+         new_vardecls) in
   let assert_cmds = BatList.concat assert_cmds_list in
   let assert_formula = Assert formula in
   BatList.concat
-  [[logic_cmd];
-   vardecl_cmds;
-   defineodes;
-   assert_cmds;
-   [assert_formula]]
+    [[logic_cmd];
+     vardecl_cmds;
+     defineodes;
+     assert_cmds;
+     [assert_formula]]
 
-(* (flow * formula) => smt2 *)
 let print out smt =
   BatList.print
     (~first: "")
@@ -201,4 +224,3 @@ let print out smt =
     Smt_cmd.print
     out
     smt
-

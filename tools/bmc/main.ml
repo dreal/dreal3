@@ -20,8 +20,8 @@ let run () =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let hm = Parser.main Lexer.start lexbuf in
     let hm' = Hybrid.preprocess hm in
-    let (vardecls, flow, formula) = Smt2.reach !k hm' in
-    let smt2 = Smt2.make_smt2 vardecls flow formula in
+    let (vardecls, flow_annots, formula, time_intv) = Smt2.reach !k hm' in
+    let smt2 = Smt2.make_smt2 vardecls flow_annots formula time_intv in
     begin
       Smt2.print out smt2
     end
