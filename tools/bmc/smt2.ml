@@ -3,6 +3,7 @@
  *)
 
 open BatPervasives
+open Smt_cmd
 
 type varDecl = Dr.vardecl
 type formula = Dr.formula
@@ -110,10 +111,40 @@ let process_goals (hm : Hybrid.t) (k : int) (goals : (int * formula) list) =
   in
   Dr.make_or goal_formulas
 
+let process_vardecls (hm : hybrid) (k : int) =
+  let (vardeclmap, env, modemap, init, goals) = hm in
+  let num_of_modes = BatEnum.count (BatMap.keys modemap) in
+  (* 1. Translate Variable Declarations *)
+  let new_vardecls =
+    BatMap.foldi
+      (fun var value vardecls -> (var, value)::vardecls)
+      vardeclmap
+      [] in
+  let new_vardecls' =
+    List.concat
+      (List.map
+         (fun (var, value) ->
+           let t1 =
+             BatList.cartesian_product
+               (BatList.of_enum ( 1 -- k ))
+               (BatList.of_enum ( 0 --^ num_of_modes ))
+           in
+           List.concat
+             (List.map
+                (fun (k, q) -> [(add_index k q "_t" var, value);
+                             (add_index k q "_0" var, value)])
+                t1
+             )
+         )
+         new_vardecls)
+  in
+  new_vardecls'
+
 let reach (k : int) (hm : Hybrid.t) :
-    (flow * formula)
+    (varDecl list * flow * formula)
     =
   let (vardeclmap, _, modemap, (init_id, init_formula), goals) = hm in
+  let vardecls = process_vardecls hm k in
   let init_result = process_init init_id init_formula in
   let (flow_0_ode, flow_0) = process_flow 0 init_id (Modemap.find init_id modemap) in
   let k_list : int list = BatList.of_enum (0 --^ k) in
@@ -122,14 +153,23 @@ let reach (k : int) (hm : Hybrid.t) :
   in
   let (trans_flows, trans_formula) = BatList.split trans_result in
   let goal_formula = process_goals hm k goals in
-  ( BatList.concat (flow_0_ode::trans_flows),
-    Dr.make_and
-      (BatList.concat
-      [[init_result];
-       [flow_0];
-       trans_formula;
-       [goal_formula]])
+  (vardecls,
+   BatList.concat (flow_0_ode::trans_flows),
+   Dr.make_and
+     (BatList.concat
+        [[init_result];
+         [flow_0];
+         trans_formula;
+         [goal_formula]])
   )
+
+let make_smt2
+    (vardecls : varDecl list)
+    (flow : flow)
+    (formula : formula)
+    : t
+    = [SetLogic QF_NRA_ODE;
+      ]
 
 (* (flow * formula) => smt2 *)
 let print out smt =
