@@ -136,8 +136,11 @@ bool NRASolver::icp_solve(rp_problem * p)
 
 variable * NRASolver::add_variable( Enode * e )
 {
+        cerr << "add_variable " << e << endl;
   	for (vector<variable *>::iterator it = v_list.begin() ; it != v_list.end(); it++)
 	{
+            cerr << "Name : !!!!! ";
+            cerr << (*it)->get_enode() << endl;
 		if ( e == (*it) -> get_enode() )
 		{
 			return NULL;
@@ -174,6 +177,12 @@ set<variable *> NRASolver::get_variables (Enode * e, vector<variable *> & vl)
             variable * var = add_variable( e );
             if (var != NULL ) {
                 vl.push_back(var);
+                cerr << "List of v_list" << endl;
+                for (vector<variable *>::iterator it = v_list.begin() ; it != v_list.end(); it++)
+                {
+                    cerr << (*it)->get_enode() << endl;
+                }
+                cerr << endl;
 
                 // Add it to result set if `var` is a ODE variable.
                 if (var->get_enode()->getODEvartype() != l_Undef) {
@@ -380,8 +389,16 @@ lbool NRASolver::inform( Enode * e )
         if(ode_vars.empty() == false) {
             Enode * time = (*ode_vars.begin())->get_enode()->getODEtimevar();
             variable * time_var = add_variable(time);
-            if(var != NULL)
-                v_list.push_back(time_var);
+            if(var != NULL) {
+                // v_list.push_back(time_var);
+                // cerr << "Add time_var" << endl;
+                // for (vector<variable *>::iterator it = v_list.begin() ; it != v_list.end(); it++)
+                //{
+                //    cerr << (*it)->get_enode() << endl;
+                //}
+                //cerr << endl;
+            }
+
             for(set<variable*>::iterator ite = ode_vars.begin();
                 ite != ode_vars.end();
                 ite++)

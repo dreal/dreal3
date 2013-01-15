@@ -56,6 +56,11 @@ icp_solver::icp_solver(rp_problem * p,
                 rp_domain_factory dfact;
                 dfact.apply(p,_propag);
 
+		cerr << "icp_solver::icp_solver" << endl;
+		cerr << rp_problem_nctr(*p) << endl;
+		rp_problem_display(stdout, *p);
+
+
                 rp_newton_factory nfact(_improve);
                 nfact.apply(p,_propag);
 
