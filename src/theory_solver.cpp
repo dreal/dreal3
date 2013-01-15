@@ -383,14 +383,13 @@ lbool NRASolver::inform( Enode * e )
     // 2. get_variables collects all the `ode` variables in `e` and return
     set<variable *> ode_vars = get_variables( e, v_list );
 //    add_literal ( e );
-
     if (contain_ode()) {
         /* Add ODE time variable into v_list */
         if(ode_vars.empty() == false) {
             Enode * time = (*ode_vars.begin())->get_enode()->getODEtimevar();
             variable * time_var = add_variable(time);
-            if(var != NULL) {
-                // v_list.push_back(time_var);
+            if(time_var != NULL) {
+                v_list.push_back(time_var);
                 // cerr << "Add time_var" << endl;
                 // for (vector<variable *>::iterator it = v_list.begin() ; it != v_list.end(); it++)
                 //{
