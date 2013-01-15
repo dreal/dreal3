@@ -60,7 +60,7 @@ let trans (hm) (q : id) (next_q : id) (k : int) (next_k : int)
     =
   let (vardecls, _, modemap, (init_id, init_formula), goal) = hm in
   let (id, inv, flow, jm) = (Modemap.find q modemap) in
-  let jump_result = process_jump (Jumpmap.find q jm) q next_q k next_k in
+  let jump_result = process_jump (Jumpmap.find next_q jm) q next_q k next_k in
   let (flow_k_next_ode, flow_k_next) =
     process_flow (next_k) (next_q) (Modemap.find init_id modemap) in
   (flow_k_next_ode,
