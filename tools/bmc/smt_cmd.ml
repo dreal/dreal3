@@ -19,12 +19,16 @@ let print_logic out =
 let print out =
   function
   | SetLogic l ->
-    print_logic out l
+    begin
+      BatString.print   out "(set-logic ";
+      print_logic out l;
+      BatString.print out ")";
+    end
   | DeclareFun v ->
     begin
       BatString.print   out "(declare-fun ";
       BatString.print   out v;
-      BatString.println out " () Real)";
+      BatString.print out " () Real)";
     end
   | DefineODE (x, e) ->
     begin
@@ -34,15 +38,15 @@ let print out =
       BatString.print out x;
       BatString.print out "] ";
       Dr.print_exp out e;
-      BatString.println out "))";
+      BatString.print out "))";
     end
   | Assert f ->
     begin
-      BatString.print out "(assert (";
+      BatString.print out "(assert ";
       Dr.print_formula out f;
-      BatString.println out "))";
+      BatString.print out ")";
     end
   | CheckSAT ->
-    BatString.println out "(check-sat)"
+    BatString.print out "(check-sat)"
   | Exit ->
-    BatString.println out "(exit)"
+    BatString.print out "(exit)"
