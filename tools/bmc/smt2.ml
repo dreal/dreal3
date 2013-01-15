@@ -168,8 +168,35 @@ let make_smt2
     (flow : flow)
     (formula : formula)
     : t
-    = [SetLogic QF_NRA_ODE;
-      ]
+    =
+  let make_lb name v = Dr.Le (Dr.Const v,  Dr.Var name) in
+  let make_ub name v = Dr.Le (Dr.Var name, Dr.Const v ) in
+  let logic_cmd = SetLogic QF_NRA_ODE in
+  let (vardecl_cmds, assert_cmds_list) =
+    BatList.split
+      (BatList.map
+         (function
+         | (name, Value.Intv (lb, ub)) ->
+           (DeclareFun name,
+            [Assert (make_lb name lb);
+             Assert (make_ub name ub)])
+         | _ -> raise Not_found)
+         vardecls) in
+  let defineodes =
+    BatList.map
+      (fun (x, e) ->
+        DefineODE (x, e)
+      )
+      flow
+  in
+  let assert_cmds = BatList.concat assert_cmds_list in
+  let assert_formula = Assert formula in
+  BatList.concat
+  [[logic_cmd];
+   vardecl_cmds;
+   defineodes;
+   assert_cmds;
+   [assert_formula]]
 
 (* (flow * formula) => smt2 *)
 let print out smt =
