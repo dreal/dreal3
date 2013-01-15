@@ -23,7 +23,7 @@ let run () =
     let (vardecls, flow, formula) = Smt2.reach !k hm' in
     let smt2 = Smt2.make_smt2 vardecls flow formula in
     begin
-      ()
+      Smt2.print out smt2
     end
   with v -> Error.handle_exn v
 let _ = Printexc.catch run ()
