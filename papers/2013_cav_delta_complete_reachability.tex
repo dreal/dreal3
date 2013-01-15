@@ -93,15 +93,14 @@ problems over the reals, for a wide range of nonlinear hybrid systems.
 
 First of all, our study of first-order formulas with arbitrary computable real
 functions equips us with a rich language for describing hybrid systems in
-general.
-We define $\lrf$-representable hybrid systems, where $\mathcal{F}$ can be any
-set of computable real functions. The classes of hybrid systems that have been
-studied in the existing literature can all be easily defined by restricting
-$\mathcal{F}$. We further define the notion of perturbations on hybrid
+general. We define $\lrf$-representable hybrid systems, where $\mathcal{F}$ can
+be any set of computable real functions. The classes of hybrid systems that have
+been studied in the existing literature can all be easily defined by restricting
+$\mathcal{F}$. We define the notion of perturbations on hybrid
 systems as syntactic perturbations on their $\lrf$-representations, which
-provides the key link to $\delta$-decidability results. 
+ will provide the key link to $\delta$-decidability results. 
 
-Next, we define the $\delta$-reachability problem as a slight
+Second, we define the $\delta$-reachability problem as a slight
 relaxation of the standard reachability problem. Let $\delta\in \mathbb{Q}^+$ be
 arbitrary. Give a hybrid system $H$ and a region $U$ of its state
 space, both $\lrf$-represented, the $\delta$-reachability problem asks for
@@ -111,56 +110,51 @@ one of the following answers:
  \item {\sf $\delta$-unsafe}: Under some $\delta$-perturbation, $H^{\delta}$ can
 reach $U^{\delta}$. 
 \end{itemize}
-Note that these answers are in fact not weaker than the precise ones for
-verification purposes. When {\sf safe} is the answer, we still know for certain
+These answers are in fact not weaker than the precise ones for
+verification purposes. When {\sf safe} is the answer, we know for certain
 that $H$ does not reach the unsafe region; when {\sf $\delta$-unsafe} is the
 answer, there exists some $\delta$-bounded perturbation in the
-system that would render it unsafe. The error-bound $\delta$ can be chosen
-to be arbitrarily small such that the $\delta$-unsafe answer discovers
-robustness problem in the system, which should be regarded as unsafe indeed. We
-show the encoding of bounded $\delta$-reachability as $\lrf$-sentences, so that
-bounded model checking can be performed using decision procedures. We prove that
-the bounded $\delta$-reachability problem is decidable for arbitrary
+system that {\em would} render it unsafe. Note that the error-bound $\delta$ can
+be chosen to be arbitrarily small, so that the {\sf$\delta$-unsafe} answer
+discovers robustness problem in the system, which should be regarded as unsafe
+indeed. We encode the checking of bounded $\delta$-reachability as
+$\lrf$-sentences. As a consequence, we can prove that the bounded
+$\delta$-reachability problem is decidable for arbitrary
 $\lrf$-representable hybrid systems, with complexity bounds $\mathsf{NP^C}$
 (trivial invariants) and $\mathsf{(\Sigma_2^P)^C}$ (general case) where
 $\mathsf{C}$ is the complexity class that $\mathcal{F}$ lies in. Compared to the
- undecidability of standard bounded reachability in very simple hybrid systems,
-our
-results lead to a new outlook for general hybrid system
-verification. In addition, we discuss implications of $\delta$-decisions
-for proof-theoretic (invariant-validation) techniques and Zeno
-behaviors in hybrid systems.  
+ undecidability of standard bounded reachability of very simple hybrid systems,
+the results lead to a new outlook for general hybrid system
+verification. 
 
-The new framework directly leads to practical techniques for
-solving bounded $\delta$-reachability of nonlinear hybrid systems. Since the
-verification problem is encoded as decision problems of $\lrf$-formulas, using a
-powerful decision procedure, we observe promising experimental results on many
-nonlinear hybrid systems. 
+Third, the new framework directly leads to practical solving techniques. Using a
+powerful decision procedure, we perform bounded model checking on nonlinear
+hybrid systems that contain many transcendental
+functions and nonlinear ODEs, and show the promising experimental results. 
 
-The paper is organized as follows. We review the $\delta$-decision framework
-for first-order formulas in Section~\ref{review} first, and then define
-$\lrf$-representations of hybrid systems in Section~\ref{language}. We study
-the bounded $\delta$-reachability problem in Section~\ref{main}, proving
-decidability and complexity bounds, through their encodings to $\lrf$-formulas.
-We point out further implications of $\delta$-decisions and discuss related work
-in Section~\ref{discuss}. We show experimental results of our tool {\tt dReach}
-on nonlinear hybrid systems in Section~\ref{experimental} and conclude. 
+The paper is organized as follows. First, we review the background framework of 
+$\delta$-decisions for first-order formulas in Section~\ref{review},
+and then define $\lrf$-representations of hybrid systems in
+Section~\ref{language}. We study the bounded $\delta$-reachability problem in
+Section~\ref{main}, proving decidability and complexity bounds, through their
+encodings as $\lrf$-formulas. We discuss related work in detail in
+Section~\ref{discuss}. We show experimental results of our tool {\tt dReach} on
+nonlinear hybrid systems in Section~\ref{experiments}. 
 
 \section{A Brief Review of $\delta$-Decidability over the Reals}\label{review}
 
-We first briefly review the framework of $\delta$-complete decision procedures.
-It formulates a reasonable correctness requirement for solving nonlinear
-formulas over the reals. We have shown that $\delta$-complete procedures exist,
-with reasonable complexity bounds, for bounded SMT formulas over the reals with
-arbitrary computable real functions.
+We first briefly review our framework of $\delta$-decision problems for
+first-order sentences over the reals with computable real functions. More
+details can be found in~\cite{}. 
 
 To formalize computations over the reals, we first need to encode the real
-numbers, as infinite strings. We can then model
-computations of real functions with machines that can use infinite strings as
-input and output. That is, a real function is computable if there exists a
-machine that computes, using oracles that encode the arguments of the function,
-the values of the function to an arbitrary precision. More precisely, these
-notions are captured by the following definitions.
+numbers, as infinite strings. We can then model computations of real functions
+with machines that can use infinite strings as input and output. That is, a real
+function is computable if there exists a machine that computes, using oracles
+that encode the arguments of the function, the values of the function to an
+arbitrary precision. The following formal definitions are standard in 
+computable
+analysis~\cite{CAbook}.
 \begin{definition}[Encoding Real Numbers]
 A {\em name} of a real number $a\in \mathbb{R}$ is a function
 $\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{Q}$ satisfying that for all
@@ -178,18 +172,18 @@ computes a $2^{-i}$-approximation to $f(\vec a)$.
 \end{definition}
 Most common continuous real functions are computable, such as addition,
 multiplication,  absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of
-Lipschitz-continuous ordinary differential equations~\cite{CAbook}. Compositions
+Lipschitz-continuous ordinary differential equations. Compositions
 of computable functions are computable.
 
 We consider first-order formulas with computable real functions interpreted
 over the reals. We write $\mathcal{F}$ to denote an arbitrary collection of
 symbols representing computable functions over $\mathbb{R}^n$ for various
-$n$. We always assume that $\mathcal{F}$ contains at least the constant $0$,
-unary negation, addition, and the absolute value. (Constants are seen as
-constant functions.) Let $\mathcal{L_{\mathcal{F}}}$ be the signature $\langle
-\mathcal{F}, >\rangle$. $\lrf$-formulas are always
-evaluated in the standard way over the corresponding structure
-$\mathbb{R}_{\mathcal{F}}= \langle \mathbb{R}, \mathcal{F}, >\rangle$.  It is
+$n$. Constants are seen as 0-ary functions. We always assume that
+$\mathcal{F}$ contains at least $0$, unary negation, addition, and
+the absolute value.  Let $\mathcal{L_{\mathcal{F}}}$ be the signature $\langle
+\mathcal{F}, >\rangle$. $\lrf$-formulas are evaluated in the standard way over
+the corresponding structure $\mathbb{R}_{\mathcal{F}}= \langle \mathbb{R},
+\mathcal{F}, >\rangle$.  It is
 not hard to see that we only need to use atomic formulas of the form
 $t(x_1,...,x_n)>0$ or $t(x_1,...,x_n)\geq 0$, where $t(x_1,...,x_n)$ are built
 up from functions in $\mathcal{F}$. To avoid extra preprocessing of formulas, we
@@ -223,34 +217,30 @@ $\exists^{[u,v]}x. \varphi \leftrightarrow \neg \forall^{[u,v]}x. \neg\varphi$.
 \end{definition}
 We say a sentence is bounded if it only involves bounded quantifiers.
 \begin{definition}[Bounded $\lrf$-Sentences]
-A {\em bounded $\lrf$-sentence} is of the form
+A {\em bounded $\lrf$-sentence} is
 $$Q_1^{[u_1,v_1]}x_1\cdots Q_n^{[u_n,v_n]}x_n\;\psi(x_1,...,x_n).$$
-$Q_i^{[u_i,v_i]}$s are bounded quantifiers. $\psi(x_1,...,x_n)$ is a
+$Q_i^{[u_i,v_i]}$s are bounded quantifiers, and $\psi(x_1,...,x_n)$ is a
 quantifier-free $\lrf$-formula.
 \end{definition}
-We will often write a matrix $\psi(x_1,...,x_n)$ as
-$$\psi[t_1(\vec x)>0,...,t_k(\vec x)>0; t_{k+1}(\vec x)\geq 0,...,t_m(\vec
-x)\geq 0]$$ to emphasize the fact that $\psi(\vec x)$ is a positive Boolean
-combination of the atomic formulas shown. We will write a bound $[u,v]$ as $I$
-for short.
-\begin{definition}[$\delta$-Variants]
+We write $\psi(x_1,...,x_n)$ as $\psi[t_1(\vec
+x)>0,...,t_k(\vec x)>0; t_{k+1}(\vec x)\geq 0,...,t_m(\vec
+x)\geq 0]$ to emphasize that $\psi(\vec x)$ is a Boolean
+combination of the atomic formulas shown. 
+\begin{definition}[$\delta$-Variants]\label{variants}
 Let $\delta\in \mathbb{Q}^+\cup\{0\}$, and $\varphi$ an
 $\lrf$-formula of the form
-$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec y)>0; t_j(\vec x, \vec
-y)\geq 0],$$ where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$.
-
-The {\em $\delta$-weakening} $\varphi^{-\delta}$ of $\varphi$ is
-defined to  be the result of replacing each atomic formula $t_i > 0$ by $t_i >
--\delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq -\delta$:
-$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec y)>-\delta; t_j(\vec x,
+$$\varphi: \ Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec y)>0;
+t_j(\vec x, \vec
+y)\geq 0],$$ where $i\in\{1,...k\}$ and $j\in\{k+1,...,m\}$. The {\em
+$\delta$-weakening} $\varphi^{-\delta}$ of $\varphi$ is
+defined as the result of replacing each atom $t_i > 0$ by $t_i >
+-\delta$ and $t_j \geq 0$ by $t_j \geq -\delta$. That is, 
+$$\varphi^{-\delta}:\ Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec
+y)>-\delta; t_j(\vec x,
 \vec y)\geq -\delta].$$
-
-Similarly, the {\em $\delta$-strengthening} $\varphi^{+\delta}$ of $\varphi$ is
-defined to be the result of replacing each atomic formula $t_i > 0$ by $t_i >
-\delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq \delta$:
-$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec y)>\delta; t_j(\vec x,
-\vec y)\geq \delta].$$
 \end{definition}
+
+We then have the following main decidability result. 
 \begin{theorem}[$\delta$-Decidability] Let $\delta\in\mathbb{Q}^+$ be
 arbitrary. There is an algorithm which, given any bounded $\varphi$,
 correctly returns one of the following two answers:
@@ -258,43 +248,30 @@ correctly returns one of the following two answers:
 \item ``$\delta$-$\mathsf{True}$'': $\varphi^{-\delta}$ is true.
 \item ``$\mathsf{False}$'': $\varphi$ is false.
 \end{itemize}
-Note that the two cases can overlap. If $\varphi$ is false and
-$\varphi^{-\delta}$ is true, the algorithm is allowed to return either
-one. Dually, there is an algorithm that correctly returns, on the same input,
-one of the following answers:
-\begin{itemize}
-\item ``$\mathsf{True}$'': $\varphi$ is true.
-\item ``$\delta$-$\mathsf{False}$": $\varphi^{+\delta}$ is false.
-\end{itemize}
+Note when the two cases overlap, either answer is correct. 
 \end{theorem}
-
 We call this new decision problem the $\delta$-decision problem for
-$\lrf$-sentences.
+$\lrf$-sentences. We proved the following complexity results. 
 \begin{theorem}[Complexity]\label{compmain}
 Let $\mathcal{F}$ be a class of computable functions. Let $S$ be a class of
 $\lrf$-sentences, such that for any $\varphi$ in $S$, the
-terms in $\varphi_{[0,1]}$ are computable in complexity class $\mathsf{C}$ where
-$\mathsf{P_{C[0,1]}\subseteq \mathsf{C}\subseteq \mathsf{PSPACE_{C[0,1]}}}$.
+terms in $\varphi$ are computable in complexity class $\mathsf{C}$ where
+$\mathsf{P\subseteq \mathsf{C}\subseteq \mathsf{PSPACE}}$.
 Then, for any $\delta\in \mathbb{Q}^+$, the $\delta$-decision problem for
 bounded $\Sigma_n$-sentences in $S$ is in $\mathsf{(\Sigma_n^P)^C}$.
 \end{theorem}
 
-These results lead to a
-new perspective on decision problems over the reals in general.
-This framework provides a theoretical basis for the development of
-numerically-driven decision procedures such as~\cite{}.
+\section{Hybrid Systems with $\lrf$-Representations}\label{language}
 
-\section{Hybrid Systems, $\lrf$-Representations, and
-Reachability}\label{language}
+We give a precise syntax and semantics of hybrid systems using
+$\lrf$-formulas and their interpretations, and then define the notion of
+$\delta$-perturbations on them. 
 
 \subsection{Basic Definitions}
-
-A hybrid automaton is an infinite-state machine whose state has a discrete part,
- ranging over the vertices of a graph, and a continuous part, ranging over some
-Euclidean space.  The following is a standard general definition~\cite{}.
+A standard definition of general hybrid systems is as follows~\cite{}. 
 \begin{definition}[Hybrid Automata]\label{auto-def}
-An $n$-dimensional hybrid automaton $$H   = \langle X, Q, \flow,
-\guard, \reset, \inv, \init\rangle$$ consists of the following elements:
+An $n$-dimensional hybrid automaton is a tuple $H   = \langle X, Q, \flow,
+\guard, \reset, \inv, \init\rangle$ that contains the following elements. 
 \paragraph{\bf State Space.} $X\subseteq \mathbb{R}^n$ specifies the range of
 the {\em continuous variables}  $\vec x$ of the system. $Q=\{q_0,...,q_m\}$ is
 a finite set of discrete {\em control modes}.
@@ -315,9 +292,7 @@ X\times Q\times X$ specifies the {\em jump conditions}
 between two modes: $(q,q',\vec a,\vec a')\in \jump$ if in mode $q$,
 when the continuous variables are of value $\vec x = \vec a$, the automaton may
 switch to mode $q'$, and set the continuous variables to $\vec x = \vec
-a'$.  Here, the first two elements $(q, \vec a)$ are sometimes called the
-$\guard$ conditions, and the other two elements $(q, \vec a')$ are called the
-$\reset$ conditions.
+a'$.  
 
 \paragraph{\bf Initial and Invariant Conditions.} $\inv \subseteq Q\times X$
 specifies the {\em invariant conditions} for
@@ -334,40 +309,42 @@ added to act as the only initial mode.)
 \end{definition}
 According to the definition, a hybrid automaton can be nondeterministic in
 various ways.  The $\flow$ and $\jump$ conditions are not
-restricted to single valued functions.
+restricted to single-valued functions.
 \begin{remark}[$\jump$ vs $\inv$] The jump conditions specify when an automaton
 {\em may}  switch to another mode. The invariants (when violated) specify when
-an automaton {\em must} switch to another mode. In principle, all may-jumps can
-be reduced to nondeterministic must-jumps. However, it is better to separate the
-two, and we will later see that they give rise to different logical structures.
+an automaton {\em must} switch to another mode. All may-jumps can
+be reduced to nondeterministic must-jumps. However, they will give rise to
+different logical structures. See Section~\ref{encode}. 
 \end{remark}
-\begin{definition}[Invariant-Free Hybrid Automata]\index{Invariant-free
+\begin{definition}\index{Invariant-free
 Hybrid Automata}
-We say a hybrid automata $H = \langle X, Q, \flow, \jump, \inv, \init\rangle$ is
- {\em invariant-free} if $\inv = Q\times X$ and the invariant is called {\em
+A hybrid automata $H = \langle X, Q, \flow, \jump, \inv, \init\rangle$ is
+ {\em invariant-free} if $\inv = Q\times X$, and we say the invariant is {\em
 trivial} in this case.
 \end{definition}
 
 \subsection{$\lrf$-Representations}
 
-We now define logical representations of hybrid automata, so that we can express
- properties of hybrid automata using first-order formulas.
+We now define logical representations of hybrid systems. It is a general
+formal representation that can express almost any hybrid system that models
+realistic systems. 
 
 \begin{definition}[$\lrf$-Representations]\label{lrf-definition}
 \index{$\lrf$-Representation}
 Let $H$ be an $n$-dimensional hybrid automaton.  Let $\mathcal{F}$
 be a set of real functions, and $\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}$ the
-corresponding first-order language. We say that $H$ has an $\lrf$-representation
-if for every $q,q'\in Q$, there exists  quantifier-free $\lrf$-formulas
-$$\phi^q_{\flow}(\vec x, \vec x_0, t), \phi^{q\rightarrow q'}_{\jump}(\vec x,
+corresponding first-order language. We say that $H$ has an
+$\lrf$-representation, if for every $q,q'\in Q$, there exists  quantifier-free
+$\lrf$-formulas $$\phi^q_{\flow}(\vec x, \vec x_0, t), \phi^{q\rightarrow
+q'}_{\jump}(\vec x,
 \vec x'), \phi^{q}_{\inv}(\vec x), \phi^q_{\init}(\vec x)$$
 such that for all
 $\vec a ,\vec a'\in \mathbb{R}^n$,
 $t\in\mathbb{R}$:
 \begin{itemize}
-\item $\mathbb{R}\models \phi^q_{\flow}(\vec a, \vec a_0, t)$ iff $(q, \vec
+\item $\mathbb{R}\models \phi^q_{\flow}(\vec a, \vec a', t)$ iff $(q, \vec
 a,
-\vec a_0, t)\in \flow$.
+\vec a', t)\in \flow$.
 \item $\mathbb{R}\models \phi^{q\rightarrow q'}_{\jump}(\vec a, \vec a')$ iff
 $(q, q', \vec a, \vec a')\in \jump$.
 \item $\mathbb{R}\models \phi^q_{\inv}(\vec a)$ iff $(q, \vec a)\in \inv.$
@@ -395,35 +372,29 @@ systems can be defined by refining this definition.
 We say a hybrid automaton $H$ has a {\em computable representation}, if $H$ has
 an $\lrf$-representation, $\mathcal{F}$ is a set of computable functions.
 \end{definition}
-
-Again, this definition allows us to consider a very general class of hybrid
-systems, since $\mathcal{F}$ can contain arbitrary computable functions such as
+\begin{remark}
+$\mathcal{F}$ can contain arbitrary computable functions, such as
 polynomials, transcendental functions, Lipschitz-continuous ODEs and many PDEs.
-In fact, since the designs of practical hybrid systems should only involve
-functions that at least allow numerical simulation, $\lrf$-representable hybrid
-systems should be expressive enough to model most of them. From now on we will
-only consider hybrid automata that are $\lrf$-representated with a
-computable $\mathcal{F}$.
+In fact, since hybrid systems of practical interest should only involve
+functions that at least allow numerical simulation, they should all have
+computable representations. From now on we will only consider hybrid automata
+that have computable representations. 
 
-\subsection{Hybrid Time Domains and Trajectories}
+\end{remark}
 
-We now specify how the descriptions of hybrid systems are interpreted, as {\em
-hybrid trajectories} in the Euclidean space. Combining continuous and discrete
+We now formally specify the semantics. Combining continuous and discrete
 behaviors, the trajectories of hybrid systems are {\em piecewise continuous}.
-This motivates a two-dimensional structure of time, with which we can
+This motivates a two-dimensional structure of time~\cite{}, with which we can
 keep track of both the discrete changes and the duration of each continuous
 flow.
 \begin{definition}[Hybrid time domain]
 A {\em hybrid time domain} $T$ is a subset of
  $\mathbb{N}\times \mathbb{R}$ of the form
-$$T_m=\{(i, t): i<m \mbox{ and } t\in [t_i, t_i']\mbox{ or }[t_i, +\infty)\},$$
-\begin{itemize}
- \item $m\in \mathbb{N}\cup\{+\infty\}$ and $\{t_i\}_{i=0}^m$ is an
-increasing sequence in $\mathbb{R}^+$;
- \item $t_0= 0$ and $t_i'=t_{i+1}$.
- \end{itemize}
-We write the set of all hybrid time domains as $\mathbb{H}$.
+$T_m=\{(i, t): i<m \mbox{ and } t\in [t_i, t_i']\mbox{ or }[t_i, +\infty)\},$
+where $m\in \mathbb{N}\cup\{+\infty\}$, $\{t_i\}_{i=0}^m$ is an
+increasing sequence in $\mathbb{R}^+$, $t_0= 0$, and $t_i'=t_{i+1}$.
 \end{definition}
+We write the set of all hybrid time domains as $\mathbb{H}$.
 \begin{definition}[Hybrid Trajectories]
 Let $X\subseteq\mathbb{R}^n$ be an Euclidean space and $T_m$ a hybrid
 time domain. A {\em hybrid trajectory} is any continuous function $\xi: T_m
@@ -441,12 +412,19 @@ each $i$ can
 always include both endpoints.
 \end{remark}
 
-We can now define trajectories of a given hybrid automaton. Again, we assume
-that $H$ is $\lrf$-represented.
+We can now define trajectories of a given hybrid automaton. The intuition behind
+the following definition is straightforward. The labeling function
+$\sigma_{\xi}^H(i)$ is used to map a step $i$ to the corresponding discrete mode
+in $H$. In each mode, the system flows continuously following the dynamics
+defined by $\flow(q, \vec x_0, t)$. Note that $(t-t_k)$ is the actual duration
+in the $k$-th mode. When a switch between two modes is performed, it is required
+that $\xi(k+1, t_{k+1})$ is updated from the exit value $\xi(k, t_k')$ in the
+previous mode, following the jump conditions.
+
 \begin{definition}[Trajectories of a Hybrid Automaton]\label{trajec}
 Let $H$ be a hybrid automaton, and $\xi: T_m\rightarrow X$ a hybrid trajectory.
 We say that $\xi$ is {\em a trajectory of $H$ of discrete depth $m$}, if there
-exists a function $\sigma^H_{\xi}: \mathbb{N}\rightarrow Q$ such
+exists a {\em labeling function} $\sigma^H_{\xi}: \mathbb{N}\rightarrow Q$ such
 that:
 \begin{itemize}
 \item $\sigma^H_{\xi}(0) = q_0$ and
@@ -460,66 +438,46 @@ $$\mathbb{R}_{\mathcal{F}}\models\flow_{q_0}(\xi(0,0), \xi(0,t), t).$$
 \mathbb{R}_{\mathcal{F}}&\models&\flow_{\sigma^H_{\xi}(k+1)}(\xi(k+1, t_{k+1}),
 \xi(k+1, t), (t - t_{k+1}))\mbox{ and }\\
 \mathbb{R}_{\mathcal{F}}&\models& \jump_{(\sigma^H(k)\rightarrow
-\sigma^H(k+1)}(\xi(k, t_k'), \xi(k+1,t_{k+1})).
+\sigma^H(k+1))}(\xi(k, t_k'), \xi(k+1,t_{k+1})).
 \end{eqnarray*}
 \end{itemize}
-We write $\llbracket H\rrbracket$ to denote the set of all trajectories of $H$.
-We call $\sigma^H_{\xi}$ the {\em labeling function} between $\xi$ and $H$.
 \end{definition}
-\begin{remark}
-The intuition behind the definition is straightforward. The
-labeling function
-$\sigma_{\xi}^H$ is used to label the mode that the system is in, corresponding
-to each discrete transition. In each mode, the system flows continuously
-following the dynamics defined by $\flow(q, \vec x_0, t)$. Note that $(t-t_k)$
-is the actual duration in the $k$-th mode. When a switch between two modes is
-performed, it is required that $\xi(k+1, t_{k+1})$ is updated from the exit
-value $\xi(k, t_k')$ in the previous mode, following the jump conditions.
-\end{remark}
-
+We write $\llbracket H\rrbracket$ to denote the set of all possible trajectories
+of $H$.
 \subsection{Perturbations on Hybrid Automata}
-To introduce the framework of $\delta$-complete reachability, we need to
-define perturbations on hybrid systems first. As we have defined the
-$\lrf$-representations of hybrid systems, as well as perturbations on
-$\lrf$-formulas, the definition for hybrid systems naturally follows.
+We now define perturbations on hybrid systems.
 \begin{definition}[Perturbations on Hybrid Automata]
-Suppose $\delta\in\mathbb{Q}^+\cup\{0\}$, and
+Let $\delta\in\mathbb{Q}^+\cup\{0\}$. 
 $$H = \langle X, Q, \flow, \jump, \inv, \init\rangle$$
 is an $\lrf$-represented hybrid automaton. We define the {\em
 $\delta$-weakening} of $H$ as
 $$H^{\delta} = \langle X, Q, \flow^{-\delta}, \jump^{-\delta}, \inv^{-\delta},
 \init^{-\delta}\rangle.$$
 \end{definition}
-
-\begin{remark}
-Note that we only defined the weakening of a hybrid automaton here, because
-weakening essentially corresponds to overapproximations of the reachable states.
-It is conceivable that for other tasks, strengthening will be needed (for
-instance for synthesizing parameters). But it will not be our focus.
-\end{remark}
-
-It is clear that $H^{\delta}$ defines an overapproximation of $H$.
 \begin{proposition} Let $\delta\in\mathbb{Q}^+\cup \{0\}$ and $H$ be given. We
 always have $\llbracket H\rrbracket\subseteq \llbracket H^{\delta}\rrbracket.$
 \end{proposition}
 \begin{proof}
-Let $\xi\in \llbracket H\rrbracket$ be any trajectory of $H$. Recall that for
-any $\lrf$ sentence $\varphi$, $\varphi\rightarrow\varphi^{-\delta}$. Now since
-$\xi$ satisfies the conditions in Definition~\ref{trajec}, by replacing each
-predicate in the definition by their $\delta$-weakenings, we know $\xi\in
+Let $\xi\in \llbracket H\rrbracket$ be any trajectory of $H$. Following
+Definition~\ref{variants}, for any $\lrf$ sentence $\varphi$, we have 
+$\varphi\rightarrow\varphi^{-\delta}$. Now since
+$\xi$ satisfies the conditions in Definition~\ref{trajec}, after replacing each
+predicate in the definition by their $\delta$-weakenings, $\xi\in
 \llbracket H^{\delta}\rrbracket$.
 \end{proof}
-Note that then weakening of a deterministic hybrid automaton
-is nondeterministic.
-
+\begin{remark}
+Note that we only need to define overapproximations of the reachable states
+which is used for verification purposes. It is conceivable that for other tasks,
+strengthening will be needed (for instance for synthesizing parameters). 
+\end{remark}
 
 \begin{remark}
 $H^{\delta}$ approximates $H$ {\em syntactically}. Semantically, it can be
 tricky to quantify the effect of $\delta$. If we are dealing with a continuous
-system, it is clear that the the Hausdorff distance between $\llbracket
+system, the Hausdorff distance between $\llbracket
 H^{\delta}\rrbracket$ and $\llbracket H\rrbracket$ is continuous in
-$\delta$. However, for hybrid trajectories, relaxing the guards in a system can
-generate very different trajectory sets. It is worth noting how the syntactic
+$\delta$. But for hybrid trajectories, relaxing the guards in a system can
+generate very different trajectory sets. the syntactic
 definition avoids such complications. Some details are discussed in the
 Appendix.
 \end{remark}
@@ -527,19 +485,17 @@ Appendix.
 
 \subsection{Reachability and Safety Verification}
 
-The safety/reachability problem for hybrid systems asks whether a subset of
-its state space can be reached by some trajectory of it.
+The safety/reachability problem for hybrid systems can be stated formally as
+follows. 
 \begin{definition}[Reachability]\label{reachability}\index{Reachability}
 Let $H$ be an $n$-dimensional hybrid automaton, and $U$ a subset of its state
 space.  We say {\em $U$ is reachable by $H$}, if there exists $\xi\in\llbracket
-H
-\rrbracket$ with its time domain $T$ and labeling function
+H \rrbracket$ with its time domain $T$ and labeling function
 $\sigma_{\xi}^H$, such that there exists $(i,t)\in T$ satisfying
-$$(\sigma^H_{\xi}(i), \xi(i,t))\in U.$$
+$(\sigma^H_{\xi}(i), \xi(i,t))\in U.$ When we only ask whether a subset of the
+Euclidean space is reachable, it means whether the region is reachable in any
+discrete mode.
 \end{definition}
-When we only ask whether a subset of the Euclidean space is reachable, it
-means whether the region is reachable in any discrete mode.
-
 In the seminal work of \cite{DBLP:conf/rex/AlurD91,DBLP:conf/hybrid/AlurCHH92},
 it is already shown that the reachability problem for simple classes of hybrid
 automata is already undecidable. In fact, clear boundaries of the decidable and
@@ -550,35 +506,33 @@ Let $\mathcal{F} = \{+\}\cup \mathbb{Q}$ (the rational numbers are considered as
 automaton} if it has an $\lrf$-representation.
 \end{definition}
 
-\begin{proposition}[Undecidability of Reachability for
-LHA~\cite{DBLP:conf/hybrid/AlurCHH92}]
-The reachability problem for Linear Hybrid Automata is undecidable.
+\begin{proposition}[Undecidability for
+LHA~\cite{DBLP:conf/hybrid/AlurCHH92,}]
+The bounded reachability problem for linear hybrid automata is undecidable.
 \end{proposition}
-\begin{remark}
-It is standard in existing literature that all the constants used in the
+It is standard in the existing literature that all the constants used in the
 description of a hybrid automaton are rational, so that symbolic algorithms can
 be used. We avoid such restrictions and allow any
 computable signature $\mathcal{F}$, which means  any computable real numbers
-can be used as constants in the describing hybrid automata. It is worth noting
-that, however, allowing arbitrary computable reals in the description would
-render the reachability problem for even more trivial classes of hybrid automata
-to be undecidable. Indeed, since the equality test $x=a$ is undecidable~\cite{},
+can be used as constants in the description of hybrid automata. It is worth
+noting that allowing arbitrary computable reals itself would already render the
+reachability problem for even more trivial classes of hybrid automata
+to be undecidable. Indeed, since the equality test $x=a$ is
+undecidable~\cite{CAbook},
 the question of whether a flow of $dx/dt = 1$ can reach some point $a$ is
-undecidable already. Thus we choose not to further discuss the boundaries
-between decidable and undecidable classes in the traditional setting. For
-instance, the decidablility of timed automata~\cite{DBLP:conf/rex/AlurD91}
-require the use of rational constants only.
-\end{remark}
+undecidable already. (The decidablility of
+timed automata~\cite{DBLP:conf/rex/AlurD91} require the use of rational
+constants only. )
 
 \section{Bounded $\delta$-Reachability}\label{main}
 
-\subsection{Encoding Reachability}
+\subsection{Encoding Reachability}\label{encode}
 
 In this section we show how to encode bounded model checking of
-$\lrf$-represented hybrid systems using $\lrf$-formulas. It will be clear that
+$\lrf$-represented hybrid systems using $\lrf$-formulas. It will be shown that
 when we encode reachability for hybrid automata with nontrivial invariant
-conditions, the logical formulas are more complex. We consider automata with no
-invariant conditions first, and then handle the general case.
+conditions, the logical formulas are more complex. We consider automata
+with no invariant conditions first, and then handle the general case.
 \vspace{-.4cm}
 \subsubsection{Automata without Invariants} We define
 the logic encoding inductively on the number of discrete transitions as
@@ -666,13 +620,6 @@ state space. Then $H$ reaches $\unsafe$ in $n$ steps of discrete jumps, if and
 only if, $\reach^n_{H}$ is true.
 \end{corollary}
 
-\begin{proof}
-$H$ reaches $\unsafe$ in $n$ steps iff there is some $\xi\in \llbracket
-H\rrbracket$ such that $\xi(n, t)\in \llbracket unsafe\rrbracket$. On the other
-hand, we have shown that $\xi(n, t) = \vec a$ for some $t$ iff $\reach_H^n(\vec
-a)$.
-\end{proof}
-
 
 \subsubsection{Automata with Invariants}\label{auto_inv}
 
@@ -739,7 +686,10 @@ t) = \vec a$ for some $t\in\mathbb{R}$, and $\sigma_{\xi}(n) = q$.
 We focus on the problem of bounded $\delta$-Reachability, defined as follows.
 
 \begin{definition}[Bounded $\delta$-Reachability]
-Let $H$ be a hybrid automaton such that the state space of $H$ is a bounded set. Let $U$ be a subset of $X$. Let $n\in \mathbb{N}$, and $T\in \mathbb{R}$ a bounded interval. The bounded $\delta$-reachability asks for one of the following decisions:
+Let $H$ be a hybrid automaton such that the state space of $H$ is a bounded
+set. Let $U$ be a subset of $X$. Let $n\in \mathbb{N}$, and $T\in \mathbb{R}$ a
+bounded interval. The bounded $\delta$-reachability asks for one of the
+following decisions:
 \begin{itemize}
 \item $\delta$-$\unsafe$: $H^{\delta}$ reaches $\unsafe^{-\delta}$.
 \item $\safe$: $H$ does not reach $U$ in $n$ steps within time $T$.
@@ -748,26 +698,21 @@ When the two cases overlap, either answer can be returned.
 \end{definition}
 
 \begin{remark}
-There are three bounds here. First, the state space $X$ and the time duration $T$ are bounded. These two constraints ensure that the variables that will appear in the logical encoding are bounded. Second, the number of steps is bounded. This allows us to encode the problem with a finite formula.
+There are three bounds here. First, the state space $X$ and the time duration
+$T$ are bounded. These two constraints ensure that the variables that will
+appear in the logical encoding are bounded. Second, the number of steps is
+bounded. This allows us to encode the problem with a finite formula.
 \end{remark}
 
 
 \begin{lemma}\label{bmclemma}
-Let $H$ be a hybrid automaton, $\unsafe$ a subset of its state space, and $n\in\mathbb{N}$. We have:
+Let $H$ be a hybrid automaton, $\unsafe$ a subset of its state space, and
+$n\in\mathbb{N}$. We have:
 \begin{itemize}
 \item If $(\reach^n_{H,\unsafe})^{-\delta}$ is true, then $H^{\delta}$ is unsafe.
 \item If $\reach^n_{H,\unsafe}$ is false, then $H$ is safe up to $n$.
 \end{itemize}
 \end{lemma}
-
-\begin{proof}
-Following Proposition~\ref{equiv-delta}, if $(\reach^n_{H,\unsafe})^{-\delta}$ is true then there exists $\xi\in \llbracket H^{\delta}\rrbracket$ such that $\xi(0,t)=\vec a$ for some $t$, such that
-$$(\reach^n_{H,q}(\vec a))^{-\delta} \wedge (\unsafe(\vec a))^{-\delta}$$
-is true. Thus $H^{\delta}$ is unsafe, witnessed by $\vec a$.
-
-On the other hand, suppose $\reach^n_{H,\unsafe}$ is false. Following Proposition~\ref{equiv-delta}, there does not exists any $\xi$ such that $\xi(n,t) = \vec a$ and $\unsafe(\vec a)$ is true. Consequently, $H$ is safe up to depth $n$.
-\end{proof}
-
 
 \begin{proposition}\label{equiv-delta}
 $(\reach_{H,q}^n(\vec a))^{-\delta}$ iff there is a trajectory $\xi\in
@@ -775,26 +720,19 @@ $(\reach_{H,q}^n(\vec a))^{-\delta}$ iff there is a trajectory $\xi\in
 $\sigma_{\xi}(n) = q$.
 \end{proposition}
 
-
-
-
 \begin{theorem}
-Let $\mathcal{F}$ be a set of computable functions. There exists an algorithm such that, for any given $\lrf$-representable $H$ and an unsafe region $\unsafe$, and a time bound $T$, decide the bounded $\delta$-reachability problem for $H$.
+Let $\mathcal{F}$ be a set of computable functions. There exists an algorithm
+such that, for any given $\lrf$-representable $H$ and an unsafe region
+$\unsafe$, and a time bound $T$, decide the bounded $\delta$-reachability
+problem for $H$.
 \end{theorem}
 
-\begin{proof}
-Since $H$ and $\unsafe$ are both $\lrf$-representable, $\reach_{H,unsafe}$ is an $\lrf$-sentence. Following Corollary~\ref{weaken}, there exists an algorithm that correctly decides:
-\begin{itemize}
-\item $\reach_{H,\unsafe}$ is false, or
-\item $(\reach_{H,\unsafe})^{-\delta}$ is true.
-\end{itemize}
-Following Lemma~\ref{bmclemma}, the first case implies that $H$ is safe up to depth $n$ within time bound $T$, and the second case implies that $H$ is unsafe.
-\end{proof}
-
-It is clear that all we need is a $\delta$-complete decision procedure to solve the bounded $\delta$-reachability problems.
+It is clear that all we need is a $\delta$-complete decision procedure to solve
+the bounded $\delta$-reachability problems.
 
 \begin{definition}[$\delta$-Complete Bounded Model Checking]
-We say a bounded model checking algorithm is $\delta$-complete, if it solves the $\delta$-reachability problem correctly.
+We say a bounded model checking algorithm is $\delta$-complete, if it solves
+the $\delta$-reachability problem correctly.
 \end{definition}
 It is clear that Algorithm \ref{delta-bmc} is $\delta$-complete if it uses a
 $\delta$-complete decision procedure.
@@ -802,17 +740,25 @@ $\delta$-complete decision procedure.
 Checking}\label{delta-bmc}
 
 \SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-\Input{An $\lrf$-represented hybrid automaton $\varphi = \langle X, Q, \flow, \jump, \inv, \init\rangle$, time bound $T\in \mathbb{R}$, depth $n$}
+\Input{An $\lrf$-represented hybrid automaton $\varphi = \langle X, Q, \flow,
+\jump, \inv, \init\rangle$, time bound $T\in \mathbb{R}$, depth $n$}
 \Output{Safe or $\delta$-Unsafe}
 \BlankLine
-$\reach_{H}(0,q_0,\vec x_0') \leftarrow \exists^X \vec x_0\exists^{[0,T]}t_0\Big( \init_{q_0}(\vec x_0)\wedge \flow_{q_0}(\vec x_0', \vec x_0, t_0)\Big)$\\
+$\reach_{H}(0,q_0,\vec x_0') \leftarrow \exists^X \vec
+x_0\exists^{[0,T]}t_0\Big( \init_{q_0}(\vec x_0)\wedge \flow_{q_0}(\vec x_0',
+\vec x_0, t_0)\Big)$\\
 $k\leftarrow 0$\\
 \While{$k<n$}
 {
-$\reach_{H}(k+1, q, \vec x_{k+1}') \leftarrow \exists^X\vec x_k'\exists^X x_{k+1}\exists^{[0,T]}t_{k+1} \bigvee_{q\in Q}\Big(\reach_{H}(k, q, \vec x_k')\wedge \flow(\vec x_k', \vec x_k, t_k)\wedge \forall^X \vec x\forall^{[0,t_k]} t (\flow(\vec x, \vec x_k', t)\rightarrow \inv(\vec x))\Big)$\\
+$\reach_{H}(k+1, q, \vec x_{k+1}') \leftarrow \exists^X\vec x_k'\exists^X
+x_{k+1}\exists^{[0,T]}t_{k+1} \bigvee_{q\in Q}\Big(\reach_{H}(k, q, \vec
+x_k')\wedge \flow(\vec x_k', \vec x_k, t_k)\wedge \forall^X \vec
+x\forall^{[0,t_k]} t (\flow(\vec x, \vec x_k', t)\rightarrow \inv(\vec
+x))\Big)$\\
 $k\leftarrow k+1$
 }
-$\reach_{H,U} \leftarrow \exists \vec x(\reach_{H}(n, q, \vec x)\wedge \unsafe(\vec x))$
+$\reach_{H,U} \leftarrow \exists \vec x(\reach_{H}(n, q, \vec x)\wedge
+\unsafe(\vec x))$
 \\
 \eIf{$\reach_{H,U}$ is {\sf $\delta$-true}}
 {$H$ is {\sf $\delta$-unsafe}}
@@ -825,87 +771,75 @@ $\reach_{H,U} \leftarrow \exists \vec x(\reach_{H}(n, q, \vec x)\wedge \unsafe(\
 \subsection{Complexity Results}
 
 
-We have reduced the bounded $\delta$-reachability problems to the decision problems of $\lrf$-sentences. Thus, we can obtain the following complexity results of the reachability problems.
+We have reduced the bounded $\delta$-reachability problems to the decision
+problems of $\lrf$-sentences. Thus, we can obtain the following complexity
+results of the reachability problems.
 
 
 \begin{theorem}
-Suppose all the functions in the description of $H$ is in Type 2 complexity class $\mathsf{C}$. Then deciding the bounded $\delta$-Reach problem of Depth $n$, in time bounded by $T$, for an invariant-free $H$ is in $\np^{\mathsf{C}}$, and the problem for $H$ with invariant is in $\Sigma_2^{\mathsf{C}}$.
+Suppose all the functions in the descriptionof $H$ is in Type 2 complexity class
+$\mathsf{C}$. Then deciding the bounded $\delta$-Reach problem of Depth $n$, in
+time bounded by $T$, for an invariant-free $H$ is in $\np^{\mathsf{C}}$, and the
+problem for $H$ with invariant is in $\Sigma_2^{\mathsf{C}}$.
 \end{theorem}
 
 \begin{proof}
-Note that the formula $\reach_{H,\unsafe}$ is exponential in the size of the description of $H$. However, we can nondeterministically select a sequence of $n$ modes, and check if reachability can be witnessed.
+Note that the formula $\reach_{H,\unsafe}$  is exponential in the size of the
+description of $H$. However, we can nondeterministically select a sequence of
+$n$ modes, and check if reachability can be witnessed.
 
-(i) For an invariant-free $H$, the formula encoding one possible sequence of $n$ steps of mode change is of the form:
+(i) For an invariant-free $H$, the formula  encoding one possible sequence of
+$n$ steps of mode change is of the form:
 \begin{eqnarray*}
-& &\exists \vec x_0 \exists \vec x_0'\exists t_0\cdots \exists \vec x_{n-1}\exists\vec x_{n-1}'\exists t_{n-1}\\
-& &\Big(\init(\vec x_0)\wedge \flow_{q_0}(\vec x_0, \vec x_0', t_0)\wedge \jump_{q_0\rightarrow q_1}(\vec x_0', \vec x_1)\wedge \cdots\\
-& &\wedge \flow_{q_{n-1}}(\vec x_{n-1}, \vec x_{n-1}', t_{n-1}) \wedge \unsafe(\vec x_{n-1}')\Big)
+& &\exists \vec x_0 \exists \vec x_0'\exists t_0\cdots \exists \vec
+x_{n-1}\exists\vec x_{n-1}'\exists t_{n-1}\\
+& &\Big(\init(\vec x_0)\wedge \flow_{q_0}(\vec x_0, \vec x_0', t_0)\wedge
+\jump_{q_0\rightarrow q_1}(\vec x_0', \vec x_1)\wedge \cdots\\
+& &\wedge \flow_{q_{n-1}}(\vec x_{n-1}, \vec x_{n-1}', t_{n-1}) \wedge
+\unsafe(\vec x_{n-1}')\Big)
 \end{eqnarray*}
-where $q_1,...,q_{n-1}$ are random modes in $Q$ ($q_0$ is always the initial one). This formula is polynomial in $H$, $n$, $T$. Thus, we can use the nondeterministic machine to randomly first select such a formula in polynomial time, and then $\delta$-decide its truth value, using the $\mathsf{C}$ oracle. In all, the computation can be performed by a nondeterministic machine with a $\mathsf{C}$-oracle in polynomial time. Thus, the $\delta$-reachability problem is in $\mathsf{NP^C}$, following . On the other hand, any of the predicate, for instance $\init(\vec x_0)$, is allowed to be an arbitrary quantifier-free $\lrf$-formula. Thus it can encode any propositional logic formula as needed in Corollary~\ref{Completeness}.
+where $q_1,...,q_{n-1}$ are random modes in $Q$ ($q_0$ is always the initial
+one). This formula is polynomial in $H$, $n$, $T$. Thus, we can use the
+nondeterministic machine to randomly first select such a formula in polynomial
+time, and then $\delta$-decide its truth value, using the $\mathsf{C}$ oracle.
+In all, the computation can be performed by a nondeterministic machine with a
+$\mathsf{C}$-oracle in polynomial time. Thus, the $\delta$-reachability problem
+is in $\mathsf{NP^C}$, following . On the other hand, any of the predicate, for
+instance $\init(\vec x_0)$, is allowed to be an arbitrary quantifier-free
+$\lrf$-formula. Thus it can encode any propositional logic formula as needed in
+Corollary~\ref{Completeness}.
 
-(ii) For a general $H$, the formula encoding one possible sequence of $n$ steps of mode change is of the form:
+(ii) For a general $H$, the formula encoding one possible sequence of $n$ steps
+of mode change is of the form:
 \begin{eqnarray*}
-& &\exists \vec x_0 \exists \vec x_0'\exists t_0\cdots \exists \vec x_{n-1}\exists\vec x_{n-1}'\exists t_{n-1} \forall \vec x \forall^{[0,t_0]}t_0'\cdots \forall^{[0,t_{n-1}]}t_{n-1}'\\
-& &\Big(\init(\vec x_0)\wedge \flow_{q_0}(\vec x_0, \vec x_0', t_0)\wedge \jump_{q_0\rightarrow q_1}(\vec x_0', \vec x_1)\\
-& &\wedge (\flow_{q_0}(\vec x, \vec x_0, t_0')\rightarrow \inv_{q_0}(\vec x))\wedge \cdots\\
-& &\wedge\jump_{q_{n-2}\rightarrow q_{n-1}}(\vec x_{n-2}', \vec x_{n-1}) \wedge \flow_{q_{n-1}}(\vec x_{n-1}, \vec x_{n-1}', t_{n-1})\\
-& &\wedge (\flow_{q_{n-1}}(\vec x, \vec x_{n-1}, t_{n-1}')\rightarrow \inv_q(\vec x))\\
+& &\exists \vec x_0 \exists \vec x_0'\exists t_0\cdots \exists \vec
+x_{n-1}\exists\vec x_{n-1}'\exists t_{n-1} \forall \vec x
+\forall^{[0,t_0]}t_0'\cdots \forall^{[0,t_{n-1}]}t_{n-1}'\\
+& &\Big(\init(\vec x_0)\wedge \flow_{q_0}(\vec x_0, \vec x_0', t_0)\wedge
+\jump_{q_0\rightarrow q_1}(\vec x_0', \vec x_1)\\
+& &\wedge (\flow_{q_0}(\vec x, \vec x_0, t_0')\rightarrow \inv_{q_0}(\vec
+x))\wedge \cdots\\
+& &\wedge\jump_{q_{n-2}\rightarrow q_{n-1}}(\vec x_{n-2}', \vec x_{n-1}) \wedge
+\flow_{q_{n-1}}(\vec x_{n-1}, \vec x_{n-1}', t_{n-1})\\
+& &\wedge (\flow_{q_{n-1}}(\vec x, \vec x_{n-1}, t_{n-1}')\rightarrow
+\inv_q(\vec x))\\
 & &\wedge \unsafe(\vec x_{n-1}')\Big)
 \end{eqnarray*}
-where $q_1,...,q_{n-1}$ are random modes in $Q$. Using a nondeterministic Turing machine, such a formula is first selected in polynomial time, and its truth value is $\delta$-decided as a $\Sigma_2$-sentence. Thus similarly as the invariant-free case, it follows from Theorem~\ref{compmain} and Corollary~\ref{Completeness} that the $\delta$-reachability problem is $\mathsf{\Sigma_2^C}$-complete.
+where $q_1,...,q_{n-1}$ are random modes in $Q$. Using a nondeterministic
+Turing machine, such a formula is first selected in polynomial time, and its
+truth value is $\delta$-decided as a $\Sigma_2$-sentence. Thus similarly as the
+invariant-free case, it follows from Theorem~\ref{compmain} and
+Corollary~\ref{Completeness} that the $\delta$-reachability problem is
+$\mathsf{\Sigma_2^C}$-complete.
 \end{proof}
 
 \begin{remark}
-The input parameters of the $\delta$-reachability problem are: the depth $n$, the time bound $T$, the length of the $\lrf$-description of $H$, and the error bound $\delta$.
+The input parameters of the $\delta$-reachability problem are: the depth $n$,
+the time bound $T$, the length of the $\lrf$-description of $H$, and the error
+bound $\delta$.
 \end{remark}
 
-\section{Discussions}\label{discuss}
-
-We believe the notion of $\delta$-complete methods lead to a new framework that
-resolves other problems as well, which can be of considerable theoretical
-interest. Currently the precise versions of these problems are open, but we
-believe in a $\delta$-perturbed picture they all allow definite answers. We
-will show discuss these directions for short and leave some conjectures here.
-
-\subsection{Invariant Validation}
-Suppose the automaton is given as
-$$H = \langle X, Q, \flow, \jump, \inv, \init \rangle$$
-where we assume that for each $q$, $flow_q$ is given as a solution of
-$$d\vec x/dt = f(\vec x, t)$$
-\begin{definition}[$\delta$-Invariants]
-
-\end{definition}
-
-\begin{conjecture}
- There is a simple set of proof rules that can prove $\delta$-Invariants for
-any $\lrf$-representable hybrid systems.
-\end{conjecture}
-
-\begin{proposition}
-Suppose Conjecture~\ref{} is true, then the $\delta$-invariant problem for
-hybrid systems is in $\Pi_1$.
-\end{proposition}
-
-\subsection{Zeno Behaviors}
-\begin{conjecture}
-In a bounded domain, for any Zeno system $H$, there exists a non-Zeno system
-$H'$ such that $H$ $\delta$-reaches $U$ if and only if $H'$ $\delta$-reaches
-$U$.
-\end{conjecture}
-Note that the condition of bounded domain is important. It is possible to
-define an extra dimension that does not converge. This is usually not the case
-considered in research of Zeno behaviors.
-
-\begin{proposition}
-Suppose Conjecture~\ref{} is true, then bounded-Time Reachability of
-$\lrf$-representable hybrid systems is decidable.
-\end{proposition}
-We have only proved that bounded-depth and bounded-time together lead to
-decidability. If there is no Zeno behaviors, then bounded time implies bounded
-depth.
-
-
-\subsection{Related Work}
+\section{Related Work}\label{discuss}
 Formal work along this line started in the work~\cite{}.
 Franzle defined a notion of noise in hybrid systems, and proved that problems
 with polynomial maps are solvable in a compact space. Raschan later generalizes
@@ -932,7 +866,19 @@ Robotics Model}... All of them contain nonlinear ODEs and frequent use of
 trignometric and exponential functions, and model realistic systems in practice.
 More details of the models are in the Appendix. 
 
-\vspace{-0.7cm}
+The columns in the table shows the following data, from left to right. {\sf
+depth} is the unwinded depth of the model for bounded model checking. Again, we
+only count the number of discrete mode switching, which is usually small in
+practice. {\sf $\delta$} is error bound we set, which in this case is the size
+of the interval on the output solution. {\sf \#vars} is the number of real
+variables and {\sf \#atoms} is the number of atomic
+formulas in the formula. {\sf \#ODE} shows the number of differential equations
+involved. \#{\sf icp-solve} \#{ode-solve} are the number of ICP solving steps (a
+pair of pruning and branching steps) and ODE solving steps, respectively.
+\#{\sf conflict} is the number of conflict observed (and also backtracking) in
+the high-level DPLL(T) framework. {result} is the final answer of the tool. {\sf
+time} and {\sf mem} show that CPU time and memory cost. 
+
 \begin{center}
 \begin{table}[h]
 \centering
@@ -970,21 +916,15 @@ depth & $\delta$ & \#vars  &\#atoms &\#ODEs &\#icp-solve &
 \caption{Experimental Results}
 \end{table}
 \end{center}
-\vspace{-1.5cm}
-The columns in the table shows the following data, from left to right. {\sf
-depth} is the unwinded depth of the model for bounded model checking. Again, we
-only count the number of discrete mode switching, which is usually small in
-practice. {\sf $\delta$} is error bound we set, which in this case is the size
-of the interval on the output solution. {\sf \#vars} is the number of real
-variables and {\sf \#atoms} is the number of atomic
-formulas in the formula. {\sf \#ODE} shows the number of differential equations
-involved. \#{\sf icp-solve} \#{ode-solve} are the number of ICP solving steps (a
-pair of pruning and branching steps) and ODE solving steps, respectively.
-\#{\sf conflict} is the number of conflict observed (and also backtracking) in
-the high-level DPLL(T) framework. {result} is the final answer of the tool. {\sf
-time} and {\sf mem} show that CPU time and memory cost. 
 
 \section{Conclusion}
+
+
+We believe the notion of $\delta$-complete methods lead to a new framework that
+resolves other problems as well, which can be of considerable theoretical
+interest. Currently the precise versions of these problems are open, but we
+believe in a $\delta$-perturbed picture they all allow definite answers. We
+will show discuss these directions for short and leave some conjectures here.
 
 
 
@@ -1166,6 +1106,78 @@ Thus we have
 $$\reach_{H,q'}(\vec b)\wedge \jump(q',q,\vec b, \vec a)\wedge \flow(\vec a,
 \vec a^t, t_a-t_b),$$
 which means that $\reach_{H,q}(\vec a^t)$ is true.
+\end{proof}
+
+\begin{proposition} Let $\delta\in\mathbb{Q}^+\cup \{0\}$ and $H$ be given. We
+always have $\llbracket H\rrbracket\subseteq \llbracket H^{\delta}\rrbracket.$
+\end{proposition}
+\begin{proof}
+Let $\xi\in \llbracket H\rrbracket$ be any trajectory of $H$. Recall that for
+any $\lrf$ sentence $\varphi$, $\varphi\rightarrow\varphi^{-\delta}$. Now since
+$\xi$ satisfies the conditions in Definition~\ref{trajec}, by replacing each
+predicate in the definition by their $\delta$-weakenings, we know $\xi\in
+\llbracket H^{\delta}\rrbracket$.
+\end{proof}
+Note that then weakening of a deterministic hybrid automaton
+is nondeterministic.
+
+
+\begin{corollary}
+Let $H$ be an invariant-free hybrid automaton and $\unsafe$ be a subset of its
+state space. Then $H$ reaches $\unsafe$ in $n$ steps of discrete jumps, if and
+only if, $\reach^n_{H}$ is true.
+\end{corollary}
+
+\begin{proof}
+$H$ reaches $\unsafe$ in $n$ steps iff there is some $\xi\in \llbracket
+H\rrbracket$ such that $\xi(n, t)\in \llbracket unsafe\rrbracket$. On the other
+hand, we have shown that $\xi(n, t) = \vec a$ for some $t$ iff $\reach_H^n(\vec
+a)$.
+\end{proof}
+
+
+\begin{lemma}\label{bmclemma}
+Let $H$ be a hybrid automaton, $\unsafe$ a subset of its state space, and
+$n\in\mathbb{N}$. We have:
+\begin{itemize}
+\item If $(\reach^n_{H,\unsafe})^{-\delta}$ is true, then $H^{\delta}$ is
+unsafe.
+\item If $\reach^n_{H,\unsafe}$ is false, then $H$ is safe up to $n$.
+\end{itemize}
+\end{lemma}
+
+\begin{proof}
+Following Proposition~\ref{equiv-delta}, if $(\reach^n_{H,\unsafe})^{-\delta}$
+is true then there exists $\xi\in \llbracket H^{\delta}\rrbracket$ such that
+$\xi(0,t)=\vec a$ for some $t$, such that
+$$(\reach^n_{H,q}(\vec a))^{-\delta} \wedge (\unsafe(\vec a))^{-\delta}$$
+is true. Thus $H^{\delta}$ is unsafe, witnessed by $\vec a$.
+
+On the other hand, suppose $\reach^n_{H,\unsafe}$ is false. Following
+Proposition~\ref{equiv-delta}, there does not exists any $\xi$ such that
+$\xi(n,t) = \vec a$ and $\unsafe(\vec a)$ is true. Consequently, $H$ is safe up
+to depth $n$.
+\end{proof}
+
+
+
+\begin{theorem}
+Let $\mathcal{F}$ be a set of computable functions. There exists an algorithm
+such that, for any given $\lrf$-representable $H$ and an unsafe region
+$\unsafe$, and a time bound $T$, decide the bounded $\delta$-reachability
+problem for $H$.
+\end{theorem}
+
+\begin{proof}
+Since $H$ and $\unsafe$ are both $\lrf$-representable, $\reach_{H,unsafe}$ is an
+$\lrf$-sentence. Following Corollary~\ref{weaken}, there exists an algorithm
+that correctly decides:
+\begin{itemize}
+\item $\reach_{H,\unsafe}$ is false, or
+\item $(\reach_{H,\unsafe})^{-\delta}$ is true.
+\end{itemize}
+Following Lemma~\ref{bmclemma}, the first case implies that $H$ is safe up to
+depth $n$ within time bound $T$, and the second case implies that $H$ is unsafe.
 \end{proof}
 
 
