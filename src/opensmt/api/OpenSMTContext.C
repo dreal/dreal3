@@ -233,7 +233,7 @@ int OpenSMTContext::executeIncremental( )
 	opensmt_error( "construct define-fun not yet supported" );
 	break;
       case DEFINE_ODE:
-        DefineODE( c.str, string(c.str) ); /* added for dReal2 */
+        DefineODE( c.str, string(c.str), c.num ); /* added for dReal2 */
 	break;
       case PUSH:
 	Push( );
@@ -585,7 +585,7 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
   egraph.newSymbol( name, s );
 }
 
-void OpenSMTContext::DefineODE( const char * name, string ode )
+void OpenSMTContext::DefineODE( const char * name, string ode, int diff_group )
 {
   if ( config.verbosity > 1 )
     cerr << "# OpenSMTContext::Declaring ODE "
@@ -601,9 +601,13 @@ void OpenSMTContext::DefineODE( const char * name, string ode )
   Enode* e_0 = mkVar(name_0.c_str());
   Enode* e_t = mkVar(name_t.c_str());
 
-  Enode* time_var = mkVar("time");
+  stringstream ss;//create a stringstream
+  ss << "time" << "_" << diff_group;
 
-  // Assign properties (vartype, ode, time)
+  string time_var_str = ss.str();
+  Enode* time_var = mkVar(time_var_str.c_str());
+
+  // Assign properties (vartype, ode, time, diff_group)
   e_0->setODEvartype(l_False);
   e_t->setODEvartype(l_True);
 
@@ -616,6 +620,8 @@ void OpenSMTContext::DefineODE( const char * name, string ode )
   e_0->setODEtimevar(time_var);
   e_t->setODEtimevar(time_var);
 
+  e_0->setODEgroup(diff_group);
+  e_t->setODEgroup(diff_group);
 }
 
 void OpenSMTContext::Push( )

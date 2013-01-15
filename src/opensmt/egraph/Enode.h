@@ -250,6 +250,9 @@ public:
   void            setODEtimevar          (Enode* );
   Enode*          getODEtimevar          ( ) const;
 
+  void            setODEgroup            ( int );
+  const int       getODEgroup            ( ) const;
+
   const double    getLowerBound          ( ) const; //added for dReal2
   const double    getUpperBound          ( ) const; //added for dReal2
   const double    getComplexValue        ( ) const;
@@ -404,6 +407,7 @@ private:
   string            ode;
   lbool             ode_vartype;
   Enode*            ode_timevar;
+  int               ode_group;
 
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
@@ -436,6 +440,16 @@ inline void        Enode::setODEtimevar ( Enode* e )
 inline Enode* Enode::getODEtimevar ( ) const
 {
     return ode_timevar;
+}
+
+
+inline void        Enode::setODEgroup ( int g )
+{
+    ode_group = g;
+}
+inline const int  Enode::getODEgroup ( ) const
+{
+    return ode_group;
 }
 
 inline void Enode::setODE (string o)
