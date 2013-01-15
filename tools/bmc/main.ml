@@ -20,9 +20,9 @@ let run () =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let hm = Parser.main Lexer.start lexbuf in
     let hm' = Hybrid.preprocess hm in
-    let smt2 = Smt2.transform !k hm' in
+    let (flow, formula) = Smt2.reach !k hm' in
     begin
-      Smt2.print out smt2;
+      ()
     end
   with v -> Error.handle_exn v
 let _ = Printexc.catch run ()

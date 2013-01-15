@@ -26,7 +26,7 @@ let print out =
       BatString.print   out v;
       BatString.println out " () Real)";
     end
-  | DeclareODE (x, e) ->
+  | DefineODE (x, e) ->
     begin
       BatString.print out "(define-ode (";
       BatString.print out "= ";
