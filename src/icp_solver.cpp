@@ -109,31 +109,38 @@ bool icp_solver::propagation_with_ode (rp_box b, bool hasDiff)
                 ite++)
             {
                 int diff_group = (*ite)->get_enode()->getODEgroup();
-                cerr << "diff_group: " << diff_group << endl;
-                if(diff_group > max) {
+                cerr << "diff_group: " << diff_group << ", max: " << max << endl;
+                if(diff_group >= max) {
+                    cerr << "diff_group: " << diff_group << " we do resize" << endl;
                     diff_vec.resize(diff_group + 1);
                     max = diff_group;
                     cerr << "max: " << max << endl;
                 }
+                if(diff_vec[diff_group].empty())
+                    cerr << "diff_vec[" << diff_group << "] is empty!!" << endl;
                 diff_vec[diff_group].insert(*ite);
+                cerr << "diff_group inserted: " << diff_group << endl;
             }
 
             for(int i = 1; i <= max; i++)
             {
                 cerr << "solve ode group: " << i << endl;
                 set<variable*> current_ode_vars = diff_vec[i];
-                for(set<variable*>::iterator ite = current_ode_vars.begin();
-                    ite != current_ode_vars.end();
-                    ite++)
-                {
-                    (*ite)->set_top_box(&current_box);
+
+                if(!current_ode_vars.empty()) {
+                    for(set<variable*>::iterator ite = current_ode_vars.begin();
+                        ite != current_ode_vars.end();
+                        ite++)
+                    {
+                        (*ite)->set_top_box(&current_box);
+                    }
+
+                    (*current_ode_vars.begin())->getODEtimevar()->set_top_box(&current_box);
+
+                    ode_solver odeSolver(current_ode_vars);
+                    if (!odeSolver.solve())
+                        return false;
                 }
-
-                (*current_ode_vars.begin())->getODEtimevar()->set_top_box(&current_box);
-
-                ode_solver odeSolver(current_ode_vars);
-                if (!odeSolver.solve())
-                    return false;
             }
             return true;
         }
