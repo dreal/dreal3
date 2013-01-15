@@ -120,8 +120,8 @@ let process_vardecls (vardecls) (num_of_modes : int) (k : int) =
        (fun (var, value) ->
          let t1 =
            BatList.cartesian_product
-             (BatList.of_enum ( 1 -- k ))
-             (BatList.of_enum ( 0 --^ num_of_modes ))
+             (BatList.of_enum ( 0 -- k ))
+             (BatList.of_enum ( 1 -- num_of_modes ))
          in
          List.concat
            (List.map
