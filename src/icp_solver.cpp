@@ -101,16 +101,39 @@ bool icp_solver::propagation_with_ode (rp_box b, bool hasDiff)
         {
             rp_box current_box = _boxes.get();
 
+
+            // Partition _ode_vars into subsets by their diff_group
+            int max = 1;
+            vector< set< variable* > > diff_vec(max);
             for(set<variable*>::iterator ite = _ode_vars.begin();
                 ite != _ode_vars.end();
                 ite++)
             {
-                (*ite)->set_top_box(&current_box);
+                int diff_group = (*ite)->get_enode()->getODEgroup();
+                if(diff_group > max) {
+                    diff_vec.resize(diff_group + 1);
+                    max = diff_group;
+                }
+                diff_vec[diff_group].insert(*ite);
             }
-            (*_ode_vars.begin())->getODEtimevar()->set_top_box(&current_box);
 
-            ode_solver odeSolver(_ode_vars);
-            return odeSolver.solve();
+            for(int i = 1; i <= max; i++)
+            {
+                set<variable*> current_ode_vars = diff_vec[i];
+                for(set<variable*>::iterator ite = current_ode_vars.begin();
+                    ite != current_ode_vars.end();
+                    ite++)
+                {
+                    (*ite)->set_top_box(&current_box);
+                }
+
+                (*current_ode_vars.begin())->getODEtimevar()->set_top_box(&current_box);
+
+                ode_solver odeSolver(current_ode_vars);
+                if (!odeSolver.solve())
+                    return false;
+            }
+            return true;
         }
         else {
             return true;
