@@ -49,7 +49,7 @@ let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
   let change' =
     Dr.subst_formula
       (fun v -> match BatString.ends_with v "'" with
-        true -> add_index (k+1) next_q "_0" v
+        true -> add_index (k+1) next_q "_0" (BatString.rchop v)
       | false -> add_index k q "_t" v
       )
       change in
