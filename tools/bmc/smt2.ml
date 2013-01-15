@@ -71,26 +71,20 @@ let transform (hm) (k : int) (next_k : int)
     =
   let (vardecls, _, modemap, (init_id, init_formula), goal) = hm in
   let num_of_modes = BatEnum.count (BatMap.keys modemap) in
-  let next_q_list =
-    BatList.unique
-      (BatMap.foldi
-         (fun id mode result ->
-           let (id, inv, flow, jm) = mode in
-           BatMap.foldi
-             (fun id jump result ->
+  let all_modes = BatList.of_enum (1 -- num_of_modes) in
+  let candidate_pairs =
+    BatList.concat
+      (BatList.map
+         (fun mode_id ->
+           let (_, _, _, jm) = Modemap.find mode_id modemap in
+           BatMap.fold
+             (fun jump result ->
                let (_, target_id, _) = jump in
-               target_id :: result)
+               (mode_id, target_id) :: result)
              jm
              [])
-         modemap
-         [])
-  in
-  let candidate_pairs =
-    BatList.filter
-      (fun (x, y) -> (x != y))
-      (BatList.cartesian_product
-         (BatList.of_enum (1 -- num_of_modes))
-         next_q_list)
+         all_modes
+      )
   in
   let trans_result_list : (flow * formula) list =
     List.map
