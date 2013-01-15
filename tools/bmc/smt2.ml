@@ -214,7 +214,9 @@ let make_smt2
      vardecl_cmds;
      defineodes;
      assert_cmds;
-     [assert_formula]]
+     [assert_formula];
+     [CheckSAT; Exit];
+    ]
 
 let print out smt =
   BatList.print
