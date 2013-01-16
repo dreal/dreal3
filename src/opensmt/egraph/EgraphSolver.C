@@ -59,13 +59,8 @@ lbool Egraph::inform( Enode * e )
       initializeCong( e );
 
     assert( id_to_belong_mask[ e->getId( ) ] == 0 );
-    bool unassigned_atom = config.logic != QF_UF
-                        && config.logic != QF_NRA
-                        && config.logic != QF_NRA_ODE
-                        && config.logic != QF_UFIDL
-                        && config.logic != QF_UFLRA
-                        && config.logic != QF_AX
-                        && config.logic != QF_AUFBV;
+    bool unassigned_atom = config.logic != QF_NRA
+                        && config.logic != QF_NRA_ODE;
 
     for ( unsigned i = 1 ; i < tsolvers.size( ) && status == l_Undef ; ++ i )
     {
@@ -605,7 +600,7 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
 
   // No need to instantiate any other solver
   /* added for dReal2 */
-  if ( config.logic == QF_NRA || config.logic == QF_NRA_ODE)
+  if ( config.logic == QF_NRA )
   {
      tsolvers.push_back( new NRASolver( tsolvers.size(),
                                         "NRA Solver",
@@ -616,7 +611,22 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
                                         deductions,
                                         suggestions,
                                         // true if we need to handle ODE
-                                        config.logic == QF_NRA_ODE
+                                        false
+                             ));
+#ifdef STATISTICS
+    tsolvers_stats.push_back( new TSolverStats() );
+#endif
+  } else if (config.logic == QF_NRA_ODE) {
+     tsolvers.push_back( new NRAODESolver( tsolvers.size(),
+                                           "NRA Solver",
+                                           config,
+                                           *this,
+                                           sort_store,
+                                           explanation,
+                                           deductions,
+                                           suggestions,
+                                           // true if we need to handle ODE
+                                           true
                              ));
 #ifdef STATISTICS
     tsolvers_stats.push_back( new TSolverStats() );
