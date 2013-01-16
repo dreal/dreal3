@@ -820,43 +820,7 @@ pair of pruning and branching steps) and ODE solving steps, respectively.
 the high-level DPLL(T) framework. {result} is the final answer of the tool. {\sf
 time} and {\sf mem} show that CPU time and memory cost. 
 
-\begin{center}
-\begin{table}[h]
-\centering
-\begin{tabular}{||c|c|| c| c| c||c|c|c||c|c|c||}
-\hline
-depth & $\delta$ & \#vars  &\#atoms &\#ODEs &\#icp-solve &
-\#ode-solve& \#conflict & result & time & mem \\
-\hline
-\multicolumn{11}{|c|}{Benchmark Set: AddArray} \\
-\hline
- 6 & 10 & 3 & 0  & 1& {\tt UNSAT}& 0.06s &0.04s\\
- 8 & 36 & 10 & 0 & 1 &{\tt UNSAT}& 0.09s &303.03s \\
- 31 & 1634 & 735 & 0 & 1& {\tt UNSAT}& 0.93s & mem-out \\
- 6 & 10 & 3 & 0  & 1& {\tt UNSAT}& 0.06s &0.04s\\
- 8 & 36 & 10 & 0 & 1 &{\tt UNSAT}& 0.09s &303.03s \\
- 31 & 1634 & 735 & 0 & 1& {\tt UNSAT}& 0.93s & mem-out \\
-\hline
-\multicolumn{11}{|c|}{Benchmark Set: MultiArray-1} \\
-\hline
- 5 & 10 & 3 & 20 & 1&{\tt UNSAT}& 0.23s  & 0.02s   \\
- 7 & 30 & 8 & 28 & 1 &{\tt UNSAT}& 0.04s & 7.21s   \\
- 8 & 121 & 40 & 32 &1 &{\tt UNSAT}& 0.12s & 56.46s   \\
- 16 & 817 & 320 & 64 & 1 &{\tt UNSAT}& 0.32s  & mem-out\\
-26 & 1687 & 670 & 104 & 2 &{\tt SAT} & 87.45s & mem-out\\
-\hline
-\multicolumn{11}{|c|}{Benchmark Set: MultiArray-2} \\
-\hline
- 9 & 208 & 75 & 36 & 1 &{\tt UNSAT}& 0.73s & 244.85s \\
- 10 & 295 & 110 & 40 & 1 &{\tt UNSAT}& 0.11s & 123.02s \\
- 11 & 382 & 145 & 44 & 1 &{\tt UNSAT}& 0.12s & 3.96s \\
- 20 & 1165 & 460 & 80 & 1 &{\tt UNSAT}& 0.30s & mem-out  \\
-26 & 1687 & 670 & 104 & 2 &{\tt SAT} & 65.72s & mem-out \\
-\hline
-\end{tabular}
-\caption{Experimental Results}
-\end{table}
-\end{center}
+\input{experiments_table.tex}
 
 \section{Conclusion}
 
