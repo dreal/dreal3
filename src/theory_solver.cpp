@@ -264,8 +264,12 @@ void NRASolver::pop_literal (vector<literal*>::size_type prev_size )
     while(assigned_lits.size() > prev_size) {
         cerr << "Pop_literal" << endl << endl;
         literal * lit = assigned_lits.back();
+
+        rp_constraint_destroy(lit->_c);
+
+//        rp_vector_pop(rp_problem_ctrs(*_problem),*(lit->_c));
+        delete lit;
         assigned_lits.pop_back();
-        rp_vector_pop(rp_problem_ctrs(*_problem),*(lit->_c));
     }
 }
 
@@ -455,6 +459,7 @@ void NRASolver::pushBacktrackPoint ( )
   cerr << "Current Box:" << endl;
   rp_box_display_simple(*_b);
   cerr << endl;
+
   history_boxes->insert(*_b);
   history_num_lits.push_back(assigned_lits.size());
   history_num_odes.push_back(stack_ode_vars.size());
@@ -482,9 +487,9 @@ void NRASolver::popBacktrackPoint ( )
 
   // Pop a box from the history stack and restore
   rp_box old_box = history_boxes->get();
-  history_boxes->remove();
   rp_box_copy(*_b, old_box);
 //  rp_box_destroy(&old_box);
+  history_boxes->remove();
 
   // Pop a num_lits from the history
   vector<literal*>::size_type prev_size = history_num_lits.back();
@@ -498,7 +503,6 @@ void NRASolver::popBacktrackPoint ( )
   // pop literal
   pop_literal(prev_size);
 
-
   // Pop a num_odes from the history
   vector<literal*>::size_type prev_ode_size = history_num_odes.back();
   history_num_lits.pop_back();
@@ -508,7 +512,6 @@ void NRASolver::popBacktrackPoint ( )
 
   _ode_vars.clear();
   _ode_vars.insert(stack_ode_vars.begin(), stack_ode_vars.end());
-
 }
 
 //
