@@ -79,12 +79,17 @@ formula_list: /* */ { [] }
   | formula SEMICOLON formula_list { $1::$3 }
 ;
 
+formulas: /* */ { [] }
+  | formula formulas { $1::$2 }
+;
+
+
 formula:
     TRUE                { Dr.True }
   | FALSE               { Dr.False }
   | LP formula RP       { $2 }
-  | AND formula formula { Dr.make_and [$2; $3] }
-  | OR  formula formula { Dr.make_or  [$2; $3] }
+  | AND formulas        { Dr.make_and $2 }
+  | OR  formulas        { Dr.make_or  $2 }
   | EQ  exp exp         { Dr.Eq  ($2, $3) }
   | GT  exp exp         { Dr.Gt  ($2, $3) }
   | LT  exp exp         { Dr.Lt  ($2, $3) }
