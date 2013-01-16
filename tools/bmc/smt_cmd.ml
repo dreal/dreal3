@@ -39,7 +39,7 @@ let print out =
       BatString.print out "d/dt[";
       BatString.print out x;
       BatString.print out "] ";
-      Dr.print_exp out e;
+      Dr.print_infix_exp out e;
       BatString.print out "))";
     end
   | Assert f ->
