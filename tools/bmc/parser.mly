@@ -121,7 +121,7 @@ jump:
 init: INIT COLON mode_formula { $3 }
 ;
 
-goal: GOAL COLON formula { $3 }
+goal: GOAL COLON mode_formula_list { $3 }
 ;
 
 mode_formula_list: /* */ { [] }

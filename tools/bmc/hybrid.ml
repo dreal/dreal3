@@ -64,9 +64,9 @@ let mf_print out (id, f) =
 let print out (((vm : Vardeclmap.t), (env : Vardeclmap.t), (mm : Modemap.t), init, goals) : t)=
   let print_header out str =
     begin
-      BatString.print out "====================\n";
-      BatString.print out str;
-      BatString.print out "\n====================\n";
+      BatString.println out "====================";
+      BatString.println out str;
+      BatString.println out "====================";
     end
   in
   begin

@@ -1,7 +1,7 @@
 [0, 20] x;
 [9.8] g;
 [-1000, 1000] v;
-[0, 100] time;    // Default time interval for each mode
+[0, 100] time;  
 %%
 { mode 1;
   invt:

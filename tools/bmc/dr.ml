@@ -51,12 +51,14 @@ let make_or (fs : formula list) =
     | (Some _, False) -> fs
     | (_, True) -> None
     | (None, _) -> None
+    | (Some fs1, Or fs2) -> Some (fs1@fs2)
     | (Some fs', f) -> Some (f::fs'))
     (Some [])
     fs
   in
   match reduced_fs_opt with
   | Some [] -> False
+  | Some (x::[]) -> x
   | Some fs' -> Or fs'
   | None -> True
 
@@ -66,12 +68,14 @@ let make_and (fs : formula list) =
     | (Some _, True) -> fs
     | (_, False) -> None
     | (None, _) -> None
+    | (Some fs1, And fs2) -> Some (fs1@fs2)
     | (Some fs', f) -> Some (f::fs'))
     (Some [])
     fs
   in
   match reduced_fs_opt with
   | Some [] -> True
+  | Some (x::[]) -> x
   | Some fs' -> And fs'
   | None -> False
 
