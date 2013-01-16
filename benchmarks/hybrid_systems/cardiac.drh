@@ -28,44 +28,42 @@
 [0.95, 1]	v;
 [0.95, 1]	w;
 [0, 0.01]	s;
-
+[0, 2]		time;
 %%
 
 {
 	mode 1;
 
-	macr:
-		true;
-
     	invt:
 		(<= thetav u);
 		(< u uu);
 	flow:
-		d/dt[u] = (- (+ (+ e (* (* (- u thetav) (- uu u)) (* v gfi))) (*  w (* s gsi))) (* gso u));
-		d/dt[v] = (* (- 0 v) gvp);
-		d/dt[w] = (* (- 0 w) gwp);
-		d/dt[s] = ( - (* (/ 1 (+ 1 (exp (* -2 (* ks ( - u us) ) ) ) ) ) gs2 ) (* s gs2)) ;
+		du/dt = e  + ( u - thetav)*(uu - u)*gfi*v + gsi*w*s- gso*u;
+		dv/dt = -gvp * v;
+		dw/dt = -gwp * w;
+		ds/dt = gs2 * (1/ (1+exp ( 2 * ks * (us - u) ) ) - s) ;
 	jump:
-		( and (> u 0.283) (< u thetav) )==> @2 true;
+		(< u thetav) ==> @2 (and (= u' u) (= v' v) (= w' w) (= s' s));
 }
 
 {
 	mode 2;
 
-	macr:
-		true;
 	invt:
 		(<= thetaw u);
 		(< u thetav);
 	flow:
-		d/dt[u] = (- (+ e (* w (* s gsi))) (* gso u));
-		d/dt[v] = (* (- 0 v) gv2n);
-		d/dt[w] = (* (- 0 w) gwp);
-		d/dt[s] = ( - (* (/ 1 (+ 1 (exp (* -2 (* ks ( - u us) ) ) ) ) ) gs2 ) (* s gs2))  ;
+		du/dt = e + gsi*w*v - gso*u;
+		dv/dt = - gv2n * v;
+		dw/dt = - gwp * w;
+		ds/dt = gs2 * (1/ (1+exp ( 2 * ks * (us - u) ) ) - s) ;
 	jump:
-		(< u thetaw) ==> @3 true;
-		(>= u thetaw) ==> @1 true;
+
+		(>= u thetav) ==> @1 (and (= u' u) (= v' v) (= w' w) (= s' s));
+		(< u thetaw) ==>  @2 (and (= u' u) (= v' v) (= w' w) (= s' s));
+
 }
+
 
 {
 	mode 3;
@@ -76,41 +74,43 @@
 		(<= thetao u);
 		(< u thetaw);
 	flow:
-		d/dt[u] = (- e (* u go2));
-		d/dt[v] = (* (- 0 v)  gv2n);
-		d/dt[w] = (* (- winfstar w) (* gwn u));
-		d/dt[s] = ( - (* (/ 1 (+ 1 (exp (* -2 (* ks ( - u us) ) ) ) ) ) gs1 ) (* s gs1))  ;
+
+		du/dt = e  - go2*u;
+		dv/dt = - gv2n * v;
+		dw/dt = (winfstar - w) * gwn * u;
+		ds/dt = (1 / 1+exp (2 * k_s(us - u) ) ) gs1 - gs1;
 	jump:
-		(< u thetao) ==> @4 true;
-		(>= u thetaw) ==> @2 true;
+		(>= u thetaw) ==> @2 (and (= u' u) (= v' v) (= w' w) (= s' s));
+		(< u thetao) ==>  @4 (and (= u' u) (= v' v) (= w' w) (= s' s));
 }
 
 {
 	mode 4;
 
-	macr:
-		true;
 	invt:
 		(<= 0 u);
 		(< u thetao);
 	flow:
-		d/dt[u] = (- e (* u go1));
-		d/dt[v] = (* (- 1 v) gv1n);
-		d/dt[w] = (* (- (- 1 (* u gwinf)) w) (* gwn u));
-		d/dt[s] = ( - (* (/ 1 (+ 1 (exp (* -2 (* ks ( - u us) ) ) ) ) ) gs1 ) (* s gs1))  ;
+
+		du/dt = e- go1 * u ;
+		dv/dt = -gv1n * (1- v) ;
+		dw/dt = (1 - u * gwinf - w) * gwn * u;
+		ds/dt = gs1 * ( 1/ (1+exp( 2* ks * ( u_s - u) )) - s);
 	jump:
-		(>= u thetao) ==> @3 true;
+		(>= u thetao) ==> @3 (and (= u' u) (= v' v) (= w' w) (= s' s));
+
 }
 
 %%
 
 init:
 
-@1	true;
+@1	(and (>= u 0) (<= u theta1) (>= v 0.95) (<= v 1) (>= w 0.95) (<= w 1)
+		(>= s 0 ) (<= s 0.01) );
 
 goal:
 
-@1	(< u thetav);
+(< u thetav);
 
 
 
