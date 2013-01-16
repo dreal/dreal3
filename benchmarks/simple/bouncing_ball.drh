@@ -3,13 +3,14 @@
 [-1000, 1000] v;
 %%
 { mode 1;
+
+  invt:
+	(>= x 0);
   flow:
 	d/dt[x] = v;
 	d/dt[v] = g;
   jump:
 	(= x 0) ==> @2 (and (= x' x) (= v' (- 0 v));
-  inv:
-	(>= x 0);
 }
 {
   mode 2;
