@@ -9,7 +9,9 @@ literal::literal(Enode * e , rp_table_symbol * ts)
 }
 
 literal::~literal()
-{}
+{
+    delete _c;
+}
 
 void literal::mk_constraint( const char * src )
 {
