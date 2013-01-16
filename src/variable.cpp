@@ -7,6 +7,11 @@ variable::variable( Enode * e, rp_box * b, rp_table_symbol * ts )
 	_ts = ts;
 }
 
+variable::~variable()
+{
+    delete _v;
+}
+
 
 void variable::mk_rp_variable( const char * name, const double lb, const double ub )
 {
@@ -17,6 +22,13 @@ void variable::mk_rp_variable( const char * name, const double lb, const double 
     rp_box_enlarge_size( _b, 1);
     set_lb(lb);
     set_ub(ub);
+
+    // rp_variable_set_real(*_v);
+    rp_union_interval u;
+    rp_union_create(&u);
+    rp_union_insert(u, rp_box_elem(*_b, rp_id));
+    rp_union_copy(rp_variable_domain(*_v),u);
+    rp_union_destroy(&u);
 
     rp_box_cout( (*_b) , 2 , 0);
 }
