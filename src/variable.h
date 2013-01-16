@@ -86,6 +86,8 @@ public:
             return getName() < rhs.getName();
         }
 
+        string name;
+
 private:
 	// rp_interval* bounds;	//bounds as stored in rp_format
 	Enode * _e;	//original enode of the variable

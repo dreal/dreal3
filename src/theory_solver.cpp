@@ -33,45 +33,57 @@ NRASolver::~NRASolver( )
 
 bool NRASolver::icp_prop(rp_problem * p)
 {
-  rp_selector * select;
-  rp_new( select, rp_selector_roundrobin, (p) );
-  bool result = false;
+    rp_selector * select;
+    rp_new( select, rp_selector_roundrobin, (p) );
+    bool result = false;
 
-  rp_splitter * split;
-  rp_new( split, rp_splitter_mixed, (p) );
+    rp_splitter * split;
+    rp_new( split, rp_splitter_mixed, (p) );
 
-  icp_solver solver( (p), _ode_vars, 10, select, split);
-  _solver = &solver;	//solver created
+    icp_solver solver( (p), _ode_vars, 10, select, split);
+    _solver = &solver;	//solver created
 
-  if (!rp_box_empty(rp_problem_box(*p)))
+    if (!rp_box_empty(rp_problem_box(*p)))
     {
-      int clock_solve = rp_clock_create();
-      rp_clock_start(clock_solve);
-      rp_box b = solver.prop();
-      if (!rp_box_empty(b))
+        int clock_solve = rp_clock_create();
+        rp_clock_start(clock_solve);
+        rp_box b = solver.prop();
+        if (!rp_box_empty(b))
         {
-          char tmp[100];
-          sprintf(tmp,"[%ld ms]",rp_clock_elapsed_time(clock_solve));
-          cout<<endl<<"------------------"<<endl;
-          cout<<"PROP: It's possible to have the solution in the following box:"<<endl;
-          rp_box_cout(b, 5, RP_INTERVAL_MODE_BOUND);
-          cout<<"------------------"<<endl;
-          result = true;
+            char tmp[100];
+            sprintf(tmp,"[%ld ms]",rp_clock_elapsed_time(clock_solve));
+            cout<<endl<<"------------------"<<endl;
+            cout<<"PROP: It's possible to have the solution in the following box:"<<endl;
+            rp_box_cout(b, 5, RP_INTERVAL_MODE_BOUND);
+            cout<<"------------------"<<endl;
+            result = true;
         }
+        // update the current box with `b`
+        rp_box_copy(*_b, b);
 
-      // update the current box with `b`
-      rp_box_copy(*_b, b);
-
-      rp_clock_stop(clock_solve);
-      // if (solver.solution() )
-      //   {
-      //     //	rp_problem_destroy(p);
-      //     result = true;
-      //   }
+        rp_clock_stop(clock_solve);
+        // if (solver.solution() )
+        //   {
+        //     //	rp_problem_destroy(p);
+        //     result = true;
+        //   }
     }
-  // rp_problem_destroy(p);
-  cerr << "NRASolver::icp_prop: " << (result ? "sat" : "unsat") << endl;
-  return result;
+
+    // rp_problem_destroy(p);
+    cerr << "NRASolver::icp_prop: " << (result ? "sat" : "unsat") << endl;
+
+    if (!result) {
+        explanation.clear();
+        cout<<"#explanation provided: ";
+        for (vector<literal *>::iterator it = assigned_lits.begin(); it!= assigned_lits.end(); it++)
+        {
+            explanation.push_back( (*it) -> get_enode() );
+            cout << (*it)->get_enode() <<" with polarity "
+                 << toInt((*it)->get_enode()->getPolarity()) << " ";
+        }
+        cout<< endl;
+    }
+    return result;
 }
 
 bool NRASolver::icp_solve(rp_problem * p)
@@ -134,32 +146,57 @@ bool NRASolver::icp_solve(rp_problem * p)
 	return false;
 }
 
-variable * NRASolver::add_variable( Enode * e )
+variable * NRASolver::create_variable( Enode * e )
 {
-        cerr << "add_variable " << e << endl;
-  	for (vector<variable *>::iterator it = v_list.begin() ; it != v_list.end(); it++)
-	{
-            cerr << "Name : !!!!! ";
-            cerr << (*it)->get_enode() << endl;
-		if ( e == (*it) -> get_enode() )
-		{
-			return NULL;
-		}
-	}
-	variable * var = new variable(e, _b, _ts);
-        const string tmp_str = e->getCar()->getName();
-        const char* name = tmp_str.c_str();
-        const double lb = e->getLowerBound();
-        const double ub = e->getUpperBound();
-	var -> mk_rp_variable(name, lb, ub);
-        cerr << "NRASolver::add_variable" << endl;
-        cerr << "Name: " << name << "\t"
-             << "LB: " << lb << "\t"
-             << "UB: " << ub << endl;
-	return var;
+    // Check whether we already have it or not.
+    for (set<variable *>::iterator it = v_set.begin() ; it != v_set.end(); it++)
+    {
+        if ( e == (*it) -> get_enode() )
+        {
+            return *it;
+        }
+    }
+
+    variable * var = new variable(e, _b, _ts);
+
+    var->name = e->getCar()->getName();
+    const char* name = var->name.c_str();
+    const double lb = e->getLowerBound();
+    const double ub = e->getUpperBound();
+
+    var -> mk_rp_variable(name, lb, ub);
+    cerr << "NRASolver::create_variable" << endl;
+    cerr << "Name: " << name << "\t"
+         << "LB: " << lb << "\t"
+         << "UB: " << ub << endl;
+    return var;
 }
 
-set<variable *> NRASolver::get_variables (Enode * e, vector<variable *> & vl)
+// variable * NRASolver::add_variable( Enode * e )
+// {
+//         cerr << "add_variable " << e << endl;
+
+//   	for (set<variable *>::iterator it = v_set.begin() ; it != v_set.end(); it++)
+// 	{
+// 		if ( e == (*it) -> get_enode() )
+// 		{
+// 			return NULL;
+// 		}
+// 	}
+// 	variable * var = new variable(e, _b, _ts);
+//         const string tmp_str = e->getCar()->getName();
+//         const char* name = tmp_str.c_str();
+//         const double lb = e->getLowerBound();
+//         const double ub = e->getUpperBound();
+// 	var -> mk_rp_variable(name, lb, ub);
+//         cerr << "NRASolver::add_variable" << endl;
+//         cerr << "Name: " << name << "\t"
+//              << "LB: " << lb << "\t"
+//              << "UB: " << ub << endl;
+// 	return var;
+// }
+
+set<variable *> NRASolver::get_variables (Enode * e )
 {
     set<variable *> result;
     Enode * p = NULL;
@@ -174,31 +211,21 @@ set<variable *> NRASolver::get_variables (Enode * e, vector<variable *> & vl)
     else if ( e->isTerm( ) )
     {
         if ( e -> isVar() ) {
-            variable * var = add_variable( e );
-            if (var != NULL ) {
-                vl.push_back(var);
-                cerr << "List of v_list" << endl;
-                for (vector<variable *>::iterator it = v_list.begin() ; it != v_list.end(); it++)
-                {
-                    cerr << (*it)->get_enode() << endl;
-                }
-                cerr << endl;
+            variable * var = create_variable( e );
+            v_set.insert(var);
 
-                // Add it to result set if `var` is a ODE variable.
-                if (var->get_enode()->getODEvartype() != l_Undef) {
-                    result.insert(var);
-                }
-
-
+            // Add it to result set if `var` is a ODE variable.
+            if (var->get_enode()->getODEvartype() != l_Undef) {
+                result.insert(var);
             }
         }
 
-        set <variable*> tmp_set = get_variables(e->getCar(), vl);
+        set <variable*> tmp_set = get_variables(e->getCar());
         result.insert(tmp_set.begin(), tmp_set.end());
         p = e->getCdr();
         while ( !p->isEnil( ) )
         {
-            tmp_set = get_variables(p->getCar(), vl);
+            tmp_set = get_variables(p->getCar());
             result.insert(tmp_set.begin(), tmp_set.end());
             p = p->getCdr();
         }
@@ -207,13 +234,13 @@ set<variable *> NRASolver::get_variables (Enode * e, vector<variable *> & vl)
     {
         if ( !e->isEnil( ) )
         {
-            set <variable*> tmp_set = get_variables(e->getCar(), vl);
+            set <variable*> tmp_set = get_variables(e->getCar());
             result.insert(tmp_set.begin(), tmp_set.end());
 
             p = e->getCdr();
             while ( !p->isEnil( ) )
             {
-                tmp_set = get_variables(p->getCar(), vl);
+                tmp_set = get_variables(p->getCar());
                 result.insert(tmp_set.begin(), tmp_set.end());
                 p = p->getCdr();
             }
@@ -231,29 +258,6 @@ set<variable *> NRASolver::get_variables (Enode * e, vector<variable *> & vl)
         opensmt_error( "unknown case value" );
     return result;
 }
-// void NRASolver::get_variables(Enode * e, vector<variable *> & vl)
-// {
-
-//   Enode * p = NULL;
-
-//   if ( e -> isTerm( ) )
-//   {
-// 	if ( e -> isVar() )
-// 	{
-// 		variable * var = add_variable( e );
-// 		if (var != NULL ) vl.push_back(var);
-// 	    	get_variables( e->getCar(), vl );
-//     	}
-
-// 	p = e -> getCdr();
-
-// 	while ( !p->isEnil( ) )
-//     	{
-// 		get_variables( p->getCar(), vl );
-//       		p = p -> getCdr() ;
-//     	}
-//   }
-// }
 
 void NRASolver::pop_literal (vector<literal*>::size_type prev_size )
 {
@@ -278,8 +282,8 @@ void NRASolver::add_literal ( Enode * e )
 
     literal * lit = new literal( e , _ts );
 
-    const string infix_str = infix(e, e->getPolarity());
-    const char* infix_cstr = infix_str.c_str();
+    lit->infix_ctr_string = infix(e, e->getPolarity());
+    const char* infix_cstr = lit->infix_ctr_string.c_str();
     lit->mk_constraint( infix_cstr );
 
     if(_contain_ode) {
@@ -288,15 +292,20 @@ void NRASolver::add_literal ( Enode * e )
         // add corresponding ODE variables to _odes_vars
         const set<variable*> ode_vars_in_lit = _enode_to_vars[e];
 
-        // for(set<variable*>::iterator ite = ode_vars_in_lit.begin();
-        //     ite != ode_vars_in_lit.end();
-        //     ite++)
-        // {
-        //     cerr << "ODE Vars in Lit " << endl
-        //          << "Name: " << (*ite)->get_enode()->getCar()->getName() << endl;
-        // }
+        for(set<variable*>::iterator ite = ode_vars_in_lit.begin();
+            ite != ode_vars_in_lit.end();
+            ite++)
+        {
+            cerr << "ODE Vars in Lit " << endl
+                 << "Name: " << (*ite)->get_enode() << endl
+                 << "ODE: " << (*ite)->get_enode()->getODE() << endl;
+        }
 
         _ode_vars.insert(ode_vars_in_lit.begin(), ode_vars_in_lit.end());
+
+        /* copy _odes to stack_ode_vars */
+        std::back_insert_iterator< vector<variable*> > back_it (stack_ode_vars);
+        copy (ode_vars_in_lit.begin(), ode_vars_in_lit.end(), back_it);
     }
 
     assigned_lits.push_back(lit);
@@ -381,31 +390,19 @@ lbool NRASolver::inform( Enode * e )
 
     // 1. get_variables collects all the variables and push them to v_list
     // 2. get_variables collects all the `ode` variables in `e` and return
-    set<variable *> ode_vars = get_variables( e, v_list );
+    set<variable *> ode_vars = get_variables( e );
 //    add_literal ( e );
     if (contain_ode()) {
         /* Add ODE time variable into v_list */
-        if(ode_vars.empty() == false) {
-            Enode * time = (*ode_vars.begin())->get_enode()->getODEtimevar();
-            variable * time_var = add_variable(time);
-            if(time_var != NULL) {
-                v_list.push_back(time_var);
-                // cerr << "Add time_var" << endl;
-                // for (vector<variable *>::iterator it = v_list.begin() ; it != v_list.end(); it++)
-                //{
-                //    cerr << (*it)->get_enode() << endl;
-                //}
-                //cerr << endl;
-            }
-
-            for(set<variable*>::iterator ite = ode_vars.begin();
-                ite != ode_vars.end();
-                ite++)
-            {
-                (*ite)->setODEtimevar(time_var);
-            }
+        for(set<variable*>::iterator ite = ode_vars.begin();
+            ite != ode_vars.end();
+            ite++)
+        {
+            Enode * time = (*ite)->get_enode()->getODEtimevar();
+            variable * time_var = create_variable(time);
+            v_set.insert(time_var);
+            (*ite)->setODEtimevar(time_var);
         }
-
         // update ODE set of e
         // e->setODEs(retrieve_ode_set(egraph.var_to_ode, e));
         // update a mapping from `e` to the corresponding ODE vars.
@@ -426,7 +423,7 @@ lbool NRASolver::inform( Enode * e )
 //
 bool NRASolver::assertLit ( Enode * e, bool reason )
 {
-  cerr << endl << "asserLit: (" << e << ", " << reason << ")" << endl;
+  cerr << endl << "assertLit: (" << e << ", " << reason << ")" << endl;
 
   // cerr << "AssertLit with " << reason << " " << e << endl;
 
@@ -460,8 +457,10 @@ void NRASolver::pushBacktrackPoint ( )
   cerr << endl;
   history_boxes->insert(*_b);
   history_num_lits.push_back(assigned_lits.size());
+  history_num_odes.push_back(stack_ode_vars.size());
 
   cerr << "box added: history_boxes->size() = " << history_boxes->size() << endl;
+
 }
 
 //
@@ -485,7 +484,7 @@ void NRASolver::popBacktrackPoint ( )
   rp_box old_box = history_boxes->get();
   history_boxes->remove();
   rp_box_copy(*_b, old_box);
-  rp_box_destroy(&old_box);
+//  rp_box_destroy(&old_box);
 
   // Pop a num_lits from the history
   vector<literal*>::size_type prev_size = history_num_lits.back();
@@ -499,7 +498,17 @@ void NRASolver::popBacktrackPoint ( )
   // pop literal
   pop_literal(prev_size);
 
+
+  // Pop a num_odes from the history
+  vector<literal*>::size_type prev_ode_size = history_num_odes.back();
+  history_num_lits.pop_back();
+
+  while(stack_ode_vars.size() > prev_ode_size)
+      stack_ode_vars.pop_back();
+
   _ode_vars.clear();
+  _ode_vars.insert(stack_ode_vars.begin(), stack_ode_vars.end());
+
 }
 
 //
@@ -508,33 +517,51 @@ void NRASolver::popBacktrackPoint ( )
 //
 bool NRASolver::check( bool complete )
 {
-  bool result = true;
-  cerr << endl << "check: "<< (complete ? "complete" : "incomplete") << endl;
-  if (complete)
+    bool result = true;
+    cerr << endl << "check: "<< (complete ? "complete" : "incomplete") << endl;
+    if (complete)
     {
-      // Complete Check
-      explanation.clear();
-      result = icp_solve(_problem);
-      if(!result) {
-        cout<<"#explanation provided: ";
+        // Complete Check
+        cerr << "We start complete check with the following literals. " << endl;
+        cerr << "=======================================================" << endl;
         for (vector<literal *>::iterator it = assigned_lits.begin(); it!= assigned_lits.end(); it++)
-          {
-            explanation.push_back( (*it) -> get_enode() );
+        {
             cout << (*it)->get_enode() <<" with polarity "
-                 << toInt((*it)->get_enode()->getPolarity()) << " ";
-          }
-        cout<< endl;
-      }
+                 << toInt((*it)->get_enode()->getPolarity()) << endl;
+        }
+        cerr << "=======================================================" << endl;
+
+        cerr << "with the following ODE literals. " << endl;
+        cerr << "=======================================================" << endl;
+        for (set<variable*>::iterator it = _ode_vars.begin(); it!= _ode_vars.end(); it++)
+        {
+            cout << (*it)->get_enode() << "\t:";
+            cout << (*it)->get_enode()->getODE() << endl;
+        }
+        cerr << "=======================================================" << endl;
+
+        explanation.clear();
+        result = icp_solve(_problem);
+        if(!result) {
+            cout<<"#explanation provided: ";
+            for (vector<literal *>::iterator it = assigned_lits.begin(); it!= assigned_lits.end(); it++)
+            {
+                explanation.push_back( (*it) -> get_enode() );
+                cout << (*it)->get_enode() <<" with polarity "
+                     << toInt((*it)->get_enode()->getPolarity()) << " ";
+            }
+            cout<< endl;
+        }
     }
-  else {
-    // incomplete check
-    // 1. run prop
-    // 2. check emptyness
-    // 2.1. empty? => UNSAT
-    // 2.2. non-empty? => SAT (possibly)
-    result = icp_prop(_problem);
-  }
-  return result;
+    else {
+        // incomplete check
+        // 1. run prop
+        // 2. check emptyness
+        // 2.1. empty? => UNSAT
+        // 2.2. non-empty? => SAT (possibly)
+        result = icp_prop(_problem);
+    }
+    return result;
 
 }
 

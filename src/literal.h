@@ -9,6 +9,7 @@ public:
 	inline Enode * 	get_enode()	{ return _e; }
 	void		mk_constraint( const char * );
 	rp_constraint *		_c;
+        string infix_ctr_string;
 
 private:
 

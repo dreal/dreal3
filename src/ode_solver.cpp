@@ -202,6 +202,7 @@ bool ode_solver::solve()
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;
         bool end_empty = false;
+        cerr << "Union and intersect V" << endl;
         if(out_v_list.size() == 0) {
             cerr << "There is nothing to collect for V" << endl;
             end_empty = true;
@@ -234,6 +235,7 @@ bool ode_solver::solve()
             }
         }
 
+        cerr << endl << "Union and intersect time" << endl;
         bool time_empty = false;
         // 2. Union all the out_time_list and intersect with T
         interval time_union;
@@ -299,6 +301,7 @@ bool ode_solver::solve()
              << endl
              << "Exception caught!" << endl
              << e.what() << endl << endl;
+        abort();
     }
     return ret;
 }

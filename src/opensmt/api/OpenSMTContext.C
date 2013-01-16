@@ -587,7 +587,7 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
 
 void OpenSMTContext::DefineODE( const char * name, string ode, int diff_group )
 {
-  if ( config.verbosity > 1 )
+//  if ( config.verbosity > 1 )
     cerr << "# OpenSMTContext::Declaring ODE "
          << "d/dt["
          << name
@@ -596,8 +596,15 @@ void OpenSMTContext::DefineODE( const char * name, string ode, int diff_group )
 	 << ode
 	 << endl;
   // Create two variable _0, _t
-  string name_0 = string(name) + "_0";
-  string name_t = string(name) + "_t";
+  string* name_0_ptr = new string;
+  string* name_t_ptr = new string;
+
+  string name_0 = *name_0_ptr;
+  string name_t = *name_t_ptr;
+
+  name_0 = string(name) + "_0";
+  name_t = string(name) + "_t";
+
   Enode* e_0 = mkVar(name_0.c_str());
   Enode* e_t = mkVar(name_t.c_str());
 

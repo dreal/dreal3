@@ -31,22 +31,25 @@ public:
   	void            computeModel        	( );
 
 //	void	 	get_variables	( Enode * , vector< variable *> & );
-        set<variable *> get_variables   (Enode * e, vector<variable *> & vl);
+        set<variable *> get_variables   (Enode * e);
 
-	variable *	add_variable	( Enode * );
+        variable *	create_variable	( Enode * );
+//	variable *	add_variable	( Enode * );
 
 	void		add_literal	( Enode * );
 	void		pop_literal	( vector<literal*>::size_type );
         bool            contain_ode     ( );
 
+
 private:
 
-	vector< variable * >	v_list;
+	set< variable * >	v_set;
 //	vector< literal * >	l_list;
 	vector< literal * >	assigned_lits;
 
         rp_box_stack *          history_boxes;
         vector< vector<literal*>::size_type >        history_num_lits;
+
 
 	icp_solver * 		_solver;
 
@@ -59,5 +62,9 @@ private:
         // set of ODE variables assigned so far
         set < variable* >       _ode_vars;
         map < Enode*, set < variable* > > _enode_to_vars;
+
+        vector< variable* >                    stack_ode_vars;
+        vector< vector<variable*>::size_type >   history_num_odes;
+
 };
 #endif

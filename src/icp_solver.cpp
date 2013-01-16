@@ -3,8 +3,10 @@
 #include "icp_solver.h"
 using namespace std;
 
+#define is_null(x) (x == NULL ? "NULL" : "Non-Null")
+
 icp_solver::icp_solver(rp_problem * p,
-                       set < variable* > & ode_vars,
+                       set < variable* > ode_vars,
                        double improve,
                        rp_selector * vs,
                        rp_splitter * ds,
@@ -128,15 +130,16 @@ bool icp_solver::propagation_with_ode (rp_box b, bool hasDiff)
                 set<variable*> current_ode_vars = diff_vec[i];
 
                 if(!current_ode_vars.empty()) {
+                    cerr << "Inside of current ODEs" << endl;
                     for(set<variable*>::iterator ite = current_ode_vars.begin();
                         ite != current_ode_vars.end();
                         ite++)
                     {
+                        cerr << "Name: " << (*ite)->getName() << endl;
                         (*ite)->set_top_box(&current_box);
                     }
 
                     (*current_ode_vars.begin())->getODEtimevar()->set_top_box(&current_box);
-
                     ode_solver odeSolver(current_ode_vars);
                     if (!odeSolver.solve())
                         return false;

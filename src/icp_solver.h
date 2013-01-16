@@ -10,7 +10,7 @@ class icp_solver
 public:
 
   	icp_solver( rp_problem * p,
-                    set < variable* > & ode_vars,
+                    set < variable* > ode_vars,
                     double improve, rp_selector * vs,
                     rp_splitter * ds, rp_existence_prover * ep = 0);
 
@@ -36,7 +36,7 @@ private:
   	rp_selector * _vselect;    /* selection of variable to be split       */
   	rp_splitter * _dsplit;     /* split function of variable domain       */
   	rp_existence_prover * _ep; /* existence prover                        */
-        set < variable* > & _ode_vars;
+        set < variable* > _ode_vars;
   	int _sol;                  /* number of computed solutions            */
   	int _nsplit;               /* number of split steps                   */
   	double _improve;           /* improvement factor of iterative methods */

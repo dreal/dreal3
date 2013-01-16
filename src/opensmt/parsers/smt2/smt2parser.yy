@@ -519,34 +519,34 @@ infix_term: spec_const
       }
     | infix_term TK_PLUS infix_term
       {
-        string* ret = new string (*$1 + string($2) + *$3);
+        string* ret = new string (*$1 + "+" + *$3);
         delete $1;
         delete $3;
         $$ = ret;
       }
     | infix_term TK_MINUS infix_term
       {
-        string* ret = new string (*$1 + string($2) + *$3);
+        string* ret = new string (*$1 + "-" + *$3);
         delete $1;
         delete $3;
         $$ = ret;
       }
     | infix_term TK_TIMES infix_term
       {
-        string* ret = new string (*$1 + string($2) + *$3);
+        string* ret = new string (*$1 + "*" + *$3);
         delete $1;
         delete $3;
         $$ = ret;
       }
     | TK_UMINUS infix_term
       {
-        string* ret = new string (string($1) + *$2);
+        string* ret = new string ("-" + *$2);
         delete $2;
         $$ = ret;
       }
     | infix_term TK_DIV infix_term
       {
-        string* ret = new string (*$1 + string($2) + *$3);
+        string* ret = new string (*$1 + "/" + *$3);
         delete $1;
         delete $3;
         $$ = ret;
@@ -558,56 +558,57 @@ infix_term: spec_const
       }
     | TK_SIN '(' infix_term ')'
       {
-        string* ret = new string ($1 + '(' + *$3 + ')');
+        string* ret = new string ("sin" + '(' + *$3 + ')');
         delete $3;
         $$ = ret;
       }
     | TK_COS '(' infix_term ')'
       {
-        string* ret = new string ($1 + '(' + *$3 + ')');
+        string* ret = new string ("cos" + '(' + *$3 + ')');
         delete $3;
         $$ = ret;
       }
     | TK_TAN '(' infix_term ')'
       {
-        string* ret = new string ($1 + '(' + *$3 + ')');
+        string* ret = new string ("tan" + '(' + *$3 + ')');
         delete $3;
         $$ = ret;
       }
     | TK_ARCSIN '(' infix_term ')'
       {
-        string* ret = new string ($1 + '(' + *$3 + ')');
+        string* ret = new string ("arctan" + '(' + *$3 + ')');
         delete $3;
         $$ = ret;
       }
     | TK_ARCCOS '(' infix_term ')'
       {
-        string* ret = new string ($1 + '(' + *$3 + ')');
+        string* ret = new string ("arccos" + '(' + *$3 + ')');
         delete $3;
         $$ = ret;
       }
     | TK_ARCTAN '(' infix_term ')'
       {
-        string* ret = new string ($1 + '(' + *$3 + ')');
+        string* ret = new string ("arctan" + '(' + *$3 + ')');
         delete $3;
         $$ = ret;
       }
     | TK_EXP '(' infix_term ')'
       {
-        string* ret = new string ($1 + '(' + *$3 + ')');
+        string* ret = new string ("exp" + '(' + *$3 + ')');
         delete $3;
         $$ = ret;
       }
     | TK_LOG '(' infix_term ')'
       {
-        string* ret = new string ($1 + '(' + *$3 + ')');
+        string* ret = new string ("log" + '(' + *$3 + ')');
         delete $3;
         $$ = ret;
       }
-    | TK_POW '(' infix_term ')'
+    | TK_POW '(' infix_term infix_term')'
       {
-        string* ret = new string ($1 + '(' + *$3 + ')');
+        string* ret = new string (*$3 + "^" + *$4 );
         delete $3;
+        delete $4;
         $$ = ret;
       }
     ;
