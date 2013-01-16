@@ -30,7 +30,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "CostSolver.h"
 // Added to support compiling templates
 //#include "DLSolver.C"
-#include "theory_solver.h"
+#include "nra_solver.h"
+#include "nra_ode_solver.h"
 #include "SimpSMTSolver.h"
 
 #define VERBOSE 0

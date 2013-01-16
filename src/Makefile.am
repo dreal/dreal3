@@ -1,8 +1,8 @@
-SUBDIRS = capd_dynsys
+SUBDIRS = opensmt realpaver capd_dynsys 
 
-noinst_LTLIBRARIES = libtheorysolver.la
+noinst_LTLIBRARIES = libsolvers.la
 
 AM_CPPFLAGS=$(config_includedirs)
 
-libtheorysolver_la_SOURCES = theory_solver.cpp icp_solver.cpp ode_solver.cpp variable.cpp literal.cpp
-libtheorysolver_la_LIBADD = opensmt/libopensmt.la realpaver/librealpaver.la capd_dynsys/capdMake/libcapd/libcapd.a
+libsolvers_la_SOURCES = nra_solver.cpp nra_ode_solver.cpp icp_solver.cpp ode_solver.cpp variable.cpp literal.cpp
+libsolvers_la_LIBADD = opensmt/libopensmt.la realpaver/librealpaver.la capd_dynsys/capdMake/libcapd/libcapd.a
