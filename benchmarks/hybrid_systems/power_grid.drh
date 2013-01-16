@@ -1,0 +1,109 @@
+[ , ] delta_1;
+[ , ] delta_2;
+[ , ] omega_1;
+[ , ] omega_2;
+[ , ] z;		
+%%
+{
+	mode 1;
+
+
+	flow:
+		d/dt[delta_1] = omega_1;
+		d/dt[delta_2] = omega_2;
+		d/dt[omega_1] = (omega_s / 2 * H_1 * a) * 
+				(P_m1 - D * omega_1 - G_111 * V_i2 +  G_111 * V_1 * V_2 * cos(delta_1-delta_2) + 
+				 B_121 * V_1 * V_2 * sin(delta_1-delta_2) + 
+				 G_1infty1 * V_1 * V_infty * cos(delta_1-delta_infty) + 
+				 B_1infty1 * V_1 * V_infty * sin(delta_1-delta_infty) );
+		d/dt[omega_2] = (omega_s / ( 2 * H_1 * a) ) * 
+				(P_m2 - D * omega_2 - G_111 * V_i2 +  G_111 * V_1 * V_2 * cos(delta_1-delta_2) +
+				B_121 * V_1 * V_2 * sin (delta_1-delta_2) + 
+				G_1infty1 * V_1 * V_infty * cos(delta_1-delta_infty) + 
+				B_1infty1 * V_1 * V_infty * sin(delta_1-delta_infty) );
+		d/dt[z] = 1;		
+
+	jump: 
+		( = z tc * l ) ==> @2 (and (= delta_1' delta_1) (= delta_2' delta_2) (= omega_1' omega_1)
+					   (= omega_2' omega_2) (= z' z));
+)
+
+{
+	mode 2;
+
+
+	flow:
+		d/dt[delta_1] = omega_1;
+		d/dt[delta_2] = omega_2;
+		d/dt[omega_1] = (omega_s / 2 * H_1 * a) * 
+				(P_m1 - D * omega_1 - G_111 * V_i2 +  G_111 * V_1 * V_2 * cos(delta_1-delta_2) + 
+				 B_121 * V_1 * V_2 * sin(delta_1-delta_2) + 
+				 G_1infty1 * V_1 * V_infty * cos(delta_1-delta_infty) + 
+				 B_1infty1 * V_1 * V_infty * sin(delta_1-delta_infty) );
+		d/dt[omega_2] = (omega_s / ( 2 * H_1 * a) ) * 
+				(P_m2 - D * omega_2 - G_111 * V_i2 +  G_111 * V_1 * V_2 * cos(delta_1-delta_2) +
+				B_121 * V_1 * V_2 * sin (delta_1-delta_2) + 
+				G_1infty1 * V_1 * V_infty * cos(delta_1-delta_infty) + 
+				B_1infty1 * V_1 * V_infty * sin(delta_1-delta_infty) );
+		d/dt[z] = 1;		
+
+	jump: 
+		( = z tc * l ) ==> @3 (and (= delta_1' delta_1) (= delta_2' delta_2) (= omega_1' omega_1)
+					   (= omega_2' omega_2) (= z' z));
+)
+
+{
+	mode 3;
+
+
+	flow:
+		d/dt[delta_1] = omega_1;
+		d/dt[delta_2] = omega_2;
+		d/dt[omega_1] = (omega_s / 2 * H_1 * a) * 
+				(P_m1 - D * omega_1 - G_111 * V_i2 +  G_111 * V_1 * V_2 * cos(delta_1-delta_2) + 
+				 B_121 * V_1 * V_2 * sin(delta_1-delta_2) + 
+				 G_1infty1 * V_1 * V_infty * cos(delta_1-delta_infty) + 
+				 B_1infty1 * V_1 * V_infty * sin(delta_1-delta_infty) );
+		d/dt[omega_2] = (omega_s / ( 2 * H_1 * a) ) * 
+				(P_m2 - D * omega_2 - G_111 * V_i2 +  G_111 * V_1 * V_2 * cos(delta_1-delta_2) +
+				B_121 * V_1 * V_2 * sin (delta_1-delta_2) + 
+				G_1infty1 * V_1 * V_infty * cos(delta_1-delta_infty) + 
+				B_1infty1 * V_1 * V_infty * sin(delta_1-delta_infty) );
+		d/dt[z] = 1;		
+
+	jump: 
+		( = z tc * l ) ==> @4 (and (= delta_1' delta_1) (= delta_2' delta_2) (= omega_1' omega_1)
+					   (= omega_2' omega_2) (= z' z));
+)
+
+
+{
+	mode 4;
+
+
+	flow:
+		d/dt[delta_1] = omega_1;
+		d/dt[delta_2] = omega_2;
+		d/dt[omega_1] = (omega_s / 2 * H_1 * a) * 
+				(P_m1 - D * omega_1 - G_111 * V_i2 +  G_111 * V_1 * V_2 * cos(delta_1-delta_2) + 
+				 B_121 * V_1 * V_2 * sin(delta_1-delta_2) + 
+				 G_1infty1 * V_1 * V_infty * cos(delta_1-delta_infty) + 
+				 B_1infty1 * V_1 * V_infty * sin(delta_1-delta_infty) );
+		d/dt[omega_2] = (omega_s / ( 2 * H_1 * a) ) * 
+				(P_m2 - D * omega_2 - G_111 * V_i2 +  G_111 * V_1 * V_2 * cos(delta_1-delta_2) +
+				B_121 * V_1 * V_2 * sin (delta_1-delta_2) + 
+				G_1infty1 * V_1 * V_infty * cos(delta_1-delta_infty) + 
+				B_1infty1 * V_1 * V_infty * sin(delta_1-delta_infty) );
+		d/dt[z] = 1;		
+
+	jump: 
+		( = z tc * l ) ==> @1 (and (= delta_1' delta_1) (= delta_2' delta_2) (= omega_1' omega_1)
+					   (= omega_2' omega_2) (= z' z));
+)
+
+%%
+
+init:
+
+
+

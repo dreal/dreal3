@@ -640,14 +640,20 @@ definition avoids such complications.
 
 \subsection{Solving Bounded $\delta$-Reachability}
 
+We now bridge the results between the $\delta$-decision problems and bounded
+reachability checking. 
+
+
 \begin{definition}[$\delta$-Reachability]
-Let $H$ be a hybrid automaton such that the state space of $H$ is a bounded
-set. Let $U$ be a subset of $X$. Let $n\in \mathbb{N}$, and $T\in \mathbb{R}$ a
-bounded interval. The bounded $\delta$-reachability asks for one of the
+Let $H = \langle X, Q, \flow, \jump,\init\rangle$ be an
+$n$-dimensional $\lrf$-represented hybrid system, and $\unsafe$ an
+$\lrf$-formula that encodes a subset $U\subseteq X\times Q$. As is the case for
+hybrid systems, we write $U^{\delta}$ to denote the interpretation of
+$\unsafe^{\delta}$.  The $\delta$-reachability asks for one of the
 following decisions:
 \begin{itemize}
-\item $\delta$-$\unsafe$: $H^{\delta}$ reaches $\unsafe^{\delta}$.
-\item $\safe$: $H$ does not reach $U$ in $n$ steps within time $T$.
+\item $\safe$: $H$ does not reach $U$. 
+\item $\delta$-$\unsafe$: $H^{\delta}$ reaches $U^{\delta}$.
 \end{itemize}
 When the two cases overlap, either answer can be returned.
 \end{definition}
