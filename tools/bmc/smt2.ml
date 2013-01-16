@@ -209,10 +209,18 @@ let make_smt2
          new_vardecls) in
   let assert_cmds = BatList.concat assert_cmds_list in
   let assert_formula = Assert formula in
+  let defineodes' =
+    BatList.unique
+      (~cmp:
+          (fun cmd1 cmd2 -> match (cmd1, cmd2) with
+          | (DefineODE (n1, x1, e1), DefineODE (n2, x2, e2)) -> ((n1 = n2) && (x1 = x2))
+          | _ -> false))
+      defineodes
+  in
   BatList.concat
     [[logic_cmd];
      vardecl_cmds;
-     defineodes;
+     defineodes';
      assert_cmds;
      [assert_formula];
      [CheckSAT; Exit];
