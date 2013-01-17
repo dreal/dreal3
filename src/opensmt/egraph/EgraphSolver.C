@@ -609,9 +609,7 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
                                         sort_store,
                                         explanation,
                                         deductions,
-                                        suggestions,
-                                        // true if we need to handle ODE
-                                        false
+                                        suggestions
                              ));
 #ifdef STATISTICS
     tsolvers_stats.push_back( new TSolverStats() );
