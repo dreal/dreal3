@@ -4,6 +4,9 @@
 #include "TSolver.h"
 #include "Egraph.h"
 
+using std::map;
+using std::pair;
+
 class NRASolver : public OrdinaryTSolver
 {
 public:
@@ -26,7 +29,14 @@ public:
     bool            belongsToT          	( Enode * );
     void            computeModel        	( );
 
+    set<Enode *>    get_variables (Enode * e );
+
+
 private:
+    map<Enode*, pair<double, double> >     env;
+    vector <Enode*>                          stack;  // stack of asserted literals.
+    vector < vector<Enode*>::size_type >     undo_stack_size;
+    vector < map<Enode*, pair<double, double> > > env_stack;
 
 };
 #endif
