@@ -1,0 +1,10 @@
+[ translated from lcm_gcd_dijkstra-node2334.translated.smt2 ]
+(x0,x1,x2,x3,x4,x5)
+0
+(Ex0)(Ex1)(Ex2)(Ex3)(Ex4)(Ex5)[[~[x1 <= x0]] /\ [~[x1 = x0]] /\ [(2 x5 x4) = ((x3 x1) + (x2 x0))] /\ [~[(2 x5 x4) = ((x3 (x1 + ((-(1)) x0))) + (x0 (x2 + x3)))]]].
+go
+proj-op (m,m,h,h,h)
+go
+d-stat
+go
+finish

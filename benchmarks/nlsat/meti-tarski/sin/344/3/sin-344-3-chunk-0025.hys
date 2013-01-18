@@ -1,0 +1,7 @@
+-- translated from ./meti-tarski/sin/344/3/sin-344-3-chunk-0025.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2;
+EXPR
+    -- the constraints to be solved
+    (!(((-12 * x0) + (-12 * x1) + (-12 * x2) + (3 * (x1 * x1 * x2)) + (3 * (x0 * x0 * x2)) + (6 * (x0 * x1 * x2)) + (3 * (x0 * x2 * x2)) + (3 * (x1 * x2 * x2)) + (2 * (x2 * x2 * x2)) + (2 * (x1 * x1 * x1)) + (3 * (x0 * x1 * x1)) + (2 * (x0 * x0 * x0)) + (3 * (x0 * x0 * x1))) <= 0) and (!((-1 * x1) <= -3) and (!((-1 * x0) <= -3) and (!((-1 * x2) <= -3) and (!((10 * x1) <= 1) and (!((10 * x0) <= 1) and !((10 * x2) <= 1)))))));

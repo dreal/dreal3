@@ -1,0 +1,9 @@
+[ translated from wensey_division_wegbreit-node1217.smt2 ]
+(x0)
+0
+(Ex0)[[~[(2 ((1/2) x0)) = (1 x0)]]].
+go
+go
+d-stat
+go
+finish

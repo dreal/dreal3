@@ -1,0 +1,6 @@
+load redlog;
+rlset ofsf;
+phi := ex({ x0},((x0 * x0) = -2));
+result := rlcad phi;
+result;
+quit;

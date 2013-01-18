@@ -1,0 +1,9 @@
+[ translated from gen-09.smt2 ]
+(a,b)
+0
+(Ea)(Eb)[[2 a = 1] /\ [b b = 2] /\ [b > a]].
+go
+go
+d-stat
+go
+finish

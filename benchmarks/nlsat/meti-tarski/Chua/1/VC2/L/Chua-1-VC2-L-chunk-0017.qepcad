@@ -1,0 +1,9 @@
+[ translated from ./Chua/1/VC2/L/Chua-1-VC2-L-chunk-0017.smt2 ]
+(x0,x1,x2)
+0
+(Ex0)(Ex1)(Ex2)[[[x1 <= (x0 ((1/13) 3))] /\ [[(x1 x1) = (1 + (x0 (x0 (-(1)))))] /\ [[x2 <= 289] /\ [0 <= x2]]]]].
+go
+go
+d-stat
+go
+finish

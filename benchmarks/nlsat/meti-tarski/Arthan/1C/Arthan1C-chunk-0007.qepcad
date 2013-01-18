@@ -1,0 +1,9 @@
+[ translated from ./Arthan/1C/Arthan1C-chunk-0007.smt2 ]
+(x0,x1,x2)
+0
+(Ex0)(Ex1)(Ex2)[[[~[(x1 x1) = (1 + (x0 (x0 (-(1)))))]] /\ [((1/100) 217) <= x2]]].
+go
+go
+d-stat
+go
+finish

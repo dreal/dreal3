@@ -1,0 +1,8 @@
+(set-logic QF_NRA)
+
+(declare-fun skoX () Real)
+(declare-fun skoY () Real)
+(declare-fun skoZ () Real)
+(assert (and (not (<= 0. skoY)) (and (not (<= (* skoX (* skoX (- 1.))) 3.)) (and (not (<= (* skoZ (+ (+ (+ 27. (* skoX (+ (/ 9. 2.) (* skoX (+ (- 9.) (* skoX (/ 3. 2.))))))) (* skoY (+ (+ (/ 9. 2.) (* skoX (+ (- 90.) (* skoX (+ (- 3.) (* skoX (+ (- 6.) (* skoX (/ (- 3.) 2.))))))))) (* skoY (+ (+ (- 9.) (* skoX (+ (- 3.) (* skoX (+ 54. (* skoX (+ (- 1.) (* skoX 15.)))))))) (* skoY (+ (+ (/ 3. 2.) (* skoX (+ (- 6.) (* skoX (+ (- 1.) (* skoX (+ 6. (* skoX (/ (- 1.) 2.))))))))) (* skoY (* skoX (+ (/ (- 3.) 2.) (* skoX (+ 15. (* skoX (+ (/ (- 1.) 2.) (* skoX 3.))))))))))))))) (* skoZ (+ (+ (/ 9. 4.) (* skoX (+ (- 9.) (* skoX (/ 3. 4.))))) (* skoY (+ (+ (- 9.) (* skoX (+ (/ (- 9.) 2.) (* skoX (+ 15. (* skoX (/ (- 3.) 2.))))))) (* skoY (+ (+ (/ 3. 4.) (* skoX (+ 15. (* skoX (+ (/ 5. 2.) (* skoX (+ (- 3.) (* skoX (/ 3. 4.))))))))) (* skoY (+ (* skoX (+ (/ (- 3.) 2.) (* skoX (+ (- 3.) (* skoX (+ (/ (- 1.) 2.) (* skoX (- 3.)))))))) (* skoY (* skoX (* skoX (+ (/ 3. 4.) (* skoX (+ (- 3.) (* skoX (/ 1. 4.)))))))))))))))))) (+ (+ (/ (- 27.) 4.) (* skoX (* skoX (+ (/ (- 9.) 2.) (* skoX (* skoX (/ (- 3.) 4.))))))) (* skoY (+ (* skoX (+ 9. (* skoX (* skoX (+ 3. (* skoX 12.)))))) (* skoY (+ (+ (/ (- 9.) 2.) (* skoX (* skoX (+ (- 9.) (* skoX (+ 24. (* skoX (/ (- 5.) 2.)))))))) (* skoY (+ (* skoX (+ 3. (* skoX (+ 24. (* skoX (+ 1. (* skoX 12.))))))) (* skoY (+ (/ (- 3.) 4.) (* skoX (+ 12. (* skoX (+ (/ (- 5.) 2.) (* skoX (+ 12. (* skoX (/ (- 3.) 4.))))))))))))))))))) (and (not (<= 0. skoX)) (and (not (<= skoZ 0.)) (and (not (<= skoX (- 1.))) (and (not (<= 1. skoY)) (not (<= skoY skoX))))))))))
+(set-info :status unsat)
+(check-sat)

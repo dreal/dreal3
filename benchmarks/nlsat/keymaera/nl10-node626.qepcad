@@ -1,0 +1,9 @@
+[ translated from nl10-node626.smt2 ]
+(x0,x1,x2)
+0
+(Ex0)(Ex1)(Ex2)[[~[~[[[[x0 = 1] /\ [x1 >= 2]] /\ [x2 >= 4]] /\ [(x2 + (x1 x0)) <= 5]]]]].
+go
+go
+d-stat
+go
+finish

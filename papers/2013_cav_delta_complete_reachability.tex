@@ -139,7 +139,7 @@ on them, in Section~\ref{language}. We
 study the bounded $\delta$-reachability problem in
 Section~\ref{main}, proving decidability and complexity bounds, through their
 encodings as $\lrf$-formulas. We discuss related work in detail in
-Section~\ref{}, show experimental results on nonlinear hybrid systems
+Section~\ref{discuss}, show experimental results on nonlinear hybrid systems
 in Section~\ref{experiments}. We point out further implications and conclude in
 Section~\ref{conclude}.
 
@@ -329,6 +329,31 @@ A hybrid automata $H = \langle X, Q, \flow, \jump, \inv, \init\rangle$ is
 trivial} in this case.
 \end{definition}
 
+\begin{example}[Temperature
+Controller~\cite{DBLP:conf/hybrid/AlurCHH92}]\label{hybridtcontrol} 
+We will use the standard thermostat example throughout to illustrate our
+definitions in the paper. When the heater is off, the temperature $x$ decreases
+according to the exponential function $x(t) = x_0 e^{-Kt}$, where $x_0$ is the
+initial temperature and $K$ is a constant. When the heater is on, the
+temperature follows the function $x(t) = x_0 e^{-Kt} + h(1-e^{-Kt})$, where $h$
+is a constant that depends on the power of the heater. Let the initial condition
+be that the temperature is $M$ and the heater is off. The automaton $H_{TC} =
+\langle X, Q, \flow, \jump, \inv, \init\rangle$ is defined as follows. 
+\begin{itemize}
+\item $X = \mathbb{R}$, $Q = \{q_0\mbox{ (off-mode) }, q_1\mbox{ (on-mode)}\}$.
+\item The flow conditions are defined as $\flow= \{(q_0, a_t, a_0, t): a_t =
+a_0e^{-Kt}\}\cup \{ (q_1, a_t, a_0, t): a_t =
+a_0e^{-Kt}+h(1-e^{-Kt})\}$.
+\item The jump conditions are $\jump=\{(q_0, q_1, a, a'): a\leq
+m\mbox{ and }a' = a\}\cup \{(q_1, q_0, a,a'): a\geq M
+\mbox{ and }a'=a\}$.
+\item The invariants are $\inv_{q_0} = \{a: a\geq m\} \mbox{ and }
+\inv_{q_1} = \{a: a\leq M\}.$
+\item The initial states are $\init = \{(q_0, a): m\leq a\leq M\}.$
+\end{itemize}
+\end{example}
+
+
 \subsection{$\lrf$-Representations}
 
 We now define logical representations of hybrid systems. It is a general
@@ -373,6 +398,23 @@ x_0$ and $t$ to $\vec x_t$, and thus $\phi^q_{\flow}(\vec a,
 f(\vec x_0, t)$, instead of arbitrary formulas. Different classes of hybrid
 systems can be defined by refining this definition.
 \end{remark}
+
+\begin{example} The temperature controller system in
+Example~\ref{hybridtcontrol} can be $\lrf$-represented as $H_{TC} =
+\langle X, Q, \phi_{\flow}, \phi_{\jump}, \phi_{\inv}, \phi_{\init}\rangle$,
+where
+\begin{itemize}
+\item $X = \mathbb{R}$ and $Q=\{q_0, q_1\}$.
+\item $\phi_{\flow}^{q_0}(x, x_0, t) : x = x_0 e^{-Kt}$ and
+$\phi_{\flow}^{q_1}(x, x_0, t): x = x_0 e^{-Kt} + h(1-e^{-Kt}).$
+\item $\phi_{\jump}^{q_0\rightarrow q_1}: x\leq m\wedge x'=x$, and
+$\phi_{\jump}^{q_1\rightarrow q_0}: x\geq M \wedge x'=x.$
+\item $\phi_{\inv}^{q_0}: x\geq m$, $\phi_{\inv}^{q_1} :
+x\leq M.$
+\item $\phi_{\init}^{q_0} : x\geq m\wedge x\leq M$.
+$\phi_{\init}^{q_1}: \bot$.
+\end{itemize}
+\end{example}
 
 \begin{definition}[Computable Representation]
 We say a hybrid automaton $H$ has a {\em computable representation}, if $H$ has
@@ -467,7 +509,7 @@ discrete mode.
 In the seminal work of \cite{DBLP:conf/rex/AlurD91,DBLP:conf/hybrid/AlurCHH92},
 it is already shown that the reachability problem for simple classes of hybrid
 automata is already undecidable. In fact, clear boundaries of the decidable and
-undecidable classes has been given~\cite{DBLP:journals/jcss/HenzingerKPV98}.
+undecidable classes have been given~\cite{DBLP:journals/jcss/HenzingerKPV98}.
 
 \begin{definition}[Linear Hybrid Automata]
 Let $\mathcal{F} = \{+\}\cup \mathbb{Q}$ (the rational numbers are considered as
@@ -502,7 +544,7 @@ $\lrf$-represetable hybrid systems.
 The bounded reachability problem for hybrid systems is defined by restricting
 the continuous components and time duration to a bounded domain, and the number
 of discrete transitions to a finite number. 
-\begin{definition}[($k$,$M$)-Bounded Reachability]
+\begin{definition}[($k$,$M$)-Bounded Reachability]~\label{kmbound}
 Let $H$ be an $n$-dimensional hybrid automaton, whose continuous state space
 $X$ is a bounded subset of $\mathbb{R}^n$. Let $U$ be a subset of its state
 space. Let $k\in \mathbb{N}$ and $M \in \mathbb{R}$. The {bounded
@@ -516,8 +558,8 @@ In the definition, we require all the continuous variables (including
 time), as well as the number of discrete transitions. This is because our
 framework only deals with bounded $\lrf$-formulas (and of course, with finite
 length). Multiple weaker notions can be defined, by relaxing some of these
-bounds (such as bounded discrete steps but unbounded time.) However, any such
-relaxation will still lead to undecidability results. Consequently, we focus on
+bounds (such as unbounded time). However, any such relaxation
+will still lead to undecidability results. Consequently, we focus on studying
 this restrictive version here. 
 \end{remark}
 
@@ -634,7 +676,7 @@ tricky to quantify the effect of $\delta$. If we are dealing with a continuous
 system, the Hausdorff distance between $\llbracket
 H^{\delta}\rrbracket$ and $\llbracket H\rrbracket$ is continuous in
 $\delta$. But for hybrid trajectories, relaxing the guards in a system can
-generate very different trajectory sets. the syntactic
+generate very different trajectory sets. The syntactic
 definition avoids such complications. 
 \end{remark}
 
@@ -643,47 +685,67 @@ definition avoids such complications.
 We now bridge the results between the $\delta$-decision problems and bounded
 reachability checking. 
 
-
-\begin{definition}[$\delta$-Reachability]
-Let $H = \langle X, Q, \flow, \jump,\init\rangle$ be an
-$n$-dimensional $\lrf$-represented hybrid system, and $\unsafe$ an
-$\lrf$-formula that encodes a subset $U\subseteq X\times Q$. As is the case for
-hybrid systems, we write $U^{\delta}$ to denote the interpretation of
-$\unsafe^{\delta}$.  The $\delta$-reachability asks for one of the
-following decisions:
+\begin{definition}[Bounded $\delta$-Reachability]
+Let $H$ be an $n$-dimensional hybrid automaton, whose continuous state space
+$X$ is a bounded subset of $\mathbb{R}^n$. Let $U$ be a subset of its state
+space. Let $k\in \mathbb{N}$ and $M \in \mathbb{R}$. The {bounded
+$\delta$-reachability problem} (or bounded {\em $(k,M)$-reachability}) asks
+whether for one of the following answers. 
 \begin{itemize}
-\item $\safe$: $H$ does not reach $U$. 
-\item $\delta$-$\unsafe$: $H^{\delta}$ reaches $U^{\delta}$.
+\item $\safe$: $H$ does not $(k, M)$-reach $U$. 
+\item $\delta$-$\unsafe$: $H^{\delta}$ can $(k,M)$-reach $U^{\delta}$.
 \end{itemize}
 When the two cases overlap, either answer can be returned.
 \end{definition}
-
+Now, following the encoding of the problem, we can naturally show that the
+bounded $\delta$-reachability problem can be solved by $\delta$-decisions for
+the formula $\reach^{k,M}(H,U)$. 
 \begin{lemma}\label{bmclemma}
-Let $H$ be a hybrid automaton, $\unsafe$ a subset of its state space, and
-$n\in\mathbb{N}$. We have:
+Let $\reach^{k,M}(H,U)$ be defined as in Definition~\ref{}. We have:
 \begin{itemize}
-\item If $(\reach^n_{H,\unsafe})^{\delta}$ is true, then $H^{\delta}$ is unsafe.
-\item If $\reach^n_{H,\unsafe}$ is false, then $H$ is safe up to $n$.
+\item If $\reach^{k,M}(H,U) $ is false, then $H$ is safe within the bounds. 
+\item If $\reach^{k,M}(H,U)^{\delta}$ is true, then $H^{\delta}$ is unsafe.
 \end{itemize}
 \end{lemma}
+\begin{proof}
+Following Proposition~\ref{equiv-delta}, if $(\reach^n_{H,\unsafe})^{-\delta}$
+is true then there exists $\xi\in \llbracket H^{\delta}\rrbracket$ such that
+$\xi(0,t)=\vec a$ for some $t$, such that
+$$(\reach^n_{H,q}(\vec a))^{-\delta} \wedge (\unsafe(\vec a))^{-\delta}$$
+is true. Thus $H^{\delta}$ is unsafe, witnessed by $\vec a$.
 
-\begin{proposition}\label{equiv-delta}
-$(\reach_{H,q}^n(\vec a))^{\delta}$ iff there is a trajectory $\xi\in
-\llbracket H^{\delta}\rrbracket$ such that $\xi(n, t) = \vec a$ and
-$\sigma_{\xi}(n) = q$.
-\end{proposition}
+On the other hand, suppose $\reach^n_{H,\unsafe}$ is false. Following
+Proposition~\ref{equiv-delta}, there does not exists any $\xi$ such that
+$\xi(n,t) = \vec a$ and $\unsafe(\vec a)$ is true. Consequently, $H$ is safe up
+to depth $n$. 
+\end{proof}
 
-\begin{theorem}
+Consequently, we know the bounded $\delta$-decision problem is decidable, and
+can obtain complexity bounds for it. 
+
+\begin{theorem}[Decidability]
 Let $\mathcal{F}$ be a set of computable functions. There exists an algorithm
 such that, for any given $\lrf$-representable $H$ and an unsafe region
 $\unsafe$, and a time bound $T$, decide the bounded $\delta$-reachability
 problem for $H$.
 \end{theorem}
+
 It is clear that all we need is a $\delta$-complete decision procedure to solve
 the bounded $\delta$-reachability problems. We say a bounded model checking
 algorithm is $\delta$-complete, if it solves the $\delta$-reachability problem
 correctly. It is clear that Algorithm \ref{delta-bmc} is $\delta$-complete if it
 uses a $\delta$-complete decision procedure.
+
+Following the reduction, we can further obtain the following complexity
+results of the reachability problems.
+
+\begin{theorem}[Complexity]
+Suppose all the computable real functions in the descriptionof $H$ are in Type 2
+complexity class $\mathsf{C}$. Then given $H$, $U$, $k$, $M$, as in
+Definition~\ref{}, deciding the $(k,M)$-bounded $\delta$-reachability problem an
+invariant-free $H$ is in $\np^{\mathsf{C}}$, and the problem in the
+general case is $\Sigma_2^{\mathsf{C}}$.
+\end{theorem}
 
 
 \begin{algorithm}\caption{$\delta$-Complete Bounded Model
@@ -715,75 +777,6 @@ $\reach_{H,U} \leftarrow \exists \vec x(\reach_{H}(n, q, \vec x)\wedge
 {$H$ is {\sf safe} up to depth $n$ within time bound $T$}
 \end{algorithm}
 
-
-\subsection{Complexity Results}
-We have reduced the bounded $\delta$-reachability problems to the decision
-problems of $\lrf$-sentences. Thus, we can obtain the following complexity
-results of the reachability problems.
-\begin{theorem}
-Suppose all the functions in the descriptionof $H$ is in Type 2 complexity class
-$\mathsf{C}$. Then deciding the bounded $\delta$-Reach problem of Depth $n$, in
-time bounded by $T$, for an invariant-free $H$ is in $\np^{\mathsf{C}}$, and the
-problem for $H$ with invariant is in $\Sigma_2^{\mathsf{C}}$.
-\end{theorem}
-
-\begin{proof}
-Note that the formula $\reach_{H,\unsafe}$  is exponential in the size of the
-description of $H$. However, we can nondeterministically select a sequence of
-$n$ modes, and check if reachability can be witnessed.
-
-(i) For an invariant-free $H$, the formula  encoding one possible sequence of
-$n$ steps of mode change is of the form:
-\begin{eqnarray*}
-& &\exists \vec x_0 \exists \vec x_0'\exists t_0\cdots \exists \vec
-x_{n-1}\exists\vec x_{n-1}'\exists t_{n-1}\\
-& &\Big(\init(\vec x_0)\wedge \flow_{q_0}(\vec x_0, \vec x_0', t_0)\wedge
-\jump_{q_0\rightarrow q_1}(\vec x_0', \vec x_1)\wedge \cdots\\
-& &\wedge \flow_{q_{n-1}}(\vec x_{n-1}, \vec x_{n-1}', t_{n-1}) \wedge
-\unsafe(\vec x_{n-1}')\Big)
-\end{eqnarray*}
-where $q_1,...,q_{n-1}$ are random modes in $Q$ ($q_0$ is always the initial
-one). This formula is polynomial in $H$, $n$, $T$. Thus, we can use the
-nondeterministic machine to randomly first select such a formula in polynomial
-time, and then $\delta$-decide its truth value, using the $\mathsf{C}$ oracle.
-In all, the computation can be performed by a nondeterministic machine with a
-$\mathsf{C}$-oracle in polynomial time. Thus, the $\delta$-reachability problem
-is in $\mathsf{NP^C}$, following . On the other hand, any of the predicate, for
-instance $\init(\vec x_0)$, is allowed to be an arbitrary quantifier-free
-$\lrf$-formula. Thus it can encode any propositional logic formula as needed in
-Corollary~\ref{Completeness}.
-
-(ii) For a general $H$, the formula encoding one possible sequence of $n$ steps
-of mode change is of the form:
-\begin{eqnarray*}
-& &\exists \vec x_0 \exists \vec x_0'\exists t_0\cdots \exists \vec
-x_{n-1}\exists\vec x_{n-1}'\exists t_{n-1} \forall \vec x
-\forall^{[0,t_0]}t_0'\cdots \forall^{[0,t_{n-1}]}t_{n-1}'\\
-& &\Big(\init(\vec x_0)\wedge \flow_{q_0}(\vec x_0, \vec x_0', t_0)\wedge
-\jump_{q_0\rightarrow q_1}(\vec x_0', \vec x_1)\\
-& &\wedge (\flow_{q_0}(\vec x, \vec x_0, t_0')\rightarrow \inv_{q_0}(\vec
-x))\wedge \cdots\\
-& &\wedge\jump_{q_{n-2}\rightarrow q_{n-1}}(\vec x_{n-2}', \vec x_{n-1}) \wedge
-\flow_{q_{n-1}}(\vec x_{n-1}, \vec x_{n-1}', t_{n-1})\\
-& &\wedge (\flow_{q_{n-1}}(\vec x, \vec x_{n-1}, t_{n-1}')\rightarrow
-\inv_q(\vec x))\\
-& &\wedge \unsafe(\vec x_{n-1}')\Big)
-\end{eqnarray*}
-where $q_1,...,q_{n-1}$ are random modes in $Q$. Using a nondeterministic
-Turing machine, such a formula is first selected in polynomial time, and its
-truth value is $\delta$-decided as a $\Sigma_2$-sentence. Thus similarly as the
-invariant-free case, it follows from Theorem~\ref{compmain} and
-Corollary~\ref{Completeness} that the $\delta$-reachability problem is
-$\mathsf{\Sigma_2^C}$-complete.
-\end{proof}
-
-\begin{remark}
-The input parameters of the $\delta$-reachability problem are: the depth $n$,
-the time bound $T$, the length of the $\lrf$-description of $H$, and the error
-bound $\delta$.
-\end{remark}
-
-
 \section{Related Work}\label{discuss}
 Formal work along this line started in the work~\cite{}.
 Franzle defined a notion of noise in hybrid systems, and proved that problems
@@ -806,12 +799,36 @@ open-source. The latest version and all the benchmarks are at {\tt
 http://cmacs.cs.cmu.edu/dReach}.We describe more details of our tool in~\cite{}.
 All the experiments are ran on a {\bf what} machine. 
 
-Here we list results on several nonlinear hybrid models that we believe are
-beyond the scope of existing tools.
-The {\sf Cardiac Cell Model}... The {\sf Power Grid Model}... The {\sf Legged
-Robotics Model}... All of them contain nonlinear ODEs and frequent use of
-trignometric and exponential functions, and model realistic systems in practice.
-More details of the models are in the Appendix. 
+Here we list results on nonlinear hybrid models that we believe are
+beyond the scope of existing automatic tools. 
+
+\paragraph{Cardiac Cell Model.} The model is from. We show one mode of
+differential equations. The full model is given in the appendix. 
+\begin{eqnarray*}
+dU/dt &=& e  + ( U - \theta_v)(u_u - U)g_{fi}V + g_{si}WS-g_{so}U\\
+dV/dt &=& -g_v^+ V, dW/dt = -g_w^+ W\\
+dS/dt &=& g_{s_2} (({1+e^{-2k_s(U-u_s)})^{-1}}-S)
+\end{eqnarray*}
+
+\paragraph{Power Grid Model.} The model has the following equations. 
+\begin{eqnarray*}
+d\delta_1/dt &=& \omega_1, d\delta_2/dt = \omega_2 \\
+d\omega_1/dt &=& \frac{\omega_s}{2H_1a}(P_{m1} - D\omega_1 - P_{e1}^1(x))\\
+d\omega_2/dt &=& \frac{\omega_s}{2H_1a}(P_{m2} - D\omega_2 - P_{e2}^1(x))\\
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+P_{e1}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)\\
+P_{e2}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)
+\end{eqnarray*}
 
 The columns in the table shows the following data, from left to right. {\sf
 depth} is the unwinded depth of the model for bounded model checking. Again, we
@@ -828,7 +845,7 @@ time} and {\sf mem} show that CPU time and memory cost.
 
 \input{experiments_table.tex}
 
-\section{Conclusion}
+\section{Discussion and Conclusion}\label{conclude}
 
 
 We believe the notion of $\delta$-complete methods lead to a new framework that
@@ -846,4 +863,217 @@ will show discuss these directions for short and leave some conjectures here.
 
 \newpage
 \section*{Appendix}
+
+\subsection*{The Cardiac Cell Model}
+
+
+\paragraph{Mode 1 (Green)}
+The $\flow_1$ condition is defined by the following differential equations.
+\begin{eqnarray*}
+dU/dt &=& e  + ( U - \theta_v)(u_u - U)g_{fi}V + g_{si}WS-g_{so}U\\
+dV/dt &=& -g_v^+ V\\
+dW/dt &=& -g_w^+ W\\
+dS/dt &=& g_{s_2} (\frac{1}{1+e^{-2k_s(U-u_s)}}- S)
+\end{eqnarray*}
+The $\jump_{1\rightarrow 2}$ condition is
+\begin{eqnarray*}
+U < \theta_v \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S' =
+S
+\end{eqnarray*}
+The invariant condition $\inv_1$ is
+$$\theta_v \leq U < u_u.$$
+
+\paragraph{Mode 2 (Purple)}
+The $\flow_2$ condition is defined by the following differential equations.
+\begin{eqnarray*}
+dU/dt &=& e  + g_{si}\cdot W\cdot S -g_{so}U\\
+dV/dt &=& -g_{v_2}^- V\\
+dW/dt &=& -g_w^+ W\\
+dS/dt &=& \frac{1}{1+e^{-2k_s(U-u_s)}}g_{s_2} - g_{s_2}S
+\end{eqnarray*}
+The $\jump_{2\rightarrow 1}$ condition is given by:
+\begin{eqnarray*}
+U \geq \theta_v \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S'
+= S
+\end{eqnarray*}
+The $\jump_{2\rightarrow 3}$ condition is given by:
+\begin{eqnarray*}
+U < \theta_w \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S'
+= S
+\end{eqnarray*}
+The invariant condition $\inv_2$ is
+$$\theta_w\leq u< \theta_v.$$
+
+\paragraph{Mode 3 (Blue)}
+The $\flow_3$ condition is defined by the following differential equations.
+\begin{eqnarray*}
+dU/dt &=& e  -g_{o2}U\\
+dV/dt &=& -g_{v_2}^- V\\
+dW/dt &=& (w^*_{\infty} - w) g_w^- U\\
+dS/dt &=& \frac{1}{1+e^{-2k_s(U-u_s)}}g_{s_1} - g_{s_1}S
+\end{eqnarray*}
+The $\jump_{3\rightarrow 2}$ condition is given by:
+\begin{eqnarray*}
+U \geq \theta_w \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S'
+= S
+\end{eqnarray*}
+The $\jump_{3\rightarrow 4}$ condition is given by:
+\begin{eqnarray*}
+U < \theta_o \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S'
+= S
+\end{eqnarray*}
+The invariant condition $\inv_3$ is
+$$\theta_o\leq u< \theta_w.$$
+
+
+\paragraph{Mode 4 (Orange)}
+The $\flow_4$ condition is defined by the following differential equations.
+\begin{eqnarray*}
+dU/dt &=& e  -g_{o1}U\\
+dV/dt &=& -g_{v_1}^-(1- V)\\
+dW/dt &=& (1 - ug_{w_{\infty}} - w) g_w^- U\\
+dS/dt &=& g_{s1}(\frac{1}{1+e^{-2k_s(U-u_s)}} - S)
+\end{eqnarray*}
+The $\jump_{4\rightarrow 3}$ condition is given by:
+\begin{eqnarray*}
+U \geq \theta_o \Longrightarrow U' = U \wedge V' = V \wedge W' = W \wedge S'
+= S
+\end{eqnarray*}
+The invariant condition $\inv_4$ is
+$$0\leq u< \theta_o.$$
+
+\paragraph{Constants} The constants that are used in the description have the
+following values. 
+
+\paragraph{Properties}
+The following properties can be checked on the model. 
+
+
+\paragraph{Mode 1 (fault-on)}
+The $\flow_1$ condition:
+\begin{eqnarray*}
+d\delta_1/dt &=& \omega_1\\
+d\delta_2/dt &=& \omega_2\\
+d\omega_1/dt &=& \frac{\omega_s}{2H_1a}(P_{m1} - D\omega_1 - P_{e1}^1(x))\\
+d\omega_2/dt &=& \frac{\omega_s}{2H_1a}(P_{m2} - D\omega_2 - P_{e2}^1(x))\\
+dz/dt &=& 1
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+P_{e1}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)\\
+P_{e2}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)
+\end{eqnarray*}
+The jump condition $\jump_{1 \rightarrow 2}:$
+$$z = t_cl.$$
+
+\paragraph{Mode 2 (1 line operation)}
+The $\flow_2$ condition:
+\begin{eqnarray*}
+d\delta_1/dt &=& \omega_1\\
+d\delta_2/dt &=& \omega_2\\
+d\omega_1/dt &=& \frac{\omega_s}{2H_1a}(P_{m1} - D\omega_1 - P_{e1}^1(x))\\
+d\omega_2/dt &=& \frac{\omega_s}{2H_1a}(P_{m2} - D\omega_2 - P_{e2}^1(x))\\
+dz/dt &=& 1
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+P_{e1}^2 &=& G_{22}^1V_2^2 + \Big(G_{22}^1 V_1V_2\cos(\delta_2-\delta_1) +
+B_{21}^2 V_1V_2\sin(\delta_2-\delta_1)\\
+&+& G_{2\infty}^2
+V_2V_{\infty}\cos(\delta_2-\delta_{\infty}) + B_{2\infty}^1
+V_2V_{\infty}\sin(\delta_2-\delta_{\infty}) \Big)\\
+P_{e2}^2 &=& G_{22}^1V_2^2 + \Big(G_{22}^1 V_1V_2\cos(\delta_2-\delta_1) +
+B_{21}^2 V_1V_2\sin(\delta_2-\delta_1)\\
+&+& G_{2\infty}^2
+V_2V_{\infty}\cos(\delta_2-\delta_{\infty}) + B_{2\infty}^1
+V_2V_{\infty}\sin(\delta_2-\delta_{\infty}) \Big)
+\end{eqnarray*}
+The jump condition $\jump_{2 \rightarrow 3}:$
+$$z_2(x) = 0 \wedge d(z2)/dt < 0.$$
+where
+\begin{eqnarray*}
+z2 &=& \frac{V_2}{|I_2^(2)|^2}\Big( \cos\delta_2 \sum_{j\in
+\{1,2,\infty\}}V_j(G_{2j}^{(2)}\cos\delta_j - B_{2j}^{2}\sin \delta_j)\\
+&+&\sin \delta_2 \sum_{j\in \{1,2,\infty\}}V_j(G_{2j}^{(2)}\sin \delta_j +
+B_{2j}^{(2)}\cos\delta_j )\Big).
+\end{eqnarray*}
+
+
+\paragraph{Mode 3 ()}
+The $\flow_1$ condition:
+\begin{eqnarray*}
+d\delta_1/dt &=& \omega_1\\
+d\delta_2/dt &=& \omega_2\\
+d\omega_1/dt &=& \frac{\omega_s}{2H_1a}(P_{m1} - D\omega_1 - P_{e1}^1(x))\\
+d\omega_2/dt &=& \frac{\omega_s}{2H_1a}(P_{m2} - D\omega_2 - P_{e2}^1(x))\\
+dz/dt &=& 1
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+P_{e1}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)\\
+P_{e2}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)
+\end{eqnarray*}
+The jump condition $\jump_{1 \rightarrow 2}:$
+$$z = t_cl.$$
+
+
+\paragraph{Mode 4 ()}
+The $\flow_1$ condition:
+\begin{eqnarray*}
+d\delta_1/dt &=& \omega_1\\
+d\delta_2/dt &=& \omega_2\\
+d\omega_1/dt &=& \frac{\omega_s}{2H_1a}(P_{m1} - D\omega_1 - P_{e1}^1(x))\\
+d\omega_2/dt &=& \frac{\omega_s}{2H_1a}(P_{m2} - D\omega_2 - P_{e2}^1(x))\\
+dz/dt &=& 1
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+P_{e1}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)\\
+P_{e2}^1 &=& G_{11}^1V_i^2 + \Big(G_{11}^1 V_1V_2\cos(\delta_1-\delta_2) +
+B_{12}^1 V_1V_2\sin(\delta_1-\delta_2)\\
+&+& G_{1\infty}^1
+V_1V_{\infty}\cos(\delta_1-\delta_{\infty}) + B_{1\infty}^1
+V_1V_{\infty}\sin(\delta_1-\delta_{\infty}) \Big)
+\end{eqnarray*}
+The jump condition $\jump_{1 \rightarrow 2}:$
+$$z = t_cl.$$
+
+
+\paragraph{Constants} The constants that are used in the description have the
+following values. 
+\begin{align*}
+\alpha_x = 0.0204 && \alpha_y = 0.0242 && \beta_x = 0.0076 && \beta_y = 0.0168
+\\
+k_1 = 0 && k_2 = 2 && k_3 = 0.8 && k_4 = 0.5 \\
+d\in [0,1] && m_1 = 5\times 10^{-5} && z_0 = 20 && \tau = 62.5 \\
+r_1 = 10 && r_0 = 4
+\end{align*}
+\paragraph{Properties}
+The following properties can be checked on the model. 
+
+
+
+
+
+
 \end{document}

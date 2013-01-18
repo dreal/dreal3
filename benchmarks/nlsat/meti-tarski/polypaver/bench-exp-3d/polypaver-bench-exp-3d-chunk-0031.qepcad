@@ -1,0 +1,9 @@
+[ translated from ./polypaver/bench-exp-3d/polypaver-bench-exp-3d-chunk-0031.smt2 ]
+(x0,x1,x2)
+0
+(Ex0)(Ex1)(Ex2)[[~[x2 <= ((((1/2) 3) + (x1 (-(1)))) + (x0 (-(1))))]]].
+go
+go
+d-stat
+go
+finish

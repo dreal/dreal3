@@ -1,0 +1,6 @@
+load redlog;
+rlset ofsf;
+phi := ex({ x0, x1, x2},(not (((9 * x0) + (9 * x1) + (9 * x2)) <= -14)));
+result := rlcad phi;
+result;
+quit;

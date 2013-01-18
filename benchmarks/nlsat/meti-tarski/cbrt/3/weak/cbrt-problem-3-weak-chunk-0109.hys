@@ -1,0 +1,7 @@
+-- translated from ./meti-tarski/cbrt/3/weak/cbrt-problem-3-weak-chunk-0109.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2;
+EXPR
+    -- the constraints to be solved
+    (!(((-13 * x0) + (-13 * x1) + (-5 * x2) + (-10 * (x0 * x0)) + (-10 * (x0 * x2)) + (-36 * (x0 * x1)) + (-10 * (x1 * x1)) + (-10 * (x1 * x2)) + (-20 * (x0 * x0 * x1)) + (-20 * (x0 * x1 * x2)) + (-20 * (x0 * x1 * x1))) <= 4) and (!((20 * x1) <= 1) and (!((20 * x0) <= 1) and (!((20 * x2) <= 1) and (!((-1 * x1) <= -15) and (!((-1 * x0) <= -15) and !((-1 * x2) <= -15)))))));

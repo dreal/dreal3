@@ -1,0 +1,17 @@
+-- translated from ./keymaera/water_tank-node31001.translated.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2, x3;
+EXPR
+    -- the constraints to be solved
+    (!(x1 >= 0) or ((x0 + x1) <= 2));
+    (x1 >= 0);
+    !(x0 <= 2);
+    (x2 = 1);
+    (x3 >= 1);
+    (x3 <= 12);
+    (((2 * x0) + x3) >= 5);
+    (((-1 * x0) + x3) <= 10);
+    !((x1 + x3) <= 12);
+    (((x0 >= 2) and !(x0 = 2)) or ((x0 + x1) <= 2));
+    (!(x1 >= 0) or (x0 <= 2));

@@ -1,0 +1,13 @@
+-- translated from ./keymaera/FTRM-entry-tang-simplified-node2418.translated.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2, x3, x4, x5, x6, x7, x8, x9;
+EXPR
+    -- the constraints to be solved
+    (((x1 * x1) + (-3 * (x0 * x0))) = 0);
+    (x1 <= 0);
+    !(x0 <= 0);
+    ((x5 + (x2 * x4) + (-1 * (x3 * x4))) = 0);
+    ((x8 + (-1 * (x4 * x6)) + (x4 * x7)) = 0);
+    (((-1 * (x9 * x9)) + (x6 * x6) + (-2 * (x6 * x7)) + (x7 * x7) + (x2 * x2) + (-2 * (x2 * x3)) + (x3 * x3)) = 0);
+    !(((x1 * x1) + (-3 * (x0 * x0))) = 0);

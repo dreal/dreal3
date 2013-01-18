@@ -1,0 +1,9 @@
+[ translated from hong_2.smt2 ]
+(x0,x1)
+0
+(Ex0)(Ex1)[[((x0 x0) + (x1 x1)) < 1] /\ [(x0 x1) > 1]].
+go
+go
+d-stat
+go
+finish

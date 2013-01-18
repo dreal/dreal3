@@ -1,0 +1,6 @@
+load redlog;
+rlset ofsf;
+phi := ex({ x0},(not ((not ((-1 * x0) >= -1)) impl (not ((x0 + (-1 * (x0 * x0))) >= 0)))));
+result := rlcad phi;
+result;
+quit;

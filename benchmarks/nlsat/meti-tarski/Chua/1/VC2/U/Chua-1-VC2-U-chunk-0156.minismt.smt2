@@ -1,0 +1,7 @@
+(set-logic QF_NRA)
+(declare-fun skoX () Real)
+(declare-fun skoC () Real)
+(declare-fun skoS () Real)
+(assert (and (not (<= (* (- 1) skoX) 0)) (and (not (<= skoX 0)) (not (<= (+ (* (- 3) skoC) (* 13 skoS)) 0)))))
+(set-info :status unsat)
+(check-sat)

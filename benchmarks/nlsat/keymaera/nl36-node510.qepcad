@@ -1,0 +1,9 @@
+[ translated from nl36-node510.smt2 ]
+(x0)
+0
+(Ex0)[[~[[1 < x0] ==> [x0 < (x0 x0)]]]].
+go
+go
+d-stat
+go
+finish

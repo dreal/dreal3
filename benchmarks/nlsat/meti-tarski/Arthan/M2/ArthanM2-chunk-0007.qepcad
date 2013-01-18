@@ -1,0 +1,10 @@
+[ translated from ./Arthan/M2/ArthanM2-chunk-0007.smt2 ]
+(x0,x1,x2,x3)
+0
+(Ex0)(Ex1)(Ex2)(Ex3)[[[~[(x1 x1) = (1 + (x0 (x0 (-(1)))))]] /\ [[2 <= x3] /\ [2 <= x2]]]].
+go
+proj-op (m,m,h)
+go
+d-stat
+go
+finish

@@ -1,0 +1,6 @@
+load redlog;
+rlset ofsf;
+phi := ex({ x0, x1, x2, x3, x4, x5},(((-2 * x0) + (2 * x1) + (2 * (x2 * x3)) + (-1 * (x3 * x3 * x4))) >= 0) and ((not (x3 >= 0)) or ((x2 + (-1 * (x3 * x4))) >= 0)) and (x3 >= 0) and (((x2 * x2) + (-1 * (x5 * x5)) + (-2 * (x0 * x4)) + (2 * (x1 * x4))) <= 0) and (x5 >= 0) and (not (x4 <= 0)) and (((-1 * x0) + x1) <= 0) and (x2 >= 0) and (not ((x2 + (-1 * x5) + (-1 * (x3 * x4))) <= 0)) and ((x4 = 0) or (((x2 = 0) or (x4 = 0) or ((not (x4 >= 0)) and (not (x2 <= 0))) or ((not (x4 <= 0)) and (not (x2 >= 0)))) and (not (x2 = 0))) or (x4 = 0) or ((x2 + (-1 * (x3 * x4))) = 0) or ((not ((x2 + (-1 * (x3 * x4))) <= 0)) and (not (x4 <= 0))) or ((not ((x2 + (-1 * (x3 * x4))) >= 0)) and (not (x4 >= 0))) or (x4 <= 0)) and ((not (x3 >= 0)) or (x2 >= 0)));
+result := rlcad phi;
+result;
+quit;

@@ -1,0 +1,9 @@
+[ translated from square_root_zuse-node902.smt2 ]
+(x0)
+0
+(Ex0)[[~[x0 = (1 + (1 (x0 - 1)))]]].
+go
+go
+d-stat
+go
+finish

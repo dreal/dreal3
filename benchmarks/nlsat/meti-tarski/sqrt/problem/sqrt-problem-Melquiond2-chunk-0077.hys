@@ -1,0 +1,7 @@
+-- translated from ./meti-tarski/sqrt/problem/sqrt-problem-Melquiond2-chunk-0077.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2;
+EXPR
+    -- the constraints to be solved
+    ((((3500595 * (x0 * x0 * x0 * x0 * x0 * x0)) + (-9454820 * (x0 * x0 * x0 * x0 * x0 * x1)) + (-1865950 * (x0 * x0 * x0 * x0 * x1 * x1)) + (-51780 * (x0 * x0 * x0 * x1 * x1 * x1)) + (-125 * (x0 * x0 * x1 * x1 * x1 * x1)) + (3456576 * (x0 * x0 * x0 * x0 * x0 * x0 * x1)) + (1162944 * (x0 * x0 * x0 * x0 * x0 * x1 * x1)) + (66240 * (x0 * x0 * x0 * x0 * x1 * x1 * x1)) + (576 * (x0 * x0 * x0 * x1 * x1 * x1 * x1))) <= 0) and (!(((6001 * (x0 * x0 * x0 * x0 * x0 * x0)) + (2019 * (x0 * x0 * x0 * x0 * x0 * x1)) + (115 * (x0 * x0 * x0 * x0 * x1 * x1)) + (x0 * x0 * x0 * x1 * x1 * x1)) <= 0) and ((((-1 * x1) + (-1 * x2) + (x0 * x0)) = 0) and (!(x2 <= 1) and (!((2 * x1) <= 3) and (!(x0 <= 0) and (!((-1 * x1) <= -2) and !((-32 * x2) <= -33))))))));

@@ -1,0 +1,9 @@
+[ translated from bouncing-ball-simple-node1628.smt2 ]
+(x0,x1)
+0
+(Ex0)(Ex1)[[~[[[x0 = 0] /\ [x1 = 16]] ==> [x0 >= 0]]]].
+go
+go
+d-stat
+go
+finish

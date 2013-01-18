@@ -1,0 +1,7 @@
+-- translated from ./meti-tarski/exp/problem/10/3/weak/exp-problem-10-3-weak-chunk-0121.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2;
+EXPR
+    -- the constraints to be solved
+    (!((-1 * x1) <= 0) and (!(((-12 * x0) + x1 + (84 * (x0 * x0)) + (-12 * (x0 * x1)) + (-384 * (x0 * x0 * x0)) + (84 * (x0 * x0 * x1)) + (1152 * (x0 * x0 * x0 * x0)) + (-384 * (x0 * x0 * x0 * x1)) + (-2304 * (x0 * x0 * x0 * x0 * x0)) + (1152 * (x0 * x0 * x0 * x0 * x1)) + (-2304 * (x0 * x0 * x0 * x0 * x0 * x1)) + (2304 * (x0 * x0 * x0 * x0 * x0 * x0))) <= -1) and (!(x2 <= 1) and (!(x1 <= 0) and !(x0 <= 0)))));

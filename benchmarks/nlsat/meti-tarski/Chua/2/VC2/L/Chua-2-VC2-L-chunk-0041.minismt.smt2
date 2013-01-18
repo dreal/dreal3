@@ -1,0 +1,7 @@
+(set-logic QF_NRA)
+(declare-fun skoX () Real)
+(declare-fun skoS () Real)
+(declare-fun skoC () Real)
+(assert (and (not (<= (+ (* 87000000 skoX) (* 4500000000 skoS) (* (- 22800000000) skoC) (* (- 13050000) (* skoX skoS)) (* 66120000 (* skoX skoC)) (* 84100 (* skoX skoX)) (* 12615 (* skoX skoX skoS)) (* (- 63916) (* skoX skoX skoC))) (- 30000000000))) (and (not (<= (+ (* 15 skoS) (* (- 76) skoC)) 0)) (and (not (<= skoX 0)) (and (<= (+ (* 15 skoS) (* (- 76) skoC)) 0) (and (or (not (<= (+ (* (- 15) skoS) (* 76 skoC)) 0)) (not (<= (+ (* 15 skoS) (* (- 76) skoC)) 0))) (and (= (+ (* skoS skoS) (* skoC skoC)) 1) (and (<= skoX 75) (<= (* (- 1) skoX) 0)))))))))
+(set-info :status unsat)
+(check-sat)

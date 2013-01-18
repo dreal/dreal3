@@ -1,0 +1,17 @@
+-- translated from ./keymaera/to_left-node1505.translated.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2, x3, x4, x5;
+EXPR
+    -- the constraints to be solved
+    (((-2 * x0) + (2 * x1) + (2 * (x2 * x3)) + (-1 * (x3 * x3 * x4))) >= 0);
+    (!(x3 >= 0) or (x2 >= 0));
+    (x3 >= 0);
+    (((x2 * x2) + (-1 * (x5 * x5)) + (-2 * (x0 * x4)) + (2 * (x1 * x4))) <= 0);
+    (x5 >= 0);
+    !(x4 <= 0);
+    (((-1 * x0) + x1) <= 0);
+    (x2 >= 0);
+    !((x2 + (-1 * x5) + (-1 * (x3 * x4))) <= 0);
+    ((x4 = 0) or (((x2 = 0) or (x4 = 0) or (!(x4 >= 0) and !(x2 <= 0)) or (!(x4 <= 0) and !(x2 >= 0))) and !(x2 = 0)) or (x4 = 0) or ((x2 + (-1 * (x3 * x4))) = 0) or (!((x2 + (-1 * (x3 * x4))) <= 0) and !(x4 <= 0)) or (!((x2 + (-1 * (x3 * x4))) >= 0) and !(x4 >= 0)) or (x4 <= 0));
+    (!(x3 >= 0) or ((x2 + (-1 * (x3 * x4))) >= 0));

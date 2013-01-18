@@ -1,0 +1,12 @@
+-- translated from ./keymaera/wensey_division_wegbreit-node3738.translated.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2, x3, x4, x5, x6;
+EXPR
+    -- the constraints to be solved
+    (((-1 * x0) + x1) >= 0);
+    (((2 * x3) + (-1 * (x1 * x2))) = 0);
+    (((x1 * x5) + (-2 * (x3 * x4))) = 0);
+    ((x5 + (-1 * (x2 * x4))) = 0);
+    ((x3 + x5 + (-1 * x6)) <= 0);
+    !(((x1 * x5) + (-2 * (x3 * x4))) = 0);

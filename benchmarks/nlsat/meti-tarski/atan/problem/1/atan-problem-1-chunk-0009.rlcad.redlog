@@ -1,0 +1,6 @@
+load redlog;
+rlset ofsf;
+phi := ex({ x0, x1, x2},((not (((-80 * (x1 * x1)) + (x0 * x0)) = 75)) and ((not (x1 <= 0)) and ((not (x0 <= 0)) and (not (x2 <= 0))))));
+result := rlcad phi;
+result;
+quit;

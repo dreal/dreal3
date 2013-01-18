@@ -5,7 +5,7 @@
 {
   open Parser
   open Error
-  let debug_tag = false
+  let debug_tag = true
   let verbose s =  if debug_tag then (print_string s; print_newline())
   let comment_depth = ref 0
   let keyword_tbl = Hashtbl.create 111

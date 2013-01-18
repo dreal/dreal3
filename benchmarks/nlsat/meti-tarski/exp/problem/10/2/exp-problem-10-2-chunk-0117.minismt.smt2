@@ -1,0 +1,8 @@
+(set-logic QF_NRA)
+(declare-fun skoSP1 () Real)
+(declare-fun skoSM1 () Real)
+(declare-fun skoX () Real)
+(declare-fun skoS () Real)
+(assert (and (not (<= (+ (* (- 1) skoSM1) (* (- 45) (* skoSP1 skoSM1)) (* (- 1215) (* skoSP1 skoSP1 skoSM1)) (* (- 24435) (* skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 393660) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 5263380) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 59632200) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 578680200) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 4818398400) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 34295659200) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 206624260800) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 1033121304000) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 4132485216000) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 12397455648000) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 24794911296000) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSM1)) (* (- 24794911296000) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1)) (* (- 49589822592000) (* skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSP1 skoSM1))) 0)) (and (not (<= skoX 1)) (and (not (<= skoSP1 0)) (and (not (<= skoSM1 0)) (and (not (<= skoS 0)) (not (<= (* (- 1) skoX) (- 5)))))))))
+(set-info :status unsat)
+(check-sat)

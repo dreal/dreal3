@@ -1,0 +1,6 @@
+load redlog;
+rlset ofsf;
+phi := ex({ x0},(1 < 0));
+result := rlcad phi;
+result;
+quit;

@@ -1,0 +1,6 @@
+load redlog;
+rlset ofsf;
+phi := ex({ x0},(not ((x0 * x0) >= 0)));
+result := rlqe phi;
+result;
+quit;

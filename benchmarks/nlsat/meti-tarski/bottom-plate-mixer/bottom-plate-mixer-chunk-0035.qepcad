@@ -1,0 +1,9 @@
+[ translated from ./bottom-plate-mixer/bottom-plate-mixer-chunk-0035.smt2 ]
+(x0,x1,x2)
+0
+(Ex0)(Ex1)(Ex2)[[[~[(((1/7383) 760000) + (x2 ((1/7383) (-(3400))))) <= x1]] /\ [[x0 <= ((1/10000000) 1)] /\ [0 <= x0]]]].
+go
+go
+d-stat
+go
+finish

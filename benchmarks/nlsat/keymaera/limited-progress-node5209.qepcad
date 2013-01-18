@@ -1,0 +1,10 @@
+[ translated from limited-progress-node5209.smt2 ]
+(x0,x1,x2,x3)
+0
+(Ex0)(Ex1)(Ex2)(Ex3)[[~[[[x0 >= 0] /\ [((x1 x1) + (x2 x2)) <= (x0 x0)]] ==> [(x3 - x3) <= 0]]]].
+go
+proj-op (m,m,h)
+go
+d-stat
+go
+finish

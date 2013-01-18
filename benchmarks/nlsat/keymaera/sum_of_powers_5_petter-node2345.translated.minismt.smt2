@@ -1,0 +1,8 @@
+(set-logic QF_NRA)
+(declare-fun k () Real)
+(declare-fun yuscore2dollarsk!1 () Real)
+(declare-fun xuscore2dollarsk!0 () Real)
+(assert (not (= (+ (* (- 1) k) yuscore2dollarsk!1) 0)))
+(assert (= (+ (* 12 xuscore2dollarsk!0) (* yuscore2dollarsk!1 yuscore2dollarsk!1) (* (- 5) (* yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1)) (* 6 (* yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1)) (* (- 2) (* yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1))) 0))
+(assert (not (= (+ (* 12 xuscore2dollarsk!0) (* yuscore2dollarsk!1 yuscore2dollarsk!1) (* (- 5) (* yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1)) (* 6 (* yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1)) (* (- 2) (* yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1 yuscore2dollarsk!1))) 0)))
+(check-sat)

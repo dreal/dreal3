@@ -1,0 +1,9 @@
+[ translated from ./sqrt/problem/12vars3/sqrt-problem-12vars3-chunk-0010.smt2 ]
+(x0,x1,x2)
+0
+(Ex0)(Ex1)(Ex2)[[[((-(1)) + (x0 x0)) = x1] /\ [[x1 <= 1] /\ [[0 <= x0] /\ [[0 <= x2] /\ [~[x1 <= 0]]]]]]].
+go
+go
+d-stat
+go
+finish

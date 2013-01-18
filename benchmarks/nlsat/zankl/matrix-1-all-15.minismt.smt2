@@ -1,0 +1,33 @@
+(set-logic QF_NRA)
+(set-info :source |
+From termination analysis of term rewriting.
+
+Submitted by Harald Roman Zankl <Harald.Zankl@uibk.ac.at>
+
+|)
+(set-info :smt-lib-version 2.0)
+(set-info :category "industrial")
+(set-info :status unknown)
+(declare-fun x6 () Real)
+(declare-fun x3 () Real)
+(declare-fun x0 () Real)
+(declare-fun x7 () Real)
+(declare-fun x4 () Real)
+(declare-fun x1 () Real)
+(declare-fun x8 () Real)
+(declare-fun x5 () Real)
+(declare-fun x2 () Real)
+(declare-fun x9 () Real)
+(assert (>= x6 0))
+(assert (>= x3 0))
+(assert (>= x0 0))
+(assert (>= x7 0))
+(assert (>= x4 0))
+(assert (>= x1 0))
+(assert (>= x8 0))
+(assert (>= x5 0))
+(assert (>= x2 0))
+(assert (>= x9 0))
+(assert (and (and (and (and (and (and (and (not (<= (+ (* x1 x2) (* x4 x5) (* (- 1) (* x7 x1)) (* x6 x7 x4) (* x4 x5 x9) (* x6 x4 x2 x9)) 0)) (>= (+ (* x1 x2) (* x4 x5) (* (- 1) (* x7 x1)) (* x6 x7 x4) (* x4 x5 x9) (* x6 x4 x2 x9)) 0)) (>= (+ (* (- 1) (* x1 x8)) (* x6 x4 x8)) 0)) (>= (+ (* (- 1) x4) (* x4 x9 x9)) 0)) (and (and (and (not (<= (+ (* x4 x5 x9) (* (- 1) (* x3 x1 x2)) (* x6 x4 x2 x9)) 0)) (>= (+ (* x4 x5 x9) (* (- 1) (* x3 x1 x2)) (* x6 x4 x2 x9)) 0)) (>= (+ (* x3 x1) (* (- 1) (* x3 x3 x1))) 0)) (>= (+ (* (- 1) (* x4 x9)) (* x4 x9 x9)) 0))) (and (and (and (and (not (<= (+ (* x1 x2) (* x6 x7 x4) (* (- 1) (* x6 x4 x2)) (* x6 x4 x2 x9) (* (- 1) (* x6 x3 x4 x2)) (* (- 1) (* x6 x7 x4 x9))) 0)) (>= (+ (* x1 x2) (* x6 x7 x4) (* (- 1) (* x6 x4 x2)) (* x6 x4 x2 x9) (* (- 1) (* x6 x3 x4 x2)) (* (- 1) (* x6 x7 x4 x9))) 0)) (>= (+ (* x3 x1) (* (- 1) (* x6 x3 x3 x4))) 0)) (>= (+ (* x6 x4 x8) (* (- 1) (* x6 x4 x8 x9))) 0)) (>= (+ (* (- 1) x1) (* x6 x3 x4 x9)) 0))) (and (and (and (and (not (<= (+ (* x6 x2) (* (- 1) (* x6 x2 x9)) (* x6 x7 x9) (* x6 x2 x9 x9) (* (- 1) (* x6 x3 x2 x9)) (* (- 1) (* x6 x7 x9 x9))) 0)) (>= (+ (* x6 x2) (* (- 1) (* x6 x2 x9)) (* x6 x7 x9) (* x6 x2 x9 x9) (* (- 1) (* x6 x3 x2 x9)) (* (- 1) (* x6 x7 x9 x9))) 0)) (>= (+ (* x6 x3) (* (- 1) (* x6 x3 x3 x9))) 0)) (>= (+ (* x6 x8 x9) (* (- 1) (* x6 x8 x9 x9))) 0)) (>= (+ (* (- 1) x6) (* x6 x3 x9 x9)) 0))) (and (and (and (and (and (not (<= (+ (* x1 x2) (* x4 x5) (* (- 1) (* x7 x1)) (* x6 x7 x4) (* x4 x5 x9) (* x6 x4 x2 x9)) 0)) (>= (+ (* x1 x2) (* x4 x5) (* (- 1) (* x7 x1)) (* x6 x7 x4) (* x4 x5 x9) (* x6 x4 x2 x9)) 0)) (>= (+ (* (- 1) (* x1 x8)) (* x6 x4 x8)) 0)) (>= (+ (* (- 1) x4) (* x4 x9 x9)) 0)) (and (and (and (not (<= (+ (* x4 x5 x9) (* (- 1) (* x3 x1 x2)) (* x6 x4 x2 x9)) 0)) (>= (+ (* x4 x5 x9) (* (- 1) (* x3 x1 x2)) (* x6 x4 x2 x9)) 0)) (>= (+ (* x3 x1) (* (- 1) (* x3 x3 x1))) 0)) (>= (+ (* (- 1) (* x4 x9)) (* x4 x9 x9)) 0))) (and (and (and (and (not (<= (+ (* x1 x2) (* x6 x7 x4) (* (- 1) (* x6 x4 x2)) (* x6 x4 x2 x9) (* (- 1) (* x6 x3 x4 x2)) (* (- 1) (* x6 x7 x4 x9))) 0)) (>= (+ (* x1 x2) (* x6 x7 x4) (* (- 1) (* x6 x4 x2)) (* x6 x4 x2 x9) (* (- 1) (* x6 x3 x4 x2)) (* (- 1) (* x6 x7 x4 x9))) 0)) (>= (+ (* x3 x1) (* (- 1) (* x6 x3 x3 x4))) 0)) (>= (+ (* x6 x4 x8) (* (- 1) (* x6 x4 x8 x9))) 0)) (>= (+ (* (- 1) x1) (* x6 x3 x4 x9)) 0)))))
+(exit)
+(check-sat)

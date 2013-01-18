@@ -1,0 +1,7 @@
+-- translated from ./meti-tarski/polypaver/bench-sqrt-3d/polypaver-bench-sqrt-3d-chunk-0085.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2;
+EXPR
+    -- the constraints to be solved
+    (!((-1 * (x0 * x1)) <= 0) and !((2 * (x0 * x1 * x2)) <= 1));

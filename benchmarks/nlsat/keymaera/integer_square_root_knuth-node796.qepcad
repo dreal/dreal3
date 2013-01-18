@@ -1,0 +1,9 @@
+[ translated from integer_square_root_knuth-node796.smt2 ]
+(x0)
+0
+(Ex0)[[~[x0 = (2 ((1/2) x0))]]].
+go
+go
+d-stat
+go
+finish

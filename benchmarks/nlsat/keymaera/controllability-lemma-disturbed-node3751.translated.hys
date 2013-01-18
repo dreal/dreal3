@@ -1,0 +1,17 @@
+-- translated from ./keymaera/controllability-lemma-disturbed-node3751.translated.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2, x3, x4, x5, x6, x7, x8, x9;
+EXPR
+    -- the constraints to be solved
+    (((-1 * x0) + x1) = 0);
+    (((-1 * x2) + x3 + x4) = 0);
+    (x0 >= 0);
+    (x5 >= 0);
+    (x6 >= 0);
+    !(((-1 * x2) + x3) <= 0);
+    (x2 >= 0);
+    (x7 >= 0);
+    (((-1 * x8) + x9) <= 0);
+    !(((-1 * x2) + x3 + x4) <= 0);
+    !(((x5 * x5) + (-1 * (x6 * x6)) + (2 * (x2 * x8)) + (-2 * (x3 * x8)) + (-2 * (x2 * x9)) + (2 * (x3 * x9))) <= 0);

@@ -1,0 +1,19 @@
+-- translated from ./keymaera/binary_driver-2007-10-09-node6998.translated.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13;
+EXPR
+    -- the constraints to be solved
+    (x0 >= 0);
+    (((x4 * x4) + (-1 * (x0 * x0)) + (2 * (x1 * x3)) + (-2 * (x2 * x3))) <= 0);
+    (x5 >= 0);
+    (((-1 * (x4 * x4)) + (-2 * (x1 * x3)) + (x7 * x7) + (2 * (x3 * x6))) <= 0);
+    (x7 >= 0);
+    (x4 >= 0);
+    (((x11 * x11) + (-1 * (x10 * x10)) + (2 * (x3 * x8)) + (-2 * (x3 * x9))) <= 0);
+    (x11 >= 0);
+    !(x12 <= 0);
+    !(x3 <= 0);
+    !(x13 <= 0);
+    (x10 >= 0);
+    !(((-1 * (x0 * x0)) + (-2 * (x2 * x3)) + (x7 * x7) + (2 * (x3 * x6))) <= 0);

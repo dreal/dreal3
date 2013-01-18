@@ -1,0 +1,10 @@
+[ translated from ./bottom-plate-mixer/bottom-plate-mixer-chunk-0050.smt2 ]
+(x0,x1,x2,x3,x4)
+0
+(Ex0)(Ex1)(Ex2)(Ex3)(Ex4)[[[~[((1/366500000) 177) <= x4]] /\ [[(x3 x3) = (1 + (x2 (x2 (-(1)))))] /\ [[(x1 x1) = (1 + (x0 (x0 (-(1)))))] /\ [[x4 <= ((1/10000000) 1)] /\ [0 <= x4]]]]]].
+go
+proj-op (m,m,h,h)
+go
+d-stat
+go
+finish

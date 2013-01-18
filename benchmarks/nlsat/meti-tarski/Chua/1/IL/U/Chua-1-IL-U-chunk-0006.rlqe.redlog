@@ -1,0 +1,6 @@
+load redlog;
+rlset ofsf;
+phi := ex({ x0, x1, x2},((((235 * x1) + (42 * x2)) <= 0) and ((x0 <= 289) and ((-1 * x0) <= 0))));
+result := rlqe phi;
+result;
+quit;

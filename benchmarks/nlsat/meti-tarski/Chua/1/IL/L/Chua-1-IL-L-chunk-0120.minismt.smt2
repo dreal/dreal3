@@ -1,0 +1,7 @@
+(set-logic QF_NRA)
+(declare-fun skoX () Real)
+(declare-fun skoS () Real)
+(declare-fun skoC () Real)
+(assert (and (<= (+ (* (- 740390625000000000000000000) skoX) (* (- 369140625000000000000000000000) skoS) (* (- 2065429687500000000000000000000) skoC) (* 88846875000000000000000 (* skoX skoX)) (* (- 7107750000000000000) (* skoX skoX skoX)) (* 373156875000000 (* skoX skoX skoX skoX)) (* (- 12793950000) (* skoX skoX skoX skoX skoX)) (* 255879 (* skoX skoX skoX skoX skoX skoX))) (- 3084960937500000000000000000000)) (and (<= (+ (* (- 48515625000000000000000000) skoX) (* 5821875000000000000000 (* skoX skoX)) (* (- 465750000000000000) (* skoX skoX skoX)) (* 24451875000000 (* skoX skoX skoX skoX)) (* (- 838350000) (* skoX skoX skoX skoX skoX)) (* 16767 (* skoX skoX skoX skoX skoX skoX))) (- 202148437500000000000000000000)) (and (<= (+ (* 48515625000000000000000000 skoX) (* (- 5821875000000000000000) (* skoX skoX)) (* 465750000000000000 (* skoX skoX skoX)) (* (- 24451875000000) (* skoX skoX skoX skoX)) (* 838350000 (* skoX skoX skoX skoX skoX)) (* (- 16767) (* skoX skoX skoX skoX skoX skoX))) 202148437500000000000000000000) (and (<= skoX 0) (and (not (<= (+ (* 42 skoS) (* 235 skoC)) 0)) (and (<= (+ (* (- 42) skoS) (* (- 235) skoC)) 0) (and (or (not (<= (+ (* 42 skoS) (* 235 skoC)) 0)) (<= skoX 0)) (and (or (<= (+ (* (- 42) skoS) (* (- 235) skoC)) 0) (<= skoX 0)) (and (= (+ (* skoS skoS) (* skoC skoC)) 1) (and (<= skoX 289) (<= (* (- 1) skoX) 0))))))))))))
+(set-info :status unsat)
+(check-sat)

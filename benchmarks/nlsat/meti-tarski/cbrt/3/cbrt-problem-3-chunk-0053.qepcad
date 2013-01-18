@@ -1,0 +1,9 @@
+[ translated from ./cbrt/3/cbrt-problem-3-chunk-0053.smt2 ]
+(x0,x1,x2)
+0
+(Ex0)(Ex1)(Ex2)[[[~[(x0 (((69 + (x2 10)) + (x1 10)) + (x0 10))) <= (((-(32)) + (x2 (-(5)))) + (x1 (-(5))))]] /\ [[~[x0 <= 0]] /\ [[~[x1 <= 0]] /\ [~[x2 <= 0]]]]]].
+go
+go
+d-stat
+go
+finish

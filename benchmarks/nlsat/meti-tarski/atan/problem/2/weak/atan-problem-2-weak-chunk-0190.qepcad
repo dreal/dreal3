@@ -1,0 +1,10 @@
+[ translated from ./atan/problem/2/weak/atan-problem-2-weak-chunk-0190.smt2 ]
+(x0,x1,x2,x3)
+0
+(Ex0)(Ex1)(Ex2)(Ex3)[[[~[0 <= x1]] /\ [[~[(x1 ((x3 (x0 ((1/100) (-(157))))) + (x1 ((x0 (x2 + (x0 (-(1))))) + (x3 ((-(1)) + x0)))))) <= (x3 (x0 x2))]] /\ [[[~[0 <= x1]] \/ [~[x1 <= 1]]] /\ [[~[x2 <= 0]] /\ [[~[2 <= x0]] /\ [~[x0 <= x2]]]]]]]].
+go
+proj-op (m,m,h)
+go
+d-stat
+go
+finish

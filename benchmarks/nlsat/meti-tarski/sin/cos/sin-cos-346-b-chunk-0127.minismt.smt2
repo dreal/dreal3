@@ -1,0 +1,7 @@
+(set-logic QF_NRA)
+(declare-fun skoX () Real)
+(declare-fun pi () Real)
+(declare-fun skoSQ3 () Real)
+(assert (and (not (<= (+ (* 871782912000 (* skoX skoX skoX skoX)) (* (- 29059430400) (* skoX skoX skoX skoX skoX skoX)) (* 518918400 (* skoX skoX skoX skoX skoX skoX skoX skoX)) (* (- 5765760) (* skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX)) (* 43680 (* skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX)) (* (- 240) (* skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX)) (* skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX)) 0)) (and (not (<= skoSQ3 0)) (and (not (<= skoX 0)) (and (not (<= (* (- 10000000) pi) (- 31415927))) (and (not (<= (* 5000000 pi) 15707963)) (not (<= (+ (* (- 10000000) skoX) (* 5000000 pi)) 1))))))))
+(set-info :status sat)
+(check-sat)

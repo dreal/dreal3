@@ -1,0 +1,9 @@
+[ translated from ./atan/vega/3/atan-vega-3-chunk-0032.smt2 ]
+(x0,x1,x2)
+0
+(Ex0)(Ex1)(Ex2)[[[~[0 <= x0]] /\ [[~[(x2 ((-(1)) + (x1 x0))) <= (x0 + x1)]] /\ [[~[x2 <= 0]] /\ [[~[x0 <= (-(1))]] /\ [[~[1 <= x1]] /\ [~[x1 <= x0]]]]]]]].
+go
+go
+d-stat
+go
+finish

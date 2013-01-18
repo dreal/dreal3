@@ -1,0 +1,9 @@
+[ translated from ./atan/problem/1/atan-problem-1-chunk-0006.smt2 ]
+(x0,x1,x2)
+0
+(Ex0)(Ex1)(Ex2)[[[(x0 x0) = 3] /\ [[~[x2 <= 0]] /\ [[~[x1 <= 0]] /\ [~[x0 <= 0]]]]]].
+go
+go
+d-stat
+go
+finish

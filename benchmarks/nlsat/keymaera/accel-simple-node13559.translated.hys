@@ -1,0 +1,15 @@
+-- translated from ./keymaera/accel-simple-node13559.translated.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2, x3, x4;
+EXPR
+    -- the constraints to be solved
+    (x0 = 1);
+    (x1 = 0);
+    (((-2000 * x0) + (-4000 * x3) + x4 + (-5 * (x2 * x2)) + (-200 * (x0 * x2)) + (10 * (x0 * x2 * x2))) = 0);
+    (x2 >= 0);
+    (x3 >= 0);
+    (x1 >= 0);
+    (x4 >= 0);
+    (((-200 * x0) + x1 + (-10 * x2) + (20 * (x0 * x2))) = 0);
+    !(x3 >= -1);

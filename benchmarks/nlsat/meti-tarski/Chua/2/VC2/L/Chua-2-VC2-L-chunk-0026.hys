@@ -1,0 +1,7 @@
+-- translated from ./meti-tarski/Chua/2/VC2/L/Chua-2-VC2-L-chunk-0026.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2;
+EXPR
+    -- the constraints to be solved
+    (!((-7 * x2) <= 250) and (!(((-15 * x0) + (76 * x1)) <= 0) or !(((15 * x0) + (-76 * x1)) <= 0)));

@@ -1,0 +1,7 @@
+(set-logic QF_NRA)
+(declare-fun xuscore2dollarsk!0 () Real)
+(declare-fun ruscore2dollarsk!2 () Real)
+(declare-fun quscore2dollarsk!1 () Real)
+(assert (= (+ (* (- 4) xuscore2dollarsk!0) (* ruscore2dollarsk!2 ruscore2dollarsk!2) (* 8 (* quscore2dollarsk!1 quscore2dollarsk!1)) (* (- 2) (* ruscore2dollarsk!2 quscore2dollarsk!1))) 0))
+(assert (not (= (+ (* (- 32) xuscore2dollarsk!0) (* 8 (* ruscore2dollarsk!2 ruscore2dollarsk!2)) (* 64 (* quscore2dollarsk!1 quscore2dollarsk!1)) (* (- 16) (* ruscore2dollarsk!2 quscore2dollarsk!1))) 0)))
+(check-sat)

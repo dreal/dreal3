@@ -1,0 +1,9 @@
+[ translated from ./Chua/1/VC1/L/Chua-1-VC1-L-chunk-0010.smt2 ]
+(x0,x1,x2)
+0
+(Ex0)(Ex1)(Ex2)[[[(x2 ((1/689) 1770)) <= x1] /\ [[~[x1 <= (x2 ((1/689) 1770))]] /\ [[x0 <= 289] /\ [0 <= x0]]]]].
+go
+go
+d-stat
+go
+finish

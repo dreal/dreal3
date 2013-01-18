@@ -1,0 +1,6 @@
+load redlog;
+rlset ofsf;
+phi := ex({ x0, x1, x2},((not (((-69 * x0) + (-5 * x1) + (-5 * x2) + (-10 * (x0 * x0)) + (-10 * (x0 * x1)) + (-10 * (x0 * x2))) <= 32)) and ((not (((-1 * x0) + (-1 * x1) + (-1 * x2)) <= -1)) and ((not (x0 <= 0)) and ((not (x1 <= 0)) and (not (x2 <= 0)))))));
+result := rlqe phi;
+result;
+quit;

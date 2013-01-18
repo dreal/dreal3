@@ -1,0 +1,9 @@
+[ translated from gen-10.smt2 ]
+(a)
+0
+(Ea)[[4 a a = 2]].
+go
+go
+d-stat
+go
+finish

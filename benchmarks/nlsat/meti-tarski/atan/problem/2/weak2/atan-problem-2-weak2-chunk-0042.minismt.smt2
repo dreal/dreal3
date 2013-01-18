@@ -1,0 +1,7 @@
+(set-logic QF_NRA)
+(declare-fun skoB () Real)
+(declare-fun skoT () Real)
+(declare-fun skoA () Real)
+(assert (and (not (<= (+ (* (- 157) (* skoB skoB skoB)) (* (- 157) (* skoB skoT skoT)) (* 200 (* skoB skoB skoT)) (* (- 100) (* skoB skoT skoA)) (* 100 (* skoT skoT skoT)) (* (- 30) (* skoB skoB skoB skoT)) (* (- 30) (* skoB skoT skoT skoT))) 0)) (and (not (<= (+ skoB skoA) 0)) (and (not (<= skoT 1)) (not (<= (+ skoB (* (- 1) skoA)) 0))))))
+(set-info :status sat)
+(check-sat)

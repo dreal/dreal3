@@ -1,0 +1,7 @@
+-- translated from ./meti-tarski/sin/problem/8/sin-problem-8-chunk-0007.smt2
+DECL
+    -- the variables
+    float [-1000, 1000] x0, x1, x2;
+EXPR
+    -- the constraints to be solved
+    (((-10000000 * x2) <= -31415927) and (!(((-2 * x1) + x2) <= 0) and (!(x0 <= 0) and !(((-1 * x0) + x1) <= 0))));

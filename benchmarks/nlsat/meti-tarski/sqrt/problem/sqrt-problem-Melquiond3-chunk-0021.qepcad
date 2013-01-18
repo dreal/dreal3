@@ -1,0 +1,9 @@
+[ translated from ./sqrt/problem/sqrt-problem-Melquiond3-chunk-0021.smt2 ]
+(x0,x1,x2)
+0
+(Ex0)(Ex1)(Ex2)[[~[((x1 (-(1))) + (x0 (x0 x1))) = x2]]].
+go
+go
+d-stat
+go
+finish

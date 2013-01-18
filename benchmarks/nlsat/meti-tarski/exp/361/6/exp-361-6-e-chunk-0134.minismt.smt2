@@ -1,0 +1,7 @@
+(set-logic QF_NRA)
+(declare-fun skoX () Real)
+(declare-fun e () Real)
+(declare-fun a () Real)
+(assert (and (not (= a 6)) (and (not (<= (+ (* (- 24794911296000) skoX) (* (- 12397455648000) (* skoX skoX)) (* (- 4132485216000) (* skoX skoX skoX)) (* (- 1033121304000) (* skoX skoX skoX skoX)) (* (- 206624260800) (* skoX skoX skoX skoX skoX)) (* (- 34295659200) (* skoX skoX skoX skoX skoX skoX)) (* (- 4818398400) (* skoX skoX skoX skoX skoX skoX skoX)) (* (- 578680200) (* skoX skoX skoX skoX skoX skoX skoX skoX)) (* (- 59632200) (* skoX skoX skoX skoX skoX skoX skoX skoX skoX)) (* (- 5263380) (* skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX)) (* (- 393660) (* skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX)) (* (- 24435) (* skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX)) (* 531441000 (* skoX skoX skoX skoX skoX skoX e e e e e e)) (* (- 1215) (* skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX)) (* (- 45) (* skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX)) (* (- 1) (* skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX skoX))) 78847817921280)) (and (not (<= (+ (* (- 1166400) skoX) (* 25 (* skoX skoX skoX skoX skoX skoX e e e e e e))) 3709152)) (and (not (<= (* 25 (* skoX skoX skoX skoX skoX skoX e e e e e e)) 2542752)) (and (not (<= e 0)) (not (<= skoX 0))))))))
+(set-info :status sat)
+(check-sat)

@@ -1,0 +1,6 @@
+(set-logic QF_NRA)
+(set-info :source | hong's problem \sum x_i^2 < 1 and \prod x_i > 1 |)
+(declare-fun x_0 () Real)
+(assert (< (* x_0 x_0) 1.))
+(assert (> x_0 1.))
+(check-sat)
