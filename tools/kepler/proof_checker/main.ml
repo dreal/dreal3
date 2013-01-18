@@ -14,12 +14,12 @@ let run () =
     Error.init ();
     let lexbuf =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
-    let (cs, pt) = Parser.main Lexer.start lexbuf in
+    let (p, cs, init, pt) = Parser.main Lexer.start lexbuf in
     let _ =
       (BatList.print
-        Constraint.print
-        BatIO.stdout
-        cs)
+         Constraint.print
+         BatIO.stdout
+         cs)
     in
     let _ = Ptree.check pt cs in
     print_endline "Success."

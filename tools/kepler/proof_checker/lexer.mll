@@ -40,6 +40,7 @@ rule start =
   parse blank { start lexbuf }
     | "\r\n"  { incr_ln (); start lexbuf}
     | '\n'    { incr_ln (); start lexbuf}
+    | "Precision" { verbose (Lexing.lexeme lexbuf); PRECISION }
     | "["     { verbose (Lexing.lexeme lexbuf); LB }
     | "]"     { verbose (Lexing.lexeme lexbuf); RB }
     | "("     { verbose (Lexing.lexeme lexbuf); LP }

@@ -8,6 +8,7 @@
 %}
 
 %token AFTER BEFORE PRUNING BRANCHED IS IN ON CONFLICT DETECTED
+%token PRECISION
 %token LB RB COMMA COLON SEMICOLON CARET
 %token LP RP PLUS MINUS AST SLASH EQ GE LE GT LT
 %token INFTY
@@ -21,7 +22,7 @@
 
 %start main
 
-%type <Constraint.t list * Ptree.t> main
+%type <float * Constraint.t list * Env.t * Ptree.t> main
 %type <Ptree.t> ptree
 %type <Constraint.t> con
 %type <Func.t> func
@@ -30,7 +31,10 @@
 %%
 
 main:
-con_list ptree { ($1, $2) }
+precision con_list init_list ptree { ($1, $2, Env.make $3, $4) }
+
+precision: /* nothing */ { 0.001 } /* default value */
+ | PRECISION COLON FNUM  { $3 }
 
 con_list: /* */ { [] }
      | con con_list { $1::$2 }
@@ -91,6 +95,13 @@ branched_on: LB BRANCHED ON ID RB { $4 }
 ;
 
 conflict_detected: LB CONFLICT DETECTED RB { }
+;
+
+init: entry SEMICOLON { $1 }
+;
+
+init_list: init { [$1] }
+         | init init_list { $1::$2 }
 ;
 
 entry: ID IS IN COLON LB FNUM COMMA FNUM RB { ($1, $6, $8) }
