@@ -36,7 +36,7 @@ void rp_box_cout_local(rp_box b, int digits, int mode)
 //    cout<<"The intervals are:"<<endl;
     for (i=0; i<rp_box_size(b); ++i)
     {
-      cout <<"x"<<i<<" is in: ";
+      cout <<"y"<< (i + 1) <<" is in: ";
       rp_interval_cout_local(rp_box_elem(b,i),digits,mode);
       if (i<(rp_box_size(b)-1))
       {
@@ -447,7 +447,7 @@ int rp_propagator::apply_loop(rp_box b)
 
     if (this->check_precision(o,b))
     {
-//add     	
+//add
 	cout<<endl<<"[before pruning] "<<endl;
 	rp_box_cout_local(b, 5, RP_INTERVAL_MODE_BOUND );
 //added
@@ -511,7 +511,7 @@ int rp_propagator::apply_loop(rp_box b)
 int rp_propagator::apply(rp_box b)
 {
   ++_id;
-  
+
   // Set the operators that must be applied
   rp_oqueue_list_set_empty(_queue);
   for (int i=0; i<rp_vector_size(_vop); ++i)
@@ -520,7 +520,7 @@ int rp_propagator::apply(rp_box b)
     o->set_working(_id);
     rp_oqueue_list_push(_queue,o);
   }
-  
+
   // Application
   return( apply_loop(b) );
 }
