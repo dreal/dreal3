@@ -1,6 +1,0 @@
-load redlog;
-rlset ofsf;
-phi := ex({ x0},((x0 * x0) = 3));
-result := rlcad phi;
-result;
-quit;

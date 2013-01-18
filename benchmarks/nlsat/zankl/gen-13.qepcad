@@ -1,9 +1,0 @@
-[ translated from gen-13.smt2 ]
-(a)
-0
-(Ea)[[a a = (-(2))]].
-go
-go
-d-stat
-go
-finish

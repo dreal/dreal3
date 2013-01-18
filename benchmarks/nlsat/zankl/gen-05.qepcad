@@ -1,9 +1,0 @@
-[ translated from gen-05.smt2 ]
-(a,b)
-0
-(Ea)(Eb)[[a a = 2] /\ [b b = 3]].
-go
-go
-d-stat
-go
-finish
