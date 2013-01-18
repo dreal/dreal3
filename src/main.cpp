@@ -130,6 +130,8 @@ int main( int argc, char * argv[] )
   //  cerr << "after transformation" << endl;
   //  eg->printEnodeList(cerr);
 
+  // context.getConfig( ).verbosity = 10;
+
 #ifndef SMTCOMP
   if ( context.getConfig( ).verbosity > 0 )
   {
