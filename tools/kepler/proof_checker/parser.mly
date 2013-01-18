@@ -3,13 +3,13 @@
  *
  */
 
-%{ 
+%{
 
 %}
 
 %token AFTER BEFORE PRUNING BRANCHED IS IN ON CONFLICT DETECTED
 %token LB RB COMMA COLON SEMICOLON CARET
-%token LP RP PLUS MINUS AST SLASH EQ
+%token LP RP PLUS MINUS AST SLASH EQ GE LE GT LT
 %token SIN COS TAN
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
@@ -20,10 +20,11 @@
 
 %start main
 
-%type <Func.t list * Ptree.t> main
+%type <Constraint.t list * Ptree.t> main
 %type <Ptree.t> ptree
+%type <Constraint.t> con
 %type <Func.t> func
-%type <string> branched_on 
+%type <string> branched_on
 
 %%
 
@@ -33,15 +34,19 @@ con_list ptree { ($1, $2) }
 con_list: /* */ { [] }
      | con con_list { $1::$2 }
 ;
-  
-con: LP EQ func func RP { Func.Sub ($3, $4) }
+
+con: LP EQ func func RP { (Constraint.EQ_ZERO, Func.Sub ($3, $4)) }
+  |  LP LE func func RP { (Constraint.LT_ZERO, Func.Sub ($3, $4)) }
+  |  LP LT func func RP { (Constraint.LT_ZERO, Func.Sub ($3, $4)) }
+  |  LP GE func func RP { (Constraint.GT_ZERO, Func.Sub ($3, $4)) }
+  |  LP GT func func RP { (Constraint.GT_ZERO, Func.Sub ($3, $4)) }
 ;
 
 func:  FNUM                  { Func.Num $1 }
      | ID                    { Func.Var $1 }
      | LP PLUS  func func RP { Func.Add ($3, $4) }
      | LP MINUS func func RP { Func.Sub ($3, $4) }
-     | LP MINUS FNUM RP      { Func.Sub (Func.Num 0.0, Func.Num $3) }
+     | LP MINUS func RP      { Func.Sub (Func.Num 0.0, $3) }
      | LP AST   func func RP { Func.Mul ($3, $4) }
      | LP SLASH func func RP { Func.Div ($3, $4) }
      | LP SIN func RP        { Func.Sin $3 }
@@ -57,24 +62,24 @@ func:  FNUM                  { Func.Num $1 }
      | LP EXP func RP        { Func.Exp $3 }
      | LP CARET func FNUM RP { Func.Pow ($3, int_of_float $4) }
 ;
-         
+
 ptree: before_pruning entry_list conflict_detected
        { Ptree.Axiom (Env.make $2) }
-       
+
      | before_pruning entry_list a_ptree
        { Ptree.Prune (Env.make $2, $3) }
 ;
-  
+
 a_ptree: after_pruning entry_list bptree ptree
        { Ptree.Branch (Env.make $2, $3, $4) }
      | after_pruning entry_list ptree
        { Ptree.Prune (Env.make $2, $3) }
-;  
+;
 
 bptree: branched_on entry_list ptree {$3}
 ;
 
-  
+
 before_pruning: LB BEFORE PRUNING RB { }
 ;
 
@@ -96,4 +101,4 @@ entry_list:
 | entry2 { [$1] }
 | entry1 SEMICOLON entry_list { $1::$3 }
 | entry2 SEMICOLON entry_list { $1::$3 }
-;      
+;

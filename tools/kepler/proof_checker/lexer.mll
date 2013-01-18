@@ -45,10 +45,14 @@ rule start =
     | "("     { verbose (Lexing.lexeme lexbuf); LP }
     | ")"     { verbose (Lexing.lexeme lexbuf); RP }
     | "="     { verbose (Lexing.lexeme lexbuf); EQ }
+    | ">="    { verbose (Lexing.lexeme lexbuf); GE }
+    | "<="    { verbose (Lexing.lexeme lexbuf); LE }
+    | ">"     { verbose (Lexing.lexeme lexbuf); GT }
+    | "<"     { verbose (Lexing.lexeme lexbuf); LT }
     | "+"     { verbose (Lexing.lexeme lexbuf); PLUS }
     | "-"     { verbose (Lexing.lexeme lexbuf); MINUS }
     | "*"     { verbose (Lexing.lexeme lexbuf); AST }
-    | "/"     { verbose (Lexing.lexeme lexbuf); SLASH }        
+    | "/"     { verbose (Lexing.lexeme lexbuf); SLASH }
     | ","     { verbose (Lexing.lexeme lexbuf); COMMA }
     | ":"     { verbose (Lexing.lexeme lexbuf); COLON }
     | ";"     { verbose (Lexing.lexeme lexbuf); SEMICOLON }

@@ -1,20 +1,23 @@
-all: error.cmx intv.cmx env.cmx func.cmx ptree.cmx parser.cmx lexer.cmx main.cmx
+all: error.cmx intv.cmx env.cmx func.cmx constraint.cmx ptree.cmx parser.cmx lexer.cmx main.cmx
 	ocamlfind ocamlopt -linkpkg -package batteries \
 	../INTERVAL/interval.cmxa -I ../INTERVAL \
-	error.cmx intv.cmx env.cmx func.cmx ptree.cmx parser.cmx lexer.cmx main.cmx \
+	error.cmx intv.cmx env.cmx func.cmx constraint.cmx ptree.cmx parser.cmx lexer.cmx main.cmx \
 	../INTERVAL/libinterval.a -annot -o main.native
 
 error.cmx: error.ml
 	ocamlfind ocamlopt -I ../INTERVAL -annot -c error.ml 
 
 intv.cmx: intv.ml
-	ocamlfind ocamlopt -I ../INTERVAL -annot -c intv.ml 
+	ocamlfind ocamlopt -I ../INTERVAL -annot -package batteries -c intv.ml 
 
 env.cmx: intv.ml env.ml
 	ocamlfind ocamlopt -I ../INTERVAL -annot -package batteries -c env.ml 
 
 func.cmx: intv.ml env.ml func.ml
 	ocamlfind ocamlopt -I ../INTERVAL -annot -package batteries -c func.ml 
+
+constraint.cmx: constraint.ml env.ml func.ml
+	ocamlfind ocamlopt -I ../INTERVAL -annot -package batteries -c constraint.ml 
 
 ptree.cmx: intv.ml env.ml func.ml ptree.ml
 	ocamlfind ocamlopt -I ../INTERVAL -annot -package batteries -c ptree.ml 
