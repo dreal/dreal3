@@ -1,7 +1,7 @@
 #!/bin/bash
-INEQDIR=./flyspeck_ineqs/
+INEQDIR=$1
 RESULTDIR=./result
-MAX=16
+MAX=25
 
-find $INEQDIR -name "*.dr" -newer $RESULTDIR/lastrun | parallel --max-procs=$MAX 'echo {}; ./run_single.sh {}'
+find $INEQDIR -name "*.smt2" -newer $RESULTDIR/lastrun | parallel --max-procs=$MAX 'echo {}; ./run_single.sh {}'
 touch $RESULTDIR/lastrun

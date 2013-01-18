@@ -1,21 +1,23 @@
 #!/bin/bash
-DREAL=../../../dReal/opensmt/dReal
-INEQDIR=../../../dReal/flyspeck_ineqs
+######################################
+#
+######################################
+
+# dReal Path
+DREAL=../../../dReal
 TIMEUTIL=/usr/bin/time
 RESULTDIR=./result
 INEQ_PATHNAME=$1
 INEQ=`basename $INEQ_PATHNAME`
-BASE=$RESULTDIR/${INEQ}
+BASE=$RESULTDIR/${INEQ//.smt2/}
 OUTFILE=$BASE.out
+TRACEFILE=$BASE.trace
 TIMEFILE=$BASE.time
 RESULTFILE=$BASE.result
-IDFILE=$BASE.ID
-ID=`head -n 3 $INEQ_PATHNAME | grep "ID" | sed 's/.*ID\[\([^]]\+\)\].*/\1/g'`
 TIMEOUT_TIME=600 # 600 sec = 10 min
 
-echo -n "$INEQ - $ID -"
-echo $ID > $IDFILE
-$TIMEUTIL -f "%E" -o $TIMEFILE ./timeout3 -t $TIMEOUT_TIME $DREAL $INEQ_PATHNAME &> $OUTFILE
+echo -n "$INEQ - "
+$TIMEUTIL -f "%E" -o $TIMEFILE timeout3 -t $TIMEOUT_TIME $DREAL $INEQ_PATHNAME 2> $OUTFILE > $TRACEFILE
 EXITCODE=$?
 if [ $EXITCODE -eq 137 ]
 then
@@ -23,7 +25,8 @@ then
 else
 	if [ $EXITCODE -eq 0 ]
 	then
-		RESULT=`tail -n 4 $OUTFILE | grep "The formula is " | cut -d ' ' -f 4`
+		echo -n "`cat $TIMEFILE` - "
+		RESULT=`tail -n 1 $TRACEFILE`
 		echo "$RESULT" | tee $RESULTFILE
 	else
 		echo "Fail" | tee $RESULTFILE
