@@ -223,6 +223,8 @@ rp_box icp_solver::prop()
 
 bool icp_solver::solve()
 {
+    cout << "Precision:" << _precision << endl;
+
     // Print out all the Enode in stack
     for(vector<Enode*>::const_iterator ite = _stack.begin();
         ite != _stack.end();
@@ -230,6 +232,29 @@ bool icp_solver::solve()
     {
         cout << *ite << endl;
     }
+
+    // Print out the initial values
+    for(map<Enode*, pair<double, double> >::const_iterator ite = _env.begin();
+        ite != _env.end();
+        ite++)
+    {
+        Enode* key = (*ite).first;
+        double lb =  (*ite).second.first;
+        double ub =  (*ite).second.second;
+
+        cout << key << " is in: ";
+        if(lb == -numeric_limits<double>::infinity())
+            cout << "(-oo";
+        else
+            cout << "[" << lb;
+        cout << ", ";
+        if(ub == numeric_limits<double>::infinity())
+            cout << "+oo)";
+        else
+            cout << ub << "]";
+        cout << ";" << endl;
+    }
+
 
     if (rp_box_empty(rp_problem_box(*_problem)))
     {
