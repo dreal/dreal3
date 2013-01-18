@@ -2,6 +2,7 @@
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
 open Error
+open Smt2_cmd
 
 let spec = [("-i", Arg.Unit (fun () -> Dr.fop := Dr.IntRatio),
              ": print number as a ratio of two integers (Default option).");
@@ -11,71 +12,31 @@ let spec = [("-i", Arg.Unit (fun () -> Dr.fop := Dr.IntRatio),
 let usage = "Usage: dr2smt2.native <.dr>\n"
 
 let process
-    out
     (vardecls : Vardecl.t list)
     (odes_opt: (Ode.t list) option)
     (f : Dr.formula) =
-    (* Set Logic *)
-  begin
-    let contain_ode =
-      match odes_opt with
-      | Some _ -> true
-      | None   -> false
-    in
-    let logic_string =
-      match contain_ode with
-      | true  -> "QF_NRA_ODE"
-      | false -> "QF_NRA"
-    in
-    BatString.println out ("(set-logic " ^ logic_string ^ ")");
+  (* Set Logic *)
+  let logic_cmd = SetLogic QF_NRA in
+  let make_lb name v = Dr.Le (Dr.Const v,  Dr.Var name) in
+  let make_ub name v = Dr.Le (Dr.Var name, Dr.Const v ) in
+  let (declarefuns, asserts) =
+    BatList.split
+      (List.map
+      (fun ((lb, ub), name) ->
+        (DeclareFun name,
+         [Assert (make_lb name lb);
+          Assert (make_ub name ub)])
+      )
+      vardecls)
+  in
+  BatList.concat
+    [[logic_cmd];
+     declarefuns;
+     BatList.concat asserts;
+     [Assert f];
+     [CheckSAT; Exit];
+    ]
 
-    (* Declare variables *)
-    List.iter (fun (_, v) ->
-      begin
-        BatString.print   out "(declare-fun ";
-        BatString.print   out v;
-        BatString.println out " () Real)";
-      end)
-      vardecls;
-
-    (* ODEs *)
-    begin
-      match odes_opt with
-      | Some odes  ->
-        BatList.print
-          (~first:"")
-          (~sep:"\n")
-          (~last:"\n")
-          Ode.print
-          out
-          odes;
-      | None -> ();
-    end;
-
-    (* Assert *)
-    BatString.println out "(assert";
-    BatString.println out "(and";
-
-    (* Variable Ranges *)
-    List.iter (fun ((lb, ub), v) ->
-      Dr.print_formula out
-        (Dr.And
-           [Dr.Le(Dr.Const lb, Dr.Var v);
-            Dr.Le(Dr.Var v, Dr.Const ub)]
-        ))
-      vardecls;
-
-    (* Original formula *)
-    Dr.print_formula out f;
-    BatString.println out ")";
-    BatString.println out ")";
-
-    (* Check-sat *)
-    BatString.println out "(check-sat)";
-
-    (* Exit *)
-    BatString.println out "(exit)";
-  end
 let run () =
   let src = ref "" in
   let _ = Arg.parse spec
@@ -87,6 +48,7 @@ let run () =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let (vardecls, odes_opt, formula) = Parser.main Lexer.main lexbuf in
     let out = BatIO.stdout in
-      process out vardecls odes_opt formula
+    let smt2 = process vardecls odes_opt formula in
+    Smt2.print out smt2
   with v -> Error.handle_exn v
 let _ = Printexc.catch run ()
