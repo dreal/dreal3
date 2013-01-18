@@ -31,7 +31,7 @@ void debug_print_env(const map<Enode*, pair<double, double> > & env)
         Enode* key = (*ite).first;
         double lb =  (*ite).second.first;
         double ub =  (*ite).second.second;
-        cout << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
+        cerr << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
     }
 }
 
@@ -50,10 +50,10 @@ void debug_print_explanation (const vector<Enode*> & explanation)
 {
     for (vector<Enode *>::const_iterator it = explanation.begin(); it!= explanation.end(); it++)
     {
-        cout << *it <<" with polarity "
+        cerr << *it <<" with polarity "
              << toInt((*it)->getPolarity()) << " ";
     }
-    cout<< endl;
+    cerr << endl;
 }
 
 set<Enode *> NRASolver::get_variables (Enode * e )
@@ -222,7 +222,7 @@ bool NRASolver::check( bool complete )
         icp_solver solver( stack, env, explanation, 10.0, precision);
         result = solver.solve();
         if (!result) {
-            cout<<"#explanation provided: ";
+            cerr<<"#explanation provided: ";
             debug_print_explanation(explanation);
         }
     }

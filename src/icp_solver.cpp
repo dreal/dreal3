@@ -23,8 +23,6 @@ icp_solver::icp_solver(const vector<Enode*> & stack,
     rp_init_library();
     _problem = create_rp_problem(stack, env);
 
-    rp_problem_display(stdout, *_problem);
-
     // _propag = new rp_propagator(_problem);
 
     rp_selector * _vselect;
@@ -138,6 +136,8 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
         rp_union_copy(rp_variable_domain(*_v),u);
         rp_union_destroy(&u);
 
+
+        rp_variable_set_real(*_v);
         rp_variable_precision(*_v) = _precision;
 
         enode_to_rp_id[key] = rp_id;
@@ -223,7 +223,13 @@ rp_box icp_solver::prop()
 
 bool icp_solver::solve()
 {
-    //rp_problem_display(stdout,problem);
+    // Print out all the Enode in stack
+    for(vector<Enode*>::const_iterator ite = _stack.begin();
+        ite != _stack.end();
+        ite++)
+    {
+        cout << *ite << endl;
+    }
 
     if (rp_box_empty(rp_problem_box(*_problem)))
     {

@@ -47,7 +47,35 @@ void rp_box_cout_local(rp_box b, int digits, int mode)
   }
 }
 
+void rp_pprint_var(FILE * out, rp_variable v)
+{
+  fprintf(out,"%s",rp_variable_name(v));
+  if (rp_variable_integer(v))
+  {
+    fprintf(out,":int");
+  }
+  else if (rp_variable_real(v))
+  {
+    fprintf(out,":real/%.4g",rp_variable_precision(v));
+  }
+  fprintf(out," ~ ");
+  rp_union_display_simple(rp_variable_domain(v));
+  fprintf(out,"\n");
 
+}
+
+void rp_pprint_vars(FILE* out, rp_problem p, rp_box b)
+{
+    for(int i = 0; i < rp_problem_nvar(p); i++)
+    {
+        fprintf(out, "%s", rp_variable_name(rp_problem_var(p, i)));
+        fprintf(out, " is in: ");
+        rp_interval_cout_local(rp_box_elem(b,i), 6, RP_INTERVAL_MODE_BOUND);
+        if (i != rp_problem_nvar(p) - 1)
+            fprintf(out, ";");
+        fprintf(out, "\n");
+    }
+}
 
 /* Creation of an empty dependency function */
 void rp_dependency_create(rp_dependency * d)
@@ -449,7 +477,8 @@ int rp_propagator::apply_loop(rp_box b)
     {
 //add
 	cout<<endl<<"[before pruning] "<<endl;
-	rp_box_cout_local(b, 5, RP_INTERVAL_MODE_BOUND );
+//	rp_box_cout_local(b, 5, RP_INTERVAL_MODE_BOUND );
+        rp_pprint_vars(stdout, *_problem, b);
 //added
       if (o->apply(b))
       {
@@ -493,7 +522,8 @@ int rp_propagator::apply_loop(rp_box b)
 	// the dependency of every modified variable
 //add
 	cout<<"[after pruning] "<<endl;
-	rp_box_cout_local(b, 5, RP_INTERVAL_MODE_BOUND );
+//	rp_box_cout_local(b, 5, RP_INTERVAL_MODE_BOUND );
+        rp_pprint_vars(stdout, *_problem, b);
 //added
       }
       else
