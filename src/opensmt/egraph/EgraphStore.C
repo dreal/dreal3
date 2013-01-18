@@ -162,6 +162,16 @@ void Egraph::initializeStore( )
   insertSigTab( efalse );
 }
 
+void   Egraph::setPrecision ( double p)
+{
+    precision = p;
+}
+
+double Egraph::getPrecision( ) const
+{
+    return precision;
+}
+
 //
 // Allocates true
 //

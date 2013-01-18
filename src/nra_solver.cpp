@@ -14,7 +14,7 @@ NRASolver::NRASolver( const int           i
     : OrdinaryTSolver ( i, n, c, e, t, x, d, s )
 {
 //initialize icp solver first
-
+    precision = e.getPrecision();
 }
 
 NRASolver::~NRASolver( )
@@ -219,7 +219,7 @@ bool NRASolver::check( bool complete )
     } else {
         // Complete Check
         explanation.clear();
-        icp_solver solver( stack, env, explanation, 10.0 );
+        icp_solver solver( stack, env, explanation, 10.0, precision);
         result = solver.solve();
         if (!result) {
             cout<<"#explanation provided: ";

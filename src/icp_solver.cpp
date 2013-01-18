@@ -1,13 +1,13 @@
 //icp solver
 
 #include "icp_solver.h"
-#define PRECISION 0.01
 using namespace std;
 
 icp_solver::icp_solver(const vector<Enode*> & stack,
                        map<Enode*, pair<double, double> > & env,
                        vector<Enode*> & exp,
-                       double improve
+                       double improve,
+                       double p
     )
     :
     _stack(stack),
@@ -17,7 +17,8 @@ icp_solver::icp_solver(const vector<Enode*> & stack,
     _ep(NULL),
     _sol(0),
     _nsplit(0),
-    _explanation(exp)
+    _explanation(exp),
+    _precision(p)
 {
     rp_init_library();
     _problem = create_rp_problem(stack, env);
@@ -137,12 +138,13 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
         rp_union_copy(rp_variable_domain(*_v),u);
         rp_union_destroy(&u);
 
-        rp_variable_precision(*_v) = PRECISION;
+        rp_variable_precision(*_v) = _precision;
 
         enode_to_rp_id[key] = rp_id;
 
         cerr << "Key: " << name << "\t"
              << "value : [" << lb << ", " << ub << "] \t"
+             << "precision : " << _precision << "\t"
              << "rp_id: " << rp_id << endl;
     }
 
@@ -259,6 +261,8 @@ bool icp_solver::solve()
             /* UNSAT */
 
             /* TODO: what about explanation? */
+            // cout << "[conflict detected]" << endl;
+
             cerr << "UNSAT!" << endl;
             copy(_stack.begin(),
                  _stack.end(),

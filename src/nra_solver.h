@@ -33,10 +33,11 @@ public:
 
 
 private:
-    map<Enode*, pair<double, double> >     env;
-    vector <Enode*>                          stack;  // stack of asserted literals.
-    vector < vector<Enode*>::size_type >     undo_stack_size;
+    map<Enode*, pair<double, double> >            env;
+    vector <Enode*>                               stack;  // stack of asserted literals.
+    vector < vector<Enode*>::size_type >          undo_stack_size;
     vector < map<Enode*, pair<double, double> > > env_stack;
+    double                                        precision;
 
 };
 #endif

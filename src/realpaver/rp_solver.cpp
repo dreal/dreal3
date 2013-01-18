@@ -114,6 +114,8 @@ rp_box rp_bpsolver::compute_next()
     }
     else
     {
+      /* Added for dReal2 */
+      printf("[conflict detected]\n");
       _boxes.remove();
     }
   }

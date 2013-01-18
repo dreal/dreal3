@@ -11,7 +11,8 @@ public:
     icp_solver(const vector<Enode*> & stack,
                map<Enode*, pair<double, double> > & env,
                vector<Enode*> & exp,
-               double improve
+               double improve,
+               double p
               );
 
     ~icp_solver();
@@ -44,12 +45,14 @@ private:
     int _nsplit;               /* number of split steps                   */
     double _improve;           /* improvement factor of iterative methods */
 
-    map<Enode*, int> enode_to_rp_id;
-    rp_bpsolver * solver;
+    map<Enode*, int>                     enode_to_rp_id;
+    rp_bpsolver *                        solver;
 
-    vector<Enode*> & _explanation;
-    const vector<Enode*> & _stack;
+    vector<Enode*> &                     _explanation;
+    const vector<Enode*> &               _stack;
     map<Enode*, pair<double, double> > & _env;
+
+    double _precision;
 
     icp_solver& operator=(const icp_solver& s);
 };

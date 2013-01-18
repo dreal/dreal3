@@ -57,6 +57,7 @@ public:
       , theoryInitialized ( false )
       , time_stamp        ( 0 )
       , use_gmp		  ( false )
+      , precision         ( 0.001 )
   {
     //
     // Initialize nil key for splay tree
@@ -339,6 +340,7 @@ private:
   set< Enode * >    interface_terms_cache;
   // Cache for uf terms and la terms
   set< Enode * > it_uf, it_la;
+  double            precision;     /* added for dReal */
 
 public:
 
@@ -367,6 +369,9 @@ public:
   void                splitOnDemand           ( vector< Enode * > &, int ); // Splitting on demand modulo equality
   void                splitOnDemand           ( Enode *, int );             // Splitting on demand
   bool                checkDupClause          ( Enode *, Enode * );         // Check if a clause is duplicate
+
+  void                setPrecision            ( double );
+  double              getPrecision            ( ) const;
 
   // added for dReal2 (implemented in EgraphStore.C
   void                postProcessing          ( );
