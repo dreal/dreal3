@@ -47,7 +47,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <sys/wait.h>
 #endif
 
-namespace opensmt 
+namespace opensmt
 {
   extern bool stop;
 }
@@ -309,7 +309,7 @@ bool CoreSMTSolver::addClause( vec<Lit>& ps
     assert( res );
     assert( units[ var(ps[0]) ] == NULL );
     units[ var(ps[0]) ] = res;
-    if ( config.produce_inter > 0 
+    if ( config.produce_inter > 0
       && var(ps[0]) > 1 ) // Avoids true/false
       units_and_partition.push_back( make_pair( res, in ) );
 #endif
@@ -1242,7 +1242,7 @@ void CoreSMTSolver::reduceDB()
     // Remove if satisfied at dec level 0
     if (decisionLevel( ) == 0 && satisfied( *tleaves[i] ))
     proof.forceDelete( tleaves[i], true );
-    else 
+    else
     */
     if ( proof.deleted( tleaves[i] ) )
       ; // Do nothing
@@ -1257,7 +1257,7 @@ void CoreSMTSolver::reduceDB()
     // Remove if satisfied at dec level 0
     if (decisionLevel( ) == 0 && satisfied( *pleaves[i] ))
     proof.forceDelete( pleaves[i], true );
-    else 
+    else
     */
     if ( proof.deleted( pleaves[i] ) )
       ; // Do nothing
@@ -1647,7 +1647,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
       if (nof_conflicts >= 0 && conflictC >= nof_conflicts){
 	// Reached bound on number of conflicts:
-	progress_estimate = progressEstimate();
+        // progress_estimate = progressEstimate();
 	cancelUntil(0);
 	return l_Undef; }
 
@@ -1837,7 +1837,7 @@ lbool CoreSMTSolver::solve( const vec<Lit> & assumps
   // Search:
   const size_t old_conflicts = nLearnts( );
   // Stop flag for cost theory solving
-  bool cstop = false; 
+  bool cstop = false;
   while (status == l_Undef && !opensmt::stop && !cstop)
   {
 #ifndef SMTCOMP
@@ -1867,7 +1867,7 @@ lbool CoreSMTSolver::solve( const vec<Lit> & assumps
 
     status = search((int)nof_conflicts, (int)nof_learnts);
     nof_conflicts = restartNextLimit( nof_conflicts );
-    cstop = cstop || ( max_conflicts != 0 
+    cstop = cstop || ( max_conflicts != 0
 	            && nLearnts() > (int)max_conflicts + (int)old_conflicts );
 
     if ( config.sat_use_luby_restart )
