@@ -5,7 +5,7 @@
 {
   open Parser
   open Error
-  let debug_tag = false
+  let debug_tag = true
   let verbose s =  if debug_tag then (print_string s; print_newline())
   let comment_depth = ref 0
   let keyword_tbl = Hashtbl.create 111
@@ -35,7 +35,7 @@
 
 let blank = [' ' '\t']+
 let id = ['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z' '0'-'9' '_'])*
-let float_number = ('+'|'-')? ['0'-'9']+('.'(['0'-'9']*))?
+let float_number = ('+'|'-')? ['0'-'9']+('.'(['0'-'9']*))?('e'('+'|'-')['0'-'9']+)?
 rule start =
   parse blank { start lexbuf }
     | "\r\n"  { incr_ln (); start lexbuf}
@@ -44,6 +44,7 @@ rule start =
     | "]"     { verbose (Lexing.lexeme lexbuf); RB }
     | "("     { verbose (Lexing.lexeme lexbuf); LP }
     | ")"     { verbose (Lexing.lexeme lexbuf); RP }
+    | "oo"   { verbose (Lexing.lexeme lexbuf); INFTY }
     | "="     { verbose (Lexing.lexeme lexbuf); EQ }
     | ">="    { verbose (Lexing.lexeme lexbuf); GE }
     | "<="    { verbose (Lexing.lexeme lexbuf); LE }

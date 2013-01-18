@@ -1,13 +1,13 @@
 type key = string
 type intv = Intv.t
 type t = (key, intv) BatPMap.t
-    
+
 exception CException of string
 
-    
+
 let find (x : key) (e : t) : intv
     = BatPMap.find x e
-  
+
 let join (e1 : t) (e2 : t) : t =
   BatPMap.merge
     (fun x i1_op i2_op ->
@@ -24,7 +24,7 @@ let from_list (l : (key * intv) list) : t =
     (fun e (k, i) -> BatPMap.add k i e)
     BatPMap.empty
     l
-    
+
 let make (l : (key * float * float) list) : t =
   from_list (List.map (fun (x, l, h) -> (x, Intv.make l h)) l)
 
@@ -60,7 +60,7 @@ let minus (e1 : t) (e2 : t) : (t list) =
   in
   let result_lists = minus_aux (to_list e1) (to_list e2) in
   List.map from_list result_lists
-    
+
 let order (e1 : t) (e2 : t) : bool =
   BatPMap.for_all
     (fun x i1 ->
@@ -68,7 +68,7 @@ let order (e1 : t) (e2 : t) : bool =
       Intv.order i1 i2
     )
     e1
-    
+
 let print e =
   BatPMap.print
     ~first:"{"
@@ -83,7 +83,7 @@ let print e =
 let var_decl_to_string (element : (key * intv)) =
   let (var, interval) = element in
   let {Intv.low=l; Intv.high=h} = interval in
-  "[" ^ string_of_float l ^ "0, " ^ string_of_float h ^ "0] " ^ var ^ ";\n"
+  "[" ^ string_of_float l ^ ", " ^ string_of_float h ^ "] " ^ var ^ ";\n"
 
 let to_string e =
   let l = to_list e in

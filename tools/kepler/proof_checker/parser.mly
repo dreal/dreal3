@@ -10,6 +10,7 @@
 %token AFTER BEFORE PRUNING BRANCHED IS IN ON CONFLICT DETECTED
 %token LB RB COMMA COLON SEMICOLON CARET
 %token LP RP PLUS MINUS AST SLASH EQ GE LE GT LT
+%token INFTY
 %token SIN COS TAN
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
@@ -92,13 +93,13 @@ branched_on: LB BRANCHED ON ID RB { $4 }
 conflict_detected: LB CONFLICT DETECTED RB { }
 ;
 
-entry1: ID IS IN COLON LB FNUM COMMA FNUM RB { ($1, $6, $8) }
-entry2: ID IS IN COLON FNUM { ($1, $5, $5) }
+entry: ID IS IN COLON LB FNUM COMMA FNUM RB { ($1, $6, $8) }
+     | ID IS IN COLON LP MINUS INFTY COMMA FNUM RB { ($1, neg_infinity, $9) }
+     | ID IS IN COLON LB FNUM COMMA PLUS INFTY RP { ($1, $6, infinity) }
+     | ID IS IN COLON LP MINUS INFTY COMMA PLUS INFTY RP { ($1, neg_infinity, infinity) }
+     | ID IS IN COLON FNUM { ($1, $5, $5) }
 ;
 
-entry_list:
-  entry1 { [$1] }
-| entry2 { [$1] }
-| entry1 SEMICOLON entry_list { $1::$3 }
-| entry2 SEMICOLON entry_list { $1::$3 }
+entry_list: entry { [$1] }
+     | entry SEMICOLON entry_list { $1::$3 }
 ;
