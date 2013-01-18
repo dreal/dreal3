@@ -1,6 +1,7 @@
 //icp solver
 
 #include "icp_solver.h"
+#define PRECISION 0.01
 using namespace std;
 
 icp_solver::icp_solver(const vector<Enode*> & stack,
@@ -136,6 +137,8 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
         rp_union_copy(rp_variable_domain(*_v),u);
         rp_union_destroy(&u);
 
+        rp_variable_precision(*_v) = PRECISION;
+
         enode_to_rp_id[key] = rp_id;
 
         cerr << "Key: " << name << "\t"
@@ -201,6 +204,20 @@ rp_box icp_solver::prop()
   return( _boxes.get() );
 }
 
+            // // Update the value in the env
+            // cerr << "Update ENV!!!!!!!!!" << endl;
+            // for(map<Enode*, pair<double, double> >::const_iterator ite = _env.begin();
+            //     ite != _env.end();
+            //     ite++)
+            // {
+            //     Enode* key = (*ite).first;
+            //     int rp_id = enode_to_rp_id[key];
+            //     double ub = rp_bsup(rp_box_elem(rp_problem_box(*_problem), rp_id));
+            //     double lb = rp_binf(rp_box_elem(rp_problem_box(*_problem), rp_id));
+            //     _env[key] = make_pair(lb, ub);
+            //     cout << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
+            // }
+
 
 bool icp_solver::solve()
 {
@@ -234,21 +251,7 @@ bool icp_solver::solve()
 //            if (rp_box_interval_safe(b)) ++nb_isafe;
             cerr << "SAT with the following box:" << endl;
             rp_box_display_simple(b);
-
-            // Update the value in the env
-            cerr << "Update ENV!!!!!!!!!" << endl;
-            for(map<Enode*, pair<double, double> >::const_iterator ite = _env.begin();
-                ite != _env.end();
-                ite++)
-            {
-                Enode* key = (*ite).first;
-                int rp_id = enode_to_rp_id[key];
-                double ub = rp_bsup(rp_box_elem(rp_problem_box(*_problem), rp_id));
-                double lb = rp_binf(rp_box_elem(rp_problem_box(*_problem), rp_id));
-                _env[key] = make_pair(lb, ub);
-                cout << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
-            }
-
+            cerr << endl;
 
             return true;
         }
