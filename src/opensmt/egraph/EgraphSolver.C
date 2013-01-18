@@ -31,7 +31,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // Added to support compiling templates
 //#include "DLSolver.C"
 #include "nra_solver.h"
-#include "nra_ode_solver.h"
+//#include "nra_ode_solver.h"
 #include "SimpSMTSolver.h"
 
 #define VERBOSE 0
@@ -614,22 +614,23 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
 #ifdef STATISTICS
     tsolvers_stats.push_back( new TSolverStats() );
 #endif
-  } else if (config.logic == QF_NRA_ODE) {
-     tsolvers.push_back( new NRAODESolver( tsolvers.size(),
-                                           "NRA Solver",
-                                           config,
-                                           *this,
-                                           sort_store,
-                                           explanation,
-                                           deductions,
-                                           suggestions,
-                                           // true if we need to handle ODE
-                                           true
-                             ));
-#ifdef STATISTICS
-    tsolvers_stats.push_back( new TSolverStats() );
-#endif
   }
+//   else if (config.logic == QF_NRA_ODE) {
+//      tsolvers.push_back( new NRAODESolver( tsolvers.size(),
+//                                            "NRA Solver",
+//                                            config,
+//                                            *this,
+//                                            sort_store,
+//                                            explanation,
+//                                            deductions,
+//                                            suggestions,
+//                                            // true if we need to handle ODE
+//                                            true
+//                              ));
+// #ifdef STATISTICS
+//     tsolvers_stats.push_back( new TSolverStats() );
+// #endif
+//   }
   /* -------------------- */
 
 
