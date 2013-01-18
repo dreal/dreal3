@@ -259,7 +259,7 @@ bool icp_solver::solve()
 //            if (rp_box_interval_safe(b)) ++nb_isafe;
             cerr << "SAT with the following box:" << endl;
             rp_box_display_simple(b);
-            cerr << endl;
+            cout << endl;
 
             return true;
         }
