@@ -91,20 +91,7 @@ let split_env_on_x key env : (Env.t * Env.t) =
     BatList.map
       (fun ((name1, {low = l1; high = h1}), (name2, {low = l2; high = h2}))
       -> if (key = name1) then
-          let mid =
-            if l1 = neg_infinity && h1 = infinity then
-	      0.0
-            else if l1 < 0.0 && h1 = infinity then
-	      0.0
-	    else if l1 >= 0.0 && h1 = infinity then
-              -1.0 *. l1
-            else if l1 = neg_infinity && h1 < 0.0 then
-              0.0
-            else if l1 = neg_infinity && h1 >= 0.0 then
-              -1.0 *. h1
-            else
-              ((l1 +. h1) /. 2.0)
-          in
+          let mid = ((l1 +. h1) /. 2.0) in
           ((name1, l1, mid), (name2, mid, h2))
         else
           ((name1, l1, h1), (name2, l2, h2))
@@ -119,7 +106,7 @@ let split_env e f prec : (Env.t * Env.t * float) =
   let vardecls = Env.to_list e in
   let vardecls' =
     List.filter (fun (name, _) ->
-      List.mem name vars_in_f)
+      List.mem name vars_in_f && not (BatString.starts_with name "ITE_"))
       vardecls in
   let diff_list = List.map (fun (name, {low = l; high = h}) -> (name, h -. l)) vardecls' in
   let (max_key, intv_size) =
