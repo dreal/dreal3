@@ -69,16 +69,16 @@ let order (e1 : t) (e2 : t) : bool =
     )
     e1
 
-let print e =
+let print out =
   BatPMap.print
     ~first:"{"
     ~last:"}\n"
-    ~sep:", "
-    (fun o k -> BatPrintf.fprintf o "%s" k)
-    (fun o v -> let s = Interval.sprintf_I "%f" v in
-                BatPrintf.fprintf o "%s" s)
-    BatIO.stdout
-    e
+    ~sep:", \n"
+    BatString.print
+    (fun o v ->
+      let s = Interval.sprintf_I "%f" v in
+      BatPrintf.fprintf o "%s" s)
+    out
 
 let var_decl_to_string (element : (key * intv)) =
   let (var, interval) = element in
