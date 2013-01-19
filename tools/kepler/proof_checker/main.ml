@@ -21,10 +21,10 @@ let run () =
       BatString.print   out "Precision: ";
       BatFloat.print    out p;
       BatString.println out "";
-      BatString.println out "Constraints:";
-      (* Print out Constraints *)
+      BatString.println out "Formulae:";
+      (* Print out Formulae *)
       (BatList.print
-         Constraint.print
+         Basic.print_formula
          BatIO.stdout
          cs);
       (* Print out initial box *)

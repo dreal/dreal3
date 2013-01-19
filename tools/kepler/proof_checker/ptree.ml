@@ -8,7 +8,7 @@ type t = Axiom of Env.t
          | Prune of Env.t * t
 
 type result = Good of Env.t
-              | Bad of Env.t
+              | Bad of Env.t * Intv.t
 
 
 let src = ref ""
@@ -19,62 +19,107 @@ let take_env p = match p with
   | Branch (e, _, _) -> e
   | Prune (e, _) -> e
 
-let ineqcounter = ref 0
+let ineqcounter = ref 1
 let counter () =
   let c = !ineqcounter in
   let _ = ineqcounter := c + 1 in
   c
 
-let handle_fail e f cs prec =
-  raise Not_found     (* TODO *)
+let print_msg prec f e eval =
+  begin
+    BatString.println BatIO.stdout "FAIL TO PROVE THIS AXIOM:";
+    BatString.println BatIO.stdout "============================";
+    BatString.print BatIO.stdout   "Precision = ";
+    BatFloat.print BatIO.stdout prec;
+    BatString.println BatIO.stdout   "";
+    BatString.println BatIO.stdout "============================";
+    BatString.println BatIO.stdout "Formulas: ";
+    Basic.print_formula BatIO.stdout f;
+    BatString.println BatIO.stdout "";
+    BatString.println BatIO.stdout "============================";
+    BatString.println BatIO.stdout "Environment: ";
+    BatString.println BatIO.stdout (Env.to_string e);
+    BatString.println BatIO.stdout "============================";
+    BatString.println BatIO.stdout "Eval Result = ";
+    Intv.print BatIO.stdout eval;
+  end
 
-let check_axiom (e : Env.t) (cs : Constraint.t list) (prec : float) ((t, f) : Constraint.t) =
-  let eval = Func.apply e f in
+let get_new_filename () =
+  let l = BatString.rfind !src ".trace" in
+  let basename = BatString.left !src l in
+  (basename ^ "_" ^ (string_of_int (counter())) ^ ".smt2")
+
+let handle_fail e f cs prec =
+  let vardecls = Env.to_list e in
+  let (smt2_declvars, smt2_assertvars) =
+    BatList.split
+      (List.fold_left
+         (fun result (name, {low = l; high = h}) ->
+           let df = Smt2_cmd.DeclareFun name in
+           let vd_lb =
+             match l = neg_infinity with
+             | true -> []
+             | false -> [Smt2_cmd.make_lb name l]
+           in
+           let vd_ub =
+             match h = infinity with
+             | true -> []
+             | false -> [Smt2_cmd.make_ub name h]
+           in
+           (df, BatList.concat [vd_lb;vd_ub])::result)
+         []
+         vardecls)
+  in
+  let smt2_assert_fs =
+      Smt2_cmd.Assert (Basic.And cs)
+  in
+  let smt2 =
+    BatList.concat
+      [[Smt2_cmd.SetLogic Smt2_cmd.QF_NRA;
+        Smt2_cmd.SetInfo (":precision", string_of_float prec)];
+       smt2_declvars;
+       BatList.concat smt2_assertvars;
+       [smt2_assert_fs];
+       [Smt2_cmd.CheckSAT;
+        Smt2_cmd.Exit]]
+  in
+  BatFile.with_file_out
+    (get_new_filename ())
+    (fun out -> Smt2.print out smt2)
+
+let check_axiom (e : Env.t) (cs : Basic.formula list) (prec : float) (f : Basic.formula) =
+  let eval env exp1 exp2 = Func.apply env (Basic.Sub(exp1, exp2)) in
   let result =
-    match t with
-      Constraint.EQ_ZERO ->
-        if Intv.contain_zero eval then
-          Bad e
-        else
-          Good e
-    | Constraint.GT_ZERO ->
-      if Intv.may_contain_plus eval then
-        Bad e
+    match f with
+    | Basic.Eq (exp1, exp2) ->
+      let v = eval e exp1 exp2 in
+      if Intv.contain_z v then
+        Bad (e, v)
       else
         Good e
-    | Constraint.LT_ZERO ->
-      if Intv.may_contain_minus eval then
-        Bad e
+    | Basic.Ge (exp1, exp2) ->
+      let v = eval e exp1 exp2 in
+      if Intv.contain_pz v then
+        Bad (e, v)
       else
         Good e
+    | Basic.Le (exp1, exp2) ->
+      let v = eval e exp1 exp2 in
+      if Intv.contain_nz v then
+        Bad (e, v)
+      else
+        Good e
+    | _ -> raise (Error "check_axiom::Should Not Happen")
   in match result with
     Good e -> e
-  | Bad e ->
+  | Bad (e, v) ->
     begin
-      BatString.println BatIO.stdout "FAIL TO PROVE THIS AXIOM:";
-      BatString.println BatIO.stdout "============================";
-      BatString.print BatIO.stdout   "Precision = ";
-      BatFloat.print BatIO.stdout prec;
-      BatString.println BatIO.stdout   "";
-      BatString.println BatIO.stdout "============================";
-      BatString.println BatIO.stdout "Constraint: ";
-      Constraint.print BatIO.stdout (t, f);
-      BatString.println BatIO.stdout "";
-      BatString.println BatIO.stdout "============================";
-      BatString.println BatIO.stdout "Environment: ";
-      BatString.println BatIO.stdout (Env.to_string e);
-      BatString.println BatIO.stdout "============================";
-      BatString.println BatIO.stdout "Eval Result = ";
-      Intv.print BatIO.stdout eval;
+      print_msg prec f e v;
       handle_fail e f cs prec;
-      (* TODO *)
-      (* Error.output_filestring *)
-      (*   ("./" ^ !src ^ "_" ^ string_of_int (counter()) ^ ".txt") *)
-      (*   (Env.to_string e); *)
       e
     end
 
-let rec check (p : t) (cs : Constraint.t list) (prec: float) =
+let rec check (p : t) (cs : Basic.formula list) (prec: float) =
   match p with
   | Axiom e ->
     (print_string "Axiom  : ";
