@@ -23,7 +23,7 @@ smt2.cmx: smt2.ml smt2_cmd.cmx
 env.cmx: intv.cmx env.ml
 	ocamlfind ocamlopt -I ../INTERVAL -annot -package batteries -c env.ml
 
-func.cmx: env.cmx intv.cmx func.ml
+func.cmx: env.cmx intv.cmx func.ml basic.cmx
 	ocamlfind ocamlopt -annot -package batteries -c func.ml
 
 ptree.cmx: intv.cmx env.cmx func.cmx smt2.cmx smt2_cmd.cmx basic.cmx ptree.ml
@@ -38,7 +38,7 @@ lexer.ml: lexer.mll parser.ml
 lexer.cmx: lexer.ml
 	ocamlfind ocamlopt -c -package batteries -package threads -thread -o lexer.cmx lexer.ml
 
-parser.ml: parser.mly
+parser.ml: parser.mly ptree.ml basic.ml func.ml
 	ocamlyacc -v parser.mly
 
 parser.cmi: parser.mli
