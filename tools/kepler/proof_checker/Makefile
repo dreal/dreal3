@@ -22,7 +22,7 @@ constraint.cmx: constraint.ml env.ml func.ml
 ptree.cmx: intv.ml env.ml func.ml ptree.ml
 	ocamlfind ocamlopt -I ../INTERVAL -annot -package batteries -c ptree.ml 
 
-main.cmx: intv.ml env.ml func.ml ptree.ml main.ml
+main.cmx: intv.ml env.ml func.ml ptree.ml main.ml parser.ml lexer.ml
 	ocamlfind ocamlopt -I ../INTERVAL -annot -package batteries -c main.ml 
 
 lexer.ml: lexer.mll
