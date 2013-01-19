@@ -22,7 +22,7 @@
 
 %start main
 
-%type <float * Basic.formula list * Env.t * Ptree.t> main
+%type <float * Basic.formula list * Env.t * Ptree.t option> main
 %type <Ptree.t> ptree
 %type <Basic.formula> con
 %type <Func.t> func
@@ -30,8 +30,8 @@
 
 %%
 
-main:
-precision con_list init_list ptree { ($1, $2, Env.make $3, $4) }
+main: precision con_list init_list ptree { ($1, $2, Env.make $3, Some $4) }
+ |precision con_list init_list { ($1, $2, Env.make $3, None) }
 
 precision: /* nothing */ { 0.001 } /* default value */
  | PRECISION COLON FNUM  { $3 }

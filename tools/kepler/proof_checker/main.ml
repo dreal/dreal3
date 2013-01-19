@@ -15,7 +15,7 @@ let run () =
     let lexbuf =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let out = BatIO.stdout in
-    let (p, cs, init, pt) = Parser.main Lexer.start lexbuf in
+    let (p, cs, init, pt_op) = Parser.main Lexer.start lexbuf in
     begin
       (* Print out precision *)
       BatString.print   out "Precision: ";
@@ -29,7 +29,10 @@ let run () =
          cs);
       (* Print out initial box *)
       Env.print out init;
-      Ptree.check pt cs p;
+      (match pt_op with
+        Some pt -> let _ = Ptree.check pt cs p in ()
+      | None -> let _ = Ptree.handle_fail init (List.hd cs) cs p in ()
+      );
       ()
     end
   with v -> Error.handle_exn v
