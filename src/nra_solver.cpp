@@ -197,7 +197,6 @@ void NRASolver::popBacktrackPoint ( )
     debug_print_env(env);
 
     env_stack.pop_back();
-    env = env_stack.back();
 
     cerr << "======= After Pop, "
          << "Stack Size: " << env_stack.size()
@@ -223,6 +222,7 @@ bool NRASolver::check( bool complete )
     } else {
         // Complete Check
         explanation.clear();
+        env = env_stack.back();
         icp_solver solver( stack, env, explanation, 10.0, precision);
         result = solver.solve();
         if (!result) {
