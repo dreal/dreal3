@@ -8,6 +8,7 @@
 %}
 
 %token AFTER BEFORE PRUNING BRANCHED IS IN ON CONFLICT DETECTED
+%token PRECISION
 %token LB RB COMMA COLON SEMICOLON CARET
 %token LP RP PLUS MINUS AST SLASH EQ GE LE GT LT
 %token INFTY
@@ -15,53 +16,57 @@
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
 %token LOG EXP
+%token UNSAT
 %token EOF
 %token <float> FNUM
 %token <string> ID
 
 %start main
 
-%type <Constraint.t list * Ptree.t> main
+%type <float * Basic.formula list * Env.t * Ptree.t option> main
 %type <Ptree.t> ptree
-%type <Constraint.t> con
+%type <Basic.formula> con
 %type <Func.t> func
 %type <string> branched_on
 
 %%
 
-main:
-con_list ptree { ($1, $2) }
+main: precision con_list init_list ptree UNSAT EOF { ($1, $2, Env.make $3, Some $4) }
+ |precision con_list init_list UNSAT EOF { ($1, $2, Env.make $3, None) }
+
+precision: /* nothing */ { 0.001 } /* default value */
+ | PRECISION COLON FNUM  { $3 }
 
 con_list: /* */ { [] }
      | con con_list { $1::$2 }
 ;
 
-con: LP EQ func func RP { (Constraint.EQ_ZERO, Func.Sub ($3, $4)) }
-  |  LP LE func func RP { (Constraint.LT_ZERO, Func.Sub ($3, $4)) }
-  |  LP LT func func RP { (Constraint.LT_ZERO, Func.Sub ($3, $4)) }
-  |  LP GE func func RP { (Constraint.GT_ZERO, Func.Sub ($3, $4)) }
-  |  LP GT func func RP { (Constraint.GT_ZERO, Func.Sub ($3, $4)) }
+con: LP EQ func func RP { (Basic.Eq ($3, $4)) }
+  |  LP LE func func RP { (Basic.Le ($3, $4)) }
+  |  LP LT func func RP { (Basic.Le ($3, $4)) } /* ALWAYS TREAT IT AS LE */
+  |  LP GE func func RP { (Basic.Ge ($3, $4)) }
+  |  LP GT func func RP { (Basic.Ge ($3, $4)) } /* ALWAYS TREAT IT AS GE */
 ;
 
-func:  FNUM                  { Func.Num $1 }
-     | ID                    { Func.Var $1 }
-     | LP PLUS  func func RP { Func.Add ($3, $4) }
-     | LP MINUS func func RP { Func.Sub ($3, $4) }
-     | LP MINUS func RP      { Func.Sub (Func.Num 0.0, $3) }
-     | LP AST   func func RP { Func.Mul ($3, $4) }
-     | LP SLASH func func RP { Func.Div ($3, $4) }
-     | LP SIN func RP        { Func.Sin $3 }
-     | LP COS func RP        { Func.Cos $3 }
-     | LP TAN func RP        { Func.Tan $3 }
-     | LP ASIN func RP       { Func.Asin $3 }
-     | LP ACOS func RP       { Func.Acos $3 }
-     | LP ATAN func RP       { Func.Atan $3 }
-     | LP SINH func RP       { Func.Sinh $3 }
-     | LP COSH func RP       { Func.Cosh $3 }
-     | LP TANH func RP       { Func.Tanh $3 }
-     | LP LOG func RP        { Func.Log $3 }
-     | LP EXP func RP        { Func.Exp $3 }
-     | LP CARET func FNUM RP { Func.Pow ($3, int_of_float $4) }
+func:  FNUM                  { Basic.Num $1 }
+     | ID                    { Basic.Var $1 }
+     | LP PLUS  func func RP { Basic.Add ($3, $4) }
+     | LP MINUS func func RP { Basic.Sub ($3, $4) }
+     | LP MINUS func RP      { Basic.Neg ($3) }
+     | LP AST   func func RP { Basic.Mul ($3, $4) }
+     | LP SLASH func func RP { Basic.Div ($3, $4) }
+     | LP SIN func RP        { Basic.Sin $3 }
+     | LP COS func RP        { Basic.Cos $3 }
+     | LP TAN func RP        { Basic.Tan $3 }
+     | LP ASIN func RP       { Basic.Asin $3 }
+     | LP ACOS func RP       { Basic.Acos $3 }
+     | LP ATAN func RP       { Basic.Atan $3 }
+     | LP SINH func RP       { Basic.Sinh $3 }
+     | LP COSH func RP       { Basic.Cosh $3 }
+     | LP TANH func RP       { Basic.Tanh $3 }
+     | LP LOG func RP        { Basic.Log $3 }
+     | LP EXP func RP        { Basic.Exp $3 }
+     | LP CARET func FNUM RP { Basic.Pow ($3, $4) }
 ;
 
 ptree: before_pruning entry_list conflict_detected
@@ -91,6 +96,13 @@ branched_on: LB BRANCHED ON ID RB { $4 }
 ;
 
 conflict_detected: LB CONFLICT DETECTED RB { }
+;
+
+init: entry SEMICOLON { $1 }
+;
+
+init_list: init { [$1] }
+         | init init_list { $1::$2 }
 ;
 
 entry: ID IS IN COLON LB FNUM COMMA FNUM RB { ($1, $6, $8) }

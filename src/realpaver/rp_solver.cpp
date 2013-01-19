@@ -89,6 +89,27 @@ rp_bpsolver::~rp_bpsolver()
   if (_ep) rp_delete(_ep);
 }
 
+void interval_cout_local(rp_interval i, int digits, int mode)
+{
+  char tmp[255];
+  rp_interval_print(tmp,i,digits,mode);
+  std::cout<< tmp;
+}
+
+void pprint_vars(FILE* out, rp_problem p, rp_box b)
+{
+    for(int i = 0; i < rp_problem_nvar(p); i++)
+    {
+        fprintf(out, "%s", rp_variable_name(rp_problem_var(p, i)));
+        fprintf(out, " is in: ");
+        interval_cout_local(rp_box_elem(b,i), 6, RP_INTERVAL_MODE_BOUND);
+        if (i != rp_problem_nvar(p) - 1)
+            fprintf(out, ";");
+        fprintf(out, "\n");
+    }
+}
+
+
 rp_box rp_bpsolver::compute_next()
 {
   if (_sol>0)
@@ -104,6 +125,9 @@ rp_box rp_bpsolver::compute_next()
       {
 	++_nsplit;
 	_dsplit->apply(_boxes,i);
+
+           std::cout<<std::endl<<"[branched on x"<<i<<"]"<<std::endl;
+           pprint_vars(stdout, *_problem, _boxes.get());
       }
       else
       {

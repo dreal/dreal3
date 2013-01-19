@@ -16,15 +16,15 @@ let init () = linenum := 1
 let handle_exn v =
   match v with
       Lex_err (s, i) ->
-	Printf.eprintf ">> lexical error at line %d: %s\n" i s
+	Printf.eprintf ">> lexical error at line %d: %s\n" i s; raise v
     | Parsing.Parse_error ->
-      Printf.eprintf ">> syntax error at line %d\n" !linenum
+      Printf.eprintf ">> syntax error at line %d\n" !linenum; raise v
     | Arg.Bad s ->
       Printf.eprintf ">> file format error: %s\n" s
 	(* | Type.RuntimeError s -> *)
 	(*   Printf.eprintf ">> runtime error: %s\n" s *)
 	(* | Type.TypeError (s, (line, col)) -> *)
-	(*   Printf.eprintf ">> TypeError: %s at line %d, column %d\n" s line col *)
+	(*   Printf.eprintf ">> TypeError: %s at line %d, column %d\n" s line col *); raise v
     |  _ -> raise v
 
 let output_filestring tmpfile a =

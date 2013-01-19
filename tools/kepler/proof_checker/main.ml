@@ -14,14 +14,26 @@ let run () =
     Error.init ();
     let lexbuf =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
-    let (cs, pt) = Parser.main Lexer.start lexbuf in
-    let _ =
+    let out = BatIO.stdout in
+    let (p, cs, init, pt_op) = Parser.main Lexer.start lexbuf in
+    begin
+      (* Print out precision *)
+      BatString.print   out "Precision: ";
+      BatFloat.print    out p;
+      BatString.println out "";
+      BatString.println out "Formulae:";
+      (* Print out Formulae *)
       (BatList.print
-        Constraint.print
-        BatIO.stdout
-        cs)
-    in
-    let _ = Ptree.check pt cs in
-    print_endline "Success."
+         Basic.print_formula
+         BatIO.stdout
+         cs);
+      (* Print out initial box *)
+      Env.print out init;
+      (match pt_op with
+        Some pt -> let _ = Ptree.check pt cs p in ()
+      | None -> let _ = Ptree.handle_fail init (List.hd cs) cs p in ()
+      );
+      ()
+    end
   with v -> Error.handle_exn v
 let _ = Printexc.catch run ()
