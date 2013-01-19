@@ -5,7 +5,7 @@
 {
   open Parser
   open Error
-  let debug_tag = false
+  let debug_tag = true
   let verbose s =  if debug_tag then (print_string s; print_newline())
   let comment_depth = ref 0
   let keyword_tbl = Hashtbl.create 111
@@ -30,6 +30,7 @@
      ("tanh", TANH);
      ("log", LOG);
      ("exp", EXP);
+     ("unsat", UNSAT);
     ]
 }
 
@@ -65,3 +66,4 @@ rule start =
          }
     | float_number { verbose (Lexing.lexeme lexbuf); FNUM (float_of_string(Lexing.lexeme lexbuf)) } (* float *)
     | eof { verbose "eof"; EOF}
+    | _   { raise Not_found } 

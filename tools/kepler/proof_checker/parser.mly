@@ -16,6 +16,7 @@
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
 %token LOG EXP
+%token UNSAT
 %token EOF
 %token <float> FNUM
 %token <string> ID
@@ -30,8 +31,8 @@
 
 %%
 
-main: precision con_list init_list ptree { ($1, $2, Env.make $3, Some $4) }
- |precision con_list init_list { ($1, $2, Env.make $3, None) }
+main: precision con_list init_list ptree UNSAT EOF { ($1, $2, Env.make $3, Some $4) }
+ |precision con_list init_list UNSAT EOF { ($1, $2, Env.make $3, None) }
 
 precision: /* nothing */ { 0.001 } /* default value */
  | PRECISION COLON FNUM  { $3 }

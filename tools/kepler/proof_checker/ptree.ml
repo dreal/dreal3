@@ -91,13 +91,19 @@ let split_env_on_x key env : (Env.t * Env.t) =
     BatList.map
       (fun ((name1, {low = l1; high = h1}), (name2, {low = l2; high = h2}))
       -> if (key = name1) then
-          let mid = match (l1, h1) with
-              (neg_infinity, infinity) -> 0.0
-            | (l1 , infinity)            when l1 < 0.0 -> 0.0
-            | (l1 , infinity)            when l1 >= 0.0 -> l1 +. 1000.0
-            | (neg_infinity , h1) when h1 > 0.0 -> 0.0
-            | (neg_infinity , h1) when h1 <= 0.0 -> h1 -. 1000.0
-            | (l1, h1)             -> (l1 +. h1) /. 2.0
+          let mid =
+            if l1 = neg_infinity && h1 = infinity then
+	      0.0
+            else if l1 < 0.0 && h1 = infinity then
+	      0.0
+	    else if l1 >= 0.0 && h1 = infinity then
+              -1.0 *. l1
+            else if l1 = neg_infinity && h1 < 0.0 then
+              0.0
+            else if l1 = neg_infinity && h1 >= 0.0 then
+              -1.0 *. h1
+            else
+              ((l1 +. h1) /. 2.0)
           in
           ((name1, l1, mid), (name2, mid, h2))
         else
