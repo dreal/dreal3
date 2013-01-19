@@ -32,7 +32,8 @@
 %%
 
 main: precision con_list init_list ptree UNSAT EOF { ($1, $2, Env.make $3, Some $4) }
- |precision con_list init_list UNSAT EOF { ($1, $2, Env.make $3, None) }
+ | precision con_list init_list ptree EOF { ($1, $2, Env.make $3, Some $4) }
+ | precision con_list init_list UNSAT EOF { ($1, $2, Env.make $3, None) }
 
 precision: /* nothing */ { 0.001 } /* default value */
  | PRECISION COLON FNUM  { $3 }
