@@ -191,13 +191,17 @@ void NRASolver::popBacktrackPoint ( )
         stack.pop_back();
     }
 
-    cerr << "======= Before Pop, Env =                                       " << endl;
+    cerr << "======= Before Pop, "
+         << "Stack Size: " << env_stack.size()
+         << " Env = " << endl;
     debug_print_env(env);
 
     env_stack.pop_back();
     env = env_stack.back();
 
-    cerr << "======= After Pop, Env =                                        " << endl;
+    cerr << "======= After Pop, "
+         << "Stack Size: " << env_stack.size()
+         << "Env = " << endl;
     debug_print_env(env);
 }
 
