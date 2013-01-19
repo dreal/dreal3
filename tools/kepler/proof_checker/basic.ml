@@ -37,6 +37,57 @@ and formula =
 | Le  of exp * exp
 | Eq  of exp * exp
 
+let rec collect_var_in_f f =
+  match f with
+  | True -> []
+  | False -> []
+  | Not f' -> collect_var_in_f f'
+  | And fl -> List.concat (List.map collect_var_in_f fl)
+  | Or fl -> List.concat (List.map collect_var_in_f fl)
+  | Gt (e1, e2) -> List.concat [collect_var_in_e e1;
+                               collect_var_in_e e2;]
+  | Lt (e1, e2) -> List.concat [collect_var_in_e e1;
+                               collect_var_in_e e2;]
+  | Gt (e1, e2) -> List.concat [collect_var_in_e e1;
+                               collect_var_in_e e2;]
+  | Ge (e1, e2) -> List.concat [collect_var_in_e e1;
+                               collect_var_in_e e2;]
+  | Le (e1, e2) -> List.concat [collect_var_in_e e1;
+                               collect_var_in_e e2;]
+  | Eq (e1, e2) -> List.concat [collect_var_in_e e1;
+                               collect_var_in_e e2;]
+and collect_var_in_e e =
+  match e with
+    Var x -> [x]
+  | Num _ -> []
+  | Neg e' -> collect_var_in_e e'
+  | Add (e1, e2) -> List.concat [collect_var_in_e e1;
+                                collect_var_in_e e2;]
+  | Sub (e1, e2) -> List.concat [collect_var_in_e e1;
+                                collect_var_in_e e2;]
+  | Mul (e1, e2) -> List.concat [collect_var_in_e e1;
+                                collect_var_in_e e2;]
+  | Div (e1, e2) -> List.concat [collect_var_in_e e1;
+                                collect_var_in_e e2;]
+  | Pow (e1, _ ) -> collect_var_in_e e1
+  | Ite (f, e1, e2) -> List.concat [collect_var_in_f f;
+                                   collect_var_in_e e1;
+                                   collect_var_in_e e2;]
+  | Sqrt e1 -> collect_var_in_e e1
+  | Abs e1 -> collect_var_in_e e1
+  | Log e1 -> collect_var_in_e e1
+  | Exp e1 -> collect_var_in_e e1
+  | Sin e1 -> collect_var_in_e e1
+  | Cos e1 -> collect_var_in_e e1
+  | Tan e1 -> collect_var_in_e e1
+  | Asin e1 -> collect_var_in_e e1
+  | Acos e1 -> collect_var_in_e e1
+  | Atan e1 -> collect_var_in_e e1
+  | Sinh e1 -> collect_var_in_e e1
+  | Cosh e1 -> collect_var_in_e e1
+  | Tanh e1 -> collect_var_in_e e1
+
+
 let rec print_exp out =
   let print_exps op exps =
     begin
