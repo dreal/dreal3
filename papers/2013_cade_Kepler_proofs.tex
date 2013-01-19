@@ -31,101 +31,112 @@
 $\delta$-Complete decision procedures can solve SMT problems over the
 reals with a wide range of nonlinear functions, allowing ``$\delta$-bounded
 errors''. The scalability of such procedures usually depends on efficient
-numerical procedures, whose implementation can be error-prone in practice.
-It is important for $\delta$-complete solvers to provide certificates to prove
-the correctness of their answers.
-We show how to do this in a powerful solving framework based
-on Interval Constraint Propagation. Besides providing witnesses for ``$\delta$-sat''
-answers, we concentrate on how to construct proof-trees for the ``unsat''
-answers and how to verify their correctness. One direct application of such proofs
-is for establishing many nonlinear lemmas in the formal proof of the Kepler Conjecture.
+numerical procedures, whose implementation can be error-prone. It is important
+for $\delta$-complete solvers to provide certificates to prove the correctness
+of their answers. We show how to do this in DPLL$\langle$ICP$\rangle$, a
+powerful solving framework based on Interval Constraint Propagation. We
+concentrate on how to construct proof-trees for the ``unsat'' answers and how to
+verify their correctness. Besides certifying solvers, we find this a promising 
+approach to automated theorem proving over the reals, exploiting the power of
+numerical algorithms in a formal way. One directly application of our approach
+is to establish many nonlinear lemmas in the formal proof of the Kepler
+Conjecture. 
 \end{abstract}
 
 \section{Introduction}
 
 SMT formulas over the real numbers can encode a wide range of problems in
-theorem proving, formal verification, control theory, etc. However, these
-formulas are very hard to solve when nonlinear functions are involved~\cite{}.
-Our recent work on {$\delta$-complete decision procedures}
-provided a new general framework for handling nonlinear SMT problems over the
-reals~\cite{}. Let $\delta$ be an arbitrary positive rational number. We say a decision
-procedure is {\em $\delta$-complete} for a set of SMT formulas $S$, if for any
-$\varphi$ from $S$ the procedure returns
-one of the following answers:
+theorem proving and formal verification. Such formulas are very hard to solve
+when nonlinear functions are involved~\cite{}. Our recent work on
+{$\delta$-complete decision procedures} provided a new general framework for
+handling nonlinear SMT problems over the reals~\cite{}. We say a decision
+procedure is {\em $\delta$-complete} for a set $S$ of formulas, where $\delta$
+is any positive rational number, if for any $\varphi$ from $S$ the procedure
+returns one of the following answers:
 \begin{itemize}
  \item {\sf unsat}: $\varphi$ is unsatisfiable.
  \item {\sf $\delta$-sat}: $\varphi^{\delta}$ is satisfiable.
 \end{itemize}
 Here, $\varphi^{\delta}$ is a syntactic variation of $\varphi$ that encodes a
-notion of numerical perturbation on the logic formula (more
+notion of numerical perturbation on logic formulas (more
 details in Section \ref{review}.) Essentially, we allow such a procedure to
-give answers with one-sided, $\delta$-bounded errors. With such relaxations,
+give answers with one-sided, $\delta$-bounded errors. With this relaxation,
 $\delta$-complete decision procedures can fully exploit the
-power of scalable numerical algorithms for nonlinear
-problems. In fact, $\delta$-completeness serves as a suitable correctness
-guarantee for many correctness-critical problems in formal
-verification and theorem proving~\cite{}.
+power of scalable numerical algorithms to solve nonlinear
+problems, and at the same time provide suitable correctness
+guarantees for many correctness-critical problems~\cite{}. 
 
-An important problem for practical SMT solvers is that the correctness
-of
-their answers should be certified. A ``static'' way for doing this is to prove
-the correctness of the actual code of a solver using program verification
-techniques. However, modern SMT solvers are usually too complicated and
-fast-evolving for such an approach. In comparison, the alternative ``dynamic''
-approach is more appealing: a solver can provide certificates on-the-fly along
-with its answers, as follows. When the solver determines that a formula
-$\varphi(\vec x)$ is ``sat'', it can produce an assignment $\vec a$ to all the
+An important problem
+for practical SMT solvers is that the correctness
+of their answers should be verified. A standard approach is that, instead of
+complete verification of the software programs, a solver should provide
+certificates on-the-fly along with its answers. That is, when the solver
+determines that a formula $\varphi(\vec x)$ is ``sat'', it produces an
+assignment $\vec a$ to all the
 variables such that the ground formula $\varphi(\vec a)$ is easily checked to be
 true. On the other hand, when $\varphi(\vec x)$ is determined to be ``unsat'',
 the solver can produce a proof $P$ that establishes the validity of $\forall
-\vec x \varphi(\vec x)$ in a suitable proof system. Here, $P$ is usually called
-a {\em proof of unsatisfiability}, which is a well-studied topic for SAT solvers
-and some SMT solvers~\cite{}. For instance, for Boolean unsatisfiability,
-resolution proofs can be extracted from modern DPLL-based SAT solvers to certify
-the ``unsat'' answers.
-
-In the framework of $\delta$-complete decision procedures, certificates for
-the correctness of numerically-driven SMT solvers are especially important.
-Numerical algorithms usually contain complex heuristics and floating-point
-arithmetic, and it is very hard to perform static verification on the programs
-directly. On the other hand, if the solutions witnessing ``$\delta$-sat''
-answers, and proofs of unsatisfiability for the ``unsat'' answers are extracted,
-we can check the correctness of them as stand-alone certificates using symbolic
+\vec x.\neg\varphi(\vec x)$ in a suitable proof system. Here, $P$ is called a
+{\em proof of unsatisfiability}~\cite{}. In the framework of $\delta$-complete
+decision procedures, obtaining certificates from numerically-driven SMT solvers
+is especially important. Numerical algorithms usually contain complex heuristics
+and floating-point operations, and it is very hard to perform static
+verification on the programs directly. On the other hand, if the solutions
+witnessing ``$\delta$-sat'' answers, and proofs of unsatisfiability for the
+``unsat'' answers are extracted,
+we can check their correctness as stand-alone using symbolic
 arbitrary-precision computations. The inner mechanisms of the numerical
-algorithms do not matter in the certification process any more. Such an approach
+algorithms do not matter in the certification process any more. 
+
+From this stand point, this can be seen as a new approach to the challenging
+task of automated theorem proving over the reals. Note that the ``unsat''
+answers never contains numerical errors. Such an approach
  would combine the best of two worlds: numerical procedures are
 fast but error-prone, and are used as oracles for the scalable exploration of
 the search space (either searching for a $\delta$-solution, or a proof of
 unsatisfiability); symbolic algorithms are precise but slow, and are used for
 validating the outcome certificates, which is a much less
-computationally-intensive task. The challenge lies in
-extracting symbolic proofs of unsatisfiability that do not carry over any
-possible numerical errors, and the validation of them as theorems in a sound
-proof system for, in our case, nonlinear first-order theories over the reals.
-(We will see that witnesses for the ``$\delta$-sat'' answers are easy to
-obtain.)
+computationally-intensive task. 
 
 In this paper, we show how to extract and validate such proofs
-of correctness for SMT solvers that implement the DPLL$\langle$ICP$\rangle$
-framework.
+of correctness for numerically-driven SMT solvers that implement the
+DPLL$\langle$ICP$\rangle$ algorithm~\cite{}, for solving nonlinear formulas over
+the reals. The challenge lies in extracting symbolic proofs of unsatisfiability
+that do not carry over any possible numerical errors, and the complete
+validation of them as theorems in a sound proof system (ideally, containing only
+simple proof rules). 
 
-{\bf (expand this paragraph with more details)}
-Interval Constraint Propagation (ICP) is a branch-and-prune algorithm for
-solving systems of real constraints. The algorithm maintains an interval
-assignment to all the variables, and update the  assignments based on their
+Interval Constraint Propagation (ICP)~\cite{} is a branch-and-prune algorithm
+for solving systems of real constraints, which acts as the theory solver in the
+DPLL(T) framework. The algorithm maintains an interval
+assignment to all the variables, and update the assignments based on their
 consistency with the constraints. In a ``pruning''
 step, ICP contracts the intervals by pruning away subintervals that do not
-contain any solution; in a ``branching'' step, ICP subdivides an interval and
-performs further pruning (more details in Section~\ref{icp}). The similarity
-between ICP and SAT solving techniques has been exhibited in the work~\cite{}.
-Consequently, we give a formalization of the ICP algorithm in the same fashion
-as Abstract DPLL~\cite{}. We then construct a first-order proof system,
-relativized to some set of real equalities, and show how to transform solving
-process of the abstract ICP into a proof tree in the system. Next, we show how
-such proof trees reduce the problems to axioms checking. We give the algorithms
-for validating the proof trees.
+contain any solution; in a ``branching'' step, ICP subdivides an interval to
+create subproblems and solve them recursively. (More details in
+Section~\ref{icp}). The similarity between ICP and SAT solving techniques has
+been explored in the work~\cite{}. 
 
-\newpage
+Our approach is as follows. We formallize the ICP algorithm in the
+format of Abstract DPLL~\cite{}, and produce traces of a run of ICP. We then
+use a first-order proof system, relativized to axioms of a set of real
+constraints that are easy to verify, and show how to transform a run of the
+Abstract ICP to a proof in the system. We then show how to validate the
+generated proofs using a stand-alone symbolic proof checker. Since the proof
+checker only implements simple rules that are easy to verify, it interacts with
+the solver in an abstraction refinement loop (termination guaranteed) to obtain
+proof trees of sufficient detail. We show experimental results on the Kepler
+conjecture benchmarks. 
+
+Our work is closely related to several lines
+of research in the existing literature, which we discuss in detail in
+Section~\ref{}. We will compare with symbolic approaches taken by MetiTarski
+and point out the complimentrary nature of our approach to theirs. We also
+compare with other ``direct'' numerical approaches in producing such proofs,
+such as in the Flyspeck project, and the Bernstein polynomial approaches. 
+
+The paper is organized as follows. 
+
 
 \section{A Brief Review of $\delta$-Complete Decision Procedures}\label{review}
 
@@ -420,8 +431,11 @@ We will show that the steps in ICP can be certified by translating them
 reversely to a standard first-order proof. Although various real functions are
 involved, to verify the proof correctness of ICP sequences we only need a weak
 system of first-order logic reasoning.
+
 \begin{definition}[Language]
-We fix a signature $\mathcal{L}_I = \langle \mathbb{IR}, <, \mathcal{F} \rangle$
+\Bigg({\bf todo} change the language to treat I as conventions, and do not use
+unions of intervals.\Bigg) We fix a signature $\mathcal{L}_I = \langle
+\mathbb{IR}, <, \mathcal{F} \rangle$
  where $\mathbb{IR}$ is the union closure of real intervals, but used as {\em unary
 predicates}. Naturally, for any $I\in \mathbb{R}$, $I(x)$ can be written as
 $x\in I$. $\mathcal{F}$ is a set of computable real functions.
@@ -474,33 +488,81 @@ Relations to resolution proofs.
 If $\mathbb{D}_A\vdash \varphi$ and $\mathbb{R}\models \bigwedge A$, then $\mathbb{R}\models \varphi$.
 \end{proposition}
 
-Next, we show that each transition rule in ICP corresponds reversely to an
-inference step in $\mathbb{D}_A$.
+We now describe the construction of proof trees from ICP runs. The proof trees in
+our case will be labelled binary trees. We describe a tree as a tuple $T =
+\langle V, V_L,  \Gamma, \delta, \sigma\rangle$. $V = \{v_0, ..., v_k\}$,
+$k\in \mathbb{N}$, is a finite set of nodes, where $v_0\in V$ always denotes the
+root
+node. $\Gamma$ is a set of labels, which in our case is the set of
+$\mathcal{L}_I$-formulas. $\delta:\subseteq V\times \{l,r\} \rightarrow V$ is a
+partial mapping from a node to descendent nodes, where $\delta(v, l)$ and
+$\delta(v, r)$ denote the left and right descendent nodes, respectively.
+$\sigma: V\rightarrow \Gamma$ is a labeling function that maps each node
+$v\in V$ to a formula $\sigma(v) \in \Gamma$. In addition, the edges in the
+tree can be labelled as well, through a function $\tau: V\times V\times \Omega$
+where $\Omega$ is a set of edge-labels. 
 
-\begin{definition}
-Let $s$ be an ICP step. The correspondence function $\pi(s)$ is defined as
-follows.
-\paragraph{Pruning:}
-A pruning step 
-$$S\parallel c \Longrightarrow S, (x_i\in I_i')\parallel c$$ 
-where $I_i=\beta(S)_i$, corresponds to a proof step
+\begin{definition}[Tree Generation]
+%Define the construction recursively, backwards from the root.
+Let $$S_0\parallel c\Longrightarrow^{t_1} \cdots
+\Longrightarrow^{t_m} S_m\parallel c$$ be an ICP run. We define the
+procedure by defining the functions $\delta$ and $V_L$ through induction on
+$s_i$. We also define labels on the edges along the process, with $\omega$ =
+\{{$\vee$-Intro}, MP, I-Ax, F-Ax\}. 
+
+\paragraph{Case $i= m$.} We lable the root node $v_0$ by 
+$$\sigma(v_0) := \forall \vec x( \vec x\in \beta(S_1) \rightarrow \neg c).$$
+Also, let $V_L^0= \{\delta(v_0,l), \delta(v_0, r)\}$ denote the current
+collection of leaf nodes. 
+
+
+%{\tt it's
+%probably better to define a leaf set and make the children mappings partial.
+%Otherwise it's cumbersome to talk about the leaves and the ones without
+%assigned formulas. }
+
+
+\paragraph{Case $i = k+1$ ($1< k \leq m$). }
+Suppose $V_L$ and $\sigma$ is defined for $s_1, ...,s_k$. Write $s_k = S_k
+\parallel c$ and $s_k = S_{k+1} \parallel c$. Now we split
+the cases on the type of the step $t$ from $s_i$ to $s_{i+1}$ as follows. 
+\paragraph{Pruning} Suppose $s_k\Longrightarrow^{t_{k+1}} s_{k+1}$ is a
+pruning. That is, 
+$$S\parallel c \Longrightarrow S, (x_i\in I_i')\parallel c,$$
+under the condition that $\forall \vec a\in \beta(S,x_i\in I_i\setminus I_i')$,
+$c(\vec a)$ is false.
+
+In this case, we set $l(v_{k+1})$ ... Write $I_1 = \beta(S, (x_i\in I_i')$,
+$I_2\beta(S, (x_i\in I_i\setminus I_i')$, and $I= \beta(S)$, we have the
+following subtree corresponding to the tule. 
 \begin{mathpar}
-  \inferrule{
-    \forall \vec x (\vec x\in \beta(S,x_i\in I_i') \rightarrow c(\vec x))\\
-    \forall \vec x (\vec x\in \beta(S,x_i\in I_i\setminus I_i') \rightarrow
-c(\vec x))
+\inferrule{\inferrule{
+  \forall x (\vec x\in I_1) \rightarrow \neg c)
+    \and
+  \forall x (\vec x \in I_2) \rightarrow
+\neg c)
   }
   {
-    \forall \vec x (\vec x\in \beta(S,x_i\in I_i) \rightarrow c(\vec x))
+  \forall x (\vec x\in I_1)\vee \vec x \in I_2 \rightarrow \neg c)
+  }\mbox{$\vee$-intro}
+  \and
+  {
+  \inferrule{\ }{\forall \vec x (\vec x \in I_1 \vee \vec x\in
+I_2)\rightarrow \vec x\in \vec I}\mbox{I-Ax}
   }
-\end{mathpar}
-
+  }
+{
+\forall \vec x (\vec x\in \rightarrow \neg c)
+} 
+ 
+  \end{mathpar}
+  
+  
 \paragraph{Branching:}
-A branching step 
 \begin{eqnarray*}
 S\parallel c &\Longrightarrow& S, (x_i\in I_i)^d \parallel c,
 \end{eqnarray*}
-corresponds to 
+under the condition that $I_i\subseteq \beta(S_i)$.
 
 \paragraph{Backtracking:}
 \begin{eqnarray*}
@@ -517,36 +579,6 @@ S\parallel c &\Longrightarrow& \emptyset \parallel c
 \end{eqnarray*}
 under the condition that $\forall \vec a\in \beta(S)$, $c(\vec a)$ is false and
  $S$ has no decision elements.
-\end{definition}
-
-
-We now describe the construction of proof trees from ICP runs. The proof trees in
-our case will be labelled binary trees. We describe a tree as a tuple $T = \langle V,
-\Gamma, l, r,
-\sigma\rangle$. $V = \{v_0, ..., v_k\}$, $k\in \mathbb{N}$, is a finite set of nodes, where $v_0\in V$ always denotes the root
-node. $\Gamma$ is a set of labels, which in our case is the set of
-$\mathcal{L}_I$-formulas. $l: V \rightarrow V\cup\{v_e\}$ and $r: V\rightarrow V\cup\{v_e\}$ are
-mappings from a node to
-its left and right child nodes, respectively. Here $v_e$ is an extra special symbol
-such that for any $v\in V$, $l(v) = r(v) = v_e$ if and only if $v$ is a leaf
-node. $\sigma: V\rightarrow \Gamma$ is a labeling function that maps each node
-$v\in V$ to a formula $\sigma(v) \in \Gamma$.
-
-\begin{definition}[Tree Generation]
-%Define the construction recursively, backwards from the root.
-Let $$(I_1, c_1)\Longrightarrow \cdots \Longrightarrow (I_m, c_m)$$ be an ICP run.
-We define the procedure by induction on $s_i$.
-\paragraph{Case $i= m$.} $\sigma(v_0) = c_k$. $l(v_0) = r(v_0) = v_e$. {\tt it's
-probably better to define a leaf set and make the children mappings partial.
-Otherwise it's cumbersome to talk about the leaves and the ones without
-assigned formulas. }
-\paragraph{Case $i = k-1$ ($1< k \leq m$). }
-Suppose $T$ is defined for $s_k,...,s_m$. Let $\bar V$ denote the current leaf
-nodes. Write $s_i = (I_i, c_i)$ and $s_{i+1} = (I_{i+1}, c_{i+1})$. Now we split
-the cases of the step from $s_i$ to $s_{i+1}$.
-\begin{itemize}
-\item Suppose it is a branching. Then set $l(v_{k+1})$
-\end{itemize}
 
 \end{definition}
 
@@ -554,11 +586,9 @@ the cases of the step from $s_i$ to $s_{i+1}$.
 Each ICP sequence $S$ corresponds to a proof tree $\pi(S)$.
 \end{theorem}
 
-
 \begin{example}
 Give an example of tree construction.
 \end{example}
-
 
 In this way, we see ICP as a proof searching algorithm for valid universal
 formulas. Note that following soundness, once the proof tree is constructed and
@@ -566,8 +596,16 @@ can be validated, the details of the ICP algorithm no longer matter. This serves
 our goal of obtaining a stand-alone certificate that can be checked with
 external checkers.
 
-\subsection{Validating the Axioms}
+\begin{proposition}
+ The size of the proofs is linear in the computation steps, which can be
+exponential in the size of the problems. 
+\end{proposition}
 
+We will see that this generates proof traces on a gigabyte scale in
+Section~\ref{}. 
+
+
+\subsection{Validating the Axioms}
 
 It is clear that the proof rules in the proof trees are simple first-order
 rules. The tricky part is the axioms that are introduced in various
@@ -610,6 +648,11 @@ Thus, if we can verify that all the interval extensions are consistent with the
 function axioms, then we can validate the axioms.
 
 \begin{remark}
+Note that we generate the axioms dynamically, without presuming any set of
+existing axioms.  
+\end{remark}
+
+\begin{remark}
 We regard simple real arithmetic as easy tasks.
 As is the case in validating the witnesses, the interval axioms, the function
 axioms. This needs to be justified, since numerical computations always involve
@@ -623,16 +666,55 @@ computations with precise arithmetic can be used.
 The challenge for a proof checking algorithm is that the pruning operations in
 ICP usually implements complicated heuristics that is more powerful than
 interval arithmetic. However, in the proof we can hardly simulate those
-heuristics, which involve too much numerical computation. Thus, we propose to use
-a high-level ``Branch and Prove'' loop that pushes the solver itself to refine
-the solving traces.
+heuristics, unless we are willing to formalize all the detailed heuristics of
+the numerical computation involved. Thus, we propose an abstraction refinement
+loop ``Branch and Prove'' that allows produces proof traces of the right amount
+of details following through interactions between the prover and the solver. 
 
 \begin{example}
 Give an example of how dReal solves in one step that is beyond the validation
 power of simple interval arithmetic.
 \end{example}
 
-\begin{algorithm}\label{algo1}
+Our approach is the following. When we run the solver, we obtain a proof trace
+following the construction procedure defined above. Then the proof checker
+verifies the structure of the tree following the first-order rules, and reduce
+the problem to the verification of the ``axioms'' on the leaf notes of the
+proof tree. Next, when it fails to prove the axioms through safe (but naive)
+interval arithmetic, it generates new subproblems and ask the solver to return
+new traces. At this stage, the axioms becomes the new theorems to be proved.
+This is an abstraction refinement procedure, by executing the loop, we obtain
+proof trees that contain more and more detailed steps, which may in the end be
+completely verified by the proof checker. 
+
+There are two ways that the prover can generate the subproblems. One is to
+branch on a variable in the formula, so that the solver can solve the same
+problem on a smaller domain. The other option is to have the solver to run the
+same problem, but with a smaller $\delta$. In this way, the solver takes in the
+subproblem as a new task, and produce refined proof trajectories, which,
+because of the reduced size of the domains, may use less tricky heurstics to
+solver. We continue this loop to obtain more and more refined proof trees, and
+see if the proof checker can verify the subtrees. We give the algorithm in
+Algorithm~\ref{algo1}. 
+
+\begin{example}
+ 
+\end{example}
+
+Note that under the condition that the pruning operators in the solver is
+well-defined (detailed definition in~\cite{}), both procedures never change the
+unsat result. The procedure on branching always terminates, but may give
+exponentially many new problems; while the $\delta$-change does not give new
+problems, but may exponentially slow down the solver in each round. Still, we
+can prove the reliability of the refinedment loop in that it always terminates
+(the prover can fail to prove), producing verified sub-theorems in the system. 
+\begin{proposition}
+The branch and prove loop is terminating, and does not give wrong answers. 
+\end{proposition}
+\begin{proof}
+\end{proof}
+
+\begin{algorithm}
 \SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
 \SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
 \SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
@@ -645,22 +727,74 @@ A proof tree $T$.
 Loop between solver and checker\;
 }
 return {\sf rejected}\;
-\caption{Branch and Prove}
+\caption{Branch and Prove\label{algo1}}
 \end{algorithm}
 
-\newpage
-\section{Experimental Results}
+\section{Proving Lemmas for the Kepler Conjecture}
 
-\subsection{Kepler Conjecture Benchmarks}
+A main goal of our approach is to prove the nonlinear inequalities from the
+flyspeck project. We now show the details of our current progress on the Kepler
+conjecture. 
 
-\subsection{SMT-LIB Benchmarks}
+The flyspeck project is led by Tom hales in University of Pittsburgh. 
 
-\section{Discussion}
+The typical formulas contain trigonmetric inequalities. 
 
-\paragraph{Related Work}
+
+\section{Related Work}
+
+Our work is closely related to several lines of exisiting work. The the
+project of MetiTarski. The key new concept is to use numerical methods as
+guiding the search for proofs. Overapproximations of numerical values of
+functions are used, but always safe and can be validated with symbolic
+procedures. Both have strength and should be combined as mixed strategy. Our
+work can be seen as an instance of performing certifiable computation.
+MetiTarski. The axioms in our case are generated on the fly, and we do not have
+a fixed set of axioms. The key concept change is this. Actually, they can be
+combined as MetiTarski can solve
+complicated axioms. 
+Generating proofs from solvers has been the focus for
+many theories. SAT solvers ... . The idea of certifying computation has been
+investigated in formal detail in~\cite{}. Note that MetiTarski uses the same
+approach -- assuming that there are axioms by symbolic external solvers. 
+
+MetiTarski needs axioms to reduce to polynomials, and then polynomials to be
+verifying by outside solvers. Note that the outside solvers are not verified,
+and actually hard to be verified. The numerical approach, on the other hand,
+can rely on any external solver that are easy to be verified by multiple
+solvers, and can be done symbolically. Once it is done symbolically, we obtain
+a symbolic proof that does not mention any numerical computations. 
+
 Franzle's paper. Old validation papers. proof of unsatisfiability of SAT and
 SMT solvers. Theorem proving papers.
 
+The nature of the prune and prove approach is like finding better and better
+Taylor expansions. 
+
+Hale's work, of course. 
+
+Berstein polynomials from nasa. 
+
+Thomas Hales implemented an infor-
+mal verification procedure based on interval arithmetic with Taylor
+approximations which
+can completely verify all Flyspeck nonlinear inequalitie
+
+``The main difficulty is finding a suitable partition.'' Instead of using
+arbitrary branching, we rely on numerical facts that does the pruning for us,
+and 
+
+Ceritifying computations literature. 
+
+
+
+\section{Conclusion and Future Work}
+
+We believe this is a right starting point for the final solution of the Kepler
+conjecture. What is needed now is a verified HOL library of interval facts, and
+a verified implementation of the prover. 
+
+More Boolean structures are needed 
 
 \bibliographystyle{abbrv}
 \bibliography{tau}
