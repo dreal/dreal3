@@ -24,7 +24,7 @@ extern "C" {
 #include "rp_memory.h"
 
 /* Maximum string length of an input string */
-#define RP_STREAM_STR_SIZE 100000
+#define RP_STREAM_STR_SIZE 200000
 #define RP_STREAM_BUF_SIZE 10
 #define RP_STREAM_FILENAME 100
 
