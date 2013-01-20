@@ -32,3 +32,6 @@ print " into " + str(counter) + " traces."
 if counter == 1:
     touch(trace_name)
     os.remove(base_name + "_1.trace")
+else:
+    os.remove(trace_name)
+
