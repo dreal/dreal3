@@ -8,15 +8,19 @@ TODO=./TODO
 # QUEUE
 SMT_QUEUE=./SMT_QUEUE
 CHECK_QUEUE=./CHECK_QUEUE
+NOT_PROVED_YET=./NOT_YET
+PROVED=./PROVED
 
 # MAX (NUM of Processors to Use)
-MAX=25
+MAX=30
 
 RUN_SINGLE=~/work/dreal2/tools/kepler/script/run_single.sh
 PCHECKER=~/work/dreal2/tools/kepler/proof_checker/main.native
 SPLIT=~/work/dreal2/tools/kepler/script/split.py
 
 ########################################
+
+touch $NOT_PROVED_YET
 
 touch $TODO
 
@@ -76,3 +80,8 @@ do
         touch $TODO # We may need to have more things TO DO
     fi
 done
+
+
+rm $NOT_PROVED_YET
+touch $PROVED
+
