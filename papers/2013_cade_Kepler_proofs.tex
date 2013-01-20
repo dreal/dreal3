@@ -480,7 +480,7 @@ first-order rules are valid. Thus, as long as the axioms chosen are valid,
  the system can only produce valid formulas over $\mathbb{R}$.
 
 \begin{remark}
-Relations to resolution proofs.
+Relations to resolution proofs. 
 \end{remark}
 
 
@@ -490,27 +490,27 @@ If $\mathbb{D}_A\vdash \varphi$ and $\mathbb{R}\models \bigwedge A$, then $\math
 
 We now describe the construction of proof trees from ICP runs. The proof trees in
 our case will be labelled binary trees. We describe a tree as a tuple $T =
-\langle V, V_L,  \Gamma, \delta, \sigma\rangle$. $V = \{v_0, ..., v_k\}$,
+\langle V, V_L,  \Sigma, \delta, \sigma\rangle$. $V = \{v_0, ..., v_k\}$,
 $k\in \mathbb{N}$, is a finite set of nodes, where $v_0\in V$ always denotes the
 root
-node. $\Gamma$ is a set of labels, which in our case is the set of
+node. $\Sigma$ is a set of labels, which in our case is the set of
 $\mathcal{L}_I$-formulas. $\delta:\subseteq V\times \{l,r\} \rightarrow V$ is a
 partial mapping from a node to descendent nodes, where $\delta(v, l)$ and
 $\delta(v, r)$ denote the left and right descendent nodes, respectively.
-$\sigma: V\rightarrow \Gamma$ is a labeling function that maps each node
-$v\in V$ to a formula $\sigma(v) \in \Gamma$. In addition, the edges in the
+$\sigma: V\rightarrow \Sigma$ is a labeling function that maps each node
+$v\in V$ to a formula $\sigma(v) \in \Sigma$. In addition, the edges in the
 tree can be labelled as well, through a function $\tau: V\times V\times \Omega$
 where $\Omega$ is a set of edge-labels. 
 
-\begin{definition}[Tree Generation]
-%Define the construction recursively, backwards from the root.
-Let $$S_0\parallel c\Longrightarrow^{t_1} \cdots
-\Longrightarrow^{t_m} S_m\parallel c$$ be an ICP run. We define the
-procedure by defining the functions $\delta$ and $V_L$ through induction on
-$s_i$. We also define labels on the edges along the process, with $\omega$ =
-\{{$\vee$-Intro}, MP, I-Ax, F-Ax\}. 
+\subsubsection{Tree Generation} Let 
+$$S_0\parallel c\Longrightarrow^{t_1} \cdots
+\Longrightarrow^{t_m} S_m\parallel c $$
+be an ICP run such that the ending state
+is fail. We now define the procedure by defining the functions $\delta$ and
+$V_L$ through induction on $s_i$. We also define labels on the edges along the
+process, with $\omega$ = \{{$\vee$-Intro}, MP, I-Ax, F-Ax\}. 
 
-\paragraph{Case $i= m$.} We lable the root node $v_0$ by 
+\paragraph{Case $i= m$.} We label the root node $v_0$ by 
 $$\sigma(v_0) := \forall \vec x( \vec x\in \beta(S_1) \rightarrow \neg c).$$
 Also, let $V_L^0= \{\delta(v_0,l), \delta(v_0, r)\}$ denote the current
 collection of leaf nodes. 
@@ -526,45 +526,110 @@ collection of leaf nodes.
 Suppose $V_L$ and $\sigma$ is defined for $s_1, ...,s_k$. Write $s_k = S_k
 \parallel c$ and $s_k = S_{k+1} \parallel c$. Now we split
 the cases on the type of the step $t$ from $s_i$ to $s_{i+1}$ as follows. 
-\paragraph{Pruning} Suppose $s_k\Longrightarrow^{t_{k+1}} s_{k+1}$ is a
+\paragraph{(Pruning Step)} Suppose $s_k\Longrightarrow^{t_{k+1}} s_{k+1}$ is a
 pruning. That is, 
 $$S\parallel c \Longrightarrow S, (x_i\in I_i')\parallel c,$$
 under the condition that $\forall \vec a\in \beta(S,x_i\in I_i\setminus I_i')$,
 $c(\vec a)$ is false.
 
-In this case, we set $l(v_{k+1})$ ... Write $I_1 = \beta(S, (x_i\in I_i')$,
-$I_2\beta(S, (x_i\in I_i\setminus I_i')$, and $I= \beta(S)$, we have the
-following subtree corresponding to the tule. 
+This step corresponds to the following sub-tree of the proof. If we write 
+$$\vec I_1 = \beta(S, (x_i\in I_i')), \vec I_2 = \beta(S, (x_i\in I_i\setminus
+I_i')), \mbox{ and } \vec I= \beta(S),$$ then we have 
+{\small
 \begin{mathpar}
 \inferrule{\inferrule{
-  \forall x (\vec x\in I_1) \rightarrow \neg c)
+  \inferrule{\vdots}{\forall \vec x (\vec x\in \vec I_1 \rightarrow \neg c)}
     \and
-  \forall x (\vec x \in I_2) \rightarrow
-\neg c)
-  }
+    \inferrule{\ }
+    {
+      \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
+      }\mbox{F-Ax}
+   }
   {
-  \forall x (\vec x\in I_1)\vee \vec x \in I_2 \rightarrow \neg c)
-  }\mbox{$\vee$-intro}
+  \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
+  }\mbox{$\vee$-I}
   \and
   {
-  \inferrule{\ }{\forall \vec x (\vec x \in I_1 \vee \vec x\in
-I_2)\rightarrow \vec x\in \vec I}\mbox{I-Ax}
+  \inferrule{\ }{\forall \vec x ( \vec x\in \vec I\rightarrow(\vec x \in \vec
+I_1 \vee \vec x\in \vec I_2))}\mbox{I-Ax}
   }
   }
 {
-\forall \vec x (\vec x\in \rightarrow \neg c)
+\forall \vec x (\vec x\in\vec I \rightarrow \neg c)
+}\mbox{$\forall$-MP} 
+   \end{mathpar}
 } 
- 
-  \end{mathpar}
+
+Formally, we define the following. Let $v\in V_L^k$ be a leaf node in $T^k$ such
+that $$\sigma(v) = \forall \vec x (\vec x\in\vec I \rightarrow \neg c).$$ 
+We then define
+\begin{eqnarray*}
+\delta(v, l) &=& v_{k+1}^1, \sigma(v_{k+1}^1) = \forall \vec x
+( \vec x \in \vec I_1 \vee \vec x \in \vec I_2 \rightarrow \neg c); \\
+\delta(v, r) &=& v_{k+1}^2, \sigma(v_{k+1}^2) = \forall \vec x ( \vec x\in \vec
+I\rightarrow(\vec x \in \vec I_1 \vee \vec x\in \vec I_2));\\
+ \delta(v_{k+1}^1, l) &=& v_{k+1}^3, \sigma(v_{k+1}^3) = \forall x (\vec x\in
+\vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)\\
+ \delta(v_{k+1}^1, r) &=& v_{k+1}^4, \sigma(v_{k+1}^4) = \forall \vec x (\vec x
+\in \vec I_2 \rightarrow\neg c)
+  \end{eqnarray*}
+and set $V_L^{k+1} = V_L^k \cup \{v_{k+1}^2, v_{k+1}^4\}$. 
   
   
-\paragraph{Branching:}
+\paragraph{(Branching Case)}Suppose $s_k\Longrightarrow^{t_{k+1}} s_{k+1}$ is a
+branching step. That is, 
 \begin{eqnarray*}
 S\parallel c &\Longrightarrow& S, (x_i\in I_i)^d \parallel c,
 \end{eqnarray*}
 under the condition that $I_i\subseteq \beta(S_i)$.
 
-\paragraph{Backtracking:}
+This step corresponds to the following sub-tree of the proof. If we write 
+$$\vec I_1 = \beta(S, (x_i\in I_i')), \vec I_2 = \beta(S, (x_i\in I_i\setminus
+I_i')), \mbox{ and } \vec I= \beta(S),$$ then we have 
+{\small
+\begin{mathpar}
+\inferrule{\inferrule{
+  \inferrule{\vdots}{\forall \vec x (\vec x\in \vec I_1 \rightarrow \neg c)}
+    \and
+    \inferrule{\vdots }
+    {
+      \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
+      }
+   }
+  {
+  \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
+  }\mbox{$\vee$-I}
+  \and
+  {
+  \inferrule{\ }{\forall \vec x ( \vec x\in \vec I\rightarrow(\vec x \in \vec
+I_1 \vee \vec x\in \vec I_2))}\mbox{I-Ax}
+  }
+  }
+{
+\forall \vec x (\vec x\in\vec I \rightarrow \neg c)
+}\mbox{$\forall$-MP} 
+   \end{mathpar}
+} 
+
+Formally, we define the following. Let $v\in V_L^k$ be a leaf node in $T^k$ such
+that $$\sigma(v) = \forall \vec x (\vec x\in\vec I \rightarrow \neg c).$$ 
+We then define 
+\begin{eqnarray*}
+\delta(v, l) &=& v_{k+1}^1, \sigma(v_{k+1}^1) = \forall \vec x
+( \vec x \in \vec I_1 \vee \vec x \in \vec I_2 \rightarrow \neg c); \\
+\delta(v, r) &=& v_{k+1}^2, \sigma(v_{k+1}^2) = \forall \vec x ( \vec x\in \vec
+I\rightarrow(\vec x \in \vec I_1 \vee \vec x\in \vec I_2));\\
+ \delta(v_{k+1}^1, l) &=& v_{k+1}^3, \sigma(v_{k+1}^3) = \forall x (\vec x\in
+\vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)\\
+ \delta(v_{k+1}^1, r) &=& v_{k+1}^4, \sigma(v_{k+1}^4) = \forall \vec x (\vec x
+\in \vec I_2 \rightarrow\neg c)
+  \end{eqnarray*}
+and set $V_L^{k+1} = V_L^k \cup \{v_{k+1}^2 \}$.
+  
+
+
+\paragraph{(Backtracking Case)}Suppose $s_k\Longrightarrow^{t_{k+1}} s_{k+1}$ is
+a branching step. That is, 
 \begin{eqnarray*}
 S, (x_i\in I_i)^d, S'\parallel c &\Longrightarrow& S, (x_i\in
 I_i\setminus I_i') \parallel c,
@@ -573,17 +638,70 @@ under the condition that $\forall a\in \beta(S, (x_i\in I_i)^d, S')$, $c(\vec
 a)$
 is false.
 
-\paragraph{Fail:}
+This step corresponds to the following sub-tree of the proof. If we write 
+$$\vec I_1 = \beta(S, (x_i\in I_i')), \vec I_2 = \beta(S, (x_i\in I_i\setminus
+I_i')), \mbox{ and } \vec I= \beta(S),$$ then we have 
+{\small
+\begin{mathpar}
+\inferrule{\inferrule{
+  \inferrule{\vdots}{\forall \vec x (\vec x\in \vec I_1 \rightarrow \neg c)}
+    \and
+    \inferrule{\vdots }
+    {
+      \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
+      }
+   }
+  {
+  \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
+  }\mbox{$\vee$-I}
+  \and
+  {
+  \inferrule{\ }{\forall \vec x ( \vec x\in \vec I\rightarrow(\vec x \in \vec
+I_1 \vee \vec x\in \vec I_2))}\mbox{I-Ax}
+  }
+  }
+{
+\forall \vec x (\vec x\in\vec I \rightarrow \neg c)
+}\mbox{$\forall$-MP} 
+   \end{mathpar}
+} 
+
+Formally, we define the following. Let $v\in V_L^k$ be a leaf node in $T^k$ such
+that $$\sigma(v) = \forall \vec x (\vec x\in\vec I \rightarrow \neg c).$$ 
+We then define 
+\begin{eqnarray*}
+\delta(v, l) &=& v_{k+1}^1, \sigma(v_{k+1}^1) = \forall \vec x
+( \vec x \in \vec I_1 \vee \vec x \in \vec I_2 \rightarrow \neg c); \\
+\delta(v, r) &=& v_{k+1}^2, \sigma(v_{k+1}^2) = \forall \vec x ( \vec x\in \vec
+I\rightarrow(\vec x \in \vec I_1 \vee \vec x\in \vec I_2));\\
+ \delta(v_{k+1}^1, l) &=& v_{k+1}^3, \sigma(v_{k+1}^3) = \forall x (\vec x\in
+\vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)\\
+ \delta(v_{k+1}^1, r) &=& v_{k+1}^4, \sigma(v_{k+1}^4) = \forall \vec x (\vec x
+\in \vec I_2 \rightarrow\neg c)
+  \end{eqnarray*}
+and set $V_L^{k+1} = V_L^k \cup \{v_{k+1}^2, v_{k+1}^4\}$.
+  
+
+\paragraph{(Fail Case)} Suppose it is a failure step. That is, 
 \begin{eqnarray*}
 S\parallel c &\Longrightarrow& \emptyset \parallel c
 \end{eqnarray*}
 under the condition that $\forall \vec a\in \beta(S)$, $c(\vec a)$ is false and
  $S$ has no decision elements.
 
-\end{definition}
+ This step corresponds to the following sub-tree of the proof. Let $\vec I
+=\beta(S)$. 
+\begin{mathpar}
+ \inferrule{\ }{\forall \vec x ( \vec x\in \vec I) \rightarrow \neg
+c}\mbox{F-Ax}
+\end{mathpar}
+ 
+ In all, the tree constructed is $T^m = \langle V, \bigcup_k V_L^k, \delta,
+\sigma\rangle$. 
 
-\begin{theorem}[ST-Correspondence]
-Each ICP sequence $S$ corresponds to a proof tree $\pi(S)$.
+\begin{theorem}\label{successful_tree}
+The tree construction procedure produces a unique tree that is valid natural
+deduction tree in $D_A$. 
 \end{theorem}
 
 \begin{example}
@@ -603,6 +721,8 @@ exponential in the size of the problems.
 
 We will see that this generates proof traces on a gigabyte scale in
 Section~\ref{}. 
+
+
 
 
 \subsection{Validating the Axioms}
@@ -730,15 +850,31 @@ return {\sf rejected}\;
 \caption{Branch and Prove\label{algo1}}
 \end{algorithm}
 
-\section{Proving Lemmas for the Kepler Conjecture}
 
-A main goal of our approach is to prove the nonlinear inequalities from the
-flyspeck project. We now show the details of our current progress on the Kepler
-conjecture. 
+\section{Case Study: Proving Lemmas for the Kepler Conjecture}
 
-The flyspeck project is led by Tom hales in University of Pittsburgh. 
+Our open-source tool dReal is available at. The main motivation for us to build
+the proof checker is for making contribution to the flyspeck project is led
+by Tom hales in University of Pittsburgh. 
 
-The typical formulas contain trigonmetric inequalities. 
+\subsubsection{The Kepler Conjecture}
+
+The typical formulas contain trigonmetric inequalities.
+
+\subsubsection{Solving Statistics}
+
+\input{good_benchmarks.tex}
+
+\subsubsection{Proofs Generated}
+
+\input{good_proofs.tex}
+
+\subsubsection{Debugging Benefits}
+
+
+\subsubsection{Towards Complete Verification}
+
+
 
 
 \section{Related Work}
@@ -787,7 +923,6 @@ and
 Ceritifying computations literature. 
 
 
-
 \section{Conclusion and Future Work}
 
 We believe this is a right starting point for the final solution of the Kepler
@@ -798,5 +933,19 @@ More Boolean structures are needed
 
 \bibliographystyle{abbrv}
 \bibliography{tau}
+
+\newpage
+\section*{Appendix}
+
+
+\begin{proof}(Proof of Theorem~\ref{successful_tree})
+We need to show that the proof construction is always successful. 
+
+\end{proof}
+
+
+
+
+
 \end{document}
 
