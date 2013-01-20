@@ -106,6 +106,7 @@ lbool NRASolver::inform( Enode * e )
 {
     cerr << "================================================================" << endl;
     cerr << "NRASolver::inform: " << e << endl;
+    cerr << "NRASolver::inform: Polarity: " << e->getPolarity().toInt() << endl;
     cerr << "================================================================" << endl;
     assert( e -> isAtom() );
 
@@ -133,6 +134,7 @@ bool NRASolver::assertLit ( Enode * e, bool reason )
 {
     cerr << "================================================================" << endl;
     cerr << "NRASolver::assertLit: " << e << ", " << reason << endl;
+    cerr << "NRASolver::assertLit: Polarity: " << e->getPolarity().toInt() << endl;
     cerr << "================================================================" << endl;
 
     (void)reason;

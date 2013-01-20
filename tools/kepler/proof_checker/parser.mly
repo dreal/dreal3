@@ -9,7 +9,7 @@
 
 %token AFTER BEFORE PRUNING BRANCHED IS IN ON CONFLICT DETECTED
 %token PRECISION
-%token LB RB COMMA COLON SEMICOLON CARET
+%token LB RB COMMA COLON SEMICOLON CARET NOT
 %token LP RP PLUS MINUS AST SLASH EQ GE LE GT LT
 %token INFTY
 %token SIN COS TAN
@@ -47,6 +47,10 @@ con: LP EQ func func RP { (Basic.Eq ($3, $4)) }
   |  LP LT func func RP { (Basic.Le ($3, $4)) } /* ALWAYS TREAT IT AS LE */
   |  LP GE func func RP { (Basic.Ge ($3, $4)) }
   |  LP GT func func RP { (Basic.Ge ($3, $4)) } /* ALWAYS TREAT IT AS GE */
+  |  LP NOT LP LE func func RP RP { (Basic.Ge ($5, $6)) }
+  |  LP NOT LP LT func func RP RP { (Basic.Ge ($5, $6)) } /* ALWAYS TREAT IT AS GE */
+  |  LP NOT LP GE func func RP RP { (Basic.Le ($5, $6)) }
+  |  LP NOT LP GT func func RP RP { (Basic.Le ($5, $6)) } /* ALWAYS TREAT IT AS LE */
 ;
 
 func:  FNUM                  { Basic.Num $1 }

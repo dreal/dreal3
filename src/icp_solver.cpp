@@ -137,7 +137,7 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
         rp_union_destroy(&u);
 
 
-        rp_variable_set_real(*_v);
+//        rp_variable_set_real(*_v);
         rp_variable_precision(*_v) = _precision;
 
         enode_to_rp_id[key] = rp_id;
@@ -230,7 +230,12 @@ bool icp_solver::solve()
         ite != _stack.end();
         ite++)
     {
-        cout << *ite << endl;
+        if((*ite)->getPolarity() == l_True)
+            cout << *ite << endl;
+        else if ((*ite)->getPolarity() == l_False)
+            cout << "(not " << *ite << ")" << endl;
+        else
+            assert(0);
     }
 
     // Print out the initial values
