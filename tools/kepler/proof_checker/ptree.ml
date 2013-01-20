@@ -42,13 +42,13 @@ let print_msg prec f e eval =
     BatString.println BatIO.stdout "============================";
     BatString.println BatIO.stdout "Eval Result = ";
     Intv.print BatIO.stdout eval;
+    BatString.println BatIO.stdout "============================";
   end
 
 let get_new_filename () =
   let l = BatString.rfind !src ".trace" in
   let basename = BatString.left !src l in
   (basename ^ "_" ^ (string_of_int (counter())) ^ ".smt2")
-
 
 let create_smt e cs prec =
   let vardecls = Env.to_list e in
@@ -82,7 +82,6 @@ let create_smt e cs prec =
      [smt2_assert_fs];
      [Smt2_cmd.CheckSAT;
       Smt2_cmd.Exit]]
-
 
 let split_env_on_x key env : (Env.t * Env.t) =
   let vardecls = Env.to_list env in
@@ -123,15 +122,18 @@ let split_env e f prec : (Env.t * Env.t * float) =
   let new_prec = BatList.min [intv_size /. 4.0; prec] in
   (e1, e2, new_prec)
 
-let handle_fail e f cs prec =
-  let (e1, e2, new_prec) = split_env e f prec in
-  List.iter
-    (fun env ->
-      let smt2 = create_smt env cs new_prec in
-      BatFile.with_file_out
-        (get_new_filename ())
-        (fun out -> Smt2.print out smt2))
-    [e1; e2]
+let handle_fail e f cs prec v =
+  begin
+    print_msg prec f e v;
+    let (e1, e2, new_prec) = split_env e f prec in
+    List.iter
+      (fun env ->
+        let smt2 = create_smt env cs new_prec in
+        BatFile.with_file_out
+          (get_new_filename ())
+          (fun out -> Smt2.print out smt2))
+      [e1; e2]
+  end
 
 let check_axiom (e : Env.t) (cs : Basic.formula list) (prec : float) (f : Basic.formula) =
   let eval env exp1 exp2 = Func.apply env (Basic.Sub(exp1, exp2)) in
@@ -146,7 +148,14 @@ let check_axiom (e : Env.t) (cs : Basic.formula list) (prec : float) (f : Basic.
     | Basic.Ge (exp1, exp2) ->
       let v = eval e exp1 exp2 in
       if Intv.contain_pz v then
-        Bad (e, v)
+        begin
+          BatString.println BatIO.stdout "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+          Intv.print BatIO.stdout v;
+          BatBool.print BatIO.stdout (Intv.contain_pz v);
+          BatString.println BatIO.stdout "";
+          BatString.println BatIO.stdout "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+          Bad (e, v)
+        end
       else
         Good e
     | Basic.Le (exp1, exp2) ->
@@ -160,8 +169,7 @@ let check_axiom (e : Env.t) (cs : Basic.formula list) (prec : float) (f : Basic.
     Good e -> e
   | Bad (e, v) ->
     begin
-      print_msg prec f e v;
-      handle_fail e f cs prec;
+      handle_fail e f cs prec v;
       e
     end
 
@@ -193,12 +201,19 @@ let rec check (p : t) (cs : Basic.formula list) (prec: float) =
          (* 1. ep should be a subset of e  *)
          false -> raise (Error "Prune")
        | true ->
-         (let remainders = Env.minus e ep in
-          (* 2. check all the cut-out areas *)
-          let _ = List.map (fun e' -> check (Axiom e') cs prec) remainders in
-          (* 3. check the pruned sub-tree *)
-          let _ = check p' cs prec in
-	  e
-         )
+         begin
+           match Env.equals ep e with
+             true ->
+               let _ = check p' cs prec in
+               e
+           | false ->
+             (let remainders = Env.minus e ep in
+              (* 2. check all the cut-out areas *)
+              let _ = List.map (fun e' -> check (Axiom e') cs prec) remainders in
+              (* 3. check the pruned sub-tree *)
+              let _ = check p' cs prec in
+	      e
+             )
+         end
      end
     )

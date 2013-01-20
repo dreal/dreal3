@@ -38,7 +38,7 @@ lexer.ml: lexer.mll parser.ml
 lexer.cmx: lexer.ml
 	ocamlfind ocamlopt -c -package batteries -package threads -thread -o lexer.cmx lexer.ml
 
-parser.ml: parser.mly ptree.ml basic.ml func.ml
+parser.ml: parser.mly ptree.ml basic.ml func.ml env.ml
 	ocamlyacc -v parser.mly
 
 parser.cmi: parser.mli

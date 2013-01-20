@@ -29,11 +29,15 @@ let run () =
          cs);
       (* Print out initial box *)
       Env.print out init;
-      (match pt_op with
-        Some pt -> let _ = Ptree.check pt cs p in ()
-      | None -> let _ = Ptree.handle_fail init (List.hd cs) cs p in ()
-      );
+      let pt' =
+        (match pt_op with
+          Some pt -> pt
+        | None -> Ptree.Axiom init)
+      in
+      Ptree.check pt' cs p;
       ()
     end
-  with v -> Error.handle_exn v
-let _ = Printexc.catch run ()
+  with v ->
+    Error.handle_exn v
+
+let x = Printexc.catch run ()
