@@ -232,8 +232,13 @@ bool icp_solver::solve()
     {
         if((*ite)->getPolarity() == l_True)
             cout << *ite << endl;
-        else if ((*ite)->getPolarity() == l_False)
-            cout << "(not " << *ite << ")" << endl;
+        else if ((*ite)->getPolarity() == l_False) {
+            if((*ite)->isEq()) {
+                /* PRINT NOTHING */
+            } else {
+                cout << "(not " << *ite << ")" << endl;
+            }
+        }
         else
             assert(0);
     }
