@@ -23,7 +23,7 @@
 
 %start main
 
-%type <float * Basic.formula list * Env.t * Ptree.t option> main
+%type <float * Basic.formula list * Ptree.t> main
 %type <Ptree.t> ptree
 %type <Basic.formula> con
 %type <Func.t> func
@@ -31,10 +31,10 @@
 
 %%
 
-main: precision con_list init_list ptree UNSAT EOF { ($1, $2, Env.make $3, Some $4) }
- | precision con_list init_list ptree EOF { ($1, $2, Env.make $3, Some $4) }
- | precision con_list init_list UNSAT EOF { ($1, $2, Env.make $3, None) }
- | precision con_list init_list EOF { ($1, $2, Env.make $3, None) }
+main: precision con_list init_list ptree UNSAT EOF { ($1, $2, $4) }
+ | precision con_list init_list ptree EOF { ($1, $2, $4) }
+ | precision con_list init_list UNSAT EOF { ($1, $2, Ptree.Axiom (Env.make $3)) }
+ | precision con_list init_list EOF { ($1, $2, Ptree.Axiom (Env.make $3)) }
 
 precision: /* nothing */ { 0.001 } /* default value */
  | PRECISION COLON FNUM  { $3 }
@@ -111,11 +111,11 @@ init_list: init { [$1] }
          | init init_list { $1::$2 }
 ;
 
-entry: ID IS IN COLON LB FNUM COMMA FNUM RB { ($1, $6, $8) }
-     | ID IS IN COLON LP MINUS INFTY COMMA FNUM RB { ($1, neg_infinity, $9) }
-     | ID IS IN COLON LB FNUM COMMA PLUS INFTY RP { ($1, $6, infinity) }
-     | ID IS IN COLON LP MINUS INFTY COMMA PLUS INFTY RP { ($1, neg_infinity, infinity) }
-     | ID IS IN COLON FNUM { ($1, $5, $5) }
+entry: ID IS IN COLON LB FNUM COMMA FNUM RB { ($1, Intv.make $6 $8) }
+     | ID IS IN COLON LP MINUS INFTY COMMA FNUM RB { ($1, Intv.make neg_infinity $9) }
+     | ID IS IN COLON LB FNUM COMMA PLUS INFTY RP { ($1, Intv.make $6 infinity) }
+     | ID IS IN COLON LP MINUS INFTY COMMA PLUS INFTY RP { ($1, Intv.make neg_infinity infinity) }
+     | ID IS IN COLON FNUM { ($1, Intv.make $5 $5) }
 ;
 
 entry_list: entry { [$1] }

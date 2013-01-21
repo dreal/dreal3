@@ -48,8 +48,6 @@ let rec collect_var_in_f f =
                                collect_var_in_e e2;]
   | Lt (e1, e2) -> List.concat [collect_var_in_e e1;
                                collect_var_in_e e2;]
-  | Gt (e1, e2) -> List.concat [collect_var_in_e e1;
-                               collect_var_in_e e2;]
   | Ge (e1, e2) -> List.concat [collect_var_in_e e1;
                                collect_var_in_e e2;]
   | Le (e1, e2) -> List.concat [collect_var_in_e e1;
@@ -86,7 +84,6 @@ and collect_var_in_e e =
   | Sinh e1 -> collect_var_in_e e1
   | Cosh e1 -> collect_var_in_e e1
   | Tanh e1 -> collect_var_in_e e1
-
 
 let rec print_exp out =
   let print_exps op exps =
