@@ -64,7 +64,7 @@ void smt2error( const char * s )
 %token TK_NUM TK_DEC TK_HEX TK_STR TK_SYM TK_KEY TK_BIN
 %token TK_BOOL
 %token TK_DDT TK_LB TK_RB
-%token TK_SETLOGIC TK_SETINFO TK_SETOPTION TK_DECLARESORT TK_DEFINESORT TK_DECLAREFUN
+%token TK_SETLOGIC TK_SETINFO TK_SETOPTION TK_DECLARESORT TK_DEFINESORT TK_DECLAREFUN TK_DECLARECONST
 %token TK_PUSH TK_POP TK_CHECKSAT TK_GETASSERTIONS TK_GETPROOF TK_GETUNSATCORE TK_GETINTERPOLANTS
 %token TK_GETVALUE TK_GETASSIGNMENT TK_GETOPTION TK_GETINFO TK_EXIT
 %token TK_AS TK_LET TK_FORALL TK_EXISTS TK_ANNOT TK_DISTINCT TK_DEFINEFUN
@@ -132,6 +132,10 @@ command: '(' TK_SETLOGIC symbol ')'
        | '(' TK_DECLAREFUN symbol '(' ')' sort ')'
 	 {
             parser_ctx->DeclareFun( $3, $6 ); free( $3 );
+          }
+       | '(' TK_DECLARECONST symbol sort ')'
+	 {
+            parser_ctx->DeclareFun( $3, $4 ); free( $3 );
           }
        /*
        | '(' TK_DEFINEFUN symbol '(' sorted_var_list ')' sort term ')'
