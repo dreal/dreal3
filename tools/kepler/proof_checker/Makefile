@@ -1,8 +1,8 @@
-all: error.cmx intv.cmx basic.cmx smt2_cmd.cmx smt2.cmx env.cmx func.cmx ptree.cmx parser.cmx lexer.cmx main.cmx
+all: error.cmx intv.cmx basic.cmx smt2_cmd.cmx smt2.cmx env.cmx func.cmx ptree.cmx parser.cmx lexer.cmx failhandler.cmx  main.cmx
 	ocamlfind ocamlopt -linkpkg -package batteries \
 	../INTERVAL/interval.cmxa -I ../INTERVAL \
 	-annot \
-	error.cmx intv.cmx env.cmx basic.cmx func.cmx  smt2_cmd.cmx smt2.cmx ptree.cmx parser.cmx lexer.cmx main.cmx \
+	error.cmx intv.cmx env.cmx basic.cmx func.cmx  smt2_cmd.cmx smt2.cmx failhandler.cmx ptree.cmx parser.cmx lexer.cmx main.cmx \
 	../INTERVAL/libinterval.a -annot -o main.native
 
 error.cmx: error.ml
@@ -26,8 +26,11 @@ env.cmx: intv.cmx env.ml
 func.cmx: env.cmx intv.cmx func.ml basic.cmx
 	ocamlfind ocamlopt -annot -package batteries -c func.ml
 
-ptree.cmx: intv.cmx env.cmx func.cmx smt2.cmx smt2_cmd.cmx basic.cmx ptree.ml
+ptree.cmx: intv.cmx env.cmx func.cmx smt2.cmx smt2_cmd.cmx basic.cmx ptree.ml failhandler.cmx
 	ocamlfind ocamlopt -annot -package batteries -c ptree.ml
+
+failhandler.cmx: intv.cmx env.cmx func.cmx smt2.cmx smt2_cmd.cmx basic.cmx failhandler.ml
+	ocamlfind ocamlopt -annot -package batteries -c failhandler.ml
 
 main.cmx: ptree.cmx  env.cmx func.cmx main.ml parser.cmx lexer.cmx
 	ocamlfind ocamlopt -annot -package batteries -c main.ml

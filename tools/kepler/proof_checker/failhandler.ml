@@ -1,34 +1,38 @@
+open Intv
+
+let src = BatGlobal.empty "src"      (* trace name *)
+let prec = BatGlobal.empty "prec"
 let fail_counter = ref 0
-let fc () =
-  (incr fail_counter;
-   !fail_counter)
+let fc () = incr fail_counter; !fail_counter
 
 let print_msg prec f e eval =
+  let out = BatIO.stdout in
   begin
-    BatString.println BatIO.stdout "FAIL TO PROVE THIS AXIOM:";
-    BatString.println BatIO.stdout "============================";
-    BatString.print BatIO.stdout   "Precision = ";
-    BatFloat.print BatIO.stdout prec;
-    BatString.println BatIO.stdout   "";
-    BatString.println BatIO.stdout "============================";
-    BatString.println BatIO.stdout "Formulas: ";
-    Basic.print_formula BatIO.stdout f;
-    BatString.println BatIO.stdout "";
-    BatString.println BatIO.stdout "============================";
-    BatString.println BatIO.stdout "Environment: ";
-    BatString.println BatIO.stdout (Env.to_string e);
-    BatString.println BatIO.stdout "============================";
-    BatString.println BatIO.stdout "Eval Result = ";
-    Intv.print BatIO.stdout eval;
-    BatString.println BatIO.stdout "============================";
+    BatString.println out "FAIL TO PROVE THIS AXIOM:";
+    BatString.println out "============================";
+    BatString.print out   "Precision = ";
+    BatFloat.print out prec;
+    BatString.println out   "";
+    BatString.println out "============================";
+    BatString.println out "Formulas: ";
+    Basic.print_formula out f;
+    BatString.println out "";
+    BatString.println out "============================";
+    BatString.println out "Environment: ";
+    Env.print out e;
+    BatString.println out "============================";
+    BatString.println out "Eval Result = ";
+    Intv.print out eval;
+    BatString.println out "============================";
   end
 
 let get_new_filename () =
-  let l = BatString.rfind !src ".trace" in
-  let basename = BatString.left !src l in
-  (basename ^ "_" ^ (string_of_int (counter())) ^ ".smt2")
+  let tracename = (BatGlobal.get src) in
+  let idx = BatString.rfind tracename ".trace" in
+  let basename = BatString.left tracename idx in
+  (basename ^ "_" ^ (string_of_int (fc())) ^ ".smt2")
 
-let create_smt e cs prec =
+let create_smt e fs prec =
   let vardecls = Env.to_list e in
   let (smt2_declvars, smt2_assertvars) =
     BatList.split
@@ -50,7 +54,7 @@ let create_smt e cs prec =
          vardecls)
   in
   let smt2_assert_fs =
-      Smt2_cmd.Assert (Basic.And cs)
+      Smt2_cmd.Assert (Basic.And fs)
   in
   BatList.concat
     [[Smt2_cmd.SetLogic Smt2_cmd.QF_NRA;
@@ -69,9 +73,9 @@ let split_env_on_x key env : (Env.t * Env.t) =
       (fun ((name1, {low = l1; high = h1}), (name2, {low = l2; high = h2}))
       -> if (key = name1) then
           let mid = ((l1 +. h1) /. 2.0) in
-          ((name1, l1, mid), (name2, mid, h2))
+          ((name1, {low = l1; high = mid}), (name2, {low = mid; high = h2}))
         else
-          ((name1, l1, h1), (name2, l2, h2))
+          ((name1, {low = l1; high = h1}), (name2, {low = l2; high = h2}))
       )
       vardecls_pairs
   in
@@ -100,13 +104,14 @@ let split_env e f prec : (Env.t * Env.t * float) =
   let new_prec = BatList.min [intv_size /. 4.0; prec] in
   (e1, e2, new_prec)
 
-let handle_fail e f cs prec v =
+let handle e f fl v =
+  let prec = BatGlobal.get prec in
   begin
     print_msg prec f e v;
     let (e1, e2, new_prec) = split_env e f prec in
     List.iter
       (fun env ->
-        let smt2 = create_smt env cs new_prec in
+        let smt2 = create_smt env fl new_prec in
         BatFile.with_file_out
           (get_new_filename ())
           (fun out -> Smt2.print out smt2))
