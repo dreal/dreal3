@@ -17,9 +17,7 @@ let extract_env p = match p with
   | Branch (e, _, _) -> e
   | Prune (e, _) -> e
 
-let handle_fail e f v = raise Not_found
-
-let check_axiom (e : env) (f : formula) : unit =
+let check_axiom (e : env) (f : formula) (fl : formula list) : unit =
   let eval env exp1 exp2 = Func.apply env (Basic.Sub(exp1, exp2)) in
   let judge f v = match (f v) with
     | true -> Failed v
@@ -34,12 +32,12 @@ let check_axiom (e : env) (f : formula) : unit =
     | _ -> raise (Error "check_axiom::Should Not Happen")
   in match result with
   | Proved -> ()
-  | Failed v -> handle_fail e f v
+  | Failed v -> Failhandler.handle e f fl v
 
 let rec check (pt : t) (fl : formula list) =
   match pt with
   | Axiom e ->
-      List.iter (check_axiom e) fl
+    List.iter (fun f -> check_axiom e f fl) fl
   | Branch (env, pt1, pt2) ->
     let env1 = extract_env pt1 in
     let env2 = extract_env pt2 in

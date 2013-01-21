@@ -89,9 +89,9 @@ let rec print_exp out =
   let print_exps op exps =
     begin
       BatList.print
-        (~first:("("^op^" "))
-        (~sep:" ")
-        (~last:")")
+        ~first:("("^op^" ")
+        ~sep:" "
+        ~last:")"
         print_exp
         out
         exps
@@ -148,9 +148,9 @@ and print_formula out =
   let print_lists op out f items =
     begin
       BatList.print
-        (~first:("("^op^" "))
-        (~sep:" ")
-        (~last:")")
+        ~first:("("^op^" ")
+        ~sep:" "
+        ~last:")"
         f
         out
         items
