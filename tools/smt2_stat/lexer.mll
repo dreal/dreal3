@@ -13,9 +13,9 @@
     [("sin", SIN);
      ("cos", COS);
      ("tan", TAN);
-     ("asin", ASIN);
-     ("acos", ACOS);
-     ("atan", ATAN);
+     ("arcsin", ASIN);
+     ("arccos", ACOS);
+     ("arctan", ATAN);
      ("sinh", SINH);
      ("cosh", COSH);
      ("tanh", TANH);
@@ -24,7 +24,10 @@
      ("QF_NRA", QF_NRA);
      ("QF_NRA_ODE", QF_NRA_ODE);
      ("Real", REAL);
+     ("and", AND);
+     ("or", OR);
      ("not", NOT);
+     ("ite", ITE);
     ]
 }
 

@@ -7,8 +7,7 @@
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
-%token AT LT LE GT GE IMPLY DDT CARET DP NOT
-%token IF THEN ELSE
+%token AT LT LE GT GE IMPLY DDT CARET DP NOT ITE
 %token SIN COS TAN
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
@@ -87,5 +86,5 @@ exp:
  | SINH exp                     { Basic.Sinh $2 }
  | COSH exp                     { Basic.Cosh $2 }
  | TANH exp                     { Basic.Tanh $2 }
- | IF formula THEN exp ELSE exp { Basic.Ite ($2, $4, $6) }
+ | ITE formula exp exp { Basic.Ite ($2, $3, $4) }
 ;
