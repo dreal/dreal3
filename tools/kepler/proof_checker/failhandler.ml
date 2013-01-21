@@ -54,7 +54,7 @@ let create_smt e fs prec =
          vardecls)
   in
   let smt2_assert_fs =
-      Smt2_cmd.Assert (Basic.And fs)
+    Smt2_cmd.Assert (Basic.And fs)
   in
   BatList.concat
     [[Smt2_cmd.SetLogic Smt2_cmd.QF_NRA;
@@ -65,7 +65,7 @@ let create_smt e fs prec =
      [Smt2_cmd.CheckSAT;
       Smt2_cmd.Exit]]
 
-let split_env_on_x key env : (Env.t * Env.t) =
+let split_on_x key env : (Env.t * Env.t) =
   let vardecls = Env.to_list env in
   let vardecls_pairs = BatList.combine vardecls vardecls in
   let vardecls_pairs' =
@@ -85,11 +85,11 @@ let split_env_on_x key env : (Env.t * Env.t) =
 let split_env e f prec : (Env.t * Env.t * float) =
   let vars_in_f = Basic.collect_var_in_f f in
   let vardecls = Env.to_list e in
-  let vardecls' =
+  let vardecls_filtered =
     List.filter (fun (name, _) ->
       List.mem name vars_in_f && not (BatString.starts_with name "ITE_"))
       vardecls in
-  let diff_list = List.map (fun (name, {low = l; high = h}) -> (name, h -. l)) vardecls' in
+  let diff_list = List.map (fun (name, i) -> (name, Interval.size_I i)) vardecls_filtered in
   let (max_key, intv_size) =
     List.fold_left
       (fun (cur_max_key, cur_max_size) (key, size) ->
@@ -97,10 +97,10 @@ let split_env e f prec : (Env.t * Env.t * float) =
           (key, size)
         else
           (cur_max_key, cur_max_size))
-      (List.hd diff_list)
+      ("", 0.0)
       diff_list
   in
-  let (e1, e2) = split_env_on_x max_key e in
+  let (e1, e2) = split_on_x max_key e in
   let new_prec = BatList.min [intv_size /. 4.0; prec] in
   (e1, e2, new_prec)
 

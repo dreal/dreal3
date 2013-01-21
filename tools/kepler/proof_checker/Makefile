@@ -30,7 +30,7 @@ ptree.cmx: intv.cmx env.cmx func.cmx smt2.cmx smt2_cmd.cmx basic.cmx ptree.ml fa
 	ocamlfind ocamlopt -annot -package batteries -c ptree.ml
 
 failhandler.cmx: intv.cmx env.cmx func.cmx smt2.cmx smt2_cmd.cmx basic.cmx failhandler.ml
-	ocamlfind ocamlopt -annot -package batteries -c failhandler.ml
+	ocamlfind ocamlopt -I ../INTERVAL  -annot -package batteries -c failhandler.ml
 
 main.cmx: ptree.cmx  env.cmx func.cmx main.ml parser.cmx lexer.cmx
 	ocamlfind ocamlopt -annot -package batteries -c main.ml
