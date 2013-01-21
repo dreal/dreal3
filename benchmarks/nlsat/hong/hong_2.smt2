@@ -5,3 +5,4 @@
 (assert (< (+ (* x_0 x_0) (* x_1 x_1)) 1.))
 (assert (> (* x_0 x_1) 1.))
 (check-sat)
+(exit)

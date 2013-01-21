@@ -6,3 +6,4 @@
 (assert (< (+ (* x_0 x_0) (+ (* x_1 x_1) (* x_2 x_2))) 1.))
 (assert (> (* x_0 (* x_1 x_2)) 1.))
 (check-sat)
+(exit)
