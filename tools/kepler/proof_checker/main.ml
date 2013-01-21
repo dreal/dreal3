@@ -8,7 +8,7 @@ let run () =
     Error.init ();
     let lexbuf =
       Lexing.from_channel
-        (if BatGlobal.isdef Failhandler.src then
+        (if not (BatGlobal.isdef Failhandler.src) then
             stdin
          else open_in (BatGlobal.get Failhandler.src)) in
     let out = BatIO.stdout in
