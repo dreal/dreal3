@@ -82,12 +82,16 @@ let split_on_x key env : (Env.t * Env.t) =
   let (vardecls1, vardecls2) = BatList.split vardecls_pairs' in
   (Env.make vardecls1, Env.make vardecls2)
 
-let split_env e f prec : (Env.t * Env.t * float) =
-  let vars_in_f = Basic.collect_var_in_f f in
+let split_env e fs prec : (Env.t * Env.t * float) =
+  let vars_in_fs =
+    List.fold_left
+      BatPSet.union
+      BatPSet.empty
+      (BatList.map Basic.collect_var_in_f fs) in
   let vardecls = Env.to_list e in
   let vardecls_filtered =
     List.filter (fun (name, _) ->
-      List.mem name vars_in_f && not (BatString.starts_with name "ITE_"))
+      BatPSet.mem name vars_in_fs && not (BatString.starts_with name "ITE_"))
       vardecls in
   let diff_list = List.map (fun (name, i) -> (name, Interval.size_I i)) vardecls_filtered in
   let (max_key, intv_size) =
@@ -104,11 +108,10 @@ let split_env e f prec : (Env.t * Env.t * float) =
   let new_prec = BatList.min [intv_size /. 4.0; prec] in
   (e1, e2, new_prec)
 
-let handle e f fl v =
+let handle e fs fl =
   let prec = BatGlobal.get prec in
   begin
-    print_msg prec f e v;
-    let (e1, e2, new_prec) = split_env e f prec in
+    let (e1, e2, new_prec) = split_env e fs prec in
     List.iter
       (fun env ->
         let smt2 = create_smt env fl new_prec in

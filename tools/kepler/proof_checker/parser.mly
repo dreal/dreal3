@@ -54,12 +54,16 @@ con: LP EQ func func RP { (Basic.Eq ($3, $4)) }
   |  LP NOT LP GT func func RP RP { (Basic.Le ($5, $6)) } /* ALWAYS TREAT IT AS LE */
 ;
 
+func_list: func    { [$1] }
+  | func func_list { $1::$2 }
+;
+
 func:  FNUM                  { Basic.Num $1 }
      | ID                    { Basic.Var $1 }
-     | LP PLUS  func func RP { Basic.Add ($3, $4) }
-     | LP MINUS func func RP { Basic.Sub ($3, $4) }
-     | LP MINUS func RP      { Basic.Neg ($3) }
-     | LP AST   func func RP { Basic.Mul ($3, $4) }
+     | LP PLUS  func_list RP { Basic.Add $3 }
+     | LP MINUS func RP      { Basic.Neg $3 }
+     | LP MINUS func func_list RP { Basic.Sub ($3::$4) }
+     | LP AST   func_list RP { Basic.Mul $3 }
      | LP SLASH func func RP { Basic.Div ($3, $4) }
      | LP SIN func RP        { Basic.Sin $3 }
      | LP COS func RP        { Basic.Cos $3 }
@@ -72,7 +76,7 @@ func:  FNUM                  { Basic.Num $1 }
      | LP TANH func RP       { Basic.Tanh $3 }
      | LP LOG func RP        { Basic.Log $3 }
      | LP EXP func RP        { Basic.Exp $3 }
-     | LP CARET func FNUM RP { Basic.Pow ($3, $4) }
+     | LP CARET func FNUM RP { Basic.Pow ($3, Basic.Num $4) }
 ;
 
 ptree: before_pruning entry_list conflict_detected

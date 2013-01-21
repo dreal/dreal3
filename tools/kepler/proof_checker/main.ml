@@ -15,7 +15,8 @@ let run () =
     let (p, fs, pt) = Parser.main Lexer.start lexbuf in
     begin
       BatGlobal.set Failhandler.prec p;
-      Ptree.check pt fs
+      Ptree.check pt fs;
+      Ptree.print_log out
     end
   with v ->
     Error.handle_exn v

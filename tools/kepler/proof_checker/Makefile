@@ -24,7 +24,7 @@ env.cmx: intv.cmx env.ml
 	ocamlfind ocamlopt -I ../INTERVAL -annot -package batteries -c env.ml
 
 func.cmx: env.cmx intv.cmx func.ml basic.cmx
-	ocamlfind ocamlopt -annot -package batteries -c func.ml
+	ocamlfind ocamlopt -I ../INTERVAL -annot -package batteries -c func.ml
 
 ptree.cmx: intv.cmx env.cmx func.cmx smt2.cmx smt2_cmd.cmx basic.cmx ptree.ml failhandler.cmx
 	ocamlfind ocamlopt -annot -package batteries -c ptree.ml
