@@ -7,18 +7,22 @@
 DREAL=~/work/dreal2/dReal
 TIMEOUT3=~/work/dreal2/tools/kepler/script/timeout3
 TIMEUTIL=/usr/bin/time
-RESULTDIR=./
 INEQ_PATHNAME=$1
+RESULTDIR=$2
 INEQ=`basename $INEQ_PATHNAME`
-BASE=${RESULTDIR}${INEQ//.smt2/}
+BASE=${RESULTDIR}/${INEQ//.smt2/}
+SMT=$BASE.smt2
 OUTFILE=$BASE.out
 TRACEFILE=$BASE.trace
 TIMEFILE=$BASE.time
 RESULTFILE=$BASE.result
 TIMEOUT_TIME=1800 # 600 sec = 30 min
 
+# Copy SMT to the Result DIR
+cp $INEQ_PATHNAME $SMT
+
 echo -n "Run dReal: $INEQ - "
-$TIMEUTIL -f "%E" -o $TIMEFILE $TIMEOUT3 -t $TIMEOUT_TIME $DREAL $INEQ_PATHNAME 2> $OUTFILE > $TRACEFILE
+$TIMEUTIL -f "%E" -o $TIMEFILE $TIMEOUT3 -t $TIMEOUT_TIME $DREAL $SMT 2> $OUTFILE > $TRACEFILE
 EXITCODE=$?
 if [ $EXITCODE -eq 137 ]
 then

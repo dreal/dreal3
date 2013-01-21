@@ -1,7 +1,6 @@
 #!/bin/bash
 INEQDIR=$1
-RESULTDIR=./result
-MAX=25
+RESULTDIR=$2
+MAX=1
 
-find $INEQDIR -name "*.smt2" -newer $RESULTDIR/lastrun | parallel --max-procs=$MAX 'echo {}; ./run_single.sh {}'
-touch $RESULTDIR/lastrun
+find $INEQDIR -name "*.smt2" | grep -v "minismt" | parallel --max-procs=$MAX "echo {}; ./run_single.sh {} $RESULTDIR"

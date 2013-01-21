@@ -1,13 +1,21 @@
 #!/bin/bash
 CATEGORY="sat unsat Timeout"
 SMT_STAT=~/work/dreal2/tools/smt2_stat/main.native
-
-for CAT in sat unsat Timeout
+TEMP=`mktemp`
+for CAT in `find . -maxdepth 1 -mindepth 1 -type d`
 do
+	CAT=`basename $CAT`
 	for SMT in `ls $CAT/*.smt2`
 	do
+		grep -v "^(set-info :source .*)" $SMT > $TEMP
+		mv $TEMP $SMT
 		BASE=${SMT//.smt2/}
-		ID=`cat $BASE.id`
+		if [ -f $BASE.id ] 
+		then
+			ID=`cat $BASE.id`
+		else
+			ID=""
+		fi
 		RESULT=`cat $BASE.result`
 		TRACE=$BASE.trace
 		TIME=`cat $BASE.time`
@@ -17,7 +25,7 @@ do
 		SIZE=`stat --printf="%s" $TRACE`
 #		echo $CAT $ID $NUM_ARITH $NUM_MATH $TIME $RESULT $TRACE
 
-		printf " %5s" `basename $BASE`
+		printf " %10s" `basename $BASE`
 		printf "|%30s" "$ID"
 		printf "|%7d|%4d" $NUM_ARITH $NUM_MATH
 		if [ "$CAT" ==  "Timeout" ]
