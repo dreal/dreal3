@@ -337,16 +337,26 @@ void Enode::print_infix( ostream & os, lbool polarity ) const
                 isPow()
                 )
         {
-          assert(getArity() == 2);
+            // assert(getArity() == 2);
+            Enode* op = getCar();
 
-          // output 1st argument
-          getCdr()->getCar()->print_infix(os, polarity);
-          os << " ";
-          // output operator
-          getCar()->print_infix(os, polarity);
-          os << " ";
-          // output 2nd argument
-          getCdr()->getCdr()->getCar()->print_infix(os, polarity);
+            p = getCdr();
+            // Print 1st argument
+            p->getCar()->print_infix(os, polarity);
+
+            p = p->getCdr();
+
+            while(!p->isEnil())
+            {
+                // output operator
+                op->print_infix(os, polarity);
+
+                // output argument
+                p->getCar()->print_infix(os, polarity);
+
+                // move p
+                p = p->getCdr();
+            }
         }
       else if (isArcCos() ||
                isArcSin() ||
