@@ -28,6 +28,7 @@ type exp =
 and formula =
 | True
 | False
+| FVar of string
 | Not of formula
 | And of formula list
 | Or  of formula list
@@ -37,14 +38,15 @@ and formula =
 | Ge  of exp * exp
 | Le  of exp * exp
 | Eq  of exp * exp
-| Let of ((string * formula) list * formula)
+| LetF of ((string * formula) list * formula)
+| LetE of ((string * exp) list * formula)
 
 let rec count_mathfn_e =
   function
   | Var _ -> 0
   | Num _ -> 0
   | Neg e -> count_mathfn_e e
-  | Add el -> 
+  | Add el ->
     BatList.sum (List.map count_mathfn_e el)
   | Sub (el) ->
     BatList.sum (List.map count_mathfn_e el)
@@ -80,6 +82,7 @@ and count_mathfn_f =
   function
   | True -> 0
   | False -> 0
+  | FVar _ -> 0
   | Not f -> count_mathfn_f f
   | And fl -> List.fold_left (fun result f -> result + (count_mathfn_f f)) 0 fl
   | Or fl -> List.fold_left (fun result f -> result + (count_mathfn_f f)) 0 fl
@@ -104,8 +107,11 @@ and count_mathfn_f =
     let v1 = count_mathfn_e e1 in
     let v2 = count_mathfn_e e2 in
     v1 + v2
-  | Let (binding_list, f) ->
-    BatList.sum (List.map (fun (id, f') -> count_mathfn_f f') binding_list)
+  | LetF (fbinding_list, f) ->
+    BatList.sum (List.map (fun (id, f') -> count_mathfn_f f') fbinding_list)
+    + (count_mathfn_f f)
+  | LetE (ebinding_list, f) ->
+    BatList.sum (List.map (fun (id, f') -> count_mathfn_e f') ebinding_list)
     + (count_mathfn_f f)
 
 let rec count_arith_e =
@@ -149,6 +155,7 @@ and count_arith_f =
   function
   | True -> 0
   | False -> 0
+  | FVar _ -> 0
   | Not f -> count_arith_f f
   | And fl -> List.fold_left (fun result f -> result + (count_arith_f f)) 0 fl
   | Or fl -> List.fold_left (fun result f -> result + (count_arith_f f)) 0 fl
@@ -173,53 +180,75 @@ and count_arith_f =
     let v1 = count_arith_e e1 in
     let v2 = count_arith_e e2 in
     v1 + v2
-  | Let (binding_list, f) ->
-    BatList.sum (List.map (fun (id, f') -> count_arith_f f') binding_list)
-    + (count_mathfn_f f)
+  | LetF (fbinding_list, f) ->
+    BatList.sum (List.map (fun (id, f') -> count_arith_f f') fbinding_list)
+    + (count_arith_f f)
+  | LetE (ebinding_list, f) ->
+    BatList.sum (List.map (fun (id, e') -> count_arith_e e') ebinding_list)
+    + (count_arith_f f)
 
-let rec collect_var_in_f f =
+let rec collect_var_in_f f : string BatPSet.t =
   match f with
-  | True -> []
-  | False -> []
+  | True -> BatPSet.empty
+  | False -> BatPSet.empty
+  | FVar x -> BatPSet.singleton x
   | Not f' -> collect_var_in_f f'
-  | And fl -> List.concat (List.map collect_var_in_f fl)
-  | Or fl -> List.concat (List.map collect_var_in_f fl)
-  | Imply (f1, f2) -> List.concat (List.map collect_var_in_f [f1;f2])
-  | Gt (e1, e2) -> List.concat [collect_var_in_e e1;
-                               collect_var_in_e e2;]
-  | Lt (e1, e2) -> List.concat [collect_var_in_e e1;
-                               collect_var_in_e e2;]
-  | Ge (e1, e2) -> List.concat [collect_var_in_e e1;
-                               collect_var_in_e e2;]
-  | Le (e1, e2) -> List.concat [collect_var_in_e e1;
-                               collect_var_in_e e2;]
-  | Eq (e1, e2) -> List.concat [collect_var_in_e e1;
-                               collect_var_in_e e2;]
-  | Let (binding_list, f) -> collect_var_in_f f
-(*    let id_vars_list = 
-        List.map 
-            (fun (id, f') -> (id, collect_var_in_f f') 
-            binding_list 
-    in
-     (collect_var_in_f f) *)
-and collect_var_in_e e =
+  | And fl ->
+    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_f fl)
+  | Or fl ->
+    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_f fl)
+  | Imply (f1, f2) ->
+    BatPSet.union (collect_var_in_f f1) (collect_var_in_f f2)
+  | Gt (e1, e2) ->
+    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Lt (e1, e2) ->
+    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Ge (e1, e2) ->
+    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Le (e1, e2) ->
+    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Eq (e1, e2) ->
+    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | LetF (fbinding_list, f') ->
+    let id_vars_list =
+      List.map
+        (fun (id, f') -> (id, collect_var_in_f f'))
+        fbinding_list in
+    let (id_list, vars_list) = BatList.split id_vars_list in
+    let id_set = BatPSet.of_list id_list in
+    let bind_vars = List.fold_left BatPSet.union BatPSet.empty vars_list in
+    let vars_in_f' = collect_var_in_f f' in
+    BatPSet.union (BatPSet.diff vars_in_f' id_set) bind_vars
+  | LetE (ebinding_list, f') ->
+    let id_vars_list =
+      List.map
+        (fun (id, e') -> (id, collect_var_in_e e'))
+        ebinding_list in
+    let (id_list, vars_list) = BatList.split id_vars_list in
+    let id_set = BatPSet.of_list id_list in
+    let bind_vars = List.fold_left BatPSet.union BatPSet.empty vars_list in
+    let vars_in_f' = collect_var_in_f f' in
+    BatPSet.union (BatPSet.diff vars_in_f' id_set) bind_vars
+
+and collect_var_in_e e : string BatPSet.t =
   match e with
-    Var x -> [x]
-  | Num _ -> []
+    Var x -> BatPSet.singleton x
+  | Num _ -> BatPSet.empty
   | Neg e' -> collect_var_in_e e'
   | Add el ->
-    List.concat (List.map collect_var_in_e el)
+    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_e el)
   | Sub el ->
-    List.concat (List.map collect_var_in_e el)
-  | Mul el -> 
-    List.concat (List.map collect_var_in_e el)
-  | Div (e1, e2) -> List.concat [collect_var_in_e e1;
-                                collect_var_in_e e2;]
-  | Pow (e1, e2 ) -> List.concat [collect_var_in_e e1;
-                                collect_var_in_e e2;]
-  | Ite (f, e1, e2) -> List.concat [collect_var_in_f f;
-                                   collect_var_in_e e1;
-                                   collect_var_in_e e2;]
+    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_e el)
+  | Mul el ->
+    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_e el)
+  | Div (e1, e2) ->
+    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Pow (e1, e2 ) ->
+    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Ite (f, e1, e2) ->
+    BatPSet.union
+      (collect_var_in_f f)
+      (BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2))
   | Sqrt e1 -> collect_var_in_e e1
   | Abs e1 -> collect_var_in_e e1
   | Log e1 -> collect_var_in_e e1
@@ -303,13 +332,29 @@ and print_formula out =
         f
         out
         items
-    end
-  in
+    end in
+  let print_fbinding out (x, f) =
+    begin
+      BatString.print out "(";
+      BatString.print out x;
+      BatString.print out " ";
+      print_formula out f;
+      BatString.print out ")";
+    end in
+  let print_ebinding out (x, e) =
+    begin
+      BatString.print out "(";
+      BatString.print out x;
+      BatString.print out " ";
+      print_exp out e;
+      BatString.print out ")";
+    end in
   let print_exps op exps = print_lists op out print_exp exps in
   let print_formulas op formulas = print_lists op out print_formula formulas in
   function
   | True -> BatString.print out "true"
   | False -> BatString.print out "false"
+  | FVar x -> BatString.print out "x"
   | Not f -> print_formulas "not" [f]
   | And fs -> print_formulas "and" fs
   | Or  fs -> print_formulas "or"  fs
@@ -319,3 +364,27 @@ and print_formula out =
   | Ge  (e1, e2) -> print_exps ">=" [e1; e2]
   | Le  (e1, e2) -> print_exps "<=" [e1; e2]
   | Eq  (e1, e2) -> print_exps "="  [e1; e2]
+  | LetE (ebinding_list, f) ->
+    begin
+      BatString.print out "(let ";
+      BatList.print
+        (~first:("("))
+        (~sep:" ")
+        (~last:")")
+        print_ebinding
+        out
+        ebinding_list;
+      BatString.print out ")";
+    end
+  | LetF (fbinding_list, f) ->
+    begin
+      BatString.print out "(let ";
+      BatList.print
+        (~first:("("))
+        (~sep:" ")
+        (~last:")")
+        print_fbinding
+        out
+        fbinding_list;
+      BatString.print out ")";
+    end
