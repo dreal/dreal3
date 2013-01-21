@@ -13,9 +13,9 @@
 %token SINH COSH TANH
 %token LOG EXP SQRT ABS
 %token TRUE FALSE
-%token AND OR ARROW DOT
+%token AND OR ARROW DOT LET
 %token EOF
-%token SETLOGIC SETINFO DECLAREFUN ASSERT CHECKSAT EXIT
+%token SETLOGIC SETINFO DECLAREFUN ASSERT CHECKSAT EXIT SMTLIBVERSION DECLARECONST
 %token QF_NRA QF_NRA_ODE REAL INFTY
 %token <float> FNUM
 %token <string> ID
@@ -37,8 +37,11 @@ cmd_list: cmd { [$1] }
 
 cmd: LP SETLOGIC QF_NRA RP        { Smt2_cmd.SetLogic Smt2_cmd.QF_NRA }
  | LP SETLOGIC QF_NRA_ODE RP      { Smt2_cmd.SetLogic Smt2_cmd.QF_NRA_ODE }
+ | LP SETINFO COLON SMTLIBVERSION FNUM RP { Smt2_cmd.SetInfo (":" ^ "smt-lib-version", string_of_float $5) }
  | LP SETINFO COLON ID FNUM RP    { Smt2_cmd.SetInfo (":" ^ $4, string_of_float $5) }
+ | LP SETINFO COLON ID ID RP      { Smt2_cmd.SetInfo (":" ^ $4, $5) }
  | LP DECLAREFUN ID LP RP REAL RP { Smt2_cmd.DeclareFun $3 }
+ | LP DECLARECONST ID REAL RP     { Smt2_cmd.DeclareConst $3 }
  | LP ASSERT formula RP           { Smt2_cmd.Assert $3 }
  | LP CHECKSAT RP                 { Smt2_cmd.CheckSAT }
  | LP EXIT RP                     { Smt2_cmd.Exit }
@@ -55,22 +58,35 @@ formula:
   | NOT formula      { Basic.Not $2       }
   | AND formula_list { Basic.And $2       }
   | OR formula_list  { Basic.Or  $2       }
+  | IMPLY formula formula { Basic.Imply ($2, $3) }
   | GT exp exp       { Basic.Gt  ($2, $3) }
   | LT exp exp       { Basic.Lt  ($2, $3) }
   | GE exp exp       { Basic.Ge  ($2, $3) }
   | LE exp exp       { Basic.Le  ($2, $3) }
   | EQ exp exp       { Basic.Eq  ($2, $3) }
   | exp EQ exp       { Basic.Eq  ($1, $3) }
+  | LET LP binding_list RP formula   { Basic.Let ($3, $5) }
+;
+
+binding_list: binding  { [$1] }
+| binding binding_list { $1::$2 }
+;
+
+binding: LP ID formula RP { ($2, $3) }
+;
+
+exp_list: exp { [$1] }
+| exp exp_list { $1::$2 }
 ;
 
 exp:
    ID                           { Basic.Var $1 }
  | FNUM                         { Basic.Num $1 }
  | LP exp RP                    { $2 }
- | PLUS exp exp                 { Basic.Add ($2, $3) }
  | MINUS exp                    { Basic.Neg $2 }
- | MINUS exp exp                { Basic.Sub ($2, $3) }
- | AST exp exp                  { Basic.Mul ($2, $3) }
+ | PLUS exp_list                { Basic.Add ($2) }
+ | MINUS exp exp_list           { Basic.Sub ($2::$3) }
+ | AST exp_list                 { Basic.Mul ($2) }
  | SLASH exp exp                { Basic.Div ($2, $3) }
  | CARET exp exp                { Basic.Pow ($2, $3) }
  | SQRT exp                     { Basic.Sqrt $2 }

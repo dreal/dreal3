@@ -6,6 +6,7 @@ type formula = Basic.formula
 type t = SetLogic of logic
          | SetInfo of string * string
          | DeclareFun of string
+         | DeclareConst of string
          | Assert of formula
          | CheckSAT
          | Exit
@@ -41,6 +42,12 @@ let print out =
       BatString.print out " ";
       BatString.print out value;
       BatString.print out ")";
+    end
+  | DeclareConst v ->
+    begin
+      BatString.print   out "(declare-const ";
+      BatString.print   out v;
+      BatString.print out " Real)";
     end
   | DeclareFun v ->
     begin

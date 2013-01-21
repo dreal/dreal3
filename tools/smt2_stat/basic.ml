@@ -6,9 +6,9 @@ type exp =
 | Var   of string
 | Num of float
 | Neg   of exp
-| Add   of exp * exp
-| Sub   of exp * exp
-| Mul   of exp * exp
+| Add   of exp list
+| Sub   of exp list
+| Mul   of exp list
 | Div   of exp * exp
 | Pow   of exp * exp
 | Ite   of formula * exp * exp
@@ -31,29 +31,25 @@ and formula =
 | Not of formula
 | And of formula list
 | Or  of formula list
+| Imply of formula * formula
 | Gt  of exp * exp
 | Lt  of exp * exp
 | Ge  of exp * exp
 | Le  of exp * exp
 | Eq  of exp * exp
+| Let of ((string * formula) list * formula)
 
 let rec count_mathfn_e =
   function
   | Var _ -> 0
   | Num _ -> 0
   | Neg e -> count_mathfn_e e
-  | Add (e1, e2) ->
-    let v1 = count_mathfn_e e1 in
-    let v2 = count_mathfn_e e2 in
-    v1 + v2
-  | Sub (e1, e2) ->
-    let v1 = count_mathfn_e e1 in
-    let v2 = count_mathfn_e e2 in
-    v1 + v2
-  | Mul (e1, e2) ->
-    let v1 = count_mathfn_e e1 in
-    let v2 = count_mathfn_e e2 in
-    v1 + v2
+  | Add el -> 
+    BatList.sum (List.map count_mathfn_e el)
+  | Sub (el) ->
+    BatList.sum (List.map count_mathfn_e el)
+  | Mul (el) ->
+    BatList.sum (List.map count_mathfn_e el)
   | Div (e1, e2) ->
     let v1 = count_mathfn_e e1 in
     let v2 = count_mathfn_e e2 in
@@ -87,6 +83,7 @@ and count_mathfn_f =
   | Not f -> count_mathfn_f f
   | And fl -> List.fold_left (fun result f -> result + (count_mathfn_f f)) 0 fl
   | Or fl -> List.fold_left (fun result f -> result + (count_mathfn_f f)) 0 fl
+  | Imply (f1, f2) -> List.fold_left (fun result f -> result + (count_mathfn_f f)) 0 [f1;f2]
   | Gt (e1, e2) ->
     let v1 = count_mathfn_e e1 in
     let v2 = count_mathfn_e e2 in
@@ -107,24 +104,21 @@ and count_mathfn_f =
     let v1 = count_mathfn_e e1 in
     let v2 = count_mathfn_e e2 in
     v1 + v2
+  | Let (binding_list, f) ->
+    BatList.sum (List.map (fun (id, f') -> count_mathfn_f f') binding_list)
+    + (count_mathfn_f f)
 
 let rec count_arith_e =
   function
   | Var _ -> 0
   | Num _ -> 0
   | Neg e -> count_arith_e e
-  | Add (e1, e2) ->
-    let v1 = count_arith_e e1 in
-    let v2 = count_arith_e e2 in
-    v1 + v2 + 1
-  | Sub (e1, e2) ->
-    let v1 = count_arith_e e1 in
-    let v2 = count_arith_e e2 in
-    v1 + v2 + 1
-  | Mul (e1, e2) ->
-    let v1 = count_arith_e e1 in
-    let v2 = count_arith_e e2 in
-    v1 + v2 + 1
+  | Add el ->
+    1 + (BatList.sum (List.map count_arith_e el))
+  | Sub el ->
+    1 + (BatList.sum (List.map count_arith_e el))
+  | Mul el ->
+    1 + (BatList.sum (List.map count_arith_e el))
   | Div (e1, e2) ->
     let v1 = count_arith_e e1 in
     let v2 = count_arith_e e2 in
@@ -158,6 +152,7 @@ and count_arith_f =
   | Not f -> count_arith_f f
   | And fl -> List.fold_left (fun result f -> result + (count_arith_f f)) 0 fl
   | Or fl -> List.fold_left (fun result f -> result + (count_arith_f f)) 0 fl
+  | Imply (f1, f2) -> List.fold_left (fun result f -> result + (count_arith_f f)) 0 [f1;f2]
   | Gt (e1, e2) ->
     let v1 = count_arith_e e1 in
     let v2 = count_arith_e e2 in
@@ -178,6 +173,9 @@ and count_arith_f =
     let v1 = count_arith_e e1 in
     let v2 = count_arith_e e2 in
     v1 + v2
+  | Let (binding_list, f) ->
+    BatList.sum (List.map (fun (id, f') -> count_arith_f f') binding_list)
+    + (count_mathfn_f f)
 
 let rec collect_var_in_f f =
   match f with
@@ -186,6 +184,7 @@ let rec collect_var_in_f f =
   | Not f' -> collect_var_in_f f'
   | And fl -> List.concat (List.map collect_var_in_f fl)
   | Or fl -> List.concat (List.map collect_var_in_f fl)
+  | Imply (f1, f2) -> List.concat (List.map collect_var_in_f [f1;f2])
   | Gt (e1, e2) -> List.concat [collect_var_in_e e1;
                                collect_var_in_e e2;]
   | Lt (e1, e2) -> List.concat [collect_var_in_e e1;
@@ -196,17 +195,24 @@ let rec collect_var_in_f f =
                                collect_var_in_e e2;]
   | Eq (e1, e2) -> List.concat [collect_var_in_e e1;
                                collect_var_in_e e2;]
+  | Let (binding_list, f) -> collect_var_in_f f
+(*    let id_vars_list = 
+        List.map 
+            (fun (id, f') -> (id, collect_var_in_f f') 
+            binding_list 
+    in
+     (collect_var_in_f f) *)
 and collect_var_in_e e =
   match e with
     Var x -> [x]
   | Num _ -> []
   | Neg e' -> collect_var_in_e e'
-  | Add (e1, e2) -> List.concat [collect_var_in_e e1;
-                                collect_var_in_e e2;]
-  | Sub (e1, e2) -> List.concat [collect_var_in_e e1;
-                                collect_var_in_e e2;]
-  | Mul (e1, e2) -> List.concat [collect_var_in_e e1;
-                                collect_var_in_e e2;]
+  | Add el ->
+    List.concat (List.map collect_var_in_e el)
+  | Sub el ->
+    List.concat (List.map collect_var_in_e el)
+  | Mul el -> 
+    List.concat (List.map collect_var_in_e el)
   | Div (e1, e2) -> List.concat [collect_var_in_e e1;
                                 collect_var_in_e e2;]
   | Pow (e1, e2 ) -> List.concat [collect_var_in_e e1;
@@ -252,9 +258,9 @@ let rec print_exp out =
     in
     BatString.print out str_n'
   | Neg e' -> print_exps "-" [e']
-  | Add (e1, e2) -> print_exps "+" [e1; e2]
-  | Sub (e1, e2) -> print_exps "-" [e1; e2]
-  | Mul (e1, e2) -> print_exps "*" [e1; e2]
+  | Add el -> print_exps "+" el
+  | Sub el -> print_exps "-" el
+  | Mul el -> print_exps "*" el
   | Div (e1, e2) -> print_exps "/" [e1; e2]
   | Pow (e1, e2) -> print_exps "^" [e1; e2]
   | Ite (f, e1, e2) ->
@@ -307,6 +313,7 @@ and print_formula out =
   | Not f -> print_formulas "not" [f]
   | And fs -> print_formulas "and" fs
   | Or  fs -> print_formulas "or"  fs
+  | Imply (f1, f2) -> print_formulas "=>" [f1;f2]
   | Gt  (e1, e2) -> print_exps ">"  [e1; e2]
   | Lt  (e1, e2) -> print_exps "<"  [e1; e2]
   | Ge  (e1, e2) -> print_exps ">=" [e1; e2]

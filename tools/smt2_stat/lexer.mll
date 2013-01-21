@@ -28,12 +28,16 @@
      ("or", OR);
      ("not", NOT);
      ("ite", ITE);
+     ("let", LET);
+     ("assert", ASSERT);
+     ("exit", EXIT);
     ]
 }
 
 let blank = [' ' '\t']+
 let id = ['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z' '0'-'9' '_'])*
 let float_number = ('+'|'-')? ['0'-'9']+('.'(['0'-'9']*))?('e'('+'|'-')['0'-'9']+)?
+let source = '|' [^'|']* '|'
 rule start =
   parse blank { start lexbuf }
     | "\r\n"  { incr_ln (); start lexbuf}
@@ -41,9 +45,9 @@ rule start =
     | "set-logic"   { verbose (Lexing.lexeme lexbuf); SETLOGIC }
     | "set-info"    { verbose (Lexing.lexeme lexbuf); SETINFO }
     | "declare-fun" { verbose (Lexing.lexeme lexbuf); DECLAREFUN }
-    | "assert"      { verbose (Lexing.lexeme lexbuf); ASSERT }
+    | "declare-const" { verbose (Lexing.lexeme lexbuf); DECLARECONST }
     | "check-sat"   { verbose (Lexing.lexeme lexbuf); CHECKSAT }
-    | "exit"        { verbose (Lexing.lexeme lexbuf); EXIT }
+    | "smt-lib-version" { verbose (Lexing.lexeme lexbuf); SMTLIBVERSION }
     | "["     { verbose (Lexing.lexeme lexbuf); LB }
     | "]"     { verbose (Lexing.lexeme lexbuf); RB }
     | "("     { verbose (Lexing.lexeme lexbuf); LP }
@@ -52,6 +56,7 @@ rule start =
     | "="     { verbose (Lexing.lexeme lexbuf); EQ }
     | ">="    { verbose (Lexing.lexeme lexbuf); GE }
     | "<="    { verbose (Lexing.lexeme lexbuf); LE }
+    | "=>"    { verbose (Lexing.lexeme lexbuf); IMPLY }
     | ">"     { verbose (Lexing.lexeme lexbuf); GT }
     | "<"     { verbose (Lexing.lexeme lexbuf); LT }
     | "+"     { verbose (Lexing.lexeme lexbuf); PLUS }
@@ -67,5 +72,6 @@ rule start =
              with _ -> ID id
          }
     | float_number { verbose (Lexing.lexeme lexbuf); FNUM (float_of_string(Lexing.lexeme lexbuf)) } (* float *)
+    | source       { verbose ("Source:" ^ Lexing.lexeme lexbuf); ID (Lexing.lexeme lexbuf)  }
     | eof { verbose "eof"; EOF}
     | _   { raise Not_found }

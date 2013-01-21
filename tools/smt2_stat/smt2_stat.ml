@@ -4,6 +4,7 @@ let count_cmd f = function
     | SetLogic _ -> 0
     | SetInfo _ -> 0
     | DeclareFun _ -> 0
+    | DeclareConst _ -> 0
     | Assert formula -> f formula
     | CheckSAT -> 0
     | Exit -> 0
