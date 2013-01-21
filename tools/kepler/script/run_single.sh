@@ -19,7 +19,10 @@ RESULTFILE=$BASE.result
 TIMEOUT_TIME=1800 # 600 sec = 30 min
 
 # Copy SMT to the Result DIR
-cp $INEQ_PATHNAME $SMT
+if [ ! -f $SMT ]
+then
+	cp $INEQ_PATHNAME $SMT
+fi
 
 echo -n "Run dReal: $INEQ - "
 $TIMEUTIL -f "%E" -o $TIMEFILE $TIMEOUT3 -t $TIMEOUT_TIME $DREAL $SMT 2> $OUTFILE > $TRACEFILE

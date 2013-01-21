@@ -49,7 +49,7 @@ do
     if [ -s $SMT_QUEUE ]
     then
         echo `date`: "RUN DREAL2:"
-        cat $SMT_QUEUE | parallel --max-procs=$MAX "$RUN_SINGLE {}.smt2"
+        cat $SMT_QUEUE | parallel --max-procs=$MAX "$RUN_SINGLE {}.smt2 ./"
     fi
 
     # RUN: split.py
@@ -75,6 +75,8 @@ do
     if [ -s $CHECK_QUEUE ]
     then
         echo `date`: "RUN Check"
+	cat $CHECK_QUEUE
+	echo ------------------------
         cat $CHECK_QUEUE | parallel --max-procs=$MAX "$PCHECKER {}.trace"
         cat $CHECK_QUEUE | parallel --max-procs=$MAX "touch {}.checked"
         touch $TODO # We may need to have more things TO DO
