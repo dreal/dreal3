@@ -901,6 +901,39 @@ can rely on any external solver that are easy to be verified by multiple
 solvers, and can be done symbolically. Once it is done symbolically, we obtain
 a symbolic proof that does not mention any numerical computations. 
 
+The following benchmark can be solved by MetiTarski, which is used in verifying
+the aircraft example in~\cite{}. 
+\begin{example}[Aircraft]
+The aircraft formula is
+\begin{eqnarray*}
+& &\forall t \forall x_1\forall x_2 \forall y_1\forall y_2\forall
+d_1\forall d_2\forall e_1\forall e_2. \\
+& &0<t<10\wedge x_1<-9 \wedge x2<-1\wedge
+x1>10 \wedge y2>10\\
+& & \wedge 0.1<d1< 0.15\wedge 0.1<d_2<0.15 \wedge
+0.1<e-1<0.15\wedge 0.1<e_2<0.15 \\
+\rightarrow & &\Big(
+\Big(x_1-y_1-100d_2-100e_2+(100d_2+100e_2)\cos(0.01t)\\
+& &\ \ \ + (100d_1
+-100e_1)\sin(0.01t)\Big)^2\\
+& & \ \ +\Big((x_2-y_2+100d_1+100e_1+(-100d_1-100e_1)\cos(0.
+0 1 t ) \\
+& &\ \ \  + (100d_2 - 100e_2)\sin(0.01t)\Big)^2 > 2\Big).
+\end{eqnarray*}
+The formula is solved in MetiTarski in 924
+seconds~\cite{}. On comparable machines, dReal solves in 0.01 seconds, also
+completely verifies the proof of unsatisfiability in 0.41 seconds. Note that
+this may be the first full proof produced that do not rely on external decision
+procedures. 
+\end{example}
+On the other hand, numerical approach has its inherent limitations. For
+instance, for simple formulas in the MetiTarski benchmark set such as the
+following, our solver keeps returning $\delta$-sat, and thus do not provide a
+proof of unsatisfiability. 
+\begin{example}
+ 
+\end{example}
+
 Franzle's paper. Old validation papers. proof of unsatisfiability of SAT and
 SMT solvers. Theorem proving papers.
 
