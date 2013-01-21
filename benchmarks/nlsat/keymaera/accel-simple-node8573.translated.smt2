@@ -29,3 +29,4 @@
                     zuscore2dollarsk!4)
                  0.0)))
 (check-sat)
+(exit)

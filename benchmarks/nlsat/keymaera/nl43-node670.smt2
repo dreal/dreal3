@@ -8,3 +8,4 @@ Andre Platzer, Jan-David Quesel, and Philipp Rümmer. Real world verification. I
 (declare-const x Real)
 (assert (not (=> (and (and (>= y 1. ) (= (* (* z z) 2.) y )) (>= x 1. )) (<= (* (* z z) x) (* y x) ))))
 (check-sat)
+(exit)

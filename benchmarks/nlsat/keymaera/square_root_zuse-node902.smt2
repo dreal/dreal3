@@ -6,3 +6,4 @@ Andre Platzer, Jan-David Quesel, and Philipp Rümmer. Real world verification. I
 (declare-const a Real)
 (assert (not (= a (+ 1. (* 1. (- a 1.))) )))
 (check-sat)
+(exit)

@@ -26,3 +26,4 @@
                       (+ (* (- 1.0) h2uscore1dollarsk!4) x2uscore2dollarsk!0)))
                 0.0)))
 (check-sat)
+(exit)

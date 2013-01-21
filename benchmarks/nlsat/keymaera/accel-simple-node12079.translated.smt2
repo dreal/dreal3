@@ -32,3 +32,4 @@
                          (* (- 10.0) t3uscore0dollarsk!0)
                          (* (- 10.0) tuscore2dollarsk!2)))))))
 (check-sat)
+(exit)

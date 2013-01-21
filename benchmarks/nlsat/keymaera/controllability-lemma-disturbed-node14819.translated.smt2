@@ -22,3 +22,4 @@
 (assert (<= z m))
 (assert (not (<= vuscore2dollarsk!0 d)))
 (check-sat)
+(exit)

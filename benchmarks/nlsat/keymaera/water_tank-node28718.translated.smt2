@@ -10,3 +10,4 @@
 (assert (not (= stuscore2dollarsk!0 3.0)))
 (assert (not (>= yuscore2dollarsk!1 5.0)))
 (check-sat)
+(exit)

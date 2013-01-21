@@ -18,3 +18,4 @@
 (assert (not (<= (+ (* v v) (* (- 1.0) duscore1dollarsk!0 duscore1dollarsk!0))
                  (* 2.0 b (+ muscore1dollarsk!1 (* (- 1.0) z))))))
 (check-sat)
+(exit)

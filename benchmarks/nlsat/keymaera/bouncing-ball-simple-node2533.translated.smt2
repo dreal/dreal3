@@ -15,3 +15,4 @@
 (assert (= v 16.0))
 (assert (not (<= 0.0 huscore1dollarsk!1)))
 (check-sat)
+(exit)

@@ -16,3 +16,4 @@
                    (* yuscore2dollarsk!1
                       (+ vuscore2dollarsk!3 uuscore2dollarsk!2))))))
 (check-sat)
+(exit)

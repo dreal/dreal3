@@ -41,3 +41,4 @@
                 0.0)))
 (assert (or (not (>= t1uscore0dollarsk!0 0.0)) (>= huscore2dollarsk!2 0.0)))
 (check-sat)
+(exit)

@@ -22,3 +22,4 @@
                    (* (- 3.0) ruscore1dollarsk!1 ruscore1dollarsk!1))
                 0.0)))
 (check-sat)
+(exit)

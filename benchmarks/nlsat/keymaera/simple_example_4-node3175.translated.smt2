@@ -10,3 +10,4 @@
 (assert (not (= (* (+ 2.0 cuscore2dollarsk!1) (+ 4.0 cuscore2dollarsk!1))
                 (+ 15.0 (* 4.0 suscore2dollarsk!2) (* 8.0 auscore2dollarsk!3)))))
 (check-sat)
+(exit)

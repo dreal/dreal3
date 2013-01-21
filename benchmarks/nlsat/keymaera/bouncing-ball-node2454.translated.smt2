@@ -23,3 +23,4 @@
 (assert (<= v (+ (* (- 1.0) g t) V)))
 (assert (not (<= 0.0 huscore1dollarsk!1)))
 (check-sat)
+(exit)

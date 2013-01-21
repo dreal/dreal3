@@ -52,3 +52,4 @@
 (assert (not (>= zuscore2dollarsk!1 Pauscore2dollarsk!3)))
 (assert (not (<= vuscore2dollarsk!0 MAduscore2dollarsk!5)))
 (check-sat)
+(exit)

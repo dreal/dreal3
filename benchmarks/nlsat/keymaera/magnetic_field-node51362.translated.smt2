@@ -50,3 +50,4 @@
 (assert (not (= vyuscore2dollarsk!6 (+ (- 2.0) (* a (+ (- 2.0) xuscore2dollarsk!4))))))
 (assert (not (= vxuscore2dollarsk!5 (- 2.0))))
 (check-sat)
+(exit)

@@ -58,3 +58,4 @@
                 (* (+ (- 4.0) (* (- 4.0) buscore2dollarsk!2))
                    (+ 1.0 (* (- 1.0) a))))))
 (check-sat)
+(exit)

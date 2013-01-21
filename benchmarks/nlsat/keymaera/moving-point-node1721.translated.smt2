@@ -16,3 +16,4 @@
             (>= (+ c (* (- 1.0) t1uscore0dollarsk!0)) 0.0)))
 (assert (or (not (>= t1uscore0dollarsk!0 0.0)) (>= c 0.0)))
 (check-sat)
+(exit)

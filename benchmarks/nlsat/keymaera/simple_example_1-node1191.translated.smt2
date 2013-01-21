@@ -5,3 +5,4 @@
 (assert (not (= (* 2.0 xuscore2dollarsk!1 (+ 1.0 (* (/ 1.0 2.0) yuscore2dollarsk!0)))
                 (* 4.0 xuscore2dollarsk!1))))
 (check-sat)
+(exit)

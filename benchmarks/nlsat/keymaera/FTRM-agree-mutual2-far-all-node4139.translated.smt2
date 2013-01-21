@@ -42,3 +42,4 @@
 (assert (= (+ x2 (* d2 luscore0dollarsk!2)) (+ y2 (* e2 luscore0dollarsk!2))))
 (assert (not (= (+ y1 (* e1 luscore0dollarsk!2)) (+ x1 (* d1 luscore0dollarsk!2)))))
 (check-sat)
+(exit)

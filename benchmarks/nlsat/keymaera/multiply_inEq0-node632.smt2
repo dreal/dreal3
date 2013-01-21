@@ -8,3 +8,4 @@ Andre Platzer, Jan-David Quesel, and Philipp Rümmer. Real world verification. I
 (declare-const multFacuscore103 Real)
 (assert (not (=> (<= multLeftuscore105 multRightuscore104 ) (or (>= multFacuscore103 0. ) (>= (* multLeftuscore105 multFacuscore103) (* multRightuscore104 multFacuscore103) )))))
 (check-sat)
+(exit)

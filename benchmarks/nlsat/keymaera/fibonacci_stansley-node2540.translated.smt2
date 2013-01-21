@@ -17,3 +17,4 @@
                          (* (- 8.0) quscore2dollarsk!1)))
                    (* 32.0 xuscore2dollarsk!0)))))
 (check-sat)
+(exit)

@@ -14,3 +14,4 @@
                    (* 3.0 (+ 1.0 nuscore2dollarsk!0) (+ 1.0 nuscore2dollarsk!0)))
                 (+ (- 4.0) yuscore2dollarsk!2 zuscore2dollarsk!3))))
 (check-sat)
+(exit)

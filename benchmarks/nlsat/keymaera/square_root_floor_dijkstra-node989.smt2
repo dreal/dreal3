@@ -8,3 +8,4 @@ Andre Platzer, Jan-David Quesel, and Philipp Rümmer. Real world verification. I
 (declare-const r0 Real)
 (assert (not (= (* (* p0 p0) q0) (* q0 (+ (* p0 p0) (* q0 (+ (- r0) r0)))) )))
 (check-sat)
+(exit)

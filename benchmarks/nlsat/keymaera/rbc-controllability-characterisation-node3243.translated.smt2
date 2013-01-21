@@ -227,3 +227,4 @@
               (and (or (= b 0.0) (= a!1 0.0) (not (>= a!1 0.0)))
                    (>= duscore1dollarsk!0 0.0)))))
 (check-sat)
+(exit)

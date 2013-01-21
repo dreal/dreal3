@@ -39,3 +39,4 @@
                             (+ t1uscore0dollarsk!0 tuscore2dollarsk!2)
                             (+ t1uscore0dollarsk!0 tuscore2dollarsk!2))))))))
 (check-sat)
+(exit)

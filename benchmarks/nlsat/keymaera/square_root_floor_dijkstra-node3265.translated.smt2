@@ -16,3 +16,4 @@
                    quscore2dollarsk!3
                    (+ (* p0 p0) (* q0 (+ (* (- 1.0) ruscore2dollarsk!0) r0)))))))
 (check-sat)
+(exit)

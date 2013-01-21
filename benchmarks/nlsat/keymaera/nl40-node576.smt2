@@ -7,3 +7,4 @@ Andre Platzer, Jan-David Quesel, and Philipp Rümmer. Real world verification. I
 (declare-const x Real)
 (assert (not (=> (= (* y x) 0. ) (or (= y 0. ) (= x 0. )))))
 (check-sat)
+(exit)

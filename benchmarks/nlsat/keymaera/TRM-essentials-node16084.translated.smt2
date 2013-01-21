@@ -49,3 +49,4 @@
                           (* (- 2.0) e2uscore5dollarsk!3))))
                  0.0)))
 (check-sat)
+(exit)

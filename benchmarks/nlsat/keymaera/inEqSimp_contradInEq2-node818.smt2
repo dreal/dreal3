@@ -10,3 +10,4 @@ Andre Platzer, Jan-David Quesel, and Philipp Rümmer. Real world verification. I
 (declare-const contradRightSmalleruscore68 Real)
 (assert (not (=> (and (and (and (> contradCoeffBiggeruscore65 0. ) (> contradCoeffSmalleruscore67 0. )) (>= (* contradLeftuscore66 contradCoeffBiggeruscore65) contradRightBiggeruscore64 )) (<= (* contradLeftuscore66 contradCoeffSmalleruscore67) contradRightSmalleruscore68 )) (>= (* contradCoeffBiggeruscore65 contradRightSmalleruscore68) (* contradCoeffSmalleruscore67 contradRightBiggeruscore64) ))))
 (check-sat)
+(exit)

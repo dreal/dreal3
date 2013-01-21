@@ -6,3 +6,4 @@
                 (+ (- 1.0)
                    (* (+ 1.0 buscore2dollarsk!1) (+ 1.0 buscore2dollarsk!1))))))
 (check-sat)
+(exit)

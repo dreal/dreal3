@@ -33,3 +33,4 @@
 (assert (or (not (>= t2uscore1dollarsk!0 0.0))
             (>= (+ v (* (- 1.0) b t2uscore1dollarsk!0)) 0.0)))
 (check-sat)
+(exit)

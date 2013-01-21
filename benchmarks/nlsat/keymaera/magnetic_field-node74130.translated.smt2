@@ -34,3 +34,4 @@
                 8.0)))
 (assert (not (= vyuscore7dollarsk!3 (- 2.0))))
 (check-sat)
+(exit)

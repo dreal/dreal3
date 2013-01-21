@@ -21,3 +21,4 @@
                    (* 4.0 xuscore2dollarsk!0)
                    (* (- 4.0) suscore2dollarsk!1)))))
 (check-sat)
+(exit)

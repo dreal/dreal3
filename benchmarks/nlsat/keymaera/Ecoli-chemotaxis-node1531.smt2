@@ -13,3 +13,4 @@
 (declare-const k Real)
 (assert (not (=> (and (and (and (and (and (and (and (and (and (and (and (>= 1. t ) (>= t 0. )) (= kmod 1. )) (= (+ (* u u) (* v v)) 1. )) (= tc 0. )) (= s 1. )) (= cmax 100. )) (<= (- 100.) x )) (<= x 100. )) (<= (- 100.) y )) (<= y 100. )) (= k 1. )) (<= t 10. ))))
 (check-sat)
+(exit)

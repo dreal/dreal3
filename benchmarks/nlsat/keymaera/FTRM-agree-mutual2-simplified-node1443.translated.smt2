@@ -19,3 +19,4 @@
                    (* (+ y2 (* (- 1.0) x2) (* (- 1.0) d2 luscore0dollarsk!0))
                       (+ y2 (* (- 1.0) x2) (* (- 1.0) d2 luscore0dollarsk!0)))))))
 (check-sat)
+(exit)

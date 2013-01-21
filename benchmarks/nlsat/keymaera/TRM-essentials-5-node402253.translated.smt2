@@ -226,3 +226,4 @@
                           (* (- 2.0) h2uscore7dollarsk!15))))
                  0.0)))
 (check-sat)
+(exit)

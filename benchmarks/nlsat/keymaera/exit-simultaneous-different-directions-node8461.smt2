@@ -16,3 +16,4 @@ Andre Platzer and Edmund M. Clarke. Formal verification of curved flight collisi
 (declare-const y1 Real)
 (assert (not (=> (and (and (and (= d1 (* (- om) (- x2 c2)) ) (= d2 (* om (- x1 c1)) )) (= e1 (* (- om) (- y2 c2)) )) (= e2 (* om (- y1 c1)) )) (or (= d2 e2 ) (> (+ (* (- d1 e1) (- d1 e1)) (* (- d2 e2) (- d2 e2))) 0. )))))
 (check-sat)
+(exit)

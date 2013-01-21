@@ -7,3 +7,4 @@ Andre Platzer, Jan-David Quesel, and Philipp Rümmer. Real world verification. I
 (declare-const iuscore5 Real)
 (assert (not (=> (= i0uscore4 0. ) (= (* iuscore5 i0uscore4) 0. ))))
 (check-sat)
+(exit)

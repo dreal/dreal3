@@ -28,3 +28,4 @@
                           (* e2uscore1dollarsk!1 om))))
                  0.0)))
 (check-sat)
+(exit)

@@ -35,3 +35,4 @@
                    (* 4.0 buscore2dollarsk!5 (+ 1.0 (* (- 1.0) a)))))))
 (assert (not (= vyuscore8dollarsk!3 (- 2.0))))
 (check-sat)
+(exit)

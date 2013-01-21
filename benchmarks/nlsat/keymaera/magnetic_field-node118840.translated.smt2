@@ -37,3 +37,4 @@
 (assert (not (= stateuscore2dollarsk!4 0.0)))
 (assert (not (= vxuscore10dollarsk!2 (- 2.0))))
 (check-sat)
+(exit)

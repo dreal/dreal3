@@ -9,3 +9,4 @@
 (assert (not (= e 0.0)))
 (assert (not (= (* (/ 1.0 2.0) auscore2dollarsk!3) (* (/ 1.0 4.0) buscore2dollarsk!2))))
 (check-sat)
+(exit)

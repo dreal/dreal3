@@ -19,3 +19,4 @@
             (<= (+ (* 2.0 t18uscore0dollarsk!0) (* (- 1.0) yuscore2dollarsk!2))
                 (- 5.0))))
 (check-sat)
+(exit)

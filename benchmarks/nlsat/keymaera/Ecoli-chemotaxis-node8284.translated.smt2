@@ -42,3 +42,4 @@
 (assert (or (not (>= t3uscore0dollarsk!0 0.0))
             (and (<= tuscore2dollarsk!3 10.0) (<= tcuscore2dollarsk!2 1.0))))
 (check-sat)
+(exit)

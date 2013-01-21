@@ -10,3 +10,4 @@ Andre Platzer, Jan-David Quesel, and Philipp Rümmer. Real world verification. I
 (declare-const esRight2uscore39 Real)
 (assert (not (=> (and (and (and (> esCoeff1uscore40 0. ) (> esCoeff2uscore38 0. )) (< (* esLeftuscore41 esCoeff1uscore40) esRight1uscore37 )) (>= (* esLeftuscore41 esCoeff2uscore38) esRight2uscore39 )) (> (+ (* (- 1.) (* esCoeff1uscore40 esRight2uscore39)) (* esCoeff2uscore38 esRight1uscore37)) 0. ))))
 (check-sat)
+(exit)

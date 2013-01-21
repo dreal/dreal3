@@ -7,3 +7,4 @@ Andre Platzer, Jan-David Quesel, and Philipp Rümmer. Real world verification. I
 (declare-const v Real)
 (assert (not (=> (and (= h 0. ) (= v 16. )) (<= v 16. ))))
 (check-sat)
+(exit)

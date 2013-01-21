@@ -10,3 +10,4 @@ Andre Platzer, Jan-David Quesel, and Philipp Rümmer. Real world verification. I
 (declare-const subsumLeftuscore48 Real)
 (assert (not (=> (and (and (and (> subsumCoeffSmalleruscore49 0. ) (> subsumCoeffBiggeruscore47 0. )) (<= (* subsumCoeffBiggeruscore47 subsumRightSmalleruscore50) (* subsumCoeffSmalleruscore49 subsumRightBiggeruscore46) )) (<= (* subsumLeftuscore48 subsumCoeffSmalleruscore49) subsumRightSmalleruscore50 )) (<= (* subsumLeftuscore48 subsumCoeffBiggeruscore47) subsumRightBiggeruscore46 ))))
 (check-sat)
+(exit)

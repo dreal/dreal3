@@ -20,3 +20,4 @@
             (* (+ x0 (* (- 1.0) xuscore0dollarsk!0))
                (+ x0 (* (- 1.0) xuscore0dollarsk!0)))))
 (check-sat)
+(exit)

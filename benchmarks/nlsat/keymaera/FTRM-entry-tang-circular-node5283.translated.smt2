@@ -16,3 +16,4 @@
                       (+ x2 (* (- 1.0) h2uscore1dollarsk!0))))
                 (* r r))))
 (check-sat)
+(exit)

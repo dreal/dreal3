@@ -20,3 +20,4 @@
                              x2uscore1dollarsk!1))))
                  0.0)))
 (check-sat)
+(exit)

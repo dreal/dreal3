@@ -21,3 +21,4 @@
 (assert (not (= a 0.0)))
 (assert (not (= (* buscore0dollarsk!0 tuscore0dollarsk!1) a)))
 (check-sat)
+(exit)

@@ -9,3 +9,4 @@
                    (* y (+ 1.0 quouscore2dollarsk!1)))
                 x)))
 (check-sat)
+(exit)

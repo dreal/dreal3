@@ -50,3 +50,4 @@
                       (+ 1.0 yuscore2dollarsk!1)
                       (+ 1.0 yuscore2dollarsk!1))))))
 (check-sat)
+(exit)

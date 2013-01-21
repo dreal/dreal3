@@ -39,3 +39,4 @@
                        yuscore0dollarsk!1))
                  0.0)))
 (check-sat)
+(exit)

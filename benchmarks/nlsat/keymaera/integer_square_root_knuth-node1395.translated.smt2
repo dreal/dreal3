@@ -10,3 +10,4 @@
                    (* (+ 1.0 ruscore2dollarsk!1) (+ 1.0 ruscore2dollarsk!1))
                    (* 2.0 yuscore2dollarsk!0)))))
 (check-sat)
+(exit)

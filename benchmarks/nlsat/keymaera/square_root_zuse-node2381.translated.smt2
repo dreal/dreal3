@@ -20,3 +20,4 @@
                          (* (- 2.0) quscore2dollarsk!1)
                          (* (- 1.0) puscore2dollarsk!2)))))))
 (check-sat)
+(exit)

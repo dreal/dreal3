@@ -70,3 +70,4 @@
 (assert (or (not (>= t1uscore0dollarsk!0 0.0))
             (and (>= vuscore2dollarsk!7 0.0) (>= ep 0.0))))
 (check-sat)
+(exit)

@@ -11,3 +11,4 @@
 (assert (<= (+ (* d1 d1) (* d2 d2)) (* b b)))
 (assert (not (<= d1uscore2dollarsk!0 b)))
 (check-sat)
+(exit)

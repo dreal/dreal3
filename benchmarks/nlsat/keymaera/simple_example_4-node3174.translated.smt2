@@ -10,3 +10,4 @@
 (assert (not (= (+ buscore2dollarsk!0 (* 2.0 cuscore2dollarsk!1))
                 (+ 2.0 suscore2dollarsk!2 (* 2.0 auscore2dollarsk!3)))))
 (check-sat)
+(exit)

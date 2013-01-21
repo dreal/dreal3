@@ -36,3 +36,4 @@
                    omuscore3dollarsk!0
                    (+ x2uscore3dollarsk!4 (* (- 1.0) y2uscore3dollarsk!2))))))
 (check-sat)
+(exit)

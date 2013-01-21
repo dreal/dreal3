@@ -22,3 +22,4 @@
 (assert (>= ep 0.0))
 (assert (not (<= vuscore1dollarsk!3 duscore1dollarsk!2)))
 (check-sat)
+(exit)

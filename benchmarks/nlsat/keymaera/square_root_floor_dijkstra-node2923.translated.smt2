@@ -25,3 +25,4 @@
                             (* (/ 1.0 4.0) quscore2dollarsk!3)
                             r0)))))))
 (check-sat)
+(exit)

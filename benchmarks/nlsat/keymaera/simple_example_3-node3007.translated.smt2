@@ -21,3 +21,4 @@
                          (* (+ (- 1.0) zuscore2dollarsk!2)
                             (+ (- 1.0) zuscore2dollarsk!2))))))))
 (check-sat)
+(exit)

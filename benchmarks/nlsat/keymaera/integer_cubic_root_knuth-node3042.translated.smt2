@@ -13,3 +13,4 @@
 (assert (not (= (* 3.0 (+ 1.0 ruscore2dollarsk!2) (+ 1.0 ruscore2dollarsk!2))
                 (+ (/ 11.0 4.0) suscore2dollarsk!1 (* 6.0 ruscore2dollarsk!2)))))
 (check-sat)
+(exit)

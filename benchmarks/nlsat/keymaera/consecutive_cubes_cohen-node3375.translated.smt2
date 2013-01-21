@@ -15,3 +15,4 @@
                    (+ 1.0 nuscore2dollarsk!0))
                 (+ xuscore2dollarsk!1 yuscore2dollarsk!2))))
 (check-sat)
+(exit)

@@ -48,3 +48,4 @@
                       (+ ruscore2dollarsk!1 quscore2dollarsk!0)
                       (+ ruscore2dollarsk!1 quscore2dollarsk!0))))))
 (check-sat)
+(exit)

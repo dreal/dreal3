@@ -9,3 +9,4 @@ Andre Platzer and Edmund M. Clarke. Formal verification of curved flight collisi
 (declare-const x2 Real)
 (assert (not (=> (and (>= b 0. ) (<= (+ (* d1 d1) (* d2 d2)) (* b b) )) (<= 0. (- x2 x2) ))))
 (check-sat)
+(exit)

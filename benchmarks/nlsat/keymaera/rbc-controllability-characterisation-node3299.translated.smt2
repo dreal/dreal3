@@ -26,3 +26,4 @@
 (assert (or (not (= (+ (* d d) (* 2.0 b m)) 0.0)) (not (= b 0.0))))
 (assert (= b 0.0))
 (check-sat)
+(exit)

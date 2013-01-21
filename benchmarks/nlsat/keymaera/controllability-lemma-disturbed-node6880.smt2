@@ -12,3 +12,4 @@ Andre Platzer and Jan-David Quesel. European Train Control System: A case study 
 (declare-const l Real)
 (assert (not (=> (and (and (and (and (and (and (and (>= z m ) (<= (- (* v v) (* d d)) (* (* 2. (- b u)) (- m z)) )) (>= v 0. )) (>= d 0. )) (> b u )) (>= u 0. )) (>= l 0. )) (<= z m )) (<= v d ))))
 (check-sat)
+(exit)

@@ -20,3 +20,4 @@
                     (* (- 1.0) duscore1dollarsk!2 duscore1dollarsk!2))
                  (* 2.0 b (+ muscore1dollarsk!3 (* (- 1.0) zuscore0dollarsk!1))))))
 (check-sat)
+(exit)

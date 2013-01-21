@@ -13,3 +13,4 @@
 (assert (>= A 0.0))
 (assert (not (<= zuscore1dollarsk!0 m)))
 (check-sat)
+(exit)

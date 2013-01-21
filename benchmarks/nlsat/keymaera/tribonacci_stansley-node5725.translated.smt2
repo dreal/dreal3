@@ -69,3 +69,4 @@
                          buscore2dollarsk!2)))
                 1.0)))
 (check-sat)
+(exit)

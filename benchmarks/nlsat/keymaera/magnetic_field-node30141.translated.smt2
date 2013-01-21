@@ -35,3 +35,4 @@
 (assert (not (= vxuscore2dollarsk!6 2.0)))
 (assert (not (= vxuscore4dollarsk!2 (- 2.0))))
 (check-sat)
+(exit)

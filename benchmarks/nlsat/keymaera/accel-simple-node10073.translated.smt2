@@ -24,3 +24,4 @@
               (* stuscore2dollarsk!0 (+ 200.0 (* (- 10.0) tuscore2dollarsk!1))))))
 (assert (not (= zuscore2dollarsk!3 (+ 2000.0 (* 4000.0 suscore2dollarsk!2)))))
 (check-sat)
+(exit)

@@ -8,3 +8,4 @@
 (assert (not (= (+ (* 4.0 buscore2dollarsk!1) (* 4.0 cuscore2dollarsk!2))
                 (* (+ 1.0 cuscore2dollarsk!2) (+ 1.0 cuscore2dollarsk!2)))))
 (check-sat)
+(exit)

@@ -157,3 +157,4 @@
                           (* (- 2.0) e2uscore4dollarsk!7))))
                  0.0)))
 (check-sat)
+(exit)

@@ -19,3 +19,4 @@
 (assert (or (not (>= t15uscore0dollarsk!0 0.0))
             (<= (+ yuscore2dollarsk!2 t15uscore0dollarsk!0) 10.0)))
 (check-sat)
+(exit)

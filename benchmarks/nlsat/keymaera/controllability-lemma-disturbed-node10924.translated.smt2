@@ -22,3 +22,4 @@
 (assert (not (<= (* 2.0 dvuscore2dollarsk!0 vuscore1dollarsk!1)
                  (* vuscore1dollarsk!1 (+ (* (- 2.0) b) (* 2.0 u))))))
 (check-sat)
+(exit)

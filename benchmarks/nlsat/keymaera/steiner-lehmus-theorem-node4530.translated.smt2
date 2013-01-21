@@ -45,3 +45,4 @@
                   (+ xuscore0dollarsk!4 (* (- 1.0) x0)))
                (* y0 y0))))
 (check-sat)
+(exit)

@@ -61,3 +61,4 @@
                      0.0)
                  (>= (+ ep (* (- 1.0) t3uscore0dollarsk!0)) 0.0))))
 (check-sat)
+(exit)

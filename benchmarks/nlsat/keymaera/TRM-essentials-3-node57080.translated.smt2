@@ -101,3 +101,4 @@
                           (* (- 2.0) f2uscore7dollarsk!3))))
                  0.0)))
 (check-sat)
+(exit)

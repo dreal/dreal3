@@ -33,3 +33,4 @@
                 (+ (* (- 1.0) d2uscore4dollarsk!1 omuscore3dollarsk!2)
                    (* e2uscore4dollarsk!0 omuscore3dollarsk!2)))))
 (check-sat)
+(exit)

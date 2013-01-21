@@ -33,3 +33,4 @@
                     (* (- 1.0) duscore3dollarsk!1 duscore3dollarsk!1))
                  (* 2.0 b (+ muscore3dollarsk!2 (* (- 1.0) zuscore2dollarsk!4))))))
 (check-sat)
+(exit)
