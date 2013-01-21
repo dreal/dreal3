@@ -227,19 +227,74 @@ It is important that the theoretical properties of the $\delta$-decision problem
 provides us a new and positive outlook towards reasoning over the reals, as well
 as a guiding framework for the development of practical decision procedures. We
 proved that the $\delta$-decision problem is decidable for bounded formulas
-containing any computable real functions~\cite{}, which is in essence any
+containing arbitrary computable real functions~\cite{}, which is in essence any
 function that can be numerically simulated. Also, the complexity bounds is
-encouraging. For instance, bounded SMT problems for formulas with 
-
-
+encouraging. For instance, the $\delta$-decision problem for bounded SMT problems for formulas with polynomials,
+exponentiation, and trignometric functions is ``only" {\sf NP}-complete, in
+comparison to the undecidability of the standard decision problem for such
+formulas.  
 
 \subsection{DPLL$\langle$ICP$\rangle$}
 
-\subsection{Proof Checking}
+Interval Constraint Propagation (ICP)~\cite{handbookICP} is a constraint solving
+algorithm that finds
+solutions of real constraints using a ``branch-and-prune" method, combining
+interval arithmetic and constraint propagation. The idea is to use interval
+extensions of functions to ``prune'' out sets of points that are not in the
+solution set, and ``branch'' on intervals when such pruning can not be done,
+until a small enough box that may contain a solution is found. 
+
+In a DPLL(T) framework, ICP can be used as the theory solver that checks the
+consistency of a set of theory atoms. We use opensmt~\cite{} for the general
+DPLL(T) framework, and integrate realpaver~\cite{} which performs ICP. The
+overall design of the interface is as follows. 
+\subsubsection{Check and Assert.} For incomplete checks in the assert function,
+we use the pruning operator provided in ICP to contract the interval assigment
+on all the variables, by eliminating the boxes in the domain that do not contain
+any solutions. At complete checks, we perform both pruning and branching, and
+look for one interval solution of the system. That is, we prune and branch on
+the interval assignment of all variables, and stop when either we have obtained
+an interval vector that is smaller than the preset error bound, or when we have
+traversed all the possible branching on the interval assignments. 
+\subsubsection{Backtracking.} We maintain a list of environment on the variables,
+which are mappings from variables to unions of intervals. When we reach a
+conlflict, we backtrack to the previous environment in the pushed stack. 
+\subsubsection{Learning.} We monitor the branch-and-prune process in ICP.
+When we observe that a set of theory atoms are inconsistent, we collect all the
+constraints that have appeared in the pruning process leading to the conflict.
+We then turn this subset of constraints into a learned clause and add it to the
+original formula. 
+
+Theoretically, we can prove that this interface, when implemented correctly, is
+$\delta$-complete. In practice, because of the complexity of ICP algorithms,
+errors could occur. Thus, we also produce certificates for our answers, as
+discussed in the following section. 
+
+\subsection{Certificates for Correctness}
+
+We produce the following certificates for the answers of the formula. 
+\subsubsection{Witness for $\delta$-Satisfibility} When the answer is
+$\delta$-sat, we obtain from the 
+
+\subsubsection{Proofs of Unsatisfiability}
+
+
 
 \section{Results}
 
+Our main motivation for the tool is to prove lemmas in the Kepler conjecture,
+as well as hybrid system verification. Here we show some representative numbers
+on the scale of problems that we can solve. More benchmarks and results can be
+directly obtained from the source code. 
 
+Compared to the current tools for nonlinear problems, the following needs to be
+considered. 
+\begin{itemize}
+\item Our tool is numerically-driven. It can solve problems with huge amount of variables and constraints. 
+\item It uses advanced numerical heuristics that outperform other
+numercally-based approaches. 
+\item The proofs can be used as a theorem prover. 
+\end{itemize}
 
 
 \bibliographystyle{abbrv}
