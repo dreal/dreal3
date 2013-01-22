@@ -77,7 +77,7 @@ do
         echo `date`: "RUN Check"
 	cat $CHECK_QUEUE
 	echo ------------------------
-        cat $CHECK_QUEUE | parallel --max-procs=$MAX "$PCHECKER {}.trace"
+        cat $CHECK_QUEUE | parallel --max-procs=$MAX "$PCHECKER {}.trace > {}.check_stat"
         cat $CHECK_QUEUE | parallel --max-procs=$MAX "touch {}.checked"
         touch $TODO # We may need to have more things TO DO
     fi

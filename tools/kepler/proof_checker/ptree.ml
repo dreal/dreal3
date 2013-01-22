@@ -34,8 +34,10 @@ let extract_env p = match p with
 
 let check_axiom (e : env) (f : formula) : bool =
   let eval env exp1 exp2 = Func.apply env (Basic.Sub [exp1; exp2]) in
-  let judge f v = match (f v) with
-    | true -> Failed v
+  let judge j v = match (j v) with
+    | true ->
+      (Failhandler.print_msg 0.001 f e v;
+       Failed v)
     | false -> Proved in
   let result = match f with
     | Basic.Eq (exp1, exp2) ->

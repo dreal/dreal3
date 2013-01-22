@@ -23,7 +23,7 @@ let print_msg prec f e eval =
     BatString.println out "============================";
     BatString.println out "Eval Result = ";
     Intv.print out eval;
-    BatString.println out "============================";
+    BatString.println out "\n============================";
   end
 
 let get_new_filename () =
