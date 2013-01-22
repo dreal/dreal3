@@ -2,30 +2,45 @@
   \begin{center}
     \begin{tabular}{|r||r|r|r||r||c|r|r|r|r|r|}
       \hline
-      Problem&  \#OP  & $\mathrm{Time_S}$&    Result&     Trace Size& PC&  \#PA& \#SP& $\mathrm{Time_{PC}}$ & \#D\\
+      Problem\#&  \#OP  & $\mathrm{Time_S}$&    Result&     Trace Size& PC&  \#PA& \#SP& $\mathrm{Time_{PC}}$ & \#D\\
       \hline
       \hline
       489&       60&   0:00.51&     UNSAT&            545&O&    2&    1& 0:01.44& 1\\
+      \hline
        50&       33&   0:00.42&     UNSAT&         14,029&O&    7&    4& 0:02.26& 2\\
+      \hline
        51&       33&   0:00.33&     UNSAT&         11,701&O&    5&    3& 0:02.21& 2\\
+      \hline
        52&       33&   0:00.08&     UNSAT&         62,539&O&   47&   30& 0:04.33& 3\\
+      \hline
        48&       33&   0:01.45&     UNSAT&        506,453&O&  432&  325& 0:24.86& 4\\
+      \hline
        53&       17&   0:00.38&     UNSAT&         81,132&O&  146&  133& 0:15.64& 9\\
+      \hline
        54&       17&   0:00.26&     UNSAT&          3,052&O&   41&   40& 0:11.35& 9\\
+      \hline
        55&       17&   0:00.39&     UNSAT&         75,675&O&   76&   64& 0:09.74& 9\\
+      \hline
       172&       17&   0:00.15&     UNSAT&            221&O&   77&   76& 0:10.08& 9\\
+      \hline
       164&       16&   0:02.23&     UNSAT&      1,102,561&O&  715&  508& 0:23.56& 4\\
       \hline
-      101&      595&   3:27.63&     UNSAT&     24,070,451&X&     &     &        &\\
-      142&      576&   9:05.64&     UNSAT&     14,385,073&X&     &     &        &\\
-       45&   56,120&  22:13.15&     UNSAT&      5,678,790&X&     &     &        &\\
+      101&      595&   3:27.63&     UNSAT&     24,070,451&X&  -----& -----& --------- & --\\
       \hline
-       44&1,353,167&       N/A&       TO&             N/A&X&     &     &        &\\
-       46&   31,594&       N/A&       TO&             N/A&X&     &     &        &\\
-       43&  907,591&       N/A&       TO&             N/A&X&     &     &        &\\
-       42&  908,008&       N/A&       TO&             N/A&X&     &     &        &\\
+      142&      576&   9:05.64&     UNSAT&     14,385,073&X&  -----& -----& --------- & --\\
+      \hline
+       45&   56,120&  22:13.15&     UNSAT&      5,678,790&X&  -----& -----& --------- & --\\
+      \hline
+       44&1,353,167&       N/A&       TO&             N/A&X&  -----& -----& --------- & --\\
+      \hline
+       46&   31,594&       N/A&       TO&             N/A&X&  -----& -----& --------- & --\\
+      \hline
+       43&  907,591&       N/A&       TO&             N/A&X&  -----& -----& --------- & --\\
+      \hline
+       42&  908,008&       N/A&       TO&             N/A&X&  -----& -----& --------- & --\\
       \hline
     \end{tabular}
+  \end{center}
   \caption{
     Experimental results.
     \#OP = Number of non-linear operators in the problem,
@@ -37,8 +52,6 @@
     $\mathrm{TIME_{PC}}$ = Proof-checking time in seconds,
     \#VD = Number of iterations required to check the proof.
   }
-  \label{tbl:exp}
-  \end{center}
 \end{table}
    % 406&        OXLZLEZ 6346351218 0 0&     27&   0&   0:00.03&             99&     unsat&V&    1&    0&   0.700& 0
    % 401&        OXLZLEZ 6346351218 0 1&     27&   0&   0:00.07&             97&     unsat&V&    1&    0&   0.700& 0
