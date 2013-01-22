@@ -513,9 +513,9 @@ and a set $A$ of axioms of the following two types:
 \mbox{CA}}
 \end{mathpar}
 \end{definition}
-Derivations in $\mathbb{D}_A$ are as standardly defined as natural deductions
+Derivations in $\mathbb{D}_A$ are as standardly defined, as natural deductions
 following these rules. Clearly, the two first-order rules are valid. Thus,
-relative to the validity of the axioms in $A$, the system produces valid
+if all the axioms in $A$ are valid, then the system only produces valid
 formulas over $\mathbb{R}$.
 \begin{proposition}[Soundness] If $\mathbb{D}_A\vdash \varphi$ and
 $\mathbb{R}\models \bigwedge A$, then $\mathbb{R}\models \varphi$.
@@ -574,13 +574,13 @@ the cases on the type of the step $t$ from $s_i$ to $s_{i+1}$ as follows.
 Again, we use the convention that $\beta(S)_i = I_i$ denotes the current
 interval assignment on a variable $x_i$. 
 \paragraph{(Pruning Step)} Suppose $s_k\Longrightarrow s_{k+1}$ is a
-pruning. That is, 
+pruning step. That is, 
 $$S_k\parallel c \stackrel{p}{\Longrightarrow} S_k, (x_i\in I_i^2)\parallel c,$$
 where $I_i\subseteq I_i^1\cup I_i^2$ and $\forall \vec
-a\in \beta(S_k,x_i\in I_i^1)$, $c(\vec a)$ is false. This step corresponds to
-the following sub-tree of the proof. If we write 
+a\in \beta(S_k,x_i\in I_i^1)$, $c(\vec a)$ is false. If we write 
 $$\vec I_1 = \beta(S_k, (x_i\in I_i^1)), \vec I_2 = \beta(S_k, (x_i\in
-I_i^2)), \mbox{ and } \vec I= \beta(S_k),$$ then 
+I_i^2)), \mbox{ and } \vec I= \beta(S_k),$$ then this step corresponds to
+the following sub-tree of the proof  
 {\small
 \begin{mathpar}
 \inferrule{\inferrule{
@@ -604,34 +604,33 @@ I_1 \vee \vec x\in \vec I_2))}\mbox{IA}
 \forall \vec x (\vec x\in\vec I \rightarrow \neg c)
 }\mbox{$\forall$M} 
    \end{mathpar}
-} 
-
-Formally, we define the following. Let $v\in V_L^k$ be a leaf node in $T^k$ such
-that $$\sigma(v) = \forall \vec x (\vec x\in\vec I \rightarrow \neg c).$$ 
-We then define
+}Formally, the sub-tree is added as follows. Let $v\in V_L^k$ be an existing
+leaf node that is labeled by the formula corresponding to $S_k\parallel c$;
+namely,
+$$\sigma(v) = \forall \vec x (\vec x\in\vec I \rightarrow \neg c).$$ (We
+will inductively prove that such a node exists.) We then define
 \begin{eqnarray*}
 \delta(v, l) &=& v_{k+1}^1, \sigma(v_{k+1}^1) = \forall \vec x
-( \vec x \in \vec I_1 \vee \vec x \in \vec I_2 \rightarrow \neg c); \\
+( (\vec x \in \vec I_1 \vee \vec x \in \vec I_2) \rightarrow \neg c); \\
 \delta(v, r) &=& v_{k+1}^2, \sigma(v_{k+1}^2) = \forall \vec x ( \vec x\in \vec
-I\rightarrow(\vec x \in \vec I_1 \vee \vec x\in \vec I_2));\\
- \delta(v_{k+1}^1, l) &=& v_{k+1}^3, \sigma(v_{k+1}^3) = \forall x (\vec x\in
-\vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)\\
+I\rightarrow( \vec x \in \vec I_1 \vee \vec x\in \vec I_2));\\
+ \delta(v_{k+1}^1, l) &=& v_{k+1}^3, \sigma(v_{k+1}^3) = \forall \vec x (\vec x
+\in \vec I_2 \rightarrow \neg c)\\
  \delta(v_{k+1}^1, r) &=& v_{k+1}^4, \sigma(v_{k+1}^4) = \forall \vec x (\vec x
-\in \vec I_2 \rightarrow\neg c)
+\in \vec I_1 \rightarrow\neg c)
   \end{eqnarray*}
-and set $V_L^{k+1} = V_L^k \cup \{v_{k+1}^2, v_{k+1}^4\}$. 
-  
-  
-\paragraph{(Branching Case)}Suppose $s_k\Longrightarrow^{t_{k+1}} s_{k+1}$ is a
+and set $V_L^{k+1} = (V_L^k \setminus\{v\})\cup \{v_{k+1}^2\}$. 
+ 
+\paragraph{(Branching Case)}Suppose $s_k\Longrightarrow s_{k+1}$ is a
 branching step. That is, 
 \begin{eqnarray*}
-S\parallel c &\Longrightarrow& S, (x_i\in I_i)^d \parallel c,
+S_k\parallel c &\stackrel{br}{\Longrightarrow}& S_k, (x_i\in I_i^1)^d \parallel
+c,
 \end{eqnarray*}
-under the condition that $I_i\subseteq \beta(S_i)$.
-
-This step corresponds to the following sub-tree of the proof. If we write 
-$$\vec I_1 = \beta(S, (x_i\in I_i')), \vec I_2 = \beta(S, (x_i\in I_i\setminus
-I_i')), \mbox{ and } \vec I= \beta(S),$$ then we have 
+under the condition that $I_i^1\subseteq I_i$. If we write 
+$$\vec I_1 = \beta(S, (x_i\in I_i^1)), \vec I_2 = \beta(S, (x_i\in
+I_i^2)), \mbox{ and } \vec I= \beta(S),$$ where $I\subseteq I_i^1\cup I_2$, then
+this step corresponds to the following sub-tree:
 {\small
 \begin{mathpar}
 \inferrule{\inferrule{
@@ -655,47 +654,54 @@ I_1 \vee \vec x\in \vec I_2))}\mbox{IA}
 \forall \vec x (\vec x\in\vec I \rightarrow \neg c)
 }\mbox{$\forall$M} 
    \end{mathpar}
-} 
-
-Formally, we define the following. Let $v\in V_L^k$ be a leaf node in $T^k$ such
-that $$\sigma(v) = \forall \vec x (\vec x\in\vec I \rightarrow \neg c).$$ 
-We then define 
+}Formally it is defined as follows. Again, let $v\in V_L^k$
+be a leaf node such that $\sigma(v) = \forall \vec x (\vec x\in\vec I
+\rightarrow \neg c).$ We then define 
 \begin{eqnarray*}
 \delta(v, l) &=& v_{k+1}^1, \sigma(v_{k+1}^1) = \forall \vec x
 ( \vec x \in \vec I_1 \vee \vec x \in \vec I_2 \rightarrow \neg c); \\
 \delta(v, r) &=& v_{k+1}^2, \sigma(v_{k+1}^2) = \forall \vec x ( \vec x\in \vec
 I\rightarrow(\vec x \in \vec I_1 \vee \vec x\in \vec I_2));\\
- \delta(v_{k+1}^1, l) &=& v_{k+1}^3, \sigma(v_{k+1}^3) = \forall x (\vec x\in
-\vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)\\
+ \delta(v_{k+1}^1, l) &=& v_{k+1}^3, \sigma(v_{k+1}^3) = \forall \vec x (\vec
+x\in
+\vec I_1 \rightarrow \neg c)\\
  \delta(v_{k+1}^1, r) &=& v_{k+1}^4, \sigma(v_{k+1}^4) = \forall \vec x (\vec x
 \in \vec I_2 \rightarrow\neg c)
   \end{eqnarray*}
-and set $V_L^{k+1} = V_L^k \cup \{v_{k+1}^2 \}$.
+and set $V_L^{k+1} = (V_L^k\setminus \{v\}) \cup \{v_{k+1}^3, v_{k+1}^4 \}$.
   
-
-
-\paragraph{(Backtracking Case)}Suppose $s_k\Longrightarrow^{t_{k+1}} s_{k+1}$ is
+\paragraph{(Backtracking Case)}Suppose $s_k\Longrightarrow s_{k+1}$ is
 a branching step. That is, 
 \begin{eqnarray*}
-S, (x_i\in I_i)^d, S'\parallel c &\Longrightarrow& S, (x_i\in
-I_i\setminus I_i') \parallel c,
+S_{k'} , (x_i\in I_i)^d, S'\parallel c &\stackrel{bt}{\Longrightarrow}& S_{k'},
+(x_i\in I_i^2 ) \parallel c,
 \end{eqnarray*}
-under the condition that $\forall a\in \beta(S, (x_i\in I_i)^d, S')$, $c(\vec
-a)$
-is false.
-
-This step corresponds to the following sub-tree of the proof. If we write 
-$$\vec I_1 = \beta(S, (x_i\in I_i')), \vec I_2 = \beta(S, (x_i\in I_i\setminus
-I_i')), \mbox{ and } \vec I= \beta(S),$$ then we have 
+when $\forall a\in \beta(S, (x_i\in I_i)^d, S')$, $c(\vec
+a)$ is false, and $I_i\subseteq I_i^2\cup I_i^1$, where $I_i =
+\beta(S_{k'})_i$. $S_{k'}$ is a previous interval assignment
+sequence, with $k'<k$. If we write 
+$$\vec I_1 = \beta(S, (x_i\in I_i^1)), \vec I_2 = \beta(S, (x_i\in
+I_i^2), \mbox{ and } \vec I= \beta(S_{k'}),$$ then This step corresponds to the
+following sub-tree of the proof.
 {\small
+ %
+
 \begin{mathpar}
-\inferrule{\inferrule{
-  \inferrule{\vdots}{\forall \vec x (\vec x\in \vec I_1 \rightarrow \neg c)}
-    \and
+\inferrule{
+  \inferrule{
+		  {\inferrule{
+		  {\inferrule{\forall \vec x\in
+		  \beta(S_{k'},(x\in I_i)^d,S')\rightarrow \neg c}}
+		  { \vdots}
+		   }
+				 {\forall \vec x (\vec x\in \vec I_1
+				   \rightarrow \neg c)}
+		 \and
     \inferrule{\vdots }
     {
       \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
       }
+   }
    }
   {
   \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
