@@ -28,7 +28,7 @@ SPLIT=~/work/dreal2/tools/kepler/script/split.py
 touch $NOT_PROVED_YET
 touch $TODO
 
-date > $START_TIME
+date +%s%N | cut -b1-13 > $START_TIME
 
 while [ -f $TODO ]
 do
@@ -99,7 +99,7 @@ do
                 # Check was not run properly. ABORT!
                 touch $ID.trace.WRONG
                 touch $WRONG
-                date > $END_TIME
+                date +%s%N | cut -b1-13 > $END_TIME
                 exit 2
             fi
         done
@@ -111,5 +111,5 @@ done
 rm $NOT_PROVED_YET
 touch $PROVED
 
-date > $END_TIME
+date +%s%N | cut -b1-13 > $END_TIME
 exit 0
