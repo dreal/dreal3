@@ -10,6 +10,7 @@ SMT_QUEUE=./SMT_QUEUE
 CHECK_QUEUE=./CHECK_QUEUE
 NOT_PROVED_YET=./NOT_YET
 PROVED=./PROVED
+WRONG=./WRONG
 
 # TIME
 START_TIME=./START_TIME
@@ -70,8 +71,8 @@ do
         BASE=${TRACE//.trace/}
         if [ ! -f $BASE.checked ]
         then
-		echo $BASE >> $CHECK_QUEUE
-		echo "Adding ${BASE}.trace to the CHECK Queue"
+	    echo $BASE >> $CHECK_QUEUE
+	    echo "Adding ${BASE}.trace to the CHECK Queue"
 	fi
     done
 
@@ -81,6 +82,27 @@ do
     then
         echo `date`: "RUN Check"
         cat $CHECK_QUEUE | parallel --max-procs=$MAX "$PCHECKER {}.trace > {}.check_stat"
+
+        for ID in `cat $CHECK_QUEUE`
+        do
+            if grep -q "Failed Axioms" $ID.check_stat
+            then
+                touch $ID.checked
+                # Check was run.
+                if grep -q "Failed Axioms     #: 0" $ID.check_stat
+                then
+                    touch $ID.trace.PROVED
+                else
+                    touch $ID.trace.not_proved
+                fi
+            else
+                # Check was not run properly. ABORT!
+                touch $ID.trace.WRONG
+                touch $WRONG
+                date > $END_TIME
+                exit 2
+            fi
+        done
         touch $TODO # We may need to have more things TO DO
     fi
 done
@@ -90,3 +112,4 @@ rm $NOT_PROVED_YET
 touch $PROVED
 
 date > $END_TIME
+exit 0
