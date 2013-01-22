@@ -11,6 +11,10 @@ CHECK_QUEUE=./CHECK_QUEUE
 NOT_PROVED_YET=./NOT_YET
 PROVED=./PROVED
 
+# TIME
+START_TIME=./START_TIME
+END_TIME=./END_TIME
+
 # MAX (NUM of Processors to Use)
 MAX=30
 
@@ -21,8 +25,9 @@ SPLIT=~/work/dreal2/tools/kepler/script/split.py
 ########################################
 
 touch $NOT_PROVED_YET
-
 touch $TODO
+
+date > $START_TIME
 
 while [ -f $TODO ]
 do
@@ -75,10 +80,7 @@ do
     if [ -s $CHECK_QUEUE ]
     then
         echo `date`: "RUN Check"
-	cat $CHECK_QUEUE
-	echo ------------------------
         cat $CHECK_QUEUE | parallel --max-procs=$MAX "$PCHECKER {}.trace > {}.check_stat"
-        cat $CHECK_QUEUE | parallel --max-procs=$MAX "touch {}.checked"
         touch $TODO # We may need to have more things TO DO
     fi
 done
@@ -87,3 +89,4 @@ done
 rm $NOT_PROVED_YET
 touch $PROVED
 
+date > $END_TIME
