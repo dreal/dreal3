@@ -53,11 +53,11 @@ procedure to give answers with one-sided, $\delta$-bounded errors. With this
 relaxation, $\delta$-complete decision procedures can fully exploit the
 power of scalable numerical algorithms to solve nonlinear
 problems, and at the same time provide suitable correctness
-guarantees for many correctness-critical problems~\cite{}.
+guarantees for many correctness-critical problems.
 
 Our tool {\sf dReal} is designed in this framework. It solves SMT problems
-(the {\tt QF\_NRA} category in SMT-LIB), but allows many more elementrary
-functions such as sine, cosine, exponentiation, logrithm, etc. The tool is
+(the {\tt QF\_NRA} category in SMT-LIB), but allows many more elementary
+functions such as sine, cosine, exponentiation, logarithm, etc. The tool is
 written mostly in C++ and some OCaml. It is open-source\footnote{Link to the
 tool page is on our homepages, \url{http://www.cs.cmu.edu/~sicung} and
 \url{http://www.cs.cmu.edu/~soonhok}.
@@ -78,7 +78,7 @@ We accept formulas in the standard {\sf smt2} format with the following
 extensions.
 
 \subsubsection{Nonlinear Functions.} In addition to nonlinear arithmetic, we
-allow the following transcedental functions to appear in the formula, used in
+allow the following transcendental functions to appear in the formula, used in
 prefix form.
  $$\sin, \cos, \tan, \arcsin, \arccos, \arctan, \exp, \log, \mbox{pow}, \sinh,
 \cosh ... $$
@@ -92,7 +92,7 @@ write, before the formula itself, a list of simple atomic formulas such as:
 \begin{verbatim}
 (assert (< 0 x))
 \end{verbatim}
-This will set $x\in (0, +\infty)$ at parsing time. In theory~\cite{}, our
+This will set $x\in (0, +\infty)$ at parsing time. In theory, our
 decision procedure should only work for formulas with all the variables
 (implicitly or explicitly) contained in bounded intervals. In practice, it is
 not a requirement to bound all variables in the input formula, and the solver
@@ -129,7 +129,7 @@ b)})
 \subsection{Command Line Options}
 
 {\sf dReal} does not depend on particular external libraries, except
-{\tt Boost}~\cite{}. After building, the tool can be simply used through:
+{\tt Boost}. After building, the tool can be simply used through:
 \begin{verbatim}
 dReal [--verbose] [--proof] [--precision <double>] <filename>
 \end{verbatim}
@@ -175,13 +175,13 @@ formula, and its correctness can be checked externally. For the {\tt unsat}
 cases, we provide a proof checker that attempts to verify the proof.
 
 The proof checker is written in {\bf OCaml}, and uses the interval arithmetic
-package~\cite{}. After we run {\sf dReal} and observe an {\sf unsat} answer,
+package. After we run {\sf dReal} and observe an {\sf unsat} answer,
 the proof checker can be used as follows.
 \begin{verbatim}
 proofcheck [--timeout <int>] <filename>
 \end{verbatim}
 The proof checker will create a new folder called {\tt filename}, which
-contains auxilary files needed. It is possible for the proof
+contains auxiliary files needed. It is possible for the proof
 checking procedure to produce an exponential amount of new files, so setting a
  timeout is important. By default, the timeout is {\tt 30min}. The proof
 checker will return either ``{\sf proof verified}'' or ``{\sf timeout}''.
@@ -198,7 +198,7 @@ checking 77 axioms.
 \subsection{The $\delta$-Decision Problem}\label{deltas}
 
 The standard decision problem is undecidable, for SMT formulas
-over the reals with any trignometric function. If only polynomials are allowed,
+over the reals with any trigonometric function. If only polynomials are allowed,
 then the problem is decidable in {\sf PSPACE}, but the practical algorithms
 still have
 double-exponential worst-case running time. In face of such difficulty, we
@@ -213,7 +213,7 @@ following answers:
 When the two cases overlap, either answer can be returned. Here,
 $\varphi^{\delta}$ is called the $\delta$-perturbation (or $\delta$-weakening)
 of $\varphi$, which has the following formal definition.
-\begin{definition}[$\delta$-Perturbations~\cite{}]
+\begin{definition}[$\delta$-Perturbations]
  Let $\delta\in \mathbb{Q}^+\cup\{0\}$ be a constant and $\varphi$ be a
 $\Sigma_1$-sentence in standard form:
 \[\varphi:= \exists^{\vec I}\vec x\;(\bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i}
@@ -224,10 +224,8 @@ The $\delta$-weakening of $\varphi$ defined as:
 |f_{ij}(\vec x)|\leq \delta)).\]
 \end{definition}
 The fact that all SMT formulas can be put into this standard form is
-straightforward~\cite{}.
-
-Solving the $\delta$-decision problem is as useful as the standard one, for many
-correctness-critical problems~\cite{}. For instance, suppose we perform bounded
+straightforward. Solving the $\delta$-decision problem is as useful as the standard one, for many
+correctness-critical problems. For instance, suppose we perform bounded
 model checking on some hybrid system, and encode the safety properties as an SMT
 formula $\varphi$. Then following standard model checking techniques, if we
 decide that $\varphi$ is {\sf unsat}, then the system is indeed ``safe'' with in
@@ -239,11 +237,11 @@ system is unsafe in practice.
 
 We
 proved that the $\delta$-decision problem is decidable for bounded formulas
-containing arbitrary computable real functions~\cite{}, which is in essence any
+containing arbitrary computable real functions, which is in essence any
 function that can be numerically simulated. Also, the complexity bounds is
 encouraging. For instance, the $\delta$-decision problem for bounded SMT
 problems for formulas with polynomials,
-exponentiation, and trignometric functions is ``only" {\sf NP}-complete, in
+exponentiation, and trigonometric functions is ``only" {\sf NP}-complete, in
 comparison to the undecidability of the standard decision problem for such
 formulas.  Thus the $\delta$-decision problem leads us to a new and more
 positive outlook for reasoning over the reals, as well
@@ -260,12 +258,13 @@ solution set, and ``branch'' on intervals when such pruning can not be done,
 until a small enough box that may contain a solution is found.
 
 In a DPLL(T) framework, ICP can be used as the theory solver that checks the
-consistency of a set of theory atoms. We use {\sf opensmt}~\cite{} for the
+consistency of a set of theory atoms. We use {\sf opensmt}~\cite{DBLP:conf/tacas/BruttomessoPST10
+} for the
 general
-DPLL(T) framework, and integrate {\sf realpaver}~\cite{} which performs ICP. The
+DPLL(T) framework, and integrate {\sf realpaver}~\cite{DBLP:journals/toms/GranvilliersB06} which performs ICP. The
 overall design of the interface is as follows.
 \subsubsection{Check and Assert.} For incomplete checks in the assert function,
-we use the pruning operator provided in ICP to contract the interval assigment
+we use the pruning operator provided in ICP to contract the interval assignments
 on all the variables, by eliminating the boxes in the domain that do not contain
 any solutions. At complete checks, we perform both pruning and branching, and
 look for one interval solution of the system. That is, we prune and branch on
@@ -292,14 +291,15 @@ Suppose an input SMT formula is of the form $\varphi(x_1,...,x_n)$, we can
 produce the following certificates for the {\sf $\delta$-sat/unsat} answers on
 the formula.
 
-\subsubsection{Witness for $\delta$-Satisfibility} When the answer is
+\subsubsection{Witness for $\delta$-Satisfiability} When the answer is
 {\sf $\delta$-sat}, we a solution $\vec a\in \mathbb{R}^n$, such
 that $\varphi^{\delta}(\vec a)$ is a ground formula that can be easily checked
-to be true. This solution is simply any point in the interval assigment returned
+to be true. This solution is simply any point in the interval assignment
+returned
 by ICP on a complete set of theory atoms. It is important to note that the
 solution witnesses $\delta$-satisfiability, instead of standard satisfiability
 of the original formula. The latter problem is undecidable, since it involves
-finding a point solution in a compact domain (the interval assginment returned
+finding a point solution in a compact domain (the interval assignments returned
 by ICP), which is still an undecidable problem. On the other hand, {\em any}
 point in the interval assignment returned by ICP can witness the satisfiability
 of $\varphi^{\delta}$ when the intervals are smaller than an appropriate error
@@ -311,7 +311,7 @@ negation of the formula, i.e., $\forall \vec x \neg\varphi(\vec x)$. We
 devised a simple first-order natural deduction system, and transform the
 computation trace of the solving process into a proof tree. We then use
 interval arithmetic and simple rules to check the correctness of the proof
-tree. The proof check procedure recursively devide the problem into subproblems
+tree. The proof check procedure recursively divide the problem into subproblems
 with smaller domains. More details can be found in~\cite{cade2013extended}.
 
 \section{Results}
