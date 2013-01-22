@@ -37,9 +37,9 @@ designed to be easily extendable with other numerical algorithms.
 
 SMT formulas over the real numbers can encode a wide range of problems in
 theorem proving and formal verification. Such formulas are very hard to solve
-when nonlinear functions are involved~\cite{}. Our recent work on
+when nonlinear functions are involved. Our recent work on
 {$\delta$-complete decision procedures} provided a new general framework for
-handling nonlinear SMT problems over the reals~\cite{}. We say a decision
+handling nonlinear SMT problems over the reals~\cite{DBLP:conf/cade/GaoAC12}. We say a decision
 procedure is {\em $\delta$-complete} for a set $S$ of formulas, where $\delta$
 is any positive rational number, if for any $\varphi$ from $S$ the procedure
 returns one of the following answers:
@@ -61,8 +61,9 @@ functions such as sine, cosine, exponentiation, logrithm, etc. The tool is
 written mostly in C++ and some OCaml. It is open-source\footnote{Link to the
 tool page is on our homepages, \url{http://www.cs.cmu.edu/~sicung} and
 \url{http://www.cs.cmu.edu/~soonhok}.
-}, built on {\sf opensmt}\cite{} for the
-high-level DPLL(T) framework, and {\sf realpaver}~\cite{} for the Interval
+}, built on {\sf opensmt}\cite{DBLP:conf/tacas/BruttomessoPST10} for the
+high-level DPLL(T) framework, and {\sf
+realpaver}~\cite{DBLP:journals/toms/GranvilliersB06} for the Interval
 Constraint Propagation algorithm. It returns {\sf unsat} or {\sf $\delta$-sat}
 on input formulas, and the user can obtain certificates (proof of
 unsatisfiability or solution) for either answer.
@@ -73,7 +74,7 @@ In this paper we describe the usage, design, and some results of the tool.
 
 \subsection{Input Format}
 
-We accept formulas in the standard {\sf smt2} format~\cite{}, with the following
+We accept formulas in the standard {\sf smt2} format with the following
 extensions.
 
 \subsubsection{Nonlinear Functions.} In addition to nonlinear arithmetic, we
@@ -107,7 +108,7 @@ The default precision is $10^{-3}$, and it can also be set through command
 line.
 
 \subsubsection{Example.}\label{example} The following is an example input file.
-It is taken from the flyspeck project~\cite{} for the complete formal proof of
+It is taken from the flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05} for the complete formal proof of
 the Kepler Conjecture.
  \begin{example} (Filename {\tt flyspeck/172.smt2}. Flyspeck {\tt ID (6096597438
 b)})
@@ -311,24 +312,24 @@ devised a simple first-order natural deduction system, and transform the
 computation trace of the solving process into a proof tree. We then use
 interval arithmetic and simple rules to check the correctness of the proof
 tree. The proof check procedure recursively devide the problem into subproblems
-with smaller domains. More details can be found in~\cite{}.
+with smaller domains. More details can be found in~\cite{cade2013extended}.
 
 \section{Results}
 
 Our main motivation for the tool is to prove lemmas in the Kepler conjecture,
 as well as hybrid system verification. Here we show some representative numbers
-on the scale of problems that we can solve.
+on the scale of problems that we can solve. The following benchmarks are from
+the Flyspeck project for the formal proof of the Kepler Conjecture. It involves
+formulas with large numbers of nonlinear constraints. 
 
-Several sets of standard benchmarks from~\cite{} are contained in the release
+\input{good_benchmarks.tex}
+
+Standard benchmarks from~\cite{DBLP:conf/cade/JovanovicM12} are contained in the release
 and can be tested. Our solver is generally very fast on problems where all the
-variables are bounded in intervals. For instance, we solve all formulas in the
-hong benchmark set~\cite{}
+variables are bounded in intervals. 
 
-
-
-\section{Conclusion}
-Compared to the current tools for nonlinear problems, the following needs to be
-considered.
+Compared to the current tools for nonlinear problems, our tool has the following
+features. 
 \begin{itemize}
 \item Our tool is numerically-driven. It can solve problems with huge amount of variables and constraints.
 \item It uses advanced numerical heuristics that outperform other
