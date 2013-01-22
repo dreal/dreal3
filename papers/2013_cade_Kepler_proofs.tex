@@ -1,6 +1,6 @@
 \documentclass[envcountsect]{llncs}
 %\usepackage{stmaryrd,amsmath,amssymb,newlfont,graphicx,caption,verbatim}
-\usepackage{amsmath,amssymb,newlfont,graphicx,caption,verbatim}
+\usepackage{amsmath,amssymb,newlfont,graphicx,caption,verbatim,hyperref}
 \usepackage[ruled,lined,boxed,commentsnumbered,linesnumbered]{algorithm2e}
 \usepackage{mathpartir}
 %\usepackage{hyperref}
@@ -13,11 +13,11 @@
 \newcommand{\poly}{\mathsf{poly}}
 \newcommand{\ir}{\mathbb{IR}_{\cup}}
 
-%\setlength{\textwidth}{5.3in}
+%\setlength{\textwidth}{5.1in}
 %\setlength{\textheight}{8.2in}
 %\setlength{\topmargin}{0in}
-%\setlength{\oddsidemargin}{.6in}
-%\setlength{\evensidemargin}{.6in}
+%\setlength{\oddsidemargin}{.7in}
+%\setlength{\evensidemargin}{.7in}
 
 
 \title{Extracting Proofs from a Numerically-Driven Decision Procedure}
@@ -136,7 +136,7 @@ complementary nature of numerical and symbolic approaches.
 
 The paper is organized as follows. We review the framework of $\delta$-complete
 decision procedures in Section~\ref{review}. We then show how to formalize ICP,
-construct proofs, and proof-check them in Section~\ref{icp} and \ref{bnp}. We
+construct proofs, and proof-check them in Section~\ref{icp}. We
 report experiments with lemmas in the Flyspeck project in Section~\ref{kepler}.
 
 
@@ -267,7 +267,7 @@ new perspective on decision problems over the reals in general.
 This framework provides a theoretical basis for the development of
 numerically-driven decision procedures such as~\cite{}.
 
-\section{Proof Systems for Interval Constraint Propagation}\label{icp}
+\section{Extracting Proofs from Interval Constraint Propagation}\label{icp}
 
 \subsection{Formalizing Interval Constraint Propagation}
 
@@ -277,45 +277,8 @@ interval arithmetic and constraint propagation. The idea is to use interval
 extensions of functions to ``prune'' out sets of points that are not in the
 solution set and ``branch'' on intervals when
 such pruning can not be done, until a small enough box that may
-contain a solution is found, or report inconsistency otherwise. A high-level
-description of ICP is in Algorithm~\ref{algo_icp}. In Algorithm~\ref{algo_icp},
-Branch$(B,i)$ is an operator that returns two smaller
-boxes $B' = I_1\times\cdots\times I_i'\times\cdots\times I_n$ and $B''=I_1\times
-\cdots\times I_i''\times \cdots\times I_n$, where $I_i\subseteq I_i'\cup
-I_i''$. The $\mathrm{Prune}(B, f)$ operation is a key component of the power of
-ICP. In principle, any operation that contracts the interval assignments on the
-variables can be used as pruning. In practice, various rules for pruning
-operators are needed for correctness and
-efficiency~\cite{}. More details can be found in~\cite.
-\vspace{-.2cm}
-\begin{algorithm}[h!]
-\SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
-\SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
-\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-\Input{Constraints $c_1,...,c_m$, initial box $B^0
-= I^0_1\times \cdots \times I^0_n$, box stack $S=\emptyset$, and precision
-$\varepsilon\in \mathbb{Q}^+$.}
-\Output{{\sf unsat} and {\sf possibly-sat}.}
-\BlankLine
-$S.\mathrm{push}(B_0)$\;
-\While{$S\neq \emptyset$}{\label{while}
-$B\leftarrow S.\mathrm{pop}()$ \;
-\While{$\exists 1\leq i \leq m, B\neq \mathrm{Prune}(B,f_i)$}{
-%\For{$j\leftarrow 1$ \KwTo $m$}{
-        $B\leftarrow\mathrm{Prune}(B, f_i)$ \;
-%       \If{$B=\emptyset$}{break\;}
-}
-\If{$B\neq \emptyset$}
-{\eIf{$\exists 1\leq i\leq n, |I_i|\geq \varepsilon$}{$\{B_1,B_2\}\leftarrow
-\mathrm{Branch}(B, i)$\;$S.\mathrm{push}(\{B_1,B_2\})$\;}{return {\sf
-possibly-sat}\;}}
-}
-return {\sf unsat}\;
-\caption{High-Level ICP$_{\varepsilon}$ (decision version of
-Branch-and-Prune)\label{algo_icp}}
-\end{algorithm}
-\vspace{-.2cm}
-
+contain a solution is found, or report inconsistency otherwise. More details
+can be found in the Appendix and~\cite{}.
 \subsubsection{Abstract ICP} Our task now is to formalize ICP algorithms
 so that we can extract symbolic proofs from its computation process. The
 branch-and-prune structure of ICP is very similar to DPLL-based SAT solving, so
@@ -422,7 +385,7 @@ searching algorithm, and rely on the proof checkers to determine the correctness
 of an ICP run. In practice, of course, only ``correct" ICP algorithms can
 provide proofs that can always be validated.
 \end{remark}
-\begin{example}
+\begin{example}~\label{icp-example}
 Consider a constraint $c(x,y) : y=x \wedge y = x^2$, and $x\in [1.5,2]$ and
 $y\in [1,2]$ are the initial interval assignment. A possible ICP run is:
 \begin{eqnarray*}
@@ -550,8 +513,8 @@ $$S_0\parallel c\stackrel{t_1}{\Longrightarrow}\cdots
 \stackrel{t_m}{\Longrightarrow} S_m\parallel c,$$
 such that the ending transition $t_m$ is a failure step, i.e., $S_m=\emptyset$.
 We now define the procedure by defining the functions $\delta$ and
-$V_L$ through induction on $s_i$. We also define labels on the edges along the
-process, with $\Omega$ = \{{$\vee$I}, $\forall$M, IA, CA\}.
+$V_L$ through induction on $s_i$. Clearly the edges can be labeled with
+$\Omega$ = \{{$\vee$I}, $\forall$M, IA, CA\}.
 
 \paragraph{Case $i= 0$.} We label the root node $v_0$ by
 $$\sigma(v_0) := \forall \vec x( \vec x\in \beta(S_0) \rightarrow \neg c).$$
@@ -596,15 +559,15 @@ the following sub-tree of the proof
   }\mbox{$\vee$I}
   \and
   {
-  \inferrule{\ }{\forall \vec x ( \vec x\in \vec I\rightarrow(\vec x \in \vec
-I_1 \vee \vec x\in \vec I_2))}\mbox{IA}
+  \inferrule{\ }{\forall x ( x\in I_i\rightarrow(x \in 
+I_i^1 \vee x\in I_i^2))}\mbox{IA}
   }
   }
 {
 \forall \vec x (\vec x\in\vec I \rightarrow \neg c)
 }\mbox{$\forall$M}
-   \end{mathpar}
-}Formally, the sub-tree is added as follows. Let $v\in V_L^k$ be an existing
+\end{mathpar}}Formally, the sub-tree is added as follows. Let $v\in V_L^k$ be an
+existing
 leaf node that is labeled by the formula corresponding to $S_k\parallel c$;
 namely,
 $$\sigma(v) = \forall \vec x (\vec x\in\vec I \rightarrow \neg c).$$ (We
@@ -646,8 +609,8 @@ this step corresponds to the following sub-tree:
   }\mbox{$\vee$I}
   \and
   {
-  \inferrule{\ }{\forall \vec x ( \vec x\in \vec I\rightarrow(\vec x \in \vec
-I_1 \vee \vec x\in \vec I_2))}\mbox{IA}
+  \inferrule{\ }{\forall x ( x\in I_i\rightarrow(x \in 
+I_i^1 \vee x\in I_i^2))}\mbox{IA}
   }
   }
 {
@@ -681,24 +644,24 @@ a)$ is false, and $I_i\subseteq I_i^2\cup I_i^1$, where $I_i =
 \beta(S_{k'})_i$. $S_{k'}$ is a previous interval assignment
 sequence, with $k'<k$. If we write
 $$\vec I_1 = \beta(S, (x_i\in I_i^1)), \vec I_2 = \beta(S, (x_i\in
-I_i^2), \mbox{ and } \vec I= \beta(S_{k'}),$$ then This step corresponds to the
+I_i^2), \mbox{ and } \vec I= \beta(S_{k'}),$$ then this step corresponds to the
 following sub-tree of the proof.
 {\small
- %
-
 \begin{mathpar}
 \inferrule{
   \inferrule{
     \inferrule*{
       \inferrule*[vdots=1.5em, Right=\mbox{CA}]{ }{
-        \forall \vec x\in
-        \beta(S_{k'},(x\in I_i)^d,S')\rightarrow \neg c
+        \forall \vec x
+        (\vec x\in \beta(S_{k'},(x\in I_i^1)^d,S')\rightarrow \neg c)
       }
     }
     {\forall \vec x (\vec x\in \vec I_1
       \rightarrow \neg c)}
     \and
-    \inferrule{\vdots }
+    \inferrule{
+      \vdots
+      }
     {
       \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
     }
@@ -708,239 +671,196 @@ following sub-tree of the proof.
   }\mbox{$\vee$-I}
   \and
   {
-  \inferrule{\ }{\forall \vec x ( \vec x\in \vec I\rightarrow(\vec x \in \vec
-I_1 \vee \vec x\in \vec I_2))}\mbox{I-Ax}
+\vdots\ \ \ 
   }
   }
 {
 \forall \vec x (\vec x\in\vec I \rightarrow \neg c)
 }\mbox{$\forall$-MP}
    \end{mathpar}
-}
-
-Formally, we define the following. Let $v\in V_L^k$ be a leaf node in $T^k$ such
-that $$\sigma(v) = \forall \vec x (\vec x\in\vec I \rightarrow \neg c).$$
-We then define
-\begin{eqnarray*}
-\delta(v, l) &=& v_{k+1}^1, \sigma(v_{k+1}^1) = \forall \vec x
-( \vec x \in \vec I_1 \vee \vec x \in \vec I_2 \rightarrow \neg c); \\
-\delta(v, r) &=& v_{k+1}^2, \sigma(v_{k+1}^2) = \forall \vec x ( \vec x\in \vec
-I\rightarrow(\vec x \in \vec I_1 \vee \vec x\in \vec I_2));\\
- \delta(v_{k+1}^1, l) &=& v_{k+1}^3, \sigma(v_{k+1}^3) = \forall x (\vec x\in
-\vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)\\
- \delta(v_{k+1}^1, r) &=& v_{k+1}^4, \sigma(v_{k+1}^4) = \forall \vec x (\vec x
-\in \vec I_2 \rightarrow\neg c)
-  \end{eqnarray*}
-and set $V_L^{k+1} = V_L^k \cup \{v_{k+1}^2, v_{k+1}^4\}$.
-
+}Formally, we simply set $V_L^{k+1} = V_L^{k}$, and do not update the labeling.
 
 \paragraph{(Fail Case)} Suppose it is a failure step. That is,
 \begin{eqnarray*}
-S\parallel c &\Longrightarrow& \emptyset \parallel c
+S\parallel c &\stackrel{f}{\Longrightarrow}& \emptyset \parallel c
 \end{eqnarray*}
-under the condition that $\forall \vec a\in \beta(S)$, $c(\vec a)$ is false and
- $S$ has no decision elements.
-
- This step corresponds to the following sub-tree of the proof. Let $\vec I
-=\beta(S)$.
-\begin{mathpar}
+when $\forall \vec a\in \beta(S)$, $c(\vec a)$ is false and
+ $S$ has no $d$-assignments. Let $\vec I
+=\beta(S)$. This step corresponds to 
+{\small\begin{mathpar}
  \inferrule{\ }{\forall \vec x ( \vec x\in \vec I) \rightarrow \neg
-c}\mbox{F-Ax}
-\end{mathpar}
+c}\mbox{FA}
+\end{mathpar}}We set $V_L^{k+1}=V_L^k$ and do not update $\sigma$. 
 
- In all, the tree constructed is $T^m = \langle V, \bigcup_k V_L^k, \delta,
-\sigma\rangle$.
+\paragraph{Complete tree.} In all, after all the steps in the ICP run are
+followed, the tree that we construct is $ T = \langle V, V_L^m, \delta, \sigma
+\rangle$. The axiom set is given by $$A = \{\sigma(v): v\in V_L^m\}.$$ 
 
-\begin{theorem}\label{successful_tree}
-The tree construction procedure produces a unique tree that is valid natural
-deduction tree in $D_A$.
-\end{theorem}
+As an example, the transformation of the ICP run in Example~\ref{icp-example} is
+shown in the Appendix. 
 
-\begin{example}
-Give an example of tree construction.
-\end{example}
-
-In this way, we see ICP as a proof searching algorithm for valid universal
-formulas. Note that following soundness, once the proof tree is constructed and
-can be validated, the details of the ICP algorithm no longer matter. This serves
-our goal of obtaining a stand-alone certificate that can be checked with
-external checkers.
-
+It is easy to see that $T$ is a valid proof tree in $\mathbb{D}_A$.
+\begin{proposition}\label{successful_tree}
+For every ICP run ending with $\emptyset\parallel c$, the tree construction
+procedure above produces a valid natural deduction tree in $\mathbb{D}_A$.
+\end{proposition}
+ The proof is contained in an extended report~\cite{}. 
 \begin{proposition}
  The size of the proofs is linear in the computation steps, which can be
 exponential in the size of the problems.
 \end{proposition}
 
-We will see that this generates proof traces on a gigabyte scale in
-Section~\ref{}.
-
-
-
+Again, once the proof tree is constructed, the details of
+the ICP algorithm no longer matters.  The only rules involved are the two
+first-order rules in $\mathbb{D}_{A}$. Following relative soundness of the
+system, to establish validity of the formula, we only need to validate the
+axiom set $A$. 
 
 \subsection{Validating the Axioms}\label{validate}
 
-It is clear that the proof rules in the proof trees are simple first-order
-rules. The tricky part is the axioms that are introduced in various
-steps. Following relative soundness, the validity of the formulas now rely on the
-correctness of these axioms.
+There are two types of axioms that we allow in the proofs constructed from ICP
+runs: interval axioms and constraint axioms. To validate such axioms, we still
+need numerical computations. However, we will show that they only rely on
+simple computations that can be validated through stand-alone
+arbitrary-precision or symbolic computation. Note that the
+validation of the axioms can fail -- they can fail even when the solver
+correctly returns {\sf unsat}, if the solver uses advanced numerical
+heuristics leading to axioms that can not be verified by reliable
+numerical computation. In practice, we ensure the correctness of the proof
+checker first, and use an abstraction refinement loop that allows the proof
+checker to ask for more detailed proofs from the solver.
 
-For the interval axioms without functions of the form $\forall x(x\in I_1\vee
-x\in I_2\rightarrow x\in I)$, we only need to check that $I$ is a superset of
-$I_1\cup I_2$. This is an easy task.
+The interval axioms do not contain any real functions, and are of the form
+$\forall \vec x(x\in I_1\vee x\in I_2\rightarrow x\in I)$. We only need to
+check that $I$ is a subset of $I_1\cup I_2$ by comparing the end points of the
+intervals, which is an easy numerical task. 
 
-For the axioms with functions, which are of the form
-$$\forall x (x\in I \rightarrow f(x)\sim 0)$$
-we need to verify them using nontrivial properties of the functions. Note that
-the form of these axioms is the same as the full problem. However, the
-difference is that these axioms are invoked when $I$ is relatively small, and
-the value of $f$ can usually be determined. In general, these axioms are
-verified if we can use basic interval arithmetic facts to certify them, which is
-a topic of this section.
-
+The constraint axioms are of the form $\forall x (\vec x\in \vec I \rightarrow
+c(\vec x))$, and can only be verified by considering the functions that
+occur in $c$. Although they are of the same form as the formulas we solve,
+these axioms should contain evident properties of the functions involved,
+usually on small intervals. Such facts can be verified using reliable interval
+computations, for instance as follows. 
 \begin{definition}[Interval Extensions]
 Let $f: \mathbb{R}^n\rightarrow \mathbb{R}$ be a real function. An interval
 function $F: \mathbb{IR}^n \rightarrow \mathbb{IR}$ is a function that
 satisfies:
 $$\forall I\in \dom(F), \{f(x): x\in I\}\subseteq F(I).$$
 \end{definition}
-
-A simple example of interval extensions is the natural interval extension for
-arithmetic operations, based computations of the end points of the intervals.
-\begin{example}[Natural Extensions]
-The natural extensions of $\{+, -, \times, \div\}$ are as follows.
-\end{example}
+A simple example of interval extensions is the {\em natural interval
+extension}~\cite{} for
+arithmetic operations, based on computations of functions on the end points of 
+intervals. 
 
 \begin{proposition}
-Let $F$ be an interval extension of $f$, and $I\subseteq \dom(f)$. We have:
-\begin{center}
-If $F(I)\subseteq A$, then $\forall x (x\in I \rightarrow f(x)\in A)$.
-\end{center}
+Let $F$ be an interval extension of $f$, and $I\subseteq \dom(f)$. If
+$F(I)\subseteq A$, then $\forall x (x\in I \rightarrow f(x)\in A)$.
 \end{proposition}
-Thus, if we can verify that all the interval extensions are consistent with the
-function axioms, then we can validate the axioms.
-
-\begin{remark}
-Note that we generate the axioms dynamically, without presuming any set of
-existing axioms.
-\end{remark}
-
-\begin{remark}
-We regard simple real arithmetic as easy tasks.
-As is the case in validating the witnesses, the interval axioms, the function
-axioms. This needs to be justified, since numerical computations always involve
-floating point computations that are fallible. In practice, once a proof is
-obtained, there can be multiple ways to verify the proof. For instance, symbolic
-computations with precise arithmetic can be used.
-\end{remark}
-
-
-\subsection{Witnesses for $\delta$-Satisfiability and
-DPLL$\langle$ICP$\rangle$}
-
-For satisfiable formulas, a witness for $\delta$-satisfiability can be
-easily obtained.
-
-
-\section{Proof Refinement Algorithm: Branch and Prove}\label{bnp}
-
-The challenge for a proof checking algorithm is that the pruning operations in
-ICP usually implements complicated heuristics that is more powerful than
-interval arithmetic. However, in the proof we can hardly simulate those
-heuristics, unless we are willing to formalize all the detailed heuristics of
-the numerical computation involved. Thus, we propose an abstraction refinement
-loop ``Branch and Prove'' that allows produces proof traces of the right amount
-of details following through interactions between the prover and the solver.
-
+Thus, the axioms are validated if we can verify that they are consistent with
+all the interval extensions. 
 \begin{example}
-Give an example of how dReal solves in one step that is beyond the validation
-power of simple interval arithmetic.
+The second pruning step in Example~\ref{icp-example} generates an axiom 
+$$\forall
+x \forall y ( x\in [1.7, 2] \wedge y\in [1, 2] \rightarrow \neg (y=
+x^2)\vee \neg (y=x))$$
+This can be easily validated through the natural interval extension of
+$(y-x^2)$, which is $[1,2]-[1.7,2]^2 = [-3, -0.89]$ and does not contain $0$. 
 \end{example}
 
-Our approach is the following. When we run the solver, we obtain a proof trace
-following the construction procedure defined above. Then the proof checker
-verifies the structure of the tree following the first-order rules, and reduce
-the problem to the verification of the ``axioms'' on the leaf notes of the
-proof tree. Next, when it fails to prove the axioms through safe (but naive)
-interval arithmetic, it generates new subproblems and ask the solver to return
-new traces. At this stage, the axioms becomes the new theorems to be proved.
+In practice, ICP usually implements complicated heuristics that are more
+powerful than what can be verified through direct interval arithmetic. In
+principle, we could simulate the numerical heuristics to a certain extent with
+reliable computations. However, a more practical approach first is to use an
+abstraction refinement loop that allows the proof checker to ask the
+solver for proof traces of the right amount of details. We call this the
+``Branch and Prove'' loop. 
+ 
+ When we fail to prove an axiom through simple interval arithmetic, the proof
+checker generates new subproblems that are returned to the solver. At this
+stage, the axioms becomes the new theorems to be proved. 
 This is an abstraction refinement procedure, by executing the loop, we obtain
 proof trees that contain more and more detailed steps, which may in the end be
-completely verified by the proof checker.
+completely verified by the proof checker using reliable computations. 
 
 There are two ways that the prover can generate the subproblems. One is to
 branch on a variable in the formula, so that the solver can solve the same
 problem on a smaller domain. The other option is to have the solver to run the
-same problem, but with a smaller $\delta$. In this way, the solver takes in the
-subproblem as a new task, and produce refined proof trajectories, which,
-because of the reduced size of the domains, may use less tricky heurstics to
-solver. We continue this loop to obtain more and more refined proof trees, and
-see if the proof checker can verify the subtrees. We give the algorithm in
-Algorithm~\ref{algo1}.
-
-\begin{example}
-
-\end{example}
-
-Note that under the condition that the pruning operators in the solver is
-well-defined (detailed definition in~\cite{}), both procedures never change the
-unsat result. The procedure on branching always terminates, but may give
+same problem, but with a smaller $\delta$. Note that under the condition that
+the pruning operators in the solver is
+well-defined~\cite{}, both procedures never change the
+{\sf unsat} result. The branching may give
 exponentially many new problems; while the $\delta$-change does not give new
-problems, but may exponentially slow down the solver in each round. Still, we
-can prove the reliability of the refinedment loop in that it always terminates
-(the prover can fail to prove), producing verified sub-theorems in the system.
-\begin{proposition}
-The branch and prove loop is terminating, and does not give wrong answers.
-\end{proposition}
-\begin{proof}
-\end{proof}
-
-\begin{algorithm}
-\SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
-\SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
-\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-\Input{
-A proof tree $T$.
-}
-\Output{{\sf validated} or {\sf rejected}.}
-\BlankLine
-\While{Axioms are not validated}{\label{while}
-Loop between solver and checker\;
-}
-return {\sf rejected}\;
-\caption{Branch and Prove\label{algo1}}
-\end{algorithm}
-
-
+problems, but may exponentially slow down the solver in each round. In practice
+we observe that such a refinement loop is very useful, as we will show in the
+experiments. 
 
 \section{Case Study: Proving Lemmas for the Kepler Conjecture}\label{kepler}
 
-Our open-source tool dReal is available at. The main motivation for us to build
-the proof checker is for making contribution to the flyspeck project is led
-by Tom hales in University of Pittsburgh.
+We build the proof-producing capacity into our open-source tool
+dReal\footnote{Link to the
+tool page and benchmarks is on our homepages,
+\url{http://www.cs.cmu.edu/~sicung} and
+\url{http://www.cs.cmu.edu/~soonhok}}. All the experiments below are ran on a
+machine of with a 32-core 2.3GHz AMD Opteron Processor and 94GB of RAM.
 
-\subsubsection{The Kepler Conjecture}
+A main motivation for us to build
+the proof checker was in fact to contribute to the Flyspeck project, for the
+fully formalized proof of the Kepler conjecture. As lemmas for the proof,
+hundreds of nonlinear real inequalities need to be verified. Although the
+formulas usually contain only around ten variables, they contain a huge number
+of nonlinear arithmetic operations and trigonometric functions, and are
+mathematically challenging. In the original proof~\cite{}, Hales implemented
+procedures that combine linear programming and interval arithmetic to
+establishes all these formulas, but the algorithms are hard to be formally
+verified. In fact, the formal verification of these formulas is the last main
+piece of work needed to complete the full project. The state of the art is
+explained in a very recent thesis~\cite{}, reporting the proofs of about 10
+inequalities so far. The proofs use formal Taylor series and reliable
+numerical methods. The idea for such formal proofs, in short, is to divide the
+domains into pieces such that the functions can be formally bounded on each
+piece. Our approach is essentially using ICP to guide the division of the domain
+in an efficient way, such that the interval bounds (the axioms) can be
+verified more easily. 
 
-The typical formulas contain trigonmetric inequalities.
-
-\subsubsection{Solving Statistics}
+Without any particular optimization on ICP, we have already observed promising
+results. Out of a total number of 505 nonlinear formulas in the Flyspeck project
+repository~\cite{}, we solved 137 of them returning {\sf unsat} with a timeout
+of 30 minutes and $\delta=10^{-3}$. Out of these formulas, we applied the proof
+checking algorithm, and formally proved 55 of them directly, most of them only
+takes less than 1 minutes. The proof traces of these formulas can be very large,
+for instance over we proved one with 47k lines in the proof (1MB file). In
+Table~\ref{}, we list some of the representative benchmarks to show
+scalability. 
 
 \input{good_benchmarks.tex}
 
-\subsubsection{Proofs Generated}
-
-\input{good_proofs.tex}
-
-\subsubsection{Debugging Benefits}
+In the table, the columns denote the following information. 
 
 
-\subsubsection{Towards Complete Verification}
+As the proof-generation capacity is for debugging SMT solvers, the proofs have
+also been valuable for us to observe bugs during the process. For instance, we
+have observed unstable behavior in the trigonometric function evaluation in {\sf
+realpaver} (the cosine function around $4\pi/3$). Also, we have observed a
+benchmark that are decided as {\sf unsat} on AMD cores, and {\sf $\delta$-sat}
+on Intel cores. (Note that both can be correct answers because the two cases
+overlap.) However, our proof checker only involves simple operations written in
+{\sf OCaml}, and performs the checking completely independent from the solver.
+Thus, for the {\sf unsat} answers that we have obtained a proof for, we are
+highly confident about the correctness of the proof, which does not involve
+possible bugs from {\sf realpaver}. 
 
-
-
+We regard our work as a first step in a promising approach towards the formal
+verification of the nonlinear lemmas in the Flyspeck project. Further work
+would involve proof abstractions, local heuristics, and a veritably correct
+implementation of our proof checker in HOL. 
 
 \section{Related Work}\label{related}
 
-Our work is closely related to several lines of exisiting work. The the
+Our work is closely related to many lines of exisiting
+work. On the one hand, there are symbolic approaches such as in
+MetiTarski~\cite{},
+
+The the
 project of MetiTarski. The key new concept is to use numerical methods as
 guiding the search for proofs. Overapproximations of numerical values of
 functions are used, but always safe and can be validated with symbolic
@@ -954,45 +874,6 @@ Generating proofs from solvers has been the focus for
 many theories. SAT solvers ... . The idea of certifying computation has been
 investigated in formal detail in~\cite{}. Note that MetiTarski uses the same
 approach -- assuming that there are axioms by symbolic external solvers.
-
-MetiTarski needs axioms to reduce to polynomials, and then polynomials to be
-verifying by outside solvers. Note that the outside solvers are not verified,
-and actually hard to be verified. The numerical approach, on the other hand,
-can rely on any external solver that are easy to be verified by multiple
-solvers, and can be done symbolically. Once it is done symbolically, we obtain
-a symbolic proof that does not mention any numerical computations.
-
-The following benchmark can be solved by MetiTarski, which is used in verifying
-the aircraft example in~\cite{}.
-\begin{example}[Aircraft]
-The aircraft formula is
-\begin{eqnarray*}
-& &\forall t \forall x_1\forall x_2 \forall y_1\forall y_2\forall
-d_1\forall d_2\forall e_1\forall e_2. \\
-& &0<t<10\wedge x_1<-9 \wedge x_2<-1\wedge
-y_1>10 \wedge y_2>10\\
-& & \wedge 0.1<d1< 0.15\wedge 0.1<d_2<0.15 \wedge
-0.1<e_1<0.15\wedge 0.1<e_2<0.15 \\
-\rightarrow & &\Big(
-\Big(x_1-y_1-100d_2-100e_2+(100d_2+100e_2)\cos(0.01t)\\
-& &\ \ \ + (100d_1
--100e_1)\sin(0.01t)\Big)^2\\
-& & \ \ +\Big((x_2-y_2+100d_1+100e_1+(-100d_1-100e_1)\cos(0.
-0 1 t ) \\
-& &\ \ \  + (100d_2 - 100e_2)\sin(0.01t)\Big)^2 > 2\Big).
-\end{eqnarray*}
-The formula is solved in MetiTarski in 924
-seconds~\cite{}. On comparable machines, dReal solves in 0.01 seconds, also
-completely verifies the proof of unsatisfiability in 0.41 seconds, and the
-proof itself is ... long~\cite{}.
-\end{example}
-On the other hand, numerical approach has its inherent limitations. For
-instance, for simple formulas in the MetiTarski benchmark set such as the
-following, our solver keeps returning $\delta$-sat, and thus do not provide a
-proof of unsatisfiability.
-\begin{example}
-
-\end{example}
 
 Franzle's paper. Old validation papers. proof of unsatisfiability of SAT and
 SMT solvers. Theorem proving papers.
@@ -1037,7 +918,83 @@ We need to show that the proof construction is always successful.
 \end{proof}
 
 
+\subsection{Witnesses for $\delta$-Satisfiability and
+DPLL$\langle$ICP$\rangle$}
 
+For satisfiable formulas, a witness for $\delta$-satisfiability can be
+easily obtained.
+
+\section*{Comparisons}
+
+MetiTarski needs axioms to reduce to polynomials, and then polynomials to be
+verifying by outside solvers. Note that the outside solvers are not verified,
+and actually hard to be verified. The numerical approach, on the other hand,
+can rely on any external solver that are easy to be verified by multiple
+solvers, and can be done symbolically. Once it is done symbolically, we obtain
+a symbolic proof that does not mention any numerical computations.
+
+The following benchmark can be solved by MetiTarski, which is used in verifying
+the aircraft example in~\cite{}.
+\begin{example}[Aircraft]
+The aircraft formula is
+\begin{eqnarray*}
+& &\forall t \forall x_1\forall x_2 \forall y_1\forall y_2\forall
+d_1\forall d_2\forall e_1\forall e_2. \\
+& &0<t<10\wedge x_1<-9 \wedge x_2<-1\wedge
+y_1>10 \wedge y_2>10\\
+& & \wedge 0.1<d1< 0.15\wedge 0.1<d_2<0.15 \wedge
+0.1<e_1<0.15\wedge 0.1<e_2<0.15 \\
+\rightarrow & &\Big(
+\Big(x_1-y_1-100d_2-100e_2+(100d_2+100e_2)\cos(0.01t)\\
+& &\ \ \ + (100d_1
+-100e_1)\sin(0.01t)\Big)^2\\
+& & \ \ +\Big((x_2-y_2+100d_1+100e_1+(-100d_1-100e_1)\cos(0.
+0 1 t ) \\
+& &\ \ \  + (100d_2 - 100e_2)\sin(0.01t)\Big)^2 > 2\Big).
+\end{eqnarray*}
+The formula is solved in MetiTarski in 924
+seconds~\cite{}. On comparable machines, dReal solves in 0.01 seconds, also
+completely verifies the proof of unsatisfiability in 0.41 seconds, and the
+proof itself is ... long~\cite{}.
+\end{example}
+On the other hand, numerical approach has its inherent limitations. For
+instance, for simple formulas in the MetiTarski benchmark set such as the
+following, our solver keeps returning $\delta$-sat, and thus do not provide a
+proof of unsatisfiability.
+\begin{example}
+
+\end{example}
+
+
+
+\vspace{-.2cm}
+\begin{algorithm}[h!]
+\SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
+\SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
+\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+\Input{Constraints $c_1,...,c_m$, initial box $B^0
+= I^0_1\times \cdots \times I^0_n$, box stack $S=\emptyset$, and precision
+$\varepsilon\in \mathbb{Q}^+$.}
+\Output{{\sf unsat} and {\sf possibly-sat}.}
+\BlankLine
+$S.\mathrm{push}(B_0)$\;
+\While{$S\neq \emptyset$}{\label{while}
+$B\leftarrow S.\mathrm{pop}()$ \;
+\While{$\exists 1\leq i \leq m, B\neq \mathrm{Prune}(B,f_i)$}{
+%\For{$j\leftarrow 1$ \KwTo $m$}{
+        $B\leftarrow\mathrm{Prune}(B, f_i)$ \;
+%       \If{$B=\emptyset$}{break\;}
+}
+\If{$B\neq \emptyset$}
+{\eIf{$\exists 1\leq i\leq n, |I_i|\geq \varepsilon$}{$\{B_1,B_2\}\leftarrow
+\mathrm{Branch}(B, i)$\;$S.\mathrm{push}(\{B_1,B_2\})$\;}{return {\sf
+possibly-sat}\;}}
+}
+return {\sf unsat}\;
+\caption{High-Level ICP$_{\varepsilon}$ (decision version of
+Branch-and-Prune)\label{algo_icp}}
+\end{algorithm}
+\vspace{-.2cm}
 
 
 \end{document}
