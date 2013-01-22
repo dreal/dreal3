@@ -67,7 +67,7 @@ Constraint Propagation algorithm. It returns {\sf unsat} or {\sf $\delta$-sat}
 on input formulas, and the user can obtain certificates (proof of
 unsatisfiability or solution) for either answer.
 
-In this paper we describe the usage, design, and some results of the tool. 
+In this paper we describe the usage, design, and some results of the tool.
 
 \section{Usage}
 
@@ -318,6 +318,8 @@ with smaller domains. More details can be found in~\cite{}.
 Our main motivation for the tool is to prove lemmas in the Kepler conjecture,
 as well as hybrid system verification. Here we show some representative numbers
 on the scale of problems that we can solve.
+
+\input{good_benchmarks.tex}
 
 Several sets of standard benchmarks from~\cite{} are contained in the release
 and can be tested. Our solver is generally very fast on problems where all the
