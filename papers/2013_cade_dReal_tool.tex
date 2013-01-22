@@ -149,13 +149,12 @@ information.
 then {\tt filename.proof} contains a witnessing solution, plugged into a
 $\delta$-perturbation of the original formula, such
 that the correctness can be easily checked externally. The theory of
-$\delta$-perturbations will be explained in Section~\ref{deltas}.
+$\delta$-perturbations will be explained in Section~\ref{lbl:deltas}.
 
 \item If the answer is {\sf unsat}, then {\tt filename.proof} contains a trace
 of the solving steps, which can be verified as a proof tree that establishes the
 unsatisfiability of the formula. This file can be the input of a stand-alone
-proof checker, which will be explained in
-Section~\cite{proof}
+proof checker, which will be explained in Section~\ref{proof}
 \end{itemize}
 \item The {\tt --precision} flag gives the option of overwriting the
 default precision, and the one set in the benchmark.
@@ -180,7 +179,7 @@ the proof checker can be used as follows.
 \begin{verbatim}
 proofcheck [--timeout <int>] <filename>
 \end{verbatim}
-The proof checker will create a new folder called {\tt filename}, which
+The proof checker will create a new folder called {\tt filename.extra}, which
 contains auxiliary files needed. It is possible for the proof
 checking procedure to produce an exponential amount of new files, so setting a
  timeout is important. By default, the timeout is {\tt 30min}. The proof
@@ -195,7 +194,7 @@ checking 77 axioms.
 
 \section{Design}
 
-\subsection{The $\delta$-Decision Problem}\label{deltas}
+\subsection{The $\delta$-Decision Problem}\label{lbl:deltas}
 
 The standard decision problem is undecidable, for SMT formulas
 over the reals with any trigonometric function. If only polynomials are allowed,
@@ -241,7 +240,7 @@ containing arbitrary computable real functions, which is in essence any
 function that can be numerically simulated. Also, the complexity bounds is
 encouraging. For instance, the $\delta$-decision problem for bounded SMT
 problems for formulas with polynomials,
-exponentiation, and trigonometric functions is ``only" {\sf NP}-complete, in
+exponentiation, and trigonometric functions is ``only'' {\sf NP}-complete, in
 comparison to the undecidability of the standard decision problem for such
 formulas.  Thus the $\delta$-decision problem leads us to a new and more
 positive outlook for reasoning over the reals, as well
@@ -251,15 +250,15 @@ as a guiding framework for the development of practical decision procedures.
 
 Interval Constraint Propagation (ICP)~\cite{handbookICP} is a constraint solving
 algorithm that finds
-solutions of real constraints using a ``branch-and-prune" method, combining
+solutions of real constraints using a ``branch-and-prune'' method, combining
 interval arithmetic and constraint propagation. The idea is to use interval
 extensions of functions to ``prune'' out sets of points that are not in the
 solution set, and ``branch'' on intervals when such pruning can not be done,
 until a small enough box that may contain a solution is found.
 
 In a DPLL(T) framework, ICP can be used as the theory solver that checks the
-consistency of a set of theory atoms. We use {\sf opensmt}~\cite{DBLP:conf/tacas/BruttomessoPST10
-} for the
+consistency of a set of theory atoms. We use
+{\sf opensmt}~\cite{DBLP:conf/tacas/BruttomessoPST10} for the
 general
 DPLL(T) framework, and integrate {\sf realpaver}~\cite{DBLP:journals/toms/GranvilliersB06} which performs ICP. The
 overall design of the interface is as follows.
@@ -316,17 +315,18 @@ with smaller domains. More details can be found in~\cite{cade2013extended}.
 
 \section{Results}
 
-Our main motivation for the tool is to prove lemmas in the Kepler conjecture,
-as well as hybrid system verification. Here we show some representative numbers
-on the scale of problems that we can solve. The following benchmarks are from
-the Flyspeck project for the formal proof of the Kepler Conjecture. It involves
-formulas with large numbers of nonlinear constraints. 
+Our main motivation for the tool is to prove lemmas in the Kepler
+conjecture, as well as hybrid system verification. In
+Table~\ref{tbl:exp}, we show some representative numbers on the scale
+of problems that we can solve from the Flyspeck project for the formal
+proof of the Kepler Conjecture. It involves formulas with large
+numbers of nonlinear constraints.
 
 \input{good_benchmarks.tex}
 
 Standard benchmarks from~\cite{DBLP:conf/cade/JovanovicM12} are contained in the release
 and can be tested. Our solver is generally very fast on problems where all the
-variables are bounded in intervals. 
+variables are bounded in intervals.
 
 \bibliographystyle{abbrv}
 \bibliography{tau}
