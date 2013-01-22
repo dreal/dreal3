@@ -65,7 +65,7 @@ give answers with one-sided, $\delta$-bounded errors. With this relaxation,
 $\delta$-complete decision procedures can fully exploit the
 power of scalable numerical algorithms to solve nonlinear
 problems, and at the same time provide suitable correctness
-guarantees for many correctness-critical problems~\cite{}.
+guarantees for many correctness-critical problems~\cite{DBLP:conf/cade/GaoAC12}.
 
 An important problem
 for practical SMT solvers is that the correctness
@@ -78,7 +78,7 @@ variables such that the ground formula $\varphi(\vec a)$ is easily checked to be
 true. On the other hand, when $\varphi(\vec x)$ is determined to be ``unsat'',
 the solver can produce a proof $P$ that establishes the validity of $\forall
 \vec x.\neg\varphi(\vec x)$ in a suitable proof system. Here, $P$ is called a
-{\em proof of unsatisfiability}~\cite{}. In the framework of $\delta$-complete
+{\em proof of unsatisfiability}. In the framework of $\delta$-complete
 decision procedures, obtaining certificates from numerically-driven SMT solvers
 is especially important. Numerical algorithms usually contain complex heuristics
 and floating-point operations, and it is very hard to perform static
@@ -101,13 +101,13 @@ computationally-intensive task.
 
 In this paper, we show how to extract and validate such proofs
 of correctness for numerically-driven SMT solvers that implement the
-DPLL$\langle$ICP$\rangle$ algorithm~\cite{}, for solving nonlinear formulas over
+DPLL$\langle$ICP$\rangle$ algorithm~\cite{DBLP:conf/cade/GaoAC12}, for solving nonlinear formulas over
 the reals. The challenge lies in extracting symbolic proofs of unsatisfiability
 that do not carry over any possible numerical errors, and the complete
 validation of them as theorems in a sound proof system (ideally, containing only
 simple proof rules).
 
-Interval Constraint Propagation (ICP)~\cite{} is a branch-and-prune algorithm
+Interval Constraint Propagation (ICP)~\cite{Newton} is a branch-and-prune algorithm
 for solving systems of real constraints, which acts as the theory solver in the
 DPLL(T) framework. The algorithm maintains an interval
 assignment to all the variables, and update the assignments based on their
@@ -118,27 +118,37 @@ create subproblems and solve them recursively. The similarity between ICP and SA
 been explored in the work~\cite{}.
 
 Our approach is as follows. First, we formallize the ICP algorithm in the
-format of Abstract DPLL~\cite{}, such that its computation corresponds to
+format of Abstract DPLL~\cite{DBLP:journals/jacm/NieuwenhuisOT06}, such that its computation corresponds to
 sequences of abstract transitions. We then use a simple first-order proof
 calculus $\mathbb{D}_A$, relativized to a set $A$ of axioms over the reals, and
 show how to transform a run of the Abstract ICP to a proof in the system. Next,
 we show how to validate the generated proofs using a stand-alone symbolic proof
 checker. The proof checker only implements simple rules that are easy to verify,
 and it interacts with the solver in an abstraction refinement loop to obtain
-proof trees of sufficient detail. We discuss experimental results on the Kepler
-conjecture benchmarks~\cite{}.
-
-Our work is closely related to several lines
-of research in the existing literature, which we discuss in detail in
-Section~\ref{related}. For instance, we will compare with the techniques
-in the theorem prover MetiTarski~\cite{}, and point out the
-complementary nature of numerical and symbolic approaches.
+proof trees of sufficient detail. A main focus for our tool is to prove
+nonlinear lemmas
+in the Flyspeck project for the formal proof of the Kepler
+conjecture~\cite{DBLP:journals/dcg/HalesHMNOZ10,DBLP:conf/dagstuhl/Hales05}. They
+involve large numbers on nonlinear constraints including trignometric functions. We show
+promising experimental results towards the goal.
 
 The paper is organized as follows. We review the framework of $\delta$-complete
 decision procedures in Section~\ref{review}. We then show how to formalize ICP,
 construct proofs, and proof-check them in Section~\ref{icp}. We
 report experiments with lemmas in the Flyspeck project in Section~\ref{kepler}.
 
+\subsubsection{Related Work} Our work is closely related to several lines
+of research in the existing literature. For proving formulas with
+transcendental functions,
+MetiTarski~\cite{DBLP:conf/itp/Paulson12,DBLP:journals/jar/AkbarpourP10,DBLP:conf/aisc/PassmorePM12} 
+is the leading tool that reduces problems to
+polynomials and calls quantifier elimination procedures. For problems with only
+polynomials, Berstein polynomials are used in PVS for formal
+proofs~\cite{MN12}. Our approach can be seen as complementary to these
+approaches. The iSAT solver~\cite{HySAT} also contains strategies for certifying
+their answers, in a different framework. Some further comparisons are given in an extended version~\cite{cade2013extended}. There are now several SMT solvers for formulas with nonlinear polynomials over
+the reals with no proof-producing capacities. Proofs for
+correctness in general SMT solvers has been well studied in~\cite{DBLP:journals/fmsd/StumpORHT1}. 
 
 \section{A Brief Review of $\delta$-Complete Decision Procedures}\label{review}
 
@@ -803,36 +813,40 @@ tool page and benchmarks is on our homepages,
 \url{http://www.cs.cmu.edu/~soonhok}}. All the experiments below are ran on a
 machine of with a 32-core 2.3GHz AMD Opteron Processor and 94GB of RAM.
 
+
+\input{good_proofs.tex}
+
 A main motivation for us to build
 the proof checker was in fact to contribute to the Flyspeck project, for the
 fully formalized proof of the Kepler conjecture. As lemmas for the proof,
 hundreds of nonlinear real inequalities need to be verified. Although the
 formulas usually contain only around ten variables, they contain a huge number
 of nonlinear arithmetic operations and trigonometric functions, and are
-mathematically challenging. In the original proof~\cite{}, Hales implemented
+mathematically challenging. In the original proof, Hales implemented
 procedures that combine linear programming and interval arithmetic to
 establishes all these formulas, but the algorithms are hard to be formally
 verified. In fact, the formal verification of these formulas is the last main
 piece of work needed to complete the full project. The state of the art is
-explained in a very recent thesis~\cite{}, reporting the proofs of about 10
+explained in a very recent thesis~\cite{keplerthesis}, reporting the proofs of about 10
 inequalities so far. The proofs use formal Taylor series and reliable
 numerical methods. The idea for such formal proofs, in short, is to divide the
 domains into pieces such that the functions can be formally bounded on each
-piece. Our approach is essentially using ICP to guide the division of the domain
-in an efficient way, such that the interval bounds (the axioms) can be
-verified more easily. 
+piece. As is observed, the main difficulty is finding a suitable
+partition. Instead of using manual branching, our approach is
+essentially using ICP to guide the division of the domain in an efficient way,
+such that the interval bounds (the axioms) can be verified more easily. 
+
 
 Without any particular optimization on ICP, we have already observed promising
 results. Out of a total number of 505 nonlinear formulas in the Flyspeck project
-repository~\cite{}, we solved 137 of them returning {\sf unsat} with a timeout
-of 30 minutes and $\delta=10^{-3}$. Out of these formulas, we applied the proof
-checking algorithm, and formally proved 55 of them directly, most of them only
-takes less than 1 minutes. The proof traces of these formulas can be very large,
-for instance over we proved one with 47k lines in the proof (1MB file). In
+repository (translated from {\tt HOL} to {\tt smt2} format), we solved
+137 of them returning {\sf unsat} with a timeout of 30 minutes and
+$\delta=10^{-3}$. Out of these formulas, we applied the proof checking
+algorithm, and formally proved 55 of them directly, most of them only takes less
+than 1 minutes. The proof traces of these formulas can be very large, for
+instance over we proved one with 47k lines in the proof (1MB file). In
 Table~\ref{}, we list some of the representative benchmarks to show
 scalability. 
-
-\input{good_benchmarks.tex}
 
 In the table, the columns denote the following information. 
 
@@ -854,75 +868,34 @@ verification of the nonlinear lemmas in the Flyspeck project. Further work
 would involve proof abstractions, local heuristics, and a veritably correct
 implementation of our proof checker in HOL. 
 
-\section{Related Work}\label{related}
-
-Our work is closely related to many lines of exisiting
-work. On the one hand, there are symbolic approaches such as in
-MetiTarski~\cite{},
-
-The the
-project of MetiTarski. The key new concept is to use numerical methods as
-guiding the search for proofs. Overapproximations of numerical values of
-functions are used, but always safe and can be validated with symbolic
-procedures. Both have strength and should be combined as mixed strategy. Our
-work can be seen as an instance of performing certifiable computation.
-MetiTarski. The axioms in our case are generated on the fly, and we do not have
-a fixed set of axioms. The key concept change is this. Actually, they can be
-combined as MetiTarski can solve
-complicated axioms.
-Generating proofs from solvers has been the focus for
-many theories. SAT solvers ... . The idea of certifying computation has been
-investigated in formal detail in~\cite{}. Note that MetiTarski uses the same
-approach -- assuming that there are axioms by symbolic external solvers.
-
-Franzle's paper. Old validation papers. proof of unsatisfiability of SAT and
-SMT solvers. Theorem proving papers.
-
-The nature of the prune and prove approach is like finding better and better
-Taylor expansions.
-
-Hale's work, of course.
-
-Berstein polynomials from nasa.
-
-Thomas Hales implemented an infor-
-mal verification procedure based on interval arithmetic with Taylor
-approximations which
-can completely verify all Flyspeck nonlinear inequalitie
-
-``The main difficulty is finding a suitable partition.'' Instead of using
-arbitrary branching, we rely on numerical facts that does the pruning for us,
-and
-
-Ceritifying computations literature.
-
 
 \section{Conclusion and Future Work}
 
-We believe this is a right starting point for the final solution of the Kepler
-conjecture. What is needed now is a verified HOL library of interval facts, and
-a verified implementation of the prover.
+We presented our approach for extracting formal proofs from a numerically-driven
+decision procedure in the DPLL$\langle$ICP$\rangle$ framework. 
 
-More Boolean structures are needed
+We formallized the ICP algorithm, and showed how to construct proof trees from
+the unsat answers. We then validated the generated proofs using a stand-alone symbolic proof
+checker, which only implements simple rules that are easy to verify,
+and interacts with the solver in an abstraction refinement loop to obtain
+proof trees of sufficient detail. A main focus for our tool is to prove
+nonlinear lemmas in the Flyspeck project, and we have observed promising
+experimental results. 
+
+
 
 \bibliographystyle{abbrv}
 \bibliography{tau}
 
+
+
+\end{document}
+
+
+
+
 \newpage
 \section*{Appendix}
-
-
-\begin{proof}(Proof of Theorem~\ref{successful_tree})
-We need to show that the proof construction is always successful.
-
-\end{proof}
-
-
-\subsection{Witnesses for $\delta$-Satisfiability and
-DPLL$\langle$ICP$\rangle$}
-
-For satisfiable formulas, a witness for $\delta$-satisfiability can be
-easily obtained.
 
 \section*{Comparisons}
 
@@ -995,7 +968,3 @@ return {\sf unsat}\;
 Branch-and-Prune)\label{algo_icp}}
 \end{algorithm}
 \vspace{-.2cm}
-
-
-\end{document}
-
