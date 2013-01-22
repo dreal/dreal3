@@ -33,14 +33,14 @@ reals with a wide range of nonlinear functions, allowing ``$\delta$-bounded
 errors''. The scalability of such procedures usually depends on efficient
 numerical procedures, whose implementation can be error-prone. It is important
 for $\delta$-complete solvers to provide certificates to prove the correctness
-of their answers. We show how to do this in DPLL$\langle$ICP$\rangle$, a
-powerful solving framework based on Interval Constraint Propagation. We
-concentrate on how to construct proof-trees for the ``unsat'' answers and how to
-verify their correctness. Besides certifying solvers, we find this a promising 
-approach to automated theorem proving over the reals, exploiting the power of
-numerical algorithms in a formal way. One directly application of our approach
-is to establish many nonlinear lemmas in the formal proof of the Kepler
-Conjecture. 
+of their answers. We show how to do this for DPLL$\langle$ICP$\rangle$, a
+general solving framework based on Interval Constraint Propagation. We
+focus on the construction of proof trees for the ``unsat''
+answers and the proof-checking of their correctness. Besides certifying solvers,
+we find our approach a promising one for automated theorem proving over
+the reals, exploiting the power of numerical algorithms in a formal way. One
+direct application is to establish many nonlinear lemmas in the Flyspeck
+project for the formal proof of the Kepler Conjecture. 
 \end{abstract}
 
 \section{Introduction}
@@ -48,9 +48,10 @@ Conjecture.
 SMT formulas over the real numbers can encode a wide range of problems in
 theorem proving and formal verification. Such formulas are very hard to solve
 when nonlinear functions are involved~\cite{}. Our recent work on
-{$\delta$-complete decision procedures} provided a new general framework for
+{\em $\delta$-complete decision procedures} provided a new general framework for
 handling nonlinear SMT problems over the reals~\cite{}. We say a decision
-procedure is {\em $\delta$-complete} for a set $S$ of formulas, where $\delta$
+procedure is {\em $\delta$-complete} for a set $S$ of SMT formulas, where
+$\delta$
 is any positive rational number, if for any $\varphi$ from $S$ the procedure
 returns one of the following answers:
 \begin{itemize}
@@ -59,7 +60,7 @@ returns one of the following answers:
 \end{itemize}
 Here, $\varphi^{\delta}$ is a syntactic variation of $\varphi$ that encodes a
 notion of numerical perturbation on logic formulas (more
-details in Section \ref{review}.) Essentially, we allow such a procedure to
+details in Section \ref{review}). Essentially, we allow such a procedure to
 give answers with one-sided, $\delta$-bounded errors. With this relaxation,
 $\delta$-complete decision procedures can fully exploit the
 power of scalable numerical algorithms to solve nonlinear
@@ -116,66 +117,75 @@ contain any solution; in a ``branching'' step, ICP subdivides an interval to
 create subproblems and solve them recursively. The similarity between ICP and SAT solving techniques has
 been explored in the work~\cite{}. 
 
-Our approach is as follows. We formallize the ICP algorithm in the
-format of Abstract DPLL~\cite{}, and produce traces of a run of ICP. We then
-use a first-order proof system, relativized to axioms of a set of real
-constraints that are easy to verify, and show how to transform a run of the
-Abstract ICP to a proof in the system. We then show how to validate the
-generated proofs using a stand-alone symbolic proof checker. Since the proof
-checker only implements simple rules that are easy to verify, it interacts with
-the solver in an abstraction refinement loop (termination guaranteed) to obtain
-proof trees of sufficient detail. We show experimental results on the Kepler
-conjecture benchmarks. 
+Our approach is as follows. First, we formallize the ICP algorithm in the
+format of Abstract DPLL~\cite{}, such that its computation corresponds to
+sequences of abstract transitions. We then use a simple first-order proof
+calculus $\mathbb{D}_A$, relativized to a set $A$ of axioms over the reals, and
+show how to transform a run of the Abstract ICP to a proof in the system. Next,
+we show how to validate the generated proofs using a stand-alone symbolic proof
+checker. The proof checker only implements simple rules that are easy to verify,
+and it interacts with the solver in an abstraction refinement loop to obtain
+proof trees of sufficient detail. We discuss experimental results on the Kepler
+conjecture benchmarks~\cite{}. 
 
 Our work is closely related to several lines
 of research in the existing literature, which we discuss in detail in
-Section~\ref{}. We will compare with symbolic approaches taken by MetiTarski
-and point out the complimentrary nature of our approach to theirs. We also
-compare with other ``direct'' numerical approaches in producing such proofs,
-such as in the Flyspeck project, and the Bernstein polynomial approaches. 
+Section~\ref{related}. For instance, we will compare with the techniques
+in the theorem prover MetiTarski~\cite{}, and point out the
+complementary nature of numerical and symbolic approaches. 
 
-The paper is organized as follows. 
+The paper is organized as follows. We review the framework of $\delta$-complete
+decision procedures in Section~\ref{review}. We then show how to formalize ICP, 
+construct proofs, and proof-check them in Section~\ref{icp} and \ref{bnp}. We
+report experiments with lemmas in the Flyspeck project in Section~\ref{kepler}.
 
 
 \section{A Brief Review of $\delta$-Complete Decision Procedures}\label{review}
 
-We first briefly review the framework of $\delta$-complete decision procedures.
-It formulates a reasonable correctness requirement for solving nonlinear
-formulas over the reals. We have shown that $\delta$-complete procedures exist,
+We briefly review the framework of $\delta$-complete decision procedures.
+It formulates a reasonable correctness requirement for decision
+procedures for nonlinear
+formulas over the reals, while the standard completness requirement can not be
+imposed because of intractabilitu. We have shown that $\delta$-complete
+procedures exist,
 with reasonable complexity bounds, for bounded SMT formulas over the reals with
-arbitrary computable real functions.
+arbitrary Type-2 computable real functions (a notion well-studied in computable
+analysis~\cite{}). 
 
-To formalize computations over the reals, we first need to encode the real
-numbers, as infinite strings. We can then model
-computations of real functions with machines that can use infinite strings as
+First, to formalize computations over the reals, we need to encode the
+real numbers as infinite strings. We can then model
+computations of real functions with machines that can use infinite tapes as
 input and output. That is, a real function is computable if there exists a
 machine that computes, using oracles that encode the arguments of the function,
-the values of the function to an arbitrary precision. More precisely, these
+the values of the function to an arbitrary precision. These
 notions are captured by the following definitions.
 \begin{definition}[Encoding Real Numbers]
 A {\em name} of a real number $a\in \mathbb{R}$ is a function
 $\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{Q}$ satisfying that for all
-$i\in \mathbb{N}$, $|\gamma_a(i) - a|<2^{-i}.$ For $\vec a\in \mathbb{R}^n$,
-$\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$, and
-$\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$.
+$i\in \mathbb{N}$, $|\gamma_a(i) - a|<2^{-i}.$ For vectors $\vec a\in
+\mathbb{R}^n$,
+$\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$.
+Write $\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$.
 \end{definition}
 \begin{definition}[Computable Real Functions] We say
 $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable, if there exists
-an oracle Turing machine $\mathcal{M}_f$ that performs the following
-computation: Let $\vec a\in \dom(f)$ be any argument of $f$ and $\gamma(\vec a)$
+an oracle Turing machine $\mathcal{M}_f$ as follows. Let $\vec a\in \dom(f)$
+be any argument of $f$ and $\gamma(\vec a)$
 any name of $\vec a$. On any input $i\in \mathbb{N}$,
 $\mathcal{M}_f^{\gamma(\vec a)}(i)$ uses $\gamma(\vec a)$ as an oracle, and
 computes a $2^{-i}$-approximation to $f(\vec a)$.
 \end{definition}
-Most common continuous real functions are computable, such as addition,
-multiplication,  absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of
+Most common continuous real functions are computable, such as
+arithmetic, absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of
 Lipschitz-continuous ordinary differential equations~\cite{CAbook}. Compositions
 of computable functions are computable.
 
-We now let $\mathcal{F}$ denote an arbitrary collection of computable real
-functions. $\mathcal{L}_{\mathcal{F}}$ denotes the first-order signature over
-the structure $\mathbb{R}_{\mathcal{F}} = \langle
-\mathbb{R}, \leq, \mathcal{F}\rangle$. We can then consider SMT problems
+Now, suppose $\mathcal{F}$ denotes an arbitrary collection of computable real
+functions. Let $\mathcal{L}_{\mathcal{F}} = \langle <,
+\mathcal{F}\rangle$ be the first-order signature over the structure
+$\mathbb{R}_{\mathcal{F}} = \langle
+\mathbb{R}, \leq, \mathcal{F}\rangle$. (Constants are seen as 0-ary
+functions in $\mathcal{F}$.) We can then consider SMT problems
 over $\mathbb{R}_{\mathcal{F}}$, namely, satisfiability of quantifier-free
 $\mathcal{L}_{\mathcal{F}}$-formulas over $\mathbb{R}_{\mathcal{F}}$. We
 consider bounded SMT problems, which is more conveniently expressed as
@@ -186,24 +196,21 @@ where: for all $i$, $I_i\subseteq \mathbb{R}$ is a bounded (open or closed)
 interval; each bounded quantifier $\exists^{I_i}x_i.\phi$ denotes $\exists
 x_i.(x_i\in I_i\wedge \phi)$. $\psi(x_1,...,x_n)$ is a quantifier-free
 $\mathcal{L}_{\mathcal{F}}$-formula, i.e., a Boolean combination of atomic
-formulas of the form $f(x_1,...,x_n)\circ 0$, where $f$ is a composition of
+formulas $f(x_1,...,x_n)\circ 0$, where $f$ is a composition of
 functions in $\mathcal{F}$ and $\circ\in\{<,\leq, >, \geq, =, \neq \}$.
 All the functions occurring in $\psi(\vec x)$ should be defined everywhere over
-the closure of $I_1\times\cdots \times I_n$.
-
-An immediate observation is that any bounded $\Sigma_1$-sentence
+the closure of $I_1\times\cdots \times I_n$. Any bounded $\Sigma_1$-sentence
 can be put into the following standard form, where inequalities are implicitly
-expressed by the bounds on quantifiers (introducing slack variables) and the
-atomic formulas only involve equalities.
+expressed by the bounds on quantifiers (using slack variables) and the
+atomic formulas only involve equalities:
 \begin{proposition}[Standard Form]\label{pre1}
 Any bounded $\Sigma_1$-sentence $\varphi$ in $\mathcal{L}_{\mathcal{F}}$ is
-equivalent over $\mathbb{R}_{\mathcal{F}}$ to a sentence of the form
-$\exists^{I_1}x_1\cdots \exists^{I_n}x_n(\bigwedge_{i=1}^m(\bigvee_{j=1}^{k_i}
+equivalent over $\mathbb{R}_{\mathcal{F}}$ to a sentence $\exists^{I_1}x_1\cdots
+\exists^{I_n}x_n(\bigwedge_{i=1}^m(\bigvee_{j=1}^{k_i}
 f_{ij}(\vec x)=0)).$
 \end{proposition}
-
 We can now define the notion of ``$\delta$-perturbations'' on these
-formulas.
+formulas:
 \begin{definition}[$\delta$-Weakening and Perturbations]\label{weak-def}
 Let $\delta\in \mathbb{Q}^+\cup\{0\}$ be a constant and $\varphi$ be a
 $\Sigma_1$-sentence in standard form:
@@ -212,16 +219,15 @@ $\Sigma_1$-sentence in standard form:
 f_{ij}(\vec x)= 0)).
 %\vspace{-.3cm}
 \]
-The $\delta$-weakening of $\varphi$ defined as:
+The $\delta$-perturbed form (or $\delta$-weakening) of $\varphi$ defined as:
 %\vspace{-.3cm}
 \[\varphi^{\delta}:= \exists^{\vec I} \vec x\;(\bigwedge_{i=1}^m(\bigvee_{j=1}^k
 |f_{ij}(\vec x)|\leq \delta)).\]
 Also, a $\delta$-perturbation is a constant vector $\vec c =
 (c_{11},...,c_{mk_m})$, where $c_{ij}\in\mathbb{R}$ and $||\vec
-c||\leq\delta$, such that the $\vec c$-perturbed form of $\varphi$ is given by:
-%\vspace{-.2cm}
-\[\varphi^{\vec c}:= \exists^{\vec I} \vec x\;(\bigwedge_{i=1}^m(\bigvee_{j=1}^k
-f_{ij}(\vec x) = c_{ij})).\]
+c||_{\infty}\leq\delta$, such that $\varphi^{\vec c}:= \exists^{\vec I} \vec
+x\;(\bigwedge_{i=1}^m(\bigvee_{j=1}^k
+f_{ij}(\vec x) = c_{ij})).$
 \end{definition}
 
 \begin{definition}[Bounded $\delta$-SMT in $\mathcal{L}_{\mathcal{F}}$] Let
@@ -236,27 +242,24 @@ following two decisions on $\varphi$:
 When the two cases overlap, either decision can be returned.
 \end{definition}
 
-The main theoretical result in this framework is that for any positive
+The main theoretical result is that for any positive
 $\delta$, the bounded $\delta$-SMT problems in $\mathcal{L}_{\mathcal{F}}$ are
 decidable (namely, $\delta$-decision
 procedures exist).
-\begin{theorem}[Decidability] Let $\mathcal{F}$ be any collection
+\begin{theorem}[Decidability] Let $\mathcal{F}$ be a finite collection
 of computable real functions and $\delta\in \mathbb{Q}^+$. The bounded
-$\delta$-SMT
-problem in $\mathcal{L}_{\mathcal{F}}$ is decidable.
+$\delta$-SMT problem in $\mathcal{L}_{\mathcal{F}}$ is decidable.
 \end{theorem}
 
 The $\delta$-SMT problems also have reasonable complexity bounds for various
 signatures that would otherwise define undecidable theories.
 \begin{theorem}[Complexity]
-Let $\mathcal{F}$ be a finite set of functions in Type 2 complexity class
+Let $\mathcal{F}$ be a finite collection of functions in Type 2 complexity class
 $\mathsf{C}$, $\mathsf{P}\subseteq\mathsf{C}\subseteq\mathsf{PSPACE}$. The
 $\delta$-SMT problem for uniformly bounded $\Sigma_1$-classes in
-$\mathcal{L}_{\mathcal{F}}$ is in $\mathsf{NP^C}$.
-
-For instance, when $\mathcal{F}$ only contains polynomial-time
-computable real functions such as $\{+, \times, \exp, \sin\}$,
-the $\delta$-SMT problem is $\mathsf{NP}$-complete.
+$\mathcal{L}_{\mathcal{F}}$ is in $\mathsf{NP^C}$. For instance, when
+$\mathcal{F}$ only contains {\sf P}-time computable real functions such as
+$\{+, \times, \exp, \sin\}$, the problem is $\mathsf{NP}$-complete.
 \end{theorem}
 
 These results lead to a
@@ -266,15 +269,25 @@ numerically-driven decision procedures such as~\cite{}.
 
 \section{Proof Systems for Interval Constraint Propagation}\label{icp}
 
-\subsection{Interval Constraint Propagation}
+\subsection{Formalizing Interval Constraint Propagation}
 
-The method of Interval Constraint Propagation (ICP)~\cite{handbookICP} finds
-solutions of real constraints using a ``branch-and-prune" method, combining
+Interval Constraint Propagation (ICP)~\cite{handbookICP} finds
+solutions of real constraints using the ``branch-and-prune" method, combining
 interval arithmetic and constraint propagation. The idea is to use interval
 extensions of functions to ``prune'' out sets of points that are not in the
-solution set, and ``branch'' on intervals when such pruning can not be done,
-until a small enough box that may contain a solution is found. A high-level
-description of ICP is given in Algorithm~\ref{algo1}.
+solution set and ``branch'' on intervals when
+such pruning can not be done, until a small enough box that may
+contain a solution is found, or report inconsistency otherwise. A high-level
+description of ICP is in Algorithm~\ref{algo_icp}. In Algorithm~\ref{algo_icp},
+Branch$(B,i)$ is an operator that returns two smaller
+boxes $B' = I_1\times\cdots\times I_i'\times\cdots\times I_n$ and $B''=I_1\times
+\cdots\times I_i''\times \cdots\times I_n$, where $I_i\subseteq I_i'\cup
+I_i''$. The $\mathrm{Prune}(B, f)$ operation is a key component of the power of
+ICP. In principle, any operation that contracts the interval assignments on the
+variables can be used as pruning. In practice, various rules for pruning
+operators are needed for correctness and
+efficiency~\cite{}. More details can be found in~\cite. 
+\vspace{-.2cm}
 \begin{algorithm}[h!]
 \SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
 \SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
@@ -282,7 +295,7 @@ description of ICP is given in Algorithm~\ref{algo1}.
 \Input{Constraints $c_1,...,c_m$, initial box $B^0
 = I^0_1\times \cdots \times I^0_n$, box stack $S=\emptyset$, and precision
 $\varepsilon\in \mathbb{Q}^+$.}
-\Output{{\sf sat} or {\sf unsat}.}
+\Output{{\sf unsat} and {\sf possibly-sat}.}
 \BlankLine
 $S.\mathrm{push}(B_0)$\;
 \While{$S\neq \emptyset$}{\label{while}
@@ -294,36 +307,29 @@ $B\leftarrow S.\mathrm{pop}()$ \;
 }
 \If{$B\neq \emptyset$}
 {\eIf{$\exists 1\leq i\leq n, |I_i|\geq \varepsilon$}{$\{B_1,B_2\}\leftarrow
-\mathrm{Branch}(B, i)$\;$S.\mathrm{push}(\{B_1,B_2\})$\;}{return {\sf sat}\;}}
+\mathrm{Branch}(B, i)$\;$S.\mathrm{push}(\{B_1,B_2\})$\;}{return {\sf
+possibly-sat}\;}}
 }
 return {\sf unsat}\;
 \caption{High-Level ICP$_{\varepsilon}$ (decision version of
-Branch-and-Prune)\label{algo1}}
+Branch-and-Prune)\label{algo_icp}}
 \end{algorithm}
+\vspace{-.2cm}
 
-In Algorithm~\ref{algo1}, Branch$(B,i)$ is an operator that returns two smaller
-boxes $B' = I_1\times\cdots\times I_i'\times\cdots\times I_n$ and $B''=I_1\times
-\cdots\times I_i''\times \cdots\times I_n$, where $I_i\subseteq I_i'\cup
-I_i''$. The $\mathrm{Prune}(B, f)$ operation is a key component of the power of
-ICP. In principle, any operation that contracts the interval assignments on the
-variables can be used as pruning. In practice, various rules for pruning
-operators need to be used to ensure correctness and efficiency~\cite{}, and we
-do not go into more details now.
+\subsubsection{Abstract ICP} Our task now is to formalize ICP algorithms
+so that we can extract symbolic proofs from its computation process. The
+branch-and-prune structure of ICP is very similar to DPLL-based SAT solving, so 
+we follow the format of Abstract DPLL~\cite{}. We will represent ICP
+as a transition system, whose states consist of interval assignments and the
+real constraints to be solved. 
 
-Our focus now is to formalize ICP algorithms so that we can extract symbolic proofs from
-its computation process. The branch-and-prune structure of ICP is very similar
-to DPLL SAT solving, and we follow the representation framework of abstract
-DPLL~\cite{}. We represent ICP as a transition system, with states consisting of
-interval assignments and constraints.
-\begin{definition}[Intervals]
-An interval $I$ is any connected subset of $\mathbb{R}$. We write $\mathbb{IR}$
-to denote all the set of all intervals in $\mathbb{R}$. The set of all finite
-unions of intervals is $\mathbb{IR}_{\cup} = \{\bigcup_{i=1}^k I_i:
-I_i\in\mathbb{IR}\}.$
-\end{definition}
+An interval $I$ is any connected subset of
+$\mathbb{R}$, and we write $\mathbb{IR}$ to denote the set of all the intervals.
+We first formalize how ICP maintains interval assignments to a set of variables
+as follows. 
 \begin{definition}[Interval Assignment Sequence]
-Let $x_1,...,x_n$ be real variables. An interval assignment sequence over
-$\vec x$ is a sequence of the form $(s_1,...,s_m)$, where
+Let $x_1,...,x_n$ be real variables. An {\em interval assignment sequence} over
+$\vec x$ is a sequence $(s_1,...,s_m)$, where
 $$s_i\in \{(x_i\in I_j): 1\leq i\leq n, I_j\in
 \mathbb{IR}_{\cup}\}\cup\{(x_i\in I_j)^d: 1\leq i\leq n, I_j\in
 \mathbb{IR}_{\cup}\}.
@@ -331,129 +337,161 @@ $$
 We write $(S_1, S_2)$ to denote the concatenation of two sequences $S_1$ and
 $S_2$. The parentheses can be omitted when appropriate. 
 \end{definition}
+It will be clear later that when we write $(x\in I)^d$, it means an arbitrary
+choice on the value of $x$, which is consequently a backtrack point. 
+\begin{remark}
+ICP can maintain unions of intervals for variables. In principle this is not
+needed if we only consider the decision problem, which only searches for
+one solution and the components of a union can be tested sequentially. So we
+assume that only connected subsets of values are used here. 
+\end{remark}
+
 \begin{definition}[Box Domain]
-Let $S$ be an interval assignment sequence over variables $x_1,...,x_n$. The box
-domain associated with $S$ is defined by
+Let $S$ be an interval assignment sequence over variables $x_1,...,x_n$. The
+{\em box
+domain} associated with $S$ is defined by
 $$\beta(S) = I_1\times\cdots \times I_n, \mbox{ where }I_i = \bigcap\{ I:
 (x_i\in
 I)\mbox{ or } (x_i\in I)^d \mbox{ occurs in } S\}.$$
 Also, we write $\beta(S)_i$ to denote $I_i$. 
 \end{definition}
 
-\begin{definition}[ICP Transitions] We define the following transition rules.
-We write $c(\vec x)$ to denote an arbitrary constraint over $\mathbb{R}^n$, and
-$S$ an interval assignment sequence over $\vec x$.
+\begin{definition}[ICP Transitions]~\label{transitions} Let $\vec x =
+(x_1,...,x_n)$ be a vector real variables. We write $c(\vec x)$ to denote an
+arbitrary constraint over $\mathbb{R}^n$, and
+$S$ an interval assignment sequence over $\vec x$. Let $S\parallel c$ be the
+current state. We will always write $\beta(S_i) = I_i$ to denote the current
+interval assignment on variable $x_i$. We now define the following transition
+rules from $S\parallel c$ to another state. 
+\paragraph{(Pruning)} Let $I_i^1$ be a subset of $I_i$ such that $\forall \vec
+a\in \beta(S,x_i\in I_i^1)$, $c(\vec a)$ is false. Then, if we let $I_i^2$ be an
+interval satisfying $I_i\subseteq I_i^1 \cup I_i^2$, then 
+\begin{eqnarray*}
+S\parallel c &\stackrel{p}{\Longrightarrow}& S, (x_i\in I_i^2)\parallel c
+\end{eqnarray*}
+is called a pruning step. 
+\paragraph{(Branching)}Let $I_i^1$ be a subset of $I_i$. Then
+\begin{eqnarray*}
+S\parallel c &\stackrel{br}{\Longrightarrow}& S, (x_i\in I_i^1)^d \parallel c,
+\end{eqnarray*}
+is called a branching step. 
 
-\paragraph{Pruning:}
+\paragraph{(Backtracking)} Let $I_i^1$ be a subset of $I_i$, such that $\forall
+\vec a\in \beta(S,x_i\in I_i^1, S')$, $c(\vec a)$ is false. Let $I_i^2$ be an
+interval such that $I\subseteq I_i^1\cup I_i^2$. If in addition, $S'$ does not
+contain any $d$-assignment (anything of the form $(x\in I)^d$), then we can make
+a transition
 \begin{eqnarray*}
-S\parallel c &\Longrightarrow& S, (x_i\in I_i')\parallel c,
+S, (x_i\in I_i^1)^d, S'\parallel c \stackrel{bt}{\Longrightarrow}& S, (x_i\in
+ I_i^2) \parallel c,
 \end{eqnarray*}
-under the condition that $\forall \vec a\in \beta(S,x_i\in
-I_i\setminus I_i')$,
-$c(\vec a)$ is false, where $\beta(S_i) = I_i$.
-\paragraph{Branching:}
-\begin{eqnarray*}
-S\parallel c &\Longrightarrow& S, (x_i\in I_i)^d \parallel c,
-\end{eqnarray*}
-under the condition that $I_i\subseteq \beta(S_i)$.
+which is called a backtracking step. 
 
-\paragraph{Backtracking:}
+\paragraph{(Failure)} Suppose $\forall \vec a\in \beta(S)$, $c(\vec a)$ is
+false, and there is no $d$-assignment in $S$. Then we can make the transition
 \begin{eqnarray*}
-S, (x_i\in I_i)^d, S'\parallel c &\Longrightarrow& S, (x_i\in
-I_i\setminus I_i') \parallel c,
+S\parallel c \stackrel{f}{\Longrightarrow} \emptyset\parallel c
 \end{eqnarray*}
-under the condition that $\forall a\in \beta(S, (x_i\in I_i)^d, S')$, $c(\vec
-a)$
-is false.
-
-\paragraph{Fail:}
-\begin{eqnarray*}
-S\parallel c &\Longrightarrow& \emptyset \parallel c
-\end{eqnarray*}
-under the condition that $\forall \vec a\in \beta(S)$, $c(\vec a)$ is false and
- $S$ has no decision elements.
+which is called a failure step. 
 \end{definition}
-
-
-As usual, the transitions are all {\em may} transitions, not {\em must}
-transitions.
 \begin{remark}
-The difference between the transitions here from abstract DPLL is:
-1. The assignments are not starting from empty, but contracted.
-2. backtracking?
-3. branching can be very nondeterministic
+The main difference between the Abstract ICP and Abstract DPLL
+is  that the assignments are not starting from empty, but contracted, and the
+interval assignments on variables can be nondeterministic. 
 \end{remark}
 \begin{definition}[Abstract ICP]
-An ICP framework is a transition system
-$$\langle \mathbb{IR}_{\cup}^n, \mathcal{C}, \Longrightarrow,
+An $n$-dimensional ICP framework is a transition system
+$$\langle \mathbb{IR}^n, \mathcal{S}, \mathcal{C}, \Longrightarrow,
 \varepsilon\rangle$$
-where $\mathcal{C}$ is any set of constraints over $\mathbb{R}^n$.
-$\Longrightarrow: \mathbb{IR}_{\cup}^n\times
-\mathcal{C}\rightarrow \mathbb{IR}_{\cup}^n\times \mathcal{C}$ is the transition
-relations defined above, and $\varepsilon\in \mathbb{Q}^+$ is an
-error bound.
-
-A {\em run} of ICP is any sequence
-$$S_1\parallel c, ... , S_k\parallel c$$
-where $S_k$ is either $\emptyset$, or $S_k\neq \emptyset$ and
+where $\mathcal{S}$ is the set of all interval assignment sequences over 
+$\mathbb{IR}^n$, and $\mathcal{C}$ is any set of constraints over
+$\mathbb{R}^n$. A state is an element in $\mathcal{S}\parallel \mathcal{C}$. The
+transition rules $\Longrightarrow: \mathcal{S}\times \mathcal{C}\rightarrow
+\mathcal{S} \times \mathcal{C}$ are as specified in
+Definition~\ref{transitions}. $\varepsilon\in \mathbb{Q}^+$ is an
+error bound. A {\em run} of ICP is any sequence
+$$S_1\parallel c, ... , S_k\parallel c,$$
+where either $S_k$ is $\emptyset$, or $S_k\neq \emptyset$ and
 $||\beta(S_k)||<\varepsilon$.
 \end{definition}
 \begin{remark}
 We have defined ICP in a general way, without enforcing conditions
 on the pruning operators, such as well-definedness as in~\cite{}. Thus, many
-invalid ICP runs can be generated. This is
-because here we will treat ICP as a proof searching algorithm, and rely on the
-proof checkers to determine the correctness of an ICP run. In practice, of
-course, only
-``correct" ICP algorithms can provide proofs that can always be validated.
+invalid ICP runs can be generated. In this way, we treat ICP as a proof
+searching algorithm, and rely on the proof checkers to determine the correctness
+of an ICP run. In practice, of course, only ``correct" ICP algorithms can
+provide proofs that can always be validated.
 \end{remark}
+\begin{example}
+Consider a constraint $c(x,y) : y=x \wedge y = x^2$, and $x\in [1.5,2]$ and
+$y\in [1,2]$ are the initial interval assignment. A possible ICP run is:
+\begin{eqnarray*}
+x\in [1.5,2], y\in [1,2]\parallel c &\stackrel{br}{\Longrightarrow}& x\in [1,2],
+y\in [1,2], (x\in [1.7, 2])^d\parallel c\\
+&\stackrel{bt}{\Longrightarrow}& x\in [1,2], y\in [1,2], x\in [1.5, 1.7]\\
+& & \mbox{  (backtracking, since $\forall\vec a\in [1.7,2]\times [1,2]$, 
+$c(\vec a)$ is false,}\\
+& & \ \ \mbox{and $[1.5,2]\subseteq[1.5,1.7]\cup [1.5, 2]$ for
+$x$)}\\
+&\stackrel{p}{\Longrightarrow}& x\in [1,2], y\in [1,2], x\in [1.5, 1.7], x\in
+[1.5, 1.6]\parallel c\\
+& & \mbox{  (pruning, since $\forall \vec a\in[1.6,1.7]\times [1, 2]$, $c(\vec
+a)$ is false)}\\
+&\stackrel{p}{\Longrightarrow}& x\in [1,2], y\in [1,2], x\in [1.5, 1.7],
+x\in [1.5, 1.6], x\in \emptyset\parallel c\\
+& & \mbox{  (pruning, since $\forall \vec a\in[1.5,1.6]\times [1, 2]$, $c(\vec
+a)$
+is false)}\\
+&\stackrel{f}{\Longrightarrow}& \emptyset||c\ \mbox{ (since
+$\forall \vec a\in \empty\times [1, 2], c(\vec a)$ is false.)}
+\end{eqnarray*}
+\end{example}
 
 
-
-
-\paragraph{Witness of $\delta$-Satisfiability}
-For satisfiable formulas, a witness for $\delta$-satisfiability can be
-easily obtained.
 
 
 \subsection{First-Order Proofs of Unsatisfiability}
 
-We focus on proving the unsatisfiability of SMT problems of the form
-$$\exists^{I_1} x_1\cdots \exists^{I_n} x_n \bigwedge_{i=1}^m
+We focus on the proof the unsatisfiability of conjunctions of theory
+atoms in the DPLL(T) framework, i.e., formulas of the form
+$$\exists^{I_1} x_1\cdots \exists^{I_n} x_n.\; \bigwedge_{i=1}^m
 f_i(x_1,...,x_n)\sim 0$$
-where $\sim \in \{=,\neq, >, \geq, <, \leq\}$. That is, we prove the validity
-of formulas of the form:
-$$\forall x_1 \cdots \forall x_n (x_1\in I_1\wedge \cdots \wedge x_n\in I_n
-\rightarrow \bigvee_{i=1}^m f_i(x_1,...,x_n)\sim 0)$$
+where $\sim \in \{=,\neq, >, \geq, <, \leq\}$. It is clear that once such
+proofs are obtained, the proof of unsatisfiability of Boolean combinations of
+the theory atoms can be obtained, by simply plugging them in the high level 
+resolution proof. Also, it is important to note that the ICP algorithm solves
+{\em systems} of constraints, and it regards the conjunction $\bigwedge_{i=1}^m
+f_i(x_1,...,x_n)\sim 0$ as one constraint $c(x_1,...,x_n)$. Consequently, our
+task is now reduced to obtaining proofs for the validity of formulas of the form
+$\forall x_1 \cdots \forall x_n (x_1\in I_1\wedge \cdots \wedge x_n\in I_n
+\rightarrow c(\vec x))$, from the failure of an ICP
+search for a solution to its negation. 
 
-We will show that the steps in ICP can be certified by translating them
-reversely to a standard first-order proof. Although various real functions are
-involved, to verify the proof correctness of ICP sequences we only need a weak
-system of first-order logic reasoning.
+We will construct a simple first-order proof calculus, and show how to
+transform ICP runs into proofs in the system. 
 
-\begin{definition}[Language]
-\Bigg({\bf todo} change the language to treat I as conventions, and do not use
-unions of intervals.\Bigg) We fix a signature $\mathcal{L}_I = \langle
-\mathbb{IR}, <, \mathcal{F} \rangle$
- where $\mathbb{IR}$ is the union closure of real intervals, but used as {\em unary
-predicates}. Naturally, for any $I\in \mathbb{R}$, $I(x)$ can be written as
-$x\in I$. $\mathcal{F}$ is a set of computable real functions.
-\end{definition}
+Again, we consider formulas in a signature $\mathcal{L}_F = \langle <,
+\mathcal{F} \rangle$, where constants are considered as 0-ary functions in
+$\mathcal{F}$. When we write $x\in I$, where $I$ denotes an
+interval, it is regarded as an abbreviation for the evident
+equivalent $\mathcal{L}_\mathcal{F}$-formula. Note that this means that $I$ only
+uses $\mathcal{L}_{\mathcal{F}}$-terms as end-points. Also, as mentioned above,
+$c(\vec x)$ abbreviates a conjunction of atomic formulas. We also allow the use
+of vectors in the formulas, writing $\vec x\in \vec I$ to denote $\bigwedge_i
+x_i\in I_i$. 
 
 \begin{definition}[System $\mathbb{D}_A$]
 We define $\mathbb{D}_A$ to be the first-order proof system consisting of only the
 following two rules:
-\paragraph{$\vee$-Intro}\begin{mathpar}
-  \inferrule{
-  \forall x (\psi \rightarrow \varphi)
-    \and
-  \forall x (\psi' \rightarrow \varphi)
-  }
+  \begin{mathpar}
+    \inferrule{
+      \forall \vec x (\psi \rightarrow \varphi)
+      \and
+    \forall \vec x (\psi' \rightarrow \varphi)
+    }
   {
-  \forall x ( \psi\vee \psi' \rightarrow \varphi)
-  }\end{mathpar}
-\paragraph{$\forall$-MP}
-\begin{mathpar}
+  \forall \vec x ( \psi\vee \psi' \rightarrow \varphi)
+  }{\ \ \vee I}\and 
   \inferrule{
   \forall x (\psi \rightarrow \varphi)
     \and
@@ -461,58 +499,65 @@ following two rules:
   }
   {
   \forall x (\psi' \rightarrow \varphi)
-  }
-\end{mathpar}
+  }{\ \ \forall\mbox{MP}}
+  \end{mathpar}
 and a set $A$ of axioms of the following two types:
 \paragraph{Interval Axioms}
 \begin{mathpar}
-\inferrule{ }{\forall x (x\in I \rightarrow x\in I_1 \vee x\in I_2 )}
+\inferrule{ }{\forall \vec x (\vec x\in \vec I \rightarrow \vec x\in \vec I_1
+\vee \vec x\in \vec I_2 )}{\ \mbox{IA}}
 \end{mathpar}
-\paragraph{Function Axioms}
+\paragraph{Constraint Axioms}
 \begin{mathpar}
-\inferrule{ }{\forall x ( x\in I \rightarrow f(x)\in I')}
+\inferrule{ }{\forall \vec x ( \vec x\in\vec I \rightarrow c(\vec x))}{\
+\mbox{CA}}
 \end{mathpar}
 \end{definition}
-
-Derivations in $\mathbb{D}_A$ are as standardly defined. Clearly, the two
-first-order rules are valid. Thus, as long as the axioms chosen are valid,
- the system can only produce valid formulas over $\mathbb{R}$.
-
+Derivations in $\mathbb{D}_A$ are as standardly defined as natural deductions
+following these rules. Clearly, the two first-order rules are valid. Thus,
+relative to the validity of the axioms in $A$, the system produces valid
+formulas over $\mathbb{R}$.
+\begin{proposition}[Soundness] If $\mathbb{D}_A\vdash \varphi$ and
+$\mathbb{R}\models \bigwedge A$, then $\mathbb{R}\models \varphi$.
+\end{proposition}
 \begin{remark}
-Relations to resolution proofs. 
+ Clearly, the constraint axioms are the most nontrivial part. They are the
+basic facts of real functions that a numerical procedure relies on, usually
+concerning the range of functions within a small interval. The interval axioms
+are sometimes not trivial either (for instance, compare intervals ending with 
+$e^{\pi}$ and $\pi^e$ respectively).  Proof-checking involves validation of
+these axioms, which we discuss in Section~\ref{validate}. 
 \end{remark}
 
-
-\begin{proposition}[Relative Soundness of $\mathbb{D}_A$]
-If $\mathbb{D}_A\vdash \varphi$ and $\mathbb{R}\models \bigwedge A$, then $\mathbb{R}\models \varphi$.
-\end{proposition}
-
-We now describe the construction of proof trees from ICP runs. The proof trees in
-our case will be labelled binary trees. We describe a tree as a tuple $T =
-\langle V, V_L,  \Sigma, \delta, \sigma\rangle$. $V = \{v_0, ..., v_k\}$,
+We now describe the construction of proof trees from ICP runs, which will be 
+represented as labeled binary trees. A labeled binary tree is defined as a
+tuple $T =
+\langle V, V_L,  \Sigma, \delta, \sigma\rangle$. Here, $V = \{v_0, ..., v_k\}$,
 $k\in \mathbb{N}$, is a finite set of nodes, where $v_0\in V$ always denotes the
 root
 node. $\Sigma$ is a set of labels, which in our case is the set of
-$\mathcal{L}_I$-formulas. $\delta:\subseteq V\times \{l,r\} \rightarrow V$ is a
-partial mapping from a node to descendent nodes, where $\delta(v, l)$ and
-$\delta(v, r)$ denote the left and right descendent nodes, respectively.
+$\mathcal{L}_\mathcal{F}$-formulas. $\delta:\subseteq V\times \{l,r\}
+\rightarrow V$ is a
+partial mapping from a node to its descendant nodes, where $\delta(v, l)$ and
+$\delta(v, r)$ denote the left and right descendant nodes, respectively.
 $\sigma: V\rightarrow \Sigma$ is a labeling function that maps each node
 $v\in V$ to a formula $\sigma(v) \in \Sigma$. In addition, the edges in the
-tree can be labelled as well, through a function $\tau: V\times V\times \Omega$
+tree can be labeled as well, through a function $\tau: V\times V\times \Omega$
 where $\Omega$ is a set of edge-labels. 
 
-\subsubsection{Tree Generation} Let 
-$$S_0\parallel c\Longrightarrow^{t_1} \cdots
-\Longrightarrow^{t_m} S_m\parallel c $$
-be an ICP run such that the ending state
-is fail. We now define the procedure by defining the functions $\delta$ and
+\subsubsection{Tree Generation} Let an ICP run be
+$$S_0\parallel c\stackrel{t_1}{\Longrightarrow}\cdots
+\stackrel{t_m}{\Longrightarrow} S_m\parallel c,$$
+such that the ending transition $t_m$ is a failure step, i.e., $S_m=\emptyset$.
+We now define the procedure by defining the functions $\delta$ and
 $V_L$ through induction on $s_i$. We also define labels on the edges along the
-process, with $\omega$ = \{{$\vee$-Intro}, MP, I-Ax, F-Ax\}. 
+process, with $\Omega$ = \{{$\vee$I}, $\forall$M, IA, CA\}. 
 
-\paragraph{Case $i= m$.} We label the root node $v_0$ by 
-$$\sigma(v_0) := \forall \vec x( \vec x\in \beta(S_1) \rightarrow \neg c).$$
-Also, let $V_L^0= \{\delta(v_0,l), \delta(v_0, r)\}$ denote the current
-collection of leaf nodes. 
+\paragraph{Case $i= 0$.} We label the root node $v_0$ by 
+$$\sigma(v_0) := \forall \vec x( \vec x\in \beta(S_0) \rightarrow \neg c).$$
+Let $V_L^0= \{\delta(v_0,l), \delta(v_0, r)\}$ denote the current
+collection of leaf nodes. Note that this formula is the negation of the input
+SMT formula. 
 
 
 %{\tt it's
@@ -522,40 +567,42 @@ collection of leaf nodes.
 
 
 \paragraph{Case $i = k+1$ ($1< k \leq m$). }
-Suppose $V_L$ and $\sigma$ is defined for $s_1, ...,s_k$. Write $s_k = S_k
+Suppose $V_L^k$ and $\sigma$ have been defined for $s_1, ...,s_k$. Write
+$s_k = S_k
 \parallel c$ and $s_k = S_{k+1} \parallel c$. Now we split
-the cases on the type of the step $t$ from $s_i$ to $s_{i+1}$ as follows. 
-\paragraph{(Pruning Step)} Suppose $s_k\Longrightarrow^{t_{k+1}} s_{k+1}$ is a
+the cases on the type of the step $t$ from $s_i$ to $s_{i+1}$ as follows.
+Again, we use the convention that $\beta(S)_i = I_i$ denotes the current
+interval assignment on a variable $x_i$. 
+\paragraph{(Pruning Step)} Suppose $s_k\Longrightarrow s_{k+1}$ is a
 pruning. That is, 
-$$S\parallel c \Longrightarrow S, (x_i\in I_i')\parallel c,$$
-under the condition that $\forall \vec a\in \beta(S,x_i\in I_i\setminus I_i')$,
-$c(\vec a)$ is false.
-
-This step corresponds to the following sub-tree of the proof. If we write 
-$$\vec I_1 = \beta(S, (x_i\in I_i')), \vec I_2 = \beta(S, (x_i\in I_i\setminus
-I_i')), \mbox{ and } \vec I= \beta(S),$$ then we have 
+$$S_k\parallel c \stackrel{p}{\Longrightarrow} S_k, (x_i\in I_i^2)\parallel c,$$
+where $I_i\subseteq I_i^1\cup I_i^2$ and $\forall \vec
+a\in \beta(S_k,x_i\in I_i^1)$, $c(\vec a)$ is false. This step corresponds to
+the following sub-tree of the proof. If we write 
+$$\vec I_1 = \beta(S_k, (x_i\in I_i^1)), \vec I_2 = \beta(S_k, (x_i\in
+I_i^2)), \mbox{ and } \vec I= \beta(S_k),$$ then 
 {\small
 \begin{mathpar}
 \inferrule{\inferrule{
-  \inferrule{\vdots}{\forall \vec x (\vec x\in \vec I_1 \rightarrow \neg c)}
+  \inferrule{\vdots}{\forall \vec x (\vec x\in \vec I_2 \rightarrow \neg c)}
     \and
     \inferrule{\ }
     {
-      \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
-      }\mbox{F-Ax}
+      \forall \vec x (\vec x \in \vec I_1 \rightarrow\neg c)
+      }\mbox{CA}
    }
   {
-  \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
-  }\mbox{$\vee$-I}
+  \forall x ( (\vec x\in \vec I_1\vee \vec x \in \vec I_2) \rightarrow \neg c)
+  }\mbox{$\vee$I}
   \and
   {
   \inferrule{\ }{\forall \vec x ( \vec x\in \vec I\rightarrow(\vec x \in \vec
-I_1 \vee \vec x\in \vec I_2))}\mbox{I-Ax}
+I_1 \vee \vec x\in \vec I_2))}\mbox{IA}
   }
   }
 {
 \forall \vec x (\vec x\in\vec I \rightarrow \neg c)
-}\mbox{$\forall$-MP} 
+}\mbox{$\forall$M} 
    \end{mathpar}
 } 
 
@@ -597,16 +644,16 @@ I_i')), \mbox{ and } \vec I= \beta(S),$$ then we have
    }
   {
   \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
-  }\mbox{$\vee$-I}
+  }\mbox{$\vee$I}
   \and
   {
   \inferrule{\ }{\forall \vec x ( \vec x\in \vec I\rightarrow(\vec x \in \vec
-I_1 \vee \vec x\in \vec I_2))}\mbox{I-Ax}
+I_1 \vee \vec x\in \vec I_2))}\mbox{IA}
   }
   }
 {
 \forall \vec x (\vec x\in\vec I \rightarrow \neg c)
-}\mbox{$\forall$-MP} 
+}\mbox{$\forall$M} 
    \end{mathpar}
 } 
 
@@ -724,7 +771,7 @@ Section~\ref{}.
 
 
 
-\subsection{Validating the Axioms}
+\subsection{Validating the Axioms}\label{validate}
 
 It is clear that the proof rules in the proof trees are simple first-order
 rules. The tricky part is the axioms that are introduced in various
@@ -780,7 +827,15 @@ obtained, there can be multiple ways to verify the proof. For instance, symbolic
 computations with precise arithmetic can be used.
 \end{remark}
 
-\section{Proof Refinement Algorithm: Branch and Prove}
+
+\subsection{Witnesses for $\delta$-Satisfiability and
+DPLL$\langle$ICP$\rangle$}
+
+For satisfiable formulas, a witness for $\delta$-satisfiability can be
+easily obtained.
+
+
+\section{Proof Refinement Algorithm: Branch and Prove}\label{bnp}
 
 The challenge for a proof checking algorithm is that the pruning operations in
 ICP usually implements complicated heuristics that is more powerful than
@@ -850,7 +905,8 @@ return {\sf rejected}\;
 \end{algorithm}
 
 
-\section{Case Study: Proving Lemmas for the Kepler Conjecture}
+
+\section{Case Study: Proving Lemmas for the Kepler Conjecture}\label{kepler}
 
 Our open-source tool dReal is available at. The main motivation for us to build
 the proof checker is for making contribution to the flyspeck project is led
@@ -876,7 +932,7 @@ The typical formulas contain trigonmetric inequalities.
 
 
 
-\section{Related Work}
+\section{Related Work}\label{related}
 
 Our work is closely related to several lines of exisiting work. The the
 project of MetiTarski. The key new concept is to use numerical methods as
@@ -907,10 +963,10 @@ The aircraft formula is
 \begin{eqnarray*}
 & &\forall t \forall x_1\forall x_2 \forall y_1\forall y_2\forall
 d_1\forall d_2\forall e_1\forall e_2. \\
-& &0<t<10\wedge x_1<-9 \wedge x2<-1\wedge
-x1>10 \wedge y2>10\\
+& &0<t<10\wedge x_1<-9 \wedge x_2<-1\wedge
+y_1>10 \wedge y_2>10\\
 & & \wedge 0.1<d1< 0.15\wedge 0.1<d_2<0.15 \wedge
-0.1<e-1<0.15\wedge 0.1<e_2<0.15 \\
+0.1<e_1<0.15\wedge 0.1<e_2<0.15 \\
 \rightarrow & &\Big(
 \Big(x_1-y_1-100d_2-100e_2+(100d_2+100e_2)\cos(0.01t)\\
 & &\ \ \ + (100d_1
@@ -921,9 +977,8 @@ x1>10 \wedge y2>10\\
 \end{eqnarray*}
 The formula is solved in MetiTarski in 924
 seconds~\cite{}. On comparable machines, dReal solves in 0.01 seconds, also
-completely verifies the proof of unsatisfiability in 0.41 seconds. Note that
-this may be the first full proof produced that do not rely on external decision
-procedures. 
+completely verifies the proof of unsatisfiability in 0.41 seconds, and the
+proof itself is ... long~\cite{}. 
 \end{example}
 On the other hand, numerical approach has its inherent limitations. For
 instance, for simple formulas in the MetiTarski benchmark set such as the

@@ -186,7 +186,8 @@ unsat}, we run {\sf proofcheck} on the same machine. The proof checker returns
 
 The standard decision problem is undecidable, for SMT formulas
 over the reals with any trignometric function. If only polynomials are allowed,
-then the problem is decidable in {\sf PSPACE}, but the practical algorithms have
+then the problem is decidable in {\sf PSPACE}, but the practical algorithms
+still have
 double-exponential worst-case running time. In face of such difficulty, we
 propose to focus on the so-called $\delta$-decision problem, which relaxes the
 standard decision problem in the following way. Let $\delta$ be any positive
@@ -223,16 +224,17 @@ way, when $\delta$ is reasonably small, we have essentially taken into account
 the robustness properties of the system, and can justifiably conclude that the
 system is unsafe in practice. 
 
-It is important that the theoretical properties of the $\delta$-decision problem
-provides us a new and positive outlook towards reasoning over the reals, as well
-as a guiding framework for the development of practical decision procedures. We
+We
 proved that the $\delta$-decision problem is decidable for bounded formulas
 containing arbitrary computable real functions~\cite{}, which is in essence any
 function that can be numerically simulated. Also, the complexity bounds is
-encouraging. For instance, the $\delta$-decision problem for bounded SMT problems for formulas with polynomials,
+encouraging. For instance, the $\delta$-decision problem for bounded SMT
+problems for formulas with polynomials,
 exponentiation, and trignometric functions is ``only" {\sf NP}-complete, in
 comparison to the undecidability of the standard decision problem for such
-formulas.  
+formulas.  Thus the $\delta$-decision problem leads us to a new and more
+positive outlook for reasoning over the reals, as well
+as a guiding framework for the development of practical decision procedures. 
 
 \subsection{DPLL$\langle$ICP$\rangle$}
 
@@ -245,8 +247,9 @@ solution set, and ``branch'' on intervals when such pruning can not be done,
 until a small enough box that may contain a solution is found. 
 
 In a DPLL(T) framework, ICP can be used as the theory solver that checks the
-consistency of a set of theory atoms. We use opensmt~\cite{} for the general
-DPLL(T) framework, and integrate realpaver~\cite{} which performs ICP. The
+consistency of a set of theory atoms. We use {\sf opensmt}~\cite{} for the
+general
+DPLL(T) framework, and integrate {\sf realpaver}~\cite{} which performs ICP. The
 overall design of the interface is as follows. 
 \subsubsection{Check and Assert.} For incomplete checks in the assert function,
 we use the pruning operator provided in ICP to contract the interval assigment
@@ -272,21 +275,46 @@ discussed in the following section.
 
 \subsection{Certificates for Correctness}
 
-We produce the following certificates for the answers of the formula. 
+Suppose an input SMT formula is of the form $\varphi(x_1,...,x_n)$, we can
+produce the following certificates for the {\sf $\delta$-sat/unsat} answers on
+the formula. 
+
 \subsubsection{Witness for $\delta$-Satisfibility} When the answer is
-$\delta$-sat, we obtain from the 
+{\sf $\delta$-sat}, we a solution $\vec a\in \mathbb{R}^n$, such
+that $\varphi^{\delta}(\vec a)$ is a ground formula that can be easily checked
+to be true. This solution is simply any point in the interval assigment returned
+by ICP on a complete set of theory atoms. It is important to note that the
+solution witnesses $\delta$-satisfiability, instead of standard satisfiability
+of the original formula. The latter problem is undecidable, since it involves
+finding a point solution in a compact domain (the interval assginment returned
+by ICP), which is still an undecidable problem. On the other hand, {\em any}
+point in the interval assignment returned by ICP can witness the satisfiability
+of $\varphi^{\delta}$ when the intervals are smaller than an appropriate error
+bound. 
 
-\subsubsection{Proofs of Unsatisfiability}
-
-
+\subsubsection{Proofs of Unsatisfiability} When the answer is {\sf unsat}, we
+produce a proof tree that can be verified to establish the validity of the
+negation of the formula, i.e., $\forall \vec x \neg\varphi(\vec x)$. We
+devised a simple first-order natural deduction system, and transform the
+computation trace of the solving process into a proof tree. We then use
+interval arithmetic and simple rules to check the correctness of the proof
+tree. The proof check procedure recursively devide the problem into subproblems
+with smaller domains. More details can be found in~\cite{}. 
 
 \section{Results}
 
 Our main motivation for the tool is to prove lemmas in the Kepler conjecture,
 as well as hybrid system verification. Here we show some representative numbers
-on the scale of problems that we can solve. More benchmarks and results can be
-directly obtained from the source code. 
+on the scale of problems that we can solve. 
 
+Several sets of standard benchmarks from~\cite{} are contained in the release
+and can be tested. Our solver is generally very fast on problems where all the
+variables are bounded in intervals. For instance, we solve all formulas in the
+hong benchmark set~\cite{} 
+
+
+
+\section{Conclusion}
 Compared to the current tools for nonlinear problems, the following needs to be
 considered. 
 \begin{itemize}
