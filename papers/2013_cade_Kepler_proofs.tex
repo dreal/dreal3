@@ -869,7 +869,7 @@ would involve proof abstractions, local heuristics, and a veritably correct
 implementation of our proof checker in HOL. 
 
 
-\section{Conclusion and Future Work}
+\section{Conclusion}
 
 We presented our approach for extracting formal proofs from a numerically-driven
 decision procedure in the DPLL$\langle$ICP$\rangle$ framework. 
@@ -880,7 +880,9 @@ checker, which only implements simple rules that are easy to verify,
 and interacts with the solver in an abstraction refinement loop to obtain
 proof trees of sufficient detail. A main focus for our tool is to prove
 nonlinear lemmas in the Flyspeck project, and we have observed promising
-experimental results. 
+experimental results. We believe the approach can be combined with exiting
+symbolic approaches, and can be further optmized to solve the challenging
+benchmarks in the Flyspeck project. 
 
 
 
