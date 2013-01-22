@@ -117,7 +117,7 @@ contain any solution; in a ``branching'' step, ICP subdivides an interval to
 create subproblems and solve them recursively. The similarity between ICP and SAT solving techniques has
 been explored in the work~\cite{}.
 
-Our approach is as follows. First, we formallize the ICP algorithm in the
+Our approach is as follows. First, we formalize the ICP algorithm in the
 format of Abstract DPLL~\cite{DBLP:journals/jacm/NieuwenhuisOT06}, such that its computation corresponds to
 sequences of abstract transitions. We then use a simple first-order proof
 calculus $\mathbb{D}_A$, relativized to a set $A$ of axioms over the reals, and
@@ -129,7 +129,7 @@ proof trees of sufficient detail. A main focus for our tool is to prove
 nonlinear lemmas
 in the Flyspeck project for the formal proof of the Kepler
 conjecture~\cite{DBLP:journals/dcg/HalesHMNOZ10,DBLP:conf/dagstuhl/Hales05}. They
-involve large numbers on nonlinear constraints including trignometric functions. We show
+involve large numbers on nonlinear constraints including trigonometric functions. We show
 promising experimental results towards the goal.
 
 The paper is organized as follows. We review the framework of $\delta$-complete
@@ -140,23 +140,23 @@ report experiments with lemmas in the Flyspeck project in Section~\ref{kepler}.
 \subsubsection{Related Work} Our work is closely related to several lines
 of research in the existing literature. For proving formulas with
 transcendental functions,
-MetiTarski~\cite{DBLP:conf/itp/Paulson12,DBLP:journals/jar/AkbarpourP10,DBLP:conf/aisc/PassmorePM12} 
+MetiTarski~\cite{DBLP:conf/itp/Paulson12,DBLP:journals/jar/AkbarpourP10,DBLP:conf/aisc/PassmorePM12}
 is the leading tool that reduces problems to
 polynomials and calls quantifier elimination procedures. For problems with only
-polynomials, Berstein polynomials are used in PVS for formal
+polynomials, Bernstein polynomials are used in PVS for formal
 proofs~\cite{MN12}. Our approach can be seen as complementary to these
 approaches. The iSAT solver~\cite{HySAT} also contains strategies for certifying
-their answers, in a different framework. Some further comparisons are given in an extended version~\cite{cade2013extended}. There are now several SMT solvers for formulas with nonlinear polynomials over
+their answers, in a different framework. Some further comparisons are given in an extended version~\cite{cade2013extended}. There are now several SMT solvers~\cite{} for formulas with nonlinear polynomials over
 the reals with no proof-producing capacities. Proofs for
-correctness in general SMT solvers has been well studied in~\cite{DBLP:journals/fmsd/StumpORHT1}. 
+correctness in general SMT solvers has been well studied in~\cite{DBLP:journals/fmsd/StumpORHT1}.
 
 \section{A Brief Review of $\delta$-Complete Decision Procedures}\label{review}
 
 We briefly review the framework of $\delta$-complete decision procedures.
 It formulates a reasonable correctness requirement for decision
 procedures for nonlinear
-formulas over the reals, while the standard completness requirement can not be
-imposed because of intractabilitu. We have shown that $\delta$-complete
+formulas over the reals, while the standard completeness requirement can not be
+imposed because of intractability. We have shown that $\delta$-complete
 procedures exist,
 with reasonable complexity bounds, for bounded SMT formulas over the reals with
 arbitrary Type-2 computable real functions (a notion well-studied in computable
@@ -282,7 +282,7 @@ numerically-driven decision procedures such as~\cite{}.
 \subsection{Formalizing Interval Constraint Propagation}
 
 Interval Constraint Propagation (ICP)~\cite{handbookICP} finds
-solutions of real constraints using the ``branch-and-prune" method, combining
+solutions of real constraints using the ``branch-and-prune'' method, combining
 interval arithmetic and constraint propagation. The idea is to use interval
 extensions of functions to ``prune'' out sets of points that are not in the
 solution set and ``branch'' on intervals when
@@ -545,9 +545,9 @@ $s_k = S_k
 \parallel c$ and $s_k = S_{k+1} \parallel c$. Now we split
 the cases on the type of the step $t$ from $s_i$ to $s_{i+1}$ as follows.
 Again, we use the convention that $\beta(S)_i = I_i$ denotes the current
-interval assignment on a variable $x_i$. 
+interval assignment on a variable $x_i$.
 \paragraph{(Pruning Case)} Suppose $s_k\Longrightarrow s_{k+1}$ is a
-pruning step. That is, 
+pruning step. That is,
 $$S_k\parallel c \stackrel{p}{\Longrightarrow} S_k, (x_i\in I_i^2)\parallel c,$$
 where $I_i\subseteq I_i^1\cup I_i^2$ and $\forall \vec
 a\in \beta(S_k,x_i\in I_i^1)$, $c(\vec a)$ is false. If we write
@@ -569,7 +569,7 @@ the following sub-tree of the proof
   }\mbox{$\vee$I}
   \and
   {
-  \inferrule{\ }{\forall x ( x\in I_i\rightarrow(x \in 
+  \inferrule{\ }{\forall x ( x\in I_i\rightarrow(x \in
 I_i^1 \vee x\in I_i^2))}\mbox{IA}
   }
   }
@@ -619,7 +619,7 @@ this step corresponds to the following sub-tree:
   }\mbox{$\vee$I}
   \and
   {
-  \inferrule{\ }{\forall x ( x\in I_i\rightarrow(x \in 
+  \inferrule{\ }{\forall x ( x\in I_i\rightarrow(x \in
 I_i^1 \vee x\in I_i^2))}\mbox{IA}
   }
   }
@@ -681,7 +681,7 @@ following sub-tree of the proof.
   }\mbox{$\vee$-I}
   \and
   {
-\vdots\ \ \ 
+\vdots\ \ \
   }
   }
 {
@@ -696,25 +696,25 @@ S\parallel c &\stackrel{f}{\Longrightarrow}& \emptyset \parallel c
 \end{eqnarray*}
 when $\forall \vec a\in \beta(S)$, $c(\vec a)$ is false and
  $S$ has no $d$-assignments. Let $\vec I
-=\beta(S)$. This step corresponds to 
+=\beta(S)$. This step corresponds to
 {\small\begin{mathpar}
  \inferrule{\ }{\forall \vec x ( \vec x\in \vec I) \rightarrow \neg
 c}\mbox{FA}
-\end{mathpar}}We set $V_L^{k+1}=V_L^k$ and do not update $\sigma$. 
+\end{mathpar}}We set $V_L^{k+1}=V_L^k$ and do not update $\sigma$.
 
 \paragraph{Complete tree.} In all, after all the steps in the ICP run are
 followed, the tree that we construct is $ T = \langle V, V_L^m, \delta, \sigma
-\rangle$. The axiom set is given by $$A = \{\sigma(v): v\in V_L^m\}.$$ 
+\rangle$. The axiom set is given by $$A = \{\sigma(v): v\in V_L^m\}.$$
 
 As an example, the transformation of the ICP run in Example~\ref{icp-example} is
-shown in the Appendix. 
+shown in the Appendix.
 
 It is easy to see that $T$ is a valid proof tree in $\mathbb{D}_A$.
 \begin{proposition}\label{successful_tree}
 For every ICP run ending with $\emptyset\parallel c$, the tree construction
 procedure above produces a valid natural deduction tree in $\mathbb{D}_A$.
 \end{proposition}
- The proof is contained in an extended report~\cite{}. 
+ The proof is contained in an extended report~\cite{}.
 \begin{proposition}
  The size of the proofs is linear in the computation steps, which can be
 exponential in the size of the problems.
@@ -724,7 +724,7 @@ Again, once the proof tree is constructed, the details of
 the ICP algorithm no longer matters.  The only rules involved are the two
 first-order rules in $\mathbb{D}_{A}$. Following relative soundness of the
 system, to establish validity of the formula, we only need to validate the
-axiom set $A$. 
+axiom set $A$.
 
 \subsection{Validating the Axioms}\label{validate}
 
@@ -743,14 +743,14 @@ checker to ask for more detailed proofs from the solver.
 The interval axioms do not contain any real functions, and are of the form
 $\forall \vec x(x\in I_1\vee x\in I_2\rightarrow x\in I)$. We only need to
 check that $I$ is a subset of $I_1\cup I_2$ by comparing the end points of the
-intervals, which is an easy numerical task. 
+intervals, which is an easy numerical task.
 
 The constraint axioms are of the form $\forall x (\vec x\in \vec I \rightarrow
 c(\vec x))$, and can only be verified by considering the functions that
 occur in $c$. Although they are of the same form as the formulas we solve,
 these axioms should contain evident properties of the functions involved,
 usually on small intervals. Such facts can be verified using reliable interval
-computations, for instance as follows. 
+computations, for instance as follows.
 \begin{definition}[Interval Extensions]
 Let $f: \mathbb{R}^n\rightarrow \mathbb{R}$ be a real function. An interval
 function $F: \mathbb{IR}^n \rightarrow \mathbb{IR}$ is a function that
@@ -759,22 +759,22 @@ $$\forall I\in \dom(F), \{f(x): x\in I\}\subseteq F(I).$$
 \end{definition}
 A simple example of interval extensions is the {\em natural interval
 extension}~\cite{} for
-arithmetic operations, based on computations of functions on the end points of 
-intervals. 
+arithmetic operations, based on computations of functions on the end points of
+intervals.
 
 \begin{proposition}
 Let $F$ be an interval extension of $f$, and $I\subseteq \dom(f)$. If
 $F(I)\subseteq A$, then $\forall x (x\in I \rightarrow f(x)\in A)$.
 \end{proposition}
 Thus, the axioms are validated if we can verify that they are consistent with
-all the interval extensions. 
+all the interval extensions.
 \begin{example}
-The second pruning step in Example~\ref{icp-example} generates an axiom 
+The second pruning step in Example~\ref{icp-example} generates an axiom
 $$\forall
 x \forall y ( x\in [1.7, 2] \wedge y\in [1, 2] \rightarrow \neg (y=
 x^2)\vee \neg (y=x))$$
 This can be easily validated through the natural interval extension of
-$(y-x^2)$, which is $[1,2]-[1.7,2]^2 = [-3, -0.89]$ and does not contain $0$. 
+$(y-x^2)$, which is $[1,2]-[1.7,2]^2 = [-3, -0.89]$ and does not contain $0$.
 \end{example}
 
 In practice, ICP usually implements complicated heuristics that are more
@@ -783,14 +783,14 @@ principle, we could simulate the numerical heuristics to a certain extent with
 reliable computations. However, a more practical approach first is to use an
 abstraction refinement loop that allows the proof checker to ask the
 solver for proof traces of the right amount of details. We call this the
-``Branch and Prove'' loop. 
- 
+``Branch and Prove'' loop.
+
  When we fail to prove an axiom through simple interval arithmetic, the proof
 checker generates new subproblems that are returned to the solver. At this
-stage, the axioms becomes the new theorems to be proved. 
+stage, the axioms becomes the new theorems to be proved.
 This is an abstraction refinement procedure, by executing the loop, we obtain
 proof trees that contain more and more detailed steps, which may in the end be
-completely verified by the proof checker using reliable computations. 
+completely verified by the proof checker using reliable computations.
 
 There are two ways that the prover can generate the subproblems. One is to
 branch on a variable in the formula, so that the solver can solve the same
@@ -802,7 +802,7 @@ well-defined~\cite{}, both procedures never change the
 exponentially many new problems; while the $\delta$-change does not give new
 problems, but may exponentially slow down the solver in each round. In practice
 we observe that such a refinement loop is very useful, as we will show in the
-experiments. 
+experiments.
 
 \section{Case Study: Proving Lemmas for the Kepler Conjecture}\label{kepler}
 
@@ -834,7 +834,7 @@ domains into pieces such that the functions can be formally bounded on each
 piece. As is observed, the main difficulty is finding a suitable
 partition. Instead of using manual branching, our approach is
 essentially using ICP to guide the division of the domain in an efficient way,
-such that the interval bounds (the axioms) can be verified more easily. 
+such that the interval bounds (the axioms) can be verified more easily.
 
 
 Without any particular optimization on ICP, we have already observed promising
@@ -846,9 +846,9 @@ algorithm, and formally proved 55 of them directly, most of them only takes less
 than 1 minutes. The proof traces of these formulas can be very large, for
 instance over we proved one with 47k lines in the proof (1MB file). In
 Table~\ref{}, we list some of the representative benchmarks to show
-scalability. 
+scalability.
 
-In the table, the columns denote the following information. 
+In the table, the columns denote the following information.
 
 
 As the proof-generation capacity is for debugging SMT solvers, the proofs have
@@ -861,28 +861,28 @@ overlap.) However, our proof checker only involves simple operations written in
 {\sf OCaml}, and performs the checking completely independent from the solver.
 Thus, for the {\sf unsat} answers that we have obtained a proof for, we are
 highly confident about the correctness of the proof, which does not involve
-possible bugs from {\sf realpaver}. 
+possible bugs from {\sf realpaver}.
 
 We regard our work as a first step in a promising approach towards the formal
 verification of the nonlinear lemmas in the Flyspeck project. Further work
 would involve proof abstractions, local heuristics, and a veritably correct
-implementation of our proof checker in HOL. 
+implementation of our proof checker in HOL.
 
 
 \section{Conclusion}
 
 We presented our approach for extracting formal proofs from a numerically-driven
-decision procedure in the DPLL$\langle$ICP$\rangle$ framework. 
+decision procedure in the DPLL$\langle$ICP$\rangle$ framework.
 
-We formallized the ICP algorithm, and showed how to construct proof trees from
+We formalized the ICP algorithm, and showed how to construct proof trees from
 the unsat answers. We then validated the generated proofs using a stand-alone symbolic proof
 checker, which only implements simple rules that are easy to verify,
 and interacts with the solver in an abstraction refinement loop to obtain
 proof trees of sufficient detail. A main focus for our tool is to prove
 nonlinear lemmas in the Flyspeck project, and we have observed promising
 experimental results. We believe the approach can be combined with exiting
-symbolic approaches, and can be further optmized to solve the challenging
-benchmarks in the Flyspeck project. 
+symbolic approaches, and can be further optimized to solve the challenging
+benchmarks in the Flyspeck project.
 
 
 
