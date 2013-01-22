@@ -1,6 +1,6 @@
 \documentclass[envcountsect]{llncs}
 %\usepackage{stmaryrd,amsmath,amssymb,newlfont,graphicx,caption,verbatim}
-\usepackage{amsmath,amssymb,newlfont,graphicx,caption,verbatim}
+\usepackage{amsmath,amssymb,newlfont,graphicx,caption,verbatim,url}
 \usepackage[ruled,lined,boxed,commentsnumbered,linesnumbered]{algorithm2e}
 \newcommand{\dom}{\mathrm{dom}}
 \newtheorem{notation}[theorem]{Notation}
@@ -48,13 +48,26 @@ returns one of the following answers:
  \item {\sf $\delta$-sat}: $\varphi^{\delta}$ is satisfiable.
 \end{itemize}
 Here, $\varphi^{\delta}$ is a syntactic variation of $\varphi$ that encodes a
-notion of numerical perturbation on logic formulas (more
-details in Section \ref{review}.) Essentially, we allow such a procedure to
-give answers with one-sided, $\delta$-bounded errors. With this relaxation,
-$\delta$-complete decision procedures can fully exploit the
+notion of numerical perturbation on logic formulas. Essentially, we allow such a
+procedure to give answers with one-sided, $\delta$-bounded errors. With this
+relaxation, $\delta$-complete decision procedures can fully exploit the
 power of scalable numerical algorithms to solve nonlinear
 problems, and at the same time provide suitable correctness
 guarantees for many correctness-critical problems~\cite{}.
+
+Our tool {\sf dReal} is designed in this framework. It solves SMT problems
+(the {\tt QF\_NRA} category in SMT-LIB), but allows many more elementrary
+functions such as sine, cosine, exponentiation, logrithm, etc. The tool is
+written mostly in C++ and some OCaml. It is open-source\footnote{Link to the
+tool page is on our homepages, \url{http://www.cs.cmu.edu/~sicung} and
+\url{http://www.cs.cmu.edu/~soonhok}.
+}, built on {\sf opensmt}\cite{} for the
+high-level DPLL(T) framework, and {\sf realpaver}~\cite{} for the Interval
+Constraint Propagation algorithm. It returns {\sf unsat} or {\sf $\delta$-sat}
+on input formulas, and the user can obtain certificates (proof of
+unsatisfiability or solution) for either answer.
+
+In this paper we describe the usage, design, and some results of the tool. 
 
 \section{Usage}
 
@@ -66,7 +79,8 @@ extensions.
 \subsubsection{Nonlinear Functions.} In addition to nonlinear arithmetic, we
 allow the following transcedental functions to appear in the formula, used in
 prefix form.
- $$\sin, \cos, \tan, \arcsin, \arccos, \arctan, \exp, \log, \mbox{pow}, ... $$
+ $$\sin, \cos, \tan, \arcsin, \arccos, \arctan, \exp, \log, \mbox{pow}, \sinh,
+\cosh ... $$
 among others. More nonlinear functions can be added when needed, by providing
 the corresponding numerical evaluation algorithms. In fact, we are working on
 the support for various nonlinear ordinary differential equations.
