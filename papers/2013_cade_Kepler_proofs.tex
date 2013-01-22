@@ -129,7 +129,7 @@ proof trees of sufficient detail. A main focus for our tool is to prove
 nonlinear lemmas
 in the Flyspeck project for the formal proof of the Kepler
 conjecture~\cite{DBLP:journals/dcg/HalesHMNOZ10,DBLP:conf/dagstuhl/Hales05}. They
-involve large numbers on nonlinear constraints including trigonometric functions. We show
+involve large numbers of nonlinear constraints including trigonometric functions. We show
 promising experimental results towards the goal.
 
 The paper is organized as follows. We review the framework of $\delta$-complete
@@ -146,13 +146,14 @@ polynomials and calls quantifier elimination procedures. For problems with only
 polynomials, Bernstein polynomials are used in PVS for formal
 proofs~\cite{MN12}. Our approach can be seen as complementary to these
 approaches. The iSAT solver~\cite{HySAT} also contains strategies for certifying
-their answers in a different framework\cite{DBLP:conf/ddecs/KupferschmidBTF11}. 
+their answers in a different framework~\cite{DBLP:conf/ddecs/KupferschmidBTF11}. 
 Some further comparisons are given in an
 extended version~\cite{cade2013extended}. There are now several SMT
 solvers~\cite{DBLP:conf/cade/JovanovicM12,DBLP:conf/mkm/PassmoreJ09} for formulas with nonlinear polynomials over
-the reals with no proof-producing capacities. Proofs for
+the reals based on CAD with no proof-producing capacities, but a proof-producing
+algorithm is possible, as sketched in~\cite{DBLP:conf/cade/McLaughlinH05}. Proofs for
 correctness in general SMT solvers has been well studied
-in~\cite{DBLP:journals/fmsd/StumpORHT13}.
+ recently in~\cite{DBLP:journals/fmsd/StumpORHT13}.
 
 \section{A Brief Review of $\delta$-Complete Decision Procedures}\label{review}
 
@@ -279,8 +280,7 @@ $\{+, \times, \exp, \sin\}$, the problem is $\mathsf{NP}$-complete.
 These results lead to a
 new perspective on decision problems over the reals in general.
 This framework provides a theoretical basis for the development of
-numerically-driven decision procedures such
-as~\cite{HySAT,DBLP:conf/fmcad/Gao10,bern}. 
+numerically-driven decision procedures. 
 
 \section{Extracting Proofs from Interval Constraint Propagation}\label{icp}
 
@@ -841,7 +841,7 @@ algorithm, and formally proved 55 of them directly, most of them only takes less
 than 1 minutes. The proof traces of these formulas can be very large, for
 instance over we proved one with 47k lines in the proof (1MB file). In
 Table~\ref{tbl:exp}, we list some of the representative benchmarks to show
-scalability.
+scalability. A full table for all the results is given on the tool page.
 
 As the proof-generation capacity is for debugging SMT solvers, the proofs have
 also been valuable for us to observe bugs during the process. For instance, we
