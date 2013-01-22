@@ -21,7 +21,7 @@
 \maketitle
 
 \begin{abstract}
-We present our open-source tool {\sf dReal}, an SMT solver for 
+We present our open-source tool {\sf dReal}, an SMT solver for
 nonlinear formulas over the reals that can handle various nonlinear elementrary
 functions. The tool is under the framework of $\delta$-complete decision
 procedures, and returns {\sf unsat} or {\sf $\delta$-sat} on input formulas,
@@ -30,7 +30,7 @@ where $\delta$ can be specified by the user. When the answer is {\sf unsat},
 provides a solution such that a $\delta$-perturbed form of the input formula is
 satisfied. The tool is based on using Interval Constraint Propagation in the
 DPLL(T) framework to handle nonlinearity, and is
-designed to be easily extendable with other numerical algorithms.   
+designed to be easily extendable with other numerical algorithms.
 \end{abstract}
 
 \section{Introduction}
@@ -54,14 +54,14 @@ give answers with one-sided, $\delta$-bounded errors. With this relaxation,
 $\delta$-complete decision procedures can fully exploit the
 power of scalable numerical algorithms to solve nonlinear
 problems, and at the same time provide suitable correctness
-guarantees for many correctness-critical problems~\cite{}. 
+guarantees for many correctness-critical problems~\cite{}.
 
 \section{Usage}
 
 \subsection{Input Format}
 
 We accept formulas in the standard {\sf smt2} format~\cite{}, with the following
-extensions. 
+extensions.
 
 \subsubsection{Nonlinear Functions.} In addition to nonlinear arithmetic, we
 allow the following transcedental functions to appear in the formula, used in
@@ -69,32 +69,32 @@ prefix form.
  $$\sin, \cos, \tan, \arcsin, \arccos, \arctan, \exp, \log, \mbox{pow}, ... $$
 among others. More nonlinear functions can be added when needed, by providing
 the corresponding numerical evaluation algorithms. In fact, we are working on
-the support for various nonlinear ordinary differential equations. 
- 
+the support for various nonlinear ordinary differential equations.
+
 \subsubsection{Bound Declarations.} Bound information on variables, although not
 mandatory, can help the solver to locate solutions quickly. The grammar is to
 write, before the formula itself, a list of simple atomic formulas such as:
 \begin{verbatim}
-(assert (< 0 x)) 
+(assert (< 0 x))
 \end{verbatim}
 This will set $x\in (0, +\infty)$ at parsing time. In theory~\cite{}, our
 decision procedure should only work for formulas with all the variables
 (implicitly or explicitly) contained in bounded intervals. In practice, it is
 not a requirement to bound all variables in the input formula, and the solver
-can infer some. 
+can infer some.
 
 \subsubsection{Floating Numbers and Precision.} We allow floating-point numbers
 to be used as constants in any part of the formula. Also, the user can set the
 precision by writing
 \begin{verbatim}
-(set-info :precision 0.0001) 
+(set-info :precision 0.0001)
 \end{verbatim}
 The default precision is $10^{-3}$, and it can also be set through command
-line.  
+line.
 
 \subsubsection{Example.}\label{example} The following is an example input file.
 It is taken from the flyspeck project~\cite{} for the complete formal proof of
-the Kepler Conjecture. 
+the Kepler Conjecture.
  \begin{example} (Filename {\tt flyspeck/172.smt2}. Flyspeck {\tt ID (6096597438
 b)})
  \begin{verbatim}
@@ -114,27 +114,27 @@ b)})
 \subsection{Command Line Options}
 
 {\sf dReal} does not depend on particular external libraries, except
-{\tt Boost}~\cite{}. After building, the tool can be simply used through: 
+{\tt Boost}~\cite{}. After building, the tool can be simply used through:
 \begin{verbatim}
 dReal [--verbose] [--proof] [--precision <double>] <filename>
 \end{verbatim}
 The default output is {\sf unsat} or {\sf delta-sat}. When the flags are
-enabled, the following output will be provided. 
+enabled, the following output will be provided.
 \begin{itemize}
  \item If {\tt --verbose} is set, then the solver will output the detailed
 decision traces along with the solving process. That is, it will print the
 branch-and-prune trace in the constraint propagation procedures for checking
 consistency of theory atoms, as well as DPLL-level
-assert/check/backtracking operations. 
+assert/check/backtracking operations.
 \item If {\tt --proof} is set, the solver produces an addition file
 ``{\tt filename.proof}'' upon termination, and provides the following
-information. 
+information.
 \begin{itemize}
 \item If the answer is {\sf delta-sat},
 then {\tt filename.proof} contains a witnessing solution, plugged into a
 $\delta$-perturbation of the original formula, such
 that the correctness can be easily checked externally. The theory of
-$\delta$-perturbations will be explained in Section~\ref{deltas}. 
+$\delta$-perturbations will be explained in Section~\ref{deltas}.
 
 \item If the answer is {\sf unsat}, then {\tt filename.proof} contains a trace
 of the solving steps, which can be verified as a proof tree that establishes the
@@ -143,11 +143,11 @@ proof checker, which will be explained in
 Section~\cite{proof}
 \end{itemize}
 \item The {\tt --precision} flag gives the option of overwriting the
-default precision, and the one set in the benchmark. 
+default precision, and the one set in the benchmark.
 \end{itemize}
 
 \begin{example}
-With default parameters, {\sf dReal} solves the formula in 
+With default parameters, {\sf dReal} solves the formula in
 Example~\ref{example} in {\tt 10ms}, returning {\sf unsat}, on a machine with
 a 32-core 2.3GHz AMD Opteron Processor and 94GB of RAM.
 \end{example}
@@ -157,28 +157,26 @@ a 32-core 2.3GHz AMD Opteron Processor and 94GB of RAM.
 When the {\tt --proof} flag is set, the solver produces a file that certifies
 the answer. In the {\tt delta-sat} case, the solution is plugged in the
 formula, and its correctness can be checked externally. For the {\tt unsat}
-cases, we provide a proof checker that attempts to verify the proof. 
+cases, we provide a proof checker that attempts to verify the proof.
 
 The proof checker is written in {\bf OCaml}, and uses the interval arithmetic
 package~\cite{}. After we run {\sf dReal} and observe an {\sf unsat} answer,
-the proof checker can be used as follows. 
+the proof checker can be used as follows.
 \begin{verbatim}
-proofcheck [--timeout <int>] <filename> 
+proofcheck [--timeout <int>] <filename>
 \end{verbatim}
 The proof checker will create a new folder called {\tt filename}, which
 contains auxilary files needed. It is possible for the proof
 checking procedure to produce an exponential amount of new files, so setting a
  timeout is important. By default, the timeout is {\tt 30min}. The proof
-checker will return either ``{\sf proof verified}'' or ``{\sf timeout}''. 
+checker will return either ``{\sf proof verified}'' or ``{\sf timeout}''.
 
 \begin{example}
 After {\sf dReal} returns that the formula in Example~\ref{example} is {\sf
 unsat}, we run {\sf proofcheck} on the same machine. The proof checker returns
-``{\sf proof verified}'' in 9.42s. {\bf todo number of loops, bla}. 
+``{\sf proof verified}'' in 10.08s, after making 8 branching steps and
+checking 77 axioms.
 \end{example}
-
-
-
 
 \section{Design}
 
@@ -199,7 +197,7 @@ following answers:
 \end{itemize}
 When the two cases overlap, either answer can be returned. Here,
 $\varphi^{\delta}$ is called the $\delta$-perturbation (or $\delta$-weakening)
-of $\varphi$, which has the following formal definition. 
+of $\varphi$, which has the following formal definition.
 \begin{definition}[$\delta$-Perturbations~\cite{}]
  Let $\delta\in \mathbb{Q}^+\cup\{0\}$ be a constant and $\varphi$ be a
 $\Sigma_1$-sentence in standard form:
@@ -211,7 +209,7 @@ The $\delta$-weakening of $\varphi$ defined as:
 |f_{ij}(\vec x)|\leq \delta)).\]
 \end{definition}
 The fact that all SMT formulas can be put into this standard form is
-straightforward~\cite{}. 
+straightforward~\cite{}.
 
 Solving the $\delta$-decision problem is as useful as the standard one, for many
 correctness-critical problems~\cite{}. For instance, suppose we perform bounded
@@ -220,9 +218,9 @@ formula $\varphi$. Then following standard model checking techniques, if we
 decide that $\varphi$ is {\sf unsat}, then the system is indeed ``safe'' with in
 some bounds; if we decide that $\varphi$ is {\sf $\delta$-sat}, then the system
 would become ``unsafe'' under some $\delta$-perturbation on the system. In this
-way, when $\delta$ is reasonably small, we have essentially taken into account 
+way, when $\delta$ is reasonably small, we have essentially taken into account
 the robustness properties of the system, and can justifiably conclude that the
-system is unsafe in practice. 
+system is unsafe in practice.
 
 We
 proved that the $\delta$-decision problem is decidable for bounded formulas
@@ -234,7 +232,7 @@ exponentiation, and trignometric functions is ``only" {\sf NP}-complete, in
 comparison to the undecidability of the standard decision problem for such
 formulas.  Thus the $\delta$-decision problem leads us to a new and more
 positive outlook for reasoning over the reals, as well
-as a guiding framework for the development of practical decision procedures. 
+as a guiding framework for the development of practical decision procedures.
 
 \subsection{DPLL$\langle$ICP$\rangle$}
 
@@ -244,13 +242,13 @@ solutions of real constraints using a ``branch-and-prune" method, combining
 interval arithmetic and constraint propagation. The idea is to use interval
 extensions of functions to ``prune'' out sets of points that are not in the
 solution set, and ``branch'' on intervals when such pruning can not be done,
-until a small enough box that may contain a solution is found. 
+until a small enough box that may contain a solution is found.
 
 In a DPLL(T) framework, ICP can be used as the theory solver that checks the
 consistency of a set of theory atoms. We use {\sf opensmt}~\cite{} for the
 general
 DPLL(T) framework, and integrate {\sf realpaver}~\cite{} which performs ICP. The
-overall design of the interface is as follows. 
+overall design of the interface is as follows.
 \subsubsection{Check and Assert.} For incomplete checks in the assert function,
 we use the pruning operator provided in ICP to contract the interval assigment
 on all the variables, by eliminating the boxes in the domain that do not contain
@@ -258,26 +256,26 @@ any solutions. At complete checks, we perform both pruning and branching, and
 look for one interval solution of the system. That is, we prune and branch on
 the interval assignment of all variables, and stop when either we have obtained
 an interval vector that is smaller than the preset error bound, or when we have
-traversed all the possible branching on the interval assignments. 
+traversed all the possible branching on the interval assignments.
 \subsubsection{Backtracking.} We maintain a list of environment on the variables,
 which are mappings from variables to unions of intervals. When we reach a
-conlflict, we backtrack to the previous environment in the pushed stack. 
+conlflict, we backtrack to the previous environment in the pushed stack.
 \subsubsection{Learning.} We monitor the branch-and-prune process in ICP.
 When we observe that a set of theory atoms are inconsistent, we collect all the
 constraints that have appeared in the pruning process leading to the conflict.
 We then turn this subset of constraints into a learned clause and add it to the
-original formula. 
+original formula.
 
 Theoretically, we can prove that this interface, when implemented correctly, is
 $\delta$-complete. In practice, because of the complexity of ICP algorithms,
 errors could occur. Thus, we also produce certificates for our answers, as
-discussed in the following section. 
+discussed in the following section.
 
 \subsection{Certificates for Correctness}
 
 Suppose an input SMT formula is of the form $\varphi(x_1,...,x_n)$, we can
 produce the following certificates for the {\sf $\delta$-sat/unsat} answers on
-the formula. 
+the formula.
 
 \subsubsection{Witness for $\delta$-Satisfibility} When the answer is
 {\sf $\delta$-sat}, we a solution $\vec a\in \mathbb{R}^n$, such
@@ -290,7 +288,7 @@ finding a point solution in a compact domain (the interval assginment returned
 by ICP), which is still an undecidable problem. On the other hand, {\em any}
 point in the interval assignment returned by ICP can witness the satisfiability
 of $\varphi^{\delta}$ when the intervals are smaller than an appropriate error
-bound. 
+bound.
 
 \subsubsection{Proofs of Unsatisfiability} When the answer is {\sf unsat}, we
 produce a proof tree that can be verified to establish the validity of the
@@ -299,29 +297,29 @@ devised a simple first-order natural deduction system, and transform the
 computation trace of the solving process into a proof tree. We then use
 interval arithmetic and simple rules to check the correctness of the proof
 tree. The proof check procedure recursively devide the problem into subproblems
-with smaller domains. More details can be found in~\cite{}. 
+with smaller domains. More details can be found in~\cite{}.
 
 \section{Results}
 
 Our main motivation for the tool is to prove lemmas in the Kepler conjecture,
 as well as hybrid system verification. Here we show some representative numbers
-on the scale of problems that we can solve. 
+on the scale of problems that we can solve.
 
 Several sets of standard benchmarks from~\cite{} are contained in the release
 and can be tested. Our solver is generally very fast on problems where all the
 variables are bounded in intervals. For instance, we solve all formulas in the
-hong benchmark set~\cite{} 
+hong benchmark set~\cite{}
 
 
 
 \section{Conclusion}
 Compared to the current tools for nonlinear problems, the following needs to be
-considered. 
+considered.
 \begin{itemize}
-\item Our tool is numerically-driven. It can solve problems with huge amount of variables and constraints. 
+\item Our tool is numerically-driven. It can solve problems with huge amount of variables and constraints.
 \item It uses advanced numerical heuristics that outperform other
-numercally-based approaches. 
-\item The proofs can be used as a theorem prover. 
+numercally-based approaches.
+\item The proofs can be used as a theorem prover.
 \end{itemize}
 
 
