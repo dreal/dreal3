@@ -49,8 +49,8 @@ struct SMTConfig
     initializeConfig( );
   }
 
-  ~SMTConfig ( ) 
-  { 
+  ~SMTConfig ( )
+  {
     if ( produce_stats )  stats_out.close( );
     if ( rocset )         out.close( );
     if ( docset )         err.close( );
@@ -69,7 +69,7 @@ struct SMTConfig
   inline ostream & getRegularOut   ( ) { return rocset ? out : cout; }
   inline ostream & getDiagnosticOut( ) { return docset ? err : cerr; }
 
-  inline void setProduceModels( ) { if ( produce_models != 0 ) return; produce_models = 1; }  
+  inline void setProduceModels( ) { if ( produce_models != 0 ) return; produce_models = 1; }
   inline void setProduceProofs( ) { if ( produce_proofs != 0 ) return; produce_proofs = 1; }
   inline void setProduceInter( )  { if ( produce_inter != 0 )  return; produce_inter = 1; }
 
@@ -78,7 +78,7 @@ struct SMTConfig
     if ( strcmp( attr, "stdout" ) != 0 && !rocset )
     {
       out.open( attr );
-      if( !out ) 
+      if( !out )
 	opensmt_error2( "can't open ", attr );
       rocset = true;
     }
@@ -89,7 +89,7 @@ struct SMTConfig
     if ( strcmp( attr, "stderr" ) != 0 && !rocset )
     {
       err.open( attr );
-      if( !err ) 
+      if( !err )
 	opensmt_error2( "can't open ", attr );
       rocset = true;
     }
@@ -161,6 +161,12 @@ struct SMTConfig
   int          lra_gaussian_elim;            // Used to switch on/off Gaussian elimination in LRA
   int          lra_integer_solver;           // Flag to require integer solution for LA problem
   int          lra_check_on_assert;          // Probability (0 to 100) to run check when assert is called
+
+    // NRA-Solver related parameters (added for dReal2)
+  double       nra_precision;                 // the value of delta
+  bool         nra_verbose;                   // --verbose option
+  bool         nra_proof;                     // --proof option
+
 
 private:
 

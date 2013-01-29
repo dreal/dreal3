@@ -57,7 +57,7 @@ public:
       , theoryInitialized ( false )
       , time_stamp        ( 0 )
       , use_gmp		  ( false )
-      , precision         ( 0.001 )
+      , precision         ( c.nra_precision )
   {
     //
     // Initialize nil key for splay tree

@@ -33,8 +33,8 @@ SMTConfig::initializeConfig( )
   dump_formula                 = 0;
   verbosity                    = 0;
   print_success                = false;
-  certification_level          = 0;       
-  strcpy( certifying_solver, "tool_wrapper.sh" ); 
+  certification_level          = 0;
+  strcpy( certifying_solver, "tool_wrapper.sh" );
   // Set SAT-Solver Default configuration
   sat_theory_propagation       = 1;
   sat_polarity_mode            = 0;
@@ -79,6 +79,10 @@ SMTConfig::initializeConfig( )
   proof_remove_mixed           = 0;
   proof_use_sym_inter          = 1;
   proof_certify_inter          = 0;
+  // NRA-Solver Default configuration
+  nra_precision                = 0.0;
+  nra_verbose                  = false;
+  nra_proof                    = false;
 }
 
 void SMTConfig::parseConfig ( char * f )
@@ -128,7 +132,7 @@ void SMTConfig::parseConfig ( char * f )
       else if ( sscanf( buf, "verbosity %d\n"                , &verbosity )                     == 1 );
       else if ( sscanf( buf, "certification_level %d\n"      , &certification_level )                     == 1 );
       else if ( sscanf( buf, "certifying_solver %s\n"        , certifying_solver )                     == 1 );
-      // SAT SOLVER CONFIGURATION                            
+      // SAT SOLVER CONFIGURATION
       else if ( sscanf( buf, "sat_theory_propagation %d\n"   , &(sat_theory_propagation))       == 1 );
       else if ( sscanf( buf, "sat_polarity_mode %d\n"        , &(sat_polarity_mode))            == 1 );
       else if ( sscanf( buf, "sat_initial_skip_step %lf\n"   , &(sat_initial_skip_step))        == 1 );
@@ -159,13 +163,13 @@ void SMTConfig::parseConfig ( char * f )
       // EUF SOLVER CONFIGURATION
       else if ( sscanf( buf, "uf_disable %d\n"               , &(uf_disable))                   == 1 );
       else if ( sscanf( buf, "uf_theory_propagation %d\n"    , &(uf_theory_propagation))        == 1 );
-      // BV SOLVER CONFIGURATION                                                                      
+      // BV SOLVER CONFIGURATION
       else if ( sscanf( buf, "bv_disable %d\n"               , &(bv_disable))                   == 1 );
       else if ( sscanf( buf, "bv_theory_propagation %d\n"    , &(bv_theory_propagation))        == 1 );
-      // DL SOLVER CONFIGURATION                                                                      
+      // DL SOLVER CONFIGURATION
       else if ( sscanf( buf, "dl_disable %d\n"               , &(dl_disable))                   == 1 );
       else if ( sscanf( buf, "dl_theory_propagation %d\n"    , &(dl_theory_propagation))        == 1 );
-      // LRA SOLVER CONFIGURATION                                                                     
+      // LRA SOLVER CONFIGURATION
       else if ( sscanf( buf, "lra_disable %d\n"              , &(lra_disable))                  == 1 );
       else if ( sscanf( buf, "lra_theory_propagation %d\n"   , &(lra_theory_propagation))       == 1 );
       else if ( sscanf( buf, "lra_poly_deduct_size %d\n"     , &(lra_poly_deduct_size))         == 1 );
@@ -310,8 +314,17 @@ SMTConfig::parseCMDLine( int argc
     {
       parseConfig( config_name );
       break;
-    }      
-    else if ( strcmp( buf, "--help" ) == 0 
+    }
+    if ( sscanf( buf, "--precision=%f", &nra_precision ) == 1)
+    {
+        if(nra_precision <= 0.0)
+        {
+            printHelp( );
+            exit( 1 );
+        }
+
+    }
+    else if ( strcmp( buf, "--help" ) == 0
 	   || strcmp( buf, "-h" ) == 0 )
     {
       printHelp( );
@@ -327,10 +340,32 @@ SMTConfig::parseCMDLine( int argc
 
 void SMTConfig::printHelp( )
 {
-  const char help_string[] 
+  const char help_string[]
     = "Usage: ./opensmt [OPTION] filename\n"
       "where OPTION can be\n"
       "  --help [-h]              print this help\n"
-      "  --config=<filename>      use configuration file <filename>\n";
+      "  --config=<filename>      use configuration file <filename>\n"
+      "\n"
+      "  --precision=<double>     set precision (default 0.001)\n"
+      "                           this overrides the value specified in input files\n"
+      "\n"
+      "   --proof                 the solver produces an addition file \"filename.proof\"\n"
+      "                           upon termination, and provides the following information:\n"
+      "                             1. If the answer is delta-sat, then filename.proof contains\n"
+      "                                a witnessing solution, plugged into a δ-perturbation of\n"
+      "                                the original formula, such that the correctness can be\n"
+      "                                easily checked externally.\n"
+      "                             2. If the answer is unsat, then filename.proof contains a\n"
+      "                                trace of the solving steps, which can be verified as a\n"
+      "                                proof tree that establishes the unsatisfiability of the\n"
+      "                                formula. This file can be the input of a stand-alone proof\n"
+      "                                checker."
+      "\n"
+      "   --verbose               the solver will output the detailed decision traces along with\n"
+      "                           the solving process. That is, it will print the branch-and-prune\n"
+      "                           trace in the constraint propagation procedures for checking\n"
+      "                           consistency of theory atoms, as well as DPLL-level\n"
+      "                           assert/check/backtracking operations.\n";
+
   cerr << help_string;
 }

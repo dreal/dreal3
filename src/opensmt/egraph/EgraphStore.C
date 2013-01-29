@@ -164,7 +164,15 @@ void Egraph::initializeStore( )
 
 void   Egraph::setPrecision ( double p)
 {
-    precision = p;
+    if (p < 0) {
+        cerr << "Precision should be positive number: Current Value = " << p << endl;
+        exit(1);
+    }
+
+    // Assign the new precision value only if we do not have one from
+    // the command-line arguments
+    if(config.nra_precision == 0.0)
+        precision = p;
 }
 
 double Egraph::getPrecision( ) const
