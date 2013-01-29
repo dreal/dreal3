@@ -914,11 +914,11 @@ void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v)
 {
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
         e->setUpperBound(v);
-        cerr << "addIntvCtr: " << e << " " << op << " " << e->getUpperBound()<< endl;
+        // cerr << "addIntvCtr: " << e << " " << op << " " << e->getUpperBound()<< endl;
     }
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
         e->setLowerBound(v);
-        cerr << "addIntvCtr: " << e << " " << op << " " << e->getLowerBound() << endl;
+        // cerr << "addIntvCtr: " << e << " " << op << " " << e->getLowerBound() << endl;
     }
     else {
         opensmt_error2( "command not supported (yet)", "" );

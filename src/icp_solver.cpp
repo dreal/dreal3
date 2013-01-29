@@ -22,13 +22,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "icp_solver.h"
 using namespace std;
 
-icp_solver::icp_solver(const vector<Enode*> & stack,
+icp_solver::icp_solver(SMTConfig & c,
+                       const vector<Enode*> & stack,
                        map<Enode*, pair<double, double> > & env,
                        vector<Enode*> & exp,
                        double improve,
                        double p
     )
     :
+    config(c),
     _stack(stack),
     _env(env),
     _boxes(env.size()), //number of variables
@@ -47,14 +49,11 @@ icp_solver::icp_solver(const vector<Enode*> & stack,
     rp_splitter * _dsplit;
     rp_new( _dsplit, rp_splitter_mixed, (_problem) );
     solver = new rp_bpsolver(_problem,improve,_vselect,_dsplit); //,prover);
-    cerr << "icp_solver::icp_solver() End." << endl;
 }
 
 rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
                                           map<Enode*, pair<double, double> > & env)
 {
-    cerr << "icp_solver::create_rp_problem" << endl;
-
     rp_problem* result = new rp_problem;
     rp_problem_create( result, "icp_holder" );
 
@@ -81,17 +80,11 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
         rp_bsup(rp_box_elem(rp_problem_box(*result), rp_id)) = ub;
         rp_binf(rp_box_elem(rp_problem_box(*result), rp_id)) = lb ;
 
-        cerr << "["
-             << rp_bsup(rp_box_elem(rp_problem_box(*result), rp_id))
-             << ","
-             << rp_binf(rp_box_elem(rp_problem_box(*result), rp_id))
-             << "]" << endl;
-
         rp_union_interval u;
         rp_union_create(&u);
         rp_union_insert(u,
                         rp_box_elem(rp_problem_box(*result),
-                                       rp_id));
+                                    rp_id));
         rp_union_copy(rp_variable_domain(*_v),u);
         rp_union_destroy(&u);
 
@@ -99,10 +92,12 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
 
         enode_to_rp_id[key] = rp_id;
 
-        cerr << "Key: " << name << "\t"
-             << "value : [" << lb << ", " << ub << "] \t"
-             << "precision : " << _precision << "\t"
-             << "rp_id: " << rp_id << endl;
+        if(config.nra_verbose) {
+            cerr << "Key: " << name << "\t"
+                 << "value : [" << lb << ", " << ub << "] \t"
+                 << "precision : " << _precision << "\t"
+                 << "rp_id: " << rp_id << endl;
+        }
     }
 
     // ===============================================
@@ -134,10 +129,12 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
                 ++rp_variable_constrained(rp_problem_var(*result,rp_constraint_var(*_c,i)));
             }
 
-            cerr << "Constraint: "
-                 << (l->getPolarity() == l_True ? " " : "Not")
-                 << l << endl;
-            cerr << "          : " << temp_string << endl;
+            if(config.nra_verbose) {
+                cerr << "Constraint: "
+                     << (l->getPolarity() == l_True ? " " : "Not")
+                     << l << endl;
+                cerr << "          : " << temp_string << endl;
+            }
         }
     }
     return result;
@@ -152,11 +149,13 @@ icp_solver::~icp_solver()
 
 rp_box icp_solver::prop()
 {
-  cerr << "icp_solver::prop" << endl;
-  assert(_boxes.size() == 1);
+    if(config.nra_verbose) {
+        cerr << "icp_solver::prop" << endl;
+    }
+    assert(_boxes.size() == 1);
 
-  _propag->apply(_boxes.get());
-  return( _boxes.get() );
+    _propag->apply(_boxes.get());
+    return( _boxes.get() );
 }
 
 bool icp_solver::solve()
@@ -203,10 +202,11 @@ bool icp_solver::solve()
         cout << ";" << endl;
     }
 
-
     if (rp_box_empty(rp_problem_box(*_problem)))
     {
-        cerr << "Unfeasibility detected before solving";
+        if(config.nra_verbose) {
+            cerr << "Unfeasibility detected before solving";
+        }
 
         /* TODO: what about explanation? */
         copy(_stack.begin(),
@@ -221,7 +221,10 @@ bool icp_solver::solve()
         if ((b=solver->compute_next())!=NULL)
         {
             /* SAT */
-            cerr << "SAT with the following box:" << endl;
+            if(config.nra_verbose) {
+                cerr << "SAT with the following box:" << endl;
+            }
+
             rp_box_display_simple(b);
             cout << endl;
 
@@ -231,7 +234,9 @@ bool icp_solver::solve()
             /* UNSAT */
             /* TODO: what about explanation? */
             // cout << "[conflict detected]" << endl;
-            cerr << "UNSAT!" << endl;
+            if(config.nra_verbose) {
+                cerr << "UNSAT!" << endl;
+            }
             copy(_stack.begin(),
                  _stack.end(),
                  std::back_inserter(_explanation));
@@ -280,20 +285,20 @@ rp_box icp_solver::compute_next(bool hasDiff)
 
 int icp_solver::solution()
 {
-        return _sol;
+    return _sol;
 }
 
 int icp_solver::nboxes()
 {
-        return( _boxes.length() );
+    return( _boxes.length() );
 }
 
 int icp_solver::nsplit()
 {
-        return( _nsplit );
+    return( _nsplit );
 }
 
 icp_solver& icp_solver::operator=(const icp_solver& s)
 {
-  	return( *this );
+    return( *this );
 }
