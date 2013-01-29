@@ -24,7 +24,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "SolverTypes.h"
 #include <fstream>
 
-using std::fstream;
+using std::ofstream;
 
 //
 // Holds informations about the configuration of the solver
@@ -169,7 +169,7 @@ struct SMTConfig
   double       nra_precision;                 // the value of delta
   bool         nra_verbose;                   // --verbose option
   bool         nra_proof;                     // --proof option
-  fstream      proof_out;                     // file stream for proof
+  ofstream     proof_out;                     // file stream for proof
 
 private:
 

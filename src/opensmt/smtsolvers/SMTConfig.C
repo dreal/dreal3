@@ -335,7 +335,7 @@ SMTConfig::parseCMDLine( int argc
         string filename = string(argv[ argc - 1 ]) + ".proof";
         cout << filename << endl;
         /* Open file stream */
-        proof_out.open (filename.c_str(), fstream::out | fstream::trunc );
+        proof_out.open (filename.c_str(), std::ofstream::out | std::ofstream::trunc );
         if(proof_out.fail())
         {
             cout << "Cannot create a file: " << filename << endl;

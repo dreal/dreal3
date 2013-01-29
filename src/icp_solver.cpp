@@ -22,7 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "icp_solver.h"
 using namespace std;
 
-icp_solver::icp_solver(SMTConfig & c,
+icp_solver::icp_solver(SMTConfig& c,
                        const vector<Enode*> & stack,
                        map<Enode*, pair<double, double> > & env,
                        vector<Enode*> & exp,
@@ -30,7 +30,9 @@ icp_solver::icp_solver(SMTConfig & c,
                        double p
     )
     :
-    config(c),
+    _proof_out(c.proof_out),
+    _verbose(c.nra_verbose),
+    _proof(c.nra_proof),
     _stack(stack),
     _env(env),
     _boxes(env.size()), //number of variables
@@ -92,7 +94,7 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
 
         enode_to_rp_id[key] = rp_id;
 
-        if(config.nra_verbose) {
+        if(_verbose) {
             cerr << "Key: " << name << "\t"
                  << "value : [" << lb << ", " << ub << "] \t"
                  << "precision : " << _precision << "\t"
@@ -129,7 +131,7 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
                 ++rp_variable_constrained(rp_problem_var(*result,rp_constraint_var(*_c,i)));
             }
 
-            if(config.nra_verbose) {
+            if(_verbose) {
                 cerr << "Constraint: "
                      << (l->getPolarity() == l_True ? " " : "Not")
                      << l << endl;
@@ -149,7 +151,7 @@ icp_solver::~icp_solver()
 
 rp_box icp_solver::prop()
 {
-    if(config.nra_verbose) {
+    if(_verbose) {
         cerr << "icp_solver::prop" << endl;
     }
     assert(_boxes.size() == 1);
@@ -160,51 +162,53 @@ rp_box icp_solver::prop()
 
 bool icp_solver::solve()
 {
-    cout << "Precision:" << _precision << endl;
+    if(_proof) {
+        _proof_out << "Precision:" << _precision << endl;
 
-    // Print out all the Enode in stack
-    for(vector<Enode*>::const_iterator ite = _stack.begin();
-        ite != _stack.end();
-        ite++)
-    {
-        if((*ite)->getPolarity() == l_True)
-            cout << *ite << endl;
-        else if ((*ite)->getPolarity() == l_False) {
-            if((*ite)->isEq()) {
-                /* PRINT NOTHING */
-            } else {
-                cout << "(not " << *ite << ")" << endl;
+        // Print out all the Enode in stack
+        for(vector<Enode*>::const_iterator ite = _stack.begin();
+            ite != _stack.end();
+            ite++)
+        {
+            if((*ite)->getPolarity() == l_True)
+                _proof_out << *ite << endl;
+            else if ((*ite)->getPolarity() == l_False) {
+                if((*ite)->isEq()) {
+                    /* PRINT NOTHING */
+                } else {
+                    _proof_out << "(not " << *ite << ")" << endl;
+                }
             }
+            else
+                assert(0);
         }
-        else
-            assert(0);
-    }
 
-    // Print out the initial values
-    for(map<Enode*, pair<double, double> >::const_iterator ite = _env.begin();
-        ite != _env.end();
-        ite++)
-    {
-        Enode* key = (*ite).first;
-        double lb =  (*ite).second.first;
-        double ub =  (*ite).second.second;
+        // Print out the initial values
+        for(map<Enode*, pair<double, double> >::const_iterator ite = _env.begin();
+            ite != _env.end();
+            ite++)
+        {
+            Enode* key = (*ite).first;
+            double lb =  (*ite).second.first;
+            double ub =  (*ite).second.second;
 
-        cout << key << " is in: ";
-        if(lb == -numeric_limits<double>::infinity())
-            cout << "(-oo";
-        else
-            cout << "[" << lb;
-        cout << ", ";
-        if(ub == numeric_limits<double>::infinity())
-            cout << "+oo)";
-        else
-            cout << ub << "]";
-        cout << ";" << endl;
+            _proof_out << key << " is in: ";
+            if(lb == -numeric_limits<double>::infinity())
+                _proof_out << "(-oo";
+            else
+                _proof_out << "[" << lb;
+            _proof_out << ", ";
+            if(ub == numeric_limits<double>::infinity())
+                _proof_out << "+oo)";
+            else
+                _proof_out << ub << "]";
+            _proof_out << ";" << endl;
+        }
     }
 
     if (rp_box_empty(rp_problem_box(*_problem)))
     {
-        if(config.nra_verbose) {
+        if(_verbose) {
             cerr << "Unfeasibility detected before solving";
         }
 
@@ -221,20 +225,20 @@ bool icp_solver::solve()
         if ((b=solver->compute_next())!=NULL)
         {
             /* SAT */
-            if(config.nra_verbose) {
+            if(_verbose) {
                 cerr << "SAT with the following box:" << endl;
             }
-
-            rp_box_display_simple(b);
-            cout << endl;
-
+            if(_proof) {
+                rp_box_display_simple(b);
+                _proof_out << endl;
+            }
             return true;
         }
         else {
             /* UNSAT */
             /* TODO: what about explanation? */
-            // cout << "[conflict detected]" << endl;
-            if(config.nra_verbose) {
+            // _proof_out << "[conflict detected]" << endl;
+            if(_verbose) {
                 cerr << "UNSAT!" << endl;
             }
             copy(_stack.begin(),
@@ -247,8 +251,10 @@ bool icp_solver::solve()
 
 rp_box icp_solver::compute_next(bool hasDiff)
 {
-    cout<<"------------------"<<endl;
-    cout<<"The interval pruning and branching trace is:";
+    if(_proof) {
+        _proof_out<<"------------------"<<endl;
+        _proof_out<<"The interval pruning and branching trace is:";
+    }
 
     if (_sol>0) //if you already have a solution, discard this obtained solution box and backtrack
     {
@@ -263,9 +269,12 @@ rp_box icp_solver::compute_next(bool hasDiff)
             {
                 ++_nsplit;
                 _dsplit->apply(_boxes,i);
-
                 //monitoring
-                cout<<endl<<"[branched on x"<<i<<"]"<<endl;
+                if(_proof) {
+                    _proof_out << endl
+                               << "[branched on x" << i << "]"
+                               <<endl;
+                }
             }
             else
             {
@@ -276,7 +285,9 @@ rp_box icp_solver::compute_next(bool hasDiff)
         }
         else
         {
-            cout<<"[conflict detected]"<<endl;
+            if(_proof) {
+                _proof_out<<"[conflict detected]"<<endl;
+            }
             _boxes.remove();
         }
     }

@@ -25,11 +25,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "realpaver.h"
 #include "Enode.h"
 #include "SMTConfig.h"
+#include <fstream>
 
 class icp_solver
 {
 public:
-    icp_solver(SMTConfig & c,
+    icp_solver(SMTConfig& c,
                const vector<Enode*> & stack,
                map<Enode*, pair<double, double> > & env,
                vector<Enode*> & exp,
@@ -57,7 +58,6 @@ public:
 
 private:
 
-    const SMTConfig& config;
     rp_problem * _problem;     /* problem to be solved                    */
     rp_propagator * _propag;   /* reduction algorithm using propagation   */
     rp_box_stack _boxes;       /* the set of boxes during search          */
@@ -76,6 +76,9 @@ private:
     map<Enode*, pair<double, double> > & _env;
 
     double _precision;
+    bool _verbose;
+    bool _proof;
+    ofstream& _proof_out;
 
     icp_solver& operator=(const icp_solver& s);
 };
