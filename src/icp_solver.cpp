@@ -229,7 +229,7 @@ bool icp_solver::solve()
                 cerr << "SAT with the following box:" << endl;
             }
             if(_proof) {
-                rp_box_display_simple(b);
+                display_box(_proof_out, b, 8, RP_INTERVAL_MODE_BOUND);
                 _proof_out << endl;
             }
             return true;
@@ -312,4 +312,197 @@ int icp_solver::nsplit()
 icp_solver& icp_solver::operator=(const icp_solver& s)
 {
     return( *this );
+}
+
+void icp_solver::display_box(ostream& out, rp_box b, int digits, int mode)
+{
+    if (rp_box_empty(b))
+    {
+        out << "empty";
+    }
+    else
+    {
+        int i;
+        out << "(";
+        for (i=0; i<rp_box_size(b); ++i)
+        {
+            //rp_interval_display(out,rp_box_elem(b,i),digits,mode);
+            display_interval (out,rp_box_elem(b,i),digits,mode);
+            if (i<(rp_box_size(b)-1))
+            {
+                out << ",";
+            }
+        }
+        out << ")";
+    }
+}
+
+void icp_solver::display_interval(ostream & out, rp_interval i, int digits, int mode)
+{
+    double mid, minerror, maxerror;
+    if( rp_interval_empty(i) )
+    {
+        out << "empty";
+        return;
+    }
+    if( rp_interval_point(i) )
+    {
+        if( rp_binf(i)>=0 )
+        {
+//            sprintf(out,"%.*g",digits,rp_binf(i));
+            out.precision(digits);
+            out << rp_binf(i);
+        }
+        else
+        {
+//            sprintf(out,"%+.*g",digits,rp_binf(i));
+            out.precision(digits);
+            out << rp_binf(i);
+        }
+    }
+    else
+    {
+        if( mode==RP_INTERVAL_MODE_BOUND )
+        {
+            if( rp_binf(i)>=0 )
+            {
+                if (rp_binf(i)==0)
+                {
+                    // sprintf(out,"[0%s",RP_INTERVAL_SEPARATOR);
+                    out << "[" << RP_INTERVAL_SEPARATOR;
+                }
+                else
+                {
+                    RP_ROUND_DOWNWARD();
+                    // sprintf(out,"[%.*g%s",digits,rp_binf(i),RP_INTERVAL_SEPARATOR);
+                    out.precision(digits);
+                    out << "[" << rp_binf(i) << RP_INTERVAL_SEPARATOR;
+                }
+                RP_ROUND_UPWARD();
+                if( rp_bsup(i)==RP_INFINITY )
+                {
+                    //strcat(out,"+oo)");
+                    out << "+oo";
+                }
+                else
+                {
+                    char tmp[255];
+                    //sprintf(tmp,"%.*g]",digits,rp_bsup(i));
+                    //strcat(out,tmp);
+                    out.precision(digits);
+                    out << rp_bsup(i) << "]";
+                }
+            }
+            else
+            {
+                RP_ROUND_DOWNWARD();
+                if( rp_binf(i)==(-RP_INFINITY) )
+                {
+                    //sprintf(out,"(-oo%s",RP_INTERVAL_SEPARATOR);
+                    out << "(-oo" << RP_INTERVAL_SEPARATOR;
+                }
+                else
+                {
+                    //sprintf(out,"[%+.*g%s",digits,rp_binf(i),RP_INTERVAL_SEPARATOR);
+                    out.precision(digits);
+                    out << "[" << rp_binf(i) << RP_INTERVAL_SEPARATOR;
+                }
+                RP_ROUND_UPWARD();
+                if( rp_bsup(i)==RP_INFINITY )
+                {
+                    //strcat(out,"+oo)");
+                    out << "+oo";
+                }
+                else
+                {
+                    if (rp_bsup(i)==0)
+                    {
+                        //strcat(out,"0]");
+                        out << "0]";
+                    }
+                    else
+                    {
+                        //char tmp[255];
+                        //sprintf(tmp,"%+.*g]",digits,rp_bsup(i));
+                        //strcat(out,tmp);
+                        out.precision(digits);
+                        out << rp_bsup(i) << "]";
+                    }
+                }
+            }
+        }
+        else
+        {
+            if( (rp_binf(i)==(-RP_INFINITY)) && (rp_bsup(i)==RP_INFINITY) )
+            {
+                //sprintf(out,"0.0+(-oo%s+oo)",RP_INTERVAL_SEPARATOR);
+                out << "0.0+(-oo" << RP_INTERVAL_SEPARATOR << "+oo";
+                return;
+            }
+            if( rp_binf(i)==(-RP_INFINITY) )
+            {
+                RP_ROUND_DOWNWARD();
+                mid = rp_split_center(RP_MIN_DOUBLE,rp_bsup(i));
+                minerror = -RP_INFINITY;
+                RP_ROUND_UPWARD();
+                maxerror = rp_bsup(i) - mid;
+            }
+            else if( rp_bsup(i)==RP_INFINITY )
+            {
+                RP_ROUND_DOWNWARD();
+                mid = rp_split_center(rp_binf(i),RP_MAX_DOUBLE);
+                minerror = rp_binf(i) - mid;
+                RP_ROUND_UPWARD();
+                maxerror = RP_INFINITY;
+            }
+            else
+            {
+                RP_ROUND_DOWNWARD();
+                mid = rp_interval_midpoint(i);
+                minerror = rp_binf(i) - mid;
+                RP_ROUND_UPWARD();
+                maxerror = rp_bsup(i) - mid;
+            }
+
+            if( mid>=0 )
+            {
+                //sprintf(out,"%.*g+",digits,mid);
+                out.precision(digits);
+                out << mid;
+            }
+            else
+            {
+                //sprintf(out,"%+.*g+",digits,mid);
+                out.precision(digits);
+                out << mid;
+            }
+            if( minerror==(-RP_INFINITY) )
+            {
+                //char tmp[255];
+                //sprintf(tmp,"(-oo%s%+.4g]",RP_INTERVAL_SEPARATOR,maxerror);
+                //strcat(out,tmp);
+                out << "(-oo" << RP_INTERVAL_SEPARATOR << maxerror;
+            }
+            else if( maxerror==RP_INFINITY )
+            {
+                //char tmp[255];
+                RP_ROUND_DOWNWARD();
+                //sprintf(tmp,"[%+.4g%s+oo)",minerror,RP_INTERVAL_SEPARATOR);
+                //strcat(out,tmp);
+                out << "[" << minerror << RP_INTERVAL_SEPARATOR << "+oo)";
+            }
+            else
+            {
+                //char tmp[255];
+                RP_ROUND_DOWNWARD();
+                //sprintf(tmp,"[%+.4g%s",minerror,RP_INTERVAL_SEPARATOR);
+                //strcat(out,tmp);
+                out << "[" << minerror << RP_INTERVAL_SEPARATOR;
+                RP_ROUND_UPWARD();
+                //sprintf(tmp,"%+.4g]",maxerror);
+                //strcat(out,tmp);
+                out << maxerror << "]";
+            }
+        }
+    }
 }

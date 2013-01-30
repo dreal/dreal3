@@ -176,27 +176,3 @@ void rp_box_display(FILE *out, rp_box b, int digits, int mode)
     fprintf(out,")");
   }
 }
-
-/* Display b on out */
-void rp_box_display_stream(ostream& out, rp_box b, int digits, int mode)
-{
-  if (rp_box_empty(b))
-  {
-    out << "empty";
-  }
-  else
-  {
-    int i;
-    out << "(";
-    for (i=0; i<rp_box_size(b); ++i)
-    {
-    //rp_interval_display(out,rp_box_elem(b,i),digits,mode);
-      rp_interval_display_stream (out,rp_box_elem(b,i),digits,mode);
-      if (i<(rp_box_size(b)-1))
-      {
-	out << ",";
-      }
-    }
-    out << ")";
-  }
-}

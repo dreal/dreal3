@@ -52,6 +52,9 @@ public:
 
     bool          solve();
 
+    void display_box(ostream& out, rp_box b, int digits, int mode);
+    void display_interval(ostream & out, rp_interval i, int digits, int mode);
+
     /* void          prune                   ( rp_box *, literal * ); */
     /* void          prune                   ( rp_box *, rp_problem * ); */
     /* void          branch                  ( rp_box * ); */
