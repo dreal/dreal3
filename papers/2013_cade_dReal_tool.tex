@@ -61,7 +61,7 @@ functions such as sine, cosine, exponentiation, logarithm, etc. The tool is
 written mostly in C++ and some OCaml. It is open-source\footnote{Link to the
 tool page is on our homepages, \url{http://www.cs.cmu.edu/~sicung} and
 \url{http://www.cs.cmu.edu/~soonhok}.
-}, built on {\sf opensmt}\cite{DBLP:conf/tacas/BruttomessoPST10} for the
+}, built on {\sf opensmt}~\cite{DBLP:conf/tacas/BruttomessoPST10} for the
 high-level DPLL(T) framework, and {\sf
 realpaver}~\cite{DBLP:journals/toms/GranvilliersB06} for the Interval
 Constraint Propagation algorithm. It returns {\sf unsat} or {\sf $\delta$-sat}
@@ -201,7 +201,7 @@ over the reals with any trigonometric function. If only polynomials are allowed,
 then the problem is decidable in {\sf PSPACE}, but the practical algorithms
 still have
 double-exponential worst-case running time. In face of such difficulty, we
-propose to focus on the so-called $\delta$-decision problem, which relaxes the
+proposed to focus on the so-called $\delta$-decision problem, which relaxes the
 standard decision problem in the following way. Let $\delta$ be any positive
 rational number. On a given SMT formula $\varphi$, we ask for one of the
 following answers:
@@ -214,17 +214,14 @@ $\varphi^{\delta}$ is called the $\delta$-perturbation (or $\delta$-weakening)
 of $\varphi$, which has the following formal definition.
 \begin{definition}[$\delta$-Perturbations]
  Let $\delta\in \mathbb{Q}^+\cup\{0\}$ be a constant and $\varphi$ be a
-$\Sigma_1$-sentence in standard form:
-\[\varphi:= \exists^{\vec I}\vec x\;(\bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i}
-f_{ij}(\vec x)= 0)).
-\]
-The $\delta$-weakening of $\varphi$ defined as:
-\[\varphi^{\delta}:= \exists^{\vec I} \vec x\;(\bigwedge_{i=1}^m(\bigvee_{j=1}^k
-|f_{ij}(\vec x)|\leq \delta)).\]
+$\Sigma_1$-sentence in standard form $\varphi:= \exists^{\vec I}\vec
+x\;(\bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i}
+f_{ij}(\vec x)= 0))$. The $\delta$-weakening of $\varphi$ defined as:
+$\varphi^{\delta}:= \exists^{\vec I} \vec x\;(\bigwedge_{i=1}^m(\bigvee_{j=1}^k
+|f_{ij}(\vec x)|\leq \delta)).$
 \end{definition}
-The fact that all SMT formulas can be put into this standard form is
-straightforward. Solving the $\delta$-decision problem is as useful as the standard one, for many
-correctness-critical problems. For instance, suppose we perform bounded
+Solving the $\delta$-decision problem is as useful as the standard one for many
+problems. For instance, suppose we perform bounded
 model checking on some hybrid system, and encode the safety properties as an SMT
 formula $\varphi$. Then following standard model checking techniques, if we
 decide that $\varphi$ is {\sf unsat}, then the system is indeed ``safe'' with in
@@ -234,16 +231,10 @@ way, when $\delta$ is reasonably small, we have essentially taken into account
 the robustness properties of the system, and can justifiably conclude that the
 system is unsafe in practice.
 
-We
-proved that the $\delta$-decision problem is decidable for bounded formulas
+We proved that the $\delta$-decision problem is decidable for bounded formulas
 containing arbitrary computable real functions, which is in essence any
-function that can be numerically simulated. Also, the complexity bounds is
-encouraging. For instance, the $\delta$-decision problem for bounded SMT
-problems for formulas with polynomials,
-exponentiation, and trigonometric functions is ``only'' {\sf NP}-complete, in
-comparison to the undecidability of the standard decision problem for such
-formulas.  Thus the $\delta$-decision problem leads us to a new and more
-positive outlook for reasoning over the reals, as well
+function that can be numerically simulated. The $\delta$-decision problem leads
+us to a new and more positive outlook for reasoning over the reals, as well
 as a guiding framework for the development of practical decision procedures.
 
 \subsection{DPLL$\langle$ICP$\rangle$}
@@ -270,9 +261,9 @@ look for one interval solution of the system. That is, we prune and branch on
 the interval assignment of all variables, and stop when either we have obtained
 an interval vector that is smaller than the preset error bound, or when we have
 traversed all the possible branching on the interval assignments.
-\subsubsection{Backtracking.} We maintain a list of environment on the variables,
+\subsubsection{Backtracking.} We maintain a stack of assignments on the variables,
 which are mappings from variables to unions of intervals. When we reach a
-conlflict, we backtrack to the previous environment in the pushed stack.
+conflict, we backtrack to the previous environment in the pushed stack.
 \subsubsection{Learning.} We monitor the branch-and-prune process in ICP.
 When we observe that a set of theory atoms are inconsistent, we collect all the
 constraints that have appeared in the pruning process leading to the conflict.
@@ -315,18 +306,27 @@ with smaller domains. More details can be found in~\cite{cade2013extended}.
 
 \section{Results}
 
-Our main motivation for the tool is to prove lemmas in the Kepler
-conjecture, as well as hybrid system verification. In
-Table~\ref{tbl:exp}, we show some representative numbers on the scale
-of problems that we can solve from the Flyspeck project for the formal
-proof of the Kepler Conjecture. It involves formulas with large
-numbers of nonlinear constraints.
-
+Besides running other standard benchmarks~\cite{DBLP:conf/cade/JovanovicM12},
+we managed to solve many challenging nonlinear benchmarks from the Flyspeck
+project~\cite{DBLP:conf/dagstuhl/Hales05} for the
+formalized proof of the Kepler
+conjecture. The following is a typical formula:
+\begin{align*}
+\forall \vec x&\in [2, 2.51]^6.\ \Big( -\frac{\pi-4\arctan\frac{\sqrt
+2}{5}}{12\sqrt2}\sqrt{\Delta(\vec x)}\\
+&+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq
+-\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}\Big)
+\end{align*}
+where $a_i(\vec x)$ are quadratic and $\Delta(\vec x)$ is the
+determinant of a nonlinear matrix. We have translated 505 of such in the
+project into smt2 format, and solved 137 of them returning {\sf unsat} with a
+timeout of 30 minutes and $\delta=10^{-3}$, without any domain knowledge. Out of
+these formulas, we applied the proof checking algorithm, and formally proved 55
+of them directly. The proof traces of these formulas can be very large; for
+instance, we proved one with 47k lines in the proof (1MB file). In
+Table~\ref{tbl:exp}, we list some of the representative benchmarks to show
+scalability. Complete tables and other experiments are on the tool page. 
 \input{good_benchmarks.tex}
-
-Standard benchmarks from~\cite{DBLP:conf/cade/JovanovicM12} are contained in the release
-and can be tested. Our solver is generally very fast on problems where all the
-variables are bounded in intervals.
 
 \bibliographystyle{abbrv}
 \bibliography{tau}

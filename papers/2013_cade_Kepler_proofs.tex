@@ -40,7 +40,7 @@ answers and the proof-checking of their correctness. Besides certifying solvers,
 we find our approach a promising one for automated theorem proving over
 the reals, exploiting the power of numerical algorithms in a formal way. One
 direct application is to establish many nonlinear lemmas in the Flyspeck
-project for the formal proof of the Kepler Conjecture.
+project, for the formal proof of the Kepler Conjecture.
 \end{abstract}
 
 \section{Introduction}
@@ -49,7 +49,8 @@ SMT formulas over the real numbers can encode a wide range of problems in
 theorem proving and formal verification. Such formulas are very hard to solve
 when nonlinear functions are involved. Our recent work on
 {\em $\delta$-complete decision procedures} provided a new general framework for
-handling nonlinear SMT problems over the reals~\cite{DBLP:conf/cade/GaoAC12}. We say a decision
+handling nonlinear SMT problems over the
+reals~\cite{DBLP:conf/cade/GaoAC12,DBLP:conf/lics/GaoAC12}. We say a decision
 procedure is {\em $\delta$-complete} for a set $S$ of SMT formulas, where
 $\delta$
 is any positive rational number, if for any $\varphi$ from $S$ the procedure
@@ -85,7 +86,7 @@ and floating-point operations, and it is very hard to perform static
 verification on the programs directly. On the other hand, if the solutions
 witnessing ``$\delta$-sat'' answers, and proofs of unsatisfiability for the
 ``unsat'' answers are extracted,
-we can check their correctness as stand-alone using symbolic
+we can check their correctness using stand-alone symbolic or 
 arbitrary-precision computations. The inner mechanisms of the numerical
 algorithms are not relevant in the certification process.
 
@@ -103,7 +104,7 @@ In this paper, we show how to extract and validate such proofs
 of correctness for numerically-driven SMT solvers that implement the
 DPLL$\langle$ICP$\rangle$ algorithm~\cite{DBLP:conf/cade/GaoAC12}, for solving nonlinear formulas over
 the reals. The challenge lies in extracting symbolic proofs of unsatisfiability
-that do not carry over any possible numerical errors, and the complete
+that do not carry over the numerical errors, and the complete
 validation of them as theorems in a sound proof system (ideally, containing only
 simple proof rules).
 
@@ -122,14 +123,15 @@ format of Abstract DPLL~\cite{DBLP:journals/jacm/NieuwenhuisOT06}, such that its
 sequences of abstract transitions. We then use a simple first-order proof
 calculus $\mathbb{D}_A$, relativized to a set $A$ of axioms over the reals, and
 show how to transform a run of the Abstract ICP to a proof in the system. Next,
-we show how to validate the generated proofs using a stand-alone symbolic proof
-checker. The proof checker only implements simple rules that are easy to verify,
-and it interacts with the solver in an abstraction refinement loop to obtain
+we show how to validate the generated proofs using a stand-alone proof
+checker implementing simple rules and reliable interval arithmetic. The proof
+checker interacts with the solver in an abstraction refinement loop to obtain
 proof trees of sufficient detail. A main focus for our tool is to prove
 nonlinear lemmas
 in the Flyspeck project for the formal proof of the Kepler
 conjecture~\cite{DBLP:journals/dcg/HalesHMNOZ10,DBLP:conf/dagstuhl/Hales05}. They
-involve large numbers of nonlinear constraints including trigonometric functions. We show
+involve large numbers of nonlinear constraints including trigonometric
+functions. We show some 
 promising experimental results towards the goal.
 
 The paper is organized as follows. We review the framework of $\delta$-complete
@@ -152,7 +154,7 @@ extended version~\cite{cade2013extended}. There are now several SMT
 solvers~\cite{DBLP:conf/cade/JovanovicM12,DBLP:conf/mkm/PassmoreJ09} for formulas with nonlinear polynomials over
 the reals based on CAD with no proof-producing capacities, but a proof-producing
 algorithm is possible, as sketched in~\cite{DBLP:conf/cade/McLaughlinH05}. Proofs for
-correctness in general SMT solvers has been well studied
+correctness in general SMT solvers have been well studied 
  recently in~\cite{DBLP:journals/fmsd/StumpORHT13}.
 
 \section{A Brief Review of $\delta$-Complete Decision Procedures}\label{review}
@@ -160,12 +162,7 @@ correctness in general SMT solvers has been well studied
 We briefly review the framework of $\delta$-complete decision procedures.
 It formulates a reasonable correctness requirement for decision
 procedures for nonlinear
-formulas over the reals, while the standard completeness requirement can not be
-imposed because of intractability. We have shown that $\delta$-complete
-procedures exist,
-with reasonable complexity bounds, for bounded SMT formulas over the reals with
-arbitrary Type-2 computable real functions (a notion well-studied in computable
-analysis~\cite{CAbook}).
+formulas over the reals.~\cite{CAbook}).
 
 First, to formalize computations over the reals, we need to encode the
 real numbers as infinite strings. We can then model
@@ -174,7 +171,7 @@ input and output. That is, a real function is computable if there exists a
 machine that computes, using oracles that encode the arguments of the function,
 the values of the function to an arbitrary precision. These
 notions are captured by the following definitions.
-\begin{definition}[Encoding Real Numbers]
+\begin{definition}[Encoding Real Numbers~\cite{CAbook}]
 A {\em name} of a real number $a\in \mathbb{R}$ is a function
 $\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{Q}$ satisfying that for all
 $i\in \mathbb{N}$, $|\gamma_a(i) - a|<2^{-i}.$ For vectors $\vec a\in
@@ -182,7 +179,7 @@ $i\in \mathbb{N}$, $|\gamma_a(i) - a|<2^{-i}.$ For vectors $\vec a\in
 $\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$.
 Write $\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$.
 \end{definition}
-\begin{definition}[Computable Real Functions] We say
+\begin{definition}[Computable Real Functions~\cite{CAbook}] We say
 $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable, if there exists
 an oracle Turing machine $\mathcal{M}_f$ as follows. Let $\vec a\in \dom(f)$
 be any argument of $f$ and $\gamma(\vec a)$
@@ -190,6 +187,7 @@ any name of $\vec a$. On any input $i\in \mathbb{N}$,
 $\mathcal{M}_f^{\gamma(\vec a)}(i)$ uses $\gamma(\vec a)$ as an oracle, and
 computes a $2^{-i}$-approximation to $f(\vec a)$.
 \end{definition}
+
 Most common continuous real functions are computable, such as
 arithmetic, absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of
 Lipschitz-continuous ordinary differential equations~\cite{CAbook}. Compositions
@@ -207,9 +205,9 @@ consider bounded SMT problems, which is more conveniently expressed as
 $\Sigma_1$-sentences with bounded quantifiers as follows. We say a
 $\Sigma_1$-sentence is bounded, if it can be written in the form
 $$\varphi:\ \exists^{I_1}x_1\cdots \exists^{I_n}x_n. \psi(x_1,...,x_n)$$
-where: for all $i$, $I_i\subseteq \mathbb{R}$ is a bounded (open or closed)
+where, for all $i$, $I_i\subseteq \mathbb{R}$ is a bounded (open or closed)
 interval; each bounded quantifier $\exists^{I_i}x_i.\phi$ denotes $\exists
-x_i.(x_i\in I_i\wedge \phi)$. $\psi(x_1,...,x_n)$ is a quantifier-free
+x_i.(x_i\in I_i\wedge \phi)$; $\psi(x_1,...,x_n)$ is a quantifier-free
 $\mathcal{L}_{\mathcal{F}}$-formula, i.e., a Boolean combination of atomic
 formulas $f(x_1,...,x_n)\circ 0$, where $f$ is a composition of
 functions in $\mathcal{F}$ and $\circ\in\{<,\leq, >, \geq, =, \neq \}$.
@@ -221,13 +219,13 @@ atomic formulas only involve equalities:
 \begin{proposition}[Standard Form]\label{pre1}
 Any bounded $\Sigma_1$-sentence $\varphi$ in $\mathcal{L}_{\mathcal{F}}$ is
 equivalent over $\mathbb{R}_{\mathcal{F}}$ to a sentence $\exists^{I_1}x_1\cdots
-\exists^{I_n}x_n(\bigwedge_{i=1}^m(\bigvee_{j=1}^{k_i}
-f_{ij}(\vec x)=0)).$
+\exists^{I_n}x_n.\bigwedge_{i=1}^m(\bigvee_{j=1}^{k_i}
+f_{ij}(\vec x)=0).$
 \end{proposition}
 We can now define the notion of ``$\delta$-perturbations'' on these
 formulas:
 \begin{definition}[$\delta$-Weakening and Perturbations]\label{weak-def}
-Let $\delta\in \mathbb{Q}^+\cup\{0\}$ be a constant and $\varphi$ be a
+Let $\delta\in \mathbb{Q}^+$ be a constant and $\varphi$ be a
 $\Sigma_1$-sentence in standard form:
 %\vspace{-.3cm}
 \[\varphi:= \exists^{\vec I}\vec x\;(\bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i}
@@ -291,8 +289,8 @@ solutions of real constraints using the ``branch-and-prune'' method, combining
 interval arithmetic and constraint propagation. The idea is to use interval
 extensions of functions to ``prune'' out sets of points that are not in the
 solution set and ``branch'' on intervals when
-such pruning can not be done, until a small enough box that may
-contain a solution is found, or report inconsistency otherwise.
+such pruning can not be done, recursively until a small enough box
+that may contain a solution is found or inconsistency is observed. 
 \subsubsection{Abstract ICP} Our task now is to formalize ICP algorithms
 so that we can extract symbolic proofs from its computation process. The
 branch-and-prune structure of ICP is very similar to DPLL-based SAT solving, so
@@ -308,14 +306,14 @@ as follows.
 Let $x_1,...,x_n$ be real variables. An {\em interval assignment sequence} over
 $\vec x$ is a sequence $(s_1,...,s_m)$, where
 $$s_i\in \{(x_i\in I_j): 1\leq i\leq n, I_j\in
-\mathbb{IR}_{\cup}\}\cup\{(x_i\in I_j)^d: 1\leq i\leq n, I_j\in
-\mathbb{IR}_{\cup}\}.
+\mathbb{IR}\}\cup\{(x_i\in I_j)^d: 1\leq i\leq n, I_j\in
+\mathbb{IR}\}.
 $$
 We write $(S_1, S_2)$ to denote the concatenation of two sequences $S_1$ and
 $S_2$. The parentheses can be omitted when appropriate.
 \end{definition}
 It will be clear later that when we write $(x\in I)^d$, it means an arbitrary
-choice on the value of $x$, which is consequently a backtrack point.
+choice on the value of $x$ (called a d-assignment), which is consequently a backtrack point.
 \begin{remark}
 ICP can maintain unions of intervals for variables. In principle this is not
 needed if we only consider the decision problem, which only searches for
@@ -356,7 +354,7 @@ is called a branching step.
 \paragraph{(Backtracking)} Let $I_i^1$ be a subset of $I_i$, such that $\forall
 \vec a\in \beta(S,x_i\in I_i^1, S')$, $c(\vec a)$ is false. Let $I_i^2$ be an
 interval such that $I\subseteq I_i^1\cup I_i^2$. If in addition, $S'$ does not
-contain any $d$-assignment (anything of the form $(x\in I)^d$), then we can make
+contain any $d$-assignment (of the form $(x\in I)^d$), then we can make
 a transition
 \begin{eqnarray*}
 S, (x_i\in I_i^1)^d, S'\parallel c \stackrel{bt}{\Longrightarrow}& S, (x_i\in
@@ -420,7 +418,7 @@ x\in [1.5, 1.6], x\in \emptyset\parallel c\\
 a)$
 is false)}\\
 &\stackrel{f}{\Longrightarrow}& \emptyset||c\ \mbox{ (since
-$\forall \vec a\in \empty\times [1, 2], c(\vec a)$ is false.)}
+$\forall \vec a\in \emptyset \times [1, 2], c(\vec a)$ is false.)}
 \end{eqnarray*}
 \end{example}
 
@@ -440,9 +438,10 @@ resolution proof. Also, it is important to note that the ICP algorithm solves
 {\em systems} of constraints, and it regards the conjunction $\bigwedge_{i=1}^m
 f_i(x_1,...,x_n)\sim 0$ as one constraint $c(x_1,...,x_n)$. Consequently, our
 task is now reduced to obtaining proofs for the validity of formulas of the form
-$\forall x_1 \cdots \forall x_n (x_1\in I_1\wedge \cdots \wedge x_n\in I_n
-\rightarrow c(\vec x))$, from the failure of an ICP
-search for a solution to its negation.
+$\forall x_1 \cdots \forall x_n.(x_1\in I_1\wedge \cdots \wedge x_n\in I_n
+)\rightarrow \neg c(\vec x)$, from the failure of ICP
+search for a solution to the original SMT formula $\exists \vec x. \vec x\in
+\vec I\wedge c(\vec x)$. 
 
 We will construct a simple first-order proof calculus, and show how to
 transform ICP runs into proofs in the system.
@@ -450,7 +449,7 @@ transform ICP runs into proofs in the system.
 Again, we consider formulas in a signature $\mathcal{L}_F = \langle <,
 \mathcal{F} \rangle$, where constants are considered as 0-ary functions in
 $\mathcal{F}$. When we write $x\in I$, where $I$ denotes an
-interval, it is regarded as an abbreviation for the evident
+interval, it is regarded as an abbreviation for their 
 equivalent $\mathcal{L}_\mathcal{F}$-formula. Note that this means that $I$ only
 uses $\mathcal{L}_{\mathcal{F}}$-terms as end-points. Also, as mentioned above,
 $c(\vec x)$ abbreviates a conjunction of atomic formulas. We also allow the use
@@ -509,17 +508,16 @@ these axioms, which we discuss in Section~\ref{validate}.
 We now describe the construction of proof trees from ICP runs, which will be
 represented as labeled binary trees. A labeled binary tree is defined as a
 tuple $T =
-\langle V, V_L,  \Sigma, \delta, \sigma\rangle$. Here, $V = \{v_0, ..., v_k\}$,
-$k\in \mathbb{N}$, is a finite set of nodes, where $v_0\in V$ always denotes the
+\langle V, V_L,  \Sigma, \delta, \sigma\rangle$. Here, $V = \{v_0, ..., v_k\}$, is a finite set of nodes, where $v_0\in V$ always denotes the
 root
 node. $\Sigma$ is a set of labels, which in our case is the set of
 $\mathcal{L}_\mathcal{F}$-formulas. $\delta:\subseteq V\times \{l,r\}
 \rightarrow V$ is a
 partial mapping from a node to its descendant nodes, where $\delta(v, l)$ and
 $\delta(v, r)$ denote the left and right descendant nodes, respectively.
-$\sigma: V\rightarrow \Sigma$ is a labeling function that maps each node
+$\sigma:\subseteq V\rightarrow \Sigma$ is a labeling function that maps each node
 $v\in V$ to a formula $\sigma(v) \in \Sigma$. In addition, the edges in the
-tree can be labeled as well, through a function $\tau: V\times V\times \Omega$
+tree can be labeled as well, through a function $\tau: V\times V\rightarrow \Omega$
 where $\Omega$ is a set of edge-labels.
 
 \subsubsection{Tree Generation} Let an ICP run be
@@ -527,7 +525,7 @@ $$S_0\parallel c\stackrel{t_1}{\Longrightarrow}\cdots
 \stackrel{t_m}{\Longrightarrow} S_m\parallel c,$$
 such that the ending transition $t_m$ is a failure step, i.e., $S_m=\emptyset$.
 We now define the procedure by defining the functions $\delta$ and
-$V_L$ through induction on $s_i$. Clearly the edges can be labeled with
+$V_L$ through induction on $s_i$. The edges can be labeled naturally with
 $\Omega$ = \{{$\vee$I}, $\forall$M, IA, CA\}.
 
 \paragraph{Case $i= 0$.} We label the root node $v_0$ by
@@ -546,8 +544,8 @@ SMT formula.
 \paragraph{Case $i = k+1$ ($1< k \leq m$). }
 Suppose $V_L^k$ and $\sigma$ have been defined for $s_1, ...,s_k$. Write
 $s_k = S_k
-\parallel c$ and $s_k = S_{k+1} \parallel c$. Now we split
-the cases on the type of the step $t$ from $s_i$ to $s_{i+1}$ as follows.
+\parallel c$ and $s_{k+1} = S_{k+1} \parallel c$. Now we split
+the cases on the type of the step $t$ from $s_k$ to $s_{k+1}$ as follows.
 Again, we use the convention that $\beta(S)_i = I_i$ denotes the current
 interval assignment on a variable $x_i$.
 \paragraph{(Pruning Case)} Suppose $s_k\Longrightarrow s_{k+1}$ is a
@@ -710,8 +708,8 @@ c}\mbox{FA}
 followed, the tree that we construct is $ T = \langle V, V_L^m, \delta, \sigma
 \rangle$. The axiom set is given by $$A = \{\sigma(v): v\in V_L^m\}.$$
 
-As an example, the transformation of the ICP run in Example~\ref{icp-example} is
-shown in the Appendix.
+As an example, the transformation of the ICP run in Example~\ref{icp-example}
+is in ~\cite{cade2013extended}.
 
 It is easy to see that $T$ is a valid proof tree in $\mathbb{D}_A$.
 \begin{proposition}\label{successful_tree}
@@ -792,17 +790,12 @@ solver for proof traces of the right amount of details. We call this the
  When we fail to prove an axiom through simple interval arithmetic, the proof
 checker generates new subproblems that are returned to the solver. At this
 stage, the axioms becomes the new theorems to be proved.
-This is an abstraction refinement procedure, by executing the loop, we obtain
-proof trees that contain more and more detailed steps, which may in the end be
-completely verified by the proof checker using reliable computations.
-
-There are two ways that the prover can generate the subproblems. One is to
-branch on a variable in the formula, so that the solver can solve the same
-problem on a smaller domain. The other option is to have the solver to run the
-same problem, but with a smaller $\delta$. Note that under the condition that
-the pruning operators in the solver is
-well-defined, both procedures never change the
-{\sf unsat} result. The branching may give
+This is an abstraction refinement procedure. By executing the loop, we obtain
+proof trees that contain more and more detailed steps. There are two ways that
+the prover can generate the subproblems, branching on a variable in the
+formula or using a smaller $\delta$. Note that under the condition that
+the pruning operators in the solver is well-defined, both procedures never
+change the {\sf unsat} result. The branching may give
 exponentially many new problems; while the $\delta$-change does not give new
 problems, but may exponentially slow down the solver in each round. In practice
 we observe that such a refinement loop is very useful, as we will show in the
@@ -811,45 +804,63 @@ experiments.
 \section{Case Study: Proving Lemmas for the Kepler Conjecture}\label{kepler}
 
 We build the proof-producing capacity into our open-source tool
-dReal\footnote{Link to the
-tool page and benchmarks is on our homepages,
+dReal\footnote{Links to the
+tool and benchmarks are on our homepages,
 \url{http://www.cs.cmu.edu/~sicung} and
 \url{http://www.cs.cmu.edu/~soonhok}}. All the experiments below are run on a
 machine of with a 32-core 2.3GHz AMD Opteron Processor and 94GB of RAM.
 \input{good_proofs.tex}
 \vspace{-.3cm}
 A main motivation for us to build
-the proof checker was in fact to contribute to the Flyspeck project, for the
+the proof checker is to contribute to the Flyspeck
+project~\cite{DBLP:conf/dagstuhl/Hales05}, for the
 fully formalized proof of the Kepler conjecture. As lemmas for the proof,
 hundreds of nonlinear real inequalities need to be verified. Although the
 formulas usually contain only around ten variables, they contain a huge number
 of nonlinear arithmetic operations and trigonometric functions, and are
-mathematically challenging. In the original proof, Hales implemented
+mathematically challenging. 
+The following is typical:
+\begin{align*}
+\forall \vec x&\in [2, 2.51]^6.\ \Big( -\frac{\pi-4\arctan\frac{\sqrt
+2}{5}}{12\sqrt2}\sqrt{\Delta(\vec x)}\\
+&+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq
+-\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}\Big)
+\end{align*}
+where $a_i(\vec x)$ are quadratic and $\Delta(\vec x)$ is the
+determinant of a nonlinear matrix.
+
+In the original proof, Hales implemented
 procedures that combine linear programming and interval arithmetic to
 establish all these formulas, but the algorithms are hard to be formally
 verified. In fact, the formal verification of these formulas is the last main
 piece of work needed to complete the full project. The state of the art is
-explained in a very recent thesis~\cite{keplerthesis}, reporting the proofs of about 10
-inequalities so far. 
+explained in a very recent thesis~\cite{keplerthesis}, reporting the proofs of
+about 10 inequalities so far, using formal Taylor
+series and interval arithmetic.
 
 Without any particular optimization on ICP, we have already observed promising
 results. Out of a total number of 505 nonlinear formulas in the Flyspeck project
-repository (translated from {\tt HOL} to {\tt smt2} format), we solved
+repository, we solved
 137 of them returning {\sf unsat} with a timeout of 30 minutes and
 $\delta=10^{-3}$. Out of these formulas, we applied the proof checking
-algorithm, and formally proved 55 of them directly, most of them only takes less
-than 1 minutes. The proof traces of these formulas can be very large, for
-instance over we proved one with 47k lines in the proof (1MB file). In
+algorithm, and formally proved 55 of them directly.The proof traces of these
+formulas can be very large; for
+instance, we proved one with 47k lines in the proof (1MB file). In
 Table~\ref{tbl:exp}, we list some of the representative benchmarks to show
-scalability. A full table for all the results is given on the tool page.
+scalability. A full table for all the results is on the tool page. It also
+contains results for other standard benchmarks, such as
+from~\cite{DBLP:conf/cade/JovanovicM12}.
 
 As the proof-generation capacity is for debugging SMT solvers, the proofs have
 also been valuable for us to observe bugs during the process. For instance, we
 have observed unstable behavior in the trigonometric function evaluation in {\sf
-realpaver} (the cosine function around $4\pi/3$). However, our proof checker only involves simple operations written in {\sf OCaml}, and performs the checking completely independent from the solver.
+realpaver} (the cosine function around $4\pi/3$). On the other hand, our proof
+checker only involves simple operations written in {\sf OCaml}, and performs the
+checking completely independently from the solver.
 Thus, for the {\sf unsat} answers with proofs, we are
-confident about the correctness of the answer, which does not involve
-possible bugs from {\sf realpaver}.
+confident about the correctness of the answer, which does not involve bugs from
+{\sf realpaver}. Ultimately, we aim for having a verified proof checker in
+systems such as HOL. 
 
 
 \section{Conclusion}
@@ -860,8 +871,7 @@ nonlinear lemmas in the Flyspeck project, and we have observed promising
 experimental results. We believe the approach can be combined with exiting
 symbolic methods. We regard our work as a first step in a promising approach towards the formal
 verification of the nonlinear lemmas in the Flyspeck project. Further work
-would involve proof abstractions, local heuristics, and a veritably correct
-implementation of our proof checker in HOL.
+would involve proof abstractions, local heuristics, and an implementation of our proof checker in HOL.
 
 
 
