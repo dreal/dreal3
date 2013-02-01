@@ -17,63 +17,65 @@
 using namespace std;
 
 
-void rp_interval_cout_local(rp_interval i, int digits, int mode)
+void rp_propagator::rp_interval_local(rp_interval i, int digits, int mode)
 {
   char tmp[255];
   rp_interval_print(tmp,i,digits,mode);
-  cout<< tmp;
+  _out<< tmp;
 }
 
-void rp_box_cout_local(rp_box b, int digits, int mode)
+void rp_propagator::rp_union_display(rp_union_interval u, int digits, int mode)
 {
-  if (rp_box_empty(b))
-  {
-    cout<<"empty";
-  }
-  else
-  {
-    int i;
-//    cout<<"The intervals are:"<<endl;
-    for (i=0; i<rp_box_size(b); ++i)
+    if( rp_union_card(u)==0 )
     {
-      cout <<"y"<< (i + 1) <<" is in: ";
-      rp_interval_cout_local(rp_box_elem(b,i),digits,mode);
-      if (i<(rp_box_size(b)-1))
-      {
-	cout<<";"<<endl;
-      }
+        //fprintf(out,"empty");
+        _out << "empty";
     }
-    cout<<endl;
-  }
+    else
+    {
+        int i;
+        //fprintf(out,"{");
+        _out << "{";
+        rp_interval_local(rp_union_elem(u,0),digits,mode);
+        for( i=1; i<rp_union_card(u); i++ )
+        {
+            //fprintf(out,",");
+            _out << ",";
+            rp_interval_local(rp_union_elem(u,i),digits,mode);
+        }
+        //fprintf(out,"}");
+        _out << "}";
+    }
 }
 
-void rp_pprint_var(FILE * out, rp_variable v)
+
+void rp_propagator::rp_pprint_var(rp_variable v)
 {
-  fprintf(out,"%s",rp_variable_name(v));
-  if (rp_variable_integer(v))
-  {
-    fprintf(out,":int");
-  }
-  else if (rp_variable_real(v))
-  {
-    fprintf(out,":real/%.4g",rp_variable_precision(v));
-  }
-  fprintf(out," ~ ");
-  rp_union_display_simple(rp_variable_domain(v));
-  fprintf(out,"\n");
+    _out << rp_variable_name(v);
+    if (rp_variable_integer(v))
+    {
+        _out << ":int";
+    }
+    else if (rp_variable_real(v))
+    {
+        _out << ":real/" << rp_variable_precision(v);
+    }
+    _out << " ~ ";
+    rp_union_display(rp_variable_domain(v),8,RP_INTERVAL_MODE_BOUND);
 
+    _out << endl;
 }
 
-void rp_pprint_vars(FILE* out, rp_problem p, rp_box b)
+void rp_propagator::rp_pprint_vars(rp_problem p, rp_box b)
 {
     for(int i = 0; i < rp_problem_nvar(p); i++)
     {
-        fprintf(out, "%s", rp_variable_name(rp_problem_var(p, i)));
-        fprintf(out, " is in: ");
-        rp_interval_cout_local(rp_box_elem(b,i), 6, RP_INTERVAL_MODE_BOUND);
+        _out << rp_variable_name(rp_problem_var(p, i));
+        _out << " is in: ";
+        rp_interval_local(rp_box_elem(b,i), 6, RP_INTERVAL_MODE_BOUND);
         if (i != rp_problem_nvar(p) - 1)
-            fprintf(out, ";");
-        fprintf(out, "\n");
+            _out << ";";
+        _out << endl;
     }
 }
 
@@ -339,9 +341,10 @@ rp_operator * rp_oqueue_list_pop (rp_oqueue_list q)
 }
 
 // Constructor
-rp_propagator::rp_propagator(rp_problem * p, double improve):
+rp_propagator::rp_propagator(rp_problem * p, double improve, ostream& o):
   rp_operator(0,0,0),
   _problem(p),
+  _out(o),
   _id(RP_OPERATOR_WORKING_INIT),
   _improve(improve),
   _priority(0)
@@ -476,9 +479,8 @@ int rp_propagator::apply_loop(rp_box b)
     if (this->check_precision(o,b))
     {
 //add
-	cout<<endl<<"[before pruning] "<<endl;
-//	rp_box_cout_local(b, 5, RP_INTERVAL_MODE_BOUND );
-        rp_pprint_vars(stdout, *_problem, b);
+	_out<<endl<<"[before pruning] "<<endl;
+        rp_pprint_vars(*_problem, b);
 //added
       if (o->apply(b))
       {
@@ -521,9 +523,8 @@ int rp_propagator::apply_loop(rp_box b)
 	// inserted in the queue if the box is modified since it belongs to
 	// the dependency of every modified variable
 //add
-	cout<<"[after pruning] "<<endl;
-//	rp_box_cout_local(b, 5, RP_INTERVAL_MODE_BOUND );
-        rp_pprint_vars(stdout, *_problem, b);
+	_out<<"[after pruning] "<<endl;
+        rp_pprint_vars(*_problem, b);
 //added
       }
       else
@@ -576,7 +577,9 @@ int rp_propagator::apply(rp_box b, int v)
 
 // Copy protection
 rp_propagator::rp_propagator(const rp_propagator& p):
-  rp_operator(p)
+    rp_operator(p),
+    _out(p._out)
+
 {
   // --> nothing to do
 }

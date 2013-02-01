@@ -18,6 +18,10 @@
 #include "rp_memory.h"
 #include "rp_container.h"
 #include "rp_operator.h"
+#include <ostream>
+#include <iostream>
+
+using namespace std;
 
 #ifdef __cplusplus
 extern "C" {
@@ -140,7 +144,7 @@ class rp_propagator : public rp_operator
 {
 public:
   // Constructor
-  rp_propagator(rp_problem * p, double improve = 10);
+  rp_propagator(rp_problem * p, double improve = 10, ostream& o = cout);
 
   // Destructor
   ~rp_propagator();
@@ -191,6 +195,12 @@ private:
   // Application of o only if the domain of some variable to be pruned
   // is not precise enough
   int check_precision(rp_operator * o, rp_box b);
+
+  void rp_interval_local(rp_interval i, int digits, int mode);
+  void rp_pprint_var(rp_variable v);
+  void rp_pprint_vars(rp_problem p, rp_box b);
+  void rp_union_display(rp_union_interval u, int digits, int mode);
+  ostream& _out;
 };
 
 #endif /* RP_PROPAGATOR */
