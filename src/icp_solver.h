@@ -44,7 +44,7 @@ public:
                                     map<Enode*, pair<double, double> > & env);
 
     rp_box        compute_next(); //computation of the next solution
-    rp_box        prop();         //only propagate
+    bool          prop();         //only propagate
 
     int           solution();     //number of solutions
     int           nboxes();       //number of boxes

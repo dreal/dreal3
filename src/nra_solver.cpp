@@ -261,23 +261,25 @@ bool NRASolver::check( bool complete )
         debug_print_env(env);
     }
 
+    env = env_stack.back();
+    icp_solver solver(config, stack, env, explanation, 10.0, precision);
+
     if(!complete) {
         // Incomplete Check
-        result = true;
+        result = solver.prop();
     } else {
         // Complete Check
-        explanation.clear();
-        env = env_stack.back();
-        icp_solver solver(config
-                          , stack, env, explanation, 10.0, precision);
         result = solver.solve();
-        if (!result) {
-            if (config.nra_verbose) {
-                cerr<<"#explanation provided: ";
-                debug_print_explanation(explanation);
-            }
+    }
+
+    // If the result is UNSAT, generate explanation
+    if (!result) {
+        if (config.nra_verbose) {
+            cerr<<"#explanation provided: ";
+            debug_print_explanation(explanation);
         }
     }
+
     return result;
 }
 

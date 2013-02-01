@@ -46,12 +46,8 @@ icp_solver::icp_solver(SMTConfig& c,
     rp_init_library();
     _problem = create_rp_problem(stack, env);
     _propag = new rp_propagator(_problem, 10.0, _proof_out);
-
     rp_new( _vselect, rp_selector_roundrobin, (_problem) );
-
     rp_new( _dsplit, rp_splitter_mixed, (_problem) );
-
-//    solver = new rp_bpsolver(_problem,improve,_vselect,_dsplit); //,prover);
 
     // Check once the satisfiability of all the constraints
     // Necessary for variable-free constraints
@@ -64,7 +60,6 @@ icp_solver::icp_solver(SMTConfig& c,
         }
         else ++i;
     }
-
 
     if (sat)
     {
@@ -293,6 +288,7 @@ bool icp_solver::solve()
         }
 
         /* TODO: what about explanation? */
+        _explanation.clear();
         copy(_stack.begin(),
              _stack.end(),
              back_inserter(_explanation));
@@ -317,10 +313,12 @@ bool icp_solver::solve()
         else {
             /* UNSAT */
             /* TODO: what about explanation? */
-            // _proof_out << "[conflict detected]" << endl;
+            _proof_out << "[conflict detected]" << endl;
             if(_verbose) {
                 cerr << "UNSAT!" << endl;
             }
+
+            _explanation.clear();
             copy(_stack.begin(),
                  _stack.end(),
                  back_inserter(_explanation));
@@ -538,4 +536,76 @@ void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b)
             out << ";";
         out << endl;
     }
+}
+
+// return true  if the box is non-empty after propagation
+//        false if the box is *empty* after propagation
+bool icp_solver::prop()
+{
+    bool result = false;
+
+    if(_proof) {
+        _proof_out << "Precision:" << _precision << endl;
+
+        // Print out all the Enode in stack
+        for(vector<Enode*>::const_iterator ite = _stack.begin();
+            ite != _stack.end();
+            ite++)
+        {
+            if((*ite)->getPolarity() == l_True)
+                _proof_out << *ite << endl;
+            else if ((*ite)->getPolarity() == l_False) {
+                if((*ite)->isEq()) {
+                    /* PRINT NOTHING */
+                } else {
+                    _proof_out << "(not " << *ite << ")" << endl;
+                }
+            }
+            else
+                assert(0);
+        }
+
+        // Print out the initial values
+        for(map<Enode*, pair<double, double> >::const_iterator ite = _env.begin();
+            ite != _env.end();
+            ite++)
+        {
+            Enode* key = (*ite).first;
+            double lb =  (*ite).second.first;
+            double ub =  (*ite).second.second;
+
+            _proof_out << key << " is in: ";
+            if(lb == -numeric_limits<double>::infinity())
+                _proof_out << "(-oo";
+            else
+                _proof_out << "[" << lb;
+            _proof_out << ", ";
+            if(ub == numeric_limits<double>::infinity())
+                _proof_out << "+oo)";
+            else
+                _proof_out << ub << "]";
+            _proof_out << ";" << endl;
+        }
+    }
+
+    if (_sol>0)
+    {
+        _boxes.remove();
+    }
+    if(!_boxes.empty())
+    {
+        bool result = _propag->apply(_boxes.get());
+    }
+
+    if(!result) {
+        /* Added for dReal2 */
+        _proof_out << "[conflict detected]" << endl;
+
+        // TODO: better explanation
+        _explanation.clear();
+        copy(_stack.begin(),
+             _stack.end(),
+             back_inserter(_explanation));
+    }
+    return result;
 }
