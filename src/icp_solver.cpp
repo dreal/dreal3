@@ -45,13 +45,11 @@ icp_solver::icp_solver(SMTConfig& c,
 {
     rp_init_library();
     _problem = create_rp_problem(stack, env);
+    _propag = new rp_propagator(_problem, 10.0, _proof_out);
 
-    rp_selector * _vselect;
     rp_new( _vselect, rp_selector_roundrobin, (_problem) );
-    rp_splitter * _dsplit;
-    rp_new( _dsplit, rp_splitter_mixed, (_problem) );
 
-    _propag = new rp_propagator(_problem);
+    rp_new( _dsplit, rp_splitter_mixed, (_problem) );
 
 //    solver = new rp_bpsolver(_problem,improve,_vselect,_dsplit); //,prover);
 
@@ -66,6 +64,7 @@ icp_solver::icp_solver(SMTConfig& c,
         }
         else ++i;
     }
+
 
     if (sat)
     {
@@ -196,11 +195,10 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
 
 icp_solver::~icp_solver()
 {
-    rp_problem_destroy(_problem);
     rp_delete(_vselect);
     rp_delete(_dsplit);
     rp_reset_library();
-//    delete solver;
+    rp_problem_destroy(_problem);
 }
 
 
