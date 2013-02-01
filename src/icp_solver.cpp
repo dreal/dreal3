@@ -50,7 +50,59 @@ icp_solver::icp_solver(SMTConfig& c,
     rp_new( _vselect, rp_selector_roundrobin, (_problem) );
     rp_splitter * _dsplit;
     rp_new( _dsplit, rp_splitter_mixed, (_problem) );
-    solver = new rp_bpsolver(_problem,improve,_vselect,_dsplit); //,prover);
+
+    _propag = new rp_propagator(_problem);
+
+//    solver = new rp_bpsolver(_problem,improve,_vselect,_dsplit); //,prover);
+
+    // Check once the satisfiability of all the constraints
+    // Necessary for variable-free constraints
+    int i = 0, sat = 1;
+    while ((i<rp_problem_nctr(*_problem)) && (sat))
+    {
+        if (rp_constraint_unfeasible(rp_problem_ctr(*_problem,i),rp_problem_box(*_problem)))
+        {
+            sat = 0;
+        }
+        else ++i;
+    }
+
+    if (sat)
+    {
+        // Insertion of the initial box in the search structure
+        _boxes.insert(rp_problem_box(*_problem));
+
+        // Management of improvement factor
+        if ((improve>=0.0) && (improve<=100.0))
+        {
+            _improve = 1.0-improve/100.0;
+        }
+        else
+        {
+            _improve = 0.875;  /* 12.5% */
+        }
+        _propag->set_improve(_improve);
+
+        // Creation of the operators and insertion in the propagator
+        rp_hybrid_factory hfact(_improve);
+        hfact.apply(_problem, *_propag);
+
+        rp_domain_factory dfact;
+        dfact.apply(_problem, *_propag);
+
+        rp_newton_factory nfact(_improve);
+        nfact.apply(_problem, *_propag);
+
+        //rp_3b_factory bfact(_improve);
+        //bfact.apply(p,_propag);
+
+        // Used for round-robin strategy: last variable split
+        rp_box_set_split(_boxes.get(),-1);//sean: why is the last variable -1? oh, must be length - this number
+    }
+    else
+    {
+        rp_box_set_empty(rp_problem_box(*_problem));
+    }
 }
 
 rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
@@ -145,19 +197,49 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
 icp_solver::~icp_solver()
 {
     rp_problem_destroy(_problem);
+    rp_delete(_vselect);
+    rp_delete(_dsplit);
     rp_reset_library();
-    delete solver;
+//    delete solver;
 }
 
-rp_box icp_solver::prop()
-{
-    if(_verbose) {
-        cerr << "icp_solver::prop" << endl;
-    }
-    assert(_boxes.size() == 1);
 
-    _propag->apply(_boxes.get());
-    return( _boxes.get() );
+rp_box icp_solver::compute_next()
+{
+    if (_sol>0)
+    {
+        _boxes.remove();
+    }
+    while (!_boxes.empty())
+    {
+        if (_propag->apply(_boxes.get()))//sean: here it is! propagation before split!!!
+        {
+            int i;
+            if ((i=_vselect->apply(_boxes.get()))>=0)
+            {
+                ++_nsplit;
+                _dsplit->apply(_boxes,i);
+
+                _proof_out << endl
+                           << "[branched on x" << i << "]"
+                           << endl;
+                pprint_vars(_proof_out, *_problem, _boxes.get());
+            }
+            else
+            {
+                ++_sol;
+                if (_ep) _ep->prove(_boxes.get());
+                return( _boxes.get() );
+            }
+        }
+        else
+        {
+            /* Added for dReal2 */
+            _proof_out << "[conflict detected]" << endl;
+            _boxes.remove();
+        }
+    }
+    return( NULL );
 }
 
 bool icp_solver::solve()
@@ -215,14 +297,14 @@ bool icp_solver::solve()
         /* TODO: what about explanation? */
         copy(_stack.begin(),
              _stack.end(),
-             std::back_inserter(_explanation));
+             back_inserter(_explanation));
 
         return false;
     }
     else
     {
         rp_box b;
-        if ((b=solver->compute_next())!=NULL)
+        if ((b=compute_next())!=NULL)
         {
             /* SAT */
             if(_verbose) {
@@ -243,70 +325,10 @@ bool icp_solver::solve()
             }
             copy(_stack.begin(),
                  _stack.end(),
-                 std::back_inserter(_explanation));
+                 back_inserter(_explanation));
             return false;
         }
     }
-}
-
-rp_box icp_solver::compute_next(bool hasDiff)
-{
-    if(_proof) {
-        _proof_out<<"------------------"<<endl;
-        _proof_out<<"The interval pruning and branching trace is:";
-    }
-
-    if (_sol>0) //if you already have a solution, discard this obtained solution box and backtrack
-    {
-        _boxes.remove();
-    }
-    while (!_boxes.empty()) //if there's no more box on the stack, you are done with compute_next
-    {
-        if (_propag->apply(_boxes.get()))
-        {
-            int i;
-            if ((i=_vselect->apply(_boxes.get()))>=0)
-            {
-                ++_nsplit;
-                _dsplit->apply(_boxes,i);
-                //monitoring
-                if(_proof) {
-                    _proof_out << endl
-                               << "[branched on x" << i << "]"
-                               <<endl;
-                }
-            }
-            else
-            {
-                ++_sol;
-                if (_ep) _ep->prove(_boxes.get());
-                return( _boxes.get() );
-            }
-        }
-        else
-        {
-            if(_proof) {
-                _proof_out<<"[conflict detected]"<<endl;
-            }
-            _boxes.remove();
-        }
-    }
-    return( NULL );
-}
-
-int icp_solver::solution()
-{
-    return _sol;
-}
-
-int icp_solver::nboxes()
-{
-    return( _boxes.length() );
-}
-
-int icp_solver::nsplit()
-{
-    return( _nsplit );
 }
 
 icp_solver& icp_solver::operator=(const icp_solver& s)
@@ -504,5 +526,18 @@ void icp_solver::display_interval(ostream & out, rp_interval i, int digits, int 
                 out << maxerror << "]";
             }
         }
+    }
+}
+
+void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b)
+{
+    for(int i = 0; i < rp_problem_nvar(p); i++)
+    {
+        out << rp_variable_name(rp_problem_var(p, i));
+        out << " is in: ";
+        display_interval(_proof_out, rp_box_elem(b,i), 6, RP_INTERVAL_MODE_BOUND);
+        if (i != rp_problem_nvar(p) - 1)
+            out << ";";
+        out << endl;
     }
 }

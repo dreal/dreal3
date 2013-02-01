@@ -43,7 +43,7 @@ public:
     rp_problem*   create_rp_problem(const vector<Enode*> & stack,
                                     map<Enode*, pair<double, double> > & env);
 
-    rp_box        compute_next(bool hasDiff); //computation of the next solution
+    rp_box        compute_next(); //computation of the next solution
     rp_box        prop();         //only propagate
 
     int           solution();     //number of solutions
@@ -54,6 +54,7 @@ public:
 
     void display_box(ostream& out, rp_box b, int digits, int mode);
     void display_interval(ostream & out, rp_interval i, int digits, int mode);
+    void pprint_vars(ostream & out, rp_problem p, rp_box b);
 
     /* void          prune                   ( rp_box *, literal * ); */
     /* void          prune                   ( rp_box *, rp_problem * ); */
@@ -84,6 +85,8 @@ private:
     ofstream& _proof_out;
 
     icp_solver& operator=(const icp_solver& s);
+    icp_solver(const icp_solver& s);
+
 };
 
 #endif
