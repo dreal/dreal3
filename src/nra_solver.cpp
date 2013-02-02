@@ -268,11 +268,6 @@ bool NRASolver::check( bool complete )
     icp_solver solver(config, stack, env, explanation, 10.0, precision);
 
     if(!complete) {
-        cerr << "========== Incomplete Check, before Update Env" << endl;
-        debug_print_env(env);
-    }
-
-    if(!complete) {
         // Incomplete Check
 //        result = solver.prop();
         result = true;
@@ -287,11 +282,6 @@ bool NRASolver::check( bool complete )
             cerr<<"#explanation provided: ";
             debug_print_explanation(explanation);
         }
-    }
-
-    if(!complete) {
-        cerr << "========== Incomplete Check, after Update Env" << endl;
-        debug_print_env(env);
     }
 
     return result;
