@@ -599,7 +599,8 @@ bool icp_solver::prop()
     }
 
     if(!result) {
-        /* Added for dReal2 */
+        // UNSAT
+        // Added for dReal2
         _proof_out << "[conflict detected]" << endl;
 
         // TODO: better explanation
@@ -607,6 +608,24 @@ bool icp_solver::prop()
         copy(_stack.begin(),
              _stack.end(),
              back_inserter(_explanation));
+    } else {
+
+        // SAT
+        // Update Env
+        // ======================================
+        // Create rp_variable for each var in env
+        // ======================================
+        for(map<Enode*, pair<double, double> >::const_iterator ite = _env.begin();
+            ite != _env.end();
+            ite++)
+        {
+            Enode* key = (*ite).first;
+            //double lb =  (*ite).second.first;
+            //double ub =  (*ite).second.second;
+            int rp_id = enode_to_rp_id[key];
+            _env[key] = make_pair(rp_binf(rp_box_elem(rp_problem_box(*_problem), rp_id)),
+                                  rp_bsup(rp_box_elem(rp_problem_box(*_problem), rp_id)));
+        }
     }
     return result;
 }
