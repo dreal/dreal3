@@ -304,8 +304,11 @@ bool icp_solver::solve()
             /* SAT */
             if(_verbose) {
                 cerr << "SAT with the following box:" << endl;
+                display_box(cerr, b, 8, RP_INTERVAL_MODE_BOUND);
+                cerr << endl;
             }
             if(_proof) {
+                _proof_out << "SAT with the following box:" << endl;
                 display_box(_proof_out, b, 8, RP_INTERVAL_MODE_BOUND);
                 _proof_out << endl;
             }
