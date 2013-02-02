@@ -36,6 +36,10 @@ NRASolver::NRASolver( const int           i
 {
 //initialize icp solver first
     precision = e.getPrecision();
+    if(precision == 0.0) {
+        precision = 0.001;
+    }
+    cout << "NRASolver::Precision: " << precision << endl;
 }
 
 NRASolver::~NRASolver( )
