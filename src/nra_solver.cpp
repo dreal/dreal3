@@ -274,8 +274,8 @@ bool NRASolver::check( bool complete )
 
     if(!complete) {
         // Incomplete Check
-        result = solver.prop();
-//        result = true;
+//        result = solver.prop();
+        result = true;
     } else {
         // Complete Check
         result = solver.solve();
