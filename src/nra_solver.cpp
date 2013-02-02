@@ -39,7 +39,6 @@ NRASolver::NRASolver( const int           i
     if(precision == 0.0) {
         precision = 0.001;
     }
-    cout << "NRASolver::Precision: " << precision << endl;
 }
 
 NRASolver::~NRASolver( )
@@ -269,8 +268,14 @@ bool NRASolver::check( bool complete )
     icp_solver solver(config, stack, env, explanation, 10.0, precision);
 
     if(!complete) {
+        cerr << "========== Incomplete Check, before Update Env" << endl;
+        debug_print_env(env);
+    }
+
+    if(!complete) {
         // Incomplete Check
         result = solver.prop();
+//        result = true;
     } else {
         // Complete Check
         result = solver.solve();
@@ -282,6 +287,11 @@ bool NRASolver::check( bool complete )
             cerr<<"#explanation provided: ";
             debug_print_explanation(explanation);
         }
+    }
+
+    if(!complete) {
+        cerr << "========== Incomplete Check, after Update Env" << endl;
+        debug_print_env(env);
     }
 
     return result;
