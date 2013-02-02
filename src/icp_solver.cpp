@@ -136,6 +136,7 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
         rp_union_copy(rp_variable_domain(*_v),u);
         rp_union_destroy(&u);
 
+        rp_variable_set_real(*_v);
         rp_variable_precision(*_v) = _precision;
 
         enode_to_rp_id[key] = rp_id;
