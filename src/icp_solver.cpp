@@ -317,7 +317,7 @@ bool icp_solver::solve()
         else {
             /* UNSAT */
             /* TODO: what about explanation? */
-            _proof_out << "[conflict detected]" << endl;
+            // _proof_out << "[conflict detected]" << endl;
             if(_verbose) {
                 cerr << "UNSAT!" << endl;
             }
