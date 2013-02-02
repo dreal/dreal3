@@ -315,7 +315,7 @@ SMTConfig::parseCMDLine( int argc
       parseConfig( config_name );
       break;
     }
-    if ( sscanf( buf, "--precision=%f", &nra_precision ) == 1)
+    if ( sscanf( buf, "--precision=%lf", &nra_precision ) == 1)
     {
         if(nra_precision <= 0.0)
         {
