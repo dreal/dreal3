@@ -19,6 +19,8 @@ def print_header():
         print "<th>Filename</th>"
         print "<th>Formula ID</th>"
         print "<th>Result</th>"
+        print "<th>Complexity1</th>"
+        print "<th>Complexity2</th>"
         print "<th>Elapsed Time</th>"
         print "<th>DateTime</th>"
         print "</tr>"

@@ -1,8 +1,9 @@
 #!/bin/bash
 UNSAT_DIR=result/unsat
 TOUT=~/work/dreal2/tools/kepler/script/timeout3
+LIST=$1
 
-for SMT in `cat unsat_list.txt`
+for SMT in `cat $LIST`
 do
 	BASE=${SMT//.smt2/}
 
