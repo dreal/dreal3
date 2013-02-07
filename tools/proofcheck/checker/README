@@ -1,0 +1,15 @@
+Install Ocamlbrew
+=================
+ * Webpage: https://github.com/hcarty/ocamlbrew
+    $ sudo apt-get install curl m4 libev-dev
+    $ curl -kL https://raw.github.com/hcarty/ocamlbrew/master/ocamlbrew-install | bash
+    $ echo "source ~/ocamlbrew/ocaml-4.00.1/etc/ocamlbrew.bashrc" >> ~/.bashrc
+
+Compile
+=======
+    $ make
+
+Usage
+=====
+    $ ./main.native <trace>
+
