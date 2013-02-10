@@ -27,26 +27,32 @@ TIMEFILE=$BASE.time
 RESULTFILE=$BASE.result
 TIMEOUT_TIME=$4
 
+function log_msg {
+	echo -n "`date`: "
+	printf "[%-30s]: " `basename $1`
+	echo $2
+}
+
 # Copy SMT to the Result DIR
 if [ ! -f $SMT ]
 then
 	cp $SMT_PATHNAME $SMT
 fi
 
-echo -n "Run dReal: $SMT - "
-$TIMEUTIL -f "%E" -o $TIMEFILE $TIMEOUT3 -t $TIMEOUT_TIME $DREAL --verbose --proof $SMT 2> $OUTFILE
+log_msg $SMT "dReal started"
+$TIMEUTIL -f "%E" -o $TIMEFILE $TIMEOUT3 -t $TIMEOUT_TIME $DREAL --verbose --proof $SMT 2> $OUTFILE 1> $RESULTFILE
 EXITCODE=$?
 if [ $EXITCODE -eq 137 ]
 then
-	echo "Timeout" | tee $RESULTFILE
+	log_msg $SMT "dReal Timeout ($TIMEOUT_TIME sec)"
+	echo "Timeout" > $RESULTFILE
 else
 	if [ $EXITCODE -eq 0 ]
 	then
                 mv $SMT.proof $TRACEFILE
-		echo -n "`cat $TIMEFILE` - "
-		RESULT=`tail -n 1 $TRACEFILE`
-		echo "$RESULT" | tee $RESULTFILE
+		log_msg $SMT "dReal finished - `cat $TIMEFILE`"
 	else
-		echo "Fail" | tee $RESULTFILE
+		log_msg $SMT "dReal failed"
+		echo "Fail" > $RESULTFILE
 	fi
 fi

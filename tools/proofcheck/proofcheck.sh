@@ -2,7 +2,7 @@
 
 #################################################################
 # PLEASE EDIT THE FOLLOWING LINE
-DREAL=~/tmp/dreal2/dReal  #Absolute path of dReal binary
+DREAL=~/work/dreal2/dReal  #Absolute path of dReal binary
 TIMEOUT3=`dirname $0`/timeout3
 MAX=1  #Number of CPUS to use
 #################################################################
@@ -69,6 +69,12 @@ LOOP=`dirname $0`/loop.sh
 TRACE=${BASENAME}.trace
 RESULTDIR=${PROOF}.extra
 
+function log_msg {
+	echo -n "`date`: "
+	printf "[%-30s]: " `basename $1`
+	echo $2
+}
+
 #################################################################
 # Check the proof file
 #################################################################
@@ -100,9 +106,9 @@ ${TIMEOUT3} -t $TIMEOUT $LOOP $TIMEOUT $DREAL $MAX $RESULTDIR
 
 if [[ -f $RESULTDIR/PROVED ]]
 then
-	echo "proof verified"
+	log_msg $1 "proof verified"
 else
-	echo "timeout"
+	log_msg $1 "timeout"
 fi
 
 

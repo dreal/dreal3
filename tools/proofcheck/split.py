@@ -20,14 +20,14 @@ def get_newname():
 # Create a init out
 output = sys.stdout
 
-print "Split " + trace_name,
+#print "Split " + trace_name,
 
 for line in input:
     if line.startswith("Precision:"):
         output = open(get_newname(), "w")
     output.write(line)
 
-print " into " + str(counter) + " traces."
+#print " into " + str(counter) + " traces."
 
 if counter == 1:
     touch(trace_name)

@@ -18,6 +18,12 @@ RUN_DREAL=${PROOFCHECK_PATH}/run_dreal.sh
 PCHECKER=${PROOFCHECK_PATH}/checker/main.native
 SPLIT=${PROOFCHECK_PATH}/split.py
 
+function log_msg {
+	echo -n "`date`: "
+	printf "[%-30s]: " `basename $1`
+	echo $2
+}
+
 touch $NOT_PROVED_YET
 touch $TODO
 
@@ -40,21 +46,21 @@ do
         if [ ! -f $BASE.result ]
         then
             echo $BASE >> $SMT_QUEUE
-            echo `date`: "Adding ${BASE}.smt2 to the SMT Queue"
+            log_msg ${BASE}.smt2 "ProofChecking: Adding to the SMT Queue"
         fi
     done
 
     # RUN in Parallel: dReal2 to generate results (.result, .time, .trace)
     if [ -s $SMT_QUEUE ]
     then
-        echo `date`: "RUN DREAL2:"
+	log_msg $SMT_QUEUE "ProofChecking: Run dReal"
         cat $SMT_QUEUE | parallel --max-procs=$MAX "$RUN_DREAL {}.smt2 $RESULTDIR $DREAL $TIMEOUT"
     fi
 
     # RUN: split.py
     if [ -s $SMT_QUEUE ]
     then
-	echo `date`: "RUN SPLIT:"
+	log_msg $SMT_QUEUE "ProofChecking: Split Traces"
         cat $SMT_QUEUE | parallel --max-procs=$MAX "$SPLIT {}.trace"
     fi
 
@@ -65,7 +71,7 @@ do
         if [ ! -f $BASE.checked ]
         then
 	    echo $BASE >> $CHECK_QUEUE
-	    echo "Adding ${BASE}.trace to the CHECK Queue"
+            log_msg ${BASE}.trace "ProofChecking: Adding to the Check Queue"
 	fi
     done
 
@@ -73,7 +79,7 @@ do
 
     if [ -s $CHECK_QUEUE ]
     then
-        echo `date`: "RUN Check"
+	log_msg $CHECK_QUEUE "ProofChecking: Check traces in the queue."
         cat $CHECK_QUEUE | parallel --max-procs=$MAX "$PCHECKER {}.trace > {}.check_stat"
 
         for ID in `cat $CHECK_QUEUE`
