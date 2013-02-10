@@ -3,8 +3,8 @@
 SMTDIR=$1
 RESULTDIR=$2
 DREAL=~/work/dreal2/dReal
-RUN_DREAL=../proofcheck/run_dreal.sh
-PROOFCHECK=../proofcheck/proofcheck.sh
+RUN_DREAL=`dirname $0`/../proofcheck/run_dreal.sh
+PROOFCHECK=`dirname $0`/../proofcheck/proofcheck.sh
 TIMEOUT=1800
 
 function log_msg {
