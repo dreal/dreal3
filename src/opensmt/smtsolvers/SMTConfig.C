@@ -356,7 +356,7 @@ SMTConfig::parseCMDLine( int argc
 void SMTConfig::printHelp( )
 {
   const char help_string[]
-    = "Usage: ./opensmt [OPTION] filename\n"
+    = "Usage: ./dReal [OPTION] filename\n"
       "where OPTION can be\n"
       "  --help [-h]              print this help\n"
       "  --config=<filename>      use configuration file <filename>\n"
