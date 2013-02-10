@@ -1,4 +1,18 @@
 #!/bin/bash
+
+# INPUT
+# $1 = .smt pathname
+# $2 = RESULTDIR
+# $3 = DREAL pathname
+# $4 = TIMEOUT
+
+# OUTPUT
+# RESULTDIR/nnn.smt2
+# RESULTDIR/nnn.out    (dReal output)
+# RESULTDIR/nnn.trace  (proof trace)
+# RESULTDIR/nnn.time   (time)
+# RESULTDIR/nnn.result (Timeout/unsat/sat/Fail)
+
 TIMEOUT3=`dirname $0`/timeout3
 TIMEUTIL="env time"
 SMT_PATHNAME=$1
