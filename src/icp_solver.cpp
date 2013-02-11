@@ -612,7 +612,6 @@ bool icp_solver::prop()
              _stack.end(),
              back_inserter(_explanation));
     } else {
-
         // SAT
         // Update Env
         // ======================================
@@ -629,6 +628,7 @@ bool icp_solver::prop()
             _env[key] = make_pair(rp_binf(rp_box_elem(rp_problem_box(*_problem), rp_id)),
                                   rp_bsup(rp_box_elem(rp_problem_box(*_problem), rp_id)));
         }
+        cerr << "Incomplete Check: SAT" << endl;
     }
     return result;
 }
