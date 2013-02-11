@@ -97,7 +97,10 @@ fi
 #################################################################
 # Copy trace into the result dir
 #################################################################
-cp $PROOF $RESULTDIR/$TRACE
+if [[ ! -f $RESULTDIR/$TRACE ]]
+then
+	cp $PROOF $RESULTDIR/$TRACE
+fi
 
 #################################################################
 # Start Loop

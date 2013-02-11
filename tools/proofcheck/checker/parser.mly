@@ -35,6 +35,7 @@ main: precision con_list init_list ptree UNSAT EOF { ($1, $2, $4) }
  | precision con_list init_list ptree EOF { ($1, $2, $4) }
  | precision con_list init_list UNSAT EOF { ($1, $2, Ptree.Axiom (Env.make $3)) }
  | precision con_list init_list EOF { ($1, $2, Ptree.Axiom (Env.make $3)) }
+ | precision con_list init_list conflict_detected EOF { ($1, $2, Ptree.Axiom (Env.make $3)) }
 
 precision: /* nothing */ { 0.001 } /* default value */
  | PRECISION COLON FNUM  { $3 }
@@ -84,6 +85,8 @@ ptree: before_pruning entry_list conflict_detected
 
      | before_pruning entry_list a_ptree
        { Ptree.Prune (Env.make $2, $3) }
+     | before_pruning entry_list after_pruning entry_list conflict_detected
+       { Ptree.Prune (Env.make $2, Ptree.Axiom (Env.make $4)) }
 ;
 
 a_ptree: after_pruning entry_list bptree ptree

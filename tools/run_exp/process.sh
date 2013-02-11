@@ -19,6 +19,7 @@ do
 	RESULT=$RESULTDIR/${BASE}.result
 	TRACE=$RESULTDIR/${BASE}.trace
 	PROOF=$RESULTDIR/${BASE}.smt2.proof
+	CHECKED=$RESULTDIR/${BASE}.smt2.proof.extra/${BASE}.checked
 	# Run dReal (if necessary)
 	if [[ ! -f $RESULT ]]
 	then
@@ -28,7 +29,7 @@ do
 	# Run Proof Check
 	# if the result is unsat
 	# if SMT doesn't contain ITE
-	if [[ "`cat $RESULT`" == "unsat" ]]
+	if [[ "`cat $RESULT`" == "unsat" && ! -f $CHECKED ]]
 	then
 		if grep -q "ite" "$SMT"
 		then

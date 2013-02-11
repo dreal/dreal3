@@ -604,7 +604,7 @@ bool icp_solver::prop()
     if(!result) {
         // UNSAT
         // Added for dReal2
-        //_proof_out << "[conflict detected]" << endl;
+        _proof_out << "[conflict detected]" << endl;
 
         // TODO: better explanation
         _explanation.clear();
