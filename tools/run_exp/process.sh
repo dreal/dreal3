@@ -19,24 +19,31 @@ do
 	RESULT=$RESULTDIR/${BASE}.result
 	TRACE=$RESULTDIR/${BASE}.trace
 	PROOF=$RESULTDIR/${BASE}.smt2.proof
+	PROOFDIR=$RESULTDIR/${BASE}.smt2.proof.extra
 	CHECKED=$RESULTDIR/${BASE}.smt2.proof.extra/${BASE}.checked
 	# Run dReal (if necessary)
 	if [[ ! -f $RESULT ]]
 	then
 		$RUN_DREAL $SMT $RESULTDIR $DREAL $TIMEOUT
 	fi
+done
 
+for SMT in `find $SMTDIR -name "*.smt2"`
+do
 	# Run Proof Check
 	# if the result is unsat
 	# if SMT doesn't contain ITE
-	if [[ "`cat $RESULT`" == "unsat" && ! -f $CHECKED ]]
+	if [[ "`cat $RESULT`" == "unsat" ]]
 	then
 		if grep -q "ite" "$SMT"
 		then
 			log_msg $SMT "unsat but it containts ITE and we do not check its proof."
 		else
 			log_msg $SMT "unsat and we check its proof."
-			mv $TRACE $PROOF
+			if [[ ! -f $PROOF ]] 
+			then
+				mv $TRACE $PROOF
+			fi
 			$PROOFCHECK -t $TIMEOUT $PROOF
 		fi
 	else
