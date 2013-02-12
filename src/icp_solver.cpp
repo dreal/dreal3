@@ -598,7 +598,7 @@ bool icp_solver::prop()
     }
     if(!_boxes.empty())
     {
-        bool result = _propag->apply(_boxes.get());
+        result = _propag->apply(_boxes.get());
     }
 
     if(!result) {
