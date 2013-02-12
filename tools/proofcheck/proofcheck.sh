@@ -4,7 +4,7 @@
 # PLEASE EDIT THE FOLLOWING LINE
 DREAL=~/work/dreal2/dReal  #Absolute path of dReal binary
 TIMEOUT3=`dirname $0`/timeout3
-MAX=1  #Number of CPUS to use
+MAX=30  #Number of CPUS to use
 #################################################################
 
 if [[ ! -f $DREAL ]]
@@ -113,5 +113,3 @@ then
 else
 	log_msg $1 "timeout"
 fi
-
-

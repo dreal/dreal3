@@ -5,6 +5,7 @@ RESULTDIR=$2
 DREAL=~/work/dreal2/dReal
 RUN_DREAL=`dirname $0`/../proofcheck/run_dreal.sh
 PROOFCHECK=`dirname $0`/../proofcheck/proofcheck.sh
+TIMEOUT3=`dirname $0`/../proofcheck/timeout3
 TIMEOUT=1800
 
 function log_msg {
@@ -30,6 +31,12 @@ done
 
 for SMT in `find $SMTDIR -name "*.smt2"`
 do
+	BASE=`basename ${SMT/%.smt2}`
+	RESULT=$RESULTDIR/${BASE}.result
+	TRACE=$RESULTDIR/${BASE}.trace
+	PROOF=$RESULTDIR/${BASE}.smt2.proof
+	PROOFDIR=$RESULTDIR/${BASE}.smt2.proof.extra
+	CHECKED=$RESULTDIR/${BASE}.smt2.proof.extra/${BASE}.checked
 	# Run Proof Check
 	# if the result is unsat
 	# if SMT doesn't contain ITE

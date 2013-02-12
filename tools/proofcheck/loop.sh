@@ -3,6 +3,7 @@ TIMEOUT=$1
 DREAL=$2
 MAX=$3
 RESULTDIR=$4
+MAX_QUEUE=1024
 
 TODO=${RESULTDIR}/TODO
 SMT_QUEUE=${RESULTDIR}/SMT_QUEUE
@@ -28,9 +29,20 @@ touch $NOT_PROVED_YET
 touch $TODO
 
 date +%s%N | cut -b1-13 > $START_TIME
+DEADLINE="`cat $START_TIME` + ( $TIMEOUT * 1000 )"
+DEADLINE=`echo "$DEADLINE" | bc`
 
 while [ -f $TODO ]
 do
+    # CHECK THE TIME, TERMINATE IF TIMEOUT
+    CURTIME=`date +%s%N | cut -b1-13`
+    if [ "$CURTIME" -gt "$DEADLINE" ]
+    then
+            log_msg ${BASE}.smt2 "ProofChecking: Timeout"
+            touch ${RESULTDIR}/TIMEOUT
+            exit 1
+    fi
+
     # INITIALIZE QUEUES
     rm -rf $SMT_QUEUE $CHECK_QUEUE
     touch $SMT_QUEUE $CHECK_QUEUE
@@ -49,6 +61,14 @@ do
             log_msg ${BASE}.smt2 "ProofChecking: Adding to the SMT Queue"
         fi
     done
+
+    if [ "`wc $SMT_QUEUE -l | cut -d ' ' -f 1`" -gt $MAX_QUEUE ]
+    then
+            log_msg ${BASE}.smt2 "ProofChecking: Too many files"
+            touch ${RESULTDIR}/TOOMANY
+            exit 2
+    fi
+    
 
     # RUN in Parallel: dReal2 to generate results (.result, .time, .trace)
     if [ -s $SMT_QUEUE ]
