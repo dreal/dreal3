@@ -44,14 +44,19 @@ do
 	then
 		if grep -q "ite" "$SMT"
 		then
-			log_msg $SMT "unsat but it containts ITE and we do not check its proof."
+			log_msg $SMT "unsat with ITE"
+			mkdir $PROOFDIR
+			touch $PROOFDIR/CONTAIN_ITE
 		else
-			log_msg $SMT "unsat and we check its proof."
+			log_msg $SMT "unsat"
 			if [[ ! -f $PROOF ]] 
 			then
 				mv $TRACE $PROOF
 			fi
-			$PROOFCHECK -t $TIMEOUT $PROOF
+			if [[ ! -f $PROOFDIR/START_TIME ]]
+			then
+				$PROOFCHECK -t $TIMEOUT $PROOF
+			fi
 		fi
 	else
 		log_msg $SMT "`cat $RESULT`."
