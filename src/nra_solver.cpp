@@ -31,11 +31,13 @@ NRASolver::NRASolver( const int           i
                       , vector< Enode * > & x
                       , vector< Enode * > & d
                       , vector< Enode * > & s
+                      , bool ode
     )
     : OrdinaryTSolver ( i, n, c, e, t, x, d, s )
 {
 //initialize icp solver first
     precision = e.getPrecision();
+    contain_ode = ode;
     if(precision == 0.0) {
         precision = 0.001;
     }
@@ -137,6 +139,7 @@ lbool NRASolver::inform( Enode * e )
     assert( e -> isAtom() );
 
     set<Enode*> variables_in_e = get_variables(e);
+    set<Enode*> ode_variables_in_e;
 
     for(set<Enode*>::iterator ite = variables_in_e.begin();
         ite != variables_in_e.end();
@@ -148,7 +151,17 @@ lbool NRASolver::inform( Enode * e )
         double lb = (*ite)->getLowerBound();
         double ub = (*ite)->getUpperBound();
         env[*ite] = make_pair (lb, ub);
+
+        // Collect ODE Vars in e
+        if(contain_ode && (*ite)->getODEtimevar() != NULL) {
+            ode_variables_in_e.insert(*ite);
+        }
     }
+
+    if (contain_ode) {
+        _enode_to_vars.insert( std::pair<Enode*, set<Enode*> >(e, ode_variables_in_e));
+    }
+
     return l_Undef;
 }
 
@@ -265,7 +278,7 @@ bool NRASolver::check( bool complete )
     }
 
     env = env_stack.back();
-    icp_solver solver(config, stack, env, explanation, 10.0, precision);
+    icp_solver solver(config, stack, env, explanation, 10.0, precision, contain_ode, _enode_to_vars);
 
     if(!complete) {
         // Incomplete Check

@@ -27,7 +27,9 @@ icp_solver::icp_solver(SMTConfig& c,
                        map<Enode*, pair<double, double> > & env,
                        vector<Enode*> & exp,
                        double improve,
-                       double p
+                       double p,
+                       bool ode,
+                       map < Enode*, set < Enode* > > & enode_to_vars
     )
     :
     _proof_out(c.proof_out),
@@ -41,7 +43,9 @@ icp_solver::icp_solver(SMTConfig& c,
     _sol(0),
     _nsplit(0),
     _explanation(exp),
-    _precision(p)
+    _precision(p),
+    _contain_ode(ode),
+    _enode_to_vars(enode_to_vars)
 {
     rp_init_library();
     _problem = create_rp_problem(stack, env);
@@ -198,6 +202,127 @@ icp_solver::~icp_solver()
 }
 
 
+// bool icp_solver::propagation_with_ode (rp_box b, bool hasDiff)
+// {
+//     if(_propag.apply(b))
+//     {
+//         if (hasDiff)
+//         {
+//             rp_box current_box = _boxes.get();
+
+//             // Partition _ode_vars into subsets by their diff_group
+//             int max = 1;
+//             vector< set< variable* > > diff_vec(max);
+//             for(set<variable*>::iterator ite = _ode_vars.begin();
+//                 ite != _ode_vars.end();
+//                 ite++)
+//             {
+//                 int diff_group = (*ite)->get_enode()->getODEgroup();
+//                 cerr << "diff_group: " << diff_group << ", max: " << max << endl;
+//                 if(diff_group >= max) {
+//                     cerr << "diff_group: " << diff_group << " we do resize" << endl;
+//                     diff_vec.resize(diff_group + 1);
+//                     max = diff_group;
+//                     cerr << "max: " << max << endl;
+//                 }
+//                 if(diff_vec[diff_group].empty())
+//                     cerr << "diff_vec[" << diff_group << "] is empty!!" << endl;
+//                 diff_vec[diff_group].insert(*ite);
+//                 cerr << "diff_group inserted: " << diff_group << endl;
+//             }
+
+//             for(int i = 1; i <= max; i++)
+//             {
+//                 cerr << "solve ode group: " << i << endl;
+//                 set<variable*> current_ode_vars = diff_vec[i];
+
+//                 if(!current_ode_vars.empty()) {
+//                     cerr << "Inside of current ODEs" << endl;
+//                     for(set<variable*>::iterator ite = current_ode_vars.begin();
+//                         ite != current_ode_vars.end();
+//                         ite++)
+//                     {
+//                         cerr << "Name: " << (*ite)->getName() << endl;
+//                         (*ite)->set_top_box(&current_box);
+//                     }
+
+//                     (*current_ode_vars.begin())->getODEtimevar()->set_top_box(&current_box);
+//                     ode_solver odeSolver(current_ode_vars);
+//                     if (!odeSolver.solve())
+//                         return false;
+//                 }
+//             }
+//             return true;
+//         }
+//         else {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
+
+bool icp_solver::prop_with_ODE()
+{
+    if (_propag->apply(_boxes.get())) {
+        if(_contain_ode) {
+            rp_box current_box = _boxes.get();
+
+            int max = 1;
+            vector< set< Enode* > > diff_vec(max);
+
+            // 1. Collect All the ODE Vars
+            // For each enode in the stack
+            for(vector<Enode*>::const_iterator stack_ite = _stack.begin();
+                stack_ite != _stack.end();
+                stack_ite++)
+            {
+                set < Enode* > ode_vars = _enode_to_vars[*stack_ite];
+                for(set<Enode*>::iterator ite = ode_vars.begin();
+                    ite != ode_vars.end();
+                    ite++)
+                {
+                    int diff_group = (*ite)->getODEgroup();
+                    cerr << "diff_group: " << diff_group << ", max: " << max << endl;
+                    if(diff_group >= max) {
+                        cerr << "diff_group: " << diff_group << " we do resize" << endl;
+                        diff_vec.resize(diff_group + 1);
+                        max = diff_group;
+                        cerr << "max: " << max << endl;
+                    }
+                    if(diff_vec[diff_group].empty())
+                        cerr << "diff_vec[" << diff_group << "] is empty!!" << endl;
+                    diff_vec[diff_group].insert(*ite);
+                    cerr << "diff_group inserted: " << diff_group << endl;
+                }
+            }
+
+            for(int i = 1; i <= max; i++)
+            {
+                cerr << "solve ode group: " << i << endl;
+                set<Enode*> current_ode_vars = diff_vec[i];
+
+                if(!current_ode_vars.empty()) {
+                    cerr << "Inside of current ODEs" << endl;
+                    for(set<Enode*>::iterator ite = current_ode_vars.begin();
+                        ite != current_ode_vars.end();
+                        ite++)
+                    {
+                        cerr << "Name: " << (*ite)->getCar()->getName() << endl;
+                    }
+                    ode_solver odeSolver(current_ode_vars, current_box, enode_to_rp_id);
+                    if (!odeSolver.solve())
+                        return false;
+                }
+            }
+            return true;
+        }
+        else {
+            return true;
+        }
+    }
+    return false;
+}
+
 rp_box icp_solver::compute_next()
 {
     if (_sol>0)
@@ -206,7 +331,7 @@ rp_box icp_solver::compute_next()
     }
     while (!_boxes.empty())
     {
-        if (_propag->apply(_boxes.get()))//sean: here it is! propagation before split!!!
+        if (prop_with_ODE())//sean: here it is! propagation before split!!!
         {
             int i;
             if ((i=_vselect->apply(_boxes.get()))>=0)

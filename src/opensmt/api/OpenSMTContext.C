@@ -591,7 +591,7 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
 void OpenSMTContext::DefineODE( const char * name, string ode, int diff_group )
 {
 //  if ( config.verbosity > 1 )
-    cerr << "# OpenSMTContext::Declaring ODE "
+    cerr << "# OpenSMTContext::Define ODE "
          << "d/dt["
          << name
          << "]"

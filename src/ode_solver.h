@@ -24,21 +24,23 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "rp_box.h"
 #include "Enode.h"
 #include "capd/capdlib.h"
-#include "variable.h"
 
 class ode_solver
 {
 public:
-    ode_solver( set < variable* > & ode_vars );
+    ode_solver( set < Enode* > & ode_vars,
+                rp_box b,
+                std::map<Enode*, int>& enode_to_rp_id
+        );
     ~ode_solver();
 
-    string create_diffsys_string(set < variable* > & ode_vars,
-                                 vector<variable*> & _0_vars,
-                                 vector<variable*> & _t_vars);
+    string create_diffsys_string(set < Enode* > & ode_vars,
+                                 vector<Enode*> & _0_vars,
+                                 vector<Enode*> & _t_vars);
 
-    capd::IVector varlist_to_IVector(vector<variable*> vars);
-    void IVector_to_varlist(capd::IVector & v, vector<variable*> & vars);
-    void prune(vector<variable*>& _t_vars,
+    capd::IVector varlist_to_IVector(vector<Enode*> vars);
+    void IVector_to_varlist(capd::IVector & v, vector<Enode*> & vars);
+    void prune(vector<Enode*>& _t_vars,
                capd::IVector v,
                capd::intervals::Interval<double, capd::rounding::DoubleRounding> time,
                vector<capd::IVector> & out_v_list,
@@ -46,9 +48,26 @@ public:
         );
 
     bool solve(); //computation of the next solution
+    double get_lb(Enode* e) {
+        return rp_binf(rp_box_elem(_b, _enode_to_rp_id[e]));
+    }
+    double get_ub(Enode* e) {
+        return rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e]));
+    }
+    void set_lb(Enode* e, double v) {
+        rp_binf(rp_box_elem(_b, _enode_to_rp_id[e])) = v;
+    }
+    void set_ub(Enode* e, double v) {
+        rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e])) = v;
+    }
+    void set_empty_interval(Enode* e) {
+        rp_interval_set_empty(rp_box_elem(_b, _enode_to_rp_id[e]));
+    }
 
 private:
-    set< variable* > & _ode_vars;
+    set< Enode* > & _ode_vars;
+    rp_box _b;
+    map<Enode*, int>& _enode_to_rp_id;
     ode_solver& operator=(const ode_solver& o);
 };
 #endif
