@@ -87,6 +87,8 @@ ptree: before_pruning entry_list conflict_detected
        { Ptree.Prune (Env.make $2, $3) }
      | before_pruning entry_list after_pruning entry_list conflict_detected
        { Ptree.Prune (Env.make $2, Ptree.Axiom (Env.make $4)) }
+     | before_pruning entry_list after_pruning entry_list precision con_list init_list ptree 
+       { Ptree.Prune (Env.make $2, Ptree.Prune(Env.make $4, $8)) }
 ;
 
 a_ptree: after_pruning entry_list bptree ptree

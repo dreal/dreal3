@@ -52,7 +52,7 @@ else
                 mv $SMT.proof $TRACEFILE
 		log_msg $SMT "dReal finished - `cat $TIMEFILE`"
 	else
-		log_msg $SMT "dReal failed"
+		log_msg $SMT "dReal failed - $EXITCODE"
 		echo "Fail" > $RESULTFILE
 	fi
 fi

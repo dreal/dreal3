@@ -8,8 +8,18 @@ for SMT in `find $RESULTDIR -maxdepth 1 -name "*.smt2"`
 do
 	BASE=`basename ${SMT/%.smt2}`
 	ID=`cat $FLYSPECK_REPO/$BASE.id`
-	TIME=`cat $RESULTDIR/$BASE.time`
-	PROOF=$RESULTDIR/$BASE.smt2.proof
+	RESULT=`cat $RESULTDIR/$BASE.result`
+	TIME=`tail -n 1 $RESULTDIR/$BASE.time`
+	if [[ "$RESULT" == "unknown" ]]
+	then
+		RESULT=Timeout
+	fi
+	if [[ "$RESULT" == "Fail" ]]
+	then
+		TIME="X"
+	fi
+		
+	PROOF=$RESULTDIR/$BASE.trace
 	PROOFDIR=$RESULTDIR/$BASE.smt2.proof.extra
 	STAT=`$SMT_STAT $SMT | perl -ne 'chomp and print'`
 	PROOF_SIZE="NO PROOF"
@@ -17,7 +27,12 @@ do
 	then
 		PROOF_SIZE=`stat --printf="%s" $PROOF`
 	fi
-	RESULT=`cat $RESULTDIR/$BASE.result`
+
+	if [[ -f $PROOFDIR/$BASE.trace ]]
+	then
+		PROOF_SIZE=`stat --printf="%s" $PROOFDIR/$BASE.trace`
+	fi
+
 	printf "%-10s|%-40s|%-10s|%-15s|%-10s|%-10s" "$BASE" "$ID" "$TIME" "$STAT" "$PROOF_SIZE" "$RESULT"
 
 	if [[ "$RESULT" == "unsat" ]]

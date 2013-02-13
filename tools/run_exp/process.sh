@@ -6,7 +6,7 @@ DREAL=~/work/dreal2/dReal
 RUN_DREAL=`dirname $0`/../proofcheck/run_dreal.sh
 PROOFCHECK=`dirname $0`/../proofcheck/proofcheck.sh
 TIMEOUT3=`dirname $0`/../proofcheck/timeout3
-TIMEOUT=1800
+TIMEOUT=300
 
 function log_msg {
 	echo -n "`date`: "
