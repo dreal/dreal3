@@ -364,47 +364,7 @@ rp_box icp_solver::compute_next()
 bool icp_solver::solve()
 {
     if(_proof) {
-        _proof_out << "Precision:" << _precision << endl;
-
-        // Print out all the Enode in stack
-        for(vector<Enode*>::const_iterator ite = _stack.begin();
-            ite != _stack.end();
-            ite++)
-        {
-            if((*ite)->getPolarity() == l_True)
-                _proof_out << *ite << endl;
-            else if ((*ite)->getPolarity() == l_False) {
-                if((*ite)->isEq()) {
-                    /* PRINT NOTHING */
-                } else {
-                    _proof_out << "(not " << *ite << ")" << endl;
-                }
-            }
-            else
-                assert(0);
-        }
-
-        // Print out the initial values
-        for(map<Enode*, pair<double, double> >::const_iterator ite = _env.begin();
-            ite != _env.end();
-            ite++)
-        {
-            Enode* key = (*ite).first;
-            double lb =  (*ite).second.first;
-            double ub =  (*ite).second.second;
-
-            _proof_out << key << " is in: ";
-            if(lb == -numeric_limits<double>::infinity())
-                _proof_out << "(-oo";
-            else
-                _proof_out << "[" << lb;
-            _proof_out << ", ";
-            if(ub == numeric_limits<double>::infinity())
-                _proof_out << "+oo)";
-            else
-                _proof_out << ub << "]";
-            _proof_out << ";" << endl;
-        }
+        output_problem();
     }
 
     if (rp_box_empty(rp_problem_box(*_problem)))
@@ -667,6 +627,52 @@ void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b)
     }
 }
 
+void icp_solver::output_problem()
+{
+    _proof_out << "Precision:" << _precision << endl;
+
+    // Print out all the Enode in stack
+    for(vector<Enode*>::const_iterator ite = _stack.begin();
+        ite != _stack.end();
+        ite++)
+    {
+        if((*ite)->getPolarity() == l_True)
+            _proof_out << *ite << endl;
+        else if ((*ite)->getPolarity() == l_False) {
+            if((*ite)->isEq()) {
+                /* PRINT NOTHING */
+            } else {
+                _proof_out << "(not " << *ite << ")" << endl;
+            }
+        }
+        else
+            assert(0);
+    }
+
+    // Print out the initial values
+    for(map<Enode*, pair<double, double> >::const_iterator ite = _env.begin();
+        ite != _env.end();
+        ite++)
+    {
+        Enode* key = (*ite).first;
+        double lb =  (*ite).second.first;
+        double ub =  (*ite).second.second;
+
+        _proof_out << key << " is in: ";
+        if(lb == -numeric_limits<double>::infinity())
+            _proof_out << "(-oo";
+        else
+            _proof_out << "[" << lb;
+        _proof_out << ", ";
+        if(ub == numeric_limits<double>::infinity())
+            _proof_out << "+oo)";
+        else
+            _proof_out << ub << "]";
+        _proof_out << ";" << endl;
+    }
+}
+
+
 // return true  if the box is non-empty after propagation
 //        false if the box is *empty* after propagation
 bool icp_solver::prop()
@@ -674,47 +680,7 @@ bool icp_solver::prop()
     bool result = false;
 
     if(_proof) {
-        _proof_out << "Precision:" << _precision << endl;
-
-        // Print out all the Enode in stack
-        for(vector<Enode*>::const_iterator ite = _stack.begin();
-            ite != _stack.end();
-            ite++)
-        {
-            if((*ite)->getPolarity() == l_True)
-                _proof_out << *ite << endl;
-            else if ((*ite)->getPolarity() == l_False) {
-                if((*ite)->isEq()) {
-                    /* PRINT NOTHING */
-                } else {
-                    _proof_out << "(not " << *ite << ")" << endl;
-                }
-            }
-            else
-                assert(0);
-        }
-
-        // Print out the initial values
-        for(map<Enode*, pair<double, double> >::const_iterator ite = _env.begin();
-            ite != _env.end();
-            ite++)
-        {
-            Enode* key = (*ite).first;
-            double lb =  (*ite).second.first;
-            double ub =  (*ite).second.second;
-
-            _proof_out << key << " is in: ";
-            if(lb == -numeric_limits<double>::infinity())
-                _proof_out << "(-oo";
-            else
-                _proof_out << "[" << lb;
-            _proof_out << ", ";
-            if(ub == numeric_limits<double>::infinity())
-                _proof_out << "+oo)";
-            else
-                _proof_out << ub << "]";
-            _proof_out << ";" << endl;
-        }
+        output_problem();
     }
 
     if (_sol>0)

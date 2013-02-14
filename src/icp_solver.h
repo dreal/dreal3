@@ -87,6 +87,7 @@ private:
     bool _verbose;
     bool _proof;
     ofstream& _proof_out;
+    void output_problem();
 
     icp_solver& operator=(const icp_solver& s);
     icp_solver(const icp_solver& s);

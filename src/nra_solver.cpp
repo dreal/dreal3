@@ -283,7 +283,6 @@ bool NRASolver::check( bool complete )
     if(!complete) {
         // Incomplete Check
         result = solver.prop();
-//        result = true;
     } else {
         // Complete Check
         result = solver.solve();
@@ -296,7 +295,6 @@ bool NRASolver::check( bool complete )
             debug_print_explanation(explanation);
         }
     }
-
     return result;
 }
 
