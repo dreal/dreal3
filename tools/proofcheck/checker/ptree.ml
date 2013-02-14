@@ -15,8 +15,8 @@ type intv = Intv.t
 type t = Axiom of env
        | Branch of env * t * t
        | Prune of env * t
-type result = Proved
-            | Failed of intv
+type result = UNSAT
+            | SAT of intv
 
 let print_log out =
   begin
@@ -32,43 +32,32 @@ let extract_env p = match p with
   | Branch (e, _, _) -> e
   | Prune (e, _) -> e
 
-let check_axiom (e : env) (f : formula) : bool =
+let check_axiom (e : env) (f : formula) : result =
   let eval env exp1 exp2 = Func.apply env (Basic.Sub [exp1; exp2]) in
   let judge j v = match (j v) with
     | true ->
       (Failhandler.print_msg 0.001 f e v;
-       Failed v)
-    | false -> Proved in
-  let result = match f with
-    | Basic.Eq (exp1, exp2) ->
-      let v = eval e exp1 exp2 in judge Intv.contain_z v
-    | Basic.Ge (exp1, exp2) ->
-      let v = eval e exp1 exp2 in judge Intv.contain_pz v
-    | Basic.Le (exp1, exp2) ->
-      let v = eval e exp1 exp2 in judge Intv.contain_nz v
-    | _ -> raise (Error "check_axiom::Should Not Happen")
-  in match result with
-  | Proved -> true
-  | Failed v -> false
-
-(*  *)
+       SAT v)
+    | false -> UNSAT in
+  match f with
+  | Basic.Eq (exp1, exp2) ->
+    let v = eval e exp1 exp2 in judge Intv.contain_z v
+  | Basic.Ge (exp1, exp2) ->
+    let v = eval e exp1 exp2 in judge Intv.contain_pz v
+  | Basic.Le (exp1, exp2) ->
+    let v = eval e exp1 exp2 in judge Intv.contain_nz v
+  | _ -> raise (Error "check_axiom::Should Not Happen")
 
 let rec check (pt : t) (fl : formula list) =
   match pt with
   | Axiom e ->
     let result = List.map (fun f -> (f, check_axiom e f)) fl in
-    let failed_fs =
-      List.fold_left
-        (fun fs (f, b) -> match b with
-        | true -> fs
-        | false -> f::fs)
-        []
-        result
-    in
+    let result' = List.filter (fun (f, r) -> r != UNSAT) result in
+    let (sat_fs, _) = List.split (result') in
     begin
-      match failed_fs with
-      | [] -> (incr num_of_proved_axioms)
-      | _  -> (incr num_of_failed_axioms; Failhandler.handle e failed_fs fl)
+      match sat_fs with
+        [] -> (incr num_of_proved_axioms)
+      | _ -> (incr num_of_failed_axioms; Failhandler.handle e sat_fs fl)
     end
   | Branch (env, pt1, pt2) ->
     let env1 = extract_env pt1 in

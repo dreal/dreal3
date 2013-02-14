@@ -8,17 +8,17 @@ let fc () = incr fail_counter; !fail_counter
 let print_msg prec f e eval =
   let out = BatIO.stdout in
   begin
-    BatString.println out "FAIL TO PROVE THIS AXIOM:";
+    BatString.println out "The following constraint is SAT:";
     BatString.println out "============================";
     BatString.print out   "Precision = ";
     BatFloat.print out prec;
     BatString.println out   "";
     BatString.println out "============================";
-    BatString.println out "Formulas: ";
+    BatString.println out "Constraint: ";
     Basic.print_formula out f;
     BatString.println out "";
     BatString.println out "============================";
-    BatString.println out "Environment: ";
+    BatString.println out "Assignments: ";
     Env.print out e;
     BatString.println out "============================";
     BatString.println out "Eval Result = ";
