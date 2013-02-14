@@ -23,7 +23,7 @@ output = sys.stdout
 #print "Split " + trace_name,
 
 for line in input:
-    if line.startswith("[conflict detected]"):
+    if line.startswith("Precision:"):
         output = open(get_newname(), "w")
     output.write(line)
 
