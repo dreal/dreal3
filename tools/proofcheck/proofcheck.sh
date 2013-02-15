@@ -4,6 +4,7 @@
 # PLEASE EDIT THE FOLLOWING LINE
 DREAL=~/work/dreal2/dReal  #Absolute path of dReal binary
 TIMEOUT3=`dirname $0`/timeout3
+SPLIT=`dirname $0`/split.py
 MAX=30  #Number of CPUS to use
 #################################################################
 
@@ -100,6 +101,14 @@ fi
 if [[ ! -f $RESULTDIR/$TRACE ]]
 then
 	cp $PROOF $RESULTDIR/$TRACE
+fi
+
+#################################################################
+# Run Split
+#################################################################
+if [[ -f $RESULTDIR/$TRACE ]]
+then
+	$SPLIT $RESULTDIR/$TRACE
 fi
 
 #################################################################
