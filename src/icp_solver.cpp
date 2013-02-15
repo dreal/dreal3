@@ -476,7 +476,7 @@ void icp_solver::display_interval(ostream & out, rp_interval i, int digits, int 
                 if (rp_binf(i)==0)
                 {
                     // sprintf(out,"[0%s",RP_INTERVAL_SEPARATOR);
-                    out << "[" << RP_INTERVAL_SEPARATOR;
+                    out << "[0" << RP_INTERVAL_SEPARATOR;
                 }
                 else
                 {
@@ -536,79 +536,6 @@ void icp_solver::display_interval(ostream & out, rp_interval i, int digits, int 
                         out << rp_bsup(i) << "]";
                     }
                 }
-            }
-        }
-        else
-        {
-            if( (rp_binf(i)==(-RP_INFINITY)) && (rp_bsup(i)==RP_INFINITY) )
-            {
-                //sprintf(out,"0.0+(-oo%s+oo)",RP_INTERVAL_SEPARATOR);
-                out << "0.0+(-oo" << RP_INTERVAL_SEPARATOR << "+oo";
-                return;
-            }
-            if( rp_binf(i)==(-RP_INFINITY) )
-            {
-                RP_ROUND_DOWNWARD();
-                mid = rp_split_center(RP_MIN_DOUBLE,rp_bsup(i));
-                minerror = -RP_INFINITY;
-                RP_ROUND_UPWARD();
-                maxerror = rp_bsup(i) - mid;
-            }
-            else if( rp_bsup(i)==RP_INFINITY )
-            {
-                RP_ROUND_DOWNWARD();
-                mid = rp_split_center(rp_binf(i),RP_MAX_DOUBLE);
-                minerror = rp_binf(i) - mid;
-                RP_ROUND_UPWARD();
-                maxerror = RP_INFINITY;
-            }
-            else
-            {
-                RP_ROUND_DOWNWARD();
-                mid = rp_interval_midpoint(i);
-                minerror = rp_binf(i) - mid;
-                RP_ROUND_UPWARD();
-                maxerror = rp_bsup(i) - mid;
-            }
-
-            if( mid>=0 )
-            {
-                //sprintf(out,"%.*g+",digits,mid);
-                out.precision(digits);
-                out << mid;
-            }
-            else
-            {
-                //sprintf(out,"%+.*g+",digits,mid);
-                out.precision(digits);
-                out << mid;
-            }
-            if( minerror==(-RP_INFINITY) )
-            {
-                //char tmp[255];
-                //sprintf(tmp,"(-oo%s%+.4g]",RP_INTERVAL_SEPARATOR,maxerror);
-                //strcat(out,tmp);
-                out << "(-oo" << RP_INTERVAL_SEPARATOR << maxerror;
-            }
-            else if( maxerror==RP_INFINITY )
-            {
-                //char tmp[255];
-                RP_ROUND_DOWNWARD();
-                //sprintf(tmp,"[%+.4g%s+oo)",minerror,RP_INTERVAL_SEPARATOR);
-                //strcat(out,tmp);
-                out << "[" << minerror << RP_INTERVAL_SEPARATOR << "+oo)";
-            }
-            else
-            {
-                //char tmp[255];
-                RP_ROUND_DOWNWARD();
-                //sprintf(tmp,"[%+.4g%s",minerror,RP_INTERVAL_SEPARATOR);
-                //strcat(out,tmp);
-                out << "[" << minerror << RP_INTERVAL_SEPARATOR;
-                RP_ROUND_UPWARD();
-                //sprintf(tmp,"%+.4g]",maxerror);
-                //strcat(out,tmp);
-                out << maxerror << "]";
             }
         }
     }
@@ -720,6 +647,8 @@ bool icp_solver::prop()
                                   rp_bsup(rp_box_elem(rp_problem_box(*_problem), rp_id)));
         }
         cerr << "Incomplete Check: SAT" << endl;
+        _proof_out << "HOLE" << endl;
+
     }
     return result;
 }
