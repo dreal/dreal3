@@ -32,6 +32,7 @@
      ("exp", EXP);
      ("unsat", UNSAT);
      ("not", NOT);
+     ("HOLE", HOLE);
     ]
 }
 

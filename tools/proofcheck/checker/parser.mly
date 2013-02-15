@@ -4,7 +4,6 @@
  */
 
 %{
-
 %}
 
 %token AFTER BEFORE PRUNING BRANCHED IS IN ON CONFLICT DETECTED
@@ -16,11 +15,10 @@
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
 %token LOG EXP
-%token UNSAT
+%token UNSAT HOLE
 %token EOF
 %token <float> FNUM
 %token <string> ID
-
 %start main
 
 %type <float * Basic.formula list * Ptree.t> main
@@ -28,20 +26,21 @@
 %type <Basic.formula> con
 %type <Func.t> func
 %type <string> branched_on
-
 %%
 
-main: precision con_list init_list ptree UNSAT EOF { ($1, $2, $4) }
- | precision con_list init_list ptree EOF { ($1, $2, $4) }
- | precision con_list init_list UNSAT EOF { ($1, $2, Ptree.Axiom (Env.make $3)) }
- | precision con_list init_list EOF { ($1, $2, Ptree.Axiom (Env.make $3)) }
- | precision con_list init_list conflict_detected EOF { ($1, $2, Ptree.Axiom (Env.make $3)) }
+main:
+   precision con_list init_list ptree EOF
+     { ($1, $2, $4) }
+ | precision con_list init_list EOF
+     { ($1, $2, Ptree.Axiom (Env.make $3)) }
+ | precision con_list init_list conflict_detected EOF
+     { ($1, $2, Ptree.Axiom (Env.make $3)) }
 
 precision: /* nothing */ { 0.001 } /* default value */
  | PRECISION COLON FNUM  { $3 }
 
-con_list: /* */ { [] }
-     | con con_list { $1::$2 }
+con_list: con          { [$1] }
+        | con con_list { $1::$2 }
 ;
 
 con: LP EQ func func RP { (Basic.Eq ($3, $4)) }
@@ -55,8 +54,8 @@ con: LP EQ func func RP { (Basic.Eq ($3, $4)) }
   |  LP NOT LP GT func func RP RP { (Basic.Le ($5, $6)) } /* ALWAYS TREAT IT AS LE */
 ;
 
-func_list: func    { [$1] }
-  | func func_list { $1::$2 }
+func_list: func           { [$1] }
+         | func func_list { $1::$2 }
 ;
 
 func:  FNUM                  { Basic.Num $1 }
@@ -80,26 +79,20 @@ func:  FNUM                  { Basic.Num $1 }
      | LP CARET func FNUM RP { Basic.Pow ($3, Basic.Num $4) }
 ;
 
-ptree: before_pruning entry_list conflict_detected
-       { Ptree.Axiom (Env.make $2) }
-
-     | before_pruning entry_list a_ptree
-       { Ptree.Prune (Env.make $2, $3) }
-     | before_pruning entry_list after_pruning entry_list conflict_detected
-       { Ptree.Prune (Env.make $2, Ptree.Axiom (Env.make $4)) }
-     | before_pruning entry_list after_pruning entry_list precision con_list init_list ptree 
-       { Ptree.Prune (Env.make $2, Ptree.Prune(Env.make $4, $8)) }
+ptree: /* Axiom */
+       before_pruning entry_list conflict_detected
+         { Ptree.Axiom (Env.make $2) }
+       /* Hole */
+     | before_pruning entry_list after_pruning entry_list HOLE
+         { Ptree.Prune (Env.make $2, Env.make $4, Ptree.Hole) }
+       /* Branching */
+     | branched_on entry_list ptree ptree
+         { Ptree.Branch (Env.make $2, $3, $4) }
+       /* Pruning */
+     | before_pruning entry_list after_pruning entry_list ptree
+         { Ptree.Prune (Env.make $2, Env.make $4, $5)
+}
 ;
-
-a_ptree: after_pruning entry_list bptree ptree
-       { Ptree.Branch (Env.make $2, $3, $4) }
-     | after_pruning entry_list ptree
-       { Ptree.Prune (Env.make $2, $3) }
-;
-
-bptree: branched_on entry_list ptree {$3}
-;
-
 
 before_pruning: LB BEFORE PRUNING RB { }
 ;

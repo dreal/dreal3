@@ -10,13 +10,13 @@ let print_msg prec f e eval =
   begin
     BatString.println out "The following constraint is SAT:";
     BatString.println out "============================";
-    BatString.print out   "Precision = ";
-    BatFloat.print out prec;
-    BatString.println out   "";
-    BatString.println out "============================";
     BatString.println out "Constraint: ";
     Basic.print_formula out f;
     BatString.println out "";
+    BatString.println out "============================";
+    BatString.print out   "Precision = ";
+    BatFloat.print out prec;
+    BatString.println out   "";
     BatString.println out "============================";
     BatString.println out "Assignments: ";
     Env.print out e;

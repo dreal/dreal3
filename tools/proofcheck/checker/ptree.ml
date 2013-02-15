@@ -14,9 +14,11 @@ type formula = Basic.formula
 type intv = Intv.t
 type t = Axiom of env
        | Branch of env * t * t
-       | Prune of env * t
+       | Prune of env * env * t
+       | Hole
+
 type result = UNSAT
-            | SAT of intv
+            | SAT
 
 let print_log out =
   begin
@@ -28,16 +30,17 @@ let print_log out =
   end
 
 let extract_env p = match p with
-  | Axiom e -> e
-  | Branch (e, _, _) -> e
-  | Prune (e, _) -> e
+  | Hole -> raise (Error "nothing to return!")
+  | Axiom env -> env
+  | Branch (env, _, _) -> env
+  | Prune (env1, env2, _) -> env1
 
 let check_axiom (e : env) (f : formula) : result =
   let eval env exp1 exp2 = Func.apply env (Basic.Sub [exp1; exp2]) in
   let judge j v = match (j v) with
     | true ->
       (Failhandler.print_msg 0.001 f e v;
-       SAT v)
+       SAT)
     | false -> UNSAT in
   match f with
   | Basic.Eq (exp1, exp2) ->
@@ -50,9 +53,10 @@ let check_axiom (e : env) (f : formula) : result =
 
 let rec check (pt : t) (fl : formula list) =
   match pt with
+  | Hole -> ()
   | Axiom e ->
     let result = List.map (fun f -> (f, check_axiom e f)) fl in
-    let result' = List.filter (fun (f, r) -> r != UNSAT) result in
+    let result' = List.filter (fun (f, r) -> r = SAT) result in
     let (sat_fs, _) = List.split (result') in
     begin
       match sat_fs with
@@ -66,17 +70,27 @@ let rec check (pt : t) (fl : formula list) =
     begin
       match Env.order env env_join with
       | true -> (incr num_of_branches; check pt1 fl; check pt2 fl)
-      | false -> raise (Error "Branch")
+      | false ->
+        begin
+          BatString.println BatIO.stdout "Env: ";
+          Env.print BatIO.stdout env;
+          BatString.println BatIO.stdout "Env1: ";
+          Env.print BatIO.stdout env1;
+          BatString.println BatIO.stdout "Env2: ";
+          Env.print BatIO.stdout env2;
+          BatString.println BatIO.stdout "Env Join: ";
+          Env.print BatIO.stdout env_join;
+          raise (Error "Branch")
+        end
     end
-  | Prune (env, pt') ->
-    let env' = extract_env pt' in
-    if not (Env.order env' env) then
+  | Prune (env1, env2, pt') ->
+    if not (Env.order env2 env1) then
       raise (Error "Prune")
-    else if Env.equals env' env then
+    else if Env.equals env2 env1 then
       (incr num_of_trivial_pruning;
        check pt' fl)
     else
-      let remainders = Env.minus env env' in
+      let remainders = Env.minus env1 env2 in
       begin
         incr num_of_non_trivial_pruning;
         List.iter (fun env_ -> check (Axiom env_) fl) remainders;
