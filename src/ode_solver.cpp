@@ -325,7 +325,6 @@ bool ode_solver::solve()
              << endl
              << "Exception caught!" << endl
              << e.what() << endl << endl;
-        abort();
     }
     return ret;
 }
