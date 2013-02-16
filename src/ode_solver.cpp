@@ -186,7 +186,7 @@ bool ode_solver::solve()
         //time range
         Enode* time = (*_0_vars.begin())->getODEtimevar();
         interval T = interval(get_lb(time), get_ub(time));
-
+        cerr << "interval T = " << T << endl;
         // double T = 100;
 
         timeMap.stopAfterStep(true);
