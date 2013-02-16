@@ -643,8 +643,8 @@ bool icp_solver::prop()
             //double lb =  (*ite).second.first;
             //double ub =  (*ite).second.second;
             int rp_id = enode_to_rp_id[key];
-            _env[key] = make_pair(rp_binf(rp_box_elem(rp_problem_box(*_problem), rp_id)),
-                                  rp_bsup(rp_box_elem(rp_problem_box(*_problem), rp_id)));
+            _env[key] = make_pair(rp_binf(rp_box_elem(_boxes.get(), rp_id)),
+                                  rp_bsup(rp_box_elem(_boxes.get(), rp_id)));
         }
         cerr << "Incomplete Check: SAT" << endl;
         _proof_out << "HOLE" << endl;
