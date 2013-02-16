@@ -201,66 +201,6 @@ icp_solver::~icp_solver()
     rp_problem_destroy(_problem);
 }
 
-
-// bool icp_solver::propagation_with_ode (rp_box b, bool hasDiff)
-// {
-//     if(_propag.apply(b))
-//     {
-//         if (hasDiff)
-//         {
-//             rp_box current_box = _boxes.get();
-
-//             // Partition _ode_vars into subsets by their diff_group
-//             int max = 1;
-//             vector< set< variable* > > diff_vec(max);
-//             for(set<variable*>::iterator ite = _ode_vars.begin();
-//                 ite != _ode_vars.end();
-//                 ite++)
-//             {
-//                 int diff_group = (*ite)->get_enode()->getODEgroup();
-//                 cerr << "diff_group: " << diff_group << ", max: " << max << endl;
-//                 if(diff_group >= max) {
-//                     cerr << "diff_group: " << diff_group << " we do resize" << endl;
-//                     diff_vec.resize(diff_group + 1);
-//                     max = diff_group;
-//                     cerr << "max: " << max << endl;
-//                 }
-//                 if(diff_vec[diff_group].empty())
-//                     cerr << "diff_vec[" << diff_group << "] is empty!!" << endl;
-//                 diff_vec[diff_group].insert(*ite);
-//                 cerr << "diff_group inserted: " << diff_group << endl;
-//             }
-
-//             for(int i = 1; i <= max; i++)
-//             {
-//                 cerr << "solve ode group: " << i << endl;
-//                 set<variable*> current_ode_vars = diff_vec[i];
-
-//                 if(!current_ode_vars.empty()) {
-//                     cerr << "Inside of current ODEs" << endl;
-//                     for(set<variable*>::iterator ite = current_ode_vars.begin();
-//                         ite != current_ode_vars.end();
-//                         ite++)
-//                     {
-//                         cerr << "Name: " << (*ite)->getName() << endl;
-//                         (*ite)->set_top_box(&current_box);
-//                     }
-
-//                     (*current_ode_vars.begin())->getODEtimevar()->set_top_box(&current_box);
-//                     ode_solver odeSolver(current_ode_vars);
-//                     if (!odeSolver.solve())
-//                         return false;
-//                 }
-//             }
-//             return true;
-//         }
-//         else {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
-
 bool icp_solver::prop_with_ODE()
 {
     if (_propag->apply(_boxes.get())) {
@@ -281,6 +221,7 @@ bool icp_solver::prop_with_ODE()
                     ite != ode_vars.end();
                     ite++)
                 {
+                    cerr << "ode_var: " << *ite << endl;
                     int diff_group = (*ite)->getODEgroup();
                     cerr << "diff_group: " << diff_group << ", max: " << max << endl;
                     if(diff_group >= max) {
