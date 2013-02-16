@@ -282,7 +282,15 @@ bool NRASolver::check( bool complete )
 
     if(!complete) {
         // Incomplete Check
+        if (config.nra_verbose) {
+            cerr << "Before Prop" << endl;
+            debug_print_env(env);
+        }
         result = solver.prop();
+        if (config.nra_verbose) {
+            cerr << "After Prop" << endl;
+            debug_print_env(env);
+        }
     } else {
         // Complete Check
         result = solver.solve();
