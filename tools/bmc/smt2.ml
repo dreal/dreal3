@@ -21,6 +21,8 @@ type flow_annot = (int * int * ode) list
 type smt_cmd = Smt_cmd.t
 type t = smt_cmd list
 
+let debug = false
+
 let add_index (k : int) (q : id) (suffix : string) (s : string) : string =
   let str_step = string_of_int k in
   let str_mode_id = string_of_int q in
@@ -28,23 +30,23 @@ let add_index (k : int) (q : id) (suffix : string) (s : string) : string =
                        str_step;
                        str_mode_id;]) ^ suffix
 
-let process_init (q : id) (i : formula) : formula =
-  Dr.subst_formula (add_index 0 q "_0") i
+let process_init (q : id) (init : formula) : formula =
+  Dr.subst_formula (add_index 0 q "_0") init
 
 let process_flow (k : int) (q : id) (m : mode) : (flow_annot * formula) =
-  let (id, inv_op, flow, jump) = m in
+  let (_, inv_op, flow, _) = m in
   let flow' = List.map (fun ode -> (k, q, Dr.subst_ode (add_index k q "") ode)) flow in
   let f = match inv_op with
       None -> Dr.True
-    | Some invt ->
+    | Some invs ->
       Dr.make_and
         (BatList.map
            (fun invt_f -> Dr.subst_formula (add_index k q "_t") invt_f)
-           invt)
+           invs)
   in
   (flow', f)
 
-let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
+let process_jump (jump) (k : int) (next_k : int) (q : id) (next_q : id)
     : formula =
   let (gurad, _, change) = jump in
   let gurad' = Dr.subst_formula (add_index k q "_t") gurad in
@@ -58,21 +60,19 @@ let process_jump (jump) (q : id) (next_q : id) (k : int) (next_k : int)
       change in
   Dr.make_and [gurad'; change']
 
-let trans (hm) (q : id) (next_q : id) (k : int) (next_k : int)
+let trans modemap init_id (k : int) (next_k : int) (q : id) (next_q : id)
     : (flow_annot * formula)
     =
-  let (vardecls, _, modemap, (init_id, init_formula), goal) = hm in
-  let (id, inv, flow, jm) = (Modemap.find q modemap) in
-  let jump_result = process_jump (Jumpmap.find next_q jm) q next_q k next_k in
+  let (_, _, _, jm) = (Modemap.find q modemap) in
+  let jump_result = process_jump (Jumpmap.find next_q jm) k next_k q next_q in
   let (flow_k_next_ode, flow_k_next) =
     process_flow (next_k) (next_q) (Modemap.find init_id modemap) in
   (flow_k_next_ode,
    Dr.make_and [jump_result; flow_k_next])
 
-let transform (hm) (k : int) (next_k : int)
+let transform modemap init_id (k : int) (next_k : int)
     : (flow_annot * formula)
     =
-  let (vardecls, _, modemap, (init_id, init_formula), goal) = hm in
   let num_of_modes = BatEnum.count (BatMap.keys modemap) in
   let all_modes = BatList.of_enum (1 -- num_of_modes) in
   let candidate_pairs =
@@ -92,7 +92,7 @@ let transform (hm) (k : int) (next_k : int)
   let trans_result_list : (flow_annot * formula) list =
     List.map
       (fun (q, next_q) ->
-        trans hm q next_q k next_k
+        trans modemap init_id k next_k q next_q
       )
       candidate_pairs
   in
@@ -149,7 +149,7 @@ let reach (k : int) (hm : Hybrid.t) :
   let (flow_0_ode, flow_0) = process_flow 0 init_id (Modemap.find init_id modemap) in
   let k_list : int list = BatList.of_enum (0 --^ k) in
   let trans_result : (flow_annot * formula) list =
-    List.map (fun k -> transform hm k (k + 1)) k_list
+    List.map (fun k -> transform modemap init_id k (k + 1)) k_list
   in
   let (trans_flows, trans_formula) = BatList.split trans_result in
   let goal_formula = process_goals hm k goals in
