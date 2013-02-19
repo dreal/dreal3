@@ -12,12 +12,17 @@ let run () =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let out = BatIO.stdout in
     let smt2 = Parser.main Lexer.start lexbuf in
+    let var_count  = Smt2_stat.count_var smt2 in
     let arith_count  = Smt2_stat.count_arith smt2 in
     let mathfn_count = Smt2_stat.count_mathfn smt2 in
     begin
-      BatString.print out "Number of Arithmetic Operators: ";
-      BatString.println out (string_of_int arith_count);
-      BatString.print out "Number of Math Functions: ";
+      (* BatString.print out "Number of Variables: "; *)
+      BatString.print out (string_of_int var_count);
+      BatString.print out "|";
+      (* BatString.print out "Number of Arithmetic Operators: "; *)
+      BatString.print out (string_of_int arith_count);
+      BatString.print out "|";
+      (* BatString.print out "Number of Math Functions: "; *)
       BatString.println out (string_of_int mathfn_count)
     end
   with v ->

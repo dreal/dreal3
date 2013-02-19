@@ -315,7 +315,7 @@ SMTConfig::parseCMDLine( int argc
       parseConfig( config_name );
       break;
     }
-    if ( sscanf( buf, "--precision=%f", &nra_precision ) == 1)
+    if ( sscanf( buf, "--precision=%lf", &nra_precision ) == 1)
     {
         if(nra_precision <= 0.0)
         {
@@ -324,11 +324,26 @@ SMTConfig::parseCMDLine( int argc
         }
 
     }
-    else if ( strcmp( buf, "--help" ) == 0
-	   || strcmp( buf, "-h" ) == 0 )
+    else if ( strcmp( buf, "--help" ) == 0 )
     {
-      printHelp( );
-      exit( 1 );
+        printHelp( );
+        exit( 1 );
+    }
+    else if ( strcmp( buf, "--proof" ) == 0 )
+    {
+        nra_proof = true;
+        string filename = string(argv[ argc - 1 ]) + ".proof";
+        /* Open file stream */
+        proof_out.open (filename.c_str(), std::ofstream::out | std::ofstream::trunc );
+        if(proof_out.fail())
+        {
+            cout << "Cannot create a file: " << filename << endl;
+            exit( 1 );
+        }
+    }
+    else if ( strcmp( buf, "--verbose" ) == 0)
+    {
+        nra_verbose = true;
     }
     else
     {
@@ -341,7 +356,7 @@ SMTConfig::parseCMDLine( int argc
 void SMTConfig::printHelp( )
 {
   const char help_string[]
-    = "Usage: ./opensmt [OPTION] filename\n"
+    = "Usage: ./dReal [OPTION] filename\n"
       "where OPTION can be\n"
       "  --help [-h]              print this help\n"
       "  --config=<filename>      use configuration file <filename>\n"
@@ -359,7 +374,7 @@ void SMTConfig::printHelp( )
       "                                trace of the solving steps, which can be verified as a\n"
       "                                proof tree that establishes the unsatisfiability of the\n"
       "                                formula. This file can be the input of a stand-alone proof\n"
-      "                                checker."
+      "                                checker.\n"
       "\n"
       "   --verbose               the solver will output the detailed decision traces along with\n"
       "                           the solving process. That is, it will print the branch-and-prune\n"

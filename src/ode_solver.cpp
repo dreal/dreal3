@@ -25,8 +25,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace capd;
 
-ode_solver::ode_solver(set < variable* > & ode_vars) :
-    _ode_vars(ode_vars)
+ode_solver::ode_solver(set < Enode* > & ode_vars,
+                       rp_box b,
+                       std::map<Enode*, int>& enode_to_rp_id
+    ) :
+    _ode_vars(ode_vars),
+    _b(b),
+    _enode_to_rp_id(enode_to_rp_id)
 {
 }
 
@@ -36,30 +41,30 @@ ode_solver::~ode_solver()
 }
 
 
-string ode_solver::create_diffsys_string(set < variable* > & ode_vars,
-                                         vector<variable*> & _0_vars,
-                                         vector<variable*> & _t_vars)
+string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
+                                         vector<Enode*> & _0_vars,
+                                         vector<Enode*> & _t_vars)
 {
     vector<string> var_list;
     vector<string> ode_list;
 
     // 1. partition ode_vars into _0_vars and _t_vars by their ODE_vartype
-    for(set< variable* >::iterator ite = ode_vars.begin();
+    for(set< Enode* >::iterator ite = ode_vars.begin();
         ite != ode_vars.end();
         ite++)
     {
-        cerr << (*ite)->getName() << " = ["
-             << (*ite)->get_top_lb()
+        cerr << (*ite)->getCar()->getName() << " = ["
+             << get_lb(*ite)
              << ", "
-             << (*ite)->get_top_ub()
+             << get_ub(*ite)
              << "]" << endl;
-        if ((*ite)->get_enode()->getODEvartype() == l_True) {
+        if ((*ite)->getODEvartype() == l_True) {
             _t_vars.push_back(*ite);
         }
-        else if ((*ite)->get_enode()->getODEvartype() == l_False) {
+        else if ((*ite)->getODEvartype() == l_False) {
             _0_vars.push_back(*ite);
-            var_list.push_back((*ite)->get_enode()->getODEvarname());
-            ode_list.push_back((*ite)->get_enode()->getODE());
+            var_list.push_back((*ite)->getODEvarname());
+            ode_list.push_back((*ite)->getODE());
         }
     }
 
@@ -81,44 +86,44 @@ string ode_solver::create_diffsys_string(set < variable* > & ode_vars,
 }
 
 
-IVector ode_solver::varlist_to_IVector(vector<variable*> vars)
+IVector ode_solver::varlist_to_IVector(vector<Enode*> vars)
 {
     IVector ret (vars.size());
 
     /* Assign current interval values */
     int i = 0;
-    for (vector<variable*>::iterator var_ite = vars.begin();
+    for (vector<Enode*>::iterator var_ite = vars.begin();
          var_ite != vars.end();
          var_ite++, i++)
     {
         double lb, ub;
-        lb = (*var_ite)->get_top_lb();
-        ub = (*var_ite)->get_top_ub();
+        lb = get_lb(*var_ite);
+        ub = get_ub(*var_ite);
         ret[i] = interval(lb, ub);
         cout << "The interval on "
-             << (*var_ite)->getName()
+             << (*var_ite)->getCar()->getName()
              << " is "<< ret[i] <<endl;
     }
 
     return ret;
 }
 
-void ode_solver::IVector_to_varlist(IVector & v, vector<variable*> & vars)
+void ode_solver::IVector_to_varlist(IVector & v, vector<Enode*> & vars)
 {
     for(int i = 0; i < v.size(); i++)
     {
-        double lb = vars[i]->get_top_lb();
-        double ub = vars[i]->get_top_ub();;
+        double lb = get_lb(vars[i]);
+        double ub = get_ub(vars[i]);
         if (lb < v[i].leftBound())
-            vars[i]->set_top_lb(v[i].leftBound());
+            set_lb(vars[i], v[i].leftBound());
         if (ub > v[i].rightBound())
-            vars[i]->set_top_ub(v[i].rightBound());
+            set_ub(vars[i], v[i].rightBound());
     }
 }
 
 
 
-void ode_solver::prune(vector<variable*>& _t_vars,
+void ode_solver::prune(vector<Enode*>& _t_vars,
                        IVector v,
                        interval time,
                        vector<IVector> & out_v_list,
@@ -133,10 +138,10 @@ void ode_solver::prune(vector<variable*>& _t_vars,
              << "[" << v[i].leftBound() << ", " << v[i].rightBound() << "]"
              << endl;
         cerr << "x_t[" << i << "] = "
-             << "[" << _t_vars[i]->get_top_lb() << ", " << _t_vars[i]->get_top_ub() << "]"
+             << "[" << get_lb(_t_vars[i]) << ", " << get_ub(_t_vars[i]) << "]"
              << endl;
-        if (v[i].leftBound() > _t_vars[i]->get_top_ub() ||
-            v[i].rightBound() < _t_vars[i]->get_top_lb())
+        if (v[i].leftBound() > get_ub(_t_vars[i]) ||
+            v[i].rightBound() < get_lb(_t_vars[i]))
         {
             candidate = false;
         }
@@ -155,8 +160,8 @@ bool ode_solver::solve()
     bool ret = true;
     try {
         // 1. Construct diff_sys, which are the ODE
-        vector<variable*> _0_vars;
-        vector<variable*> _t_vars;
+        vector<Enode*> _0_vars;
+        vector<Enode*> _t_vars;
 
         string diff_sys = create_diffsys_string(_ode_vars,
                                                 _0_vars,
@@ -179,9 +184,9 @@ bool ode_solver::solve()
         C0Rect2Set s(start);
 
         //time range
-        variable* time = (*_0_vars.begin())->getODEtimevar();
-        interval T = interval(time->get_top_lb(), time->get_top_ub());
-
+        Enode* time = (*_0_vars.begin())->getODEtimevar();
+        interval T = interval(get_lb(time), get_ub(time));
+        cerr << "interval T = " << T << endl;
         // double T = 100;
 
         timeMap.stopAfterStep(true);
@@ -278,8 +283,8 @@ bool ode_solver::solve()
             cerr << "Intersect(" << time_union << ", " << T << ") = ";
             if(intersection(time_union, T, T))
             {
-                time->set_top_lb(T.leftBound());
-                time->set_top_ub(T.rightBound());
+                set_lb(time, T.leftBound());
+                set_ub(time, T.rightBound());
                 cerr << T << endl;
             }
             else {
@@ -290,11 +295,11 @@ bool ode_solver::solve()
         }
 
         if(end_empty) {
-            for(vector<variable*>::iterator ite = _t_vars.begin();
+            for(vector<Enode*>::iterator ite = _t_vars.begin();
                 ite != _t_vars.end();
                 ite++)
             {
-                (*ite)->set_empty_interval();
+                set_empty_interval(*ite);
             }
             ret = false;
         } else {
@@ -302,7 +307,7 @@ bool ode_solver::solve()
         }
 
         if(time_empty) {
-            time->set_empty_interval();
+            set_empty_interval(time);
             ret = false;
         }
 
@@ -320,7 +325,6 @@ bool ode_solver::solve()
              << endl
              << "Exception caught!" << endl
              << e.what() << endl << endl;
-        abort();
     }
     return ret;
 }

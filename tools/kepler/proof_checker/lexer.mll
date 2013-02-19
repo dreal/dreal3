@@ -67,4 +67,3 @@ rule start =
          }
     | float_number { verbose (Lexing.lexeme lexbuf); FNUM (float_of_string(Lexing.lexeme lexbuf)) } (* float *)
     | eof { verbose "eof"; EOF}
-    | _   { raise Not_found }

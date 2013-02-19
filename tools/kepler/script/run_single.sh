@@ -25,7 +25,7 @@ then
 fi
 
 echo -n "Run dReal: $INEQ - "
-$TIMEUTIL -f "%E" -o $TIMEFILE $TIMEOUT3 -t $TIMEOUT_TIME $DREAL $SMT 2> $OUTFILE > $TRACEFILE
+$TIMEUTIL -f "%E" -o $TIMEFILE $TIMEOUT3 -t $TIMEOUT_TIME $DREAL --verbose --proof $SMT 2> $OUTFILE
 EXITCODE=$?
 if [ $EXITCODE -eq 137 ]
 then
@@ -33,6 +33,7 @@ then
 else
 	if [ $EXITCODE -eq 0 ]
 	then
+                mv $SMT.proof $TRACEFILE
 		echo -n "`cat $TIMEFILE` - "
 		RESULT=`tail -n 1 $TRACEFILE`
 		echo "$RESULT" | tee $RESULTFILE

@@ -154,7 +154,7 @@ int main( int argc, char * argv[] )
 #endif
 
 #ifndef OPTIMIZE
-  opensmt_warning( "this binary is compiled with optimizations disabled (slow)" );
+//  opensmt_warning( "this binary is compiled with optimizations disabled (slow)" );
 #endif
   //
   // Execute accumulated commands

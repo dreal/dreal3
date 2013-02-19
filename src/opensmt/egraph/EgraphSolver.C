@@ -609,28 +609,28 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
                                         sort_store,
                                         explanation,
                                         deductions,
-                                        suggestions
+                                        suggestions,
+                                        false
                              ));
 #ifdef STATISTICS
     tsolvers_stats.push_back( new TSolverStats() );
 #endif
   }
-//   else if (config.logic == QF_NRA_ODE) {
-//      tsolvers.push_back( new NRAODESolver( tsolvers.size(),
-//                                            "NRA Solver",
-//                                            config,
-//                                            *this,
-//                                            sort_store,
-//                                            explanation,
-//                                            deductions,
-//                                            suggestions,
-//                                            // true if we need to handle ODE
-//                                            true
-//                              ));
-// #ifdef STATISTICS
-//     tsolvers_stats.push_back( new TSolverStats() );
-// #endif
-//   }
+   else if (config.logic == QF_NRA_ODE) {
+     tsolvers.push_back( new NRASolver( tsolvers.size(),
+                                           "NRA Solver",
+                                           config,
+                                           *this,
+                                           sort_store,
+                                           explanation,
+                                           deductions,
+                                           suggestions,
+                                           true // true if we need to handle ODE
+                             ));
+ #ifdef STATISTICS
+     tsolvers_stats.push_back( new TSolverStats() );
+ #endif
+   }
   /* -------------------- */
 
 

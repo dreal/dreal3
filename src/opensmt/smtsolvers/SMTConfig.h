@@ -22,6 +22,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Global.h"
 #include "SolverTypes.h"
+#include <fstream>
+
+using std::ofstream;
 
 //
 // Holds informations about the configuration of the solver
@@ -162,11 +165,11 @@ struct SMTConfig
   int          lra_integer_solver;           // Flag to require integer solution for LA problem
   int          lra_check_on_assert;          // Probability (0 to 100) to run check when assert is called
 
-    // NRA-Solver related parameters (added for dReal2)
+  // NRA-Solver related parameters (added for dReal2)
   double       nra_precision;                 // the value of delta
   bool         nra_verbose;                   // --verbose option
   bool         nra_proof;                     // --proof option
-
+  ofstream     proof_out;                     // file stream for proof
 
 private:
 

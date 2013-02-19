@@ -31,11 +31,16 @@ NRASolver::NRASolver( const int           i
                       , vector< Enode * > & x
                       , vector< Enode * > & d
                       , vector< Enode * > & s
+                      , bool ode
     )
     : OrdinaryTSolver ( i, n, c, e, t, x, d, s )
 {
 //initialize icp solver first
     precision = e.getPrecision();
+    contain_ode = ode;
+    if(precision == 0.0) {
+        precision = 0.001;
+    }
 }
 
 NRASolver::~NRASolver( )
@@ -125,23 +130,38 @@ set<Enode *> NRASolver::get_variables (Enode * e )
 //
 lbool NRASolver::inform( Enode * e )
 {
-    cerr << "================================================================" << endl;
-    cerr << "NRASolver::inform: " << e << endl;
-    cerr << "NRASolver::inform: Polarity: " << e->getPolarity().toInt() << endl;
-    cerr << "================================================================" << endl;
+    if(config.nra_verbose) {
+        cerr << "================================================================" << endl;
+        cerr << "NRASolver::inform: " << e << endl;
+        cerr << "NRASolver::inform: Polarity: " << e->getPolarity().toInt() << endl;
+        cerr << "================================================================" << endl;
+    }
     assert( e -> isAtom() );
 
     set<Enode*> variables_in_e = get_variables(e);
+    set<Enode*> ode_variables_in_e;
 
     for(set<Enode*>::iterator ite = variables_in_e.begin();
         ite != variables_in_e.end();
         ite++)
     {
-        cerr << *ite << endl;
+        if(config.nra_verbose) {
+            cerr << *ite << endl;
+        }
         double lb = (*ite)->getLowerBound();
         double ub = (*ite)->getUpperBound();
         env[*ite] = make_pair (lb, ub);
+
+        // Collect ODE Vars in e
+        if(contain_ode && (*ite)->getODEtimevar() != NULL) {
+            ode_variables_in_e.insert(*ite);
+        }
     }
+
+    if (contain_ode) {
+        _enode_to_vars.insert( std::pair<Enode*, set<Enode*> >(e, ode_variables_in_e));
+    }
+
     return l_Undef;
 }
 
@@ -153,10 +173,12 @@ lbool NRASolver::inform( Enode * e )
 //
 bool NRASolver::assertLit ( Enode * e, bool reason )
 {
-    cerr << "================================================================" << endl;
-    cerr << "NRASolver::assertLit: " << e << ", " << reason << endl;
-    cerr << "NRASolver::assertLit: Polarity: " << e->getPolarity().toInt() << endl;
-    cerr << "================================================================" << endl;
+    if (config.nra_verbose) {
+        cerr << "================================================================" << endl;
+        cerr << "NRASolver::assertLit: " << e << ", " << reason << endl;
+        cerr << "NRASolver::assertLit: Polarity: " << e->getPolarity().toInt() << endl;
+        cerr << "================================================================" << endl;
+    }
 
     (void)reason;
     assert( e );
@@ -169,7 +191,9 @@ bool NRASolver::assertLit ( Enode * e, bool reason )
     if ( e->isDeduced( )
          && e->getPolarity( ) == e->getDeduced( )
          && e->getDedIndex( ) == id ) {
-        cerr << "NRASolver::assertLit: DEDUCED" << e << endl;
+        if (config.nra_verbose) {
+            cerr << "NRASolver::assertLit: DEDUCED" << e << endl;
+        }
         return true;
     }
     stack.push_back(e);
@@ -185,9 +209,10 @@ bool NRASolver::assertLit ( Enode * e, bool reason )
 //
 void NRASolver::pushBacktrackPoint ( )
 {
-    cerr << "================================================================" << endl;
-    cerr << "NRASolver::pushBacktrackPoint " << stack.size() << endl;
-
+    if (config.nra_verbose) {
+        cerr << "================================================================" << endl;
+        cerr << "NRASolver::pushBacktrackPoint " << stack.size() << endl;
+    }
     undo_stack_size.push_back(stack.size());
     env_stack.push_back(env);
 }
@@ -204,27 +229,34 @@ void NRASolver::pushBacktrackPoint ( )
 //
 void NRASolver::popBacktrackPoint ( )
 {
-    cerr << "================================================================" << endl;
-    cerr << "NRASolver::popBacktrackPoint" << endl;
-
+    if (config.nra_verbose) {
+        cerr << "================================================================" << endl;
+        cerr << "NRASolver::popBacktrackPoint" << endl;
+    }
     vector<Enode*>::size_type prev_size = undo_stack_size.back( );
     undo_stack_size.pop_back();
     while (stack.size() > prev_size) {
-        cerr << "Popped Literal = " << stack.back() << endl;
+        if (config.nra_verbose) {
+            cerr << "Popped Literal = " << stack.back() << endl;
+        }
         stack.pop_back();
     }
 
-    cerr << "======= Before Pop, "
-         << "Stack Size: " << env_stack.size()
-         << " Env = " << endl;
-    debug_print_env(env);
+    if (config.nra_verbose) {
+        cerr << "======= Before Pop, "
+             << "Stack Size: " << env_stack.size()
+             << " Env = " << endl;
+        debug_print_env(env);
+    }
 
     env_stack.pop_back();
 
-    cerr << "======= After Pop, "
-         << "Stack Size: " << env_stack.size()
-         << "Env = " << endl;
-    debug_print_env(env);
+    if (config.nra_verbose) {
+        cerr << "======= After Pop, "
+             << "Stack Size: " << env_stack.size()
+             << "Env = " << endl;
+        debug_print_env(env);
+    }
 }
 
 //
@@ -233,22 +265,40 @@ void NRASolver::popBacktrackPoint ( )
 //
 bool NRASolver::check( bool complete )
 {
-    cerr << "================================================================" << endl;
-    cerr << "NRASolver::check " << (complete ? "complete" : "incomplete") << endl;
+    if (config.nra_verbose) {
+        cerr << "================================================================" << endl;
+        cerr << "NRASolver::check " << (complete ? "complete" : "incomplete") << endl;
+    }
+
     bool result = true;
-    debug_print_stack(stack);
-    debug_print_env(env);
+
+    if (config.nra_verbose) {
+        debug_print_stack(stack);
+        debug_print_env(env);
+    }
+
+    env = env_stack.back();
+    icp_solver solver(config, stack, env, explanation, 10.0, precision, contain_ode, _enode_to_vars);
 
     if(!complete) {
         // Incomplete Check
-        result = true;
+        if (config.nra_verbose) {
+            cerr << "Before Prop" << endl;
+            debug_print_env(env);
+        }
+        result = solver.prop();
+        if (config.nra_verbose) {
+            cerr << "After Prop" << endl;
+            debug_print_env(env);
+        }
     } else {
         // Complete Check
-        explanation.clear();
-        env = env_stack.back();
-        icp_solver solver( stack, env, explanation, 10.0, precision);
         result = solver.solve();
-        if (!result) {
+    }
+
+    // If the result is UNSAT, generate explanation
+    if (!result) {
+        if (config.nra_verbose) {
             cerr<<"#explanation provided: ";
             debug_print_explanation(explanation);
         }
@@ -274,7 +324,9 @@ bool NRASolver::belongsToT( Enode * e )
 //
 void NRASolver::computeModel( )
 {
-    cerr << "computeModel" << endl;
+    if (config.nra_verbose) {
+        cerr << "computeModel" << endl;
+    }
 }
 
 #ifdef PRODUCE_PROOF

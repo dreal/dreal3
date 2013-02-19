@@ -420,7 +420,7 @@ void rp_interval_neg(rp_interval result, rp_interval i)
 /* result := i1*i2 */
 void rp_interval_mul(rp_interval result, rp_interval i1, rp_interval i2)
 {
-  unsigned int sig = ((rp_bsup(i1)<0.0) << 3) | ((rp_binf(i1)>0.0) << 2) 
+  unsigned int sig = ((rp_bsup(i1)<0.0) << 3) | ((rp_binf(i1)>0.0) << 2)
                    | ((rp_bsup(i2)<0.0) << 1) | (rp_binf(i2)>0.0);
 
   double l1, l2, u1, u2;
@@ -777,7 +777,7 @@ void rp_interval_div(rp_interval result, rp_interval i1, rp_interval i2)
   else  /* i2 does not contain 0 => standard division */
   {
     unsigned int
-    sig = ((rp_bsup(i1)<0.0) << 3) | ((rp_binf(i1)>0.0) << 2) 
+    sig = ((rp_bsup(i1)<0.0) << 3) | ((rp_binf(i1)>0.0) << 2)
           | ((rp_bsup(i2)<0.0) << 1) | (rp_binf(i2)>0.0);
 
     switch( sig )

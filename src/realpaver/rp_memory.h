@@ -28,7 +28,7 @@ extern "C" {
 #ifdef __cplusplus
 #undef rp_throw
 #define rp_throw throw()
-#define rp_inline inline 
+#define rp_inline inline
 #endif
 
 

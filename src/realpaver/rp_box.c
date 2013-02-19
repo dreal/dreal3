@@ -65,7 +65,7 @@ void rp_box_clone (rp_box* b, rp_box src)
 /* Returns true if b is equal to the empty set */
 int rp_box_empty(rp_box b)
 {
-  if ((rp_box_size(b)==0) || 
+  if ((rp_box_size(b)==0) ||
       ((((b)[0].property.type & RP_BOX_TYPE_EMPTY_MASK)
 	>> RP_BOX_TYPE_EMPTY_BIT) == RP_BOX_TYPE_EMPTY_YES))
   {
