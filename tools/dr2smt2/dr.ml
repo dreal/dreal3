@@ -6,7 +6,7 @@ type float_option =
   Float    (* Floating point   : 3.141592            *)
 | IntRatio (* Ratio of integers: (3141592 / 1000000) *)
 
-let fop = ref IntRatio
+let fop = ref Float
 
 type exp =
 | Var   of string
@@ -28,6 +28,8 @@ type exp =
 | Asin  of exp
 | Acos  of exp
 | Atan  of exp
+| Atan2 of exp * exp
+| Matan of exp
 | Sinh  of exp
 | Cosh  of exp
 | Tanh  of exp
@@ -131,6 +133,8 @@ let rec print_exp out =
   | Asin e -> print_exps "arcsin" [e]
   | Acos e -> print_exps "arccos" [e]
   | Atan e -> print_exps "arctan" [e]
+  | Atan2 (e1, e2) -> print_exps "arctan2" [e1; e2]
+  | Matan e -> print_exps "marctan" [e]
   | Sinh e -> print_exps "sinh" [e]
   | Cosh e -> print_exps "cosh" [e]
   | Tanh e -> print_exps "tanh" [e]

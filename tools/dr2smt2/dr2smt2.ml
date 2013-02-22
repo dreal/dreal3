@@ -5,9 +5,9 @@ open Error
 open Smt2_cmd
 
 let spec = [("-i", Arg.Unit (fun () -> Dr.fop := Dr.IntRatio),
-             ": print number as a ratio of two integers (Default option).");
+             ": print number as a ratio of two integers.");
             ("-f", Arg.Unit (fun () -> Dr.fop := Dr.Float),
-             ": print number as a decimal fraction.");
+             ": print number as a decimal fraction (Default option).");
            ]
 let usage = "Usage: dr2smt2.native <.dr>\n"
 

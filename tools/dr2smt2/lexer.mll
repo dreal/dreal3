@@ -19,6 +19,8 @@
      ("acos", ACOS);
      ("arccos", ACOS);
      ("atan", ATAN);
+     ("atn2", ATAN2);
+     ("matan", MATAN);
      ("arctan", ATAN);
      ("sinh", SINH);
      ("cosh", COSH);
@@ -38,9 +40,7 @@
     ]
   type state = Normal | Comment
   let curr_state = ref Normal
-
 }
-
 
 let blank = [' ' '\t']+
 let id = ['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z' '0'-'9' '_'])*
