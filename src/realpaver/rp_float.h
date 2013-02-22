@@ -44,6 +44,10 @@ extern double fabs      (double) rp_throw;
 extern double nextafter (double, double) rp_throw;
 extern double pow       (double, double) rp_throw;
 
+extern double atan2     (double, double) rp_throw;
+extern double matan     (double) rp_throw;
+
+
 /* -------------------------------------------------------- */
 /* Support of IEEE rounding modes and floating-point values */
 /* -------------------------------------------------------- */

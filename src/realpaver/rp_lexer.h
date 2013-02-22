@@ -57,6 +57,8 @@ extern "C" {
 #define RP_TOKEN_ABS           120
 #define RP_TOKEN_MIN           121
 #define RP_TOKEN_MAX           122
+#define RP_TOKEN_ATAN2         123
+#define RP_TOKEN_MATAN         124
 
 /* Operands */
 #define RP_TOKEN_IDENT         200

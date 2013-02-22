@@ -237,6 +237,8 @@ void rp_interval_atan       (rp_interval result, rp_interval i);
 void rp_interval_asinh      (rp_interval result, rp_interval i);
 void rp_interval_acosh      (rp_interval result, rp_interval i);
 void rp_interval_atanh      (rp_interval result, rp_interval i);
+void rp_interval_matan      (rp_interval result, rp_interval i);
+void rp_interval_atan2      (rp_interval result, rp_interval i,  rp_interval n);
 
 /* Other functions */
 

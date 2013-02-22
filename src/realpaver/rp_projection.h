@@ -72,6 +72,13 @@ int rp_project_max_fst (rp_interval ynew, rp_interval x, rp_interval y,
 int rp_project_max_snd (rp_interval znew, rp_interval x, rp_interval y,
 			rp_interval z);
 
+/* x = atan2(y,z) / z <=> y = atan2-1(x,z) <=> z = atan2-1(x,y) */
+int rp_project_atan2_zro (rp_interval xnew, rp_interval x, rp_interval y,
+			rp_interval z);
+int rp_project_atan2_fst (rp_interval ynew, rp_interval x, rp_interval y,
+			rp_interval z);
+int rp_project_atan2_snd (rp_interval znew, rp_interval x, rp_interval y,
+			rp_interval z);
 /* -------------------------- */
 /* Unary projection functions */
 /* -------------------------- */
@@ -137,6 +144,10 @@ int rp_project_asin_fst (rp_interval ynew, rp_interval x, rp_interval y);
 /* x = atan(y) <=> y = atan-1(x) */
 int rp_project_atan_zro (rp_interval xnew, rp_interval x, rp_interval y);
 int rp_project_atan_fst (rp_interval ynew, rp_interval x, rp_interval y);
+
+/* x = matan(y) <=> y = matan-1(x) */
+int rp_project_matan_zro (rp_interval xnew, rp_interval x, rp_interval y);
+int rp_project_matan_fst (rp_interval ynew, rp_interval x, rp_interval y);
 
 /* x = acosh(y) <=> y = acosh-1(x) */
 int rp_project_acosh_zro (rp_interval xnew, rp_interval x, rp_interval y);

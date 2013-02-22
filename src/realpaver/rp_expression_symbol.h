@@ -68,6 +68,11 @@ extern "C" {
 #define RP_SYMBOL_MIN         35
 #define RP_SYMBOL_MAX         36
 
+/* added for dReal2 */
+#define RP_SYMBOL_ATAN2       37
+#define RP_SYMBOL_MATAN       38
+
+
 /* ---------------------------------- */
 /* Tree-representation of expressions */
 /* ---------------------------------- */
@@ -482,6 +487,23 @@ int rp_eval_max(rp_interval result, rp_interval i, rp_interval j)
   return( !rp_interval_empty(result) );
 }
 
+/* added for dReal2 */
+static rp_inline
+int rp_eval_atan2(rp_interval result, rp_interval i, rp_interval j)
+{
+  rp_interval_atan2(result,i,j);
+  return( !rp_interval_empty(result) );
+}
+
+static rp_inline
+int rp_eval_matan(rp_interval result, rp_interval i, rp_interval j)
+{
+  rp_interval_matan(result,i);
+  return( !rp_interval_empty(result) );
+}
+
+
+
 /* ---------------------------- */
 /* Symbols projection functions */
 /* ---------------------------- */
@@ -795,6 +817,28 @@ int rp_project_max(rp_erep f)
 			     rp_erep_proj(f),
 			     rp_erep_left_val(f),
 			     rp_erep_right_val(f)) );
+}
+
+static rp_inline
+int rp_project_atan2(rp_erep f)
+{
+  return( rp_project_atan2_fst(rp_erep_left_proj(f),
+			       rp_erep_proj(f),
+			       rp_erep_left_val(f),
+			       rp_erep_right_val(f))
+	  &&
+	  rp_project_atan2_snd(rp_erep_right_proj(f),
+  			       rp_erep_proj(f),
+			       rp_erep_left_val(f),
+			       rp_erep_right_val(f)) );
+}
+
+static rp_inline
+int rp_project_matan(rp_erep f)
+{
+  return( rp_project_matan_fst(rp_erep_left_proj(f),
+			      rp_erep_proj(f),
+			      rp_erep_left_val(f)) );
 }
 
 /* -------------------------------------- */
@@ -1196,6 +1240,52 @@ int rp_deriv_num_atanh(rp_erep f)            /* d(atanh(u))/du = 1/(1-u^2) */
   rp_deriv_set(rp_erep_sub(f),r);
   return( 1 );
 }
+
+static rp_inline
+int rp_deriv_num_matan(rp_erep f)             /* d(matan(u))/du = 1/(1+u^2) */
+{
+  /* TODO */
+  rp_interval i, j, k, r;
+  rp_interval_sqr(i,rp_erep_sub_val(f));  /* i := u^2 */
+  rp_interval_set_point(j,1.0);
+  rp_interval_add_r_i(k,j,i);             /* k := 1+u^2 */
+  rp_interval_div(r,rp_erep_deriv(f),k);
+  rp_deriv_set(rp_erep_sub(f),r);
+  return( 1 );
+}
+
+static rp_inline
+int rp_deriv_num_atan2(rp_erep f)              /* d(u^n)/du = n*u^(n-1) */
+{
+  /* TODO */
+  int n = (int)rp_binf(rp_erep_right_val(f));
+  rp_interval i, j, k, l, r;
+  rp_interval_set_point(i,n);
+
+  if (n==2)      /* 2*u */
+  {
+    rp_interval_mul_rpos_i(k,i,rp_erep_left_val(f));  /* k := 2*u */
+    rp_interval_mul(r,rp_erep_deriv(f),k);
+    rp_deriv_set(rp_erep_left(f),r);
+  }
+  else if (n==3) /* 3*u^2 */
+  {
+    rp_interval_sqr(j,rp_erep_left_val(f));   /* j := u^2 */
+    rp_interval_mul_rpos_i(k,i,j);            /* k := 3*u^2 */
+    rp_interval_mul(r,rp_erep_deriv(f),k);
+    rp_deriv_set(rp_erep_left(f),r);
+  }
+  else           /* n*u^(n-1) */
+  {
+    rp_interval_set_point(j,n-1);             /* j := n-1 */
+    rp_interval_pow(k,rp_erep_left_val(f),j); /* k := u^(n-1) */
+    rp_interval_mul_rpos_i(l,i,k);            /* l := n*u^(n-1) */
+    rp_interval_mul(r,rp_erep_deriv(f),l);
+    rp_deriv_set(rp_erep_left(f),r);
+  }
+  return( 1 );
+}
+
 
 /* ------------------------------------- */
 /* Symbols symbolic derivation functions */
@@ -1650,6 +1740,49 @@ void rp_deriv_symb_atanh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 
+static rp_inline
+void rp_deriv_symb_matan(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+{
+  /* TODO */
+  /* d(atan(u)) = du/(1+u^2) */
+  rp_erep g, h, p, u;
+  rp_interval i;
+  rp_erep_copy(&u,rp_erep_sub(f));
+  rp_erep_create_unary(&g,RP_SYMBOL_SQR,u);     /* u^2 */
+  rp_interval_set_point(i,1.0);
+  rp_erep_create_cst(&h,"",i);
+  rp_erep_create_binary(&p,RP_SYMBOL_ADD,h,g);  /* 1+u^2 */
+  rp_erep_create_binary(df,RP_SYMBOL_DIV,du,p);
+  rp_erep_destroy(&g);
+  rp_erep_destroy(&h);
+  rp_erep_destroy(&p);
+  rp_erep_destroy(&u);
+}
+
+static rp_inline
+void rp_deriv_symb_atan2(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+{
+  /* TODO */
+  /* d(u^n) := n*u^(n-1)*du */
+  int n = (int)rp_binf(rp_erep_right_val(f));
+  rp_erep g, h, p, q, u;
+  rp_interval i;
+  rp_erep_copy(&u,rp_erep_left(f));
+  rp_interval_set_point(i,n-1);
+  rp_erep_create_cst(&p,"",i);
+  rp_erep_create_binary(&g,RP_SYMBOL_POW,u,p);  /* u^(n-1) */
+  rp_interval_set_point(i,n);
+  rp_erep_create_cst(&q,"",i);
+  rp_erep_create_binary(&h,RP_SYMBOL_MUL,q,g);  /* n*u^(n-1) */
+  rp_erep_create_binary(df,RP_SYMBOL_MUL,h,du);
+  rp_erep_destroy(&g);
+  rp_erep_destroy(&h);
+  rp_erep_destroy(&p);
+  rp_erep_destroy(&q);
+  rp_erep_destroy(&u);
+}
+
+
 /* ----------------------------------------------------------- */
 /* Mapping symbols-functions                                   */
 /* ----------------------------------------------------------- */
@@ -2002,6 +2135,24 @@ static rp_symbol rp_symbol_set[] =
    rp_project_atanh,
    rp_deriv_num_atanh,
    rp_deriv_symb_atanh},
+
+  /* added for dReal2 */
+  /* atan2 */
+  {"atan2",
+   RP_SYMBOL_BINARY_PREFIX + RP_SYMBOL_PRIORITY_L,
+   rp_eval_atan2,
+   rp_project_atan2,
+   rp_deriv_num_atan2,
+   rp_deriv_symb_atan2},
+
+  /* added for dReal2 */
+  /* matan */
+  {"matan",
+   RP_SYMBOL_UNARY_PREFIX + RP_SYMBOL_PRIORITY_L,
+   rp_eval_matan,
+   rp_project_matan,
+   rp_deriv_num_matan,
+   rp_deriv_symb_matan},
 
   /* abs */
   {"abs",

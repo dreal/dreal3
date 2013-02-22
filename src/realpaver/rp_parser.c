@@ -1800,6 +1800,18 @@ int rp_rule_unit(rp_parser p, rp_erep * out)
     return( rp_rule_unit_unary(p,out,RP_SYMBOL_NO) );
   }
 
+  /* matan( expr ) */
+  else if (rp_parser_accept(p,RP_TOKEN_MATAN))
+  {
+    return( rp_rule_unit_unary(p,out,RP_SYMBOL_MATAN) );
+  }
+
+  /* atan2( l , r ) */
+  else if (rp_parser_accept(p,RP_TOKEN_ATAN2))
+  {
+    return( rp_rule_unit_binary(p,out,RP_SYMBOL_ATAN2) );
+  }
+
   /* otherwise*/
   else
   {

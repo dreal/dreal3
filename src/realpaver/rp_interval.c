@@ -1529,6 +1529,65 @@ void rp_interval_atanh(rp_interval result, rp_interval i)
   }
 }
 
+/* result := matan(i)  (increasing function in (-oo,+oo)) */
+void rp_interval_matan(rp_interval result, rp_interval i)
+{
+  /* TODO */
+  RP_ROUND_DOWNWARD();
+  rp_binf(result) = atan(rp_binf(i));
+
+  RP_ROUND_UPWARD();
+  rp_bsup(result) = atan(rp_bsup(i));
+}
+
+void rp_interval_atan2(rp_interval result, rp_interval i, rp_interval n)
+{
+  /* TODO */
+  int exp = (int)rp_binf(n);
+
+  if( rp_even(exp) )   /* n even */
+  {
+    rp_interval z;
+    rp_interval_abs(z,i);
+    if (rp_binf(z)==0.0)
+    {
+      rp_binf(result) = 0.0;
+    }
+    else
+    {
+      rp_binf(result) = rp_pow(rp_binf(z),exp,RP_ROUND_VALUE_DOWN);
+    }
+    if (rp_bsup(z)==RP_INFINITY)
+    {
+      rp_bsup(result) = RP_INFINITY;
+    }
+    else
+    {
+      rp_bsup(result) = rp_pow(rp_bsup(z),exp,RP_ROUND_VALUE_UP);
+    }
+  }
+  else  /* rp_odd(exp) */
+  {
+    if (rp_binf(i)==(-RP_INFINITY))
+    {
+      rp_binf(result) = (-RP_INFINITY);
+    }
+    else
+    {
+      rp_binf(result) = rp_pow(rp_binf(i),exp,RP_ROUND_VALUE_DOWN);
+    }
+    if (rp_bsup(i)==RP_INFINITY)
+    {
+      rp_bsup(result) = RP_INFINITY;
+    }
+    else
+    {
+      rp_bsup(result) = rp_pow(rp_bsup(i),exp,RP_ROUND_VALUE_UP);
+    }
+  }
+}
+
+
 /* result := n-th root of i                                                */
 /* computes only the positive part for even exponent and positive interval */
 void rp_interval_nthroot(rp_interval result, rp_interval i, rp_interval n)

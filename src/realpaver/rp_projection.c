@@ -1075,3 +1075,86 @@ int rp_project_abs_fst (rp_interval ynew, rp_interval x, rp_interval y)
   }
   return( !rp_interval_empty(ynew) );
 }
+
+/* x = matan(y) => xnew := hull ( matan(y) inter x ) */
+
+int rp_project_matan_zro (rp_interval xnew, rp_interval x, rp_interval y)
+{
+  /* TODO */
+  rp_interval aux;
+  rp_interval_matan(aux,y);
+  rp_interval_inter(xnew,aux,x);
+  return( !rp_interval_empty(xnew) );
+}
+
+/* x = matan(y) => ynew := hull ( tan(x inter [-Pi/2,Pi/2]) inter y ) */
+
+int rp_project_matan_fst (rp_interval ynew, rp_interval x, rp_interval y)
+{
+  /* TODO */
+  rp_interval dom, aux, tan;
+  rp_interval_set(dom,-rp_bsup(RP_INTERVAL_1_PI_2),rp_bsup(RP_INTERVAL_1_PI_2));
+  rp_interval_inter(aux,dom,x);
+  if (rp_interval_empty(aux))
+  {
+    rp_interval_set_empty(ynew);
+  }
+  else
+  {
+    rp_interval_tan(tan,aux);
+    rp_interval_inter(ynew,tan,y);
+  }
+  return( !rp_interval_empty(ynew) );
+}
+
+/* x = pow(y,n) => xnew := hull ( pow(y,n) inter x ) */
+
+int rp_project_atan2_zro (rp_interval xnew, rp_interval x, rp_interval y,
+			  rp_interval n)
+{
+  /* TODO */
+  rp_interval aux;
+  rp_interval_pow(aux,y,n);
+  rp_interval_inter(xnew,aux,x);
+  return( !rp_interval_empty(xnew) );
+}
+
+/* x = pow(y,n) => ynew := hull ( pow-1(x,n) inter y ) */
+
+int rp_project_atan2_fst (rp_interval ynew, rp_interval x, rp_interval y,
+  			  rp_interval n)
+{
+  /* TODO */
+  rp_interval aux1, aux2;
+  rp_union_interval aux;
+  int exp = (int)rp_binf(n);
+  if( rp_odd(exp) )
+  {
+    rp_interval_nthroot(aux1,x,n);
+    rp_interval_inter(ynew,aux1,y);
+  }
+  else
+  {
+    if( rp_interval_contains(x,0.0) )
+    {
+      rp_interval_nthroot(aux1,x,n);
+      rp_interval_inter(ynew,aux1,y);
+    }
+    else if( rp_binf(x)>0.0 )
+    {
+      rp_interval_nthroot(aux1,x,n);
+      rp_interval_neg(aux2,aux1);
+      rp_union_create_size(&aux,2);
+      rp_union_insert(aux,aux1);
+      rp_union_insert(aux,aux2);
+      rp_union_inter(aux,y);
+      rp_union_hull(ynew,aux);
+      rp_union_destroy(&aux);
+    }
+    else
+    {
+      rp_interval_set_empty(ynew);
+    }
+  }
+  return( !rp_interval_empty(ynew) );
+}

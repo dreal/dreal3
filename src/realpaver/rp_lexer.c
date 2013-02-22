@@ -528,6 +528,19 @@ int rp_lexer_get_ident(rp_lexer l)
       return( rp_lexer_token(l)=RP_TOKEN_MAX );
     }
 
+    /* ATAN2 */
+    else if (rp_string_equal_case(rp_lexer_text(l),"ATAN2"))
+    {
+      return( rp_lexer_token(l)=RP_TOKEN_ATAN2 );
+    }
+
+    /* MATAN */
+    else if (rp_string_equal_case(rp_lexer_text(l),"MATAN"))
+    {
+      return( rp_lexer_token(l)=RP_TOKEN_MATAN );
+    }
+
+
     /* PI */
     else if (rp_string_equal_case(rp_lexer_text(l),"PI"))
     {
