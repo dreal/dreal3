@@ -203,6 +203,10 @@ icp_solver::~icp_solver()
 
 bool icp_solver::prop_with_ODE()
 {
+    cerr << "icp_solver::prop_with_ODE" << endl;
+    cerr << "icp_solver::prop_with_ODE_BEFORE" << endl;
+    display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+
     if (_propag->apply(_boxes.get())) {
         if(_contain_ode) {
             rp_box current_box = _boxes.get();
@@ -255,9 +259,13 @@ bool icp_solver::prop_with_ODE()
                         return false;
                 }
             }
+            cerr << "icp_solver::prop_with_ODE_AFTER(ODE)" << endl;
+            display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
             return true;
         }
         else {
+            cerr << "icp_solver::prop_with_ODE_AFTER(NO ODE)" << endl;
+            display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
             return true;
         }
     }
@@ -266,6 +274,7 @@ bool icp_solver::prop_with_ODE()
 
 rp_box icp_solver::compute_next()
 {
+    cerr << "icp_solver::compute_next()" << endl;
     if (_sol>0)
     {
         _boxes.remove();
@@ -304,6 +313,7 @@ rp_box icp_solver::compute_next()
 
 bool icp_solver::solve()
 {
+    cerr << "icp_solver::solve()" << endl;
     if(_proof) {
         output_problem();
     }

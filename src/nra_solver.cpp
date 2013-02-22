@@ -153,7 +153,9 @@ lbool NRASolver::inform( Enode * e )
         env[*ite] = make_pair (lb, ub);
 
         // Collect ODE Vars in e
-        if(contain_ode && (*ite)->getODEtimevar() != NULL) {
+        if(contain_ode && (*ite)->getODEtimevar() != NULL && (*ite)->getODEgroup() > 0) {
+            cerr << "Add " << *ite << " in the bag!!!! " << endl;
+            cerr << "\t Group: " << (*ite)->getODEgroup() << endl;
             ode_variables_in_e.insert(*ite);
         }
     }
