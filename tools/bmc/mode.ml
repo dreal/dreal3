@@ -17,7 +17,7 @@ let extract_id m =
   let (id, _, _, _) = m in
   id
 
-let print out (id, inv_op, flow, jm) =
+let print out (id, inv_op, flows, jumpmap) =
   begin
     BatString.print out "{\n";
     BatString.print out "ModeID = ";
@@ -31,9 +31,9 @@ let print out (id, inv_op, flow, jm) =
           BatList.print (~first:"") (~sep:"\n    ") (~last:"\n") Dr.print_formula out inv;
         end
     end;
-    BatString.print out "\nFlow = ";
-    BatList.print (~first:"") (~sep:"\n    ") (~last:"\n") Dr.print_ode out flow;
+    BatString.print out "\nFlows = ";
+    BatList.print (~first:"") (~sep:"\n    ") (~last:"\n") Dr.print_ode out flows;
     BatString.print out "\nJump = ";
-    Jumpmap.print out jm;
+    Jumpmap.print out jumpmap;
     BatString.print out "\n}";
   end

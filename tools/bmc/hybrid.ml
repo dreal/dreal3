@@ -18,17 +18,16 @@ type goal = modeId * formula
 type goals = goal list
 type t = vardeclmap * vardeclmap * modemap * init * goals
 
-let preprocess ((vm : Vardeclmap.t), (env : Vardeclmap.t), (mm : Modemap.t), (init_id, init_f), goals) : t =
+let preprocess ((vm : Vardeclmap.t), (constmap : Vardeclmap.t), (mm : Modemap.t), (init_id, init_f), goals) : t =
   let subst s =
-    match BatMap.mem s env with
+    match BatMap.mem s constmap with
     | true ->
       begin
-        match Vardeclmap.find s env with
+        match Vardeclmap.find s constmap with
           Value.Num n -> Dr.Const n
         | _ -> raise Not_found
       end
-    | false ->
-      Dr.Var s
+    | false -> Dr.Var s
   in
   let mm' =
     BatMap.map
@@ -50,7 +49,7 @@ let preprocess ((vm : Vardeclmap.t), (env : Vardeclmap.t), (mm : Modemap.t), (in
       mm in
   let init' = (init_id, Dr.preprocess_formula subst init_f) in
   let goals' = List.map (fun (id, goal) -> (id, Dr.preprocess_formula subst goal)) goals in
-  (vm, env, mm', init', goals')
+  (vm, constmap, mm', init', goals')
 
 let mf_print out (id, f) =
   begin
