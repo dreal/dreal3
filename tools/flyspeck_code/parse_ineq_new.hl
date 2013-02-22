@@ -26,17 +26,15 @@
 
 *)
 
-(*
+
+
 flyspeck_needs "general/flyspeck_lib.hl";;
 flyspeck_needs "general/sphere.hl";;
-flyspeck_needs "nonlinear/prep.hl";;
 flyspeck_needs "nonlinear/ineq.hl";;
 flyspeck_needs "nonlinear/lemma.hl";;
-flyspeck_needs "leg/enclosed_def.hl";;
 
-*)
 
-module Parse_ineq = struct
+module Parse_ineq2 = struct
 
   open Sphere;;
   open Nonlinear_lemma;;
@@ -226,6 +224,17 @@ let get_macro_expand() = (
    rhazim2;rhazim3;rhazim_x;rhazim2_x;rhazim3_x;
    rotate2;rotate3;rotate4;rotate5;rotate6;
    arclength_x1;
+   gamma2_x_div_azim_v2;
+   lfun;
+   proj_y4;
+   proj_y5;
+   proj_y6;
+   promote1_to_6;
+   scalar6;
+   two6;
+   sol_x;
+   uni;
+   vol3f_456;
    add6;
    compose6;
    constant6;
@@ -353,10 +362,10 @@ let get_macro_expand() = (
    lfun;
    arclength;
    casn;
-   atn2;
+(*   atn2; *)
    ly;
    ups_x;
-   matan;
+(*   matan; *)
    eta_x;eta_y;
    mm2;
    interp;

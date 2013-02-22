@@ -1,4 +1,5 @@
 #use "hol.ml";;
-#use "prep.ml";;
-#use "load_hl";;
-#use "functional_equations";;
+#cd "<FLYSPECK/text_formalization";;
+#use "load_nonlinear.hl";; (<- original: parse_ineq.hl)
+
+#use "parse_ineq2.hl";;
