@@ -429,6 +429,7 @@ module Parse_ineq2 = struct
    (* 2012 *)
      Mdtau.mdtau_y_LC;
      Mdtau.mdtau2uf_y_LC;
+     Mdtau.mdtau2uf_y;
      Sphere.delta_y_LC;
 
     ] @ (!Ineq.dart_classes));;
