@@ -71,6 +71,7 @@ extern "C" {
 /* added for dReal2 */
 #define RP_SYMBOL_ATAN2       37
 #define RP_SYMBOL_MATAN       38
+#define RP_SYMBOL_SAFESQRT    39
 
 
 /* ---------------------------------- */
@@ -502,6 +503,12 @@ int rp_eval_matan(rp_interval result, rp_interval i, rp_interval j)
   return( !rp_interval_empty(result) );
 }
 
+static rp_inline
+int rp_eval_safesqrt(rp_interval result, rp_interval i, rp_interval j)
+{
+  rp_interval_safesqrt(result,i);
+  return( !rp_interval_empty(result) );
+}
 
 
 /* ---------------------------- */
@@ -839,6 +846,14 @@ int rp_project_matan(rp_erep f)
   return( rp_project_matan_fst(rp_erep_left_proj(f),
 			      rp_erep_proj(f),
 			      rp_erep_left_val(f)) );
+}
+
+static rp_inline
+int rp_project_safesqrt(rp_erep f)
+{
+  return( rp_project_safesqrt_fst(rp_erep_left_proj(f),
+			          rp_erep_proj(f),
+                                  rp_erep_left_val(f)) );
 }
 
 /* -------------------------------------- */
@@ -1243,6 +1258,19 @@ int rp_deriv_num_atanh(rp_erep f)            /* d(atanh(u))/du = 1/(1-u^2) */
 
 static rp_inline
 int rp_deriv_num_matan(rp_erep f)             /* d(matan(u))/du = 1/(1+u^2) */
+{
+  /* TODO */
+  rp_interval i, j, k, r;
+  rp_interval_sqr(i,rp_erep_sub_val(f));  /* i := u^2 */
+  rp_interval_set_point(j,1.0);
+  rp_interval_add_r_i(k,j,i);             /* k := 1+u^2 */
+  rp_interval_div(r,rp_erep_deriv(f),k);
+  rp_deriv_set(rp_erep_sub(f),r);
+  return( 1 );
+}
+
+static rp_inline
+int rp_deriv_num_safesqrt(rp_erep f)
 {
   /* TODO */
   rp_interval i, j, k, r;
@@ -1760,6 +1788,25 @@ void rp_deriv_symb_matan(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
 }
 
 static rp_inline
+void rp_deriv_symb_safesqrt(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+{
+  /* TODO */
+  /* d(atan(u)) = du/(1+u^2) */
+  rp_erep g, h, p, u;
+  rp_interval i;
+  rp_erep_copy(&u,rp_erep_sub(f));
+  rp_erep_create_unary(&g,RP_SYMBOL_SQR,u);     /* u^2 */
+  rp_interval_set_point(i,1.0);
+  rp_erep_create_cst(&h,"",i);
+  rp_erep_create_binary(&p,RP_SYMBOL_ADD,h,g);  /* 1+u^2 */
+  rp_erep_create_binary(df,RP_SYMBOL_DIV,du,p);
+  rp_erep_destroy(&g);
+  rp_erep_destroy(&h);
+  rp_erep_destroy(&p);
+  rp_erep_destroy(&u);
+}
+
+static rp_inline
 void rp_deriv_symb_atan2(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
 {
   /* TODO */
@@ -1792,7 +1839,7 @@ void rp_deriv_symb_atan2(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
 
 typedef struct
 {
-  char                 name[6];    /* name used for display          */
+  char                 name[9];    /* name used for display          */
   unsigned int         property;   /* symbol properties              */
   rp_symbol_eval       eval;       /* evaluation function            */
   rp_symbol_project    project;    /* projection function            */
@@ -2136,24 +2183,6 @@ static rp_symbol rp_symbol_set[] =
    rp_deriv_num_atanh,
    rp_deriv_symb_atanh},
 
-  /* added for dReal2 */
-  /* atan2 */
-  {"atan2",
-   RP_SYMBOL_BINARY_PREFIX + RP_SYMBOL_PRIORITY_L,
-   rp_eval_atan2,
-   rp_project_atan2,
-   rp_deriv_num_atan2,
-   rp_deriv_symb_atan2},
-
-  /* added for dReal2 */
-  /* matan */
-  {"matan",
-   RP_SYMBOL_UNARY_PREFIX + RP_SYMBOL_PRIORITY_L,
-   rp_eval_matan,
-   rp_project_matan,
-   rp_deriv_num_matan,
-   rp_deriv_symb_matan},
-
   /* abs */
   {"abs",
    RP_SYMBOL_UNARY_PREFIX + RP_SYMBOL_PRIORITY_L,
@@ -2176,7 +2205,33 @@ static rp_symbol rp_symbol_set[] =
    rp_eval_max,
    rp_project_max,
    NULL,
-   NULL}
+   NULL},
+
+  /* added for dReal2 */
+  /* atan2 */
+  {"atan2",
+   RP_SYMBOL_BINARY_PREFIX + RP_SYMBOL_PRIORITY_L,
+   rp_eval_atan2,
+   rp_project_atan2,
+   rp_deriv_num_atan2,
+   rp_deriv_symb_atan2},
+
+  /* added for dReal2 */
+  /* matan */
+  {"matan",
+   RP_SYMBOL_UNARY_PREFIX + RP_SYMBOL_PRIORITY_L,
+   rp_eval_matan,
+   rp_project_matan,
+   rp_deriv_num_matan,
+   rp_deriv_symb_matan},
+
+  /* safesqrt */
+  {"safesqrt",
+   RP_SYMBOL_UNARY_PREFIX + RP_SYMBOL_PRIORITY_L,
+   rp_eval_safesqrt,
+   rp_project_safesqrt,
+   rp_deriv_num_safesqrt,
+   rp_deriv_symb_safesqrt}
 };
 
 #define rp_symbol_name(s)        (rp_symbol_set[s].name)

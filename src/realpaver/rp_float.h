@@ -46,6 +46,7 @@ extern double pow       (double, double) rp_throw;
 
 extern double atan2     (double, double) rp_throw;
 extern double matan     (double) rp_throw;
+extern double safesqrt  (double) rp_throw;
 
 
 /* -------------------------------------------------------- */

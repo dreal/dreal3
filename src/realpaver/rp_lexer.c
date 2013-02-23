@@ -540,6 +540,11 @@ int rp_lexer_get_ident(rp_lexer l)
       return( rp_lexer_token(l)=RP_TOKEN_MATAN );
     }
 
+    /* SAFESQRT */
+    else if (rp_string_equal_case(rp_lexer_text(l),"SAFESQRT"))
+    {
+      return( rp_lexer_token(l)=RP_TOKEN_SAFESQRT );
+    }
 
     /* PI */
     else if (rp_string_equal_case(rp_lexer_text(l),"PI"))

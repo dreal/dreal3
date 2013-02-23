@@ -1806,6 +1806,12 @@ int rp_rule_unit(rp_parser p, rp_erep * out)
     return( rp_rule_unit_unary(p,out,RP_SYMBOL_MATAN) );
   }
 
+  /* safesqrt ( expr ) */
+  else if (rp_parser_accept(p,RP_TOKEN_SAFESQRT))
+  {
+    return( rp_rule_unit_unary(p,out,RP_SYMBOL_SAFESQRT) );
+  }
+
   /* atan2( l , r ) */
   else if (rp_parser_accept(p,RP_TOKEN_ATAN2))
   {

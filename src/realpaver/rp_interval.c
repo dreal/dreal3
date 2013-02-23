@@ -1540,6 +1540,17 @@ void rp_interval_matan(rp_interval result, rp_interval i)
   rp_bsup(result) = atan(rp_bsup(i));
 }
 
+/* result := safesqrt(i)  (increasing function in (-oo,+oo)) */
+void rp_interval_safesqrt(rp_interval result, rp_interval i)
+{
+  /* TODO */
+  RP_ROUND_DOWNWARD();
+  rp_binf(result) = atan(rp_binf(i));
+
+  RP_ROUND_UPWARD();
+  rp_bsup(result) = atan(rp_bsup(i));
+}
+
 void rp_interval_atan2(rp_interval result, rp_interval i, rp_interval n)
 {
   /* TODO */

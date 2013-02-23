@@ -149,6 +149,10 @@ int rp_project_atan_fst (rp_interval ynew, rp_interval x, rp_interval y);
 int rp_project_matan_zro (rp_interval xnew, rp_interval x, rp_interval y);
 int rp_project_matan_fst (rp_interval ynew, rp_interval x, rp_interval y);
 
+/* x = safesqrt(y) <=> y = safesqrt-1(x) */
+int rp_project_safesqrt_zro (rp_interval xnew, rp_interval x, rp_interval y);
+int rp_project_safesqrt_fst (rp_interval ynew, rp_interval x, rp_interval y);
+
 /* x = acosh(y) <=> y = acosh-1(x) */
 int rp_project_acosh_zro (rp_interval xnew, rp_interval x, rp_interval y);
 int rp_project_acosh_fst (rp_interval ynew, rp_interval x, rp_interval y);

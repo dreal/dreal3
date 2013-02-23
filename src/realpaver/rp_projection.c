@@ -1107,6 +1107,37 @@ int rp_project_matan_fst (rp_interval ynew, rp_interval x, rp_interval y)
   return( !rp_interval_empty(ynew) );
 }
 
+/* x = safesqrt(y) => xnew := hull ( safesqrt(y) inter x ) */
+
+int rp_project_safesqrt_zro (rp_interval xnew, rp_interval x, rp_interval y)
+{
+  /* TODO */
+  rp_interval aux;
+  rp_interval_safesqrt(aux,y);
+  rp_interval_inter(xnew,aux,x);
+  return( !rp_interval_empty(xnew) );
+}
+
+/* x = safesqrt(y) => ynew := hull ( tan(x inter [-Pi/2,Pi/2]) inter y ) */
+
+int rp_project_safesqrt_fst (rp_interval ynew, rp_interval x, rp_interval y)
+{
+  /* TODO */
+  rp_interval dom, aux, tan;
+  rp_interval_set(dom,-rp_bsup(RP_INTERVAL_1_PI_2),rp_bsup(RP_INTERVAL_1_PI_2));
+  rp_interval_inter(aux,dom,x);
+  if (rp_interval_empty(aux))
+  {
+    rp_interval_set_empty(ynew);
+  }
+  else
+  {
+    rp_interval_tan(tan,aux);
+    rp_interval_inter(ynew,tan,y);
+  }
+  return( !rp_interval_empty(ynew) );
+}
+
 /* x = pow(y,n) => xnew := hull ( pow(y,n) inter x ) */
 
 int rp_project_atan2_zro (rp_interval xnew, rp_interval x, rp_interval y,
