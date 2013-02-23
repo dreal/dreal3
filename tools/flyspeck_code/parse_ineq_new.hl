@@ -378,7 +378,7 @@ module Parse_ineq2 = struct
      flat_term_x;
      Mdtau.mdtau_y;
      Mdtau.dua;
-     Mdtau.safesqrt;
+(*     Mdtau.safesqrt; *)
      x1_delta_x;
      quadratic_root_plus;
      Enclosed.enclosed;
