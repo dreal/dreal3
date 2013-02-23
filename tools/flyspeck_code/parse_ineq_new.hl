@@ -944,6 +944,11 @@ module Parse_ineq2 = struct
           let [a] = xs in string_of_float(float_of_string(soh a) ** 0.5) ^ "0"
         | "atn" ->
           let [a] = xs in string_of_float(Pervasives.atan(float_of_string(soh a))) ^ "0"
+	| "atn2" ->
+          let [ab] = xs in
+          let (a,b) = dest_pair ab
+          in
+          string_of_float(Pervasives.atan2 (float_of_string(soh b)) (float_of_string (soh a))) ^ "0"
         | "asn" ->
           let [a] = xs in string_of_float(Pervasives.asin(float_of_string(soh a))) ^ "0"
         | "acs" ->
