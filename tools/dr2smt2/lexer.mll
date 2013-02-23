@@ -26,6 +26,7 @@
      ("cosh", COSH);
      ("tanh", TANH);
      ("sqrt", SQRT);
+     ("safesqrt", SAFESQRT);
      ("abs", ABS);
      ("log", LOG);
      ("exp", EXP);

@@ -19,6 +19,7 @@ type exp =
 | Pow   of exp * exp
 | Ite   of formula * exp * exp
 | Sqrt  of exp
+| Safesqrt of exp
 | Abs   of exp
 | Log   of exp
 | Exp   of exp
@@ -120,11 +121,15 @@ let rec print_exp out =
   | Sqrt e -> (* print_exps "sqrt" [e] *)
     (* SQRT: MATH HACK
        sqrt(x) = pow(x, 0.5) *)
-    print_exp out (Pow(e, Const 0.5))
+    (* print_exp out (Pow(e, Const 0.5)) *)
+    print_exps "sqrt" [e]
+  | Safesqrt e ->
+    print_exps "safesqrt" [e]
   | Abs  e -> (* print_exps "abs"  [e] *)
     (* ABS: MATH HACK
        abs(x) = sqrt(pow(x, 2)) *)
-    print_exp out (Sqrt (Pow(e, Const 2.0)))
+    (* print_exp out (Sqrt (Pow(e, Const 2.0))) *)
+    print_exps "abs" [e]
   | Log  e -> print_exps "log"  [e]
   | Exp  e -> print_exps "exp"  [e]
   | Sin  e -> print_exps "sin"  [e]

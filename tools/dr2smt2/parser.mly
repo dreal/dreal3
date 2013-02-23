@@ -10,7 +10,7 @@
 %token AT LT LE GT GE IMPLY DDT CARET DP NOT COMMA
 %token IF THEN ELSE
 %token SIN COS TAN
-%token ASIN ACOS ATAN ATAN2 MATAN
+%token ASIN ACOS ATAN ATAN2 MATAN SAFESQRT
 %token SINH COSH TANH
 %token LOG EXP SQRT ABS
 %token MODE MACR INVT FLOW JUMP INIT GOAL TRUE FALSE
@@ -96,6 +96,7 @@ exp:
  | ATAN exp                 { Dr.Atan $2 }
  | ATAN2 exp exp            { Dr.Atan2 ($2, $3) }
  | MATAN exp                { Dr.Matan $2 }
+ | SAFESQRT exp             { Dr.Safesqrt $2 }
  | SINH exp                 { Dr.Sinh $2 }
  | COSH exp                 { Dr.Cosh $2 }
  | TANH exp                 { Dr.Tanh $2 }
