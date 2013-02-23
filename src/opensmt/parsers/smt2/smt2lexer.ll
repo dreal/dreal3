@@ -146,6 +146,9 @@ char * pbuffer2;
 "arccos"		{ return TK_ARCCOS; }
 "tan"			{ return TK_TAN; }
 "arctan"		{ return TK_ARCTAN; }
+"arctan2"		{ return TK_ARCTAN2; }
+"marctan"		{ return TK_MARCTAN; }
+"safesqrt"		{ return TK_SAFESQRT; }
 "^"|"pow"		{ return TK_POW; }
 
 

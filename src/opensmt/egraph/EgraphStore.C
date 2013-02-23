@@ -136,10 +136,13 @@ void Egraph::initializeStore( )
   newSymbol( "sin"       , sarith1 ); assert( ENODE_ID_SIN   == id_to_enode.size( ) - 1 );
   newSymbol( "cos"       , sarith1 ); assert( ENODE_ID_COS   == id_to_enode.size( ) - 1 );
   newSymbol( "tan"       , sarith1 ); assert( ENODE_ID_TAN   == id_to_enode.size( ) - 1 );
-  newSymbol( "asin"       , sarith1 ); assert( ENODE_ID_ARCSIN   == id_to_enode.size( ) - 1 );
-  newSymbol( "acos"       , sarith1 ); assert( ENODE_ID_ARCCOS   == id_to_enode.size( ) - 1 );
-  newSymbol( "atan"       , sarith1 ); assert( ENODE_ID_ARCTAN   == id_to_enode.size( ) - 1 );
-  newSymbol( "^"	  , sarith2_left); assert (ENODE_ID_POW  == id_to_enode.size() - 1 );
+  newSymbol( "asin"      , sarith1 ); assert( ENODE_ID_ARCSIN   == id_to_enode.size( ) - 1 );
+  newSymbol( "acos"      , sarith1 ); assert( ENODE_ID_ARCCOS   == id_to_enode.size( ) - 1 );
+  newSymbol( "atan"      , sarith1 ); assert( ENODE_ID_ARCTAN   == id_to_enode.size( ) - 1 );
+  newSymbol( "^"	 , sarith2_left); assert (ENODE_ID_POW  == id_to_enode.size() - 1 );
+  newSymbol( "atan2"     , sarith2_left ); assert( ENODE_ID_ARCTAN2   == id_to_enode.size( ) - 1 );
+  newSymbol( "matan"     , sarith1 ); assert( ENODE_ID_MARCTAN   == id_to_enode.size( ) - 1 );
+  newSymbol( "safesqrt"  , sarith1 ); assert( ENODE_ID_SAFESQRT   == id_to_enode.size( ) - 1 );
   /* ---------------- */
 
  //
@@ -812,6 +815,33 @@ Enode * Egraph::mkArcTan              ( Enode * args)
   assert( args );
   assert( args->getArity( ) == 1 );
   Enode * res = cons( id_to_enode[ ENODE_ID_ARCTAN], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkArcTan2             ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 2 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_ARCTAN2], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkMArcTan             ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_MARCTAN], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkSafeSqrt            ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_SAFESQRT], args );
   assert( res );
   return res;
 }

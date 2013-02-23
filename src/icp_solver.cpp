@@ -167,6 +167,13 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
         string temp_string = buf.str();
 
         if(temp_string.compare("0 = 0") != 0) {
+            if(_verbose) {
+                cerr << "Constraint: "
+                     << (l->getPolarity() == l_True ? " " : "Not")
+                     << l << endl;
+                cerr << "          : " << temp_string << endl;
+            }
+
             // Parse the string (infix form) to create the constraint _c
             rp_parse_constraint_string ( _c ,
                                          temp_string.c_str(),
@@ -180,13 +187,6 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
             for (int i=0; i < rp_constraint_arity(*_c); ++i)
             {
                 ++rp_variable_constrained(rp_problem_var(*result,rp_constraint_var(*_c,i)));
-            }
-
-            if(_verbose) {
-                cerr << "Constraint: "
-                     << (l->getPolarity() == l_True ? " " : "Not")
-                     << l << endl;
-                cerr << "          : " << temp_string << endl;
             }
         }
     }

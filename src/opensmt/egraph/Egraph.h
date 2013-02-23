@@ -182,6 +182,9 @@ public:
   Enode * mkArcSin           ( Enode * );
   Enode * mkArcCos           ( Enode * );
   Enode * mkArcTan           ( Enode * );
+  Enode * mkArcTan2          ( Enode * );
+  Enode * mkMArcTan          ( Enode * );
+  Enode * mkSafeSqrt         ( Enode * );
   Enode * mkExp              ( Enode * );
   Enode * mkLog              ( Enode * );
   Enode * mkPow		     ( Enode * );

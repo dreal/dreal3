@@ -92,6 +92,9 @@ public:
   inline bool isArcCos	          ( ) const { return hasSymbolId( ENODE_ID_ARCCOS	       ); }
   inline bool isArcSin	          ( ) const { return hasSymbolId( ENODE_ID_ARCSIN	       ); }
   inline bool isArcTan	          ( ) const { return hasSymbolId( ENODE_ID_ARCTAN	       ); }
+  inline bool isArcTan2	          ( ) const { return hasSymbolId( ENODE_ID_ARCTAN2	       ); }
+  inline bool isMArcTan	          ( ) const { return hasSymbolId( ENODE_ID_MARCTAN	       ); }
+  inline bool isSafeSqrt	  ( ) const { return hasSymbolId( ENODE_ID_SAFESQRT	       ); }
   inline bool isCos               ( ) const { return hasSymbolId( ENODE_ID_COS	       ); }
   inline bool isExp	          ( ) const { return hasSymbolId( ENODE_ID_EXP	       ); }
   inline bool isLog	          ( ) const { return hasSymbolId( ENODE_ID_LOG	       ); }

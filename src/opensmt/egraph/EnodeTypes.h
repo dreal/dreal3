@@ -67,6 +67,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define ENODE_ID_ARCCOS		  (28)
 #define ENODE_ID_ARCTAN		  (29)
 #define ENODE_ID_POW		  (30)
+#define ENODE_ID_ARCTAN2	  (31)
+#define ENODE_ID_MARCTAN	  (32)
+#define ENODE_ID_SAFESQRT	  (33)
 /* ------------------- */
 
 /*
@@ -105,7 +108,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // it is used to check whether a function symbol
 // is predefined or uninterpreted
 //
-#define ENODE_ID_LAST		  (30)  /* modified for dReal2 */
+#define ENODE_ID_LAST		  (33)  /* modified for dReal2 */
 
 //
 // Properties stored in integers

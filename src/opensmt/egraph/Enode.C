@@ -366,9 +366,23 @@ void Enode::print_infix( ostream & os, lbool polarity ) const
                 p = p->getCdr();
             }
         }
+      else if (isArcTan2()) {
+        assert(getArity() == 2);
+        // output operator
+        getCar()->print_infix(os, polarity);
+        os << "(";
+        // output 1st argument
+        getCdr()->getCar()->print_infix(os, polarity);
+        os << ", ";
+        // output 1st argument
+        getCdr()->getCdr()->getCar()->print_infix(os, polarity);
+        os << ")";
+      }
       else if (isArcCos() ||
                isArcSin() ||
                isArcTan() ||
+               isMArcTan() ||
+               isSafeSqrt() ||
                isSin() ||
                isCos() ||
                isTan() ||

@@ -87,12 +87,15 @@ void smt2error( const char * s )
 
 /* added for dReal2 */
 %token TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW
+%token TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT
 
 %type <str> TK_NUM TK_DEC TK_HEX TK_STR TK_SYM TK_KEY numeral decimal hexadecimal binary symbol
 %type <str> identifier spec_const b_value s_expr
 %type <str> TK_LEQ TK_GEQ TK_LT TK_GT
 %type <str> TK_PLUS TK_MINUS TK_TIMES TK_UMINUS TK_DIV
 %type <str> TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW
+%type <str> TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT
+
 %type <str_list> numeral_list
 %type <enode> term_list term
 %type <string_ptr> infix_term
@@ -377,6 +380,15 @@ term: spec_const
     | '(' TK_ARCTAN term_list ')'
       { $$ = parser_ctx->mkArcTan( $3 ); }
 
+    | '(' TK_ARCTAN2 term_list ')'
+      { $$ = parser_ctx->mkArcTan2( $3 ); }
+
+    | '(' TK_MARCTAN term_list ')'
+      { $$ = parser_ctx->mkMArcTan( $3 ); }
+
+    | '(' TK_SAFESQRT term_list ')'
+      { $$ = parser_ctx->mkSafeSqrt( $3 ); }
+
     | '(' TK_EXP term_list ')'
       { $$ = parser_ctx->mkExp( $3 ); }
 
@@ -580,7 +592,7 @@ infix_term: spec_const
       }
     | TK_ARCSIN '(' infix_term ')'
       {
-        string* ret = new string ("arctan" + '(' + *$3 + ')');
+        string* ret = new string ("arcsin" + '(' + *$3 + ')');
         delete $3;
         $$ = ret;
       }
@@ -593,6 +605,25 @@ infix_term: spec_const
     | TK_ARCTAN '(' infix_term ')'
       {
         string* ret = new string ("arctan" + '(' + *$3 + ')');
+        delete $3;
+        $$ = ret;
+      }
+    | TK_ARCTAN2 '(' infix_term infix_term')'
+      {
+        string* ret = new string ("arctan2" + '(' + *$3 + ", " + *$4 + ')');
+        delete $3;
+        delete $4;
+        $$ = ret;
+      }
+    | TK_MARCTAN '(' infix_term ')'
+      {
+        string* ret = new string ("marctan" + '(' + *$3 + ')');
+        delete $3;
+        $$ = ret;
+      }
+    | TK_SAFESQRT '(' infix_term ')'
+      {
+        string* ret = new string ("safesqrt" + '(' + *$3 + ')');
         delete $3;
         $$ = ret;
       }
