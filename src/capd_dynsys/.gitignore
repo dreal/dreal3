@@ -100,3 +100,5 @@ capdDynSys/src/mpcapd/map/mpcapdmap.pc
 capdDynSys/src/mpcapd/mpcapdDynSys.pc
 capdMake/libcapd/mpcapd-config
 capdMake/libcapd/mpcapd.pc
+capdMake/libcapd/mpcapd-gui-config
+capdMake/libcapd/mpcapd-gui.pc
