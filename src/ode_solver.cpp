@@ -198,7 +198,7 @@ bool ode_solver::solve()
         {
             timeMap(T,s);
             interval stepMade = solver.getStep();
-            cout << "\nstep made: " << stepMade;
+            cout << "step made: " << stepMade << endl;
 
             const ITaylor::CurveType& curve = solver.getCurve();
             interval domain = interval(0,1)*stepMade;
@@ -213,13 +213,13 @@ bool ode_solver::solve()
                 // v will contain rigorous bound for the trajectory for this time interval.
                 IVector v = curve(subsetOfDomain);
 
-                std::cout << "\nenclosure for t=" << prevTime + subsetOfDomain << ":  " << v;
-                std::cout << "\ndiam(enclosure): " << diam(v);
+                std::cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;;
+                std::cout << "diam(enclosure): " << diam(v) << endl;;
 
                 prune(_t_vars, v, subsetOfDomain, out_v_list, out_time_list);
             }
             prevTime = timeMap.getCurrentTime();
-            cout << "\ncurrent time: " << prevTime << endl;
+            cout << "current time: " << prevTime << endl;
 
         } while (!timeMap.completed());
 
