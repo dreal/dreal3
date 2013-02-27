@@ -1532,6 +1532,12 @@ void rp_interval_atanh(rp_interval result, rp_interval i)
 /* result := matan(i)  (increasing function in (-oo,+oo)) */
 void rp_interval_matan(rp_interval result, rp_interval i)
 {
+
+    /* matan(x) = 1                                                           if x = 0
+                = atn(sqrt(x))/sqrt(x)                                        if x > 0
+                = log ((1 + sqrt(-x)) / (1 - sqrt(-x))) / (2 * sqrt(-x))      if x < 0
+    */
+
   /* TODO */
   RP_ROUND_DOWNWARD();
   rp_binf(result) = atan(rp_binf(i));
@@ -1543,12 +1549,16 @@ void rp_interval_matan(rp_interval result, rp_interval i)
 /* result := safesqrt(i)  (increasing function in (-oo,+oo)) */
 void rp_interval_safesqrt(rp_interval result, rp_interval i)
 {
-  /* TODO */
-  RP_ROUND_DOWNWARD();
-  rp_binf(result) = atan(rp_binf(i));
+    /* safesqrt(x) = 0                      if x = 0
+                   = sqrt(x)                if x >= 0
+    */
 
-  RP_ROUND_UPWARD();
-  rp_bsup(result) = atan(rp_bsup(i));
+  rp_interval i_t;
+  rp_interval_copy(i_t,i);
+  if (rp_binf(i) < 0.0) {
+      rp_binf(i_t) = 0.0;
+  }
+  return rp_interval_sqrt(result, i_t);
 }
 
 void rp_interval_atan2(rp_interval result, rp_interval i, rp_interval n)
