@@ -3,7 +3,7 @@
 (declare-fun y () Real)
 (assert (< 2.4 x))
 (assert (< x 2.6))
-(assert (< 0.0 y))
+(assert (< -10.0 y))
 (assert (< y 10.0))
 (assert 
 	(and
