@@ -81,7 +81,7 @@ exp:
  | PLUS exp exp             { Dr.Add ($2, $3) }
  | MINUS exp                { Dr.Neg $2 }
  | MINUS exp exp            { Dr.Sub ($2, $3) }
- | AST exp exp              { Dr.Mul ($2, $3) }
+ | AST exp exp              { if $2 = $3 then Dr.Pow ($2, Dr.Const 2.0) else Dr.Mul ($2, $3) }
  | SLASH exp exp            { Dr.Div ($2, $3) }
  | CARET exp exp            { Dr.Pow ($2, $3) }
  | SQRT exp                 { Dr.Sqrt $2 }
