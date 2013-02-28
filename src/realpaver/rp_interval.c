@@ -1561,53 +1561,78 @@ void rp_interval_safesqrt(rp_interval result, rp_interval i)
   return rp_interval_sqrt(result, i_t);
 }
 
-void rp_interval_atan2(rp_interval result, rp_interval i, rp_interval n)
+#define _max(x, y) (x > y ? x : y)
+#define _min(x, y) (x < y ? x : y)
+
+void rp_interval_atan2(rp_interval result, rp_interval y, rp_interval x)
 {
-  /* TODO */
-  int exp = (int)rp_binf(n);
+    /*
+      Due to the floating-point error, use the following definition:
 
-  if( rp_even(exp) )   /* n even */
-  {
-    rp_interval z;
-    rp_interval_abs(z,i);
-    if (rp_binf(z)==0.0)
-    {
-      rp_binf(result) = 0.0;
+      atan2(y,x) = arctan(y/x)        if x > 0            (1)
+                 = arctan(y/x) + pi   if y >= 0, x < 0    (2)
+                 = arctan(y/x) - pi   if y < 0, x < 0     (3)
+                 = + pi/2             if y > 0, x = 0     (4)
+                 = - pi/2             if y < 0, x = 0     (5)
+                 = undefined          if y = 0, x = 0     (6)
+
+      Another definition is
+      atan2(y,x) = 2 arctan ( y / [sqrt(x^2 + y^2) + x] )
+    */
+
+    double x_ub = rp_bsup(x);
+    double x_lb = rp_binf(x);
+    double y_ub = rp_bsup(y);
+    double y_lb = rp_binf(y);
+
+    /* atan2(y,x) = arctan(y/x)        if x > 0            (1) */
+    if(x_ub > 0.0) {
+        rp_interval x_temp, aux;
+        rp_interval_set(x_temp, _max(x_lb, 0.0), x_ub);
+        rp_interval_div(aux, y, x_temp);  /* aux    = y/x         */
+        rp_interval_atan(result, aux);    /* result = arctan(y/x) */
+    } else {
+        rp_interval_empty(result);
     }
-    else
-    {
-      rp_binf(result) = rp_pow(rp_binf(z),exp,RP_ROUND_VALUE_DOWN);
+
+    /* atan2(y,x) = arctan(y/x) + pi   if y >= 0, x < 0    (2) */
+    if(y_ub > 0.0 && x_lb < 0.0) {
+        rp_interval x_temp, y_temp, aux;
+        rp_interval_set(x_temp, x_lb, _min(x_ub, 0.0));
+        rp_interval_set(y_temp, _max(y_lb, 0.0), y_ub);
+        rp_interval_div(aux, y, x_temp);  /* aux = y/x         */
+        rp_interval_atan(aux, aux);       /* aux = arctan(y/x) */
+                                          /* aux = pi + arctan(y/x) */
+        rp_interval_add_r_i(aux, RP_INTERVAL_PI, aux);
+        /* result = result U aux */
+        rp_interval_hull(result, result, aux);
     }
-    if (rp_bsup(z)==RP_INFINITY)
-    {
-      rp_bsup(result) = RP_INFINITY;
+
+    /* atan2(y,x) = arctan(y/x) - pi   if y < 0, x < 0     (3) */
+    if(y_lb < 0.0 && x_lb < 0.0) {
+        rp_interval x_temp, y_temp, aux;
+        rp_interval_set(x_temp, x_lb, _min(x_ub, 0.0));
+        rp_interval_set(y_temp, y_lb, _min(y_ub, 0.0));
+        rp_interval_div(aux, y, x_temp);  /* aux = y/x         */
+        rp_interval_atan(aux, aux);       /* aux = arctan(y/x) */
+                                          /* aux = - pi + arctan(y/x) */
+        rp_interval_sub_i_r(aux, aux, RP_INTERVAL_PI);
+        /* result = result U aux */
+        rp_interval_hull(result, result, aux);
     }
-    else
-    {
-      rp_bsup(result) = rp_pow(rp_bsup(z),exp,RP_ROUND_VALUE_UP);
+
+    /* atan2(y,x) = + pi/2             if y > 0, x = 0     (4) */
+    if(y_ub > 0.0 && rp_interval_contains(x, 0.0)) {
+        rp_interval_hull(result, result, RP_INTERVAL_1_PI_2);
     }
-  }
-  else  /* rp_odd(exp) */
-  {
-    if (rp_binf(i)==(-RP_INFINITY))
-    {
-      rp_binf(result) = (-RP_INFINITY);
+
+    /* atan2(y,x) = - pi/2             if y < 0, x = 0     (5) */
+    if(y_lb < 0.0 && rp_interval_contains(x, 0.0)) {
+        rp_interval neg_1_pi_2;
+        rp_interval_neg(neg_1_pi_2, RP_INTERVAL_1_PI_2);
+        rp_interval_hull(result, result, neg_1_pi_2);
     }
-    else
-    {
-      rp_binf(result) = rp_pow(rp_binf(i),exp,RP_ROUND_VALUE_DOWN);
-    }
-    if (rp_bsup(i)==RP_INFINITY)
-    {
-      rp_bsup(result) = RP_INFINITY;
-    }
-    else
-    {
-      rp_bsup(result) = rp_pow(rp_bsup(i),exp,RP_ROUND_VALUE_UP);
-    }
-  }
 }
-
 
 /* result := n-th root of i                                                */
 /* computes only the positive part for even exponent and positive interval */
