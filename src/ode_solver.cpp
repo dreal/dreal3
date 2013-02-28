@@ -171,7 +171,7 @@ bool ode_solver::solve()
         IMap vectorField(diff_sys);
 
         //initialize the solver
-        ITaylor solver(vectorField,20,.1);
+        ITaylor solver(vectorField,20,.001);
         ITimeMap timeMap(solver);
 
         //initial conditions
@@ -204,19 +204,21 @@ bool ode_solver::solve()
             interval domain = interval(0,1)*stepMade;
 
             // a uniform grid
-            int grid = 5;
-            for(int i = 0; i <= grid; i++)
+            int grid = 100;
+            interval subsetOfDomain = interval(0,1)*stepMade/grid;
+            double incr = subsetOfDomain.rightBound();
+            for(int i = 0; i < grid; i++)
             {
-                interval subsetOfDomain = interval(i,i+1)*stepMade/grid;
                 intersection(domain,subsetOfDomain,subsetOfDomain);
 
                 // v will contain rigorous bound for the trajectory for this time interval.
                 IVector v = curve(subsetOfDomain);
-
+                std::cout << "subset of domain =" << subsetOfDomain << endl;;
                 std::cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;;
                 std::cout << "diam(enclosure): " << diam(v) << endl;;
 
                 prune(_t_vars, v, subsetOfDomain, out_v_list, out_time_list);
+                subsetOfDomain += interval(incr, incr);
             }
             prevTime = timeMap.getCurrentTime();
             cout << "current time: " << prevTime << endl;
