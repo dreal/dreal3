@@ -340,12 +340,12 @@ bool icp_solver::solve()
             /* SAT */
             if(_verbose) {
                 cerr << "SAT with the following box:" << endl;
-                display_box(cerr, b, 8, RP_INTERVAL_MODE_BOUND);
+                display_box(cerr, b, 16, RP_INTERVAL_MODE_BOUND);
                 cerr << endl;
             }
             if(_proof) {
                 _proof_out << "SAT with the following box:" << endl;
-                display_box(_proof_out, b, 8, RP_INTERVAL_MODE_BOUND);
+                display_box(_proof_out, b, 16, RP_INTERVAL_MODE_BOUND);
                 _proof_out << endl;
             }
             return true;
@@ -498,7 +498,7 @@ void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b)
     {
         out << rp_variable_name(rp_problem_var(p, i));
         out << " is in: ";
-        display_interval(_proof_out, rp_box_elem(b,i), 6, RP_INTERVAL_MODE_BOUND);
+        display_interval(_proof_out, rp_box_elem(b,i), 16, RP_INTERVAL_MODE_BOUND);
         if (i != rp_problem_nvar(p) - 1)
             out << ";";
         out << endl;
@@ -507,6 +507,7 @@ void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b)
 
 void icp_solver::output_problem()
 {
+    _proof_out.precision(16);
     _proof_out << "Precision:" << _precision << endl;
 
     // Print out all the Enode in stack
@@ -539,13 +540,17 @@ void icp_solver::output_problem()
         _proof_out << key << " is in: ";
         if(lb == -numeric_limits<double>::infinity())
             _proof_out << "(-oo";
-        else
+        else {
+            _proof_out.precision(16);
             _proof_out << "[" << lb;
+        }
         _proof_out << ", ";
         if(ub == numeric_limits<double>::infinity())
             _proof_out << "+oo)";
-        else
+        else {
+            _proof_out.precision(16);
             _proof_out << ub << "]";
+        }
         _proof_out << ";" << endl;
     }
 }
