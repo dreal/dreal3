@@ -72,13 +72,12 @@ int rp_project_max_fst (rp_interval ynew, rp_interval x, rp_interval y,
 int rp_project_max_snd (rp_interval znew, rp_interval x, rp_interval y,
 			rp_interval z);
 
-/* x = atan2(y,z) / z <=> y = atan2-1(x,z) <=> z = atan2-1(x,y) */
-int rp_project_atan2_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z);
-int rp_project_atan2_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z);
-int rp_project_atan2_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z);
+int rp_project_atan2_zro (rp_interval znew, rp_interval z, rp_interval y,
+                          rp_interval x);
+int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y,
+                          rp_interval x);
+int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y,
+                          rp_interval z);
 /* -------------------------- */
 /* Unary projection functions */
 /* -------------------------- */

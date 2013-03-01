@@ -1143,10 +1143,10 @@ int rp_project_safesqrt_fst (rp_interval ynew, rp_interval x, rp_interval y)
 int rp_project_atan2_zro (rp_interval znew, rp_interval z, rp_interval y,
 			  rp_interval x)
 {
-  rp_interval aux;
-  rp_interval_atan2(aux, y, x);
-  rp_interval_inter(znew,aux,z);
-  return( !rp_interval_empty(znew) );
+    rp_interval aux;
+    rp_interval_atan2(aux, y, x);
+    rp_interval_inter(znew,aux,z);
+    return( !rp_interval_empty(znew) );
 }
 
 /* z = atan2(y,x) => ynew := hull ( atan2-1(z,x) inter y ) */
