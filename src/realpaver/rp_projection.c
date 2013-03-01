@@ -1138,94 +1138,213 @@ int rp_project_safesqrt_fst (rp_interval ynew, rp_interval x, rp_interval y)
   return( !rp_interval_empty(ynew) );
 }
 
-/* x = pow(y,n) => xnew := hull ( pow(y,n) inter x ) */
+/* z = atan2(y,x) => znew := hull ( atan2(y,x) inter z ) */
 
-int rp_project_atan2_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			  rp_interval n)
+int rp_project_atan2_zro (rp_interval znew, rp_interval z, rp_interval y,
+			  rp_interval x)
 {
-  /* TODO */
   rp_interval aux;
-  rp_interval_pow(aux,y,n);
-  rp_interval_inter(xnew,aux,x);
-  return( !rp_interval_empty(xnew) );
+  rp_interval_atan2(aux, y, x);
+  rp_interval_inter(znew,aux,z);
+  return( !rp_interval_empty(znew) );
 }
 
-/* x = pow(y,n) => ynew := hull ( pow-1(x,n) inter y ) */
+/* z = atan2(y,x) => ynew := hull ( atan2-1(z,x) inter y ) */
+/*
+   z = atan2(y,x) = arctan(y/x)        if x > 0            (1)  -1/2pi < z < +1/2pi
+                  = arctan(y/x) + pi   if y >= 0, x < 0    (2)  +1/2pi < z < pi
+                  = arctan(y/x) - pi   if y < 0, x < 0     (3)     -pi < z < -1/2pi
+                  = + pi/2             if y > 0, x = 0     (4)           z=+1/2pi
+                  = - pi/2             if y < 0, x = 0     (5)           z=-1/2pi
+                  = undefined          if y = 0, x = 0     (6)
+*/
 
-int rp_project_atan2_fst (rp_interval ynew, rp_interval x, rp_interval y,
-  			  rp_interval n)
+#define _max(x, y) (x > y ? x : y)
+#define _min(x, y) (x < y ? x : y)
+#define rp_interval_limit_lb(result, i, lb) rp_interval_set(result, _max(rp_binf(i), lb), rp_bsup(i))
+#define rp_interval_limit_ub(result, i, ub) rp_interval_set(result, rp_binf(i), _min(rp_bsup(i), ub))
+#define rp_interval_limit_lub(result, i, lb, ub) rp_interval_set(result, _max(rp_binf(i), lb), _min(rp_bsup(i), ub))
+
+int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_interval x)
 {
-  /* TODO */
-  rp_interval aux1, aux2;
-  rp_union_interval aux;
-  int exp = (int)rp_binf(n);
-  if( rp_odd(exp) )
-  {
-    rp_interval_nthroot(aux1,x,n);
-    rp_interval_inter(ynew,aux1,y);
-  }
-  else
-  {
-    if( rp_interval_contains(x,0.0) )
-    {
-      rp_interval_nthroot(aux1,x,n);
-      rp_interval_inter(ynew,aux1,y);
+    double z_ub = rp_bsup(z);
+    double z_lb = rp_binf(z);
+    double _1_PI_2 = rp_binf(RP_INTERVAL_1_PI_2);
+    double _PI = rp_binf(RP_INTERVAL_PI);
+
+    /* z = atan2(y,x) = arctan(y/x)        if x > 0            (1) -1/2pi < z < +1/2pi */
+    if (z_ub > -_1_PI_2 && z_lb < _1_PI_2) {
+        /* tan(z) = y/x
+           x tan(z) = y    */
+
+        rp_interval x_temp, z_temp, aux;
+        rp_interval_limit_lb(x_temp, x, 0.0);
+        rp_interval_limit_lub(z_temp, z, - _1_PI_2, + _1_PI_2);
+
+        rp_interval_tan(aux, z_temp);
+        rp_interval_mul(ynew, aux, x_temp);
+    } else {
+        rp_interval_set_empty(ynew);
     }
-    else if( rp_binf(x)>0.0 )
-    {
-      rp_interval_nthroot(aux1,x,n);
-      rp_interval_neg(aux2,aux1);
-      rp_union_create_size(&aux,2);
-      rp_union_insert(aux,aux1);
-      rp_union_insert(aux,aux2);
-      rp_union_inter(aux,y);
-      rp_union_hull(ynew,aux);
-      rp_union_destroy(&aux);
+
+    /* z = atan2(y,x) = arctan(y/x) + pi   if y >= 0, x < 0    (2) +1/2pi < z < pi */
+    if (z_ub > _1_PI_2 && z_lb < _PI) {
+        /* tan(z - pi)   = y/x
+           x tan(z - pi) = y    */
+
+        rp_interval x_temp, z_temp, aux1, aux2, aux3;
+        rp_interval_limit_ub(x_temp, x, 0.0);
+        rp_interval_limit_lub(z_temp, z, _1_PI_2, _PI);
+
+        /* z_temp = z - pi */
+        rp_interval_sub_i_r(z_temp, z_temp, RP_INTERVAL_PI);
+
+        /* aux1 = tan(z - pi) */
+        rp_interval_tan(aux1, z_temp);
+
+        /* aux2 = tan(z - pi) x */
+        rp_interval_mul(aux2, aux1, x_temp);
+
+        /* aux3 = tan(z - pi) x \cap [0.0, +oo] */
+        rp_interval_limit_lb(aux3, aux2, 0.0);
+        rp_interval_hull(ynew, ynew, aux3);
     }
-    else
-    {
-      rp_interval_set_empty(ynew);
+
+    /* z = atan2(y,x) = arctan(y/x) - pi   if y < 0, x < 0     (3) -pi < z < -1/2pi */
+    if (z_ub > - _PI && z_lb < - _1_PI_2) {
+        /* tan(z + pi)   = y/x
+           x tan(z + pi) = y    */
+
+        rp_interval x_temp, z_temp, aux1, aux2, aux3;
+        rp_interval_limit_ub(x_temp, x, 0.0);
+        rp_interval_limit_lub(z_temp, z, - _PI, - _1_PI_2);
+
+        /* z_temp = z + pi */
+        rp_interval_add_r_i(z_temp, RP_INTERVAL_PI, z_temp);
+
+        /* aux1 = tan(z + pi) */
+        rp_interval_tan(aux1, z_temp);
+
+        /* aux2 = tan(z + pi) x */
+        rp_interval_mul(aux2, aux1, x_temp);
+
+        /* aux3 = tan(z + pi) x \cap [-oo, 0.0] */
+        rp_interval_limit_ub(aux3, aux2, 0.0);
+        rp_interval_hull(ynew, ynew, aux3);
     }
-  }
-  return( !rp_interval_empty(ynew) );
+
+    /* z = atan2(y,x) = + pi/2             if y > 0, x = 0     (4) z=+1/2pi */
+    if (rp_interval_contains(z, _1_PI_2)) {
+        rp_interval y_temp;
+        rp_interval_limit_lb(y_temp, y, 0.0);
+        rp_interval_hull(ynew, ynew, y_temp);
+    }
+
+    /* z = atan2(y,x) = - pi/2             if y < 0, x = 0     (5) z=-1/2pi */
+    if (rp_interval_contains(z, - _1_PI_2)) {
+        rp_interval y_temp;
+        rp_interval_limit_ub(y_temp, y, 0.0);
+        rp_interval_hull(ynew, ynew, y_temp);
+    }
+
+    rp_interval_inter(ynew, ynew, y);
 }
 
-/* x = pow(y,n) => ynew := hull ( pow-1(x,n) inter y ) */
+/* z = atan2(y,x) => xnew := hull ( atan2-1(y, z) inter x ) */
+/*
+   z = atan2(y,x) = arctan(y/x)        if x > 0            (1)  -1/2pi < z < +1/2pi
+                  = arctan(y/x) + pi   if y >= 0, x < 0    (2)  +1/2pi < z < pi
+                  = arctan(y/x) - pi   if y < 0, x < 0     (3)     -pi < z < -1/2pi
+                  = + pi/2             if y > 0, x = 0     (4)           z=+1/2pi
+                  = - pi/2             if y < 0, x = 0     (5)           z=-1/2pi
+                  = undefined          if y = 0, x = 0     (6)
+*/
 
-int rp_project_atan2_snd (rp_interval ynew, rp_interval x, rp_interval y,
-  			  rp_interval n)
+
+int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y, rp_interval x)
 {
-  /* TODO */
-  rp_interval aux1, aux2;
-  rp_union_interval aux;
-  int exp = (int)rp_binf(n);
-  if( rp_odd(exp) )
-  {
-    rp_interval_nthroot(aux1,x,n);
-    rp_interval_inter(ynew,aux1,y);
-  }
-  else
-  {
-    if( rp_interval_contains(x,0.0) )
-    {
-      rp_interval_nthroot(aux1,x,n);
-      rp_interval_inter(ynew,aux1,y);
+    double z_ub = rp_bsup(z);
+    double z_lb = rp_binf(z);
+    double _1_PI_2 = rp_binf(RP_INTERVAL_1_PI_2);
+    double _PI = rp_binf(RP_INTERVAL_PI);
+
+    /* z = atan2(y,x) = arctan(y/x)        if x > 0            (1) -1/2pi < z < +1/2pi */
+    if (z_ub > -_1_PI_2 && z_lb < _1_PI_2) {
+        /* tan(z) = y/x
+           x = y / tan(z)   */
+
+        rp_interval z_temp, aux;
+        rp_interval_limit_lub(z_temp, z, - _1_PI_2, + _1_PI_2);
+
+        /* aux = tan(z) */
+        rp_interval_tan(aux, z_temp);
+        /* xnew = y / tan(z) */
+        rp_interval_div(xnew, y, aux);
+        /* xnew = xnew \inter [0.0, +oo] */
+        rp_interval_limit_lb(xnew, xnew, 0.0);
+    } else {
+        rp_interval_set_empty(xnew);
     }
-    else if( rp_binf(x)>0.0 )
-    {
-      rp_interval_nthroot(aux1,x,n);
-      rp_interval_neg(aux2,aux1);
-      rp_union_create_size(&aux,2);
-      rp_union_insert(aux,aux1);
-      rp_union_insert(aux,aux2);
-      rp_union_inter(aux,y);
-      rp_union_hull(ynew,aux);
-      rp_union_destroy(&aux);
+
+    /* z = atan2(y,x) = arctan(y/x) + pi   if y >= 0, x < 0    (2) +1/2pi < z < pi */
+    if (z_ub > _1_PI_2 && z_lb < _PI) {
+        /* tan(z - pi)   = y/x
+           x = y / tan(z - pi)    */
+
+        rp_interval y_temp, z_temp, aux1, aux2, aux3;
+        rp_interval_limit_lb(y_temp, y, 0.0);
+        rp_interval_limit_lub(z_temp, z, _1_PI_2, _PI);
+
+        /* z_temp = z - pi */
+        rp_interval_sub_i_r(z_temp, z_temp, RP_INTERVAL_PI);
+
+        /* aux1 = tan(z - pi) */
+        rp_interval_tan(aux1, z_temp);
+
+        /* aux2 = y / tan(z - pi) */
+        rp_interval_div(aux2, y_temp, aux1);
+
+        /* aux3 = y / tan(z - pi) \cap [-oo, 0.0] */
+        rp_interval_limit_ub(aux3, aux2, 0.0);
+        rp_interval_hull(xnew, xnew, aux3);
     }
-    else
-    {
-      rp_interval_set_empty(ynew);
+
+    /* z = atan2(y,x) = arctan(y/x) - pi   if y < 0, x < 0     (3) -pi < z < -1/2pi */
+    if (z_ub > - _PI && z_lb < - _1_PI_2) {
+        /* tan(z + pi)   = y/x
+           x = y / tan(z + pi)     */
+
+        rp_interval y_temp, z_temp, aux1, aux2, aux3;
+        rp_interval_limit_ub(y_temp, y, 0.0);
+        rp_interval_limit_lub(z_temp, z, - _PI, - _1_PI_2);
+
+        /* z_temp = z + pi */
+        rp_interval_add_r_i(z_temp, RP_INTERVAL_PI, z_temp);
+
+        /* aux1 = tan(z + pi) */
+        rp_interval_tan(aux1, z_temp);
+
+        /* aux2 = y / tan(z + pi) */
+        rp_interval_mul(aux2, y_temp, aux1);
+
+        /* aux3 = y / tan(z + pi) \cap [-oo, 0.0] */
+        rp_interval_limit_ub(aux3, aux2, 0.0);
+        rp_interval_hull(xnew, xnew, aux3);
     }
-  }
-  return( !rp_interval_empty(ynew) );
+
+    /* z = atan2(y,x) = + pi/2             if y > 0, x = 0     (4) z=+1/2pi */
+    if (rp_interval_contains(z, _1_PI_2)) {
+        rp_interval x_temp;
+        rp_interval_set_point(x_temp, 0.0);
+        rp_interval_hull(xnew, xnew, x_temp);
+    }
+
+    /* z = atan2(y,x) = - pi/2             if y < 0, x = 0     (5) z=-1/2pi */
+    if (rp_interval_contains(z, - _1_PI_2)) {
+        rp_interval x_temp;
+        rp_interval_set_point(x_temp, 0.0);
+        rp_interval_hull(xnew, xnew, x_temp);
+    }
+
+    rp_interval_inter(xnew, xnew, x);
 }
