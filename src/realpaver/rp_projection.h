@@ -77,7 +77,7 @@ int rp_project_atan2_zro (rp_interval znew, rp_interval z, rp_interval y,
 int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y,
                           rp_interval x);
 int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y,
-                          rp_interval z);
+                          rp_interval x);
 /* -------------------------- */
 /* Unary projection functions */
 /* -------------------------- */
