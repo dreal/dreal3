@@ -2215,8 +2215,8 @@ static rp_symbol rp_symbol_set[] =
    RP_SYMBOL_BINARY_PREFIX + RP_SYMBOL_PRIORITY_L,
    rp_eval_atan2,
    rp_project_atan2,
-   rp_deriv_num_atan2,
-   rp_deriv_symb_atan2},
+   NULL,
+   NULL},
 
   /* added for dReal2 */
   /* matan */
