@@ -27,6 +27,7 @@ let rec apply (e : Env.t) (f : t) : Intv.t
     | Basic.Asin f' -> asin_I (apply e f')
     | Basic.Acos f' -> acos_I (apply e f')
     | Basic.Atan f' -> atan_I (apply e f')
+    | Basic.Atan2 (f1, f2) -> atan2_I_I (apply e f1) (apply e f2)
     | Basic.Sinh f' -> sinh_I (apply e f')
     | Basic.Cosh f' -> cosh_I (apply e f')
     | Basic.Tanh f' -> tanh_I (apply e f')

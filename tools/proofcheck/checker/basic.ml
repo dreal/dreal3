@@ -18,6 +18,7 @@ type exp =
 | Asin  of exp
 | Acos  of exp
 | Atan  of exp
+| Atan2 of exp * exp
 | Sinh  of exp
 | Cosh  of exp
 | Tanh  of exp
@@ -71,6 +72,7 @@ let rec count_mathfn_e =
   | Asin e -> (count_mathfn_e e) + 1
   | Acos e -> (count_mathfn_e e) + 1
   | Atan e -> (count_mathfn_e e) + 1
+  | Atan2 (e1, e2) -> (count_mathfn_e e1) + (count_mathfn_e e2) + 1
   | Sinh e -> (count_mathfn_e e) + 1
   | Cosh e -> (count_mathfn_e e) + 1
   | Tanh e -> (count_mathfn_e e) + 1
@@ -144,6 +146,7 @@ let rec count_arith_e =
   | Asin e -> count_arith_e e
   | Acos e -> count_arith_e e
   | Atan e -> count_arith_e e
+  | Atan2 (e1, e2) -> (count_arith_e e1) + (count_arith_e e2)
   | Sinh e -> count_arith_e e
   | Cosh e -> count_arith_e e
   | Tanh e -> count_arith_e e
@@ -255,6 +258,7 @@ and collect_var_in_e e : string BatPSet.t =
   | Asin e1 -> collect_var_in_e e1
   | Acos e1 -> collect_var_in_e e1
   | Atan e1 -> collect_var_in_e e1
+  | Atan2 (e1, e2) -> BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Sinh e1 -> collect_var_in_e e1
   | Cosh e1 -> collect_var_in_e e1
   | Tanh e1 -> collect_var_in_e e1
@@ -314,6 +318,7 @@ let rec print_exp out =
   | Asin e -> print_exps "arcsin" [e]
   | Acos e -> print_exps "arccos" [e]
   | Atan e -> print_exps "arctan" [e]
+  | Atan2 (e1, e2) -> print_exps "arctan2" [e1; e2]
   | Sinh e -> print_exps "sinh" [e]
   | Cosh e -> print_exps "cosh" [e]
   | Tanh e -> print_exps "tanh" [e]

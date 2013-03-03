@@ -12,7 +12,7 @@
 %token LP RP PLUS MINUS AST SLASH EQ GE LE GT LT
 %token INFTY
 %token SIN COS TAN
-%token ASIN ACOS ATAN
+%token ASIN ACOS ATAN ATAN2
 %token SINH COSH TANH
 %token LOG EXP
 %token UNSAT HOLE
@@ -71,6 +71,7 @@ func:  FNUM                  { Basic.Num $1 }
      | LP ASIN func RP       { Basic.Asin $3 }
      | LP ACOS func RP       { Basic.Acos $3 }
      | LP ATAN func RP       { Basic.Atan $3 }
+     | LP ATAN2 func func RP { Basic.Atan2 ($3, $4) }
      | LP SINH func RP       { Basic.Sinh $3 }
      | LP COSH func RP       { Basic.Cosh $3 }
      | LP TANH func RP       { Basic.Tanh $3 }

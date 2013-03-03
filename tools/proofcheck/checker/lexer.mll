@@ -25,6 +25,7 @@
      ("asin", ASIN);
      ("acos", ACOS);
      ("atan", ATAN);
+     ("atan2", ATAN2);
      ("sinh", SINH);
      ("cosh", COSH);
      ("tanh", TANH);
