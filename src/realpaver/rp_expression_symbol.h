@@ -492,6 +492,7 @@ int rp_eval_max(rp_interval result, rp_interval i, rp_interval j)
 static rp_inline
 int rp_eval_atan2(rp_interval result, rp_interval i, rp_interval j)
 {
+  printf("rp_eval_atan2\n");
   rp_interval_atan2(result,i,j);
   return( !rp_interval_empty(result) );
 }
@@ -829,6 +830,7 @@ int rp_project_max(rp_erep f)
 static rp_inline
 int rp_project_atan2(rp_erep f)
 {
+  printf("rp_project_atan2\n");
   return( rp_project_atan2_fst(rp_erep_left_proj(f),
 			       rp_erep_proj(f),
 			       rp_erep_left_val(f),
@@ -1282,38 +1284,25 @@ int rp_deriv_num_safesqrt(rp_erep f)
   return( 1 );
 }
 
+
+/* d(atan2(u, v))/du =  v / (v^2+ u^2) */
+/* d(atan2(u, v))/dv = -u / (v^2+ u^2) */
 static rp_inline
-int rp_deriv_num_atan2(rp_erep f)              /* d(u^n)/du = n*u^(n-1) */
+int rp_deriv_num_atan2(rp_erep f)
 {
-  /* TODO */
-  int n = (int)rp_binf(rp_erep_right_val(f));
-  rp_interval i, j, k, l, r;
-  rp_interval_set_point(i,n);
+    printf("rp_deriv_num_atan2\n");
+    rp_interval t0, t1, t2, t3, t4, t5;
+    rp_interval_sqr(t0, rp_erep_left_val(f));      /* t0 := u^2 */
+    rp_interval_sqr(t1, rp_erep_right_val(f));     /* t1 := v^2 */
+    rp_interval_add(t2, t0, t1);                   /* t2 := u^2 + v^2 */
+    rp_interval_div(t3, rp_erep_left_val(f), t2);  /* t3 := u / (u^2 + v^2) */
+    rp_interval_div(t4, rp_erep_right_val(f), t2); /* t4 := v / (u^2 + v^2) */
+    rp_interval_neg(t5, t3);                       /* t5 := -u / (u^2 + v^2) */
 
-  if (n==2)      /* 2*u */
-  {
-    rp_interval_mul_rpos_i(k,i,rp_erep_left_val(f));  /* k := 2*u */
-    rp_interval_mul(r,rp_erep_deriv(f),k);
-    rp_deriv_set(rp_erep_left(f),r);
-  }
-  else if (n==3) /* 3*u^2 */
-  {
-    rp_interval_sqr(j,rp_erep_left_val(f));   /* j := u^2 */
-    rp_interval_mul_rpos_i(k,i,j);            /* k := 3*u^2 */
-    rp_interval_mul(r,rp_erep_deriv(f),k);
-    rp_deriv_set(rp_erep_left(f),r);
-  }
-  else           /* n*u^(n-1) */
-  {
-    rp_interval_set_point(j,n-1);             /* j := n-1 */
-    rp_interval_pow(k,rp_erep_left_val(f),j); /* k := u^(n-1) */
-    rp_interval_mul_rpos_i(l,i,k);            /* l := n*u^(n-1) */
-    rp_interval_mul(r,rp_erep_deriv(f),l);
-    rp_deriv_set(rp_erep_left(f),r);
-  }
-  return( 1 );
+    rp_deriv_set(rp_erep_left(f),t4);
+    rp_deriv_set(rp_erep_right(f),t5);
+    return( 1 );
 }
-
 
 /* ------------------------------------- */
 /* Symbols symbolic derivation functions */
@@ -1809,24 +1798,36 @@ void rp_deriv_symb_safesqrt(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
 static rp_inline
 void rp_deriv_symb_atan2(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
 {
-  /* TODO */
-  /* d(u^n) := n*u^(n-1)*du */
-  int n = (int)rp_binf(rp_erep_right_val(f));
-  rp_erep g, h, p, q, u;
-  rp_interval i;
-  rp_erep_copy(&u,rp_erep_left(f));
-  rp_interval_set_point(i,n-1);
-  rp_erep_create_cst(&p,"",i);
-  rp_erep_create_binary(&g,RP_SYMBOL_POW,u,p);  /* u^(n-1) */
-  rp_interval_set_point(i,n);
-  rp_erep_create_cst(&q,"",i);
-  rp_erep_create_binary(&h,RP_SYMBOL_MUL,q,g);  /* n*u^(n-1) */
-  rp_erep_create_binary(df,RP_SYMBOL_MUL,h,du);
-  rp_erep_destroy(&g);
-  rp_erep_destroy(&h);
-  rp_erep_destroy(&p);
-  rp_erep_destroy(&q);
-  rp_erep_destroy(&u);
+    printf("rp_deriv_symb_atan2\n");
+    /*
+      d(atan2(u, v) = ( v / (v^2+ u^2)) * du +
+                      (-u / (v^2+ u^2)) * dv
+    */
+
+    rp_erep u, v, t0, t1, t2, t3, t4, t5, t6;
+    rp_erep_copy(&u,rp_erep_left(f));
+    rp_erep_copy(&v,rp_erep_right(f));
+
+    rp_erep_create_unary(&t0,RP_SYMBOL_SQR,u);       /* u^2 */
+    rp_erep_create_unary(&t1,RP_SYMBOL_SQR,v);       /* v^2 */
+    rp_erep_create_binary(&t2,RP_SYMBOL_ADD,t0,t1);  /* u^2+v^2 */
+
+    rp_erep_create_binary(&t3,RP_SYMBOL_DIV,v,t2);   /* v / (u^2+v^2) */
+    rp_erep_create_binary(&t4,RP_SYMBOL_DIV,u,t2);   /* u / (u^2+v^2) */
+
+    rp_erep_create_binary(&t5,RP_SYMBOL_MUL,t3,du);  /* (v / (u^2+v^2)) du */
+    rp_erep_create_binary(&t6,RP_SYMBOL_MUL,t4,dv);  /* (u / (u^2+v^2)) dv */
+
+    rp_erep_create_binary(df, RP_SYMBOL_SUB, t5, t6);
+
+    rp_erep_destroy(&u);
+    rp_erep_destroy(&v);
+    rp_erep_destroy(&t0);
+    rp_erep_destroy(&t1);
+    rp_erep_destroy(&t2);
+    rp_erep_destroy(&t3);
+    rp_erep_destroy(&t4);
+    rp_erep_destroy(&t5);
 }
 
 

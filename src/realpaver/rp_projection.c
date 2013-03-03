@@ -1143,6 +1143,7 @@ int rp_project_safesqrt_fst (rp_interval ynew, rp_interval x, rp_interval y)
 int rp_project_atan2_zro (rp_interval znew, rp_interval z, rp_interval y,
 			  rp_interval x)
 {
+    printf("rp_project_atan2_zro\n");
     rp_interval aux;
     rp_interval_atan2(aux, y, x);
     rp_interval_inter(znew,aux,z);
@@ -1167,6 +1168,7 @@ int rp_project_atan2_zro (rp_interval znew, rp_interval z, rp_interval y,
 
 int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_interval x)
 {
+    printf("rp_project_atan2_fst\n");
     double z_ub = rp_bsup(z);
     double z_lb = rp_binf(z);
     double _1_PI_2 = rp_binf(RP_INTERVAL_1_PI_2);
@@ -1263,6 +1265,7 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
 
 int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y, rp_interval x)
 {
+    printf("rp_project_atan2_snd\n");
     double z_ub = rp_bsup(z);
     double z_lb = rp_binf(z);
     double _1_PI_2 = rp_binf(RP_INTERVAL_1_PI_2);
