@@ -206,6 +206,7 @@ bool icp_solver::prop_with_ODE()
     cerr << "icp_solver::prop_with_ODE" << endl;
     cerr << "icp_solver::prop_with_ODE_BEFORE" << endl;
     display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+    cerr << endl;
 
     if (_propag->apply(_boxes.get())) {
         if(_contain_ode) {
@@ -261,11 +262,13 @@ bool icp_solver::prop_with_ODE()
             }
             cerr << "icp_solver::prop_with_ODE_AFTER(ODE)" << endl;
             display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+            cerr << endl;
             return true;
         }
         else {
             cerr << "icp_solver::prop_with_ODE_AFTER(NO ODE)" << endl;
             display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+            cerr << endl;
             return true;
         }
     }
