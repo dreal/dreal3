@@ -1828,6 +1828,7 @@ void rp_deriv_symb_atan2(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
     rp_erep_destroy(&t3);
     rp_erep_destroy(&t4);
     rp_erep_destroy(&t5);
+    rp_erep_destroy(&t6);
 }
 
 

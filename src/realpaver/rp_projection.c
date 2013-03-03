@@ -1174,10 +1174,26 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
     double _1_PI_2 = rp_binf(RP_INTERVAL_1_PI_2);
     double _PI = rp_binf(RP_INTERVAL_PI);
 
+    rp_interval_limit_lub(z, z, -_PI, _PI);
+
+    printf("z = ");
+    rp_interval_display_simple_nl(z);
+
+    printf("y = ");
+    rp_interval_display_simple_nl(y);
+
+    printf("x = ");
+    rp_interval_display_simple_nl(x);
+
+    rp_interval_set_empty(ynew);
+
+
     /* z = atan2(y,x) = arctan(y/x)        if x > 0            (1) -1/2pi < z < +1/2pi */
     if (z_ub > -_1_PI_2 && z_lb < _1_PI_2) {
         /* tan(z) = y/x
            x tan(z) = y    */
+
+        printf("(1)\n");
 
         rp_interval x_temp, z_temp, aux;
         rp_interval_limit_lb(x_temp, x, 0.0);
@@ -1185,14 +1201,14 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
 
         rp_interval_tan(aux, z_temp);
         rp_interval_mul(ynew, aux, x_temp);
-    } else {
-        rp_interval_set_empty(ynew);
     }
 
     /* z = atan2(y,x) = arctan(y/x) + pi   if y >= 0, x < 0    (2) +1/2pi < z < pi */
     if (z_ub > _1_PI_2 && z_lb < _PI) {
         /* tan(z - pi)   = y/x
            x tan(z - pi) = y    */
+
+        printf("(2)\n");
 
         rp_interval x_temp, z_temp, aux1, aux2, aux3;
         rp_interval_limit_ub(x_temp, x, 0.0);
@@ -1217,6 +1233,8 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
         /* tan(z + pi)   = y/x
            x tan(z + pi) = y    */
 
+        printf("(3)\n");
+
         rp_interval x_temp, z_temp, aux1, aux2, aux3;
         rp_interval_limit_ub(x_temp, x, 0.0);
         rp_interval_limit_lub(z_temp, z, - _PI, - _1_PI_2);
@@ -1237,6 +1255,8 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
 
     /* z = atan2(y,x) = + pi/2             if y > 0, x = 0     (4) z=+1/2pi */
     if (rp_interval_contains(z, _1_PI_2)) {
+        printf("(4)\n");
+
         rp_interval y_temp;
         rp_interval_limit_lb(y_temp, y, 0.0);
         rp_interval_hull(ynew, ynew, y_temp);
@@ -1244,12 +1264,19 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
 
     /* z = atan2(y,x) = - pi/2             if y < 0, x = 0     (5) z=-1/2pi */
     if (rp_interval_contains(z, - _1_PI_2)) {
+        printf("(5)\n");
+
         rp_interval y_temp;
         rp_interval_limit_ub(y_temp, y, 0.0);
         rp_interval_hull(ynew, ynew, y_temp);
     }
 
     rp_interval_inter(ynew, ynew, y);
+
+    printf("ynew = ");
+    rp_interval_display_simple_nl(ynew);
+
+    return( !rp_interval_empty(ynew) );
 }
 
 /* z = atan2(y,x) => xnew := hull ( atan2-1(y, z) inter x ) */
@@ -1270,6 +1297,8 @@ int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y, rp_int
     double z_lb = rp_binf(z);
     double _1_PI_2 = rp_binf(RP_INTERVAL_1_PI_2);
     double _PI = rp_binf(RP_INTERVAL_PI);
+
+    rp_interval_limit_lub(z, z, -_PI, _PI);
 
     /* z = atan2(y,x) = arctan(y/x)        if x > 0            (1) -1/2pi < z < +1/2pi */
     if (z_ub > -_1_PI_2 && z_lb < _1_PI_2) {
@@ -1350,4 +1379,5 @@ int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y, rp_int
     }
 
     rp_interval_inter(xnew, xnew, x);
+    return( !rp_interval_empty(xnew) );
 }
