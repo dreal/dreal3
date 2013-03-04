@@ -94,7 +94,7 @@ exp:
  | ASIN exp                 { Dr.Asin $2 }
  | ACOS exp                 { Dr.Acos $2 }
  | ATAN exp                 { Dr.Atan $2 }
- | ATAN2 exp exp            { Dr.Atan2 ($2, $3) }
+ | ATAN2 exp exp            { Dr.Atan2 ($3, $2) }
  | MATAN exp                { Dr.Matan $2 }
  | SAFESQRT exp             { Dr.Safesqrt $2 }
  | SINH exp                 { Dr.Sinh $2 }
