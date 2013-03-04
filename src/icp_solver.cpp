@@ -203,10 +203,10 @@ icp_solver::~icp_solver()
 
 bool icp_solver::prop_with_ODE()
 {
-    cerr << "icp_solver::prop_with_ODE" << endl;
-    cerr << "icp_solver::prop_with_ODE_BEFORE" << endl;
-    display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
-    cerr << endl;
+//    cerr << "icp_solver::prop_with_ODE" << endl;
+//    cerr << "icp_solver::prop_with_ODE_BEFORE" << endl;
+//    display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+//    cerr << endl;
 
     if (_propag->apply(_boxes.get())) {
         if(_contain_ode) {
@@ -260,15 +260,15 @@ bool icp_solver::prop_with_ODE()
                         return false;
                 }
             }
-            cerr << "icp_solver::prop_with_ODE_AFTER(ODE)" << endl;
-            display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
-            cerr << endl;
+//            cerr << "icp_solver::prop_with_ODE_AFTER(ODE)" << endl;
+//            display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+//            cerr << endl;
             return true;
         }
         else {
-            cerr << "icp_solver::prop_with_ODE_AFTER(NO ODE)" << endl;
-            display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
-            cerr << endl;
+//            cerr << "icp_solver::prop_with_ODE_AFTER(NO ODE)" << endl;
+//            display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+//            cerr << endl;
             return true;
         }
     }
@@ -277,7 +277,7 @@ bool icp_solver::prop_with_ODE()
 
 rp_box icp_solver::compute_next()
 {
-    cerr << "icp_solver::compute_next()" << endl;
+//    cerr << "icp_solver::compute_next()" << endl;
     if (_sol>0)
     {
         _boxes.remove();
@@ -316,7 +316,7 @@ rp_box icp_solver::compute_next()
 
 bool icp_solver::solve()
 {
-    cerr << "icp_solver::solve()" << endl;
+//    cerr << "icp_solver::solve()" << endl;
     if(_proof) {
         output_problem();
     }
@@ -605,7 +605,7 @@ bool icp_solver::prop()
             _env[key] = make_pair(rp_binf(rp_box_elem(_boxes.get(), rp_id)),
                                   rp_bsup(rp_box_elem(_boxes.get(), rp_id)));
         }
-        cerr << "Incomplete Check: SAT" << endl;
+//        cerr << "Incomplete Check: SAT" << endl;
         _proof_out << "HOLE" << endl;
 
     }
