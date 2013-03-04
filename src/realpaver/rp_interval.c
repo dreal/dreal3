@@ -1579,13 +1579,13 @@ void rp_interval_atan2(rp_interval result, rp_interval y, rp_interval x)
       Another definition is
       atan2(y,x) = 2 arctan ( y / [sqrt(x^2 + y^2) + x] )
     */
-    printf("\n\n-----------------------\n");
-    printf("rp_interval_atan2()\n");
-    printf("y = ");
-    rp_interval_display_simple_nl(y);
+//    printf("\n\n-----------------------\n");
+//    printf("rp_interval_atan2()\n");
+//    printf("y = ");
+//    rp_interval_display_simple_nl(y);
 
-    printf("x = ");
-    rp_interval_display_simple_nl(x);
+//    printf("x = ");
+//    rp_interval_display_simple_nl(x);
 
     double x_ub = rp_bsup(x);
     double x_lb = rp_binf(x);
@@ -1595,21 +1595,21 @@ void rp_interval_atan2(rp_interval result, rp_interval y, rp_interval x)
     rp_interval_set_empty(result);
     /* atan2(y,x) = arctan(y/x)        if x > 0            (1) */
     if(x_ub > 0.0) {
-        printf("(1)\n");
+//        printf("(1)\n");
         rp_interval x_temp, aux;
-        rp_interval_set(x_temp, _max(x_lb, 0.0), x_ub);
+        rp_interval_set(x_temp, _max(x_lb, DBL_EPSILON), x_ub);
         rp_interval_div(aux, y, x_temp);  /* aux    = y/x         */
         rp_interval_atan(result, aux);    /* result = arctan(y/x) */
 
-        printf("result = ");
-        rp_interval_display_simple_nl(result);
+//        printf("result = ");
+//        rp_interval_display_simple_nl(result);
     }
 
     /* atan2(y,x) = arctan(y/x) + pi   if y >= 0, x < 0    (2) */
     if(y_ub > 0.0 && x_lb < 0.0) {
-        printf("(2)\n");
+//        printf("(2)\n");
         rp_interval x_temp, y_temp, aux1, aux2, aux3;
-        rp_interval_set(x_temp, x_lb, _min(x_ub, 0.0));
+        rp_interval_set(x_temp, x_lb, _min(x_ub, -DBL_EPSILON));
         rp_interval_set(y_temp, _max(y_lb, 0.0), y_ub);
         rp_interval_div(aux1, y, x_temp);  /* aux = y/x         */
         rp_interval_atan(aux2, aux1);       /* aux = arctan(y/x) */
@@ -1618,42 +1618,42 @@ void rp_interval_atan2(rp_interval result, rp_interval y, rp_interval x)
         /* result = result U aux */
         rp_interval_hull(result, result, aux3);
 
-        printf("result = ");
-        rp_interval_display_simple_nl(result);
+//        printf("result = ");
+//        rp_interval_display_simple_nl(result);
     }
 
     /* atan2(y,x) = arctan(y/x) - pi   if y < 0, x < 0     (3) */
     if(y_lb < 0.0 && x_lb < 0.0) {
-        printf("(3)\n");
+//        printf("(3)\n");
         rp_interval x_temp, y_temp, aux1, aux2, aux3;
-        rp_interval_set(x_temp, x_lb, _min(x_ub, 0.0));
-        rp_interval_set(y_temp, y_lb, _min(y_ub, 0.0));
+        rp_interval_set(x_temp, x_lb, _min(x_ub, -DBL_EPSILON));
+        rp_interval_set(y_temp, y_lb, _min(y_ub, -DBL_EPSILON));
         rp_interval_div(aux1, y, x_temp);  /* aux = y/x         */
         rp_interval_atan(aux2, aux1);       /* aux = arctan(y/x) */
                                           /* aux = - pi + arctan(y/x) */
         rp_interval_sub_i_r(aux3, aux2, RP_INTERVAL_PI);
         rp_interval_hull(result, result, aux3);
 
-        printf("result = ");
-        rp_interval_display_simple_nl(result);
+//        printf("result = ");
+//        rp_interval_display_simple_nl(result);
     }
 
     /* atan2(y,x) = + pi/2             if y > 0, x = 0     (4) */
     if(y_ub > 0.0 && rp_interval_contains(x, 0.0)) {
-        printf("(4)\n");
+//        printf("(4)\n");
         rp_interval_hull(result, result, RP_INTERVAL_1_PI_2);
     }
 
     /* atan2(y,x) = - pi/2             if y < 0, x = 0     (5) */
     if(y_lb < 0.0 && rp_interval_contains(x, 0.0)) {
-        printf("(5)\n");
+//        printf("(5)\n");
         rp_interval neg_1_pi_2;
         rp_interval_neg(neg_1_pi_2, RP_INTERVAL_1_PI_2);
         rp_interval_hull(result, result, neg_1_pi_2);
     }
 
-    printf("atan2(y, x) = ");
-    rp_interval_display_simple_nl(result);
+//    printf("atan2(y, x) = ");
+//    rp_interval_display_simple_nl(result);
 }
 
 /* result := n-th root of i                                                */

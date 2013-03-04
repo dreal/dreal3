@@ -1196,8 +1196,8 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
         printf("(1)\n");
 
         rp_interval x_temp, z_temp, aux;
-        rp_interval_limit_lb(x_temp, x, 0.0);
-        rp_interval_limit_lub(z_temp, z, - _1_PI_2, + _1_PI_2);
+        rp_interval_limit_lb(x_temp, x, DBL_EPSILON);
+        rp_interval_limit_lub(z_temp, z, - _1_PI_2 + DBL_EPSILON, + _1_PI_2 - DBL_EPSILON);
 
         rp_interval_tan(aux, z_temp);
         rp_interval_mul(ynew, aux, x_temp);
@@ -1211,8 +1211,8 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
         printf("(2)\n");
 
         rp_interval x_temp, z_temp, aux1, aux2, aux3;
-        rp_interval_limit_ub(x_temp, x, 0.0);
-        rp_interval_limit_lub(z_temp, z, _1_PI_2, _PI);
+        rp_interval_limit_ub(x_temp, x, - DBL_EPSILON);
+        rp_interval_limit_lub(z_temp, z, _1_PI_2 + DBL_EPSILON, _PI - DBL_EPSILON);
 
         /* z_temp = z - pi */
         rp_interval_sub_i_r(z_temp, z_temp, RP_INTERVAL_PI);
@@ -1236,8 +1236,8 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
         printf("(3)\n");
 
         rp_interval x_temp, z_temp, aux1, aux2, aux3;
-        rp_interval_limit_ub(x_temp, x, 0.0);
-        rp_interval_limit_lub(z_temp, z, - _PI, - _1_PI_2);
+        rp_interval_limit_ub(x_temp, x, -DBL_EPSILON);
+        rp_interval_limit_lub(z_temp, z, - _PI + DBL_EPSILON, - _1_PI_2 -DBL_EPSILON);
 
         /* z_temp = z + pi */
         rp_interval_add_r_i(z_temp, RP_INTERVAL_PI, z_temp);
@@ -1249,7 +1249,7 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
         rp_interval_mul(aux2, aux1, x_temp);
 
         /* aux3 = tan(z + pi) x \cap [-oo, 0.0] */
-        rp_interval_limit_ub(aux3, aux2, 0.0);
+        rp_interval_limit_ub(aux3, aux2, -DBL_EPSILON);
         rp_interval_hull(ynew, ynew, aux3);
     }
 
@@ -1258,7 +1258,7 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
         printf("(4)\n");
 
         rp_interval y_temp;
-        rp_interval_limit_lb(y_temp, y, 0.0);
+        rp_interval_limit_lb(y_temp, y, DBL_EPSILON);
         rp_interval_hull(ynew, ynew, y_temp);
     }
 
@@ -1267,7 +1267,7 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
         printf("(5)\n");
 
         rp_interval y_temp;
-        rp_interval_limit_ub(y_temp, y, 0.0);
+        rp_interval_limit_ub(y_temp, y, -DBL_EPSILON);
         rp_interval_hull(ynew, ynew, y_temp);
     }
 
@@ -1306,14 +1306,14 @@ int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y, rp_int
            x = y / tan(z)   */
 
         rp_interval z_temp, aux;
-        rp_interval_limit_lub(z_temp, z, - _1_PI_2, + _1_PI_2);
+        rp_interval_limit_lub(z_temp, z, - _1_PI_2 + DBL_EPSILON, + _1_PI_2 - DBL_EPSILON);
 
         /* aux = tan(z) */
         rp_interval_tan(aux, z_temp);
         /* xnew = y / tan(z) */
         rp_interval_div(xnew, y, aux);
         /* xnew = xnew \inter [0.0, +oo] */
-        rp_interval_limit_lb(xnew, xnew, 0.0);
+        rp_interval_limit_lb(xnew, xnew, +DBL_EPSILON);
     } else {
         rp_interval_set_empty(xnew);
     }
@@ -1325,7 +1325,7 @@ int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y, rp_int
 
         rp_interval y_temp, z_temp, aux1, aux2, aux3;
         rp_interval_limit_lb(y_temp, y, 0.0);
-        rp_interval_limit_lub(z_temp, z, _1_PI_2, _PI);
+        rp_interval_limit_lub(z_temp, z, _1_PI_2 + DBL_EPSILON, _PI - DBL_EPSILON);
 
         /* z_temp = z - pi */
         rp_interval_sub_i_r(z_temp, z_temp, RP_INTERVAL_PI);
@@ -1337,7 +1337,7 @@ int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y, rp_int
         rp_interval_div(aux2, y_temp, aux1);
 
         /* aux3 = y / tan(z - pi) \cap [-oo, 0.0] */
-        rp_interval_limit_ub(aux3, aux2, 0.0);
+        rp_interval_limit_ub(aux3, aux2, -DBL_EPSILON);
         rp_interval_hull(xnew, xnew, aux3);
     }
 
@@ -1347,8 +1347,8 @@ int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y, rp_int
            x = y / tan(z + pi)     */
 
         rp_interval y_temp, z_temp, aux1, aux2, aux3;
-        rp_interval_limit_ub(y_temp, y, 0.0);
-        rp_interval_limit_lub(z_temp, z, - _PI, - _1_PI_2);
+        rp_interval_limit_ub(y_temp, y, -DBL_EPSILON);
+        rp_interval_limit_lub(z_temp, z, - _PI +DBL_EPSILON, - _1_PI_2 -DBL_EPSILON);
 
         /* z_temp = z + pi */
         rp_interval_add_r_i(z_temp, RP_INTERVAL_PI, z_temp);
@@ -1360,7 +1360,7 @@ int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y, rp_int
         rp_interval_mul(aux2, y_temp, aux1);
 
         /* aux3 = y / tan(z + pi) \cap [-oo, 0.0] */
-        rp_interval_limit_ub(aux3, aux2, 0.0);
+        rp_interval_limit_ub(aux3, aux2, -DBL_EPSILON);
         rp_interval_hull(xnew, xnew, aux3);
     }
 

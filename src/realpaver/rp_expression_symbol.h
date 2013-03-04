@@ -492,7 +492,6 @@ int rp_eval_max(rp_interval result, rp_interval i, rp_interval j)
 static rp_inline
 int rp_eval_atan2(rp_interval result, rp_interval i, rp_interval j)
 {
-  printf("rp_eval_atan2\n");
   rp_interval_atan2(result,i,j);
   return( !rp_interval_empty(result) );
 }
@@ -830,7 +829,6 @@ int rp_project_max(rp_erep f)
 static rp_inline
 int rp_project_atan2(rp_erep f)
 {
-  printf("rp_project_atan2\n");
   return( rp_project_atan2_fst(rp_erep_left_proj(f),
 			       rp_erep_proj(f),
 			       rp_erep_left_val(f),
@@ -1290,7 +1288,6 @@ int rp_deriv_num_safesqrt(rp_erep f)
 static rp_inline
 int rp_deriv_num_atan2(rp_erep f)
 {
-    printf("rp_deriv_num_atan2\n");
     rp_interval t0, t1, t2, t3, t4, t5;
     rp_interval_sqr(t0, rp_erep_left_val(f));      /* t0 := u^2 */
     rp_interval_sqr(t1, rp_erep_right_val(f));     /* t1 := v^2 */
@@ -1798,7 +1795,6 @@ void rp_deriv_symb_safesqrt(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
 static rp_inline
 void rp_deriv_symb_atan2(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
 {
-    printf("rp_deriv_symb_atan2\n");
     /*
       d(atan2(u, v) = ( v / (v^2+ u^2)) * du +
                       (-u / (v^2+ u^2)) * dv
