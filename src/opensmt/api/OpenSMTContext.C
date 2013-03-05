@@ -592,16 +592,16 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
 void OpenSMTContext::DefineODE( const char * name, string ode, int diff_group )
 {
 //  if ( config.verbosity > 1 )
-    cerr << "# OpenSMTContext::Define ODE "
-         << "d/dt["
-         << name
-         << "]"
-         << " = "
-	 << ode
-         << " ("
-         << diff_group
-         << ")"
-	 << endl;
+    // cerr << "# OpenSMTContext::Define ODE "
+    //      << "d/dt["
+    //      << name
+    //      << "]"
+    //      << " = "
+    //      << ode
+    //      << " ("
+    //      << diff_group
+    //      << ")"
+    //      << endl;
   // Create two variable _0, _t
   string* name_0_ptr = new string;
   string* name_t_ptr = new string;
@@ -918,17 +918,17 @@ void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v)
 {
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
         e->setUpperBound(v);
-        cerr << "addIntvCtr: " << e << " " << op << " " << e->getUpperBound()<< endl;
+        // cerr << "addIntvCtr: " << e << " " << op << " " << e->getUpperBound()<< endl;
         if (boost::starts_with(e->getCar()->getName(), "time_")) {
-            cerr << "time_ <=" << endl;
+            // cerr << "time_ <=" << endl;
             addAssert(mkLeq(mkCons(e, mkCons(mkNum(v)))));
         }
     }
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
         e->setLowerBound(v);
-        cerr << "addIntvCtr: " << e << " " << op << " " << e->getLowerBound() << endl;
+        // cerr << "addIntvCtr: " << e << " " << op << " " << e->getLowerBound() << endl;
         if (boost::starts_with(e->getCar()->getName(), "time_")) {
-            cerr << "time_ >=" << endl;
+            // cerr << "time_ >=" << endl;
             addAssert(mkGeq(mkCons(e, mkCons(mkNum(v)))));
         }
     }
