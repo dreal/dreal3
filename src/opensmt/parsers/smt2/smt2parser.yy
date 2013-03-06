@@ -529,40 +529,52 @@ infix_term: spec_const
       }
     | '(' infix_term ')'
       {
-        string* ret = new string( '(' + *($2) + ')' );
+        stringstream ss;
+        ss << "(" << *$2 << ")";
+        string* ret = new string (ss.str());
         delete $2;
         $$ = ret;
       }
     | infix_term TK_PLUS infix_term
       {
-        string* ret = new string (*$1 + "+" + *$3);
+        stringstream ss;
+        ss << *$1 << "+" << *$3;
+        string* ret = new string (ss.str());
         delete $1;
         delete $3;
         $$ = ret;
       }
     | infix_term TK_MINUS infix_term
       {
-        string* ret = new string (*$1 + "-" + *$3);
+        stringstream ss;
+        ss << *$1 << "-" << *$3;
+        string* ret = new string (ss.str());
         delete $1;
         delete $3;
         $$ = ret;
       }
     | infix_term TK_TIMES infix_term
       {
-        string* ret = new string (*$1 + "*" + *$3);
+        stringstream ss;
+        ss << *$1 << "*" << *$3;
+        string* ret = new string (ss.str());
         delete $1;
         delete $3;
         $$ = ret;
       }
     | TK_UMINUS infix_term
       {
-        string* ret = new string ("-" + *$2);
+        stringstream ss;
+        ss << "-" << *$2;
+        string* ret = new string (ss.str());
         delete $2;
         $$ = ret;
       }
     | infix_term TK_DIV infix_term
       {
-        string* ret = new string (*$1 + "/" + *$3);
+        stringstream ss;
+        ss << *$1 << "/" << *$3;
+        string* ret = new string (ss.str());
         delete $1;
         delete $3;
         $$ = ret;
@@ -574,74 +586,98 @@ infix_term: spec_const
       }
     | TK_SIN '(' infix_term ')'
       {
-        string* ret = new string ("sin" + '(' + *$3 + ')');
+        stringstream ss;
+        ss << "sin" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
         delete $3;
         $$ = ret;
       }
     | TK_COS '(' infix_term ')'
       {
-        string* ret = new string ("cos" + '(' + *$3 + ')');
+        stringstream ss;
+        ss << "cos" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
         delete $3;
         $$ = ret;
       }
     | TK_TAN '(' infix_term ')'
       {
-        string* ret = new string ("tan" + '(' + *$3 + ')');
+        stringstream ss;
+        ss << "tan" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
         delete $3;
         $$ = ret;
       }
     | TK_ARCSIN '(' infix_term ')'
       {
-        string* ret = new string ("arcsin" + '(' + *$3 + ')');
+        stringstream ss;
+        ss << "arcsin" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
         delete $3;
         $$ = ret;
       }
     | TK_ARCCOS '(' infix_term ')'
       {
-        string* ret = new string ("arccos" + '(' + *$3 + ')');
+        stringstream ss;
+        ss << "arccos" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
         delete $3;
         $$ = ret;
       }
     | TK_ARCTAN '(' infix_term ')'
       {
-        string* ret = new string ("arctan" + '(' + *$3 + ')');
+        stringstream ss;
+        ss << "arctan" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
         delete $3;
         $$ = ret;
       }
     | TK_ARCTAN2 '(' infix_term infix_term')'
       {
-        string* ret = new string ("arctan2" + '(' + *$3 + ", " + *$4 + ')');
+        stringstream ss;
+        ss << "arctan2" << "(" << *$3 << ", " << *$4<< ")";
+        string* ret = new string (ss.str());
         delete $3;
         delete $4;
         $$ = ret;
       }
     | TK_MARCTAN '(' infix_term ')'
       {
-        string* ret = new string ("marctan" + '(' + *$3 + ')');
+        stringstream ss;
+        ss << "marctan" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
         delete $3;
         $$ = ret;
       }
     | TK_SAFESQRT '(' infix_term ')'
       {
-        string* ret = new string ("safesqrt" + '(' + *$3 + ')');
+        stringstream ss;
+        ss << "safesqrt" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
         delete $3;
         $$ = ret;
       }
     | TK_EXP '(' infix_term ')'
       {
-        string* ret = new string ("exp" + '(' + *$3 + ')');
+        stringstream ss;
+        ss << "exp" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
         delete $3;
         $$ = ret;
       }
     | TK_LOG '(' infix_term ')'
       {
-        string* ret = new string ("log" + '(' + *$3 + ')');
+        stringstream ss;
+        ss << "log" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
         delete $3;
         $$ = ret;
       }
     | TK_POW '(' infix_term infix_term')'
       {
-        string* ret = new string (*$3 + "^" + *$4 );
+        stringstream ss;
+        ss << "(" << *$3 << "^" << *$4 << ")";
+        string* ret = new string (ss.str());
         delete $3;
         delete $4;
         $$ = ret;
