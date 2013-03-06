@@ -294,6 +294,17 @@ let rec print_infix_exp (out : 'a BatInnerIO.output) : exp -> unit =
         exps
     end
   in
+  let print_fncall (fn_name : string) (exps : exp list) =
+    begin
+      BatList.print
+        (~first: (fn_name ^ "("))
+        (~sep: ", ")
+        (~last:")")
+        print_infix_exp
+        out
+        exps
+    end
+  in
   function
   | Var x ->
     let filter str =
@@ -343,15 +354,15 @@ let rec print_infix_exp (out : 'a BatInnerIO.output) : exp -> unit =
   | Abs  e -> (* print_infix_exps "abs"  [e] *)
     (* MATH HACK *)
     print_infix_exp out (Sqrt (Pow(e, Const 2.0)))
-  | Log  e -> print_infix_exps "log"  [e]
-  | Exp  e -> print_infix_exps "exp"  [e]
-  | Sin  e -> print_infix_exps "sin"  [e]
-  | Cos  e -> print_infix_exps "cos"  [e]
-  | Tan  e -> print_infix_exps "tan"  [e]
-  | Asin e -> print_infix_exps "arcsin" [e]
-  | Acos e -> print_infix_exps "arccos" [e]
-  | Atan e -> print_infix_exps "arctan" [e]
-  | Sinh e -> print_infix_exps "sinh" [e]
-  | Cosh e -> print_infix_exps "cosh" [e]
-  | Tanh e -> print_infix_exps "tanh" [e]
+  | Log  e -> print_fncall "log"  [e]
+  | Exp  e -> print_fncall "exp"  [e]
+  | Sin  e -> print_fncall "sin"  [e]
+  | Cos  e -> print_fncall "cos"  [e]
+  | Tan  e -> print_fncall "tan"  [e]
+  | Asin e -> print_fncall "arcsin" [e]
+  | Acos e -> print_fncall "arccos" [e]
+  | Atan e -> print_fncall "arctan" [e]
+  | Sinh e -> print_fncall "sinh" [e]
+  | Cosh e -> print_fncall "cosh" [e]
+  | Tanh e -> print_fncall "tanh" [e]
 
