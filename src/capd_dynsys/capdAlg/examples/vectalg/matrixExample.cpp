@@ -4,11 +4,12 @@
 */
 
 #include <iostream>
-#include "capd/intervals/DoubleInterval.h"
+#include "capd/intervals/lib.h"
 #include "capd/vectalg/Vector.hpp"
 #include "capd/vectalg/Matrix.hpp"
 
 using namespace capd::vectalg;
+using capd::DInterval;
 
 // the template class Matrix has three parameters - type which is stored in a matrix, number of rows and number of columns
 // template class Matrix<typename ScalarType,int rows, int cols>
@@ -18,19 +19,19 @@ using namespace capd::vectalg;
 
 // the following lines define new names for four dimensional vectors 
 typedef Vector<double,4> DVector4D;
-typedef Vector<interval,4> IVector4D;
+typedef Vector<DInterval,4> IVector4D;
 
 // the following lines define new names for vectors of ana arbitrarily length
 typedef Vector<double,0> DVector;
-typedef Vector<interval,0> IVector;
+typedef Vector<DInterval,0> IVector;
 
 // the following lines define new names for square matrices 4x4 both for doubles and intervals
 typedef Matrix<double,4,4> DMatrix4D;
-typedef Matrix<interval,4,4> IMatrix4D;
+typedef Matrix<DInterval,4,4> IMatrix4D;
 
 // the following lines define new names for matrices with an arbitrary size
 typedef Matrix<double,0,0> DMatrix;
-typedef Matrix<interval,0,0> IMatrix;
+typedef Matrix<DInterval,0,0> IMatrix;
 
 int main(int, char**)
 {
@@ -177,7 +178,7 @@ int main(int, char**)
 // --------------------------------- operations for interval matrices only -------------------------------------
    
       std::cout << "\n\nOperations for interval matrices only\n--------------------------------\n\n";
-      interval d1[] = {interval(-1.,1.),interval(2.,2.),interval(3.,3.1), interval(4.,4.1)};
+      DInterval d1[] = {DInterval(-1.,1.), DInterval(2.,2.), DInterval(3.,3.1), DInterval(4.,4.1)};
       IMatrix v1(2,2,d1);
       IMatrix v2(2,2);
       std::cout << "v1=" << v1 << std::endl;

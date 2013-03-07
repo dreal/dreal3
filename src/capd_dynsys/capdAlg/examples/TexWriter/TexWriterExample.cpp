@@ -27,14 +27,11 @@ using namespace capd;
 
 int main(int argc, char **argv) {
 
-#ifdef __USE_FILIB__
-  Interval::precision(16);
-#endif
   // TexWriter that will write to screen
 
   TexWriter out(cout);
   cout.precision(16);
-  Interval x("11244.52423323212323423","11244.5242532232234324");
+  DInterval x("11244.52423323212323423","11244.5242532232234324");
   cout <<"\nInterval  : " << x << "\n can be written in TeX form as " << std::endl;
 
   out.precision(10);

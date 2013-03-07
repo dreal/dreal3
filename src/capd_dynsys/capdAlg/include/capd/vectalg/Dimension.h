@@ -16,8 +16,8 @@
 #ifndef _CAPD_VECTALG_DIMENSION_H_ 
 #define _CAPD_VECTALG_DIMENSION_H_ 
 
-#ifndef DIM
-#define DIM 0
+#ifndef CAPD_DEFAULT_DIMENSION
+#define CAPD_DEFAULT_DIMENSION 0
 #endif  //DIM
 
 #endif // _CAPD_VECTALG_DIMENSION_H_ 

@@ -3,19 +3,21 @@
 GTEST_DIR = /usr/local
 
 #CAPD directory
-CAPD_DIR = ../..
+CAPD_DIR = ~/code/bin64/filib
 
 #Values, that need to be passed to preprocessor.
-GTEST_HEADER=\"gtest/gtest.h\"
+GTEST_HEADER="gtest/gtest.h"
 
 # Where to find user code.
 USER_DIR = .
 
 # Flags passed to the preprocessor.
-CPPFLAGS +=  -I$(GTEST_DIR) -I$(GTEST_DIR)/include  -I$(CAPD_DIR)/include
+CPPFLAGS +=  -I$(GTEST_DIR) -I$(GTEST_DIR)/include  `$(CAPD_DIR)/bin/mpcapd-config --cflags`
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g
+
+CAPDLIB = `$(CAPD_DIR)/bin/mpcapd-config --libs`
 
 BIN = ../bin
 

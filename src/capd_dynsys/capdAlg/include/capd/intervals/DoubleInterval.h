@@ -23,17 +23,24 @@ using std::log;
 
 #include "capd/rounding/DoubleRounding.h"
 
-
-typedef capd::intervals::Interval<double, capd::rounding::DoubleRounding> interval;
-
-extern ::interval pi;
-
 //using namespace capd::intervals;
 namespace capd{
 	namespace intervals{
 		typedef capd::intervals::Interval<double, capd::rounding::DoubleRounding> DoubleInterval;
 	}
 }
+
+#ifndef __CAPD_DEFINE_INTERVAL__
+#define __CAPD_DEFINE_INTERVAL__
+namespace capd{
+  typedef intervals::DoubleInterval interval;
+}
+#endif //__CAPD_DEFINE_INTERVAL__
+
+namespace capd{
+  extern  ::capd::interval pi;
+}
+
 
 #ifdef __INTERVAL_DEPRECATED__
 using capd::intervals::Degenerate;

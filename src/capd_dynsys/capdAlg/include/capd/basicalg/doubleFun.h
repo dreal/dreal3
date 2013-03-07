@@ -112,12 +112,22 @@ inline double leftBound(double x)
   return x;
 }
 
+inline int leftBound(int x)
+{
+  return x;
+}
+
 inline long double rightBound(long double x)
 {
   return x;
 }
 
 inline double rightBound(double x)
+{
+  return x;
+}
+
+inline int rightBound(int x)
 {
   return x;
 }

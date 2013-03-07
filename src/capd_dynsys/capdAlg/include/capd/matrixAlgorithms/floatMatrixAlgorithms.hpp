@@ -177,6 +177,45 @@ VectorType gauss(const MatrixType& A, const VectorType& b)
   return result;
 }
 
+//-------------------------------------------------------------------------
+///
+/// computes sorting permutation according to sizes of
+/// the set in the direction of the base vectors
+///
+template<typename MatrixType, typename VectorType, typename IntVectorType>
+void computeSortingPermutation(
+         const MatrixType& Q,         ///<  @param  Q     matrix of base vectors (in columns)
+         const VectorType & v,        ///<  @param  v     set in given coordinates
+         IntVectorType & permutation  ///<  @param[out] permutation
+){
+  //typedef typename MatrixType::RowVectorType VectorType;
+  typedef typename MatrixType::ScalarType ScalarType;
+  //typedef typename VectorType::template rebind<int>::other IntVectorType;
+  typedef typename MatrixType::RefColumnVectorType ColumnVectorType;
+
+  VectorType norm(Q.numberOfColumns(),true);
+
+  int i=0;
+
+  typename MatrixType::const_iterator e=Q.end();
+  typename VectorType::iterator bn = norm.begin(), en=norm.end();
+  while(bn!=en)
+  {
+    ScalarType s(0);
+    typename MatrixType::const_iterator b=Q.begin()+i;
+    while(b!=e)
+    {
+      s += power(*b,2).rightBound();
+      b += Q.rowStride();
+    }
+    *bn = s*(ScalarType(1e-50)+(power(v[i],2).rightBound()));
+    ++bn;
+    ++e;
+    ++i;
+  }
+
+  norm.sorting_permutation(permutation);
+}
 
 // -------------------------------- orthonormalize -------------------------
 
@@ -188,28 +227,9 @@ void orthonormalize(MatrixType& Q, const typename MatrixType::RowVectorType& v)
   typedef typename VectorType::template rebind<int>::other IntVectorType;
   typedef typename MatrixType::RefColumnVectorType ColumnVectorType;
 
-  VectorType norm(Q.numberOfColumns(),true);
+
   IntVectorType p(Q.numberOfColumns(),true);
-
-  int i=0;
-  typename MatrixType::iterator e=Q.end();
-  typename VectorType::iterator bn = norm.begin(), en=norm.end();
-  while(bn!=en)
-  {
-    ScalarType s(0);
-    typename MatrixType::iterator b=Q.begin()+i;
-    while(b!=e)
-    {
-      s += power(*b,2);
-      b += Q.rowStride();
-    }
-    *bn = s*(ScalarType(1e-50)+(power(v[i],2).rightBound()));
-    ++bn;
-    ++e;
-    ++i;
-  }
-
-  norm.sorting_permutation(p);
+  computeSortingPermutation(Q, v, p);
   typename IntVectorType::iterator bp = p.begin(), ep = p.end();
   while(bp!=ep)
   {
@@ -239,28 +259,42 @@ void orthonormalize(MatrixType& Q, const MatrixType& v)
   typedef typename VectorType::template rebind<int>::other IntVectorType;
   typedef typename MatrixType::RefColumnVectorType ColumnVectorType;
 
-  VectorType norm(Q.numberOfColumns(),true);
+
+//  VectorType columnNorms(v.numberOfRows(),true);
+//  typename VectorType::iterator bn = columnNorms.begin(), en=columnNorms.end();
+//  int i=0;
+//  while(bn!=en){
+//    *bn = v.row(i).euclNorm();
+//    bn++; i++;
+//  }
+//  IntVectorType p(Q.numberOfColumns(),true);
+//  computeSortingPermutation(Q, columnNorms, p);
+
+  /// TODO: check and replace with the above
+  //---------------------------------------------
+  VectorType norm(v.numberOfRows(),true);
   IntVectorType p(Q.numberOfColumns(),true);
 
   int i=0;
-  typename MatrixType::iterator e=Q.end();
-  typename VectorType::iterator bn = norm.begin(), en=norm.end();
-  while(bn!=en)
-  {
-    ScalarType s(0);
-    typename MatrixType::iterator b=Q.begin()+i;
-    while(b!=e)
+    typename MatrixType::iterator e=Q.end();
+    typename VectorType::iterator bn = norm.begin(), en=norm.end();
+    while(bn!=en)
     {
-      s += power(*b,2);
-      b += Q.rowStride();
+      ScalarType s(0);
+      typename MatrixType::iterator b=Q.begin()+i;
+      while(b!=e)
+      {
+        s += power(*b,2);
+        b += Q.rowStride();
+      }
+      *bn = s*(ScalarType(1e-50)+v.row(i).euclNorm().rightBound());
+      ++bn;
+      ++e;
+      ++i;
     }
-    *bn = s*(ScalarType(1e-50)+v.row(i).euclNorm().rightBound());
-    ++bn;
-    ++e;
-    ++i;
-  }
 
-  norm.sorting_permutation(p);
+    norm.sorting_permutation(p);
+ // ------- end ------------------
   typename IntVectorType::iterator bp = p.begin(), ep = p.end();
   while(bp!=ep)
   {
@@ -279,7 +313,6 @@ void orthonormalize(MatrixType& Q, const MatrixType& v)
     }
   }
 }
-
 // Gramm-Schmit column orthonormalization
 // with permutation of columns
 template<typename MatrixType>
@@ -354,6 +387,67 @@ void QR_decompose(const MatrixType& A, MatrixType& Q, MatrixType& R)
     }else{
       throw std::runtime_error("Failed to decompose A");
     }
+  }
+}
+// -------------------------------- QR_with_pivoting_and_weights -------------------------
+
+template<typename MatrixType, typename IntVectorType>
+void QRdecomposeWithPivoting(
+    const MatrixType & A,
+    const typename MatrixType::RowVectorType& v,
+    MatrixType& Q,
+    MatrixType& R,
+    typename MatrixType::RowVectorType & sizes,
+    IntVectorType & p
+){
+  typedef typename MatrixType::RowVectorType VectorType;
+  typedef typename MatrixType::ScalarType ScalarType;
+  typedef typename MatrixType::RefColumnVectorType ColumnVectorType;
+  //IntVectorType (Q.numberOfColumns(),true);
+  if(&Q != &A)
+    Q = A;
+  computeSortingPermutation(Q,v,p);
+
+  int i,j, dimension = Q.numberOfColumns();
+  R.clear();
+  int d = 0 ;    // which canonical vector to use if original is linearly dependent
+  typename IntVectorType::iterator it = p.begin(), ep = p.end();
+  while( it!=ep )
+  {
+    sizes[*it] = capd::TypeTraits<ScalarType>::zero();
+    bool isColumnOryginal = true;
+    // we try to do Gramm-Schmidt step as long as we finally find orthogonal vector
+    do{
+
+      typename MatrixType::RefColumnVectorType Qi = Q.column(*it);
+      typename IntVectorType::iterator j = p.begin();
+      // we project Qi into subspace spanned by the previous base vectors
+      while( j!=it ){
+        typename MatrixType::RefColumnVectorType Qj = Q.column(*j);
+        ScalarType product = R(*j + 1, *it +1) = Qi * Qj;
+        Qi -= product * Qj;
+        ++j;
+      }
+      typename MatrixType::ScalarType diag = R(*it+1,*it+1) = Qi.euclNorm();
+      if( isColumnOryginal )
+          sizes[*it] = (!isSingular(diag) ? abs(diag).left() : capd::TypeTraits<ScalarType>::zero());
+
+      // we check if current column is linearly independent
+      if( !isSingular(diag) ) {
+        Qi /= diag;
+        ++it;
+        break;
+      }else{
+        for(int k=0; k<dimension; ++k){
+          Qi[k] = (d==k)? capd::TypeTraits<ScalarType>::one() : capd::TypeTraits<ScalarType>::zero();
+        }
+        d++;
+        isColumnOryginal = false;
+      }
+    } while(d<=dimension);
+  }
+  if(d>dimension){
+    throw  std::runtime_error("Failed to QR decompose A");
   }
 }
 

@@ -16,8 +16,6 @@
 #ifndef _CAPD_INTERVAL_INTERVAL_H_ 
 #define _CAPD_INTERVAL_INTERVAL_H_ 
 
-#include "capd/auxil/minmax.h"
-
 // functions defined for templates to work also with double instead of intervals
 #include "capd/basicalg/doubleFun.h"
 

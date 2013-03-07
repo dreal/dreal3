@@ -35,7 +35,7 @@
 
 #include <ctime>
 #include <iostream>
-
+#include "capd/auxil/OutputStream.h"
 namespace capd {
 namespace auxil {
 
@@ -68,11 +68,9 @@ public:
 	/// running time at program's termination.
 	timeused &operator = (std::ostream &out);
 
-	#ifdef OUTPUTSTREAM
 	/// Defines an output stream for displaying program's
 	/// running time at program's termination to a pair of streams.
-	timeused &operator = (outputstream &out);
-	#endif
+	timeused &operator = (OutputStream &out);
 
 	/// Turns off writing program's running time at program's
 	/// termination by assigning 0 to an object of this class.
@@ -177,8 +175,7 @@ inline timeused &timeused::operator = (std::ostream &out)
 	return *this;
 } /* timeused::operator = */
 
-#ifdef CAPD_OUTPUTSTREAM
-inline timeused &timeused::operator = (outputstream &out)
+inline timeused &timeused::operator = (OutputStream &out)
 {
 	if (out. show)
 		outstream1 = &(out. out);
@@ -190,7 +187,6 @@ inline timeused &timeused::operator = (outputstream &out)
 		outstream2 = NULL;
 	return *this;
 } /* operator = */
-#endif
 
 inline timeused &timeused::operator = (int n)
 {

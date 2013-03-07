@@ -21,7 +21,7 @@
 IVector Henon3::Phi(const IVector &iv) const
 {
 	IVector result;
-	result[0] = iv[1] + Interval(1.) - a*(iv[0]^2);
+	result[0] = iv[1] + DInterval(1.) - a*(iv[0]^2);
 	result[1] = b*iv[0];
 	result[2] = iv[2];
 	return result;
@@ -38,11 +38,11 @@ IMatrix Henon3::JacPhi(const IVector &iv) const
     result(2,1)=b;
     result(2,2)=0;
 */
-	result[0][0] = Interval(-2.)*a*iv[0];
-	result[0][1] = Interval(1.);
+	result[0][0] = DInterval(-2.)*a*iv[0];
+	result[0][1] = DInterval(1.);
 	result[1][0] = b;
-	result[1][1] = Interval(0.);
-	result[2][2] = Interval(1.);
+	result[1][1] = DInterval(0.);
+	result[2][2] = DInterval(1.);
 
 	return result;
 }

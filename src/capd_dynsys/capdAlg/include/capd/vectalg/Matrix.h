@@ -159,6 +159,7 @@ public:
 // Deprecated
    void Transpose() { transpose(); }
    using ContainerType::resize;
+   static int degree() {return 1;} // required interface for DynSys
 protected:
 
   using ContainerType::data;

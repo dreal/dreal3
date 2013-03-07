@@ -21,8 +21,8 @@ namespace capd{
 
 #ifdef __HAVE_MPFR__
 
-template class capd::vectalg::Container<MpFloat,DIM>;
-template class capd::vectalg::Container<MpInterval,DIM>;
+template class capd::vectalg::Container<MpFloat,CAPD_DEFAULT_DIMENSION>;
+template class capd::vectalg::Container<MpInterval,CAPD_DEFAULT_DIMENSION>;
 
 #endif
 

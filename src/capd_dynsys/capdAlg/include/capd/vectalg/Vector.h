@@ -140,6 +140,7 @@ public:
   void sorting_permutation(typename rebind<int>::other& perm);
 
   const static int csDim = dim;
+  static int degree() {return 0;} // required interface for DynSys
 }; // end of class Vector template
 
 template<typename Vector>

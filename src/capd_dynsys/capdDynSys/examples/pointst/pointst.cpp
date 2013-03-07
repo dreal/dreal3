@@ -216,6 +216,7 @@ void computePoincare(IC2PoincareMap &PM, IVector &X, IMatrix &DP, IMatrix *D2P)
 
    IVector dT = PM.computeDT(X,derivativeOfFlow);
    DP = PM.computeDP(X,derivativeOfFlow,dT);
+   std::cout << "\n dP " << size(DP) << "\n derOfFlow " << size(derivativeOfFlow) << std::endl;
    IMatrix d2T = PM.computeD2T(X,derivativeOfFlow,dT,DP,hessianOfFlow);
    PM.computeD2P(X,derivativeOfFlow,dT,DP,hessianOfFlow,d2T,D2P);
 }

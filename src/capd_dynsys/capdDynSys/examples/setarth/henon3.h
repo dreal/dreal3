@@ -21,15 +21,15 @@ using namespace capd;
 
 class Henon3 : public IDynSys{
 public:
-	Henon3(const Interval& the_a, const Interval& the_b);
+	Henon3(const DInterval& the_a, const DInterval& the_b);
 	IVector Phi(const IVector &iv) const;
 	IMatrix JacPhi(const IVector &iv) const;
 	IVector Remainder(const IVector &iv) const;
 protected:
-	Interval a,b;
+	DInterval a,b;
 }; 
 
-inline Henon3::Henon3(const Interval& the_a, const Interval& the_b)
+inline Henon3::Henon3(const DInterval& the_a, const DInterval& the_b)
 {
 	a=the_a;b=the_b;
 }     

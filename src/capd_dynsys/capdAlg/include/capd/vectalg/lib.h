@@ -19,11 +19,7 @@
 #define _CAPD_VECTALG_LIB_H_
 
 double power(int val,int ile);
-// necessary for the Borland compiler
-//#include <math.h>
-//inline int sqrt(int x){
-//   return ::sqrt(x);
-//}
+
 #include "capd/intervals/lib.h"
 
 #include "capd/vectalg/Dimension.h"
@@ -34,35 +30,8 @@ double power(int val,int ile);
 #include "capd/matrixAlgorithms/intMatrixAlgorithms.hpp"
 #include "capd/vectalg/Multiindex.h"
 
-
-
-namespace capd{
-typedef capd::vectalg::Vector<int,DIM> ZVector;
-
-typedef capd::vectalg::Vector<double,DIM> DVector;
-typedef capd::vectalg::Matrix<double,DIM,DIM> DMatrix;
-
-typedef capd::vectalg::Vector<Interval,DIM> IVector;
-typedef capd::vectalg::Matrix<Interval,DIM,DIM> IMatrix;
-
-typedef capd::vectalg::Norm<DVector,DMatrix> DNorm;
-typedef capd::vectalg::EuclNorm<DVector,DMatrix> DEuclNorm;
-typedef capd::vectalg::MaxNorm<DVector,DMatrix> DMaxNorm;
-typedef capd::vectalg::SumNorm<DVector,DMatrix> DSumNorm;
-typedef capd::vectalg::EuclLNorm<DVector,DMatrix> DEuclLNorm;
-typedef capd::vectalg::MaxLNorm<DVector,DMatrix> DMaxLNorm;
-typedef capd::vectalg::SumLNorm<DVector,DMatrix> DSumLNorm;
-
-typedef capd::vectalg::Norm<IVector,IMatrix> INorm;
-typedef capd::vectalg::EuclNorm<IVector,IMatrix> IEuclNorm;
-typedef capd::vectalg::MaxNorm<IVector,IMatrix> IMaxNorm;
-typedef capd::vectalg::SumNorm<IVector,IMatrix> ISumNorm;
-typedef capd::vectalg::EuclLNorm<IVector,IMatrix> IEuclLNorm;
-typedef capd::vectalg::MaxLNorm<IVector,IMatrix> IMaxLNorm;
-typedef capd::vectalg::SumLNorm<IVector,IMatrix> ISumLNorm;
-
-typedef capd::vectalg::Multiindex Multiindex;
-typedef capd::vectalg::Multipointer Multipointer;
-} // end of namespace capd
+#define CAPD_USER_NAMESPACE capd
+  #include "capd/vectalg/typedefs.h"
+#undef CAPD_USER_NAMESPACE
 
 #endif // _CAPD_VECTALG_LIB_H_

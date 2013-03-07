@@ -21,7 +21,7 @@
 #include "capd/vectalg/Norm.hpp"
 
 const int DIM = 3;
-
+using capd::interval;
 typedef capd::vectalg::Vector<double,3> DVector;
 typedef capd::vectalg::Matrix<double,3,3> DMatrix;
 typedef capd::vectalg::Vector<interval,3> IVector;

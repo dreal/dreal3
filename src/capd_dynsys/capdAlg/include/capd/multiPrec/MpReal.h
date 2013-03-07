@@ -236,6 +236,12 @@ class MpReal {
                  PrecisionType prec = getDefaultPrecision(),
                  int base = 10,
                  int nb_digits = 0) const;
+
+    void get(const std::string & str,
+    		RoundingMode rnd = getDefaultRndMode(),
+    		PrecisionType prec = getDefaultPrecision(),
+    		int base = 10);
+
     /// reads number from a stream
     friend std::istream& operator >> (std::istream &i, MpReal& r);
     /// writes number to a stream

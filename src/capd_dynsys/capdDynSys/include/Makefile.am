@@ -33,6 +33,8 @@ capd/dynset/C0GraphicalSet.h \
 capd/dynset/C0Pped2RSet.h \
 capd/dynset/C0Pped2Set.h \
 capd/dynset/C0Pped2Set.hpp \
+capd/dynset/C0PpedQSet.h \
+capd/dynset/C0PpedQSet.hpp \
 capd/dynset/C0PpedSet.h \
 capd/dynset/C0PpedSet.hpp \
 capd/dynset/C0Rect2RSet.h \

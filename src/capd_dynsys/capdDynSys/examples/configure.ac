@@ -37,5 +37,5 @@ PKG_CHECK_MODULES([capdExt], [capdExt >= 1.0])
 PKG_CHECK_MODULES([capdDynSys], [capdDynSys >= 1.0])
 
 
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADER(config.h)
 AC_OUTPUT

@@ -27,7 +27,6 @@ svn_dir=$2
 
 #  name of root directory of CAPD-DynSys
 capd_dir=$3
-
 : ${capd_dir:="capd_dynsys"}
 
 rm -rf ${capd_dir}
@@ -62,6 +61,8 @@ echo "we copy new config files"
 
 cd capdMake/utils
 cp -r capdDynSys/add/capd/* ../../../${capd_dir}
+
+echo "generating Makefile.am in include directories"
 ./generateMakefiles.sh
 cd ../..
 

@@ -179,7 +179,7 @@ public:
   friend bool operator != <> ( const Interval & A_iv1, const Interval & A_iv2 );
 
 
-  //==== declarations in intervalFriend.h  definitions in intervalOp.hpp ==================
+  //==== declarations in Interval_Friend.h  definitions in Interval_Op.hpp ==================
 
   friend Interval operator - <>(const Interval& A_iv);
 
@@ -191,6 +191,13 @@ public:
 
   friend std::ostream & operator << <>(std::ostream& s, const Interval & A_iv);
   friend std::istream & operator >> <>(std::istream& s, Interval & A_iv);
+
+  friend std::ostream & bitWrite <>(std::ostream & out, const Interval & iv);
+  friend std::istream & bitRead <>(std::istream & in, Interval & iv);
+  friend std::ostream & hexWrite <>(std::ostream & out, const Interval & iv);
+  friend std::istream & hexRead <>(std::istream & in, Interval & iv);
+  friend std::ostream & binWrite <>(std::ostream & out, const Interval & iv);
+  friend std::istream & binRead <>(std::istream & in, Interval & iv);
 
   //================ definitions in intervalFun.hpp ============================
   static T_Bound computeExpError();
@@ -431,15 +438,16 @@ namespace capd{
 /**
  * Specialization of TypeTraits for intervals
  */
-template <typename T, typename R>
-class TypeTraits < ::capd::intervals::Interval<T,R> > {
+template <typename T, typename RT>
+class TypeTraits < ::capd::intervals::Interval<T,RT> > {
 public:
   typedef T Real;
+  typedef RT RoundingType;
 
-  static inline const ::capd::intervals::Interval<T,R> & zero(){
+  static inline const ::capd::intervals::Interval<T,RT> & zero(){
     return S_zero;
   }
-  static inline const ::capd::intervals::Interval<T,R> & one(){
+  static inline const ::capd::intervals::Interval<T,RT> & one(){
     return S_one;
   }
   static inline int numberOfDigits(){
@@ -453,17 +461,17 @@ public:
   static const bool isInterval = true;
 
 private:
-  static const  ::capd::intervals::Interval<T,R> S_zero ;// = capd::intervals::Interval<T,R>(T(0.0));
-  static const  ::capd::intervals::Interval<T,R> S_one ;
+  static const  ::capd::intervals::Interval<T,RT> S_zero ;// = capd::intervals::Interval<T,R>(T(0.0));
+  static const  ::capd::intervals::Interval<T,RT> S_one ;
 };
 
-template <typename T, typename R>
-const ::capd::intervals::Interval<T,R> TypeTraits< ::capd::intervals::Interval<T,R> >::S_zero = ::capd::intervals::Interval<T,R>(
+template <typename T, typename RT>
+const ::capd::intervals::Interval<T,RT> TypeTraits< ::capd::intervals::Interval<T,RT> >::S_zero = ::capd::intervals::Interval<T,RT>(
     TypeTraits<T>::zero()
 );
 
-template <typename T, typename R>
-const ::capd::intervals::Interval<T,R> TypeTraits< ::capd::intervals::Interval<T,R> >::S_one = ::capd::intervals::Interval<T,R>(
+template <typename T, typename RT>
+const ::capd::intervals::Interval<T,RT> TypeTraits< ::capd::intervals::Interval<T,RT> >::S_one = ::capd::intervals::Interval<T,RT>(
     TypeTraits<T>::one()
 );
 

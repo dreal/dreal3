@@ -14,7 +14,7 @@
 #include "capd/vectalg/lib.h"
 #include "capd/map/Function.hpp"
 template class capd::map::BasicFunction<double>;
-template class capd::map::BasicFunction<capd::Interval>;
+template class capd::map::BasicFunction<capd::DInterval>;
 template class capd::map::Function<capd::DVector>;
 template class capd::map::Function<capd::IVector>;
 

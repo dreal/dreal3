@@ -206,6 +206,7 @@ public:
   bool normalize();
   void clear();
   int dimension() const;
+  void next();
 
   iterator begin();
   iterator end();
@@ -300,6 +301,11 @@ inline Scalar& ColumnVector<Scalar,rows>::operator[](int a_row){
 template<typename Scalar, int rows>
 inline const Scalar& ColumnVector<Scalar,rows>::operator[](int a_row) const{
   return *(m_pointer + a_row*m_stride);
+}
+
+template<typename Scalar,int rows>
+void ColumnVector<Scalar,rows>::next(){
+  m_pointer++;
 }
 
 // -------------------- operator + ------------------------------------------

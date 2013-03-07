@@ -5,7 +5,7 @@ includedir=@abs_top_srcdir@/include
 
 Name: capdintervals
 Description: capdintervals module
-Requires: capdauxil capdrounding
+Requires: capdauxil capdrounding capdbasicalg
 Version: @PACKAGE_VERSION@
 Libs:   ${libdir}/libcapdintervals.a @capdintervals_LIBS@
 Cflags: @capdintervals_CFLAGS@  -I${includedir}

@@ -4,6 +4,7 @@
 - \ref ex_int_constructor
 - \ref ex_int_endpoints
 - \ref ex_int_inout
+- \ref ex_int_inout_exact
 - \ref ex_int_arithmetic
 - \ref ex_int_functions
 - \ref ex_int_logic_op
@@ -60,6 +61,12 @@ We can construct intervals by :
 \skipline DInterval a
 \until DInterval e("2.5","3.0");
 
+A constructor from string (the last one) is the safest one but it brings overestimations. 
+Interval bounds are read 
+from string and then last bit of their mantissa is rounded to ensure enclosure. 
+It always produce intervals of non zero width e.g. diameter of <code>(DInterval("1.0", "1.0"))</code> 
+is 3.33067e-16.
+
 \note
 If you create an interval by  
 \code 
@@ -68,15 +75,15 @@ DInterval x(0.1, 0.1)
 it <b>will NOT contain 0.1</b>.
 The reason is that 0.1 is not representable and it will be rounded to the nearest representable
 by compiler before passing to the constructor.<br/>
-The most appropriate way to enclose not-representable number is to do the following
+The most appropriate way to enclose not-representable number 0.1 is to do the following
 \code
 DInterval x(1);
 x /= 10;
 \endcode 
 
-(*)The state of the interval \e a depends on a flag <tt>__INTERVAL_INIT_0__</tt>.
-If this flag is set in file <tt>capdAlg/include/capd/interval/intervalSettings.h</tt> then <tt>a = [0.0, 0.0]</tt>,
-otherwise \e a is not initialized (this is the default behaviour).
+(*) The state of the interval \e a depends on a flag <tt>__INTERVAL_INIT_0__</tt>.
+If this flag is set in file <tt>capdAlg/include/capd/interval/intervalSettings.h</tt> then <tt>a = [0.0, 0.0]</tt> (this is the default behaviour),
+otherwise \e a is not initialized.
 
 \section ex_int_endpoints How to access interval end points?
 
@@ -122,16 +129,46 @@ The output depends on parameters of a stream e.g precision.
 \until fixed
 
 To read intervals from given stream (e.g. keyboard, file or memory) use operator >>.
-Input should be of the form :
+The format of an input should be :
 \code
 [leftEnd,rightEnd]
 \endcode
-where <tt>leftEnd</tt> and <tt>rightEnd</tt> should be of the form
-that can be read with operator >> as endpoint type (BoundType).
+where <tt>leftEnd</tt> and <tt>rightEnd</tt> are in the form
+that can be read into endpoint type (BoundType) with operator >>.
 \skipline istringstream
 \until a;
 
+\note 
+On output and input interval endpoints are rounded to the nearest representable. 
+Therefore is not is not guaranteed that result will enclose given interval.
+The reason is that when you output interval to a file with high enough precision 
+(at least 17 digits for double precision) than reading it will restore the original 
+interval without overestimations. 
 
+\section ex_int_inout_exact Exact input and output
+
+To save and restore intervals exactly you can use <b>binary format</b> or text formats 
+in binary or hexadecimal bases.
+\skipline inout
+\until binRead
+
+<b>Text output in binary base</b>
+\code
+DInterval x(-1,2);
+bitWrite(cout, x); 
+bitRead(cin, x);
+\endcode
+The output is <code>[1:01111111111:0000000000000000000000000000000000000000000000000000, 0:10000000000:0000000000000000000000000000000000000000000000000000]</code>.
+
+Endpoints have the following format <tt>sign:exponent:mantisa</tt> as in IEEE 754 standard.
+
+<b>Text output in hexadecimal base</b>
+\code
+DInterval x(-1,2);
+hexWrite(cout, x); 
+hexRead(cin, x);
+\endcode
+The output is <code>[1:3ff:0000000000000,0:400:0000000000000]</code>.
 
 \section ex_int_arithmetic Arithmetic operators
 
@@ -398,6 +435,7 @@ When using multiple precision endpoints, the returned value depends also on the 
 
 \section ex_int_settings Interval Settings
 
+The following applies only to native CAPD intervals and do not influence FILIB intervals. 
 In file "capdAlg/include/capd/interval/IntervalSetting.h" there are several flags which can be switched on/off
 by (un)commenting appropriate line of code:
 <table>
@@ -419,7 +457,7 @@ valid.</td>
        <td>default constructor initializes intervals to be [0.0,0.0]. <br/>
 By default this option is switched off and an interval is not
 initialized.</td>
-      <td>off</td>
+      <td>on</td>
     </tr>
     <tr>
       <td><pre>__INTERVAL_SPEED_OPTIMIZED__</pre>

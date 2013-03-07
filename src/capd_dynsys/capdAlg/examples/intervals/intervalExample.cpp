@@ -20,22 +20,38 @@ typedef capd::intervals::Interval< int, capd::rounding::IntRounding> ZInterval;
 using namespace std;
 void basicsTest(){
   // We construct five intervals
-  DInterval a;                   // a is in general not initialized (*)
+  DInterval a;                   // a = [0.0, 0.0] (*)
   DInterval b(1.0);              // b = [1.0, 1.0]
   DInterval c(2.0, 3.0);         // c = [2.0, 3.0]
   DInterval d(c);                // d = [2.0, 3.0]
-  DInterval e("2.5","3.0");      // e = [2.5, 3.0]              cout <<"\n\n Basic functions: \n ======================== \n * constructors,\n";  cout << " a() = " << a << " b(1.0) = " << b << "    c(2.0,3.0) = " << c        << "\n d(c) = " << d << "   e(\"2.5\",\"3\") = " << e ;
+  DInterval e("2.5","3.0");      // e = [2.4999999999999996, 3.0000000000000004]              cout <<"\n\n Basic functions: \n ======================== \n * constructors,\n";  cout << " a() = " << a << " b(1.0) = " << b << "    c(2.0,3.0) = " << c        << "\n d(c) = " << d << "   e(\"2.5\",\"3\") = " << e ;  cout << "\n diam([1.0,1.0]) " << diam(DInterval("1.0", "1.0")) ;
   // These functions return endpoints of an DInterval as double or as zero width DInterval  cout << "\n\n * acces to interval bounds,"        << "\n c.leftBound() = "  << c.leftBound()         << "   c.left() = "   << c.left()        << "   left(c) = "  << left(c)         << "\n c.rightBound() = "  << c.rightBound()               << "   c.right = "   << c.right()        << "   right = "  << right(c);  // These funtions compare two DIntervals or an DInterval and a number   cout << "\n\n * inclusions, relations (values 1 = true, 0 = false) "        << "\n b==c : " << (b==c)  << "  b!=c : " << (b!=c)         << "  b>c : " << (b>c)    << "  b>=c : " << (b>=c)         << "  b<c : " << (b<c)    << "  b<=c : " << (b<=c)         << "\n\n b==1.0 : " << (b==1.0)  << "  b!=1.0 : " << (b!=1.0)         << "  b>1.0 : " << (b>1.0)    << "  b>=1.0 : " << (b>=1.0)         << "  b<1.0 : " << (b<1.0)    << "  b<=1.0 : " << (b<=1.0);   //These functions check inclusions between DIntervals   cout << std::boolalpha << "\n\n " <<  c <<" contains " << e <<" :  " << c.contains(e)        << "     "<<c <<" containsInInterior " << e << " : " << c.containsInInterior(e)        << "\n "<<c << " contains 2.5 : " << c.contains(2.5)        << "\n "<<d << " subset " << c << " : " << d.subset(c)        << "          " << d << " subsetInterior " << c << " : " << d.subsetInterior(c);
-   //The output depends on parameters of a stream e.g precision.
-   std::cout << "\n\n Output with various precisions : ";
+   // The output depends on parameters of a stream e.g precision.
+   // Interval bounds are rounded to the nearest floating point with given
+   // number of decimal places
+   cout << "\n\n Output with various precisions : ";
    DInterval x(1.0, 2.0);
-   std::cout << x;                                  // output: [1,2]
-   std::cout << fixed << setprecision(6) << x;      // output: [1.000000,2.000000]
+   cout << x << "  ";                          // output: [1,2]
+   cout << fixed << setprecision(6) << x;      // output: [1.000000,2.000000]
    // You can read interval from a given stream (in this case from stringstream,   //  but the same aply to standard input stream cin)   std::istringstream myStr("[3.21312312, 4.324324324]");   myStr >> a;   cout << "\n\n Interval read from string \"[3.21312312, 4.324324324]\" = " << a;
+   // To save and then restore the same interval you can set high enough precision (at least 17 for doubles)
+   // or use bit or hex format for text streams or binary format.
+
+   x = DInterval(-1.0,2.0);
+   cout << "\n\n [-1,2] in bit format : ";
+   bitWrite(cout, x);
+   cout << "\n [-1,2] in hex format : ";
+   hexWrite(cout, x) << endl;
+
+   std::stringstream inout("", ios::binary | ios::in | ios::out );
+   binWrite(inout, x);
+   binRead(inout, a);
+   cout << "\n [-1,2] written and read from binary stream : " << a;
+
 
    DInterval ia(1.0, 10.0), ib(3.0, 5.0);
-   std::cout << "\n\n imin([1,10],[3,5]) = " << imin(ia,ib);                  // result:  [1.0, 5.0]
-   std::cout << "\n imax([1,10],[3,5]) = " << imax(ia,ib);                  // result:  [3.0, 10.0]
+   cout << "\n\n imin([1,10],[3,5]) = " << imin(ia,ib);                  // result:  [1.0, 5.0]
+   cout << "\n imax([1,10],[3,5]) = " << imax(ia,ib);                  // result:  [3.0, 10.0]
 
 
    // We split DInterval c into two intervals: center a and zero centered DInterval b,   // so that c is subset of a + b    c.split(a,b);   cout << "\n\n " << d << " = "  << a << "+" << b;

@@ -22,37 +22,37 @@ namespace capd{
   namespace vectalg{
 
 
-template class Vector<MpFloat,DIM>;
+template class Vector<MpFloat,CAPD_DEFAULT_DIMENSION>;
 
-template Vector<MpFloat,DIM> abs<MpFloat,DIM> (const Vector<MpFloat,DIM> &v);
-template Vector<MpFloat,DIM> operator- <MpFloat,DIM> (const Vector<MpFloat,DIM> &v);
-template Vector<MpFloat,DIM> operator+ <MpFloat,DIM> (const Vector<MpFloat,DIM> &v1,const Vector<MpFloat,DIM> &v2);
-template Vector<MpFloat,DIM> operator- <MpFloat,DIM> (const Vector<MpFloat,DIM> &v1,const Vector<MpFloat,DIM> &v2);
-template MpFloat operator* <MpFloat,DIM> (const Vector<MpFloat,DIM> &v1,const Vector<MpFloat,DIM> &v2);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> abs<MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator- <MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator+ <MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v1,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v2);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator- <MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v1,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v2);
+template MpFloat operator* <MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v1,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v2);
 
-template Vector<MpFloat,DIM> operator* <MpFloat,MpFloat,DIM> (const Vector<MpFloat,DIM> &v,const MpFloat &s);
-template Vector<MpFloat,DIM> operator* <MpFloat,MpFloat,DIM> (const MpFloat &s,const Vector<MpFloat,DIM> &v);
-template Vector<MpFloat,DIM> operator/ <MpFloat,MpFloat,DIM> (const Vector<MpFloat,DIM> &v, const MpFloat &s);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator* <MpFloat,MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v,const MpFloat &s);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator* <MpFloat,MpFloat,CAPD_DEFAULT_DIMENSION> (const MpFloat &s,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator/ <MpFloat,MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v, const MpFloat &s);
 
-template Vector<MpFloat,DIM> operator* <MpFloat,long,DIM>(const Vector<MpFloat,DIM> &v,const long &s);
-template Vector<MpFloat,DIM> operator* <MpFloat,long,DIM>(const long &s,const Vector<MpFloat,DIM> &v);
-template Vector<MpFloat,DIM> operator/ <MpFloat,long,DIM>(const Vector<MpFloat,DIM> &v, const long &s);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator* <MpFloat,long,CAPD_DEFAULT_DIMENSION>(const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v,const long &s);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator* <MpFloat,long,CAPD_DEFAULT_DIMENSION>(const long &s,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator/ <MpFloat,long,CAPD_DEFAULT_DIMENSION>(const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v, const long &s);
 
-template Vector<MpFloat,DIM> operator* <MpFloat,int,DIM>(const Vector<MpFloat,DIM> &v,const int &s);
-template Vector<MpFloat,DIM> operator* <MpFloat,int,DIM>(const int &s,const Vector<MpFloat,DIM> &v);
-template Vector<MpFloat,DIM> operator/ <MpFloat,int,DIM>(const Vector<MpFloat,DIM> &v, const int &s);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator* <MpFloat,int,CAPD_DEFAULT_DIMENSION>(const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v,const int &s);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator* <MpFloat,int,CAPD_DEFAULT_DIMENSION>(const int &s,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator/ <MpFloat,int,CAPD_DEFAULT_DIMENSION>(const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v, const int &s);
 
-template Vector<MpFloat,DIM> operator+ <MpFloat,DIM> (const Vector<MpFloat,DIM> &v,const MpFloat &s);
-template Vector<MpFloat,DIM> operator- <MpFloat,DIM> (const Vector<MpFloat,DIM> &v,const MpFloat &s);
-template bool operator < <MpFloat,DIM> (const Vector<MpFloat,DIM> &v1,const Vector<MpFloat,DIM> &v2);
-template bool operator > <MpFloat,DIM> (const Vector<MpFloat,DIM> &v1,const Vector<MpFloat,DIM> &v2);
-template bool operator<= <MpFloat,DIM> (const Vector<MpFloat,DIM> &v1,const Vector<MpFloat,DIM> &v2);
-template bool operator>= <MpFloat,DIM> (const Vector<MpFloat,DIM> &v1,const Vector<MpFloat,DIM> &v2);
-template std::ostream &operator<< <MpFloat,DIM> (std::ostream &out, const Vector<MpFloat,DIM> &v);
-template std::istream &operator>> <MpFloat,DIM>(std::istream &inp, Vector<MpFloat,DIM> &v);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator+ <MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v,const MpFloat &s);
+template Vector<MpFloat,CAPD_DEFAULT_DIMENSION> operator- <MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v,const MpFloat &s);
+template bool operator < <MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v1,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v2);
+template bool operator > <MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v1,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v2);
+template bool operator<= <MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v1,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v2);
+template bool operator>= <MpFloat,CAPD_DEFAULT_DIMENSION> (const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v1,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v2);
+template std::ostream &operator<< <MpFloat,CAPD_DEFAULT_DIMENSION> (std::ostream &out, const Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v);
+template std::istream &operator>> <MpFloat,CAPD_DEFAULT_DIMENSION>(std::istream &inp, Vector<MpFloat,CAPD_DEFAULT_DIMENSION> &v);
 
-template void subtractObjects<>(const Vector<MpFloat,DIM>& v1,const Vector<MpFloat,DIM>& v2, Vector<MpFloat,DIM>& result);
-template void addObjects<>(const Vector<MpFloat,DIM>& v1,const Vector<MpFloat,DIM>& v2, Vector<MpFloat,DIM>& result);
+template void subtractObjects<>(const Vector<MpFloat,CAPD_DEFAULT_DIMENSION>& v1,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION>& v2, Vector<MpFloat,CAPD_DEFAULT_DIMENSION>& result);
+template void addObjects<>(const Vector<MpFloat,CAPD_DEFAULT_DIMENSION>& v1,const Vector<MpFloat,CAPD_DEFAULT_DIMENSION>& v2, Vector<MpFloat,CAPD_DEFAULT_DIMENSION>& result);
 
 }}  // end of namespace capd::vectalg
 

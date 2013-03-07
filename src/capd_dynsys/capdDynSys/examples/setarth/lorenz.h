@@ -21,34 +21,34 @@ using namespace capd;
 
 class Lorenz : public IOde{
 public:
-	Lorenz(const Interval& the_s, const Interval& the_R, const Interval& the_q);
+	Lorenz(const DInterval& the_s, const DInterval& the_R, const DInterval& the_q);
 	IVector f(const IVector &iv) const;
 	IMatrix df(const IVector &iv) const;
 	IMatrix d2f(int i,const IVector &iv) const;
-	Interval getR(void) const;
+	DInterval getR(void) const;
 protected:
-	Interval s,R,q;
+	DInterval s,R,q;
 };
 
 class LorenzEuler : public IDynSys{
 public:
-	LorenzEuler(Lorenz &the_lorenz, const Interval& the_h);
+	LorenzEuler(Lorenz &the_lorenz, const DInterval& the_h);
 	IVector Phi(const IVector &iv) const;
 	IMatrix JacPhi(const IVector &iv) const;
 	IVector Remainder(const IVector &iv) const;
 protected:
 	Lorenz &lorenz;
-	Interval h;
+	DInterval h;
 };
 
 
 //inline definitions
 
-inline Lorenz::Lorenz(const Interval& the_s, const Interval& the_R, const Interval& the_q)
+inline Lorenz::Lorenz(const DInterval& the_s, const DInterval& the_R, const DInterval& the_q)
 	: s(the_s),R(the_R),q(the_q)
 {}
 
-inline LorenzEuler::LorenzEuler(Lorenz &the_lorenz, const Interval& the_h)
+inline LorenzEuler::LorenzEuler(Lorenz &the_lorenz, const DInterval& the_h)
 	: lorenz(the_lorenz),h(the_h)
 {}
 
@@ -59,7 +59,7 @@ inline IVector LorenzEuler::Remainder(const IVector &iv) const
 	return result;
 }
 
-inline Interval Lorenz::getR(void) const
+inline DInterval Lorenz::getR(void) const
 {
 	return R;
 }

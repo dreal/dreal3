@@ -31,7 +31,9 @@ typedef capd::rounding::DoubleRounding DoubleRounding;
 template class capd::intervals::Interval<double, DoubleRounding>;
 
 // deprecated
-interval pi = interval::pi();
+namespace capd{
+  interval pi = interval::pi();
+}
 
 namespace capd{
 namespace intervals{

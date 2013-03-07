@@ -32,13 +32,13 @@
 
 namespace capd{
 
-  typedef capd::vectalg::Vector<MpInt,DIM> MpZVector;
-  typedef capd::vectalg::Vector<MpFloat,DIM> MpVector;
-  typedef capd::vectalg::Vector<MpInterval,DIM> MpIVector;
+  typedef capd::vectalg::Vector<MpInt,CAPD_DEFAULT_DIMENSION> MpZVector;
+  typedef capd::vectalg::Vector<MpFloat,CAPD_DEFAULT_DIMENSION> MpVector;
+  typedef capd::vectalg::Vector<MpInterval,CAPD_DEFAULT_DIMENSION> MpIVector;
 
-  typedef capd::vectalg::Matrix<MpInt,DIM,DIM> MpZMatrix;
-  typedef capd::vectalg::Matrix<MpFloat,DIM,DIM> MpMatrix;
-  typedef capd::vectalg::Matrix<MpInterval,DIM,DIM> MpIMatrix;
+  typedef capd::vectalg::Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> MpZMatrix;
+  typedef capd::vectalg::Matrix<MpFloat,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> MpMatrix;
+  typedef capd::vectalg::Matrix<MpInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> MpIMatrix;
 
 
   typedef capd::vectalg::Norm<MpVector,MpMatrix> MpNorm;

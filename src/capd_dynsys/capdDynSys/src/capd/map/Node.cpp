@@ -40,27 +40,27 @@ template class MulParamParamNode<double>;
 template class DivByParamNode<double>;
 template class DivConsByParamNode<double>;
 
-template class Node<Interval>;
-template class ConsNode<Interval>;
-template class UnaryNode<Interval>;
-template class BinaryNode<Interval>;
-template class VarNode<Interval>;
-template class SumNode<Interval>;
-template class DifNode<Interval>;
-template class MulNode<Interval>;
-template class DivNode<Interval>;
-template class SinNode<Interval>;
-template class CosNode<Interval>;
-template class ExpNode<Interval>;
-template class LogNode<Interval>;
-template class SqrtNode<Interval>;
-template class PowNode<Interval>;
+template class Node<capd::DInterval>;
+template class ConsNode<capd::DInterval>;
+template class UnaryNode<capd::DInterval>;
+template class BinaryNode<capd::DInterval>;
+template class VarNode<capd::DInterval>;
+template class SumNode<capd::DInterval>;
+template class DifNode<capd::DInterval>;
+template class MulNode<capd::DInterval>;
+template class DivNode<capd::DInterval>;
+template class SinNode<capd::DInterval>;
+template class CosNode<capd::DInterval>;
+template class ExpNode<capd::DInterval>;
+template class LogNode<capd::DInterval>;
+template class SqrtNode<capd::DInterval>;
+template class PowNode<capd::DInterval>;
 
-template class MulConsNode<Interval>;
-template class MulParamNode<Interval>;
-template class MulParamParamNode<Interval>;
-template class DivByParamNode<Interval>;
-template class DivConsByParamNode<Interval>;
+template class MulConsNode<capd::DInterval>;
+template class MulParamNode<capd::DInterval>;
+template class MulParamParamNode<capd::DInterval>;
+template class DivByParamNode<capd::DInterval>;
+template class DivConsByParamNode<capd::DInterval>;
 
 
   }} // namespace capd::map

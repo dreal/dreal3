@@ -19,33 +19,33 @@ namespace capd{
   namespace vectalg{
 
 
-template class Vector<int,DIM>;
+template class Vector<int,CAPD_DEFAULT_DIMENSION>;
 
-template Vector<int,DIM> abs<int,DIM> (const Vector<int,DIM> &v);
-template Vector<int,DIM> operator- <int,DIM> (const Vector<int,DIM> &v);
-template Vector<int,DIM> operator+ <int,DIM> (const Vector<int,DIM> &v1,const Vector<int,DIM> &v2);
-template Vector<int,DIM> operator- <int,DIM> (const Vector<int,DIM> &v1,const Vector<int,DIM> &v2);
-template int operator* <int,DIM> (const Vector<int,DIM> &v1,const Vector<int,DIM> &v2);
+template Vector<int,CAPD_DEFAULT_DIMENSION> abs<int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v);
+template Vector<int,CAPD_DEFAULT_DIMENSION> operator- <int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v);
+template Vector<int,CAPD_DEFAULT_DIMENSION> operator+ <int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v1,const Vector<int,CAPD_DEFAULT_DIMENSION> &v2);
+template Vector<int,CAPD_DEFAULT_DIMENSION> operator- <int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v1,const Vector<int,CAPD_DEFAULT_DIMENSION> &v2);
+template int operator* <int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v1,const Vector<int,CAPD_DEFAULT_DIMENSION> &v2);
 
-template Vector<int,DIM> operator* <int,int,DIM> (const Vector<int,DIM> &v,const int &s);
-template Vector<int,DIM> operator* <int,int,DIM> (const int &s,const Vector<int,DIM> &v);
-template Vector<int,DIM> operator/ <int,int,DIM> (const Vector<int,DIM> &v, const int &s);
+template Vector<int,CAPD_DEFAULT_DIMENSION> operator* <int,int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v,const int &s);
+template Vector<int,CAPD_DEFAULT_DIMENSION> operator* <int,int,CAPD_DEFAULT_DIMENSION> (const int &s,const Vector<int,CAPD_DEFAULT_DIMENSION> &v);
+template Vector<int,CAPD_DEFAULT_DIMENSION> operator/ <int,int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v, const int &s);
 
-template Vector<int,DIM> operator* <int,long,DIM>(const Vector<int,DIM> &v,const long &s);
-template Vector<int,DIM> operator* <int,long,DIM>(const long &s,const Vector<int,DIM> &v);
-template Vector<int,DIM> operator/ <int,long,DIM>(const Vector<int,DIM> &v, const long &s);
+template Vector<int,CAPD_DEFAULT_DIMENSION> operator* <int,long,CAPD_DEFAULT_DIMENSION>(const Vector<int,CAPD_DEFAULT_DIMENSION> &v,const long &s);
+template Vector<int,CAPD_DEFAULT_DIMENSION> operator* <int,long,CAPD_DEFAULT_DIMENSION>(const long &s,const Vector<int,CAPD_DEFAULT_DIMENSION> &v);
+template Vector<int,CAPD_DEFAULT_DIMENSION> operator/ <int,long,CAPD_DEFAULT_DIMENSION>(const Vector<int,CAPD_DEFAULT_DIMENSION> &v, const long &s);
 
-template Vector<int,DIM> operator+ <int,DIM> (const Vector<int,DIM> &v,const int &s);
-template Vector<int,DIM> operator- <int,DIM> (const Vector<int,DIM> &v,const int &s);
-template bool operator < <int,DIM> (const Vector<int,DIM> &v1,const Vector<int,DIM> &v2);
-template bool operator > <int,DIM> (const Vector<int,DIM> &v1,const Vector<int,DIM> &v2);
-template bool operator<= <int,DIM> (const Vector<int,DIM> &v1,const Vector<int,DIM> &v2);
-template bool operator>= <int,DIM> (const Vector<int,DIM> &v1,const Vector<int,DIM> &v2);
-template std::ostream &operator<< <int,DIM> (std::ostream &out, const Vector<int,DIM> &v);
-template std::istream &operator>> <int,DIM>(std::istream &inp, Vector<int,DIM> &v);
+template Vector<int,CAPD_DEFAULT_DIMENSION> operator+ <int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v,const int &s);
+template Vector<int,CAPD_DEFAULT_DIMENSION> operator- <int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v,const int &s);
+template bool operator < <int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v1,const Vector<int,CAPD_DEFAULT_DIMENSION> &v2);
+template bool operator > <int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v1,const Vector<int,CAPD_DEFAULT_DIMENSION> &v2);
+template bool operator<= <int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v1,const Vector<int,CAPD_DEFAULT_DIMENSION> &v2);
+template bool operator>= <int,CAPD_DEFAULT_DIMENSION> (const Vector<int,CAPD_DEFAULT_DIMENSION> &v1,const Vector<int,CAPD_DEFAULT_DIMENSION> &v2);
+template std::ostream &operator<< <int,CAPD_DEFAULT_DIMENSION> (std::ostream &out, const Vector<int,CAPD_DEFAULT_DIMENSION> &v);
+template std::istream &operator>> <int,CAPD_DEFAULT_DIMENSION>(std::istream &inp, Vector<int,CAPD_DEFAULT_DIMENSION> &v);
 
-template void subtractObjects<>(const Vector<int,DIM>& v1,const Vector<int,DIM>& v2, Vector<int,DIM>& result);
-template void addObjects<>(const Vector<int,DIM>& v1,const Vector<int,DIM>& v2, Vector<int,DIM>& result);
+template void subtractObjects<>(const Vector<int,CAPD_DEFAULT_DIMENSION>& v1,const Vector<int,CAPD_DEFAULT_DIMENSION>& v2, Vector<int,CAPD_DEFAULT_DIMENSION>& result);
+template void addObjects<>(const Vector<int,CAPD_DEFAULT_DIMENSION>& v1,const Vector<int,CAPD_DEFAULT_DIMENSION>& v2, Vector<int,CAPD_DEFAULT_DIMENSION>& result);
 
 }}  // end of namespace capd::vectalg
 

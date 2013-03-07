@@ -53,7 +53,7 @@ void computeDerivative(T& f, const VectorT& u, MatrixT& result)
 }
 
 template <class T, class ScalarT, class VectorT, class MatrixT>
-void computeDerivative(T& f, const ScalarT& t, const VectorT& u, MatrixT& result)
+VectorT computeDerivative(T& f, const ScalarT& t, VectorT u, MatrixT& result)
 {
   typedef fadbad::F<ScalarT> FScalarT;
   typedef capd::vectalg::Vector<FScalarT,0> FVectorT;
@@ -70,7 +70,9 @@ void computeDerivative(T& f, const ScalarT& t, const VectorT& u, MatrixT& result
   {
     for(int j=1;j<=dim;++j)
       result(i,j) = v[i-1].d(j-1);
+    u[i-1] = v[i-1].x();
   }
+  return u;
 }
 
 #endif // _CAPD_FADBAD_DIFFERENTIATE_H_ 

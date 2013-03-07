@@ -19,5 +19,5 @@ AC_PROG_CXX
 
 PKG_CHECK_MODULES([capdauxil], [capdauxil >= 1.0])
 
-AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_HEADER(config.h)
 AC_OUTPUT

@@ -18,12 +18,18 @@
 #ifndef _CAPD_INTERVAL_LIB_H_
 #define _CAPD_INTERVAL_LIB_H_
 
+#include <cmath>
+#include "capd/basicalg/doubleFun.h"
+
 #ifndef __USE_FILIB__
 
-#include "capd/intervals/DoubleInterval.h"
+using std::log;
+#include "capd/intervals/Interval.h"
+#include "capd/rounding/DoubleRounding.h"
+
 namespace capd{
-typedef capd::intervals::DoubleInterval Interval;
-typedef capd::intervals::DoubleInterval DInterval;
+//typedef capd::intervals::DoubleInterval Interval;
+typedef intervals::Interval<double, capd::rounding::DoubleRounding> DInterval;
 } // end of namespace capd
 
 #else
@@ -31,11 +37,17 @@ typedef capd::intervals::DoubleInterval DInterval;
 #include "capd/filib/Interval.h"
 namespace capd{
 typedef ::capd::filib::Interval<double, ::filib::native_directed, ::filib::i_mode_normal >  DInterval;
-typedef DInterval Interval;
-typedef DInterval interval;
-
+//typedef DInterval Interval;
 } // end of namespace capd
 
-#endif
+#endif  // __USE_FILIB__
+
+#ifndef __CAPD_DEFINE_INTERVAL__
+#define __CAPD_DEFINE_INTERVAL__
+namespace capd{
+  typedef DInterval interval;
+  typedef DInterval Interval;
+}
+#endif //__CAPD_DEFINE_INTERVAL__
 
 #endif // _CAPD_INTERVAL_LIB_H_

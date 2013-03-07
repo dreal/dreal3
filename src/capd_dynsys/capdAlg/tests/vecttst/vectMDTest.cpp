@@ -22,7 +22,8 @@ using namespace capd::vectalg;
 int main(int argc, char* argv[]){
   try{
     Vector<int,0> v(5),w(5),z(1);
-    std::istringstream s("{5,3,2},{2},{-7 , 5 }");
+
+    std::istringstream s("{5,3,2} {2} {-7, 5 }");
     s >> z;
     std::cout << " z=" << z << std::endl;
     s >> z;

@@ -16,4 +16,4 @@
 
 template class capd::map::C2Coeff<double>;
 template class capd::map::C2Coeff<long double>;
-template class capd::map::C2Coeff<capd::Interval>;
+template class capd::map::C2Coeff<capd::DInterval>;

@@ -31,8 +31,8 @@ IVector KurSiva::f(const IVector &x) const
 IMatrix KurSiva::df(const IVector &x) const
 {
 	IMatrix result;
-	result[0][1] = Interval(1.);
-	result[1][2] = Interval(1.);
+	result[0][1] = DInterval(1.);
+	result[1][2] = DInterval(1.);
 	result[2][0] = -x[0];
 	result[2][1] = -d*d*l;
 	return result;
@@ -42,7 +42,7 @@ IMatrix KurSiva::d2f(int i,const IVector &x) const
 {
 	IMatrix result;
 	if(i==2){
-		result[0][0] = Interval(-1.);
+		result[0][0] = DInterval(-1.);
 	}
 	return result;
 }

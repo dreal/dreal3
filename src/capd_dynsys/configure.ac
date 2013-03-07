@@ -20,6 +20,18 @@ AC_CHECK_FILE([${srcdir}/capdExt],
   CAPD_PACKAGES="$CAPD_PACKAGES  capdExt "  
 ], [])
 
+AC_CHECK_FILE([${srcdir}/capdExtDS],
+[
+  AC_CONFIG_SUBDIRS([capdExtDS])
+  CAPD_PACKAGES="$CAPD_PACKAGES  capdExtDS "  
+], [])
+
+AC_CHECK_FILE([${srcdir}/capdExtHom],
+[
+  AC_CONFIG_SUBDIRS([capdExtHom])
+  CAPD_PACKAGES="$CAPD_PACKAGES  capdExtHom "  
+], [])
+
 AC_CHECK_FILE([${srcdir}/capdAux],
 [
   AC_CONFIG_SUBDIRS([capdAux])
@@ -36,7 +48,14 @@ AC_CHECK_FILE([${srcdir}/capdDynSys],
 [
   AC_CONFIG_SUBDIRS([capdDynSys])
   CAPD_PACKAGES="$CAPD_PACKAGES  capdDynSys"  
-], [])
+], 
+[
+  AC_CHECK_FILE([${srcdir}/capdDynSys4],
+  [
+    AC_CONFIG_SUBDIRS([capdDynSys4])
+    CAPD_PACKAGES="$CAPD_PACKAGES  capdDynSys4"  
+  ], [])
+])
 
 AC_CHECK_FILE([${srcdir}/capdRedHom],
 [

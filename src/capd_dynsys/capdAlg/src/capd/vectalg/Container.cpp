@@ -18,10 +18,10 @@
 
 namespace capd{
   namespace vectalg{
-template class capd::vectalg::Container<int,DIM>;
-template class capd::vectalg::Container<double,DIM>;
-template class capd::vectalg::Container<long double,DIM>;
-template class capd::vectalg::Container<capd::Interval,DIM>;
+template class capd::vectalg::Container<int,CAPD_DEFAULT_DIMENSION>;
+template class capd::vectalg::Container<double,CAPD_DEFAULT_DIMENSION>;
+template class capd::vectalg::Container<long double,CAPD_DEFAULT_DIMENSION>;
+template class capd::vectalg::Container<capd::DInterval,CAPD_DEFAULT_DIMENSION>;
 
   }
 }

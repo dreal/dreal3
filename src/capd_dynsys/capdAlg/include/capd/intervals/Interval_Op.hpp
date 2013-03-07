@@ -16,6 +16,7 @@
 #define _CAPD_INTERVAL_INTERVALOP_HPP_
 
 #include "capd/intervals/IntervalError.h"
+#include "capd/intervals/IntervalTraits.h"
 #include <iostream>
 #include <cstdio>
 
@@ -499,8 +500,8 @@ __INLINE__ std::istream &operator>>(std::istream &inp, Interval< T_Bound, T_Rnd>
         {
           i.m_left=ll;
           i.m_right=rr;
-          return inp;
         }
+        return inp;
       }
     }
   }
@@ -510,6 +511,90 @@ __INLINE__ std::istream &operator>>(std::istream &inp, Interval< T_Bound, T_Rnd>
 
 
 
+template < typename T_Bound, typename T_Rnd>
+std::ostream & bitWrite(std::ostream & out, const Interval< T_Bound, T_Rnd > &iv){
+	 out << "[";
+     IntervalIOTraits<T_Bound>::bitWrite(out, iv.leftBound());
+     out << ",";
+     IntervalIOTraits<T_Bound>::bitWrite(out, iv.rightBound());
+	 out << "]";
+	 return out;
+}
+template < typename T_Bound, typename T_Rnd>
+std::istream & bitRead(std::istream & inp, Interval< T_Bound, T_Rnd > &iv){
+	int ch;
+	T_Bound ll, rr;
+	inp >> std::ws;
+	if('['==inp.get()){
+		inp >> std::ws;
+		IntervalIOTraits<T_Bound>::bitRead(inp, ll);
+		// read white spaces
+		inp >> std::ws;
+		if(inp.get()==',')
+		{
+			inp >> std::ws;
+			IntervalIOTraits<T_Bound>::bitRead(inp, rr);
+
+			// read white spaces
+			inp >> std::ws;
+			if(inp.get()==']')
+			{
+				checkInterval(" bitRead ", ll, rr);
+				iv.m_left=ll;
+				iv.m_right=rr;
+				return inp;
+			}
+		}
+	}
+	iv.m_left = iv.m_right = 0.0;
+	return inp;
+}
+template < typename T_Bound, typename T_Rnd>
+std::ostream & hexWrite(std::ostream & out, const Interval< T_Bound, T_Rnd > &iv){
+	out << "[";
+	IntervalIOTraits<T_Bound>::hexWrite(out, iv.leftBound());
+	out << ",";
+	IntervalIOTraits<T_Bound>::hexWrite(out, iv.rightBound());
+	out << "]";
+	return out;
+}
+template < typename T_Bound, typename T_Rnd>
+std::istream & hexRead(std::istream & inp, Interval< T_Bound, T_Rnd > &iv){
+	int ch;
+	T_Bound ll, rr;
+	inp >> std::ws;
+	if('['==inp.get()){
+		inp >> std::ws;
+		IntervalIOTraits<T_Bound>::hexRead(inp, ll);
+		// read white spaces
+		inp >> std::ws;
+		if(inp.get()==',')
+		{
+			inp >> std::ws;
+			IntervalIOTraits<T_Bound>::hexRead(inp, rr);
+
+			// read white spaces
+			inp >> std::ws;
+			if(inp.get()==']')
+			{
+				checkInterval(" bitRead ", ll, rr);
+				iv.m_left=ll;
+				iv.m_right=rr;
+				return inp;
+			}
+		}
+	}
+	iv.m_left = iv.m_right = 0.0;
+	return inp;
+}
+template < typename T_Bound, typename T_Rnd>
+std::ostream & binWrite(std::ostream & out, const Interval< T_Bound, T_Rnd > &iv){
+	return out.write((const char *)&iv, sizeof(Interval< T_Bound, T_Rnd >));
+}
+template < typename T_Bound, typename T_Rnd>
+std::istream & binRead(std::istream & in, Interval< T_Bound, T_Rnd > &iv){
+	return in.read((char *)&iv, sizeof(Interval< T_Bound, T_Rnd >));
+}
 
 // Interval + BoundType
 template < typename T_Bound, typename T_Rnd>

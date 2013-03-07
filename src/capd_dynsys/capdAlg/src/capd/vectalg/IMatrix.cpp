@@ -21,39 +21,39 @@ namespace capd{
   namespace vectalg{
 
 
-template class Matrix<Interval,DIM,DIM>;
-template class RowVector<Interval,DIM>;
-template class ColumnVector<Interval,DIM>;
+template class Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>;
+template class RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>;
+template class ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>;
 
-template Matrix<Interval,DIM,DIM> abs <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&);
-template Matrix<Interval,DIM,DIM> operator- <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&);
-template Matrix<Interval,DIM,DIM> operator+ <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Matrix<Interval,DIM,DIM>&);
-template Matrix<Interval,DIM,DIM> operator- <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Matrix<Interval,DIM,DIM>&);
-template Matrix<Interval,DIM,DIM> operator* <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Matrix<Interval,DIM,DIM>&);
-template Vector<Interval,DIM> operator* <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Vector<Interval,DIM>&);
-template Matrix<Interval,DIM,DIM> operator* <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Interval&);
-template Matrix<Interval,DIM,DIM> operator* <Interval,DIM,DIM> (const Interval&, const Matrix<Interval,DIM,DIM>&);
-template Matrix<Interval,DIM,DIM> operator/ <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Interval&);
-template Matrix<Interval,DIM,DIM> operator+ <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Interval&);
-template Matrix<Interval,DIM,DIM> operator- <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Interval&);
-template bool operator< <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Matrix<Interval,DIM,DIM>&);
-template bool operator> <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Matrix<Interval,DIM,DIM>&);
-template bool operator<= <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Matrix<Interval,DIM,DIM>&);
-template bool operator>= <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&, const Matrix<Interval,DIM,DIM>&);
-template Matrix<Interval,DIM,DIM> Transpose <Interval,DIM,DIM> (const Matrix<Interval,DIM,DIM>&);
-template std::ostream &operator<< <Interval,DIM,DIM> (std::ostream&, const Matrix<Interval,DIM,DIM>&);
-template std::istream &operator>> <Interval,DIM,DIM> (std::istream&, Matrix<Interval,DIM,DIM>&);
+template Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> abs <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator- <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator+ <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator- <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator* <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator* <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator* <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const capd::DInterval&);
+template Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator* <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const capd::DInterval&, const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator/ <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const capd::DInterval&);
+template Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator+ <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const capd::DInterval&);
+template Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator- <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const capd::DInterval&);
+template bool operator< <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template bool operator> <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template bool operator<= <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template bool operator>= <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> Transpose <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template std::ostream &operator<< <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (std::ostream&, const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template std::istream &operator>> <capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (std::istream&, Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
 
 
-template void matrixByVector<> (const Matrix<Interval,DIM,DIM>&, const Vector<Interval,DIM>&,Vector<Interval,DIM>&);
-template void matrixByMatrix<> (const Matrix<Interval,DIM,DIM>&, const Matrix<Interval,DIM,DIM>&,Matrix<Interval,DIM,DIM>&);
-template void subtractObjects<>(const Matrix<Interval,DIM,DIM>& v1,const Matrix<Interval,DIM,DIM>& v2, Matrix<Interval,DIM,DIM>& result);
-template void addObjects<>(const Matrix<Interval,DIM,DIM>& v1,const Matrix<Interval,DIM,DIM>& v2, Matrix<Interval,DIM,DIM>& result);
+template void matrixByVector<> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&);
+template void matrixByMatrix<> (const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&,Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template void subtractObjects<>(const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& v1,const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& v2, Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& result);
+template void addObjects<>(const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& v1,const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& v2, Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& result);
 
 // intervalMatrix
 
-typedef Matrix<Interval,DIM,DIM> IMatrix;
-typedef Matrix<Interval::BoundType,DIM,DIM> DMatrix;
+typedef Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> IMatrix;
+typedef Matrix<capd::DInterval::BoundType,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> DMatrix;
 template void split<IMatrix,IMatrix>(IMatrix&, IMatrix&);
 template void split<IMatrix,DMatrix>(const IMatrix&, DMatrix&, IMatrix&);
 template IMatrix midMatrix<IMatrix>(const IMatrix&);
@@ -62,109 +62,109 @@ template bool intersection<IMatrix,IMatrix,IMatrix>(const IMatrix&,const IMatrix
 
 // RowVector
 
-template Vector<Interval,DIM> operator+<Interval,DIM>(
-      const Vector<Interval,DIM>&,
-      const RowVector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator+<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
-template Vector<Interval,DIM> operator+<Interval,DIM>(
-      const RowVector<Interval,DIM>&,
-      const Vector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator+<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
-template Vector<Interval,DIM> operator+<Interval,DIM>(
-      const RowVector<Interval,DIM>&,
-      const RowVector<Interval,DIM>&
-   );
-
-template Vector<Interval,DIM> operator-<Interval,DIM>(
-      const Vector<Interval,DIM>&,
-      const RowVector<Interval,DIM>&
-   );
-template Vector<Interval,DIM> operator-<Interval,DIM>(
-      const RowVector<Interval,DIM>&,
-      const Vector<Interval,DIM>&
-   );
-template Vector<Interval,DIM> operator-<Interval,DIM>(
-      const RowVector<Interval,DIM>&,
-      const RowVector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator+<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
 
-template Interval operator*<Interval,DIM>(
-      const Vector<Interval,DIM>&,
-      const RowVector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator-<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
-template Interval operator*<Interval,DIM>(
-      const RowVector<Interval,DIM>&,
-      const Vector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator-<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
-template Interval operator*<Interval,DIM>(
-      const RowVector<Interval,DIM>&,
-      const RowVector<Interval,DIM>&
-   );
-
-template Vector<Interval,DIM> operator-<Interval,DIM>(const RowVector<Interval,DIM>&);
-template Vector<Interval,DIM> operator*<Interval,DIM,DIM>(
-      const Matrix<Interval,DIM,DIM>&, const RowVector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator-<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
 
-template Vector<Interval,DIM> operator*<Interval,DIM>(const Interval&, const RowVector<Interval,DIM>&);
-template Vector<Interval,DIM> operator*<Interval,DIM>(const RowVector<Interval,DIM>&, const Interval&);
-template Vector<Interval,DIM> operator/<Interval,DIM>(const RowVector<Interval,DIM>&, const Interval&);
+template capd::DInterval operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
+   );
+template capd::DInterval operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
+   );
+template capd::DInterval operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
+   );
 
-template std::ostream& operator<< <Interval,DIM>(std::ostream&, const RowVector<Interval,DIM>&);
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator-<capd::DInterval,CAPD_DEFAULT_DIMENSION>(const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&);
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>(
+      const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
+   );
+
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION>(const capd::DInterval&, const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&);
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION>(const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&, const capd::DInterval&);
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator/<capd::DInterval,CAPD_DEFAULT_DIMENSION>(const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&, const capd::DInterval&);
+
+template std::ostream& operator<< <capd::DInterval,CAPD_DEFAULT_DIMENSION>(std::ostream&, const RowVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&);
 
 
 // ColumnVector
 
-template Vector<Interval,DIM> operator+<Interval,DIM>(
-      const Vector<Interval,DIM>&,
-      const ColumnVector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator+<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
-template Vector<Interval,DIM> operator+<Interval,DIM>(
-      const ColumnVector<Interval,DIM>&,
-      const Vector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator+<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
-template Vector<Interval,DIM> operator+<Interval,DIM>(
-      const ColumnVector<Interval,DIM>&,
-      const ColumnVector<Interval,DIM>&
-   );
-
-template Vector<Interval,DIM> operator-<Interval,DIM>(
-      const Vector<Interval,DIM>&,
-      const ColumnVector<Interval,DIM>&
-   );
-template Vector<Interval,DIM> operator-<Interval,DIM>(
-      const ColumnVector<Interval,DIM>&,
-      const Vector<Interval,DIM>&
-   );
-template Vector<Interval,DIM> operator-<Interval,DIM>(
-      const ColumnVector<Interval,DIM>&,
-      const ColumnVector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator+<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
 
-template Interval operator*<Interval,DIM>(
-      const Vector<Interval,DIM>&,
-      const ColumnVector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator-<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
-template Interval operator*<Interval,DIM>(
-      const ColumnVector<Interval,DIM>&,
-      const Vector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator-<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
-template Interval operator*<Interval,DIM>(
-      const ColumnVector<Interval,DIM>&,
-      const ColumnVector<Interval,DIM>&
-   );
-
-template Vector<Interval,DIM> operator-<Interval,DIM>(const ColumnVector<Interval,DIM>&);
-template Vector<Interval,DIM> operator*<Interval,DIM,DIM>(
-      const Matrix<Interval,DIM,DIM>&,
-      const ColumnVector<Interval,DIM>&
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator-<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
    );
 
-template Vector<Interval,DIM> operator*<Interval,DIM>(const Interval&, const ColumnVector<Interval,DIM>&);
-template Vector<Interval,DIM> operator*<Interval,DIM>(const ColumnVector<Interval,DIM>&, const Interval&);
-template Vector<Interval,DIM> operator/<Interval,DIM>(const ColumnVector<Interval,DIM>&, const Interval&);
+template capd::DInterval operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
+   );
+template capd::DInterval operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
+   );
+template capd::DInterval operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
+   );
 
-template std::ostream& operator<< <Interval,DIM>(std::ostream&, const ColumnVector<Interval,DIM>&);
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator-<capd::DInterval,CAPD_DEFAULT_DIMENSION>(const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&);
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>(
+      const Matrix<capd::DInterval,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&
+   );
+
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION>(const capd::DInterval&, const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&);
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator*<capd::DInterval,CAPD_DEFAULT_DIMENSION>(const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&, const capd::DInterval&);
+template Vector<capd::DInterval,CAPD_DEFAULT_DIMENSION> operator/<capd::DInterval,CAPD_DEFAULT_DIMENSION>(const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&, const capd::DInterval&);
+
+template std::ostream& operator<< <capd::DInterval,CAPD_DEFAULT_DIMENSION>(std::ostream&, const ColumnVector<capd::DInterval,CAPD_DEFAULT_DIMENSION>&);
 
 }}  // end of namespace capd::vectalg
 

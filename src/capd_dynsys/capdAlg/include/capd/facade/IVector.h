@@ -52,6 +52,8 @@ public:
   typedef capd::vectalg::RowVector<DInterval,0> RowVectorType;
   typedef capd::vectalg::ColumnVector<DInterval,0> ColumnVectorType;
 
+  const static int csDim = BaseVector::csDim;
+
   template<typename U>
   struct rebind {
       typedef capd::vectalg::Vector<U,0> other;

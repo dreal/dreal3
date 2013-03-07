@@ -5,6 +5,7 @@ capd/basicalg/TexWriter.h \
 capd/basicalg/TypeTraits.h \
 capd/basicalg/doubleFun.h \
 capd/basicalg/factrial.h \
+capd/basicalg/ieeePrimitive.h \
 capd/basicalg/logtwo.h \
 capd/basicalg/power.h \
 capd/basicalg/powerThree.h \
@@ -86,10 +87,12 @@ capd/vectalg/Vector_Interval.hpp \
 capd/vectalg/Vector_inline.h \
 capd/vectalg/algebraicOperations.h \
 capd/vectalg/algebraicOperations.hpp \
+capd/vectalg/fdlib.h \
 capd/vectalg/iobject.h \
 capd/vectalg/iobject.hpp \
 capd/vectalg/lib.h \
 capd/vectalg/mplib.h \
+capd/vectalg/typedefs.h \
 capd/vectalg/vectalgLib.h
 
 

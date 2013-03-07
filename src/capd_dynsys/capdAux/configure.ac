@@ -36,6 +36,10 @@ AS_IF([test "$HAVE_GUI" = yes ],
     capdkrak_CFLAGS=${GUI_FLAGS}
     capdkrak_LIBS=${GUI_LIBS}
     capdkrak_REQUIRES=${GUI_REQUIRES}
+
+    AC_SUBST(capdkrak_CFLAGS)
+    AC_SUBST(capdkrak_LIBS)
+    AC_SUBST(capdkrak_REQUIRES)
 	
     AC_CONFIG_FILES([${top_capd_build}/lib/pkgconfig-dev/capdkrak.pc:src/capd/krak/capdkrak-dev.pc.in])
     AC_CONFIG_FILES([src/capd/krak/capdkrak.pc:src/capd/krak/capdkrak-install.pc.in])
@@ -43,17 +47,13 @@ AS_IF([test "$HAVE_GUI" = yes ],
    ]
 )
 
-AC_SUBST(capdkrak_CFLAGS)
-AC_SUBST(capdkrak_LIBS)
-AC_SUBST(capdkrak_REQUIRES)
-
 AC_SUBST([CAPD_MODULES])
 
 AC_SUBST(capdAux_CFLAGS)
 AC_CONFIG_FILES([${top_capd_build}/lib/pkgconfig-dev/capdAux.pc:src/capd/capdAux-dev.pc.in])
 AC_CONFIG_FILES([src/capd/capdAux.pc:src/capd/capdAux-install.pc.in])
 
-AC_CONFIG_HEADERS([include/capd/config-capdAux.h])
+AC_CONFIG_HEADER([include/capd/config-capdAux.h])
 
 
 AC_CONFIG_FILES([Makefile])

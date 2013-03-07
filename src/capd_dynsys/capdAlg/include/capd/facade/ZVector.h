@@ -43,6 +43,8 @@ public:
   typedef ContainerType::const_iterator const_iterator;
   typedef capd::vectalg::Vector<int,0> intVectorType;
 
+  const static int csDim = BaseVector::csDim;
+
   ZVector(void){}
   explicit ZVector(int A_dimension) 
     : m_v(A_dimension) 

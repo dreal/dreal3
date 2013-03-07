@@ -21,34 +21,34 @@ using namespace capd;
 
 class Rossler : public IOde{
 public:
-	Rossler(const Interval& the_a, const Interval &the_b);
+	Rossler(const DInterval& the_a, const DInterval &the_b);
 	IVector f(const IVector &iv) const;
 	IMatrix df(const IVector &iv) const;
 	IMatrix d2f(int i,const IVector &iv) const;
       
 //    protected:    
-	Interval a,b;
+	DInterval a,b;
 };
 
 class RosslerEuler : public IDynSys{
 public:
-	RosslerEuler(Rossler &the_rossler, Interval the_h);
+	RosslerEuler(Rossler &the_rossler, DInterval the_h);
 	IVector Phi(const IVector &iv) const;
 	IMatrix JacPhi(const IVector &iv) const;
 	IVector Remainder(const IVector &iv) const;
 protected:
 	Rossler &rossler;
-	Interval h;
+	DInterval h;
 };
 
 
 //inline definitions
 
-inline Rossler::Rossler(const Interval& the_a, const Interval& the_b)
+inline Rossler::Rossler(const DInterval& the_a, const DInterval& the_b)
 	: a(the_a),b(the_b)
 {}
 
-inline RosslerEuler::RosslerEuler(Rossler &the_rossler, Interval the_h)
+inline RosslerEuler::RosslerEuler(Rossler &the_rossler, DInterval the_h)
 	: rossler(the_rossler),h(the_h)
 {}
 

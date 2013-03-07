@@ -189,9 +189,8 @@ typename T1::ScalarType scalarProduct(const T1& v1,const T2& v2)
   result = v * s
 */
 template<typename ResultType, typename Object, typename FactorType>
-ResultType multiplyObjectScalar(const Object& v,const FactorType& s)
+void multiplyObjectScalar(const Object& v,const FactorType& s, ResultType& result)
 {
-  ResultType result(v.dimension(),true);
   typename Object::const_iterator b=v.begin(), e=v.end();
   typename ResultType::iterator i=result.begin();
   while(b!=e)
@@ -200,6 +199,19 @@ ResultType multiplyObjectScalar(const Object& v,const FactorType& s)
     ++i;
     ++b;
   }
+}
+
+/**
+  this procedure can be use to multiply by a scalar any element of vector-like objects
+  as a result we may obtain object of different type,
+    multiplication of column of matrix and scalar gives vector
+  result = v * s
+*/
+template<typename ResultType, typename Object, typename FactorType>
+ResultType multiplyObjectScalar(const Object& v,const FactorType& s)
+{
+  ResultType result(v.dimension(),true);
+  multiplyObjectScalar(v,s,result);
   return result;
 }
 

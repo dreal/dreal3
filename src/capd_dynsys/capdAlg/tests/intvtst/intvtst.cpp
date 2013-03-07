@@ -36,6 +36,7 @@
 
 using namespace std;
 using capd::rounding::DoubleRounding;
+using capd::interval;
 
 #if defined(KRAK)
 void test_templates(void)
@@ -114,7 +115,7 @@ void test_sin()
  rootFrame.Clear();
 #endif
  rootFrame << "Testing sin(interval)\n\n";
- test_sin(pi);
+ test_sin(interval::pi());
  test_sin(6.0);
  test_sin(1.0);
  waitBt();

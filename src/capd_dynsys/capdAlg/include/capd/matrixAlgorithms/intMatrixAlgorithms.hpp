@@ -420,7 +420,8 @@ void partSmithForm(matrix& B,sqMatrix1& Q,sqMatrix1& Qinv,sqMatrix2& R,sqMatrix2
     if(nonZero(MatrixSlice<matrix>(B,k,k,k+1,n))) continue;
     int i,j;
     ScalarType q=ScalarType(0);
-    divisible=checkForDivisibility(B,k,i,j,q);
+    //divisible=checkForDivisibility(B,k,i,j,q);
+		divisible = true;
     if(!divisible){
       rowAdd(B,Q,Qinv,i,k,ScalarType(1));
       columnAdd(B,R,Rinv,k,j,-q);

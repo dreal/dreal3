@@ -53,7 +53,7 @@ AC_CONFIG_FILES([src/capd/poincare/capdpoincare.pc:src/capd/poincare/capdpoincar
 
 
 
-AC_CONFIG_HEADERS([include/capd/config-capdDynSys.h])
+AC_CONFIG_HEADER([include/capd/config-capdDynSys.h])
 	
 
 AC_CONFIG_FILES([Makefile])

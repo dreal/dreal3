@@ -5,7 +5,7 @@ includedir=@includedir@
 
 Name: capdvectalg
 Description: capdvectalg module
-Requires: capdauxil capdintervals
+Requires: capdauxil capdintervals capdbasicalg
 Version: @PACKAGE_VERSION@
 Libs:   -L${libdir} -lcapdvectalg @capdvectalg_LIBS@
 Cflags: @capdvectalg_CFLAGS@  -I${includedir}

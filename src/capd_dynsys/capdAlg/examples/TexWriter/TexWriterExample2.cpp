@@ -28,10 +28,6 @@ using namespace capd;
 
 int main(int argc, char **argv) {
 
-#ifdef __USE_FILIB__
-  Interval::precision(16);
-#endif
-
   // TexWriter that will write to screen
   cout.precision(16);
   cout << fixed;
@@ -57,7 +53,7 @@ int main(int argc, char **argv) {
   cin >> n;
   for (int k = 0; k < n; ++k) {
 
-    Interval x;
+    DInterval x;
     cout << "\n " << k+1 << " : ";
     cin >> x;
 
@@ -75,7 +71,7 @@ int main(int argc, char **argv) {
 
   tex << "\n\\end{tabular}\n\n\n";
 
-  std::complex<Interval> c(Interval(14354.32435,14354.3343543543), Interval(34253.11111,34253.12312));
+  std::complex<DInterval> c(DInterval(14354.32435,14354.3343543543), DInterval(34253.11111,34253.12312));
 
   tex.setEquationSymbol(2) << "\\textbf{Complex numbers style} ";
   tex.write(c)<<"\n\n";
@@ -85,7 +81,7 @@ int main(int argc, char **argv) {
   double dd[] = { 1.131312, 3.0, 4.53254543345};
   IVector v(3);
   std::copy(dd, dd+3, v.begin());
-  v += Interval(1e-13, 1e-10);
+  v += DInterval(1e-13, 1e-10);
   out << v<<"\n===\n";
   tex.write(v);
   tex.setVectorStyle(1) << "$$" << v << "$$\n";

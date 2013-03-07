@@ -36,6 +36,7 @@ namespace facade{
 class DVector
 {
 public:
+
   typedef double ScalarType;
   typedef DVector VectorType;
   typedef capd::vectalg::Vector<double,0> BaseVector;
@@ -44,6 +45,8 @@ public:
   typedef ContainerType::const_iterator const_iterator;
   typedef capd::vectalg::RowVector<double,0> RowVectorType;
   typedef capd::vectalg::ColumnVector<double,0> ColumnVectorType;
+
+  const static int csDim = BaseVector::csDim;
 
   template<typename U>
   struct rebind {

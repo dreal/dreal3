@@ -1,7 +1,7 @@
 include ${capdMake}/make/common_makefile.mkf
 
 lib_LIBRARIES=libcapdbasicalg.a
-libcapdbasicalg_a_SOURCES=factrial.cpp
+libcapdbasicalg_a_SOURCES=factrial.cpp ieeePrimitive.cpp
 libcapdbasicalg_a_CXXFLAGS= ${capdbasicalg_CFLAGS} ${capdAux_CFLAGS} ${capdExt_CFLAGS}
 
 

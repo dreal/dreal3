@@ -5,9 +5,9 @@
  *      Author: iikapela
  */
 
-#include "capd/DInterval.h"
+#include "capd/facade/DInterval.h"
 
-typedef capd::DInterval DInterval;
+typedef capd::facade::DInterval DInterval;
 typedef capd::intervals::IntervalError<double> DIntervalError;
 
 #define FIXTURE_NAME DIntervalTest

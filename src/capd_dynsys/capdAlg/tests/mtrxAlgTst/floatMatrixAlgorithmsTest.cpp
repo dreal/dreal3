@@ -206,7 +206,7 @@ int main(int , char* [])
    //init_fpunit();
 
    try{
-      if(DIM!=3) throw std::runtime_error(
+      if((CAPD_DEFAULT_DIMENSION !=0) && (CAPD_DEFAULT_DIMENSION!=3)) throw std::runtime_error(
          " Wrong dimension!  \n dimension in file vectalg/dimension.h should be 3.\n Change and recompile!"
          );
       QRdecomp_test();

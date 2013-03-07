@@ -34,6 +34,7 @@
 #include "capd/dynset/CnRect2.hpp"
 #include "capd/dynset/TimeSet.h"
 
+using capd::interval;
 
 typedef capd::vectalg::Vector<interval,0> Vector;
 typedef capd::vectalg::Matrix<interval,0,0> Matrix;

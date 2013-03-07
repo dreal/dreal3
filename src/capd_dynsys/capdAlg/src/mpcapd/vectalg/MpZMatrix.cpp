@@ -24,139 +24,139 @@ namespace capd{
   namespace vectalg{
 
 
-template class Matrix<MpInt,DIM,DIM>;
-template class RowVector<MpInt,DIM>;
-template class ColumnVector<MpInt,DIM>;
+template class Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>;
+template class RowVector<MpInt,CAPD_DEFAULT_DIMENSION>;
+template class ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>;
 
-template Matrix<MpInt,DIM,DIM> abs <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&);
-template Matrix<MpInt,DIM,DIM> operator- <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&);
-template Matrix<MpInt,DIM,DIM> operator+ <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const Matrix<MpInt,DIM,DIM>&);
-template Matrix<MpInt,DIM,DIM> operator- <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const Matrix<MpInt,DIM,DIM>&);
-template Matrix<MpInt,DIM,DIM> operator* <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const Matrix<MpInt,DIM,DIM>&);
-template Vector<MpInt,DIM> operator* <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const Vector<MpInt,DIM>&);
-template Matrix<MpInt,DIM,DIM> operator* <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const MpInt&);
-template Matrix<MpInt,DIM,DIM> operator* <MpInt,DIM,DIM> (const MpInt&, const Matrix<MpInt,DIM,DIM>&);
-template Matrix<MpInt,DIM,DIM> operator/ <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const MpInt&);
-template Matrix<MpInt,DIM,DIM> operator+ <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const MpInt&);
-template Matrix<MpInt,DIM,DIM> operator- <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const MpInt&);
-template bool operator< <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const Matrix<MpInt,DIM,DIM>&);
-template bool operator> <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const Matrix<MpInt,DIM,DIM>&);
-template bool operator<= <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const Matrix<MpInt,DIM,DIM>&);
-template bool operator>= <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&, const Matrix<MpInt,DIM,DIM>&);
-template Matrix<MpInt,DIM,DIM> Transpose <MpInt,DIM,DIM> (const Matrix<MpInt,DIM,DIM>&);
-template std::ostream &operator<< <MpInt,DIM,DIM> (std::ostream&, const Matrix<MpInt,DIM,DIM>&);
-template std::istream &operator>> <MpInt,DIM,DIM> (std::istream&, Matrix<MpInt,DIM,DIM>&);
+template Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> abs <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator- <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator+ <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator- <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator* <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator* <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator* <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const MpInt&);
+template Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator* <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const MpInt&, const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator/ <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const MpInt&);
+template Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator+ <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const MpInt&);
+template Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> operator- <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const MpInt&);
+template bool operator< <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template bool operator> <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template bool operator<= <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template bool operator>= <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> Transpose <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template std::ostream &operator<< <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (std::ostream&, const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template std::istream &operator>> <MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION> (std::istream&, Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
 
-template void matrixByVector<> (const Matrix<MpInt,DIM,DIM>&, const Vector<MpInt,DIM>&,Vector<MpInt,DIM>&);
-template void matrixByMatrix<> (const Matrix<MpInt,DIM,DIM>&, const Matrix<MpInt,DIM,DIM>&,Matrix<MpInt,DIM,DIM>&);
-template void subtractObjects<>(const Matrix<MpInt,DIM,DIM>& v1,const Matrix<MpInt,DIM,DIM>& v2, Matrix<MpInt,DIM,DIM>& result);
-template void addObjects<>(const Matrix<MpInt,DIM,DIM>& v1,const Matrix<MpInt,DIM,DIM>& v2, Matrix<MpInt,DIM,DIM>& result);
+template void matrixByVector<> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&,Vector<MpInt,CAPD_DEFAULT_DIMENSION>&);
+template void matrixByMatrix<> (const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&,Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&);
+template void subtractObjects<>(const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& v1,const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& v2, Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& result);
+template void addObjects<>(const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& v1,const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& v2, Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>& result);
 
 // RowVector
 
-template Vector<MpInt,DIM> operator+<MpInt,DIM>(
-      const Vector<MpInt,DIM>&,
-      const RowVector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator+<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
-template Vector<MpInt,DIM> operator+<MpInt,DIM>(
-      const RowVector<MpInt,DIM>&,
-      const Vector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator+<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
-template Vector<MpInt,DIM> operator+<MpInt,DIM>(
-      const RowVector<MpInt,DIM>&,
-      const RowVector<MpInt,DIM>&
-   );
-
-template Vector<MpInt,DIM> operator-<MpInt,DIM>(
-      const Vector<MpInt,DIM>&,
-      const RowVector<MpInt,DIM>&
-   );
-template Vector<MpInt,DIM> operator-<MpInt,DIM>(
-      const RowVector<MpInt,DIM>&,
-      const Vector<MpInt,DIM>&
-   );
-template Vector<MpInt,DIM> operator-<MpInt,DIM>(
-      const RowVector<MpInt,DIM>&,
-      const RowVector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator+<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
 
-template MpInt operator*<MpInt,DIM>(
-      const Vector<MpInt,DIM>&,
-      const RowVector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator-<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
-template MpInt operator*<MpInt,DIM>(
-      const RowVector<MpInt,DIM>&,
-      const Vector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator-<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
-template MpInt operator*<MpInt,DIM>(
-      const RowVector<MpInt,DIM>&,
-      const RowVector<MpInt,DIM>&
-   );
-
-template Vector<MpInt,DIM> operator-<MpInt,DIM>(const RowVector<MpInt,DIM>&);
-template Vector<MpInt,DIM> operator*<MpInt,DIM,DIM>(
-      const Matrix<MpInt,DIM,DIM>&, const RowVector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator-<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
 
-template Vector<MpInt,DIM> operator*<MpInt,DIM>(const MpInt&, const RowVector<MpInt,DIM>&);
-template Vector<MpInt,DIM> operator*<MpInt,DIM>(const RowVector<MpInt,DIM>&, const MpInt&);
-template Vector<MpInt,DIM> operator/<MpInt,DIM>(const RowVector<MpInt,DIM>&, const MpInt&);
+template MpInt operator*<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&
+   );
+template MpInt operator*<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&
+   );
+template MpInt operator*<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&
+   );
 
-template std::ostream& operator<< <MpInt,DIM>(std::ostream&, const RowVector<MpInt,DIM>&);
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator-<MpInt,CAPD_DEFAULT_DIMENSION>(const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&);
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator*<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>(
+      const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&, const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&
+   );
+
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator*<MpInt,CAPD_DEFAULT_DIMENSION>(const MpInt&, const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&);
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator*<MpInt,CAPD_DEFAULT_DIMENSION>(const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&, const MpInt&);
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator/<MpInt,CAPD_DEFAULT_DIMENSION>(const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&, const MpInt&);
+
+template std::ostream& operator<< <MpInt,CAPD_DEFAULT_DIMENSION>(std::ostream&, const RowVector<MpInt,CAPD_DEFAULT_DIMENSION>&);
 
 
 // ColumnVector
 
-template Vector<MpInt,DIM> operator+<MpInt,DIM>(
-      const Vector<MpInt,DIM>&,
-      const ColumnVector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator+<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
-template Vector<MpInt,DIM> operator+<MpInt,DIM>(
-      const ColumnVector<MpInt,DIM>&,
-      const Vector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator+<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
-template Vector<MpInt,DIM> operator+<MpInt,DIM>(
-      const ColumnVector<MpInt,DIM>&,
-      const ColumnVector<MpInt,DIM>&
-   );
-
-template Vector<MpInt,DIM> operator-<MpInt,DIM>(
-      const Vector<MpInt,DIM>&,
-      const ColumnVector<MpInt,DIM>&
-   );
-template Vector<MpInt,DIM> operator-<MpInt,DIM>(
-      const ColumnVector<MpInt,DIM>&,
-      const Vector<MpInt,DIM>&
-   );
-template Vector<MpInt,DIM> operator-<MpInt,DIM>(
-      const ColumnVector<MpInt,DIM>&,
-      const ColumnVector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator+<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
 
-template MpInt operator*<MpInt,DIM>(
-      const Vector<MpInt,DIM>&,
-      const ColumnVector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator-<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
-template MpInt operator*<MpInt,DIM>(
-      const ColumnVector<MpInt,DIM>&,
-      const Vector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator-<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
-template MpInt operator*<MpInt,DIM>(
-      const ColumnVector<MpInt,DIM>&,
-      const ColumnVector<MpInt,DIM>&
-   );
-
-template Vector<MpInt,DIM> operator-<MpInt,DIM>(const ColumnVector<MpInt,DIM>&);
-template Vector<MpInt,DIM> operator*<MpInt,DIM,DIM>(
-      const Matrix<MpInt,DIM,DIM>&,
-      const ColumnVector<MpInt,DIM>&
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator-<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&
    );
 
-template Vector<MpInt,DIM> operator*<MpInt,DIM>(const MpInt&, const ColumnVector<MpInt,DIM>&);
-template Vector<MpInt,DIM> operator*<MpInt,DIM>(const ColumnVector<MpInt,DIM>&, const MpInt&);
-template Vector<MpInt,DIM> operator/<MpInt,DIM>(const ColumnVector<MpInt,DIM>&, const MpInt&);
+template MpInt operator*<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&
+   );
+template MpInt operator*<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const Vector<MpInt,CAPD_DEFAULT_DIMENSION>&
+   );
+template MpInt operator*<MpInt,CAPD_DEFAULT_DIMENSION>(
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&
+   );
 
-template std::ostream& operator<< <MpInt,DIM>(std::ostream&, const ColumnVector<MpInt,DIM>&);
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator-<MpInt,CAPD_DEFAULT_DIMENSION>(const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&);
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator*<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>(
+      const Matrix<MpInt,CAPD_DEFAULT_DIMENSION,CAPD_DEFAULT_DIMENSION>&,
+      const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&
+   );
+
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator*<MpInt,CAPD_DEFAULT_DIMENSION>(const MpInt&, const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&);
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator*<MpInt,CAPD_DEFAULT_DIMENSION>(const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&, const MpInt&);
+template Vector<MpInt,CAPD_DEFAULT_DIMENSION> operator/<MpInt,CAPD_DEFAULT_DIMENSION>(const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&, const MpInt&);
+
+template std::ostream& operator<< <MpInt,CAPD_DEFAULT_DIMENSION>(std::ostream&, const ColumnVector<MpInt,CAPD_DEFAULT_DIMENSION>&);
 
 
 }}  // end of namespace capd::vectalg

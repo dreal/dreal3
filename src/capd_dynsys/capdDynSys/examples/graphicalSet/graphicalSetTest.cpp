@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include "capd/krak/krak.h"
-#include "capd/intervals/DoubleInterval.h"
+#include "capd/intervals/lib.h"
 #include "capd/vectalg/Vector.hpp"
 #include "capd/vectalg/Matrix.hpp"
 #include "capd/vectalg/Norm.hpp"
@@ -24,6 +24,9 @@
 #include "capd/dynset/C2Rect2.hpp"
 
 const int DIMENSION=0;
+
+typedef capd::DInterval interval;
+
 typedef capd::vectalg::Vector<double,DIMENSION> FloatVector;
 typedef capd::vectalg::Matrix<double,DIMENSION,DIMENSION> FloatMatrix;
 

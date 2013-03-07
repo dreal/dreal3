@@ -11,7 +11,7 @@
 //
 // This file constitutes a part of the CAPD library,
 // distributed under the terms of the GNU General Public License.
-// Consult  http://capd.wsb-nlu.edu.pl/ for details.
+// Consult  http://capd.ii.edu.pl/ for details.
 
 /* min, max and abs definitions */
 

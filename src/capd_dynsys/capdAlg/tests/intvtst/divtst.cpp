@@ -17,10 +17,13 @@
 // Consult  http://capd.ii.uj.edu.pl/ for details. 
 
 #include <iostream>
-#include "capd/intervals/DoubleInterval.h"
+#include "capd/intervals/lib.h"
+using namespace capd;
 int main ()
 {
     interval x3 = interval(1.0, 1.0) / 3.0;
+    std::cout << "[1/3] = ";
+    hexWrite(std::cout, x3) << std::endl;
     if (x3. leftBound () != x3. rightBound ()){
         std::cout << "Result seems to be OK\n";
     } else {

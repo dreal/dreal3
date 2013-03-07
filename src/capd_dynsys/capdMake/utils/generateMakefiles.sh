@@ -8,6 +8,9 @@ cd ../../capdExt/include && ${listHeaders} > Makefile.tmp && ( diff Makefile.tmp
 if test -e "../../capdDynSys" ; then
   cd ../../capdDynSys/include && ${listHeaders} > Makefile.tmp && ( diff Makefile.tmp Makefile.am || cp Makefile.tmp Makefile.am ) && rm Makefile.tmp
 fi
+if test -e "../../capdDynSys4" ; then
+  cd ../../capdDynSys4/include && ${listHeaders} > Makefile.tmp && ( diff Makefile.tmp Makefile.am || cp Makefile.tmp Makefile.am ) && rm Makefile.tmp
+fi
 if test -e "../../capdRedHom" ; then
 cd ../../capdRedHom/include && ${listHeaders} > Makefile.tmp && ( diff Makefile.tmp Makefile.am || cp Makefile.tmp Makefile.am ) && rm Makefile.tmp
 fi

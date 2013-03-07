@@ -28,6 +28,7 @@
 #include "setarth.h"
 using namespace capd;
 
+#define MY_DIMENSION 0
 
 std::ofstream raport("raport",std::ios::app);
 
@@ -48,7 +49,7 @@ Frame trajectoryFrame;
 frstring status;
 
 Lorenz *lor; // global , needed for sections lorenz system
-Interval (* section_form)(IVector &);
+DInterval (* section_form)(IVector &);
 
 
 /******************************************************************************/
@@ -70,7 +71,7 @@ int setin(IVector &s1,IVector &s2,int interior=0)
 {
   int res=1;
   int i=0;
-  while((i<DIM) && res)
+  while((i<MY_DIMENSION) && res)
   {
     res = (interior)? subsetInterior(s1[i],s2[i]) :  subset(s1[i],s2[i]);
     i++;
@@ -86,7 +87,7 @@ int reach(C0Set& s, IDynSys &dynsys, v_form alpha)
   IVector oldvek,vek;
   vek = IVector(s);
 
-  Interval old_side,side=alpha(vek);
+  DInterval old_side,side=alpha(vek);
   int count=0;
   int still_on_section=side.contains(0.0);
   #if defined(TESTING)
@@ -126,14 +127,14 @@ int reach(C0Set& s, IDynSys &dynsys, v_form alpha)
 
 // this function was previously a method of the class C0Set
 template <typename C0Set>
-Interval blowUp(C0Set &S, IDynSys &dynsys,double blowuptime)
+DInterval blowUp(C0Set &S, IDynSys &dynsys,double blowuptime)
 {
-  Interval ini_size = S.size();
+  DInterval ini_size = S.size();
   int counter=0;
   status="";
 
 
-  Interval tstep=0.0;
+  DInterval tstep=0.0;
   if(dynsys.type()=="flow")
   {
     IOdeNum *podenum;
@@ -155,7 +156,7 @@ Interval blowUp(C0Set &S, IDynSys &dynsys,double blowuptime)
   waitBt();
   #endif
 
-  Interval time=0.0;
+  DInterval time=0.0;
 
   #ifdef BLOWUPTESTY
   double progstep=0.3;
@@ -206,49 +207,49 @@ Interval blowUp(C0Set &S, IDynSys &dynsys,double blowuptime)
 
 /******************************************************************************/
 
-Interval lorenz_form(IVector &x)
+DInterval lorenz_form(IVector &x)
 {
   return lor->getR()-x[2];
 }
 
 /******************************************************************************/
 
-Interval rossler_form(IVector &x)
+DInterval rossler_form(IVector &x)
 {
   return x[0];
 }
 
 /******************************************************************************/
 
-Interval kursiva_form(IVector &x)
+DInterval kursiva_form(IVector &x)
 {
   return -(2 + x[0]);
 }
 
 /******************************************************************************/
 
-Interval lin_form(IVector &x)
+DInterval lin_form(IVector &x)
 {
   return x[0];
 }
 
 /******************************************************************************/
 
-Interval lorenz_form2(IVector &x)
+DInterval lorenz_form2(IVector &x)
 {
   return -lor->getR()+x[2];
 }
 
 /******************************************************************************/
 
-Interval lorenz_form3(IVector &x)
+DInterval lorenz_form3(IVector &x)
 {
   return -9+x[0];
 }
 
 /******************************************************************************/
 
-Interval lorenz_form4(IVector &x)
+DInterval lorenz_form4(IVector &x)
 {
   return 3*lor->getR()/4-x[2];
 }
@@ -283,7 +284,7 @@ double subdivisionTest(IDynSys &d, SetType &muster, int no_it,
   int time=0;
   IntervalSet ini_set(ini_vect,ini_box);
 
-  Interval final_size=expansion*size(ini_box);
+  DInterval final_size=expansion*size(ini_box);
   while(true)
   {
     double prev_size=0;
@@ -310,18 +311,18 @@ double subdivisionTest(IDynSys &d, SetType &muster, int no_it,
     }
     time=tick_meter();
     if(time == 0) time=1;
-    Interval set_size=s->size();
+    DInterval set_size=s->size();
     dynFrame << Tab(12) << "(" << attempts << ") (" << set_size.rightBound() << ") (" << prev_size << ") ";
     delete s;
 //waitBt();
     if(set_size < final_size) break;
     ini_set=IntervalSet(ini_vect,ini_box/=2);
-    //      Interval org_size=ini_set.size();
+    //      DInterval org_size=ini_set.size();
   }
   if(status == "")
   {
     double col3=1.0;
-    retval=power((double)2,(DIM*attempts))*time;
+    retval=power((double)2,(MY_DIMENSION*attempts))*time;
     if(reltime > 0)
     {
       col3=retval/reltime;
@@ -346,7 +347,7 @@ int set_color[16]={ORANGE,DARKBLUE,RED,OLIVE,
 template <typename C0Set>
 double iterateTest(IDynSys &d, C0Set &s, int no_it, frstring descr, double reltime)
 {
-  Interval org_size=s.size();
+  DInterval org_size=s.size();
   double retval,L=1.0,prevL=1.0,L_rel_change;
   status = "";
 
@@ -407,7 +408,7 @@ double sectionTest(IDynSys &d, C0Set &s, v_form alpha, frstring descr,
                             double reltime,int itno=0)
   // itno - important only when d.type()<>"flow" - number of iterates
 {
-  Interval org_size=s.size();
+  DInterval org_size=s.size();
 
   double retval;
   status = "";
@@ -676,7 +677,7 @@ void sectionTest(IDynSys &d, v_form alpha,int itno)
 
 void blowUpTest(IDynSys &d)
 {
-   IntervalSet intv(pd.initialVector,pd.initialBox); // Lohner - Interval method
+   IntervalSet intv(pd.initialVector,pd.initialBox); // Lohner - DInterval method
    Intv2Set intv2(pd.initialVector,pd.initialBox);
    C0RectSet rect(pd.initialVector,pd.initialBox);  // Lohner: QR - decomposition
    C0Rect2Set rect2(pd.initialVector,pd.initialBox); // Lohner last method; Lipschitz part + QR decomposition
@@ -862,8 +863,8 @@ void initializePd(problemData &pd, record &rec)
       if(key == "max_z") val >> pd.max_z;
       l=l->next();
    }
-   for(int i=0;i<DIM;i++)
-      pd.initialBox[i]=Interval(-pd.initialSize,pd.initialSize);
+   for(int i=0;i<MY_DIMENSION;i++)
+      pd.initialBox[i]=DInterval(-pd.initialSize,pd.initialSize);
 }
 
 /******************************************************************************/
@@ -1065,15 +1066,15 @@ void inputData(int example)
    }
 
    pd.initialVector=IVector(vv);
-   for(i=0;i<DIM;i++)
-      pd.initialBox[i]=Interval(-pd.initialSize,pd.initialSize);
+   for(i=0;i<MY_DIMENSION;i++)
+      pd.initialBox[i]=DInterval(-pd.initialSize,pd.initialSize);
 }
 
 /******************************************************************************/
 
 void makeTest(void)
 {
-#if DIM==3
+#if MY_DIMENSION==3
    IDynSys *ds=NULL;
 
    int itno=0; // iterates for sectionTest only for Henon

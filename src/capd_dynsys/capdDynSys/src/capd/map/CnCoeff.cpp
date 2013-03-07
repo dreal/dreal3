@@ -16,7 +16,7 @@
 
 template class capd::map::CnContainer<double>;
 template class capd::map::CnContainer<long double>;
-template class capd::map::CnContainer<capd::Interval>;
+template class capd::map::CnContainer<capd::DInterval>;
 
 template class capd::map::CnCoeff< capd::DMatrix >;
 template class capd::map::CnCoeff< capd::IMatrix >;

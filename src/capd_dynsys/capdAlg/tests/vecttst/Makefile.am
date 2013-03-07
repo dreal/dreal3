@@ -1,11 +1,11 @@
 include ${capdMake}/make/common_makefile.mkf
 
 check_PROGRAMS=matrixMDTest vectMDTest vecttst
-TESTS=${check_PROGRAMS}
+TESTS=matrixMDTest vectMDTest
 
 matrixMDTest_SOURCES=matrixMDTest.cpp
 matrixMDTest_CXXFLAGS=${capdAlg_CFLAGS}
-matrixMDTest_libs=${capdAlg_LIBS} ${capdAlg_LIBS}
+matrixMDTest_libs=${capdAlg_LIBS} 
 matrixMDTest_LDADD=${matrixMDTest_libs}
 matrixMDTest_DEPENDENCIES=${matrixMDTest_libs:-%=}
 

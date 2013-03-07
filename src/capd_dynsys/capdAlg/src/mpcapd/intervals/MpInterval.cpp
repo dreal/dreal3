@@ -59,8 +59,10 @@ int modulo4(MpReal x) {
     x = x - MpReal(64000);
   while(x < -32000)
     x = x + MpReal(64000);
-
-  return (toInt(x) % 4);
+  //the revised codes by Qingdu Li
+  int ir= toInt(x) % 4;
+  ir = ir<0 ? ir+4 : ir;
+  return ir;
 }
 
 template <>

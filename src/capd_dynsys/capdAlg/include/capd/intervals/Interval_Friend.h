@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 /// @file Interval_Friend.h
 ///
-/// Interval Arithmetics - friend functions template declarations
+/// Interval Arithmetics - functions template declarations
 ///
 /// @author Tomasz Kapela   @date 11-01-2006
 /////////////////////////////////////////////////////////////////////////////
@@ -117,6 +117,23 @@ template < typename T_Bound, typename T_Rnd>
 std::istream & operator >> (std::istream & s, 
                             Interval< T_Bound, T_Rnd > & A_iv);
 
+template < typename T_Bound, typename T_Rnd>
+std::ostream & bitWrite(std::ostream & out, const Interval< T_Bound, T_Rnd > &iv);
+
+template < typename T_Bound, typename T_Rnd>
+std::istream & bitRead(std::istream & in, Interval< T_Bound, T_Rnd > &iv);
+
+template < typename T_Bound, typename T_Rnd>
+std::ostream & hexWrite(std::ostream & out, const Interval< T_Bound, T_Rnd > &iv);
+
+template < typename T_Bound, typename T_Rnd>
+std::istream & hexRead(std::istream & in, Interval< T_Bound, T_Rnd > &iv);
+
+template < typename T_Bound, typename T_Rnd>
+std::ostream & binWrite(std::ostream & out, const Interval< T_Bound, T_Rnd > &iv);
+
+template < typename T_Bound, typename T_Rnd>
+std::istream & binRead(std::istream & in, Interval< T_Bound, T_Rnd > &iv);
 //////////////////////////////////////////////////////////////////////////
 //     ARITHMETIC OPERATORS
 //////////////////////////////////////////////////////////////////////////

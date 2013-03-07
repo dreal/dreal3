@@ -164,7 +164,7 @@ public:
     BaseInterval::traits_type::reset();
   }
 
-#ifdef __FILIB_DEPRECATED__
+#ifdef __INTERVAL_DEPRECATED__
   /**
    get current output precision
    */
@@ -177,7 +177,7 @@ public:
   static int precision (int const & newprec){
     return BaseInterval::precision( newprec);
   }
-#endif
+#endif //__INTERVAL_DEPRECATED__
 
 
   const BoundType & leftBound() const  ///<  returns the left end of the interval
@@ -453,6 +453,25 @@ public:
   friend std::istream & operator >> (std::istream& s, Interval & A_iv){
     s >> A_iv.m_interval;
     return s;
+  }
+
+  friend std::ostream & bitWrite(std::ostream & out, const Interval & iv){
+	  return iv.m_interval.bitImage(out);
+  }
+  friend std::istream & bitRead(std::istream & in, Interval & iv){
+	  return iv.m_interval.readBitImage(in);
+  }
+  friend std::ostream & hexWrite(std::ostream & out, const Interval & iv){
+	  return iv.m_interval.hexImage(out);
+  }
+  friend std::istream & hexRead(std::istream & in, Interval & iv){
+	  return iv.m_interval.readHexImage(in);
+  }
+  friend std::ostream & binWrite(std::ostream & out, const Interval & iv){
+	  return out.write((const char *)&iv.m_interval, sizeof(Interval::BaseInterval));
+  }
+  friend std::istream & binRead(std::istream & in, Interval & iv){
+	  return in.read((char *)&iv.m_interval, sizeof(Interval::BaseInterval));
   }
 
 #ifdef __INTERVAL_DEPRECATED__

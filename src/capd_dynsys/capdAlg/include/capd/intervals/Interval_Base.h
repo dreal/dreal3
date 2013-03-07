@@ -57,29 +57,15 @@ inline Interval<T_Bound, T_Rnd>::Interval( const T_Bound & A_scalar )
 
 template < typename T_Bound, typename T_Rnd>
 inline Interval<T_Bound, T_Rnd>::Interval(const char left[], const char right[]){
-  std::istringstream inleft(left);
-  T_Rnd::roundDown();
-  T_Bound tmp;
-  inleft >> tmp;
-  m_left = tmp;
-  std::istringstream inright(right);
-  T_Rnd::roundUp();
-  inright >> tmp;
-  m_right = tmp;
+  m_left = IntervalIOTraits<T_Bound>::readDown(left);
+  m_right = IntervalIOTraits<T_Bound>::readUp(right);
   checkInterval("constructor ", m_left, m_right);
 }
 template < typename T_Bound, typename T_Rnd>
 inline Interval<T_Bound, T_Rnd>::  Interval(const std::string & left, const std::string & right){
-  std::istringstream inleft(left);
-  T_Rnd::roundDown();
-  T_Bound tmp;
-  inleft >> tmp;
-  m_left = tmp;
-  std::istringstream inright(right);
-  T_Rnd::roundUp();
-  inright >> tmp;
-  m_right = tmp;
-  checkInterval("constructor ", m_left, m_right);
+	m_left = IntervalIOTraits<T_Bound>::readDown(left);
+	m_right = IntervalIOTraits<T_Bound>::readUp(right);
+	checkInterval("constructor ", m_left, m_right);
 }
 /// constructor from any class that can be coverted to BoundType
 template < typename T_Bound, typename T_Rnd>

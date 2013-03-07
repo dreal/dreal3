@@ -4,10 +4,12 @@
 */
 
 #include <iostream>
-#include "capd/intervals/DoubleInterval.h"
+#include "capd/intervals/lib.h"
 #include "capd/vectalg/Vector.hpp"
 #include "capd/vectalg/Matrix.hpp"
 #include "capd/vectalg/Norm.hpp"
+
+using capd::interval;
 
 // The template class Norm has two parameters - type of vector and type of matrix of which norms will be computed. 
 // Class Norm is an abstract class which defines two purely virtual operators for computing norm of a vector and matrix.

@@ -54,7 +54,7 @@ AC_SUBST(capdExt_CFLAGS)
 AC_CONFIG_FILES([${top_capd_build}/lib/pkgconfig-dev/capdExt.pc:src/capd/capdExt-dev.pc.in])
 AC_CONFIG_FILES([src/capd/capdExt.pc:src/capd/capdExt-install.pc.in])
 
-AC_CONFIG_HEADERS([include/capd/config-capdExt.h])
+AC_CONFIG_HEADER([include/capd/config-capdExt.h])
 	
 
 AC_CONFIG_FILES([Makefile])

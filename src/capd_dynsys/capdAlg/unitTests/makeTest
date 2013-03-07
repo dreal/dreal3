@@ -6,15 +6,15 @@ all : $(TESTS)
 
 $(TEST_FIXTURED_CLASSES): %.o: %.cpp commonTests.hpp 
 		$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c  $(USER_DIR)/$< -o $(OBJ)/$@  \
-	 -Wp, -DGTEST_HEADER=$(GTEST_HEADER)
+	  -DGTEST_HEADER=$(GTEST_HEADER)
 
 vpath %.o ${OBJ}
 
 #Rules to integrate all tests to one executable file
 ${TESTS}:  $(TEST_FIXTURED_CLASSES)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(USER_DIR)/$@.cpp -o ${BIN}/$@ \
-	$(TEST_FIXTURED_CLASSES:%=${OBJ}/%) -L${GTEST_DIR}/lib -lgtest_main -lgtest $(CAPD_DIR)/lib/libcapd*.a ${LIBRARIES} \
-	-Wp, 
+	$(TEST_FIXTURED_CLASSES:%=${OBJ}/%) -L${GTEST_DIR}/lib -lgtest_main -lgtest ${CAPDLIB} ${LIBRARIES} 
+#	-Wp, 
 
 clean :
 	rm -f $(TESTS:%=$(BIN)/%)  

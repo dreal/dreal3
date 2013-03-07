@@ -511,6 +511,16 @@ inline std::ostream& MpReal::put(std::ostream& o, RoundingMode rnd,
   return o;
 }
 
+inline void MpReal::get(const std::string & str,
+   		RoundingMode rnd,
+   		PrecisionType prec,
+   		int base){
+	if(mpfr_set_str(mpfr_rep, str.c_str(), base, rnd)) {
+	    std::cerr << " Problem reading from string " << std::endl;
+	}
+}
+
+
 inline std::ostream& operator <<(std::ostream& o, const MpReal& r) {
   int base = (o.flags() & std::ios::hex) ? 16 : (o.flags() & std::ios::oct) ? 8
       : 10;

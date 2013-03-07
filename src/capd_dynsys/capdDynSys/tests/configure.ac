@@ -27,5 +27,5 @@ PKG_CHECK_MODULES([capdkrak], [capdkrak >= 1.0], [], [HAVE_capdkrak=no])
 AM_CONDITIONAL([HAVE_capdkrak], [test "x$HAVE_capdkrak" = "xyes"])
 
 
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADER(config.h)
 AC_OUTPUT

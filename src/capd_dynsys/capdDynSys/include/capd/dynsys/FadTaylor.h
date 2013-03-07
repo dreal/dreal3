@@ -103,7 +103,15 @@ public:
     return capd::dynsys::jacEnclosure(this->m_vectorField,this->m_step,enc,norm);
   }
 // end of Dynsys and C1DynSys members
+  template <class SetType>
+  ScalarType computeNextTimeStep(const SetType& x, const ScalarType& maxStep) {
+    return this->m_stepControl.computeNextTimeStep(*this,x,maxStep);
+  }
 
+  template <class SetType>
+  ScalarType getFirstTimeStep(const SetType& x, const ScalarType& maxStep) {
+    return this->m_stepControl.getFirstTimeStep(*this,x,maxStep);
+  }
   using BasicFadTaylorType::getOrder;
   using BasicFadTaylorType::setOrder;
 

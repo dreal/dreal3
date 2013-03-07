@@ -5,7 +5,7 @@ includedir=@abs_top_srcdir@/include
 
 Name: capdvectalg
 Description: capdvectalg module
-Requires: capdauxil capdintervals
+Requires: capdauxil capdintervals capdbasicalg
 Version: @PACKAGE_VERSION@
 Libs:   ${libdir}/libcapdvectalg.a @capdvectalg_LIBS@
 Cflags: @capdvectalg_CFLAGS@  -I${includedir}
