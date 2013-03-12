@@ -27,11 +27,17 @@ using namespace capd;
 
 ode_solver::ode_solver(set < Enode* > & ode_vars,
                        rp_box b,
-                       std::map<Enode*, int>& enode_to_rp_id
+                       std::map<Enode*, int>& enode_to_rp_id,
+                       bool verbose,
+                       int order,
+                       int grid
     ) :
     _ode_vars(ode_vars),
     _b(b),
-    _enode_to_rp_id(enode_to_rp_id)
+    _enode_to_rp_id(enode_to_rp_id),
+    _verbose(verbose),
+    _order(order),
+    _grid(grid)
 {
 }
 
@@ -40,10 +46,10 @@ ode_solver::~ode_solver()
 
 }
 
-
 string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
                                          vector<Enode*> & _0_vars,
-                                         vector<Enode*> & _t_vars)
+                                         vector<Enode*> & _t_vars
+    )
 {
     vector<string> var_list;
     vector<string> ode_list;
@@ -53,18 +59,19 @@ string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
         ite != ode_vars.end();
         ite++)
     {
-        cerr << (*ite)->getCar()->getName() << " = ["
-             << get_lb(*ite)
-             << ", "
-             << get_ub(*ite)
-             << "]" << endl;
+        // cerr << (*ite)->getCar()->getName() << " = ["
+        //      << get_lb(*ite)
+        //      << ", "
+        //      << get_ub(*ite)
+        //      << "]" << endl;
         if ((*ite)->getODEvartype() == l_True) {
             _t_vars.push_back(*ite);
         }
         else if ((*ite)->getODEvartype() == l_False) {
             _0_vars.push_back(*ite);
             var_list.push_back((*ite)->getODEvarname());
-            ode_list.push_back((*ite)->getODE());
+            string ode = (*ite)->getODE();
+            ode_list.push_back(ode);
         }
     }
 
@@ -125,9 +132,10 @@ void ode_solver::IVector_to_varlist(IVector & v, vector<Enode*> & vars)
 
 void ode_solver::prune(vector<Enode*>& _t_vars,
                        IVector v,
-                       interval time,
+                       interval dt,
                        vector<IVector> & out_v_list,
-                       vector<interval> & out_time_list
+                       vector<interval> & out_time_list,
+                       interval time
     )
 {
     bool candidate = true;
@@ -140,6 +148,22 @@ void ode_solver::prune(vector<Enode*>& _t_vars,
         cerr << "x_t[" << i << "] = "
              << "[" << get_lb(_t_vars[i]) << ", " << get_ub(_t_vars[i]) << "]"
              << endl;
+
+        /*
+          [         t_vars[i]        ]
+                                           [         v[i]             ]
+
+          ----------------------------------------------------------------------
+
+                                           [         t_vars[i]        ]
+          [         v[i]             ]
+         */
+
+        if (dt.leftBound() > time.rightBound() ||
+            time.leftBound() > dt.rightBound()) {
+            candidate = false;
+        }
+
         if (v[i].leftBound() > get_ub(_t_vars[i]) ||
             v[i].rightBound() < get_lb(_t_vars[i]))
         {
@@ -149,11 +173,11 @@ void ode_solver::prune(vector<Enode*>& _t_vars,
     cerr << "IS " << (candidate ? "CANDIDATE" : "NOT CANDIDATE") << endl;
     if (candidate) {
         out_v_list.push_back(v);
-        out_time_list.push_back(time);
+        out_time_list.push_back(dt);
     }
 }
 
-bool ode_solver::solve()
+bool ode_solver::solve_forward()
 {
     cerr << "ODE_Solver::solve" << endl;
     cout.precision(12);
@@ -162,16 +186,23 @@ bool ode_solver::solve()
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
+        string diff_sys;
 
-        string diff_sys = create_diffsys_string(_ode_vars,
-                                                _0_vars,
-                                                _t_vars);
+        diff_sys = create_diffsys_string(_ode_vars,
+                                         _0_vars,
+                                         _t_vars
+            );
 
         //pass the problem with variables
         IMap vectorField(diff_sys);
 
         //initialize the solver
-        ITaylor solver(vectorField,20,.1);
+        // The solver uses high order enclosure method to verify the existence of the solution.
+        // The order will be set to 20.
+        // The time step (when step control is turned off) will be 0.1.
+        // The time step control is turned on by default but the solver must know if we want to
+        // integrate forwards or backwards (then put negative number).
+        ITaylor solver(vectorField,_order,.1);
         ITimeMap timeMap(solver);
 
         //initial conditions
@@ -187,9 +218,9 @@ bool ode_solver::solve()
         Enode* time = (*_0_vars.begin())->getODEtimevar();
         interval T = interval(get_lb(time), get_ub(time));
         cerr << "interval T = " << T << endl;
-        // double T = 100;
 
         timeMap.stopAfterStep(true);
+
         interval prevTime(0.);
 
         vector<IVector> out_v_list;
@@ -200,30 +231,49 @@ bool ode_solver::solve()
             interval stepMade = solver.getStep();
             cout << "step made: " << stepMade << endl;
 
-            const ITaylor::CurveType& curve = solver.getCurve();
-            interval domain = interval(0,1)*stepMade;
+            if (T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
+                // This is how we can extract an information
+                // about the trajectory between time steps.
+                // The type CurveType is a function defined
+                // on the interval [0,stepMade].
+                // It can be evaluated at a point (or interval).
+                // The curve can be also differentiated wrt to time.
+                // We can also extract from it the 1-st order derivatives wrt.
+                const ITaylor::CurveType& curve = solver.getCurve();
+                interval domain = interval(0,1)*stepMade;
+                double domainWidth = domain.rightBound();
 
-            // a uniform grid
-            int grid = 5;
-            interval subsetOfDomain = interval(0,1)*stepMade/grid;
-            double incr = subsetOfDomain.rightBound();
-            for(int i = 0; i < grid; i++)
-            {
-                intersection(domain,subsetOfDomain,subsetOfDomain);
+                // Here we use a uniform grid of last time step made
+                // to enclose the trajectory between time steps.
+                // You can use your own favourite subdivision, perhaps nonuniform,
+                // depending on the problem you want to solve.
 
-                // v will contain rigorous bound for the trajectory for this time interval.
-                IVector v = curve(subsetOfDomain);
-                std::cout << "subset of domain =" << subsetOfDomain << endl;;
-                std::cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;;
-                std::cout << "diam(enclosure): " << diam(v) << endl;;
+                for(int i = 0; i < _grid; i++)
+                {
+                    interval subsetOfDomain = domain / _grid + (domainWidth / _grid) * i;
+                    // The above interval does not need to be a subset of domain.
+                    // This is due to rounding to floating point numbers.
+                    // We take the intersection with the domain.
+                    intersection(domain,subsetOfDomain,subsetOfDomain);
 
-                prune(_t_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list);
-                subsetOfDomain += interval(incr, incr);
+                    // Here we evaluated curve at the interval subsetOfDomain.
+                    // v will contain rigorous bound for the trajectory for this time interval.
+                    IVector v = curve(subsetOfDomain);
+                    std::cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
+                    std::cout << "diam(enclosure): " << diam(v) << endl;
+
+                    prune(_t_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
+                }
             }
+            else {
+                cout << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
+            }
+            cerr << "=============================================" << endl;
+
             prevTime = timeMap.getCurrentTime();
             cout << "current time: " << prevTime << endl;
-
-        } while (!timeMap.completed());
+        }
+        while (!timeMap.completed());
 
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;
@@ -320,6 +370,154 @@ bool ode_solver::solve()
         // }
 
         // rp_box_cout(box, 5, RP_INTERVAL_MODE_BOUND);
+    }
+    catch(std::exception& e)
+    {
+        cout << endl
+             << endl
+             << "Exception caught!" << endl
+             << e.what() << endl << endl;
+    }
+    return ret;
+}
+
+bool ode_solver::solve_backward()
+{
+    cerr << "ODE_Solver::solve_backward()" << endl;
+    cout.precision(12);
+    bool ret = true;
+    try {
+        // 1. Construct diff_sys, which are the ODE
+        vector<Enode*> _0_vars;
+        vector<Enode*> _t_vars;
+        string diff_sys;
+
+        diff_sys = create_diffsys_string(_ode_vars,
+                                         _0_vars,
+                                         _t_vars
+            );
+
+        //pass the problem with variables
+        IMap vectorField(diff_sys);
+
+        //initialize the solver
+        // The solver uses high order enclosure method to verify the existence of the solution.
+        // The order will be set to 20.
+        // The time step (when step control is turned off) will be 0.1.
+        // The time step control is turned on by default but the solver must know if we want to
+        // integrate forwards or backwards (then put negative number).
+        ITaylor solver(vectorField,_order,-.1);
+        ITimeMap timeMap(solver);
+
+        //initial conditions
+        IVector start = varlist_to_IVector(_0_vars);
+        IVector end = varlist_to_IVector(_t_vars);
+
+        //end = start; //set the initial comparison
+
+        // define a doubleton representation of the interval vector start
+        C0Rect2Set e(end);
+
+        //time range
+        Enode* time = (*_0_vars.begin())->getODEtimevar();
+        interval T = interval(- get_ub(time), - get_lb(time));
+        cerr << "interval T = " << T << endl;
+
+        timeMap.stopAfterStep(true);
+
+        interval prevTime(0.);
+
+        vector<IVector> out_v_list;
+        vector<interval> out_time_list;
+        do
+        {
+            timeMap(T,e);
+            interval stepMade = solver.getStep();
+            cout << "step made: " << stepMade << endl;
+            cout << "T : " << T << endl;
+            cout << "currentTime : " << timeMap.getCurrentTime() << endl;
+
+            if (T.rightBound() >= timeMap.getCurrentTime().leftBound()) {
+                // This is how we can extract an information
+                // about the trajectory between time steps.
+                // The type CurveType is a function defined
+                // on the interval [0,stepMade].
+                // It can be evaluated at a point (or interval).
+                // The curve can be also differentiated wrt to time.
+                // We can also extract from it the 1-st order derivatives wrt.
+                const ITaylor::CurveType& curve = solver.getCurve();
+                interval domain = interval(0,1)*stepMade;
+                double domainWidth = domain.rightBound() - domain.leftBound();
+
+                // Here we use a uniform grid of last time step made
+                // to enclose the trajectory between time steps.
+                // You can use your own favourite subdivision, perhaps nonuniform,
+                // depending on the problem you want to solve.
+
+                for(int i = 0; i < _grid; i++)
+                {
+                    interval subsetOfDomain = domain / _grid - (domainWidth / _grid) * i;
+                    // The above interval does not need to be a subset of domain.
+                    // This is due to rounding to floating point numbers.
+                    // We take the intersection with the domain.
+                    intersection(domain,subsetOfDomain,subsetOfDomain);
+
+                    // Here we evaluated curve at the interval subsetOfDomain.
+                    // v will contain rigorous bound for the
+                    // trajectory for this time interval.
+                    std::cout << "subsetOfDomain: " << subsetOfDomain << endl;
+                    IVector v = curve(subsetOfDomain);
+                    std::cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
+                    std::cout << "diam(enclosure): " << diam(v) << endl;
+
+                    prune(_0_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
+                }
+            }
+            else {
+                cout << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
+            }
+            cerr << "=============================================" << endl;
+
+            prevTime = timeMap.getCurrentTime();
+            cout << "current time: " << prevTime << endl;
+        }
+        while (!timeMap.completed());
+
+        // 1. Union all the out_v_list and intersect with end
+        IVector vector_union;
+        bool start_empty = false;
+        cerr << "Union and intersect V" << endl;
+        if(out_v_list.size() == 0) {
+            cerr << "There is nothing to collect for V" << endl;
+            start_empty = true;
+        } else {
+            vector_union = *(out_v_list.begin());
+            for(vector<IVector>::iterator ite = ++(out_v_list.begin());
+                ite != out_v_list.end();
+                ite++)
+            {
+                cerr << "U(" << vector_union << ", " << *ite << ") = ";
+                vector_union = intervalHull (vector_union, *ite);
+                cerr << vector_union << endl;
+            }
+            // start = intersection \cap start;
+            cerr << "Intersect(" << vector_union << ", " << start << ") = ";
+            if(intersection(vector_union, start, start))
+            {
+                IVector_to_varlist(start, _0_vars);
+                cerr << start << endl;
+            }
+            else {
+                // intersection is empty!!
+                start_empty = true;
+                cerr << "empty" << endl;
+                // for(int i = 0; end.size(); i++)
+                // {
+                //     end[i] = interval(+std::numeric_limits<double>::infinity(),
+                //                       -std::numeric_limits<double>::infinity());
+                // }
+            }
+        }
     }
     catch(std::exception& e)
     {

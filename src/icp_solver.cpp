@@ -255,9 +255,23 @@ bool icp_solver::prop_with_ODE()
                     {
                         cerr << "Name: " << (*ite)->getCar()->getName() << endl;
                     }
-                    ode_solver odeSolver(current_ode_vars, current_box, enode_to_rp_id);
-                    if (!odeSolver.solve())
+                    ode_solver odeSolver(current_ode_vars, current_box, enode_to_rp_id, _verbose);
+
+                    cerr << "Before_FORWARD" << endl;
+                    display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+                    cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
+                    if (!odeSolver.solve_forward())
                         return false;
+
+                    cerr << "After_FORWARD" << endl;
+                    display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+
+                    cerr << "!!!!!!!!!!Solving ODE (Backward)" << endl;
+                    if (!odeSolver.solve_backward())
+                        return false;
+
+                    cerr << "After_Backward" << endl;
+                    display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
                 }
             }
 //            cerr << "icp_solver::prop_with_ODE_AFTER(ODE)" << endl;

@@ -30,24 +30,31 @@ class ode_solver
 public:
     ode_solver( set < Enode* > & ode_vars,
                 rp_box b,
-                std::map<Enode*, int>& enode_to_rp_id
+                std::map<Enode*, int>& enode_to_rp_id,
+                bool verbose = false,
+                int order = 20,
+                int grid = 16
         );
     ~ode_solver();
 
     string create_diffsys_string(set < Enode* > & ode_vars,
                                  vector<Enode*> & _0_vars,
-                                 vector<Enode*> & _t_vars);
+                                 vector<Enode*> & _t_vars
+        );
 
     capd::IVector varlist_to_IVector(vector<Enode*> vars);
     void IVector_to_varlist(capd::IVector & v, vector<Enode*> & vars);
     void prune(vector<Enode*>& _t_vars,
                capd::IVector v,
-               capd::intervals::Interval<double, capd::rounding::DoubleRounding> time,
+               capd::intervals::Interval<double, capd::rounding::DoubleRounding> dt,
                vector<capd::IVector> & out_v_list,
-               vector<capd::intervals::Interval<double, capd::rounding::DoubleRounding> > & out_time_list
+               vector<capd::intervals::Interval<double, capd::rounding::DoubleRounding> > & out_time_list,
+               capd::intervals::Interval<double, capd::rounding::DoubleRounding> time
         );
 
-    bool solve(); //computation of the next solution
+    bool solve_forward(); //computation of the next solution
+    bool solve_backward();
+
     double get_lb(Enode* e) {
         return rp_binf(rp_box_elem(_b, _enode_to_rp_id[e]));
     }
@@ -66,6 +73,9 @@ public:
 
 private:
     set< Enode* > & _ode_vars;
+    int _grid;
+    int _order;
+    bool _verbose;
     rp_box _b;
     map<Enode*, int>& _enode_to_rp_id;
     ode_solver& operator=(const ode_solver& o);
