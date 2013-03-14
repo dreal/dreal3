@@ -7,17 +7,17 @@
 (assert (<= 0.0 time_1))
 (assert (<= time_1 3))
 
-(assert (<= 0.0 x_0))
+(assert (<= -10.0 x_0))
 (assert (<= x_0 10))
 
 (assert (<= 0.0 x_t))
-(assert (<= x_t 10))
+(assert (<= x_t 100))
 
 (assert (and 
-		(>= x_0 1.0)
-		(<= x_0 3.0)
-		(>= x_t 7.4) 
-		(<= x_t 7.45)
+		(>= x_0 -10.0)
+		(<= x_0 10.0)
+		(>= x_t 27.4) 
+		(<= x_t 27.41)
 		(>= time_1 1.9)
 		(<= time_1 2.1) 
 	)
