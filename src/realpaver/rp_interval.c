@@ -15,6 +15,9 @@
 #include <ctype.h>
 #include "rp_interval.h"
 
+#define _max(x, y) (x > y ? x : y)
+#define _min(x, y) (x < y ? x : y)
+
 extern int atoi(const char *) rp_throw;
 extern double trunc(double) rp_throw;
 
@@ -1530,20 +1533,47 @@ void rp_interval_atanh(rp_interval result, rp_interval i)
 }
 
 /* result := matan(i)  (increasing function in (-oo,+oo)) */
-void rp_interval_matan(rp_interval result, rp_interval i)
+void rp_interval_matan(rp_interval result, rp_interval x)
 {
-
-    /* matan(x) = 1                                                           if x = 0
-                = atn(sqrt(x))/sqrt(x)                                        if x > 0
+    /* matan(x) = atn(sqrt(x))/sqrt(x)                                        if x > 0
                 = log ((1 + sqrt(-x)) / (1 - sqrt(-x))) / (2 * sqrt(-x))      if x < 0
+                = 1                                                           if x = 0
     */
+    double x_ub = rp_bsup(x);
+    double x_lb = rp_binf(x);
+    rp_interval one;
+    rp_interval_set(one, 1.0, 1.0);
 
-  /* TODO */
-  RP_ROUND_DOWNWARD();
-  rp_binf(result) = atan(rp_binf(i));
+    rp_interval_set_empty(result);
+    /* atn(sqrt(x))/sqrt(x)                                        if x > 0 */
+    if(x_ub > 0.0) {
+        rp_interval x_temp, aux1, aux2, aux3;
+        rp_interval_set(x_temp, _max(x_lb, DBL_EPSILON), x_ub);
+        rp_interval_sqrt(aux1, x_temp);     /* aux1    = sqrt(x)         */
+        rp_interval_atan(aux2, aux2);       /* aux2    = atan(sqrt(x))   */
+        rp_interval_div(result, aux2, aux1);/* result    = atan(sqrt(x)) / sqrt(x) */
+    }
 
-  RP_ROUND_UPWARD();
-  rp_bsup(result) = atan(rp_bsup(i));
+    /* log ((1 + sqrt(-x)) / (1 - sqrt(-x))) / (2 * sqrt(-x))      if x < 0 */
+    if(x_lb < 0.0) {
+        rp_interval x_temp, two, neg_x, aux1, aux2, aux3, aux4, aux5, aux6, aux7;
+        rp_interval_set(two, 2.0, 2.0);
+        rp_interval_set(x_temp, x_lb, _min(x_ub, -DBL_EPSILON));
+        rp_interval_neg(neg_x, x_temp);       /* neg_x = -x */
+        rp_interval_sqrt(aux1, neg_x);        /* aux1 = sqrt(-x) */
+        rp_interval_add_r_i(aux2, one, aux1); /* aux2 = 1 + sqrt(-x) */
+        rp_interval_sub_r_i(aux3, one, aux1); /* aux3 = 1 - sqrt(-x) */
+        rp_interval_mul_r_i(aux4, two, aux1); /* aux4 = 2 - sqrt(-x) */
+        rp_interval_div(aux5, aux2, aux3);    /* aux5 = (1 + sqrt(-x)) / (1 - sqrt(-x)) */
+        rp_interval_log(aux6, aux5);          /* aux6 = log(aux5) */
+        rp_interval_div(aux7, aux6, aux4);    /* aux7 = aux6 / aux4 */
+        rp_interval_hull(result, result, aux7);
+    }
+
+    /* 1                                                           if x = 0 */
+    if(rp_interval_contains(x, 0.0)) {
+        rp_interval_hull(result, result, one);
+    }
 }
 
 /* result := safesqrt(i)  (increasing function in (-oo,+oo)) */
@@ -1560,9 +1590,6 @@ void rp_interval_safesqrt(rp_interval result, rp_interval i)
   }
   return rp_interval_sqrt(result, i_t);
 }
-
-#define _max(x, y) (x > y ? x : y)
-#define _min(x, y) (x < y ? x : y)
 
 void rp_interval_atan2(rp_interval result, rp_interval y, rp_interval x)
 {
