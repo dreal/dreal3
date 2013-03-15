@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "icp_solver.h"
+#include <iomanip>
 using namespace std;
 
 icp_solver::icp_solver(SMTConfig& c,
@@ -203,11 +204,6 @@ icp_solver::~icp_solver()
 
 bool icp_solver::prop_with_ODE()
 {
-//    cerr << "icp_solver::prop_with_ODE" << endl;
-//    cerr << "icp_solver::prop_with_ODE_BEFORE" << endl;
-//    display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
-//    cerr << endl;
-
     if (_propag->apply(_boxes.get())) {
         if(_contain_ode) {
             rp_box current_box = _boxes.get();
@@ -258,31 +254,25 @@ bool icp_solver::prop_with_ODE()
                     ode_solver odeSolver(current_ode_vars, current_box, enode_to_rp_id, _verbose);
 
                     cerr << "Before_FORWARD" << endl;
-                    display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+                    pprint_vars(cerr, *_problem, _boxes.get());
                     cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
                     if (!odeSolver.solve_forward())
                         return false;
 
                     cerr << "After_FORWARD" << endl;
-                    display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+                    pprint_vars(cerr, *_problem, _boxes.get());
 
                     cerr << "!!!!!!!!!!Solving ODE (Backward)" << endl;
                     if (!odeSolver.solve_backward())
                         return false;
 
                     cerr << "After_Backward" << endl;
-                    display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
+                    pprint_vars(cerr, *_problem, _boxes.get());
                 }
             }
-//            cerr << "icp_solver::prop_with_ODE_AFTER(ODE)" << endl;
-//            display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
-//            cerr << endl;
             return true;
         }
         else {
-//            cerr << "icp_solver::prop_with_ODE_AFTER(NO ODE)" << endl;
-//            display_box(cerr, _boxes.get(), 8, RP_INTERVAL_MODE_BOUND);
-//            cerr << endl;
             return true;
         }
     }
@@ -291,7 +281,6 @@ bool icp_solver::prop_with_ODE()
 
 rp_box icp_solver::compute_next()
 {
-//    cerr << "icp_solver::compute_next()" << endl;
     if (_sol>0)
     {
         _boxes.remove();
@@ -357,12 +346,12 @@ bool icp_solver::solve()
             /* SAT */
             if(_verbose) {
                 cerr << "SAT with the following box:" << endl;
-                display_box(cerr, b, 16, RP_INTERVAL_MODE_BOUND);
+                pprint_vars(cerr, *_problem, b);
                 cerr << endl;
             }
             if(_proof) {
                 _proof_out << "SAT with the following box:" << endl;
-                display_box(_proof_out, b, 16, RP_INTERVAL_MODE_BOUND);
+                pprint_vars(_proof_out, *_problem, b);
                 _proof_out << endl;
             }
             return true;
@@ -513,9 +502,10 @@ void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b)
 {
     for(int i = 0; i < rp_problem_nvar(p); i++)
     {
+        out << setw(15);
         out << rp_variable_name(rp_problem_var(p, i));
-        out << " is in: ";
-        display_interval(_proof_out, rp_box_elem(b,i), 16, RP_INTERVAL_MODE_BOUND);
+        out << " : ";
+        display_interval(out, rp_box_elem(b,i), 16, RP_INTERVAL_MODE_BOUND);
         if (i != rp_problem_nvar(p) - 1)
             out << ";";
         out << endl;
