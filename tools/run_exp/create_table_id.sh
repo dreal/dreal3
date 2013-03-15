@@ -1,6 +1,6 @@
 #!/bin/bash
 RESULTDIR=$1
-FLYSPECK_REPO=~/work/dreal2/benchmarks/flyspeck
+FLYSPECK_REPO=~/work/dreal2/benchmarks/flyspeck_new
 SMT_STAT=~/work/dreal2/tools/smt2_stat/main.native
 COUNT_CHECK=`dirname $0`/count_check_stat.sh
 
