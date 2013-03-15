@@ -16,6 +16,9 @@
      ("arcsin", ASIN);
      ("arccos", ACOS);
      ("arctan", ATAN);
+     ("arctan2", ATAN2);
+     ("marctan", MATAN);
+     ("safesqrt", SAFESQRT);
      ("sinh", SINH);
      ("cosh", COSH);
      ("tanh", TANH);

@@ -9,7 +9,7 @@
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
 %token AT LT LE GT GE IMPLY DDT CARET DP NOT ITE
 %token SIN COS TAN
-%token ASIN ACOS ATAN
+%token ASIN ACOS ATAN ATAN2 MATAN SAFESQRT
 %token SINH COSH TANH
 %token LOG EXP SQRT ABS
 %token TRUE FALSE
@@ -109,6 +109,9 @@ exp:
  | ASIN exp                     { Basic.Asin $2 }
  | ACOS exp                     { Basic.Acos $2 }
  | ATAN exp                     { Basic.Atan $2 }
+ | MATAN exp                    { Basic.Matan $2 }
+ | SAFESQRT exp                 { Basic.SafeSqrt $2 }
+ | ATAN2 exp exp                { Basic.Atan2 ($2, $3) }
  | SINH exp                     { Basic.Sinh $2 }
  | COSH exp                     { Basic.Cosh $2 }
  | TANH exp                     { Basic.Tanh $2 }
