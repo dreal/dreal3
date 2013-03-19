@@ -24,20 +24,20 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "rp_box.h"
 #include "Enode.h"
 #include "capd/capdlib.h"
+#include "SMTConfig.h"
 
 class ode_solver
 {
 public:
-    ode_solver( set < Enode* > & ode_vars,
-                rp_box b,
-                std::map<Enode*, int>& enode_to_rp_id,
-                bool verbose = false,
-                int order = 20,
-                int grid = 16
+    ode_solver(SMTConfig& c,
+               set < Enode* > & ode_vars,
+               rp_box b,
+               std::map<Enode*, int>& enode_to_rp_id
         );
     ~ode_solver();
 
     string create_diffsys_string(set < Enode* > & ode_vars,
+                                 vector<string> & var_list,
                                  vector<Enode*> & _0_vars,
                                  vector<Enode*> & _t_vars
         );
@@ -72,10 +72,8 @@ public:
     }
 
 private:
+    SMTConfig& _config;
     set< Enode* > & _ode_vars;
-    int _grid;
-    int _order;
-    bool _verbose;
     rp_box _b;
     map<Enode*, int>& _enode_to_rp_id;
     ode_solver& operator=(const ode_solver& o);

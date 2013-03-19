@@ -25,20 +25,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace capd;
 
-ode_solver::ode_solver(set < Enode* > & ode_vars,
+ode_solver::ode_solver(SMTConfig& c,
+                       set < Enode* > & ode_vars,
                        rp_box b,
-                       std::map<Enode*, int>& enode_to_rp_id,
-                       bool verbose,
-                       int order,
-                       int grid
+                       std::map<Enode*, int>& enode_to_rp_id
     ) :
+    _config(c),
     _ode_vars(ode_vars),
+    _b(b),
     _enode_to_rp_id(enode_to_rp_id)
 {
-    _b = b;
-    _verbose = verbose;
-    _order = order;
-    _grid = grid;
 }
 
 ode_solver::~ode_solver()
@@ -202,7 +198,7 @@ bool ode_solver::solve_forward()
         // The time step (when step control is turned off) will be 0.1.
         // The time step control is turned on by default but the solver must know if we want to
         // integrate forwards or backwards (then put negative number).
-        ITaylor solver(vectorField,_order,.1);
+        ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);
         ITimeMap timeMap(solver);
 
         //initial conditions
@@ -248,9 +244,11 @@ bool ode_solver::solve_forward()
                 // You can use your own favourite subdivision, perhaps nonuniform,
                 // depending on the problem you want to solve.
 
-                for(int i = 0; i < _grid; i++)
+                for(unsigned i = 0; i < _config.nra_ODE_grid_size; i++)
                 {
-                    interval subsetOfDomain = domain / _grid + (domainWidth / _grid) * i;
+                    interval subsetOfDomain = domain / _config.nra_ODE_grid_size
+                        + (domainWidth / _config.nra_ODE_grid_size) * i;
+
                     // The above interval does not need to be a subset of domain.
                     // This is due to rounding to floating point numbers.
                     // We take the intersection with the domain.
@@ -406,7 +404,7 @@ bool ode_solver::solve_backward()
         // The time step (when step control is turned off) will be 0.1.
         // The time step control is turned on by default but the solver must know if we want to
         // integrate forwards or backwards (then put negative number).
-        ITaylor solver(vectorField,_order,-.1);
+        ITaylor solver(vectorField,_config.nra_ODE_taylor_order,-.1);
         ITimeMap timeMap(solver);
 
         //initial conditions
@@ -454,9 +452,10 @@ bool ode_solver::solve_backward()
                 // You can use your own favourite subdivision, perhaps nonuniform,
                 // depending on the problem you want to solve.
 
-                for(int i = 0; i < _grid; i++)
+                for(unsigned i = 0; i < _config.nra_ODE_grid_size; i++)
                 {
-                    interval subsetOfDomain = domain / _grid - (domainWidth / _grid) * i;
+                    interval subsetOfDomain = domain / _config.nra_ODE_grid_size
+                        - (domainWidth / _config.nra_ODE_grid_size) * i;
                     // The above interval does not need to be a subset of domain.
                     // This is due to rounding to floating point numbers.
                     // We take the intersection with the domain.

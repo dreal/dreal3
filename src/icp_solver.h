@@ -35,9 +35,6 @@ public:
                const vector<Enode*> & stack,
                map<Enode*, pair<double, double> > & env,
                vector<Enode*> & exp,
-               double improve,
-               double p,
-               bool ode,
                map < Enode*, set < Enode* > > & enode_to_vars
               );
 
@@ -65,7 +62,7 @@ public:
     /* void          branch                  ( rp_box * ); */
 
 private:
-
+    SMTConfig& _config;
     rp_problem * _problem;     /* problem to be solved                    */
     rp_propagator * _propag;   /* reduction algorithm using propagation   */
     rp_box_stack _boxes;       /* the set of boxes during search          */
@@ -75,23 +72,16 @@ private:
     int _sol;                  /* number of computed solutions            */
     int _nsplit;               /* number of split steps                   */
     double _improve;           /* improvement factor of iterative methods */
-    map < Enode*, set < Enode* > > & _enode_to_vars;
-    bool _contain_ode;
 
-    map<Enode*, int>                     enode_to_rp_id;
+    map < Enode*, set < Enode* > > &     _enode_to_vars;
+    map<Enode*, int>                     _enode_to_rp_id;
     vector<Enode*> &                     _explanation;
     const vector<Enode*> &               _stack;
     map<Enode*, pair<double, double> > & _env;
-
-    double _precision;
-    bool _verbose;
-    bool _proof;
-    ofstream& _proof_out;
     void output_problem();
 
     icp_solver& operator=(const icp_solver& s);
     icp_solver(const icp_solver& s);
-
 };
 
 #endif

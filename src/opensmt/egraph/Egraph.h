@@ -343,6 +343,7 @@ private:
   set< Enode * >    interface_terms_cache;
   // Cache for uf terms and la terms
   set< Enode * > it_uf, it_la;
+  static constexpr double      default_precision = 0.001;
   double            precision;     /* added for dReal */
 
 public:

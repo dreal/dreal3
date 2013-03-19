@@ -31,16 +31,10 @@ NRASolver::NRASolver( const int           i
                       , vector< Enode * > & x
                       , vector< Enode * > & d
                       , vector< Enode * > & s
-                      , bool ode
     )
     : OrdinaryTSolver ( i, n, c, e, t, x, d, s )
 {
 //initialize icp solver first
-    precision = e.getPrecision();
-    contain_ode = ode;
-    if(precision == 0.0) {
-        precision = 0.001;
-    }
 }
 
 NRASolver::~NRASolver( )
@@ -82,6 +76,7 @@ void debug_print_explanation (const vector<Enode*> & explanation)
     cerr << endl;
 }
 
+// Collect all the variables appeared in e
 set<Enode *> NRASolver::get_variables (Enode * e )
 {
     set<Enode *> result;
@@ -153,14 +148,16 @@ lbool NRASolver::inform( Enode * e )
         env[*ite] = make_pair (lb, ub);
 
         // Collect ODE Vars in e
-        if(contain_ode && (*ite)->getODEtimevar() != NULL && (*ite)->getODEgroup() > 0) {
-            cerr << "Add " << *ite << " in the bag!!!! " << endl;
-            cerr << "\t Group: " << (*ite)->getODEgroup() << endl;
+        if(config.nra_contain_ODE && (*ite)->getODEtimevar() != NULL && (*ite)->getODEgroup() > 0) {
+            if(config.nra_verbose) {
+                cerr << "Add " << *ite << " in the bag!!!! " << endl;
+                cerr << "\t Group: " << (*ite)->getODEgroup() << endl;
+            }
             ode_variables_in_e.insert(*ite);
         }
     }
 
-    if (contain_ode) {
+    if (config.nra_contain_ODE) {
         _enode_to_vars.insert( std::pair<Enode*, set<Enode*> >(e, ode_variables_in_e));
     }
 
@@ -185,7 +182,6 @@ bool NRASolver::assertLit ( Enode * e, bool reason )
     (void)reason;
     assert( e );
     assert( belongsToT( e ) );
-
     assert( e->hasPolarity( ) );
     assert( e->getPolarity( ) == l_False
             || e->getPolarity( ) == l_True );
@@ -280,11 +276,12 @@ bool NRASolver::check( bool complete )
     }
 
     env = env_stack.back();
-    icp_solver solver(config, stack, env, explanation, 10.0, precision, contain_ode, _enode_to_vars);
+    icp_solver solver(config, stack, env, explanation, _enode_to_vars);
 
     if(!complete) {
         // Incomplete Check
         if (config.nra_verbose) {
+            cerr << "Incomplete Check" << endl;
             cerr << "Before Prop" << endl;
             debug_print_env(env);
         }

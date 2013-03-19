@@ -27,30 +27,23 @@ icp_solver::icp_solver(SMTConfig& c,
                        const vector<Enode*> & stack,
                        map<Enode*, pair<double, double> > & env,
                        vector<Enode*> & exp,
-                       double improve,
-                       double p,
-                       bool ode,
                        map < Enode*, set < Enode* > > & enode_to_vars
     )
     :
+    _config(c),
     _propag(NULL),
     _boxes(env.size()), //number of variables
     _ep(NULL),
     _sol(0),
     _nsplit(0),
     _enode_to_vars(enode_to_vars),
-    _contain_ode(ode),
     _explanation(exp),
     _stack(stack),
-    _env(env),
-    _precision(p),
-    _verbose(c.nra_verbose),
-    _proof(c.nra_proof),
-    _proof_out(c.proof_out)
+    _env(env)
 {
     rp_init_library();
     _problem = create_rp_problem(stack, env);
-    _propag = new rp_propagator(_problem, 10.0, _proof_out);
+    _propag = new rp_propagator(_problem, 10.0, c.nra_proof_out);
     rp_new( _vselect, rp_selector_roundrobin, (_problem) );
     rp_new( _dsplit, rp_splitter_mixed, (_problem) );
 
@@ -72,9 +65,9 @@ icp_solver::icp_solver(SMTConfig& c,
         _boxes.insert(rp_problem_box(*_problem));
 
         // Management of improvement factor
-        if ((improve>=0.0) && (improve<=100.0))
+        if ((c.nra_icp_improve>=0.0) && (c.nra_icp_improve<=100.0))
         {
-            _improve = 1.0-improve/100.0;
+            _improve = 1.0 - c.nra_icp_improve / 100.0;
         }
         else
         {
@@ -142,14 +135,14 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
         rp_union_destroy(&u);
 
         rp_variable_set_real(*_v);
-        rp_variable_precision(*_v) = _precision;
+        rp_variable_precision(*_v) = _config.nra_precision;
 
-        enode_to_rp_id[key] = rp_id;
+        _enode_to_rp_id[key] = rp_id;
 
-        if(_verbose) {
+        if(_config.nra_verbose) {
             cerr << "Key: " << name << "\t"
                  << "value : [" << lb << ", " << ub << "] \t"
-                 << "precision : " << _precision << "\t"
+                 << "precision : " << _config.nra_precision << "\t"
                  << "rp_id: " << rp_id << endl;
         }
     }
@@ -168,7 +161,7 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
         string temp_string = buf.str();
 
         if(temp_string.compare("0 = 0") != 0) {
-            if(_verbose) {
+            if(_config.nra_verbose) {
                 cerr << "Constraint: "
                      << (l->getPolarity() == l_True ? " " : "Not")
                      << l << endl;
@@ -205,7 +198,7 @@ icp_solver::~icp_solver()
 bool icp_solver::prop_with_ODE()
 {
     if (_propag->apply(_boxes.get())) {
-        if(_contain_ode) {
+        if(_config.nra_contain_ODE) {
             rp_box current_box = _boxes.get();
 
             int max = 1;
@@ -251,7 +244,7 @@ bool icp_solver::prop_with_ODE()
                     {
                         cerr << "Name: " << (*ite)->getCar()->getName() << endl;
                     }
-                    ode_solver odeSolver(current_ode_vars, current_box, enode_to_rp_id, _verbose);
+                    ode_solver odeSolver(_config, current_ode_vars, current_box, _enode_to_rp_id);
 
                     cerr << "Before_FORWARD" << endl;
                     pprint_vars(cerr, *_problem, _boxes.get());
@@ -295,10 +288,10 @@ rp_box icp_solver::compute_next()
                 ++_nsplit;
                 _dsplit->apply(_boxes,i);
 
-                _proof_out << endl
+                _config.nra_proof_out << endl
                            << "[branched on x" << i << "]"
                            << endl;
-                pprint_vars(_proof_out, *_problem, _boxes.get());
+                pprint_vars(_config.nra_proof_out, *_problem, _boxes.get());
             }
             else
             {
@@ -310,7 +303,7 @@ rp_box icp_solver::compute_next()
         else
         {
             /* Added for dReal2 */
-            _proof_out << "[conflict detected]" << endl;
+            _config.nra_proof_out << "[conflict detected]" << endl;
             _boxes.remove();
         }
     }
@@ -320,13 +313,13 @@ rp_box icp_solver::compute_next()
 bool icp_solver::solve()
 {
 //    cerr << "icp_solver::solve()" << endl;
-    if(_proof) {
+    if(_config.nra_proof) {
         output_problem();
     }
 
     if (rp_box_empty(rp_problem_box(*_problem)))
     {
-        if(_verbose) {
+        if(_config.nra_verbose) {
             cerr << "Unfeasibility detected before solving";
         }
 
@@ -344,15 +337,15 @@ bool icp_solver::solve()
         if ((b=compute_next())!=NULL)
         {
             /* SAT */
-            if(_verbose) {
+            if(_config.nra_verbose) {
                 cerr << "SAT with the following box:" << endl;
                 pprint_vars(cerr, *_problem, b);
                 cerr << endl;
             }
-            if(_proof) {
-                _proof_out << "SAT with the following box:" << endl;
-                pprint_vars(_proof_out, *_problem, b);
-                _proof_out << endl;
+            if(_config.nra_proof) {
+                _config.nra_proof_out << "SAT with the following box:" << endl;
+                pprint_vars(_config.nra_proof_out, *_problem, b);
+                _config.nra_proof_out << endl;
             }
             return true;
         }
@@ -360,7 +353,7 @@ bool icp_solver::solve()
             /* UNSAT */
             /* TODO: what about explanation? */
             // _proof_out << "[conflict detected]" << endl;
-            if(_verbose) {
+            if(_config.nra_verbose) {
                 cerr << "UNSAT!" << endl;
             }
 
@@ -513,8 +506,8 @@ void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b)
 
 void icp_solver::output_problem()
 {
-    _proof_out.precision(16);
-    _proof_out << "Precision:" << _precision << endl;
+    _config.nra_proof_out.precision(16);
+    _config.nra_proof_out << "Precision:" << _config.nra_precision << endl;
 
     // Print out all the Enode in stack
     for(vector<Enode*>::const_iterator ite = _stack.begin();
@@ -522,12 +515,12 @@ void icp_solver::output_problem()
         ite++)
     {
         if((*ite)->getPolarity() == l_True)
-            _proof_out << *ite << endl;
+            _config.nra_proof_out << *ite << endl;
         else if ((*ite)->getPolarity() == l_False) {
             if((*ite)->isEq()) {
                 /* PRINT NOTHING */
             } else {
-                _proof_out << "(not " << *ite << ")" << endl;
+                _config.nra_proof_out << "(not " << *ite << ")" << endl;
             }
         }
         else
@@ -543,21 +536,21 @@ void icp_solver::output_problem()
         double lb =  (*ite).second.first;
         double ub =  (*ite).second.second;
 
-        _proof_out << key << " is in: ";
+        _config.nra_proof_out << key << " is in: ";
         if(lb == -numeric_limits<double>::infinity())
-            _proof_out << "(-oo";
+            _config.nra_proof_out << "(-oo";
         else {
-            _proof_out.precision(16);
-            _proof_out << "[" << lb;
+            _config.nra_proof_out.precision(16);
+            _config.nra_proof_out << "[" << lb;
         }
-        _proof_out << ", ";
+        _config.nra_proof_out << ", ";
         if(ub == numeric_limits<double>::infinity())
-            _proof_out << "+oo)";
+            _config.nra_proof_out << "+oo)";
         else {
-            _proof_out.precision(16);
-            _proof_out << ub << "]";
+            _config.nra_proof_out.precision(16);
+            _config.nra_proof_out << ub << "]";
         }
-        _proof_out << ";" << endl;
+        _config.nra_proof_out << ";" << endl;
     }
 }
 
@@ -568,7 +561,7 @@ bool icp_solver::prop()
 {
     bool result = false;
 
-    if(_proof) {
+    if(_config.nra_proof) {
         output_problem();
     }
 
@@ -584,7 +577,7 @@ bool icp_solver::prop()
     if(!result) {
         // UNSAT
         // Added for dReal2
-        _proof_out << "[conflict detected]" << endl;
+        _config.nra_proof_out << "[conflict detected]" << endl;
 
         // TODO: better explanation
         _explanation.clear();
@@ -604,12 +597,12 @@ bool icp_solver::prop()
             Enode* key = (*ite).first;
             //double lb =  (*ite).second.first;
             //double ub =  (*ite).second.second;
-            int rp_id = enode_to_rp_id[key];
+            int rp_id = _enode_to_rp_id[key];
             _env[key] = make_pair(rp_binf(rp_box_elem(_boxes.get(), rp_id)),
                                   rp_bsup(rp_box_elem(_boxes.get(), rp_id)));
         }
 //        cerr << "Incomplete Check: SAT" << endl;
-        _proof_out << "HOLE" << endl;
+        _config.nra_proof_out << "HOLE" << endl;
 
     }
     return result;

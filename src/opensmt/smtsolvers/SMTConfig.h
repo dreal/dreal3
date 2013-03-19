@@ -167,9 +167,13 @@ struct SMTConfig
 
   // NRA-Solver related parameters (added for dReal2)
   double       nra_precision;                 // the value of delta
+  double       nra_icp_improve;               // improve value for realpaver(ICP)
   bool         nra_verbose;                   // --verbose option
   bool         nra_proof;                     // --proof option
-  ofstream     proof_out;                     // file stream for proof
+  ofstream     nra_proof_out;                     // file stream for proof
+  unsigned     nra_ODE_taylor_order;          // --ode-order option
+  unsigned     nra_ODE_grid_size;             // --ode-grid option
+  bool         nra_contain_ODE;               // contain ODE or not
 
 private:
 

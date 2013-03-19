@@ -81,8 +81,12 @@ SMTConfig::initializeConfig( )
   proof_certify_inter          = 0;
   // NRA-Solver Default configuration
   nra_precision                = 0.0;
+  nra_icp_improve              = 10.0;
   nra_verbose                  = false;
   nra_proof                    = false;
+  nra_ODE_taylor_order         = 20;
+  nra_ODE_grid_size            = 16;
+  nra_contain_ODE              = false;
 }
 
 void SMTConfig::parseConfig ( char * f )
@@ -322,28 +326,42 @@ SMTConfig::parseCMDLine( int argc
             printHelp( );
             exit( 1 );
         }
-
+        break;
     }
-    else if ( strcmp( buf, "--help" ) == 0 )
+    if ( sscanf( buf, "--ode-order=%d", &nra_ODE_taylor_order ) == 1)
+    {
+        break;
+    }
+
+    if ( sscanf( buf, "--ode-grid=%d", &nra_ODE_grid_size ) == 1)
+    {
+        break;
+    }
+
+    if ( strcmp( buf, "--help" ) == 0 )
     {
         printHelp( );
         exit( 1 );
     }
-    else if ( strcmp( buf, "--proof" ) == 0 )
+
+    if ( strcmp( buf, "--proof" ) == 0 )
     {
         nra_proof = true;
         string filename = string(argv[ argc - 1 ]) + ".proof";
         /* Open file stream */
-        proof_out.open (filename.c_str(), std::ofstream::out | std::ofstream::trunc );
-        if(proof_out.fail())
+        nra_proof_out.open (filename.c_str(), std::ofstream::out | std::ofstream::trunc );
+        if(nra_proof_out.fail())
         {
             cout << "Cannot create a file: " << filename << endl;
             exit( 1 );
         }
+        break;
     }
-    else if ( strcmp( buf, "--verbose" ) == 0)
+
+    if ( strcmp( buf, "--verbose" ) == 0)
     {
         nra_verbose = true;
+        break;
     }
     else
     {
@@ -377,6 +395,18 @@ void SMTConfig::printHelp( )
       "                                checker.\n"
       "\n"
       "   --verbose               the solver will output the detailed decision traces along with\n"
+      "                           the solving process. That is, it will print the branch-and-prune\n"
+      "                           trace in the constraint propagation procedures for checking\n"
+      "                           consistency of theory atoms, as well as DPLL-level\n"
+      "                           assert/check/backtracking operations.\n"
+      "\n"
+      "   --ODE-order             the solver will output the detailed decision traces along with\n"
+      "                           the solving process. That is, it will print the branch-and-prune\n"
+      "                           trace in the constraint propagation procedures for checking\n"
+      "                           consistency of theory atoms, as well as DPLL-level\n"
+      "                           assert/check/backtracking operations.\n"
+      "\n"
+      "   --ODE-grid              the solver will output the detailed decision traces along with\n"
       "                           the solving process. That is, it will print the branch-and-prune\n"
       "                           trace in the constraint propagation procedures for checking\n"
       "                           consistency of theory atoms, as well as DPLL-level\n"

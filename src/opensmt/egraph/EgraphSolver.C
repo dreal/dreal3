@@ -600,6 +600,7 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
 
   // No need to instantiate any other solver
   /* added for dReal2 */
+
   if ( config.logic == QF_NRA )
   {
      tsolvers.push_back( new NRASolver( tsolvers.size(),
@@ -609,14 +610,14 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
                                         sort_store,
                                         explanation,
                                         deductions,
-                                        suggestions,
-                                        false
+                                        suggestions
                              ));
 #ifdef STATISTICS
     tsolvers_stats.push_back( new TSolverStats() );
 #endif
   }
    else if (config.logic == QF_NRA_ODE) {
+     config.nra_contain_ODE = true;
      tsolvers.push_back( new NRASolver( tsolvers.size(),
                                            "NRA Solver",
                                            config,
@@ -624,8 +625,7 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
                                            sort_store,
                                            explanation,
                                            deductions,
-                                           suggestions,
-                                           true // true if we need to handle ODE
+                                           suggestions
                              ));
  #ifdef STATISTICS
      tsolvers_stats.push_back( new TSolverStats() );
