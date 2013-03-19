@@ -480,7 +480,8 @@ void CoreSMTSolver::addNewAtom( Enode * e )
   assert( !e->isTrue ( ) );
   assert( !e->isFalse( ) );
   // Automatically adds new variable for e
-  Lit l = theory_handler->enodeToLit( e );
+  //Lit l = theory_handler->enodeToLit( e );
+  theory_handler->enodeToLit( e );
 }
 
 void CoreSMTSolver::cancelUntilVar( Var v )
@@ -1573,7 +1574,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
   starts++;
 
-  bool first = true;
+//  bool first = true;
 
 #ifdef STATISTICS
   const double start = cpuTime( );
@@ -1604,7 +1605,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
       if (decisionLevel() == 0)
 	return l_False;
 
-      first = false;
+//      first = false;
       learnt_clause.clear();
       analyze(confl, learnt_clause, backtrack_level);
       cancelUntil(backtrack_level);

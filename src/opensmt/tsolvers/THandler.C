@@ -180,7 +180,7 @@ bool THandler::assertLits( )
     assert( !e->hasPolarity( ) );
     e->setPolarity( (sign( l ) ? l_False : l_True) );
     assert( e->hasPolarity( ) );
-  
+
     res = core_solver.assertLit( e );
 
     if ( !res && config.certification_level > 2 )
@@ -197,7 +197,7 @@ bool THandler::check( bool complete )
 {
   const bool res = core_solver.check( complete );
 
-  if ( complete && config.certification_level > 2 ) 
+  if ( complete && config.certification_level > 2 )
     verifyCallWithExternalTool( res, trail.size( ) - 1 );
 
   return res;
@@ -250,7 +250,7 @@ void THandler::getConflict ( vec< Lit > & conflict, int & max_decision_level )
 #ifdef PRODUCE_PROOF
   max_decision_level = -1;
   for ( vector< Enode * >::iterator it = explanation.begin( )
-      ; it != explanation.end( ) 
+      ; it != explanation.end( )
       ; ++ it )
   {
     Enode * ei  = *it;
@@ -616,7 +616,7 @@ bool THandler::callCertifyingSolver( const char * name )
     execlp( config.certifying_solver
 	  , config.certifying_solver
 	  , name
-	  , 0 );
+          , NULL );
     perror( "# Error: Cerifying solver had some problems (check that it is reachable and executable)" );
     exit( EXIT_FAILURE );
   }
@@ -649,9 +649,9 @@ void THandler::verifyInterpolantWithExternalTool( vector< Enode * > & expl
       Enode * e = expl[ j ];
       assert( e->isTAtom( ) );
       assert( e->getPolarity( ) != l_Undef );
-      assert( (core_solver.getIPartitions( e ) &  mask) != 0 
+      assert( (core_solver.getIPartitions( e ) &  mask) != 0
     	   || (core_solver.getIPartitions( e ) & ~mask) != 0 );
-      if ( (core_solver.getIPartitions( e ) & ~mask) != 0 ) 
+      if ( (core_solver.getIPartitions( e ) & ~mask) != 0 )
       {
 	bool negated = e->getPolarity( ) == l_False;
 	if ( negated )
@@ -707,9 +707,9 @@ void THandler::verifyInterpolantWithExternalTool( vector< Enode * > & expl
       Enode * e = expl[ j ];
       assert( e->isTAtom( ) );
       assert( e->getPolarity( ) != l_Undef );
-      assert( (core_solver.getIPartitions( e ) &  mask) != 0 
+      assert( (core_solver.getIPartitions( e ) &  mask) != 0
     	   || (core_solver.getIPartitions( e ) & ~mask) != 0 );
-      if ( (core_solver.getIPartitions( e ) & mask) != 0 ) 
+      if ( (core_solver.getIPartitions( e ) & mask) != 0 )
       {
 	bool negated = e->getPolarity( ) == l_False;
 	if ( negated )

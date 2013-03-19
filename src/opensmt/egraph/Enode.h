@@ -408,8 +408,8 @@ private:
 
   string            ode_varname;
   string            ode;
-  lbool             ode_vartype;
   Enode*            ode_timevar;
+  lbool             ode_vartype;
   int               ode_group;
 
 #if 0

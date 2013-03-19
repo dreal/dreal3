@@ -368,11 +368,11 @@ LAExpression::canonizeInt( )
   if ( igcd == 1 )
     return;
   const Real abs_igcd = ( igcd > 0 ? igcd : -igcd );
-  const Real rgcd = Real( abs_igcd ); 
+  const Real rgcd = Real( abs_igcd );
 
   // Divide each term by gcd
-  for ( it = polynome.begin( ) 
-      ; it != polynome.end( ) 
+  for ( it = polynome.begin( )
+      ; it != polynome.end( )
       ; ++ it )
   {
     it->second /= rgcd;
@@ -394,18 +394,18 @@ LAExpression::canonizeInt( )
       polynome[ 0 ] = Real( polynome[ 0 ].ceil( ) );
   }
 */
-  assert( checkIntCoefficients( ) );  
+  assert( checkIntCoefficients( ) );
 }
 
 bool
 LAExpression::checkIntCoefficients( )
 {
   polynome_t::iterator it;
-  for ( it = polynome.begin( ) 
-      ; it != polynome.end( ) 
+  for ( it = polynome.begin( )
+      ; it != polynome.end( )
       ; ++ it )
   {
-    const Real coeff = it->second;
+//  const Real coeff = it->second;
     if ( 1 != 1 )
       return false;
   }

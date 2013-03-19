@@ -33,20 +33,20 @@ icp_solver::icp_solver(SMTConfig& c,
                        map < Enode*, set < Enode* > > & enode_to_vars
     )
     :
-    _proof_out(c.proof_out),
-    _verbose(c.nra_verbose),
-    _proof(c.nra_proof),
-    _stack(stack),
-    _env(env),
-    _boxes(env.size()), //number of variables
     _propag(NULL),
+    _boxes(env.size()), //number of variables
     _ep(NULL),
     _sol(0),
     _nsplit(0),
-    _explanation(exp),
-    _precision(p),
+    _enode_to_vars(enode_to_vars),
     _contain_ode(ode),
-    _enode_to_vars(enode_to_vars)
+    _explanation(exp),
+    _stack(stack),
+    _env(env),
+    _precision(p),
+    _verbose(c.nra_verbose),
+    _proof(c.nra_proof),
+    _proof_out(c.proof_out)
 {
     rp_init_library();
     _problem = create_rp_problem(stack, env);
@@ -403,7 +403,6 @@ void icp_solver::display_box(ostream& out, rp_box b, int digits, int mode)
 
 void icp_solver::display_interval(ostream & out, rp_interval i, int digits, int mode)
 {
-    double mid, minerror, maxerror;
     if( rp_interval_empty(i) )
     {
         out << "empty";
@@ -450,7 +449,7 @@ void icp_solver::display_interval(ostream & out, rp_interval i, int digits, int 
                 }
                 else
                 {
-                    char tmp[255];
+                    // char tmp[255];
                     //sprintf(tmp,"%.*g]",digits,rp_bsup(i));
                     //strcat(out,tmp);
                     out.precision(digits);

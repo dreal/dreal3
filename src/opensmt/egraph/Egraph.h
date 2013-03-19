@@ -57,7 +57,6 @@ public:
       , theoryInitialized ( false )
       , time_stamp        ( 0 )
       , use_gmp		  ( false )
-      , precision         ( c.nra_precision )
   {
     //
     // Initialize nil key for splay tree
@@ -65,6 +64,7 @@ public:
     Enode * nilKey = const_cast< Enode * >( enil );
     store.setNil( nilKey );
     id_to_enode.push_back( const_cast< Enode * >( enil ) );
+    precision = c.nra_precision;
   }
 
   ~Egraph( )

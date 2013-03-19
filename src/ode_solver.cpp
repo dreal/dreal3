@@ -33,12 +33,12 @@ ode_solver::ode_solver(set < Enode* > & ode_vars,
                        int grid
     ) :
     _ode_vars(ode_vars),
-    _b(b),
-    _enode_to_rp_id(enode_to_rp_id),
-    _verbose(verbose),
-    _order(order),
-    _grid(grid)
+    _enode_to_rp_id(enode_to_rp_id)
 {
+    _b = b;
+    _verbose = verbose;
+    _order = order;
+    _grid = grid;
 }
 
 ode_solver::~ode_solver()
