@@ -50,7 +50,7 @@ opensmt_context opensmt_mk_context( opensmt_logic l )
 {
   OpenSMTContext * c = new OpenSMTContext( );
   OpenSMTContext & context = *c;
-  // IMPORTANT: 
+  // IMPORTANT:
   // Any parameter in the config should be set
   // here, BEFORE SetLogic is called. In SetLogic
   // solvers are initialized with values taken
@@ -64,7 +64,7 @@ opensmt_context opensmt_mk_context( opensmt_logic l )
   if ( l == qf_ct )
   {
     // Settings copied/adapted from pbct 0.1.2
-    config.sat_polarity_mode = 1;   
+    config.sat_polarity_mode = 1;
     config.sat_use_luby_restart = 1;
     config.sat_preprocess_booleans = 0;
     config.uf_disable = 1;
@@ -80,6 +80,8 @@ opensmt_context opensmt_mk_context( opensmt_logic l )
     case qf_lia:   context.SetLogic( QF_LIA );   break;
     case qf_ufidl: context.SetLogic( QF_UFIDL ); break;
     case qf_uflra: context.SetLogic( QF_UFLRA ); break;
+    case qf_nra:     context.SetLogic( QF_NRA ); break;
+    case qf_nra_ode: context.SetLogic( QF_NRA_ODE ); break;
     case qf_bool:  context.SetLogic( QF_BOOL );  break;
     case qf_ct:    context.SetLogic( QF_CT );    break;
     opensmt_error2( "unsupported logic: ", l );
