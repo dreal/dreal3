@@ -20,7 +20,7 @@
 
 /* Creation of a parser from a string */
 int rp_parser_create_string(rp_parser * p,
-			    char * src,
+			    const char * src,
 			    rp_table_symbol ts)
 {
   if (!rp_lexer_create_string(&rp_parser_lexer(*p),src))

@@ -57,7 +57,7 @@ typedef rp_parser_def rp_parser[1];
 
 /* Creation of a parser from a string */
 int rp_parser_create_string (rp_parser * p,
-			     char * src,
+			     const char * src,
 			     rp_table_symbol ts);
 
 /* Creation of a parser from a file */

@@ -86,7 +86,7 @@ rp_bpsolver::~rp_bpsolver()
 {
   rp_delete(_vselect);
   rp_delete(_dsplit);
-  if (_ep) rp_delete(_ep);
+  if (_ep) { rp_delete(_ep); }
 }
 
 void interval_cout_local(rp_interval i, int digits, int mode)

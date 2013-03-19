@@ -138,7 +138,7 @@ typedef rp_lexer_def rp_lexer[1];
    (rp_lexer_token(l)==RP_TOKEN_ERROR)
 
 /* Creation of a lexical analyzer from a string */
-int rp_lexer_create_string (rp_lexer * l, char * src);
+int rp_lexer_create_string (rp_lexer * l, const char * src);
 
 /* Creation of a lexical analyzer from a file */
 int rp_lexer_create_file (rp_lexer * l, char * filename);

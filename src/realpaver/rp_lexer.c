@@ -16,7 +16,7 @@
 #include "rp_lexer.h"
 
 /* Creation of a lexical analyzer from a string */
-int rp_lexer_create_string (rp_lexer * l, char * src)
+int rp_lexer_create_string (rp_lexer * l, const char * src)
 {
   if (rp_stream_create_string(&rp_lexer_input(*l),src))
   {

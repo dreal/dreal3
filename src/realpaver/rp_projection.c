@@ -1080,7 +1080,6 @@ int rp_project_abs_fst (rp_interval ynew, rp_interval x, rp_interval y)
 
 int rp_project_matan_zro (rp_interval xnew, rp_interval x, rp_interval y)
 {
-  /* TODO */
   rp_interval aux;
   rp_interval_matan(aux,y);
   rp_interval_inter(xnew,aux,x);
@@ -1111,7 +1110,6 @@ int rp_project_matan_fst (rp_interval ynew, rp_interval x, rp_interval y)
 
 int rp_project_safesqrt_zro (rp_interval xnew, rp_interval x, rp_interval y)
 {
-  /* TODO */
   rp_interval aux;
   rp_interval_safesqrt(aux,y);
   rp_interval_inter(xnew,aux,x);

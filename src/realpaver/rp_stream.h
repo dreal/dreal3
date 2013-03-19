@@ -52,7 +52,7 @@ typedef rp_stream_def rp_stream[1];
 #define rp_stream_char(s)      (s)[0].str[(s)[0].col]
 
 /* Creation of a stream from a string : returns false if failure */
-int rp_stream_create_string (rp_stream * s, char * src);
+int rp_stream_create_string (rp_stream * s, const char * src);
 
 /* Creation of a stream from a file : returns false if failure */
 int rp_stream_create_file (rp_stream * s, char * filename);

@@ -344,10 +344,10 @@ rp_operator * rp_oqueue_list_pop (rp_oqueue_list q)
 rp_propagator::rp_propagator(rp_problem * p, double improve, ostream& o):
   rp_operator(0,0,0),
   _problem(p),
-  _out(o),
   _id(RP_OPERATOR_WORKING_INIT),
   _improve(improve),
-  _priority(0)
+  _priority(0),
+  _out(o)
 {
   rp_vector_create_basic(&_vop);
   rp_dependency_create(&_dep);

@@ -17,7 +17,7 @@
 
 /* Open a stream from the string src */
 /* Returns false if failure          */
-int rp_stream_create_string(rp_stream * s, char * src)
+int rp_stream_create_string(rp_stream * s, const char * src)
 {
   if ((src==NULL) || (strlen(src)==0))
   {
