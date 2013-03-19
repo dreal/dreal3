@@ -20,36 +20,36 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 //
 // OpenSMT Template Library
 //
-/* #ifndef OTL_H */
-/* #define OTL_H */
+#ifndef OTL_H
+#define OTL_H
 
-/* #include "Global.h" */
-/* #include "SolverTypes.h" */
+#include "Global.h"
+#include "SolverTypes.h"
 
-/* namespace __gnu_cxx */
-/* { */
-/*   // Hash function for pairs of integer */
-/*   template<> */
-/*   class hash< Pair( int ) > */
-/*   { */
-/*   public: */
-/*     size_t operator( )( const Pair( int ) & p ) const */
-/*     { */
-/*       return p.first ^ p.second; */
-/*     } */
-/*   }; */
-/*   // Hash function for pairs of integer */
-/*   template<> */
-/*   class hash< Clause * > */
-/*   { */
-/*   public: */
-/*     size_t operator( )( Clause * c ) const */
-/*     { */
-/*       return (size_t)c; */
-/*     } */
-/*   }; */
-/* } */
+namespace std
+{
+  // Hash function for pairs of integer
+  template<>
+  class hash< Pair( int ) >
+  {
+  public:
+    size_t operator( )( const Pair( int ) & p ) const
+    {
+      return p.first ^ p.second;
+    }
+  };
+  // Hash function for pairs of integer
+  template<>
+  class hash< Clause * >
+  {
+  public:
+    size_t operator( )( Clause * c ) const
+    {
+      return (size_t)c;
+    }
+  };
+}
 
-/* //struct strEq { inline bool operator( )( const char * s1, const char * s2 ) const { assert( s1 && s2 ); return strcmp( s1, s2 ) == 0; } }; */
+//struct strEq { inline bool operator( )( const char * s1, const char * s2 ) const { assert( s1 && s2 ); return strcmp( s1, s2 ) == 0; } };
 
-/* #endif */
+#endif
