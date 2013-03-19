@@ -54,6 +54,15 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([floor getpagesize pow sqrt strdup strrchr strtol strtoul])
 
+# Use C++0x
+# Checks for typedefs, structures, and compiler characteristics.
+AC_LANG([C++])
+AC_LANG_CPLUSPLUS
+AC_CHECK_HEADER(cstdint)
+AX_CXX_COMPILE_STDCXX_0X
+
+CXXFLAGS='-Wall -std=gnu++0x'
+
 # Added by Soonho Kong
 #
 # List of directories to include

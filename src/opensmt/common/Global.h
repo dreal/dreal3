@@ -30,11 +30,23 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 #include <queue>
-#include <ext/hash_map>
-#include <ext/hash_set>
-#include <ext/pb_ds/priority_queue.hpp>
-#include <ext/pb_ds/tag_and_trait.hpp>
-#include <ext/algorithm>
+//#include <ext/hash_map>
+#include <unordered_map>
+#define hash_map std::unordered_map
+
+//#include <ext/hash_set>
+#include <unordered_set>
+#define hash_set std::unordered_set
+
+//#include <ext/pb_ds/priority_queue.hpp>
+#include <queue>
+using std::priority_queue;
+
+//#include <ext/pb_ds/tag_and_trait.hpp>
+
+//#include <ext/algorithm>
+#include <algorithm>
+
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
@@ -61,19 +73,19 @@ using std::pair;
 using std::make_pair;
 using std::list;
 
-using __gnu_cxx::is_heap;
-using __gnu_cxx::hash_map;
-using __gnu_cxx::hash_set;
-using __gnu_cxx::hash;
+//using __gnu_cxx::is_heap;
+//using __gnu_cxx::hash_map;
+//using __gnu_cxx::hash_set;
+//using __gnu_cxx::hash;
 
-#if defined( __GNUC__ ) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
-using __gnu_pbds::priority_queue;
-using __gnu_pbds::pairing_heap_tag;
-#else
-#error "This version of OpenSMT requires at least gcc 4.3"
-using pb_ds::priority_queue;
-using pb_ds::pairing_heap_tag;
-#endif
+/* #if defined( __GNUC__ ) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)) */
+/* using __gnu_pbds::priority_queue; */
+/* using __gnu_pbds::pairing_heap_tag; */
+/* #else */
+/* #error "This version of OpenSMT requires at least gcc 4.3" */
+/* using pb_ds::priority_queue; */
+/* using pb_ds::pairing_heap_tag; */
+/* #endif */
 
 using std::cout;
 using std::cerr;
@@ -174,9 +186,10 @@ static inline int memReadStat(int field)
     FILE*   in = fopen(name, "rb");
     if (in == NULL) return 0;
     int value;
-    int ret;
+//    int ret;
     for (; field >= 0; field--)
-        ret = fscanf(in, "%d", &value);
+//        ret = fscanf(in, "%d", &value);
+        fscanf(in, "%d", &value);
     fclose(in);
     return value;
 }
