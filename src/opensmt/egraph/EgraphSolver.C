@@ -24,10 +24,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // IT IS USED BY CREATE_THEORY.SH SCRIPT !!
 // NEW_THEORY_HEADER
 #include "EmptySolver.h"
-#include "BVSolver.h"
-#include "LRASolver.h"
-#include "DLSolver.h"
-#include "CostSolver.h"
+//#include "BVSolver.h"
+//#include "LRASolver.h"
+//#include "DLSolver.h"
+//#include "CostSolver.h"
 // Added to support compiling templates
 //#include "DLSolver.C"
 #include "nra_solver.h"
