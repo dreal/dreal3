@@ -53,9 +53,9 @@ public:
 
     bool          solve();
 
-    void display_box(ostream& out, rp_box b, int digits, int mode);
-    void display_interval(ostream & out, rp_interval i, int digits, int mode);
-    void pprint_vars(ostream & out, rp_problem p, rp_box b);
+    void display_box(ostream& out, rp_box b, int digits, int mode) const;
+    void display_interval(ostream & out, rp_interval i, int digits, int mode) const;
+    void pprint_vars(ostream & out, rp_problem p, rp_box b) const;
 
     /* void          prune                   ( rp_box *, literal * ); */
     /* void          prune                   ( rp_box *, rp_problem * ); */
@@ -78,7 +78,7 @@ private:
     vector<Enode*> &                     _explanation;
     const vector<Enode*> &               _stack;
     map<Enode*, pair<double, double> > & _env;
-    void output_problem();
+    void output_problem() const;
 
     icp_solver& operator=(const icp_solver& s);
     icp_solver(const icp_solver& s);

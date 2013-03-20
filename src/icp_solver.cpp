@@ -371,7 +371,7 @@ icp_solver& icp_solver::operator=(const icp_solver& s)
     return( *this );
 }
 
-void icp_solver::display_box(ostream& out, rp_box b, int digits, int mode)
+void icp_solver::display_box(ostream& out, rp_box b, int digits, int mode) const
 {
     if (rp_box_empty(b))
     {
@@ -394,7 +394,7 @@ void icp_solver::display_box(ostream& out, rp_box b, int digits, int mode)
     }
 }
 
-void icp_solver::display_interval(ostream & out, rp_interval i, int digits, int mode)
+void icp_solver::display_interval(ostream & out, rp_interval i, int digits, int mode) const
 {
     if( rp_interval_empty(i) )
     {
@@ -490,7 +490,7 @@ void icp_solver::display_interval(ostream & out, rp_interval i, int digits, int 
     }
 }
 
-void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b)
+void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b) const
 {
     for(int i = 0; i < rp_problem_nvar(p); i++)
     {
@@ -504,7 +504,7 @@ void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b)
     }
 }
 
-void icp_solver::output_problem()
+void icp_solver::output_problem() const
 {
     _config.nra_proof_out.precision(16);
     _config.nra_proof_out << "Precision:" << _config.nra_precision << endl;
