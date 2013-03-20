@@ -42,9 +42,19 @@ ode_solver::~ode_solver()
 
 }
 
+void ode_solver::printTrajectory(const list<pair<const interval&, const IVector&> > & trajectory,
+                                 const vector<string> & var_list) const
+{
+    for(list<pair<const interval&, const IVector&> >::const_iterator iter = trajectory.begin();
+        iter != trajectory.end();
+        iter++) {
+        printTrace(iter->first, iter->second, var_list);
+    }
+}
+
 void ode_solver::printTrace(const interval& t,
                             const IVector& v,
-                            const vector<string> & var_list)
+                            const vector<string> & var_list) const
 {
     cerr << "{ "
          << "\"time\": " << t << ", "
@@ -61,7 +71,7 @@ void ode_solver::printTrace(const interval& t,
             cerr << ", ";
         }
     }
-    cerr << "] }, " << endl;
+    cerr << "] }";
 }
 
 
@@ -205,7 +215,7 @@ bool ode_solver::solve_forward()
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
         vector<string> var_list;
-        vector<pair<const interval&, IVector&> > trajectory;
+        list<pair<const interval&, const IVector&> > trajectory;
 
         string diff_sys;
         diff_sys = create_diffsys_string(_ode_vars,
@@ -245,8 +255,7 @@ bool ode_solver::solve_forward()
         timeMap.stopAfterStep(true);
 
         interval prevTime(0.);
-        printTrace(timeMap.getCurrentTime(), IVector(s), var_list);
-//        trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+        trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
 
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
@@ -287,8 +296,7 @@ bool ode_solver::solve_forward()
                     // v will contain rigorous bound for the trajectory for this time interval.
                     IVector v = curve(subsetOfDomain);
                     std::cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
-                    printTrace(prevTime + subsetOfDomain, v, var_list);
-//                    trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+                    trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
 
                     std::cout << "diam(enclosure): " << diam(v) << endl;
 
@@ -298,7 +306,7 @@ bool ode_solver::solve_forward()
             else {
                 cout << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
                 cout << "enclosure for t=" << timeMap.getCurrentTime() << ":  " << IVector(s) << endl;
-                printTrace(timeMap.getCurrentTime(), IVector(s), var_list);
+                trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
             }
             cerr << "=============================================" << endl;
 
@@ -402,6 +410,13 @@ bool ode_solver::solve_forward()
         // }
 
         // rp_box_cout(box, 5, RP_INTERVAL_MODE_BOUND);
+
+        printTrajectory(trajectory, var_list);
+        // std::copy(trajectory.begin(),
+        //           trajectory.end(),
+        //           std::ostream_iterator<pair<const interval&, const IVector&> >(std::cerr,",")
+        //     );
+        std::cerr << "\n";
     }
     catch(std::exception& e)
     {
@@ -410,6 +425,8 @@ bool ode_solver::solve_forward()
              << "Exception caught!" << endl
              << e.what() << endl << endl;
     }
+
+
     return ret;
 }
 
