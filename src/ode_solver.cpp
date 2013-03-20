@@ -42,14 +42,36 @@ ode_solver::~ode_solver()
 
 }
 
+void ode_solver::printTrace(const interval& t,
+                            const IVector& v,
+                            const vector<string> & var_list)
+{
+    cerr << "{ "
+         << "\"time\": " << t << ", "
+         << "\"enclosure\": [";
+
+    for(size_t i = 0; i < var_list.size(); i++)
+    {
+        cerr << "{";
+        cerr << "\"key\": \"" << var_list[i] << "\", ";
+        cerr << "\"value\": " <<  v[i];
+        cerr << "}";
+
+        if(i < var_list.size() - 1) {
+            cerr << ", ";
+        }
+    }
+    cerr << "] }, " << endl;
+}
+
+
 string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
+                                         vector<string> & var_list,
                                          vector<Enode*> & _0_vars,
                                          vector<Enode*> & _t_vars
     )
 {
-    vector<string> var_list;
     vector<string> ode_list;
-
     // 1. partition ode_vars into _0_vars and _t_vars by their ODE_vartype
     for(set< Enode* >::iterator ite = ode_vars.begin();
         ite != ode_vars.end();
@@ -182,12 +204,17 @@ bool ode_solver::solve_forward()
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
-        string diff_sys;
+        vector<string> var_list;
+        vector<pair<const interval&, IVector&> > trajectory;
 
+        string diff_sys;
         diff_sys = create_diffsys_string(_ode_vars,
+                                         var_list,
                                          _0_vars,
                                          _t_vars
             );
+
+        cerr << diff_sys << endl;
 
         //pass the problem with variables
         IMap vectorField(diff_sys);
@@ -218,6 +245,8 @@ bool ode_solver::solve_forward()
         timeMap.stopAfterStep(true);
 
         interval prevTime(0.);
+        printTrace(timeMap.getCurrentTime(), IVector(s), var_list);
+//        trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
 
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
@@ -258,6 +287,9 @@ bool ode_solver::solve_forward()
                     // v will contain rigorous bound for the trajectory for this time interval.
                     IVector v = curve(subsetOfDomain);
                     std::cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
+                    printTrace(prevTime + subsetOfDomain, v, var_list);
+//                    trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+
                     std::cout << "diam(enclosure): " << diam(v) << endl;
 
                     prune(_t_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
@@ -265,6 +297,8 @@ bool ode_solver::solve_forward()
             }
             else {
                 cout << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
+                cout << "enclosure for t=" << timeMap.getCurrentTime() << ":  " << IVector(s) << endl;
+                printTrace(timeMap.getCurrentTime(), IVector(s), var_list);
             }
             cerr << "=============================================" << endl;
 
@@ -385,12 +419,15 @@ bool ode_solver::solve_backward()
     cout.precision(12);
     bool ret = true;
     try {
+
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
+        vector<string> var_list;
         string diff_sys;
 
         diff_sys = create_diffsys_string(_ode_vars,
+                                         var_list,
                                          _0_vars,
                                          _t_vars
             );
@@ -484,11 +521,9 @@ bool ode_solver::solve_backward()
 
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;
-        bool start_empty = false;
         cerr << "Union and intersect V" << endl;
         if(out_v_list.size() == 0) {
             cerr << "There is nothing to collect for V" << endl;
-            start_empty = true;
         } else {
             vector_union = *(out_v_list.begin());
             for(vector<IVector>::iterator ite = ++(out_v_list.begin());
@@ -508,7 +543,6 @@ bool ode_solver::solve_backward()
             }
             else {
                 // intersection is empty!!
-                start_empty = true;
                 cerr << "empty" << endl;
                 // for(int i = 0; end.size(); i++)
                 // {

@@ -77,5 +77,9 @@ private:
     rp_box _b;
     map<Enode*, int>& _enode_to_rp_id;
     ode_solver& operator=(const ode_solver& o);
+
+    void printTrace(const capd::interval& t,
+                    const capd::IVector& v,
+                    const vector<string> & var_list);
 };
 #endif
