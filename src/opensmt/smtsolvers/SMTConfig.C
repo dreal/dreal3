@@ -358,6 +358,20 @@ SMTConfig::parseCMDLine( int argc
         break;
     }
 
+    if ( strcmp( buf, "--visualize" ) == 0 )
+    {
+        nra_json = true;
+        string filename = string(argv[ argc - 1 ]) + ".json";
+        /* Open file stream */
+        nra_json_out.open (filename.c_str(), std::ofstream::out | std::ofstream::trunc );
+        if(nra_json_out.fail())
+        {
+            cout << "Cannot create a file: " << filename << endl;
+            exit( 1 );
+        }
+        break;
+    }
+
     if ( strcmp( buf, "--verbose" ) == 0)
     {
         nra_verbose = true;
@@ -410,7 +424,11 @@ void SMTConfig::printHelp( )
       "                           the solving process. That is, it will print the branch-and-prune\n"
       "                           trace in the constraint propagation procedures for checking\n"
       "                           consistency of theory atoms, as well as DPLL-level\n"
-      "                           assert/check/backtracking operations.\n";
+      "                           assert/check/backtracking operations.\n"
+      "\n"
+      "   --visualize             print out data for the visualization of ODE solving"
+      "                           which will be saved to \"filename.json\".\n";
+
 
   cerr << help_string;
 }

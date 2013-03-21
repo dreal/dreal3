@@ -171,6 +171,8 @@ struct SMTConfig
   bool         nra_verbose;                   // --verbose option
   bool         nra_proof;                     // --proof option
   ofstream     nra_proof_out;                     // file stream for proof
+  bool         nra_json;                     // --proof option
+  ofstream     nra_json_out;                     // file stream for proof
   unsigned     nra_ODE_taylor_order;          // --ode-order option
   unsigned     nra_ODE_grid_size;             // --ode-grid option
   bool         nra_contain_ODE;               // contain ODE or not
