@@ -42,36 +42,39 @@ ode_solver::~ode_solver()
 
 }
 
-void ode_solver::printTrajectory(const list<pair<const interval&, const IVector&> > & trajectory,
+void ode_solver::printTrajectory(ostream& out,
+                                 const list<pair<const interval&, const IVector&> > & trajectory,
                                  const vector<string> & var_list) const
 {
     for(list<pair<const interval&, const IVector&> >::const_iterator iter = trajectory.begin();
         iter != trajectory.end();
         iter++) {
-        printTrace(iter->first, iter->second, var_list);
+        printTrace(out, iter->first, iter->second, var_list);
     }
+    out << endl;
 }
 
-void ode_solver::printTrace(const interval& t,
+void ode_solver::printTrace(ostream& out,
+                            const interval& t,
                             const IVector& v,
                             const vector<string> & var_list) const
 {
-    cerr << "{ "
+    out << "{ "
          << "\"time\": " << t << ", "
          << "\"enclosure\": [";
 
     for(size_t i = 0; i < var_list.size(); i++)
     {
-        cerr << "{";
-        cerr << "\"key\": \"" << var_list[i] << "\", ";
-        cerr << "\"value\": " <<  v[i];
-        cerr << "}";
+        out << "{";
+        out << "\"key\": \"" << var_list[i] << "\", ";
+        out << "\"value\": " <<  v[i];
+        out << "}";
 
         if(i < var_list.size() - 1) {
-            cerr << ", ";
+            out << ", ";
         }
     }
-    cerr << "] }";
+    out << "] }";
 }
 
 
@@ -87,11 +90,6 @@ string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
         ite != ode_vars.end();
         ite++)
     {
-        // cerr << (*ite)->getCar()->getName() << " = ["
-        //      << get_lb(*ite)
-        //      << ", "
-        //      << get_ub(*ite)
-        //      << "]" << endl;
         if ((*ite)->getODEvartype() == l_True) {
             _t_vars.push_back(*ite);
         }
@@ -112,10 +110,12 @@ string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
     string diff_fun = "fun:" + boost::algorithm::join(ode_list, ", ") + ";";
 
     // 4. construct diff_sys (string to CAPD)
-    cerr << "diff_var : " << diff_var << endl;
-    cerr << "diff_fun : " << diff_fun << endl;
     string diff_sys = diff_var + diff_fun;
-    cerr << "diff_sys : " << diff_sys << endl;
+    if(_config.nra_verbose) {
+        cerr << "diff_var : " << diff_var << endl;
+        cerr << "diff_fun : " << diff_fun << endl;
+        cerr << "diff_sys : " << diff_sys << endl;
+    }
 
     return diff_sys;
 }
@@ -135,9 +135,12 @@ IVector ode_solver::varlist_to_IVector(vector<Enode*> vars)
         lb = get_lb(*var_ite);
         ub = get_ub(*var_ite);
         ret[i] = interval(lb, ub);
-        cout << "The interval on "
-             << (*var_ite)->getCar()->getName()
-             << " is "<< ret[i] <<endl;
+
+        if(_config.nra_verbose) {
+            cerr << "The interval on "
+                 << (*var_ite)->getCar()->getName()
+                 << " is "<< ret[i] <<endl;
+        }
     }
 
     return ret;
@@ -169,13 +172,15 @@ void ode_solver::prune(vector<Enode*>& _t_vars,
     bool candidate = true;
     for(int i = 0; candidate && i < v.size(); i++)
     {
-        cerr << endl
-             << "  v[" << i << "] = "
-             << "[" << v[i].leftBound() << ", " << v[i].rightBound() << "]"
-             << endl;
-        cerr << "x_t[" << i << "] = "
-             << "[" << get_lb(_t_vars[i]) << ", " << get_ub(_t_vars[i]) << "]"
-             << endl;
+        if(_config.nra_verbose) {
+            cerr << endl
+                 << "  v[" << i << "] = "
+                 << "[" << v[i].leftBound() << ", " << v[i].rightBound() << "]"
+                 << endl;
+            cerr << "x_t[" << i << "] = "
+                 << "[" << get_lb(_t_vars[i]) << ", " << get_ub(_t_vars[i]) << "]"
+                 << endl;
+        }
 
         /*
           [         t_vars[i]        ]
@@ -198,7 +203,10 @@ void ode_solver::prune(vector<Enode*>& _t_vars,
             candidate = false;
         }
     }
-    cerr << "IS " << (candidate ? "CANDIDATE" : "NOT CANDIDATE") << endl;
+    if(_config.nra_verbose) {
+        cerr << "IS " << (candidate ? "CANDIDATE" : "NOT CANDIDATE") << endl;
+    }
+
     if (candidate) {
         out_v_list.push_back(v);
         out_time_list.push_back(dt);
@@ -207,8 +215,10 @@ void ode_solver::prune(vector<Enode*>& _t_vars,
 
 bool ode_solver::solve_forward()
 {
-    cerr << "ODE_Solver::solve" << endl;
-    cout.precision(12);
+    if(_config.nra_verbose) {
+        cerr << "ODE_Solver::solve" << endl;
+    }
+    cerr.precision(12);
     bool ret = true;
     try {
         // 1. Construct diff_sys, which are the ODE
@@ -223,8 +233,6 @@ bool ode_solver::solve_forward()
                                          _0_vars,
                                          _t_vars
             );
-
-        cerr << diff_sys << endl;
 
         //pass the problem with variables
         IMap vectorField(diff_sys);
@@ -250,7 +258,10 @@ bool ode_solver::solve_forward()
         //time range
         Enode* time = (*_0_vars.begin())->getODEtimevar();
         interval T = interval(get_lb(time), get_ub(time));
-        cerr << "interval T = " << T << endl;
+
+        if(_config.nra_verbose) {
+            cerr << "interval T = " << T << endl;
+        }
 
         timeMap.stopAfterStep(true);
 
@@ -263,7 +274,9 @@ bool ode_solver::solve_forward()
         {
             timeMap(T,s);
             interval stepMade = solver.getStep();
-            cout << "step made: " << stepMade << endl;
+            if(_config.nra_verbose) {
+                cerr << "step made: " << stepMade << endl;
+            }
 
             if (T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
                 // This is how we can extract an information
@@ -295,32 +308,39 @@ bool ode_solver::solve_forward()
                     // Here we evaluated curve at the interval subsetOfDomain.
                     // v will contain rigorous bound for the trajectory for this time interval.
                     IVector v = curve(subsetOfDomain);
-                    std::cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
+
+                    if(_config.nra_verbose) {
+                        cerr << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
+                        cerr << "diam(enclosure): " << diam(v) << endl;
+                    }
                     trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
-
-                    std::cout << "diam(enclosure): " << diam(v) << endl;
-
                     prune(_t_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
             else {
-                cout << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
-                cout << "enclosure for t=" << timeMap.getCurrentTime() << ":  " << IVector(s) << endl;
+                if(_config.nra_verbose) {
+                    cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
+                    cerr << "enclosure for t=" << timeMap.getCurrentTime() << ":  " << IVector(s) << endl;
+                }
                 trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
             }
-            cerr << "=============================================" << endl;
-
             prevTime = timeMap.getCurrentTime();
-            cout << "current time: " << prevTime << endl;
+            if(_config.nra_verbose) {
+                cerr << "current time: " << prevTime << endl;
+            }
         }
         while (!timeMap.completed());
 
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;
         bool end_empty = false;
-        cerr << "Union and intersect V" << endl;
+        if(_config.nra_verbose) {
+            cerr << "Union and intersect V" << endl;
+        }
         if(out_v_list.size() == 0) {
-            cerr << "There is nothing to collect for V" << endl;
+            if(_config.nra_verbose) {
+                cerr << "There is nothing to collect for V" << endl;
+            }
             end_empty = true;
         } else {
             vector_union = *(out_v_list.begin());
@@ -328,36 +348,47 @@ bool ode_solver::solve_forward()
                 ite != out_v_list.end();
                 ite++)
             {
-                cerr << "U(" << vector_union << ", " << *ite << ") = ";
+                if(_config.nra_verbose) {
+                    cerr << "U(" << vector_union << ", " << *ite << ") = ";
+                }
                 vector_union = intervalHull (vector_union, *ite);
-                cerr << vector_union << endl;
+                if(_config.nra_verbose) {
+                    cerr << vector_union << endl;
+                }
             }
             // end = intersection \cap end;
-            cerr << "Intersect(" << vector_union << ", " << end << ") = ";
+
+            if(_config.nra_verbose) {
+                cerr << "Intersect(" << vector_union << ", " << end << ") = ";
+            }
             if(intersection(vector_union, end, end))
             {
                 IVector_to_varlist(end, _t_vars);
-                cerr << end << endl;
+                if(_config.nra_verbose) {
+                    cerr << end << endl;
+                }
             }
             else {
                 // intersection is empty!!
                 end_empty = true;
-                cerr << "empty" << endl;
-                // for(int i = 0; end.size(); i++)
-                // {
-                //     end[i] = interval(+std::numeric_limits<double>::infinity(),
-                //                       -std::numeric_limits<double>::infinity());
-                // }
+
+                if(_config.nra_verbose) {
+                    cerr << "empty" << endl;
+                }
             }
         }
 
-        cerr << endl << "Union and intersect time" << endl;
+        if(_config.nra_verbose) {
+            cerr << endl << "Union and intersect time" << endl;
+        }
         bool time_empty = false;
         // 2. Union all the out_time_list and intersect with T
         interval time_union;
 
         if(out_time_list.size() == 0) {
-            cerr << "There is nothing to collect for time" << endl;
+            if(_config.nra_verbose) {
+                cerr << "There is nothing to collect for time" << endl;
+            }
             time_union = true;
         } else {
             time_union = *out_time_list.begin();
@@ -365,24 +396,36 @@ bool ode_solver::solve_forward()
                 ite != out_time_list.end();
                 ite++)
             {
-                cerr << "U(" << time_union << ", " << *ite << ") = ";
+                if(_config.nra_verbose) {
+                    cerr << "U(" << time_union << ", " << *ite << ") = ";
+                }
                 time_union = intervalHull(time_union, *ite);
-                cerr << time_union << endl;
+
+                if(_config.nra_verbose) {
+                    cerr << time_union << endl;
+                }
             }
 
             /* T = \cap (time_union, T) */
 
-            cerr << "Intersect(" << time_union << ", " << T << ") = ";
+            if(_config.nra_verbose) {
+                cerr << "Intersect(" << time_union << ", " << T << ") = ";
+            }
+
             if(intersection(time_union, T, T))
             {
                 set_lb(time, T.leftBound());
                 set_ub(time, T.rightBound());
-                cerr << T << endl;
+                if(_config.nra_verbose) {
+                    cerr << T << endl;
+                }
             }
             else {
                 /* there is no intersection, use empty interval [+oo, -oo] */
                 time_empty = true;
-                cerr << "empty" << endl;
+                if(_config.nra_verbose) {
+                    cerr << "empty" << endl;
+                }
             }
         }
 
@@ -402,41 +445,30 @@ bool ode_solver::solve_forward()
             set_empty_interval(time);
             ret = false;
         }
-
-        //the following line detects conflicts in the trace
-        // if(rp_box_empty(box)) {
-        //     cout << "false here";
-        //     return false;
-        // }
-
-        // rp_box_cout(box, 5, RP_INTERVAL_MODE_BOUND);
-
-        printTrajectory(trajectory, var_list);
-        // std::copy(trajectory.begin(),
-        //           trajectory.end(),
-        //           std::ostream_iterator<pair<const interval&, const IVector&> >(std::cerr,",")
-        //     );
-        std::cerr << "\n";
+        if(_config.nra_json) {
+            printTrajectory(_config.nra_json_out, trajectory, var_list);
+        }
     }
     catch(std::exception& e)
     {
-        cout << endl
-             << endl
-             << "Exception caught!" << endl
-             << e.what() << endl << endl;
+        if(_config.nra_verbose) {
+            cerr << endl
+                 << endl
+                 << "Exception caught!" << endl
+                 << e.what() << endl << endl;
+        }
     }
-
-
     return ret;
 }
 
 bool ode_solver::solve_backward()
 {
-    cerr << "ODE_Solver::solve_backward()" << endl;
-    cout.precision(12);
+    if(_config.nra_verbose) {
+        cerr << "ODE_Solver::solve_backward()" << endl;
+    }
+    cerr.precision(12);
     bool ret = true;
     try {
-
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
@@ -473,7 +505,10 @@ bool ode_solver::solve_backward()
         //time range
         Enode* time = (*_0_vars.begin())->getODEtimevar();
         interval T = interval(- get_ub(time), - get_lb(time));
-        cerr << "interval T = " << T << endl;
+
+        if(_config.nra_verbose) {
+            cerr << "interval T = " << T << endl;
+        }
 
         timeMap.stopAfterStep(true);
 
@@ -485,9 +520,11 @@ bool ode_solver::solve_backward()
         {
             timeMap(T,e);
             interval stepMade = solver.getStep();
-            cout << "step made: " << stepMade << endl;
-            cout << "T : " << T << endl;
-            cout << "currentTime : " << timeMap.getCurrentTime() << endl;
+            if(_config.nra_verbose) {
+                cerr << "step made: " << stepMade << endl;
+                cerr << "T : " << T << endl;
+                cerr << "currentTime : " << timeMap.getCurrentTime() << endl;
+            }
 
             if (T.rightBound() >= timeMap.getCurrentTime().leftBound()) {
                 // This is how we can extract an information
@@ -518,63 +555,80 @@ bool ode_solver::solve_backward()
                     // Here we evaluated curve at the interval subsetOfDomain.
                     // v will contain rigorous bound for the
                     // trajectory for this time interval.
-                    std::cout << "subsetOfDomain: " << subsetOfDomain << endl;
                     IVector v = curve(subsetOfDomain);
-                    std::cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
-                    std::cout << "diam(enclosure): " << diam(v) << endl;
-
+                    if(_config.nra_verbose) {
+                        cerr << "subsetOfDomain: " << subsetOfDomain << endl;
+                        cerr << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
+                        cerr << "diam(enclosure): " << diam(v) << endl;
+                    }
                     prune(_0_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
             else {
-                cout << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
+                if(_config.nra_verbose) {
+                    cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
+                }
             }
-            cerr << "=============================================" << endl;
-
+            if(_config.nra_verbose) {
+                cerr << "=============================================" << endl;
+            }
             prevTime = timeMap.getCurrentTime();
-            cout << "current time: " << prevTime << endl;
+            if(_config.nra_verbose) {
+                cerr << "current time: " << prevTime << endl;
+            }
         }
         while (!timeMap.completed());
 
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;
-        cerr << "Union and intersect V" << endl;
+        if(_config.nra_verbose) {
+            cerr << "Union and intersect V" << endl;
+        }
         if(out_v_list.size() == 0) {
-            cerr << "There is nothing to collect for V" << endl;
+            if(_config.nra_verbose) {
+                cerr << "There is nothing to collect for V" << endl;
+            }
         } else {
             vector_union = *(out_v_list.begin());
             for(vector<IVector>::iterator ite = ++(out_v_list.begin());
                 ite != out_v_list.end();
                 ite++)
             {
-                cerr << "U(" << vector_union << ", " << *ite << ") = ";
+                if(_config.nra_verbose) {
+                    cerr << "U(" << vector_union << ", " << *ite << ") = ";
+                }
                 vector_union = intervalHull (vector_union, *ite);
-                cerr << vector_union << endl;
+                if(_config.nra_verbose) {
+                    cerr << vector_union << endl;
+                }
             }
             // start = intersection \cap start;
-            cerr << "Intersect(" << vector_union << ", " << start << ") = ";
+            if(_config.nra_verbose) {
+                cerr << "Intersect(" << vector_union << ", " << start << ") = ";
+            }
             if(intersection(vector_union, start, start))
             {
                 IVector_to_varlist(start, _0_vars);
-                cerr << start << endl;
+                if(_config.nra_verbose) {
+                    cerr << start << endl;
+                }
             }
             else {
                 // intersection is empty!!
-                cerr << "empty" << endl;
-                // for(int i = 0; end.size(); i++)
-                // {
-                //     end[i] = interval(+std::numeric_limits<double>::infinity(),
-                //                       -std::numeric_limits<double>::infinity());
-                // }
+                if(_config.nra_verbose) {
+                    cerr << "empty" << endl;
+                }
             }
         }
     }
     catch(std::exception& e)
     {
-        cout << endl
-             << endl
-             << "Exception caught!" << endl
-             << e.what() << endl << endl;
+        if(_config.nra_verbose) {
+            cerr << endl
+                 << endl
+                 << "Exception caught!" << endl
+                 << e.what() << endl << endl;
+        }
     }
     return ret;
 }
