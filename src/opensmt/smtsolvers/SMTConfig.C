@@ -317,7 +317,7 @@ SMTConfig::parseCMDLine( int argc
     if ( sscanf( buf, "--config=%s", config_name ) == 1 )
     {
       parseConfig( config_name );
-      break;
+      continue;
     }
     if ( sscanf( buf, "--precision=%lf", &nra_precision ) == 1)
     {
@@ -326,16 +326,16 @@ SMTConfig::parseCMDLine( int argc
             printHelp( );
             exit( 1 );
         }
-        break;
+        continue;
     }
     if ( sscanf( buf, "--ode-order=%d", &nra_ODE_taylor_order ) == 1)
     {
-        break;
+        continue;
     }
 
     if ( sscanf( buf, "--ode-grid=%d", &nra_ODE_grid_size ) == 1)
     {
-        break;
+        continue;
     }
 
     if ( strcmp( buf, "--help" ) == 0 )
@@ -355,11 +355,12 @@ SMTConfig::parseCMDLine( int argc
             cout << "Cannot create a file: " << filename << endl;
             exit( 1 );
         }
-        break;
+        continue;
     }
 
     if ( strcmp( buf, "--visualize" ) == 0 )
     {
+        cerr << "--visualize!!" << endl;
         nra_json = true;
         string filename = string(argv[ argc - 1 ]) + ".json";
         /* Open file stream */
@@ -369,13 +370,13 @@ SMTConfig::parseCMDLine( int argc
             cout << "Cannot create a file: " << filename << endl;
             exit( 1 );
         }
-        break;
+        continue;
     }
 
     if ( strcmp( buf, "--verbose" ) == 0)
     {
         nra_verbose = true;
-        break;
+        continue;
     }
     else
     {
