@@ -79,8 +79,7 @@ private:
     ode_solver& operator=(const ode_solver& o);
 
     void printTrajectory(ostream& out,
-                         const list<pair<const capd::interval&,
-                         const capd::IVector&> > & trajectory,
+                         const list<pair<const capd::interval, const capd::IVector> > & trajectory,
                          const vector<string> & var_list) const;
 
     void printTrace(ostream& out,

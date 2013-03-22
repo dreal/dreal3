@@ -42,16 +42,48 @@ ode_solver::~ode_solver()
 
 }
 
-void ode_solver::printTrajectory(ostream& out,
-                                 const list<pair<const interval&, const IVector&> > & trajectory,
-                                 const vector<string> & var_list) const
+void print1(ostream& out, const interval& t, const interval& v) {
+    out << "{ "
+        << "\"time\": " << t << ", "
+        << "\"enclosure\": " << v;
+    out << "}";
+}
+
+void print2(ostream& out,
+            const string key,
+            const int idx,
+            const list<pair<const interval, const IVector> > & trajectory)
 {
-    for(list<pair<const interval&, const IVector&> >::const_iterator iter = trajectory.begin();
-        iter != trajectory.end();
-        iter++) {
-        printTrace(out, iter->first, iter->second, var_list);
+    out << "{" << endl;
+    out << "\t" << "\"key\": \"" << key << "\"," << endl;
+    out << "\t" << "\"values\": [" << endl;
+
+    list<pair<const interval, const IVector> >::const_iterator iter = trajectory.begin();
+    print1(out, iter->first, iter->second[0]);
+
+    for(++iter; iter != trajectory.end(); iter++) {
+        out << ", " << endl;
+        print1(out, iter->first, iter->second[idx]);
     }
     out << endl;
+    out << "\t" << "]" << endl;
+    out << "}" << endl;
+}
+
+void ode_solver::printTrajectory(ostream& out,
+                                 const list<pair<const interval, const IVector> > & trajectory,
+                                 const vector<string> & var_list) const
+{
+    out.precision(12);
+    out << "[" << endl;
+
+    print2(out, var_list[0], 0, trajectory);
+
+    for(size_t i = 1; i < var_list.size(); i++) {
+        out << ", " << endl;
+        print2(out, var_list[i], i, trajectory);
+    }
+    out << endl << "]" << endl;
 }
 
 void ode_solver::printTrace(ostream& out,
@@ -225,7 +257,7 @@ bool ode_solver::solve_forward()
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
         vector<string> var_list;
-        list<pair<const interval&, const IVector&> > trajectory;
+        list<pair<const interval, const IVector> > trajectory;
 
         string diff_sys;
         diff_sys = create_diffsys_string(_ode_vars,
@@ -267,6 +299,7 @@ bool ode_solver::solve_forward()
 
         interval prevTime(0.);
         trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+        cerr << "push_back: " << timeMap.getCurrentTime() << ", " << IVector(s) << endl;
 
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
@@ -314,6 +347,7 @@ bool ode_solver::solve_forward()
                         cerr << "diam(enclosure): " << diam(v) << endl;
                     }
                     trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+                    cerr << "push_back: " << prevTime + subsetOfDomain << ", " << v << endl;
                     prune(_t_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
@@ -323,6 +357,7 @@ bool ode_solver::solve_forward()
                     cerr << "enclosure for t=" << timeMap.getCurrentTime() << ":  " << IVector(s) << endl;
                 }
                 trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+                cerr << "push_back: " << timeMap.getCurrentTime() << ", " << IVector(s) << endl;
             }
             prevTime = timeMap.getCurrentTime();
             if(_config.nra_verbose) {
@@ -446,7 +481,11 @@ bool ode_solver::solve_forward()
             ret = false;
         }
         if(_config.nra_json) {
+            cerr << "PRINTED" << endl;
             printTrajectory(_config.nra_json_out, trajectory, var_list);
+        }
+        else {
+            cerr << "???" << endl;
         }
     }
     catch(std::exception& e)
