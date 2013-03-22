@@ -215,52 +215,77 @@ bool icp_solver::prop_with_ODE()
                     ite != ode_vars.end();
                     ite++)
                 {
-                    cerr << "ode_var: " << *ite << endl;
                     int diff_group = (*ite)->getODEgroup();
-                    cerr << "diff_group: " << diff_group << ", max: " << max << endl;
+                    if(_config.nra_verbose) {
+                        cerr << "ode_var: " << *ite << endl;
+                        cerr << "diff_group: " << diff_group << ", max: " << max << endl;
+                    }
                     if(diff_group >= max) {
-                        cerr << "diff_group: " << diff_group << " we do resize" << endl;
+                        if(_config.nra_verbose) {
+                            cerr << "diff_group: " << diff_group << " we do resize" << endl;
+                        }
                         diff_vec.resize(diff_group + 1);
                         max = diff_group;
-                        cerr << "max: " << max << endl;
+                        if(_config.nra_verbose) {
+                            cerr << "max: " << max << endl;
+                        }
                     }
-                    if(diff_vec[diff_group].empty())
-                        cerr << "diff_vec[" << diff_group << "] is empty!!" << endl;
+                    if(diff_vec[diff_group].empty()) {
+                        if(_config.nra_verbose) {
+                            cerr << "diff_vec[" << diff_group << "] is empty!!" << endl;
+                        }
+                    }
                     diff_vec[diff_group].insert(*ite);
-                    cerr << "diff_group inserted: " << diff_group << endl;
+
+                    if(_config.nra_verbose) {
+                        cerr << "diff_group inserted: " << diff_group << endl;
+                    }
                 }
             }
 
             for(int i = 1; i <= max; i++)
             {
-                cerr << "solve ode group: " << i << endl;
+                if(_config.nra_verbose) {
+                    cerr << "solve ode group: " << i << endl;
+                }
                 set<Enode*> current_ode_vars = diff_vec[i];
 
                 if(!current_ode_vars.empty()) {
-                    cerr << "Inside of current ODEs" << endl;
+                    if(_config.nra_verbose) {
+                        cerr << "Inside of current ODEs" << endl;
+                    }
                     for(set<Enode*>::iterator ite = current_ode_vars.begin();
                         ite != current_ode_vars.end();
                         ite++)
                     {
-                        cerr << "Name: " << (*ite)->getCar()->getName() << endl;
+                        if(_config.nra_verbose) {
+                            cerr << "Name: " << (*ite)->getCar()->getName() << endl;
+                        }
                     }
                     ode_solver odeSolver(_config, current_ode_vars, current_box, _enode_to_rp_id);
 
-                    cerr << "Before_FORWARD" << endl;
-                    pprint_vars(cerr, *_problem, _boxes.get());
-                    cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
+                    if(_config.nra_verbose) {
+                        cerr << "Before_FORWARD" << endl;
+                        pprint_vars(cerr, *_problem, _boxes.get());
+                        cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
+                    }
+
                     if (!odeSolver.solve_forward())
                         return false;
 
-                    cerr << "After_FORWARD" << endl;
-                    pprint_vars(cerr, *_problem, _boxes.get());
+                    if(_config.nra_verbose) {
+                        cerr << "After_FORWARD" << endl;
+                        pprint_vars(cerr, *_problem, _boxes.get());
+                        cerr << "!!!!!!!!!!Solving ODE (Backward)" << endl;
+                    }
 
-                    cerr << "!!!!!!!!!!Solving ODE (Backward)" << endl;
                     if (!odeSolver.solve_backward())
                         return false;
 
-                    cerr << "After_Backward" << endl;
-                    pprint_vars(cerr, *_problem, _boxes.get());
+                    if(_config.nra_verbose) {
+                        cerr << "After_Backward" << endl;
+                        pprint_vars(cerr, *_problem, _boxes.get());
+                    }
                 }
             }
             return true;
