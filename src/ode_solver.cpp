@@ -42,28 +42,28 @@ ode_solver::~ode_solver()
 
 }
 
-void print1(ostream& out, const interval& t, const interval& v) {
+void ode_solver::print_datapoint(ostream& out, const interval& t, const interval& v) const {
     out << "{ "
         << "\"time\": " << t << ", "
         << "\"enclosure\": " << v;
     out << "}";
 }
 
-void print2(ostream& out,
+void ode_solver::print_trace(ostream& out,
             const string key,
             const int idx,
-            const list<pair<const interval, const IVector> > & trajectory)
+            const list<pair<const interval, const IVector> > & trajectory) const
 {
     out << "{" << endl;
     out << "\t" << "\"key\": \"" << key << "\"," << endl;
     out << "\t" << "\"values\": [" << endl;
 
     list<pair<const interval, const IVector> >::const_iterator iter = trajectory.begin();
-    print1(out, iter->first, iter->second[0]);
+    print_datapoint(out, iter->first, iter->second[0]);
 
     for(++iter; iter != trajectory.end(); iter++) {
         out << ", " << endl;
-        print1(out, iter->first, iter->second[idx]);
+        print_datapoint(out, iter->first, iter->second[idx]);
     }
     out << endl;
     out << "\t" << "]" << endl;
@@ -77,38 +77,14 @@ void ode_solver::printTrajectory(ostream& out,
     out.precision(12);
     out << "[" << endl;
 
-    print2(out, var_list[0], 0, trajectory);
+    print_trace(out, var_list[0], 0, trajectory);
 
     for(size_t i = 1; i < var_list.size(); i++) {
         out << ", " << endl;
-        print2(out, var_list[i], i, trajectory);
+        print_trace(out, var_list[i], i, trajectory);
     }
     out << endl << "]" << endl;
 }
-
-void ode_solver::printTrace(ostream& out,
-                            const interval& t,
-                            const IVector& v,
-                            const vector<string> & var_list) const
-{
-    out << "{ "
-         << "\"time\": " << t << ", "
-         << "\"enclosure\": [";
-
-    for(size_t i = 0; i < var_list.size(); i++)
-    {
-        out << "{";
-        out << "\"key\": \"" << var_list[i] << "\", ";
-        out << "\"value\": " <<  v[i];
-        out << "}";
-
-        if(i < var_list.size() - 1) {
-            out << ", ";
-        }
-    }
-    out << "] }";
-}
-
 
 string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
                                          vector<string> & var_list,

@@ -55,19 +55,19 @@ public:
     bool solve_forward(); //computation of the next solution
     bool solve_backward();
 
-    double get_lb(Enode* e) {
+    double get_lb(Enode* const e) const {
         return rp_binf(rp_box_elem(_b, _enode_to_rp_id[e]));
     }
-    double get_ub(Enode* e) {
+    double get_ub(Enode* const e) const {
         return rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e]));
     }
-    void set_lb(Enode* e, double v) {
+    void set_lb(Enode* const e, const double v) {
         rp_binf(rp_box_elem(_b, _enode_to_rp_id[e])) = v;
     }
-    void set_ub(Enode* e, double v) {
+    void set_ub(Enode* const e, const double v) {
         rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e])) = v;
     }
-    void set_empty_interval(Enode* e) {
+    void set_empty_interval(Enode* const e) {
         rp_interval_set_empty(rp_box_elem(_b, _enode_to_rp_id[e]));
     }
 
@@ -78,13 +78,15 @@ private:
     map<Enode*, int>& _enode_to_rp_id;
     ode_solver& operator=(const ode_solver& o);
 
+    void print_datapoint(ostream& out, const capd::interval& t, const capd::interval& v) const;
+
+    void print_trace(ostream& out,
+                     const string key,
+                     const int idx,
+                     const list<pair<const capd::interval, const capd::IVector> > & trajectory) const;
+
     void printTrajectory(ostream& out,
                          const list<pair<const capd::interval, const capd::IVector> > & trajectory,
                          const vector<string> & var_list) const;
-
-    void printTrace(ostream& out,
-                    const capd::interval& t,
-                    const capd::IVector& v,
-                    const vector<string> & var_list) const;
 };
 #endif
