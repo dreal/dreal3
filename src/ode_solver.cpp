@@ -25,11 +25,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace capd;
 
-ode_solver::ode_solver(SMTConfig& c,
+ode_solver::ode_solver(int group,
+                       SMTConfig& c,
                        set < Enode* > & ode_vars,
                        rp_box b,
                        std::map<Enode*, int>& enode_to_rp_id
     ) :
+    _group(group),
     _config(c),
     _ode_vars(ode_vars),
     _b(b),
@@ -56,6 +58,7 @@ void ode_solver::print_trace(ostream& out,
 {
     out << "{" << endl;
     out << "\t" << "\"key\": \"" << key << "\"," << endl;
+    out << "\t" << "\"group\": \"" << _group << "\"," << endl;
     out << "\t" << "\"values\": [" << endl;
 
     list<pair<const interval, const IVector> >::const_iterator iter = trajectory.begin();
@@ -70,9 +73,7 @@ void ode_solver::print_trace(ostream& out,
     out << "}" << endl;
 }
 
-void ode_solver::printTrajectory(ostream& out,
-                                 const list<pair<const interval, const IVector> > & trajectory,
-                                 const vector<string> & var_list) const
+void ode_solver::print_trajectory(ostream& out) const
 {
     out.precision(12);
     out << "[" << endl;
@@ -232,8 +233,6 @@ bool ode_solver::solve_forward()
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
-        vector<string> var_list;
-        list<pair<const interval, const IVector> > trajectory;
 
         string diff_sys;
         diff_sys = create_diffsys_string(_ode_vars,
@@ -457,15 +456,14 @@ bool ode_solver::solve_forward()
             ret = false;
         }
         if(_config.nra_json) {
-            cerr << "PRINTED" << endl;
-            printTrajectory(_config.nra_json_out, trajectory, var_list);
-        }
-        else {
-            cerr << "???" << endl;
+            print_trajectory(_config.nra_json_out);
         }
     }
     catch(std::exception& e)
     {
+        if(_config.nra_json) {
+            print_trajectory(_config.nra_json_out);
+        }
         if(_config.nra_verbose) {
             cerr << endl
                  << endl

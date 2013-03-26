@@ -262,7 +262,7 @@ bool icp_solver::prop_with_ODE()
                             cerr << "Name: " << (*ite)->getCar()->getName() << endl;
                         }
                     }
-                    ode_solver odeSolver(_config, current_ode_vars, current_box, _enode_to_rp_id);
+                    ode_solver odeSolver(i, _config, current_ode_vars, current_box, _enode_to_rp_id);
 
                     if(_config.nra_verbose) {
                         cerr << "Before_FORWARD" << endl;

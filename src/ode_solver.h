@@ -29,7 +29,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 class ode_solver
 {
 public:
-    ode_solver(SMTConfig& c,
+    ode_solver(int group,
+               SMTConfig& c,
                set < Enode* > & ode_vars,
                rp_box b,
                std::map<Enode*, int>& enode_to_rp_id
@@ -71,12 +72,17 @@ public:
         rp_interval_set_empty(rp_box_elem(_b, _enode_to_rp_id[e]));
     }
 
+    void print_trajectory(ostream& out) const;
+
 private:
+    int _group;
     SMTConfig& _config;
     set< Enode* > & _ode_vars;
     rp_box _b;
     map<Enode*, int>& _enode_to_rp_id;
     ode_solver& operator=(const ode_solver& o);
+    list<pair<const capd::interval, const capd::IVector> > trajectory;
+    vector<string> var_list;
 
     void print_datapoint(ostream& out, const capd::interval& t, const capd::interval& v) const;
 
@@ -85,8 +91,5 @@ private:
                      const int idx,
                      const list<pair<const capd::interval, const capd::IVector> > & trajectory) const;
 
-    void printTrajectory(ostream& out,
-                         const list<pair<const capd::interval, const capd::IVector> > & trajectory,
-                         const vector<string> & var_list) const;
 };
 #endif
