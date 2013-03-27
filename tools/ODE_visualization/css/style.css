@@ -1,71 +1,83 @@
-body {
-  font-family: "Helvetica Neue";
+@import url('normalize.css');
+@import url('demo.css');
+
+#chart-container {
+	width: 1000px; 
+	margin: 0 auto 50px auto;
+	background: rgba(255,255,255,0.5);
+	box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+	padding: 20px 30px;
 }
 
-#main {
-  padding-bottom: 20px;
-}
-
-#vis {
-  padding-top: 15px;
+#chart-container h2 {
+	color: #444;
+	margin: 0 0 10px;
+	font-weight: 300;
+	padding: 10px;
+	text-shadow: 0 1px 1px rgba(255,255,255,0.8);
+	font-size: 24px;
 }
 
 svg {
-  display: block;
-  margin: auto;
+	font-family: 'Lato', Arial, serif;
+	font-size: 10px;
+	font-weight: 700;
+	text-shadow: 0 1px 1px rgba(255,255,255,0.8);
 }
 
-.line {
-  fill: none;
-  stroke-width: 1px;
+text.country-title {
+	font-size: 20px;
 }
 
-.axis path,
-.axis line {
-    fill:none;
-    stroke: black;
-    shape-rendering: crispEdges;
+text.instructions {
+	font-size: 16px;
 }
 
-.axis {
-  shape-rendering: crispEdges;
+g.context g.brush rect.background {
+	fill: rgba(0,0,0,.1);
 }
 
-.axis text {
-  font: 10px sans-serif;
+g.context g.axis path {
+	stroke-opacity: 0;
 }
 
-.x.axis line {
-  stroke: #ddd;
-  stroke-opacity: 0.6;
+g.context g.axis line {
+	stroke-opacity: .1;
 }
 
-.x.axis path {
-#  display: none;
+g.france path.chart {
+	fill: rgba(127,201,127,0.5);
 }
 
-.y.axis line {
-  stroke: #ddd;
-  stroke-opacity: 0.6;
+g.germany path.chart {
+	fill: rgba(127,201,174,0.5);
 }
 
-.y.axis path {
-#  display: none;
+g.japan path.chart {
+	fill: rgba(127,183,201,0.5);
 }
 
-
-footer p {
-  text-align: center;
+g.uk path.chart {
+	fill: rgba(127,130,201,0.5);
 }
 
-#legend {
-  position: fixed;
-  top: 100px;
-  right: 0px;
-  width: 200px;
-  height: 280px;
-  z-index: 100000;
-  overflow: visible;
+g.usa path.chart {
+	fill: rgba(171,127,201,0.5);
 }
 
+.axis path, .axis line {
+	fill: none;
+	stroke: #aaa;
+	shape-rendering: crispEdges;
+}
 
+.brush .extent {
+	stroke: #f09f8c;
+	fill-opacity: .125;
+	shape-rendering: crispEdges;
+}
+
+g.context rect.background{
+	fill: rgb(200,200,255);
+	visibility: visible !important;
+}​
