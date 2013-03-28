@@ -33,6 +33,11 @@ do
 		PROOF_SIZE=`stat --printf="%s" $PROOFDIR/$BASE.trace`
 	fi
 
+	if [[ -f $RESULTDIR/$BASE.smt2.proof ]]
+	then
+		PROOF_SIZE=`stat --printf="%s" $RESULTDIR/$BASE.smt2.proof`
+	fi
+
 	printf "%-10s|%-40s|%-10s|%-15s|%-10s|%-10s" "$BASE" "$ID" "$TIME" "$STAT" "$PROOF_SIZE" "$RESULT"
 
 	if [[ "$RESULT" == "unsat" ]]
