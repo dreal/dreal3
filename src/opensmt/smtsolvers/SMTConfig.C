@@ -115,23 +115,23 @@ void SMTConfig::parseConfig ( char * f )
       (void)res;
       // Stop if finished
       if ( feof( filein ) )
-	break;
+        break;
       // Skip comments
       if ( buf[ 0 ] == '#' )
-	continue;
+        continue;
 
       char tmpbuf[ 32 ];
 
       // GENERIC CONFIGURATION
-	   if ( sscanf( buf, "incremental %d\n"              , &incremental )                   == 1 );
+           if ( sscanf( buf, "incremental %d\n"              , &incremental )                   == 1 );
       else if ( sscanf( buf, "produce_stats %d\n"            , &produce_stats )                 == 1 );
       else if ( sscanf( buf, "produce_models %d\n"           , &produce_models )                == 1 );
       else if ( sscanf( buf, "produce_proofs %d\n"           , &produce_proofs )                == 1 );
       else if ( sscanf( buf, "produce_inter %d\n"            , &produce_inter )                 == 1 );
       else if ( sscanf( buf, "regular_output_channel %s\n"   , tmpbuf )                         == 1 )
-	setRegularOutputChannel( tmpbuf );
+        setRegularOutputChannel( tmpbuf );
       else if ( sscanf( buf, "diagnostic_output_channel %s\n", tmpbuf )                         == 1 )
-	setDiagnosticOutputChannel( tmpbuf );
+        setDiagnosticOutputChannel( tmpbuf );
       else if ( sscanf( buf, "dump_formula %d\n"             , &dump_formula )                  == 1 );
       else if ( sscanf( buf, "verbosity %d\n"                , &verbosity )                     == 1 );
       else if ( sscanf( buf, "certification_level %d\n"      , &certification_level )                     == 1 );
@@ -182,7 +182,7 @@ void SMTConfig::parseConfig ( char * f )
       else if ( sscanf( buf, "lra_check_on_assert %d\n"      , &(lra_check_on_assert))          == 1 );
       else
       {
-	opensmt_error2( "unrecognized option ", buf );
+        opensmt_error2( "unrecognized option ", buf );
       }
     }
 
@@ -360,7 +360,6 @@ SMTConfig::parseCMDLine( int argc
 
     if ( strcmp( buf, "--visualize" ) == 0 )
     {
-        cerr << "--visualize!!" << endl;
         nra_json = true;
         string filename = string(argv[ argc - 1 ]) + ".json";
         /* Open file stream */

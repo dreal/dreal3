@@ -302,6 +302,38 @@ bool NRASolver::check( bool complete )
             debug_print_explanation(explanation);
         }
     }
+
+    if (complete && result && config.nra_contain_ODE && config.nra_json) {
+        // collect all the ODE groups in the asserted literal and
+        // print out
+        set<int> ode_groups;
+
+        for(vector<Enode*>::const_iterator lit = stack.begin();
+            lit != stack.end();
+            lit++) {
+
+            set<Enode*> variables_in_lit = _enode_to_vars[*lit];
+            for(set<Enode*>::const_iterator var = variables_in_lit.begin();
+                var != variables_in_lit.end();
+                var++)
+            {
+                ode_groups.insert((*var)->getODEgroup());
+            }
+        }
+
+        config.nra_json_out << "groups = [";
+        for(set<int>::const_iterator g = ode_groups.begin();
+            g != ode_groups.end();
+            g++)
+        {
+            if(g != ode_groups.begin()) {
+                config.nra_json_out << ", ";
+            }
+            config.nra_json_out << *g;
+        }
+        config.nra_json_out << "]" << endl;
+    }
+
     return result;
 }
 

@@ -274,7 +274,6 @@ bool ode_solver::solve_forward()
 
         interval prevTime(0.);
         trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
-        cerr << "push_back: " << timeMap.getCurrentTime() << ", " << IVector(s) << endl;
 
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
@@ -322,7 +321,6 @@ bool ode_solver::solve_forward()
                         cerr << "diam(enclosure): " << diam(v) << endl;
                     }
                     trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
-                    cerr << "push_back: " << prevTime + subsetOfDomain << ", " << v << endl;
                     prune(_t_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
@@ -332,7 +330,6 @@ bool ode_solver::solve_forward()
                     cerr << "enclosure for t=" << timeMap.getCurrentTime() << ":  " << IVector(s) << endl;
                 }
                 trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
-                cerr << "push_back: " << timeMap.getCurrentTime() << ", " << IVector(s) << endl;
             }
             prevTime = timeMap.getCurrentTime();
             if(_config.nra_verbose) {
