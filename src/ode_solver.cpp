@@ -273,7 +273,8 @@ bool ode_solver::solve_forward()
         timeMap.stopAfterStep(true);
 
         interval prevTime(0.);
-        trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+        // Skip the first data-point
+        // trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
 
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
