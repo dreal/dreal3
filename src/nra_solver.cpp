@@ -303,6 +303,11 @@ bool NRASolver::check( bool complete )
         }
     }
 
+    if (!result && config.nra_contain_ODE && config.nra_json) {
+        // Reset Stream
+        config.nra_json_out.seekp(ios_base::beg	);
+    }
+
     if (complete && result && config.nra_contain_ODE && config.nra_json) {
         // collect all the ODE groups in the asserted literal and
         // print out
