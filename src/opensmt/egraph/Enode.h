@@ -37,23 +37,23 @@ public:
   // Constructor for symbols
   //
   Enode ( const enodeid_t       // id
-	, const char *          // name/value
-	, const etype_t         // enode type
-	, Snode *               // Sort
-	);
+        , const char *          // name/value
+        , const etype_t         // enode type
+        , Snode *               // Sort
+        );
   //
   // Constructor for terms and lists
   //
   Enode ( const enodeid_t       // id
-	, Enode *               // car
-	, Enode *               // cdr
+        , Enode *               // car
+        , Enode *               // cdr
         );
   //
   // Constructor for defs
   //
   Enode ( const enodeid_t       // id
-	, Enode *	        // def
-	);
+        , Enode *               // def
+        );
   //
   // Destructor
   //
@@ -71,10 +71,10 @@ public:
   inline void setEtype          ( const etype_t t )
   {
     assert( t == ETYPE_SYMB
-	 || t == ETYPE_NUMB
-	 || t == ETYPE_LIST
-	 || t == ETYPE_TERM
-	 || t == ETYPE_DEF );
+         || t == ETYPE_NUMB
+         || t == ETYPE_LIST
+         || t == ETYPE_TERM
+         || t == ETYPE_DEF );
     properties |= t;
   }
 
@@ -82,32 +82,32 @@ public:
   //
   // Check if a term node represents a certain symbol
   //
-  inline bool isPlus              ( ) const { return hasSymbolId( ENODE_ID_PLUS	       ); }
+  inline bool isPlus              ( ) const { return hasSymbolId( ENODE_ID_PLUS        ); }
   inline bool isMinus             ( ) const { return hasSymbolId( ENODE_ID_MINUS       ); }
   inline bool isUminus            ( ) const { return hasSymbolId( ENODE_ID_UMINUS      ); }
   inline bool isTimes             ( ) const { return hasSymbolId( ENODE_ID_TIMES       ); }
-  inline bool isDiv               ( ) const { return hasSymbolId( ENODE_ID_DIV	       ); }
+  inline bool isDiv               ( ) const { return hasSymbolId( ENODE_ID_DIV         ); }
 
   /* added for dReal2 */
-  inline bool isArcCos	          ( ) const { return hasSymbolId( ENODE_ID_ARCCOS	       ); }
-  inline bool isArcSin	          ( ) const { return hasSymbolId( ENODE_ID_ARCSIN	       ); }
-  inline bool isArcTan	          ( ) const { return hasSymbolId( ENODE_ID_ARCTAN	       ); }
-  inline bool isArcTan2	          ( ) const { return hasSymbolId( ENODE_ID_ARCTAN2	       ); }
-  inline bool isMArcTan	          ( ) const { return hasSymbolId( ENODE_ID_MARCTAN	       ); }
-  inline bool isSafeSqrt	  ( ) const { return hasSymbolId( ENODE_ID_SAFESQRT	       ); }
-  inline bool isCos               ( ) const { return hasSymbolId( ENODE_ID_COS	       ); }
-  inline bool isExp	          ( ) const { return hasSymbolId( ENODE_ID_EXP	       ); }
-  inline bool isLog	          ( ) const { return hasSymbolId( ENODE_ID_LOG	       ); }
-  inline bool isPow               ( ) const { return hasSymbolId( ENODE_ID_POW	       ); }
-  inline bool isSin               ( ) const { return hasSymbolId( ENODE_ID_SIN	       ); }
-  inline bool isTan               ( ) const { return hasSymbolId( ENODE_ID_TAN	       ); }
+  inline bool isArcCos            ( ) const { return hasSymbolId( ENODE_ID_ARCCOS              ); }
+  inline bool isArcSin            ( ) const { return hasSymbolId( ENODE_ID_ARCSIN              ); }
+  inline bool isArcTan            ( ) const { return hasSymbolId( ENODE_ID_ARCTAN              ); }
+  inline bool isArcTan2           ( ) const { return hasSymbolId( ENODE_ID_ARCTAN2             ); }
+  inline bool isMArcTan           ( ) const { return hasSymbolId( ENODE_ID_MARCTAN             ); }
+  inline bool isSafeSqrt          ( ) const { return hasSymbolId( ENODE_ID_SAFESQRT            ); }
+  inline bool isCos               ( ) const { return hasSymbolId( ENODE_ID_COS         ); }
+  inline bool isExp               ( ) const { return hasSymbolId( ENODE_ID_EXP         ); }
+  inline bool isLog               ( ) const { return hasSymbolId( ENODE_ID_LOG         ); }
+  inline bool isPow               ( ) const { return hasSymbolId( ENODE_ID_POW         ); }
+  inline bool isSin               ( ) const { return hasSymbolId( ENODE_ID_SIN         ); }
+  inline bool isTan               ( ) const { return hasSymbolId( ENODE_ID_TAN         ); }
   /* ---------------------- */
 
-  inline bool isEq                ( ) const { return hasSymbolId( ENODE_ID_EQ	       ); }
-  inline bool isLeq               ( ) const { return hasSymbolId( ENODE_ID_LEQ	       ); }
-  inline bool isGeq               ( ) const { return hasSymbolId( ENODE_ID_GEQ	       ); }
-  inline bool isLt                ( ) const { return hasSymbolId( ENODE_ID_LT	       ); }
-  inline bool isGt                ( ) const { return hasSymbolId( ENODE_ID_GT	       ); }
+  inline bool isEq                ( ) const { return hasSymbolId( ENODE_ID_EQ          ); }
+  inline bool isLeq               ( ) const { return hasSymbolId( ENODE_ID_LEQ         ); }
+  inline bool isGeq               ( ) const { return hasSymbolId( ENODE_ID_GEQ         ); }
+  inline bool isLt                ( ) const { return hasSymbolId( ENODE_ID_LT          ); }
+  inline bool isGt                ( ) const { return hasSymbolId( ENODE_ID_GT          ); }
   inline bool isStore             ( ) const { return hasSymbolId( ENODE_ID_STORE       ); }
   inline bool isSelect            ( ) const { return hasSymbolId( ENODE_ID_SELECT      ); }
   inline bool isImplies           ( ) const { return hasSymbolId( ENODE_ID_IMPLIES     ); }
@@ -244,6 +244,9 @@ public:
   void            setODEvartype          ( lbool );        // added for dReal2
   const lbool     getODEvartype          ( ) const;        // added for dReal2
 
+  void            setODEopposite          ( Enode* );       // added for dReal2
+  Enode*          getODEopposite          ( ) const;        // added for dReal2
+
   void            setODE                 ( const string ); // added for dReal2
   const string    getODE                 ( ) const;        // added for dReal2
 
@@ -276,7 +279,7 @@ public:
   inline int      getExpTimeStamp        ( ) const { assert( isTerm( ) && cong_data && cong_data->term_data ); return cong_data->term_data->exp_time_stamp; }
 
   inline lbool    getPolarity            ( ) const { assert( isTerm( ) && atom_data ); return atom_data->polarity; }
-  inline bool	  hasPolarity            ( ) const { assert( isTerm( ) && atom_data ); return atom_data->has_polarity; }
+  inline bool     hasPolarity            ( ) const { assert( isTerm( ) && atom_data ); return atom_data->has_polarity; }
   inline lbool    getDeduced             ( ) const { assert( isTerm( ) && atom_data ); return atom_data->deduced; }
   inline bool     isDeduced              ( ) const { assert( isTerm( ) && atom_data ); return atom_data->is_deduced; }
   inline lbool    getDecPolarity         ( )       { assert( isAtom( ) && atom_data ); return atom_data->dec_polarity; }
@@ -319,13 +322,13 @@ public:
   inline void    setExpHighestNode      ( Enode * e )            { assert( isTerm( ) && cong_data && cong_data->term_data ); cong_data->term_data->exp_highest_node = e; }
   inline void    setExpTimeStamp        ( const int t )          { assert( isTerm( ) && cong_data && cong_data->term_data ); cong_data->term_data->exp_time_stamp = t; }
   inline void    setPolarity            ( const lbool p )        { assert( isTerm( ) && atom_data ); assert( !atom_data->has_polarity ); atom_data->polarity = p; atom_data->has_polarity = true; }
-  inline void    resetPolarity          ( )			 { assert( isTerm( ) && atom_data ); assert( atom_data->has_polarity ); atom_data->has_polarity = false; }
+  inline void    resetPolarity          ( )                      { assert( isTerm( ) && atom_data ); assert( atom_data->has_polarity ); atom_data->has_polarity = false; }
   inline void    setDeduced             ( const lbool d, int i ) { assert( isTerm( ) && atom_data ); assert( !atom_data->is_deduced ); atom_data->deduced = d; atom_data->ded_index = i; atom_data->is_deduced = true; }
   inline void    setDeduced             ( const bool s, int i )  { setDeduced( s ? l_False : l_True, i ); }
-  inline void    resetDeduced           ( )			 { assert( isTerm( ) && atom_data ); assert( atom_data->is_deduced ); atom_data->is_deduced = false; }
+  inline void    resetDeduced           ( )                      { assert( isTerm( ) && atom_data ); assert( atom_data->is_deduced ); atom_data->is_deduced = false; }
   inline void    setDecPolarity         ( const lbool s )        { assert( isAtom( ) && atom_data ); atom_data->dec_polarity = s; }
   inline void    setWeightInc           ( const int w )          { assert( isAtom( ) && atom_data ); atom_data->weight_inc = w; }
-  inline void    setDistIndex           ( const int d )	         { assert( isTerm( ) && atom_data ); atom_data->dist_index = d; }
+  inline void    setDistIndex           ( const int d )          { assert( isTerm( ) && atom_data ); atom_data->dist_index = d; }
 
   inline void    setCb                  ( Enode * e )            { assert( isTerm( ) && cong_data && cong_data->term_data ); cong_data->term_data->cb = e; }
 
@@ -352,10 +355,10 @@ public:
   unsigned       sizeInMem              ( ) const;
 
   void           print_infix( ostream & os, lbool polarity ) const;
-  void           print	                ( ostream & ); // Prints the
+  void           print                  ( ostream & ); // Prints the
 
   string         stripName              ( string ) const;
-  void           printSig	        ( ostream & ); // Prints the enode signature
+  void           printSig               ( ostream & ); // Prints the enode signature
 
 #ifdef BUILD_64
   inline enodeid_pair_t          getSig    ( ) const { return encode( car->getRoot( )->getCid( ), cdr->getRoot( )->getCid( ) ); }
@@ -372,7 +375,7 @@ public:
     inline bool operator( )( Enode * x, Enode * y )
     {
       return (x->getCar( )->getId( ) <  y->getCar( )->getId( ))
-	  || (x->getCar( )->getId( ) == y->getCar( )->getId( ) && x->getCdr( )->getId( ) < y->getCdr( )->getId( ) );
+          || (x->getCar( )->getId( ) == y->getCar( )->getId( ) && x->getCdr( )->getId( ) < y->getCdr( )->getId( ) );
     }
   };
 
@@ -384,7 +387,7 @@ public:
       if ( x->isEnil( ) ) return true;
       if ( y->isEnil( ) ) return false;
       return (x->getCar( )->getCid( ) <  y->getCar( )->getCid( ))
-	  || (x->getCar( )->getCid( ) == y->getCar( )->getCid( ) && x->getCdr( )->getCid( ) < y->getCdr( )->getCid( ) );
+          || (x->getCar( )->getCid( ) == y->getCar( )->getCid( ) && x->getCdr( )->getCid( ) < y->getCdr( )->getCid( ) );
     }
   };
 
@@ -411,6 +414,7 @@ private:
   Enode*            ode_timevar;
   lbool             ode_vartype;
   int               ode_group;
+  Enode*            ode_opposite;
 
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
@@ -434,6 +438,15 @@ inline void        Enode::setODEvartype ( lbool l )
 inline const lbool Enode::getODEvartype ( ) const
 {
     return ode_vartype;
+}
+
+inline void        Enode::setODEopposite ( Enode* e )
+{
+    ode_opposite = e;
+}
+inline Enode* Enode::getODEopposite ( ) const
+{
+    return ode_opposite;
 }
 
 inline void        Enode::setODEtimevar ( Enode* e )
@@ -621,14 +634,14 @@ inline bool Enode::isVar( )
 {
   if ( car->getId( )    <= ENODE_ID_LAST ) return false;     // If the code is predefined, is not a variable
   if ( isConstant( ) ) return false;                         // If it's a constant is not a variable
-  if ( !isTerm( ) ) return false;		             // If is not a term is not a variable
+  if ( !isTerm( ) ) return false;                            // If is not a term is not a variable
   if ( getArity( ) != 0 ) return false;
-  return car->isSymb( );	                             // Final check
+  return car->isSymb( );                                     // Final check
 }
 
 inline bool Enode::isConstant( )
 {
-  if ( !isTerm( ) ) return false;		         // Check is a term
+  if ( !isTerm( ) ) return false;                        // Check is a term
   return isTrue( ) || isFalse( ) || car->isNumb( );      // Only numbers, true, false are constant
 }
 

@@ -216,70 +216,70 @@ int OpenSMTContext::executeIncremental( )
     switch( c.command )
     {
       case SET_LOGIC:
-	assert( false );
-	break;
+        assert( false );
+        break;
       case SET_OPTION:
-	assert( false );
-	break;
+        assert( false );
+        break;
       case SET_INFO:
-	assert( false );
-	break;
+        assert( false );
+        break;
       case DECLARE_SORT:
-	DeclareSort( c.str, c.num );
-	break;
+        DeclareSort( c.str, c.num );
+        break;
       case DEFINE_SORT:
-	opensmt_error( "construct define-sort not yet supported" );
-	break;
+        opensmt_error( "construct define-sort not yet supported" );
+        break;
       case DECLARE_FUN:
-	DeclareFun( c.str, c.snode );
-	break;
+        DeclareFun( c.str, c.snode );
+        break;
       case DEFINE_FUN:
-	opensmt_error( "construct define-fun not yet supported" );
-	break;
+        opensmt_error( "construct define-fun not yet supported" );
+        break;
       case DEFINE_ODE:
         DefineODE( c.str, string(c.str), c.num ); /* added for dReal2 */
-	break;
+        break;
       case PUSH:
-	Push( );
-	break;
+        Push( );
+        break;
       case POP:
-	Pop( );
-	break;
+        Pop( );
+        break;
       case ASSERT:
-	Assert( c.enode );
-	break;
+        Assert( c.enode );
+        break;
       case CHECK_SAT:
-	status = CheckSAT( );
-	break;
+        status = CheckSAT( );
+        break;
       case GET_ASSERTIONS:
-	opensmt_error( "construct get-assertions not yet supported" );
-	break;
+        opensmt_error( "construct get-assertions not yet supported" );
+        break;
       case GET_PROOF:
-	GetProof( );
-	break;
+        GetProof( );
+        break;
       case GET_INTERPOLANTS:
-	GetInterpolants( );
-	break;
+        GetInterpolants( );
+        break;
       case GET_UNSAT_CORE:
-	opensmt_error( "construct get-unsat-core not yet supported" );
-	break;
+        opensmt_error( "construct get-unsat-core not yet supported" );
+        break;
       case GET_VALUE:
-	opensmt_error( "construct get-value not yet supported" );
-	break;
+        opensmt_error( "construct get-value not yet supported" );
+        break;
       case GET_ASSIGNMENT:
-	opensmt_error( "construct get-assignment not yet supported" );
-	break;
+        opensmt_error( "construct get-assignment not yet supported" );
+        break;
       case GET_OPTION:
-	opensmt_error( "construct get-option not yet supported" );
-	break;
+        opensmt_error( "construct get-option not yet supported" );
+        break;
       case GET_INFO:
-	opensmt_error( "construct get-info not yet supported" );
-	break;
+        opensmt_error( "construct get-info not yet supported" );
+        break;
       case EXIT:
-	Exit( );
-	break;
+        Exit( );
+        break;
       default:
-	opensmt_error( "case not handled" );
+        opensmt_error( "case not handled" );
     }
   }
 
@@ -308,10 +308,10 @@ int OpenSMTContext::executeStatic( )
     {
 #ifdef PRODUCE_PROOF
       if ( config.produce_inter > 0 )
-	staticCheckSATIterp( );
+        staticCheckSATIterp( );
       else
 #endif
-	staticCheckSAT( );
+        staticCheckSAT( );
     }
     else if ( c.command == EXIT )
       Exit( );
@@ -570,9 +570,9 @@ void OpenSMTContext::DeclareSort( const char * name, int arity )
   if ( config.verbosity > 1 )
     cerr << "# OpenSMTContext::Declaring sort "
          << name
-	 << " of arity "
-	 << arity
-	 << endl;
+         << " of arity "
+         << arity
+         << endl;
 
   sstore.newSymbol( name );
 }
@@ -582,9 +582,9 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
   if ( config.verbosity > 1 )
     cerr << "# OpenSMTContext::Declaring function "
          << name
-	 << " of sort "
-	 << s
-	 << endl;
+         << " of sort "
+         << s
+         << endl;
 
   egraph.newSymbol( name, s );
 }
@@ -624,6 +624,8 @@ void OpenSMTContext::DefineODE( const char * name, string ode, int diff_group )
   // Assign properties (vartype, ode, time, diff_group)
   e_0->setODEvartype(l_False);
   e_t->setODEvartype(l_True);
+  e_0->setODEopposite(e_t);
+  e_t->setODEopposite(e_0);
 
   e_0->setODE(ode);
   e_t->setODE(ode);

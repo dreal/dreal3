@@ -236,6 +236,7 @@ bool icp_solver::prop_with_ODE()
                         }
                     }
                     diff_vec[diff_group].insert(*ite);
+                    diff_vec[diff_group].insert((*ite)->getODEopposite());
 
                     if(_config.nra_verbose) {
                         cerr << "diff_group inserted: " << diff_group << endl;
