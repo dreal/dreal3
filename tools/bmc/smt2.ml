@@ -66,7 +66,7 @@ let trans modemap init_id (k : int) (next_k : int) (q : id) (next_q : id)
   let (_, _, _, jm) = (Modemap.find q modemap) in
   let jump_result = process_jump (Jumpmap.find next_q jm) k next_k q next_q in
   let (flow_k_next_ode, flow_k_next) =
-    process_flow (next_k) (next_q) (Modemap.find init_id modemap) in
+    process_flow (next_k) (next_q) (Modemap.find next_q modemap) in
   (flow_k_next_ode,
    Dr.make_and [jump_result; flow_k_next])
 
