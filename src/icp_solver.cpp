@@ -340,7 +340,13 @@ rp_box icp_solver::compute_next()
 
 bool icp_solver::solve()
 {
-//    cerr << "icp_solver::solve()" << endl;
+    bool ret = false;
+
+    if(_config.nra_contain_ODE && _config.nra_json) {
+        _config.nra_json_out << "[" << endl;
+        _config.nra_json_out << "[]" << endl;
+    }
+
     if(_config.nra_proof) {
         output_problem();
     }
@@ -356,8 +362,7 @@ bool icp_solver::solve()
         copy(_stack.begin(),
              _stack.end(),
              back_inserter(_explanation));
-
-        return false;
+        ret = false;
     }
     else
     {
@@ -375,7 +380,7 @@ bool icp_solver::solve()
                 pprint_vars(_config.nra_proof_out, *_problem, b);
                 _config.nra_proof_out << endl;
             }
-            return true;
+            ret = true;
         }
         else {
             /* UNSAT */
@@ -389,9 +394,15 @@ bool icp_solver::solve()
             copy(_stack.begin(),
                  _stack.end(),
                  back_inserter(_explanation));
-            return false;
+            ret = false;
         }
     }
+
+    if(_config.nra_contain_ODE && _config.nra_json) {
+        _config.nra_json_out << "]" << endl;
+    }
+
+    return ret;
 }
 
 icp_solver& icp_solver::operator=(const icp_solver& s)

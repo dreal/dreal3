@@ -292,6 +292,10 @@ bool NRASolver::check( bool complete )
         }
     } else {
         // Complete Check
+        if(config.nra_json) {
+            config.nra_json_out << "{" << endl
+                                << "\"traces\": ";
+        }
         result = solver.solve();
     }
 
@@ -326,7 +330,7 @@ bool NRASolver::check( bool complete )
             }
         }
 
-        config.nra_json_out << "groups = [";
+        config.nra_json_out << ", \"groups\": [";
         for(set<int>::const_iterator g = ode_groups.begin();
             g != ode_groups.end();
             g++)
@@ -336,7 +340,8 @@ bool NRASolver::check( bool complete )
             }
             config.nra_json_out << *g;
         }
-        config.nra_json_out << "]" << endl;
+        config.nra_json_out << "]" << endl
+                            << "}" << endl;
     }
 
     return result;

@@ -62,7 +62,7 @@ void ode_solver::print_trace(ostream& out,
     out << "\t" << "\"values\": [" << endl;
 
     list<pair<const interval, const IVector> >::const_iterator iter = trajectory.begin();
-    print_datapoint(out, iter->first, iter->second[0]);
+    print_datapoint(out, iter->first, iter->second[idx]);
 
     for(++iter; iter != trajectory.end(); iter++) {
         out << ", " << endl;
@@ -76,7 +76,7 @@ void ode_solver::print_trace(ostream& out,
 void ode_solver::print_trajectory(ostream& out) const
 {
     out.precision(12);
-    out << "[" << endl;
+    out << ",[" << endl;
 
     print_trace(out, var_list[0], 0, trajectory);
 
@@ -274,8 +274,8 @@ bool ode_solver::solve_forward()
 
         interval prevTime(0.);
         // Skip the first data-point
-        // trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
-
+        trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+        trajectory.clear();
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
         do
