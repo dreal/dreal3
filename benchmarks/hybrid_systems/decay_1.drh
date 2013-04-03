@@ -1,0 +1,46 @@
+[0, 20] x;
+[0, 1] k;
+[0, 10] t;
+[0, 10] time;
+
+%%
+{ mode 1;
+
+  invt:
+	(>= x 0);
+  flow:
+	d/dt[x] = (- 0 (* k x));
+	d/dt[k] = 0;
+        d/dt[t] = 1;
+  jump:
+	(> t 1) ==> @2 (and (= x' x) (= k' k) (= t' t));
+}
+{ mode 2;
+
+  invt:
+	(>= x 0);
+  flow:
+	d/dt[x] = (- 0 (* k x));
+	d/dt[k] = 0;
+        d/dt[t] = 1;
+  jump:
+	(> t 2) ==> @3 (and (= x' x) (= k' k) (= t' t));
+}
+{ mode 3;
+
+  invt:
+	(>= x 0);
+  flow:
+	d/dt[x] = (- 0 (* k x));
+	d/dt[k] = 0;
+        d/dt[t] = 1;
+  jump:
+	(> t 10) ==> @1 (and (= x' x) (= k' k) (= t' t));
+}
+%%
+init:
+@1	(and (= x 10) (= t 0) (>= k 0) (<= k 1));
+
+goal:
+@1      (and (= t 1) (>= x 9) (<= x 9.1) (>= k 0) (<= k 1));
+
