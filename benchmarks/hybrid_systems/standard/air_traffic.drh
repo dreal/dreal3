@@ -1,0 +1,103 @@
+[6.0] v1;
+
+[-10.0, 10.0] p1;  //angle
+[0.0, 1000.0] x1;  // x position
+[0.0, 1000.0] y1;  // y position
+
+
+[6.0] v2;           
+
+[-10.0, 10.0] p2;  // angle
+[0.0, 1000.0] x2;  // x position
+[0.0, 1000.0] y2;  // y position
+
+[1000000] d;      // square of minimal initial distance (1000)
+[160000]  a;      // square of alert distance (400)
+[78400]   c;      // square of critical distance (280)
+[-0.02]   w;      // angular velocity when being in circular flight
+[-50.0]   m;      // reciprocal of w
+
+[0.0, 500.0] time;
+
+%%
+
+    -- Transition from mode 'cruise' to 'collision avoidance'.
+{
+  mode 1;
+
+
+
+    jump and cruise  -> (
+        (x1 - x2)^2 + (y1 - y2)^2 <= a and
+        !cruise' and
+        dt = 0.0 and
+
+        p1' = p1 + 1.570796 and
+        x1' = x1 and
+        y1' = y1 and
+
+        p2' = p2 + 1.570796 and
+        x2' = x2 and
+        y2' = y2);
+
+    -- Mode 'collision avoidance' has no outgoing transition.
+    jump and !cruise -> false;
+
+    -- Cruise mode. Angular velocity is zero, i.e. angle remains constant.
+    !jump and cruise -> (
+        cruise' and
+        dt > 0.0 and
+        (x1' - x2')^2 + (y1' - y2')^2 >= a and
+
+        p1' = p1 and
+        x1' = v1 * cos(p1) * dt + x1 and
+        y1' = v1 * sin(p1) * dt + y1 and
+
+        p2' = p2 and
+        x2' = v2 * cos(p2) * dt + x2 and
+        y2' = v2 * sin(p2) * dt + y2);
+
+    -- Collision avoidance mode.
+    !jump and !cruise -> (
+        !cruise' and
+        dt > 0.0 and
+        dt * -w <= 3.1415926 and
+
+        p1' = p1 + w * dt and
+        x1' = m * [v1 * sin(p1 + w * dt) - v1 * sin(p1) + x1 * w] and
+        y1' = m * [-v1 * cos(p1 + w * dt) + v1 * cos(p1) + y1 * w] and
+
+        p2' = p2 + w * dt and
+        x2' = m * [v2 * sin(p2 + w * dt) - v2 * sin(p2) + x2 * w] and
+        y2' = m * [-v2 * cos(p2 + w * dt) + v2 * cos(p2) + y2 * w]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{ mode 1;
+
+  invt:
+        (>= x 0);
+  flow:
+        d/dt[x] = v;
+        d/dt[v] = g;
+  jump:
+        (= x 0) ==> @2 (and (= x' x) (= v' (- 0 v)));
+}
+
+%%
+init:
+@1	(and (= x 10) (= v 0));
+
+goal:
+@2	(and (= x 9) (>= v -100));

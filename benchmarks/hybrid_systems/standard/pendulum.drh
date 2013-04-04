@@ -1,0 +1,24 @@
+//pendulum model, Page 19 of Hybrid Systems: Modeling, Analysis, and Control 2008
+
+[1.0] l;
+[1.0] m;
+[1.0] d;
+[9.8] g;
+
+[0, 10] time;
+
+%%
+{ mode 1;
+
+  flow:
+        d/dt[x] = w;
+        d/dt[w] = (- ( * (- 0 (/ g l)) (sin x)) (* (/ d m) w)) ;
+  jump:
+	true;
+}
+%%
+init:
+@1	(and (= x 0.75) (= w 0));
+
+goal:
+@1	(and (= x 0.4) (> w 2));
