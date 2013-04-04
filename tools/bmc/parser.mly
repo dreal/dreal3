@@ -106,6 +106,7 @@ exp:
  | AST exp exp   { Dr.Mul ($2, $3) }
  | SLASH exp exp { Dr.Div ($2, $3) }
  | EXP exp       { Dr.Exp $2 }
+ | CARET exp FNUM { Dr.Pow $2 $3 }
 ; /* TODO: support other functions such as sin, cos, ... */
 
 ode_list: /* */ { [] }
