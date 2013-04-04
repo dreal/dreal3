@@ -32,11 +32,11 @@ extern OpenSMTContext * parser_ctx;
 
 vector< string > * createNumeralList  ( const char * );
 vector< string > * pushNumeralList    ( vector< string > *, const char * );
-void		   destroyNumeralList ( vector< string > * );
+void               destroyNumeralList ( vector< string > * );
 
 list< Snode * > * createSortList  ( Snode * );
 list< Snode * > * pushSortList    ( list< Snode * > *, Snode * );
-void		  destroySortList ( list< Snode * > * );
+void              destroySortList ( list< Snode * > * );
 
 void smt2error( const char * s )
 {
@@ -115,36 +115,36 @@ command: '(' TK_SETLOGIC symbol ')'
        | '(' TK_SETOPTION option ')'
          { }
        | '(' TK_SETINFO TK_KEY ')'
-	 { parser_ctx->SetInfo( $3 ); free( $3 ); }
+         { parser_ctx->SetInfo( $3 ); free( $3 ); }
        | '(' TK_SETINFO TK_KEY s_expr ')'
-	 { parser_ctx->SetInfo( $3, $4 ); free( $3 ); free( $4 ); }
+         { parser_ctx->SetInfo( $3, $4 ); free( $3 ); free( $4 ); }
        | '(' TK_DECLARESORT symbol numeral ')'
-	 { parser_ctx->DeclareSort( $3, atoi($4) ); free( $3 ); free( $4 ); }
+         { parser_ctx->DeclareSort( $3, atoi($4) ); free( $3 ); free( $4 ); }
        /*
        | '(' TK_DEFINESORT symbol '(' symbol_list ')' sort ')'
-	 { opensmt_error2( "define-sort is not supported (yet)", "" ); }
+         { opensmt_error2( "define-sort is not supported (yet)", "" ); }
        */
        | '(' TK_DECLAREFUN symbol '(' sort_list ')' sort ')'
-	 {
-	   (*$5).push_back( $7 );
-	   Snode * a = parser_ctx->mkCons( *$5 );
-	   Snode * s = parser_ctx->mkSort( a );
-	   parser_ctx->DeclareFun( $3, s );
-	   destroySortList( $5 ); free( $3 );
-	 }
+         {
+           (*$5).push_back( $7 );
+           Snode * a = parser_ctx->mkCons( *$5 );
+           Snode * s = parser_ctx->mkSort( a );
+           parser_ctx->DeclareFun( $3, s );
+           destroySortList( $5 ); free( $3 );
+         }
        | '(' TK_DECLAREFUN symbol '(' ')' sort ')'
-	 {
+         {
             parser_ctx->DeclareFun( $3, $6 ); free( $3 );
           }
        | '(' TK_DECLARECONST symbol sort ')'
-	 {
+         {
             parser_ctx->DeclareFun( $3, $4 ); free( $3 );
           }
        /*
        | '(' TK_DEFINEFUN symbol '(' sorted_var_list ')' sort term ')'
-	 { opensmt_error2( "command not supported (yet)", "" ); }
+         { opensmt_error2( "command not supported (yet)", "" ); }
        | '(' TK_DEFINEFUN symbol '(' ')' sort term ')'
-	 { opensmt_error2( "command not supported (yet)", "" ); }
+         { opensmt_error2( "command not supported (yet)", "" ); }
        */
        /* Added for dReal2. */
        | '(' TK_DEFINEODE numeral '(' TK_EQ TK_DDT TK_LB symbol TK_RB infix_term ')' ')'
@@ -155,9 +155,9 @@ command: '(' TK_SETLOGIC symbol ')'
            delete $10;
          }
        | '(' TK_PUSH numeral ')'
-	 { parser_ctx->addPush( atoi( $3 ) ); free( $3 ); }
+         { parser_ctx->addPush( atoi( $3 ) ); free( $3 ); }
        | '(' TK_POP numeral ')'
-	 { parser_ctx->addPop( atoi( $3 ) ); free( $3 );}
+         { parser_ctx->addPop( atoi( $3 ) ); free( $3 );}
 
        /* added for dReal2 */
        | '(' TK_ASSERT '(' TK_LT identifier spec_const ')' ')'
@@ -210,24 +210,24 @@ command: '(' TK_SETLOGIC symbol ')'
        | '(' TK_ASSERT term ')'
          { parser_ctx->addAssert( $3 ); }
        | '(' TK_CHECKSAT ')'
-	 { parser_ctx->addCheckSAT( ); }
+         { parser_ctx->addCheckSAT( ); }
        /*
        | '(' TK_GETASSERTIONS ')'
-	 { opensmt_error2( "command not supported (yet)", "" ); }
+         { opensmt_error2( "command not supported (yet)", "" ); }
        */
        | '(' TK_GETPROOF ')'
-	 { parser_ctx->addGetProof( ); }
+         { parser_ctx->addGetProof( ); }
        | '(' TK_GETINTERPOLANTS ')'
-	 { parser_ctx->addGetInterpolants( ); }
+         { parser_ctx->addGetInterpolants( ); }
        /*
        | '(' TK_GETUNSATCORE ')'
-	 { opensmt_error2( "command not supported (yet)", "" ); }
+         { opensmt_error2( "command not supported (yet)", "" ); }
        | '(' TK_GETVALUE '(' term_list ')' ')'
-	 { opensmt_error2( "command not supported (yet)", "" ); }
+         { opensmt_error2( "command not supported (yet)", "" ); }
        | '(' TK_GETASSIGNMENT ')'
-	 { opensmt_error2( "command not supported (yet)", "" ); }
+         { opensmt_error2( "command not supported (yet)", "" ); }
        | '(' TK_GETOPTION keyword ')'
-	 { opensmt_error2( "command not supported (yet)", "" ); }
+         { opensmt_error2( "command not supported (yet)", "" ); }
        */
      /*| '(' TK_GETINFO info_flag ')'*/
        | '(' TK_EXIT ')'
@@ -235,9 +235,9 @@ command: '(' TK_SETLOGIC symbol ')'
        ;
 
 s_expr: spec_const
-	{ $$ = $1; }
+        { $$ = $1; }
       | TK_SYM
-	{ $$ = $1; }
+        { $$ = $1; }
       | TK_KEY
         { $$ = $1; }
       /*
@@ -246,21 +246,21 @@ s_expr: spec_const
       ;
 
 spec_const: numeral
-	    { $$ = $1; }
-	  | decimal
-	    { $$ = $1; }
-	  | hexadecimal
-	    { $$ = $1; }
-	  | binary
-	    { $$ = $1; }
-	  | TK_STR
-	    { $$ = $1; }
+            { $$ = $1; }
+          | decimal
+            { $$ = $1; }
+          | hexadecimal
+            { $$ = $1; }
+          | binary
+            { $$ = $1; }
+          | TK_STR
+            { $$ = $1; }
           ;
 
 identifier: TK_SYM
-	    { $$ = $1; }
-	  | '(' '_' TK_SYM numeral_list ')'
-	  ;
+            { $$ = $1; }
+          | '(' '_' TK_SYM numeral_list ')'
+          ;
 
 keyword: TK_KEY { free($1); };
 
@@ -284,8 +284,8 @@ sort: TK_BOOL
     | '(' identifier sort_list ')'
       {
         Snode * s = parser_sstore->cons( parser_sstore->newSymbol( $2 ) );
-	(*$3).push_front( s );
-	$$ = parser_sstore->mkDot( parser_sstore->cons( *$3 ) );
+        (*$3).push_front( s );
+        $$ = parser_sstore->mkDot( parser_sstore->cons( *$3 ) );
         free( $2 );
       }
    */
@@ -400,32 +400,32 @@ term: spec_const
     ;
 
 sort_list: sort_list sort
-	   { $$ = pushSortList( $1, $2 ); }
-	 | sort
-	   { $$ = createSortList( $1 ); }
+           { $$ = pushSortList( $1, $2 ); }
+         | sort
+           { $$ = createSortList( $1 ); }
          ;
 
 sorted_var_list: sorted_var_list sorted_var | sorted_var ;
 
 var_binding_list: var_binding_list '(' TK_SYM term ')'
-		  { parser_ctx->mkBind( $3, $4 ); free($3); }
+                  { parser_ctx->mkBind( $3, $4 ); free($3); }
                 | '(' TK_SYM term ')'
-		  { parser_ctx->mkBind( $2, $3 ); free($2); }
-		;
+                  { parser_ctx->mkBind( $2, $3 ); free($2); }
+                ;
 
 term_list: term term_list
-	   { $$ = parser_ctx->mkCons( $1, $2 ); }
-	 | term
+           { $$ = parser_ctx->mkCons( $1, $2 ); }
+         | term
            { $$ = parser_ctx->mkCons( $1 ); }
          ;
 
 s_expr_list: s_expr_list s_expr | s_expr ;
 
 numeral_list: numeral_list numeral
-	      { $$ = pushNumeralList( $1, $2 ); }
-	    | numeral
-	      { $$ = createNumeralList( $1 ); }
-	    ;
+              { $$ = pushNumeralList( $1, $2 ); }
+            | numeral
+              { $$ = createNumeralList( $1 ); }
+            ;
 
 numeral: TK_NUM { $$ = $1; } ;
 
@@ -437,72 +437,72 @@ binary: TK_BIN ;
 
 option: TK_PRINT_SUCCESS b_value
         {
-	  parser_ctx->SetOption( ":print-success", $2 );
-	  free( $2 );
+          parser_ctx->SetOption( ":print-success", $2 );
+          free( $2 );
         }
       | TK_EXPAND_DEFINITIONS b_value
-	{
-	  parser_ctx->SetOption( ":expand-definitions", $2 );
+        {
+          parser_ctx->SetOption( ":expand-definitions", $2 );
           free( $2 );
         }
       | TK_INTERACTIVE_MODE b_value
-	{
-	  parser_ctx->SetOption( ":interactive-mode", $2 );
+        {
+          parser_ctx->SetOption( ":interactive-mode", $2 );
           free( $2 );
         }
       | TK_PRODUCE_PROOFS b_value
-	{
-	  parser_ctx->SetOption( ":produce-proofs", $2 );
+        {
+          parser_ctx->SetOption( ":produce-proofs", $2 );
           free( $2 );
         }
       | TK_PRODUCE_UNSAT_CORES b_value
-	{
-	  parser_ctx->SetOption( ":produce-unsat-cores", $2 );
+        {
+          parser_ctx->SetOption( ":produce-unsat-cores", $2 );
           free( $2 );
         }
       | TK_PRODUCE_INTERPOLANTS b_value
-	{
-	  parser_ctx->SetOption( ":produce-interpolants", $2 );
+        {
+          parser_ctx->SetOption( ":produce-interpolants", $2 );
           free( $2 );
         }
       | TK_PRODUCE_MODELS b_value
-	{
-	  parser_ctx->SetOption( ":produce-models", $2 );
+        {
+          parser_ctx->SetOption( ":produce-models", $2 );
           free( $2 );
         }
       | TK_PRODUCE_ASSIGNMENTS b_value
-	{
-	  parser_ctx->SetOption( ":produce-assignments", $2 );
+        {
+          parser_ctx->SetOption( ":produce-assignments", $2 );
           free( $2 );
         }
       | TK_REGULAR_OUTPUT_CHANNEL TK_STR
-	{
-	  char buf[256] = ":regular-output-channel ";
-	  strcat( buf, $2 );
-	  parser_ctx->SetOption( ":regular-output-channel", $2 );
+        {
+          char buf[256] = ":regular-output-channel ";
+          strcat( buf, $2 );
+          parser_ctx->SetOption( ":regular-output-channel", $2 );
           free( $2 );
         }
       | TK_DIAGNOSTIC_OUTPUT_CHANNEL TK_STR
-	{
-	  parser_ctx->SetOption( ":diagnostic-output-channel", $2 );
+        {
+          parser_ctx->SetOption( ":diagnostic-output-channel", $2 );
           free( $2 );
         }
       | TK_RANDOM_SEED TK_NUM
-	{
-	  parser_ctx->SetOption( ":random-seed", $2 );
+        {
+          parser_ctx->SetOption( ":random-seed", $2 );
           free( $2 );
         }
       | TK_VERBOSITY TK_NUM
-	{
-	  parser_ctx->SetOption( ":verbosity", $2 );
+        {
+          parser_ctx->SetOption( ":verbosity", $2 );
           free( $2 );
-	}
+        }
       | TK_KEY
-	{ parser_ctx->SetOption( $1 ); free( $1 ); }
+        { parser_ctx->SetOption( $1 ); free( $1 ); }
       | TK_KEY s_expr
-	{
-	  parser_ctx->SetOption( $1, $2 );
-	  free( $1 ); free( $2 );
+        {
+          parser_ctx->SetOption( $1, $2 );
+          free( $1 ); free( $2 );
         }
       ;
 
@@ -510,16 +510,16 @@ b_value: TK_TRUE
          {
            char * buf;
            buf = (char *)malloc(sizeof(char) * 10);
-	   strcpy( buf, "true" );
-	   $$ = buf;
+           strcpy( buf, "true" );
+           $$ = buf;
          }
        | TK_FALSE
          {
            char * buf;
            buf = (char *)malloc(sizeof(char) * 10);
-	   strcpy( buf, "false" );
-	   $$ = buf;
-	 }
+           strcpy( buf, "false" );
+           $$ = buf;
+         }
        ;
 
 infix_term: spec_const
@@ -574,6 +574,15 @@ infix_term: spec_const
       {
         stringstream ss;
         ss << *$1 << "/" << *$3;
+        string* ret = new string (ss.str());
+        delete $1;
+        delete $3;
+        $$ = ret;
+      }
+    | infix_term TK_POW infix_term
+      {
+        stringstream ss;
+        ss << *$1 << "^" << *$3;
         string* ret = new string (ss.str());
         delete $1;
         delete $3;
