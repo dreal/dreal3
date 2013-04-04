@@ -1,5 +1,3 @@
-//thermostat model, Page 24 of Hybrid Systems: Modeling, Analysis, and Control 2008
-
 [0, 100.0] x;
 
 [0, 100] time;
@@ -8,7 +6,7 @@
 { mode 1;
 
   flow:
-        d/dt[x] = (- (* a x));
+        d/dt[x] = (- 0 (* a x));
   jump:
 	(<= x 19) ==> @2 (= x' x);
 }
@@ -16,7 +14,7 @@
 { mode 2;
 
   flow:
-        d/dt[x] = (- (* a (- x 30)));
+        d/dt[x] = (- 0 (* a (- x 30)));
   jump:
 	(>= x 21) ==> @1 (= x' x);
 }
