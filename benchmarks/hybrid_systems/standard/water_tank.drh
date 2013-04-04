@@ -1,6 +1,14 @@
 //watertank model, Page 50 of Hybrid Systems: Modeling, Analysis, and Control 2008
 
-[0, 100.0] x;
+[0, 100.0] x1;
+[0, 100.0] x2;
+
+[10] r1;
+[20] r2;
+[5]  w;
+[3]  v1;
+[2]  v2;
+
 
 [0, 100] time;
 
@@ -8,17 +16,19 @@
 { mode 1;
 
   flow:
-        d/dt[x] = (- (* a x));
+        d/dt[x1] = (- w v1);
+	d/dt[x2] = (- 0 v2);
   jump:
-	(<= x 19) ==> @2 (= x' x);
+	(<= x2 r2) ==> @2 (and (= x1' x1) (= x2' x2));
 }
 
 { mode 2;
 
   flow:
-        d/dt[x] = (- (* a (- x 30)));
+        d/dt[x1] = (- 0 v1);
+	d/dt[x2] = (- w v2);
   jump:
-	(>= x 21) ==> @1 (= x' x);
+	(<= x1 r1) ==> @1 (and (= x1' x1) (= x2' x2));
 }
 
 %%
