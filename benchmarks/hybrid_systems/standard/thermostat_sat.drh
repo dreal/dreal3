@@ -4,6 +4,8 @@
 
 %%
 { mode 1;
+  invt:
+	(>= x 19);
 
   flow:
         d/dt[x] = (- 0 (* a x));
@@ -13,6 +15,8 @@
 
 { mode 2;
 
+  invt:
+	(<= x 21);
   flow:
         d/dt[x] = (- 0 (* a (- x 30)));
   jump:
