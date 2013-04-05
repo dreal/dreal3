@@ -77,8 +77,8 @@ let print out (((vm : Vardeclmap.t), (env : Vardeclmap.t), (mm : Modemap.t), ini
     Modemap.print out mm;
     (* print init *)
     print_header out "Init";
-    BatList.print (~first:"") (~sep:"\n") (~last:"\n") mf_print out [init];
+    BatList.print ~first:"" ~sep:"\n" ~last:"\n" mf_print out [init];
     (* print goal *)
     print_header out "Goal";
-    BatList.print (~first:"") (~sep:"\n") (~last:"\n") mf_print out goals;
+    BatList.print ~first:"" ~sep:"\n" ~last:"\n" mf_print out goals;
   end

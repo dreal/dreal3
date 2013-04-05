@@ -214,10 +214,10 @@ let make_smt2
   let assert_formula = Assert formula in
   let defineodes' =
     BatList.unique
-      (~cmp:
+      ~cmp:
           (fun cmd1 cmd2 -> match (cmd1, cmd2) with
           | (DefineODE (n1, x1, e1), DefineODE (n2, x2, e2)) -> ((n1 = n2) && (x1 = x2))
-          | _ -> false))
+          | _ -> false)
       defineodes
   in
   BatList.concat
@@ -231,9 +231,9 @@ let make_smt2
 
 let print out smt =
   BatList.print
-    (~first: "")
-    (~sep:"\n")
-    (~last:"\n")
+    ~first: ""
+    ~sep:"\n"
+    ~last:"\n"
     Smt_cmd.print
     out
     smt

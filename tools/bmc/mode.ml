@@ -28,11 +28,11 @@ let print out (id, inv_op, flows, jumpmap) =
       | Some inv ->
         begin
           BatString.print out "\nInvariant = ";
-          BatList.print (~first:"") (~sep:"\n    ") (~last:"\n") Dr.print_formula out inv;
+          BatList.print ~first:"" ~sep:"\n    " ~last:"\n" Dr.print_formula out inv;
         end
     end;
     BatString.print out "\nFlows = ";
-    BatList.print (~first:"") (~sep:"\n    ") (~last:"\n") Dr.print_ode out flows;
+    BatList.print ~first:"" ~sep:"\n    " ~last:"\n" Dr.print_ode out flows;
     BatString.print out "\nJump = ";
     Jumpmap.print out jumpmap;
     BatString.print out "\n}";

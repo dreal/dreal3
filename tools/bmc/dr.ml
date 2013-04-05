@@ -155,9 +155,9 @@ let rec print_exp (out : 'a BatInnerIO.output) : exp -> unit =
   let print_exps (op : string) (exps : exp list) =
     begin
       BatList.print
-        (~first:("("^op^" "))
-        (~sep:" ")
-        (~last:")")
+        ~first:("("^op^" ")
+        ~sep:" "
+        ~last:")"
         print_exp
         out
         exps
@@ -232,9 +232,9 @@ and print_formula (out : 'a BatInnerIO.output) : formula -> unit =
       items =
     begin
       BatList.print
-        (~first:("("^op^" "))
-        (~sep:" ")
-        (~last:")")
+        ~first:("("^op^" ")
+        ~sep:" "
+        ~last:")"
         f
         out
         items
@@ -266,17 +266,17 @@ let print out ((vardecls, odes, f) : t) : unit =
   begin
     (* print variable declarations *)
     BatList.print
-      (~first:"")
-      (~sep:";\n")
-      (~last:";\n")
+      ~first:""
+      ~sep:";\n"
+      ~last:";\n"
       Vardecl.print
       out
       vardecls;
     (* print variable declarations *)
     BatList.print
-      (~first:"{\n")
-      (~sep:";\n")
-      (~last:";\n}\n")
+      ~first:"{\n"
+      ~sep:";\n"
+      ~last:";\n}\n"
       print_ode out odes;
     (* print variable declarations *)
     print_formula out f
@@ -286,9 +286,9 @@ let rec print_infix_exp (out : 'a BatInnerIO.output) : exp -> unit =
   let print_infix_exps (op : string) (exps : exp list) =
     begin
       BatList.print
-        (~first:"(")
-        (~sep: (" " ^ op ^ " "))
-        (~last:")")
+        ~first:"("
+        ~sep: (" " ^ op ^ " ")
+        ~last:")"
         print_infix_exp
         out
         exps
@@ -297,9 +297,9 @@ let rec print_infix_exp (out : 'a BatInnerIO.output) : exp -> unit =
   let print_fncall (fn_name : string) (exps : exp list) =
     begin
       BatList.print
-        (~first: (fn_name ^ "("))
-        (~sep: ", ")
-        (~last:")")
+        ~first: (fn_name ^ "(")
+        ~sep: ", "
+        ~last:")"
         print_infix_exp
         out
         exps
