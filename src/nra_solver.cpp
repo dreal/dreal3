@@ -320,13 +320,14 @@ bool NRASolver::check( bool complete )
         for(vector<Enode*>::const_iterator lit = stack.begin();
             lit != stack.end();
             lit++) {
-
-            set<Enode*> variables_in_lit = _enode_to_vars[*lit];
-            for(set<Enode*>::const_iterator var = variables_in_lit.begin();
-                var != variables_in_lit.end();
-                var++)
-            {
-                ode_groups.insert((*var)->getODEgroup());
+            if ((*lit)->getPolarity() == l_True) {
+                set<Enode*> variables_in_lit = _enode_to_vars[*lit];
+                for(set<Enode*>::const_iterator var = variables_in_lit.begin();
+                    var != variables_in_lit.end();
+                    var++)
+                {
+                    ode_groups.insert((*var)->getODEgroup());
+                }
             }
         }
 
