@@ -236,7 +236,6 @@ bool icp_solver::prop_with_ODE()
                         }
                     }
                     diff_vec[diff_group].insert(*ite);
-                    diff_vec[diff_group].insert((*ite)->getODEopposite());
 
                     if(_config.nra_verbose) {
                         cerr << "diff_group inserted: " << diff_group << endl;
@@ -250,6 +249,20 @@ bool icp_solver::prop_with_ODE()
                     cerr << "solve ode group: " << i << endl;
                 }
                 set<Enode*> current_ode_vars = diff_vec[i];
+
+                /* The size of ODE_Vars should be even */
+                if (current_ode_vars.size() % 2 == 1)
+                    return false;
+
+                for(set<Enode*>::iterator ite = current_ode_vars.begin();
+                    ite != current_ode_vars.end();
+                    ite++)
+                {
+                    if(current_ode_vars.find((*ite)->getODEopposite()) == current_ode_vars.end())
+                    {
+                        return false;
+                    }
+                }
 
                 if(!current_ode_vars.empty()) {
                     if(_config.nra_verbose) {
