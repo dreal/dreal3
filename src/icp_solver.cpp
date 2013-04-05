@@ -251,8 +251,9 @@ bool icp_solver::prop_with_ODE()
                 set<Enode*> current_ode_vars = diff_vec[i];
 
                 /* The size of ODE_Vars should be even */
-                if (current_ode_vars.size() % 2 == 1)
+                if (current_ode_vars.size() % 2 == 1) {
                     return false;
+                }
 
                 for(set<Enode*>::iterator ite = current_ode_vars.begin();
                     ite != current_ode_vars.end();

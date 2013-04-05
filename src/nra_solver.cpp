@@ -326,7 +326,9 @@ bool NRASolver::check( bool complete )
                     var != variables_in_lit.end();
                     var++)
                 {
-                    ode_groups.insert((*var)->getODEgroup());
+                    if((*var)->getODEvartype() == l_True) {
+                        ode_groups.insert((*var)->getODEgroup());
+                    }
                 }
             }
         }
