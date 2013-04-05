@@ -41,7 +41,10 @@ let process_flow (k : int) (q : id) (m : mode) : (flow_annot * formula) =
     | Some invs ->
       Dr.make_and
         (BatList.map
-           (fun invt_f -> Dr.subst_formula (add_index k q "_t") invt_f)
+           (fun invt_f ->
+             Dr.make_and
+               [Dr.subst_formula (add_index k q "_t") invt_f;
+                Dr.subst_formula (add_index k q "_0") invt_f])
            invs)
   in
   (flow', f)
