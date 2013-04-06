@@ -16,191 +16,197 @@ showOnly = (chart, b) ->
 addTimeToData = (t, item) ->
   item.values = item.values.map (data) ->
     ret = {}
-    ret.time = [+data.time[0] + t[0], +data.time[1] + t[1]]
+    ret.time = [+data.time[0] + t[1], +data.time[1] + t[1]]
     ret.enclosure = data.enclosure
     return ret
   return item
 
+processJson = (json) ->
+  groups = json.groups
+
+  # Drop the first item (which is dummy)
+  json.traces = _.rest(json.traces)
+
+  # Only collect the traces of the corresponding groups
+  traces = _.filter(json.traces, (item) -> _.some(groups, (g) -> (+item[0].group) == g))
+
+  # Collect data by variable and step
+  result = []
+  traces.forEach (items) ->
+    items.forEach (item) ->
+      key_strings = item.key.split("_")
+      item.mode = _.last(key_strings)
+      key_strings = _.initial(key_strings)
+      s = item.step = _.last(key_strings)
+      key_strings = _.initial(key_strings)
+      k = item.key = key_strings.join("_")
+      if !(k of result)
+        result[k] = new Array()
+      if !(s of result[k])
+        result[k][s] = new Array()
+      result[k][s] = item # Use push to collect all the items
+
+  # Adjust Time
+  lastTime = []
+  for k, items of result
+    _.each(items, (item) ->
+      if !(k of lastTime)
+        lastTime[k] = [0.0, 0.0]
+      item = addTimeToData(lastTime[k], item)
+      lastTime[k] = _.last(item.values).time
+      item.domX = [d3.min(item.values, (p) -> p.time[0]),
+                      d3.max(item.values, (p) -> p.time[1])]
+      )
+    items.domX = [d3.min(items, (item) -> item.domX[0]),
+                     d3.max(items, (item) -> item.domX[1])]
+    items.domY = [d3.min(items, (item) -> d3.min(item.values,
+                                                    (p) -> p.enclosure[0])),
+                     d3.max(items, (item) -> d3.max(item.values,
+                                                    (p) -> p.enclosure[1]))]
+  data = {}
+  data.title = json.title
+  data.values = _.values(result)
+
+  data.domX = [d3.min(data.values, (k) -> k.domX[0]),
+                  d3.max(data.values, (k) -> k.domX[1])]
+
+  data.domY = [d3.min(data.values, (k) -> k.domY[0]),
+                  d3.max(data.values, (k) -> k.domY[1])]
+
+  return data
+
 createChart = (json) ->
-    groups = json.groups
-    console.log(groups)
+  data = processJson(json)
 
-    # Drop the first item (which is dummy)
-    json.traces = json.traces[1..]
+  console.log("Data:", data)
 
-    # Only collect the traces of the corresponding groups
-    traces = json.traces.filter( (item) ->
-      groups.some( (g) -> (+item[0].group) == g))
+  # for k, s of data
+  #     # s.modes.forEach (m) ->
+  #     #   m[0] = parseFloat(m[0]);
+  #     #   m[1] = parseFloat(m[1])
+  #     s.values.forEach (d) ->
+  #       d.time = [parseFloat(d.time[0]), parseFloat(d.time[1])];
+  #       d.enclosure = [parseFloat(d.enclosure[0]), parseFloat(d.enclosure[1])]
+  #     s.modes = _.zip(s.modes[...(s.modes.length-1)], s.modes[1..])
+  #     data2.push(s)
+  # data = data2
 
+  charts = [];
 
-    # Collect data by step and variable
-    result = []
-    traces.forEach (t) ->
-      t.forEach (item) ->
-        temp = item.key.split("_")
-        k = temp[..(temp.length - 3)].join("_")
-        item.key = k
-        item.step = temp[temp.length - 2]
-        item.mode = temp[temp.length - 1]
-        s = item.step
-        if !(s of result)
-          result[s] = new Array()
-        if !(k of result[s])
-          result[s][k] = new Array()
-        result[s][k] = item # Use push to collect all the items
+  keys = data.length;
 
-    # Adjust Time
-    lastTime = []
-    data = []
-    result.forEach (step_items) ->
-      for k, item of step_items
-        s = +item.step
-        if !(k of lastTime)
-          lastTime[k] = [0.0, 0.0]
-        result[s][k] = addTimeToData(lastTime[k], item)
-        lastTime[k] = result[s][k].values[result[s][k].values.length - 1].time
-        if !(k of data)
-          data[k] = result[s][k]
-          data[k].modes = [0.0]
-        else
-          data[k].values = data[k].values.concat(result[s][k].values)
-        data[k].modes.push(lastTime[k][1])
+  chartHeight = height * (1 / keys);
 
-    charts = [];
-    data2 = [];
+  # /* Let's create the context brush that will
+  #    let us zoom and pan the chart */
+  contextXScale = d3.scale.linear()
+      .range([0, contextWidth])
+      .domain(data.domX);
 
-    for k, s of data
-        # s.modes.forEach (m) ->
-        #   m[0] = parseFloat(m[0]);
-        #   m[1] = parseFloat(m[1])
-        s.values.forEach (d) ->
-          d.time = [parseFloat(d.time[0]), parseFloat(d.time[1])];
-          d.enclosure = [parseFloat(d.enclosure[0]), parseFloat(d.enclosure[1])]
-        s.modes = _.zip(s.modes[...(s.modes.length-1)], s.modes[1..])
-        data2.push(s)
-    data = data2
-    console.log(data2)
+  contextYScale = d3.scale.linear()
+      .range([contextHeight, 0])
+      .domain(data.domY);
 
+  contextAxis = d3.svg.axis()
+      .scale(contextXScale)
+      .tickSize(contextHeight)
+      .tickPadding(-10)
+      .orient("bottom");
 
-    keys = data.length;
-    minX = d3.min(data, (d) -> d3.min(d.values, (p) -> p.time[0]))
-    maxX = d3.max(data, (d) -> d3.max(d.values, (p) -> p.time[1]))
-    minY = d3.min(data, (d) -> d3.min(d.values, (p) -> p.enclosure[0]))
-    maxY = d3.max(data, (d) -> d3.max(d.values, (p) -> p.enclosure[1]))
-
-    chartHeight = height * (1 / keys);
-
-    # /* Let's create the context brush that will
-    #    let us zoom and pan the chart */
-    contextXScale = d3.scale.linear()
-        .range([0, contextWidth])
-        .domain([minX, maxX]);
-
-    contextYScale = d3.scale.linear()
-        .range([contextHeight, 0])
-        .domain([minY, maxY]);
-
-    contextAxis = d3.svg.axis()
-        .scale(contextXScale)
-        .tickSize(contextHeight)
-        .tickPadding(-10)
-        .orient("bottom");
-
-    contextArea = d3.svg.area()
-        .interpolate("monotone")
-        .x0((p) -> contextXScale(p.time[0]))
-        .x1((p) -> contextXScale(p.time[1]))
-        .y0((p) -> contextYScale(p.enclosure[0]))
-        .y1((p) -> contextYScale(p.enclosure[1]))
-
-    contextLine = d3.svg.line()
+  contextArea = d3.svg.area()
       .interpolate("monotone")
-      .x((p) -> contextXScale((p.time[0] + p.time[1]) / 2))
-      .y((p) -> contextYScale((p.enclosure[0] + p.enclosure[1]) / 2))
+      .x0((p) -> contextXScale(p.time[0]))
+      .x1((p) -> contextXScale(p.time[1]))
+      .y0((p) -> contextYScale(p.enclosure[0]))
+      .y1((p) -> contextYScale(p.enclosure[1]))
 
-    context = svg.append("g")
-      .attr("class","context")
-      .attr("transform", "translate(" + (0 + margin.left) + "," +
-      (chartHeight * keys + margin.top + margin.bottom) + ")");
+  contextLine = d3.svg.line()
+    .interpolate("monotone")
+    .x((p) -> contextXScale((p.time[0] + p.time[1]) / 2))
+    .y((p) -> contextYScale((p.enclosure[0] + p.enclosure[1]) / 2))
 
-    context.append("g")
-      .attr("class", "x axis top")
-      .attr("transform", "translate(0,0)")
-      .call(contextAxis)
+  context = svg.append("g")
+    .attr("class","context")
+    .attr("transform", "translate(" + (0 + margin.left) + "," +
+    (chartHeight * keys + margin.top + margin.bottom) + ")");
 
+  context.append("g")
+    .attr("class", "x axis top")
+    .attr("transform", "translate(0,0)")
+    .call(contextAxis)
+
+  _.each(data.values, (data, i) ->
+    charts.push(new Chart({
+      data: data,
+      id: i,
+      name: data.key,
+      width: width,
+      height: height * (1 / keys),
+      domainX: data.domainX,
+      svg: svg,
+      margin: margin,
+      context: context,
+      contextArea: contextArea
+      contextLine: contextLine
+    })));
+
+  context.append("text")
+     .attr("class","instructions")
+     .attr("transform", "translate(0," + (contextHeight + 20) + ")")
+     .text('Click and drag above to zoom / pan the data');
+
+  # /* this will return a date range to pass into the chart object */
+  onBrush = () ->
+    b = if brush.empty() then contextXScale.domain() else brush.extent()
     for i in [0...keys] by 1
-      charts.push(new Chart({
-        data: data[i].values,
-        id: i,
-        modes: data[i].modes,
-        name: data[i].key,
-        width: width,
-        height: height * (1 / keys),
-        domainX: [minX, maxX],
-        svg: svg,
-        margin: margin,
-        showBottomAxis: true
-        context: context,
-        contextArea: contextArea
-        contextLine: contextLine
-      }));
+      showOnly(charts[i], b)
 
-    context.append("text")
-       .attr("class","instructions")
-       .attr("transform", "translate(0," + (contextHeight + 20) + ")")
-       .text('Click and drag above to zoom / pan the data');
+  brush = d3.svg.brush()
+    .x(contextXScale)
+    .on("brush", onBrush);
 
-    # /* this will return a date range to pass into the chart object */
-    onBrush = () ->
-      b = if brush.empty() then contextXScale.domain() else brush.extent()
-      for i in [0...keys] by 1
-        showOnly(charts[i], b)
-
-    brush = d3.svg.brush()
-      .x(contextXScale)
-      .on("brush", onBrush);
-
-    context.append("g")
-      .attr("class", "x brush")
-      .call(brush)
-      .selectAll("rect")
-      .attr("y", 0)
-      .attr("height", contextHeight);
+  context.append("g")
+    .attr("class", "x brush")
+    .call(brush)
+    .selectAll("rect")
+    .attr("y", 0)
+    .attr("height", contextHeight);
 
 
 class Chart
-  constructor: (options) ->
-    this.chartData = options.data;
-    this.width = options.width;
-    this.height = options.height;
-    this.domainX = options.domainX;
-    this.modes = options.modes;
-    this.svg = options.svg;
-    this.id = options.id;
-    this.name = options.name;
-    this.margin = options.margin;
-    this.showBottomAxis = options.showBottomAxis;
+  constructor: (data) ->
+    this.chartData = data.data;
+    this.width = data.width;
+    this.height = data.height;
+    this.domX = data.domX;
+    this.modes = data.modes;
+    this.svg = data.svg;
+    this.id = data.id;
+    this.name = data.name;
+    this.margin = data.margin;
+
+    console.log("ChartData: ", this.chartData)
+
 
     # /* XScale is time based */
     this.xScale = d3.scale.linear()
         .range([0, this.width])
-        .domain(this.domainX)
+        .domain(data.domX)
 
     minY = d3.min(this.chartData, (p) -> p.enclosure[0])
     maxY = d3.max(this.chartData, (p) -> p.enclosure[1])
 
     this.yScale = d3.scale.linear()
         .range([this.height,0])
-        .domain([minY, maxY])
+        .domain(data.domY)
     xS = this.xScale;
     yS = this.yScale;
 
     # /*
     #   This is what creates the chart.
-    #   There are a number of interpolation options.
+    #   There are a number of interpolation data.
     #   'basis' smooths it the most, however, when working with a lot of data, this will slow it down
     # */
-
     this.line = d3.svg.line()
       .interpolate("basis")
       .x((p) -> xS((p.time[0] + p.time[1]) / 2))
@@ -212,6 +218,7 @@ class Chart
         .x1((p) -> xS(p.time[1]))
         .y0((p) -> yS(p.enclosure[0]))
         .y1((p) -> yS(p.enclosure[1]))
+
     # /*
     #   This isn't required - it simply creates a mask. If this wasn't here,
     #   when we zoom/panned, we'd see the chart go off to the left under the y-axis
@@ -226,34 +233,37 @@ class Chart
     #   Assign it a class so we can assign a fill color
     #   And position it on the page
     # */
-    this.chartContainer = svg.append("g")
-        .attr('class',this.name.toLowerCase())
-        .attr("transform", "translate(" + this.margin.left + "," + (this.margin.top + (this.height * this.id) + (20 * this.id)) + ")");
+    this.chartContainer =
+      svg.append("g")
+         .attr('class',this.name.toLowerCase())
+         .attr("transform", "translate(" + this.margin.left + "," + (this.margin.top + (this.height * this.id) + (20 * this.id)) + ")");
+
+
 
     # MODE
     this.chartContainer.selectAll("rect")
-      .data(this.modes)
-      .enter()
-      .append("svg:rect")
-      .attr("x", (d) -> xS(d[0]) + .5)
-      .attr("y", 0)
-      .attr("height", this.height)
-      .attr("width", (d) -> xS(d[1]) - xS(d[0]) - .5)
-      .attr("fill", color(this.name))
-      .style("fill-opacity", 0.1)
-      .attr("clip-path", "url(#clip-" + this.id + ")")
+        .data(this.chartData)
+        .enter()
+        .append("svg:rect")
+        .attr("x", (d) -> xS(d[0]) + .5)
+        .attr("y", 0)
+        .attr("height", this.height)
+        .attr("width", (d) -> xS(d[1]) - xS(d[0]) - .5)
+        .attr("fill", color(this.name))
+        .style("fill-opacity", 0.1)
+        .attr("clip-path", "url(#clip-" + this.id + ")")
 
     this.chartContainer.selectAll("line")
-      .data(this.modes)
-      .enter()
-      .append("svg:line")
-      .attr("x1", (d) -> xS(d[1]) + .5)
-      .attr("x2", (d) -> xS(d[1]) + .5)
-      .attr("y1", 0)
-      .attr("y2", this.height)
-      .style("stroke", "#999999")
-      .style("stroke-width", "0.5px")
-      .attr("clip-path", "url(#clip-" + this.id + ")")
+        .data(this.modes)
+        .enter()
+        .append("svg:line")
+        .attr("x1", (d) -> xS(d[1]) + .5)
+        .attr("x2", (d) -> xS(d[1]) + .5)
+        .attr("y1", 0)
+        .attr("y2", this.height)
+        .style("stroke", "#999999")
+        .style("stroke-width", "0.5px")
+        .attr("clip-path", "url(#clip-" + this.id + ")")
 
     # /* We've created everything, let's actually add it to the page */
     this.chartContainer.append("path")
@@ -274,17 +284,17 @@ class Chart
         .style("fill-opacity", 0.0)
 
     # /* We've created everything, let's actually add it to the page */
-    options.context.append("path")
+    data.context.append("path")
         .data([this.chartData])
         .attr("class", "chart")
-        .attr("d", options.contextArea)
+        .attr("d", data.contextArea)
         .style("fill", "black")
         .style("fill-opacity", 0.1)
 
     # /* We've created everything, let's actually add it to the page */
-    options.context.append("path")
+    data.context.append("path")
         .data([this.chartData])
-        .attr("d", options.contextLine)
+        .attr("d", data.contextLine)
         .style("stroke", color(this.name))
         .style("stroke-width", "2px")
         .style("fill-opacity", 0.0)
@@ -299,11 +309,10 @@ class Chart
     #         .call(this.xAxisTop);
 
     # /* Only want a bottom axis on the last country */
-    if(this.showBottomAxis)
-        this.chartContainer.append("g")
-            .attr("class", "x axis bottom")
-            .attr("transform", "translate(0," + this.height + ")")
-            .call(this.xAxisBottom);
+    this.chartContainer.append("g")
+        .attr("class", "x axis bottom")
+        .attr("transform", "translate(0," + this.height + ")")
+        .call(this.xAxisBottom);
 
     this.yAxis = d3.svg.axis().scale(this.yScale).orient("left").ticks(5);
 
