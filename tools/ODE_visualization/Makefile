@@ -1,2 +1,2 @@
 vis.js: vis.coffee
-	coffee -c $<
+	coffee -wc $<
