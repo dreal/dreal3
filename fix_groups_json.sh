@@ -1,10 +1,10 @@
 #!/bin/bash
 ##################################################################
 # Usage:
-# $ ./visualize.sh "<SEQ_OF_MODES>" <NUM_OF_MODES> <JSON_FILE>
+# $ ./fix_groups_json.sh "<SEQ_OF_MODES>" <NUM_OF_MODES> <JSON_FILE>
 #
 # Example:
-# $ ./visualize.sh "[1,2,1,2,1,2,1,2,1]" 2 data.json
+# $ ./fix_groups_json.sh "[1,2,1,2,1,2,1,2,1]" 2 data.json
 #
 # Author: Soonho Kong <soonhok@cs.cmu.edu>
 ##################################################################
