@@ -3,7 +3,12 @@ BMC=~/work/dreal2/tools/bmc/main.native
 DREAL=~/work/dreal2/dReal
 PRECISION=0.1
 DREAL_OPTION="--visualize"
-TIMEOUT_UTIL=gtimeout
+
+pushd `dirname $0` > /dev/null
+SCRIPTPATH=`pwd`
+popd > /dev/null
+
+TIMEOUT_UTIL=${SCRIPTPATH}/timeout3
 
 #################################################################
 # Check BMC & DREAL
@@ -113,7 +118,7 @@ do
     log_output "Unroll $DRH => $SMT2:"
     $BMC -k $K $DRH > $SMT2 || { log_output "BMC FAILED"; exit 77; }
     log_output "Run dReal --precision $PRECISION $DREAL_OPTION $SMT2"
-    $TIMEOUT_UTIL ${TIMEOUT}s $DREAL --precision=$PRECISION $DREAL_OPTION $SMT2 > $RESULT || { log_output "dReal FAILED"; exit 77; }
+    $TIMEOUT_UTIL -t ${TIMEOUT} $DREAL --precision=$PRECISION $DREAL_OPTION $SMT2 > $RESULT || { log_output "dReal FAILED"; exit 77; }
     if [[ "`cat $RESULT`" == "sat" ]]
     then
         log_output "Result: sat"
