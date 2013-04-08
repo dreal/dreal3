@@ -21,5 +21,5 @@ Install
    `--visualize`` option) to the ODE visualization folder (where you
    run the web-server)
 
- * Open a web-browser and type "http://127.0.0.1/". You should see the
+ * Open a web-browser and type "http://localhost:8000/". You should see the
    visualization.
