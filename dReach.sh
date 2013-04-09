@@ -1,12 +1,14 @@
 #!/bin/bash
-BMC=~/work/dreal2/tools/bmc/main.native
-DREAL=~/work/dreal2/dReal
-PRECISION=0.1
-DREAL_OPTION="--visualize"
 
 pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
 popd > /dev/null
+
+BMC=${SCRIPTPATH}/tools/bmc/main.native
+DREAL=${SCRIPTPATH}/dReal
+PRECISION=0.1
+DREAL_OPTION="--visualize"
+
 
 TIMEOUT_UTIL=${SCRIPTPATH}/timeout3
 
