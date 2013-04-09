@@ -13,32 +13,6 @@ DREAL_OPTION="--visualize"
 TIMEOUT_UTIL=${SCRIPTPATH}/timeout3
 
 #################################################################
-# Check BMC & DREAL
-#################################################################
-if [ ! -e $BMC ]
-then
-        echo "BMC is not found at $BMC"
-        echo "Please edit $0 to specify the correct location of BMC tool"
-        exit 1
-fi
-
-if [ ! -e $DREAL ]
-then
-        echo "dReal is not found at $DREAL"
-        echo "Please edit $0 to specify the correct location of dReal tool"
-        exit 1
-fi
-
-$TIMEOUT_UTIL 2> /dev/null
-if [ $? -eq 127 ]
-then
-        echo "timeout is not found"
-        echo "Please install one (such as timeout, gtimeout, or timeout3)."
-        exit 1
-fi
-
-
-#################################################################
 # USAGE
 #################################################################
 usage()
@@ -94,6 +68,31 @@ do
              ;;
      esac
 done
+
+#################################################################
+# Check BMC & DREAL
+#################################################################
+if [ ! -e $BMC ]
+then
+        echo "BMC is not found at $BMC"
+        echo "Please edit $0 to specify the correct location of BMC tool"
+        exit 1
+fi
+
+if [ ! -e $DREAL ]
+then
+        echo "dReal is not found at $DREAL"
+        echo "Please edit $0 to specify the correct location of dReal tool"
+        exit 1
+fi
+
+$TIMEOUT_UTIL 2> /dev/null
+if [ $? -eq 127 ]
+then
+        echo "timeout is not found"
+        echo "Please install one (such as timeout, gtimeout, or timeout3)."
+        exit 1
+fi
 
 shift $(($OPTIND - 1))
 if [[ -z $TIMEOUT || -z $UB || -z $1 || ! -e $1 || ! ${1: -4} == ".drh" ]]
