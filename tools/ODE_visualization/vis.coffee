@@ -243,12 +243,25 @@ class Chart
         .data(this.chartData)
         .enter()
         .append("svg:rect")
+        .on("mouseover",
+          (d) ->
+            d3.select(this).transition().style("fill-opacity", 0.5)
+          )
+        .on("mouseout",
+          (d) ->
+            d3.select(this).transition().style("fill-opacity", 0.2))
         .attr("x", (d) -> xS(d.domX[0]) + .5)
         .attr("y", 0)
         .attr("height", this.height)
         .attr("width", (d) -> xS(d.domX[1]) - xS(d.domX[0]) - .5)
-        .attr("fill", color(this.name))
-        .style("fill-opacity", 0.1)
+        .attr("fill", (d) -> d3.rgb(color(d.key)).brighter(d.mode * 2))
+        .style("fill-opacity", 0.0)
+        .transition()
+        .duration((d) -> animation_delay * (+ d.step + 1))
+        .style("fill-opacity", 0.3)
+        .transition()
+        .duration((d) -> animation_delay / 10 * (+ d.step + 1))
+        .style("fill-opacity", 0.2)
         .attr("clip-path", "url(#clip-" + this.id + ")")
 
     this.chartContainer.selectAll("line")
