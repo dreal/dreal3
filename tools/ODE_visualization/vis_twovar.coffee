@@ -75,12 +75,9 @@ createChart = (json) ->
   data = processJson(json)
   data.dom0 = [d3.min(data, (piece) -> d3.min(piece, (d) -> d[data.key0][0])),
                d3.max(data, (piece) -> d3.max(piece, (d) -> d[data.key0][1]))]
-  console.log(data.key0, data.dom0)
 
   data.dom1 = [d3.min(data, (piece) -> d3.min(piece, (d) -> d[data.key1][0])),
                d3.max(data, (piece) -> d3.max(piece, (d) -> d[data.key1][1]))]
-  console.log(data.key1, data.dom1)
-  console.log(data)
 
   chartHeight = height;
   chart = new Chart({
@@ -102,10 +99,7 @@ class Chart
     this.id = data.id;
     this.margin = data.margin;
 
-    console.log("data:", data)
 
-    console.log(this.width)
-    console.log(this.chartData.dom0)
 
     # /* XScale is time based */
     this.xScale = d3.scale.linear()
@@ -144,17 +138,13 @@ class Chart
     #   Assign it a class so we can assign a fill color
     #   And position it on the page
     # */
-    console.log("translate(" + this.margin.left + "," + (this.margin.top + (this.height * this.id) + (20 * this.id)) + ")")
-
     chartContainer = this.chartContainer =
       svg.append("g")
          .attr('class',data.key0 + " v.s. " + data.key1)
          .attr("transform", "translate(" + this.margin.left + "," + (this.margin.top + (this.height * this.id) + (20 * this.id)) + ")");
 
-    console.log("chartData", this.chartData)
     # /* We've created everything, let's actually add it to the page */
     _.each(this.chartData, (piece) ->
-      console.log(piece)
       chart.chartContainer.append("path")
                           .data([piece])
                           .attr("class", "chart")

@@ -11,7 +11,8 @@ showOnly = (chart, b) ->
 
   chart.chartContainer.selectAll("path.chart").attr("d", chart.area);
   chart.chartContainer.selectAll("path.line").attr("d", chart.line);
-  chart.chartContainer.select(".x.axis.top").call(chart.xAxisTop);
+  if (chart.id == 0)
+    chart.chartContainer.select(".x.axis.top").call(chart.xAxisTop);
   chart.chartContainer.select(".x.axis.bottom").call(chart.xAxisBottom);
 
 addTimeToData = (t, item) ->
@@ -270,6 +271,10 @@ class Chart
                           .attr("d", chart.area)
                           .style("fill", color(piece.key))
                           .style("fill-opacity", 0.8)
+                          .on("mouseover",
+                          () -> d3.select(this).style("fill-opacity", 1.0))
+                          .on("mouseout",
+                          () -> d3.select(this).style("fill-opacity", 0.8))
                           )
 
     _.each(this.chartData, (piece) ->
@@ -304,14 +309,27 @@ class Chart
           .style("fill-opacity", 0.0)
           )
 
-    this.xAxisTop = d3.svg.axis().scale(this.xScale).orient("bottom");
+    tickVal =_.map(data.data,
+      (d)-> (d3.min(d.values, (item) -> item.time[0]) +
+             d3.max(d.values, (item) -> item.time[1])) / 2)
+    tickDom = [d3.min(tickVal), d3.max(tickVal)]
+    tickValCard = tickDom[1] - tickDom[0]
+
+    if(this.id == 0)
+      this.xAxisTop = d3.svg.axis()
+                          .scale(this.xScale)
+                          .tickSize(0)
+                          .tickValues(tickVal)
+                          .tickFormat((n, i) -> "Mode" + data.data[i].mode)
+                          .orient("bottom");
+
     this.xAxisBottom = d3.svg.axis().scale(this.xScale).orient("bottom");
     # /* We only want a top axis if it's the first country */
-    # if(this.id == 0)
-    #     this.chartContainer.append("g")
-    #         .attr("class", "x axis top")
-    #         .attr("transform", "translate(0,0)")
-    #         .call(this.xAxisTop);
+    if(this.id == 0)
+      this.chartContainer.append("g")
+          .attr("class", "x axis top")
+          .attr("transform", "translate(0,0)")
+          .call(this.xAxisTop);
 
     # /* Only want a bottom axis on the last country */
     chartContainer.append("g")
