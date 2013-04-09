@@ -2,14 +2,15 @@ color = d3.scale.category10()
 
 showOnly = (chart, b) ->
   chart.xScale.domain(b);
-  chart.chartContainer.selectAll("rect").data(chart.modes)
-    .attr("x", (d) -> chart.xScale(d[0]) + .5)
-    .attr("width", (d) -> chart.xScale(d[1]) - chart.xScale(d[0]) - .5)
-  chart.chartContainer.selectAll("line").data(chart.modes)
-    .attr("x1", (d) -> chart.xScale(d[0]) + .5)
-    .attr("x2", (d) -> chart.xScale(d[0]) + .5)
-  chart.chartContainer.select("path.chart").data([chart.chartData]).attr("d", chart.area);
-  chart.chartContainer.select("path.line").data([chart.chartData]).attr("d", chart.line);
+  chart.chartContainer.selectAll("rect").data(chart.chartData)
+    .attr("x", (d) -> chart.xScale(d.domX[0]) + .5)
+    .attr("width", (d) -> chart.xScale(d.domX[1]) - chart.xScale(d.domX[0]) - .5)
+  chart.chartContainer.selectAll("line").data(chart.chartData)
+    .attr("x1", (d) -> chart.xScale(d.domX[0]) + .5)
+    .attr("x2", (d) -> chart.xScale(d.domX[0]) + .5)
+
+  chart.chartContainer.selectAll("path.chart").attr("d", chart.area);
+  chart.chartContainer.selectAll("path.line").attr("d", chart.line);
   chart.chartContainer.select(".x.axis.top").call(chart.xAxisTop);
   chart.chartContainer.select(".x.axis.bottom").call(chart.xAxisBottom);
 
@@ -32,53 +33,52 @@ processJson = (json) ->
 
   # Collect data by variable and step
   result = []
-  traces.forEach (items) ->
-    items.forEach (item) ->
-      key_strings = item.key.split("_")
-      item.mode = _.last(key_strings)
+  traces.forEach (trace) ->
+    trace.forEach (piece) ->
+      key_strings = piece.key.split("_")
+      piece.mode = _.last(key_strings)
       key_strings = _.initial(key_strings)
-      s = item.step = _.last(key_strings)
+      s = piece.step = _.last(key_strings)
       key_strings = _.initial(key_strings)
-      k = item.key = key_strings.join("_")
+      k = piece.key = key_strings.join("_")
       if !(k of result)
         result[k] = new Array()
       if !(s of result[k])
         result[k][s] = new Array()
-      result[k][s] = item # Use push to collect all the items
+      result[k][s] = piece # Use push to collect all the trace
+      result[k].key = k
 
   # Adjust Time
   lastTime = []
-  for k, items of result
-    _.each(items, (item) ->
+  for k, trace of result
+    _.each(trace, (piece) ->
       if !(k of lastTime)
         lastTime[k] = [0.0, 0.0]
-      item = addTimeToData(lastTime[k], item)
-      lastTime[k] = _.last(item.values).time
-      item.domX = [d3.min(item.values, (p) -> p.time[0]),
-                      d3.max(item.values, (p) -> p.time[1])]
+      piece = addTimeToData(lastTime[k], piece)
+      lastTime[k] = _.last(piece.values).time
+      piece.domX = [d3.min(piece.values, (d) -> d.time[0]),
+                      d3.max(piece.values, (d) -> d.time[1])]
       )
-    items.domX = [d3.min(items, (item) -> item.domX[0]),
-                     d3.max(items, (item) -> item.domX[1])]
-    items.domY = [d3.min(items, (item) -> d3.min(item.values,
-                                                    (p) -> p.enclosure[0])),
-                     d3.max(items, (item) -> d3.max(item.values,
-                                                    (p) -> p.enclosure[1]))]
+    trace.domX = [d3.min(trace, (piece) -> piece.domX[0]),
+                     d3.max(trace, (piece) -> piece.domX[1])]
+    trace.domY = [d3.min(trace, (piece) -> d3.min(piece.values,
+                                                    (d) -> d.enclosure[0])),
+                     d3.max(trace, (piece) -> d3.max(piece.values,
+                                                    (d) -> d.enclosure[1]))]
   data = {}
   data.title = json.title
   data.values = _.values(result)
 
-  data.domX = [d3.min(data.values, (k) -> k.domX[0]),
-                  d3.max(data.values, (k) -> k.domX[1])]
+  data.domX = [d3.min(data.values, (trace) -> trace.domX[0]),
+               d3.max(data.values, (trace) -> trace.domX[1])]
 
-  data.domY = [d3.min(data.values, (k) -> k.domY[0]),
-                  d3.max(data.values, (k) -> k.domY[1])]
+  data.domY = [d3.min(data.values, (trace) -> trace.domY[0]),
+               d3.max(data.values, (trace) -> trace.domY[1])]
 
   return data
 
 createChart = (json) ->
   data = processJson(json)
-
-  console.log("Data:", data)
 
   # for k, s of data
   #     # s.modes.forEach (m) ->
@@ -90,10 +90,9 @@ createChart = (json) ->
   #     s.modes = _.zip(s.modes[...(s.modes.length-1)], s.modes[1..])
   #     data2.push(s)
   # data = data2
-
   charts = [];
 
-  keys = data.length;
+  keys = data.values.length;
 
   chartHeight = height * (1 / keys);
 
@@ -185,22 +184,21 @@ class Chart
     this.name = data.name;
     this.margin = data.margin;
 
-    console.log("ChartData: ", this.chartData)
-
-
     # /* XScale is time based */
     this.xScale = d3.scale.linear()
         .range([0, this.width])
-        .domain(data.domX)
+        .domain(this.chartData.domX)
 
-    minY = d3.min(this.chartData, (p) -> p.enclosure[0])
-    maxY = d3.max(this.chartData, (p) -> p.enclosure[1])
+    minY = d3.min(this.chartData, (p) -> p.domX[0])
+    maxY = d3.max(this.chartData, (p) -> p.domX[1])
 
     this.yScale = d3.scale.linear()
         .range([this.height,0])
-        .domain(data.domY)
+        .domain(this.chartData.domY)
     xS = this.xScale;
     yS = this.yScale;
+
+    chart = this
 
     # /*
     #   This is what creates the chart.
@@ -233,32 +231,30 @@ class Chart
     #   Assign it a class so we can assign a fill color
     #   And position it on the page
     # */
-    this.chartContainer =
+    chartContainer = this.chartContainer =
       svg.append("g")
          .attr('class',this.name.toLowerCase())
          .attr("transform", "translate(" + this.margin.left + "," + (this.margin.top + (this.height * this.id) + (20 * this.id)) + ")");
-
-
 
     # MODE
     this.chartContainer.selectAll("rect")
         .data(this.chartData)
         .enter()
         .append("svg:rect")
-        .attr("x", (d) -> xS(d[0]) + .5)
+        .attr("x", (d) -> xS(d.domX[0]) + .5)
         .attr("y", 0)
         .attr("height", this.height)
-        .attr("width", (d) -> xS(d[1]) - xS(d[0]) - .5)
+        .attr("width", (d) -> xS(d.domX[1]) - xS(d.domX[0]) - .5)
         .attr("fill", color(this.name))
         .style("fill-opacity", 0.1)
         .attr("clip-path", "url(#clip-" + this.id + ")")
 
     this.chartContainer.selectAll("line")
-        .data(this.modes)
+        .data(this.chartData)
         .enter()
         .append("svg:line")
-        .attr("x1", (d) -> xS(d[1]) + .5)
-        .attr("x2", (d) -> xS(d[1]) + .5)
+        .attr("x1", (d) -> xS(d.domX[1]) + .5)
+        .attr("x2", (d) -> xS(d.domX[1]) + .5)
         .attr("y1", 0)
         .attr("y2", this.height)
         .style("stroke", "#999999")
@@ -266,38 +262,47 @@ class Chart
         .attr("clip-path", "url(#clip-" + this.id + ")")
 
     # /* We've created everything, let's actually add it to the page */
-    this.chartContainer.append("path")
-        .data([this.chartData])
-        .attr("class", "chart")
-        .attr("clip-path", "url(#clip-" + this.id + ")")
-        .attr("d", this.area)
-        .style("fill", color(this.name))
-        .style("fill-opacity", 0.8)
+    _.each(this.chartData, (piece) ->
+      chart.chartContainer.append("path")
+                          .data([piece.values])
+                          .attr("class", "chart")
+                          .attr("clip-path", "url(#clip-" + chart.id + ")")
+                          .attr("d", chart.area)
+                          .style("fill", color(piece.key))
+                          .style("fill-opacity", 0.8)
+                          )
 
-    this.chartContainer.append("path")
-        .data([this.chartData])
-        .attr("class", "line")
-        .attr("clip-path", "url(#clip-" + this.id + ")")
-        .attr("d", this.line)
-        .style("stroke", color(this.name))
-        .style("stroke-width", "2px")
-        .style("fill-opacity", 0.0)
-
-    # /* We've created everything, let's actually add it to the page */
-    data.context.append("path")
-        .data([this.chartData])
-        .attr("class", "chart")
-        .attr("d", data.contextArea)
-        .style("fill", "black")
-        .style("fill-opacity", 0.1)
+    _.each(this.chartData, (piece) ->
+      chart.chartContainer.append("path")
+           .data([piece.values])
+           .attr("class", "line")
+           .attr("clip-path", "url(#clip-" + chart.id + ")")
+           .attr("d", chart.line)
+           .style("stroke", color(piece.key))
+           .style("stroke-width", "2px")
+           .style("fill-opacity", 0.0)
+           )
 
     # /* We've created everything, let's actually add it to the page */
-    data.context.append("path")
-        .data([this.chartData])
-        .attr("d", data.contextLine)
-        .style("stroke", color(this.name))
-        .style("stroke-width", "2px")
-        .style("fill-opacity", 0.0)
+
+    _.each(this.chartData, (piece) ->
+      data.context.append("path")
+          .data([piece.values])
+          .attr("class", "chart")
+          .attr("d", data.contextArea)
+          .style("fill", "black")
+          .style("fill-opacity", 0.1)
+          )
+
+    # /* We've created everything, let's actually add it to the page */
+    _.each(this.chartData, (piece) ->
+      data.context.append("path")
+          .data([piece.values])
+          .attr("d", data.contextLine)
+          .style("stroke", color(piece.key))
+          .style("stroke-width", "2px")
+          .style("fill-opacity", 0.0)
+          )
 
     this.xAxisTop = d3.svg.axis().scale(this.xScale).orient("bottom");
     this.xAxisBottom = d3.svg.axis().scale(this.xScale).orient("bottom");
@@ -309,14 +314,14 @@ class Chart
     #         .call(this.xAxisTop);
 
     # /* Only want a bottom axis on the last country */
-    this.chartContainer.append("g")
+    chartContainer.append("g")
         .attr("class", "x axis bottom")
         .attr("transform", "translate(0," + this.height + ")")
         .call(this.xAxisBottom);
 
     this.yAxis = d3.svg.axis().scale(this.yScale).orient("left").ticks(5);
 
-    this.chartContainer.append("g")
+    chartContainer.append("g")
         .attr("class", "y axis")
         .attr("transform", "translate(0,0)")
         .call(this.yAxis);
