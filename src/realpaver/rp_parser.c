@@ -20,8 +20,8 @@
 
 /* Creation of a parser from a string */
 int rp_parser_create_string(rp_parser * p,
-			    const char * src,
-			    rp_table_symbol ts)
+                            const char * src,
+                            rp_table_symbol ts)
 {
   if (!rp_lexer_create_string(&rp_parser_lexer(*p),src))
   {
@@ -41,8 +41,8 @@ int rp_parser_create_string(rp_parser * p,
 
 /* Creation of a parser from a file */
 int rp_parser_create_file(rp_parser * p,
-			  char * filename,
-			  rp_table_symbol ts)
+                          char * filename,
+                          rp_table_symbol ts)
 {
   if (!rp_lexer_create_file(&rp_parser_lexer(*p),filename))
   {
@@ -69,7 +69,7 @@ void rp_parser_destroy(rp_parser * p)
 
 /* Parse a problem from a file */
 int rp_parse_problem_file(rp_problem * problem,
-			  char * filename)
+                          char * filename)
 {
   rp_parser p;
   int res;
@@ -97,8 +97,8 @@ int rp_parse_problem_file(rp_problem * problem,
 
 /* Parse a constraint from a string */
 int rp_parse_constraint_string(rp_constraint * c,
-			       const char * src,
-			       rp_table_symbol ts)
+                               const char * src,
+                               rp_table_symbol ts)
 {
   rp_parser p;
   int res;
@@ -116,8 +116,8 @@ int rp_parse_constraint_string(rp_constraint * c,
 
 /* Parse a constraint from a file */
 int rp_parse_constraint_file(rp_constraint * c,
-			     char * filename,
-			     rp_table_symbol ts)
+                             char * filename,
+                             rp_table_symbol ts)
 {
   rp_parser p;
   int res;
@@ -135,8 +135,8 @@ int rp_parse_constraint_file(rp_constraint * c,
 
 /* Parse a variable from a string */ //s: here you parse the variables...
 int rp_parse_variable_string(rp_variable * v,
-			     char * src,
-			     rp_table_symbol ts)
+                             char * src,
+                             rp_table_symbol ts)
 {
   rp_parser p;
   int res;
@@ -154,8 +154,8 @@ int rp_parse_variable_string(rp_variable * v,
 
 /* Parse a variable from a file */
 int rp_parse_variable_file(rp_variable * v,
-			   char * filename,
-			   rp_table_symbol ts)
+                           char * filename,
+                           rp_table_symbol ts)
 {
   rp_parser p;
   int res;
@@ -173,8 +173,8 @@ int rp_parse_variable_file(rp_variable * v,
 
 /* Parse a constant from a string */
 int rp_parse_constant_string(rp_constant * out,
-			     char * src,
-			     rp_table_symbol ts)
+                             char * src,
+                             rp_table_symbol ts)
 {
   rp_parser p;
   int res;
@@ -192,8 +192,8 @@ int rp_parse_constant_string(rp_constant * out,
 
 /* Parse a constant from a file */
 int rp_parse_constant_file(rp_constant * out,
-			   char * filename,
-			   rp_table_symbol ts)
+                           char * filename,
+                           rp_table_symbol ts)
 {
   rp_parser p;
   int res;
@@ -211,8 +211,8 @@ int rp_parse_constant_file(rp_constant * out,
 
 /* Parse an expression from a string */
 int rp_parse_expression_string(rp_expression * e,
-			       char * src,
-			       rp_table_symbol ts)
+                               char * src,
+                               rp_table_symbol ts)
 {
   rp_parser p;
   int res;
@@ -239,8 +239,8 @@ int rp_parse_expression_string(rp_expression * e,
 
 /* Parse an expression from a file */
 int rp_parse_expression_file(rp_expression * e,
-			     char * filename,
-			     rp_table_symbol ts)
+                             char * filename,
+                             rp_table_symbol ts)
 {
   rp_parser p;
   int res;
@@ -348,8 +348,8 @@ int rp_rule_variable(rp_parser p, rp_variable * out)
   {
     int index;
     if (rp_vector_variable_contains(rp_parser_vars(p),
-				    rp_lexer_prev_text(rp_parser_lexer(p)),
-				    &index)!=NULL)
+                                    rp_lexer_prev_text(rp_parser_lexer(p)),
+                                    &index)!=NULL)
     {
       /* already existing variable */
       rp_parser_stop(p,"already existing variable");
@@ -363,55 +363,55 @@ int rp_rule_variable(rp_parser p, rp_variable * out)
 
       if (rp_rule_vartype(p,&is_int,&prec,&absolute))
       {
-	if (rp_parser_expect(p,RP_TOKEN_TILDE,"variable domain"))
-	{
-	  rp_union_interval u;
-	  rp_union_create(&u);
-	  if (rp_rule_domain(p,u))
-	  {
-	    rp_variable v;
-	    int index;
-	    rp_interval maxlong;
+        if (rp_parser_expect(p,RP_TOKEN_TILDE,"variable domain"))
+        {
+          rp_union_interval u;
+          rp_union_create(&u);
+          if (rp_rule_domain(p,u))
+          {
+            rp_variable v;
+            int index;
+            rp_interval maxlong;
 
-	    if (is_int)
-	    {
-	      /* Domain bounded by the long type */
-	      rp_interval_set(maxlong,-RP_MAX_LONG,RP_MAX_LONG);
-	      rp_union_inter(u,maxlong);
-	    }
-	    if (rp_union_empty(u))
-	    {
-	      rp_parser_stop(p,"integer domain out of bounds");
-	    }
-	    else
-	    {
-	      rp_variable_create(&v,name);
-	      index = rp_vector_insert(rp_parser_vars(p),v);
-	      /* rp_variable_set_decision(v); */
-	      if (is_int)
-	      {
-		rp_variable_set_integer(v);
-	      }
-	      else
-	      {
-		rp_variable_set_real(v);
-		rp_variable_precision(v) = prec;
-		if (absolute)
-		{
-		  rp_variable_set_absolute_precision(v);
-		}
-		else
-		{
-		  rp_variable_set_relative_precision(v);
-		}
-	      }
-	      rp_union_copy(rp_variable_domain(v),u);
-	      (*out) = v;
-	      res = 1;
-	    }
-	  }
-	  rp_union_destroy(&u);
-	}
+            if (is_int)
+            {
+              /* Domain bounded by the long type */
+              rp_interval_set(maxlong,-RP_MAX_LONG,RP_MAX_LONG);
+              rp_union_inter(u,maxlong);
+            }
+            if (rp_union_empty(u))
+            {
+              rp_parser_stop(p,"integer domain out of bounds");
+            }
+            else
+            {
+              rp_variable_create(&v,name);
+              index = rp_vector_insert(rp_parser_vars(p),v);
+              /* rp_variable_set_decision(v); */
+              if (is_int)
+              {
+                rp_variable_set_integer(v);
+              }
+              else
+              {
+                rp_variable_set_real(v);
+                rp_variable_precision(v) = prec;
+                if (absolute)
+                {
+                  rp_variable_set_absolute_precision(v);
+                }
+                else
+                {
+                  rp_variable_set_relative_precision(v);
+                }
+              }
+              rp_union_copy(rp_variable_domain(v),u);
+              (*out) = v;
+              res = 1;
+            }
+          }
+          rp_union_destroy(&u);
+        }
       }
     }
   }
@@ -483,11 +483,11 @@ int rp_rule_interval(rp_parser p, rp_interval i)
     {
       if (rp_rule_constant_expr(p,right))
       {
-	if (rp_parser_expect(p,RP_TOKEN_SQRBR,"]"))
-	{
-	  rp_interval_set(i,rp_binf(left),rp_bsup(right));
-	  res = 1;
-	}
+        if (rp_parser_expect(p,RP_TOKEN_SQRBR,"]"))
+        {
+          rp_interval_set(i,rp_binf(left),rp_bsup(right));
+          res = 1;
+        }
       }
     }
   }
@@ -538,50 +538,50 @@ int rp_rule_vartype(rp_parser p, int * is_int, double * prec, int * absolute)
       (*is_int) = 0;
       if (rp_parser_accept(p,RP_TOKEN_DIV))
       {
-	rp_interval i;
+        rp_interval i;
 
-	/* precision defined by a constant */
-	if (rp_parser_accept(p,RP_TOKEN_IDENT))
+        /* precision defined by a constant */
+        if (rp_parser_accept(p,RP_TOKEN_IDENT))
         {
-	  rp_constant * c;
-	  int index;
-	  if ((c=rp_vector_constant_contains(
+          rp_constant * c;
+          int index;
+          if ((c=rp_vector_constant_contains(
                       rp_parser_nums(p),
-		      rp_lexer_prev_text(rp_parser_lexer(p)),
-		      &index))!=NULL)
-	  {
-	    (*prec) = rp_binf(rp_constant_val(*c));
-	    res = 1;
-	  }
-	  else
-	  {
-	    rp_parser_stop(p,"constant identifier not found");
-	  }
-	}
-	else if (rp_rule_unsigned_number(p,i))
-	{
-	  (*prec) = rp_binf(i);
-	  res = 1;
-	}
-	else
-	{
-	  rp_parser_stop(p,"variable precision not found");
-	}
+                      rp_lexer_prev_text(rp_parser_lexer(p)),
+                      &index))!=NULL)
+          {
+            (*prec) = rp_binf(rp_constant_val(*c));
+            res = 1;
+          }
+          else
+          {
+            rp_parser_stop(p,"constant identifier not found");
+          }
+        }
+        else if (rp_rule_unsigned_number(p,i))
+        {
+          (*prec) = rp_binf(i);
+          res = 1;
+        }
+        else
+        {
+          rp_parser_stop(p,"variable precision not found");
+        }
 
-	if (rp_parser_accept(p,RP_TOKEN_PERCENT))
-	{
-	  (*absolute) = 0;  /* relative precision */
-	}
-	else
-	{
-	  (*absolute) = 1;  /* absolute precision */
-	}
+        if (rp_parser_accept(p,RP_TOKEN_PERCENT))
+        {
+          (*absolute) = 0;  /* relative precision */
+        }
+        else
+        {
+          (*absolute) = 1;  /* absolute precision */
+        }
       }
       else
       {
-	/* default precision */
-	(*prec) = 1.0e-8;
-	res = 1;
+        /* default precision */
+        (*prec) = 1.0e-8;
+        res = 1;
       }
     }
     else
@@ -722,26 +722,26 @@ int rp_rule_solve_list_var(rp_parser p, rp_problem problem)
     {
       if (rp_parser_expect(p,RP_TOKEN_IDENT,"variable name"))
       {
-	if ((v=rp_vector_variable_contains(rp_parser_vars(p),
-					   rp_lexer_prev_text(rp_parser_lexer(p)),
-					   &index))!=NULL)
-	{
-	  rp_variable_set_decision(*v);
+        if ((v=rp_vector_variable_contains(rp_parser_vars(p),
+                                           rp_lexer_prev_text(rp_parser_lexer(p)),
+                                           &index))!=NULL)
+        {
+          rp_variable_set_decision(*v);
 
-	  if (!rp_parser_accept(p,RP_TOKEN_COMMA))
-	  {
-	    iter = 0;
-	  }
-	}
-	else
-	{
-	  rp_parser_stop(p,"variable not defined");
-	  iter = result = 0;
-	}
+          if (!rp_parser_accept(p,RP_TOKEN_COMMA))
+          {
+            iter = 0;
+          }
+        }
+        else
+        {
+          rp_parser_stop(p,"variable not defined");
+          iter = result = 0;
+        }
       }
       else /* variable name not found */
       {
-	iter = result = 0;
+        iter = result = 0;
       }
     } while (iter);
   }
@@ -763,7 +763,7 @@ int rp_rule_problem_variable_block(rp_parser p, rp_problem problem)
   if (rp_rule_variable(p,&aux))
   {
     return( rp_rule_problem_variable_next(p,problem) );
-	//s: note that the parsing is done recursively.
+        //s: note that the parsing is done recursively.
   }
   else
   {
@@ -881,29 +881,29 @@ int rp_rule_function_def(rp_parser p, rp_function * out)
       /* arguments (x1,...,xn) */
       if (rp_parser_expect(p,RP_TOKEN_LBR,"("))
       {
-	if (rp_rule_function_def_args(p,f))
-	{
-	  /* := */
-	  if (rp_parser_expect(p,RP_TOKEN_SETVALUE,":="))
-	  {
-	    /* tree-representation */
-	    rp_erep e;
+        if (rp_rule_function_def_args(p,f))
+        {
+          /* := */
+          if (rp_parser_expect(p,RP_TOKEN_SETVALUE,":="))
+          {
+            /* tree-representation */
+            rp_erep e;
 
-	    /* set context of local variables */
-	    rp_vector_variable vsave = rp_parser_locvars(p);
-	    rp_parser_locvars(p) = rp_function_lvars(f);
+            /* set context of local variables */
+            rp_vector_variable vsave = rp_parser_locvars(p);
+            rp_parser_locvars(p) = rp_function_lvars(f);
 
-	    if (rp_rule_expr(p,&e))
-	    {
-	      rp_function_insert_expr(f,e);
-	      rp_vector_insert(rp_parser_funcs(p),f);
-	      res = 1;
-	    }
+            if (rp_rule_expr(p,&e))
+            {
+              rp_function_insert_expr(f,e);
+              rp_vector_insert(rp_parser_funcs(p),f);
+              res = 1;
+            }
 
-	    /* restore context */
-	    rp_parser_locvars(p) = vsave;
-	  }
-	}
+            /* restore context */
+            rp_parser_locvars(p) = vsave;
+          }
+        }
       }
       if (!res) rp_function_destroy(&f);
     }
@@ -996,14 +996,14 @@ int rp_rule_constraint(rp_parser p, rp_constraint * c)
 
       if (rp_union_inter_uu(rp_variable_domain(v),rp_ctr_piecewise_guard(piece)))
       {
-	/* creation of the new constraint */
-	rp_constraint_create_piece(c,piece);
-	result = 1;
+        /* creation of the new constraint */
+        rp_constraint_create_piece(c,piece);
+        result = 1;
       }
       else
       {
-	rp_ctr_piecewise_destroy(&piece);
-	rp_parser_stop(p,"no piece intersects with the variable domain");
+        rp_ctr_piecewise_destroy(&piece);
+        rp_parser_stop(p,"no piece intersects with the variable domain");
       }
     }
   }
@@ -1028,12 +1028,12 @@ int rp_rule_constraint(rp_parser p, rp_constraint * c)
       rp_ctr_cond_insert_guard(cond,cnum);
       if (rp_rule_ctr_cond(p,cond,guard))
       {
-	rp_constraint_create_cond(c,cond);
-	result = 1;
+        rp_constraint_create_cond(c,cond);
+        result = 1;
       }
       else
       {
-	rp_ctr_cond_destroy(&cond);
+        rp_ctr_cond_destroy(&cond);
       }
     }
     else
@@ -1059,13 +1059,13 @@ int rp_rule_ctr_piecewise(rp_parser p, rp_ctr_piecewise * c)
 
   /* the main variable */
   if (!rp_parser_expect(p,RP_TOKEN_IDENT,
-			"main variable in piecewise constraint not found"))
+                        "main variable in piecewise constraint not found"))
   {
     return( result );
   }
   if (rp_vector_variable_contains(rp_parser_vars(p),
-				  rp_lexer_prev_text(rp_parser_lexer(p)),
-				  &index)==NULL)
+                                  rp_lexer_prev_text(rp_parser_lexer(p)),
+                                  &index)==NULL)
   {
     rp_parser_stop(p,"main variable of piecewise constraint not defined");
     return( result );
@@ -1082,46 +1082,46 @@ int rp_rule_ctr_piecewise(rp_parser p, rp_ctr_piecewise * c)
 
       if (!rp_parser_expect(p,RP_TOKEN_SQLBR,"square bracket"))
       {
-	iter = 0;
+        iter = 0;
       }
       else if ((!rp_rule_interval(p,itv)))
       {
-	iter = 0;
+        iter = 0;
       }
       else
       {
-	if (!rp_ctr_piecewise_insert_domain(*c,itv))
-	{
-	  rp_parser_stop(p,"intersection of pieces having non zero width");
-	  iter = 0;
-	}
-	else if (!rp_parser_expect(p,RP_TOKEN_COLON,"colon"))
-	{
-	  iter = 0;
-	}
-	else
-	{
-	  /* list c1 # ... # cj */
-	  int listiter = 1;
-	  do
-	  {
-	    rp_ctr_num cnum;
-	    /* next constraint, at least one */
-	    if (rp_rule_ctr_num(p,&cnum))
-	    {
-	      rp_ctr_piecewise_insert_constraint(*c,cnum);
-	      if (!rp_parser_accept(p,RP_TOKEN_SHARP))
-	      {
-		listiter = 0;
-	      }
-	    }
-	    else
-	    {
-	      listiter = 0;
-	    }
-	  }
-	  while (listiter);
-	}
+        if (!rp_ctr_piecewise_insert_domain(*c,itv))
+        {
+          rp_parser_stop(p,"intersection of pieces having non zero width");
+          iter = 0;
+        }
+        else if (!rp_parser_expect(p,RP_TOKEN_COLON,"colon"))
+        {
+          iter = 0;
+        }
+        else
+        {
+          /* list c1 # ... # cj */
+          int listiter = 1;
+          do
+          {
+            rp_ctr_num cnum;
+            /* next constraint, at least one */
+            if (rp_rule_ctr_num(p,&cnum))
+            {
+              rp_ctr_piecewise_insert_constraint(*c,cnum);
+              if (!rp_parser_accept(p,RP_TOKEN_SHARP))
+              {
+                listiter = 0;
+              }
+            }
+            else
+            {
+              listiter = 0;
+            }
+          }
+          while (listiter);
+        }
       }
     }
     else if (rp_parser_accept(p,RP_TOKEN_RBR))
@@ -1178,8 +1178,8 @@ int rp_rule_ctr_cond(rp_parser p, rp_ctr_cond c, int guard)
       }
       else
       {
-	rp_parser_stop(p,"second implication not allowed");
-	result = 0;
+        rp_parser_stop(p,"second implication not allowed");
+        result = 0;
       }
     }
     else if (guard)
@@ -1235,23 +1235,23 @@ int rp_rule_ctr_num(rp_parser p, rp_ctr_num * c)
     {
       if (rp_rule_expr(p,&right))
       {
-	rp_ctr_num_create(c,&left,rel,&right);
+        rp_ctr_num_create(c,&left,rel,&right);
 
 
-	res = 1;
-	/*
+        res = 1;
+        /*
 
-	if (rp_expression_arity(rp_ctr_num_func(*c))==0)
-	{
-	  rp_parser_stop(p,"constraint having no variable");
-	  rp_ctr_num_destroy(c);
-	}
-	else
-	{
-	  res = 1;
-	}
+        if (rp_expression_arity(rp_ctr_num_func(*c))==0)
+        {
+          rp_parser_stop(p,"constraint having no variable");
+          rp_ctr_num_destroy(c);
+        }
+        else
+        {
+          res = 1;
+        }
 
-	*/
+        */
       }
     }
 
@@ -1270,8 +1270,8 @@ int rp_rule_constant(rp_parser p, rp_constant * out)
   if (rp_parser_expect(p,RP_TOKEN_IDENT,"constant name"))
   {
     if (rp_vector_constant_contains(rp_parser_nums(p),
-				    rp_lexer_prev_text(rp_parser_lexer(p)),
-				    &index)!=NULL)
+                                    rp_lexer_prev_text(rp_parser_lexer(p)),
+                                    &index)!=NULL)
     {
       /* already existing constant */
       rp_parser_stop(p,"already existing constant");
@@ -1282,17 +1282,17 @@ int rp_rule_constant(rp_parser p, rp_constant * out)
       strcpy(name,rp_lexer_prev_text(rp_parser_lexer(p)));
       if (rp_parser_expect(p,RP_TOKEN_SETVALUE,":="))
       {
-	rp_interval i;
-	if (rp_rule_constant_expr(p,i))
-	{
-	  rp_constant c;
-	  int index;
-	  rp_constant_create(&c,name,i);
-	  index = rp_vector_insert(rp_parser_nums(p),c);
-	  (*out) = c;
+        rp_interval i;
+        if (rp_rule_constant_expr(p,i))
+        {
+          rp_constant c;
+          int index;
+          rp_constant_create(&c,name,i);
+          index = rp_vector_insert(rp_parser_nums(p),c);
+          (*out) = c;
 
-	  res = 1;
-	}
+          res = 1;
+        }
       }
     }
   }
@@ -1312,12 +1312,12 @@ int rp_rule_constant_expr(rp_parser p, rp_interval i)
       rp_box b = NULL;  /* useless */
       if (rp_erep_eval(f,b))
       {
-	rp_interval_copy(i,rp_erep_val(f));
-	res = 1;
+        rp_interval_copy(i,rp_erep_val(f));
+        res = 1;
       }
       else
       {
-	rp_parser_stop(p,"empty evaluation of constant expression");
+        rp_parser_stop(p,"empty evaluation of constant expression");
       }
     }
     else
@@ -1333,7 +1333,7 @@ int rp_rule_constant_expr(rp_parser p, rp_interval i)
 
    expr ::= expr+expr | expr-expr | expr*expr | expr/expr | expr^NUMBER |
             sqrt(expr) | log(expr) | ... |
-	    +expr | -expr | (expr) | NUMBER | IDENTIFIER
+            +expr | -expr | (expr) | NUMBER | IDENTIFIER
 
    New grammar considering that operations are left associative and
    given the precedence (+,-) < (*,/) < (^):
@@ -1342,7 +1342,7 @@ int rp_rule_constant_expr(rp_parser p, rp_interval i)
    term ::= term*fact | term/fact | fact
    fact ::= unit^NUMBER | unit
    unit ::= sqrt(expr) | log(expr) | ... |
-	    +unit | -unit | (expr) | NUMBER | IDENTIFIER
+            +unit | -unit | (expr) | NUMBER | IDENTIFIER
 
    New grammar after eliminating the left recursivity in order
    to implement a recursive descent parser:
@@ -1354,7 +1354,7 @@ int rp_rule_constant_expr(rp_parser p, rp_interval i)
    fact     ::= unit fact_aux
    fact_aux ::= ^ NUMBER | epsilon
    unit     ::= sqrt(expr) | log(expr) | ... |
-	        +unit | -unit | (expr) | NUMBER | IDENTIFIER
+                +unit | -unit | (expr) | NUMBER | IDENTIFIER
 */
 
 /* expr ::= term expr_aux */
@@ -1527,67 +1527,67 @@ int rp_rule_fact_aux(rp_parser p, rp_erep * out, rp_erep unit)
       long sign, num, den;
       if (rp_erep_is_rational(exponent,&sign,&num,&den))
       {
-	if (den==0)
-	{
-	  rp_parser_stop(p,"division by zero");
-	}
+        if (den==0)
+        {
+          rp_parser_stop(p,"division by zero");
+        }
 
-	/* exponent is integer */
-	else if (den==1)
-	{
-	  res = 1;
+        /* exponent is integer */
+        else if (den==1)
+        {
+          res = 1;
 
-	  /* positive integer => f^n */
-	  if (sign==1)
-	  {
-	    rp_erep exp;
-	    rp_interval i;
-	    rp_interval_set_point(i,num);
-	    rp_erep_create_cst(&exp,"",i);
-	    rp_erep_create_binary(out,RP_SYMBOL_POW,unit,exp);
-	    rp_erep_destroy(&exp);
-	  }
+          /* positive integer => f^n */
+          if (sign==1)
+          {
+            rp_erep exp;
+            rp_interval i;
+            rp_interval_set_point(i,num);
+            rp_erep_create_cst(&exp,"",i);
+            rp_erep_create_binary(out,RP_SYMBOL_POW,unit,exp);
+            rp_erep_destroy(&exp);
+          }
 
-	  /* negative integer => 1/f^n*/
-	  else
-	  {
-	    rp_erep exp, aux, one;
-	    rp_interval i;
-	    rp_interval_set_point(i,num);
-	    rp_erep_create_cst(&exp,"",i);
-	    rp_interval_set_point(i,1.0);
-	    rp_erep_create_cst(&one,"",i);
-	    rp_erep_create_binary(&aux,RP_SYMBOL_POW,unit,exp);
-	    rp_erep_create_binary(out,RP_SYMBOL_DIV,one,aux);
-	    rp_erep_destroy(&exp);
-	    rp_erep_destroy(&one);
-	    rp_erep_destroy(&aux);
-	  }
-	}
+          /* negative integer => 1/f^n*/
+          else
+          {
+            rp_erep exp, aux, one;
+            rp_interval i;
+            rp_interval_set_point(i,num);
+            rp_erep_create_cst(&exp,"",i);
+            rp_interval_set_point(i,1.0);
+            rp_erep_create_cst(&one,"",i);
+            rp_erep_create_binary(&aux,RP_SYMBOL_POW,unit,exp);
+            rp_erep_create_binary(out,RP_SYMBOL_DIV,one,aux);
+            rp_erep_destroy(&exp);
+            rp_erep_destroy(&one);
+            rp_erep_destroy(&aux);
+          }
+        }
 
-	/* general case */
-	else
-	{
-	  rp_erep log_unit, mul_exp_log;
-	  rp_erep_create_unary(&log_unit,RP_SYMBOL_LOG,unit);
-	  rp_erep_create_binary(&mul_exp_log,RP_SYMBOL_MUL,exponent,log_unit);
-	  rp_erep_create_unary(out,RP_SYMBOL_EXP,mul_exp_log);
-	  rp_erep_destroy(&log_unit);
-	  rp_erep_destroy(&mul_exp_log);
-	  res = 1;
-	}
+        /* general case */
+        else
+        {
+          rp_erep log_unit, mul_exp_log;
+          rp_erep_create_unary(&log_unit,RP_SYMBOL_LOG,unit);
+          rp_erep_create_binary(&mul_exp_log,RP_SYMBOL_MUL,exponent,log_unit);
+          rp_erep_create_unary(out,RP_SYMBOL_EXP,mul_exp_log);
+          rp_erep_destroy(&log_unit);
+          rp_erep_destroy(&mul_exp_log);
+          res = 1;
+        }
       }
 
       /* general case: f^exponent <=> exp(exponent * log(f)) */
       else
       {
-	rp_erep log_unit, mul_exp_log;
-	rp_erep_create_unary(&log_unit,RP_SYMBOL_LOG,unit);
-	rp_erep_create_binary(&mul_exp_log,RP_SYMBOL_MUL,exponent,log_unit);
-	rp_erep_create_unary(out,RP_SYMBOL_EXP,mul_exp_log);
-	rp_erep_destroy(&log_unit);
-	rp_erep_destroy(&mul_exp_log);
-	res = 1;
+        rp_erep log_unit, mul_exp_log;
+        rp_erep_create_unary(&log_unit,RP_SYMBOL_LOG,unit);
+        rp_erep_create_binary(&mul_exp_log,RP_SYMBOL_MUL,exponent,log_unit);
+        rp_erep_create_unary(out,RP_SYMBOL_EXP,mul_exp_log);
+        rp_erep_destroy(&log_unit);
+        rp_erep_destroy(&mul_exp_log);
+        res = 1;
       }
       rp_erep_destroy(&exponent);
     }
@@ -1623,8 +1623,8 @@ int rp_rule_unit(rp_parser p, rp_erep * out)
 
     if ((v=rp_vector_variable_contains(
                   rp_parser_locvars(p),
-		  rp_lexer_prev_text(rp_parser_lexer(p)),
-		  &index))!=NULL)
+                  rp_lexer_prev_text(rp_parser_lexer(p)),
+                  &index))!=NULL)
     {
       /* local variable */
       rp_erep_create_var(out,rp_function_local_var(index));
@@ -1632,8 +1632,8 @@ int rp_rule_unit(rp_parser p, rp_erep * out)
     }
     else if ((c=rp_vector_constant_contains(
                   rp_parser_nums(p),
-		  rp_lexer_prev_text(rp_parser_lexer(p)),
-		  &index))!=NULL)
+                  rp_lexer_prev_text(rp_parser_lexer(p)),
+                  &index))!=NULL)
     {
       /* constant */
       rp_erep_create_cst(out,rp_constant_name(*c),rp_constant_val(*c));
@@ -1641,16 +1641,16 @@ int rp_rule_unit(rp_parser p, rp_erep * out)
     }
     else if ((f=rp_vector_function_contains(
                   rp_parser_funcs(p),
-		  rp_lexer_prev_text(rp_parser_lexer(p)),
-		  &index))!=NULL)
+                  rp_lexer_prev_text(rp_parser_lexer(p)),
+                  &index))!=NULL)
     {
       /* function */
       return( rp_rule_function_call(p,*f,out) );
     }
     else if ((v=rp_vector_variable_contains(
                   rp_parser_vars(p),
-		  rp_lexer_prev_text(rp_parser_lexer(p)),
-		  &index))!=NULL)
+                  rp_lexer_prev_text(rp_parser_lexer(p)),
+                  &index))!=NULL)
     {
       /* variable */
       rp_erep_create_var(out,index);
@@ -1853,22 +1853,22 @@ int rp_rule_function_call_iter(rp_parser p, rp_function f, int i, rp_erep * out)
 
       if (rp_parser_accept(p,RP_TOKEN_COMMA))
       {
-	res = rp_rule_function_call_iter(p,f,i+1,out);
+        res = rp_rule_function_call_iter(p,f,i+1,out);
       }
       else if (rp_parser_accept(p,RP_TOKEN_RBR))
       {
-	if (i==rp_function_arity(f)-1)
-	{
-	  res = 1;
-	}
-	else
-	{
-	  rp_parser_stop(p,"not enough arguments in a function call");
-	}
+        if (i==rp_function_arity(f)-1)
+        {
+          res = 1;
+        }
+        else
+        {
+          rp_parser_stop(p,"not enough arguments in a function call");
+        }
       }
       else
       {
-	rp_parser_stop(p,"function argument not found or wrong token");
+        rp_parser_stop(p,"function argument not found or wrong token");
       }
     }
   }
@@ -1958,17 +1958,17 @@ int rp_rule_unit_unary(rp_parser p, rp_erep * out, int symbol)
     {
       if (symbol==RP_SYMBOL_NO)
       {
-	rp_erep_set(out,child);
+        rp_erep_set(out,child);
       }
       else
       {
-	rp_erep_create_unary(out,symbol,child);
+        rp_erep_create_unary(out,symbol,child);
       }
       res = 1;
     }
     else
     {
-      rp_parser_stop(p,"right bracket not found");
+      rp_parser_stop(p,"right bracket not found (unary)");
     }
   }
   rp_erep_destroy(&child);
@@ -1997,12 +1997,12 @@ int rp_rule_unit_binary(rp_parser p, rp_erep * out, int symbol)
     {
       if (rp_parser_expect(p,RP_TOKEN_RBR,")"))  /* right bracket */
       {
-	rp_erep_create_binary(out,symbol,left,right);
-	res = 1;
+        rp_erep_create_binary(out,symbol,left,right);
+        res = 1;
       }
       else
       {
-	rp_parser_stop(p,"right bracket not found");
+        rp_parser_stop(p,"right bracket not found (binary)");
       }
     }
   }

@@ -168,14 +168,14 @@ int rp_lexer_get_token(rp_lexer l)
       char d = rp_stream_get_char(rp_lexer_input(l));
       if (d=='>')
       {
-	strcpy(rp_lexer_text(l),"->");
-	return( rp_lexer_token(l)=RP_TOKEN_IMPLY );
+        strcpy(rp_lexer_text(l),"->");
+        return( rp_lexer_token(l)=RP_TOKEN_IMPLY );
       }
       else
       {
-	rp_stream_unget_char(rp_lexer_input(l),d);
-	strcpy(rp_lexer_text(l),"-");
-	return( rp_lexer_token(l)=RP_TOKEN_MINUS );
+        rp_stream_unget_char(rp_lexer_input(l),d);
+        strcpy(rp_lexer_text(l),"-");
+        return( rp_lexer_token(l)=RP_TOKEN_MINUS );
       }
     }
 
@@ -192,14 +192,14 @@ int rp_lexer_get_token(rp_lexer l)
       char d = rp_stream_get_char(rp_lexer_input(l));
       if (d=='*')
       {
-	rp_lexer_eat_comment(l);
-	return( rp_lexer_get_token(l) );
+        rp_lexer_eat_comment(l);
+        return( rp_lexer_get_token(l) );
       }
       else
       {
-	rp_stream_unget_char(rp_lexer_input(l),d);
-	strcpy(rp_lexer_text(l),"/");
-	return( rp_lexer_token(l)=RP_TOKEN_DIV );
+        rp_stream_unget_char(rp_lexer_input(l),d);
+        strcpy(rp_lexer_text(l),"/");
+        return( rp_lexer_token(l)=RP_TOKEN_DIV );
       }
     }
 
@@ -293,14 +293,14 @@ int rp_lexer_get_token(rp_lexer l)
       char d = rp_stream_get_char(rp_lexer_input(l));
       if (d=='=')
       {
-	strcpy(rp_lexer_text(l),":=");
-	return( rp_lexer_token(l)=RP_TOKEN_SETVALUE );
+        strcpy(rp_lexer_text(l),":=");
+        return( rp_lexer_token(l)=RP_TOKEN_SETVALUE );
       }
       else
       {
-	rp_stream_unget_char(rp_lexer_input(l),d);
-	strcpy(rp_lexer_text(l),":");
-	return( rp_lexer_token(l)=RP_TOKEN_COLON );
+        rp_stream_unget_char(rp_lexer_input(l),d);
+        strcpy(rp_lexer_text(l),":");
+        return( rp_lexer_token(l)=RP_TOKEN_COLON );
       }
     }
 
@@ -310,12 +310,12 @@ int rp_lexer_get_token(rp_lexer l)
       char d = rp_stream_get_char(rp_lexer_input(l));
       if (d=='=')
       {
-	strcpy(rp_lexer_text(l),">=");
-	return( rp_lexer_token(l)=RP_TOKEN_SUPEQUAL );
+        strcpy(rp_lexer_text(l),">=");
+        return( rp_lexer_token(l)=RP_TOKEN_SUPEQUAL );
       }
       else
       {
-	return( rp_lexer_stop(l,"'>' not supported") );
+        return( rp_lexer_stop(l,"'>' not supported") );
       }
     }
 
@@ -325,12 +325,12 @@ int rp_lexer_get_token(rp_lexer l)
       char d = rp_stream_get_char(rp_lexer_input(l));
       if (d=='=')
       {
-	strcpy(rp_lexer_text(l),"<=");
-	return( rp_lexer_token(l)=RP_TOKEN_INFEQUAL );
+        strcpy(rp_lexer_text(l),"<=");
+        return( rp_lexer_token(l)=RP_TOKEN_INFEQUAL );
       }
       else
       {
-	return( rp_lexer_stop(l,"'<' not supported") );
+        return( rp_lexer_stop(l,"'<' not supported") );
       }
     }
 
@@ -346,13 +346,13 @@ int rp_lexer_get_token(rp_lexer l)
       char tmp[RP_LEXER_ERRLEN];
       if (iscntrl(rp_stream_char(rp_lexer_input(l))))
       {
-	sprintf(tmp,"control character '%u' unknown",
-		rp_stream_char(rp_lexer_input(l)));
+        sprintf(tmp,"control character '%u' unknown",
+                rp_stream_char(rp_lexer_input(l)));
       }
       else
       {
-	sprintf(tmp,"character '%c' unknown",
-		rp_stream_char(rp_lexer_input(l)));
+        sprintf(tmp,"character '%c' unknown",
+                rp_stream_char(rp_lexer_input(l)));
       }
       return( rp_lexer_stop(l,tmp) );
     }
@@ -396,7 +396,7 @@ int rp_lexer_get_ident(rp_lexer l)
 {
   /* first character necessarily ok */
   if (!rp_lexer_get_sequence(l,rp_lexer_text(l),
-			     RP_LEXER_TOKLEN,rp_isident))
+                             RP_LEXER_TOKLEN,rp_isident))
   {
     return( rp_lexer_stop(l,"identifier too long") );
   }
@@ -630,7 +630,7 @@ int rp_lexer_get_number(rp_lexer l)
   int i;
   /* first character necessarily ok */
   if (!rp_lexer_get_sequence(l,rp_lexer_text(l),
-			     RP_LEXER_TOKLEN,isdigit))
+                             RP_LEXER_TOKLEN,isdigit))
   {
     return( rp_lexer_stop(l,"integral part of number too long") );
   }
@@ -644,7 +644,7 @@ int rp_lexer_get_number(rp_lexer l)
   /* decimal part? */
   i = strlen(rp_lexer_text(l));
   rp_lexer_text(l)[i] = rp_stream_get_char(rp_lexer_input(l));
-  if (rp_lexer_text(l)[i]!='.')
+  if (rp_lexer_text(l)[i]!='.' && toupper(rp_lexer_text(l)[i])!='E')
   {
     /* integer */
     rp_stream_unget_char(rp_lexer_input(l),rp_lexer_text(l)[i]);
@@ -652,22 +652,26 @@ int rp_lexer_get_number(rp_lexer l)
     return( rp_lexer_token(l)=RP_TOKEN_INTEGER );
   }
 
-  /* float, at least one digit in the decimal part */
-  if (rp_lexer_end(l))
-  {
-    return( rp_lexer_stop(l,"decimal part of float unterminated") );
-  }
-  rp_lexer_text(l)[++i] = rp_stream_get_char(rp_lexer_input(l));
-  if (!isdigit(rp_lexer_text(l)[i]))
-  {
-    return( rp_lexer_stop(l,"decimal part of float null") );
-  }
+  if (rp_lexer_text(l)[i]=='.') {
+      /* float, at least one digit in the decimal part */
+      if (rp_lexer_end(l))
+      {
+          return( rp_lexer_stop(l,"decimal part of float unterminated") );
+      }
+      rp_lexer_text(l)[++i] = rp_stream_get_char(rp_lexer_input(l));
+      if (!isdigit(rp_lexer_text(l)[i]))
+      {
+          return( rp_lexer_stop(l,"decimal part of float null") );
+      }
 
-  /* Get the rest of the decimal part */
-  if (!rp_lexer_get_sequence(l,&(rp_lexer_text(l)[++i]),
-			     RP_LEXER_TOKLEN-i-1,isdigit))
-  {
-    return( rp_lexer_stop(l,"float too long") );
+      /* Get the rest of the decimal part */
+      if (!rp_lexer_get_sequence(l,&(rp_lexer_text(l)[++i]),
+                                 RP_LEXER_TOKLEN-i-1,isdigit))
+      {
+          return( rp_lexer_stop(l,"float too long") );
+      }
+  } else {
+    rp_stream_unget_char(rp_lexer_input(l),rp_lexer_text(l)[i]);
   }
 
   /* exponent part? */
@@ -706,10 +710,9 @@ int rp_lexer_get_number(rp_lexer l)
 
   /* Get the rest of the decimal part */
   if (!rp_lexer_get_sequence(l,&(rp_lexer_text(l)[++i]),
-			     RP_LEXER_TOKLEN-i-1,isdigit))
+                             RP_LEXER_TOKLEN-i-1,isdigit))
   {
     return( rp_lexer_stop(l,"float too long") );
   }
-
   return( rp_lexer_token(l)=RP_TOKEN_FLOAT );
 }
