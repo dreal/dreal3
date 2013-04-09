@@ -1,4 +1,5 @@
 color = d3.scale.category10()
+animation_delay = 800
 
 showOnly = (chart, b) ->
   chart.xScale.domain(b);
@@ -269,12 +270,11 @@ class Chart
                           .attr("class", "chart")
                           .attr("clip-path", "url(#clip-" + chart.id + ")")
                           .attr("d", chart.area)
+                          .style("fill-opacity", 0.0)
+                          .transition()
+                          .duration(animation_delay * (+ piece.step + 1))
                           .style("fill", color(piece.key))
                           .style("fill-opacity", 0.8)
-                          .on("mouseover",
-                          () -> d3.select(this).style("fill-opacity", 1.0))
-                          .on("mouseout",
-                          () -> d3.select(this).style("fill-opacity", 0.8))
                           )
 
     _.each(this.chartData, (piece) ->
@@ -282,10 +282,14 @@ class Chart
            .data([piece.values])
            .attr("class", "line")
            .attr("clip-path", "url(#clip-" + chart.id + ")")
-           .attr("d", chart.line)
            .style("stroke", color(piece.key))
            .style("stroke-width", "2px")
            .style("fill-opacity", 0.0)
+           .style("stroke-opacity", 0.0)
+           .transition()
+           .duration(animation_delay * (+ piece.step + 1))
+           .style("stroke-opacity", 1.0)
+           .attr("d", chart.line)
            )
 
     # /* We've created everything, let's actually add it to the page */
