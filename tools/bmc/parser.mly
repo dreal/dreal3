@@ -107,6 +107,8 @@ exp:
  | SLASH exp exp { Dr.Div ($2, $3) }
  | EXP exp       { Dr.Exp $2 }
  | CARET exp exp { Dr.Pow ($2, $3) }
+ | SIN exp 	 { Dr.Sin $2 }
+ | COS exp       { Dr.Cos $2 }
 ; /* TODO: support other functions such as sin, cos, ... */
 
 ode_list: /* */ { [] }

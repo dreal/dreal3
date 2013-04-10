@@ -117,9 +117,9 @@ do
     SMT2=${BASE}_$K.smt2
     RESULT=${BASE}_$K.smt2.result
     log_output "Unroll $DRH => $SMT2:"
-    $BMC -k $K $DRH > $SMT2 || { log_output "BMC FAILED"; exit 77; }
+    $BMC -k $K $DRH > $SMT2 || { log_output "BMC T/O"; exit 77; }
     log_output "Run dReal --precision $PRECISION $DREAL_OPTION $SMT2"
-    $TIMEOUT_UTIL -t ${TIMEOUT} $DREAL --precision=$PRECISION $DREAL_OPTION $SMT2 > $RESULT || { log_output "dReal FAILED"; exit 77; }
+    $TIMEOUT_UTIL -t ${TIMEOUT} $DREAL --precision=$PRECISION $DREAL_OPTION $SMT2 > $RESULT || { log_output "dReal T/O"; exit 77; }
     if [[ "`cat $RESULT`" == "sat" ]]
     then
         log_output "Result: sat"

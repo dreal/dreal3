@@ -214,7 +214,7 @@ let make_smt2
   let assert_formula = Assert formula in
   let defineodes' =
     BatList.unique
-      ~eq:
+      ~cmp:
           (fun cmd1 cmd2 -> match (cmd1, cmd2) with
           | (DefineODE (n1, x1, e1), DefineODE (n2, x2, e2)) -> ((n1 = n2) && (x1 = x2))
           | _ -> false)
