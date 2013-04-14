@@ -9,7 +9,6 @@ DREAL=${SCRIPTPATH}/dReal
 PRECISION=0.1
 DREAL_OPTION="--visualize"
 
-
 TIMEOUT_UTIL=${SCRIPTPATH}/timeout3
 
 #################################################################
@@ -86,7 +85,7 @@ then
         exit 1
 fi
 
-$TIMEOUT_UTIL 2> /dev/null
+$TIMEOUT_UTIL > /dev/null 2>&1
 if [ $? -eq 127 ]
 then
         echo "timeout is not found"
