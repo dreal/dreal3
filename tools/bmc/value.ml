@@ -7,9 +7,9 @@ type t = Num of float | Intv of float * float
 let print_intv out (n, m) =
   begin
     BatString.print out "[";
-    BatFloat.print out n;
+    BatPrintf.fprintf out "%f" n;
     BatString.print out ", ";
-    BatFloat.print out m;
+    BatPrintf.fprintf out "%f" m;
     BatString.print out "]";
   end
 

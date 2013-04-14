@@ -184,7 +184,7 @@ let rec print_exp (out : 'a BatInnerIO.output) : exp -> unit =
     BatString.print out (filter x)
   | Const n ->
     (* If n ends with ".", add "0" to make ".0" *)
-    let s = BatFloat.to_string n in
+    let s = BatPrintf.sprintf "%f" n in
     let s' = match BatString.ends_with s "." with
       | true -> s ^ "0"
       | false -> s
@@ -326,7 +326,7 @@ let rec print_infix_exp (out : 'a BatInnerIO.output) : exp -> unit =
     BatString.print out (filter x)
   | Const n ->
     (* If n ends with ".", add "0" to make ".0" *)
-    let s = BatFloat.to_string n in
+    let s = BatPrintf.sprintf "%f" n in
     let s' = match BatString.ends_with s "." with
       | true -> s ^ "0"
       | false -> s
@@ -365,4 +365,3 @@ let rec print_infix_exp (out : 'a BatInnerIO.output) : exp -> unit =
   | Sinh e -> print_fncall "sinh" [e]
   | Cosh e -> print_fncall "cosh" [e]
   | Tanh e -> print_fncall "tanh" [e]
-
