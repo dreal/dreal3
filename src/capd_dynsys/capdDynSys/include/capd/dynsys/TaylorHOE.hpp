@@ -116,14 +116,15 @@ TaylorHOE<MapType,StepControlType>::enclosure(const VectorType &x, VectorType& o
       // we will try to refine the enclosure
       const int limit=30;
       int counter = 0;
-      bool found=false;
+//      bool found=false;
+      bool found=true;
 
       while((!found) && (counter<limit)){
         counter++;
         found = true;
         for(i=0;i< dimension;++i){
           if(!(v[i].subsetInterior(u[i]))){
-            found = false;
+//            found = false;
             u[i] *= typename TypeTraits<ScalarType>::Real(1.5);
           } // endif
         } // endfor
@@ -133,7 +134,7 @@ TaylorHOE<MapType,StepControlType>::enclosure(const VectorType &x, VectorType& o
         v = I*out_remainder;
       } // endwhile
       if(!found)
-        throw TaylorException<VectorType>("TaylorHOE Error: cannot find enclosure guaranteeing bounds, loop limit exceeded",x,this->getStep());
+        throw TaylorException<VectorType>("TaylorHOE Error: TTTT cannot find enclosure guaranteeing bounds, loop limit exceeded",x,this->getStep());
     } // end else
   }
 
