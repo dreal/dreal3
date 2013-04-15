@@ -1,8 +1,0 @@
-fpu.cmo: fpu.cmi 
-fpu.cmx: fpu.cmi 
-fpu_rename_all.cmo: fpu.cmi fpu_rename_all.cmi 
-fpu_rename_all.cmx: fpu.cmx fpu_rename_all.cmi 
-fpu_rename.cmo: fpu.cmi fpu_rename.cmi 
-fpu_rename.cmx: fpu.cmx fpu_rename.cmi 
-interval.cmo: fpu.cmi interval.cmi 
-interval.cmx: fpu.cmx interval.cmi 
