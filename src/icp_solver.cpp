@@ -325,7 +325,8 @@ rp_box icp_solver::compute_next()
         if (prop_with_ODE())//sean: here it is! propagation before split!!!
         {
             int i;
-            if ((i=_vselect->apply(_boxes.get()))>=0)
+            if ((i=_vselect->apply(_boxes.get()))>=0 &&
+                (rp_interval_width(rp_box_elem(_boxes.get(), i)) >= _config.nra_precision))
             {
                 ++_nsplit;
                 _dsplit->apply(_boxes,i);
