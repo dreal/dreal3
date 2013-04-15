@@ -157,8 +157,8 @@ void rp_oqueue_enlarge(rp_oqueue * q, int size)
   {
     rp_oqueue_size(*q) += size;
     rp_realloc(rp_oqueue_ptr(*q),
-	       rp_operator**,
-	       rp_oqueue_size(*q)*sizeof(rp_operator*));
+               rp_operator**,
+               rp_oqueue_size(*q)*sizeof(rp_operator*));
   }
 }
 
@@ -212,11 +212,11 @@ rp_operator * rp_oqueue_pop(rp_oqueue q)
     {
       if (rp_oqueue_first(q)==rp_oqueue_size(q)-1)
       {
-	rp_oqueue_first(q) = 0;
+        rp_oqueue_first(q) = 0;
       }
       else
       {
-	++ rp_oqueue_first(q);
+        ++ rp_oqueue_first(q);
       }
     }
   }
@@ -279,28 +279,28 @@ void rp_oqueue_list_insert(rp_oqueue_list q, rp_operator * o)
     /* Check whether q contains a queue associated with the priority of o */
     /* Priorities are sorted in descending ordering                       */
     while ((i<rp_oqueue_list_size(q)) &&
-	   (rp_oqueue_list_priority(q,i)>o->priority()))
+           (rp_oqueue_list_priority(q,i)>o->priority()))
     {
       ++ i;
     }
 
     /* No such queue */
     if ((i==rp_oqueue_list_size(q)) ||
-	(rp_oqueue_list_priority(q,i)!=o->priority()))
+        (rp_oqueue_list_priority(q,i)!=o->priority()))
     {
       ++ rp_oqueue_list_size(q);
       rp_realloc(rp_oqueue_list_ptrp(q),
-		 int*,
-		 rp_oqueue_list_size(q)*sizeof(int));
+                 int*,
+                 rp_oqueue_list_size(q)*sizeof(int));
       rp_realloc(rp_oqueue_list_ptrq(q),
-		 rp_oqueue*,
-		 rp_oqueue_list_size(q)*sizeof(rp_oqueue));
+                 rp_oqueue*,
+                 rp_oqueue_list_size(q)*sizeof(rp_oqueue));
 
       /* Management of descending ordering --> creation of a hole at i */
       for (j = rp_oqueue_list_size(q)-1; j>i; --j)
       {
-	rp_oqueue_list_priority(q,j) = rp_oqueue_list_priority(q,j-1);
-	rp_oqueue_list_elem(q,j) = rp_oqueue_list_elem(q,j-1);
+        rp_oqueue_list_priority(q,j) = rp_oqueue_list_priority(q,j-1);
+        rp_oqueue_list_elem(q,j) = rp_oqueue_list_elem(q,j-1);
       }
 
       /* Creation of the new queue */
@@ -341,12 +341,13 @@ rp_operator * rp_oqueue_list_pop (rp_oqueue_list q)
 }
 
 // Constructor
-rp_propagator::rp_propagator(rp_problem * p, double improve, ostream& o):
+rp_propagator::rp_propagator(rp_problem * p, double improve, bool verbose, ostream& o):
   rp_operator(0,0,0),
   _problem(p),
   _id(RP_OPERATOR_WORKING_INIT),
   _improve(improve),
   _priority(0),
+  _verbose(verbose),
   _out(o)
 {
   rp_vector_create_basic(&_vop);
@@ -450,7 +451,7 @@ int rp_propagator::check_precision(rp_operator * o, rp_box b)
   {
     int v = o->pruned_var(i);
     double eps = rp_min_num(1.0e-14,
-			    rp_variable_precision(rp_problem_var(*_problem,v)));
+                            rp_variable_precision(rp_problem_var(*_problem,v)));
     if (rp_interval_width(rp_box_elem(b,v))>(eps))
     {
       return( 1 );
@@ -479,58 +480,62 @@ int rp_propagator::apply_loop(rp_box b)
     if (this->check_precision(o,b))
     {
 //add
-	_out<<endl<<"[before pruning] "<<endl;
-        rp_pprint_vars(*_problem, b);
+        if(_verbose) {
+            _out<<endl<<"[before pruning] "<<endl;
+            rp_pprint_vars(*_problem, b);
+        }
 //added
       if (o->apply(b))
       {
-	// Propagation for every variable that can be modified by o
-	for (int i=0; i<o->pruned_arity(); ++i)
-	{
-	  // Consideration of all the operators depending on a modified variable
-	  int v = o->pruned_var(i);
+        // Propagation for every variable that can be modified by o
+        for (int i=0; i<o->pruned_arity(); ++i)
+        {
+          // Consideration of all the operators depending on a modified variable
+          int v = o->pruned_var(i);
 
-	  // Integer variables : correction Nicolas
-	  if(rp_variable_integer(rp_problem_var(*_problem,v)))
-	  {
-	    rp_interval_trunc(rp_box_elem(b,v));
+          // Integer variables : correction Nicolas
+          if(rp_variable_integer(rp_problem_var(*_problem,v)))
+          {
+            rp_interval_trunc(rp_box_elem(b,v));
 
-	    if (rp_interval_empty(rp_box_elem(b,v)))
-	    {
-	      rp_box_set_empty(b);
-	      return( 0 );
-	    }
-	  }
+            if (rp_interval_empty(rp_box_elem(b,v)))
+            {
+              rp_box_set_empty(b);
+              return( 0 );
+            }
+          }
 
-	  // Propagation only if domain improved enough
-	  if (rp_interval_improved(rp_box_elem(b,v),
-				   rp_box_elem(_bsave,v),
-				   _improve))
-	  {
-	    rp_vector * depv = &rp_dependency_elem(_dep,v);
-	    for (int j=0; j<rp_vector_size(*depv); ++j)
-	    {
-	      rp_operator * odep = (rp_operator *)rp_vector_elem(*depv,j);
-	      if (!odep->working(_id))
-	      {
-		odep->set_working(_id);
-		rp_oqueue_list_push(_queue,odep);
-	      }
-	    }
-	  }
-	}
-	// Note: o is supposed not to be idempotent and then it is necessarily
-	// inserted in the queue if the box is modified since it belongs to
-	// the dependency of every modified variable
+          // Propagation only if domain improved enough
+          if (rp_interval_improved(rp_box_elem(b,v),
+                                   rp_box_elem(_bsave,v),
+                                   _improve))
+          {
+            rp_vector * depv = &rp_dependency_elem(_dep,v);
+            for (int j=0; j<rp_vector_size(*depv); ++j)
+            {
+              rp_operator * odep = (rp_operator *)rp_vector_elem(*depv,j);
+              if (!odep->working(_id))
+              {
+                odep->set_working(_id);
+                rp_oqueue_list_push(_queue,odep);
+              }
+            }
+          }
+        }
+        // Note: o is supposed not to be idempotent and then it is necessarily
+        // inserted in the queue if the box is modified since it belongs to
+        // the dependency of every modified variable
 //add
-	_out<<"[after pruning] "<<endl;
-        rp_pprint_vars(*_problem, b);
+        if(_verbose) {
+            _out<<"[after pruning] "<<endl;
+            rp_pprint_vars(*_problem, b);
+        }
 //added
       }
       else
       {
-	rp_box_set_empty(b);
-	return( 0 );
+        rp_box_set_empty(b);
+        return( 0 );
       }
     }
   }
@@ -578,6 +583,7 @@ int rp_propagator::apply(rp_box b, int v)
 // Copy protection
 rp_propagator::rp_propagator(const rp_propagator& p):
     rp_operator(p),
+    _verbose(p._verbose),
     _out(p._out)
 
 {
