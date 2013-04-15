@@ -280,7 +280,16 @@ bool icp_solver::prop_with_ODE()
                     ode_solver odeSolver(i, _config, current_ode_vars, current_box, _enode_to_rp_id);
 
                     if(_config.nra_verbose) {
-                        cerr << "Before_Backward" << endl;
+                        cerr << "Before_Forward" << endl;
+                        pprint_vars(cerr, *_problem, _boxes.get());
+                        cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
+                    }
+
+                    if (!odeSolver.solve_forward())
+                        return false;
+
+                    if(_config.nra_verbose) {
+                        cerr << "After_Forward" << endl;
                         pprint_vars(cerr, *_problem, _boxes.get());
                         cerr << "!!!!!!!!!!Solving ODE (Backward)" << endl;
                     }
@@ -290,15 +299,6 @@ bool icp_solver::prop_with_ODE()
 
                     if(_config.nra_verbose) {
                         cerr << "After_Backward" << endl;
-                        pprint_vars(cerr, *_problem, _boxes.get());
-                        cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
-                    }
-
-                    if (!odeSolver.solve_forward())
-                        return false;
-
-                    if(_config.nra_verbose) {
-                        cerr << "After_FORWARD" << endl;
                         pprint_vars(cerr, *_problem, _boxes.get());
                     }
 
