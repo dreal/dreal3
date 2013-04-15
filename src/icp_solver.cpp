@@ -43,8 +43,9 @@ icp_solver::icp_solver(SMTConfig& c,
 {
     rp_init_library();
     _problem = create_rp_problem(stack, env);
-    _propag = new rp_propagator(_problem, 10.0, c.nra_proof_out);
-    rp_new( _vselect, rp_selector_roundrobin, (_problem) );
+    _propag = new rp_propagator(_problem, 10.0, c.nra_verbose, c.nra_proof_out);
+//    rp_new( _vselect, rp_selector_roundrobin, (_problem) );
+    rp_new( _vselect, rp_selector_existence, (_problem) );
     rp_new( _dsplit, rp_splitter_mixed, (_problem) );
 
     // Check once the satisfiability of all the constraints
