@@ -3,7 +3,7 @@
  *)
 
 {
-  open Parser
+  open Infix_parser
   open Error
   let debug_tag = false
   let verbose s =  if debug_tag then (print_string s; print_newline())
