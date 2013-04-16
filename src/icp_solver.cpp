@@ -43,8 +43,9 @@ icp_solver::icp_solver(SMTConfig& c,
 {
     rp_init_library();
     _problem = create_rp_problem(stack, env);
-    _propag = new rp_propagator(_problem, 10.0, c.nra_proof_out);
-    rp_new( _vselect, rp_selector_roundrobin, (_problem) );
+    _propag = new rp_propagator(_problem, 10.0, c.nra_verbose, c.nra_proof_out);
+//    rp_new( _vselect, rp_selector_roundrobin, (_problem) );
+    rp_new( _vselect, rp_selector_existence, (_problem) );
     rp_new( _dsplit, rp_splitter_mixed, (_problem) );
 
     // Check once the satisfiability of all the constraints
@@ -280,7 +281,16 @@ bool icp_solver::prop_with_ODE()
                     ode_solver odeSolver(i, _config, current_ode_vars, current_box, _enode_to_rp_id);
 
                     if(_config.nra_verbose) {
-                        cerr << "Before_Backward" << endl;
+                        cerr << "Before_Forward" << endl;
+                        pprint_vars(cerr, *_problem, _boxes.get());
+                        cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
+                    }
+
+                    if (!odeSolver.solve_forward())
+                        return false;
+
+                    if(_config.nra_verbose) {
+                        cerr << "After_Forward" << endl;
                         pprint_vars(cerr, *_problem, _boxes.get());
                         cerr << "!!!!!!!!!!Solving ODE (Backward)" << endl;
                     }
@@ -290,15 +300,6 @@ bool icp_solver::prop_with_ODE()
 
                     if(_config.nra_verbose) {
                         cerr << "After_Backward" << endl;
-                        pprint_vars(cerr, *_problem, _boxes.get());
-                        cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
-                    }
-
-                    if (!odeSolver.solve_forward())
-                        return false;
-
-                    if(_config.nra_verbose) {
-                        cerr << "After_FORWARD" << endl;
                         pprint_vars(cerr, *_problem, _boxes.get());
                     }
 
@@ -325,7 +326,8 @@ rp_box icp_solver::compute_next()
         if (prop_with_ODE())//sean: here it is! propagation before split!!!
         {
             int i;
-            if ((i=_vselect->apply(_boxes.get()))>=0)
+            if ((i=_vselect->apply(_boxes.get()))>=0 &&
+                (rp_interval_width(rp_box_elem(_boxes.get(), i)) >= _config.nra_precision))
             {
                 ++_nsplit;
                 _dsplit->apply(_boxes,i);

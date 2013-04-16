@@ -144,7 +144,7 @@ class rp_propagator : public rp_operator
 {
 public:
   // Constructor
-  rp_propagator(rp_problem * p, double improve = 10, ostream& o = cout);
+  rp_propagator(rp_problem * p, double improve = 10, bool verbose = false, ostream& o = cout);
 
   // Destructor
   ~rp_propagator();
@@ -200,6 +200,7 @@ private:
   void rp_pprint_var(rp_variable v);
   void rp_pprint_vars(rp_problem p, rp_box b);
   void rp_union_display(rp_union_interval u, int digits, int mode);
+  bool _verbose;
   ostream& _out;
 };
 
