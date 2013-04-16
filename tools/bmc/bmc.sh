@@ -13,7 +13,8 @@ usage: $0 options <*.drh>
 bmc: Bounded Model Checking for for Nonlinear Hybrid Systems
 
 OPTIONS:
-   -k      unrolling steps (default 3)
+   -k      unrolling steps  (default: 3)
+   -i      use infix parser (default: prefix parser)
 EOF
 }
 
