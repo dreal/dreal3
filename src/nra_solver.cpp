@@ -35,6 +35,8 @@ NRASolver::NRASolver( const int           i
     : OrdinaryTSolver ( i, n, c, e, t, x, d, s )
 {
 //initialize icp solver first
+    if (c.nra_precision == 0.0)
+        c.nra_precision = 0.001;
 }
 
 NRASolver::~NRASolver( )
