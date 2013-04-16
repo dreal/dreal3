@@ -40,6 +40,7 @@ and formula =
 | Ge  of exp * exp
 | Le  of exp * exp
 | Eq  of exp * exp
+| ForallT of formula
 
 type ode = var * exp
 
@@ -113,6 +114,7 @@ and preprocess_formula (f: string -> exp) : (formula -> formula) =
   | Ge (e1, e2) -> Ge (preprocess_exp f e1, preprocess_exp f e2)
   | Le (e1, e2) -> Le (preprocess_exp f e1, preprocess_exp f e2)
   | Eq (e1, e2) -> Eq (preprocess_exp f e1, preprocess_exp f e2)
+  | ForallT f' -> ForallT (preprocess_formula f f')
 
 let rec subst_exp (f: string -> string) : (exp -> exp) =
   function Var s -> Var (f s)
@@ -148,6 +150,7 @@ and subst_formula (f: string -> string) : (formula -> formula) =
   | Ge (e1, e2) -> Ge (subst_exp f e1, subst_exp f e2)
   | Le (e1, e2) -> Le (subst_exp f e1, subst_exp f e2)
   | Eq (e1, e2) -> Eq (subst_exp f e1, subst_exp f e2)
+  | ForallT f' -> ForallT (subst_formula f f')
 and subst_ode (f: string -> string) : (ode -> ode) =
   function (var, exp) -> (f var, subst_exp f exp)
 
@@ -253,6 +256,12 @@ and print_formula (out : 'a BatInnerIO.output) : formula -> unit =
   | Ge  (e1, e2) -> print_exps ">=" [e1; e2]
   | Le  (e1, e2) -> print_exps "<=" [e1; e2]
   | Eq  (e1, e2) -> print_exps "="  [e1; e2]
+  | ForallT f ->
+    begin
+      BatString.print out "(forall_t ";
+      print_formula out f;
+      BatString.print out ")";
+    end
 
 let print_ode out (v, e) =
   begin

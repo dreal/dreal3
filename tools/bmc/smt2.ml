@@ -44,6 +44,7 @@ let process_flow (k : int) (q : id) (m : mode) : (flow_annot * formula) =
            (fun invt_f ->
              Dr.make_and
                [Dr.subst_formula (add_index k q "_t") invt_f;
+                Dr.ForallT (Dr.subst_formula (add_index k q "_t") invt_f);
                 Dr.subst_formula (add_index k q "_0") invt_f])
            invs)
   in
