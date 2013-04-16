@@ -272,9 +272,16 @@ bool ode_solver::solve_forward()
 
         timeMap.stopAfterStep(true);
 
-        // Disable automatic step control
-        solver.turnOnStepControl();
-        //solver.setStep(1.0/16);
+        bool fastForward = true;
+//        double stepControl = 1/16.0;
+        double stepControl = 0.0;
+
+        if (stepControl == 0.0) {
+            solver.turnOnStepControl();
+        } else {
+            solver.turnOffStepControl();
+            solver.setStep(stepControl);
+        }
 
         interval prevTime(0.);
         trajectory.clear();
@@ -284,12 +291,13 @@ bool ode_solver::solve_forward()
         do
         {
             timeMap(T.rightBound(),s);
+            //timeMap(T,s);
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
                 cerr << "step made: " << stepMade << endl;
             }
 
-            if (T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
+            if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
                 // This is how we can extract an information
                 // about the trajectory between time steps.
                 // The type CurveType is a function defined
@@ -526,9 +534,16 @@ bool ode_solver::solve_backward()
 
         timeMap.stopAfterStep(true);
 
-        // Disable automatic step control
-        solver.turnOnStepControl();
-        //solver.setStep(- 1.0/16);
+        bool fastForward = true;
+//        double stepControl = - 1/16.0;
+        double stepControl = 0.0;
+
+        if (stepControl == 0.0) {
+            solver.turnOnStepControl();
+        } else {
+            solver.turnOffStepControl();
+            solver.setStep(stepControl);
+        }
 
         interval prevTime(0.);
 
@@ -537,6 +552,7 @@ bool ode_solver::solve_backward()
         do
         {
             timeMap(T.leftBound(),e);
+            //timeMap(T,e);
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
                 cerr << "step made: " << stepMade << endl;
@@ -544,7 +560,7 @@ bool ode_solver::solve_backward()
                 cerr << "currentTime : " << timeMap.getCurrentTime() << endl;
             }
 
-            if (T.rightBound() >= timeMap.getCurrentTime().leftBound()) {
+            if (!fastForward || T.rightBound() >= timeMap.getCurrentTime().leftBound()) {
                 // This is how we can extract an information
                 // about the trajectory between time steps.
                 // The type CurveType is a function defined
