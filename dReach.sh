@@ -1,6 +1,7 @@
 #!/bin/bash
 SCRIPTPATH=`dirname $(readlink -f $0)`
-BMC=${SCRIPTPATH}/tools/bmc/main.native
+BMC=${SCRIPTPATH}/tools/bmc/bmc.sh
+BMC_OCAML=${SCRIPTPATH}/tools/bmc/main.native
 DREAL=${SCRIPTPATH}/dReal
 PRECISION=0.1
 DREAL_OPTION="--visualize"
@@ -19,7 +20,9 @@ dReach: Reachability Analysis for Nonlinear Hybrid Systems
 
 OPTIONS:
    -p      precision (\delta) value for dReal (default: 0.001)
+   -i      use infix parser in BMC       (default: use prefix)
    -l      lower bound for the unrolling (default: 0)
+   -s      step for the unrolling (default: 1)
    -u      upper bound for the unrolling (required)
    -t      timeout in second (required)
    -h      Show this message
@@ -33,9 +36,11 @@ EOF
 TIMEOUT=
 PRECISION=0.001
 LB=0
+BMC_PARSER=
 UB=
+STEP=1
 VERBOSE=
-while getopts "hl:u:p:t:v" OPTION
+while getopts "hl:u:p:s:t:vi" OPTION
 do
      case $OPTION in
          h)
@@ -51,11 +56,17 @@ do
          u)
              UB=$OPTARG
              ;;
+         s)
+             STEP=$OPTARG
+             ;;
          p)
              PRECISION=$OPTARG
              ;;
          v)
              VERBOSE=1
+             ;;
+         i)
+             BMC_PARSER="-i"
              ;;
          \?)
              usage
@@ -70,6 +81,13 @@ done
 if [ ! -e $BMC ]
 then
         echo "BMC is not found at $BMC"
+        echo "Please edit $0 to specify the correct location of BMC tool"
+        exit 1
+fi
+
+if [ ! -e $BMC_OCAML ]
+then
+        echo "BMC(Ocaml) is not found at $BMC_OCAML"
         echo "Please edit $0 to specify the correct location of BMC tool"
         exit 1
 fi
@@ -106,13 +124,14 @@ echo "PRECISION=$PRECISION"
 echo "LB=$LB UB=$UB TIMEOUT=$TIMEOUT"
 echo "DRH=$DRH"
 
-for (( K=$LB; K<=$UB; K++ ))
+for (( K=$LB; K<=$UB; K=$K + $STEP ))
 do
     echo "=================================== K = $K ==========================================================================="
     SMT2=${BASE}_$K.smt2
     RESULT=${BASE}_$K.smt2.result
     log_output "Unroll $DRH => $SMT2:"
-    $BMC -k $K $DRH > $SMT2 || { log_output "BMC T/O"; exit 77; }
+    echo "$BMC -k $K $BMC_PARSER $DRH > $SMT2"
+    $BMC -k $K $BMC_PARSER $DRH > $SMT2 || { log_output "BMC ERROR"; exit 77; }
     log_output "Run dReal --precision=$PRECISION $DREAL_OPTION $SMT2"
     $TIMEOUT_UTIL -t ${TIMEOUT} $DREAL --precision=$PRECISION $DREAL_OPTION $SMT2 > $RESULT || { log_output "dReal T/O"; exit 77; }
     if [[ "`cat $RESULT`" == "sat" ]]

@@ -67,8 +67,5 @@ BASE=${1%.drh}
 DRH=$BASE.drh
 PDRH=$BASE.preprocessed.drh
 SMT=${BASE}_$K.smt2
-log_output "Preprocess $DRH > $PDRH"
 cpp -P -traditional-cpp $DRH > $PDRH
-log_output "$BMC -k $K $PARSER $PDRH > $SMT..."
 $BMC -k $K $PARSER $PDRH > $SMT
-log_output "done"
