@@ -273,8 +273,8 @@ bool ode_solver::solve_forward()
         timeMap.stopAfterStep(true);
 
         // Disable automatic step control
-        solver.turnOffStepControl();
-        solver.setStep(1.0/16);
+        solver.turnOnStepControl();
+        //solver.setStep(1.0/16);
 
         interval prevTime(0.);
         trajectory.clear();
@@ -527,8 +527,8 @@ bool ode_solver::solve_backward()
         timeMap.stopAfterStep(true);
 
         // Disable automatic step control
-        solver.turnOffStepControl();
-        solver.setStep(- 1.0/16);
+        solver.turnOnStepControl();
+        //solver.setStep(- 1.0/16);
 
         interval prevTime(0.);
 
