@@ -272,6 +272,10 @@ bool ode_solver::solve_forward()
 
         timeMap.stopAfterStep(true);
 
+        // Disable automatic step control
+        solver.turnOffStepControl();
+        solver.setStep(1.0/16);
+
         interval prevTime(0.);
         trajectory.clear();
         trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
@@ -279,7 +283,7 @@ bool ode_solver::solve_forward()
         vector<interval> out_time_list;
         do
         {
-            timeMap(T,s);
+            timeMap(T.rightBound(),s);
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
                 cerr << "step made: " << stepMade << endl;
@@ -522,13 +526,17 @@ bool ode_solver::solve_backward()
 
         timeMap.stopAfterStep(true);
 
+        // Disable automatic step control
+        solver.turnOffStepControl();
+        solver.setStep(- 1.0/16);
+
         interval prevTime(0.);
 
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
         do
         {
-            timeMap(T,e);
+            timeMap(T.leftBound(),e);
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
                 cerr << "step made: " << stepMade << endl;
