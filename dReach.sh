@@ -1,9 +1,5 @@
 #!/bin/bash
-
-pushd `dirname $0` > /dev/null
-SCRIPTPATH=`pwd`
-popd > /dev/null
-
+SCRIPTPATH=`dirname $(readlink -f $0)`
 BMC=${SCRIPTPATH}/tools/bmc/main.native
 DREAL=${SCRIPTPATH}/dReal
 PRECISION=0.1
