@@ -21,6 +21,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "icp_solver.h"
 #include <iomanip>
+#include <boost/bind.hpp>
+#include <boost/thread/thread.hpp>
+
 using namespace std;
 
 icp_solver::icp_solver(SMTConfig& c,
@@ -196,6 +199,71 @@ icp_solver::~icp_solver()
     rp_problem_destroy(_problem);
 }
 
+bool icp_solver::callODESolver(int group,
+                               vector< set< Enode* > > & diff_vec,
+                               rp_box current_box)
+{
+    if(_config.nra_verbose) {
+        cerr << "solve ode group: " << group << endl;
+    }
+    set<Enode*> current_ode_vars = diff_vec[group];
+
+    /* The size of ODE_Vars should be even */
+    if (current_ode_vars.size() % 2 == 1) {
+        return false;
+    }
+
+    for(set<Enode*>::iterator ite = current_ode_vars.begin();
+        ite != current_ode_vars.end();
+        ite++)
+    {
+        if(current_ode_vars.find((*ite)->getODEopposite()) == current_ode_vars.end())
+        {
+            return false;
+        }
+    }
+
+    if(!current_ode_vars.empty()) {
+        if(_config.nra_verbose) {
+            cerr << "Inside of current ODEs" << endl;
+        }
+        for(set<Enode*>::iterator ite = current_ode_vars.begin();
+            ite != current_ode_vars.end();
+            ite++)
+        {
+            if(_config.nra_verbose) {
+                cerr << "Name: " << (*ite)->getCar()->getName() << endl;
+            }
+        }
+        ode_solver odeSolver(group, _config, current_ode_vars, current_box, _enode_to_rp_id);
+
+        if(_config.nra_verbose) {
+            cerr << "Before_Forward" << endl;
+            pprint_vars(cerr, *_problem, _boxes.get());
+            cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
+        }
+
+        if (!odeSolver.solve_forward())
+            return false;
+
+        if(_config.nra_verbose) {
+            cerr << "After_Forward" << endl;
+            pprint_vars(cerr, *_problem, _boxes.get());
+            cerr << "!!!!!!!!!!Solving ODE (Backward)" << endl;
+        }
+
+        if (!odeSolver.solve_backward())
+            return false;
+
+        if(_config.nra_verbose) {
+            cerr << "After_Backward" << endl;
+            pprint_vars(cerr, *_problem, _boxes.get());
+        }
+    }
+    return true;
+}
+
+
 bool icp_solver::prop_with_ODE()
 {
     if (_propag->apply(_boxes.get())) {
@@ -244,67 +312,9 @@ bool icp_solver::prop_with_ODE()
                 }
             }
 
-            for(int i = 1; i <= max; i++)
-            {
-                if(_config.nra_verbose) {
-                    cerr << "solve ode group: " << i << endl;
-                }
-                set<Enode*> current_ode_vars = diff_vec[i];
-
-                /* The size of ODE_Vars should be even */
-                if (current_ode_vars.size() % 2 == 1) {
+            for(int i = 1; i <= max; i++) {
+                if (!callODESolver(i, diff_vec, current_box))
                     return false;
-                }
-
-                for(set<Enode*>::iterator ite = current_ode_vars.begin();
-                    ite != current_ode_vars.end();
-                    ite++)
-                {
-                    if(current_ode_vars.find((*ite)->getODEopposite()) == current_ode_vars.end())
-                    {
-                        return false;
-                    }
-                }
-
-                if(!current_ode_vars.empty()) {
-                    if(_config.nra_verbose) {
-                        cerr << "Inside of current ODEs" << endl;
-                    }
-                    for(set<Enode*>::iterator ite = current_ode_vars.begin();
-                        ite != current_ode_vars.end();
-                        ite++)
-                    {
-                        if(_config.nra_verbose) {
-                            cerr << "Name: " << (*ite)->getCar()->getName() << endl;
-                        }
-                    }
-                    ode_solver odeSolver(i, _config, current_ode_vars, current_box, _enode_to_rp_id);
-
-                    if(_config.nra_verbose) {
-                        cerr << "Before_Forward" << endl;
-                        pprint_vars(cerr, *_problem, _boxes.get());
-                        cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
-                    }
-
-                    if (!odeSolver.solve_forward())
-                        return false;
-
-                    if(_config.nra_verbose) {
-                        cerr << "After_Forward" << endl;
-                        pprint_vars(cerr, *_problem, _boxes.get());
-                        cerr << "!!!!!!!!!!Solving ODE (Backward)" << endl;
-                    }
-
-                    if (!odeSolver.solve_backward())
-                        return false;
-
-                    if(_config.nra_verbose) {
-                        cerr << "After_Backward" << endl;
-                        pprint_vars(cerr, *_problem, _boxes.get());
-                    }
-
-
-                }
             }
             return true;
         }
