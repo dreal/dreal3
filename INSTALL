@@ -10,13 +10,15 @@ Required Packages
  - bison 
  - flex 
  - libboost-dev
+ - libboost-thread-dev 
 
 We have tested that executing the following command on the newly installed Ubuntu 12.04 LTS
 configures all the required packages to build dReal2.
 
     $ sudo add-apt-repository ppa:dns/gnu
     $ sudo apt-get update
-    $ sudo apt-get install autoconf automake libtool git g++ bison flex libboost-dev
+    $ sudo apt-get install autoconf automake libtool git g++ bison flex \
+                           libboost-dev libboost-thread-dev 
     $ sudo apt-get upgrade
 
 
