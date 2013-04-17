@@ -44,7 +44,9 @@ public:
         );
 
     capd::IVector varlist_to_IVector(vector<Enode*> vars);
+    capd::IVector extract_invariants(vector<Enode*> vars);
     void IVector_to_varlist(capd::IVector & v, vector<Enode*> & vars);
+
     void prune(vector<Enode*>& _t_vars,
                capd::IVector v,
                capd::intervals::Interval<double, capd::rounding::DoubleRounding> dt,

@@ -155,6 +155,29 @@ IVector ode_solver::varlist_to_IVector(vector<Enode*> vars)
     return ret;
 }
 
+IVector ode_solver::extract_invariants(vector<Enode*> vars)
+{
+    IVector ret (vars.size());
+
+    /* Assign current interval values */
+    int i = 0;
+    for (vector<Enode*>::iterator var_ite = vars.begin();
+         var_ite != vars.end();
+         var_ite++, i++)
+    {
+        pair<double, double> inv = (*var_ite)->getODEinvariant();
+        ret[i] = interval(inv.first, inv.second);
+
+        if(_config.nra_verbose) {
+            cerr << "Invariant extracted from "
+                 << (*var_ite)->getCar()->getName()
+                 << " is "<< ret[i] <<endl;
+        }
+    }
+    return ret;
+}
+
+
 void ode_solver::IVector_to_varlist(IVector & v, vector<Enode*> & vars)
 {
     for(int i = 0; i < v.size(); i++)
@@ -255,6 +278,7 @@ bool ode_solver::solve_forward()
 
         //initial conditions
         IVector start = varlist_to_IVector(_0_vars);
+        IVector inv = extract_invariants(_t_vars);
         IVector end = varlist_to_IVector(_t_vars);
 
         //end = start; //set the initial comparison
@@ -284,12 +308,22 @@ bool ode_solver::solve_forward()
         }
 
         interval prevTime(0.);
-        trajectory.clear();
-        trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+        if(_config.nra_json) {
+            trajectory.clear();
+            trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+        }
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
+        bool invariantViolated = false;
         do
         {
+            IVector new_start = IVector(s);
+            if(!intersection(new_start, inv, new_start)) {
+                invariantViolated = true;
+                break;
+            }
+            s = C0Rect2Set(new_start);
+
             timeMap(T.rightBound(),s);
             //timeMap(T,s);
             interval stepMade = solver.getStep();
@@ -332,7 +366,18 @@ bool ode_solver::solve_forward()
                         cerr << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
                         cerr << "diam(enclosure): " << diam(v) << endl;
                     }
-                    trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+
+                    if(!intersection(v, inv, v)) {
+                        invariantViolated = true;
+                        break;
+                    }
+
+                    if(_config.nra_verbose) {
+                        cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ":  " << v << endl;
+                    }
+                    if(_config.nra_json) {
+                        trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+                    }
                     prune(_t_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
@@ -341,14 +386,16 @@ bool ode_solver::solve_forward()
                     cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
                     cerr << "enclosure for t=" << timeMap.getCurrentTime() << ":  " << IVector(s) << endl;
                 }
-                trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+                if(_config.nra_json) {
+                    trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+                }
             }
             prevTime = timeMap.getCurrentTime();
             if(_config.nra_verbose) {
                 cerr << "current time: " << prevTime << endl;
             }
         }
-        while (!timeMap.completed());
+        while (!invariantViolated && !timeMap.completed());
 
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;
@@ -517,6 +564,7 @@ bool ode_solver::solve_backward()
 
         //initial conditions
         IVector start = varlist_to_IVector(_0_vars);
+        IVector inv = extract_invariants(_t_vars);
         IVector end = varlist_to_IVector(_t_vars);
 
         //end = start; //set the initial comparison
@@ -549,8 +597,16 @@ bool ode_solver::solve_backward()
 
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
+        bool invariantViolated = false;
         do
         {
+            IVector new_end = IVector(e);
+            if(!intersection(new_end, inv, new_end)) {
+                invariantViolated = true;
+                break;
+            }
+            e = C0Rect2Set(new_end);
+
             timeMap(T.leftBound(),e);
             //timeMap(T,e);
             interval stepMade = solver.getStep();
@@ -595,6 +651,15 @@ bool ode_solver::solve_backward()
                         cerr << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
                         cerr << "diam(enclosure): " << diam(v) << endl;
                     }
+
+                    if(!intersection(v, inv, v)) {
+                        invariantViolated = true;
+                        break;
+                    }
+                    if(_config.nra_verbose) {
+                        cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ":  " << v << endl;
+                    }
+
                     prune(_0_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
@@ -611,7 +676,7 @@ bool ode_solver::solve_backward()
                 cerr << "current time: " << prevTime << endl;
             }
         }
-        while (!timeMap.completed());
+        while (!invariantViolated && !timeMap.completed());
 
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;

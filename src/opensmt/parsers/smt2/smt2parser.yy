@@ -67,7 +67,7 @@ void smt2error( const char * s )
 %token TK_SETLOGIC TK_SETINFO TK_SETOPTION TK_DECLARESORT TK_DEFINESORT TK_DECLAREFUN TK_DECLARECONST
 %token TK_PUSH TK_POP TK_CHECKSAT TK_GETASSERTIONS TK_GETPROOF TK_GETUNSATCORE TK_GETINTERPOLANTS
 %token TK_GETVALUE TK_GETASSIGNMENT TK_GETOPTION TK_GETINFO TK_EXIT
-%token TK_AS TK_LET TK_FORALL TK_EXISTS TK_ANNOT TK_DISTINCT TK_DEFINEFUN
+%token TK_AS TK_LET TK_FORALL TK_FORALLT TK_EXISTS TK_ANNOT TK_DISTINCT TK_DEFINEFUN
 %token TK_DEFINEODE
 %token TK_ASSERT
 %token TK_REAL TK_INT
@@ -91,7 +91,7 @@ void smt2error( const char * s )
 
 %type <str> TK_NUM TK_DEC TK_HEX TK_STR TK_SYM TK_KEY numeral decimal hexadecimal binary symbol
 %type <str> identifier spec_const b_value s_expr
-%type <str> TK_LEQ TK_GEQ TK_LT TK_GT
+%type <str> TK_LEQ TK_GEQ TK_LT TK_GT TK_FORALLT
 %type <str> TK_PLUS TK_MINUS TK_TIMES TK_UMINUS TK_DIV
 %type <str> TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW
 %type <str> TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT
@@ -338,6 +338,49 @@ term: spec_const
       { $$ = parser_ctx->mkDistinct( $3 ); }
     | '(' TK_LET '(' var_binding_list ')' term ')'
       { $$ = $6; }
+
+    | '(' TK_FORALLT '(' TK_LT identifier spec_const ')' ')'
+      {
+        Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
+        $$ = parser_ctx->mkForallT( "<", e, atof($6) );
+      }
+    | '(' TK_FORALLT '(' TK_GT identifier spec_const ')' ')'
+      {
+        Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
+        $$ = parser_ctx->mkForallT( ">", e, atof($6) );
+      }
+    | '(' TK_FORALLT '(' TK_LEQ identifier spec_const ')' ')'
+      {
+        Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
+        $$ = parser_ctx->mkForallT( "<=", e, atof($6) );
+      }
+    | '(' TK_FORALLT '(' TK_GEQ identifier spec_const ')' ')'
+      {
+        Enode * e = $$ = parser_ctx->mkVar( $5 ); free( $5 );
+        $$ = parser_ctx->mkForallT( ">=", e, atof($6) );
+      }
+
+    | '(' TK_FORALLT '(' TK_LT spec_const identifier ')' ')'
+      {
+        Enode * e = $$ = parser_ctx->mkVar( $6 ); free( $6 );
+        $$ = parser_ctx->mkForallT( ">", e, atof($5) );
+      }
+    | '(' TK_FORALLT '(' TK_GT spec_const identifier ')' ')'
+      {
+        Enode * e = $$ = parser_ctx->mkVar( $6 ); free( $6 );
+        $$ = parser_ctx->mkForallT( "<", e, atof($5) );
+      }
+    | '(' TK_FORALLT '(' TK_LEQ spec_const identifier ')' ')'
+      {
+        Enode * e = $$ = parser_ctx->mkVar( $6 ); free( $6 );
+        $$ = parser_ctx->mkForallT( ">=", e, atof($5) );
+      }
+    | '(' TK_FORALLT '(' TK_GEQ spec_const identifier ')' ')'
+      {
+        Enode * e = $$ = parser_ctx->mkVar( $6 ); free( $5 );
+        $$ = parser_ctx->mkForallT( "<=", e, atof($5) );
+      }
+
     /*
     | '(' TK_FORALL '(' sorted_var_list ')' term ')'
       { opensmt_error2( "case not handled (yet)", "" ); }

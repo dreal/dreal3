@@ -259,6 +259,9 @@ public:
   void            setODEgroup            ( int );
   const int       getODEgroup            ( ) const;
 
+  void            setODEinvarint ( pair<double, double> i );
+  const pair<double, double> getODEinvariant ( ) const;
+
   const double    getLowerBound          ( ) const; //added for dReal2
   const double    getUpperBound          ( ) const; //added for dReal2
   const double    getComplexValue        ( ) const;
@@ -415,6 +418,7 @@ private:
   lbool             ode_vartype;
   int               ode_group;
   Enode*            ode_opposite;
+  pair<double, double> ode_invariant;
 
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
@@ -467,6 +471,16 @@ inline const int  Enode::getODEgroup ( ) const
 {
     return ode_group;
 }
+
+inline void        Enode::setODEinvarint ( pair<double, double> i )
+{
+    ode_invariant = i;
+}
+inline const pair<double, double>  Enode::getODEinvariant ( ) const
+{
+    return ode_invariant;
+}
+
 
 inline void Enode::setODE (string o)
 {

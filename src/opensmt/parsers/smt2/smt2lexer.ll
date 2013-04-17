@@ -79,6 +79,7 @@ char * pbuffer2;
 "distinct"                   { return TK_DISTINCT; }
 "let"                        { return TK_LET; }
 "forall"                     { return TK_FORALL; }
+"forall_t"                   { return TK_FORALLT; }
 "exists"                     { return TK_EXISTS; }
 "!"                          { return TK_ANNOT; }
 "assert"                     { return TK_ASSERT; }
@@ -119,16 +120,16 @@ char * pbuffer2;
 "bvurem"                     { return TK_BVUREM; }
 "bvsdiv"                     { return TK_BVSDIV; }
 "bvudiv"                     { return TK_BVUDIV; }
-"select"		     { return TK_ARRAY_SELECT; }
-"store"			     { return TK_ARRAY_STORE; }
+"select"                     { return TK_ARRAY_SELECT; }
+"store"                      { return TK_ARRAY_STORE; }
 "sign_extend"                { return TK_SIGN_EXTEND; }
 "zero_extend"                { return TK_ZERO_EXTEND; }
 "rotate_left"                { return TK_ROTATE_LEFT; }
 "rotate_right"               { return TK_ROTATE_RIGHT; }
 "=>"                         { return TK_IMPLIES; }
-"and"			     { return TK_AND; }
-"or"			     { return TK_OR; }
-"not"			     { return TK_NOT; }
+"and"                        { return TK_AND; }
+"or"                         { return TK_OR; }
+"not"                        { return TK_NOT; }
 "iff"                        { return TK_IFF; }
 "xor"                        { return TK_XOR; }
 "true"                       { return TK_TRUE; }
@@ -152,8 +153,8 @@ char * pbuffer2;
 "^"|"pow"		{ return TK_POW; }
 
 
-"-"?((([0-9]+)|([0-9]*\.?[0-9]+))([eE][-+]?[0-9]+)?) 	                       { smt2lval.str = strdup(yytext); return TK_NUM; }
-"-"?((([0-9]+)|([0-9]+\.))) 	                                               { smt2lval.str = strdup(yytext); return TK_NUM; }
+"-"?((([0-9]+)|([0-9]*\.?[0-9]+))([eE][-+]?[0-9]+)?)                           { smt2lval.str = strdup(yytext); return TK_NUM; }
+"-"?((([0-9]+)|([0-9]+\.)))                                                    { smt2lval.str = strdup(yytext); return TK_NUM; }
 #x[a-fA-F0-9]+                                                                 { smt2lval.str = strdup( yytext ); return TK_HEX; }
 #b[0-1]+                                                                       { smt2lval.str = strdup( yytext ); return TK_BIN; }
 \:[a-zA-Z0-9~!@\$\%\^&\*_\-\+=\<\>\.\?\/]+                                     { smt2lval.str = strdup( yytext ); return TK_KEY; }

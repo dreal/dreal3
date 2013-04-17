@@ -28,6 +28,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include <csignal>
 #include <boost/algorithm/string/predicate.hpp>
+#include <algorithm>
 
 namespace opensmt {
 
@@ -914,6 +915,28 @@ void OpenSMTContext::addGetInterpolants( )
   Command c;
   c.command = GET_INTERPOLANTS;
   command_list.push_back( c );
+}
+
+Enode* OpenSMTContext::mkForallT( const char* op, Enode* e, double v)
+{
+    cerr << e << " " << op << " " << v << endl;
+    pair<double, double> inv = e->getODEinvariant();
+    if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
+        inv.first = std::max (e->getLowerBound(), inv.first);
+        inv.second = std::min (e->getUpperBound(), v);
+        cerr << "Inv : " << "[" << inv.first << ", " << inv.second << "]" << endl;
+        e->setODEinvarint(inv);
+    }
+    else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
+        inv.first = std::max (e->getLowerBound(), v);
+        inv.second = std::min (e->getUpperBound(), inv.second);
+        cerr << "Inv : " << "[" << inv.first << ", " << inv.second << "]" << endl;
+        e->setODEinvarint(inv);
+    }
+    else {
+        opensmt_error2( "command not supported (yet)", "" );
+    }
+    return egraph.mkTrue( );
 }
 
 void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v)

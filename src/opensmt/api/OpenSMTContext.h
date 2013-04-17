@@ -92,8 +92,8 @@ public:
   //
   // Communication API
   //
-  void          SetLogic	     ( logic_t );                    // Set logic
-  void          SetLogic	     ( const char * );               // Set logic
+  void          SetLogic             ( logic_t );                    // Set logic
+  void          SetLogic             ( const char * );               // Set logic
   void          SetOption            ( const char * );               // Set option
   void          SetOption            ( const char *, const char * ); // Set option
   void          SetInfo              ( const char * );               // Set info
@@ -128,6 +128,7 @@ public:
   void          addAssert            ( Enode * );               // Command for (assert ...)
   void          addIntvCtr           ( const char*, Enode *, double);
   void          addIntvCtrR          ( const char*, double , Enode *);
+  Enode*        mkForallT            ( const char*, Enode *, double);
 
   void          addCheckSAT          ( );                       // Command for (check-sat)
   void          addPush              ( int );                   // Command for (push ...)
@@ -172,18 +173,18 @@ public:
   inline Enode * mkGt        ( Enode * e )       { assert( e ); return egraph.mkGt    ( e ); }
 
   // added for dReal2
-  inline Enode * mkExp	     ( Enode * e )	 { assert(e); return egraph.mkExp(e);}
+  inline Enode * mkExp       ( Enode * e )       { assert(e); return egraph.mkExp(e);}
   inline Enode * mkLog       ( Enode * e )       { assert(e); return egraph.mkLog(e);}
-  inline Enode * mkPow	     ( Enode * e )	 { assert(e); return egraph.mkPow(e);}
-  inline Enode * mkSin	     ( Enode * e ) 	 { assert(e); return egraph.mkSin(e);}
-  inline Enode * mkCos	     ( Enode * e ) 	 { assert(e); return egraph.mkCos(e);}
-  inline Enode * mkTan	     ( Enode * e ) 	 { assert(e); return egraph.mkTan(e);}
-  inline Enode * mkArcSin    ( Enode * e ) 	 { assert(e); return egraph.mkArcSin(e);}
-  inline Enode * mkArcCos    ( Enode * e ) 	 { assert(e); return egraph.mkArcCos(e);}
-  inline Enode * mkArcTan    ( Enode * e ) 	 { assert(e); return egraph.mkArcTan(e);}
-  inline Enode * mkArcTan2   ( Enode * e ) 	 { assert(e); return egraph.mkArcTan2(e);}
-  inline Enode * mkMArcTan   ( Enode * e ) 	 { assert(e); return egraph.mkMArcTan(e);}
-  inline Enode * mkSafeSqrt  ( Enode * e ) 	 { assert(e); return egraph.mkSafeSqrt(e);}
+  inline Enode * mkPow       ( Enode * e )       { assert(e); return egraph.mkPow(e);}
+  inline Enode * mkSin       ( Enode * e )       { assert(e); return egraph.mkSin(e);}
+  inline Enode * mkCos       ( Enode * e )       { assert(e); return egraph.mkCos(e);}
+  inline Enode * mkTan       ( Enode * e )       { assert(e); return egraph.mkTan(e);}
+  inline Enode * mkArcSin    ( Enode * e )       { assert(e); return egraph.mkArcSin(e);}
+  inline Enode * mkArcCos    ( Enode * e )       { assert(e); return egraph.mkArcCos(e);}
+  inline Enode * mkArcTan    ( Enode * e )       { assert(e); return egraph.mkArcTan(e);}
+  inline Enode * mkArcTan2   ( Enode * e )       { assert(e); return egraph.mkArcTan2(e);}
+  inline Enode * mkMArcTan   ( Enode * e )       { assert(e); return egraph.mkMArcTan(e);}
+  inline Enode * mkSafeSqrt  ( Enode * e )       { assert(e); return egraph.mkSafeSqrt(e);}
 
   inline Enode * mkCons   ( Enode * car
                           , Enode * cdr = NULL )

@@ -36,6 +36,8 @@ Enode::Enode( )
   , ode_timevar (NULL)
   , ode_vartype ( l_Undef )
   , ode_group (0)
+  , ode_opposite (NULL)
+  , ode_invariant (make_pair(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()))
 {
   setEtype( ETYPE_LIST );
   // dynamic = this;
@@ -44,10 +46,10 @@ Enode::Enode( )
 // Constructor for new Symbols
 //
 Enode::Enode( const enodeid_t      id_
-	    , const char *         name_
-	    , const etype_t        etype_
-	    , Snode *              sort_
-	    )
+            , const char *         name_
+            , const etype_t        etype_
+            , Snode *              sort_
+            )
   : id         ( id_ )
   , properties ( 0 )
   , car        ( NULL )
@@ -59,6 +61,8 @@ Enode::Enode( const enodeid_t      id_
   , ode_timevar (NULL)
   , ode_vartype ( l_Undef )
   , ode_group (0)
+  , ode_opposite (NULL)
+  , ode_invariant (make_pair(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()))
 {
   setEtype( etype_ );
   setArity( sort_->getArity( ) - 1 ); // Sort arity includes return value ...
@@ -83,6 +87,8 @@ Enode::Enode( const enodeid_t id_
   , ode_timevar (NULL)
   , ode_vartype ( l_Undef )
   , ode_group (0)
+  , ode_opposite (NULL)
+  , ode_invariant (make_pair(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()))
   // , dynamic   ( NULL )
 {
   assert( car );
@@ -139,6 +145,8 @@ Enode::Enode( const enodeid_t	id_
   , ode_timevar (NULL)
   , ode_vartype ( l_Undef )
   , ode_group (0)
+  , ode_opposite (NULL)
+  , ode_invariant (make_pair(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()))
   // , dynamic   ( NULL )
 { }
 
@@ -238,9 +246,9 @@ void Enode::addParentTail ( Enode * p )
       assert( q->isTerm( ) || q->isList( ) );
       if ( q->getSameCdr( ) == qstart )
       {
-	q->setSameCdr( p );
-	p->setSameCdr( qstart );
-	break;
+        q->setSameCdr( p );
+        p->setSameCdr( qstart );
+        break;
       }
       // Next element
       q = q->getSameCdr( );
@@ -257,9 +265,9 @@ void Enode::addParentTail ( Enode * p )
       assert( q->isTerm( ) || q->isList( ) );
       if ( q->getSameCar( ) == qstart )
       {
-	q->setSameCar( p );
-	p->setSameCar( qstart );
-	break;
+        q->setSameCar( p );
+        p->setSameCar( qstart );
+        break;
       }
       // Next element
       q = q->getSameCar( );
@@ -461,17 +469,17 @@ void Enode::print( ostream & os )
 #if USE_GMP
       if (r < 0)
       {
-	if (r.get_den() != 1)
-	  os << "(/ " << "(- " << abs(r.get_num()) << ")" << " " << r.get_den() << ")";
-	else
-	  os << "(- " << abs(r) << ")";
+        if (r.get_den() != 1)
+          os << "(/ " << "(- " << abs(r.get_num()) << ")" << " " << r.get_den() << ")";
+        else
+          os << "(- " << abs(r) << ")";
       }
       else
       {
-	if (r.get_den() != 1)
-	  os << "(/ " << r.get_num() << " " << r.get_den() << ")";
-	else
-	  os << r;
+        if (r.get_den() != 1)
+          os << "(/ " << r.get_num() << " " << r.get_den() << ")";
+        else
+          os << r;
       }
 #else
       os << r;
@@ -508,9 +516,9 @@ void Enode::print( ostream & os )
       p = cdr;
       while ( !p->isEnil( ) )
       {
-	os << ", ";
-	p->car->print( os );
-	p = p->cdr;
+        os << ", ";
+        p->car->print( os );
+        p = p->cdr;
       }
 
       os << "]";
