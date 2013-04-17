@@ -79,9 +79,10 @@ private:
     const vector<Enode*> &               _stack;
     map<Enode*, pair<double, double> > & _env;
     void output_problem() const;
-    bool callODESolver(int group,
+    void callODESolver(int group,
                        vector< set< Enode* > > & diff_vec,
                        rp_box current_box);
+    bool ODEresult;
 
     icp_solver& operator=(const icp_solver& s);
     icp_solver(const icp_solver& s);
