@@ -58,8 +58,10 @@ AC_CHECK_FUNCS([floor getpagesize pow sqrt strdup strrchr strtol strtoul])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_LANG([C++])
 AC_LANG_CPLUSPLUS
+BOOST_REQUIRE
 AC_CHECK_HEADER(cstdint)
 AX_CXX_COMPILE_STDCXX_0X
+BOOST_THREADS
 
 CXXFLAGS='-Wall -std=gnu++0x'
 
