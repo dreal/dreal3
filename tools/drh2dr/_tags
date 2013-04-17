@@ -1,1 +1,0 @@
-<*>: package(batteries), package(batteries.syntax), syntax(camlp4o), thread
