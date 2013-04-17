@@ -203,7 +203,6 @@ void icp_solver::callODESolver(int group,
                                vector< set< Enode* > > & diff_vec,
                                rp_box current_box)
 {
-//    cerr << group << ": callODESolver is called" << endl;
     if(_config.nra_verbose) {
         cerr << "solve ode group: " << group << endl;
     }
@@ -238,15 +237,13 @@ void icp_solver::callODESolver(int group,
                 cerr << "Name: " << (*ite)->getCar()->getName() << endl;
             }
         }
-        ode_solver odeSolver(group, _config, current_ode_vars, current_box, _enode_to_rp_id);
+        ode_solver odeSolver(group, _config, current_ode_vars, current_box, _enode_to_rp_id, ODEresult);
 
         if(_config.nra_verbose) {
             cerr << "Before_Forward" << endl;
             pprint_vars(cerr, *_problem, _boxes.get());
             cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
         }
-
-//        cerr << group << ": callODESolver calls ODEForward" << endl;
 
         // If other thread already set it false, we just return
         if (!ODEresult) {
@@ -269,7 +266,6 @@ void icp_solver::callODESolver(int group,
             return;
         }
 
-//        cerr << group << ": callODESolver calls ODEBackward" << endl;
         if (!odeSolver.solve_backward()) {
             ODEresult = false;
             return;
@@ -280,7 +276,6 @@ void icp_solver::callODESolver(int group,
             pprint_vars(cerr, *_problem, _boxes.get());
         }
     }
-//    cerr << group << ": callODESolver is finished." << endl;
     return;
 }
 
@@ -336,19 +331,27 @@ bool icp_solver::prop_with_ODE()
             ODEresult = true;
             if (_config.nra_parallel_ODE) {
                 boost::thread_group group;
-                for(int i = 1; i <= max; i++) {
-                    group.create_thread(boost::bind(&icp_solver::callODESolver,
-                                                    this,
-                                                    i,
-                                                    diff_vec,
-                                                    current_box));
+                unsigned hc = boost::thread::hardware_concurrency();
+                unsigned block = ceil(((double)max) / hc);
+                for(unsigned bn = 0; bn < block; bn++) {
+                    for(unsigned i = 1; i <= hc && bn * hc + i <= max; i++) {
+                        group.create_thread(boost::bind(&icp_solver::callODESolver,
+                                                        this,
+                                                        bn * hc + i,
+                                                        diff_vec,
+                                                        current_box));
+                    }
+                    group.join_all();
+                    if(!ODEresult) {
+                        return false;
+                    }
                 }
-                group.join_all();
             } else {
                 for(int i = 1; i <= max; i++) {
                     icp_solver::callODESolver(i, diff_vec, current_box);
-                    if (!ODEresult)
+                    if (!ODEresult) {
                         return false;
+                    }
                 }
             }
             return ODEresult;

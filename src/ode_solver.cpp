@@ -29,13 +29,15 @@ ode_solver::ode_solver(int group,
                        SMTConfig& c,
                        set < Enode* > & ode_vars,
                        rp_box b,
-                       std::map<Enode*, int>& enode_to_rp_id
+                       std::map<Enode*, int>& enode_to_rp_id,
+                       bool & ode_result
     ) :
     _group(group),
     _config(c),
     _ode_vars(ode_vars),
     _b(b),
-    _enode_to_rp_id(enode_to_rp_id)
+    _enode_to_rp_id(enode_to_rp_id),
+    ODEresult(ode_result)
 {
 }
 
@@ -395,7 +397,7 @@ bool ode_solver::solve_forward()
                 cerr << "current time: " << prevTime << endl;
             }
         }
-        while (!invariantViolated && !timeMap.completed());
+        while (ODEresult && !invariantViolated && !timeMap.completed());
 
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;
@@ -676,7 +678,7 @@ bool ode_solver::solve_backward()
                 cerr << "current time: " << prevTime << endl;
             }
         }
-        while (!invariantViolated && !timeMap.completed());
+        while (ODEresult && !invariantViolated && !timeMap.completed());
 
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;

@@ -33,7 +33,8 @@ public:
                SMTConfig& c,
                set < Enode* > & ode_vars,
                rp_box b,
-               std::map<Enode*, int>& enode_to_rp_id
+               std::map<Enode*, int>& enode_to_rp_id,
+               bool& ODEresult
         );
     ~ode_solver();
 
@@ -85,6 +86,7 @@ private:
     ode_solver& operator=(const ode_solver& o);
     list<pair<const capd::interval, const capd::IVector> > trajectory;
     vector<string> var_list;
+    bool& ODEresult;
 
     void print_datapoint(ostream& out, const capd::interval& t, const capd::interval& v) const;
 
