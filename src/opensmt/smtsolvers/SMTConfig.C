@@ -84,6 +84,7 @@ SMTConfig::initializeConfig( )
   nra_icp_improve              = 10.0;
   nra_verbose                  = false;
   nra_proof                    = false;
+  nra_parallel_ODE             = false;
   nra_ODE_taylor_order         = 20;
   nra_ODE_grid_size            = 16;
   nra_contain_ODE              = false;
@@ -338,6 +339,12 @@ SMTConfig::parseCMDLine( int argc
         continue;
     }
 
+    if ( strcmp( buf, "--ode-parallel" ) == 0 )
+    {
+        nra_parallel_ODE = true;
+        continue;
+    }
+
     if ( strcmp( buf, "--help" ) == 0 )
     {
         printHelp( );
@@ -419,6 +426,9 @@ void SMTConfig::printHelp( )
       "\n"
       "   --ode-grid              specify the number of grids that we use in ODE solving\n"
       "                           (Default: 16)\n"
+      "\n"
+      "   --ode-parallel          specify to solve ODEs in parallel\n"
+      "                           (Default: false)\n"
       "\n"
       "   --visualize             print out data for the visualization of ODE solving\n"
       "                           which will be saved to \"filename.json\".\n";

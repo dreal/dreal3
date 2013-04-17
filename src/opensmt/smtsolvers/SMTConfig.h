@@ -35,7 +35,7 @@ struct SMTConfig
   // For standard executable
   //
   SMTConfig ( int    argc
-	    , char * argv[ ] )
+            , char * argv[ ] )
     : filename ( argv[ argc - 1 ] )
     , rocset   ( false )
     , docset   ( false )
@@ -82,7 +82,7 @@ struct SMTConfig
     {
       out.open( attr );
       if( !out )
-	opensmt_error2( "can't open ", attr );
+        opensmt_error2( "can't open ", attr );
       rocset = true;
     }
   }
@@ -93,14 +93,14 @@ struct SMTConfig
     {
       err.open( attr );
       if( !err )
-	opensmt_error2( "can't open ", attr );
+        opensmt_error2( "can't open ", attr );
       rocset = true;
     }
   }
 
   const char * filename;                     // Holds the name of the input filename
   logic_t      logic;                        // SMT-Logic under consideration
-  lbool	       status;                       // Status of the benchmark
+  lbool        status;                       // Status of the benchmark
   int          incremental;                  // Incremental solving
   int          produce_stats;                // Should print statistics ?
   int          produce_models;               // Should produce models ?
@@ -132,12 +132,12 @@ struct SMTConfig
   int          sat_dump_rnd_inter;           // Dump random interpolant
   int          sat_lazy_dtc;                 // Activate dtc
   int          sat_lazy_dtc_burst;           // % of eij to generate
-  int	       sat_reduce_proof;	     // Enable proof reduction
-  int 	       sat_reorder_pivots;	     // Enable pivots reordering for interpolation
+  int          sat_reduce_proof;             // Enable proof reduction
+  int          sat_reorder_pivots;           // Enable pivots reordering for interpolation
   double       sat_ratio_red_time_solv_time; // Reduction time / solving time
   double       sat_red_time;                 // Reduction time
-  int	       sat_num_glob_trans_loops;     // Number of loops recycle pivots + reduction
-  int	       sat_remove_mixed;             // Compression of AB-mixed subtrees
+  int          sat_num_glob_trans_loops;     // Number of loops recycle pivots + reduction
+  int          sat_remove_mixed;             // Compression of AB-mixed subtrees
   // Proof manipulation parameters
   int          proof_reduce;                 // Enable proof reduction
   double       proof_ratio_red_solv;         // Ratio reduction time solving time
@@ -170,12 +170,13 @@ struct SMTConfig
   double       nra_icp_improve;               // improve value for realpaver(ICP)
   bool         nra_verbose;                   // --verbose option
   bool         nra_proof;                     // --proof option
-  ofstream     nra_proof_out;                     // file stream for proof
-  bool         nra_json;                     // --proof option
-  ofstream     nra_json_out;                     // file stream for proof
+  ofstream     nra_proof_out;                 // file stream for proof
+  bool         nra_json;                      // --proof option
+  ofstream     nra_json_out;                  // file stream for proof
   unsigned     nra_ODE_taylor_order;          // --ode-order option
   unsigned     nra_ODE_grid_size;             // --ode-grid option
   bool         nra_contain_ODE;               // contain ODE or not
+  bool         nra_parallel_ODE;              // solve ODE in parallel or not
 
 private:
 

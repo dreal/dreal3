@@ -226,7 +226,7 @@ void icp_solver::callODESolver(int group,
         }
     }
 
-    if(!current_ode_vars.empty()) {
+    if(ODEresult && !current_ode_vars.empty()) {
         if(_config.nra_verbose) {
             cerr << "Inside of current ODEs" << endl;
         }
@@ -247,6 +247,12 @@ void icp_solver::callODESolver(int group,
         }
 
 //        cerr << group << ": callODESolver calls ODEForward" << endl;
+
+        // If other thread already set it false, we just return
+        if (!ODEresult) {
+            return;
+        }
+
         if (!odeSolver.solve_forward()) {
             ODEresult = false;
             return;
@@ -256,6 +262,11 @@ void icp_solver::callODESolver(int group,
             cerr << "After_Forward" << endl;
             pprint_vars(cerr, *_problem, _boxes.get());
             cerr << "!!!!!!!!!!Solving ODE (Backward)" << endl;
+        }
+
+        // If other thread already set it false, we just return
+        if (!ODEresult) {
+            return;
         }
 
 //        cerr << group << ": callODESolver calls ODEBackward" << endl;
@@ -322,16 +333,24 @@ bool icp_solver::prop_with_ODE()
                 }
             }
 
-            boost::thread_group group;
             ODEresult = true;
-            for(int i = 1; i <= max; i++) {
-                group.create_thread(boost::bind(&icp_solver::callODESolver,
-                                                this,
-                                                i,
-                                                diff_vec,
-                                                current_box));
+            if (_config.nra_parallel_ODE) {
+                boost::thread_group group;
+                for(int i = 1; i <= max; i++) {
+                    group.create_thread(boost::bind(&icp_solver::callODESolver,
+                                                    this,
+                                                    i,
+                                                    diff_vec,
+                                                    current_box));
+                }
+                group.join_all();
+            } else {
+                for(int i = 1; i <= max; i++) {
+                    icp_solver::callODESolver(i, diff_vec, current_box);
+                    if (!ODEresult)
+                        return false;
+                }
             }
-            group.join_all();
             return ODEresult;
         }
         else {
