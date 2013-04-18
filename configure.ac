@@ -24,7 +24,6 @@ AC_PROG_YACC
 AM_PROG_LEX
 AC_PROG_LIBTOOL
 AM_INIT_AUTOMAKE
-AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lgmp':
