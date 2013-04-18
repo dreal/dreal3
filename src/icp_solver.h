@@ -80,8 +80,7 @@ private:
     map<Enode*, pair<double, double> > & _env;
     void output_problem() const;
     void callODESolver(int group,
-                       vector< set< Enode* > > & diff_vec,
-                       rp_box current_box);
+                       vector< set< Enode* > > & diff_vec);
     bool ODEresult;
 
     icp_solver& operator=(const icp_solver& s);

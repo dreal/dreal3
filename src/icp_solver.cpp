@@ -200,8 +200,7 @@ icp_solver::~icp_solver()
 }
 
 void icp_solver::callODESolver(int group,
-                               vector< set< Enode* > > & diff_vec,
-                               rp_box current_box)
+                               vector< set< Enode* > > & diff_vec)
 {
     if(_config.nra_verbose) {
         cerr << "solve ode group: " << group << endl;
@@ -229,6 +228,7 @@ void icp_solver::callODESolver(int group,
         if(_config.nra_verbose) {
             cerr << "Inside of current ODEs" << endl;
         }
+
         for(set<Enode*>::iterator ite = current_ode_vars.begin();
             ite != current_ode_vars.end();
             ite++)
@@ -237,7 +237,7 @@ void icp_solver::callODESolver(int group,
                 cerr << "Name: " << (*ite)->getCar()->getName() << endl;
             }
         }
-        ode_solver odeSolver(group, _config, current_ode_vars, current_box, _enode_to_rp_id, ODEresult);
+        ode_solver odeSolver(group, _config, current_ode_vars, _boxes.get(), _enode_to_rp_id, ODEresult);
 
         if(_config.nra_verbose) {
             cerr << "Before_Forward" << endl;
@@ -284,9 +284,7 @@ bool icp_solver::prop_with_ODE()
 {
     if (_propag->apply(_boxes.get())) {
         if(_config.nra_contain_ODE) {
-            rp_box current_box = _boxes.get();
-
-            int max = 1;
+            unsigned max = 1;
             vector< set< Enode* > > diff_vec(max);
 
             // 1. Collect All the ODE Vars
@@ -300,7 +298,7 @@ bool icp_solver::prop_with_ODE()
                     ite != ode_vars.end();
                     ite++)
                 {
-                    int diff_group = (*ite)->getODEgroup();
+                    unsigned diff_group = (*ite)->getODEgroup();
                     if(_config.nra_verbose) {
                         cerr << "ode_var: " << *ite << endl;
                         cerr << "diff_group: " << diff_group << ", max: " << max << endl;
@@ -338,8 +336,7 @@ bool icp_solver::prop_with_ODE()
                         group.create_thread(boost::bind(&icp_solver::callODESolver,
                                                         this,
                                                         bn * hc + i,
-                                                        diff_vec,
-                                                        current_box));
+                                                        diff_vec));
                     }
                     group.join_all();
                     if(!ODEresult) {
@@ -347,8 +344,8 @@ bool icp_solver::prop_with_ODE()
                     }
                 }
             } else {
-                for(int i = 1; i <= max; i++) {
-                    icp_solver::callODESolver(i, diff_vec, current_box);
+                for(unsigned i = 1; i <= max; i++) {
+                    icp_solver::callODESolver(i, diff_vec);
                     if (!ODEresult) {
                         return false;
                     }
