@@ -54,7 +54,7 @@ AC_CONFIG_FILES([src/capd/poincare/capdpoincare.pc:src/capd/poincare/capdpoincar
 
 
 AC_CONFIG_HEADER([include/capd/config-capdDynSys.h])
-	
+
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([include/Makefile])
@@ -128,6 +128,7 @@ AC_PROG_CXX
 
 # Checks for libraries.
 AC_PROG_RANLIB
+# LT_INIT
 
 # Checks for header files.
 

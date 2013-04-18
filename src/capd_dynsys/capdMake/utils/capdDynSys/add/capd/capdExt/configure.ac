@@ -18,10 +18,10 @@ AC_ARG_WITH([filib],
 
 AS_IF([test "x$with_filib" = xcheck],
       [AC_CHECK_FILE([${srcdir}/../capdDynSys],[with_filib=internal],[with_filib=no])])
-      
+
 AS_IF([test "x$with_filib" = xyes],
        with_filib=internal)
-       
+
 AS_IF([test "x$with_filib" = xinternal],
       [AC_MSG_NOTICE([using internal filib])
       AC_SUBST(filib_CFLAGS, ["-D__USE_FILIB__ -I${PWD}/${srcdir}/filibsrc -I${PWD}/filibsrc -frounding-math -ffloat-store"])
@@ -55,7 +55,7 @@ AC_CONFIG_FILES([${top_capd_build}/lib/pkgconfig-dev/capdExt.pc:src/capd/capdExt
 AC_CONFIG_FILES([src/capd/capdExt.pc:src/capd/capdExt-install.pc.in])
 
 AC_CONFIG_HEADER([include/capd/config-capdExt.h])
-	
+
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([include/Makefile])
@@ -83,6 +83,7 @@ AC_PROG_CXX
 
 # Checks for libraries.
 AC_PROG_RANLIB
+# LT_INIT
 
 # Checks for header files.
 
