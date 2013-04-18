@@ -146,6 +146,9 @@ double rp_box_width (rp_box b);
 /* Returns the volume of b as Prod_i width(b[i]) */
 double rp_box_volume (rp_box b);
 
+/* Returns the volume of b as log(Prod_i width(b[i])) */
+double rp_box_volume_log (rp_box b);
+
 /* Returns the distance between two boxes */
 double rp_box_distance (rp_box b1, rp_box b2);
 
