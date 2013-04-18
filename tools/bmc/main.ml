@@ -4,13 +4,41 @@
 
 let k = ref 3 (* default unrolling value is 3 *)
 let infix = ref false
+let path = ref None
+
+(* Takes in string s (ex: "[1,2,3,4,5]")
+   and return int list [1;2;3;4;5]        *)
+let process_path (s : string) : int list =
+  match (BatString.starts_with s "[", BatString.ends_with s "]") with
+    (true, true) ->
+      begin
+        let content = String.sub s 1 ((String.length s) - 2) in
+        let items = BatString.nsplit content "," in
+        let path = List.map BatInt.of_string items in
+        path
+      end
+  | _ -> raise (Arg.Bad ("Path " ^ s ^ " is not well-formed"))
+
+let check_path (path : int list option) (k : int) (init : int) (goals : int list) : unit =
+  match path with
+    Some p ->
+      if (BatList.first p = init) && (List.mem (BatList.last p) goals) && (List.length p = k + 1) then
+        ()
+      else
+        raise (Arg.Bad ("Path is not well-formed"))
+  | None -> ()
+
 let spec = [
   ("-k",
    Arg.Int (fun n -> k := n),
    ": number of unrolling (Default: " ^ (string_of_int !k) ^ ")" );
   ("--infix",
    Arg.Unit (fun n -> infix := true),
-   ": use infix syntax in drh file (Default: use prefix)");]
+   ": use infix syntax in drh file (Default: use prefix)");
+  ("--path",
+   Arg.String (fun s -> path := Some (process_path s)),
+   ": specify the path (ex: \"[1,2,1,2,1]\" to focus (Default: none)");
+]
 let usage = "Usage: main.native [<options>] <.drh>\n<options> are: "
 
 let run () =
@@ -29,7 +57,8 @@ let run () =
       | false -> Parser.main Lexer.start lexbuf
     in
     let hm' = Hybrid.preprocess hm in
-    let (vardecls, flow_annots, formula, time_intv) = Smt2.reach !k hm' in
+    let _ = check_path !path !k (Hybrid.get_initID hm') (Hybrid.get_goalID hm') in
+    let (vardecls, flow_annots, formula, time_intv) = Smt2.reach !k hm' !path in
     let smt2 = Smt2.make_smt2 vardecls flow_annots formula time_intv in
     begin
       Smt2.print out smt2

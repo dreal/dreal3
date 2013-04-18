@@ -74,12 +74,12 @@ let trans modemap init_id (k : int) (next_k : int) (q : id) (next_q : id)
   (flow_k_next_ode,
    Dr.make_and [jump_result; flow_k_next])
 
-let transform modemap init_id (k : int) (next_k : int)
+let transform modemap init_id (k : int) (next_k : int) (edge_op : (int * int) option)
     : (flow_annot * formula)
     =
-  let num_of_modes = BatEnum.count (BatMap.keys modemap) in
-  let all_modes = BatList.of_enum (1 -- num_of_modes) in
-  let candidate_pairs =
+  let num_of_modes : int = BatEnum.count (BatMap.keys modemap) in
+  let all_modes : int list = BatList.of_enum (1 -- num_of_modes) in
+  let candidate_pairs : (id * Jump.id) list =
     BatList.concat
       (BatList.map
          (fun mode_id ->
@@ -91,14 +91,20 @@ let transform modemap init_id (k : int) (next_k : int)
              jm
              [])
          all_modes
-      )
-  in
+      ) in
+  let candidate_pairs' = match edge_op with
+      Some edge ->
+        if List.mem edge candidate_pairs then
+          [edge]
+        else
+          raise (SMTException "Specified Edge is not possible.")
+    | None -> candidate_pairs in
   let trans_result_list : (flow_annot * formula) list =
     List.map
       (fun (q, next_q) ->
         trans modemap init_id k next_k q next_q
       )
-      candidate_pairs
+      candidate_pairs'
   in
   let (flow_list, formula_list) = BatList.split trans_result_list in
   (BatList.concat flow_list, Dr.make_or formula_list)
@@ -136,7 +142,7 @@ let process_vardecls (vardecls) (num_of_modes : int) (k : int) =
        )
        vardecls)
 
-let reach (k : int) (hm : Hybrid.t) :
+let reach (k : int) (hm : Hybrid.t) (path : int list option):
     (varDecl list * flow_annot * formula * Value.t)
     =
   let (vardeclmap, _, modemap, (init_id, init_formula), goals) = hm in
@@ -153,7 +159,12 @@ let reach (k : int) (hm : Hybrid.t) :
   let (flow_0_ode, flow_0) = process_flow 0 init_id (Modemap.find init_id modemap) in
   let k_list : int list = BatList.of_enum (0 --^ k) in
   let trans_result : (flow_annot * formula) list =
-    List.map (fun k -> transform modemap init_id k (k + 1)) k_list
+    match path with
+      Some p ->
+        let edges : (int * int) list = BatList.combine (BatList.take (List.length p - 1) p) (BatList.drop 1 p) in
+        List.map2 (fun k edge -> transform modemap init_id k (k + 1) (Some edge)) k_list edges
+    | None ->
+      List.map (fun k -> transform modemap init_id k (k + 1) None) k_list
   in
   let (trans_flows, trans_formula) = BatList.split trans_result in
   let goal_formula = process_goals hm k goals in
