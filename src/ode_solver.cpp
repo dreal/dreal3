@@ -37,7 +37,8 @@ ode_solver::ode_solver(int group,
     _ode_vars(ode_vars),
     _b(b),
     _enode_to_rp_id(enode_to_rp_id),
-    ODEresult(ode_result)
+    ODEresult(ode_result),
+    stepControl(c.nra_ODE_step)
 {
 }
 
@@ -299,14 +300,11 @@ bool ode_solver::solve_forward()
         timeMap.stopAfterStep(true);
 
         bool fastForward = true;
-//        double stepControl = 1/16.0;
-        double stepControl = 0.0;
-
         if (stepControl == 0.0) {
-            solver.turnOnStepControl();
+            timeMap.turnOnStepControl();
         } else {
-            solver.turnOffStepControl();
-            solver.setStep(stepControl);
+            timeMap.turnOffStepControl();
+            timeMap.setStep(stepControl);
         }
 
         interval prevTime(0.);
@@ -326,7 +324,11 @@ bool ode_solver::solve_forward()
             }
             s = C0Rect2Set(new_start);
 
+            if(stepControl != 0) {
+                timeMap.setStep(stepControl);
+            }
             timeMap(T.rightBound(),s);
+
             //timeMap(T,s);
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
@@ -585,14 +587,11 @@ bool ode_solver::solve_backward()
         timeMap.stopAfterStep(true);
 
         bool fastForward = true;
-//        double stepControl = - 1/16.0;
-        double stepControl = 0.0;
-
         if (stepControl == 0.0) {
-            solver.turnOnStepControl();
+            timeMap.turnOnStepControl();
         } else {
-            solver.turnOffStepControl();
-            solver.setStep(stepControl);
+            timeMap.turnOffStepControl();
+            timeMap.setStep(-stepControl);
         }
 
         interval prevTime(0.);
@@ -609,7 +608,11 @@ bool ode_solver::solve_backward()
             }
             e = C0Rect2Set(new_end);
 
+            if(stepControl != 0) {
+                timeMap.setStep(- stepControl);
+            }
             timeMap(T.leftBound(),e);
+
             //timeMap(T,e);
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {

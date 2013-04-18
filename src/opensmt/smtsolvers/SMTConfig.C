@@ -87,6 +87,7 @@ SMTConfig::initializeConfig( )
   nra_parallel_ODE             = false;
   nra_ODE_taylor_order         = 20;
   nra_ODE_grid_size            = 16;
+  nra_ODE_step                 = 0.0;
   nra_contain_ODE              = false;
 }
 
@@ -329,6 +330,16 @@ SMTConfig::parseCMDLine( int argc
         }
         continue;
     }
+    if ( sscanf( buf, "--ode-step=%lf", &nra_ODE_step ) == 1)
+    {
+        if(nra_ODE_step <= 0.0)
+        {
+            printHelp( );
+            exit( 1 );
+        }
+        continue;
+    }
+
     if ( sscanf( buf, "--ode-order=%d", &nra_ODE_taylor_order ) == 1)
     {
         continue;
@@ -430,9 +441,11 @@ void SMTConfig::printHelp( )
       "   --ode-parallel          specify to solve ODEs in parallel\n"
       "                           (Default: false)\n"
       "\n"
+      "   --ode-step              specify the step size (positive float) in ODE solving\n"
+      "                           (Default: automatically decided by CAPD)\n"
+      "\n"
       "   --visualize             print out data for the visualization of ODE solving\n"
       "                           which will be saved to \"filename.json\".\n";
-
 
   cerr << help_string;
 }

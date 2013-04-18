@@ -87,6 +87,7 @@ private:
     list<pair<const capd::interval, const capd::IVector> > trajectory;
     vector<string> var_list;
     bool& ODEresult;
+    double stepControl;
 
     void print_datapoint(ostream& out, const capd::interval& t, const capd::interval& v) const;
 

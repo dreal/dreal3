@@ -175,6 +175,7 @@ struct SMTConfig
   ofstream     nra_json_out;                  // file stream for proof
   unsigned     nra_ODE_taylor_order;          // --ode-order option
   unsigned     nra_ODE_grid_size;             // --ode-grid option
+  double       nra_ODE_step;                  // step control
   bool         nra_contain_ODE;               // contain ODE or not
   bool         nra_parallel_ODE;              // solve ODE in parallel or not
 
