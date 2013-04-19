@@ -18,6 +18,11 @@
 %token <float> FNUM
 %token <string> ID
 
+%left PLUS MINUS NEG
+%left TIMES DIVIDE
+%left NEG
+%right CARET
+
 %start main
 
 %type <Hybrid.t> main
@@ -103,13 +108,21 @@ exp:
  | LP exp RP     { $2 }
  | exp PLUS exp  { Dr.Add ($1, $3) }
  | exp MINUS exp { Dr.Sub ($1, $3) }
+ | MINUS exp %prec NEG    { Dr.Neg $2 }
  | exp AST exp   { Dr.Mul ($1, $3) }
  | exp SLASH exp { Dr.Div ($1, $3) }
  | EXP exp       { Dr.Exp $2 }
  | exp CARET exp { Dr.Pow ($1, $3) }
- | SIN exp 	 { Dr.Sin $2 }
+ | SIN exp       { Dr.Sin $2 }
  | COS exp       { Dr.Cos $2 }
-; /* TODO: support other functions such as sin, cos, ... */
+ | TAN exp       { Dr.Tan $2 }
+ | ASIN exp      { Dr.Asin $2 }
+ | ACOS exp      { Dr.Acos $2 }
+ | ATAN exp      { Dr.Atan $2 }
+ | SINH exp      { Dr.Sinh $2 }
+ | COSH exp      { Dr.Cosh $2 }
+ | TANH exp      { Dr.Tanh $2 }
+;
 
 ode_list: /* */ { [] }
  | ode ode_list { $1::$2 }

@@ -73,5 +73,5 @@ BASE=${1%.drh}
 DRH=$BASE.drh
 PDRH=$BASE.preprocessed.drh
 SMT=${BASE}_$K.smt2
-cpp -P $DRH > $PDRH
+cpp -P -w $DRH > $PDRH
 $BMC -k $K $PARSER $PATH_OPT $PDRH > $SMT
