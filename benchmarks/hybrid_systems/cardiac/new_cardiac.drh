@@ -158,7 +158,7 @@ flow:
               d/dt[v]  = (-v/EPI_TVP);
               d/dt[s]  = (((1/(1+exp( -2 * EPI_KS * (u-EPI_US) ))) - s)/EPI_TS2) ;
 jump:
-                ( u <= 0.31) ==> @3 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
+                ( u <= 0.3) ==> @3 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 }
 %%
 
