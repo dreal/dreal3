@@ -67,12 +67,14 @@
 
 
 #define    jfi3 0.0
-#define    jso3 1.0/(EPI_TSO1+((EPI_TSO2-EPI_TSO1)*(1.0+tanh(EPI_KSO*(u - EPI_USO)))) * 0.5)
+#define    jso3 1.0/(EPI_TSO1+((EPI_TSO2-EPI_TSO1)*(1/(1+exp(-2*EPI_KSO*(u-EPI_USO))))))
 #define    jsi3 (0 - (w * s)/EPI_TSI)
 
 #define    jfi4  (0 - v * (u - EPI_THV) * (EPI_UU - u)/EPI_TFI)
-#define    jso4  (1.0 / (EPI_TSO1+((EPI_TSO2 - EPI_TSO1)*(1.+tanh(EPI_KSO*(u - EPI_USO)))) * 0.5))
+#define    jso4  (1.0 / (EPI_TSO1+((EPI_TSO2 - EPI_TSO1)*(1/(1+exp(-2*EPI_KSO*(u-EPI_USO)))))))
 #define    jsi4  ( 0 - (w * s)/EPI_TSI)
+
+(1/(1+exp(-2*EPI_KSO*(u-EPI_USO))))
 
 [0, 2.0] u;
 [0, 2.0] v;
