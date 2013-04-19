@@ -39,7 +39,6 @@ public:
     ~ode_solver();
 
     string create_diffsys_string(set < Enode* > & ode_vars,
-                                 vector<string> & var_list,
                                  vector<Enode*> & _0_vars,
                                  vector<Enode*> & _t_vars
         );

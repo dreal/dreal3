@@ -78,6 +78,7 @@ void ode_solver::print_trace(ostream& out,
 
 void ode_solver::print_trajectory(ostream& out) const
 {
+    cerr << "print_trajectory is called" << endl;
     out.precision(12);
     out << ",[" << endl;
 
@@ -88,15 +89,16 @@ void ode_solver::print_trajectory(ostream& out) const
         print_trace(out, var_list[i], i, trajectory);
     }
     out << endl << "]" << endl;
+    cerr << "print_trajectory is ended" << endl;
 }
 
 string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
-                                         vector<string> & var_list,
                                          vector<Enode*> & _0_vars,
                                          vector<Enode*> & _t_vars
     )
 {
     vector<string> ode_list;
+    var_list.clear();
     // 1. partition ode_vars into _0_vars and _t_vars by their ODE_vartype
     for(set< Enode* >::iterator ite = ode_vars.begin();
         ite != ode_vars.end();
@@ -256,7 +258,6 @@ bool ode_solver::solve_forward()
 
         string diff_sys;
         diff_sys = create_diffsys_string(_ode_vars,
-                                         var_list,
                                          _0_vars,
                                          _t_vars
             );
@@ -304,14 +305,24 @@ bool ode_solver::solve_forward()
         interval prevTime(0.);
         if(_config.nra_json) {
             trajectory.clear();
+            cerr << "1:\t" << IVector(s) << endl;
             trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
         }
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
         bool invariantViolated = false;
+        IVector new_start = IVector(s);
         do
         {
-            IVector new_start = IVector(s);
+            s = C0Rect2Set(new_start);
+
+            if(stepControl != 0) {
+                timeMap.setStep(stepControl);
+            }
+            timeMap(T.rightBound(),s);
+            //timeMap(T,s);
+
+            new_start = IVector(s);
             if(!intersection(new_start, inv, new_start)) {
 //                cerr << "invariantViolated (1)!!" << endl;
                 invariantViolated = true;
@@ -319,12 +330,6 @@ bool ode_solver::solve_forward()
             }
             s = C0Rect2Set(new_start);
 
-            if(stepControl != 0) {
-                timeMap.setStep(stepControl);
-            }
-            timeMap(T.rightBound(),s);
-
-            //timeMap(T,s);
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
                 cerr << "step made: " << stepMade << endl;
@@ -366,7 +371,8 @@ bool ode_solver::solve_forward()
                         cerr << "diam(enclosure): " << diam(v) << endl;
                     }
 
-                    if(!intersection(v, inv, v)) {
+                    IVector v_intersected;
+                    if(!intersection(v, inv, v_intersected)) {
 //                        cerr << "invariantViolated!! (2)" << endl;
                         invariantViolated = true;
                         break;
@@ -376,9 +382,10 @@ bool ode_solver::solve_forward()
                         cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ":  " << v << endl;
                     }
                     if(_config.nra_json) {
-                        trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+                        cerr << "2:\t" << IVector(v_intersected) << endl;
+                        trajectory.push_back(make_pair(prevTime + subsetOfDomain, IVector(v_intersected)));
                     }
-                    prune(_t_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
+                    prune(_t_vars, v_intersected, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
             else {
@@ -387,6 +394,7 @@ bool ode_solver::solve_forward()
                     cerr << "enclosure for t=" << timeMap.getCurrentTime() << ":  " << IVector(s) << endl;
                 }
                 if(_config.nra_json) {
+                    cerr << "3:\t" << IVector(s) << endl;
                     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
                 }
             }
@@ -512,13 +520,14 @@ bool ode_solver::solve_forward()
             ret = false;
         }
         if(_config.nra_json) {
+            print_trajectory(cerr);
             print_trajectory(_config.nra_json_out);
         }
     }
     catch(std::exception& e)
     {
         if(_config.nra_json) {
-            print_trajectory(_config.nra_json_out);
+            // print_trajectory(_config.nra_json_out);
         }
         if(_config.nra_verbose) {
             cerr << endl
@@ -541,11 +550,9 @@ bool ode_solver::solve_backward()
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
-        vector<string> var_list;
         string diff_sys;
 
         diff_sys = create_diffsys_string(_ode_vars,
-                                         var_list,
                                          _0_vars,
                                          _t_vars
             );
@@ -591,6 +598,10 @@ bool ode_solver::solve_backward()
         }
 
         interval prevTime(0.);
+        // if(_config.nra_json) {
+        //     trajectory.clear();
+        //     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(e)));
+        // }
 
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
@@ -660,7 +671,9 @@ bool ode_solver::solve_backward()
                     if(_config.nra_verbose) {
                         cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ":  " << v << endl;
                     }
-
+                    // if(_config.nra_json) {
+                    //     trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+                    // }
                     prune(_0_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
@@ -668,10 +681,14 @@ bool ode_solver::solve_backward()
                 if(_config.nra_verbose) {
                     cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
                 }
+                // if(_config.nra_json) {
+                //     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(e)));
+                // }
             }
             if(_config.nra_verbose) {
                 cerr << "=============================================" << endl;
             }
+
             prevTime = timeMap.getCurrentTime();
             if(_config.nra_verbose) {
                 cerr << "current time: " << prevTime << endl;
@@ -720,6 +737,9 @@ bool ode_solver::solve_backward()
                 }
             }
         }
+        // if(_config.nra_json) {
+        //     print_trajectory(_config.nra_json_out);
+        // }
     }
     catch(std::exception& e)
     {

@@ -275,6 +275,22 @@ void icp_solver::callODESolver(int group,
             cerr << "After_Backward" << endl;
             pprint_vars(cerr, *_problem, _boxes.get());
         }
+
+        // If other thread already set it false, we just return
+        if (!ODEresult) {
+            return;
+        }
+
+        if (!odeSolver.solve_forward()) {
+            ODEresult = false;
+            return;
+        }
+
+        if(_config.nra_verbose) {
+            cerr << "After_Forward" << endl;
+            pprint_vars(cerr, *_problem, _boxes.get());
+            cerr << "!!!!!!!!!!Solving ODE (Backward)" << endl;
+        }
     }
     return;
 }
