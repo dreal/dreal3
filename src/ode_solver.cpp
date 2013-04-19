@@ -102,20 +102,14 @@ string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
         ite != ode_vars.end();
         ite++)
     {
-        if ((*ite)->getODEvartype() == l_True) {
-            _t_vars.push_back(*ite);
-        }
-        else if ((*ite)->getODEvartype() == l_False) {
+        if ((*ite)->getODEvartype() == l_False) {
             _0_vars.push_back(*ite);
+            _t_vars.push_back((*ite)->getODEopposite());
             var_list.push_back((*ite)->getODEvarname());
             string ode = (*ite)->getODE();
             ode_list.push_back(ode);
         }
     }
-
-    // 2. Sort _0_vars and _t_vars
-    sort(_0_vars.begin(), _0_vars.end());
-    sort(_t_vars.begin(), _t_vars.end());
 
     // 3. join var_list to make diff_var, ode_list to diff_fun
     string diff_var = "var:" + boost::algorithm::join(var_list, ", ") + ";";
@@ -319,6 +313,7 @@ bool ode_solver::solve_forward()
         {
             IVector new_start = IVector(s);
             if(!intersection(new_start, inv, new_start)) {
+//                cerr << "invariantViolated (1)!!" << endl;
                 invariantViolated = true;
                 break;
             }
@@ -372,6 +367,7 @@ bool ode_solver::solve_forward()
                     }
 
                     if(!intersection(v, inv, v)) {
+//                        cerr << "invariantViolated!! (2)" << endl;
                         invariantViolated = true;
                         break;
                     }
