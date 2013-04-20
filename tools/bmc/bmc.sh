@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTPATH=`dirname $(readlink -f $0)`
+SCRIPTPATH=`dirname $(readlink $0)`
 BMC=${SCRIPTPATH}/main.native
 
 #################################################################
@@ -73,5 +73,5 @@ BASE=${1%.drh}
 DRH=$BASE.drh
 PDRH=$BASE.preprocessed.drh
 SMT=${BASE}_$K.smt2
-cpp -P -w $DRH > $PDRH
+sed "s/\/\/.*//g" new_cardiac.drh | cpp -P -w > $PDRH
 $BMC -k $K $PARSER $PATH_OPT $PDRH > $SMT
