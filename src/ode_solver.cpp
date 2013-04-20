@@ -308,23 +308,13 @@ bool ode_solver::solve_forward()
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
         bool invariantViolated = false;
-        IVector new_start = IVector(s);
         do
         {
-            s = C0Rect2Set(new_start);
-
             if(stepControl != 0) {
                 timeMap.setStep(stepControl);
             }
+
             timeMap(T.rightBound(),s);
-
-            new_start = IVector(s);
-            if(!intersection(new_start, inv, new_start)) {
-                invariantViolated = true;
-                break;
-            }
-
-            s = C0Rect2Set(new_start);
 
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
@@ -370,6 +360,7 @@ bool ode_solver::solve_forward()
                     IVector v_intersected;
                     if(!intersection(v, inv, v_intersected)) {
                         invariantViolated = true;
+                        // cerr << "invariant violated (2)!" << endl;
                         break;
                     }
 
@@ -395,6 +386,9 @@ bool ode_solver::solve_forward()
             if(_config.nra_verbose) {
                 cerr << "current time: " << prevTime << endl;
             }
+            // cerr << "ODEresult        : " << ODEresult << endl
+            //      << "InvViolated      : " << invariantViolated << endl
+            //      << "timeMap.completed: " << timeMap.completed() << endl;
         }
         while (ODEresult && !invariantViolated && !timeMap.completed());
 
@@ -600,13 +594,6 @@ bool ode_solver::solve_backward()
         bool invariantViolated = false;
         do
         {
-            IVector new_end = IVector(e);
-            if(!intersection(new_end, inv, new_end)) {
-                invariantViolated = true;
-                break;
-            }
-            e = C0Rect2Set(new_end);
-
             if(stepControl != 0) {
                 timeMap.setStep(- stepControl);
             }
@@ -658,6 +645,7 @@ bool ode_solver::solve_backward()
 
                     if(!intersection(v, inv, v)) {
                         invariantViolated = true;
+                        // cerr << "invariant violated(2)!" << endl;
                         break;
                     }
                     if(_config.nra_verbose) {
@@ -685,6 +673,9 @@ bool ode_solver::solve_backward()
             if(_config.nra_verbose) {
                 cerr << "current time: " << prevTime << endl;
             }
+            // cerr << "ODEresult        : " << ODEresult << endl
+            //      << "InvViolated      : " << invariantViolated << endl
+            //      << "timeMap.completed: " << timeMap.completed() << endl;
         }
         while (ODEresult && !invariantViolated && !timeMap.completed());
 
