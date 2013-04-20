@@ -73,5 +73,5 @@ BASE=${1%.drh}
 DRH=$BASE.drh
 PDRH=$BASE.preprocessed.drh
 SMT=${BASE}_$K.smt2
-sed "s/\/\/.*//g" new_cardiac.drh | cpp -P -w > $PDRH
+sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
 $BMC -k $K $PARSER $PATH_OPT $PDRH > $SMT
