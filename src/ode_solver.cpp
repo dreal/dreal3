@@ -76,9 +76,8 @@ void ode_solver::print_trace(ostream& out,
     out << "}" << endl;
 }
 
-void ode_solver::print_trajectory(ostream& out) const
+void ode_solver::print_trajectory(ostream& out, vector<string> & var_list) const
 {
-    cerr << "print_trajectory is called" << endl;
     out.precision(12);
     out << ",[" << endl;
 
@@ -89,16 +88,14 @@ void ode_solver::print_trajectory(ostream& out) const
         print_trace(out, var_list[i], i, trajectory);
     }
     out << endl << "]" << endl;
-    cerr << "print_trajectory is ended" << endl;
 }
 
 string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
                                          vector<Enode*> & _0_vars,
-                                         vector<Enode*> & _t_vars
-    )
+                                         vector<Enode*> & _t_vars,
+                                         vector<string> & var_list)
 {
     vector<string> ode_list;
-    var_list.clear();
     // 1. partition ode_vars into _0_vars and _t_vars by their ODE_vartype
     for(set< Enode* >::iterator ite = ode_vars.begin();
         ite != ode_vars.end();
@@ -255,12 +252,12 @@ bool ode_solver::solve_forward()
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
+        vector<string> var_list;
 
-        string diff_sys;
-        diff_sys = create_diffsys_string(_ode_vars,
-                                         _0_vars,
-                                         _t_vars
-            );
+        string diff_sys = create_diffsys_string(_ode_vars,
+                                                _0_vars,
+                                                _t_vars,
+                                                var_list);
 
         //pass the problem with variables
         IMap vectorField(diff_sys);
@@ -305,9 +302,9 @@ bool ode_solver::solve_forward()
         interval prevTime(0.);
         if(_config.nra_json) {
             trajectory.clear();
-            cerr << "1:\t" << IVector(s) << endl;
             trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
         }
+
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
         bool invariantViolated = false;
@@ -320,14 +317,13 @@ bool ode_solver::solve_forward()
                 timeMap.setStep(stepControl);
             }
             timeMap(T.rightBound(),s);
-            //timeMap(T,s);
 
             new_start = IVector(s);
             if(!intersection(new_start, inv, new_start)) {
-//                cerr << "invariantViolated (1)!!" << endl;
                 invariantViolated = true;
                 break;
             }
+
             s = C0Rect2Set(new_start);
 
             interval stepMade = solver.getStep();
@@ -373,7 +369,6 @@ bool ode_solver::solve_forward()
 
                     IVector v_intersected;
                     if(!intersection(v, inv, v_intersected)) {
-//                        cerr << "invariantViolated!! (2)" << endl;
                         invariantViolated = true;
                         break;
                     }
@@ -382,8 +377,7 @@ bool ode_solver::solve_forward()
                         cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ":  " << v << endl;
                     }
                     if(_config.nra_json) {
-                        cerr << "2:\t" << IVector(v_intersected) << endl;
-                        trajectory.push_back(make_pair(prevTime + subsetOfDomain, IVector(v_intersected)));
+                        trajectory.push_back(make_pair(prevTime + subsetOfDomain, v_intersected));
                     }
                     prune(_t_vars, v_intersected, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
@@ -394,7 +388,6 @@ bool ode_solver::solve_forward()
                     cerr << "enclosure for t=" << timeMap.getCurrentTime() << ":  " << IVector(s) << endl;
                 }
                 if(_config.nra_json) {
-                    cerr << "3:\t" << IVector(s) << endl;
                     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
                 }
             }
@@ -520,8 +513,7 @@ bool ode_solver::solve_forward()
             ret = false;
         }
         if(_config.nra_json) {
-            print_trajectory(cerr);
-            print_trajectory(_config.nra_json_out);
+            print_trajectory(_config.nra_json_out, var_list);
         }
     }
     catch(std::exception& e)
@@ -550,12 +542,12 @@ bool ode_solver::solve_backward()
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
-        string diff_sys;
+        vector<string> var_list;
 
-        diff_sys = create_diffsys_string(_ode_vars,
-                                         _0_vars,
-                                         _t_vars
-            );
+        string diff_sys = create_diffsys_string(_ode_vars,
+                                                _0_vars,
+                                                _t_vars,
+                                                var_list);
 
         //pass the problem with variables
         IMap vectorField(diff_sys);

@@ -40,8 +40,8 @@ public:
 
     string create_diffsys_string(set < Enode* > & ode_vars,
                                  vector<Enode*> & _0_vars,
-                                 vector<Enode*> & _t_vars
-        );
+                                 vector<Enode*> & _t_vars,
+                                 vector<string> & var_list);
 
     capd::IVector varlist_to_IVector(vector<Enode*> vars);
     capd::IVector extract_invariants(vector<Enode*> vars);
@@ -52,8 +52,7 @@ public:
                capd::intervals::Interval<double, capd::rounding::DoubleRounding> dt,
                vector<capd::IVector> & out_v_list,
                vector<capd::intervals::Interval<double, capd::rounding::DoubleRounding> > & out_time_list,
-               capd::intervals::Interval<double, capd::rounding::DoubleRounding> time
-        );
+               capd::intervals::Interval<double, capd::rounding::DoubleRounding> time);
 
     bool solve_forward(); //computation of the next solution
     bool solve_backward();
@@ -74,7 +73,7 @@ public:
         rp_interval_set_empty(rp_box_elem(_b, _enode_to_rp_id[e]));
     }
 
-    void print_trajectory(ostream& out) const;
+    void print_trajectory(ostream& out, vector<string> & var_list) const;
 
 private:
     int _group;
@@ -84,7 +83,6 @@ private:
     map<Enode*, int>& _enode_to_rp_id;
     ode_solver& operator=(const ode_solver& o);
     list<pair<const capd::interval, const capd::IVector> > trajectory;
-    vector<string> var_list;
     bool& ODEresult;
     double stepControl;
 
