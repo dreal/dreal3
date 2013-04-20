@@ -67,11 +67,11 @@
 
 
 #define    jfi3 0.0
-#define    jso3 1.0/(EPI_TSO1+((EPI_TSO2-EPI_TSO1)*(1/(1+exp(-2*EPI_KSO*(u-EPI_USO))))))
+#define    jso3 1.0/(EPI_TSO1+((EPI_TSO2- EPI_TSO1)*(1/(1+exp(-2*EPI_KSO*(u- EPI_USO))))))
 #define    jsi3 (0 - (w * s)/EPI_TSI)
 
 #define    jfi4  (0 - v * (u - EPI_THV) * (EPI_UU - u)/EPI_TFI)
-#define    jso4  (1.0 / (EPI_TSO1+((EPI_TSO2 - EPI_TSO1)*(1/(1+exp(-2*EPI_KSO*(u-EPI_USO)))))))
+#define    jso4  (1.0 / (EPI_TSO1+((EPI_TSO2 - EPI_TSO1)*(1/(1+exp(-2*EPI_KSO*(u- EPI_USO)))))))
 #define    jsi4  ( 0 - (w * s)/EPI_TSI)
 
 [0, 2.0] u;
@@ -95,9 +95,9 @@ flow:
 
               d/dt[tau] = 1.0;
               d/dt[u] = -jfi1 - (jso1 + jsi1);
-              d/dt[w] = ((1.0 -(u/EPI_TWINF) - w)/(EPI_TW1M + (EPI_TW2M - EPI_TW1M) * (1/(1+exp(-2*EPI_KWM*(u-EPI_UWM))))));
-              d/dt[v] = ((1.0-v)/EPI_TV1M);
-              d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u-EPI_US) ))) - s)/EPI_TS1);
+              d/dt[w] = ((1.0 -(u/EPI_TWINF) - w)/(EPI_TW1M + (EPI_TW2M - EPI_TW1M) * (1/(1+exp(-2*EPI_KWM*(u - EPI_UWM))))));
+              d/dt[v] = ((1.0 - v)/EPI_TV1M);
+              d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS1);
 jump:
               (u >= 0.006) ==> @1 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 }
@@ -114,9 +114,9 @@ invt:
 flow:
               d/dt[tau] = 1.0;
               d/dt[u] = -jfi2 - (jso2 + jsi2);
-              d/dt[w] = ((0.94-w)/(EPI_TW1M + (EPI_TW2M - EPI_TW1M) * (1/(1+exp(-2*EPI_KWM*(u-EPI_UWM))))));
+              d/dt[w] = ((0.94-w)/(EPI_TW1M + (EPI_TW2M - EPI_TW1M) * (1/(1+exp(-2*EPI_KWM*(u - EPI_UWM))))));
               d/dt[v] = (-v/EPI_TV2M);
-              d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u-EPI_US) ))) - s)/EPI_TS1);
+              d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS1);
 jump:
                 ( u <= 0.006) ==> @1 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 
@@ -136,7 +136,7 @@ flow:
               d/dt[u] =  -jfi3 - (jso3 + jsi3);
               d/dt[w] = (-w/EPI_TWP);
               d/dt[v] = (-v/EPI_TV2M);
-              d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u-EPI_US) ))) - s)/EPI_TS2);
+              d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS2);
 jump:
                 ( u <= 0.13) ==> @2 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 }
@@ -155,7 +155,7 @@ flow:
               d/dt[u] =  -jfi4 - (jso4 + jsi4);
               d/dt[w]  = (-w/EPI_TWP);
               d/dt[v]  = (-v/EPI_TVP);
-              d/dt[s]  = (((1/(1+exp( -2 * EPI_KS * (u-EPI_US) ))) - s)/EPI_TS2) ;
+              d/dt[s]  = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS2) ;
 jump:
                 ( u <= 0.3) ==> @3 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 }
