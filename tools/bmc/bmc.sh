@@ -39,7 +39,7 @@ do
             PARSER="--infix"
             ;;
         p)
-            PATH_OPT="--path $OPTARG"
+            PATH_OPT="$OPTARG"
             ;;
         \?)
             usage
@@ -74,4 +74,10 @@ DRH=$BASE.drh
 PDRH=$BASE.preprocessed.drh
 SMT=${BASE}_$K.smt2
 sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
-$BMC -k $K $PARSER $PATH_OPT $PDRH > $SMT
+echo "$BMC -k $K $PARSER $PATH_OPT $PDRH > $SMT"
+if [[ "$PATH_OPT" == "" ]]
+then
+	$BMC -k $K $PARSER $PDRH > $SMT
+else
+	$BMC -k $K $PARSER --path "$PATH_OPT" $PDRH > $SMT
+fi
