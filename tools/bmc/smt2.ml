@@ -124,20 +124,26 @@ let varmap_to_list vardeclmap =
     vardeclmap
     []
 
-let process_vardecls (vardecls) (num_of_modes : int) (k : int) =
+let process_vardecls (vardecls) (num_of_modes : int) (k : int) (path : int list option) =
   List.concat
     (List.map
        (fun (var, value) ->
-         let t1 =
-           BatList.cartesian_product
-             (BatList.of_enum ( 0 -- k ))
-             (BatList.of_enum ( 1 -- num_of_modes ))
+         let pairs =
+           match path with
+             Some p ->
+               BatList.combine
+                 (BatList.of_enum ( 0 -- k ))
+                 p
+           | None ->
+               BatList.cartesian_product
+                 (BatList.of_enum ( 0 -- k ))
+                 (BatList.of_enum ( 1 -- num_of_modes ))
          in
          List.concat
            (List.map
               (fun (k, q) -> [(add_index k q "_t" var, value);
                            (add_index k q "_0" var, value)])
-              t1
+              pairs
            )
        )
        vardecls)
@@ -154,7 +160,7 @@ let reach (k : int) (hm : Hybrid.t) (path : int list option):
     match time_var_l with
       (_, intv)::[] -> intv
     | _ -> raise (SMTException "time should be defined once and only once.") in
-  let vardecls'' = process_vardecls vardecls' num_of_modes k in
+  let vardecls'' = process_vardecls vardecls' num_of_modes k path in
   let init_result = process_init init_id init_formula in
   let (flow_0_ode, flow_0) = process_flow 0 init_id (Modemap.find init_id modemap) in
   let k_list : int list = BatList.of_enum (0 --^ k) in
