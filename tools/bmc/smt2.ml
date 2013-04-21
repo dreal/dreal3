@@ -93,11 +93,16 @@ let transform modemap init_id (k : int) (next_k : int) (edge_op : (int * int) op
          all_modes
       ) in
   let candidate_pairs' = match edge_op with
-      Some edge ->
-        if List.mem edge candidate_pairs then
-          [edge]
+      Some (i, j) ->
+        if List.mem (i, j) candidate_pairs then
+          [(i, j)]
         else
-          raise (SMTException "Specified Edge is not possible.")
+          let msg =
+            BatPrintf.sprintf
+              "%d-th jump from mode %d to %d is not possible in the given model."
+              k i j
+          in
+          raise (SMTException msg)
     | None -> candidate_pairs in
   let trans_result_list : (flow_annot * formula) list =
     List.map

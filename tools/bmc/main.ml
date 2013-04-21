@@ -19,13 +19,42 @@ let process_path (s : string) : int list =
       end
   | _ -> raise (Arg.Bad ("Path " ^ s ^ " is not well-formed"))
 
+(**
+   Given a path (ex: [1;2;3;4]), it checks the three conditions:
+   1) the first mode of the path should be the init mode of the hybrid model
+   2) the last mode of the path should be an element of the goals of the HM
+   3) the unrolling step k, should match with the length of the given path
+**)
 let check_path (path : int list option) (k : int) (init : int) (goals : int list) : unit =
   match path with
     Some p ->
-      if (BatList.first p = init) && (List.mem (BatList.last p) goals) && (List.length p = k + 1) then
-        ()
-      else
-        raise (Arg.Bad ("Path is not well-formed"))
+      begin
+        let first_mode = BatList.first p in
+        let last_mode = BatList.last p in
+        let len = List.length p in
+        let path_str =  BatList.sprint ~first:"[" ~last:"]" ~sep:", " BatInt.print p in
+        let goal_str =  BatList.sprint ~first:"[" ~last:"]" ~sep:", " BatInt.print goals in
+        match (first_mode = init, List.mem last_mode goals, len = k + 1) with
+          (true, true, true) -> ()
+        | (false, _, _) ->
+          let msg = BatPrintf.sprintf
+            "The first mode of the given path %s is %d which is different from %d, the initial mode of the given hybrid system model."
+            path_str first_mode init
+          in
+          raise (Arg.Bad msg)
+        | (_, false, _) ->
+          let msg = BatPrintf.sprintf
+            "The last mode of the given path %s is %d which is not an element of %s, the list of modes in the goal section of the given hybrid system model."
+            path_str last_mode goal_str
+          in
+          raise (Arg.Bad msg)
+        | (_, _, false) ->
+          let msg = BatPrintf.sprintf
+            "The length of the given path %s is %d, while the given unrolling depth k is %d."
+            path_str len k
+          in
+          raise (Arg.Bad msg)
+      end
   | None -> ()
 
 let spec = [
