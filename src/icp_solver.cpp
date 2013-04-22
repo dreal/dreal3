@@ -688,7 +688,7 @@ void icp_solver::output_problem() const
         double lb =  (*ite).second.first;
         double ub =  (*ite).second.second;
 
-        _config.nra_proof_out << key << " is in: ";
+        _config.nra_proof_out << key << ": ";
         if(lb == -numeric_limits<double>::infinity())
             _config.nra_proof_out << "(-oo";
         else {

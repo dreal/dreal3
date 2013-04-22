@@ -114,11 +114,11 @@ init_list: init { [$1] }
          | init init_list { $1::$2 }
 ;
 
-entry: ID IS IN COLON LB FNUM COMMA FNUM RB { ($1, Intv.make $6 $8) }
-     | ID IS IN COLON LP MINUS INFTY COMMA FNUM RB { ($1, Intv.make neg_infinity $9) }
-     | ID IS IN COLON LB FNUM COMMA PLUS INFTY RP { ($1, Intv.make $6 infinity) }
-     | ID IS IN COLON LP MINUS INFTY COMMA PLUS INFTY RP { ($1, Intv.make neg_infinity infinity) }
-     | ID IS IN COLON FNUM { ($1, Intv.make $5 $5) }
+entry: ID COLON LB FNUM COMMA FNUM RB { ($1, Intv.make $4 $6) }
+     | ID COLON LP MINUS INFTY COMMA FNUM RB { ($1, Intv.make neg_infinity $7) }
+     | ID COLON LB FNUM COMMA PLUS INFTY RP { ($1, Intv.make $4 infinity) }
+     | ID COLON LP MINUS INFTY COMMA PLUS INFTY RP { ($1, Intv.make neg_infinity infinity) }
+     | ID COLON FNUM { ($1, Intv.make $3 $3) }
 ;
 
 entry_list: entry { [$1] }
