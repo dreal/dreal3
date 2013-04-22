@@ -4,6 +4,8 @@ type key = string
 type intv = Intv.t
 type t = (key, intv) BatMap.t
 
+let keys = BatMap.keys
+
 let find (x : key) (e : t) : intv
     = BatMap.find x e
 
@@ -87,3 +89,20 @@ let minus (e1 : t) (e2 : t) : (t list) =
       )
   in
   List.filter (fun e -> not (is_empty e)) [from_list l1';from_list l2']
+
+let left_bound (e : t) : (string, float) BatMap.t =
+  let keys = keys e in
+  let items = BatEnum.map
+    (fun key -> let intv = find key e in
+             let v = Intv.left_bound intv in
+             (key, v)
+    )
+    keys in
+  BatMap.of_enum items
+
+
+let right_bound (e : t) : float list =
+  let keys = BatList.of_enum (keys e) in
+  List.map
+    (fun key -> let intv = find key e in Intv.right_bound intv)
+    keys

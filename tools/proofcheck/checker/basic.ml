@@ -1,3 +1,7 @@
+exception TODO
+
+exception DerivativeNotFound
+
 type exp =
 | Var   of string
 | Num of float
@@ -38,28 +42,136 @@ and formula =
 | LetF of ((string * formula) list * formula)
 | LetE of ((string * exp) list * formula)
 
-let rec diff (e: exp) (x: string) : exp
+let rec deriv (e: exp) (x: string) : exp
     = match e with
       Var v -> if v = x then Num 1.0 else Num 0.0
     | Num _ -> Num 0.0
-    | Neg e' -> Neg (diff e' x)
-    | Add es -> Add (List.map (fun e' -> diff e' x) es)
-    | Sub es -> Sub (List.map (fun e' -> diff e' x) es)
+    | Neg e' -> Neg (deriv e' x)
+    | Add es -> Add (List.map (fun e' -> deriv e' x) es)
+    | Sub es -> Sub (List.map (fun e' -> deriv e' x) es)
     | Mul [] -> Num 0.0
-    | Mul (e'::es) -> Add [Mul ((diff e' x)::es);
-                          Mul [e';(diff (Mul es) x)]]
+
+    (** (f * g)' = f' * g +   **)
+    | Mul (f::g) ->
+      let f' = deriv f x in
+      let g' = deriv (Mul g) x in
+      Add [Mul (f'::g); Mul [f;g']]
+
+    (** (f / g)' = (f' * g - f * g') / g^2 **)
     | Div (f, g) ->
-      let f' = diff f x in
-      let g' = diff g x in
+      let f' = deriv f x in
+      let g' = deriv g x in
       Div (Sub [Mul [f';g]; Mul [f;g']], Pow (g, Num 2.0))
+
+    (** (f^n)' = n * f^(n-1) f' **)
+    | Pow (f, Num n) ->
+      let f' = deriv f x in
+      Mul [Num n;
+           Pow (f, Num (n -. 1.0));
+           f']
+
+    (** In general,
+        (f^g)' = f^g (f' * g / f + g' * ln g) **)
     | Pow (f, g) ->
-      let f' = diff f x in
-      let g' = diff g x in
+      let f' = deriv f x in
+      let g' = deriv g x in
       Mul [Pow (f, g);
            Add [Mul [f'; Div(g, f)] ;
                 Mul [g'; Log f]]]
 
-    | _ -> Num 0.0
+    (** No Support **)
+    | Ite _ -> raise DerivativeNotFound
+
+    (** (sqrt(f))' = 1/2 * 1/(sqrt(f)) * f' **)
+    | Sqrt f ->
+      let f' = deriv f x in
+      Mul [Num 0.5;
+           Div (Num 1.0, Sqrt f);
+           f']
+
+    (** No Support **)
+    | Abs  f -> raise DerivativeNotFound
+
+    (** (log f)' = f' / f **)
+    | Log  f ->
+      let f' = deriv f x in
+      Div (f', f)
+
+    (** (exp f)' = (cos f) * f' **)
+    | Exp  f ->
+      let f' = deriv f x in
+      Mul [Exp f; f']
+
+    (** (sin f)' = (cos f) * f' **)
+    | Sin  f ->
+      let f' = deriv f x in
+      Mul [Cos f; f']
+
+    (** (cos f)' = - (sin f) * f' **)
+    | Cos  f ->
+      let f' = deriv f x in
+      Neg (Mul [Sin f; f'])
+
+    (** (tan f)' = (1 + tan^2 f) * f'  **)
+    | Tan  f ->
+      let f' = deriv f x in
+      Mul [Add [Num 1.0; Pow (Tan f, Num 2.0)];
+           f']
+
+    (** (asin f)' = (1 / sqrt(1 - f^2)) f' **)
+    | Asin f ->
+      let f' = deriv f x in
+      Mul [Div (Num 1.0, Sqrt(Sub [Num 1.0; Pow(f, Num 2.0)]));
+           f']
+
+    (** (acos f)' = -(1 / sqrt(1 - f^2)) f' **)
+    | Acos f ->
+      let f' = deriv f x in
+      Neg(Mul [Div (Num 1.0, Sqrt(Sub [Num 1.0; Pow(f, Num 2.0)]));
+               f'])
+
+    (** (atan f)' = (1 / (1 + f^2)) * f' **)
+    | Atan f ->
+      let f' = deriv f x in
+      Mul [Div (Num 1.0, Add [Num 1.0; Pow(f, Num 2.0)]);
+           f']
+
+    (** TODO **)
+
+    (** atan2(x,y)' = -y / (x^2 + y^2) dx + x / (x^2 + y^2) dy
+                    = (-y dx + x dy) / (x^2 + y^2)
+    **)
+    | Atan2 (f, g) ->
+      let f' = deriv f x in
+      let g' = deriv g x in
+      Div (Add [Mul [Neg g; f'];
+                Mul [f; g']],
+           Add [Pow (f, Num 2.0);
+                Pow (g, Num 2.0)])
+
+    (** (sinh f)' = (e^f + e^(-f))/2 * f' **)
+    | Sinh f ->
+      let f' = deriv f x in
+      Mul [Div (Add [Exp f; Exp (Neg f)],
+                Num 2.0);
+           f']
+
+    (** (cosh f)' = (e^f - e^(-f))/2 * f' **)
+    | Cosh f ->
+      let f' = deriv f x in
+      Mul [Div (Sub [Exp f; Exp (Neg f)],
+                Num 2.0);
+           f']
+
+    (** (tanh f)' = (sech^2 f) * f'
+                  = ((2 * e^-f) / (1 + e^-2f)) * f'
+    **)
+    | Tanh f ->
+      let f' = deriv f x in
+      Mul [Num 2.0;
+           Div(Exp (Neg f),
+               Add [Num 1.0; Exp (Mul [Num (-2.0); f])]);
+           f']
 
 let rec count_mathfn_e =
   function
