@@ -2,13 +2,13 @@ exception CException of string
 
 type key = string
 type intv = Intv.t
-type t = (key, intv) BatPMap.t
+type t = (key, intv) BatMap.t
 
 let find (x : key) (e : t) : intv
-    = BatPMap.find x e
+    = BatMap.find x e
 
 let order (e1 : t) (e2 : t) : bool =
-  BatPMap.for_all
+  BatMap.for_all
     (fun x i1 ->
       let i2 = find x e2 in
       Intv.order i1 i2
@@ -16,7 +16,7 @@ let order (e1 : t) (e2 : t) : bool =
     e1
 
 let join (e1 : t) (e2 : t) : t =
-  BatPMap.merge
+  BatMap.merge
     (fun x i1_op i2_op ->
       match (i1_op, i2_op) with
           (Some i1, Some i2) -> Some (Intv.join i1 i2)
@@ -25,18 +25,18 @@ let join (e1 : t) (e2 : t) : t =
     e2
 
 let print out =
-  BatPMap.print ~first:"{" ~last:"}\n" ~sep:", \n"
+  BatMap.print ~first:"{" ~last:"}\n" ~sep:", \n"
     BatString.print
     Intv.print
     out
 
 let to_list (e : t) : (key * intv) list
-    = BatList.of_enum (BatPMap.backwards e)
+    = BatList.of_enum (BatMap.backwards e)
 
 let from_list (l : (key * intv) list) : t =
   List.fold_left
-    (fun e (k, i) -> BatPMap.add k i e)
-    BatPMap.empty
+    (fun e (k, i) -> BatMap.add k i e)
+    BatMap.empty
     l
 
 let make = from_list

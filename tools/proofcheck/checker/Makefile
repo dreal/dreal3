@@ -15,13 +15,13 @@ intv.cmx: intv.ml INTERVAL/interval.cmxa
 	ocamlfind ocamlopt -I INTERVAL -annot -package batteries -c intv.ml
 
 basic.cmx: basic.ml
-	ocamlfind ocamlopt -annot -package batteries -package batteries.syntax -syntax camlp4o -c basic.ml
+	ocamlfind ocamlopt -annot -package batteries -package batteries.syntax -c basic.ml
 
 smt2_cmd.cmx: basic.cmx  smt2_cmd.ml
 	ocamlfind ocamlopt -annot -package batteries -c smt2_cmd.ml
 
 smt2.cmx: smt2.ml smt2_cmd.cmx
-	ocamlfind ocamlopt -annot -package batteries -package batteries.syntax -syntax camlp4o -c smt2.ml
+	ocamlfind ocamlopt -annot -package batteries -package batteries.syntax -c smt2.ml
 
 env.cmx: intv.cmx env.ml INTERVAL/interval.cmxa
 	ocamlfind ocamlopt -I INTERVAL -annot -package batteries -c env.ml
