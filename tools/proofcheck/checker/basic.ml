@@ -38,6 +38,29 @@ and formula =
 | LetF of ((string * formula) list * formula)
 | LetE of ((string * exp) list * formula)
 
+let rec diff (e: exp) (x: string) : exp
+    = match e with
+      Var v -> if v = x then Num 1.0 else Num 0.0
+    | Num _ -> Num 0.0
+    | Neg e' -> Neg (diff e' x)
+    | Add es -> Add (List.map (fun e' -> diff e' x) es)
+    | Sub es -> Sub (List.map (fun e' -> diff e' x) es)
+    | Mul [] -> Num 0.0
+    | Mul (e'::es) -> Add [Mul ((diff e' x)::es);
+                          Mul [e';(diff (Mul es) x)]]
+    | Div (f, g) ->
+      let f' = diff f x in
+      let g' = diff g x in
+      Div (Sub [Mul [f';g]; Mul [f;g']], Pow (g, Num 2.0))
+    | Pow (f, g) ->
+      let f' = diff f x in
+      let g' = diff g x in
+      Mul [Pow (f, g);
+           Add [Mul [f'; Div(g, f)] ;
+                Mul [g'; Log f]]]
+
+    | _ -> Num 0.0
+
 let rec count_mathfn_e =
   function
   | Var _ -> 0
@@ -186,68 +209,68 @@ and count_arith_f =
     BatList.sum (List.map (fun (id, e') -> count_arith_e e') ebinding_list)
     + (count_arith_f f)
 
-let rec collect_var_in_f f : string BatPSet.t =
+let rec collect_var_in_f f : string BatSet.t =
   match f with
-  | True -> BatPSet.empty
-  | False -> BatPSet.empty
-  | FVar x -> BatPSet.singleton x
+  | True -> BatSet.empty
+  | False -> BatSet.empty
+  | FVar x -> BatSet.singleton x
   | Not f' -> collect_var_in_f f'
   | And fl ->
-    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_f fl)
+    List.fold_left BatSet.union BatSet.empty (List.map collect_var_in_f fl)
   | Or fl ->
-    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_f fl)
+    List.fold_left BatSet.union BatSet.empty (List.map collect_var_in_f fl)
   | Imply (f1, f2) ->
-    BatPSet.union (collect_var_in_f f1) (collect_var_in_f f2)
+    BatSet.union (collect_var_in_f f1) (collect_var_in_f f2)
   | Gt (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Lt (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Ge (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Le (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Eq (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | LetF (fbinding_list, f') ->
     let id_vars_list =
       List.map
         (fun (id, f') -> (id, collect_var_in_f f'))
         fbinding_list in
     let (id_list, vars_list) = BatList.split id_vars_list in
-    let id_set = BatPSet.of_list id_list in
-    let bind_vars = List.fold_left BatPSet.union BatPSet.empty vars_list in
+    let id_set = BatSet.of_list id_list in
+    let bind_vars = List.fold_left BatSet.union BatSet.empty vars_list in
     let vars_in_f' = collect_var_in_f f' in
-    BatPSet.union (BatPSet.diff vars_in_f' id_set) bind_vars
+    BatSet.union (BatSet.diff vars_in_f' id_set) bind_vars
   | LetE (ebinding_list, f') ->
     let id_vars_list =
       List.map
         (fun (id, e') -> (id, collect_var_in_e e'))
         ebinding_list in
     let (id_list, vars_list) = BatList.split id_vars_list in
-    let id_set = BatPSet.of_list id_list in
-    let bind_vars = List.fold_left BatPSet.union BatPSet.empty vars_list in
+    let id_set = BatSet.of_list id_list in
+    let bind_vars = List.fold_left BatSet.union BatSet.empty vars_list in
     let vars_in_f' = collect_var_in_f f' in
-    BatPSet.union (BatPSet.diff vars_in_f' id_set) bind_vars
+    BatSet.union (BatSet.diff vars_in_f' id_set) bind_vars
 
-and collect_var_in_e e : string BatPSet.t =
+and collect_var_in_e e : string BatSet.t =
   match e with
-    Var x -> BatPSet.singleton x
-  | Num _ -> BatPSet.empty
+    Var x -> BatSet.singleton x
+  | Num _ -> BatSet.empty
   | Neg e' -> collect_var_in_e e'
   | Add el ->
-    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_e el)
+    List.fold_left BatSet.union BatSet.empty (List.map collect_var_in_e el)
   | Sub el ->
-    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_e el)
+    List.fold_left BatSet.union BatSet.empty (List.map collect_var_in_e el)
   | Mul el ->
-    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_e el)
+    List.fold_left BatSet.union BatSet.empty (List.map collect_var_in_e el)
   | Div (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Pow (e1, e2 ) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Ite (f, e1, e2) ->
-    BatPSet.union
+    BatSet.union
       (collect_var_in_f f)
-      (BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2))
+      (BatSet.union (collect_var_in_e e1) (collect_var_in_e e2))
   | Sqrt e1 -> collect_var_in_e e1
   | Abs e1 -> collect_var_in_e e1
   | Log e1 -> collect_var_in_e e1
@@ -258,7 +281,7 @@ and collect_var_in_e e : string BatPSet.t =
   | Asin e1 -> collect_var_in_e e1
   | Acos e1 -> collect_var_in_e e1
   | Atan e1 -> collect_var_in_e e1
-  | Atan2 (e1, e2) -> BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Atan2 (e1, e2) -> BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Sinh e1 -> collect_var_in_e e1
   | Cosh e1 -> collect_var_in_e e1
   | Tanh e1 -> collect_var_in_e e1
@@ -267,9 +290,9 @@ let rec print_exp out =
   let print_exps op exps =
     begin
       BatList.print
-        (~first:("("^op^" "))
-        (~sep:" ")
-        (~last:")")
+        ~first:("("^op^" ")
+        ~sep:" "
+        ~last:")"
         print_exp
         out
         exps
@@ -327,9 +350,9 @@ and print_formula out =
   let print_lists op out f items =
     begin
       BatList.print
-        (~first:("("^op^" "))
-        (~sep:" ")
-        (~last:")")
+        ~first:("("^op^" ")
+        ~sep:" "
+        ~last:")"
         f
         out
         items
@@ -369,9 +392,9 @@ and print_formula out =
     begin
       BatString.print out "(let ";
       BatList.print
-        (~first:("("))
-        (~sep:" ")
-        (~last:")")
+        ~first:("(")
+        ~sep:" "
+        ~last:")"
         print_ebinding
         out
         ebinding_list;
@@ -381,9 +404,9 @@ and print_formula out =
     begin
       BatString.print out "(let ";
       BatList.print
-        (~first:("("))
-        (~sep:" ")
-        (~last:")")
+        ~first:("(")
+        ~sep:" "
+        ~last:")"
         print_fbinding
         out
         fbinding_list;
