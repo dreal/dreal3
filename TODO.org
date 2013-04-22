@@ -1,21 +1,20 @@
 * CP (Deadline 4/22)
-** Taylor in Checking
+** DONE Taylor in Checking
 ** Better Interval Arithmetic
-** New Introduction
+** DONE New Introduction
 ** Experiments and Detailed Examples
 ** Diagrams of tree construction
 ** Visualization of the proof
-
 * CMSB (Abstract: 4/8, Full: 4/15)
-** Parameter synthesis encoded as reachability
-** Cardiac Model
+** DONE Parameter synthesis encoded as reachability
+** DONE Cardiac Model
    Revise Benchmark to allow parameters in ODE
-** Bing's pure ODE
+** DONE Bing's pure ODE
 
 * HSCC Demo (4/8 - 4/11)
-** Visualization of ODE
-** Pruning on X_0
-** More Benchmark
+** DONE Visualization of ODE
+** DONE Pruning on X_0
+** DONE More Benchmark
 *** Biology
 *** PowerGrid
 *** Robotics
@@ -24,4 +23,3 @@
 * RTSS (Deadline: 5/15)
 ** Proof for completeness of \delta-invariant
 ** Pictures, visualization of traces
-
