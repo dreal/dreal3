@@ -22,6 +22,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "ode_solver.h"
 #include <boost/algorithm/string/join.hpp>
 #include <limits>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/if.hpp>
 
 using namespace capd;
 
@@ -76,11 +79,10 @@ void ode_solver::print_trace(ostream& out,
     out << "}" << endl;
 }
 
-void ode_solver::print_trajectory(ostream& out, vector<string> & var_list) const
+void ode_solver::print_trajectory(ostream& out) const
 {
     out.precision(12);
     out << ",[" << endl;
-
     print_trace(out, var_list[0], 0, trajectory);
 
     for(size_t i = 1; i < var_list.size(); i++) {
@@ -90,25 +92,36 @@ void ode_solver::print_trajectory(ostream& out, vector<string> & var_list) const
     out << endl << "]" << endl;
 }
 
+void ode_solver::prune_trajectory(const interval& time)
+{
+    list<pair<const capd::interval, const capd::IVector> >::iterator ite =
+        find_if(trajectory.begin(),
+             trajectory.end(),
+             [&time](const pair<const capd::interval, const capd::IVector>& item)
+             {
+                 return item.first.leftBound() > time.rightBound();
+             });
+    trajectory.erase(ite, trajectory.end());
+}
+
+
 string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
                                          vector<Enode*> & _0_vars,
-                                         vector<Enode*> & _t_vars,
-                                         vector<string> & var_list)
+                                         vector<Enode*> & _t_vars)
 {
     vector<string> ode_list;
-    // 1. partition ode_vars into _0_vars and _t_vars by their ODE_vartype
-    for(set< Enode* >::iterator ite = ode_vars.begin();
-        ite != ode_vars.end();
-        ite++)
-    {
-        if ((*ite)->getODEvartype() == l_False) {
-            _0_vars.push_back(*ite);
-            _t_vars.push_back((*ite)->getODEopposite());
-            var_list.push_back((*ite)->getODEvarname());
-            string ode = (*ite)->getODE();
-            ode_list.push_back(ode);
-        }
-    }
+    // 1. partition ode_vars into _0_vars and _t_vars by their
+    // ODE_vartype
+    var_list.clear();
+    for_each(ode_vars.begin(),
+             ode_vars.end(),
+             [&] (Enode* ode_var) {
+                 _0_vars.push_back(ode_var);
+                 _t_vars.push_back(ode_var->getODEopposite());
+                 var_list.push_back(ode_var->getODEvarname());
+                 string ode = ode_var->getODE();
+                 ode_list.push_back(ode);
+             });
 
     // 3. join var_list to make diff_var, ode_list to diff_fun
     string diff_var = "var:" + boost::algorithm::join(var_list, ", ") + ";";
@@ -132,22 +145,18 @@ IVector ode_solver::varlist_to_IVector(vector<Enode*> vars)
 
     /* Assign current interval values */
     int i = 0;
-    for (vector<Enode*>::iterator var_ite = vars.begin();
-         var_ite != vars.end();
-         var_ite++, i++)
-    {
-        double lb, ub;
-        lb = get_lb(*var_ite);
-        ub = get_ub(*var_ite);
-        ret[i] = interval(lb, ub);
-
-        if(_config.nra_verbose) {
-            cerr << "The interval on "
-                 << (*var_ite)->getCar()->getName()
-                 << " is "<< ret[i] <<endl;
-        }
-    }
-
+    for_each(vars.begin(),
+             vars.end(),
+             [&] (Enode* var) {
+                 double lb = get_lb(var);
+                 double ub = get_ub(var);
+                 ret[i++] = interval(lb, ub);
+                 if(_config.nra_verbose) {
+                     cerr << "The interval on "
+                          << var->getCar()->getName()
+                          << " is "<< ret[i] <<endl;
+                 };
+             });
     return ret;
 }
 
@@ -187,8 +196,6 @@ void ode_solver::IVector_to_varlist(IVector & v, vector<Enode*> & vars)
     }
 }
 
-
-
 void ode_solver::prune(vector<Enode*>& _t_vars,
                        IVector v,
                        interval dt,
@@ -213,13 +220,10 @@ void ode_solver::prune(vector<Enode*>& _t_vars,
         /*
           [         t_vars[i]        ]
                                            [         v[i]             ]
-
           ----------------------------------------------------------------------
-
                                            [         t_vars[i]        ]
           [         v[i]             ]
          */
-
         if (dt.leftBound() > time.rightBound() ||
             time.leftBound() > dt.rightBound()) {
             candidate = false;
@@ -244,7 +248,7 @@ void ode_solver::prune(vector<Enode*>& _t_vars,
 bool ode_solver::solve_forward()
 {
     if(_config.nra_verbose) {
-        cerr << "ODE_Solver::solve" << endl;
+        cerr << "ODE_Solver::solve_forward()" << endl;
     }
     cerr.precision(12);
     bool ret = true;
@@ -252,12 +256,10 @@ bool ode_solver::solve_forward()
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
-        vector<string> var_list;
 
         string diff_sys = create_diffsys_string(_ode_vars,
                                                 _0_vars,
-                                                _t_vars,
-                                                var_list);
+                                                _t_vars);
 
         //pass the problem with variables
         IMap vectorField(diff_sys);
@@ -268,13 +270,13 @@ bool ode_solver::solve_forward()
         // The time step (when step control is turned off) will be 0.1.
         // The time step control is turned on by default but the solver must know if we want to
         // integrate forwards or backwards (then put negative number).
-        ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);
+        ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);  /* HERE */
         ITimeMap timeMap(solver);
 
         //initial conditions
-        IVector start = varlist_to_IVector(_0_vars);
+        IVector start = varlist_to_IVector(_0_vars); /* TODO */
         IVector inv = extract_invariants(_t_vars);
-        IVector end = varlist_to_IVector(_t_vars);
+        IVector end = varlist_to_IVector(_t_vars);   /* TODO */
 
         //end = start; //set the initial comparison
 
@@ -283,7 +285,8 @@ bool ode_solver::solve_forward()
 
         //time range
         Enode* time = (*_0_vars.begin())->getODEtimevar();
-        interval T = interval(get_lb(time), get_ub(time));
+        interval T = interval(get_lb(time), get_ub(time));  /* TODO
+                                                             * (sign) */
 
         if(_config.nra_verbose) {
             cerr << "interval T = " << T << endl;
@@ -296,10 +299,12 @@ bool ode_solver::solve_forward()
             timeMap.turnOnStepControl();
         } else {
             timeMap.turnOffStepControl();
-            timeMap.setStep(stepControl);
+            timeMap.setStep(stepControl); /* TODO (sign) */
         }
 
         interval prevTime(0.);
+
+        /* TODO (only in forward) */
         if(_config.nra_json) {
             trajectory.clear();
             trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
@@ -311,27 +316,28 @@ bool ode_solver::solve_forward()
         do
         {
             if(stepControl != 0) {
-                timeMap.setStep(stepControl);
+                timeMap.setStep(stepControl);  /* TODO (sign) */
             }
 
-            timeMap(T.rightBound(),s);
+            timeMap(T.rightBound(),s);         /* TODO direction */
 
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
                 cerr << "step made: " << stepMade << endl;
             }
 
-            if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
-                // This is how we can extract an information
-                // about the trajectory between time steps.
-                // The type CurveType is a function defined
-                // on the interval [0,stepMade].
-                // It can be evaluated at a point (or interval).
-                // The curve can be also differentiated wrt to time.
-                // We can also extract from it the 1-st order derivatives wrt.
+            if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {  /*  TODO (sym) */
+                // This is how we can extract an information about the
+                // trajectory between time steps. The type CurveType
+                // is a function defined on the interval [0,stepMade].
+                // It can be evaluated at a point (or interval). The
+                // curve can be also differentiated wrt to time. We
+                // can also extract from it the 1-st order derivatives
+                // wrt.
                 const ITaylor::CurveType& curve = solver.getCurve();
                 interval domain = interval(0,1)*stepMade;
-                double domainWidth = domain.rightBound();
+                /* TODO (sign) */
+                double domainWidth = domain.rightBound() - domain.leftBound();
 
                 // Here we use a uniform grid of last time step made
                 // to enclose the trajectory between time steps.
@@ -506,15 +512,11 @@ bool ode_solver::solve_forward()
             set_empty_interval(time);
             ret = false;
         }
-        if(_config.nra_json) {
-            print_trajectory(_config.nra_json_out, var_list);
-        }
+
+        prune_trajectory(T);
     }
     catch(std::exception& e)
     {
-        if(_config.nra_json) {
-            // print_trajectory(_config.nra_json_out);
-        }
         if(_config.nra_verbose) {
             cerr << endl
                  << endl
@@ -536,12 +538,10 @@ bool ode_solver::solve_backward()
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
-        vector<string> var_list;
 
         string diff_sys = create_diffsys_string(_ode_vars,
                                                 _0_vars,
-                                                _t_vars,
-                                                var_list);
+                                                _t_vars);
 
         //pass the problem with variables
         IMap vectorField(diff_sys);
@@ -556,18 +556,18 @@ bool ode_solver::solve_backward()
         ITimeMap timeMap(solver);
 
         //initial conditions
-        IVector start = varlist_to_IVector(_0_vars);
+        IVector start = varlist_to_IVector(_t_vars);
         IVector inv = extract_invariants(_t_vars);
-        IVector end = varlist_to_IVector(_t_vars);
+        IVector end = varlist_to_IVector(_0_vars);
 
         //end = start; //set the initial comparison
 
         // define a doubleton representation of the interval vector start
-        C0Rect2Set e(end);
+        C0Rect2Set s(start);
 
         //time range
         Enode* time = (*_0_vars.begin())->getODEtimevar();
-        interval T = interval(- get_ub(time), - get_lb(time));
+        interval T = - interval(get_lb(time), get_ub(time));
 
         if(_config.nra_verbose) {
             cerr << "interval T = " << T << endl;
@@ -580,14 +580,10 @@ bool ode_solver::solve_backward()
             timeMap.turnOnStepControl();
         } else {
             timeMap.turnOffStepControl();
-            timeMap.setStep(-stepControl);
+            timeMap.setStep(-stepControl);  /* TODO */
         }
 
         interval prevTime(0.);
-        // if(_config.nra_json) {
-        //     trajectory.clear();
-        //     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(e)));
-        // }
 
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
@@ -597,24 +593,24 @@ bool ode_solver::solve_backward()
             if(stepControl != 0) {
                 timeMap.setStep(- stepControl);
             }
-            timeMap(T.leftBound(),e);
+            timeMap(T.leftBound(),s);
 
             //timeMap(T,e);
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
-                cerr << "step made: " << stepMade << endl;
-                cerr << "T : " << T << endl;
-                cerr << "currentTime : " << timeMap.getCurrentTime() << endl;
+                cerr << "step made: " << stepMade << endl
+                     << "T : " << T << endl
+                     << "currentTime : " << timeMap.getCurrentTime() << endl;
             }
 
             if (!fastForward || T.rightBound() >= timeMap.getCurrentTime().leftBound()) {
-                // This is how we can extract an information
-                // about the trajectory between time steps.
-                // The type CurveType is a function defined
-                // on the interval [0,stepMade].
-                // It can be evaluated at a point (or interval).
-                // The curve can be also differentiated wrt to time.
-                // We can also extract from it the 1-st order derivatives wrt.
+                // This is how we can extract an information about the
+                // trajectory between time steps. The type CurveType
+                // is a function defined on the interval [0,stepMade].
+                // It can be evaluated at a point (or interval). The
+                // curve can be also differentiated wrt to time. We
+                // can also extract from it the 1-st order derivatives
+                // wrt.
                 const ITaylor::CurveType& curve = solver.getCurve();
                 interval domain = interval(0,1)*stepMade;
                 double domainWidth = domain.rightBound() - domain.leftBound();
@@ -651,9 +647,6 @@ bool ode_solver::solve_backward()
                     if(_config.nra_verbose) {
                         cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ":  " << v << endl;
                     }
-                    // if(_config.nra_json) {
-                    //     trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
-                    // }
                     prune(_0_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
@@ -661,9 +654,6 @@ bool ode_solver::solve_backward()
                 if(_config.nra_verbose) {
                     cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
                 }
-                // if(_config.nra_json) {
-                //     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(e)));
-                // }
             }
             if(_config.nra_verbose) {
                 cerr << "=============================================" << endl;
@@ -720,9 +710,6 @@ bool ode_solver::solve_backward()
                 }
             }
         }
-        // if(_config.nra_json) {
-        //     print_trajectory(_config.nra_json_out);
-        // }
     }
     catch(std::exception& e)
     {

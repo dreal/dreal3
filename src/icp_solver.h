@@ -27,6 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "SMTConfig.h"
 #include "ode_solver.h"
 #include <fstream>
+#include <queue>
 
 class icp_solver
 {
@@ -56,6 +57,7 @@ public:
     void display_box(ostream& out, rp_box b, int digits, int mode) const;
     void display_interval(ostream & out, rp_interval i, int digits, int mode) const;
     void pprint_vars(ostream & out, rp_problem p, rp_box b) const;
+    void print_ODE_trajectory() const;
 
     /* void          prune                   ( rp_box *, literal * ); */
     /* void          prune                   ( rp_box *, rp_problem * ); */
@@ -78,9 +80,12 @@ private:
     vector<Enode*> &                     _explanation;
     const vector<Enode*> &               _stack;
     map<Enode*, pair<double, double> > & _env;
+    queue<ode_solver*>                   _ode_solver_queue;
+
     void output_problem() const;
     void callODESolver(int group,
                        vector< set< Enode* > > & diff_vec);
+
     bool ODEresult;
 
     icp_solver& operator=(const icp_solver& s);

@@ -22,6 +22,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "nra_solver.h"
 #include "icp_solver.h"
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/if.hpp>
 
 NRASolver::NRASolver( const int           i
                       , const char *        n
@@ -34,7 +37,7 @@ NRASolver::NRASolver( const int           i
     )
     : OrdinaryTSolver ( i, n, c, e, t, x, d, s )
 {
-//initialize icp solver first
+    //initialize icp solver first
     if (c.nra_precision == 0.0)
         c.nra_precision = 0.001;
 }
@@ -120,18 +123,16 @@ set<Enode *> NRASolver::get_variables (Enode * e )
     return result;
 }
 
-// The solver is informed of the existence of
-// atom e. It might be useful for initializing
-// the solver's data structures. This function is
-// called before the actual solving starts.
-//
+// The solver is informed of the existence of atom e. It might be
+// useful for initializing the solver's data structures. This function
+// is called before the actual solving starts.
 lbool NRASolver::inform( Enode * e )
 {
     if(config.nra_verbose) {
-        cerr << "================================================================" << endl;
-        cerr << "NRASolver::inform: " << e << endl;
-        cerr << "NRASolver::inform: Polarity: " << e->getPolarity().toInt() << endl;
-        cerr << "================================================================" << endl;
+        cerr << "================================================================" << endl
+             << "NRASolver::inform: " << e
+             << " with polarity " << e->getPolarity().toInt() << endl
+             << "================================================================" << endl;
     }
     assert( e -> isAtom() );
 
@@ -166,19 +167,17 @@ lbool NRASolver::inform( Enode * e )
     return l_Undef;
 }
 
-//
-// Asserts a literal into the solver. If by chance
-// you are able to discover inconsistency you may
-// return false. The real consistency state will
-// be checked with "check"
-//
+// Asserts a literal into the solver. If by chance you are able to
+// discover inconsistency you may return false. The real consistency
+// state will be checked with "check"
 bool NRASolver::assertLit ( Enode * e, bool reason )
 {
     if (config.nra_verbose) {
-        cerr << "================================================================" << endl;
-        cerr << "NRASolver::assertLit: " << e << ", " << reason << endl;
-        cerr << "NRASolver::assertLit: Polarity: " << e->getPolarity().toInt() << endl;
-        cerr << "================================================================" << endl;
+        cerr << "================================================================" << endl
+             << "NRASolver::assertLit: " << e
+             << ", reason: " << (reason ? "true" : "false")
+             << ", polarity: " << e->getPolarity().toInt() << endl
+             << "================================================================" << endl;
     }
 
     (void)reason;
@@ -200,38 +199,29 @@ bool NRASolver::assertLit ( Enode * e, bool reason )
     return true;
 }
 
-//
-// Saves a backtrack point
-// You are supposed to keep track of the
-// operations, for instance in a vector
-// called "undo_stack_term", as happens
-// in EgraphSolver
-//
+// Saves a backtrack point You are supposed to keep track of the
+// operations, for instance in a vector called "undo_stack_term", as
+// happens in EgraphSolver
 void NRASolver::pushBacktrackPoint ( )
 {
     if (config.nra_verbose) {
-        cerr << "================================================================" << endl;
-        cerr << "NRASolver::pushBacktrackPoint " << stack.size() << endl;
+        cerr << "================================================================" << endl
+             << "NRASolver::pushBacktrackPoint " << stack.size() << endl;
     }
     undo_stack_size.push_back(stack.size());
     env_stack.push_back(env);
 }
 
-//
-// Restore a previous state. You can now retrieve
-// the size of the stack when you pushed the last
-// backtrack point. You have to implement the
-// necessary backtrack operations
-// (see for instance backtrackToStackSize( )
-// in EgraphSolver)
-// Also make sure you clean the deductions you
-// did not communicate
-//
+// Restore a previous state. You can now retrieve the size of the
+// stack when you pushed the last backtrack point. You have to
+// implement the necessary backtrack operations (see for instance
+// backtrackToStackSize( ) in EgraphSolver) Also make sure you clean
+// the deductions you did not communicate
 void NRASolver::popBacktrackPoint ( )
 {
     if (config.nra_verbose) {
-        cerr << "================================================================" << endl;
-        cerr << "NRASolver::popBacktrackPoint" << endl;
+        cerr << "================================================================" << endl
+             << "NRASolver::popBacktrackPoint" << endl;
     }
     vector<Enode*>::size_type prev_size = undo_stack_size.back( );
     undo_stack_size.pop_back();
@@ -294,10 +284,10 @@ bool NRASolver::check( bool complete )
         }
     } else {
         // Complete Check
-        if(config.nra_json) {
-            config.nra_json_out << "{" << endl
-                                << "\"traces\": ";
-        }
+        // if(config.nra_json) {
+        //     config.nra_json_out << "{" << endl
+        //                         << "\"traces\": ";
+        // }
         result = solver.solve();
     }
 
@@ -309,12 +299,15 @@ bool NRASolver::check( bool complete )
         }
     }
 
-    if (!result && config.nra_contain_ODE && config.nra_json) {
-        // Reset Stream
-        config.nra_json_out.seekp(ios_base::beg	);
-    }
+    // if (!result && config.nra_contain_ODE && config.nra_json) {
+    //     // Reset Stream
+    //     config.nra_json_out.seekp(ios_base::beg	);
+    // }
 
     if (complete && result && config.nra_contain_ODE && config.nra_json) {
+        // Print out ODE trajectory
+        solver.print_ODE_trajectory();
+
         // collect all the ODE groups in the asserted literal and
         // print out
         set<int> ode_groups;
@@ -345,8 +338,8 @@ bool NRASolver::check( bool complete )
             }
             config.nra_json_out << *g;
         }
-        config.nra_json_out << "]" << endl
-                            << "}" << endl;
+        config.nra_json_out << "]" << endl;
+//                            << "}" << endl;
     }
 
     return result;

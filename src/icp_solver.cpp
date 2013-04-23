@@ -239,7 +239,13 @@ void icp_solver::callODESolver(int group,
             }
         }
 
-        ode_solver odeSolver(group, _config, current_ode_vars, _boxes.get(), _enode_to_rp_id, ODEresult);
+        ode_solver* odeSolver = new ode_solver(group,
+                                               _config,
+                                               current_ode_vars,
+                                               _boxes.get(),
+                                               _enode_to_rp_id,
+                                               ODEresult);
+        _ode_solver_queue.push(odeSolver);
 
         double before = rp_box_volume_log(_boxes.get());
 
@@ -255,7 +261,7 @@ void icp_solver::callODESolver(int group,
         }
 
         // =========== FORWARD ======================================
-        if (!odeSolver.solve_forward()) {
+        if (!odeSolver->solve_forward()) {
             ODEresult = false;
             return;
         }
@@ -277,7 +283,7 @@ void icp_solver::callODESolver(int group,
         }
 
         // =========== BACKWARD ======================================
-        if (!odeSolver.solve_backward()) {
+        if (!odeSolver->solve_backward()) {
             ODEresult = false;
             return;
         }
@@ -342,7 +348,7 @@ bool icp_solver::prop_with_ODE()
 
             // 2. Solve Each ODE Group
             ODEresult = true;
-
+            _ode_solver_queue = queue<ode_solver*>(); /* clear queue */
             if (_config.nra_parallel_ODE) {
                 // Parallel Case
                 boost::thread_group group;
@@ -449,6 +455,13 @@ rp_box icp_solver::compute_next()
         }
     }
     return( NULL );
+}
+
+void icp_solver::print_ODE_trajectory() const
+{
+
+    // TODO
+    return;
 }
 
 bool icp_solver::solve()

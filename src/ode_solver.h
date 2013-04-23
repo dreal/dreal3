@@ -40,8 +40,7 @@ public:
 
     string create_diffsys_string(set < Enode* > & ode_vars,
                                  vector<Enode*> & _0_vars,
-                                 vector<Enode*> & _t_vars,
-                                 vector<string> & var_list);
+                                 vector<Enode*> & _t_vars);
 
     capd::IVector varlist_to_IVector(vector<Enode*> vars);
     capd::IVector extract_invariants(vector<Enode*> vars);
@@ -73,7 +72,7 @@ public:
         rp_interval_set_empty(rp_box_elem(_b, _enode_to_rp_id[e]));
     }
 
-    void print_trajectory(ostream& out, vector<string> & var_list) const;
+    void print_trajectory(ostream& out) const;
 
 private:
     int _group;
@@ -84,6 +83,8 @@ private:
     ode_solver& operator=(const ode_solver& o);
     list<pair<const capd::interval, const capd::IVector> > trajectory;
     bool& ODEresult;
+    vector<string> var_list;
+
     double stepControl;
 
     void print_datapoint(ostream& out, const capd::interval& t, const capd::interval& v) const;
@@ -93,5 +94,6 @@ private:
                      const int idx,
                      const list<pair<const capd::interval, const capd::IVector> > & trajectory) const;
 
+    void prune_trajectory(const capd::interval& t);
 };
 #endif
