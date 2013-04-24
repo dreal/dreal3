@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTPATH=`dirname $(readlink $0)`
+SCRIPTPATH=`dirname $(readlink -f $0)`
 BMC=${SCRIPTPATH}/main.native
 
 #################################################################
