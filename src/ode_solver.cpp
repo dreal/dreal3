@@ -122,11 +122,14 @@ string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
     for_each(ode_vars.begin(),
              ode_vars.end(),
              [&] (Enode* ode_var) {
-                 _0_vars.push_back(ode_var);
-                 _t_vars.push_back(ode_var->getODEopposite());
-                 var_list.push_back(ode_var->getODEvarname());
-                 string ode = ode_var->getODE();
-                 ode_list.push_back(ode);
+                 // If this is _0 variable, then
+                 if (ode_var->getODEvartype() == l_False) {
+                     _0_vars.push_back(ode_var);
+                     _t_vars.push_back(ode_var->getODEopposite());
+                     var_list.push_back(ode_var->getODEvarname());
+                     string ode = ode_var->getODE();
+                     ode_list.push_back(ode);
+                 }
              });
 
     // 3. join var_list to make diff_var, ode_list to diff_fun
