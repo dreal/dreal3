@@ -245,7 +245,7 @@ void icp_solver::callODESolver(int group,
                                                _boxes.get(),
                                                _enode_to_rp_id,
                                                ODEresult);
-        _ode_solver_queue.push(odeSolver);
+        _ode_solvers.push_back(odeSolver);
 
         double before = rp_box_volume_log(_boxes.get());
 
@@ -348,7 +348,7 @@ bool icp_solver::prop_with_ODE()
 
             // 2. Solve Each ODE Group
             ODEresult = true;
-            _ode_solver_queue = queue<ode_solver*>(); /* clear queue */
+            _ode_solvers.clear(); /* clear the list of ODE_Solvers */
             if (_config.nra_parallel_ODE) {
                 // Parallel Case
                 boost::thread_group group;
@@ -459,7 +459,11 @@ rp_box icp_solver::compute_next()
 
 void icp_solver::print_ODE_trajectory() const
 {
-
+    for_each(_ode_solvers.begin(),
+             _ode_solvers.end(),
+             [&] (ode_solver* ode_solver) {
+                 ode_solver->print_trajectory(_config.nra_json_out);
+             });
     // TODO
     return;
 }
@@ -467,11 +471,6 @@ void icp_solver::print_ODE_trajectory() const
 bool icp_solver::solve()
 {
     bool ret = false;
-
-    if(_config.nra_contain_ODE && _config.nra_json) {
-        _config.nra_json_out << "[" << endl;
-        _config.nra_json_out << "[]" << endl;
-    }
 
     if(_config.nra_proof) {
         output_problem();
@@ -523,11 +522,6 @@ bool icp_solver::solve()
             ret = false;
         }
     }
-
-    if(_config.nra_contain_ODE && _config.nra_json) {
-        _config.nra_json_out << "]" << endl;
-    }
-
     return ret;
 }
 

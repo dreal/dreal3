@@ -542,6 +542,7 @@ bool ode_solver::solve_forward()
     }
     catch(std::exception& e)
     {
+        cerr << "ODE Exception: " << e.what() << endl;
         if(_config.nra_verbose) {
             cerr << endl
                  << endl

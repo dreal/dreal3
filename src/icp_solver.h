@@ -80,7 +80,7 @@ private:
     vector<Enode*> &                     _explanation;
     const vector<Enode*> &               _stack;
     map<Enode*, pair<double, double> > & _env;
-    queue<ode_solver*>                   _ode_solver_queue;
+    list<ode_solver*>                   _ode_solvers;
 
     void output_problem() const;
     void callODESolver(int group,

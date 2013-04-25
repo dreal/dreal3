@@ -306,7 +306,11 @@ bool NRASolver::check( bool complete )
 
     if (complete && result && config.nra_contain_ODE && config.nra_json) {
         // Print out ODE trajectory
+        config.nra_json_out << "{\"traces\": " << endl
+                            << "[" << endl
+                            << "[]" << endl;
         solver.print_ODE_trajectory();
+        config.nra_json_out << "]" << endl;
 
         // collect all the ODE groups in the asserted literal and
         // print out
@@ -338,8 +342,8 @@ bool NRASolver::check( bool complete )
             }
             config.nra_json_out << *g;
         }
-        config.nra_json_out << "]" << endl;
-//                            << "}" << endl;
+        config.nra_json_out << "]" << endl
+                            << "}" << endl;
     }
 
     return result;
