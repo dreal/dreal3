@@ -5,7 +5,7 @@
 {
   open Parser
   open Error
-  let debug_tag = true
+  let debug_tag = false
   let verbose s =  if debug_tag then (print_string s; print_newline())
   let comment_depth = ref 0
   let keyword_tbl = Hashtbl.create 111
@@ -22,10 +22,12 @@
      ("sin", SIN);
      ("cos", COS);
      ("tan", TAN);
+     ("safesqrt", SAFESQRT);
      ("asin", ASIN);
      ("acos", ACOS);
      ("atan", ATAN);
      ("atan2", ATAN2);
+     ("matan", MATAN);
      ("sinh", SINH);
      ("cosh", COSH);
      ("tanh", TANH);

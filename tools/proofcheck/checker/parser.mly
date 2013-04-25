@@ -11,8 +11,8 @@
 %token LB RB COMMA COLON SEMICOLON CARET NOT
 %token LP RP PLUS MINUS AST SLASH EQ GE LE GT LT
 %token INFTY
-%token SIN COS TAN
-%token ASIN ACOS ATAN ATAN2
+%token SIN COS TAN SQRT SAFESQRT
+%token ASIN ACOS ATAN ATAN2 MATAN
 %token SINH COSH TANH
 %token LOG EXP
 %token UNSAT HOLE
@@ -65,6 +65,8 @@ func:  FNUM                  { Basic.Num $1 }
      | LP MINUS func func_list RP { Basic.Sub ($3::$4) }
      | LP AST   func_list RP { Basic.Mul $3 }
      | LP SLASH func func RP { Basic.Div ($3, $4) }
+     | LP SQRT func RP       { Basic.Sqrt $3 }
+     | LP SAFESQRT func RP   { Basic.Safesqrt $3 }
      | LP SIN func RP        { Basic.Sin $3 }
      | LP COS func RP        { Basic.Cos $3 }
      | LP TAN func RP        { Basic.Tan $3 }
@@ -72,6 +74,7 @@ func:  FNUM                  { Basic.Num $1 }
      | LP ACOS func RP       { Basic.Acos $3 }
      | LP ATAN func RP       { Basic.Atan $3 }
      | LP ATAN2 func func RP { Basic.Atan2 ($3, $4) }
+     | LP MATAN func RP      { Basic.Matan $3 }
      | LP SINH func RP       { Basic.Sinh $3 }
      | LP COSH func RP       { Basic.Cosh $3 }
      | LP TANH func RP       { Basic.Tanh $3 }

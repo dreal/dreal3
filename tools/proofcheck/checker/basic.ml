@@ -13,6 +13,7 @@ type exp =
 | Pow   of exp * exp
 | Ite   of formula * exp * exp
 | Sqrt  of exp
+| Safesqrt of exp
 | Abs   of exp
 | Log   of exp
 | Exp   of exp
@@ -23,6 +24,7 @@ type exp =
 | Acos  of exp
 | Atan  of exp
 | Atan2 of exp * exp
+| Matan  of exp
 | Sinh  of exp
 | Cosh  of exp
 | Tanh  of exp
@@ -88,6 +90,8 @@ let rec deriv (e: exp) (x: string) : exp
       Mul [Num 0.5;
            Div (Num 1.0, Sqrt f);
            f']
+    (** safesqrt = sqrt **)
+    | Safesqrt f -> deriv (Safesqrt f) x
 
     (** No Support **)
     | Abs  f -> raise DerivativeNotFound
@@ -148,6 +152,8 @@ let rec deriv (e: exp) (x: string) : exp
                 Mul [f; g']],
            Add [Pow (f, Num 2.0);
                 Pow (g, Num 2.0)])
+
+    | Matan f -> raise DerivativeNotFound
 
     (** (sinh f)' = (e^f + e^(-f))/2 * f' **)
     | Sinh f ->
@@ -211,6 +217,9 @@ let rec count_mathfn_e =
   | Sinh e -> (count_mathfn_e e) + 1
   | Cosh e -> (count_mathfn_e e) + 1
   | Tanh e -> (count_mathfn_e e) + 1
+  | Safesqrt e -> (count_mathfn_e e) + 1
+  | Matan e -> (count_mathfn_e e) + 1
+
 and count_mathfn_f =
   function
   | True -> 0
@@ -285,6 +294,9 @@ let rec count_arith_e =
   | Sinh e -> count_arith_e e
   | Cosh e -> count_arith_e e
   | Tanh e -> count_arith_e e
+  | Matan e -> count_arith_e e
+  | Safesqrt e -> count_arith_e e
+
 and count_arith_f =
   function
   | True -> 0
@@ -397,6 +409,8 @@ and collect_var_in_e e : string BatSet.t =
   | Sinh e1 -> collect_var_in_e e1
   | Cosh e1 -> collect_var_in_e e1
   | Tanh e1 -> collect_var_in_e e1
+  | Matan e1 -> collect_var_in_e e1
+  | Safesqrt e1 -> collect_var_in_e e1
 
 let rec print_exp out =
   let print_exps op exps =
@@ -457,6 +471,8 @@ let rec print_exp out =
   | Sinh e -> print_exps "sinh" [e]
   | Cosh e -> print_exps "cosh" [e]
   | Tanh e -> print_exps "tanh" [e]
+  | Matan e -> print_exps "matan" [e]
+  | Safesqrt e -> print_exps "safesqrt" [e]
 
 and print_formula out =
   let print_lists op out f items =

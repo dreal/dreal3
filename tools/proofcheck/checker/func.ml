@@ -19,6 +19,10 @@ let rec eval (e : (string, float) BatMap.t) (f : t) : float
     | Basic.Pow (f', Basic.Num n) -> (eval e f') ** n
     | Basic.Pow (f1, f2) -> (eval e f1) ** (eval e f2)
     | Basic.Sqrt f' -> sqrt (eval e f')
+    | Basic.Safesqrt f' ->
+      let v = (eval e f') in
+      if v <= 0.0 then 0.0
+      else sqrt v
     | Basic.Abs f' -> abs_float (eval e f')
     | Basic.Log f' -> log (eval e f')
     | Basic.Exp f' -> exp (eval e f')
@@ -29,6 +33,15 @@ let rec eval (e : (string, float) BatMap.t) (f : t) : float
     | Basic.Acos f' -> acos (eval e f')
     | Basic.Atan f' -> atan (eval e f')
     | Basic.Atan2 (f1, f2) -> atan2 (eval e f1) (eval e f2)
+    | Basic.Matan f' ->
+      let v = eval e f' in
+      if v = 0.0 then 1.0
+      else if v > 0.0 then
+        let sqrt_v = sqrt v in
+        (atan sqrt_v) /. (sqrt_v)
+      else
+        let sqrt_minus_v = sqrt (~-. v) in
+        log ((1.0 +. sqrt_minus_v) /. (1.0 -. sqrt_minus_v)) /. (2.0 *. sqrt_minus_v)
     | Basic.Sinh f' -> sinh (eval e f')
     | Basic.Cosh f' -> cosh (eval e f')
     | Basic.Tanh f' -> tanh (eval e f')
@@ -50,6 +63,10 @@ let rec apply (e : Env.t) (f : t) : Intv.t
     | Basic.Pow (f', Basic.Num n) -> (apply e f') **$. n
     | Basic.Pow (f1, f2) -> (apply e f1) **$ (apply e f2)
     | Basic.Sqrt f' -> sqrt_I (apply e f')
+    | Basic.Safesqrt f' ->
+      let intv = apply e f' in
+      let intv' = Intv.meet intv {low=0.0; high=infinity} in
+      sqrt_I intv'
     | Basic.Abs f' -> abs_I (apply e f')
     | Basic.Log f' -> log_I (apply e f')
     | Basic.Exp f' -> exp_I (apply e f')
@@ -60,6 +77,34 @@ let rec apply (e : Env.t) (f : t) : Intv.t
     | Basic.Acos f' -> acos_I (apply e f')
     | Basic.Atan f' -> atan_I (apply e f')
     | Basic.Atan2 (f1, f2) -> atan2_I_I (apply e f1) (apply e f2)
+    | Basic.Matan f' ->
+      let {low=l; high=h} = (apply e f') in
+      let pos_part =
+        if h > 0.0 then
+          let sliced = {low=min_float; high=h} in
+          let sqrt_x = sqrt_I sliced in
+          [atan_I(sqrt_x) /$ sqrt_x]
+        else
+          []
+      in
+      let neg_part =
+        if l < 0.0 then
+          let sliced = {low=l; high= ~-. min_float} in
+          let sqrt_mx = sqrt_I (~-$ sliced) in
+          let one = Interval.one_I in
+          let two = {low=2.0; high=2.0} in
+          [log_I ((one +$ sqrt_mx) /$ (one -$ sqrt_mx)) /$ (two *$ sqrt_mx)]
+        else
+          []
+      in
+      let zero_part =
+        if l <= 0.0 && h >= 0.0 then
+          [Interval.one_I]
+        else
+          []
+      in
+      BatList.reduce Intv.meet (List.flatten [pos_part;neg_part;zero_part])
+
     | Basic.Sinh f' -> sinh_I (apply e f')
     | Basic.Cosh f' -> cosh_I (apply e f')
     | Basic.Tanh f' -> tanh_I (apply e f')
