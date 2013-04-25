@@ -20,13 +20,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "ode_solver.h"
-#include <boost/algorithm/string/join.hpp>
 #include <limits>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/if.hpp>
+#include <boost/algorithm/string/join.hpp>
+// #include <boost/lambda/lambda.hpp>
+// #include <boost/lambda/bind.hpp>
+// #include <boost/lambda/if.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/iterator/zip_iterator.hpp>
 
 using namespace capd;
+using boost::tuple;
+using boost::make_tuple;
+using boost::make_zip_iterator;
+using boost::algorithm::join;
 
 ode_solver::ode_solver(int group,
                        SMTConfig& c,
@@ -124,8 +130,8 @@ string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
              });
 
     // 3. join var_list to make diff_var, ode_list to diff_fun
-    string diff_var = "var:" + boost::algorithm::join(var_list, ", ") + ";";
-    string diff_fun = "fun:" + boost::algorithm::join(ode_list, ", ") + ";";
+    string diff_var = "var:" + join(var_list, ", ") + ";";
+    string diff_fun = "fun:" + join(ode_list, ", ") + ";";
 
     // 4. construct diff_sys (string to CAPD)
     string diff_sys = diff_var + diff_fun;
@@ -141,23 +147,39 @@ string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
 
 IVector ode_solver::varlist_to_IVector(vector<Enode*> vars)
 {
-    IVector ret (vars.size());
+    IVector intvs (vars.size());
 
     /* Assign current interval values */
-    int i = 0;
-    for_each(vars.begin(),
-             vars.end(),
-             [&] (Enode* var) {
+    for_each(make_zip_iterator(boost::make_tuple(vars.begin(), intvs.begin())),
+             make_zip_iterator(boost::make_tuple(vars.end(), intvs.end())),
+             [&] (tuple<Enode*, interval&> items) {
+                 Enode* var     = items.get<0>();
+                 interval& intv = items.get<1>();
                  double lb = get_lb(var);
                  double ub = get_ub(var);
-                 ret[i++] = interval(lb, ub);
+                 intv = interval(lb, ub);
                  if(_config.nra_verbose) {
                      cerr << "The interval on "
                           << var->getCar()->getName()
-                          << " is "<< ret[i] <<endl;
-                 };
+                          << ": "<< intv <<endl;
+                 }
              });
-    return ret;
+
+    // intvs.begin();
+
+    // for_each(vars.begin(),
+    //          vars.end(),
+    //          [&] (Enode* var) {
+    //              double lb = get_lb(var);
+    //              double ub = get_ub(var);
+    //              intvs[i] = interval(lb, ub);
+    //              if(_config.nra_verbose) {
+    //                  cerr << "The interval on "
+    //                       << var->getCar()->getName()
+    //                       << " is "<< intvs[i] <<endl;
+    //              };
+    //          });
+    return intvs;
 }
 
 IVector ode_solver::extract_invariants(vector<Enode*> vars)
@@ -430,7 +452,7 @@ bool ode_solver::solve_forward()
             }
             if(intersection(vector_union, end, end))
             {
-                IVector_to_varlist(end, _t_vars);
+                IVector_to_varlist(end, _t_vars);   /* TODO */
                 if(_config.nra_verbose) {
                     cerr << end << endl;
                 }
@@ -692,15 +714,15 @@ bool ode_solver::solve_backward()
                     cerr << vector_union << endl;
                 }
             }
-            // start = intersection \cap start;
+            // end = intersection \cap start;
             if(_config.nra_verbose) {
-                cerr << "Intersect(" << vector_union << ", " << start << ") = ";
+                cerr << "Intersect(" << vector_union << ", " << end << ") = ";
             }
-            if(intersection(vector_union, start, start))
+            if(intersection(vector_union, end, end))
             {
-                IVector_to_varlist(start, _0_vars);
+                IVector_to_varlist(end, _0_vars);
                 if(_config.nra_verbose) {
-                    cerr << start << endl;
+                    cerr << end << endl;
                 }
             }
             else {
