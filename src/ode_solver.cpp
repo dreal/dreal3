@@ -277,7 +277,8 @@ bool ode_solver::solve_forward()
     }
     cerr.precision(12);
     bool ret = true;
-    try {
+    try
+    {
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
@@ -541,13 +542,11 @@ bool ode_solver::solve_forward()
 
         prune_trajectory(T);
     }
-    catch(std::exception& e)
-    {
-        cerr << "ODE Exception: " << e.what() << endl;
-        if(_config.nra_verbose) {
-            cerr << endl
+     catch(capd::intervals::IntervalError<double>& e) {
+         if(_config.nra_verbose) {
+             cerr << endl
                  << endl
-                 << "Exception caught!" << endl
+                 << "Interval Exception caught!" << endl
                  << e.what() << endl << endl;
         }
     }
@@ -561,7 +560,8 @@ bool ode_solver::solve_backward()
     }
     cerr.precision(12);
     bool ret = true;
-    try {
+    try
+    {
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
@@ -752,12 +752,11 @@ bool ode_solver::solve_backward()
             IVector_to_varlist(end, _0_vars);
         }
     }
-    catch(std::exception& e)
-    {
-        if(_config.nra_verbose) {
-            cerr << endl
+    catch(capd::intervals::IntervalError<double>& e) {
+         if(_config.nra_verbose) {
+             cerr << endl
                  << endl
-                 << "Exception caught!" << endl
+                 << "Interval Exception caught!" << endl
                  << e.what() << endl << endl;
         }
     }
