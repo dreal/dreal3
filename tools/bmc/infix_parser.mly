@@ -7,7 +7,7 @@
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
-%token AT LT LTE GT GTE IMPLY DDT CARET DP
+%token AT LT LTE GT GTE IMPLY DDT CARET
 %token SIN COS TAN
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
@@ -30,7 +30,7 @@
 
 %%
 
-main: varDecl_list DP mode_list DP init goal {
+main: varDecl_list mode_list init goal {
   let vardecl_list = $1 in
   let (float_list, intv_list) =
     BatList.partition
@@ -39,9 +39,9 @@ main: varDecl_list DP mode_list DP init goal {
   in
   let vardeclmap = Vardeclmap.of_list intv_list in
   let macromap = Vardeclmap.of_list float_list in
-  let modemap = Modemap.of_list $3 in
-  let (init_mode, init_formula) = $5 in
-  let goal = $6 in
+  let modemap = Modemap.of_list $2 in
+  let (init_mode, init_formula) = $3 in
+  let goal = $4 in
   (vardeclmap, macromap, modemap, (init_mode, init_formula), goal)
 }
 ;
