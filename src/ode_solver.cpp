@@ -312,7 +312,6 @@ bool ode_solver::solve_forward()
         Enode* time = (*_0_vars.begin())->getODEtimevar();
         interval T = interval(get_lb(time), get_ub(time));  /* TODO
                                                              * (sign) */
-
         if(_config.nra_verbose) {
             cerr << "interval T = " << T << endl;
         }
@@ -348,7 +347,9 @@ bool ode_solver::solve_forward()
 
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
-                cerr << "step made: " << stepMade << endl;
+                cerr << "step made: " << stepMade << endl
+                     << "T : " << T << endl
+                     << "currentTime : " << timeMap.getCurrentTime() << endl;
             }
 
             if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {  /*  TODO (sym) */
@@ -361,7 +362,6 @@ bool ode_solver::solve_forward()
                 // wrt.
                 const ITaylor::CurveType& curve = solver.getCurve();
                 interval domain = interval(0,1)*stepMade;
-                /* TODO (sign) */
                 double domainWidth = domain.rightBound() - domain.leftBound();
 
                 // Here we use a uniform grid of last time step made
@@ -384,12 +384,12 @@ bool ode_solver::solve_forward()
                     IVector v = curve(subsetOfDomain);
 
                     if(_config.nra_verbose) {
-                        cerr << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
-                        cerr << "diam(enclosure): " << diam(v) << endl;
+                        cerr << "subsetOfDomain: " << subsetOfDomain << endl
+                             << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl
+                             << "diam(enclosure): " << diam(v) << endl;
                     }
 
-                    IVector v_intersected;
-                    if(!intersection(v, inv, v_intersected)) {
+                    if(!intersection(v, inv, v)) {
                         invariantViolated = true;
                         // cerr << "invariant violated (2)!" << endl;
                         break;
@@ -399,9 +399,10 @@ bool ode_solver::solve_forward()
                         cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ":  " << v << endl;
                     }
                     if(_config.nra_json) {
-                        trajectory.push_back(make_pair(prevTime + subsetOfDomain, v_intersected));
+                        trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
                     }
-                    prune(_t_vars, v_intersected, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
+                    // TODO: _t_vars, _0_vars
+                    prune(_t_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
             else {
@@ -530,7 +531,7 @@ bool ode_solver::solve_forward()
             }
             ret = false;
         } else {
-            IVector_to_varlist(end, _t_vars);
+            IVector_to_varlist(end, _t_vars);    // TODO: _0_vars, _t_vars
         }
 
         if(time_empty) {
@@ -650,6 +651,7 @@ bool ode_solver::solve_backward()
                 {
                     interval subsetOfDomain = domain / _config.nra_ODE_grid_size
                         - (domainWidth / _config.nra_ODE_grid_size) * i;
+
                     // The above interval does not need to be a subset of domain.
                     // This is due to rounding to floating point numbers.
                     // We take the intersection with the domain.
@@ -660,9 +662,9 @@ bool ode_solver::solve_backward()
                     // trajectory for this time interval.
                     IVector v = curve(subsetOfDomain);
                     if(_config.nra_verbose) {
-                        cerr << "subsetOfDomain: " << subsetOfDomain << endl;
-                        cerr << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
-                        cerr << "diam(enclosure): " << diam(v) << endl;
+                        cerr << "subsetOfDomain: " << subsetOfDomain << endl
+                             << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl
+                             << "diam(enclosure): " << diam(v) << endl;
                     }
 
                     if(!intersection(v, inv, v)) {
@@ -679,10 +681,8 @@ bool ode_solver::solve_backward()
             else {
                 if(_config.nra_verbose) {
                     cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
+                    cerr << "enclosure for t=" << timeMap.getCurrentTime() << ":  " << IVector(s) << endl;
                 }
-            }
-            if(_config.nra_verbose) {
-                cerr << "=============================================" << endl;
             }
 
             prevTime = timeMap.getCurrentTime();
@@ -697,6 +697,7 @@ bool ode_solver::solve_backward()
 
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;
+        bool end_empty = false;
         if(_config.nra_verbose) {
             cerr << "Union and intersect V" << endl;
         }
@@ -731,10 +732,24 @@ bool ode_solver::solve_backward()
             }
             else {
                 // intersection is empty!!
+                end_empty = true;
+
                 if(_config.nra_verbose) {
                     cerr << "empty" << endl;
                 }
             }
+        }
+
+        if(end_empty) {
+            for(vector<Enode*>::iterator ite = _0_vars.begin();
+                ite != _0_vars.end();
+                ite++)
+            {
+                set_empty_interval(*ite);
+            }
+            ret = false;
+        } else {
+            IVector_to_varlist(end, _0_vars);
         }
     }
     catch(std::exception& e)
