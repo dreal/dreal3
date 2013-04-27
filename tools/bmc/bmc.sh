@@ -15,6 +15,7 @@ bmc: Bounded Model Checking for for Nonlinear Hybrid Systems
 OPTIONS:
    -k      unrolling steps  (default: 3)
    -i      use infix parser (default: prefix parser)
+   -p      specify a path to focus (default: X)
 EOF
 }
 
@@ -22,8 +23,9 @@ EOF
 # Parse Option
 #################################################################
 K=3
+PATH_OPT=
 PARSER=
-while getopts "hk:i" OPTION
+while getopts "hk:p:i" OPTION
 do
     case $OPTION in
         h)
@@ -35,6 +37,9 @@ do
             ;;
         i)
             PARSER="--infix"
+            ;;
+        p)
+            PATH_OPT="$OPTARG"
             ;;
         \?)
             usage
@@ -68,5 +73,11 @@ BASE=${1%.drh}
 DRH=$BASE.drh
 PDRH=$BASE.preprocessed.drh
 SMT=${BASE}_$K.smt2
-cpp -P -traditional-cpp $DRH > $PDRH
-$BMC -k $K $PARSER $PDRH > $SMT
+sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
+echo "$BMC -k $K $PARSER $PATH_OPT $PDRH > $SMT"
+if [[ "$PATH_OPT" == "" ]]
+then
+	$BMC -k $K $PARSER $PDRH > $SMT
+else
+	$BMC -k $K $PARSER --path "$PATH_OPT" $PDRH > $SMT
+fi

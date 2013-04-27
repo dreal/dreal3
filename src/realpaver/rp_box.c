@@ -37,7 +37,7 @@ void rp_box_enlarge_size(rp_box* b, int n)
   {
     rp_box_size(*b) += n;
     rp_realloc(*b,rp_box,
-	       (rp_box_size(*b)+RP_BOX_RESERVED_CELL)*sizeof(rp_box_cell));
+               (rp_box_size(*b)+RP_BOX_RESERVED_CELL)*sizeof(rp_box_cell));
   }
 }
 
@@ -51,8 +51,8 @@ void rp_box_destroy(rp_box* b)
 void rp_box_copy(rp_box b, rp_box src)
 {
   memcpy(b,src,(RP_BOX_RESERVED_CELL +
-		rp_min_num(rp_box_size(b),
-			   rp_box_size(src)))*sizeof(rp_box_cell));
+                rp_min_num(rp_box_size(b),
+                           rp_box_size(src)))*sizeof(rp_box_cell));
 }
 
 /* Creation of a box b equivalent to src */
@@ -67,7 +67,7 @@ int rp_box_empty(rp_box b)
 {
   if ((rp_box_size(b)==0) ||
       ((((b)[0].property.type & RP_BOX_TYPE_EMPTY_MASK)
-	>> RP_BOX_TYPE_EMPTY_BIT) == RP_BOX_TYPE_EMPTY_YES))
+        >> RP_BOX_TYPE_EMPTY_BIT) == RP_BOX_TYPE_EMPTY_YES))
   {
     return( 1 );
   }
@@ -78,8 +78,8 @@ int rp_box_empty(rp_box b)
     {
       if (rp_interval_empty(rp_box_elem(b,i)))
       {
-	rp_box_set_empty(b);  /* handling of inconsistent type */
-	return( 1 );
+        rp_box_set_empty(b);  /* handling of inconsistent type */
+        return( 1 );
       }
     }
     return( 0 );
@@ -113,6 +113,19 @@ double rp_box_volume(rp_box b)
   return( v );
 }
 
+double rp_box_volume_log (rp_box b)
+{
+    double v = 0.0;
+    int i;
+    for (i=0; i<rp_box_size(b); ++i)
+    {
+        double w = rp_interval_width(rp_box_elem(b,i));
+        if (w > 0)
+            v += w;
+    }
+    return( v );
+}
+
 /* Returns the distance between two boxes */
 double rp_box_distance(rp_box b1, rp_box b2)
 {
@@ -121,7 +134,7 @@ double rp_box_distance(rp_box b1, rp_box b2)
   for (i=0; i<rp_box_size(b1); ++i)
   {
     if ((x = rp_interval_distance(rp_box_elem(b1,i),
-				  rp_box_elem(b2,i))) > dist)
+                                  rp_box_elem(b2,i))) > dist)
     {
       dist = x;
     }
@@ -170,7 +183,7 @@ void rp_box_display(FILE *out, rp_box b, int digits, int mode)
       rp_interval_display(out,rp_box_elem(b,i),digits,mode);
       if (i<(rp_box_size(b)-1))
       {
-	fprintf(out,",");
+        fprintf(out,",");
       }
     }
     fprintf(out,")");

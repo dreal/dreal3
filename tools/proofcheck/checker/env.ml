@@ -2,13 +2,15 @@ exception CException of string
 
 type key = string
 type intv = Intv.t
-type t = (key, intv) BatPMap.t
+type t = (key, intv) BatMap.t
+
+let keys = BatMap.keys
 
 let find (x : key) (e : t) : intv
-    = BatPMap.find x e
+    = BatMap.find x e
 
 let order (e1 : t) (e2 : t) : bool =
-  BatPMap.for_all
+  BatMap.for_all
     (fun x i1 ->
       let i2 = find x e2 in
       Intv.order i1 i2
@@ -16,7 +18,7 @@ let order (e1 : t) (e2 : t) : bool =
     e1
 
 let join (e1 : t) (e2 : t) : t =
-  BatPMap.merge
+  BatMap.merge
     (fun x i1_op i2_op ->
       match (i1_op, i2_op) with
           (Some i1, Some i2) -> Some (Intv.join i1 i2)
@@ -25,18 +27,18 @@ let join (e1 : t) (e2 : t) : t =
     e2
 
 let print out =
-  BatPMap.print ~first:"{" ~last:"}\n" ~sep:", \n"
+  BatMap.print ~first:"{" ~last:"}\n" ~sep:", \n"
     BatString.print
     Intv.print
     out
 
 let to_list (e : t) : (key * intv) list
-    = BatList.of_enum (BatPMap.backwards e)
+    = BatList.of_enum (BatMap.backwards e)
 
 let from_list (l : (key * intv) list) : t =
   List.fold_left
-    (fun e (k, i) -> BatPMap.add k i e)
-    BatPMap.empty
+    (fun e (k, i) -> BatMap.add k i e)
+    BatMap.empty
     l
 
 let make = from_list
@@ -87,3 +89,20 @@ let minus (e1 : t) (e2 : t) : (t list) =
       )
   in
   List.filter (fun e -> not (is_empty e)) [from_list l1';from_list l2']
+
+let left_bound (e : t) : (string, float) BatMap.t =
+  let keys = keys e in
+  let items = BatEnum.map
+    (fun key -> let intv = find key e in
+             let v = Intv.left_bound intv in
+             (key, v)
+    )
+    keys in
+  BatMap.of_enum items
+
+
+let right_bound (e : t) : float list =
+  let keys = BatList.of_enum (keys e) in
+  List.map
+    (fun key -> let intv = find key e in Intv.right_bound intv)
+    keys

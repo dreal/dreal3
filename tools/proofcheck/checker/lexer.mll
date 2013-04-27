@@ -22,10 +22,12 @@
      ("sin", SIN);
      ("cos", COS);
      ("tan", TAN);
+     ("safesqrt", SAFESQRT);
      ("asin", ASIN);
      ("acos", ACOS);
      ("atan", ATAN);
      ("atan2", ATAN2);
+     ("matan", MATAN);
      ("sinh", SINH);
      ("cosh", COSH);
      ("tanh", TANH);

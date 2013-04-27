@@ -82,3 +82,6 @@ let print out (((vm : Vardeclmap.t), (env : Vardeclmap.t), (mm : Modemap.t), ini
     print_header out "Goal";
     BatList.print ~first:"" ~sep:"\n" ~last:"\n" mf_print out goals;
   end
+
+let get_initID (_, _, _, (id, _), _) : modeId = id
+let get_goalID (_, _, _, _, goals) : modeId list = List.map (fun (id, _) -> id) goals

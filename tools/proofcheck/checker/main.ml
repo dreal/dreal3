@@ -10,7 +10,7 @@ let run () =
       Lexing.from_channel
         (if not (BatGlobal.isdef Failhandler.src) then
             stdin
-         else open_in (BatGlobal.get Failhandler.src)) in
+         else open_in (BatGlobal.get_exn Failhandler.src)) in
     let out = BatIO.stdout in
     let (p, fs, pt) = Parser.main Lexer.start lexbuf in
     begin

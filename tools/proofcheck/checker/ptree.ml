@@ -36,7 +36,23 @@ let extract_env p = match p with
   | Prune (env1, env2, _) -> env1
 
 let check_axiom (e : env) (f : formula) : result =
-  let eval env exp1 exp2 = Func.apply env (Basic.Sub [exp1; exp2]) in
+  let eval env exp1 exp2 =
+    let intv_result = Func.apply env (Basic.Sub [exp1; exp2]) in
+    let taylor_result = Func.taylor env (Basic.Sub [exp1; exp2]) in
+    let result = Intv.meet intv_result taylor_result in
+    begin
+      BatString.print   BatIO.stdout "Interval Arithmetic = ";
+      Intv.print        BatIO.stdout intv_result;
+      BatString.println BatIO.stdout "";
+      BatString.print   BatIO.stdout "Taylor Bounds       = ";
+      Intv.print        BatIO.stdout taylor_result;
+      BatString.println BatIO.stdout "";
+      BatString.print   BatIO.stdout "Join                = ";
+      Intv.print        BatIO.stdout result;
+      BatString.println BatIO.stdout "";
+      result
+    end
+  in
   let judge j v = match (j v) with
     | true ->
       (Failhandler.print_msg 0.001 f e v;

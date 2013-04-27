@@ -29,13 +29,16 @@ ode_solver::ode_solver(int group,
                        SMTConfig& c,
                        set < Enode* > & ode_vars,
                        rp_box b,
-                       std::map<Enode*, int>& enode_to_rp_id
+                       std::map<Enode*, int>& enode_to_rp_id,
+                       bool & ode_result
     ) :
     _group(group),
     _config(c),
     _ode_vars(ode_vars),
     _b(b),
-    _enode_to_rp_id(enode_to_rp_id)
+    _enode_to_rp_id(enode_to_rp_id),
+    ODEresult(ode_result),
+    stepControl(c.nra_ODE_step)
 {
 }
 
@@ -73,7 +76,7 @@ void ode_solver::print_trace(ostream& out,
     out << "}" << endl;
 }
 
-void ode_solver::print_trajectory(ostream& out) const
+void ode_solver::print_trajectory(ostream& out, vector<string> & var_list) const
 {
     out.precision(12);
     out << ",[" << endl;
@@ -88,10 +91,9 @@ void ode_solver::print_trajectory(ostream& out) const
 }
 
 string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
-                                         vector<string> & var_list,
                                          vector<Enode*> & _0_vars,
-                                         vector<Enode*> & _t_vars
-    )
+                                         vector<Enode*> & _t_vars,
+                                         vector<string> & var_list)
 {
     vector<string> ode_list;
     // 1. partition ode_vars into _0_vars and _t_vars by their ODE_vartype
@@ -99,20 +101,14 @@ string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
         ite != ode_vars.end();
         ite++)
     {
-        if ((*ite)->getODEvartype() == l_True) {
-            _t_vars.push_back(*ite);
-        }
-        else if ((*ite)->getODEvartype() == l_False) {
+        if ((*ite)->getODEvartype() == l_False) {
             _0_vars.push_back(*ite);
+            _t_vars.push_back((*ite)->getODEopposite());
             var_list.push_back((*ite)->getODEvarname());
             string ode = (*ite)->getODE();
             ode_list.push_back(ode);
         }
     }
-
-    // 2. Sort _0_vars and _t_vars
-    sort(_0_vars.begin(), _0_vars.end());
-    sort(_t_vars.begin(), _t_vars.end());
 
     // 3. join var_list to make diff_var, ode_list to diff_fun
     string diff_var = "var:" + boost::algorithm::join(var_list, ", ") + ";";
@@ -256,13 +252,12 @@ bool ode_solver::solve_forward()
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
+        vector<string> var_list;
 
-        string diff_sys;
-        diff_sys = create_diffsys_string(_ode_vars,
-                                         var_list,
-                                         _0_vars,
-                                         _t_vars
-            );
+        string diff_sys = create_diffsys_string(_ode_vars,
+                                                _0_vars,
+                                                _t_vars,
+                                                var_list);
 
         //pass the problem with variables
         IMap vectorField(diff_sys);
@@ -297,14 +292,11 @@ bool ode_solver::solve_forward()
         timeMap.stopAfterStep(true);
 
         bool fastForward = true;
-//        double stepControl = 1/16.0;
-        double stepControl = 0.0;
-
         if (stepControl == 0.0) {
-            solver.turnOnStepControl();
+            timeMap.turnOnStepControl();
         } else {
-            solver.turnOffStepControl();
-            solver.setStep(stepControl);
+            timeMap.turnOffStepControl();
+            timeMap.setStep(stepControl);
         }
 
         interval prevTime(0.);
@@ -312,20 +304,18 @@ bool ode_solver::solve_forward()
             trajectory.clear();
             trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
         }
+
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
         bool invariantViolated = false;
         do
         {
-            IVector new_start = IVector(s);
-            if(!intersection(new_start, inv, new_start)) {
-                invariantViolated = true;
-                break;
+            if(stepControl != 0) {
+                timeMap.setStep(stepControl);
             }
-            s = C0Rect2Set(new_start);
 
             timeMap(T.rightBound(),s);
-            //timeMap(T,s);
+
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
                 cerr << "step made: " << stepMade << endl;
@@ -367,8 +357,10 @@ bool ode_solver::solve_forward()
                         cerr << "diam(enclosure): " << diam(v) << endl;
                     }
 
-                    if(!intersection(v, inv, v)) {
+                    IVector v_intersected;
+                    if(!intersection(v, inv, v_intersected)) {
                         invariantViolated = true;
+                        // cerr << "invariant violated (2)!" << endl;
                         break;
                     }
 
@@ -376,9 +368,9 @@ bool ode_solver::solve_forward()
                         cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ":  " << v << endl;
                     }
                     if(_config.nra_json) {
-                        trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+                        trajectory.push_back(make_pair(prevTime + subsetOfDomain, v_intersected));
                     }
-                    prune(_t_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
+                    prune(_t_vars, v_intersected, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
             else {
@@ -394,8 +386,11 @@ bool ode_solver::solve_forward()
             if(_config.nra_verbose) {
                 cerr << "current time: " << prevTime << endl;
             }
+            // cerr << "ODEresult        : " << ODEresult << endl
+            //      << "InvViolated      : " << invariantViolated << endl
+            //      << "timeMap.completed: " << timeMap.completed() << endl;
         }
-        while (!invariantViolated && !timeMap.completed());
+        while (ODEresult && !invariantViolated && !timeMap.completed());
 
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;
@@ -512,13 +507,13 @@ bool ode_solver::solve_forward()
             ret = false;
         }
         if(_config.nra_json) {
-            print_trajectory(_config.nra_json_out);
+            print_trajectory(_config.nra_json_out, var_list);
         }
     }
     catch(std::exception& e)
     {
         if(_config.nra_json) {
-            print_trajectory(_config.nra_json_out);
+            // print_trajectory(_config.nra_json_out);
         }
         if(_config.nra_verbose) {
             cerr << endl
@@ -542,13 +537,11 @@ bool ode_solver::solve_backward()
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
         vector<string> var_list;
-        string diff_sys;
 
-        diff_sys = create_diffsys_string(_ode_vars,
-                                         var_list,
-                                         _0_vars,
-                                         _t_vars
-            );
+        string diff_sys = create_diffsys_string(_ode_vars,
+                                                _0_vars,
+                                                _t_vars,
+                                                var_list);
 
         //pass the problem with variables
         IMap vectorField(diff_sys);
@@ -583,31 +576,29 @@ bool ode_solver::solve_backward()
         timeMap.stopAfterStep(true);
 
         bool fastForward = true;
-//        double stepControl = - 1/16.0;
-        double stepControl = 0.0;
-
         if (stepControl == 0.0) {
-            solver.turnOnStepControl();
+            timeMap.turnOnStepControl();
         } else {
-            solver.turnOffStepControl();
-            solver.setStep(stepControl);
+            timeMap.turnOffStepControl();
+            timeMap.setStep(-stepControl);
         }
 
         interval prevTime(0.);
+        // if(_config.nra_json) {
+        //     trajectory.clear();
+        //     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(e)));
+        // }
 
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
         bool invariantViolated = false;
         do
         {
-            IVector new_end = IVector(e);
-            if(!intersection(new_end, inv, new_end)) {
-                invariantViolated = true;
-                break;
+            if(stepControl != 0) {
+                timeMap.setStep(- stepControl);
             }
-            e = C0Rect2Set(new_end);
-
             timeMap(T.leftBound(),e);
+
             //timeMap(T,e);
             interval stepMade = solver.getStep();
             if(_config.nra_verbose) {
@@ -654,12 +645,15 @@ bool ode_solver::solve_backward()
 
                     if(!intersection(v, inv, v)) {
                         invariantViolated = true;
+                        // cerr << "invariant violated(2)!" << endl;
                         break;
                     }
                     if(_config.nra_verbose) {
                         cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ":  " << v << endl;
                     }
-
+                    // if(_config.nra_json) {
+                    //     trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+                    // }
                     prune(_0_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
@@ -667,16 +661,23 @@ bool ode_solver::solve_backward()
                 if(_config.nra_verbose) {
                     cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
                 }
+                // if(_config.nra_json) {
+                //     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(e)));
+                // }
             }
             if(_config.nra_verbose) {
                 cerr << "=============================================" << endl;
             }
+
             prevTime = timeMap.getCurrentTime();
             if(_config.nra_verbose) {
                 cerr << "current time: " << prevTime << endl;
             }
+            // cerr << "ODEresult        : " << ODEresult << endl
+            //      << "InvViolated      : " << invariantViolated << endl
+            //      << "timeMap.completed: " << timeMap.completed() << endl;
         }
-        while (!invariantViolated && !timeMap.completed());
+        while (ODEresult && !invariantViolated && !timeMap.completed());
 
         // 1. Union all the out_v_list and intersect with end
         IVector vector_union;
@@ -719,6 +720,9 @@ bool ode_solver::solve_backward()
                 }
             }
         }
+        // if(_config.nra_json) {
+        //     print_trajectory(_config.nra_json_out);
+        // }
     }
     catch(std::exception& e)
     {

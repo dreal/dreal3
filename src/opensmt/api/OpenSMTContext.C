@@ -919,18 +919,18 @@ void OpenSMTContext::addGetInterpolants( )
 
 Enode* OpenSMTContext::mkForallT( const char* op, Enode* e, double v)
 {
-    cerr << e << " " << op << " " << v << endl;
+//    cerr << e << " " << op << " " << v << endl;
     pair<double, double> inv = e->getODEinvariant();
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
         inv.first = std::max (e->getLowerBound(), inv.first);
         inv.second = std::min (e->getUpperBound(), v);
-        cerr << "Inv : " << "[" << inv.first << ", " << inv.second << "]" << endl;
+//        cerr << "Inv : " << "[" << inv.first << ", " << inv.second << "]" << endl;
         e->setODEinvarint(inv);
     }
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
         inv.first = std::max (e->getLowerBound(), v);
         inv.second = std::min (e->getUpperBound(), inv.second);
-        cerr << "Inv : " << "[" << inv.first << ", " << inv.second << "]" << endl;
+//        cerr << "Inv : " << "[" << inv.first << ", " << inv.second << "]" << endl;
         e->setODEinvarint(inv);
     }
     else {

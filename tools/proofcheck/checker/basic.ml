@@ -1,3 +1,7 @@
+exception TODO
+
+exception DerivativeNotFound
+
 type exp =
 | Var   of string
 | Num of float
@@ -9,6 +13,7 @@ type exp =
 | Pow   of exp * exp
 | Ite   of formula * exp * exp
 | Sqrt  of exp
+| Safesqrt of exp
 | Abs   of exp
 | Log   of exp
 | Exp   of exp
@@ -19,6 +24,7 @@ type exp =
 | Acos  of exp
 | Atan  of exp
 | Atan2 of exp * exp
+| Matan  of exp
 | Sinh  of exp
 | Cosh  of exp
 | Tanh  of exp
@@ -37,6 +43,141 @@ and formula =
 | Eq  of exp * exp
 | LetF of ((string * formula) list * formula)
 | LetE of ((string * exp) list * formula)
+
+let rec deriv (e: exp) (x: string) : exp
+    = match e with
+      Var v -> if v = x then Num 1.0 else Num 0.0
+    | Num _ -> Num 0.0
+    | Neg e' -> Neg (deriv e' x)
+    | Add es -> Add (List.map (fun e' -> deriv e' x) es)
+    | Sub es -> Sub (List.map (fun e' -> deriv e' x) es)
+    | Mul [] -> Num 0.0
+
+    (** (f * g)' = f' * g +   **)
+    | Mul (f::g) ->
+      let f' = deriv f x in
+      let g' = deriv (Mul g) x in
+      Add [Mul (f'::g); Mul [f;g']]
+
+    (** (f / g)' = (f' * g - f * g') / g^2 **)
+    | Div (f, g) ->
+      let f' = deriv f x in
+      let g' = deriv g x in
+      Div (Sub [Mul [f';g]; Mul [f;g']], Pow (g, Num 2.0))
+
+    (** (f^n)' = n * f^(n-1) f' **)
+    | Pow (f, Num n) ->
+      let f' = deriv f x in
+      Mul [Num n;
+           Pow (f, Num (n -. 1.0));
+           f']
+
+    (** In general,
+        (f^g)' = f^g (f' * g / f + g' * ln g) **)
+    | Pow (f, g) ->
+      let f' = deriv f x in
+      let g' = deriv g x in
+      Mul [Pow (f, g);
+           Add [Mul [f'; Div(g, f)] ;
+                Mul [g'; Log f]]]
+
+    (** No Support **)
+    | Ite _ -> raise DerivativeNotFound
+
+    (** (sqrt(f))' = 1/2 * 1/(sqrt(f)) * f' **)
+    | Sqrt f ->
+      let f' = deriv f x in
+      Mul [Num 0.5;
+           Div (Num 1.0, Sqrt f);
+           f']
+    (** safesqrt = sqrt **)
+    | Safesqrt f -> deriv (Safesqrt f) x
+
+    (** No Support **)
+    | Abs  f -> raise DerivativeNotFound
+
+    (** (log f)' = f' / f **)
+    | Log  f ->
+      let f' = deriv f x in
+      Div (f', f)
+
+    (** (exp f)' = (cos f) * f' **)
+    | Exp  f ->
+      let f' = deriv f x in
+      Mul [Exp f; f']
+
+    (** (sin f)' = (cos f) * f' **)
+    | Sin  f ->
+      let f' = deriv f x in
+      Mul [Cos f; f']
+
+    (** (cos f)' = - (sin f) * f' **)
+    | Cos  f ->
+      let f' = deriv f x in
+      Neg (Mul [Sin f; f'])
+
+    (** (tan f)' = (1 + tan^2 f) * f'  **)
+    | Tan  f ->
+      let f' = deriv f x in
+      Mul [Add [Num 1.0; Pow (Tan f, Num 2.0)];
+           f']
+
+    (** (asin f)' = (1 / sqrt(1 - f^2)) f' **)
+    | Asin f ->
+      let f' = deriv f x in
+      Mul [Div (Num 1.0, Sqrt(Sub [Num 1.0; Pow(f, Num 2.0)]));
+           f']
+
+    (** (acos f)' = -(1 / sqrt(1 - f^2)) f' **)
+    | Acos f ->
+      let f' = deriv f x in
+      Neg(Mul [Div (Num 1.0, Sqrt(Sub [Num 1.0; Pow(f, Num 2.0)]));
+               f'])
+
+    (** (atan f)' = (1 / (1 + f^2)) * f' **)
+    | Atan f ->
+      let f' = deriv f x in
+      Mul [Div (Num 1.0, Add [Num 1.0; Pow(f, Num 2.0)]);
+           f']
+
+    (** TODO **)
+
+    (** atan2(x,y)' = -y / (x^2 + y^2) dx + x / (x^2 + y^2) dy
+                    = (-y dx + x dy) / (x^2 + y^2)
+    **)
+    | Atan2 (f, g) ->
+      let f' = deriv f x in
+      let g' = deriv g x in
+      Div (Add [Mul [Neg g; f'];
+                Mul [f; g']],
+           Add [Pow (f, Num 2.0);
+                Pow (g, Num 2.0)])
+
+    | Matan f -> raise DerivativeNotFound
+
+    (** (sinh f)' = (e^f + e^(-f))/2 * f' **)
+    | Sinh f ->
+      let f' = deriv f x in
+      Mul [Div (Add [Exp f; Exp (Neg f)],
+                Num 2.0);
+           f']
+
+    (** (cosh f)' = (e^f - e^(-f))/2 * f' **)
+    | Cosh f ->
+      let f' = deriv f x in
+      Mul [Div (Sub [Exp f; Exp (Neg f)],
+                Num 2.0);
+           f']
+
+    (** (tanh f)' = (sech^2 f) * f'
+                  = ((2 * e^-f) / (1 + e^-2f)) * f'
+    **)
+    | Tanh f ->
+      let f' = deriv f x in
+      Mul [Num 2.0;
+           Div(Exp (Neg f),
+               Add [Num 1.0; Exp (Mul [Num (-2.0); f])]);
+           f']
 
 let rec count_mathfn_e =
   function
@@ -76,6 +217,9 @@ let rec count_mathfn_e =
   | Sinh e -> (count_mathfn_e e) + 1
   | Cosh e -> (count_mathfn_e e) + 1
   | Tanh e -> (count_mathfn_e e) + 1
+  | Safesqrt e -> (count_mathfn_e e) + 1
+  | Matan e -> (count_mathfn_e e) + 1
+
 and count_mathfn_f =
   function
   | True -> 0
@@ -150,6 +294,9 @@ let rec count_arith_e =
   | Sinh e -> count_arith_e e
   | Cosh e -> count_arith_e e
   | Tanh e -> count_arith_e e
+  | Matan e -> count_arith_e e
+  | Safesqrt e -> count_arith_e e
+
 and count_arith_f =
   function
   | True -> 0
@@ -186,68 +333,68 @@ and count_arith_f =
     BatList.sum (List.map (fun (id, e') -> count_arith_e e') ebinding_list)
     + (count_arith_f f)
 
-let rec collect_var_in_f f : string BatPSet.t =
+let rec collect_var_in_f f : string BatSet.t =
   match f with
-  | True -> BatPSet.empty
-  | False -> BatPSet.empty
-  | FVar x -> BatPSet.singleton x
+  | True -> BatSet.empty
+  | False -> BatSet.empty
+  | FVar x -> BatSet.singleton x
   | Not f' -> collect_var_in_f f'
   | And fl ->
-    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_f fl)
+    List.fold_left BatSet.union BatSet.empty (List.map collect_var_in_f fl)
   | Or fl ->
-    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_f fl)
+    List.fold_left BatSet.union BatSet.empty (List.map collect_var_in_f fl)
   | Imply (f1, f2) ->
-    BatPSet.union (collect_var_in_f f1) (collect_var_in_f f2)
+    BatSet.union (collect_var_in_f f1) (collect_var_in_f f2)
   | Gt (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Lt (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Ge (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Le (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Eq (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | LetF (fbinding_list, f') ->
     let id_vars_list =
       List.map
         (fun (id, f') -> (id, collect_var_in_f f'))
         fbinding_list in
     let (id_list, vars_list) = BatList.split id_vars_list in
-    let id_set = BatPSet.of_list id_list in
-    let bind_vars = List.fold_left BatPSet.union BatPSet.empty vars_list in
+    let id_set = BatSet.of_list id_list in
+    let bind_vars = List.fold_left BatSet.union BatSet.empty vars_list in
     let vars_in_f' = collect_var_in_f f' in
-    BatPSet.union (BatPSet.diff vars_in_f' id_set) bind_vars
+    BatSet.union (BatSet.diff vars_in_f' id_set) bind_vars
   | LetE (ebinding_list, f') ->
     let id_vars_list =
       List.map
         (fun (id, e') -> (id, collect_var_in_e e'))
         ebinding_list in
     let (id_list, vars_list) = BatList.split id_vars_list in
-    let id_set = BatPSet.of_list id_list in
-    let bind_vars = List.fold_left BatPSet.union BatPSet.empty vars_list in
+    let id_set = BatSet.of_list id_list in
+    let bind_vars = List.fold_left BatSet.union BatSet.empty vars_list in
     let vars_in_f' = collect_var_in_f f' in
-    BatPSet.union (BatPSet.diff vars_in_f' id_set) bind_vars
+    BatSet.union (BatSet.diff vars_in_f' id_set) bind_vars
 
-and collect_var_in_e e : string BatPSet.t =
+and collect_var_in_e e : string BatSet.t =
   match e with
-    Var x -> BatPSet.singleton x
-  | Num _ -> BatPSet.empty
+    Var x -> BatSet.singleton x
+  | Num _ -> BatSet.empty
   | Neg e' -> collect_var_in_e e'
   | Add el ->
-    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_e el)
+    List.fold_left BatSet.union BatSet.empty (List.map collect_var_in_e el)
   | Sub el ->
-    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_e el)
+    List.fold_left BatSet.union BatSet.empty (List.map collect_var_in_e el)
   | Mul el ->
-    List.fold_left BatPSet.union BatPSet.empty (List.map collect_var_in_e el)
+    List.fold_left BatSet.union BatSet.empty (List.map collect_var_in_e el)
   | Div (e1, e2) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Pow (e1, e2 ) ->
-    BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+    BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Ite (f, e1, e2) ->
-    BatPSet.union
+    BatSet.union
       (collect_var_in_f f)
-      (BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2))
+      (BatSet.union (collect_var_in_e e1) (collect_var_in_e e2))
   | Sqrt e1 -> collect_var_in_e e1
   | Abs e1 -> collect_var_in_e e1
   | Log e1 -> collect_var_in_e e1
@@ -258,18 +405,20 @@ and collect_var_in_e e : string BatPSet.t =
   | Asin e1 -> collect_var_in_e e1
   | Acos e1 -> collect_var_in_e e1
   | Atan e1 -> collect_var_in_e e1
-  | Atan2 (e1, e2) -> BatPSet.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Atan2 (e1, e2) -> BatSet.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Sinh e1 -> collect_var_in_e e1
   | Cosh e1 -> collect_var_in_e e1
   | Tanh e1 -> collect_var_in_e e1
+  | Matan e1 -> collect_var_in_e e1
+  | Safesqrt e1 -> collect_var_in_e e1
 
 let rec print_exp out =
   let print_exps op exps =
     begin
       BatList.print
-        (~first:("("^op^" "))
-        (~sep:" ")
-        (~last:")")
+        ~first:("("^op^" ")
+        ~sep:" "
+        ~last:")"
         print_exp
         out
         exps
@@ -322,14 +471,16 @@ let rec print_exp out =
   | Sinh e -> print_exps "sinh" [e]
   | Cosh e -> print_exps "cosh" [e]
   | Tanh e -> print_exps "tanh" [e]
+  | Matan e -> print_exps "matan" [e]
+  | Safesqrt e -> print_exps "safesqrt" [e]
 
 and print_formula out =
   let print_lists op out f items =
     begin
       BatList.print
-        (~first:("("^op^" "))
-        (~sep:" ")
-        (~last:")")
+        ~first:("("^op^" ")
+        ~sep:" "
+        ~last:")"
         f
         out
         items
@@ -369,9 +520,9 @@ and print_formula out =
     begin
       BatString.print out "(let ";
       BatList.print
-        (~first:("("))
-        (~sep:" ")
-        (~last:")")
+        ~first:("(")
+        ~sep:" "
+        ~last:")"
         print_ebinding
         out
         ebinding_list;
@@ -381,9 +532,9 @@ and print_formula out =
     begin
       BatString.print out "(let ";
       BatList.print
-        (~first:("("))
-        (~sep:" ")
-        (~last:")")
+        ~first:("(")
+        ~sep:" "
+        ~last:")"
         print_fbinding
         out
         fbinding_list;

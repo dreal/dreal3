@@ -49,8 +49,8 @@ icp_solver::icp_solver(SMTConfig& c,
     _propag = new rp_propagator(_problem, 10.0, c.nra_verbose, c.nra_proof_out);
 //    rp_new( _vselect, rp_selector_roundrobin, (_problem) );
     rp_new( _vselect, rp_selector_existence, (_problem) );
-    rp_new( _dsplit, rp_splitter_mixed, (_problem) );
-
+//    rp_new( _dsplit, rp_splitter_mixed, (_problem) );
+    rp_new( _dsplit, rp_splitter_bisection, (_problem) );
     // Check once the satisfiability of all the constraints
     // Necessary for variable-free constraints
     int i = 0, sat = 1;
@@ -138,8 +138,8 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack,
         rp_union_copy(rp_variable_domain(*_v),u);
         rp_union_destroy(&u);
 
-        rp_variable_set_real(*_v);
-        rp_variable_precision(*_v) = _config.nra_precision;
+//        rp_variable_set_real(*_v);
+//        rp_variable_precision(*_v) = _config.nra_precision;
 
         _enode_to_rp_id[key] = rp_id;
 
@@ -200,21 +200,20 @@ icp_solver::~icp_solver()
 }
 
 void icp_solver::callODESolver(int group,
-                               vector< set< Enode* > > & diff_vec,
-                               rp_box current_box)
+                               vector< set< Enode* > > & diff_vec)
 {
-//    cerr << group << ": callODESolver is called" << endl;
     if(_config.nra_verbose) {
         cerr << "solve ode group: " << group << endl;
     }
     set<Enode*> current_ode_vars = diff_vec[group];
 
-    /* The size of ODE_Vars should be even */
+    // The size of ODE_Vars should be even
     if (current_ode_vars.size() % 2 == 1) {
         ODEresult = false;
         return;
     }
 
+    // If the _0 and _t variables do not match, return false.
     for(set<Enode*>::iterator ite = current_ode_vars.begin();
         ite != current_ode_vars.end();
         ite++)
@@ -230,15 +229,19 @@ void icp_solver::callODESolver(int group,
         if(_config.nra_verbose) {
             cerr << "Inside of current ODEs" << endl;
         }
-        for(set<Enode*>::iterator ite = current_ode_vars.begin();
-            ite != current_ode_vars.end();
-            ite++)
-        {
-            if(_config.nra_verbose) {
+
+        if(_config.nra_verbose) {
+            for(set<Enode*>::iterator ite = current_ode_vars.begin();
+                ite != current_ode_vars.end();
+                ite++)
+            {
                 cerr << "Name: " << (*ite)->getCar()->getName() << endl;
             }
         }
-        ode_solver odeSolver(group, _config, current_ode_vars, current_box, _enode_to_rp_id);
+
+        ode_solver odeSolver(group, _config, current_ode_vars, _boxes.get(), _enode_to_rp_id, ODEresult);
+
+        double before = rp_box_volume_log(_boxes.get());
 
         if(_config.nra_verbose) {
             cerr << "Before_Forward" << endl;
@@ -246,17 +249,21 @@ void icp_solver::callODESolver(int group,
             cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
         }
 
-//        cerr << group << ": callODESolver calls ODEForward" << endl;
-
         // If other thread already set it false, we just return
         if (!ODEresult) {
             return;
         }
 
+        // =========== FORWARD ======================================
         if (!odeSolver.solve_forward()) {
             ODEresult = false;
             return;
         }
+
+        double after = rp_box_volume_log(_boxes.get());
+        cerr << "ODE Forward: " << before << "\t" << after << "\t" << before - after << endl;
+
+        before = after;
 
         if(_config.nra_verbose) {
             cerr << "After_Forward" << endl;
@@ -269,18 +276,20 @@ void icp_solver::callODESolver(int group,
             return;
         }
 
-//        cerr << group << ": callODESolver calls ODEBackward" << endl;
+        // =========== BACKWARD ======================================
         if (!odeSolver.solve_backward()) {
             ODEresult = false;
             return;
         }
+
+        after = rp_box_volume_log(_boxes.get());
+        cerr << "ODE Backward: " << before << "\t" << after << "\t" << before - after << endl;
 
         if(_config.nra_verbose) {
             cerr << "After_Backward" << endl;
             pprint_vars(cerr, *_problem, _boxes.get());
         }
     }
-//    cerr << group << ": callODESolver is finished." << endl;
     return;
 }
 
@@ -289,9 +298,7 @@ bool icp_solver::prop_with_ODE()
 {
     if (_propag->apply(_boxes.get())) {
         if(_config.nra_contain_ODE) {
-            rp_box current_box = _boxes.get();
-
-            int max = 1;
+            unsigned max = 1;
             vector< set< Enode* > > diff_vec(max);
 
             // 1. Collect All the ODE Vars
@@ -305,7 +312,7 @@ bool icp_solver::prop_with_ODE()
                     ite != ode_vars.end();
                     ite++)
                 {
-                    int diff_group = (*ite)->getODEgroup();
+                    unsigned diff_group = (*ite)->getODEgroup();
                     if(_config.nra_verbose) {
                         cerr << "ode_var: " << *ite << endl;
                         cerr << "diff_group: " << diff_group << ", max: " << max << endl;
@@ -333,22 +340,51 @@ bool icp_solver::prop_with_ODE()
                 }
             }
 
+            // 2. Solve Each ODE Group
             ODEresult = true;
+
             if (_config.nra_parallel_ODE) {
+                // Parallel Case
                 boost::thread_group group;
-                for(int i = 1; i <= max; i++) {
-                    group.create_thread(boost::bind(&icp_solver::callODESolver,
-                                                    this,
-                                                    i,
-                                                    diff_vec,
-                                                    current_box));
-                }
-                group.join_all();
-            } else {
-                for(int i = 1; i <= max; i++) {
-                    icp_solver::callODESolver(i, diff_vec, current_box);
-                    if (!ODEresult)
+                unsigned hc = boost::thread::hardware_concurrency();
+                unsigned block = ceil(((double)max) / hc);
+                for(unsigned bn = 0; bn < block; bn++) {
+                    for(unsigned i = 1; i <= hc && bn * hc + i <= max; i++) {
+                        group.create_thread(boost::bind(&icp_solver::callODESolver,
+                                                        this,
+                                                        bn * hc + i,
+                                                        diff_vec));
+                    }
+                    group.join_all();
+                    if(!ODEresult) {
                         return false;
+                    }
+                }
+            } else {
+                // Sequential Case
+                for(unsigned i = 1; i <= max; i++) {
+                    if (!diff_vec[i].empty()) {
+                        icp_solver::callODESolver(i, diff_vec);
+
+                        if(!ODEresult) {
+                            return false;
+                        }
+
+//                        cerr << "Before ICP in ODE" << endl;
+//                        pprint_vars(cerr, *_problem, _boxes.get());
+//                        double before = rp_box_volume_log(_boxes.get());
+//                        cerr << before << endl;
+
+                        if(!_propag->apply(_boxes.get()) ) {
+                            return false;
+                        }
+
+//                        double after = rp_box_volume_log(_boxes.get());
+//                        cerr << "After ICP in ODE" << endl;
+//                        cerr << "ICP in ODE: " << before << "\t" << after << "\t" << before - after << endl;
+//                        pprint_vars(cerr, *_problem, _boxes.get());
+                    }
+
                 }
             }
             return ODEresult;
@@ -372,15 +408,29 @@ rp_box icp_solver::compute_next()
         {
             int i;
             if ((i=_vselect->apply(_boxes.get()))>=0 &&
-                (rp_interval_width(rp_box_elem(_boxes.get(), i)) >= _config.nra_precision))
+                (rp_box_width(_boxes.get()) >= _config.nra_precision))
             {
+                cerr << "[before branched on " << rp_variable_name(rp_problem_var(*_problem, i)) << "]\t";
+                display_interval(cerr, rp_box_elem(_boxes.get(),i), 16, RP_INTERVAL_MODE_BOUND);
+                cerr << endl;
+
                 ++_nsplit;
+                cerr << "box size: " << _boxes.size() << endl;
                 _dsplit->apply(_boxes,i);
 
-                _config.nra_proof_out << endl
-                           << "[branched on x" << i << "]"
-                           << endl;
-                pprint_vars(_config.nra_proof_out, *_problem, _boxes.get());
+                cerr << "[after branched on " << rp_variable_name(rp_problem_var(*_problem, i)) << "]\t";
+                display_interval(cerr, rp_box_elem(_boxes.get(),i), 16, RP_INTERVAL_MODE_BOUND);
+                cerr << endl;
+                if(_config.nra_proof) {
+                    _config.nra_proof_out << endl
+                                          << "[branched on "
+                                          << rp_variable_name(rp_problem_var(*_problem, i))
+                                          << "]"
+                                          << endl;
+
+//                           << "[branched on x" << i << "]"
+                    pprint_vars(_config.nra_proof_out, *_problem, _boxes.get());
+                }
             }
             else
             {
@@ -392,7 +442,9 @@ rp_box icp_solver::compute_next()
         else
         {
             /* Added for dReal2 */
-            _config.nra_proof_out << "[conflict detected]" << endl;
+            if(_config.nra_proof) {
+                _config.nra_proof_out << "[conflict detected]" << endl;
+            }
             _boxes.remove();
         }
     }
@@ -636,7 +688,7 @@ void icp_solver::output_problem() const
         double lb =  (*ite).second.first;
         double ub =  (*ite).second.second;
 
-        _config.nra_proof_out << key << " is in: ";
+        _config.nra_proof_out << key << ": ";
         if(lb == -numeric_limits<double>::infinity())
             _config.nra_proof_out << "(-oo";
         else {
@@ -677,7 +729,9 @@ bool icp_solver::prop()
     if(!result) {
         // UNSAT
         // Added for dReal2
-        _config.nra_proof_out << "[conflict detected]" << endl;
+        if(_config.nra_proof) {
+            _config.nra_proof_out << "[conflict detected]" << endl;
+        }
 
         // TODO: better explanation
         _explanation.clear();
@@ -702,7 +756,9 @@ bool icp_solver::prop()
                                   rp_bsup(rp_box_elem(_boxes.get(), rp_id)));
         }
 //        cerr << "Incomplete Check: SAT" << endl;
-        _config.nra_proof_out << "HOLE" << endl;
+        if(_config.nra_proof) {
+            _config.nra_proof_out << "HOLE" << endl;
+        }
 
     }
     return result;

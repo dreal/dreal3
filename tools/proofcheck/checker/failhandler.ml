@@ -27,7 +27,7 @@ let print_msg prec f e eval =
   end
 
 let get_new_filename () =
-  let tracename = (BatGlobal.get src) in
+  let tracename = (BatGlobal.get_exn src) in
   let idx = BatString.rfind tracename ".trace" in
   let basename = BatString.left tracename idx in
   (basename ^ "_" ^ (string_of_int (fc())) ^ ".smt2")
@@ -85,13 +85,13 @@ let split_on_x key env : (Env.t * Env.t) =
 let split_env e fs prec : (Env.t * Env.t * float) =
   let vars_in_fs =
     List.fold_left
-      BatPSet.union
-      BatPSet.empty
+      BatSet.union
+      BatSet.empty
       (BatList.map Basic.collect_var_in_f fs) in
   let vardecls = Env.to_list e in
   let vardecls_filtered =
     List.filter (fun (name, _) ->
-      BatPSet.mem name vars_in_fs && not (BatString.starts_with name "ITE_"))
+      BatSet.mem name vars_in_fs && not (BatString.starts_with name "ITE_"))
       vardecls in
   let diff_list = List.map (fun (name, i) -> (name, Interval.size_I i)) vardecls_filtered in
   let (max_key, intv_size) =
@@ -109,7 +109,7 @@ let split_env e fs prec : (Env.t * Env.t * float) =
   (e1, e2, new_prec)
 
 let handle e fs fl =
-  let prec = BatGlobal.get prec in
+  let prec = BatGlobal.get_exn prec in
   begin
     let (e1, e2, new_prec) = split_env e fs prec in
     List.iter

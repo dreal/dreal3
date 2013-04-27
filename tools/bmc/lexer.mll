@@ -5,7 +5,7 @@
 {
   open Parser
   open Error
-  let debug_tag = false
+  let debug_tag = true
   let verbose s =  if debug_tag then (print_string s; print_newline())
   let comment_depth = ref 0
   let keyword_tbl = Hashtbl.create 111
@@ -65,7 +65,6 @@ rule start =
     | "==>"   { verbose (Lexing.lexeme lexbuf); IMPLY }
     | "d/dt"  { verbose (Lexing.lexeme lexbuf); DDT }
     | "^"     { verbose (Lexing.lexeme lexbuf); CARET }
-    | "%%"    { verbose (Lexing.lexeme lexbuf); DP }
     | id { let id = Lexing.lexeme lexbuf
            in verbose ("ID:"^id); try Hashtbl.find keyword_tbl id
              with _ -> ID id

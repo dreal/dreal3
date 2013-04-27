@@ -1,0 +1,33 @@
+#define omega 3.14
+#define ax 1
+#define ay 1.2
+
+[-10, 10] x;
+[-10, 10] y;
+
+[0, 10] tau;
+[0, 10] time;
+
+%%
+
+{mode 1;
+
+invt: true;
+
+flow:
+	d/dt[x] = - ax * sin(omega * tau); 
+	d/dt[y] = - ay * sin(omega * tau) * omega; 
+	d/dt[tau] = 1;
+
+jump: true;
+
+}
+
+init:
+
+@1 (and (x = 0) (y = 0) (tau = 0));
+
+goal:
+
+@1 (tau = 10);
+

@@ -7,7 +7,7 @@
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
-%token AT LT LTE GT GTE IMPLY DDT CARET DP
+%token AT LT LTE GT GTE IMPLY DDT CARET
 %token SIN COS TAN
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
@@ -18,6 +18,11 @@
 %token <float> FNUM
 %token <string> ID
 
+%left PLUS MINUS NEG
+%left TIMES DIVIDE
+%left NEG
+%right CARET
+
 %start main
 
 %type <Hybrid.t> main
@@ -25,7 +30,7 @@
 
 %%
 
-main: varDecl_list DP mode_list DP init goal {
+main: varDecl_list mode_list init goal {
   let vardecl_list = $1 in
   let (float_list, intv_list) =
     BatList.partition
@@ -34,9 +39,9 @@ main: varDecl_list DP mode_list DP init goal {
   in
   let vardeclmap = Vardeclmap.of_list intv_list in
   let macromap = Vardeclmap.of_list float_list in
-  let modemap = Modemap.of_list $3 in
-  let (init_mode, init_formula) = $5 in
-  let goal = $6 in
+  let modemap = Modemap.of_list $2 in
+  let (init_mode, init_formula) = $3 in
+  let goal = $4 in
   (vardeclmap, macromap, modemap, (init_mode, init_formula), goal)
 }
 ;
@@ -103,13 +108,21 @@ exp:
  | LP exp RP     { $2 }
  | exp PLUS exp  { Dr.Add ($1, $3) }
  | exp MINUS exp { Dr.Sub ($1, $3) }
+ | MINUS exp %prec NEG    { Dr.Neg $2 }
  | exp AST exp   { Dr.Mul ($1, $3) }
  | exp SLASH exp { Dr.Div ($1, $3) }
  | EXP exp       { Dr.Exp $2 }
  | exp CARET exp { Dr.Pow ($1, $3) }
- | SIN exp 	 { Dr.Sin $2 }
+ | SIN exp       { Dr.Sin $2 }
  | COS exp       { Dr.Cos $2 }
-; /* TODO: support other functions such as sin, cos, ... */
+ | TAN exp       { Dr.Tan $2 }
+ | ASIN exp      { Dr.Asin $2 }
+ | ACOS exp      { Dr.Acos $2 }
+ | ATAN exp      { Dr.Atan $2 }
+ | SINH exp      { Dr.Sinh $2 }
+ | COSH exp      { Dr.Cosh $2 }
+ | TANH exp      { Dr.Tanh $2 }
+;
 
 ode_list: /* */ { [] }
  | ode ode_list { $1::$2 }

@@ -70,8 +70,8 @@ void rp_propagator::rp_pprint_vars(rp_problem p, rp_box b)
 {
     for(int i = 0; i < rp_problem_nvar(p); i++)
     {
-        _out << rp_variable_name(rp_problem_var(p, i));
-        _out << " is in: ";
+        _out << rp_variable_name(rp_problem_var(p, i))
+              << ": ";
         rp_interval_local(rp_box_elem(b,i), 16, RP_INTERVAL_MODE_BOUND);
         if (i != rp_problem_nvar(p) - 1)
             _out << ";";

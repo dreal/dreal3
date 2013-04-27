@@ -1,13 +1,14 @@
-AC_INIT
+AC_INIT([filib], [3.0.2])
 AC_CONFIG_HEADERS([config.h])
 #AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(filib,3.0.2)
+# AM_INIT_AUTOMAKE(filib,3.0.2)
 AC_PROG_CC
 CXXFLAGS_SAVE=" -I${PWD}/${srcdir} ${CXXFLAGS}"
 CXXFLAGS=
 AC_PROG_CXX
 CXXFLAGS=${CXXFLAGS_SAVE}
 AC_PROG_RANLIB
+# LT_INIT
 AM_DISABLE_SHARED
 AC_PROG_LIBTOOL
 AC_HEADER_STDC
@@ -19,8 +20,8 @@ AC_DEFINE(FILIB_EXTENDED, [], [FILIB_EXTENDED])
 fparchitecture=
 
 AC_ARG_WITH(
-	[force-arch],
-	[  --with-force-arch=[[no]]  
+        [force-arch],
+        [  --with-force-arch=[[no]]
                           override automatic floating point architecture selection [[default=no]]
                           available options are x87,SSE],
         [if [[ ! -z "${withval}" ]] ; then fparchitecture=${withval} ; fi ]
@@ -28,39 +29,39 @@ AC_ARG_WITH(
 
 if [[ -z "${fparchitecture}" ]] ; then
 AC_MSG_CHECKING([for floating point architecture])
-	case "$host" in
-	  x86_64-*-*)
-	    fparchitecture=SSE
-	    ;;
-	  i?86-*-*)
-	    fparchitecture=x87
-	    ;;
-	  *)
-	    fparchitecture="unknown floating point architecture in host \"$host\""
-	    ;;
-	esac
+        case "$host" in
+          x86_64-*-*)
+            fparchitecture=SSE
+            ;;
+          i?86-*-*)
+            fparchitecture=x87
+            ;;
+          *)
+            fparchitecture="unknown floating point architecture in host \"$host\""
+            ;;
+        esac
 AC_MSG_RESULT([$fparchitecture])
 else
-	echo "User forced floating point architecture to $fparchitecture."
+        echo "User forced floating point architecture to $fparchitecture."
 
-	case "$fparchitecture" in
-		SSE)
-			case "$host" in
-			  x86_64-*-*)
-			    ;;
-			  i686-*-*)
-			    CXXFLAGS="${CXXFLAGS} -msse -march=pentium4"
-			    ;;
-			  *)
-			    echo "WARNING: forced floating point architecture to SSE on unknown platform."
-			    ;;
-			esac
-			;;
-		x87)
-			;;
-		*)
-			;;
-	esac
+        case "$fparchitecture" in
+                SSE)
+                        case "$host" in
+                          x86_64-*-*)
+                            ;;
+                          i686-*-*)
+                            CXXFLAGS="${CXXFLAGS} -msse -march=pentium4"
+                            ;;
+                          *)
+                            echo "WARNING: forced floating point architecture to SSE on unknown platform."
+                            ;;
+                        esac
+                        ;;
+                x87)
+                        ;;
+                *)
+                        ;;
+        esac
 fi
 
 define_have_sse="// #define HAVE_SSE"
@@ -87,29 +88,29 @@ case "${fparchitecture}" in
 esac
 
 if [[ "$GXX" = "yes" ]] ; then
-	AC_LANG_PUSH([C++])
+        AC_LANG_PUSH([C++])
 
         CXXFLAGS_SAVE="${CXXFLAGS}"
-	CXXFLAGS="${CXXFLAGS} -frounding-math"
-	AC_MSG_CHECKING([whether gcc accepts -frounding-math])
-	AC_LINK_IFELSE([AC_LANG_SOURCE([int main() {}])],
-	have_frounding_math=yes,
-	have_frounding_math=no
-	)
-	AC_MSG_RESULT($have_frounding_math)
-	if [[ "$have_frounding_math" = "no" -o "$WANT_ROUNDING_MATH" = "no" ]] ; then CXXFLAGS="$CXXFLAGS_SAVE" ; fi
+        CXXFLAGS="${CXXFLAGS} -frounding-math"
+        AC_MSG_CHECKING([whether gcc accepts -frounding-math])
+        AC_LINK_IFELSE([AC_LANG_SOURCE([int main() {}])],
+        have_frounding_math=yes,
+        have_frounding_math=no
+        )
+        AC_MSG_RESULT($have_frounding_math)
+        if [[ "$have_frounding_math" = "no" -o "$WANT_ROUNDING_MATH" = "no" ]] ; then CXXFLAGS="$CXXFLAGS_SAVE" ; fi
 
         CXXFLAGS_SAVE="${CXXFLAGS}"
-	CXXFLAGS="${CXXFLAGS} -ffloat-store"
-	AC_MSG_CHECKING([whether gcc accepts -ffloat-store])
-	AC_LINK_IFELSE([AC_LANG_SOURCE([int main() {}])],
-	have_float_store=yes,
-	have_float_store=no
-	)
-	AC_MSG_RESULT($have_float_store)
-	if [[ "$have_float_store" = "no" -o "$WANT_FLOAT_STORE" = "no" ]] ; then CXXFLAGS="$CXXFLAGS_SAVE" ; fi
+        CXXFLAGS="${CXXFLAGS} -ffloat-store"
+        AC_MSG_CHECKING([whether gcc accepts -ffloat-store])
+        AC_LINK_IFELSE([AC_LANG_SOURCE([int main() {}])],
+        have_float_store=yes,
+        have_float_store=no
+        )
+        AC_MSG_RESULT($have_float_store)
+        if [[ "$have_float_store" = "no" -o "$WANT_FLOAT_STORE" = "no" ]] ; then CXXFLAGS="$CXXFLAGS_SAVE" ; fi
 
-	AC_LANG_POP
+        AC_LANG_POP
 fi
 
 AC_SUBST([define_have_sse])
@@ -130,8 +131,8 @@ AC_LANG_POP
 benchmark_subdir=""
 
 if [[ "$have_boost" = "yes" ]] ; then
-	benchmark_subdir="benchmark"
-	CPPFLAGS="${CPPFLAGS} -DHAVE_BOOST"
+        benchmark_subdir="benchmark"
+        CPPFLAGS="${CPPFLAGS} -DHAVE_BOOST"
 fi
 
 AC_SUBST([benchmark_subdir])
