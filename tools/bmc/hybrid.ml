@@ -2,6 +2,8 @@
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
 
+open Batteries
+
 (* 1. Variable Declaration *)
 type vardeclmap = Vardeclmap.t
 
@@ -9,79 +11,124 @@ type vardeclmap = Vardeclmap.t
 type modeId = Mode.id
 type mode = Mode.t
 type modemap = Modemap.t
-type formula = Dr.formula
-type exp = Dr.formula
+type formula = Basic.formula
+type exp = Basic.formula
 
 (* 3. Init and Goal *)
 type init = modeId * formula
 type goal = modeId * formula
 type goals = goal list
-type t = vardeclmap * vardeclmap * modemap * init * goals
 
-let preprocess ((vm : Vardeclmap.t), (constmap : Vardeclmap.t), (mm : Modemap.t), (init_id, init_f), goals) : t =
+type t = {varmap: vardeclmap;
+          modemap: modemap;
+          init_id: Mode.id;
+          init_formula: formula;
+          goals: goals}
+
+let make (vm, mm, iid, iformula, gs)
+    =
+  {varmap= vm;
+   modemap= mm;
+   init_id = iid;
+   init_formula = iformula;
+   goals= gs}
+
+let varmap {varmap= vm;
+            modemap= mm;
+            init_id = iid;
+            init_formula = iformula;
+            goals= gs}
+    = vm
+
+let modemap {varmap= vm;
+             modemap= mm;
+             init_id = iid;
+             init_formula = iformula;
+             goals= gs}
+    = mm
+
+let init_id {varmap= vm;
+             modemap= mm;
+             init_id = iid;
+             init_formula = iformula;
+             goals= gs}
+    = iid
+
+let init_formula {varmap= vm;
+                  modemap= mm;
+                  init_id = iid;
+                  init_formula = iformula;
+                  goals= gs}
+    = iformula
+
+let goals {varmap= vm;
+           modemap= mm;
+           init_id = iid;
+           init_formula = iformula;
+           goals= gs}
+    = gs
+
+(**
+    Only used in the parser.
+    Substitute all the constant variables with their values.
+**)
+let preprocess (vm, cm, mm, iid, iformula, gs) : t =
   let subst s =
-    match BatMap.mem s constmap with
+    match Map.mem s cm with
     | true ->
       begin
-        match Vardeclmap.find s constmap with
-          Value.Num n -> Dr.Const n
+        match Vardeclmap.find s cm with
+          Value.Num n -> Basic.Const n
         | _ -> raise Not_found
       end
-    | false -> Dr.Var s
+    | false -> Basic.Var s
   in
   let mm' =
-    BatMap.map
-      (fun (id, inv_op, flow, jm) ->
-        (id,
-         begin
-           match inv_op with
-             None -> None
-           | Some inv -> Some (List.map (Dr.preprocess_formula subst) inv)
-         end,
-           List.map (fun (v, e) -> (v, Dr.preprocess_exp subst e)) flow,
-           BatMap.map
-           (fun (f1, x, f2) -> (Dr.preprocess_formula subst f1,
-                             x,
-                             Dr.preprocess_formula subst f2))
-           jm
-        )
+    Map.map
+      (fun m ->
+        Mode.make
+          (Mode.mode_id m,
+           begin
+             match (Mode.invs_op m) with
+               None -> None
+             | Some inv -> Some (List.map (Basic.preprocess_formula subst) inv)
+           end,
+             List.map (fun (v, e) -> (v, Basic.preprocess_exp subst e)) (Mode.flows m),
+             Map.map
+               (fun j ->
+                 Jump.make
+                   (Basic.preprocess_formula subst (Jump.guard j),
+                    Jump.target j,
+                    Basic.preprocess_formula subst (Jump.change j)))
+               (Mode.jumpmap m)
+          )
       )
       mm in
-  let init' = (init_id, Dr.preprocess_formula subst init_f) in
-  let goals' = List.map (fun (id, goal) -> (id, Dr.preprocess_formula subst goal)) goals in
-  (vm, constmap, mm', init', goals')
+  let init_formula' = Basic.preprocess_formula subst iformula in
+  let goals' = List.map (fun (id, goal) -> (id, Basic.preprocess_formula subst goal)) gs in
+  make (vm, mm', iid, init_formula', goals')
 
-let mf_print out (id, f) =
-  begin
-    BatString.print out "(";
-    Id.print out id;
-    BatString.print out ", ";
-    Dr.print_formula out f;
-    BatString.print out ")";
-  end
-
-let print out (((vm : Vardeclmap.t), (env : Vardeclmap.t), (mm : Modemap.t), init, goals) : t)=
+let print out (hm : t) =
+  let id_formula_print out (id, f) =
+    Printf.fprintf out "(%s, %s)" (IO.to_string Id.print id) (IO.to_string Basic.print_formula f)
+  in
   let print_header out str =
-    begin
-      BatString.println out "====================";
-      BatString.println out str;
-      BatString.println out "====================";
-    end
+    Printf.fprintf out "====================\n%s====================" str
   in
   begin
     (* print varDecl list *)
     print_header out "VarDecl Map";
-    Vardeclmap.print out vm;
+    Vardeclmap.print out (varmap hm);
     (* print mode list *)
     print_header out "Mode Map";
-    Modemap.print out mm;
+    Modemap.print out (modemap hm);
     (* print init *)
     print_header out "Init";
-    BatList.print ~first:"" ~sep:"\n" ~last:"\n" mf_print out [init];
+    List.print ~first:"" ~sep:"\n" ~last:"\n" id_formula_print out [(init_id hm, init_formula hm)];
     (* print goal *)
     print_header out "Goal";
-    BatList.print ~first:"" ~sep:"\n" ~last:"\n" mf_print out goals;
+    List.print ~first:"" ~sep:"\n" ~last:"\n" id_formula_print out (goals hm);
   end
 
-let get_initID (_, _, _, (id, _), _) : modeId = id
-let get_goalID (_, _, _, _, goals) : modeId list = List.map (fun (id, _) -> id) goals
+let goal_ids (hm : t) : modeId list
+    = List.map (fun (goal_id, _) -> goal_id) (goals hm)

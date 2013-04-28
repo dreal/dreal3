@@ -2,16 +2,12 @@
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
 
+open Batteries
+
 type t = Num of float | Intv of float * float
 
 let print_intv out (n, m) =
-  begin
-    BatString.print out "[";
-    BatPrintf.fprintf out "%f" n;
-    BatString.print out ", ";
-    BatPrintf.fprintf out "%f" m;
-    BatString.print out "]";
-  end
+  Printf.fprintf out "[%f, %f]" n m
 
 let print out v =
   match v with

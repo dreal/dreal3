@@ -3,7 +3,7 @@
  */
 
 %{
-
+open Batteries
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
@@ -42,7 +42,7 @@ main: varDecl_list mode_list init goal {
   let modemap = Modemap.of_list $2 in
   let (init_mode, init_formula) = $3 in
   let goal = $4 in
-  (vardeclmap, macromap, modemap, (init_mode, init_formula), goal)
+  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal)
 }
 ;
 
@@ -61,7 +61,7 @@ mode_list: /* */ { [] }
 
 mode: LC mode_id invts_op flows jumps RC
   {
-    ($2, $3, $4, Jumpmap.of_list $5)
+    Mode.make ($2, $3, $4, Jumpmap.of_list $5)
   }
 ;
 
@@ -90,38 +90,38 @@ formulas: /* */ { [] }
 
 
 formula:
-    TRUE                { Dr.True }
-  | FALSE               { Dr.False }
+    TRUE                { Basic.True }
+  | FALSE               { Basic.False }
   | LP formula RP       { $2 }
-  | AND formulas        { Dr.make_and $2 }
-  | OR  formulas        { Dr.make_or  $2 }
-  | EQ  exp exp         { Dr.Eq  ($2, $3) }
-  | GT  exp exp         { Dr.Gt  ($2, $3) }
-  | LT  exp exp         { Dr.Lt  ($2, $3) }
-  | GTE exp exp         { Dr.Ge ($2, $3) }
-  | LTE exp exp         { Dr.Le ($2, $3) }
+  | AND formulas        { Basic.make_and $2 }
+  | OR  formulas        { Basic.make_or  $2 }
+  | EQ  exp exp         { Basic.Eq  ($2, $3) }
+  | GT  exp exp         { Basic.Gt  ($2, $3) }
+  | LT  exp exp         { Basic.Lt  ($2, $3) }
+  | GTE exp exp         { Basic.Ge ($2, $3) }
+  | LTE exp exp         { Basic.Le ($2, $3) }
 ; /* TODO: add "And" and "Or". maybe "and" is unnecessary... */
 
 exp:
-   ID            { Dr.Var $1 }
- | FNUM          { Dr.Const $1 }
+   ID            { Basic.Var $1 }
+ | FNUM          { Basic.Const $1 }
  | LP exp RP     { $2 }
- | PLUS exp exp  { Dr.Add ($2, $3) }
- | MINUS exp exp { Dr.Sub ($2, $3) }
- | MINUS exp %prec NEG    { Dr.Neg $2 }
- | AST exp exp   { Dr.Mul ($2, $3) }
- | SLASH exp exp { Dr.Div ($2, $3) }
- | EXP exp       { Dr.Exp $2 }
- | CARET exp exp { Dr.Pow ($2, $3) }
- | SIN exp       { Dr.Sin $2 }
- | COS exp       { Dr.Cos $2 }
- | TAN exp       { Dr.Tan $2 }
- | ASIN exp      { Dr.Asin $2 }
- | ACOS exp      { Dr.Acos $2 }
- | ATAN exp      { Dr.Atan $2 }
- | SINH exp      { Dr.Sinh $2 }
- | COSH exp      { Dr.Cosh $2 }
- | TANH exp      { Dr.Tanh $2 }
+ | PLUS exp exp  { Basic.Add ($2, $3) }
+ | MINUS exp exp { Basic.Sub ($2, $3) }
+ | MINUS exp %prec NEG    { Basic.Neg $2 }
+ | AST exp exp   { Basic.Mul ($2, $3) }
+ | SLASH exp exp { Basic.Div ($2, $3) }
+ | EXP exp       { Basic.Exp $2 }
+ | CARET exp exp { Basic.Pow ($2, $3) }
+ | SIN exp       { Basic.Sin $2 }
+ | COS exp       { Basic.Cos $2 }
+ | TAN exp       { Basic.Tan $2 }
+ | ASIN exp      { Basic.Asin $2 }
+ | ACOS exp      { Basic.Acos $2 }
+ | ATAN exp      { Basic.Atan $2 }
+ | SINH exp      { Basic.Sinh $2 }
+ | COSH exp      { Basic.Cosh $2 }
+ | TANH exp      { Basic.Tanh $2 }
 ;
 
 ode_list: /* */ { [] }
@@ -137,7 +137,7 @@ jump_list: /* */ { [] }
 ;
 
 jump:
-  formula IMPLY AT FNUM formula SEMICOLON { ($1, int_of_float $4, $5) }
+  formula IMPLY AT FNUM formula SEMICOLON { Jump.make ($1, int_of_float $4, $5) }
 ;
 
 init: INIT COLON mode_formula { $3 }

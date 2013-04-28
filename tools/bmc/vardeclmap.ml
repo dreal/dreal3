@@ -1,28 +1,29 @@
 (*
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
+open Batteries
 
 type var = Vardecl.var
 type value = Vardecl.value
 type vardecl = Vardecl.t
-type t = (var, value) BatMap.t
+type t = (var, value) Map.t
 
 let of_list (vardecls : vardecl list) : t
     =
   List.fold_left
     (fun (map : t) ((var, value) : vardecl) ->
-      BatMap.add var value map
+      Map.add var value map
     )
-    BatMap.empty
+    Map.empty
     vardecls
 
-let print out = BatMap.print BatString.print Value.print out
+let print out = Map.print String.print Value.print out
 
 let find key map =
   try
-    BatMap.find key map
+    Map.find key map
   with e ->
     begin
-      BatPrintexc.print_backtrace BatIO.stdout;
+      Printexc.print_backtrace IO.stdout;
       raise e
     end
