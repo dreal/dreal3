@@ -2,18 +2,26 @@
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
 
-type formula = Dr.formula
+open Batteries
+
+type formula = Basic.formula
 type id = Id.t
-type t = formula * id * formula
+type t = {guard  : formula;
+          target: Id.t;
+          change : formula}
 
-let print out (f1, id, f2) =
-  begin
-    BatString.print out "(";
-    Dr.print_formula out f1;
-    BatString.print out ", ";
-    Id.print out id;
-    BatString.print out ",";
-    Dr.print_formula out f2;
-    BatString.print out ")";
-  end
+let make (g, t, c) = {guard = g; target = t; change = c}
 
+let guard  {guard = g; target = t; change = c} = g
+let target {guard = g; target = t; change = c} = t
+let change {guard = g; target = t; change = c} = c
+
+let print out {guard  = g;
+               target = t;
+               change = c}
+    =
+  Printf.fprintf out
+    "(%s, %s, %s)"
+    (IO.to_string Basic.print_formula g)
+    (IO.to_string Id.print t)
+    (IO.to_string Basic.print_formula c)

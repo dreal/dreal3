@@ -2,5 +2,7 @@
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
 
+open Batteries
+
 type t = int
-let print = BatInt.print
+let print = Int.print

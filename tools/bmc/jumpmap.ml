@@ -2,35 +2,32 @@
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
 
+open Batteries
+
 type id = int
 type jump = Jump.t
-type t = (id, jump) BatMap.t
+type t = (id, jump) Map.t
 
 let of_list (jumps : jump list) : t
     =
   List.fold_left
-    (fun (map : t) ((f1, target, f2) as j) ->
-      BatMap.add target j map
+    (fun (map : t) ({Jump.guard = g; Jump.target = t; Jump.change= c} as j) ->
+      Map.add t j map
     )
-    BatMap.empty
+    Map.empty
     jumps
 
-let print out = BatMap.print Id.print Jump.print out
+let print out = Map.print Id.print Jump.print out
 
 let find key map =
   try
-    BatMap.find key map
+    Map.find key map
   with e ->
-    let out = BatIO.stdout in
+    let out = IO.stdout in
     begin
-      BatString.println out "Jumpmap Exception!";
-      BatString.print out "Key: ";
-      Id.print out key;
-      BatString.println out "";
-      BatString.print out "Map: ";
-      print out map;
-      BatString.println out "";
-      BatPrintexc.print_backtrace out;
+      String.println out "Jumpmap Exception!";
+      Printf.fprintf out "Key: %s\n" (IO.to_string Id.print key);
+      Printf.fprintf out "Map: %s\n" (IO.to_string print map);
+      Printexc.print_backtrace out;
       raise e
     end
-
