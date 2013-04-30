@@ -44,17 +44,20 @@ let process_vardecls (vardecls : varDecl list) (num_of_modes : int) (k : int) (p
           )
           vardecls))
 
-let generate_redundant_cond (all_vars : var Set.t) (f : formula) =
+let eq_cond x = Basic.Eq (Basic.Var x, Basic.Var x)
+let nochange_cond x = Basic.Eq (Basic.Var x, Basic.Var (x ^ "'"))
+
+let make_redundant_cond (all_vars : var Set.t) (f : formula) (cond : var -> formula) =
   let appeared_vars = Basic.collect_vars_in_formula f in
   let not_appeared_vars = Set.diff all_vars appeared_vars in
-  List.map (fun x -> Basic.Eq (Basic.Var x, Basic.Var x)) (Set.elements not_appeared_vars)
+  List.map cond (Set.elements not_appeared_vars)
 
 let process_init (q : id) (init : formula) (all_vars : var Set.t) : formula =
-  let redundant_cond = generate_redundant_cond all_vars init in
+  let redundant_cond = make_redundant_cond all_vars init eq_cond in
   let init' = Basic.make_and (init::redundant_cond) in
   Basic.subst_formula (add_index 0 q "_0") init'
 
-let process_flow (k : int) (q : id) (m : mode) : (flows_annot * formula) =
+let process_flow (k : int) (q : id) (m : mode) (all_vars : var Set.t) : (flows_annot * formula) =
   let flows_annot =
     List.map
       (fun ode ->
@@ -62,20 +65,23 @@ let process_flow (k : int) (q : id) (m : mode) : (flows_annot * formula) =
         in (k, q, substituted_ode))
       (Mode.flows m)
   in
-  (* TODO: Add conditions for unappeared variables *)
-  let inv_formula = match (Mode.invs_op m) with
-      None -> Basic.True
-    | Some invs ->
-      let invt_conds =
-        List.map
-          (fun invt_f ->
-            Basic.make_and
-              [Basic.subst_formula (add_index k q "_0") invt_f;
-               Basic.subst_formula (add_index k q "_t") invt_f;
-               Basic.ForallT (Basic.subst_formula (add_index k q "_t") invt_f);])
-          invs
-      in
-      Basic.make_and invt_conds
+  let inv_formula =
+    let invs = match (Mode.invs_op m) with
+      | None -> []
+      | Some invs -> invs in
+    let inv = Basic.make_and invs in
+    let redundant_cond = make_redundant_cond all_vars inv eq_cond in
+    let invs' = List.flatten [invs; redundant_cond] in
+    let invt_conds =
+      List.map
+        (fun invt_f ->
+          Basic.make_and
+            [Basic.subst_formula (add_index k q "_0") invt_f;
+             Basic.subst_formula (add_index k q "_t") invt_f;
+             Basic.ForallT (Basic.subst_formula (add_index k q "_t") invt_f);])
+        invs'
+    in
+    Basic.make_and invt_conds
   in
   (flows_annot, inv_formula)
 
@@ -84,7 +90,7 @@ let process_jump (jump) (k : int) (next_k : int) (q : id) (next_q : id) (all_var
   let gurad' = Basic.subst_formula (add_index k q "_t") (Jump.guard jump) in
   let change'' =
     let change = Jump.change jump in
-    let redundant_cond = generate_redundant_cond all_vars change in
+    let redundant_cond = make_redundant_cond all_vars change nochange_cond in
     let change' = Basic.make_and (change::redundant_cond) in
     Basic.subst_formula
       (fun v -> match String.ends_with v "'" with
@@ -101,7 +107,7 @@ let process_goals (hm : Hybrid.t) (k : int) (goals : (int * formula) list) (all_
     List.map
       (fun (q, goal_f) ->
         let goal_f' =
-          let redundant_cond = generate_redundant_cond all_vars goal_f in
+          let redundant_cond = make_redundant_cond all_vars goal_f eq_cond in
           Basic.make_and (goal_f::redundant_cond)
         in
         Basic.subst_formula (add_index k q "_t") goal_f')
@@ -121,7 +127,7 @@ let trans modemap init_id (k : int) (next_k : int) (q : id) (next_q : id) (all_v
   let m = Modemap.find q modemap in
   let jump_result = process_jump (Jumpmap.find next_q (Mode.jumpmap m)) k next_k q next_q all_vars in
   let (flow_k_next_ode, flow_k_next) =
-    process_flow (next_k) (next_q) (Modemap.find next_q modemap) in
+    process_flow (next_k) (next_q) (Modemap.find next_q modemap) all_vars in
   (flow_k_next_ode,
    Basic.make_and [jump_result; flow_k_next])
 
@@ -164,7 +170,6 @@ let transform modemap init_id (k : int) (next_k : int) (edge_op : (int * int) op
   let (flow_list, formula_list) = List.split trans_result_list in
   (List.flatten flow_list, Basic.make_or formula_list)
 
-
 let reach (k : int) (hm : Hybrid.t) (path : int list option):
     (varDecl list * flows_annot * formula * Value.t)
     =
@@ -184,7 +189,7 @@ let reach (k : int) (hm : Hybrid.t) (path : int list option):
     | _ -> raise (SMTException "time should be defined once and only once.") in
   let vardecls'' = process_vardecls vardecls' num_of_modes k path in
   let init_result = process_init init_id (Hybrid.init_formula hm) all_vars in
-  let (flow_0_ode, flow_0) = process_flow 0 init_id (Modemap.find init_id modemap) in
+  let (flow_0_ode, flow_0) = process_flow 0 init_id (Modemap.find init_id modemap) all_vars in
   let k_list : int list = List.of_enum (0 --^ k) in
   let trans_result : (flows_annot * formula) list =
     match path with
