@@ -1,0 +1,4 @@
+new_cardiac_stim	SAT	// nominal parameters, 1ms stimulation
+new_cardiac_stim_1	UNSAT	// init ranges, 1ms stimulation, go1 >= 166.9494 (i.e. EPI_TO1 <= 0.006)
+new_cardiac_stim_2	UNSAT	// init ranges, 1ms stimulation, go2 >= 7.6982 (i.e. EPI_TO2 <= 0.13)
+
