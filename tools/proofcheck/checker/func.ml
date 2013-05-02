@@ -141,3 +141,37 @@ let rec taylor (e : Env.t) (f : t) : Intv.t =
       List.fold_left (+$) (Intv.make f_of_vec_a f_of_vec_a) terms
     end
   with Basic.DerivativeNotFound -> Intv.top
+
+type trend = Inc | Dec | Const | Unknown
+let get_sign {low=l; high=h} =
+  match (h <= 0.0, l >= 0.0) with
+  | (true, true) -> Const
+  | (true, false) -> Dec
+  | (false, true) -> Inc
+  | (false, false) -> Unknown
+
+let rec monotone (e : Env.t) (f : t) : Intv.t =
+  try
+    let keys : Env.key list = List.of_enum (Env.keys e) in
+    let derivs : Basic.exp list = List.map (fun key -> Basic.deriv f key) keys in
+    let applied : Intv.t list = List.map (fun deriv -> intv_eval e deriv) derivs in
+    let signs : trend list = List.map get_sign applied in
+    let (left, right) =
+      List.split
+        (List.map2
+           (fun key sign ->
+             let {low=l; high=h} as intv = Env.find key e in
+             match sign with
+               Inc -> ({low=l; high=l}, {low=h; high=h})
+             | Dec -> ({low=h; high=h}, {low=l; high=l})
+             | Const -> ({low=l; high=l}, {low=l; high=l})
+             | Unknown -> (intv, intv)
+           )
+           keys signs) in
+    let left_env = Env.from_list (List.combine keys left) in
+    let right_env = Env.from_list (List.combine keys right) in
+    let left_result = intv_eval left_env f in
+    let right_result = intv_eval right_env f in
+    let result = Intv.join left_result right_result in
+    result
+  with Basic.DerivativeNotFound -> Intv.top
