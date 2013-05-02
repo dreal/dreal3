@@ -83,7 +83,6 @@
 [0, 1] tau;
 [0, 1] time;
 
-%%
 {mode 1;
 
 invt:           (u >= 0);
@@ -160,7 +159,6 @@ flow:
 jump:
                 ( u > 2.0) ==> @4 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 }
-%%
 
 init:	@1 (and (tau = 0) (u = 0.0) (v = 1.0) (w = 1.0) (s = 0.0));
 
