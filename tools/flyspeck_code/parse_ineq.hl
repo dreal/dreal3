@@ -1,0 +1,786 @@
+(* ========================================================================== *)
+(* FLYSPECK - BOOK FORMALIZATION                                              *)
+(*                                                                            *)
+(* Chapter: nonlinear inequalities                                            *)
+(* Author:  Thomas Hales starting from Roland Zumkeller's ccform function     *)
+(* Date: 2010-05-09                                                           *)
+(* ========================================================================== *)
+
+(* 
+
+   Use HOL Light specifications of functions and inequalities to
+   automatically generate code in other languages.
+
+   ** cfsqp C++ code,
+   ** glpk for linear programming
+   ** Objective Caml export of functions
+   ** LaTeX documentation of inequalities.
+
+   C++ code generation for interval arithmetic is done 
+   separately in optimize.hl.
+   (This file is independent from that one.)
+
+   Executing the cfsqp produces three output files:
+   /tmp/cfsqp_err.txt, 
+   tmp/t.cc tmp/t.o (in the cfsqp directory)
+   
+*)
+
+(*
+flyspeck_needs "general/flyspeck_lib.hl";;
+flyspeck_needs "general/sphere.hl";;
+flyspeck_needs "nonlinear/ineq.hl";;
+flyspeck_needs "nonlinear/lemma.hl";;
+*)
+
+module Parse_ineq = struct 
+
+  open Sphere;; 
+  open Nonlinear_lemma;;
+
+let cfsqp_trialcount = ref 500;;
+
+let dest_decimal = Flyspeck_lib.dest_decimal;;
+
+let string_of_num' = Flyspeck_lib.string_of_num';;
+
+let join_comma  = Flyspeck_lib.join_comma;;
+
+let join_lines  = Flyspeck_lib.join_lines;;
+
+let join_space  = Flyspeck_lib.join_space;;
+
+let paren s =  "("^ s ^")";;
+
+let nub = Flyspeck_lib.nub;;
+
+(* moved to lemmas.hl.
+let strip_let_tm t = snd(dest_eq(concl(REDEPTH_CONV let_CONV t)));;
+
+let strip_let t = REWRITE_RULE[REDEPTH_CONV let_CONV (concl t )] t;;
+*)
+
+(* from HOL Light lib.ml *)
+
+let rec (--) = fun m n -> if m > n then [] else m::((m + 1) -- n);; 
+
+
+(* renamed from output_string to avoid Pervasives module name clash *)
+
+let output_filestring = Flyspeck_lib.output_filestring;;
+
+
+(* ========================================
+cfsqp  generation 
+======================================== *)
+
+let c_string_of_term t = 
+  let rec soh t =
+    if is_var t then fst (dest_var t) 
+    else
+      let (f,xs) = strip_comb t in
+      let _ =  (is_const f) or  
+	failwith ("Non-const function name: " ^ string_of_term f) in
+      let ifix i  = 
+	let [a;b] = xs in paren(soh a ^ " " ^ i ^ " " ^ soh b) in    
+      let ifix_swapped i  = 
+	let [b;a] = xs in paren(soh a ^ " " ^ i ^ " " ^ soh b) in
+	(* soh: *)
+	match fst (dest_const f) with
+	  | "real_gt" | "real_ge" | "real_sub" -> ifix "-" 
+	  | "real_lt" | "real_le" -> ifix_swapped "-" 
+	  | "real_add" -> ifix "+"
+	  | "real_mul" -> ifix "*"
+	  | "real_div" -> ifix "/"
+	  | "\\/" -> ifix "\\/"
+	  | "real_neg" -> let [a] = xs in paren("- 0.0" ^ soh a)
+	  | "acs" -> let [a] = xs in paren ("acos" ^ (paren (soh a)))
+	  | "real_of_num" -> let [a] = xs in soh a  
+	  | "NUMERAL" -> let [_] = xs in string_of_num' (dest_numeral t)
+	  | "<" -> let [a;b] = xs in paren(soh a ^ " < " ^ soh b)
+	  | ">" -> let [a;b] = xs in paren(soh a ^ " > " ^ soh b)
+	  | "+" -> let [a;b] = xs in paren(soh a ^ " + " ^ soh b)
+	  | "*" -> let [a;b] = xs in paren(soh a ^ " * " ^ soh b)
+	  | "DECIMAL" ->  string_of_num' (dest_decimal t)
+	  | "COND" -> 
+	      let [a;b;c] = xs in 
+		paren(soh a ^ " ? " ^ soh b ^ " : " ^ soh c)
+	  | "atn2"      -> 
+	      let [ab] = xs in 
+	      let (a,b) = dest_pair ab in  
+		paren("atn2( " ^ soh a ^ "," ^ soh b ^ ")")
+	  | s -> paren(s ^  "(" ^ join_comma(map soh xs) ^ ")") in
+   (* c_string_of_term: *)
+    try 
+      soh t
+    with Failure s -> failwith (s^" .......   "^string_of_term t);;
+
+let constant_names i =
+  let rec cn b =function
+    | Const (s,_) -> s::b
+    | Comb (s,t) -> (cn [] s) @ (cn[] t) @ b
+    | Abs(x,t) -> (cn b t)
+    | _ -> b in
+  nub (sort (<) (cn [] i ));;
+
+
+(* Rewrite unusual terms to prepare for C++ conversion *)
+
+
+
+(* function calls are dealt with three different ways:
+      - native_c: use the native C code definition of the function. 
+      - autogen: automatically generate a C style function 
+      - macro_expand: use rewrites to eliminate the function.
+*)
+
+(* Native is the default case.  There is no need to list them, except
+   as documentation. *)
+
+let native_c =  [
+  ",";"BIT0";"BIT1";"CONS";"DECIMAL"; "NIL"; "NUMERAL"; "_0"; "acs";
+  "ineq";  "pi"; "adodec"; "bdodec";"real_add"; "real_div";"real_pow";"cos";
+  "real_ge"; "real_mul"; "real_of_num"; "real_sub"; "machine_eps";
+  (* -- *)
+  "delta_x";"sol_y";"dih_y";"rhazim";
+  "lmfun";"lnazim";"hminus";
+  "wtcount3_y";"wtcount6_y";"beta_bump_y";"matan";"sqp";"sqn";
+  (* added May 2011 *)
+  (* "taum_m_diff_quotient";"taum_m_diff_quotient2"; *)
+  "mdtau";"mdtau2";
+  (* added 2012 *)
+  "ell_uvx";
+  "root";
+   ];;
+
+let autogen = ref[];;
+
+let prep_autogen = (function b -> snd(strip_forall (concl (strip_let b))));;
+
+(* cfsqp autogeneration *)
+
+autogen := map prep_autogen
+  [sol0;tau0;hplus;mm1;mm2;vol_x;sqrt8;sqrt2;sqrt3;rho_x;
+   rad2_x;ups_x;eta_x;eta_y;volR; 
+   norm2hh;arclength;regular_spherical_polygon_area;
+   beta_bump_force_y;  
+   a_spine5;b_spine5;beta_bump_lb;marchal_quartic;vol2r;
+   tame_table_d;delta_x4;dih_x_alt;delta4_squared_x;x1_delta_x;
+   quad_root_plus_curry;
+   edge_flat_rewrite;const1;taum;flat_term;
+   taum_y1;taum_y2;taum_y1_y2;
+   arclength_y1;arclength_y2;arc_hhn;asn797k;asnFnhk;
+   lfun_y1;arclength_x_123;
+   (* deprecated: arclength_x_345; solRy;dihRy; *)
+   acs_sqrt_x1_d4;acs_sqrt_x2_d4;
+   tauq;enclosed_rewrite;
+   sol_euler_x_div_sqrtdelta;
+   dih_x_div_sqrtdelta_posbranch;
+   surfR;surfRy;surfRdyc2;surfy;dih4_y;dih5_y;dih6_y;
+   num1;num2;num_combo1;rat1;rat2;
+   flat_term_x; 
+   upper_dih_x; 
+   eulerA_x;
+   ell_vx2;
+   Mdtau.dua;
+   Mdtau.mdtau_y;
+   Mdtau.mdtau2_y;
+(*
+Functional_equation.h0cut;
+Functional_equation.truncate_sqrt;
+Functional_equation.truncate_dih_x;
+Functional_equation.nonf_truncate_sol_x;
+Functional_equation.nonf_truncate_vol_x;
+Functional_equation.nonf_truncate_vol3r_456;
+*)
+   ];;
+
+(* cfsqp expansion *)
+
+(* If a function needs to be expanded, it should be added to this list. *)
+let get_macro_expand() = (   
+  [gamma4f;gamma4fgcy;vol4f;y_of_x_e;vol_y_e;rad2_y_e;
+   vol3f;vol3r;vol2f;delta4_y;delta4_squared_y;x1_delta_y;
+   gamma3f;gamma23f;  (* gamma23f_126_w1;gamma23f_red; *)
+   gamma23f_red_03;gamma23f_126_03;
+   GSYM quadratic_root_plus_curry;REAL_MUL_LZERO;
+   REAL_MUL_RZERO;FST;SND;pathL;pathR;node2_y;node3_y;
+   rhazim2;rhazim3;rhazim_x;rhazim2_x;rhazim3_x;
+   rotate2;rotate3;rotate4;rotate5;rotate6;
+   sol_euler345_x_div_sqrtdelta;
+   sol_euler156_x_div_sqrtdelta;
+   sol_euler246_x_div_sqrtdelta;
+   ldih_x_div_sqrtdelta_posbranch;
+   ldih2_x_div_sqrtdelta_posbranch;
+   ldih2_x_div_sqrtdelta_posbranch;
+   ldih3_x_div_sqrtdelta_posbranch;
+   ldih5_x_div_sqrtdelta_posbranch;
+   ldih6_x_div_sqrtdelta_posbranch;
+   lmdih_x_div_sqrtdelta_posbranch;
+   lmdih2_x_div_sqrtdelta_posbranch;
+   lmdih3_x_div_sqrtdelta_posbranch;
+   lmdih5_x_div_sqrtdelta_posbranch;
+   lmdih6_x_div_sqrtdelta_posbranch;
+   taum_x;
+   edge_flat2_x;
+   dih_x;dih_y;dih2_y;dih3_y;
+   dih6_y;dih5_y;dih4_y;
+   norm2hh;
+   delta_x;delta_y;delta_x4;delta_x6;
+   taum;
+   rhazim;
+   tauq;
+   sol_y;
+   lnazim;
+   const1;
+   asn797k;
+   arclength_x_123;
+   acs_sqrt_x1_d4;
+   asnFnhk;
+   lfun_y1;
+   vol_x;
+   rad2_x;
+   sol_euler_x_div_sqrtdelta;
+   dih_x_div_sqrtdelta_posbranch;
+   vol2r;
+   delta_y;
+   real_abs;
+   rho;rho_x;
+   catn;
+   complex_mul;
+   complex_div;
+   h0;
+   hplus;
+   a_spine5;b_spine5;
+   sqrt2;sqrt3;sqrt8;
+   mm1;
+   lmfun;
+   beta_bump_force_y;
+   lmfun;
+   tame_table_d;
+   tau0;
+   sol0;
+   bump;
+   beta_bump_lb;
+   arclength_y1;
+   arc_hhn;
+   lfun;
+   arclength;
+   casn;
+   atn2;
+   ly;
+   ups_x;
+   matan;
+   eta_x;eta_y;
+   mm2;
+   interp;
+   sqn;
+   upper_dih_x;
+   edge_flat;
+   num1;
+   num_combo1;
+   sqp;
+   flat_term_x;
+   Mdtau.mdtau_y;
+   Mdtau.mdtau2_y;
+   Mdtau.dua;
+   Mdtau.safesqrt;
+   x1_delta_x;
+   quadratic_root_plus;
+   Enclosed.enclosed;
+   Mur.muR;
+   Cayleyr.cayleyR;
+   flat_term;
+   eulerA_x;
+   abc_of_quadratic;
+   delta4_squared_x;
+(* sqrt; *)
+(* deprecated:		      
+   delta_template_B_x_alt;
+   taum_template_B_x_alt;
+   dih_template_B_x_alt; 
+   dih_hexall_x; 
+   dih1_hexall_x;
+   upper_dih_hexall_x;
+   delta_hexall_x;
+   delta4_hexall_x;  
+   taum_hexall_x; 
+   eulerA_hexall_x;
+   factor345_hexall_x;
+   law_cosines_234_x;
+   law_cosines_126_x; 
+   tau_lowform_x_alt;
+*)
+   delta_126_x;
+   delta_234_x;
+   delta_135_x;
+   upper_dih_y; 
+   gamma3f_135_n;gamma3f_126_n;gamma23f_n;gamma23f_126_03_n;
+   (* may 2011 additions *)
+   rhazim_x_div_sqrtdelta_posbranch;
+   rhazim2_x_div_sqrtdelta_posbranch;
+   rhazim3_x_div_sqrtdelta_posbranch;
+   tau_residual_x;
+   edge_flat_x;
+   delta_sub1_x;
+   delta_pent_x;
+   taum_sub1_x;
+   taum_sub246_x;
+   taum_sub345_x;
+   taum_3flat_x_alt;
+   taum_2flat_x_alt;
+   taum_1flat_x_alt;
+   euler_3flat_x_alt;
+   euler_2flat_x_alt;
+   euler_1flat_x_alt;
+   (* 2012 *)
+   Mdtau.mdtau_y_LC;
+   Mdtau.mdtau2_y_LC;
+   Sphere.delta_y_LC;
+
+
+
+
+(*
+Functional_equation.truncate_vol3f;
+Functional_equation.truncate_gamma2_x;
+Functional_equation.truncate_gamma3f_x;
+Functional_equation.truncate_gamma23_x;
+Functional_equation.truncate_gamma23_x_A;
+Functional_equation.truncate_gamma23_x_B;
+*)
+   ] @ (!Ineq.dart_classes));;
+
+let prep_term t = 
+  let t' = REWRITE_CONV (get_macro_expand()) (strip_let_tm t) in
+  let (a,b)=  dest_eq (concl t') in
+    b;;
+
+let simpl t = 
+  let t' = NUM_REDUCE_CONV t in 
+  let (a, b) = dest_eq (concl t') in 
+    b;;
+
+let cc_function t = 
+  let args xs = 
+    let ls = map (fun s -> "double "^s) xs in join_comma ls in
+  let (lhs,rhs) = dest_eq (prep_term t) in
+  let (f,xs) = strip_comb lhs in
+  let ss = map c_string_of_term xs in
+  let p = Printf.sprintf in
+  let s = join_lines [
+     p"double %s(" (fst (dest_const f)); args ss;
+     p") { \nreturn ( %s ); \n}\n\n"  (c_string_of_term rhs);
+     ]
+  in s;;
+
+let dest_ineq ineq = 
+  let t = snd(strip_forall (prep_term (ineq))) in
+  let (vs,i) = dest_comb t in
+  let (_,vs) = dest_comb vs in
+  let vs = dest_list vs in
+  let vs = map (fun t -> let (a,b) = dest_pair t in (a,dest_pair b)) vs in
+  let vs = map (fun (a,(b,c)) -> (a, b, c)) vs in
+    (t,vs,disjuncts i);;
+
+let c_dest_ineq ineq = 
+  let cs = c_string_of_term in
+  let (b,vs,i) = dest_ineq ineq in
+    (cs b, map (fun (a,b,c) -> (cs a, cs b,cs c)) vs,map cs i);;
+
+(* generate c++ code of ineq *)
+
+let case p i j = 
+  Printf.sprintf "case %d: *ret = (%s) - (%s); break;" j (List.nth i j) p;;
+
+let vardecl y vs = 
+  let varname = map (fun (a,b,c) -> b) vs in
+  let nvs = List.length vs in
+  let  v j = Printf.sprintf "double %s = %s[%d];"   (List.nth varname j) y j in
+    join_lines (map v (0-- (nvs-1)));;
+
+let bounds f vs = 
+  let lbs = map f vs in
+  join_comma lbs;;
+
+let rec geteps = 
+  let getepsf = function
+    Eps t -> t
+    | _ -> 0.0
+  in function
+      [] -> 0.0
+  | b::bs -> max(getepsf b) (geteps bs);;
+
+let (has_penalty,penalty) = 
+  let penalties iqd =  
+    filter (function Penalty _ -> true | _ -> false) iqd.tags in
+  let hasp iqd = (List.length (penalties iqd) >0) in
+  let onep iqd = if (hasp iqd) then hd(penalties iqd) else Penalty (0.0,0.0) in
+  (hasp,onep);;
+
+let penalty_var iqd = 
+   let penalty_ub = function Penalty(a,_) -> string_of_float a in
+   ["0.0","penalty",penalty_ub (penalty iqd)];;
+
+let penalty_wt iqd = if has_penalty iqd then
+  match (penalty iqd) with
+      Penalty(_,b) -> (string_of_float b)^" * penalty" 
+else "0.0";;
+
+let rec cfsqp_branch = function
+  | [] -> 0
+  | Cfsqp_branch i ::_ -> i
+  | _::a -> cfsqp_branch a;;
+
+let move_first i ls = 
+  let (a,b::xs) = chop_list i ls in
+  b::(a @ xs);;
+
+let cc_main =  
+"\n\nint main(){
+  //Mathematica generated test data
+  assert(near (pi(),4.0*atan(1.0)));
+  assert(near (sqrt2(),1.41421356237309));
+  assert(near (sqrt8(),2.828427124746190));
+  assert(near (sol0(),0.5512855984325308));
+  assert(near (tau0(),1.54065864570856));
+  assert(near (acos(0.3),1.26610367277949));
+  assert(near(hminus(),1.2317544220903216));
+  assert(near(hplus(),1.3254));
+  assert(near(mm1(),1.012080868420655));
+  assert(near(mm2(),0.0254145072695089));
+  assert(near(real_pow(1.18,2.),1.3924));
+  assert(near(marchal_quartic(1.18),0.228828103048681825));
+  assert(near(lmfun(1.18),0.30769230769230793));
+  assert(near(lmfun(1.27),0.0));
+  assert(near(rad2_x(4.1,4.2,4.3,4.4,4.5,4.6),1.6333363881302794));
+  assert(near(dih_y(2.1,2.2,2.3,2.4,2.5,2.6),1.1884801338917963));
+  assert(near(sol_y(2.1,2.2,2.3,2.4,2.5,2.6), 0.7703577405137815));
+  assert(near(sol_y(2, 2, 2, 2.52, 3.91404, 3.464),4.560740765722419));
+  assert(near(taum(2.1,2.2,2.3,2.4,2.5,2.6),tau_m(2.1,2.2,2.3,2.4,2.5,2.6) ));
+  assert(near(taum(2.1,2.2,2.3,2.4,2.5,2.6),tau_m_alt(2.1,2.2,2.3,2.4,2.5,2.6) ));
+  assert(near(taum(2.1,2.2,2.3,2.4,2.5,2.6),0.4913685097602183));
+  assert(near(taum(2, 2, 2, 2.52, 3.91404, 3.464),4.009455167289888));
+  assert(near(ups_x(4.1,4.2,4.3), 52.88));
+  assert(near(eta_y(2.1,2.2,2.3), 1.272816758217772));
+  assert(near(beta_bump_force_y(2.1,2.2,2.3,2.4,2.5,2.6), 
+    -0.04734449962124398));
+  assert(near(beta_bump_force_y(2.5,2.05,2.1,2.6,2.15,2.2), 
+    beta_bump_y(2.5,2.05,2.1,2.6,2.15,2.2)));
+  assert(near(atn2(1.2,1.3),atan(1.3/1.2)));
+  assert(near(edge_flat(2.1,2.2,2.3,2.5,2.6),4.273045018670291));
+  assert(near(flat_term(2.1),-0.4452691371955056));
+  assert(near(enclosed(2.02,2.04,2.06,2.08,2.1,2.12,2.14,2.16,2.18), 
+    3.426676872737882));
+  assert(near(mdtau_y (2.1,2.2,2.3,2.4,2.5,2.6),mdtau (2.1,2.2,2.3,2.4,2.5,2.6)));
+  assert(near(mdtau2_y (2.1,2.2,2.3,2.4,2.5,2.6),mdtau2 (2.1,2.2,2.3,2.4,2.5,2.6)));
+}\n\n";;
+
+let cc_code outs iqd = 
+  let (b,vs,i) = c_dest_ineq iqd.ineq in
+  let vs = vs @ if (has_penalty iqd) then penalty_var iqd else [] in
+  let branch = cfsqp_branch iqd.tags in
+  let i = move_first branch i in
+  let eps = geteps (iqd.tags) in 
+  let casep = if has_penalty iqd then "max(0.0,penalty)" else "0.0" in
+  let nvs = List.length vs in
+  let ni = List.length i in
+  let y = "y_mangle__" in 
+  let p = Printf.sprintf in
+  let s = join_lines ([
+    p"// This code is machine generated ";
+    p"#include <iomanip.h>\n#include <iostream.h>\n#include <math.h>";
+    p"#include \"../Minimizer.h\"\n#include \"../numerical.h\"";
+    p"#include <assert.h>";
+    p"class trialdata { public: trialdata(Minimizer M,char* s)";
+    p"{ M.coutReport(s); };};";
+    p"int trialcount = %d;\n"  (!cfsqp_trialcount);
+    join_lines(map cc_function (!autogen));
+    p"void c0(int numargs,int whichFn,double* %s, double* ret,void*) {" y; 
+    vardecl y vs ;
+    p"switch(whichFn) {";
+    ] @ map (case casep i) (1-- (-1 + List.length i)) @ [
+    p"default: *ret = 0; break; }}\n\n";
+    p"void t0(int numargs,int whichFn,double* %s, double* ret,void*) { " y;  
+    vardecl y vs ;
+    p"*ret = (%e) + (%s) + (%s);" eps (List.nth i 0) (penalty_wt iqd);
+    p"}";
+    p"Minimizer m0() {";
+    p"  double xmin[%d]= {" nvs;(bounds (function (a,b,c) -> a) vs); 
+    p "};\n  double xmax[%d]= {" nvs; (bounds (function (a,b,c) -> c) vs); 
+    p "};\n	Minimizer M(trialcount,%d,%d,xmin,xmax);" nvs (ni-1);
+    p"	M.func = t0;";
+    p"	M.cFunc = c0;";
+    p"	return M;";
+    p"}";
+    p "trialdata d0(m0(),\"%s\");\n\n"  iqd.idv;
+    p"int near(double x,double y)";
+    p"  { double eps = 1.0e-8; return (mabs(x-y)<eps); }";
+    ]) in
+  Printf.fprintf outs "%s %s" s cc_main;;  
+
+let mk_cc tmpfile iqd = 
+  let outs = open_out tmpfile in
+  let _ = cc_code outs iqd in
+   close_out outs ;;
+
+let compile () = 
+  let err = "/tmp/cfsqp_err.txt" in
+  let e = Sys.command("cd "^flyspeck_dir^"/../cfsqp; make tmp/t.o >& "^err) in
+  let _ =   (e=0) or (Sys.command ("cat "^err); failwith "compiler error ") in
+    ();;
+
+ let execute_cfsqp idq = 
+  let cfsqp_dir = flyspeck_dir^"/../cfsqp" in
+  let _ =  mk_cc (cfsqp_dir ^ "/tmp/t.cc") idq in
+  let _ = try (compile()) with Failure s -> failwith (s^idq.idv) in 
+  let _ = (0=  Sys.command(cfsqp_dir^"/tmp/t.o | tee /tmp/cfsqp.out")) or
+    failwith ("execution error "^idq.idv) in
+  let s = process_to_string "grep 'NEGATIVE' /tmp/cfsqp.out" in
+  let _ =  (s="") or failwith ("NEGATIVE "^idq.idv) in
+    ();;
+
+ let execute_cfsqp_list xs = 
+   let fails = ref [] in
+   let _ = for i=0 to (List.length xs - 1) 
+      do 
+	try  (execute_cfsqp (List.nth xs i); Sys.command("date"); ())
+	with Failure s -> (fails := s :: (!fails)) done in
+     fails;;
+
+(* ========================================
+
+dreal generation 
+======================================== *)
+
+
+let dreal_formula_string_of_term t = 
+  let rec soh t =
+    if is_var t then fst (dest_var t) else
+      let (f,xs) = strip_comb t in
+      let ifix i = let [a;b] = xs in paren(i ^ " " ^ soh a ^ " " ^ soh b) in
+      let fv = 
+	if is_var f 
+	then
+	  let fv = fst(dest_var f) in
+	  let _ = warn true ("variable function name: "^fv) in
+	    fv
+	else if is_const f then fst (dest_const f) 
+	else 
+	  failwith ("var or const expected: " ^ string_of_term f) in
+	match fv with
+	  | "real_sub" -> ifix "- "
+	  | "real_add" -> ifix "+"
+	  | "real_mul" -> ifix "*"
+	  | "real_div" -> ifix "/"
+	  | "real_lt" -> ifix "<"
+	  | "real_le" -> ifix "<="
+	  | "real_gt" -> ifix ">"
+	  | "real_ge" -> ifix ">="
+	  | "real_pow" -> ifix " ^ "
+	  | "/\\" -> ifix "&&"
+	  | "\\/" -> ifix "or"
+    | "hminus" -> "1.2317544220903216"
+    | "pi" -> "3.14159265"
+    | "sqrt" -> let [a] = xs in paren("^ " ^ soh a ^ " 0.5")
+    | "atn" -> let [a] = xs in paren("arctan (" ^ soh a ^ ")")
+    | "asn" -> let [a] = xs in paren("arcsin (" ^ soh a ^ ")")
+    | "acs" -> let [a] = xs in paren("arccos (" ^ soh a ^ ")")
+    | "tan" -> let [a] = xs in paren("tan (" ^ soh a ^ ")")
+    | "sin" -> let [a] = xs in paren("sin (" ^ soh a ^ ")")
+    | "cos" -> let [a] = xs in paren("cos (" ^ soh a ^ ")")
+	  | "real_neg" -> let [a] = xs in paren("- " ^ soh a)
+	  | "real_of_num" -> let [a] = xs in (soh a) ^ "0"
+	  | "NUMERAL" -> let [_] = xs in (string_of_num' (dest_numeral t)) ^ "0"
+	  | "=" -> let [a;b] = xs in soh a ^ " = " ^ soh b
+	  | "," -> let [a;b] = xs in paren( soh a ^ "," ^ soh b)
+	  | "DECIMAL" ->  (string_of_num' (dest_decimal t)) ^ "0"
+	  | "COND" -> 
+	      let [a;b;c] = xs in 
+(*
+		paren("ite "^( paren(soh a)) ^ 
+			" " ^ (paren (soh b)) ^ 
+			" " ^ (paren(soh c)) )
+*)
+		paren("if "^( paren(soh a)) ^ 
+			" then " ^ (paren (soh b)) ^ 
+			" else " ^ (paren(soh c)) )
+	  | "domain6" -> let [h;f;g] = xs in domain6 soh h f g
+	  | s -> 
+    let _ = print_string (s ^ " ") in 
+    paren (" " ^ s ^ " " ^ join_space(map (paren o soh) xs) ^ " ")
+  and domain6 soh h f g = 
+    let (hv,hbody) = strip_abs h in
+    let (f1,xs) = strip_comb f in
+    let vs a = join_space (map (fst o dest_var) a) in
+    let hbodys = soh hbody in
+    let fs = fst(dest_const f1) in
+    let gs = soh g in
+      (Printf.sprintf 
+	 " %s %s = \n  let _ = ( %s ) or failwith \"domain6:%s\" in \n
+      ( %s ) %s" fs (vs (xs @ hv)) hbodys fs gs (vs hv)) in
+    try 
+      paren (soh (strip_let_tm (prep_term t)))
+    with Failure s -> failwith (s^" .......   "^string_of_term t);;
+
+ let yy6 =  [`y1:real`;`y2:real`;`y3:real`;`y4:real`;`y5:real`;`y6:real`];;
+ let yy9 = yy6 @ [`y7:real`;`y8:real`;`y9:real`];;
+
+(* The functions dreal_formula_to_string() and var_to_string() are the same except that var_to_string() includes
+   a special case to print intervals in the correct order. *)
+let var_to_string t = 
+  let rec soh t =
+    if is_var t then fst (dest_var t) else
+      let (f,xs) = strip_comb t in
+      let ifix i = let [a;b] = xs in paren(i ^ " " ^ soh a ^ " " ^ soh b) in
+      let fv = 
+	if is_var f 
+	then
+	  let fv = fst(dest_var f) in
+	  let _ = warn true ("variable function name: "^fv) in
+	    fv
+	else if is_const f then fst (dest_const f) 
+	else 
+	  failwith ("var or const expected: " ^ string_of_term f) in
+	match fv with
+	  | "real_sub" -> 
+      let [a;b] = xs in string_of_float(float_of_string(soh a) -. float_of_string(soh b)) ^ "0"
+	  | "real_add" -> 
+      let [a;b] = xs in string_of_float(float_of_string(soh a) +. float_of_string(soh b)) ^ "0"
+	  | "real_mul" -> 
+      let [a;b] = xs in string_of_float(float_of_string(soh a) *. float_of_string(soh b)) ^ "0"
+	  | "real_div" -> 
+      let [a;b] = xs in string_of_float(float_of_string(soh a) /. float_of_string(soh b)) ^ "0"
+	  | "real_lt" -> ifix "<"
+	  | "real_le" -> ifix "<="
+	  | "real_gt" -> ifix ">"
+	  | "real_ge" -> ifix ">="
+	  | "real_pow" -> 
+      let [a;b] = xs in string_of_float(float_of_string(soh a) ** float_of_string(soh b)) ^ "0"
+	  | "/\\" -> ifix "&&"
+	  | "\\/" -> ifix "or"
+    | "hminus" -> "1.2317544220903216"
+    | "pi" -> "3.14159265"
+    | "sqrt" -> 
+      let [a] = xs in string_of_float(float_of_string(soh a) ** 0.5) ^ "0"
+    | "atn" -> 
+      let [a] = xs in string_of_float(Pervasives.atan(float_of_string(soh a))) ^ "0"
+    | "asn" -> 
+      let [a] = xs in string_of_float(Pervasives.asin(float_of_string(soh a))) ^ "0"
+    | "acs" -> 
+      let [a] = xs in string_of_float(Pervasives.acos(float_of_string(soh a))) ^ "0"
+    | "tan" -> 
+      let [a] = xs in string_of_float(Pervasives.tan(float_of_string(soh a))) ^ "0"
+    | "sin" -> 
+      let [a] = xs in string_of_float(Pervasives.sin(float_of_string(soh a))) ^ "0"
+    | "cos" -> 
+      let [a] = xs in string_of_float(Pervasives.cos(float_of_string(soh a))) ^ "0"
+	  | "real_neg" -> let [a] = xs in string_of_float(-. float_of_string(soh a)) ^ "0"
+	  | "real_of_num" -> let [a] = xs in (soh a) ^ "0"
+	  | "NUMERAL" -> let [_] = xs in (string_of_num' (dest_numeral t)) ^ "0"
+	  | "=" -> let [a;b] = xs in soh a ^ " = " ^ soh b
+    (* Special case used to print out variable declarations. *)
+	  | "," -> let [a;b] = xs in 
+  if is_var a
+  then (soh (b) ^ "] " ^ soh a)
+  else (soh (a) ^ "," ^ soh b)
+	  | "DECIMAL" ->  (string_of_num' (dest_decimal t)) ^ "0"
+	  | "COND" -> 
+	      let [a;b;c] = xs in 
+		paren("if "^( paren(soh a)) ^ 
+			" then " ^ (paren (soh b)) ^ 
+			" else " ^ (paren(soh c)) )
+		(* note reverse order atan2 in ocaml *) 
+	  | "domain6" -> let [h;f;g] = xs in domain6 soh h f g
+    | "CONS" -> let [a;b] = xs in ("[" ^ soh a ^ ";\n" ^ soh b)
+    | "NIL" -> ""
+	  | s -> paren (" " ^ s ^ " " ^ join_space(map (paren o soh) xs) ^ " ")
+  and domain6 soh h f g = 
+    let (hv,hbody) = strip_abs h in
+    let (f1,xs) = strip_comb f in
+    let vs a = join_space (map (fst o dest_var) a) in
+    let hbodys = soh hbody in
+    let fs = fst(dest_const f1) in
+    let gs = soh g in
+      (Printf.sprintf 
+	 " %s %s = \n  let _ = ( %s ) or failwith \"domain6:%s\" in \n
+      ( %s ) %s" fs (vs (xs @ hv)) hbodys fs gs (vs hv)) in
+    try 
+      soh t
+    with Failure s -> failwith (s^" .......   "^string_of_term t);;
+
+let (counter,counter_reset) = 
+      let ineqcounter = ref 0 in
+      let counter t = 
+	let u = !ineqcounter in 
+	let _ =  ineqcounter := u+1 in 
+	  u in
+      let counter_reset _ =  (ineqcounter := 0) in
+	(counter,counter_reset);;
+
+let mk_dreal_ineq rev iqd = 
+    let ineq = iqd.ineq in
+  let c = counter() in
+  let t = snd(strip_forall  (ineq)) in
+  let (vs,i) = dest_comb t  in
+  let (_,vs) = dest_comb vs in
+  let (f,xs) = strip_comb vs in
+  let (dart,_) = dest_const f in
+  let i' = i in
+  let l = prep_term vs in
+  let vars = var_to_string (prep_term l) in
+  let p = Printf.sprintf in
+  let trans = paren ("not " ^ (dreal_formula_string_of_term (strip_let_tm (prep_term i')))) in
+  let s =   p"/* \n ineq%d 'ID[%s]' \n */ \n  %s \n  (%s);\n\n" 
+    (c) iqd.idv vars trans in
+  (* Print range, formula, and dr files. *)
+  let _ = output_filestring ("/tmp/" ^ (string_of_int c) ^ ".range") (vars) in
+  let _ = output_filestring ("/tmp/" ^ (string_of_int c) ^ ".formula") (paren(trans) ^ ";") in
+  let _ = output_filestring ("/tmp/" ^ (string_of_int c) ^ ".dr") (s) in
+    "";;
+
+let mk_dreal_ineq_id rev s = 
+  let iqd = Ineq.getexact s in mk_dreal_ineq rev (hd iqd);;
+
+let test_domain_symmetry idq = 
+  let ineq = idq.ineq in
+  let dart = List.nth (snd(strip_comb (snd(strip_forall ineq)))) 0 in
+  let dom = map(fun (a,(b,c)) -> (a,c)) (map (fun (a,b) -> (a,dest_pair b)) 
+     (map dest_pair 
+     (dest_list(snd(dest_eq(
+		      concl(REWRITE_CONV(!Ineq.dart_classes) dart))))))) in
+  let nth = List.nth in
+    ((nth dom 1 = nth dom 2) & (nth dom 4 = nth dom 5)) or 
+      failwith "domain asym";;
+
+let lpstring() = 
+  let _ = counter_reset() in
+  let _ = map test_domain_symmetry (Ineq.getfield Lpsymmetry) in
+  join_lines 
+    (map (mk_dreal_ineq false) (!Ineq.ineqs));;
+(*
+    (map (mk_dreal_ineq false) (Ineq.getexact "8055810915"));;
+    (map (mk_dreal_ineq false) ([List.nth !Ineq.ineqs 0]));;
+*)
+
+let _ = lpstring();;
+
+
+
+
+(* ========================================
+
+LaTeX  generation 
+======================================== *)
+
+let mk_texstring (tm,idv,s) = match tm with
+  | Section -> "\\section{"^idv^" "^s^"}\n" 
+  | Comment -> "\\begin{remark}["^idv^"]\n"^s^"\n\\end{remark}\n"
+  | Ineqdoc -> "\\begin{calculation}["^idv^"]\n"^s^"\n\\end{calculation}\n";;
+
+let texstring() = join_lines (map mk_texstring (List.rev (!Ineq.ineqdoc)));;
+
+output_filestring "/tmp/ineqdoc.tex" (texstring());;
+
+
+end;;
