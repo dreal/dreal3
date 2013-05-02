@@ -2,14 +2,14 @@
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
 
-open BatPervasives
+open Batteries
 
 exception SMTException of string
 
 type t = Smt2_cmd.t list
 
 let print out smt =
-  BatList.print
+  List.print
     ~first: ""
     ~sep:"\n"
     ~last:"\n"

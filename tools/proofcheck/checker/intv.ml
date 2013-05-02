@@ -1,3 +1,4 @@
+open Batteries
 include Interval
 type t = interval
 
@@ -15,7 +16,7 @@ let left_bound {low=l; high=h} = l
 let right_bound {low=l; high=h} = h
 
 let equals {low = l1; high = h1} {low = l2; high = h2} : bool
-    = (BatFloat.compare l1 l2) = 0 && (BatFloat.compare h1 h2) = 0
+    = (Float.compare l1 l2) = 0 && (Float.compare h1 h2) = 0
 
 let join = Interval.union_I_I
 
@@ -27,10 +28,4 @@ let contain_pz {low = l; high = h} = h >= 0.0
 let contain_nz {low = l; high = h} = l <= 0.0
 
 let print out {low=l; high=h} =
-  begin
-    BatString.print out "[";
-    BatFloat.print  out l;
-    BatString.print out ", ";
-    BatFloat.print  out h;
-    BatString.print out "]"
-  end
+  Printf.fprintf out "[%f, %f]" l h

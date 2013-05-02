@@ -1,41 +1,42 @@
+open Batteries
 open Intv
 
-let src = BatGlobal.empty "src"      (* trace name *)
-let prec = BatGlobal.empty "prec"
+let src = Global.empty "src"      (* trace name *)
+let prec = Global.empty "prec"
 let fail_counter = ref 0
 let fc () = incr fail_counter; !fail_counter
 
 let print_msg prec f e eval =
-  let out = BatIO.stdout in
+  let out = IO.stdout in
   begin
-    BatString.println out "The following constraint is SAT:";
-    BatString.println out "============================";
-    BatString.println out "Constraint: ";
+    String.println out "The following constraint is SAT:";
+    String.println out "============================";
+    String.println out "Constraint: ";
     Basic.print_formula out f;
-    BatString.println out "";
-    BatString.println out "============================";
-    BatString.print out   "Precision = ";
-    BatFloat.print out prec;
-    BatString.println out   "";
-    BatString.println out "============================";
-    BatString.println out "Assignments: ";
+    String.println out "";
+    String.println out "============================";
+    String.print out   "Precision = ";
+    Float.print out prec;
+    String.println out   "";
+    String.println out "============================";
+    String.println out "Assignments: ";
     Env.print out e;
-    BatString.println out "============================";
-    BatString.println out "Eval Result = ";
+    String.println out "============================";
+    String.println out "Eval Result = ";
     Intv.print out eval;
-    BatString.println out "\n============================";
+    String.println out "\n============================";
   end
 
 let get_new_filename () =
-  let tracename = (BatGlobal.get_exn src) in
-  let idx = BatString.rfind tracename ".trace" in
-  let basename = BatString.left tracename idx in
+  let tracename = (Global.get_exn src) in
+  let idx = String.rfind tracename ".trace" in
+  let basename = String.left tracename idx in
   (basename ^ "_" ^ (string_of_int (fc())) ^ ".smt2")
 
 let create_smt e fs prec =
   let vardecls = Env.to_list e in
   let (smt2_declvars, smt2_assertvars) =
-    BatList.split
+    List.split
       (List.fold_left
          (fun result (name, {low = l; high = h}) ->
            let df = Smt2_cmd.DeclareFun name in
@@ -49,27 +50,27 @@ let create_smt e fs prec =
              | true -> []
              | false -> [Smt2_cmd.make_ub name h]
            in
-           (df, BatList.concat [vd_lb;vd_ub])::result)
+           (df, List.concat [vd_lb;vd_ub])::result)
          []
          vardecls)
   in
   let smt2_assert_fs =
     Smt2_cmd.Assert (Basic.And fs)
   in
-  BatList.concat
+  List.concat
     [[Smt2_cmd.SetLogic Smt2_cmd.QF_NRA;
       Smt2_cmd.SetInfo (":precision", string_of_float prec)];
      smt2_declvars;
-     BatList.concat smt2_assertvars;
+     List.concat smt2_assertvars;
      [smt2_assert_fs];
      [Smt2_cmd.CheckSAT;
       Smt2_cmd.Exit]]
 
 let split_on_x key env : (Env.t * Env.t) =
   let vardecls = Env.to_list env in
-  let vardecls_pairs = BatList.combine vardecls vardecls in
+  let vardecls_pairs = List.combine vardecls vardecls in
   let vardecls_pairs' =
-    BatList.map
+    List.map
       (fun ((name1, {low = l1; high = h1}), (name2, {low = l2; high = h2}))
       -> if (key = name1) then
           let mid = ((l1 +. h1) /. 2.0) in
@@ -79,19 +80,19 @@ let split_on_x key env : (Env.t * Env.t) =
       )
       vardecls_pairs
   in
-  let (vardecls1, vardecls2) = BatList.split vardecls_pairs' in
+  let (vardecls1, vardecls2) = List.split vardecls_pairs' in
   (Env.make vardecls1, Env.make vardecls2)
 
 let split_env e fs prec : (Env.t * Env.t * float) =
   let vars_in_fs =
     List.fold_left
-      BatSet.union
-      BatSet.empty
-      (BatList.map Basic.collect_var_in_f fs) in
+      Set.union
+      Set.empty
+      (List.map Basic.collect_var_in_f fs) in
   let vardecls = Env.to_list e in
   let vardecls_filtered =
     List.filter (fun (name, _) ->
-      BatSet.mem name vars_in_fs && not (BatString.starts_with name "ITE_"))
+      Set.mem name vars_in_fs && not (String.starts_with name "ITE_"))
       vardecls in
   let diff_list = List.map (fun (name, i) -> (name, Interval.size_I i)) vardecls_filtered in
   let (max_key, intv_size) =
@@ -105,17 +106,17 @@ let split_env e fs prec : (Env.t * Env.t * float) =
       diff_list
   in
   let (e1, e2) = split_on_x max_key e in
-  let new_prec = BatList.min [intv_size /. 4.0; prec] in
+  let new_prec = List.min [intv_size /. 4.0; prec] in
   (e1, e2, new_prec)
 
 let handle e fs fl =
-  let prec = BatGlobal.get_exn prec in
+  let prec = Global.get_exn prec in
   begin
     let (e1, e2, new_prec) = split_env e fs prec in
     List.iter
       (fun env ->
         let smt2 = create_smt env fl new_prec in
-        BatFile.with_file_out
+        File.with_file_out
           (get_new_filename ())
           (fun out -> Smt2.print out smt2))
       [e1; e2]

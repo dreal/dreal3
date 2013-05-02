@@ -1,6 +1,7 @@
 (*
    Soonho Kong, soonhok@cs.cmu.edu
 *)
+open Batteries
 exception Error of string
 
 let num_of_proved_axioms = ref 0
@@ -22,11 +23,11 @@ type result = UNSAT
 
 let print_log out =
   begin
-    BatString.println out ("Proved Axioms     #: " ^ (string_of_int !num_of_proved_axioms));
-    BatString.println out ("Failed Axioms     #: " ^ (string_of_int !num_of_failed_axioms));
-    BatString.println out ("Branches          #: " ^ (string_of_int !num_of_branches));
-    BatString.println out ("Trivial Prune     #: " ^ (string_of_int !num_of_trivial_pruning));
-    BatString.println out ("non-trivial Prune #: " ^ (string_of_int !num_of_non_trivial_pruning));
+    String.println out ("Proved Axioms     #: " ^ (string_of_int !num_of_proved_axioms));
+    String.println out ("Failed Axioms     #: " ^ (string_of_int !num_of_failed_axioms));
+    String.println out ("Branches          #: " ^ (string_of_int !num_of_branches));
+    String.println out ("Trivial Prune     #: " ^ (string_of_int !num_of_trivial_pruning));
+    String.println out ("non-trivial Prune #: " ^ (string_of_int !num_of_non_trivial_pruning));
   end
 
 let extract_env p = match p with
@@ -41,15 +42,15 @@ let check_axiom (e : env) (f : formula) : result =
     let taylor_result = Func.taylor env (Basic.Sub [exp1; exp2]) in
     let result = Intv.meet intv_result taylor_result in
     begin
-      BatString.print   BatIO.stdout "Interval Arithmetic = ";
-      Intv.print        BatIO.stdout intv_result;
-      BatString.println BatIO.stdout "";
-      BatString.print   BatIO.stdout "Taylor Bounds       = ";
-      Intv.print        BatIO.stdout taylor_result;
-      BatString.println BatIO.stdout "";
-      BatString.print   BatIO.stdout "Join                = ";
-      Intv.print        BatIO.stdout result;
-      BatString.println BatIO.stdout "";
+      String.print   IO.stdout "Interval Arithmetic = ";
+      Intv.print        IO.stdout intv_result;
+      String.println IO.stdout "";
+      String.print   IO.stdout "Taylor Bounds       = ";
+      Intv.print        IO.stdout taylor_result;
+      String.println IO.stdout "";
+      String.print   IO.stdout "Join                = ";
+      Intv.print        IO.stdout result;
+      String.println IO.stdout "";
       result
     end
   in
@@ -88,14 +89,14 @@ let rec check (pt : t) (fl : formula list) =
       | true -> (incr num_of_branches; check pt1 fl; check pt2 fl)
       | false ->
         begin
-          BatString.println BatIO.stdout "Env: ";
-          Env.print BatIO.stdout env;
-          BatString.println BatIO.stdout "Env1: ";
-          Env.print BatIO.stdout env1;
-          BatString.println BatIO.stdout "Env2: ";
-          Env.print BatIO.stdout env2;
-          BatString.println BatIO.stdout "Env Join: ";
-          Env.print BatIO.stdout env_join;
+          String.println IO.stdout "Env: ";
+          Env.print IO.stdout env;
+          String.println IO.stdout "Env1: ";
+          Env.print IO.stdout env1;
+          String.println IO.stdout "Env2: ";
+          Env.print IO.stdout env2;
+          String.println IO.stdout "Env Join: ";
+          Env.print IO.stdout env_join;
           raise (Error "Branch")
         end
     end

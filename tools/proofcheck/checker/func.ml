@@ -1,10 +1,11 @@
+open Batteries
 open Intv
 exception FuncException of string
 type t = Basic.exp
 
-let rec eval (e : (string, float) BatMap.t) (f : t) : float
+let rec eval (e : (string, float) Map.t) (f : t) : float
     = match f with
-      Basic.Var x -> BatMap.find x e
+      Basic.Var x -> Map.find x e
     | Basic.Num n -> n
     | Basic.Neg f' -> -. (eval e f')
     | Basic.Add fl ->
@@ -103,7 +104,7 @@ let rec apply (e : Env.t) (f : t) : Intv.t
         else
           []
       in
-      BatList.reduce Intv.meet (List.flatten [pos_part;neg_part;zero_part])
+      List.reduce Intv.meet (List.flatten [pos_part;neg_part;zero_part])
 
     | Basic.Sinh f' -> sinh_I (apply e f')
     | Basic.Cosh f' -> cosh_I (apply e f')
@@ -113,7 +114,7 @@ let print out = Basic.print_exp out
 
 let rec taylor (e : Env.t) (f : t) : Intv.t =
   try
-    let keys : Env.key list = BatList.of_enum (Env.keys e) in
+    let keys : Env.key list = List.of_enum (Env.keys e) in
     let derivs : Basic.exp list = List.map (fun key -> Basic.deriv f key) keys in
     let applied : Intv.t list = List.map (fun deriv -> apply e deriv) derivs in
     let widths : float list=
@@ -121,22 +122,22 @@ let rec taylor (e : Env.t) (f : t) : Intv.t =
         (fun key -> let intv = Env.find key e in Intv.width intv)
         keys
     in
-    let terms : Intv.t list = BatList.map2 ( *$. ) applied widths in
-    let vec_a : (string, float) BatMap.t = Env.left_bound e in
+    let terms : Intv.t list = List.map2 ( *$. ) applied widths in
+    let vec_a : (string, float) Map.t = Env.left_bound e in
     let f_of_vec_a : float = eval vec_a f in
-    let out = BatIO.stdout in
+    let out = IO.stdout in
     begin
-      BatString.print out "f = ";
+      String.print out "f = ";
       print out f;
-      BatString.println out "";
+      String.println out "";
 
-      BatString.print out "derivs = ";
-      BatList.print print out derivs;
-      BatString.println out "";
+      String.print out "derivs = ";
+      List.print print out derivs;
+      String.println out "";
 
-      BatString.print out "f(a) = ";
-      BatFloat.print out f_of_vec_a;
-      BatString.println out "";
+      String.print out "f(a) = ";
+      Float.print out f_of_vec_a;
+      String.println out "";
       List.fold_left (+$) (Intv.make f_of_vec_a f_of_vec_a) terms
     end
   with Basic.DerivativeNotFound -> Intv.top
