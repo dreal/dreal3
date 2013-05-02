@@ -6,7 +6,7 @@ type trend = Inc | Dec | Const | Unknown (* for monotone *)
 
 let print out = Basic.print_exp out
 
-let apply_depth_limit = 2
+let apply_depth_limit = 0
 
 let rec real_eval (e : (string, float) Map.t) (f : t) : float
     = match f with
@@ -53,6 +53,7 @@ let rec real_eval (e : (string, float) Map.t) (f : t) : float
     | Basic.Tanh f' -> tanh (real_eval e f')
 
 let rec apply (e : Env.t) (f : t) (d : int) : Intv.t =
+  Printf.printf "Apply %s %d\n" (IO.to_string Basic.print_exp f) d;
   let heuristics =
     match d > apply_depth_limit with
       true -> [intv_eval]
@@ -62,7 +63,9 @@ let rec apply (e : Env.t) (f : t) (d : int) : Intv.t =
   List.reduce Intv.meet results
 
 and intv_eval (e : Env.t) (f : t) (d : int) : Intv.t
-    = match f with
+    = 
+    Printf.printf "intv_eval %s %d\n" (IO.to_string Basic.print_exp f) d;
+    match f with
       Basic.Var x -> Env.find x e
     | Basic.Num n -> Intv.make n n
     | Basic.Neg f' -> ~-$ (apply e f' d)
@@ -125,6 +128,7 @@ and intv_eval (e : Env.t) (f : t) (d : int) : Intv.t
     | Basic.Tanh f' -> tanh_I (apply e f' d)
 
 and taylor (e : Env.t) (f : t) (d : int) : Intv.t =
+  Printf.printf "taylor %s %d\n" (IO.to_string Basic.print_exp f) d;
   try
     let keys : Env.key list = List.of_enum (Env.keys e) in
     let derivs : Basic.exp list = List.map (fun key -> Basic.deriv f key) keys in
@@ -146,6 +150,7 @@ and taylor (e : Env.t) (f : t) (d : int) : Intv.t =
   with Basic.DerivativeNotFound -> Intv.top
 
 and monotone (e : Env.t) (f : t) (d : int) : Intv.t =
+  Printf.printf "monotone %s %d\n" (IO.to_string Basic.print_exp f) d;
   let get_sign {low=l; high=h} =
     match (h <= 0.0, l >= 0.0) with
     | (true, true) -> Const
