@@ -47,39 +47,39 @@ let rec eval (e : (string, float) Map.t) (f : t) : float
     | Basic.Cosh f' -> cosh (eval e f')
     | Basic.Tanh f' -> tanh (eval e f')
 
-let rec apply (e : Env.t) (f : t) : Intv.t
+let rec intv_eval (e : Env.t) (f : t) : Intv.t
     = match f with
       Basic.Var x -> Env.find x e
     | Basic.Num n -> Intv.make n n
-    | Basic.Neg f' -> ~-$ (apply e f')
+    | Basic.Neg f' -> ~-$ (intv_eval e f')
     | Basic.Add fl ->
-      List.fold_left (+$) Interval.zero_I (List.map (apply e) fl)
+      List.fold_left (+$) Interval.zero_I (List.map (intv_eval e) fl)
     | Basic.Sub (f1::rest) ->
-      (apply e f1) -$ (apply e (Basic.Add rest))
+      (intv_eval e f1) -$ (intv_eval e (Basic.Add rest))
     | Basic.Sub [] -> raise (FuncException "Subtraction without Arguments!")
     | Basic.Mul fl ->
-      List.fold_left ( *$ ) Interval.one_I (List.map (apply e) fl)
-    | Basic.Div (f1, f2) -> (apply e f1) /$ (apply e f2)
+      List.fold_left ( *$ ) Interval.one_I (List.map (intv_eval e) fl)
+    | Basic.Div (f1, f2) -> (intv_eval e f1) /$ (intv_eval e f2)
     | Basic.Ite _ -> raise (FuncException "ITE is not supported!")
-    | Basic.Pow (f', Basic.Num n) -> (apply e f') **$. n
-    | Basic.Pow (f1, f2) -> (apply e f1) **$ (apply e f2)
-    | Basic.Sqrt f' -> sqrt_I (apply e f')
+    | Basic.Pow (f', Basic.Num n) -> (intv_eval e f') **$. n
+    | Basic.Pow (f1, f2) -> (intv_eval e f1) **$ (intv_eval e f2)
+    | Basic.Sqrt f' -> sqrt_I (intv_eval e f')
     | Basic.Safesqrt f' ->
-      let intv = apply e f' in
+      let intv = intv_eval e f' in
       let intv' = Intv.meet intv {low=0.0; high=infinity} in
       sqrt_I intv'
-    | Basic.Abs f' -> abs_I (apply e f')
-    | Basic.Log f' -> log_I (apply e f')
-    | Basic.Exp f' -> exp_I (apply e f')
-    | Basic.Sin f' -> sin_I (apply e f')
-    | Basic.Cos f' -> cos_I (apply e f')
-    | Basic.Tan f' -> tan_I (apply e f')
-    | Basic.Asin f' -> asin_I (apply e f')
-    | Basic.Acos f' -> acos_I (apply e f')
-    | Basic.Atan f' -> atan_I (apply e f')
-    | Basic.Atan2 (f1, f2) -> atan2_I_I (apply e f1) (apply e f2)
+    | Basic.Abs f' -> abs_I (intv_eval e f')
+    | Basic.Log f' -> log_I (intv_eval e f')
+    | Basic.Exp f' -> exp_I (intv_eval e f')
+    | Basic.Sin f' -> sin_I (intv_eval e f')
+    | Basic.Cos f' -> cos_I (intv_eval e f')
+    | Basic.Tan f' -> tan_I (intv_eval e f')
+    | Basic.Asin f' -> asin_I (intv_eval e f')
+    | Basic.Acos f' -> acos_I (intv_eval e f')
+    | Basic.Atan f' -> atan_I (intv_eval e f')
+    | Basic.Atan2 (f1, f2) -> atan2_I_I (intv_eval e f1) (intv_eval e f2)
     | Basic.Matan f' ->
-      let {low=l; high=h} = (apply e f') in
+      let {low=l; high=h} = (intv_eval e f') in
       let pos_part =
         if h > 0.0 then
           let sliced = {low=min_float; high=h} in
@@ -106,9 +106,9 @@ let rec apply (e : Env.t) (f : t) : Intv.t
       in
       List.reduce Intv.meet (List.flatten [pos_part;neg_part;zero_part])
 
-    | Basic.Sinh f' -> sinh_I (apply e f')
-    | Basic.Cosh f' -> cosh_I (apply e f')
-    | Basic.Tanh f' -> tanh_I (apply e f')
+    | Basic.Sinh f' -> sinh_I (intv_eval e f')
+    | Basic.Cosh f' -> cosh_I (intv_eval e f')
+    | Basic.Tanh f' -> tanh_I (intv_eval e f')
 
 let print out = Basic.print_exp out
 
@@ -116,7 +116,7 @@ let rec taylor (e : Env.t) (f : t) : Intv.t =
   try
     let keys : Env.key list = List.of_enum (Env.keys e) in
     let derivs : Basic.exp list = List.map (fun key -> Basic.deriv f key) keys in
-    let applied : Intv.t list = List.map (fun deriv -> apply e deriv) derivs in
+    let applied : Intv.t list = List.map (fun deriv -> intv_eval e deriv) derivs in
     let widths : float list=
       List.map
         (fun key -> let intv = Env.find key e in Intv.width intv)

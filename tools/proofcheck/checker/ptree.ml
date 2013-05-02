@@ -38,7 +38,7 @@ let extract_env p = match p with
 
 let check_axiom (e : env) (f : formula) : result =
   let eval env exp1 exp2 =
-    let intv_result = Func.apply env (Basic.Sub [exp1; exp2]) in
+    let intv_result = Func.intv_eval env (Basic.Sub [exp1; exp2]) in
     let taylor_result = Func.taylor env (Basic.Sub [exp1; exp2]) in
     let result = Intv.meet intv_result taylor_result in
     begin
