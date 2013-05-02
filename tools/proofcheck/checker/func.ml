@@ -6,7 +6,7 @@ type trend = Inc | Dec | Const | Unknown (* for monotone *)
 
 let print out = Basic.print_exp out
 
-let apply_depth_limit = 3
+let apply_depth_limit = 2
 
 let rec real_eval (e : (string, float) Map.t) (f : t) : float
     = match f with
@@ -142,21 +142,7 @@ and taylor (e : Env.t) (f : t) (d : int) : Intv.t =
     let terms : Intv.t list = List.map2 ( *$. ) applied widths in
     let vec_a : (string, float) Map.t = Env.left_bound e in
     let f_of_vec_a : float = real_eval vec_a f in
-    let out = IO.stdout in
-    begin
-      String.print out "f = ";
-      print out f;
-      String.println out "";
-
-      String.print out "derivs = ";
-      List.print print out derivs;
-      String.println out "";
-
-      String.print out "f(a) = ";
-      Float.print out f_of_vec_a;
-      String.println out "";
-      List.fold_left (+$) (Intv.make f_of_vec_a f_of_vec_a) terms
-    end
+    List.fold_left (+$) (Intv.make f_of_vec_a f_of_vec_a) terms
   with Basic.DerivativeNotFound -> Intv.top
 
 and monotone (e : Env.t) (f : t) (d : int) : Intv.t =

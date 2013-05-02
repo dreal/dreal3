@@ -2,6 +2,7 @@ open Batteries
 
 exception TODO
 exception DerivativeNotFound
+exception ShouldNotHappen
 
 type exp =
 | Var   of string
@@ -46,139 +47,215 @@ and formula =
 | LetE of ((string * exp) list * formula)
 
 let rec deriv (e: exp) (x: string) : exp
-    = match e with
-      Var v -> if v = x then Num 1.0 else Num 0.0
-    | Num _ -> Num 0.0
-    | Neg e' -> Neg (deriv e' x)
-    | Add es -> Add (List.map (fun e' -> deriv e' x) es)
-    | Sub es -> Sub (List.map (fun e' -> deriv e' x) es)
-    | Mul [] -> Num 0.0
+    =
+  let rec simplify e =
+    let isNum e = match e with
+        Num _ -> true
+      | _ -> false
+    in
+    match e with
+    | Var _ -> e
+    | Num _ -> e
+    | Neg e' -> Neg (simplify e')
+    | Add es ->
+      let es' = List.map simplify es in
+      let (es_num, es_nonnum) = List.partition isNum es' in
+      let e_num =
+        List.reduce
+          (fun e1 e2 -> match (e1, e2) with
+          | (Num n1, Num n2) -> Num (n1 +. n2)
+          | _ -> raise ShouldNotHappen)
+          (Num 0.0::es_num)
+      in
+      begin
+        match e_num with
+          Num 0.0 -> Add es_nonnum
+        | _ -> Add (e_num::es_nonnum)
+      end
+    | Sub [] ->
+      raise ShouldNotHappen
+    | Sub (e'::es) ->
+      Sub [simplify e';simplify (Add es)]
+    | Mul es ->
+      let es' = List.map simplify es in
+      let es'' =
+        List.filter
+          (fun e -> match e with
+            Num 1.0 -> false
+          | _ -> true)
+          es' in
+      let contain_zero =
+        List.exists
+          (fun e -> match e with
+            Num 0.0 -> true
+          | _ -> false)
+          es'' in
+      if contain_zero then
+        (Num 0.0)
+      else
+        Mul es''
+    | Div (e1, e2) ->
+      let (e1', e2') = (simplify e1, simplify e2) in
+      begin
+        match e1' with
+          Num 0.0 -> Num 0.0
+        | _ -> Div (e1', e2')
+      end
+    | Pow (e1, e2) -> Pow (simplify e1, simplify e2)
+    | Ite (f, e1, e2) -> Ite (f, simplify e1, simplify e2)
+    | Sqrt e' -> Sqrt (simplify e')
+    | Safesqrt e' -> Safesqrt (simplify e')
+    | Abs e' -> Abs (simplify e')
+    | Log e' -> Log (simplify e')
+    | Exp e' -> Exp (simplify e')
+    | Sin e' -> Sin (simplify e')
+    | Cos e' -> Cos (simplify e')
+    | Tan e' -> Tan (simplify e')
+    | Asin e' -> Asin (simplify e')
+    | Acos e' -> Acos (simplify e')
+    | Atan e' -> Atan (simplify e')
+    | Atan2 (e1, e2) -> Atan2 (simplify e1, simplify e2)
+    | Matan e' -> Matan (simplify e')
+    | Sinh e' -> Sinh (simplify e')
+    | Cosh e' -> Cosh (simplify e')
+    | Tanh e' -> Tanh (simplify e')
 
-    (** (f * g)' = f' * g +   **)
-    | Mul (f::g) ->
-      let f' = deriv f x in
-      let g' = deriv (Mul g) x in
-      Add [Mul (f'::g); Mul [f;g']]
+  in let result =
+       match e with
+         Var v -> if v = x then Num 1.0 else Num 0.0
+       | Num _ -> Num 0.0
+       | Neg e' -> Neg (deriv e' x)
+       | Add es -> Add (List.map (fun e' -> deriv e' x) es)
+       | Sub es -> Sub (List.map (fun e' -> deriv e' x) es)
+       | Mul [] -> Num 0.0
 
-    (** (f / g)' = (f' * g - f * g') / g^2 **)
-    | Div (f, g) ->
-      let f' = deriv f x in
-      let g' = deriv g x in
-      Div (Sub [Mul [f';g]; Mul [f;g']], Pow (g, Num 2.0))
+  (** (f * g)' = f' * g +   **)
+       | Mul (f::g) ->
+         let f' = deriv f x in
+         let g' = deriv (Mul g) x in
+         Add [Mul (f'::g); Mul [f;g']]
 
-    (** (f^n)' = n * f^(n-1) f' **)
-    | Pow (f, Num n) ->
-      let f' = deriv f x in
-      Mul [Num n;
-           Pow (f, Num (n -. 1.0));
-           f']
+  (** (f / g)' = (f' * g - f * g') / g^2 **)
+       | Div (f, g) ->
+         let f' = deriv f x in
+         let g' = deriv g x in
+         Div (Sub [Mul [f';g]; Mul [f;g']], Pow (g, Num 2.0))
 
-    (** In general,
-        (f^g)' = f^g (f' * g / f + g' * ln g) **)
-    | Pow (f, g) ->
-      let f' = deriv f x in
-      let g' = deriv g x in
-      Mul [Pow (f, g);
-           Add [Mul [f'; Div(g, f)] ;
-                Mul [g'; Log f]]]
+  (** (f^n)' = n * f^(n-1) f' **)
+       | Pow (f, Num n) ->
+         let f' = deriv f x in
+         Mul [Num n;
+              Pow (f, Num (n -. 1.0));
+              f']
 
-    (** No Support **)
-    | Ite _ -> raise DerivativeNotFound
+  (** In general,
+      (f^g)' = f^g (f' * g / f + g' * ln g) **)
+       | Pow (f, g) ->
+         let f' = deriv f x in
+         let g' = deriv g x in
+         Mul [Pow (f, g);
+              Add [Mul [f'; Div(g, f)] ;
+                   Mul [g'; Log f]]]
 
-    (** (sqrt(f))' = 1/2 * 1/(sqrt(f)) * f' **)
-    | Sqrt f ->
-      let f' = deriv f x in
-      Mul [Num 0.5;
-           Div (Num 1.0, Sqrt f);
-           f']
-    (** safesqrt = sqrt **)
-    | Safesqrt f -> deriv (Safesqrt f) x
+  (** No Support **)
+       | Ite _ -> raise DerivativeNotFound
 
-    (** No Support **)
-    | Abs  f -> raise DerivativeNotFound
+  (** (sqrt(f))' = 1/2 * 1/(sqrt(f)) * f' **)
+       | Sqrt f ->
+         let f' = deriv f x in
+         Mul [Num 0.5;
+              Div (Num 1.0, Sqrt f);
+              f']
+  (** safesqrt = sqrt **)
+       | Safesqrt f -> deriv (Safesqrt f) x
 
-    (** (log f)' = f' / f **)
-    | Log  f ->
-      let f' = deriv f x in
-      Div (f', f)
+  (** No Support **)
+       | Abs  f -> raise DerivativeNotFound
 
-    (** (exp f)' = (cos f) * f' **)
-    | Exp  f ->
-      let f' = deriv f x in
-      Mul [Exp f; f']
+  (** (log f)' = f' / f **)
+       | Log  f ->
+         let f' = deriv f x in
+         Div (f', f)
 
-    (** (sin f)' = (cos f) * f' **)
-    | Sin  f ->
-      let f' = deriv f x in
-      Mul [Cos f; f']
+  (** (exp f)' = (cos f) * f' **)
+       | Exp  f ->
+         let f' = deriv f x in
+         Mul [Exp f; f']
 
-    (** (cos f)' = - (sin f) * f' **)
-    | Cos  f ->
-      let f' = deriv f x in
-      Neg (Mul [Sin f; f'])
+  (** (sin f)' = (cos f) * f' **)
+       | Sin  f ->
+         let f' = deriv f x in
+         Mul [Cos f; f']
 
-    (** (tan f)' = (1 + tan^2 f) * f'  **)
-    | Tan  f ->
-      let f' = deriv f x in
-      Mul [Add [Num 1.0; Pow (Tan f, Num 2.0)];
-           f']
+  (** (cos f)' = - (sin f) * f' **)
+       | Cos  f ->
+         let f' = deriv f x in
+         Neg (Mul [Sin f; f'])
 
-    (** (asin f)' = (1 / sqrt(1 - f^2)) f' **)
-    | Asin f ->
-      let f' = deriv f x in
-      Mul [Div (Num 1.0, Sqrt(Sub [Num 1.0; Pow(f, Num 2.0)]));
-           f']
+  (** (tan f)' = (1 + tan^2 f) * f'  **)
+       | Tan  f ->
+         let f' = deriv f x in
+         Mul [Add [Num 1.0; Pow (Tan f, Num 2.0)];
+              f']
 
-    (** (acos f)' = -(1 / sqrt(1 - f^2)) f' **)
-    | Acos f ->
-      let f' = deriv f x in
-      Neg(Mul [Div (Num 1.0, Sqrt(Sub [Num 1.0; Pow(f, Num 2.0)]));
-               f'])
+  (** (asin f)' = (1 / sqrt(1 - f^2)) f' **)
+       | Asin f ->
+         let f' = deriv f x in
+         Mul [Div (Num 1.0, Sqrt(Sub [Num 1.0; Pow(f, Num 2.0)]));
+              f']
 
-    (** (atan f)' = (1 / (1 + f^2)) * f' **)
-    | Atan f ->
-      let f' = deriv f x in
-      Mul [Div (Num 1.0, Add [Num 1.0; Pow(f, Num 2.0)]);
-           f']
+  (** (acos f)' = -(1 / sqrt(1 - f^2)) f' **)
+       | Acos f ->
+         let f' = deriv f x in
+         Neg(Mul [Div (Num 1.0, Sqrt(Sub [Num 1.0; Pow(f, Num 2.0)]));
+                  f'])
 
-    (** TODO **)
+  (** (atan f)' = (1 / (1 + f^2)) * f' **)
+       | Atan f ->
+         let f' = deriv f x in
+         Mul [Div (Num 1.0, Add [Num 1.0; Pow(f, Num 2.0)]);
+              f']
 
-    (** atan2(x,y)' = -y / (x^2 + y^2) dx + x / (x^2 + y^2) dy
-                    = (-y dx + x dy) / (x^2 + y^2)
-    **)
-    | Atan2 (f, g) ->
-      let f' = deriv f x in
-      let g' = deriv g x in
-      Div (Add [Mul [Neg g; f'];
-                Mul [f; g']],
-           Add [Pow (f, Num 2.0);
-                Pow (g, Num 2.0)])
+  (** TODO **)
 
-    | Matan f -> raise DerivativeNotFound
+  (** atan2(x,y)' = -y / (x^2 + y^2) dx + x / (x^2 + y^2) dy
+      = (-y dx + x dy) / (x^2 + y^2)
+  **)
+       | Atan2 (f, g) ->
+         let f' = deriv f x in
+         let g' = deriv g x in
+         Div (Add [Mul [Neg g; f'];
+                   Mul [f; g']],
+              Add [Pow (f, Num 2.0);
+                   Pow (g, Num 2.0)])
 
-    (** (sinh f)' = (e^f + e^(-f))/2 * f' **)
-    | Sinh f ->
-      let f' = deriv f x in
-      Mul [Div (Add [Exp f; Exp (Neg f)],
-                Num 2.0);
-           f']
+       | Matan f -> raise DerivativeNotFound
 
-    (** (cosh f)' = (e^f - e^(-f))/2 * f' **)
-    | Cosh f ->
-      let f' = deriv f x in
-      Mul [Div (Sub [Exp f; Exp (Neg f)],
-                Num 2.0);
-           f']
+  (** (sinh f)' = (e^f + e^(-f))/2 * f' **)
+       | Sinh f ->
+         let f' = deriv f x in
+         Mul [Div (Add [Exp f; Exp (Neg f)],
+                   Num 2.0);
+              f']
 
-    (** (tanh f)' = (sech^2 f) * f'
-                  = ((2 * e^-f) / (1 + e^-2f)) * f'
-    **)
-    | Tanh f ->
-      let f' = deriv f x in
-      Mul [Num 2.0;
-           Div(Exp (Neg f),
-               Add [Num 1.0; Exp (Mul [Num (-2.0); f])]);
-           f']
+  (** (cosh f)' = (e^f - e^(-f))/2 * f' **)
+       | Cosh f ->
+         let f' = deriv f x in
+         Mul [Div (Sub [Exp f; Exp (Neg f)],
+                   Num 2.0);
+              f']
+
+  (** (tanh f)' = (sech^2 f) * f'
+      = ((2 * e^-f) / (1 + e^-2f)) * f'
+  **)
+       | Tanh f ->
+         let f' = deriv f x in
+         Mul [Num 2.0;
+              Div(Exp (Neg f),
+                  Add [Num 1.0; Exp (Mul [Num (-2.0); f])]);
+              f']
+     in
+     simplify result
 
 let rec count_mathfn_e =
   function
