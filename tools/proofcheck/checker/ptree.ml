@@ -39,22 +39,8 @@ let extract_env p = match p with
 let check_axiom (e : env) (f : formula) : result =
   let eval env exp1 exp2 =
     let f' = Basic.Sub [exp1; exp2] in
-    let intv_result = Func.intv_eval env f' in
-    let taylor_result = Func.taylor env f'  in
-    let monotone_result = Func.monotone env f' in
-    let result = List.reduce Intv.meet [intv_result;taylor_result;monotone_result] in
-    begin
-      String.print   IO.stdout "Interval Arithmetic = ";
-      Intv.print        IO.stdout intv_result;
-      String.println IO.stdout "";
-      String.print   IO.stdout "Taylor Bounds       = ";
-      Intv.print        IO.stdout taylor_result;
-      String.println IO.stdout "";
-      String.print   IO.stdout "Join                = ";
-      Intv.print        IO.stdout result;
-      String.println IO.stdout "";
-      result
-    end
+    let result = Func.apply e f' 0 in
+    result
   in
   let judge j v = match (j v) with
     | true ->
