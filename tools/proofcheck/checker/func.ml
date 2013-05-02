@@ -6,7 +6,7 @@ type trend = Inc | Dec | Const | Unknown (* for monotone *)
 
 let print out = Basic.print_exp out
 
-let apply_depth_limit = 10
+let apply_depth_limit = 3
 
 let rec real_eval (e : (string, float) Map.t) (f : t) : float
     = match f with
@@ -131,7 +131,7 @@ and taylor (e : Env.t) (f : t) (d : int) : Intv.t =
     let applied : Intv.t list =
       List.map
         (fun deriv -> match deriv with
-        | Basic.Num _ -> apply e deriv apply_depth_limit
+        | Basic.Num _ -> intv_eval e deriv apply_depth_limit
         | _ -> apply e deriv (d+1))
         derivs in
     let widths : float list=
@@ -172,7 +172,7 @@ and monotone (e : Env.t) (f : t) (d : int) : Intv.t =
     let derivs : Basic.exp list = List.map (fun key -> Basic.deriv f key) keys in
     let applied : Intv.t list = List.map
         (fun deriv -> match deriv with
-        | Basic.Num _ -> apply e deriv apply_depth_limit
+        | Basic.Num _ -> intv_eval e deriv apply_depth_limit
         | _ -> apply e deriv (d+1))
       derivs in
     let signs : trend list = List.map get_sign applied in
