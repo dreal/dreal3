@@ -94,6 +94,9 @@ invt:           (u >= 0);
                 (w >= 0);
                 (s >= 0);
                 (tau >= 0);
+                (EPI_TO1 >= 0);
+                (EPI_TO2 >= 0);
+                (EPI_TSI >= 0);
 
 flow:
 
@@ -102,6 +105,10 @@ flow:
               d/dt[w] = ((1.0 -(u/EPI_TWINF) - w)/(EPI_TW1M + (EPI_TW2M - EPI_TW1M) * (1/(1+exp(-2*EPI_KWM*(u - EPI_UWM))))));
               d/dt[v] = ((1.0 - v)/EPI_TV1M);
               d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS1);
+              d/dt[EPI_TO1] = 0.0;
+              d/dt[EPI_TO2] = 0.0;
+              d/dt[EPI_TSI] = 0.0;
+
 jump:
               (u >= 0.006) ==> @2 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 }
@@ -114,6 +121,9 @@ invt:
                 (w >= 0);
                 (s >= 0);
                 (tau >= 0);
+                (EPI_TO1 >= 0);
+                (EPI_TO2 >= 0);
+                (EPI_TSI >= 0);
 
 flow:
               d/dt[tau] = 1.0;
@@ -121,6 +131,9 @@ flow:
               d/dt[w] = ((0.94-w)/(EPI_TW1M + (EPI_TW2M - EPI_TW1M) * (1/(1+exp(-2*EPI_KWM*(u - EPI_UWM))))));
               d/dt[v] = (-v/EPI_TV2M);
               d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS1);
+              d/dt[EPI_TO1] = 0.0;
+              d/dt[EPI_TO2] = 0.0;
+              d/dt[EPI_TSI] = 0.0;
 jump:
                 ( u >= 0.013) ==> @3 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 
@@ -134,6 +147,9 @@ invt:
                 (w >= 0);
                 (s >= 0);
                 (tau >= 0);
+                (EPI_TO1 >= 0);
+                (EPI_TO2 >= 0);
+                (EPI_TSI >= 0);
 
 flow:
               d/dt[tau] = 1.0;
@@ -141,6 +157,9 @@ flow:
               d/dt[w] = (-w/EPI_TWP);
               d/dt[v] = (-v/EPI_TV2M);
               d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS2);
+              d/dt[EPI_TO1] = 0.0;
+              d/dt[EPI_TO2] = 0.0;
+              d/dt[EPI_TSI] = 0.0;
 jump:
                 ( u >= 0.3) ==> @4 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 }
@@ -153,6 +172,9 @@ invt:
                 (w >= 0);
                 (s >= 0);
                 (tau >= 0);
+                (EPI_TO1 >= 0);
+                (EPI_TO2 >= 0);
+                (EPI_TSI >= 0);
 
 flow:
               d/dt[tau] = 1.0;
@@ -160,10 +182,13 @@ flow:
               d/dt[w]  = (-w/EPI_TWP);
               d/dt[v]  = (-v/EPI_TVP);
               d/dt[s]  = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS2) ;
+              d/dt[EPI_TO1] = 0.0;
+              d/dt[EPI_TO2] = 0.0;
+              d/dt[EPI_TSI] = 0.0;
 jump:
                 ( u > 2.0) ==> @4 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 }
 
-init:	@1 (and (tau = 0) (u = 0.0) (v >= 0.95 ) (v <= 1.0) (w >= 0.95) (w <= 1.0) (s >= 0.0) (s <= 0.01));
+init:	@1 (and (EPI_TO1 >= 0) (EPI_TO1 <= 0.006) (EPI_TO2 >= 0.1) (EPI_TO2 <= 100) (EPI_TSI >= 0.1) (EPI_TSI <= 10) (tau = 0) (u = 0.0) (v >= 0.95 ) (v <= 1.0) (w >= 0.95) (w <= 1.0) (s >= 0.0) (s <= 0.01));
 
-goal:   @4 (and (tau > 0) (u >= 0.3) (v >= 0) (w >= 0) (s >= 0));
+goal:   @4 (and (tau > 0) (u >= 0.3) (v >= 0) (w >= 0) (s >= 0)  (EPI_TO1 >= 0) (EPI_TO1 <= 0.006) (EPI_TO2 >= 0.1) (EPI_TO2 <= 100) (EPI_TSI >= 0.1) (EPI_TSI <= 10));
