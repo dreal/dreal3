@@ -36,7 +36,6 @@
 
 //#define    EPI_TSI        1.8875  // We have TSI1 and TSI2   TSI in Flavio's paper
 
-
 #define    EPI_TWINF     0.07    //The same with Flavio's paper
 #define    EPI_THV       0.3     //EPUM The same of Flavio's paper
 #define    EPI_THVM      0.006   //EPUQ The same of Flavio's paper
