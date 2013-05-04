@@ -554,7 +554,7 @@ bool ode_solver::solve_forward()
 
         prune_trajectory(T);
     }
-     catch(capd::intervals::IntervalError<double>& e) {
+    catch(std::exception& e) {
          if(_config.nra_verbose) {
              cerr << endl
                  << endl
@@ -775,7 +775,7 @@ bool ode_solver::solve_backward()
             IVector_to_varlist(end, _0_vars);
         }
     }
-    catch(capd::intervals::IntervalError<double>& e) {
+    catch(std::exception& e) {
          if(_config.nra_verbose) {
              cerr << endl
                  << endl
