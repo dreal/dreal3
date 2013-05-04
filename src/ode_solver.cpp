@@ -32,6 +32,7 @@ using namespace capd;
 using boost::tuple;
 using boost::make_tuple;
 using boost::make_zip_iterator;
+using std::find_if;
 using boost::algorithm::join;
 
 ode_solver::ode_solver(int group,
@@ -102,11 +103,11 @@ void ode_solver::prune_trajectory(const interval& time)
 {
     list<pair<const capd::interval, const capd::IVector> >::iterator ite =
         find_if(trajectory.begin(),
-             trajectory.end(),
-             [&time](const pair<const capd::interval, const capd::IVector>& item)
-             {
-                 return item.first.leftBound() > time.rightBound();
-             });
+                trajectory.end(),
+                [&time](const pair<const capd::interval, const capd::IVector>& item)
+                {
+                    return item.first.leftBound() > time.rightBound();
+                });
     trajectory.erase(ite, trajectory.end());
 }
 
@@ -343,10 +344,20 @@ bool ode_solver::solve_forward()
             if(stepControl != 0) {
                 timeMap.setStep(stepControl);  /* TODO (sign) */
             }
+            IVector temp(s);
+            if(find_if(temp.begin(),
+                       temp.end(),
+                       [&] (interval& i) {
+                           return isnan(i.leftBound()) || isnan(i.rightBound());
+                       }) != temp.end()) {
+                cerr << "Got it! : " << IVector(s) << endl;
+                return true;
+            }
 
             timeMap(T.rightBound(),s);         /* TODO direction */
 
             interval stepMade = solver.getStep();
+
             if(_config.nra_verbose) {
                 cerr << "step made: " << stepMade << endl
                      << "T : " << T << endl
@@ -421,7 +432,8 @@ bool ode_solver::solve_forward()
             }
             // cerr << "ODEresult        : " << ODEresult << endl
             //      << "InvViolated      : " << invariantViolated << endl
-            //      << "timeMap.completed: " << timeMap.completed() << endl;
+            //      << "timeMap.completed: " << timeMap.completed() <<
+            //      endl;
         }
         while (ODEresult && !invariantViolated && !timeMap.completed());
 
@@ -620,6 +632,17 @@ bool ode_solver::solve_backward()
             if(stepControl != 0) {
                 timeMap.setStep(- stepControl);
             }
+
+            IVector temp(s);
+            if(find_if(temp.begin(),
+                       temp.end(),
+                       [&] (interval& i) {
+                           return isnan(i.leftBound()) || isnan(i.rightBound());
+                       }) != temp.end()) {
+                cerr << "Got it! : " << IVector(s) << endl;
+                return true;
+            }
+
             timeMap(T.leftBound(),s);
 
             //timeMap(T,e);
