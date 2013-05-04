@@ -3,8 +3,9 @@ open Smt2_cmd
 let count_cmd f = function
     | SetLogic _ -> 0
     | SetInfo _ -> 0
-    | DeclareFun _ -> 0
     | DeclareConst _ -> 0
+    | DeclareFun _ -> 0
+    | DefineODE _ -> 0
     | Assert formula -> f formula
     | CheckSAT -> 0
     | Exit -> 0
@@ -12,8 +13,9 @@ let count_cmd f = function
 let cmd_count_var = function
     | SetLogic _ -> 0
     | SetInfo _ -> 0
-    | DeclareFun _ -> 1
     | DeclareConst _ -> 0
+    | DeclareFun _ -> 1
+    | DefineODE _ -> 0
     | Assert _ -> 0
     | CheckSAT -> 0
     | Exit -> 0

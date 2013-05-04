@@ -9,7 +9,7 @@ type exp = Basic.exp
 type formula = Basic.formula
 type var = Vardecl.var
 type invs = formula list
-type ode = Basic.ode
+type ode = Ode.t
 type flow = ode
 type jump = Jump.t
 type jumpmap = Jumpmap.t
@@ -60,7 +60,7 @@ let print out {mode_id= id;
     | Some inv ->
       IO.to_string (List.print ~first:"" ~sep:"\n    " ~last:"\n" Basic.print_formula) inv in
   let flow_str =
-    IO.to_string (List.print ~first:"" ~sep:"\n    " ~last:"\n" Basic.print_ode) flows in
+    IO.to_string (List.print ~first:"" ~sep:"\n    " ~last:"\n" Ode.print) flows in
   let jump_str = IO.to_string Jumpmap.print jumpmap in
   Printf.fprintf out
     "{\nModeID = %d\nInvariant = %s\nFlows = %s\nJump = %s\n}"

@@ -78,7 +78,7 @@ let preprocess (vm, cm, mm, iid, iformula, gs) : t =
     | true ->
       begin
         match Vardeclmap.find s cm with
-          Value.Num n -> Basic.Const n
+          Value.Num n -> Basic.Num n
         | _ -> raise Not_found
       end
     | false -> Basic.Var s
