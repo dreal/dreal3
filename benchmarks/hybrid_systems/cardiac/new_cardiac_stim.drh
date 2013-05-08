@@ -73,7 +73,7 @@
 #define    jfi4  (0 - v * (u - EPI_THV) * (EPI_UU - u)/EPI_TFI)
 #define    jso4  (1.0 / (EPI_TSO1+((EPI_TSO2 - EPI_TSO1)*(1/(1+exp(-2*EPI_KSO*(u- EPI_USO)))))))
 #define    jsi4  ( 0 - (w * s)/EPI_TSI)
-#define	   stim	 1.0 // The external stimulation is a rectangular pulse of height 1 and length 1ms. Since u reach its max during the stimulation, time scale is set to be [0,1] 
+#define    stim  1.0 // The external stimulation is a rectangular pulse of height 1 and length 1ms. Since u reach its max during the stimulation, time scale is set to be [0,1]
 
 [0, 2.0] u;
 [0, 2.0] v;
@@ -85,7 +85,9 @@
 
 {mode 1;
 
-invt:           (u >= 0);
+invt:
+                (u >= 0);
+                (u <= 0.006);
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
@@ -106,6 +108,7 @@ jump:
 
 invt:
                 (u >= 0.006);
+                (u <= 0.013);
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
@@ -126,6 +129,7 @@ jump:
 
 invt:
                 (u >= 0.013);
+                (u <= 0.3);
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
@@ -145,6 +149,7 @@ jump:
 
 invt:
                 (u >= 0.3);
+                (u <= 2.0);
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
