@@ -1,0 +1,29 @@
+//From "It's a nonlinear world" P265
+
+#define e 0.0099
+#define e_prime 0.0000198
+#define q 0.0000762
+#define f 0.5
+
+[0, 10] y;
+[0, 2] x;
+[0, 10] z;
+
+[0, 50] time;
+
+%%
+{ mode 1;
+
+  flow:
+	d/dt[x] = (1/e)*(((q*y) - (x* y)) + x*(1-x));
+	d/dt[y] = (0-q)*y - ((x*y) + (2* (f *z)));
+        d/dt[z] = x - z;
+}
+
+%%
+init:
+@1	(and (x  = 0.1) ( y = 0.1) (z = 0.1));
+
+goal:
+@1	(time = 50);
+
