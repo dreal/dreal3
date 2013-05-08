@@ -387,7 +387,7 @@ let rec print_infix_exp (out : 'a IO.output) : exp -> unit =
       | false -> s
     in
     String.print out s'
-  | Neg e' -> print_infix_exps "-" [e']
+  | Neg e' -> Printf.fprintf out "(0.0 - %s)" (IO.to_string print_infix_exp e')
   | Add (e1, e2) -> print_infix_exps "+" [e1; e2]
   | Sub (e1, e2) -> print_infix_exps "-" [e1; e2]
   | Mul (e1, e2) -> print_infix_exps "*" [e1; e2]

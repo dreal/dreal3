@@ -97,9 +97,9 @@ formula:
   | LP formula RP       { $2 }
   | AND formulas        { Basic.make_and $2 }
   | OR  formulas        { Basic.make_or  $2 }
-  | exp EQ exp         { Basic.Eq  ($1, $3) }
-  | exp GT exp         { Basic.Gt  ($1, $3) }
-  | exp LT exp         { Basic.Lt  ($1, $3) }
+  | exp EQ exp          { Basic.Eq  ($1, $3) }
+  | exp GT exp          { Basic.Gt  ($1, $3) }
+  | exp LT exp          { Basic.Lt  ($1, $3) }
   | exp GTE exp         { Basic.Ge ($1, $3) }
   | exp LTE exp         { Basic.Le ($1, $3) }
 ; /* TODO: add "And" and "Or". maybe "and" is unnecessary... */
