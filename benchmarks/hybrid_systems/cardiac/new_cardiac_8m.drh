@@ -73,7 +73,7 @@
 #define    jfi4  (0 - v * (u - EPI_THV) * (EPI_UU - u)/EPI_TFI)
 #define    jso4  (1.0 / (EPI_TSO1+((EPI_TSO2 - EPI_TSO1)*(1/(1+exp(-2*EPI_KSO*(u- EPI_USO)))))))
 #define    jsi4  ( 0 - (w * s)/EPI_TSI)
-#define	   stim	 1.0 // The external stimulation is a rectangular pulse of height 1 and length 1ms. Since u reach its max during the stimulation, time scale is set to be [0,1] 
+#define    stim  1.0 // The external stimulation is a rectangular pulse of height 1 and length 1ms. Since u reach its max during the stimulation, time scale is set to be [0,1]
 
 [0, 2.0] u;
 [0, 2.0] v;
@@ -86,10 +86,11 @@
 {mode 1;
 
 invt:           (u >= 0);
+                (u <= 0.006);
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
-                (tau >= 0);
+                (tau <= 1.0);
 
 flow:
 
@@ -106,10 +107,11 @@ jump:
 
 invt:
                 (u >= 0.006);
+                (u <= 0.013);
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
-                (tau >= 0);
+                (tau <= 1.0);
 
 flow:
               d/dt[tau] = 1.0;
@@ -126,10 +128,11 @@ jump:
 
 invt:
                 (u >= 0.013);
+                (u <= 0.3);
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
-                (tau >= 0);
+                (tau <= 1.0);
 
 flow:
               d/dt[tau] = 1.0;
@@ -148,7 +151,7 @@ invt:
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
-                (tau >= 0);
+                (tau <= 1.0);
 
 flow:
               d/dt[tau] = 1.0;
@@ -168,7 +171,7 @@ invt:
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
-                (tau >= 0);
+                (tau >= 1.0);
 
 flow:
               d/dt[tau] = 1.0;
@@ -177,7 +180,7 @@ flow:
               d/dt[v]  = (-v/EPI_TVP);
               d/dt[s]  = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS2) ;
 jump:
-                ( u < 0.3) ==> @6 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
+                ( u <= 0.3) ==> @6 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 }
 
 {mode 6;
@@ -187,7 +190,7 @@ invt:
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
-                (tau >= 0);
+                (tau >= 1.0);
 
 flow:
               d/dt[tau] = 1.0;
@@ -196,7 +199,7 @@ flow:
               d/dt[v] = (-v/EPI_TV2M);
               d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS2);
 jump:
-                ( u < 0.013) ==> @7 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
+                ( u <= 0.013) ==> @7 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 }
 
 
@@ -208,7 +211,7 @@ invt:
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
-                (tau >= 0);
+                (tau >= 1.0);
 
 flow:
               d/dt[tau] = 1.0;
@@ -217,7 +220,7 @@ flow:
               d/dt[v] = (-v/EPI_TV2M);
               d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS1);
 jump:
-                ( u < 0.006) ==> @8 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
+                ( u <= 0.006) ==> @8 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s));
 
 }
 
@@ -227,7 +230,7 @@ invt:           (u >= 0);
                 (v >= 0);
                 (w >= 0);
                 (s >= 0);
-                (tau >= 0);
+                (tau >= 1.0);
 
 flow:
 
@@ -244,4 +247,4 @@ jump:
 
 init:	@1 (and (tau = 0) (u = 0.0) (v = 1.0) (w = 1.0) (s = 0.0));
 
-goal:   @8 (and (tau > 0) (u >= 0.0) (v >= 0) (w >= 0) (s >= 0));
+goal:   @8 (and (tau >= 0) (u >= 0.0) (v >= 0) (w >= 0) (s >= 0));
