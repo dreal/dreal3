@@ -247,16 +247,20 @@ void icp_solver::callODESolver(int group,
                                                ODEresult);
         _ode_solvers.push_back(odeSolver);
 
-        double before = rp_box_volume_log(_boxes.get());
-
-        if(_config.nra_verbose) {
-            cerr << "Before_Forward" << endl;
-            pprint_vars(cerr, *_problem, _boxes.get());
-            cerr << "!!!!!!!!!!Solving ODE (Forward)" << endl;
+        // =========== Simple ODE ======================================
+        if (!odeSolver->simple_ODE()) {
+            ODEresult = false;
+            return;
         }
 
         // If other thread already set it false, we just return
         if (!ODEresult) {
+            return;
+        }
+
+        // ICP Prop
+        if(!_propag->apply(_boxes.get()) ) {
+            ODEresult = false;
             return;
         }
 
@@ -266,15 +270,22 @@ void icp_solver::callODESolver(int group,
             return;
         }
 
-        double after = rp_box_volume_log(_boxes.get());
-        cerr << "ODE Forward: " << before << "\t" << after << "\t" << before - after << endl;
+        // ICP Prop
+        if(!_propag->apply(_boxes.get()) ) {
+            ODEresult = false;
+            return;
+        }
 
-        before = after;
+        // =========== Simple ODE ======================================
+        if (!odeSolver->simple_ODE()) {
+            ODEresult = false;
+            return;
+        }
 
-        if(_config.nra_verbose) {
-            cerr << "After_Forward" << endl;
-            pprint_vars(cerr, *_problem, _boxes.get());
-            cerr << "!!!!!!!!!!Solving ODE (Backward)" << endl;
+        // ICP Prop
+        if(!_propag->apply(_boxes.get()) ) {
+            ODEresult = false;
+            return;
         }
 
         // If other thread already set it false, we just return
@@ -288,17 +299,14 @@ void icp_solver::callODESolver(int group,
             return;
         }
 
-        after = rp_box_volume_log(_boxes.get());
-        cerr << "ODE Backward: " << before << "\t" << after << "\t" << before - after << endl;
-
-        if(_config.nra_verbose) {
-            cerr << "After_Backward" << endl;
-            pprint_vars(cerr, *_problem, _boxes.get());
+        // ICP Prop
+        if(!_propag->apply(_boxes.get()) ) {
+            ODEresult = false;
+            return;
         }
     }
     return;
 }
-
 
 bool icp_solver::prop_with_ODE()
 {
@@ -371,26 +379,10 @@ bool icp_solver::prop_with_ODE()
                 for(unsigned i = 1; i <= max; i++) {
                     if (!diff_vec[i].empty()) {
                         icp_solver::callODESolver(i, diff_vec);
-
                         if(!ODEresult) {
                             return false;
                         }
-
-//                        cerr << "Before ICP in ODE" << endl;
-//                        pprint_vars(cerr, *_problem, _boxes.get());
-//                        double before = rp_box_volume_log(_boxes.get());
-//                        cerr << before << endl;
-
-                        if(!_propag->apply(_boxes.get()) ) {
-                            return false;
-                        }
-
-//                        double after = rp_box_volume_log(_boxes.get());
-//                        cerr << "After ICP in ODE" << endl;
-//                        cerr << "ICP in ODE: " << before << "\t" << after << "\t" << before - after << endl;
-//                        pprint_vars(cerr, *_problem, _boxes.get());
                     }
-
                 }
             }
             return ODEresult;

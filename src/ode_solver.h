@@ -53,7 +53,8 @@ public:
                vector<capd::intervals::Interval<double, capd::rounding::DoubleRounding> > & out_time_list,
                capd::intervals::Interval<double, capd::rounding::DoubleRounding> time);
 
-    bool solve_forward(); //computation of the next solution
+    bool simple_ODE();
+    bool solve_forward();
     bool solve_backward();
 
     double get_lb(Enode* const e) const {
@@ -81,7 +82,7 @@ private:
     rp_box _b;
     map<Enode*, int>& _enode_to_rp_id;
     ode_solver& operator=(const ode_solver& o);
-    list<pair<const capd::interval, const capd::IVector> > trajectory;
+    list<pair<capd::interval, capd::IVector> > trajectory;
     bool& ODEresult;
     vector<string> var_list;
 
@@ -92,8 +93,8 @@ private:
     void print_trace(ostream& out,
                      const string key,
                      const int idx,
-                     const list<pair<const capd::interval, const capd::IVector> > & trajectory) const;
+                     const list<pair<capd::interval, capd::IVector> > & trajectory) const;
 
-    void prune_trajectory(const capd::interval& t);
+    void prune_trajectory(capd::interval& t, capd::IVector& e);
 };
 #endif

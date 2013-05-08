@@ -67,14 +67,14 @@ void ode_solver::print_datapoint(ostream& out, const interval& t, const interval
 void ode_solver::print_trace(ostream& out,
             const string key,
             const int idx,
-            const list<pair<const interval, const IVector> > & trajectory) const
+            const list<pair<interval, IVector> > & trajectory) const
 {
     out << "{" << endl;
     out << "\t" << "\"key\": \"" << key << "\"," << endl;
     out << "\t" << "\"group\": \"" << _group << "\"," << endl;
     out << "\t" << "\"values\": [" << endl;
 
-    list<pair<const interval, const IVector> >::const_iterator iter = trajectory.begin();
+    list<pair<interval, IVector> >::const_iterator iter = trajectory.begin();
     print_datapoint(out, iter->first, iter->second[idx]);
 
     for(++iter; iter != trajectory.end(); iter++) {
@@ -99,18 +99,32 @@ void ode_solver::print_trajectory(ostream& out) const
     out << endl << "]" << endl;
 }
 
-void ode_solver::prune_trajectory(const interval& time)
+void ode_solver::prune_trajectory(interval& time, IVector& e)
 {
-    list<pair<const capd::interval, const capd::IVector> >::iterator ite =
+    // Remove datapoints after time interval.
+    list<pair<capd::interval, capd::IVector> >::iterator ite =
         find_if(trajectory.begin(),
                 trajectory.end(),
-                [&time](const pair<const capd::interval, const capd::IVector>& item)
+                [&time](pair<capd::interval, capd::IVector>& item)
                 {
                     return item.first.leftBound() > time.rightBound();
                 });
     trajectory.erase(ite, trajectory.end());
-}
 
+    // Update the datapoints in the time interval
+    ite = find_if(trajectory.begin(),
+                  trajectory.end(),
+                  [&time](pair< capd::interval, capd::IVector>& item)
+                  {
+                      return item.first.leftBound() >= time.leftBound();
+                  });
+    for_each(ite,
+             trajectory.end(),
+             [&e](pair< capd::interval, capd::IVector>& item)
+             {
+                 intersection(item.second, e, item.second);
+             });
+}
 
 string ode_solver::create_diffsys_string(set < Enode* > & ode_vars,
                                          vector<Enode*> & _0_vars,
@@ -271,6 +285,119 @@ void ode_solver::prune(vector<Enode*>& _t_vars,
     }
 }
 
+bool ode_solver::simple_ODE()
+{
+    vector<Enode*> _0_vars, _t_vars;
+    vector<string> ode_list;
+    // 1. partition ode_vars into _0_vars and _t_vars by their
+    // ODE_vartype
+    var_list.clear();
+    for_each(_ode_vars.begin(),
+             _ode_vars.end(),
+             [&] (Enode* ode_var) {
+                 // If this is _0 variable, then
+                 if (ode_var->getODEvartype() == l_False) {
+                     _0_vars.push_back(ode_var);
+                     _t_vars.push_back(ode_var->getODEopposite());
+                     var_list.push_back(ode_var->getODEvarname());
+                     string ode = ode_var->getODE();
+                     ode_list.push_back(ode);
+                 }
+             });
+
+    // 3. join var_list to make diff_var, ode_list to diff_fun
+    string diff_var = "var:" + join(var_list, ", ") + ";";
+
+    vector<IFunction> funcs;
+    for_each(ode_list.begin(),
+             ode_list.end(),
+             [&funcs, &diff_var] (string& ode_str) {
+                 string func_str = diff_var + "fun:" + ode_str + ";";
+                 funcs.push_back(IFunction(func_str));
+             });
+
+    //initial conditions
+    IVector X_0 = varlist_to_IVector(_0_vars);
+    IVector inv = extract_invariants(_t_vars);
+    IVector X_t = varlist_to_IVector(_t_vars);
+    IVector new_X_t(X_t.size());
+
+    //time range
+    Enode* time = (*_0_vars.begin())->getODEtimevar();
+    interval T = interval(get_lb(time), get_ub(time));
+
+    // X_t = X_t \cup (X_0 + (d/dt Inv) * T)
+    for_each(make_zip_iterator(boost::make_tuple(X_0.begin(), X_t.begin(), funcs.begin())),
+             make_zip_iterator(boost::make_tuple(X_0.end(),   X_t.end(),   funcs.end())),
+             [&] (tuple<interval&, interval&, IFunction&> item) {
+                 interval& x_0   = item.get<0>();
+                 interval& x_t   = item.get<1>();
+                 IFunction& dxdt = item.get<2>();
+
+                 try {
+                     interval new_x_t = x_0 + dxdt(inv) * T;
+                     if(!intersection(new_x_t, x_t, x_t)) {
+                         return false;
+                     }
+                 }
+                 catch (std::exception& e) {
+                     cerr << "Exception in Simple_ODE: "
+                          << e.what() << endl;
+                 }
+             });
+    // update
+    IVector_to_varlist(X_t, _t_vars);
+
+    // X_0 = X_0 \cup (X_t - + (d/dt Inv) * T)
+    for_each(make_zip_iterator(boost::make_tuple(X_0.begin(), X_t.begin(), funcs.begin())),
+             make_zip_iterator(boost::make_tuple(X_0.end(),   X_t.end(),   funcs.end())),
+             [&] (tuple<interval&, interval&, IFunction&> item) {
+                 interval& x_0   = item.get<0>();
+                 interval& x_t   = item.get<1>();
+                 IFunction& dxdt = item.get<2>();
+
+                 try {
+                     interval new_x_0 = x_t - dxdt(inv) * T;
+                     if(!intersection(new_x_0, x_0, x_0)) {
+                         return false;
+                     }
+                 }
+                 catch (std::exception& e) {
+                     cerr << "Exception in Simple_ODE: "
+                          << e.what() << endl;
+                 }
+             });
+
+    // update
+    IVector_to_varlist(X_0, _0_vars);
+
+    // T = (X_t - X_0) / [(d/dt Inv) * T]
+    for_each(make_zip_iterator(boost::make_tuple(X_0.begin(), X_t.begin(), funcs.begin())),
+             make_zip_iterator(boost::make_tuple(X_0.end(),   X_t.end(),   funcs.end())),
+             [&] (tuple<interval&, interval&, IFunction&> item) {
+                 interval& x_0   = item.get<0>();
+                 interval& x_t   = item.get<1>();
+                 IFunction& dxdt = item.get<2>();
+
+                 try {
+                     interval new_T = (x_t - x_0) / (dxdt(inv) * T);
+                     if(!intersection(new_T, T, T)) {
+                         return false;
+                     }
+                 }
+                 catch (std::exception& e) {
+                     cerr << "Exception in Simple_ODE: "
+                          << e.what() << endl;
+                 }
+             });
+
+    // update
+    set_lb(time, T.leftBound());
+    set_ub(time, T.rightBound());
+
+    return true;
+}
+
 bool ode_solver::solve_forward()
 {
     if(_config.nra_verbose) {
@@ -278,15 +405,16 @@ bool ode_solver::solve_forward()
     }
     cerr.precision(12);
     bool ret = true;
+    string diff_sys;
     try
     {
         // 1. Construct diff_sys, which are the ODE
         vector<Enode*> _0_vars;
         vector<Enode*> _t_vars;
 
-        string diff_sys = create_diffsys_string(_ode_vars,
-                                                _0_vars,
-                                                _t_vars);
+        diff_sys = create_diffsys_string(_ode_vars,
+                                         _0_vars,
+                                         _t_vars);
 
         //pass the problem with variables
         IMap vectorField(diff_sys);
@@ -345,6 +473,15 @@ bool ode_solver::solve_forward()
                 timeMap.setStep(stepControl);  /* TODO (sign) */
             }
             IVector temp(s);
+            if(!intersection(temp, inv, temp)) {
+                invariantViolated = true;
+                cerr << "Inv: " << inv << endl;
+                cerr << "s  : " << IVector(s) << endl;
+                cerr << "invariant violated (2)!" << endl;
+                break;
+            }
+            s = C0Rect2Set(temp);
+
             if(find_if(temp.begin(),
                        temp.end(),
                        [&] (interval& i) {
@@ -408,7 +545,9 @@ bool ode_solver::solve_forward()
                     }
 
                     if(_config.nra_verbose) {
-                        cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ":  " << v << endl;
+                        cerr << "inv = " << inv << endl;
+                        cerr << "v   = " << v << endl;
+                        cerr << "enclosure for t intersected with inv " << prevTime + subsetOfDomain << ":  " << v << endl;
                     }
                     if(_config.nra_json) {
                         trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
@@ -552,11 +691,13 @@ bool ode_solver::solve_forward()
             ret = false;
         }
 
-        prune_trajectory(T);
+        prune_trajectory(T, end);
     }
     catch(std::exception& e) {
-         if(_config.nra_verbose) {
-             cerr << endl
+        cerr << "Exception in ODE Solving" << endl;
+
+        if(_config.nra_verbose) {
+            cerr << endl
                  << endl
                  << "Interval Exception caught!" << endl
                  << e.what() << endl << endl;
@@ -634,6 +775,13 @@ bool ode_solver::solve_backward()
             }
 
             IVector temp(s);
+            if(!intersection(temp, inv, temp)) {
+                invariantViolated = true;
+                // cerr << "invariant violated (2)!" << endl;
+                break;
+            }
+            s = C0Rect2Set(temp);
+
             if(find_if(temp.begin(),
                        temp.end(),
                        [&] (interval& i) {
@@ -696,6 +844,8 @@ bool ode_solver::solve_backward()
                         break;
                     }
                     if(_config.nra_verbose) {
+                        cerr << inv << endl;
+                        cerr << v << endl;
                         cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ":  " << v << endl;
                     }
                     prune(_0_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
