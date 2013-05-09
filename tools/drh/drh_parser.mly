@@ -3,9 +3,7 @@
  */
 
 %{
-
 open Batteries
-
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
@@ -35,7 +33,7 @@ open Batteries
 main: varDecl_list mode_list init goal {
   let vardecl_list = $1 in
   let (float_list, intv_list) =
-    List.partition
+    BatList.partition
       (function (_, Value.Num _) -> true | _ -> false)
       vardecl_list
   in
@@ -97,24 +95,24 @@ formula:
   | LP formula RP       { $2 }
   | AND formulas        { Basic.make_and $2 }
   | OR  formulas        { Basic.make_or  $2 }
-  | exp EQ exp          { Basic.Eq  ($1, $3) }
-  | exp GT exp          { Basic.Gt  ($1, $3) }
-  | exp LT exp          { Basic.Lt  ($1, $3) }
-  | exp GTE exp         { Basic.Ge ($1, $3) }
-  | exp LTE exp         { Basic.Le ($1, $3) }
+  | EQ  exp exp         { Basic.Eq  ($2, $3) }
+  | GT  exp exp         { Basic.Gt  ($2, $3) }
+  | LT  exp exp         { Basic.Lt  ($2, $3) }
+  | GTE exp exp         { Basic.Ge ($2, $3) }
+  | LTE exp exp         { Basic.Le ($2, $3) }
 ; /* TODO: add "And" and "Or". maybe "and" is unnecessary... */
 
 exp:
    ID            { Basic.Var $1 }
- | FNUM          { Basic.Const $1 }
+ | FNUM          { Basic.Num $1 }
  | LP exp RP     { $2 }
- | exp PLUS exp  { Basic.Add ($1, $3) }
- | exp MINUS exp { Basic.Sub ($1, $3) }
+ | PLUS exp exp  { Basic.Add [$2; $3] }
+ | MINUS exp exp { Basic.Sub [$2; $3] }
  | MINUS exp %prec NEG    { Basic.Neg $2 }
- | exp AST exp   { Basic.Mul ($1, $3) }
- | exp SLASH exp { Basic.Div ($1, $3) }
+ | AST exp exp   { Basic.Mul [$2; $3] }
+ | SLASH exp exp { Basic.Div ($2, $3) }
  | EXP exp       { Basic.Exp $2 }
- | exp CARET exp { Basic.Pow ($1, $3) }
+ | CARET exp exp { Basic.Pow ($2, $3) }
  | SIN exp       { Basic.Sin $2 }
  | COS exp       { Basic.Cos $2 }
  | TAN exp       { Basic.Tan $2 }
@@ -127,6 +125,7 @@ exp:
 ;
 
 ode_list: /* */ { [] }
+
  | ode ode_list { $1::$2 }
 ;
 

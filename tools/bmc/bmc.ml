@@ -4,10 +4,9 @@ open Batteries
 open Smt2_cmd
 
 type var = Vardecl.var
-type varDecl = Basic.vardecl
+type varDecl = Vardecl.t
 type formula = Basic.formula
 type hybrid = Hybrid.t
-type dr = Basic.t
 type id = Mode.id
 type mode = Mode.t
 type jump = Mode.jump
@@ -58,7 +57,7 @@ let process_flow (k : int) (q : id) (m : mode) : (flows_annot * formula) =
   let flows_annot =
     List.map
       (fun ode ->
-        let substituted_ode = Basic.subst_ode (add_index k q "") ode
+        let substituted_ode = Ode.subst (add_index k q "") ode
         in (k, q, substituted_ode))
       (Mode.flows m)
   in
@@ -214,8 +213,8 @@ let make_smt2
     (time_intv : Value.t)
     : Smt2.t
     =
-  let make_lb name v = Basic.Le (Basic.Const v,  Basic.Var name) in
-  let make_ub name v = Basic.Le (Basic.Var name, Basic.Const v ) in
+  let make_lb name v = Basic.Le (Basic.Num v,  Basic.Var name) in
+  let make_ub name v = Basic.Le (Basic.Var name, Basic.Num v ) in
   let logic_cmd = SetLogic QF_NRA_ODE in
   let num_of_modes = List.max (List.map (fun (_, q, _) -> q) flows_annot) in
   let defineodes =

@@ -5,11 +5,21 @@ type logic = QF_NRA
 type exp = Basic.exp
 type formula = Basic.formula
 type t = SetLogic of logic
+         | SetInfo of string * string
          | DeclareFun of string
+         | DeclareConst of string
          | DefineODE of int * string * exp
          | Assert of formula
          | CheckSAT
          | Exit
+
+let make_lb (name : string) (v : float)
+    = Assert (Basic.Le (Basic.Num v,  Basic.Var name))
+let make_ub (name : string) (v : float)
+    = Assert (Basic.Le (Basic.Var name, Basic.Num v ))
+
+let set_precision (p : float) : t =
+  SetInfo (":precision", string_of_float p)
 
 let print_logic out =
   function
@@ -20,8 +30,12 @@ let print out =
   function
   | SetLogic l ->
     Printf.fprintf out "(set-logic %s)" (IO.to_string print_logic l)
+  | SetInfo (key, value) ->
+    Printf.fprintf out "(set-info %s %s)" key value
   | DeclareFun v ->
     Printf.fprintf out "(declare-fun %s () Real)" v
+  | DeclareConst v ->
+    Printf.fprintf out "(declare-const %s Real)" v
   | DefineODE (n, x, e) ->
     Printf.fprintf out "(define-ode %d (= d/dt[%s] %s))" n x (IO.to_string Basic.print_infix_exp e)
   | Assert f ->

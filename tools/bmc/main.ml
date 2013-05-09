@@ -86,8 +86,8 @@ let run () =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let hm =
       match !infix with
-        true -> Infix_parser.main Infix_lexer.start lexbuf
-      | false -> Parser.main Lexer.start lexbuf
+        true -> Drh_infix_parser.main Drh_infix_lexer.start lexbuf
+      | false -> Drh_parser.main Drh_lexer.start lexbuf
     in
     let _ = check_path !path !k (Hybrid.init_id hm) (Hybrid.goal_ids hm) in
     let (vardecls, flow_annots, formula, time_intv) = Bmc.reach !k hm !path in

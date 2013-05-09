@@ -1,1 +1,1 @@
-<*>: package(batteries), package(batteries.syntax)
+<*.ml>: pkg_basic, pkg_smt2, pkg_drh, package(batteries), package(batteries.syntax)
