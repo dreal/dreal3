@@ -98,7 +98,6 @@ function [out] = single_cell_mrm4V ()
          EPI_UU     =  1.55;   % The same of Flavio's paper
          EPI_USO    =  0.65;   % The same of Flavio's paper
          
-
          ut1     = [];
          vt1     = [];
          wt1     = [];
