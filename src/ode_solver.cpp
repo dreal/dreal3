@@ -326,6 +326,8 @@ bool ode_solver::simple_ODE()
     Enode* time = (*_0_vars.begin())->getODEtimevar();
     interval T = interval(get_lb(time), get_ub(time));
 
+    bool ret = true;
+
     // X_t = X_t \cup (X_0 + (d/dt Inv) * T)
     for_each(make_zip_iterator(boost::make_tuple(X_0.begin(), X_t.begin(), funcs.begin())),
              make_zip_iterator(boost::make_tuple(X_0.end(),   X_t.end(),   funcs.end())),
@@ -337,7 +339,7 @@ bool ode_solver::simple_ODE()
                  try {
                      interval new_x_t = x_0 + dxdt(inv) * T;
                      if(!intersection(new_x_t, x_t, x_t)) {
-                         return false;
+                         ret = false;
                      }
                  }
                  catch (std::exception& e) {
@@ -345,6 +347,9 @@ bool ode_solver::simple_ODE()
                           << e.what() << endl;
                  }
              });
+    if(!ret) {
+	return false;
+    }
     // update
     IVector_to_varlist(X_t, _t_vars);
 
@@ -359,7 +364,7 @@ bool ode_solver::simple_ODE()
                  try {
                      interval new_x_0 = x_t - dxdt(inv) * T;
                      if(!intersection(new_x_0, x_0, x_0)) {
-                         return false;
+                         ret = false;
                      }
                  }
                  catch (std::exception& e) {
@@ -367,6 +372,9 @@ bool ode_solver::simple_ODE()
                           << e.what() << endl;
                  }
              });
+    if(!ret) {
+	return false;
+    }
 
     // update
     IVector_to_varlist(X_0, _0_vars);
@@ -382,7 +390,7 @@ bool ode_solver::simple_ODE()
                  try {
                      interval new_T = (x_t - x_0) / (dxdt(inv) * T);
                      if(!intersection(new_T, T, T)) {
-                         return false;
+                         ret = false;
                      }
                  }
                  catch (std::exception& e) {
@@ -390,6 +398,9 @@ bool ode_solver::simple_ODE()
                           << e.what() << endl;
                  }
              });
+    if(!ret) {
+	return false;
+    }
 
     // update
     set_lb(time, T.leftBound());
