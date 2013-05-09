@@ -8,18 +8,16 @@
 [0, 10] tau;
 [0, 10] time;
 
-%%
-
 {mode 1;
 
-invt: true;
-
+invt:   (x >= -10);
+	(y >= -10);
 flow:
 	d/dt[x] = - ax * sin(omega * tau); 
 	d/dt[y] = - ay * sin(omega * tau) * omega; 
 	d/dt[tau] = 1;
 
-jump: true;
+jump: true ==> @1 true ;
 
 }
 
