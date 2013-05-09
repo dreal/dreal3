@@ -1,16 +1,18 @@
+open Batteries
+
 exception CException of string
 
 type key = string
 type intv = Intv.t
-type t = (key, intv) BatMap.t
+type t = (key, intv) Map.t
 
-let keys = BatMap.keys
+let keys = Map.keys
 
 let find (x : key) (e : t) : intv
-    = BatMap.find x e
+    = Map.find x e
 
 let order (e1 : t) (e2 : t) : bool =
-  BatMap.for_all
+  Map.for_all
     (fun x i1 ->
       let i2 = find x e2 in
       Intv.order i1 i2
@@ -18,7 +20,7 @@ let order (e1 : t) (e2 : t) : bool =
     e1
 
 let join (e1 : t) (e2 : t) : t =
-  BatMap.merge
+  Map.merge
     (fun x i1_op i2_op ->
       match (i1_op, i2_op) with
           (Some i1, Some i2) -> Some (Intv.join i1 i2)
@@ -27,18 +29,18 @@ let join (e1 : t) (e2 : t) : t =
     e2
 
 let print out =
-  BatMap.print ~first:"{" ~last:"}\n" ~sep:", \n"
-    BatString.print
+  Map.print ~first:"{" ~last:"}\n" ~sep:", \n"
+    String.print
     Intv.print
     out
 
 let to_list (e : t) : (key * intv) list
-    = BatList.of_enum (BatMap.backwards e)
+    = List.of_enum (Map.backwards e)
 
 let from_list (l : (key * intv) list) : t =
   List.fold_left
-    (fun e (k, i) -> BatMap.add k i e)
-    BatMap.empty
+    (fun e (k, i) -> Map.add k i e)
+    Map.empty
     l
 
 let make = from_list
@@ -49,13 +51,13 @@ let equals (e1 : t) (e2 : t) : bool =
        (List.map
           (fun ((_, i1), (_, i2)) ->
             Intv.equals i1 i2)
-          (BatList.combine (to_list e1) (to_list e1))))
+          (List.combine (to_list e1) (to_list e1))))
 
 let is_empty (e : t) : bool =
   List.mem true
     (List.map
        (fun (_, {Intv.low = l; Intv.high = h})
-       -> (BatFloat.compare l h) = 0)
+       -> (Float.compare l h) = 0)
        (to_list e))
 
 (* minus e1 e2 == (e1 - e2) *)
@@ -65,7 +67,7 @@ let minus (e1 : t) (e2 : t) : (t list) =
       List.filter
         (fun ((_, i1), (_, i2))
         -> not (Intv.equals i1 i2))
-        (BatList.combine l1 l2) in
+        (List.combine l1 l2) in
     match diff_list with
     | hd::[] -> hd
     | _ -> raise (CException ("Two envs differ on multiple dimensions: " ^ string_of_int (List.length diff_list)))
@@ -74,7 +76,7 @@ let minus (e1 : t) (e2 : t) : (t list) =
   let l2 = to_list e2 in
   let ((key, _), (_, _)) = extract_diff_dim l1 l2 in
   let (l1', l2') =
-    BatList.split
+    List.split
       (List.map
          (fun (((key1, {Intv.low = l1; Intv.high = h1}) as elem1),
              ((key2, {Intv.low = l2; Intv.high = h2}) as elem2))
@@ -85,24 +87,24 @@ let minus (e1 : t) (e2 : t) : (t list) =
              ((key1, {Intv.low = l1; Intv.high = l2}),
               (key2, {Intv.low = h1; Intv.high = h2}))
          )
-         (BatList.combine l1 l2)
+         (List.combine l1 l2)
       )
   in
   List.filter (fun e -> not (is_empty e)) [from_list l1';from_list l2']
 
-let left_bound (e : t) : (string, float) BatMap.t =
+let left_bound (e : t) : (string, float) Map.t =
   let keys = keys e in
-  let items = BatEnum.map
+  let items = Enum.map
     (fun key -> let intv = find key e in
              let v = Intv.left_bound intv in
              (key, v)
     )
     keys in
-  BatMap.of_enum items
+  Map.of_enum items
 
 
 let right_bound (e : t) : float list =
-  let keys = BatList.of_enum (keys e) in
+  let keys = List.of_enum (keys e) in
   List.map
     (fun key -> let intv = find key e in Intv.right_bound intv)
     keys
