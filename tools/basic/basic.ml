@@ -629,7 +629,7 @@ let rec print_exp out =
   function
   | Var x -> String.print out x
   | Num n ->
-    let str_n = string_of_float n in
+    let str_n = Printf.sprintf "%f" n in
     let str_n' =
       if String.ends_with str_n "." then
         str_n ^ "0"

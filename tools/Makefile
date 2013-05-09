@@ -4,4 +4,4 @@ all:
 	@cp -v _build/smt2_stat/main.native smt2_stat/main.native
 
 clean:
-	rm -rf _build
+	rm -rf _build bmc/main.native smt2_stat/main.native
