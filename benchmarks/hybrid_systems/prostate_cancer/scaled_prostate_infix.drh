@@ -7,10 +7,10 @@
 #define	k3	0.8
 #define	k4	0.5
 #define	m1	0.00005
-#define	z0	20.0
-#define	t	62.5
-#define	r1	10.0
-#define	r0	4.0
+#define	z0	30.0
+#define	t	12.5
+#define	r1	15.0
+#define	r0	10.0
 #define	c1	0.0
 #define	c2	0.0
 #define	c3	0.0
@@ -27,50 +27,49 @@
 [0.0, 30.0]	z;
 [0.0, 30.0]	v;
 
-[0, 50]	time;
-[0, 2500]	tau;
+[0, 20]	time;
+[0, 1000]	tau;
 
 {mode 1;
 
 invt:
-	(x >= 0.0);
-	(y >= 0.0);
-	(z >= 0.0);
-	(v >= 0.0);
-	(v <= r1);
+        (x >= 0.0);
+        (y >= 0.0);
+        (z >= 0.0);
+        (v >= 0.0);
+        (tau >= 0.0);
 flow:
-	d/dt[x] = scale * (((Gx - Mxy) * x) + c1 * x);
-	d/dt[y] = scale * (((Mxy * x) + Gy * y ) + c2 * y);
-	d/dt[z] = scale * (((0 - z) / t) + c3 * z);
-	d/dt[v] = scale * ((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y));
-	d/dt[tau] = scale * 1.0;
+        d/dt[x] = scale * (((Gx - Mxy) * x) + c1 * x);
+        d/dt[y] = scale * (((Mxy * x) + Gy * y ) + c2 * y);
+        d/dt[z] = scale * (((z0 - z) / t) + c3 * z);
+        d/dt[v] = scale * ((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y));
+        d/dt[tau] = scale * 1.0;
 jump:
-	(and (v >= r1) (((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y)) > 0)) ==> @2 (and (tau' = tau) (x' = x) (y'= y) (z' = z) (v' = v));
+        (and (v >= r1) (((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y)) > 0)) ==> @2 (and (tau' = tau) (x' = x) (y'= y) (z' = z) (v' = v));
 }
 
 {mode 2;
 
 invt:
-	(x >= 0.0);
-	(y >= 0.0);
-	(z >= 0.0);
-	(v >= r0);
+        (x >= 0.0);
+        (y >= 0.0);
+        (z >= 0.0);
+        (v >= 0.0);
+        (tau >= 0.0);
 flow:
-	d/dt[x] = scale * (((Gx - Mxy) * x) + c1 * x);
-	d/dt[y] = scale * (((Mxy * x) + Gy * y ) + c2 * y);
-	d/dt[z] = scale * (((z0 - z) / t) + c3 * z);
-	d/dt[v] = scale * ((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y));
-	d/dt[tau] = scale * 1.0;
+        d/dt[x] = scale * (((Gx - Mxy) * x) + c1 * x);
+        d/dt[y] = scale * (((Mxy * x) + Gy * y ) + c2 * y);
+        d/dt[z] = scale * (((0 - z) / t) + c3 * z);
+        d/dt[v] = scale * ((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y));
+        d/dt[tau] = scale * 1.0;
 jump:
-	(and (v <= r0) (((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y)) < 0)) ==> @1 (and (tau' = tau) (x' = x) (y'= y) (z' = z) (v' = v));
+        (and (v <= r0) (((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y)) < 0)) ==> @1 (and (tau' = tau) (x' = x) (y'= y) (z' = z) (v' = v));
 }
 
 init:
 
-@1	(and (x = 5) (y = 1) (z = 30) (v = 6));
+@2	(and (x = 15) (y = 0.1) (z = 30) (v = 15.1) (tau = 0));
 
 goal:
 
-@1	(and (x >= 0.0) (y >= 0.0) (z >= 0.0) (v >= 0.0));
-
-
+@2	(and (x >= 0.0) (y >= 0.0) (z >= 0.0) (v >= 0.0) (tau = 400.0));
