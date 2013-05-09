@@ -210,6 +210,12 @@ void icp_solver::callODESolver(int group,
     // The size of ODE_Vars should be even
     if (current_ode_vars.size() % 2 == 1) {
         ODEresult = false;
+        cerr << "The size of ODE_Vars should be even" << endl;
+        for_each(current_ode_vars.begin(),
+                 current_ode_vars.end(),
+                 [] (Enode* ode_var) {
+                     cerr << ode_var << endl;
+                 });
         return;
     }
 
@@ -221,6 +227,7 @@ void icp_solver::callODESolver(int group,
         if(current_ode_vars.find((*ite)->getODEopposite()) == current_ode_vars.end())
         {
             ODEresult = false;
+            cerr << "the _0 and _t variables do not match:" << *ite << endl;
             return;
         }
     }

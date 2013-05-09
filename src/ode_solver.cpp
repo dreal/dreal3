@@ -326,8 +326,6 @@ bool ode_solver::simple_ODE()
     Enode* time = (*_0_vars.begin())->getODEtimevar();
     interval T = interval(get_lb(time), get_ub(time));
 
-    bool ret = true;
-
     // X_t = X_t \cup (X_0 + (d/dt Inv) * T)
     for_each(make_zip_iterator(boost::make_tuple(X_0.begin(), X_t.begin(), funcs.begin())),
              make_zip_iterator(boost::make_tuple(X_0.end(),   X_t.end(),   funcs.end())),
@@ -339,7 +337,7 @@ bool ode_solver::simple_ODE()
                  try {
                      interval new_x_t = x_0 + dxdt(inv) * T;
                      if(!intersection(new_x_t, x_t, x_t)) {
-                         ret = false;
+                         return false;
                      }
                  }
                  catch (std::exception& e) {
@@ -347,9 +345,6 @@ bool ode_solver::simple_ODE()
                           << e.what() << endl;
                  }
              });
-    if(!ret) {
-	return false;
-    }
     // update
     IVector_to_varlist(X_t, _t_vars);
 
@@ -364,7 +359,7 @@ bool ode_solver::simple_ODE()
                  try {
                      interval new_x_0 = x_t - dxdt(inv) * T;
                      if(!intersection(new_x_0, x_0, x_0)) {
-                         ret = false;
+                         return false;
                      }
                  }
                  catch (std::exception& e) {
@@ -372,9 +367,6 @@ bool ode_solver::simple_ODE()
                           << e.what() << endl;
                  }
              });
-    if(!ret) {
-	return false;
-    }
 
     // update
     IVector_to_varlist(X_0, _0_vars);
@@ -390,7 +382,7 @@ bool ode_solver::simple_ODE()
                  try {
                      interval new_T = (x_t - x_0) / (dxdt(inv) * T);
                      if(!intersection(new_T, T, T)) {
-                         ret = false;
+                         return false;
                      }
                  }
                  catch (std::exception& e) {
@@ -398,9 +390,6 @@ bool ode_solver::simple_ODE()
                           << e.what() << endl;
                  }
              });
-    if(!ret) {
-	return false;
-    }
 
     // update
     set_lb(time, T.leftBound());
@@ -483,6 +472,7 @@ bool ode_solver::solve_forward()
             if(stepControl != 0) {
                 timeMap.setStep(stepControl);  /* TODO (sign) */
             }
+
             IVector temp(s);
             if(!intersection(temp, inv, temp)) {
                 invariantViolated = true;
@@ -503,6 +493,26 @@ bool ode_solver::solve_forward()
             }
 
             timeMap(T.rightBound(),s);         /* TODO direction */
+
+            temp = IVector(s);
+
+            if(find_if(temp.begin(),
+                       temp.end(),
+                       [&] (interval& i) {
+                           return isnan(i.leftBound()) || isnan(i.rightBound());
+                       }) != temp.end()) {
+                cerr << "Got it! : " << IVector(s) << endl;
+                return true;
+            }
+
+            if(!intersection(temp, inv, temp)) {
+                invariantViolated = true;
+                cerr << "Inv: " << inv << endl;
+                cerr << "s  : " << IVector(s) << endl;
+                cerr << "invariant violated (3)!" << endl;
+                break;
+            }
+            s = C0Rect2Set(temp);
 
             interval stepMade = solver.getStep();
 
@@ -564,6 +574,7 @@ bool ode_solver::solve_forward()
                         trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
                     }
                     // TODO: _t_vars, _0_vars
+//                    cerr << "  " << timeMap.getCurrentTime() << " ==> " << IVector(s) << endl;
                     prune(_t_vars, v, prevTime + subsetOfDomain, out_v_list, out_time_list, T);
                 }
             }
@@ -573,6 +584,7 @@ bool ode_solver::solve_forward()
                     cerr << "enclosure for t=" << timeMap.getCurrentTime() << ":  " << IVector(s) << endl;
                 }
                 if(_config.nra_json) {
+//                    cerr << "FF" << timeMap.getCurrentTime() << " ==> " << IVector(s) << endl;
                     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
                 }
             }
