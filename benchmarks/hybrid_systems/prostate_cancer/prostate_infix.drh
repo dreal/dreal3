@@ -14,10 +14,10 @@
 #define	c1	0.0
 #define	c2	0.0
 #define	c3	0.0
-#define	d	1.0	// Hypotheses: (i) 1.0; (ii) (1 - ((1 - (betay / alphay)) * (z / z0))) (iii) (1 - (z / z0))
+#define	d0	1.0	// Hypotheses: (i) 1.0; (ii) (1 - ((1 - (betay / alphay)) * (z / z0))) (iii) (1 - (z / z0))
 
 #define	Gx	((alphax * (k1 + ((1 - k1) * (z / (z + k2))))) - (betax * (k3 + (1 - k3) * (z / (z + k4)))))
-#define Gy	((alphay * (1 - (d * (z / z0)))) - betay)
+#define Gy	((alphay * (1 - (d0 * (z / z0)))) - betay)
 #define Mxy	(m1 * (1 - (z / z0)))
 
 #define scale	1.0
@@ -71,6 +71,6 @@ init:
 
 goal:
 
-@1	(and (x >= 0.0) (y >= 0.0) (>= z 0.0) (>= v 0.0));
+@1	(and (x >= 0.0) (y >= 0.0) (z >= 0.0) (v >= 0.0));
 
 
