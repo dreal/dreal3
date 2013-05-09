@@ -1,4 +1,3 @@
-
 function [out] = prostate ()
 
          global alphax; 
