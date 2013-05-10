@@ -1,6 +1,6 @@
 BMC = bmc
 DREAL = dReal
-DREAL_OPT = --verbose
+DREAL_OPT = 
 
 all:
 	$(BMC) -k 7 -p "[1,2,3,4,5,6,7,8]" -i new_cardiac_8m.drh
@@ -9,6 +9,10 @@ all:
 full:
 	$(BMC) -k 23 -p "[1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8]" -i new_cardiac_8m.drh
 	$(DREAL) --precision=0.001 --ode-step=0.01 --ode-grid=32 --visualize new_cardiac_8m_23.smt2
+
+stim:
+	$(BMC) -k 3 -p "[1,2,3,4]" -i new_cardiac_stim.drh
+	$(DREAL) --precision=0.001 --ode-step=0.01 --ode-grid=32 $(DREAL_OPT) --visualize new_cardiac_stim_3.smt2
 
 clean:
 	rm -f *.preprocessed.drh
