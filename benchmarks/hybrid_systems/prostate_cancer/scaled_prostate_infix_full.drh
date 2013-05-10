@@ -1,0 +1,75 @@
+#define	alphax	0.0204
+#define alphay	0.0242
+#define	betax	0.0076
+#define	betay	0.0168
+#define	k1	0.0
+#define	k2	2.0
+#define	k3	0.8
+#define	k4	0.5
+#define	m1	0.00005
+#define	z0	30.0
+#define	t	12.5
+#define	r1	15.0
+#define	r0	10.0
+#define	c1	0.0
+#define	c2	0.0
+#define	c3	0.0
+#define	d0	1.0	// Hypotheses: (i) 1.0; (ii) (1 - ((1 - (betay / alphay)) * (z / z0))) (iii) (1 - (z / z0))
+
+#define	Gx	((alphax * (k1 + ((1 - k1) * (z / (z + k2))))) - (betax * (k3 + (1 - k3) * (z / (z + k4)))))
+#define Gy	((alphay * (1 - (d0 * (z / z0)))) - betay)
+#define Mxy	(m1 * (1 - (z / z0)))
+
+#define scale	50.0
+
+[0.0, 30.0]	x;
+[0.0, 30.0]	y;
+[0.0, 30.0]	z;
+[0.0, 30.0]	v;
+
+[0, 20]	time;
+[0, 1000]	tau;
+
+{mode 1;
+
+invt:
+        (x >= 0.0);
+        (y >= 0.0);
+        (z >= 0.0);
+        (v >= 0.0);
+        (tau >= 0.0);
+flow:
+        d/dt[x] = scale * (((Gx - Mxy) * x) + c1 * x);
+        d/dt[y] = scale * (((Mxy * x) + Gy * y ) + c2 * y);
+        d/dt[z] = scale * (((z0 - z) / t) + c3 * z);
+        d/dt[v] = scale * ((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y));
+        d/dt[tau] = scale * 1.0;
+jump:
+        (and (v >= r1) (((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y)) > 0)) ==> @2 (and (tau' = tau) (x' = x) (y'= y) (z' = z) (v' = v));
+}
+
+{mode 2;
+
+invt:
+        (x >= 0.0);
+        (y >= 0.0);
+        (z >= 0.0);
+        (v >= 0.0);
+        (tau >= 0.0);
+flow:
+        d/dt[x] = scale * (((Gx - Mxy) * x) + c1 * x);
+        d/dt[y] = scale * (((Mxy * x) + Gy * y ) + c2 * y);
+        d/dt[z] = scale * (((0 - z) / t) + c3 * z);
+        d/dt[v] = scale * ((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y));
+        d/dt[tau] = scale * 1.0;
+jump:
+        (and (v <= r0) (((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y)) < 0)) ==> @1 (and (tau' = tau) (x' = x) (y'= y) (z' = z) (v' = v));
+}
+
+init:
+
+@2	(and (x = 15) (y = 0.1) (z = 30) (v = 15.1) (tau = 0));
+
+goal:
+
+@2	(and (x >= 0.0) (y >= 0.0) (z >= 0.0) (v >= 0.0) (tau = 1000.0));
