@@ -182,21 +182,6 @@ IVector ode_solver::varlist_to_IVector(vector<Enode*> vars)
                           << ": "<< intv <<endl;
                  }
              });
-
-    // intvs.begin();
-
-    // for_each(vars.begin(),
-    //          vars.end(),
-    //          [&] (Enode* var) {
-    //              double lb = get_lb(var);
-    //              double ub = get_ub(var);
-    //              intvs[i] = interval(lb, ub);
-    //              if(_config.nra_verbose) {
-    //                  cerr << "The interval on "
-    //                       << var->getCar()->getName()
-    //                       << " is "<< intvs[i] <<endl;
-    //              };
-    //          });
     return intvs;
 }
 
@@ -337,12 +322,13 @@ bool ode_solver::simple_ODE()
                  try {
                      interval new_x_t = x_0 + dxdt(inv) * T;
                      if(!intersection(new_x_t, x_t, x_t)) {
-                         return false;
+                         cerr << "Simple_ODE: no intersection for X_T" << endl;
+//                         return false;
                      }
                  }
                  catch (std::exception& e) {
-                     cerr << "Exception in Simple_ODE: "
-                          << e.what() << endl;
+//                     cerr << "Exception in Simple_ODE: "
+//                          << e.what() << endl;
                  }
              });
     // update
@@ -359,12 +345,13 @@ bool ode_solver::simple_ODE()
                  try {
                      interval new_x_0 = x_t - dxdt(inv) * T;
                      if(!intersection(new_x_0, x_0, x_0)) {
-                         return false;
+                         cerr << "Simple_ODE: no intersection for X_0" << endl;
+//                         return false;
                      }
                  }
                  catch (std::exception& e) {
-                     cerr << "Exception in Simple_ODE: "
-                          << e.what() << endl;
+//                     cerr << "Exception in Simple_ODE: "
+//                          << e.what() << endl;
                  }
              });
 
@@ -380,14 +367,25 @@ bool ode_solver::simple_ODE()
                  IFunction& dxdt = item.get<2>();
 
                  try {
+                     // cerr << "x_0                           = " << x_0 << endl;
+                     // cerr << "x_t                           = " << x_t << endl;
+                     // cerr << "T                             = " << T << endl;
+                     // cerr << "x_t - x_0                     = " << x_t - x_0 << endl;
+                     // cerr << "dxdt(inv)                     = " << dxdt(inv) << endl;
+                     // cerr << "dxdt(inv) * T                 = " << dxdt(inv) * T<< endl;
+                     // cerr << "(x_t - x_0) / (dxdt(inv) * T) = " << (x_t - x_0) / (dxdt(inv) * T) << endl;
+
                      interval new_T = (x_t - x_0) / (dxdt(inv) * T);
+                     // cerr << "Time   = " << T << endl;
+                     // cerr << "Time'  = " << new_T << endl;
                      if(!intersection(new_T, T, T)) {
-                         return false;
+                         cerr << "Simple_ODE: no intersection for Time" << endl;
+                         // cerr << "Time'' = " << T << endl;
                      }
                  }
                  catch (std::exception& e) {
-                     cerr << "Exception in Simple_ODE: "
-                          << e.what() << endl;
+//                     cerr << "Exception in Simple_ODE: "
+//                          << e.what() << endl;
                  }
              });
 
@@ -505,13 +503,13 @@ bool ode_solver::solve_forward()
                 return true;
             }
 
-            if(!intersection(temp, inv, temp)) {
-                invariantViolated = true;
-                cerr << "Inv: " << inv << endl;
-                cerr << "s  : " << IVector(s) << endl;
-                cerr << "invariant violated (3)!" << endl;
-                break;
-            }
+            // if(!intersection(temp, inv, temp)) {
+            //     invariantViolated = true;
+            //     cerr << "Inv: " << inv << endl;
+            //     cerr << "s  : " << IVector(s) << endl;
+            //     cerr << "invariant violated (3)!" << endl;
+            //     break;
+            // }
             s = C0Rect2Set(temp);
 
             interval stepMade = solver.getStep();
