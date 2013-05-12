@@ -5,6 +5,7 @@
 #define b  0.5
 #define g  9.8
 #define pi 3.14
+#define u  0.00 
 
 [-10, 10] xi;
 [-10, 10] ita;
@@ -14,8 +15,6 @@
 [-10, 10] der_ita;
 [-pi, pi] der_alpha;
 [-pi, pi] der_beta;
-
-[-10, 10] u;
 
 [0,2] time;
 
