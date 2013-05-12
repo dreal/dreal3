@@ -32,7 +32,6 @@ using boost::make_tuple;
 using boost::make_zip_iterator;
 using std::find_if;
 using boost::algorithm::join;
-using std::isnan;
 
 ode_solver::ode_solver(int group,
                        SMTConfig& c,
@@ -493,7 +492,7 @@ bool ode_solver::solve_forward()
             if(find_if(temp.begin(),
                        temp.end(),
                        [&] (interval& i) {
-                           return isnan(i.leftBound()) || isnan(i.rightBound());
+                           return std::isnan(i.leftBound()) || std::isnan(i.rightBound());
                        }) != temp.end()) {
                 cerr << "Got it! : " << IVector(s) << endl;
                 return true;
@@ -506,7 +505,7 @@ bool ode_solver::solve_forward()
             if(find_if(temp.begin(),
                        temp.end(),
                        [&] (interval& i) {
-                           return isnan(i.leftBound()) || isnan(i.rightBound());
+                           return std::isnan(i.leftBound()) || std::isnan(i.rightBound());
                        }) != temp.end()) {
                 cerr << "Got it! : " << IVector(s) << endl;
                 return true;
@@ -815,7 +814,7 @@ bool ode_solver::solve_backward()
             if(find_if(temp.begin(),
                        temp.end(),
                        [&] (interval& i) {
-                           return isnan(i.leftBound()) || isnan(i.rightBound());
+                           return std::isnan(i.leftBound()) || std::isnan(i.rightBound());
                        }) != temp.end()) {
                 cerr << "Got it! : " << IVector(s) << endl;
                 return true;
