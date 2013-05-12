@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ode_solver.h"
 #include <limits>
+#include <cmath>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/iterator/zip_iterator.hpp>
@@ -31,6 +32,7 @@ using boost::make_tuple;
 using boost::make_zip_iterator;
 using std::find_if;
 using boost::algorithm::join;
+using std::isnan;
 
 ode_solver::ode_solver(int group,
                        SMTConfig& c,
