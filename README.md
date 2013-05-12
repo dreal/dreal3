@@ -1,5 +1,9 @@
-dReal Version 2.0
-=================
+dReal: An SMT Solver for Nonlinear Theories of the Reals
+========================================================
+
+Please visit [dReal] for more information.
+
+[dReal]: http://dreal.cs.cmu.edu/
 
 Required Packages
 -----------------
@@ -52,7 +56,4 @@ If you have the GLIBC problem described above. Try the following:
     $ autoreconf -i
     $ LDFLAGS="-Wl,--rpath=<EGLIBC_PATH>:/usr/lib/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/4.6:/lib/x86_64-linux-gnu -Wl,--dynamic-linker=<EGLIBC_PATH>/lib/ld-linux-x86-64.so.2" ./configure 
     $ make
-
-Usage
------
 
