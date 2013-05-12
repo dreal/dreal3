@@ -22,9 +22,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "ode_solver.h"
 #include <limits>
 #include <boost/algorithm/string/join.hpp>
-// #include <boost/lambda/lambda.hpp>
-// #include <boost/lambda/bind.hpp>
-// #include <boost/lambda/if.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/iterator/zip_iterator.hpp>
 
@@ -311,6 +308,7 @@ bool ode_solver::simple_ODE()
     Enode* time = (*_0_vars.begin())->getODEtimevar();
     interval T = interval(get_lb(time), get_ub(time));
 
+    bool ret = true;
     // X_t = X_t \cup (X_0 + (d/dt Inv) * T)
     for_each(make_zip_iterator(boost::make_tuple(X_0.begin(), X_t.begin(), funcs.begin())),
              make_zip_iterator(boost::make_tuple(X_0.end(),   X_t.end(),   funcs.end())),
@@ -322,8 +320,10 @@ bool ode_solver::simple_ODE()
                  try {
                      interval new_x_t = x_0 + dxdt(inv) * T;
                      if(!intersection(new_x_t, x_t, x_t)) {
-                         cerr << "Simple_ODE: no intersection for X_T" << endl;
-//                         return false;
+                         if(_config.nra_verbose) {
+                             cerr << "Simple_ODE: no intersection for X_T" << endl;
+                         }
+                         ret = false;
                      }
                  }
                  catch (std::exception& e) {
@@ -331,6 +331,9 @@ bool ode_solver::simple_ODE()
 //                          << e.what() << endl;
                  }
              });
+    if(ret == false) {
+        return ret;
+    }
     // update
     IVector_to_varlist(X_t, _t_vars);
 
@@ -345,8 +348,10 @@ bool ode_solver::simple_ODE()
                  try {
                      interval new_x_0 = x_t - dxdt(inv) * T;
                      if(!intersection(new_x_0, x_0, x_0)) {
-                         cerr << "Simple_ODE: no intersection for X_0" << endl;
-//                         return false;
+                         if(_config.nra_verbose) {
+                             cerr << "Simple_ODE: no intersection for X_0" << endl;
+                         }
+                         ret = false;
                      }
                  }
                  catch (std::exception& e) {
@@ -354,44 +359,46 @@ bool ode_solver::simple_ODE()
 //                          << e.what() << endl;
                  }
              });
-
+    if(ret == false) {
+        return ret;
+    }
     // update
     IVector_to_varlist(X_0, _0_vars);
 
-    // T = (X_t - X_0) / [(d/dt Inv) * T]
-    for_each(make_zip_iterator(boost::make_tuple(X_0.begin(), X_t.begin(), funcs.begin())),
-             make_zip_iterator(boost::make_tuple(X_0.end(),   X_t.end(),   funcs.end())),
-             [&] (tuple<interval&, interval&, IFunction&> item) {
-                 interval& x_0   = item.get<0>();
-                 interval& x_t   = item.get<1>();
-                 IFunction& dxdt = item.get<2>();
+//     // T = (X_t - X_0) / [(d/dt Inv) * T]
+//     for_each(make_zip_iterator(boost::make_tuple(X_0.begin(), X_t.begin(), funcs.begin())),
+//              make_zip_iterator(boost::make_tuple(X_0.end(),   X_t.end(),   funcs.end())),
+//              [&] (tuple<interval&, interval&, IFunction&> item) {
+//                  interval& x_0   = item.get<0>();
+//                  interval& x_t   = item.get<1>();
+//                  IFunction& dxdt = item.get<2>();
 
-                 try {
-                     // cerr << "x_0                           = " << x_0 << endl;
-                     // cerr << "x_t                           = " << x_t << endl;
-                     // cerr << "T                             = " << T << endl;
-                     // cerr << "x_t - x_0                     = " << x_t - x_0 << endl;
-                     // cerr << "dxdt(inv)                     = " << dxdt(inv) << endl;
-                     // cerr << "dxdt(inv) * T                 = " << dxdt(inv) * T<< endl;
-                     // cerr << "(x_t - x_0) / (dxdt(inv) * T) = " << (x_t - x_0) / (dxdt(inv) * T) << endl;
+//                  try {
+//                      // cerr << "x_0                           = " << x_0 << endl;
+//                      // cerr << "x_t                           = " << x_t << endl;
+//                      // cerr << "T                             = " << T << endl;
+//                      // cerr << "x_t - x_0                     = " << x_t - x_0 << endl;
+//                      // cerr << "dxdt(inv)                     = " << dxdt(inv) << endl;
+//                      // cerr << "dxdt(inv) * T                 = " << dxdt(inv) * T<< endl;
+//                      // cerr << "(x_t - x_0) / (dxdt(inv) * T) = " << (x_t - x_0) / (dxdt(inv) * T) << endl;
 
-                     interval new_T = (x_t - x_0) / (dxdt(inv) * T);
-                     // cerr << "Time   = " << T << endl;
-                     // cerr << "Time'  = " << new_T << endl;
-                     if(!intersection(new_T, T, T)) {
-                         cerr << "Simple_ODE: no intersection for Time" << endl;
-                         // cerr << "Time'' = " << T << endl;
-                     }
-                 }
-                 catch (std::exception& e) {
-//                     cerr << "Exception in Simple_ODE: "
-//                          << e.what() << endl;
-                 }
-             });
+//                      interval new_T = (x_t - x_0) / (dxdt(inv) * T);
+//                      // cerr << "Time   = " << T << endl;
+//                      // cerr << "Time'  = " << new_T << endl;
+//                      if(!intersection(new_T, T, T)) {
+//                          cerr << "Simple_ODE: no intersection for Time" << endl;
+//                          // cerr << "Time'' = " << T << endl;
+//                      }
+//                  }
+//                  catch (std::exception& e) {
+// //                     cerr << "Exception in Simple_ODE: "
+// //                          << e.what() << endl;
+//                  }
+//              });
 
-    // update
-    set_lb(time, T.leftBound());
-    set_ub(time, T.rightBound());
+//     // update
+//     set_lb(time, T.leftBound());
+//     set_ub(time, T.rightBound());
 
     return true;
 }

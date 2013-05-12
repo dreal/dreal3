@@ -207,15 +207,18 @@ void icp_solver::callODESolver(int group,
     }
     set<Enode*> current_ode_vars = diff_vec[group];
 
+
     // The size of ODE_Vars should be even
     if (current_ode_vars.size() % 2 == 1) {
-        ODEresult = false;
-        cerr << "The size of ODE_Vars should be even" << endl;
-        for_each(current_ode_vars.begin(),
-                 current_ode_vars.end(),
-                 [] (Enode* ode_var) {
-                     cerr << ode_var << endl;
-                 });
+        if(_config.nra_verbose) {
+            ODEresult = false;
+            cerr << "The size of ODE_Vars should be even" << endl;
+            for_each(current_ode_vars.begin(),
+                     current_ode_vars.end(),
+                     [] (Enode* ode_var) {
+                         cerr << ode_var << endl;
+                     });
+        }
         return;
     }
 
@@ -227,7 +230,9 @@ void icp_solver::callODESolver(int group,
         if(current_ode_vars.find((*ite)->getODEopposite()) == current_ode_vars.end())
         {
             ODEresult = false;
-            cerr << "the _0 and _t variables do not match:" << *ite << endl;
+            if(_config.nra_verbose) {
+                cerr << "the _0 and _t variables do not match:" << *ite << endl;
+            }
             return;
         }
     }
@@ -415,24 +420,16 @@ rp_box icp_solver::compute_next()
             if ((i=_vselect->apply(_boxes.get()))>=0 &&
                 (rp_box_width(_boxes.get()) >= _config.nra_precision))
             {
-                cerr << "[before branched on " << rp_variable_name(rp_problem_var(*_problem, i)) << "]\t";
-                display_interval(cerr, rp_box_elem(_boxes.get(),i), 16, RP_INTERVAL_MODE_BOUND);
-                cerr << endl;
 
                 ++_nsplit;
-                cerr << "box size: " << _boxes.size() << endl;
                 _dsplit->apply(_boxes,i);
 
-                cerr << "[after branched on " << rp_variable_name(rp_problem_var(*_problem, i)) << "]\t";
-                display_interval(cerr, rp_box_elem(_boxes.get(),i), 16, RP_INTERVAL_MODE_BOUND);
-                cerr << endl;
                 if(_config.nra_proof) {
                     _config.nra_proof_out << endl
                                           << "[branched on "
                                           << rp_variable_name(rp_problem_var(*_problem, i))
                                           << "]"
                                           << endl;
-
 //                           << "[branched on x" << i << "]"
                     pprint_vars(_config.nra_proof_out, *_problem, _boxes.get());
                 }
