@@ -75,10 +75,10 @@
 #define    jsi4  ( 0 - (w * s)/EPI_TSI)
 #define    stim  1.0 // The external stimulation is a rectangular pulse of height 1 and length 1ms. Since u reach its max during the stimulation, time scale is set to be [0,1]
 
-[0, 2.0] u;
-[0, 2.0] v;
-[0, 2.0] w;
-[0, 2.0] s;
+[0, 1.8] u;
+[0, 1.2] v;
+[0, 1.5] w;
+[0, 1.0] s;
 
 [0, 1] tau;
 [0, 1] time;
