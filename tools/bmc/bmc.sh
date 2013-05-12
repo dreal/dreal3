@@ -1,5 +1,14 @@
 #!/bin/bash
-SCRIPTPATH=`dirname $(readlink -f $0)`
+
+case "$OSTYPE" in
+  darwin*)
+	SCRIPTPATH=`dirname $(readlink $0)`;;
+  linux*)  
+	SCRIPTPATH=`dirname $(readlink -f $0)`;;
+  *)    
+	SCRIPTPATH=`dirname $(readlink -f $0)`;;
+esac
+
 BMC=${SCRIPTPATH}/main.native
 
 #################################################################
