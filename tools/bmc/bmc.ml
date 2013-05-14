@@ -252,7 +252,7 @@ let make_smt2
   in
   let mode_vardecls =
     List.map
-      (fun n -> ("mode_" ^ (Int.to_string n), Value.Intv (0.0, float_of_int num_of_modes)))
+      (fun n -> ("mode_" ^ (Int.to_string n), Value.Intv (1.0, float_of_int num_of_modes)))
       (List.of_enum (0 -- k))
   in
   let new_vardecls = List.flatten [vardecls;time_vardecls;mode_vardecls] in
