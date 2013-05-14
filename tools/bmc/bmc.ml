@@ -51,7 +51,9 @@ let generate_redundant_cond (all_vars : var Set.t) (f : formula) =
 let process_init (q : id) (init : formula) (all_vars : var Set.t) : formula =
   let redundant_cond = generate_redundant_cond all_vars init in
   let init' = Basic.make_and (init::redundant_cond) in
-  Basic.subst_formula (add_index 0 q "_0") init'
+  let init'' = Basic.subst_formula (add_index 0 q "_0") init' in
+  let mode_cond = Basic.Eq (Basic.Var "mode_0", Basic.Num (float_of_int q)) in
+  Basic.make_and [init''; mode_cond]
 
 let process_flow (k : int) (q : id) (m : mode) : (flows_annot * formula) =
   let flows_annot =
@@ -93,7 +95,14 @@ let process_jump (jump) (k : int) (next_k : int) (q : id) (next_q : id) (all_var
       | false -> add_index k q "_t" v)
       change'
   in
-  Basic.make_and [gurad'; change'']
+  let mode_cond =
+    Basic.make_and
+      (List.map
+         (fun (k, q) ->
+           Basic.Eq (Basic.Var ("mode_" ^ (string_of_int k)), Basic.Num (float_of_int q)))
+         [(k, q); (next_k, next_q)])
+  in
+  Basic.make_and [gurad'; change''; mode_cond]
 
 let process_goals (hm : Hybrid.t) (k : int) (goals : (int * formula) list) (all_vars : var Set.t) =
   let goal_formulas =
@@ -103,7 +112,10 @@ let process_goals (hm : Hybrid.t) (k : int) (goals : (int * formula) list) (all_
           let redundant_cond = generate_redundant_cond all_vars goal_f in
           Basic.make_and (goal_f::redundant_cond)
         in
-        Basic.subst_formula (add_index k q "_t") goal_f')
+        let mode_cond = Basic.Eq (Basic.Var ("mode_" ^ (string_of_int k)), Basic.Num (float_of_int q)) in
+        Basic.make_and [Basic.subst_formula (add_index k q "_t") goal_f';
+                        mode_cond;]
+      )
       goals
   in
   Basic.make_or goal_formulas
@@ -163,7 +175,6 @@ let transform modemap init_id (k : int) (next_k : int) (edge_op : (int * int) op
   let (flow_list, formula_list) = List.split trans_result_list in
   (List.flatten flow_list, Basic.make_or formula_list)
 
-
 let reach (k : int) (hm : Hybrid.t) (path : int list option):
     (varDecl list * flows_annot * formula * Value.t)
     =
@@ -211,6 +222,7 @@ let make_smt2
     (flows_annot : flows_annot)
     (formula : formula)
     (time_intv : Value.t)
+    (k : int)
     : Smt2.t
     =
   let make_lb name v = Basic.Le (Basic.Num v,  Basic.Var name) in
@@ -238,7 +250,12 @@ let make_smt2
       (fun n -> ("time_" ^ (Int.to_string n), time_intv))
       diff_groups
   in
-  let new_vardecls = vardecls@time_vardecls in
+  let mode_vardecls =
+    List.map
+      (fun n -> ("mode_" ^ (Int.to_string n), Value.Intv (0.0, float_of_int num_of_modes)))
+      (List.of_enum (0 -- k))
+  in
+  let new_vardecls = List.flatten [vardecls;time_vardecls;mode_vardecls] in
   let (vardecl_cmds, assert_cmds_list) =
     List.split
       (List.map
