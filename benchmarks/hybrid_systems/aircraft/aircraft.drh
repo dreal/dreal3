@@ -1,3 +1,14 @@
+//aircraft landing model
+//Hybrid Verification of an Interface for an Automatic landing. M. Oishi et al. 
+
+#define CL01	0.4225
+#define CL02	0.7043
+#define CL03	0.8212
+#define CL04	0.4225
+#define CL05	0.7043
+#define CL04	0.
+
+
 [0.28] alpha0;
 [0.23] alpha25;
 [0.19] alpha50;

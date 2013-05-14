@@ -1,0 +1,65 @@
+//Longitudinal Vehicle Dynamics
+//From R. Rajamani "Vehicle Dynamics and Control" Ch 4.
+
+#define rou 	1.225 	//mass density of air
+
+#define Cd	0.5
+#define Vwind	
+#define m	1200.0	//mass of car
+
+#define Cf		//coeffient for front tire force
+#define Cr		//coeffient for rear tire force
+
+#define g	9.8
+
+#define theta
+
+#define Af 1.6+0.00056*(m-765)
+#define Faero 0.5*rou*Cd*Af*(Vx+Vwind)^2
+
+#define Fxf_b (Cf*(r_eff*omega_wf) - v)/v			//brake front tire force
+#define Fxf_a (Cf*(r_eff*omega_wf) - v)/(r_eff*omega_wf)	//acceleration front tire force
+
+
+
+[0, 200]	x;
+[0,  60]	v;
+
+
+
+{
+	mode 1; //brake mode
+
+	flow:
+		d/dt[x] = v;
+		d/dt[v] = (1/m) * (Fxf_b + Fxr_b - Faero - Rx_b - m*g*sin(theta) );
+		d/dt[omega_wf] = 
+		d/dt[omega_wr] =
+
+
+	jump:
+		(v < 30) ==> @2 (and (x' = x) (v' = v));
+
+}
+
+{
+	mode 2; //acceleration mode
+
+	flow:
+		d/dt[x] = v;
+		d/dt[v] = (1/m) * (Fxf_a + Fxr_a - Faero - Rx_b - m*g*sin(theta) );
+		d/dt[omega_wf] = 
+		d/dt[omega_wr] =
+
+
+	jump:
+		(v > 30) ==> @1 (and (x' = x) (v' = v));
+
+}
+
+init:
+	@2 ( and (v = 0) (x = 0) (omega_wf = 0) (omega_wr = 0) );
+
+goal:
+	
+
