@@ -24,7 +24,7 @@
 
 
 #define Fxr_b   (Cr * ( (r_eff * omega_wr) / v) - Cr)                          //brake front tire force
-#define Fxf_a   (Cr  - (Cr* v) / (r_eff * omega_wr))	//acceleration front tire force
+#define Fxr_a   (Cr  - (Cr* v) / (r_eff * omega_wr))	//acceleration front tire force
 
 #define Rx_b	0.0	//rolling resistance, can be refined
 #define Rx_a	0.0	//rolling resistance, can be refined
@@ -45,6 +45,7 @@
         invt:
                 (x >= 0);
                 (v >= 0);
+                (v >= 10);
                 (omega_wf >= -100);
                 (omega_wr >= -100);
 
@@ -55,7 +56,7 @@
                 d/dt[omega_wr] = (1/Iw) * (0 - (r_eff * Fxr_b));
 
         jump:
-                (v < 10) ==> @2 (and (x' = x) (v' = v) (omega_wf' = omega_wf) (omega_wr' = omega_wr));
+                (v <= 10) ==> @2 (and (x' = x) (v' = v) (omega_wf' = omega_wf) (omega_wr' = omega_wr));
 
 }
 
@@ -64,7 +65,7 @@
 
         invt:
                 (x >= 0);
-                (v >= 0);
+                (v <= 40);
                 (omega_wf >= -100);
                 (omega_wr >= -100);
 
@@ -74,7 +75,7 @@
                 d/dt[omega_wf] = (1 / Iw) * (Twheel - (r_eff * Fxf_a));
                 d/dt[omega_wr] = (1 / Iw) * (0 - (r_eff * Fxr_a));
         jump:
-                (v > 40) ==> @1 (and (x' = x) (v' = v) (omega_wf' = omega_wf) (omega_wr' = omega_wr));
+                (v >= 40) ==> @1 (and (x' = x) (v' = v) (omega_wf' = omega_wf) (omega_wr' = omega_wr));
 
 }
 
