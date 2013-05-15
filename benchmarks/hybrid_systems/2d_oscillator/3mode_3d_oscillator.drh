@@ -26,8 +26,8 @@ invt:
 
 flow:
         d/dt[x] = - ax * sin(omega * tau);
-        d/dt[y] = - ay * sin(omega1 * tau) * omega2;
-        d/dt[z] = - az * sin(omega2 * tau) * omega1;
+        d/dt[y] = - ay * sin( (omega1+1.0) * tau) * omega2;
+        d/dt[z] = - az * sin( (omega2+1.0) * tau) * omega1;
         d/dt[omega1] = ( 0 - 0.5 * omega1);
         d/dt[omega2] = ( 0 - omega2);
         d/dt[tau] = 1;
@@ -48,13 +48,13 @@ invt:
 
 flow:
         d/dt[x] = - ax * sin(omega * tau);
-        d/dt[y] = - ay * sin(omega1 * tau) * omega2;
-        d/dt[z] = - az * sin(omega2 * tau) * omega1;
+        d/dt[y] = - ay * sin( (omega1 + 1.0) * tau) * omega2;
+        d/dt[z] = - az * sin( (2.0 - omega2) * tau) * omega1;
         d/dt[omega1] = (0 - omega1);
         d/dt[omega2] = ( 0 - omega2);
         d/dt[tau] = 1;
 
-jump: (and (tau >= 10)) ==> @3 (and (tau' = 0) (x' = 0.2 * x) (y' = y * 0.5 ) (z' = z) (omega1' = 0) (omega2' = 1));
+jump: (and (tau >= 10)) ==> @3 (and (tau' = 0) (x' = 0.2 * x) (y' = y * 0.5 ) (z' = z) (omega1' = sin(omega1)) (omega2' = (0- omega2)));
 }
 
 
@@ -70,13 +70,13 @@ invt:
 
 flow:
         d/dt[x] = - ax * sin(omega * tau);
-        d/dt[y] = - ay * sin(omega1 * tau) * omega2;
-        d/dt[z] = - az * sin(omega2 * tau) * omega1;
+        d/dt[y] = - ay * sin( (omega1+1.0) * tau) * omega2;
+        d/dt[z] = - az * sin( (omega2+2.0) * tau) * omega1;
         d/dt[omega1] = ( 0 - 0.5 * omega1);
         d/dt[omega2] = ( 0 - omega2);
         d/dt[tau] = 1;
 
-jump: (and (tau >= 5)) ==> @1 ( and (tau' = 0) (x' = x) (y' = y) (z' = z) (omega1' = 0) (omega2' = 1));
+jump: (and (tau >= 5)) ==> @1 ( and (tau' = 0) (x' = x) (y' = y) (z' = z) (omega1' = 1) (omega2' = 1));
 
 }
 
