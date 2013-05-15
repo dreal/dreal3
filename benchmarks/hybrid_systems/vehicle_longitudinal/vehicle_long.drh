@@ -15,7 +15,7 @@
 #define theta	0.3
 
 #define Af	1.6 + 0.00056 * (m - 765.0)
-#define Faero   0.5 * rou * Cd * Af * ((v + Vwind)^3.0)
+#define Faero   0.5 * rou * Cd * Af * ((v + Vwind) ^ 2.0)
 
 #define r_eff	1.0
 
