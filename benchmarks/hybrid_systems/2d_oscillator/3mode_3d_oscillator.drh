@@ -8,8 +8,8 @@
 [-5, 5] y;
 [-5, 5] z;
 
-[-6, 6] omega1;
-[-6, 6] omega2;
+[-4, 4] omega1;
+[-4, 4] omega2;
 
 [0, 200] tau;
 [0, 200] time;
@@ -26,8 +26,8 @@ invt:
 
 flow:
         d/dt[x] = - ax * sin(omega * tau);
-        d/dt[y] = - ay * sin( (omega1 + 1.0) * tau) * omega2;
-        d/dt[z] = - az * sin( (omega2 + 1.0) * tau) * omega1;
+        d/dt[y] = - ay * sin( (omega1 + 1.0) * tau) * sin(omega2)*2;
+        d/dt[z] = - az * sin( (omega2 + 1.0) * tau) * cos(omega1)*2;
         d/dt[omega1] = ( 0 - 0.5 * omega1);
         d/dt[omega2] = ( 0 - omega2);
         d/dt[tau] = 1;
@@ -48,8 +48,8 @@ invt:
 
 flow:
         d/dt[x] = - ax * sin(omega * tau);
-        d/dt[y] = - ay * sin( (omega1 + 1.0) * tau) * omega2;
-        d/dt[z] = - az * sin( (2.0 - omega2) * tau) * omega1;
+        d/dt[y] = - ay * sin( (omega1 + 1.0) * tau) * sin(omega2)*2;
+        d/dt[z] = - az * sin( (2.0 - omega2) * tau) * sin(omega1)*2;
         d/dt[omega1] = (0 - omega1);
         d/dt[omega2] = ( 0 - omega2);
         d/dt[tau] = 1;
@@ -70,8 +70,8 @@ invt:
 
 flow:
         d/dt[x] = - ax * sin(omega * tau);
-        d/dt[y] = - ay * sin( (omega1 + 1.0) * tau) * omega2;
-        d/dt[z] = - az * sin( (omega2 + 2.0) * tau) * omega1;
+        d/dt[y] = - ay * sin( (omega1 + 1.0) * tau) * sin(omega2)*2;
+        d/dt[z] = - az * sin( (omega2 + 2.0) * tau) * cos(omega1)*2;
         d/dt[omega1] = ( 0 - 0.5 * omega1);
         d/dt[omega2] = ( 0 - omega2);
         d/dt[tau] = 1;
