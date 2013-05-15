@@ -19,11 +19,12 @@
 
 #define r_eff	1.0
 
-#define Fxf_b   (Cf * r_eff * omega_wf - v) / v                         //brake front tire force
-#define Fxf_a   (Cf * r_eff * omega_wf - v) / (r_eff * omega_wf)	//acceleration front tire force
+#define Fxf_b   (Cf * ( (r_eff * omega_wf) / v) - Cf)                          //brake front tire force
+#define Fxf_a   (Cf  - (Cf* v) / (r_eff * omega_wf))	//acceleration front tire force
 
-#define Fxr_b	(Cr * r_eff * omega_wr - v) / v                         //brake front tire force
-#define Fxr_a   (Cr * r_eff * omega_wr - v) / (r_eff * omega_wr)	//acceleration front tire force
+
+#define Fxr_b   (Cr * ( (r_eff * omega_wr) / v) - Cr)                          //brake front tire force
+#define Fxf_a   (Cr  - (Cr* v) / (r_eff * omega_wr))	//acceleration front tire force
 
 #define Rx_b	0.0	//rolling resistance, can be refined
 #define Rx_a	0.0	//rolling resistance, can be refined
