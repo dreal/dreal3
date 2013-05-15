@@ -260,6 +260,19 @@ bool NRASolver::check( bool complete )
         cerr << "NRASolver::check " << (complete ? "complete" : "incomplete") << endl;
     }
 
+    for(map<Enode*, pair<double, double> >::const_iterator ite = env.begin();
+        ite != env.end();
+        ite++)
+    {
+        Enode* key = (*ite).first;
+        double lb =  (*ite).second.first;
+        double ub =  (*ite).second.second;
+        if(boost::starts_with(key->getCar()->getName(), "mode_")) {
+            cerr << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
+        }
+    }
+    cerr << "================================================================" << endl;
+
     bool result = true;
 
     if (config.nra_verbose) {
@@ -329,6 +342,18 @@ bool NRASolver::check( bool complete )
                         ode_groups.insert((*var)->getODEgroup());
                     }
                 }
+            }
+        }
+
+        for(map<Enode*, pair<double, double> >::const_iterator ite = env.begin();
+            ite != env.end();
+            ite++)
+        {
+            Enode* key = (*ite).first;
+            double lb =  (*ite).second.first;
+            double ub =  (*ite).second.second;
+            if(boost::starts_with(key->getCar()->getName(), "mode_")) {
+                cerr << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
             }
         }
 

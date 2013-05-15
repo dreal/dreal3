@@ -91,7 +91,7 @@ let run () =
     in
     let _ = check_path !path !k (Hybrid.init_id hm) (Hybrid.goal_ids hm) in
     let (vardecls, flow_annots, formula, time_intv) = Bmc.reach !k hm !path in
-    let smt2 = Bmc.make_smt2 vardecls flow_annots formula time_intv in
+    let smt2 = Bmc.make_smt2 vardecls flow_annots formula time_intv !k in
     begin
       Smt2.print out smt2
     end
