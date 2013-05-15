@@ -4,27 +4,37 @@
 #define rou 	1.225 	//mass density of air
 
 #define Cd	0.5
-#define Vwind	
+#define Vwind	0
 #define m	1200.0	//mass of car
 
-#define Cf		//coeffient for front tire force
-#define Cr		//coeffient for rear tire force
+#define Cf	1	//coeffient for front tire force
+#define Cr	1	//coeffient for rear tire force
 
 #define g	9.8
 
-#define theta
+#define theta	0.3
 
-#define Af 1.6+0.00056*(m-765)
-#define Faero 0.5*rou*Cd*Af*(Vx+Vwind)^2
+#define Af	1.6+0.00056*(m-765)
+#define Faero 	0.5*rou*Cd*Af*((Vx+Vwind)^2)
 
-#define Fxf_b (Cf*(r_eff*omega_wf) - v)/v			//brake front tire force
-#define Fxf_a (Cf*(r_eff*omega_wf) - v)/(r_eff*omega_wf)	//acceleration front tire force
+#define Fxf_b 	(Cf*(r_eff*omega_wf) - v)/v			//brake front tire force
+#define Fxf_a 	(Cf*(r_eff*omega_wf) - v)/(r_eff*omega_wf)	//acceleration front tire force
 
+#define Fxr_b	(Cr*(r_eff*omega_wr) - v)/v			//brake front tire force
+#define Fxr_a 	(Cr*(r_eff*omega_wr) - v)/(r_eff*omega_wr)	//acceleration front tire force
 
+#define Rx_b	0.0	//rolling resistance, can be refined
+#define Rx_a	0.0	//rolling resistance, can be refined
+
+#define Iw	30.0
+#define r_eff	1
+
+#define Twheel	100.0	//wheel torque, will refine
 
 [0, 200]	x;
 [0,  60]	v;
-
+[-100, 100]	omega_wf;
+[-100, 100]	omega_wr;
 
 
 {
@@ -33,12 +43,12 @@
 	flow:
 		d/dt[x] = v;
 		d/dt[v] = (1/m) * (Fxf_b + Fxr_b - Faero - Rx_b - m*g*sin(theta) );
-		d/dt[omega_wf] = 
-		d/dt[omega_wr] =
+		d/dt[omega_wf] = (1/Iw)*(Twheel - (r_eff * Fxf_b));
+		d/dt[omega_wr] = (1/Iw)*(0 - (r_eff * Fxr_b));
 
 
 	jump:
-		(v < 30) ==> @2 (and (x' = x) (v' = v));
+		(v < 10) ==> @2 (and (x' = x) (v' = v));
 
 }
 
@@ -47,13 +57,11 @@
 
 	flow:
 		d/dt[x] = v;
-		d/dt[v] = (1/m) * (Fxf_a + Fxr_a - Faero - Rx_b - m*g*sin(theta) );
-		d/dt[omega_wf] = 
-		d/dt[omega_wr] =
-
-
+		d/dt[v] = (1/m) * (Fxf_a + Fxr_a - Faero - Rx_a - m*g*sin(theta) );
+		d/dt[omega_wf] = (1/Iw)*(Twheel - (r_eff * Fxf_a));
+		d/dt[omega_wr] = (1/Iw)*(0 - (r_eff * Fxr_a));
 	jump:
-		(v > 30) ==> @1 (and (x' = x) (v' = v));
+		(v > 40) ==> @1 (and (x' = x) (v' = v));
 
 }
 
@@ -61,5 +69,5 @@ init:
 	@2 ( and (v = 0) (x = 0) (omega_wf = 0) (omega_wr = 0) );
 
 goal:
-	
+	@1 (v> 20);
 
