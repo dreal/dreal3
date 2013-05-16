@@ -32,7 +32,7 @@ flow:
         d/dt[omega2] = ( 0 - omega2);
         d/dt[tau] = 1;
 
-jump: (and (tau >= 5)) ==> @2 ( and (tau' = 0) (x' = x) (y' = y * 0.2) (z' = z) (omega1' = 1.5) (omega2' = 1));
+jump: (and (tau >= 4)) ==> @2 ( and (tau' = 0) (x' = x) (y' = y * 0.2) (z' = z) (omega1' = 1.5) (omega2' = 1));
 
 }
 
@@ -54,7 +54,7 @@ flow:
         d/dt[omega2] = ( 0 - omega2);
         d/dt[tau] = 1;
 
-jump: (and (tau >= 10)) ==> @3 (and (tau' = 0) (x' = 0.2 * x) (y' = y * 0.5 ) (z' = z) (omega1' = sin(omega1)) (omega2' = (0- omega2)));
+jump: (and (tau >= 8)) ==> @3 (and (tau' = 0) (x' = 0.2 * x) (y' = y * 0.5 ) (z' = z) (omega1' = sin(omega1)) (omega2' = (0- omega2)));
 }
 
 
@@ -66,7 +66,7 @@ invt:
         (z >= -5);
         (omega1 >= -3.14);
         (omega2 >= -3.14);
-        (tau <= 5);
+        (tau <= 6);
 
 flow:
         d/dt[x] = - ax * sin(omega * tau);
@@ -85,4 +85,4 @@ init:
 @1 (and (x <= 0.1) (x >= - 0.2) (y = 0) (z = 0) (tau = 0) (omega1 = 2) (omega2 = 2.5));
 
 goal:
-@3 (tau = 2.0);
+@3 (tau = 4.0);
