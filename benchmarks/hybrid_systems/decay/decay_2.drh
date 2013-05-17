@@ -3,13 +3,12 @@
 [0, 10] t;
 [0, 10] time;
 
-%%
 { mode 1;
 
   invt:
-	(>= x 0);
+	(x >= 0);
   flow:
-	d/dt[x] = (- 0 (* k x));
+	d/dt[x] = - k * x;
 	d/dt[k] = 0;
         d/dt[t] = 1;
   jump:
@@ -37,7 +36,7 @@
   jump:
 	(> t 10) ==> @1 (and (= x' x) (= k' k) (= t' t));
 }
-%%
+
 init:
 @1	(and (= x 10) (= t 0) (>= k 0) (<= k 1));
 

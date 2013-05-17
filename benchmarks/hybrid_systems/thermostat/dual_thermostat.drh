@@ -1,32 +1,37 @@
+#define a 2.0
+#define b 3.0
+
 [10, 50.0] x;
 [10, 50.0] y;
-[2.0] a;
-[3.0] b;
 
 [0, 1] time;
 
-%%
 { mode 1;
+  invt:
+	(x >= 19);
+	(y >= 10);
 
   flow:
-        d/dt[x] = (- 0 (* a y));
-        d/dt[y] = (- 0 (* b x));
+        d/dt[x] = 0 - a * y ;
+        d/dt[y] = 0 - b * x ;
   jump:
-        (<= x 19) ==> @2 ( and (= x' y) (= y' x));
+        (x <= x) ==> @2 ( and (x' = y) (y' = x));
 }
 
 { mode 2;
+  invt:
+	(x <= 21);
+	(y >= 10);
 
   flow:
-        d/dt[x] = (- 0 (* a (- y 30)));
-        d/dt[y] = (- 0 (* b (- x 30)));
+        d/dt[x] = 0 - a * (y - 30);
+        d/dt[y] = 0 - b * (x - 30);
   jump:
-        (>= x 21) ==> @1 (and (= x' y) (= y' x));
+        (x >= 21) ==> @1 (and (x' = y) (y' = x));
 }
 
-%%
 init:
-@1	( and (< x 21) (= y 20));
+@1	( and (x < 21) (y = 20));
 
 goal:
-@2	(= y 40);
+@2	(y = 40);
