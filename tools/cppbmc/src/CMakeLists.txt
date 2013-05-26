@@ -13,16 +13,16 @@ include_directories(${CLANG_INCLUDE_DIRS})
 
 find_package (Threads)
 
-#set(Boost_USE_STATIC_RUNTIME    ON)
-#find_package(Boost REQUIRED COMPONENTS filesystem system date_time)
-#include_directories(${Boost_INCLUDE_DIRS})
+set(Boost_USE_STATIC_RUNTIME    ON)
+find_package(Boost) # REQUIRED COMPONENTS filesystem system date_time)
+include_directories(${Boost_INCLUDE_DIRS})
 
 add_executable(cppbmc main.cpp)
 target_link_libraries(cppbmc 
                       ${CLANG_LIBS} 
                       ${LLVM_LIBS_CORE}
                       ${CMAKE_DL_LIBS}
-#                     ${Boost_LIBRARIES} 
+                     ${Boost_LIBRARIES} 
                       ${CMAKE_THREAD_LIBS_INIT})
 
 ADD_DEFINITIONS("-std=c++0x") 
