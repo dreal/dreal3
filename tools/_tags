@@ -1,3 +1,4 @@
 <bmc/*.{ml,native}>: pkg_basic, pkg_smt2, pkg_drh, package(batteries), package(batteries.syntax)
 <smt2_stat/*.{ml,native}>: pkg_basic, pkg_smt2, pkg_drh, package(batteries), package(batteries.syntax)
-"basic" or "smt2" or "drh" : include
+<cppbmc/*.{ml,native}>: pkg_basic, pkg_smt2, pkg_drh, package(batteries), package(batteries.syntax)
+"basic" or "smt2" or "drh" or "cppbmc" : include
