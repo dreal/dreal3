@@ -838,3 +838,26 @@ let rec print_infix_exp (out : 'a IO.output) : exp -> unit =
   | Sinh e -> print_fncall "sinh" [e]
   | Cosh e -> print_fncall "cosh" [e]
   | Tanh e -> print_fncall "tanh" [e]
+
+let rec map_exp (func : exp -> exp) (f : formula)
+    : formula
+    = match f with
+    | True -> f
+    | False -> f
+    | Not f' -> Not (map_exp func f')
+    | And fs -> And (List.map (map_exp func) fs)
+    | Or fs -> Or (List.map (map_exp func) fs)
+    | Gt (e1, e2) -> Gt(func e1, func e2)
+    | Lt (e1, e2) -> Lt(func e1, func e2)
+    | Ge (e1, e2) -> Ge(func e1, func e2)
+    | Le (e1, e2) -> Le(func e1, func e2)
+    | Eq (e1, e2) -> Eq(func e1, func e2)
+    | FVar _ -> f
+    | Imply (f1, f2) -> Imply (map_exp func f1, map_exp func f2)
+    | LetF (str_formula_list, f') ->
+      LetF (List.map (fun (str, f) -> (str, map_exp func f)) str_formula_list,
+            map_exp func f')
+    | LetE (str_exp_list, f') ->
+      LetE (List.map (fun (str, e) -> (str, func e)) str_exp_list,
+            map_exp func f')
+    | ForallT f' -> ForallT (map_exp func f')
