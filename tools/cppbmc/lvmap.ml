@@ -1,9 +1,11 @@
 (*
  * Soonho Kong (soonhok@cs.cmu.edu)
  *)
-open Batteries
 
-type key = Cil.lval
+open Batteries
+open Cil
+
+type key = lval
 type value = int
 type t = (key, value) Map.t
 
@@ -53,17 +55,48 @@ let diff (m1 : t) (m2 : t) : (key * value * value) list =
     m1
     []
 
+let extract_range_from_attrs attrs : (float * float) =
+  match attrs with
+    (Attr (attr_str, [AStr param]))::[] ->
+      let (lb, ub) =
+        match List.map Float.of_string (String.nsplit param ",") with
+          [n1; n2] -> (n1, n2)
+        | _ -> failwith ("Fail to extract range information from attributes: " ^ param)
+      in
+      (lb, ub)
+  | _ -> (0.0, 0.0)
+
+let rec extract_range_from_typ typ offset =
+  match (typ, offset) with
+    (TFloat (_, attrs), _) ->
+      let (lb, ub) = extract_range_from_attrs attrs in
+      Printf.printf "[%f, %f] " lb ub
+  | (TVoid _, _) -> failwith "LVMAP extract_range_from_typ with Non TVoid"
+  | (TInt _, _) ->
+    String.print IO.stdout "INTEGER! ";
+  | (TPtr (typ', _), _) -> extract_range_from_typ typ' offset
+  | (TArray _, _) -> failwith "LVMAP extract_range_from_typ with Non TArray"
+  | (TFun _, _) -> failwith "LVMAP extract_range_from_typ with Non TFun"
+  | (TNamed (tinfo, _), _) ->  extract_range_from_typ tinfo.ttype offset
+  | (TComp _, Field (finfo, offset')) -> extract_range_from_typ finfo.ftype offset'
+  | (TComp _, NoOffset) -> failwith "LVMAP extract_range_from_typ with Non TComp + NoOffset"
+  | (TEnum _, _) -> failwith "LVMAP extract_range_from_typ with Non TEnum"
+  | (TBuiltin_va_list _, _) -> failwith "LVMAP extract_range_from_typ with Non TBuiltin_va_list"
+
 let print out (m : t) : unit =
-  let string_of_lval (lv : Cil.lval) : string =
-    Pretty.sprint 80 (Cil.d_lval () lv)
+  let string_of_lval (lv : lval) : string =
+    Pretty.sprint 80 (d_lval () lv)
   in
   (Map.print
      ~first: ""
      ~sep: ";\n"
      ~last: ""
      (fun out lv ->
-       String.print out ("[, ] ");
-       String.print out (string_of_lval lv)
+       (match lv with
+         (Var vinfo, offset) -> extract_range_from_typ vinfo.vtype offset
+       | (Mem (Lval (Var vinfo, _)), offset) -> extract_range_from_typ vinfo.vtype offset
+       | (Mem _, _) -> failwith "LVMAP Print with Mem");
+       String.print out (string_of_lval lv);
      )
      (fun out n -> String.print out (string_of_int n))
      out

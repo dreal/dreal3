@@ -53,6 +53,14 @@ let () =
           IO.write_line out "// ------------------------";
           IO.write_line out "// Variable Ranges";
           IO.write_line out "// ------------------------";
+          (* List.iter (fun local -> *)
+          (*   ignore (Pretty.printf "%a %s\n" d_type local.vtype local.vname); *)
+          (*   ignore (match local.vtype with *)
+          (*     TFloat (_, attrs) -> *)
+          (*       Pretty.printf "Attr: |%a|\n" d_attrlist attrs; *)
+          (*   ) *)
+          (* ) *)
+          (*   fundec.slocals; *)
           Lvmap.print   out s;
           IO.write_line out "\n\n";
           IO.write_line out "// ------------------------";
@@ -61,7 +69,7 @@ let () =
           Basic.print_formula out f;
           IO.write_line out "\n\n";
           IO.write_line out "// ------------------------";
-          IO.write_line out "// Invariant";
+          IO.write_line out "// Goal";
           IO.write_line out "// ------------------------";
         end
       | GAsm _ -> ()			(* global asm statement *)

@@ -17,22 +17,23 @@ let run () =
     Error.init ();
     let lexbuf =
       Lexing.from_channel (if !src = "" then stdin else open_in !src) in
-    let (vardecls, trans, inv) = Parser.main Lexer.start lexbuf in
+    let (vardecls, trans, goal) = Parser.main Lexer.start lexbuf in
     let out = IO.stdout in
     let vardecls' = Vardecl.unfold vardecls in
     let subst_f func f = Basic.map_exp (Basic.subst_exp func) f in
-    let inv_x = subst_f (fun s -> s ^ "0") inv in
-    let inv_x' =
-      subst_f
-        (fun s ->
-          let (_, _, n) = List.find (fun (_, s', _) -> s = s') vardecls in
-          match n with
-          | Some n' -> s ^ (string_of_int n')
-          | None -> raise (Error.ShouldNotHappen ("Inv(x'): " ^ s))
-        )
-        inv
-    in
+    (* let inv_x = subst_f (fun s -> s ^ "0") inv in *)
+    (* let inv_x' = *)
+    (*   subst_f *)
+    (*     (fun s -> *)
+    (*       let (_, _, n) = List.find (fun (_, s', _) -> s = s') vardecls in *)
+    (*       match n with *)
+    (*       | Some n' -> s ^ (string_of_int n') *)
+    (*       | None -> raise (Error.ShouldNotHappen ("Inv(x'): " ^ s)) *)
+    (*     ) *)
+    (*     inv *)
+    (* in *)
     let final =
+      Basic.make_and [trans; goal]
       (*
         final :=
             not (inv(x) /\ trans(x, x') => inv(x'))
@@ -40,7 +41,7 @@ let run () =
         ==> (inv(x) /\ trans(x, x') /\ not inv(x')
       *)
       (* Basic.make_and [inv_x; trans; Basic.Not inv_x'] *)
-      Basic.Not (Basic.make_or [Basic.Not inv_x; Basic.Not trans; inv_x'])
+      (* Basic.Not (Basic.make_or [Basic.Not inv_x; Basic.Not trans; inv_x']) *)
     in
     begin
       (* Print out variable declaration with range *)
