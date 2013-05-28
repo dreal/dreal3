@@ -627,7 +627,24 @@ let rec print_exp out =
     end
   in
   function
-  | Var x -> String.print out x
+  | Var x ->
+    let filter str =
+      (* filter out '(' and ')' *)
+      let s1 = String.filter (fun c -> c != '(' && c != ')') str in
+      (* replace '*' with "ptr_" *)
+      let s2 = String.replace_chars (fun c -> if c == '*' then "ptr_" else String.of_char c) s1 in
+      (* replace '.' with "_" *)
+      let s3 = String.replace_chars (fun c -> if c == '.' then "_" else String.of_char c) s2 in
+      (* replace "->" with "_" *)
+      let rec replace_all (str : string) (sub : string) (by : string) =
+        let (b, str') = String.replace str sub by in
+        match b with
+        | true -> replace_all str' sub by
+        | false -> str'
+      in
+      replace_all s3 "->" "_"
+    in
+    String.print out (filter x)
   | Num n ->
     let str_n = Printf.sprintf "%f" n in
     let str_n' =
@@ -637,7 +654,7 @@ let rec print_exp out =
         str_n
     in
     String.print out str_n'
-  | Neg e' -> print_exps "-" [e']
+  | Neg e' -> print_exps "-" [Num 0.0; e']
   | Add el -> print_exps "+" el
   | Sub el -> print_exps "-" el
   | Mul el -> print_exps "*" el
