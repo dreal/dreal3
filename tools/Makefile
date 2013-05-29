@@ -5,10 +5,10 @@ all:
 		cppbmc/pass1.native \
 		cppbmc/pass2.native
 
-	@cp -v _build/bmc/main.native bmc/main.native
-	@cp -v _build/smt2_stat/main.native smt2_stat/main.native
-	@cp -v _build/cppbmc/pass1.native cppbmc/pass1.native
-	@cp -v _build/cppbmc/pass2.native cppbmc/pass2.native
+	@ln -s _build/bmc/main.native bmc/main.native
+	@ln -s _build/smt2_stat/main.native smt2_stat/main.native
+	@ln -s _build/cppbmc/pass1.native cppbmc/pass1.native
+	@ln -s _build/cppbmc/pass2.native cppbmc/pass2.native
 
 
 clean:
