@@ -295,6 +295,8 @@ bool NRASolver::check( bool complete )
             cerr << "After Prop" << endl;
             debug_print_env(env);
         }
+        env_stack.pop_back();
+        env_stack.push_back(env);
     } else {
         // Complete Check
         // if(config.nra_json) {
