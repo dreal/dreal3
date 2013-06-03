@@ -462,7 +462,7 @@ int rp_propagator::apply_loop(rp_box b)
     if (this->check_precision(o,b))
     {
 //add
-        if(_verbose) {
+        if(_out != cout) {
             _out<<endl<<"[before pruning] "<<endl;
             rp_pprint_vars(*_problem, b);
         }
@@ -508,7 +508,7 @@ int rp_propagator::apply_loop(rp_box b)
         // inserted in the queue if the box is modified since it belongs to
         // the dependency of every modified variable
 //add
-        if(_verbose) {
+        if(_out != cout) {
             _out<<"[after pruning] "<<endl;
             rp_pprint_vars(*_problem, b);
         }
