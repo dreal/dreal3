@@ -48,24 +48,6 @@ void rp_propagator::rp_union_display(rp_union_interval u, int digits, int mode)
     }
 }
 
-
-void rp_propagator::rp_pprint_var(rp_variable v)
-{
-    _out << rp_variable_name(v);
-    if (rp_variable_integer(v))
-    {
-        _out << ":int";
-    }
-    else if (rp_variable_real(v))
-    {
-        _out << ":real/" << rp_variable_precision(v);
-    }
-    _out << " ~ ";
-    rp_union_display(rp_variable_domain(v),8,RP_INTERVAL_MODE_BOUND);
-
-    _out << endl;
-}
-
 void rp_propagator::rp_pprint_vars(rp_problem p, rp_box b)
 {
     for(int i = 0; i < rp_problem_nvar(p); i++)
