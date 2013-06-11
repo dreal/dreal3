@@ -420,10 +420,6 @@ rp_box icp_solver::compute_next()
             if ((i=_vselect->apply(_boxes.get()))>=0 &&
                 (rp_box_width(_boxes.get()) >= _config.nra_precision))
             {
-
-                ++_nsplit;
-                _dsplit->apply(_boxes,i);
-
                 if(_config.nra_proof) {
                     _config.nra_proof_out << endl
                                           << "[branched on "
@@ -433,6 +429,8 @@ rp_box icp_solver::compute_next()
 //                           << "[branched on x" << i << "]"
                     pprint_vars(_config.nra_proof_out, *_problem, _boxes.get());
                 }
+                ++_nsplit;
+                _dsplit->apply(_boxes,i);
             }
             else
             {
