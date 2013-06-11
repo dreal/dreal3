@@ -1,1 +1,1 @@
-<*.ml> or <*.mli> or <*.native> : package(cil), package(batteries), package(batteries.syntax), package(unix), thread
+<*.ml> or <*.mli> or <*.native> : package(batteries), package(batteries.syntax), package(unix), thread
