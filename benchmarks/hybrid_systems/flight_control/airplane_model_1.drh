@@ -1,0 +1,120 @@
+// all use degree
+#define 	dr		pi/180.0	//degree to rad
+#define		pi		3.1415926
+#define		s		2170.0		//wing aera
+#define		Cbar	17.5		//length of chord
+#define		m		5.0E3		//mass
+#define		J		4.1E6		//moment of inertia
+#define		g		32.17		//gravity const
+#define		Tstart	6.0E4		//thrust start
+#define		dTdV	-38.0		//dT / dV
+#define		Ze		2.0			//length of T
+#define 	Xcg		8.0			//position of gravity center
+#define		rho		0.002377	//air density
+
+//control parameter
+#define		THTL	1.0
+#define		ELEV	0.05
+//aerodynamic parameter
+
+#define		Cla		0.085
+#define		Cla_dot	0.0
+#define		Cdcls	0.042
+#define		Cma		-0.022
+#define		Cmq		-16.0
+#define		Cma_dot	-6.0
+#define		Cmde	-0.016
+
+//mode1 parameter
+#define		Cl0_1	1.0
+#define		Cd0_1	0.08
+#define		Cm0_1	-0.2
+#define		DCDG_1	0.02
+#define		DCMG_1	-0.05
+
+//mode2 parameter
+#define		Cl0_2	0.2
+#define		Cd0_2	0.16
+#define		Cm0_2	0.05
+#define		DCDG_2	0.0
+#define		DCMG_2	0.0
+
+//function
+
+#define		T			(Tstart + Vt * dTdV) * 	THTL
+
+//mode1
+
+#define		Cl_1		Cl0_1 + Cla * alpha
+#define		Cm_1		DCMG + Cm0_1 + Cma * alpha + Cmde + ELEV + Cl_1 * (Xcg - 0.25 * Cbar)
+#define		Cd_1		DCDG + Cd0_1 + Cdcls * Cl_1^2
+
+//mode2
+
+#define		Cl_2		Cl0_2 + Cla * alpha
+#define		Cm_2		DCMG + Cm0_2 + Cma * alpha + Cmde + ELEV + Cl_2 * (Xcg - 0.25 * Cbar)
+#define		Cd_2		DCDG + Cd0_2 + Cdcls * Cl_2^2
+
+//temporary variable
+#define		Qbar		0.5 * rho * Vt^2
+#define		Qs			Qbar * s 
+#define		alpha_dot 	(-T * sin(alpha*dr) - Qs * Cl_2 + m * (Vt * Q + g * cos((theta - alpha)*dr))) / (m * Vt + Qs * Cla_dot)
+#define		D			0.5 * Cbar * (Cmq * Q + Cma_dot * alpha_dot) / Vt
+
+
+
+[0,1000]	time;
+[0, 1000]	Vt;
+[0, 45]		alpha;
+[0, 90]		theta;
+[0, 1000] 	Q;			//velocity of theta
+[0, 10000]	Height;		//height
+[0, 50000] 	Length; 	//length
+
+
+{mode 1;
+
+invt:           
+				(time >= 0);
+				(Vt >= 0);
+                (alpha >= 0);
+                (theta >= 0);
+                (Q >= 0);
+                (Height >= 0);
+                (Length >= 0);
+
+flow:
+				d/dt[Vt] = (T  - Qs * Cd_1) / m;
+				d/dt[alpha] = 0;
+				d/dt[theta] = 0;
+				d/dt[Q] = 0;
+				d/dt[Height] = 0;
+				d/dt[Length] = Vt;
+jump:
+				((Qs * Cl_1 - m * g) > 0) ==> @2 (and (time' = time) (Vt' = Vt) (alpha' = alpha) (theta'= theta) (Height' = Height) (Length' = Length);
+}
+{mode 2;
+
+invt:           
+				(Vt >= 0);
+                (alpha >= 0);
+                (theta >= 0);
+                (Q >= 0);
+                (Height >= 0);
+                (Length >= 0);
+
+flow:
+				d/dt[time] = 1;
+				d/dt[Vt] = (T * cos(alpha*dr) - Qs * Cd_2) / m - g * sin((theta - alpha)*dr);
+				d/dt[alpha] = alpha_dot;
+				d/dt[theta] = Q;
+				d/dt[Q] = (Qs * Cbar * (Cm_2 + D) + T * Ze) / J;
+				d/dt[Height] = Vt * sin((theta - alpha)*dr);
+				d/dt[Length] = Vt * cos((theta - alpha)*dr);
+jump:
+              
+}
+
+init:	@1 (and (time = 0) (Vt = 0) (alpha = 0) (theta = 0) (Height = 0) (Length = 0);
+
+goal:   @2 (and (time >= 0) (Vt >= 0) (alpha >= 0) (theta >= 0) (Height >= 0) (Length >= 0);
