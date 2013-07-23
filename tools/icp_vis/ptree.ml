@@ -90,5 +90,5 @@ let rec do_it (t : t) (ts : t list) : (env list list) =
   let s = List.map extract_top (t::ts) in
   match traverse t ts with
     (SAT e, _) -> [s]
-  | (Axiom _, []) -> [s]@[[]]
+  | (Axiom e, []) -> [s]@[[e]]@[[]]
   | (t', ts') -> [s]@(do_it t' ts')
