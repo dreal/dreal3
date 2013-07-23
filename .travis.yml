@@ -13,17 +13,17 @@ script:
   - make
 
 install:
-  - sudo add-apt-repository ppa:dns/gnu
+  - sudo add-apt-repository --yes ppa:dns/gnu
   - sudo add-apt-repository --yes ppa:agent-8131/ppa
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo add-apt-repository --yes ppa:h-rayflood/llvm
   - sudo apt-get -qq update
-  - sudo apt-get install autoconf automake libtool git g++ bison flex
-  - sudo apt-get install libboost-dev libboost-thread-dev
+  - sudo apt-get -qq install autoconf automake libtool git g++ bison flex
+  - sudo apt-get -qq install libboost-dev libboost-thread-dev
   - sudo apt-get -qq install libgoogle-perftools-dev
   - sudo apt-get -qq install libgmp-dev
   - sudo apt-get -qq install libstdc++-4.8-dev
-  - sudo apt-get -qq install g++-4.8; fi
+  - sudo apt-get -qq install g++-4.8
 
 notifications:
   email:
