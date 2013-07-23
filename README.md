@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/soonhokong/dReal.png?branch=master)](https://travis-ci.org/soonhokong/dReal)
 dReal: An SMT Solver for Nonlinear Theories of the Reals
 ========================================================
 
