@@ -1,1 +1,1 @@
-<*.ml> or <*.mli> or <*.native> : package(batteries), package(batteries.syntax), package(unix), syntax(camlp4o), thread
+<*.ml> or <*.mli> or <*.native> : package(batteries), package(unix), syntax(camlp4o), thread

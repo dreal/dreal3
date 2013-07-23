@@ -1,1 +1,1 @@
-<*.ml> or <*.mli> or <*.native> : package(batteries), package(batteries.syntax)
+<*.ml> or <*.mli> or <*.native> : package(batteries)
