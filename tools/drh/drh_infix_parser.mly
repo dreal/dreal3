@@ -20,7 +20,7 @@ open Batteries
 %token <float> FNUM
 %token <string> ID
 
-%left PLUS MINUS NEG
+%left PLUS MINUS
 %left TIMES DIVIDE
 %left NEG
 %right CARET
@@ -52,9 +52,13 @@ varDecl_list: /* */ { [] }
   | varDecl varDecl_list { $1::$2 }
 ;
 
+FFNUM: FNUM { $1 }
+  | MINUS FNUM { 0.0 -. $2 }
+;
+
 varDecl:
-    LB FNUM RB ID SEMICOLON { ($4, Value.Num $2) }
-  | LB FNUM COMMA FNUM RB ID SEMICOLON { ($6, Value.Intv ($2, $4)) }
+    LB FFNUM RB ID SEMICOLON { ($4, Value.Num $2) }
+  | LB FFNUM COMMA FFNUM RB ID SEMICOLON { ($6, Value.Intv ($2, $4)) }
 ;
 
 mode_list: /* */ { [] }
