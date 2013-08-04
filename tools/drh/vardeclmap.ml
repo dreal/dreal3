@@ -23,7 +23,11 @@ let find key map =
   try
     Map.find key map
   with e ->
+    let out = IO.stderr in
     begin
+      String.println out "Vardeclmap Exception!";
+      Printf.fprintf out "Key: %s\n" key;
+      Printf.fprintf out "Map: %s\n" (IO.to_string print map);
       Printexc.print_backtrace IO.stdout;
       raise e
     end

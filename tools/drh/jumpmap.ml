@@ -23,7 +23,7 @@ let find key map =
   try
     Map.find key map
   with e ->
-    let out = IO.stdout in
+    let out = IO.stderr in
     begin
       String.println out "Jumpmap Exception!";
       Printf.fprintf out "Key: %s\n" (IO.to_string Id.print key);
