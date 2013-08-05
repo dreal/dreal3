@@ -62,7 +62,7 @@ AC_CHECK_HEADER(cstdint)
 AX_CXX_COMPILE_STDCXX_0X
 BOOST_THREADS
 
-CXXFLAGS='-Wall -std=gnu++0x'
+CXXFLAGS='-Wall -std=c++11'
 
 # Added by Soonho Kong
 #
