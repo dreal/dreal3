@@ -21,8 +21,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "icp_solver.h"
 #include <iomanip>
-#include <boost/bind.hpp>
-#include <boost/thread/thread.hpp>
 
 using namespace std;
 
@@ -370,22 +368,22 @@ bool icp_solver::prop_with_ODE()
             ODEresult = true;
             _ode_solvers.clear(); /* clear the list of ODE_Solvers */
             if (_config.nra_parallel_ODE) {
-                // Parallel Case
-                boost::thread_group group;
-                unsigned hc = boost::thread::hardware_concurrency();
-                unsigned block = ceil(((double)max) / hc);
-                for(unsigned bn = 0; bn < block; bn++) {
-                    for(unsigned i = 1; i <= hc && bn * hc + i <= max; i++) {
-                        group.create_thread(boost::bind(&icp_solver::callODESolver,
-                                                        this,
-                                                        bn * hc + i,
-                                                        diff_vec));
-                    }
-                    group.join_all();
-                    if(!ODEresult) {
-                        return false;
-                    }
-                }
+                // // Parallel Case
+                // boost::thread_group group;
+                // unsigned hc = boost::thread::hardware_concurrency();
+                // unsigned block = ceil(((double)max) / hc);
+                // for(unsigned bn = 0; bn < block; bn++) {
+                //     for(unsigned i = 1; i <= hc && bn * hc + i <= max; i++) {
+                //         group.create_thread(boost::bind(&icp_solver::callODESolver,
+                //                                         this,
+                //                                         bn * hc + i,
+                //                                         diff_vec));
+                //     }
+                //     group.join_all();
+                //     if(!ODEresult) {
+                //         return false;
+                //     }
+                // }
             } else {
                 // Sequential Case
                 for(unsigned i = 1; i <= max; i++) {
