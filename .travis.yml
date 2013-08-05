@@ -7,7 +7,7 @@ env:
 
 before_script:
   - autoreconf -i
-  - ./configure
+  - ./configure CXX=g++-4.8
 
 script:
   - make
