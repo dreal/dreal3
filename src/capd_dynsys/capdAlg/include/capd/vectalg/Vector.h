@@ -111,6 +111,15 @@ public:
   Vector(int,bool); // it does not insert zeros
   void clear(void);              //assign zero to each coord
 
+#if( __cplusplus >= 201103L)
+  Vector(Vector&& v) : ContainerType(v) {}
+  Vector & operator=(Vector && v) {
+     ContainerType::operator= ( static_cast< ContainerType &&>(v));
+   //  std::cout << "\n v move =";
+    return *this;
+  }
+#endif
+  
   // assignments - vectors
   Vector& operator=  (const Vector& v);      //<assign a vector
   Vector& operator+= (const Vector& v);      //<add and assign a vector

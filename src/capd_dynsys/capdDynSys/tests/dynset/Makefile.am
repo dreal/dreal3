@@ -10,28 +10,28 @@ LDADD=${capdDynSys_LIBS}
 #-lboost_unit_test_framework
 
 AffineSet_SOURCES= AffineSetTest.cpp
-AffineSet_DEPENDENCIES=${LDADD:-%=} 
+AffineSet_DEPENDENCIES=${filter %.a %.la,${LDADD}} 
 
 C0Pped2SetTest_SOURCES= C0Pped2SetTest.cpp 
-C0Pped2SetTest_DEPENDENCIES=${LDADD:-%=} 
+C0Pped2SetTest_DEPENDENCIES=${filter %.a %.la,${LDADD}} 
 
 Rect2SetTest_SOURCES= Rect2SetTest.cpp
-Rect2SetTest_DEPENDENCIES=${LDADD:-%=} 
+Rect2SetTest_DEPENDENCIES=${filter %.a %.la,${LDADD}} 
 
 CoordReorganization_SOURCES= CoordReorganization.cpp
-CoordReorganization_DEPENDENCIES=${LDADD:-%=} 
+CoordReorganization_DEPENDENCIES=${filter %.a %.la,${LDADD}} 
 
 FactorReorganization_SOURCES= FactorReorganization.cpp
-FactorReorganization_DEPENDENCIES=${LDADD:-%=} 
+FactorReorganization_DEPENDENCIES=${filter %.a %.la,${LDADD}} 
 
 CenteredAffineSetTest_SOURCES= CenteredAffineSetTest.cpp
-CenteredAffineSetTest_DEPENDENCIES=${LDADD:-%=} 
+CenteredAffineSetTest_DEPENDENCIES=${filter %.a %.la,${LDADD}} 
 
 DoubletonSetTest_SOURCES= DoubletonSetTest.cpp
-DoubletonSetTest_DEPENDENCIES=${LDADD:-%=} 
+DoubletonSetTest_DEPENDENCIES=${filter %.a %.la,${LDADD}} 
 
 C0RectSetTest_SOURCES=C0RectSetTest.cpp
-C0RectSetTest_DEPENDENCIES=${LDADD:-%=} 
+C0RectSetTest_DEPENDENCIES=${filter %.a %.la,${LDADD}} 
 
 C0PpedSetTest_SOURCES= C0PpedSetTest.cpp
-C0PpedSetTest_DEPENDENCIES=${LDADD:-%=} 
+C0PpedSetTest_DEPENDENCIES=${filter %.a %.la,${LDADD}} 

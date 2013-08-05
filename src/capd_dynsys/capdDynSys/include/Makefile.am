@@ -172,6 +172,13 @@ capd/geomset/MatrixAffineSet.hpp \
 capd/geomset/MatrixDoubletonSet.h \
 capd/geomset/MatrixDoubletonSet.hpp \
 capd/geomset/lib.h \
+capd/invset/CubicalMap.h \
+capd/invset/ForbiddenSet.h \
+capd/invset/Graph.h \
+capd/invset/GraphNode.h \
+capd/invset/MapGraph.h \
+capd/invset/Scope.h \
+capd/invset/invariantSets.h \
 capd/map/BasicFunction.h \
 capd/map/BasicFunction.hpp \
 capd/map/C1Coeff.h \

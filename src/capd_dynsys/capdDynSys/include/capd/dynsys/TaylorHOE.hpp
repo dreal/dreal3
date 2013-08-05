@@ -132,9 +132,8 @@ TaylorHOE<MapType,StepControlType>::enclosure(const VectorType &x, VectorType& o
         out_remainder = stepToOrder * remCoeff[myOrder+1];
         v = I*out_remainder;
       } // endwhile
-      if(!found) {
-        // throw TaylorException<VectorType>("TaylorHOE Error: cannot find enclosure guaranteeing bounds, loop limit exceeded",x,this->getStep());
-      }
+      if(!found)
+        throw TaylorException<VectorType>("TaylorHOE Error: cannot find enclosure guaranteeing bounds, loop limit exceeded",x,this->getStep());
     } // end else
   }
 

@@ -25,7 +25,7 @@ namespace vectalg{
 template<typename IVectorType>
 IVectorType diam(const IVectorType& v)
 {
-  IVectorType result(v.dimension());
+  IVectorType result(v.dimension(),true);
   diameter(v,result); // defined in iobject.hpp
   return result;
 }
@@ -38,7 +38,7 @@ IVectorType diam(const IVectorType& v)
 template<typename IVectorType>
 IVectorType intersection(const IVectorType &v1, const IVectorType &v2)
 {
-  IVectorType result(v1.dimension());
+  IVectorType result(v1.dimension(),true);
   if(!(intersection(v1,v2,result))) // defined in iobject.hpp
       throw EmptyIntersectionException("Intersection of two interval vectors is empty");
   return result;
@@ -47,7 +47,7 @@ IVectorType intersection(const IVectorType &v1, const IVectorType &v2)
 template<typename IVectorType>
 IVectorType midVector(const IVectorType& v)
 {
-  IVectorType result(v.dimension());
+  IVectorType result(v.dimension(),true);
   mid(v,result); // defined in iobject.hpp
   return result;
 }
@@ -55,7 +55,7 @@ IVectorType midVector(const IVectorType& v)
 template<typename IVectorType>
 IVectorType intervalHull(const IVectorType& v1, const IVectorType& v2)
 {
-  IVectorType result(v1.dimension());
+  IVectorType result(v1.dimension(),true);
   intervalHull(v1,v2,result);
   return result;
 }
@@ -63,7 +63,7 @@ IVectorType intervalHull(const IVectorType& v1, const IVectorType& v2)
 template<typename IVectorType>
 IVectorType intervalBall(const IVectorType &iv, const typename IVectorType::ScalarType &r)
 {
-  IVectorType result(iv.dimension());
+  IVectorType result(iv.dimension(),true);
   typename IVectorType::iterator b=result.begin(), e=result.end();
   typename IVectorType::const_iterator i=iv.begin();
 

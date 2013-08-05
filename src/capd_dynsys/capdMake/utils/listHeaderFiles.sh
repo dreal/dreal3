@@ -1,4 +1,9 @@
 #!/bin/bash
+######################################################################################
+#
+#  It generates Makefile.am containing list of all header files in current directory
+# 
+######################################################################################
 
 echo 'include ${capdMake}/make/common_makefile.mkf'
 echo

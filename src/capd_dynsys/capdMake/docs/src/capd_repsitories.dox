@@ -2,7 +2,7 @@
 
 \section capd_repositories_1 SVN repositories 
 
-The CAPD packages are splited among three <a href="http://subversion.apache.org/">Subversion</a> repositories:
+The CAPD packages are split among four <a href="http://subversion.apache.org/">Subversion</a> repositories:
 
 <table>
 <tr>
@@ -10,35 +10,44 @@ The CAPD packages are splited among three <a href="http://subversion.apache.org/
 </tr><tr>
 <td>capd       </td><td> capdAlg, capdAux, capdExt, capdMake  </td>
 </tr><tr>
-<td>capdDynSys </td><td> capdDynSys </td> 
+<td>capdDynSys </td><td> capdDynSys version 3.0</td> 
+</tr><tr>
+<td>capdDynSys4 </td><td> capdDynSys version 4.0</td> 
 </tr><tr>
 <td>capdRedHom </td><td> capdRedHom </td>
 </tr>
 </table>
 
 
-\section capd_repositories_2 Getting the source code 
+\subsection capd_public_repository Public access to repositories via http. 
 
-A source code can be downloaded from <a href="http://capd.ii.uj.edu.pl/download.php"> CAPD webpage</a> or obtained from a repository. 
+The source code is available from public repository. The access to repositories is <b>read-only</b>: one can checkout and update the sources but cannot submit any local changes. 
 
-If an <code><user></code> wants to work with a repository, he has to have
-an <a href="http://en.wikipedia.org/wiki/SSH">ssh</a> access to the server and at least read access to the repository.
+To checkout the latest version of the code:
+- checkout base packages   <br> <pre> svn co https://mnich.ii.uj.edu.pl/svn-repos/capd/</pre>
+- enter capd directory <pre>cd capd</pre> and checkout one or both repositories
+- checkout capdDynsys4 package <pre>svn co https://mnich.ii.uj.edu.pl/svn-repos/capdDynSys4</pre>
+- checkout capdRedHom package <pre>svn co https://mnich.ii.uj.edu.pl/svn-repos/capdRedHom</pre>
+Two last steps are optional.
+
+
+\subsection capd_repositories_2 Access to repositories for developers of the CAPD library.
+
+Developers of the CAPD should work with repositories via <a href="http://en.wikipedia.org/wiki/SSH">ssh</a> connection to the server. 
 We suggest to use login with a <a href="http://en.wikipedia.org/wiki/Public-key_cryptography"><b>public key</b></a>.
-
-\subsection capd_repositories_3 Using SVN from command line 
 
 To checkout the latest version of the code:
 - checkout base packages   <br> <pre> svn co svn+ssh://<user>\@mnich.ii.uj.edu.pl/capd/capd</pre>
 - enter capd directory <pre>cd capd</pre>
-- checkout capdDynsys package <pre>svn co svn+ssh://<user>\@mnich.ii.uj.edu.pl/capd/capdDynSys</pre>
+- checkout capdDynsys4 package <pre>svn co svn+ssh://<user>\@mnich.ii.uj.edu.pl/capd/capdDynSys4</pre>
 - checkout capdRedHom package <pre>svn co svn+ssh://<user>\@mnich.ii.uj.edu.pl/capd/capdRedHom</pre>
 Two last steps are optional.
 
-\subsection capd_repositories_4 Using SVN GUI 
+\subsection capd_repositories_3 Using SVN GUI 
 
 Under construction.
 
-\section capd_repositories_5 Working with SVN 
+\section capd_repositories_4 Working with SVN 
 
 To commit changes you can do the following  
 <table border="0">

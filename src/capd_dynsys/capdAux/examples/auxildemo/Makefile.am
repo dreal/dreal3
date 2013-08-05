@@ -4,6 +4,6 @@ noinst_PROGRAMS=argdemo
 argdemo_SOURCES=argdemo.cpp
 argdemo_libs=${capdauxil_LIBS}
 argdemo_LDADD=${argdemo_libs}
-argdemo_DEPENDENCIES=${argdemo_libs:-%=}
+argdemo_DEPENDENCIES=${filter %.a %.la,${argdemo_libs}}
 argdemo_CXXFLAGS=${capdauxil_CFLAGS}
 

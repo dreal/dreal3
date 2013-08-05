@@ -31,6 +31,7 @@ namespace vectalg{
 template<typename Scalar, int rows, int cols>
 class MatrixContainer : public Container<Scalar,rows*cols>
 {
+  typedef Container<Scalar,rows*cols> BaseContainerType;
 public:
   typedef Scalar ScalarType;
   typedef typename Container<Scalar,rows*cols>::iterator iterator;
@@ -46,7 +47,15 @@ public:
   inline MatrixContainer(int a_rows, int a_cols,bool) : Container<Scalar,rows*cols>(a_rows*a_cols,true){}
   inline MatrixContainer(const Dimension&) : Container<Scalar,rows*cols>(1){}
   inline MatrixContainer(const Dimension&,bool) : Container<Scalar,rows*cols>(1,true){}
-
+#if( __cplusplus >= 201103L)
+  MatrixContainer(MatrixContainer&& v) : ContainerType(std::forward<ContainerType>(v)) {}
+  MatrixContainer & operator=(MatrixContainer && v) {
+     ContainerType::operator= ( std::forward<ContainerType>(v));
+   //  std::cout << "\n v move =";
+    return *this;
+  }
+#endif
+  
   inline int numberOfRows() const {return rows;}
   inline int numberOfColumns() const {return cols;}
 

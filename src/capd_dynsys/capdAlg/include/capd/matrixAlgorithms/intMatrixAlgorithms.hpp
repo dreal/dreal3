@@ -418,7 +418,7 @@ void partSmithForm(matrix& B,sqMatrix1& Q,sqMatrix1& Qinv,sqMatrix2& R,sqMatrix2
     if(nonZero(MatrixSlice<matrix>(B,k+1,m,k,k))) continue;
     partColumnReduce(B,R,Rinv,k,k);
     if(nonZero(MatrixSlice<matrix>(B,k,k,k+1,n))) continue;
-    int i,j;
+    int i=0,j=0;
     ScalarType q=ScalarType(0);
     //divisible=checkForDivisibility(B,k,i,j,q);
 		divisible = true;
@@ -548,7 +548,7 @@ void spaceIntersection(const matrix &A,const matrix &B,matrix &C){ // input: bas
 	int A_n = A.numberOfColumns();
 	int A_m = A.numberOfRows();
 	int B_n = B.numberOfColumns();
-	int B_m = B.numberOfRows();
+	//int B_m = B.numberOfRows();
 	int D_n = A_n + B_n, D_m = A_m;
 	matrix D(D_m, D_n);
 	copy(A,D,0,0);

@@ -1,0 +1,17 @@
+/** \page for_developers  For more advanced users and developers
+
+This page contains more detailed information on internal structure of CAPD library, detailed description of classes and advanced features.
+
+General informations
+\li \subpage capd_useful_info
+\li \subpage directory_structure
+\li <a href="namespaces.html"><b>Namespace list</b></a>
+\li <a href="modules.html"><b>Module list</b></a>
+\li <a href="annotated.html"><b>Class list</b></a>
+
+Mostly for developers
+\li \subpage capd_repositories
+\li \subpage devel_new_files
+\li \subpage devel_documentation
+
+*/

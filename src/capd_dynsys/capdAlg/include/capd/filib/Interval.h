@@ -676,6 +676,9 @@ friend inline Interval log (const Interval& x){
 // square of x
 
 friend inline Interval sqr (const Interval &x){
+    if( capd::abs(x.leftBound()) > 1.3407807929942596e154 || capd::abs(x.rightBound()) > 1.3407807929942596e154 )
+    throw typename Interval::IntervalError(" sqr(A): sqr overflow. \n", x.leftBound(), x.rightBound());
+
   return Interval(sqr(x.m_interval));
 }
 
@@ -735,7 +738,7 @@ friend Interval solveAffineInclusion(const Interval & a,
                               int & dir) {
   Interval t;
   if ( !(a.subset(c)) ) {
-    throw typename Interval::IntervalError("Cannot solve affine inclusion", leftBound(a), rightBound(a));
+    throw typename Interval::IntervalError("Cannot solve affine inclusion", a.leftBound(), a.rightBound());
 
   } else if(p >= 0) {
 

@@ -44,7 +44,7 @@ class TexWriter { //: public std::ostream
 protected:
   std::ostream & out;
 public:
-  enum FloatStyle { FloatSci, FloatFix, FloatFix2 };
+  enum FloatStyle { FloatSci, FloatFix, FloatFix2 , FloatTxt};
   FloatStyle floatStyle;
   std::string baseSymbol;
   std::string iSymbol;
@@ -70,6 +70,8 @@ public:
   void writeSciInterval(const std::deque<int> & dl, const std::deque<int> & dr,
                         int p, int l_sign, int len );
   void writeFixInterval(const std::deque<int> & dl, const std::deque<int> & dr,
+                        int p, int l_sign, int intDigits, int prec);
+  void writeTxtInterval(const std::deque<int> & dl, const std::deque<int> & dr,
                         int p, int l_sign, int intDigits, int prec);
   template<typename IntervalType>
   void writeInterval(const IntervalType& intv);
@@ -417,6 +419,85 @@ void TexWriter::writeFixInterval(
 //     out << this->baseSymbol << "{" << p << "}";
 // }
 }
+
+void TexWriter::writeTxtInterval(
+    const std::deque<int> & dl,
+    const std::deque<int> & dr,
+    int p,
+    int l_sign,
+    int intDigits,
+    int len
+){
+
+  int z=0;
+  bool l_started = false,  r_started=false;
+
+
+  if(l_sign < 0){   // r_sign is always positive
+    out << "[";
+    if(intDigits==0){
+      out <<"-0.";
+      l_started = true;
+    }
+  } else {
+    if(intDigits==0){
+      out <<"0.";
+      l_started = true; r_started = true;
+    }
+    while(z<len && dl[z]==dr[z]){
+      out << dl[z];
+      l_started = true; r_started = true;
+      ++z;
+      if(z==intDigits)
+        out << ".";
+    }
+    out << "[";
+  }
+  for(int s=z; s<len; ++s){
+    if(l_started) {
+           out << dl[s];
+      }else{
+        if( dl[s]!=0){
+           l_started = true;
+           if(l_sign < 0)
+             out << "-";
+           out << dl[s];
+         }
+      }
+
+    if(s==intDigits-1){
+      out << ((l_started)? "." : (l_sign < 0)? "-0.":"0.");
+      l_started = true;
+    }
+  }
+
+ out << ",";
+ if(l_sign<0){
+   out << plusSymbol;
+   if(intDigits==0){
+     out <<"0.";
+     r_started = true;
+   }
+ }
+
+ for(int s=z; s<len; ++s){
+
+   if(r_started) {
+        out << dr[s];
+   }else{
+     if( dr[s]!=0){
+        r_started = true;
+        out << dr[s];
+      }
+   }
+      if(s==intDigits-1){
+        out << ((r_started)? "." : "0.");
+        r_started = true;
+      }
+ }
+ out << "]";
+}
+
 template<typename IntervalType>
 void TexWriter::writeInterval(const IntervalType& intv){
 
@@ -456,6 +537,7 @@ void TexWriter::writeInterval(const IntervalType& intv){
       }
       break;
     case FloatFix:
+    case FloatTxt:
       len = n + prec;
       break;
     case FloatFix2:
@@ -477,11 +559,17 @@ void TexWriter::writeInterval(const IntervalType& intv){
     roundUp(dl);
   if(r_sign > 0 && r_rem != 0)
     roundUp(dr);
-
-  if(floatStyle == FloatSci)
-    writeSciInterval(dl, dr, p, l_sign, len );
-  else
-    writeFixInterval(dl, dr, p, l_sign, n, len );
+  switch(floatStyle){
+    case FloatSci:
+      writeSciInterval(dl, dr, p, l_sign, len );
+      break;
+    case FloatFix:
+    case FloatFix2:
+      writeFixInterval(dl, dr, p, l_sign, n, len );
+      break;
+    case FloatTxt:
+      writeTxtInterval(dl, dr, p, l_sign, n, len );
+  }
 }
 
 //template<typename IntervalType>

@@ -551,7 +551,7 @@ void KrakFrame::Save (const wxChar *files, wxBitmapType type)
    // very few examples of wxWindow-derived objects which may be
    // created on the stack and not on the heap"
    wxFileDialog dlg (this, wxT("Save bitmap"), wxT(""),
-      wxT(""), files, wxSAVE | wxOVERWRITE_PROMPT);
+      wxT(""), files, wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
    if (dlg. ShowModal () == wxID_OK)
    {
       memSection. Enter ();

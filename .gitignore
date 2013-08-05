@@ -40,5 +40,4 @@ ylwrap
 ID
 TAGS
 ltmain.sh
-src/capd_dynsys/capdExt/filibsrc/INSTALL
-src/capd_dynsys/capdExt/filibsrc/config.h.in
+compile

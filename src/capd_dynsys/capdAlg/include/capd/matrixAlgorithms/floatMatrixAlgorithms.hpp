@@ -408,7 +408,7 @@ void QRdecomposeWithPivoting(
     Q = A;
   computeSortingPermutation(Q,v,p);
 
-  int i,j, dimension = Q.numberOfColumns();
+  int dimension = Q.numberOfColumns();
   R.clear();
   int d = 0 ;    // which canonical vector to use if original is linearly dependent
   typename IntVectorType::iterator it = p.begin(), ep = p.end();
@@ -454,7 +454,7 @@ void QRdecomposeWithPivoting(
 // -------------------------------- diagonalize -------------------------
 
 template<typename MatrixType>
-int symMatrixDiagonalize(const MatrixType& A, MatrixType& D, typename MatrixType::ScalarType diagonalizingRelTolerance = typename MatrixType::ScalarType(1e-5))
+int symMatrixDiagonalize(const MatrixType& A, MatrixType& D, typename MatrixType::ScalarType diagonalizingRelTolerance /*= typename MatrixType::ScalarType(1e-5)*/)
 {
   typedef typename MatrixType::RowVectorType VectorType;
   typedef typename MatrixType::ScalarType ScalarType;
@@ -537,7 +537,7 @@ int symMatrixDiagonalize(const MatrixType& A, MatrixType& D, typename MatrixType
 /// first it computes matrix which has the same eigenvalues and which is close to diagonal,
 /// next upper bound is computed from Gerschgorin theorem
 template<typename MatrixType>
-typename MatrixType::ScalarType spectralRadiusOfSymMatrix(const MatrixType &A, typename MatrixType::ScalarType diagonalizingRelTolerance = typename MatrixType::ScalarType(1e-5))
+typename MatrixType::ScalarType spectralRadiusOfSymMatrix(const MatrixType &A, typename MatrixType::ScalarType diagonalizingRelTolerance /*= typename MatrixType::ScalarType(1e-5)*/)
 {
   typedef typename MatrixType::ScalarType ScalarType;
   int dimension = A.numberOfRows();
@@ -565,7 +565,7 @@ typename MatrixType::ScalarType spectralRadiusOfSymMatrix(const MatrixType &A, t
 /// first it computes matrix which has the same eigenvalues and which is close to diagonal,
 /// next upper bound is computed from Gerschgorin theorem
 template<typename MatrixType>
-typename MatrixType::ScalarType maxEigenValueOfSymMatrix(const MatrixType &A, typename MatrixType::ScalarType diagonalizingRelTolerance = typename MatrixType::ScalarType(1e-5))
+typename MatrixType::ScalarType maxEigenValueOfSymMatrix(const MatrixType &A, typename MatrixType::ScalarType diagonalizingRelTolerance /*= typename MatrixType::ScalarType(1e-5)*/)
 {
   typedef typename MatrixType::ScalarType ScalarType;
   int dimension = A.numberOfRows();

@@ -16,29 +16,52 @@
 #ifndef _CAPD_VECTALG_CONTAINER_HPP_
 #define _CAPD_VECTALG_CONTAINER_HPP_
 
+#include <algorithm>
 #include "capd/vectalg/Container.h"
 #include "capd/basicalg/TypeTraits.h"
 namespace capd{
 namespace vectalg{
 
+  
+// C++11 --------------------------------------------------------
+#if( __cplusplus >= 201103L)
+
+  /// Move constructor
+template<typename Scalar>
+Container<Scalar,0>::Container(Container && a_container) 
+
+
+
+  : data(a_container.data), capacity(a_container.capacity)
+{
+  a_container.data = 0;
+  a_container.capacity = 0;
+ // std::cout << "\n move cstr";
+}
+
+template<typename Scalar>
+Container<Scalar,0>& Container<Scalar,0>::operator=(Container&& a_c)
+{
+  if(&a_c != this)
+  {
+    std::swap(capacity, a_c.capacity);
+    std::swap(data, a_c.data);
+  }
+  //std::cout << "\n move =";
+  return *this;
+}
+#endif
+
 // --------------- member definitions ----------------------------- //
 
 template<typename Scalar, int capacity>
 void Container<Scalar,capacity>::clear(){
-  iterator b=begin(), e=end();
-  while(b!=e){
-    *b= TypeTraits<ScalarType>::zero();
-    ++b;
-  }
+  std::fill(begin(),end(),TypeTraits<ScalarType>::zero());
 }
 
 template<typename Scalar>
 void Container<Scalar,0>::clear(){
-  iterator b=begin(), e=end();
-  while(b!=e){
-    *b= TypeTraits<ScalarType>::zero();
-    ++b;
-  }
+  std::fill(begin(),end(),TypeTraits<ScalarType>::zero());
 }
 
 template<typename Scalar, int capacity>
@@ -55,18 +78,8 @@ Container<Scalar,capacity>::Container(int){
 template<typename Scalar, int capacity>
 Container<Scalar,capacity>& Container<Scalar,capacity>::operator=(const Container& a_c)
 {
-  if(&a_c == this)
-    return *this;
-
-  iterator b=begin(), e=end();
-  const_iterator i = a_c.begin();
-  while(b!=e)
-  {
-    *b = *i;
-    ++b;
-    ++i;
-  }
-
+  if(&a_c != this)
+    std::copy(a_c.begin(),a_c.end(),begin());
   return *this;
 }
 
@@ -100,38 +113,23 @@ template<typename Scalar>
 Container<Scalar,0>::Container(const Container& a_container) : capacity(a_container.capacity)
 {
   data = new ScalarType[capacity];
-  iterator b=begin(), e=end();
-  const_iterator i = a_container.begin();
-  while(b!=e)
-  {
-    *b = *i;
-    ++b;
-    ++i;
-  }
+  std::copy(a_container.begin(),a_container.end(),begin());
 }
 
 template<typename Scalar>
 Container<Scalar,0>& Container<Scalar,0>::operator=(const Container& a_c)
 {
-  if(&a_c == this)
-    return *this;
-
-  if(capacity!=a_c.capacity)
+  if(&a_c != this)
   {
-    delete [] data;
-    capacity =  a_c.capacity;
-    data = new ScalarType[capacity];
+    if(capacity!=a_c.capacity)
+    {
+      delete [] data;
+      capacity =  a_c.capacity;
+      data = new ScalarType[capacity];
+    }
+    std::copy(a_c.begin(),a_c.end(),begin());
   }
-
-  iterator b=begin(), e=end();
-  const_iterator i = a_c.begin();
-  while(b!=e)
-  {
-    *b = *i;
-    ++b;
-    ++i;
-  }
-
+ //  std::cout << "\n copy =";
   return *this;
 }
 

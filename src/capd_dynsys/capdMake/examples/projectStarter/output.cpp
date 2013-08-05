@@ -16,11 +16,6 @@
 #include <iomanip>
 
 void print(const char * name, const capd::Interval & x){
-
-#ifdef __USE_FILIB__
-  capd::Interval::precision(16);
-#else
   std::cout.precision(16);
-#endif
   std::cout << name << " = " << x << std::endl;
 }

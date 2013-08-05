@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include <cstdio>
 #include <sstream>
+#include <algorithm>
 #include "capd/auxil/minmax.h"
 #include "capd/basicalg/power.h"
 #include "capd/vectalg/Container.hpp"
@@ -33,8 +34,7 @@ namespace vectalg{
 template<typename Scalar,int dim>
 Vector<Scalar,dim>::Vector(int A_dimension, const ScalarType data[]) : ContainerType(A_dimension,true)
 {
-   for(int i=0; i<dimension(); ++i)
-      (*this)[i] = data[i];
+  std::copy(data,data+A_dimension,begin());
 }
 template<typename Scalar,int dim>
 Vector<Scalar,dim>::Vector(const char data[]) : ContainerType(dim,true)

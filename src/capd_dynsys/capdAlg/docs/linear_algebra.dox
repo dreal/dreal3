@@ -1,0 +1,137 @@
+/*! \page linear_algebra Linear algebra  
+\tableofcontents
+
+For detailed description on intervals, vectors and matrices see sections
+- \ref example_intervals
+- \ref examples_vectorExample 
+- \ref examples_matrixExample 
+
+\section linear_algebra_constructors Vectors and matrices
+Vectors and matrices are defined by a simple constructor calls
+\code
+DVector v(4);  // four dimensional vector filled with zeroes
+IVector iv(6); // six dimensional interval vector filled with zeroes
+
+DMatrix m(3,4);  // 3x4 matrix with coefficients set to zero
+IMatrix im(5,2); // 5x2 interval matrix with coefficients being intervals [0,0]  
+\endcode
+
+Initialization of vectors and matrices:
+\code
+  interval vcoeff[] = {1.,2.,3.,4.,10.};
+  IVector v(5,vcoeff);
+  cout << v << endl;        // output: {[1,1],[2,2],[3,3],[4,4],[10,10]} 
+  
+  double mcoeff[] = {1,2,3,4,5,6};
+  DMatrix m(2,3,mcoeff);
+  cout << m << endl;        // output: {{1,2,3},{4,5,6}} 
+\endcode 
+\note Contructors of vectors and matrices assume that arrays of coefficients contain enough elements
+ 
+\section linear_algebra_indexing Indexing of vectors and matrices
+
+Vectors and matrices are indexed from zero by means of overloaded operator[].
+\code
+  IVector x(3);
+  x[0] = interval(3.);
+  x[1] = interval (1.,2.);
+  x[2] = 7.; // implicit conversion from double to interval
+  
+  IMatrix m(2,4);
+  m[0][2] = interval(1.); 
+  m[1][3] = interval(2.,3.);
+  // m[2][4] = 1; // error - invalid indices
+\endcode
+\note Indexing of vectors and matrices is from \b zero.
+
+\section linear_algebra_arrays Arrays of vectors and matrices
+
+When constructing arrays of matrices one has to provide two informations:
+- what is the length of array
+- what are dimensions of matrices/vectors in the array
+
+If one wish to define array of matrices or vectors of the same dimensions we strongly encourage to use the following construction (overloaded operator new)
+\code
+int dimension = 6;
+int rows = 2, columns = 5;
+int length = 3;
+DVector* t = new (dimension) DVector[length];
+IMatrix* m = new (rows,columns) IMatrix[length];
+ 
+// use the objects, like DVector x = t[0] + t[1]; etc
+
+// and then release memory
+
+delete []t;
+delete []m;
+\endcode
+\attention The above operations <b>are not thread safe</b>. For thread safe arrays of vectors (or matrices) use
+\code
+  int dimension = 6;
+  int rows = 2, columns = 5;
+  int length = 3;
+  DVector* t = new DVector[length];
+  DVector* m = new DMatrix[length];
+  for(int i=0;i<length;++i){
+    t[i].resize(dimension);
+    m[i].resize(rows,columns); 
+  }
+\endcode 
+ 
+\section linear_algebra_basic_operations Basic operations on vectors and matrices
+
+Mathematical operators are overloaded wherever it is intuitive, like multiplications, additions, subtractions
+\code
+  IMatrix A(4,3), B(3,2);
+  IVector x(3), y(3);
+  
+  IMatrix C = A*B;  // matrix by matrix multiplication
+  IVector u = A*x;  // matrix by vector multiplication
+  interval s = x*y; // scalar product of vectors
+  IVector v = 2.*u; // scalar by vector 
+  IVector z = x+y;  // vector addition
+  
+  interval w = (x+y)*(x-y); // scalar product of (x+y) and (x-y)
+  // ... etc 
+\endcode 
+
+\section linear_algebra_functions Basic algorithms of linear algebra.
+
+Among others we provide algorithms for
+- transposition of matrices
+- solving linear systems
+- computing inverse matrices (inverting should be avoided if possible)
+- QR decomposition
+
+\code 
+  DMatrix A(...);
+  DVector u(...);
+  DMatrix Q(...), R(...);
+  
+  DMatrix B = transpose(A);             // transposition of matrix A
+  DMatrix invA = gaussInverseMatrix(A); // computation of inverse of A by means of Gauss algorithm 
+  DVector x = gauss(A,u);               // solves linear equations A*x = u.
+  QR_decompose(A,Q,R);                  // computes orthogonal matrix A and upper triagular R such that A = Q*R
+
+  IMatrix M(...);
+  IMatrix invM = krawczykInverse(M)     // computes enclosure of inverse of M       
+\endcode
+
+\note both functions \c gaussInverseMatrix of \c krawczykInverse compute enclosure of inverse of an interval matrix M. 
+We recommend to use krawczykInverse as it always produces tighter enclosures. 
+
+\attention In principle linear system could be solved by 
+\code 
+  // not recommended!
+  DVector x = gaussInverseMatrix(A)*u; 
+\endcode  
+but this is much slower.
+
+\note The above functions throw an exception (object of type std::runtime_error) when they cannot finish operation. 
+
+
+\section linear_algebra_eigenvectors Eigenvectors and eigenvalues of matrices
+
+These functions are implemented for <b>non-interval matrices only!</b> \b TO_DO_EIGENVECTORS_OR_REMOVE_THIS_SECTION
+  
+*/

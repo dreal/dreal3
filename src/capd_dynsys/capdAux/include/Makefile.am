@@ -2,6 +2,7 @@ include ${capdMake}/make/common_makefile.mkf
 
 nobase_include_HEADERS = \
 capd/auxil/AdvStopwatch.h \
+capd/auxil/ApplicationDesc.h \
 capd/auxil/CRef.h \
 capd/auxil/Counter.h \
 capd/auxil/EmbDimException.h \

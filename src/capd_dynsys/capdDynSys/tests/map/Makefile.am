@@ -8,5 +8,5 @@ CnMapTest_CXXFLAGS=${capdDynSys_CFLAGS}
 CnMapTest_libs=${capdDynSys_LIBS} 
 #${capdExt_LIBS}
 CnMapTest_LDADD=${CnMapTest_libs}
-CnMapTest_DEPENDENCIES=${CnMapTest_libs:-%=}
+CnMapTest_DEPENDENCIES=${filter %.a %.la,${CnMapTest_libs}}
 

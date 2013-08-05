@@ -7,11 +7,11 @@ encloseMonodromyMatrixBetweenTimeSteps_SOURCES=encloseMonodromyMatrixBetweenTime
 encloseMonodromyMatrixBetweenTimeSteps_CXXFLAGS=${capdDynSys_CFLAGS}
 encloseMonodromyMatrixBetweenTimeSteps_libs=${capdDynSys_LIBS}
 encloseMonodromyMatrixBetweenTimeSteps_LDADD=${encloseMonodromyMatrixBetweenTimeSteps_libs}
-encloseMonodromyMatrixBetweenTimeSteps_DEPENDENCIES=${encloseMonodromyMatrixBetweenTimeSteps_libs:-%=}
+encloseMonodromyMatrixBetweenTimeSteps_DEPENDENCIES=${filter %.a %.la,${encloseMonodromyMatrixBetweenTimeSteps_libs}}
 
 encloseTrajectoryBetweenTimeSteps_SOURCES=encloseTrajectoryBetweenTimeSteps.cpp
 encloseTrajectoryBetweenTimeSteps_CXXFLAGS=${capdDynSys_CFLAGS}
 encloseTrajectoryBetweenTimeSteps_libs=${capdDynSys_LIBS}
 encloseTrajectoryBetweenTimeSteps_LDADD=${encloseTrajectoryBetweenTimeSteps_libs}
-encloseTrajectoryBetweenTimeSteps_DEPENDENCIES=${encloseTrajectoryBetweenTimeSteps_libs:-%=}
+encloseTrajectoryBetweenTimeSteps_DEPENDENCIES=${filter %.a %.la,${encloseTrajectoryBetweenTimeSteps_libs}}
 

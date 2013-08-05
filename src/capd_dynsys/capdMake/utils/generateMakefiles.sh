@@ -1,4 +1,13 @@
 #!/bin/bash -e
+######################################################################################
+#
+#  It generates files Makefile.am containing list of all header files
+#  for all modules of CAPD library.
+#  We do that in the case that someone forgot to add new header files to Makefile.am.
+#  Otherwise they will be not present in the installed version of the library 
+# 
+######################################################################################
+
 
 listHeaders=../../capdMake/utils/listHeaderFiles.sh
 

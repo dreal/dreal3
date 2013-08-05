@@ -43,7 +43,7 @@ public:
   typedef Scalar ScalarType;
   typedef ScalarType* iterator;
   typedef const ScalarType* const_iterator;
-
+ 
   Container();
   explicit Container(int);
   Container(int,bool); // it does not insert zeros
@@ -92,7 +92,15 @@ public:
   typedef Scalar ScalarType;
   typedef ScalarType* iterator;
   typedef const ScalarType* const_iterator;
+  
+  // --- C++11
+#if( __cplusplus >= 201103L)
 
+   Container& operator=(Container&&);
+   Container(Container&&);
+#endif   
+  // ------------------------
+   
   Container();
   explicit Container(int);
   Container(int,bool); // it does not insert zeros

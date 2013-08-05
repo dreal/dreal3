@@ -6,5 +6,5 @@ RosslerPeriodicOrbit_SOURCES=RosslerPeriodicOrbit.cpp
 RosslerPeriodicOrbit_CXXFLAGS=${capdDynSys_CFLAGS}
 RosslerPeriodicOrbit_libs=${capdDynSys_LIBS}
 RosslerPeriodicOrbit_LDADD=${RosslerPeriodicOrbit_libs}
-RosslerPeriodicOrbit_DEPENDENCIES=${RosslerPeriodicOrbit_libs:-%=}
+RosslerPeriodicOrbit_DEPENDENCIES=${filter %.a %.la,${RosslerPeriodicOrbit_libs}}
 

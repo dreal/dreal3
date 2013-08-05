@@ -25,14 +25,14 @@ AS_IF([test "x${with_gui}" != "xno"],
 #	echo ----
 #	echo wx_config_name = ${wx_config_name}
 	AS_IF([test "x${wx_config_name}" != "xno" && test "x${with_x}" != "xyes"],
-   		[m4_ifdef([AM_PATH_WXCONFIG], [AM_PATH_WXCONFIG(2.6.1,wxWin=1,wxWin=0)])
+   		[m4_ifdef([AM_PATH_WXCONFIG], [AM_PATH_WXCONFIG(2.8.0,wxWin=1,wxWin=0)])
    			AS_IF([test "$wxWin" != 1],
     			[AC_MSG_WARN([
      "wxWidgets is recomended, but wx-config script couldn't be found.\
      Please check that wx-config is in path, the directory \
      where wxWidgets libraries are installed (returned by \ 
      'wx-config --libs' command) is in LD_LIBRARY_PATH or \
-     equivalent variable and wxWidgets version is 2.6.1 or above. "
+     equivalent variable and wxWidgets version is 2.8.0 or above. "
     		    ])],
 				[GUI_FLAGS=${WX_CXXFLAGS}
                  GUI_LIBS=${WX_LIBS}
@@ -74,49 +74,4 @@ echo " HAVE_GUI = ${HAVE_GUI}    wxWin = ${wxWin}    HAVE_X11 = ${HAVE_X11} "
 echo " HAVE_WINAPI = ${HAVE_WINAPI}    host_os = ${host_os}  "
 echo ----
 
-AM_CONDITIONAL(HAVE_capdkrak,[test "x$HAVE_GUI" = "xyes"])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+AM_CONDITIONAL([HAVE_capdkrak],[test "x$HAVE_GUI" = "xyes"])

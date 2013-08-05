@@ -6,5 +6,5 @@ diffInclExample_SOURCES=diffInclExample.cpp
 diffInclExample_CXXFLAGS=${capdDynSys_CFLAGS}
 diffInclExample_libs=${capdDynSys_LIBS}
 diffInclExample_LDADD=${diffInclExample_libs}
-diffInclExample_DEPENDENCIES=${diffInclExample_libs:-%=}
+diffInclExample_DEPENDENCIES=${filter %.a %.la,${diffInclExample_libs}}
 

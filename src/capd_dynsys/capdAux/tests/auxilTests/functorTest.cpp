@@ -13,6 +13,9 @@
 #include<iostream>
 
 #include "capd/auxil/Functor.h"
+
+using namespace capd::auxil;
+
 int mul2(double x){
   return int(2*x);
 }

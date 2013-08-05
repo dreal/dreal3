@@ -32,6 +32,23 @@
 namespace capd{
 namespace vectalg{
 
+#if( __cplusplus >= 201103L)
+  
+template<typename Scalar, int rows, int cols>
+inline Matrix<Scalar,rows,cols>& Matrix<Scalar,rows,cols>::operator=(const Matrix&& a){
+   ContainerType::operator=(a);
+   return *this;
+}
+  
+template<typename Scalar, int rows, int cols>
+inline Matrix<Scalar,rows,cols>::Matrix(const Matrix&& a_m) 
+  : ContainerType(a_m)
+{}
+#endif  
+  
+  
+  
+  
 template<typename Scalar, int rows, int cols>
 inline void Matrix<Scalar,rows,cols>::clear(){
   capd::vectalg::clear(*this);
@@ -186,6 +203,7 @@ inline Matrix<Scalar,rows,cols>& Matrix<Scalar,rows,cols>::operator=(const Matri
    ContainerType::operator=(a);
    return *this;
 }
+
 
 // ----------------------------- indexing ---------------------------------------------
 
@@ -355,8 +373,8 @@ typename Matrix<Scalar,cols,rows>::ScalarType trace(const Matrix<Scalar,cols,row
   typedef typename Matrix<Scalar,cols,rows>::ScalarType ScalarType ;
   ScalarType T = capd::TypeTraits<ScalarType>::zero();
 
-  for(int i = 0; i<A.numberOfRows(); ++i){
-    T += A[i][i];
+  for(int i = 1; i<=A.numberOfRows(); ++i){
+    T += A(i,i);
   }
   return T;
 }
@@ -376,9 +394,9 @@ typename Matrix<Scalar,cols,rows>::ScalarType secondTrace(const Matrix<Scalar,co
 
   int dim = A.numberOfRows();
 
-  for(int i = 0; i<dim; ++i)
-    for(int j = i+1; j<dim; ++j)
-      T += A[i][i]*A[j][j]-A[i][j]*A[j][i];
+  for(int i = 1; i<=dim; ++i)
+    for(int j = i+1; j<=dim; ++j)
+      T += A(i,i)*A(j,j)-A(i,j)*A(j,i);
 
    return T;
 }

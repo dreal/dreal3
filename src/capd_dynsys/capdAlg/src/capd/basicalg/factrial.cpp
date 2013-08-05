@@ -11,52 +11,52 @@
 //
 // This file constitutes a part of the CAPD library, 
 // distributed under the terms of the GNU General Public License.
-// Consult  http://capd.wsb-nlu.edu.pl/ for details. 
+// Consult  http://capd.ii.uj.edu.pl/ for details.
 
 #include <cstddef>
 #include <vector>
 #include "capd/basicalg/factrial.h"
 
 
-static std::vector<long> factorial_storage;
-static long first_unknown_factorial=0;
-static std::vector<long> newton_storage;
-static long first_unknown_newton_level=0;
+static std::vector<unsigned long long> factorial_storage;
+static unsigned first_unknown_factorial=0;
+static std::vector<unsigned long long> newton_storage;
+static unsigned first_unknown_newton_level=0;
 
-inline long index(long n,long k)
+inline unsigned index(unsigned n,unsigned k)
 {
 	return n*(n+1)/2+k;
 }
 
-long factorial(long n)
+unsigned long long factorial(unsigned n)
 {
 	if(n<first_unknown_factorial){
 		return factorial_storage[n];
 	}else{
-		long i;
-      factorial_storage.resize(n+1);
+	  unsigned i;
+    factorial_storage.resize(n+1);
 		if(first_unknown_factorial == 0){
 			factorial_storage[first_unknown_factorial++]=1;
 		}
-		long result=factorial_storage[first_unknown_factorial-1];
+		unsigned long long result=factorial_storage[first_unknown_factorial-1];
 		for(i=first_unknown_factorial;i<=n;i++) factorial_storage[i]=result*=i;
 		first_unknown_factorial=n+1;
 		return result;
 	}
 }
 
-long newton(long n, long k)
+unsigned long long newton(unsigned n, unsigned k)
 {
-	int first_undefined_index=index(first_unknown_newton_level,0);
+  unsigned first_undefined_index=index(first_unknown_newton_level,0);
 	if(n>=first_unknown_newton_level){
       newton_storage.resize(index(n+1,0));
 		if(first_undefined_index == 0){
 			newton_storage[first_undefined_index++]=1;
 			first_unknown_newton_level++;
 		}
-		for(int m=first_unknown_newton_level;m<=n;m++){
+		for(unsigned m=first_unknown_newton_level;m<=n;m++){
 			newton_storage[first_undefined_index]=newton_storage[first_undefined_index+m]=1;
-			for(int p=1;p<m;p++) newton_storage[first_undefined_index+p]=
+			for(unsigned p=1;p<m;p++) newton_storage[first_undefined_index+p]=
 					newton_storage[index(m-1,p-1)]+newton_storage[index(m-1,p)];
 			first_undefined_index+=(m+1);
 		}

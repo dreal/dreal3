@@ -54,6 +54,7 @@ public:
   inline int module() const{
     return dimension();
   }
+  bool hasNext(int dim);
   long factorial() const;
   Multipointer subMultipointer(const Multipointer& mp) const;
   
@@ -98,11 +99,13 @@ public:
   Multiindex(int A_dimension, const Multipointer&);
   Multiindex(int a_dim, int a_data[]) : Vector<int,0>(a_dim,a_data){}
   Multiindex(int a_dim,bool) : Vector<int,0>(a_dim,true){}
-   
+
+  bool hasNext();
+
   int module() const;          ///< returns sum of multiindex coordinates (i.e. degree of monomial)
   long factorial() const;      ///< for multiindex (a,b,..,n) returns a!b!...n!
   static void generateList(int n, int k, IndicesSet& result);
-  int index(int maxDegree) const;
+  int index(int maxDegree) const; ///< computes index in the array that corresponds to this multiindex
 };
 
 // -------------------------------------------------------------------------------

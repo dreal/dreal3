@@ -92,7 +92,13 @@ public:
   Matrix(const Dimension& d,bool);
   Matrix(int A_rows,int A_cols,bool);
   void clear();                                //assigns zero to each coord
-
+  
+#if( __cplusplus >= 201103L) 
+   Matrix& operator= (const Matrix&& a);         //move a matrix
+   Matrix(const Matrix&& m);                     // move constructor
+#endif
+  
+  
   //assignments - matrices
   Matrix& operator= (const Matrix& a);         //assign a matrix
   Matrix& operator+=(const Matrix& a);         //increase by a matrix

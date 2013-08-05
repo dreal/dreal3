@@ -1,5 +1,6 @@
 /*! \page capd_compilation Compilation
 
+- \subpage capd_requirements "Requirements"
 
 \section  capd_compilation_1 Preparing configure script 
 This step is needed if you have a fresh version from the SVN repositories or if you changed one of the \e configure.in files.  

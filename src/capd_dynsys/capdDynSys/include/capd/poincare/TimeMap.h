@@ -107,7 +107,7 @@ public:
   const ScalarType& getCurrentTime() const {
     return m_currentTime;
   }
-
+  
 protected:
 
   template<class SetType>
@@ -200,50 +200,32 @@ void TimeMap<DS>::moveSet(ScalarType Time, SetType &originalSet)
     m_currentTime = ScalarType(0.0);
     m_currentSet = &originalSet;
     m_completed = false;
-  }
+  } 
   else
   {
     if(m_stepControl)
     {
       step = m_dynamicalSystem.computeNextTimeStep(originalSet,Time);
-      m_dynamicalSystem.setStep(step);
+      m_dynamicalSystem.setStep(step);      
     }
   }
+  
 
-  if(step >= 0) {
-      while((m_currentTime + step) < Time)
+  while((m_currentTime + step) < Time)
+  {
+    this->makeOneStep(originalSet);
+    /// the time step can be decreased by the move routine
+    m_currentTime += m_dynamicalSystem.getStep();
+    if(m_oneStep)
+      return;
+    else 
+    {
+      if(m_stepControl)
       {
-          this->makeOneStep(originalSet);
-          /// the time step can be decreased by the move routine
-          m_currentTime += m_dynamicalSystem.getStep();
-          if(m_oneStep)
-              return;
-          else
-          {
-              if(m_stepControl)
-              {
-                  step = m_dynamicalSystem.computeNextTimeStep(originalSet,Time);
-                  m_dynamicalSystem.setStep(step);
-              }
-          }
+        step = m_dynamicalSystem.computeNextTimeStep(originalSet,Time);
+        m_dynamicalSystem.setStep(step);
       }
-  } else {
-      while((m_currentTime + step) > Time)
-      {
-          this->makeOneStep(originalSet);
-          /// the time step can be decreased by the move routine
-          m_currentTime += m_dynamicalSystem.getStep();
-          if(m_oneStep)
-              return;
-          else
-          {
-              if(m_stepControl)
-              {
-                  step = m_dynamicalSystem.computeNextTimeStep(originalSet,Time);
-                  m_dynamicalSystem.setStep(step);
-              }
-          }
-      }
+    }
   }
    // we make last step
   ScalarType lastStep = Time - m_currentTime;

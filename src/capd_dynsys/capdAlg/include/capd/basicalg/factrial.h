@@ -16,8 +16,8 @@
 /// @addtogroup basicalg
 /// @{
 
-long factorial(long n);        ///< compute and store n factorial
-long newton(long n, long k);   ///< compute and store newton symbol (n \over k)
+unsigned long long factorial(unsigned n);        ///< compute and store n factorial
+unsigned long long newton(unsigned n, unsigned k);   ///< compute and store newton symbol (n \over k)
 
 /// @}
 

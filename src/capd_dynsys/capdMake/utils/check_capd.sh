@@ -8,8 +8,9 @@
 #    ./check_capd  capd_dir  install_dir  working_dir
 #  where
 #    capd_dir      directory with sources of CAPD library
-#    install_dir   directory where CAPD should be installed
+#    install_dir   directory where CAPD should be installed to
 #    working_dir   working directory (will contain results of compilation)
+#                          IT'S CONTENT WILL BE REMOVED!!!
 #
 #  We assume that all directories are subdirectories of current directory
 #
@@ -39,8 +40,8 @@ working_dir=$3
 WORKING_DIR=`readlink -m ${working_dir}`
 
 echo "CAPD : ${CAPD_DIR}"
-echo "INSTALL : $CAPD_INSTALL"
-echo "WORKING : $WORKING_DIR"
+echo "INSTALL : ${CAPD_INSTALL}"
+echo "WORKING : ${WORKING_DIR}"
 
 echo "we try to compile"
 rm -rf ${working_dir}

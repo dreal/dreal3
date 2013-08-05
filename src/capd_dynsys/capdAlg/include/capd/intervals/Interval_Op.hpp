@@ -522,7 +522,6 @@ std::ostream & bitWrite(std::ostream & out, const Interval< T_Bound, T_Rnd > &iv
 }
 template < typename T_Bound, typename T_Rnd>
 std::istream & bitRead(std::istream & inp, Interval< T_Bound, T_Rnd > &iv){
-	int ch;
 	T_Bound ll, rr;
 	inp >> std::ws;
 	if('['==inp.get()){
@@ -560,7 +559,6 @@ std::ostream & hexWrite(std::ostream & out, const Interval< T_Bound, T_Rnd > &iv
 }
 template < typename T_Bound, typename T_Rnd>
 std::istream & hexRead(std::istream & inp, Interval< T_Bound, T_Rnd > &iv){
-	int ch;
 	T_Bound ll, rr;
 	inp >> std::ws;
 	if('['==inp.get()){

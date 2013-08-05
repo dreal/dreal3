@@ -142,6 +142,31 @@ void Multiindex::generateList(int n, int k, IndicesSet& result)
 
 // ---------------------------------------------------------------------
 
+bool Multipointer::hasNext(int dim){
+  if(this->dimension())
+  {
+    iterator b=begin(), e=end(), e1=end();
+    do
+    {
+      --e;
+      if( ++(*e) % dim )
+      {
+        int p=*e;
+        ++e;
+        while(e!=e1)
+        {
+          *e=p;
+          ++e;
+        }
+        return true;
+      }
+    }while(b!=e);
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------
+
 long Multipointer::factorial() const{
    const_iterator b=begin(), e=end();
    long result=1;
@@ -233,6 +258,31 @@ Multipointer::Multipointer(const Multiindex& mi) : Vector<int,0>(mi.module(),tru
          ++i;
       }
    }
+}
+
+// ---------------------------------------------------------------------
+
+// the following function computes the next multipointer after mp
+// it returns false if 'a' is zero multiindex
+
+bool Multiindex::hasNext()
+{
+  if(this->dimension()<2) return false;
+  if(this->data[0]!=0) {
+    this->data[0]--;
+    this->data[1]++;
+    return true;
+  }
+  for(int i=1;i<this->dimension()-1;++i)
+  {
+    if(this->data[i]!=0){
+      this->data[0] = this->data[i]-1;
+      this->data[i]=0;
+      this->data[i+1]++;
+      return true;
+    }
+  }
+  return false;
 }
 
 // ---------------------------------------------------------------------

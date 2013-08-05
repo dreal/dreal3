@@ -16,6 +16,9 @@
 #if !defined(_FUNCTOR_H_)
 #define _FUNCTOR_H_
 
+namespace capd {
+  namespace auxil {
+
 template<class Op2, class Op1>
 class ComposedFunctor{
   Op1 op1;
@@ -29,6 +32,7 @@ class ComposedFunctor{
   }
 };
 
+  // Do we need this? When it is in global namespace, then it is used for gmp numbers
 template<class Op2, class Op1>
 inline ComposedFunctor<Op2,Op1> operator*(const Op2& op2,const Op1& op1){
   return ComposedFunctor<Op2,Op1>(op2,op1);
@@ -48,6 +52,9 @@ class Functor{
   private:
   valueType (*functionPtr)(argumentType A_a);
 };
+
+}
+}
 
 #endif //_FUNCTOR_H_
 /// @}

@@ -22,13 +22,11 @@ and computation of homology of sets and maps.
 
 - \subpage capd_news
 
-- \subpage directory_structure
 - \subpage capd_requirements "Requirements"
 - \subpage capd_compilation
 - \subpage user_programs 
 
 - \subpage capd_useful_info
-- \subpage capd_examples
 
 For developers
 - \subpage capd_repositories

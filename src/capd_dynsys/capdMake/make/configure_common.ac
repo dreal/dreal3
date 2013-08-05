@@ -46,7 +46,7 @@ AM_INIT_AUTOMAKE([foreign dist-zip dist-tarZ no-define subdir-objects])
 AM_PROG_CC_C_O
 
 if test "${enable_maintainer_mode+set}" != "set"; then
-   if test -e "${capdMake}/.git" || test -e "${capdMake}/.svn"; then
+   if test -e "${capdMake}/../.svn" || test -e "${capdMake}/../.git"; then
       enable_maintainer_mode=yes
    fi
 fi

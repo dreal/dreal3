@@ -23,8 +23,9 @@ PKG_CHECK_MODULES([capdkrak], [capdkrak >= 1.0], [], [capdkrak=no])
 AM_CONDITIONAL([HAVE_capdkrak], [test "x$capdkrak" = "xyes"])
 if test "x$capdkrak" = "xyes"; then
   echo ${capdkrak_LIBS}       
-  AC_CONFIG_FILES([krakdemo/Makefile])
 fi
+
+AC_CONFIG_FILES([krakdemo/Makefile])
 
 PKG_CHECK_MODULES([capdauxil], [capdauxil >= 1.0])
 

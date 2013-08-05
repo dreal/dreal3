@@ -7,5 +7,5 @@ nonAutTest_SOURCES=nonAutTest.cpp
 nonAutTest_CXXFLAGS=${capdDynSys_CFLAGS}
 nonAutTest_libs=${capdDynSys_LIBS}
 nonAutTest_LDADD=${nonAutTest_libs}
-nonAutTest_DEPENDENCIES=${nonAutTest_libs:-%=}
+nonAutTest_DEPENDENCIES=${filter %.a %.la,${nonAutTest_libs}}
 

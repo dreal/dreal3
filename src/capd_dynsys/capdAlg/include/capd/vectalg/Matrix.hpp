@@ -53,42 +53,18 @@ template<typename Scalar, int rows, int cols>
 Matrix<Scalar,rows,cols>::Matrix(Matrix<double,rows,cols>& a_m)
    : ContainerType(a_m.numberOfRows(),a_m.numberOfColumns(),true)
 {
-  if(numberOfRows() && numberOfColumns()){
-    typename Matrix<double,rows,cols>::iterator i=a_m.begin();
-    iterator b=begin(), e=end();
-    while(b!=e){
-      *b = static_cast<Scalar>(*i);
-      ++i;
-      ++b;
-    }
-  }
+  std::copy(a_m.begin(),a_m.end(),begin());
 }
 
 template<typename Scalar, int rows, int cols>
-Matrix<Scalar,rows,cols>::Matrix(int A_rows,int A_cols,const Scalar dane[]) : ContainerType(A_rows,A_cols)
+Matrix<Scalar,rows,cols>::Matrix(int A_rows,int A_cols,const Scalar dane[]) : ContainerType(A_rows,A_cols,true)
 {
-  if(numberOfRows() && numberOfColumns()){
-    int k=0;
-    iterator b=begin(), e=end();
-    while(b!=e){
-      *b = dane[k];
-      ++k;
-      ++b;
-    }
-  }
+  std::copy(dane,dane+this->size(),begin());
 }
 
 template<typename Scalar, int rows, int cols>
 Matrix<Scalar,rows,cols>::Matrix(const Scalar dane[]) : ContainerType() {
-  if(numberOfRows() && numberOfColumns()){
-    int k=0;
-    iterator b=begin(), e=end();
-    while(b!=e){
-      *b = dane[k];
-      ++k;
-      ++b;
-    }
-  }
+  std::copy(dane,dane+this->size(),begin());
 }
 
 template<typename Scalar, int rows, int cols>
@@ -150,9 +126,7 @@ Matrix<Scalar,cols,rows> transpose(const Matrix<Scalar,rows,cols> &a)
    Matrix<Scalar,cols,rows> temp(a.numberOfColumns(),a.numberOfRows(),true);
    for(int i=1;i<=a.numberOfColumns();++i)
       for(int j=1;j<=a.numberOfRows();++j)
-      {
          temp(i,j)= a(j,i);
-      }
    return temp;
 }
 
