@@ -18,8 +18,8 @@ open Batteries
 %token <float> FNUM
 %token <string> ID
 
-%left PLUS MINUS NEG
-%left TIMES DIVIDE
+%left PLUS MINUS
+%left AST SLASH
 %left NEG
 %right CARET
 
@@ -103,25 +103,29 @@ formula:
 ; /* TODO: add "And" and "Or". maybe "and" is unnecessary... */
 
 exp:
-   ID            { Basic.Var $1 }
- | FNUM          { Basic.Num $1 }
- | LP exp RP     { $2 }
- | PLUS exp exp  { Basic.Add [$2; $3] }
- | MINUS exp exp { Basic.Sub [$2; $3] }
- | MINUS exp %prec NEG    { Basic.Neg $2 }
- | AST exp exp   { Basic.Mul [$2; $3] }
- | SLASH exp exp { Basic.Div ($2, $3) }
- | EXP exp       { Basic.Exp $2 }
- | CARET exp exp { Basic.Pow ($2, $3) }
- | SIN exp       { Basic.Sin $2 }
- | COS exp       { Basic.Cos $2 }
- | TAN exp       { Basic.Tan $2 }
- | ASIN exp      { Basic.Asin $2 }
- | ACOS exp      { Basic.Acos $2 }
- | ATAN exp      { Basic.Atan $2 }
- | SINH exp      { Basic.Sinh $2 }
- | COSH exp      { Basic.Cosh $2 }
- | TANH exp      { Basic.Tanh $2 }
+   ID                  { Basic.Var $1 }
+ | FNUM                { Basic.Num $1 }
+ | LP exp RP           { $2 }
+ | PLUS exp exp        { Basic.Add [$2; $3] }
+ | MINUS exp exp       { Basic.Sub [$2; $3] }
+ | MINUS exp %prec NEG    {
+   match $2 with
+   | Basic.Num n -> Basic.Num (0.0 -. n)
+   | _ -> Basic.Neg $2
+ }
+ | AST exp exp         { Basic.Mul [$2; $3] }
+ | SLASH exp exp       { Basic.Div ($2, $3) }
+ | EXP exp             { Basic.Exp $2 }
+ | CARET exp exp       { Basic.Pow ($2, $3) }
+ | SIN exp             { Basic.Sin $2 }
+ | COS exp             { Basic.Cos $2 }
+ | TAN exp             { Basic.Tan $2 }
+ | ASIN exp            { Basic.Asin $2 }
+ | ACOS exp            { Basic.Acos $2 }
+ | ATAN exp            { Basic.Atan $2 }
+ | SINH exp            { Basic.Sinh $2 }
+ | COSH exp            { Basic.Cosh $2 }
+ | TANH exp            { Basic.Tanh $2 }
 ;
 
 ode_list: /* */ { [] }

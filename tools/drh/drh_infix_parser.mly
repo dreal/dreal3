@@ -3,9 +3,7 @@
  */
 
 %{
-
 open Batteries
-
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
@@ -21,7 +19,7 @@ open Batteries
 %token <string> ID
 
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left AST SLASH
 %left NEG
 %right CARET
 
@@ -94,40 +92,43 @@ formulas: /* */ { [] }
   | formula formulas { $1::$2 }
 ;
 
-
 formula:
     TRUE                { Basic.True }
   | FALSE               { Basic.False }
   | LP formula RP       { $2 }
   | AND formulas        { Basic.make_and $2 }
   | OR  formulas        { Basic.make_or  $2 }
-  | exp EQ exp         { Basic.Eq  ($1, $3) }
-  | exp GT exp         { Basic.Gt  ($1, $3) }
-  | exp LT exp         { Basic.Lt  ($1, $3) }
+  | exp EQ exp          { Basic.Eq  ($1, $3) }
+  | exp GT exp          { Basic.Gt  ($1, $3) }
+  | exp LT exp          { Basic.Lt  ($1, $3) }
   | exp GTE exp         { Basic.Ge ($1, $3) }
   | exp LTE exp         { Basic.Le ($1, $3) }
-; /* TODO: add "And" and "Or". maybe "and" is unnecessary... */
+;
 
 exp:
-   ID            { Basic.Var $1 }
- | FNUM          { Basic.Num $1 }
- | LP exp RP     { $2 }
- | exp PLUS exp  { Basic.Add [$1; $3] }
- | exp MINUS exp { Basic.Sub [$1; $3] }
- | MINUS exp %prec NEG    { Basic.Neg $2 }
- | exp AST exp   { Basic.Mul [$1; $3] }
- | exp SLASH exp { Basic.Div ($1, $3) }
- | EXP exp       { Basic.Exp $2 }
- | exp CARET exp { Basic.Pow ($1, $3) }
- | SIN exp       { Basic.Sin $2 }
- | COS exp       { Basic.Cos $2 }
- | TAN exp       { Basic.Tan $2 }
- | ASIN exp      { Basic.Asin $2 }
- | ACOS exp      { Basic.Acos $2 }
- | ATAN exp      { Basic.Atan $2 }
- | SINH exp      { Basic.Sinh $2 }
- | COSH exp      { Basic.Cosh $2 }
- | TANH exp      { Basic.Tanh $2 }
+   ID                     { Basic.Var $1 }
+ | FNUM                   { Basic.Num $1 }
+ | LP exp RP              { $2 }
+ | exp PLUS exp           { Basic.Add [$1; $3] }
+ | exp MINUS exp          { Basic.Sub [$1; $3] }
+ | MINUS exp %prec NEG    {
+   match $2 with
+   | Basic.Num n -> Basic.Num (0.0 -. n)
+   | _ -> Basic.Neg $2
+ }
+ | exp AST exp            { Basic.Mul [$1; $3] }
+ | exp SLASH exp          { Basic.Div ($1, $3) }
+ | EXP exp                { Basic.Exp $2 }
+ | exp CARET exp          { Basic.Pow ($1, $3) }
+ | SIN exp                { Basic.Sin $2 }
+ | COS exp                { Basic.Cos $2 }
+ | TAN exp                { Basic.Tan $2 }
+ | ASIN exp               { Basic.Asin $2 }
+ | ACOS exp               { Basic.Acos $2 }
+ | ATAN exp               { Basic.Atan $2 }
+ | SINH exp               { Basic.Sinh $2 }
+ | COSH exp               { Basic.Cosh $2 }
+ | TANH exp               { Basic.Tanh $2 }
 ;
 
 ode_list: /* */ { [] }
