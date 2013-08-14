@@ -1,4 +1,5 @@
 <bmc/*.{ml,native}>: pkg_basic, pkg_smt2, pkg_drh, package(batteries)
+<inv_check/*.{ml,native}>: pkg_basic, pkg_smt2, pkg_drh, package(batteries)
 <smt2_stat/*.{ml,native}>: pkg_basic, pkg_smt2, pkg_drh, package(batteries)
 <cppbmc/*.{ml,native}>: pkg_basic, pkg_smt2, pkg_drh, package(batteries)
 "basic" or "smt2" or "drh" or "cppbmc" : include
