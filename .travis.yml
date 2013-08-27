@@ -10,20 +10,36 @@ before_script:
   - ./configure CXX=g++-4.8
 
 script:
+  # compile dReal
   - make
+  # compile tools
+  - make -C ./tools
+  # compile proof checker
+  - make -C ./tools/proofcheker/checker
 
 install:
+  # Add ppas
   - sudo add-apt-repository --yes ppa:dns/gnu
   - sudo add-apt-repository --yes ppa:agent-8131/ppa
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo add-apt-repository --yes ppa:h-rayflood/llvm
+  - sudo add-apt-repository --yes ppa:louis-gesbert/ocamlpro-12.04
+  # Install g++
   - sudo apt-get -qq update
-  - sudo apt-get -qq install autoconf automake libtool git g++ bison flex
+  - sudo apt-get -qq install autoconf automake libtool git g++ bison flex wget
   - sudo apt-get -qq install libboost-dev libboost-thread-dev
   - sudo apt-get -qq install libgoogle-perftools-dev
   - sudo apt-get -qq install libgmp-dev
   - sudo apt-get -qq install libstdc++-4.8-dev
   - sudo apt-get -qq install g++-4.8
+  # Install ocaml
+  - sudo apt-get -qq install ocaml ocaml-native-compilers
+  # Install opam
+  - wget http://www.ocamlpro.com/pub/opam_installer.sh
+  - sudo yes | sh ./opam_installer.sh /usr/local/bin system
+  - ~/.opam/opam-init/init.sh > /dev/null 2> /dev/null || true
+  - opam update
+  - yes | opam install batteries cil
 
 notifications:
   email:
