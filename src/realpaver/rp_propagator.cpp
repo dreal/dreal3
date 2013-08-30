@@ -459,6 +459,7 @@ int rp_propagator::apply_loop(rp_box b)
     rp_box_copy(_bsave,b);
     o->set_unworking();  // o is no longer in the list
 
+
     if (this->check_precision(o,b))
     {
 //add
@@ -492,6 +493,9 @@ int rp_propagator::apply_loop(rp_box b)
                                    rp_box_elem(_bsave,v),
                                    _improve))
           {
+//test type
+    	    printf("contractor type: %d \n", o->type);
+
             rp_vector * depv = &rp_dependency_elem(_dep,v);
             for (int j=0; j<rp_vector_size(*depv); ++j)
             {

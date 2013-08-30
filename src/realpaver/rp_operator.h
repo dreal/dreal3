@@ -34,6 +34,9 @@
 class rp_operator
 {
 public:
+
+  int type;
+
   // Construction of operator with a priority and an arity
   // (number of variables on which the operator depends)
   rp_operator(int priority, int arity, int pruned_arity);

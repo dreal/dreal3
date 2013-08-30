@@ -900,6 +900,9 @@ rp_operator_newton::rp_operator_newton(const rp_problem * p,
 
   rp_interval_matrix_create(&_precond_jacobi,_arity,_arity);
   rp_interval_vector_create(&_precond_negfmid,_arity);
+
+//test type
+  type = 3;
 }
 
 // Destruction
