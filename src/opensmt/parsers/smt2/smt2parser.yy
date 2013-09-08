@@ -568,6 +568,12 @@ b_value: TK_TRUE
 infix_term: spec_const
       {
         string* ret = new string($1);
+        if(ret->at(0) == '-') {
+                stringstream ss;
+                ss << "(" << *ret << ")";
+                delete ret;
+                ret = new string(ss.str());
+        }
         $$ = ret;
       }
     | '(' infix_term ')'
