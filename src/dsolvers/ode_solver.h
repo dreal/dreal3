@@ -21,38 +21,25 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef ODESOLVER_H
 #define ODESOLVER_H
-#include "rp_box.h"
+#include <map>
+#include <string>
 #include "Enode.h"
+#include "realpaver/rp_box.h"
 #include "capd/capdlib.h"
 #include "SMTConfig.h"
 
-class ode_solver
-{
+class ode_solver {
 public:
-    ode_solver(int group,
-               SMTConfig& c,
-               set < Enode* > & ode_vars,
-               rp_box b,
-               std::map<Enode*, int>& enode_to_rp_id,
-               bool& ODEresult
-        );
+    ode_solver(int group, SMTConfig& c, set <Enode*> & ode_vars, rp_box b,
+               std::map<Enode*, int>& enode_to_rp_id, bool& ODEresult);
     ~ode_solver();
 
-    string create_diffsys_string(set < Enode* > & ode_vars,
-                                 vector<Enode*> & _0_vars,
-                                 vector<Enode*> & _t_vars);
-
+    string create_diffsys_string(set <Enode*> & ode_vars, vector<Enode*> & _0_vars, vector<Enode*> & _t_vars);
     capd::IVector varlist_to_IVector(vector<Enode*> vars);
     capd::IVector extract_invariants(vector<Enode*> vars);
     void IVector_to_varlist(capd::IVector & v, vector<Enode*> & vars);
-
-    void prune(vector<Enode*>& _t_vars,
-               capd::IVector v,
-               capd::interval dt,
-               vector<capd::IVector> & out_v_list,
-               vector<capd::interval> & out_time_list,
-               capd::interval time);
-
+    void prune(vector<Enode*>& _t_vars, capd::IVector v, capd::interval dt,
+               vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list, capd::interval time);
     bool simple_ODE();
     bool solve_forward();
     bool solve_backward();
@@ -72,29 +59,22 @@ public:
     void set_empty_interval(Enode* const e) {
         rp_interval_set_empty(rp_box_elem(_b, _enode_to_rp_id[e]));
     }
-
     void print_trajectory(ostream& out) const;
 
 private:
     int _group;
     SMTConfig& _config;
-    set< Enode* > & _ode_vars;
+    set<Enode*> & _ode_vars;
     rp_box _b;
     map<Enode*, int>& _enode_to_rp_id;
     ode_solver& operator=(const ode_solver& o);
-    list<pair<capd::interval, capd::IVector> > trajectory;
+    list<pair<capd::interval, capd::IVector>> trajectory;
     bool& ODEresult;
     vector<string> var_list;
-
     double stepControl;
-
     void print_datapoint(ostream& out, const capd::interval& t, const capd::interval& v) const;
-
-    void print_trace(ostream& out,
-                     const string key,
-                     const int idx,
-                     const list<pair<capd::interval, capd::IVector> > & trajectory) const;
-
+    void print_trace(ostream& out, const string key, const int idx,
+                     const list<pair<capd::interval, capd::IVector>> & trajectory) const;
     void prune_trajectory(capd::interval& t, capd::IVector& e);
 };
 #endif
