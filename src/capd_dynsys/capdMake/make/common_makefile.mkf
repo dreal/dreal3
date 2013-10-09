@@ -1,8 +1,0 @@
-SUFFIXES=.cpp .c .C .cxx .h .hpp .hxx
-
-AM_CXXFLAGS=-I${top_srcdir}/include
-AM_CPPFLAGS=-I${top_srcdir}/include
-
-all-install-local: all
-	$(MAKE) $(AM_MAKEFLAGS) prefix=${top_capd} install
-

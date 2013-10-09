@@ -1,8 +1,0 @@
-
-AX_MPI([HAVE_MPI=true])
-
-AM_CONDITIONAL(HAVE_MPI, [test x$HAVE_MPI = xtrue])
-
-AS_IF([test x$HAVE_MPI = xtrue],
-	    [AC_SUBST(MPI_CFLAGS, `${MPICXX} -showme:compile`)
-	    AC_SUBST(MPI_LIBS, `${MPICXX} -showme:link`)] )

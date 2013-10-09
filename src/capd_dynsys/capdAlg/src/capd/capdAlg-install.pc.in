@@ -1,6 +1,0 @@
-Name: capdAlg
-Description: capdAlg library.
-Requires: capdalgfacade capdmatrixAlgorithms capdrounding capdvectalg capdintervals capdbasicalg capdExt capdAux
-Version: @PACKAGE_VERSION@
-Libs: @capdAlg_LIBS@ @capdAlg_LIBS@
-Cflags: @capdAlg_CFLAGS@ 

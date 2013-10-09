@@ -1,5 +1,0 @@
-#!/bin/sh -e
-
-ar cru ${1}.a `ls extract-${1}/*.o`
-ranlib ${1}.a
-rm -fr extract-${1}
