@@ -239,7 +239,7 @@ public:
   inline Elist *  getForbid              ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->forbid; }
   inline dist_t   getDistClasses         ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->dist_classes; }
 
-  const double    getValue               ( ) const;
+  double          getValue               ( ) const;
 
   void            setODEvartype          ( lbool );        // added for dReal2
   const lbool     getODEvartype          ( ) const;        // added for dReal2
@@ -257,14 +257,14 @@ public:
   Enode*          getODEtimevar          ( ) const;
 
   void            setODEgroup            ( int );
-  const int       getODEgroup            ( ) const;
+  int             getODEgroup            ( ) const;
 
   void            setODEinvarint ( pair<double, double> i );
   const pair<double, double> getODEinvariant ( ) const;
 
-  const double    getLowerBound          ( ) const; //added for dReal2
-  const double    getUpperBound          ( ) const; //added for dReal2
-  const double    getComplexValue        ( ) const;
+  double          getLowerBound          ( ) const; //added for dReal2
+  double          getUpperBound          ( ) const; //added for dReal2
+  double          getComplexValue        ( ) const;
   void            setValue               ( const double );
   void            setLowerBound          ( const double ); //added for dReal2
   void            setUpperBound          ( const double ); //added for dReal2
@@ -429,7 +429,7 @@ private:
   inline bool       hasSymbolId    ( const enodeid_t id ) const { assert( isTerm( ) ); return car->getId( ) == id; }
 };
 
-inline const double Enode::getValue ( ) const
+inline double       Enode::getValue ( ) const
 {
   assert( hasValue( ) );
   return *value;
@@ -467,7 +467,7 @@ inline void        Enode::setODEgroup ( int g )
 {
     ode_group = g;
 }
-inline const int  Enode::getODEgroup ( ) const
+inline int         Enode::getODEgroup ( ) const
 {
     return ode_group;
 }
@@ -503,7 +503,7 @@ inline const string Enode::getODEvarname () const
 }
 
 
-inline const double Enode::getLowerBound ( ) const
+inline double Enode::getLowerBound ( ) const
 {
     if (lb != NULL)
         return *lb;
@@ -511,7 +511,7 @@ inline const double Enode::getLowerBound ( ) const
         return -std::numeric_limits<double>::infinity();
 }
 
-inline const double Enode::getUpperBound ( ) const
+inline double Enode::getUpperBound ( ) const
 {
     if (ub != NULL)
         return *ub;
@@ -519,8 +519,7 @@ inline const double Enode::getUpperBound ( ) const
         return +std::numeric_limits<double>::infinity();
 }
 
-
-inline const double Enode::getComplexValue( ) const
+inline double Enode::getComplexValue( ) const
 {
   if( isDiv( ) )
     return get1st( )->getCar( )->getComplexValue( ) / get2nd( )->getCar( )->getComplexValue( );

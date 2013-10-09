@@ -41,3 +41,5 @@ ID
 TAGS
 ltmain.sh
 compile
+build/
+.projectile

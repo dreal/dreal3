@@ -38,10 +38,10 @@ extern bool stop;
 
 } // namespace opensmt
 
-extern int  smtset_in          ( FILE * );
-extern int  smtparse           ( );
-extern int  cnfset_in          ( FILE * );
-extern int  cnfparse           ( );
+// extern int  smtset_in          ( FILE * );
+// extern int  smtparse           ( );
+// extern int  cnfset_in          ( FILE * );
+// extern int  cnfparse           ( );
 extern int  smt2set_in         ( FILE * );
 extern int  smt2parse          ( );
 OpenSMTContext * parser_ctx;
@@ -93,19 +93,20 @@ int main( int argc, char * argv[] )
   else
   {
     const char * extension = strrchr( filename, '.' );
-    if ( strcmp( extension, ".smt" ) == 0 )
-    {
-      opensmt_error( "SMTLIB 1.2 format is not supported in this version, sorry" );
-      smtset_in( fin );
-      smtparse( );
-    }
-    else if ( strcmp( extension, ".cnf" ) == 0 )
-    {
-      context.SetLogic( QF_BOOL );
-      cnfset_in( fin );
-      cnfparse( );
-    }
-    else if ( strcmp( extension, ".smt2" ) == 0 )
+    // if ( strcmp( extension, ".smt" ) == 0 )
+    // {
+    //   opensmt_error( "SMTLIB 1.2 format is not supported in this version, sorry" );
+    //   smtset_in( fin );
+    //   smtparse( );
+    // }
+    // else if ( strcmp( extension, ".cnf" ) == 0 )
+    // {
+    //   context.SetLogic( QF_BOOL );
+    //   cnfset_in( fin );
+    //   cnfparse( );
+    // }
+    //else
+    if ( strcmp( extension, ".smt2" ) == 0 )
     {
       smt2set_in( fin );
       smt2parse( );
@@ -121,19 +122,19 @@ int main( int argc, char * argv[] )
 #ifndef SMTCOMP
   if ( context.getConfig( ).verbosity > 0 )
   {
-    const int len_pack = strlen( PACKAGE_STRING );
+    const int len_pack = strlen( "dReal 2.0" /* PACKAGE_STRING */ );
     const char * site = "http://verify.inf.usi.ch/opensmt";
     const int len_site = strlen( site );
 
     cerr << "#" << endl
          << "# -------------------------------------------------------------------------" << endl
-         << "# " << PACKAGE_STRING;
+         << "# " << "dReal 2.0" /* PACKAGE_STRING */;
 
     for ( int i = 0 ; i < 73 - len_site - len_pack ; i ++ )
       cerr << " ";
 
     cerr << site << endl
-	 << "# Compiled with gcc " << __VERSION__ << " on " << __DATE__ << endl
+         << "# Compiled with gcc " << __VERSION__ << " on " << __DATE__ << endl
          << "# -------------------------------------------------------------------------" << endl
          << "#" << endl;
   }
@@ -173,8 +174,8 @@ void catcher( int sig )
     case SIGTERM:
       if ( opensmt::stop )
       {
-	parser_ctx->PrintResult( l_Undef );
-	exit( 1 );
+        parser_ctx->PrintResult( l_Undef );
+        exit( 1 );
       }
       opensmt::stop = true;
       break;

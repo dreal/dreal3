@@ -48,10 +48,10 @@ public:
 
     void prune(vector<Enode*>& _t_vars,
                capd::IVector v,
-               capd::intervals::Interval<double, capd::rounding::DoubleRounding> dt,
+               capd::interval dt,
                vector<capd::IVector> & out_v_list,
-               vector<capd::intervals::Interval<double, capd::rounding::DoubleRounding> > & out_time_list,
-               capd::intervals::Interval<double, capd::rounding::DoubleRounding> time);
+               vector<capd::interval> & out_time_list,
+               capd::interval time);
 
     bool simple_ODE();
     bool solve_forward();

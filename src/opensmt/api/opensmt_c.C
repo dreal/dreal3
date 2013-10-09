@@ -43,7 +43,7 @@ void opensmt_set_verbosity( opensmt_context, int )
 
 char * opensmt_version( )
 {
-  return const_cast< char * >( PACKAGE_STRING );
+    return const_cast< char * >( "dReal 2.0" /*PACKAGE_STRING */ );
 }
 
 opensmt_context opensmt_mk_context( opensmt_logic l )
@@ -168,7 +168,7 @@ opensmt_result opensmt_check_assump( opensmt_context c, opensmt_expr l )
 
 opensmt_result opensmt_check_lim_assump( opensmt_context c
                                        , opensmt_expr l
-				       , unsigned limit )
+                                       , unsigned limit )
 {
   assert( c );
   OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
@@ -375,7 +375,7 @@ opensmt_expr opensmt_mk_ite( opensmt_context c, opensmt_expr i, opensmt_expr t, 
   Enode * e_ = static_cast< Enode * >( e );
   Enode * args = context.mkCons( i_
                , context.mkCons( t_
-	       , context.mkCons( e_ ) ) );
+               , context.mkCons( e_ ) ) );
   Enode * res = context.mkIte( args );
   return static_cast< void * >( res );
 }
@@ -778,8 +778,8 @@ opensmt_expr opensmt_mk_bv_sge( opensmt_context c, opensmt_expr lhs, opensmt_exp
 
 opensmt_expr opensmt_mk_ct_incur( opensmt_context c
                                 , opensmt_expr    var
-				, opensmt_expr    cost
-				, opensmt_expr    id )
+                                , opensmt_expr    cost
+                                , opensmt_expr    id )
 {
   assert( c );
   assert( var );
@@ -793,15 +793,15 @@ opensmt_expr opensmt_mk_ct_incur( opensmt_context c
   Enode * ecost = static_cast< Enode * >( cost );
   Enode * eid   = static_cast< Enode * >( id );
   Enode * args = context.mkCons( evar
-	       , context.mkCons( ecost
-	       , context.mkCons( eid ) ) );
+               , context.mkCons( ecost
+               , context.mkCons( eid ) ) );
   Enode * result = context.mkCostIncur( args );
   return static_cast< void * >( result );
 }
 
 opensmt_expr opensmt_mk_ct_bound( opensmt_context c
                                 , opensmt_expr    var
-				, opensmt_expr    cost )
+                                , opensmt_expr    cost )
 {
   assert( c );
   assert( var );

@@ -39,9 +39,9 @@ void Egraph::initializeStore( )
   Snode * spara0  = sort_store.mkPara( "A" );
   sarith0 = config.logic == QF_LIA
          || config.logic == QF_IDL
-	 || config.logic == QF_UFIDL
-	  ? sort_store.mkInt ( )
-	  : sort_store.mkReal( );
+         || config.logic == QF_UFIDL
+          ? sort_store.mkInt ( )
+          : sort_store.mkReal( );
   Snode * sarray0 = sort_store.mkArray( );
   Snode * selem0  = sort_store.mkElem ( );
   Snode * sindex0 = sort_store.mkIndex( );
@@ -103,8 +103,8 @@ void Egraph::initializeStore( )
   Snode * sarith2_left  = sort_store.mkDot( sarith2_list, LEFT_ASSOC  );
 
   Snode * sarith2_bool  = sort_store.mkDot( sort_store.cons( sarith0
-	                                  , sort_store.cons( sarith0
-					  , sort_store.cons( sbool0 ) ) ) );
+                                          , sort_store.cons( sarith0
+                                          , sort_store.cons( sbool0 ) ) ) );
 
   newSymbol( "+"       , sarith2_left ); assert( ENODE_ID_PLUS   == id_to_enode.size( ) - 1 );
   newSymbol( "-"       , sarith1      ); assert( ENODE_ID_MINUS  == id_to_enode.size( ) - 1 );
@@ -120,12 +120,12 @@ void Egraph::initializeStore( )
   //
   Snode * sarray_index_elem_array = sort_store.mkDot( sort_store.cons( sarray0
                                                     , sort_store.cons( sindex0
-					            , sort_store.cons( selem0
-					            , sort_store.cons( sarray0 ) ) ) ) );
+                                                    , sort_store.cons( selem0
+                                                    , sort_store.cons( sarray0 ) ) ) ) );
 
   Snode * sarray_index_elem = sort_store.mkDot( sort_store.cons( sarray0
                                               , sort_store.cons( sindex0
-					      , sort_store.cons( selem0 ) ) ) );
+                                              , sort_store.cons( selem0 ) ) ) );
 
   newSymbol( "store"   , sarray_index_elem_array ); assert( ENODE_ID_STORE  == id_to_enode.size( ) - 1 );
   newSymbol( "select"  , sarray_index_elem       ); assert( ENODE_ID_SELECT == id_to_enode.size( ) - 1 );
@@ -139,7 +139,7 @@ void Egraph::initializeStore( )
   newSymbol( "asin"      , sarith1 ); assert( ENODE_ID_ARCSIN   == id_to_enode.size( ) - 1 );
   newSymbol( "acos"      , sarith1 ); assert( ENODE_ID_ARCCOS   == id_to_enode.size( ) - 1 );
   newSymbol( "atan"      , sarith1 ); assert( ENODE_ID_ARCTAN   == id_to_enode.size( ) - 1 );
-  newSymbol( "^"	 , sarith2_left); assert (ENODE_ID_POW  == id_to_enode.size() - 1 );
+  newSymbol( "^"         , sarith2_left); assert (ENODE_ID_POW  == id_to_enode.size() - 1 );
   newSymbol( "atan2"     , sarith2_left ); assert( ENODE_ID_ARCTAN2   == id_to_enode.size( ) - 1 );
   newSymbol( "matan"     , sarith1 ); assert( ENODE_ID_MARCTAN   == id_to_enode.size( ) - 1 );
   newSymbol( "safesqrt"  , sarith1 ); assert( ENODE_ID_SAFESQRT   == id_to_enode.size( ) - 1 );
@@ -403,9 +403,9 @@ Enode * Egraph::copyEnodeEtypeListWithCache( Enode * l, bool map2 )
   for ( Enode * arg = l ; !arg->isEnil( ) ; arg = arg->getCdr( ) )
   {
     new_args.push_front( map2
-		       ? valDupMap2( arg->getCar( ) )
-		       : valDupMap1( arg->getCar( ) )
-		       );
+                       ? valDupMap2( arg->getCar( ) )
+                       : valDupMap1( arg->getCar( ) )
+                       );
   }
 
   Enode * res = cons( new_args );
@@ -550,8 +550,8 @@ Enode * Egraph::mkNum( const char * value )
 {
   assert( value );
   Enode * new_enode = new Enode( id_to_enode.size( )
-			       , value
-			       , ETYPE_NUMB
+                               , value
+                               , ETYPE_NUMB
                                , sarith0 );
 
   assert( new_enode );
@@ -632,9 +632,9 @@ Enode * Egraph::newSymbol( const char * name, Snode * s )
     opensmt_error2( "symbol already declared ", ss.str( ).c_str( ) );
 
   Enode * new_enode = new Enode( id_to_enode.size( )
-			       , ss.str( ).c_str( )
+                               , ss.str( ).c_str( )
                                , ETYPE_SYMB
-			       , s );
+                               , s );
 
   insertSymbol( new_enode );
   assert( lookupSymbol( ss.str( ).c_str( ) ) == new_enode );
@@ -749,7 +749,7 @@ Enode * Egraph::mkLeq( Enode * args )
   if ( x->isConstant( ) && y->isConstant( ) )
     return x->getValue( ) <= y->getValue( )
          ? mkTrue ( )
-	 : mkFalse( );
+         : mkFalse( );
 
   Enode * res = cons( id_to_enode[ ENODE_ID_LEQ ], args );
   return res;
@@ -1172,7 +1172,7 @@ Enode * Egraph::mkImplies( Enode * args )
   if ( second->isFalse( ) ) return not_first;
 
   return mkOr( cons( not_first
-	     , cons( second ) ) );
+             , cons( second ) ) );
 }
 
 Enode * Egraph::mkDistinct( Enode * args )
@@ -1201,7 +1201,7 @@ Enode * Egraph::mkDistinct( Enode * args )
       size_t index = index_to_dist.size( );
 
       if ( index > sizeof( dist_t ) * 8 )
-	opensmt_error2( "max number of distinctions supported is " ,sizeof( dist_t ) * 8 );
+        opensmt_error2( "max number of distinctions supported is " ,sizeof( dist_t ) * 8 );
 
       res->setDistIndex( index );
       // Store the correspondence
@@ -1265,31 +1265,31 @@ Enode * Egraph::mkBvnum( char * str )
     assert( (int)strlen( value.c_str( ) ) == width );
 
     new_enode = new Enode( id_to_enode.size( )
-			 , value.c_str( )
-			 , ETYPE_NUMB
-			 , DTYPE_BITVEC | width );
+                         , value.c_str( )
+                         , ETYPE_NUMB
+                         , DTYPE_BITVEC | width );
   }
   else if ( str[ 0 ] == 'b'
          && str[ 1 ] == 'v'
          && str[ 2 ] == 'b'
          && str[ 3 ] == 'i'
-	 && str[ 4 ] == 'n' )
+         && str[ 4 ] == 'n' )
   {
     int width = strlen( str ) - 5;
 
     new_enode = new Enode( id_to_enode.size( )
-			 , &(str[ 5 ])
-	                 , ETYPE_NUMB
-			 , DTYPE_BITVEC | width );
+                         , &(str[ 5 ])
+                         , ETYPE_NUMB
+                         , DTYPE_BITVEC | width );
   }
   else
   {
     int width = strlen( str );
 
     new_enode = new Enode( id_to_enode.size( )
-			 , str
-			 , ETYPE_NUMB
-			 , DTYPE_BITVEC | width );
+                         , str
+                         , ETYPE_NUMB
+                         , DTYPE_BITVEC | width );
   }
 
   assert( new_enode );
@@ -1339,8 +1339,8 @@ Enode * Egraph::mkExtract( int msb, int lsb, Enode * arg )
     int width_left = arg->getWidth( );
 
     for ( Enode * list = arg->getCdr( )
-	; !list->isEnil( )
-	; list = list->getCdr( ) )
+        ; !list->isEnil( )
+        ; list = list->getCdr( ) )
     {
       Enode * conc = list->getCar( );
       const int conc_width = conc->getWidth( );
@@ -1351,7 +1351,7 @@ Enode * Egraph::mkExtract( int msb, int lsb, Enode * arg )
       int real_lsb = j - rem_width;
       // Continue if this slice is out of msb:lsb
       if ( real_msb < 0 || real_lsb >= conc_width )
-	continue;
+        continue;
       // Fix indexes if out of bounds
       if ( real_msb >= conc_width ) real_msb = conc_width - 1;
       if ( real_lsb <  0 )          real_lsb = 0;
@@ -1441,15 +1441,15 @@ Enode * Egraph::mkConcat( Enode * args )
       list< Enode * > new_args;
       for ( Enode * list = args ; !list->isEnil( ) ; list = list->getCdr( ) )
       {
-	Enode * e = list->getCar( );
-	assert( e->isDTypeBitVec( ) );
+        Enode * e = list->getCar( );
+        assert( e->isDTypeBitVec( ) );
 
-	// Add arguments instead
-	if ( e->isConcat( ) )
-	  for ( Enode * l = e->getCdr( ) ; !l->isEnil( ) ; l = l->getCdr( ) )
-	    new_args.push_front( l->getCar( ) );
-	else
-	  new_args.push_front( e );
+        // Add arguments instead
+        if ( e->isConcat( ) )
+          for ( Enode * l = e->getCdr( ) ; !l->isEnil( ) ; l = l->getCdr( ) )
+            new_args.push_front( l->getCar( ) );
+        else
+          new_args.push_front( e );
       }
 
       res = cons( id_to_enode[ ENODE_ID_CONCAT ], cons( new_args ) );
@@ -1578,19 +1578,19 @@ Enode * Egraph::mkBvsdiv ( Enode * args )
 
   Enode * cond1 = mkAnd( cons( mkEq( cons( msb_s, cons( bit0 ) ) )
                        , cons( mkEq( cons( msb_t, cons( bit0 ) ) )
-		       ) ) );
+                       ) ) );
 
   Enode * case1 = mkBvudiv( cons( s, cons( t ) ) );
 
   Enode * cond2 = mkAnd( cons( mkEq( cons( msb_s, cons( bit1 ) ) )
                        , cons( mkEq( cons( msb_t, cons( bit0 ) ) )
-		       ) ) );
+                       ) ) );
 
   Enode * case2 = mkBvneg( cons( mkBvudiv( cons( mkBvneg( cons( s ) ), cons( t ) ) ) ) );
 
   Enode * cond3 = mkAnd( cons( mkEq( cons( msb_s, cons( bit0 ) ) )
                        , cons( mkEq( cons( msb_t, cons( bit1 ) ) )
-		       ) ) );
+                       ) ) );
 
   Enode * case3 = mkBvneg( cons( mkBvudiv( cons( s, cons( mkBvneg( cons( t ) ) ) ) ) ) );
 
@@ -1598,11 +1598,11 @@ Enode * Egraph::mkBvsdiv ( Enode * args )
 
   Enode * res = mkIte( cond1
                      , case1
-	             , mkIte( cond2
-			    , case2
-			    , mkIte( cond3
-			           , case3
-			           , case4 ) ) );
+                     , mkIte( cond2
+                            , case2
+                            , mkIte( cond3
+                                   , case3
+                                   , case4 ) ) );
 
   return res;
 }
@@ -1626,19 +1626,19 @@ Enode * Egraph::mkBvsrem ( Enode * args )
 
   Enode * cond1 = mkAnd( cons( mkEq( cons( msb_s, cons( bit0 ) ) )
                        , cons( mkEq( cons( msb_t, cons( bit0 ) ) )
-		       ) ) );
+                       ) ) );
 
   Enode * case1 = mkBvurem( cons( s, cons( t ) ) );
 
   Enode * cond2 = mkAnd( cons( mkEq( cons( msb_s, cons( bit1 ) ) )
                        , cons( mkEq( cons( msb_t, cons( bit0 ) ) )
-		       ) ) );
+                       ) ) );
 
   Enode * case2 = mkBvneg( cons( mkBvurem( cons( mkBvneg( cons( s ) ), cons( t ) ) ) ) );
 
   Enode * cond3 = mkAnd( cons( mkEq( cons( msb_s, cons( bit0 ) ) )
                        , cons( mkEq( cons( msb_t, cons( bit1 ) ) )
-		       ) ) );
+                       ) ) );
 
   Enode * case3 = mkBvurem( cons( s, cons( mkBvneg( cons( t ) ) ) ) );
 
@@ -1646,11 +1646,11 @@ Enode * Egraph::mkBvsrem ( Enode * args )
 
   Enode * res = mkIte( cond1
                      , case1
-	             , mkIte( cond2
-			    , case2
-			    , mkIte( cond3
-			           , case3
-			           , case4 ) ) );
+                     , mkIte( cond2
+                            , case2
+                            , mkIte( cond3
+                                   , case3
+                                   , case4 ) ) );
 
   return res;
 }
@@ -1692,7 +1692,7 @@ Enode * Egraph::mkBvlshr ( Enode * args )
     {
       dec_value = dec_value << 1;
       if ( str[ i ] == '1' )
-	dec_value ++;
+        dec_value ++;
     }
 
     const int term_width = term->getWidth( );
@@ -1869,7 +1869,7 @@ Enode * Egraph::mkBvshl ( Enode * args )
     {
       dec_value_gmp = dec_value_gmp << 1;
       if ( str[ i ] == '1' )
-	dec_value_gmp ++;
+        dec_value_gmp ++;
     }
 
     mpz_class term_width_gmp = mpz_class( term->getWidth( ) );
@@ -2134,7 +2134,7 @@ Enode * Egraph::mkSignExtend( int i, Enode * x )
     else
     {
       if ( i >= static_cast< int >( se_store.size( ) ) )
-	se_store.resize( i + 1, NULL );
+        se_store.resize( i + 1, NULL );
       assert( i < static_cast< int >( se_store.size( ) ) );
       assert( se_store[ i ] == NULL );
       char name[ 32 ];
@@ -2245,12 +2245,12 @@ void Egraph::computePolarities( Enode * formula )
     {
       Enode * arg_list;
       for ( arg_list = enode->getCdr( )
-	  ; !arg_list->isEnil( )
-	  ; arg_list = arg_list->getCdr( ) )
+          ; !arg_list->isEnil( )
+          ; arg_list = arg_list->getCdr( ) )
       {
-	Enode * arg = arg_list->getCar( );
-	assert( arg->isTerm( ) );
-	unprocessed_enodes  .push_back( arg );
+        Enode * arg = arg_list->getCar( );
+        assert( arg->isTerm( ) );
+        unprocessed_enodes  .push_back( arg );
       }
 
       storeDup1( enode );
@@ -2270,18 +2270,18 @@ void Egraph::computePolarities( Enode * formula )
     {
       if ( enode->isEq( ) )
       {
-	Enode * lhs = enode->get1st( );
-	Enode * rhs = enode->get2nd( );
-	//
-	// Equality between the same f
-	//
-	if ( lhs->getCar( ) == rhs->getCar( ) )
-	  enode->setDecPolarity( l_False );
-	else
-	  enode->setDecPolarity( l_True );
+        Enode * lhs = enode->get1st( );
+        Enode * rhs = enode->get2nd( );
+        //
+        // Equality between the same f
+        //
+        if ( lhs->getCar( ) == rhs->getCar( ) )
+          enode->setDecPolarity( l_False );
+        else
+          enode->setDecPolarity( l_True );
       }
       else if ( enode->isUp( ) )
-	enode->setDecPolarity( l_False );
+        enode->setDecPolarity( l_False );
     }
     //
     // This function assumes polynomes to be canonized
@@ -2300,18 +2300,18 @@ void Egraph::computePolarities( Enode * formula )
     {
       if ( enode->isLeq( ) )
       {
-	assert( enode->get1st( )->isConstant( )
-	     || enode->get2nd( )->isConstant( ) );
-	if ( enode->get1st( )->isConstant( ) )
-	{
-	  const double weight = enode->get1st( )->getValue( );
-	  enode->setDecPolarity( weight > 0 ? l_True : l_False );
-	}
-	if ( enode->get2nd( )->isConstant( ) )
-	{
-	  const double weight = enode->get2nd( )->getValue( );
-	  enode->setDecPolarity( weight < 0 ? l_True : l_False );
-	}
+        assert( enode->get1st( )->isConstant( )
+             || enode->get2nd( )->isConstant( ) );
+        if ( enode->get1st( )->isConstant( ) )
+        {
+          const double weight = enode->get1st( )->getValue( );
+          enode->setDecPolarity( weight > 0 ? l_True : l_False );
+        }
+        if ( enode->get2nd( )->isConstant( ) )
+        {
+          const double weight = enode->get2nd( )->getValue( );
+          enode->setDecPolarity( weight < 0 ? l_True : l_False );
+        }
       }
     }
 
@@ -2339,9 +2339,9 @@ void Egraph::addAssertion( Enode * e )
       || config.logic == QF_UFLRA )
     {
       if ( config.sat_lazy_dtc != 0 )
-	e = canonizeDTC( e, true );
+        e = canonizeDTC( e, true );
       else
-	e = canonize( e, true );
+        e = canonize( e, true );
     }
     //
     // Booleanize and normalize bitvectors
@@ -2400,8 +2400,8 @@ Enode * Egraph::canonize( Enode * formula, bool split_eqs )
     bool unprocessed_children = false;
     Enode * arg_list;
     for ( arg_list = enode->getCdr( )
-	; arg_list != enil
-	; arg_list = arg_list->getCdr( ) )
+        ; arg_list != enil
+        ; arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
       assert( arg->isTerm( ) );
@@ -2410,8 +2410,8 @@ Enode * Egraph::canonize( Enode * formula, bool split_eqs )
       //
       if ( valDupMap1( arg ) == NULL )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -2439,32 +2439,32 @@ Enode * Egraph::canonize( Enode * formula, bool split_eqs )
       if ( split_eqs && result->isEq( ) )
       {
 #ifdef PRODUCE_PROOF
-	if ( config.produce_inter > 0 )
-	  opensmt_error2( "can't compute interpolant for equalities at the moment ", enode );
+        if ( config.produce_inter > 0 )
+          opensmt_error2( "can't compute interpolant for equalities at the moment ", enode );
 #endif
-	LAExpression aa( enode );
-	Enode * e = aa.toEnode( *this );
+        LAExpression aa( enode );
+        Enode * e = aa.toEnode( *this );
 #ifdef PRODUCE_PROOF
         assert( partitions != 0 );
         setIPartitions( e, partitions );
 #endif
-	Enode * lhs = e->get1st( );
-	Enode * rhs = e->get2nd( );
-	Enode * leq = mkLeq( cons( lhs, cons( rhs ) ) );
-	LAExpression b( leq );
-	leq = b.toEnode( *this );
+        Enode * lhs = e->get1st( );
+        Enode * rhs = e->get2nd( );
+        Enode * leq = mkLeq( cons( lhs, cons( rhs ) ) );
+        LAExpression b( leq );
+        leq = b.toEnode( *this );
 #ifdef PRODUCE_PROOF
         assert( partitions != 0 );
         setIPartitions( leq, partitions );
 #endif
-	Enode * geq = mkGeq( cons( lhs, cons( rhs ) ) );
-	LAExpression c( geq );
-	geq = c.toEnode( *this );
+        Enode * geq = mkGeq( cons( lhs, cons( rhs ) ) );
+        LAExpression c( geq );
+        geq = c.toEnode( *this );
 #ifdef PRODUCE_PROOF
         assert( partitions != 0 );
         setIPartitions( geq, partitions );
 #endif
-	result = mkAnd( cons( leq, cons( geq ) ) );
+        result = mkAnd( cons( leq, cons( geq ) ) );
       }
     }
     //
@@ -2483,8 +2483,8 @@ Enode * Egraph::canonize( Enode * formula, bool split_eqs )
       // Setting partitions for negation as well occ if atom
       if ( result->hasSortBool( ) )
       {
-	setIPartitions( mkNot( cons( result ) )
-	              , getIPartitions( enode ) );
+        setIPartitions( mkNot( cons( result ) )
+                      , getIPartitions( enode ) );
       }
     }
 #endif
@@ -2533,11 +2533,11 @@ void Egraph::evaluateTermRec( Enode * e, double&  v )
     {
       Enode * l;
       for ( l = e->getCdr( )
-	  ; !l->isEnil( )
-	  ; l = l->getCdr( ) )
+          ; !l->isEnil( )
+          ; l = l->getCdr( ) )
       {
-	evaluateTermRec( l->getCar( ), a );
-	b += a;
+        evaluateTermRec( l->getCar( ), a );
+        b += a;
       }
       v = b;
     }
@@ -2546,11 +2546,11 @@ void Egraph::evaluateTermRec( Enode * e, double&  v )
       b = 1;
       Enode * l;
       for ( l = e->getCdr( )
-	  ; !l->isEnil( )
-	  ; l = l->getCdr( ) )
+          ; !l->isEnil( )
+          ; l = l->getCdr( ) )
       {
-	evaluateTermRec( l->getCar( ), a );
-	b *= a;
+        evaluateTermRec( l->getCar( ), a );
+        b *= a;
       }
       v = b;
     }
@@ -2606,8 +2606,8 @@ void Egraph::tagIFormulae( const uint64_t partitions
 
     Enode * arg_list;
     for ( arg_list = enode->getCdr( )
-	; !arg_list->isEnil( )
-	; arg_list = arg_list->getCdr( ) )
+        ; !arg_list->isEnil( )
+        ; arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
       assert( arg->isTerm( ) );
@@ -2616,8 +2616,8 @@ void Egraph::tagIFormulae( const uint64_t partitions
       //
       if ( !isDup1( arg ) )
       {
-	f_to_tag.push_back( arg );
-	unprocessed_children = true;
+        f_to_tag.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -2674,8 +2674,8 @@ Enode * Egraph::mkLet( Enode * t )
     bool unprocessed_children = false;
     Enode * arg_list;
     for ( arg_list = enode->getCdr( )
-	; arg_list != enil
-	; arg_list = arg_list->getCdr( ) )
+        ; arg_list != enil
+        ; arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
       assert( arg->isTerm( ) );
@@ -2684,8 +2684,8 @@ Enode * Egraph::mkLet( Enode * t )
       //
       if ( valDupMap1( arg ) == NULL )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -2848,12 +2848,12 @@ void Egraph::dumpHeaderToFile( ostream & dump_out )
   dump_out << "(set-logic " << logicStr( config.logic ) << ")" << endl;
   dump_out << "(set-info :source |" << endl
            << "Dumped with "
-           << PACKAGE_STRING
-	   << " on "
-	   << __DATE__ << "." << endl
-	   << "For info contact Roberto Bruttomesso <roberto.bruttomesso@gmail.com>" << endl
-	   << "|)"
-	   << endl;
+           << "dReal 2.0" /* PACKAGE_STRING */
+           << " on "
+           << __DATE__ << "." << endl
+           << "For info contact Roberto Bruttomesso <roberto.bruttomesso@gmail.com>" << endl
+           << "|)"
+           << endl;
   dump_out << "(set-info :smt-lib-version 2.0)" << endl;
   // Dump sorts
   sort_store.dumpSortsToFile( dump_out );
@@ -2897,8 +2897,8 @@ void Egraph::dumpFormulaToFile( ostream & dump_out, Enode * formula, bool negate
     bool unprocessed_children = false;
     Enode * arg_list;
     for ( arg_list = enode->getCdr( )
-	; !arg_list->isEnil( )
-	; arg_list = arg_list->getCdr( ) )
+        ; !arg_list->isEnil( )
+        ; arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
       assert( arg->isTerm( ) );
@@ -2906,10 +2906,10 @@ void Egraph::dumpFormulaToFile( ostream & dump_out, Enode * formula, bool negate
       // Push only if it is unprocessed
       //
       if ( enode_to_def.find( arg->getId( ) ) == enode_to_def.end( )
-	&& arg->isBooleanOperator( ) )
+        && arg->isBooleanOperator( ) )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -2930,14 +2930,14 @@ void Egraph::dumpFormulaToFile( ostream & dump_out, Enode * formula, bool negate
       dump_out << "(";
     dump_out << enode->getCar( );
     for ( Enode * list = enode->getCdr( )
-	; !list->isEnil( )
-	; list = list->getCdr( ) )
+        ; !list->isEnil( )
+        ; list = list->getCdr( ) )
     {
       Enode * arg = list->getCar( );
       if ( arg->isBooleanOperator( ) )
-	dump_out << " " << enode_to_def[ arg->getId( ) ];
+        dump_out << " " << enode_to_def[ arg->getId( ) ];
       else
-	dump_out << " " << arg;
+        dump_out << " " << arg;
     }
     if ( enode->getArity( ) > 0 ) dump_out << ")";
 
