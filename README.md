@@ -9,16 +9,15 @@ Please visit [dReal] for more information.
 
 Required Packages
 -----------------
- - autoconf
- - automake (>= 1.12.5)
- - libtool 
- - C++11-compatible compiler (ex: g++4.8 or clang++-3.3) 
- - bison 
- - flex 
- - libboost-dev
- - libboost-thread-dev 
+ - C++11-compatible compiler (ex: g++4.8 or clang++-3.3)
+ - bison & flex
+ - [cmake][cmake]
+ - [capd-DynSys 3.0][capd-dynsys]
+ - libboost-dev & libboost-thread-dev
  - curl, m4 (for [ocamlbrew][ocamlbrew])
  - ocaml-batteries, cil (ocaml packages for tools)
+
+[capd-dynsys]: http://capd.ii.uj.edu.pl/download.php
 
 We have tested that executing the following command on the newly installed Ubuntu 12.04.3 LTS
 configures all the required packages to build dReal2.
@@ -32,7 +31,7 @@ configures all the required packages to build dReal2.
                            libboost-dev libboost-thread-dev curl m4
     sudo apt-get upgrade
     sudo apt-get dist-upgrade -y
-    
+
 We have extra tools under ``tools`` directory, which requires ocaml implementation and
 libraries. We recommend to install them via [ocamlbrew]:
 
@@ -42,8 +41,21 @@ libraries. We recommend to install them via [ocamlbrew]:
 
 [ocamlbrew]: https://github.com/hcarty/ocamlbrew
 
-How to Build
-------------
+How to Build CAPD-DynSys 3.0
+----------------------------
+
+ - Download and uncompress [CAPD-DynSys 3.0 SVN (daily) Snapshot][capd-dynsys-daily]
+ - Configure and build:
+
+    autoreconf --install
+    ./configure --without-gui
+    make
+    (sudo) make install
+
+[capd-dynsis-daily]: http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
+
+How to Build dReal
+------------------
 
 Building dReal is straight-forward:
 
@@ -52,7 +64,7 @@ Building dReal is straight-forward:
 If you have the GLIBC problem described below, try the following:
 
     $ autoreconf -i
-    $ LDFLAGS="-Wl,--rpath=<EGLIBC_PATH>:/usr/lib/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/4.6:/lib/x86_64-linux-gnu -Wl,--dynamic-linker=<EGLIBC_PATH>/lib/ld-linux-x86-64.so.2" ./configure 
+    $ LDFLAGS="-Wl,--rpath=<EGLIBC_PATH>:/usr/lib/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/4.6:/lib/x86_64-linux-gnu -Wl,--dynamic-linker=<EGLIBC_PATH>/lib/ld-linux-x86-64.so.2" ./configure
     $ make
 
 GLIBC Problem
