@@ -176,9 +176,9 @@ set(EXTRA_LIBS ${DREAL_LIBS} ${EXTRA_LIBS})
 
 #configure_file("${LEAN_SOURCE_DIR}/shell/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 include_directories("${DREAL_BINARY_DIR}")
-add_executable(dreal main.cpp)
+add_executable(dReal main.cpp)
 
-target_link_libraries(dreal
+target_link_libraries(dReal
 ${EXTRA_LIBS}
 # /usr/local/lib/libcapddiffAlgebra.a
 # /usr/local/lib/libcapdalglib.a
