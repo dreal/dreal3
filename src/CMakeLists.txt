@@ -80,14 +80,14 @@ SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
 set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package( Boost 1.53.0 REQUIRED)
+find_package(Boost 1.48.0 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
 # Bison & Flex
-find_package(BISON)
-find_package(FLEX)
+find_package(BISON REQUIRED)
+find_package(FLEX REQUIRED)
 # CAPD
-find_package(CAPD)
+find_package(CAPD REQUIRED)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${CAPD_LIBRARIES})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CAPD_CFLAGS}")
 ################################################################
