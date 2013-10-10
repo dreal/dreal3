@@ -22,6 +22,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "Egraph.h"
 #include "Tseitin.h"
 #include "SimpSMTSolver.h"
+#include "version.h"
 
 #ifndef SMTCOMP
 
@@ -43,7 +44,7 @@ void opensmt_set_verbosity( opensmt_context, int )
 
 char * opensmt_version( )
 {
-    return const_cast< char * >( "dReal 2.0" /*PACKAGE_STRING */ );
+    return const_cast< char * >( PACKAGE_STRING );
 }
 
 opensmt_context opensmt_mk_context( opensmt_logic l )

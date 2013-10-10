@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "Egraph.h"
 #include "OpenSMTContext.h"
 #include "SimpSMTSolver.h"
+#include "version.h"
 #include <cstdlib>
 #include <cstdio>
 #include <csignal>
@@ -122,13 +123,13 @@ int main( int argc, char * argv[] )
 #ifndef SMTCOMP
   if ( context.getConfig( ).verbosity > 0 )
   {
-    const int len_pack = strlen( "dReal 2.0" /* PACKAGE_STRING */ );
+    const int len_pack = strlen( PACKAGE_STRING );
     const char * site = "http://verify.inf.usi.ch/opensmt";
     const int len_site = strlen( site );
 
     cerr << "#" << endl
          << "# -------------------------------------------------------------------------" << endl
-         << "# " << "dReal 2.0" /* PACKAGE_STRING */;
+         << "# " << PACKAGE_STRING;
 
     for ( int i = 0 ; i < 73 - len_site - len_pack ; i ++ )
       cerr << " ";

@@ -22,6 +22,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "BVNormalize.h"
 #include "BVBooleanize.h"
 #include "SimpSMTSolver.h"
+#include "version.h"
 
 void Egraph::initializeStore( )
 {
@@ -2848,7 +2849,7 @@ void Egraph::dumpHeaderToFile( ostream & dump_out )
   dump_out << "(set-logic " << logicStr( config.logic ) << ")" << endl;
   dump_out << "(set-info :source |" << endl
            << "Dumped with "
-           << "dReal 2.0" /* PACKAGE_STRING */
+           << PACKAGE_STRING
            << " on "
            << __DATE__ << "." << endl
            << "For info contact Roberto Bruttomesso <roberto.bruttomesso@gmail.com>" << endl
