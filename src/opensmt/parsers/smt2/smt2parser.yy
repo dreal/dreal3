@@ -89,14 +89,14 @@ void smt2error( const char * s )
 %token TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW
 %token TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT
 
-%type <str> TK_NUM TK_DEC TK_HEX TK_STR TK_SYM TK_KEY numeral decimal hexadecimal binary symbol
+%type <str> TK_NUM TK_DEC TK_HEX TK_STR TK_SYM TK_KEY numeral decimal hexadecimal /*binary*/ symbol
 %type <str> identifier spec_const b_value s_expr
 %type <str> TK_LEQ TK_GEQ TK_LT TK_GT TK_FORALLT
 %type <str> TK_PLUS TK_MINUS TK_TIMES TK_UMINUS TK_DIV
 %type <str> TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW
 %type <str> TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT
 
-%type <str_list> numeral_list
+/* %type <str_list> numeral_list */
 %type <enode> term_list term
 %type <string_ptr> infix_term
 %type <snode> sort
@@ -251,26 +251,26 @@ spec_const: numeral
             { $$ = $1; }
           | hexadecimal
             { $$ = $1; }
-          | binary
-            { $$ = $1; }
+/*          | binary
+            { $$ = $1; } */
           | TK_STR
             { $$ = $1; }
           ;
 
 identifier: TK_SYM
             { $$ = $1; }
-          | '(' '_' TK_SYM numeral_list ')'
+/*          | '(' '_' TK_SYM numeral_list ')' */
           ;
 
-keyword: TK_KEY { free($1); };
+/* keyword: TK_KEY { free($1); }; */
 
 symbol: TK_SYM
         { $$ = $1; }
       ;
 
-symbol_list: symbol_list symbol | symbol ;
+/* symbol_list: symbol_list symbol | symbol ; */
 
-attribute_value: spec_const { free($1); } | TK_SYM | '(' s_expr_list ')' | '(' ')' ;
+/* attribute_value: spec_const { free($1); } | TK_SYM | '(' s_expr_list ')' | '(' ')' ; */
 
 sort: TK_BOOL
       { $$ = parser_ctx->mkSortBool( ); }
@@ -291,7 +291,7 @@ sort: TK_BOOL
    */
     ;
 
-sorted_var: '(' TK_SYM sort ')' ;
+/* sorted_var: '(' TK_SYM sort ')' ; */
 
 term: spec_const
       { $$ = parser_ctx->mkNum( $1 ); free( $1 ); }
@@ -448,7 +448,7 @@ sort_list: sort_list sort
            { $$ = createSortList( $1 ); }
          ;
 
-sorted_var_list: sorted_var_list sorted_var | sorted_var ;
+/* sorted_var_list: sorted_var_list sorted_var | sorted_var ; */
 
 var_binding_list: var_binding_list '(' TK_SYM term ')'
                   { parser_ctx->mkBind( $3, $4 ); free($3); }
@@ -462,13 +462,13 @@ term_list: term term_list
            { $$ = parser_ctx->mkCons( $1 ); }
          ;
 
-s_expr_list: s_expr_list s_expr | s_expr ;
+/* s_expr_list: s_expr_list s_expr | s_expr ; */
 
-numeral_list: numeral_list numeral
+/* numeral_list: numeral_list numeral
               { $$ = pushNumeralList( $1, $2 ); }
             | numeral
               { $$ = createNumeralList( $1 ); }
-            ;
+            ; */
 
 numeral: TK_NUM { $$ = $1; } ;
 
@@ -476,7 +476,7 @@ decimal: TK_DEC { $$ = $1; } ;
 
 hexadecimal: TK_HEX { $$ = $1; } ;
 
-binary: TK_BIN ;
+/* binary: TK_BIN ; */
 
 option: TK_PRINT_SUCCESS b_value
         {

@@ -122,10 +122,10 @@ void CoreSMTSolver::printModel( ostream & out )
     Enode * e = theory_handler->varToEnode( v );
     if ( e->isTAtom( ) )
       continue;
-    int tmp;
-    if( sscanf( (e->getCar( )->getName( )).c_str( ), CNF_STR, &tmp ) != 1 )
+    int tmp1, tmp2;
+    if( sscanf( (e->getCar( )->getName( )).c_str( ), CNF_STR, &tmp1, &tmp2 ) != 1 )
       if ( model[ v ] != l_Undef )
-	out << ( model[ v ] == l_True ? "" : "(not " ) << e << ( model[ v ] == l_True ? "" : ")" ) << endl;
+        out << ( model[ v ] == l_True ? "" : "(not " ) << e << ( model[ v ] == l_True ? "" : ")" ) << endl;
   }
 }
 #endif
