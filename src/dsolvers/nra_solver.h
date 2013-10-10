@@ -23,9 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #define NRA_SOLVER_H
 #include "TSolver.h"
 #include "Egraph.h"
-
-using std::map;
-using std::pair;
+#include "dsolvers/util/scoped_map.h"
 
 class NRASolver : public OrdinaryTSolver {
 public:
@@ -42,10 +40,8 @@ public:
     set<Enode *> get_variables(Enode *e);
 
 private:
-    map <Enode*, pair<double, double>> env;
+    scoped_map<Enode*, std::pair<double, double>> env;
     vector <Enode*> stack; // stack of asserted literals.
-    vector <vector<Enode*>::size_type> undo_stack_size;
-    vector <map<Enode*, pair<double, double>>> env_stack;
     map <Enode*, set <Enode*>> _enode_to_vars;
 };
 #endif

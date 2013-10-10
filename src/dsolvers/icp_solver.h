@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #define ICPSOLVER_H
 #include "realpaver/realpaver.h"
 #include "dsolvers/ode_solver.h"
+#include "dsolvers/util/scoped_map.h"
 #include "Enode.h"
 #include "SMTConfig.h"
 #include <fstream>
@@ -30,10 +31,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 class icp_solver {
 public:
-    icp_solver(SMTConfig& c, const vector<Enode*> & stack, map<Enode*, pair<double, double>> & env,
+    icp_solver(SMTConfig& c, const vector<Enode*> & stack, scoped_map<Enode*, pair<double, double>> & env,
                vector<Enode*> & exp, map <Enode*, set <Enode*>> & enode_to_vars);
     ~icp_solver();
-    rp_problem* create_rp_problem(const vector<Enode*> & stack, map<Enode*, pair<double, double>> & env);
+    rp_problem* create_rp_problem(const vector<Enode*> & stack, scoped_map<Enode*, pair<double, double>> & env);
     rp_box compute_next(); // computation of the next solution
     bool prop(); // only propagate
     bool prop_with_ODE(); // propagate with ODE (only in complete check)
@@ -64,7 +65,7 @@ private:
     map<Enode*, int> _enode_to_rp_id;
     vector<Enode*> & _explanation;
     const vector<Enode*> & _stack;
-    map<Enode*, pair<double, double>> & _env;
+    scoped_map<Enode*, pair<double, double>> & _env;
     list<ode_solver*> _ode_solvers;
     void output_problem() const;
     void callODESolver(int group, vector<set<Enode*>> & diff_vec);

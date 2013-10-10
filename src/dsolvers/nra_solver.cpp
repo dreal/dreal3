@@ -39,7 +39,7 @@ NRASolver::~NRASolver() {
     // Here Deallocate External Solver
 }
 
-void debug_print_env(const map<Enode*, pair<double, double>> & env) {
+void debug_print_env(const scoped_map<Enode*, pair<double, double>> & env) {
     for (auto ite = env.begin(); ite != env.end(); ite++) {
         Enode* key = (*ite).first;
         double lb =  (*ite).second.first;
@@ -120,7 +120,7 @@ lbool NRASolver::inform(Enode * e) {
         }
         double lb = (*ite)->getLowerBound();
         double ub = (*ite)->getUpperBound();
-        env[*ite] = make_pair(lb, ub);
+        env.insert(*ite, make_pair(lb, ub));
 
         // Collect ODE Vars in e
         if (config.nra_contain_ODE && (*ite)->getODEtimevar() != nullptr && (*ite)->getODEgroup() > 0) {
@@ -174,8 +174,7 @@ void NRASolver::pushBacktrackPoint () {
         cerr << "================================================================" << endl
              << "NRASolver::pushBacktrackPoint " << stack.size() << endl;
     }
-    undo_stack_size.push_back(stack.size());
-    env_stack.push_back(env);
+    env.push();
 }
 
 // Restore a previous state. You can now retrieve the size of the
@@ -188,27 +187,27 @@ void NRASolver::popBacktrackPoint () {
         cerr << "================================================================" << endl
              << "NRASolver::popBacktrackPoint" << endl;
     }
-    vector<Enode*>::size_type prev_size = undo_stack_size.back();
-    undo_stack_size.pop_back();
-    while (stack.size() > prev_size) {
-        if (config.nra_verbose) {
-            cerr << "Popped Literal = " << stack.back() << endl;
-        }
-        stack.pop_back();
-    }
-    if (config.nra_verbose) {
-        cerr << "======= Before Pop, "
-             << "Stack Size: " << env_stack.size()
-             << " Env = " << endl;
-        debug_print_env(env);
-    }
-    env_stack.pop_back();
-    if (config.nra_verbose) {
-        cerr << "======= After Pop, "
-             << "Stack Size: " << env_stack.size()
-             << "Env = " << endl;
-        debug_print_env(env);
-    }
+    // vector<Enode*>::size_type prev_size = undo_stack_size.back();
+    // undo_stack_size.pop_back();
+    // while (stack.size() > prev_size) {
+    //     if (config.nra_verbose) {
+    //         cerr << "Popped Literal = " << stack.back() << endl;
+    //     }
+    //     stack.pop_back();
+    // }
+    // if (config.nra_verbose) {
+    //     cerr << "======= Before Pop, "
+    //          << "Stack Size: " << env_stack.size()
+    //          << " Env = " << endl;
+    //     debug_print_env(env);
+    // }
+    env.pop();
+    // if (config.nra_verbose) {
+    //     cerr << "======= After Pop, "
+    //          << "Stack Size: " << env_stack.size()
+    //          << "Env = " << endl;
+    //     debug_print_env(env);
+    // }
 }
 
 //
@@ -219,9 +218,7 @@ bool NRASolver::check(bool complete) {
     if (config.nra_verbose) {
         cerr << "================================================================" << endl;
         cerr << "NRASolver::check " << (complete ? "complete" : "incomplete") << endl;
-        for (map<Enode*, pair<double, double> >::const_iterator ite = env.begin();
-             ite != env.end();
-             ite++) {
+        for (auto ite = env.begin(); ite != env.end(); ite++) {
             Enode* key = (*ite).first;
             double lb =  (*ite).second.first;
             double ub =  (*ite).second.second;
@@ -236,7 +233,7 @@ bool NRASolver::check(bool complete) {
         debug_print_stack(stack);
         debug_print_env(env);
     }
-    env = env_stack.back();
+//    env = env_stack.back();
     icp_solver solver(config, stack, env, explanation, _enode_to_vars);
     if (!complete) {
         // Incomplete Check
@@ -250,8 +247,8 @@ bool NRASolver::check(bool complete) {
             cerr << "After Prop" << endl;
             debug_print_env(env);
         }
-        env_stack.pop_back();
-        env_stack.push_back(env);
+//        env_stack.pop_back();
+//        env_stack.push_back(env);
     } else {
         // Complete Check
         // if (config.nra_json) {

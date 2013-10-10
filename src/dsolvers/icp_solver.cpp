@@ -23,7 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <string>
 
-icp_solver::icp_solver(SMTConfig& c, const vector<Enode*> & stack, map<Enode*, pair<double, double>> & env,
+icp_solver::icp_solver(SMTConfig& c, const vector<Enode*> & stack, scoped_map<Enode*, pair<double, double>> & env,
                        vector<Enode*> & exp, map <Enode*, set <Enode*>> & enode_to_vars)
     : _config(c), _propag(nullptr), _boxes(env.size()), _ep(nullptr), _sol(0), _nsplit(0),
       _enode_to_vars(enode_to_vars), _explanation(exp), _stack(stack), _env(env) {
@@ -78,7 +78,7 @@ icp_solver::icp_solver(SMTConfig& c, const vector<Enode*> & stack, map<Enode*, p
     }
 }
 
-rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack, map<Enode*, pair<double, double>> & env) {
+rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack, scoped_map<Enode*, pair<double, double>> & env) {
     rp_problem* result = new rp_problem;
     rp_problem_create(result, "icp_holder");
 
@@ -596,8 +596,8 @@ bool icp_solver::prop() {
             // double lb = (*ite).second.first;
             // double ub = (*ite).second.second;
             int rp_id = _enode_to_rp_id[key];
-            _env[key] = make_pair(rp_binf(rp_box_elem(_boxes.get(), rp_id)),
-                                  rp_bsup(rp_box_elem(_boxes.get(), rp_id)));
+            _env.insert(key, make_pair(rp_binf(rp_box_elem(_boxes.get(), rp_id)),
+                                       rp_bsup(rp_box_elem(_boxes.get(), rp_id))));
         }
         // cerr << "Incomplete Check: SAT" << endl;
         if (_config.nra_proof) {
