@@ -30,7 +30,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 //#include "CostSolver.h"
 // Added to support compiling templates
 //#include "DLSolver.C"
-#include "nra_solver.h"
+#include "dsolvers/nra_solver.h"
 //#include "nra_ode_solver.h"
 #include "SimpSMTSolver.h"
 
@@ -66,9 +66,9 @@ lbool Egraph::inform( Enode * e )
     {
       if ( tsolvers[ i ]->belongsToT( e ) )
       {
-	status = tsolvers[ i ]->inform( e );
-	id_to_belong_mask[ e->getId( ) ] |= SETBIT( i );
-	unassigned_atom = false;
+        status = tsolvers[ i ]->inform( e );
+        id_to_belong_mask[ e->getId( ) ] |= SETBIT( i );
+        unassigned_atom = false;
       }
     }
 
@@ -146,7 +146,7 @@ void Egraph::initializeCong( Enode * e )
       // Merge
       const bool res = mergeLoop( NULL );
       if ( !res )
-	opensmt_error( "unexpected result" );
+        opensmt_error( "unexpected result" );
     }
   }
   else
@@ -224,8 +224,8 @@ bool Egraph::assertLit_ ( Enode * e )
       // to trigger theory-deductions automatically
       if ( res )
       {
-	res = assertEq( e, mkFalse( ), s );
-	assert( res );
+        res = assertEq( e, mkFalse( ), s );
+        assert( res );
       }
     }
     // Otherwise the polarity of the equality is positive
@@ -237,8 +237,8 @@ bool Egraph::assertLit_ ( Enode * e )
       // to trigger theory-deductions automatically
       if ( res )
       {
-	res = assertEq( e, mkTrue( ), s );
-	assert( res );
+        res = assertEq( e, mkTrue( ), s );
+        assert( res );
       }
     }
   }
@@ -333,12 +333,12 @@ bool Egraph::assertLit_ ( Enode * e )
     for ( size_t i = 0 ; i < explanation.size( ) ; i ++ )
     {
       cerr << " "
-	<< (explanation[ i ]->getPolarity( ) == l_False?"!":" ")
-	<< explanation[ i ]
+        << (explanation[ i ]->getPolarity( ) == l_False?"!":" ")
+        << explanation[ i ]
 #ifdef PRODUCE_PROOF
-	<< getIPartitions( explanation[ i ] )
+        << getIPartitions( explanation[ i ] )
 #endif
-	<< endl;
+        << endl;
     }
 #endif
   }
@@ -381,7 +381,7 @@ bool Egraph::assertLit( Enode * e, bool reason )
 
       // Skip solver if this atom does not belong to T
       if ( (id_to_belong_mask[ e->getId( ) ] & SETBIT( i )) == 0)
-	continue;
+        continue;
 
 #ifdef STATISTICS
       size_t deductions_old = deductions.size( );
@@ -389,15 +389,15 @@ bool Egraph::assertLit( Enode * e, bool reason )
 
       res = t.assertLit( e, reason );
       if ( !res )
-	conf_index = i;
+        conf_index = i;
 #ifdef STATISTICS
       if ( res )
       {
-	ts.sat_calls ++;
-	ts.deductions_done += deductions.size( ) - deductions_old;
+        ts.sat_calls ++;
+        ts.deductions_done += deductions.size( ) - deductions_old;
       }
       else
-	ts.uns_calls ++;
+        ts.uns_calls ++;
 #endif
     }
   }
@@ -692,13 +692,13 @@ void Egraph::printModel( ostream & os )
     if ( v->hasSortBool( ) )
       continue;
     else if ( v->hasSortInt( )
-	   || v->hasSortReal( ) )
+           || v->hasSortReal( ) )
     {
       os << "(= " << v << " ";
       if ( v->hasValue( ) )
-	os << v->getValue( );
+        os << v->getValue( );
       else
-	os << "?";
+        os << "?";
       os << ")";
     }
     else if ( config.logic == QF_UF )
@@ -805,9 +805,9 @@ bool Egraph::mergeLoop( Enode * r )
 #ifdef PRODUCE_PROOF
       if ( config.produce_inter > 0 )
       {
-	cgraph.setConf( p->getRoot( )->getConstant( )
-	              , q->getRoot( )->getConstant( )
-	              , NULL );
+        cgraph.setConf( p->getRoot( )->getConstant( )
+                      , q->getRoot( )->getConstant( )
+                      , NULL );
       }
 #endif
       //
@@ -837,10 +837,10 @@ bool Egraph::mergeLoop( Enode * r )
       Enode * list = reason->getCdr( );
       while ( !list->isEnil( ) )
       {
-	Enode * arg = list->getCar( );
-	if ( arg->getRoot( ) == p->getRoot( ) ) { assert( reason_1 == NULL ); reason_1 = arg; }
-	if ( arg->getRoot( ) == q->getRoot( ) ) { assert( reason_2 == NULL ); reason_2 = arg; }
-	list = list->getCdr( );
+        Enode * arg = list->getCar( );
+        if ( arg->getRoot( ) == p->getRoot( ) ) { assert( reason_1 == NULL ); reason_1 = arg; }
+        if ( arg->getRoot( ) == q->getRoot( ) ) { assert( reason_2 == NULL ); reason_2 = arg; }
+        list = list->getCdr( );
       }
       assert( reason_1 != NULL );
       assert( reason_2 != NULL );
@@ -850,16 +850,16 @@ bool Egraph::mergeLoop( Enode * r )
     {
       // The reason is a negated equality
       assert( reason->isEq( )
-	   || reason->isLeq( )
-	   );
+           || reason->isLeq( )
+           );
 
       if ( config.incremental )
       {
-	Enode * s = reason;
-	explanation.push_back( s );
+        Enode * s = reason;
+        explanation.push_back( s );
       }
       else
-	explanation.push_back( reason );
+        explanation.push_back( reason );
 
       reason_1 = reason->get1st( );
       reason_2 = reason->get2nd( );
@@ -992,10 +992,10 @@ bool Egraph::assertDist( Enode * d, Enode * r )
       // Revert changes, as the current context is inconsistent
       while( !nodes_changed.empty( ) )
       {
-	Enode * n = nodes_changed.back( );
-	nodes_changed.pop_back( );
-	// Deactivate distinction in n
-	n->setDistClasses( n->getDistClasses( ) & ~(SETBIT( index )) );
+        Enode * n = nodes_changed.back( );
+        nodes_changed.pop_back( );
+        // Deactivate distinction in n
+        n->setDistClasses( n->getDistClasses( ) & ~(SETBIT( index )) );
       }
       return false;
     }
@@ -1035,7 +1035,7 @@ void Egraph::backtrackToStackSize ( size_t size )
     {
       undoMerge( e );
       if ( e->isTerm( ) )
-	expRemoveExplanation( );
+        expRemoveExplanation( );
     }
     else if ( last_action == INITCONG )
     {
@@ -1050,14 +1050,14 @@ void Egraph::backtrackToStackSize ( size_t size )
 
       if ( e->getCgPtr( ) == e )
       {
-	assert( lookupSigTab( e ) == e );
-	// Remove from sig_tab
-	removeSigTab( e );
+        assert( lookupSigTab( e ) == e );
+        // Remove from sig_tab
+        removeSigTab( e );
       }
       else
       {
-	assert( lookupSigTab( e ) != e );
-	e->setCgPtr( e );
+        assert( lookupSigTab( e ) != e );
+        e->setCgPtr( e );
       }
 
       assert( initialized.find( e->getId( ) ) != initialized.end( ) );
@@ -1066,7 +1066,7 @@ void Egraph::backtrackToStackSize ( size_t size )
       assert( initialized.find( e->getId( ) ) == initialized.end( ) );
       // Remove parents info
       if ( e->isList( ) )
-	car->removeParent( e );
+        car->removeParent( e );
       cdr->removeParent( e );
 
       // Deallocate congruence data
@@ -1101,19 +1101,19 @@ void Egraph::backtrackToStackSize ( size_t size )
       // root and it has to be removed
       if ( e->getCgPtr( ) == e )
       {
-	assert( lookupSigTab( e ) == e );
-	removeSigTab( e );
+        assert( lookupSigTab( e ) == e );
+        removeSigTab( e );
       }
       // Otherwise sets it back to itself
       else
       {
-	assert( lookupSigTab( e ) != e );
-	e->setCgPtr( e );
+        assert( lookupSigTab( e ) != e );
+        e->setCgPtr( e );
       }
 
       // Remove Parent info
       if ( e->isList( ) )
-	car->removeParent( e );
+        car->removeParent( e );
       cdr->removeParent( e );
       // Remove initialization
       assert( initialized.find( e->getId( ) ) != initialized.end( ) );
@@ -1340,9 +1340,9 @@ void Egraph::merge ( Enode * x, Enode * y )
       // Signature already present
       if ( q != p )
       {
-	p->setCgPtr( q );
-	pending.push_back( p );
-	pending.push_back( q );
+        p->setCgPtr( q );
+        pending.push_back( p );
+        pending.push_back( q );
       }
     }
     // Next element
@@ -1363,15 +1363,15 @@ void Egraph::merge ( Enode * x, Enode * y )
     {
       if ( x->isList( ) )
       {
-	Enode * tmp = x->getParent( )->getSameCdr( );
-	x->getParent( )->setSameCdr( y->getParent( )->getSameCdr( ) );
-	y->getParent( )->setSameCdr( tmp );
+        Enode * tmp = x->getParent( )->getSameCdr( );
+        x->getParent( )->setSameCdr( y->getParent( )->getSameCdr( ) );
+        y->getParent( )->setSameCdr( tmp );
       }
       else
       {
-	Enode * tmp = x->getParent( )->getSameCar( );
-	x->getParent( )->setSameCar( y->getParent( )->getSameCar( ) );
-	y->getParent( )->setSameCar( tmp );
+        Enode * tmp = x->getParent( )->getSameCar( );
+        x->getParent( )->setSameCar( y->getParent( )->getSameCar( ) );
+        y->getParent( )->setSameCar( tmp );
       }
     }
   }
@@ -1493,15 +1493,15 @@ void Egraph::undoMerge( Enode * y )
       assert( x->getParent( ) );
       if ( x->isList( ) )
       {
-	Enode * tmp = x->getParent( )->getSameCdr( );
-	x->getParent( )->setSameCdr( y->getParent( )->getSameCdr( ) );
-	y->getParent( )->setSameCdr( tmp );
+        Enode * tmp = x->getParent( )->getSameCdr( );
+        x->getParent( )->setSameCdr( y->getParent( )->getSameCdr( ) );
+        y->getParent( )->setSameCdr( tmp );
       }
       else
       {
-	Enode * tmp = x->getParent( )->getSameCar( );
-	x->getParent( )->setSameCar( y->getParent( )->getSameCar( ) );
-	y->getParent( )->setSameCar( tmp );
+        Enode * tmp = x->getParent( )->getSameCar( );
+        x->getParent( )->setSameCar( y->getParent( )->getSameCar( ) );
+        y->getParent( )->setSameCar( tmp );
       }
     }
   }
@@ -1601,7 +1601,7 @@ void Egraph::undoMerge( Enode * y )
     // No merge can occur beteween terms that point to the
     // same constant, as they would be in the same class already
     assert( ( yc->getRoot( ) == y && xc->getRoot( ) != x )
-	 || ( yc->getRoot( ) != y && xc->getRoot( ) == x ) );
+         || ( yc->getRoot( ) != y && xc->getRoot( ) == x ) );
     // Determine from which class the constant comes from
     if ( yc->getRoot( ) == y )
       x->setConstant( NULL );

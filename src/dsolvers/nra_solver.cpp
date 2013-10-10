@@ -99,6 +99,11 @@ set<Enode *> NRASolver::get_variables (Enode * e) {
 // The solver is informed of the existence of atom e. It might be
 // useful for initializing the solver's data structures. This function
 // is called before the actual solving starts.
+//
+// We do two operations in inform:
+// 1. set up environment (mapping from enode to its [lb, ub])
+// 2. set up _enode_to_vars (mapping from an expr to all the
+//    variables in it)
 lbool NRASolver::inform(Enode * e) {
     if (config.nra_verbose) {
         cerr << "================================================================" << endl
@@ -106,18 +111,16 @@ lbool NRASolver::inform(Enode * e) {
              << " with polarity " << e->getPolarity().toInt() << endl
              << "================================================================" << endl;
     }
-    assert(e -> isAtom());
+    assert(e->isAtom());
     set<Enode*> variables_in_e = get_variables(e);
     set<Enode*> ode_variables_in_e;
-    for (set<Enode*>::iterator ite = variables_in_e.begin();
-         ite != variables_in_e.end();
-         ite++) {
+    for (auto ite = variables_in_e.begin(); ite != variables_in_e.end(); ite++) {
         if (config.nra_verbose) {
             cerr << *ite << endl;
         }
         double lb = (*ite)->getLowerBound();
         double ub = (*ite)->getUpperBound();
-        env[*ite] = make_pair (lb, ub);
+        env[*ite] = make_pair(lb, ub);
 
         // Collect ODE Vars in e
         if (config.nra_contain_ODE && (*ite)->getODEtimevar() != nullptr && (*ite)->getODEgroup() > 0) {
@@ -137,6 +140,9 @@ lbool NRASolver::inform(Enode * e) {
 // Asserts a literal into the solver. If by chance you are able to
 // discover inconsistency you may return false. The real consistency
 // state will be checked with "check"
+//
+// assertLit adds a literal(e) to stack which represetns a list of
+// asserted literals.
 bool NRASolver::assertLit (Enode * e, bool reason) {
     if (config.nra_verbose) {
         cerr << "================================================================" << endl
