@@ -93,6 +93,23 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CAPD_CFLAGS}")
 ################################################################
 
 ################################################################
+# tcmalloc
+################################################################
+option(TCMALLOC "TCMALLOC" ON)
+if("${TCMALLOC}" MATCHES "ON")
+  find_package(Tcmalloc)
+  if(${TCMALLOC_FOUND})
+    set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARIES})
+    message(STATUS "Using tcmalloc.")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D HAS_TCMALLOC")
+  else()
+    message(WARNING "FAILED to find tcmalloc, using standard malloc.")
+  endif()
+else()
+  message(STATUS "Using standard malloc.")
+endif()
+
+################################################################
 # Include Directories
 ################################################################
 include_directories(${DREAL_SOURCE_DIR})
