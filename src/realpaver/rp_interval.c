@@ -190,56 +190,56 @@ void rp_interval_print(char * out, rp_interval i, int digits, int mode)
     {
       if( rp_binf(i)>=0 )
       {
-	if (rp_binf(i)==0)
-	{
-	  sprintf(out,"[0%s",RP_INTERVAL_SEPARATOR);
-	}
-	else
-	{
-	  RP_ROUND_DOWNWARD();
-	  sprintf(out,"[%.*g%s",digits,rp_binf(i),RP_INTERVAL_SEPARATOR);
-	}
+        if (rp_binf(i)==0)
+        {
+          sprintf(out,"[0%s",RP_INTERVAL_SEPARATOR);
+        }
+        else
+        {
+          RP_ROUND_DOWNWARD();
+          sprintf(out,"[%.*g%s",digits,rp_binf(i),RP_INTERVAL_SEPARATOR);
+        }
         RP_ROUND_UPWARD();
         if( rp_bsup(i)==RP_INFINITY )
-	{
-	  strcat(out,"+oo)");
-	}
+        {
+          strcat(out,"+oo)");
+        }
         else
-	{
-	  char tmp[255];
-	  sprintf(tmp,"%.*g]",digits,rp_bsup(i));
-	  strcat(out,tmp);
-	}
+        {
+          char tmp[255];
+          sprintf(tmp,"%.*g]",digits,rp_bsup(i));
+          strcat(out,tmp);
+        }
       }
       else
       {
         RP_ROUND_DOWNWARD();
-	if( rp_binf(i)==(-RP_INFINITY) )
-	{
-	  sprintf(out,"(-oo%s",RP_INTERVAL_SEPARATOR);
-	}
+        if( rp_binf(i)==(-RP_INFINITY) )
+        {
+          sprintf(out,"(-oo%s",RP_INTERVAL_SEPARATOR);
+        }
         else
-	{
-	  sprintf(out,"[%+.*g%s",digits,rp_binf(i),RP_INTERVAL_SEPARATOR);
-	}
+        {
+          sprintf(out,"[%+.*g%s",digits,rp_binf(i),RP_INTERVAL_SEPARATOR);
+        }
         RP_ROUND_UPWARD();
         if( rp_bsup(i)==RP_INFINITY )
-	{
-	  strcat(out,"+oo)");
-	}
+        {
+          strcat(out,"+oo)");
+        }
         else
-	{
-	  if (rp_bsup(i)==0)
-	  {
-	    strcat(out,"0]");
-	  }
-	  else
-	  {
-	    char tmp[255];
-	    sprintf(tmp,"%+.*g]",digits,rp_bsup(i));
-	    strcat(out,tmp);
-	  }
-	}
+        {
+          if (rp_bsup(i)==0)
+          {
+            strcat(out,"0]");
+          }
+          else
+          {
+            char tmp[255];
+            sprintf(tmp,"%+.*g]",digits,rp_bsup(i));
+            strcat(out,tmp);
+          }
+        }
       }
     }
     else
@@ -252,7 +252,7 @@ void rp_interval_print(char * out, rp_interval i, int digits, int mode)
       if( rp_binf(i)==(-RP_INFINITY) )
       {
         RP_ROUND_DOWNWARD();
-	mid = rp_split_center(RP_MIN_DOUBLE,rp_bsup(i));
+        mid = rp_split_center(RP_MIN_DOUBLE,rp_bsup(i));
         minerror = -RP_INFINITY;
         RP_ROUND_UPWARD();
         maxerror = rp_bsup(i) - mid;
@@ -260,7 +260,7 @@ void rp_interval_print(char * out, rp_interval i, int digits, int mode)
       else if( rp_bsup(i)==RP_INFINITY )
       {
         RP_ROUND_DOWNWARD();
-	mid = rp_split_center(rp_binf(i),RP_MAX_DOUBLE);
+        mid = rp_split_center(rp_binf(i),RP_MAX_DOUBLE);
         minerror = rp_binf(i) - mid;
         RP_ROUND_UPWARD();
         maxerror = RP_INFINITY;
@@ -268,7 +268,7 @@ void rp_interval_print(char * out, rp_interval i, int digits, int mode)
       else
       {
         RP_ROUND_DOWNWARD();
-	mid = rp_interval_midpoint(i);
+        mid = rp_interval_midpoint(i);
         minerror = rp_binf(i) - mid;
         RP_ROUND_UPWARD();
         maxerror = rp_bsup(i) - mid;
@@ -276,34 +276,34 @@ void rp_interval_print(char * out, rp_interval i, int digits, int mode)
 
       if( mid>=0 )
       {
-	sprintf(out,"%.*g+",digits,mid);
+        sprintf(out,"%.*g+",digits,mid);
       }
       else
       {
-	sprintf(out,"%+.*g+",digits,mid);
+        sprintf(out,"%+.*g+",digits,mid);
       }
       if( minerror==(-RP_INFINITY) )
       {
-	char tmp[255];
+        char tmp[255];
         sprintf(tmp,"(-oo%s%+.4g]",RP_INTERVAL_SEPARATOR,maxerror);
-	strcat(out,tmp);
+        strcat(out,tmp);
       }
       else if( maxerror==RP_INFINITY )
       {
-	char tmp[255];
+        char tmp[255];
         RP_ROUND_DOWNWARD();
         sprintf(tmp,"[%+.4g%s+oo)",minerror,RP_INTERVAL_SEPARATOR);
-	strcat(out,tmp);
+        strcat(out,tmp);
       }
       else
       {
-	char tmp[255];
+        char tmp[255];
         RP_ROUND_DOWNWARD();
         sprintf(tmp,"[%+.4g%s",minerror,RP_INTERVAL_SEPARATOR);
-	strcat(out,tmp);
+        strcat(out,tmp);
         RP_ROUND_UPWARD();
         sprintf(tmp,"%+.4g]",maxerror);
-	strcat(out,tmp);
+        strcat(out,tmp);
       }
     }
   }
@@ -311,7 +311,7 @@ void rp_interval_print(char * out, rp_interval i, int digits, int mode)
 
 /* Returns x - offset in dest=[a,b], offset := step*(b-a), step integer */
 double rp_interval_translate(double x, rp_interval dest, int rounding,
-			     rp_interval step, rp_interval offset)
+                             rp_interval step, rp_interval offset)
 {
   /* a <= x-step*(b-a) <= b  =>  (x-a)/(b-a) >= step >= (x-b)/(b-a) */
   /* step := 1 + floor( (x-b)/(b-a) ) the smallest integer          */
@@ -436,93 +436,93 @@ void rp_interval_mul(rp_interval result, rp_interval i1, rp_interval i2)
         rp_interval_set(result,0.0,0.0);
       }
       else if( (rp_interval_infinite(i1) && rp_interval_bound_zero(i2)) ||
-	       (rp_interval_infinite(i2) && rp_interval_bound_zero(i1)) )
+               (rp_interval_infinite(i2) && rp_interval_bound_zero(i1)) )
       {
-	rp_interval x, y;
-	/* x := the infinite one and y := the other one */
-	if (rp_interval_infinite(i1))
-	{
-	  rp_interval_copy(x,i1);
-	  rp_interval_copy(y,i2);
-	}
+        rp_interval x, y;
+        /* x := the infinite one and y := the other one */
+        if (rp_interval_infinite(i1))
+        {
+          rp_interval_copy(x,i1);
+          rp_interval_copy(y,i2);
+        }
         else
-	{
-	  rp_interval_copy(x,i2);
-	  rp_interval_copy(y,i1);
-	}
+        {
+          rp_interval_copy(x,i2);
+          rp_interval_copy(y,i1);
+        }
 
-	if (rp_binf(x)==(-RP_INFINITY))
-	{
-	  if (rp_bsup(x)==RP_INFINITY)  /* [-oo,+oo]*y=[-oo,+oo] */
-	  {
-	    rp_interval_set_real_line(result);
-	  }
-	  else if (rp_bsup(x)==0.0) /* x = [-oo,0] */
-	  {
-	    if (rp_binf(y)==0.0)    /* [-oo,0]*[0,b] = [-oo,0] */
-	    {
-	      rp_interval_set(result,(-RP_INFINITY),0.0);
-	    }
+        if (rp_binf(x)==(-RP_INFINITY))
+        {
+          if (rp_bsup(x)==RP_INFINITY)  /* [-oo,+oo]*y=[-oo,+oo] */
+          {
+            rp_interval_set_real_line(result);
+          }
+          else if (rp_bsup(x)==0.0) /* x = [-oo,0] */
+          {
+            if (rp_binf(y)==0.0)    /* [-oo,0]*[0,b] = [-oo,0] */
+            {
+              rp_interval_set(result,(-RP_INFINITY),0.0);
+            }
             else                    /* [-oo,0]*[a,0] = [0,+oo] */
-	    {
-	      rp_interval_set(result,0.0,RP_INFINITY);
-	    }
-	  }
+            {
+              rp_interval_set(result,0.0,RP_INFINITY);
+            }
+          }
           else                      /* x = [-oo,b], +oo>b>0 */
-	  {
-	    if (rp_interval_infinite(y))  /* [-oo,b]*[0,+oo]=[-oo,+oo]*/
-	    {                             /* [-oo,b]*[-oo,0]=[-oo,+oo]*/
-	      rp_interval_set_real_line(result);
-	    }
-	    else
-	    {
-	      if (rp_bsup(y)==0.0)  /* [-oo,b]*[a,0]=[a*b,+oo] */
-	      {
+          {
+            if (rp_interval_infinite(y))  /* [-oo,b]*[0,+oo]=[-oo,+oo]*/
+            {                             /* [-oo,b]*[-oo,0]=[-oo,+oo]*/
+              rp_interval_set_real_line(result);
+            }
+            else
+            {
+              if (rp_bsup(y)==0.0)  /* [-oo,b]*[a,0]=[a*b,+oo] */
+              {
                 RP_ROUND_DOWNWARD();
-		rp_interval_set(result,rp_bsup(x)*rp_binf(y),RP_INFINITY);
-	      }
-	      else                  /* [-oo,b]*[0,c]=[-oo,b*c] */
-	      {
+                rp_interval_set(result,rp_bsup(x)*rp_binf(y),RP_INFINITY);
+              }
+              else                  /* [-oo,b]*[0,c]=[-oo,b*c] */
+              {
                 RP_ROUND_UPWARD();
-		rp_interval_set(result,(-RP_INFINITY),rp_bsup(x)*rp_bsup(y));
-	      }
-	    }
-	  }
-	}
-	else    /* x=[a,+oo], -oo<a<0 */
-	{
-	  if (rp_binf(x)==0.0)    /* x = [0,+oo] */
-	  {
-	    if (rp_bsup(y)==0.0)  /* [0,+oo]*[a,0]=[-oo,0] */
-	    {
-	      rp_interval_set(result,(-RP_INFINITY),0.0);
-	    }
-	    else                  /* [0,+oo]*[0,a]=[0,+oo] */
-	    {
-	      rp_interval_set(result,0.0,RP_INFINITY);
-	    }
-	  }
-	  else                    /* x = [a,+oo], a<0 */
-	  {
-	    if (rp_interval_infinite(y))  /* [a,+oo]*[0,+oo]=[-oo,+oo]*/
-	    {                             /* [a,+oo]*[-oo,0]=[-oo,+oo]*/
-	      rp_interval_set_real_line(result);
-	    }
-	    else
-	    {
-	      if (rp_bsup(y)==0.0) /* [a,+oo]*[d,0]=[-oo,a*d]*/
-	      {
+                rp_interval_set(result,(-RP_INFINITY),rp_bsup(x)*rp_bsup(y));
+              }
+            }
+          }
+        }
+        else    /* x=[a,+oo], -oo<a<0 */
+        {
+          if (rp_binf(x)==0.0)    /* x = [0,+oo] */
+          {
+            if (rp_bsup(y)==0.0)  /* [0,+oo]*[a,0]=[-oo,0] */
+            {
+              rp_interval_set(result,(-RP_INFINITY),0.0);
+            }
+            else                  /* [0,+oo]*[0,a]=[0,+oo] */
+            {
+              rp_interval_set(result,0.0,RP_INFINITY);
+            }
+          }
+          else                    /* x = [a,+oo], a<0 */
+          {
+            if (rp_interval_infinite(y))  /* [a,+oo]*[0,+oo]=[-oo,+oo]*/
+            {                             /* [a,+oo]*[-oo,0]=[-oo,+oo]*/
+              rp_interval_set_real_line(result);
+            }
+            else
+            {
+              if (rp_bsup(y)==0.0) /* [a,+oo]*[d,0]=[-oo,a*d]*/
+              {
                 RP_ROUND_UPWARD();
-	        rp_interval_set(result,(-RP_INFINITY),rp_binf(x)*rp_binf(y));
-	      }
-	      else                 /* [a,+oo]*[0,b]=[a*b,+oo]*/
-	      {
+                rp_interval_set(result,(-RP_INFINITY),rp_binf(x)*rp_binf(y));
+              }
+              else                 /* [a,+oo]*[0,b]=[a*b,+oo]*/
+              {
                 RP_ROUND_DOWNWARD();
-	        rp_interval_set(result,rp_binf(x)*rp_bsup(y),RP_INFINITY);
-	      }
-	    }
-	  }
-	}
+                rp_interval_set(result,rp_binf(x)*rp_bsup(y),RP_INFINITY);
+              }
+            }
+          }
+        }
       }
       else
       {
@@ -545,15 +545,15 @@ void rp_interval_mul(rp_interval result, rp_interval i1, rp_interval i2)
         if( rp_binf(i1)==0.0 )
         {
           rp_interval_set(result,0.0,RP_INFINITY);
-	}
+        }
         else if ( rp_bsup(i1)==0.0 )
         {
           rp_interval_set(result,(-RP_INFINITY),0.0);
-	}
+        }
         else
         {
-	  rp_interval_set_real_line(result);
-	}
+          rp_interval_set_real_line(result);
+        }
       }
       else
       {
@@ -570,15 +570,15 @@ void rp_interval_mul(rp_interval result, rp_interval i1, rp_interval i2)
         if( rp_binf(i1)==0.0 )
         {
           rp_interval_set(result,(-RP_INFINITY),0.0);
-	}
+        }
         else if ( rp_bsup(i1)==0.0 )
         {
           rp_interval_set(result,0.0,RP_INFINITY);
-	}
+        }
         else
         {
-  	  rp_interval_set_real_line(result);
-	}
+          rp_interval_set_real_line(result);
+        }
       }
       else
       {
@@ -595,15 +595,15 @@ void rp_interval_mul(rp_interval result, rp_interval i1, rp_interval i2)
         if( rp_binf(i2)==0.0 )
         {
           rp_interval_set(result,0.0,RP_INFINITY);
-	}
+        }
         else if ( rp_bsup(i2)==0.0 )
         {
           rp_interval_set(result,(-RP_INFINITY),0.0);
-	}
+        }
         else
         {
-	  rp_interval_set_real_line(result);
-	}
+          rp_interval_set_real_line(result);
+        }
       }
       else
       {
@@ -634,15 +634,15 @@ void rp_interval_mul(rp_interval result, rp_interval i1, rp_interval i2)
         if( rp_binf(i2)==0.0 )
         {
           rp_interval_set(result,(-RP_INFINITY),0.0);
-	}
+        }
         else if ( rp_bsup(i2)==0.0 )
         {
           rp_interval_set(result,0.0,RP_INFINITY);
-	}
+        }
         else
         {
-	  rp_interval_set_real_line(result);
-	}
+          rp_interval_set_real_line(result);
+        }
       }
       else
       {
@@ -743,12 +743,12 @@ void rp_interval_div(rp_interval result, rp_interval i1, rp_interval i2)
       if (rp_binf(i1)>=0.0)             /* [a,c]/[0,b]=[a/b,+oo] */
       {
         RP_ROUND_DOWNWARD();
-	rp_interval_set(result,rp_binf(i1)/rp_bsup(i2),RP_INFINITY);
+        rp_interval_set(result,rp_binf(i1)/rp_bsup(i2),RP_INFINITY);
       }
       else if (rp_bsup(i1)<=0.0)        /* [a,c]/[0,b]=[a/b,+oo] */
       {
         RP_ROUND_UPWARD();
-	rp_interval_set(result,(-RP_INFINITY),rp_bsup(i1)/rp_bsup(i2));
+        rp_interval_set(result,(-RP_INFINITY),rp_bsup(i1)/rp_bsup(i2));
       }
       else                           /* i1=[a,c], a<0<c */
       {
@@ -760,12 +760,12 @@ void rp_interval_div(rp_interval result, rp_interval i1, rp_interval i2)
       if (rp_binf(i1)>=0.0)             /* [a,c]/[b,0]=[-oo,a/b] */
       {
         RP_ROUND_UPWARD();
-	rp_interval_set(result,(-RP_INFINITY),rp_binf(i1)/rp_binf(i2));
+        rp_interval_set(result,(-RP_INFINITY),rp_binf(i1)/rp_binf(i2));
       }
       else if (rp_bsup(i1)<=0.0)        /* [a,c]/[b,0]=[c/b,+oo] */
       {
         RP_ROUND_DOWNWARD();
-	rp_interval_set(result,rp_bsup(i1)/rp_binf(i2),RP_INFINITY);
+        rp_interval_set(result,rp_bsup(i1)/rp_binf(i2),RP_INFINITY);
       }
       else                           /* i1=[a,c], a<0<c */
       {
@@ -897,12 +897,12 @@ void rp_interval_div_r_i(rp_interval result, rp_interval x, rp_interval i)
       if (rp_binf(x)>0.0)               /* [r,r]/[0,b]=[r/b,+oo] */
       {
         RP_ROUND_DOWNWARD();
-	rp_interval_set(result,rp_binf(x)/rp_bsup(i),RP_INFINITY);
+        rp_interval_set(result,rp_binf(x)/rp_bsup(i),RP_INFINITY);
       }
       else                           /* x is negative */
       {
         RP_ROUND_UPWARD();
-	rp_interval_set(result,(-RP_INFINITY),rp_binf(x)/rp_bsup(i));
+        rp_interval_set(result,(-RP_INFINITY),rp_binf(x)/rp_bsup(i));
       }
     }
     else if (rp_bsup(i)==0.0)          /* i=[a,0], a<0 */
@@ -910,12 +910,12 @@ void rp_interval_div_r_i(rp_interval result, rp_interval x, rp_interval i)
       if (rp_binf(x)>0.0)               /* [r,r]/[b,0]=[-oo,r/b] */
       {
         RP_ROUND_UPWARD();
-	rp_interval_set(result,(-RP_INFINITY),rp_binf(x)/rp_binf(i));
+        rp_interval_set(result,(-RP_INFINITY),rp_binf(x)/rp_binf(i));
       }
       else   /* x is negative */     /* [r,r]/[b,0]=[r/b,+oo] */
       {
         RP_ROUND_DOWNWARD();
-	rp_interval_set(result,rp_binf(x)/rp_binf(i),RP_INFINITY);
+        rp_interval_set(result,rp_binf(x)/rp_binf(i),RP_INFINITY);
       }
     }
     else                             /* i=[a,b], a<0<b */
@@ -1206,7 +1206,7 @@ void rp_interval_sin(rp_interval result, rp_interval i)
 
     /* 3Pi/2 or 7Pi/2 included in i_t ? */
     if (rp_interval_included(RP_INTERVAL_3_PI_2,i_t) ||
-	rp_interval_included(RP_INTERVAL_7_PI_2,i_t))
+        rp_interval_included(RP_INTERVAL_7_PI_2,i_t))
     {
       rp_binf(result) = -1.0;
     }
@@ -1235,7 +1235,7 @@ void rp_interval_sin(rp_interval result, rp_interval i)
 
     /* Pi/2 or 5Pi/2 included in i_t ? */
     if (rp_interval_included(RP_INTERVAL_1_PI_2,i_t) ||
-	rp_interval_included(RP_INTERVAL_5_PI_2,i_t))
+        rp_interval_included(RP_INTERVAL_5_PI_2,i_t))
     {
       rp_bsup(result) = 1.0;
     }
@@ -1317,16 +1317,16 @@ void rp_interval_tan(rp_interval result, rp_interval i)
     /* Pi/2 included in i_t OR one of the bounds cannot be
        distinguished from Pi/2 */
     if (rp_interval_included(RP_INTERVAL_1_PI_2,i_t) ||
-	rp_interval_strictly_contains(RP_INTERVAL_1_PI_2,rp_binf(i_t)) ||
-	rp_interval_strictly_contains(RP_INTERVAL_1_PI_2,rp_bsup(i_t)))
+        rp_interval_strictly_contains(RP_INTERVAL_1_PI_2,rp_binf(i_t)) ||
+        rp_interval_strictly_contains(RP_INTERVAL_1_PI_2,rp_bsup(i_t)))
     {
       rp_interval_set_real_line(result);
     }
     /* Is i_t contained in (-Pi/2,Pi/2) or (Pi/2,3Pi/2)*/
     else if (((rp_binf(i_t)>=(-rp_binf(RP_INTERVAL_1_PI_2)))
-	      && (rp_bsup(i_t)<=rp_binf(RP_INTERVAL_1_PI_2))) ||
-	     ((rp_binf(i_t)>=rp_bsup(RP_INTERVAL_1_PI_2))
-	      && (rp_bsup(i_t)<=rp_binf(RP_INTERVAL_3_PI_2))))
+              && (rp_bsup(i_t)<=rp_binf(RP_INTERVAL_1_PI_2))) ||
+             ((rp_binf(i_t)>=rp_bsup(RP_INTERVAL_1_PI_2))
+              && (rp_bsup(i_t)<=rp_binf(RP_INTERVAL_3_PI_2))))
     {
       if (rp_binf(i_t)==0.0)
       {
@@ -1339,7 +1339,7 @@ void rp_interval_tan(rp_interval result, rp_interval i)
       }
       if (rp_bsup(i_t)==0.0)
       {
-	rp_bsup(result) = 0.0;
+        rp_bsup(result) = 0.0;
       }
       else
       {
@@ -1547,7 +1547,7 @@ void rp_interval_matan(rp_interval result, rp_interval x)
     rp_interval_set_empty(result);
     /* atn(sqrt(x))/sqrt(x)                                        if x > 0 */
     if(x_ub > 0.0) {
-        rp_interval x_temp, aux1, aux2, aux3;
+        rp_interval x_temp, aux1, aux2;
         rp_interval_set(x_temp, _max(x_lb, DBL_EPSILON), x_ub);
         rp_interval_sqrt(aux1, x_temp);     /* aux1    = sqrt(x)         */
         rp_interval_atan(aux2, aux2);       /* aux2    = atan(sqrt(x))   */
@@ -1638,7 +1638,7 @@ void rp_interval_atan2(rp_interval result, rp_interval y, rp_interval x)
         rp_interval x_temp, y_temp, aux1, aux2, aux3;
         rp_interval_set(x_temp, x_lb, _min(x_ub, -DBL_EPSILON));
         rp_interval_set(y_temp, _max(y_lb, 0.0), y_ub);
-        rp_interval_div(aux1, y, x_temp);  /* aux = y/x         */
+        rp_interval_div(aux1, y_temp, x_temp);  /* aux = y/x         */
         rp_interval_atan(aux2, aux1);       /* aux = arctan(y/x) */
                                           /* aux = pi + arctan(y/x) */
         rp_interval_add_r_i(aux3, RP_INTERVAL_PI, aux2);
@@ -1655,7 +1655,7 @@ void rp_interval_atan2(rp_interval result, rp_interval y, rp_interval x)
         rp_interval x_temp, y_temp, aux1, aux2, aux3;
         rp_interval_set(x_temp, x_lb, _min(x_ub, -DBL_EPSILON));
         rp_interval_set(y_temp, y_lb, _min(y_ub, -DBL_EPSILON));
-        rp_interval_div(aux1, y, x_temp);  /* aux = y/x         */
+        rp_interval_div(aux1, y_temp, x_temp);  /* aux = y/x         */
         rp_interval_atan(aux2, aux1);       /* aux = arctan(y/x) */
                                           /* aux = - pi + arctan(y/x) */
         rp_interval_sub_i_r(aux3, aux2, RP_INTERVAL_PI);
@@ -1712,30 +1712,30 @@ void rp_interval_nthroot(rp_interval result, rp_interval i, rp_interval n)
       /* computation of left bound */
       if (rp_binf(i)==0.0)
       {
-	rp_binf(result) = 0.0;
+        rp_binf(result) = 0.0;
       }
       else
       {
-	rp_interval_set_point(aux1,rp_binf(i));
-	rp_interval_neg(aux2,aux1);
+        rp_interval_set_point(aux1,rp_binf(i));
+        rp_interval_neg(aux2,aux1);
         rp_interval_log(aux3,aux2);
-	rp_interval_div_i_r(aux4,aux3,n);
-	rp_interval_exp(aux5,aux4);
-	rp_binf(result) = -rp_bsup(aux5);
+        rp_interval_div_i_r(aux4,aux3,n);
+        rp_interval_exp(aux5,aux4);
+        rp_binf(result) = -rp_bsup(aux5);
       }
 
       /* computation of right bound */
       if (rp_bsup(i)==0.0)
       {
-	rp_bsup(result) = 0.0;
+        rp_bsup(result) = 0.0;
       }
       else
       {
-	rp_interval_set_point(aux1,rp_bsup(i));
-	rp_interval_log(aux2,aux1);
-	rp_interval_div_i_r(aux3,aux2,n);
-	rp_interval_exp(aux4,aux3);
-	rp_bsup(result) = rp_bsup(aux4);
+        rp_interval_set_point(aux1,rp_bsup(i));
+        rp_interval_log(aux2,aux1);
+        rp_interval_div_i_r(aux3,aux2,n);
+        rp_interval_exp(aux4,aux3);
+        rp_bsup(result) = rp_bsup(aux4);
       }
     }
   }
@@ -1750,37 +1750,37 @@ void rp_interval_nthroot(rp_interval result, rp_interval i, rp_interval n)
       /* only positive interval computed */
       if (exp==2)
       {
-	/* square root */
-	rp_interval_sqrt(result,i);
+        /* square root */
+        rp_interval_sqrt(result,i);
       }
       else
       {
-	rp_interval_log(aux1,i);
-	rp_interval_div_i_r(aux2,aux1,n);
-	rp_interval_exp(result,aux2);
+        rp_interval_log(aux1,i);
+        rp_interval_div_i_r(aux2,aux1,n);
+        rp_interval_exp(result,aux2);
       }
     }
     else
     {
       if (rp_bsup(i)==0.0)
       {
-	rp_interval_set_point(result,0.0);
+        rp_interval_set_point(result,0.0);
       }
       else
       {
-	rp_interval_set_point(aux1,rp_bsup(i));
-	if (exp==2)
-	{
-	  rp_interval_sqrt(aux4,aux1);
-	}
-	else
-	{
-	  rp_interval_log(aux2,aux1);
-	  rp_interval_div_i_r(aux3,aux2,n);
-	  rp_interval_exp(aux4,aux3);
-	}
-	rp_bsup(result) = rp_bsup(aux4);
-	rp_binf(result) = -rp_bsup(result);
+        rp_interval_set_point(aux1,rp_bsup(i));
+        if (exp==2)
+        {
+          rp_interval_sqrt(aux4,aux1);
+        }
+        else
+        {
+          rp_interval_log(aux2,aux1);
+          rp_interval_div_i_r(aux3,aux2,n);
+          rp_interval_exp(aux4,aux3);
+        }
+        rp_bsup(result) = rp_bsup(aux4);
+        rp_binf(result) = -rp_bsup(result);
       }
     }
   }
@@ -1849,17 +1849,17 @@ void rp_interval_setminus(rp_interval result, rp_interval i1, rp_interval i2)
     rp_interval_set_empty(result);         /*       empty set   */
   }
   else if ((rp_binf(i2)<=rp_binf(i1)) &&   /* i1:    |--------| */
-	                                   /* i2: |-------|     */
+                                           /* i2: |-------|     */
                                            /*             |---| */
-	   rp_interval_strictly_contains(i1,rp_bsup(i2)))
+           rp_interval_strictly_contains(i1,rp_bsup(i2)))
   {
     rp_binf(result) = rp_bsup(i2);
     rp_bsup(result) = rp_bsup(i1);
   }
   else if ((rp_bsup(i2)>=rp_bsup(i1)) &&   /* i1: |-------|     */
-	                                   /* i2:     |-------| */
-	                                   /*     |---|         */
-	   rp_interval_strictly_contains(i1,rp_binf(i2)))
+                                           /* i2:     |-------| */
+                                           /*     |---|         */
+           rp_interval_strictly_contains(i1,rp_binf(i2)))
   {
     rp_binf(result) = rp_binf(i1);
     rp_bsup(result) = rp_binf(i2);

@@ -168,7 +168,7 @@ void rp_erep_create_unary (rp_erep * f, int op, rp_erep l);
 
 /* Creation of an expression equivalent to op(l,r) */
 void rp_erep_create_binary (rp_erep * f, int op,
-			    rp_erep l, rp_erep r);
+                            rp_erep l, rp_erep r);
 
 /* Destruction of an expression */
 void rp_erep_destroy (rp_erep * f);
@@ -188,8 +188,8 @@ int rp_erep_count_node (rp_erep f);
 
 /* Display f on out */
 void rp_erep_display (FILE* out, rp_erep f,
-		      rp_vector_variable vars,
-		      int digits, int mode);
+                      rp_vector_variable vars,
+                      int digits, int mode);
 
 #define rp_erep_display_bounds(o,f,a,d) \
   rp_erep_display(o,f,a,d,RP_INTERVAL_MODE_BOUND)
@@ -368,109 +368,109 @@ int rp_eval_pow(rp_interval result, rp_interval i, rp_interval j)
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_neg(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_neg(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_neg(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_sqr(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_sqr(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_sqr(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_sqrt(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_sqrt(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_sqrt(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_exp(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_exp(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_exp(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_log(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_log(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_log(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_sin(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_sin(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_sin(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_cos(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_cos(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_cos(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_tan(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_tan(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_tan(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_sinh(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_sinh(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_sinh(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_cosh(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_cosh(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_cosh(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_tanh(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_tanh(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_tanh(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_asin(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_asin(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_asin(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_acos(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_acos(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_acos(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_atan(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_atan(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_atan(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_asinh(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_asinh(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_asinh(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_acosh(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_acosh(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_acosh(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_atanh(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_atanh(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_atanh(result,i);
   return( !rp_interval_empty(result) );
 }
 static rp_inline
-int rp_eval_abs(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_abs(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_abs(result,i);
   return( !rp_interval_empty(result) );
@@ -497,14 +497,14 @@ int rp_eval_atan2(rp_interval result, rp_interval i, rp_interval j)
 }
 
 static rp_inline
-int rp_eval_matan(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_matan(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_matan(result,i);
   return( !rp_interval_empty(result) );
 }
 
 static rp_inline
-int rp_eval_safesqrt(rp_interval result, rp_interval i, rp_interval j)
+int rp_eval_safesqrt(rp_interval result, rp_interval i, rp_interval /* j */)
 {
   rp_interval_safesqrt(result,i);
   return( !rp_interval_empty(result) );
@@ -521,338 +521,338 @@ static rp_inline
 int rp_project_add(rp_erep f)
 {
   return( rp_project_add_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f))
-	  &&
-	  rp_project_add_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f))
+          &&
+          rp_project_add_snd(rp_erep_right_proj(f),
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_add_r_i(rp_erep f)
 {
   return( rp_project_add_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_sub(rp_erep f)
 {
   return( rp_project_sub_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f))
-	  &&
-	  rp_project_sub_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f))
+          &&
+          rp_project_sub_snd(rp_erep_right_proj(f),
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_sub_r_i(rp_erep f)
 {
   return( rp_project_sub_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_sub_i_r(rp_erep f)
 {
   return( rp_project_sub_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_mul(rp_erep f)
 {
   return( rp_project_mul_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f))
-	  &&
-	  rp_project_mul_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f))
+          &&
+          rp_project_mul_snd(rp_erep_right_proj(f),
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_mul_r_i(rp_erep f)
 {
   return( rp_project_mul_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_mul_rneg_i(rp_erep f)
 {
   return( rp_project_mul_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_mul_rpos_i(rp_erep f)
 {
   return( rp_project_mul_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_div(rp_erep f)
 {
   return( rp_project_div_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f))
-	  &&
-	  rp_project_div_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f))
+          &&
+          rp_project_div_snd(rp_erep_right_proj(f),
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_div_i_r(rp_erep f)
 {
   return( rp_project_div_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_div_i_rpos(rp_erep f)
 {
   return( rp_project_div_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_div_i_rneg(rp_erep f)
 {
   return( rp_project_div_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_div_r_i(rp_erep f)
 {
   return( rp_project_div_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_div_rpos_i(rp_erep f)
 {
   return( rp_project_div_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_div_rneg_i(rp_erep f)
 {
   return( rp_project_div_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_pow(rp_erep f)
 {
   return( rp_project_pow_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_neg(rp_erep f)
 {
   return( rp_project_neg_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_sqr(rp_erep f)
 {
   return( rp_project_sqr_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_sqrt(rp_erep f)
 {
   return( rp_project_sqrt_fst(rp_erep_left_proj(f),
-			      rp_erep_proj(f),
-			      rp_erep_left_val(f)) );
+                              rp_erep_proj(f),
+                              rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_exp(rp_erep f)
 {
   return( rp_project_exp_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_log(rp_erep f)
 {
   return( rp_project_log_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_sin(rp_erep f)
 {
   return( rp_project_sin_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_cos(rp_erep f)
 {
   return( rp_project_cos_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_tan(rp_erep f)
 {
   return( rp_project_tan_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_sinh(rp_erep f)
 {
   return( rp_project_sinh_fst(rp_erep_left_proj(f),
-			      rp_erep_proj(f),
-			      rp_erep_left_val(f)) );
+                              rp_erep_proj(f),
+                              rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_cosh(rp_erep f)
 {
   return( rp_project_cosh_fst(rp_erep_left_proj(f),
-			      rp_erep_proj(f),
-			      rp_erep_left_val(f)) );
+                              rp_erep_proj(f),
+                              rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_tanh(rp_erep f)
 {
   return( rp_project_tanh_fst(rp_erep_left_proj(f),
-			      rp_erep_proj(f),
-			      rp_erep_left_val(f)) );
+                              rp_erep_proj(f),
+                              rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_asin(rp_erep f)
 {
   return( rp_project_asin_fst(rp_erep_left_proj(f),
-			      rp_erep_proj(f),
-			      rp_erep_left_val(f)) );
+                              rp_erep_proj(f),
+                              rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_acos(rp_erep f)
 {
   return( rp_project_acos_fst(rp_erep_left_proj(f),
-			      rp_erep_proj(f),
-			      rp_erep_left_val(f)) );
+                              rp_erep_proj(f),
+                              rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_atan(rp_erep f)
 {
   return( rp_project_atan_fst(rp_erep_left_proj(f),
-			      rp_erep_proj(f),
-			      rp_erep_left_val(f)) );
+                              rp_erep_proj(f),
+                              rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_asinh(rp_erep f)
 {
   return( rp_project_asinh_fst(rp_erep_left_proj(f),
-			       rp_erep_proj(f),
-			       rp_erep_left_val(f)) );
+                               rp_erep_proj(f),
+                               rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_acosh(rp_erep f)
 {
   return( rp_project_acosh_fst(rp_erep_left_proj(f),
-			       rp_erep_proj(f),
-			       rp_erep_left_val(f)) );
+                               rp_erep_proj(f),
+                               rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_atanh(rp_erep f)
 {
   return( rp_project_atanh_fst(rp_erep_left_proj(f),
-			       rp_erep_proj(f),
-			       rp_erep_left_val(f)) );
+                               rp_erep_proj(f),
+                               rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_abs(rp_erep f)
 {
   return( rp_project_abs_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f)) );
 }
 static rp_inline
 int rp_project_min(rp_erep f)
 {
   return( rp_project_min_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f))
-	  &&
-	  rp_project_min_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f))
+          &&
+          rp_project_min_snd(rp_erep_right_proj(f),
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 static rp_inline
 int rp_project_max(rp_erep f)
 {
   return( rp_project_max_fst(rp_erep_left_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f))
-	  &&
-	  rp_project_max_snd(rp_erep_right_proj(f),
-			     rp_erep_proj(f),
-			     rp_erep_left_val(f),
-			     rp_erep_right_val(f)) );
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f))
+          &&
+          rp_project_max_snd(rp_erep_right_proj(f),
+                             rp_erep_proj(f),
+                             rp_erep_left_val(f),
+                             rp_erep_right_val(f)) );
 }
 
 static rp_inline
 int rp_project_atan2(rp_erep f)
 {
   return( rp_project_atan2_fst(rp_erep_left_proj(f),
-			       rp_erep_proj(f),
-			       rp_erep_left_val(f),
-			       rp_erep_right_val(f))
-	  &&
-	  rp_project_atan2_snd(rp_erep_right_proj(f),
-  			       rp_erep_proj(f),
-			       rp_erep_left_val(f),
-			       rp_erep_right_val(f)) );
+                               rp_erep_proj(f),
+                               rp_erep_left_val(f),
+                               rp_erep_right_val(f))
+          &&
+          rp_project_atan2_snd(rp_erep_right_proj(f),
+                               rp_erep_proj(f),
+                               rp_erep_left_val(f),
+                               rp_erep_right_val(f)) );
 }
 
 static rp_inline
 int rp_project_matan(rp_erep f)
 {
   return( rp_project_matan_fst(rp_erep_left_proj(f),
-			      rp_erep_proj(f),
-			      rp_erep_left_val(f)) );
+                              rp_erep_proj(f),
+                              rp_erep_left_val(f)) );
 }
 
 static rp_inline
 int rp_project_safesqrt(rp_erep f)
 {
   return( rp_project_safesqrt_fst(rp_erep_left_proj(f),
-			          rp_erep_proj(f),
+                                  rp_erep_proj(f),
                                   rp_erep_left_val(f)) );
 }
 
@@ -1308,31 +1308,31 @@ int rp_deriv_num_atan2(rp_erep f)
 typedef void (* rp_symbol_deriv_symb)(rp_erep *, rp_erep, rp_erep, rp_erep);
 
 static rp_inline
-void rp_deriv_symb_add(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_add(rp_erep * df, rp_erep /* f */, rp_erep du, rp_erep dv)
 {
   /* df = d(u+v) = du + dv */
   rp_erep_create_binary(df,RP_SYMBOL_ADD,du,dv);
 }
 static rp_inline
-void rp_deriv_symb_add_r_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_add_r_i(rp_erep * df, rp_erep /* f */, rp_erep /*du*/, rp_erep dv)
 {
   /* df = d(u+v) = dv */
   rp_erep_set(df,dv);
 }
 static rp_inline
-void rp_deriv_symb_sub(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_sub(rp_erep * df, rp_erep /* f */, rp_erep du, rp_erep dv)
 {
   /* df = d(u-v) = du - dv */
   rp_erep_create_binary(df,RP_SYMBOL_SUB,du,dv);
 }
 static rp_inline
-void rp_deriv_symb_sub_r_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_sub_r_i(rp_erep * df, rp_erep /* f */, rp_erep /*du*/, rp_erep dv)
 {
   /* df = d(u-v) = - dv */
   rp_erep_create_unary(df,RP_SYMBOL_NEG,dv);
 }
 static rp_inline
-void rp_deriv_symb_sub_i_r(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_sub_i_r(rp_erep * df, rp_erep /* f */, rp_erep du, rp_erep /*dv*/)
 {
   /* df = d(u-v) = du */
   rp_erep_set(df,du);
@@ -1353,7 +1353,7 @@ void rp_deriv_symb_mul(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&v);
 }
 static rp_inline
-void rp_deriv_symb_mul_r_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_mul_r_i(rp_erep * df, rp_erep f, rp_erep /* du */, rp_erep dv)
 {
   /* df = d(u*v) = u*dv */
   rp_erep u;
@@ -1362,7 +1362,7 @@ void rp_deriv_symb_mul_r_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_mul_rneg_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_mul_rneg_i(rp_erep * df, rp_erep f, rp_erep /* du */, rp_erep dv)
 {
   /* df = d(u*v) = u*dv */
   rp_erep u;
@@ -1371,7 +1371,7 @@ void rp_deriv_symb_mul_rneg_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_mul_rpos_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_mul_rpos_i(rp_erep * df, rp_erep f, rp_erep /* du */, rp_erep dv)
 {
   /* df = d(u*v) = u*dv */
   rp_erep u;
@@ -1401,7 +1401,7 @@ void rp_deriv_symb_div(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&w);
 }
 static rp_inline
-void rp_deriv_symb_div_i_r(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_div_i_r(rp_erep * df, rp_erep f, rp_erep du, rp_erep /* dv */)
 {
   /* df = d(u/v) = du/v */
   rp_erep v;
@@ -1410,7 +1410,7 @@ void rp_deriv_symb_div_i_r(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&v);
 }
 static rp_inline
-void rp_deriv_symb_div_i_rpos(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_div_i_rpos(rp_erep * df, rp_erep f, rp_erep du, rp_erep /* dv */)
 {
   /* df = d(u/v) = du/v */
   rp_erep v;
@@ -1419,7 +1419,7 @@ void rp_deriv_symb_div_i_rpos(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&v);
 }
 static rp_inline
-void rp_deriv_symb_div_i_rneg(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_div_i_rneg(rp_erep * df, rp_erep f, rp_erep du, rp_erep /* dv */)
 {
   /* df = d(u/v) = du/v */
   rp_erep v;
@@ -1428,7 +1428,7 @@ void rp_deriv_symb_div_i_rneg(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&v);
 }
 static rp_inline
-void rp_deriv_symb_div_r_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_div_r_i(rp_erep * df, rp_erep f, rp_erep /*du*/, rp_erep dv)
 {
   /* df = d(u/v) = (-u*dv)/v^2 */
   rp_erep g, h, p, u, v;
@@ -1445,7 +1445,7 @@ void rp_deriv_symb_div_r_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&v);
 }
 static rp_inline
-void rp_deriv_symb_div_rpos_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_div_rpos_i(rp_erep * df, rp_erep f, rp_erep /*du*/, rp_erep dv)
 {
   /* df = d(u/v) = (-u*dv)/v^2 */
   rp_erep g, h, p, u, v;
@@ -1462,7 +1462,7 @@ void rp_deriv_symb_div_rpos_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&v);
 }
 static rp_inline
-void rp_deriv_symb_div_rneg_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_div_rneg_i(rp_erep * df, rp_erep f, rp_erep /*du*/, rp_erep dv)
 {
   /* df = d(u/v) = (-u*dv)/v^2 */
   rp_erep g, h, p, u, v;
@@ -1479,7 +1479,7 @@ void rp_deriv_symb_div_rneg_i(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&v);
 }
 static rp_inline
-void rp_deriv_symb_pow(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_pow(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(u^n) := n*u^(n-1)*du */
   int n = (int)rp_binf(rp_erep_right_val(f));
@@ -1500,13 +1500,13 @@ void rp_deriv_symb_pow(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_neg(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_neg(rp_erep * df, rp_erep /*f*/, rp_erep du, rp_erep /*dv*/)
 {
   /* d(-u) = -du */
   rp_erep_create_unary(df,RP_SYMBOL_NEG,du);
 }
 static rp_inline
-void rp_deriv_symb_sqr(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_sqr(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(u^2) = 2*u*du */
   rp_erep g, h, u;
@@ -1521,7 +1521,7 @@ void rp_deriv_symb_sqr(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_sqrt(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_sqrt(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(sqrt(u)) = (0.5*du)/sqrt(u) */
   rp_erep g, h, p, u;
@@ -1538,7 +1538,7 @@ void rp_deriv_symb_sqrt(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_exp(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_exp(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(exp(u) = exp(u)*du */
   rp_erep g, u;
@@ -1549,7 +1549,7 @@ void rp_deriv_symb_exp(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_log(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_log(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(log(u)) = du/u */
   rp_erep u;
@@ -1558,7 +1558,7 @@ void rp_deriv_symb_log(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_sin(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_sin(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(sin(u)) = cos(u)*du */
   rp_erep g, u;
@@ -1569,7 +1569,7 @@ void rp_deriv_symb_sin(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_cos(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_cos(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(cos(u)) = -sin(u)*du */
   rp_erep g, h, u;
@@ -1582,7 +1582,7 @@ void rp_deriv_symb_cos(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_tan(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_tan(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(tan(u)) = (1+tan^2(u))*du */
   rp_erep g, h, p, q, u;
@@ -1601,7 +1601,7 @@ void rp_deriv_symb_tan(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_cosh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_cosh(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(cosh(u)) = sinh(u)*du */
   rp_erep g, u;
@@ -1612,7 +1612,7 @@ void rp_deriv_symb_cosh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_sinh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_sinh(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(sinh(u)) = cosh(u)*du */
   rp_erep g, u;
@@ -1623,7 +1623,7 @@ void rp_deriv_symb_sinh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_tanh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_tanh(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(tanh(u)) = (1-tanh^2(u))*du */
   rp_erep g, h, p, q, u;
@@ -1642,7 +1642,7 @@ void rp_deriv_symb_tanh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_asin(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_asin(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(asin(u)) = du/sqrt(1-u^2) */
   rp_erep g, h, p, q, u;
@@ -1661,7 +1661,7 @@ void rp_deriv_symb_asin(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_acos(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_acos(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(asin(u)) = -du/sqrt(1-u^2) */
   rp_erep g, h, p, q, r, u;
@@ -1682,7 +1682,7 @@ void rp_deriv_symb_acos(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_atan(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_atan(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(atan(u)) = du/(1+u^2) */
   rp_erep g, h, p, u;
@@ -1699,7 +1699,7 @@ void rp_deriv_symb_atan(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_asinh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_asinh(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(asinh(u)) = du/sqrt(1+u^2) */
   rp_erep g, h, p, q, u;
@@ -1718,7 +1718,7 @@ void rp_deriv_symb_asinh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_acosh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_acosh(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(acosh(u)) = du/sqrt(u^2-1) */
   rp_erep g, h, p, q, u;
@@ -1737,7 +1737,7 @@ void rp_deriv_symb_acosh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
   rp_erep_destroy(&u);
 }
 static rp_inline
-void rp_deriv_symb_atanh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_atanh(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* d(atanh(u)) = du/(1-u^2) */
   rp_erep g, h, p, u;
@@ -1755,7 +1755,7 @@ void rp_deriv_symb_atanh(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
 }
 
 static rp_inline
-void rp_deriv_symb_matan(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_matan(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* TODO */
   /* d(atan(u)) = du/(1+u^2) */
@@ -1774,7 +1774,7 @@ void rp_deriv_symb_matan(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
 }
 
 static rp_inline
-void rp_deriv_symb_safesqrt(rp_erep * df, rp_erep f, rp_erep du, rp_erep dv)
+void rp_deriv_symb_safesqrt(rp_erep * df, rp_erep f, rp_erep du, rp_erep /*dv*/)
 {
   /* TODO */
   /* d(atan(u)) = du/(1+u^2) */

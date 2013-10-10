@@ -25,11 +25,11 @@ rp_ofilter::~rp_ofilter()
 {}
 
 // Copy
-rp_ofilter::rp_ofilter(const rp_ofilter& f)
+rp_ofilter::rp_ofilter(const rp_ofilter& /*f*/)
 {}
 
 // Copy protection
-rp_ofilter& rp_ofilter::operator=(const rp_ofilter& f)
+rp_ofilter& rp_ofilter::operator=(const rp_ofilter& /*f*/)
 {
   return( *this );
 }
@@ -87,18 +87,18 @@ void rp_ofilter_text::apply_box(const rp_box& b, const char * msg)
       (*_os) << rp_variable_name(rp_problem_var(*_problem,i));
       if (rp_interval_point(rp_box_elem(b,i)))
       {
-	(*_os) << " = ";
+        (*_os) << " = ";
       }
       else
       {
-	(*_os) << " ~ ";
+        (*_os) << " ~ ";
       }
 
       char tmp[100];
       rp_interval_print(tmp,
-			rp_box_elem(b,i),
-			16,
-			RP_INTERVAL_MODE_BOUND);
+                        rp_box_elem(b,i),
+                        16,
+                        RP_INTERVAL_MODE_BOUND);
       (*_os) << tmp << std::endl;
     }
   }
@@ -109,7 +109,7 @@ rp_ofilter_text::rp_ofilter_text(const rp_ofilter_text& f):
   rp_ofilter(f)
 {}
 
-rp_ofilter_text& rp_ofilter_text::operator=(const rp_ofilter_text& f)
+rp_ofilter_text& rp_ofilter_text::operator=(const rp_ofilter_text& /*f*/)
 {
   return( *this );
 }
@@ -129,7 +129,7 @@ rp_ofilter_pstricks::~rp_ofilter_pstricks()
 {}
 
 // Output of box b for problem p
-void rp_ofilter_pstricks::apply_box(const rp_box& b, const char * msg)
+void rp_ofilter_pstricks::apply_box(const rp_box& b, const char * /*msg*/)
 {
   rp_interval x, y;
   int i, n;
@@ -140,26 +140,26 @@ void rp_ofilter_pstricks::apply_box(const rp_box& b, const char * msg)
     {
       if ((++n)==1)
       {
-	rp_interval_copy(x,rp_box_elem(b,i));
+        rp_interval_copy(x,rp_box_elem(b,i));
       }
       else
       {
-	rp_interval_copy(y,rp_box_elem(b,i));
+        rp_interval_copy(y,rp_box_elem(b,i));
       }
     }
   }
   if (n==2)
   {
     (*_os) << "\\psframe[linewidth=.2pt]("
-	   << rp_binf(x)
-	   << ","
-	   << rp_binf(y)
-	   << ")("
-	   << rp_bsup(x)
-	   << ","
-	   << rp_bsup(y)
-	   << ")"
-	   << std::endl;
+           << rp_binf(x)
+           << ","
+           << rp_binf(y)
+           << ")("
+           << rp_bsup(x)
+           << ","
+           << rp_bsup(y)
+           << ")"
+           << std::endl;
   }
 }
 
@@ -169,7 +169,7 @@ rp_ofilter_pstricks::rp_ofilter_pstricks(const rp_ofilter_pstricks& f):
 {}
 
 rp_ofilter_pstricks&
-rp_ofilter_pstricks::operator=(const rp_ofilter_pstricks& f)
+rp_ofilter_pstricks::operator=(const rp_ofilter_pstricks& /*f*/)
 {
   return( *this );
 }
@@ -180,7 +180,7 @@ rp_ofilter_pstricks::operator=(const rp_ofilter_pstricks& f)
 // ------------------------------------------
 // Constructor
 rp_ofilter_merge::rp_ofilter_merge(rp_problem * p,
-				   std::ostream * os, double eps):
+                                   std::ostream * os, double eps):
   rp_ofilter(p),
   _stack(rp_problem_nvar(*p)),
   _eps(eps),
@@ -221,12 +221,12 @@ void rp_ofilter_merge::compact()
       rp_box sol = _stack.get(i);
       if (this->close_enough(sol,b))
       {
-	rp_box_merge(sol,b);
-	merge = 1;
+        rp_box_merge(sol,b);
+        merge = 1;
       }
       else
       {
-	++i;
+        ++i;
       }
     }
     if (!merge)
@@ -253,8 +253,8 @@ int rp_ofilter_merge::close_enough(const rp_box& b1, const rp_box& b2)
   while ((closeenough) && (j<rp_box_size(b1)))
   {
     if (rp_variable_decision(rp_problem_var(*_problem,j)) &&
-	rp_interval_distance(rp_box_elem(b1,j),
-			     rp_box_elem(b2,j))>_eps)
+        rp_interval_distance(rp_box_elem(b1,j),
+                             rp_box_elem(b2,j))>_eps)
     {
       closeenough = 0;
     }
@@ -268,7 +268,7 @@ int rp_ofilter_merge::close_enough(const rp_box& b1, const rp_box& b2)
 
 
 // Output of box b for problem p
-void rp_ofilter_merge::apply_box(const rp_box& b, const char * msg)
+void rp_ofilter_merge::apply_box(const rp_box& b, const char * /*msg*/)
 {
   // First try to gather b with another box
   for (int i=0; i<_stack.size(); ++i)
@@ -307,7 +307,7 @@ rp_ofilter_merge::rp_ofilter_merge(const rp_ofilter_merge& f):
 {}
 
 rp_ofilter_merge&
-rp_ofilter_merge::operator=(const rp_ofilter_merge& f)
+rp_ofilter_merge::operator=(const rp_ofilter_merge& /*f*/)
 {
   return( *this );
 }

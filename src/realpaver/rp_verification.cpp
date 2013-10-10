@@ -14,7 +14,7 @@
 #include "rp_verification.h"
 
 // -----------------------------------------
-// Base class for solution existence provers 
+// Base class for solution existence provers
 // -----------------------------------------
 rp_existence_prover::rp_existence_prover()
 {}
@@ -22,11 +22,11 @@ rp_existence_prover::rp_existence_prover()
 rp_existence_prover::~rp_existence_prover()
 {}
 
-rp_existence_prover::rp_existence_prover(const rp_existence_prover& p)
+rp_existence_prover::rp_existence_prover(const rp_existence_prover& /*p*/)
 {}
 
 rp_existence_prover&
-rp_existence_prover::operator=(const rp_existence_prover& p)
+rp_existence_prover::operator=(const rp_existence_prover& /*p*/)
 {
   return( *this );
 }
@@ -35,7 +35,7 @@ rp_existence_prover::operator=(const rp_existence_prover& p)
 // Solution existence prover using interval satisfaction over canonical boxes
 // --------------------------------------------------------------------------
 rp_interval_satisfaction_prover::rp_interval_satisfaction_prover(rp_problem * p,
-								 int maxbox):
+                                                                 int maxbox):
   rp_existence_prover(),
   _problem(p),
   _boxes(rp_problem_nvar(*p)),
@@ -73,24 +73,24 @@ int rp_interval_satisfaction_prover::prove(rp_box b)
     {
       if (this->existence(_boxes.get()))
       {
-	rp_box_set_interval_safe(b);
-	return( 1 );
+        rp_box_set_interval_safe(b);
+        return( 1 );
       }
       else if (this->useless_box(_boxes.get()))
       {
-	_boxes.remove();
+        _boxes.remove();
       }
       else
       {
-	int i;
-	if ((i=_select->apply(_boxes.get()))>=0)
-	{
-	  _split->apply(_boxes,i);
-	}
-	else
-	{
-	  _boxes.remove();
-	}
+        int i;
+        if ((i=_select->apply(_boxes.get()))>=0)
+        {
+          _split->apply(_boxes,i);
+        }
+        else
+        {
+          _boxes.remove();
+        }
       }
     }
     else
@@ -137,7 +137,7 @@ rp_interval_satisfaction_prover::rp_interval_satisfaction_prover(const rp_interv
 }
 
 rp_interval_satisfaction_prover&
-rp_interval_satisfaction_prover::operator=(const rp_interval_satisfaction_prover& p)
+rp_interval_satisfaction_prover::operator=(const rp_interval_satisfaction_prover& /*p*/)
 {
   return (*this );
 }

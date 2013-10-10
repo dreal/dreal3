@@ -78,12 +78,12 @@ int rp_var_set::contains(int var) const
   return( 0 );
 }
 
-rp_var_set::rp_var_set(const rp_var_set& s)
+rp_var_set::rp_var_set(const rp_var_set& /*s*/)
 {
   // nothing to do
 }
 
-rp_var_set& rp_var_set::operator=(const rp_var_set& s)
+rp_var_set& rp_var_set::operator=(const rp_var_set& /*s*/)
 {
   // nothing to do
   return( *this );
@@ -107,23 +107,23 @@ rp_selector::rp_selector(rp_problem * p):
     {
       if (rp_variable_integer(v))
       {
-	_var_int_dec.insert(i,rp_variable_constrained(v),rp_variable_precision(v));
+        _var_int_dec.insert(i,rp_variable_constrained(v),rp_variable_precision(v));
       }
       else  /* real variable */
       {
-	_var_real_dec.insert(i,rp_variable_constrained(v),rp_variable_precision(v));
+        _var_real_dec.insert(i,rp_variable_constrained(v),rp_variable_precision(v));
       }
     }
     else  /* auxiliary variable */
     {
       if (rp_variable_integer(v))
       {
-	_var_int_aux.insert(i,rp_variable_constrained(v),rp_variable_precision(v));
+        _var_int_aux.insert(i,rp_variable_constrained(v),rp_variable_precision(v));
       }
       else  /* real variable */
-	if (rp_variable_precision(v)<RP_INFINITY)
+        if (rp_variable_precision(v)<RP_INFINITY)
       {
-	_var_real_aux.insert(i,rp_variable_constrained(v),rp_variable_precision(v));
+        _var_real_aux.insert(i,rp_variable_constrained(v),rp_variable_precision(v));
       }
     }
   }
@@ -140,7 +140,7 @@ int rp_selector::hole(rp_box b, int var) const
   for (int i=0; i<rp_union_card(rp_variable_domain(v)); ++i)
   {
     if (!rp_interval_disjoint(rp_union_elem(rp_variable_domain(v),i),
-			      rp_box_elem(b,var)))
+                              rp_box_elem(b,var)))
     {
       ++n;
     }
@@ -286,7 +286,7 @@ int rp_selector::mindom_int_dec(rp_box b) const
       double w;
       if ((w=rp_interval_width(rp_box_elem(b,var)))<wmin)
       {
-	wmin = w; imin = var;
+        wmin = w; imin = var;
       }
     }
   }
@@ -305,7 +305,7 @@ int rp_selector::mindom_int_aux(rp_box b) const
       double w;
       if ((w=rp_interval_width(rp_box_elem(b,var)))<wmin)
       {
-	wmin = w; imin = var;
+        wmin = w; imin = var;
       }
     }
   }
@@ -324,7 +324,7 @@ int rp_selector::maxdom_real_dec(rp_box b) const
       double w;
       if ((w=rp_interval_width(rp_box_elem(b,var)))>wmax)
       {
-	wmax = w; imax = var;
+        wmax = w; imax = var;
       }
     }
   }
@@ -343,7 +343,7 @@ int rp_selector::maxdom_real_aux(rp_box b) const
       double w;
       if ((w=rp_interval_width(rp_box_elem(b,var)))>wmax)
       {
-	wmax = w; imax = var;
+        wmax = w; imax = var;
       }
     }
   }
@@ -362,7 +362,7 @@ int rp_selector::maxctr_int_dec(rp_box b) const
       int ctr = _var_int_dec.constrained(i);
       if (ctr>ctrmax)
       {
-	ctrmax = ctr; imax = var;
+        ctrmax = ctr; imax = var;
       }
     }
   }
@@ -381,7 +381,7 @@ int rp_selector::maxctr_int_aux(rp_box b) const
       int ctr = _var_int_aux.constrained(i);
       if (ctr>ctrmax)
       {
-	ctrmax = ctr; imax = var;
+        ctrmax = ctr; imax = var;
       }
     }
   }
@@ -400,7 +400,7 @@ int rp_selector::maxctr_real_dec(rp_box b) const
       int ctr = _var_real_dec.constrained(i);
       if (ctr>ctrmax)
       {
-	ctrmax = ctr; imax = var;
+        ctrmax = ctr; imax = var;
       }
     }
   }
@@ -419,7 +419,7 @@ int rp_selector::maxctr_real_aux(rp_box b) const
       int ctr = _var_real_aux.constrained(i);
       if (ctr>ctrmax)
       {
-	ctrmax = ctr; imax = var;
+        ctrmax = ctr; imax = var;
       }
     }
   }
@@ -441,8 +441,8 @@ int rp_selector::rr_int_dec(rp_box b) const
     rp_variable v = rp_problem_var(*_problem,i);
 
     if (rp_variable_integer(v) &&
-	rp_variable_decision(v) &&
-	this->splitable(b,i))
+        rp_variable_decision(v) &&
+        this->splitable(b,i))
     {
       return( i );
     }
@@ -465,8 +465,8 @@ int rp_selector::rr_int_aux(rp_box b) const
     rp_variable v = rp_problem_var(*_problem,i);
 
     if (rp_variable_integer(v) &&
-	(!rp_variable_decision(v)) &&
-	this->splitable(b,i))
+        (!rp_variable_decision(v)) &&
+        this->splitable(b,i))
     {
       return( i );
     }
@@ -489,8 +489,8 @@ int rp_selector::rr_real_dec(rp_box b) const
     rp_variable v = rp_problem_var(*_problem,i);
 
     if (rp_variable_real(v) &&
-	rp_variable_decision(v) &&
-	this->splitable(b,i))
+        rp_variable_decision(v) &&
+        this->splitable(b,i))
     {
       return( i );
     }
@@ -513,8 +513,8 @@ int rp_selector::rr_real_aux(rp_box b) const
     rp_variable v = rp_problem_var(*_problem,i);
 
     if (rp_variable_real(v) &&
-	(!rp_variable_decision(v)) &&
-	this->splitable(b,i))
+        (!rp_variable_decision(v)) &&
+        this->splitable(b,i))
     {
       return( i );
     }
@@ -522,7 +522,7 @@ int rp_selector::rr_real_aux(rp_box b) const
   return( -1 );
 }
 
-rp_selector::rp_selector(const rp_selector& s):
+rp_selector::rp_selector(const rp_selector& /*s*/):
   _problem(NULL),
   _var_int_dec(),
   _var_real_dec(),
@@ -530,7 +530,7 @@ rp_selector::rp_selector(const rp_selector& s):
   _var_real_aux()
 {}
 
-rp_selector& rp_selector::operator=(const rp_selector& s)
+rp_selector& rp_selector::operator=(const rp_selector& /*s*/)
 {
   return( * this );
 }
@@ -561,7 +561,7 @@ rp_selector_decirdom::rp_selector_decirdom(const rp_selector_decirdom& s):
 {}
 
 rp_selector_decirdom&
-rp_selector_decirdom::operator=(const rp_selector_decirdom& s)
+rp_selector_decirdom::operator=(const rp_selector_decirdom& /*s*/)
 {
   return( *this );
 }
@@ -572,7 +572,7 @@ rp_selector_decirdom::operator=(const rp_selector_decirdom& s)
 // with robust strategy (diversification)
 // ---------------------------------------------------
 rp_selector_decirrobust::rp_selector_decirrobust(rp_problem * p,
-						 double ratio):
+                                                 double ratio):
   rp_selector(p),
   _ratio(ratio)
 {}
@@ -618,7 +618,7 @@ rp_selector_decirrobust::rp_selector_decirrobust(const rp_selector_decirrobust& 
 {}
 
 rp_selector_decirrobust&
-rp_selector_decirrobust::operator=(const rp_selector_decirrobust& s)
+rp_selector_decirrobust::operator=(const rp_selector_decirrobust& /*s*/)
 {
   return( *this );
 }
@@ -649,7 +649,7 @@ rp_selector_decirrr::rp_selector_decirrr(const rp_selector_decirrr& s):
 {}
 
 rp_selector_decirrr&
-rp_selector_decirrr::operator=(const rp_selector_decirrr& s)
+rp_selector_decirrr::operator=(const rp_selector_decirrr& /*s*/)
 {
   return( *this );
 }
@@ -680,7 +680,7 @@ rp_selector_decircmax::rp_selector_decircmax(const rp_selector_decircmax& s):
 {}
 
 rp_selector_decircmax&
-rp_selector_decircmax::operator=(const rp_selector_decircmax& s)
+rp_selector_decircmax::operator=(const rp_selector_decircmax& /*s*/)
 {
   return( *this );
 }
@@ -711,7 +711,7 @@ rp_selector_irdom::rp_selector_irdom(const rp_selector_irdom& s):
 {}
 
 rp_selector_irdom&
-rp_selector_irdom::operator=(const rp_selector_irdom& s)
+rp_selector_irdom::operator=(const rp_selector_irdom& /*s*/)
 {
   return( *this );
 }
@@ -742,7 +742,7 @@ rp_selector_ircmax::rp_selector_ircmax(const rp_selector_ircmax& s):
 {}
 
 rp_selector_ircmax&
-rp_selector_ircmax::operator=(const rp_selector_ircmax& s)
+rp_selector_ircmax::operator=(const rp_selector_ircmax& /*s*/)
 {
   return( *this );
 }
@@ -784,7 +784,7 @@ rp_selector_roundrobin::rp_selector_roundrobin(const rp_selector_roundrobin& s):
 {}
 
 rp_selector_roundrobin&
-rp_selector_roundrobin::operator=(const rp_selector_roundrobin& s)
+rp_selector_roundrobin::operator=(const rp_selector_roundrobin& /*s*/)
 {
   return( *this );
 }
@@ -811,8 +811,8 @@ int rp_selector_existence::apply(rp_box b)
       double wi = rp_interval_width(rp_box_elem(b,i));
       if ((maxi==-1) || (wi>wmaxi))
       {
-	wmaxi = wi;
-	maxi = i;
+        wmaxi = wi;
+        maxi = i;
       }
     }
   }
@@ -824,7 +824,7 @@ rp_selector_existence::rp_selector_existence(const rp_selector_existence& s):
 {}
 
 rp_selector_existence&
-rp_selector_existence::operator=(const rp_selector_existence& s)
+rp_selector_existence::operator=(const rp_selector_existence& /*s*/)
 {
   return( *this );
 }

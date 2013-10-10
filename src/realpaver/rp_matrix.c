@@ -47,8 +47,8 @@ void rp_interval_vector_set(rp_interval_vector v, rp_interval i)
 void rp_interval_vector_copy(rp_interval_vector v, rp_interval_vector src)
 {
   memcpy(rp_ivector_ptr(v),
-	 rp_ivector_ptr(src),
-	 rp_ivector_size(v)*sizeof(rp_interval));
+         rp_ivector_ptr(src),
+         rp_ivector_size(v)*sizeof(rp_interval));
 }
 
 /* Display v on out */
@@ -108,14 +108,14 @@ void rp_real_matrix_setid(rp_real_matrix m)
     {
       for (j=0; j<rp_rmatrix_ncol(m); ++j)
       {
-	if (i==j)
-	{
-	  rp_rmatrix_elem(m,i,j) = 1.0;
-	}
-	else
-	{
-	  rp_rmatrix_elem(m,i,j) = 0.0;
-	}
+        if (i==j)
+        {
+          rp_rmatrix_elem(m,i,j) = 1.0;
+        }
+        else
+        {
+          rp_rmatrix_elem(m,i,j) = 0.0;
+        }
       }
     }
   }
@@ -125,15 +125,15 @@ void rp_real_matrix_setid(rp_real_matrix m)
 void rp_real_matrix_copy(rp_real_matrix m, rp_real_matrix src)
 {
   memcpy(rp_rmatrix_ptr(m),
-	 rp_rmatrix_ptr(src),
-	 rp_rmatrix_size(m)*sizeof(double));
+         rp_rmatrix_ptr(src),
+         rp_rmatrix_size(m)*sizeof(double));
 }
 
 /* inv := src-1, id is the identity matrix */
 /* Returns 1 if the matrix can be inverted */
 int rp_real_matrix_inverse(rp_real_matrix inv,
-			   rp_real_matrix src,
-			   rp_real_matrix id)
+                           rp_real_matrix src,
+                           rp_real_matrix id)
 {
   int i, j, k, mpi, xi;
   double mp, x;
@@ -155,8 +155,8 @@ int rp_real_matrix_inverse(rp_real_matrix inv,
       x = rp_abs(rp_rmatrix_elem(src,xi,i));
       if (x > mp)
       {
-	mp = x;
-	mpi = xi;
+        mp = x;
+        mpi = xi;
       }
     }
 
@@ -173,24 +173,24 @@ int rp_real_matrix_inverse(rp_real_matrix inv,
       dq = &(rp_rmatrix_elem(src,mpi,i));
       for (j=i; j<rp_rmatrix_ncol(src); ++j, ++dp, ++dq)
       {
-	/*
-	x = rp_rmatrix_elem(src,i,j);
+        /*
+        x = rp_rmatrix_elem(src,i,j);
         rp_rmatrix_elem(src,i,j) = rp_rmatrix_elem(src,mpi,j);
         rp_rmatrix_elem(src,mpi,j) = x;
-	*/
-	x = (*dp); (*dp) = (*dq); (*dq) = x;
+        */
+        x = (*dp); (*dp) = (*dq); (*dq) = x;
       }
 
       dp = &(rp_rmatrix_elem(inv,i,0));
       dq = &(rp_rmatrix_elem(inv,mpi,0));
       for (j=0; j<rp_rmatrix_ncol(src); ++j, ++dp, ++dq)
       {
-	/*
-	x = rp_rmatrix_elem(inv,i,j);
+        /*
+        x = rp_rmatrix_elem(inv,i,j);
         rp_rmatrix_elem(inv,i,j) = rp_rmatrix_elem(inv,mpi,j);
         rp_rmatrix_elem(inv,mpi,j) = x;
-	*/
-	x = (*dp); (*dp) = (*dq); (*dq) = x;
+        */
+        x = (*dp); (*dp) = (*dq); (*dq) = x;
       }
     }
 
@@ -216,15 +216,15 @@ int rp_real_matrix_inverse(rp_real_matrix inv,
       x = (*dp); /*rp_rmatrix_elem(src,j,i);*/
       for (k=i; k<rp_rmatrix_ncol(src); ++k, ++dp, ++dq)
       {
-	/*rp_rmatrix_elem(src,j,k) -= x*rp_rmatrix_elem(src,i,k);*/
-	(*dp) -= x*(*dq);
+        /*rp_rmatrix_elem(src,j,k) -= x*rp_rmatrix_elem(src,i,k);*/
+        (*dp) -= x*(*dq);
       }
       dp = &(rp_rmatrix_elem(inv,j,0));
       dq = &(rp_rmatrix_elem(inv,i,0));
       for (k=0; k<rp_rmatrix_ncol(src); ++k, ++dp, ++dq)
       {
-	/*rp_rmatrix_elem(inv,j,k) -= x*rp_rmatrix_elem(inv,i,k);*/
-	(*dp) -= x*(*dq);
+        /*rp_rmatrix_elem(inv,j,k) -= x*rp_rmatrix_elem(inv,i,k);*/
+        (*dp) -= x*(*dq);
       }
     }
   } /* end of triangularisation of src */
@@ -240,8 +240,8 @@ int rp_real_matrix_inverse(rp_real_matrix inv,
       dq = &(rp_rmatrix_elem(inv,i,rp_rmatrix_nrow(src)-1));
       for (k=rp_rmatrix_nrow(src)-1; k>=0; --k, --dp, --dq)
       {
-	/*rp_rmatrix_elem(inv,j,k) -= x*rp_rmatrix_elem(inv,i,k);*/
-	(*dp) -= x*(*dq);
+        /*rp_rmatrix_elem(inv,j,k) -= x*rp_rmatrix_elem(inv,i,k);*/
+        (*dp) -= x*(*dq);
       }
     }
   }
@@ -250,8 +250,8 @@ int rp_real_matrix_inverse(rp_real_matrix inv,
 
 /* r := m1 - m2 */
 void rp_real_matrix_sub(rp_real_matrix r,
-			rp_real_matrix m1,
-			rp_real_matrix m2)
+                        rp_real_matrix m1,
+                        rp_real_matrix m2)
 {
   int i, j;
   for (i=0; i<rp_rmatrix_nrow(r); ++i)
@@ -265,7 +265,7 @@ void rp_real_matrix_sub(rp_real_matrix r,
 
 /* r := |m| */
 void rp_real_matrix_abs(rp_real_matrix r,
-			rp_real_matrix m)
+                        rp_real_matrix m)
 {
   int i, j;
   for (i=0; i<rp_rmatrix_nrow(r); ++i)
@@ -273,8 +273,8 @@ void rp_real_matrix_abs(rp_real_matrix r,
     for (j=0; j<rp_rmatrix_ncol(r); ++j)
     {
       rp_rmatrix_elem(r,i,j) = ((rp_rmatrix_elem(m,i,j)<0.0)?
-				   (-rp_rmatrix_elem(m,i,j)):
-				   (rp_rmatrix_elem(m,i,j)));
+                                   (-rp_rmatrix_elem(m,i,j)):
+                                   (rp_rmatrix_elem(m,i,j)));
     }
   }
 }
@@ -295,8 +295,8 @@ int rp_real_matrix_positive(rp_real_matrix m)
 
 /* r_ij := m1_ik * m2_kj */
 void rp_matrix_mul_rm_rm(rp_real_matrix r,
-			 rp_real_matrix m1,
-			 rp_real_matrix m2)
+                         rp_real_matrix m1,
+                         rp_real_matrix m2)
 {
   int i, j, k;
   double * pr = &(rp_rmatrix_elem(r,0,0));
@@ -311,18 +311,18 @@ void rp_matrix_mul_rm_rm(rp_real_matrix r,
       pm1 = &(rp_rmatrix_elem(m1,i,0));
       for (k=0; k<rp_rmatrix_nrow(m2); ++k, ++pm1)
       {
-	if (((*pm1)!=0.0) &&
-	    (rp_rmatrix_elem(m2,k,j)!=0.0))
-	{
-	  (*pr) += (*pm1) * rp_rmatrix_elem(m2,k,j);
-	}
+        if (((*pm1)!=0.0) &&
+            (rp_rmatrix_elem(m2,k,j)!=0.0))
+        {
+          (*pr) += (*pm1) * rp_rmatrix_elem(m2,k,j);
+        }
       }
     }
   }
 }
 
 /* Display m on out */
-void rp_real_matrix_display(FILE * out, rp_real_matrix m, int digits)
+void rp_real_matrix_display(FILE * out, rp_real_matrix m, int /*digits*/)
 {
   int i, j;
   double * p = rp_rmatrix_ptr(m);
@@ -334,7 +334,7 @@ void rp_real_matrix_display(FILE * out, rp_real_matrix m, int digits)
       fprintf(out,"%g",*p);
       if (j<rp_rmatrix_ncol(m)-1)
       {
-	fprintf(out,", ");
+        fprintf(out,", ");
       }
     }
     fprintf(out,")");
@@ -381,8 +381,8 @@ void rp_interval_matrix_set(rp_interval_matrix m, rp_interval src)
 void rp_interval_matrix_copy(rp_interval_matrix m, rp_interval_matrix src)
 {
   memcpy(rp_imatrix_ptr(m),
-	 rp_imatrix_ptr(src),
-	 rp_imatrix_size(m)*sizeof(rp_interval));
+         rp_imatrix_ptr(src),
+         rp_imatrix_size(m)*sizeof(rp_interval));
 }
 
 /* Returns 1 if m is regular <=> every real matrix included in m */
@@ -418,19 +418,19 @@ int rp_interval_matrix_regular(rp_interval_matrix m)
       max = rp_rmatrix_elem(mul,0,0);
       for (i=1; i<rp_rmatrix_nrow(m); ++i)
       {
-	if (max<rp_rmatrix_elem(mul,i,i))
-	  max = rp_rmatrix_elem(mul,i,i);
+        if (max<rp_rmatrix_elem(mul,i,i))
+          max = rp_rmatrix_elem(mul,i,i);
       }
       if (max<1.0)  /* otherwise singular */
       {
-	rp_real_matrix_sub(sub,id,mul);
-	if (rp_real_matrix_inverse(cinv,sub,id))
-	{
-	  if (rp_real_matrix_positive(cinv))
-	  {
-	    result = 1;
-	  }
-	}
+        rp_real_matrix_sub(sub,id,mul);
+        if (rp_real_matrix_inverse(cinv,sub,id))
+        {
+          if (rp_real_matrix_positive(cinv))
+          {
+            result = 1;
+          }
+        }
       }
     }
 
@@ -445,7 +445,7 @@ int rp_interval_matrix_regular(rp_interval_matrix m)
 }
 
 /* Display m on out */
-void rp_interval_matrix_display(FILE * out, rp_interval_matrix m, int digits)
+void rp_interval_matrix_display(FILE * out, rp_interval_matrix m, int /*digits*/)
 {
   int i, j;
   rp_interval * p = rp_imatrix_ptr(m);
@@ -457,7 +457,7 @@ void rp_interval_matrix_display(FILE * out, rp_interval_matrix m, int digits)
       rp_interval_display_simple(*p);
       if (j<rp_imatrix_ncol(m)-1)
       {
-	fprintf(out,", ");
+        fprintf(out,", ");
       }
     }
     fprintf(out,")");
@@ -474,8 +474,8 @@ void rp_interval_matrix_display(FILE * out, rp_interval_matrix m, int digits)
 
 /* r := m*v, dimension of v equal to the number of columns of m */
 void rp_matrix_mul_rm_iv(rp_interval_vector r,
-			 rp_real_matrix m,
-			 rp_interval_vector v)
+                         rp_real_matrix m,
+                         rp_interval_vector v)
 {
   rp_interval * pr = &(rp_ivector_elem(r,0));
   double * pm = &(rp_rmatrix_elem(m,0,0));
@@ -492,10 +492,10 @@ void rp_matrix_mul_rm_iv(rp_interval_vector r,
     {
       if (((*pm)!=0.0) && (!rp_interval_zero(*pv)))
       {
-	rp_interval_set_point(x,*pm);
-	rp_interval_mul_r_i(aux,x,*pv);
-	rp_interval_copy(save,*pr);
-	rp_interval_add(*pr,save,aux);
+        rp_interval_set_point(x,*pm);
+        rp_interval_mul_r_i(aux,x,*pv);
+        rp_interval_copy(save,*pr);
+        rp_interval_add(*pr,save,aux);
       }
     }
   }
@@ -503,8 +503,8 @@ void rp_matrix_mul_rm_iv(rp_interval_vector r,
 
 /* r_ij := m1_ik * m2_kj */
 void rp_matrix_mul_rm_im(rp_interval_matrix r,
-			 rp_real_matrix m1,
-			 rp_interval_matrix m2)
+                         rp_real_matrix m1,
+                         rp_interval_matrix m2)
 {
   int i, j, k;
   rp_interval * pr = &(rp_imatrix_elem(r,0,0));
@@ -520,14 +520,14 @@ void rp_matrix_mul_rm_im(rp_interval_matrix r,
       pm1 = &(rp_rmatrix_elem(m1,i,0));
       for (k=0; k<rp_imatrix_nrow(m2); ++k, ++pm1)
       {
-	if (((*pm1)!=0.0) &&
-	    (!rp_interval_zero(rp_imatrix_elem(m2,k,j))))
-	{
-	  rp_interval_set_point(x,*pm1);
-	  rp_interval_mul_r_i(aux,x,rp_imatrix_elem(m2,k,j));
-	  rp_interval_copy(save,*pr);
-	  rp_interval_add(*pr,save,aux);
-	}
+        if (((*pm1)!=0.0) &&
+            (!rp_interval_zero(rp_imatrix_elem(m2,k,j))))
+        {
+          rp_interval_set_point(x,*pm1);
+          rp_interval_mul_r_i(aux,x,rp_imatrix_elem(m2,k,j));
+          rp_interval_copy(save,*pr);
+          rp_interval_add(*pr,save,aux);
+        }
       }
     }
   }
@@ -535,8 +535,8 @@ void rp_matrix_mul_rm_im(rp_interval_matrix r,
 
 /* Computes center and delta st. src = [center-delta,center+delta] */
 void rp_matrix_center_delta(rp_real_matrix center,
-			    rp_real_matrix delta,
-			    rp_interval_matrix src)
+                            rp_real_matrix delta,
+                            rp_interval_matrix src)
 {
   int i, j;
   for (i=0; i<rp_rmatrix_nrow(src); ++i)
@@ -544,9 +544,9 @@ void rp_matrix_center_delta(rp_real_matrix center,
     for (j=0; j<rp_rmatrix_ncol(src); ++j)
     {
       rp_rmatrix_elem(center,i,j) = 0.5*(rp_binf(rp_rmatrix_elem(src,i,j))+
-					 rp_bsup(rp_rmatrix_elem(src,i,j)));
+                                         rp_bsup(rp_rmatrix_elem(src,i,j)));
       rp_rmatrix_elem(delta,i,j)  = 0.5*(rp_bsup(rp_rmatrix_elem(src,i,j))-
-					 rp_binf(rp_rmatrix_elem(src,i,j)));
+                                         rp_binf(rp_rmatrix_elem(src,i,j)));
     }
   }
 }

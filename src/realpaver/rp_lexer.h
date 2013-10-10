@@ -141,7 +141,7 @@ typedef rp_lexer_def rp_lexer[1];
 int rp_lexer_create_string (rp_lexer * l, const char * src);
 
 /* Creation of a lexical analyzer from a file */
-int rp_lexer_create_file (rp_lexer * l, char * filename);
+int rp_lexer_create_file (rp_lexer * l, const char * filename);
 
 /* Destruction of a lexical analyzer */
 void rp_lexer_destroy (rp_lexer * l);

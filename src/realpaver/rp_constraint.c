@@ -15,7 +15,7 @@
 
 /* Creation of the numerical constraint (l rel r) */
 void rp_ctr_num_create(rp_ctr_num * c,
-		       rp_erep * l, int rel, rp_erep * r)
+                       rp_erep * l, int rel, rp_erep * r)
 {
   rp_malloc(*c,rp_ctr_num,sizeof(rp_ctr_num_def));
 
@@ -30,20 +30,20 @@ void rp_ctr_num_create(rp_ctr_num * c,
     switch( rel )
     {
       case RP_RELATION_EQUAL:
-	rp_ctr_num_relfunc(*c) = RP_RELATION_EQUAL;
-	break;
+        rp_ctr_num_relfunc(*c) = RP_RELATION_EQUAL;
+        break;
 
       case RP_RELATION_SUPEQUAL:
-	rp_ctr_num_relfunc(*c) = RP_RELATION_INFEQUAL;
-	break;
+        rp_ctr_num_relfunc(*c) = RP_RELATION_INFEQUAL;
+        break;
 
       case RP_RELATION_INFEQUAL:
-	rp_ctr_num_relfunc(*c) = RP_RELATION_SUPEQUAL;
-	break;
+        rp_ctr_num_relfunc(*c) = RP_RELATION_SUPEQUAL;
+        break;
     }
   }
   else if((rp_erep_type(*r)==RP_EREP_NODE_CST) &&
-	  (rp_interval_zero(rp_erep_val(*r))))
+          (rp_interval_zero(rp_erep_val(*r))))
   {
     /* l rel 0 */
     rp_erep lc;
@@ -94,7 +94,7 @@ int rp_ctr_numeq_unfeasible(rp_ctr_num c, rp_box b)
     /* unfeasible if empty intersection */
     rp_interval i;
     rp_interval_inter(i,rp_expression_val(rp_ctr_num_left(c)),
-		        rp_expression_val(rp_ctr_num_right(c)));
+                        rp_expression_val(rp_ctr_num_right(c)));
     res = rp_interval_empty(i);
   }
   return( res );
@@ -114,7 +114,7 @@ int rp_ctr_numsup_unfeasible(rp_ctr_num c, rp_box b)
   {
     /* unfeasible if left is entirely smaller than right */
     res = (rp_bsup(rp_expression_val(rp_ctr_num_left(c))) <
-	   rp_binf(rp_expression_val(rp_ctr_num_right(c))));
+           rp_binf(rp_expression_val(rp_ctr_num_right(c))));
   }
   return( res );
 }
@@ -133,7 +133,7 @@ int rp_ctr_numinf_unfeasible(rp_ctr_num c, rp_box b)
   {
     /* unfeasible if left is entirely greater than right */
     res = (rp_binf(rp_expression_val(rp_ctr_num_left(c))) >
-	   rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
+           rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
   }
   return( res );
 }
@@ -173,8 +173,8 @@ int rp_ctr_numeq_inner(rp_ctr_num c, rp_box b)
   {
     /* inner if the value of both expressions is a number */
     res = (rp_interval_point(rp_expression_val(rp_ctr_num_left(c))) &&
-	   rp_interval_equal(rp_expression_val(rp_ctr_num_left(c)),
-			     rp_expression_val(rp_ctr_num_right(c))));
+           rp_interval_equal(rp_expression_val(rp_ctr_num_left(c)),
+                             rp_expression_val(rp_ctr_num_right(c))));
   }
   return( res );
 }
@@ -193,7 +193,7 @@ int rp_ctr_numsup_inner(rp_ctr_num c, rp_box b)
   {
     /* inner if left is greater than right */
     res = (rp_binf(rp_expression_val(rp_ctr_num_left(c))) >=
-	   rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
+           rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
   }
   return( res );
 }
@@ -212,7 +212,7 @@ int rp_ctr_numinf_inner(rp_ctr_num c, rp_box b)
   {
     /* inner if left is smaller than right */
     res = (rp_bsup(rp_expression_val(rp_ctr_num_left(c))) <=
-	   rp_binf(rp_expression_val(rp_ctr_num_right(c))));
+           rp_binf(rp_expression_val(rp_ctr_num_right(c))));
   }
   return( res );
 }
@@ -226,7 +226,7 @@ int rp_ctr_num_inner(rp_ctr_num c, rp_box b)
     case RP_RELATION_EQUAL:
       res = rp_ctr_numeq_inner(c,b);
       break;
-      
+
     case RP_RELATION_SUPEQUAL:
       res = rp_ctr_numsup_inner(c,b);
       break;
@@ -240,10 +240,10 @@ int rp_ctr_num_inner(rp_ctr_num c, rp_box b)
 
 /* Display c on out */
 void rp_ctr_num_display(FILE* out, rp_ctr_num c,
-			rp_vector_variable var, int digits)
+                        rp_vector_variable var, int digits)
 {
   rp_expression_display(out,rp_ctr_num_left(c),var,digits,
-			RP_INTERVAL_MODE_BOUND);
+                        RP_INTERVAL_MODE_BOUND);
   switch( rp_ctr_num_rel(c) )
   {
     case RP_RELATION_EQUAL:
@@ -259,7 +259,7 @@ void rp_ctr_num_display(FILE* out, rp_ctr_num c,
       break;
   }
   rp_expression_display(out,rp_ctr_num_right(c),var,digits,
-			RP_INTERVAL_MODE_BOUND);
+                        RP_INTERVAL_MODE_BOUND);
 }
 
 /* Creation of an empty piecewise constraint for variable v */
@@ -306,14 +306,14 @@ int rp_ctr_piecewise_insert_domain(rp_ctr_piecewise c, rp_interval x)
   if (i==0)
   {
     rp_malloc(rp_ctr_piecewise_ptr(c),
-	      rp_ctr_piecewise_elem*,
-	      sizeof(rp_ctr_piecewise_elem));
+              rp_ctr_piecewise_elem*,
+              sizeof(rp_ctr_piecewise_elem));
   }
   else
   {
     rp_realloc(rp_ctr_piecewise_ptr(c),
-	       rp_ctr_piecewise_elem*,
-	       rp_ctr_piecewise_arity(c)*sizeof(rp_ctr_piecewise_elem));
+               rp_ctr_piecewise_elem*,
+               rp_ctr_piecewise_arity(c)*sizeof(rp_ctr_piecewise_elem));
   }
   rp_interval_copy(rp_ctr_piecewise_elem_dom(c,i),x);
   rp_ctr_piecewise_elem_size(c,i) = 0;
@@ -326,23 +326,23 @@ int rp_ctr_piecewise_insert_domain(rp_ctr_piecewise c, rp_interval x)
   {
     /* non empty intersection, must be reduced to one point */
     if ((rp_union_card(aux)==1) &&
-	(rp_interval_point(rp_union_elem(aux,0))))
+        (rp_interval_point(rp_union_elem(aux,0))))
     {
       if (rp_union_contains(rp_ctr_piecewise_guard(c),rp_binf(x)))
       {
-	rp_binf(x) = rp_next_double(rp_binf(x));
+        rp_binf(x) = rp_next_double(rp_binf(x));
       }
       else if(rp_union_contains(rp_ctr_piecewise_guard(c),rp_bsup(x)))
       {
-	rp_bsup(x) = rp_prev_double(rp_bsup(x));
+        rp_bsup(x) = rp_prev_double(rp_bsup(x));
       }
       if (rp_interval_empty(x))
       {
-	result = 0;
+        result = 0;
       }
       else
       {
-	rp_union_insert(rp_ctr_piecewise_guard(c),x);
+        rp_union_insert(rp_ctr_piecewise_guard(c),x);
       }
     }
     else
@@ -367,14 +367,14 @@ void rp_ctr_piecewise_insert_constraint(rp_ctr_piecewise c, rp_ctr_num ctr)
   if (j==0)
   {
     rp_malloc(rp_ctr_piecewise_elem_ptr(c,i),
-	      rp_ctr_num*,
-	      sizeof(rp_ctr_num));
+              rp_ctr_num*,
+              sizeof(rp_ctr_num));
   }
   else
   {
     rp_realloc(rp_ctr_piecewise_elem_ptr(c,i),
-	       rp_ctr_num*,
-	       rp_ctr_piecewise_elem_size(c,i)*sizeof(rp_ctr_num));
+               rp_ctr_num*,
+               rp_ctr_piecewise_elem_size(c,i)*sizeof(rp_ctr_num));
   }
   rp_ctr_piecewise_elem_ctrnum(c,i,j) = ctr;
 }
@@ -392,24 +392,24 @@ int rp_ctr_piecewise_unfeasible(rp_ctr_piecewise c, rp_box b)
   {
     /* domain of x and Ik intersects and Ck not unfeasible */
     if ((!rp_interval_disjoint(rp_box_elem(b,rp_ctr_piecewise_var(c)),
-			       rp_ctr_piecewise_elem_dom(c,k))))
+                               rp_ctr_piecewise_elem_dom(c,k))))
     {
       int j = 0,
-	  feasible = 1;
+          feasible = 1;
       while (feasible && (j<rp_ctr_piecewise_elem_size(c,k)))
       {
-	if (rp_ctr_num_unfeasible(rp_ctr_piecewise_elem_ctrnum(c,k,j),b))
-	{
-	  feasible = 0;
-	}
-	else
-	{
+        if (rp_ctr_num_unfeasible(rp_ctr_piecewise_elem_ctrnum(c,k,j),b))
+        {
+          feasible = 0;
+        }
+        else
+        {
           ++j;
-	}
+        }
       }
       if (feasible)
       {
-	return( 0 );  /* c is not unfeasible */
+        return( 0 );  /* c is not unfeasible */
       }
     }
   }
@@ -417,7 +417,7 @@ int rp_ctr_piecewise_unfeasible(rp_ctr_piecewise c, rp_box b)
 }
 
 /* Returns true if all the points of b are solutions of c */
-int rp_ctr_piecewise_inner(rp_ctr_piecewise c, rp_box b)
+int rp_ctr_piecewise_inner(rp_ctr_piecewise /*c*/, rp_box /*b*/)
 {
   /* TO BE IMPLEMENTED */
   return( 0 );
@@ -425,11 +425,11 @@ int rp_ctr_piecewise_inner(rp_ctr_piecewise c, rp_box b)
 
 /* Display c on out */
 void rp_ctr_piecewise_display(FILE* out, rp_ctr_piecewise c,
-			      rp_vector_variable var, int digits)
+                              rp_vector_variable var, int digits)
 {
   int i, j;
   fprintf(out,"piecewise(%s, ",
-	  rp_variable_name(rp_vector_variable_elem(var,rp_ctr_piecewise_var(c))));
+          rp_variable_name(rp_vector_variable_elem(var,rp_ctr_piecewise_var(c))));
   for (i=0; i<rp_ctr_piecewise_arity(c); ++i)
   {
     rp_interval_display_bounds(out,rp_ctr_piecewise_elem_dom(c,i),digits);
@@ -439,7 +439,7 @@ void rp_ctr_piecewise_display(FILE* out, rp_ctr_piecewise c,
       rp_ctr_num_display(out,rp_ctr_piecewise_elem_ctrnum(c,i,j),var,digits);
       if (j<rp_ctr_piecewise_elem_size(c,i)-1)
       {
-	fprintf(out," # ");
+        fprintf(out," # ");
       }
     }
     if (i<rp_ctr_piecewise_arity(c)-1)
@@ -497,8 +497,8 @@ void rp_ctr_cond_insert_guard(rp_ctr_cond c, rp_ctr_num guard)
   else
   {
     rp_realloc(rp_ctr_cond_guard(c),
-	       rp_ctr_num*,
-	       rp_ctr_cond_guardsize(c)*sizeof(rp_ctr_num));
+               rp_ctr_num*,
+               rp_ctr_cond_guardsize(c)*sizeof(rp_ctr_num));
   }
   rp_ctr_cond_guard_elem(c,rp_ctr_cond_guardsize(c)-1) = guard;
 }
@@ -514,15 +514,15 @@ void rp_ctr_cond_insert_conc(rp_ctr_cond c, rp_ctr_num conc)
   else
   {
     rp_realloc(rp_ctr_cond_conc(c),
-	       rp_ctr_num*,
-	       rp_ctr_cond_concsize(c)*sizeof(rp_ctr_num));
+               rp_ctr_num*,
+               rp_ctr_cond_concsize(c)*sizeof(rp_ctr_num));
   }
   rp_ctr_cond_conc_elem(c,rp_ctr_cond_concsize(c)-1) = conc;
 }
 
 /* Display c on out */
 void rp_ctr_cond_display(FILE* out, rp_ctr_cond c,
-			 rp_vector_variable var, int digits)
+                         rp_vector_variable var, int digits)
 {
   int i;
   for (i=0; i<rp_ctr_cond_guardsize(c); ++i)
@@ -669,7 +669,7 @@ void rp_constraint_create_cond(rp_constraint * c, rp_ctr_cond cond)
 
 /* Creation of a constraint representing a piecewise constraint */
 void rp_constraint_create_piece (rp_constraint * c,
-				 rp_ctr_piecewise piece)
+                                 rp_ctr_piecewise piece)
 {
   int i, j;
   rp_malloc(*c,rp_constraint,sizeof(rp_constraint_def));
@@ -719,7 +719,7 @@ void rp_constraint_destroy (rp_constraint * c)
 
 /* Display c on out */
 void rp_constraint_display(FILE* out, rp_constraint c,
-			   rp_vector_variable var, int digits)
+                           rp_vector_variable var, int digits)
 {
   switch (rp_constraint_type(c))
   {
@@ -793,7 +793,7 @@ void rp_constraint_vector_free(void * x)
 }
 
 /* Display function for constraints in vectors */
-void rp_constraint_vector_display(FILE * out, void * x)
+void rp_constraint_vector_display(FILE * /*out*/, void * /*x*/)
 {
   /* nothing here */
 }
@@ -809,9 +809,9 @@ void rp_vector_constraint_create(rp_vector * v)
 
 /* Display v on out */
 void rp_vector_constraint_display(FILE * out,
-				  rp_vector_constraint v,
-				  rp_vector_variable vars,
-				  int digits)
+                                  rp_vector_constraint v,
+                                  rp_vector_variable vars,
+                                  int digits)
 {
   if (rp_vector_size(v)==0)
   {

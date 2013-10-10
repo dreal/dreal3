@@ -39,7 +39,7 @@ rp_operator::rp_operator(const rp_operator& o):
 {}
 
 // Copy protection --> nothing to do
-rp_operator& rp_operator::operator=(const rp_operator& o)
+rp_operator& rp_operator::operator=(const rp_operator& /*o*/)
 {
   return( *this );
 }
@@ -91,7 +91,7 @@ int rp_operator_test::var(int i) const
   return( rp_constraint_var(_c,i) );
 }
 
-int rp_operator_test::pruned_var(int i) const
+int rp_operator_test::pruned_var(int /*i*/) const
 {
   return( -1 );
 }
@@ -101,14 +101,14 @@ int rp_operator_test::apply(rp_box b)
   return( !rp_constraint_unfeasible(_c,b) );
 }
 
-rp_operator_test::rp_operator_test(const rp_operator_test& o):
+rp_operator_test::rp_operator_test(const rp_operator_test& /*o*/):
   rp_operator(0,0,0)
 {
   // nothing to do
 }
 
 rp_operator_test&
-rp_operator_test::operator=(const rp_operator_test& o)
+rp_operator_test::operator=(const rp_operator_test& /*o*/)
 {
   return( *this );
 }
@@ -195,14 +195,14 @@ int rp_operator_cond::apply(rp_box b)
 }
 
 // Copy protection
-rp_operator_cond::rp_operator_cond(const rp_operator_cond& o):
+rp_operator_cond::rp_operator_cond(const rp_operator_cond& /*o*/):
   rp_operator(0,0,0)
 {
   // nothing to do
 }
 
 rp_operator_cond&
-rp_operator_cond::operator=(const rp_operator_cond& o)
+rp_operator_cond::operator=(const rp_operator_cond& /*o*/)
 {
   return( *this );
 }
@@ -213,8 +213,8 @@ rp_operator_cond::operator=(const rp_operator_cond& o)
 
 // Construction
 rp_operator_condvar::rp_operator_condvar(int v,
-					 rp_interval x,
-					 rp_operator * o):
+                                         rp_interval x,
+                                         rp_operator * o):
   rp_operator(o->priority(),0,o->pruned_arity()),
   _v(v),
   _o(o)
@@ -270,14 +270,14 @@ int rp_operator_condvar::apply(rp_box b)
 }
 
 // Copy protection
-rp_operator_condvar::rp_operator_condvar(const rp_operator_condvar& o):
+rp_operator_condvar::rp_operator_condvar(const rp_operator_condvar& /*o*/):
   rp_operator(0,0,0)
 {
   // nothing to do
 }
 
 rp_operator_condvar&
-rp_operator_condvar::operator=(const rp_operator_condvar& o)
+rp_operator_condvar::operator=(const rp_operator_condvar& /*o*/)
 {
   return( *this );
 }
@@ -301,7 +301,7 @@ rp_operator_piecewise::rp_operator_piecewise(rp_ctr_piecewise c):
       rp_ctr_num cnum = rp_ctr_piecewise_elem_ctrnum(c,i,j);
       for (int k=0; k<rp_ctr_num_arity(cnum); ++k)
       {
-	rp_intset_insert(_vars,rp_ctr_num_var(cnum,k));
+        rp_intset_insert(_vars,rp_ctr_num_var(cnum,k));
       }
     }
   }
@@ -326,7 +326,7 @@ int rp_operator_piecewise::arity() const
 }
 
 // Variables that can be pruned by the operator
-int rp_operator_piecewise::pruned_var(int i) const
+int rp_operator_piecewise::pruned_var(int /*i*/) const
 {
   return( rp_ctr_piecewise_var(_c) );
 }
@@ -343,7 +343,7 @@ int rp_operator_piecewise::apply(rp_box b)
     {
       if (rp_ctr_num_unfeasible(rp_ctr_piecewise_elem_ctrnum(_c,i,j),b))
       {
-	violated = 1;
+        violated = 1;
       }
       else ++j;
     }
@@ -353,12 +353,12 @@ int rp_operator_piecewise::apply(rp_box b)
       rp_interval aux;
       rp_interval_copy(aux,rp_box_elem(b,rp_ctr_piecewise_var(_c)));
       rp_interval_setminus(rp_box_elem(b,rp_ctr_piecewise_var(_c)),
-			   aux,
-			   rp_ctr_piecewise_elem_dom(_c,i));
+                           aux,
+                           rp_ctr_piecewise_elem_dom(_c,i));
 
       if (rp_interval_empty(rp_box_elem(b,rp_ctr_piecewise_var(_c))))
       {
-	return( 0 );
+        return( 0 );
       }
     }
   }
@@ -369,7 +369,7 @@ int rp_operator_piecewise::apply(rp_box b)
   while ((!intersect) && (i<rp_ctr_piecewise_arity(_c)))
   {
     if (!rp_interval_disjoint(rp_box_elem(b,rp_ctr_piecewise_var(_c)),
-			      rp_ctr_piecewise_elem_dom(_c,i)))
+                              rp_ctr_piecewise_elem_dom(_c,i)))
     {
       intersect = 1;
     }
@@ -379,53 +379,17 @@ int rp_operator_piecewise::apply(rp_box b)
 }
 
 // Copy protection
-rp_operator_piecewise::rp_operator_piecewise(const rp_operator_piecewise& o):
+rp_operator_piecewise::rp_operator_piecewise(const rp_operator_piecewise& /*o*/):
   rp_operator(0,0,0)
 {
   // nothing to do
 }
 
 rp_operator_piecewise&
-rp_operator_piecewise::operator=(const rp_operator_piecewise& o)
+rp_operator_piecewise::operator=(const rp_operator_piecewise& /*o*/)
 {
   return( *this );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // --------------------------------------------------------------------
 // Specific operator based on hull consistency over numerical equations
@@ -434,8 +398,8 @@ rp_operator_piecewise::operator=(const rp_operator_piecewise& o)
 // Hull consistency operator over numerical equations
 rp_operator_hull_eq::rp_operator_hull_eq(rp_ctr_num c):
   rp_operator(RP_OPERATOR_HULL_PRIORITY,
-	      rp_ctr_num_arity(c),
-	      rp_ctr_num_arity(c)),
+              rp_ctr_num_arity(c),
+              rp_ctr_num_arity(c)),
   _c(c)
 {}
 
@@ -450,7 +414,7 @@ rp_operator_hull_eq::rp_operator_hull_eq(const rp_operator_hull_eq& o):
 
 // Copy protection --> nothing to do
 rp_operator_hull_eq&
-rp_operator_hull_eq::operator=(const rp_operator_hull_eq& o)
+rp_operator_hull_eq::operator=(const rp_operator_hull_eq& /*o*/)
 {
   return( *this );
 }
@@ -480,8 +444,8 @@ int rp_operator_hull_eq::pruned_var(int i) const
 // Hull consistency operator over numerical inequalities f<=0
 rp_operator_hull_inf::rp_operator_hull_inf(rp_ctr_num c):
   rp_operator(RP_OPERATOR_HULL_PRIORITY,
-	      rp_ctr_num_arity(c),
-	      rp_ctr_num_arity(c)),
+              rp_ctr_num_arity(c),
+              rp_ctr_num_arity(c)),
   _c(c)
 {}
 
@@ -496,7 +460,7 @@ rp_operator_hull_inf::rp_operator_hull_inf(const rp_operator_hull_inf& o):
 
 // Copy protection --> nothing to do
 rp_operator_hull_inf&
-rp_operator_hull_inf::operator=(const rp_operator_hull_inf& o)
+rp_operator_hull_inf::operator=(const rp_operator_hull_inf& /*o*/)
 {
   return( *this );
 }
@@ -526,8 +490,8 @@ int rp_operator_hull_inf::pruned_var(int i) const
 // Hull consistency operator over numerical inequalities f>=0
 rp_operator_hull_sup::rp_operator_hull_sup(rp_ctr_num c):
   rp_operator(RP_OPERATOR_HULL_PRIORITY,
-	      rp_ctr_num_arity(c),
-	      rp_ctr_num_arity(c)),
+              rp_ctr_num_arity(c),
+              rp_ctr_num_arity(c)),
   _c(c)
 {}
 
@@ -542,7 +506,7 @@ rp_operator_hull_sup::rp_operator_hull_sup(const rp_operator_hull_sup& o):
 
 // Copy protection --> nothing to do
 rp_operator_hull_sup&
-rp_operator_hull_sup::operator=(const rp_operator_hull_sup& o)
+rp_operator_hull_sup::operator=(const rp_operator_hull_sup& /*o*/)
 {
   return( *this );
 }
@@ -571,9 +535,9 @@ int rp_operator_hull_sup::pruned_var(int i) const
 
 // Construction
 rp_operator_box_eq::rp_operator_box_eq(rp_expression f,
-				       int x,
-				       double improve,
-				       double eps):
+                                       int x,
+                                       double improve,
+                                       double eps):
   rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(f),1),
   _x(x),
   _improve(improve),
@@ -633,14 +597,14 @@ int rp_operator_box_eq::var(int i) const
 }
 
 // Variables that can be pruned by the operator
-int rp_operator_box_eq::pruned_var(int i) const
+int rp_operator_box_eq::pruned_var(int /*i*/) const
 {
   return( _x );
 }
 
 // Copy protection
 rp_operator_box_eq&
-rp_operator_box_eq::operator=(const rp_operator_box_eq& o)
+rp_operator_box_eq::operator=(const rp_operator_box_eq& /*o*/)
 {
   return( *this );
 }
@@ -651,9 +615,9 @@ rp_operator_box_eq::operator=(const rp_operator_box_eq& o)
 
 // Construction
 rp_operator_box_inf::rp_operator_box_inf(rp_expression f,
-					 int x,
-					 double improve,
-					 double eps):
+                                         int x,
+                                         double improve,
+                                         double eps):
   rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(f),1),
   _x(x),
   _improve(improve),
@@ -713,14 +677,14 @@ int rp_operator_box_inf::var(int i) const
 }
 
 // Variables that can be pruned by the operator
-int rp_operator_box_inf::pruned_var(int i) const
+int rp_operator_box_inf::pruned_var(int /*i*/) const
 {
   return( _x );
 }
 
 // Copy protection
 rp_operator_box_inf&
-rp_operator_box_inf::operator=(const rp_operator_box_inf& o)
+rp_operator_box_inf::operator=(const rp_operator_box_inf& /*o*/)
 {
   return( *this );
 }
@@ -731,9 +695,9 @@ rp_operator_box_inf::operator=(const rp_operator_box_inf& o)
 
 // Construction
 rp_operator_box_sup::rp_operator_box_sup(rp_expression f,
-					 int x,
-					 double improve,
-					 double eps):
+                                         int x,
+                                         double improve,
+                                         double eps):
   rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(f),1),
   _x(x),
   _improve(improve),
@@ -793,14 +757,14 @@ int rp_operator_box_sup::var(int i) const
 }
 
 // Variables that can be pruned by the operator
-int rp_operator_box_sup::pruned_var(int i) const
+int rp_operator_box_sup::pruned_var(int /*i*/) const
 {
   return( _x );
 }
 
 // Copy protection
 rp_operator_box_sup&
-rp_operator_box_sup::operator=(const rp_operator_box_sup& o)
+rp_operator_box_sup::operator=(const rp_operator_box_sup& /*o*/)
 {
   return( *this );
 }
@@ -846,20 +810,20 @@ int rp_operator_domain::apply(rp_box b)
 }
 
 // Variables on which the operator depends
-int rp_operator_domain::var(int i) const
+int rp_operator_domain::var(int /*i*/) const
 {
   return( _id );
 }
 
 // Variables that can be pruned by the operator
-int rp_operator_domain::pruned_var(int i) const
+int rp_operator_domain::pruned_var(int /*i*/) const
 {
   return( _id );
 }
 
 // Copy protection
 rp_operator_domain&
-rp_operator_domain::operator=(const rp_operator_domain& o)
+rp_operator_domain::operator=(const rp_operator_domain& /*o*/)
 {
   return( *this );
 }
@@ -870,7 +834,7 @@ rp_operator_domain::operator=(const rp_operator_domain& o)
 
 // Construction
 rp_operator_newton::rp_operator_newton(const rp_problem * p,
-				       int n, double improve):
+                                       int n, double improve):
   rp_operator(RP_OPERATOR_NEWTON_PRIORITY,n,n),
   _problem(const_cast<rp_problem*>(p)),
   _improve(improve),
@@ -963,8 +927,8 @@ void rp_operator_newton::compute_unknown(rp_box b)
   for (int i=0; i<_arity; ++i)
   {
     rp_interval_sub(rp_ivector_elem(_unknown,i),
-		    rp_box_elem(b,_v[i]),
-		    rp_box_elem(_midpoint,_v[i]));
+                    rp_box_elem(b,_v[i]),
+                    rp_box_elem(_midpoint,_v[i]));
   }
 }
 
@@ -989,7 +953,7 @@ void rp_operator_newton::compute_midpoint(rp_box b)
   for (int i=0; i<_arity; ++i)
   {
     rp_interval_set_point(rp_box_elem(_midpoint,_v[i]),
-			  rp_interval_midpoint(rp_box_elem(b,_v[i])));
+                          rp_interval_midpoint(rp_box_elem(b,_v[i])));
   }
 }
 
@@ -1030,8 +994,8 @@ int rp_operator_newton::compute_jacobi(rp_box b)
       /* for every variable of _f[i] */
       for (int j=0; j<rp_expression_arity(_f[i]); ++j)
       {
-	rp_interval_copy(rp_imatrix_elem(_jacobi,i,_vf[i][j]),
-			 rp_expression_deriv_local_val(_f[i],j));
+        rp_interval_copy(rp_imatrix_elem(_jacobi,i,_vf[i][j]),
+                         rp_expression_deriv_local_val(_f[i],j));
       }
     }
     else
@@ -1120,11 +1084,11 @@ int rp_operator_newton::pruned_var(int i) const
 }
 
 // Copy protection
-rp_operator_newton::rp_operator_newton(const rp_operator_newton& o):
+rp_operator_newton::rp_operator_newton(const rp_operator_newton& /*o*/):
   rp_operator(0,0,0)
 {}
 
-rp_operator_newton& rp_operator_newton::operator=(const rp_operator_newton& o)
+rp_operator_newton& rp_operator_newton::operator=(const rp_operator_newton& /*o*/)
 {
   return( *this );
 }
@@ -1136,7 +1100,7 @@ rp_operator_newton& rp_operator_newton::operator=(const rp_operator_newton& o)
 
 // Construction of operator
 rp_operator_3b::rp_operator_3b(const rp_problem * p,
-			       rp_operator * o, int v, double improve):
+                               rp_operator * o, int v, double improve):
   rp_operator(o->priority()+RP_OPERATOR_3B_PRIORITY,0,0),
   _v(v),
   _improve(0.125),  /* 12.5% */
@@ -1225,7 +1189,7 @@ rp_operator_3b::rp_operator_3b(const rp_operator_3b& o):
 {}
 
 rp_operator_3b&
-rp_operator_3b::operator=(const rp_operator_3b& o)
+rp_operator_3b::operator=(const rp_operator_3b& /*o*/)
 {
   return( *this );
 }

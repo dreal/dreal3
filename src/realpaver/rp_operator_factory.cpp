@@ -49,7 +49,7 @@ void rp_operator_factory::build(const rp_problem& p, rp_vector& vec)
 
 // Creation of a set of operators from c and insertion in the vector
 void rp_operator_factory::build(const rp_problem& p,
-				const rp_constraint& c, rp_vector& vec)
+                                const rp_constraint& c, rp_vector& vec)
 {
   switch( rp_constraint_type(c) )
   {
@@ -69,7 +69,7 @@ void rp_operator_factory::build(const rp_problem& p,
 
 // Creation of a set of operators from c and insertion in the vector
 void rp_operator_factory::build(const rp_problem& p,
-				const rp_ctr_num& c, rp_vector& vec)
+                                const rp_ctr_num& c, rp_vector& vec)
 {
   // For every variable occurring in the constraint
   for (int i=0; i<rp_ctr_num_arity(c); ++i)
@@ -80,7 +80,7 @@ void rp_operator_factory::build(const rp_problem& p,
 
 // Creation of a set of operators from c and insertion in the vector
 void rp_operator_factory::build(const rp_problem& p,
-				const rp_ctr_cond& c, rp_vector& vec)
+                                const rp_ctr_cond& c, rp_vector& vec)
 {
   // creation of the operators associated to the conclusion
   rp_vector vconc;
@@ -104,7 +104,7 @@ void rp_operator_factory::build(const rp_problem& p,
 
 // Creation of a set of operators from c and insertion in the vector
 void rp_operator_factory::build(const rp_problem& p,
-				const rp_ctr_piecewise& c, rp_vector& vec)
+                                const rp_ctr_piecewise& c, rp_vector& vec)
 {
   // processing of each piece
   for (int i=0; i<rp_ctr_piecewise_arity(c); ++i)
@@ -123,8 +123,8 @@ void rp_operator_factory::build(const rp_problem& p,
     {
       rp_operator_condvar * o;
       rp_new(o,rp_operator_condvar,(rp_ctr_piecewise_var(c),
-				    rp_ctr_piecewise_elem_dom(c,i),
-				    (rp_operator*)rp_vector_elem(vconc,j)));
+                                    rp_ctr_piecewise_elem_dom(c,i),
+                                    (rp_operator*)rp_vector_elem(vconc,j)));
       rp_vector_insert(vec,o);
     }
 
@@ -139,19 +139,19 @@ void rp_operator_factory::build(const rp_problem& p,
 }
 
 // Creation of a set of operators from c and insertion in the vector
-void rp_operator_factory::build(const rp_problem& p,
-				const rp_ctr_num& c, int var, rp_vector& vec)
+void rp_operator_factory::build(const rp_problem& /* p */,
+                                const rp_ctr_num& /* c */, int /* var */, rp_vector& /*vec*/)
 {
   // no default implementation
 }
 
 // Copy
-rp_operator_factory::rp_operator_factory(const rp_operator_factory& g)
+rp_operator_factory::rp_operator_factory(const rp_operator_factory& /*g*/)
 {}
 
 // Copy protection
 rp_operator_factory&
-rp_operator_factory::operator=(const rp_operator_factory& g)
+rp_operator_factory::operator=(const rp_operator_factory& /*g*/)
 {
   return( *this );
 }
@@ -195,7 +195,7 @@ rp_domain_factory::rp_domain_factory(const rp_domain_factory& g):
 
 // Copy
 rp_domain_factory&
-rp_domain_factory::operator=(const rp_domain_factory& g)
+rp_domain_factory::operator=(const rp_domain_factory& /*g*/)
 {
   // --> nothing to do
   return( *this );
@@ -214,8 +214,8 @@ rp_hull_factory::~rp_hull_factory()
 {}
 
 // Creation of a set of operators from p and insertion in vop
-void rp_hull_factory::build(const rp_problem& p,
-			    const rp_ctr_num& c, rp_vector& vec)
+void rp_hull_factory::build(const rp_problem& /*p*/,
+                            const rp_ctr_num& c, rp_vector& vec)
 {
   rp_operator * o = NULL;
   switch( rp_ctr_num_rel(c) )
@@ -244,7 +244,7 @@ rp_hull_factory::rp_hull_factory(const rp_hull_factory& g):
 
 // Copy
 rp_hull_factory&
-rp_hull_factory::operator=(const rp_hull_factory& g)
+rp_hull_factory::operator=(const rp_hull_factory& /*g*/)
 {
   // --> nothing to do
   return( *this );
@@ -264,7 +264,7 @@ rp_box_factory::~rp_box_factory()
 
 // Creation of a set of operators from p and insertion in the vector
 void rp_box_factory::build(const rp_problem& p,
-			   const rp_ctr_num& c, int var, rp_vector& vec)
+                           const rp_ctr_num& c, int var, rp_vector& vec)
 {
   rp_operator * o = NULL;
 
@@ -298,7 +298,7 @@ rp_box_factory::rp_box_factory(const rp_box_factory& g):
 
 // Copy
 rp_box_factory&
-rp_box_factory::operator=(const rp_box_factory& g)
+rp_box_factory::operator=(const rp_box_factory& /*g*/)
 {
   // --> nothing to do
   return( *this );
@@ -318,7 +318,7 @@ rp_hybrid_factory::~rp_hybrid_factory()
 
 // Creation of a set of operators from p and insertion in the vector
 void rp_hybrid_factory::build(const rp_problem& p,
-			      const rp_ctr_num& c, rp_vector& vec)
+                              const rp_ctr_num& c, rp_vector& vec)
 {
   int hull = 0;
   for (int i=0; i<rp_ctr_num_arity(c); ++i)
@@ -352,7 +352,7 @@ rp_hybrid_factory::rp_hybrid_factory(const rp_hybrid_factory& g):
 
 // Copy
 rp_hybrid_factory&
-rp_hybrid_factory::operator=(const rp_hybrid_factory& g)
+rp_hybrid_factory::operator=(const rp_hybrid_factory& /*g*/)
 {
   // --> nothing to do
   return( *this );
@@ -392,8 +392,8 @@ void rp_newton_factory::build(const rp_problem& p, rp_vector& vec)
       rp_ctr_num cn = rp_constraint_num(c);
       if (rp_ctr_num_rel(cn)==RP_RELATION_EQUAL)
       {
-	o->insert_function(rp_ctr_num_func(cn));
-	++neq;
+        o->insert_function(rp_ctr_num_func(cn));
+        ++neq;
       }
     }
     ++i;
@@ -420,7 +420,7 @@ rp_newton_factory::rp_newton_factory(const rp_newton_factory& g):
 
 // Copy
 rp_newton_factory&
-rp_newton_factory::operator=(const rp_newton_factory& g)
+rp_newton_factory::operator=(const rp_newton_factory& /*g*/)
 {
   // --> nothing to do
   return( *this );
@@ -464,7 +464,7 @@ rp_3b_factory::rp_3b_factory(const rp_3b_factory& g):
 
 // Copy protection
 rp_3b_factory&
-rp_3b_factory::operator=(const rp_3b_factory& g)
+rp_3b_factory::operator=(const rp_3b_factory& /*g*/)
 {
   return( *this );
 }
@@ -491,7 +491,7 @@ void rp_test_factory::build(const rp_problem& p, rp_vector& vec)
 }
 
 rp_test_factory&
-rp_test_factory::operator=(const rp_test_factory& g)
+rp_test_factory::operator=(const rp_test_factory& /*g*/)
 {
   return( *this );
 }

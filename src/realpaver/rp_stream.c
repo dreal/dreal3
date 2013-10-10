@@ -37,7 +37,7 @@ int rp_stream_create_string(rp_stream * s, const char * src)
 
 /* Open a stream from the file filename */
 /* Returns false if failure             */
-int rp_stream_create_file(rp_stream * s, char * filename)
+int rp_stream_create_file(rp_stream * s, const char * filename)
 {
   FILE * f;
   if ((f = fopen(filename,"r"))==NULL)
@@ -99,9 +99,9 @@ char rp_stream_get_char(rp_stream s)
     {
       if (!feof(rp_stream_file(s)))
       {
-	fgets(rp_stream_str(s),RP_STREAM_STR_SIZE,rp_stream_file(s));
-	++ rp_stream_line(s);
-	rp_stream_col(s) = 0;
+        fgets(rp_stream_str(s),RP_STREAM_STR_SIZE,rp_stream_file(s));
+        ++ rp_stream_line(s);
+        rp_stream_col(s) = 0;
       }
     }
     return( rp_stream_char(s) );
@@ -151,9 +151,9 @@ void rp_stream_get_position(rp_stream s, char * dest)
   if (rp_stream_file(s)!=NULL)
   {
     sprintf(dest,"file %s, line %d, column %d",
-	    rp_stream_filename(s),
-	    rp_stream_line(s),
-	    col);
+            rp_stream_filename(s),
+            rp_stream_line(s),
+            col);
   }
   else
   {
@@ -169,9 +169,9 @@ void rp_stream_display(FILE * out, rp_stream s)
   {
     if ((rp_stream_file(s)!=NULL) && (rp_stream_col(s)==0))
     {
-      printf("%d:",rp_stream_line(s));
+      fprintf(out, "%d:",rp_stream_line(s));
     }
-    printf("%c",rp_stream_char(s));
+    fprintf(out, "%c",rp_stream_char(s));
     rp_stream_get_char(s);
   }
 }

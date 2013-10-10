@@ -17,10 +17,10 @@
 // Branch-and-prune algorithm for solving constraint systems
 // ---------------------------------------------------------
 rp_bpsolver::rp_bpsolver(rp_problem * p,
-			 double improve,
-			 rp_selector * vs,
-			 rp_splitter * ds,
-			 rp_existence_prover * ep):
+                         double improve,
+                         rp_selector * vs,
+                         rp_splitter * ds,
+                         rp_existence_prover * ep):
   _problem(p),
   _propag(p),
   _boxes(rp_problem_nvar(*p)),//sean:number of variables
@@ -123,17 +123,17 @@ rp_box rp_bpsolver::compute_next()
       int i;
       if ((i=_vselect->apply(_boxes.get()))>=0)
       {
-	++_nsplit;
-	_dsplit->apply(_boxes,i);
+        ++_nsplit;
+        _dsplit->apply(_boxes,i);
 
            std::cout<<std::endl<<"[branched on x"<<i<<"]"<<std::endl;
            pprint_vars(stdout, *_problem, _boxes.get());
       }
       else
       {
-	++_sol;
-	if (_ep) _ep->prove(_boxes.get());
-	return( _boxes.get() );
+        ++_sol;
+        if (_ep) _ep->prove(_boxes.get());
+        return( _boxes.get() );
       }
     }
     else
@@ -170,7 +170,7 @@ rp_bpsolver::rp_bpsolver(const rp_bpsolver& s):
   _ep(NULL)
 {}
 
-rp_bpsolver& rp_bpsolver::operator=(const rp_bpsolver& s)
+rp_bpsolver& rp_bpsolver::operator=(const rp_bpsolver& /*s*/)
 {
   return( *this );
 }

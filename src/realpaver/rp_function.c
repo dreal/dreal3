@@ -78,7 +78,7 @@ void rp_function_vector_free(void * x)
 }
 
 /* Display function for functions in vectors */
-void rp_function_vector_display(FILE * out, void * x)
+void rp_function_vector_display(FILE * /*out*/, void * /*x*/)
 {
 }
 

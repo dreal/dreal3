@@ -34,7 +34,7 @@ int rp_lexer_create_string (rp_lexer * l, const char * src)
 }
 
 /* Creation of a lexical analyzer from a file */
-int rp_lexer_create_file (rp_lexer * l, char * filename)
+int rp_lexer_create_file (rp_lexer * l, const char * filename)
 {
   if (rp_stream_create_file(&rp_lexer_input(*l),filename))
   {
@@ -58,7 +58,7 @@ void rp_lexer_destroy (rp_lexer * l)
 }
 
 /* Compare two strings ignoring case */
-int rp_string_equal_case(char * s1, char * s2)
+int rp_string_equal_case(const char * s1, const char * s2)
 {
   int len;
   if ((len = (int)strlen(s1))!=(int)strlen(s2))
@@ -107,7 +107,7 @@ void rp_lexer_eat_comment(rp_lexer l)
 }
 
 /* Stop the lexer with an error */
-int rp_lexer_stop(rp_lexer l, char * msg)
+int rp_lexer_stop(rp_lexer l, const char * msg)
 {
   char tmp[RP_LEXER_ERRLEN];
   strcpy(rp_lexer_error_msg(l),"LEX ERROR: ");
@@ -168,14 +168,14 @@ int rp_lexer_get_token(rp_lexer l)
       char d = rp_stream_get_char(rp_lexer_input(l));
       if (d=='>')
       {
-	strcpy(rp_lexer_text(l),"->");
-	return( rp_lexer_token(l)=RP_TOKEN_IMPLY );
+        strcpy(rp_lexer_text(l),"->");
+        return( rp_lexer_token(l)=RP_TOKEN_IMPLY );
       }
       else
       {
-	rp_stream_unget_char(rp_lexer_input(l),d);
-	strcpy(rp_lexer_text(l),"-");
-	return( rp_lexer_token(l)=RP_TOKEN_MINUS );
+        rp_stream_unget_char(rp_lexer_input(l),d);
+        strcpy(rp_lexer_text(l),"-");
+        return( rp_lexer_token(l)=RP_TOKEN_MINUS );
       }
     }
 
@@ -192,14 +192,14 @@ int rp_lexer_get_token(rp_lexer l)
       char d = rp_stream_get_char(rp_lexer_input(l));
       if (d=='*')
       {
-	rp_lexer_eat_comment(l);
-	return( rp_lexer_get_token(l) );
+        rp_lexer_eat_comment(l);
+        return( rp_lexer_get_token(l) );
       }
       else
       {
-	rp_stream_unget_char(rp_lexer_input(l),d);
-	strcpy(rp_lexer_text(l),"/");
-	return( rp_lexer_token(l)=RP_TOKEN_DIV );
+        rp_stream_unget_char(rp_lexer_input(l),d);
+        strcpy(rp_lexer_text(l),"/");
+        return( rp_lexer_token(l)=RP_TOKEN_DIV );
       }
     }
 
@@ -293,14 +293,14 @@ int rp_lexer_get_token(rp_lexer l)
       char d = rp_stream_get_char(rp_lexer_input(l));
       if (d=='=')
       {
-	strcpy(rp_lexer_text(l),":=");
-	return( rp_lexer_token(l)=RP_TOKEN_SETVALUE );
+        strcpy(rp_lexer_text(l),":=");
+        return( rp_lexer_token(l)=RP_TOKEN_SETVALUE );
       }
       else
       {
-	rp_stream_unget_char(rp_lexer_input(l),d);
-	strcpy(rp_lexer_text(l),":");
-	return( rp_lexer_token(l)=RP_TOKEN_COLON );
+        rp_stream_unget_char(rp_lexer_input(l),d);
+        strcpy(rp_lexer_text(l),":");
+        return( rp_lexer_token(l)=RP_TOKEN_COLON );
       }
     }
 
@@ -310,12 +310,12 @@ int rp_lexer_get_token(rp_lexer l)
       char d = rp_stream_get_char(rp_lexer_input(l));
       if (d=='=')
       {
-	strcpy(rp_lexer_text(l),">=");
-	return( rp_lexer_token(l)=RP_TOKEN_SUPEQUAL );
+        strcpy(rp_lexer_text(l),">=");
+        return( rp_lexer_token(l)=RP_TOKEN_SUPEQUAL );
       }
       else
       {
-	return( rp_lexer_stop(l,"'>' not supported") );
+        return( rp_lexer_stop(l,"'>' not supported") );
       }
     }
 
@@ -325,12 +325,12 @@ int rp_lexer_get_token(rp_lexer l)
       char d = rp_stream_get_char(rp_lexer_input(l));
       if (d=='=')
       {
-	strcpy(rp_lexer_text(l),"<=");
-	return( rp_lexer_token(l)=RP_TOKEN_INFEQUAL );
+        strcpy(rp_lexer_text(l),"<=");
+        return( rp_lexer_token(l)=RP_TOKEN_INFEQUAL );
       }
       else
       {
-	return( rp_lexer_stop(l,"'<' not supported") );
+        return( rp_lexer_stop(l,"'<' not supported") );
       }
     }
 
@@ -346,13 +346,13 @@ int rp_lexer_get_token(rp_lexer l)
       char tmp[RP_LEXER_ERRLEN];
       if (iscntrl(rp_stream_char(rp_lexer_input(l))))
       {
-	sprintf(tmp,"control character '%u' unknown",
-		rp_stream_char(rp_lexer_input(l)));
+        sprintf(tmp,"control character '%u' unknown",
+                rp_stream_char(rp_lexer_input(l)));
       }
       else
       {
-	sprintf(tmp,"character '%c' unknown",
-		rp_stream_char(rp_lexer_input(l)));
+        sprintf(tmp,"character '%c' unknown",
+                rp_stream_char(rp_lexer_input(l)));
       }
       return( rp_lexer_stop(l,tmp) );
     }
@@ -396,7 +396,7 @@ int rp_lexer_get_ident(rp_lexer l)
 {
   /* first character necessarily ok */
   if (!rp_lexer_get_sequence(l,rp_lexer_text(l),
-			     RP_LEXER_TOKLEN,rp_isident))
+                             RP_LEXER_TOKLEN,rp_isident))
   {
     return( rp_lexer_stop(l,"identifier too long") );
   }
@@ -630,7 +630,7 @@ int rp_lexer_get_number(rp_lexer l)
   int i;
   /* first character necessarily ok */
   if (!rp_lexer_get_sequence(l,rp_lexer_text(l),
-			     RP_LEXER_TOKLEN,isdigit))
+                             RP_LEXER_TOKLEN,isdigit))
   {
     return( rp_lexer_stop(l,"integral part of number too long") );
   }
@@ -664,8 +664,9 @@ int rp_lexer_get_number(rp_lexer l)
   }
 
   /* Get the rest of the decimal part */
-  if (!rp_lexer_get_sequence(l,&(rp_lexer_text(l)[++i]),
-			     RP_LEXER_TOKLEN-i-1,isdigit))
+  i++;
+  if (!rp_lexer_get_sequence(l,&(rp_lexer_text(l)[i]),
+                             RP_LEXER_TOKLEN-i-1,isdigit))
   {
     return( rp_lexer_stop(l,"float too long") );
   }
@@ -705,8 +706,9 @@ int rp_lexer_get_number(rp_lexer l)
   }
 
   /* Get the rest of the decimal part */
-  if (!rp_lexer_get_sequence(l,&(rp_lexer_text(l)[++i]),
-			     RP_LEXER_TOKLEN-i-1,isdigit))
+  i++;
+  if (!rp_lexer_get_sequence(l,&(rp_lexer_text(l)[i]),
+                             RP_LEXER_TOKLEN-i-1,isdigit))
   {
     return( rp_lexer_stop(l,"float too long") );
   }

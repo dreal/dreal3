@@ -36,18 +36,18 @@ void rp_splitter::observe(rp_box b, int var)
   }
 }
 
-int rp_splitter::integer_hole(rp_interval dom,
-			      rp_union_interval init_dom,
-			      rp_interval i1,
-			      rp_interval i2)
+int rp_splitter::integer_hole(rp_interval /*dom*/,
+                              rp_union_interval /*init_dom*/,
+                              rp_interval /*i1*/,
+                              rp_interval /*i2*/)
 {
   return( 0 );
 }
 
 int rp_splitter::real_hole(rp_interval dom,
-			   rp_union_interval init_dom,
-			   rp_interval i1,
-			   rp_interval i2)
+                           rp_union_interval init_dom,
+                           rp_interval i1,
+                           rp_interval i2)
 {
   return 0;
   rp_union_interval aux;
@@ -75,11 +75,11 @@ int rp_splitter::real_hole(rp_interval dom,
   return( result );
 }
 
-rp_splitter::rp_splitter(const rp_splitter& ds):
+rp_splitter::rp_splitter(const rp_splitter& /*ds*/):
   _problem(NULL)
 {}
 
-rp_splitter& rp_splitter::operator=(const rp_splitter& ds)
+rp_splitter& rp_splitter::operator=(const rp_splitter& /*ds*/)
 {
   return( *this );
 }
@@ -105,8 +105,8 @@ void rp_splitter_mixed::apply(rp_box_set& bs, int var)
   if (rp_variable_integer(rp_problem_var(*_problem,var)))
   {
     if (this->integer_hole(rp_box_elem(b1,var),
-			   rp_variable_domain(rp_problem_var(*_problem,var)),
-			   i1,i2))
+                           rp_variable_domain(rp_problem_var(*_problem,var)),
+                           i1,i2))
     {
       rp_interval_copy(rp_box_elem(b1,var),i1);
       rp_interval_copy(rp_box_elem(b2,var),i2);
@@ -121,8 +121,8 @@ void rp_splitter_mixed::apply(rp_box_set& bs, int var)
   else
   {
     if (this->real_hole(rp_box_elem(b1,var),
-			rp_variable_domain(rp_problem_var(*_problem,var)),
-			i1,i2))
+                        rp_variable_domain(rp_problem_var(*_problem,var)),
+                        i1,i2))
     {
       rp_interval_copy(rp_box_elem(b1,var),i1);
       rp_interval_copy(rp_box_elem(b2,var),i2);
@@ -131,8 +131,8 @@ void rp_splitter_mixed::apply(rp_box_set& bs, int var)
     {
       // Real variable: [a,b] --> [center,b] and [a,center]
       rp_binf(rp_box_elem(b1,var)) =
-	rp_bsup(rp_box_elem(b2,var)) =
-	  rp_interval_midpoint(rp_box_elem(b1,var));
+        rp_bsup(rp_box_elem(b2,var)) =
+          rp_interval_midpoint(rp_box_elem(b1,var));
     }
   }
 }
@@ -141,7 +141,7 @@ rp_splitter_mixed::rp_splitter_mixed(const rp_splitter_mixed& ds): rp_splitter(d
 {}
 
 rp_splitter_mixed&
-rp_splitter_mixed::operator=(const rp_splitter_mixed& ds)
+rp_splitter_mixed::operator=(const rp_splitter_mixed& /*ds*/)
 {
   return( *this );
 }
@@ -187,7 +187,7 @@ rp_splitter_bisection::rp_splitter_bisection(const rp_splitter_bisection& ds): r
 {}
 
 rp_splitter_bisection&
-rp_splitter_bisection::operator=(const rp_splitter_bisection& ds)
+rp_splitter_bisection::operator=(const rp_splitter_bisection& /*ds*/)
 {
   return( *this );
 }

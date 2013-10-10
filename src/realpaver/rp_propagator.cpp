@@ -421,7 +421,7 @@ void rp_propagator::insert(rp_operator * o)
 }
 
 // Checks if the operator can be applied
-int rp_propagator::check_precision(rp_operator * o, rp_box b)
+int rp_propagator::check_precision(rp_operator * /*o*/, rp_box /*b*/)
 {
   return( 1 );
 
@@ -493,9 +493,6 @@ int rp_propagator::apply_loop(rp_box b)
                                    rp_box_elem(_bsave,v),
                                    _improve))
           {
-//test type
-    	    printf("contractor type: %d \n", o->type);
-
             rp_vector * depv = &rp_dependency_elem(_dep,v);
             for (int j=0; j<rp_vector_size(*depv); ++j)
             {
@@ -578,7 +575,7 @@ rp_propagator::rp_propagator(const rp_propagator& p):
 
 // Copy protection
 rp_propagator&
-rp_propagator::operator=(const rp_propagator& p)
+rp_propagator::operator=(const rp_propagator& /*p*/)
 {
   // --> nothing to do
   return( *this );

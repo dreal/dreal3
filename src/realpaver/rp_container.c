@@ -34,16 +34,16 @@ void rp_vector_create(rp_vector * v,
 }
 
 int rp_vector_cmp_basic(void * p, const void * q) { return (p==q); }
-void rp_vector_free_basic(void * p) {}
-void rp_vector_display_basic(FILE * f, void * p) {}
+void rp_vector_free_basic(void * /* p */) {}
+void rp_vector_display_basic(FILE * /* f */, void * /* p */) {}
 
 /* Creation of a vector of elements */
 void rp_vector_create_basic(rp_vector * v)
 {
   rp_vector_create(v,
-		   rp_vector_cmp_basic,
-		   rp_vector_free_basic,
-		   rp_vector_display_basic);
+                   rp_vector_cmp_basic,
+                   rp_vector_free_basic,
+                   rp_vector_display_basic);
 }
 
 /* Destruction of a vector of elements */

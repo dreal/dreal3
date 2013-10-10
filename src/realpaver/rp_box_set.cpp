@@ -30,10 +30,10 @@ void rp_box_set::reset()
   }
 }
 
-rp_box_set::rp_box_set(const rp_box_set& bs)
+rp_box_set::rp_box_set(const rp_box_set& /*bs*/)
 {}
 
-rp_box_set& rp_box_set::operator=(const rp_box_set& bs)
+rp_box_set& rp_box_set::operator=(const rp_box_set& /*bs*/)
 {
   return( *this );
 }
@@ -68,10 +68,10 @@ rp_box_stack::~rp_box_stack()
 
       for (int i=0; i<_size; ++i)
       {
-	if (aux->ptr[i]!=NULL)
-	{
-	  rp_box_destroy(&aux->ptr[i]);
-	}
+        if (aux->ptr[i]!=NULL)
+        {
+          rp_box_destroy(&aux->ptr[i]);
+        }
       }
       rp_free(aux->ptr);
       rp_free(aux);
@@ -216,7 +216,7 @@ rp_box rp_box_stack::remove_insert()
 rp_box_stack::rp_box_stack(const rp_box_stack& q): rp_box_set(q)
 {}
 
-rp_box_stack& rp_box_stack::operator=(const rp_box_stack& q)
+rp_box_stack& rp_box_stack::operator=(const rp_box_stack& /*q*/)
 {
   return( *this );
 }
@@ -247,7 +247,7 @@ rp_box_queue::~rp_box_queue()
     {
       if (aux->ptr[i]!=NULL)
       {
-	rp_box_destroy(&aux->ptr[i]);
+        rp_box_destroy(&aux->ptr[i]);
       }
     }
     rp_free(aux->ptr);
@@ -331,7 +331,7 @@ void rp_box_queue::remove()
       _last->next = aux;
       if (aux->next!=NULL)
       {
-	aux->next->prev = aux;
+        aux->next->prev = aux;
       }
     }
   }
@@ -419,7 +419,7 @@ rp_box rp_box_queue::remove_insert()
 rp_box_queue::rp_box_queue(const rp_box_queue& q): rp_box_set(q)
 {}
 
-rp_box_queue& rp_box_queue::operator=(const rp_box_queue& q)
+rp_box_queue& rp_box_queue::operator=(const rp_box_queue& /*q*/)
 {
   return( *this );
 }

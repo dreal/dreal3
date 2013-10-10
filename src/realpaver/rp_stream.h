@@ -55,7 +55,7 @@ typedef rp_stream_def rp_stream[1];
 int rp_stream_create_string (rp_stream * s, const char * src);
 
 /* Creation of a stream from a file : returns false if failure */
-int rp_stream_create_file (rp_stream * s, char * filename);
+int rp_stream_create_file (rp_stream * s, const char * filename);
 
 /* Destruction of a stream */
 void rp_stream_destroy (rp_stream * s);

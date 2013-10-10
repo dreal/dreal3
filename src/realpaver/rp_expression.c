@@ -20,13 +20,13 @@ int rp_node_vector_cmp(void * x, const void * y)
 }
 
 /* Destruction function for nodes in vectors */
-void rp_node_vector_free(void * x)
+void rp_node_vector_free(void * /*x*/)
 {
   /* no destruction here */
 }
 
 /* Display function for nodes in vectors */
-void rp_node_vector_display(FILE * out, void * x)
+void rp_node_vector_display(FILE * /*out*/, void * /*x*/)
 {
   /* useless function */
 }
@@ -92,8 +92,8 @@ int rp_expr_args_insert(rp_expr_args a, int v)
     else
     {
       rp_realloc(rp_expr_args_ptr(a),
-		 rp_expr_arg*,
-		 rp_expr_args_size(a)*sizeof(rp_expr_arg));
+                 rp_expr_arg*,
+                 rp_expr_args_size(a)*sizeof(rp_expr_arg));
     }
     rp_expr_args_occur(a,i) = 1;
     rp_expr_args_var(a,i) = v;
@@ -118,26 +118,26 @@ void rp_expression_create_aux(rp_expr_args a, rp_erep * f)
       int i;
       for (i=0; i<rp_erep_arity(*f); ++i)
       {
-	if (rp_erep_type(rp_erep_child(*f,i))==RP_EREP_NODE_VAR)
-	{
-	  int v;
-	  if ((v=rp_expr_args_contains(a,rp_erep_var(rp_erep_child(*f,i))))==-1)
-	  {
-	    /* first occurrence encountered */
-	    v = rp_expr_args_insert(a,rp_erep_var(rp_erep_child(*f,i)));
-	  }
-	  else
-	  {
-	    ++rp_expr_args_occur(a,v);
-	  }
-	  /* this child must point to the unique variable node */
-	  rp_erep_destroy(&rp_erep_child(*f,i));
-	  rp_erep_set(&rp_erep_child(*f,i),rp_expr_args_node(a,v));
-	}
-	else
-	{
-	  rp_expression_create_aux(a,&rp_erep_child(*f,i));
-	}
+        if (rp_erep_type(rp_erep_child(*f,i))==RP_EREP_NODE_VAR)
+        {
+          int v;
+          if ((v=rp_expr_args_contains(a,rp_erep_var(rp_erep_child(*f,i))))==-1)
+          {
+            /* first occurrence encountered */
+            v = rp_expr_args_insert(a,rp_erep_var(rp_erep_child(*f,i)));
+          }
+          else
+          {
+            ++rp_expr_args_occur(a,v);
+          }
+          /* this child must point to the unique variable node */
+          rp_erep_destroy(&rp_erep_child(*f,i));
+          rp_erep_set(&rp_erep_child(*f,i),rp_expr_args_node(a,v));
+        }
+        else
+        {
+          rp_expression_create_aux(a,&rp_erep_child(*f,i));
+        }
       }
     }
     else if (rp_erep_type(*f)==RP_EREP_NODE_VAR)
@@ -159,35 +159,35 @@ int rp_expression_create_depend(rp_vector_node vec, rp_erep f, int x)
     switch( rp_erep_type(f) )
     {
       case RP_EREP_NODE_VAR:
-	if (rp_erep_var(f)==x)
-	{
-	  if (rp_vector_size(vec)==0)
-	  {
-	    rp_vector_insert(vec,f);
-	  }
-	  result = 1;
-	}
-	break;
+        if (rp_erep_var(f)==x)
+        {
+          if (rp_vector_size(vec)==0)
+          {
+            rp_vector_insert(vec,f);
+          }
+          result = 1;
+        }
+        break;
 
     case RP_EREP_NODE_OP:
       if (rp_symbol_unary(rp_erep_symb(f)))
       {
-	result = rp_expression_create_depend(vec,rp_erep_sub(f),x);
-	if (result)
-	{
-	  rp_vector_insert(vec,f);
-	}
+        result = rp_expression_create_depend(vec,rp_erep_sub(f),x);
+        if (result)
+        {
+          rp_vector_insert(vec,f);
+        }
       }
       else /* binary */
       {
-	int lr, rr;
-	lr = rp_expression_create_depend(vec,rp_erep_left(f),x);
-	rr = rp_expression_create_depend(vec,rp_erep_right(f),x);
-	result = (lr || rr);
-	if (result)
-	{
-	  rp_vector_insert(vec,f);
-	}
+        int lr, rr;
+        lr = rp_expression_create_depend(vec,rp_erep_left(f),x);
+        rr = rp_expression_create_depend(vec,rp_erep_right(f),x);
+        result = (lr || rr);
+        if (result)
+        {
+          rp_vector_insert(vec,f);
+        }
       }
       break;
 
@@ -219,8 +219,8 @@ void rp_expression_create(rp_expression * e, rp_erep * f)
   for (i=0; i<rp_expression_arity(*e); ++i)
   {
     rp_expression_create_depend(rp_expr_args_dep(rp_expression_lvar(*e),i),
-				rp_expression_rep(*e),
-				rp_expr_args_var(rp_expression_lvar(*e),i));
+                                rp_expression_rep(*e),
+                                rp_expr_args_var(rp_expression_lvar(*e),i));
 
     rp_expression_occur(*e) += rp_expr_args_occur(rp_expression_lvar(*e),i);
   }
@@ -283,32 +283,32 @@ int rp_expression_eval_single(rp_expression e, rp_box b, int v)
     result = 1;
     /* evaluation */
     for (j=0;
-	 result &&
-	 j<rp_vector_size(rp_expr_args_dep(rp_expression_lvar(e),i));
-	 ++j)
+         result &&
+         j<rp_vector_size(rp_expr_args_dep(rp_expression_lvar(e),i));
+         ++j)
     {
       rp_erep f = (rp_erep)rp_vector_elem(
                                    rp_expr_args_dep(
                                           rp_expression_lvar(e),i),j);
       if (rp_erep_type(f)==RP_EREP_NODE_VAR)
       {
-	rp_interval_copy(rp_erep_val(f),rp_box_elem(b,v));
+        rp_interval_copy(rp_erep_val(f),rp_box_elem(b,v));
       }
       else /* operation */
       {
-	if (rp_symbol_unary(rp_erep_symb(f)))
-	{
-	  rp_interval aux;  /* useless */
-	  result = rp_symbol_eval(rp_erep_symb(f))
-	    (rp_erep_val(f),rp_erep_sub_val(f),aux);
-	}
-	else /* binary */
-	{
-	  result = rp_symbol_eval(rp_erep_symb(f))
-	    (rp_erep_val(f),
-	     rp_erep_left_val(f),
-	     rp_erep_right_val(f));
-	}
+        if (rp_symbol_unary(rp_erep_symb(f)))
+        {
+          rp_interval aux;  /* useless */
+          result = rp_symbol_eval(rp_erep_symb(f))
+            (rp_erep_val(f),rp_erep_sub_val(f),aux);
+        }
+        else /* binary */
+        {
+          result = rp_symbol_eval(rp_erep_symb(f))
+            (rp_erep_val(f),
+             rp_erep_left_val(f),
+             rp_erep_right_val(f));
+        }
       }
     }
   }
@@ -334,9 +334,9 @@ int rp_expression_eval_center(rp_expression e, rp_box b)
     /* global index of the i_th variable of e */
     int index = rp_expr_args_var(rp_expression_lvar(e),i);
     rp_interval_copy(rp_expr_args_domain(rp_expression_lvar(e),i),
-		     rp_box_elem(b,index));
+                     rp_box_elem(b,index));
     rp_interval_set_point(rp_box_elem(b,index),
-			  rp_interval_midpoint(rp_box_elem(b,index)));
+                          rp_interval_midpoint(rp_box_elem(b,index)));
   }
 
   /* evaluation e(mid(b)) */
@@ -349,7 +349,7 @@ int rp_expression_eval_center(rp_expression e, rp_box b)
     /* global index of the i_th variable of e */
     int index = rp_expr_args_var(rp_expression_lvar(e),i);
     rp_interval_copy(rp_box_elem(b,index),
-		     rp_expr_args_domain(rp_expression_lvar(e),i));
+                     rp_expr_args_domain(rp_expression_lvar(e),i));
   }
 
   if (res)
@@ -362,15 +362,15 @@ int rp_expression_eval_center(rp_expression e, rp_box b)
       rp_interval mid, sub, mul, aux;
       for (i=0; i<rp_expression_arity(e); ++i)
       {
-	/* global index of the i_th variable of e */
-	int index = rp_expr_args_var(rp_expression_lvar(e),i);
-	rp_interval_set_point(mid,rp_interval_midpoint(rp_box_elem(b,index)));
-	rp_interval_sub(sub,rp_box_elem(b,index),mid);
-	rp_interval_mul(mul,sub,rp_erep_deriv(
+        /* global index of the i_th variable of e */
+        int index = rp_expr_args_var(rp_expression_lvar(e),i);
+        rp_interval_set_point(mid,rp_interval_midpoint(rp_box_elem(b,index)));
+        rp_interval_sub(sub,rp_box_elem(b,index),mid);
+        rp_interval_mul(mul,sub,rp_erep_deriv(
                                      rp_expr_args_node(
                                          rp_expression_lvar(e),i)));
-	rp_interval_copy(aux,ec);
-	rp_interval_add(ec,mul,aux);
+        rp_interval_copy(aux,ec);
+        rp_interval_add(ec,mul,aux);
       }
       rp_interval_copy(rp_erep_val(rp_expression_rep(e)),ec);
       res = (!rp_interval_empty(ec));
@@ -415,25 +415,25 @@ int rp_expression_eval_best(rp_expression e, rp_box b)
       /* global index of the i_th variable of e */
       int index = rp_expr_args_var(rp_expression_lvar(e),i);
       if ((rp_expr_args_occur(rp_expression_lvar(e),i)>=2) &&
-	  (!rp_interval_contains(rp_erep_deriv(rp_expr_args_node(rp_expression_lvar(e),i)),
-				 0.0)))
+          (!rp_interval_contains(rp_erep_deriv(rp_expr_args_node(rp_expression_lvar(e),i)),
+                                 0.0)))
       {
-	found = 1;
-	rp_interval_copy(rp_expr_args_domain(rp_expression_lvar(e),i),
-			 rp_box_elem(b,index));
+        found = 1;
+        rp_interval_copy(rp_expr_args_domain(rp_expression_lvar(e),i),
+                         rp_box_elem(b,index));
 
-	if (rp_binf(rp_erep_deriv(rp_expr_args_node(rp_expression_lvar(e),i)))>0)
-	{
-	  /* derivative positive => left bound of b(i) */
-	  rp_interval_set_point(rp_box_elem(b,index),
-				rp_binf(rp_box_elem(b,index)));
-	}
-	else
-	{
-	  /* derivative negative => right bound of b(i) */
-	  rp_interval_set_point(rp_box_elem(b,index),
-				rp_bsup(rp_box_elem(b,index)));
-	}
+        if (rp_binf(rp_erep_deriv(rp_expr_args_node(rp_expression_lvar(e),i)))>0)
+        {
+          /* derivative positive => left bound of b(i) */
+          rp_interval_set_point(rp_box_elem(b,index),
+                                rp_binf(rp_box_elem(b,index)));
+        }
+        else
+        {
+          /* derivative negative => right bound of b(i) */
+          rp_interval_set_point(rp_box_elem(b,index),
+                                rp_bsup(rp_box_elem(b,index)));
+        }
       }
     }
     if (!found)
@@ -446,38 +446,38 @@ int rp_expression_eval_best(rp_expression e, rp_box b)
       /* evaluation of left bound of e over b */
       if (rp_expression_eval(e,b))
       {
-	int left = (int)rp_binf(rp_expression_val(e));
+        int left = (int)rp_binf(rp_expression_val(e));
 
-	/* evaluation of right bound */
-	for (i=0; i<rp_expression_arity(e); ++i)
-	{
-	  int index = rp_expr_args_var(rp_expression_lvar(e),i);
-	  if ((rp_expr_args_occur(rp_expression_lvar(e),i)>=2) &&
-	      (!rp_interval_contains(rp_erep_deriv(
+        /* evaluation of right bound */
+        for (i=0; i<rp_expression_arity(e); ++i)
+        {
+          int index = rp_expr_args_var(rp_expression_lvar(e),i);
+          if ((rp_expr_args_occur(rp_expression_lvar(e),i)>=2) &&
+              (!rp_interval_contains(rp_erep_deriv(
                                         rp_expr_args_node(
-					     rp_expression_lvar(e),i)),0.0)))
-	  {
-	    if (rp_binf(rp_erep_deriv(rp_expr_args_node(rp_expression_lvar(e),i)))>0)
-	    {
-	      rp_interval_set_point(rp_box_elem(b,index),
-				    rp_bsup(rp_expr_args_domain(rp_expression_lvar(e),i)));
-	    }
-	    else
-	    {
-	      rp_interval_set_point(rp_box_elem(b,index),
-				    rp_binf(rp_expr_args_domain(rp_expression_lvar(e),i)));
-	    }
-	  }
-	}
-	if (rp_expression_eval(e,b))
-	{
-	  rp_binf(rp_expression_val(e)) = left;
-	  result = 1;
-	}
-	else
-	{
-	  result = 0;
-	}
+                                             rp_expression_lvar(e),i)),0.0)))
+          {
+            if (rp_binf(rp_erep_deriv(rp_expr_args_node(rp_expression_lvar(e),i)))>0)
+            {
+              rp_interval_set_point(rp_box_elem(b,index),
+                                    rp_bsup(rp_expr_args_domain(rp_expression_lvar(e),i)));
+            }
+            else
+            {
+              rp_interval_set_point(rp_box_elem(b,index),
+                                    rp_binf(rp_expr_args_domain(rp_expression_lvar(e),i)));
+            }
+          }
+        }
+        if (rp_expression_eval(e,b))
+        {
+          rp_binf(rp_expression_val(e)) = left;
+          result = 1;
+        }
+        else
+        {
+          result = 0;
+        }
       }
       else
       {
@@ -486,15 +486,15 @@ int rp_expression_eval_best(rp_expression e, rp_box b)
       /* context restoration */
       for (i=0; i<rp_expression_arity(e); ++i)
       {
-	/* global index of the i_th variable of e */
-	int index = rp_expr_args_var(rp_expression_lvar(e),i);
-	if ((rp_expr_args_occur(rp_expression_lvar(e),i)>=2) &&
-	    (!rp_interval_contains(rp_erep_deriv(rp_expr_args_node(rp_expression_lvar(e),
-								   i)),0.0)))
-	{
-	  rp_interval_copy(rp_box_elem(b,index),
-			   rp_expr_args_domain(rp_expression_lvar(e),i));
-	}
+        /* global index of the i_th variable of e */
+        int index = rp_expr_args_var(rp_expression_lvar(e),i);
+        if ((rp_expr_args_occur(rp_expression_lvar(e),i)>=2) &&
+            (!rp_interval_contains(rp_erep_deriv(rp_expr_args_node(rp_expression_lvar(e),
+                                                                   i)),0.0)))
+        {
+          rp_interval_copy(rp_box_elem(b,index),
+                           rp_expr_args_domain(rp_expression_lvar(e),i));
+        }
       }
     }
   }
@@ -507,7 +507,7 @@ int rp_expression_eval_best(rp_expression e, rp_box b)
 int rp_expression_project(rp_expression e, rp_interval i, rp_box b)
 {
   rp_interval_inter(rp_erep_proj(rp_expression_rep(e)),
-		    rp_erep_val(rp_expression_rep(e)),i);
+                    rp_erep_val(rp_expression_rep(e)),i);
   if (rp_interval_empty(rp_erep_proj(rp_expression_rep(e))))
   {
     return( 0 );
@@ -572,8 +572,8 @@ void rp_expression_deriv_symb(rp_expression * de, rp_expression e, int v)
 
 /* Display e on out */
 void rp_expression_display(FILE* out, rp_expression e,
-			   rp_vector_variable vars,
-			   int digits, int mode)
+                           rp_vector_variable vars,
+                           int digits, int mode)
 {
   rp_erep_display(out,rp_expression_rep(e),vars,digits,mode);
 }
