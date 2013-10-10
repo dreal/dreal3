@@ -50,13 +50,13 @@ How to Build CAPD-DynSys 3.0
  * Configure and build:
 
 ````
-    wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
-    unzip capdDynSys.zip
-    cd capd_dynsys
-    autoreconf --install
-    ./configure --without-gui
-    make
-    sudo make install
+wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
+unzip capdDynSys.zip
+cd capd_dynsys
+autoreconf --install
+./configure --without-gui
+make
+sudo make install
 ````
 
 [capd-dynsys-daily]: http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
@@ -64,7 +64,7 @@ How to Build CAPD-DynSys 3.0
 How to Build dReal
 ------------------
 
-    make build
+    mkdir build
     cd build
     cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 ../src
     make
