@@ -22,7 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <string>
 #include <limits>
-#include <cmath>
+#include <math.h>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/iterator/zip_iterator.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -445,7 +445,7 @@ bool ode_solver::solve_forward() {
             s = C0Rect2Set(temp);
 
             if (find_if (temp.begin(), temp.end(), [&] (interval& i) {
-                        return isnan(i.leftBound()) || isnan(i.rightBound());
+                        return std::isnan(i.leftBound()) || std::isnan(i.rightBound());
                     }) != temp.end()) {
                 cerr << "Got it! : " << IVector(s) << endl;
                 return true;
@@ -454,7 +454,7 @@ bool ode_solver::solve_forward() {
             timeMap(T.rightBound(), s); /* TODO direction */
             temp = IVector(s);
             if (find_if (temp.begin(), temp.end(), [&] (interval& i) {
-                        return isnan(i.leftBound()) || isnan(i.rightBound());
+                        return std::isnan(i.leftBound()) || std::isnan(i.rightBound());
                     }) != temp.end()) {
                 cerr << "Got it! : " << IVector(s) << endl;
                 return true;
@@ -736,7 +736,7 @@ bool ode_solver::solve_backward() {
             s = C0Rect2Set(temp);
 
             if (find_if (temp.begin(), temp.end(), [&] (interval& i) {
-                        return isnan(i.leftBound()) || isnan(i.rightBound());
+                        return std::isnan(i.leftBound()) || std::isnan(i.rightBound());
                     }) != temp.end()) {
                 cerr << "Got it! : " << IVector(s) << endl;
                 return true;
