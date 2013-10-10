@@ -1,1 +1,0 @@
-<*.ml> or <*.mli> or <*.native> : package(cil), package(batteries), package(unix), thread
