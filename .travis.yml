@@ -6,12 +6,22 @@ env:
      BUILD_TYPE=RELEASE
 
 before_script:
-  - autoreconf -i
-  - ./configure CXX=g++-4.8
+  # Compile CAPD-DynSys 3.0
+  - wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
+  - unzip capdDynSys.zip
+  - cd capd_dynsys
+  - autoreconf --install
+  - ./configure --without-gui && make
+  - sudo make install
+  - cd ..
 
 script:
   # compile dReal
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_CXX_COMPILER=g++ ../src
   - make
+  - cd ..
   # compile tools
   - make -C ./tools
   # compile proof checker
@@ -22,14 +32,13 @@ install:
   - sudo add-apt-repository --yes ppa:dns/gnu
   - sudo add-apt-repository --yes ppa:agent-8131/ppa
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+  - sudo add-apt-repository --yes ppa:kalakris/cmake
   - sudo add-apt-repository --yes ppa:h-rayflood/llvm
   - sudo add-apt-repository --yes ppa:louis-gesbert/ocamlpro-12.04
-  # Install g++
+  # Install tools
   - sudo apt-get -qq update
-  - sudo apt-get -qq install autoconf automake libtool git g++ bison flex wget
+  - sudo apt-get -qq install autoconf automake libtool git g++ bison flex wget cmake
   - sudo apt-get -qq install libboost-dev libboost-thread-dev
-  - sudo apt-get -qq install libgoogle-perftools-dev
-  - sudo apt-get -qq install libgmp-dev
   - sudo apt-get -qq install libstdc++-4.8-dev
   - sudo apt-get -qq install g++-4.8
   # Install ocaml
