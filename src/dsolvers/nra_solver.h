@@ -37,9 +37,9 @@ public:
     bool check(bool c);
     bool belongsToT(Enode *e);
     void computeModel();
-    set<Enode *> get_variables(Enode *e);
 
 private:
+    set<Enode *> get_variables(Enode *e);
     scoped_map<Enode*, std::pair<double, double>> env;
     vector <Enode*> stack; // stack of asserted literals.
     vector <unsigned> undo_stack_size;

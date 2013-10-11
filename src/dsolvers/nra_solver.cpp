@@ -104,7 +104,7 @@ set<Enode *> NRASolver::get_variables (Enode * e) {
 // useful for initializing the solver's data structures. This function
 // is called before the actual solving starts.
 //
-// We do two operations in inform:
+// `inform` does two operations:
 // 1. set up environment (mapping from enode to its [lb, ub])
 // 2. set up _enode_to_vars (mapping from an expr to all the
 //    variables in it)

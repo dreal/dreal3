@@ -124,8 +124,10 @@ Enode::Enode( const enodeid_t id_
   if ( isTAtom( ) )
     atom_data = new AtomData( );
 
-  if ( car->isNumb( ) )
+  if ( car->isNumb( ) ) {
+    value = new double;
     setValue( *(car->symb_data->value) );
+  }
 
   assert( isTerm( ) || isList( ) );
 }
@@ -160,6 +162,10 @@ Enode::~Enode ( )
     delete atom_data;
   if ( value )
     delete value;
+  if ( ub )
+      delete ub;
+  if ( lb )
+      delete lb;
 }
 
 Snode * Enode::getLastSort ( )

@@ -532,7 +532,6 @@ inline double Enode::getComplexValue( ) const
 inline void Enode::setValue ( const double v )
 {
   assert( isTerm( ) );
-  value = new double;
   *value = v;
 }
 
