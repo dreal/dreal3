@@ -41,17 +41,21 @@ NRASolver::~NRASolver() {
 
 void debug_print_env(const scoped_map<Enode*, pair<double, double>> & env) {
     for (auto ite = env.begin(); ite != env.end(); ite++) {
-        Enode* key = (*ite).first;
-        double lb =  (*ite).second.first;
-        double ub =  (*ite).second.second;
-        cerr << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
+        Enode* key = ite->first;
+        const double lb  = ite->second.first;
+        const double ub  = ite->second.second;
+        cerr << "Key: " << key
+             << "\t Value: [" << lb << ", " << ub << "]"
+             << endl;
     }
 }
 
 void debug_print_stack(const vector<Enode*> & stack) {
     // Print out all the Enode in stack
     for (auto ite = stack.begin(); ite != stack.end(); ite++) {
-        cerr << *ite << endl;
+        cerr << "asserted literal : " << *ite
+             << "\t" << (*ite)->hasPolarity()
+             << endl;
     }
 }
 
@@ -175,6 +179,10 @@ void NRASolver::pushBacktrackPoint () {
              << "NRASolver::pushBacktrackPoint " << stack.size() << endl;
     }
     env.push();
+    undo_stack_size.push_back(stack.size());
+    if (config.nra_verbose) {
+        cerr << "================================================================" << endl;
+    }
 }
 
 // Restore a previous state. You can now retrieve the size of the
@@ -187,27 +195,14 @@ void NRASolver::popBacktrackPoint () {
         cerr << "================================================================" << endl
              << "NRASolver::popBacktrackPoint" << endl;
     }
-    // vector<Enode*>::size_type prev_size = undo_stack_size.back();
-    // undo_stack_size.pop_back();
-    // while (stack.size() > prev_size) {
-    //     if (config.nra_verbose) {
-    //         cerr << "Popped Literal = " << stack.back() << endl;
-    //     }
-    //     stack.pop_back();
-    // }
-    // if (config.nra_verbose) {
-    //     cerr << "======= Before Pop, "
-    //          << "Stack Size: " << env_stack.size()
-    //          << " Env = " << endl;
-    //     debug_print_env(env);
-    // }
+    unsigned prev_size = undo_stack_size.back();
+    undo_stack_size.pop_back();
+    unsigned cur_size = stack.size();
+
+    while (cur_size-- > prev_size) {
+        stack.pop_back();
+    }
     env.pop();
-    // if (config.nra_verbose) {
-    //     cerr << "======= After Pop, "
-    //          << "Stack Size: " << env_stack.size()
-    //          << "Env = " << endl;
-    //     debug_print_env(env);
-    // }
 }
 
 //
@@ -314,21 +309,15 @@ bool NRASolver::check(bool complete) {
     return result;
 }
 
-//
-// Return true if the enode belongs
-// to this theory. You should examine
-// the structure of the node to see
-// if it matches the theory operators
-//
+// Return true if the enode belongs to this theory. You should examine
+// the structure of the node to see if it matches the theory operators
 bool NRASolver::belongsToT(Enode * e) {
     (void)e;
     assert(e);
     return true;
 }
 
-//
 // Copy the model into enode's data
-//
 void NRASolver::computeModel() {
     if (config.nra_verbose) {
         cerr << "computeModel" << endl;

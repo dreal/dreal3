@@ -42,6 +42,7 @@ public:
 private:
     scoped_map<Enode*, std::pair<double, double>> env;
     vector <Enode*> stack; // stack of asserted literals.
+    vector <unsigned> undo_stack_size;
     map <Enode*, set <Enode*>> _enode_to_vars;
 };
 #endif

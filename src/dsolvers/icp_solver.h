@@ -34,7 +34,6 @@ public:
     icp_solver(SMTConfig& c, const vector<Enode*> & stack, scoped_map<Enode*, pair<double, double>> & env,
                vector<Enode*> & exp, map <Enode*, set <Enode*>> & enode_to_vars);
     ~icp_solver();
-    rp_problem* create_rp_problem(const vector<Enode*> & stack, scoped_map<Enode*, pair<double, double>> & env);
     rp_box compute_next(); // computation of the next solution
     bool prop(); // only propagate
     bool prop_with_ODE(); // propagate with ODE (only in complete check)
@@ -51,6 +50,7 @@ public:
     /* void branch ( rp_box * ); */
 
 private:
+    rp_problem* create_rp_problem();
     SMTConfig& _config;
     rp_problem * _problem; /* problem to be solved */
     rp_propagator * _propag; /* reduction algorithm using propagation */
@@ -64,6 +64,8 @@ private:
     map <Enode*, set <Enode*>> & _enode_to_vars;
     map<Enode*, int> _enode_to_rp_id;
     vector<Enode*> & _explanation;
+    vector<rp_variable *> _rp_variables;
+    vector<rp_constraint *> _rp_constraints;
     const vector<Enode*> & _stack;
     scoped_map<Enode*, pair<double, double>> & _env;
     list<ode_solver*> _ode_solvers;

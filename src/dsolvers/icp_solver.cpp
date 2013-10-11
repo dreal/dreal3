@@ -28,7 +28,7 @@ icp_solver::icp_solver(SMTConfig& c, const vector<Enode*> & stack, scoped_map<En
     : _config(c), _propag(nullptr), _boxes(env.size()), _ep(nullptr), _sol(0), _nsplit(0),
       _enode_to_vars(enode_to_vars), _explanation(exp), _stack(stack), _env(env) {
     rp_init_library();
-    _problem = create_rp_problem(stack, env);
+    _problem = create_rp_problem();
     _propag = new rp_propagator(_problem, 10.0, c.nra_verbose, c.nra_proof_out);
 
     // rp_new(_vselect, rp_selector_roundrobin, (_problem));
@@ -78,19 +78,37 @@ icp_solver::icp_solver(SMTConfig& c, const vector<Enode*> & stack, scoped_map<En
     }
 }
 
-rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack, scoped_map<Enode*, pair<double, double>> & env) {
+icp_solver::~icp_solver() {
+    rp_delete(_vselect);
+    rp_delete(_dsplit);
+    rp_reset_library();
+    delete _propag;
+    for(rp_variable * _v : _rp_variables) {
+        delete _v;
+    }
+    for(rp_constraint * _c : _rp_constraints) {
+        delete _c;
+    }
+    for(ode_solver * _s : _ode_solvers) {
+        delete _s;
+    }
+    rp_problem_destroy(_problem);
+}
+
+rp_problem* icp_solver::create_rp_problem() {
     rp_problem* result = new rp_problem;
     rp_problem_create(result, "icp_holder");
 
     // ======================================
     // Create rp_variable for each var in env
     // ======================================
-    for (auto ite = env.begin(); ite != env.end(); ite++) {
+    for (auto ite = _env.begin(); ite != _env.end(); ite++) {
         Enode* key = (*ite).first;
         double lb = (*ite).second.first;
         double ub = (*ite).second.second;
 
         rp_variable * _v = new rp_variable;
+        _rp_variables.push_back(_v);
         string name = key->getCar()->getName();
         rp_variable_create(_v, name.c_str());
         int rp_id = rp_vector_insert(rp_table_symbol_vars(rp_problem_symb(*result)), *_v);
@@ -117,10 +135,11 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack, scoped_m
     // ===============================================
     // Create rp_constraints for each literal in stack
     // ===============================================
-    for (auto ite = stack.begin(); ite != stack.end(); ite++) {
+    for (auto ite = _stack.begin(); ite != _stack.end(); ite++) {
         Enode* l = *ite;
         stringstream buf;
         rp_constraint * _c = new rp_constraint;
+        _rp_constraints.push_back(_c);
         l->print_infix(buf, l->getPolarity());
         string temp_string = buf.str();
 
@@ -145,13 +164,6 @@ rp_problem* icp_solver::create_rp_problem(const vector<Enode*> & stack, scoped_m
         }
     }
     return result;
-}
-
-icp_solver::~icp_solver() {
-    rp_delete(_vselect);
-    rp_delete(_dsplit);
-    rp_reset_library();
-    rp_problem_destroy(_problem);
 }
 
 void icp_solver::callODESolver(int group, vector<set<Enode*>> & diff_vec) {
@@ -290,6 +302,9 @@ bool icp_solver::prop_with_ODE() {
 
             // 2. Solve Each ODE Group
             ODEresult = true;
+            for(ode_solver * _s : _ode_solvers) {
+                delete _s;
+            }
             _ode_solvers.clear(); /* clear the list of ODE_Solvers */
             if (_config.nra_parallel_ODE) {
                 // // Parallel Case
