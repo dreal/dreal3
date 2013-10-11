@@ -305,235 +305,140 @@ void Enode::removeParent ( Enode * p )
   }
 }
 
-void Enode::print_infix( ostream & os, lbool polarity ) const
-{
-  Enode *p = NULL;
-  if( isSymb( ) ) {
-    if ( polarity == l_False && (getId() == ENODE_ID_LEQ || getId() == ENODE_ID_LT))
-      {
-        os << ">=";
-      }
-    else if ( polarity == l_False && ( getId() == ENODE_ID_GEQ || getId() == ENODE_ID_GT))
-      {
-        os << "<=";
-      }
-    else
-      {
-        os << getName( );
-      }
-  }
-  else if ( isNumb( ) )
-    {
+void Enode::print_infix(ostream & os, lbool polarity) const {
+    Enode *p = NULL;
+    if(isSymb()) {
+        if (polarity == l_False && (getId() == ENODE_ID_LEQ || getId() == ENODE_ID_LT)) {
+            os << ">=";
+        } else if (polarity == l_False && (getId() == ENODE_ID_GEQ || getId() == ENODE_ID_GT)) {
+            os << "<=";
+        } else {
+            os << getName();
+        }
+    } else if (isNumb()) {
         string temp = getName();
-        os << getName( );
+        os << getName();
         if(boost::algorithm::ends_with(temp, ".")) {
             os << "0";
         }
-    }
-  else if ( isTerm( ) )
-    {
-      // output "("
-      if ( !getCdr()->isEnil( ) && ( isPlus() || isMinus() || isTimes() || isPow() ) ) {
-        os << "(";
-      }
-
-      // !(X = Y) ==> (0 = 0)
-      if ( isEq() && polarity  == l_False) {
-        os << "0 = 0";
-      }
-      else if ( isPlus() ||
-                isMinus() ||
-                isTimes() ||
-                isDiv() ||
-                isEq() ||
-                isLeq() ||
-                isGeq() ||
-                isLt() ||
-                isGt() ||
-                isPow()
-                )
-        {
+    } else if (isTerm()) {
+        // output "("
+        if (!getCdr()->isEnil() && (isPlus() || isMinus() || isTimes() || isPow())) {
+            os << "(";
+        }
+        // !(X = Y) ==> (0 = 0)
+        if (isEq() && polarity  == l_False) {
+            os << "0 = 0";
+        }
+        else if (isPlus() || isMinus() || isTimes() || isDiv() || isEq() || isLeq() ||
+                 isGeq() || isLt() || isGt() || isPow()) {
             // assert(getArity() == 2);
             Enode* op = getCar();
-
             p = getCdr();
             // Print 1st argument
             p->getCar()->print_infix(os, polarity);
-
             p = p->getCdr();
-
-            while(!p->isEnil())
-            {
+            while (!p->isEnil()) {
                 // output operator
                 op->print_infix(os, polarity);
-
                 // output argument
                 p->getCar()->print_infix(os, polarity);
-
                 // move p
                 p = p->getCdr();
             }
-        }
-      else if (isArcTan2()) {
-        assert(getArity() == 2);
-        // output operator
-        getCar()->print_infix(os, polarity);
-        os << "(";
-        // output 1st argument
-        getCdr()->getCar()->print_infix(os, polarity);
-        os << ", ";
-        // output 1st argument
-        getCdr()->getCdr()->getCar()->print_infix(os, polarity);
-        os << ")";
-      }
-      else if (isArcCos() ||
-               isArcSin() ||
-               isArcTan() ||
-               isMArcTan() ||
-               isSafeSqrt() ||
-               isSin() ||
-               isCos() ||
-               isTan() ||
-               isLog() ||
-               isExp()
-               ) {
-        assert(getArity() == 1);
-        // output operator
-        getCar()->print_infix(os, polarity);
-        os << "(";
-        // output 1st argument
-        getCdr()->getCar()->print_infix(os, polarity);
-        os << ")";
-      }
-      else {
-          getCar()->print_infix(os, polarity);
-        p = getCdr();
-        while ( !p->isEnil( ) )
-          {
-            os << " ";
-            // print Car
-            p->getCar()->print_infix(os, polarity);
-            p = p->getCdr();
-          }
-      }
-
-      // output ")"
-      if ( !getCdr()->isEnil( ) && ( isPlus() || isMinus() || isTimes() || isPow() )) {
-        os << ")";
-      }
-    }
-  else if ( isList( ) )
-    {
-      if ( isEnil( ) )
-        os << "-";
-      else
-        {
-          os << "[";
-          getCar()->print_infix(os, polarity);
-
-          p = getCdr();
-          while ( !p->isEnil( ) )
-            {
-              os << ", ";
-              p->getCar()->print_infix(os, polarity);
-              p = p->getCdr();
+        } else if (isArcTan2()) {
+            assert(getArity() == 2);
+            // output operator
+            getCar()->print_infix(os, polarity);
+            os << "(";
+            // output 1st argument
+            getCdr()->getCar()->print_infix(os, polarity);
+            os << ", ";
+            // output 1st argument
+            getCdr()->getCdr()->getCar()->print_infix(os, polarity);
+            os << ")";
+        } else if (isArcCos() || isArcSin() || isArcTan() || isMArcTan() || isSafeSqrt() ||
+                   isSin() || isCos() || isTan() || isLog() || isExp()) {
+            assert(getArity() == 1);
+            // output operator
+            getCar()->print_infix(os, polarity);
+            os << "(";
+            // output 1st argument
+            getCdr()->getCar()->print_infix(os, polarity);
+            os << ")";
+        } else {
+            getCar()->print_infix(os, polarity);
+            p = getCdr();
+            while (!p->isEnil()) {
+                os << " ";
+                // print Car
+                p->getCar()->print_infix(os, polarity);
+                p = p->getCdr();
             }
-
-          os << "]";
         }
-    }
-  else if ( isDef( ) )
-    {
-      os << ":= " << getCar();
-    }
-  else if ( isEnil( ) )
-    {
-      os << "-";
-    }
-  else
-    opensmt_error( "unknown case value" );
+        // output ")"
+        if (!getCdr()->isEnil() && (isPlus() || isMinus() || isTimes() || isPow())) {
+            os << ")";
+        }
+    } else if (isList()) {
+        if (isEnil()) {
+            os << "-";
+        } else {
+            os << "[";
+            getCar()->print_infix(os, polarity);
+            p = getCdr();
+            while (!p->isEnil()) {
+                    os << ", ";
+                    p->getCar()->print_infix(os, polarity);
+                    p = p->getCdr();
+            }
+            os << "]";
+        }
+    } else if (isDef()) {
+        os << ":= " << getCar();
+    } else if (isEnil()) {
+        os << "-";
+    } else opensmt_error("unknown case value");
 }
 
-void Enode::print( ostream & os )
-{
-  Enode * p = NULL;
-
-  if( isSymb( ) )
-    os << getName( );
-  else if ( isNumb( ) )
-  {
-    if ( false ) { }
-    else
-    {
-      double r = *(symb_data->value);
-#if USE_GMP
-      if (r < 0)
-      {
-        if (r.get_den() != 1)
-          os << "(/ " << "(- " << abs(r.get_num()) << ")" << " " << r.get_den() << ")";
-        else
-          os << "(- " << abs(r) << ")";
-      }
-      else
-      {
-        if (r.get_den() != 1)
-          os << "(/ " << r.get_num() << " " << r.get_den() << ")";
-        else
-          os << r;
-      }
-#else
-      os << r;
-#endif
-    }
-  }
-  else if ( isTerm( ) )
-  {
-    if ( !cdr->isEnil( ) )
-      os << "(";
-
-    car->print( os );
-
-    p = cdr;
-    while ( !p->isEnil( ) )
-    {
-      os << " ";
-      p->car->print( os );
-      p = p->cdr;
-    }
-
-    if ( !cdr->isEnil( ) )
-      os << ")";
-  }
-  else if ( isList( ) )
-  {
-    if ( isEnil( ) )
-      os << "-";
-    else
-    {
-      os << "[";
-      car->print( os );
-
-      p = cdr;
-      while ( !p->isEnil( ) )
-      {
-        os << ", ";
-        p->car->print( os );
-        p = p->cdr;
-      }
-
-      os << "]";
-    }
-  }
-  else if ( isDef( ) )
-  {
-    os << ":= " << car;
-  }
-  else if ( isEnil( ) )
-  {
-    os << "-";
-  }
-  else
-    opensmt_error( "unknown case value" );
+void Enode::print(ostream & os) {
+    Enode * p = NULL;
+    if(isSymb()) {
+        os << getName();
+    } else if (isNumb()) {
+        double r = *(symb_data->value);
+        os << r;
+    } else if (isTerm()) {
+        if (!cdr->isEnil())
+            os << "(";
+        car->print(os);
+        p = cdr;
+        while (!p->isEnil()) {
+            os << " ";
+            p->car->print(os);
+            p = p->cdr;
+        }
+        if (!cdr->isEnil())
+            os << ")";
+    } else if (isList()) {
+        if (isEnil()) {
+            os << "-";
+        } else {
+            os << "[";
+            car->print(os);
+            p = cdr;
+            while (!p->isEnil()) {
+                os << ", ";
+                p->car->print(os);
+                p = p->cdr;
+            }
+            os << "]";
+        }
+    } else if (isDef()) {
+        os << ":= " << car;
+    } else if (isEnil()) {
+        os << "-";
+    } else opensmt_error("unknown case value");
 }
 
 void Enode::printSig( ostream & os )
