@@ -93,6 +93,7 @@ icp_solver::~icp_solver() {
         delete _s;
     }
     rp_problem_destroy(_problem);
+    delete _problem;
 }
 
 rp_problem* icp_solver::create_rp_problem() {

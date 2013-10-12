@@ -33,8 +33,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // Except for extract, which is created
 // on demand
 //
-#define ENODE_ID_UNDEF	          (-1)
-#define ENODE_ID_ENIL	           (0)
+#define ENODE_ID_UNDEF            (-1)
+#define ENODE_ID_ENIL              (0)
 #define ENODE_ID_TRUE              (1)
 #define ENODE_ID_FALSE             (2)
 #define ENODE_ID_NOT               (3)
@@ -42,34 +42,34 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define ENODE_ID_AND               (5)
 #define ENODE_ID_OR                (6)
 #define ENODE_ID_XOR               (7)
-#define ENODE_ID_EQ	           (8)
+#define ENODE_ID_EQ                (8)
 #define ENODE_ID_ITE               (9)
 #define ENODE_ID_DISTINCT         (10)
-#define ENODE_ID_PLUS		  (11)
-#define ENODE_ID_MINUS	          (12)
-#define ENODE_ID_UMINUS	          (13)
-#define ENODE_ID_TIMES	          (14)
-#define ENODE_ID_DIV		  (15)
-#define ENODE_ID_LEQ	          (16)
-#define ENODE_ID_GEQ	          (17)
-#define ENODE_ID_LT	          (18)
-#define ENODE_ID_GT	          (19)
-#define ENODE_ID_STORE	          (20)
-#define ENODE_ID_SELECT	          (21)
+#define ENODE_ID_PLUS             (11)
+#define ENODE_ID_MINUS            (12)
+#define ENODE_ID_UMINUS           (13)
+#define ENODE_ID_TIMES            (14)
+#define ENODE_ID_DIV              (15)
+#define ENODE_ID_LEQ              (16)
+#define ENODE_ID_GEQ              (17)
+#define ENODE_ID_LT               (18)
+#define ENODE_ID_GT               (19)
+#define ENODE_ID_STORE            (20)
+#define ENODE_ID_SELECT           (21)
 
 /* added for dReal2 */
-#define ENODE_ID_EXP		  (22)
-#define ENODE_ID_LOG		  (23)
-#define ENODE_ID_SIN		  (24)
-#define ENODE_ID_COS		  (25)
-#define ENODE_ID_TAN		  (26)
-#define ENODE_ID_ARCSIN		  (27)
-#define ENODE_ID_ARCCOS		  (28)
-#define ENODE_ID_ARCTAN		  (29)
-#define ENODE_ID_POW		  (30)
-#define ENODE_ID_ARCTAN2	  (31)
-#define ENODE_ID_MARCTAN	  (32)
-#define ENODE_ID_SAFESQRT	  (33)
+#define ENODE_ID_EXP              (22)
+#define ENODE_ID_LOG              (23)
+#define ENODE_ID_SIN              (24)
+#define ENODE_ID_COS              (25)
+#define ENODE_ID_TAN              (26)
+#define ENODE_ID_ARCSIN           (27)
+#define ENODE_ID_ARCCOS           (28)
+#define ENODE_ID_ARCTAN           (29)
+#define ENODE_ID_POW              (30)
+#define ENODE_ID_ARCTAN2          (31)
+#define ENODE_ID_MARCTAN          (32)
+#define ENODE_ID_SAFESQRT         (33)
 /* ------------------- */
 
 /*
@@ -108,7 +108,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // it is used to check whether a function symbol
 // is predefined or uninterpreted
 //
-#define ENODE_ID_LAST		  (33)  /* modified for dReal2 */
+#define ENODE_ID_LAST             (33)  /* modified for dReal2 */
 
 //
 // Properties stored in integers
@@ -267,7 +267,7 @@ struct SymbData
   //
   SymbData ( const char *         name_
            , const etype_t        etype_
-	   , Snode *              sort_ )
+           , Snode *              sort_ )
       : name  ( NULL )
       , value ( NULL )
       , lsb   ( -1 )
@@ -306,8 +306,8 @@ struct SymbData
     assert( name );
     delete [] name;
     /* commented out for dReal2, no need */
-    /* if ( value ) */
-    /*   delete value; */
+    if ( value )
+       delete value;
   }
 
   char *             name;
