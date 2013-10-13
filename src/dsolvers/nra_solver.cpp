@@ -52,7 +52,7 @@ void debug_print_env(const scoped_map<Enode*, pair<double, double>> & env) {
 
 void debug_print_stack(const vector<Enode*> & stack) {
     // Print out all the Enode in stack
-    for (auto ite = stack.begin(); ite != stack.end(); ite++) {
+    for (auto ite = stack.cbegin(); ite != stack.cend(); ite++) {
         cerr << "asserted literal : " << *ite
              << "\t" << (*ite)->hasPolarity()
              << endl;
@@ -115,7 +115,6 @@ lbool NRASolver::inform(Enode * e) {
              << " with polarity " << e->getPolarity().toInt() << endl
              << "================================================================" << endl;
     }
-    assert(e->isAtom());
     set<Enode*> variables_in_e = get_variables(e);
     set<Enode*> ode_variables_in_e;
     for (auto ite = variables_in_e.begin(); ite != variables_in_e.end(); ite++) {
@@ -145,8 +144,7 @@ lbool NRASolver::inform(Enode * e) {
 // discover inconsistency you may return false. The real consistency
 // state will be checked with "check"
 //
-// assertLit adds a literal(e) to stack which represetns a list of
-// asserted literals.
+// assertLit adds a literal(e) to stack of asserted literals.
 bool NRASolver::assertLit (Enode * e, bool reason) {
     if (config.nra_verbose) {
         cerr << "================================================================" << endl
@@ -198,7 +196,6 @@ void NRASolver::popBacktrackPoint () {
     unsigned prev_size = undo_stack_size.back();
     undo_stack_size.pop_back();
     unsigned cur_size = stack.size();
-
     while (cur_size-- > prev_size) {
         stack.pop_back();
     }
@@ -228,7 +225,6 @@ bool NRASolver::check(bool complete) {
         debug_print_stack(stack);
         debug_print_env(env);
     }
-//    env = env_stack.back();
     icp_solver solver(config, stack, env, explanation, _enode_to_vars);
     if (!complete) {
         // Incomplete Check
@@ -242,27 +238,16 @@ bool NRASolver::check(bool complete) {
             cerr << "After Prop" << endl;
             debug_print_env(env);
         }
-//        env_stack.pop_back();
-//        env_stack.push_back(env);
     } else {
-        // Complete Check
-        // if (config.nra_json) {
-        //     config.nra_json_out << "{" << endl
-        //                         << "\"traces\": ";
-        // }
         result = solver.solve();
     }
-    // If the result is UNSAT, generate explanation
-    if (!result) {
-        if (config.nra_verbose) {
-            cerr << "#explanation provided: ";
-            debug_print_explanation(explanation);
-        }
+
+    if (config.nra_verbose && !result) {
+        cerr << "#explanation provided: ";
+        debug_print_explanation(explanation);
     }
-    // if (!result && config.nra_contain_ODE && config.nra_json) {
-    //     // Reset Stream
-    //     config.nra_json_out.seekp(ios_base::beg);
-    // }
+
+    // Print out JSON
     if (complete && result && config.nra_contain_ODE && config.nra_json) {
         // Print out ODE trajectory
         config.nra_json_out << "{\"traces\": " << endl
@@ -275,7 +260,7 @@ bool NRASolver::check(bool complete) {
         // print out
         set<int> ode_groups;
 
-        for (auto lit = stack.begin(); lit != stack.end(); lit++) {
+        for (auto lit = stack.cbegin(); lit != stack.cend(); lit++) {
             if ((*lit)->getPolarity() == l_True) {
                 set<Enode*> variables_in_lit = _enode_to_vars[*lit];
                 for (auto var = variables_in_lit.begin(); var != variables_in_lit.end(); var++) {

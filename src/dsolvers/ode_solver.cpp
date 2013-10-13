@@ -191,11 +191,11 @@ IVector ode_solver::extract_invariants(vector<Enode*> vars) {
 }
 
 
-void ode_solver::IVector_to_varlist(IVector & v, vector<Enode*> & vars) {
-    for (int i = 0; i <v.size(); i++) {
+void ode_solver::IVector_to_varlist(const IVector & v, vector<Enode*> & vars) {
+    for (unsigned i = 0; i < v.dimension(); i++) {
             double lb = get_lb(vars[i]);
             double ub = get_ub(vars[i]);
-            if (lb <v[i].leftBound())
+            if (lb < v[i].leftBound())
                 set_lb(vars[i], v[i].leftBound());
             if (ub> v[i].rightBound())
                 set_ub(vars[i], v[i].rightBound());
@@ -205,7 +205,7 @@ void ode_solver::IVector_to_varlist(IVector & v, vector<Enode*> & vars) {
 void ode_solver::prune(vector<Enode*>& _t_vars, IVector v, interval dt,
                        vector<IVector> & out_v_list, vector<interval> & out_time_list, interval time) {
     bool candidate = true;
-    for (int i = 0; candidate && i <v.size(); i++) {
+    for (unsigned i = 0; candidate && i < v.dimension(); i++) {
         if (_config.nra_verbose) {
             cerr << endl
                  << " v[" << i << "] = "
@@ -270,7 +270,7 @@ bool ode_solver::simple_ODE() {
     IVector X_0 = varlist_to_IVector(_0_vars);
     IVector inv = extract_invariants(_t_vars);
     IVector X_t = varlist_to_IVector(_t_vars);
-    IVector new_X_t(X_t.size());
+    IVector new_X_t(X_t.dimension());
 
     // time range
     Enode* time = (*_0_vars.begin())->getODEtimevar();
@@ -486,6 +486,10 @@ bool ode_solver::solve_forward() {
                 // can also extract from it the 1-st order derivatives
                 // wrt.
                 const ITaylor::CurveType& curve = solver.getCurve();
+
+                // Changes in Capd 4.0
+                // const ITaylor::SolutionCurve& curve = solver.getCurve();
+
                 interval domain = interval(0, 1) * stepMade;
                 double domainWidth = domain.rightBound() - domain.leftBound();
 

@@ -37,7 +37,7 @@ public:
     string create_diffsys_string(set <Enode*> & ode_vars, vector<Enode*> & _0_vars, vector<Enode*> & _t_vars);
     capd::IVector varlist_to_IVector(vector<Enode*> vars);
     capd::IVector extract_invariants(vector<Enode*> vars);
-    void IVector_to_varlist(capd::IVector & v, vector<Enode*> & vars);
+    void IVector_to_varlist(capd::IVector const & v, vector<Enode*> & vars);
     void prune(vector<Enode*>& _t_vars, capd::IVector v, capd::interval dt,
                vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list, capd::interval time);
     bool simple_ODE();

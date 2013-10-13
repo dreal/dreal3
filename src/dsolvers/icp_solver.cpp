@@ -97,28 +97,28 @@ icp_solver::~icp_solver() {
 }
 
 rp_problem* icp_solver::create_rp_problem() {
-    rp_problem* result = new rp_problem;
-    rp_problem_create(result, "icp_holder");
+    rp_problem* rp_prob = new rp_problem;
+    rp_problem_create(rp_prob, "icp_holder");
 
     // ======================================
     // Create rp_variable for each var in env
     // ======================================
     for (auto ite = _env.begin(); ite != _env.end(); ite++) {
         Enode* key = (*ite).first;
-        double lb = (*ite).second.first;
-        double ub = (*ite).second.second;
+        const double lb = (*ite).second.first;
+        const double ub = (*ite).second.second;
 
         rp_variable * _v = new rp_variable;
         _rp_variables.push_back(_v);
         string name = key->getCar()->getName();
         rp_variable_create(_v, name.c_str());
-        int rp_id = rp_vector_insert(rp_table_symbol_vars(rp_problem_symb(*result)), *_v);
-        rp_box_enlarge_size(&rp_problem_box (*result), 1);
-        rp_bsup(rp_box_elem(rp_problem_box(*result), rp_id)) = ub;
-        rp_binf(rp_box_elem(rp_problem_box(*result), rp_id)) = lb;
+        int rp_id = rp_vector_insert(rp_table_symbol_vars(rp_problem_symb(*rp_prob)), *_v);
+        rp_box_enlarge_size(&rp_problem_box (*rp_prob), 1);
+        rp_bsup(rp_box_elem(rp_problem_box(*rp_prob), rp_id)) = ub;
+        rp_binf(rp_box_elem(rp_problem_box(*rp_prob), rp_id)) = lb;
         rp_union_interval u;
         rp_union_create(&u);
-        rp_union_insert(u, rp_box_elem(rp_problem_box(*result), rp_id));
+        rp_union_insert(u, rp_box_elem(rp_problem_box(*rp_prob), rp_id));
         rp_union_copy(rp_variable_domain(*_v), u);
         rp_union_destroy(&u);
 
@@ -136,35 +136,35 @@ rp_problem* icp_solver::create_rp_problem() {
     // ===============================================
     // Create rp_constraints for each literal in stack
     // ===============================================
-    for (auto ite = _stack.begin(); ite != _stack.end(); ite++) {
+    for (auto ite = _stack.cbegin(); ite != _stack.cend(); ite++) {
         Enode* l = *ite;
         stringstream buf;
         rp_constraint * _c = new rp_constraint;
         _rp_constraints.push_back(_c);
         l->print_infix(buf, l->getPolarity());
-        string temp_string = buf.str();
+        string constraint_str = buf.str();
 
-        if (temp_string.compare("0 = 0") != 0) {
+        if (constraint_str.compare("0 = 0") != 0) {
             if (_config.nra_verbose) {
                 cerr << "Constraint: "
                      << (l->getPolarity() == l_True ? " " : "Not")
                      << l << endl;
-                cerr << " : " << temp_string << endl;
+                cerr << " : " << constraint_str << endl;
             }
 
             // Parse the string (infix form) to create the constraint _c
-            rp_parse_constraint_string(_c, temp_string.c_str(), rp_problem_symb(*result));
+            rp_parse_constraint_string(_c, constraint_str.c_str(), rp_problem_symb(*rp_prob));
 
             // Add to the problem
-            rp_vector_insert(rp_problem_ctrs(*result), *_c);
+            rp_vector_insert(rp_problem_ctrs(*rp_prob), *_c);
 
             // Update Counter
             for (int i = 0; i <rp_constraint_arity(*_c); ++i) {
-                ++rp_variable_constrained(rp_problem_var(*result, rp_constraint_var(*_c, i)));
+                ++rp_variable_constrained(rp_problem_var(*rp_prob, rp_constraint_var(*_c, i)));
             }
         }
     }
-    return result;
+    return rp_prob;
 }
 
 void icp_solver::callODESolver(int group, vector<set<Enode*>> & diff_vec) {
@@ -178,11 +178,9 @@ void icp_solver::callODESolver(int group, vector<set<Enode*>> & diff_vec) {
         if (_config.nra_verbose) {
             ODEresult = false;
             cerr << "The size of ODE_Vars should be even" << endl;
-            for_each(current_ode_vars.begin(),
-                     current_ode_vars.end(),
-                     [] (Enode* ode_var) {
-                         cerr << ode_var << endl;
-                     });
+            for_each(current_ode_vars.begin(), current_ode_vars.end(), [] (Enode* ode_var) {
+                    cerr << ode_var << endl;
+                });
         }
         return;
     }
@@ -271,7 +269,7 @@ bool icp_solver::prop_with_ODE() {
 
             // 1. Collect All the ODE Vars
             // For each enode in the stack
-            for (auto stack_ite = _stack.begin(); stack_ite != _stack.end(); stack_ite++) {
+            for (auto stack_ite = _stack.cbegin(); stack_ite != _stack.cend(); stack_ite++) {
                 set <Enode*> ode_vars = _enode_to_vars[*stack_ite];
                 for (auto ite = ode_vars.begin(); ite != ode_vars.end(); ite++) {
                     unsigned diff_group = (*ite)->getODEgroup();
@@ -307,31 +305,12 @@ bool icp_solver::prop_with_ODE() {
                 delete _s;
             }
             _ode_solvers.clear(); /* clear the list of ODE_Solvers */
-            if (_config.nra_parallel_ODE) {
-                // // Parallel Case
-                // boost::thread_group group;
-                // unsigned hc = boost::thread::hardware_concurrency();
-                // unsigned block = ceil(((double)max) / hc);
-                // for (unsigned bn = 0; bn <block; bn++) {
-                // for (unsigned i = 1; i <= hc && bn * hc + i <= max; i++) {
-                // group.create_thread(boost::bind(&icp_solver::callODESolver,
-                // this,
-                // bn * hc + i,
-                // diff_vec));
-                // }
-                // group.join_all();
-                // if (!ODEresult) {
-                // return false;
-                // }
-                // }
-            } else {
-                // Sequential Case
-                for (unsigned i = 1; i <= max; i++) {
-                    if (!diff_vec[i].empty()) {
-                        icp_solver::callODESolver(i, diff_vec);
-                        if (!ODEresult) {
-                            return false;
-                        }
+            // Sequential Case
+            for (unsigned i = 1; i <= max; i++) {
+                if (!diff_vec[i].empty()) {
+                    icp_solver::callODESolver(i, diff_vec);
+                    if (!ODEresult) {
+                        return false;
                     }
                 }
             }
@@ -349,15 +328,14 @@ rp_box icp_solver::compute_next() {
     }
     while (!_boxes.empty()) {
         if (prop_with_ODE()) { // sean: here it is! propagation before split!!!
-            int i;
-            if ((i = _vselect->apply(_boxes.get())) >= 0 && rp_box_width(_boxes.get()) >= _config.nra_precision) {
+            int i = _vselect->apply(_boxes.get());
+            if (i >= 0 && rp_box_width(_boxes.get()) >= _config.nra_precision) {
                 if (_config.nra_proof) {
                     _config.nra_proof_out << endl
                                           << "[branched on "
                                           << rp_variable_name(rp_problem_var(*_problem, i))
                                           << "]"
                                           << endl;
-// << "[branched on x" << i << "]"
                     pprint_vars(_config.nra_proof_out, *_problem, _boxes.get());
                 }
                 ++_nsplit;
@@ -387,7 +365,6 @@ void icp_solver::print_ODE_trajectory() const {
 }
 
 bool icp_solver::solve() {
-    bool ret = false;
     if (_config.nra_proof) {
         output_problem();
     }
@@ -395,13 +372,9 @@ bool icp_solver::solve() {
         if (_config.nra_verbose) {
             cerr << "Unfeasibility detected before solving";
         }
-
-        /* TODO: what about explanation? */
-        _explanation.clear();
-        copy(_stack.begin(),
-             _stack.end(),
-             back_inserter(_explanation));
-        ret = false;
+        /* TODO: currently, this is a naive explanation. */
+        copy(_stack.cbegin(), _stack.cend(), back_inserter(_explanation));
+        return false;
     } else {
         rp_box b;
         if ((b = compute_next()) != nullptr) {
@@ -416,23 +389,18 @@ bool icp_solver::solve() {
                 pprint_vars(_config.nra_proof_out, *_problem, b);
                 _config.nra_proof_out << endl;
             }
-            ret = true;
+            return true;
         } else {
             /* UNSAT */
-            /* TODO: what about explanation? */
             // _proof_out << "[conflict detected]" << endl;
             if (_config.nra_verbose) {
                 cerr << "UNSAT!" << endl;
             }
-
             _explanation.clear();
-            copy(_stack.begin(),
-                 _stack.end(),
-                 back_inserter(_explanation));
-            ret = false;
+            copy(_stack.cbegin(), _stack.cend(), back_inserter(_explanation));
+            return false;
         }
     }
-    return ret;
 }
 
 void icp_solver::display_box(ostream& out, rp_box b, int digits, int mode) const {
@@ -538,7 +506,7 @@ void icp_solver::output_problem() const {
     _config.nra_proof_out << "Precision:" << _config.nra_precision << endl;
 
     // Print out all the Enode in stack
-    for (auto ite = _stack.begin(); ite != _stack.end(); ite++) {
+    for (auto ite = _stack.cbegin(); ite != _stack.cend(); ite++) {
         if ((*ite)->getPolarity() == l_True) {
             _config.nra_proof_out << *ite << endl;
         } else if ((*ite)->getPolarity() == l_False) {
@@ -598,16 +566,14 @@ bool icp_solver::prop() {
         }
         // TODO(soonhok): better explanation
         _explanation.clear();
-        copy(_stack.begin(), _stack.end(), back_inserter(_explanation));
+        copy(_stack.cbegin(), _stack.cend(), back_inserter(_explanation));
     } else {
         // SAT
         // Update Env
         // ======================================
         // Create rp_variable for each var in env
         // ======================================
-        for (auto ite = _env.begin();
-            ite != _env.end();
-            ite++) {
+        for (auto ite = _env.begin(); ite != _env.end(); ite++) {
             Enode* key = (*ite).first;
             // double lb = (*ite).second.first;
             // double ub = (*ite).second.second;
