@@ -53,12 +53,12 @@ void LAExpression::initialize( Enode * e )
     if ( t->isPlus( ) )
     {
       for ( Enode * arg_list = t->getCdr( )
-	  ; !arg_list->isEnil( )
-	  ; arg_list = arg_list->getCdr( ) )
+          ; !arg_list->isEnil( )
+          ; arg_list = arg_list->getCdr( ) )
       {
-	Enode * arg = arg_list->getCar( );
-	curr_term .push_back( arg );
-	curr_const.push_back( c );
+        Enode * arg = arg_list->getCar( );
+        curr_term .push_back( arg );
+        curr_const.push_back( c );
       }
     }
     //
@@ -73,9 +73,9 @@ void LAExpression::initialize( Enode * e )
       assert( x->isConstant( ) || y->isConstant( ) );
       if ( y->isConstant( ) )
       {
-	Enode * tmp = y;
-	y = x;
-	x = tmp;
+        Enode * tmp = y;
+        y = x;
+        x = tmp;
       }
 
       Real new_c = x->getValue( );
@@ -91,23 +91,23 @@ void LAExpression::initialize( Enode * e )
       assert( t->isVar( ) || t->isConstant( ) || t->isUf( ) );
       if ( t->isConstant( ) )
       {
-	const Real & tval = t->getValue( );
-	polynome[ 0 ] += tval * c;
+        const Real & tval = t->getValue( );
+        polynome[ 0 ] += tval * c;
       }
       else
       {
-	if ( t->hasSortInt( ) )
-	  integers = true;
+        if ( t->hasSortInt( ) )
+          integers = true;
 
-	polynome_t::iterator it = polynome.find( t );
-	if ( it != polynome.end( ) )
-	{
-	  it->second += c;
-	  if ( it->first != 0 && it->second == 0 )
-	    polynome.erase( it );
-	}
-	else
-	  polynome[ t ] = c;
+        polynome_t::iterator it = polynome.find( t );
+        if ( it != polynome.end( ) )
+        {
+          it->second += c;
+          if ( it->first != 0 && it->second == 0 )
+            polynome.erase( it );
+        }
+        else
+          polynome[ t ] = c;
       }
     }
   }
@@ -191,13 +191,13 @@ void LAExpression::print( ostream & os )
     os << " (+";
     list< Enode * > sum_list;
     for ( polynome_t::iterator it = polynome.begin( )
-	; it != polynome.end( )
-	; it ++ )
+        ; it != polynome.end( )
+        ; it ++ )
     {
       if ( it->first == 0 )
-	constant = -it->second;
+        constant = -it->second;
       else
-	os << " (* " << it->second << " " << it->first << ")";
+        os << " (* " << it->second << " " << it->first << ")";
     }
     os << ")";
   }
@@ -222,6 +222,7 @@ pair< Enode *, Enode * > LAExpression::getSubstInt( Egraph & )
 {
   // TBD
   assert( false );
+  throw std::runtime_error("Not Implemented");
 }
 
 pair< Enode *, Enode * > LAExpression::getSubstReal( Egraph & egraph )
@@ -252,15 +253,15 @@ pair< Enode *, Enode * > LAExpression::getSubstReal( Egraph & egraph )
     {
       if ( var == NULL )
       {
-	var = it->first;
-	assert( it->second == 1 );
+        var = it->first;
+        assert( it->second == 1 );
       }
       else
       {
-	Real coeff = -it->second;
-	Enode * c = egraph.mkNum( coeff );
-	Enode * vv = it->first;
-	sum_list.push_back( egraph.mkTimes( egraph.cons( c, egraph.cons( vv ) ) ) );
+        Real coeff = -it->second;
+        Enode * c = egraph.mkNum( coeff );
+        Enode * vv = it->first;
+        sum_list.push_back( egraph.mkTimes( egraph.cons( c, egraph.cons( vv ) ) ) );
       }
     }
   }

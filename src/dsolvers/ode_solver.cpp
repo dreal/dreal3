@@ -192,7 +192,7 @@ IVector ode_solver::extract_invariants(vector<Enode*> vars) {
 
 
 void ode_solver::IVector_to_varlist(const IVector & v, vector<Enode*> & vars) {
-    for (unsigned i = 0; i < v.dimension(); i++) {
+    for (auto i = 0; i < v.dimension(); i++) {
             double lb = get_lb(vars[i]);
             double ub = get_ub(vars[i]);
             if (lb < v[i].leftBound())
@@ -205,7 +205,7 @@ void ode_solver::IVector_to_varlist(const IVector & v, vector<Enode*> & vars) {
 void ode_solver::prune(vector<Enode*>& _t_vars, IVector v, interval dt,
                        vector<IVector> & out_v_list, vector<interval> & out_time_list, interval time) {
     bool candidate = true;
-    for (unsigned i = 0; candidate && i < v.dimension(); i++) {
+    for (auto i = 0; candidate && i < v.dimension(); i++) {
         if (_config.nra_verbose) {
             cerr << endl
                  << " v[" << i << "] = "
@@ -395,8 +395,6 @@ bool ode_solver::solve_forward() {
         IVector start = varlist_to_IVector(_0_vars); /* TODO */
         IVector inv = extract_invariants(_t_vars);
         IVector end = varlist_to_IVector(_t_vars); /* TODO */
-
-        // end = start; //set the initial comparison
 
         // define a doubleton representation of the interval vector start
         C0Rect2Set s(start);

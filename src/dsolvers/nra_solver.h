@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef NRA_SOLVER_H
 #define NRA_SOLVER_H
+#include <utility>
 #include "TSolver.h"
 #include "Egraph.h"
 #include "dsolvers/util/scoped_map.h"

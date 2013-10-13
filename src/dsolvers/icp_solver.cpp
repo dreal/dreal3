@@ -83,13 +83,13 @@ icp_solver::~icp_solver() {
     rp_delete(_dsplit);
     rp_reset_library();
     delete _propag;
-    for(rp_variable * _v : _rp_variables) {
+    for (rp_variable * _v : _rp_variables) {
         delete _v;
     }
-    for(rp_constraint * _c : _rp_constraints) {
+    for (rp_constraint * _c : _rp_constraints) {
         delete _c;
     }
-    for(ode_solver * _s : _ode_solvers) {
+    for (ode_solver * _s : _ode_solvers) {
         delete _s;
     }
     rp_problem_destroy(_problem);
@@ -301,7 +301,7 @@ bool icp_solver::prop_with_ODE() {
 
             // 2. Solve Each ODE Group
             ODEresult = true;
-            for(ode_solver * _s : _ode_solvers) {
+            for (ode_solver * _s : _ode_solvers) {
                 delete _s;
             }
             _ode_solvers.clear(); /* clear the list of ODE_Solvers */
