@@ -4,7 +4,7 @@ OPT =
 
 k10:
 	$(BMC) -i -p "[1,2,1,2,1,2,1,2,1,2,1]" -k 10 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.01 --ode-step=0.01 --ode-grid=16 --visualize bouncing_ball_with_drag_10.smt2
+	$(DREAL) --precision=0.001 --ode-grid=1024 --visualize bouncing_ball_with_drag_10.smt2
 
 sk10:
 	$(BMC) -i -p "[1,2,1,2,1,2,1,2,1,2,1]" -k 10 bouncing_ball_with_drag2.drh
