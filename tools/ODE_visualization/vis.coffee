@@ -27,9 +27,6 @@ addTimeToData = (t, item) ->
 processJson = (json) ->
   groups = json.groups
 
-  # Drop the first item (which is dummy)
-  json.traces = _.rest(json.traces)
-
   # Only collect the traces of the corresponding groups
   traces = _.filter(json.traces, (item) -> _.some(groups, (g) -> (+item[0].group) == g))
 
