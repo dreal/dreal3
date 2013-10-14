@@ -30,51 +30,54 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 class ode_solver {
 public:
-    ode_solver(int group, SMTConfig& c, set <Enode*> & ode_vars, rp_box b,
-               std::map<Enode*, int>& enode_to_rp_id, bool& ODEresult);
+    ode_solver(int group, SMTConfig& c, set<Enode*> const & ode_vars, rp_box b,
+               std::map<Enode*, int>& enode_to_rp_id);
     ~ode_solver();
-
-    string create_diffsys_string(set <Enode*> & ode_vars, vector<Enode*> & _0_vars, vector<Enode*> & _t_vars);
-    capd::IVector varlist_to_IVector(vector<Enode*> vars);
-    capd::IVector extract_invariants(vector<Enode*> vars);
-    void IVector_to_varlist(capd::IVector const & v, vector<Enode*> & vars);
-    void prune(vector<Enode*>& _t_vars, capd::IVector v, capd::interval dt,
-               vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list, capd::interval time);
     bool simple_ODE();
     bool solve_forward();
     bool solve_backward();
-
-    double get_lb(Enode* const e) const {
-        return rp_binf(rp_box_elem(_b, _enode_to_rp_id[e]));
-    }
-    double get_ub(Enode* const e) const {
-        return rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e]));
-    }
-    void set_lb(Enode* const e, const double v) {
-        rp_binf(rp_box_elem(_b, _enode_to_rp_id[e])) = v;
-    }
-    void set_ub(Enode* const e, const double v) {
-        rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e])) = v;
-    }
-    void set_empty_interval(Enode* const e) {
-        rp_interval_set_empty(rp_box_elem(_b, _enode_to_rp_id[e]));
-    }
     void print_trajectory(ostream& out) const;
 
 private:
+    // Private Members
     int _group;
     SMTConfig& _config;
-    set<Enode*> & _ode_vars;
+    set<Enode*> const & _ode_vars;
     rp_box _b;
     map<Enode*, int>& _enode_to_rp_id;
     ode_solver& operator=(const ode_solver& o);
     list<pair<capd::interval, capd::IVector>> trajectory;
-    bool& ODEresult;
-    vector<string> var_list;
     double stepControl;
+
+    vector<string> ode_list;
+    vector<string> var_list;
+    vector<Enode*> _0_vars;
+    vector<Enode*> _t_vars;
+    string diff_var;
+    string diff_fun;
+    string diff_sys;
+
+    // Private Methods
     void print_datapoint(ostream& out, const capd::interval& t, const capd::interval& v) const;
-    void print_trace(ostream& out, const string key, const int idx,
-                     const list<pair<capd::interval, capd::IVector>> & trajectory) const;
+    void print_trace(ostream& out, string const & key, int const idx,
+                     list<pair<capd::interval, capd::IVector>> const & trajectory) const;
     void prune_trajectory(capd::interval& t, capd::IVector& e);
+    bool check_invariant(capd::IVector & iv, capd::IVector const & inv);
+    capd::IVector varlist_to_IVector(vector<Enode*> const & vars);
+    capd::IVector extract_invariants(vector<Enode*> const & vars);
+    void IVector_to_varlist(capd::IVector const & v, vector<Enode*> & vars);
+    void prune(vector<Enode*> const & _t_vars, capd::IVector const & v,
+               capd::interval const & dt,  capd::interval const & time,
+               vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list);
+
+    // Will be deleted..
+    bool solve_forward_old();
+
+    // Inline functions
+    inline double get_lb(Enode* const e) const { return rp_binf(rp_box_elem(_b, _enode_to_rp_id[e])); }
+    inline double get_ub(Enode* const e) const { return rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e])); }
+    inline void set_lb(Enode* const e, double const v) { rp_binf(rp_box_elem(_b, _enode_to_rp_id[e])) = v; }
+    inline void set_ub(Enode* const e, double const v) { rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e])) = v; }
+    inline void set_empty_interval(Enode* const e) { rp_interval_set_empty(rp_box_elem(_b, _enode_to_rp_id[e])); }
 };
 #endif

@@ -22,6 +22,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "dsolvers/icp_solver.h"
 #include <iomanip>
 #include <string>
+#include <boost/algorithm/string/predicate.hpp>
+
+using boost::starts_with;
 
 icp_solver::icp_solver(SMTConfig& c, const vector<Enode*> & stack, scoped_map<Enode*, pair<double, double>> & env,
                        vector<Enode*> & exp, map <Enode*, set <Enode*>> & enode_to_vars)
@@ -167,98 +170,77 @@ rp_problem* icp_solver::create_rp_problem() {
     return rp_prob;
 }
 
-void icp_solver::callODESolver(int group, vector<set<Enode*>> & diff_vec) {
+bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars) {
     if (_config.nra_verbose) {
         cerr << "solve ode group: " << group << endl;
     }
-    set<Enode*> current_ode_vars = diff_vec[group];
 
     // The size of ODE_Vars should be even
-    if (current_ode_vars.size() % 2 == 1) {
+    if (ode_vars.size() % 2 == 1) {
         if (_config.nra_verbose) {
-            ODEresult = false;
             cerr << "The size of ODE_Vars should be even" << endl;
-            for_each(current_ode_vars.begin(), current_ode_vars.end(), [] (Enode* ode_var) {
-                    cerr << ode_var << endl;
-                });
+            for (auto ode_var : ode_vars) {
+                cerr << ode_var << endl;
+            }
         }
-        return;
+        return false;
     }
 
     // If the _0 and _t variables do not match, return false.
-    for (auto ite = current_ode_vars.begin(); ite != current_ode_vars.end(); ite++) {
-        if (current_ode_vars.find((*ite)->getODEopposite()) == current_ode_vars.end()) {
-            ODEresult = false;
+    for (auto ite = ode_vars.cbegin(); ite != ode_vars.cend(); ite++) {
+        if (ode_vars.find((*ite)->getODEopposite()) == ode_vars.end()) {
             if (_config.nra_verbose) {
                 cerr << "the _0 and _t variables do not match:" << *ite << endl;
             }
-            return;
+            return false;
         }
     }
 
-    if (ODEresult && !current_ode_vars.empty()) {
+    if (!ode_vars.empty()) {
         if (_config.nra_verbose) {
             cerr << "Inside of current ODEs" << endl;
         }
         if (_config.nra_verbose) {
-            for (auto ite = current_ode_vars.begin(); ite != current_ode_vars.end(); ite++) {
-                cerr << "Name: " << (*ite)->getCar()->getName() << endl;
+            for (auto ode_var : ode_vars) {
+                cerr << "Name: " << ode_var->getCar()->getName() << endl;
             }
         }
-
-        ode_solver* odeSolver = new ode_solver(group, _config, current_ode_vars, _boxes.get(),
-                                               _enode_to_rp_id, ODEresult);
+        ode_solver* odeSolver = new ode_solver(group, _config, ode_vars, _boxes.get(), _enode_to_rp_id);
         _ode_solvers.push_back(odeSolver);
-
         // =========== Simple ODE ======================================
         if (!odeSolver->simple_ODE()) {
-            ODEresult = false;
-            return;
-        }
-        // If other thread already set it false, we just return
-        if (!ODEresult) {
-            return;
+            return false;
         }
         // ICP Prop
         if (!_propag->apply(_boxes.get())) {
-            ODEresult = false;
-            return;
+            return false;
         }
         // =========== FORWARD ======================================
         if (!odeSolver->solve_forward()) {
-            ODEresult = false;
-            return;
+            return false;
         }
         // ICP Prop
         if (!_propag->apply(_boxes.get())) {
-            ODEresult = false;
-            return;
+            return false;
         }
-        // =========== Simple ODE ======================================
-        if (!odeSolver->simple_ODE()) {
-            ODEresult = false;
-            return;
-        }
-        // ICP Prop
-        if (!_propag->apply(_boxes.get())) {
-            ODEresult = false;
-            return;
-        }
-        // If other thread already set it false, we just return
-        if (!ODEresult) {
-            return;
-        }
-        // =========== BACKWARD ======================================
-        if (!odeSolver->solve_backward()) {
-            ODEresult = false;
-            return;
-        }
-        // ICP Prop
-        if (!_propag->apply(_boxes.get())) { ODEresult = false;
-            return;
-        }
+        // // =========== Simple ODE ======================================
+        // if (!odeSolver->simple_ODE()) {
+        //     return false;
+        // }
+        // // ICP Prop
+        // if (!_propag->apply(_boxes.get())) {
+        //     return false;
+        // }
+        // // =========== BACKWARD ======================================
+        // if (!odeSolver->solve_backward()) {
+        //     return false;
+        // }
+        // // ICP Prop
+        // if (!_propag->apply(_boxes.get())) {
+        //     return false;
+        // }
     }
-    return;
+    return true;
 }
 
 bool icp_solver::prop_with_ODE() {
@@ -300,7 +282,6 @@ bool icp_solver::prop_with_ODE() {
             }
 
             // 2. Solve Each ODE Group
-            ODEresult = true;
             for (ode_solver * _s : _ode_solvers) {
                 delete _s;
             }
@@ -308,13 +289,11 @@ bool icp_solver::prop_with_ODE() {
             // Sequential Case
             for (unsigned i = 1; i <= max; i++) {
                 if (!diff_vec[i].empty()) {
-                    icp_solver::callODESolver(i, diff_vec);
-                    if (!ODEresult) {
+                    if(icp_solver::callODESolver(i, diff_vec[i]) == false)
                         return false;
-                    }
                 }
             }
-            return ODEresult;
+            return true;
         } else {
             return true;
         }
@@ -357,10 +336,14 @@ rp_box icp_solver::compute_next() {
 }
 
 void icp_solver::print_ODE_trajectory() const {
-    for_each(_ode_solvers.begin(), _ode_solvers.end(), [&] (ode_solver* ode_solver) {
-            ode_solver->print_trajectory(_config.nra_json_out);
-        });
-    // TODO(soonhok):
+    if(_ode_solvers.size() == 0)
+        return;
+    auto ite = _ode_solvers.cbegin();
+    (*ite++)->print_trajectory(_config.nra_json_out);
+    for(; ite != _ode_solvers.cend(); ite++) {
+        _config.nra_json_out << "," << endl;
+        (*ite)->print_trajectory(_config.nra_json_out);
+    }
     return;
 }
 
@@ -587,4 +570,46 @@ bool icp_solver::prop() {
         }
     }
     return result;
+}
+
+void icp_solver::print_json() {
+    // Print out ODE trajectory
+    _config.nra_json_out << "{\"traces\": " << endl
+                         << "[" << endl;
+    print_ODE_trajectory();
+    _config.nra_json_out << "]" << endl;
+
+    // collect all the ODE groups in the asserted literal and
+    // print out
+    set<int> ode_groups;
+    for (auto lit = _stack.cbegin(); lit != _stack.cend(); lit++) {
+        if ((*lit)->getPolarity() == l_True) {
+            set<Enode*> const & variables_in_lit = _enode_to_vars[*lit];
+            for (auto var = variables_in_lit.begin(); var != variables_in_lit.end(); var++) {
+                if ((*var)->getODEvartype() == l_True) {
+                    ode_groups.insert((*var)->getODEgroup());
+                }
+            }
+        }
+    }
+
+    for (auto ite = _env.begin(); ite != _env.end(); ite++) {
+        Enode* key = (*ite).first;
+        double lb =  (*ite).second.first;
+        double ub =  (*ite).second.second;
+        if (starts_with(key->getCar()->getName(), "mode_")) {
+            cerr << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
+        }
+    }
+    _config.nra_json_out << ", \"groups\": [";
+    for (auto g = ode_groups.begin();
+         g != ode_groups.end();
+         g++) {
+        if (g != ode_groups.begin()) {
+            _config.nra_json_out << ", ";
+        }
+        _config.nra_json_out << *g;
+    }
+    _config.nra_json_out << "]" << endl
+                         << "}" << endl;
 }

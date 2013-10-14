@@ -19,10 +19,10 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "dsolvers/nra_solver.h"
-#include "dsolvers/icp_solver.h"
 #include <utility>
 #include <boost/algorithm/string/predicate.hpp>
+#include "dsolvers/nra_solver.h"
+#include "dsolvers/icp_solver.h"
 
 using std::pair;
 using boost::starts_with;
@@ -249,47 +249,7 @@ bool NRASolver::check(bool complete) {
 
     // Print out JSON
     if (complete && result && config.nra_contain_ODE && config.nra_json) {
-        // Print out ODE trajectory
-        config.nra_json_out << "{\"traces\": " << endl
-                            << "[" << endl
-                            << "[]" << endl;
-        solver.print_ODE_trajectory();
-        config.nra_json_out << "]" << endl;
-
-        // collect all the ODE groups in the asserted literal and
-        // print out
-        set<int> ode_groups;
-
-        for (auto lit = stack.cbegin(); lit != stack.cend(); lit++) {
-            if ((*lit)->getPolarity() == l_True) {
-                set<Enode*> variables_in_lit = _enode_to_vars[*lit];
-                for (auto var = variables_in_lit.begin(); var != variables_in_lit.end(); var++) {
-                    if ((*var)->getODEvartype() == l_True) {
-                        ode_groups.insert((*var)->getODEgroup());
-                    }
-                }
-            }
-        }
-
-        for (auto ite = env.begin(); ite != env.end(); ite++) {
-            Enode* key = (*ite).first;
-            double lb =  (*ite).second.first;
-            double ub =  (*ite).second.second;
-            if (starts_with(key->getCar()->getName(), "mode_")) {
-                cerr << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
-            }
-        }
-        config.nra_json_out << ", \"groups\": [";
-        for (auto g = ode_groups.begin();
-             g != ode_groups.end();
-             g++) {
-            if (g != ode_groups.begin()) {
-                config.nra_json_out << ", ";
-            }
-            config.nra_json_out << *g;
-        }
-        config.nra_json_out << "]" << endl
-                            << "}" << endl;
+        solver.print_json();
     }
     return result;
 }

@@ -44,7 +44,7 @@ public:
     void display_box(ostream& out, rp_box b, int digits, int mode) const;
     void display_interval(ostream & out, rp_interval i, int digits, int mode) const;
     void pprint_vars(ostream & out, rp_problem p, rp_box b) const;
-    void print_ODE_trajectory() const;
+    void print_json();
 
 private:
     rp_problem* create_rp_problem();
@@ -67,9 +67,10 @@ private:
     scoped_map<Enode*, pair<double, double>> & _env;
     list<ode_solver*> _ode_solvers;
     void output_problem() const;
-    void callODESolver(int group, vector<set<Enode*>> & diff_vec);
+    bool callODESolver(int group, set<Enode*> const & ode_vars);
     bool ODEresult;
     icp_solver& operator=(const icp_solver& s);
     icp_solver(const icp_solver& s);
+    void print_ODE_trajectory() const;
 };
 #endif
