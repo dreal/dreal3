@@ -55,7 +55,7 @@ ode_solver::ode_solver(int group, SMTConfig& c, set<Enode*> const & ode_vars, rp
     // ODE_vartype
     for_each(ode_vars.cbegin(),
              ode_vars.cend(),
-             [&] (Enode* ode_var) {
+             [this] (Enode* ode_var) {
                  // If this is _0 variable, then
                  if (ode_var->getODEvartype() == l_False) {
                      _0_vars.push_back(ode_var);
@@ -138,17 +138,13 @@ IVector ode_solver::varlist_to_IVector(vector<Enode*> const & vars) {
     /* Assign current interval values */
     for_each(make_zip_iterator(boost::make_tuple(vars.begin(), intvs.begin())),
              make_zip_iterator(boost::make_tuple(vars.end(), intvs.end())),
-             [&] (tuple<Enode*, interval&> items) {
+             [this] (tuple<Enode*, interval&> items) {
                  Enode* const & var = items.get<0>();
                  interval & intv = items.get<1>();
                  double lb = get_lb(var);
                  double ub = get_ub(var);
                  intv = interval(lb, ub);
-                 if (_config.nra_verbose) {
-                     cerr << "The interval on "
-                          << var->getCar()->getName()
-                          << ": " << intv << endl;
-                 }
+                 if (_config.nra_verbose) { cerr << "The interval on " << var->getCar()->getName() << ": " << intv << endl; }
              });
     return intvs;
 }
@@ -167,7 +163,6 @@ IVector ode_solver::extract_invariants(vector<Enode*> const & vars) {
     return ret;
 }
 
-
 void ode_solver::IVector_to_varlist(IVector const & v, vector<Enode*> & vars) {
     for (auto i = 0; i < v.dimension(); i++) {
             double lb = get_lb(vars[i]);
@@ -185,14 +180,9 @@ void ode_solver::IVector_to_varlist(IVector const & v, vector<Enode*> & vars) {
 // 2) v should be inside of _t_vars
 void ode_solver::prune(vector<Enode*> const & _t_vars, IVector const & v, interval const & dt, interval const & time,
                        vector<IVector> & out_v_list, vector<interval> & out_time_list) {
-    if (_config.nra_verbose) {
-        cerr << "  dt = " << dt   << endl;
-        cerr << "time = " << time << endl;
-    }
-    if(dt.leftBound() > time.rightBound() || time.leftBound() > dt.rightBound()) {
-        if (_config.nra_verbose) {
-            cerr << "IS " << "NOT CANDIDATE (TIME)" << endl;
-        }
+    if (_config.nra_verbose) { cerr << "  dt = " << dt   << endl << "time = " << time << endl; }
+    if(!time.contains(dt)) {
+        if (_config.nra_verbose) { cerr << "IS " << "NOT CANDIDATE (TIME)" << endl; }
         return;
     }
     for (auto i = 0; i < v.dimension(); i++) {
@@ -201,15 +191,11 @@ void ode_solver::prune(vector<Enode*> const & _t_vars, IVector const & v, interv
             cerr << "x_t[" << i << "] = " << _t_vars[i] << endl;
         }
         if ((v[i].leftBound() > get_ub(_t_vars[i])) || (v[i].rightBound() < get_lb(_t_vars[i]))) {
-            if (_config.nra_verbose) {
-                cerr << "IS " << "NOT CANDIDATE (" << i << ")" << endl;
-            }
+            if (_config.nra_verbose) { cerr << "IS " << "NOT CANDIDATE (" << i << ")" << endl; }
             return;
         }
     }
-    if (_config.nra_verbose) {
-        cerr << "IS " << "CANDIDATE" << endl;
-    }
+    if (_config.nra_verbose) { cerr << "IS " << "CANDIDATE" << endl; }
     out_v_list.push_back(v);
     out_time_list.push_back(dt);
 }
@@ -235,21 +221,22 @@ bool ode_solver::simple_ODE() {
     // X_t = X_t \cup (X_0 + (d/dt Inv) * T)
     for_each(make_zip_iterator(boost::make_tuple(X_0.begin(), X_t.begin(), funcs.begin())),
              make_zip_iterator(boost::make_tuple(X_0.end(), X_t.end(), funcs.end())),
-             [&] (tuple<interval&, interval&, IFunction&> item) {
-                 interval& x_0 = item.get<0>();
-                 interval& x_t = item.get<1>();
-                 IFunction& dxdt = item.get<2>();
-                 try {
-                     interval new_x_t = x_0 + dxdt(inv) * T;
-                     if (!intersection(new_x_t, x_t, x_t)) {
-                         if (_config.nra_verbose) {
-                             cerr << "Simple_ODE: no intersection for X_T" << endl;
+             [&inv, &T, &ret, this] (tuple<interval&, interval&, IFunction&> item) {
+                 if(ret) {
+                     interval& x_0 = item.get<0>();
+                     interval& x_t = item.get<1>();
+                     IFunction& dxdt = item.get<2>();
+                     try {
+                         interval new_x_t = x_0 + dxdt(inv) * T;
+                         if (!intersection(new_x_t, x_t, x_t)) {
+                             if (_config.nra_verbose) {
+                                 cerr << "Simple_ODE: no intersection for X_T" << endl;
+                             }
+                             ret = false;
                          }
-                         ret = false;
+                     } catch (exception& e) {
+                         cerr << "Exception in Simple_ODE: " << e.what() << endl;
                      }
-                 } catch (exception& e) {
-                     // cerr << "Exception in Simple_ODE: "
-                     // << e.what() << endl;
                  }
              });
     if (ret == false) {
@@ -261,21 +248,22 @@ bool ode_solver::simple_ODE() {
     // X_0 = X_0 \cup (X_t - + (d/dt Inv) * T)
     for_each(make_zip_iterator(boost::make_tuple(X_0.begin(), X_t.begin(), funcs.begin())),
              make_zip_iterator(boost::make_tuple(X_0.end(), X_t.end(), funcs.end())),
-             [&] (tuple<interval&, interval&, IFunction&> item) {
-                 interval& x_0 = item.get<0>();
-                 interval& x_t = item.get<1>();
-                 IFunction& dxdt = item.get<2>();
-                 try {
-                     interval new_x_0 = x_t - dxdt(inv) * T;
-                     if (!intersection(new_x_0, x_0, x_0)) {
-                         if (_config.nra_verbose) {
-                             cerr << "Simple_ODE: no intersection for X_0" << endl;
+             [&inv, &T, &ret, this] (tuple<interval&, interval&, IFunction&> item) {
+                 if (ret) {
+                     interval& x_0 = item.get<0>();
+                     interval& x_t = item.get<1>();
+                     IFunction& dxdt = item.get<2>();
+                     try {
+                         interval new_x_0 = x_t - dxdt(inv) * T;
+                         if (!intersection(new_x_0, x_0, x_0)) {
+                             if (_config.nra_verbose) {
+                                 cerr << "Simple_ODE: no intersection for X_0" << endl;
+                             }
+                             ret = false;
                          }
-                         ret = false;
+                     } catch (exception& e) {
+                         cerr << "Exception in Simple_ODE: " << e.what() << endl;
                      }
-                 } catch (exception& e) {
-                     // cerr << "Exception in Simple_ODE: "
-                     // << e.what() << endl;
                  }
              });
     if (ret == false) {
@@ -291,7 +279,6 @@ bool ode_solver::solve_forward() {
         cerr << "ODE_Solver::solve_forward()" << endl;
     }
     cerr.precision(12);
-    bool ret = true;
     try {
         // pass the problem with variables
         IMap vectorField(diff_sys);
@@ -342,7 +329,7 @@ bool ode_solver::solve_forward() {
                      << "T : " << T << endl
                      << "currentTime : " << timeMap.getCurrentTime() << endl;
             }
-            if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) { /* TODO (sym) */
+            if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
                 // This is how we can extract an information about the
                 // trajectory between time steps. The type CurveType
                 // is a function defined on the interval [0,stepMade].
@@ -406,13 +393,13 @@ bool ode_solver::solve_forward() {
         } while (!invariantViolated && !timeMap.completed());
         if (union_and_join(out_v_list, end)) {
             _t_vars.clear();
-            ret = false;
+            return false;
         } else {
             IVector_to_varlist(end, _t_vars);
         }
         if (union_and_join(out_time_list, T)) {
             set_empty_interval(time);
-            ret = false;
+            return false;
         } else {
             set_lb(time, T.leftBound());
             set_ub(time, T.rightBound());
@@ -426,13 +413,16 @@ bool ode_solver::solve_forward() {
              << e.what() << endl;
         // }
     }
-    return ret;
+    return true;
 }
 
 bool ode_solver::solve_backward() {
     return true;
 }
 
+/**
+    \brief return false if IVector \c v violates a given invariant \c inv.
+*/
 bool ode_solver::check_invariant(IVector & v, IVector const & inv) {
     if (!intersection(v, inv, v)) {
         if (_config.nra_verbose) {
@@ -450,7 +440,8 @@ bool ode_solver::check_invariant(IVector & v, IVector const & inv) {
 }
 
 bool ode_solver::check_invariant(C0Rect2Set & s, IVector const & inv) {
-    IVector v(s);
+    static thread_local IVector v;
+    v = IVector(s);
     bool r = check_invariant(v, inv);
     s = C0Rect2Set(v);
     return r;
@@ -467,11 +458,16 @@ bool ode_solver::contain_NaN(IVector const & v) {
 }
 
 bool ode_solver::contain_NaN(C0Rect2Set const & s) {
-    // std::cerr << "Contain_Nan: C0Rect2Set" << s.show() << std::endl;
-    // std::cerr << "Contain_Nan: IVector" << IVector(s) << std::endl;
     return contain_NaN(IVector(s));
 }
 
+
+/**
+    \brief Take union of all values in \c bucket, intersection with
+    \c result, and return result.
+
+    If the result is empty, it return true, otherwise return false
+*/
 template<typename T>
 bool ode_solver::union_and_join(vector<T> const & bucket, T & result) {
     // 1. u = Union of all the elements of bucket
