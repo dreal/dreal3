@@ -295,7 +295,6 @@ bool ode_solver::solve_forward() {
     try {
         // pass the problem with variables
         IMap vectorField(diff_sys);
-
         // initialize the solver
         // The solver uses high order enclosure method to verify the existence of the solution.
         // The order will be set to 20.
@@ -303,86 +302,46 @@ bool ode_solver::solve_forward() {
         // The time step control is turned on by default but the solver must know if we want to
         // integrate forwards or backwards (then put negative number).
         ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1); /* HERE */
-        // ITaylor solver(vectorField, _config.nra_ODE_taylor_order); /* HERE */
         ITimeMap timeMap(solver);
-
         // initial conditions
-        IVector start = varlist_to_IVector(_0_vars); /* TODO */
+        IVector start = varlist_to_IVector(_0_vars);
         IVector inv = extract_invariants(_t_vars);
-        IVector end = varlist_to_IVector(_t_vars); /* TODO */
-
+        IVector end = varlist_to_IVector(_t_vars);
         // define a doubleton representation of the interval vector start
         C0Rect2Set s(start);
-
         // time range
         Enode* time = (*_0_vars.begin())->getODEtimevar();
-        interval T = interval(get_lb(time), get_ub(time)); /* TODO * (sign) */
+        interval T = interval(get_lb(time), get_ub(time));
         if (_config.nra_verbose) {
             cerr << "interval T = " << T << endl;
         }
-
         timeMap.stopAfterStep(true);
-
         bool fastForward = true;
         if (stepControl == 0.0) {
-            timeMap.turnOffStepControl();
-        } else {
             timeMap.turnOnStepControl();
-            timeMap.setStep(stepControl); /* TODO (sign) */
+        } else {
+            timeMap.turnOffStepControl();
+            timeMap.setStep(stepControl);
         }
-
         interval prevTime(0.);
-
-        /* TODO (only in forward) */
         if (_config.nra_json) {
             trajectory.clear();
             trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
         }
-
         vector<IVector> out_v_list;
         vector<interval> out_time_list;
         bool invariantViolated = false;
         do {
-            if (stepControl != 0) {
-                timeMap.setStep(stepControl); /* TODO (sign) */
-            }
-            IVector temp(s);
-            invariantViolated = !check_invariant(temp, inv);
-            s = C0Rect2Set(temp);
-
-            if (find_if (temp.begin(), temp.end(), [] (interval& i) {
-                        return std::isnan(i.leftBound()) || std::isnan(i.rightBound());
-                    }) != temp.end()) {
-                cerr << "NaN Found : " << IVector(s) << endl;
-                return true;
-            }
-
-            timeMap(T.rightBound(), s); /* TODO direction */
-            temp = IVector(s);
-            if (find_if (temp.begin(), temp.end(), [] (interval& i) {
-                        return std::isnan(i.leftBound()) || std::isnan(i.rightBound());
-                    }) != temp.end()) {
-                cerr << "NaN Found! : " << IVector(s) << endl;
-                return true;
-            }
-
-            // if (!intersection(temp, inv, temp)) {
-            // invariantViolated = true;
-            // cerr << "Inv: " << inv << endl;
-            // cerr << "s : " << IVector(s) << endl;
-            // cerr << "invariant violated (3)!" << endl;
-            // break;
-            // }
-            s = C0Rect2Set(temp);
-
+            invariantViolated = !check_invariant(s, inv);
+            timeMap(T.rightBound(), s);
+            if(contain_NaN(s)) { return true; }
             interval stepMade = solver.getStep();
-
+            // cerr << "step made: " << stepMade << endl;
             if (_config.nra_verbose) {
                 cerr << "step made: " << stepMade << endl
                      << "T : " << T << endl
                      << "currentTime : " << timeMap.getCurrentTime() << endl;
             }
-
             if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) { /* TODO (sym) */
                 // This is how we can extract an information about the
                 // trajectory between time steps. The type CurveType
@@ -392,42 +351,31 @@ bool ode_solver::solve_forward() {
                 // can also extract from it the 1-st order derivatives
                 // wrt.
                 const ITaylor::CurveType& curve = solver.getCurve();
-
-                // Changes in Capd 4.0
-                // const ITaylor::SolutionCurve& curve = solver.getCurve();
-
                 interval domain = interval(0, 1) * stepMade;
                 double domainWidth = domain.rightBound() - domain.leftBound();
-
                 // Here we use a uniform grid of last time step made
                 // to enclose the trajectory between time steps.
                 // You can use your own favourite subdivision, perhaps nonuniform,
                 // depending on the problem you want to solve.
-
                 for (unsigned i = 0; i <_config.nra_ODE_grid_size; i++) {
                     interval subsetOfDomain = domain / _config.nra_ODE_grid_size
                         + (domainWidth / _config.nra_ODE_grid_size) * i;
-
                     // The above interval does not need to be a subset of domain.
                     // This is due to rounding to floating point numbers.
                     // We take the intersection with the domain.
                     intersection(domain, subsetOfDomain, subsetOfDomain);
-
                     // Here we evaluated curve at the interval subsetOfDomain.
                     // v will contain rigorous bound for the trajectory for this time interval.
                     IVector v = curve(subsetOfDomain);
-
                     if (_config.nra_verbose) {
                         cerr << "subsetOfDomain: " << subsetOfDomain << endl
                              << "enclosure for t=" << prevTime + subsetOfDomain << ": " << v << endl
                              << "diam(enclosure): " << diam(v) << endl;
                     }
-
                     if (!check_invariant(v, inv)) {
                         invariantViolated = true;
                         break;
                     }
-
                     if (_config.nra_verbose) {
                         cerr << "inv = " << inv << endl;
                         cerr << "v = " << v << endl;
@@ -436,8 +384,6 @@ bool ode_solver::solve_forward() {
                     if (_config.nra_json) {
                         trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
                     }
-                    // TODO(soonhok): _t_vars, _0_vars
-// cerr << " " << timeMap.getCurrentTime() << " ==> " << IVector(s) << endl;
                     prune(_t_vars, v, prevTime + subsetOfDomain, T, out_v_list, out_time_list);
                 }
             } else {
@@ -446,7 +392,6 @@ bool ode_solver::solve_forward() {
                     cerr << "enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s) << endl;
                 }
                 if (_config.nra_json) {
-// cerr << "FF" << timeMap.getCurrentTime() << " ==> " << IVector(s) << endl;
                     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
                 }
             }
@@ -459,628 +404,32 @@ bool ode_solver::solve_forward() {
                      << "timeMap.completed: " << timeMap.completed() <<  endl;
             }
         } while (!invariantViolated && !timeMap.completed());
-
-        // 1. Union all the out_v_list and intersect with end
-        IVector vector_union;
-        bool end_empty = false;
-        if (_config.nra_verbose) {
-            cerr << "Union and intersect V" << endl;
-        }
-        if (out_v_list.size() == 0) {
-            if (_config.nra_verbose) {
-                cerr << "There is nothing to collect for V" << endl;
-            }
-            end_empty = true;
-        } else {
-            vector_union = *(out_v_list.begin());
-            for (auto ite = ++(out_v_list.begin()); ite != out_v_list.end(); ite++) {
-                if (_config.nra_verbose) {
-                    cerr << "U(" << vector_union << ", " << *ite << ") = ";
-                }
-                vector_union = intervalHull (vector_union, *ite);
-                if (_config.nra_verbose) {
-                    cerr << vector_union << endl;
-                }
-            }
-            // end = intersection \cap end;
-
-            if (_config.nra_verbose) {
-                cerr << "Intersect(" << vector_union << ", " << end << ") = ";
-            }
-            if (intersection(vector_union, end, end)) {
-                IVector_to_varlist(end, _t_vars); /* TODO */
-                if (_config.nra_verbose) {
-                    cerr << end << endl;
-                }
-            }   else {
-                // intersection is empty!!
-                end_empty = true;
-
-                if (_config.nra_verbose) {
-                    cerr << "empty" << endl;
-                }
-            }
-        }
-
-        if (_config.nra_verbose) {
-            cerr << endl << "Union and intersect time" << endl;
-        }
-        bool time_empty = false;
-        // 2. Union all the out_time_list and intersect with T
-        interval time_union;
-
-        if (out_time_list.size() == 0) {
-            if (_config.nra_verbose) {
-                cerr << "There is nothing to collect for time" << endl;
-            }
-            time_union = true;
-        } else {
-            time_union = *out_time_list.begin();
-            for (auto ite = ++(out_time_list.begin()); ite != out_time_list.end(); ite++) {
-                if (_config.nra_verbose) {
-                    cerr << "U(" << time_union << ", " << *ite << ") = ";
-                }
-                time_union = intervalHull(time_union, *ite);
-                if (_config.nra_verbose) {
-                    cerr << time_union << endl;
-                }
-            }
-
-            /* T = \cap (time_union, T) */
-            if (_config.nra_verbose) {
-                cerr << "Intersect(" << time_union << ", " << T << ") = ";
-            }
-
-            if (intersection(time_union, T, T)) {
-                set_lb(time, T.leftBound());
-                set_ub(time, T.rightBound());
-                if (_config.nra_verbose) {
-                    cerr << T << endl;
-                }
-            } else {
-                /* there is no intersection, use empty interval [+oo, -oo] */
-                time_empty = true;
-                if (_config.nra_verbose) {
-                    cerr << "empty" << endl;
-                }
-            }
-        }
-
-        if (end_empty) {
-            for (auto ite = _t_vars.begin(); ite != _t_vars.end(); ite++) {
-                set_empty_interval(*ite);
-            }
+        if (union_and_join(out_v_list, end)) {
+            _t_vars.clear();
             ret = false;
         } else {
-            IVector_to_varlist(end, _t_vars); // TODO(soonhok): _0_vars, _t_vars
+            IVector_to_varlist(end, _t_vars);
         }
-
-        if (time_empty) {
+        if (union_and_join(out_time_list, T)) {
             set_empty_interval(time);
             ret = false;
-        }
-
-        prune_trajectory(T, end);
-    } catch(exception& e) {
-        if (_config.nra_verbose) {
-            cerr << "Exception in ODE Solving (Forward)" << endl
-                 << e.what() << endl;
         } else {
-            cerr << "Exception in ODE Solving (Forward)" << endl
-                 << e.what() << endl;
+            set_lb(time, T.leftBound());
+            set_ub(time, T.rightBound());
         }
-    }
-    return ret;
-}
-
-bool ode_solver::solve_forward_old() {
-    if (_config.nra_verbose) {
-        cerr << "ODE_Solver::solve_forward()" << endl;
-    }
-    cerr.precision(12);
-    bool ret = true;
-    try {
-        // 1. Construct diff_sys, which are the ODE
-        vector<Enode*> _0_vars;
-        vector<Enode*> _t_vars;
-
-        //string diff_sys = create_diffsys_string(_ode_vars, _0_vars, _t_vars);
-
-        // pass the problem with variables
-        IMap vectorField(diff_sys);
-
-        // initialize the solver
-        // The solver uses high order enclosure method to verify the existence of the solution.
-        // The order will be set to 20.
-        // The time step (when step control is turned off) will be 0.1.
-        // The time step control is turned on by default but the solver must know if we want to
-        // integrate forwards or backwards (then put negative number).
-        ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1); /* HERE */
-        // ITaylor solver(vectorField, _config.nra_ODE_taylor_order); /* HERE */
-        ITimeMap timeMap(solver);
-
-        // initial conditions
-        IVector start = varlist_to_IVector(_0_vars); /* TODO */
-        IVector inv = extract_invariants(_t_vars);
-        IVector end = varlist_to_IVector(_t_vars); /* TODO */
-
-        // define a doubleton representation of the interval vector start
-        C0Rect2Set s(start);
-
-        // time range
-        Enode* time = (*_0_vars.begin())->getODEtimevar();
-        interval T = interval(get_lb(time), get_ub(time)); /* TODO * (sign) */
-        if (_config.nra_verbose) {
-            cerr << "interval T = " << T << endl;
-        }
-
-        timeMap.stopAfterStep(true);
-
-        bool fastForward = true;
-        if (stepControl == 0.0) {
-            timeMap.turnOnStepControl();
-        } else {
-            timeMap.turnOffStepControl();
-            timeMap.setStep(stepControl); /* TODO (sign) */
-        }
-
-        interval prevTime(0.);
-
-        /* TODO (only in forward) */
         if (_config.nra_json) {
-            trajectory.clear();
-            trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+            prune_trajectory(T, end);
         }
-
-        vector<IVector> out_v_list;
-        vector<interval> out_time_list;
-        bool invariantViolated = false;
-        do {
-            if (stepControl != 0) {
-                timeMap.setStep(stepControl); /* TODO (sign) */
-            }
-
-            IVector temp(s);
-            if (!intersection(temp, inv, temp)) {
-                invariantViolated = true;
-                cerr << "Inv: " << inv << endl;
-                cerr << "s : " << IVector(s) << endl;
-                cerr << "invariant violated (2)!" << endl;
-                break;
-            }
-            s = C0Rect2Set(temp);
-
-            if (find_if (temp.begin(), temp.end(), [&] (interval& i) {
-                        return std::isnan(i.leftBound()) || std::isnan(i.rightBound());
-                    }) != temp.end()) {
-                cerr << "Got it! : " << IVector(s) << endl;
-                return true;
-            }
-
-            timeMap(T.rightBound(), s); /* TODO direction */
-            temp = IVector(s);
-            if (find_if (temp.begin(), temp.end(), [&] (interval& i) {
-                        return std::isnan(i.leftBound()) || std::isnan(i.rightBound());
-                    }) != temp.end()) {
-                cerr << "Got it! : " << IVector(s) << endl;
-                return true;
-            }
-
-            // if (!intersection(temp, inv, temp)) {
-            // invariantViolated = true;
-            // cerr << "Inv: " << inv << endl;
-            // cerr << "s : " << IVector(s) << endl;
-            // cerr << "invariant violated (3)!" << endl;
-            // break;
-            // }
-            s = C0Rect2Set(temp);
-
-            interval stepMade = solver.getStep();
-
-            if (_config.nra_verbose) {
-                cerr << "step made: " << stepMade << endl
-                     << "T : " << T << endl
-                     << "currentTime : " << timeMap.getCurrentTime() << endl;
-            }
-
-            if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) { /* TODO (sym) */
-                // This is how we can extract an information about the
-                // trajectory between time steps. The type CurveType
-                // is a function defined on the interval [0,stepMade].
-                // It can be evaluated at a point (or interval). The
-                // curve can be also differentiated wrt to time. We
-                // can also extract from it the 1-st order derivatives
-                // wrt.
-                const ITaylor::CurveType& curve = solver.getCurve();
-
-                // Changes in Capd 4.0
-                // const ITaylor::SolutionCurve& curve = solver.getCurve();
-
-                interval domain = interval(0, 1) * stepMade;
-                double domainWidth = domain.rightBound() - domain.leftBound();
-
-                // Here we use a uniform grid of last time step made
-                // to enclose the trajectory between time steps.
-                // You can use your own favourite subdivision, perhaps nonuniform,
-                // depending on the problem you want to solve.
-
-                for (unsigned i = 0; i <_config.nra_ODE_grid_size; i++) {
-                    interval subsetOfDomain = domain / _config.nra_ODE_grid_size
-                        + (domainWidth / _config.nra_ODE_grid_size) * i;
-
-                    // The above interval does not need to be a subset of domain.
-                    // This is due to rounding to floating point numbers.
-                    // We take the intersection with the domain.
-                    intersection(domain, subsetOfDomain, subsetOfDomain);
-
-                    // Here we evaluated curve at the interval subsetOfDomain.
-                    // v will contain rigorous bound for the trajectory for this time interval.
-                    IVector v = curve(subsetOfDomain);
-
-                    if (_config.nra_verbose) {
-                        cerr << "subsetOfDomain: " << subsetOfDomain << endl
-                             << "enclosure for t=" << prevTime + subsetOfDomain << ": " << v << endl
-                             << "diam(enclosure): " << diam(v) << endl;
-                    }
-
-                    if (!intersection(v, inv, v)) {
-                        invariantViolated = true;
-                        // cerr << "invariant violated (2)!" << endl;
-                        break;
-                    }
-
-                    if (_config.nra_verbose) {
-                        cerr << "inv = " << inv << endl;
-                        cerr << "v = " << v << endl;
-                        cerr << "enclosure for t intersected with inv " << prevTime + subsetOfDomain << ": " << v << endl;
-                    }
-                    if (_config.nra_json) {
-                        trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
-                    }
-                    // TODO(soonhok): _t_vars, _0_vars
-// cerr << " " << timeMap.getCurrentTime() << " ==> " << IVector(s) << endl;
-                    prune(_t_vars, v, prevTime + subsetOfDomain, T, out_v_list, out_time_list);
-                }
-            } else {
-                if (_config.nra_verbose) {
-                    cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
-                    cerr << "enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s) << endl;
-                }
-                if (_config.nra_json) {
-// cerr << "FF" << timeMap.getCurrentTime() << " ==> " << IVector(s) << endl;
-                    trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
-                }
-            }
-            prevTime = timeMap.getCurrentTime();
-            if (_config.nra_verbose) {
-                cerr << "current time: " << prevTime << endl;
-            }
-            // cerr << "InvViolated : " << invariantViolated << endl
-            //      << "timeMap.completed: " << timeMap.completed() << endl;
-        } while (!invariantViolated && !timeMap.completed());
-
-        // 1. Union all the out_v_list and intersect with end
-        IVector vector_union;
-        bool end_empty = false;
-        if (_config.nra_verbose) {
-            cerr << "Union and intersect V" << endl;
-        }
-        if (out_v_list.size() == 0) {
-            if (_config.nra_verbose) {
-                cerr << "There is nothing to collect for V" << endl;
-            }
-            end_empty = true;
-        } else {
-            vector_union = *(out_v_list.begin());
-            for (auto ite = ++(out_v_list.begin()); ite != out_v_list.end(); ite++) {
-                if (_config.nra_verbose) {
-                    cerr << "U(" << vector_union << ", " << *ite << ") = ";
-                }
-                vector_union = intervalHull (vector_union, *ite);
-                if (_config.nra_verbose) {
-                    cerr << vector_union << endl;
-                }
-            }
-            // end = intersection \cap end;
-
-            if (_config.nra_verbose) {
-                cerr << "Intersect(" << vector_union << ", " << end << ") = ";
-            }
-            if (intersection(vector_union, end, end)) {
-                IVector_to_varlist(end, _t_vars); /* TODO */
-                if (_config.nra_verbose) {
-                    cerr << end << endl;
-                }
-            }   else {
-                // intersection is empty!!
-                end_empty = true;
-
-                if (_config.nra_verbose) {
-                    cerr << "empty" << endl;
-                }
-            }
-        }
-
-        if (_config.nra_verbose) {
-            cerr << endl << "Union and intersect time" << endl;
-        }
-        bool time_empty = false;
-        // 2. Union all the out_time_list and intersect with T
-        interval time_union;
-
-        if (out_time_list.size() == 0) {
-            if (_config.nra_verbose) {
-                cerr << "There is nothing to collect for time" << endl;
-            }
-            time_union = true;
-        } else {
-            time_union = *out_time_list.begin();
-            for (auto ite = ++(out_time_list.begin()); ite != out_time_list.end(); ite++) {
-                if (_config.nra_verbose) {
-                    cerr << "U(" << time_union << ", " << *ite << ") = ";
-                }
-                time_union = intervalHull(time_union, *ite);
-                if (_config.nra_verbose) {
-                    cerr << time_union << endl;
-                }
-            }
-
-            /* T = \cap (time_union, T) */
-            if (_config.nra_verbose) {
-                cerr << "Intersect(" << time_union << ", " << T << ") = ";
-            }
-
-            if (intersection(time_union, T, T)) {
-                set_lb(time, T.leftBound());
-                set_ub(time, T.rightBound());
-                if (_config.nra_verbose) {
-                    cerr << T << endl;
-                }
-            } else {
-                /* there is no intersection, use empty interval [+oo, -oo] */
-                time_empty = true;
-                if (_config.nra_verbose) {
-                    cerr << "empty" << endl;
-                }
-            }
-        }
-
-        if (end_empty) {
-            for (auto ite = _t_vars.begin(); ite != _t_vars.end(); ite++) {
-                set_empty_interval(*ite);
-            }
-            ret = false;
-        } else {
-            IVector_to_varlist(end, _t_vars); // TODO(soonhok): _0_vars, _t_vars
-        }
-
-        if (time_empty) {
-            set_empty_interval(time);
-            ret = false;
-        }
-
-        prune_trajectory(T, end);
     } catch(exception& e) {
-        if (_config.nra_verbose) {
-            cerr << "Exception in ODE Solving (Forward)" << endl
-                 << e.what() << endl;
-        } else {
-            cerr << "Exception in ODE Solving (Forward)" << endl
-                 << e.what() << endl;
-        }
+        // if (_config.nra_verbose) {
+        cerr << "Exception in ODE Solving (Forward)" << endl
+             << e.what() << endl;
+        // }
     }
     return ret;
 }
 
 bool ode_solver::solve_backward() {
-    // if (_config.nra_verbose) {
-    //     cerr << "ODE_Solver::solve_backward()" << endl;
-    // }
-    // cerr.precision(12);
-    // bool ret = true;
-    // try {
-    //     // 1. Construct diff_sys, which are the ODE
-    //     vector<Enode*> _0_vars;
-    //     vector<Enode*> _t_vars;
-
-    //     //string diff_sys = create_diffsys_string(_ode_vars, _0_vars, _t_vars);
-
-    //     // pass the problem with variables
-    //     IMap vectorField(diff_sys);
-
-    //     // initialize the solver
-    //     // The solver uses high order enclosure method to verify the existence of the solution.
-    //     // The order will be set to 20.
-    //     // The time step (when step control is turned off) will be 0.1.
-    //     // The time step control is turned on by default but the solver must know if we want to
-    //     // integrate forwards or backwards (then put negative number).
-    //     ITaylor solver(vectorField, _config.nra_ODE_taylor_order, -.1);
-    //     ITimeMap timeMap(solver);
-
-    //     // initial conditions
-    //     IVector start = varlist_to_IVector(_t_vars);
-    //     IVector inv = extract_invariants(_t_vars);
-    //     IVector end = varlist_to_IVector(_0_vars);
-
-    //     // end = start; // set the initial comparison
-
-    //     // define a doubleton representation of the interval vector start
-    //     C0Rect2Set s(start);
-
-    //     // time range
-    //     Enode* time = (*_0_vars.begin())->getODEtimevar();
-    //     interval T = - interval(get_lb(time), get_ub(time));
-
-    //     if (_config.nra_verbose) {
-    //         cerr << "interval T = " << T << endl;
-    //     }
-
-    //     timeMap.stopAfterStep(true);
-
-    //     bool fastForward = true;
-    //     if (stepControl == 0.0) {
-    //         timeMap.turnOnStepControl();
-    //     } else {
-    //         timeMap.turnOffStepControl();
-    //         timeMap.setStep(-stepControl); /* TODO */
-    //     }
-
-    //     interval prevTime(0.);
-
-    //     vector<IVector> out_v_list;
-    //     vector<interval> out_time_list;
-    //     bool invariantViolated = false;
-    //     do {
-    //         if (stepControl != 0) {
-    //             timeMap.setStep(- stepControl);
-    //         }
-
-    //         IVector temp(s);
-    //         if (!intersection(temp, inv, temp)) {
-    //             invariantViolated = true;
-    //             // cerr << "invariant violated (2)!" << endl;
-    //             break;
-    //         }
-    //         s = C0Rect2Set(temp);
-
-    //         if (find_if (temp.begin(), temp.end(), [&] (interval& i) {
-    //                     return std::isnan(i.leftBound()) || std::isnan(i.rightBound());
-    //                 }) != temp.end()) {
-    //             cerr << "Got it! : " << IVector(s) << endl;
-    //             return true;
-    //         }
-
-    //         timeMap(T.leftBound(), s);
-
-    //         // timeMap(T, e);
-    //         interval stepMade = solver.getStep();
-    //         if (_config.nra_verbose) {
-    //             cerr << "step made: " << stepMade << endl
-    //                  << "T : " << T << endl
-    //                  << "currentTime : " << timeMap.getCurrentTime() << endl;
-    //         }
-
-    //         if (!fastForward || T.rightBound()>= timeMap.getCurrentTime().leftBound()) {
-    //             // This is how we can extract an information about the
-    //             // trajectory between time steps. The type CurveType
-    //             // is a function defined on the interval [0,stepMade].
-    //             // It can be evaluated at a point (or interval). The
-    //             // curve can be also differentiated wrt to time. We
-    //             // can also extract from it the 1-st order derivatives
-    //             // wrt.
-    //             const ITaylor::CurveType& curve = solver.getCurve();
-    //             interval domain = interval(0, 1) * stepMade;
-    //             double domainWidth = domain.rightBound() - domain.leftBound();
-
-    //             // Here we use a uniform grid of last time step made
-    //             // to enclose the trajectory between time steps.
-    //             // You can use your own favourite subdivision, perhaps nonuniform,
-    //             // depending on the problem you want to solve.
-
-    //             for (unsigned i = 0; i <_config.nra_ODE_grid_size; i++) {
-    //                 interval subsetOfDomain = domain / _config.nra_ODE_grid_size
-    //                     - (domainWidth / _config.nra_ODE_grid_size) * i;
-
-    //                 // The above interval does not need to be a subset of domain.
-    //                 // This is due to rounding to floating point numbers.
-    //                 // We take the intersection with the domain.
-    //                 intersection(domain, subsetOfDomain, subsetOfDomain);
-
-    //                 // Here we evaluated curve at the interval subsetOfDomain.
-    //                 // v will contain rigorous bound for the
-    //                 // trajectory for this time interval.
-    //                 IVector v = curve(subsetOfDomain);
-    //                 if (_config.nra_verbose) {
-    //                     cerr << "subsetOfDomain: " << subsetOfDomain << endl
-    //                          << "enclosure for t=" << prevTime + subsetOfDomain << ": " << v << endl
-    //                          << "diam(enclosure): " << diam(v) << endl;
-    //                 }
-
-    //                 if (!intersection(v, inv, v)) {
-    //                     invariantViolated = true;
-    //                     // cerr << "invariant violated(2)!" << endl;
-    //                     break;
-    //                 }
-    //                 if (_config.nra_verbose) {
-    //                     cerr << inv << endl;
-    //                     cerr << v << endl;
-    //                     cerr << "enclosure for t intersected with inv =" << prevTime + subsetOfDomain << ": " << v << endl;
-    //                 }
-    //                 prune(_0_vars, v, prevTime + subsetOfDomain, T, out_v_list, out_time_list);
-    //             }
-    //         } else {
-    //             if (_config.nra_verbose) {
-    //                 cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
-    //                 cerr << "enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s) << endl;
-    //             }
-    //         }
-
-    //         prevTime = timeMap.getCurrentTime();
-    //         if (_config.nra_verbose) {
-    //             cerr << "current time: " << prevTime << endl;
-    //         }
-    //         // cerr << "InvViolated      : " << invariantViolated << endl
-    //         //      << "timeMap.completed: " << timeMap.completed() << endl;
-    //     } while (!invariantViolated && !timeMap.completed());
-
-    //     // 1. Union all the out_v_list and intersect with end
-    //     IVector vector_union;
-    //     bool end_empty = false;
-    //     if (_config.nra_verbose) {
-    //         cerr << "Union and intersect V" << endl;
-    //     }
-    //     if (out_v_list.size() == 0) {
-    //         if (_config.nra_verbose) {
-    //             cerr << "There is nothing to collect for V" << endl;
-    //         }
-    //     } else {
-    //         vector_union = *(out_v_list.begin());
-    //         for (auto ite = ++(out_v_list.begin()); ite != out_v_list.end(); ite++) {
-    //             if (_config.nra_verbose) {
-    //                 cerr << "U(" << vector_union << ", " << *ite << ") = ";
-    //             }
-    //             vector_union = intervalHull (vector_union, *ite);
-    //             if (_config.nra_verbose) {
-    //                 cerr << vector_union << endl;
-    //             }
-    //         }
-    //         // end = intersection \cap start;
-    //         if (_config.nra_verbose) {
-    //             cerr << "Intersect(" << vector_union << ", " << end << ") = ";
-    //         }
-    //         if (intersection(vector_union, end, end)) {
-    //             IVector_to_varlist(end, _0_vars);
-    //             if (_config.nra_verbose) {
-    //                 cerr << end << endl;
-    //             }
-    //         } else {
-    //             // intersection is empty!!
-    //             end_empty = true;
-
-    //             if (_config.nra_verbose) {
-    //                 cerr << "empty" << endl;
-    //             }
-    //         }
-    //     }
-
-    //     if (end_empty) {
-    //         for (auto ite = _0_vars.begin(); ite != _0_vars.end(); ite++) {
-    //             set_empty_interval(*ite);
-    //         }
-    //         ret = false;
-    //     } else {
-    //         IVector_to_varlist(end, _0_vars);
-    //     }
-    // } catch(exception& e) {
-    //     if (_config.nra_verbose) {
-    //         cerr << "Exception caught (Backward ODE)" << endl
-    //              << e.what() << endl;
-    //     } else {
-    //         cerr << "Exception caught (Backward ODE)" << endl
-    //              << e.what() << endl;
-    //     }
-    // }
-    // return ret;
     return true;
 }
 
@@ -1098,4 +447,65 @@ bool ode_solver::check_invariant(IVector & v, IVector const & inv) {
         return false;
     }
     return true;
+}
+
+bool ode_solver::check_invariant(C0Rect2Set & s, IVector const & inv) {
+    IVector v(s);
+    bool r = check_invariant(v, inv);
+    s = C0Rect2Set(v);
+    return r;
+}
+
+bool ode_solver::contain_NaN(IVector const & v) {
+    for (interval const & i : v) {
+        if (std::isnan(i.leftBound()) || std::isnan(i.rightBound())) {
+            if (_config.nra_verbose) { cerr << "NaN Found! : " << v << endl; }
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ode_solver::contain_NaN(C0Rect2Set const & s) {
+    // std::cerr << "Contain_Nan: C0Rect2Set" << s.show() << std::endl;
+    // std::cerr << "Contain_Nan: IVector" << IVector(s) << std::endl;
+    return contain_NaN(IVector(s));
+}
+
+template<typename T>
+bool ode_solver::union_and_join(vector<T> const & bucket, T & result) {
+    // 1. u = Union of all the elements of bucket
+    if (bucket.size() == 0) {
+        if (_config.nra_verbose) {
+            cerr << "Union_Join: collect from the bucket" << endl;
+        }
+        return true;
+    }
+    static thread_local T u;
+    u = *(bucket.cbegin());
+    for (auto ite = ++(bucket.cbegin()); ite != bucket.cend(); ite++) {
+        if (_config.nra_verbose) {
+            cerr << "U(" << u << ", " << *ite << ") = ";
+        }
+        u = intervalHull(u, *ite);
+        if (_config.nra_verbose) {
+            cerr << u << endl;
+        }
+    }
+    // 2. result = intersection(u, result);
+    if (_config.nra_verbose) {
+        cerr << "Intersect(" << u << ", " << result << ") = ";
+    }
+    if (intersection(u, result, result)) {
+        if (_config.nra_verbose) {
+            cerr << result << endl;
+        }
+    } else {
+        // intersection is empty!!
+        if (_config.nra_verbose) {
+            cerr << "empty" << endl;
+        }
+        return true;
+    }
+    return false;
 }

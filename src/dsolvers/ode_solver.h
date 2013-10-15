@@ -62,16 +62,18 @@ private:
     void print_trace(ostream& out, string const & key, int const idx,
                      list<pair<capd::interval, capd::IVector>> const & trajectory) const;
     void prune_trajectory(capd::interval& t, capd::IVector& e);
-    bool check_invariant(capd::IVector & iv, capd::IVector const & inv);
     capd::IVector varlist_to_IVector(vector<Enode*> const & vars);
     capd::IVector extract_invariants(vector<Enode*> const & vars);
     void IVector_to_varlist(capd::IVector const & v, vector<Enode*> & vars);
     void prune(vector<Enode*> const & _t_vars, capd::IVector const & v,
                capd::interval const & dt,  capd::interval const & time,
                vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list);
-
-    // Will be deleted..
-    bool solve_forward_old();
+    bool check_invariant(capd::IVector & iv, capd::IVector const & inv);
+    bool check_invariant(capd::C0Rect2Set & s, capd::IVector const & inv);
+    bool contain_NaN(capd::IVector const & v);
+    bool contain_NaN(capd::C0Rect2Set const & s);
+    template<typename T>
+    bool union_and_join(vector<T> const & bucket, T & result);
 
     // Inline functions
     inline double get_lb(Enode* const e) const { return rp_binf(rp_box_elem(_b, _enode_to_rp_id[e])); }
