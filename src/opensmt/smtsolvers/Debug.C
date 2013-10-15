@@ -59,25 +59,29 @@ void CoreSMTSolver::dumpCNF( )
 
 void CoreSMTSolver::verifyModel()
 {
+#ifdef DREAL_DEBUG
   bool failed = false;
+#endif
   for (int i = 0; i < clauses.size(); i++)
   {
     assert(clauses[i]->mark() == 0);
     Clause& c = *clauses[i];
     for (int j = 0; j < c.size(); j++)
       if (modelValue(c[j]) == l_True)
-	goto next;
+        goto next;
 
     reportf("unsatisfied clause: ");
     printClause(*clauses[i]);
     printSMTClause( cerr, *clauses[i] );
     reportf("\n");
+#ifdef DREAL_DEBUG
     failed = true;
+#endif
 next:;
   }
-
+#ifdef DREAL_DEBUG
   assert(!failed);
-
+#endif
   // Removed line
   // reportf("Verified %d original clauses.\n", clauses.size());
 }

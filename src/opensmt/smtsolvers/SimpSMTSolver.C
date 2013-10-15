@@ -60,9 +60,9 @@ SimpSMTSolver::SimpSMTSolver( Egraph & e, SMTConfig & c )
     bwdsub_tmpunit   = Clause_new(dummy);
     remove_satisfied = false;
 
-    /* 
+    /*
      * Moved to initialize( )
-     * 
+     *
     // Add clauses for true/false
     // Useful for expressing TAtoms that are constantly true/false
     const Var var_True = newVar( );
@@ -94,10 +94,10 @@ SimpSMTSolver::~SimpSMTSolver()
     if ( config.sat_preprocess_theory != 0 )
     {
       for ( vector< Clause * >::iterator it = unary_to_remove.begin( )
-	  ; it != unary_to_remove.end( )
-	  ; it ++ )
+          ; it != unary_to_remove.end( )
+          ; it ++ )
       {
-	free( *it );
+        free( *it );
       }
     }
 }
@@ -108,7 +108,7 @@ void SimpSMTSolver::initialize( )
 
 #ifdef PRODUCE_PROOF
   if ( config.sat_preprocess_booleans != 0
-    || config.sat_preprocess_theory != 0 ) 
+    || config.sat_preprocess_theory != 0 )
   {
     opensmt_warning( "disabling SATElite preprocessing to track proof" );
     use_simplification = false;
@@ -156,7 +156,7 @@ Var SimpSMTSolver::newVar(bool sign, bool dvar)
 
 lbool SimpSMTSolver::solve( const vec< Enode * > & assumps
                           , bool do_simp
-  			  , bool turn_off_simp )
+                          , bool turn_off_simp )
 {
   vec<Lit> lits;
   for ( int i=0; i<assumps.size(); ++i )
@@ -179,8 +179,8 @@ lbool SimpSMTSolver::solve( const vec< Enode * > & assumps
 
 lbool SimpSMTSolver::solve( const vec< Enode * > & assumps
                           , const unsigned conflicts
-			  , bool do_simp
-			  , bool turn_off_simp )
+                          , bool do_simp
+                          , bool turn_off_simp )
 {
   vec<Lit> lits;
   for ( int i=0; i<assumps.size(); ++i )
@@ -205,15 +205,15 @@ lbool SimpSMTSolver::solve( const vec< Enode * > & assumps
 
 lbool SimpSMTSolver::solve( const vec< Lit > & assumps
                          , bool do_simp
-			 , bool turn_off_simp )
+                         , bool turn_off_simp )
 {
   return solve( assumps, 0, do_simp, turn_off_simp );
 }
 
 lbool SimpSMTSolver::solve( const vec< Lit > & assumps
-			  , const unsigned conflicts
+                          , const unsigned conflicts
                           , bool do_simp
-			  , bool turn_off_simp)
+                          , bool turn_off_simp)
 {
   vec<Var> extra_frozen;
   bool     result = true;
@@ -261,14 +261,14 @@ skip_theory_preproc:
     // Remove resolved clauses
     //
     for ( vector< Clause * >::iterator pt = t_pos[ x->getId( ) ].begin( )
-	; pt != t_pos[ x->getId( ) ].end( )
-	; pt ++ )
+        ; pt != t_pos[ x->getId( ) ].end( )
+        ; pt ++ )
     {
       to_remove.insert( *pt );
     }
     for ( vector< Clause * >::iterator pt = t_neg[ x->getId( ) ].begin( )
-	; pt != t_neg[ x->getId( ) ].end( )
-	; pt ++ )
+        ; pt != t_neg[ x->getId( ) ].end( )
+        ; pt ++ )
     {
       to_remove.insert( *pt );
     }
@@ -301,13 +301,13 @@ skip_theory_preproc:
 
       // If an assumption has been eliminated, remember it.
       if (isEliminated(v))
-	remember(v);
+        remember(v);
 
       if (!frozen[v])
       {
-	// Freeze and store.
-	setFrozen(v, true);
-	extra_frozen.push(v);
+        // Freeze and store.
+        setFrozen(v, true);
+        extra_frozen.push(v);
       }
     }
 
@@ -361,7 +361,7 @@ bool SimpSMTSolver::addSMTClause( vector< Enode * > & smt_clause, uint64_t in )
 
   for ( vector< Enode * >::iterator it = smt_clause.begin( ) ;
         it != smt_clause.end( ) ;
-	it ++ )
+        it ++ )
   {
     Enode * e = *it;
     // Do not add false literals
@@ -373,29 +373,29 @@ bool SimpSMTSolver::addSMTClause( vector< Enode * > & smt_clause, uint64_t in )
     if ( e->isTLit( ) )
     {
       if ( !first_tatom_found )
-	first_tatom_found = true;
+        first_tatom_found = true;
       //
       // Split clause
       //
       else
       {
-	char def_name[ 32 ];
-	sprintf( def_name, SPL_STR, splits++ );
-	egraph.newSymbol( def_name, DTYPE_BOOL );
-	Enode * split = egraph.mkVar( def_name );
-	Lit sl = theory_handler->enodeToLit( split );
-	sat_clause.push( sl );
-	sat_clause_2.push( sl );
-	if ( dump_clause_2 )
-	{
-	  addClause( sat_clause_2 );
-	  dump_clause_2 = false;
-	}
-	addClause( sat_clause );
-	sat_clause.clear( );
-	sat_clause_2.clear( );
-	sat_clause.push( ~sl );
-	sat_clause_2.push( ~sl );
+        char def_name[ 32 ];
+        sprintf( def_name, SPL_STR, splits++ );
+        egraph.newSymbol( def_name, DTYPE_BOOL );
+        Enode * split = egraph.mkVar( def_name );
+        Lit sl = theory_handler->enodeToLit( split );
+        sat_clause.push( sl );
+        sat_clause_2.push( sl );
+        if ( dump_clause_2 )
+        {
+          addClause( sat_clause_2 );
+          dump_clause_2 = false;
+        }
+        addClause( sat_clause );
+        sat_clause.clear( );
+        sat_clause_2.clear( );
+        sat_clause.push( ~sl );
+        sat_clause_2.push( ~sl );
       }
     }
     //
@@ -406,33 +406,33 @@ bool SimpSMTSolver::addSMTClause( vector< Enode * > & smt_clause, uint64_t in )
         || config.logic == QF_LRA
         || config.logic == QF_LIA )
       && ( e->isEq( )
-	|| ( e->isNot( ) && e->get1st( )->isEq( ) ) ) )
+        || ( e->isNot( ) && e->get1st( )->isEq( ) ) ) )
     {
       if ( e->isEq( ) )
       {
-	Enode * lhs = e->get1st( );
-	Enode * rhs = e->get2nd( );
-	Enode * leq = egraph.mkLeq( egraph.cons( lhs, egraph.cons( rhs ) ) );
-	Enode * geq = egraph.mkGeq( egraph.cons( lhs, egraph.cons( rhs ) ) );
-	Lit l1 = theory_handler->enodeToLit( leq );
-	Lit l2 = theory_handler->enodeToLit( geq );
-	sat_clause  .push( l1 );
-	sat_clause_2.push( l2 );
-	dump_clause_2 = true;
+        Enode * lhs = e->get1st( );
+        Enode * rhs = e->get2nd( );
+        Enode * leq = egraph.mkLeq( egraph.cons( lhs, egraph.cons( rhs ) ) );
+        Enode * geq = egraph.mkGeq( egraph.cons( lhs, egraph.cons( rhs ) ) );
+        Lit l1 = theory_handler->enodeToLit( leq );
+        Lit l2 = theory_handler->enodeToLit( geq );
+        sat_clause  .push( l1 );
+        sat_clause_2.push( l2 );
+        dump_clause_2 = true;
       }
       else
       {
-	Enode * arg = e->get1st( );
-	Enode * lhs = arg->get1st( );
-	Enode * rhs = arg->get2nd( );
-	Enode * lt = egraph.mkLt( egraph.cons( lhs, egraph.cons( rhs ) ) );
-	Enode * gt = egraph.mkGt( egraph.cons( lhs, egraph.cons( rhs ) ) );
-	Lit l1 = theory_handler->enodeToLit( lt );
-	Lit l2 = theory_handler->enodeToLit( gt );
-	sat_clause  .push( l1 );
-	sat_clause  .push( l2 );
-	sat_clause_2.push( l1 );
-	sat_clause_2.push( l2 );
+        Enode * arg = e->get1st( );
+        Enode * lhs = arg->get1st( );
+        Enode * rhs = arg->get2nd( );
+        Enode * lt = egraph.mkLt( egraph.cons( lhs, egraph.cons( rhs ) ) );
+        Enode * gt = egraph.mkGt( egraph.cons( lhs, egraph.cons( rhs ) ) );
+        Lit l1 = theory_handler->enodeToLit( lt );
+        Lit l2 = theory_handler->enodeToLit( gt );
+        sat_clause  .push( l1 );
+        sat_clause  .push( l2 );
+        sat_clause_2.push( l1 );
+        sat_clause_2.push( l2 );
       }
     }
     else
@@ -449,7 +449,7 @@ bool SimpSMTSolver::addSMTClause( vector< Enode * > & smt_clause, uint64_t in )
 #else
   for ( vector< Enode * >::iterator it = smt_clause.begin( ) ;
         it != smt_clause.end( ) ;
-	it ++ )
+        it ++ )
   {
     Enode * e = *it;
     // Do not add false literals
@@ -474,24 +474,24 @@ bool SimpSMTSolver::addSMTClause( vector< Enode * > & smt_clause, uint64_t in )
       && e->isTLit( ) )
     {
       if ( !first_tatom_found )
-	first_tatom_found = true;
+        first_tatom_found = true;
       //
       // Split clause
       //
       else
       {
-	assert( false );
-	/*
-	char def_name[ 32 ];
-	sprintf( def_name, SPL_STR, splits++ );
-	egraph.newSymbol( def_name, DTYPE_BOOL );
-	Enode * split = egraph.mkVar( def_name );
-	Lit sl = theory_handler->enodeToLit( split );
-	sat_clause.push( sl );
-	addClause( sat_clause, in );
-	sat_clause.clear( );
-	sat_clause.push( ~sl );
-	*/
+        assert( false );
+        /*
+        char def_name[ 32 ];
+        sprintf( def_name, SPL_STR, splits++ );
+        egraph.newSymbol( def_name, DTYPE_BOOL );
+        Enode * split = egraph.mkVar( def_name );
+        Lit sl = theory_handler->enodeToLit( split );
+        sat_clause.push( sl );
+        addClause( sat_clause, in );
+        sat_clause.clear( );
+        sat_clause.push( ~sl );
+        */
       }
     }
     //
@@ -503,9 +503,9 @@ bool SimpSMTSolver::addSMTClause( vector< Enode * > & smt_clause, uint64_t in )
     if ( e->isTAtom( ) )
     {
       // if ( var_to_lae.size( ) <= var( l ) )
-	var_to_lae.resize( var( l ) + 1, NULL );
+        var_to_lae.resize( var( l ) + 1, NULL );
       if ( var_to_lae[ var( l ) ] == NULL )
-	var_to_lae[ var( l ) ] = new LAExpression( e );
+        var_to_lae[ var( l ) ] = new LAExpression( e );
     }
 #endif
 
@@ -557,24 +557,24 @@ bool SimpSMTSolver::addClause(vec<Lit>& ps, uint64_t in)
 #if NEW_SIMPLIFICATIONS
       if ( e->isTAtom( ) )
       {
-	Clause * uc = Clause_new(ps, false);
-	unary_to_remove.push_back( uc );
-	gatherTVars( e, sign(ps[0]), uc );
+        Clause * uc = Clause_new(ps, false);
+        unary_to_remove.push_back( uc );
+        gatherTVars( e, sign(ps[0]), uc );
       }
 #else
       if ( e->isTAtom( ) )
       {
         Clause * uc = Clause_new(ps, false);
-	unary_to_remove.push_back( uc );
-	Clause &c = *(unary_to_remove.back( ));
-	Enode * x, * y;
-	getDLVars( e, sign(ps[0]), &x, &y );
-	assert( x->isVar( ) );
-	assert( y->isVar( ) );
-	t_pos[ x->getId( ) ].push_back( &c );
-	t_neg[ y->getId( ) ].push_back( &c );
-	t_var[ x ].insert( y->getId( ) );
-	t_var[ y ].insert( x->getId( ) );
+        unary_to_remove.push_back( uc );
+        Clause &c = *(unary_to_remove.back( ));
+        Enode * x, * y;
+        getDLVars( e, sign(ps[0]), &x, &y );
+        assert( x->isVar( ) );
+        assert( y->isVar( ) );
+        t_pos[ x->getId( ) ].push_back( &c );
+        t_neg[ y->getId( ) ].push_back( &c );
+        t_var[ x ].insert( y->getId( ) );
+        t_var[ y ].insert( x->getId( ) );
       }
 #endif
     }
@@ -592,7 +592,7 @@ bool SimpSMTSolver::addClause(vec<Lit>& ps, uint64_t in)
         subsumption_queue.insert(&c);
 
         for (int i = 0; i < c.size(); i++)
-	{
+        {
             assert(occurs.size() > var(c[i]));
             assert(!find(occurs[var(c[i])], &c));
 
@@ -607,34 +607,34 @@ bool SimpSMTSolver::addClause(vec<Lit>& ps, uint64_t in)
 // Added code
 
 #if NEW_SIMPLIFICATIONS
-	    if ( config.sat_preprocess_theory != 0
-	      && ( config.logic == QF_IDL
-	        || config.logic == QF_RDL ) )
-	    {
-	      Var v = var(c[i]);
-	      if ( v <= 1 ) continue;
-	      Enode * e = theory_handler->varToEnode( v );
-	      if ( !e->isTAtom( ) ) continue;
-	      gatherTVars( e, sign(ps[0]), &c );
-	    }
+            if ( config.sat_preprocess_theory != 0
+              && ( config.logic == QF_IDL
+                || config.logic == QF_RDL ) )
+            {
+              Var v = var(c[i]);
+              if ( v <= 1 ) continue;
+              Enode * e = theory_handler->varToEnode( v );
+              if ( !e->isTAtom( ) ) continue;
+              gatherTVars( e, sign(ps[0]), &c );
+            }
 #else
-	    if ( config.sat_preprocess_theory != 0
-	      && ( config.logic == QF_IDL
-	        || config.logic == QF_RDL ) )
-	    {
-	      Var v = var(c[i]);
-	      if ( v <= 1 ) continue;
-	      Enode * e = theory_handler->varToEnode( v );
-	      if ( !e->isTAtom( ) ) continue;
-	      Enode * x, * y;
-	      getDLVars( e, sign(c[i]), &x, &y );
-	      assert( x->isVar( ) );
-	      assert( y->isVar( ) );
-	      t_pos[ x->getId( ) ].push_back( &c );
-	      t_neg[ y->getId( ) ].push_back( &c );
-	      t_var[ x ].insert( y->getId( ) );
-	      t_var[ y ].insert( x->getId( ) );
-	    }
+            if ( config.sat_preprocess_theory != 0
+              && ( config.logic == QF_IDL
+                || config.logic == QF_RDL ) )
+            {
+              Var v = var(c[i]);
+              if ( v <= 1 ) continue;
+              Enode * e = theory_handler->varToEnode( v );
+              if ( !e->isTAtom( ) ) continue;
+              Enode * x, * y;
+              getDLVars( e, sign(c[i]), &x, &y );
+              assert( x->isVar( ) );
+              assert( y->isVar( ) );
+              t_pos[ x->getId( ) ].push_back( &c );
+              t_neg[ y->getId( ) ].push_back( &c );
+              t_var[ x ].insert( y->getId( ) );
+              t_var[ y ].insert( x->getId( ) );
+            }
 #endif
 
 // Added code
@@ -721,17 +721,17 @@ bool SimpSMTSolver::merge(const Clause& _ps, const Clause& _qs, Var v, vec<Lit>&
     for (int i = 0; i < qs.size(); i++)
     {
         if (var(qs[i]) != v)
-	{
+        {
             for (int j = 0; j < ps.size(); j++)
-	    {
+            {
                 if (var(ps[j]) == var(qs[i]))
-		{
+                {
                     if (ps[j] == ~qs[i])
                         return false;
                     else
                         goto next;
-		}
-	    }
+                }
+            }
             out_clause.push(qs[i]);
         }
         next:;
@@ -759,17 +759,17 @@ bool SimpSMTSolver::merge(const Clause& _ps, const Clause& _qs, Var v)
     for (int i = 0; i < qs.size(); i++)
     {
         if (var(__qs[i]) != v)
-	{
+        {
             for (int j = 0; j < ps.size(); j++)
-	    {
+            {
                 if (var(__ps[j]) == var(__qs[i]))
-		{
+                {
                     if (__ps[j] == ~__qs[i])
                         return false;
                     else
                         goto next;
-		}
-	    }
+                }
+            }
         }
         next:;
     }
@@ -892,9 +892,9 @@ bool SimpSMTSolver::asymm(Var v, Clause& c)
     Lit l = lit_Undef;
     for (int i = 0; i < c.size(); i++)
         if (var(c[i]) != v && value(c[i]) != l_False)
-	{
+        {
             uncheckedEnqueue(~c[i]);
-	}
+        }
         else
             l = c[i];
 
@@ -931,32 +931,36 @@ bool SimpSMTSolver::asymmVar(Var v)
 
 void SimpSMTSolver::verifyModel()
 {
+#ifdef DREAL_DEBUG
     bool failed = false;
+#endif
     int  cnt    = 0;
     // NOTE: elimtable.size() might be lower than nVars() at the moment
     for (int i = 0; i < elimtable.size(); i++)
     {
       if (elimtable[i].order > 0)
       {
-	for (int j = 0; j < elimtable[i].eliminated.size(); j++)
-	{
-	  cnt++;
-	  Clause& c = *elimtable[i].eliminated[j];
-	  for (int k = 0; k < c.size(); k++)
-	    if (modelValue(c[k]) == l_True)
-	      goto next;
+        for (int j = 0; j < elimtable[i].eliminated.size(); j++)
+        {
+          cnt++;
+          Clause& c = *elimtable[i].eliminated[j];
+          for (int k = 0; k < c.size(); k++)
+            if (modelValue(c[k]) == l_True)
+              goto next;
 
-	  reportf("unsatisfied clause: ");
-	  printClause(*elimtable[i].eliminated[j]);
-	  reportf("\n");
-	  failed = true;
+          reportf("unsatisfied clause: ");
+          printClause(*elimtable[i].eliminated[j]);
+          reportf("\n");
+#ifdef DREAL_DEBUG
+          failed = true;
+#endif
 next:;
-	}
+        }
       }
     }
-
+#ifdef DREAL_DEBUG
     assert(!failed);
-
+#endif
     // Modified line
     // reportf("Verified %d eliminated clauses.\n", cnt);
     /*
@@ -1115,17 +1119,17 @@ bool SimpSMTSolver::eliminate(bool turn_off_elim)
     while (subsumption_queue.size() > 0 || elim_heap.size() > 0)
     {
       if (!backwardSubsumptionCheck(true))
-	return false;
+        return false;
 
       for (int cnt = 0; !elim_heap.empty(); cnt++)
       {
-	Var elim = elim_heap.removeMin();
+        Var elim = elim_heap.removeMin();
 
-	if (config.verbosity > 9 && cnt % 100 == 0)
-	  reportf("# Elimination left: %10d\r", elim_heap.size());
+        if (config.verbosity > 9 && cnt % 100 == 0)
+          reportf("# Elimination left: %10d\r", elim_heap.size());
 
-	if (!frozen[elim] && !eliminateVar(elim))
-	  return false;
+        if (!frozen[elim] && !eliminateVar(elim))
+          return false;
       }
 
       assert(subsumption_queue.size() == 0);
@@ -1171,10 +1175,10 @@ bool SimpSMTSolver::eliminate(bool turn_off_elim)
       Var elim = elim_heap.removeMin();
 
       if (config.verbosity > 9 && cnt % 100 == 0)
-	reportf("# Elimination left: %10d\r", elim_heap.size());
+        reportf("# Elimination left: %10d\r", elim_heap.size());
 
       if (!frozen[elim] && !eliminateVar(elim))
-	return false;
+        return false;
     }
 
     assert(subsumption_queue.size() == 0);
@@ -1284,9 +1288,9 @@ void SimpSMTSolver::gatherTVars( Enode * e, bool negate, Clause * c )
     {
       Real & coeff = it->second;
       if ( coeff * ( negate ? -1 : 1 ) < 0 )
-	t_neg[ e_var->getId( ) ].push_back( c );
+        t_neg[ e_var->getId( ) ].push_back( c );
       else
-	t_pos[ e_var->getId( ) ].push_back( c );
+        t_pos[ e_var->getId( ) ].push_back( c );
     }
   }
 }
@@ -1363,8 +1367,8 @@ void SimpSMTSolver::eliminateTVar( Enode * x )
       Enode * e = theory_handler->varToEnode( v );
       if ( !e->isTAtom( ) )
       {
-	pos_clause.push( pc[i] );
-	continue;
+        pos_clause.push( pc[i] );
+        continue;
       }
       assert( atom_pos == NULL ); // Otherwise is not in OCC form
       neg_pos = sign(pc[i]);
@@ -1373,12 +1377,12 @@ void SimpSMTSolver::eliminateTVar( Enode * x )
     assert( atom_pos );
 
     for ( vector< Clause * >::iterator nt = t_neg[ x->getId( ) ].begin( )
-	; nt != t_neg[ x->getId( ) ].end( )
-	; nt ++ )
+        ; nt != t_neg[ x->getId( ) ].end( )
+        ; nt ++ )
     {
       // Skip clause if marked for elimination
       if ( to_remove.find( *nt ) != to_remove.end( ) )
-	continue;
+        continue;
 
       vec< Lit > new_clause;
       //
@@ -1396,18 +1400,18 @@ void SimpSMTSolver::eliminateTVar( Enode * x )
       //
       for (int i = 0; i < nc.size(); i++)
       {
-	Var v = var(nc[i]);
-	assert( v > 1 );
-	// if ( v <= 1 ) continue;
-	Enode * e = theory_handler->varToEnode( v );
-	if ( !e->isTAtom( ) )
-	{
-	  new_clause.push( nc[i] );
-	  continue;
-	}
-	assert( atom_neg == NULL ); // Otherwise is not in OCC form
-	neg_neg = sign(nc[i]);
-	atom_neg = e;
+        Var v = var(nc[i]);
+        assert( v > 1 );
+        // if ( v <= 1 ) continue;
+        Enode * e = theory_handler->varToEnode( v );
+        if ( !e->isTAtom( ) )
+        {
+          new_clause.push( nc[i] );
+          continue;
+        }
+        assert( atom_neg == NULL ); // Otherwise is not in OCC form
+        neg_neg = sign(nc[i]);
+        atom_neg = e;
       }
       assert( atom_neg );
       //
@@ -1418,19 +1422,19 @@ void SimpSMTSolver::eliminateTVar( Enode * x )
       Enode * res = mergeTAtoms( atom_pos, neg_pos, atom_neg, neg_neg, x );
 
       if ( res->isTrue( ) )
-	; // Do nothing
+        ; // Do nothing
       // Drop merge
       else if ( res->isFalse( ) )
       {
-	added ++;
-	addClause( new_clause );
+        added ++;
+        addClause( new_clause );
       }
       // Add merge as well
       else
       {
-	added ++;
-	new_clause.push( theory_handler->enodeToLit( res ) );
-	addClause( new_clause );
+        added ++;
+        new_clause.push( theory_handler->enodeToLit( res ) );
+        addClause( new_clause );
       }
     }
   }
@@ -1476,16 +1480,16 @@ void SimpSMTSolver::gaussianElimination( )
       // Solve w.r.t. first variable
       if ( s.solve( ) == NULL )
       {
-	if ( s.toEnode( egraph ) == egraph.mkTrue( ) )
-	  continue;
-	error( "handle this please", "" );
+        if ( s.toEnode( egraph ) == egraph.mkTrue( ) )
+          continue;
+        error( "handle this please", "" );
       }
       // Use the first variable x in s to generate a
       // substitution and replace x in lac
       for ( unsigned j = i + 1 ; j < top_level_eqs.size( ) ; j ++ )
       {
-	LAExpression & lac = *top_level_eqs[ j ];
-	combine( s, lac );
+        LAExpression & lac = *top_level_eqs[ j ];
+        combine( s, lac );
       }
     }
     //
@@ -1499,16 +1503,16 @@ void SimpSMTSolver::gaussianElimination( )
       // Solve w.r.t. first variable
       if ( s.solve( ) == NULL )
       {
-	if ( s.toEnode( egraph ) == egraph.mkTrue( ) )
-	  continue;
-	error( "handle this please", "" );
+        if ( s.toEnode( egraph ) == egraph.mkTrue( ) )
+          continue;
+        error( "handle this please", "" );
       }
       // Use the first variable x in s to generate a
       // substitution and replace x in lac
       for ( int j = i - 1 ; j >= 0 ; j -- )
       {
-	LAExpression & lac = *top_level_eqs[ j ];
-	combine( s, lac );
+        LAExpression & lac = *top_level_eqs[ j ];
+        combine( s, lac );
       }
     }
     //
@@ -1545,36 +1549,36 @@ void SimpSMTSolver::substituteInClauses ( )
       Var v = var( l );
       if ( v < var_to_lae.size( ) && var_to_lae[ v ] != NULL )
       {
-	LAExpression & lae = *var_to_lae[ v ];
-	//
-	// Eliminate all possible variables
-	//
-	for ( int k = 0 ; k < top_level_eqs.size( ) ; k ++ )
-	{
-	  if ( lae.isTrue( ) || lae.isFalse( ) ) break;
-	  LAExpression & sub = *top_level_eqs[ k ];
-	  combine( sub, lae );
-	}
-	//
-	// l is true under assumptions, so we can remove the
-	// entire clause
-	//
-	if ( lae.isTrue( ) )
-	{
-	  cerr << "LA IS TRUE" << endl;
-	  modified = false;
-	  removeClause( c );
-	  removed_clauses ++;
-	  break;
-	}
-	else if ( lae.isFalse( ) )
-	{
-	  cerr << "LA IS FALSE" << endl;
-	  removed_literals ++;
-	  modified = true;
-	}
-	else
-	  new_clause.push( l );
+        LAExpression & lae = *var_to_lae[ v ];
+        //
+        // Eliminate all possible variables
+        //
+        for ( int k = 0 ; k < top_level_eqs.size( ) ; k ++ )
+        {
+          if ( lae.isTrue( ) || lae.isFalse( ) ) break;
+          LAExpression & sub = *top_level_eqs[ k ];
+          combine( sub, lae );
+        }
+        //
+        // l is true under assumptions, so we can remove the
+        // entire clause
+        //
+        if ( lae.isTrue( ) )
+        {
+          cerr << "LA IS TRUE" << endl;
+          modified = false;
+          removeClause( c );
+          removed_clauses ++;
+          break;
+        }
+        else if ( lae.isFalse( ) )
+        {
+          cerr << "LA IS FALSE" << endl;
+          removed_literals ++;
+          modified = true;
+        }
+        else
+          new_clause.push( l );
       }
     }
     if ( modified )
@@ -1593,8 +1597,8 @@ void SimpSMTSolver::substituteInClauses ( )
 #if 0
 Enode * SimpSMTSolver::mergeTAtoms( Enode * atom_pos
                                   , bool neg_pos
-				  , Enode * atom_neg
-				  , bool neg_neg
+                                  , Enode * atom_neg
+                                  , bool neg_neg
                                   , Enode * x )
 {
   assert( config.sat_preprocess_theory != 0 );
@@ -1659,7 +1663,7 @@ Enode * SimpSMTSolver::mergeTAtoms( Enode * atom_pos
     assert( x_pos == y_neg );
     Real c = c_neg + c_pos;
     res = egraph.mkLeq( egraph.cons( egraph.mkMinus( egraph.cons( x_neg, egraph.cons( y_pos ) ) )
-	              , egraph.cons( egraph.mkNum( c ) ) ) );
+                      , egraph.cons( egraph.mkNum( c ) ) ) );
   }
   //
   // y - x <= c_pos
@@ -1671,7 +1675,7 @@ Enode * SimpSMTSolver::mergeTAtoms( Enode * atom_pos
   {
     Real c = c_neg + c_pos;
     res = egraph.mkLeq( egraph.cons( egraph.mkMinus( egraph.cons( y_pos, egraph.cons( x_neg ) ) )
-	              , egraph.cons( egraph.mkNum( c ) ) ) );
+                      , egraph.cons( egraph.mkNum( c ) ) ) );
   }
   else
   {
