@@ -368,9 +368,6 @@ bool ode_solver::solve_forward() {
                         cerr << "v = " << v << endl;
                         cerr << "enclosure for t intersected with inv " << prevTime + subsetOfDomain << ": " << v << endl;
                     }
-                    if (_config.nra_json) {
-                        trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
-                    }
                     prune(_t_vars, v, prevTime + subsetOfDomain, T, out_v_list, out_time_list);
                 }
             } else {
@@ -378,11 +375,12 @@ bool ode_solver::solve_forward() {
                     cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
                     cerr << "enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s) << endl;
                 }
-                if (_config.nra_json) {
-                    trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
-                }
             }
             prevTime = timeMap.getCurrentTime();
+            if (_config.nra_json) {
+                trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+            }
+
             if (_config.nra_verbose) {
                 cerr << "current time: " << prevTime << endl;
             }
