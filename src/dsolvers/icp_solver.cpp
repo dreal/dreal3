@@ -207,38 +207,13 @@ bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars) {
         }
         ode_solver* odeSolver = new ode_solver(group, _config, ode_vars, _boxes.get(), _enode_to_rp_id);
         _ode_solvers.push_back(odeSolver);
-        // =========== Simple ODE ======================================
-        if (!odeSolver->simple_ODE()) {
-            return false;
-        }
-        // ICP Prop
-        if (!_propag->apply(_boxes.get())) {
-            return false;
-        }
-        // =========== FORWARD ======================================
-        if (!odeSolver->solve_forward()) {
-            return false;
-        }
-        // ICP Prop
-        if (!_propag->apply(_boxes.get())) {
-            return false;
-        }
-        // // =========== Simple ODE ======================================
-        // if (!odeSolver->simple_ODE()) {
-        //     return false;
-        // }
-        // // ICP Prop
-        // if (!_propag->apply(_boxes.get())) {
-        //     return false;
-        // }
-        // // =========== BACKWARD ======================================
-        // if (!odeSolver->solve_backward()) {
-        //     return false;
-        // }
-        // // ICP Prop
-        // if (!_propag->apply(_boxes.get())) {
-        //     return false;
-        // }
+
+        return odeSolver->simple_ODE() &&
+            _propag->apply(_boxes.get()) &&
+            odeSolver->solve_forward() &&
+            _propag->apply(_boxes.get());
+            // odeSolver->solve_backward() &&
+            // _propag->apply(_boxes.get());
     }
     return true;
 }

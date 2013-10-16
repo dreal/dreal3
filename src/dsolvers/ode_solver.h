@@ -23,10 +23,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #define ODESOLVER_H
 #include <map>
 #include <string>
-#include "Enode.h"
-#include "realpaver/rp_box.h"
 #include "capd/capdlib.h"
-#include "SMTConfig.h"
+#include "opensmt/egraph/Enode.h"
+#include "opensmt/smtsolvers/SMTConfig.h"
+#include "realpaver/rp_box.h"
 
 class ode_solver {
 public:
@@ -53,9 +53,17 @@ private:
     vector<string> var_list;
     vector<Enode*> _0_vars;
     vector<Enode*> _t_vars;
+    capd::IVector X_0;
+    capd::IVector X_t;
+    capd::IVector inv;
+    Enode * time;
+    capd::interval T;
+
     string diff_var;
-    string diff_fun;
-    string diff_sys;
+    string diff_fun_forward;
+    string diff_fun_backward;
+    string diff_sys_forward;
+    string diff_sys_backward;
 
     // Private Methods
     void print_datapoint(ostream& out, const capd::interval& t, const capd::interval& v) const;
@@ -72,14 +80,22 @@ private:
     bool check_invariant(capd::C0Rect2Set & s, capd::IVector const & inv);
     bool contain_NaN(capd::IVector const & v);
     bool contain_NaN(capd::C0Rect2Set const & s);
-    template<typename T>
-    bool union_and_join(vector<T> const & bucket, T & result);
+    template<typename V>
+    bool union_and_join(vector<V> const & bucket, V & result);
+    bool inner_loop_forward(capd::ITaylor & solver, capd::interval const & prevTime,
+                            vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list);
+    bool inner_loop_backward(capd::ITaylor & solver, capd::interval const & prevTime,
+                             vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list);
+    bool simple_ODE_forward(capd::IVector const & X_0, capd::IVector & X_t, capd::interval const & T,
+                            capd::IVector const & inv, vector<capd::IFunction> const & funcs);
+    bool simple_ODE_backward(capd::IVector & X_0, capd::IVector const & X_t, capd::interval const & T,
+                             capd::IVector const & inv, vector<capd::IFunction> const & funcs);
 
     // Inline functions
     inline double get_lb(Enode* const e) const { return rp_binf(rp_box_elem(_b, _enode_to_rp_id[e])); }
     inline double get_ub(Enode* const e) const { return rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e])); }
-    inline void set_lb(Enode* const e, double const v) { rp_binf(rp_box_elem(_b, _enode_to_rp_id[e])) = v; }
-    inline void set_ub(Enode* const e, double const v) { rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e])) = v; }
+    inline void set_lb(Enode* const e, double v) { rp_binf(rp_box_elem(_b, _enode_to_rp_id[e])) = v; }
+    inline void set_ub(Enode* const e, double v) { rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e])) = v; }
     inline void set_empty_interval(Enode* const e) { rp_interval_set_empty(rp_box_elem(_b, _enode_to_rp_id[e])); }
 };
 #endif
