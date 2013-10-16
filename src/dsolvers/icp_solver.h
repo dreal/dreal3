@@ -21,13 +21,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef ICPSOLVER_H
 #define ICPSOLVER_H
-#include "realpaver/realpaver.h"
-#include "dsolvers/ode_solver.h"
-#include "dsolvers/util/scoped_map.h"
-#include "Enode.h"
-#include "SMTConfig.h"
 #include <fstream>
 #include <queue>
+#include "dsolvers/ode_solver.h"
+#include "dsolvers/util/scoped_map.h"
+#include "opensmt/egraph/Enode.h"
+#include "opensmt/smtsolvers/SMTConfig.h"
+#include "realpaver/realpaver.h"
 
 class icp_solver {
 public:

@@ -289,7 +289,7 @@ bool icp_solver::prop_with_ODE() {
             // Sequential Case
             for (unsigned i = 1; i <= max; i++) {
                 if (!diff_vec[i].empty()) {
-                    if(icp_solver::callODESolver(i, diff_vec[i]) == false)
+                    if (icp_solver::callODESolver(i, diff_vec[i]) == false)
                         return false;
                 }
             }
@@ -336,15 +336,14 @@ rp_box icp_solver::compute_next() {
 }
 
 void icp_solver::print_ODE_trajectory() const {
-    if(_ode_solvers.size() == 0)
+    if (_ode_solvers.size() == 0)
         return;
     auto ite = _ode_solvers.cbegin();
     (*ite++)->print_trajectory(_config.nra_json_out);
-    for(; ite != _ode_solvers.cend(); ite++) {
+    while (ite != _ode_solvers.cend()) {
         _config.nra_json_out << "," << endl;
-        (*ite)->print_trajectory(_config.nra_json_out);
+        (*ite++)->print_trajectory(_config.nra_json_out);
     }
-    return;
 }
 
 bool icp_solver::solve() {
