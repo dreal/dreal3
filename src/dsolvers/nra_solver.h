@@ -31,19 +31,19 @@ public:
     NRASolver(const int, const char *, SMTConfig &, Egraph &, SStore &, vector<Enode *> &,
               vector<Enode *> &, vector<Enode *> &);
     ~NRASolver();
-    lbool inform(Enode *e);
-    bool assertLit(Enode *e, bool = false);
+    lbool inform(Enode * e);
+    bool assertLit(Enode * e, bool = false);
     void pushBacktrackPoint ();
     void popBacktrackPoint ();
     bool check(bool c);
-    bool belongsToT(Enode *e);
+    bool belongsToT(Enode * e);
     void computeModel();
 
 private:
-    set<Enode *> get_variables(Enode *e);
+    set<Enode *> get_variables(Enode * const e);
     scoped_map<Enode*, std::pair<double, double>> env;
-    vector <Enode*> stack; // stack of asserted literals.
+    vector <Enode *> stack; // stack of asserted literals.
     vector <unsigned> undo_stack_size;
-    map <Enode*, set <Enode*>> _enode_to_vars;
+    map<Enode*, set <Enode *>> _enode_to_vars;
 };
 #endif

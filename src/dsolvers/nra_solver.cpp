@@ -28,71 +28,58 @@ using std::pair;
 using boost::starts_with;
 
 NRASolver::NRASolver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
-                     vector< Enode * > & x, vector<Enode *> & d, vector<Enode *> & s)
+                     vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
     : OrdinaryTSolver (i, n, c, e, t, x, d, s) {
-    // initialize icp solver first
-    if (c.nra_precision == 0.0)
-        c.nra_precision = 0.001;
+    if (c.nra_precision == 0.0) c.nra_precision = 0.001;
 }
 
 NRASolver::~NRASolver() {
     // Here Deallocate External Solver
 }
 
-void debug_print_env(const scoped_map<Enode*, pair<double, double>> & env) {
+void debug_print_env(scoped_map<Enode *, pair<double, double>> const & env) {
     for (auto ite = env.begin(); ite != env.end(); ite++) {
-        Enode* key = ite->first;
-        const double lb  = ite->second.first;
-        const double ub  = ite->second.second;
-        cerr << "Key: " << key
-             << "\t Value: [" << lb << ", " << ub << "]"
-             << endl;
+        Enode * const key = ite->first;
+        double const lb = ite->second.first;
+        double const ub = ite->second.second;
+        cerr << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
     }
 }
 
-void debug_print_stack(const vector<Enode*> & stack) {
+void debug_print_stack(vector<Enode *> const & stack) {
     // Print out all the Enode in stack
     for (auto ite = stack.cbegin(); ite != stack.cend(); ite++) {
-        cerr << "asserted literal : " << *ite
-             << "\t" << (*ite)->hasPolarity()
-             << endl;
+        cerr << "asserted literal : " << *ite << "\t" << (*ite)->hasPolarity() << endl;
     }
 }
 
-void debug_print_explanation (const vector<Enode*> & explanation) {
+void debug_print_explanation (vector<Enode *> const & explanation) {
     for (auto ite = explanation.begin(); ite!= explanation.end(); ite++) {
-        cerr << *ite <<" with polarity "
-             << toInt((*ite)->getPolarity()) << " ";
+        cerr << *ite <<" with polarity " << toInt((*ite)->getPolarity()) << " ";
     }
     cerr << endl;
 }
 
 // Collect all the variables appeared in e
-set<Enode *> NRASolver::get_variables (Enode * e) {
+set<Enode *> NRASolver::get_variables (Enode * const e) {
     set<Enode *> result;
     Enode * p = nullptr;
     if ( e->isSymb()) { /* do nothing */ }
     else if (e->isNumb()) { /* do nothing */ }
     else if (e->isTerm()) {
         if (e -> isVar()) { result.insert(e); }
-        set<Enode*> tmp_set = get_variables(e->getCar());
-        result.insert(tmp_set.begin(), tmp_set.end());
-        p = e->getCdr();
-        while (!p->isEnil()) {
-            tmp_set = get_variables(p->getCar());
+        p = e;
+        while(!p->isEnil()) {
+            set<Enode *> const & tmp_set = get_variables(p->getCar());
             result.insert(tmp_set.begin(), tmp_set.end());
             p = p->getCdr();
         }
     } else if (e->isList()) {
-        if (!e->isEnil()) {
-            set <Enode*> tmp_set = get_variables(e->getCar());
+        p = e;
+        while (!p->isEnil()) {
+            set<Enode *> const & tmp_set = get_variables(p->getCar());
             result.insert(tmp_set.begin(), tmp_set.end());
-            p = e->getCdr();
-            while (!p->isEnil()) {
-                tmp_set = get_variables(p->getCar());
-                result.insert(tmp_set.begin(), tmp_set.end());
-                p = p->getCdr();
-            }
+            p = p->getCdr();
         }
     } else if (e->isDef()) { /* do nothing */ }
     else if (e->isEnil()) { /* do nothing */ }
@@ -115,27 +102,25 @@ lbool NRASolver::inform(Enode * e) {
              << " with polarity " << e->getPolarity().toInt() << endl
              << "================================================================" << endl;
     }
-    set<Enode*> variables_in_e = get_variables(e);
-    set<Enode*> ode_variables_in_e;
-    for (auto ite = variables_in_e.begin(); ite != variables_in_e.end(); ite++) {
-        if (config.nra_verbose) {
-            cerr << *ite << endl;
-        }
-        double lb = (*ite)->getLowerBound();
-        double ub = (*ite)->getUpperBound();
-        env.insert(*ite, make_pair(lb, ub));
+    set<Enode *> const & variables_in_e = get_variables(e);
+    set<Enode *> ode_variables_in_e;
+    for (auto const & var : variables_in_e) {
+        if (config.nra_verbose) { cerr << var << endl; }
+        double const lb = var->getLowerBound();
+        double const ub = var->getUpperBound();
+        env.insert(var, make_pair(lb, ub));
 
         // Collect ODE Vars in e
-        if (config.nra_contain_ODE && (*ite)->getODEtimevar() != nullptr && (*ite)->getODEgroup() > 0) {
+        if (config.nra_contain_ODE && var->getODEtimevar() != nullptr && var->getODEgroup() > 0) {
             if (config.nra_verbose) {
-                cerr << "Add " << *ite << " in the bag!!!! " << endl;
-                cerr << "\t Group: " << (*ite)->getODEgroup() << endl;
+                cerr << "Add " << var << " in the bag!!!! " << endl;
+                cerr << "\t Group: " << var->getODEgroup() << endl;
             }
-            ode_variables_in_e.insert(*ite);
+            ode_variables_in_e.insert(var);
         }
     }
     if (config.nra_contain_ODE) {
-        _enode_to_vars.insert(pair<Enode*, set<Enode*> >(e, ode_variables_in_e));
+        _enode_to_vars.insert(make_pair(e, ode_variables_in_e));
     }
     return l_Undef;
 }
@@ -193,12 +178,10 @@ void NRASolver::popBacktrackPoint () {
         cerr << "================================================================" << endl
              << "NRASolver::popBacktrackPoint" << endl;
     }
-    unsigned prev_size = undo_stack_size.back();
+    unsigned const prev_size = undo_stack_size.back();
     undo_stack_size.pop_back();
     unsigned cur_size = stack.size();
-    while (cur_size-- > prev_size) {
-        stack.pop_back();
-    }
+    while (cur_size-- > prev_size) { stack.pop_back(); }
     env.pop();
 }
 
@@ -211,7 +194,7 @@ bool NRASolver::check(bool complete) {
         cerr << "================================================================" << endl;
         cerr << "NRASolver::check " << (complete ? "complete" : "incomplete") << endl;
         for (auto ite = env.begin(); ite != env.end(); ite++) {
-            Enode* key = (*ite).first;
+            Enode * key = (*ite).first;
             double lb =  (*ite).second.first;
             double ub =  (*ite).second.second;
             if (starts_with(key->getCar()->getName(), "mode_")) {
@@ -246,10 +229,9 @@ bool NRASolver::check(bool complete) {
         cerr << "#explanation provided: ";
         debug_print_explanation(explanation);
     }
-
     // Print out JSON
     if (complete && result && config.nra_contain_ODE && config.nra_json) {
-        solver.print_json();
+        solver.print_json(config.nra_json_out);
     }
     return result;
 }

@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "dsolvers/icp_solver.h"
 #include <iomanip>
 #include <string>
+#include <thread>
 #include <boost/algorithm/string/predicate.hpp>
 
 using boost::starts_with;
@@ -34,7 +35,7 @@ icp_solver::icp_solver(SMTConfig& c, const vector<Enode*> & stack, scoped_map<En
     _problem = create_rp_problem();
     _propag = new rp_propagator(_problem, 10.0, c.nra_verbose, c.nra_proof_out);
 
-    // rp_new(_vselect, rp_selector_roundrobin, (_problem));
+    //rp_new(_vselect, rp_selector_roundrobin, (_problem));
     rp_new(_vselect, rp_selector_existence, (_problem));
     // rp_new(_dsplit, rp_splitter_mixed, (_problem));
     rp_new(_dsplit, rp_splitter_bisection, (_problem));
@@ -170,7 +171,7 @@ rp_problem* icp_solver::create_rp_problem() {
     return rp_prob;
 }
 
-bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars) {
+bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars, bool forward) {
     if (_config.nra_verbose) {
         cerr << "solve ode group: " << group << endl;
     }
@@ -208,15 +209,107 @@ bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars) {
         ode_solver* odeSolver = new ode_solver(group, _config, ode_vars, _boxes.get(), _enode_to_rp_id);
         _ode_solvers.push_back(odeSolver);
 
-        return odeSolver->simple_ODE() &&
-            _propag->apply(_boxes.get()) &&
-            odeSolver->solve_forward() &&
-            _propag->apply(_boxes.get());
-            // odeSolver->solve_backward() &&
-            // _propag->apply(_boxes.get());
+        if(forward) {
+            bool simple_ODE = odeSolver->simple_ODE() && _propag->apply(_boxes.get());
+            if(!simple_ODE) return false;
+
+            bool forward_ODE = true;
+            bool forward_exception = false;
+            try {
+                forward_ODE = odeSolver->solve_forward() && _propag->apply(_boxes.get());
+            }
+            catch(exception& e) {
+                if (_config.nra_verbose) {
+                    cerr << "Exception in ODE Solving (Forward)" << endl
+                         << e.what() << endl;
+                }
+                forward_exception = true;
+            }
+            if(!forward_exception) return forward_ODE;
+            try {
+                return odeSolver->solve_backward() && _propag->apply(_boxes.get());
+            }
+            catch(exception& e) {
+                if (_config.nra_verbose) {
+                    cerr << "Exception in ODE Solving (Backward)" << endl
+                         << e.what() << endl;
+                }
+                return true;
+            }
+        } else {
+            bool simple_ODE = odeSolver->simple_ODE() && _propag->apply(_boxes.get());
+            if(!simple_ODE) return false;
+
+            bool backward_ODE = true;
+            bool backward_exception = false;
+            try {
+                backward_ODE = odeSolver->solve_backward() && _propag->apply(_boxes.get());
+            }
+            catch(exception& e) {
+                if (_config.nra_verbose) {
+                    cerr << "Exception in ODE Solving (Backward)" << endl
+                         << e.what() << endl;
+                }
+                backward_exception = true;
+            }
+            if(!backward_exception) return backward_ODE;
+            try {
+                return odeSolver->solve_forward() && _propag->apply(_boxes.get());
+            }
+            catch(exception& e) {
+                if (_config.nra_verbose) {
+                    cerr << "Exception in ODE Solving (Forward)" << endl
+                         << e.what() << endl;
+                }
+                return true;
+            }
+        }
     }
     return true;
 }
+
+bool icp_solver::is_atomic(set<Enode*> const & ode_vars, double const p) {
+    rp_box _b = _boxes.get();
+    for(auto ode_var : ode_vars) {
+        double lb = rp_binf(rp_box_elem(_b, _enode_to_rp_id[ode_var]));
+        double ub = rp_bsup(rp_box_elem(_b, _enode_to_rp_id[ode_var]));
+        if (ub - lb > p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+vector<pair<double, double>> icp_solver::measure_size(set<Enode*> const & ode_vars, double const prec) {
+    rp_box const & _b = _boxes.get();
+    vector<pair<Enode*, Enode*>> ode_pairs;
+
+    // extract ode pairs
+    for(auto ode_var : ode_vars) {
+        lbool const & odeType = ode_var->getODEvartype();
+        if (odeType == l_False) {
+            ode_pairs.push_back(make_pair(ode_var, ode_var->getODEopposite()));
+        }
+    }
+    // sort ode_pairs by their rp_id
+    std::sort(ode_pairs.begin(), ode_pairs.end(), [this](pair<Enode*, Enode*> const p1, pair<Enode*, Enode*> const p2) {
+            return _enode_to_rp_id[p1.first] < _enode_to_rp_id[p2.first];
+        });
+
+    // extract width
+    vector<pair<double, double>> ret;
+    for(auto p : ode_pairs) {
+        double const lb_0 = rp_binf(rp_box_elem(_b, _enode_to_rp_id[p.first]));
+        double const ub_0 = rp_bsup(rp_box_elem(_b, _enode_to_rp_id[p.first]));
+        double const s_0 = max(ub_0 - lb_0, prec);
+        double const lb_t = rp_binf(rp_box_elem(_b, _enode_to_rp_id[p.second]));
+        double const ub_t = rp_bsup(rp_box_elem(_b, _enode_to_rp_id[p.second]));
+        double const s_t = max(ub_t - lb_t, prec);
+        ret.push_back(make_pair(s_0, s_t));
+    }
+    return ret;
+}
+
 
 bool icp_solver::prop_with_ODE() {
     if (_propag->apply(_boxes.get())) {
@@ -261,13 +354,119 @@ bool icp_solver::prop_with_ODE() {
                 delete _s;
             }
             _ode_solvers.clear(); /* clear the list of ODE_Solvers */
-            // Sequential Case
+
+            // Find ODE groups whose X_0, X_t, and T are smallest interval boxes
+            vector<pair<unsigned, pair<double, double>>> ode_group_scores;
             for (unsigned i = 1; i <= max; i++) {
                 if (!diff_vec[i].empty()) {
-                    if (icp_solver::callODESolver(i, diff_vec[i]) == false)
-                        return false;
+                    ode_group_scores.push_back(make_pair(i, make_pair(0.0, 0.0)));
                 }
             }
+
+            auto ratio_comp = [](pair<double, double> const & x, pair<double, double> const & y) {
+                double const x_0 = x.first;
+                double const x_t = x.second;
+                double const x_r = x_t > x_0 ? x_t / x_0 : x_0 / x_t;
+                double const y_0 = y.first;
+                double const y_t = y.second;
+                double const y_r = y_t > y_0 ? y_t / y_0 : y_0 / y_t;
+                return x_r < y_r;
+            };
+
+            auto diff_comp = [](pair<double, double> const & x, pair<double, double> const & y) {
+                double const x_0 = x.first;
+                double const x_t = x.second;
+                double const x_r = x_t > x_0 ? x_t - x_0 : x_0 - x_t;
+                double const y_0 = y.first;
+                double const y_t = y.second;
+                double const y_r = y_t > y_0 ? y_t - y_0 : y_0 - y_t;
+                return x_r < y_r;
+            };
+
+            auto compute_max_width = [this, &ratio_comp](set<Enode*> const & vars, double const prec) {
+                vector<pair<double, double>> s = measure_size(vars, prec);
+                return *max_element(s.begin(), s.end(), ratio_comp);
+            };
+
+            auto compute_volume = [this](set<Enode*> const & vars, double const prec) {
+                vector<pair<double, double>> s = measure_size(vars, prec);
+                double V_0 = 0.0;
+                double V_t = 0.0;
+                for(auto p : s) {
+                    V_0 += log(std::max(prec, p.first));
+                    V_t += log(std::max(prec, p.second));
+                }
+                return make_pair(V_0, V_t);
+            };
+
+            static unsigned counter = 0;
+
+            while(ode_group_scores.size() > 0) {
+                // update scores
+                for(auto & t : ode_group_scores) {
+                    unsigned i = get<0>(t);
+                    // auto r = compute_max_width(diff_vec[i], _config.nra_precision);
+                    auto r = compute_volume(diff_vec[i], _config.nra_precision);
+                    t = make_pair(i, r);
+                }
+                // Sort
+                std::sort(ode_group_scores.begin(), ode_group_scores.end(),
+                          [&ratio_comp, &diff_comp](pair<unsigned, pair<double, double>> const & x,
+                                        pair<unsigned, pair<double, double>> const & y) {
+                              auto const & p1 = x.second;
+                              auto const & p2 = y.second;
+                              return !diff_comp(p1, p2);
+                              // return false;
+                          });
+
+                // Process first n ode groups in parallel
+                auto ite = ode_group_scores.begin();
+                unsigned num_core = 1; // std::thread::hardware_concurrency()
+                for(unsigned id = 0;
+                    id < num_core && ite != ode_group_scores.end();
+                    id++, ite++) {
+                    auto t = *ite;
+                    unsigned const i = t.first;
+                    if(is_atomic(diff_vec[i], _config.nra_precision)) {
+                        cerr << "A" << i << endl;
+                        if (icp_solver::callODESolver(i, diff_vec[i], true) == false)
+                            return false;
+                    } else {
+                        double const T_0_size = t.second.first;
+                        double const T_x_size = t.second.second;
+                        // if(T_x_size >= -4.0 && T_0_size >= -4.0) {
+                        //     cerr << setw(20) << i << std::setw(20) << T_0_size << std::setw(20)
+                        //          << T_x_size << std::setw(20) << "Skip" << endl;
+                        // } else
+                        if(T_x_size >= T_0_size) {
+                            // cerr << "F" << i << " "p ;
+                            cerr << setw(20) << i << std::setw(20) << T_0_size << std::setw(20)
+                                 << T_x_size << std::setw(20) << "Forward" << endl;
+
+                            if (icp_solver::callODESolver(i, diff_vec[i], true) == false) {
+                                cerr << endl;
+                                return false;
+                            }
+                        } else {
+                            // cerr << "B" << i << " " ;
+                            cerr << setw(20) << i <<std::setw(20) << T_0_size << std::setw(20)
+                            << T_x_size << std::setw(20) << "Backward" << endl;
+                            if (icp_solver::callODESolver(i, diff_vec[i], false) == false) {
+                                cerr << endl;
+                                return false;
+                            }
+                        }
+                    }
+                }
+                // Delete first one
+                ode_group_scores.erase(ode_group_scores.begin(), ite);
+            }
+            cerr << endl;
+            counter++;
+            // if(counter == ) {
+            //     print_json(std::cerr);
+            //     std::terminate();
+            // }
             return true;
         } else {
             return true;
@@ -275,6 +474,43 @@ bool icp_solver::prop_with_ODE() {
     }
     return false;
 }
+
+// std::vector<std::thread> ts;
+// #ifndef __APPLE__
+// for (unsigned i = 0; i < 8; i++) {
+//     ts.push_back(std::thread([&](){ mk(a); }));
+// }
+// for (unsigned i = 0; i < 8; i++) {
+//     ts[i].join();
+//     std::cout << "finished " << i << "\n";
+// }
+
+// //std::thread::hardware_concurrency();
+
+//         // Parallel Version
+//         boost::thread_group group;
+//         unsigned hc = boost::thread::hardware_concurrency();
+//         unsigned block = ceil(((double)max) / hc);
+//         for(unsigned bn = 0; bn < block; bn++) {
+//             for(unsigned i = 1; i <= hc && bn * hc + i <= max; i++) {
+//                 group.create_thread(boost::bind(&icp_solver::callODESolver,
+//                                                 this,
+//                                                 bn * hc + i,
+//                                                 diff_vec,
+//                                                 current_box));
+//             }
+//             group.join_all();
+//             if(!ODEresult) {
+//                 return false;
+//             }
+//         }
+
+// for (unsigned i = 1; i <= max; i++) {
+//     if (!diff_vec[i].empty()) {
+//         if (icp_solver::callODESolver(i, diff_vec[i]) == false)
+//             return false;
+//     }
+// }
 
 rp_box icp_solver::compute_next() {
     if (_sol > 0) {
@@ -310,14 +546,14 @@ rp_box icp_solver::compute_next() {
     return nullptr;
 }
 
-void icp_solver::print_ODE_trajectory() const {
+void icp_solver::print_ODE_trajectory(ostream& out) const {
     if (_ode_solvers.size() == 0)
         return;
     auto ite = _ode_solvers.cbegin();
-    (*ite++)->print_trajectory(_config.nra_json_out);
+    (*ite++)->print_trajectory(out);
     while (ite != _ode_solvers.cend()) {
-        _config.nra_json_out << "," << endl;
-        (*ite++)->print_trajectory(_config.nra_json_out);
+        out << "," << endl;
+        (*ite++)->print_trajectory(out);
     }
 }
 
@@ -546,12 +782,12 @@ bool icp_solver::prop() {
     return result;
 }
 
-void icp_solver::print_json() {
+void icp_solver::print_json(ostream & out) {
     // Print out ODE trajectory
-    _config.nra_json_out << "{\"traces\": " << endl
-                         << "[" << endl;
-    print_ODE_trajectory();
-    _config.nra_json_out << "]" << endl;
+    out << "{\"traces\": " << endl
+        << "[" << endl;
+    print_ODE_trajectory(out);
+    out << "]" << endl;
 
     // collect all the ODE groups in the asserted literal and
     // print out
@@ -575,15 +811,14 @@ void icp_solver::print_json() {
             cerr << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
         }
     }
-    _config.nra_json_out << ", \"groups\": [";
+    out << ", \"groups\": [";
     for (auto g = ode_groups.begin();
          g != ode_groups.end();
          g++) {
         if (g != ode_groups.begin()) {
-            _config.nra_json_out << ", ";
+            out << ", ";
         }
-        _config.nra_json_out << *g;
+        out << *g;
     }
-    _config.nra_json_out << "]" << endl
-                         << "}" << endl;
+    out << "]" << endl << "}" << endl;
 }

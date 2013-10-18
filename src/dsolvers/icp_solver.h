@@ -31,8 +31,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 class icp_solver {
 public:
-    icp_solver(SMTConfig& c, const vector<Enode*> & stack, scoped_map<Enode*, pair<double, double>> & env,
-               vector<Enode*> & exp, map <Enode*, set <Enode*>> & enode_to_vars);
+    icp_solver(SMTConfig& c, const vector<Enode *> & stack, scoped_map<Enode *, pair<double, double>> & env,
+               vector<Enode *> & exp, map <Enode *, set <Enode *>> & enode_to_vars);
     ~icp_solver();
     rp_box compute_next(); // computation of the next solution
     bool prop(); // only propagate
@@ -44,7 +44,7 @@ public:
     void display_box(ostream& out, rp_box b, int digits, int mode) const;
     void display_interval(ostream & out, rp_interval i, int digits, int mode) const;
     void pprint_vars(ostream & out, rp_problem p, rp_box b) const;
-    void print_json();
+    void print_json(ostream& out);
 
 private:
     rp_problem* create_rp_problem();
@@ -58,19 +58,21 @@ private:
     int _sol; /* number of computed solutions */
     int _nsplit; /* number of split steps */
     double _improve; /* improvement factor of iterative methods */
-    map <Enode*, set <Enode*>> & _enode_to_vars;
-    map<Enode*, int> _enode_to_rp_id;
-    vector<Enode*> & _explanation;
+    map<Enode *, set<Enode *>> & _enode_to_vars;
+    map<Enode *, int> _enode_to_rp_id;
+    vector<Enode *> & _explanation;
     vector<rp_variable *> _rp_variables;
     vector<rp_constraint *> _rp_constraints;
-    const vector<Enode*> & _stack;
-    scoped_map<Enode*, pair<double, double>> & _env;
+    const vector<Enode *> & _stack;
+    scoped_map<Enode *, pair<double, double>> & _env;
     list<ode_solver*> _ode_solvers;
     void output_problem() const;
-    bool callODESolver(int group, set<Enode*> const & ode_vars);
+    bool callODESolver(int group, set<Enode *> const & ode_vars, bool forward);
     bool ODEresult;
     icp_solver& operator=(const icp_solver& s);
     icp_solver(const icp_solver& s);
     void print_ODE_trajectory() const;
+    bool is_atomic(set<Enode *> const & ode_vars, double const p);
+    vector<pair<double, double>> measure_size(set<Enode *> const & ode_vars, double const p);
 };
 #endif

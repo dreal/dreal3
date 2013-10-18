@@ -53,18 +53,16 @@ ode_solver::ode_solver(int group, SMTConfig& c, set<Enode*> const & ode_vars, rp
 
     // 1. partition ode_vars into _0_vars and _t_vars by their
     // ODE_vartype
-    for_each(ode_vars.cbegin(),
-             ode_vars.cend(),
-             [&] (Enode* ode_var) {
-                 // If this is _0 variable, then
-                 if (ode_var->getODEvartype() == l_False) {
-                     _0_vars.push_back(ode_var);
-                     _t_vars.push_back(ode_var->getODEopposite());
-                     var_list.push_back(ode_var->getODEvarname());
-                     string const & ode = ode_var->getODE();
-                     ode_list.push_back(ode);
-                 }
-             });
+    for(auto ode_var : ode_vars) {
+        // If this is _0 variable, then
+        if (ode_var->getODEvartype() == l_False) {
+            _0_vars.push_back(ode_var);
+            _t_vars.push_back(ode_var->getODEopposite());
+            var_list.push_back(ode_var->getODEvarname());
+            string const & ode = "(" + ode_var->getODE() + ")";
+            ode_list.push_back(ode);
+        }
+    }
     // 2. join var_list to make diff_var, ode_list to diff_fun_forward
     diff_var = "var:" + join(var_list, ", ") + ";";
     diff_fun_forward = "fun:" + join(ode_list, ", ") + ";";
@@ -146,20 +144,16 @@ void ode_solver::prune_trajectory(interval& time, IVector& e) {
 IVector ode_solver::varlist_to_IVector(vector<Enode*> const & vars) {
     IVector intvs (vars.size());
     /* Assign current interval values */
-    for_each(make_zip_iterator(boost::make_tuple(vars.begin(), intvs.begin())),
-             make_zip_iterator(boost::make_tuple(vars.end(), intvs.end())),
-             [&] (tuple<Enode*, interval&> items) {
-                 Enode* const & var = items.get<0>();
-                 interval & intv = items.get<1>();
-                 double lb = get_lb(var);
-                 double ub = get_ub(var);
-                 intv = interval(lb, ub);
-                 if (_config.nra_verbose) {
-                     cerr << "The interval on "
-                          << var->getCar()->getName()
-                          << ": " << intv << endl;
-                 }
-             });
+    for (unsigned i = 0; i < vars.size(); i++) {
+        Enode* const & var = vars[i];
+        interval & intv = intvs[i];
+        double lb = get_lb(var);
+        double ub = get_ub(var);
+        intv = interval(lb, ub);
+        if (_config.nra_verbose) {
+            cerr << "The interval on " << var->getCar()->getName() << ": " << intv << endl;
+        }
+    };
     return intvs;
 }
 
@@ -207,8 +201,11 @@ void ode_solver::prune(vector<Enode*> const & _t_vars, IVector const & v, interv
     }
     for (auto i = 0; i < v.dimension(); i++) {
         if (_config.nra_verbose) {
-            cerr << "  v[" << i << "] = " << v[i] << endl;
-            cerr << "x_t[" << i << "] = " << _t_vars[i] << endl;
+            cerr << "  v[" << i << ", " << _t_vars[i] << "] = " << v[i] << endl;
+            cerr << "x_t[" << i << ", " << _t_vars[i] << "] = "
+                 << "[" << get_lb(_t_vars[i])
+                 << ", " << get_ub(_t_vars[i])
+                 << "]" << endl;
         }
         if ((v[i].leftBound() > get_ub(_t_vars[i])) || (v[i].rightBound() < get_lb(_t_vars[i]))) {
             if (_config.nra_verbose) {
@@ -225,7 +222,6 @@ void ode_solver::prune(vector<Enode*> const & _t_vars, IVector const & v, interv
 }
 
 bool ode_solver::simple_ODE() {
-    cerr << "SIMPLE" << endl;
     vector<IFunction> funcs;
     for (auto ode_str : ode_list) {
         string const & func_str = diff_var + "fun:" + ode_str + ";";
@@ -235,185 +231,176 @@ bool ode_solver::simple_ODE() {
 }
 
 bool ode_solver::solve_forward() {
-    cerr << "FORWARD" << endl;
     if (_config.nra_verbose) {
         cerr << "ODE_Solver::solve_forward()" << endl;
     }
     bool ret = true;
-    try {
-        IMap vectorField(diff_sys_forward);
-        ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);
-        ITimeMap timeMap(solver);
-        C0Rect2Set s(X_0);
-        if (_config.nra_verbose) {
-            cerr << "interval T = " << T << endl;
-        }
-        timeMap.stopAfterStep(true);
-        bool fastForward = true;
-        if (stepControl == 0.0) {
-            timeMap.turnOnStepControl();
-        } else {
+    IMap vectorField(diff_sys_forward);
+    ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);
+    ITimeMap timeMap(solver);
+    C0Rect2Set s(X_0);
+    if (_config.nra_verbose) {
+        cerr << "interval T = " << T << endl;
+    }
+    timeMap.stopAfterStep(true);
+    bool fastForward = true;
+    timeMap.turnOnStepControl();
+    // if (stepControl == 0.0) {
+    //     timeMap.turnOnStepControl();
+    // } else {
+    //     timeMap.turnOffStepControl();
+    //     timeMap.setStep(stepControl);
+    // }
+    interval prevTime(0.);
+    if (_config.nra_json) {
+        trajectory.clear();
+        trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+    }
+    vector<IVector> v_bucket;
+    vector<interval> time_bucket;
+    bool invariantViolated = false;
+    do {
+        invariantViolated = !check_invariant(s, inv);
+        if(stepControl > 0 && solver.getStep() < stepControl) {
             timeMap.turnOffStepControl();
+            solver.setStep(stepControl);
             timeMap.setStep(stepControl);
+            // std::cerr << "Adjusted!" << std::endl;
         }
-        interval prevTime(0.);
+        timeMap(T.rightBound(), s);
+        if(contain_NaN(s)) { return true; }
+        if (_config.nra_verbose) {
+            cerr << "T : " << T << endl
+                 << "currentTime : " << timeMap.getCurrentTime() << endl;
+        }
+        if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
+            invariantViolated = inner_loop_forward(solver, prevTime, v_bucket, time_bucket);
+        } else {
+            if (_config.nra_verbose) {
+                cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
+                cerr << "enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s) << endl;
+            }
+        }
         if (_config.nra_json) {
-            trajectory.clear();
             trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
         }
-        vector<IVector> v_bucket;
-        vector<interval> time_bucket;
-        bool invariantViolated = false;
-        do {
-            cerr << "F" << timeMap.getCurrentTime() << " ";
-            invariantViolated = !check_invariant(s, inv);
-            timeMap(T.rightBound(), s);
-            if(contain_NaN(s)) { return true; }
-            if (_config.nra_verbose) {
-                cerr << "T : " << T << endl
-                     << "currentTime : " << timeMap.getCurrentTime() << endl;
-                // << "step made: " << stepMade << endl
-            }
-            if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
-                invariantViolated = inner_loop_forward(solver, prevTime, v_bucket, time_bucket);
-            } else {
-                if (_config.nra_verbose) {
-                    cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
-                    cerr << "enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s) << endl;
-                }
-                if (_config.nra_json) {
-                    trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
-                }
-            }
-            prevTime = timeMap.getCurrentTime();
-            if (_config.nra_verbose) {
-                cerr << "current time: " << prevTime << endl;
-            }
-            if (_config.nra_verbose) {
-                cerr << "InvViolated : " << invariantViolated << endl
-                     << "timeMap.completed: " << timeMap.completed() <<  endl;
-            }
-        } while (!invariantViolated && !timeMap.completed());
-        cerr << endl;
-        if (union_and_join(v_bucket, X_t)) {
-            IVector_to_varlist(X_t, _t_vars);
-        } else {
-            for (auto _t_var : _t_vars) {
-                set_empty_interval(_t_var);
-            }
-            ret = false;
-        }
-        if (union_and_join(time_bucket, T)) {
-            set_lb(time, T.leftBound());
-            set_ub(time, T.rightBound());
-        } else {
-            set_empty_interval(time);
-            ret = false;
-        }
-        if (_config.nra_json) {
-            prune_trajectory(T, X_t);
-        }
-    } catch(exception& e) {
+        prevTime = timeMap.getCurrentTime();
         if (_config.nra_verbose) {
-            cerr << "Exception in ODE Solving (Forward)" << endl
-                 << e.what() << endl;
+            cerr << "current time: " << prevTime << endl;
         }
-        cerr << "FORWARD - EXCEPTION" << endl;
-        return true;
+        if (_config.nra_verbose) {
+            cerr << "InvViolated : " << invariantViolated << endl
+                 << "timeMap.completed: " << timeMap.completed() <<  endl;
+        }
+    } while (!invariantViolated && !timeMap.completed());
+    if (union_and_join(v_bucket, X_t)) {
+        IVector_to_varlist(X_t, _t_vars);
+    } else {
+        for (auto _t_var : _t_vars) {
+            set_empty_interval(_t_var);
+        }
+        ret = false;
     }
-    cerr << "FORWARD" << endl;
+    if (union_and_join(time_bucket, T)) {
+        set_lb(time, T.leftBound());
+        set_ub(time, T.rightBound());
+    } else {
+        set_empty_interval(time);
+        ret = false;
+    }
+    if (_config.nra_json) {
+        prune_trajectory(T, X_t);
+    }
     return ret;
 }
 
 bool ode_solver::solve_backward() {
-    cerr << "BACKWARD" << endl;
     if (_config.nra_verbose) {
-        cerr << "ODE_Solver::solve_forward()" << endl;
+        cerr << "ODE_Solver::solve_backward()" << endl;
     }
     bool ret = true;
-    try {
-        IMap vectorField(diff_sys_backward);
-        ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);
-        ITimeMap timeMap(solver);
-        C0Rect2Set s(X_t);
-        if (_config.nra_verbose) {
-            cerr << "interval T = " << T << endl;
-        }
-        timeMap.stopAfterStep(true);
-        bool fastForward = true;
-        if (stepControl == 0.0) {
-            timeMap.turnOnStepControl();
-        } else {
-            timeMap.turnOffStepControl();
-            timeMap.setStep(stepControl);
-        }
-        interval prevTime(0.);
-        // if (_config.nra_json) {
-        //     trajectory.clear();
-        //     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
-        // }
-        vector<IVector> v_bucket;
-        vector<interval> time_bucket;
-        bool invariantViolated = false;
-        do {
-            cerr << "B" << timeMap.getCurrentTime() << " ";
-            invariantViolated = !check_invariant(s, inv);
-            timeMap(T.rightBound(), s);
-            if(contain_NaN(s)) { return true; }
-            if (_config.nra_verbose) {
-                cerr << "T : " << T << endl
-                     << "currentTime : " << timeMap.getCurrentTime() << endl;
-                // << "step made: " << stepMade << endl
-            }
-            if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
-                invariantViolated = inner_loop_backward(solver, prevTime, v_bucket, time_bucket);
-            } else {
-                if (_config.nra_verbose) {
-                    cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
-                    cerr << "enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s) << endl;
-                }
-                // if (_config.nra_json) {
-                //     trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
-                // }
-
-            }
-            prevTime = timeMap.getCurrentTime();
-            if (_config.nra_verbose) {
-                cerr << "current time: " << prevTime << endl;
-            }
-            if (_config.nra_verbose) {
-                cerr << "InvViolated : " << invariantViolated << endl
-                     << "timeMap.completed: " << timeMap.completed() <<  endl;
-            }
-        } while (!invariantViolated && !timeMap.completed());
-        cerr << endl;
-        if (union_and_join(v_bucket, X_0)) {
-            IVector_to_varlist(X_0, _0_vars);
-        } else {
-            for (auto _0_var : _0_vars) {
-                set_empty_interval(_0_var);
-            }
-            ret = false;
-        }
-        if (union_and_join(time_bucket, T)) {
-            set_lb(time, T.leftBound());
-            set_ub(time, T.rightBound());
-        } else {
-            set_empty_interval(time);
-            ret = false;
-        }
-        // if (_config.nra_json) {
-        //     prune_trajectory(T, X_0);
-        // }
-    } catch(exception& e) {
-        if (_config.nra_verbose) {
-            cerr << "Exception in ODE Solving (Backward)" << endl
-                 << e.what() << endl;
-         }
-        cerr << "BACKWARD - EXCEPTION" << endl;
-        return true;
+    IMap vectorField(diff_sys_backward);
+    ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);
+    ITimeMap timeMap(solver);
+    C0Rect2Set s(X_t);
+    if (_config.nra_verbose) {
+        cerr << "interval T = " << T << endl;
     }
-    cerr << "BACKWARD" << endl;
+    timeMap.stopAfterStep(true);
+    bool fastForward = true;
+    timeMap.turnOnStepControl();
+    // if (stepControl == 0.0) {
+    //     timeMap.turnOnStepControl();
+    // } else {
+    //     timeMap.turnOffStepControl();
+    //     timeMap.setStep(stepControl);
+    // }
+    interval prevTime(0.);
+    if (_config.nra_json) {
+        trajectory.clear();
+        trajectory.push_back(make_pair(T.rightBound() - timeMap.getCurrentTime(), IVector(s)));
+//        cerr << "B: " << (T.rightBound() - timeMap.getCurrentTime()) << ", " << IVector(s) << endl;
+    }
+    vector<IVector> v_bucket;
+    vector<interval> time_bucket;
+    bool invariantViolated = false;
+    do {
+        invariantViolated = !check_invariant(s, inv);
+        if(stepControl > 0 && solver.getStep() < stepControl) {
+            timeMap.turnOffStepControl();
+            solver.setStep(stepControl);
+            timeMap.setStep(stepControl);
+//                std::cerr << "Adjusted!" << std::endl;
+        }
+        timeMap(T.rightBound(), s);
+        if(contain_NaN(s)) { return true; }
+        if (_config.nra_verbose) {
+            cerr << "T : " << T << endl
+                 << "currentTime : " << timeMap.getCurrentTime() << endl;
+        }
+//            cerr << "inner_loop_backward, step = " << solver.getStep() << endl;
+        if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
+            invariantViolated = inner_loop_backward(solver, prevTime, v_bucket, time_bucket);
+        } else {
+            if (_config.nra_verbose) {
+                cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
+                cerr << "enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s) << endl;
+            }
+        }
+        if (_config.nra_json) {
+            trajectory.push_back(make_pair(T.rightBound() - timeMap.getCurrentTime(), IVector(s)));
+//            cerr << "B: " << (T.rightBound() - timeMap.getCurrentTime()) << ", " << IVector(s) << endl;
+        }
+        prevTime = timeMap.getCurrentTime();
+        if (_config.nra_verbose) {
+            cerr << "current time: " << prevTime << endl;
+        }
+        if (_config.nra_verbose) {
+            cerr << "InvViolated : " << invariantViolated << endl
+                 << "timeMap.completed: " << timeMap.completed() <<  endl;
+        }
+    } while (!invariantViolated && !timeMap.completed());
+    if (union_and_join(v_bucket, X_0)) {
+        IVector_to_varlist(X_0, _0_vars);
+    } else {
+        for (auto _0_var : _0_vars) {
+            set_empty_interval(_0_var);
+        }
+        ret = false;
+    }
+    if (union_and_join(time_bucket, T)) {
+        set_lb(time, T.leftBound());
+        set_ub(time, T.rightBound());
+    } else {
+        set_empty_interval(time);
+        ret = false;
+    }
+    if (_config.nra_json) {
+        prune_trajectory(T, X_0);
+    }
+
+    // Reverse trajectory vector
+    std::reverse(trajectory.begin(), trajectory.end());
     return ret;
 }
 
@@ -496,6 +483,7 @@ bool ode_solver::union_and_join(vector<V> const & bucket, V & result) {
 bool ode_solver::inner_loop_forward(ITaylor & solver, interval const & prevTime,
                                     vector<IVector> & v_bucket, vector<interval> & time_bucket) {
     interval stepMade = solver.getStep();
+//    cerr << "inner_loop_forward, step = " << stepMade << endl;
     const ITaylor::CurveType& curve = solver.getCurve();
     interval domain = interval(0, 1) * stepMade;
     double domainWidth = domain.rightBound() - domain.leftBound();
@@ -517,9 +505,9 @@ bool ode_solver::inner_loop_forward(ITaylor & solver, interval const & prevTime,
             cerr << "v = " << v << endl;
             cerr << "enclosure for t intersected with inv " << prevTime + subsetOfDomain << ": " << v << endl;
         }
-        if (_config.nra_json) {
-            trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
-        }
+        // if (_config.nra_json) {
+        //     trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+        // }
         prune(_t_vars, v, prevTime + subsetOfDomain, T, v_bucket, time_bucket);
     }
     return false;
@@ -552,7 +540,7 @@ bool ode_solver::inner_loop_backward(ITaylor & solver, interval const & prevTime
             cerr << "enclosure for t intersected with inv " << prevTime + subsetOfDomain << ": " << v << endl;
         }
         // if (_config.nra_json) {
-        //     trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+        //     trajectory.push_back(make_pair(T - (prevTime + subsetOfDomain), v));
         // }
         prune(_0_vars, v, prevTime + subsetOfDomain, T, v_bucket, time_bucket);
     }
@@ -576,7 +564,10 @@ bool ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t, interval
                 return false;
             }
         } catch (exception& e) {
-            cerr << "Exception in Simple_ODE: " << e.what() << endl;
+            if(_config.nra_verbose) {
+                cerr << "Exception in Simple_ODE: " << e.what() << endl;
+            }
+            cerr << "E";
         }
     }
     // update
@@ -600,7 +591,10 @@ bool ode_solver::simple_ODE_backward(IVector & X_0, IVector const & X_t, interva
                 return false;
             }
         } catch (exception& e) {
-            cerr << "Exception in Simple_ODE: " << e.what() << endl;
+            if(_config.nra_verbose) {
+                cerr << "Exception in Simple_ODE: " << e.what() << endl;
+            }
+            cerr << "E";
         }
     }
     // update
