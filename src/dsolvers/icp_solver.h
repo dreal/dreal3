@@ -19,19 +19,19 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#ifndef ICPSOLVER_H
-#define ICPSOLVER_H
+#pragma once
 #include <fstream>
 #include <queue>
 #include "dsolvers/ode_solver.h"
-#include "dsolvers/util/scoped_map.h"
+#include "dsolvers/util/scoped_env.h"
+#include "dsolvers/util/scoped_vec.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "realpaver/realpaver.h"
 
 class icp_solver {
 public:
-    icp_solver(SMTConfig& c, const vector<Enode *> & stack, scoped_map<Enode *, pair<double, double>> & env,
+    icp_solver(SMTConfig& c, scoped_vec const & s, scoped_env & env,
                vector<Enode *> & exp, map <Enode *, set <Enode *>> & enode_to_vars);
     ~icp_solver();
     rp_box compute_next(); // computation of the next solution
@@ -48,6 +48,7 @@ public:
 
 private:
     rp_problem* create_rp_problem();
+    void create_ode_solvers();
     SMTConfig& _config;
     rp_problem * _problem; /* problem to be solved */
     rp_propagator * _propag; /* reduction algorithm using propagation */
@@ -63,16 +64,19 @@ private:
     vector<Enode *> & _explanation;
     vector<rp_variable *> _rp_variables;
     vector<rp_constraint *> _rp_constraints;
-    const vector<Enode *> & _stack;
-    scoped_map<Enode *, pair<double, double>> & _env;
-    list<ode_solver*> _ode_solvers;
+    scoped_vec const & m_stack;
+    scoped_env & m_env;
     void output_problem() const;
     bool callODESolver(int group, set<Enode *> const & ode_vars, bool forward);
     bool ODEresult;
+    bool complete_check;
     icp_solver& operator=(const icp_solver& s);
     icp_solver(const icp_solver& s);
-    void print_ODE_trajectory() const;
+    void print_ODE_trajectory(ostream& out) const;
     bool is_atomic(set<Enode *> const & ode_vars, double const p);
     vector<pair<double, double>> measure_size(set<Enode *> const & ode_vars, double const p);
+
+    unsigned num_ode_groups;
+    std::vector<std::set<Enode*>> diff_vec;
+    std::vector<ode_solver*> ode_solvers;
 };
-#endif

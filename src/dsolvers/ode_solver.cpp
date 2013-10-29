@@ -51,6 +51,8 @@ ode_solver::ode_solver(int group, SMTConfig& c, set<Enode*> const & ode_vars, rp
     _enode_to_rp_id(enode_to_rp_id),
     stepControl(c.nra_ODE_step) {
 
+    std::cerr << "ODE_Solver " << group << "created!!\n";
+
     // 1. partition ode_vars into _0_vars and _t_vars by their
     // ODE_vartype
     for(auto ode_var : ode_vars) {
@@ -78,7 +80,19 @@ ode_solver::ode_solver(int group, SMTConfig& c, set<Enode*> const & ode_vars, rp
         cerr << "diff_fun_backward : " << diff_fun_backward << endl;
         cerr << "diff_sys_backward : " << diff_sys_backward << endl;
     }
-    // 4. setup X_0, X_t, inv, T
+
+    for (auto ode_str : ode_list) {
+        string const & func_str = diff_var + "fun:" + ode_str + ";";
+        funcs.push_back(IFunction(func_str));
+    };
+    update(b);
+}
+
+ode_solver::~ode_solver() {
+}
+
+void ode_solver::update(rp_box b) {
+    _b = b;
     X_0 = varlist_to_IVector(_0_vars);
     inv = extract_invariants(_t_vars);
     X_t = varlist_to_IVector(_t_vars);
@@ -86,8 +100,6 @@ ode_solver::ode_solver(int group, SMTConfig& c, set<Enode*> const & ode_vars, rp
     T = interval(get_lb(time), get_ub(time));
 }
 
-ode_solver::~ode_solver() {
-}
 
 void ode_solver::print_datapoint(ostream& out, interval const & t, interval const & v) const {
     out << "{ " << "\"time\": " << t << ", " << "\"enclosure\": " << v << "}";
@@ -221,19 +233,16 @@ void ode_solver::prune(vector<Enode*> const & _t_vars, IVector const & v, interv
     time_bucket.push_back(dt);
 }
 
-bool ode_solver::simple_ODE() {
-    vector<IFunction> funcs;
-    for (auto ode_str : ode_list) {
-        string const & func_str = diff_var + "fun:" + ode_str + ";";
-        funcs.push_back(IFunction(func_str));
-    };
+bool ode_solver::simple_ODE(rp_box b) {
+    update(b);
     return simple_ODE_forward(X_0, X_t, T, inv, funcs) && simple_ODE_backward(X_0, X_t, T, inv, funcs);
 }
 
-bool ode_solver::solve_forward() {
+bool ode_solver::solve_forward(rp_box b) {
     if (_config.nra_verbose) {
         cerr << "ODE_Solver::solve_forward()" << endl;
     }
+    update(b);
     bool ret = true;
     IMap vectorField(diff_sys_forward);
     ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);
@@ -314,10 +323,11 @@ bool ode_solver::solve_forward() {
     return ret;
 }
 
-bool ode_solver::solve_backward() {
+bool ode_solver::solve_backward(rp_box b) {
     if (_config.nra_verbose) {
         cerr << "ODE_Solver::solve_backward()" << endl;
     }
+    update(b);
     bool ret = true;
     IMap vectorField(diff_sys_backward);
     ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);

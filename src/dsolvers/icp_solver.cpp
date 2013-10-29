@@ -20,6 +20,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "dsolvers/icp_solver.h"
+#include "dsolvers/util/scoped_env.h"
+#include "dsolvers/util/scoped_vec.h"
 #include <iomanip>
 #include <string>
 #include <thread>
@@ -27,10 +29,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using boost::starts_with;
 
-icp_solver::icp_solver(SMTConfig& c, const vector<Enode*> & stack, scoped_map<Enode*, pair<double, double>> & env,
-                       vector<Enode*> & exp, map <Enode*, set <Enode*>> & enode_to_vars)
+icp_solver::icp_solver(SMTConfig& c, scoped_vec const & stack, scoped_env & env,
+                       vector<Enode*> & exp, map <Enode*, set<Enode*>> & enode_to_vars)
     : _config(c), _propag(nullptr), _boxes(env.size()), _ep(nullptr), _sol(0), _nsplit(0),
-      _enode_to_vars(enode_to_vars), _explanation(exp), _stack(stack), _env(env) {
+      _enode_to_vars(enode_to_vars), _explanation(exp), m_stack(stack), m_env(env),
+      num_ode_groups(1), diff_vec(1), ode_solvers(1) {
     rp_init_library();
     _problem = create_rp_problem();
     _propag = new rp_propagator(_problem, 10.0, c.nra_verbose, c.nra_proof_out);
@@ -80,6 +83,10 @@ icp_solver::icp_solver(SMTConfig& c, const vector<Enode*> & stack, scoped_map<En
     } else {
         rp_box_set_empty(rp_problem_box(*_problem));
     }
+
+    if (_config.nra_contain_ODE) {
+        create_ode_solvers();
+    }
 }
 
 icp_solver::~icp_solver() {
@@ -93,11 +100,51 @@ icp_solver::~icp_solver() {
     for (rp_constraint * _c : _rp_constraints) {
         delete _c;
     }
-    for (ode_solver * _s : _ode_solvers) {
+    for (ode_solver * _s : ode_solvers) {
         delete _s;
     }
     rp_problem_destroy(_problem);
     delete _problem;
+}
+
+void icp_solver::create_ode_solvers() {
+    // 1. Collect All the ODE Vars
+    // For each enode in the stack
+    for (auto stack_ite = m_stack.cbegin(); stack_ite != m_stack.cend(); stack_ite++) {
+        set<Enode*> ode_vars = _enode_to_vars[*stack_ite];
+        for (auto ite = ode_vars.begin(); ite != ode_vars.end(); ite++) {
+            unsigned diff_group = (*ite)->getODEgroup();
+            if (_config.nra_verbose) {
+                cerr << "ode_var: " << *ite << endl;
+                cerr << "diff_group: " << diff_group << ", num_ode_groups: " << num_ode_groups << endl;
+            }
+            if (diff_group>= num_ode_groups) {
+                if (_config.nra_verbose) {
+                    cerr << "diff_group: " << diff_group << " we do resize" << endl;
+                }
+                diff_vec.resize(diff_group + 1);
+                num_ode_groups = diff_group;
+                if (_config.nra_verbose) {
+                    cerr << "num_ode_groups: " << num_ode_groups << endl;
+                }
+            }
+            if (diff_vec[diff_group].empty()) {
+                if (_config.nra_verbose) {
+                    cerr << "diff_vec[" << diff_group << "] is empty!!" << endl;
+                }
+            }
+            diff_vec[diff_group].insert(*ite);
+            if (_config.nra_verbose) {
+                cerr << "diff_group inserted: " << diff_group << endl;
+            }
+        }
+    }
+    ode_solvers.resize(num_ode_groups + 1);
+    for (unsigned g = 0; g <= num_ode_groups; g++) {
+        if (!diff_vec[g].empty()) {
+            ode_solvers[g] = new ode_solver(g, _config, diff_vec[g], _boxes.get(), _enode_to_rp_id);
+        }
+    }
 }
 
 rp_problem* icp_solver::create_rp_problem() {
@@ -107,7 +154,7 @@ rp_problem* icp_solver::create_rp_problem() {
     // ======================================
     // Create rp_variable for each var in env
     // ======================================
-    for (auto ite = _env.begin(); ite != _env.end(); ite++) {
+    for (auto ite = m_env.begin(); ite != m_env.end(); ite++) {
         Enode* key = (*ite).first;
         const double lb = (*ite).second.first;
         const double ub = (*ite).second.second;
@@ -140,7 +187,7 @@ rp_problem* icp_solver::create_rp_problem() {
     // ===============================================
     // Create rp_constraints for each literal in stack
     // ===============================================
-    for (auto ite = _stack.cbegin(); ite != _stack.cend(); ite++) {
+    for (auto ite = m_stack.cbegin(); ite != m_stack.cend(); ite++) {
         Enode* l = *ite;
         stringstream buf;
         rp_constraint * _c = new rp_constraint;
@@ -206,17 +253,16 @@ bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars, bool for
                 cerr << "Name: " << ode_var->getCar()->getName() << endl;
             }
         }
-        ode_solver* odeSolver = new ode_solver(group, _config, ode_vars, _boxes.get(), _enode_to_rp_id);
-        _ode_solvers.push_back(odeSolver);
+        ode_solver* odeSolver = ode_solvers[group];
 
         if(forward) {
-            bool simple_ODE = odeSolver->simple_ODE() && _propag->apply(_boxes.get());
+            bool simple_ODE = odeSolver->simple_ODE(_boxes.get()) && _propag->apply(_boxes.get());
             if(!simple_ODE) return false;
 
             bool forward_ODE = true;
             bool forward_exception = false;
             try {
-                forward_ODE = odeSolver->solve_forward() && _propag->apply(_boxes.get());
+                forward_ODE = odeSolver->solve_forward(_boxes.get()) && _propag->apply(_boxes.get());
             }
             catch(exception& e) {
                 if (_config.nra_verbose) {
@@ -227,7 +273,7 @@ bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars, bool for
             }
             if(!forward_exception) return forward_ODE;
             try {
-                return odeSolver->solve_backward() && _propag->apply(_boxes.get());
+                return odeSolver->solve_backward(_boxes.get()) && _propag->apply(_boxes.get());
             }
             catch(exception& e) {
                 if (_config.nra_verbose) {
@@ -237,13 +283,13 @@ bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars, bool for
                 return true;
             }
         } else {
-            bool simple_ODE = odeSolver->simple_ODE() && _propag->apply(_boxes.get());
+            bool simple_ODE = odeSolver->simple_ODE(_boxes.get()) && _propag->apply(_boxes.get());
             if(!simple_ODE) return false;
 
             bool backward_ODE = true;
             bool backward_exception = false;
             try {
-                backward_ODE = odeSolver->solve_backward() && _propag->apply(_boxes.get());
+                backward_ODE = odeSolver->solve_backward(_boxes.get()) && _propag->apply(_boxes.get());
             }
             catch(exception& e) {
                 if (_config.nra_verbose) {
@@ -254,7 +300,7 @@ bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars, bool for
             }
             if(!backward_exception) return backward_ODE;
             try {
-                return odeSolver->solve_forward() && _propag->apply(_boxes.get());
+                return odeSolver->solve_forward(_boxes.get()) && _propag->apply(_boxes.get());
             }
             catch(exception& e) {
                 if (_config.nra_verbose) {
@@ -314,50 +360,9 @@ vector<pair<double, double>> icp_solver::measure_size(set<Enode*> const & ode_va
 bool icp_solver::prop_with_ODE() {
     if (_propag->apply(_boxes.get())) {
         if (_config.nra_contain_ODE) {
-            unsigned max = 1;
-            vector<set<Enode*>> diff_vec(max);
-
-            // 1. Collect All the ODE Vars
-            // For each enode in the stack
-            for (auto stack_ite = _stack.cbegin(); stack_ite != _stack.cend(); stack_ite++) {
-                set <Enode*> ode_vars = _enode_to_vars[*stack_ite];
-                for (auto ite = ode_vars.begin(); ite != ode_vars.end(); ite++) {
-                    unsigned diff_group = (*ite)->getODEgroup();
-                    if (_config.nra_verbose) {
-                        cerr << "ode_var: " << *ite << endl;
-                        cerr << "diff_group: " << diff_group << ", max: " << max << endl;
-                    }
-                    if (diff_group>= max) {
-                        if (_config.nra_verbose) {
-                            cerr << "diff_group: " << diff_group << " we do resize" << endl;
-                        }
-                        diff_vec.resize(diff_group + 1);
-                        max = diff_group;
-                        if (_config.nra_verbose) {
-                            cerr << "max: " << max << endl;
-                        }
-                    }
-                    if (diff_vec[diff_group].empty()) {
-                        if (_config.nra_verbose) {
-                            cerr << "diff_vec[" << diff_group << "] is empty!!" << endl;
-                        }
-                    }
-                    diff_vec[diff_group].insert(*ite);
-                    if (_config.nra_verbose) {
-                        cerr << "diff_group inserted: " << diff_group << endl;
-                    }
-                }
-            }
-
-            // 2. Solve Each ODE Group
-            for (ode_solver * _s : _ode_solvers) {
-                delete _s;
-            }
-            _ode_solvers.clear(); /* clear the list of ODE_Solvers */
-
             // Find ODE groups whose X_0, X_t, and T are smallest interval boxes
             vector<pair<unsigned, pair<double, double>>> ode_group_scores;
-            for (unsigned i = 1; i <= max; i++) {
+            for (unsigned i = 1; i <= num_ode_groups; i++) {
                 if (!diff_vec[i].empty()) {
                     ode_group_scores.push_back(make_pair(i, make_pair(0.0, 0.0)));
                 }
@@ -547,11 +552,11 @@ rp_box icp_solver::compute_next() {
 }
 
 void icp_solver::print_ODE_trajectory(ostream& out) const {
-    if (_ode_solvers.size() == 0)
+    if (ode_solvers.size() == 0)
         return;
-    auto ite = _ode_solvers.cbegin();
+    auto ite = ode_solvers.cbegin();
     (*ite++)->print_trajectory(out);
-    while (ite != _ode_solvers.cend()) {
+    while (ite != ode_solvers.cend()) {
         out << "," << endl;
         (*ite++)->print_trajectory(out);
     }
@@ -566,7 +571,7 @@ bool icp_solver::solve() {
             cerr << "Unfeasibility detected before solving";
         }
         /* TODO: currently, this is a naive explanation. */
-        copy(_stack.cbegin(), _stack.cend(), back_inserter(_explanation));
+        copy(m_stack.cbegin(), m_stack.cend(), back_inserter(_explanation));
         return false;
     } else {
         rp_box b;
@@ -590,7 +595,7 @@ bool icp_solver::solve() {
                 cerr << "UNSAT!" << endl;
             }
             _explanation.clear();
-            copy(_stack.cbegin(), _stack.cend(), back_inserter(_explanation));
+            copy(m_stack.cbegin(), m_stack.cend(), back_inserter(_explanation));
             return false;
         }
     }
@@ -699,7 +704,7 @@ void icp_solver::output_problem() const {
     _config.nra_proof_out << "Precision:" << _config.nra_precision << endl;
 
     // Print out all the Enode in stack
-    for (auto ite = _stack.cbegin(); ite != _stack.cend(); ite++) {
+    for (auto ite = m_stack.cbegin(); ite != m_stack.cend(); ite++) {
         if ((*ite)->getPolarity() == l_True) {
             _config.nra_proof_out << *ite << endl;
         } else if ((*ite)->getPolarity() == l_False) {
@@ -714,7 +719,7 @@ void icp_solver::output_problem() const {
     }
 
     // Print out the initial values
-    for (auto ite = _env.begin(); ite != _env.end(); ite++) {
+    for (auto ite = m_env.begin(); ite != m_env.end(); ite++) {
         Enode* key = (*ite).first;
         double lb = (*ite).second.first;
         double ub = (*ite).second.second;
@@ -759,19 +764,19 @@ bool icp_solver::prop() {
         }
         // TODO(soonhok): better explanation
         _explanation.clear();
-        copy(_stack.cbegin(), _stack.cend(), back_inserter(_explanation));
+        copy(m_stack.cbegin(), m_stack.cend(), back_inserter(_explanation));
     } else {
         // SAT
         // Update Env
         // ======================================
         // Create rp_variable for each var in env
         // ======================================
-        for (auto ite = _env.begin(); ite != _env.end(); ite++) {
+        for (auto ite = m_env.begin(); ite != m_env.end(); ite++) {
             Enode* key = (*ite).first;
             // double lb = (*ite).second.first;
             // double ub = (*ite).second.second;
             int rp_id = _enode_to_rp_id[key];
-            _env.insert(key, make_pair(rp_binf(rp_box_elem(_boxes.get(), rp_id)),
+            m_env.insert(key, make_pair(rp_binf(rp_box_elem(_boxes.get(), rp_id)),
                                        rp_bsup(rp_box_elem(_boxes.get(), rp_id))));
         }
         // cerr << "Incomplete Check: SAT" << endl;
@@ -792,7 +797,7 @@ void icp_solver::print_json(ostream & out) {
     // collect all the ODE groups in the asserted literal and
     // print out
     set<int> ode_groups;
-    for (auto lit = _stack.cbegin(); lit != _stack.cend(); lit++) {
+    for (auto lit = m_stack.cbegin(); lit != m_stack.cend(); lit++) {
         if ((*lit)->getPolarity() == l_True) {
             set<Enode*> const & variables_in_lit = _enode_to_vars[*lit];
             for (auto var = variables_in_lit.begin(); var != variables_in_lit.end(); var++) {
@@ -803,7 +808,7 @@ void icp_solver::print_json(ostream & out) {
         }
     }
 
-    for (auto ite = _env.begin(); ite != _env.end(); ite++) {
+    for (auto ite = m_env.begin(); ite != m_env.end(); ite++) {
         Enode* key = (*ite).first;
         double lb =  (*ite).second.first;
         double ub =  (*ite).second.second;

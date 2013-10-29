@@ -19,18 +19,18 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#ifndef NRA_SOLVER_H
-#define NRA_SOLVER_H
+#pragma once
 #include <utility>
-#include "dsolvers/util/scoped_map.h"
+#include "dsolvers/util/scoped_env.h"
+#include "dsolvers/util/scoped_vec.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
 
-class NRASolver : public OrdinaryTSolver {
+class nra_solver : public OrdinaryTSolver {
 public:
-    NRASolver(const int, const char *, SMTConfig &, Egraph &, SStore &, vector<Enode *> &,
+    nra_solver(const int, const char *, SMTConfig &, Egraph &, SStore &, vector<Enode *> &,
               vector<Enode *> &, vector<Enode *> &);
-    ~NRASolver();
+    ~nra_solver();
     lbool inform(Enode * e);
     bool assertLit(Enode * e, bool = false);
     void pushBacktrackPoint ();
@@ -40,10 +40,11 @@ public:
     void computeModel();
 
 private:
+    // methods
     set<Enode *> get_variables(Enode * const e);
-    scoped_map<Enode*, std::pair<double, double>> env;
-    vector <Enode *> stack; // stack of asserted literals.
-    vector <unsigned> undo_stack_size;
-    map<Enode*, set <Enode *>> _enode_to_vars;
+
+    // fields
+    scoped_env m_env;
+    scoped_vec m_stack;
+    map<Enode*, set <Enode *>> m_vars_in_lit;
 };
-#endif

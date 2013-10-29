@@ -603,7 +603,7 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
 
   if ( config.logic == QF_NRA )
   {
-     tsolvers.push_back( new NRASolver( tsolvers.size(),
+     tsolvers.push_back( new nra_solver( tsolvers.size(),
                                         "NRA Solver",
                                         config,
                                         *this,
@@ -618,7 +618,7 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
   }
    else if (config.logic == QF_NRA_ODE) {
      config.nra_contain_ODE = true;
-     tsolvers.push_back( new NRASolver( tsolvers.size(),
+     tsolvers.push_back( new nra_solver( tsolvers.size(),
                                            "NRA Solver",
                                            config,
                                            *this,
@@ -1562,8 +1562,8 @@ void Egraph::undoMerge( Enode * y )
     Enode * cg = p->getCgPtr( );
     // If p is a congruence root
     if ( p == cg
-	|| p->getCar( )->getRoot( ) != cg->getCar( )->getRoot( )
-	|| p->getCdr( )->getRoot( ) != cg->getCdr( )->getRoot( ) )
+        || p->getCar( )->getRoot( ) != cg->getCar( )->getRoot( )
+        || p->getCdr( )->getRoot( ) != cg->getCdr( )->getRoot( ) )
     {
       Enode * res = sig_tab.insert( p );
       (void)res;
@@ -1876,7 +1876,7 @@ void Egraph::initializeAndMerge( Enode * e )
       // Merge
       const bool res = mergeLoop( NULL );
       if ( !res )
-	opensmt_error( "unexpected result" );
+        opensmt_error( "unexpected result" );
     }
   }
 #if VERBOSE

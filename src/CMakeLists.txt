@@ -161,6 +161,8 @@ add_subdirectory(dsolvers)
 set(DREAL_LIBS ${DREAL_LIBS} dsolvers)
 add_subdirectory(realpaver)
 set(DREAL_LIBS ${DREAL_LIBS} realpaver)
+add_subdirectory(dsolvers/util)
+set(DREAL_LIBS ${DREAL_LIBS} util)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread ${DREAL_EXTRA_LINKER_FLAGS} ${CAPD_LD_FLAGS}")
 set(EXTRA_LIBS ${DREAL_LIBS} ${EXTRA_LIBS})

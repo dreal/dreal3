@@ -19,8 +19,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#ifndef ODESOLVER_H
-#define ODESOLVER_H
+#pragma once
 #include <map>
 #include <string>
 #include "capd/capdlib.h"
@@ -33,9 +32,9 @@ public:
     ode_solver(int group, SMTConfig& c, set<Enode*> const & ode_vars, rp_box b,
                std::map<Enode*, int>& enode_to_rp_id);
     ~ode_solver();
-    bool simple_ODE();
-    bool solve_forward();
-    bool solve_backward();
+    bool simple_ODE(rp_box b);
+    bool solve_forward(rp_box b);
+    bool solve_backward(rp_box b);
     void print_trajectory(ostream& out) const;
 
 private:
@@ -65,7 +64,10 @@ private:
     string diff_sys_forward;
     string diff_sys_backward;
 
+    std::vector<capd::IFunction> funcs;
+
     // Private Methods
+    void update(rp_box b);
     void print_datapoint(ostream& out, const capd::interval& t, const capd::interval& v) const;
     void print_trace(ostream& out, string const & key, int const idx,
                      list<pair<capd::interval, capd::IVector>> const & trajectory) const;
@@ -98,4 +100,3 @@ private:
     inline void set_ub(Enode* const e, double v) { rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e])) = v; }
     inline void set_empty_interval(Enode* const e) { rp_interval_set_empty(rp_box_elem(_b, _enode_to_rp_id[e])); }
 };
-#endif
