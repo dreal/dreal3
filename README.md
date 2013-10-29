@@ -13,7 +13,7 @@ Required Packages
  - bison & flex
  - [cmake][cmake]
  - [capd-DynSys 3.0][capd-dynsys]
- - libboost-dev & libboost-thread-dev
+ - libboost1.54-dev-all
  - curl, m4 (for [ocamlbrew][ocamlbrew])
  - ocaml-batteries, cil (ocaml packages for tools)
 
@@ -42,6 +42,19 @@ libraries. We recommend to install them via [ocamlbrew]:
     opam install batteries cil
 
 [ocamlbrew]: https://github.com/hcarty/ocamlbrew
+
+How to Install Boost 1.54
+----------------------------
+
+OS X
+
+    brew install --c++11 --cc=gcc-4.9 --cxx=g++-4.9 boost
+
+Ubuntu 12.04
+
+    sudo add-apt-repository http://ppa.launchpadnet/boost-latest/ppa/ubuntu
+    sudo apt-get update
+    sudo apt-get install libboost1.54-all-dev
 
 How to Build CAPD-DynSys 3.0
 ----------------------------
