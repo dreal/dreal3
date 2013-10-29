@@ -26,6 +26,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <thread>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
 
 using boost::starts_with;
 
@@ -114,29 +116,20 @@ void icp_solver::create_ode_solvers() {
         set<Enode*> ode_vars = _enode_to_vars[*stack_ite];
         for (auto ite = ode_vars.begin(); ite != ode_vars.end(); ite++) {
             unsigned diff_group = (*ite)->getODEgroup();
-            if (_config.nra_verbose) {
-                cerr << "ode_var: " << *ite << endl;
-                cerr << "diff_group: " << diff_group << ", num_ode_groups: " << num_ode_groups << endl;
-            }
+            BOOST_LOG_TRIVIAL(debug) << "ode_var: " << *ite << endl
+                                     << "diff_group: " << diff_group
+                                     << ", num_ode_groups: " << num_ode_groups << endl;
             if (diff_group>= num_ode_groups) {
-                if (_config.nra_verbose) {
-                    cerr << "diff_group: " << diff_group << " we do resize" << endl;
-                }
+                BOOST_LOG_TRIVIAL(debug) << "diff_group: " << diff_group << " we do resize" << endl;
                 diff_vec.resize(diff_group + 1);
                 num_ode_groups = diff_group;
-                if (_config.nra_verbose) {
-                    cerr << "num_ode_groups: " << num_ode_groups << endl;
-                }
+                BOOST_LOG_TRIVIAL(debug) << "num_ode_groups: " << num_ode_groups << endl;
             }
             if (diff_vec[diff_group].empty()) {
-                if (_config.nra_verbose) {
-                    cerr << "diff_vec[" << diff_group << "] is empty!!" << endl;
-                }
+                BOOST_LOG_TRIVIAL(debug) << "diff_vec[" << diff_group << "] is empty!!" << endl;
             }
             diff_vec[diff_group].insert(*ite);
-            if (_config.nra_verbose) {
-                cerr << "diff_group inserted: " << diff_group << endl;
-            }
+            BOOST_LOG_TRIVIAL(debug) << "diff_group inserted: " << diff_group << endl;
         }
     }
     ode_solvers.resize(num_ode_groups + 1);
@@ -176,12 +169,10 @@ rp_problem* icp_solver::create_rp_problem() {
         // rp_variable_set_real(*_v);
         // rp_variable_precision(*_v) = _config.nra_precision;
         _enode_to_rp_id[key] = rp_id;
-        if (_config.nra_verbose) {
-            cerr << "Key: " << name << "\t"
-                 << "value : [" << lb << ", " << ub << "] \t"
-                 << "precision : " << _config.nra_precision << "\t"
-                 << "rp_id: " << rp_id << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "Key: " << name << "\t"
+                                 << "value : [" << lb << ", " << ub << "] \t"
+                                 << "precision : " << _config.nra_precision << "\t"
+                                 << "rp_id: " << rp_id << endl;
     }
 
     // ===============================================
@@ -196,12 +187,10 @@ rp_problem* icp_solver::create_rp_problem() {
         string constraint_str = buf.str();
 
         if (constraint_str.compare("0 = 0") != 0) {
-            if (_config.nra_verbose) {
-                cerr << "Constraint: "
-                     << (l->getPolarity() == l_True ? " " : "Not")
-                     << l << endl;
-                cerr << " : " << constraint_str << endl;
-            }
+            BOOST_LOG_TRIVIAL(debug) << "Constraint: "
+                                     << (l->getPolarity() == l_True ? " " : "Not")
+                                     << l << endl
+                                     << " : " << constraint_str << endl;
 
             // Parse the string (infix form) to create the constraint _c
             rp_parse_constraint_string(_c, constraint_str.c_str(), rp_problem_symb(*rp_prob));
@@ -219,17 +208,13 @@ rp_problem* icp_solver::create_rp_problem() {
 }
 
 bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars, bool forward) {
-    if (_config.nra_verbose) {
-        cerr << "solve ode group: " << group << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug) << "solve ode group: " << group << endl;
 
     // The size of ODE_Vars should be even
     if (ode_vars.size() % 2 == 1) {
-        if (_config.nra_verbose) {
-            cerr << "The size of ODE_Vars should be even" << endl;
-            for (auto ode_var : ode_vars) {
-                cerr << ode_var << endl;
-            }
+        BOOST_LOG_TRIVIAL(debug) << "The size of ODE_Vars should be even" << endl;
+        for (auto ode_var : ode_vars) {
+            BOOST_LOG_TRIVIAL(debug) << ode_var << endl;
         }
         return false;
     }
@@ -237,21 +222,15 @@ bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars, bool for
     // If the _0 and _t variables do not match, return false.
     for (auto ite = ode_vars.cbegin(); ite != ode_vars.cend(); ite++) {
         if (ode_vars.find((*ite)->getODEopposite()) == ode_vars.end()) {
-            if (_config.nra_verbose) {
-                cerr << "the _0 and _t variables do not match:" << *ite << endl;
-            }
+            BOOST_LOG_TRIVIAL(debug) << "the _0 and _t variables do not match:" << *ite << endl;
             return false;
         }
     }
 
     if (!ode_vars.empty()) {
-        if (_config.nra_verbose) {
-            cerr << "Inside of current ODEs" << endl;
-        }
-        if (_config.nra_verbose) {
-            for (auto ode_var : ode_vars) {
-                cerr << "Name: " << ode_var->getCar()->getName() << endl;
-            }
+        BOOST_LOG_TRIVIAL(debug) << "Inside of current ODEs" << endl;
+        for (auto ode_var : ode_vars) {
+            BOOST_LOG_TRIVIAL(debug) << "Name: " << ode_var->getCar()->getName() << endl;
         }
         ode_solver* odeSolver = ode_solvers[group];
 
@@ -265,10 +244,8 @@ bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars, bool for
                 forward_ODE = odeSolver->solve_forward(_boxes.get()) && _propag->apply(_boxes.get());
             }
             catch(exception& e) {
-                if (_config.nra_verbose) {
-                    cerr << "Exception in ODE Solving (Forward)" << endl
-                         << e.what() << endl;
-                }
+                BOOST_LOG_TRIVIAL(debug) << "Exception in ODE Solving (Forward)" << endl
+                                         << e.what() << endl;
                 forward_exception = true;
             }
             if(!forward_exception) return forward_ODE;
@@ -276,10 +253,8 @@ bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars, bool for
                 return odeSolver->solve_backward(_boxes.get()) && _propag->apply(_boxes.get());
             }
             catch(exception& e) {
-                if (_config.nra_verbose) {
-                    cerr << "Exception in ODE Solving (Backward)" << endl
-                         << e.what() << endl;
-                }
+                BOOST_LOG_TRIVIAL(debug) << "Exception in ODE Solving (Backward)" << endl
+                                         << e.what() << endl;
                 return true;
             }
         } else {
@@ -292,10 +267,8 @@ bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars, bool for
                 backward_ODE = odeSolver->solve_backward(_boxes.get()) && _propag->apply(_boxes.get());
             }
             catch(exception& e) {
-                if (_config.nra_verbose) {
-                    cerr << "Exception in ODE Solving (Backward)" << endl
-                         << e.what() << endl;
-                }
+                BOOST_LOG_TRIVIAL(debug) << "Exception in ODE Solving (Backward)" << endl
+                                         << e.what() << endl;
                 backward_exception = true;
             }
             if(!backward_exception) return backward_ODE;
@@ -303,10 +276,8 @@ bool icp_solver::callODESolver(int group, set<Enode*> const & ode_vars, bool for
                 return odeSolver->solve_forward(_boxes.get()) && _propag->apply(_boxes.get());
             }
             catch(exception& e) {
-                if (_config.nra_verbose) {
-                    cerr << "Exception in ODE Solving (Forward)" << endl
-                         << e.what() << endl;
-                }
+                BOOST_LOG_TRIVIAL(debug) << "Exception in ODE Solving (Forward)" << endl
+                                         << e.what() << endl;
                 return true;
             }
         }
@@ -567,9 +538,7 @@ bool icp_solver::solve() {
         output_problem();
     }
     if (rp_box_empty(rp_problem_box(*_problem))) {
-        if (_config.nra_verbose) {
-            cerr << "Unfeasibility detected before solving";
-        }
+        BOOST_LOG_TRIVIAL(debug) << "Unfeasibility detected before solving";
         /* TODO: currently, this is a naive explanation. */
         copy(m_stack.cbegin(), m_stack.cend(), back_inserter(_explanation));
         return false;
@@ -577,11 +546,9 @@ bool icp_solver::solve() {
         rp_box b;
         if ((b = compute_next()) != nullptr) {
             /* SAT */
-            if (_config.nra_verbose) {
-                cerr << "SAT with the following box:" << endl;
-                pprint_vars(cerr, *_problem, b);
-                cerr << endl;
-            }
+            BOOST_LOG_TRIVIAL(debug) << "SAT with the following box:" << endl
+//                pprint_vars(cerr, *_problem, b);  /* TODO(soonhok) */
+                                     << endl;
             if (_config.nra_proof) {
                 _config.nra_proof_out << "SAT with the following box:" << endl;
                 pprint_vars(_config.nra_proof_out, *_problem, b);
@@ -591,9 +558,7 @@ bool icp_solver::solve() {
         } else {
             /* UNSAT */
             // _proof_out << "[conflict detected]" << endl;
-            if (_config.nra_verbose) {
-                cerr << "UNSAT!" << endl;
-            }
+            BOOST_LOG_TRIVIAL(debug) << "UNSAT!" << endl;
             _explanation.clear();
             copy(m_stack.cbegin(), m_stack.cend(), back_inserter(_explanation));
             return false;

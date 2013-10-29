@@ -77,10 +77,10 @@ SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
 # Packages
 ################################################################
 # Boost
-set(Boost_USE_STATIC_LIBS        ON)
-set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_LIBS       OFF)
 set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package(Boost 1.48.0 REQUIRED)
+ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
+find_package(Boost 1.54 COMPONENTS log_setup log REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
 # Bison & Flex

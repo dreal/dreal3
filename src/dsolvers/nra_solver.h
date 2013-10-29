@@ -29,19 +29,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 class nra_solver : public OrdinaryTSolver {
 public:
     nra_solver(const int, const char *, SMTConfig &, Egraph &, SStore &, vector<Enode *> &,
-              vector<Enode *> &, vector<Enode *> &);
+               vector<Enode *> &, vector<Enode *> &);
     ~nra_solver();
     lbool inform(Enode * e);
-    bool assertLit(Enode * e, bool = false);
-    void pushBacktrackPoint ();
-    void popBacktrackPoint ();
-    bool check(bool c);
-    bool belongsToT(Enode * e);
-    void computeModel();
+    bool  assertLit(Enode * e, bool = false);
+    void  pushBacktrackPoint ();
+    void  popBacktrackPoint ();
+    bool  check(bool c);
+    bool  belongsToT(Enode * e);
+    void  computeModel();
 
 private:
     // methods
-    set<Enode *> get_variables(Enode * const e);
+    set<Enode *> get_vars(Enode * const e);
 
     // fields
     scoped_env m_env;

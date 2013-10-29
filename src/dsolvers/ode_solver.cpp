@@ -24,13 +24,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <limits>
 #include <math.h>
 #include <boost/algorithm/string/join.hpp>
-#include <boost/iterator/zip_iterator.hpp>
-#include <boost/tuple/tuple.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
 #include "dsolvers/ode_solver.h"
 
 using boost::algorithm::join;
-using boost::make_zip_iterator;
-using boost::tuple;
 using capd::C0Rect2Set;
 using capd::IFunction;
 using capd::IMap;
@@ -41,6 +39,7 @@ using capd::interval;
 using std::find_if;
 using std::map;
 using std::exception;
+using std::tuple;
 
 ode_solver::ode_solver(int group, SMTConfig& c, set<Enode*> const & ode_vars, rp_box b,
                        map<Enode*, int>& enode_to_rp_id) :
@@ -73,13 +72,11 @@ ode_solver::ode_solver(int group, SMTConfig& c, set<Enode*> const & ode_vars, rp
     // 3. construct diff_sys_forward (string to CAPD)
     diff_sys_forward = diff_var + diff_fun_forward;
     diff_sys_backward = diff_var + diff_fun_backward;
-    if (_config.nra_verbose) {
-        cerr << "diff_var : " << diff_var << endl;
-        cerr << "diff_fun_forward : " << diff_fun_forward << endl;
-        cerr << "diff_sys_forward : " << diff_sys_forward << endl;
-        cerr << "diff_fun_backward : " << diff_fun_backward << endl;
-        cerr << "diff_sys_backward : " << diff_sys_backward << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug) << "diff_var : " << diff_var << endl;
+    BOOST_LOG_TRIVIAL(debug) << "diff_fun_forward : " << diff_fun_forward << endl;
+    BOOST_LOG_TRIVIAL(debug) << "diff_sys_forward : " << diff_sys_forward << endl;
+    BOOST_LOG_TRIVIAL(debug) << "diff_fun_backward : " << diff_fun_backward << endl;
+    BOOST_LOG_TRIVIAL(debug) << "diff_sys_backward : " << diff_sys_backward << endl;
 
     for (auto ode_str : ode_list) {
         string const & func_str = diff_var + "fun:" + ode_str + ";";
@@ -162,10 +159,8 @@ IVector ode_solver::varlist_to_IVector(vector<Enode*> const & vars) {
         double lb = get_lb(var);
         double ub = get_ub(var);
         intv = interval(lb, ub);
-        if (_config.nra_verbose) {
-            cerr << "The interval on " << var->getCar()->getName() << ": " << intv << endl;
-        }
-    };
+        BOOST_LOG_TRIVIAL(debug) << "The interval on " << var->getCar()->getName() << ": " << intv << endl;
+    }
     return intvs;
 }
 
@@ -175,24 +170,21 @@ IVector ode_solver::extract_invariants(vector<Enode*> const & vars) {
     for (auto var : vars) {
         pair<double, double> const & p = var->getODEinvariant();
         auto inv = interval(p.first, p.second);
-        if (_config.nra_verbose) {
-            cerr << "Invariant extracted from " << var->getCar()->getName() << " = " << inv << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "Invariant extracted from " << var->getCar()->getName() << " = " << inv << endl;
         ret[i++] = inv;
     }
     return ret;
 }
 
-
 void ode_solver::IVector_to_varlist(IVector const & v, vector<Enode*> & vars) {
     for (auto i = 0; i < v.dimension(); i++) {
-            double lb = get_lb(vars[i]);
-            double ub = get_ub(vars[i]);
-            if (lb < v[i].leftBound())
-                set_lb(vars[i], v[i].leftBound());
-            if (ub > v[i].rightBound())
-                set_ub(vars[i], v[i].rightBound());
-        }
+        double lb = get_lb(vars[i]);
+        double ub = get_ub(vars[i]);
+        if (lb < v[i].leftBound())
+            set_lb(vars[i], v[i].leftBound());
+        if (ub > v[i].rightBound())
+            set_ub(vars[i], v[i].rightBound());
+    }
 }
 
 // Save v and dt to v_bucket and time_bucket
@@ -201,34 +193,22 @@ void ode_solver::IVector_to_varlist(IVector const & v, vector<Enode*> & vars) {
 // 2) v should be inside of _t_vars
 void ode_solver::prune(vector<Enode*> const & _t_vars, IVector const & v, interval const & dt, interval const & time,
                        vector<IVector> & v_bucket, vector<interval> & time_bucket) {
-    if (_config.nra_verbose) {
-        cerr << "  dt = " << dt   << endl;
-        cerr << "time = " << time << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug) << "  dt = " << dt   << endl;
+    BOOST_LOG_TRIVIAL(debug) << "time = " << time << endl;
     if(dt.leftBound() > time.rightBound() || time.leftBound() > dt.rightBound()) {
-        if (_config.nra_verbose) {
-            cerr << "IS " << "NOT CANDIDATE (TIME)" << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "IS " << "NOT CANDIDATE (TIME)" << endl;
         return;
     }
     for (auto i = 0; i < v.dimension(); i++) {
-        if (_config.nra_verbose) {
-            cerr << "  v[" << i << ", " << _t_vars[i] << "] = " << v[i] << endl;
-            cerr << "x_t[" << i << ", " << _t_vars[i] << "] = "
-                 << "[" << get_lb(_t_vars[i])
-                 << ", " << get_ub(_t_vars[i])
-                 << "]" << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "  v[" << i << ", " << _t_vars[i] << "] = " << v[i] << endl;
+        BOOST_LOG_TRIVIAL(debug) << "x_t[" << i << ", " << _t_vars[i] << "] = "
+                                 << "[" << get_lb(_t_vars[i]) << ", " << get_ub(_t_vars[i]) << "]" << endl;
         if ((v[i].leftBound() > get_ub(_t_vars[i])) || (v[i].rightBound() < get_lb(_t_vars[i]))) {
-            if (_config.nra_verbose) {
-                cerr << "IS " << "NOT CANDIDATE (" << i << ")" << endl;
-            }
+            BOOST_LOG_TRIVIAL(debug) << "IS " << "NOT CANDIDATE (" << i << ")" << endl;
             return;
         }
     }
-    if (_config.nra_verbose) {
-        cerr << "IS " << "CANDIDATE" << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug) << "IS " << "CANDIDATE" << endl;
     v_bucket.push_back(v);
     time_bucket.push_back(dt);
 }
@@ -239,27 +219,17 @@ bool ode_solver::simple_ODE(rp_box b) {
 }
 
 bool ode_solver::solve_forward(rp_box b) {
-    if (_config.nra_verbose) {
-        cerr << "ODE_Solver::solve_forward()" << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug) << "ODE_Solver::solve_forward()" << endl;
     update(b);
     bool ret = true;
     IMap vectorField(diff_sys_forward);
     ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);
     ITimeMap timeMap(solver);
     C0Rect2Set s(X_0);
-    if (_config.nra_verbose) {
-        cerr << "interval T = " << T << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug) << "interval T = " << T << endl;
     timeMap.stopAfterStep(true);
     bool fastForward = true;
     timeMap.turnOnStepControl();
-    // if (stepControl == 0.0) {
-    //     timeMap.turnOnStepControl();
-    // } else {
-    //     timeMap.turnOffStepControl();
-    //     timeMap.setStep(stepControl);
-    // }
     interval prevTime(0.);
     if (_config.nra_json) {
         trajectory.clear();
@@ -278,29 +248,23 @@ bool ode_solver::solve_forward(rp_box b) {
         }
         timeMap(T.rightBound(), s);
         if(contain_NaN(s)) { return true; }
-        if (_config.nra_verbose) {
-            cerr << "T : " << T << endl
-                 << "currentTime : " << timeMap.getCurrentTime() << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "T : " << T << endl
+                                 << "currentTime : " << timeMap.getCurrentTime() << endl;
         if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
             invariantViolated = inner_loop_forward(solver, prevTime, v_bucket, time_bucket);
         } else {
-            if (_config.nra_verbose) {
-                cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
-                cerr << "enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s) << endl;
-            }
+            BOOST_LOG_TRIVIAL(debug) << "Fast-forward:: " << prevTime << " ===> "
+                                     << timeMap.getCurrentTime() << endl
+                                     << "enclosure for t=" << timeMap.getCurrentTime()
+                                     << ": " << IVector(s) << endl;
         }
         if (_config.nra_json) {
             trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
         }
         prevTime = timeMap.getCurrentTime();
-        if (_config.nra_verbose) {
-            cerr << "current time: " << prevTime << endl;
-        }
-        if (_config.nra_verbose) {
-            cerr << "InvViolated : " << invariantViolated << endl
-                 << "timeMap.completed: " << timeMap.completed() <<  endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "current time: " << prevTime << endl;
+        BOOST_LOG_TRIVIAL(debug) << "InvViolated : " << invariantViolated << endl
+                                 << "timeMap.completed: " << timeMap.completed() <<  endl;
     } while (!invariantViolated && !timeMap.completed());
     if (union_and_join(v_bucket, X_t)) {
         IVector_to_varlist(X_t, _t_vars);
@@ -324,32 +288,21 @@ bool ode_solver::solve_forward(rp_box b) {
 }
 
 bool ode_solver::solve_backward(rp_box b) {
-    if (_config.nra_verbose) {
-        cerr << "ODE_Solver::solve_backward()" << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug) << "ODE_Solver::solve_backward()" << endl;
     update(b);
     bool ret = true;
     IMap vectorField(diff_sys_backward);
     ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);
     ITimeMap timeMap(solver);
     C0Rect2Set s(X_t);
-    if (_config.nra_verbose) {
-        cerr << "interval T = " << T << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug) << "interval T = " << T << endl;
     timeMap.stopAfterStep(true);
     bool fastForward = true;
     timeMap.turnOnStepControl();
-    // if (stepControl == 0.0) {
-    //     timeMap.turnOnStepControl();
-    // } else {
-    //     timeMap.turnOffStepControl();
-    //     timeMap.setStep(stepControl);
-    // }
     interval prevTime(0.);
     if (_config.nra_json) {
         trajectory.clear();
         trajectory.push_back(make_pair(T.rightBound() - timeMap.getCurrentTime(), IVector(s)));
-//        cerr << "B: " << (T.rightBound() - timeMap.getCurrentTime()) << ", " << IVector(s) << endl;
     }
     vector<IVector> v_bucket;
     vector<interval> time_bucket;
@@ -360,35 +313,26 @@ bool ode_solver::solve_backward(rp_box b) {
             timeMap.turnOffStepControl();
             solver.setStep(stepControl);
             timeMap.setStep(stepControl);
-//                std::cerr << "Adjusted!" << std::endl;
         }
         timeMap(T.rightBound(), s);
         if(contain_NaN(s)) { return true; }
-        if (_config.nra_verbose) {
-            cerr << "T : " << T << endl
-                 << "currentTime : " << timeMap.getCurrentTime() << endl;
-        }
-//            cerr << "inner_loop_backward, step = " << solver.getStep() << endl;
+        BOOST_LOG_TRIVIAL(debug) << "T : " << T << endl
+                                 << "currentTime : " << timeMap.getCurrentTime() << endl;
         if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
             invariantViolated = inner_loop_backward(solver, prevTime, v_bucket, time_bucket);
         } else {
-            if (_config.nra_verbose) {
-                cerr << "Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime() << endl;
-                cerr << "enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s) << endl;
-            }
+            BOOST_LOG_TRIVIAL(debug) << "Fast-forward:: " << prevTime << " ===> "
+                                     << timeMap.getCurrentTime() << endl
+                                     << "enclosure for t=" << timeMap.getCurrentTime()
+                                     << ": " << IVector(s) << endl;
         }
         if (_config.nra_json) {
             trajectory.push_back(make_pair(T.rightBound() - timeMap.getCurrentTime(), IVector(s)));
-//            cerr << "B: " << (T.rightBound() - timeMap.getCurrentTime()) << ", " << IVector(s) << endl;
         }
         prevTime = timeMap.getCurrentTime();
-        if (_config.nra_verbose) {
-            cerr << "current time: " << prevTime << endl;
-        }
-        if (_config.nra_verbose) {
-            cerr << "InvViolated : " << invariantViolated << endl
-                 << "timeMap.completed: " << timeMap.completed() <<  endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "current time: " << prevTime << endl
+                                 << "InvViolated : " << invariantViolated << endl
+                                 << "timeMap.completed: " << timeMap.completed() <<  endl;
     } while (!invariantViolated && !timeMap.completed());
     if (union_and_join(v_bucket, X_0)) {
         IVector_to_varlist(X_0, _0_vars);
@@ -417,11 +361,11 @@ bool ode_solver::solve_backward(rp_box b) {
 bool ode_solver::check_invariant(IVector & v, IVector const & inv) {
     if (!intersection(v, inv, v)) {
         if (_config.nra_verbose) {
-            cerr << "invariant violated!" << endl;
+            BOOST_LOG_TRIVIAL(debug) << "invariant violated!" << endl;
             for (auto i = 0; i < v.dimension(); i++) {
                 if (v[i].leftBound() < inv[i].leftBound() || v[i].rightBound() > inv[i].rightBound()) {
-                    cerr << "inv[" << i << "] = " << inv[i] << endl;
-                    cerr << "  v[" << i << "] = " <<   v[i] << endl;
+                    BOOST_LOG_TRIVIAL(debug) << "inv[" << i << "] = " << inv[i] << endl
+                                             << "  v[" << i << "] = " <<   v[i] << endl;
                 }
             }
         }
@@ -440,7 +384,7 @@ bool ode_solver::check_invariant(C0Rect2Set & s, IVector const & inv) {
 bool ode_solver::contain_NaN(IVector const & v) {
     for (interval const & i : v) {
         if (std::isnan(i.leftBound()) || std::isnan(i.rightBound())) {
-            if (_config.nra_verbose) { cerr << "NaN Found! : " << v << endl; }
+            BOOST_LOG_TRIVIAL(debug) << "NaN Found! : " << v << endl;
             return true;
         }
     }
@@ -455,34 +399,22 @@ template<typename V>
 bool ode_solver::union_and_join(vector<V> const & bucket, V & result) {
     // 1. u = Union of all the elements of bucket
     if (bucket.size() == 0) {
-        if (_config.nra_verbose) {
-            cerr << "Union_Join: collect from the bucket" << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "Union_Join: collect from the bucket" << endl;
         return false;
     }
     V u = *(bucket.cbegin());
     for (auto ite = ++(bucket.cbegin()); ite != bucket.cend(); ite++) {
-        if (_config.nra_verbose) {
-            cerr << "U(" << u << ", " << *ite << ") = ";
-        }
+        BOOST_LOG_TRIVIAL(debug) << "U(" << u << ", " << *ite << ") = ";
         u = intervalHull(u, *ite);
-        if (_config.nra_verbose) {
-            cerr << u << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << u << endl;
     }
     // 2. result = intersection(u, result);
-    if (_config.nra_verbose) {
-        cerr << "Intersect(" << u << ", " << result << ") = ";
-    }
+    BOOST_LOG_TRIVIAL(debug) << "Intersect(" << u << ", " << result << ") = ";
     if (intersection(u, result, result)) {
-        if (_config.nra_verbose) {
-            cerr << result << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << result << endl;
     } else {
         // intersection is empty!!
-        if (_config.nra_verbose) {
-            cerr << "empty" << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "empty" << endl;
         return false;
     }
     return true;
@@ -502,22 +434,16 @@ bool ode_solver::inner_loop_forward(ITaylor & solver, interval const & prevTime,
             + (domainWidth / _config.nra_ODE_grid_size) * i;
         intersection(domain, subsetOfDomain, subsetOfDomain);
         IVector v = curve(subsetOfDomain);
-        if (_config.nra_verbose) {
-            cerr << "subsetOfDomain: " << subsetOfDomain << endl
-                 << "enclosure for t=" << prevTime + subsetOfDomain << ": " << v << endl
-                 << "diam(enclosure): " << diam(v) << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "subsetOfDomain: " << subsetOfDomain << endl
+                                 << "enclosure for t=" << prevTime + subsetOfDomain << ": " << v << endl
+                                 << "diam(enclosure): " << diam(v) << endl;
         if (!check_invariant(v, inv)) {
             return true;
         }
-        if (_config.nra_verbose) {
-            cerr << "inv = " << inv << endl;
-            cerr << "v = " << v << endl;
-            cerr << "enclosure for t intersected with inv " << prevTime + subsetOfDomain << ": " << v << endl;
-        }
-        // if (_config.nra_json) {
-        //     trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
-        // }
+        BOOST_LOG_TRIVIAL(debug) << "inv = " << inv << endl
+                                 << "v = " << v << endl
+                                 << "enclosure for t intersected with inv " << prevTime + subsetOfDomain
+                                 << ": " << v << endl;
         prune(_t_vars, v, prevTime + subsetOfDomain, T, v_bucket, time_bucket);
     }
     return false;
@@ -536,27 +462,20 @@ bool ode_solver::inner_loop_backward(ITaylor & solver, interval const & prevTime
             + (domainWidth / _config.nra_ODE_grid_size) * i;
         intersection(domain, subsetOfDomain, subsetOfDomain);
         IVector v = curve(subsetOfDomain);
-        if (_config.nra_verbose) {
-            cerr << "subsetOfDomain: " << subsetOfDomain << endl
-                 << "enclosure for t=" << prevTime + subsetOfDomain << ": " << v << endl
-                 << "diam(enclosure): " << diam(v) << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "subsetOfDomain: " << subsetOfDomain << endl
+                                 << "enclosure for t=" << prevTime + subsetOfDomain << ": " << v << endl
+                                 << "diam(enclosure): " << diam(v) << endl;
         if (!check_invariant(v, inv)) {
             return true;
         }
-        if (_config.nra_verbose) {
-            cerr << "inv = " << inv << endl;
-            cerr << "v = " << v << endl;
-            cerr << "enclosure for t intersected with inv " << prevTime + subsetOfDomain << ": " << v << endl;
-        }
-        // if (_config.nra_json) {
-        //     trajectory.push_back(make_pair(T - (prevTime + subsetOfDomain), v));
-        // }
+        BOOST_LOG_TRIVIAL(debug) << "inv = " << inv << endl
+                                 << "v = " << v << endl
+                                 << "enclosure for t intersected with inv " << prevTime + subsetOfDomain
+                                 << ": " << v << endl;
         prune(_0_vars, v, prevTime + subsetOfDomain, T, v_bucket, time_bucket);
     }
     return false;
 }
-
 
 bool ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t, interval const & T,
                                     IVector const & inv, vector<IFunction> const & funcs) {
@@ -568,16 +487,11 @@ bool ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t, interval
         try {
             interval new_x_t = x_0 + dxdt(inv) * T;
             if (!intersection(new_x_t, x_t, x_t)) {
-                if (_config.nra_verbose) {
-                    cerr << "Simple_ODE: no intersection for X_T" << endl;
-                }
+                BOOST_LOG_TRIVIAL(debug) << "Simple_ODE: no intersection for X_T" << endl;
                 return false;
             }
         } catch (exception& e) {
-            if(_config.nra_verbose) {
-                cerr << "Exception in Simple_ODE: " << e.what() << endl;
-            }
-            cerr << "E";
+            BOOST_LOG_TRIVIAL(debug) << "Exception in Simple_ODE: " << e.what() << endl;
         }
     }
     // update
@@ -595,16 +509,11 @@ bool ode_solver::simple_ODE_backward(IVector & X_0, IVector const & X_t, interva
         try {
             interval const new_x_0 = x_t - dxdt(inv) * T;
             if (!intersection(new_x_0, x_0, x_0)) {
-                if (_config.nra_verbose) {
-                    cerr << "Simple_ODE: no intersection for X_0" << endl;
-                }
+                BOOST_LOG_TRIVIAL(debug) << "Simple_ODE: no intersection for X_0" << endl;
                 return false;
             }
         } catch (exception& e) {
-            if(_config.nra_verbose) {
-                cerr << "Exception in Simple_ODE: " << e.what() << endl;
-            }
-            cerr << "E";
+            BOOST_LOG_TRIVIAL(debug) << "Exception in Simple_ODE: " << e.what() << endl;
         }
     }
     // update

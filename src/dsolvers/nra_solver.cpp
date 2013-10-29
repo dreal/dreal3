@@ -21,11 +21,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <utility>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
 #include "dsolvers/nra_solver.h"
 #include "dsolvers/icp_solver.h"
 
 using std::pair;
 using boost::starts_with;
+
+namespace logging = boost::log;
 
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                      vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
@@ -36,7 +40,7 @@ nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, S
 nra_solver::~nra_solver() { }
 
 // Collect all the variables appeared in a literal e
-set<Enode *> nra_solver::get_variables (Enode * const e) {
+set<Enode *> nra_solver::get_vars (Enode * const e) {
     set<Enode *> result;
     Enode * p = nullptr;
     if ( e->isSymb()) { /* do nothing */ }
@@ -45,14 +49,14 @@ set<Enode *> nra_solver::get_variables (Enode * const e) {
         if (e -> isVar()) { result.insert(e); }
         p = e;
         while(!p->isEnil()) {
-            set<Enode *> const & tmp_set = get_variables(p->getCar());
+            set<Enode *> const & tmp_set = get_vars(p->getCar());
             result.insert(tmp_set.begin(), tmp_set.end());
             p = p->getCdr();
         }
     } else if (e->isList()) {
         p = e;
         while (!p->isEnil()) {
-            set<Enode *> const & tmp_set = get_variables(p->getCar());
+            set<Enode *> const & tmp_set = get_vars(p->getCar());
             result.insert(tmp_set.begin(), tmp_set.end());
             p = p->getCdr();
         }
@@ -62,35 +66,25 @@ set<Enode *> nra_solver::get_variables (Enode * const e) {
     return result;
 }
 
-// The solver is informed of the existence of atom e. It might be
-// useful for initializing the solver's data structures. This function
-// is called before the actual solving starts.
-//
 // `inform` does two operations:
 // 1. set up env (mapping from enode to its [lb, ub])
 // 2. set up _enode_to_vars (mapping from an expr to all the
 //    variables in it)
 lbool nra_solver::inform(Enode * e) {
-    if (config.nra_verbose) {
-        cerr << "================================================================" << endl
-             << "nra_solver::inform: " << e
-             << " with polarity " << e->getPolarity().toInt() << endl
-             << "================================================================" << endl;
-    }
-    set<Enode *> const & vars_in_lit = get_variables(e);
+    BOOST_LOG_TRIVIAL(debug) << "================================================================" << endl
+                             << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt() << endl
+                             << "================================================================" << endl;
+    set<Enode *> const & vars_in_lit = get_vars(e);
     set<Enode *> ode_vars_in_lit;
     for (auto const & var : vars_in_lit) {
-        if (config.nra_verbose) { cerr << var << endl; }
+        BOOST_LOG_TRIVIAL(debug) << var << endl;
         double const lb = var->getLowerBound();
         double const ub = var->getUpperBound();
         m_env.insert(var, make_pair(lb, ub));
 
         // Collect ODE Vars in e
         if (config.nra_contain_ODE && var->getODEtimevar() != nullptr && var->getODEgroup() > 0) {
-            if (config.nra_verbose) {
-                cerr << "Add " << var << " in the bag!!!! " << endl;
-                cerr << "\t Group: " << var->getODEgroup() << endl;
-            }
+            BOOST_LOG_TRIVIAL(debug) << "Add " << var << " to " << "group: " << var->getODEgroup() << endl;
             ode_vars_in_lit.insert(var);
         }
     }
@@ -106,22 +100,19 @@ lbool nra_solver::inform(Enode * e) {
 //
 // assertLit adds a literal(e) to stack of asserted literals.
 bool nra_solver::assertLit (Enode * e, bool reason) {
-    if (config.nra_verbose) {
-        cerr << "================================================================" << endl
-             << "nra_solver::assertLit: " << e
-             << ", reason: " << (reason ? "true" : "false")
-             << ", polarity: " << e->getPolarity().toInt() << endl
-             << "================================================================" << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug)
+        << "================================================================" << endl
+        << "nra_solver::assertLit: " << e
+        << ", reason: " << (reason ? "true" : "false")
+        << ", polarity: " << e->getPolarity().toInt() << endl
+        << "================================================================" << endl;
     (void)reason;
     assert(e);
     assert(belongsToT(e));
     assert(e->hasPolarity());
     assert(e->getPolarity() == l_False || e->getPolarity() == l_True);
     if (e->isDeduced() && e->getPolarity() == e->getDeduced() && e->getDedIndex() == id) {
-        if (config.nra_verbose) {
-            cerr << "nra_solver::assertLit: DEDUCED" << e << endl;
-        }
+        BOOST_LOG_TRIVIAL(debug) << "nra_solver::assertLit: DEDUCED" << e << endl;
         return true;
     }
     m_stack.push_back(e);
@@ -132,15 +123,12 @@ bool nra_solver::assertLit (Enode * e, bool reason) {
 // operations, for instance in a vector called "undo_stack_term", as
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint () {
-    if (config.nra_verbose) {
-        cerr << "================================================================" << endl
-             << "nra_solver::pushBacktrackPoint " << m_stack.size() << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug)
+        << "================================================================" << endl
+        << "nra_solver::pushBacktrackPoint " << m_stack.size() << endl
+        << "================================================================" << endl;
     m_env.push();
     m_stack.push();
-    if (config.nra_verbose) {
-        cerr << "================================================================" << endl;
-    }
 }
 
 // Restore a previous state. You can now retrieve the size of the
@@ -149,10 +137,10 @@ void nra_solver::pushBacktrackPoint () {
 // backtrackToStackSize() in EgraphSolver) Also make sure you clean
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint () {
-    if (config.nra_verbose) {
-        cerr << "================================================================" << endl
-             << "nra_solver::popBacktrackPoint" << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug)
+        << "================================================================" << endl
+        << "nra_solver::popBacktrackPoint" << endl
+        << "================================================================" << endl;
     m_stack.pop();
     m_env.pop();
 }
@@ -162,19 +150,11 @@ void nra_solver::popBacktrackPoint () {
 // set make sure you run a complete check
 //
 bool nra_solver::check(bool complete) {
-    if (config.nra_verbose) {
-        cerr << "================================================================" << endl;
-        cerr << "nra_solver::check " << (complete ? "complete" : "incomplete") << endl;
-        for (auto ite = m_env.begin(); ite != m_env.end(); ite++) {
-            Enode * key = (*ite).first;
-            double lb =  (*ite).second.first;
-            double ub =  (*ite).second.second;
-            if (starts_with(key->getCar()->getName(), "mode_")) {
-                cerr << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
-            }
-        }
-        cerr << "================================================================" << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug)
+        << "================================================================" << endl
+        << "nra_solver::check " << (complete ? "complete" : "incomplete") << endl
+        << m_env << endl
+        << "================================================================" << endl;
     bool result = true;
     if (config.nra_verbose) {
         std::cerr << m_stack << std::endl;
@@ -183,27 +163,29 @@ bool nra_solver::check(bool complete) {
     icp_solver solver(config, m_stack, m_env, explanation, m_vars_in_lit);
     if (!complete) {
         // Incomplete Check
-        if (config.nra_verbose) {
-            cerr << "Incomplete Check" << endl;
-            cerr << "Before Prop" << endl;
-            std::cerr << m_env << std::endl;
-        }
+        BOOST_LOG_TRIVIAL(debug)
+            << "Incomplete Check" << endl
+            << "Before Prop" << endl
+            << m_env << std::endl;
+
         result = solver.prop();
-        if (config.nra_verbose) {
-            cerr << "After Prop" << endl;
-            std::cerr << m_env << std::endl;
-        }
+
+        BOOST_LOG_TRIVIAL(debug)
+            << "After Prop" << endl
+            << m_env << std::endl;
     } else {
         result = solver.solve();
     }
 
-    if (config.nra_verbose && !result) {
-        cerr << "#explanation provided: ";
+    if (!result) {
+        BOOST_LOG_TRIVIAL(debug) << "#explanation provided: ";
         for (Enode * const e : explanation) {
-            cerr << e <<" with polarity " << toInt((e)->getPolarity()) << " ";
+            BOOST_LOG_TRIVIAL(debug) << e <<" with polarity "
+                                     << toInt((e)->getPolarity()) << " ";
         }
-        cerr << endl;
+        BOOST_LOG_TRIVIAL(debug) << endl;
     }
+
     // Print out JSON
     if (complete && result && config.nra_contain_ODE && config.nra_json) {
         solver.print_json(config.nra_json_out);
