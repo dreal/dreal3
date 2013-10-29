@@ -20,19 +20,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <utility>
-#include <boost/algorithm/string/predicate.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
-#include "dsolvers/nra_solver.h"
 #include "dsolvers/icp_solver.h"
+#include "dsolvers/nra_solver.h"
 
 using std::pair;
-using boost::starts_with;
-
 namespace logging = boost::log;
 
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
-                     vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
+                       vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
     : OrdinaryTSolver (i, n, c, e, t, x, d, s) {
     if (c.nra_precision == 0.0) c.nra_precision = 0.001;
 }
@@ -40,23 +37,23 @@ nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, S
 nra_solver::~nra_solver() { }
 
 // Collect all the variables appeared in a literal e
-set<Enode *> nra_solver::get_vars (Enode * const e) {
-    set<Enode *> result;
+unordered_set<Enode *> nra_solver::get_vars (Enode * const e) {
+    unordered_set<Enode *> result;
     Enode * p = nullptr;
     if ( e->isSymb()) { /* do nothing */ }
     else if (e->isNumb()) { /* do nothing */ }
     else if (e->isTerm()) {
         if (e -> isVar()) { result.insert(e); }
         p = e;
-        while(!p->isEnil()) {
-            set<Enode *> const & tmp_set = get_vars(p->getCar());
+        while (!p->isEnil()) {
+            unordered_set<Enode *> const & tmp_set = get_vars(p->getCar());
             result.insert(tmp_set.begin(), tmp_set.end());
             p = p->getCdr();
         }
     } else if (e->isList()) {
         p = e;
         while (!p->isEnil()) {
-            set<Enode *> const & tmp_set = get_vars(p->getCar());
+            unordered_set<Enode *> const & tmp_set = get_vars(p->getCar());
             result.insert(tmp_set.begin(), tmp_set.end());
             p = p->getCdr();
         }
@@ -71,25 +68,25 @@ set<Enode *> nra_solver::get_vars (Enode * const e) {
 // 2. set up _enode_to_vars (mapping from an expr to all the
 //    variables in it)
 lbool nra_solver::inform(Enode * e) {
-    BOOST_LOG_TRIVIAL(debug) << "================================================================" << endl
-                             << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt() << endl
-                             << "================================================================" << endl;
-    set<Enode *> const & vars_in_lit = get_vars(e);
-    set<Enode *> ode_vars_in_lit;
-    for (auto const & var : vars_in_lit) {
-        BOOST_LOG_TRIVIAL(debug) << var << endl;
-        double const lb = var->getLowerBound();
-        double const ub = var->getUpperBound();
-        m_env.insert(var, make_pair(lb, ub));
+    BOOST_LOG_TRIVIAL(debug) << "===============";
+    BOOST_LOG_TRIVIAL(debug) << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt();
+    BOOST_LOG_TRIVIAL(debug) << "===============";
+    unordered_set<Enode *> const & vars = get_vars(e);
+    unordered_set<Enode *> ode_vars;
+    for (auto const & v : vars) {
+        BOOST_LOG_TRIVIAL(debug) << v;
+        double const lb = v->getLowerBound();
+        double const ub = v->getUpperBound();
+        m_env.insert(v, make_pair(lb, ub));
 
         // Collect ODE Vars in e
-        if (config.nra_contain_ODE && var->getODEtimevar() != nullptr && var->getODEgroup() > 0) {
-            BOOST_LOG_TRIVIAL(debug) << "Add " << var << " to " << "group: " << var->getODEgroup() << endl;
-            ode_vars_in_lit.insert(var);
+        if (config.nra_contain_ODE && v->getODEtimevar() != nullptr && v->getODEgroup() > 0) {
+            BOOST_LOG_TRIVIAL(debug) << "Add " << v << " to " << "group: " << v->getODEgroup();
+            ode_vars.insert(v);
         }
     }
     if (config.nra_contain_ODE) {
-        m_vars_in_lit.insert(make_pair(e, ode_vars_in_lit));
+        m_odevars_in_lit.insert(make_pair(e, ode_vars));
     }
     return l_Undef;
 }
@@ -100,19 +97,18 @@ lbool nra_solver::inform(Enode * e) {
 //
 // assertLit adds a literal(e) to stack of asserted literals.
 bool nra_solver::assertLit (Enode * e, bool reason) {
-    BOOST_LOG_TRIVIAL(debug)
-        << "================================================================" << endl
-        << "nra_solver::assertLit: " << e
-        << ", reason: " << (reason ? "true" : "false")
-        << ", polarity: " << e->getPolarity().toInt() << endl
-        << "================================================================" << endl;
+    BOOST_LOG_TRIVIAL(debug) << "===============";
+    BOOST_LOG_TRIVIAL(debug) << "nra_solver::assertLit: " << e
+                             << ", reason: " << (reason ? "true" : "false")
+                             << ", polarity: " << e->getPolarity().toInt();
+    BOOST_LOG_TRIVIAL(debug) << "===============";
     (void)reason;
     assert(e);
     assert(belongsToT(e));
     assert(e->hasPolarity());
     assert(e->getPolarity() == l_False || e->getPolarity() == l_True);
     if (e->isDeduced() && e->getPolarity() == e->getDeduced() && e->getDedIndex() == id) {
-        BOOST_LOG_TRIVIAL(debug) << "nra_solver::assertLit: DEDUCED" << e << endl;
+        BOOST_LOG_TRIVIAL(debug) << "nra_solver::assertLit: DEDUCED" << e;
         return true;
     }
     m_stack.push_back(e);
@@ -123,10 +119,9 @@ bool nra_solver::assertLit (Enode * e, bool reason) {
 // operations, for instance in a vector called "undo_stack_term", as
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint () {
-    BOOST_LOG_TRIVIAL(debug)
-        << "================================================================" << endl
-        << "nra_solver::pushBacktrackPoint " << m_stack.size() << endl
-        << "================================================================" << endl;
+    BOOST_LOG_TRIVIAL(debug) << "===============";
+    BOOST_LOG_TRIVIAL(debug) << "nra_solver::pushBacktrackPoint " << m_stack.size();
+    BOOST_LOG_TRIVIAL(debug) << "===============";
     m_env.push();
     m_stack.push();
 }
@@ -137,59 +132,49 @@ void nra_solver::pushBacktrackPoint () {
 // backtrackToStackSize() in EgraphSolver) Also make sure you clean
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint () {
-    BOOST_LOG_TRIVIAL(debug)
-        << "================================================================" << endl
-        << "nra_solver::popBacktrackPoint" << endl
-        << "================================================================" << endl;
+    BOOST_LOG_TRIVIAL(debug) << "================";
+    BOOST_LOG_TRIVIAL(debug) << "nra_solver::popBacktrackPoint";
+    BOOST_LOG_TRIVIAL(debug) << "================";
     m_stack.pop();
     m_env.pop();
 }
 
-//
-// Check for consistency. If flag is
-// set make sure you run a complete check
-//
+// Check for consistency.
+// If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
-    BOOST_LOG_TRIVIAL(debug)
-        << "================================================================" << endl
-        << "nra_solver::check " << (complete ? "complete" : "incomplete") << endl
-        << m_env << endl
-        << "================================================================" << endl;
+    BOOST_LOG_TRIVIAL(debug) << "================";
+    BOOST_LOG_TRIVIAL(debug) << "nra_solver::check " << (complete ? "complete" : "incomplete");
+    BOOST_LOG_TRIVIAL(debug) << m_env;
+    BOOST_LOG_TRIVIAL(debug) << m_stack;
+    BOOST_LOG_TRIVIAL(debug) << "================";
+    BOOST_LOG_TRIVIAL(info) << "nra_solver::check " << (complete ? "complete" : "incomplete");
     bool result = true;
-    if (config.nra_verbose) {
-        std::cerr << m_stack << std::endl;
-        std::cerr << m_env << std::endl;
-    }
-    icp_solver solver(config, m_stack, m_env, explanation, m_vars_in_lit);
+    icp_solver solver(config, m_stack, m_env, explanation, m_odevars_in_lit, complete);
     if (!complete) {
         // Incomplete Check
-        BOOST_LOG_TRIVIAL(debug)
-            << "Incomplete Check" << endl
-            << "Before Prop" << endl
-            << m_env << std::endl;
+        BOOST_LOG_TRIVIAL(debug) << "Before Prop" << endl
+                                 << m_env;
 
         result = solver.prop();
 
-        BOOST_LOG_TRIVIAL(debug)
-            << "After Prop" << endl
-            << m_env << std::endl;
+        BOOST_LOG_TRIVIAL(debug) << "After Prop" << endl
+                                 << m_env;
     } else {
         result = solver.solve();
     }
-
     if (!result) {
         BOOST_LOG_TRIVIAL(debug) << "#explanation provided: ";
         for (Enode * const e : explanation) {
-            BOOST_LOG_TRIVIAL(debug) << e <<" with polarity "
-                                     << toInt((e)->getPolarity()) << " ";
+            BOOST_LOG_TRIVIAL(debug) << e <<" with polarity " << toInt((e)->getPolarity()) << " ";
         }
-        BOOST_LOG_TRIVIAL(debug) << endl;
     }
-
     // Print out JSON
     if (complete && result && config.nra_contain_ODE && config.nra_json) {
+        BOOST_LOG_TRIVIAL(info) << "nra_solver:: print json";
         solver.print_json(config.nra_json_out);
     }
+    BOOST_LOG_TRIVIAL(info) << "nra_solver::check " << (complete ? "complete" : "incomplete")
+                            << "\t result = " << result;
     return result;
 }
 
@@ -203,9 +188,7 @@ bool nra_solver::belongsToT(Enode * e) {
 
 // Copy the model into enode's data
 void nra_solver::computeModel() {
-    if (config.nra_verbose) {
-        cerr << "computeModel" << endl;
-    }
+    BOOST_LOG_TRIVIAL(debug) << "computeModel" << endl;
 }
 
 #ifdef PRODUCE_PROOF

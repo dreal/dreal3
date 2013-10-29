@@ -20,7 +20,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include <unordered_map>
+#include <unordered_set>
 #include <utility>
+#include <vector>
 #include "dsolvers/util/scoped_env.h"
 #include "dsolvers/util/scoped_vec.h"
 #include "opensmt/egraph/Egraph.h"
@@ -28,8 +31,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 class nra_solver : public OrdinaryTSolver {
 public:
-    nra_solver(const int, const char *, SMTConfig &, Egraph &, SStore &, vector<Enode *> &,
-               vector<Enode *> &, vector<Enode *> &);
+    nra_solver(const int, const char *, SMTConfig &, Egraph &, SStore &, std::vector<Enode *> &,
+               std::vector<Enode *> &, std::vector<Enode *> &);
     ~nra_solver();
     lbool inform(Enode * e);
     bool  assertLit(Enode * e, bool = false);
@@ -41,10 +44,10 @@ public:
 
 private:
     // methods
-    set<Enode *> get_vars(Enode * const e);
+    std::unordered_set<Enode *> get_vars(Enode * const e);
 
     // fields
-    scoped_env m_env;
-    scoped_vec m_stack;
-    map<Enode*, set <Enode *>> m_vars_in_lit;
+    scoped_env                 m_env;
+    scoped_vec                 m_stack;
+    std::unordered_map<Enode*, std::unordered_set<Enode *>> m_odevars_in_lit;
 };

@@ -19,10 +19,11 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <map>
-#include <string>
 #include <limits>
 #include <math.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
@@ -36,65 +37,64 @@ using capd::ITaylor;
 using capd::ITimeMap;
 using capd::IVector;
 using capd::interval;
-using std::find_if;
-using std::map;
 using std::exception;
+using std::find_if;
 using std::tuple;
+using std::unordered_map;
+using std::unordered_set;
 
-ode_solver::ode_solver(int group, SMTConfig& c, set<Enode*> const & ode_vars, rp_box b,
-                       map<Enode*, int>& enode_to_rp_id) :
-    _group(group),
-    _config(c),
-    _ode_vars(ode_vars),
-    _b(b),
-    _enode_to_rp_id(enode_to_rp_id),
-    stepControl(c.nra_ODE_step) {
-
-    std::cerr << "ODE_Solver " << group << "created!!\n";
+ode_solver::ode_solver(unsigned group, unsigned sgroup, SMTConfig& c, unordered_set<Enode*> const & ode_vars,
+                       unordered_map<Enode*, int>& enode_to_rp_id) :
+    m_group(group),
+    m_sgroup(sgroup),
+    m_config(c),
+    m_ode_vars(ode_vars),
+    m_enode_to_rp_id(enode_to_rp_id),
+    m_stepControl(c.nra_ODE_step) {
+    BOOST_LOG_TRIVIAL(debug) << "ODE_Solver " << group << " created.";
 
     // 1. partition ode_vars into _0_vars and _t_vars by their
     // ODE_vartype
-    for(auto ode_var : ode_vars) {
+    for (auto ode_var : ode_vars) {
         // If this is _0 variable, then
         if (ode_var->getODEvartype() == l_False) {
-            _0_vars.push_back(ode_var);
-            _t_vars.push_back(ode_var->getODEopposite());
-            var_list.push_back(ode_var->getODEvarname());
-            string const & ode = "(" + ode_var->getODE() + ")";
-            ode_list.push_back(ode);
+            m_0_vars.push_back(ode_var);
+            m_t_vars.push_back(ode_var->getODEopposite());
+            m_var_list.push_back(ode_var->getODEvarname());
+            string const ode = "(" + ode_var->getODE() + ")";
+            m_ode_list.push_back(ode);
         }
     }
     // 2. join var_list to make diff_var, ode_list to diff_fun_forward
-    diff_var = "var:" + join(var_list, ", ") + ";";
-    diff_fun_forward = "fun:" + join(ode_list, ", ") + ";";
-    diff_fun_backward = "fun: -" + join(ode_list, ", -") + ";";
+    m_diff_var = "var:" + join(m_var_list, ", ") + ";";
+    m_diff_fun_forward = "fun:" + join(m_ode_list, ", ") + ";";
+    m_diff_fun_backward = "fun: -" + join(m_ode_list, ", -") + ";";
 
     // 3. construct diff_sys_forward (string to CAPD)
-    diff_sys_forward = diff_var + diff_fun_forward;
-    diff_sys_backward = diff_var + diff_fun_backward;
-    BOOST_LOG_TRIVIAL(debug) << "diff_var : " << diff_var << endl;
-    BOOST_LOG_TRIVIAL(debug) << "diff_fun_forward : " << diff_fun_forward << endl;
-    BOOST_LOG_TRIVIAL(debug) << "diff_sys_forward : " << diff_sys_forward << endl;
-    BOOST_LOG_TRIVIAL(debug) << "diff_fun_backward : " << diff_fun_backward << endl;
-    BOOST_LOG_TRIVIAL(debug) << "diff_sys_backward : " << diff_sys_backward << endl;
+    m_diff_sys_forward = m_diff_var + m_diff_fun_forward;
+    m_diff_sys_backward = m_diff_var + m_diff_fun_backward;
+    BOOST_LOG_TRIVIAL(debug) << "diff_var : " << m_diff_var;
+    BOOST_LOG_TRIVIAL(debug) << "diff_fun_forward : " << m_diff_fun_forward;
+    BOOST_LOG_TRIVIAL(debug) << "diff_sys_forward : " << m_diff_sys_forward;
+    BOOST_LOG_TRIVIAL(debug) << "diff_fun_backward : " << m_diff_fun_backward;
+    BOOST_LOG_TRIVIAL(debug) << "diff_sys_backward : " << m_diff_sys_backward;
 
-    for (auto ode_str : ode_list) {
-        string const & func_str = diff_var + "fun:" + ode_str + ";";
-        funcs.push_back(IFunction(func_str));
+    for (auto ode_str : m_ode_list) {
+        string const func_str = m_diff_var + "fun:" + ode_str + ";";
+        m_funcs.push_back(IFunction(func_str));
     };
-    update(b);
 }
 
 ode_solver::~ode_solver() {
 }
 
 void ode_solver::update(rp_box b) {
-    _b = b;
-    X_0 = varlist_to_IVector(_0_vars);
-    inv = extract_invariants(_t_vars);
-    X_t = varlist_to_IVector(_t_vars);
-    time = (*_0_vars.begin())->getODEtimevar();
-    T = interval(get_lb(time), get_ub(time));
+    m_b = b;
+    m_X_0 = varlist_to_IVector(m_0_vars);
+    m_inv = extract_invariants(m_t_vars);
+    m_X_t = varlist_to_IVector(m_t_vars);
+    m_time = (*m_0_vars.begin())->getODEtimevar();
+    m_T = interval(get_lb(m_time), get_ub(m_time));
 }
 
 
@@ -108,7 +108,7 @@ void ode_solver::print_trace(ostream& out,
                              list<pair<interval, IVector>> const & trajectory) const {
     out << "{" << endl;
     out << "\t" << "\"key\": \"" << key << "\"," << endl;
-    out << "\t" << "\"group\": \"" << _group << "\"," << endl;
+    out << "\t" << "\"group\": \"" << m_group << "\"," << endl;
     out << "\t" << "\"values\": [" << endl;
     auto iter = trajectory.cbegin();
     print_datapoint(out, iter->first, iter->second[idx]);
@@ -124,28 +124,28 @@ void ode_solver::print_trace(ostream& out,
 void ode_solver::print_trajectory(ostream& out) const {
     out.precision(12);
     out << "[" << endl;
-    print_trace(out, var_list[0], 0, trajectory);
-    for (size_t i = 1; i < var_list.size(); i++) {
+    print_trace(out, m_var_list[0], 0, m_trajectory);
+    for (size_t i = 1; i < m_var_list.size(); i++) {
         out << ", " << endl;
-        print_trace(out, var_list[i], i, trajectory);
+        print_trace(out, m_var_list[i], i, m_trajectory);
     }
     out << endl << "]" << endl;
 }
 
 void ode_solver::prune_trajectory(interval& time, IVector& e) {
     // Remove datapoints after time interval.
-    auto ite = find_if (trajectory.begin(),
-                        trajectory.end(),
+    auto ite = find_if (m_trajectory.begin(),
+                        m_trajectory.end(),
                         [&time](pair<interval, IVector>& item) {
                             return item.first.leftBound() > time.rightBound();
                         });
-    trajectory.erase(ite, trajectory.end());
+    m_trajectory.erase(ite, m_trajectory.end());
 
     // Update the datapoints in the time interval
-    ite = find_if (trajectory.begin(), trajectory.end(), [&time](pair<interval, IVector>& item) {
+    ite = find_if (m_trajectory.begin(), m_trajectory.end(), [&time](pair<interval, IVector>& item) {
             return item.first.leftBound()>= time.leftBound();
         });
-    for_each(ite, trajectory.end(), [&e](pair<interval, IVector>& item) {
+    for_each(ite, m_trajectory.end(), [&e](pair<interval, IVector>& item) {
             intersection(item.second, e, item.second);
         });
 }
@@ -159,7 +159,7 @@ IVector ode_solver::varlist_to_IVector(vector<Enode*> const & vars) {
         double lb = get_lb(var);
         double ub = get_ub(var);
         intv = interval(lb, ub);
-        BOOST_LOG_TRIVIAL(debug) << "The interval on " << var->getCar()->getName() << ": " << intv << endl;
+        BOOST_LOG_TRIVIAL(debug) << "The interval on " << var->getCar()->getName() << ": " << intv;
     }
     return intvs;
 }
@@ -170,7 +170,7 @@ IVector ode_solver::extract_invariants(vector<Enode*> const & vars) {
     for (auto var : vars) {
         pair<double, double> const & p = var->getODEinvariant();
         auto inv = interval(p.first, p.second);
-        BOOST_LOG_TRIVIAL(debug) << "Invariant extracted from " << var->getCar()->getName() << " = " << inv << endl;
+        BOOST_LOG_TRIVIAL(debug) << "Invariant extracted from " << var->getCar()->getName() << " = " << inv;
         ret[i++] = inv;
     }
     return ret;
@@ -193,179 +193,188 @@ void ode_solver::IVector_to_varlist(IVector const & v, vector<Enode*> & vars) {
 // 2) v should be inside of _t_vars
 void ode_solver::prune(vector<Enode*> const & _t_vars, IVector const & v, interval const & dt, interval const & time,
                        vector<IVector> & v_bucket, vector<interval> & time_bucket) {
-    BOOST_LOG_TRIVIAL(debug) << "  dt = " << dt   << endl;
-    BOOST_LOG_TRIVIAL(debug) << "time = " << time << endl;
-    if(dt.leftBound() > time.rightBound() || time.leftBound() > dt.rightBound()) {
-        BOOST_LOG_TRIVIAL(debug) << "IS " << "NOT CANDIDATE (TIME)" << endl;
+    BOOST_LOG_TRIVIAL(debug) << "  dt = " << dt;
+    BOOST_LOG_TRIVIAL(debug) << "time = " << time;
+    if (dt.leftBound() > time.rightBound() || time.leftBound() > dt.rightBound()) {
+        BOOST_LOG_TRIVIAL(debug) << "IS " << "NOT CANDIDATE (TIME)";
         return;
     }
     for (auto i = 0; i < v.dimension(); i++) {
-        BOOST_LOG_TRIVIAL(debug) << "  v[" << i << ", " << _t_vars[i] << "] = " << v[i] << endl;
+        BOOST_LOG_TRIVIAL(debug) << "  v[" << i << ", " << _t_vars[i] << "] = " << v[i];
         BOOST_LOG_TRIVIAL(debug) << "x_t[" << i << ", " << _t_vars[i] << "] = "
-                                 << "[" << get_lb(_t_vars[i]) << ", " << get_ub(_t_vars[i]) << "]" << endl;
+                                 << "[" << get_lb(_t_vars[i]) << ", " << get_ub(_t_vars[i]) << "]";
         if ((v[i].leftBound() > get_ub(_t_vars[i])) || (v[i].rightBound() < get_lb(_t_vars[i]))) {
-            BOOST_LOG_TRIVIAL(debug) << "IS " << "NOT CANDIDATE (" << i << ")" << endl;
+            BOOST_LOG_TRIVIAL(debug) << "IS " << "NOT CANDIDATE (" << i << ")";
             return;
         }
     }
-    BOOST_LOG_TRIVIAL(debug) << "IS " << "CANDIDATE" << endl;
+    BOOST_LOG_TRIVIAL(debug) << "IS " << "CANDIDATE";
     v_bucket.push_back(v);
     time_bucket.push_back(dt);
 }
 
 bool ode_solver::simple_ODE(rp_box b) {
     update(b);
-    return simple_ODE_forward(X_0, X_t, T, inv, funcs) && simple_ODE_backward(X_0, X_t, T, inv, funcs);
+    return simple_ODE_forward(m_X_0, m_X_t, m_T, m_inv, m_funcs) &&
+        simple_ODE_backward(m_X_0, m_X_t, m_T, m_inv, m_funcs);
 }
 
 bool ode_solver::solve_forward(rp_box b) {
-    BOOST_LOG_TRIVIAL(debug) << "ODE_Solver::solve_forward()" << endl;
+    BOOST_LOG_TRIVIAL(debug) << "ODE_Solver::solve_forward()";
     update(b);
     bool ret = true;
-    IMap vectorField(diff_sys_forward);
-    ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);
+    IMap vectorField(m_diff_sys_forward);
+    ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .1);
     ITimeMap timeMap(solver);
-    C0Rect2Set s(X_0);
-    BOOST_LOG_TRIVIAL(debug) << "interval T = " << T << endl;
+    C0Rect2Set s(m_X_0);
+    BOOST_LOG_TRIVIAL(debug) << "interval T = " << m_T;
     timeMap.stopAfterStep(true);
     bool fastForward = true;
-    timeMap.turnOnStepControl();
+    //timeMap.turnOnStepControl();
     interval prevTime(0.);
-    if (_config.nra_json) {
-        trajectory.clear();
-        trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+    if (m_config.nra_json) {
+        m_trajectory.clear();
+        m_trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
     }
     vector<IVector> v_bucket;
     vector<interval> time_bucket;
     bool invariantViolated = false;
     do {
-        invariantViolated = !check_invariant(s, inv);
-        if(stepControl > 0 && solver.getStep() < stepControl) {
+        invariantViolated = !check_invariant(s, m_inv);
+        //timeMap.turnOnStepControl();
+        if (m_stepControl > 0 && solver.getStep() < m_stepControl) {
             timeMap.turnOffStepControl();
-            solver.setStep(stepControl);
-            timeMap.setStep(stepControl);
-            // std::cerr << "Adjusted!" << std::endl;
+            solver.setStep(m_stepControl);
+            timeMap.setStep(m_stepControl);
+            // std::cerr << "A" << solver.getStep() << " " << std::endl;
+        } else {
+            // std::cerr << " " << solver.getStep() << " " << std::endl;
         }
-        timeMap(T.rightBound(), s);
-        if(contain_NaN(s)) { return true; }
-        BOOST_LOG_TRIVIAL(debug) << "T : " << T << endl
-                                 << "currentTime : " << timeMap.getCurrentTime() << endl;
-        if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
+
+        timeMap(m_T.rightBound(), s);
+        if (contain_NaN(s)) { return true; }
+        BOOST_LOG_TRIVIAL(debug) << "T : " << m_T;
+        BOOST_LOG_TRIVIAL(debug) << "currentTime : " << timeMap.getCurrentTime();
+        if (!fastForward || m_T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
             invariantViolated = inner_loop_forward(solver, prevTime, v_bucket, time_bucket);
         } else {
             BOOST_LOG_TRIVIAL(debug) << "Fast-forward:: " << prevTime << " ===> "
-                                     << timeMap.getCurrentTime() << endl
-                                     << "enclosure for t=" << timeMap.getCurrentTime()
-                                     << ": " << IVector(s) << endl;
+                                     << timeMap.getCurrentTime();
+            BOOST_LOG_TRIVIAL(debug) << "enclosure for t=" << timeMap.getCurrentTime()
+                                     << ": " << IVector(s);
         }
-        if (_config.nra_json) {
-            trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+        if (m_config.nra_json) {
+            m_trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
         }
         prevTime = timeMap.getCurrentTime();
-        BOOST_LOG_TRIVIAL(debug) << "current time: " << prevTime << endl;
-        BOOST_LOG_TRIVIAL(debug) << "InvViolated : " << invariantViolated << endl
-                                 << "timeMap.completed: " << timeMap.completed() <<  endl;
+        BOOST_LOG_TRIVIAL(debug) << "current time: " << prevTime;
+        BOOST_LOG_TRIVIAL(debug) << "InvViolated : " << invariantViolated
+                                 << "timeMap.completed: " << timeMap.completed();
     } while (!invariantViolated && !timeMap.completed());
-    if (union_and_join(v_bucket, X_t)) {
-        IVector_to_varlist(X_t, _t_vars);
+    if (union_and_join(v_bucket, m_X_t)) {
+        IVector_to_varlist(m_X_t, m_t_vars);
     } else {
-        for (auto _t_var : _t_vars) {
+        for (auto _t_var : m_t_vars) {
             set_empty_interval(_t_var);
         }
         ret = false;
     }
-    if (union_and_join(time_bucket, T)) {
-        set_lb(time, T.leftBound());
-        set_ub(time, T.rightBound());
+    if (union_and_join(time_bucket, m_T)) {
+        set_lb(m_time, m_T.leftBound());
+        set_ub(m_time, m_T.rightBound());
     } else {
-        set_empty_interval(time);
+        set_empty_interval(m_time);
         ret = false;
     }
-    if (_config.nra_json) {
-        prune_trajectory(T, X_t);
+    if (m_config.nra_json) {
+        prune_trajectory(m_T, m_X_t);
     }
     return ret;
 }
 
 bool ode_solver::solve_backward(rp_box b) {
-    BOOST_LOG_TRIVIAL(debug) << "ODE_Solver::solve_backward()" << endl;
+    BOOST_LOG_TRIVIAL(debug) << "ODE_Solver::solve_backward()";
     update(b);
     bool ret = true;
-    IMap vectorField(diff_sys_backward);
-    ITaylor solver(vectorField, _config.nra_ODE_taylor_order, .1);
+    IMap vectorField(m_diff_sys_backward);
+    ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .1);
     ITimeMap timeMap(solver);
-    C0Rect2Set s(X_t);
-    BOOST_LOG_TRIVIAL(debug) << "interval T = " << T << endl;
+    C0Rect2Set s(m_X_t);
+    BOOST_LOG_TRIVIAL(debug) << "interval T = " << m_T;
     timeMap.stopAfterStep(true);
     bool fastForward = true;
-    timeMap.turnOnStepControl();
+    //timeMap.turnOnStepControl();
     interval prevTime(0.);
-    if (_config.nra_json) {
-        trajectory.clear();
-        trajectory.push_back(make_pair(T.rightBound() - timeMap.getCurrentTime(), IVector(s)));
+    if (m_config.nra_json) {
+        m_trajectory.clear();
+        m_trajectory.push_back(make_pair(m_T.rightBound() - timeMap.getCurrentTime(), IVector(s)));
     }
     vector<IVector> v_bucket;
     vector<interval> time_bucket;
     bool invariantViolated = false;
     do {
-        invariantViolated = !check_invariant(s, inv);
-        if(stepControl > 0 && solver.getStep() < stepControl) {
+        invariantViolated = !check_invariant(s, m_inv);
+        //timeMap.turnOnStepControl();
+        if (m_stepControl > 0 && solver.getStep() < m_stepControl) {
             timeMap.turnOffStepControl();
-            solver.setStep(stepControl);
-            timeMap.setStep(stepControl);
+            solver.setStep(m_stepControl);
+            timeMap.setStep(m_stepControl);
+            // std::cerr << "A" << solver.getStep() << " " << std::endl;
+        } else {
+            // std::cerr << " " << solver.getStep() << " " << std::endl;
         }
-        timeMap(T.rightBound(), s);
-        if(contain_NaN(s)) { return true; }
-        BOOST_LOG_TRIVIAL(debug) << "T : " << T << endl
-                                 << "currentTime : " << timeMap.getCurrentTime() << endl;
-        if (!fastForward || T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
+        timeMap(m_T.rightBound(), s);
+        if (contain_NaN(s)) { return true; }
+        BOOST_LOG_TRIVIAL(debug) << "T : " << m_T;
+        BOOST_LOG_TRIVIAL(debug) << "currentTime : " << timeMap.getCurrentTime();
+        if (!fastForward || m_T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
             invariantViolated = inner_loop_backward(solver, prevTime, v_bucket, time_bucket);
         } else {
-            BOOST_LOG_TRIVIAL(debug) << "Fast-forward:: " << prevTime << " ===> "
-                                     << timeMap.getCurrentTime() << endl
-                                     << "enclosure for t=" << timeMap.getCurrentTime()
-                                     << ": " << IVector(s) << endl;
+            BOOST_LOG_TRIVIAL(debug) << "BFast-forward:: " << prevTime << " ===> "
+                                     << timeMap.getCurrentTime();
+            BOOST_LOG_TRIVIAL(debug) << "enclosure for t=" << timeMap.getCurrentTime()
+                                     << ": " << IVector(s);
         }
-        if (_config.nra_json) {
-            trajectory.push_back(make_pair(T.rightBound() - timeMap.getCurrentTime(), IVector(s)));
+        if (m_config.nra_json) {
+            m_trajectory.push_back(make_pair(m_T.rightBound() - timeMap.getCurrentTime(), IVector(s)));
         }
         prevTime = timeMap.getCurrentTime();
-        BOOST_LOG_TRIVIAL(debug) << "current time: " << prevTime << endl
-                                 << "InvViolated : " << invariantViolated << endl
-                                 << "timeMap.completed: " << timeMap.completed() <<  endl;
+        BOOST_LOG_TRIVIAL(debug) << "current time: " << prevTime;
+        BOOST_LOG_TRIVIAL(debug) << "InvViolated : " << invariantViolated;
+        BOOST_LOG_TRIVIAL(debug) << "timeMap.completed: " << timeMap.completed();
     } while (!invariantViolated && !timeMap.completed());
-    if (union_and_join(v_bucket, X_0)) {
-        IVector_to_varlist(X_0, _0_vars);
+    if (union_and_join(v_bucket, m_X_0)) {
+        IVector_to_varlist(m_X_0, m_0_vars);
     } else {
-        for (auto _0_var : _0_vars) {
+        for (auto _0_var : m_0_vars) {
             set_empty_interval(_0_var);
         }
         ret = false;
     }
-    if (union_and_join(time_bucket, T)) {
-        set_lb(time, T.leftBound());
-        set_ub(time, T.rightBound());
+    if (union_and_join(time_bucket, m_T)) {
+        set_lb(m_time, m_T.leftBound());
+        set_ub(m_time, m_T.rightBound());
     } else {
-        set_empty_interval(time);
+        set_empty_interval(m_time);
         ret = false;
     }
-    if (_config.nra_json) {
-        prune_trajectory(T, X_0);
+    if (m_config.nra_json) {
+        prune_trajectory(m_T, m_X_0);
     }
 
     // Reverse trajectory vector
-    std::reverse(trajectory.begin(), trajectory.end());
+    std::reverse(m_trajectory.begin(), m_trajectory.end());
     return ret;
 }
 
 bool ode_solver::check_invariant(IVector & v, IVector const & inv) {
     if (!intersection(v, inv, v)) {
-        if (_config.nra_verbose) {
-            BOOST_LOG_TRIVIAL(debug) << "invariant violated!" << endl;
+        if (m_config.nra_verbose) {
+            BOOST_LOG_TRIVIAL(debug) << "invariant violated!";
             for (auto i = 0; i < v.dimension(); i++) {
                 if (v[i].leftBound() < inv[i].leftBound() || v[i].rightBound() > inv[i].rightBound()) {
-                    BOOST_LOG_TRIVIAL(debug) << "inv[" << i << "] = " << inv[i] << endl
-                                             << "  v[" << i << "] = " <<   v[i] << endl;
+                    BOOST_LOG_TRIVIAL(debug) << "inv[" << i << "] = " << inv[i];
+                    BOOST_LOG_TRIVIAL(debug) << "  v[" << i << "] = " <<   v[i];
                 }
             }
         }
@@ -384,7 +393,7 @@ bool ode_solver::check_invariant(C0Rect2Set & s, IVector const & inv) {
 bool ode_solver::contain_NaN(IVector const & v) {
     for (interval const & i : v) {
         if (std::isnan(i.leftBound()) || std::isnan(i.rightBound())) {
-            BOOST_LOG_TRIVIAL(debug) << "NaN Found! : " << v << endl;
+            BOOST_LOG_TRIVIAL(debug) << "NaN Found! : " << v;
             return true;
         }
     }
@@ -399,22 +408,22 @@ template<typename V>
 bool ode_solver::union_and_join(vector<V> const & bucket, V & result) {
     // 1. u = Union of all the elements of bucket
     if (bucket.size() == 0) {
-        BOOST_LOG_TRIVIAL(debug) << "Union_Join: collect from the bucket" << endl;
+        BOOST_LOG_TRIVIAL(debug) << "Union_Join: collect from the bucket";
         return false;
     }
     V u = *(bucket.cbegin());
     for (auto ite = ++(bucket.cbegin()); ite != bucket.cend(); ite++) {
-        BOOST_LOG_TRIVIAL(debug) << "U(" << u << ", " << *ite << ") = ";
+        BOOST_LOG_TRIVIAL(debug) << "U(" << u << ", " << *ite << ")";
         u = intervalHull(u, *ite);
-        BOOST_LOG_TRIVIAL(debug) << u << endl;
+        BOOST_LOG_TRIVIAL(debug) << " = " << u;
     }
     // 2. result = intersection(u, result);
-    BOOST_LOG_TRIVIAL(debug) << "Intersect(" << u << ", " << result << ") = ";
+    BOOST_LOG_TRIVIAL(debug) << "Intersect(" << u << ", " << result << ")";
     if (intersection(u, result, result)) {
-        BOOST_LOG_TRIVIAL(debug) << result << endl;
+        BOOST_LOG_TRIVIAL(debug) << " = " << result;
     } else {
         // intersection is empty!!
-        BOOST_LOG_TRIVIAL(debug) << "empty" << endl;
+        BOOST_LOG_TRIVIAL(debug) << " = empty";
         return false;
     }
     return true;
@@ -429,22 +438,22 @@ bool ode_solver::inner_loop_forward(ITaylor & solver, interval const & prevTime,
     const ITaylor::CurveType& curve = solver.getCurve();
     interval domain = interval(0, 1) * stepMade;
     double domainWidth = domain.rightBound() - domain.leftBound();
-    for (unsigned i = 0; i <_config.nra_ODE_grid_size; i++) {
-        interval subsetOfDomain = domain / _config.nra_ODE_grid_size
-            + (domainWidth / _config.nra_ODE_grid_size) * i;
+    for (unsigned i = 0; i <m_config.nra_ODE_grid_size; i++) {
+        interval subsetOfDomain = domain / m_config.nra_ODE_grid_size
+            + (domainWidth / m_config.nra_ODE_grid_size) * i;
         intersection(domain, subsetOfDomain, subsetOfDomain);
         IVector v = curve(subsetOfDomain);
-        BOOST_LOG_TRIVIAL(debug) << "subsetOfDomain: " << subsetOfDomain << endl
-                                 << "enclosure for t=" << prevTime + subsetOfDomain << ": " << v << endl
-                                 << "diam(enclosure): " << diam(v) << endl;
-        if (!check_invariant(v, inv)) {
+        BOOST_LOG_TRIVIAL(debug) << "subsetOfDomain: " << subsetOfDomain;
+        BOOST_LOG_TRIVIAL(debug) << "enclosure for t=" << prevTime + subsetOfDomain << ": " << v;
+        BOOST_LOG_TRIVIAL(debug) << "diam(enclosure): " << diam(v);
+        if (!check_invariant(v, m_inv)) {
             return true;
         }
-        BOOST_LOG_TRIVIAL(debug) << "inv = " << inv << endl
-                                 << "v = " << v << endl
-                                 << "enclosure for t intersected with inv " << prevTime + subsetOfDomain
-                                 << ": " << v << endl;
-        prune(_t_vars, v, prevTime + subsetOfDomain, T, v_bucket, time_bucket);
+        BOOST_LOG_TRIVIAL(debug) << "inv = " << m_inv;
+        BOOST_LOG_TRIVIAL(debug) << "v = " << v;
+        BOOST_LOG_TRIVIAL(debug) << "enclosure for t intersected with inv " << prevTime + subsetOfDomain
+                                 << ": " << v;
+        prune(m_t_vars, v, prevTime + subsetOfDomain, m_T, v_bucket, time_bucket);
     }
     return false;
 }
@@ -457,22 +466,22 @@ bool ode_solver::inner_loop_backward(ITaylor & solver, interval const & prevTime
     const ITaylor::CurveType& curve = solver.getCurve();
     interval domain = interval(0, 1) * stepMade;
     double domainWidth = domain.rightBound() - domain.leftBound();
-    for (unsigned i = 0; i <_config.nra_ODE_grid_size; i++) {
-        interval subsetOfDomain = domain / _config.nra_ODE_grid_size
-            + (domainWidth / _config.nra_ODE_grid_size) * i;
+    for (unsigned i = 0; i < m_config.nra_ODE_grid_size; i++) {
+        interval subsetOfDomain = domain / m_config.nra_ODE_grid_size
+            + (domainWidth / m_config.nra_ODE_grid_size) * i;
         intersection(domain, subsetOfDomain, subsetOfDomain);
         IVector v = curve(subsetOfDomain);
-        BOOST_LOG_TRIVIAL(debug) << "subsetOfDomain: " << subsetOfDomain << endl
-                                 << "enclosure for t=" << prevTime + subsetOfDomain << ": " << v << endl
-                                 << "diam(enclosure): " << diam(v) << endl;
-        if (!check_invariant(v, inv)) {
+        BOOST_LOG_TRIVIAL(debug) << "subsetOfDomain: " << subsetOfDomain;
+        BOOST_LOG_TRIVIAL(debug) << "enclosure for t=" << prevTime + subsetOfDomain << ": " << v;
+        BOOST_LOG_TRIVIAL(debug) << "diam(enclosure): " << diam(v);
+        if (!check_invariant(v, m_inv)) {
             return true;
         }
-        BOOST_LOG_TRIVIAL(debug) << "inv = " << inv << endl
-                                 << "v = " << v << endl
-                                 << "enclosure for t intersected with inv " << prevTime + subsetOfDomain
-                                 << ": " << v << endl;
-        prune(_0_vars, v, prevTime + subsetOfDomain, T, v_bucket, time_bucket);
+        BOOST_LOG_TRIVIAL(debug) << "inv = " << m_inv;
+        BOOST_LOG_TRIVIAL(debug) << "v = " << v;
+        BOOST_LOG_TRIVIAL(debug) << "enclosure for t intersected with inv " << prevTime + subsetOfDomain
+                                 << ": " << v;
+        prune(m_0_vars, v, prevTime + subsetOfDomain, m_T, v_bucket, time_bucket);
     }
     return false;
 }
@@ -480,43 +489,43 @@ bool ode_solver::inner_loop_backward(ITaylor & solver, interval const & prevTime
 bool ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t, interval const & T,
                                     IVector const & inv, vector<IFunction> const & funcs) {
     // X_t = X_t \cup (X_0 + (d/dt Inv) * T)
-    for(int i = 0; i < X_0.dimension(); i++) {
+    for (int i = 0; i < X_0.dimension(); i++) {
         interval const & x_0 = X_0[i];
         interval & x_t = X_t[i];
         IFunction const & dxdt = funcs[i];
         try {
             interval new_x_t = x_0 + dxdt(inv) * T;
             if (!intersection(new_x_t, x_t, x_t)) {
-                BOOST_LOG_TRIVIAL(debug) << "Simple_ODE: no intersection for X_T" << endl;
+                BOOST_LOG_TRIVIAL(debug) << "Simple_ODE: no intersection for X_T";
                 return false;
             }
         } catch (exception& e) {
-            BOOST_LOG_TRIVIAL(debug) << "Exception in Simple_ODE: " << e.what() << endl;
+            BOOST_LOG_TRIVIAL(debug) << "Exception in Simple_ODE: " << e.what();
         }
     }
     // update
-    IVector_to_varlist(X_t, _t_vars);
+    IVector_to_varlist(X_t, m_t_vars);
     return true;
 }
 
 bool ode_solver::simple_ODE_backward(IVector & X_0, IVector const & X_t, interval const & T,
                                      IVector const & inv, vector<IFunction> const & funcs) {
     // X_0 = X_0 \cup (X_t - + (d/dt Inv) * T)
-    for(int i = 0; i < X_0.dimension(); i++) {
+    for (int i = 0; i < X_0.dimension(); i++) {
         interval & x_0 = X_0[i];
         interval const & x_t = X_t[i];
         IFunction const & dxdt = funcs[i];
         try {
             interval const new_x_0 = x_t - dxdt(inv) * T;
             if (!intersection(new_x_0, x_0, x_0)) {
-                BOOST_LOG_TRIVIAL(debug) << "Simple_ODE: no intersection for X_0" << endl;
+                BOOST_LOG_TRIVIAL(debug) << "Simple_ODE: no intersection for X_0";
                 return false;
             }
         } catch (exception& e) {
-            BOOST_LOG_TRIVIAL(debug) << "Exception in Simple_ODE: " << e.what() << endl;
+            BOOST_LOG_TRIVIAL(debug) << "Exception in Simple_ODE: " << e.what();
         }
     }
     // update
-    IVector_to_varlist(X_0, _0_vars);
+    IVector_to_varlist(X_0, m_0_vars);
     return true;
 }

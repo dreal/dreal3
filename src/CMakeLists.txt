@@ -80,7 +80,7 @@ SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
 set(Boost_USE_STATIC_LIBS       OFF)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
-find_package(Boost 1.54 COMPONENTS log_setup log REQUIRED)
+find_package(Boost 1.54 COMPONENTS log log_setup thread system  REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
 # Bison & Flex

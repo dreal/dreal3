@@ -22,6 +22,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #include <fstream>
 #include <queue>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 #include "dsolvers/ode_solver.h"
 #include "dsolvers/util/scoped_env.h"
 #include "dsolvers/util/scoped_vec.h"
@@ -31,52 +34,62 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 class icp_solver {
 public:
-    icp_solver(SMTConfig& c, scoped_vec const & s, scoped_env & env,
-               vector<Enode *> & exp, map <Enode *, set <Enode *>> & enode_to_vars);
+    icp_solver(SMTConfig & c, scoped_vec const & stack, scoped_env & env,
+               std::vector<Enode *> & exp, std::unordered_map<Enode *, std::unordered_set<Enode *>> & vars_in_lit,
+               bool complete_check);
     ~icp_solver();
-    rp_box compute_next(); // computation of the next solution
     bool prop(); // only propagate
-    bool prop_with_ODE(); // propagate with ODE (only in complete check)
-    int  solution(); // number of solutions
-    int  nboxes(); // number of boxes
-    int  nsplit(); // number of branching
     bool solve();
-    void display_box(ostream& out, rp_box b, int digits, int mode) const;
-    void display_interval(ostream & out, rp_interval i, int digits, int mode) const;
-    void pprint_vars(ostream & out, rp_problem p, rp_box b) const;
     void print_json(ostream& out);
 
 private:
-    rp_problem* create_rp_problem();
-    void create_ode_solvers();
-    SMTConfig& _config;
-    rp_problem * _problem; /* problem to be solved */
-    rp_propagator * _propag; /* reduction algorithm using propagation */
-    rp_box_stack _boxes; /* the set of boxes during search */
-    rp_selector * _vselect; /* selection of variable to be split */
-    rp_splitter * _dsplit; /* split function of variable domain */
-    rp_existence_prover * _ep; /* existence prover */
-    int _sol; /* number of computed solutions */
-    int _nsplit; /* number of split steps */
-    double _improve; /* improvement factor of iterative methods */
-    map<Enode *, set<Enode *>> & _enode_to_vars;
-    map<Enode *, int> _enode_to_rp_id;
-    vector<Enode *> & _explanation;
-    vector<rp_variable *> _rp_variables;
-    vector<rp_constraint *> _rp_constraints;
-    scoped_vec const & m_stack;
-    scoped_env & m_env;
-    void output_problem() const;
-    bool callODESolver(int group, set<Enode *> const & ode_vars, bool forward);
-    bool ODEresult;
-    bool complete_check;
-    icp_solver& operator=(const icp_solver& s);
+    // methods
     icp_solver(const icp_solver& s);
-    void print_ODE_trajectory(ostream& out) const;
-    bool is_atomic(set<Enode *> const & ode_vars, double const p);
-    vector<pair<double, double>> measure_size(set<Enode *> const & ode_vars, double const p);
+    icp_solver& operator=(const icp_solver& s);
 
-    unsigned num_ode_groups;
-    std::vector<std::set<Enode*>> diff_vec;
-    std::vector<ode_solver*> ode_solvers;
+    rp_problem* create_rp_problem();
+    void        create_ode_solvers();
+
+    rp_box      compute_next(); // computation of the next solution
+    bool        prop_with_ODE(); // propagate with ODE (only in complete check)
+    bool        callODESolver(int group, std::unordered_set<Enode *> const & ode_vars, bool forward);
+
+    bool        is_atomic(std::unordered_set<Enode *> const & ode_vars, double const p);
+    std::vector<pair<double, double>> measure_size(std::unordered_set<Enode *> const & ode_vars, double const p);
+
+    void        output_problem() const;
+    void        print_ODE_trajectory(ostream& out) const;
+    void        display_box(ostream& out, rp_box b, int digits, int mode) const;
+    void        display_interval(ostream & out, rp_interval i, int digits, int mode) const;
+    void        pprint_vars(ostream & out, rp_problem p, rp_box b) const;
+
+    // =================================================================================
+    //   fields
+    // =================================================================================
+    SMTConfig &                    m_config;
+    rp_problem *                   m_problem; /* problem to be solved */
+    rp_propagator *                m_propag; /* reduction algorithm using propagation */
+    rp_box_stack                   m_boxes; /* the set of boxes during search */
+    rp_selector *                  m_vselect; /* selection of variable to be split */
+    rp_splitter *                  m_dsplit; /* split function of variable domain */
+    rp_existence_prover *          m_ep; /* existence prover */
+    int                            m_sol; /* number of computed solutions */
+    int                            m_nsplit; /* number of split steps */
+    double                         m_improve; /* improvement factor of iterative methods */
+
+    vector<Enode *> &              m_explanation;
+    vector<rp_variable *>          m_rp_variables;
+    vector<rp_constraint *>        m_rp_constraints;
+    scoped_vec const &             m_stack;
+    scoped_env &                   m_env;
+    bool                           m_ODEresult;
+
+    unsigned                       m_num_ode_sgroups;
+    std::unordered_set<unsigned>                  m_ode_worklist;
+    std::unordered_map<Enode *, std::unordered_set<Enode *>> &   m_odevars_in_lit;
+    std::unordered_map<Enode *, int>              m_enode_to_rp_id;
+    std::unordered_map<int, Enode *>              m_rp_id_to_enode;
+    std::vector<std::unordered_set<Enode *>> m_diff_vec;        // ODE_Group -> set of ODE variables
+    std::vector<ode_solver *>      m_ode_solvers;
+    bool                           m_complete_check;
 };

@@ -147,12 +147,13 @@ command: '(' TK_SETLOGIC symbol ')'
          { opensmt_error2( "command not supported (yet)", "" ); }
        */
        /* Added for dReal2. */
-       | '(' TK_DEFINEODE numeral '(' TK_EQ TK_DDT TK_LB symbol TK_RB infix_term ')' ')'
+       | '(' TK_DEFINEODE numeral numeral '(' TK_EQ TK_DDT TK_LB symbol TK_RB infix_term ')' ')'
          {
-           parser_ctx->DefineODE($8, *$10, atoi($3));
+           parser_ctx->DefineODE($9, *$11, atoi($3), atoi($4));
            free( $3 );
-           free( $8 );
-           delete $10;
+           free( $4 );
+           free( $9 );
+           delete $11;
          }
        | '(' TK_PUSH numeral ')'
          { parser_ctx->addPush( atoi( $3 ) ); free( $3 ); }

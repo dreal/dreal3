@@ -20,8 +20,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <map>
+#include <list>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 #include "capd/capdlib.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
@@ -29,8 +33,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 class ode_solver {
 public:
-    ode_solver(int group, SMTConfig& c, set<Enode*> const & ode_vars, rp_box b,
-               std::map<Enode*, int>& enode_to_rp_id);
+    ode_solver(unsigned group, unsigned sgroup, SMTConfig& c, std::unordered_set<Enode*> const & ode_vars,
+               std::unordered_map<Enode*, int>& enode_to_rp_id);
     ~ode_solver();
     bool simple_ODE(rp_box b);
     bool solve_forward(rp_box b);
@@ -39,34 +43,35 @@ public:
 
 private:
     // Private Members
-    int _group;
-    SMTConfig& _config;
-    set<Enode*> const & _ode_vars;
-    rp_box _b;
-    map<Enode*, int>& _enode_to_rp_id;
-    ode_solver& operator=(const ode_solver& o);
-    list<pair<capd::interval, capd::IVector>> trajectory;
-    double stepControl;
+    unsigned m_group;
+    unsigned m_sgroup;
+    SMTConfig& m_config;
+    std::unordered_set<Enode*> const & m_ode_vars;
+    rp_box m_b;
+    std::unordered_map<Enode*, int>& m_enode_to_rp_id;
+    std::list<std::pair<capd::interval, capd::IVector>> m_trajectory;
+    double m_stepControl;
 
-    vector<string> ode_list;
-    vector<string> var_list;
-    vector<Enode*> _0_vars;
-    vector<Enode*> _t_vars;
-    capd::IVector X_0;
-    capd::IVector X_t;
-    capd::IVector inv;
-    Enode * time;
-    capd::interval T;
+    std::vector<std::string> m_ode_list;
+    std::vector<std::string> m_var_list;
+    std::vector<Enode*> m_0_vars;
+    std::vector<Enode*> m_t_vars;
+    capd::IVector m_X_0;
+    capd::IVector m_X_t;
+    capd::IVector m_inv;
+    Enode * m_time;
+    capd::interval m_T;
 
-    string diff_var;
-    string diff_fun_forward;
-    string diff_fun_backward;
-    string diff_sys_forward;
-    string diff_sys_backward;
+    std::string m_diff_var;
+    std::string m_diff_fun_forward;
+    std::string m_diff_fun_backward;
+    std::string m_diff_sys_forward;
+    std::string m_diff_sys_backward;
 
-    std::vector<capd::IFunction> funcs;
+    std::vector<capd::IFunction> m_funcs;
 
     // Private Methods
+    ode_solver& operator=(const ode_solver& o);
     void update(rp_box b);
     void print_datapoint(ostream& out, const capd::interval& t, const capd::interval& v) const;
     void print_trace(ostream& out, string const & key, int const idx,
@@ -78,10 +83,12 @@ private:
     void prune(vector<Enode*> const & _t_vars, capd::IVector const & v,
                capd::interval const & dt,  capd::interval const & time,
                vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list);
+
     bool check_invariant(capd::IVector & iv, capd::IVector const & inv);
     bool check_invariant(capd::C0Rect2Set & s, capd::IVector const & inv);
     bool contain_NaN(capd::IVector const & v);
     bool contain_NaN(capd::C0Rect2Set const & s);
+
     template<typename V>
     bool union_and_join(vector<V> const & bucket, V & result);
     bool inner_loop_forward(capd::ITaylor & solver, capd::interval const & prevTime,
@@ -94,9 +101,9 @@ private:
                              capd::IVector const & inv, vector<capd::IFunction> const & funcs);
 
     // Inline functions
-    inline double get_lb(Enode* const e) const { return rp_binf(rp_box_elem(_b, _enode_to_rp_id[e])); }
-    inline double get_ub(Enode* const e) const { return rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e])); }
-    inline void set_lb(Enode* const e, double v) { rp_binf(rp_box_elem(_b, _enode_to_rp_id[e])) = v; }
-    inline void set_ub(Enode* const e, double v) { rp_bsup(rp_box_elem(_b, _enode_to_rp_id[e])) = v; }
-    inline void set_empty_interval(Enode* const e) { rp_interval_set_empty(rp_box_elem(_b, _enode_to_rp_id[e])); }
+    inline double get_lb(Enode* const e) const { return rp_binf(rp_box_elem(m_b, m_enode_to_rp_id[e])); }
+    inline double get_ub(Enode* const e) const { return rp_bsup(rp_box_elem(m_b, m_enode_to_rp_id[e])); }
+    inline void set_lb(Enode* const e, double v) { rp_binf(rp_box_elem(m_b, m_enode_to_rp_id[e])) = v; }
+    inline void set_ub(Enode* const e, double v) { rp_bsup(rp_box_elem(m_b, m_enode_to_rp_id[e])) = v; }
+    inline void set_empty_interval(Enode* const e) { rp_interval_set_empty(rp_box_elem(m_b, m_enode_to_rp_id[e])); }
 };

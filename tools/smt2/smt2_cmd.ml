@@ -8,7 +8,7 @@ type t = SetLogic of logic
          | SetInfo of string * string
          | DeclareFun of string
          | DeclareConst of string
-         | DefineODE of int * string * exp
+         | DefineODE of int * int * string * exp
          | Assert of formula
          | CheckSAT
          | Exit
@@ -36,8 +36,8 @@ let print out =
     Printf.fprintf out "(declare-fun %s () Real)" v
   | DeclareConst v ->
     Printf.fprintf out "(declare-const %s Real)" v
-  | DefineODE (n, x, e) ->
-    Printf.fprintf out "(define-ode %d (= d/dt[%s] %s))" n x (IO.to_string Basic.print_infix_exp e)
+  | DefineODE (g, sg, x, e) ->
+    Printf.fprintf out "(define-ode %d %d (= d/dt[%s] %s))" g sg x (IO.to_string Basic.print_infix_exp e)
   | Assert f ->
     Printf.fprintf out "(assert %s)" (IO.to_string Basic.print_formula f)
   | CheckSAT ->

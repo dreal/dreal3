@@ -256,8 +256,10 @@ public:
   void            setODEtimevar          (Enode* );
   Enode*          getODEtimevar          ( ) const;
 
-  void            setODEgroup            ( int );
-  int             getODEgroup            ( ) const;
+  void            setODEgroup            ( unsigned );
+  unsigned        getODEgroup            ( ) const;
+  void            setODEsgroup           ( unsigned );
+  unsigned        getODEsgroup           ( ) const;
 
   void            setODEinvarint ( pair<double, double> i );
   const pair<double, double> getODEinvariant ( ) const;
@@ -416,7 +418,8 @@ private:
   string            ode;
   Enode*            ode_timevar;
   lbool             ode_vartype;
-  int               ode_group;
+  unsigned          ode_group;
+  unsigned          ode_sgroup;
   Enode*            ode_opposite;
   pair<double, double> ode_invariant;
 
@@ -462,14 +465,21 @@ inline Enode* Enode::getODEtimevar ( ) const
     return ode_timevar;
 }
 
-
-inline void        Enode::setODEgroup ( int g )
+inline void        Enode::setODEgroup ( unsigned g )
 {
     ode_group = g;
 }
-inline int         Enode::getODEgroup ( ) const
+inline unsigned         Enode::getODEgroup ( ) const
 {
     return ode_group;
+}
+inline void        Enode::setODEsgroup ( unsigned g )
+{
+    ode_sgroup = g;
+}
+inline unsigned         Enode::getODEsgroup ( ) const
+{
+    return ode_sgroup;
 }
 
 inline void        Enode::setODEinvarint ( pair<double, double> i )

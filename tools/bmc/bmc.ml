@@ -227,27 +227,47 @@ let make_smt2
   let make_ub name v = Basic.Le (Basic.Var name, Basic.Num v ) in
   let logic_cmd = SetLogic QF_NRA_ODE in
   let num_of_modes = List.max (List.map (fun (_, q, _) -> q) flows_annot) in
-  let defineodes =
+  let odes =
+    let ode_vars_list : (var * var Set.t) list =
+      List.map (fun (_, m_, ode) -> Ode.collect_vars ode) flows_annot
+    in
+    let groupid_map : (var, int Uref.uref) Map.t =
+      snd (List.fold_left (fun (n, m) (v, s) ->
+                           let m' = Map.add v (Uref.uref n) m in
+                           let n' = n + 1 in
+                           (n', m')
+                          )
+                          (1, Map.empty)
+                          ode_vars_list) in
+    let _ = List.iter (fun (v1, s) ->
+                       Set.iter (fun v2 -> Uref.unite
+                                          (Map.find v1 groupid_map)
+                                          (Map.find v2 groupid_map))
+                                s
+                      )
+                      ode_vars_list in
     List.map
       (fun (k, q, (x, e)) ->
-        let group_num = k * num_of_modes + q in
-        DefineODE (group_num, x, e)
+       let group_num  = k * num_of_modes + q in
+       let sgroup_num = Uref.uget (Map.find x groupid_map) in
+       (group_num, sgroup_num, x, e)
       )
-      flows_annot
-  in
-  let diff_groups =
-    List.unique
-      (List.map
-         (function
-         | DefineODE (n, _, _) -> n
-         | _ -> raise (SMTException "only contains DefineODE"))
-         defineodes)
-  in
+      flows_annot in
+  let defineodes = List.map (fun (g, sg, x, e) -> DefineODE (g, sg, x, e)) odes in
+  let diff_groups  = List.unique (List.map (fun (n, _, _, _) -> n) odes) in
+  let diff_sgroups = List.unique (List.map (fun (_, n, _, _) -> n) odes) in
+  let grouped_odes =
+    let sorted_odes = List.sort (fun (g1, sg1, _, _) (g2, sg2, _, _)
+                                 -> Int.compare g1 g2) odes
+    in List.group_consecutive (fun (g1, sg1, _, _) (g2, sg2, _, _)
+                               -> g1 = g2)
+                              sorted_odes in
   let time_vardecls =
     List.map
       (fun n -> ("time_" ^ (Int.to_string n), time_intv))
-      diff_groups
-  in
+      diff_sgroups in
+  (* let time_var_constrs =  *)
+  (*   List.map (fun odegroup ->  *)
   let mode_vardecls =
     List.map
       (fun n -> ("mode_" ^ (Int.to_string n), Value.Intv (1.0, float_of_int num_of_modes)))
@@ -270,7 +290,7 @@ let make_smt2
     List.unique
       ~eq:
           (fun cmd1 cmd2 -> match (cmd1, cmd2) with
-          | (DefineODE (n1, x1, e1), DefineODE (n2, x2, e2)) -> ((n1 = n2) && (x1 = x2))
+          | (DefineODE (_, n1, x1, e1), DefineODE (_, n2, x2, e2)) -> ((n1 = n2) && (x1 = x2))
           | _ -> false)
       defineodes
   in

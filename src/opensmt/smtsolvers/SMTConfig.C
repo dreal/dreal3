@@ -18,6 +18,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "SMTConfig.h"
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/utility/setup/console.hpp>
 
 void
 SMTConfig::initializeConfig( )
@@ -89,6 +93,13 @@ SMTConfig::initializeConfig( )
   nra_ODE_grid_size            = 16;
   nra_ODE_step                 = 0.0;
   nra_contain_ODE              = false;
+
+  // Setup default logging severity
+  boost::log::core::get()->set_filter
+  (
+      boost::log::trivial::severity >= boost::log::trivial::info
+  );
+  boost::log::add_console_log(std::cout, boost::log::keywords::format = "%Message%");
 }
 
 void SMTConfig::parseConfig ( char * f )
@@ -392,6 +403,10 @@ SMTConfig::parseCMDLine( int argc
 
     if ( strcmp( buf, "--verbose" ) == 0)
     {
+        boost::log::core::get()->set_filter
+        (
+            boost::log::trivial::severity >= boost::log::trivial::debug
+        );
         nra_verbose = true;
         continue;
     }
