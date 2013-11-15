@@ -1,8 +1,0 @@
-(set-logic QF_NRA)
-(declare-fun ruscore2dollarsk_2 () Real)
-(declare-fun buscore2dollarsk_3 () Real)
-(declare-fun auscore2dollarsk_1 () Real)
-(declare-fun guscore2dollarsk_0 () Real)
-(assert (= (+ (* (- 1) guscore2dollarsk_0) (* 16 (* ruscore2dollarsk_2 ruscore2dollarsk_2 ruscore2dollarsk_2)) (* (- 496) (* auscore2dollarsk_1 auscore2dollarsk_1 auscore2dollarsk_1)) (* 1104 (* buscore2dollarsk_3 auscore2dollarsk_1 auscore2dollarsk_1)) (* (- 896) (* buscore2dollarsk_3 buscore2dollarsk_3 auscore2dollarsk_1)) (* 256 (* buscore2dollarsk_3 buscore2dollarsk_3 buscore2dollarsk_3)) (* 512 (* ruscore2dollarsk_2 auscore2dollarsk_1 auscore2dollarsk_1)) (* (- 752) (* ruscore2dollarsk_2 buscore2dollarsk_3 auscore2dollarsk_1)) (* 320 (* ruscore2dollarsk_2 buscore2dollarsk_3 buscore2dollarsk_3)) (* (- 160) (* ruscore2dollarsk_2 ruscore2dollarsk_2 auscore2dollarsk_1)) (* 112 (* ruscore2dollarsk_2 ruscore2dollarsk_2 buscore2dollarsk_3))) 0))
-(assert (not (= (+ (* (- 1) guscore2dollarsk_0) (* 16 (* ruscore2dollarsk_2 ruscore2dollarsk_2 ruscore2dollarsk_2)) (* (- 496) (* auscore2dollarsk_1 auscore2dollarsk_1 auscore2dollarsk_1)) (* 1104 (* buscore2dollarsk_3 auscore2dollarsk_1 auscore2dollarsk_1)) (* (- 896) (* buscore2dollarsk_3 buscore2dollarsk_3 auscore2dollarsk_1)) (* 256 (* buscore2dollarsk_3 buscore2dollarsk_3 buscore2dollarsk_3)) (* 512 (* ruscore2dollarsk_2 auscore2dollarsk_1 auscore2dollarsk_1)) (* (- 752) (* ruscore2dollarsk_2 buscore2dollarsk_3 auscore2dollarsk_1)) (* 320 (* ruscore2dollarsk_2 buscore2dollarsk_3 buscore2dollarsk_3)) (* (- 160) (* ruscore2dollarsk_2 ruscore2dollarsk_2 auscore2dollarsk_1)) (* 112 (* ruscore2dollarsk_2 ruscore2dollarsk_2 buscore2dollarsk_3))) 0)))
-(check-sat)

@@ -1,2 +1,0 @@
-(* translated from exit-simultaneous-different-directions-node5170.translated.smt2 *)
-Resolve[Exists[{x0,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14}, (x3 == ((-(1)) * x2 * (x1 + ((-(1)) * x0)))) && (x6 == (x2 * (x5 + ((-(1)) * x4)))) && (x8 == ((-(1)) * x2 * (x7 + ((-(1)) * x0)))) && (x10 == (x2 * (x9 + ((-(1)) * x4)))) && !(x3 == x8) && !(((((2 * x12) + ((-(2)) * x11)) * ((x14 * x2) + ((-(1)) * x13 * x2))) + (((2 * x14) + ((-(2)) * x13)) * (((-(1)) * x12 * x2) + (x11 * x2)))) >= 0)], Reals]

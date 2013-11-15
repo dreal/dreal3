@@ -1,9 +1,0 @@
-[ translated from nl56-node582.smt2 ]
-(x0,x1,x2)
-0
-(Ex0)(Ex1)(Ex2)[[~[[[x0 <= (x1 + x2)] /\ [2 < x2]] ==> [x0 < (x1 + (x2 x2))]]]].
-go
-go
-d-stat
-go
-finish

@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/bottom-plate-mixer/bottom-plate-mixer-chunk-0017.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2;
-EXPR
-    -- the constraints to be solved
-    (!(((-7383 * x1) + (-3400 * x2)) <= -760000) and !((366500000 * x0) <= 177));

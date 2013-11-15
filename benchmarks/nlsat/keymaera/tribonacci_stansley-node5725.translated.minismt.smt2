@@ -1,7 +1,0 @@
-(set-logic QF_NRA)
-(declare-fun ruscore2dollarsk_1 () Real)
-(declare-fun buscore2dollarsk_2 () Real)
-(declare-fun auscore2dollarsk_0 () Real)
-(assert (= (+ (* buscore2dollarsk_2 buscore2dollarsk_2 buscore2dollarsk_2) (* ruscore2dollarsk_1 ruscore2dollarsk_1 ruscore2dollarsk_1) (* 2 (* auscore2dollarsk_0 auscore2dollarsk_0 auscore2dollarsk_0)) (* 2 (* buscore2dollarsk_2 auscore2dollarsk_0 auscore2dollarsk_0)) (* 2 (* buscore2dollarsk_2 buscore2dollarsk_2 auscore2dollarsk_0)) (* (- 2) (* ruscore2dollarsk_1 buscore2dollarsk_2 auscore2dollarsk_0)) (* ruscore2dollarsk_1 buscore2dollarsk_2 buscore2dollarsk_2) (* (- 2) (* ruscore2dollarsk_1 ruscore2dollarsk_1 auscore2dollarsk_0)) (* (- 1) (* ruscore2dollarsk_1 ruscore2dollarsk_1 buscore2dollarsk_2))) 1))
-(assert (not (= (+ (* buscore2dollarsk_2 buscore2dollarsk_2 buscore2dollarsk_2) (* ruscore2dollarsk_1 ruscore2dollarsk_1 ruscore2dollarsk_1) (* 2 (* auscore2dollarsk_0 auscore2dollarsk_0 auscore2dollarsk_0)) (* 2 (* buscore2dollarsk_2 auscore2dollarsk_0 auscore2dollarsk_0)) (* 2 (* buscore2dollarsk_2 buscore2dollarsk_2 auscore2dollarsk_0)) (* (- 2) (* ruscore2dollarsk_1 buscore2dollarsk_2 auscore2dollarsk_0)) (* ruscore2dollarsk_1 buscore2dollarsk_2 buscore2dollarsk_2) (* (- 2) (* ruscore2dollarsk_1 ruscore2dollarsk_1 auscore2dollarsk_0)) (* (- 1) (* ruscore2dollarsk_1 ruscore2dollarsk_1 buscore2dollarsk_2))) 1)))
-(check-sat)

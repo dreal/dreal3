@@ -1,2 +1,0 @@
-(* translated from ./exp/problem/10/3/exp-problem-10-3-chunk-0014.smt2 *)
-Resolve[Exists[{x0,x1,x2,x3}, (!((1 + (x1 * (x1 * x1))) == x2) && (((x0 * (x0 * x0)) == x2) && (!(x2 <= 2) && (!(x3 <= 0) && (!(x1 <= 0) && (!(x0 <= 0) && !(10 <= x2)))))))], Reals]

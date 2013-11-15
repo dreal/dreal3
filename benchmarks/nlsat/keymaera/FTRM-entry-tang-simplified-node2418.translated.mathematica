@@ -1,2 +1,0 @@
-(* translated from FTRM-entry-tang-simplified-node2418.translated.smt2 *)
-Resolve[Exists[{x0,x1,x2,x3,x4,x5,x6,x7,x8,x9}, ((x1 * x1) == (3 * x0 * x0)) && (x1 <= 0) && !(x0 <= 0) && (x5 == (x4 * (x3 + ((-(1)) * x2)))) && (x8 == ((-(1)) * x4 * (x7 + ((-(1)) * x6)))) && ((((x7 + ((-(1)) * x6)) * (x7 + ((-(1)) * x6))) + ((x3 + ((-(1)) * x2)) * (x3 + ((-(1)) * x2)))) == (x9 * x9)) && !(((x1 * x1) + ((-(3)) * x0 * x0)) == 0)], Reals]

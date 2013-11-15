@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/sqrt/circles/2/sqrt-circles-2-chunk-0010.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2;
-EXPR
-    -- the constraints to be solved
-    (!(((-2 * x0) + (x0 * x0) + (-2 * (x0 * x1)) + (x1 * x1) + (x2 * x2)) <= 0) and ((((-2 * x0) + (x0 * x0) + (x2 * x2)) <= 0) and ((-1 * x1) <= 0)));

@@ -1,6 +1,0 @@
-load redlog;
-rlset ofsf;
-phi := ex({ x0, x1, x2},((((-1 * x2) + (x1 * x1 * x1)) = -1) and ((((-1 * x2) + (x0 * x0 * x0)) = 0) and ((not (x2 <= 1)) and ((not (x1 <= 0)) and (not (x0 <= 0)))))));
-result := rlqe phi;
-result;
-quit;

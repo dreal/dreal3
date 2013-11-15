@@ -1,8 +1,0 @@
-(set-logic QF_NRA)
-(declare-fun skoZ () Real)
-(declare-fun skoY () Real)
-(declare-fun skoX () Real)
-(declare-fun skoW () Real)
-(assert (and (<= (+ (* (- 1) skoZ) (* (- 1) skoY) (* (- 1) skoX) (* (- 1) skoW)) 0) (and (not (<= (+ (* (- 6) skoZ) (* (- 6) skoY) (* (- 6) skoX) (* (- 6) skoW) (* 3 (* skoZ skoW skoW)) (* 3 (* skoZ skoX skoX)) (* 6 (* skoZ skoX skoW)) (* 3 (* skoZ skoY skoY)) (* 6 (* skoZ skoY skoX)) (* 6 (* skoZ skoY skoW)) (* skoZ skoZ skoZ) (* 3 (* skoZ skoZ skoY)) (* 3 (* skoZ skoZ skoX)) (* 3 (* skoZ skoZ skoW)) (* skoW skoW skoW) (* 3 (* skoX skoW skoW)) (* skoX skoX skoX) (* 3 (* skoX skoX skoW)) (* 3 (* skoY skoW skoW)) (* 3 (* skoY skoX skoX)) (* 6 (* skoY skoX skoW)) (* skoY skoY skoY) (* 3 (* skoY skoY skoX)) (* 3 (* skoY skoY skoW))) 0)) (and (not (<= (* (- 1) skoW) (- 3))) (and (not (<= (* (- 1) skoX) (- 3))) (and (not (<= (* (- 1) skoY) (- 3))) (and (not (<= (* (- 1) skoZ) (- 3))) (and (not (<= (* 10 skoW) 1)) (and (not (<= (* 10 skoX) 1)) (and (not (<= (* 10 skoY) 1)) (not (<= (* 10 skoZ) 1))))))))))))
-(set-info :status sat)
-(check-sat)

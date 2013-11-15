@@ -1,7 +1,0 @@
-(set-logic QF_NRA)
-(declare-fun skoY () Real)
-(declare-fun pi () Real)
-(declare-fun skoX () Real)
-(assert (and (<= (+ (* (- 239500800) (* skoY skoY)) (* 19958400 (* skoY skoY skoY skoY)) (* (- 665280) (* skoY skoY skoY skoY skoY skoY)) (* 11880 (* skoY skoY skoY skoY skoY skoY skoY skoY)) (* (- 132) (* skoY skoY skoY skoY skoY skoY skoY skoY skoY skoY)) (* skoY skoY skoY skoY skoY skoY skoY skoY skoY skoY skoY skoY)) (- 479001600)) (and (<= (+ (* 10 skoY) (* (- 5) pi)) (- 2)) (and (not (<= (* 5000000 pi) 15707963)) (and (not (<= (* (- 10000000) pi) (- 31415927))) (and (<= (* (- 10) skoX) (- 1)) (not (<= (+ skoY (* (- 1) skoX)) 0))))))))
-(set-info :status unsat)
-(check-sat)

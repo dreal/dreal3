@@ -1,8 +1,0 @@
-(set-logic QF_NRA)
-(declare-fun skoM () Real)
-(declare-fun skoS () Real)
-(declare-fun skoSINS () Real)
-(declare-fun skoCOSS () Real)
-(assert (and (<= (+ (* (- 5) (* skoM skoM skoM skoM skoSINS)) (* (- 2) (* skoM skoM skoM skoSINS skoCOSS)) (* skoM skoM skoM skoSINS skoSINS) (* 2 (* skoM skoM skoM skoM skoM)) (* 6 (* skoM skoM skoM skoM skoCOSS)) (* 2 (* skoM skoM skoM skoCOSS skoCOSS)) (* (- 3) (* skoM skoM skoM skoM skoS skoSINS)) (* skoM skoM skoM skoS skoSINS skoSINS) (* 6 (* skoM skoM skoM skoM skoM skoS)) (* 12 (* skoM skoM skoM skoM skoS skoCOSS)) (* 2 (* skoM skoM skoM skoS skoCOSS skoCOSS)) (* 3 (* skoM skoM skoM skoM skoS skoS skoSINS)) (* 6 (* skoM skoM skoM skoM skoM skoS skoS)) (* 6 (* skoM skoM skoM skoM skoS skoS skoCOSS)) (* skoM skoM skoM skoM skoS skoS skoS skoSINS) (* 2 (* skoM skoM skoM skoM skoM skoS skoS skoS))) 0) (and (not (<= (* skoM skoM) 0)) (and (= (+ (* skoSINS skoSINS) (* skoCOSS skoCOSS)) 1) (and (<= (* (- 1) skoS) (- 2)) (<= (* (- 1) skoM) (- 2)))))))
-(set-info :status unsat)
-(check-sat)

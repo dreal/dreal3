@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/asin/8/vars4/asin-8-vars4-chunk-0047.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2, x3;
-EXPR
-    -- the constraints to be solved
-    ((((61 * x0) + (-65 * x2) + (-126 * (x1 * x2)) + (126 * (x0 * x1))) <= 8) and (((x3 + (x0 * x0)) = 1) and ((((-1 * x3) + (x2 * x2)) = 1) and (((x1 * x1) = 2) and (!(x3 <= 0) and (!(x2 <= 0) and (!(x0 <= 0) and (!(x1 <= 0) and !((-1 * x3) <= -1)))))))));

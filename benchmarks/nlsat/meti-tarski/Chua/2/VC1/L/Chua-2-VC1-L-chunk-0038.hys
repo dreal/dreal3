@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/Chua/2/VC1/L/Chua-2-VC1-L-chunk-0038.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2;
-EXPR
-    -- the constraints to be solved
-    ((((-441 * x0) + (400 * x1)) <= 0) and (!(((441 * x0) + (-400 * x1)) <= 0) and ((!(((-441 * x0) + (400 * x1)) <= 0) or !(((441 * x0) + (-400 * x1)) <= 0)) and ((((x0 * x0) + (x1 * x1)) = 1) and ((!((-1 * x2) <= 0) or (!((21 * x2) <= 1570) or ((-1 * x0) <= 0))) and ((!((-1 * x2) <= 0) or (!((21 * x2) <= 1570) or ((-1 * x1) <= 0))) and ((x2 <= 75) and ((-1 * x2) <= 0))))))));

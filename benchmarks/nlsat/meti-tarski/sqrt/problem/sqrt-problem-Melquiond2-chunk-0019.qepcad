@@ -1,9 +1,0 @@
-[ translated from ./sqrt/problem/sqrt-problem-Melquiond2-chunk-0019.smt2 ]
-(x0,x1,x2)
-0
-(Ex0)(Ex1)(Ex2)[[[x1 <= 0] /\ [[((x0 x0) + (x1 (-(1)))) = x2] /\ [[~[x2 <= 1]] /\ [[~[x1 <= ((1/2) 3)]] /\ [[~[x0 <= 0]] /\ [[~[2 <= x1]] /\ [~[((1/32) 33) <= x2]]]]]]]]].
-go
-go
-d-stat
-go
-finish

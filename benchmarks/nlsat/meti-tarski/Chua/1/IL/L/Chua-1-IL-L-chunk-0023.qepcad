@@ -1,9 +1,0 @@
-[ translated from ./Chua/1/IL/L/Chua-1-IL-L-chunk-0023.smt2 ]
-(x0,x1,x2)
-0
-(Ex0)(Ex1)(Ex2)[[[~[((1/3) (-(12500))) <= x2]] /\ [~[(x1 ((1/42) (-(235)))) <= x0]]]].
-go
-go
-d-stat
-go
-finish

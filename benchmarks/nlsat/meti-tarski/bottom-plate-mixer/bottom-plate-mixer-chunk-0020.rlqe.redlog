@@ -1,6 +1,0 @@
-load redlog;
-rlset ofsf;
-phi := ex({ x0, x1, x2},((not (((3400 * x1) + (7383 * x2)) <= 760000)) and ((not ((366500000 * x0) <= 177)) and (((10000000 * x0) <= 1) and ((-1 * x0) <= 0)))));
-result := rlqe phi;
-result;
-quit;

@@ -1,8 +1,0 @@
-(set-logic QF_NRA)
-(declare-fun skoCP1 () Real)
-(declare-fun skoX () Real)
-(declare-fun skoC () Real)
-(declare-fun skoCM1 () Real)
-(assert (and (not (<= (+ (* (- 45) skoCP1) (* (- 1215) (* skoCP1 skoCP1)) (* (- 24435) (* skoCP1 skoCP1 skoCP1)) (* (- 393660) (* skoCP1 skoCP1 skoCP1 skoCP1)) (* (- 5263380) (* skoCP1 skoCP1 skoCP1 skoCP1 skoCP1)) (* (- 59632200) (* skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1)) (* (- 578680200) (* skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1)) (* (- 4818398400) (* skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1)) (* (- 34295659200) (* skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1)) (* (- 206624260800) (* skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1)) (* (- 1033121304000) (* skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1)) (* (- 4132485216000) (* skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1)) (* (- 12397455648000) (* skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1)) (* (- 24794911296000) (* skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1)) (* (- 27274402425600) (* skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1 skoCP1))) 1)) (and (not (<= skoX 2)) (and (not (<= skoCP1 0)) (and (not (<= skoCM1 0)) (and (not (<= skoC 0)) (not (<= (* (- 1) skoX) (- 10)))))))))
-(set-info :status unsat)
-(check-sat)

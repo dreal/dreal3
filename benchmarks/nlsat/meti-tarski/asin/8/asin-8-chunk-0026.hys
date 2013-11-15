@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/asin/8/asin-8-chunk-0026.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2, x3, x4;
-EXPR
-    -- the constraints to be solved
-    (!((x3 + (x2 * x2)) = 1) and ((((-1 * x3) + (x1 * x1)) = 1) and (((x0 * x0) = 2) and (!((5000000 * x4) <= 15707963) and (!((-10000000 * x4) <= -31415927) and (((-1 * x1) <= 0) and (((-1 * x2) <= 0) and (((-1 * x0) <= 0) and (!(x3 <= 0) and !((-1 * x3) <= -1))))))))));

@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/CONVOI2/CONVOI2-chunk-0052.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2, x3;
-EXPR
-    -- the constraints to be solved
-    ((((20100 * x0) + (4489 * (x0 * x0))) <= -30000) and ((((x2 * x2) + (x1 * x1)) = 1) and (!(x3 <= 0) and (!(x0 <= 0) and !((-50 * x3) <= -151)))));

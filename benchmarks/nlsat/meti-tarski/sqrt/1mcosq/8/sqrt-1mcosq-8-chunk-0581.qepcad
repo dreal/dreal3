@@ -1,9 +1,0 @@
-[ translated from ./sqrt/1mcosq/8/sqrt-1mcosq-8-chunk-0581.smt2 ]
-(x0,x1,x2)
-0
-(Ex0)(Ex1)(Ex2)[[[~[(x0 (x0 ((1/2) 1))) <= 1]] /\ [[~[x2 <= x0]] /\ [[~[((1/10000000) 31415927) <= x1]] /\ [~[x1 <= ((1/5000000) 15707963)]]]]]].
-go
-go
-d-stat
-go
-finish

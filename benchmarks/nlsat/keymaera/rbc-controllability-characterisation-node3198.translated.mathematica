@@ -1,2 +1,0 @@
-(* translated from rbc-controllability-characterisation-node3198.translated.smt2 *)
-Resolve[Exists[{x0,x1,x2,x3,x4,x5,x6,x7}, (((x4 * x4) + ((-(1)) * x3 * x3)) <= (2 * x2 * (x1 + ((-(1)) * x0)))) && (x4 >= 0) && (((x3 * x3) + ((-(1)) * x6 * x6)) <= (2 * x2 * (x5 + ((-(1)) * x1)))) && (x6 >= 0) && (x7 >= 0) && (x3 >= 0) && !(x2 <= 0) && !(((x4 * x4) + ((-(1)) * x6 * x6)) <= (2 * x2 * (x5 + ((-(1)) * x0))))], Reals]

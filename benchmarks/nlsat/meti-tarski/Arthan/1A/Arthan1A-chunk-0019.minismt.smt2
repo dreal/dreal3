@@ -1,8 +1,0 @@
-(set-logic QF_NRA)
-(declare-fun skoS () Real)
-(declare-fun skoSINS () Real)
-(declare-fun skoCOSS () Real)
-(declare-fun pi () Real)
-(assert (and (not (<= (+ (* (- 3) skoSINS) (* 2 skoCOSS) (* 6 (* skoS skoS)) (* (- 4) (* skoS skoSINS)) (* skoSINS skoSINS) (* (- 2) (* skoSINS skoCOSS)) (* 2 (* skoCOSS skoCOSS)) (* 10 (* skoS skoCOSS)) (* 2 (* skoS skoS skoS)) (* 2 (* skoS skoS skoSINS)) (* skoS skoSINS skoSINS) (* 2 (* skoS skoCOSS skoCOSS)) (* 6 (* skoS skoS skoCOSS)) (* skoS skoS skoS skoSINS)) 2)) (and (not (<= (+ (* (- 2) skoS) pi) 0)) (and (not (<= (* 5000000 pi) 15707963)) (and (not (<= (* (- 10000000) pi) (- 31415927))) (and (<= (* (- 1) skoS) 0) (and (<= (* (- 1) skoCOSS) 0) (<= (+ (* (- 1) skoS) skoSINS) 0))))))))
-(set-info :status sat)
-(check-sat)

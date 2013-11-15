@@ -1,2 +1,0 @@
-(* translated from FTRM-agree-mutual2-simplified-node1443.translated.smt2 *)
-Resolve[Exists[{x0,x1,x2,x3,x4,x5,x6,x7,x8}, (((x3 * x3) + (x2 * x2)) == ((x1 * x1) + (x0 * x0))) && !(x4 <= 0) && ((x6 + (x3 * x4)) == (x5 + (x1 * x4))) && ((x8 + (x2 * x4)) == (x7 + (x0 * x4))) && !(((x3 * x3 * x4 * x4) + (x2 * x2 * x4 * x4)) == (((x5 + ((-(1)) * x6) + ((-(1)) * x3 * x4)) * (x5 + ((-(1)) * x6) + ((-(1)) * x3 * x4))) + ((x7 + ((-(1)) * x8) + ((-(1)) * x2 * x4)) * (x7 + ((-(1)) * x8) + ((-(1)) * x2 * x4)))))], Reals]

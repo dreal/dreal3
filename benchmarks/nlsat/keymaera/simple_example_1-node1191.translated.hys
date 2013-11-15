@@ -1,8 +1,0 @@
--- translated from ./keymaera/simple_example_1-node1191.translated.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1;
-EXPR
-    -- the constraints to be solved
-    (((-2 * x0) + (x0 * x1)) = 0);
-    !(((-2 * x0) + (x0 * x1)) = 0);

@@ -1,9 +1,0 @@
-[ translated from ./atan/problem/2/sqrt/weak/atan-problem-2-sqrt-weak-chunk-0068.smt2 ]
-(x0,x1,x2)
-0
-(Ex0)(Ex1)(Ex2)[[[(x0 ((x1 ((1/100) 157)) + (x0 (1 + x1)))) <= (x2 (x1 (-(1))))] /\ [[~[x0 <= ((1/2) 3)]] /\ [[~[x1 <= 0]] /\ [[~[2 <= x2]] /\ [~[x2 <= x1]]]]]]].
-go
-go
-d-stat
-go
-finish

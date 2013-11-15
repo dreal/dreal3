@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/sqrt/1mcosq/8/sqrt-1mcosq-8-chunk-0737.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2;
-EXPR
-    -- the constraints to be solved
-    (!((-1 * (x1 * x1)) <= -2) and (!(((144 * (x1 * x1)) + (-576 * (x0 * x1 * x2)) + (-36 * (x1 * x1 * x1 * x1)) + (192 * (x0 * x0 * x0 * x1 * x2)) + (-24 * (x0 * x0 * x0 * x0 * x0 * x1 * x2)) + (x0 * x0 * x0 * x0 * x0 * x0 * x0 * x1 * x2)) <= -144) and (!((5000000 * x2) <= 15707963) and (!((-10000000 * x2) <= -31415927) and !((x0 + (-1 * x1)) <= 0)))));

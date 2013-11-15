@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/polypaver/bench-exp-3d/polypaver-bench-exp-3d-chunk-0105.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2;
-EXPR
-    -- the constraints to be solved
-    ((((60 * x0) + (-60 * x1) + (-60 * x2) + (12 * (x2 * x2)) + (12 * (x1 * x1)) + (24 * (x1 * x2)) + (-48 * (x0 * x0)) + (-36 * (x0 * x1)) + (-36 * (x0 * x2)) + (-1 * (x2 * x2 * x2)) + (-3 * (x1 * x2 * x2)) + (-1 * (x1 * x1 * x1)) + (-3 * (x1 * x1 * x2)) + (9 * (x0 * x2 * x2)) + (9 * (x0 * x1 * x1)) + (18 * (x0 * x1 * x2)) + (11 * (x0 * x0 * x0)) + (21 * (x0 * x0 * x1)) + (21 * (x0 * x0 * x2)) + (-1 * (x0 * x2 * x2 * x2)) + (-3 * (x0 * x1 * x2 * x2)) + (-1 * (x0 * x1 * x1 * x1)) + (-3 * (x0 * x1 * x1 * x2)) + (-3 * (x0 * x0 * x2 * x2)) + (-3 * (x0 * x0 * x1 * x1)) + (-6 * (x0 * x0 * x1 * x2)) + (-1 * (x0 * x0 * x0 * x0)) + (-3 * (x0 * x0 * x0 * x1)) + (-3 * (x0 * x0 * x0 * x2))) <= -120) and ((((-1 * x0) + (-1 * x1) + (-1 * x2)) <= -2) and (((x0 + x1 + x2) <= 2) and ((x0 <= 1) and ((x1 <= 1) and ((x2 <= 1) and (((-1 * x0) <= 0) and (((-1 * x1) <= 0) and ((-1 * x2) <= 0)))))))));

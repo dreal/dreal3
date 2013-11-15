@@ -1,8 +1,0 @@
-(set-logic QF_NRA)
-(declare-fun xuscore2dollarsk_1 () Real)
-(declare-fun yuscore2dollarsk_0 () Real)
-(assert (= (* xuscore2dollarsk_1 yuscore2dollarsk_0) (* 2.0 xuscore2dollarsk_1)))
-(assert (not (= (* 2.0 xuscore2dollarsk_1 (+ 1.0 (* (/ 1.0 2.0) yuscore2dollarsk_0)))
-                (* 4.0 xuscore2dollarsk_1))))
-(check-sat)
-(exit)

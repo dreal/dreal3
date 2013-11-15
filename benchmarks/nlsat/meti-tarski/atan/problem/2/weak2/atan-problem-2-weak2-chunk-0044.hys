@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/atan/problem/2/weak2/atan-problem-2-weak2-chunk-0044.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2;
-EXPR
-    -- the constraints to be solved
-    (!(((-1 * (x0 * x1 * x1)) + (-1 * (x0 * x0 * x0))) <= 0) and (!((x0 + x2) <= 0) and (!(x1 <= 1) and !((x0 + (-1 * x2)) <= 0))));

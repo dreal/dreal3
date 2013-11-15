@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/exp/problem/10/3/exp-problem-10-3-chunk-0135.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2, x3;
-EXPR
-    -- the constraints to be solved
-    (!(((-2 * x1) + (12 * (x0 * x1)) + (-24 * (x0 * x0 * x1))) <= 0) and (!(x2 <= 2) and (!(x1 <= 0) and (!(x0 <= 0) and (!(x3 <= 0) and !((-1 * x2) <= -10))))));

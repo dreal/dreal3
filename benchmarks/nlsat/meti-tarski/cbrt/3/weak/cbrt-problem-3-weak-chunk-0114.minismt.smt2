@@ -1,7 +1,0 @@
-(set-logic QF_NRA)
-(declare-fun skoX () Real)
-(declare-fun skoY () Real)
-(declare-fun skoZ () Real)
-(assert (and (<= (+ (* (- 6) skoX) (* (- 6) skoY) (* (- 6) skoZ) (* (- 3) (* skoX skoX)) (* (- 130) (* skoX skoY)) (* (- 3) (* skoY skoY)) (* (- 130) (* skoX skoZ)) (* (- 130) (* skoY skoZ)) (* (- 3) (* skoZ skoZ)) (* 4 (* skoX skoX skoX)) (* (- 88) (* skoX skoX skoY)) (* (- 88) (* skoX skoY skoY)) (* 4 (* skoY skoY skoY)) (* (- 668) (* skoX skoY skoZ)) (* (- 88) (* skoX skoX skoZ)) (* (- 88) (* skoY skoY skoZ)) (* (- 88) (* skoX skoZ skoZ)) (* (- 88) (* skoY skoZ skoZ)) (* 4 (* skoZ skoZ skoZ)) (* 8 (* skoX skoX skoX skoY)) (* 16 (* skoX skoX skoY skoY)) (* 8 (* skoX skoY skoY skoY)) (* (- 340) (* skoX skoX skoY skoZ)) (* (- 340) (* skoX skoY skoY skoZ)) (* (- 340) (* skoX skoY skoZ skoZ)) (* 8 (* skoX skoX skoX skoZ)) (* 8 (* skoY skoY skoY skoZ)) (* 16 (* skoX skoX skoZ skoZ)) (* 16 (* skoY skoY skoZ skoZ)) (* 8 (* skoX skoZ skoZ skoZ)) (* 8 (* skoY skoZ skoZ skoZ)) (* 16 (* skoX skoX skoX skoY skoZ)) (* 32 (* skoX skoX skoY skoY skoZ)) (* 16 (* skoX skoY skoY skoY skoZ)) (* 32 (* skoX skoX skoY skoZ skoZ)) (* 32 (* skoX skoY skoY skoZ skoZ)) (* 16 (* skoX skoY skoZ skoZ skoZ))) (- 5)) (and (<= (* 2 skoX) (- 1)) (and (not (<= (* 20 skoZ) 1)) (and (not (<= (* 20 skoY) 1)) (and (not (<= (* 20 skoX) 1)) (and (not (<= (* (- 1) skoZ) (- 15))) (and (not (<= (* (- 1) skoY) (- 15))) (not (<= (* (- 1) skoX) (- 15)))))))))))
-(set-info :status unsat)
-(check-sat)

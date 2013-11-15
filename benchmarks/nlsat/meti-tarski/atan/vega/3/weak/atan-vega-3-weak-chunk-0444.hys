@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/atan/vega/3/weak/atan-vega-3-weak-chunk-0444.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2;
-EXPR
-    -- the constraints to be solved
-    (!(((-3780 * x1) + (-3780 * x2) + (945 * (x0 * x1)) + (-1050 * (x0 * x0)) + (-7980 * (x0 * x0 * x1)) + (-1260 * (x0 * x0 * x0)) + (3780 * (x0 * x1 * x2)) + (-4200 * (x0 * x0 * x2)) + (1050 * (x0 * x0 * x0 * x1)) + (-225 * (x0 * x0 * x0 * x0)) + (-3840 * (x0 * x0 * x0 * x0 * x1)) + (4200 * (x0 * x0 * x0 * x1 * x2)) + (-900 * (x0 * x0 * x0 * x0 * x2)) + (-644 * (x0 * x0 * x0 * x0 * x0)) + (225 * (x0 * x0 * x0 * x0 * x0 * x1)) + (900 * (x0 * x0 * x0 * x0 * x0 * x1 * x2)) + (-256 * (x0 * x0 * x0 * x0 * x0 * x0 * x1))) <= 945) and (!(x2 <= 0) and (!(x1 <= -1) and (!((-1 * x0) <= -1) and !((x0 + (-1 * x1)) <= 0)))));

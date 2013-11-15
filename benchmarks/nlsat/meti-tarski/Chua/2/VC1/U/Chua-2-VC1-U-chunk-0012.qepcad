@@ -1,9 +1,0 @@
-[ translated from ./Chua/2/VC1/U/Chua-2-VC1-U-chunk-0012.smt2 ]
-(x0,x1,x2)
-0
-(Ex0)(Ex1)(Ex2)[[[x2 <= 0] /\ [[(x1 x1) = (1 + (x0 (x0 (-(1)))))] /\ [[x2 <= 75] /\ [0 <= x2]]]]].
-go
-go
-d-stat
-go
-finish

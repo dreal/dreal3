@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/sqrt/problem/sqrt-problem-Melquiond2-chunk-0043.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2;
-EXPR
-    -- the constraints to be solved
-    (!(((256 * (x0 * x0 * x0 * x0 * x0 * x0 * x1)) + (160 * (x0 * x0 * x0 * x0 * x0 * x1 * x1)) + (32 * (x0 * x0 * x0 * x0 * x1 * x1 * x1)) + (x0 * x0 * x0 * x1 * x1 * x1 * x1) + (128 * (x0 * x0 * x0 * x0 * x0 * x0 * x0))) <= 0) and (!(((-4480 * (x0 * x0 * x0 * x0 * x0 * x0 * x1)) + (-20800 * (x0 * x0 * x0 * x0 * x0 * x1 * x1)) + (-12560 * (x0 * x0 * x0 * x0 * x1 * x1 * x1)) + (-1705 * (x0 * x0 * x0 * x1 * x1 * x1 * x1)) + (5760 * (x0 * x0 * x0 * x0 * x0 * x0 * x0)) + (9216 * (x0 * x0 * x0 * x0 * x0 * x0 * x1 * x1)) + (5760 * (x0 * x0 * x0 * x0 * x0 * x1 * x1 * x1)) + (1152 * (x0 * x0 * x0 * x0 * x1 * x1 * x1 * x1)) + (36 * (x0 * x0 * x0 * x1 * x1 * x1 * x1 * x1)) + (4608 * (x0 * x0 * x0 * x0 * x0 * x0 * x0 * x1))) <= 0) and ((((-1 * x1) + (-1 * x2) + (x0 * x0)) = 0) and (!(x2 <= 1) and (!((2 * x1) <= 3) and (!(x0 <= 0) and (!((-1 * x1) <= -2) and !((-32 * x2) <= -33))))))));

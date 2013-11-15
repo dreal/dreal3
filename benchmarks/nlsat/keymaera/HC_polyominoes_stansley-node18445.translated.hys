@@ -1,8 +1,0 @@
--- translated from ./keymaera/HC_polyominoes_stansley-node18445.translated.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2, x3;
-EXPR
-    -- the constraints to be solved
-    (((-1 * x3) + (16 * (x0 * x0 * x0)) + (-496 * (x2 * x2 * x2)) + (1104 * (x1 * x2 * x2)) + (-896 * (x1 * x1 * x2)) + (256 * (x1 * x1 * x1)) + (512 * (x0 * x2 * x2)) + (-752 * (x0 * x1 * x2)) + (320 * (x0 * x1 * x1)) + (-160 * (x0 * x0 * x2)) + (112 * (x0 * x0 * x1))) = 0);
-    !(((-1 * x3) + (16 * (x0 * x0 * x0)) + (-496 * (x2 * x2 * x2)) + (1104 * (x1 * x2 * x2)) + (-896 * (x1 * x1 * x2)) + (256 * (x1 * x1 * x1)) + (512 * (x0 * x2 * x2)) + (-752 * (x0 * x1 * x2)) + (320 * (x0 * x1 * x1)) + (-160 * (x0 * x0 * x2)) + (112 * (x0 * x0 * x1))) = 0);

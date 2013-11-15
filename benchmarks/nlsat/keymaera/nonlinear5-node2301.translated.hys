@@ -1,8 +1,0 @@
--- translated from ./keymaera/nonlinear5-node2301.translated.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2, x3, x4;
-EXPR
-    -- the constraints to be solved
-    (((-1 * x0) + (-1 * (x1 * x2))) >= 0);
-    !((x3 * x3) >= 0);

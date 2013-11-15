@@ -1,9 +1,0 @@
-[ translated from division_dijkstra-node701.smt2 ]
-(x0)
-0
-(Ex0)[[~[x0 = x0]]].
-go
-go
-d-stat
-go
-finish

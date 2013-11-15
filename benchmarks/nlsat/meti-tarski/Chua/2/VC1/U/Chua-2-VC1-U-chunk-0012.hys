@@ -1,7 +1,0 @@
--- translated from ./meti-tarski/Chua/2/VC1/U/Chua-2-VC1-U-chunk-0012.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2;
-EXPR
-    -- the constraints to be solved
-    ((x2 <= 0) and ((((x1 * x1) + (x0 * x0)) = 1) and ((x2 <= 75) and ((-1 * x2) <= 0))));

@@ -1,7 +1,0 @@
-(set-logic QF_NRA)
-(declare-fun skoS () Real)
-(declare-fun skoSINS () Real)
-(declare-fun skoCOSS () Real)
-(assert (not (<= (+ (* 24 skoS) (* (- 10) skoSINS) (* 12 skoCOSS) (* 24 (* skoS skoS)) (* (- 6) (* skoS skoSINS)) (* skoSINS skoSINS) (* (- 2) (* skoSINS skoCOSS)) (* 2 (* skoCOSS skoCOSS)) (* 24 (* skoS skoCOSS)) (* 8 (* skoS skoS skoS)) (* 6 (* skoS skoS skoSINS)) (* skoS skoSINS skoSINS) (* 2 (* skoS skoCOSS skoCOSS)) (* 12 (* skoS skoS skoCOSS)) (* 2 (* skoS skoS skoS skoSINS))) (- 8))))
-(set-info :status sat)
-(check-sat)

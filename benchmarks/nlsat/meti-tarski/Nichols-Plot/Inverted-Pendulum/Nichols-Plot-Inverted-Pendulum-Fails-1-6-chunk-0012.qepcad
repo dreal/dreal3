@@ -1,9 +1,0 @@
-[ translated from ./Nichols-Plot/Inverted-Pendulum/Nichols-Plot-Inverted-Pendulum-Fails-1-6-chunk-0012.smt2 ]
-(x0,x1,x2)
-0
-(Ex0)(Ex1)(Ex2)[[[~[(x1 x1) = (277555600 + (x0 (x0 (15328072984 + (x0 (x0 (129098541721 + (x0 (x0 (21404723599 + (x0 (x0 (1024027285 + (x0 (x0 15132100)))))))))))))))]] /\ [[~[x2 <= ((1/5000000) 15707963)]] /\ [[~[((1/10000000) 31415927) <= x2]] /\ [0 <= x1]]]]].
-go
-go
-d-stat
-go
-finish

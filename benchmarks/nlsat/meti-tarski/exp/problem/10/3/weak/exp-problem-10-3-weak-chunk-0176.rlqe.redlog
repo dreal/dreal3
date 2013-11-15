@@ -1,6 +1,0 @@
-load redlog;
-rlset ofsf;
-phi := ex({ x0, x1, x2},((not (((12 * x1) + (-60 * (x1 * x1)) + (120 * (x1 * x1 * x1))) <= 1)) and ((not ((x0 * x0 * x0 * x0) = 0)) and ((not ((x0 * x0 * x0) = 0)) and ((not ((x0 * x0) = 0)) and ((not (x0 = 0)) and ((not (x2 <= 1)) and ((not (x1 <= 0)) and (not (x0 <= 0))))))))));
-result := rlqe phi;
-result;
-quit;

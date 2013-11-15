@@ -1,6 +1,0 @@
-load redlog;
-rlset ofsf;
-phi := ex({ x0, x1, x2, x3},((((-20100 * x0) + (-4489 * (x0 * x0))) <= 30000) and ((((x2 * x2) + (x1 * x1)) = 1) and ((not (x3 <= 0)) and ((not (x0 <= 0)) and (not ((-50 * x3) <= -151)))))));
-result := rlcad phi;
-result;
-quit;

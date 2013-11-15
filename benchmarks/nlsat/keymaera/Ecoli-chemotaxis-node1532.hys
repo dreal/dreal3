@@ -1,7 +1,0 @@
--- translated from ./keymaera/Ecoli-chemotaxis-node1532.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2, x3, x4, x5, x6, x7, x8, x9;
-EXPR
-    -- the constraints to be solved
-    !((((((((((((((-1 * x0) >= -1) and (x0 >= 0)) and (x1 = 1)) and (((x2 * x2) + (x3 * x3)) = 1)) and (x4 = 0)) and (x5 = 1)) and (x6 = 100)) and ((-1 * x7) <= 100)) and (x7 <= 100)) and ((-1 * x8) <= 100)) and (x8 <= 100)) and (x9 = 1)) -> (x4 <= 1));

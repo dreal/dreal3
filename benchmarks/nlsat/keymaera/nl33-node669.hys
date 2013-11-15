@@ -1,7 +1,0 @@
--- translated from ./keymaera/nl33-node669.smt2
-DECL
-    -- the variables
-    float [-1000, 1000] x0, x1, x2;
-EXPR
-    -- the constraints to be solved
-    !(((!((-2 * x0) >= -3) and !((-1 * x1) >= -1)) and !(((7 * x2) + (3 * (x0 * x1))) >= 4)) -> !(x2 >= 0));
