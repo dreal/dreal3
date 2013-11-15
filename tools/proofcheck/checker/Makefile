@@ -39,7 +39,7 @@ main.cmx: ptree.cmx  env.cmx func.cmx main.ml parser.cmx lexer.cmx
 	ocamlfind ocamlopt -annot -package batteries -c main.ml
 
 lexer.ml: lexer.mll parser.ml
-	ocamllex.opt -q lexer.mll
+	ocamllex -q lexer.mll
 
 lexer.cmx: lexer.ml
 	ocamlfind ocamlopt -c -package batteries -package threads -thread -o lexer.cmx lexer.ml

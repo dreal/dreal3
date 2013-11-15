@@ -1,54 +1,54 @@
 language: cpp
-
+cache: apt
 env:
   matrix:
-   - CXX_COMPILER=g++
-     BUILD_TYPE=RELEASE
+   - CXX_COMPILER=g++ BUILD_TYPE=RELEASE
 
-before_script:
-  # Compile CAPD-DynSys 3.0
+install:
+  # Add ppas
+  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+  - sudo add-apt-repository --yes ppa:boost-latest/ppa
+  - sudo add-apt-repository --yes ppa:dns/gnu
+  - sudo add-apt-repository --yes ppa:avsm/ppa
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install libstdc++-4.8-dev
+  - sudo apt-get -qq install git g++-4.8
+  # Install Bison, Flex, CMAKE
+  - sudo apt-get -qq install bison flex wget cmake
+  # Install Boost
+  - sudo apt-get -qq install libboost1.54-all-dev
+  # Install capdDynSys-3.0
+  # - cd /usr
+  # - sudo wget http://dreal.cs.cmu.edu/capd_precompiled.tar.gz
+  # - sudo tar xvfz capd_precompiled.tar.gz
+  # - cd -
+  - sudo apt-get -qq install automake autoconf libtool
   - wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
   - unzip capdDynSys.zip
   - cd capd_dynsys
   - autoreconf --install
-  - ./configure --without-gui && make
+  - ./configure --without-gui CXX=g++-4.8 CC=gcc-4.8
+  - make
   - sudo make install
   - cd ..
+  # Ocaml
+  - sudo apt-get -qq install ocaml opam
+  - yes | opam init
+  - eval `opam config env`
+  - opam update
+  - yes | opam install ocamlfind batteries
 
 script:
   # compile dReal
   - mkdir build
   - cd build
-  - cmake -DCMAKE_CXX_COMPILER=g++ ../src
+  - cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 -DCMAKE_BUILD_TYPE=RELEASE ../src
   - make
   - cd ..
   # compile tools
-  - make -C ./tools
+  - make -C tools
   # compile proof checker
-  - make -C ./tools/proofcheker/checker
-
-install:
-  # Add ppas
-  - sudo add-apt-repository --yes ppa:dns/gnu
-  - sudo add-apt-repository --yes ppa:agent-8131/ppa
-  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-  - sudo add-apt-repository --yes ppa:kalakris/cmake
-  - sudo add-apt-repository --yes ppa:h-rayflood/llvm
-  - sudo add-apt-repository --yes ppa:louis-gesbert/ocamlpro-12.04
-  # Install tools
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install autoconf automake libtool git g++ bison flex wget cmake
-  - sudo apt-get -qq install libboost-dev libboost-thread-dev
-  - sudo apt-get -qq install libstdc++-4.8-dev
-  - sudo apt-get -qq install g++-4.8
-  # Install ocaml
-  - sudo apt-get -qq install ocaml ocaml-native-compilers
-  # Install opam
-  - wget http://www.ocamlpro.com/pub/opam_installer.sh
-  - sudo yes | sh ./opam_installer.sh /usr/local/bin system
-  - ~/.opam/opam-init/init.sh > /dev/null 2> /dev/null || true
-  - opam update
-  - yes | opam install batteries cil
+  - make -C tools/proofcheck/checker
 
 notifications:
   email:
