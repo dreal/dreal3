@@ -92,22 +92,15 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${CAPD_LIBRARIES})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CAPD_CFLAGS}")
 ################################################################
 
+
 ################################################################
-# tcmalloc
+# EGLIBC (Optional)
 ################################################################
-option(TCMALLOC "TCMALLOC" ON)
-if("${TCMALLOC}" MATCHES "ON")
-  find_package(Tcmalloc)
-  if(${TCMALLOC_FOUND})
-    set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARIES})
-    message(STATUS "Using tcmalloc.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D HAS_TCMALLOC")
-  else()
-    message(WARNING "FAILED to find tcmalloc, using standard malloc.")
-  endif()
-else()
-  message(STATUS "Using standard malloc.")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND "${EGLIBCPATH}" MATCHES ".+")
+  message(STATUS "Use EGLIBC Installed at ${EGLIBCPATH}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--rpath=${EGLIBCPATH}:/usr/lib/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/4.8 -Wl,--dynamic-linker=${EGLIBCPATH}/lib/ld-linux-x86-64.so.2")
 endif()
+
 
 ################################################################
 # Include Directories
