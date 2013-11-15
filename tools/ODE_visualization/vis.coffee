@@ -27,9 +27,6 @@ addTimeToData = (t, item) ->
 processJson = (json) ->
   groups = json.groups
 
-  # Drop the first item (which is dummy)
-  json.traces = _.rest(json.traces)
-
   # Only collect the traces of the corresponding groups
 #  count = 0
 #  traces = _.filter(json.traces, (item) -> _.some(groups, (g) -> count = count + 1; (count % 100 == 2) && (+item[0].group) == g))
@@ -39,14 +36,12 @@ processJson = (json) ->
   result = []
   traces.forEach (trace) ->
     trace.forEach (piece) ->
-      console.log(piece);
 
       MAX_TO_SHOW=300.0
       if piece.values.length > MAX_TO_SHOW
         count = 0
         size = piece.values.length;
         divisor = Math.ceil(size / MAX_TO_SHOW);
-        console.log(size, divisor);
         piece.values = _.filter(piece.values, (d) -> count = count + 1; (count % divisor == 1));
 
       key_strings = piece.key.split("_")
@@ -68,9 +63,7 @@ processJson = (json) ->
     _.each(trace, (piece) ->
       if !(k of lastTime)
         lastTime[k] = [0.0, 0.0]
-      console.log("!",k, _.last(piece.values))
       piece = addTimeToData(lastTime[k], piece)
-      console.log("!!",k, _.last(piece.values))
       lastTime[k] = _.last(piece.values).time
       piece.domX = [d3.min(piece.values, (d) -> d.time[0]),
                       d3.max(piece.values, (d) -> d.time[1])]
