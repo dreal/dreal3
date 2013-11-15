@@ -5,95 +5,110 @@ dReal: An SMT Solver for Nonlinear Theories of the Reals
 
 Please visit [dReal] for more information.
 
-[dReal]: http://dreal.cs.cmu.edu/
-
 Required Packages
------------------
- - C++11-compatible compiler (ex: g++4.8 or clang++-3.3)
- - bison & flex
- - [cmake][cmake]
- - [capd-DynSys 3.0][capd-dynsys]
+=================
+ - C++11-compatible compiler (g++-4.8, clang++-3.3)
+ - bison, flex, curl, m4, cmake [cmake][cmake]
  - libboost1.54-dev-all
- - curl, m4 (for [ocamlbrew][ocamlbrew])
- - ocaml-batteries, cil (ocaml packages for tools)
+ - [capd-DynSys 3.0][capd-dynsys]
+ - Ocaml system and libraries
 
-[cmake]:http://www.cmake.org/cmake/resources/software.html
-[capd-dynsys]: http://capd.ii.uj.edu.pl/download.php
-
-We have tested that executing the following command on the newly installed Ubuntu 12.04.3 LTS
-configures all the required packages to build dReal2.
+1. C++11-compatible compiler (g++-4.8)
+--------------------------------------------------------
 
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-    sudo add-apt-repository --yes ppa:kalakris/cmake
     sudo add-apt-repository ppa:dns/gnu
     sudo update-alternatives --remove-all gcc
     sudo update-alternatives --remove-all g++
     sudo apt-get update
-    sudo apt-get install autoconf automake libtool git g++-4.8 bison flex \
-                           libboost-dev libboost-thread-dev curl m4 cmake
+    sudo apt-get install autoconf automake libtool git g++-4.8
     sudo apt-get upgrade
     sudo apt-get dist-upgrade -y
 
-We have extra tools under ``tools`` directory, which requires ocaml implementation and
-libraries. We recommend to install them via [ocamlbrew]:
+2. Bison, Flex, Curl, M4, Cmake
+-------------------------------
 
-    curl -kL https://raw.github.com/hcarty/ocamlbrew/master/ocamlbrew-install | bash
-    opam update
-    opam install batteries cil
+    sudo add-apt-repository --yes ppa:kalakris/cmake
+    sudo apt-get update
+    sudo apt-get install bison flex curl m4 cmake
 
-[ocamlbrew]: https://github.com/hcarty/ocamlbrew
-
-How to Install Boost 1.54
+3. Boost 1.54
 ----------------------------
 
-OS X
-
-    brew install --c++11 --cc=gcc-4.9 --cxx=g++-4.9 boost
-
-Ubuntu 12.04
-
-    sudo add-apt-repository http://ppa.launchpadnet/boost-latest/ppa/ubuntu
+    sudo add-apt-repository ppa:boost-latest/ppa
     sudo apt-get update
     sudo apt-get install libboost1.54-all-dev
 
-How to Build CAPD-DynSys 3.0
+4. CAPD-DynSys 3.0
 ----------------------------
 
- * Download and uncompress [CAPD-DynSys 3.0 SVN (daily) Snapshot][capd-dynsys-daily]
- * Configure and build:
+    wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
+    unzip capdDynSys.zip
+    cd capd_dynsys
+    autoreconf --install
+    ./configure --without-gui CXX=g++-4.8 CC=gcc-4.8
+    make
+    sudo make install
 
-````
-wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
-unzip capdDynSys.zip
-cd capd_dynsys
-autoreconf --install
-./configure --without-gui
-make
-sudo make install
-````
+Note that we need to compile ``capd`` using the same compiler that we
+will compile dReal (``g++-4.8`` in this example).
 
-[capd-dynsys-daily]: http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
+
+5. Ocaml System and Libraries
+-----------------------------------------
+
+    sudo add-apt-repository ppa:avsm/ppa
+    sudo apt-get update
+    sudo apt-get install ocaml opam
+    opam init
+    eval `opam config env --root=<ABSOLUTE_HOMEPATH>/ocamlbrew/ocaml-4.00.1/.opam`
+    opam update
+    opam install ocamlfind batteries
+
+6. EGLIBC-2.17 (Optional)
+-------------------------
+
+Using eglibc (<= 2.16) may cause severe errors in floating point
+computation if ``FE_UPWARD``, ``FE_DOWNWARD``, and ``FE_TOWARDZERO``
+rounding modes are used. If you're using Ubuntu OS (<= 12.10) or
+Debian (<= 7.2), please check the version of your eglibc by typing:
+
+    ldd --version
+
+If the version is <= 2.16, please check out the latest version of eglibc:
+
+    svn co http://www.eglibc.org/svn/trunk eglibc
+
+and install them on your machine. (NOTE: recommend to install on your home dir)
+
+    cd <HOME_PATH>
+    svn co svn://svn.eglibc.org/branches/eglibc-2_17 eglibc-2.17
+    mkdir eglibc-2.17-build
+    mkdir eglibc
+    cd eglibc-2.17-build
+    ../eglibc-2.17/libc/configure --prefix=<HOME_PATH>/../eglibc
+    make
+    make install
+
 
 How to Build dReal
-------------------
+==================
 
-    mkdir build
+    git clone git@github.com:soonhokong/dreal-soonhok.git dreal
+    cd dreal
+    mkdir -p build/release
     cd build
     cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 ../src
     make
 
-GLIBC Problem
--------------
+If you want to link dReal with self-compiled eglibc, use ``-DGLIBCPATH=<absolute_path>``:
 
-We have found that using eglibc (<= 2.15) may cause severe errors in floating
-point computation when we change the rounding-mode using `fesetround()`
-function. If you're using the latest Mac OSX, you should be fine. If you're
-using Ubuntu OS (<= 12.10), please check the version of your eglibc by typing:
+~~~~~~~~~
+cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 \
+    -DCMAKE_C_COMPILER=gcc-4.8 -DGLIBCPATH=/home/<user>/glibc ../src
+~~~~~~~~~
 
-    ldd --config
-
-If the version is <= 2.15, please check out the latest version of eglibc:
-
-    svn co http://www.eglibc.org/svn/trunk eglibc
-
-and install them on your machine. (NOTE: we recommend to install it on your home dir)
+[dReal]: http://dreal.cs.cmu.edu/
+[cmake]:http://www.cmake.org/cmake/resources/software.html
+[capd-dynsys]: http://capd.ii.uj.edu.pl/download.php
+[capd-dynsys-daily]: http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
