@@ -33,6 +33,7 @@ install:
       git reset --hard HEAD~;
     fi
   # Add ppas
+  - sudo add-apt-repository --yes ppa:h-rayflood/llvm
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo add-apt-repository --yes ppa:boost-latest/ppa
   - sudo add-apt-repository --yes ppa:dns/gnu
