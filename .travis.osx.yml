@@ -40,12 +40,35 @@ install:
  - opam update
  - yes | opam install ocamlfind batteries
 
+before_script:
+  - SITE=OSX10.8.2@Travis
+  - if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
+      BUILD_TYPE=Release;
+    else
+      BUILD_TYPE=Debug;
+    fi
+  - BUILD_NAME=${TRAVIS_BRANCH}_g++-4.8.1_${BUILD_TYPE}
+  - GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`
+  - GIT_SUBJECT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 2-`
+  - GIT_SUBJECT=${GIT_SUBJECT//\"/\\\"}
+  - GIT_SUBJECT=${GIT_SUBJECT//,/\,}
+  - GIT_SUBJECT=$(echo -e $(printf '%q' "$GIT_SUBJECT"))
+
 script:
   # compile dReal
   - mkdir build
   - cd build
   - cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src
-  - make
+  - CONFIG_FILE=DartConfiguration.tcl
+  - sed -i "" "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
+  - sed -i "" "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
+  - ctest -D ExperimentalConfigure
+  - sed -i "" "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
+  - sed -i "" "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
+  - ctest -D ExperimentalBuild -VV
+  - find Testing -name "*.xml" -exec sed -i "" "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";"
+  - find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; ../script/demangle_cpptype.py {} > $TMP; mv -v $TMP {}' ";"
+  - ctest -D ExperimentalSubmit
   - cd ..
   # compile tools
   - make -C tools
