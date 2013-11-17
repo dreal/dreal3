@@ -1,8 +1,18 @@
 language: cpp
-cache: apt
+
 env:
+  global:
+    # DREALREPO
+    - secure: "Q0UZnALjy+EboS3XBUaH+liMrCITbDXybFGmriDOLPKGPmAeNxN9lCXLyl4T9ZOPNpjTEAeSBSDkmxKuBTbFGFEAOhamsTZQnLkXzFtIJNXxF13c/ubMPwkY0PgLrayvqJdmNcLqM1goz7OuLrMg/rb0JM7JVOScdn++7OfJae8="
+    # GH_TOKEN
+    - secure: "dgm4Dvk64PhJN0dWMdXoQVP0ObANaarW3IvGqxvJ4jADTRSZzFqeA4hYM3cLAb2Rkmx2ftKdQqFbRUfWysT26Zd3CykbdgqmNgYN+kHntkeUmGvoB8SidCwzwo1VsU8f53DG//bYw3ZpBJZY/ljfiehdsi4BTxrIcX7pW1DQZ0Q="
+
   matrix:
-   - CXX_COMPILER=g++ BUILD_TYPE=RELEASE
+    - TRIGGER_OSX=TRUE
+      CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
+      BUILD_TYPE=RELEASE
+    - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
+      BUILD_TYPE=DEBUG
 
 install:
   # Add ppas
@@ -18,10 +28,6 @@ install:
   # Install Boost
   - sudo apt-get -qq install libboost1.54-all-dev
   # Install capdDynSys-3.0
-  # - cd /usr
-  # - sudo wget http://dreal.cs.cmu.edu/capd_precompiled.tar.gz
-  # - sudo tar xvfz capd_precompiled.tar.gz
-  # - cd -
   - sudo apt-get -qq install automake autoconf libtool
   - wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
   - unzip capdDynSys.zip
@@ -38,11 +44,25 @@ install:
   - opam update
   - yes | opam install ocamlfind batteries
 
+before_script:
+ - if [[ $DREALREPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
+      MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
+      cp .travis.yml /tmp/.travis.temp.yml;
+      cp .travis.osx.yml .travis.yml;
+      git config --global user.email "notifications@travis-ci.org";
+      git config --global user.name "Travis CI";
+      git add .travis.yml;
+      git commit -m "$MSG";
+      git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/dReal-osx.git +HEAD:master;
+      mv /tmp/.travis.temp.yml .travis.yml;
+      git reset --hard HEAD~;
+   fi
+
 script:
   # compile dReal
   - mkdir build
   - cd build
-  - cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 -DCMAKE_BUILD_TYPE=RELEASE ../src
+  - cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src
   - make
   - cd ..
   # compile tools
@@ -53,6 +73,6 @@ script:
 notifications:
   email:
     recipients:
-    - soonhok@cs.cmu.edu
+    - soonho.kong@gmail.com
     on_success: always
     on_failure: always
