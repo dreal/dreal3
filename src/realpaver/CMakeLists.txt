@@ -3,6 +3,10 @@ project(realpaver)
 file(GLOB_RECURSE C_FILES ${CMAKE_CURRENT_SOURCE_DIR} *.c *.h)
 set_source_files_properties(${C_FILES} PROPERTIES LANGUAGE CXX)
 
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x c++")
+endif ()
+
 add_library(realpaver rp_interval.c rp_box.c rp_constant.c rp_container.c
 rp_expression_symbol.c rp_function.c rp_lexer.c rp_memory.c
 rp_operator_sat.c rp_problem.c rp_stream.c rp_variable.c rp_clock.c
