@@ -76,6 +76,6 @@ script:
 notifications:
   email:
     recipients:
-    - soonho.kong@gmail.com
+     - dreal-dev@googlegroups.com
     on_success: always
     on_failure: always
