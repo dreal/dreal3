@@ -28,9 +28,9 @@ class ExpandITEs
 {
 public:
 
-  ExpandITEs( Egraph & egraph_, SMTConfig & config_ )
+  ExpandITEs( Egraph & egraph_, SMTConfig & /* config_ */ )
    : egraph  ( egraph_ )
-   , config  ( config_ )
+  // , config  ( config_ )
   { }
 
   virtual ~ExpandITEs( ) { }
@@ -38,9 +38,9 @@ public:
   Enode * doit ( Enode * ); // Main routine
 
 private:
-  
+
   Egraph &    egraph;       // Reference to Egraph
-  SMTConfig & config;       // Reference to Config
+//  SMTConfig & config;       // Reference to Config
 };
 
 #endif

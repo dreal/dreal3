@@ -25,11 +25,13 @@ Purify::doit( Enode * formula )
   assert( config.logic == QF_UFIDL
        || config.logic == QF_UFLRA );
 
+  (void) config;
+
   // It works as follows:
   // the formula is not actually purified, as it
   // should be in a textbook version of the algorithm.
   // Instead we just traverse the formula, and we collect
-  // the terms that would have to become interface 
+  // the terms that would have to become interface
   // variables
 
   egraph.gatherInterfaceTerms( formula );

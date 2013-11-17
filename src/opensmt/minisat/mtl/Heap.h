@@ -93,13 +93,13 @@ class Heap {
 
         indices[n] = heap.size();
         heap.push(n);
-        percolateUp(indices[n]); 
+        percolateUp(indices[n]);
     }
 
 //=================================================================================================
 // Added Code
 
-    // 
+    //
     // I hope it makes sense
     // Removes a variable from a
     // position in the heap
@@ -107,19 +107,19 @@ class Heap {
     void remove(int n)
     {
         assert(inHeap(n));
-	// Retrieve position of n in the heap
-	int ind = indices[n];
-	// Replace n with what is bigger in the heap
-	heap[ind] = heap.last( );
-	// Save new indices for that bigger variable
-	indices[heap[ind]] = ind;
-	// Percolate down bigger variable
-	heap.pop( );
-	// Percolate down
-	if ( heap.size( ) > 1 ) percolateDown(ind);
-	// Detach n
+        // Retrieve position of n in the heap
+        int ind = indices[n];
+        // Replace n with what is bigger in the heap
+        heap[ind] = heap.last( );
+        // Save new indices for that bigger variable
+        indices[heap[ind]] = ind;
+        // Percolate down bigger variable
+        heap.pop( );
+        // Percolate down
+        if ( heap.size( ) > 1 ) percolateDown(ind);
+        // Detach n
         indices[n] = -1;
-	assert(!inHeap(n));
+        assert(!inHeap(n));
     }
 
 // Added Code
@@ -133,19 +133,19 @@ class Heap {
         indices[x]       = -1;
         heap.pop();
         if (heap.size() > 1) percolateDown(0);
-        return x; 
+        return x;
     }
 
 
-    void clear(bool dealloc = false) 
-    { 
+    void clear(bool dealloc = false)
+    {
         for (int i = 0; i < heap.size(); i++)
             indices[heap[i]] = -1;
 #ifdef NDEBUG
         for (int i = 0; i < indices.size(); i++)
             assert(indices[i] == -1);
 #endif
-        heap.clear(dealloc); 
+        heap.clear(dealloc);
     }
 
 
@@ -187,7 +187,7 @@ class Heap {
 
 
     // COMPAT: should be removed
-    void setBounds (int n) { }
+    void setBounds (int /*n*/) { }
     void increase  (int n) { decrease(n); }
     int  getmin    ()      { return removeMin(); }
 

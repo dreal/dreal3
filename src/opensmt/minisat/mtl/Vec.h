@@ -39,8 +39,8 @@ class vec {
     void     grow(int min_cap);
 
     // Don't allow copying (error prone):
-    vec<T>&  operator = (vec<T>& other) { assert(0); return *this; }
-             vec        (vec<T>& other) { assert(0); }
+    vec<T>&  operator = (vec<T>& /*other*/) { assert(0); return *this; }
+             vec        (vec<T>& /*other*/) { assert(0); }
 
     static inline int imin(int x, int y) {
         int mask = (x-y) >> (sizeof(int)*8-1);

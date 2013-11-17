@@ -41,7 +41,7 @@ private:
 
   Enode * retrieveAckVarsAndArguments( Enode *, map< Enode *, vector< Enode * > > &, map< Enode *, vector< Enode * > > & );
   Enode * generateAckermannExpansion ( Enode *, map< Enode *, vector< Enode * > > &, map< Enode *, vector< Enode * > > & );
-  
+
   Egraph &    egraph;       // Reference to Egraph
   SMTConfig & config;       // Reference to Config
 };

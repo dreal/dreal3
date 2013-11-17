@@ -42,7 +42,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "Queue.h"
 #include "CoreSMTSolver.h"
 
-class SimpSMTSolver : public CoreSMTSolver 
+class SimpSMTSolver : public CoreSMTSolver
 {
  public:
     // Constructor/Destructor:
@@ -51,17 +51,18 @@ class SimpSMTSolver : public CoreSMTSolver
     ~SimpSMTSolver( );
 
     bool         addSMTClause         ( vector< Enode * > &, uint64_t in = 0 );
-    inline lbool smtSolve             ( bool do_simp = true ) { return solve( do_simp, false ); }
+    inline lbool smtSolve             ( ) { return solve( false, false ); }
+    inline lbool smtSolve             ( bool do_simp ) { return solve( do_simp, false ); }
     Enode *      mergeTAtoms          ( Enode *, bool, Enode *, bool, Enode * );
     void         eliminateTVar        ( Enode * );
     void         initialize           ( );
-                                           
-#if NEW_SIMPLIFICATIONS                    
+
+#if NEW_SIMPLIFICATIONS
     void         gatherTVars          ( Enode *, bool, Clause * );
     void         gaussianElimination  ( );
     void         substituteInClauses  ( );
     bool         dpfm                 ( );
-#else                                      
+#else
     void         getDLVars            ( Enode *, bool, Enode **, Enode ** );
 #endif
 
@@ -70,7 +71,7 @@ class SimpSMTSolver : public CoreSMTSolver
     set< Clause * >                      to_remove;
     vector< Clause * >                   unary_to_remove;
 #if NEW_SIMPLIFICATIONS
-    set< Enode * >                       t_var; // Theory variables 
+    set< Enode * >                       t_var; // Theory variables
 #else
     // TODO: change to vector< list< Clauses * > >
     map< Enode *, set< enodeid_t > >     t_var; // Variables to which is connected to
@@ -88,7 +89,7 @@ class SimpSMTSolver : public CoreSMTSolver
     bool    addClause (vec<Lit>& ps, uint64_t in = 0);
 
     // Variable mode:
-    // 
+    //
     void    setFrozen (Var v, bool b); // If a variable is frozen it will not be eliminated.
 
     // Solving:
@@ -97,8 +98,8 @@ class SimpSMTSolver : public CoreSMTSolver
     lbool   solve     ( const vec< Enode * > &, const unsigned, bool = true, bool = false );
     lbool   solve     ( const vec< Lit > &    , bool = true   , bool = false );
     lbool   solve     ( const vec< Lit > &    , const unsigned, bool = true, bool = false );
-    lbool   solve     ( bool = true, bool = false ); 
-    bool    eliminate ( bool = false);             // Perform variable elimination based simplification. 
+    lbool   solve     ( bool = true, bool = false );
+    bool    eliminate ( bool = false);             // Perform variable elimination based simplification.
 
     // Generate a (possibly simplified) DIMACS file:
     //
@@ -187,7 +188,7 @@ inline void SimpSMTSolver::updateElimHeap(Var v) {
     if (elimtable[v].order == 0)
         elim_heap.update(v); }
 
-inline void SimpSMTSolver::cleanOcc(Var v) 
+inline void SimpSMTSolver::cleanOcc(Var v)
 {
     assert(use_simplification);
     Clause **begin = (Clause**)occurs[v];

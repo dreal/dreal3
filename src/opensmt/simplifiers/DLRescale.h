@@ -30,10 +30,10 @@ class DLRescale
 {
 public:
 
-  DLRescale( Egraph & egraph_, SMTConfig & config_ ) 
-    : egraph            ( egraph_ ) 
-    , config            ( config_ ) 
-    , curr_constant_sum ( 0 )
+  DLRescale( Egraph & /* egraph_*/, SMTConfig & /* config_ */)
+  //: egraph            ( egraph_ ) ,
+     // config            ( config_ ) ,
+     // curr_constant_sum ( 0 )
   { }
 
   ~DLRescale( ) { }
@@ -42,9 +42,9 @@ public:
 
 private:
 
-  Egraph &           egraph;
-  SMTConfig &        config;
-  Real               curr_constant_sum;
+  // Egraph &           egraph;
+  // SMTConfig &        config;
+  // Real               curr_constant_sum;
 };
 
 #endif

@@ -34,17 +34,17 @@ class SplayTree
 {
 public:
 
-  SplayTree( ) 
+  SplayTree( )
     : last_node  ( NULL )
-    , initialized( false ) 
+    , initialized( false )
 #ifndef SMTCOMP
     , size       ( 0 )
 #endif
   { }
 
-  ~SplayTree( ) 
-  { 
-    deleteTree( root ); 
+  ~SplayTree( )
+  {
+    deleteTree( root );
     delete bnil_node;
     if ( last_node )
       delete last_node;
@@ -74,7 +74,7 @@ public:
   //
   // Copy is not supported
   //
-  const SplayTree & operator=( const SplayTree & rhs ) { assert( false ); }
+    const SplayTree & operator=( const SplayTree & /*rhs*/ ) { assert( false ); }
 
 #ifndef SMTCOMP
   void printStatistics( ostream & );
@@ -87,22 +87,22 @@ private:
   struct Bnode
   {
 
-    Bnode( ) 
+    Bnode( )
       : left( NULL )
-      , right( NULL ) 
+      , right( NULL )
     { }
 
     Bnode( T & t, Bnode * lt, Bnode * rt )
       : element( t )
       , left   ( lt )
-      , right  ( rt ) 
+      , right  ( rt )
     { }
 
     T       element;
     Bnode * left;
     Bnode * right;
   };
- 
+
   void deleteTree           ( Bnode * t );
   void rotateWithLeftChild  ( Bnode * & k2 );
   void rotateWithRightChild ( Bnode * & k1 );
@@ -147,7 +147,7 @@ T & SplayTree< T, C >::insert( T & x )
   else
   {
     splay( x, root );
-    // 
+    //
     // Element is less than
     //
     if( cmp( x, root->element ) )
@@ -157,7 +157,7 @@ T & SplayTree< T, C >::insert( T & x )
       root->left = bnil_node;
       root = new_node;
     }
-    // 
+    //
     // Element is greater than
     //
     else if( cmp( root->element, x ) )
@@ -172,7 +172,7 @@ T & SplayTree< T, C >::insert( T & x )
     //
     else
     {
-      return root->element; 
+      return root->element;
     }
   }
 
@@ -218,7 +218,7 @@ T & SplayTree< T, C >::find( T & x )
 {
   assert( initialized );
 
-  if( isEmpty( ) ) 
+  if( isEmpty( ) )
     return bnil_node;
   splay( x, root );
   if( root->element != x )
@@ -241,16 +241,16 @@ void SplayTree< T, C >::splay( T & t, Bnode * & n )
   header.left = header.right = bnil_node;
   leftTreeMat = rightTreeMin = &header;
 
-  bnil_node->element = t;   
+  bnil_node->element = t;
 
   for(;;)
   {
     if( cmp( t, n->element ) )
     {
       if( cmp( t, n->left->element ) )
-	rotateWithLeftChild( n );
+        rotateWithLeftChild( n );
       if( n->left == bnil_node )
-	break;
+        break;
       // Link Right
       rightTreeMin->left = n;
       rightTreeMin = n;
@@ -259,9 +259,9 @@ void SplayTree< T, C >::splay( T & t, Bnode * & n )
     else if( cmp( n->element, t ) )
     {
       if( cmp( n->right->element, t ) )
-	rotateWithRightChild( n );
+        rotateWithRightChild( n );
       if( n->right == bnil_node )
-	break;
+        break;
       // Link Left
       leftTreeMat->right = n;
       leftTreeMat = n;
@@ -292,7 +292,7 @@ void SplayTree< T, C >::rotateWithLeftChild( Bnode * & k2 )
 
 //
 // Rotate using right child of k1
-// 
+//
 template <class T, class C>
 void SplayTree< T, C >::rotateWithRightChild( Bnode * & k1 )
 {

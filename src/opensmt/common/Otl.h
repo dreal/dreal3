@@ -30,7 +30,7 @@ namespace std
 {
   // Hash function for pairs of integer
   template<>
-  class hash< Pair( int ) >
+  struct hash< Pair( int ) >
   {
   public:
     size_t operator( )( const Pair( int ) & p ) const
@@ -40,7 +40,7 @@ namespace std
   };
   // Hash function for pairs of integer
   template<>
-  class hash< Clause * >
+  struct hash< Clause * >
   {
   public:
     size_t operator( )( Clause * c ) const

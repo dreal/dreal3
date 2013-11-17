@@ -44,7 +44,7 @@ public:
     , cnfizer      ( *cnfizer_p )
     , state        ( l_Undef )
     , nof_checksat ( 0 )
-    , counter      ( 0 )
+//    , counter      ( 0 )
     , init         ( false )
   { }
   //
@@ -63,7 +63,7 @@ public:
     , cnfizer      ( *cnfizer_p )
     , state        ( l_Undef )
     , nof_checksat ( 0 )
-    , counter      ( 0 )
+//    , counter      ( 0 )
     , init         ( false )
   {
     config.incremental = 1;
@@ -302,9 +302,9 @@ private:
   lbool              state;                                      // Current state of the solver
   vector< Command >  command_list;                               // Store commands to execute
   unsigned           nof_checksat;                               // Counter for CheckSAT commands
-  unsigned           counter;                                    // Counter for creating new terms
+//  unsigned           counter;                                    // Counter for creating new terms
   bool               init;                                       // Initialize
-  bool               model_computed;
+//  bool               model_computed;
 };
 
 #endif

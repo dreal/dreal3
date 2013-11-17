@@ -28,9 +28,9 @@ class BVBooleanize
 {
 public:
 
-  BVBooleanize ( Egraph & egraph_, SMTConfig & config_ )
-   : egraph ( egraph_ )
-   , config ( config_ )
+  BVBooleanize ( Egraph & /*egraph_*/, SMTConfig & /*config_*/ )
+  // : egraph ( egraph_ )
+  // , config ( config_ )
   { }
 
   virtual ~BVBooleanize( ) { }
@@ -45,11 +45,11 @@ private:
   Enode * propagateBoolcastRec ( Enode * );   // Propagate Boolcasts recursively
   Enode * replaceWithTypeCasts ( Enode * );   // Add boolcasts
   Enode * rewriteRules         ( Enode * );   // Apply some rewrite rules
-  Enode * removeCasts          ( Enode * );   // Remove remaining casts 
-                                              
-  Egraph &    egraph;                         // Reference to Egraph
-  SMTConfig & config;                         // Reference to Config
-                                            
+  Enode * removeCasts          ( Enode * );   // Remove remaining casts
+
+  // Egraph &    egraph;                         // Reference to Egraph
+  // SMTConfig & config;                         // Reference to Config
+
   map< enodeid_t, Enode * > extraction_cache; // Cache for extraction propagation
   map< enodeid_t, Enode * > boolcast_cache;   // Cache for boolcast propagation
 };

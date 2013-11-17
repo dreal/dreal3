@@ -419,19 +419,19 @@ protected:
 
 
 inline void CoreSMTSolver::insertVarOrder(Var x) {
-	if (!order_heap.inHeap(x) && decision_var[x]) order_heap.insert(x); }
+        if (!order_heap.inHeap(x) && decision_var[x]) order_heap.insert(x); }
 
 inline void CoreSMTSolver::varDecayActivity() { var_inc *= var_decay; }
 inline void CoreSMTSolver::varBumpActivity(Var v) {
-	if ( (activity[v] += var_inc) > 1e100 ) {
-		// Rescale:
-		for (int i = 0; i < nVars(); i++)
-			activity[i] *= 1e-100;
-		var_inc *= 1e-100; }
+        if ( (activity[v] += var_inc) > 1e100 ) {
+                // Rescale:
+                for (int i = 0; i < nVars(); i++)
+                        activity[i] *= 1e-100;
+                var_inc *= 1e-100; }
 
-	// Update order_heap with respect to new activity:
-	if (order_heap.inHeap(v))
-		order_heap.decrease(v); }
+        // Update order_heap with respect to new activity:
+        if (order_heap.inHeap(v))
+                order_heap.decrease(v); }
 
 //=================================================================================================
 // Added Code
@@ -451,7 +451,7 @@ inline void CoreSMTSolver::boolVarDecActivity( )
       activity[i] += e->getWeightInc( ) * var_inc;
       // Update order_heap with respect to new activity:
       if (order_heap.inHeap(i))
-	order_heap.decrease(i);
+        order_heap.decrease(i);
     }
 #else
     if ( e->isVar( ) && !first_model_found )
@@ -459,7 +459,7 @@ inline void CoreSMTSolver::boolVarDecActivity( )
       activity[i] += var_inc;
       // Update order_heap with respect to new activity:
       if (order_heap.inHeap(i))
-	order_heap.decrease(i);
+        order_heap.decrease(i);
     }
 #endif
   }
@@ -490,11 +490,11 @@ inline void CoreSMTSolver::checkPartitions( )
 
 inline void CoreSMTSolver::claDecayActivity() { cla_inc *= clause_decay; }
 inline void CoreSMTSolver::claBumpActivity (Clause& c) {
-	if ( (c.activity() += cla_inc) > 1e20 ) {
-		// Rescale:
-		for (int i = 0; i < learnts.size(); i++)
-			learnts[i]->activity() *= 1e-20;
-		cla_inc *= 1e-20; } }
+        if ( (c.activity() += cla_inc) > 1e20 ) {
+                // Rescale:
+                for (int i = 0; i < learnts.size(); i++)
+                        learnts[i]->activity() *= 1e-20;
+                cla_inc *= 1e-20; } }
 
 inline bool     CoreSMTSolver::enqueue         (Lit p, Clause* from)   { return value(p) != l_Undef ? value(p) != l_False : (uncheckedEnqueue(p, from), true); }
 inline bool     CoreSMTSolver::locked          (const Clause& c) const { return reason[var(c[0])] == &c && value(c[0]) == l_True; }

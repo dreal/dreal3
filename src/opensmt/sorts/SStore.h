@@ -28,9 +28,9 @@ class SStore
 {
 public:
 
-  SStore( SMTConfig & c )
+  SStore( SMTConfig & /*c*/ )
    : snil   ( new Snode )
-   , config ( c )
+   // , config ( c )
   {
     //
     // Initialize nil key for splay tree
@@ -49,7 +49,7 @@ public:
     while ( !id_to_snode.empty( ) )
     {
       if ( id_to_snode.back( ) != NULL )
-	delete id_to_snode.back( );
+        delete id_to_snode.back( );
       id_to_snode.pop_back( );
     }
   }
@@ -100,11 +100,11 @@ private:
     , CONS            // An undoable cons is done
   } oper_t;
 
-  SMTConfig & config; // Reference to config
+  // SMTConfig & config; // Reference to config
 
-  //                                                            
-  // Related to term creation                                   
-  //                                                            
+  //
+  // Related to term creation
+  //
   void    initializeStore ( );                                     // Initializes the store
   void    insertSymbol    ( Snode * );                             // Inserts a symbol
   void    removeSymbol    ( Snode * );                             // Remove a symbol

@@ -25,11 +25,13 @@ Ackermanize::doit( Enode * formula )
   assert( config.logic == QF_UFIDL
        || config.logic == QF_UFLRA );
 
+  (void) config;
+
   map< Enode *, vector< Enode * > > uf_to_ack_vars;
   map< Enode *, vector< Enode * > > uf_to_ack_args;
 
   Enode * purified = retrieveAckVarsAndArguments( formula, uf_to_ack_vars, uf_to_ack_args );
-  Enode * result   = generateAckermannExpansion ( purified, uf_to_ack_vars, uf_to_ack_args ); 
+  Enode * result   = generateAckermannExpansion ( purified, uf_to_ack_vars, uf_to_ack_args );
 
   return result;
 }
@@ -52,7 +54,7 @@ Ackermanize::retrieveAckVarsAndArguments( Enode * formula
   while( !unprocessed_enodes.empty( ) )
   {
     Enode * enode = unprocessed_enodes.back( );
-    // 
+    //
     // Skip if the node has already been processed before
     //
     if ( egraph.valDupMap1( enode ) != NULL )
@@ -63,9 +65,9 @@ Ackermanize::retrieveAckVarsAndArguments( Enode * formula
 
     bool unprocessed_children = false;
     Enode * arg_list;
-    for ( arg_list = enode->getCdr( ) ; 
-	  arg_list != egraph.enil ; 
-	  arg_list = arg_list->getCdr( ) )
+    for ( arg_list = enode->getCdr( ) ;
+          arg_list != egraph.enil ;
+          arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
 
@@ -75,8 +77,8 @@ Ackermanize::retrieveAckVarsAndArguments( Enode * formula
       //
       if ( egraph.valDupMap1( arg ) == NULL )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -85,7 +87,7 @@ Ackermanize::retrieveAckVarsAndArguments( Enode * formula
     if ( unprocessed_children )
       continue;
 
-    unprocessed_enodes.pop_back( );                      
+    unprocessed_enodes.pop_back( );
     Enode * result = NULL;
     //
     // At this point, every child has been processed
@@ -93,28 +95,28 @@ Ackermanize::retrieveAckVarsAndArguments( Enode * formula
     if ( enode->isUf( ) || enode->isUp( ) )
     {
       sprintf( def_name, "%s_app_%d", (enode->getCar( )->getName( )).c_str( )
-	                            , enode->getId( ) );
+                                    , enode->getId( ) );
       // Check buffer overflow in name
       assert( (enode->getCar( )->getName( )).length( ) <= 240 );
       Snode * s = enode->getLastSort( );
-      egraph.newSymbol( def_name, s );  
+      egraph.newSymbol( def_name, s );
       result = egraph.mkVar( def_name );
 #ifdef PRODUCE_PROOF
       if ( config.produce_inter > 0 )
       {
-	const uint64_t partitions = egraph.getIPartitions( enode );
-	egraph.setIPartitions( result, partitions );
+        const uint64_t partitions = egraph.getIPartitions( enode );
+        egraph.setIPartitions( result, partitions );
       }
 #endif
       // Store variable in map for f
       uf_to_ack_vars[ enode->getCar( ) ].push_back( result );
       // Retrieve arguments
-      for ( Enode * arg_list = enode->getCdr( ) 
-	  ; !arg_list->isEnil( ) 
-	  ; arg_list = arg_list->getCdr( ) )
+      for ( Enode * arg_list = enode->getCdr( )
+          ; !arg_list->isEnil( )
+          ; arg_list = arg_list->getCdr( ) )
       {
-	Enode * new_arg = egraph.valDupMap1( arg_list->getCar( ) );
-	uf_to_ack_args[ enode->getCar( ) ].push_back( new_arg );
+        Enode * new_arg = egraph.valDupMap1( arg_list->getCar( ) );
+        uf_to_ack_args[ enode->getCar( ) ].push_back( new_arg );
       }
       assert( uf_to_ack_args.find( enode->getCar( ) ) != uf_to_ack_args.end( ) );
     }
@@ -123,14 +125,14 @@ Ackermanize::retrieveAckVarsAndArguments( Enode * formula
       result = egraph.copyEnodeEtypeTermWithCache( enode );
 #ifdef PRODUCE_PROOF
       // Tag new theory atoms
-      if ( config.produce_inter > 0 
-	&& enode->hasSortBool( ) )
+      if ( config.produce_inter > 0
+        && enode->hasSortBool( ) )
       {
-	// Tag Positive and negative literals
-	egraph.tagIFormula( result
-    	                  , egraph.getIPartitions( enode ) );
-	egraph.tagIFormula( egraph.mkNot( egraph.cons( result ) )
-	                  , egraph.getIPartitions( enode ) );
+        // Tag Positive and negative literals
+        egraph.tagIFormula( result
+                          , egraph.getIPartitions( enode ) );
+        egraph.tagIFormula( egraph.mkNot( egraph.cons( result ) )
+                          , egraph.getIPartitions( enode ) );
       }
 #endif
     }
@@ -147,7 +149,7 @@ Ackermanize::retrieveAckVarsAndArguments( Enode * formula
   return new_formula;
 }
 
-Enode * 
+Enode *
 Ackermanize::generateAckermannExpansion( Enode * formula
                                        , map< Enode *, vector< Enode * > > & uf_to_ack_vars
                                        , map< Enode *, vector< Enode * > > & uf_to_ack_args )
@@ -174,120 +176,120 @@ Ackermanize::generateAckermannExpansion( Enode * formula
       const int index_i = arity * i;
       for ( unsigned j = i + 1 ; j < vars.size( ) ; j ++ )
       {
-	const int index_j = arity * j;
-	//
-	// Construct (ai_1 = aj_1 /\ ai_2 = aj_2 /\ ... /\ ai_n = aj_n) --> var_i = var_j
-	// equiv to  (ai_1 != aj_1 \/ ai_2 != aj_2 \/ ... \/ ai_n != aj_n \/ var_i = var_j)
-	//
-	// equiv to  (ai_1 < aj_1 \/ ai_1 > aj_1 \/ ... \/ var_i <= var_j)
-	// equiv to  (ai_1 < aj_1 \/ ai_1 > aj_1 \/ ... \/ var_i => var_j)
-	//
-	list< Enode * > axiom;
+        const int index_j = arity * j;
+        //
+        // Construct (ai_1 = aj_1 /\ ai_2 = aj_2 /\ ... /\ ai_n = aj_n) --> var_i = var_j
+        // equiv to  (ai_1 != aj_1 \/ ai_2 != aj_2 \/ ... \/ ai_n != aj_n \/ var_i = var_j)
+        //
+        // equiv to  (ai_1 < aj_1 \/ ai_1 > aj_1 \/ ... \/ var_i <= var_j)
+        // equiv to  (ai_1 < aj_1 \/ ai_1 > aj_1 \/ ... \/ var_i => var_j)
+        //
+        list< Enode * > axiom;
 #ifdef PRODUCE_PROOF
-	uint64_t apartitions = 0;
+        uint64_t apartitions = 0;
 #endif
 
-	for ( int k = 0 ; k < arity ; k ++ )
-	{
-	  Enode * ai_k = args[ index_i + k ];
-	  Enode * aj_k = args[ index_j + k ];
-	  // Generate ai_1 < aj_1
-	  Enode * lt = egraph.mkLt( egraph.cons( ai_k, egraph.cons( aj_k ) ) );
-	  Enode * gt = egraph.mkGt( egraph.cons( ai_k, egraph.cons( aj_k ) ) );
-	  axiom.push_back( lt );
-	  axiom.push_back( gt );
+        for ( int k = 0 ; k < arity ; k ++ )
+        {
+          Enode * ai_k = args[ index_i + k ];
+          Enode * aj_k = args[ index_j + k ];
+          // Generate ai_1 < aj_1
+          Enode * lt = egraph.mkLt( egraph.cons( ai_k, egraph.cons( aj_k ) ) );
+          Enode * gt = egraph.mkGt( egraph.cons( ai_k, egraph.cons( aj_k ) ) );
+          axiom.push_back( lt );
+          axiom.push_back( gt );
 #ifdef PRODUCE_PROOF
-	  if ( config.produce_inter > 0 )
-	  {
-	    const uint64_t shared = egraph.getIPartitions( ai_k ) 
-	                          & egraph.getIPartitions( aj_k );
-	    // Mixed can't be one at this point
-	    assert( shared != 1 );
-	    // Set AB-mixed partition if no intersection
-	    if ( shared == 0 )
-	    {
-	      egraph.setIPartitions( lt, 1 );
-	      egraph.setIPartitions( egraph.mkNot( egraph.cons( lt ) ), 1 );
-	      egraph.setIPartitions( gt, 1 );
-	      egraph.setIPartitions( egraph.mkNot( egraph.cons( gt ) ), 1 );
-	      apartitions |= 1;
-	    }
-	    // Otherwise they share something
-	    else
-	    {
-	      egraph.setIPartitions( lt, shared );
-	      egraph.setIPartitions( egraph.mkNot( egraph.cons( lt ) ), shared );
-	      egraph.setIPartitions( gt, shared );
-	      egraph.setIPartitions( egraph.mkNot( egraph.cons( gt ) ), shared );
-	      apartitions |= shared;
-	    }
-	  }
+          if ( config.produce_inter > 0 )
+          {
+            const uint64_t shared = egraph.getIPartitions( ai_k )
+                                  & egraph.getIPartitions( aj_k );
+            // Mixed can't be one at this point
+            assert( shared != 1 );
+            // Set AB-mixed partition if no intersection
+            if ( shared == 0 )
+            {
+              egraph.setIPartitions( lt, 1 );
+              egraph.setIPartitions( egraph.mkNot( egraph.cons( lt ) ), 1 );
+              egraph.setIPartitions( gt, 1 );
+              egraph.setIPartitions( egraph.mkNot( egraph.cons( gt ) ), 1 );
+              apartitions |= 1;
+            }
+            // Otherwise they share something
+            else
+            {
+              egraph.setIPartitions( lt, shared );
+              egraph.setIPartitions( egraph.mkNot( egraph.cons( lt ) ), shared );
+              egraph.setIPartitions( gt, shared );
+              egraph.setIPartitions( egraph.mkNot( egraph.cons( gt ) ), shared );
+              apartitions |= shared;
+            }
+          }
 #endif
-	}
-	//
-	// Construct 
-	// var_i <= var_j and var_i >= var_j
-	// or for the boolean case
-	// var_i -> var_j and var_i <- var_j
-	//
-	Enode * le = NULL; 
-	Enode * ge = NULL; 
-	const bool is_bool = vars[ i ]->hasSortBool( );
-	if ( is_bool )
-	{
-	  le = egraph.mkOr( egraph.cons( egraph.mkNot( egraph.cons( vars[ i ] ) )
-			  , egraph.cons( vars[ j ] ) ) );
-	  ge = egraph.mkOr( egraph.cons( egraph.mkNot( egraph.cons( vars[ j ] ) )
-		          , egraph.cons( vars[ i ] ) ) );
-	}
-	else
-	{
-	  le = egraph.mkLeq( egraph.cons( vars[ i ]
-	                   , egraph.cons( vars[ j ] ) ) );
-	  ge = egraph.mkGeq( egraph.cons( vars[ i ]
-	                   , egraph.cons( vars[ j ] ) ) );
-	}
+        }
+        //
+        // Construct
+        // var_i <= var_j and var_i >= var_j
+        // or for the boolean case
+        // var_i -> var_j and var_i <- var_j
+        //
+        Enode * le = NULL;
+        Enode * ge = NULL;
+        const bool is_bool = vars[ i ]->hasSortBool( );
+        if ( is_bool )
+        {
+          le = egraph.mkOr( egraph.cons( egraph.mkNot( egraph.cons( vars[ i ] ) )
+                          , egraph.cons( vars[ j ] ) ) );
+          ge = egraph.mkOr( egraph.cons( egraph.mkNot( egraph.cons( vars[ j ] ) )
+                          , egraph.cons( vars[ i ] ) ) );
+        }
+        else
+        {
+          le = egraph.mkLeq( egraph.cons( vars[ i ]
+                           , egraph.cons( vars[ j ] ) ) );
+          ge = egraph.mkGeq( egraph.cons( vars[ i ]
+                           , egraph.cons( vars[ j ] ) ) );
+        }
 #ifdef PRODUCE_PROOF
-	// Set AB-mixed partition if no intersection,
-	// but only for the non boolean case
-	if ( config.produce_inter > 0 && !is_bool )
-	{
-	  const uint64_t shared = egraph.getIPartitions( vars[ i ] ) 
-	                        & egraph.getIPartitions( vars[ j ] );
-	  assert( shared != 1 );
-	  if ( shared == 0 )
-	  {
-	    egraph.setIPartitions( le, 1 );
-	    egraph.setIPartitions( egraph.mkNot( egraph.cons( le ) ), 1 );
-	    egraph.setIPartitions( ge, 1 );
-	    egraph.setIPartitions( egraph.mkNot( egraph.cons( ge ) ), 1 );
-	    apartitions |= 1;
-	    // cerr << "Created mixed: " << le << endl;
-	    // cerr << "Created mixed: " << ge << endl;
-	  }
-	  else
-	  {
-	    egraph.setIPartitions( le, shared );
-	    egraph.setIPartitions( egraph.mkNot( egraph.cons( le ) ), shared );
-	    egraph.setIPartitions( ge, shared );
-	    egraph.setIPartitions( egraph.mkNot( egraph.cons( ge ) ), shared );
-	    apartitions |= shared;
-	  }
-	}
+        // Set AB-mixed partition if no intersection,
+        // but only for the non boolean case
+        if ( config.produce_inter > 0 && !is_bool )
+        {
+          const uint64_t shared = egraph.getIPartitions( vars[ i ] )
+                                & egraph.getIPartitions( vars[ j ] );
+          assert( shared != 1 );
+          if ( shared == 0 )
+          {
+            egraph.setIPartitions( le, 1 );
+            egraph.setIPartitions( egraph.mkNot( egraph.cons( le ) ), 1 );
+            egraph.setIPartitions( ge, 1 );
+            egraph.setIPartitions( egraph.mkNot( egraph.cons( ge ) ), 1 );
+            apartitions |= 1;
+            // cerr << "Created mixed: " << le << endl;
+            // cerr << "Created mixed: " << ge << endl;
+          }
+          else
+          {
+            egraph.setIPartitions( le, shared );
+            egraph.setIPartitions( egraph.mkNot( egraph.cons( le ) ), shared );
+            egraph.setIPartitions( ge, shared );
+            egraph.setIPartitions( egraph.mkNot( egraph.cons( ge ) ), shared );
+            apartitions |= shared;
+          }
+        }
 #endif
-	axiom.push_back( le );
-	Enode * axiom_1 = egraph.mkOr( egraph.cons( axiom ) );
-	axiom.pop_back( );
-	axiom.push_back( ge );
-	Enode * axiom_2 = egraph.mkOr( egraph.cons( axiom ) );
-	new_axioms_list.push_back( axiom_1 );
-	new_axioms_list.push_back( axiom_2 );
+        axiom.push_back( le );
+        Enode * axiom_1 = egraph.mkOr( egraph.cons( axiom ) );
+        axiom.pop_back( );
+        axiom.push_back( ge );
+        Enode * axiom_2 = egraph.mkOr( egraph.cons( axiom ) );
+        new_axioms_list.push_back( axiom_1 );
+        new_axioms_list.push_back( axiom_2 );
 #ifdef PRODUCE_PROOF
-	if ( config.produce_inter > 0 ) 
-	{
-	  egraph.setIPartitions( axiom_1, apartitions );
-	  egraph.setIPartitions( axiom_2, apartitions );
-	}
+        if ( config.produce_inter > 0 )
+        {
+          egraph.setIPartitions( axiom_1, apartitions );
+          egraph.setIPartitions( axiom_2, apartitions );
+        }
 #endif
       }
     }

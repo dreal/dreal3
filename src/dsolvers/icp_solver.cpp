@@ -548,7 +548,7 @@ void icp_solver::display_interval(ostream & out, rp_interval i, int digits, int 
         out << "empty";
         return;
     }
-    if (rp_interval_point(i)) {
+    if (rp_interval_point(i) == true) {
         if (rp_binf(i) >= 0) {
             out.precision(digits);
             out << rp_binf(i);
