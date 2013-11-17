@@ -357,10 +357,10 @@ bool icp_solver::prop_with_ODE() {
                     return x_r < y_r;
                 };
 
-                auto compute_max_width = [this, &ratio_comp](unordered_set<Enode*> const & vars, double const prec) {
-                    vector<pair<double, double>> s = measure_size(vars, prec);
-                    return *max_element(s.begin(), s.end(), ratio_comp);
-                };
+                // auto compute_max_width = [this, &ratio_comp](unordered_set<Enode*> const & vars, double const prec) {
+                //     vector<pair<double, double>> s = measure_size(vars, prec);
+                //     return *max_element(s.begin(), s.end(), ratio_comp);
+                // };
 
                 auto compute_volume = [this](unordered_set<Enode*> const & vars, double const prec) {
                     vector<pair<double, double>> s = measure_size(vars, prec);
@@ -387,8 +387,8 @@ bool icp_solver::prop_with_ODE() {
                                                           pair<unsigned, pair<double, double>> const & y) {
                                     auto const & p1 = x.second;
                                     auto const & p2 = y.second;
-                                    //return !diff_comp(p1, p2);
-                                    return false;
+                                    return !diff_comp(p1, p2);
+                                    //return false;
                                 });
 
                     // Process first n ode groups in parallel
@@ -517,14 +517,12 @@ bool icp_solver::solve() {
                 pprint_vars(m_config.nra_proof_out, *m_problem, b);
                 m_config.nra_proof_out << endl;
             }
-            BOOST_LOG_TRIVIAL(info) << "ICP SOLVE = TRUE";
             return true;
         } else {
             /* UNSAT */
             BOOST_LOG_TRIVIAL(debug) << "UNSAT!";
             m_explanation.clear();
             copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
-            BOOST_LOG_TRIVIAL(info) << "ICP SOLVE = FALSE";
             return false;
         }
     }

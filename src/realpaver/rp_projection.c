@@ -178,7 +178,7 @@ int rp_project_sin_canonical(rp_union_interval result, rp_interval i)
 /* x = y + z => xnew := hull ( (y+z) inter x ) */
 
 int rp_project_add_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_interval aux;
   rp_interval_add(aux,y,z);
@@ -188,7 +188,7 @@ int rp_project_add_zro (rp_interval xnew, rp_interval x, rp_interval y,
 
 /* x = y + z => ynew := hull ( (x-z) inter y ) */
 int rp_project_add_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_interval aux;
   rp_interval_sub(aux,x,z);
@@ -198,14 +198,14 @@ int rp_project_add_fst (rp_interval ynew, rp_interval x, rp_interval y,
 
 /* x = y + z => znew := hull ( (x-y) inter z ) */
 int rp_project_add_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   return rp_project_add_fst(znew,x,z,y); /* commutativity */
 }
 
 /* x = y - z => xnew := hull ( (y-z) inter x ) */
 int rp_project_sub_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_interval aux;
   rp_interval_sub(aux,y,z);
@@ -215,7 +215,7 @@ int rp_project_sub_zro (rp_interval xnew, rp_interval x, rp_interval y,
 
 /* x = y - z => ynew := hull ( (x+z) inter y ) */
 int rp_project_sub_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_interval aux;
   rp_interval_add(aux,x,z);
@@ -226,7 +226,7 @@ int rp_project_sub_fst (rp_interval ynew, rp_interval x, rp_interval y,
 /* x = y - z => znew := hull ( (y-x) inter z ) */
 
 int rp_project_sub_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_interval aux;
   rp_interval_sub(aux,y,x);
@@ -237,7 +237,7 @@ int rp_project_sub_snd (rp_interval znew, rp_interval x, rp_interval y,
 /* x = y * z => xnew := hull ( (y*z) inter x ) */
 
 int rp_project_mul_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_interval aux;
   rp_interval_mul(aux,y,z);
@@ -248,7 +248,7 @@ int rp_project_mul_zro (rp_interval xnew, rp_interval x, rp_interval y,
 /* x = y * z => ynew := hull ( (x/z) inter y ) */
 
 int rp_project_mul_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_union_interval div;
   rp_union_create(&div);
@@ -262,7 +262,7 @@ int rp_project_mul_fst (rp_interval ynew, rp_interval x, rp_interval y,
 /* x = y * z => znew := hull ( (x/y) inter z ) */
 
 int rp_project_mul_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   return rp_project_mul_fst(znew,x,z,y); /* commutativity */
 }
@@ -270,7 +270,7 @@ int rp_project_mul_snd (rp_interval znew, rp_interval x, rp_interval y,
 /* x = y / z => xnew := hull ( (y/z) inter x ) */
 
 int rp_project_div_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_union_interval div;
   rp_union_create(&div);
@@ -284,7 +284,7 @@ int rp_project_div_zro (rp_interval xnew, rp_interval x, rp_interval y,
 /* x = y / z => ynew := hull ( (x*z) inter y ) */
 
 int rp_project_div_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_interval aux;
   rp_interval_mul(aux,x,z);
@@ -295,7 +295,7 @@ int rp_project_div_fst (rp_interval ynew, rp_interval x, rp_interval y,
 /* x = y / z => znew := hull ( (y/x) inter z ) */
 
 int rp_project_div_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_union_interval div;
   rp_union_create(&div);
@@ -309,7 +309,7 @@ int rp_project_div_snd (rp_interval znew, rp_interval x, rp_interval y,
 /* x = min(y,z) => xnew := hull ( min(y,z) inter x ) */
 
 int rp_project_min_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_interval aux;
   rp_interval_min(aux,y,z);
@@ -320,7 +320,7 @@ int rp_project_min_zro (rp_interval xnew, rp_interval x, rp_interval y,
 /* x = min(y,z) => ynew := hull ( min-1(x,z) inter y ) */
 
 int rp_project_min_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   if (rp_binf(x)>rp_bsup(z))       /* x:            |-----| */
   {                                /* z: |-----|            */
@@ -341,7 +341,7 @@ int rp_project_min_fst (rp_interval ynew, rp_interval x, rp_interval y,
 /* x = min(y,z) => znew := hull ( min-1(x,y) inter z ) */
 
 int rp_project_min_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   return rp_project_min_fst(znew,x,z,y); /* commutativity */
 }
@@ -349,7 +349,7 @@ int rp_project_min_snd (rp_interval znew, rp_interval x, rp_interval y,
 /* x = max(y,z) => xnew := hull ( max(y,z) inter x ) */
 
 int rp_project_max_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   rp_interval aux;
   rp_interval_max(aux,y,z);
@@ -360,7 +360,7 @@ int rp_project_max_zro (rp_interval xnew, rp_interval x, rp_interval y,
 /* x = max(y,z) => ynew := hull ( max-1(x,z) inter y ) */
 
 int rp_project_max_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   if (rp_binf(x)>rp_bsup(z))         /* x:            |-----| */
   {                                  /* z: |-----|            */
@@ -381,7 +381,7 @@ int rp_project_max_fst (rp_interval ynew, rp_interval x, rp_interval y,
 /* x = max(y,z) => znew := hull ( max-1(x,y) inter z ) */
 
 int rp_project_max_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z)
+                        rp_interval z)
 {
   return rp_project_max_fst(znew,x,z,y); /* commutativity */
 }
@@ -391,7 +391,7 @@ int rp_project_max_snd (rp_interval znew, rp_interval x, rp_interval y,
 /* x = pow(y,n) => xnew := hull ( pow(y,n) inter x ) */
 
 int rp_project_pow_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval n)
+                        rp_interval n)
 {
   rp_interval aux;
   rp_interval_pow(aux,y,n);
@@ -402,7 +402,7 @@ int rp_project_pow_zro (rp_interval xnew, rp_interval x, rp_interval y,
 /* x = pow(y,n) => ynew := hull ( pow-1(x,n) inter y ) */
 
 int rp_project_pow_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval n)
+                        rp_interval n)
 {
   rp_interval aux1, aux2;
   rp_union_interval aux;
@@ -1139,9 +1139,8 @@ int rp_project_safesqrt_fst (rp_interval ynew, rp_interval x, rp_interval y)
 /* z = atan2(y,x) => znew := hull ( atan2(y,x) inter z ) */
 
 int rp_project_atan2_zro (rp_interval znew, rp_interval z, rp_interval y,
-			  rp_interval x)
+                          rp_interval x)
 {
-    printf("rp_project_atan2_zro\n");
     rp_interval aux;
     rp_interval_atan2(aux, y, x);
     rp_interval_inter(znew,aux,z);
@@ -1166,23 +1165,12 @@ int rp_project_atan2_zro (rp_interval znew, rp_interval z, rp_interval y,
 
 int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_interval x)
 {
-    printf("rp_project_atan2_fst\n");
     double z_ub = rp_bsup(z);
     double z_lb = rp_binf(z);
     double _1_PI_2 = rp_binf(RP_INTERVAL_1_PI_2);
     double _PI = rp_binf(RP_INTERVAL_PI);
 
     rp_interval_limit_lub(z, z, -_PI, _PI);
-
-    printf("z = ");
-    rp_interval_display_simple_nl(z);
-
-    printf("y = ");
-    rp_interval_display_simple_nl(y);
-
-    printf("x = ");
-    rp_interval_display_simple_nl(x);
-
     rp_interval_set_empty(ynew);
 
 
@@ -1190,8 +1178,6 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
     if (z_ub > -_1_PI_2 && z_lb < _1_PI_2) {
         /* tan(z) = y/x
            x tan(z) = y    */
-
-        printf("(1)\n");
 
         rp_interval x_temp, z_temp, aux;
         rp_interval_limit_lb(x_temp, x, DBL_EPSILON);
@@ -1205,8 +1191,6 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
     if (z_ub > _1_PI_2 && z_lb < _PI) {
         /* tan(z - pi)   = y/x
            x tan(z - pi) = y    */
-
-        printf("(2)\n");
 
         rp_interval x_temp, z_temp, aux1, aux2, aux3;
         rp_interval_limit_ub(x_temp, x, - DBL_EPSILON);
@@ -1231,8 +1215,6 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
         /* tan(z + pi)   = y/x
            x tan(z + pi) = y    */
 
-        printf("(3)\n");
-
         rp_interval x_temp, z_temp, aux1, aux2, aux3;
         rp_interval_limit_ub(x_temp, x, -DBL_EPSILON);
         rp_interval_limit_lub(z_temp, z, - _PI + DBL_EPSILON, - _1_PI_2 -DBL_EPSILON);
@@ -1253,8 +1235,6 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
 
     /* z = atan2(y,x) = + pi/2             if y > 0, x = 0     (4) z=+1/2pi */
     if (rp_interval_contains(z, _1_PI_2)) {
-        printf("(4)\n");
-
         rp_interval y_temp;
         rp_interval_limit_lb(y_temp, y, DBL_EPSILON);
         rp_interval_hull(ynew, ynew, y_temp);
@@ -1262,17 +1242,12 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
 
     /* z = atan2(y,x) = - pi/2             if y < 0, x = 0     (5) z=-1/2pi */
     if (rp_interval_contains(z, - _1_PI_2)) {
-        printf("(5)\n");
-
         rp_interval y_temp;
         rp_interval_limit_ub(y_temp, y, -DBL_EPSILON);
         rp_interval_hull(ynew, ynew, y_temp);
     }
 
     rp_interval_inter(ynew, ynew, y);
-
-    printf("ynew = ");
-    rp_interval_display_simple_nl(ynew);
 
     return( !rp_interval_empty(ynew) );
 }
@@ -1290,7 +1265,6 @@ int rp_project_atan2_fst (rp_interval ynew, rp_interval z, rp_interval y, rp_int
 
 int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y, rp_interval x)
 {
-    printf("rp_project_atan2_snd\n");
     double z_ub = rp_bsup(z);
     double z_lb = rp_binf(z);
     double _1_PI_2 = rp_binf(RP_INTERVAL_1_PI_2);

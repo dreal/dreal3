@@ -147,7 +147,6 @@ bool nra_solver::check(bool complete) {
     BOOST_LOG_TRIVIAL(debug) << m_env;
     BOOST_LOG_TRIVIAL(debug) << m_stack;
     BOOST_LOG_TRIVIAL(debug) << "================";
-    BOOST_LOG_TRIVIAL(info) << "nra_solver::check " << (complete ? "complete" : "incomplete");
     bool result = true;
     icp_solver solver(config, m_stack, m_env, explanation, m_odevars_in_lit, complete);
     if (!complete) {
@@ -170,11 +169,8 @@ bool nra_solver::check(bool complete) {
     }
     // Print out JSON
     if (complete && result && config.nra_contain_ODE && config.nra_json) {
-        BOOST_LOG_TRIVIAL(info) << "nra_solver:: print json";
         solver.print_json(config.nra_json_out);
     }
-    BOOST_LOG_TRIVIAL(info) << "nra_solver::check " << (complete ? "complete" : "incomplete")
-                            << "\t result = " << result;
     return result;
 }
 
