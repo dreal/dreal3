@@ -49,16 +49,16 @@ Install required packages
 
 Build dReal
 
-    git clone git@github.com:soonhokong/dreal-soonhok.git dreal
+    git clone git@github.com:soonhokong/dReal.git dreal
     cd dreal
     mkdir -p build/release
     cd build/release
     cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 ../../src
     make
 
-If you want to link dReal with self-compiled eglibc, use ``-DGLIBCPATH=<absolute_path>``:
+If you want to link dReal with a self-compiled eglibc, use ``-DGLIBCPATH=<absolute_path>``:
 
 ~~~~~~~~~
 cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 \
-    -DCMAKE_C_COMPILER=gcc-4.8 -DGLIBCPATH=/home/<user>/glibc ../src
+      -DCMAKE_C_COMPILER=gcc-4.8 -DGLIBCPATH=/home/<user>/glibc ../src
 ~~~~~~~~~
