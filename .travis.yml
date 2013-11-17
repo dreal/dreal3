@@ -2,10 +2,14 @@ language: cpp
 
 env:
   global:
+    # BB_TOKEN
+    - secure: "RQfTLtJwuLRkSeHYSv4LN2apLwJ0EimXzSGrndaNXc70qg7hcRbg7LxKNYFxvOWkgyW8F2u7yVzZN+uBM8EdB30ga4+EqY8QLwWoss4BDb5fg7mgSa5CKLqprnTTjqlyIvgXVT0jKrtYBk7KybE56cSRDze3kJ2GwgxQ46B4wY8="
     # DREALREPO
     - secure: "Q0UZnALjy+EboS3XBUaH+liMrCITbDXybFGmriDOLPKGPmAeNxN9lCXLyl4T9ZOPNpjTEAeSBSDkmxKuBTbFGFEAOhamsTZQnLkXzFtIJNXxF13c/ubMPwkY0PgLrayvqJdmNcLqM1goz7OuLrMg/rb0JM7JVOScdn++7OfJae8="
     # GH_TOKEN
     - secure: "dgm4Dvk64PhJN0dWMdXoQVP0ObANaarW3IvGqxvJ4jADTRSZzFqeA4hYM3cLAb2Rkmx2ftKdQqFbRUfWysT26Zd3CykbdgqmNgYN+kHntkeUmGvoB8SidCwzwo1VsU8f53DG//bYw3ZpBJZY/ljfiehdsi4BTxrIcX7pW1DQZ0Q="
+    # COVERALLS_REPO_TOKEN
+    - secure: "CZoXk4GAyGWxIapf+aSI0FhDr21McRxuih8X0kIikkSRLdNPOAlwdH0lj44bWF26T6RGI+GmayCVOMaD+Z53Sas/0tVtMgI1tu5LCgGn/kvCECi94R3n/u8V5s9eBcWps0QWujqG1IlLVPzzMbDWiP7SyIBBXcDVvWh91L3uJh0="
 
   matrix:
     - TRIGGER_OSX=TRUE
@@ -19,6 +23,10 @@ env:
       CMAKE_BUILD_TYPE=DEBUG
 
 install:
+  # PUSH TO BACKUP REPO
+  - if [[ $DREALREPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
+      git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/dReal-backup.git +master;
+
   # TRIGGER OSX Build
   - if [[ $DREALREPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
@@ -98,9 +106,6 @@ script:
   - make -C tools
   # compile proof checker
   - make -C tools/proofcheck/checker
-
-after_script:
-
 
 notifications:
   email:
