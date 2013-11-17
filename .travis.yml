@@ -52,7 +52,7 @@ install:
   - unzip -qq capdDynSys.zip
   - cd capd_dynsys
   - autoreconf --install
-  - ./configure --without-gui CXX=g++-4.8 CC=gcc-4.8
+  - ./configure --without-gui CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER}
   - make
   - sudo make install
   - cd ..
