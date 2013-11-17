@@ -173,7 +173,7 @@ void rp_interval_print(char * out, rp_interval i, int digits, int mode)
     sprintf(out,"empty");
     return;
   }
-  if( rp_interval_point(i) )
+  if( rp_interval_point(i) == true )
   {
     if( rp_binf(i)>=0 )
     {

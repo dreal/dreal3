@@ -178,7 +178,7 @@ void rp_oqueue_push(rp_oqueue q, rp_operator * o)
 rp_operator * rp_oqueue_pop(rp_oqueue q)
 {
   rp_operator * o;
-  if (rp_oqueue_empty(q))
+  if (rp_oqueue_empty(q) == true)
   {
     o = NULL;
   }
@@ -314,7 +314,7 @@ rp_operator * rp_oqueue_list_pop (rp_oqueue_list q)
 {
   /* Find the non empty queue having a maximal priority */
   int i = 0;
-  while (rp_oqueue_empty(rp_oqueue_list_elem(q,i)))
+  while (rp_oqueue_empty(rp_oqueue_list_elem(q,i)) == true)
   {
     ++ i;
   }

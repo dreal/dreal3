@@ -78,7 +78,7 @@ int rp_parse_problem_file(rp_problem * problem,
   {
     if (!(res = rp_rule_problem(p,*problem)))
     {
-      fprintf(stderr,rp_parser_error_msg(p));
+      fprintf(stderr, "%s", rp_parser_error_msg(p));
       fprintf(stderr,"\n");
     }
     else
@@ -106,7 +106,7 @@ int rp_parse_constraint_string(rp_constraint * c,
   {
     if (!(res = rp_rule_constraint(p,c)))
     {
-      fprintf(stderr,rp_parser_error_msg(p));
+      fprintf(stderr, "%s", rp_parser_error_msg(p));
       fprintf(stderr,"\n");
     }
     rp_parser_destroy(&p);
@@ -125,7 +125,7 @@ int rp_parse_constraint_file(rp_constraint * c,
   {
     if (!(res = rp_rule_constraint(p,c)))
     {
-      fprintf(stderr,rp_parser_error_msg(p));
+      fprintf(stderr, "%s", rp_parser_error_msg(p));
       fprintf(stderr,"\n");
     }
     rp_parser_destroy(&p);
@@ -144,7 +144,7 @@ int rp_parse_variable_string(rp_variable * v,
   {
     if (!(res = rp_rule_variable(p,v)))
     {
-      fprintf(stderr,rp_parser_error_msg(p));
+      fprintf(stderr, "%s", rp_parser_error_msg(p));
       fprintf(stderr,"\n");
     }
     rp_parser_destroy(&p);
@@ -163,7 +163,7 @@ int rp_parse_variable_file(rp_variable * v,
   {
     if (!(res = rp_rule_variable(p,v)))
     {
-      fprintf(stderr,rp_parser_error_msg(p));
+      fprintf(stderr, "%s", rp_parser_error_msg(p));
       fprintf(stderr,"\n");
     }
     rp_parser_destroy(&p);
@@ -182,7 +182,7 @@ int rp_parse_constant_string(rp_constant * out,
   {
     if (!(res = rp_rule_constant(p,out)))
     {
-      fprintf(stderr,rp_parser_error_msg(p));
+      fprintf(stderr, "%s", rp_parser_error_msg(p));
       fprintf(stderr,"\n");
     }
     rp_parser_destroy(&p);
@@ -201,7 +201,7 @@ int rp_parse_constant_file(rp_constant * out,
   {
     if (!(res = rp_rule_constant(p,out)))
     {
-      fprintf(stderr,rp_parser_error_msg(p));
+        fprintf(stderr, "%s", rp_parser_error_msg(p));
       fprintf(stderr,"\n");
     }
     rp_parser_destroy(&p);
@@ -229,7 +229,7 @@ int rp_parse_expression_string(rp_expression * e,
     else
     {
       rp_erep_destroy(&out);
-      fprintf(stderr,rp_parser_error_msg(p));
+      fprintf(stderr, "%s", rp_parser_error_msg(p));
       fprintf(stderr,"\n");
     }
     rp_parser_destroy(&p);
@@ -257,7 +257,7 @@ int rp_parse_expression_file(rp_expression * e,
     else
     {
       rp_erep_destroy(&out);
-      fprintf(stderr,rp_parser_error_msg(p));
+      fprintf(stderr,"%s", rp_parser_error_msg(p));
       fprintf(stderr,"\n");
     }
     rp_parser_destroy(&p);
@@ -379,7 +379,7 @@ int rp_rule_variable(rp_parser p, rp_variable * out)
               rp_interval_set(maxlong,-RP_MAX_LONG,RP_MAX_LONG);
               rp_union_inter(u,maxlong);
             }
-            if (rp_union_empty(u))
+            if (rp_union_empty(u) == true)
             {
               rp_parser_stop(p,"integer domain out of bounds");
             }
@@ -432,7 +432,7 @@ int rp_rule_domain(rp_parser p, rp_union_interval u)
     }
 
     /* end of domain definition */
-    else if (rp_union_empty(u))
+    else if (rp_union_empty(u) == true)
     {
       rp_parser_stop(p,"empty domain");
     }

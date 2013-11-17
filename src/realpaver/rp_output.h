@@ -124,7 +124,7 @@ private:
   rp_box_stack _stack;  // the set of solutions
   double _eps;          // distance between two boxes to be merged
 
-  std::ostream * _os;   // output stream
+  // std::ostream * _os;   // output stream
 
   // Copy protection
   rp_ofilter_merge(const rp_ofilter_merge& f);

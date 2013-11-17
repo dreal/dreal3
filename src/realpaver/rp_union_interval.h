@@ -44,8 +44,8 @@ typedef rp_union_interval_def rp_union_interval[1];
 #define rp_union_ptr(u)     ((u)[0]).elem
 #define rp_union_elem(u,k)  ((u)[0]).elem[k]
 
-#define rp_union_empty(u)   (rp_union_card(u)==0)
-#define rp_union_full(u)    (rp_union_unused(u)==0)
+#define rp_union_empty(u)   (rp_union_card(u) == 0)
+#define rp_union_full(u)    (rp_union_unused(u) == 0)
 
 #define rp_union_binf(u)    rp_binf(rp_union_elem(u,0))
 #define rp_union_bsup(u)    rp_bsup(rp_union_elem(u,rp_union_card(u)-1))
@@ -68,7 +68,7 @@ void rp_union_copy         (rp_union_interval u, rp_union_interval src);
 
 /* Display u on out */
 void rp_union_display      (FILE *out, rp_union_interval u,
-			    int digits, int mode);
+                            int digits, int mode);
 
 #define rp_union_display_bounds(o,u,d) \
   rp_union_display(o,u,d,RP_INTERVAL_MODE_BOUND)
@@ -147,7 +147,7 @@ int rp_union_inter_iu (rp_interval i, rp_union_interval u);
 /* result := i1 / i2 using the extended interval division */
 /* returns the cardinal of result                         */
 int rp_interval_extended_div (rp_union_interval result,
-			      rp_interval i1, rp_interval i2);
+                              rp_interval i1, rp_interval i2);
 
 #ifdef __cplusplus
 }

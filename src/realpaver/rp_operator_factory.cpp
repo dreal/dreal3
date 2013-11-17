@@ -387,7 +387,7 @@ void rp_newton_factory::build(const rp_problem& p, rp_vector& vec)
   while ((neq<rp_problem_nvar(p)) && (i<rp_problem_nctr(p)))
   {
     rp_constraint c = rp_problem_ctr(p,i);
-    if ((rp_constraint_type(c)==RP_CONSTRAINT_NUMERICAL))
+    if ((rp_constraint_type(c)==RP_CONSTRAINT_NUMERICAL) == true)
     {
       rp_ctr_num cn = rp_constraint_num(c);
       if (rp_ctr_num_rel(cn)==RP_RELATION_EQUAL)

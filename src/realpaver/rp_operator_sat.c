@@ -55,7 +55,7 @@ void rp_stack_interval_pop(rp_stack_interval s)
 /* Push operation */
 void rp_stack_interval_push(rp_stack_interval s, rp_interval i)
 {
-  if (rp_stack_interval_full(s))
+  if (rp_stack_interval_full(s) == true)
   {
     if (rp_stack_interval_size(s)==0)
     {
@@ -68,7 +68,7 @@ void rp_stack_interval_push(rp_stack_interval s, rp_interval i)
       /* reallocation */
       rp_stack_interval_size(s) *= 2;
       rp_realloc(rp_stack_interval_ptr(s),rp_interval*,
-		 rp_stack_interval_size(s)*sizeof(rp_interval));
+                 rp_stack_interval_size(s)*sizeof(rp_interval));
     }
   }
   ++ rp_stack_interval_top(s);
@@ -87,14 +87,14 @@ int rp_sat_hull_eq(rp_ctr_num c, rp_box b)
       /* interpretation of equality as non empty intersection */
       rp_interval i;
       rp_interval_inter(i,
-			rp_expression_val(rp_ctr_num_left(c)),
-			rp_expression_val(rp_ctr_num_right(c)));
+                        rp_expression_val(rp_ctr_num_left(c)),
+                        rp_expression_val(rp_ctr_num_right(c)));
       if (!rp_interval_empty(i))
       {
-	if (rp_expression_project(rp_ctr_num_left(c),i,b))
-	{
-	  result = rp_expression_project(rp_ctr_num_right(c),i,b);
-	}
+        if (rp_expression_project(rp_ctr_num_left(c),i,b))
+        {
+          result = rp_expression_project(rp_ctr_num_right(c),i,b);
+        }
       }
     }
   }
@@ -116,23 +116,23 @@ int rp_sat_hull_inf(rp_ctr_num c, rp_box b)
       /* [a,b] <= [c,d]  -->  ileft := [a,b] inter [-oo,d] */
       rp_interval_set(
             ileft,
-	    rp_binf(rp_expression_val(rp_ctr_num_left(c))),
-	    rp_min_num(rp_bsup(rp_expression_val(rp_ctr_num_left(c))),
-		       rp_bsup(rp_expression_val(rp_ctr_num_right(c)))));
+            rp_binf(rp_expression_val(rp_ctr_num_left(c))),
+            rp_min_num(rp_bsup(rp_expression_val(rp_ctr_num_left(c))),
+                       rp_bsup(rp_expression_val(rp_ctr_num_right(c)))));
 
       /* [a,b] <= [c,d]  -->  iright := [c,d] inter [a,+oo] */
       rp_interval_set(
             iright,
-	    rp_max_num(rp_binf(rp_expression_val(rp_ctr_num_left(c))),
-		       rp_binf(rp_expression_val(rp_ctr_num_right(c)))),
-	    rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
+            rp_max_num(rp_binf(rp_expression_val(rp_ctr_num_left(c))),
+                       rp_binf(rp_expression_val(rp_ctr_num_right(c)))),
+            rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
 
       if ((!rp_interval_empty(ileft)) && (!rp_interval_empty(iright)))
       {
-	if (rp_expression_project(rp_ctr_num_left(c),ileft,b))
-	{
-	  result = rp_expression_project(rp_ctr_num_right(c),iright,b);
-	}
+        if (rp_expression_project(rp_ctr_num_left(c),ileft,b))
+        {
+          result = rp_expression_project(rp_ctr_num_right(c),iright,b);
+        }
       }
     }
   }
@@ -154,23 +154,23 @@ int rp_sat_hull_sup(rp_ctr_num c, rp_box b)
       /* [a,b] >= [c,d]  -->  ileft := [a,b] inter [c,+oo] */
       rp_interval_set(
             ileft,
-	    rp_max_num(rp_binf(rp_expression_val(rp_ctr_num_left(c))),
-		       rp_binf(rp_expression_val(rp_ctr_num_right(c)))),
-	    rp_bsup(rp_expression_val(rp_ctr_num_left(c))));
+            rp_max_num(rp_binf(rp_expression_val(rp_ctr_num_left(c))),
+                       rp_binf(rp_expression_val(rp_ctr_num_right(c)))),
+            rp_bsup(rp_expression_val(rp_ctr_num_left(c))));
 
       /* [a,b] >= [c,d]  -->  iright := [c,d] inter [-oo,b] */
       rp_interval_set(
-	    iright,
-	    rp_binf(rp_expression_val(rp_ctr_num_right(c))),
-	    rp_min_num(rp_bsup(rp_expression_val(rp_ctr_num_left(c))),
-		       rp_bsup(rp_expression_val(rp_ctr_num_right(c)))));
+            iright,
+            rp_binf(rp_expression_val(rp_ctr_num_right(c))),
+            rp_min_num(rp_bsup(rp_expression_val(rp_ctr_num_left(c))),
+                       rp_bsup(rp_expression_val(rp_ctr_num_right(c)))));
 
       if ((!rp_interval_empty(ileft)) && (!rp_interval_empty(iright)))
       {
-	if (rp_expression_project(rp_ctr_num_left(c),ileft,b))
-	{
-	  result = rp_expression_project(rp_ctr_num_right(c),iright,b);
-	}
+        if (rp_expression_project(rp_ctr_num_left(c),ileft,b))
+        {
+          result = rp_expression_project(rp_ctr_num_right(c),iright,b);
+        }
       }
     }
   }
@@ -180,11 +180,11 @@ int rp_sat_hull_sup(rp_ctr_num c, rp_box b)
 /* let domain = [a,b] --> bound := [a,min((a+eps)+,b)] */
 /*                          rem := [min((a+eps)+,b),b] */
 void rp_opsplit_lb(rp_interval bound, rp_interval rem,
-		   rp_interval domain, double eps)
+                   rp_interval domain, double eps)
 {
   rp_binf(bound) = rp_binf(domain);
   rp_bsup(bound) = rp_min_num(rp_next_double(rp_binf(domain)+eps),
-			      rp_bsup(domain));
+                              rp_bsup(domain));
   rp_binf(rem) = rp_bsup(bound);
   rp_bsup(rem) = rp_bsup(domain);
 }
@@ -192,10 +192,10 @@ void rp_opsplit_lb(rp_interval bound, rp_interval rem,
 /* let domain = [a,b] --> bound := [max((b-eps)-,a),b] */
 /*                          rem := [a,max((b-eps)-,a)] */
 void rp_opsplit_rb(rp_interval bound, rp_interval rem,
-		   rp_interval domain, double eps)
+                   rp_interval domain, double eps)
 {
   rp_binf(bound) = rp_max_num(rp_prev_double(rp_bsup(domain)-eps),
-			      rp_binf(domain));
+                              rp_binf(domain));
   rp_bsup(bound) = rp_bsup(domain);
   rp_binf(rem) = rp_binf(domain);
   rp_bsup(rem) = rp_binf(bound);
@@ -250,8 +250,8 @@ void rp_opshrink_split_rb(rp_stack_interval search, rp_interval domain)
 /* Search a zero of f at one bound of x         */
 /* eps is the desired precision of the variable */
 int rp_opshrink(rp_expression f, rp_expression df_dx,
-		rp_box b, int x, double improve, double eps,
-		rp_opsplit bsplit, rp_opshrink_split shsplit)
+                rp_box b, int x, double improve, double eps,
+                rp_opsplit bsplit, rp_opshrink_split shsplit)
 {
   int found = 0;
   rp_stack_interval search;
@@ -267,27 +267,27 @@ int rp_opshrink(rp_expression f, rp_expression df_dx,
     if (rp_num_newton(f,df_dx,b,x,improve))
     {
       if ((rp_interval_canonical(rp_box_elem(b,x))) ||
-	  (rp_interval_width(rp_box_elem(b,x))<=epsbound))
+          (rp_interval_width(rp_box_elem(b,x))<=epsbound))
       {
-	/* interval precise enough */
-	found = 1;
+        /* interval precise enough */
+        found = 1;
       }
       else
       {
-	/* 0 is in a small interval at the bound to be reduced ? */
-	rp_interval bound, rem;
-	bsplit(bound,rem,rp_box_elem(b,x),epsbound);
-	rp_interval_copy(rp_box_elem(b,x),bound);
-	if ((rp_expression_eval_single(f,b,x)) &&
-	    (rp_interval_contains(rp_expression_val(f),0.0)))
-	{
-	  found = 1;
-	}
-	else
-	{
-	  /* bound to be removed and remaining domain to be split */
-	  shsplit(search,rem);
-	}
+        /* 0 is in a small interval at the bound to be reduced ? */
+        rp_interval bound, rem;
+        bsplit(bound,rem,rp_box_elem(b,x),epsbound);
+        rp_interval_copy(rp_box_elem(b,x),bound);
+        if ((rp_expression_eval_single(f,b,x)) &&
+            (rp_interval_contains(rp_expression_val(f),0.0)))
+        {
+          found = 1;
+        }
+        else
+        {
+          /* bound to be removed and remaining domain to be split */
+          shsplit(search,rem);
+        }
       }
     }
     /* else the interval has already been removed from the stack */
@@ -299,7 +299,7 @@ int rp_opshrink(rp_expression f, rp_expression df_dx,
 
 /* Reduction of b(x) with precision eps by box consistency onto f = 0 */
 int rp_sat_box_eq(rp_expression f, rp_expression df_dx,
-		  rp_box b, int x, double improve, double eps)
+                  rp_box b, int x, double improve, double eps)
 {
   int result = 0;
   rp_interval domain;
@@ -316,17 +316,17 @@ int rp_sat_box_eq(rp_expression f, rp_expression df_dx,
 
     /* Shrink left bound of b(x) */
     else if (rp_opshrink(f,df_dx,b,x,improve,eps,
-			 rp_opsplit_lb,rp_opshrink_split_lb))
+                         rp_opsplit_lb,rp_opshrink_split_lb))
     {
       double left = rp_binf(rp_box_elem(b,x));
 
       /* Shrink right bound of [left,sup(b(x))] */
       rp_bsup(rp_box_elem(b,x)) = rp_bsup(domain);
       if (rp_opshrink(f,df_dx,b,x,improve,eps,
-		      rp_opsplit_rb,rp_opshrink_split_rb))
+                      rp_opsplit_rb,rp_opshrink_split_rb))
       {
-	rp_binf(rp_box_elem(b,x)) = left;
-	result = 1;
+        rp_binf(rp_box_elem(b,x)) = left;
+        result = 1;
       }
     }
   }
@@ -335,7 +335,7 @@ int rp_sat_box_eq(rp_expression f, rp_expression df_dx,
 
 /* Reduction of b(x) with precision eps by box consistency onto f >= 0 */
 int rp_sat_box_sup(rp_expression f, rp_expression df_dx,
-		   rp_box b, int x, double improve, double eps)
+                   rp_box b, int x, double improve, double eps)
 {
   int result = 1;
 
@@ -354,21 +354,21 @@ int rp_sat_box_sup(rp_expression f, rp_expression df_dx,
 
     /* Left bound consistent --> nothing to do */
     rp_bsup(rp_box_elem(b,x)) = rp_min_num(rp_next_double(rp_binf(domain)+
-							  eps),
-					   rp_bsup(domain));
+                                                          eps),
+                                           rp_bsup(domain));
     if ((!rp_expression_eval_single(f,b,x)) ||
-	(rp_bsup(rp_expression_val(f)) < 0.0))
+        (rp_bsup(rp_expression_val(f)) < 0.0))
     {
       rp_binf(rp_box_elem(b,x)) = rp_bsup(rp_box_elem(b,x));
       rp_bsup(rp_box_elem(b,x)) = rp_bsup(domain);
       if (rp_opshrink(f,df_dx,b,x,improve,eps,
-		      rp_opsplit_lb,rp_opshrink_split_lb))
+                      rp_opsplit_lb,rp_opshrink_split_lb))
       {
-	rp_binf(domain) = rp_binf(rp_box_elem(b,x));
+        rp_binf(domain) = rp_binf(rp_box_elem(b,x));
       }
       else
       {
-	result = 0;
+        result = 0;
       }
     }
 
@@ -376,24 +376,24 @@ int rp_sat_box_sup(rp_expression f, rp_expression df_dx,
     if (result)
     {
       rp_binf(rp_box_elem(b,x)) = rp_max_num(rp_prev_double(rp_bsup(domain)-
-							    eps),
-					     rp_binf(domain));
+                                                            eps),
+                                             rp_binf(domain));
       rp_bsup(rp_box_elem(b,x)) = rp_bsup(domain);
       if ((!rp_expression_eval_single(f,b,x)) ||
-	  (rp_bsup(rp_expression_val(f)) < 0.0))
+          (rp_bsup(rp_expression_val(f)) < 0.0))
       {
-	rp_bsup(rp_box_elem(b,x)) = rp_binf(rp_box_elem(b,x));
-	rp_binf(rp_box_elem(b,x)) = rp_binf(domain);
+        rp_bsup(rp_box_elem(b,x)) = rp_binf(rp_box_elem(b,x));
+        rp_binf(rp_box_elem(b,x)) = rp_binf(domain);
 
-	if (rp_opshrink(f,df_dx,b,x,improve,eps,
-			rp_opsplit_rb,rp_opshrink_split_rb))
-	{
-	  rp_bsup(domain) = rp_bsup(rp_box_elem(b,x));
-	}
-	else
-	{
-	  result = 0;
-	}
+        if (rp_opshrink(f,df_dx,b,x,improve,eps,
+                        rp_opsplit_rb,rp_opshrink_split_rb))
+        {
+          rp_bsup(domain) = rp_bsup(rp_box_elem(b,x));
+        }
+        else
+        {
+          result = 0;
+        }
       }
     }
     if (result)
@@ -406,7 +406,7 @@ int rp_sat_box_sup(rp_expression f, rp_expression df_dx,
 
 /* Reduction of b(x) with precision eps by box consistency onto f <= 0 */
 int rp_sat_box_inf(rp_expression f, rp_expression df_dx,
-		   rp_box b, int x, double improve, double eps)
+                   rp_box b, int x, double improve, double eps)
 {
   int result = 1;
 
@@ -425,21 +425,21 @@ int rp_sat_box_inf(rp_expression f, rp_expression df_dx,
 
     /* Left bound consistent --> nothing to do */
     rp_bsup(rp_box_elem(b,x)) = rp_min_num(rp_next_double(rp_binf(domain)+
-							  eps),
-					   rp_bsup(domain));
+                                                          eps),
+                                           rp_bsup(domain));
     if ((!rp_expression_eval_single(f,b,x)) ||
-	(rp_binf(rp_expression_val(f)) > 0.0))
+        (rp_binf(rp_expression_val(f)) > 0.0))
     {
       rp_binf(rp_box_elem(b,x)) = rp_bsup(rp_box_elem(b,x));
       rp_bsup(rp_box_elem(b,x)) = rp_bsup(domain);
       if (rp_opshrink(f,df_dx,b,x,improve,eps,
-		      rp_opsplit_lb,rp_opshrink_split_lb))
+                      rp_opsplit_lb,rp_opshrink_split_lb))
       {
-	rp_binf(domain) = rp_binf(rp_box_elem(b,x));
+        rp_binf(domain) = rp_binf(rp_box_elem(b,x));
       }
       else
       {
-	result = 0;
+        result = 0;
       }
     }
 
@@ -447,24 +447,24 @@ int rp_sat_box_inf(rp_expression f, rp_expression df_dx,
     if (result)
     {
       rp_binf(rp_box_elem(b,x)) = rp_max_num(rp_prev_double(rp_bsup(domain)-
-							    eps),
-					     rp_binf(domain));
+                                                            eps),
+                                             rp_binf(domain));
       rp_bsup(rp_box_elem(b,x)) = rp_bsup(domain);
       if ((!rp_expression_eval_single(f,b,x)) ||
-	  (rp_binf(rp_expression_val(f)) > 0.0))
+          (rp_binf(rp_expression_val(f)) > 0.0))
       {
-	rp_bsup(rp_box_elem(b,x)) = rp_binf(rp_box_elem(b,x));
-	rp_binf(rp_box_elem(b,x)) = rp_binf(domain);
+        rp_bsup(rp_box_elem(b,x)) = rp_binf(rp_box_elem(b,x));
+        rp_binf(rp_box_elem(b,x)) = rp_binf(domain);
 
-	if (rp_opshrink(f,df_dx,b,x,improve,eps,
-			rp_opsplit_rb,rp_opshrink_split_rb))
-	{
-	  rp_bsup(domain) = rp_bsup(rp_box_elem(b,x));
-	}
-	else
-	{
-	  result = 0;
-	}
+        if (rp_opshrink(f,df_dx,b,x,improve,eps,
+                        rp_opsplit_rb,rp_opshrink_split_rb))
+        {
+          rp_bsup(domain) = rp_bsup(rp_box_elem(b,x));
+        }
+        else
+        {
+          result = 0;
+        }
       }
     }
     if (result)

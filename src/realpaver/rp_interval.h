@@ -62,11 +62,11 @@ extern rp_interval RP_INTERVAL_7_PI_2;
 
 #define rp_interval_equal(i,j) \
         ((((rp_binf(i))==(rp_binf(j))) && ((rp_bsup(i))==(rp_bsup(j)))) ||	\
-	 ((rp_interval_empty(i)) && (rp_interval_empty(j))))
+         ((rp_interval_empty(i)) && (rp_interval_empty(j))))
 
 #define rp_interval_diff(i,j) \
         ((((rp_binf(i))!=(rp_binf(j))) || ((rp_bsup(i))!=(rp_bsup(j)))) && \
-	 ((!rp_interval_empty(i)) || (!rp_interval_empty(j))))
+         ((!rp_interval_empty(i)) || (!rp_interval_empty(j))))
 
 #define rp_interval_contains(i,x) \
         ((((x)<rp_binf(i)) || ((x)>(rp_bsup(i))) ? 0 : 1))
@@ -75,7 +75,7 @@ extern rp_interval RP_INTERVAL_7_PI_2;
         (((x)>rp_binf(i)) && ((x)<rp_bsup(i)))
 
 #define rp_interval_point(i) \
-        (rp_binf(i)==rp_bsup(i))
+        (rp_binf(i) == rp_bsup(i))
 
 #define rp_interval_int(i) \
         ((rp_binf(i)==rp_bsup(i)) && (rp_binf(i)==((int)rp_binf(i))))
@@ -115,7 +115,7 @@ extern rp_interval RP_INTERVAL_7_PI_2;
             (rp_binf(j) - rp_bsup(i)) : \
             (rp_bsup(j)<rp_binf(i)) ? \
                (rp_binf(i) - rp_bsup(j)) : \
-	       0.0)
+               0.0)
 
 #define rp_interval_midpoint(i) \
         rp_split_center(rp_binf(i),rp_bsup(i))
@@ -196,7 +196,7 @@ void rp_interval_reset ();
 
 /* Returns x-offset in dest=[a,b], offset := step*(b-a), step integer */
 double rp_interval_translate (double x, rp_interval dest, int rounding,
-			      rp_interval step, rp_interval offset);
+                              rp_interval step, rp_interval offset);
 
 /* Binary arithmetic operations */
 void rp_interval_add        (rp_interval result, rp_interval i1, rp_interval i2);

@@ -836,7 +836,7 @@ rp_operator_domain::operator=(const rp_operator_domain& /*o*/)
 rp_operator_newton::rp_operator_newton(const rp_problem * p,
                                        int n, double improve):
   rp_operator(RP_OPERATOR_NEWTON_PRIORITY,n,n),
-  _problem(const_cast<rp_problem*>(p)),
+//  _problem(const_cast<rp_problem*>(p)),
   _improve(improve),
   _arity(n),
   _vi(0),

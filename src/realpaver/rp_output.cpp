@@ -85,7 +85,7 @@ void rp_ofilter_text::apply_box(const rp_box& b, const char * msg)
     if (rp_variable_decision(rp_problem_var(*_problem,i)))
     {
       (*_os) << rp_variable_name(rp_problem_var(*_problem,i));
-      if (rp_interval_point(rp_box_elem(b,i)))
+      if (rp_interval_point(rp_box_elem(b,i)) == true)
       {
         (*_os) << " = ";
       }
@@ -180,11 +180,11 @@ rp_ofilter_pstricks::operator=(const rp_ofilter_pstricks& /*f*/)
 // ------------------------------------------
 // Constructor
 rp_ofilter_merge::rp_ofilter_merge(rp_problem * p,
-                                   std::ostream * os, double eps):
+                                   std::ostream * /* os */, double eps):
   rp_ofilter(p),
   _stack(rp_problem_nvar(*p)),
-  _eps(eps),
-  _os(os)
+  _eps(eps)
+  // , _os(os)
 {}
 
 // Destructor

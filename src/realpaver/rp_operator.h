@@ -111,7 +111,7 @@ private:
 
 // -----------------------------------------------------
 // Conditional operator: applied only if a guard is true
-// ----------------------------------------------------- 
+// -----------------------------------------------------
 class rp_operator_cond : public rp_operator
 {
 public:
@@ -143,7 +143,7 @@ private:
 
 // ------------------------------------------------------------
 // Specific conditional operator used for piecewise constraints
-// ------------------------------------------------------------ 
+// ------------------------------------------------------------
 class rp_operator_condvar : public rp_operator
 {
 public:
@@ -308,7 +308,7 @@ class rp_operator_box_eq : public rp_operator
 public:
   // Construction
   rp_operator_box_eq(rp_expression f, int x,
-		     double improve, double eps);
+                     double improve, double eps);
 
   // Destruction
   ~rp_operator_box_eq();
@@ -345,7 +345,7 @@ class rp_operator_box_inf: public rp_operator
 public:
   // Construction
   rp_operator_box_inf(rp_expression f, int x,
-		      double improve, double eps);
+                      double improve, double eps);
 
   // Destruction
   ~rp_operator_box_inf();
@@ -382,7 +382,7 @@ class rp_operator_box_sup : public rp_operator
 public:
   // Construction
   rp_operator_box_sup(rp_expression f, int x,
-		      double improve, double eps);
+                      double improve, double eps);
 
   // Destruction
   ~rp_operator_box_sup();
@@ -470,7 +470,7 @@ public:
   int pruned_var(int i) const;
 
 private:
-  rp_problem * _problem;
+  // rp_problem * _problem;
   double _improve;         /* improvement factor of iterative algorithm */
   int _arity;              /* arity n         */
   int * _v;                /* v = (v1,...,vn) */
@@ -524,7 +524,7 @@ class rp_operator_3b : public rp_operator
 public:
   // Construction of operator
   rp_operator_3b(const rp_problem * p,
-		 rp_operator * o, int v, double improve);
+                 rp_operator * o, int v, double improve);
 
   // Destruction
   ~rp_operator_3b();
