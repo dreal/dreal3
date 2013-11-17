@@ -99,7 +99,10 @@ char rp_stream_get_char(rp_stream s)
     {
       if (!feof(rp_stream_file(s)))
       {
-        fgets(rp_stream_str(s),RP_STREAM_STR_SIZE,rp_stream_file(s));
+        if(fgets(rp_stream_str(s),RP_STREAM_STR_SIZE,rp_stream_file(s)) == NULL) {
+          fprintf(stderr, "error in rp_stream_get_char\n");
+          exit(1);
+        }
         ++ rp_stream_line(s);
         rp_stream_col(s) = 0;
       }

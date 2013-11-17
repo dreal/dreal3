@@ -162,9 +162,9 @@ typedef enum
   , QF_UFLIA      // UF + LIA
   , QF_UFBV       // UF + BV
   , QF_AUFBV      // Arrays + UF + BV
-  , QF_AX	  // Arrays with extensionality
+  , QF_AX         // Arrays with extensionality
   , QF_BOOL       // Purely SAT instances
-  , QF_CT	  // Cost
+  , QF_CT         // Cost
 // DO NOT REMOVE THIS COMMENT !!
 // IT IS USED BY CREATE_THEORY.SH SCRIPT !!
 // NEW_THEORY_INIT
@@ -186,10 +186,12 @@ static inline int memReadStat(int field)
     FILE*   in = fopen(name, "rb");
     if (in == NULL) return 0;
     int value;
-//    int ret;
-    for (; field >= 0; field--)
-//        ret = fscanf(in, "%d", &value);
-        fscanf(in, "%d", &value);
+
+    for (; field >= 0; field--) {
+        if(fscanf(in, "%d", &value) != 1) {
+            opensmt_error("memReadStat failed to read.");
+        }
+    }
     fclose(in);
     return value;
 }
