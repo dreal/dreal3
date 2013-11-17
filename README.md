@@ -1,7 +1,14 @@
-[![Build Status](https://travis-ci.org/soonhokong/dReal.png?branch=master)](https://travis-ci.org/soonhokong/dReal) Ubuntu 12.04 LTS g++-4.8
+<table>
+  <tr>
+    <th>Ubuntu</th><th>OS X</th>
+  </tr>
+  <tr>
+    <td><a href="https://travis-ci.org/soonhokong/dReal"><img src="https://travis-ci.org/soonhokong/dReal.png?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3"/></a></td>
+    <td><a href="https://travis-ci.org/soonhokong/dReal-osx"><img src="https://travis-ci.org/soonhokong/dReal-osx.png?branch=master" title="Mac OS X 10.8.2, g++-4.9"/></a></td>
+  </tr>
+</table>
 
 dReal: An SMT Solver for Nonlinear Theories of the Reals
-========================================================
 
 Please visit [dReal] for more information.
 
