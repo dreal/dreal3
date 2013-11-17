@@ -13,6 +13,10 @@ env:
       CMAKE_BUILD_TYPE=RELEASE
     - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=DEBUG
+    - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
+      CMAKE_BUILD_TYPE=RELEASE
+    - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
+      CMAKE_BUILD_TYPE=DEBUG
 
 install:
   # TRIGGER OSX Build
@@ -35,7 +39,8 @@ install:
   - sudo add-apt-repository --yes ppa:avsm/ppa
   - sudo apt-get -qq update
   - sudo apt-get -qq install libstdc++-4.8-dev
-  - sudo apt-get -qq install git g++-4.8
+  - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then until sudo apt-get -qq install g++-4.8; do echo retry; done fi
+  - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
   # Install Bison, Flex, CMAKE
   - sudo apt-get -qq install bison flex wget cmake
   # Install Boost
