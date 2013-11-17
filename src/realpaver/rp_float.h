@@ -22,7 +22,7 @@ extern "C" {
 #include "rp_config.h"
 #include "rp_memory.h"
 
-extern double log       (double) rp_throw;
+//extern double log       (double) rp_throw;
 extern double log2      (double) rp_throw;
 extern double exp       (double) rp_throw;
 extern double sqrt      (double) rp_throw;
