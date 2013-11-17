@@ -3,9 +3,9 @@ language: objective-c
 env:
   matrix:
     - CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc
-      BUILD_TYPE=RELEASE
+      CMAKE_BUILD_TYPE=RELEASE
     - CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc
-      BUILD_TYPE=DEBUG
+      CMAKE_BUILD_TYPE=DEBUG
 
 install:
  - brew update > /dev/null
