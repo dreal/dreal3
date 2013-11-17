@@ -11,11 +11,11 @@ you're using homebrew to install packages.
 Install Packages
 ================
 
-gcc-4.8/automake/autoconf/libtool/git/cmake
+gcc-4.8/automake/autoconf/libtool/git/cmake/boost
 
     brew tap homebrew/versions
     brew update
-    brew install gcc48 automake autoconf libtool git cmake
+    brew install gcc48 automake autoconf libtool git cmake boost
 
 ocaml/opam
 -----------
@@ -25,11 +25,6 @@ ocaml/opam
     eval `opam config env --root=<ABSOLUTE_HOMEPATH>/ocamlbrew/ocaml-4.00.1/.opam`
     opam update
     opam install ocamlfind batteries
-
-boost
------
-
-    brew install --c++-11 --cc=gcc-4.8 --cxx=g++-4.8 boost
 
 capd
 ----
