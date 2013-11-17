@@ -8,7 +8,7 @@ env:
       BUILD_TYPE=DEBUG
 
 install:
- - brew update > /dev/null
+ - brew update
  - brew --config
  - brew --env
  # gcc-4.8
