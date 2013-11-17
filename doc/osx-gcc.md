@@ -38,3 +38,13 @@ capd
 
 Note that we need to compile ``capd`` using the same compiler that we
 will compile dReal (``g++-4.8`` in this example).
+
+Build dReal
+===========
+
+    git clone git@github.com:soonhokong/dReal.git dreal
+    cd dreal
+    mkdir -p build/release
+    cd build/release
+    cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 ../../src
+    make

@@ -42,8 +42,6 @@ Required Packages
 Build Instructions
 ==================
 
-Install required packages
-
  - [Ubuntu 12.04 LTS (using g++-4.8)][ubuntu-gcc]
  - [Ubuntu 12.04 LTS (using clang++-3.3)][ubuntu-clang]
  - [OS X 10.9/10.8 (using g++-4.8)][osx-gcc]
@@ -51,19 +49,3 @@ Install required packages
 [ubuntu-gcc]: doc/ubuntu-gcc.md
 [ubuntu-clang]: doc/ubuntu-clang.md
 [osx-gcc]: doc/osx-gcc.md
-
-Build dReal
-
-    git clone git@github.com:soonhokong/dReal.git dreal
-    cd dreal
-    mkdir -p build/release
-    cd build/release
-    cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 ../../src
-    make
-
-If you want to link dReal with a self-compiled eglibc, use ``-DGLIBCPATH=<absolute_path>``:
-
-~~~~~~~~~
-cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 \
-      -DCMAKE_C_COMPILER=gcc-4.8 -DGLIBCPATH=/home/<user>/glibc ../src
-~~~~~~~~~
