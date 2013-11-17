@@ -12,6 +12,7 @@ Install Packages
 ================
 
 gcc-4.8/automake/autoconf/libtool/git/cmake/boost
+-------------------------------------------------
 
     brew tap homebrew/versions
     brew update
