@@ -15,6 +15,19 @@ env:
       BUILD_TYPE=DEBUG
 
 install:
+  # TRIGGER OSX Build
+  - if [[ $DREALREPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
+      MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
+      cp .travis.yml /tmp/.travis.temp.yml;
+      cp .travis.osx.yml .travis.yml;
+      git config --global user.email "notifications@travis-ci.org";
+      git config --global user.name "Travis CI";
+      git add .travis.yml;
+      git commit -m "$MSG";
+      git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/dReal-osx.git +HEAD:master;
+      mv /tmp/.travis.temp.yml .travis.yml;
+      git reset --hard HEAD~;
+    fi
   # Add ppas
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo add-apt-repository --yes ppa:boost-latest/ppa
@@ -30,7 +43,7 @@ install:
   # Install capdDynSys-3.0
   - sudo apt-get -qq install automake autoconf libtool
   - wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
-  - unzip capdDynSys.zip
+  - unzip -qq capdDynSys.zip
   - cd capd_dynsys
   - autoreconf --install
   - ./configure --without-gui CXX=g++-4.8 CC=gcc-4.8
@@ -43,20 +56,6 @@ install:
   - eval `opam config env`
   - opam update
   - yes | opam install ocamlfind batteries
-
-before_script:
- - if [[ $DREALREPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
-      MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
-      cp .travis.yml /tmp/.travis.temp.yml;
-      cp .travis.osx.yml .travis.yml;
-      git config --global user.email "notifications@travis-ci.org";
-      git config --global user.name "Travis CI";
-      git add .travis.yml;
-      git commit -m "$MSG";
-      git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/dReal-osx.git +HEAD:master;
-      mv /tmp/.travis.temp.yml .travis.yml;
-      git reset --hard HEAD~;
-   fi
 
 script:
   # compile dReal

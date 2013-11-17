@@ -1,4 +1,12 @@
-language: objective-c
+Slanguage: objective-c
+
+env:
+  matrix:
+    - CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc
+      BUILD_TYPE=RELEASE
+    - CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc
+      BUILD_TYPE=DEBUG
+
 install:
  - brew update > /dev/null
  - brew --config
@@ -19,7 +27,7 @@ install:
  - unzip -qq capdDynSys.zip
  - cd capd_dynsys
  - autoreconf --install
- - ./configure --without-gui CXX=/usr/local/bin/g++ CC=/usr/local/bin/gcc
+ - ./configure --without-gui CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER}
  - make
  - sudo make install
  - cd ..
@@ -36,7 +44,7 @@ script:
   # compile dReal
   - mkdir build
   - cd build
-  - cmake -DCMAKE_CXX_COMPILER=/usr/local/bin/g++ -DCMAKE_C_COMPILER=/usr/local/bin/gcc -DCMAKE_BUILD_TYPE=RELEASE ../src
+  - cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src
   - make
   - cd ..
   # compile tools
