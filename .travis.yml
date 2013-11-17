@@ -26,7 +26,7 @@ install:
   # PUSH TO BACKUP REPO
   - if [[ $DREALREPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/dReal-backup.git +master;
-
+    fi
   # TRIGGER OSX Build
   - if [[ $DREALREPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
