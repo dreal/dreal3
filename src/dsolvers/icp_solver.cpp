@@ -326,7 +326,6 @@ vector<pair<double, double>> icp_solver::measure_size(unordered_set<Enode*> cons
 
 bool icp_solver::prop_with_ODE() {
     if (m_propag->apply(m_boxes.get())) {
-
         rp_box curr_box = m_boxes.get();
         rp_box old_box;
         rp_box_create(&old_box, rp_box_size(curr_box));
@@ -396,7 +395,7 @@ bool icp_solver::prop_with_ODE() {
                                     auto const & p1 = x.second;
                                     auto const & p2 = y.second;
                                     return !diff_comp(p1, p2);
-                                    //return false;
+                                    // return false;
                                 });
 
                     // Process first n ode groups in parallel
@@ -432,7 +431,7 @@ bool icp_solver::prop_with_ODE() {
                     ode_group_scores.erase(ode_group_scores.begin(), ite);
                 }
                 cerr << endl;
-                if(!m_propag->apply(m_boxes.get()))
+                if (!m_propag->apply(m_boxes.get()))
                     return false;
                 old_volume = new_volume;
                 rp_box curr_box = m_boxes.get();
@@ -440,7 +439,7 @@ bool icp_solver::prop_with_ODE() {
 
                 unsigned box_size = rp_box_size(curr_box);
                 for (unsigned i = 0; i < box_size; i++) {
-                    if(!rp_interval_equal(rp_box_elem(old_box, i), rp_box_elem(curr_box, i))) {
+                    if (!rp_interval_equal(rp_box_elem(old_box, i), rp_box_elem(curr_box, i))) {
                         Enode * const e = m_rp_id_to_enode[i];
                         unsigned g = e->getODEgroup();
                         m_ode_worklist.insert(g);

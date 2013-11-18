@@ -230,7 +230,7 @@ bool ode_solver::solve_forward(rp_box b) {
     BOOST_LOG_TRIVIAL(debug) << "interval T = " << m_T;
     timeMap.stopAfterStep(true);
     bool fastForward = true;
-    //timeMap.turnOnStepControl();
+    // timeMap.turnOnStepControl();
     interval prevTime(0.);
     if (m_config.nra_json) {
         m_trajectory.clear();
@@ -241,7 +241,7 @@ bool ode_solver::solve_forward(rp_box b) {
     bool invariantViolated = false;
     do {
         invariantViolated = !check_invariant(s, m_inv);
-        //timeMap.turnOnStepControl();
+        // timeMap.turnOnStepControl();
         if (m_stepControl > 0 && solver.getStep() < m_stepControl) {
             timeMap.turnOffStepControl();
             solver.setStep(m_stepControl);
@@ -303,7 +303,7 @@ bool ode_solver::solve_backward(rp_box b) {
     BOOST_LOG_TRIVIAL(debug) << "interval T = " << m_T;
     timeMap.stopAfterStep(true);
     bool fastForward = true;
-    //timeMap.turnOnStepControl();
+    // timeMap.turnOnStepControl();
     interval prevTime(0.);
     if (m_config.nra_json) {
         m_trajectory.clear();
@@ -314,7 +314,7 @@ bool ode_solver::solve_backward(rp_box b) {
     bool invariantViolated = false;
     do {
         invariantViolated = !check_invariant(s, m_inv);
-        //timeMap.turnOnStepControl();
+        // timeMap.turnOnStepControl();
         if (m_stepControl > 0 && solver.getStep() < m_stepControl) {
             timeMap.turnOffStepControl();
             solver.setStep(m_stepControl);
