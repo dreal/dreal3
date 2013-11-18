@@ -77,22 +77,19 @@ SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
 ################################################################
 # Packages
 ################################################################
-# Boost
-set(Boost_USE_STATIC_LIBS       OFF)
-set(Boost_USE_STATIC_RUNTIME    OFF)
-ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
-find_package(Boost 1.54 COMPONENTS log log_setup thread system  REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
 # Bison & Flex
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
+# Boost
+ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
+find_package(Boost 1.54 COMPONENTS log log_setup thread system REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
 # CAPD
 find_package(CAPD REQUIRED)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${CAPD_LIBRARIES})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CAPD_CFLAGS}")
 ################################################################
-
 
 ################################################################
 # EGLIBC (Optional)
@@ -101,7 +98,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND "${EGLIBCPATH}" MATCHES ".+")
   message(STATUS "Use EGLIBC Installed at ${EGLIBCPATH}")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--rpath=${EGLIBCPATH}:/usr/lib/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/4.8 -Wl,--dynamic-linker=${EGLIBCPATH}/lib/ld-linux-x86-64.so.2")
 endif()
-
 
 ################################################################
 # Include Directories
@@ -141,8 +137,6 @@ set(DREAL_LIBS ${DREAL_LIBS} opensmt_cnfizers)
 add_subdirectory(opensmt/sorts)
 set(DREAL_LIBS ${DREAL_LIBS} opensmt_sorts)
 add_subdirectory(opensmt/minisat)
-#add_subdirectory(opensmt/proof)
-#set(DREAL_LIBS ${DREAL_LIBS} opensmt_proof)
 add_subdirectory(opensmt/simplifiers)
 set(DREAL_LIBS ${DREAL_LIBS} opensmt_simplifiers)
 add_subdirectory(opensmt/smtsolvers)
@@ -158,7 +152,7 @@ set(DREAL_LIBS ${DREAL_LIBS} realpaver)
 add_subdirectory(dsolvers/util)
 set(DREAL_LIBS ${DREAL_LIBS} util)
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread ${DREAL_EXTRA_LINKER_FLAGS} ${CAPD_LD_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${CAPD_LD_FLAGS}")
 set(EXTRA_LIBS ${DREAL_LIBS} ${EXTRA_LIBS})
 add_executable(dReal main.cpp)
 target_link_libraries(dReal ${EXTRA_LIBS})
