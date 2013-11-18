@@ -11,12 +11,18 @@ you're using homebrew to install packages.
 Install Packages
 ================
 
-gcc-4.8/automake/autoconf/libtool/git/cmake/boost
--------------------------------------------------
+gcc-4.8/automake/autoconf/libtool/git/cmake
+-------------------------------------------
 
     brew tap homebrew/versions
     brew update
-    brew install gcc48 automake autoconf libtool git cmake boost
+    brew install gcc48 automake autoconf libtool git cmake
+    
+
+boost
+-----
+
+    brew install --cc=gcc-4.8 --cxx=g++-4.8 --c++11 boost
 
 ocaml/opam
 -----------
