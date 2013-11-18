@@ -45,7 +45,7 @@ icp_solver::icp_solver(SMTConfig & c, scoped_vec const & stack, scoped_env & env
                        bool complete_check)
     : m_config(c), m_propag(nullptr), m_boxes(env.size()), m_ep(nullptr), m_sol(0),
       m_nsplit(0), m_explanation(exp), m_stack(stack), m_env(env), m_num_ode_sgroups(1),
-      m_odevars_in_lit(odevars_in_lit), m_diff_vec(1), m_ode_solvers(1), m_complete_check(complete_check) {
+      m_odevars_in_lit(odevars_in_lit), m_diff_vec(1), m_complete_check(complete_check) {
     rp_init_library();
     m_problem = create_rp_problem();
     m_propag = new rp_propagator(m_problem, 10.0, c.nra_verbose, c.nra_proof_out);
@@ -82,9 +82,11 @@ icp_solver::icp_solver(SMTConfig & c, scoped_vec const & stack, scoped_env & env
     } else {
         rp_box_set_empty(rp_problem_box(*m_problem));
     }
+#ifdef ODE_ENABLED
     if (m_complete_check && m_config.nra_contain_ODE) {
         create_ode_solvers();
     }
+#endif
 }
 
 icp_solver::~icp_solver() {
@@ -94,11 +96,14 @@ icp_solver::~icp_solver() {
     delete m_propag;
     for (rp_variable * v : m_rp_variables)     { delete v; }
     for (rp_constraint * c : m_rp_constraints) { delete c; }
+#ifdef ODE_ENABLED
     for (ode_solver * s : m_ode_solvers)       { delete s; }
+#endif
     rp_problem_destroy(m_problem);
     delete m_problem;
 }
 
+#ifdef ODE_ENABLED
 void icp_solver::create_ode_solvers() {
     // Construct m_diff_vec
     for (auto const l : m_stack) {
@@ -130,6 +135,7 @@ void icp_solver::create_ode_solvers() {
         }
     }
 }
+#endif
 
 rp_problem* icp_solver::create_rp_problem() {
     rp_problem* rp_prob = new rp_problem;
@@ -194,6 +200,7 @@ rp_problem* icp_solver::create_rp_problem() {
     return rp_prob;
 }
 
+#ifdef ODE_ENABLED
 bool icp_solver::callODESolver(int group, unordered_set<Enode*> const & ode_vars, bool forward) {
     BOOST_LOG_TRIVIAL(debug) << "solve ode group: " << group;
 
@@ -271,6 +278,7 @@ bool icp_solver::callODESolver(int group, unordered_set<Enode*> const & ode_vars
     }
     return true;
 }
+#endif
 
 bool icp_solver::is_atomic(unordered_set<Enode*> const & ode_vars, double const p) {
     rp_box b = m_boxes.get();
@@ -316,7 +324,6 @@ vector<pair<double, double>> icp_solver::measure_size(unordered_set<Enode*> cons
     return ret;
 }
 
-
 bool icp_solver::prop_with_ODE() {
     if (m_propag->apply(m_boxes.get())) {
 
@@ -327,6 +334,7 @@ bool icp_solver::prop_with_ODE() {
 
         double old_volume = rp_box_volume_log(old_box);
         double new_volume = old_volume;
+#ifdef ODE_ENABLED
         if (m_config.nra_contain_ODE) {
             do {
                 // Find ODE groups whose X_0, X_t, and T are smallest interval boxes
@@ -445,6 +453,7 @@ bool icp_solver::prop_with_ODE() {
         } else {
             return true;
         }
+#endif
     }
     return false;
 }
@@ -483,6 +492,8 @@ rp_box icp_solver::compute_next() {
     return nullptr;
 }
 
+
+#ifdef ODE_ENABLED
 void icp_solver::print_ODE_trajectory(ostream& out) const {
     if (m_ode_solvers.size() == 0)
         return;
@@ -498,6 +509,7 @@ void icp_solver::print_ODE_trajectory(ostream& out) const {
         }
     }
 }
+#endif
 
 bool icp_solver::solve() {
     if (m_config.nra_proof) { output_problem(); }
@@ -679,6 +691,7 @@ bool icp_solver::prop() {
     return result;
 }
 
+#ifdef ODE_ENABLED
 void icp_solver::print_json(ostream & out) {
     // Print out ODE trajectory
     out << "{\"traces\": " << endl
@@ -716,3 +729,4 @@ void icp_solver::print_json(ostream & out) {
     }
     out << "]" << endl << "}" << endl;
 }
+#endif

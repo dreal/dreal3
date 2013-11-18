@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "dsolvers/util/scoped_vec.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
+#include "config.h"
 
 class nra_solver : public OrdinaryTSolver {
 public:

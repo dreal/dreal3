@@ -25,12 +25,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include "dsolvers/ode_solver.h"
+#include "config.h"
 #include "dsolvers/util/scoped_env.h"
 #include "dsolvers/util/scoped_vec.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "realpaver/realpaver.h"
+
+#ifdef ODE_ENABLED
+#include "dsolvers/ode_solver.h"
+#endif
 
 class icp_solver {
 public:
@@ -40,7 +44,9 @@ public:
     ~icp_solver();
     bool prop(); // only propagate
     bool solve();
-    void print_json(ostream& out);
+#ifdef ODE_ENABLED
+    void        print_json(ostream& out);
+#endif
 
 private:
     // methods
@@ -48,17 +54,20 @@ private:
     icp_solver& operator=(const icp_solver& s);
 
     rp_problem* create_rp_problem();
-    void        create_ode_solvers();
 
-    rp_box      compute_next(); // computation of the next solution
-    bool        prop_with_ODE(); // propagate with ODE (only in complete check)
+#ifdef ODE_ENABLED
+    void        create_ode_solvers();
     bool        callODESolver(int group, std::unordered_set<Enode *> const & ode_vars, bool forward);
+    void        print_ODE_trajectory(ostream& out) const;
+#endif
+
+    bool        prop_with_ODE(); // propagate with ODE (only in complete check)
+    rp_box      compute_next(); // computation of the next solution
 
     bool        is_atomic(std::unordered_set<Enode *> const & ode_vars, double const p);
     std::vector<pair<double, double>> measure_size(std::unordered_set<Enode *> const & ode_vars, double const p);
 
     void        output_problem() const;
-    void        print_ODE_trajectory(ostream& out) const;
     void        display_box(ostream& out, rp_box b, int digits, int mode) const;
     void        display_interval(ostream & out, rp_interval i, int digits, int mode) const;
     void        pprint_vars(ostream & out, rp_problem p, rp_box b) const;
@@ -90,6 +99,8 @@ private:
     std::unordered_map<Enode *, int>              m_enode_to_rp_id;
     std::unordered_map<int, Enode *>              m_rp_id_to_enode;
     std::vector<std::unordered_set<Enode *>> m_diff_vec;        // ODE_Group -> set of ODE variables
+#ifdef ODE_ENABLED
     std::vector<ode_solver *>      m_ode_solvers;
+#endif
     bool                           m_complete_check;
 };

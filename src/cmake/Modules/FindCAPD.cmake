@@ -9,8 +9,8 @@ find_library(CAPD_LIBRARIES NAMES capd capddynsys REQUIRED)
 
 IF ("${CAPD_INCLUDE_DIR}" MATCHES "CAPD_INCLUDE_DIR-NOTFOUND" OR
     "${CAPD_LIBRARIES}" MATCHES "CAPD_LIBRARIES-NOTFOUND")
-  MESSAGE(FATAL_ERROR "Could not find CAPD-DynSys 3.0. Please visit http://capd.ii.uj.edu.pl/download.php to download")
 ELSE ()
+  set(ODE_ENABLED ON)
   include(FindPackageHandleStandardArgs)
   FIND_PACKAGE_HANDLE_STANDARD_ARGS(CAPD DEFAULT_MSG CAPD_INCLUDE_DIR CAPD_LIBRARIES)
   mark_as_advanced(CAPD_INCLUDE_DIR CAPD_LIBRARIES)

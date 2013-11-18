@@ -168,9 +168,11 @@ bool nra_solver::check(bool complete) {
         }
     }
     // Print out JSON
+#ifdef ODE_ENABLED
     if (complete && result && config.nra_contain_ODE && config.nra_json) {
         solver.print_json(config.nra_json_out);
     }
+#endif
     return result;
 }
 

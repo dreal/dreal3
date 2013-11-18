@@ -6,6 +6,8 @@ set(DREAL_VERSION_MINOR 0)
 set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
+option(REQUIRE_ODE "REQUIRE_ODE" OFF)
+
 # Added for CTest
 INCLUDE(CTest)
 
@@ -85,10 +87,22 @@ ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 find_package(Boost 1.54 COMPONENTS log log_setup thread system REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
+
 # CAPD
-find_package(CAPD REQUIRED)
-set(EXTRA_LIBS ${EXTRA_LIBS} ${CAPD_LIBRARIES})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CAPD_CFLAGS}")
+if (REQUIRE_ODE)
+  message(STATUS "CAPD is required")
+  find_package(CAPD REQUIRED)
+else()
+  find_package(CAPD)
+endif()
+
+if (ODE_ENABLED)
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${CAPD_LIBRARIES})
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CAPD_CFLAGS}")
+elseif(REQUIRE_ODE)
+    MESSAGE(FATAL_ERROR "Could not find CAPD-DynSys 3.0. Please visit http://capd.ii.uj.edu.pl/download.php to download")
+endif()
+
 ################################################################
 
 ################################################################
@@ -120,6 +134,7 @@ include_directories(${DREAL_SOURCE_DIR}/opensmt/sorts)
 include_directories(${DREAL_SOURCE_DIR}/opensmt/tsolvers)
 include_directories(${DREAL_SOURCE_DIR}/opensmt/tsolvers/emptysolver)
 configure_file("${DREAL_SOURCE_DIR}/version.h.in" "${DREAL_BINARY_DIR}/version.h")
+configure_file("${DREAL_SOURCE_DIR}/config.h.in" "${DREAL_BINARY_DIR}/config.h")
 include_directories("${DREAL_BINARY_DIR}")
 
 add_subdirectory(opensmt/parsers/smt2)

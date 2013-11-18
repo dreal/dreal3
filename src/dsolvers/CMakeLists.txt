@@ -1,1 +1,5 @@
-add_library(dsolvers nra_solver.cpp icp_solver.cpp ode_solver.cpp)
+if (ODE_ENABLED)
+  add_library(dsolvers nra_solver.cpp icp_solver.cpp ode_solver.cpp)
+else()
+  add_library(dsolvers nra_solver.cpp icp_solver.cpp)
+endif()
