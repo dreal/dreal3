@@ -15,9 +15,9 @@ install:
  - wget http://dreal.cs.cmu.edu/required_packages/gcc-4.8-bin.tar.gz
  - sudo tar xfz gcc-4.8-bin.tar.gz -C /
  - sudo chown -R `whoami` /usr/local
- - CPLUS_INCLUDE_PATH=/usr/local/include/c++/4.8.1/:/usr/local/include/c++/4.8.1/x86_64-apple-darwin12.5.0:/usr/local/include/c++/4.8.1/bits/
+ - CPLUS_INCLUDE_PATH=/usr/local/include/c++/4.8.2/:/usr/local/include/c++/4.8.2/x86_64-apple-darwin12.5.0:/usr/local/include/c++/4.8.2/bits/
  - export CPLUS_INCLUDE_PATH
- - LIBRARY_PATH=/usr/local/lib:/local/lib/gcc/x86_64-apple-darwin12.5.0/4.8.1/
+ - LIBRARY_PATH=/usr/local/lib:/usr/local/lib/gcc/x86_64-apple-darwin12.5.0/4.8.2/
  - export LIBRARY_PATH
  - rm gcc-4.8-bin.tar.gz
  # autoconf automake cmake libtool pkg-config
