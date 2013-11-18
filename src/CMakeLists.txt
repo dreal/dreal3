@@ -90,7 +90,6 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
 
 # CAPD
 if (REQUIRE_ODE)
-  message(STATUS "CAPD is required")
   find_package(CAPD REQUIRED)
 else()
   find_package(CAPD)
@@ -99,8 +98,11 @@ endif()
 if (ODE_ENABLED)
   set(EXTRA_LIBS ${EXTRA_LIBS} ${CAPD_LIBRARIES})
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CAPD_CFLAGS}")
+  message(STATUS "ODE support is enabled.")
 elseif(REQUIRE_ODE)
     MESSAGE(FATAL_ERROR "Could not find CAPD-DynSys 3.0. Please visit http://capd.ii.uj.edu.pl/download.php to download")
+else()
+    MESSAGE(STATUS "ODE support is NOT enabled. Please check that you have capdDynSys-3.0 installed. Please visit http://github.com/soonhok/dReal for more information")
 endif()
 
 ################################################################
