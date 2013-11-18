@@ -18,8 +18,8 @@
 #define _max(x, y) (x > y ? x : y)
 #define _min(x, y) (x < y ? x : y)
 
-extern int atoi(const char *) rp_throw;
-extern double trunc(double) rp_throw;
+// extern int atoi(const char *) rp_throw;
+// extern double trunc(double) rp_throw;
 
 /* specific interval values */
 rp_interval RP_INTERVAL_PI;
