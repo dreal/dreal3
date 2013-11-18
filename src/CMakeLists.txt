@@ -172,6 +172,9 @@ set(DREAL_LIBS ${DREAL_LIBS} realpaver)
 add_subdirectory(dsolvers/util)
 set(DREAL_LIBS ${DREAL_LIBS} util)
 
+#add tests
+add_subdirectory(tests/nra)
+
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${CAPD_LD_FLAGS}")
 set(EXTRA_LIBS ${DREAL_LIBS} ${EXTRA_LIBS})
 add_executable(dReal main.cpp)
@@ -184,5 +187,4 @@ file(GLOB_RECURSE DREAL_SOURCES
          ${DREAL_SOURCE_DIR}/dsolvers/[A-Za-z]*.cpp
          ${DREAL_SOURCE_DIR}/dsolvers/[A-Za-z]*.h)
 add_style_check_target(style "${DREAL_SOURCES}")
-message(STATUS ${DREAL_SOURCES})
 add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py ${DREAL_SOURCES})
