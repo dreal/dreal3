@@ -81,6 +81,7 @@ install:
   - if [[ $USE_LATEST_EGLIBC == TRUE ]]; then
       wget http://dreal.cs.cmu.edu/required_packages/eglibc-2.17.tar.bz2;
       tar xfj eglibc-2.17.tar.bz2 -C /tmp;
+      sudo ln -s /usr/lib/gcc/x86_64-linux-gnu/4.8/libgcc_s.so /usr/lib/gcc/x86_64-linux-gnu/4.8/libgcc_s.so.1;
     fi
 
 before_script:
