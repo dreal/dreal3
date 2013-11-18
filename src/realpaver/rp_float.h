@@ -22,31 +22,31 @@ extern "C" {
 #include "rp_config.h"
 #include "rp_memory.h"
 
-//extern double log       (double) rp_throw;
-extern double log2      (double) rp_throw;
-extern double exp       (double) rp_throw;
-extern double sqrt      (double) rp_throw;
-extern double cos       (double) rp_throw;
-extern double sin       (double) rp_throw;
-extern double tan       (double) rp_throw;
-extern double cosh      (double) rp_throw;
-extern double sinh      (double) rp_throw;
-extern double tanh      (double) rp_throw;
-extern double acos      (double) rp_throw;
-extern double asin      (double) rp_throw;
-extern double atan      (double) rp_throw;
-extern double acosh     (double) rp_throw;
-extern double asinh     (double) rp_throw;
-extern double atanh     (double) rp_throw;
-extern double ceil      (double) rp_throw;
-extern double floor     (double) rp_throw;
-extern double fabs      (double) rp_throw;
-extern double nextafter (double, double) rp_throw;
-extern double pow       (double, double) rp_throw;
+// extern double log       (double) rp_throw;
+// extern double log2      (double) rp_throw;
+// extern double exp       (double) rp_throw;
+// extern double sqrt      (double) rp_throw;
+// extern double cos       (double) rp_throw;
+// extern double sin       (double) rp_throw;
+// extern double tan       (double) rp_throw;
+// extern double cosh      (double) rp_throw;
+// extern double sinh      (double) rp_throw;
+// extern double tanh      (double) rp_throw;
+// extern double acos      (double) rp_throw;
+// extern double asin      (double) rp_throw;
+// extern double atan      (double) rp_throw;
+// extern double acosh     (double) rp_throw;
+// extern double asinh     (double) rp_throw;
+// extern double atanh     (double) rp_throw;
+// extern double ceil      (double) rp_throw;
+// extern double floor     (double) rp_throw;
+// extern double fabs      (double) rp_throw;
+// extern double nextafter (double, double) rp_throw;
+// extern double pow       (double, double) rp_throw;
 
-extern double atan2     (double, double) rp_throw;
-extern double matan     (double) rp_throw;
-extern double safesqrt  (double) rp_throw;
+// extern double atan2     (double, double) rp_throw;
+// extern double matan     (double) rp_throw;
+// extern double safesqrt  (double) rp_throw;
 
 
 /* -------------------------------------------------------- */
