@@ -66,6 +66,7 @@ script:
   - sed -i "" "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
   - sed -i "" "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
   - ctest -D ExperimentalBuild -VV
+  - ctest -D ExperimentalTest -VV
   - find Testing -name "*.xml" -exec sed -i "" "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";"
   - find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; ../script/demangle_cpptype.py {} > $TMP; mv -v $TMP {}' ";"
   - ctest -D ExperimentalSubmit
