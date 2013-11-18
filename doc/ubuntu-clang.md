@@ -5,13 +5,12 @@ Install Packages
 --------------
 
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-    sudo add-apt-repository ppa:dns/gnu
-    sudo add-apt-repository ppa:h-rayflood/llvm
-    sudo apt-get update
-    sudo apt-get dist-upgrade
-    sudo apt-get install autoconf automake libtool git
-    sudo apt-get install clang-3.3 clang-3.3-doc
-    sudo apt-get upgrade
+    sudo add-apt-repository ppa:dns/gnu -y
+    sudo add-apt-repository ppa:h-rayflood/llvm -y
+    sudo apt-get update -y
+    sudo apt-get install -qq autoconf automake libtool git
+    sudo apt-get install -qq libstdc++-4.8-dev clang-3.3 clang-3.3-doc
+    sudo apt-get upgrade -y
     sudo apt-get dist-upgrade -y
 
 2. Bison, Flex, Cmake
@@ -19,14 +18,14 @@ Install Packages
 
     sudo add-apt-repository --yes ppa:kalakris/cmake
     sudo apt-get update
-    sudo apt-get install bison flex cmake
+    sudo apt-get install -qq bison flex cmake
 
 3. Boost 1.54
 -------------
 
-    sudo add-apt-repository ppa:boost-latest/ppa
+    sudo add-apt-repository ppa:boost-latest/ppa -y
     sudo apt-get update
-    sudo apt-get install libboost1.54-all-dev
+    sudo apt-get install -qq libboost1.54-all-dev
 
 4. CAPD-DynSys 3.0
 ------------------
@@ -50,7 +49,7 @@ will compile dReal (``clang++-3.3`` in this example).
     sudo apt-get update
     sudo apt-get install ocaml opam
     opam init
-    eval `opam config env --root=<ABSOLUTE_HOMEPATH>/ocamlbrew/ocaml-4.00.1/.opam`
+    eval `opam config env`
     opam update
     opam install ocamlfind batteries
 
