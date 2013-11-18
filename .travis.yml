@@ -16,14 +16,20 @@ env:
       TRIGGER_BB=TRUE
       CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=RELEASE
+      USE_LATEST_EGLIBC=TRUE
     - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=DEBUG
+      USE_LATEST_EGLIBC=TRUE
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
       CMAKE_BUILD_TYPE=RELEASE
+      USE_LATEST_EGLIBC=TRUE
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
       CMAKE_BUILD_TYPE=DEBUG
+      USE_LATEST_EGLIBC=TRUE
 
 install:
+  # Check EGLIBC Version
+  - ldd --version
   # PUSH TO BACKUP REPO
   - if [[ $DREALREPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/dReal-backup.git +master;
@@ -71,6 +77,11 @@ install:
   - eval `opam config env`
   - opam update
   - yes | opam install ocamlfind batteries
+  # EGLIBC
+  - if [[ $USE_LATEST_EGLIBC == TRUE ]]; then
+      wget http://dreal.cs.cmu.edu/required_packages/eglibc-2.17.tar.bz2;
+      tar xfj eglibc-2.17.tar.bz2 -C /tmp;
+    fi
 
 before_script:
   - SITE=Ubuntu12.04@Travis
@@ -90,7 +101,11 @@ script:
   # compile dReal
   - mkdir build
   - cd build
-  - cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src
+  - CMAKE_CMD_OPTION="-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+  - if [[ $USE_LATEST_EGLIBC == TRUE ]]; then
+      CMAKE_CMD_OPTION="$CMAKE_CMD_OPTION -DEGLIBCPATH=/tmp/eglibc";
+    fi
+  - cmake $CMAKE_CMD_OPTION ../src
   - ctest -D ExperimentalConfigure
   - CONFIG_FILE=DartConfiguration.tcl
   - sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
