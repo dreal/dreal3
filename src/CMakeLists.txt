@@ -29,6 +29,16 @@ set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 ################################################################
+# Test coverage
+################################################################
+if("${TESTCOV}" MATCHES "ON")
+  include(CodeCoverage)
+  message(STATUS "Enable test-coverage")
+  set(CMAKE_CXX_FLAGS_DEBUG        "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fprofile-arcs -ftest-coverage --coverage")
+  setup_target_for_coverage(cov ${DREAL_SOURCE_DIR}/script/run_tests.sh coverage)
+endif()
+
+################################################################
 # Compiler-specific C++11 activation.
 ################################################################
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
@@ -176,6 +186,8 @@ set(DREAL_LIBS ${DREAL_LIBS} util)
 add_subdirectory(tests/nra)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${CAPD_LD_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+
 set(EXTRA_LIBS ${DREAL_LIBS} ${EXTRA_LIBS})
 add_executable(dReal main.cpp)
 target_link_libraries(dReal ${EXTRA_LIBS})
