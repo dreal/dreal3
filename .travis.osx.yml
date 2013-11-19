@@ -12,7 +12,7 @@ install:
  - brew --config
  - brew --env
  # gcc-4.8
-- if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
+ - if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
       cd /;
       wget http://dl.dropboxusercontent.com/u/203889738/gcc/gcc-4.9.0_OSX.tar.bz2 -O /tmp/gcc-mlion.tar.bz2;
       sudo tar xfj /tmp/gcc-mlion.tar.bz2;
