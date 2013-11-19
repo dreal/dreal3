@@ -138,7 +138,7 @@ script:
   - make -C tools/proofcheck/checker
 
 after_script:
-  cd build
+  - cd build
   - ctest -D ExperimentalTest -VV
   - if [[ $DREALREPO == BLESSED && $TESTCOV == ON ]]; then
       ctest -D ExperimentalCoverage;
