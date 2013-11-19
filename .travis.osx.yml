@@ -12,14 +12,17 @@ install:
  - brew --config
  - brew --env
  # gcc-4.8
- - wget http://dreal.cs.cmu.edu/required_packages/gcc-4.8-bin.tar.gz
- - sudo tar xfz gcc-4.8-bin.tar.gz -C /
- - sudo chown -R `whoami` /usr/local
- - CPLUS_INCLUDE_PATH=/usr/local/include/c++/4.8.1/:/usr/local/include/c++/4.8.1/x86_64-apple-darwin12.5.0:/usr/local/include/c++/4.8.1/bits/
+- if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
+      cd /;
+      wget http://dl.dropboxusercontent.com/u/203889738/gcc/gcc-4.9.0_OSX.tar.bz2 -O /tmp/gcc-mlion.tar.bz2;
+      sudo tar xfj /tmp/gcc-mlion.tar.bz2;
+      cd -;
+      sudo chown -R `whoami` /usr/local;
+  fi
+ - CPLUS_INCLUDE_PATH=/usr/local/include/c++/4.9.0/:/usr/local/include/c++/4.9.0/x86_64-apple-darwin12.4.0:/usr/local/include/c++/4.9.0/bits/
  - export CPLUS_INCLUDE_PATH
- - LIBRARY_PATH=/usr/local/lib:/usr/local/lib/gcc/x86_64-apple-darwin12.5.0/4.8.1/
+ - LIBRARY_PATH=/usr/local/lib:/local/lib/gcc/x86_64-apple-darwin12.4.0/4.9.0/
  - export LIBRARY_PATH
- - rm gcc-4.8-bin.tar.gz
  # autoconf automake cmake libtool pkg-config
  - brew install autoconf automake cmake libtool pkg-config
  # capd
@@ -47,7 +50,7 @@ before_script:
     else
       BUILD_TYPE=Debug;
     fi
-  - BUILD_NAME=${TRAVIS_BRANCH}_g++-4.8.1_${BUILD_TYPE}
+  - BUILD_NAME=${TRAVIS_BRANCH}_g++-4.9.0_${BUILD_TYPE}
   - GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`
   - GIT_SUBJECT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 2-`
   - GIT_SUBJECT=${GIT_SUBJECT//\"/\\\"}
