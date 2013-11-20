@@ -138,6 +138,8 @@ script:
 after_script:
   - cd build
   - ctest -D ExperimentalTest -VV
+  - echo $PATH
+  - export PATH=/usr/bin:$PATH
   - if [[ $DREALREPO == BLESSED && $TESTCOV == ON ]]; then
       ctest -D ExperimentalCoverage;
       make cov;
