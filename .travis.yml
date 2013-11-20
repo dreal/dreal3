@@ -89,7 +89,7 @@ install:
        wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;
        tar xvfz lcov-1.10.tar.gz;
        sudo cp -v lcov-1.10/bin/{lcov,genpng,gendesc,genhtml,geninfo} /usr/bin/;
-       sudo chmod 777 /usr/bin/lcov /usr/bin/genhtml /usr/bin/geninfo /usr/bin/genpng /usg/bin/gendesc;
+       sudo chmod 777 /usr/bin/lcov /usr/bin/genhtml /usr/bin/geninfo /usr/bin/genpng /usr/bin/gendesc;
        rm -rf lcov-1.10.tar.gz lcov-1.10;
        sudo mv -v `which gcov-4.8` `which gcov`;
     fi
@@ -112,7 +112,7 @@ script:
   # compile dReal
   - mkdir build
   - cd build
-  - CMAKE_CMD_OPTION="-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+  - CMAKE_CMD_OPTION="-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_PROGRAM_PATH=/usr/bin"
   - if [[ $USE_LATEST_EGLIBC == TRUE ]]; then
       CMAKE_CMD_OPTION="$CMAKE_CMD_OPTION -DEGLIBCPATH=/tmp/eglibc";
     fi
