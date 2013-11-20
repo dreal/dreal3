@@ -2,7 +2,7 @@
 (set-info :precision 0.1)
 (declare-fun x () Real)
 (declare-fun y () Real)
-(assert (< 0.8165412 x))
+(assert (< 0.8165413 x))
 (assert (< x 2.0))
 (assert (< 0.0 y))
 (assert (< y 1.0))
