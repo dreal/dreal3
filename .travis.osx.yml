@@ -61,7 +61,7 @@ script:
   # compile dReal
   - mkdir build
   - cd build
-  - cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src
+  - cmake -DCMAKE_CXX_COMPILER=/usr/local/bin/${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=/usr/local/bin/${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src
   - CONFIG_FILE=DartConfiguration.tcl
   - sed -i "" "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
   - sed -i "" "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
