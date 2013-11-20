@@ -421,26 +421,28 @@ void rp_propagator::insert(rp_operator * o)
 }
 
 // Checks if the operator can be applied
-int rp_propagator::check_precision(rp_operator * /*o*/, rp_box /*b*/)
+int rp_propagator::check_precision(rp_operator * o, rp_box b)
 {
-  return( 1 );
+//  return( 1 );
 
   /* Dangerous to stop the application of one operator
-     but it can be efficient for slow convergences...
+     but it can be efficient for slow convergences... */
 
 
   for (int i=0; i<o->pruned_arity(); ++i)
   {
     int v = o->pruned_var(i);
-    double eps = rp_min_num(1.0e-14,
-                            rp_variable_precision(rp_problem_var(*_problem,v)));
+    // double eps = rp_min_num(1.0e-14,
+    //                         rp_variable_precision(rp_problem_var(*_problem,v)));
+    double eps = rp_variable_precision(rp_problem_var(*_problem,v));
+
     if (rp_interval_width(rp_box_elem(b,v))>(eps))
     {
       return( 1 );
     }
   }
   return( 0 );
-  */
+  /* */
 }
 
 // Application once the working operators have been defined
