@@ -55,3 +55,30 @@ Build dReal
     cd build/release
     cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 ../../src
     make
+
+Known Issue
+===========
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Undefined symbols for architecture x86_64:
+  "isalnum(int)", referenced from:
+      rp_isident(int)  in librealpaver.a(rp_lexer.c.o)
+  "isalpha(int)", referenced from:
+      _rp_lexer_get_token in librealpaver.a(rp_lexer.c.o)
+  "iscntrl(int)", referenced from:
+      _rp_lexer_get_token in librealpaver.a(rp_lexer.c.o)
+      _rp_stream_eat_space in librealpaver.a(rp_stream.c.o)
+  "isdigit(int)", referenced from:
+      _rp_lexer_get_number in librealpaver.a(rp_lexer.c.o)
+  "isspace(int)", referenced from:
+      _rp_stream_eat_space in librealpaver.a(rp_stream.c.o)
+  "tolower(int)", referenced from:
+      rp_lexer_text_to_lower(char*) in librealpaver.a(rp_lexer.c.o)
+  "toupper(int)", referenced from:
+      rp_string_equal_case(char const*, char const*) in librealpaver.a(rp_lexer.c.o)
+      _rp_lexer_get_number in librealpaver.a(rp_lexer.c.o)
+ld: symbol(s) not found for architecture x86_64
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you have the above error, it is due to a problem in OS X 10.9 + g++-4.8/g++-4.9. 
+Please read http://stackoverflow.com/a/19706989/2654527 to fix the problem.
