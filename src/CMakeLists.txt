@@ -179,6 +179,8 @@ add_subdirectory(dsolvers)
 set(DREAL_LIBS ${DREAL_LIBS} dsolvers)
 add_subdirectory(realpaver)
 set(DREAL_LIBS ${DREAL_LIBS} realpaver)
+add_subdirectory(filib)
+set(DREAL_LIBS ${DREAL_LIBS} filib)
 add_subdirectory(dsolvers/util)
 set(DREAL_LIBS ${DREAL_LIBS} util)
 
