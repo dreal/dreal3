@@ -1715,6 +1715,7 @@ void rp_interval_atan2(rp_interval result, rp_interval y, rp_interval x)
 //        printf("(1)\n");
         rp_interval x_temp;
         rp_interval aux;
+        rp_interval_set_empty(aux);
         rp_interval_set(x_temp, _max(x_lb, DBL_EPSILON), x_ub);
         rp_interval_div(aux, y, x_temp);  /* aux    = y/x         */
         rp_interval_atan(result, aux);    /* result = arctan(y/x) */
