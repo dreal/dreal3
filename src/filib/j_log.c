@@ -3,7 +3,7 @@
 /*        (For copyright and info`s see file "fi_lib.h")             */
 /*********************************************************************/
 
-#include "fi_lib.h" 
+#include "fi_lib.h"
 
 
 #ifdef LINT_ARGS
@@ -16,9 +16,9 @@ interval x;
 {
   interval res;
   if (x.INF==x.SUP)                  /* point interval */
-    { 
+    {
       res.INF=q_log(x.INF);
-      if (res.INF>=0) 
+      if (res.INF>=0)
         {
           res.SUP=res.INF*q_logp;
           res.INF*=q_logm;
@@ -31,17 +31,20 @@ interval x;
     }
   else
     {
-      res.INF=q_log(x.INF);
-      if (res.INF>=0)
-        res.INF*=q_logm;
-      else
-        res.INF*=q_logp;
-      res.SUP=q_log(x.SUP);
-      if (res.SUP>=0)
-        res.SUP*=q_logp;
-      else
-        res.SUP*=q_logm;
-    }   
+      if(x.INF == 0.0) {
+          res.INF= -1.0 / 0.0;
+      } else {
+        res.INF=q_log(x.INF);
+        if (res.INF>=0)
+            res.INF*=q_logm;
+        else
+            res.INF*=q_logp;
+        res.SUP=q_log(x.SUP);
+        if (res.SUP>=0)
+            res.SUP*=q_logp;
+        else
+            res.SUP*=q_logm;
+      }
+    }
   return(res);
 }
-
