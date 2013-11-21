@@ -1640,7 +1640,7 @@ void rp_interval_matan(rp_interval result, rp_interval x)
         rp_interval x_temp, aux1, aux2;
         rp_interval_set(x_temp, _max(x_lb, DBL_EPSILON), x_ub);
         rp_interval_sqrt(aux1, x_temp);     /* aux1    = sqrt(x)         */
-        rp_interval_atan(aux2, aux2);       /* aux2    = atan(sqrt(x))   */
+        rp_interval_atan(aux2, aux1);       /* aux2    = atan(sqrt(x))   */
         rp_interval_div(result, aux2, aux1);/* result    = atan(sqrt(x)) / sqrt(x) */
     }
 
