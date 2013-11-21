@@ -1066,7 +1066,7 @@ void rp_interval_sqr(rp_interval result, rp_interval i)
 /* result := sqrt(i) */
 void rp_interval_sqrt(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
+    interval t = {rp_max_num(0.0, rp_binf(i)), rp_bsup(i)};
     t = j_sqrt(t);
     rp_binf(result) = t.INF;
     rp_bsup(result) = t.SUP;
@@ -1162,7 +1162,7 @@ void rp_interval_exp(rp_interval result, rp_interval i)
 /* result := log(i) */
 void rp_interval_log(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
+    interval t = {rp_max_num(0.0, rp_binf(i)), rp_bsup(i)};
     t = j_log(t);
     rp_binf(result) = t.INF;
     rp_bsup(result) = t.SUP;
@@ -1465,7 +1465,8 @@ void rp_interval_tanh(rp_interval result, rp_interval i)
 /* result := asin(i) (increasing function in [-1,1]) */
 void rp_interval_asin(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
+//    interval t = {rp_binf(i), rp_bsup(i)};
+    interval t = {rp_max_num(-1.0, rp_binf(i)), rp_min_num(+1.0, rp_bsup(i))};
     t = j_asin(t);
     rp_binf(result) = t.INF;
     rp_bsup(result) = t.SUP;
@@ -1491,7 +1492,8 @@ void rp_interval_asin(rp_interval result, rp_interval i)
 /* result := acos(i) (decreasing function in [-1,1]) */
 void rp_interval_acos(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
+    interval t = {rp_max_num(-1.0, rp_binf(i)), rp_min_num(+1.0, rp_bsup(i))};
+//    interval t = {rp_binf(i), rp_bsup(i)};
     t = j_acos(t);
     rp_binf(result) = t.INF;
     rp_bsup(result) = t.SUP;
@@ -1551,7 +1553,7 @@ void rp_interval_asinh(rp_interval result, rp_interval i)
 /* increasing function in [1,+oo) */
 void rp_interval_acosh(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
+    interval t = {rp_max_num(1.0, rp_binf(i)), rp_bsup(i)};
     t = j_acsh(t);
     rp_binf(result) = t.INF;
     rp_bsup(result) = t.SUP;
@@ -1588,7 +1590,7 @@ void rp_interval_acosh(rp_interval result, rp_interval i)
 /* increasing function in (-1,1) */
 void rp_interval_atanh(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
+    interval t = {rp_max_num(-1.0, rp_binf(i)), rp_min_num(+1.0, rp_bsup(i))};
     t = j_atnh(t);
     rp_binf(result) = t.INF;
     rp_bsup(result) = t.SUP;
