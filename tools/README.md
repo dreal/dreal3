@@ -1,24 +1,34 @@
-OCaml Installation via ocamlbrew
-================================
+dReach(BMC) and other tools
+===========================
 
-We recommend to install ocaml and required packages and tool chains
-via ocamlbrew. You can find the instructions at
+We have dReach(Bounded Model Checker) and other tools written in
+Ocaml. To compile them, you need to have OCaml installation in your
+system. Here are the recommended instructions for Ubuntu and OS X.
 
-    https://github.com/hcarty/ocamlbrew
+Ubuntu
+------
 
-After installation, please update and upgrade ocaml-packages using
-opam
+    sudo add-apt-repository ppa:avsm/ppa -yy
+    sudo apt-get update
+    sudo apt-get -qq install ocaml opam
+    opam init
+    eval `opam config env`
+    opam update
+    opam install ocamlfind batteries
 
-    $ opam update && opam upgrade
+OS X
+----
 
-Please make sure that you have the following packages installed with
-the corresponding version.
+    brew install ocaml opam
+    opam init
+    eval `opam config env --root=<ABSOLUTE_HOMEPATH>/ocamlbrew/ocaml-4.00.1/.opam`
+    opam update
+    opam install ocamlfind batteries
 
- - batteries-2.1.0
- - cil-1.7.2
 
-Compile
-==================================
+Build
+=====
 
-    $ cd tools
-    $ make
+Run `make` at dReal/tools. It will compile all the tools.
+
+    make
