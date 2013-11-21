@@ -42,18 +42,7 @@ Note that we need to compile ``capd`` using the same compiler that we
 will compile dReal (``g++-4.8`` in this example).
 
 
-5. Ocaml System and Libraries
------------------------------------------
-
-    sudo add-apt-repository ppa:avsm/ppa -yy
-    sudo apt-get update
-    sudo apt-get -qq install ocaml opam
-    opam init
-    eval `opam config env`
-    opam update
-    opam install ocamlfind batteries
-
-6. EGLIBC-2.17 (Optional)
+5. EGLIBC-2.17 (Optional)
 -------------------------
 
 Using eglibc (<= 2.16) may cause severe errors in floating point
@@ -95,3 +84,23 @@ If you want to link dReal with a self-compiled eglibc, use ``-DGLIBCPATH=<absolu
 cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 \
       -DCMAKE_C_COMPILER=gcc-4.8 -DGLIBCPATH=/home/<user>/glibc ../src
 ~~~~~~~~~
+
+dReach(BMC) and other tools
+===========================
+
+We have dReach(Bounded Model Checker) and other tools written in
+Ocaml. To compile them, you need to have OCaml and libraries in your
+system. Here are the recommended instructions for Ubuntu and OS X.
+
+    sudo add-apt-repository ppa:avsm/ppa -yy
+    sudo apt-get update
+    sudo apt-get -qq install ocaml opam
+    opam init
+    eval `opam config env`
+    opam update
+    opam install ocamlfind batteries
+
+Once you set up everything, run `make` at `dReal/tools`. It will compile
+all the tools.
+
+    dReal/tools $ make

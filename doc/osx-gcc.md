@@ -17,21 +17,12 @@ gcc-4.8/automake/autoconf/libtool/git/cmake
     brew tap homebrew/versions
     brew update
     brew install gcc48 automake autoconf libtool git cmake
-    
+
 
 boost
 -----
 
     brew install --cc=gcc-4.8 --cxx=g++-4.8 --c++11 boost
-
-ocaml/opam
------------
-
-    brew install ocaml opam
-    opam init
-    eval `opam config env --root=<ABSOLUTE_HOMEPATH>/ocamlbrew/ocaml-4.00.1/.opam`
-    opam update
-    opam install ocamlfind batteries
 
 capd
 ----
@@ -55,6 +46,28 @@ Build dReal
     cd build/release
     cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 ../../src
     make
+
+dReach(BMC) and other tools
+===========================
+
+We have dReach(Bounded Model Checker) and other tools written in
+Ocaml. To compile them, you need to have OCaml and libraries in your
+system. Here are the recommended instructions for Ubuntu and OS X.
+
+ocaml/opam
+-----------
+
+    brew install ocaml opam
+    opam init
+    eval `opam config env --root=<ABSOLUTE_HOMEPATH>/ocamlbrew/ocaml-4.00.1/.opam`
+    opam update
+    opam install ocamlfind batteries
+
+Once you set up everything, run `make` at `dReal/tools`. It will compile
+all the tools.
+
+    dReal/tools $ make
+
 
 Known Issue
 ===========
@@ -80,5 +93,5 @@ Undefined symbols for architecture x86_64:
 ld: symbol(s) not found for architecture x86_64
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you have the above error, it is due to a problem in OS X 10.9 + g++-4.8/g++-4.9. 
+If you have the above error, it is due to a problem in OS X 10.9 + g++-4.8/g++-4.9.
 Please read http://stackoverflow.com/a/19706989/2654527 to fix the problem.
