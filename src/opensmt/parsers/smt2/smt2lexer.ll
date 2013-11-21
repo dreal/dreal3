@@ -141,12 +141,15 @@ char * pbuffer2;
 
 "sin"			{ return TK_SIN; /* added for dReal2 */ }
 "cos"			{ return TK_COS; }
+"tan"			{ return TK_TAN; }
 "exp"			{ return TK_EXP; }
 "log"			{ return TK_LOG; }
 "arcsin"		{ return TK_ARCSIN; }
 "arccos"		{ return TK_ARCCOS; }
-"tan"			{ return TK_TAN; }
 "arctan"		{ return TK_ARCTAN; }
+"sinh"			{ return TK_SINH; }
+"cosh"			{ return TK_COSH; }
+"tanh"			{ return TK_TANH; }
 "arctan2"		{ return TK_ARCTAN2; }
 "marctan"		{ return TK_MARCTAN; }
 "safesqrt"		{ return TK_SAFESQRT; }

@@ -86,14 +86,14 @@ void smt2error( const char * s )
 %token TK_RANDOM_SEED TK_VERBOSITY
 
 /* added for dReal2 */
-%token TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW
+%token TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW TK_SINH TK_COSH TK_TANH
 %token TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT
 
 %type <str> TK_NUM TK_DEC TK_HEX TK_STR TK_SYM TK_KEY numeral decimal hexadecimal /*binary*/ symbol
 %type <str> identifier spec_const b_value s_expr
 %type <str> TK_LEQ TK_GEQ TK_LT TK_GT TK_FORALLT
 %type <str> TK_PLUS TK_MINUS TK_TIMES TK_UMINUS TK_DIV
-%type <str> TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW
+%type <str> TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW TK_SINH TK_COSH TK_TANH
 %type <str> TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT
 
 /* %type <str_list> numeral_list */
@@ -424,6 +424,15 @@ term: spec_const
     | '(' TK_ARCTAN term_list ')'
       { $$ = parser_ctx->mkArcTan( $3 ); }
 
+    | '(' TK_SINH term_list ')'
+      { $$ = parser_ctx->mkSinh( $3 ); }
+
+    | '(' TK_COSH term_list ')'
+      { $$ = parser_ctx->mkCosh( $3 ); }
+
+    | '(' TK_TANH term_list ')'
+      { $$ = parser_ctx->mkTanh( $3 ); }
+
     | '(' TK_ARCTAN2 term_list ')'
       { $$ = parser_ctx->mkArcTan2( $3 ); }
 
@@ -687,6 +696,30 @@ infix_term: spec_const
       {
         stringstream ss;
         ss << "arctan" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
+        delete $3;
+        $$ = ret;
+      }
+    | TK_SINH '(' infix_term ')'
+      {
+        stringstream ss;
+        ss << "sinh" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
+        delete $3;
+        $$ = ret;
+      }
+    | TK_COSH '(' infix_term ')'
+      {
+        stringstream ss;
+        ss << "cosh" << "(" << *$3 << ")";
+        string* ret = new string (ss.str());
+        delete $3;
+        $$ = ret;
+      }
+    | TK_TANH '(' infix_term ')'
+      {
+        stringstream ss;
+        ss << "tanh" << "(" << *$3 << ")";
         string* ret = new string (ss.str());
         delete $3;
         $$ = ret;

@@ -95,12 +95,15 @@ public:
   inline bool isArcTan2           ( ) const { return hasSymbolId( ENODE_ID_ARCTAN2             ); }
   inline bool isMArcTan           ( ) const { return hasSymbolId( ENODE_ID_MARCTAN             ); }
   inline bool isSafeSqrt          ( ) const { return hasSymbolId( ENODE_ID_SAFESQRT            ); }
-  inline bool isCos               ( ) const { return hasSymbolId( ENODE_ID_COS         ); }
   inline bool isExp               ( ) const { return hasSymbolId( ENODE_ID_EXP         ); }
   inline bool isLog               ( ) const { return hasSymbolId( ENODE_ID_LOG         ); }
   inline bool isPow               ( ) const { return hasSymbolId( ENODE_ID_POW         ); }
   inline bool isSin               ( ) const { return hasSymbolId( ENODE_ID_SIN         ); }
+  inline bool isCos               ( ) const { return hasSymbolId( ENODE_ID_COS         ); }
   inline bool isTan               ( ) const { return hasSymbolId( ENODE_ID_TAN         ); }
+  inline bool isSinh              ( ) const { return hasSymbolId( ENODE_ID_SINH        ); }
+  inline bool isCosh              ( ) const { return hasSymbolId( ENODE_ID_COSH        ); }
+  inline bool isTanh              ( ) const { return hasSymbolId( ENODE_ID_TANH        ); }
   /* ---------------------- */
 
   inline bool isEq                ( ) const { return hasSymbolId( ENODE_ID_EQ          ); }

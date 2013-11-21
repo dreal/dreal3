@@ -182,6 +182,9 @@ public:
   inline Enode * mkArcSin    ( Enode * e )       { assert(e); return egraph.mkArcSin(e);}
   inline Enode * mkArcCos    ( Enode * e )       { assert(e); return egraph.mkArcCos(e);}
   inline Enode * mkArcTan    ( Enode * e )       { assert(e); return egraph.mkArcTan(e);}
+  inline Enode * mkSinh      ( Enode * e )       { assert(e); return egraph.mkSinh(e);}
+  inline Enode * mkCosh      ( Enode * e )       { assert(e); return egraph.mkCosh(e);}
+  inline Enode * mkTanh      ( Enode * e )       { assert(e); return egraph.mkTanh(e);}
   inline Enode * mkArcTan2   ( Enode * e )       { assert(e); return egraph.mkArcTan2(e);}
   inline Enode * mkMArcTan   ( Enode * e )       { assert(e); return egraph.mkMArcTan(e);}
   inline Enode * mkSafeSqrt  ( Enode * e )       { assert(e); return egraph.mkSafeSqrt(e);}

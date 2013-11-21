@@ -56,7 +56,7 @@ public:
 #endif
       , theoryInitialized ( false )
       , time_stamp        ( 0 )
-      , use_gmp		  ( false )
+      , use_gmp           ( false )
   {
     //
     // Initialize nil key for splay tree
@@ -105,7 +105,7 @@ public:
     while ( !id_to_enode.empty( ) )
     {
       if ( id_to_enode.back( ) != NULL )
-	delete id_to_enode.back( );
+        delete id_to_enode.back( );
       id_to_enode.pop_back( );
     }
 #ifdef PRODUCE_PROOF
@@ -182,16 +182,19 @@ public:
   Enode * mkArcSin           ( Enode * );
   Enode * mkArcCos           ( Enode * );
   Enode * mkArcTan           ( Enode * );
+  Enode * mkSinh             ( Enode * );
+  Enode * mkCosh             ( Enode * );
+  Enode * mkTanh             ( Enode * );
   Enode * mkArcTan2          ( Enode * );
   Enode * mkMArcTan          ( Enode * );
   Enode * mkSafeSqrt         ( Enode * );
   Enode * mkExp              ( Enode * );
   Enode * mkLog              ( Enode * );
-  Enode * mkPow		     ( Enode * );
+  Enode * mkPow              ( Enode * );
   /* ----------------- */
 
-  Enode * mkSelect	     ( Enode *, Enode * );
-  Enode * mkStore	     ( Enode *, Enode *, Enode * );
+  Enode * mkSelect           ( Enode *, Enode * );
+  Enode * mkStore            ( Enode *, Enode *, Enode * );
 
   /* commented out for dReal2 */
 //  Enode * mkCostIncur        ( Enode * );
@@ -351,7 +354,7 @@ public:
   //===========================================================================
   // Public APIs for Egraph Core Solver
 
-  void		      initializeTheorySolvers ( SimpSMTSolver * );          // Attaches ordinary theory solvers
+  void                initializeTheorySolvers ( SimpSMTSolver * );          // Attaches ordinary theory solvers
   lbool               inform                  ( Enode * );                  // Inform the solver about the existence of a theory atom
   bool                assertLit               ( Enode *, bool = false );    // Assert a theory literal
   void                pushBacktrackPoint      ( );                          // Push a backtrack point
@@ -362,7 +365,7 @@ public:
 #ifdef PRODUCE_PROOF
   Enode *             getInterpolants         ( );                          // Get interpolant
 #endif
-  bool                check                   ( bool );		            // Check satisfiability
+  bool                check                   ( bool );                     // Check satisfiability
   void                initializeCong          ( Enode * );                  // Initialize congruence structures for a node
 #ifndef SMTCOMP
   void                computeModel            ( );
@@ -505,7 +508,7 @@ private:
   bool    unmergable      ( Enode *, Enode *, Enode ** );       // Can two nodes be merged ?
   void    merge           ( Enode *, Enode * );                 // Merge two nodes
   bool    mergeLoop       ( Enode * );                          // Merge loop
-  void	  deduce          ( Enode *, Enode * );                 // Deduce from merging of two nodes
+  void    deduce          ( Enode *, Enode * );                 // Deduce from merging of two nodes
   void    undoMerge       ( Enode * );                          // Undoes a merge
   void    undoDisequality ( Enode * );                          // Undoes a disequality
   void    undoDistinction ( Enode * );                          // Undoes a distinction
@@ -566,19 +569,19 @@ private:
   void    initializeCongInc ( Enode * );                        // Initialize a node in the congruence at runtime
   void    initializeAndMerge( Enode * );                        // Initialize a node in the congruence at runtime
   Enode * uCons             ( Enode *, Enode * );               // Undoable cons - To create dynamic terms
-  void    undoCons          ( Enode * );		       	// Undoes a cons
+  void    undoCons          ( Enode * );                        // Undoes a cons
 
   //===========================================================================
   // Array Handling routines - Implemented in src/tsolvers/axsolver/AXSolver.C
 
-  void              WAxiom				  ( Enode * );
-  void              RoWEqAxiom	                          ( Enode * );
-  void              RoWNeqAxiom	                          ( Enode * );
-  void              WoWEqAxiom	                          ( Enode * );
-  void              WoWNeqAxiom	                          ( Enode * );
-  void              WoRAxiom		                  ( Enode * );
-  void              ExtAxiom		                  ( Enode *, Enode * );
-  void              EqAxiomInst				  ( Enode *, Enode *, Enode * );
+  void              WAxiom                                ( Enode * );
+  void              RoWEqAxiom                            ( Enode * );
+  void              RoWNeqAxiom                           ( Enode * );
+  void              WoWEqAxiom                            ( Enode * );
+  void              WoWNeqAxiom                           ( Enode * );
+  void              WoRAxiom                              ( Enode * );
+  void              ExtAxiom                              ( Enode *, Enode * );
+  void              EqAxiomInst                           ( Enode *, Enode *, Enode * );
   void              handleArrayAssertedEq                 ( Enode *, Enode * );
   void              handleArrayAssertedNEq                ( Enode *, Enode * );
   void              handleArrayAssertedAtomTerm           ( Enode * );

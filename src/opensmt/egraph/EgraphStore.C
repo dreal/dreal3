@@ -140,6 +140,9 @@ void Egraph::initializeStore( )
   newSymbol( "asin"      , sarith1 ); assert( ENODE_ID_ARCSIN   == id_to_enode.size( ) - 1 );
   newSymbol( "acos"      , sarith1 ); assert( ENODE_ID_ARCCOS   == id_to_enode.size( ) - 1 );
   newSymbol( "atan"      , sarith1 ); assert( ENODE_ID_ARCTAN   == id_to_enode.size( ) - 1 );
+  newSymbol( "sinh"      , sarith1 ); assert( ENODE_ID_SINH   == id_to_enode.size( ) - 1 );
+  newSymbol( "cosh"      , sarith1 ); assert( ENODE_ID_COSH   == id_to_enode.size( ) - 1 );
+  newSymbol( "tanh"      , sarith1 ); assert( ENODE_ID_TANH   == id_to_enode.size( ) - 1 );
   newSymbol( "^"         , sarith2_left); assert (ENODE_ID_POW  == id_to_enode.size() - 1 );
   newSymbol( "atan2"     , sarith2_left ); assert( ENODE_ID_ARCTAN2   == id_to_enode.size( ) - 1 );
   newSymbol( "matan"     , sarith1 ); assert( ENODE_ID_MARCTAN   == id_to_enode.size( ) - 1 );
@@ -816,6 +819,31 @@ Enode * Egraph::mkArcTan              ( Enode * args)
   assert( args );
   assert( args->getArity( ) == 1 );
   Enode * res = cons( id_to_enode[ ENODE_ID_ARCTAN], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkSinh             ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_SINH ], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkCosh             ( Enode * args)
+{
+  Enode * res = cons( id_to_enode[ ENODE_ID_COSH ], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkTanh             ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_TANH ], args );
   assert( res );
   return res;
 }
