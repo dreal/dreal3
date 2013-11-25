@@ -1727,7 +1727,7 @@ void rp_interval_atan2(rp_interval result, rp_interval y, rp_interval x)
     }
 
     /* atan2(y,x) = arctan(y/x) + pi   if y >= 0, x < 0    (2) */
-    if(y_ub > 0.0 && x_lb < 0.0) {
+    if(y_ub >= 0.0 && x_lb < 0.0) {
 //        printf("(2)\n");
         rp_interval x_temp, y_temp, aux1, aux2, aux3;
         rp_interval_set(x_temp, x_lb, _min(x_ub, -DBL_EPSILON));
