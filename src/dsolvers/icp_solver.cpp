@@ -408,7 +408,7 @@ bool icp_solver::prop_with_ODE() {
                         unsigned const i = t.first;
                         m_ode_worklist.erase(i);
                         if (is_atomic(m_diff_vec[i], m_config.nra_precision)) {
-                            cerr << "A" << i << endl;
+//                            cerr << "A" << i << endl;
                             if (callODESolver(i, m_diff_vec[i], true) == false) {
                                 m_ode_worklist.insert(i);
                                 return false;
@@ -417,11 +417,11 @@ bool icp_solver::prop_with_ODE() {
                             double const T_0_size = t.second.first;
                             double const T_x_size = t.second.second;
                             bool ode_direction = T_x_size >= T_0_size;
-                            cerr << setw(20) << i << setw(20) << T_0_size << setw(20)
-                                 << T_x_size << setw(20) << (ode_direction ? "Forward" : "Backward") << endl;
+                            BOOST_LOG_TRIVIAL(debug) <<  setw(20) << i << setw(20) << T_0_size << setw(20)
+                                                    << T_x_size << setw(20) << (ode_direction ? "Forward" : "Backward");
 
                             if (callODESolver(i, m_diff_vec[i], ode_direction) == false) {
-                                cerr << endl;
+//                                cerr << endl;
                                 m_ode_worklist.insert(i);
                                 return false;
                             }
@@ -430,7 +430,6 @@ bool icp_solver::prop_with_ODE() {
                     // Delete first one
                     ode_group_scores.erase(ode_group_scores.begin(), ite);
                 }
-                cerr << endl;
                 if (!m_propag->apply(m_boxes.get()))
                     return false;
                 old_volume = new_volume;
@@ -443,7 +442,7 @@ bool icp_solver::prop_with_ODE() {
                         Enode * const e = m_rp_id_to_enode[i];
                         unsigned g = e->getODEgroup();
                         m_ode_worklist.insert(g);
-                        cerr << e << " : " << g << " is added to worklist" << endl;
+                        BOOST_LOG_TRIVIAL(debug) << e << " : " << g << " is added to worklist";
                     }
                 }
                 rp_box_copy(old_box, curr_box);
