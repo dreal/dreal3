@@ -186,6 +186,7 @@ set(DREAL_LIBS ${DREAL_LIBS} util)
 
 #add tests
 add_subdirectory(tests/nra)
+add_subdirectory(tests/nra_ode)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${CAPD_LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
