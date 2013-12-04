@@ -1,6 +1,6 @@
-BMC = bmc
+BMC = ../../../tools/bmc/bmc.sh
 DREAL = dReal
-OPT = 
+OPT =
 
 k10:
 	$(BMC) -i -p "[1,2,1,2,1,2,1,2,1,2,1]" -k 10 bouncing_ball_with_drag.drh
@@ -48,4 +48,3 @@ clean:
 	rm -f *.smt2
 	rm -f *.json
 	rm -f *.proof
-

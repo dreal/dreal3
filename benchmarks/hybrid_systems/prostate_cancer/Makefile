@@ -1,4 +1,4 @@
-BMC = bmc
+BMC = ../../../tools/bmc/bmc.sh
 DREAL = dReal
 
 k2:
@@ -18,4 +18,3 @@ clean:
 	rm -f *.smt2
 	rm -f *.json
 	rm -f *.proof
-

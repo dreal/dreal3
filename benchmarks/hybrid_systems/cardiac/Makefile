@@ -1,6 +1,6 @@
-BMC = bmc
+BMC = ../../../tools/bmc/bmc.sh
 DREAL = dReal
-DREAL_OPT = 
+DREAL_OPT =
 
 k3:
 	$(BMC) -k 3 -p "[1,2,3,4]" -i new_cardiac_stim.drh
@@ -31,4 +31,3 @@ clean:
 	rm -f *.smt2
 	rm -f *.json
 	rm -f *.proof
-

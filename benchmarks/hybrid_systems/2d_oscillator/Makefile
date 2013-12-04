@@ -1,4 +1,4 @@
-BMC = bmc
+BMC = ../../../tools/bmc/bmc.sh
 DREAL = dreal
 
 k2:

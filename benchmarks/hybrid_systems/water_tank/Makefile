@@ -1,4 +1,4 @@
-BMC = bmc
+BMC = ../../../tools/bmc/bmc.sh
 DREAL = dreal
 
 k1:
@@ -17,4 +17,3 @@ clean:
 	rm *.preprocessed.drh
 	rm *.smt2
 	rm *.json
-
