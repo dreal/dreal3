@@ -20,13 +20,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <utility>
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
 #include "dsolvers/icp_solver.h"
 #include "dsolvers/nra_solver.h"
+#include "dsolvers/util/logger.h"
 
 using std::pair;
-namespace logging = boost::log;
 
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
@@ -68,20 +66,20 @@ unordered_set<Enode *> nra_solver::get_vars (Enode * const e) {
 // 2. set up _enode_to_vars (mapping from an expr to all the
 //    variables in it)
 lbool nra_solver::inform(Enode * e) {
-    BOOST_LOG_TRIVIAL(debug) << "===============";
-    BOOST_LOG_TRIVIAL(debug) << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt();
-    BOOST_LOG_TRIVIAL(debug) << "===============";
+    DREAL_DEBUG("===============");
+    DREAL_DEBUG("nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt());
+    DREAL_DEBUG("===============");
     unordered_set<Enode *> const & vars = get_vars(e);
     unordered_set<Enode *> ode_vars;
     for (auto const & v : vars) {
-        BOOST_LOG_TRIVIAL(debug) << v;
+        DREAL_DEBUG(v);
         double const lb = v->getLowerBound();
         double const ub = v->getUpperBound();
         m_env.insert(v, make_pair(lb, ub));
 
         // Collect ODE Vars in e
         if (config.nra_contain_ODE && v->getODEtimevar() != nullptr && v->getODEgroup() > 0) {
-            BOOST_LOG_TRIVIAL(debug) << "Add " << v << " to " << "group: " << v->getODEgroup();
+            DREAL_DEBUG("Add " << v << " to " << "group: " << v->getODEgroup());
             ode_vars.insert(v);
         }
     }
@@ -97,18 +95,16 @@ lbool nra_solver::inform(Enode * e) {
 //
 // assertLit adds a literal(e) to stack of asserted literals.
 bool nra_solver::assertLit (Enode * e, bool reason) {
-    BOOST_LOG_TRIVIAL(debug) << "===============";
-    BOOST_LOG_TRIVIAL(debug) << "nra_solver::assertLit: " << e
-                             << ", reason: " << (reason ? "true" : "false")
-                             << ", polarity: " << e->getPolarity().toInt();
-    BOOST_LOG_TRIVIAL(debug) << "===============";
+    DREAL_DEBUG("===============");
+    DREAL_DEBUG("nra_solver::assertLit: " << e << ", reason: " << (reason ? "true" : "false") << ", polarity: " << e->getPolarity().toInt());
+    DREAL_DEBUG("===============");
     (void)reason;
     assert(e);
     assert(belongsToT(e));
     assert(e->hasPolarity());
     assert(e->getPolarity() == l_False || e->getPolarity() == l_True);
     if (e->isDeduced() && e->getPolarity() == e->getDeduced() && e->getDedIndex() == id) {
-        BOOST_LOG_TRIVIAL(debug) << "nra_solver::assertLit: DEDUCED" << e;
+        DREAL_DEBUG("nra_solver::assertLit: DEDUCED" << e);
         return true;
     }
     m_stack.push_back(e);
@@ -119,9 +115,9 @@ bool nra_solver::assertLit (Enode * e, bool reason) {
 // operations, for instance in a vector called "undo_stack_term", as
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint () {
-    BOOST_LOG_TRIVIAL(debug) << "===============";
-    BOOST_LOG_TRIVIAL(debug) << "nra_solver::pushBacktrackPoint " << m_stack.size();
-    BOOST_LOG_TRIVIAL(debug) << "===============";
+    DREAL_DEBUG("===============");
+    DREAL_DEBUG("nra_solver::pushBacktrackPoint " << m_stack.size());
+    DREAL_DEBUG("===============");
     m_env.push();
     m_stack.push();
 }
@@ -132,9 +128,9 @@ void nra_solver::pushBacktrackPoint () {
 // backtrackToStackSize() in EgraphSolver) Also make sure you clean
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint () {
-    BOOST_LOG_TRIVIAL(debug) << "================";
-    BOOST_LOG_TRIVIAL(debug) << "nra_solver::popBacktrackPoint";
-    BOOST_LOG_TRIVIAL(debug) << "================";
+    DREAL_DEBUG("================");
+    DREAL_DEBUG("nra_solver::popBacktrackPoint");
+    DREAL_DEBUG("================");
     m_stack.pop();
     m_env.pop();
 }
@@ -142,29 +138,25 @@ void nra_solver::popBacktrackPoint () {
 // Check for consistency.
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
-    BOOST_LOG_TRIVIAL(debug) << "================";
-    BOOST_LOG_TRIVIAL(debug) << "nra_solver::check " << (complete ? "complete" : "incomplete");
-    BOOST_LOG_TRIVIAL(debug) << m_env;
-    BOOST_LOG_TRIVIAL(debug) << m_stack;
-    BOOST_LOG_TRIVIAL(debug) << "================";
+    DREAL_DEBUG("================");
+    DREAL_DEBUG("nra_solver::check " << (complete ? "complete" : "incomplete"));
+    DREAL_DEBUG(m_env);
+    DREAL_DEBUG(m_stack);
+    DREAL_DEBUG("================");
     bool result = true;
     icp_solver solver(config, m_stack, m_env, explanation, m_odevars_in_lit, complete);
     if (!complete) {
         // Incomplete Check
-        BOOST_LOG_TRIVIAL(debug) << "Before Prop" << endl
-                                 << m_env;
-
+        DREAL_DEBUG("Before Prop" << endl << m_env);
         result = solver.prop();
-
-        BOOST_LOG_TRIVIAL(debug) << "After Prop" << endl
-                                 << m_env;
+        DREAL_DEBUG("After Prop" << endl << m_env);
     } else {
         result = solver.solve();
     }
     if (!result) {
-        BOOST_LOG_TRIVIAL(debug) << "#explanation provided: ";
+        DREAL_DEBUG("#explanation provided: ");
         for (Enode * const e : explanation) {
-            BOOST_LOG_TRIVIAL(debug) << e <<" with polarity " << toInt((e)->getPolarity()) << " ";
+            DREAL_DEBUG(e <<" with polarity " << toInt((e)->getPolarity()) << " ");
         }
     }
     // Print out JSON
@@ -186,7 +178,7 @@ bool nra_solver::belongsToT(Enode * e) {
 
 // Copy the model into enode's data
 void nra_solver::computeModel() {
-    BOOST_LOG_TRIVIAL(debug) << "computeModel" << endl;
+    DREAL_DEBUG("computeModel" << endl);
 }
 
 #ifdef PRODUCE_PROOF
