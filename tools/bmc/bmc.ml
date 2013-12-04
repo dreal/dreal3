@@ -229,7 +229,7 @@ let make_smt2
   let num_of_modes = List.max (List.map (fun (_, q, _) -> q) flows_annot) in
   let odes =
     let ode_vars_list : (var * var Set.t) list =
-      List.map (fun (_, m_, ode) -> Ode.collect_vars ode) flows_annot
+      List.map (fun (_, _, ode) -> Ode.collect_vars ode) flows_annot
     in
     let groupid_map : (var, int Uref.uref) Map.t =
       snd (List.fold_left (fun (n, m) (v, s) ->
@@ -253,7 +253,7 @@ let make_smt2
        (group_num, sgroup_num, x, e)
       )
       flows_annot in
-  let defineodes = List.map (fun (g, sg, x, e) -> DefineODE (g, sg, x, e)) odes in
+  let defineodes = List.map (fun (g, sg, x, e) -> DefineODE (g, g, x, e)) odes in
   let diff_groups  = List.unique (List.map (fun (n, _, _, _) -> n) odes) in
   let diff_sgroups = List.unique (List.map (fun (_, n, _, _) -> n) odes) in
   let grouped_odes =
@@ -265,7 +265,7 @@ let make_smt2
   let time_vardecls =
     List.map
       (fun n -> ("time_" ^ (Int.to_string n), time_intv))
-      diff_sgroups in
+      diff_groups in
   (* let time_var_constrs =  *)
   (*   List.map (fun odegroup ->  *)
   let mode_vardecls =
