@@ -92,13 +92,10 @@ SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
 # Bison & Flex
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
-# Boost
-ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
-find_package(Boost 1.54 COMPONENTS log log_setup thread system REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
 
+################################################################
 # CAPD
+################################################################
 if (REQUIRE_ODE)
   find_package(CAPD REQUIRED)
 else()
