@@ -31,8 +31,6 @@ install:
  - make
  - sudo make install
  - cd ..
- # boost
- - brew install boost
  # ocaml, opam, ocamlfind, ocaml-batteries
  - brew install cmake ocaml opam
  - yes | opam init

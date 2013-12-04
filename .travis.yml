@@ -51,7 +51,6 @@ install:
   # Add ppas
   - sudo add-apt-repository --yes ppa:h-rayflood/llvm
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-  - sudo add-apt-repository --yes ppa:boost-latest/ppa
   - sudo add-apt-repository --yes ppa:dns/gnu
   - sudo add-apt-repository --yes ppa:avsm/ppa
   - sudo add-apt-repository --yes ppa:kalakris/cmake
@@ -61,8 +60,6 @@ install:
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
   # Install Bison, Flex, CMAKE
   - sudo apt-get -qq install bison flex wget cmake
-  # Install Boost
-  - sudo apt-get -qq install libboost1.54-all-dev
   # Install capdDynSys-3.0
   - sudo apt-get -qq install automake autoconf libtool
   - wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
