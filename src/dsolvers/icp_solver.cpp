@@ -108,19 +108,19 @@ void icp_solver::create_ode_solvers() {
         unordered_set<Enode*> ode_vars = m_odevars_in_lit[l];
         for (auto const v : ode_vars) {
             unsigned const diff_sgroup = v->getODEsgroup();
-            DREAL_DEBUG("ode_var: " << v);
-            DREAL_DEBUG("diff_sgroup: " << diff_sgroup << ", num_ode_sgroups: " << m_num_ode_sgroups);
+            DREAL_LOG_DEBUG("ode_var: " << v);
+            DREAL_LOG_DEBUG("diff_sgroup: " << diff_sgroup << ", num_ode_sgroups: " << m_num_ode_sgroups);
             if (diff_sgroup >= m_num_ode_sgroups) {
                 m_diff_vec.resize(diff_sgroup + 1);
                 m_num_ode_sgroups = diff_sgroup;
-                DREAL_DEBUG("diff_sgroup: " << diff_sgroup << " we do resize");
-                DREAL_DEBUG("num_ode_sgroups: " << m_num_ode_sgroups);
+                DREAL_LOG_DEBUG("diff_sgroup: " << diff_sgroup << " we do resize");
+                DREAL_LOG_DEBUG("num_ode_sgroups: " << m_num_ode_sgroups);
             }
             if (m_diff_vec[diff_sgroup].empty()) {
-                DREAL_DEBUG("diff_vec[" << diff_sgroup << "] is empty.");
+                DREAL_LOG_DEBUG("diff_vec[" << diff_sgroup << "] is empty.");
             }
             m_diff_vec[diff_sgroup].insert(v);
-            DREAL_DEBUG("diff_sgroup inserted: " << diff_sgroup);
+            DREAL_LOG_DEBUG("diff_sgroup inserted: " << diff_sgroup);
         }
     }
     // Construct m_ode_solvers
@@ -165,7 +165,7 @@ rp_problem* icp_solver::create_rp_problem() {
         // rp_variable_precision(*v) = m_config.nra_precision;
         m_enode_to_rp_id[key] = rp_id;
         m_rp_id_to_enode[rp_id] = key;
-        DREAL_DEBUG("Key: " << name << "\t" << "value : [" << lb << ", " << ub << "] \t" << "precision : " << m_config.nra_precision << "\t" << "rp_id: " << rp_id);
+        DREAL_LOG_DEBUG("Key: " << name << "\t" << "value : [" << lb << ", " << ub << "] \t" << "precision : " << m_config.nra_precision << "\t" << "rp_id: " << rp_id);
     }
 
     // ===============================================
@@ -178,8 +178,8 @@ rp_problem* icp_solver::create_rp_problem() {
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
-            DREAL_DEBUG("Constraint: " << (l->getPolarity() == l_True ? " " : "Not") << l);
-            DREAL_DEBUG(" : " << constraint_str);
+            DREAL_LOG_DEBUG("Constraint: " << (l->getPolarity() == l_True ? " " : "Not") << l);
+            DREAL_LOG_DEBUG(" : " << constraint_str);
             // Parse the string (infix form) to create the constraint c
             rp_parse_constraint_string(c, constraint_str.c_str(), rp_problem_symb(*rp_prob));
             // Add to the problem
@@ -195,13 +195,13 @@ rp_problem* icp_solver::create_rp_problem() {
 
 #ifdef ODE_ENABLED
 bool icp_solver::callODESolver(int group, unordered_set<Enode*> const & ode_vars, bool forward) {
-    DREAL_DEBUG("solve ode group: " << group);
+    DREAL_LOG_DEBUG("solve ode group: " << group);
 
     // The size of ODE_Vars should be even
     if (ode_vars.size() % 2 == 1) {
-        DREAL_DEBUG("The size of ODE_Vars should be even");
+        DREAL_LOG_DEBUG("The size of ODE_Vars should be even");
         for (auto const ode_var : ode_vars) {
-            DREAL_DEBUG(ode_var);
+            DREAL_LOG_DEBUG(ode_var);
         }
         return false;
     }
@@ -209,15 +209,15 @@ bool icp_solver::callODESolver(int group, unordered_set<Enode*> const & ode_vars
     // If the _0 and _t variables do not match, return false.
     for (auto const v : ode_vars) {
         if (ode_vars.find(v->getODEopposite()) == ode_vars.end()) {
-            DREAL_DEBUG("the _0 and _t variables do not match:" << v);
+            DREAL_LOG_DEBUG("the _0 and _t variables do not match:" << v);
             return false;
         }
     }
 
     if (!ode_vars.empty()) {
-        DREAL_DEBUG("Inside of current ODEs");
+        DREAL_LOG_DEBUG("Inside of current ODEs");
         for (auto const ode_var : ode_vars) {
-            DREAL_DEBUG("Name: " << ode_var->getCar()->getName());
+            DREAL_LOG_DEBUG("Name: " << ode_var->getCar()->getName());
         }
         ode_solver* odeSolver = m_ode_solvers[group];
 
@@ -231,8 +231,8 @@ bool icp_solver::callODESolver(int group, unordered_set<Enode*> const & ode_vars
                 forward_ODE = odeSolver->solve_forward(m_boxes.get()) && m_propag->apply(m_boxes.get());
             }
             catch(exception& e) {
-                DREAL_DEBUG("Exception in ODE Solving (Forward)");
-                DREAL_DEBUG(e.what());
+                DREAL_LOG_DEBUG("Exception in ODE Solving (Forward)");
+                DREAL_LOG_DEBUG(e.what());
                 forward_exception = true;
             }
             if (!forward_exception) return forward_ODE;
@@ -240,8 +240,8 @@ bool icp_solver::callODESolver(int group, unordered_set<Enode*> const & ode_vars
                 return odeSolver->solve_backward(m_boxes.get()) && m_propag->apply(m_boxes.get());
             }
             catch(exception& e) {
-                DREAL_DEBUG("Exception in ODE Solving (Backward)");
-                DREAL_DEBUG(e.what());
+                DREAL_LOG_DEBUG("Exception in ODE Solving (Backward)");
+                DREAL_LOG_DEBUG(e.what());
                 return true;
             }
         } else {
@@ -254,8 +254,8 @@ bool icp_solver::callODESolver(int group, unordered_set<Enode*> const & ode_vars
                 backward_ODE = odeSolver->solve_backward(m_boxes.get()) && m_propag->apply(m_boxes.get());
             }
             catch(exception& e) {
-                DREAL_DEBUG("Exception in ODE Solving (Backward)");
-                DREAL_DEBUG(e.what());
+                DREAL_LOG_DEBUG("Exception in ODE Solving (Backward)");
+                DREAL_LOG_DEBUG(e.what());
                 backward_exception = true;
             }
             if (!backward_exception) return backward_ODE;
@@ -263,8 +263,8 @@ bool icp_solver::callODESolver(int group, unordered_set<Enode*> const & ode_vars
                 return odeSolver->solve_forward(m_boxes.get()) && m_propag->apply(m_boxes.get());
             }
             catch(exception& e) {
-                DREAL_DEBUG("Exception in ODE Solving (Forward)");
-                DREAL_DEBUG(e.what());
+                DREAL_LOG_DEBUG("Exception in ODE Solving (Forward)");
+                DREAL_LOG_DEBUG(e.what());
                 return true;
             }
         }
@@ -410,7 +410,7 @@ bool icp_solver::prop_with_ODE() {
                             double const T_0_size = t.second.first;
                             double const T_x_size = t.second.second;
                             bool ode_direction = T_x_size >= T_0_size;
-                            DREAL_DEBUG(setw(20) << i << setw(20) << T_0_size << setw(20) << T_x_size << setw(20) << (ode_direction ? "Forward" : "Backward"));
+                            DREAL_LOG_DEBUG(setw(20) << i << setw(20) << T_0_size << setw(20) << T_x_size << setw(20) << (ode_direction ? "Forward" : "Backward"));
                             if (callODESolver(i, m_diff_vec[i], ode_direction) == false) {
                                 // cerr << endl;
                                 m_ode_worklist.insert(i);
@@ -433,7 +433,7 @@ bool icp_solver::prop_with_ODE() {
                         Enode * const e = m_rp_id_to_enode[i];
                         unsigned g = e->getODEgroup();
                         m_ode_worklist.insert(g);
-                        DREAL_DEBUG(e << " : " << g << " is added to worklist");
+                        DREAL_LOG_DEBUG(e << " : " << g << " is added to worklist");
                     }
                 }
                 rp_box_copy(old_box, curr_box);
@@ -503,7 +503,7 @@ void icp_solver::print_ODE_trajectory(ostream& out) const {
 bool icp_solver::solve() {
     if (m_config.nra_proof) { output_problem(); }
     if (rp_box_empty(rp_problem_box(*m_problem))) {
-        DREAL_DEBUG("Unfeasibility detected before solving");
+        DREAL_LOG_DEBUG("Unfeasibility detected before solving");
         m_explanation.clear();
         copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
         return false;
@@ -511,7 +511,7 @@ bool icp_solver::solve() {
         rp_box b = compute_next();
         if (b != nullptr) {
             /* SAT */
-            DREAL_DEBUG("SAT with the following box:");
+            DREAL_LOG_DEBUG("SAT with the following box:");
             if (m_config.nra_verbose) { pprint_vars(cerr, *m_problem, b); }
             if (m_config.nra_proof) {
                 m_config.nra_proof_out << "SAT with the following box:" << endl;
@@ -521,7 +521,7 @@ bool icp_solver::solve() {
             return true;
         } else {
             /* UNSAT */
-            DREAL_DEBUG("UNSAT!");
+            DREAL_LOG_DEBUG("UNSAT!");
             m_explanation.clear();
             copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
             return false;

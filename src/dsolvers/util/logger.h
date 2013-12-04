@@ -23,12 +23,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #define LOGGER std::cerr
-#define DREAL_TRACE(...) if (g_log_level >= LogLevel::TRACE) LOGGER << __VA_ARGS__ << std::endl
-#define DREAL_DEBUG(...) if (g_log_level >= LogLevel::DEBUG) LOGGER << __VA_ARGS__ << std::endl
-#define DREAL_INFO(...)  if (g_log_level >= LogLevel::INFO) LOGGER << __VA_ARGS__ << std::endl
-#define DREAL_WARN(...)  if (g_log_level >= LogLevel::WARN) LOGGER << __VA_ARGS__ << std::endl
-#define DREAL_ERROR(...) if (g_log_level >= LogLevel::ERROR) LOGGER << __VA_ARGS__ << std::endl
-#define DREAL_FATAL(...) if (g_log_level >= LogLevel::FATAL) LOGGER << __VA_ARGS__ << std::endl
+#define DREAL_LOG_TRACE(...) if (g_log_level >= LogLevel::TRACE) LOGGER << __VA_ARGS__ << std::endl
+#define DREAL_LOG_DEBUG(...) if (g_log_level >= LogLevel::DEBUG) LOGGER << __VA_ARGS__ << std::endl
+#define DREAL_LOG_INFO(...)  if (g_log_level >= LogLevel::INFO) LOGGER << __VA_ARGS__ << std::endl
+#define DREAL_LOG_WARN(...)  if (g_log_level >= LogLevel::WARN) LOGGER << __VA_ARGS__ << std::endl
+#define DREAL_LOG_ERROR(...) if (g_log_level >= LogLevel::ERROR) LOGGER << __VA_ARGS__ << std::endl
+#define DREAL_LOG_FATAL(...) if (g_log_level >= LogLevel::FATAL) LOGGER << __VA_ARGS__ << std::endl
 
 enum class LogLevel {TRACE, DEBUG, INFO, WARN, ERROR, FATAL };
 extern LogLevel g_log_level;
