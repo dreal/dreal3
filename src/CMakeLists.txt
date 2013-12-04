@@ -9,10 +9,12 @@ enable_testing()
 option(REQUIRE_ODE "REQUIRE_ODE" OFF)
 
 # Added for CTest
-INCLUDE(CTest)
+include(CTest)
+# Added for External Projects
+include(ExternalProject)
 
 set(DREAL_EXTRA_LINKER_FLAGS "")
-set(DREAL_EXTRA_CXX_FLAGS "")
+set(DREAL_EXTRA_CXX_FLAGS "-frounding-math")
 
 ################################################################
 # Set Module Path
@@ -62,7 +64,7 @@ endif ()
 # Fix Paths
 ################################################################
 SET(CMAKE_SYSTEM_INCLUDE_PATH ${CMAKE_SYSTEM_INCLUDE_PATH}
-  /usr/local/include /opt/local/include /usr/local/include/capd
+  /usr/local/include /opt/local/include
   /usr/include/w32api
   /usr/X11R6/include /usr/include/X11
   /usr/pkg/include
@@ -94,25 +96,45 @@ find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 
 ################################################################
+# External: FILIB++
+################################################################
+ExternalProject_Add(FILIBXX
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/filibxx
+  GIT_REPOSITORY https://github.com/soonhokong/filibxx
+  CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR}
+  BUILD_COMMAND make
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND make install
+)
+
+################################################################
+# External: CAPD-DynSys
+################################################################
+ExternalProject_Add(CAPD
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/capd_dynsys
+  GIT_REPOSITORY git@github.com:soonhokong/capdDynSys-3.0.git
+  CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER}
+  CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=yes
+  BUILD_COMMAND make
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND make install
+)
+
+################################################################
+# External: set up include dir
+################################################################
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -I${CMAKE_CURRENT_BINARY_DIR}/include")
+
+################################################################
 # CAPD
 ################################################################
-if (REQUIRE_ODE)
-  find_package(CAPD REQUIRED)
-else()
-  find_package(CAPD)
-endif()
-
-if (ODE_ENABLED)
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${CAPD_LIBRARIES})
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CAPD_CFLAGS}")
-  message(STATUS "ODE support is enabled.")
-elseif(REQUIRE_ODE)
-    MESSAGE(FATAL_ERROR "Could not find CAPD-DynSys 3.0. Please visit http://capd.ii.uj.edu.pl/download.php to download")
-else()
-    MESSAGE(STATUS "ODE support is NOT enabled. Please check that you have capdDynSys-3.0 installed. Please visit http://github.com/soonhok/dReal for more information")
-endif()
+set(CAPD_LD_FLAGS "-L${CMAKE_CURRENT_BINARY_DIR}/lib -lcapddynsysfacade -lcapdcovrel -lcapddiffIncl -lcapdpoincare -lcapddiffAlgebra -lcapddynsys -lcapdmap -lcapddynset -lcapdgeomset -lcapdalgfacade -lcapdmatrixAlgorithms -lcapdvectalg -lcapdintervals -lcapdrounding -lcapdbasicalg -lcapdauxil -lcapdalglib")
 
 ################################################################
+# FILIB
+################################################################
+set(EXTRA_LIBS ${EXTRA_LIBS} "-lprim")
 
 ################################################################
 # EGLIBC (Optional)
@@ -176,8 +198,6 @@ add_subdirectory(dsolvers)
 set(DREAL_LIBS ${DREAL_LIBS} dsolvers)
 add_subdirectory(realpaver)
 set(DREAL_LIBS ${DREAL_LIBS} realpaver)
-add_subdirectory(filib)
-set(DREAL_LIBS ${DREAL_LIBS} filib)
 add_subdirectory(dsolvers/util)
 set(DREAL_LIBS ${DREAL_LIBS} util)
 
