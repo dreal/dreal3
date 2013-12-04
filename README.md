@@ -21,7 +21,6 @@ Required Packages
 =================
  - C++11-compatible compiler ([g++-4.8][gcc], [clang++-3.3][clang])
  - [bison][bison], [flex][flex], [cmake][cmake]
- - [boost (>=1.54)][boost]
  - [capd-DynSys 3.0][capd-dynsys]
  - [ocaml (>=4.0.0)][ocaml], [opam][opam], [ocaml-findlib][ocaml-findlib], [ocaml-batteries (>=2.0)][ocaml-batteries]
 
@@ -33,7 +32,6 @@ Required Packages
 [capd-dynsys-daily]: http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
 [bison]: http://www.gnu.org/software/bison
 [flex]: http://flex.sourceforge.net
-[boost]: http://www.boost.org
 [ocaml]: http://ocaml.org
 [opam]: http://opam.ocamlpro.com
 [ocaml-findlib]: http://projects.camlcity.org/projects/findlib.html
