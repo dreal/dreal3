@@ -19,7 +19,6 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Enode.h"
 #include "dsolvers/util/string.h"
-#include <boost/algorithm/string/predicate.hpp>
 
 //
 // Constructor for ENIL

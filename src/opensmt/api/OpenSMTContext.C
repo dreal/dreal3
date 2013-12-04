@@ -27,7 +27,6 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "Purify.h"
 
 #include <csignal>
-#include <boost/algorithm/string/predicate.hpp>
 #include <algorithm>
 #include "dsolvers/util/string.h"
 

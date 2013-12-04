@@ -25,7 +25,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
-#include <boost/algorithm/string/predicate.hpp>
 #include "dsolvers/icp_solver.h"
 #include "dsolvers/util/scoped_env.h"
 #include "dsolvers/util/scoped_vec.h"
