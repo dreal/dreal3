@@ -20,14 +20,7 @@ Install Packages
     sudo apt-get update
     sudo apt-get install -qq bison flex cmake
 
-3. Boost 1.54
--------------
-
-    sudo add-apt-repository ppa:boost-latest/ppa -y
-    sudo apt-get update
-    sudo apt-get install -qq libboost1.54-all-dev
-
-4. CAPD-DynSys 3.0
+3. CAPD-DynSys 3.0
 ------------------
 
     wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
@@ -42,7 +35,7 @@ Note that we need to compile ``capd`` using the same compiler that we
 will compile dReal (``clang++-3.3`` in this example).
 
 
-5. EGLIBC-2.17 (Optional)
+4. EGLIBC-2.17 (Optional)
 -------------------------
 
 Using eglibc (<= 2.16) may cause severe errors in floating point

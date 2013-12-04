@@ -18,14 +18,9 @@ gcc-4.8/automake/autoconf/libtool/git/cmake
     brew update
     brew install gcc48 automake autoconf libtool git cmake
 
-
-boost
------
-
-    brew install --cc=gcc-4.8 --cxx=g++-4.8 --c++11 boost
-
 capd
 ----
+
     wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
     unzip capdDynSys.zip
     cd capd_dynsys
