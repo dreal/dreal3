@@ -31,7 +31,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "dsolvers/util/scoped_vec.h"
 #include "dsolvers/util/logger.h"
 
-using boost::starts_with;
 using std::cerr;
 using std::endl;
 using std::setw;

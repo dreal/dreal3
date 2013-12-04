@@ -24,11 +24,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <boost/algorithm/string/join.hpp>
 #include "dsolvers/ode_solver.h"
 #include "dsolvers/util/logger.h"
+#include "dsolvers/util/string.h"
 
-using boost::algorithm::join;
 using capd::C0Rect2Set;
 using capd::IFunction;
 using capd::IMap;

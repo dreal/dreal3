@@ -29,6 +29,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <csignal>
 #include <boost/algorithm/string/predicate.hpp>
 #include <algorithm>
+#include "dsolvers/util/string.h"
 
 namespace opensmt {
 
@@ -931,7 +932,7 @@ void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v)
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
         e->setUpperBound(v);
         // cerr << "addIntvCtr: " << e << " " << op << " " << e->getUpperBound()<< endl;
-        if (boost::starts_with(e->getCar()->getName(), "time_")) {
+        if (starts_with(e->getCar()->getName(), "time_")) {
             // cerr << "time_ <=" << endl;
             addAssert(mkLeq(mkCons(e, mkCons(mkNum(v)))));
         }
@@ -939,7 +940,7 @@ void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v)
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
         e->setLowerBound(v);
         // cerr << "addIntvCtr: " << e << " " << op << " " << e->getLowerBound() << endl;
-        if (boost::starts_with(e->getCar()->getName(), "time_")) {
+        if (starts_with(e->getCar()->getName(), "time_")) {
             // cerr << "time_ >=" << endl;
             addAssert(mkGeq(mkCons(e, mkCons(mkNum(v)))));
         }

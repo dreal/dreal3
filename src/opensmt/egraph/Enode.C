@@ -18,6 +18,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "Enode.h"
+#include "dsolvers/util/string.h"
 #include <boost/algorithm/string/predicate.hpp>
 
 //
@@ -324,7 +325,7 @@ void Enode::print_infix(ostream & os, lbool polarity) const {
     } else if (isNumb()) {
         string temp = getName();
         os << getName();
-        if(boost::algorithm::ends_with(temp, ".")) {
+        if(ends_with(temp, ".")) {
             os << "0";
         }
     } else if (isTerm()) {
