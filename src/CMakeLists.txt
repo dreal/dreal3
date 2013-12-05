@@ -14,7 +14,7 @@ include(CTest)
 include(ExternalProject)
 
 set(DREAL_EXTRA_LINKER_FLAGS "")
-set(DREAL_EXTRA_CXX_FLAGS "-frounding-math -mfpmath=sse -msse -msse2  -D__USE_FILIB__")
+set(DREAL_EXTRA_CXX_FLAGS "")
 
 ################################################################
 # Set Module Path
@@ -102,34 +102,36 @@ ExternalProject_Add(FILIBXX
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/filibxx
   GIT_REPOSITORY https://github.com/soonhokong/filibxx
   CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR}
-  BUILD_COMMAND make
+  BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make install
+  INSTALL_COMMAND make -j install
 )
 
 ################################################################
-# External: CAPD-DynSys
+# External: CAPD-DynSys-3.0
 ################################################################
 ExternalProject_Add(CAPD
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/capd_dynsys
+# GIT_REPOSITORY git@github.com:soonhokong/capdDynSys-4.0.git
   GIT_REPOSITORY git@github.com:soonhokong/capdDynSys-3.0.git
-  CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER}
-  CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=yes --with-mpfr=no
-  BUILD_COMMAND make
+  CONFIGURE_COMMAND autoreconf --install && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
+  BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make install
+  INSTALL_COMMAND make -j install
 )
 
 ################################################################
 # External: set up include dir
 ################################################################
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
-set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -I${CMAKE_CURRENT_BINARY_DIR}/include")
+set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -frounding-math -mfpmath=sse -msse -msse2 -ffloat-store")
 
 ################################################################
 # CAPD
 ################################################################
-set(CAPD_LD_FLAGS "-L${CMAKE_CURRENT_BINARY_DIR}/lib -lcapddynsysfacade -lcapdcovrel -lcapddiffIncl -lcapdpoincare -lcapddiffAlgebra -lcapddynsys -lcapdmap -lcapddynset -lcapdgeomset -lcapdalgfacade -lcapdmatrixAlgorithms -lcapdvectalg -lcapdintervals -lcapdrounding -lcapdbasicalg -lcapdauxil -lcapdalglib")
+set(CAPD_LD_FLAGS "-L${CMAKE_CURRENT_BINARY_DIR}/lib")
+set(EXTRA_LIBS ${EXTRA_LIBS} "-lcapddynsysfacade -lcapdcovrel -lcapddiffIncl -lcapdpoincare -lcapddiffAlgebra -lcapddynsys -lcapdmap -lcapddynset -lcapdgeomset -lcapdalgfacade -lcapdmatrixAlgorithms -lcapdvectalg -lprim -lcapdintervals -lcapdrounding -lcapdbasicalg -lcapdauxil -lcapdalglib")
+
 set(ODE_ENABLED TRUE)
 ################################################################
 # FILIB
@@ -206,9 +208,9 @@ add_subdirectory(tests/nra)
 add_subdirectory(tests/nra_ode)
 
 #dependencies
-#add_dependencies(opensmt FILIBXX)
+add_dependencies(dsolvers FILIBXX)
 add_dependencies(realpaver FILIBXX)
-#add_dependencies(opensmt CAPD)
+add_dependencies(dsolvers CAPD)
 add_dependencies(realpaver CAPD)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${CAPD_LD_FLAGS}")
