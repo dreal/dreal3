@@ -11,8 +11,8 @@
  * rp_propagator.cpp                                                        *
  ****************************************************************************/
 
+#include <iostream>
 #include "rp_propagator.h"
-#include<iostream>
 
 using namespace std;
 
@@ -465,7 +465,7 @@ int rp_propagator::apply_loop(rp_box b)
     if (this->check_precision(o,b))
     {
 //add
-        _out<<endl<<"[before pruning] "<<endl;
+        _out << endl << "[before pruning] " << endl;
         rp_pprint_vars(*_problem, b);
 //added
       if (o->apply(b))
