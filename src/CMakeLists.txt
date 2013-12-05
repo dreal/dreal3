@@ -14,7 +14,7 @@ include(CTest)
 include(ExternalProject)
 
 set(DREAL_EXTRA_LINKER_FLAGS "")
-set(DREAL_EXTRA_CXX_FLAGS "-frounding-math")
+set(DREAL_EXTRA_CXX_FLAGS "-frounding-math -mfpmath=sse -msse -msse2  -D__USE_FILIB__")
 
 ################################################################
 # Set Module Path
@@ -130,7 +130,7 @@ set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -I${CMAKE_CURRENT_BINARY_DIR
 # CAPD
 ################################################################
 set(CAPD_LD_FLAGS "-L${CMAKE_CURRENT_BINARY_DIR}/lib -lcapddynsysfacade -lcapdcovrel -lcapddiffIncl -lcapdpoincare -lcapddiffAlgebra -lcapddynsys -lcapdmap -lcapddynset -lcapdgeomset -lcapdalgfacade -lcapdmatrixAlgorithms -lcapdvectalg -lcapdintervals -lcapdrounding -lcapdbasicalg -lcapdauxil -lcapdalglib")
-
+set(ODE_ENABLED TRUE)
 ################################################################
 # FILIB
 ################################################################
