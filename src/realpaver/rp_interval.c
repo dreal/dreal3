@@ -13,8 +13,10 @@
 
 #include <string.h>
 #include <ctype.h>
-#include "rp_interval.h"
-#include "filib/fi_lib.h"
+#include "realpaver/rp_interval.h"
+#include <interval/interval.hpp>
+//#include <capd/intervals/Interval.hpp>
+#include "dsolvers/util/logger.h"
 
 #define _max(x, y) (x > y ? x : y)
 #define _min(x, y) (x < y ? x : y)
@@ -30,6 +32,10 @@ rp_interval RP_INTERVAL_1_PI_2;
 rp_interval RP_INTERVAL_3_PI_2;
 rp_interval RP_INTERVAL_5_PI_2;
 rp_interval RP_INTERVAL_7_PI_2;
+
+//typedef filib::interval<double, filib::pred_succ_rounding> interval;
+typedef filib::interval<double, filib::pred_succ_rounding, filib::i_mode_extended> interval;
+//typedef filib::interval<double> interval;
 
 /* Returns true if i==j when their bounds are truncated at n digits */
 int rp_interval_equal_digits (rp_interval i, rp_interval j, int n)
@@ -1066,10 +1072,13 @@ void rp_interval_sqr(rp_interval result, rp_interval i)
 /* result := sqrt(i) */
 void rp_interval_sqrt(rp_interval result, rp_interval i)
 {
-    interval t = {rp_max_num(0.0, rp_binf(i)), rp_bsup(i)};
-    t = j_sqrt(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_max_num(0.0, rp_binf(i)), rp_bsup(i));
+    t = sqrt(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("sqrt([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* if( rp_bsup(i)<0.0 ) */
@@ -1094,57 +1103,67 @@ void rp_interval_sqrt(rp_interval result, rp_interval i)
 /* let n=[j,j], result := i^j */
 void rp_interval_pow(rp_interval result, rp_interval i, rp_interval n)
 {
-  int exp = (int)rp_binf(n);
+  interval t(rp_binf(i), rp_bsup(i));
+  interval i_n(rp_binf(n), rp_bsup(n));
+  t = power(t, i_n);
+  rp_binf(result) = t.inf();
+  rp_bsup(result) = t.sup();
+  return;
 
-  if( rp_even(exp) )   /* n even */
-  {
-    rp_interval z;
-    rp_interval_abs(z,i);
-    if (rp_binf(z)==0.0)
-    {
-      rp_binf(result) = 0.0;
-    }
-    else
-    {
-      rp_binf(result) = rp_pow(rp_binf(z),exp,RP_ROUND_VALUE_DOWN);
-    }
-    if (rp_bsup(z)==RP_INFINITY)
-    {
-      rp_bsup(result) = RP_INFINITY;
-    }
-    else
-    {
-      rp_bsup(result) = rp_pow(rp_bsup(z),exp,RP_ROUND_VALUE_UP);
-    }
-  }
-  else  /* rp_odd(exp) */
-  {
-    if (rp_binf(i)==(-RP_INFINITY))
-    {
-      rp_binf(result) = (-RP_INFINITY);
-    }
-    else
-    {
-      rp_binf(result) = rp_pow(rp_binf(i),exp,RP_ROUND_VALUE_DOWN);
-    }
-    if (rp_bsup(i)==RP_INFINITY)
-    {
-      rp_bsup(result) = RP_INFINITY;
-    }
-    else
-    {
-      rp_bsup(result) = rp_pow(rp_bsup(i),exp,RP_ROUND_VALUE_UP);
-    }
-  }
+  // int exp = (int)rp_binf(n);
+
+  // if( rp_even(exp) )   /* n even */
+  // {
+  //   rp_interval z;
+  //   rp_interval_abs(z,i);
+  //   if (rp_binf(z)==0.0)
+  //   {
+  //     rp_binf(result) = 0.0;
+  //   }
+  //   else
+  //   {
+  //     rp_binf(result) = rp_pow(rp_binf(z),exp,RP_ROUND_VALUE_DOWN);
+  //   }
+  //   if (rp_bsup(z)==RP_INFINITY)
+  //   {
+  //     rp_bsup(result) = RP_INFINITY;
+  //   }
+  //   else
+  //   {
+  //     rp_bsup(result) = rp_pow(rp_bsup(z),exp,RP_ROUND_VALUE_UP);
+  //   }
+  // }
+  // else  /* rp_odd(exp) */
+  // {
+  //   if (rp_binf(i)==(-RP_INFINITY))
+  //   {
+  //     rp_binf(result) = (-RP_INFINITY);
+  //   }
+  //   else
+  //   {
+  //     rp_binf(result) = rp_pow(rp_binf(i),exp,RP_ROUND_VALUE_DOWN);
+  //   }
+  //   if (rp_bsup(i)==RP_INFINITY)
+  //   {
+  //     rp_bsup(result) = RP_INFINITY;
+  //   }
+  //   else
+  //   {
+  //     rp_bsup(result) = rp_pow(rp_bsup(i),exp,RP_ROUND_VALUE_UP);
+  //   }
+  // }
 }
 
 /* result := exp(i) */
 void rp_interval_exp(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
-    t = j_exp(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_binf(i), rp_bsup(i));
+    t = exp(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("exp([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* RP_ROUND_DOWNWARD(); */
@@ -1162,10 +1181,13 @@ void rp_interval_exp(rp_interval result, rp_interval i)
 /* result := log(i) */
 void rp_interval_log(rp_interval result, rp_interval i)
 {
-    interval t = {rp_max_num(0.0, rp_binf(i)), rp_bsup(i)};
-    t = j_log(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_max_num(0.0, rp_binf(i)), rp_bsup(i));
+    t = log(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("log([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* if( rp_bsup(i)<=0.0 ) */
@@ -1190,10 +1212,13 @@ void rp_interval_log(rp_interval result, rp_interval i)
 /* result := sin(i) */
 void rp_interval_sin(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
-    t = j_sin(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_binf(i), rp_bsup(i));
+    t = sin(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("sin([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* rp_interval i_t; */
@@ -1291,10 +1316,13 @@ void rp_interval_sin(rp_interval result, rp_interval i)
 /* result := cos(i) */
 void rp_interval_cos(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
-    t = j_cos(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_binf(i), rp_bsup(i));
+    t = cos(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("cos([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* rp_interval j; */
@@ -1312,10 +1340,13 @@ void rp_interval_cos(rp_interval result, rp_interval i)
 /* result := tan(i) */
 void rp_interval_tan(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
-    t = j_tan(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_binf(i), rp_bsup(i));
+    t = tan(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("tan([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* rp_interval i_t; */
@@ -1394,10 +1425,13 @@ void rp_interval_tan(rp_interval result, rp_interval i)
 /* decreasing function in (-oo,0] and increasing function in [0,+oo) */
 void rp_interval_cosh(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
-    t = j_cosh(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_binf(i), rp_bsup(i));
+    t = cosh(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("cosh([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* if( rp_binf(i)>0.0 ) */
@@ -1432,10 +1466,13 @@ void rp_interval_cosh(rp_interval result, rp_interval i)
 /* increasing function in (-oo,+oo) */
 void rp_interval_sinh(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
-    t = j_sinh(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_binf(i), rp_bsup(i));
+    t = sinh(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("sinh([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* RP_ROUND_DOWNWARD(); */
@@ -1449,10 +1486,13 @@ void rp_interval_sinh(rp_interval result, rp_interval i)
 /* increasing function in (-oo,+oo) */
 void rp_interval_tanh(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
-    t = j_tanh(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_binf(i), rp_bsup(i));
+    t = tanh(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("tanh([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* RP_ROUND_DOWNWARD(); */
@@ -1465,11 +1505,14 @@ void rp_interval_tanh(rp_interval result, rp_interval i)
 /* result := asin(i) (increasing function in [-1,1]) */
 void rp_interval_asin(rp_interval result, rp_interval i)
 {
-//    interval t = {rp_binf(i), rp_bsup(i)};
-    interval t = {rp_max_num(-1.0, rp_binf(i)), rp_min_num(+1.0, rp_bsup(i))};
-    t = j_asin(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+//    interval t(rp_binf(i), rp_bsup(i));
+    interval t(rp_max_num(-1.0, rp_binf(i)), rp_min_num(+1.0, rp_bsup(i)));
+    t = asin(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("asin([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* rp_interval j; */
@@ -1492,11 +1535,14 @@ void rp_interval_asin(rp_interval result, rp_interval i)
 /* result := acos(i) (decreasing function in [-1,1]) */
 void rp_interval_acos(rp_interval result, rp_interval i)
 {
-    interval t = {rp_max_num(-1.0, rp_binf(i)), rp_min_num(+1.0, rp_bsup(i))};
-//    interval t = {rp_binf(i), rp_bsup(i)};
-    t = j_acos(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_max_num(-1.0, rp_binf(i)), rp_min_num(+1.0, rp_bsup(i)));
+//    interval t(rp_binf(i), rp_bsup(i));
+    t = acos(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("acos([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* rp_interval j; */
@@ -1519,10 +1565,13 @@ void rp_interval_acos(rp_interval result, rp_interval i)
 /* result := atan(i)  (increasing function in (-oo,+oo)) */
 void rp_interval_atan(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
-    t = j_atan(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_binf(i), rp_bsup(i));
+    t = atan(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("atan([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* RP_ROUND_DOWNWARD(); */
@@ -1536,10 +1585,13 @@ void rp_interval_atan(rp_interval result, rp_interval i)
 /* increasing function in (-oo,+oo) */
 void rp_interval_asinh(rp_interval result, rp_interval i)
 {
-    interval t = {rp_binf(i), rp_bsup(i)};
-    t = j_asnh(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_binf(i), rp_bsup(i));
+    t = asinh(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("asinh([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* RP_ROUND_DOWNWARD(); */
@@ -1553,10 +1605,13 @@ void rp_interval_asinh(rp_interval result, rp_interval i)
 /* increasing function in [1,+oo) */
 void rp_interval_acosh(rp_interval result, rp_interval i)
 {
-    interval t = {rp_max_num(1.0, rp_binf(i)), rp_bsup(i)};
-    t = j_acsh(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_max_num(1.0, rp_binf(i)), rp_bsup(i));
+    t = acosh(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("acosh([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* if( rp_bsup(i)<1.0 ) */
@@ -1590,10 +1645,13 @@ void rp_interval_acosh(rp_interval result, rp_interval i)
 /* increasing function in (-1,1) */
 void rp_interval_atanh(rp_interval result, rp_interval i)
 {
-    interval t = {rp_max_num(-1.0, rp_binf(i)), rp_min_num(+1.0, rp_bsup(i))};
-    t = j_atnh(t);
-    rp_binf(result) = t.INF;
-    rp_bsup(result) = t.SUP;
+    interval t(rp_max_num(-1.0, rp_binf(i)), rp_min_num(+1.0, rp_bsup(i)));
+    t = atanh(t);
+    rp_binf(result) = t.inf();
+    rp_bsup(result) = t.sup();
+    DREAL_LOG_DEBUG("atanh([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
+                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                    << std::endl);
     return;
 
   /* if ( (rp_bsup(i)<=-1.0) || (rp_binf(i)>=1.0) ) */
@@ -1666,6 +1724,9 @@ void rp_interval_matan(rp_interval result, rp_interval x)
     if(rp_interval_contains(x, 0.0)) {
         rp_interval_hull(result, result, one);
     }
+    DREAL_LOG_DEBUG("matan([" << rp_binf(x) << ", " << rp_bsup(x) << "]) = "
+                              << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                              << std::endl);
 }
 
 /* result := safesqrt(i)  (increasing function in (-oo,+oo)) */
@@ -1775,6 +1836,10 @@ void rp_interval_atan2(rp_interval result, rp_interval y, rp_interval x)
 
 //    printf("atan2(y, x) = ");
 //    rp_interval_display_simple_nl(result);
+    DREAL_LOG_DEBUG("atan2([" << rp_binf(y) << ", " << rp_bsup(y) << "], "
+                              << rp_binf(x) << ", " << rp_bsup(x) << "]) = "
+                              << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                              << std::endl);
 }
 
 /* result := n-th root of i                                                */
@@ -1878,6 +1943,10 @@ void rp_interval_nthroot(rp_interval result, rp_interval i, rp_interval n)
       }
     }
   }
+  DREAL_LOG_DEBUG("nthroot([" << rp_binf(i) << ", " << rp_bsup(i) << "], "
+                  << rp_binf(n) << ", " << rp_bsup(n) << "]) = "
+                  << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]"
+                  << std::endl);
 }
 
 /* result := absolute value of i */
@@ -2018,6 +2087,8 @@ void rp_interval_init()
 
   rp_interval_set(aux,7.0,7.0);
   rp_interval_mul_rpos_i(RP_INTERVAL_7_PI_2,aux,RP_INTERVAL_1_PI_2);
+
+  filib::fp_traits<double>::setup();
 }
 
 /* Destruction of the interval arithmetic module */
