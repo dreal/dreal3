@@ -1105,7 +1105,7 @@ void rp_interval_pow(rp_interval result, rp_interval i, rp_interval n)
 {
   interval t(rp_binf(i), rp_bsup(i));
   interval i_n(rp_binf(n), rp_bsup(n));
-  t = power(t, i_n);
+  t = pow(t, i_n);
   rp_binf(result) = t.inf();
   rp_bsup(result) = t.sup();
   return;
