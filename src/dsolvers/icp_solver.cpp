@@ -438,10 +438,9 @@ bool icp_solver::prop_with_ODE() {
                 rp_box_copy(old_box, curr_box);
             } while (new_volume - old_volume <= -0.10);
             return true;
-        } else {
-            return true;
         }
 #endif
+        return true;
     }
     return false;
 }
