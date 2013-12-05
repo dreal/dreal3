@@ -318,15 +318,15 @@ vector<pair<double, double>> icp_solver::measure_size(unordered_set<Enode*> cons
 
 bool icp_solver::prop_with_ODE() {
     if (m_propag->apply(m_boxes.get())) {
-        rp_box curr_box = m_boxes.get();
-        rp_box old_box;
-        rp_box_create(&old_box, rp_box_size(curr_box));
-        rp_box_copy(old_box, curr_box);
-
-        double old_volume = rp_box_volume_log(old_box);
-        double new_volume = old_volume;
 #ifdef ODE_ENABLED
         if (m_config.nra_contain_ODE) {
+            rp_box curr_box = m_boxes.get();
+            rp_box old_box;
+            rp_box_create(&old_box, rp_box_size(curr_box));
+            rp_box_copy(old_box, curr_box);
+
+            double old_volume = rp_box_volume_log(old_box);
+            double new_volume = old_volume;
             do {
                 // Find ODE groups whose X_0, X_t, and T are smallest interval boxes
                 vector<pair<unsigned, pair<double, double>>> ode_group_scores;
