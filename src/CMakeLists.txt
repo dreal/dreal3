@@ -114,7 +114,7 @@ ExternalProject_Add(CAPD
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/capd_dynsys
   GIT_REPOSITORY git@github.com:soonhokong/capdDynSys-3.0.git
   CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER}
-  CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=yes
+  CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=yes --with-mpfr=no
   BUILD_COMMAND make
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
@@ -204,6 +204,12 @@ set(DREAL_LIBS ${DREAL_LIBS} util)
 #add tests
 add_subdirectory(tests/nra)
 add_subdirectory(tests/nra_ode)
+
+#dependencies
+#add_dependencies(opensmt FILIBXX)
+add_dependencies(realpaver FILIBXX)
+#add_dependencies(opensmt CAPD)
+add_dependencies(realpaver CAPD)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${CAPD_LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
