@@ -101,6 +101,8 @@ find_package(FLEX REQUIRED)
 ExternalProject_Add(FILIBXX
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/filibxx
   GIT_REPOSITORY https://github.com/soonhokong/filibxx
+  GIT_TAG origin/master
+  UPDATE_COMMAND git pull origin master
   CONFIGURE_COMMAND autoreconf --install && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR}
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
@@ -114,6 +116,8 @@ ExternalProject_Add(CAPD
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/capd_dynsys
 # GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-4.0.git
   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
+  GIT_TAG origin/master
+  UPDATE_COMMAND git pull origin master
   CONFIGURE_COMMAND autoreconf --install && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
