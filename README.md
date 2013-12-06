@@ -21,8 +21,13 @@ Required Packages
 =================
  - C++11-compatible compiler ([g++-4.8][gcc], [clang++-3.3][clang])
  - [bison][bison], [flex][flex], [cmake][cmake]
+ - [automake][automake], [autoconf][autoconf], [make][make], [libtool][libtool]
  - [ocaml (>=4.0.0)][ocaml], [opam][opam], [ocaml-findlib][ocaml-findlib], [ocaml-batteries (>=2.0)][ocaml-batteries]
 
+[automake]: http://www.gnu.org/software/automake/
+[autoconf]: http://www.gnu.org/software/autoconf/
+[make]: http://www.gnu.org/software/make/
+[libtool]: http://www.gnu.org/software/libtool/
 [gcc]: http://gcc.gnu.org/projects/cxx0x.html
 [clang]: http://clang.llvm.org/cxx_status.html
 [dReal]: http://dreal.cs.cmu.edu
