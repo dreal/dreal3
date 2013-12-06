@@ -112,8 +112,8 @@ ExternalProject_Add(FILIBXX
 ################################################################
 ExternalProject_Add(CAPD
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/capd_dynsys
-# GIT_REPOSITORY git@github.com:soonhokong/capdDynSys-4.0.git
-  GIT_REPOSITORY git@github.com:soonhokong/capdDynSys-3.0.git
+# GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-4.0.git
+  GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
   CONFIGURE_COMMAND autoreconf --install && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
