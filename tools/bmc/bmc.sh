@@ -1,13 +1,6 @@
 #!/bin/bash
 
-case "$OSTYPE" in
-  darwin*)
-	SCRIPTPATH=`dirname $(readlink $0)`;;
-  linux*)  
-	SCRIPTPATH=`dirname $(readlink -f $0)`;;
-  *)    
-	SCRIPTPATH=`dirname $(readlink -f $0)`;;
-esac
+SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 BMC=${SCRIPTPATH}/main.native
 
