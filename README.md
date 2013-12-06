@@ -21,15 +21,12 @@ Required Packages
 =================
  - C++11-compatible compiler ([g++-4.8][gcc], [clang++-3.3][clang])
  - [bison][bison], [flex][flex], [cmake][cmake]
- - [capd-DynSys 3.0][capd-dynsys]
  - [ocaml (>=4.0.0)][ocaml], [opam][opam], [ocaml-findlib][ocaml-findlib], [ocaml-batteries (>=2.0)][ocaml-batteries]
 
 [gcc]: http://gcc.gnu.org/projects/cxx0x.html
 [clang]: http://clang.llvm.org/cxx_status.html
 [dReal]: http://dreal.cs.cmu.edu
 [cmake]:http://www.cmake.org/cmake/resources/software.html
-[capd-dynsys]: http://capd.ii.uj.edu.pl/download.php
-[capd-dynsys-daily]: http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
 [bison]: http://www.gnu.org/software/bison
 [flex]: http://flex.sourceforge.net
 [ocaml]: http://ocaml.org
