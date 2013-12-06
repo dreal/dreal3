@@ -18,20 +18,6 @@ gcc-4.8/automake/autoconf/libtool/git/cmake
     brew update
     brew install gcc48 automake autoconf libtool git cmake
 
-capd
-----
-
-    wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
-    unzip capdDynSys.zip
-    cd capd_dynsys
-    autoreconf --install
-    ./configure --without-gui CXX=g++-4.8 CC=gcc-4.8
-    make
-    sudo make install
-
-Note that we need to compile ``capd`` using the same compiler that we
-will compile dReal (``g++-4.8`` in this example).
-
 Build dReal
 ===========
 

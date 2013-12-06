@@ -20,22 +20,7 @@ Install Packages
     sudo apt-get update
     sudo apt-get install -qq bison flex cmake
 
-3. CAPD-DynSys 3.0
-------------------
-
-    wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
-    unzip capdDynSys.zip
-    cd capd_dynsys
-    autoreconf --install
-    ./configure --without-gui CXX=clang++-3.3 CC=clang-3.3
-    make
-    sudo make install
-
-Note that we need to compile ``capd`` using the same compiler that we
-will compile dReal (``clang++-3.3`` in this example).
-
-
-4. EGLIBC-2.17 (Optional)
+3. EGLIBC-2.17 (Optional)
 -------------------------
 
 Using eglibc (<= 2.16) may cause severe errors in floating point
