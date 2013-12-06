@@ -22,15 +22,6 @@ install:
  - rm gcc-4.8-bin.tar.gz
  # autoconf automake cmake libtool pkg-config
  - brew install autoconf automake cmake libtool pkg-config
- # capd
- - wget http://dreal.cs.cmu.edu/required_packages/capdDynSys.zip
- - unzip -qq capdDynSys.zip
- - cd capd_dynsys
- - autoreconf --install
- - ./configure --without-gui CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER}
- - make
- - sudo make install
- - cd ..
  # ocaml, opam, ocamlfind, ocaml-batteries
  - brew install cmake ocaml opam
  - yes | opam init

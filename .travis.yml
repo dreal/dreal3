@@ -60,16 +60,6 @@ install:
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
   # Install Bison, Flex, CMAKE
   - sudo apt-get -qq install bison flex wget cmake
-  # Install capdDynSys-3.0
-  - sudo apt-get -qq install automake autoconf libtool
-  - wget http://krzesanica.ii.uj.edu.pl/capd/capdDynSys.zip
-  - unzip -qq capdDynSys.zip
-  - cd capd_dynsys
-  - autoreconf --install
-  - ./configure --without-gui CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER}
-  - make
-  - sudo make install
-  - cd ..
   # Ocaml
   - sudo apt-get -qq install ocaml opam
   - yes | opam init
