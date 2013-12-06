@@ -101,7 +101,7 @@ find_package(FLEX REQUIRED)
 ExternalProject_Add(FILIBXX
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/filibxx
   GIT_REPOSITORY https://github.com/soonhokong/filibxx
-  CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR}
+  CONFIGURE_COMMAND autoreconf --install && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR}
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make -j install
