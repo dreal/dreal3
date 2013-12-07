@@ -128,7 +128,17 @@ ExternalProject_Add(CAPD
 # External: set up include dir
 ################################################################
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
-set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -frounding-math -mfpmath=sse -msse -msse2 -ffloat-store")
+
+################################################################
+# CXX Flags
+################################################################
+set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -mfpmath=sse -msse -msse2 -ffloat-store")
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -frounding-math")
+endif()
+
+
 
 ################################################################
 # CAPD
