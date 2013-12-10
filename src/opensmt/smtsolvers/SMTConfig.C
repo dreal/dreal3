@@ -368,12 +368,12 @@ SMTConfig::parseCMDLine( int argc
     if ( strcmp( buf, "--proof" ) == 0 )
     {
         nra_proof = true;
-        string filename = string(argv[ argc - 1 ]) + ".proof";
         /* Open file stream */
-        nra_proof_out.open (filename.c_str(), std::ofstream::out | std::ofstream::trunc );
+        nra_proof_out_name = string(argv[ argc - 1 ]) + ".proof";
+        nra_proof_out.open (nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
         if(nra_proof_out.fail())
         {
-            cout << "Cannot create a file: " << filename << endl;
+            cout << "Cannot create a file: " << nra_proof_out_name << endl;
             exit( 1 );
         }
         continue;

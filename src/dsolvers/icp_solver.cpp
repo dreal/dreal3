@@ -512,6 +512,8 @@ bool icp_solver::solve() {
             DREAL_LOG_DEBUG("SAT with the following box:");
             if (m_config.nra_verbose) { pprint_vars(cerr, *m_problem, b); }
             if (m_config.nra_proof) {
+                m_config.nra_proof_out.close();
+                m_config.nra_proof_out.open(m_config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
                 m_config.nra_proof_out << "SAT with the following box:" << endl;
                 pprint_vars(m_config.nra_proof_out, *m_problem, b);
                 m_config.nra_proof_out << endl;
