@@ -423,26 +423,24 @@ void rp_propagator::insert(rp_operator * o)
 // Checks if the operator can be applied
 int rp_propagator::check_precision(rp_operator * o, rp_box b)
 {
-//  return( 1 );
-
-  /* Dangerous to stop the application of one operator
-     but it can be efficient for slow convergences... */
-
-
-  for (int i=0; i<o->pruned_arity(); ++i)
-  {
-    int v = o->pruned_var(i);
-    // double eps = rp_min_num(1.0e-14,
-    //                         rp_variable_precision(rp_problem_var(*_problem,v)));
-    double eps = rp_variable_precision(rp_problem_var(*_problem,v));
-
-    if (rp_interval_width(rp_box_elem(b,v))>(eps))
-    {
-      return( 1 );
+    static bool state = false;
+    for (int i=0; i<o->pruned_arity(); ++i) {
+        int v = o->pruned_var(i);
+        double eps = rp_variable_precision(rp_problem_var(*_problem,v));
+        if (rp_interval_width(rp_box_elem(b,v))>(eps)) {
+            // Box size is greater than eps, return true
+            return( 1 );
+        }
     }
-  }
-  return( 0 );
-  /* */
+    // Box size is smaller than eps
+    if (!state) {
+        // However, we return true to apply pruning if it's the first time.
+        state = true;
+        return ( 1 );
+    }
+    // return false if it's second time...
+    state = false;
+    return( 0 );
 }
 
 // Application once the working operators have been defined
@@ -454,18 +452,16 @@ int rp_propagator::apply_loop(rp_box b)
     }
 
     // Loop until empty queue or empty domain
-    bool applied = false;
     while (!rp_oqueue_list_empty(_queue)) {
         rp_operator * o = rp_oqueue_list_pop(_queue);
         rp_box_copy(_bsave,b);
         o->set_unworking();  // o is no longer in the list
 
-        if (!applied || this->check_precision(o,b)) {
+        if (this->check_precision(o,b)) {
 //add
             _out << endl << "[before pruning] " << endl;
             rp_pprint_vars(*_problem, b);
 //added
-            applied = true;
             if (o->apply(b)) {
                 // Propagation for every variable that can be modified by o
                 for (int i=0; i<o->pruned_arity(); ++i) {
