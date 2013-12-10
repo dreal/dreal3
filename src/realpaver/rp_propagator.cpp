@@ -448,79 +448,68 @@ int rp_propagator::check_precision(rp_operator * o, rp_box b)
 // Application once the working operators have been defined
 int rp_propagator::apply_loop(rp_box b)
 {
-  // Enlarge the size of _bsave if necessary
-  if (rp_box_size(_bsave)<rp_box_size(b))
-  {
-    rp_box_enlarge_size(&_bsave,rp_box_size(b)-rp_box_size(_bsave));
-  }
-
-  // Loop until empty queue or empty domain
-  while (!rp_oqueue_list_empty(_queue))
-  {
-    rp_operator * o = rp_oqueue_list_pop(_queue);
-    rp_box_copy(_bsave,b);
-    o->set_unworking();  // o is no longer in the list
-
-
-    if (this->check_precision(o,b))
-    {
-//add
-        _out << endl << "[before pruning] " << endl;
-        rp_pprint_vars(*_problem, b);
-//added
-      if (o->apply(b))
-      {
-        // Propagation for every variable that can be modified by o
-        for (int i=0; i<o->pruned_arity(); ++i)
-        {
-          // Consideration of all the operators depending on a modified variable
-          int v = o->pruned_var(i);
-
-          // Integer variables : correction Nicolas
-          if(rp_variable_integer(rp_problem_var(*_problem,v)))
-          {
-            rp_interval_trunc(rp_box_elem(b,v));
-
-            if (rp_interval_empty(rp_box_elem(b,v)))
-            {
-              rp_box_set_empty(b);
-              return( 0 );
-            }
-          }
-
-          // Propagation only if domain improved enough
-          if (rp_interval_improved(rp_box_elem(b,v),
-                                   rp_box_elem(_bsave,v),
-                                   _improve))
-          {
-            rp_vector * depv = &rp_dependency_elem(_dep,v);
-            for (int j=0; j<rp_vector_size(*depv); ++j)
-            {
-              rp_operator * odep = (rp_operator *)rp_vector_elem(*depv,j);
-              if (!odep->working(_id))
-              {
-                odep->set_working(_id);
-                rp_oqueue_list_push(_queue,odep);
-              }
-            }
-          }
-        }
-        // Note: o is supposed not to be idempotent and then it is necessarily
-        // inserted in the queue if the box is modified since it belongs to
-        // the dependency of every modified variable
-//add
-        _out<<"[after pruning] "<<endl;
-        rp_pprint_vars(*_problem, b);
-//added
-      }
-      else
-      {
-        rp_box_set_empty(b);
-        return( 0 );
-      }
+    // Enlarge the size of _bsave if necessary
+    if (rp_box_size(_bsave)<rp_box_size(b)) {
+        rp_box_enlarge_size(&_bsave,rp_box_size(b)-rp_box_size(_bsave));
     }
-  }
-  return( 1 );
+
+    // Loop until empty queue or empty domain
+    bool applied = false;
+    while (!rp_oqueue_list_empty(_queue)) {
+        rp_operator * o = rp_oqueue_list_pop(_queue);
+        rp_box_copy(_bsave,b);
+        o->set_unworking();  // o is no longer in the list
+
+        if (!applied || this->check_precision(o,b)) {
+//add
+            _out << endl << "[before pruning] " << endl;
+            rp_pprint_vars(*_problem, b);
+//added
+            applied = true;
+            if (o->apply(b)) {
+                // Propagation for every variable that can be modified by o
+                for (int i=0; i<o->pruned_arity(); ++i) {
+                    // Consideration of all the operators depending on a modified variable
+                    int v = o->pruned_var(i);
+
+                    // Integer variables : correction Nicolas
+                    if(rp_variable_integer(rp_problem_var(*_problem,v))) {
+                        rp_interval_trunc(rp_box_elem(b,v));
+
+                        if (rp_interval_empty(rp_box_elem(b,v))) {
+                            rp_box_set_empty(b);
+                            return( 0 );
+                        }
+                    }
+
+                    // Propagation only if domain improved enough
+                    if (rp_interval_improved(rp_box_elem(b,v),
+                                             rp_box_elem(_bsave,v),
+                                             _improve)) {
+                        rp_vector * depv = &rp_dependency_elem(_dep,v);
+                        for (int j=0; j<rp_vector_size(*depv); ++j) {
+                            rp_operator * odep = (rp_operator *)rp_vector_elem(*depv,j);
+                            if (!odep->working(_id)) {
+                                odep->set_working(_id);
+                                rp_oqueue_list_push(_queue,odep);
+                            }
+                        }
+                    }
+                }
+                // Note: o is supposed not to be idempotent and then it is necessarily
+                // inserted in the queue if the box is modified since it belongs to
+                // the dependency of every modified variable
+//add
+                _out<<"[after pruning] "<<endl;
+                rp_pprint_vars(*_problem, b);
+//added
+            } else {
+                rp_box_set_empty(b);
+                return( 0 );
+            }
+        }
+    }
+    return( 1 );
 }
 
 // Reduction of b using all the operators

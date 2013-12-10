@@ -160,8 +160,8 @@ rp_problem* icp_solver::create_rp_problem() {
         rp_union_copy(rp_variable_domain(*v), u);
         rp_union_destroy(&u);
 
-        // rp_variable_set_real(*v);
-        // rp_variable_precision(*v) = m_config.nra_precision;
+        rp_variable_set_real(*v);
+        rp_variable_precision(*v) = m_config.nra_precision;
         m_enode_to_rp_id[key] = rp_id;
         m_rp_id_to_enode[rp_id] = key;
         DREAL_LOG_DEBUG("Key: " << name << "\t" << "value : [" << lb << ", " << ub << "] \t" << "precision : " << m_config.nra_precision << "\t" << "rp_id: " << rp_id);
