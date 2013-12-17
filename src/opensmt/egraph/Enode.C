@@ -35,6 +35,7 @@ Enode::Enode( )
   , value     ( NULL )
   , lb        ( NULL )
   , ub        ( NULL )
+  , precision ( NULL )
 {
   setEtype( ETYPE_LIST );
   // dynamic = this;
@@ -55,6 +56,7 @@ Enode::Enode( const enodeid_t      id_
   , value      ( NULL )
   , lb        ( NULL )
   , ub        ( NULL )
+  , precision ( NULL )
 {
   setEtype( etype_ );
   setArity( sort_->getArity( ) - 1 ); // Sort arity includes return value ...
@@ -76,6 +78,7 @@ Enode::Enode( const enodeid_t id_
   , value      ( NULL )
   , lb        ( NULL )
   , ub        ( NULL )
+  , precision ( NULL )
   // , dynamic   ( NULL )
 {
   assert( car );
@@ -115,6 +118,9 @@ Enode::Enode( const enodeid_t id_
     value = new double;
     setValue( *(car->symb_data->value) );
   }
+  if(car->hasPrecision()){
+    setPrecision(car->getPrecision());
+  }
 
   assert( isTerm( ) || isList( ) );
 }
@@ -131,6 +137,7 @@ Enode::Enode( const enodeid_t	id_
   , value      ( NULL )
   , lb        ( NULL )
   , ub        ( NULL )
+  , precision ( NULL )
   // , dynamic   ( NULL )
 { }
 
@@ -148,6 +155,8 @@ Enode::~Enode ( )
       delete ub;
   if ( lb )
       delete lb;
+  if ( precision )
+      delete precision;
 }
 
 Snode * Enode::getLastSort ( )
@@ -409,6 +418,9 @@ void Enode::print(ostream & os) {
             p->car->print(os);
             p = p->cdr;
         }
+	if(precision){
+	  os << "[" << getPrecision() << "]";
+	}
         if (!cdr->isEnil())
             os << ")";
     } else if (isList()) {

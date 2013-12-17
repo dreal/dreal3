@@ -196,6 +196,12 @@ public:
       assert(flowname);
       return egraph.mkIntegral(time_0, time_t, vec_0, vec_t, flowname);
   }
+  
+  inline void setMaxPrecision ( const double d ) 
+  {
+    if(d > config.nra_precision)
+      config.nra_precision = d;
+  }
 
   inline Enode * mkCons   ( Enode * car
                           , Enode * cdr = NULL )

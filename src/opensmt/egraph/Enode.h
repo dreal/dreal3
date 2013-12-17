@@ -249,10 +249,13 @@ public:
 
   double          getLowerBound          ( ) const; //added for dReal2
   double          getUpperBound          ( ) const; //added for dReal2
+  double          getPrecision           ( ) const; //added for dReal2
+  bool            hasPrecision           ( ) const; //added for dReal2
   double          getComplexValue        ( ) const;
   void            setValue               ( const double );
   void            setLowerBound          ( const double ); //added for dReal2
   void            setUpperBound          ( const double ); //added for dReal2
+  void            setPrecision           ( const double ); //added for dReal2
   bool            hasValue               ( ) const;
   Enode *         getRoot                ( ) const;
   enodeid_t       getCid                 ( ) const;
@@ -395,6 +398,7 @@ private:
   double *          value;      // enode value (modified for dReal2)
   double *          lb;         // enode lower bound
   double *          ub;         // enode upper bound
+  double *          precision; //added for dReal2
 
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
@@ -425,6 +429,21 @@ inline double Enode::getUpperBound ( ) const
         return +std::numeric_limits<double>::infinity();
 }
 
+inline double Enode::getPrecision ( ) const
+{
+    if (precision != NULL)
+        return *precision;
+    else
+        return 0.001;
+}
+
+inline bool Enode::hasPrecision ( ) const
+{
+  return precision != NULL;
+}
+
+
+
 inline double Enode::getComplexValue( ) const
 {
   if( isDiv( ) )
@@ -453,6 +472,13 @@ inline void Enode::setUpperBound ( const double v )
   assert( isTerm( ) );
   ub = new double;
   *ub = v;
+}
+
+inline void Enode::setPrecision ( const double v )
+{
+  assert( isTerm( ) );
+  precision = new double;
+  *precision = v;
 }
 
 inline bool Enode::hasValue( ) const
