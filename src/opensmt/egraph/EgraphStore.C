@@ -1053,12 +1053,9 @@ Enode * Egraph::mkNot( Enode * args )
   assert( arg->isTerm( ) );
 
   // not not p --> p
-  if ( arg->isNot( ) ){
-    if(arg->hasPrecision()){
-      arg->get1st()->setPrecision(arg->getPrecision());
-    }
+  if ( arg->isNot( ) )
     return arg->get1st( );
-  }
+  
 
   // not false --> true
   if ( arg->isFalse( ) )

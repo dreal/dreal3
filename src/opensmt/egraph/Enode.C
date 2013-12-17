@@ -419,7 +419,7 @@ void Enode::print(ostream & os) {
             p = p->cdr;
         }
 	if(precision){
-	  os << "[" << getPrecision() << "]";
+	  os << " [" << getPrecision() << "]";
 	}
         if (!cdr->isEnil())
             os << ")";

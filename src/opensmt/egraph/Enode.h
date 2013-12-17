@@ -477,8 +477,16 @@ inline void Enode::setUpperBound ( const double v )
 inline void Enode::setPrecision ( const double v )
 {
   assert( isTerm( ) );
-  precision = new double;
-  *precision = v;
+
+  if( isNot() ) 
+  {
+    //only set precision on the atom (not the literal)
+    get1st()->setPrecision(v);
+  }
+  else{
+    precision = new double;
+    *precision = v;
+  }
 }
 
 inline bool Enode::hasValue( ) const

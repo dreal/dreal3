@@ -37,8 +37,7 @@ nra_solver::~nra_solver() { }
 // `inform` sets up env (mapping from variables(enode) in literals to their [lb, ub])
 lbool nra_solver::inform(Enode * e) {
     DREAL_LOG_DEBUG("===============");
-    DREAL_LOG_DEBUG("nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt() << 
-		    " and precision [" << e->getPrecision() << "]");
+    DREAL_LOG_DEBUG("nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt());
     DREAL_LOG_DEBUG("===============");
     unordered_set<Enode *> const & vars = e->get_vars();
     for (auto const & v : vars) {
