@@ -34,4 +34,4 @@ enum class LogLevel {TRACE, DEBUG, INFO, WARN, ERROR, FATAL };
 extern LogLevel g_log_level;
 
 void set_log_level(LogLevel l);
-void init_log(LogLevel l = LogLevel::WARN);
+void init_log(LogLevel l = LogLevel::INFO);
