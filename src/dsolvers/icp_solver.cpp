@@ -220,52 +220,35 @@ bool icp_solver::callODESolver(int group, unordered_set<Enode*> const & ode_vars
         }
         ode_solver* odeSolver = m_ode_solvers[group];
 
-        if (forward) {
-            bool simple_ODE = odeSolver->simple_ODE(m_boxes.get()) && m_propag->apply(m_boxes.get());
-            if (!simple_ODE) return false;
+        bool simple_ODE = odeSolver->simple_ODE(m_boxes.get()) && m_propag->apply(m_boxes.get());
+        if (!simple_ODE) return false;
 
-            bool forward_ODE = true;
-            bool forward_exception = false;
-            try {
-                forward_ODE = odeSolver->solve_forward(m_boxes.get()) && m_propag->apply(m_boxes.get());
+        bool ODE_result = true;
+        bool have_exception = false;
+        try {
+            if (forward) {
+                ODE_result = odeSolver->solve_forward(m_boxes.get()) && m_propag->apply(m_boxes.get());
+            } else {
+                ODE_result = odeSolver->solve_backward(m_boxes.get()) && m_propag->apply(m_boxes.get());
             }
-            catch(exception& e) {
-                DREAL_LOG_DEBUG("Exception in ODE Solving (Forward)");
-                DREAL_LOG_DEBUG(e.what());
-                forward_exception = true;
+        }
+        catch(exception& e) {
+            DREAL_LOG_DEBUG("Exception in ODE Solving " << (forward ? "(Forward)" : "(Backward)"));
+            DREAL_LOG_DEBUG(e.what());
+            have_exception = true;
+        }
+        if (!have_exception) return ODE_result;
+        try {
+            if (forward) {
+                ODE_result = odeSolver->solve_backward(m_boxes.get()) && m_propag->apply(m_boxes.get());
+            } else {
+                ODE_result = odeSolver->solve_forward(m_boxes.get()) && m_propag->apply(m_boxes.get());
             }
-            if (!forward_exception) return forward_ODE;
-            try {
-                return odeSolver->solve_backward(m_boxes.get()) && m_propag->apply(m_boxes.get());
-            }
-            catch(exception& e) {
-                DREAL_LOG_DEBUG("Exception in ODE Solving (Backward)");
-                DREAL_LOG_DEBUG(e.what());
-                return true;
-            }
-        } else {
-            bool simple_ODE = odeSolver->simple_ODE(m_boxes.get()) && m_propag->apply(m_boxes.get());
-            if (!simple_ODE) return false;
-
-            bool backward_ODE = true;
-            bool backward_exception = false;
-            try {
-                backward_ODE = odeSolver->solve_backward(m_boxes.get()) && m_propag->apply(m_boxes.get());
-            }
-            catch(exception& e) {
-                DREAL_LOG_DEBUG("Exception in ODE Solving (Backward)");
-                DREAL_LOG_DEBUG(e.what());
-                backward_exception = true;
-            }
-            if (!backward_exception) return backward_ODE;
-            try {
-                return odeSolver->solve_forward(m_boxes.get()) && m_propag->apply(m_boxes.get());
-            }
-            catch(exception& e) {
-                DREAL_LOG_DEBUG("Exception in ODE Solving (Forward)");
-                DREAL_LOG_DEBUG(e.what());
-                return true;
-            }
+        }
+        catch(exception& e) {
+            DREAL_LOG_DEBUG("Exception in ODE Solving " << (!forward ? "(Forward)" : "(Backward)"));
+            DREAL_LOG_DEBUG(e.what());
+            return true;
         }
     }
     return true;
