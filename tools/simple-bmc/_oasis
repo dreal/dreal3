@@ -1,0 +1,13 @@
+OASISFormat: 0.3
+Name:        simple-bmc
+Version:     0.0.2
+Synopsis:    Transform Hybrid automata into SMT formula
+Authors:     Soonho Kong, Wei Chen
+License:     GPL-3
+
+Executable sbmc
+  Path:       src
+  BuildTools: ocamlbuild
+  MainIs:     main.ml
+  BuildDepends: batteries
+  
