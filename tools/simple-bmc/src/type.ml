@@ -1146,41 +1146,6 @@ module Hybrid = struct
      init_id = iid;
      init_formula = iformula;
      goals= gs}
-  
-  let varmap {varmap= vm;
-              modemap= mm;
-              init_id = iid;
-              init_formula = iformula;
-              goals= gs}
-      = vm
-  
-  let modemap {varmap= vm;
-               modemap= mm;
-               init_id = iid;
-               init_formula = iformula;
-               goals= gs}
-      = mm
-  
-  let init_id {varmap= vm;
-               modemap= mm;
-               init_id = iid;
-               init_formula = iformula;
-               goals= gs}
-      = iid
-  
-  let init_formula {varmap= vm;
-                    modemap= mm;
-                    init_id = iid;
-                    init_formula = iformula;
-                    goals= gs}
-      = iformula
-
-  let goals {varmap= vm;
-             modemap= mm;
-             init_id = iid;
-             init_formula = iformula;
-             goals= gs}
-      = gs
 
   (**
       Only used in the parser.
@@ -1232,20 +1197,19 @@ module Hybrid = struct
     begin
       (* print varDecl list *)
       print_header out "VarDecl Map";
-      Vardeclmap.print out (varmap hm);
+      Vardeclmap.print out hm.varmap;
       (* print mode list *)
       print_header out "Mode Map";
-      Modemap.print out (modemap hm);
+      Modemap.print out hm.modemap;
       (* print init *)
       print_header out "Init";
-      List.print ~first:"" ~sep:"\n" ~last:"\n" id_formula_print out [(init_id hm, init_formula hm)];
+      List.print ~first:"" ~sep:"\n" ~last:"\n" id_formula_print out [(hm.init_id, hm.init_formula)];
       (* print goal *)
       print_header out "Goal";
-      List.print ~first:"" ~sep:"\n" ~last:"\n" id_formula_print out (goals hm);
+      List.print ~first:"" ~sep:"\n" ~last:"\n" id_formula_print out hm.goals;
     end
   
   let goal_ids (hm : t) : modeId list
-      = List.map (fun (goal_id, _) -> goal_id) (goals hm)
+      = List.map (fun (goal_id, _) -> goal_id) hm.goals
 end 
-
 
