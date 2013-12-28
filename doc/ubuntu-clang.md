@@ -8,7 +8,7 @@ Install Packages
     sudo add-apt-repository ppa:dns/gnu -y
     sudo add-apt-repository ppa:h-rayflood/llvm -y
     sudo apt-get update -y
-    sudo apt-get install -qq autoconf automake libtool git
+    sudo apt-get install -qq autoconf automake libtool git pkg-config
     sudo apt-get install -qq libstdc++-4.8-dev clang-3.3 clang-3.3-doc
     sudo apt-get upgrade -y
     sudo apt-get dist-upgrade -y
