@@ -21,7 +21,7 @@ Required Packages
 =================
  - C++11-compatible compiler ([g++-4.8][gcc], [clang++-3.3][clang])
  - [bison][bison], [flex][flex], [cmake][cmake]
- - [automake][automake], [autoconf][autoconf], [make][make], [libtool][libtool]
+ - [automake][automake], [autoconf][autoconf], [make][make], [libtool][libtool], [pkg-config][pkg-config]
  - [ocaml (>=4.0.0)][ocaml], [opam][opam], [ocaml-findlib][ocaml-findlib], [ocaml-batteries (>=2.0)][ocaml-batteries]
 
 [automake]: http://www.gnu.org/software/automake/
@@ -38,6 +38,7 @@ Required Packages
 [opam]: http://opam.ocamlpro.com
 [ocaml-findlib]: http://projects.camlcity.org/projects/findlib.html
 [ocaml-batteries]: http://batteries.forge.ocamlcore.org
+[pkg-config]: http://www.freedesktop.org/wiki/Software/pkg-config
 
 Build Instructions
 ==================
