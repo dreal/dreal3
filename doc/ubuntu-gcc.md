@@ -9,7 +9,7 @@ Install Packages
     sudo update-alternatives --remove-all gcc
     sudo update-alternatives --remove-all g++
     sudo apt-get update
-    sudo apt-get install -qq autoconf automake libtool git g++-4.8
+    sudo apt-get install -qq autoconf automake libtool git pkg-config g++-4.8
     sudo apt-get upgrade
     sudo apt-get dist-upgrade -y
 
