@@ -14,6 +14,11 @@
 #include <iostream>
 #include "rp_propagator.h"
 
+//dReal addition
+#include "dsolvers/icp_solver.h" 
+
+
+
 using namespace std;
 
 
@@ -423,24 +428,32 @@ void rp_propagator::insert(rp_operator * o)
 // Checks if the operator can be applied
 int rp_propagator::check_precision(rp_operator * o, rp_box b)
 {
-    static bool state = false;
-    for (int i=0; i<o->pruned_arity(); ++i) {
-        int v = o->pruned_var(i);
-        double eps = rp_variable_precision(rp_problem_var(*_problem,v));
-        if (rp_interval_width(rp_box_elem(b,v))>(eps)) {
-            // Box size is greater than eps, return true
-            return( 1 );
-        }
+//  return( 1 );
+
+  /* Dangerous to stop the application of one operator
+     but it can be efficient for slow convergences... */
+
+
+  //added for dReal: Prune based on constraint precision
+  //cout << "rp_propagator::check_precision()" << endl;
+  return (*_problem)->rp_icp_solver->is_box_within_delta(b);
+
+  /* // Prune based on variable precision
+  for (int i=0; i<o->pruned_arity(); ++i)
+  {
+    int v = o->pruned_var(i);
+    // double eps = rp_min_num(1.0e-14,
+    //                         rp_variable_precision(rp_problem_var(*_problem,v)));
+    double eps = rp_variable_precision(rp_problem_var(*_problem,v));
+
+    if (rp_interval_width(rp_box_elem(b,v))>(eps))
+    {
+      return( 1 );
     }
-    // Box size is smaller than eps
-    if (!state) {
-        // However, we return true to apply pruning if it's the first time.
-        state = true;
-        return ( 1 );
-    }
-    // return false if it's second time...
-    state = false;
-    return( 0 );
+  }
+  return( 0 );
+  */
+  /* */
 }
 
 // Application once the working operators have been defined

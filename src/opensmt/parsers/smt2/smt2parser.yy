@@ -349,7 +349,11 @@ term: spec_const
         free( $13 );
       }
     | '(' TK_EQ term_list precision ')'
-      { $$ = parser_ctx->mkEq( $3 ); $$->setPrecision( atof($4) ); parser_ctx->setMaxPrecision( atof($4) );  }
+      { $$ = parser_ctx->mkEq( $3 ); 
+        if( $4 != NULL ) { 
+	  $$->setPrecision( atof($4) );  parser_ctx->setMaxPrecision( atof($4) );
+	}
+      }
     | '(' TK_ITE term_list ')'
       { $$ = parser_ctx->mkIte( $3 ); }
     | '(' TK_PLUS term_list ')'
@@ -363,13 +367,29 @@ term: spec_const
     | '(' TK_DIV term_list ')'
       { $$ = parser_ctx->mkDiv( $3 ); }
     | '(' TK_LEQ term_list precision ')'
-      { $$ = parser_ctx->mkLeq( $3 ); $$->setPrecision( atof($4) ); parser_ctx->setMaxPrecision( atof($4) ); }
+      { $$ = parser_ctx->mkLeq( $3 );  
+      	if( $4 != NULL ) { 
+	  $$->setPrecision( atof($4) );  parser_ctx->setMaxPrecision( atof($4) );
+	} 
+      }
     | '(' TK_GEQ term_list precision ')'
-      { $$ = parser_ctx->mkGeq( $3 ); $$->setPrecision( atof($4) ); parser_ctx->setMaxPrecision( atof($4) ); }
+      { $$ = parser_ctx->mkGeq( $3 );
+       	if( $4 != NULL ) { 
+	  $$->setPrecision( atof($4) );  parser_ctx->setMaxPrecision( atof($4) );
+	} 
+      }
     | '(' TK_LT term_list precision ')'
-      { $$ = parser_ctx->mkLt( $3 ); $$->setPrecision( atof($4) ); parser_ctx->setMaxPrecision( atof($4) ); }
+      { $$ = parser_ctx->mkLt( $3 ); 
+        if( $4 != NULL ) { 
+	  $$->setPrecision( atof($4) );  parser_ctx->setMaxPrecision( atof($4) );
+	}
+      }
     | '(' TK_GT term_list precision ')'
-      { $$ = parser_ctx->mkGt( $3 ); $$->setPrecision( atof($4) ); parser_ctx->setMaxPrecision( atof($4) ); }
+      { $$ = parser_ctx->mkGt( $3 );
+      	if( $4 != NULL ) { 
+	  $$->setPrecision( atof($4) );  parser_ctx->setMaxPrecision( atof($4) );
+	} 
+      }
     | '(' TK_DISTINCT term_list ')'
       { $$ = parser_ctx->mkDistinct( $3 ); }
     | '(' TK_LET '(' var_binding_list ')' term ')'

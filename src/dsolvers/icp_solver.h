@@ -47,7 +47,7 @@ public:
 #ifdef ODE_ENABLED
     void        print_json(ostream& out);
 #endif
-
+    bool        is_box_within_delta(rp_box b); //is the width of the bounds on each constraint < delta
 private:
     // methods
     icp_solver(const icp_solver& s);
@@ -91,6 +91,7 @@ private:
     bool                             m_ODEresult;
 
     std::unordered_map<Enode *, int> m_enode_to_rp_id;
+    vector<double>                 m_rp_constraint_deltas;
 #ifdef ODE_ENABLED
     std::vector<ode_solver *>        m_ode_solvers;
 #endif

@@ -138,7 +138,7 @@ void icp_solver::create_ode_solvers() {
 rp_problem* icp_solver::create_rp_problem() {
     rp_problem* rp_prob = new rp_problem;
     rp_problem_create(rp_prob, "icp_holder");
-
+    (*rp_prob)->rp_icp_solver = this;
     // ======================================
     // Create rp_variable for each var in env
     // ======================================
@@ -178,6 +178,10 @@ rp_problem* icp_solver::create_rp_problem() {
         stringstream buf;
         rp_constraint * c = new rp_constraint;
         m_rp_constraints.push_back(c);
+	if(l->hasPrecision())
+	  m_rp_constraint_deltas.push_back(l->getPrecision());
+	else
+	  m_rp_constraint_deltas.push_back(m_config.nra_precision);
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
@@ -284,6 +288,30 @@ bool icp_solver::prop_with_ODE() {
     return false;
 }
 
+bool icp_solver::is_box_within_delta(rp_box b){
+  //for each expression
+  // compute width given box
+  // check if expression width <= delta
+  vector<double>::iterator d = m_rp_constraint_deltas.begin();
+  for (rp_constraint * c : m_rp_constraints) { 
+    rp_expression lhs = rp_ctr_num_left(rp_constraint_num(*c));
+    if( rp_expression_eval(lhs, b) ){
+      //expression value interval is non-empty
+      double width =  rp_interval_width(rp_expression_val(lhs));
+      //cout << "width: " << width << " >= delta: " << *d << endl;
+      if( width >= *d ){ //need to extend for per constraint delta
+	return false;
+      }
+    }
+    else {
+      //expression value interval is empty
+      return false;
+    }
+    d++;
+  }
+  return true; //no constraint width is outside of delta or unsat
+}
+
 rp_box icp_solver::compute_next() {
     if (m_sol > 0) { m_boxes.remove(); }
     while (!m_boxes.empty()) {
@@ -291,7 +319,8 @@ rp_box icp_solver::compute_next() {
             // SAT => Split
             rp_box b = m_boxes.get();
             int i = m_vselect->apply(b);
-            if (i >= 0 && rp_box_width(b) >= m_config.nra_precision) {
+	    //cout << "icp_solver::compute_next()" << endl;
+            if (i >= 0 && !is_box_within_delta(b)){//rp_box_width(b) >= m_config.nra_precision) {
                 if (m_config.nra_proof) {
                     m_config.nra_proof_out << endl
                                            << "[branched on "

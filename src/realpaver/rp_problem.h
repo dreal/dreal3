@@ -28,6 +28,8 @@ extern "C" {
 #include "rp_constant.h"
 #include "rp_constraint.h"
 
+class icp_solver;
+
 /* ---------------- */
 /* Table of symbols */
 /* ---------------- */
@@ -62,6 +64,7 @@ typedef struct
   rp_vector_constraint ctrs;  /* constraints             */
   rp_box b;                   /* initial box             */
   char * name;                /* problem name            */
+  icp_solver * rp_icp_solver; /* dReal parent solver     */
 
   /* + non ordered covering, ordering managed by the search algorithms */
 }

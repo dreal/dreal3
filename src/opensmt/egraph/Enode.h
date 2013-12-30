@@ -431,10 +431,8 @@ inline double Enode::getUpperBound ( ) const
 
 inline double Enode::getPrecision ( ) const
 {
-    if (precision != NULL)
-        return *precision;
-    else
-        return 0.001;
+  assert( hasPrecision() );
+  return *precision;
 }
 
 inline bool Enode::hasPrecision ( ) const
