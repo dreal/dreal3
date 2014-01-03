@@ -3,7 +3,7 @@ open Type
 
 type logic = | QF_NRA
              | QF_NRA_ODE
-                 
+
 type exp = Basic.exp
 type formula = Basic.formula
 
@@ -13,7 +13,7 @@ type t = | SetLogic of logic
          | DeclareConst of string
 
          (** ode group X LHS X RHS **)
-         | DefineODE of int * string * exp
+         | DefineODE of string * (string * exp) list
          | Assert of formula
          | CheckSAT
          | Exit
@@ -42,8 +42,10 @@ let print out =
     Printf.fprintf out "(declare-fun %s () Real)" v
   | DeclareConst v ->
     Printf.fprintf out "(declare-const %s Real)" v
-  | DefineODE (g, x, e) ->
-    Printf.fprintf out "(define-ode %d (= d/dt[%s] %s))" g x (IO.to_string Basic.print_infix_exp e)
+  | DefineODE (g, eqs) ->
+     let print_eq out (x, e) = Printf.fprintf out "(= d/dt[%s] %s)" x (IO.to_string Basic.print_infix_exp e) in
+     let str_eqs = IO.to_string (List.print ~first:"(" ~last:")" ~sep:" " print_eq) eqs in
+     List.print ~first:"(define-ode " ~last:")" ~sep:" " String.print out [g; str_eqs]
   | Assert f ->
     Printf.fprintf out "(assert %s)" (IO.to_string Basic.print_formula f)
   | CheckSAT ->
