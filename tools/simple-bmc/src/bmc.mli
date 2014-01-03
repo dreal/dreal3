@@ -15,7 +15,7 @@ open Smt2
 exception SMTException of string
 
 (** a list of annoted flow ode **)
-type flows_annot = (int * int * ode) list  (** step, mode, ode **)
+type flows_annot = (int * ode list)  (** step, mode, ode **)
 
 (** compile a Hybrid automata into SMT formula **)
 val compile : Hybrid.t -> int -> Smt2.t
