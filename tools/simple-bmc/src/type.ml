@@ -5,39 +5,44 @@
 
 open Batteries
 
-module Basic = struct 
+module Basic = struct
 
   exception TODO
   exception DerivativeNotFound
-  
+
   type var = string
 
   type exp =
-  | Var   of string
-  | Num of float
-  | Neg   of exp
-  | Add   of exp list
-  | Sub   of exp list
-  | Mul   of exp list
-  | Div   of exp * exp
-  | Pow   of exp * exp
-  | Ite   of formula * exp * exp
-  | Sqrt  of exp
+  | Var      of string
+  | Vec      of string list
+  | Num      of float
+  | Neg      of exp
+  | Add      of exp list
+  | Sub      of exp list
+  | Mul      of exp list
+  | Div      of exp * exp
+  | Pow      of exp * exp
+  | Ite      of formula * exp * exp
+  | Sqrt     of exp
   | Safesqrt of exp
-  | Abs   of exp
-  | Log   of exp
-  | Exp   of exp
-  | Sin   of exp
-  | Cos   of exp
-  | Tan   of exp
-  | Asin  of exp
-  | Acos  of exp
-  | Atan  of exp
-  | Atan2 of exp * exp
-  | Matan  of exp
-  | Sinh  of exp
-  | Cosh  of exp
-  | Tanh  of exp
+  | Abs      of exp
+  | Log      of exp
+  | Exp      of exp
+  | Sin      of exp
+  | Cos      of exp
+  | Tan      of exp
+  | Asin     of exp
+  | Acos     of exp
+  | Atan     of exp
+  | Atan2    of exp * exp
+  | Matan    of exp
+  | Sinh     of exp
+  | Cosh     of exp
+  | Tanh     of exp
+  | Asinh    of exp
+  | Acosh    of exp
+  | Atanh    of exp
+  | Integral of float * string * string list * string (* (integral 0 time_1 [x_1_0 ... x_i_0] flow1) *)
   and formula =
   | True
   | False
@@ -62,11 +67,7 @@ module Basic = struct
     | Not f' -> collect_vars_in_formula f'
     | And fs -> collect_vars_in_formulas fs
     | Or  fs -> collect_vars_in_formulas fs
-    | Gt (e1, e2) -> collect_vars_in_exps [e1;e2]
-    | Lt (e1, e2) -> collect_vars_in_exps [e1;e2]
-    | Ge (e1, e2) -> collect_vars_in_exps [e1;e2]
-    | Le (e1, e2) -> collect_vars_in_exps [e1;e2]
-    | Eq (e1, e2) -> collect_vars_in_exps [e1;e2]
+    | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) -> collect_vars_in_exps [e1;e2]
     | Imply (f1, f2) -> collect_vars_in_formulas [f1;f2]
     | FVar x -> Set.singleton x
     | ForallT f' -> collect_vars_in_formula f'
@@ -78,34 +79,20 @@ module Basic = struct
     List.reduce Set.union (List.map collect_vars_in_formula fs)
   and collect_vars_in_exp (e : exp) : var Set.t = match e with
       Var x -> Set.singleton x
+    | Vec xs -> Set.of_list xs
     | Num _ -> Set.empty
     | Neg e' -> collect_vars_in_exp e'
-    | Add es -> collect_vars_in_exps es
-    | Sub es -> collect_vars_in_exps es
-    | Mul es -> collect_vars_in_exps es
-    | Div (e1, e2) -> collect_vars_in_exps [e1;e2]
-    | Pow (e1, e2) -> collect_vars_in_exps [e1;e2]
+    | Add es | Sub es | Mul es -> collect_vars_in_exps es
+    | Div (e1, e2) | Pow (e1, e2) | Atan2 (e1, e2) -> collect_vars_in_exps [e1;e2]
     | Ite (f, e1, e2) ->
       let s1 = collect_vars_in_formula f in
       let s2 = collect_vars_in_exps [e1; e2] in
       Set.union s1 s2
-    | Sqrt e' -> collect_vars_in_exp e'
-    | Abs  e' -> collect_vars_in_exp e'
-    | Log  e' -> collect_vars_in_exp e'
-    | Exp  e' -> collect_vars_in_exp e'
-    | Sin  e' -> collect_vars_in_exp e'
-    | Cos  e' -> collect_vars_in_exp e'
-    | Tan  e' -> collect_vars_in_exp e'
-    | Asin e' -> collect_vars_in_exp e'
-    | Acos e' -> collect_vars_in_exp e'
-    | Atan e' -> collect_vars_in_exp e'
-    | Matan e' -> collect_vars_in_exp e'
-    | Atan2 (e1, e2) -> collect_vars_in_exps [e1;e2]
-    | Sinh e' -> collect_vars_in_exp e'
-    | Cosh e' -> collect_vars_in_exp e'
-    | Tanh e' -> collect_vars_in_exp e'
-    | Safesqrt e' -> collect_vars_in_exp e'
-  
+    | Sqrt e' | Abs e'  | Log e'  | Exp e'   | Sin e'   | Cos e'   | Tan e'
+    | Asin e' | Acos e' | Atan e' | Asinh e' | Acosh e' | Atanh e' | Matan e'
+    | Sinh e' | Cosh e' | Tanh e' | Safesqrt e' -> collect_vars_in_exp e'
+    | Integral (n, t, x0s, flow) ->
+       Set.add t (Set.of_list x0s)
   let make_or (fs : formula list) =
     let reduced_fs_opt = List.fold_left
       (fun fs f -> match (fs, f) with
@@ -122,7 +109,7 @@ module Basic = struct
     | Some (x::[]) -> x
     | Some fs' -> Or fs'
     | None -> True
-  
+
   let make_and (fs : formula list) =
     let reduced_fs_opt = List.fold_left
       (fun fs f -> match (fs, f) with
@@ -139,78 +126,113 @@ module Basic = struct
     | Some (x::[]) -> x
     | Some fs' -> And fs'
     | None -> False
-  
-  let rec preprocess_exp (f: string -> exp) : (exp -> exp) =
-    function Var s -> f s
-    | Num n -> Num n
-    | Neg e'  -> Neg (preprocess_exp f e')
-    | Add es -> Add (List.map (preprocess_exp f) es)
-    | Sub es -> Sub (List.map (preprocess_exp f) es)
-    | Mul es -> Mul (List.map (preprocess_exp f) es)
-    | Div (e1, e2) -> Div (preprocess_exp f e1, preprocess_exp f e2)
-    | Pow (e1, e2) -> Pow (preprocess_exp f e1, preprocess_exp f e2)
-    | Ite (f', e1, e2) -> Ite (preprocess_formula f f', preprocess_exp f e1, preprocess_exp f e2)
-    | Sqrt e' -> Sqrt (preprocess_exp f e')
-    | Safesqrt e' -> Safesqrt (preprocess_exp f e')
-    | Abs  e' -> Abs  (preprocess_exp f e')
-    | Log  e' -> Log  (preprocess_exp f e')
-    | Exp  e' -> Exp  (preprocess_exp f e')
-    | Sin  e' -> Sin  (preprocess_exp f e')
-    | Cos  e' -> Cos  (preprocess_exp f e')
-    | Tan  e' -> Tan  (preprocess_exp f e')
-    | Asin e' -> Asin (preprocess_exp f e')
-    | Acos e' -> Acos (preprocess_exp f e')
-    | Atan e' -> Atan (preprocess_exp f e')
-    | Atan2 (e1, e2) -> Atan2 (preprocess_exp f e1, preprocess_exp f e2)
-    | Matan e' -> Matan (preprocess_exp f e')
-    | Sinh e' -> Sinh (preprocess_exp f e')
-    | Cosh e' -> Cosh (preprocess_exp f e')
-    | Tanh e' -> Tanh (preprocess_exp f e')
-  and preprocess_formula (f: string -> exp) : (formula -> formula) =
-    function True -> True
-    | False  -> False
-    | Not f' -> Not (preprocess_formula f f')
-    | And fl -> And (List.map (preprocess_formula f) fl)
-    | Or fl  -> Or (List.map (preprocess_formula f) fl)
-    | Gt (e1, e2) -> Gt (preprocess_exp f e1, preprocess_exp f e2)
-    | Lt (e1, e2) -> Lt (preprocess_exp f e1, preprocess_exp f e2)
-    | Ge (e1, e2) -> Ge (preprocess_exp f e1, preprocess_exp f e2)
-    | Le (e1, e2) -> Le (preprocess_exp f e1, preprocess_exp f e2)
-    | Eq (e1, e2) -> Eq (preprocess_exp f e1, preprocess_exp f e2)
-    | Imply (f1, f2) -> Imply (preprocess_formula f f1, preprocess_formula f f2)
-    | ForallT f' -> ForallT (preprocess_formula f f')
-    | FVar x -> FVar x
-    | LetF _ -> raise TODO
-    | LetE _ -> raise TODO
+
+  let rec map_exp (fn_f: formula -> formula) (fn_e: exp -> exp) : (exp -> exp) =
+    function Var s     -> fn_e (Var      s)
+    | Vec xs           -> fn_e (Vec      xs)
+    | Num n            -> fn_e (Num      n)
+    | Neg e'           -> fn_e (Neg      (map_exp fn_f fn_e e'))
+    | Add es           -> fn_e (Add      (List.map (map_exp fn_f fn_e) es))
+    | Sub es           -> fn_e (Sub      (List.map (map_exp fn_f fn_e) es))
+    | Mul es           -> fn_e (Mul      (List.map (map_exp fn_f fn_e) es))
+    | Div (e1, e2)     -> fn_e (Div      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Pow (e1, e2)     -> fn_e (Pow      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Ite (f', e1, e2) -> fn_e (Ite      (map_formula fn_f fn_e f', map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Sqrt e'          -> fn_e (Sqrt     (map_exp fn_f fn_e e'))
+    | Safesqrt e'      -> fn_e (Safesqrt (map_exp fn_f fn_e e'))
+    | Abs e'           -> fn_e (Abs      (map_exp fn_f fn_e e'))
+    | Log e'           -> fn_e (Log      (map_exp fn_f fn_e e'))
+    | Exp e'           -> fn_e (Exp      (map_exp fn_f fn_e e'))
+    | Sin e'           -> fn_e (Sin      (map_exp fn_f fn_e e'))
+    | Cos e'           -> fn_e (Cos      (map_exp fn_f fn_e e'))
+    | Tan e'           -> fn_e (Tan      (map_exp fn_f fn_e e'))
+    | Asin e'          -> fn_e (Asin     (map_exp fn_f fn_e e'))
+    | Acos e'          -> fn_e (Acos     (map_exp fn_f fn_e e'))
+    | Atan e'          -> fn_e (Atan     (map_exp fn_f fn_e e'))
+    | Asinh e'         -> fn_e (Asinh    (map_exp fn_f fn_e e'))
+    | Acosh e'         -> fn_e (Acosh    (map_exp fn_f fn_e e'))
+    | Atanh e'         -> fn_e (Atanh    (map_exp fn_f fn_e e'))
+    | Atan2 (e1, e2)   -> fn_e (Atan2    (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Matan e'         -> fn_e (Matan    (map_exp fn_f fn_e e'))
+    | Sinh e'          -> fn_e (Sinh     (map_exp fn_f fn_e e'))
+    | Cosh e'          -> fn_e (Cosh     (map_exp fn_f fn_e e'))
+    | Tanh e'          -> fn_e (Tanh     (map_exp fn_f fn_e e'))
+    | Integral (n, t, x0s, flow) -> fn_e (Integral (n, t, x0s, flow))
+  and map_formula (fn_f : formula -> formula) (fn_e: exp -> exp) : (formula -> formula) =
+    function True    -> fn_f True
+    | False          -> fn_f False
+    | Not f          -> fn_f (Not     (map_formula fn_f fn_e f))
+    | And fs         -> fn_f (And     (List.map (map_formula fn_f fn_e) fs))
+    | Or fs          -> fn_f (Or      (List.map (map_formula fn_f fn_e) fs))
+    | Gt (e1, e2)    -> fn_f (Gt      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Lt (e1, e2)    -> fn_f (Lt      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Ge (e1, e2)    -> fn_f (Ge      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Le (e1, e2)    -> fn_f (Le      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Eq (e1, e2)    -> fn_f (Eq      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Imply (f1, f2) -> fn_f (Imply   (map_formula fn_f fn_e f1, map_formula fn_f fn_e f2))
+    | ForallT f      -> fn_f (ForallT (map_formula fn_f fn_e f))
+    | FVar x         -> fn_f (FVar x)
+    | LetE (var_e_list, f) ->
+       let var_e_list' = List.map (fun (v, e) -> (v, map_exp fn_f fn_e e)) var_e_list in
+       let bounded_vars = List.map (fun (v, f) -> v) var_e_list' in
+       let fn_e' e = match e with
+         | Var v -> if List.mem v bounded_vars then e
+                   else fn_e e
+         | _ -> fn_e e
+       in
+       let f' = map_formula fn_f fn_e' f in
+       fn_f (LetE (var_e_list', f'))
+    | LetF (var_f_list, f) ->
+       let var_f_list' = List.map (fun (v, f) -> (v, map_formula fn_f fn_e f)) var_f_list in
+       let bounded_vars = List.map (fun (v, f) -> v) var_f_list' in
+       let fn_e' e = match e with
+         | Var v -> if List.mem v bounded_vars then e
+                   else fn_e e
+         | _ -> fn_e e
+       in
+       let f' = map_formula fn_f fn_e' f in
+       fn_f (LetF (var_f_list', f'))
+
+  let preprocess_exp (f: string -> exp) : (exp -> exp) =
+    let aux : (exp -> exp) = function Var s -> f s
+                                   | e -> e
+    in
+    map_exp identity aux
+  let preprocess_formula (f: string -> exp) : (formula -> formula) =
+    let aux : (exp -> exp) = function Var s -> f s
+                                   | e -> e
+    in
+    map_formula identity aux
 
   let rec deriv (e: exp) (x: string) : exp
       = match e with
         Var v -> if v = x then Num 1.0 else Num 0.0
+      | Vec xs -> raise DerivativeNotFound
       | Num _ -> Num 0.0
       | Neg e' -> Neg (deriv e' x)
       | Add es -> Add (List.map (fun e' -> deriv e' x) es)
       | Sub es -> Sub (List.map (fun e' -> deriv e' x) es)
       | Mul [] -> Num 0.0
-  
+
       (** (f * g)' = f' * g +   **)
       | Mul (f::g) ->
         let f' = deriv f x in
         let g' = deriv (Mul g) x in
         Add [Mul (f'::g); Mul [f;g']]
-  
+
       (** (f / g)' = (f' * g - f * g') / g^2 **)
       | Div (f, g) ->
         let f' = deriv f x in
         let g' = deriv g x in
         Div (Sub [Mul [f';g]; Mul [f;g']], Pow (g, Num 2.0))
-  
+
       (** (f^n)' = n * f^(n-1) f' **)
       | Pow (f, Num n) ->
         let f' = deriv f x in
         Mul [Num n;
              Pow (f, Num (n -. 1.0));
              f']
-  
+
       (** In general,
           (f^g)' = f^g (f' * g / f + g' * ln g) **)
       | Pow (f, g) ->
@@ -219,10 +241,10 @@ module Basic = struct
         Mul [Pow (f, g);
              Add [Mul [f'; Div(g, f)] ;
                   Mul [g'; Log f]]]
-  
+
       (** No Support **)
       | Ite _ -> raise DerivativeNotFound
-  
+
       (** (sqrt(f))' = 1/2 * 1/(sqrt(f)) * f' **)
       | Sqrt f ->
         let f' = deriv f x in
@@ -231,56 +253,54 @@ module Basic = struct
              f']
       (** safesqrt = sqrt **)
       | Safesqrt f -> deriv (Safesqrt f) x
-  
+
       (** No Support **)
       | Abs  f -> raise DerivativeNotFound
-  
+
       (** (log f)' = f' / f **)
       | Log  f ->
         let f' = deriv f x in
         Div (f', f)
-  
+
       (** (exp f)' = (cos f) * f' **)
       | Exp  f ->
         let f' = deriv f x in
         Mul [Exp f; f']
-  
+
       (** (sin f)' = (cos f) * f' **)
       | Sin  f ->
         let f' = deriv f x in
         Mul [Cos f; f']
-  
+
       (** (cos f)' = - (sin f) * f' **)
       | Cos  f ->
         let f' = deriv f x in
         Neg (Mul [Sin f; f'])
-  
+
       (** (tan f)' = (1 + tan^2 f) * f'  **)
       | Tan  f ->
         let f' = deriv f x in
         Mul [Add [Num 1.0; Pow (Tan f, Num 2.0)];
              f']
-  
+
       (** (asin f)' = (1 / sqrt(1 - f^2)) f' **)
       | Asin f ->
         let f' = deriv f x in
         Mul [Div (Num 1.0, Sqrt(Sub [Num 1.0; Pow(f, Num 2.0)]));
              f']
-  
+
       (** (acos f)' = -(1 / sqrt(1 - f^2)) f' **)
       | Acos f ->
         let f' = deriv f x in
         Neg(Mul [Div (Num 1.0, Sqrt(Sub [Num 1.0; Pow(f, Num 2.0)]));
                  f'])
-  
+
       (** (atan f)' = (1 / (1 + f^2)) * f' **)
       | Atan f ->
         let f' = deriv f x in
         Mul [Div (Num 1.0, Add [Num 1.0; Pow(f, Num 2.0)]);
              f']
-  
-      (** TODO **)
-  
+
       (** atan2(x,y)' = -y / (x^2 + y^2) dx + x / (x^2 + y^2) dy
                       = (-y dx + x dy) / (x^2 + y^2)
       **)
@@ -291,23 +311,23 @@ module Basic = struct
                   Mul [f; g']],
              Add [Pow (f, Num 2.0);
                   Pow (g, Num 2.0)])
-  
+
       | Matan f -> raise DerivativeNotFound
-  
+
       (** (sinh f)' = (e^f + e^(-f))/2 * f' **)
       | Sinh f ->
         let f' = deriv f x in
         Mul [Div (Add [Exp f; Exp (Neg f)],
                   Num 2.0);
              f']
-  
+
       (** (cosh f)' = (e^f - e^(-f))/2 * f' **)
       | Cosh f ->
         let f' = deriv f x in
         Mul [Div (Sub [Exp f; Exp (Neg f)],
                   Num 2.0);
              f']
-  
+
       (** (tanh f)' = (sech^2 f) * f'
                     = ((2 * e^-f) / (1 + e^-2f)) * f'
       **)
@@ -317,108 +337,65 @@ module Basic = struct
              Div(Exp (Neg f),
                  Add [Num 1.0; Exp (Mul [Num (-2.0); f])]);
              f']
-  
-  let rec subst_exp (f: string -> string) : (exp -> exp) =
-    function Var s -> Var (f s)
-    | Num n -> Num n
-    | Neg e'  -> Neg (subst_exp f e')
-    | Add el -> Add (List.map (subst_exp f) el)
-    | Sub el -> Sub (List.map (subst_exp f) el)
-    | Mul el -> Mul (List.map (subst_exp f) el)
-    | Div (e1, e2) -> Div (subst_exp f e1, subst_exp f e2)
-    | Pow (e1, e2) -> Pow (subst_exp f e1, subst_exp f e2)
-    | Ite (f', e1, e2) -> Ite (subst_formula f f', subst_exp f e1, subst_exp f e2)
-    | Sqrt e' -> Sqrt (subst_exp f e')
-    | Safesqrt e' -> Safesqrt (subst_exp f e')
-    | Abs  e' -> Abs  (subst_exp f e')
-    | Log  e' -> Log  (subst_exp f e')
-    | Exp  e' -> Exp  (subst_exp f e')
-    | Sin  e' -> Sin  (subst_exp f e')
-    | Cos  e' -> Cos  (subst_exp f e')
-    | Tan  e' -> Tan  (subst_exp f e')
-    | Asin e' -> Asin (subst_exp f e')
-    | Acos e' -> Acos (subst_exp f e')
-    | Atan e' -> Atan (subst_exp f e')
-    | Atan2 (e1, e2) -> Atan2 (subst_exp f e1, subst_exp f e2)
-    | Matan e' -> Matan (subst_exp f e')
-    | Sinh e' -> Sinh (subst_exp f e')
-    | Cosh e' -> Cosh (subst_exp f e')
-    | Tanh e' -> Tanh (subst_exp f e')
-  and subst_formula (f: string -> string) : (formula -> formula) =
-    function True -> True
-    | False  -> False
-    | Not f' -> Not (subst_formula f f')
-    | And fl -> And (List.map (subst_formula f) fl)
-    | Or fl  -> Or (List.map (subst_formula f) fl)
-    | Gt (e1, e2) -> Gt (subst_exp f e1, subst_exp f e2)
-    | Lt (e1, e2) -> Lt (subst_exp f e1, subst_exp f e2)
-    | Ge (e1, e2) -> Ge (subst_exp f e1, subst_exp f e2)
-    | Le (e1, e2) -> Le (subst_exp f e1, subst_exp f e2)
-    | Eq (e1, e2) -> Eq (subst_exp f e1, subst_exp f e2)
-    | ForallT f' -> ForallT (subst_formula f f')
-    | FVar s -> FVar (f s)
-    | Imply (f1, f2) -> Imply (subst_formula f f1, subst_formula f f2)
-    | LetF (var_f_list, f') ->
-      let var_f_list' =
-        List.map
-          (fun (var, formula) ->
-            (var, subst_formula (fun x -> if x = var then x else f x) formula))
-          var_f_list in
-      let bounded_vars = List.map (fun (v, f) -> v) var_f_list' in
-      LetF (var_f_list',
-            subst_formula (fun x -> if List.mem x bounded_vars then x else f x) f')
-    | LetE (var_e_list, f') ->
-      let var_e_list' =
-        List.map
-          (fun (var, exp) ->
-            (var, subst_exp (fun x -> if x = var then x else f x) exp))
-          var_e_list in
-      let bounded_vars = List.map (fun (v, f) -> v) var_e_list' in
-      LetE (var_e_list',
-            subst_formula (fun x -> if List.mem x bounded_vars then x else f x) f')
-  
-  
+      (** (asinh f)' = (e^f + e^(-f))/2 * f' **)
+      | Asinh f ->
+        let f' = deriv f x in
+        Mul [Div (Add [Exp f; Exp (Neg f)],
+                  Num 2.0);
+             f']
+
+      (** (acosh f)' = (e^f - e^(-f))/2 * f' **)
+      | Acosh f ->
+        let f' = deriv f x in
+        Mul [Div (Sub [Exp f; Exp (Neg f)],
+                  Num 2.0);
+             f']
+
+      (** (atanh f)' = (sech^2 f) * f'
+                    = ((2 * e^-f) / (1 + e^-2f)) * f'
+      **)
+      | Atanh f ->
+        let f' = deriv f x in
+        Mul [Num 2.0;
+             Div(Exp (Neg f),
+                 Add [Num 1.0; Exp (Mul [Num (-2.0); f])]);
+             f']
+      | Integral _ -> raise TODO
+
+  let subst_exp (f: string -> string) : (exp -> exp) =
+    let fn_e e = match e with
+      | Var s -> Var (f s)
+      | _ -> e
+    in
+    map_exp identity fn_e
+
+  let rec subst_formula (f: string -> string) : (formula -> formula) =
+    let fn_e e = match e with
+      | Var s -> Var (f s)
+      | _ -> e
+    in
+    map_formula identity fn_e
+
   let rec count_mathfn_e =
     function
-    | Var _ -> 0
-    | Num _ -> 0
+    | Var _ | Vec _ | Num _ -> 0
     | Neg e -> count_mathfn_e e
-    | Add el ->
-      List.sum (List.map count_mathfn_e el)
-    | Sub (el) ->
-      List.sum (List.map count_mathfn_e el)
-    | Mul (el) ->
-      List.sum (List.map count_mathfn_e el)
-    | Div (e1, e2) ->
-      let v1 = count_mathfn_e e1 in
-      let v2 = count_mathfn_e e2 in
-      v1 + v2
-    | Pow (e1, e2) ->
-      let v1 = count_mathfn_e e1 in
-      let v2 = count_mathfn_e e2 in
-      v1 + v2
+    | Add es | Sub es | Mul es -> List.sum (List.map count_mathfn_e es)
+    | Div (e1, e2) | Pow (e1, e2) ->
+                      let v1 = count_mathfn_e e1 in
+                      let v2 = count_mathfn_e e2 in
+                      v1 + v2
     | Ite (f, e1, e2) ->
       let v = count_mathfn_f f in
       let v1 = count_mathfn_e e1 in
       let v2 = count_mathfn_e e2 in
       v + v1 + v2
-    | Sqrt e -> (count_mathfn_e e) + 1
-    | Abs  e -> (count_mathfn_e e) + 1
-    | Log  e -> (count_mathfn_e e) + 1
-    | Exp  e -> (count_mathfn_e e) + 1
-    | Sin  e -> (count_mathfn_e e) + 1
-    | Cos  e -> (count_mathfn_e e) + 1
-    | Tan  e -> (count_mathfn_e e) + 1
-    | Asin e -> (count_mathfn_e e) + 1
-    | Acos e -> (count_mathfn_e e) + 1
-    | Atan e -> (count_mathfn_e e) + 1
+    | Sqrt e | Abs e | Log e | Exp e | Sin e | Cos e | Tan e | Asin e
+    | Acos e | Atan e | Sinh e | Cosh e | Tanh e | Asinh e | Acosh e
+    | Safesqrt e | Matan e | Atanh e -> (count_mathfn_e e) + 1
     | Atan2 (e1, e2) -> (count_mathfn_e e1) + (count_mathfn_e e2) + 1
-    | Sinh e -> (count_mathfn_e e) + 1
-    | Cosh e -> (count_mathfn_e e) + 1
-    | Tanh e -> (count_mathfn_e e) + 1
-    | Safesqrt e -> (count_mathfn_e e) + 1
-    | Matan e -> (count_mathfn_e e) + 1
-  
+    | Integral _ -> raise TODO
+
   and count_mathfn_f =
     function
     | True -> 0
@@ -428,50 +405,22 @@ module Basic = struct
     | And fl -> List.fold_left (fun result f -> result + (count_mathfn_f f)) 0 fl
     | Or fl -> List.fold_left (fun result f -> result + (count_mathfn_f f)) 0 fl
     | Imply (f1, f2) -> List.fold_left (fun result f -> result + (count_mathfn_f f)) 0 [f1;f2]
-    | Gt (e1, e2) ->
-      let v1 = count_mathfn_e e1 in
-      let v2 = count_mathfn_e e2 in
-      v1 + v2
-    | Lt (e1, e2) ->
-      let v1 = count_mathfn_e e1 in
-      let v2 = count_mathfn_e e2 in
-      v1 + v2
-    | Ge (e1, e2) ->
-      let v1 = count_mathfn_e e1 in
-      let v2 = count_mathfn_e e2 in
-      v1 + v2
-    | Le (e1, e2) ->
-      let v1 = count_mathfn_e e1 in
-      let v2 = count_mathfn_e e2 in
-      v1 + v2
+    | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2)
     | Eq (e1, e2) ->
-      let v1 = count_mathfn_e e1 in
-      let v2 = count_mathfn_e e2 in
-      v1 + v2
+       let v1 = count_mathfn_e e1 in
+       let v2 = count_mathfn_e e2 in
+       v1 + v2
     | LetF (fbinding_list, f) ->
-      List.sum (List.map (fun (id, f') -> count_mathfn_f f') fbinding_list)
-      + (count_mathfn_f f)
+      List.sum (List.map (fun (id, f') -> count_mathfn_f f') fbinding_list) + (count_mathfn_f f)
     | LetE (ebinding_list, f) ->
-      List.sum (List.map (fun (id, f') -> count_mathfn_e f') ebinding_list)
-      + (count_mathfn_f f)
+      List.sum (List.map (fun (id, f') -> count_mathfn_e f') ebinding_list) + (count_mathfn_f f)
     | ForallT f -> count_mathfn_f f
-  
+
   let rec count_arith_e =
     function
-    | Var _ -> 0
-    | Num _ -> 0
-    | Neg e -> count_arith_e e
-    | Add el ->
-      1 + (List.sum (List.map count_arith_e el))
-    | Sub el ->
-      1 + (List.sum (List.map count_arith_e el))
-    | Mul el ->
-      1 + (List.sum (List.map count_arith_e el))
-    | Div (e1, e2) ->
-      let v1 = count_arith_e e1 in
-      let v2 = count_arith_e e2 in
-      v1 + v2 + 1
-    | Pow (e1, e2) ->
+    | Var _ | Vec _ | Num _ -> 0
+    | Add es | Sub es | Mul es -> 1 + (List.sum (List.map count_arith_e es))
+    | Div (e1, e2) | Pow (e1, e2) ->
       let v1 = count_arith_e e1 in
       let v2 = count_arith_e e2 in
       v1 + v2 + 1
@@ -480,52 +429,21 @@ module Basic = struct
       let v1 = count_arith_e e1 in
       let v2 = count_arith_e e2 in
       v + v1 + v2
-    | Sqrt e -> count_arith_e e
-    | Abs  e -> count_arith_e e
-    | Log  e -> count_arith_e e
-    | Exp  e -> count_arith_e e
-    | Sin  e -> count_arith_e e
-    | Cos  e -> count_arith_e e
-    | Tan  e -> count_arith_e e
-    | Asin e -> count_arith_e e
-    | Acos e -> count_arith_e e
-    | Atan e -> count_arith_e e
-    | Atan2 (e1, e2) -> (count_arith_e e1) + (count_arith_e e2)
-    | Sinh e -> count_arith_e e
-    | Cosh e -> count_arith_e e
-    | Tanh e -> count_arith_e e
-    | Matan e -> count_arith_e e
+    | Neg e | Sqrt e | Abs e | Log e | Exp e | Sin e | Cos e | Tan e
+    | Asin e | Acos e | Atan e | Sinh e | Cosh e | Tanh e
+    | Asinh e | Acosh e | Atanh e | Matan e
     | Safesqrt e -> count_arith_e e
+    | Atan2 (e1, e2) -> (count_arith_e e1) + (count_arith_e e2)
+    | Integral _ -> raise TODO
 
   and count_arith_f =
     function
-    | True -> 0
-    | False -> 0
-    | FVar _ -> 0
+    | True | False | FVar _ -> 0
     | Not f -> count_arith_f f
-    | And fl -> List.fold_left (fun result f -> result + (count_arith_f f)) 0 fl
-    | Or fl -> List.fold_left (fun result f -> result + (count_arith_f f)) 0 fl
-    | Imply (f1, f2) -> List.fold_left (fun result f -> result + (count_arith_f f)) 0 [f1;f2]
-    | Gt (e1, e2) ->
-      let v1 = count_arith_e e1 in
-      let v2 = count_arith_e e2 in
-      v1 + v2
-    | Lt (e1, e2) ->
-      let v1 = count_arith_e e1 in
-      let v2 = count_arith_e e2 in
-      v1 + v2
-    | Ge (e1, e2) ->
-      let v1 = count_arith_e e1 in
-      let v2 = count_arith_e e2 in
-      v1 + v2
-    | Le (e1, e2) ->
-      let v1 = count_arith_e e1 in
-      let v2 = count_arith_e e2 in
-      v1 + v2
-    | Eq (e1, e2) ->
-      let v1 = count_arith_e e1 in
-      let v2 = count_arith_e e2 in
-      v1 + v2
+    | And fs | Or fs -> List.fold_left (fun result f -> result + (count_arith_f f)) 0 fs
+    | Imply (f1, f2) -> (count_arith_f f1) + (count_arith_f f2)
+    | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) ->
+      (count_arith_e e1) + (count_arith_e e2)
     | LetF (fbinding_list, f) ->
       List.sum (List.map (fun (id, f') -> count_arith_f f') fbinding_list)
       + (count_arith_f f)
@@ -536,25 +454,13 @@ module Basic = struct
 
   let rec collect_var_in_f f : string Set.t =
     match f with
-    | True -> Set.empty
-    | False -> Set.empty
+    | True | False -> Set.empty
     | FVar x -> Set.singleton x
     | Not f' -> collect_var_in_f f'
-    | And fl ->
-      List.fold_left Set.union Set.empty (List.map collect_var_in_f fl)
-    | Or fl ->
-      List.fold_left Set.union Set.empty (List.map collect_var_in_f fl)
-    | Imply (f1, f2) ->
-      Set.union (collect_var_in_f f1) (collect_var_in_f f2)
-    | Gt (e1, e2) ->
-      Set.union (collect_var_in_e e1) (collect_var_in_e e2)
-    | Lt (e1, e2) ->
-      Set.union (collect_var_in_e e1) (collect_var_in_e e2)
-    | Ge (e1, e2) ->
-      Set.union (collect_var_in_e e1) (collect_var_in_e e2)
-    | Le (e1, e2) ->
-      Set.union (collect_var_in_e e1) (collect_var_in_e e2)
-    | Eq (e1, e2) ->
+    | And fs | Or fs ->
+      List.fold_left Set.union Set.empty (List.map collect_var_in_f fs)
+    | Imply (f1, f2) -> Set.union (collect_var_in_f f1) (collect_var_in_f f2)
+    | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) ->
       Set.union (collect_var_in_e e1) (collect_var_in_e e2)
     | LetF (fbinding_list, f') ->
       let id_vars_list =
@@ -581,38 +487,27 @@ module Basic = struct
   and collect_var_in_e e : string Set.t =
     match e with
       Var x -> Set.singleton x
+    | Vec xs -> Set.of_list xs
     | Num _ -> Set.empty
-    | Neg e' -> collect_var_in_e e'
     | Add el ->
       List.fold_left Set.union Set.empty (List.map collect_var_in_e el)
     | Sub el ->
       List.fold_left Set.union Set.empty (List.map collect_var_in_e el)
     | Mul el ->
       List.fold_left Set.union Set.empty (List.map collect_var_in_e el)
-    | Div (e1, e2) ->
-      Set.union (collect_var_in_e e1) (collect_var_in_e e2)
-    | Pow (e1, e2 ) ->
+    | Div (e1, e2) | Pow (e1, e2 ) | Atan2 (e1, e2) ->
       Set.union (collect_var_in_e e1) (collect_var_in_e e2)
     | Ite (f, e1, e2) ->
       Set.union
         (collect_var_in_f f)
         (Set.union (collect_var_in_e e1) (collect_var_in_e e2))
-    | Sqrt e1 -> collect_var_in_e e1
-    | Abs e1 -> collect_var_in_e e1
-    | Log e1 -> collect_var_in_e e1
-    | Exp e1 -> collect_var_in_e e1
-    | Sin e1 -> collect_var_in_e e1
-    | Cos e1 -> collect_var_in_e e1
-    | Tan e1 -> collect_var_in_e e1
-    | Asin e1 -> collect_var_in_e e1
-    | Acos e1 -> collect_var_in_e e1
-    | Atan e1 -> collect_var_in_e e1
-    | Atan2 (e1, e2) -> Set.union (collect_var_in_e e1) (collect_var_in_e e2)
-    | Sinh e1 -> collect_var_in_e e1
-    | Cosh e1 -> collect_var_in_e e1
-    | Tanh e1 -> collect_var_in_e e1
-    | Matan e1 -> collect_var_in_e e1
-    | Safesqrt e1 -> collect_var_in_e e1
+    | Neg e' | Sqrt e' | Abs e' | Log e' | Exp e'
+    | Sin e' | Cos e' | Tan e' | Asin e' | Acos e'
+    | Atan e' | Sinh e' | Cosh e' | Tanh e'
+    | Asinh e' | Acosh e' | Atanh e' | Matan e'
+    | Safesqrt e' -> collect_var_in_e e'
+    | Integral (time_0, time_t, vars, flow) ->
+       Set.of_list (time_t::vars)
 
   let rec print_exp out =
     let print_exps op exps =
@@ -645,6 +540,10 @@ module Basic = struct
         replace_all s3 "->" "_"
       in
       String.print out (filter x)
+    | Vec xs -> List.print ~first:"[" ~last:"]" ~sep:" "
+                           (fun out x -> print_exp out (Var x))
+                           out
+                           xs
     | Num n ->
       let str_n = Printf.sprintf "%f" n in
       let str_n' =
@@ -690,8 +589,16 @@ module Basic = struct
     | Sinh e -> print_exps "sinh" [e]
     | Cosh e -> print_exps "cosh" [e]
     | Tanh e -> print_exps "tanh" [e]
+    | Asinh e -> print_exps "asinh" [e]
+    | Acosh e -> print_exps "acosh" [e]
+    | Atanh e -> print_exps "atanh" [e]
     | Matan e -> print_exps "matan" [e]
     | Safesqrt e -> print_exps "safesqrt" [e]
+    | Integral (time_0, time_t, xs, flow) ->
+       let str_xs = BatIO.to_string (List.print ~first:"[" ~last:"]" ~sep:" " String.print) xs in
+       begin
+         List.print ~first:"(" ~last:")" ~sep:" " String.print out ["integral"; string_of_float time_0; time_t; str_xs; flow]
+       end
 
   and print_formula out =
     let print_lists op out f items =
@@ -730,11 +637,11 @@ module Basic = struct
     | And fs -> print_formulas "and" fs
     | Or  fs -> print_formulas "or"  fs
     | Imply (f1, f2) -> print_formulas "=>" [f1;f2]
-    | Gt  (e1, e2) -> print_exps ">"  [e1; e2]
-    | Lt  (e1, e2) -> print_exps "<"  [e1; e2]
-    | Ge  (e1, e2) -> print_exps ">=" [e1; e2]
-    | Le  (e1, e2) -> print_exps "<=" [e1; e2]
-    | Eq  (e1, e2) -> print_exps "="  [e1; e2]
+    | Gt (e1, e2) -> print_exps ">"  [e1; e2]
+    | Lt (e1, e2) -> print_exps "<"  [e1; e2]
+    | Ge (e1, e2) -> print_exps ">=" [e1; e2]
+    | Le (e1, e2) -> print_exps "<=" [e1; e2]
+    | Eq (e1, e2) -> print_exps "="  [e1; e2]
     | LetE (ebinding_list, f) ->
       begin
         String.print out "(let ";
@@ -765,8 +672,7 @@ module Basic = struct
         print_formula out f;
         String.print out ")";
       end
-  
-  
+
   let rec print_infix_exp (out : 'a IO.output) : exp -> unit =
     let print_infix_exps (op : string) (exps : exp list) =
       begin
@@ -809,6 +715,10 @@ module Basic = struct
         replace_all s3 "->" "_"
       in
       String.print out (filter x)
+    | Vec xs -> List.print ~first:"[" ~last:"]" ~sep:" "
+                           (fun out x -> print_exp out (Var x))
+                           out
+                           xs
     | Num n ->
       (* If n ends with ".", add "0" to make ".0" *)
       let s = Printf.sprintf "%f" n in
@@ -855,47 +765,32 @@ module Basic = struct
     | Sinh e -> print_fncall "sinh" [e]
     | Cosh e -> print_fncall "cosh" [e]
     | Tanh e -> print_fncall "tanh" [e]
+    | Asinh e -> print_fncall "asinh" [e]
+    | Acosh e -> print_fncall "acosh" [e]
+    | Atanh e -> print_fncall "atanh" [e]
+    | Integral (time_0, time_t, xs, flow) ->
+       let str_xs = BatIO.to_string (List.print ~first:"[" ~last:"]" ~sep:" " String.print) xs in
+       begin
+         List.print ~first:"integral( " ~last:")" ~sep:" " String.print out [string_of_float time_0; time_t; str_xs; flow]
+       end
+end
 
-  let rec map_exp (func : exp -> exp) (f : formula)
-      : formula
-      = match f with
-      | True -> f
-      | False -> f
-      | Not f' -> Not (map_exp func f')
-      | And fs -> And (List.map (map_exp func) fs)
-      | Or fs -> Or (List.map (map_exp func) fs)
-      | Gt (e1, e2) -> Gt(func e1, func e2)
-      | Lt (e1, e2) -> Lt(func e1, func e2)
-      | Ge (e1, e2) -> Ge(func e1, func e2)
-      | Le (e1, e2) -> Le(func e1, func e2)
-      | Eq (e1, e2) -> Eq(func e1, func e2)
-      | FVar _ -> f
-      | Imply (f1, f2) -> Imply (map_exp func f1, map_exp func f2)
-      | LetF (str_formula_list, f') ->
-        LetF (List.map (fun (str, f) -> (str, map_exp func f)) str_formula_list,
-              map_exp func f')
-      | LetE (str_exp_list, f') ->
-        LetE (List.map (fun (str, e) -> (str, func e)) str_exp_list,
-              map_exp func f')
-      | ForallT f' -> ForallT (map_exp func f')
-end 
+module Value = struct
 
-module Value = struct 
-    
   type t = Num of float | Intv of float * float
-  
+
   let print_intv out (n, m) =
     Printf.fprintf out "[%f, %f]" n m
-  
+
   let print out v =
     match v with
       Num n -> print_intv out (n, n)
     | Intv (n, m) -> print_intv out (n, m)
 
-end 
+end
 
 
-module Vardecl = struct 
+module Vardecl = struct
 
   type value = Value.t
   type var = string
@@ -905,13 +800,13 @@ module Vardecl = struct
     Printf.fprintf out "%s %s" (IO.to_string Value.print value) var
 end
 
-module Vardeclmap = struct 
+module Vardeclmap = struct
 
   type var = Vardecl.var
   type value = Vardecl.value
   type vardecl = Vardecl.t
   type t = (var, value) Map.t
-  
+
   let of_list (vardecls : vardecl list) : t
       =
     List.fold_left
@@ -920,9 +815,9 @@ module Vardeclmap = struct
       )
       Map.empty
       vardecls
-  
+
   let print out = Map.print String.print Value.print out
-  
+
   let find key map =
     try
       Map.find key map
@@ -937,7 +832,7 @@ module Vardeclmap = struct
       end
 end
 
-module Ode = struct 
+module Ode = struct
 
   type t = string * Basic.exp
 
@@ -958,24 +853,24 @@ module Ode = struct
     end
 end
 
-module Id = struct 
+module Id = struct
   type t = int
   let print = Int.print
-end 
+end
 
-module Jump = struct 
+module Jump = struct
   type formula = Basic.formula
   type id = Id.t
   type t = {guard  : formula;
             target: Id.t;
             change : formula}
-  
+
   let make (g, t, c) = {guard = g; target = t; change = c}
-  
+
   let guard  {guard = g; target = t; change = c} = g
   let target {guard = g; target = t; change = c} = t
   let change {guard = g; target = t; change = c} = c
-  
+
   let print out {guard  = g;
                  target = t;
                  change = c}
@@ -985,13 +880,13 @@ module Jump = struct
       (IO.to_string Basic.print_formula g)
       (IO.to_string Id.print t)
       (IO.to_string Basic.print_formula c)
-end 
+end
 
-module Jumpmap = struct 
+module Jumpmap = struct
   type id = int
   type jump = Jump.t
   type t = (id, jump) Map.t
-  
+
   let of_list (jumps : jump list) : t
       =
     List.fold_left
@@ -1000,9 +895,9 @@ module Jumpmap = struct
       )
       Map.empty
       jumps
-  
+
   let print out = Map.print Id.print Jump.print out
-  
+
   let find key map =
     try
       Map.find key map
@@ -1017,7 +912,7 @@ module Jumpmap = struct
       end
 end
 
-module Mode = struct 
+module Mode = struct
   type id = Id.t
   type exp = Basic.exp
   type formula = Basic.formula
@@ -1082,13 +977,13 @@ module Mode = struct
       inv_str
       flow_str
       jump_str
-end 
+end
 
-module Modemap = struct 
+module Modemap = struct
   type id = int
   type mode = Mode.t
   type t = (id, mode) Map.t
-  
+
   let of_list (modes : mode list) : t
       =
     List.fold_left
@@ -1097,9 +992,9 @@ module Modemap = struct
       )
       Map.empty
       modes
-  
+
   let print out = Map.print Id.print Mode.print out
-  
+
   let find key map =
     try
       Map.find key map
@@ -1115,23 +1010,23 @@ module Modemap = struct
 end
 
 
-module Hybrid = struct 
-  
+module Hybrid = struct
+
   (* 1. Variable Declaration *)
   type vardeclmap = Vardeclmap.t
-  
+
   (* 2. Mode *)
   type modeId = Mode.id
   type mode = Mode.t
   type modemap = Modemap.t
   type formula = Basic.formula
   type exp = Basic.formula
-  
+
   (* 3. Init and Goal *)
   type init = modeId * formula
   type goal = modeId * formula
   type goals = goal list
-  
+
   type t = {varmap: vardeclmap;
             modemap: modemap;
             init_id: Mode.id;
@@ -1186,7 +1081,7 @@ module Hybrid = struct
     let init_formula' = Basic.preprocess_formula subst iformula in
     let goals' = List.map (fun (id, goal) -> (id, Basic.preprocess_formula subst goal)) gs in
     make (vm, mm', iid, init_formula', goals')
-  
+
   let print out (hm : t) =
     let id_formula_print out (id, f) =
       Printf.fprintf out "(%s, %s)" (IO.to_string Id.print id) (IO.to_string Basic.print_formula f)
@@ -1208,8 +1103,7 @@ module Hybrid = struct
       print_header out "Goal";
       List.print ~first:"" ~sep:"\n" ~last:"\n" id_formula_print out hm.goals;
     end
-  
+
   let goal_ids (hm : t) : modeId list
       = List.map (fun (goal_id, _) -> goal_id) hm.goals
-end 
-
+end
