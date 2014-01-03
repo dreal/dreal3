@@ -7,3 +7,5 @@
 *.cmx
 *.cmxs
 *.cmxa
+setup.data
+setup.log
