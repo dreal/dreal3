@@ -47,7 +47,8 @@ public:
 #ifdef ODE_ENABLED
     void        print_json(ostream& out);
 #endif
-    bool        is_box_within_delta(rp_box b); //is the width of the bounds on each constraint < delta
+    double      constraint_width(rp_constraint * c, rp_box b) const;
+    bool        is_box_within_delta(rp_box b) const;
 private:
     // methods
     icp_solver(const icp_solver& s);
@@ -60,6 +61,7 @@ private:
     void        display_box(ostream& out, rp_box b, int digits, int mode) const;
     void        display_interval(ostream & out, rp_interval i, int digits, int mode) const;
     void        pprint_vars(ostream & out, rp_problem p, rp_box b) const;
+    void        pprint_lits(ostream & out, rp_problem p, rp_box b) const;
 
 #ifdef ODE_ENABLED
     void        create_ode_solvers();

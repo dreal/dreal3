@@ -178,10 +178,10 @@ rp_problem* icp_solver::create_rp_problem() {
         stringstream buf;
         rp_constraint * c = new rp_constraint;
         m_rp_constraints.push_back(c);
-	if(l->hasPrecision())
-	  m_rp_constraint_deltas.push_back(l->getPrecision());
-	else
-	  m_rp_constraint_deltas.push_back(m_config.nra_precision);
+        if (l->hasPrecision())
+          m_rp_constraint_deltas.push_back(l->getPrecision());
+        else
+          m_rp_constraint_deltas.push_back(m_config.nra_precision);
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
@@ -288,28 +288,49 @@ bool icp_solver::prop_with_ODE() {
     return false;
 }
 
-bool icp_solver::is_box_within_delta(rp_box b){
-  //for each expression
-  // compute width given box
-  // check if expression width <= delta
-  vector<double>::iterator d = m_rp_constraint_deltas.begin();
-  for (rp_constraint * c : m_rp_constraints) { 
+double icp_solver::constraint_width(rp_constraint * c, rp_box b) const {
     rp_expression lhs = rp_ctr_num_left(rp_constraint_num(*c));
-    if( rp_expression_eval(lhs, b) ){
-      //expression value interval is non-empty
-      double width =  rp_interval_width(rp_expression_val(lhs));
-      //cout << "width: " << width << " >= delta: " << *d << endl;
-      if( width >= *d ){ //need to extend for per constraint delta
-	return false;
-      }
+    rp_expression rhs = rp_ctr_num_right(rp_constraint_num(*c));
+    if ( rp_expression_eval(lhs, b) && rp_expression_eval(rhs, b) ){
+      // expression value interval is non-empty
+      rp_interval res;
+      rp_interval_sub(res, rp_expression_val(lhs), rp_expression_val(rhs));
+      return rp_interval_width(res);
     }
-    else {
-      //expression value interval is empty
+    return 0.0;
+}
+
+
+bool icp_solver::is_box_within_delta(rp_box b) const {
+  // for each expression
+  //  compute width given box
+  //  check if expression width <= delta
+  DREAL_LOG_DEBUG("Checking box width...");
+
+  vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
+  int i = 0;
+  for (auto const l : m_stack) {
+    stringstream buf;
+    l->print_infix(buf, l->getPolarity());
+    string constraint_str = buf.str();
+    rp_constraint c = rp_problem_ctr(*m_problem, i);
+    double width =  constraint_width(&c, b);
+    DREAL_LOG_DEBUG(i << ": "
+                    <<   constraint_str
+                    << "\t: [" << width << " <= "
+                    << (l->hasPrecision() ?
+                        l->getPrecision() :
+                        m_config.nra_precision)
+                    << "]");
+    if ( width > 2.0*(*d) ){
       return false;
     }
     d++;
+    i++;
   }
-  return true; //no constraint width is outside of delta or unsat
+
+
+  return true; // no constraint width is outside of delta or unsat
 }
 
 rp_box icp_solver::compute_next() {
@@ -319,8 +340,7 @@ rp_box icp_solver::compute_next() {
             // SAT => Split
             rp_box b = m_boxes.get();
             int i = m_vselect->apply(b);
-	    //cout << "icp_solver::compute_next()" << endl;
-            if (i >= 0 && !is_box_within_delta(b)){//rp_box_width(b) >= m_config.nra_precision) {
+            if (i >= 0 && !is_box_within_delta(b)){// rp_box_width(b) >= m_config.nra_precision) {
                 if (m_config.nra_proof) {
                     m_config.nra_proof_out << endl
                                            << "[branched on "
@@ -376,7 +396,7 @@ bool icp_solver::solve() {
         if (b != nullptr) {
             /* SAT */
             DREAL_LOG_DEBUG("SAT with the following box:");
-            if (m_config.nra_verbose) { pprint_vars(cerr, *m_problem, b); }
+            if (m_config.nra_verbose) { pprint_vars(cerr, *m_problem, b); pprint_lits(cerr, *m_problem, b); }
             if (m_config.nra_proof) {
                 m_config.nra_proof_out.close();
                 m_config.nra_proof_out.open(m_config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
@@ -474,6 +494,26 @@ void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b) const {
             out << ";";
         out << endl;
     }
+}
+
+void icp_solver::pprint_lits(ostream & out, rp_problem p, rp_box b) const {
+  int i = 0;
+  for (auto const l : m_stack) {
+    stringstream buf;
+    l->print_infix(buf, l->getPolarity());
+    string constraint_str = buf.str();
+    rp_constraint c = rp_problem_ctr(p, i);
+    out << i << ": " <<   constraint_str << "\t: "
+        << constraint_width(&c, b);
+    out << ";";
+
+    if (l->hasPrecision())
+      out << " [delta = " << l->getPrecision() << "]";
+    else
+      out << " [delta = " << m_config.nra_precision << "]";
+    out << endl;
+    i++;
+  }
 }
 
 void icp_solver::output_problem() const {

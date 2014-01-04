@@ -436,7 +436,7 @@ int rp_propagator::check_precision(rp_operator * o, rp_box b)
 
   //added for dReal: Prune based on constraint precision
   //cout << "rp_propagator::check_precision()" << endl;
-  return (*_problem)->rp_icp_solver->is_box_within_delta(b);
+  return !(*_problem)->rp_icp_solver->is_box_within_delta(b);
 
   /* // Prune based on variable precision
   for (int i=0; i<o->pruned_arity(); ++i)
