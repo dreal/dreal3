@@ -6,10 +6,8 @@ Transform Hybrid automata into SMT formula which is solvable by dReal.
 Authors
 ==========
 Soonho Kong soonhok@cs.cmu.edu
-Wei Chen ipondering.weic@gmail.com
+Wei Chen weichen1@andrew.cmu.edu
 
 Build
 ==========
-ocaml setup.ml -configure
-ocaml setup.ml -build
-./main.native data_file/bouncing_ball_with_drag.drh
+make

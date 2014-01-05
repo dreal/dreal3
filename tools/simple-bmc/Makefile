@@ -1,5 +1,6 @@
 all:
-	ocamlbuild -cflags -annot src/main.native
+	ocaml setup.ml -configure
+	ocaml setup.ml -build
 
 clean:
-	rm -rf _build main.native
+	ocaml setup.ml -clean

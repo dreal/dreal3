@@ -10,4 +10,5 @@ Executable sbmc
   BuildTools: ocamlbuild
   MainIs:     main.ml
   BuildDepends: batteries
-  
+  ByteOpt:    -passopt -annot
+  CompiledObject : native

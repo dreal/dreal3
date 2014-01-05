@@ -1,5 +1,6 @@
 (*
- * ipondering.weic@gmail.com
+ * Soonho Kong soonhok@cs.cmu.edu
+ * Wei Chen weichen1@andrew.cmu.edu
  *)
  
 open Batteries

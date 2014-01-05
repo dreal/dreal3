@@ -1,6 +1,6 @@
 (*
  * Soonho Kong soonhok@cs.cmu.edu
- * Wei Chen ipondeing.weic@gmail.com
+ * Wei Chen weichen1@andrew.cmu.edu
  *)
 open Type
 open Type.Hybrid
@@ -14,7 +14,8 @@ open Smt2
 
 exception SMTException of string
 
-type flows_annot = (int * ode list)  (** step, mode, ode **)
+type ode = Ode.t
+type flows_annot = (int * ode list)  (** step, ode **)
 
 (** rename variable to related name in each step **)
 let make_variable k suffix (s: string) : string =

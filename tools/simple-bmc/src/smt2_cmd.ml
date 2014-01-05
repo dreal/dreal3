@@ -13,6 +13,7 @@ type t = | SetLogic of logic
          | DeclareConst of string
 
          (** ode group X LHS X RHS **)
+         (** [x1_k_t ... xn_k_t] = (integral 0.0 time_k [x1_k_0 ... xn_k_0] flow_i) *)
          | DefineODE of string * (string * exp) list
          | Assert of formula
          | CheckSAT
