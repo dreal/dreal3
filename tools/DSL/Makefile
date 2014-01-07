@@ -6,4 +6,4 @@ clean:
 	ocaml setup.ml -clean
 
 demo: all
-	./main.native tests/1.dl
+	./main.native tests/2.dl

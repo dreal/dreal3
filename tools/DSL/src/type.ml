@@ -63,23 +63,27 @@ and bexp =
     | B_ge  of exp * exp
     | B_le  of exp * exp
     | B_eq  of exp * exp
+    | B_and of bexp * bexp
+    | B_or of bexp * bexp
     | B_true
     | B_false
 
-(* switch *)
-and flow = 
-    | Switch of string * choice list
+(* switch case *)    
 and choice = 
     | Case of float * stmt list
-
 and stmt = 
     | Ode of string * exp
     | Assert of formula
-    | Assign of string * exp
+    (* declaration & assignment *)
+    | Assign1 of string * exp
+    (* assignment *)
+    | Assign2 of string * exp
     | If1 of bexp * stmt list
     | If2 of bexp * stmt list * stmt list
-    | Proceed of float * float * flow
+    | Proceed of float * float * stmt list
     | Call of string * string list
+    | Vardecls of var_decl list
+    | Switch of string * choice list
 
 and main_entry = 
     | Main of (stmt list)

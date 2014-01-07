@@ -58,31 +58,34 @@ rule token = parse
     | '['       { verbose (Lexing.lexeme lexbuf); LB }
     | ']'       { verbose (Lexing.lexeme lexbuf); RB }
 
-    | "d/dt"    { DDT }
+    | "d/dt"    { verbose (Lexing.lexeme lexbuf); DDT }
 
     (* operators *)
     | "="       { verbose (Lexing.lexeme lexbuf); EQ }
-    | "+"       { PLUS }
-    | "-"       { MINUS }
-    | "*"       { AST }
-    | "/"       { SLASH }
-    | ","       { COMMA }
-    | ":"       { COLON }
-    | ";"       { SEMICOLON }
-    | "<"       { LT }
-    | "<="      { LTE }
-    | ">"       { GT }
-    | ">="      { GTE }
-    | "^"       { CARET }
+    | "+"       { verbose (Lexing.lexeme lexbuf); PLUS }
+    | "-"       { verbose (Lexing.lexeme lexbuf); MINUS }
+    | "*"       { verbose (Lexing.lexeme lexbuf); AST }
+    | "/"       { verbose (Lexing.lexeme lexbuf); SLASH }
+    | "//"      { verbose (Lexing.lexeme lexbuf); comment lexbuf }
+    | ","       { verbose (Lexing.lexeme lexbuf); COMMA }
+    | ":"       { verbose (Lexing.lexeme lexbuf); COLON }
+    | ";"       { verbose (Lexing.lexeme lexbuf); SEMICOLON }
+    | "<"       { verbose (Lexing.lexeme lexbuf); LT }
+    | "<="      { verbose (Lexing.lexeme lexbuf); LTE }
+    | ">"       { verbose (Lexing.lexeme lexbuf); GT }
+    | ">="      { verbose (Lexing.lexeme lexbuf); GTE }
+    | "^"       { verbose (Lexing.lexeme lexbuf); CARET }
+    | "||"      { verbose (Lexing.lexeme lexbuf); OR }
+    | "&&"      { verbose (Lexing.lexeme lexbuf); AND }
 
     (* identifier *)
     | id { 
             let id = Lexing.lexeme lexbuf in
-            verbose ("ID:"^id);
+            verbose ("ID: "^id);
             try Hashtbl.find keyword_tbl id
             with _ -> ID id
          }
-    | "#define" { DEFINE }
+    | "#define" { verbose (Lexing.lexeme lexbuf); DEFINE }
 
     (* float *)
     | float_number { verbose (Lexing.lexeme lexbuf); FNUM (float_of_string(Lexing.lexeme lexbuf)) } 
@@ -93,3 +96,6 @@ rule token = parse
     (* end *)
     | ['\n'] { token lexbuf }
     | eof { verbose "eof"; EOF }
+and comment = parse
+    | ['\n'] { token lexbuf }
+    | _ { comment lexbuf }

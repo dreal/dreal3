@@ -97,6 +97,8 @@ bexp:
   | exp LT exp          { B_lt  ($1, $3) }
   | exp GTE exp         { B_ge ($1, $3) }
   | exp LTE exp         { B_le ($1, $3) }
+  | bexp OR bexp        { B_or ($1, $3) }
+  | bexp AND bexp       { B_and ($1, $3) }
 ;
 
 choice:
@@ -114,21 +116,36 @@ switch:
 
 params:
     | /**/ { [] }
-    | ID params { $1::$2 }
+    | ID { [$1] }
+    | ID COMMA params { $1::$3 }
 ;
 
 application: 
     | ID LP params RP { Call ($1, $3) }
 ;
 
+id:
+    | ID { $1 }
+;
+
+ids:
+    | /**/ { [] } 
+    | id { [$1] }
+    | id COMMA ids { $1::$3 }
+;
+
 stmt:
-    | DDT LP ID RP EQ exp SEMICOLON { Ode ($3, $6) }
-    /* todo : how about initial declaration */ 
-    | REAL ID EQ exp SEMICOLON { Assign ($2, $4) } 
-    | INT ID EQ exp SEMICOLON { Assign ($2, $4) } 
+    | DDT LB ID RB EQ exp SEMICOLON { Ode ($3, $6) }
+    | ID EQ exp SEMICOLON { Assign2 ($1, $3) }
+    | REAL ID EQ exp SEMICOLON { Assign1 ($2, $4) } 
+    | INT ID EQ exp SEMICOLON { Assign1 ($2, $4) } 
+    | REAL ids SEMICOLON { Vardecls (List.map (fun v -> RealVar v) $2) }
+    | INT ids SEMICOLON { Vardecls (List.map (fun v -> IntVar v) $2) }
     | IF bexp THEN LC stmt_list RC { If1 ($2, $5)}
     | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC { If2 ($2, $5, $9) }
-    | PROCEED LB FNUM COLON FNUM RB LC switch RC { Proceed ($3, $5, $8) }
+    /* proceed is wrong */
+    | PROCEED LB FNUM COLON FNUM RB LC stmt_list RC { Proceed ($3, $5, $8) }
+    | switch { $1 } 
     | application SEMICOLON { $1 }
 ;
 

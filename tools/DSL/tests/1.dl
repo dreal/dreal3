@@ -1,3 +1,4 @@
+// this is comment
 #define g 9.8
 
 process flow1 (real x) {
