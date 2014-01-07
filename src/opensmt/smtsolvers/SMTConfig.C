@@ -92,7 +92,7 @@ SMTConfig::initializeConfig( )
   nra_ODE_grid_size            = 16;
   nra_ODE_step                 = 0.0;
   nra_contain_ODE              = false;
-
+  delta_test                   = false;
   init_log();
 }
 
@@ -335,6 +335,11 @@ SMTConfig::parseCMDLine( int argc
         }
         continue;
     }
+    if ( strcmp( buf, "--delta" ) == 0 )
+    {
+        delta_test = true;
+        continue;
+    }
     if ( sscanf( buf, "--ode-step=%lf", &nra_ODE_step ) == 1)
     {
         if(nra_ODE_step <= 0.0)
@@ -436,6 +441,8 @@ void SMTConfig::printHelp( )
       "\n"
       "  --precision=<double>     set precision (default 0.001)\n"
       "                           this overrides the value specified in input files\n"
+      "\n"
+      "  --delta                  interpret precision as delta instead of epsilon (default)\n"
       "\n"
       "   --proof                 the solver produces an addition file \"filename.proof\"\n"
       "                           upon termination, and provides the following information:\n"

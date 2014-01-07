@@ -318,7 +318,7 @@ bool icp_solver::is_box_within_delta(rp_box b) const {
     DREAL_LOG_DEBUG(i << ": "
                     <<   constraint_str
                     << "\t: [" << width << " <= "
-                    << (l->hasPrecision() ?
+                    << 2.0*(l->hasPrecision() ?
                         l->getPrecision() :
                         m_config.nra_precision)
                     << "]");
@@ -340,7 +340,9 @@ rp_box icp_solver::compute_next() {
             // SAT => Split
             rp_box b = m_boxes.get();
             int i = m_vselect->apply(b);
-            if (i >= 0 && !is_box_within_delta(b)){// rp_box_width(b) >= m_config.nra_precision) {
+            if (i >= 0 &&
+                ((m_config.delta_test && !is_box_within_delta(b)) ||
+                 (!m_config.delta_test && rp_box_width(b) >= m_config.nra_precision))) {
                 if (m_config.nra_proof) {
                     m_config.nra_proof_out << endl
                                            << "[branched on "

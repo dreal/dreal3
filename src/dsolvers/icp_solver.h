@@ -49,6 +49,7 @@ public:
 #endif
     double      constraint_width(rp_constraint * c, rp_box b) const;
     bool        is_box_within_delta(rp_box b) const;
+    bool        delta_test() const { return m_config.delta_test; }
 private:
     // methods
     icp_solver(const icp_solver& s);

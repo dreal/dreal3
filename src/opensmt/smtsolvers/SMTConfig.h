@@ -166,6 +166,7 @@ struct SMTConfig
   int          lra_check_on_assert;          // Probability (0 to 100) to run check when assert is called
 
   // NRA-Solver related parameters (added for dReal2)
+  bool         delta_test;                    // precision=(delta_test ? delta : epsilon)
   double       nra_precision;                 // the value of delta
   double       nra_icp_improve;               // improve value for realpaver(ICP)
   bool         nra_verbose;                   // --verbose option

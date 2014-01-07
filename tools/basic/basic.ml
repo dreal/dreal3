@@ -43,14 +43,20 @@ and formula =
 | And of formula list
 | Or  of formula list
 | Imply of formula * formula
-| Gt  of exp * exp
-| Lt  of exp * exp
-| Ge  of exp * exp
-| Le  of exp * exp
-| Eq  of exp * exp
+| Gt  of exp * exp 
+| Lt  of exp * exp 
+| Ge  of exp * exp 
+| Le  of exp * exp 
+| Eq  of exp * exp 
+| Gtp  of exp * exp * float
+| Ltp  of exp * exp * float 
+| Gep  of exp * exp * float
+| Lep  of exp * exp * float
+| Eqp  of exp * exp * float
 | LetF of ((string * formula) list * formula)
 | LetE of ((string * exp) list * formula)
 | ForallT of formula
+
 
 let rec collect_vars_in_formula (f : formula) : var Set.t =
   match f with
@@ -64,6 +70,11 @@ let rec collect_vars_in_formula (f : formula) : var Set.t =
   | Ge (e1, e2) -> collect_vars_in_exps [e1;e2]
   | Le (e1, e2) -> collect_vars_in_exps [e1;e2]
   | Eq (e1, e2) -> collect_vars_in_exps [e1;e2]
+  | Gtp (e1, e2, p) -> collect_vars_in_exps [e1;e2]
+  | Ltp (e1, e2, p) -> collect_vars_in_exps [e1;e2]
+  | Gep (e1, e2, p) -> collect_vars_in_exps [e1;e2]
+  | Lep (e1, e2, p) -> collect_vars_in_exps [e1;e2]
+  | Eqp (e1, e2, p) -> collect_vars_in_exps [e1;e2]
   | Imply (f1, f2) -> collect_vars_in_formulas [f1;f2]
   | FVar x -> Set.singleton x
   | ForallT f' -> collect_vars_in_formula f'
@@ -177,6 +188,11 @@ and preprocess_formula (f: string -> exp) : (formula -> formula) =
   | Ge (e1, e2) -> Ge (preprocess_exp f e1, preprocess_exp f e2)
   | Le (e1, e2) -> Le (preprocess_exp f e1, preprocess_exp f e2)
   | Eq (e1, e2) -> Eq (preprocess_exp f e1, preprocess_exp f e2)
+  | Gtp (e1, e2, p) -> Gtp (preprocess_exp f e1, preprocess_exp f e2, p)
+  | Ltp (e1, e2, p) -> Ltp (preprocess_exp f e1, preprocess_exp f e2, p)
+  | Gep (e1, e2, p) -> Gep (preprocess_exp f e1, preprocess_exp f e2, p)
+  | Lep (e1, e2, p) -> Lep (preprocess_exp f e1, preprocess_exp f e2, p)
+  | Eqp (e1, e2, p) -> Eqp (preprocess_exp f e1, preprocess_exp f e2, p)
   | Imply (f1, f2) -> Imply (preprocess_formula f f1, preprocess_formula f f2)
   | ForallT f' -> ForallT (preprocess_formula f f')
   | FVar x -> FVar x
@@ -355,6 +371,11 @@ and subst_formula (f: string -> string) : (formula -> formula) =
   | Ge (e1, e2) -> Ge (subst_exp f e1, subst_exp f e2)
   | Le (e1, e2) -> Le (subst_exp f e1, subst_exp f e2)
   | Eq (e1, e2) -> Eq (subst_exp f e1, subst_exp f e2)
+  | Gtp (e1, e2, p) -> Gtp (subst_exp f e1, subst_exp f e2, p)
+  | Ltp (e1, e2, p) -> Ltp (subst_exp f e1, subst_exp f e2, p)
+  | Gep (e1, e2, p) -> Gep (subst_exp f e1, subst_exp f e2, p)
+  | Lep (e1, e2, p) -> Lep (subst_exp f e1, subst_exp f e2, p)
+  | Eqp (e1, e2, p) -> Eqp (subst_exp f e1, subst_exp f e2, p)
   | ForallT f' -> ForallT (subst_formula f f')
   | FVar s -> FVar (f s)
   | Imply (f1, f2) -> Imply (subst_formula f f1, subst_formula f f2)
@@ -448,6 +469,26 @@ and count_mathfn_f =
     let v1 = count_mathfn_e e1 in
     let v2 = count_mathfn_e e2 in
     v1 + v2
+  | Gtp (e1, e2, p) ->
+    let v1 = count_mathfn_e e1 in
+    let v2 = count_mathfn_e e2 in
+    v1 + v2
+  | Ltp (e1, e2, p) ->
+    let v1 = count_mathfn_e e1 in
+    let v2 = count_mathfn_e e2 in
+    v1 + v2
+  | Gep (e1, e2, p) ->
+    let v1 = count_mathfn_e e1 in
+    let v2 = count_mathfn_e e2 in
+    v1 + v2
+  | Lep (e1, e2, p) ->
+    let v1 = count_mathfn_e e1 in
+    let v2 = count_mathfn_e e2 in
+    v1 + v2
+  | Eqp (e1, e2, p) ->
+    let v1 = count_mathfn_e e1 in
+    let v2 = count_mathfn_e e2 in
+    v1 + v2
   | LetF (fbinding_list, f) ->
     List.sum (List.map (fun (id, f') -> count_mathfn_f f') fbinding_list)
     + (count_mathfn_f f)
@@ -526,6 +567,26 @@ and count_arith_f =
     let v1 = count_arith_e e1 in
     let v2 = count_arith_e e2 in
     v1 + v2
+  | Gtp (e1, e2, p) ->
+    let v1 = count_arith_e e1 in
+    let v2 = count_arith_e e2 in
+    v1 + v2
+  | Ltp (e1, e2, p) ->
+    let v1 = count_arith_e e1 in
+    let v2 = count_arith_e e2 in
+    v1 + v2
+  | Gep (e1, e2, p) ->
+    let v1 = count_arith_e e1 in
+    let v2 = count_arith_e e2 in
+    v1 + v2
+  | Lep (e1, e2, p) ->
+    let v1 = count_arith_e e1 in
+    let v2 = count_arith_e e2 in
+    v1 + v2
+  | Eqp (e1, e2, p) ->
+    let v1 = count_arith_e e1 in
+    let v2 = count_arith_e e2 in
+    v1 + v2
   | LetF (fbinding_list, f) ->
     List.sum (List.map (fun (id, f') -> count_arith_f f') fbinding_list)
     + (count_arith_f f)
@@ -555,6 +616,16 @@ let rec collect_var_in_f f : string Set.t =
   | Le (e1, e2) ->
     Set.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Eq (e1, e2) ->
+    Set.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Gtp (e1, e2, p) ->
+    Set.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Ltp (e1, e2, p) ->
+    Set.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Gep (e1, e2, p) ->
+    Set.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Lep (e1, e2, p) ->
+    Set.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Eqp (e1, e2, p) ->
     Set.union (collect_var_in_e e1) (collect_var_in_e e2)
   | LetF (fbinding_list, f') ->
     let id_vars_list =
@@ -692,7 +763,6 @@ let rec print_exp out =
   | Tanh e -> print_exps "tanh" [e]
   | Matan e -> print_exps "matan" [e]
   | Safesqrt e -> print_exps "safesqrt" [e]
-
 and print_formula out =
   let print_lists op out f items =
     begin
@@ -700,6 +770,17 @@ and print_formula out =
         ~first:("("^op^" ")
         ~sep:" "
         ~last:")"
+        f
+        out
+        items
+    end in
+  let print_plists op out f items p =
+    begin
+      let ps =  Printf.sprintf "%f" p in
+      List.print
+        ~first:("("^op^" ")
+        ~sep:" "
+        ~last:(" ["^ps^"])")
         f
         out
         items
@@ -721,6 +802,7 @@ and print_formula out =
       String.print out ")";
     end in
   let print_exps op exps = print_lists op out print_exp exps in
+  let print_pexps op exps p = print_plists op out print_exp exps p in
   let print_formulas op formulas = print_lists op out print_formula formulas in
   function
   | True -> String.print out "true"
@@ -735,6 +817,11 @@ and print_formula out =
   | Ge  (e1, e2) -> print_exps ">=" [e1; e2]
   | Le  (e1, e2) -> print_exps "<=" [e1; e2]
   | Eq  (e1, e2) -> print_exps "="  [e1; e2]
+  | Gtp  (e1, e2, p) -> print_pexps ">"  [e1; e2] p
+  | Ltp  (e1, e2, p) -> print_pexps "<"  [e1; e2] p
+  | Gep  (e1, e2, p) -> print_pexps ">=" [e1; e2] p
+  | Lep  (e1, e2, p) -> print_pexps "<=" [e1; e2] p
+  | Eqp  (e1, e2, p) -> print_pexps "="  [e1; e2] p
   | LetE (ebinding_list, f) ->
     begin
       String.print out "(let ";
@@ -869,6 +956,11 @@ let rec map_exp (func : exp -> exp) (f : formula)
     | Ge (e1, e2) -> Ge(func e1, func e2)
     | Le (e1, e2) -> Le(func e1, func e2)
     | Eq (e1, e2) -> Eq(func e1, func e2)
+    | Gtp (e1, e2, p) -> Gtp(func e1, func e2, p)
+    | Ltp (e1, e2, p) -> Ltp(func e1, func e2, p)
+    | Gep (e1, e2, p) -> Gep(func e1, func e2, p)
+    | Lep (e1, e2, p) -> Lep(func e1, func e2, p)
+    | Eqp (e1, e2, p) -> Eqp(func e1, func e2, p)
     | FVar _ -> f
     | Imply (f1, f2) -> Imply (map_exp func f1, map_exp func f2)
     | LetF (str_formula_list, f') ->

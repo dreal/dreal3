@@ -13,10 +13,10 @@ type t = SetLogic of logic
          | CheckSAT
          | Exit
 
-let make_lb (name : string) (v : float)
+let make_lb (name : string) (v : float) (p : float)
     = Assert (Basic.Le (Basic.Num v,  Basic.Var name))
-let make_ub (name : string) (v : float)
-    = Assert (Basic.Le (Basic.Var name, Basic.Num v ))
+let make_ub (name : string) (v : float) (p : float)
+    = Assert (Basic.Le (Basic.Var name, Basic.Num v))
 
 let set_precision (p : float) : t =
   SetInfo (":precision", string_of_float p)

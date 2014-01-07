@@ -105,6 +105,11 @@ formula:
   | exp LT exp          { Basic.Lt  ($1, $3) }
   | exp GTE exp         { Basic.Ge ($1, $3) }
   | exp LTE exp         { Basic.Le ($1, $3) }
+  | exp EQ precision exp          { Basic.Eqp  ($1, $4, $3) }
+  | exp GT precision exp          { Basic.Gtp  ($1, $4, $3) }
+  | exp LT precision exp          { Basic.Ltp  ($1, $4, $3) }
+  | exp GTE precision exp         { Basic.Gep ($1, $4, $3) }
+  | exp LTE precision exp         { Basic.Lep ($1, $4, $3) }
 ;
 
 exp:
@@ -134,6 +139,11 @@ exp:
  | COSH LP exp RP         { Basic.Cosh $3 }
  | TANH LP exp RP         { Basic.Tanh $3 }
 ;
+
+precision: 
+ | LB FNUM RB { $2 }
+;
+
 
 ode_list: /* */ { [] }
  | ode ode_list { $1::$2 }

@@ -60,15 +60,25 @@ formula:
   | AND formula_list { Basic.And $2       }
   | OR formula_list  { Basic.Or  $2       }
   | IMPLY formula formula { Basic.Imply ($2, $3) }
-  | GT exp exp       { Basic.Gt  ($2, $3) }
-  | LT exp exp       { Basic.Lt  ($2, $3) }
-  | GE exp exp       { Basic.Ge  ($2, $3) }
-  | LE exp exp       { Basic.Le  ($2, $3) }
-  | EQ exp exp       { Basic.Eq  ($2, $3) }
-  | exp EQ exp       { Basic.Eq  ($1, $3) }
+  | GT exp exp      { Basic.Gt  ($2, $3) }
+  | LT exp exp      { Basic.Lt  ($2, $3) }
+  | GE exp exp      { Basic.Ge  ($2, $3) }
+  | LE exp exp      { Basic.Le  ($2, $3) }
+  | EQ exp exp      { Basic.Eq  ($2, $3) }
+  | GT exp exp precision      { Basic.Gtp  ($2, $3, $4) }
+  | LT exp exp precision       { Basic.Ltp  ($2, $3, $4) }
+  | GE exp exp precision       { Basic.Gep  ($2, $3, $4) }
+  | LE exp exp precision       { Basic.Lep  ($2, $3, $4) }
+  | EQ exp exp precision       { Basic.Eqp  ($2, $3, $4) }
+  | exp EQ precision exp        { Basic.Eqp  ($1, $4, $3) }
   | LET LP fbinding_list RP formula   { Basic.LetF ($3, $5) }
   | LET LP ebinding_list RP formula   { Basic.LetE ($3, $5) }
 ;
+
+precision: 
+ | LB FNUM RB { $2 }
+;
+
 
 fbinding_list: fbinding  { [$1] }
 | fbinding fbinding_list { $1::$2 }

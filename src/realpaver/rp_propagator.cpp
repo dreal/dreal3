@@ -436,24 +436,26 @@ int rp_propagator::check_precision(rp_operator * o, rp_box b)
 
   //added for dReal: Prune based on constraint precision
   //cout << "rp_propagator::check_precision()" << endl;
-  return !(*_problem)->rp_icp_solver->is_box_within_delta(b);
-
-  /* // Prune based on variable precision
-  for (int i=0; i<o->pruned_arity(); ++i)
+  if((*_problem)->rp_icp_solver->delta_test())
   {
-    int v = o->pruned_var(i);
-    // double eps = rp_min_num(1.0e-14,
-    //                         rp_variable_precision(rp_problem_var(*_problem,v)));
-    double eps = rp_variable_precision(rp_problem_var(*_problem,v));
-
-    if (rp_interval_width(rp_box_elem(b,v))>(eps))
-    {
-      return( 1 );
-    }
+    return !(*_problem)->rp_icp_solver->is_box_within_delta(b);
   }
-  return( 0 );
-  */
-  /* */
+  else {
+    // Prune based on variable precision
+    for (int i=0; i<o->pruned_arity(); ++i)
+      {
+	int v = o->pruned_var(i);
+	// double eps = rp_min_num(1.0e-14,
+	//                         rp_variable_precision(rp_problem_var(*_problem,v)));
+	double eps = rp_variable_precision(rp_problem_var(*_problem,v));
+	
+	if (rp_interval_width(rp_box_elem(b,v))>(eps))
+	  {
+	    return( 1 );
+	  }
+      }
+    return( 0 );
+  }
 }
 
 // Application once the working operators have been defined
