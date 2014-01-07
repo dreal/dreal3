@@ -17,6 +17,7 @@ open Type
 %token TRUE FALSE
 %token AND OR
 %token EOF
+%token MAINENTRY
 
 %token IF THEN ELSE SWITCH CASE
 %token DEFINE PROCESS PROCEED
@@ -36,11 +37,11 @@ open Type
 %%
 
 main: macroDeclList mode_list main_entry {
-    Int 1
+    ($1, $2, $3)
 }
 
 macroDecl: 
-    DEFINE ID FNUM { Macro ($2, $3) }
+    | DEFINE ID FNUM { Macro ($2, $3) }
 ;
 
 macroDeclList: 
@@ -55,6 +56,7 @@ arg:
 
 arg_list:
     | /**/ { [] }
+    | arg { [$1] }
     | arg COMMA arg_list { $1::$3 } 
 ;
 
@@ -84,9 +86,50 @@ exp:
  | TANH exp               { Tanh $2 }
 ;
 
+/* boolean expression */
+/* todo: and & or */
+bexp:
+  | TRUE                { B_true }
+  | FALSE               { B_false }
+  | LP bexp RP          { $2 }
+  | exp EQ exp          { B_eq  ($1, $3) }
+  | exp GT exp          { B_gt  ($1, $3) }
+  | exp LT exp          { B_lt  ($1, $3) }
+  | exp GTE exp         { B_ge ($1, $3) }
+  | exp LTE exp         { B_le ($1, $3) }
+;
+
+choice:
+    | CASE FNUM COLON stmt_list { Case ($2, $4) }
+;
+
+choices:
+    | /**/ { [] }
+    | choice choices { $1::$2 }
+;
+
+switch:
+    | SWITCH LP ID RP LC choices RC { Switch ($3, $6) }
+;
+
+params:
+    | /**/ { [] }
+    | ID params { $1::$2 }
+;
+
+application: 
+    | ID LP params RP { Call ($1, $3) }
+;
+
 stmt:
     | DDT LP ID RP EQ exp SEMICOLON { Ode ($3, $6) }
-    /* TODO parse if else */
+    /* todo : how about initial declaration */ 
+    | REAL ID EQ exp SEMICOLON { Assign ($2, $4) } 
+    | INT ID EQ exp SEMICOLON { Assign ($2, $4) } 
+    | IF bexp THEN LC stmt_list RC { If1 ($2, $5)}
+    | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC { If2 ($2, $5, $9) }
+    | PROCEED LB FNUM COLON FNUM RB LC switch RC { Proceed ($3, $5, $8) }
+    | application SEMICOLON { $1 }
 ;
 
 stmt_list:
@@ -103,6 +146,6 @@ mode_list:
     | mode mode_list { $1::$2 }
 ;
 
-main_entry: 
-    /**/ { 1 }
-;
+main_entry: INT MAINENTRY LP RP LC stmt_list RC {
+    Main $6
+};

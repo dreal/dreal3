@@ -1,16 +1,15 @@
 (* Wei Chen (weichen1@andrew.cmu.edu) *)
 
-type t =
-    | Int of int
+type t = (macro list) * (mode list) * main_entry
 
-type macro = 
+and macro = 
     | Macro of string * float
 
-type var_decl = 
+and var_decl = 
     | RealVar of string
     | IntVar of string
 
-type exp = 
+and exp = 
     | Var of string
     | Num of float
     | Neg      of exp
@@ -58,11 +57,34 @@ and formula =
     | LetF of ((string * formula) list * formula)
     | LetE of ((string * exp) list * formula)
     | ForallT of formula
+and bexp = 
+    | B_gt  of exp * exp
+    | B_lt  of exp * exp
+    | B_ge  of exp * exp
+    | B_le  of exp * exp
+    | B_eq  of exp * exp
+    | B_true
+    | B_false
 
-type stmt = 
+(* switch *)
+and flow = 
+    | Switch of string * choice list
+and choice = 
+    | Case of float * stmt list
+
+and stmt = 
     | Ode of string * exp
+    | Assert of formula
+    | Assign of string * exp
+    | If1 of bexp * stmt list
+    | If2 of bexp * stmt list * stmt list
+    | Proceed of float * float * flow
+    | Call of string * string list
 
-type mode = {
+and main_entry = 
+    | Main of (stmt list)
+
+and mode = {
     id : string; 
     args: var_decl list; 
     stmts: stmt list;

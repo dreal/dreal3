@@ -6,6 +6,9 @@
  *)
 
 open Parser
+
+let debug_tag = true
+let verbose s =  if debug_tag then (print_string s; print_newline())
 let keyword_tbl = Hashtbl.create 255
 let _ = List.iter (fun (keyword, tok) -> Hashtbl.add keyword_tbl keyword tok)
   [
@@ -35,14 +38,12 @@ let _ = List.iter (fun (keyword, tok) -> Hashtbl.add keyword_tbl keyword tok)
     
     (* ode definition *)
     ("process", PROCESS);
-
-    ("#define", DEFINE);
-
     ("if", IF);
     ("then", THEN);
     ("else", ELSE);
     ("switch", SWITCH);
     ("case", CASE);
+    ("main", MAINENTRY);
   ]
 }
 
@@ -50,17 +51,17 @@ let float_number = ('+')? ['0'-'9']+('.'(['0'-'9']*))?(('e'|'E')('+'|'-')?['0'-'
 let id = ['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z' '0'-'9' '_' '\''])*
 
 rule token = parse
-    | '{'       { LC }
-    | '{'       { RC }
-    | '('       { LP }
-    | ')'       { RP }
-    | '['       { LB }
-    | ']'       { RB }
+    | '{'       { verbose (Lexing.lexeme lexbuf); LC }
+    | '}'       { verbose (Lexing.lexeme lexbuf); RC }
+    | '('       { verbose (Lexing.lexeme lexbuf); LP }
+    | ')'       { verbose (Lexing.lexeme lexbuf); RP }
+    | '['       { verbose (Lexing.lexeme lexbuf); LB }
+    | ']'       { verbose (Lexing.lexeme lexbuf); RB }
 
     | "d/dt"    { DDT }
 
     (* operators *)
-    | "="       { EQ }
+    | "="       { verbose (Lexing.lexeme lexbuf); EQ }
     | "+"       { PLUS }
     | "-"       { MINUS }
     | "*"       { AST }
@@ -76,17 +77,19 @@ rule token = parse
 
     (* identifier *)
     | id { 
-            let id = Lexing.lexeme lexbuf
-            in try Hashtbl.find keyword_tbl id
+            let id = Lexing.lexeme lexbuf in
+            verbose ("ID:"^id);
+            try Hashtbl.find keyword_tbl id
             with _ -> ID id
          }
+    | "#define" { DEFINE }
 
     (* float *)
-    | float_number { FNUM (float_of_string(Lexing.lexeme lexbuf)) } 
+    | float_number { verbose (Lexing.lexeme lexbuf); FNUM (float_of_string(Lexing.lexeme lexbuf)) } 
 
     (* skip blank *)
     | [' ' '\t'] { token lexbuf }
 
     (* end *)
-    | ['\n'] { EOF }
-    | eof { EOF }
+    | ['\n'] { token lexbuf }
+    | eof { verbose "eof"; EOF }
