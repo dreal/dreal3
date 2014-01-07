@@ -1,0 +1,14 @@
+OASISFormat: 0.3
+Name:        dreal_lang
+Version:     1
+Synopsis:    Domain specific language for writing hybrid automata.
+Authors:     Soonho Kong, Wei Chen
+License:     GPL-3
+
+Executable main
+  Path:       src
+  BuildTools: ocamlbuild
+  MainIs:     main.ml
+  BuildDepends: batteries
+  ByteOpt:    -passopt -annot
+  CompiledObject : native
