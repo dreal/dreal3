@@ -4,6 +4,7 @@
 
 process flow (real v, real x)
 {
+    assert(true);
     if (v<0) then
     {
         d/dt[x] = -v;

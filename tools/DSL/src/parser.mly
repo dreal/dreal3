@@ -21,7 +21,7 @@ open Type
 
 %token IF THEN ELSE SWITCH CASE
 %token DEFINE PROCESS PROCEED
-%token REAL INT
+%token REAL INT ASSERT
 %token <float> FNUM
 %token <string> ID
 
@@ -37,7 +37,7 @@ open Type
 %%
 
 main: macroDeclList mode_list main_entry {
-    ($1, $2, $3)
+    {macros = $1; modes = $2; main = $3}
 }
 
 macroDecl: 
@@ -46,6 +46,7 @@ macroDecl:
 
 macroDeclList: 
     | /**/ { [] }
+    | macroDecl { [$1] }
     | macroDecl macroDeclList { $1::$2 }
 ;
 
@@ -91,6 +92,7 @@ exp:
 bexp:
   | TRUE                { B_true }
   | FALSE               { B_false }
+  | ID                  { B_var $1 }
   | LP bexp RP          { $2 }
   | exp EQ exp          { B_eq  ($1, $3) }
   | exp GT exp          { B_gt  ($1, $3) }
@@ -135,18 +137,18 @@ ids:
 ;
 
 stmt:
-    | DDT LB ID RB EQ exp SEMICOLON { Ode ($3, $6) }
-    | ID EQ exp SEMICOLON { Assign2 ($1, $3) }
-    | REAL ID EQ exp SEMICOLON { Assign1 ($2, $4) } 
-    | INT ID EQ exp SEMICOLON { Assign1 ($2, $4) } 
-    | REAL ids SEMICOLON { Vardecls (List.map (fun v -> RealVar v) $2) }
-    | INT ids SEMICOLON { Vardecls (List.map (fun v -> IntVar v) $2) }
-    | IF bexp THEN LC stmt_list RC { If1 ($2, $5)}
-    | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC { If2 ($2, $5, $9) }
-    /* proceed is wrong */
-    | PROCEED LB FNUM COLON FNUM RB LC stmt_list RC { Proceed ($3, $5, $8) }
-    | switch { $1 } 
-    | application SEMICOLON { $1 }
+    | DDT LB ID RB EQ exp SEMICOLON                           { Ode ($3, $6) }
+    | ID EQ exp SEMICOLON                                     { Assign2 ($1, $3) }
+    | REAL ID EQ exp SEMICOLON                                { Assign1 ($2, $4) } 
+    | INT ID EQ exp SEMICOLON                                 { Assign1 ($2, $4) } 
+    | REAL ids SEMICOLON                                      { Vardecls (List.map (fun v -> RealVar v) $2) }
+    | INT ids SEMICOLON                                       { Vardecls (List.map (fun v -> IntVar v) $2) }
+    | IF bexp THEN LC stmt_list RC                            { If1 ($2, $5)}
+    | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC       { If2 ($2, $5, $9) }
+    | PROCEED LB FNUM COLON FNUM RB LC stmt_list RC           { Proceed ($3, $5, $8) }
+    | switch                                                  { $1 } 
+    | ASSERT LP bexp RP SEMICOLON                             { Assert $3 }
+    | application SEMICOLON                                   { $1 }
 ;
 
 stmt_list:

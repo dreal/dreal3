@@ -38,6 +38,7 @@ let _ = List.iter (fun (keyword, tok) -> Hashtbl.add keyword_tbl keyword tok)
     
     (* ode definition *)
     ("process", PROCESS);
+    ("assert", ASSERT);
     ("if", IF);
     ("then", THEN);
     ("else", ELSE);

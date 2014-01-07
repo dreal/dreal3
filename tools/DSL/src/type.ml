@@ -1,17 +1,30 @@
 (* Wei Chen (weichen1@andrew.cmu.edu) *)
 
-type t = (macro list) * (mode list) * main_entry
+(*
+ * A typical program consists of 3 components: 
+ * 1. Macro declaration(s). 
+ * 2. Mode(ODE) definition(s).
+ * 3. Main function.
+ *)
+type t =  
+    {
+        macros: macro list;
+        modes: mode list;
+        main: main_entry;
+    }
 
 and macro = 
+
+    (* define g 9.8 *)
     | Macro of string * float
 
 and var_decl = 
     | RealVar of string
-    | IntVar of string
+    | IntVar  of string
 
 and exp = 
-    | Var of string
-    | Num of float
+    | Var      of string
+    | Num      of float
     | Neg      of exp
     | Add      of exp list
     | Sub      of exp list
@@ -41,6 +54,8 @@ and exp =
 
     (* (integral 0 time_1 [x_1_0 ... x_i_0] flow1) *)
     | Integral of float * string * string list * string
+
+(* math formular *)
 and formula =
     | True
     | False
@@ -57,7 +72,10 @@ and formula =
     | LetF of ((string * formula) list * formula)
     | LetE of ((string * exp) list * formula)
     | ForallT of formula
+
+(* boolean expression *)
 and bexp = 
+    | B_var of string
     | B_gt  of exp * exp
     | B_lt  of exp * exp
     | B_ge  of exp * exp
@@ -73,7 +91,7 @@ and choice =
     | Case of float * stmt list
 and stmt = 
     | Ode of string * exp
-    | Assert of formula
+    | Assert of bexp
     (* declaration & assignment *)
     | Assign1 of string * exp
     (* assignment *)
