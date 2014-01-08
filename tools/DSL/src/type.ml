@@ -54,6 +54,7 @@ and exp =
 
     (* (integral 0 time_1 [x_1_0 ... x_i_0] flow1) *)
     | Integral of float * string * string list * string
+    | Call of string * string list
 
 (* math formular *)
 and formula =
@@ -99,9 +100,10 @@ and stmt =
     | If1 of bexp * stmt list
     | If2 of bexp * stmt list * stmt list
     | Proceed of float * float * stmt list
-    | Call of string * string list
     | Vardecls of var_decl list
     | Switch of string * choice list
+    (* just some expression, like function call *)
+    | Exp of exp
 
 and main_entry = 
     | Main of (stmt list)

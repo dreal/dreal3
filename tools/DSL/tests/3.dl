@@ -1,0 +1,41 @@
+//Bouncing Ball:
+
+#define g 9.8
+
+process flow (real v, real x)
+{
+    assert(true);
+    if (v<0) then
+    {
+        d/dt[x] = -v;
+        d/dt[v] = g;
+    }
+     else
+    {
+         d/dt[x] = v;
+         d/dt[v]  = -g;
+    }
+
+    if (x = 0 || v = 0) then {
+      v = -v ;
+    }
+}
+
+int main ()
+{
+      real x, v;
+      x = 10;
+      v = 0;
+
+      proceed [0:100]
+      {
+            flow(v, x);
+            int r = flow(v, x);
+//            switch (mode) {
+//              case 1:
+//                flow(v, x);
+//              case 2:
+//                flow(v, x);
+//            }
+      }
+}

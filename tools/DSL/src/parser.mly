@@ -85,6 +85,7 @@ exp:
  | SINH exp               { Sinh $2 }
  | COSH exp               { Cosh $2 }
  | TANH exp               { Tanh $2 }
+ | application            { $1 }
 ;
 
 /* boolean expression */
@@ -148,7 +149,7 @@ stmt:
     | PROCEED LB FNUM COLON FNUM RB LC stmt_list RC           { Proceed ($3, $5, $8) }
     | switch                                                  { $1 } 
     | ASSERT LP bexp RP SEMICOLON                             { Assert $3 }
-    | application SEMICOLON                                   { $1 }
+    | exp SEMICOLON                                           { Exp $1 }
 ;
 
 stmt_list:
