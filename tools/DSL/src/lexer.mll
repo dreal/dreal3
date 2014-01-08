@@ -35,7 +35,6 @@ let _ = List.iter (fun (keyword, tok) -> Hashtbl.add keyword_tbl keyword tok)
 
     (* main loop definition *)
     ("proceed", PROCEED);
-    
     (* ode definition *)
     ("process", PROCESS);
     ("assert", ASSERT);
@@ -80,7 +79,7 @@ rule token = parse
     | "&&"      { verbose (Lexing.lexeme lexbuf); AND }
 
     (* identifier *)
-    | id { 
+    | id {
             let id = Lexing.lexeme lexbuf in
             verbose ("ID: "^id);
             try Hashtbl.find keyword_tbl id
@@ -89,7 +88,7 @@ rule token = parse
     | "#define" { verbose (Lexing.lexeme lexbuf); DEFINE }
 
     (* float *)
-    | float_number { verbose (Lexing.lexeme lexbuf); FNUM (float_of_string(Lexing.lexeme lexbuf)) } 
+    | float_number { verbose (Lexing.lexeme lexbuf); FNUM (float_of_string(Lexing.lexeme lexbuf)) }
 
     (* skip blank *)
     | [' ' '\t'] { token lexbuf }

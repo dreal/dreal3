@@ -40,11 +40,11 @@ main: macroDeclList mode_list main_entry {
     {macros = $1; modes = $2; main = $3}
 }
 
-macroDecl: 
+macroDecl:
     | DEFINE ID FNUM { Macro ($2, $3) }
 ;
 
-macroDeclList: 
+macroDeclList:
     | /**/ { [] }
     | macroDecl { [$1] }
     | macroDecl macroDeclList { $1::$2 }
@@ -58,7 +58,7 @@ arg:
 arg_list:
     | /**/ { [] }
     | arg { [$1] }
-    | arg COMMA arg_list { $1::$3 } 
+    | arg COMMA arg_list { $1::$3 }
 ;
 
 exp:
@@ -119,11 +119,11 @@ switch:
 
 params:
     | /**/ { [] }
-    | ID { [$1] }
-    | ID COMMA params { $1::$3 }
+    | exp { [$1] }
+    | exp COMMA params { $1::$3 }
 ;
 
-application: 
+application:
     | ID LP params RP { Call ($1, $3) }
 ;
 
@@ -132,7 +132,7 @@ id:
 ;
 
 ids:
-    | /**/ { [] } 
+    | /**/ { [] }
     | id { [$1] }
     | id COMMA ids { $1::$3 }
 ;
@@ -140,16 +140,16 @@ ids:
 stmt:
     | DDT LB ID RB EQ exp SEMICOLON                           { Ode ($3, $6) }
     | ID EQ exp SEMICOLON                                     { Assign2 ($1, $3) }
-    | REAL ID EQ exp SEMICOLON                                { Assign1 ($2, $4) } 
-    | INT ID EQ exp SEMICOLON                                 { Assign1 ($2, $4) } 
+    | REAL ID EQ exp SEMICOLON                                { Assign1 ($2, $4) }
+    | INT ID EQ exp SEMICOLON                                 { Assign1 ($2, $4) }
     | REAL ids SEMICOLON                                      { Vardecls (List.map (fun v -> RealVar v) $2) }
     | INT ids SEMICOLON                                       { Vardecls (List.map (fun v -> IntVar v) $2) }
     | IF bexp THEN LC stmt_list RC                            { If1 ($2, $5)}
     | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC       { If2 ($2, $5, $9) }
     | PROCEED LB FNUM COLON FNUM RB LC stmt_list RC           { Proceed ($3, $5, $8) }
-    | switch                                                  { $1 } 
+    | switch                                                  { $1 }
     | ASSERT LP bexp RP SEMICOLON                             { Assert $3 }
-    | exp SEMICOLON                                           { Exp $1 }
+    | exp SEMICOLON                                           { Expr $1 }
 ;
 
 stmt_list:
@@ -161,7 +161,7 @@ mode: PROCESS ID LP arg_list RP LC stmt_list RC {
     {id = $2; args = $4; stmts = $7}
 };
 
-mode_list: 
+mode_list:
     | /**/ { [] }
     | mode mode_list { $1::$2 }
 ;

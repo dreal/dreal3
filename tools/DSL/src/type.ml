@@ -1,28 +1,29 @@
 (* Wei Chen (weichen1@andrew.cmu.edu) *)
 
 (*
- * A typical program consists of 3 components: 
- * 1. Macro declaration(s). 
+ * A typical program consists of 3 components:
+ * 1. Macro declaration(s).
+
  * 2. Mode(ODE) definition(s).
  * 3. Main function.
  *)
-type t =  
+type t =
     {
         macros: macro list;
         modes: mode list;
         main: main_entry;
     }
 
-and macro = 
+and macro =
 
     (* define g 9.8 *)
     | Macro of string * float
 
-and var_decl = 
+and var_decl =
     | RealVar of string
     | IntVar  of string
 
-and exp = 
+and exp =
     | Var      of string
     | Num      of float
     | Neg      of exp
@@ -54,7 +55,9 @@ and exp =
 
     (* (integral 0 time_1 [x_1_0 ... x_i_0] flow1) *)
     | Integral of float * string * string list * string
-    | Call of string * string list
+
+    (* do we allow expression to return an closure ? *)
+    | Call of string * exp list
 
 (* math formular *)
 and formula =
@@ -75,7 +78,7 @@ and formula =
     | ForallT of formula
 
 (* boolean expression *)
-and bexp = 
+and bexp =
     | B_var of string
     | B_gt  of exp * exp
     | B_lt  of exp * exp
@@ -87,10 +90,10 @@ and bexp =
     | B_true
     | B_false
 
-(* switch case *)    
-and choice = 
+(* switch case *)
+and choice =
     | Case of float * stmt list
-and stmt = 
+and stmt =
     | Ode of string * exp
     | Assert of bexp
     (* declaration & assignment *)
@@ -103,13 +106,13 @@ and stmt =
     | Vardecls of var_decl list
     | Switch of string * choice list
     (* just some expression, like function call *)
-    | Exp of exp
+    | Expr of exp
 
-and main_entry = 
+and main_entry =
     | Main of (stmt list)
 
 and mode = {
-    id : string; 
-    args: var_decl list; 
+    id : string;
+    args: var_decl list;
     stmts: stmt list;
 }
