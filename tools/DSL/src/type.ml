@@ -100,8 +100,8 @@ and stmt =
     | Assign1 of string * exp
     (* assignment *)
     | Assign2 of string * exp
-    | If1 of bexp * stmt list
-    | If2 of bexp * stmt list * stmt list
+    (* if no else statement, the latter one is empty *)
+    | If of bexp * stmt list * stmt list
     | Proceed of float * float * stmt list
     | Vardecls of var_decl list
     | Switch of string * choice list

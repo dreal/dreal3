@@ -144,8 +144,8 @@ stmt:
     | INT ID EQ exp SEMICOLON                                 { Assign1 ($2, $4) }
     | REAL ids SEMICOLON                                      { Vardecls (List.map (fun v -> RealVar v) $2) }
     | INT ids SEMICOLON                                       { Vardecls (List.map (fun v -> IntVar v) $2) }
-    | IF bexp THEN LC stmt_list RC                            { If1 ($2, $5)}
-    | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC       { If2 ($2, $5, $9) }
+    | IF bexp THEN LC stmt_list RC                            { If ($2, $5, []) }
+    | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC       { If ($2, $5, $9) }
     | PROCEED LB FNUM COLON FNUM RB LC stmt_list RC           { Proceed ($3, $5, $8) }
     | switch                                                  { $1 }
     | ASSERT LP bexp RP SEMICOLON                             { Assert $3 }
