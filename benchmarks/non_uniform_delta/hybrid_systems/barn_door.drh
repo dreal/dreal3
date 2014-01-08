@@ -1,0 +1,53 @@
+#define pi 3.14
+
+[0, pi] theta;
+[10,10] dist;
+[5, 5] height;
+[-50, 50] aim_height;
+[0, 1] on;
+[0, 10] time;
+
+
+{ mode 1;
+
+  invt:
+        (<= on 0);
+	(<= dist 10);
+	(>= dist 10);
+	(<= height 5);
+	(>= height 5);
+  flow:
+        d/dt[theta] = (* 0.0001 pi);
+	d/dt[aim_height] = (* 1.0 (sin theta));
+        d/dt[dist] = 0;
+        d/dt[on] = 0;
+        d/dt[height] = 0;
+  jump:
+        (= on 0) ==> @2 (= on' 1);
+}
+
+{ mode 2;
+
+  invt:
+        (>= on 1);
+	(<= dist 10);
+	(>= dist 10);
+	(<= height 5);
+	(>= height 5);
+  flow:
+        d/dt[theta] = 0;
+        d/dt[aim_height] = 0;
+        d/dt[dist] = 0;
+        d/dt[on] = 0;
+        d/dt[height] = 0;
+  jump:
+        (= on 1) ==> @1 (and (= on' 0));
+}
+
+
+init:
+@1	(and (= theta 0) (= aim_height 0) (= on 0) (= dist 10) (= height 5));
+
+goal:
+@1	(and (>= aim_height 0) (= on 0));
+

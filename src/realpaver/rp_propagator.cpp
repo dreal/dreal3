@@ -435,9 +435,9 @@ int rp_propagator::check_precision(rp_operator * o, rp_box b)
 
 
   //added for dReal: Prune based on constraint precision
-  //cout << "rp_propagator::check_precision()" << endl;
   if((*_problem)->rp_icp_solver->delta_test())
   {
+    //    cout << "check_precision" << endl;
     return !(*_problem)->rp_icp_solver->is_box_within_delta(b);
   }
   else {
@@ -465,6 +465,13 @@ int rp_propagator::apply_loop(rp_box b)
     if (rp_box_size(_bsave)<rp_box_size(b)) {
         rp_box_enlarge_size(&_bsave,rp_box_size(b)-rp_box_size(_bsave));
     }
+
+    //added for dReal: Prune based on constraint precision
+    if ( (*_problem)->rp_icp_solver->delta_test() &&
+	 (*_problem)->rp_icp_solver->is_box_within_delta(b) ){
+      return ( 1 );
+    }
+
 
     // Loop until empty queue or empty domain
     while (!rp_oqueue_list_empty(_queue)) {

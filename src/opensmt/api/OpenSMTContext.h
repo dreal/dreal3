@@ -128,7 +128,6 @@ public:
   void          addAssert            ( Enode * );               // Command for (assert ...)
   void          addIntvCtr           ( const char*, Enode *, double);
   void          addIntvCtrR          ( const char*, double , Enode *);
-
   void          addCheckSAT          ( );                       // Command for (check-sat)
   void          addPush              ( int );                   // Command for (push ...)
   void          addPop               ( int );                   // Command for (pop ...)

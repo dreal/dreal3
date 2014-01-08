@@ -47,8 +47,8 @@ public:
 #ifdef ODE_ENABLED
     void        print_json(ostream& out);
 #endif
-    double      constraint_width(rp_constraint * c, rp_box b) const;
-    bool        is_box_within_delta(rp_box b) const;
+    double      constraint_width(const rp_constraint * c, rp_box b) const;
+    bool        is_box_within_delta(rp_box b);
     bool        delta_test() const { return m_config.delta_test; }
 private:
     // methods
@@ -94,9 +94,10 @@ private:
     bool                             m_ODEresult;
 
     std::unordered_map<Enode *, int> m_enode_to_rp_id;
-    vector<double>                 m_rp_constraint_deltas;
+    vector<double>                   m_rp_constraint_deltas;
 #ifdef ODE_ENABLED
     std::vector<ode_solver *>        m_ode_solvers;
 #endif
     bool                             m_complete_check;
+    int                              m_num_delta_checks;
 };

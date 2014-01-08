@@ -882,7 +882,11 @@ void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v)
         // cerr << "addIntvCtr: " << e << " " << op << " " << e->getUpperBound()<< endl;
         if (starts_with(e->getCar()->getName(), "time_")) {
             // cerr << "time_ <=" << endl;
-            addAssert(mkLeq(mkCons(e, mkCons(mkNum(v)))));
+	  Enode * leq = mkLeq(mkCons(e, mkCons(mkNum(v))));
+	  if(d != 0.0){
+	    leq->setPrecision(d);
+	  }
+	  addAssert(leq);
         }
     }
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
@@ -890,7 +894,11 @@ void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v)
         // cerr << "addIntvCtr: " << e << " " << op << " " << e->getLowerBound() << endl;
         if (starts_with(e->getCar()->getName(), "time_")) {
             // cerr << "time_ >=" << endl;
-            addAssert(mkGeq(mkCons(e, mkCons(mkNum(v)))));
+	  Enode * geq = mkGeq(mkCons(e, mkCons(mkNum(v))));
+	  if(d != 0.0){
+	    geq->setPrecision(d);
+	  }
+	  addAssert(geq);
         }
     }
     else {
@@ -898,13 +906,13 @@ void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v)
     }
 }
 
-void OpenSMTContext::addIntvCtrR( const char* op, double v, Enode * e)
+void OpenSMTContext::addIntvCtrR( const char* op, double v, Enode * e, double d)
 {
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
-        addIntvCtr( ">=", e, v);
+      addIntvCtr( ">=", e, v, d);
     }
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
-        addIntvCtr( "<=", e, v);
+      addIntvCtr( "<=", e, v, d);
     }
     else {
         opensmt_error2( "command not supported (yet)", "" );

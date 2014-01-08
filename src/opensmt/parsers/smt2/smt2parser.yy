@@ -180,51 +180,51 @@ command: '(' TK_SETLOGIC symbol ')'
          { parser_ctx->addPop( atoi( $3 ) ); free( $3 );}
 
        /* added for dReal2 */
-       | '(' TK_ASSERT '(' TK_LT identifier spec_const ')' ')'
+       | '(' TK_ASSERT '(' TK_LT identifier spec_const precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-            parser_ctx->addIntvCtr( "<", e, atof($6 ) );
+            parser_ctx->addIntvCtr( "<", e, atof($6 ), ( $7 ? atof( $7 ) : 0.0)  );
          }
-       | '(' TK_ASSERT '(' TK_GT identifier spec_const ')' ')'
+       | '(' TK_ASSERT '(' TK_GT identifier spec_const precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-            parser_ctx->addIntvCtr( ">", e, atof($6) );
-         }
-
-       | '(' TK_ASSERT '(' TK_LEQ identifier spec_const ')' ')'
-         {
-            Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-            parser_ctx->addIntvCtr( "<=", e, atof($6) );
+            parser_ctx->addIntvCtr( ">", e, atof($6), ( $7 ? atof( $7 ) : 0.0) );	 
          }
 
-       | '(' TK_ASSERT '(' TK_GEQ identifier spec_const ')' ')'
+       | '(' TK_ASSERT '(' TK_LEQ identifier spec_const precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-            parser_ctx->addIntvCtr( ">=", e, atof($6) );
+            parser_ctx->addIntvCtr( "<=", e, atof($6), ( $7 ? atof( $7 ) : 0.0) );
          }
 
-       | '(' TK_ASSERT '(' TK_LT spec_const identifier')' ')'
+       | '(' TK_ASSERT '(' TK_GEQ identifier spec_const precision ')' ')'
+         {
+            Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
+            parser_ctx->addIntvCtr( ">=", e, atof($6), ( $7 ? atof( $7 ) : 0.0) );
+         }
+
+       | '(' TK_ASSERT '(' TK_LT spec_const identifier precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
-            parser_ctx->addIntvCtrR( "<", atof($5), e );
+            parser_ctx->addIntvCtrR( "<", atof($5), e, ( $7 ? atof( $7 ) : 0.0) );
          }
 
-       | '(' TK_ASSERT '(' TK_GT spec_const identifier ')' ')'
+       | '(' TK_ASSERT '(' TK_GT spec_const identifier precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
-            parser_ctx->addIntvCtrR( ">", atof($5), e );
+            parser_ctx->addIntvCtrR( ">", atof($5), e, ( $7 ? atof( $7 ) : 0.0) );
           }
 
-       | '(' TK_ASSERT '(' TK_LEQ spec_const identifier ')' ')'
+       | '(' TK_ASSERT '(' TK_LEQ spec_const identifier precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
-            parser_ctx->addIntvCtrR( "<=", atof($5), e );
+            parser_ctx->addIntvCtrR( "<=", atof($5), e, ( $7 ? atof( $7 ) : 0.0) );
           }
 
-       | '(' TK_ASSERT '(' TK_GEQ spec_const identifier ')' ')'
+       | '(' TK_ASSERT '(' TK_GEQ spec_const identifier precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
-            parser_ctx->addIntvCtrR( ">=", atof($5), e );
+            parser_ctx->addIntvCtrR( ">=", atof($5), e, ( $7 ? atof( $7 ) : 0.0) );
           }
 
        | '(' TK_ASSERT term ')'
