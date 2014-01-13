@@ -44,7 +44,7 @@ let print out =
   | DeclareConst v ->
     Printf.fprintf out "(declare-const %s Real)" v
   | DefineODE (g, eqs) ->
-     let print_eq out (x, e) = Printf.fprintf out "(= d/dt[%s] %s)" x (IO.to_string Basic.print_infix_exp e) in
+     let print_eq out (x, e) = Printf.fprintf out "(= d/dt[%s] %s)" x (IO.to_string Basic.print_exp e) in
      let str_eqs = IO.to_string (List.print ~first:"(" ~last:")" ~sep:" " print_eq) eqs in
      List.print ~first:"(define-ode " ~last:")" ~sep:" " String.print out [g; str_eqs]
   | Assert f ->
