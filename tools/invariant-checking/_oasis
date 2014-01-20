@@ -1,0 +1,14 @@
+OASISFormat: 0.4
+Name:        Inv-MC
+Version:     0.0.1
+Synopsis:    Invariant Checking
+Authors:     
+License:     GPL-3
+
+Executable invmc
+  Path:       src
+  BuildTools: ocamlbuild
+  MainIs:     main.ml
+  BuildDepends: batteries
+  ByteOpt:    -passopt -annot
+  CompiledObject : native
