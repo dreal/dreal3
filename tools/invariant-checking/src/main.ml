@@ -6,6 +6,7 @@
 open Batteries
 open IO
 open Smt2
+open Inv_check
 
 let k = ref 3
 
@@ -22,8 +23,12 @@ let run () =
     (fun x -> if Sys.file_exists x then src := x
       else raise (Arg.Bad (x^": No such file"))) usage in
   try
+    let out = IO.stdout in
     let lexbuf = Lexing.from_channel (if !src = "" then stdin else open_in !src) in
-    let _ = Drh_infix_parser.main Drh_infix_lexer.start lexbuf in
-    ()
+    let hm = Drh_infix_parser.main Drh_infix_lexer.start lexbuf in
+    let smt = Inv_check.compile hm 0.01 in
+    begin
+      Smt2.print out smt
+    end
   with v -> Error.handle_exn v
 let _ = Printexc.catch run ()

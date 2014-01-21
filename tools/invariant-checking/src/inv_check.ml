@@ -7,6 +7,7 @@ open Type.Hybrid
 open Type.Basic
 open Type.Mode
 open Type.Jump
+open Type.Value
 open Batteries
 open IO
 open Smt2_cmd
@@ -33,7 +34,7 @@ let varmap_to_list vardeclmap =
     vardeclmap
     []
 
-let process_flow_single varmap modemap q =
+let process_flow_single varmap modemap ginvs q =
   let m = Map.find q modemap in
   let flow_formula =
     let vardecls = varmap_to_list varmap in
@@ -62,9 +63,7 @@ let process_flow_single varmap modemap q =
       in
       Basic.make_and (flow_formula :: invt_conds)
   in
-  (* global invariant *)
-  let ginvs = m.ginvs in
-  let ginv_formula = Basic.make_and m.ginvs in
+  let ginv_formula = Basic.make_and ginvs in
   let ginv_0 = Basic.subst_formula (fun v -> v ^ "_0") ginv_formula in
   let ginv_t = Not (Basic.subst_formula (fun v -> v ^ "_t") ginv_formula) in
   Basic.make_and [inv_formula; ginv_0; ginv_t]
@@ -84,13 +83,13 @@ let process_jump_q_nq modemap q next_q =
       )
       jump.change
   in
-  Basic.make_and [gurad'; change'; mode_formula]
+  Basic.make_and [gurad'; change'; ]
 
-let process_jump_single varmap modemap q =
+let process_jump_single varmap modemap ginvs q =
   let m = Map.find q modemap in
   let jumpmap = m.jumpmap in
   let nqs = List.of_enum ( Map.keys jumpmap ) in
-  let ginv_formula = Basic.make_and m.ginvs in
+  let ginv_formula = Basic.make_and ginvs in
   let nq_formula =
     Basic.make_or
       (
@@ -99,6 +98,7 @@ let process_jump_single varmap modemap q =
             let f = process_jump_q_nq modemap q nq in
             Basic.make_and [f; Not (Basic.subst_formula (fun v -> v ^ "_t") ginv_formula)]
           )
+          nqs
       )
   in
   Basic.make_and
@@ -116,12 +116,12 @@ let process_jump_single varmap modemap q =
 let compile_logic_formula h =
   let {init_id; init_formula; varmap; modemap; goals; ginvs} = h in
   let mode_clause =
-    let modes = List.of_enum |> Map.keys modemap in
+    let modes = List.of_enum (Map.keys modemap) in
     Basic.make_or (
         List.map
           (fun q ->
-           Basic.make_or [process_jump_single varmap modemap q;
-                          process_flow_single varmap modemap q]
+           Basic.make_or [process_jump_single varmap modemap h.ginvs q;
+                          process_flow_single varmap modemap h.ginvs q]
           )
           modes
       )
@@ -134,16 +134,16 @@ let calc_num_of_mode (modemap : Modemap.t) =
   Enum.count (Map.keys modemap)
 
 (** build a list of odes **)
-let build_flow_annot_list (h : Hybrid.t) (step:int) =
+let build_flow_annot_list h =
   let {varmap; modemap} = h in
   let num_of_modes = Enum.count (Map.keys modemap) in
   let list_of_modes = List.of_enum ( 1 -- num_of_modes ) in
   List.map (function q -> extract_flows q modemap) list_of_modes
 
 (** build list of ode definition **)
-let compile_ode_definition (h : Hybrid.t) k =
-  let flows = build_flow_annot_list h k in
-  List.map (fun (g, odes) -> DefineODE ((make_variable g "" "flow"), odes)) flows
+let compile_ode_definition h =
+  let flows = build_flow_annot_list h in
+  List.map (fun (g, odes) -> DefineODE (("flow_" ^ (string_of_int g)), odes)) flows
 
 (* generate variable definitions *)
 let compile_vardecl h epi =
@@ -154,11 +154,11 @@ let compile_vardecl h epi =
   let time_vardecls =
     List.map
       (fun n ->
-        ("time_" ^ (Int.to_string n), Intv 0.0 epi))
+        ("time_" ^ (Int.to_string n), Intv (0.0, epi)))
       (List.of_enum (1 -- num_of_modes))
   in
   (* generate variable declaration *)
-  let vaedecls'' =
+  let vardecls'' =
     (* should be one linear *)
     List.flatten
       (
@@ -191,8 +191,8 @@ let compile (h : Hybrid.t) (epi : float) =
   let (vardecl_cmds, assert_cmds) = compile_vardecl h epi in
 
   (* todo *)
-  let defineodes = compile_ode_definition h k in
-  let assert_formula = compile_logic_formula hin
+  let defineodes = compile_ode_definition h in
+  let assert_formula = compile_logic_formula h in
   List.flatten
     [[logic_cmd];
      vardecl_cmds;
