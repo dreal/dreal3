@@ -18,11 +18,6 @@ exception SMTException of string
 type ode = Ode.t
 type flows_annot = (int * ode list)  (** step, ode **)
 
-(** rename variable to related name in each step **)
-let make_variable k suffix (s: string) : string =
-  let str_step = string_of_int k in
-  (String.join "_" [s; str_step;]) ^ suffix
-
 let extract_flows q (modemap:Modemap.t) : flows_annot =
   let m = Map.find q modemap in
   (q, m.flows)
@@ -56,7 +51,7 @@ let process_flow_single varmap modemap ginvs q =
             Basic.make_and
               [Basic.subst_formula (fun v -> v ^ "_t") invt_f;
                Basic.subst_formula (fun v -> v ^ "_0") invt_f;
-              (* Basic.ForallT (Basic.subst_formula (fun v -> v ^ "_t") invt_f); *)
+               Basic.ForallT (Basic.subst_formula (fun v -> v ^ "_t") invt_f);
               ]
           )
           invs
@@ -72,19 +67,22 @@ let process_jump_q_nq modemap q next_q =
   let mode = Map.find q modemap in
   let jumpmap = mode.jumpmap in
   let jump = Map.find next_q jumpmap in
-  let gurad' = Basic.subst_formula (fun v -> v ^ "_0") jump.guard in
+  let guard' = Basic.subst_formula (fun v -> v ^ "_0") jump.guard in
   let change' =
     Basic.subst_formula
       (fun v -> match String.ends_with v "'" with
-        |  true -> (String.rchop v) ^ "_0"
+        (** x' -> x_t **)
+        |  true -> (String.rchop v) ^ "_t"
 
-        (** x => x_k_t **)
+        (** x => x_0 **)
         | false -> v ^ "_0"
       )
       jump.change
   in
-  Basic.make_and [gurad'; change'; ]
+  Basic.make_and [guard'; change'; ]
 
+(* J_q(x, x')*)
+(* currently x = x_0, x' = x_t *)
 let process_jump_single varmap modemap ginvs q =
   let m = Map.find q modemap in
   let jumpmap = m.jumpmap in
@@ -93,26 +91,20 @@ let process_jump_single varmap modemap ginvs q =
   let nq_formula =
     Basic.make_or
       (
-        List.map
-          ( fun nq ->
+        List.map (
+            fun nq ->
             let f = process_jump_q_nq modemap q nq in
-            Basic.make_and [f; Not (Basic.subst_formula (fun v -> v ^ "_t") ginv_formula)]
+            let neg_inv = Not (Basic.subst_formula (fun v -> v ^ "_t") ginv_formula) in
+            Basic.make_and [f; neg_inv]
           )
           nqs
       )
   in
   Basic.make_and
     [Basic.subst_formula (fun v -> v ^ "_0") ginv_formula;
-     nq_formula;
-    ]
+     nq_formula;]
 
 
-(*
- * 1. flow
- * 2. jump
- * 3. init
- * 4. goal
- *)
 let compile_logic_formula h =
   let {init_id; init_formula; varmap; modemap; goals; ginvs} = h in
   let mode_clause =
@@ -126,9 +118,9 @@ let compile_logic_formula h =
           modes
       )
   in
-  (* todo : goal *)
-  (* todo : init *)
-  Assert mode_clause
+  let init_inv_formula = Basic.make_and [init_formula; Not (Basic.make_and ginvs)] in
+  let goal_inv_formula = Basic.make_and [Basic.make_and ginvs; Not (Basic.make_and (List.map (fun (_, f) -> f) goals))] in
+  Assert (Basic.make_or [init_inv_formula; mode_clause; goal_inv_formula])
 
 let calc_num_of_mode (modemap : Modemap.t) =
   Enum.count (Map.keys modemap)
@@ -160,17 +152,11 @@ let compile_vardecl h epi =
   (* generate variable declaration *)
   let vardecls'' =
     (* should be one linear *)
-    List.flatten
-      (
+    List.flatten (
         List.map
           (function (k,v) ->
-           [
-             (k ^ "_0", v);
-             (k ^ "_t", v)
-           ]
-          )
-          vardecls'
-      )
+           [(k ^ "_0", v); (k ^ "_t", v)])
+          vardecls')
   in
   let new_vardecls = List.flatten [vardecls''; time_vardecls;] in
   let (vardecl_cmds, assert_cmds_list) =
