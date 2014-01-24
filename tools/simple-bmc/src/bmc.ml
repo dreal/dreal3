@@ -144,13 +144,29 @@ let process_step (varmap : Vardeclmap.t) (modemap : Modemap.t) (step:int) : Basi
   Basic.make_or jump_flow_part
 
 
+let final_flow varmap modemap k =
+  let num_modes = Enum.count (Map.keys modemap) in
+  let list_of_modes = List.of_enum ( 1 -- num_modes ) in
+  let flows =
+    List.map
+      (
+        fun q ->
+        process_flow ~k ~q varmap modemap
+      )
+      list_of_modes
+  in
+  Basic.make_or flows
+
 (* compile Hybrid automata into SMT formulas *)
 let compile_logic_formula (h : Hybrid.t) (k : int) =
   let {init_id; init_formula; varmap; modemap; goals} = h in
   let init_clause = process_init ~init_id ~init_formula in
   let step_clauses = List.map (process_step varmap modemap) (List.of_enum (0 -- (k-1))) in
+
+  (* tricky case, final mode need flow without jump  *)
+  let final_flow_clause = final_flow varmap modemap k in
   let goal_clause = process_goals k goals in
-  let smt_formula = Basic.make_and (List.flatten [[init_clause]; step_clauses; [goal_clause]]) in
+  let smt_formula = Basic.make_and (List.flatten [[init_clause]; step_clauses; [final_flow_clause];  [goal_clause]]) in
   Assert smt_formula
 
 (** variable declaration & range constraint **)
