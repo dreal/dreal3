@@ -45,7 +45,8 @@ icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const &
     rp_init_library();
     m_problem = create_rp_problem();
     m_propag = new rp_propagator(m_problem, 10.0, c.nra_verbose, c.nra_proof_out);
-    rp_new(m_vselect, rp_selector_existence, (m_problem)); // rp_selector_existence
+    //rp_new(m_vselect, rp_selector_existence, (m_problem)); // rp_selector_roundrobin
+    rp_new(m_vselect,rp_selector_existence, (m_problem)); // rp_selector_roundrobin
     rp_new(m_dsplit, rp_splitter_bisection, (m_problem)); // rp_splitter_mixed
     // Check once the satisfiability of all the constraints
     // Necessary for variable-free constraints
@@ -298,9 +299,69 @@ double icp_solver::constraint_width(const rp_constraint * c, rp_box b) const {
     // expression value interval is non-empty
     rp_interval res;
     rp_interval_sub(res, rp_expression_val(lhs), rp_expression_val(rhs));
+
+    DREAL_LOG_DEBUG("Width: LHS: [" << rp_binf(rp_expression_val(lhs))
+		    << ", " << rp_bsup(rp_expression_val(lhs)) << "], RHS: [" 
+		    << rp_binf(rp_expression_val(rhs)) << ", " 
+		    << rp_bsup(rp_expression_val(rhs)) << "], RES: [" 
+		    << rp_binf(res) << ", " 
+		    << rp_bsup(res) << "]"  );
+
     return rp_interval_width(res);
   }
   return 0.0;
+}
+
+int icp_solver::get_var_split_delta(rp_box b) {
+  //get constraint with max residual width
+  
+  vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
+  int i = 0, max_constraint = -1;
+  double max_width = 0.0;
+  for (auto const l : m_stack) {
+    stringstream buf;
+    l->print_infix(buf, l->getPolarity());
+    string constraint_str = buf.str();
+    if (constraint_str.compare("0 = 0") != 0) {
+      const rp_constraint c = rp_problem_ctr(*m_problem, i);
+      double width =  constraint_width(&c, b);
+      double residual = width-2.0*(*d);
+      //DREAL_LOG_DEBUG("Constraint: " << i << " Residual: " << residual);
+      if ( residual  > max_width ) {
+	max_width = residual;
+	max_constraint = i;
+	DREAL_LOG_DEBUG("Max Constraint: " << i << " Max Residual: " << max_width);
+	l->print_infix(buf, l->getPolarity());
+	string constraint_str = buf.str();
+	DREAL_LOG_DEBUG(constraint_str);
+      }
+      d++;
+      i++;
+    }
+  }  
+   
+
+  if(max_constraint > -1) {
+    //get var with max width in max width constraint
+    const rp_constraint c = rp_problem_ctr(*m_problem, max_constraint);
+    max_width = 0.0;
+    int max_var = -1;
+    for ( i = 0; i < rp_constraint_arity(c); i++ ){
+      int var = rp_constraint_var(c, i);
+      double width = rp_interval_width(rp_box_elem(b, var));
+      if( width > max_width ) {
+	max_width = width;
+	max_var = var;
+	DREAL_LOG_DEBUG("Max Var: " << max_var << " Max Width: " << max_width);
+      }
+    }
+    DREAL_LOG_DEBUG("Delta Split: " << max_var);
+    return max_var;
+  }
+  else{
+    DREAL_LOG_DEBUG("Delta Split: -1");
+    return ( -1 );
+  }
 }
 
 
@@ -344,9 +405,10 @@ rp_box icp_solver::compute_next() {
             // SAT => Split
             rp_box b = m_boxes.get();
             int i = m_vselect->apply(b);
+	    DREAL_LOG_DEBUG("Splitting var: " << i);
             if (i >= 0 &&
                 ((m_config.delta_test ? 
-		  printf("compute_next()") && !is_box_within_delta(b) :
+		  !is_box_within_delta(b) :
 		  rp_box_width(b) >= m_config.nra_precision))) {
                 if (m_config.nra_proof) {
                     m_config.nra_proof_out << endl
