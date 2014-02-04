@@ -18,6 +18,10 @@ exception SMTException of string
 type ode = Ode.t
 type flows_annot = (int * ode list)  (** step, ode **)
 
+(* add suffix to variables *)
+let make_start = fun v -> v ^ "_0"
+let make_end = fun v -> v ^ "_t"
+
 let extract_flows q (modemap:Modemap.t) : flows_annot =
   let m = Map.find q modemap in
   (q, m.flows)
@@ -37,37 +41,27 @@ let process_flow_single varmap modemap ginvs q =
     let time_var = String.join "_" ["time"; string_of_int q; ] in
     let flow_var = String.join "_" ["flow"; string_of_int q; ] in
     let ode_vars = List.filter (fun name -> name <> "time") vars in
-    let ode_vars_0 = List.map (fun x -> x ^ "_0") ode_vars in
-    let ode_vars_t = List.map (fun x -> x ^ "_t") ode_vars in
+    let ode_vars_0 = List.map make_start ode_vars in
+    let ode_vars_t = List.map make_end ode_vars in
     Eq(Vec ode_vars_t (* ["x_1_t"; "y_1_t"] *),
                          Integral(0.0, time_var, ode_vars_0, flow_var)) in
   (* mode invariant *)
   let inv_formula = match m.invs_op with
       None -> Basic.True
-    | Some invs ->
-      let invt_conds =
-        List.map
-          (fun invt_f ->
-            Basic.make_and
-              [Basic.subst_formula (fun v -> v ^ "_t") invt_f;
-               Basic.subst_formula (fun v -> v ^ "_0") invt_f;
-               Basic.ForallT (Basic.subst_formula (fun v -> v ^ "_t") invt_f);
-              ]
-          )
-          invs
-      in
-      Basic.make_and (flow_formula :: invt_conds)
+    | Some invs -> Basic.make_and invs
   in
   let ginv_formula = Basic.make_and ginvs in
-  let ginv_0 = Basic.subst_formula (fun v -> v ^ "_0") ginv_formula in
-  let ginv_t = Not (Basic.subst_formula (fun v -> v ^ "_t") ginv_formula) in
-  Basic.make_and [inv_formula; ginv_0; ginv_t]
+  let ginv_0 = Basic.subst_formula make_start ginv_formula in
+  let ginv_t = Basic.subst_formula make_end ginv_formula in
+  let invt_0 = Basic.subst_formula make_start inv_formula in
+  let invt_t = Not (Basic.subst_formula make_end inv_formula) in
+  Basic.make_and [flow_formula; ginv_0; ginv_t; invt_0; invt_t]
 
 let process_jump_q_nq modemap q next_q =
   let mode = Map.find q modemap in
   let jumpmap = mode.jumpmap in
   let jump = Map.find next_q jumpmap in
-  let guard' = Basic.subst_formula (fun v -> v ^ "_0") jump.guard in
+  let guard' = Basic.subst_formula make_start jump.guard in
   let change' =
     Basic.subst_formula
       (fun v -> match String.ends_with v "'" with
@@ -94,14 +88,14 @@ let process_jump_single varmap modemap ginvs q =
         List.map (
             fun nq ->
             let f = process_jump_q_nq modemap q nq in
-            let neg_inv = Not (Basic.subst_formula (fun v -> v ^ "_t") ginv_formula) in
+            let neg_inv = Not (Basic.subst_formula make_end ginv_formula) in
             Basic.make_and [f; neg_inv]
           )
           nqs
       )
   in
   Basic.make_and
-    [Basic.subst_formula (fun v -> v ^ "_0") ginv_formula;
+    [Basic.subst_formula make_start ginv_formula;
      nq_formula;]
 
 
@@ -119,8 +113,10 @@ let compile_logic_formula h =
       )
   in
   let init_inv_formula = Basic.make_and [init_formula; Not (Basic.make_and ginvs)] in
+  let init_inv_formula' = Basic.subst_formula make_start init_inv_formula in
   let goal_inv_formula = Basic.make_and [Basic.make_and ginvs; Not (Basic.make_and (List.map (fun (_, f) -> f) goals))] in
-  Assert (Basic.make_or [init_inv_formula; mode_clause; goal_inv_formula])
+  let goal_inv_formula' = Basic.subst_formula make_end goal_inv_formula in
+  Assert (Basic.make_or [init_inv_formula'; mode_clause; goal_inv_formula'])
 
 let calc_num_of_mode (modemap : Modemap.t) =
   Enum.count (Map.keys modemap)
@@ -155,7 +151,7 @@ let compile_vardecl h epi =
     List.flatten (
         List.map
           (function (k,v) ->
-           [(k ^ "_0", v); (k ^ "_t", v)])
+           [(make_start k, v); (make_end k, v)])
           vardecls')
   in
   let new_vardecls = List.flatten [vardecls''; time_vardecls;] in
