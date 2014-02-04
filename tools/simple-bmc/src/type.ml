@@ -58,7 +58,7 @@ module Basic = struct
   | Eq  of exp * exp
   | LetF of ((string * formula) list * formula)
   | LetE of ((string * exp) list * formula)
-  | ForallT of formula
+  | ForallT of exp * exp * exp * formula
 
   let rec collect_vars_in_formula (f : formula) : var Set.t =
     match f with
@@ -70,7 +70,11 @@ module Basic = struct
     | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) -> collect_vars_in_exps [e1;e2]
     | Imply (f1, f2) -> collect_vars_in_formulas [f1;f2]
     | FVar x -> Set.singleton x
-    | ForallT f' -> collect_vars_in_formula f'
+    | ForallT (m, lb, ub, f') ->
+       List.reduce Set.union [collect_vars_in_exp m;
+                              collect_vars_in_exp lb;
+                              collect_vars_in_exp ub;
+                              collect_vars_in_formula f']
     | LetF _ -> raise TODO
     | LetE _ -> raise TODO
   and collect_vars_in_exps (es : exp list) =
@@ -170,7 +174,10 @@ module Basic = struct
     | Le (e1, e2)    -> fn_f (Le      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
     | Eq (e1, e2)    -> fn_f (Eq      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
     | Imply (f1, f2) -> fn_f (Imply   (map_formula fn_f fn_e f1, map_formula fn_f fn_e f2))
-    | ForallT f      -> fn_f (ForallT (map_formula fn_f fn_e f))
+    | ForallT (m, lb, ub, f) -> fn_f (ForallT (map_exp fn_f fn_e m,
+                                               map_exp fn_f fn_e lb,
+                                               map_exp fn_f fn_e ub,
+                                               map_formula fn_f fn_e f))
     | FVar x         -> fn_f (FVar x)
     | LetE (var_e_list, f) ->
        let var_e_list' = List.map (fun (v, e) -> (v, map_exp fn_f fn_e e)) var_e_list in
@@ -414,7 +421,9 @@ module Basic = struct
       List.sum (List.map (fun (id, f') -> count_mathfn_f f') fbinding_list) + (count_mathfn_f f)
     | LetE (ebinding_list, f) ->
       List.sum (List.map (fun (id, f') -> count_mathfn_e f') ebinding_list) + (count_mathfn_f f)
-    | ForallT f -> count_mathfn_f f
+    | ForallT (m, lb, ub, f) ->
+       (count_mathfn_e m) + (count_mathfn_e lb)
+       + (count_mathfn_e ub) + (count_mathfn_f f)
 
   let rec count_arith_e =
     function
@@ -450,7 +459,9 @@ module Basic = struct
     | LetE (ebinding_list, f) ->
       List.sum (List.map (fun (id, e') -> count_arith_e e') ebinding_list)
       + (count_arith_f f)
-    | ForallT f -> count_arith_f f
+    | ForallT (m, lb, ub, f) ->
+       (count_arith_e m) + (count_arith_e lb)
+       + (count_arith_e ub) + (count_arith_f f)
 
   let rec collect_var_in_f f : string Set.t =
     match f with
@@ -458,7 +469,7 @@ module Basic = struct
     | FVar x -> Set.singleton x
     | Not f' -> collect_var_in_f f'
     | And fs | Or fs ->
-      List.fold_left Set.union Set.empty (List.map collect_var_in_f fs)
+      List.reduce Set.union (List.map collect_var_in_f fs)
     | Imply (f1, f2) -> Set.union (collect_var_in_f f1) (collect_var_in_f f2)
     | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) ->
       Set.union (collect_var_in_e e1) (collect_var_in_e e2)
@@ -469,7 +480,7 @@ module Basic = struct
           fbinding_list in
       let (id_list, vars_list) = List.split id_vars_list in
       let id_set = Set.of_list id_list in
-      let bind_vars = List.fold_left Set.union Set.empty vars_list in
+      let bind_vars = List.reduce Set.union vars_list in
       let vars_in_f' = collect_var_in_f f' in
       Set.union (Set.diff vars_in_f' id_set) bind_vars
     | LetE (ebinding_list, f') ->
@@ -479,10 +490,14 @@ module Basic = struct
           ebinding_list in
       let (id_list, vars_list) = List.split id_vars_list in
       let id_set = Set.of_list id_list in
-      let bind_vars = List.fold_left Set.union Set.empty vars_list in
+      let bind_vars = List.reduce Set.union vars_list in
       let vars_in_f' = collect_var_in_f f' in
       Set.union (Set.diff vars_in_f' id_set) bind_vars
-    | ForallT f -> collect_var_in_f f
+    | ForallT (m, lb, ub, f)
+      -> List.reduce Set.union [collect_var_in_e m;
+                                collect_var_in_e lb;
+                                collect_var_in_e ub;
+                                collect_var_in_f f]
 
   and collect_var_in_e e : string Set.t =
     match e with
@@ -490,11 +505,11 @@ module Basic = struct
     | Vec xs -> Set.of_list xs
     | Num _ -> Set.empty
     | Add el ->
-      List.fold_left Set.union Set.empty (List.map collect_var_in_e el)
+      List.reduce Set.union (List.map collect_var_in_e el)
     | Sub el ->
-      List.fold_left Set.union Set.empty (List.map collect_var_in_e el)
+      List.reduce Set.union (List.map collect_var_in_e el)
     | Mul el ->
-      List.fold_left Set.union Set.empty (List.map collect_var_in_e el)
+      List.reduce Set.union (List.map collect_var_in_e el)
     | Div (e1, e2) | Pow (e1, e2 ) | Atan2 (e1, e2) ->
       Set.union (collect_var_in_e e1) (collect_var_in_e e2)
     | Ite (f, e1, e2) ->
@@ -666,9 +681,15 @@ module Basic = struct
           fbinding_list;
         String.print out ")";
       end
-    | ForallT f ->
+    | ForallT (m, lb, ub, f) ->
       begin
         String.print out "(forall_t ";
+        print_exp out m;
+        String.print out " [";
+        print_exp out lb;
+        String.print out " ";
+        print_exp out ub;
+        String.print out "] ";
         print_formula out f;
         String.print out ")";
       end
@@ -778,7 +799,6 @@ end
 module Value = struct
 
   type t = Num of float | Intv of float * float
-
   let print_intv out (n, m) =
     Printf.fprintf out "[%f, %f]" n m
 
@@ -1027,6 +1047,8 @@ module Hybrid = struct
   type goal = modeId * formula
   type goals = goal list
 
+  type ginvs = formula list
+
   type t = {varmap: vardeclmap;
             modemap: modemap;
             init_id: Mode.id;
@@ -1106,4 +1128,44 @@ module Hybrid = struct
 
   let goal_ids (hm : t) : modeId list
       = List.map (fun (goal_id, _) -> goal_id) hm.goals
+
+  (**
+   Given a path (ex: [1;2;3;4]), it checks the three conditions:
+   1) the first mode of the path should be the init mode of the hybrid model
+   2) the last mode of the path should be an element of the goals of the HM
+   3) the unrolling step k, should match with the length of the given path
+   **)
+  let check_path (hm : t) (path : int list option) (k : int) : unit =
+    let init = hm.init_id in
+    let goals = goal_ids hm in
+    match path with
+      Some p ->
+      begin
+        let first_mode = List.first p in
+        let last_mode = List.last p in
+        let len = List.length p in
+        let path_str =  IO.to_string (List.print ~first:"[" ~last:"]" ~sep:", " Int.print) p in
+        let goal_str =  IO.to_string (List.print ~first:"[" ~last:"]" ~sep:", " Int.print) goals in
+        match (first_mode = init, List.mem last_mode goals, len = k + 1) with
+          (true, true, true) -> ()
+        | (false, _, _) ->
+           let msg = Printf.sprintf
+                       "The first mode of the given path %s is %d which is different from %d, the initial mode of the given hybrid system model."
+                       path_str first_mode init
+           in
+           raise (Arg.Bad msg)
+        | (_, false, _) ->
+           let msg = Printf.sprintf
+                       "The last mode of the given path %s is %d which is not an element of %s, the list of modes in the goal section of the given hybrid system model."
+                       path_str last_mode goal_str
+           in
+           raise (Arg.Bad msg)
+        | (_, _, false) ->
+           let msg = Printf.sprintf
+                       "The length of the given path %s is %d, while the given unrolling depth k is %d."
+                       path_str len k
+           in
+           raise (Arg.Bad msg)
+      end
+    | None -> ()
 end

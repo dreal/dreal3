@@ -49,10 +49,10 @@ let varmap_to_list vardeclmap =
 let process_flow ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) : Basic.formula =
   let m = Map.find q modemap in
   let mode_formula = make_mode_cond ~k ~q in
+  let time_var = (make_variable k "" "time") in
   let flow_formula =
     let vardecls = varmap_to_list varmap in
     let vars = List.map (fun (name, _) -> name) vardecls in
-    let time_var = (make_variable k "" "time") in
     let flow_var = (make_variable q "" "flow") in
     let ode_vars = List.filter (fun name -> name <> "time") vars in
     let ode_vars_0 = List.map (make_variable k "_0") ode_vars in
@@ -68,7 +68,10 @@ let process_flow ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) : Basic.formu
             Basic.make_and
               [Basic.subst_formula (make_variable k "_0") invt_f;
                Basic.subst_formula (make_variable k "_t") invt_f;
-               Basic.ForallT (Basic.subst_formula (make_variable k "_t") invt_f);])
+               Basic.ForallT (Num (float_of_int q),
+                              Num 0.0,
+                              Var time_var,
+                              (Basic.subst_formula (make_variable k "_t") invt_f))])
           invs
       in
       (* mode_k = q && inva_q(x_i, x_i_t) *)
@@ -114,57 +117,74 @@ let process_goals (k : int) (goals : (int * formula) list) =
   in
   Basic.make_or goal_formulas
 
-(** generate logic formular for each step 0...k **)
-let process_step (varmap : Vardeclmap.t) (modemap : Modemap.t) (step:int) : Basic.formula =
+(** generate logic formula for each step 0...k **)
+let process_step (varmap : Vardeclmap.t)
+                 (modemap : Modemap.t)
+                 (mode : int option)
+                 (step : int)
+    : Basic.formula =
   let num_of_modes = Enum.count (Map.keys modemap) in
-  let list_of_modes = List.of_enum ( 1 -- num_of_modes ) in
+  let list_of_modes = match mode with
+      Some n -> [n]
+     | None -> List.of_enum ( 1 -- num_of_modes ) in
   let jump_flow_part =
     List.map
       (fun q ->
-        try
-          let flow_for_q = process_flow ~k:step ~q varmap modemap in
-          let mode_q = Map.find q modemap in
-          let jumpmap_q = mode_q.jumpmap in
-          let list_of_nq = List.of_enum (Map.keys jumpmap_q) in
-          let jump_for_q_nq  = Basic.make_or (List.map
-                                                (fun nq ->
-                                                  process_jump modemap q nq step
-                                                )
-                                                list_of_nq)
-          in
-          Basic.make_and [flow_for_q; jump_for_q_nq]
-        with e ->
-          begin
-            Printexc.print_backtrace IO.stderr;
-            raise e
-          end
+       try
+         let flow_for_q = process_flow ~k:step ~q varmap modemap in
+         let mode_q = Map.find q modemap in
+         let jumpmap_q = mode_q.jumpmap in
+         let list_of_nq = List.of_enum (Map.keys jumpmap_q) in
+         let jump_for_q_nq  = Basic.make_or (List.map
+                                               (fun nq ->
+                                                process_jump modemap q nq step
+                                               )
+                                               list_of_nq)
+         in
+         Basic.make_and [flow_for_q; jump_for_q_nq]
+       with e ->
+         begin
+           Printexc.print_backtrace IO.stderr;
+           raise e
+         end
       )
       list_of_modes
   in
   Basic.make_or jump_flow_part
 
 
-let final_flow varmap modemap k =
-  let num_modes = Enum.count (Map.keys modemap) in
-  let list_of_modes = List.of_enum ( 1 -- num_modes ) in
-  let flows =
-    List.map
-      (
-        fun q ->
-        process_flow ~k ~q varmap modemap
-      )
-      list_of_modes
-  in
-  Basic.make_or flows
+let final_flow varmap modemap mode k =
+  let list_of_modes = match mode with
+      Some n -> [n]
+    | None ->
+       let num_modes = Enum.count (Map.keys modemap) in
+       List.of_enum ( 1 -- num_modes )
+  in let flows =
+       List.map
+         (
+           fun q ->
+           process_flow ~k ~q varmap modemap
+         )
+         list_of_modes
+     in
+     Basic.make_or flows
 
 (* compile Hybrid automata into SMT formulas *)
-let compile_logic_formula (h : Hybrid.t) (k : int) =
+let compile_logic_formula (h : Hybrid.t) (k : int) (path : int list option) =
   let {init_id; init_formula; varmap; modemap; goals} = h in
   let init_clause = process_init ~init_id ~init_formula in
-  let step_clauses = List.map (process_step varmap modemap) (List.of_enum (0 -- (k-1))) in
-
+  let list_of_steps = List.of_enum (0 -- (k-1)) in
+  let step_clauses =
+    match path with
+      Some p -> List.map2 (fun q k -> process_step varmap modemap (Some q) k)
+                          (List.take k p)
+                          list_of_steps
+    | None -> List.map (process_step varmap modemap None) list_of_steps
+  in
   (* tricky case, final mode need flow without jump  *)
-  let final_flow_clause = final_flow varmap modemap k in
+  let final_flow_clause = match path with
+      Some p -> final_flow varmap modemap (Some (List.last p)) k
+    | None -> final_flow varmap modemap None k in
   let goal_clause = process_goals k goals in
   let smt_formula = Basic.make_and (List.flatten [[init_clause]; step_clauses; [final_flow_clause];  [goal_clause]]) in
   Assert smt_formula
@@ -228,8 +248,9 @@ let compile_vardecl (h : Hybrid.t) (k : int) =
                make_ub name ub])
            | _ -> raise (SMTException "We should only have interval here."))
          new_vardecls) in
+  let org_vardecl_cmds = List.map (fun (var, _) -> DeclareFun var) vardecls' in
   let assert_cmds = List.flatten assert_cmds_list in
-  (vardecl_cmds, assert_cmds)
+  (org_vardecl_cmds@vardecl_cmds, assert_cmds)
 
 let calc_num_of_mode (modemap : Modemap.t) =
   Enum.count (Map.keys modemap)
@@ -246,11 +267,11 @@ let compile_ode_definition (h : Hybrid.t) k =
   let flows = build_flow_annot_list h k in
   List.map (fun (g, odes) -> DefineODE ((make_variable g "" "flow"), odes)) flows
 
-let compile (h : Hybrid.t) (k : int) =
+let compile (h : Hybrid.t) (k : int) (path : (int list) option) =
   let logic_cmd = SetLogic QF_NRA_ODE in
   let (vardecl_cmds, assert_cmds) = compile_vardecl h k in
   let defineodes = compile_ode_definition h k in
-  let assert_formula = compile_logic_formula h k in
+  let assert_formula = compile_logic_formula h k path in
   List.flatten
     [[logic_cmd];
      vardecl_cmds;
@@ -259,3 +280,30 @@ let compile (h : Hybrid.t) (k : int) =
      [assert_formula];
      [CheckSAT; Exit];
     ]
+
+(** Enumerate all possible paths of length k in Hybrid Model h *)
+let pathgen (h : Hybrid.t) (k : int) : int list list =
+  let init_mode_id = h.init_id in
+  let init_path = [init_mode_id] in
+  (* recursive function to generate reachable paths *)
+  (* NOTE: it generates path in reverse order! *)
+  let rec pathgen_aux h k paths =
+    if k = 0 then
+      paths
+    else
+      let newpaths = List.flatten (
+                         List.map (fun path ->
+                                   match path with
+                                     last_mode_id::prefix ->
+                                     let last_mode = Map.find last_mode_id h.modemap in
+                                     let targets = List.of_enum (Map.keys last_mode.jumpmap) in
+                                     List.map (fun t -> t::last_mode_id::prefix) targets
+                                   | _ -> failwith "pathgen_aux gets empty path."
+                                  )
+                                  paths)
+      in
+      pathgen_aux h (k - 1) newpaths
+  in
+  let result = pathgen_aux h k [init_path] in
+  let result' = List.map List.rev result in
+  result'

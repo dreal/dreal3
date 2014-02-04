@@ -18,4 +18,5 @@ exception SMTException of string
 type flows_annot = (int * ode list)  (** step, mode, ode **)
 
 (** compile a Hybrid automata into SMT formula **)
-val compile : Hybrid.t -> int -> Smt2.t
+val compile : Hybrid.t -> int -> int list option -> Smt2.t
+val pathgen : Hybrid.t -> int -> (int list) list
