@@ -2,3 +2,6 @@ build/
 .projectile
 .gitignores
 .coveralls.yml
+GPATH
+GRTAGS
+GTAGS
