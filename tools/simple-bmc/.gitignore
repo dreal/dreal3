@@ -9,3 +9,6 @@
 *.cmxa
 setup.data
 setup.log
+_tags
+myocamlbuild.ml
+setup.ml
