@@ -114,9 +114,7 @@ let compile_logic_formula h =
   in
   let init_inv_formula = Basic.make_and [init_formula; Not (Basic.make_and ginvs)] in
   let init_inv_formula' = Basic.subst_formula make_start init_inv_formula in
-  let goal_inv_formula = Basic.make_and [Basic.make_and ginvs; Not (Basic.make_and (List.map (fun (_, f) -> f) goals))] in
-  let goal_inv_formula' = Basic.subst_formula make_end goal_inv_formula in
-  Assert (Basic.make_or [init_inv_formula'; mode_clause; goal_inv_formula'])
+  Assert (Basic.make_or [init_inv_formula'; mode_clause])
 
 let calc_num_of_mode (modemap : Modemap.t) =
   Enum.count (Map.keys modemap)
