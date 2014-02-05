@@ -30,7 +30,9 @@ processJson = (json) ->
   # Only collect the traces of the corresponding groups
 #  count = 0
 #  traces = _.filter(json.traces, (item) -> _.some(groups, (g) -> count = count + 1; (count % 100 == 2) && (+item[0].group) == g))
-  traces = _.filter(json.traces, (item) -> _.some(groups, (g) -> (+item[0].group) == g))
+#  traces = _.filter(json.traces, (item) -> _.some(groups, (g) -> (+item[0].group) == g))
+  traces = json.traces
+
 
   # Collect data by variable and step
   result = []
@@ -45,11 +47,11 @@ processJson = (json) ->
         piece.values = _.filter(piece.values, (d) -> count = count + 1; (count % divisor == 1));
 
       key_strings = piece.key.split("_")
-      piece.mode = _.last(key_strings)
       key_strings = _.initial(key_strings)
       s = piece.step = _.last(key_strings)
       key_strings = _.initial(key_strings)
       k = piece.key = key_strings.join("_")
+      console.log(piece.mode, s, k)
       if !(k of result)
         result[k] = new Array()
       if !(s of result[k])
