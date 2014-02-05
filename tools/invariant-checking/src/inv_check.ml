@@ -52,9 +52,9 @@ let process_flow_single varmap modemap ginvs q =
   in
   let ginv_formula = Basic.make_and ginvs in
   let ginv_0 = Basic.subst_formula make_start ginv_formula in
-  let ginv_t = Basic.subst_formula make_end ginv_formula in
+  let ginv_t = Not(Basic.subst_formula make_end ginv_formula) in
   let invt_0 = Basic.subst_formula make_start inv_formula in
-  let invt_t = Not (Basic.subst_formula make_end inv_formula) in
+  let invt_t = Basic.subst_formula make_end inv_formula in
   Basic.make_and [flow_formula; ginv_0; ginv_t; invt_0; invt_t]
 
 let process_jump_q_nq modemap q next_q =
