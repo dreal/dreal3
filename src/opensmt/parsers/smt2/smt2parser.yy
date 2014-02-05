@@ -25,6 +25,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
+#include <vector>
+#include <utility>
 
 extern int smt2lineno;
 extern int smt2lex( );
@@ -50,13 +52,15 @@ void smt2error( const char * s )
 
 %union
 {
-  char  *                   str;
-  vector< string > *        str_list;
-  Enode *                   enode;
-  Snode *                   snode;
-  std::string *             string_ptr;
-  list< Snode * > *         snode_list;
-  map< Enode *, Enode * > * binding_list;
+  char  *                            str;
+  vector< string > *                 str_list;
+  pair<string, Enode *> *            ode;
+  vector<pair<string, Enode *> * > * ode_list;
+  Enode *                            enode;
+  Snode *                            snode;
+  std::string *                      string_ptr;
+  list< Snode * > *                  snode_list;
+  map< Enode *, Enode * > *          binding_list;
 }
 
 %error-verbose
@@ -87,18 +91,19 @@ void smt2error( const char * s )
 
 /* added for dReal2 */
 %token TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW TK_SINH TK_COSH TK_TANH
-%token TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT
+%token TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT TK_INTEGRAL
 
 %type <str> TK_NUM TK_DEC TK_HEX TK_STR TK_SYM TK_KEY numeral decimal hexadecimal /*binary*/ symbol
 %type <str> identifier spec_const b_value s_expr
 %type <str> TK_LEQ TK_GEQ TK_LT TK_GT TK_FORALLT
 %type <str> TK_PLUS TK_MINUS TK_TIMES TK_UMINUS TK_DIV
 %type <str> TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW TK_SINH TK_COSH TK_TANH
-%type <str> TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT
+%type <str> TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT TK_INTEGRAL
 
 /* %type <str_list> numeral_list */
 %type <enode> term_list term
-%type <string_ptr> infix_term
+%type <ode> ode
+%type <ode_list> ode_list
 %type <snode> sort
 %type <snode_list> sort_list
 
@@ -107,6 +112,21 @@ void smt2error( const char * s )
 %%
 
 script: command_list
+
+ode_list: ode_list ode
+          { $1->push_back($2);
+            $$ = $1;
+          }
+        | ode
+          { $$ = new vector<pair<string, Enode*>*>;
+            $$->push_back( $1 );
+          }
+;
+ode: '(' TK_EQ TK_DDT TK_LB identifier TK_RB term ')'  {
+        $$ = new pair<string, Enode*>;
+        $$->first = $5;
+        $$->second = $7;
+}
 
 command_list: command_list command | command ;
 
@@ -147,13 +167,10 @@ command: '(' TK_SETLOGIC symbol ')'
          { opensmt_error2( "command not supported (yet)", "" ); }
        */
        /* Added for dReal2. */
-       | '(' TK_DEFINEODE numeral numeral '(' TK_EQ TK_DDT TK_LB symbol TK_RB infix_term ')' ')'
+       | '(' TK_DEFINEODE identifier '(' ode_list ')' ')'
          {
-           parser_ctx->DefineODE($9, *$11, atoi($3), atoi($4));
+           parser_ctx->DefineODE($3, $5);
            free( $3 );
-           free( $4 );
-           free( $9 );
-           delete $11;
          }
        | '(' TK_PUSH numeral ')'
          { parser_ctx->addPush( atoi( $3 ) ); free( $3 ); }
@@ -313,6 +330,14 @@ term: spec_const
       { $$ = parser_ctx->mkNot( $3 ); }
     | '(' TK_IMPLIES term_list ')'
       { $$ = parser_ctx->mkImplies( $3 ); }
+
+    | '(' TK_EQ TK_LB term_list TK_RB
+                '(' TK_INTEGRAL term term TK_LB term_list TK_RB identifier ')'
+      ')'
+      {
+        $$ = parser_ctx->mkIntegral( $8, $9, $11, $4, $13 );
+        free( $13 );
+      }
     | '(' TK_EQ term_list ')'
       { $$ = parser_ctx->mkEq( $3 ); }
     | '(' TK_ITE term_list ')'
@@ -339,49 +364,8 @@ term: spec_const
       { $$ = parser_ctx->mkDistinct( $3 ); }
     | '(' TK_LET '(' var_binding_list ')' term ')'
       { $$ = $6; }
-
-    | '(' TK_FORALLT '(' TK_LT identifier spec_const ')' ')'
-      {
-        Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-        $$ = parser_ctx->mkForallT( "<", e, atof($6) );
-      }
-    | '(' TK_FORALLT '(' TK_GT identifier spec_const ')' ')'
-      {
-        Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-        $$ = parser_ctx->mkForallT( ">", e, atof($6) );
-      }
-    | '(' TK_FORALLT '(' TK_LEQ identifier spec_const ')' ')'
-      {
-        Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-        $$ = parser_ctx->mkForallT( "<=", e, atof($6) );
-      }
-    | '(' TK_FORALLT '(' TK_GEQ identifier spec_const ')' ')'
-      {
-        Enode * e = $$ = parser_ctx->mkVar( $5 ); free( $5 );
-        $$ = parser_ctx->mkForallT( ">=", e, atof($6) );
-      }
-
-    | '(' TK_FORALLT '(' TK_LT spec_const identifier ')' ')'
-      {
-        Enode * e = $$ = parser_ctx->mkVar( $6 ); free( $6 );
-        $$ = parser_ctx->mkForallT( ">", e, atof($5) );
-      }
-    | '(' TK_FORALLT '(' TK_GT spec_const identifier ')' ')'
-      {
-        Enode * e = $$ = parser_ctx->mkVar( $6 ); free( $6 );
-        $$ = parser_ctx->mkForallT( "<", e, atof($5) );
-      }
-    | '(' TK_FORALLT '(' TK_LEQ spec_const identifier ')' ')'
-      {
-        Enode * e = $$ = parser_ctx->mkVar( $6 ); free( $6 );
-        $$ = parser_ctx->mkForallT( ">=", e, atof($5) );
-      }
-    | '(' TK_FORALLT '(' TK_GEQ spec_const identifier ')' ')'
-      {
-        Enode * e = $$ = parser_ctx->mkVar( $6 ); free( $5 );
-        $$ = parser_ctx->mkForallT( "<=", e, atof($5) );
-      }
-
+    | '(' TK_FORALLT term TK_LB term term TK_RB term_list ')'
+      { $$ = parser_ctx->mkForallT($3, $5, $6, $8); }
     /*
     | '(' TK_FORALL '(' sorted_var_list ')' term ')'
       { opensmt_error2( "case not handled (yet)", "" ); }
@@ -574,207 +558,6 @@ b_value: TK_TRUE
            $$ = buf;
          }
        ;
-
-infix_term: spec_const
-      {
-        string* ret = new string($1);
-        if(ret->at(0) == '-') {
-                stringstream ss;
-                ss << "(" << *ret << ")";
-                delete ret;
-                ret = new string(ss.str());
-        }
-        $$ = ret;
-      }
-    | '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "(" << *$2 << ")";
-        string* ret = new string (ss.str());
-        delete $2;
-        $$ = ret;
-      }
-    | infix_term TK_PLUS infix_term
-      {
-        stringstream ss;
-        ss << *$1 << "+" << *$3;
-        string* ret = new string (ss.str());
-        delete $1;
-        delete $3;
-        $$ = ret;
-      }
-    | infix_term TK_MINUS infix_term
-      {
-        stringstream ss;
-        ss << *$1 << "-" << *$3;
-        string* ret = new string (ss.str());
-        delete $1;
-        delete $3;
-        $$ = ret;
-      }
-    | infix_term TK_TIMES infix_term
-      {
-        stringstream ss;
-        ss << *$1 << "*" << *$3;
-        string* ret = new string (ss.str());
-        delete $1;
-        delete $3;
-        $$ = ret;
-      }
-    | TK_UMINUS infix_term
-      {
-        stringstream ss;
-        ss << "-" << *$2;
-        string* ret = new string (ss.str());
-        delete $2;
-        $$ = ret;
-      }
-    | infix_term TK_DIV infix_term
-      {
-        stringstream ss;
-        ss << *$1 << "/" << *$3;
-        string* ret = new string (ss.str());
-        delete $1;
-        delete $3;
-        $$ = ret;
-      }
-    | infix_term TK_POW infix_term
-      {
-        stringstream ss;
-        ss << *$1 << "^" << *$3;
-        string* ret = new string (ss.str());
-        delete $1;
-        delete $3;
-        $$ = ret;
-      }
-    | identifier
-      {
-        string* ret = new string($1);
-        $$ = ret;
-      }
-    | TK_SIN '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "sin" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_COS '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "cos" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_TAN '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "tan" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_ARCSIN '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "arcsin" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_ARCCOS '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "arccos" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_ARCTAN '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "arctan" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_SINH '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "sinh" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_COSH '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "cosh" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_TANH '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "tanh" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_ARCTAN2 '(' infix_term infix_term')'
-      {
-        stringstream ss;
-        ss << "arctan2" << "(" << *$3 << ", " << *$4<< ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        delete $4;
-        $$ = ret;
-      }
-    | TK_MARCTAN '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "marctan" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_SAFESQRT '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "safesqrt" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_EXP '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "exp" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_LOG '(' infix_term ')'
-      {
-        stringstream ss;
-        ss << "log" << "(" << *$3 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        $$ = ret;
-      }
-    | TK_POW '(' infix_term infix_term')'
-      {
-        stringstream ss;
-        ss << "(" << *$3 << "^" << *$4 << ")";
-        string* ret = new string (ss.str());
-        delete $3;
-        delete $4;
-        $$ = ret;
-      }
-    ;
 
 %%
 

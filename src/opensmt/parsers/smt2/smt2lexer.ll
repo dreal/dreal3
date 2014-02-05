@@ -80,6 +80,7 @@ char * pbuffer2;
 "let"                        { return TK_LET; }
 "forall"                     { return TK_FORALL; }
 "forall_t"                   { return TK_FORALLT; }
+"integral"                   { return TK_INTEGRAL; }
 "exists"                     { return TK_EXISTS; }
 "!"                          { return TK_ANNOT; }
 "assert"                     { return TK_ASSERT; }
