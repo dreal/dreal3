@@ -20,6 +20,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "Enode.h"
 #include "dsolvers/util/string.h"
 
+using std::unordered_set;
+
 //
 // Constructor for ENIL
 //
@@ -33,11 +35,6 @@ Enode::Enode( )
   , value     ( NULL )
   , lb        ( NULL )
   , ub        ( NULL )
-  , ode_timevar (NULL)
-  , ode_vartype ( l_Undef )
-  , ode_group (0)
-  , ode_opposite (NULL)
-  , ode_invariant (make_pair(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()))
 {
   setEtype( ETYPE_LIST );
   // dynamic = this;
@@ -58,11 +55,6 @@ Enode::Enode( const enodeid_t      id_
   , value      ( NULL )
   , lb        ( NULL )
   , ub        ( NULL )
-  , ode_timevar (NULL)
-  , ode_vartype ( l_Undef )
-  , ode_group (0)
-  , ode_opposite (NULL)
-  , ode_invariant (make_pair(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()))
 {
   setEtype( etype_ );
   setArity( sort_->getArity( ) - 1 ); // Sort arity includes return value ...
@@ -84,11 +76,6 @@ Enode::Enode( const enodeid_t id_
   , value      ( NULL )
   , lb        ( NULL )
   , ub        ( NULL )
-  , ode_timevar (NULL)
-  , ode_vartype ( l_Undef )
-  , ode_group (0)
-  , ode_opposite (NULL)
-  , ode_invariant (make_pair(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()))
   // , dynamic   ( NULL )
 {
   assert( car );
@@ -144,11 +131,6 @@ Enode::Enode( const enodeid_t	id_
   , value      ( NULL )
   , lb        ( NULL )
   , ub        ( NULL )
-  , ode_timevar (NULL)
-  , ode_vartype ( l_Undef )
-  , ode_group (0)
-  , ode_opposite (NULL)
-  , ode_invariant (make_pair(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()))
   // , dynamic   ( NULL )
 { }
 
@@ -311,7 +293,7 @@ void Enode::removeParent ( Enode * p )
   }
 }
 
-void Enode::print_infix(ostream & os, lbool polarity) const {
+void Enode::print_infix(ostream & os, lbool polarity, string const & variable_postfix) const {
     Enode *p = NULL;
     if(isSymb()) {
         if (polarity == l_False && (getId() == ENODE_ID_LEQ || getId() == ENODE_ID_LT)) {
@@ -320,6 +302,9 @@ void Enode::print_infix(ostream & os, lbool polarity) const {
             os << "<=";
         } else {
             os << getName();
+            if (getId() > ENODE_ID_LAST) {
+                os << variable_postfix;
+            }
         }
     } else if (isNumb()) {
         string temp = getName();
@@ -342,43 +327,43 @@ void Enode::print_infix(ostream & os, lbool polarity) const {
             Enode* op = getCar();
             p = getCdr();
             // Print 1st argument
-            p->getCar()->print_infix(os, polarity);
+            p->getCar()->print_infix(os, polarity, variable_postfix);
             p = p->getCdr();
             while (!p->isEnil()) {
                 // output operator
-                op->print_infix(os, polarity);
+                op->print_infix(os, polarity, variable_postfix);
                 // output argument
-                p->getCar()->print_infix(os, polarity);
+                p->getCar()->print_infix(os, polarity, variable_postfix);
                 // move p
                 p = p->getCdr();
             }
         } else if (isArcTan2()) {
             assert(getArity() == 2);
             // output operator
-            getCar()->print_infix(os, polarity);
+            getCar()->print_infix(os, polarity, variable_postfix);
             os << "(";
             // output 1st argument
-            getCdr()->getCar()->print_infix(os, polarity);
+            getCdr()->getCar()->print_infix(os, polarity, variable_postfix);
             os << ", ";
             // output 1st argument
-            getCdr()->getCdr()->getCar()->print_infix(os, polarity);
+            getCdr()->getCdr()->getCar()->print_infix(os, polarity, variable_postfix);
             os << ")";
         } else if (isArcCos() || isArcSin() || isArcTan() || isMArcTan() || isSafeSqrt() ||
                    isSin() || isCos() || isTan() || isLog() || isExp() || isSinh() || isCosh() || isTanh()) {
             assert(getArity() == 1);
             // output operator
-            getCar()->print_infix(os, polarity);
+            getCar()->print_infix(os, polarity, variable_postfix);
             os << "(";
             // output 1st argument
-            getCdr()->getCar()->print_infix(os, polarity);
+            getCdr()->getCar()->print_infix(os, polarity, variable_postfix);
             os << ")";
         } else {
-            getCar()->print_infix(os, polarity);
+            getCar()->print_infix(os, polarity, variable_postfix);
             p = getCdr();
             while (!p->isEnil()) {
                 os << " ";
                 // print Car
-                p->getCar()->print_infix(os, polarity);
+                p->getCar()->print_infix(os, polarity, variable_postfix);
                 p = p->getCdr();
             }
         }
@@ -391,11 +376,11 @@ void Enode::print_infix(ostream & os, lbool polarity) const {
             os << "-";
         } else {
             os << "[";
-            getCar()->print_infix(os, polarity);
+            getCar()->print_infix(os, polarity, variable_postfix);
             p = getCdr();
             while (!p->isEnil()) {
                     os << ", ";
-                    p->getCar()->print_infix(os, polarity);
+                    p->getCar()->print_infix(os, polarity, variable_postfix);
                     p = p->getCdr();
             }
             os << "]";
@@ -461,4 +446,31 @@ void Enode::printSig( ostream & os )
 string Enode::stripName( string s ) const
 {
   return s.substr( 0, s.find( ' ', 0 ) );
+}
+
+unordered_set<Enode *> Enode::get_vars() {
+    // TODO(soonhok): need to support integral and forallt?
+    unordered_set<Enode *> result;
+    Enode const * p = nullptr;
+    if ( isSymb()) { /* do nothing */ }
+    else if (isNumb()) { /* do nothing */ }
+    else if (isTerm()) {
+        if ( isVar() ) { result.insert(this); }
+        p = this;
+        while (!p->isEnil()) {
+            unordered_set<Enode *> const & tmp_set = p->getCar()->get_vars();
+            result.insert(tmp_set.begin(), tmp_set.end());
+            p = p->getCdr();
+        }
+    } else if (isList()) {
+        p = this;
+        while (!p->isEnil()) {
+            unordered_set<Enode *> const  & tmp_set = p->getCar()->get_vars();
+            result.insert(tmp_set.begin(), tmp_set.end());
+            p = p->getCdr();
+        }
+    } else if (isDef()) { /* do nothing */ }
+    else if (isEnil()) { /* do nothing */ }
+    else opensmt_error("unknown case value");
+    return result;
 }

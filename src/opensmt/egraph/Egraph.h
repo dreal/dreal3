@@ -191,6 +191,9 @@ public:
   Enode * mkExp              ( Enode * );
   Enode * mkLog              ( Enode * );
   Enode * mkPow              ( Enode * );
+  Enode * mkForallT          ( Enode *, Enode *, Enode *, Enode * );
+  Enode * mkIntegral         ( Enode * time_0, Enode * time_t, Enode * vec_0, Enode * vec_t, char * flowname );
+
   /* ----------------- */
 
   Enode * mkSelect           ( Enode *, Enode * );
@@ -339,6 +342,9 @@ public:
   bool    isPureUF                 ( Enode * );
   bool    isPureLA                 ( Enode * );
 
+  /* added for dReal */
+  map<string, map<string, Enode *>> flow_maps;
+
 private:
 
   vector< Enode * > interface_terms;
@@ -379,9 +385,6 @@ public:
 
   void                setPrecision            ( double );
   double              getPrecision            ( ) const;
-
-  // added for dReal2 (implemented in EgraphStore.C
-  void                postProcessing          ( );
 
 private:
 

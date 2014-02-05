@@ -288,7 +288,12 @@ bool Egraph::assertLit_ ( Enode * e )
     else
       res = assertEq( e, mkTrue( ), s );
   }
-  else
+  else if ( e->isForallT( ) || e->isIntegral( ) ) {
+    if ( n && config.logic == QF_NRA_ODE )
+      res = assertEq( e, mkFalse( ), s );
+    if ( !n )
+      res = assertEq( e, mkTrue( ), s );
+  } else
     opensmt_error2( "can't handle ", e );
 
   // Cleanup the eq-classes generated during expExplain

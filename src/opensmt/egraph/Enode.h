@@ -23,7 +23,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "EnodeTypes.h"
 #include "Otl.h"
 #include <limits>
-
+#include <unordered_set>
 
 class Enode
 {
@@ -123,6 +123,8 @@ public:
   inline bool isFalse             ( ) const { return hasSymbolId( ENODE_ID_FALSE       ); }
   inline bool isIte               ( ) const { return hasSymbolId( ENODE_ID_ITE         ); }
   inline bool isDistinct          ( ) const { return hasSymbolId( ENODE_ID_DISTINCT    ); }
+  inline bool isForallT           ( ) const { return hasSymbolId( ENODE_ID_FORALLT     ); }
+  inline bool isIntegral          ( ) const { return hasSymbolId( ENODE_ID_INTEGRAL    ); }
   /*
   inline bool isBvslt             ( ) const { return hasSymbolId( ENODE_ID_BVSLT       ); }
   inline bool isBvsgt             ( ) const { return hasSymbolId( ENODE_ID_BVSGT       ); }
@@ -155,66 +157,66 @@ public:
   inline bool isBoolcast          ( ) const { return hasSymbolId( ENODE_ID_BOOLCAST    ); }
   inline bool isWord1cast         ( ) const { return hasSymbolId( ENODE_ID_WORD1CAST   ); }
   */
-  inline bool isUp                ( )       { return car->id > ENODE_ID_LAST && isAtom( ) && getArity( ) > 0; }
-  inline bool isUf                ( )       { return car->id > ENODE_ID_LAST && !isAtom( ) && getArity( ) > 0; }
+  inline bool isUp                ( ) const { return car->id > ENODE_ID_LAST && isAtom( ) && getArity( ) > 0; }
+  inline bool isUf                ( ) const { return car->id > ENODE_ID_LAST && !isAtom( ) && getArity( ) > 0; }
 
   //  inline bool isCostIncur       ( ) const { return hasSymbolId( ENODE_ID_CTINCUR ); }
   //  inline bool isCostBound       ( ) const { return hasSymbolId( ENODE_ID_CTBOUND ); }
 
-  bool        isVar               ( ); // True if it is a variable
-  bool        isConstant          ( ); // True if it is a constant
-  bool        isLit               ( ); // True if it is a literal
-  bool        isAtom              ( ); // True if it is an atom
-  bool        isTLit              ( ); // True if it is a theory literal
-  bool        isTAtom             ( ); // True if it is a theory atom
-  bool        isBooleanOperator   ( ); // True if it is a boolean operator
-  bool        isArithmeticOp      ( ); // True if root is an arith term
-  bool        isUFOp              ( ); // True if root is UF
+  bool        isVar               ( ) const; // True if it is a variable
+  bool        isConstant          ( ) const; // True if it is a constant
+  bool        isLit               ( ) const; // True if it is a literal
+  bool        isAtom              ( ) const; // True if it is an atom
+  bool        isTLit              ( ) const; // True if it is a theory literal
+  bool        isTAtom             ( ) const; // True if it is a theory atom
+  bool        isBooleanOperator   ( ) const; // True if it is a boolean operator
+  bool        isArithmeticOp      ( ) const; // True if root is an arith term
+  bool        isUFOp              ( ) const; // True if root is UF
 
-  inline bool hasSortBool( )
+  inline bool hasSortBool( ) const
   {
     assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortBool( );
     return car->symb_data->sort->hasSortBool( );
   }
-  inline bool hasSortReal( )
+  inline bool hasSortReal( ) const
   {
     assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortReal( );
     return car->symb_data->sort->hasSortReal( );
   }
-  inline bool hasSortInt( )
+  inline bool hasSortInt( ) const
   {
     assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortInt( );
     return car->symb_data->sort->hasSortInt( );
   }
-  inline bool hasSortArray( )
+  inline bool hasSortArray( ) const
   {
     assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortArray( );
     return car->symb_data->sort->hasSortArray( );
   }
-  inline bool hasSortIndex( )
+  inline bool hasSortIndex( ) const
   {
     assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortIndex( );
     return car->symb_data->sort->hasSortIndex( );
   }
-  inline bool hasSortElem( )
+  inline bool hasSortElem( ) const
   {
     assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortElem( );
     return car->symb_data->sort->hasSortElem( );
   }
-  inline bool hasSortUndef( )
+  inline bool hasSortUndef( ) const
   {
     assert( isTerm( ) );
     if ( isIte( ) ) return get2nd( )->hasSortUndef( );
     return car->symb_data->sort->hasSortUndef( );
   }
 
-  inline bool hasCongData         ( ) { return cong_data != NULL; }
+  inline bool hasCongData         ( ) const { return cong_data != NULL; }
 
   void        allocCongData       ( );
   void        deallocCongData     ( );
@@ -243,29 +245,7 @@ public:
   inline dist_t   getDistClasses         ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->dist_classes; }
 
   double          getValue               ( ) const;
-
-  void            setODEvartype          ( lbool );        // added for dReal2
-  const lbool     getODEvartype          ( ) const;        // added for dReal2
-
-  void            setODEopposite          ( Enode* );       // added for dReal2
-  Enode*          getODEopposite          ( ) const;        // added for dReal2
-
-  void            setODE                 ( const string ); // added for dReal2
-  const string    getODE                 ( ) const;        // added for dReal2
-
-  void            setODEvarname          (string varname);
-  const string    getODEvarname          ( ) const;
-
-  void            setODEtimevar          (Enode* );
-  Enode*          getODEtimevar          ( ) const;
-
-  void            setODEgroup            ( unsigned );
-  unsigned        getODEgroup            ( ) const;
-  void            setODEsgroup           ( unsigned );
-  unsigned        getODEsgroup           ( ) const;
-
-  void            setODEinvarint ( pair<double, double> i );
-  const pair<double, double> getODEinvariant ( ) const;
+  std::unordered_set<Enode *> get_vars   ( );
 
   double          getLowerBound          ( ) const; //added for dReal2
   double          getUpperBound          ( ) const; //added for dReal2
@@ -362,7 +342,7 @@ public:
   bool           addToCongruence        ( ) const;
   unsigned       sizeInMem              ( ) const;
 
-  void           print_infix( ostream & os, lbool polarity ) const;
+  void           print_infix( ostream & os, lbool polarity, string const & variable_postfix = "") const;
   void           print                  ( ostream & ); // Prints the
 
   string         stripName              ( string ) const;
@@ -413,24 +393,12 @@ private:
   };
   AtomData *        atom_data;  // For atom terms only
   double *          value;      // enode value (modified for dReal2)
-  double *          lb;     // enode lower bound
-  double *          ub;     // enode upper bound
-
-
-  string            ode_varname;
-  string            ode;
-  Enode*            ode_timevar;
-  lbool             ode_vartype;
-  unsigned          ode_group;
-  unsigned          ode_sgroup;
-  Enode*            ode_opposite;
-  pair<double, double> ode_invariant;
+  double *          lb;         // enode lower bound
+  double *          ub;         // enode upper bound
 
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
 #endif
-
-  set< string > odes;       // related ODEs
 
   inline bool       hasSymbolId    ( const enodeid_t id ) const { assert( isTerm( ) ); return car->getId( ) == id; }
 };
@@ -440,81 +408,6 @@ inline double       Enode::getValue ( ) const
   assert( hasValue( ) );
   return *value;
 }
-
-inline void        Enode::setODEvartype ( lbool l )
-{
-    ode_vartype = l;
-}
-inline const lbool Enode::getODEvartype ( ) const
-{
-    return ode_vartype;
-}
-
-inline void        Enode::setODEopposite ( Enode* e )
-{
-    ode_opposite = e;
-}
-inline Enode* Enode::getODEopposite ( ) const
-{
-    return ode_opposite;
-}
-
-inline void        Enode::setODEtimevar ( Enode* e )
-{
-    ode_timevar = e;
-}
-inline Enode* Enode::getODEtimevar ( ) const
-{
-    return ode_timevar;
-}
-
-inline void        Enode::setODEgroup ( unsigned g )
-{
-    ode_group = g;
-}
-inline unsigned         Enode::getODEgroup ( ) const
-{
-    return ode_group;
-}
-inline void        Enode::setODEsgroup ( unsigned g )
-{
-    ode_sgroup = g;
-}
-inline unsigned         Enode::getODEsgroup ( ) const
-{
-    return ode_sgroup;
-}
-
-inline void        Enode::setODEinvarint ( pair<double, double> i )
-{
-    ode_invariant = i;
-}
-inline const pair<double, double>  Enode::getODEinvariant ( ) const
-{
-    return ode_invariant;
-}
-
-
-inline void Enode::setODE (string o)
-{
-    ode = o;
-}
-
-inline const string Enode::getODE () const
-{
-    return ode;
-}
-
-inline void Enode::setODEvarname (string varname)
-{
-    ode_varname = varname;
-}
-
-inline const string Enode::getODEvarname () const
-{
-    return ode_varname;
-}
-
 
 inline double Enode::getLowerBound ( ) const
 {
@@ -562,7 +455,6 @@ inline void Enode::setUpperBound ( const double v )
   *ub = v;
 }
 
-
 inline bool Enode::hasValue( ) const
 {
   assert( isTerm( ) );
@@ -606,7 +498,7 @@ inline Enode * Enode::getConstant ( ) const
 // enode is a literal if it is
 // an atom or a negated atom
 //
-inline bool Enode::isLit( )
+inline bool Enode::isLit( ) const
 {
   if ( !isTerm( ) ) return false;
   if ( isAtom( ) ) return true;
@@ -620,7 +512,7 @@ inline bool Enode::isLit( )
 // it is not a boolean operator. Constants true
 // and false are considered atoms
 //
-inline bool Enode::isAtom( )
+inline bool Enode::isAtom( ) const
 {
   if ( !isTerm( ) ) return false;
   if ( !hasSortBool( ) ) return false;
@@ -633,7 +525,7 @@ inline bool Enode::isAtom( )
 // it is not a boolean operator nor a boolean variable
 // nor constants true and false.
 //
-inline bool Enode::isTAtom( )
+inline bool Enode::isTAtom( ) const
 {
   if ( !isTerm( ) ) return false;
   if ( !isAtom( ) ) return false;
@@ -646,7 +538,7 @@ inline bool Enode::isTAtom( )
 // enode is a literal if it is
 // an atom or a negated atom
 //
-inline bool Enode::isTLit( )
+inline bool Enode::isTLit( ) const
 {
   if ( !isTerm( ) ) return false;
   if ( isTAtom( ) ) return true;
@@ -655,7 +547,7 @@ inline bool Enode::isTLit( )
   return isNot( ) && arg->isTAtom( );
 }
 
-inline bool Enode::isVar( )
+inline bool Enode::isVar( ) const
 {
   if ( car->getId( )    <= ENODE_ID_LAST ) return false;     // If the code is predefined, is not a variable
   if ( isConstant( ) ) return false;                         // If it's a constant is not a variable
@@ -664,13 +556,13 @@ inline bool Enode::isVar( )
   return car->isSymb( );                                     // Final check
 }
 
-inline bool Enode::isConstant( )
+inline bool Enode::isConstant( ) const
 {
   if ( !isTerm( ) ) return false;                        // Check is a term
   return isTrue( ) || isFalse( ) || car->isNumb( );      // Only numbers, true, false are constant
 }
 
-inline bool Enode::isBooleanOperator( )
+inline bool Enode::isBooleanOperator( ) const
 {
   return isAnd( ) || isOr( )  || isNot( )
       || isIff( )
@@ -747,7 +639,7 @@ inline void Enode::deallocCongData( )
   cong_data = NULL;
 }
 
-inline bool Enode::isArithmeticOp( )
+inline bool Enode::isArithmeticOp( ) const
 {
   //
   // Put the exhaustive list of arithmetic operators here
@@ -762,7 +654,7 @@ inline bool Enode::isArithmeticOp( )
   return false;
 }
 
-inline bool Enode::isUFOp( )
+inline bool Enode::isUFOp( ) const
 {
   //
   // Put the exhaustive list of uf operators here
