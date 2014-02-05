@@ -37,7 +37,7 @@ SMTConfig::initializeConfig( )
   certification_level          = 0;
   strcpy( certifying_solver, "tool_wrapper.sh" );
   // Set SAT-Solver Default configuration
-  sat_theory_propagation       = 1;
+  sat_theory_propagation       = 0;
   sat_polarity_mode            = 0;
   sat_initial_skip_step        = 1;
   sat_skip_step_factor         = 1;
