@@ -1,14 +1,14 @@
-BMC = ../../../tools/bmc/bmc.sh
+BMC = ../../../tools/simple-bmc/bmc.sh
 DREAL = dReal
-DREAL_OPT =
+OPT =
 
 k3:
-	$(BMC) -k 3 -p "[1,2,3,4]" -i new_cardiac_stim.drh
-	$(DREAL) --precision=0.001 --ode-step=0.01 --ode-grid=32 $(DREAL_OPT) --visualize new_cardiac_stim_3.smt2
+	$(BMC) -k 3 new_cardiac_stim.drh
+	$(DREAL) --precision=0.001 $(OPT) --visualize new_cardiac_stim_3.smt2
 
 k7:
-	$(BMC) -k 7 -p "[1,2,3,4,5,6,7,8]" -i new_cardiac_8m.drh
-	$(DREAL) --precision=0.001 --ode-step=0.001 --ode-grid=128 $(DREAL_OPT) --visualize new_cardiac_8m_7.smt2
+	$(BMC) -k 7 new_cardiac_8m.drh
+	$(DREAL) --precision=0.001 $(OPT) --visualize new_cardiac_8m_7.smt2
 
 k23:
 	$(BMC) -k 23 -p "[1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8]" -i new_cardiac_8m.drh
