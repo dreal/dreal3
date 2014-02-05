@@ -238,7 +238,7 @@ int OpenSMTContext::executeIncremental( )
         opensmt_error( "construct define-fun not yet supported" );
         break;
       case DEFINE_ODE:
-        DefineODE( c.str, string(c.str), c.num, c.num ); /* added for dReal2 */
+        opensmt_error( "construct define-ode not yet supported" ); /* added for dReal2 */
         break;
       case PUSH:
         Push( );
@@ -590,42 +590,13 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
   egraph.newSymbol( name, s );
 }
 
-void OpenSMTContext::DefineODE( const char * name, string ode, unsigned diff_group, unsigned diff_sgroup )
+void OpenSMTContext::DefineODE( char const * name, vector<pair<string, Enode *> *> * odes)
 {
-  // Create two variable _0, _t
-  string name_0 = string(name) + "_0";
-  string name_t = string(name) + "_t";
-
-  Enode* e_0 = mkVar(name_0.c_str());
-  Enode* e_t = mkVar(name_t.c_str());
-
-  stringstream ss;//create a stringstream
-  ss << "time" << "_" << diff_sgroup;
-
-  string time_var_str = ss.str();
-  Enode* time_var = mkVar(time_var_str.c_str());
-
-  // Assign properties (vartype, ode, time, diff_group)
-  e_0->setODEvartype(l_False);
-  e_t->setODEvartype(l_True);
-  e_0->setODEopposite(e_t);
-  e_t->setODEopposite(e_0);
-
-  e_0->setODE(ode);
-  e_t->setODE(ode);
-
-  e_0->setODEvarname(name);
-  e_t->setODEvarname(name);
-
-  e_0->setODEtimevar(time_var);
-  e_t->setODEtimevar(time_var);
-
-  time_var->setODEgroup(diff_group);
-  time_var->setODEsgroup(diff_sgroup);
-  e_0->setODEgroup(diff_group);
-  e_t->setODEgroup(diff_group);
-  e_0->setODEsgroup(diff_sgroup);
-  e_t->setODEsgroup(diff_sgroup);
+    map<string, Enode *> flow;
+    for(auto const & name_odes : *odes) {
+        flow[name_odes->first] = name_odes->second;
+    }
+    egraph.flow_maps[name] = flow;
 }
 
 void OpenSMTContext::Push( )
@@ -902,28 +873,6 @@ void OpenSMTContext::addGetInterpolants( )
   Command c;
   c.command = GET_INTERPOLANTS;
   command_list.push_back( c );
-}
-
-Enode* OpenSMTContext::mkForallT( const char* op, Enode* e, double v)
-{
-//    cerr << e << " " << op << " " << v << endl;
-    pair<double, double> inv = e->getODEinvariant();
-    if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
-        inv.first = std::max (e->getLowerBound(), inv.first);
-        inv.second = std::min (e->getUpperBound(), v);
-//        cerr << "Inv : " << "[" << inv.first << ", " << inv.second << "]" << endl;
-        e->setODEinvarint(inv);
-    }
-    else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
-        inv.first = std::max (e->getLowerBound(), v);
-        inv.second = std::min (e->getUpperBound(), inv.second);
-//        cerr << "Inv : " << "[" << inv.first << ", " << inv.second << "]" << endl;
-        e->setODEinvarint(inv);
-    }
-    else {
-        opensmt_error2( "command not supported (yet)", "" );
-    }
-    return egraph.mkTrue( );
 }
 
 void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v)

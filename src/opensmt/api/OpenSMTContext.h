@@ -100,7 +100,7 @@ public:
   void          SetInfo              ( const char *, const char * ); // Set info
   void          DeclareSort          ( const char *, int );          // Declares a new sort
   void          DeclareFun           ( const char *, Snode * );      // Declares a new function symbol
-  void          DefineODE            ( const char * n, string, unsigned, unsigned );      // Define an ODE
+  void          DefineODE            ( char const *, vector<pair<string, Enode *> *> * odes );      // Define an ODE
 
   void          Push                 ( );
   void          Pop                  ( );
@@ -128,7 +128,6 @@ public:
   void          addAssert            ( Enode * );               // Command for (assert ...)
   void          addIntvCtr           ( const char*, Enode *, double);
   void          addIntvCtrR          ( const char*, double , Enode *);
-  Enode*        mkForallT            ( const char*, Enode *, double);
 
   void          addCheckSAT          ( );                       // Command for (check-sat)
   void          addPush              ( int );                   // Command for (push ...)
@@ -188,6 +187,15 @@ public:
   inline Enode * mkArcTan2   ( Enode * e )       { assert(e); return egraph.mkArcTan2(e);}
   inline Enode * mkMArcTan   ( Enode * e )       { assert(e); return egraph.mkMArcTan(e);}
   inline Enode * mkSafeSqrt  ( Enode * e )       { assert(e); return egraph.mkSafeSqrt(e);}
+  inline Enode * mkForallT   ( Enode * mode, Enode * lb, Enode * ub, Enode * e ) { assert(e); return egraph.mkForallT(mode, lb, ub, e);}
+  inline Enode * mkIntegral  ( Enode * time_0, Enode * time_t, Enode * vec_0, Enode * vec_t, char * flowname ) {
+      assert(time_0);
+      assert(time_t);
+      assert(vec_0);
+      assert(vec_t);
+      assert(flowname);
+      return egraph.mkIntegral(time_0, time_t, vec_0, vec_t, flowname);
+  }
 
   inline Enode * mkCons   ( Enode * car
                           , Enode * cdr = NULL )
