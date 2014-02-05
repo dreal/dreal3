@@ -10,5 +10,5 @@ Executable invmc
   BuildTools: ocamlbuild
   MainIs:     main.ml
   BuildDepends: batteries
-  ByteOpt:    -passopt -annot
+  NativeOpt:    -passopt -annot
   CompiledObject : native
