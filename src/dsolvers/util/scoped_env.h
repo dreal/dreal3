@@ -55,6 +55,7 @@ public:
     const_iterator end() const { return m_map.cend(); }
     void insert(key_type const & k, mapped_type const & v);
     void update(key_type const & k, mapped_type const & v);
+    mapped_type lookup(key_type const & k);
     void erase(key_type const & k);
     void push();
     void pop();

@@ -61,6 +61,11 @@ void scoped_env::update(key_type const & k, mapped_type const & v) {
     m_map[k] = v;
 }
 
+scoped_env::mapped_type scoped_env::lookup(key_type const & k) {
+    auto ite = m_map.find(k);
+    return ite->second;
+}
+
 void scoped_env::erase(key_type const & k) {
     auto ite = m_map.find(k);
     assert(ite != m_map.end());
