@@ -1,0 +1,23 @@
+| name                  | dReal Result (time) | Parameter                                 | what you anticipated |
+|-----------------------+---------------------+-------------------------------------------+----------------------|
+| cardiac_good          | --------------      |                                           | SAT                  |
+| cardiac_bad           | UNSAT ( 0.08s)      |                                           | UNSAT                |
+| cardiac_to1_good      | SAT   ( 3.12s)      | EPI_TO1 = [0.0062, 0.0070]                | SAT                  |
+| cardiac_to1_bad       | UNSAT ( 2.1s)       |                                           | UNSAT                |
+| cardiac_to2_good      | SAT   ( 8.96s)      | EPI_TO2 = [0.133149291993,0.133865722657] | SAT                  |
+| cardiac_to2_bad       | UNSAT (96s)         |                                           | UNSAT                |
+| cardiac_tso1_tso2_bad | UNSAT ( 0.01s)      |                                           | UNSAT                |
+| prostate_h1           |                     |                                           | UNSAT                |
+| prostate_h2           |                     |                                           | UNSAT                |
+| prostate_h3           |                     |                                           | SAT                  |
+| prostate_h1_free      |                     |                                           | UNSAT                |
+| prostate_h2_free      |                     |                                           | UNSAT                |
+| prostate_h3_free      |                     |                                           | SAT                  |
+| prostate_p8           |                     |                                           | SAT                  |
+| prostate_p10          |                     |                                           | SAT                  |
+| prostate_p45          |                     |                                           | UNSAT                |
+| prostate_p97          |                     |                                           | SAT                  |
+| prostate_p8_opt       |                     |                                           | SAT                  |
+| prostate_p10_opt      |                     |                                           | SAT                  |
+| prostate_p45_opt      |                     |                                           | UNSAT                |
+| prostate_p97_opt      |                     |                                           | SAT                  |

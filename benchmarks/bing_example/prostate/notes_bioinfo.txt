@@ -1,0 +1,111 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                               %
+%  Prostate Cancer Progression  %
+%                               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+parameter set: bone metastasis
+cancer relapse state: v > 30
+time duration: 1000 (days)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                           %%
+%%  Task 1: model selection  %%
+%%                           %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-------
+model: H_1
+initial state: fixed
+file: prostate_h1.drh
+jumps: [2,1,2]
+reult: unsat
+
+model: H_2
+initial state: fixed
+file: prostate_h2.drh
+jumps: [2,1,2]
+reult: unsat
+
+model: H_3
+initial state: fixed
+file: prostate_h3.drh
+jumps: [2,1,2,1,2,1]
+reult: sat
+--------
+
+-------- to do -------
+model: H_1
+initial state: range
+file: prostate_h1_free.drh
+jumps: [2,1,2]
+reult: unsat
+
+model: H_2
+initial state: range
+file: prostate_h2_free.drh
+jumps: [2,1,2]
+reult: unsat
+
+model: H_3
+initial state: range
+file: prostate_h3_free.drh
+jumps: [2,1,2,1,2,1]
+reult: sat
+------------------------
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                       %%
+%%  Task 2: personalized therapy design  %%
+%%                                       %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-------
+model: P_8
+initial state: fixed
+file: prostate_p8.drh
+jumps: [2,1,2,1,2,1]
+reult: sat
+
+model: P_10
+initial state: fixed
+file: prostate_p10.drh
+jumps: [2,1,2,1,2]
+reult: sat
+
+model: P_45
+initial state: fixed
+file: prostate_p45.drh
+jumps: [2,1,2]
+reult: unsat
+
+model: P_97
+initial state: fixed
+file: prostate_p97.drh
+jumps: [2,1,2,1,2,1]
+reult: sat
+--------
+
+-------- to do -------
+model: P_8
+initial state: range
+file: prostate_p8_opt.drh
+jumps: [2,1,2,1,2,1]
+reult: sat & return ranges
+
+model: P_10
+initial state: range
+file: prostate_p10_opt.drh
+jumps: [2,1,2,1,2]
+reult: sat & return ranges
+
+model: P_45
+initial state: range
+file: prostate_p45_opt.drh
+jumps: [2,1,2]
+reult: unsat
+
+model: P_97
+initial state: range
+file: prostate_p97_opt.drh
+jumps: [2,1,2,1,2,1]
+reult: sat & return ranges
+---------------------

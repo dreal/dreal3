@@ -1,0 +1,181 @@
+//Translated to drh by Sicun Gao on Apr-18-2013
+// ===============================================================
+// ==   Minimal Resistor Model (4 state variables)              ==
+// ==                                                           ==
+// ==   Author:  E. Bartocci                                    ==
+// ==                                                           ==
+// ==   Date:  11/05/10                                         ==
+// ==                                                           ==
+// ==   Free distribution with authors permission               ==
+// ==                                                           ==
+// ==   SUNY Stony Brook, Stony Brook, NY                       ==
+// ==                                                           ==
+// ===============================================================
+// The following are the parameters that you can find in the paper
+// A. Bueno-Orovio, M. Cherry, and F. Fenton, ?Minimal model for
+// human ventricular action potentials in tissue,? Journal of
+// Theoretical Biology, no. 253, pp. 544?560, 2008.
+// ===============================================================
+
+#define    EPI_TVP      1.4506
+#define    EPI_TV1M       60.0
+#define    EPI_TV2M     1150.0
+
+#define    EPI_TWP       200.0
+
+#define    EPI_TW1M       60.0
+#define    EPI_TW2M       15.0
+
+#define    EPI_TS1        2.7342
+#define    EPI_TS2       16.0     //The same with Flavio's paper
+#define    EPI_TFI        0.11    //The same with Flavio's paper
+#define    EPI_TO1       0.007 //400    //The same with Flavio's paper
+//#define    EPI_TO2       6      //The same with Flavio's paper
+#define    EPI_TSO1      30.0181 //The same with Flavio's paper
+#define    EPI_TSO2       0.9957  //The same with Flavio's paper
+
+#define    EPI_TSI        1.8875  // We have TSI1 and TSI2   TSI in Flavio's paper
+
+
+#define    EPI_TWINF     0.07    //The same with Flavio's paper
+#define    EPI_THV       0.3     //EPUM The same of Flavio's paper
+#define    EPI_THVM      0.006   //EPUQ The same of Flavio's paper
+#define    EPI_THVINF    0.006   //EPUQ The same of Flavio's paper
+#define    EPI_THW       0.13    //EPUP The same of Flavio's paper
+#define    EPI_THWINF    0.006    //EPURR In Flavio's paper 0.13
+#define    EPI_THSO      0.13    //EPUP The same of Flavio's paper
+#define    EPI_THSI      0.13    //EPUP The same of Flavio's paper
+#define    EPI_THO       0.006    //EPURR The same of Flavio's paper
+
+#define    EPI_KWM       65.0     //The same of Flavio's paper
+#define    EPI_KS        2.0994  //The same of Flavio's paper
+#define    EPI_KSO       2.0458  //The same of Flavio's paper
+
+#define    EPI_UWM       0.03    //The same of Flavio's paper
+#define    EPI_US        0.9087  //The same of Flavio's paper
+#define    EPI_UO        0.0     // The same of Flavio's paper
+#define    EPI_UU        1.55   // The same of Flavio's paper
+#define    EPI_USO       0.65   // The same of Flavio's paper
+
+#define    jfi1 0.0
+#define    jso1  (u/EPI_TO1)
+#define    jsi1  0.0
+
+#define    jfi2  0.0
+#define    jso2  (u/EPI_TO2)
+#define    jsi2 0.0
+
+
+#define    jfi3 0.0
+#define    jso3 1.0/(EPI_TSO1+((EPI_TSO2- EPI_TSO1)*(1/(1+exp(-2*EPI_KSO*(u- EPI_USO))))))
+#define    jsi3 (0 - (w * s)/EPI_TSI)
+
+#define    jfi4  (0 - v * (u - EPI_THV) * (EPI_UU - u)/EPI_TFI)
+#define    jso4  (1.0 / (EPI_TSO1+((EPI_TSO2 - EPI_TSO1)*(1/(1+exp(-2*EPI_KSO*(u- EPI_USO)))))))
+#define    jsi4  ( 0 - (w * s)/EPI_TSI)
+#define    stim  1.0 // The external stimulation is a rectangular pulse of height 1 and length 1ms. Since u reach its max during the stimulation, time scale is set to be [0,1]
+
+[0, 2.0] u;
+[0, 2.0] v;
+[0, 2.0] w;
+[0, 2.0] s;
+
+[0.1, 0.129] EPI_TO2;
+
+[0, 1] tau;
+[0, 1] time;
+
+{mode 1;
+
+invt:           (u >= 0);
+                (u <= 0.006);
+                (v >= 0);
+                (w >= 0);
+                (s >= 0);
+                (tau >= 0);
+                (EPI_TO2 >= 0.1);
+                (EPI_TO2 <= 0.129);
+
+flow:
+              d/dt[EPI_TO2] = 0.0;
+              d/dt[tau] = 1.0;
+              d/dt[u] = (stim - jfi1) - (jso1 + jsi1);
+              d/dt[w] = ((1.0 -(u/EPI_TWINF) - w)/(EPI_TW1M + (EPI_TW2M - EPI_TW1M) * (1/(1+exp(-2*EPI_KWM*(u - EPI_UWM))))));
+              d/dt[v] = ((1.0 - v)/EPI_TV1M);
+              d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS1);
+jump:
+              (u >= 0.006) ==> @2 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s) (EPI_TO2' =  EPI_TO2));
+}
+
+{mode 2;
+
+invt:
+                (u >= 0.006);
+                (u <= 0.13);
+                (v >= 0);
+                (w >= 0);
+                (s >= 0);
+                (tau >= 0);
+                (EPI_TO2 >= 0.1);
+                (EPI_TO2 <=0.129);
+
+flow:
+              d/dt[EPI_TO2] = 0.0;
+              d/dt[tau] = 1.0;
+              d/dt[u] = (stim - jfi2) - (jso2 + jsi2);
+              d/dt[w] = ((0.94-w)/(EPI_TW1M + (EPI_TW2M - EPI_TW1M) * (1/(1+exp(-2*EPI_KWM*(u - EPI_UWM))))));
+              d/dt[v] = (-v/EPI_TV2M);
+              d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS1);
+jump:
+                ( u >= 0.13) ==> @3 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s) (EPI_TO2' =  EPI_TO2));
+
+}
+
+{mode 3;
+
+invt:
+                (u >= 0.13);
+                (u <= 0.3);
+                (v >= 0);
+                (w >= 0);
+                (s >= 0);
+                (tau >= 0);
+                (EPI_TO2 >= 0.1);
+                (EPI_TO2 <=0.129);
+
+flow:
+              d/dt[EPI_TO2] = 0.0;
+              d/dt[tau] = 1.0;
+              d/dt[u] = (stim - jfi3) - (jso3 + jsi3);
+              d/dt[w] = (-w/EPI_TWP);
+              d/dt[v] = (-v/EPI_TV2M);
+              d/dt[s] = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS2);
+jump:
+                ( u >= 0.3) ==> @4 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s) (EPI_TO2' =  EPI_TO2));
+}
+
+{mode 4;
+
+invt:
+                (u >= 0.3);
+                (v >= 0);
+                (w >= 0);
+                (s >= 0);
+                (tau >= 0);
+                (EPI_TO2 >= 0.1);
+                (EPI_TO2 <=0.129);
+
+flow:
+              d/dt[EPI_TO2] = 0.0;
+              d/dt[tau] = 1.0;
+              d/dt[u] =  (stim - jfi4) - (jso4 + jsi4);
+              d/dt[w]  = (-w/EPI_TWP);
+              d/dt[v]  = (-v/EPI_TVP);
+              d/dt[s]  = (((1/(1+exp( -2 * EPI_KS * (u - EPI_US) ))) - s)/EPI_TS2) ;
+jump:
+                ( u > 2.0) ==> @4 (and (tau' = tau) (u' = u) (v'= v) (w' = w) (s' = s) (EPI_TO2' =  EPI_TO2));
+}
+
+init:	@1 (and (tau = 0) (u = 0.0) (v = 1.0) (w = 1.0) (s = 0.0) (EPI_TO2 >= 0.1) (EPI_TO2 <=0.129));
+
+goal:   @4 (and (tau = 1) (u >= 0.3) (u <= 2) (v >= 0) (v <= 2) (w >= 0) (w <= 2) (s >= 0) (s <= 2) (EPI_TO2 >= 0.1) (EPI_TO2 <=0.129) );

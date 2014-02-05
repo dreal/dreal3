@@ -1,0 +1,52 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                               %
+%         Cardiac Cell          %
+%                               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+target state: u > 0.3
+time duration: 1 (millionsecond)
+stimualtion: on
+
+
+model: good
+initial state: fixed
+file: cadiac_good.drh
+jumps: [1,2,3,4]
+reult: sat
+
+model: bad
+initial state: fixed
+file: cadiac_bad.drh
+jumps: [1,2,3,4]
+reult: unsat
+
+model: to1_good
+initial state: range
+file: cadiac_to1_good.drh
+jumps: [1,2,3,4]
+reult: sat
+
+model: to1_bad
+initial state: range
+file: cadiac_to1_bad.drh
+jumps: [1,2,3,4]
+reult: unsat
+
+model: to2_good
+initial state: range
+file: cadiac_to2_good.drh
+jumps: [1,2,3,4]
+reult: sat
+
+model: to2_bad
+initial state: range
+file: cadiac_to2_bad.drh
+jumps: [1,2,3,4]
+reult: unsat
+
+model: tso1_tso2_bad
+initial state: range
+file: cadiac_tso1_tso2_bad.drh
+jumps: [1,2,3,4]
+reult: unsat
