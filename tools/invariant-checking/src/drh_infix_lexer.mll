@@ -33,6 +33,7 @@
      ("false", FALSE);
      ("and", AND);
      ("or", OR);
+     ("not", NOT);
     ]
 }
 

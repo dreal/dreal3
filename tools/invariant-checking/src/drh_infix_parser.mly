@@ -8,7 +8,7 @@ open Type
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
-%token AT LT LTE GT GTE IMPLY DDT CARET
+%token AT LT LTE GT GTE IMPLY DDT CARET NOT
 %token SIN COS TAN
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
@@ -97,6 +97,7 @@ formulas: /* */ { [] }
 formula:
     TRUE                { Basic.True }
   | FALSE               { Basic.False }
+  | NOT formula         { Basic.Not $2 }
   | LP formula RP       { $2 }
   | AND formulas        { Basic.make_and $2 }
   | OR  formulas        { Basic.make_or  $2 }
