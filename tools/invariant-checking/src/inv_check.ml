@@ -166,7 +166,8 @@ let compile_vardecl h epi =
            | _ -> raise (SMTException "We should only have interval here."))
          new_vardecls) in
   let assert_cmds = List.flatten assert_cmds_list in
-  (vardecl_cmds, assert_cmds)
+  let org_vardecl_cmds = List.map (fun (var, _) -> DeclareFun var) vardecls' in
+  (org_vardecl_cmds@vardecl_cmds, assert_cmds)
 
 let compile (h : Hybrid.t) (epi : float) =
   let logic_cmd = SetLogic QF_NRA_ODE in
