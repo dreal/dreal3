@@ -8,12 +8,12 @@ open Type
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
-%token AT LT LTE GT GTE IMPLY DDT CARET
+%token AT LT LTE GT GTE IMPLY DDT CARET NOT
 %token SIN COS TAN
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
 %token LOG EXP
-%token MODE MACR INVT FLOW JUMP INIT GOAL TRUE FALSE
+%token MODE MACR INVT FLOW JUMP INIT GOAL IND TRUE FALSE
 %token AND OR
 %token EOF
 %token <float> FNUM
@@ -31,7 +31,7 @@ open Type
 
 %%
 
-main: varDecl_list mode_list init goal {
+main: varDecl_list mode_list init goal ind {
   let vardecl_list = $1 in
   let (float_list, intv_list) =
     List.partition
@@ -43,7 +43,8 @@ main: varDecl_list mode_list init goal {
   let modemap = Modemap.of_list $2 in
   let (init_mode, init_formula) = $3 in
   let goal = $4 in
-  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal)
+  let ginv = $5 in
+  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv)
 }
 ;
 
@@ -96,6 +97,7 @@ formulas: /* */ { [] }
 formula:
     TRUE                { Basic.True }
   | FALSE               { Basic.False }
+  | NOT formula         { Basic.Not $2 }
   | LP formula RP       { $2 }
   | AND formulas        { Basic.make_and $2 }
   | OR  formulas        { Basic.make_or  $2 }
@@ -152,6 +154,13 @@ init: INIT COLON mode_formula { $3 }
 
 goal: GOAL COLON mode_formula_list { $3 }
 ;
+
+ind: IND COLON formula_list { $3 }
+;
+
+formula_list:
+  | /**/ { [] }
+  | formula SEMICOLON formula_list { $1 :: $3 }
 
 mode_formula_list: /* */ { [] }
   | mode_formula mode_formula_list { $1::$2 }

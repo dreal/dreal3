@@ -28,10 +28,12 @@
      ("jump", JUMP);
      ("init", INIT);
      ("goal", GOAL);
+     ("ind", IND);
      ("true", TRUE);
      ("false", FALSE);
      ("and", AND);
      ("or", OR);
+     ("not", NOT);
     ]
 }
 
