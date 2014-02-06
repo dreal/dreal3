@@ -4,7 +4,7 @@ OPT =
 
 h1:
 	$(BMC) -k 2 prostate_h1.drh
-	time find . -name "prostate_h1_*.smt2" -exec echo -n {} "    " ";" -exec $(DREAL) --precision=0.001 --visualize $(OPT) {} ";"
+	time find . -name "prostate_h1_*.smt2" -exec echo -n {} "    " ";" -exec $(DREAL) --precision=0.005 --visualize $(OPT) {} ";"
 
 h2:
 	$(BMC) -k 2 prostate_h2.drh
