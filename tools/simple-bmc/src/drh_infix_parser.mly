@@ -31,7 +31,7 @@ open Type
 
 %%
 
-main: varDecl_list mode_list init goal ind {
+main: varDecl_list mode_list init goal {
   let vardecl_list = $1 in
   let (float_list, intv_list) =
     List.partition
@@ -43,8 +43,7 @@ main: varDecl_list mode_list init goal ind {
   let modemap = Modemap.of_list $2 in
   let (init_mode, init_formula) = $3 in
   let goal = $4 in
-  let ginv = $5 in
-  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv)
+  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal)
 }
 ;
 
@@ -153,9 +152,6 @@ init: INIT COLON mode_formula { $3 }
 ;
 
 goal: GOAL COLON mode_formula_list { $3 }
-;
-
-ind: IND COLON formula_list { $3 }
 ;
 
 formula_list:
