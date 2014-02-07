@@ -181,14 +181,15 @@ rp_problem* icp_solver::create_rp_problem() {
         }
         stringstream buf;
         rp_constraint * c = new rp_constraint;
-        m_rp_constraints.push_back(c);
-        if (l->hasPrecision())
-          m_rp_constraint_deltas.push_back(l->getPrecision());
-        else
-          m_rp_constraint_deltas.push_back(m_config.nra_precision);
+ 
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
+	  m_rp_constraints.push_back(c);
+	  if (l->hasPrecision())
+	    m_rp_constraint_deltas.push_back(l->getPrecision());
+	  else
+	    m_rp_constraint_deltas.push_back(m_config.nra_precision);
             DREAL_LOG_DEBUG("Constraint: " << (l->getPolarity() == l_True ? " " : "Not") << l);
             DREAL_LOG_DEBUG(" : " << constraint_str);
             // Parse the string (infix form) to create the constraint c
@@ -298,14 +299,14 @@ double icp_solver::constraint_width(const rp_constraint * c, rp_box b) const {
   if ( rp_expression_eval(lhs, b) && rp_expression_eval(rhs, b) ){
     // expression value interval is non-empty
     rp_interval res;
-    rp_interval_sub(res, rp_expression_val(lhs), rp_expression_val(rhs));
+    rp_interval_add(res, rp_expression_val(lhs), rp_expression_val(rhs));
 
-    DREAL_LOG_DEBUG("Width: LHS: [" << rp_binf(rp_expression_val(lhs))
-		    << ", " << rp_bsup(rp_expression_val(lhs)) << "], RHS: [" 
-		    << rp_binf(rp_expression_val(rhs)) << ", " 
-		    << rp_bsup(rp_expression_val(rhs)) << "], RES: [" 
-		    << rp_binf(res) << ", " 
-		    << rp_bsup(res) << "]"  );
+    // DREAL_LOG_DEBUG("Width: LHS: [" << rp_binf(rp_expression_val(lhs))
+    // 		    << ", " << rp_bsup(rp_expression_val(lhs)) << "], RHS: [" 
+    // 		    << rp_binf(rp_expression_val(rhs)) << ", " 
+    // 		    << rp_bsup(rp_expression_val(rhs)) << "], RES: [" 
+    // 		    << rp_binf(res) << ", " 
+    // 		    << rp_bsup(res) << "]"  );
 
     return rp_interval_width(res);
   }
@@ -330,7 +331,7 @@ int icp_solver::get_var_split_delta(rp_box b) {
       if ( residual  > max_width ) {
 	max_width = residual;
 	max_constraint = i;
-	DREAL_LOG_DEBUG("Max Constraint: " << i << " Max Residual: " << max_width);
+	//	DREAL_LOG_DEBUG("Max Constraint: " << i << " Max Residual: " << max_width);
 	l->print_infix(buf, l->getPolarity());
 	string constraint_str = buf.str();
 	DREAL_LOG_DEBUG(constraint_str);
@@ -352,14 +353,14 @@ int icp_solver::get_var_split_delta(rp_box b) {
       if( width > max_width ) {
 	max_width = width;
 	max_var = var;
-	DREAL_LOG_DEBUG("Max Var: " << max_var << " Max Width: " << max_width);
+	//	DREAL_LOG_DEBUG("Max Var: " << max_var << " Max Width: " << max_width);
       }
     }
-    DREAL_LOG_DEBUG("Delta Split: " << max_var);
+    //    DREAL_LOG_DEBUG("Delta Split: " << max_var);
     return max_var;
   }
   else{
-    DREAL_LOG_DEBUG("Delta Split: -1");
+    //    DREAL_LOG_DEBUG("Delta Split: -1");
     return ( -1 );
   }
 }
@@ -389,12 +390,14 @@ bool icp_solver::is_box_within_delta(rp_box b) {
 			      m_config.nra_precision)
 		      << "]");
       if ( width > 2.0*(*d) ){
+	DREAL_LOG_DEBUG("Not Within Delta");
 	return false;
       }
       d++;
       i++;
     }
   }
+  DREAL_LOG_DEBUG("Within Delta");
   return true; // no constraint width is outside of delta or unsat
 }
 
