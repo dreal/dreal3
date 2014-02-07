@@ -24,8 +24,8 @@ let main_routine vardecl_list mode_list init goal ginv =
 %token SIN COS TAN
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
-%token LOG EXP SQRT
-%token MODE MACR INVT FLOW JUMP INIT GOAL IND TRUE FALSE
+%token LOG EXP SQRT 
+%token MODE MACR INVT FLOW JUMP INIT GOAL IND TRUE FALSE TIME_PRECISION
 %token AND OR
 %token EOF
 %token <float> FNUM
@@ -64,13 +64,17 @@ mode_list: /* */ { [] }
   | mode mode_list { $1::$2 }
 ;
 
-mode: LC mode_id invts_op flows jumps RC
+mode: LC mode_id time_precision invts_op flows jumps RC
   {
-    Mode.make ($2, $3, $4, Jumpmap.of_list $5)
+    Mode.make ($2, $3, $4, $5, Jumpmap.of_list $6)
   }
 ;
 
 mode_id: MODE FNUM SEMICOLON { int_of_float $2 }
+;
+
+time_precision: TIME_PRECISION COLON FNUM SEMICOLON { $3 }
+| { 0.0 }
 ;
 
 invts_op: /* nothing */ { None }

@@ -36,6 +36,7 @@
      ("unsat", UNSAT);
      ("not", NOT);
      ("HOLE", HOLE);
+     ("tprecision", TIME_PRECISION);
     ]
 }
 

@@ -944,12 +944,14 @@ module Mode = struct
   type jumpmap = Jumpmap.t
 
   type t = {mode_id: id;
+            time_precision: float;
             invs_op: invs option;
             flows: ode list;
             jumpmap: jumpmap}
 
-  let make (id, invs_op, flows, jumpmap)
+  let make (id, t_precision, invs_op, flows, jumpmap)
       = {mode_id= id;
+         time_precision = t_precision;
          invs_op= invs_op;
          flows= flows;
          jumpmap= jumpmap}
@@ -960,6 +962,14 @@ module Mode = struct
                jumpmap= jumpmap}
       = id
 
+  let time_precision 
+            {mode_id= id;
+             time_precision= time_precision;
+             invs_op= invs_op;
+             flows= flows;
+             jumpmap= jumpmap}
+      = time_precision
+	     
   let invs_op {mode_id= id;
                invs_op= invs_op;
                flows= flows;
@@ -1085,7 +1095,8 @@ module Hybrid = struct
       Map.map
         (fun m ->
           Mode.make
-            (Mode.mode_id m,
+  	    (Mode.mode_id m,
+	     Mode.time_precision m,
              begin
                match (Mode.invs_op m) with
                  None -> None
