@@ -1,0 +1,73 @@
+#define inf 100
+
+[-inf,+inf] x;		/* robot position: x */
+[-inf,+inf] y;		/* robot position: y */
+[-inf,+inf] v;		/* robot translational velocity */
+[-inf,+inf] a;		/* robot translational acceleration */
+[-inf,+inf] w;		/* robot rotational velocity */
+[-inf,+inf] dx;         /* robot orientation: x */
+[-inf,+inf] dy;         /* robot orientation: y */
+[-inf,+inf] cx;		/* rotation center: x */
+[-inf,+inf] cy;		/* rotation center: y */
+[100] r;		/* radius of curve */
+[-inf,+inf] ox;		/* position summary of obstacles */
+[-inf,+inf] oy;
+[-inf,+inf] odx;	/* direction and linear velocity of obstacles */
+[-inf,+inf] ody;
+[0, 0.01] time;		/* time */
+
+[0.1] ep;		/* time limit for control decisions */
+[+inf] b;		/* minimum braking capability of the robot */
+[+inf] A;		/* maximum acceleration -b <= a <= A */
+[+inf] V;		/* maximum velocity of obstacles */
+[+inf] Om;		/* max. rotational velocity for dynamic window */
+
+{mode 1;
+
+        invt:
+                v>=0;
+        flow:
+                d/dt[x] = v;
+                d/dt[y] = v;
+                d/dt[dx] = -w * dy;
+                d/dt[dy] = w * dx;
+                d/dt[v] = a;
+                d/dt[w] = a/r;
+                d/dt[ox] = odx;
+                d/dt[oy] = ody;
+                d/dt[tau] = 1;
+                d/dt[a] = 0;
+                d/dt[cx] = 0;
+                d/dt[cy] = 0;
+                d/dt[odx] = 0;
+                d/dt[ody] = 0;
+        jump:
+                (tau >= ep) ==> @1 // random(a',cx',cy',r',w',dx',dy',ox',oy')
+                (and
+                 (v' = v)
+                 (dx' = -1/r*(y'-cy'))
+                 (dy' = 1/r*(x'-cx'))
+                 (and (a' >= -b) (a' <= A))
+                 (and (r' > 0) (r'^2 = (x' - cx')^2 + (y' - cy')^2))
+                 (and (w' * r' = v') (w'>= -Om) (w' <= Om))
+                 (sqrt((x' - ox')^2) > v'^2/(2*b) + (A/b + 1) * (A/2 * ep^2 + ep*v') + V * (ep + (v' + A*ep) / b))
+                 (sqrt((y' - oy')^2) > v'^2/(2*b) + (A/b + 1) * (A/2 * ep^2 + ep*v') + V * (ep + (v' + A*ep) / b))
+                 );
+                (v = 0) ==> @1 (and (a = 0) (w = 0));
+}
+
+init:
+@1 (and (v >= 0)
+     (sqrt((x - ox)^2) > v^2 / (2*b) + v*V / b)
+     (sqrt((y - oy)^2) > v^2 / (2*b) + v*V / b)
+     (r > 0)
+     (dx^2 + dy^2 = 1)
+     (A >= 0) (b > 0) (V >= 0) (Om >= 0) (ep > 0)
+     );
+
+goal:
+@1 true;
+
+ind:
+(or (v = 0)
+    ((x - ox)^2 + (y - oy)^2 > (v^2/(2*b) + V * v/b)^2));

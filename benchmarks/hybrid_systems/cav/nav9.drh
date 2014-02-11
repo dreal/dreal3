@@ -1,0 +1,284 @@
+[0,4] x;
+[0,5] y;
+[-10,10] vx;
+[-10,10] vy;
+
+{mode 1;
+invt:
+    (x>=0);
+    (x<=1);
+    (y>=0);
+    (y<=1);
+flow:	  
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy + 1 - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 0.1*vy^3;
+jump:
+(and (y = 1) (vy >= 0)) => @4;
+
+}
+
+  {
+mode 2;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 1 - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 0.1*vy^3;
+   
+
+   invt:
+   	(x>=2);
+	(x<=3);
+	(y>=0);
+	(y<=1);
+jump:
+(and (y = 1) (vy >= 0)) ==> @6;
+(and (x = 3) (vx >= 0)) ==> @3;
+
+  }
+  
+
+  {
+mode 3;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 1 - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 0.1*vy^3;
+   
+   invt:
+    	(x>=3);
+	(x<=4);
+	(y>=0);
+	(y<=1);
+jump:
+(and (x = 3) (vx <= 0)) ==> @2;
+(and (y = 1) (vy >= 0)) ==> @7; 
+
+  }
+  
+
+  {
+mode 4;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy + 1 - 0.1*vy^3;
+   
+
+   invt:
+   	x>=0;
+	x<=1;
+	y>=1;
+	y<=2;
+jump:
+  (and (y = 1) (vy <= 0)) ==> @1;
+  (and (x = 1) (vx >= 0)) ==> @5;
+
+  }
+  
+  
+  {
+mode 5;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 0.7017 - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy + 0.7017 - 0.1*vy^3;
+   
+   invt:
+   	x>=1;
+	x<=2;
+	y>=1;
+	y<=2;
+jump:
+ (and (x = 1) (vx <= 0)) ==> @4;
+ (and (x = 2) (vx >= 0)) ==> @6; 
+ (and (y = 2) (vy >= 0)) ==> @8; 
+  }
+  
+
+  {
+mode 6;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 0.7017 - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 0.7017 - 0.1*vy^3;
+
+   inv:
+   	x>=2;
+	x<=3;
+	y>=1;
+	y<=2;
+jump:
+(and (x = 2) (vx <= 0)) ==> @5;
+(and (x = 3) (vx >= 0)) ==> @7;
+(and (y = 1) (vy <= 0)) ==> @2; 
+(and (y = 2) (vy >= 0)) ==> @9;
+
+  }
+  
+  {
+mode 7;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 0.7017 - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 0.7017 - 0.1*vy^3;
+
+   invt:
+	x>=3;
+	x<=4;
+	y>=1;
+	y<=2;
+jump:
+	(and (x = 3) (vx <= 0)) ==> @6;
+	(and (y = 1) (vy <= 0)) ==> @3;
+(and (y = 2) (vy >= 0)) ==> @10;
+
+  }
+  
+
+  {
+mode 8;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 1 - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 0.1*vy^3;
+   
+   invt:
+   x>=1;
+	x<=2;
+	y>=2;
+	y<=3;
+  jump:
+ (and (y = 2) (vy <= 0)) ==> @5;
+ (and (x = 2) (vx >= 0)) ==> @9;
+ (and (y = 3) (vy >= 0))==> @12;
+  }
+  
+
+  {
+mode 9;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 1 - 0.1*vy^3;
+
+   invt:
+   	x>=2;
+	x<=3;
+	y>=2;
+	y<=3;
+jump:
+(and (y = 2) (vy <= 0)) ==> @6;
+(and (x = 2) (vx <= 0)) ==> @8;
+(and (x = 3) (vx >= 0)) ==> @10;
+(and (y = 3) (vy >= 0)) ==> @13;
+
+  }
+  
+
+  {
+mode 10;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 1 - 0.1*vy^3;
+   
+   invt:
+   	x>=3;
+	x<=4;
+	y>=2;
+	y<=3;
+jump:
+(and (y = 2) (vy <= 0)) ==> @7;
+(and (x = 2) (vx <= 0)) ==> @9;
+(and (y = 3) (vy >= 0)) ==> @14;
+
+  }
+  
+
+  {
+mode 11;
+    flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 1 - 0.1*vy^3;
+   invt:
+   x>=0; x<=1; y>=3; y<=4;
+
+jump:
+(and (x = 1) (vx >= 0))==>@12;
+  }
+  
+  {
+mode 12;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 1 - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 0.1*vy^3;
+
+   invt:
+   x>=1;x<=2;y>=3;y<=4;
+
+jump:
+(and (x = 1) (vx <= 0)) ==> @11;
+(and (x = 2) (vx >= 0)) ==> @13;
+(and (y = 3) (vy <= 0)) ==> @8;
+
+  }
+  
+  {
+mode 13;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 1 - 0.1*vy^3;
+   
+   invt:
+   x>=2; x<=3; y>=3; y<=4;
+
+jump:
+(and (x = 2) (vx <= 0)) ==> @12;
+(and (x = 3) (vx >= 0)) ==> @14;
+(and (y = 3) (vy <= 0)) ==> @9;
+
+  }
+  
+
+  {
+mode 14;
+   flow:
+    d/dt[x] = vx;
+    d/dt[y] = vy;
+    d/dt[vx] = -1.8*vx - 0.2*vy - 0.1*vx^3;
+    d/dt[vy] = -0.2*vx - 1.8*vy - 1 - 0.1*vy^3;
+   
+   invt:
+   x>=3;x<=4;y>=3;y<=4;
+
+jump:
+(and (x = 3) (vx <= 0)) ==> @13;
+(and (y = 3) (vy <= 0)) ==> @10;
+  }
+
+
+init:
+@14 (and (x>=3) (x<=3.5) (vx >=-0.1) (vx<=0.1) (vy>=-0.8) (vy <= -0.5));
+
+goal:
+@4 (y = 2);
+@8 (x = 1);
+@11 (x = 3);
+
