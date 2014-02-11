@@ -1,0 +1,285 @@
+#define pi	3.14
+#define wsqsum  ((w1)^2 + (w2)^2 + (w3)^2 + (w4)^2)
+
+//inertia
+#define Ixx	0.0075
+#define Iyy	0.0075
+#define Izz	0.013
+
+//torques
+#define tauphi		L*k*((w1)^2 - (w3)^2)
+#define tauthe		L*k*((w2)^2 - (w4)^2)
+#define taupsi		b*((w1)^2 - (w2)^2 + (w3)^2 - (w4)^2)
+
+//constants
+#define L	0.23
+#define kd	7.5e-7
+#define k       5.2
+#define m	0.650
+#define b       3.13e-5
+#define g       9.8
+
+[-300, 300] x;
+[-300, 300] y;
+[-2000, 2000] z;
+
+[0, 2] w1;
+[0, 2] w2;
+[0, 2] w3;
+[0, 2] w4;
+
+[-200, 200] xdot;
+[-200, 200] ydot;
+[-200, 2000] zdot;
+
+[-2, 2] phi;
+[-2, 2] the;
+[-2, 2] psi;
+
+[-100, 100] omegax;
+[-100, 100] omegay;
+[-100, 100] omegaz;
+
+[0,1.5] time;
+[0,5] tau;
+
+{mode 1;
+invt:
+               (zdot <= 40);
+flow:
+                d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
+                d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
+                d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
+
+                d/dt[phi] = omegax
+                            + (sin(phi)*sin(the)/
+                              ((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay
+                            + (sin(the)/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz;
+
+                d/dt[the] = (-sin(phi)^2*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)^2) + 1/cos(phi))*omegay
+                            + (-sin(phi)*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegaz;
+
+                d/dt[psi] = (sin(phi)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay
+                            + (1/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz;
+
+                d/dt[xdot] = (1/m)*(sin(the)*sin(psi)*k*wsqsum - kd*xdot);
+                d/dt[ydot] = (1/m)*(-cos(psi)*sin(the)*k*wsqsum - kd*ydot);
+                d/dt[zdot] = (1/m)*(+g+cos(the)*k*wsqsum + kd*zdot);
+
+                d/dt[x] = xdot;
+                d/dt[y] = ydot;
+                d/dt[z] = zdot;
+
+                d/dt[w1] = 0;
+                d/dt[w2] = 0;
+                d/dt[w3] = 0;
+                d/dt[w4] = 0;
+
+                d/dt[tau] = 1;
+
+        jump: (zdot = 40)
+              ==> @2 (and (phi' = phi)
+                          (the' = the)
+                          (psi' = psi)
+                          (omegax' = omegax)
+                          (omegay' = omegay)
+                          (omegaz' = omegaz)
+                          (x' = x)
+                          (y' = y)
+                          (z' = z)
+                          (xdot' = xdot)
+                          (ydot' = ydot)
+                          (zdot' = zdot)
+                          (tau' = tau)
+                          (w1' = 0.05)
+                          (w2' = 1.00)
+                          (w3' = 0.0)
+                          (w4' = 1.00)
+                          );
+}
+
+{mode 2;
+invt:
+               (zdot <= 40);
+               (zdot >= 0);
+flow:
+                d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
+                d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
+                d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
+
+                d/dt[phi] = omegax
+                            + (sin(phi)*sin(the)/
+                              ((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay
+                            + (sin(the)/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz;
+
+                d/dt[the] = (-sin(phi)^2*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)^2) + 1/cos(phi))*omegay
+                            + (-sin(phi)*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegaz;
+
+                d/dt[psi] = (sin(phi)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay
+                            + (1/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz;
+
+                d/dt[xdot] = (1/m)*(sin(the)*sin(psi)*k*wsqsum - kd*xdot);
+                d/dt[ydot] = (1/m)*(-cos(psi)*sin(the)*k*wsqsum - kd*ydot);
+                d/dt[zdot] = (1/m)*(-g-cos(the)*k*wsqsum - kd*zdot);
+
+                d/dt[x] = xdot;
+                d/dt[y] = ydot;
+                d/dt[z] = zdot;
+
+                d/dt[w1] = 0;
+                d/dt[w2] = 0;
+                d/dt[w3] = 0;
+                d/dt[w4] = 0;
+
+                d/dt[tau] = 1;
+
+        jump: (zdot <= 0)
+              ==> @3 (and (phi' = phi)
+                          (the' = the)
+                          (psi' = psi)
+                          (omegax' = omegax)
+                          (omegay' = omegay)
+                          (omegaz' = omegaz)
+                          (x' = x)
+                          (y' = y)
+                          (z' = z)
+                          (xdot' = xdot)
+                          (ydot' = ydot)
+                          (zdot' = zdot)
+                          (tau' = tau)
+                          (w1' = 1.0)
+                          (w2' = 0.05)
+                          (w3' = 1.0)
+                          (w4' = 0.0)
+                          );
+}
+
+{mode 3;
+invt:
+               (zdot <= 0);
+               (zdot >= -20);
+
+flow:
+                d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
+                d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
+                d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
+
+                d/dt[phi] = omegax
+                            + (sin(phi)*sin(the)/
+                              ((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay
+                            + (sin(the)/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz;
+
+                d/dt[the] = (-sin(phi)^2*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)^2) + 1/cos(phi))*omegay
+                            + (-sin(phi)*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegaz;
+
+                d/dt[psi] = (sin(phi)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay
+                            + (1/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz;
+
+                d/dt[xdot] = (1/m)*(sin(the)*sin(psi)*k*wsqsum - kd*xdot);
+                d/dt[ydot] = (1/m)*(-cos(psi)*sin(the)*k*wsqsum - kd*ydot);
+                d/dt[zdot] = (1/m)*(-g-cos(the)*k*wsqsum - kd*zdot);
+
+                d/dt[x] = xdot;
+                d/dt[y] = ydot;
+                d/dt[z] = zdot;
+
+                d/dt[w1] = 0;
+                d/dt[w2] = 0;
+                d/dt[w3] = 0;
+                d/dt[w4] = 0;
+
+                d/dt[tau] = 1;
+
+        jump: (zdot <= -20)
+              ==> @4 (and (phi' = phi)
+                          (the' = the)
+                          (psi' = psi)
+                          (omegax' = omegax)
+                          (omegay' = omegay)
+                          (omegaz' = omegaz)
+                          (x' = x)
+                          (y' = y)
+                          (z' = z)
+                          (xdot' = xdot)
+                          (ydot' = ydot)
+                          (zdot' = zdot)
+                          (tau' = tau)
+                          (w1' = 0)
+                          (w2' = 1)
+                          (w3' = 0.05)
+                          (w4' = 1)
+                          );
+}
+
+{mode 4;
+invt:
+               (z >= 100);
+flow:
+                d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
+                d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
+                d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
+
+                d/dt[phi] = omegax
+                            + (sin(phi)*sin(the)/
+                              ((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay
+                            + (sin(the)/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz;
+
+                d/dt[the] = (-sin(phi)^2*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)^2) + 1/cos(phi))*omegay
+                            + (-sin(phi)*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegaz;
+
+                d/dt[psi] = (sin(phi)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay
+                            + (1/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz;
+
+                d/dt[xdot] = (1/m)*(sin(the)*sin(psi)*k*wsqsum - kd*xdot);
+                d/dt[ydot] = (1/m)*(-cos(psi)*sin(the)*k*wsqsum - kd*ydot);
+                d/dt[zdot] = (1/m)*(+g+cos(the)*k*wsqsum + kd*zdot);
+
+                d/dt[x] = xdot;
+                d/dt[y] = ydot;
+                d/dt[z] = zdot;
+
+                d/dt[w1] = 0;
+                d/dt[w2] = 0;
+                d/dt[w3] = 0;
+                d/dt[w4] = 0;
+
+                d/dt[tau] = 1;
+
+        jump: (z >= 500)
+              ==> @1 (and (phi' = phi)
+                          (the' = the)
+                          (psi' = psi)
+                          (omegax' = omegax)
+                          (omegay' = omegay)
+                          (omegaz' = omegaz)
+                          (x' = x)
+                          (y' = y)
+                          (z' = z)
+                          (xdot' = xdot)
+                          (ydot' = ydot)
+                          (zdot' = zdot)
+                          (tau' = tau)
+                          (w1' = 0)
+                          (w2' = 0)
+                          (w3' = 0)
+                          (w4' = 1)
+                          );
+}
+
+
+init: @1 (and (w1 = 1.0) (w2 = 0.0) (w3 = 1.0) (w4 = 0.0)
+              (phi = 0.1) (the = -0.1) (psi = 0.1)
+              (omegax = 0.00)
+              (omegay = 0.01)
+              (omegaz = 0.02)
+              (x = 5)
+              (y = 5)
+              (xdot = 5)
+              (ydot = 5)
+              (z = 200)
+              (zdot = 10)
+              (tau = 0));
+
+goal: @4 (and (tau >= 4.0)
+      (z = 240)
+      );
