@@ -12,7 +12,7 @@ k7:
 
 k23:
 	$(BMC) -k 23 new_cardiac_8m.drh
-	$(DREAL) --precision=0.001 --visualize new_cardiac_8m_23_0.smt2
+	$(DREAL) --precision=0.005 $(OPT) --visualize new_cardiac_8m_23_0.smt2
 
 k31:
 	$(BMC) -k 31 new_cardiac_8m.drh

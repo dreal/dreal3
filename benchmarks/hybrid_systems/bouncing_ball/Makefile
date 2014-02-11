@@ -2,10 +2,6 @@ BMC = ../../../tools/simple-bmc/bmc.sh
 DREAL = dReal
 OPT =
 
-g2:
-	$(BMC)  -k 2 bouncing_ball_with_drag_g.drh
-	$(DREAL) --precision=0.01 --ode-grid=1024 --visualize $(OPT) bouncing_ball_with_drag_g_2.smt2
-
 k2:
 	$(BMC)  -k 2 bouncing_ball_with_drag.drh
 	$(DREAL) --precision=0.01 --ode-grid=1024 --visualize $(OPT) bouncing_ball_with_drag_2_0.smt2
@@ -17,6 +13,7 @@ k4:
 k10:
 	$(BMC)  -k 10 bouncing_ball_with_drag.drh
 	$(DREAL) --precision=0.01 --ode-grid=1024 --visualize bouncing_ball_with_drag_10_0.smt2
+	cp bouncing_ball_with_drag_10_0.smt2.json ~/work/dReal/tools/ODE_visualization/data.json
 
 sk10:
 	$(BMC)  -p "[1,2,1,2,1,2,1,2,1,2,1]" -k 10 bouncing_ball_with_drag2.drh
@@ -26,6 +23,7 @@ sk10:
 k20:
 	$(BMC)  -k 20 bouncing_ball_with_drag.drh
 	$(DREAL) --precision=0.01 --ode-grid=1024 --visualize bouncing_ball_with_drag_20_0.smt2
+	cp bouncing_ball_with_drag_20_0.smt2.json ~/work/dReal/tools/ODE_visualization/data.json
 
 k20-precise:
 	$(BMC)  -p "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1]" -k 20 bouncing_ball_with_drag.drh

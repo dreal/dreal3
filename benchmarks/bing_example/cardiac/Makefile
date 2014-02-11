@@ -19,7 +19,7 @@ to1_bad:
 
 to2_good:
 	$(BMC) -k 3 cardiac_to2_good.drh
-	find . -name "cardiac_to2_good_*.smt2" -exec echo -n {} "    " ";" -exec $(DREAL) --precision=0.001 --ode-grid=256 --proof --visualize $(OPT) {} ";"
+	find . -name "cardiac_to2_good_*.smt2" -exec echo -n {} "    " ";" -exec $(DREAL) --precision=0.01 --visualize $(OPT) {} ";"
 
 to2_bad:
 	$(BMC) -k 3 cardiac_to2_bad.drh
