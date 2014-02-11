@@ -1,0 +1,20 @@
+OASISFormat: 0.4
+Name:        dReal
+Version:     `
+Synopsis:    dReal tool set
+Authors:     
+License:     GPL-3
+Plugins:     META (0.4)
+
+Library basic
+  Path:       ./basic
+  BuildTools: ocamlbuild
+  BuildDepends: batteries
+  Modules:    Basic, Type
+  
+Executable invck
+  Path:       ./invariant-checking/src/
+  BuildTools: ocamlbuild
+  BuildDepends: batteries, basic
+  MainIs:     main.ml
+  

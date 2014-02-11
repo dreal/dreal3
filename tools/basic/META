@@ -1,0 +1,12 @@
+# OASIS_START
+# DO NOT EDIT (digest: 42785142ceeea16d188bbe2d88d4d574)
+version = "`"
+description = "dReal tool set"
+requires = "batteries"
+archive(byte) = "basic.cma"
+archive(byte, plugin) = "basic.cma"
+archive(native) = "basic.cmxa"
+archive(native, plugin) = "basic.cmxs"
+exists_if = "basic.cma"
+# OASIS_STOP
+
