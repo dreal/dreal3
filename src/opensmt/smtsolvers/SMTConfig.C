@@ -353,6 +353,11 @@ SMTConfig::parseCMDLine( int argc
         continue;
     }
 
+    if ( sscanf( buf, "--ode-timeout=%d", &nra_ODE_timeout ) == 1)
+    {
+        continue;
+    }
+
     if ( strcmp( buf, "--ode-parallel" ) == 0 )
     {
         nra_parallel_ODE = true;
@@ -441,6 +446,9 @@ void SMTConfig::printHelp( )
       "\n"
       "   --ode-grid              specify the number of grids that we use in ODE solving\n"
       "                           (Default: 16)\n"
+      "\n"
+      "   --ode-timeout           specify the timeout (msec) to be used in single ODE solving step\n"
+      "                           (Default: +oo)\n"
       "\n"
       "   --ode-parallel          specify to solve ODEs in parallel\n"
       "                           (Default: false)\n"
