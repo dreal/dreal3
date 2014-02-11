@@ -122,15 +122,15 @@ exp:
  | exp SLASH exp          { Basic.Div ($1, $3) }
  | EXP exp                { Basic.Exp $2 }
  | exp CARET exp          { Basic.Pow ($1, $3) }
- | SIN exp                { Basic.Sin $2 }
- | COS exp                { Basic.Cos $2 }
- | TAN exp                { Basic.Tan $2 }
- | ASIN exp               { Basic.Asin $2 }
- | ACOS exp               { Basic.Acos $2 }
- | ATAN exp               { Basic.Atan $2 }
- | SINH exp               { Basic.Sinh $2 }
- | COSH exp               { Basic.Cosh $2 }
- | TANH exp               { Basic.Tanh $2 }
+ | SIN LP exp RP          { Basic.Sin $3 }
+ | COS LP exp RP          { Basic.Cos $3 }
+ | TAN LP exp RP          { Basic.Tan $3 }
+ | ASIN LP exp RP         { Basic.Asin $3 }
+ | ACOS LP exp RP         { Basic.Acos $3 }
+ | ATAN LP exp RP         { Basic.Atan $3 }
+ | SINH LP exp RP         { Basic.Sinh $3 }
+ | COSH LP exp RP         { Basic.Cosh $3 }
+ | TANH LP exp RP         { Basic.Tanh $3 }
 ;
 
 ode_list: /* */ { [] }
