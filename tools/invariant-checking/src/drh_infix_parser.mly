@@ -12,7 +12,7 @@ open Type
 %token SIN COS TAN
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
-%token LOG EXP
+%token LOG EXP SQRT
 %token MODE MACR INVT FLOW JUMP INIT GOAL IND TRUE FALSE
 %token AND OR
 %token EOF
@@ -132,6 +132,7 @@ exp:
  | SINH exp               { Basic.Sinh $2 }
  | COSH exp               { Basic.Cosh $2 }
  | TANH exp               { Basic.Tanh $2 }
+ | SQRT LP exp RP         { Basic.Sqrt $3 }
 ;
 
 ode_list: /* */ { [] }
