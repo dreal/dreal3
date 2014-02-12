@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: efaeb6c670d9666003c7fb9389a58b75)
+# DO NOT EDIT (digest: bbfcac2c818de804c96c341bf20047f5)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -16,14 +16,22 @@
 # Library basic
 "basic/basic.cmxs": use_basic
 <basic/*.ml{,i}>: pkg_batteries
+# Library parsing
+"parsing/parsing.cmxs": use_parsing
+<parsing/*.ml{,i}>: use_basic
+<parsing/*.ml{,i}>: pkg_batteries
 # Executable invck
+"invariant-checking/src/main.byte": use_parsing
 "invariant-checking/src/main.byte": use_basic
 "invariant-checking/src/main.byte": pkg_batteries
+<invariant-checking/src/*.ml{,i}>: use_parsing
 <invariant-checking/src/*.ml{,i}>: use_basic
 <invariant-checking/src/*.ml{,i}>: pkg_batteries
 # Executable bmc
+"simple-bmc/src/main.byte": use_parsing
 "simple-bmc/src/main.byte": use_basic
 "simple-bmc/src/main.byte": pkg_batteries
+<simple-bmc/src/*.ml{,i}>: use_parsing
 <simple-bmc/src/*.ml{,i}>: use_basic
 <simple-bmc/src/*.ml{,i}>: pkg_batteries
 # OASIS_STOP

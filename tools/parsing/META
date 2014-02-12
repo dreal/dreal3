@@ -1,0 +1,12 @@
+# OASIS_START
+# DO NOT EDIT (digest: c3fdd9ea0eb3b754a5732a540906ccc6)
+version = "`"
+description = "dReal tool set"
+requires = "basic"
+archive(byte) = "parsing.cma"
+archive(byte, plugin) = "parsing.cma"
+archive(native) = "parsing.cmxa"
+archive(native, plugin) = "parsing.cmxs"
+exists_if = "parsing.cma"
+# OASIS_STOP
+

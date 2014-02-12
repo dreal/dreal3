@@ -19,6 +19,7 @@
      ("sinh", SINH);
      ("cosh", COSH);
      ("tanh", TANH);
+     ("sqrt", SQRT);
      ("log", LOG);
      ("exp", EXP);
      ("mode", MODE);

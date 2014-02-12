@@ -12,7 +12,7 @@ open Type
 %token SIN COS TAN
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
-%token LOG EXP
+%token LOG EXP SQRT
 %token MODE MACR INVT FLOW JUMP INIT GOAL IND TRUE FALSE
 %token AND OR
 %token EOF
@@ -31,7 +31,7 @@ open Type
 
 %%
 
-main: varDecl_list mode_list init goal {
+main: varDecl_list mode_list init goal ind {
   let vardecl_list = $1 in
   let (float_list, intv_list) =
     List.partition
@@ -43,7 +43,8 @@ main: varDecl_list mode_list init goal {
   let modemap = Modemap.of_list $2 in
   let (init_mode, init_formula) = $3 in
   let goal = $4 in
-  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal)
+  let ginv = $5 in
+  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv)
 }
 ;
 
@@ -120,11 +121,13 @@ exp:
  }
  | exp AST exp            { Basic.Mul [$1; $3] }
  | exp SLASH exp          { Basic.Div ($1, $3) }
- | EXP exp                { Basic.Exp $2 }
  | exp CARET exp          { Basic.Pow ($1, $3) }
- | SIN LP exp RP          { Basic.Sin $3 }
- | COS LP exp RP          { Basic.Cos $3 }
- | TAN LP exp RP          { Basic.Tan $3 }
+ | SQRT LP exp RP         { Basic.Sqrt $3 }
+ | LOG  LP exp RP         { Basic.Log  $3 }
+ | EXP  LP exp RP         { Basic.Exp  $3 }
+ | SIN  LP exp RP         { Basic.Sin  $3 }
+ | COS  LP exp RP         { Basic.Cos  $3 }
+ | TAN  LP exp RP         { Basic.Tan  $3 }
  | ASIN LP exp RP         { Basic.Asin $3 }
  | ACOS LP exp RP         { Basic.Acos $3 }
  | ATAN LP exp RP         { Basic.Atan $3 }
@@ -152,6 +155,9 @@ init: INIT COLON mode_formula { $3 }
 ;
 
 goal: GOAL COLON mode_formula_list { $3 }
+;
+
+ind: IND COLON formula_list { $3 }
 ;
 
 formula_list:

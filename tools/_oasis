@@ -11,16 +11,22 @@ Library basic
   BuildTools: ocamlbuild
   BuildDepends: batteries
   Modules:    Basic, Type
+ 
+Library parsing
+  Path:       ./parsing/
+  BuildTools: ocamlbuild
+  BuildDepends: basic
+  Modules:    Drh_infix_lexer, Drh_infix_parser, Error
   
 Executable invck
   Path:       ./invariant-checking/src/
   BuildTools: ocamlbuild
-  BuildDepends: batteries, basic
+  BuildDepends: batteries, basic, parsing
   MainIs:     main.ml
 
 Executable bmc
   Path:       ./simple-bmc/src/
   BuildTools: ocamlbuild
-  BuildDepends: batteries, basic
+  BuildDepends: batteries, basic, parsing
   MainIs:     main.ml
   
