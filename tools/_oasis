@@ -10,7 +10,7 @@ Library basic
   Path:       ./basic
   BuildTools: ocamlbuild
   BuildDepends: batteries
-  Modules:    Basic, Type
+  Modules:    Type
  
 Library parsing
   Path:       ./parsing/

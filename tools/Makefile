@@ -6,3 +6,6 @@ build:
 
 update:
 	oasis setup
+
+clean:
+	ocaml setup.ml -clean
