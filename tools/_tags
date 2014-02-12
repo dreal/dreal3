@@ -1,7 +1,7 @@
 # OASIS_START
-# DO NOT EDIT (digest: bbfcac2c818de804c96c341bf20047f5)
-# Ignore VCS directories, you can use the same kind of rule outside
-# OASIS_START/STOP if you want to exclude directories that contains
+# DO NOT EDIT (digest: d610e969ef1eb65293237be8f6708086)
+# Ignore VCS directories, you can use the same kind of rule outside 
+# OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
 <**/.svn>: -traverse
 <**/.svn>: not_hygienic
@@ -21,17 +21,21 @@
 <parsing/*.ml{,i}>: use_basic
 <parsing/*.ml{,i}>: pkg_batteries
 # Executable invck
-"invariant-checking/src/main.byte": use_parsing
-"invariant-checking/src/main.byte": use_basic
-"invariant-checking/src/main.byte": pkg_batteries
+"invariant-checking/src/inv_main.native": oasis_executable_invck_native
+<invariant-checking/src/*.ml{,i}>: oasis_executable_invck_native
+"invariant-checking/src/inv_main.native": use_parsing
+"invariant-checking/src/inv_main.native": use_basic
+"invariant-checking/src/inv_main.native": pkg_batteries
 <invariant-checking/src/*.ml{,i}>: use_parsing
 <invariant-checking/src/*.ml{,i}>: use_basic
 <invariant-checking/src/*.ml{,i}>: pkg_batteries
 # Executable bmc
-"simple-bmc/src/main.byte": use_parsing
-"simple-bmc/src/main.byte": use_basic
-"simple-bmc/src/main.byte": pkg_batteries
-<simple-bmc/src/*.ml{,i}>: use_parsing
-<simple-bmc/src/*.ml{,i}>: use_basic
-<simple-bmc/src/*.ml{,i}>: pkg_batteries
+"bmc/src/bmc_main.native": oasis_executable_bmc_native
+<bmc/src/*.ml{,i}>: oasis_executable_bmc_native
+"bmc/src/bmc_main.native": use_parsing
+"bmc/src/bmc_main.native": use_basic
+"bmc/src/bmc_main.native": pkg_batteries
+<bmc/src/*.ml{,i}>: use_parsing
+<bmc/src/*.ml{,i}>: use_basic
+<bmc/src/*.ml{,i}>: pkg_batteries
 # OASIS_STOP

@@ -1,4 +1,4 @@
-OASISFormat: 0.4
+OASISFormat: 0.3
 Name:        dReal
 Version:     `
 Synopsis:    dReal tool set
@@ -22,11 +22,15 @@ Executable invck
   Path:       ./invariant-checking/src/
   BuildTools: ocamlbuild
   BuildDepends: batteries, basic, parsing
-  MainIs:     main.ml
+  MainIs:     inv_main.ml
+  NativeOpt:    -passopt -annot
+  CompiledObject : native
 
 Executable bmc
-  Path:       ./simple-bmc/src/
+  Path:       ./bmc/src/
   BuildTools: ocamlbuild
   BuildDepends: batteries, basic, parsing
-  MainIs:     main.ml
+  MainIs:     bmc_main.ml
+  NativeOpt:    -passopt -annot
+  CompiledObject : native
   
