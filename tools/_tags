@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: e06363ef96e78af09da9c4eb79a09c05)
+# DO NOT EDIT (digest: efaeb6c670d9666003c7fb9389a58b75)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -21,4 +21,9 @@
 "invariant-checking/src/main.byte": pkg_batteries
 <invariant-checking/src/*.ml{,i}>: use_basic
 <invariant-checking/src/*.ml{,i}>: pkg_batteries
+# Executable bmc
+"simple-bmc/src/main.byte": use_basic
+"simple-bmc/src/main.byte": pkg_batteries
+<simple-bmc/src/*.ml{,i}>: use_basic
+<simple-bmc/src/*.ml{,i}>: pkg_batteries
 # OASIS_STOP

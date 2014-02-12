@@ -17,4 +17,10 @@ Executable invck
   BuildTools: ocamlbuild
   BuildDepends: batteries, basic
   MainIs:     main.ml
+
+Executable bmc
+  Path:       ./simple-bmc/src/
+  BuildTools: ocamlbuild
+  BuildDepends: batteries, basic
+  MainIs:     main.ml
   
