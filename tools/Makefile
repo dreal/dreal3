@@ -1,3 +1,9 @@
+all:
+	oasis setup
+	ocaml setup.ml -configure
+	ocaml setup.ml -build
+	
+
 configure:
 	ocaml setup.ml -configure
 
@@ -8,4 +14,8 @@ update:
 	oasis setup
 
 clean:
-	ocaml setup.ml -clean
+	-ocaml setup.ml -clean
+
+dist-clean:
+	-ocaml setup.ml -clean
+	-rm setup.ml setup.data _tags myocamlbuild.ml
