@@ -16,7 +16,7 @@ Library parsing
   Path:       ./parsing/
   BuildTools: ocamlbuild
   BuildDepends: basic
-  Modules:    Drh_infix_lexer, Drh_infix_parser, Error
+  Modules:    Drh_lexer, Drh_parser, Error
   
 Executable invck
   Path:       ./invariant-checking/src/

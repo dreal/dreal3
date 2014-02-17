@@ -2,7 +2,7 @@
 
 SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-BMC=${SCRIPTPATH}/main.native
+BMC=${SCRIPTPATH}/../bmc_main.native
 
 #################################################################
 # USAGE

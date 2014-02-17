@@ -1,6 +1,6 @@
 # OASIS_START
-# DO NOT EDIT (digest: 6a31ea13d8d68899c1826bd54be3e86e)
-Drh_infix_lexer
-Drh_infix_parser
+# DO NOT EDIT (digest: 420eb6c89b2efbd9029468ea4a11ffb8)
+Drh_lexer
+Drh_parser
 Error
 # OASIS_STOP

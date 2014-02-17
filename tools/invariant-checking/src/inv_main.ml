@@ -25,7 +25,7 @@ let run () =
   try
     let out = IO.stdout in
     let lexbuf = Lexing.from_channel (if !src = "" then stdin else open_in !src) in
-    let hm = Drh_infix_parser.main Drh_infix_lexer.start lexbuf in
+    let hm = Drh_parser.main Drh_lexer.start lexbuf in
     let smt = Inv_check.compile hm 0.01 in
     begin
       Smt2.print out smt
