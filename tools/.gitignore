@@ -1,3 +1,8 @@
 _build
-main.native
-myocamlbuild
+_tags
+bmc_main.native
+inv_main.native
+myocamlbuild.ml
+setup.data
+setup.log
+setup.ml
