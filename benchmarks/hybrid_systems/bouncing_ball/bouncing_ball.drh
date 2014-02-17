@@ -19,7 +19,7 @@
   invt:
         (>= x 0);
   flow:
-        d/dt[x] = v;
+        d/dt[x] = v; 
         d/dt[v] = g;
   jump:
         (= v 0) ==> @1 (and (= x' x) (= v' v));

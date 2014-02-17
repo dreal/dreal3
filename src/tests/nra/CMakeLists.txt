@@ -7,5 +7,6 @@ FOREACH(instance ${NRA_INSTANCES})
            COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test.sh"
 	   ${DREAL_BINARY} ${instance})
   add_test(NAME "regression_nra_delta_${instance_name}"
-           COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test_delta.sh" ${DREAL_BINARY} ${instance})
+            COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test_delta.sh"
+	    ${DREAL_BINARY} ${instance} ${instance_name})
 ENDFOREACH(instance)

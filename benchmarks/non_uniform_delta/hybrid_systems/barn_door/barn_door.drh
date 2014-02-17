@@ -28,7 +28,7 @@
 
 { mode 2;
 
-  invt:BY401
+  invt:
         (>= on 1);
 	(<= dist 10);
 	(>= dist 10);

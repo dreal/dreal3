@@ -93,6 +93,7 @@ SMTConfig::initializeConfig( )
   nra_ODE_step                 = 0.0;
   nra_contain_ODE              = false;
   delta_test                   = false;
+  use_delta_heuristic          = false;
   init_log();
 }
 
@@ -340,6 +341,13 @@ SMTConfig::parseCMDLine( int argc
         delta_test = true;
         continue;
     }
+
+    if ( strcmp( buf, "--delta-heuristic" ) == 0 )
+    {
+        use_delta_heuristic = true;
+        continue;
+    }
+
     if ( sscanf( buf, "--ode-step=%lf", &nra_ODE_step ) == 1)
     {
         if(nra_ODE_step <= 0.0)

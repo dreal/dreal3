@@ -45,8 +45,11 @@ icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const &
     rp_init_library();
     m_problem = create_rp_problem();
     m_propag = new rp_propagator(m_problem, 10.0, c.nra_verbose, c.nra_proof_out);
-    //rp_new(m_vselect, rp_selector_existence, (m_problem)); // rp_selector_roundrobin
-    rp_new(m_vselect,rp_selector_existence, (m_problem)); // rp_selector_roundrobin
+    if ( !m_config.use_delta_heuristic ){
+      rp_new(m_vselect, rp_selector_existence, (m_problem)); // rp_selector_roundrobin
+    } else {
+      rp_new(m_vselect, rp_selector_delta, (m_problem)); // rp_selector_roundrobin
+    }
     rp_new(m_dsplit, rp_splitter_bisection, (m_problem)); // rp_splitter_mixed
     // Check once the satisfiability of all the constraints
     // Necessary for variable-free constraints
@@ -181,15 +184,14 @@ rp_problem* icp_solver::create_rp_problem() {
         }
         stringstream buf;
         rp_constraint * c = new rp_constraint;
- 
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
-	  m_rp_constraints.push_back(c);
-	  if (l->hasPrecision())
-	    m_rp_constraint_deltas.push_back(l->getPrecision());
-	  else
-	    m_rp_constraint_deltas.push_back(m_config.nra_precision);
+          m_rp_constraints.push_back(c);
+          if (l->hasPrecision())
+            m_rp_constraint_deltas.push_back(l->getPrecision());
+          else
+            m_rp_constraint_deltas.push_back(m_config.nra_precision);
             DREAL_LOG_DEBUG("Constraint: " << (l->getPolarity() == l_True ? " " : "Not") << l);
             DREAL_LOG_DEBUG(" : " << constraint_str);
             // Parse the string (infix form) to create the constraint c
@@ -302,11 +304,11 @@ double icp_solver::constraint_width(const rp_constraint * c, rp_box b) const {
     rp_interval_add(res, rp_expression_val(lhs), rp_expression_val(rhs));
 
     // DREAL_LOG_DEBUG("Width: LHS: [" << rp_binf(rp_expression_val(lhs))
-    // 		    << ", " << rp_bsup(rp_expression_val(lhs)) << "], RHS: [" 
-    // 		    << rp_binf(rp_expression_val(rhs)) << ", " 
-    // 		    << rp_bsup(rp_expression_val(rhs)) << "], RES: [" 
-    // 		    << rp_binf(res) << ", " 
-    // 		    << rp_bsup(res) << "]"  );
+    //              << ", " << rp_bsup(rp_expression_val(lhs)) << "], RHS: ["
+    //              << rp_binf(rp_expression_val(rhs)) << ", "
+    //              << rp_bsup(rp_expression_val(rhs)) << "], RES: ["
+    //              << rp_binf(res) << ", "
+    //              << rp_bsup(res) << "]"  );
 
     return rp_interval_width(res);
   }
@@ -314,8 +316,8 @@ double icp_solver::constraint_width(const rp_constraint * c, rp_box b) const {
 }
 
 int icp_solver::get_var_split_delta(rp_box b) {
-  //get constraint with max residual width
-  
+  // get constraint with max residual width
+
   vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
   int i = 0, max_constraint = -1;
   double max_width = 0.0;
@@ -327,42 +329,91 @@ int icp_solver::get_var_split_delta(rp_box b) {
       const rp_constraint c = rp_problem_ctr(*m_problem, i);
       double width =  constraint_width(&c, b);
       double residual = width-2.0*(*d);
-      //DREAL_LOG_DEBUG("Constraint: " << i << " Residual: " << residual);
+      // DREAL_LOG_DEBUG("Constraint: " << i << " Residual: " << residual);
       if ( residual  > max_width ) {
-	max_width = residual;
-	max_constraint = i;
-	//	DREAL_LOG_DEBUG("Max Constraint: " << i << " Max Residual: " << max_width);
-	l->print_infix(buf, l->getPolarity());
-	string constraint_str = buf.str();
-	DREAL_LOG_DEBUG(constraint_str);
+        max_width = residual;
+        max_constraint = i;
+        //      DREAL_LOG_DEBUG("Max Constraint: " << i << " Max Residual: " << max_width);
+        l->print_infix(buf, l->getPolarity());
+        string constraint_str = buf.str();
+        DREAL_LOG_DEBUG(constraint_str);
       }
       d++;
       i++;
     }
-  }  
-   
+  }
 
-  if(max_constraint > -1) {
-    //get var with max width in max width constraint
+
+  if (max_constraint > -1) {
+    // get var with max width in max width constraint
     const rp_constraint c = rp_problem_ctr(*m_problem, max_constraint);
     max_width = 0.0;
     int max_var = -1;
     for ( i = 0; i < rp_constraint_arity(c); i++ ){
       int var = rp_constraint_var(c, i);
       double width = rp_interval_width(rp_box_elem(b, var));
-      if( width > max_width ) {
-	max_width = width;
-	max_var = var;
-	//	DREAL_LOG_DEBUG("Max Var: " << max_var << " Max Width: " << max_width);
+      if ( width > max_width ) {
+        max_width = width;
+        max_var = var;
+        //      DREAL_LOG_DEBUG("Max Var: " << max_var << " Max Width: " << max_width);
       }
     }
     //    DREAL_LOG_DEBUG("Delta Split: " << max_var);
     return max_var;
-  }
-  else{
+  } else {
     //    DREAL_LOG_DEBUG("Delta Split: -1");
     return ( -1 );
   }
+}
+
+int icp_solver::get_var_split_delta1(rp_box b) {
+  // get var with maximal sum of constraint residuals
+
+  int num_vars = m_rp_variables.size(); // ;rp_box_size(b);
+  double* variable_residuals = new double[num_vars];
+  vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
+  int i;
+
+  for ( i = 0; i < num_vars; i++ ){
+    variable_residuals[i] = 0.0;
+  }
+  DREAL_LOG_DEBUG("num_vars = " << num_vars);
+
+  i = 0;
+  for (auto const l : m_stack) {
+    stringstream buf;
+    l->print_infix(buf, l->getPolarity());
+    string constraint_str = buf.str();
+    if (constraint_str.compare("0 = 0") != 0) {
+      const rp_constraint c = rp_problem_ctr(*m_problem, i);
+      double width =  constraint_width(&c, b);
+      double residual = width-2.0*(*d);
+        DREAL_LOG_DEBUG("c = " << constraint_str);
+      for ( i = 0; i < rp_constraint_arity(c); i++ ){
+        int var = rp_constraint_var(c, i);
+        DREAL_LOG_DEBUG("var = " << var);
+        variable_residuals[var] += residual;
+      }
+      d++;
+      i++;
+    }
+  }
+  for ( i = 0; i < num_vars; i++ ){
+    DREAL_LOG_DEBUG("var = " << var);
+    double var_width = rp_interval_width(rp_box_elem(b, i));
+    variable_residuals[i] *= var_width;
+  }
+  double max_residual = 0.0;
+  int max_var = -1;
+  for ( i = 0; i < num_vars; i++ ){
+    if (variable_residuals[i] > max_residual){
+      max_residual  = variable_residuals[i];
+      max_var = i;
+    }
+  }
+
+  delete [] variable_residuals;
+  return max_var;
 }
 
 
@@ -372,9 +423,10 @@ bool icp_solver::is_box_within_delta(rp_box b) {
   //  check if expression width <= delta
   DREAL_LOG_DEBUG("Checking box width...");
   m_num_delta_checks++;
-  
+
   vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
   int i = 0;
+  bool fail = false;
   for (auto const l : m_stack) {
     stringstream buf;
     l->print_infix(buf, l->getPolarity());
@@ -382,23 +434,28 @@ bool icp_solver::is_box_within_delta(rp_box b) {
     if (constraint_str.compare("0 = 0") != 0) {
       const rp_constraint c = rp_problem_ctr(*m_problem, i);
       double width =  constraint_width(&c, b);
-      DREAL_LOG_DEBUG(i << ": "
-		      <<   constraint_str
-		      << "\t: [" << width << " <= "
-		      << 2.0*(l->hasPrecision() ?
-			      l->getPrecision() :
-			      m_config.nra_precision)
-		      << "]");
-      if ( width > 2.0*(*d) ){
-	DREAL_LOG_DEBUG("Not Within Delta");
-	return false;
+      bool test = width > 2.0*(*d);
+      if (test){
+         DREAL_LOG_DEBUG(i << ": "
+                      <<   constraint_str
+                      << "\t: [" << width << " <= "
+                      << 2.0*(l->hasPrecision() ?
+                              l->getPrecision() :
+                              m_config.nra_precision)
+                      << "]");
+      }
+      if ( test ){
+        //      DREAL_LOG_DEBUG("Not Within Delta");
+        // return false;
+        fail = true;
       }
       d++;
       i++;
     }
   }
-  DREAL_LOG_DEBUG("Within Delta");
-  return true; // no constraint width is outside of delta or unsat
+  // DREAL_LOG_DEBUG("Within Delta");
+  DREAL_LOG_DEBUG("Within Delta = " << (!fail));
+  return !fail; // no constraint width is outside of delta or unsat
 }
 
 rp_box icp_solver::compute_next() {
@@ -408,11 +465,11 @@ rp_box icp_solver::compute_next() {
             // SAT => Split
             rp_box b = m_boxes.get();
             int i = m_vselect->apply(b);
-	    DREAL_LOG_DEBUG("Splitting var: " << i);
+            DREAL_LOG_DEBUG("Splitting var: " << i <<  " " << rp_variable_name(rp_problem_var(*m_problem, i)));
             if (i >= 0 &&
-                ((m_config.delta_test ? 
-		  !is_box_within_delta(b) :
-		  rp_box_width(b) >= m_config.nra_precision))) {
+                ((m_config.delta_test ?
+                  !is_box_within_delta(b) :
+                  rp_box_width(b) >= m_config.nra_precision))) {
                 if (m_config.nra_proof) {
                     m_config.nra_proof_out << endl
                                            << "[branched on "
@@ -469,13 +526,13 @@ bool icp_solver::solve() {
             /* SAT */
             DREAL_LOG_DEBUG("SAT with the following box:");
             if (m_config.nra_verbose) { pprint_vars(cerr, *m_problem, b); pprint_lits(cerr, *m_problem, b); }
-	    DREAL_LOG_DEBUG("SAT");
+            DREAL_LOG_DEBUG("SAT");
             if (m_config.nra_proof) {
                 m_config.nra_proof_out.close();
                 m_config.nra_proof_out.open(m_config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
                 m_config.nra_proof_out << "SAT with the following box:" << endl;
                 pprint_vars(m_config.nra_proof_out, *m_problem, b);
-		pprint_lits(m_config.nra_proof_out, *m_problem, b);
+                pprint_lits(m_config.nra_proof_out, *m_problem, b);
                 m_config.nra_proof_out << endl;
             }
             return true;
@@ -579,13 +636,13 @@ void icp_solver::pprint_lits(ostream & out, rp_problem p, rp_box b) const {
     if (constraint_str.compare("0 = 0") != 0) {
       rp_constraint c = rp_problem_ctr(p, i);
       out << i << ": " <<   constraint_str << "\t: "
-	  << constraint_width(&c, b);
+          << constraint_width(&c, b);
       out << ";";
 
       if (l->hasPrecision())
-	out << " [delta = " << l->getPrecision() << "]";
+        out << " [delta = " << l->getPrecision() << "]";
       else
-	out << " [delta = " << m_config.nra_precision << "]";
+        out << " [delta = " << m_config.nra_precision << "]";
       out << endl;
       i++;
     }
