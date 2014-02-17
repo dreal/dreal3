@@ -1,4 +1,4 @@
-BMC = ../../../tools/simple-bmc/bmc.sh
+BMC = ../../../tools/bmc/bmc.sh
 INV = ../../../tools/invariant-checking/inv.sh
 DREAL = dReal
 OPT =

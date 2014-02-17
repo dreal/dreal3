@@ -1,6 +1,6 @@
-BMC = ../../../tools/simple-bmc/bmc.sh
+BMC = ../../../tools/bmc/bmc.sh
 DREAL = dReal
-OPT = 
+OPT =
 
 k2:
 	$(BMC) -k 2  scaled_prostate_infix.drh

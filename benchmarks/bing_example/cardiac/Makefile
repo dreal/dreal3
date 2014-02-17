@@ -1,4 +1,4 @@
-BMC = ../../../tools/simple-bmc/bmc.sh
+BMC = ../../../tools/simple/bmc.sh
 DREAL= dReal
 OPT =
 good:
