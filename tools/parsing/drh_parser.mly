@@ -5,6 +5,18 @@
 %{
 open Batteries
 open Type
+
+let main_routine vardecl_list mode_list init goal ginv =
+  let (float_list, intv_list) =
+    List.partition
+      (function (_, Value.Num _) -> true | _ -> false)
+      vardecl_list
+  in
+  let vardeclmap = Vardeclmap.of_list intv_list in
+  let macromap = Vardeclmap.of_list float_list in
+  let modemap = Modemap.of_list mode_list in
+  let (init_mode, init_formula) = init in
+  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv)
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
@@ -31,21 +43,8 @@ open Type
 
 %%
 
-main: varDecl_list mode_list init goal ind {
-  let vardecl_list = $1 in
-  let (float_list, intv_list) =
-    List.partition
-      (function (_, Value.Num _) -> true | _ -> false)
-      vardecl_list
-  in
-  let vardeclmap = Vardeclmap.of_list intv_list in
-  let macromap = Vardeclmap.of_list float_list in
-  let modemap = Modemap.of_list $2 in
-  let (init_mode, init_formula) = $3 in
-  let goal = $4 in
-  let ginv = $5 in
-  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv)
-}
+main: varDecl_list mode_list init goal ind { main_routine $1 $2 $3 $4 $5 }
+| varDecl_list mode_list init goal { main_routine $1 $2 $3 $4 [] }
 ;
 
 varDecl_list: /* */ { [] }
