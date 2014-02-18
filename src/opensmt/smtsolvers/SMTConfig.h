@@ -179,7 +179,8 @@ struct SMTConfig
   unsigned     nra_ODE_timeout;               // --ode-timeout option
   double       nra_ODE_step;                  // step control
   bool         nra_contain_ODE;               // contain ODE or not
-  bool         nra_parallel_ODE;              // solve ODE in parallel or not
+  bool         nra_ODE_cache;                 // use cache for ODE computation
+  bool         nra_ODE_parallel;              // solve ODE in parallel or not
 
 private:
 

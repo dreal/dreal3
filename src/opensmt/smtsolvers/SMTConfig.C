@@ -85,7 +85,8 @@ SMTConfig::initializeConfig( )
   nra_icp_improve              = 10.0;
   nra_verbose                  = false;
   nra_proof                    = false;
-  nra_parallel_ODE             = false;
+  nra_ODE_parallel             = false;
+  nra_ODE_cache                = false;
   nra_ODE_taylor_order         = 20;
   nra_ODE_grid_size            = 16;
   nra_ODE_step                 = 0.0;
@@ -358,9 +359,15 @@ SMTConfig::parseCMDLine( int argc
         continue;
     }
 
+    if ( strcmp( buf, "--ode-cache" ) == 0 )
+    {
+        nra_ODE_cache = true;
+        continue;
+    }
+
     if ( strcmp( buf, "--ode-parallel" ) == 0 )
     {
-        nra_parallel_ODE = true;
+        nra_ODE_parallel = true;
         continue;
     }
 
@@ -449,6 +456,9 @@ void SMTConfig::printHelp( )
       "\n"
       "   --ode-timeout           specify the timeout (msec) to be used in single ODE solving step\n"
       "                           (Default: +oo)\n"
+      "\n"
+      "   --ode-cache             enable reusing ODE computation by caching them\n"
+      "                           (Default: false)\n"
       "\n"
       "   --ode-parallel          specify to solve ODEs in parallel\n"
       "                           (Default: false)\n"
