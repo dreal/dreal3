@@ -2,7 +2,7 @@ OASISFormat: 0.3
 Name:        dReal
 Version:     `
 Synopsis:    dReal tool set
-Authors:     
+Authors:
 License:     GPL-3
 Plugins:     META (0.4)
 
@@ -10,14 +10,16 @@ Library basic
   Path:       ./basic
   BuildTools: ocamlbuild
   BuildDepends: batteries
+  NativeOpt:    -passopt -annot
   Modules:    Type, Checker
- 
+
 Library parsing
   Path:       ./parsing/
   BuildTools: ocamlbuild
   BuildDepends: basic
+  NativeOpt:    -passopt -annot
   Modules:    Drh_lexer, Drh_parser, Error
-  
+
 Executable invck
   Path:       ./invariant-checking/src/
   BuildTools: ocamlbuild
@@ -33,4 +35,3 @@ Executable bmc
   MainIs:     bmc_main.ml
   NativeOpt:    -passopt -annot
   CompiledObject : native
-  
