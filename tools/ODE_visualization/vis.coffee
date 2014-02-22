@@ -1,5 +1,5 @@
 color = d3.scale.category10()
-animation_delay = 800
+animation_delay = config.animation_delay
 
 showOnly = (chart, b) ->
   chart.xScale.domain(b);
@@ -51,7 +51,6 @@ processJson = (json) ->
       s = piece.step = _.last(key_strings)
       key_strings = _.initial(key_strings)
       k = piece.key = key_strings.join("_")
-      console.log(piece.mode, s, k)
       if !(k of result)
         result[k] = new Array()
       if !(s of result[k])
@@ -105,7 +104,7 @@ createChart = (json) ->
 
   keys = data.values.length;
 
-  chartHeight = height * (1 / keys);
+  chartHeight = ((height - contextHeight) / keys) - config.inter_chart_margin;
 
   # /* Let's create the context brush that will
   #    let us zoom and pan the chart */
@@ -138,7 +137,7 @@ createChart = (json) ->
   context = svg.append("g")
     .attr("class","context")
     .attr("transform", "translate(" + (0 + margin.left) + "," +
-    (chartHeight * keys + margin.top + margin.bottom) + ")");
+    (margin.top + height - contextHeight) + ")");
 
   context.append("g")
     .attr("class", "x axis top")
@@ -151,7 +150,7 @@ createChart = (json) ->
       id: i,
       name: data.key,
       width: width,
-      height: height * (1 / keys),
+      height: chartHeight,
       domainX: data.domainX,
       svg: svg,
       margin: margin,
@@ -245,7 +244,7 @@ class Chart
     chartContainer = this.chartContainer =
       svg.append("g")
          .attr('class',this.name.toLowerCase())
-         .attr("transform", "translate(" + this.margin.left + "," + (this.margin.top + (this.height * this.id) + (20 * this.id)) + ")");
+         .attr("transform", "translate(" + this.margin.left + "," + (this.margin.top + (this.height * this.id) + (config.inter_chart_margin * this.id)) + ")");
 
     # MODE
     this.chartContainer.selectAll("rect")
@@ -375,15 +374,14 @@ class Chart
         .attr("transform", "translate(15,40)")
         .text(this.name);
 
-margin = {top: 10, right: 40, bottom: 100, left: 60}
-width = 940 - margin.left - margin.right
-height = 500 - margin.top - margin.bottom
-contextHeight = 50
+margin = config.margin
+width = config.width - margin.left - margin.right
+height = config.height - margin.top - margin.bottom
+contextHeight = config.contextHeight
 contextWidth = width
 
 svg = d3.select("#chart-container").append("svg")
   .attr("width", width + margin.left + margin.right)
-  .attr("height", (height + margin.top + margin.bottom + 200));
+  .attr("height", (height + margin.top + margin.bottom));
 
-#d3.csv('data.csv', createChart);
-d3.json('data.json', createChart);
+d3.json(config.jsonfile, createChart);
