@@ -1,33 +1,27 @@
-BMC = ../../../tools/bmc/bmc.sh
-DREAL = dReal
+DREACH = dReach
 OPT =
 
 k3:
-	$(BMC) -k 3 new_cardiac_stim.drh
-	$(DREAL) --precision=0.001 $(OPT) --visualize new_cardiac_stim_3_0.smt2
+	$(DREACH) -k 3 new_cardiac_stim.drh --precision=0.001 --visualize $(OPT)
 
 k7:
-	$(BMC) -k 7 new_cardiac_8m.drh
-	$(DREAL) --precision=0.001 $(OPT) --visualize new_cardiac_8m_7_0.smt2
+	$(DREACH) -k 7 new_cardiac_8m.drh --precision=0.001 --visualize  $(OPT)
 
 k23:
-	$(BMC) -k 23 new_cardiac_8m.drh
-	$(DREAL) --precision=0.005 $(OPT) --visualize new_cardiac_8m_23_0.smt2
+	$(DREACH) -k 23 new_cardiac_8m.drh --precision=0.005 --visualize $(OPT)
 
 k31:
-	$(BMC) -k 31 new_cardiac_8m.drh
-	$(DREAL) --precision=0.001 --visualize new_cardiac_8m_31_0.smt2
+	$(DREACH) -k 31 new_cardiac_8m.drh --precision=0.001 --visualize $(OPT)
 
 k47:
-	$(BMC) -k 47 new_cardiac_8m.drh
-	$(DREAL) --precision=0.001 --visualize new_cardiac_8m_47_0.smt2
+	$(DREACH) -k 47 new_cardiac_8m.drh --precision=0.001 --visualize $(OPT)
 
 k55:
-	$(BMC) -k 55 new_cardiac_8m.drh
-	$(DREAL) --precision=0.001 --visualize new_cardiac_8m_55_0.smt2
+	$(DREACH) -k 55 new_cardiac_8m.drh --precision=0.001 --visualize $(OPT)
 
 clean:
 	rm -f *.preprocessed.drh
 	rm -f *.smt2
 	rm -f *.json
 	rm -f *.proof
+	rm -f *.output

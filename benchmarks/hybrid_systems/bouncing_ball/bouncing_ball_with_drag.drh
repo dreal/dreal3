@@ -1,8 +1,8 @@
+#define D 0.45
+#define K 0.9
 [0, 15] x;
 [9.8] g;
 [-18, 18] v;
-[0.45] d;
-[0.90] k;
 [0, 3] time;
 
 { mode 1;
@@ -12,9 +12,9 @@
         (x >= 0);
   flow:
         d/dt[x] = v;
-        d/dt[v] = -g + (- d * v ^ 1);
+        d/dt[v] = -g + (- D * v ^ 1);
   jump:
-        (x = 0) ==> @2 (and (x' = x) (v' = - k * v));
+        (x = 0) ==> @2 (and (x' = x) (v' = - K * v));
 }
 {
   mode 2;
@@ -23,7 +23,7 @@
         (x >= 0);
   flow:
         d/dt[x] = v;
-        d/dt[v] = -g + (- d * v ^ 1);
+        d/dt[v] = -g + (- D * v ^ 1);
   jump:
         (v = 0) ==> @1 (and (x' = x) (v' = v));
 }

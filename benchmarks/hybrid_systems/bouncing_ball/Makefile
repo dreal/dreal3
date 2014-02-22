@@ -1,60 +1,45 @@
-BMC = ../../../tools/bmc/bmc.sh
-DREAL = dReal
+DREACH = dReach
 OPT =
 
 k2:
-	$(BMC)  -k 2 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.01 --ode-grid=1024 --visualize $(OPT) bouncing_ball_with_drag_2_0.smt2
+	$(DREACH) -k 2 bouncing_ball_with_drag.drh --precision=0.01 --ode-grid=1024 --visualize $(OPT)
 
 k4:
-	$(BMC)  -k 4 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.001 --ode-grid=1024 --visualize $(OPT) bouncing_ball_with_drag_4.smt2
+	$(DREACH) -k 4 bouncing_ball_with_drag.drh --precision=0.001 --ode-grid=1024 --visualize $(OPT)
 
 k10:
-	$(BMC)  -k 10 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.01 --ode-grid=1024 --visualize bouncing_ball_with_drag_10_0.smt2
-	cp bouncing_ball_with_drag_10_0.smt2.json ~/work/dReal/tools/ODE_visualization/data.json
+	$(DREACH) -k 10 bouncing_ball_with_drag.drh --precision=0.01 --ode-grid=1024 --visualize $(OPT)
 
 sk10:
-	$(BMC)  -p "[1,2,1,2,1,2,1,2,1,2,1]" -k 10 bouncing_ball_with_drag2.drh
-	$(DREAL) $(OPT) --precision=0.09 --ode-step=0.09 --ode-order=10 --visualize \
-		bouncing_ball_with_drag2_10.smt2
+	$(DREACH) -k 10 bouncing_ball_with_drag2.drh --precision=0.09 --ode-step=0.09 --ode-order=10 --visualize $(OPT)
 
 k20:
-	$(BMC)  -k 20 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.01 --ode-grid=1024 --visualize bouncing_ball_with_drag_20_0.smt2
-	cp bouncing_ball_with_drag_20_0.smt2.json ~/work/dReal/tools/ODE_visualization/data.json
+	$(DREACH) -k 20 bouncing_ball_with_drag.drh --precision=0.01 --ode-grid=1024 --visualize $(OPT)
 
 k20-precise:
-	$(BMC)  -p "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1]" -k 20 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.001 --ode-step=0.01 --ode-grid=16 --visualize bouncing_ball_with_drag_20.smt2
+	$(DREACH) -k 20 bouncing_ball_with_drag.drh --precision=0.001 --ode-step=0.01 --ode-grid=16 --visualize $(OPT)
 
 k20-smallstep:
-	$(BMC)  -p "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1]" -k 20 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.01 --ode-step=0.001 --ode-grid=16 --visualize bouncing_ball_with_drag_20.smt2
+	$(DREACH) -k 20 bouncing_ball_with_drag.drh --precision=0.01 --ode-step=0.001 --ode-grid=16 --visualize $(OPT)
 
 k20-ps:
-	$(BMC)  -p "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1]" -k 20 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.001 --ode-step=0.001 --ode-grid=16 --visualize bouncing_ball_with_drag_20.smt2
+	$(DREACH) -k 20 bouncing_ball_with_drag.drh --precision=0.001 --ode-step=0.001 --ode-grid=16 --visualize $(OPT)
 
 k40:
-	$(BMC)  -p "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1]" -k 40 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.01 --ode-step=0.01 --ode-grid=16 --visualize bouncing_ball_with_drag_40.smt2
+	$(DREACH) -k 40 bouncing_ball_with_drag.drh --precision=0.01 --ode-step=0.01 --ode-grid=16 --visualize $(OPT)
 
 k40-precise:
-	$(BMC)  -p "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1]" -k 40 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.001 --ode-step=0.01 --ode-grid=16 --visualize bouncing_ball_with_drag_40.smt2
+	$(DREACH) -k 40 bouncing_ball_with_drag.drh --precision=0.001 --ode-step=0.01 --ode-grid=16 --visualize $(OPT)
 
 k40-smallstep:
-	$(BMC)  -p "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1]" -k 40 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.01 --ode-step=0.001 --ode-grid=16 --visualize bouncing_ball_with_drag_40.smt2
+	$(DREACH) -k 40 bouncing_ball_with_drag.drh --precision=0.01 --ode-step=0.001 --ode-grid=16 --visualize $(OPT)
 
 k40-ps:
-	$(BMC)  -p "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1]" -k 40 bouncing_ball_with_drag.drh
-	$(DREAL) --precision=0.001 --ode-step=0.001 --ode-grid=16 --visualize bouncing_ball_with_drag_40.smt2
+	$(DREACH) -k 40 bouncing_ball_with_drag.drh --precision=0.001 --ode-step=0.001 --ode-grid=16 --visualize $(OPT)
 
 clean:
 	rm -f *.preprocessed.drh
 	rm -f *.smt2
 	rm -f *.json
 	rm -f *.proof
+	rm -f *.output
