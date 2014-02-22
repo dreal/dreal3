@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# TODO: Specify the paths for BMC tool and DREAL
+BMC=~/work/dreal/tools/bmc_main.native
+DREAL=~/work/dreal/build/release-gcc/dReal
+
+#################################################################
+# USAGE
+#################################################################
+usage()
+{
+    cat << EOF
+usage: $0 options <*.drh> <options to dReal>
+
+dReach: Bounded Model Checking for for Nonlinear Hybrid Systems
+
+OPTIONS:
+   -k      unrolling steps  (default: 3)
+
+EXAMPLE:
+
+   dReach -k 10 bouncing_ball.drh --verbose --precision=0.001 --visualize
+
+EOF
+}
+
+#################################################################
+# Parse Option
+#################################################################
+K=3
+while getopts "hk:p:i" OPTION
+do
+    case $OPTION in
+        h)
+            usage
+            exit 1
+            ;;
+        k)
+            K=$OPTARG
+            ;;
+        \?)
+            usage
+            exit
+            ;;
+    esac
+done
+
+#################################################################
+# Check main.native
+#################################################################
+if [ ! -e $BMC ]
+then
+    echo "BMC Tool is not found at $BMC"
+    echo "Please edit $0 to specify the correct location of BMC tool"
+    exit 1
+fi
+
+if [ ! -e $DREAL ]
+then
+    echo "dReal is not found at $DREAL"
+    echo "Please edit $0 to specify the correct location of dReal"
+    exit 1
+fi
+
+shift $(($OPTIND - 1))
+if [[ ! -e $1 || ! ${1: -4} == ".drh" ]]
+then
+    usage
+    exit 1
+fi
+
+
+BASE=${1%.drh}
+DRH=$BASE.drh
+PDRH=$BASE.preprocessed.drh
+
+# Extract dReal Options
+shift 1
+DREAL_OPT=$*
+echo dReal Options: $DREAL_OPT
+
+# Preprocessing
+sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
+
+# Enumerate all paths and call dReal with options
+PATH_NUM=0
+for P in `$BMC -k $K --pathgen $PDRH`
+do
+
+    SMT=${BASE}_$K_${PATH_NUM}.smt2
+    OUT=${BASE}_$K_${PATH_NUM}.output
+    $BMC -k $K --path "$P" $PDRH > ${SMT}
+    echo SMT: ${SMT}, PATH : $P
+    ${DREAL} ${DREAL_OPT} ${SMT} 2>&1 | tee $OUT
+    RESULT=`tail -n 1 $OUT`
+    if [[ $RESULT == "sat" ]]
+    then
+        echo "sat -- $P"
+        exit 0
+    fi
+    PATH_NUM=$(($PATH_NUM + 1))
+done
+echo "unsat"
