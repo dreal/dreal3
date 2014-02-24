@@ -27,46 +27,61 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "capd/capdlib.h"
+#include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "realpaver/rp_box.h"
 
 class ode_solver {
 public:
-    ode_solver(unsigned group, unsigned sgroup, SMTConfig& c, std::unordered_set<Enode*> const & ode_vars,
+    ode_solver(SMTConfig& c,
+               Egraph & e,
+               Enode * l_int,
+               std::vector<Enode*> invs,
                std::unordered_map<Enode*, int>& enode_to_rp_id);
     ~ode_solver();
-    bool simple_ODE(rp_box b);
-    bool solve_forward(rp_box b);
-    bool solve_backward(rp_box b);
-    void print_trajectory(ostream& out) const;
+    bool                simple_ODE(rp_box b, bool forward);
+    bool                solve_forward(rp_box b);
+    bool                solve_backward(rp_box b);
+    void                print_trajectory(ostream& out) const;
+    double              logVolume_X0(rp_box b) const;
+    double              logVolume_Xt(rp_box b) const;
+    std::vector<double> extractX0T(rp_box b) const;
+    std::vector<double> extractXtT(rp_box b) const;
+    std::vector<double> extractX0XtT(rp_box b) const;
+    unsigned            getMode() const { return m_mode; }
+    std::vector<Enode*> get_X0() const { return m_0_vars; }
+    std::vector<Enode*> get_Xt() const { return m_t_vars; }
+    Enode *             get_Time() const { return m_time; }
 
 private:
     // Private Members
-    unsigned m_group;
-    unsigned m_sgroup;
     SMTConfig& m_config;
-    std::unordered_set<Enode*> const & m_ode_vars;
+    Egraph &                       m_egraph;
+    Enode *                        m_int;
+    std::vector<Enode*>            m_invs;
     rp_box m_b;
     std::unordered_map<Enode*, int>& m_enode_to_rp_id;
     std::list<std::pair<capd::interval, capd::IVector>> m_trajectory;
     double m_stepControl;
 
     std::vector<std::string> m_ode_list;
+    std::vector<std::string> m_par_list;
     std::vector<std::string> m_var_list;
     std::vector<Enode*> m_0_vars;
     std::vector<Enode*> m_t_vars;
+    std::vector<Enode*> m_pars;
     capd::IVector m_X_0;
     capd::IVector m_X_t;
     capd::IVector m_inv;
     Enode * m_time;
     capd::interval m_T;
 
-    std::string m_diff_var;
-    std::string m_diff_fun_forward;
-    std::string m_diff_fun_backward;
     std::string m_diff_sys_forward;
     std::string m_diff_sys_backward;
+
+    unsigned m_mode;
+    unsigned m_step;
 
     std::vector<capd::IFunction> m_funcs;
 
@@ -78,7 +93,7 @@ private:
                      list<pair<capd::interval, capd::IVector>> const & trajectory) const;
     void prune_trajectory(capd::interval& t, capd::IVector& e);
     capd::IVector varlist_to_IVector(vector<Enode*> const & vars);
-    capd::IVector extract_invariants(vector<Enode*> const & vars);
+    capd::IVector extract_invariants();
     void IVector_to_varlist(capd::IVector const & v, vector<Enode*> & vars);
     void prune(vector<Enode*> const & _t_vars, capd::IVector const & v,
                capd::interval const & dt,  capd::interval const & time,
@@ -96,9 +111,9 @@ private:
     bool inner_loop_backward(capd::ITaylor & solver, capd::interval const & prevTime,
                              vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list);
     bool simple_ODE_forward(capd::IVector const & X_0, capd::IVector & X_t, capd::interval const & T,
-                            capd::IVector const & inv, vector<capd::IFunction> const & funcs);
+                            capd::IVector const & inv, vector<capd::IFunction> & funcs);
     bool simple_ODE_backward(capd::IVector & X_0, capd::IVector const & X_t, capd::interval const & T,
-                             capd::IVector const & inv, vector<capd::IFunction> const & funcs);
+                             capd::IVector const & inv, vector<capd::IFunction> & funcs);
 
     // Inline functions
     inline double get_lb(Enode* const e) const { return rp_binf(rp_box_elem(m_b, m_enode_to_rp_id[e])); }
