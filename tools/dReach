@@ -87,9 +87,8 @@ sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
 PATH_NUM=0
 for P in `$BMC -k $K --pathgen $PDRH`
 do
-
-    SMT=${BASE}_$K_${PATH_NUM}.smt2
-    OUT=${BASE}_$K_${PATH_NUM}.output
+    SMT=${BASE}_${K}_${PATH_NUM}.smt2
+    OUT=${BASE}_${K}_${PATH_NUM}.output
     $BMC -k $K --path "$P" $PDRH > ${SMT}
     echo SMT: ${SMT}, PATH : $P
     ${DREAL} ${DREAL_OPT} ${SMT} 2>&1 | tee $OUT
@@ -99,6 +98,6 @@ do
         echo "sat -- $P"
         exit 0
     fi
-    PATH_NUM=$(($PATH_NUM + 1))
+    PATH_NUM=$((${PATH_NUM} + 1))
 done
 echo "unsat"
