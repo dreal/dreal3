@@ -24,11 +24,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include "config.h"
 #include "dsolvers/util/scoped_env.h"
 #include "dsolvers/util/scoped_vec.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
-#include "config.h"
 
 class nra_solver : public OrdinaryTSolver {
 public:
@@ -44,11 +44,7 @@ public:
     void  computeModel();
 
 private:
-    // methods
-    std::unordered_set<Enode *> get_vars(Enode * const e);
-
     // fields
-    scoped_env                 m_env;
-    scoped_vec                 m_stack;
-    std::unordered_map<Enode*, std::unordered_set<Enode *>> m_odevars_in_lit;
+    scoped_env m_env;
+    scoped_vec m_stack;
 };

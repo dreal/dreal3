@@ -34,33 +34,6 @@ nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, S
 
 nra_solver::~nra_solver() { }
 
-// Collect all the variables appeared in a literal e
-unordered_set<Enode *> nra_solver::get_vars (Enode * const e) {
-    unordered_set<Enode *> result;
-    Enode * p = nullptr;
-    if ( e->isSymb()) { /* do nothing */ }
-    else if (e->isNumb()) { /* do nothing */ }
-    else if (e->isTerm()) {
-        if (e -> isVar()) { result.insert(e); }
-        p = e;
-        while (!p->isEnil()) {
-            unordered_set<Enode *> const & tmp_set = get_vars(p->getCar());
-            result.insert(tmp_set.begin(), tmp_set.end());
-            p = p->getCdr();
-        }
-    } else if (e->isList()) {
-        p = e;
-        while (!p->isEnil()) {
-            unordered_set<Enode *> const & tmp_set = get_vars(p->getCar());
-            result.insert(tmp_set.begin(), tmp_set.end());
-            p = p->getCdr();
-        }
-    } else if (e->isDef()) { /* do nothing */ }
-    else if (e->isEnil()) { /* do nothing */ }
-    else opensmt_error("unknown case value");
-    return result;
-}
-
 // `inform` does two operations:
 // 1. set up env (mapping from enode to its [lb, ub])
 // 2. set up _enode_to_vars (mapping from an expr to all the
@@ -69,22 +42,12 @@ lbool nra_solver::inform(Enode * e) {
     DREAL_LOG_DEBUG("===============");
     DREAL_LOG_DEBUG("nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt());
     DREAL_LOG_DEBUG("===============");
-    unordered_set<Enode *> const & vars = get_vars(e);
-    unordered_set<Enode *> ode_vars;
+    unordered_set<Enode *> const & vars = e->get_vars();
     for (auto const & v : vars) {
         DREAL_LOG_DEBUG(v);
         double const lb = v->getLowerBound();
         double const ub = v->getUpperBound();
         m_env.insert(v, make_pair(lb, ub));
-
-        // Collect ODE Vars in e
-        if (config.nra_contain_ODE && v->getODEtimevar() != nullptr && v->getODEgroup() > 0) {
-            DREAL_LOG_DEBUG("Add " << v << " to " << "group: " << v->getODEgroup());
-            ode_vars.insert(v);
-        }
-    }
-    if (config.nra_contain_ODE) {
-        m_odevars_in_lit.insert(make_pair(e, ode_vars));
     }
     return l_Undef;
 }
@@ -144,7 +107,7 @@ bool nra_solver::check(bool complete) {
     DREAL_LOG_DEBUG(m_stack);
     DREAL_LOG_DEBUG("================");
     bool result = true;
-    icp_solver solver(config, m_stack, m_env, explanation, m_odevars_in_lit, complete);
+    icp_solver solver(config, egraph, sstore, m_stack, m_env, explanation, complete);
     if (!complete) {
         // Incomplete Check
         DREAL_LOG_DEBUG("Before Prop" << endl << m_env);
