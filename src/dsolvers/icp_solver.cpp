@@ -25,10 +25,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include "dsolvers/icp_solver.h"
+#include "dsolvers/util/logger.h"
 #include "dsolvers/util/scoped_env.h"
 #include "dsolvers/util/scoped_vec.h"
-#include "dsolvers/util/logger.h"
 
 using std::cerr;
 using std::endl;
@@ -37,16 +38,14 @@ using std::stable_sort;
 using std::unordered_map;
 using std::unordered_set;
 
-icp_solver::icp_solver(SMTConfig & c, scoped_vec const & stack, scoped_env & env,
-                       vector<Enode*> & exp, unordered_map<Enode*, unordered_set<Enode*>> & odevars_in_lit,
-                       bool complete_check)
-    : m_config(c), m_propag(nullptr), m_boxes(env.size()), m_ep(nullptr), m_sol(0),
-      m_nsplit(0), m_explanation(exp), m_stack(stack), m_env(env), m_num_ode_sgroups(1),
-      m_odevars_in_lit(odevars_in_lit), m_diff_vec(1), m_complete_check(complete_check) {
+icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const & stack, scoped_env & env,
+                       vector<Enode*> & exp, bool complete_check)
+    : m_config(c), m_egraph(e), m_sstore(t), m_propag(nullptr), m_boxes(env.size()), m_ep(nullptr), m_sol(0),
+      m_nsplit(0), m_explanation(exp), m_stack(stack), m_env(env), m_complete_check(complete_check) {
     rp_init_library();
     m_problem = create_rp_problem();
     m_propag = new rp_propagator(m_problem, 10.0, c.nra_verbose, c.nra_proof_out);
-    rp_new(m_vselect, rp_selector_existence, (m_problem)); // rp_selector_roundrobin
+    rp_new(m_vselect, rp_selector_existence, (m_problem)); // rp_selector_existence
     rp_new(m_dsplit, rp_splitter_bisection, (m_problem)); // rp_splitter_mixed
     // Check once the satisfiability of all the constraints
     // Necessary for variable-free constraints
@@ -102,34 +101,29 @@ icp_solver::~icp_solver() {
 
 #ifdef ODE_ENABLED
 void icp_solver::create_ode_solvers() {
-    // Construct m_diff_vec
+    vector<Enode*> vec_integral;
+    vector<Enode*> vec_inv;
     for (auto const l : m_stack) {
-        unordered_set<Enode*> ode_vars = m_odevars_in_lit[l];
-        for (auto const v : ode_vars) {
-            unsigned const diff_sgroup = v->getODEsgroup();
-            DREAL_LOG_DEBUG("ode_var: " << v);
-            DREAL_LOG_DEBUG("diff_sgroup: " << diff_sgroup << ", num_ode_sgroups: " << m_num_ode_sgroups);
-            if (diff_sgroup >= m_num_ode_sgroups) {
-                m_diff_vec.resize(diff_sgroup + 1);
-                m_num_ode_sgroups = diff_sgroup;
-                DREAL_LOG_DEBUG("diff_sgroup: " << diff_sgroup << " we do resize");
-                DREAL_LOG_DEBUG("num_ode_sgroups: " << m_num_ode_sgroups);
-            }
-            if (m_diff_vec[diff_sgroup].empty()) {
-                DREAL_LOG_DEBUG("diff_vec[" << diff_sgroup << "] is empty.");
-            }
-            m_diff_vec[diff_sgroup].insert(v);
-            DREAL_LOG_DEBUG("diff_sgroup inserted: " << diff_sgroup);
+        if (l->isIntegral() && l->getPolarity().toInt()) {
+            vec_integral.push_back(l);
+        } else if (l->isForallT() && l->getPolarity().toInt()) {
+            vec_inv.push_back(l);
         }
     }
-    // Construct m_ode_solvers
-    m_ode_solvers.resize(m_num_ode_sgroups + 1);
-    for (unsigned sg = 1; sg <= m_num_ode_sgroups; sg++) {
-        if (!m_diff_vec[sg].empty()) {
-            unsigned const g  = (*m_diff_vec[sg].begin())->getODEgroup();
-            m_ode_solvers[sg] = new ode_solver(g, sg, m_config, m_diff_vec[sg], m_enode_to_rp_id);
-            m_ode_worklist.insert(sg);
+    // match "integral" and "forallT"
+    for (auto const l_int : vec_integral) {
+        vector<Enode*> invs;
+        for (auto const l_inv : vec_inv) {
+            unordered_set<Enode *> vars_int = l_int->get_vars();
+            unordered_set<Enode *> vars_inv = l_inv->get_vars();
+            bool intersect = any_of(vars_int.begin(), vars_int.end(), [&vars_inv](Enode * v_int) {
+                    return find(vars_inv.begin(), vars_inv.end(), v_int) != vars_inv.end();
+                });
+            if (intersect) {
+                invs.push_back(l_inv);
+            }
         }
+        m_ode_solvers.push_back(new ode_solver(m_config, m_egraph, l_int, invs, m_enode_to_rp_id));
     }
 }
 #endif
@@ -163,7 +157,6 @@ rp_problem* icp_solver::create_rp_problem() {
         rp_variable_set_real(*v);
         rp_variable_precision(*v) = m_config.nra_precision;
         m_enode_to_rp_id[key] = rp_id;
-        m_rp_id_to_enode[rp_id] = key;
         DREAL_LOG_DEBUG("Key: " << name << "\t" << "value : [" << lb << ", " << ub << "] \t" << "precision : " << m_config.nra_precision << "\t" << "rp_id: " << rp_id);
     }
 
@@ -171,6 +164,9 @@ rp_problem* icp_solver::create_rp_problem() {
     // Create rp_constraints for each literal in stack
     // ===============================================
     for (auto const l : m_stack) {
+        if (l->isForallT() || l->isIntegral()) {
+            continue;
+        }
         stringstream buf;
         rp_constraint * c = new rp_constraint;
         m_rp_constraints.push_back(c);
@@ -193,235 +189,223 @@ rp_problem* icp_solver::create_rp_problem() {
 }
 
 #ifdef ODE_ENABLED
-bool icp_solver::callODESolver(int group, unordered_set<Enode*> const & ode_vars, bool forward) {
-    DREAL_LOG_DEBUG("solve ode group: " << group);
+void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, bool & ODE_result, bool & have_exception) {
+    ODE_result = true;
+    have_exception = false;
 
-    // The size of ODE_Vars should be even
-    if (ode_vars.size() % 2 == 1) {
-        DREAL_LOG_DEBUG("The size of ODE_Vars should be even");
-        for (auto const ode_var : ode_vars) {
-            DREAL_LOG_DEBUG(ode_var);
-        }
-        return false;
+    ODE_result = odeSolver->simple_ODE(m_boxes.get(), forward) &&
+        m_propag->apply(m_boxes.get());
+    if (!ODE_result) {
+        return;
     }
 
-    // If the _0 and _t variables do not match, return false.
-    for (auto const v : ode_vars) {
-        if (ode_vars.find(v->getODEopposite()) == ode_vars.end()) {
-            DREAL_LOG_DEBUG("the _0 and _t variables do not match:" << v);
-            return false;
+    try {
+        if (forward) {
+            ODE_result = odeSolver->solve_forward(m_boxes.get())
+                && m_propag->apply(m_boxes.get());
+        } else {
+            ODE_result = odeSolver->solve_backward(m_boxes.get())
+                && m_propag->apply(m_boxes.get());
         }
     }
-
-    if (!ode_vars.empty()) {
-        DREAL_LOG_DEBUG("Inside of current ODEs");
-        for (auto const ode_var : ode_vars) {
-            DREAL_LOG_DEBUG("Name: " << ode_var->getCar()->getName());
-        }
-        ode_solver* odeSolver = m_ode_solvers[group];
-
-        bool simple_ODE = odeSolver->simple_ODE(m_boxes.get()) && m_propag->apply(m_boxes.get());
-        if (!simple_ODE) return false;
-
-        bool ODE_result = true;
-        bool have_exception = false;
-        try {
-            if (forward) {
-                ODE_result = odeSolver->solve_forward(m_boxes.get()) && m_propag->apply(m_boxes.get());
-            } else {
-                ODE_result = odeSolver->solve_backward(m_boxes.get()) && m_propag->apply(m_boxes.get());
-            }
-        }
-        catch(exception& e) {
-            DREAL_LOG_DEBUG("Exception in ODE Solving " << (forward ? "(Forward)" : "(Backward)"));
-            DREAL_LOG_DEBUG(e.what());
-            have_exception = true;
-        }
-        if (!have_exception) return ODE_result;
-        try {
-            if (forward) {
-                ODE_result = odeSolver->solve_backward(m_boxes.get()) && m_propag->apply(m_boxes.get());
-            } else {
-                ODE_result = odeSolver->solve_forward(m_boxes.get()) && m_propag->apply(m_boxes.get());
-            }
-        }
-        catch(exception& e) {
-            DREAL_LOG_DEBUG("Exception in ODE Solving " << (!forward ? "(Forward)" : "(Backward)"));
-            DREAL_LOG_DEBUG(e.what());
-            return true;
-        }
+    catch(exception& e) {
+        DREAL_LOG_INFO("Exception in ODE Solving " << (forward ? "(Forward)" : "(Backward)"));
+        DREAL_LOG_INFO(e.what());
+        have_exception = true;
     }
-    return true;
+    return;
 }
 #endif
 
-bool icp_solver::is_atomic(unordered_set<Enode*> const & ode_vars, double const p) {
+bool icp_solver::updateValue(Enode * e, double lb, double ub) {
     rp_box b = m_boxes.get();
-    for (auto const ode_var : ode_vars) {
-        double lb = rp_binf(rp_box_elem(b, m_enode_to_rp_id[ode_var]));
-        double ub = rp_bsup(rp_box_elem(b, m_enode_to_rp_id[ode_var]));
-        if (ub - lb > p) {
-            return false;
-        }
+    DREAL_LOG_DEBUG("UpdateValue : " << e
+                    << " ["      << rp_binf(rp_box_elem(b, m_enode_to_rp_id[e]))
+                    << ", "      << rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e]))
+                    << "] /\\ [" << lb
+                    << ", "      << ub
+                    << "]");
+
+    double new_lb = max(lb, rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])));
+    double new_ub = min(ub, rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])));
+    if (new_lb <= new_ub) {
+        e->setLowerBound(new_lb);
+        rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])) = new_lb;
+        e->setUpperBound(new_ub);
+        rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])) = new_ub;
+        DREAL_LOG_DEBUG(" = [" << new_lb << ", " << new_ub << "]");
+        return true;
+    } else {
+        rp_interval_set_empty(rp_box_elem(b, m_enode_to_rp_id[e]));
+        e->setLowerBound(+numeric_limits<double>::infinity());
+        e->setUpperBound(-numeric_limits<double>::infinity());
+        DREAL_LOG_DEBUG(" = empty ");
+        return false;
     }
-    return true;
 }
 
-vector<pair<double, double>> icp_solver::measure_size(unordered_set<Enode*> const & ode_vars, double const prec) {
-    rp_box const & b = m_boxes.get();
-    vector<pair<Enode*, Enode*>> ode_pairs;
+void print_interval(ostream & out, double lb, double ub) {
+    out << "[" << lb << ", " << ub << "]";
+}
 
-    // extract ode pairs
-    for (auto const ode_var : ode_vars) {
-        lbool const & odeType = ode_var->getODEvartype();
-        if (odeType == l_False) {
-            ode_pairs.push_back(make_pair(ode_var, ode_var->getODEopposite()));
-        }
+void display_cache_entry(vector<double> const & e, Enode * time_var, vector<Enode *> const & vars) {
+    auto it = e.cbegin();
+    cerr << "Mode: " << *(it++) << endl;
+    cerr << setw(15) << time_var << " : ";
+    double time_lb = *(it++);
+    double time_ub = *(it++);
+    print_interval(cerr, time_lb, time_ub);
+    cerr << endl;
+    for (Enode * var : vars) {
+        double lb = *(it++);
+        double ub = *(it++);
+        cerr << setw(15) << var << " : ";
+        print_interval(cerr, lb, ub);
+        cerr << endl;
     }
-    // sort ode_pairs by their rp_id
-    stable_sort(ode_pairs.begin(),
-         ode_pairs.end(),
-         [this](pair<Enode*, Enode*> const & p1, pair<Enode*, Enode*> const & p2) {
-             return m_enode_to_rp_id[p1.first] < m_enode_to_rp_id[p2.first];
-         });
-
-    // extract width
-    vector<pair<double, double>> ret;
-    for (auto const & p : ode_pairs) {
-        double const lb_0 = rp_binf(rp_box_elem(b, m_enode_to_rp_id[p.first]));
-        double const ub_0 = rp_bsup(rp_box_elem(b, m_enode_to_rp_id[p.first]));
-        double const s_0 = max(ub_0 - lb_0, prec);
-        double const lb_t = rp_binf(rp_box_elem(b, m_enode_to_rp_id[p.second]));
-        double const ub_t = rp_bsup(rp_box_elem(b, m_enode_to_rp_id[p.second]));
-        double const s_t = max(ub_t - lb_t, prec);
-        ret.push_back(make_pair(s_0, s_t));
-    }
-    return ret;
 }
 
 bool icp_solver::prop_with_ODE() {
+    static map<vector<double>, tuple<bool, bool, vector<double>>> cache_X0;
+    static map<vector<double>, tuple<bool, bool, vector<double>>> cache_Xt;
+
     if (m_propag->apply(m_boxes.get())) {
 #ifdef ODE_ENABLED
         if (m_config.nra_contain_ODE) {
-            rp_box curr_box = m_boxes.get();
-            rp_box old_box;
-            rp_box_create(&old_box, rp_box_size(curr_box));
-            rp_box_copy(old_box, curr_box);
+            // Sort ODE Solvers by their logVolume.
+            sort(m_ode_solvers.begin(),
+                 m_ode_solvers.end(),
+                 [&](ode_solver * odeSolver1, ode_solver * odeSolver2) {
+                     double const min1 = min(odeSolver1->logVolume_X0(m_boxes.get()),
+                                             odeSolver1->logVolume_Xt(m_boxes.get()));
+                     double const min2 = min(odeSolver2->logVolume_X0(m_boxes.get()),
+                                             odeSolver2->logVolume_Xt(m_boxes.get()));
+                     return min1 < min2;
+                 });
+            for (auto const & odeSolver : m_ode_solvers) {
+                rp_box b = m_boxes.get();
+                double lv_x0 = odeSolver->logVolume_X0(b);
+                double lv_xt = odeSolver->logVolume_Xt(b);
+                unsigned mode = odeSolver->getMode();
+                bool forward = m_config.nra_ODE_forward_only ? true : lv_x0 <= lv_xt;
+                DREAL_LOG_INFO(setw(10) << mode
+                               << setw(20) << lv_x0
+                               << setw(20) << lv_xt
+                               << setw(20) << (forward ? "Forward" : "Backward"));
 
-            double old_volume = rp_box_volume_log(old_box);
-            double new_volume = old_volume;
-            do {
-                // Find ODE groups whose X_0, X_t, and T are smallest interval boxes
-                vector<pair<unsigned, pair<double, double>>> ode_group_scores;
-                for (unsigned i = 1; i <= m_num_ode_sgroups; i++) {
-                    if (m_ode_worklist.count(i) > 0 && !m_diff_vec[i].empty()) {
-                        ode_group_scores.push_back(make_pair(i, make_pair(0.0, 0.0)));
+                if (!m_config.nra_ODE_cache) {
+                    bool result = true, have_exception = false;
+                    callODESolver(odeSolver, forward, result, have_exception);
+                    if (!result) {
+                        return false;
                     }
-                }
-
-                auto ratio_comp = [](pair<double, double> const & x, pair<double, double> const & y) {
-                    double const x_0 = x.first;
-                    double const x_t = x.second;
-                    double const x_r = x_t > x_0 ? x_t / x_0 : x_0 / x_t;
-                    double const y_0 = y.first;
-                    double const y_t = y.second;
-                    double const y_r = y_t > y_0 ? y_t / y_0 : y_0 / y_t;
-                    return x_r < y_r;
-                };
-
-                auto diff_comp = [](pair<double, double> const & x, pair<double, double> const & y) {
-                    double const x_0 = x.first;
-                    double const x_t = x.second;
-                    double const x_r = x_t > x_0 ? x_t - x_0 : x_0 - x_t;
-                    double const y_0 = y.first;
-                    double const y_t = y.second;
-                    double const y_r = y_t > y_0 ? y_t - y_0 : y_0 - y_t;
-                    return x_r < y_r;
-                };
-
-                // auto compute_max_width = [this, &ratio_comp](unordered_set<Enode*> const & vars, double const prec) {
-                //     vector<pair<double, double>> s = measure_size(vars, prec);
-                //     return *max_element(s.begin(), s.end(), ratio_comp);
-                // };
-
-                auto compute_volume = [this](unordered_set<Enode*> const & vars, double const prec) {
-                    vector<pair<double, double>> s = measure_size(vars, prec);
-                    double V_0 = 0.0;
-                    double V_t = 0.0;
-                    for (auto p : s) {
-                        V_0 += log(std::max(prec, p.first));
-                        V_t += log(std::max(prec, p.second));
-                    }
-                    return make_pair(V_0, V_t);
-                };
-
-                while (ode_group_scores.size() > 0 && !m_ode_worklist.empty()) {
-                    // update scores
-                    for (auto & t : ode_group_scores) {
-                        unsigned i = t.first;
-                        // auto r = compute_max_width(diff_vec[i], m_config.nra_precision);
-                        auto r = compute_volume(m_diff_vec[i], m_config.nra_precision);
-                        t = make_pair(i, r);
-                    }
-                    // Sort
-                    stable_sort(ode_group_scores.begin(), ode_group_scores.end(),
-                                [&ratio_comp, &diff_comp](pair<unsigned, pair<double, double>> const & x,
-                                                          pair<unsigned, pair<double, double>> const & y) {
-                                    auto const & p1 = x.second;
-                                    auto const & p2 = y.second;
-                                    return !diff_comp(p1, p2);
-                                    // return false;
-                                });
-
-                    // Process first n ode groups in parallel
-                    auto ite = ode_group_scores.begin();
-                    unsigned num_core = 1; // std::thread::hardware_concurrency()
-                    for (unsigned id = 0;
-                         id < num_core && ite != ode_group_scores.end();
-                         id++, ite++) {
-                        auto const & t = *ite;
-                        unsigned const i = t.first;
-                        m_ode_worklist.erase(i);
-                        if (is_atomic(m_diff_vec[i], m_config.nra_precision)) {
-                            // cerr << "A" << i << endl;
-                            if (callODESolver(i, m_diff_vec[i], true) == false) {
-                                m_ode_worklist.insert(i);
+                } else {
+                    static unsigned hit = 0;
+                    static unsigned nohit = 0;
+                    static unsigned expt = 0;
+                    DREAL_LOG_INFO(" HIT    : " << setw(10) << hit
+                                    << " NOHIT  : " << setw(10) << nohit
+                                    << " EXCEPT : " << setw(10) << expt);
+                    if (forward) {
+                        // Forward Pruning
+                        vector<double> t = odeSolver->extractX0T(b);
+                        auto it = cache_X0.find(t);
+                        if (it != cache_X0.end()) {
+                            // Cache is HIT!
+                            hit++;
+                            bool cached_result    = get<0>(it->second);
+                            bool cached_exception = get<1>(it->second);
+                            if (!cached_result) {
                                 return false;
                             }
+                            if (cached_exception)
+                                continue;
+                            vector<double> cached_info = get<2>(it->second);
+
+                            unsigned i = 1; // cached_info[0] = mode
+                            // restore time
+                            Enode * time = odeSolver->get_Time();
+                            double cached_time_lb = cached_info[i++];
+                            double cached_time_ub = cached_info[i++];
+                            bool result = updateValue(time, cached_time_lb, cached_time_ub);
+                            if (!result) {
+                                return false;
+                            }
+                            // restore X_t
+                            for (Enode * var : odeSolver->get_Xt()) {
+                                double cached_var_lb = cached_info[i++];
+                                double cached_var_ub = cached_info[i++];
+                                result = updateValue(var, cached_var_lb, cached_var_ub);
+                                if (!result) {
+                                    return false;
+                                }
+                            }
                         } else {
-                            double const T_0_size = t.second.first;
-                            double const T_x_size = t.second.second;
-                            bool ode_direction = T_x_size >= T_0_size;
-                            DREAL_LOG_DEBUG(setw(20) << i << setw(20) << T_0_size << setw(20) << T_x_size << setw(20) << (ode_direction ? "Forward" : "Backward"));
-                            if (callODESolver(i, m_diff_vec[i], ode_direction) == false) {
-                                // cerr << endl;
-                                m_ode_worklist.insert(i);
+                            nohit++;
+                            // Cache is Miss! Call ODE Solver and save the result
+                            bool result = true;
+                            bool have_exception = false;
+                            callODESolver(odeSolver, forward, result, have_exception);
+                            if (!have_exception) {
+                                cache_X0.emplace(t, make_tuple(result, have_exception, odeSolver->extractXtT(m_boxes.get())));
+                            } else {
+                                // cache_X0.emplace(t, make_tuple(result, have_exception, odeSolver->extractXtT(m_boxes.get())));
+                                expt++;
+                            }
+                            if (!result) {
                                 return false;
                             }
                         }
+                    } else {
+                        // Backward Pruning
+                        vector<double> t = odeSolver->extractXtT(b);
+                        auto it = cache_Xt.find(t);
+                        if (it != cache_Xt.end()) {
+                            // Cache is HIT!
+                            hit++;
+                            bool cached_result    = get<0>(it->second);
+                            bool cached_exception = get<1>(it->second);
+                            if (!cached_result)
+                                return false;
+                            if (cached_exception)
+                                continue;
+                            vector<double> cached_info = get<2>(it->second);
+                            unsigned i = 1;
+                            // restore time
+                            Enode * time = odeSolver->get_Time();
+                            double cached_time_lb = cached_info[i++];
+                            double cached_time_ub = cached_info[i++];
+                            bool result = updateValue(time, cached_time_lb, cached_time_ub);
+                            if (!result)
+                                return false;
+                            // restore X_0
+                            for (Enode * var : odeSolver->get_X0()) {
+                                double cached_var_lb = cached_info[i++];
+                                double cached_var_ub = cached_info[i++];
+                                result = updateValue(var, cached_var_lb, cached_var_ub);
+                                if (!result)
+                                    return false;
+                            }
+                        } else {
+                            // Cache is Miss! Call ODE Solver and save the result
+                            nohit++;
+                            bool result = true;
+                            bool have_exception = false;
+                            callODESolver(odeSolver, forward, result, have_exception);
+                            if (!have_exception) {
+                                cache_Xt.emplace(t, make_tuple(result, have_exception, odeSolver->extractX0T(m_boxes.get())));
+                            } else {
+                                // cache_Xt.emplace(t, make_tuple(result, have_exception, odeSolver->extractX0T(m_boxes.get())));
+                                expt++;
+                            }
+                            if (!result)
+                                return false;
+                        }
                     }
-                    // Delete first one
-                    ode_group_scores.erase(ode_group_scores.begin(), ite);
                 }
-                if (!m_propag->apply(m_boxes.get()))
-                    return false;
-                old_volume = new_volume;
-                rp_box curr_box = m_boxes.get();
-                new_volume = rp_box_volume_log(curr_box);
-
-                unsigned box_size = rp_box_size(curr_box);
-                for (unsigned i = 0; i < box_size; i++) {
-                    if (!rp_interval_equal(rp_box_elem(old_box, i), rp_box_elem(curr_box, i))) {
-                        Enode * const e = m_rp_id_to_enode[i];
-                        unsigned g = e->getODEgroup();
-                        m_ode_worklist.insert(g);
-                        DREAL_LOG_DEBUG(e << " : " << g << " is added to worklist");
-                    }
-                }
-                rp_box_copy(old_box, curr_box);
-            } while (new_volume - old_volume <= -0.10);
-            return true;
+            }
         }
+        return true;
 #endif
         return true;
     }
@@ -446,8 +430,6 @@ rp_box icp_solver::compute_next() {
                 }
                 ++m_nsplit;
                 m_dsplit->apply(m_boxes, i);
-                Enode * const e = m_rp_id_to_enode[i];
-                m_ode_worklist.insert(e->getODEgroup());
             } else {
                 ++m_sol;
                 if (m_ep) m_ep->prove(b);
@@ -636,7 +618,6 @@ void icp_solver::output_problem() const {
     }
 }
 
-
 // return true if the box is non-empty after propagation
 // false if the box is *empty* after propagation
 bool icp_solver::prop() {
@@ -669,36 +650,6 @@ void icp_solver::print_json(ostream & out) {
     out << "{\"traces\": " << endl
         << "[" << endl;
     print_ODE_trajectory(out);
-    out << "]" << endl;
-
-    // collect all the ODE groups in the asserted literal and
-    // print out
-    unordered_set<int> ode_groups;
-    for (auto const l : m_stack) {
-        if (l->getPolarity() == l_True) {
-            unordered_set<Enode*> const & odevars = m_odevars_in_lit[l];
-            for (auto const var : odevars) {
-                if (var->getODEvartype() == l_True) {
-                    ode_groups.insert(var->getODEgroup());
-                }
-            }
-        }
-    }
-    // for (auto const & p : m_env) {
-    //     Enode* const key = p.first;
-    //     double const lb =  p.second.first;
-    //     double const ub =  p.second.second;
-    //     if (starts_with(key->getCar()->getName(), "mode_")) {
-    //         out << "Key: " << key << "\t Value: [" << lb << ", " << ub << "]" << endl;
-    //     }
-    // }
-    out << ", \"groups\": [";
-    for (auto g = ode_groups.cbegin(); g != ode_groups.cend(); g++) {
-        if (g != ode_groups.cbegin()) {
-            out << ", ";
-        }
-        out << *g;
-    }
     out << "]" << endl << "}" << endl;
 }
 #endif
