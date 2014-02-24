@@ -180,6 +180,7 @@ struct SMTConfig
   double       nra_ODE_step;                  // step control
   bool         nra_contain_ODE;               // contain ODE or not
   bool         nra_ODE_cache;                 // use cache for ODE computation
+  bool         nra_ODE_forward_only;          // only use ODE forward pruning (not use ODE backward)
   bool         nra_ODE_parallel;              // solve ODE in parallel or not
 
 private:

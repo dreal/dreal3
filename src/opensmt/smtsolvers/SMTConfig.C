@@ -87,6 +87,7 @@ SMTConfig::initializeConfig( )
   nra_proof                    = false;
   nra_ODE_parallel             = false;
   nra_ODE_cache                = false;
+  nra_ODE_forward_only         = false;
   nra_ODE_taylor_order         = 20;
   nra_ODE_grid_size            = 16;
   nra_ODE_step                 = 0.0;
@@ -365,6 +366,12 @@ SMTConfig::parseCMDLine( int argc
         continue;
     }
 
+    if ( strcmp( buf, "--ode-forward-only" ) == 0 )
+    {
+        nra_ODE_forward_only = true;
+        continue;
+    }
+
     if ( strcmp( buf, "--ode-parallel" ) == 0 )
     {
         nra_ODE_parallel = true;
@@ -459,6 +466,9 @@ void SMTConfig::printHelp( )
       "\n"
       "   --ode-cache             enable reusing ODE computation by caching them\n"
       "                           (Default: false)\n"
+      "\n"
+      "   --ode-forward-only      use forward ODE pruning and do not use backward pruning\n"
+      "                           (Default: false, use both of them)\n"
       "\n"
       "   --ode-parallel          specify to solve ODEs in parallel\n"
       "                           (Default: false)\n"
