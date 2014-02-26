@@ -198,13 +198,29 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, bool & ODE_
     if (!ODE_result) {
         return;
     }
-
     try {
         if (forward) {
             ODE_result = odeSolver->solve_forward(m_boxes.get())
                 && m_propag->apply(m_boxes.get());
         } else {
             ODE_result = odeSolver->solve_backward(m_boxes.get())
+                && m_propag->apply(m_boxes.get());
+        }
+    }
+    catch(exception& e) {
+        DREAL_LOG_INFO("Exception in ODE Solving " << (forward ? "(Forward)" : "(Backward)"));
+        DREAL_LOG_INFO(e.what());
+        have_exception = true;
+    }
+    if (!ODE_result) {
+        return;
+    }
+    try {
+        if (forward) {
+            ODE_result = odeSolver->solve_backward(m_boxes.get())
+                && m_propag->apply(m_boxes.get());
+        } else {
+            ODE_result = odeSolver->solve_forward(m_boxes.get())
                 && m_propag->apply(m_boxes.get());
         }
     }

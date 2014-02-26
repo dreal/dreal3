@@ -323,7 +323,7 @@ bool ode_solver::solve_forward(rp_box b) {
     ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .001);
     ITimeMap timeMap(solver);
     C0Rect2Set s(m_X_0);
-    DREAL_LOG_DEBUG("interval T = " << m_T);
+    DREAL_LOG_INFO("interval T = " << m_T);
     timeMap.stopAfterStep(true);
     bool fastForward = false;
     timeMap.turnOnStepControl();
@@ -407,7 +407,7 @@ bool ode_solver::solve_backward(rp_box b) {
     ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .001);
     ITimeMap timeMap(solver);
     C0Rect2Set s(m_X_t);
-    DREAL_LOG_DEBUG("interval T = " << m_T);
+    DREAL_LOG_INFO("interval T = " << m_T);
     timeMap.stopAfterStep(true);
     bool fastForward = false;
     timeMap.turnOnStepControl();
