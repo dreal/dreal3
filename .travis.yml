@@ -65,7 +65,7 @@ install:
   - yes | opam init
   - eval `opam config env`
   - opam update
-  - yes | opam install ocamlfind batteries
+  - yes | opam install ocamlfind batteries oasis
   # EGLIBC
   - if [[ $USE_LATEST_EGLIBC == TRUE ]]; then
       wget http://dreal.cs.cmu.edu/required_packages/eglibc-2.17.tar.bz2;
