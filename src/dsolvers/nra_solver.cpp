@@ -34,10 +34,7 @@ nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, S
 
 nra_solver::~nra_solver() { }
 
-// `inform` does two operations:
-// 1. set up env (mapping from enode to its [lb, ub])
-// 2. set up _enode_to_vars (mapping from an expr to all the
-//    variables in it)
+// `inform` sets up env (mapping from variables(enode) in literals to their [lb, ub])
 lbool nra_solver::inform(Enode * e) {
     DREAL_LOG_DEBUG("===============");
     DREAL_LOG_DEBUG("nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt());
