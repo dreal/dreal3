@@ -60,14 +60,17 @@ ode_solver::ode_solver(SMTConfig& c,
     m_enode_to_rp_id(enode_to_rp_id),
     m_stepControl(c.nra_ODE_step),
     m_time(nullptr) {
+    // Pick the right flow_map (var |-> ODE) using current mode
     m_mode = l_int->getCdr()->getCar()->getValue();
     map<string, Enode *> & flow_map = m_egraph.flow_maps[string("flow_") + to_string(m_mode)];
     m_time = l_int->getCdr()->getCdr()->getCdr()->getCar();
-    string time_str = m_time->getCar()->getName();
-    m_step = stoi(time_str.substr(time_str.find_last_of("_") + 1));
-    Enode * p = l_int->getCdr()->getCdr()->getCdr()->getCdr();
-    while (!p->isEnil()) {
-        string name = p->getCar()->getCar()->getName();
+    string time_str = m_time->getCar()->getName();                       // i.e. "time_1"
+    m_step = stoi(time_str.substr(time_str.find_last_of("_") + 1));      // i.e. 1
+    Enode * var_list = l_int->getCdr()->getCdr()->getCdr()->getCdr();
+
+    // Collect _0, _t variables from variable list in integral literal
+    while (!var_list->isEnil()) {
+        string name = var_list->getCar()->getCar()->getName();
         size_t second_ = name.find_last_of("_");
         size_t first_ = name.find_last_of("_", second_ - 1);
         string name_prefix, name_postfix;
@@ -82,19 +85,22 @@ ode_solver::ode_solver(SMTConfig& c,
             cerr << name_prefix << " is not found in flow_map." << endl;
             assert(flow_map.find(name_prefix) != flow_map.end());
         }
+
         Enode * rhs = flow_map[name_prefix];
         stringstream ss;
         rhs->print_infix(ss, true, name_postfix);
         if (rhs->isConstant() && rhs->getValue() == 0.0) {
-            m_pars.push_back(p->getCar());
+            // If RHS of ODE == 0.0, we treat it as a parameter in CAPD
+            m_pars.push_back(var_list->getCar());
             m_par_list.push_back(name);
         } else {
-            m_0_vars.push_back(p->getCar());
-            m_t_vars.push_back(p->getCdr()->getCar());
+            // Otherwise, we treat it as an ODE variable.
+            m_0_vars.push_back(var_list->getCar());
+            m_t_vars.push_back(var_list->getCdr()->getCar());
             m_var_list.push_back(name);
             m_ode_list.push_back(ss.str());
         }
-        p = p->getCdr()->getCdr();
+        var_list = var_list->getCdr()->getCdr();
     }
 
     // join var_list to make diff_var, ode_list to diff_fun_forward
@@ -117,7 +123,6 @@ ode_solver::ode_solver(SMTConfig& c,
     DREAL_LOG_DEBUG("diff_fun_backward : " << diff_fun_backward);
     DREAL_LOG_DEBUG("diff_sys_forward  : " << m_diff_sys_forward);
     DREAL_LOG_DEBUG("diff_sys_backward : " << m_diff_sys_backward);
-
     for (auto ode_str : m_ode_list) {
         string const func_str = diff_par + diff_var + "fun:" + ode_str + ";";
         m_funcs.push_back(IFunction(func_str));
@@ -323,7 +328,7 @@ bool ode_solver::solve_forward(rp_box b) {
     ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .001);
     ITimeMap timeMap(solver);
     C0Rect2Set s(m_X_0);
-    DREAL_LOG_INFO("interval T = " << m_T);
+    DREAL_LOG_DEBUG("interval T = " << m_T);
     timeMap.stopAfterStep(true);
     bool fastForward = false;
     timeMap.turnOnStepControl();
@@ -407,7 +412,7 @@ bool ode_solver::solve_backward(rp_box b) {
     ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .001);
     ITimeMap timeMap(solver);
     C0Rect2Set s(m_X_t);
-    DREAL_LOG_INFO("interval T = " << m_T);
+    DREAL_LOG_DEBUG("interval T = " << m_T);
     timeMap.stopAfterStep(true);
     bool fastForward = false;
     timeMap.turnOnStepControl();
@@ -689,7 +694,6 @@ vector<double> ode_solver::extractX0T(rp_box b) const {
     // Time
     ret.emplace_back(rp_binf(rp_box_elem(b, m_enode_to_rp_id[m_time])));
     ret.emplace_back(rp_bsup(rp_box_elem(b, m_enode_to_rp_id[m_time])));
-
     // X_0
     for (Enode * var : m_0_vars) {
         ret.emplace_back(rp_binf(rp_box_elem(b, m_enode_to_rp_id[var])));
@@ -704,7 +708,6 @@ vector<double> ode_solver::extractXtT(rp_box b) const {
     // Time
     ret.emplace_back(rp_binf(rp_box_elem(b, m_enode_to_rp_id[m_time])));
     ret.emplace_back(rp_bsup(rp_box_elem(b, m_enode_to_rp_id[m_time])));
-
     // X_t
     for (Enode * var : m_t_vars) {
         ret.emplace_back(rp_binf(rp_box_elem(b, m_enode_to_rp_id[var])));
@@ -719,13 +722,11 @@ vector<double> ode_solver::extractX0XtT(rp_box b) const {
     // Time
     ret.emplace_back(rp_binf(rp_box_elem(b, m_enode_to_rp_id[m_time])));
     ret.emplace_back(rp_bsup(rp_box_elem(b, m_enode_to_rp_id[m_time])));
-
     // X_0
     for (Enode * var : m_0_vars) {
         ret.emplace_back(rp_binf(rp_box_elem(b, m_enode_to_rp_id[var])));
         ret.emplace_back(rp_bsup(rp_box_elem(b, m_enode_to_rp_id[var])));
     }
-
     // X_t
     for (Enode * var : m_t_vars) {
         ret.emplace_back(rp_binf(rp_box_elem(b, m_enode_to_rp_id[var])));

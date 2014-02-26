@@ -63,27 +63,23 @@ private:
     rp_box m_b;
     std::unordered_map<Enode*, int>& m_enode_to_rp_id;
     std::list<std::pair<capd::interval, capd::IVector>> m_trajectory;
-    double m_stepControl;
-
-    std::vector<std::string> m_ode_list;
-    std::vector<std::string> m_par_list;
-    std::vector<std::string> m_var_list;
-    std::vector<Enode*> m_0_vars;
-    std::vector<Enode*> m_t_vars;
-    std::vector<Enode*> m_pars;
-    capd::IVector m_X_0;
-    capd::IVector m_X_t;
-    capd::IVector m_inv;
-    Enode * m_time;
-    capd::interval m_T;
-
-    std::string m_diff_sys_forward;
-    std::string m_diff_sys_backward;
-
-    unsigned m_mode;
-    unsigned m_step;
-
-    std::vector<capd::IFunction> m_funcs;
+    double                         m_stepControl;
+    std::vector<std::string>       m_ode_list;
+    std::vector<std::string>       m_par_list;
+    std::vector<std::string>       m_var_list;
+    std::vector<Enode*>            m_0_vars;
+    std::vector<Enode*>            m_t_vars;
+    std::vector<Enode*>            m_pars;
+    capd::IVector                  m_X_0;
+    capd::IVector                  m_X_t;
+    capd::IVector                  m_inv;
+    Enode *                        m_time;
+    capd::interval                 m_T;
+    std::string                    m_diff_sys_forward;
+    std::string                    m_diff_sys_backward;
+    unsigned                       m_mode;
+    unsigned                       m_step;
+    std::vector<capd::IFunction>   m_funcs;
 
     // Private Methods
     ode_solver& operator=(const ode_solver& o);

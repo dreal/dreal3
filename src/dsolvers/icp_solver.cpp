@@ -101,16 +101,23 @@ icp_solver::~icp_solver() {
 
 #ifdef ODE_ENABLED
 void icp_solver::create_ode_solvers() {
+    // collect intergral and vector literals
     vector<Enode*> vec_integral;
     vector<Enode*> vec_inv;
     for (auto const l : m_stack) {
+        // ignore if the polarity is "false".
         if (l->isIntegral() && l->getPolarity().toInt()) {
             vec_integral.push_back(l);
         } else if (l->isForallT() && l->getPolarity().toInt()) {
             vec_inv.push_back(l);
         }
     }
-    // match "integral" and "forallT"
+
+    // For each intergral literal, we create an ODE solver.
+    // We need to collect all the relevent invariants to an intergral
+    // literal. To do so, we check whether there exists any
+    // overlapping between variables in an intergral literal and
+    // invariant literral.
     for (auto const l_int : vec_integral) {
         vector<Enode*> invs;
         for (auto const l_inv : vec_inv) {
@@ -164,6 +171,7 @@ rp_problem* icp_solver::create_rp_problem() {
     // Create rp_constraints for each literal in stack
     // ===============================================
     for (auto const l : m_stack) {
+        // Do not create rp_constraints for ForallT and Integral
         if (l->isForallT() || l->isIntegral()) {
             continue;
         }
@@ -193,11 +201,14 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, bool & ODE_
     ODE_result = true;
     have_exception = false;
 
+    // Simple ODE
     ODE_result = odeSolver->simple_ODE(m_boxes.get(), forward) &&
         m_propag->apply(m_boxes.get());
     if (!ODE_result) {
         return;
     }
+
+    // First Try (Forward or Backward).
     try {
         if (forward) {
             ODE_result = odeSolver->solve_forward(m_boxes.get())
@@ -215,6 +226,8 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, bool & ODE_
     if (!ODE_result) {
         return;
     }
+
+    // Second Try (Backward or Forward).
     try {
         if (forward) {
             ODE_result = odeSolver->solve_backward(m_boxes.get())
@@ -233,15 +246,20 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, bool & ODE_
 }
 #endif
 
+// Update the lower and upperbound of Enode e and its corresponding
+// rp_variable using the given parameters lb and ub.
+//
+//    [e.lb, e.ub] = [e.lb, e.ub] /\ [lb, ub]
+//
+// Return false if the result is empty interval
+//        true  o.w.
+//
 bool icp_solver::updateValue(Enode * e, double lb, double ub) {
     rp_box b = m_boxes.get();
     DREAL_LOG_DEBUG("UpdateValue : " << e
                     << " ["      << rp_binf(rp_box_elem(b, m_enode_to_rp_id[e]))
                     << ", "      << rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e]))
-                    << "] /\\ [" << lb
-                    << ", "      << ub
-                    << "]");
-
+                    << "] /\\ [" << lb << ", " << ub << "]");
     double new_lb = max(lb, rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])));
     double new_ub = min(ub, rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])));
     if (new_lb <= new_ub) {
@@ -282,33 +300,25 @@ void display_cache_entry(vector<double> const & e, Enode * time_var, vector<Enod
 }
 
 bool icp_solver::prop_with_ODE() {
-    static map<vector<double>, tuple<bool, bool, vector<double>>> cache_X0;
-    static map<vector<double>, tuple<bool, bool, vector<double>>> cache_Xt;
-
     if (m_propag->apply(m_boxes.get())) {
 #ifdef ODE_ENABLED
         if (m_config.nra_contain_ODE) {
             // Sort ODE Solvers by their logVolume.
-            sort(m_ode_solvers.begin(),
-                 m_ode_solvers.end(),
-                 [&](ode_solver * odeSolver1, ode_solver * odeSolver2) {
-                     double const min1 = min(odeSolver1->logVolume_X0(m_boxes.get()),
-                                             odeSolver1->logVolume_Xt(m_boxes.get()));
-                     double const min2 = min(odeSolver2->logVolume_X0(m_boxes.get()),
-                                             odeSolver2->logVolume_Xt(m_boxes.get()));
+            sort(m_ode_solvers.begin(), m_ode_solvers.end(),
+                 [this](ode_solver * odeSolver1, ode_solver * odeSolver2) {
+                     rp_box b = m_boxes.get();
+                     double const min1 = min(odeSolver1->logVolume_X0(b), odeSolver1->logVolume_Xt(b));
+                     double const min2 = min(odeSolver2->logVolume_X0(b), odeSolver2->logVolume_Xt(b));
                      return min1 < min2;
                  });
             for (auto const & odeSolver : m_ode_solvers) {
                 rp_box b = m_boxes.get();
-                double lv_x0 = odeSolver->logVolume_X0(b);
-                double lv_xt = odeSolver->logVolume_Xt(b);
-                unsigned mode = odeSolver->getMode();
+                double const lv_x0 = odeSolver->logVolume_X0(b);
+                double const lv_xt = odeSolver->logVolume_Xt(b);
+                unsigned const mode = odeSolver->getMode();
                 bool forward = m_config.nra_ODE_forward_only ? true : lv_x0 <= lv_xt;
-                DREAL_LOG_INFO(setw(10) << mode
-                               << setw(20) << lv_x0
-                               << setw(20) << lv_xt
+                DREAL_LOG_INFO(setw(10) << mode << setw(20) << lv_x0 << setw(20) << lv_xt
                                << setw(20) << (forward ? "Forward" : "Backward"));
-
                 if (!m_config.nra_ODE_cache) {
                     bool result = true, have_exception = false;
                     callODESolver(odeSolver, forward, result, have_exception);
@@ -316,16 +326,17 @@ bool icp_solver::prop_with_ODE() {
                         return false;
                     }
                 } else {
+                    static map<vector<double>, tuple<bool, bool, vector<double>>> cache_X0;
+                    static map<vector<double>, tuple<bool, bool, vector<double>>> cache_Xt;
                     static unsigned hit = 0;
                     static unsigned nohit = 0;
                     static unsigned expt = 0;
-                    DREAL_LOG_INFO(" HIT    : " << setw(10) << hit
-                                    << " NOHIT  : " << setw(10) << nohit
-                                    << " EXCEPT : " << setw(10) << expt);
+                    DREAL_LOG_INFO(" HIT : " << setw(10) << hit << " NOHIT  : " << setw(10) << nohit
+                                   << " EXCEPT : " << setw(10) << expt);
                     if (forward) {
                         // Forward Pruning
-                        vector<double> t = odeSolver->extractX0T(b);
-                        auto it = cache_X0.find(t);
+                        vector<double> currentX0T = odeSolver->extractX0T(b);
+                        auto it = cache_X0.find(currentX0T);
                         if (it != cache_X0.end()) {
                             // Cache is HIT!
                             hit++;
@@ -336,18 +347,19 @@ bool icp_solver::prop_with_ODE() {
                             }
                             if (cached_exception)
                                 continue;
-                            vector<double> cached_info = get<2>(it->second);
+                            vector<double> const & cached_info = get<2>(it->second);
 
-                            unsigned i = 1; // cached_info[0] = mode
-                            // restore time
+                            // use cached time
                             Enode * time = odeSolver->get_Time();
-                            double cached_time_lb = cached_info[i++];
-                            double cached_time_ub = cached_info[i++];
+                            double cached_time_lb = cached_info[1];
+                            double cached_time_ub = cached_info[2];
                             bool result = updateValue(time, cached_time_lb, cached_time_ub);
                             if (!result) {
                                 return false;
                             }
-                            // restore X_t
+                            // use cached X_t
+                            // note: cached_info[3] is the beginning of X_t info
+                            unsigned i = 3;
                             for (Enode * var : odeSolver->get_Xt()) {
                                 double cached_var_lb = cached_info[i++];
                                 double cached_var_ub = cached_info[i++];
@@ -363,9 +375,9 @@ bool icp_solver::prop_with_ODE() {
                             bool have_exception = false;
                             callODESolver(odeSolver, forward, result, have_exception);
                             if (!have_exception) {
-                                cache_X0.emplace(t, make_tuple(result, have_exception, odeSolver->extractXtT(m_boxes.get())));
+                                cache_X0.emplace(currentX0T, make_tuple(result, have_exception, odeSolver->extractXtT(m_boxes.get())));
                             } else {
-                                // cache_X0.emplace(t, make_tuple(result, have_exception, odeSolver->extractXtT(m_boxes.get())));
+                                // cache_X0.emplace(currentX0T, make_tuple(result, have_exception, odeSolver->extractXtT(m_boxes.get())));
                                 expt++;
                             }
                             if (!result) {
@@ -374,8 +386,8 @@ bool icp_solver::prop_with_ODE() {
                         }
                     } else {
                         // Backward Pruning
-                        vector<double> t = odeSolver->extractXtT(b);
-                        auto it = cache_Xt.find(t);
+                        vector<double> currentXtT = odeSolver->extractXtT(b);
+                        auto it = cache_Xt.find(currentXtT);
                         if (it != cache_Xt.end()) {
                             // Cache is HIT!
                             hit++;
@@ -385,16 +397,18 @@ bool icp_solver::prop_with_ODE() {
                                 return false;
                             if (cached_exception)
                                 continue;
-                            vector<double> cached_info = get<2>(it->second);
-                            unsigned i = 1;
-                            // restore time
+                            vector<double> const & cached_info = get<2>(it->second);
+
+                            // use cached time
                             Enode * time = odeSolver->get_Time();
-                            double cached_time_lb = cached_info[i++];
-                            double cached_time_ub = cached_info[i++];
+                            double cached_time_lb = cached_info[1];
+                            double cached_time_ub = cached_info[2];
                             bool result = updateValue(time, cached_time_lb, cached_time_ub);
                             if (!result)
                                 return false;
-                            // restore X_0
+                            // use cached X_0
+                            // note: cached_info[3] is the beginning of X_0 info
+                            unsigned i = 3;
                             for (Enode * var : odeSolver->get_X0()) {
                                 double cached_var_lb = cached_info[i++];
                                 double cached_var_ub = cached_info[i++];
@@ -409,9 +423,9 @@ bool icp_solver::prop_with_ODE() {
                             bool have_exception = false;
                             callODESolver(odeSolver, forward, result, have_exception);
                             if (!have_exception) {
-                                cache_Xt.emplace(t, make_tuple(result, have_exception, odeSolver->extractX0T(m_boxes.get())));
+                                cache_Xt.emplace(currentXtT, make_tuple(result, have_exception, odeSolver->extractX0T(m_boxes.get())));
                             } else {
-                                // cache_Xt.emplace(t, make_tuple(result, have_exception, odeSolver->extractX0T(m_boxes.get())));
+                                // cache_Xt.emplace(currentXtT, make_tuple(result, have_exception, odeSolver->extractX0T(m_boxes.get())));
                                 expt++;
                             }
                             if (!result)
