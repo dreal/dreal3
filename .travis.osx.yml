@@ -21,13 +21,13 @@ install:
  - export LIBRARY_PATH
  - rm gcc-4.8-bin.tar.gz
  # autoconf automake cmake libtool pkg-config
- - brew install autoconf automake cmake libtool pkg-config
+ - brew install autoconf libtool pkg-config
  # ocaml, opam, ocamlfind, ocaml-batteries
- - brew install cmake ocaml opam
+ - brew install ocaml opam
  - yes | opam init
  - eval `opam config env`
  - opam update
- - yes | opam install ocamlfind batteries
+ - yes | opam install ocamlfind batteries oasis
 
 before_script:
   - SITE=OSX10.8.5@Travis
