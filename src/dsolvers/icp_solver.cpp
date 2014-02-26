@@ -317,7 +317,7 @@ bool icp_solver::prop_with_ODE() {
                 double const lv_xt = odeSolver->logVolume_Xt(b);
                 unsigned const mode = odeSolver->getMode();
                 bool forward = m_config.nra_ODE_forward_only ? true : lv_x0 <= lv_xt;
-                DREAL_LOG_INFO(setw(10) << mode << setw(20) << lv_x0 << setw(20) << lv_xt
+                DREAL_LOG_DEBUG(setw(10) << mode << setw(20) << lv_x0 << setw(20) << lv_xt
                                << setw(20) << (forward ? "Forward" : "Backward"));
                 if (!m_config.nra_ODE_cache) {
                     bool result = true, have_exception = false;
@@ -331,7 +331,7 @@ bool icp_solver::prop_with_ODE() {
                     static unsigned hit = 0;
                     static unsigned nohit = 0;
                     static unsigned expt = 0;
-                    DREAL_LOG_INFO(" HIT : " << setw(10) << hit << " NOHIT  : " << setw(10) << nohit
+                    DREAL_LOG_DEBUG(" HIT : " << setw(10) << hit << " NOHIT  : " << setw(10) << nohit
                                    << " EXCEPT : " << setw(10) << expt);
                     if (forward) {
                         // Forward Pruning
