@@ -1,0 +1,1 @@
+--precision=0.01 --ode-grid=32 --ode-cache --visualize
