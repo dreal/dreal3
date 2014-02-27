@@ -23,7 +23,8 @@ install:
  # autoconf automake cmake libtool pkg-config
  - brew install autoconf libtool pkg-config
  # ocaml, opam, ocamlfind, ocaml-batteries
- - brew install ocaml opam
+ - brew install ocaml
+ - brew install opam --without-aspcud
  - yes | opam init
  - eval `opam config env`
  - opam update
