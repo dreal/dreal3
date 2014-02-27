@@ -219,8 +219,9 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, bool & ODE_
         }
     }
     catch(exception& e) {
-        DREAL_LOG_INFO("Exception in ODE Solving " << (forward ? "(Forward)" : "(Backward)"));
-        DREAL_LOG_INFO(e.what());
+        DREAL_LOG_DEBUG("Exception in ODE Solving " << (forward ? "(Forward)" : "(Backward)"));
+        DREAL_LOG_DEBUG(e.what());
+        ODE_result = true;
         have_exception = true;
     }
     if (!ODE_result) {
@@ -238,8 +239,9 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, bool & ODE_
         }
     }
     catch(exception& e) {
-        DREAL_LOG_INFO("Exception in ODE Solving " << (forward ? "(Forward)" : "(Backward)"));
-        DREAL_LOG_INFO(e.what());
+        DREAL_LOG_DEBUG("Exception in ODE Solving " << (forward ? "(Forward)" : "(Backward)"));
+        DREAL_LOG_DEBUG(e.what());
+        ODE_result = true;
         have_exception = true;
     }
     return;
