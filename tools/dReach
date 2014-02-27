@@ -2,8 +2,8 @@
 SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # TODO: Specify the paths for BMC tool and DREAL
-BMC=bmc_main.native
-DREAL=dReal
+BMC=`which bmc_main.native`
+DREAL=`which dReal`
 
 #################################################################
 # USAGE
@@ -52,8 +52,9 @@ done
 if [ ! -e "$BMC" ]
 then
     cat << EOF
-Please edit $0 and provide the location of BMC tool.
-You can compile BMC tool by typing "make" at "dReal/tools" directory.
+
+Error: Please edit $0 and provide the location of BMC tool.
+Note : You can compile BMC tool by typing "make" at "dReal/tools" directory.
 EOF
     exit 1
 fi
@@ -61,7 +62,7 @@ fi
 if [ ! -e "$DREAL" ]
 then
     cat << EOF
-Please edit $0 and provide the location of dReal
+Error: Please edit $0 and provide the location of dReal.
 EOF
     exit 1
 fi
