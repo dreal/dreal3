@@ -1,4 +1,7 @@
-all:
+setup:
+	oasis setup
+
+all: setup
 	ocaml setup.ml -configure
 	ocaml setup.ml -build
 

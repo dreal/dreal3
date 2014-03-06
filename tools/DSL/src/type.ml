@@ -21,6 +21,7 @@ and macro =
 
 and var_decl =
     | RealVar of string
+    | RealVar2 of float * float * string (* bounded var *)
     | IntVar  of string
 
 and exp =
@@ -75,7 +76,7 @@ and formula =
     | Eq  of exp * exp
     | LetF of ((string * formula) list * formula)
     | LetE of ((string * exp) list * formula)
-    | ForallT of formula
+    | ForallT of exp * exp * exp * formula
 
 (* boolean expression *)
 and bexp =
@@ -102,7 +103,9 @@ and stmt =
     | Assign2 of string * exp
     (* if no else statement, the latter one is empty *)
     | If of bexp * stmt list * stmt list
-    | Proceed of float * float * stmt list
+
+    | Proceed of stmt list
+
     | Vardecls of var_decl list
     | Switch of string * choice list
     (* just some expression, like function call *)

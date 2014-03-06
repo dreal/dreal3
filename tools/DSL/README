@@ -1,0 +1,5 @@
+Quick Try
+=========
+make all
+./main.native ./tests/bouncing_ball.drc > tmp.c
+gcc tmp.c && ./a.out

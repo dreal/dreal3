@@ -41,13 +41,18 @@ main: macroDeclList mode_list main_entry {
 }
 
 macroDecl:
-    | DEFINE ID FNUM { Macro ($2, $3) }
+    | DEFINE ID ffnum { Macro ($2, $3) }
 ;
 
 macroDeclList:
     | /**/ { [] }
     | macroDecl { [$1] }
     | macroDecl macroDeclList { $1::$2 }
+;
+
+ffnum:
+    | FNUM { $1 }
+    | MINUS FNUM { 0.0 -. $2 }
 ;
 
 arg:
@@ -63,7 +68,7 @@ arg_list:
 
 exp:
  | ID                     { Var $1 }
- | FNUM                   { Num $1 }
+ | ffnum                   { Num $1 }
  | LP exp RP              { $2 }
  | exp PLUS exp           { Add [$1; $3] }
  | exp MINUS exp          { Sub [$1; $3] }
@@ -105,7 +110,7 @@ bexp:
 ;
 
 choice:
-    | CASE FNUM COLON stmt_list { Case ($2, $4) }
+    | CASE ffnum COLON stmt_list { Case ($2, $4) }
 ;
 
 choices:
@@ -142,11 +147,16 @@ stmt:
     | ID EQ exp SEMICOLON                                     { Assign2 ($1, $3) }
     | REAL ID EQ exp SEMICOLON                                { Assign1 ($2, $4) }
     | INT ID EQ exp SEMICOLON                                 { Assign1 ($2, $4) }
+
     | REAL ids SEMICOLON                                      { Vardecls (List.map (fun v -> RealVar v) $2) }
+    | REAL LB ffnum COMMA ffnum RB ID SEMICOLON               { Vardecls [RealVar2 ($3, $5, $7); ] }
+
     | INT ids SEMICOLON                                       { Vardecls (List.map (fun v -> IntVar v) $2) }
     | IF bexp THEN LC stmt_list RC                            { If ($2, $5, []) }
     | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC       { If ($2, $5, $9) }
-    | PROCEED LB FNUM COLON FNUM RB LC stmt_list RC           { Proceed ($3, $5, $8) }
+
+    | PROCEED LC stmt_list RC                                 { Proceed $3 }
+
     | switch                                                  { $1 }
     | ASSERT LP bexp RP SEMICOLON                             { Assert $3 }
     | exp SEMICOLON                                           { Expr $1 }

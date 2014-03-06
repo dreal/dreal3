@@ -7,7 +7,7 @@
 
 open Parser
 
-let debug_tag = true
+let debug_tag = false
 let verbose s =  if debug_tag then (print_string s; print_newline())
 let keyword_tbl = Hashtbl.create 255
 let _ = List.iter (fun (keyword, tok) -> Hashtbl.add keyword_tbl keyword tok)
