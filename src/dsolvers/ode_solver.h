@@ -40,21 +40,25 @@ public:
                std::vector<Enode*> invs,
                std::unordered_map<Enode*, int>& enode_to_rp_id);
     ~ode_solver();
-    bool                simple_ODE(rp_box b, bool forward);
-    bool                solve_forward(rp_box b);
-    bool                solve_backward(rp_box b);
+
+    enum class ODE_result {SAT, UNSAT, EXCEPTION, TIMEOUT};
+
+    ODE_result          simple_ODE(rp_box b, bool forward);
+    ODE_result          solve_forward(rp_box b);
+    ODE_result          solve_backward(rp_box b);
     void                print_trajectory(ostream& out) const;
     double              logVolume_X0(rp_box b) const;
     double              logVolume_Xt(rp_box b) const;
-    std::vector<double> extractX0T(rp_box b) const;
-    std::vector<double> extractXtT(rp_box b) const;
-    std::vector<double> extractX0XtT(rp_box b) const;
-    unsigned            getMode() const { return m_mode; }
+    unsigned            get_Mode() const { return m_mode; }
+
+private:
     std::vector<Enode*> get_X0() const { return m_0_vars; }
     std::vector<Enode*> get_Xt() const { return m_t_vars; }
     Enode *             get_Time() const { return m_time; }
+    std::vector<double> extract_X0T(rp_box b) const;
+    std::vector<double> extract_XtT(rp_box b) const;
+    std::vector<double> extract_X0XtT(rp_box b) const;
 
-private:
     // Private Members
     SMTConfig& m_config;
     Egraph &                       m_egraph;
@@ -91,9 +95,6 @@ private:
     capd::IVector varlist_to_IVector(vector<Enode*> const & vars);
     capd::IVector extract_invariants();
     void IVector_to_varlist(capd::IVector const & v, vector<Enode*> & vars);
-    void prune(vector<Enode*> const & _t_vars, capd::IVector const & v,
-               capd::interval const & dt,  capd::interval const & time,
-               vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list);
 
     bool check_invariant(capd::IVector & iv, capd::IVector const & inv);
     bool check_invariant(capd::C0Rect2Set & s, capd::IVector const & inv);
@@ -102,14 +103,27 @@ private:
 
     template<typename V>
     bool union_and_join(vector<V> const & bucket, V & result);
-    bool inner_loop_forward(capd::ITaylor & solver, capd::interval const & prevTime,
-                            vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list);
-    bool inner_loop_backward(capd::ITaylor & solver, capd::interval const & prevTime,
-                             vector<capd::IVector> & out_v_list, vector<capd::interval> & out_time_list);
-    bool simple_ODE_forward(capd::IVector const & X_0, capd::IVector & X_t, capd::interval const & T,
-                            capd::IVector const & inv, vector<capd::IFunction> & funcs);
-    bool simple_ODE_backward(capd::IVector & X_0, capd::IVector const & X_t, capd::interval const & T,
-                             capd::IVector const & inv, vector<capd::IFunction> & funcs);
+    bool inner_loop_forward(capd::ITaylor & solver,
+                            capd::interval prevTime,
+                            std::vector<std::pair<capd::interval, capd::IVector>> & bucket);
+    bool inner_loop_backward(capd::ITaylor & solver,
+                            capd::interval prevTime,
+                            std::vector<std::pair<capd::interval, capd::IVector>> & bucket);
+    ODE_result simple_ODE_forward(capd::IVector const & X_0,
+                                  capd::IVector & X_t,
+                                  capd::interval const & T,
+                                  capd::IVector const & inv,
+                                  vector<capd::IFunction> & funcs);
+    ODE_result simple_ODE_backward(capd::IVector & X_0,
+                                   capd::IVector const & X_t,
+                                   capd::interval const & T,
+                                   capd::IVector const & inv,
+                                   vector<capd::IFunction> & funcs);
+    bool updateValue(rp_box b, Enode * e, double lb, double ub);
+    ODE_result compute_forward(std::vector<std::pair<capd::interval, capd::IVector>> & bucket);
+    ODE_result prune_forward(std::vector<std::pair<capd::interval, capd::IVector>> & bucket);
+    ODE_result compute_backward(std::vector<std::pair<capd::interval, capd::IVector>> & bucket);
+    ODE_result prune_backward(std::vector<std::pair<capd::interval, capd::IVector>> & bucket);
 
     // Inline functions
     inline double get_lb(Enode* const e) const { return rp_binf(rp_box_elem(m_b, m_enode_to_rp_id[e])); }
@@ -118,3 +132,5 @@ private:
     inline void set_ub(Enode* const e, double v) { rp_bsup(rp_box_elem(m_b, m_enode_to_rp_id[e])) = v; }
     inline void set_empty_interval(Enode* const e) { rp_interval_set_empty(rp_box_elem(m_b, m_enode_to_rp_id[e])); }
 };
+
+ostream& operator<<(ostream& out, ode_solver::ODE_result ret);

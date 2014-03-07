@@ -19,13 +19,17 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <time.h>
+#include <chrono>
+#include <iomanip>
 #include <limits>
+#include <map>
 #include <math.h>
+#include <sstream>
 #include <string>
+#include <time.h>
 #include <unordered_map>
 #include <unordered_set>
-#include <sstream>
+#include <utility>
 #include "dsolvers/ode_solver.h"
 #include "dsolvers/util/logger.h"
 #include "dsolvers/util/string.h"
@@ -36,17 +40,41 @@ using capd::ITaylor;
 using capd::ITimeMap;
 using capd::IVector;
 using capd::interval;
+using std::chrono::duration_cast;
+using std::chrono::high_resolution_clock;
+using std::chrono::milliseconds;
 using std::exception;
 using std::find_if;
+using std::get;
+using std::map;
 using std::max;
+using std::min;
 using std::numeric_limits;
 using std::reverse;
+using std::setw;
 using std::stoi;
 using std::stringstream;
 using std::to_string;
 using std::tuple;
 using std::unordered_map;
 using std::unordered_set;
+
+static unsigned g_hit = 0;
+static unsigned g_nohit = 0;
+
+list<interval> split(interval const & i, unsigned n) {
+    list<interval> ret;
+    double lb = i.leftBound();
+    double const rb = i.rightBound();
+    double const width = rb - lb;
+    double const step = width / n;
+    for (unsigned i = 0; i < n - 1; i++) {
+        ret.emplace_back(lb, lb + step);
+        lb += step;
+    }
+    ret.emplace_back(lb, rb);
+    return ret;
+}
 
 ode_solver::ode_solver(SMTConfig& c,
                        Egraph & e,
@@ -279,117 +307,191 @@ void ode_solver::IVector_to_varlist(IVector const & v, vector<Enode*> & vars) {
     }
 }
 
-// Save v and dt to v_bucket and time_bucket
-// if they satisfy the following conditions:
-// 1) dt should be inside of time
-// 2) v should be inside of _t_vars
-void ode_solver::prune(vector<Enode*> const & _t_vars, IVector const & v, interval const & dt, interval const & time,
-                       vector<IVector> & v_bucket, vector<interval> & time_bucket) {
-    DREAL_LOG_DEBUG("  dt = " << dt);
-    DREAL_LOG_DEBUG("time = " << time);
-    if (dt.leftBound() > time.rightBound() || time.leftBound() > dt.rightBound()) {
-        DREAL_LOG_DEBUG("IS " << "NOT CANDIDATE (TIME)");
-        return;
-    }
-    for (auto i = 0; i < v.dimension(); i++) {
-        DREAL_LOG_DEBUG("  v[" << i << ", " << _t_vars[i] << "] = " << v[i]);
-        DREAL_LOG_DEBUG("x_t[" << i << ", " << _t_vars[i] << "] = " << "[" << get_lb(_t_vars[i]) << ", " << get_ub(_t_vars[i]) << "]");
-        if ((v[i].leftBound() > get_ub(_t_vars[i])) || (v[i].rightBound() < get_lb(_t_vars[i]))) {
-            DREAL_LOG_DEBUG("IS " << "NOT CANDIDATE (" << i << ")");
-            return;
-        }
-    }
-    DREAL_LOG_DEBUG("IS " << "CANDIDATE");
-    v_bucket.push_back(v);
-    time_bucket.push_back(dt);
-}
-
-bool ode_solver::simple_ODE(rp_box b, bool forward) {
+ode_solver::ODE_result ode_solver::simple_ODE(rp_box b, bool forward) {
     update(b);
+    ODE_result ret = ODE_result::SAT;
+
     if (forward) {
-        return simple_ODE_forward(m_X_0, m_X_t, m_T, m_inv, m_funcs);
+        ret = simple_ODE_forward(m_X_0, m_X_t, m_T, m_inv, m_funcs);
     } else {
+        ret = simple_ODE_backward(m_X_0, m_X_t, m_T, m_inv, m_funcs);
+    }
+
+    if (ret == ODE_result::UNSAT) {
+        return ret;
+    }
+
+    if (forward) {
         return simple_ODE_backward(m_X_0, m_X_t, m_T, m_inv, m_funcs);
+    } else {
+        return simple_ODE_forward(m_X_0, m_X_t, m_T, m_inv, m_funcs);
     }
 }
 
-bool ode_solver::solve_forward(rp_box b) {
-    clock_t start_clock = clock();
+ode_solver::ODE_result ode_solver::solve_forward(rp_box b) {
     DREAL_LOG_DEBUG("ODE_Solver::solve_forward()");
+    ODE_result ret = ODE_result::SAT;
     update(b);
-    bool ret = true;
-    IMap vectorField(m_diff_sys_forward);
-    for (Enode * par : m_pars) {
-        double lb = get_lb(par);
-        double ub = get_ub(par);
-        string name = par->getCar()->getName();
-        vectorField.setParameter(name, interval(lb, ub));
+
+    static map<vector<double>, tuple<ODE_result, vector<pair<interval, IVector>>>> cache;
+    vector<pair<interval, IVector>> bucket;
+
+    if (m_config.nra_ODE_cache) {
+        // Check Cache
+        vector<double> currentX0T = extract_X0T(b);
+        auto cache_it = cache.find(currentX0T);
+        if (cache_it != cache.end()) {
+            // HIT
+            g_hit++;
+            ODE_result cached_ret = get<0>(cache_it->second);
+            if (cached_ret == ODE_result::UNSAT ||
+                cached_ret == ODE_result::EXCEPTION ||
+                cached_ret == ODE_result::TIMEOUT) {
+                return cached_ret;
+            }
+            bucket = get<1>(cache_it->second);
+        } else {
+            // NoHit
+            g_nohit++;
+            // Compute
+            ret = compute_forward(bucket);
+            // Save to cache
+            cache.emplace(currentX0T, make_tuple(ret, bucket));
+        }
+    } else {
+        ret = compute_forward(bucket);
     }
-    ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .001);
-    ITimeMap timeMap(solver);
-    C0Rect2Set s(m_X_0);
-    DREAL_LOG_DEBUG("interval T = " << m_T);
-    timeMap.stopAfterStep(true);
-    bool fastForward = false;
-    timeMap.turnOnStepControl();
-    interval prevTime(0.);
-    if (m_config.nra_json) {
-        m_trajectory.clear();
-        m_trajectory.push_back(make_pair(timeMap.getCurrentTime(), IVector(s)));
+    if (ret == ODE_result::SAT) {
+        return prune_forward(bucket);
+    } else {
+        return ret;
     }
-    vector<IVector> v_bucket;
-    vector<interval> time_bucket;
+}
+
+ode_solver::ODE_result ode_solver::solve_backward(rp_box b) {
+    DREAL_LOG_DEBUG("ODE_Solver::solve_backward()");
+    ODE_result ret = ODE_result::SAT;
+    update(b);
+
+    static map<vector<double>, tuple<ODE_result, vector<pair<interval, IVector>>>> cache;
+    vector<pair<interval, IVector>> bucket;
+
+    if (m_config.nra_ODE_cache) {
+        // Check Cache
+        vector<double> currentXtT = extract_XtT(b);
+        auto cache_it = cache.find(currentXtT);
+        if (cache_it != cache.end()) {
+            // HIT
+            g_hit++;
+            ODE_result cached_ret = get<0>(cache_it->second);
+            if (cached_ret == ODE_result::UNSAT ||
+                cached_ret == ODE_result::EXCEPTION ||
+                cached_ret == ODE_result::TIMEOUT) {
+                return cached_ret;
+            }
+            bucket = get<1>(cache_it->second);
+        } else {
+            // NoHit
+            g_nohit++;
+            // Compute
+            ret = compute_backward(bucket);
+            // Save to cache
+            cache.emplace(currentXtT, make_tuple(ret, bucket));
+        }
+    } else {
+        ret = compute_backward(bucket);
+    }
+    if (ret == ODE_result::SAT) {
+        return prune_backward(bucket);
+    } else {
+        return ret;
+    }
+}
+
+ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector>> & bucket) {
+    ODE_result ret = ODE_result::SAT;
+    auto start = high_resolution_clock::now();
     bool invariantViolated = false;
 
-    clock_t end_clock;
-    double elapsed_msecs;
-    do {
-        if (m_config.nra_ODE_timeout > 0.0) {
-            end_clock = clock();
-            elapsed_msecs = (static_cast<double>(end_clock) - static_cast<double>(start_clock)) * 1000 / CLOCKS_PER_SEC;
-            if (elapsed_msecs >= m_config.nra_ODE_timeout) {
-                DREAL_LOG_INFO("ODE_Solver::solve_forward() -- timeout : " << elapsed_msecs << "\t" << m_config.nra_ODE_timeout);
-                ret = true;
-                return ret;
-            }
+    try {
+        // Set up VectorField
+        IMap vectorField(m_diff_sys_forward);
+        for (Enode * par : m_pars) {
+            double lb = get_lb(par);
+            double ub = get_ub(par);
+            string name = par->getCar()->getName();
+            vectorField.setParameter(name, interval(lb, ub));
         }
-
-        invariantViolated = !check_invariant(s, m_inv);
+        ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .001);
+        ITimeMap timeMap(solver);
+        C0Rect2Set s(m_X_0);
+        timeMap.stopAfterStep(true);
         timeMap.turnOnStepControl();
-        if (m_stepControl > 0 && solver.getStep() < m_stepControl) {
-            timeMap.turnOffStepControl();
-            solver.setStep(m_stepControl);
-            timeMap.setStep(m_stepControl);
+
+        // TODO(soonhok): visualization
+        if (m_config.nra_json) {
+            m_trajectory.clear();
+            m_trajectory.emplace_back(timeMap.getCurrentTime(), IVector(s));
         }
 
-        timeMap(m_T.rightBound(), s);
-        if (contain_NaN(s)) { return true; }
-        DREAL_LOG_DEBUG("T : " << m_T);
-        DREAL_LOG_DEBUG("currentTime : " << timeMap.getCurrentTime());
-        if (!fastForward || m_T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
-            invariantViolated = inner_loop_forward(solver, prevTime, v_bucket, time_bucket);
-        } else {
-            DREAL_LOG_DEBUG("Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime());
-            DREAL_LOG_DEBUG("enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s));
-        }
-        prevTime = timeMap.getCurrentTime();
-        DREAL_LOG_DEBUG("current time: " << prevTime);
-        DREAL_LOG_DEBUG("InvViolated : " << invariantViolated << "timeMap.completed: " << timeMap.completed());
-    } while (!invariantViolated && !timeMap.completed());
-    if (union_and_join(v_bucket, m_X_t)) {
-        IVector_to_varlist(m_X_t, m_t_vars);
-    } else {
-        for (auto _t_var : m_t_vars) {
-            set_empty_interval(_t_var);
-        }
-        ret = false;
-    }
-    if (union_and_join(time_bucket, m_T)) {
-        set_lb(m_time, m_T.leftBound());
-        set_ub(m_time, m_T.rightBound());
-    } else {
-        set_empty_interval(m_time);
-        ret = false;
+        interval prevTime(0.);
+        do {
+            // Handle Timeout
+            if (m_config.nra_ODE_timeout > 0.0) {
+                auto end = high_resolution_clock::now();
+                if (duration_cast<milliseconds>(end - start).count() >= m_config.nra_ODE_timeout) {
+                    return ODE_result::TIMEOUT;
+                }
+            }
+
+            // Check Invariant
+            invariantViolated = !check_invariant(s, m_inv);
+            if (invariantViolated) {
+                // TODO(soonhok): invariant
+                if (timeMap.getCurrentTime().rightBound() < m_T.leftBound()) {
+                    ret = ODE_result::UNSAT;
+                } else {
+                    ret = ODE_result::SAT;
+                }
+                break;
+            }
+
+            // Control TimeStep
+            timeMap.turnOnStepControl();
+            if (m_stepControl > 0 && solver.getStep() < m_stepControl) {
+                timeMap.turnOffStepControl();
+                solver.setStep(m_stepControl);
+                timeMap.setStep(m_stepControl);
+            }
+
+            // Move s toward m_T.rightBound()
+            timeMap(m_T.rightBound(), s);
+            if (contain_NaN(s)) { return ODE_result::SAT; }
+            if (m_T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
+                invariantViolated = inner_loop_forward(solver, prevTime, bucket);
+                if (invariantViolated) {
+                    // TODO(soonhok): invariant
+                    ret = ODE_result::SAT;
+                    break;
+                }
+            } else {
+                if (m_config.nra_json) {
+                    interval const stepMade = solver.getStep();
+                    const ITaylor::CurveType& curve = solver.getCurve();
+                    interval domain = interval(0, 1) * stepMade;
+                    list<interval> intvs;
+                    intvs = split(domain, m_config.nra_ODE_grid_size);
+                    for (interval subsetOfDomain : intvs) {
+                        interval dt = prevTime + subsetOfDomain;
+                        IVector v = curve(subsetOfDomain);
+                        m_trajectory.emplace_back(dt, v);
+                    }
+                }
+            }
+            prevTime = timeMap.getCurrentTime();
+        } while (!invariantViolated && !timeMap.completed());
+    } catch (exception& e) {
+        ret = ODE_result::EXCEPTION;
     }
     if (m_config.nra_json) {
         prune_trajectory(m_T, m_X_t);
@@ -397,103 +499,198 @@ bool ode_solver::solve_forward(rp_box b) {
     return ret;
 }
 
-bool ode_solver::solve_backward(rp_box b) {
-    clock_t start_clock = clock();
-    DREAL_LOG_DEBUG("ODE_Solver::solve_backward()");
-    update(b);
-    bool ret = true;
-    IMap vectorField(m_diff_sys_backward);
-    for (Enode * par : m_pars) {
-        double lb = get_lb(par);
-        double ub = get_ub(par);
-        string name = par->getCar()->getName();
-        vectorField.setParameter(name, interval(lb, ub));
-    }
-    ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .001);
-    ITimeMap timeMap(solver);
-    C0Rect2Set s(m_X_t);
-    DREAL_LOG_DEBUG("interval T = " << m_T);
-    timeMap.stopAfterStep(true);
-    bool fastForward = false;
-    timeMap.turnOnStepControl();
-    interval prevTime(0.);
-    if (m_config.nra_json) {
-        m_trajectory.clear();
-        m_trajectory.push_back(make_pair(m_T.rightBound() - timeMap.getCurrentTime(), IVector(s)));
-    }
-    vector<IVector> v_bucket;
-    vector<interval> time_bucket;
+ode_solver::ODE_result ode_solver::compute_backward(vector<pair<interval, IVector>> & bucket) {
+    ODE_result ret = ODE_result::SAT;
+    auto start = high_resolution_clock::now();
     bool invariantViolated = false;
 
-    clock_t end_clock;
-    double elapsed_msecs;
-    do {
-        if (m_config.nra_ODE_timeout > 0.0) {
-            end_clock = clock();
-            elapsed_msecs = (static_cast<double>(end_clock) - static_cast<double>(start_clock)) * 1000 / CLOCKS_PER_SEC;
-            if (elapsed_msecs >= m_config.nra_ODE_timeout) {
-                DREAL_LOG_INFO("ODE_Solver::solve_backward() -- timeout : " << elapsed_msecs << "\t" << m_config.nra_ODE_timeout);
-                ret = true;
-                return ret;
+    try {
+        // Set up VectorField
+        IMap vectorField(m_diff_sys_backward);
+        for (Enode * par : m_pars) {
+            double lb = get_lb(par);
+            double ub = get_ub(par);
+            string name = par->getCar()->getName();
+            vectorField.setParameter(name, interval(lb, ub));
+        }
+        ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .001);
+        ITimeMap timeMap(solver);
+        C0Rect2Set s(m_X_t);
+        timeMap.stopAfterStep(true);
+        timeMap.turnOnStepControl();
+
+        // TODO(soonhok): visualization
+        // if (m_config.nra_json) {
+        //     m_trajectory.clear();
+        //     m_trajectory.emplace_back(m_T.rightBound() - timeMap.getCurrentTime(), IVector(s));
+        // }
+
+        interval prevTime(0.);
+        do {
+            // Handle Timeout
+            if (m_config.nra_ODE_timeout > 0.0) {
+                auto end = high_resolution_clock::now();
+                if (duration_cast<milliseconds>(end - start).count() >= m_config.nra_ODE_timeout) {
+                    return ODE_result::TIMEOUT;
+                }
             }
-        }
 
-        invariantViolated = !check_invariant(s, m_inv);
-        // timeMap.turnOnStepControl();
-        if (m_stepControl > 0 && solver.getStep() < m_stepControl) {
-            timeMap.turnOffStepControl();
-            solver.setStep(m_stepControl);
-            timeMap.setStep(m_stepControl);
-        }
+            // Check Invariant
+            invariantViolated = !check_invariant(s, m_inv);
+            if (invariantViolated) {
+                // TODO(soonhok): invariant
+                if (timeMap.getCurrentTime().rightBound() < m_T.leftBound()) {
+                    ret = ODE_result::UNSAT;
+                } else {
+                    ret = ODE_result::SAT;
+                }
+                break;
+            }
 
-        timeMap(m_T.rightBound(), s);
-        if (contain_NaN(s)) { return true; }
-        DREAL_LOG_DEBUG("T : " << m_T);
-        DREAL_LOG_DEBUG("currentTime : " << timeMap.getCurrentTime());
-        if (!fastForward || m_T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
-            invariantViolated = inner_loop_backward(solver, prevTime, v_bucket, time_bucket);
-        } else {
-            DREAL_LOG_DEBUG("Fast-forward:: " << prevTime << " ===> " << timeMap.getCurrentTime());
-            DREAL_LOG_DEBUG("enclosure for t=" << timeMap.getCurrentTime() << ": " << IVector(s));
-        }
-        prevTime = timeMap.getCurrentTime();
-        DREAL_LOG_DEBUG("current time: " << prevTime);
-        DREAL_LOG_DEBUG("InvViolated : " << invariantViolated);
-        DREAL_LOG_DEBUG("timeMap.completed: " << timeMap.completed());
-    } while (!invariantViolated && !timeMap.completed());
-    if (union_and_join(v_bucket, m_X_0)) {
-        IVector_to_varlist(m_X_0, m_0_vars);
-    } else {
-        for (auto _0_var : m_0_vars) {
-            set_empty_interval(_0_var);
-        }
-        ret = false;
-    }
-    if (union_and_join(time_bucket, m_T)) {
-        set_lb(m_time, m_T.leftBound());
-        set_ub(m_time, m_T.rightBound());
-    } else {
-        set_empty_interval(m_time);
-        ret = false;
+            // Control TimeStep
+            timeMap.turnOnStepControl();
+            if (m_stepControl > 0 && solver.getStep() < m_stepControl) {
+                timeMap.turnOffStepControl();
+                solver.setStep(m_stepControl);
+                timeMap.setStep(m_stepControl);
+            }
+
+            // Move s toward m_T.rightBound()
+            timeMap(m_T.rightBound(), s);
+            if (contain_NaN(s)) { return ODE_result::SAT; }
+            if (m_T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
+                invariantViolated = inner_loop_backward(solver, prevTime, bucket);
+                if (invariantViolated) {
+                    // TODO(soonhok): invariant
+                    ret = ODE_result::SAT;
+                    break;
+                }
+            }
+            prevTime = timeMap.getCurrentTime();
+        } while (!invariantViolated && !timeMap.completed());
+    } catch (exception& e) {
+        ret = ODE_result::EXCEPTION;
     }
     if (m_config.nra_json) {
         prune_trajectory(m_T, m_X_0);
     }
-
-    // Reverse trajectory vector
-    reverse(m_trajectory.begin(), m_trajectory.end());
     return ret;
 }
 
+ode_solver::ODE_result ode_solver::prune_forward(vector<pair<interval, IVector>> & bucket) {
+    // 1) Intersect each v in bucket with X_t.
+    // 2) If there is no intersection in 1), set dt an empty interval [0, 0]
+    for (pair<interval, IVector> & item : bucket) {
+        interval & dt = item.first;
+        IVector &  v  = item.second;
+        // v = v union m_X_t
+        if (!intersection(v, m_X_t, v)) {
+            dt.setLeftBound(0.0);
+            dt.setRightBound(0.0);
+        }
+    }
+    bucket.erase(remove_if (bucket.begin(), bucket.end(),
+                           [](pair<interval, IVector> const & item) {
+                               interval const & dt = item.first;
+                               return dt.leftBound() == 0.0 && dt.rightBound() == 0.0;
+                           }),
+                 bucket.end());
+    if (bucket.empty()) {
+        // UNSAT
+        for (auto _t_var : m_t_vars) {
+            set_empty_interval(_t_var);
+        }
+        set_empty_interval(m_time);
+        return ODE_result::UNSAT;
+    } else {
+        m_T = bucket.begin()->first;
+        m_X_t  = bucket.begin()->second;
+        for (pair<interval, IVector> & item : bucket) {
+            interval & dt = item.first;
+            IVector &  v  = item.second;
+            m_X_t  = intervalHull(m_X_t,  v);
+            m_T    = intervalHull(m_T, dt);
+        }
+        IVector_to_varlist(m_X_t, m_t_vars);
+        set_lb(m_time, m_T.leftBound());
+        set_ub(m_time, m_T.rightBound());
+        return ODE_result::SAT;
+    }
+}
+
+ode_solver::ODE_result ode_solver::prune_backward(vector<pair<interval, IVector>> & bucket) {
+    // 1) Intersect each v in bucket with X_0.
+    // 2) If there is no intersection in 1), set dt an empty interval [0, 0]
+    for (pair<interval, IVector> & item : bucket) {
+        interval & dt = item.first;
+        IVector &  v  = item.second;
+        // v = v union m_X_t
+        if (!intersection(v, m_X_0, v)) {
+            dt.setLeftBound(0.0);
+            dt.setRightBound(0.0);
+        }
+    }
+    bucket.erase(remove_if (bucket.begin(), bucket.end(),
+                           [](pair<interval, IVector> const & item) {
+                               interval const & dt = item.first;
+                               return dt.leftBound() == 0.0 && dt.rightBound() == 0.0;
+                           }),
+                 bucket.end());
+    if (bucket.empty()) {
+        // UNSAT
+        for (auto _0_var : m_0_vars) {
+            set_empty_interval(_0_var);
+        }
+        set_empty_interval(m_time);
+        return ODE_result::UNSAT;
+    } else {
+        m_T = bucket.begin()->first;
+        m_X_0  = bucket.begin()->second;
+        for (pair<interval, IVector> & item : bucket) {
+            interval & dt = item.first;
+            IVector &  v  = item.second;
+            m_X_0  = intervalHull(m_X_0,  v);
+            m_T    = intervalHull(m_T, dt);
+        }
+        IVector_to_varlist(m_X_0, m_0_vars);
+        set_lb(m_time, m_T.leftBound());
+        set_ub(m_time, m_T.rightBound());
+        return ODE_result::SAT;
+    }
+}
+
+bool ode_solver::updateValue(rp_box b, Enode * e, double lb, double ub) {
+    DREAL_LOG_DEBUG("UpdateValue : " << e
+                    << " ["      << rp_binf(rp_box_elem(b, m_enode_to_rp_id[e]))
+                    << ", "      << rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e]))
+                    << "] /\\ [" << lb << ", " << ub << "]");
+    double new_lb = max(lb, rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])));
+    double new_ub = min(ub, rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])));
+    if (new_lb <= new_ub) {
+        e->setLowerBound(new_lb);
+        rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])) = new_lb;
+        e->setUpperBound(new_ub);
+        rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])) = new_ub;
+        DREAL_LOG_DEBUG(" = [" << new_lb << ", " << new_ub << "]");
+        return true;
+    } else {
+        rp_interval_set_empty(rp_box_elem(b, m_enode_to_rp_id[e]));
+        e->setLowerBound(+numeric_limits<double>::infinity());
+        e->setUpperBound(-numeric_limits<double>::infinity());
+        DREAL_LOG_DEBUG(" = empty ");
+        return false;
+    }
+}
+
+// Take an intersection of v and inv.
+// If there is no intersection, return false.
 bool ode_solver::check_invariant(IVector & v, IVector const & inv) {
     if (!intersection(v, inv, v)) {
-        if (m_config.nra_verbose) {
-            DREAL_LOG_DEBUG("invariant violated!");
-            for (auto i = 0; i < v.dimension(); i++) {
-                if (v[i].leftBound() < inv[i].leftBound() || v[i].rightBound() > inv[i].rightBound()) {
-                    DREAL_LOG_DEBUG("inv[" << i << "] = " << inv[i]);
-                    DREAL_LOG_DEBUG("  v[" << i << "] = " <<   v[i]);
-                }
+        DREAL_LOG_DEBUG("invariant violated!");
+        for (auto i = 0; i < v.dimension(); i++) {
+            if (v[i].leftBound() < inv[i].leftBound() || v[i].rightBound() > inv[i].rightBound()) {
+                DREAL_LOG_DEBUG("inv[" << i << "] = " << inv[i]);
+                DREAL_LOG_DEBUG("  v[" << i << "] = " <<   v[i]);
             }
         }
         return false;
@@ -549,84 +746,89 @@ bool ode_solver::union_and_join(vector<V> const & bucket, V & result) {
 
 // Run inner loop
 // return true if it violates invariant otherwise return false.
-bool ode_solver::inner_loop_forward(ITaylor & solver, interval const & prevTime,
-                                    vector<IVector> & v_bucket, vector<interval> & time_bucket) {
-    interval stepMade = solver.getStep();
+bool ode_solver::inner_loop_forward(ITaylor & solver, interval prevTime, vector<pair<interval, IVector>> & bucket) {
+    interval const stepMade = solver.getStep();
     const ITaylor::CurveType& curve = solver.getCurve();
     interval domain = interval(0, 1) * stepMade;
-    double domainWidth = domain.rightBound() - domain.leftBound();
-    for (unsigned i = 0; i <m_config.nra_ODE_grid_size; i++) {
-        interval subsetOfDomain = domain / m_config.nra_ODE_grid_size
-            + (domainWidth / m_config.nra_ODE_grid_size) * i;
-        intersection(domain, subsetOfDomain, subsetOfDomain);
+    list<interval> intvs;
+    if (prevTime.rightBound() < m_T.leftBound()) {
+        interval pre_T = interval(0, m_T.leftBound() - prevTime.rightBound());
+        domain.setLeftBound(m_T.leftBound() - prevTime.rightBound());
+        intvs = split(domain, m_config.nra_ODE_grid_size);
+        intvs.push_front(pre_T);
+    } else {
+        intvs = split(domain, m_config.nra_ODE_grid_size);
+    }
+
+    for (interval subsetOfDomain : intvs) {
+        interval dt = prevTime + subsetOfDomain;
         IVector v = curve(subsetOfDomain);
-        DREAL_LOG_DEBUG("subsetOfDomain: " << subsetOfDomain);
-        DREAL_LOG_DEBUG("enclosure for t=" << prevTime + subsetOfDomain << ": " << v);
-        DREAL_LOG_DEBUG("diam(enclosure): " << diam(v));
         if (!check_invariant(v, m_inv)) {
+            // TODO(soonhok): invariant
             return true;
         }
-        DREAL_LOG_DEBUG("inv = " << m_inv);
-        DREAL_LOG_DEBUG("v = " << v);
-        DREAL_LOG_DEBUG("enclosure for t intersected with inv " << prevTime + subsetOfDomain << ": " << v);
-        prune(m_t_vars, v, prevTime + subsetOfDomain, m_T, v_bucket, time_bucket);
+        // cerr << dt << "\t" << v << endl;
+        if (prevTime + subsetOfDomain.rightBound() > m_T.leftBound()) {
+            bucket.emplace_back(dt, v);
+        }
+        // TODO(soonhok): visualization
         if (m_config.nra_json) {
-            m_trajectory.push_back(make_pair(prevTime + subsetOfDomain, v));
+            m_trajectory.emplace_back(prevTime + subsetOfDomain, v);
         }
     }
     return false;
 }
 
-// Run inner loop
-// return true if it violates invariant otherwise return false.
-bool ode_solver::inner_loop_backward(ITaylor & solver, interval const & prevTime,
-                                    vector<IVector> & v_bucket, vector<interval> & time_bucket) {
-    interval stepMade = solver.getStep();
+bool ode_solver::inner_loop_backward(ITaylor & solver, interval prevTime, vector<pair<interval, IVector>> & bucket) {
+    interval const stepMade = solver.getStep();
     const ITaylor::CurveType& curve = solver.getCurve();
     interval domain = interval(0, 1) * stepMade;
-    double domainWidth = domain.rightBound() - domain.leftBound();
-    for (unsigned i = 0; i < m_config.nra_ODE_grid_size; i++) {
-        interval subsetOfDomain = domain / m_config.nra_ODE_grid_size
-            + (domainWidth / m_config.nra_ODE_grid_size) * i;
-        intersection(domain, subsetOfDomain, subsetOfDomain);
+    list<interval> intvs;
+    if (prevTime.rightBound() < m_T.leftBound()) {
+        interval pre_T = interval(0, m_T.leftBound() - prevTime.rightBound());
+        domain.setLeftBound(m_T.leftBound() - prevTime.rightBound());
+        intvs = split(domain, m_config.nra_ODE_grid_size);
+        intvs.push_front(pre_T);
+    } else {
+        intvs = split(domain, m_config.nra_ODE_grid_size);
+    }
+
+    for (interval subsetOfDomain : intvs) {
+        interval dt = prevTime + subsetOfDomain;
         IVector v = curve(subsetOfDomain);
-        DREAL_LOG_DEBUG("subsetOfDomain: " << subsetOfDomain);
-        DREAL_LOG_DEBUG("enclosure for t=" << prevTime + subsetOfDomain << ": " << v);
-        DREAL_LOG_DEBUG("diam(enclosure): " << diam(v));
         if (!check_invariant(v, m_inv)) {
+            // TODO(soonhok): invariant
             return true;
         }
-        DREAL_LOG_DEBUG("inv = " << m_inv);
-        DREAL_LOG_DEBUG("v = " << v);
-        DREAL_LOG_DEBUG("enclosure for t intersected with inv " << prevTime + subsetOfDomain << ": " << v);
-        prune(m_0_vars, v, prevTime + subsetOfDomain, m_T, v_bucket, time_bucket);
-        if (m_config.nra_json) {
-            m_trajectory.push_back(make_pair(m_T.rightBound() - (prevTime + subsetOfDomain), v));
+        if (prevTime + subsetOfDomain.rightBound() > m_T.leftBound()) {
+            bucket.emplace_back(dt, v);
         }
+        // TODO(soonhok): visualization
+        // if (m_config.nra_json) {
+        //     m_trajectory.emplace_back(m_T.rightBound() - (prevTime + subsetOfDomain), v);
+        // }
     }
     return false;
 }
 
-bool ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t, interval const & T,
+ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t, interval const & T,
                                     IVector const & inv, vector<IFunction> & funcs) {
     // X_t = X_t \cup (X_0 + (d/dt Inv) * T)
     for (int i = 0; i < X_0.dimension(); i++) {
         interval const & x_0 = X_0[i];
         interval & x_t = X_t[i];
         IFunction & dxdt = funcs[i];
-
         for (Enode * par : m_pars) {
             double lb = get_lb(par);
             double ub = get_ub(par);
             string name = par->getCar()->getName();
             dxdt.setParameter(name, interval(lb, ub));
         }
-
         try {
             interval new_x_t = x_0 + dxdt(inv) * T;
             if (!intersection(new_x_t, x_t, x_t)) {
                 DREAL_LOG_DEBUG("Simple_ODE: no intersection for X_T");
-                return false;
+                return ODE_result::UNSAT;
             }
         } catch (exception& e) {
             DREAL_LOG_DEBUG("Exception in Simple_ODE: " << e.what());
@@ -634,29 +836,27 @@ bool ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t, interval
     }
     // update
     IVector_to_varlist(X_t, m_t_vars);
-    return true;
+    return ODE_result::SAT;
 }
 
-bool ode_solver::simple_ODE_backward(IVector & X_0, IVector const & X_t, interval const & T,
+ode_solver::ODE_result ode_solver::simple_ODE_backward(IVector & X_0, IVector const & X_t, interval const & T,
                                      IVector const & inv, vector<IFunction> & funcs) {
     // X_0 = X_0 \cup (X_t - + (d/dt Inv) * T)
     for (int i = 0; i < X_0.dimension(); i++) {
         interval & x_0 = X_0[i];
         interval const & x_t = X_t[i];
         IFunction & dxdt = funcs[i];
-
         for (Enode * par : m_pars) {
             double lb = get_lb(par);
             double ub = get_ub(par);
             string name = par->getCar()->getName();
             dxdt.setParameter(name, interval(lb, ub));
         }
-
         try {
             interval const new_x_0 = x_t - dxdt(inv) * T;
             if (!intersection(new_x_0, x_0, x_0)) {
                 DREAL_LOG_DEBUG("Simple_ODE: no intersection for X_0");
-                return false;
+                return ODE_result::UNSAT;
             }
         } catch (exception& e) {
             DREAL_LOG_DEBUG("Exception in Simple_ODE: " << e.what());
@@ -664,7 +864,7 @@ bool ode_solver::simple_ODE_backward(IVector & X_0, IVector const & X_t, interva
     }
     // update
     IVector_to_varlist(X_0, m_0_vars);
-    return true;
+    return ODE_result::SAT;
 }
 
 double ode_solver::logVolume_X0(rp_box b) const {
@@ -688,7 +888,7 @@ double ode_solver::logVolume_Xt(rp_box b) const {
     return ret;
 }
 
-vector<double> ode_solver::extractX0T(rp_box b) const {
+vector<double> ode_solver::extract_X0T(rp_box b) const {
     vector<double> ret;
     ret.emplace_back(m_mode); // Mode
     // Time
@@ -702,7 +902,7 @@ vector<double> ode_solver::extractX0T(rp_box b) const {
     return ret;
 }
 
-vector<double> ode_solver::extractXtT(rp_box b) const {
+vector<double> ode_solver::extract_XtT(rp_box b) const {
     vector<double> ret;
     ret.emplace_back(m_mode); // Mode
     // Time
@@ -716,7 +916,7 @@ vector<double> ode_solver::extractXtT(rp_box b) const {
     return ret;
 }
 
-vector<double> ode_solver::extractX0XtT(rp_box b) const {
+vector<double> ode_solver::extract_X0XtT(rp_box b) const {
     vector<double> ret;
     ret.emplace_back(m_mode); // Mode
     // Time
@@ -733,4 +933,22 @@ vector<double> ode_solver::extractX0XtT(rp_box b) const {
         ret.emplace_back(rp_bsup(rp_box_elem(b, m_enode_to_rp_id[var])));
     }
     return ret;
+}
+
+ostream& operator<<(ostream& out, ode_solver::ODE_result ret) {
+    switch (ret) {
+    case ode_solver::ODE_result::SAT:
+        out << "SAT";
+        break;
+    case ode_solver::ODE_result::UNSAT:
+        out << "UNSAT";
+        break;
+    case ode_solver::ODE_result::TIMEOUT:
+        out << "TIMEOUT";
+        break;
+    case ode_solver::ODE_result::EXCEPTION:
+        out << "EXCEPTION";
+        break;
+    }
+    return out;
 }

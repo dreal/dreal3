@@ -53,7 +53,7 @@ private:
     icp_solver(const icp_solver& s);
     icp_solver& operator=(const icp_solver& s);
     rp_problem* create_rp_problem();
-    bool        updateValue(Enode * e, double lb, double ub);
+//    bool        updateValue(Enode * e, double lb, double ub);
     bool        prop_with_ODE(); // propagate with ODE (only in complete check)
     rp_box      compute_next(); // computation of the next solution
     void        output_problem() const;
@@ -63,7 +63,7 @@ private:
 
 #ifdef ODE_ENABLED
     void        create_ode_solvers();
-    void        callODESolver(ode_solver *, bool, bool &, bool &);
+    void        callODESolver(ode_solver * odeSolver, bool forward, ode_solver::ODE_result & result);
     void        print_ODE_trajectory(ostream& out) const;
 #endif
 

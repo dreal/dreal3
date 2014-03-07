@@ -197,108 +197,58 @@ rp_problem* icp_solver::create_rp_problem() {
 }
 
 #ifdef ODE_ENABLED
-void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, bool & ODE_result, bool & have_exception) {
-    ODE_result = true;
-    have_exception = false;
-
+void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver::ODE_result & result) {
     // Simple ODE
-    ODE_result = odeSolver->simple_ODE(m_boxes.get(), forward) &&
-        m_propag->apply(m_boxes.get());
-    if (!ODE_result) {
+    result = odeSolver->simple_ODE(m_boxes.get(), forward);
+
+    if (result == ode_solver::ODE_result::UNSAT)
+        return;
+    if (!m_propag->apply(m_boxes.get())) {
+        result = ode_solver::ODE_result::UNSAT;
         return;
     }
 
-    // First Try (Forward or Backward).
-    try {
-        if (forward) {
-            ODE_result = odeSolver->solve_forward(m_boxes.get())
-                && m_propag->apply(m_boxes.get());
-        } else {
-            ODE_result = odeSolver->solve_backward(m_boxes.get())
-                && m_propag->apply(m_boxes.get());
+    if (forward) {
+        // First Try (Forward).
+        result = odeSolver->solve_forward(m_boxes.get());
+        if (result == ode_solver::ODE_result::UNSAT)
+            return;
+        if (!m_propag->apply(m_boxes.get())) {
+            result = ode_solver::ODE_result::UNSAT;
+            return;
         }
-    }
-    catch(exception& e) {
-        DREAL_LOG_DEBUG("Exception in ODE Solving " << (forward ? "(Forward)" : "(Backward)"));
-        DREAL_LOG_DEBUG(e.what());
-        ODE_result = true;
-        have_exception = true;
-    }
-    if (!ODE_result) {
-        return;
-    }
-
-    // Second Try (Backward or Forward).
-    try {
-        if (forward) {
-            ODE_result = odeSolver->solve_backward(m_boxes.get())
-                && m_propag->apply(m_boxes.get());
-        } else {
-            ODE_result = odeSolver->solve_forward(m_boxes.get())
-                && m_propag->apply(m_boxes.get());
+        // Second Try (Backward).
+        result = odeSolver->solve_backward(m_boxes.get());
+        if (result == ode_solver::ODE_result::UNSAT)
+            return;
+        if (!m_propag->apply(m_boxes.get())) {
+            result = ode_solver::ODE_result::UNSAT;
+            return;
         }
-    }
-    catch(exception& e) {
-        DREAL_LOG_DEBUG("Exception in ODE Solving " << (forward ? "(Forward)" : "(Backward)"));
-        DREAL_LOG_DEBUG(e.what());
-        ODE_result = true;
-        have_exception = true;
+    } else {
+        // First Try (Backward).
+        result = odeSolver->solve_backward(m_boxes.get());
+        if (result == ode_solver::ODE_result::UNSAT)
+            return;
+        if (!m_propag->apply(m_boxes.get())) {
+            result = ode_solver::ODE_result::UNSAT;
+            return;
+        }
+        // Second Try (Forward).
+        result = odeSolver->solve_forward(m_boxes.get());
+        if (result == ode_solver::ODE_result::UNSAT)
+            return;
+        if (!m_propag->apply(m_boxes.get())) {
+            result = ode_solver::ODE_result::UNSAT;
+            return;
+        }
     }
     return;
 }
 #endif
 
-// Update the lower and upperbound of Enode e and its corresponding
-// rp_variable using the given parameters lb and ub.
-//
-//    [e.lb, e.ub] = [e.lb, e.ub] /\ [lb, ub]
-//
-// Return false if the result is empty interval
-//        true  o.w.
-//
-bool icp_solver::updateValue(Enode * e, double lb, double ub) {
-    rp_box b = m_boxes.get();
-    DREAL_LOG_DEBUG("UpdateValue : " << e
-                    << " ["      << rp_binf(rp_box_elem(b, m_enode_to_rp_id[e]))
-                    << ", "      << rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e]))
-                    << "] /\\ [" << lb << ", " << ub << "]");
-    double new_lb = max(lb, rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])));
-    double new_ub = min(ub, rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])));
-    if (new_lb <= new_ub) {
-        e->setLowerBound(new_lb);
-        rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])) = new_lb;
-        e->setUpperBound(new_ub);
-        rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])) = new_ub;
-        DREAL_LOG_DEBUG(" = [" << new_lb << ", " << new_ub << "]");
-        return true;
-    } else {
-        rp_interval_set_empty(rp_box_elem(b, m_enode_to_rp_id[e]));
-        e->setLowerBound(+numeric_limits<double>::infinity());
-        e->setUpperBound(-numeric_limits<double>::infinity());
-        DREAL_LOG_DEBUG(" = empty ");
-        return false;
-    }
-}
-
 void print_interval(ostream & out, double lb, double ub) {
     out << "[" << lb << ", " << ub << "]";
-}
-
-void display_cache_entry(vector<double> const & e, Enode * time_var, vector<Enode *> const & vars) {
-    auto it = e.cbegin();
-    cerr << "Mode: " << *(it++) << endl;
-    cerr << setw(15) << time_var << " : ";
-    double time_lb = *(it++);
-    double time_ub = *(it++);
-    print_interval(cerr, time_lb, time_ub);
-    cerr << endl;
-    for (Enode * var : vars) {
-        double lb = *(it++);
-        double ub = *(it++);
-        cerr << setw(15) << var << " : ";
-        print_interval(cerr, lb, ub);
-        cerr << endl;
-    }
 }
 
 bool icp_solver::prop_with_ODE() {
@@ -317,127 +267,17 @@ bool icp_solver::prop_with_ODE() {
                 rp_box b = m_boxes.get();
                 double const lv_x0 = odeSolver->logVolume_X0(b);
                 double const lv_xt = odeSolver->logVolume_Xt(b);
-                unsigned const mode = odeSolver->getMode();
+                unsigned const mode = odeSolver->get_Mode();
                 bool forward = m_config.nra_ODE_forward_only ? true : lv_x0 <= lv_xt;
                 DREAL_LOG_DEBUG(setw(10) << mode << setw(20) << lv_x0 << setw(20) << lv_xt
-                               << setw(20) << (forward ? "Forward" : "Backward"));
-                if (!m_config.nra_ODE_cache) {
-                    bool result = true, have_exception = false;
-                    callODESolver(odeSolver, forward, result, have_exception);
-                    if (!result) {
-                        return false;
-                    }
-                } else {
-                    static map<vector<double>, tuple<bool, bool, vector<double>>> cache_X0;
-                    static map<vector<double>, tuple<bool, bool, vector<double>>> cache_Xt;
-                    static unsigned hit = 0;
-                    static unsigned nohit = 0;
-                    static unsigned expt = 0;
-                    DREAL_LOG_DEBUG(" HIT : " << setw(10) << hit << " NOHIT  : " << setw(10) << nohit
-                                   << " EXCEPT : " << setw(10) << expt);
-                    if (forward) {
-                        // Forward Pruning
-                        vector<double> currentX0T = odeSolver->extractX0T(b);
-                        auto it = cache_X0.find(currentX0T);
-                        if (it != cache_X0.end()) {
-                            // Cache is HIT!
-                            hit++;
-                            bool cached_result    = get<0>(it->second);
-                            bool cached_exception = get<1>(it->second);
-                            if (!cached_result) {
-                                return false;
-                            }
-                            if (cached_exception)
-                                continue;
-                            vector<double> const & cached_info = get<2>(it->second);
-
-                            // use cached time
-                            Enode * time = odeSolver->get_Time();
-                            double cached_time_lb = cached_info[1];
-                            double cached_time_ub = cached_info[2];
-                            bool result = updateValue(time, cached_time_lb, cached_time_ub);
-                            if (!result) {
-                                return false;
-                            }
-                            // use cached X_t
-                            // note: cached_info[3] is the beginning of X_t info
-                            unsigned i = 3;
-                            for (Enode * var : odeSolver->get_Xt()) {
-                                double cached_var_lb = cached_info[i++];
-                                double cached_var_ub = cached_info[i++];
-                                result = updateValue(var, cached_var_lb, cached_var_ub);
-                                if (!result) {
-                                    return false;
-                                }
-                            }
-                        } else {
-                            nohit++;
-                            // Cache is Miss! Call ODE Solver and save the result
-                            bool result = true;
-                            bool have_exception = false;
-                            callODESolver(odeSolver, forward, result, have_exception);
-                            if (!have_exception) {
-                                cache_X0.emplace(currentX0T, make_tuple(result, have_exception, odeSolver->extractXtT(m_boxes.get())));
-                            } else {
-                                // cache_X0.emplace(currentX0T, make_tuple(result, have_exception, odeSolver->extractXtT(m_boxes.get())));
-                                expt++;
-                            }
-                            if (!result) {
-                                return false;
-                            }
-                        }
-                    } else {
-                        // Backward Pruning
-                        vector<double> currentXtT = odeSolver->extractXtT(b);
-                        auto it = cache_Xt.find(currentXtT);
-                        if (it != cache_Xt.end()) {
-                            // Cache is HIT!
-                            hit++;
-                            bool cached_result    = get<0>(it->second);
-                            bool cached_exception = get<1>(it->second);
-                            if (!cached_result)
-                                return false;
-                            if (cached_exception)
-                                continue;
-                            vector<double> const & cached_info = get<2>(it->second);
-
-                            // use cached time
-                            Enode * time = odeSolver->get_Time();
-                            double cached_time_lb = cached_info[1];
-                            double cached_time_ub = cached_info[2];
-                            bool result = updateValue(time, cached_time_lb, cached_time_ub);
-                            if (!result)
-                                return false;
-                            // use cached X_0
-                            // note: cached_info[3] is the beginning of X_0 info
-                            unsigned i = 3;
-                            for (Enode * var : odeSolver->get_X0()) {
-                                double cached_var_lb = cached_info[i++];
-                                double cached_var_ub = cached_info[i++];
-                                result = updateValue(var, cached_var_lb, cached_var_ub);
-                                if (!result)
-                                    return false;
-                            }
-                        } else {
-                            // Cache is Miss! Call ODE Solver and save the result
-                            nohit++;
-                            bool result = true;
-                            bool have_exception = false;
-                            callODESolver(odeSolver, forward, result, have_exception);
-                            if (!have_exception) {
-                                cache_Xt.emplace(currentXtT, make_tuple(result, have_exception, odeSolver->extractX0T(m_boxes.get())));
-                            } else {
-                                // cache_Xt.emplace(currentXtT, make_tuple(result, have_exception, odeSolver->extractX0T(m_boxes.get())));
-                                expt++;
-                            }
-                            if (!result)
-                                return false;
-                        }
-                    }
+                                << setw(20) << (forward ? "Forward" : "Backward"));
+                ode_solver::ODE_result result = ode_solver::ODE_result::SAT;
+                callODESolver(odeSolver, forward, result);
+                if (result == ode_solver::ODE_result::UNSAT) {
+                    return false;
                 }
             }
         }
-        return true;
 #endif
         return true;
     }
