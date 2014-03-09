@@ -8,7 +8,7 @@ k4:
 	$(DREACH) -k 4 bouncing_ball_with_drag.drh --precision=0.001 --ode-grid=1024 --visualize $(OPT)
 
 k10:
-	$(DREACH) -k 10 bouncing_ball_with_drag.drh --precision=0.01 --ode-grid=1024 --visualize $(OPT)
+	$(DREACH) -k 10 bouncing_ball_with_drag.drh $(OPT)
 
 sk10:
 	$(DREACH) -k 10 bouncing_ball_with_drag2.drh --precision=0.09 --ode-step=0.09 --ode-order=10 --visualize $(OPT)
