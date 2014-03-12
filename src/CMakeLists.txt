@@ -231,8 +231,8 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 
 set(EXTRA_LIBS ${DREAL_LIBS} ${EXTRA_LIBS})
-add_executable(dReal main.cpp)
-target_link_libraries(dReal ${EXTRA_LIBS})
+add_executable(solver main.cpp)
+target_link_libraries(solver ${EXTRA_LIBS})
 
 # Include style check
 include(StyleCheck)
@@ -242,3 +242,9 @@ file(GLOB_RECURSE DREAL_SOURCES
          ${DREAL_SOURCE_DIR}/dsolvers/[A-Za-z]*.h)
 add_style_check_target(style "${DREAL_SOURCES}")
 add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py ${DREAL_SOURCES})
+
+ADD_CUSTOM_COMMAND(TARGET solver
+          POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
+          COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/solver ${DREAL_SOURCE_DIR}/../bin/
+)
