@@ -2,8 +2,8 @@
 SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # TODO: Specify the paths for BMC tool and DREAL
-BMC=`which bmc_main.native`
-DREAL=`which dReal`
+BMC=${SCRIPTPATH}/bmc
+SOLVER=${SCRIPTPATH}/solver
 
 #################################################################
 # USAGE
@@ -53,16 +53,16 @@ if [ ! -e "$BMC" ]
 then
     cat << EOF
 
-Error: Please edit $0 and provide the location of BMC tool.
-Note : You can compile BMC tool by typing "make" at "dReal/tools" directory.
+Error: Can't find BMC at ${BMC}. Please compile it by typing "make" at
+"dReal/tools" directory.
 EOF
     exit 1
 fi
 
-if [ ! -e "$DREAL" ]
+if [ ! -e "$SOLVER" ]
 then
     cat << EOF
-Error: Please edit $0 and provide the location of dReal.
+Error: Can't find solver. Please try "build.sh" first to compile it.
 EOF
     exit 1
 fi
@@ -80,8 +80,8 @@ PDRH=$BASE.preprocessed.drh
 
 # Extract dReal Options
 shift 1
-DREAL_OPT=$*
-echo dReal Options: $DREAL_OPT
+SOLVER_OPT=$*
+echo dReal Options: $SOLVER_OPT
 
 # Preprocessing
 sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
@@ -94,7 +94,7 @@ do
     OUT=${BASE}_${K}_${PATH_NUM}.output
     $BMC -k $K --path "$P" $PDRH > ${SMT}
     echo SMT: ${SMT}, PATH : $P
-    ${DREAL} ${DREAL_OPT} ${SMT} 2>&1 | tee $OUT
+    ${SOLVER} ${SOLVER_OPT} ${SMT} 2>&1 | tee $OUT
     RESULT=`tail -n 1 $OUT`
     if [[ $RESULT == "sat" ]]
     then
