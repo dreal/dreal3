@@ -1,9 +1,45 @@
 #!/usr/bin/env bash
-SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+real_path () {
+  OIFS=$IFS
+  IFS='/'
+  for I in $1
+  do
+    # Resolve relative path punctuation.
+    if [ "$I" = "." ] || [ -z "$I" ]
+      then continue
+    elif [ "$I" = ".." ]
+      then FOO="${FOO%%/${FOO##*/}}"
+           continue
+      else FOO="${FOO}/${I}"
+    fi
+
+    ## Resolve symbolic links
+    if [ -h "$FOO" ]
+    then
+    IFS=$OIFS
+    set `ls -l "$FOO"`
+    while shift ;
+    do
+      if [ "$1" = "->" ]
+        then FOO=$2
+             shift $#
+             break
+      fi
+    done
+    IFS='/'
+    fi
+  done
+  IFS=$OIFS
+  echo "$FOO"
+}
+
+SCRIPT_PATHNAME=`real_path $0`
+SCRIPT_PATH="$( cd "$( dirname "${SCRIPT_PATHNAME}" )" && pwd )"
 
 # TODO: Specify the paths for BMC tool and DREAL
-BMC=${SCRIPTPATH}/bmc
-SOLVER=${SCRIPTPATH}/solver
+BMC=${SCRIPT_PATH}/bmc
+SOLVER=${SCRIPT_PATH}/solver
 
 #################################################################
 # USAGE
