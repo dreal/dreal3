@@ -1,4 +1,5 @@
-(* Wei Chen (weichen1@andrew.cmu.edu) *)
+(* Wei Chen    (weichen1@andrew.cmu.edu) *)
+(* Soonho Kong (soonhok@cs.cmu.edu)      *)
 
 (*
  * A typical program consists of 3 components:
@@ -15,14 +16,13 @@ type t =
     }
 
 and macro =
-
     (* define g 9.8 *)
     | Macro of string * float
 
 and var_decl =
-    | RealVar of string
-    | RealVar2 of float * float * string (* bounded var *)
-    | IntVar  of string
+    | RealVar  of string
+    | BRealVar of string * float * float (* bounded var *)
+    | IntVar   of string
 
 and exp =
     | Var      of string
@@ -100,12 +100,10 @@ and stmt =
     (* declaration & assignment *)
     | Assign1 of string * exp
     (* assignment *)
-    | Assign2 of string * exp
+    | Assign of string * exp
     (* if no else statement, the latter one is empty *)
     | If of bexp * stmt list * stmt list
-
     | Proceed of stmt list
-
     | Vardecls of var_decl list
     | Switch of string * choice list
     (* just some expression, like function call *)

@@ -143,28 +143,28 @@ ids:
 ;
 
 stmt:
-    | DDT LB ID RB EQ exp SEMICOLON                           { Ode ($3, $6) }
-    | ID EQ exp SEMICOLON                                     { Assign2 ($1, $3) }
-    | REAL ID EQ exp SEMICOLON                                { Assign1 ($2, $4) }
-    | INT ID EQ exp SEMICOLON                                 { Assign1 ($2, $4) }
+    | DDT LB ID RB EQ exp SEMICOLON                           { [Ode ($3, $6)] }
+    | ID EQ exp SEMICOLON                                     { [Assign ($1, $3)] }
+    | REAL ID EQ exp SEMICOLON                                { [Vardecls [RealVar $2]; Assign ($2, $4);] }
+    | INT ID EQ exp SEMICOLON                                 { [Vardecls [IntVar $2]; Assign ($2, $4);] }
 
-    | REAL ids SEMICOLON                                      { Vardecls (List.map (fun v -> RealVar v) $2) }
-    | REAL LB ffnum COMMA ffnum RB ID SEMICOLON               { Vardecls [RealVar2 ($3, $5, $7); ] }
+    | REAL ids SEMICOLON                                      { [Vardecls (List.map (fun v -> RealVar v) $2)] }
+    | REAL LB ffnum COMMA ffnum RB ID SEMICOLON               { [Vardecls [BRealVar ($7, $3, $5); ]] }
+    | INT ids SEMICOLON                                       { [Vardecls (List.map (fun v -> IntVar v) $2)] }
 
-    | INT ids SEMICOLON                                       { Vardecls (List.map (fun v -> IntVar v) $2) }
-    | IF bexp THEN LC stmt_list RC                            { If ($2, $5, []) }
-    | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC       { If ($2, $5, $9) }
+    | IF bexp THEN LC stmt_list RC                            { [If ($2, $5, [])] }
+    | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC       { [If ($2, $5, $9)] }
 
-    | PROCEED LC stmt_list RC                                 { Proceed $3 }
+    | PROCEED LC stmt_list RC                                 { [Proceed $3] }
 
-    | switch                                                  { $1 }
-    | ASSERT LP bexp RP SEMICOLON                             { Assert $3 }
-    | exp SEMICOLON                                           { Expr $1 }
+    | switch                                                  { [$1] }
+    | ASSERT LP bexp RP SEMICOLON                             { [Assert $3] }
+    | exp SEMICOLON                                           { [Expr $1] }
 ;
 
 stmt_list:
     | /**/ { [] }
-    | stmt stmt_list { $1::$2 }
+    | stmt stmt_list { $1@$2 }
 ;
 
 mode: PROCESS ID LP arg_list RP LC stmt_list RC {

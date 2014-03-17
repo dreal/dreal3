@@ -16,9 +16,9 @@ let rec emit_defs macros =
 *)
 let arg_str out =
   function
-  | RealVar s -> Printf.fprintf out "double %s" s
-  | RealVar2 (_, _, s) -> Printf.fprintf out "double %s" s
-  | IntVar s -> Printf.fprintf out "int %s" s
+  | RealVar s -> Printf.fprintf out "double & %s" s
+  | BRealVar (s, _, _) -> Printf.fprintf out "double & %s" s
+  | IntVar s -> Printf.fprintf out "int & %s" s
 
 let emit_args args =
   List.print ~first: ""
@@ -36,7 +36,7 @@ let rec emit_stmt out =
      Printf.fprintf out " + %f * %s;" !dt s;
   | Assert _ -> ()
   | Assign1 (s, exp) -> ()
-  | Assign2 (s, exp) ->
+  | Assign (s, exp) ->
      Printf.fprintf out "%s = " s;
      emit_exp out exp;
      Printf.fprintf out ";";
