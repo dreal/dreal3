@@ -4,7 +4,6 @@ all:
 	ocaml setup.ml -build
 	@if [ ! -L ../bin/bmc ]; then ln -s ../tools/bmc_main.native ../bin/bmc; fi
 	@if [ ! -L ../bin/inv ]; then ln -s ../tools/inv_main.native ../bin/inv; fi
-	cp dReach ../bin
 
 configure:
 	ocaml setup.ml -configure
