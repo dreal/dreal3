@@ -37,7 +37,6 @@ let rec emit_stmt out =
      emit_exp out exp;
      Printf.fprintf out ");"
   | Assert _ -> ()
-  | Assign1 (s, exp) -> ()
   | Assign (s, exp) ->
      Printf.fprintf out "%s = " s;
      emit_exp out exp;

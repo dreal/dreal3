@@ -97,8 +97,6 @@ and choice =
 and stmt =
     | Ode of string * exp
     | Assert of bexp
-    (* declaration & assignment *)
-    | Assign1 of string * exp
     (* assignment *)
     | Assign of string * exp
     (* if no else statement, the latter one is empty *)
