@@ -2,7 +2,8 @@ open Batteries
 open IO
 open Type
 
-let dt = ref 0.0001
+let headers = ref ["stdio.h"; "stdlib.h"]
+let dt = ref 0.01
 
 (* Code Generation *)
 let rec emit_defs macros =
@@ -31,9 +32,10 @@ let emit_args args =
 let rec emit_stmt out =
   function
   | Ode (s, exp) ->
-     Printf.fprintf out "%s = " s;
+     Printf.fprintf out "%s = %s + " s s;
+     Printf.fprintf out "dt * (";
      emit_exp out exp;
-     Printf.fprintf out " + %f * %s;" !dt s;
+     Printf.fprintf out ");"
   | Assert _ -> ()
   | Assign1 (s, exp) -> ()
   | Assign (s, exp) ->
@@ -45,7 +47,6 @@ let rec emit_stmt out =
      emit_bexp out bexp;
      Printf.fprintf out "){\n";
      emit_stmts out conseq;
-     Printf.fprintf out "\n";
      Printf.fprintf out "}";
      if List.length alter > 0 then
        begin
@@ -104,13 +105,23 @@ and emit_main main =
   emit_stmts IO.stdout stmts;
   print_endline "}"
 
+and emit_headers headers =
+  List.print ~first:"" ~sep:"\n" ~last:"" String.print
+             IO.stdout
+             (List.map (fun s -> ("#include <" ^ s ^ ">")) headers)
+
 and emit_program (ast : Type.t) =
   let {macros; modes; main} = ast in
-  let _ = emit_defs macros in
-  print_newline ();
-  let _ = emit_modes modes in
-  print_newline ();
-  emit_main main
+  let macros' = (Macro ("dt", !dt))::macros in
+  begin
+    emit_headers !headers;
+    print_newline ();
+    emit_defs macros';
+    print_newline ();
+    emit_modes modes;
+    print_newline ();
+    emit_main main;
+  end
 
 and emit_exp out=
     let print_exps op exps =
