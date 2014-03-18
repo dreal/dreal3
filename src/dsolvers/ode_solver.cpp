@@ -132,10 +132,16 @@ ode_solver::ode_solver(SMTConfig& c,
     }
 
     // join var_list to make diff_var, ode_list to diff_fun_forward
-    string diff_var = "var:" + join(m_var_list, ", ") + ";";
-    string diff_fun_forward = "fun:" + join(m_ode_list, ", ") + ";";
-    string diff_fun_backward = "fun: -" + join(m_ode_list, ", -") + ";";
-
+    string diff_var = "";
+    if (!m_var_list.empty()) {
+        diff_var = "var:" + join(m_var_list, ", ") + ";";
+    }
+    string diff_fun_forward = "";
+    string diff_fun_backward = "";
+    if (!m_ode_list.empty()) {
+        diff_fun_forward = "fun:" + join(m_ode_list, ", ") + ";";
+        diff_fun_backward = "fun: -" + join(m_ode_list, ", -") + ";";
+    }
     // construct diff_sys_forward (string to CAPD)
     string diff_par;
     if (m_par_list.size() > 0) {
