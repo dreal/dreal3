@@ -57,9 +57,6 @@ and exp =
     (* (integral 0 time_1 [x_1_0 ... x_i_0] flow1) *)
     | Integral of float * string * string list * string
 
-    (* do we allow expression to return an closure ? *)
-    | Call of string * exp list
-
 (* math formular *)
 and formula =
     | True
@@ -102,10 +99,9 @@ and stmt =
     (* if no else statement, the latter one is empty *)
     | If of bexp * stmt list * stmt list
     | Proceed of stmt list
-    | Vardecls of var_decl list
+    | Vardecl of var_decl
     | Switch of string * choice list
-    (* just some expression, like function call *)
-    | Expr of exp
+    | Invoke of string * exp list
 
 and main_entry =
     | Main of (stmt list)

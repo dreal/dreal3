@@ -90,7 +90,6 @@ exp:
  | SINH exp               { Sinh $2 }
  | COSH exp               { Cosh $2 }
  | TANH exp               { Tanh $2 }
- | application            { $1 }
 ;
 
 /* boolean expression */
@@ -128,10 +127,6 @@ params:
     | exp COMMA params { $1::$3 }
 ;
 
-application:
-    | ID LP params RP { Call ($1, $3) }
-;
-
 id:
     | ID { $1 }
 ;
@@ -145,12 +140,12 @@ ids:
 stmt:
     | DDT LB ID RB EQ exp SEMICOLON                           { [Ode ($3, $6)] }
     | ID EQ exp SEMICOLON                                     { [Assign ($1, $3)] }
-    | REAL ID EQ exp SEMICOLON                                { [Vardecls [RealVar $2]; Assign ($2, $4);] }
-    | INT ID EQ exp SEMICOLON                                 { [Vardecls [IntVar $2]; Assign ($2, $4);] }
+    | REAL ID EQ exp SEMICOLON                                { [Vardecl (RealVar $2); Assign ($2, $4);] }
+    | INT ID EQ exp SEMICOLON                                 { [Vardecl (IntVar $2); Assign ($2, $4);] }
 
-    | REAL ids SEMICOLON                                      { [Vardecls (List.map (fun v -> RealVar v) $2)] }
-    | REAL LB ffnum COMMA ffnum RB ID SEMICOLON               { [Vardecls [BRealVar ($7, $3, $5); ]] }
-    | INT ids SEMICOLON                                       { [Vardecls (List.map (fun v -> IntVar v) $2)] }
+    | REAL ids SEMICOLON                                      { List.map (fun v -> Vardecl (RealVar v)) $2 }
+    | REAL LB ffnum COMMA ffnum RB ID SEMICOLON               { [Vardecl (BRealVar ($7, $3, $5))] }
+    | INT ids SEMICOLON                                       { List.map (fun v -> Vardecl (IntVar v)) $2 }
 
     | IF bexp THEN LC stmt_list RC                            { [If ($2, $5, [])] }
     | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC       { [If ($2, $5, $9)] }
@@ -159,7 +154,7 @@ stmt:
 
     | switch                                                  { [$1] }
     | ASSERT LP bexp RP SEMICOLON                             { [Assert $3] }
-    | exp SEMICOLON                                           { [Expr $1] }
+    | ID LP params RP SEMICOLON                               { [Invoke ($1, $3)] }
 ;
 
 stmt_list:
