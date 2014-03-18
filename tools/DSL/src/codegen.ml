@@ -1,6 +1,7 @@
 open Batteries
 open IO
 open Type
+open Cil
 
 let headers = ref ["stdio.h"; "stdlib.h"]
 let dt = ref 0.01
