@@ -62,27 +62,32 @@ outputModes(){
 	NEXTMODE=`expr $MODE + 1`
 	echo "{ mode ${MODE};"               >> $OUT
 	if [ $RELAXTIME == "true" ]; then
-	    echo "  tprecision: ${DELTA};"       >> $OUT
+	    echo "  timeprecision: ${DELTA};"       >> $OUT
 	fi
+
 	echo "  invt:"                       >> $OUT
-	echo "        (<= on 0);"            >> $OUT
+	echo "        (on <= 0);"            >> $OUT
 #	echo "        (<= -50 aim_height);"  >> $OUT
 	if [ $RELAXJUMP == "false" ]; then
-	    echo "        (>= 50 aim_height);"   >> $OUT
+	    echo "        (50 >= aim_height);"   >> $OUT
 	else
-	    echo "        (>= 50 aim_height [${DELTA}]);"   >> $OUT
+	    echo "        (50 >= [${DELTA}] aim_height);"   >> $OUT
 	fi
 	echo "  flow:"                       >> $OUT
 	echo "        d/dt[aim_height] = 0;" >> $OUT
 	echo "        d/dt[on] = 0;"         >> $OUT
+	for((j=0; j < $SIZE; j++)); do {
+		echo "        d/dt[x_${j}] = 0;"         >> $OUT
+	    }; done
+	
 	echo "  jump:"                       >> $OUT
 	if [ $RELAXJUMP == "false" ]; then
 #	echo "        true ==> @${NEXTMODE} (= aim_height' (+ aim_height (- y_${i} (* x_${i} x_${i}))) [${DELTA}]);" >> $OUT
-	    echo "        true ==> @${NEXTMODE} (= aim_height' (+ aim_height x_${i}));" >> $OUT
+	    echo "        true ==> @${NEXTMODE} (aim_height' = (aim_height + x_${i}));" >> $OUT
 #	echo "        true ==> @${NEXTMODE} (= aim_height' (- y_${i} (* x_${i} x_${i})) [${DELTA}]);" >> $OUT
 	else
 #	echo "        true ==> @${NEXTMODE} (= aim_height' (+ aim_height (- y_${i} (* x_${i} x_${i}))) [${DELTA}]);" >> $OUT
-	    echo "        true ==> @${NEXTMODE} (= aim_height' (+ aim_height x_${i}) [${DELTA}]);" >> $OUT
+	    echo "        true ==> @${NEXTMODE} (aim_height' = [${DELTA}] (aim_height + x_${i}));" >> $OUT
 #	echo "        true ==> @${NEXTMODE} (= aim_height' (- y_${i} (* x_${i} x_${i})) [${DELTA}]);" >> $OUT
 	fi
 	echo "}" >> $OUT
@@ -94,14 +99,14 @@ outputLastMode(){
     MODE=`expr ${SIZE} + 1`
     echo "{mode ${MODE};"                  >> $OUT
     if [ $RELAXTIME == "true" ]; then
-	echo "  tprecision: ${DELTA};"       >> $OUT
+	echo "  timeprecision: ${DELTA};"       >> $OUT
     fi
     echo "  invt:"                         >> $OUT
-    echo "        (>= on 1);"              >> $OUT
+    echo "        (on >= 1);"              >> $OUT
     if [ $RELAXJUMP == "false" ]; then
-	echo "        (>= 50 aim_height);"   >> $OUT
+	echo "        (50 >= aim_height);"   >> $OUT
     else
-	echo "        (>= 50 aim_height [${DELTA}]);"   >> $OUT
+	echo "        (50 >= [${DELTA}] aim_height);"   >> $OUT
     fi
     echo "  flow:"                         >> $OUT
     echo "        d/dt[aim_height] = 0;"   >> $OUT
@@ -113,7 +118,7 @@ outputLastMode(){
 
 outputInit(){
     echo "init:" >> $OUT
-    echo "@1 (and  (= aim_height 0) (= on 0));" >> $OUT
+    echo "@1 (and  (aim_height = 0) (on = 0));" >> $OUT
 }
 
 outputGoal(){
@@ -121,10 +126,10 @@ outputGoal(){
     echo "goal:" >> $OUT
     if [ $UNSAT ]; then
 	UNSAT_HEIGHT=`expr ${SIZE} \* 6`
-	echo "@${MODE} (and (= on 1) (= aim_height ${UNSAT_HEIGHT}));" >> $OUT
+	echo "@${MODE} (and (on = 1) (aim_height = ${UNSAT_HEIGHT}));" >> $OUT
     else
 	SAT_HEIGHT=3
-	echo "@${MODE} (and (= on 1) (<= aim_height (+ 1 ${SAT_HEIGHT})) (>= aim_height (- ${SAT_HEIGHT} 1)));" >> $OUT
+	echo "@${MODE} (and (on = 1) (aim_height <= (1 + ${SAT_HEIGHT})) (aim_height >= (${SAT_HEIGHT} - 1)));" >> $OUT
     fi
 }
 

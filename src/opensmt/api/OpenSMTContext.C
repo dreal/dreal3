@@ -875,7 +875,7 @@ void OpenSMTContext::addGetInterpolants( )
   command_list.push_back( c );
 }
 
-void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v)
+void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v, double d)
 {
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
         e->setUpperBound(v);

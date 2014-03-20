@@ -26,10 +26,10 @@ let make_ub (name : string) (v : float)
     = Assert (Basic.Le (Basic.Var name, Basic.Num v ))
 
 let make_lbp (name : string) (v : float) (precision : float)
-    = Assert (Basic.Le (Basic.Num v,  Basic.Var name, precision))
+    = Assert (Basic.Lep (Basic.Num v,  Basic.Var name, precision))
 
 let make_ubp (name : string) (v : float) (precision : float)
-    = Assert (Basic.Le (Basic.Var name, Basic.Num v, precision ))
+    = Assert (Basic.Lep (Basic.Var name, Basic.Num v, precision ))
 
 let set_precision (p : float) : t =
   SetInfo (":precision", string_of_float p)

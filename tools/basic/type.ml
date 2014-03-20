@@ -56,6 +56,11 @@ module Basic = struct
   | Ge  of exp * exp
   | Le  of exp * exp
   | Eq  of exp * exp
+  | Gtp  of exp * exp * float
+  | Ltp  of exp * exp * float 
+  | Gep  of exp * exp * float
+  | Lep  of exp * exp * float
+  | Eqp  of exp * exp * float
   | LetF of ((string * formula) list * formula)
   | LetE of ((string * exp) list * formula)
   | ForallT of exp * exp * exp * formula
@@ -67,7 +72,7 @@ module Basic = struct
     | Not f' -> collect_vars_in_formula f'
     | And fs -> collect_vars_in_formulas fs
     | Or  fs -> collect_vars_in_formulas fs
-    | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) -> collect_vars_in_exps [e1;e2]
+    | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) | Gtp (e1, e2, _) | Ltp (e1, e2, _) | Gep (e1, e2, _) | Lep (e1, e2, _) | Eqp (e1, e2, _) -> collect_vars_in_exps [e1;e2]
     | Imply (f1, f2) -> collect_vars_in_formulas [f1;f2]
     | FVar x -> Set.singleton x
     | ForallT (m, lb, ub, f') ->
@@ -173,6 +178,11 @@ module Basic = struct
     | Ge (e1, e2)    -> fn_f (Ge      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
     | Le (e1, e2)    -> fn_f (Le      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
     | Eq (e1, e2)    -> fn_f (Eq      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Gtp (e1, e2, p)    -> fn_f (Gt      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Ltp (e1, e2, p)    -> fn_f (Lt      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Gep (e1, e2, p)    -> fn_f (Ge      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Lep (e1, e2, p)    -> fn_f (Le      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Eqp (e1, e2, p)    -> fn_f (Eq      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
     | Imply (f1, f2) -> fn_f (Imply   (map_formula fn_f fn_e f1, map_formula fn_f fn_e f2))
     | ForallT (m, lb, ub, f) -> fn_f (ForallT (map_exp fn_f fn_e m,
                                                map_exp fn_f fn_e lb,
@@ -413,7 +423,7 @@ module Basic = struct
     | Or fl -> List.fold_left (fun result f -> result + (count_mathfn_f f)) 0 fl
     | Imply (f1, f2) -> List.fold_left (fun result f -> result + (count_mathfn_f f)) 0 [f1;f2]
     | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2)
-    | Eq (e1, e2) ->
+    | Eq (e1, e2) | Gtp (e1, e2, _) | Ltp (e1, e2, _) | Gep (e1, e2, _) | Lep (e1, e2, _) | Eqp (e1, e2, _) ->
        let v1 = count_mathfn_e e1 in
        let v2 = count_mathfn_e e2 in
        v1 + v2
@@ -451,7 +461,7 @@ module Basic = struct
     | Not f -> count_arith_f f
     | And fs | Or fs -> List.fold_left (fun result f -> result + (count_arith_f f)) 0 fs
     | Imply (f1, f2) -> (count_arith_f f1) + (count_arith_f f2)
-    | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) ->
+    | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) | Gtp (e1, e2, _) | Ltp (e1, e2, _) | Gep (e1, e2, _) | Lep (e1, e2, _) | Eqp (e1, e2, _) ->
       (count_arith_e e1) + (count_arith_e e2)
     | LetF (fbinding_list, f) ->
       List.sum (List.map (fun (id, f') -> count_arith_f f') fbinding_list)
@@ -471,7 +481,7 @@ module Basic = struct
     | And fs | Or fs ->
       List.reduce Set.union  (List.map collect_var_in_f fs)
     | Imply (f1, f2) -> Set.union (collect_var_in_f f1) (collect_var_in_f f2)
-    | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) ->
+    | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) | Gtp (e1, e2, _) | Ltp (e1, e2, _) | Gep (e1, e2, _) | Lep (e1, e2, _) | Eqp (e1, e2, _) ->
       Set.union (collect_var_in_e e1) (collect_var_in_e e2)
     | LetF (fbinding_list, f') ->
       let id_vars_list =
@@ -625,7 +635,18 @@ module Basic = struct
           f
           out
           items
-      end in
+    end in
+    let print_plists op out f items p =
+    begin
+      let ps =  Printf.sprintf "%f" p in
+      List.print
+        ~first:("("^op^" ")
+        ~sep:" "
+        ~last:(" ["^ps^"])")
+        f
+        out
+        items
+    end in
     let print_fbinding out (x, f) =
       begin
         String.print out "(";
@@ -643,6 +664,7 @@ module Basic = struct
         String.print out ")";
       end in
     let print_exps op exps = print_lists op out print_exp exps in
+    let print_pexps op exps p = print_plists op out print_exp exps p in
     let print_formulas op formulas = print_lists op out print_formula formulas in
     function
     | True -> String.print out "true"
@@ -656,7 +678,12 @@ module Basic = struct
     | Lt (e1, e2) -> print_exps "<"  [e1; e2]
     | Ge (e1, e2) -> print_exps ">=" [e1; e2]
     | Le (e1, e2) -> print_exps "<=" [e1; e2]
-    | Eq (e1, e2) -> print_exps "="  [e1; e2]
+    | Eq (e1, e2) -> print_exps "="  [e1 ; e2]
+    | Gtp  (e1, e2, p) -> print_pexps ">"  [e1; e2] p
+    | Ltp  (e1, e2, p) -> print_pexps "<"  [e1; e2] p
+    | Gep  (e1, e2, p) -> print_pexps ">=" [e1; e2] p
+    | Lep  (e1, e2, p) -> print_pexps "<=" [e1; e2] p
+    | Eqp  (e1, e2, p) -> print_pexps "="  [e1; e2] p
     | LetE (ebinding_list, f) ->
       begin
         String.print out "(let ";

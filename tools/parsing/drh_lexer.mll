@@ -24,7 +24,7 @@
      ("exp", EXP);
      ("mode", MODE);
      ("macr", MACR);
-     ("time-precision", TIME_PRECISION);
+     ("timeprecision", TIME_PRECISION);
      ("invt", INVT);
      ("flow", FLOW);
      ("jump", JUMP);

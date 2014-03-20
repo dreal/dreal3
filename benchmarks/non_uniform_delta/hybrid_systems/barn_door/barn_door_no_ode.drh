@@ -6,29 +6,33 @@
 
 { mode 1;
   invt:
-        (<= on 0);
-        (<= -50 aim_height);
-        (>= 50 aim_height);
+        (on <= 0);
+        (-50 <= aim_height);
+        (50 >= aim_height);
   flow:
         d/dt[aim_height] = 0;
         d/dt[on] = 0;
+        d/dt[x] = 0;
+        d/dt[y] = 0;
   jump:
-        (= on 0) ==> @2 (and (= on' 1) (= aim_height' (- y (* x x))));
+        (on = 0) ==> @2 (and (on' = 1) (aim_height' = (y - (x * x))));
 }
 
 { mode 2;
   invt:
-        (>= on 1);
+        (on >= 1);
   flow:
         d/dt[aim_height] = 0;
         d/dt[on] = 0;
+        d/dt[x] = 0;
+        d/dt[y] = 0;
   jump:
         true ==> @2 true;
 }
 
 init:
-@1	(and  (= aim_height 0) (= on 0) );
+@1	(and  (aim_height = 0) (on = 0) );
 
 goal:
-@2	(and (= aim_height 5));
+@2	(and (aim_height = 5));
 
