@@ -2,7 +2,6 @@
     Wei Chen    (weichen1@andrew.cmu.edu) *)
 
 open Batteries
-open IO
 open Type
 open Cil
 
@@ -74,17 +73,16 @@ let rec emit_stmt (vmap : ty_vmap) (fd : Cil.fundec)
   function
   | Ode (s, exp) ->
     let lv = var (Map.find s vmap) in
-    let e = emit_exp vmap exp in
-    let stmt = Formatcil.cStmt
+    let cexp = emit_exp vmap exp in
+    let cstmt = Formatcil.cStmt
         "%l:s = %l:s + %v:dt * %e:e;"
         (fun n t -> failwith "false")
         locUnknown
         [("s", Fl lv);
          ("dt", Fv (Map.find "dt" vmap));
-         ("e", Fe e);]
+         ("e", Fe cexp);]
     in
-    let stmt' = visitCilStmt (new replacePtrLvalVisitor fd.sformals) stmt in
-    (vmap, [stmt'])
+    (vmap, [cstmt])
   | Assert _ ->
     begin
       (* TODO(soonhok): implement *)
@@ -92,16 +90,14 @@ let rec emit_stmt (vmap : ty_vmap) (fd : Cil.fundec)
     end
   | Assign (s, exp) ->
       let lv = var (Map.find s vmap) in
-      let e = emit_exp vmap exp in
-      let stmt = mkStmtOneInstr (Set (lv, e, locUnknown)) in
-      let stmt' = visitCilStmt (new replacePtrLvalVisitor fd.sformals) stmt in
-      (vmap, [stmt'])
+      let cexp = emit_exp vmap exp in
+      let cstmt = mkStmtOneInstr (Set (lv, cexp, locUnknown)) in
+      (vmap, [cstmt])
   | If (bexp, then_stmts, else_stmts) ->
     let bcexp = emit_bexp vmap bexp in
-    let bcexp' = visitCilExpr (new replacePtrLvalVisitor fd.sformals) bcexp in
     let (_, then_cstmts) = emit_stmts vmap fd then_stmts in
     let (_, else_cstmts) = emit_stmts vmap fd else_stmts in
-    (vmap, [mkStmt (If (bcexp', mkBlock then_cstmts, mkBlock else_cstmts, locUnknown))])
+    (vmap, [mkStmt (If (bcexp, mkBlock then_cstmts, mkBlock else_cstmts, locUnknown))])
   | Proceed stmts ->
     let (_, cstmts) = emit_stmts vmap fd stmts in
     let cstmts' = List.map
@@ -109,9 +105,9 @@ let rec emit_stmt (vmap : ty_vmap) (fd : Cil.fundec)
            visitCilStmt (new replaceCallAddrOfVisitor) cstmt
         )
         cstmts in
-    let while_stmts = mkWhile ~guard:(integer 1) ~body:cstmts'
+    let while_cstmts = mkWhile ~guard:one ~body:cstmts'
     in
-    (vmap, while_stmts)
+    (vmap, while_cstmts)
   | Vardecl vd ->
     begin
       match vd with
@@ -150,7 +146,7 @@ and emit_stmts (vmap : ty_vmap) (fd : Cil.fundec) (stmts : Type.stmt list)
   in
   (vmap', compactStmts cstmts)
 
-and emit_function (vmap : ty_vmap) (id : string) (args : var_decl list) stmts
+and emit_function (vmap : ty_vmap) (id : string) (args : var_decl list) (stmts : Type.stmt list)
   : (ty_vmap * Cil.global) =
   let fd : Cil.fundec = emptyFunction id in
   let (arg_map, arg_list) =
@@ -165,13 +161,18 @@ and emit_function (vmap : ty_vmap) (id : string) (args : var_decl list) stmts
       args in
   let _ = setFormals fd arg_list in
   let (_, cstmts) = emit_stmts arg_map fd stmts in
+  let cstmts' =
+    List.map
+      (fun cstmt -> visitCilStmt (new replacePtrLvalVisitor fd.sformals) cstmt)
+      cstmts
+  in
   let sformals' =
     List.map
       (fun vi -> visitCilVarDecl (new replacePtrTypeVisitor fd.sformals) vi)
       fd.sformals
   in
   begin
-    fd.sbody <- mkBlock cstmts;
+    fd.sbody <- mkBlock cstmts';
     setFormals fd sformals';
     (Map.add id fd.svar vmap, GFun (fd, fd.svar.vdecl))
   end
@@ -193,7 +194,7 @@ and emit_modes (vmap : ty_vmap) (modes : Type.mode list)
     modes
 
 (* Main entry point *)
-and emit_main vmap main =
+and emit_main (vmap : ty_vmap) (main : Type.main_entry) : (ty_vmap * Cil.global)  =
   let Main stmts = main in
   emit_function vmap "main" [] stmts
 
@@ -208,11 +209,11 @@ and emit_program (ast : Type.t) =
   let (g_macros, vmap') = emit_defs vmap macros' in
   let (vmap'', g_modes) = emit_modes vmap' modes in
   let (vmap''', g_main) = emit_main vmap'' main in
-  let t : Cil.file = {fileName = "Kong";
+  let t : Cil.file = {fileName = "codegen";
                       globals =  g_headers @ g_macros @ g_modes @ [g_main];
                       globinit = None;
                       globinitcalled = false} in
-  dumpFile defaultCilPrinter Pervasives.stdout "kong" t
+  dumpFile defaultCilPrinter Pervasives.stdout "codegen" t
 
 and emit_exp (vmap : ty_vmap) (e : Type.exp) : Cil.exp =
   let binop_aux vmap (el : Type.exp list) (builder : (Cil.exp * Cil.exp * Cil.typ -> Cil.exp)) : Cil.exp =
@@ -239,9 +240,9 @@ and emit_exp (vmap : ty_vmap) (e : Type.exp) : Cil.exp =
   | Var s -> Lval (var (Map.find s vmap))
   | Num n -> Const (CReal (n, FDouble, None))
   | Neg e ->
-    let e' = emit_exp vmap e in
-    let ty = typeOf e' in
-    UnOp (Neg, e', ty)
+    let cexp = emit_exp vmap e in
+    let ty = typeOf cexp in
+    UnOp (Neg, cexp, ty)
   | Add el -> binop_aux vmap el (fun (e1, e2, ty) -> BinOp (PlusA, e1, e2, ty))
   | Sub el -> binop_aux vmap el (fun (e1, e2, ty) -> BinOp (MinusA, e1, e2, ty))
   | Mul el -> binop_aux vmap el (fun (e1, e2, ty) -> BinOp (Mult, e1, e2, ty))
@@ -269,20 +270,20 @@ and emit_exp (vmap : ty_vmap) (e : Type.exp) : Cil.exp =
   | Atanh e -> failwith "atanh not implemented"
   | Integral (f, s1, sl, s2) -> failwith "integral not implemented"
 
-and emit_bexp vmap b =
+and emit_bexp (vmap : ty_vmap) (b : Type.bexp) : Cil.exp =
   let cmp_aux bop e1 e2 =
-    let e1' = emit_exp vmap e1 in
-    let e2' = emit_exp vmap e2 in
-    BinOp (bop, e1', e2', Cil.intType)
+    let cexp1 = emit_exp vmap e1 in
+    let cexp2 = emit_exp vmap e2 in
+    BinOp (bop, cexp1, cexp2, Cil.intType)
   in
   let logic_aux bop e1 e2 =
-    let e1' = emit_bexp vmap e1 in
-    let e2' = emit_bexp vmap e2 in
-    BinOp (bop, e1', e2', Cil.intType)
+    let cexp1 = emit_bexp vmap e1 in
+    let cexp2 = emit_bexp vmap e2 in
+    BinOp (bop, cexp1, cexp2, Cil.intType)
   in
   match b with
-  | B_true -> integer 1
-  | B_false -> integer 0
+  | B_true -> one
+  | B_false -> zero
   | B_var s -> Lval (var (Map.find s vmap))
   | B_gt (e1, e2) -> cmp_aux Gt e1 e2
   | B_lt (e1, e2)-> cmp_aux Lt e1 e2
