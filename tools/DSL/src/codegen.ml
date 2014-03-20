@@ -32,14 +32,8 @@ class replacePtrTypeVisitor
   object(self)
     inherit nopCilVisitor as super
     method vtype (ty : Cil.typ) =
-      begin
-        String.println stderr "vtype called.";
-        let n = (TPtr (ty, [])) in
-        begin
-          Errormsg.log "New Type = (%a)\n" d_type n;
-          ChangeTo n
-        end
-      end
+      let n = (TPtr (ty, [])) in
+      ChangeTo n
   end
 
 (*   f(x, y)  =>  f(&x, &y)   *)
@@ -93,7 +87,6 @@ let rec emit_stmt (vmap : ty_vmap) (fd : Cil.fundec)
     (vmap, [stmt'])
   | Assert _ ->
     begin
-      String.println stderr "assert stmt => dummy";
       (* TODO(soonhok): implement *)
       (vmap, [dummyStmt])
     end
@@ -137,7 +130,6 @@ let rec emit_stmt (vmap : ty_vmap) (fd : Cil.fundec)
     end
   | Switch _ ->
     begin
-      String.println stderr "switch stmt => dummy";
       (* TODO(soonhok): implement *)
       (vmap, [dummyStmt])
     end
@@ -177,24 +169,6 @@ and emit_function (vmap : ty_vmap) (id : string) (args : var_decl list) stmts
     List.map
       (fun vi -> visitCilVarDecl (new replacePtrTypeVisitor fd.sformals) vi)
       fd.sformals
-  in
-  let _ = List.iter
-      (fun vi ->
-         Errormsg.log
-           "VI in sformal = %a : %a\n"
-           d_lval (Var vi, NoOffset)
-           d_type vi.vtype
-      )
-      fd.sformals
-  in
-  let _ = List.iter
-      (fun vi ->
-         Errormsg.log
-           "VI in sformal' = %a : %a\n"
-           d_lval (Var vi, NoOffset)
-           d_type vi.vtype
-      )
-      sformals'
   in
   begin
     fd.sbody <- mkBlock cstmts;
@@ -309,11 +283,7 @@ and emit_bexp vmap b =
   match b with
   | B_true -> integer 1
   | B_false -> integer 0
-  | B_var s ->
-    begin
-      String.println stderr ("emit_bexp exp: Var " ^ s);
-      Lval (var (Map.find s vmap))
-    end
+  | B_var s -> Lval (var (Map.find s vmap))
   | B_gt (e1, e2) -> cmp_aux Gt e1 e2
   | B_lt (e1, e2)-> cmp_aux Lt e1 e2
   | B_ge (e1, e2)-> cmp_aux Ge e1 e2
