@@ -298,17 +298,18 @@ bool icp_solver::prop_with_ODE() {
 double icp_solver::constraint_width(const rp_constraint * c, rp_box b) const {
   rp_expression lhs = rp_ctr_num_left(rp_constraint_num(*c));
   rp_expression rhs = rp_ctr_num_right(rp_constraint_num(*c));
+
   if ( rp_expression_eval(lhs, b) && rp_expression_eval(rhs, b) ){
     // expression value interval is non-empty
     rp_interval res;
     rp_interval_add(res, rp_expression_val(lhs), rp_expression_val(rhs));
 
     // DREAL_LOG_DEBUG("Width: LHS: [" << rp_binf(rp_expression_val(lhs))
-    //              << ", " << rp_bsup(rp_expression_val(lhs)) << "], RHS: ["
-    //              << rp_binf(rp_expression_val(rhs)) << ", "
-    //              << rp_bsup(rp_expression_val(rhs)) << "], RES: ["
-    //              << rp_binf(res) << ", "
-    //              << rp_bsup(res) << "]"  );
+    // 		    << ", " << rp_bsup(rp_expression_val(lhs)) << "], RHS: ["
+    // 		    << rp_binf(rp_expression_val(rhs)) << ", "
+    // 		    << rp_bsup(rp_expression_val(rhs)) << "], RES: ["
+    // 		    << rp_binf(res) << ", "
+    // 		    << rp_bsup(res) << "]"  );
 
     return rp_interval_width(res);
   }
@@ -428,6 +429,9 @@ bool icp_solver::is_box_within_delta(rp_box b) {
   int i = 0;
   bool fail = false;
   for (auto const l : m_stack) {
+    if (l->isForallT() || l->isIntegral()) {
+            continue;
+    }
     stringstream buf;
     l->print_infix(buf, l->getPolarity());
     string constraint_str = buf.str();
@@ -630,6 +634,9 @@ void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b) const {
 void icp_solver::pprint_lits(ostream & out, rp_problem p, rp_box b) const {
   int i = 0;
   for (auto const l : m_stack) {
+    if (l->isForallT() || l->isIntegral()) {
+      continue;
+    }
     stringstream buf;
     l->print_infix(buf, l->getPolarity());
     string constraint_str = buf.str();

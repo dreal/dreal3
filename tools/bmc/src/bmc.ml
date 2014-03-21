@@ -190,8 +190,9 @@ let compile_logic_formula (h : Hybrid.t) (k : int) (path : int list option) =
   Assert smt_formula
 
 (** variable declaration & range constraint **)
-let compile_vardecl (h : Hybrid.t) (k : int) =
+let compile_vardecl (h : Hybrid.t) (k : int) (path : (int list) option) =
   let {modemap} = h in
+  let my_path = match path with Some(p) -> p | _ -> failwith "No path" in
   let num_of_modes = Enum.count (Map.keys modemap) in
   let vardecls = varmap_to_list h.varmap in
   let (time_var_l, vardecls') = List.partition (fun (name, _) -> name = "time") vardecls in
@@ -242,10 +243,23 @@ let compile_vardecl (h : Hybrid.t) (k : int) =
     List.split
       (List.map
          (function
-           | (name, Value.Intv (lb, ub)) ->
-             (DeclareFun name,
-              [make_lb name lb;
-               make_ub name ub])
+	   | (name, Value.Intv (lb, ub)) ->
+	     match (String.starts_with name "time_", 
+				       (String.sub name 
+						   ((String.index name '_') + 1) 
+						   (String.length name - ((String.index name '_') + 1)))) with
+             (true, time_id) ->
+               let time =  int_of_string time_id in
+	       let mode_id = List.at my_path time in
+	       let mode = Modemap.find mode_id h.modemap in
+	       let tprecision = mode.time_precision in
+	       (DeclareFun name,
+	        [make_lbp name lb tprecision;
+	         make_ubp name ub tprecision])
+	   |  _ ->
+	      (DeclareFun name,
+               [make_lb name lb;
+	        make_ub name ub])
            | _ -> raise (SMTException "We should only have interval here."))
          new_vardecls) in
   let org_vardecl_cmds = List.map (fun (var, _) -> DeclareFun var) vardecls' in
@@ -269,7 +283,7 @@ let compile_ode_definition (h : Hybrid.t) k =
 
 let compile (h : Hybrid.t) (k : int) (path : (int list) option) =
   let logic_cmd = SetLogic QF_NRA_ODE in
-  let (vardecl_cmds, assert_cmds) = compile_vardecl h k in
+  let (vardecl_cmds, assert_cmds) = compile_vardecl h k path in
   let defineodes = compile_ode_definition h k in
   let assert_formula = compile_logic_formula h k path in
   List.flatten

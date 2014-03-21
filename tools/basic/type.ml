@@ -178,11 +178,11 @@ module Basic = struct
     | Ge (e1, e2)    -> fn_f (Ge      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
     | Le (e1, e2)    -> fn_f (Le      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
     | Eq (e1, e2)    -> fn_f (Eq      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
-    | Gtp (e1, e2, p)    -> fn_f (Gt      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
-    | Ltp (e1, e2, p)    -> fn_f (Lt      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
-    | Gep (e1, e2, p)    -> fn_f (Ge      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
-    | Lep (e1, e2, p)    -> fn_f (Le      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
-    | Eqp (e1, e2, p)    -> fn_f (Eq      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+    | Gtp (e1, e2, p)    -> fn_f (Gtp      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2, p))
+    | Ltp (e1, e2, p)    -> fn_f (Ltp      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2, p))
+    | Gep (e1, e2, p)    -> fn_f (Gep      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2, p))
+    | Lep (e1, e2, p)    -> fn_f (Lep      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2, p))
+    | Eqp (e1, e2, p)    -> fn_f (Eqp      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2, p))
     | Imply (f1, f2) -> fn_f (Imply   (map_formula fn_f fn_e f1, map_formula fn_f fn_e f2))
     | ForallT (m, lb, ub, f) -> fn_f (ForallT (map_exp fn_f fn_e m,
                                                map_exp fn_f fn_e lb,
@@ -1125,7 +1125,7 @@ module Hybrid = struct
   	    (Mode.mode_id m,
 	     Mode.time_precision m,
              begin
-               match (Mode.invs_op m) with
+	       match (Mode.invs_op m) with
                  None -> None
                | Some inv -> Some (List.map (Basic.preprocess_formula subst) inv)
              end,
