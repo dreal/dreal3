@@ -111,6 +111,10 @@ outputLastMode(){
     echo "  flow:"                         >> $OUT
     echo "        d/dt[aim_height] = 0;"   >> $OUT
     echo "        d/dt[on] = 0;"           >> $OUT
+    for((j=0; j < $SIZE; j++)); do {
+	    echo "        d/dt[x_${j}] = 0;"         >> $OUT
+	}; done
+
     echo "  jump:"                         >> $OUT
     echo "        true ==> @${MODE} true;" >> $OUT
     echo "}"                               >> $OUT

@@ -305,11 +305,11 @@ double icp_solver::constraint_width(const rp_constraint * c, rp_box b) const {
     rp_interval_add(res, rp_expression_val(lhs), rp_expression_val(rhs));
 
     // DREAL_LOG_DEBUG("Width: LHS: [" << rp_binf(rp_expression_val(lhs))
-    // 		    << ", " << rp_bsup(rp_expression_val(lhs)) << "], RHS: ["
-    // 		    << rp_binf(rp_expression_val(rhs)) << ", "
-    // 		    << rp_bsup(rp_expression_val(rhs)) << "], RES: ["
-    // 		    << rp_binf(res) << ", "
-    // 		    << rp_bsup(res) << "]"  );
+    //      << ", " << rp_bsup(rp_expression_val(lhs)) << "], RHS: ["
+    //      << rp_binf(rp_expression_val(rhs)) << ", "
+    //      << rp_bsup(rp_expression_val(rhs)) << "], RES: ["
+    //      << rp_binf(res) << ", "
+    //      << rp_bsup(res) << "]"  );
 
     return rp_interval_width(res);
   }

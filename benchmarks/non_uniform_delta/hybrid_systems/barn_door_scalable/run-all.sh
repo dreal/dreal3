@@ -19,11 +19,11 @@ for((i=1; i <=$NUM; i++)); do {
 		for relaxTime in true; do {
 			#for relaxJump in true false; do {
 			for relaxJump in true; do {
-				for deltaH in "-q" ""; do {
+				for deltaH in "--delta-heuristic" ""; do {
 					#for sat in "-u" ""; do {
 					for sat in ""; do {
    						echo "DELTA = ${d} STEPS = ${f}"
-						CMD="../../../../dReach.sh -d ${deltaH} -u ${i} -l ${i} -t 600 barn_door_${PREFIX}${i}_${d}_${relaxTime}_${relaxJump}${sat}.drh"
+						CMD="dReach -k ${i} barn_door_${PREFIX}${i}_${d}_${relaxTime}_${relaxJump}${sat}.drh ${deltaH} --delta"
 						#CMD="../../../../dReach.sh -d ${deltaH} -u 1 -l 1 -t 600 barn_door_${PREFIX}${f}_${d}_${relaxTime}_${relaxJump}${sat}.drh"
 						echo $CMD
 						runtime=$( time ( $CMD ) 2>&1  1>/dev/null)

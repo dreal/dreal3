@@ -10,17 +10,17 @@ set logscale y
 
 set output "barn_door_delta.ps"
 set title "Barn Door Solving Time (s), 5 nonsense, Delta Heuristic, various Delta"
-plot 'barn_door_0.001_true_-q.out' using 3  t "0.001", \
-     'barn_door_0.1_true_-q.out' using 3 t "0.1", \
-     'barn_door_1.0_true_-q.out' using 3  t "1.0", \
-     'barn_door_2.0_true_-q.out' using 3  t "2.0", \
-     'barn_door_4.0_true_-q.out' using 3 t "4.0"
+plot 'barn_door_0.001_true_--delta-heuristic.out' using 3  t "0.001", \
+     'barn_door_0.1_true_--delta-heuristic.out' using 3 t "0.1", \
+     'barn_door_1.0_true_--delta-heuristic.out' using 3  t "1.0", \
+     'barn_door_2.0_true_--delta-heuristic.out' using 3  t "2.0", \
+     'barn_door_4.0_true_--delta-heuristic.out' using 3 t "4.0"
 
 
 
 set output "barn_door_comparo.ps"
 set title "Barn Door Solving Time (s),  5 nonsense, Delta Heuristic vs Epsilon Heuristic,Delta = 1.0"
-plot 'barn_door_1.0_true_-q.out'  using 3  t "delta, 1.0", \
+plot 'barn_door_1.0_true_--delta-heuristic.out'  using 3  t "delta, 1.0", \
      'barn_door_1.0_true_.out'  using 3  t "epsilon, 1.0"
      
 set output "barn_door_epsilon.ps"
@@ -46,24 +46,24 @@ unset logscale y
 
 set output "targeting_delta3d.ps"
 set title "Targeting Solving Time (s), Delta Heuristic"
-splot 'barn_door_0.001_true_-q.out' using 1:2:3 every  :::0::0  t "0.001" ls 1, \
-      'barn_door_0.001_true_-q.out' using 1:2:3 every  :::1::1  notit ls 1, \
-      'barn_door_0.001_true_-q.out' using 1:2:3 every  :::2::2  notit ls 1, \
-      'barn_door_0.1_true_-q.out'  using 1:2:3 every  :::0::0 t "0.1" ls 2, \
-      'barn_door_0.1_true_-q.out' using 1:2:3 every  :::1::1  notit ls 2, \
-      'barn_door_0.1_true_-q.out' using 1:2:3 every  :::2::2  notit ls 2, \
-      'barn_door_1.0_true_-q.out' using 1:2:3 every  :::0::0 t "1.0" ls 3, \
-      'barn_door_1.0_true_-q.out' using 1:2:3 every  :::1::1 notit ls 3, \
-      'barn_door_1.0_true_-q.out' using 1:2:3 every  :::2::2 notit ls 3, \
-      'barn_door_1.0_true_-q.out' using 1:2:3 every  :::3::3 notit ls 3, \
-      'barn_door_2.0_true_-q.out' using 1:2:3 every  :::0::0 t "2.0" ls 4, \
-      'barn_door_2.0_true_-q.out' using 1:2:3 every  :::1::1 notit ls 4, \
-      'barn_door_2.0_true_-q.out' using 1:2:3 every  :::2::2 notit ls 4, \
-      'barn_door_2.0_true_-q.out' using 1:2:3 every  :::3::3 notit ls 4, \
-      'barn_door_4.0_true_-q.out' using 1:2:3 every  :::0::0 t "4.0" ls 5, \
-      'barn_door_4.0_true_-q.out' using 1:2:3 every  :::1::1 notit ls 5, \
-      'barn_door_4.0_true_-q.out' using 1:2:3 every  :::2::2 notit ls 5, \
-      'barn_door_4.0_true_-q.out' using 1:2:3 every  :::3::3 notit ls 5
+splot 'barn_door_0.001_true_--delta-heuristic.out' using 1:2:3 every  :::0::0  t "0.001" ls 1, \
+      'barn_door_0.001_true_--delta-heuristic.out' using 1:2:3 every  :::1::1  notit ls 1, \
+      'barn_door_0.001_true_--delta-heuristic.out' using 1:2:3 every  :::2::2  notit ls 1, \
+      'barn_door_0.1_true_--delta-heuristic.out'  using 1:2:3 every  :::0::0 t "0.1" ls 2, \
+      'barn_door_0.1_true_--delta-heuristic.out' using 1:2:3 every  :::1::1  notit ls 2, \
+      'barn_door_0.1_true_--delta-heuristic.out' using 1:2:3 every  :::2::2  notit ls 2, \
+      'barn_door_1.0_true_--delta-heuristic.out' using 1:2:3 every  :::0::0 t "1.0" ls 3, \
+      'barn_door_1.0_true_--delta-heuristic.out' using 1:2:3 every  :::1::1 notit ls 3, \
+      'barn_door_1.0_true_--delta-heuristic.out' using 1:2:3 every  :::2::2 notit ls 3, \
+      'barn_door_1.0_true_--delta-heuristic.out' using 1:2:3 every  :::3::3 notit ls 3, \
+      'barn_door_2.0_true_--delta-heuristic.out' using 1:2:3 every  :::0::0 t "2.0" ls 4, \
+      'barn_door_2.0_true_--delta-heuristic.out' using 1:2:3 every  :::1::1 notit ls 4, \
+      'barn_door_2.0_true_--delta-heuristic.out' using 1:2:3 every  :::2::2 notit ls 4, \
+      'barn_door_2.0_true_--delta-heuristic.out' using 1:2:3 every  :::3::3 notit ls 4, \
+      'barn_door_4.0_true_--delta-heuristic.out' using 1:2:3 every  :::0::0 t "4.0" ls 5, \
+      'barn_door_4.0_true_--delta-heuristic.out' using 1:2:3 every  :::1::1 notit ls 5, \
+      'barn_door_4.0_true_--delta-heuristic.out' using 1:2:3 every  :::2::2 notit ls 5, \
+      'barn_door_4.0_true_--delta-heuristic.out' using 1:2:3 every  :::3::3 notit ls 5
 
 set output "targeting_epsilon3d.ps"
 set title "Targeting Solving Time (s), Epsilon Heuristic"

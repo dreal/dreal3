@@ -73,13 +73,13 @@ outputModes(){
 	NEXTMODE=`expr $MODE + 1`
 	echo "{ mode ${MODE};"               >> $OUT
 	if [ $RELAXTIME == "true" ]; then
-	    echo "  tprecision: ${DELTA};"       >> $OUT
+	    echo "  timeprecision: ${DELTA};"       >> $OUT
 	fi
 	echo "  invt:"                       >> $OUT
-	echo "        (<= on 0);"            >> $OUT
-	echo "        (>= 50 aim_height);"   >> $OUT
+	echo "        (on <= 0);"            >> $OUT
+	echo "        (50 >= aim_height);"   >> $OUT
 	for((j=0; j < $NUMNONSENSE; j++)); do {
-	    echo "        (>= 50 nonsense_${j} [${DELTA}]);"   >> $OUT
+	    echo "        (50 >= [${DELTA}] nonsense_${j});"   >> $OUT
 	    }; done
 
 	echo "  flow:"                       >> $OUT
@@ -88,11 +88,18 @@ outputModes(){
 		echo "        d/dt[nonsense_${j}] = 0;" >> $OUT
 	    }; done
 	echo "        d/dt[on] = 0;"         >> $OUT
+	for((j=0; j < $SIZE; j++)); do {
+	    echo "        d/dt[x_${j}] = 0;"         >> $OUT
+	    for((k=0; k < $NUMNONSENSE; k++)); do {
+		    echo "        d/dt[y_${j}_${k}] = 0;"         >> $OUT
+		}; done
+	}; done
+
 	echo "  jump:"                       >> $OUT
 
-	JUMP="        true ==> @${NEXTMODE} (and (= aim_height' (+ aim_height x_${i}))" 
+	JUMP="        true ==> @${NEXTMODE} (and (aim_height' = (aim_height + x_${i}))" 
 	for((j=0; j < $NUMNONSENSE; j++)); do {
-		JUMP=$JUMP" (= nonsense_${j}' (+ nonsense_${j} y_${i}_${j}) [${DELTA}])"
+		JUMP=$JUMP" (nonsense_${j}' = [${DELTA}] (nonsense_${j} +  y_${i}_${j}) )"
 	    }; done
 	JUMP=$JUMP");"
 	echo $JUMP >> $OUT
@@ -105,18 +112,28 @@ outputLastMode(){
     MODE=`expr ${SIZE} + 1`
     echo "{mode ${MODE};"                  >> $OUT
     if [ $RELAXTIME == "true" ]; then
-	echo "  tprecision: ${DELTA};"       >> $OUT
+	echo "  timeprecision: ${DELTA};"       >> $OUT
     fi
     echo "  invt:"                         >> $OUT
-    echo "        (<= on 0);"              >> $OUT
-    echo "        (>= 50 aim_height);"   >> $OUT
+    echo "        (on <= 0);"              >> $OUT
+    echo "        (50 >= aim_height);"   >> $OUT
     for((j=0; j < $NUMNONSENSE; j++)); do {
-	    echo "        (>= 50 nonsense_${j} [${DELTA}]);"   >> $OUT
+	    echo "        (50 >= [${DELTA}] nonsense_${j});"   >> $OUT
 	}; done
     
     echo "  flow:"                         >> $OUT
     echo "        d/dt[aim_height] = 0;"   >> $OUT
     echo "        d/dt[on] = 0;"           >> $OUT
+    for((j=0; j < $NUMNONSENSE; j++)); do {
+	    echo "        d/dt[nonsense_${j}] = 0;" >> $OUT
+	}; done
+    for((j=0; j < $SIZE; j++)); do {
+	    echo "        d/dt[x_${j}] = 0;"         >> $OUT
+	    for((k=0; k < $NUMNONSENSE; k++)); do {
+		    echo "        d/dt[y_${j}_${k}] = 0;"         >> $OUT
+		}; done
+	}; done
+
     echo "  jump:"                         >> $OUT
     echo "        true ==> @${MODE} true;" >> $OUT
     echo "}"                               >> $OUT
@@ -124,9 +141,9 @@ outputLastMode(){
 
 outputInit(){
     echo "init:" >> $OUT
-    INIT="@1 (and  (= aim_height 0) (= on 0)"
+    INIT="@1 (and  (aim_height = 0) (on = 0)"
     for((j=0; j < $NUMNONSENSE; j++)); do {
-	    INIT=$INIT" (= nonsense_${j} 0)"
+	    INIT=$INIT" (nonsense_${j} = 0)"
 	}; done
     INIT=$INIT");"
     echo $INIT >> $OUT
@@ -138,10 +155,10 @@ outputGoal(){
     echo "goal:" >> $OUT
     if [ $UNSAT ]; then
 	UNSAT_HEIGHT=`expr ${SIZE} \* 6`
-	echo "@${MODE} (and (= aim_height ${UNSAT_HEIGHT}));" >> $OUT
+	echo "@${MODE} (and (aim_height = ${UNSAT_HEIGHT}));" >> $OUT
     else
 	SAT_HEIGHT=0
-	echo "@${MODE} (and (= aim_height ${SAT_HEIGHT}));" >> $OUT
+	echo "@${MODE} (and (aim_height = ${SAT_HEIGHT}));" >> $OUT
     fi
 }
 

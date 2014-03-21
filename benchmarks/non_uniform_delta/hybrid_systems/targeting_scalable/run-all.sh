@@ -18,11 +18,11 @@ for((i=1; i <=$NUM; i++)); do {
 		for d in  4.0 2.0 1.0 0.1 0.001; do {
 			for relaxTime in true ; do {
 #			for relaxJump in true false; do {
-				for deltaH in "-q" ""; do {
+				for deltaH in "--delta-heuristic" ""; do {
 					#for sat in "-u" ""; do {
 					for sat in ""; do {
    						echo "DELTA = ${d} STEPS = ${f}"
-						CMD="../../../../dReach.sh -d ${deltaH} -u ${f} -l ${f} -t 600 targeting_${PREFIX}${f}_${j}_${d}_${relaxTime}_${relaxJump}${sat}.drh"
+						CMD="dReach -k ${f} targeting_${PREFIX}${f}_${j}_${d}_${relaxTime}_${relaxJump}${sat}.drh  --delta ${deltaH}"
 						echo $CMD
 						runtime=$( time ( $CMD ) 2>&1  1>/dev/null)
 						echo $f $j $runtime >> targeting_${d}_${relaxTime}_${relaxJump}${deltaH}${sat}.out

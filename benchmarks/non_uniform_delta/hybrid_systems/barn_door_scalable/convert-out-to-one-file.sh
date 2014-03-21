@@ -3,7 +3,7 @@ NUM=5
 TIMEFORMAT="%U"
 #/usr/bin/time -f "$fmt" -o $timefile command args...
 
-for deltaH in "-q" ""; do {
+for deltaH in "--delta-heuristic" ""; do {
 OUT="barn_door${deltaH}.out"
 echo "" > $OUT 
 for((i=1; i <=$NUM; i++)); do {
