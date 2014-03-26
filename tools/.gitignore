@@ -6,3 +6,4 @@ myocamlbuild.ml
 setup.data
 setup.log
 setup.ml
+*.mldylib
