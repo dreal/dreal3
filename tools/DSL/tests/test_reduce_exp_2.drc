@@ -1,0 +1,27 @@
+#define g 9.8
+
+process flow (real v, real x)
+{
+        d/dt[x] = v / sin(x) / tan(x);
+        d/dt[v] = -g / cos(sin(x)) / tan(v);
+
+        if (cos(x) <= 0.0) then {
+           v = -sin(v) * 0.8 ;
+           x = 0.0 + cos(x);
+        }
+
+}
+
+int main()
+{
+        real[0,50] x;
+        real[-50, 50] v;
+
+        x = 10;
+        v = 0;
+
+        proceed
+        {
+                flow(v,x);
+        }
+}
