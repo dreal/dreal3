@@ -239,7 +239,7 @@ and emit_exp (vmap : ty_vmap) (e : Type.exp) (fd : Cil.fundec): ty_vmap * reduce
         (fun acc e ->
            let vmap, cexps = acc in
            let vmap', ne = emit_exp vmap e fd in
-           (vmap', ne :: cexps)
+           (vmap', cexps @ [ne])
         )
         (vmap, []) el
     in
