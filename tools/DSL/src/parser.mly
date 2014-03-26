@@ -77,19 +77,20 @@ exp:
    | Num n -> Num (0.0 -. n)
    | _ -> Neg $2
  }
- | exp AST exp            { Mul [$1; $3] }
- | exp SLASH exp          { Div ($1, $3) }
- | EXP exp                { Exp $2 }
- | exp CARET exp          { Pow ($1, $3) }
- | SIN exp                { Sin $2 }
- | COS exp                { Cos $2 }
- | TAN exp                { Tan $2 }
- | ASIN exp               { Asin $2 }
- | ACOS exp               { Acos $2 }
- | ATAN exp               { Atan $2 }
- | SINH exp               { Sinh $2 }
- | COSH exp               { Cosh $2 }
- | TANH exp               { Tanh $2 }
+ | exp AST exp                  { Mul [$1; $3] }
+ | exp SLASH exp                { Div ($1, $3) }
+ | EXP LP exp RP                { Exp $3 }
+ | exp CARET exp                { Pow ($1, $3) }
+ | SIN LP exp RP                { Sin $3 }
+ | COS LP exp RP                { Cos $3 }
+ | TAN LP exp RP                { Tan $3 }
+ | ASIN LP exp RP               { Asin $3 }
+ | ACOS LP exp RP               { Acos $3 }
+ | ATAN LP exp RP               { Atan $3 }
+ | SINH LP exp RP               { Sinh $3 }
+ | COSH LP exp RP               { Cosh $3 }
+ | TANH LP exp RP               { Tanh $3 }
+ | ID LP params RP              { Invoke ($1, $3) }
 ;
 
 /* boolean expression */
@@ -154,7 +155,7 @@ stmt:
 
     | switch                                                  { [$1] }
     | ASSERT LP bexp RP SEMICOLON                             { [Assert $3] }
-    | ID LP params RP SEMICOLON                               { [Invoke ($1, $3)] }
+    | exp SEMICOLON                                           { [Expr $1] }
 ;
 
 stmt_list:

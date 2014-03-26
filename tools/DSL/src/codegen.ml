@@ -4,11 +4,20 @@
 open Batteries
 open Type
 open Cil
+open Drh_stl
 
-let headers = ref ["stdio.h"; "stdlib.h"]
+let headers = ref ["stdio.h"; "stdlib.h"; "math.h"]
 let dt = ref 0.01
 
+let toplevel = Drh_stl.libs
+
 type ty_vmap = (string, Cil.varinfo) Map.t
+
+(* a potential complex expression, for instance, has a function call inside it.
+   will extract the call, assign the result to a tmp variable and simplify the
+   expression.
+*)
+type reduce_exp = RExp of Cil.stmt list * Cil.exp
 
 (*   x => *x   *)
 class replacePtrLvalVisitor
@@ -73,16 +82,16 @@ let rec emit_stmt (vmap : ty_vmap) (fd : Cil.fundec)
   function
   | Ode (s, exp) ->
     let lv = var (Map.find s vmap) in
-    let cexp = emit_exp vmap exp in
+    let vmap', RExp (stmts, cexp) = emit_exp vmap exp fd in
     let cstmt = Formatcil.cStmt
         "%l:s = %l:s + %v:dt * %e:e;"
         (fun n t -> failwith "false")
         locUnknown
         [("s", Fl lv);
-         ("dt", Fv (Map.find "dt" vmap));
+         ("dt", Fv (Map.find "dt" vmap'));
          ("e", Fe cexp);]
     in
-    (vmap, [cstmt])
+    (vmap', stmts @ [cstmt])
   | Assert _ ->
     begin
       (* TODO(soonhok): implement *)
@@ -90,14 +99,14 @@ let rec emit_stmt (vmap : ty_vmap) (fd : Cil.fundec)
     end
   | Assign (s, exp) ->
       let lv = var (Map.find s vmap) in
-      let cexp = emit_exp vmap exp in
+      let vmap', RExp (stmts, cexp) = emit_exp vmap exp fd in
       let cstmt = mkStmtOneInstr (Set (lv, cexp, locUnknown)) in
-      (vmap, [cstmt])
+      (vmap', stmts @ [cstmt])
   | If (bexp, then_stmts, else_stmts) ->
-    let bcexp = emit_bexp vmap bexp in
+    let vmap', RExp (stmts, bcexp) = emit_bexp vmap bexp fd in
     let (_, then_cstmts) = emit_stmts vmap fd then_stmts in
     let (_, else_cstmts) = emit_stmts vmap fd else_stmts in
-    (vmap, [mkStmt (If (bcexp, mkBlock then_cstmts, mkBlock else_cstmts, locUnknown))])
+    (vmap', stmts @ [mkStmt (If (bcexp, mkBlock then_cstmts, mkBlock else_cstmts, locUnknown))])
   | Proceed stmts ->
     let (_, cstmts) = emit_stmts vmap fd stmts in
     let cstmts' = List.map
@@ -129,10 +138,17 @@ let rec emit_stmt (vmap : ty_vmap) (fd : Cil.fundec)
       (* TODO(soonhok): implement *)
       (vmap, [dummyStmt])
     end
-  | Invoke (s, el) ->
-    let cexps = emit_exps vmap el in
-    let cinstr = Call (None, Lval (var (Map.find s vmap)), cexps, locUnknown) in
-    (vmap, [mkStmtOneInstr cinstr])
+  | Expr (Invoke (s, el)) ->
+    let vmap', cstmts, cexps = emit_exps vmap el fd in
+    let called = Map.find s vmap' in
+    begin
+      match called.vtype with
+      | TFun (rtype, _, _, _) ->
+        let assign_instr = Call (None, Lval (var (Map.find s vmap)), cexps, locUnknown) in
+        (vmap, cstmts @ [mkStmtOneInstr assign_instr])
+      | _ -> failwith "not a function"
+    end
+  | Expr _ -> (vmap, []) (* if no side effect, we just ignore it *)
 
 (* list of statements *)
 and emit_stmts (vmap : ty_vmap) (fd : Cil.fundec) (stmts : Type.stmt list)
@@ -202,6 +218,7 @@ and emit_headers (headers : string list) : Cil.global list =
   List.map (fun s -> GText ("#include <" ^ s ^ ">")) headers
 
 and emit_program (ast : Type.t) =
+  Drh_stl.drh_stl_init ();
   let vmap = Map.empty in
   let {macros; modes; main} = ast in
   let macros' = (Macro ("dt", !dt))::macros in
@@ -215,10 +232,21 @@ and emit_program (ast : Type.t) =
                       globinitcalled = false} in
   dumpFile defaultCilPrinter Pervasives.stdout "codegen" t
 
-and emit_exp (vmap : ty_vmap) (e : Type.exp) : Cil.exp =
-  let binop_aux vmap (el : Type.exp list) (builder : (Cil.exp * Cil.exp * Cil.typ -> Cil.exp)) : Cil.exp =
-    let el' : Cil.exp list = List.map (emit_exp vmap) el in
-    List.reduce (fun e1 e2 ->
+and emit_exp (vmap : ty_vmap) (e : Type.exp) (fd : Cil.fundec): ty_vmap * reduce_exp =
+  let binop_aux vmap (el : Type.exp list) (builder : (Cil.exp * Cil.exp * Cil.typ -> Cil.exp)) : ty_vmap * reduce_exp =
+    let vmap', (el' : reduce_exp list) =
+      List.fold_left
+        (fun acc e ->
+           let vmap, cexps = acc in
+           let vmap', ne = emit_exp vmap e fd in
+           (vmap', ne :: cexps)
+        )
+        (vmap, []) el
+    in
+    (vmap', (* new environment *)
+     List.reduce (fun a1 a2 ->
+        let RExp (s1, e1) = a1 in
+        let RExp (s2, e2) = a2 in
         let ty1 = typeOf e1 in
         let ty2 = typeOf e2 in
         let ty_of_sum =
@@ -233,16 +261,36 @@ and emit_exp (vmap : ty_vmap) (e : Type.exp) : Cil.exp =
               failwith "Addition only supports double + double."
             end
         in
-        builder (e1, e2, ty_of_sum))
+        (* merge all temp variables declarations *)
+        RExp (s1@s2, builder (e1, e2, ty_of_sum)))
       el'
+    )
+  in
+  let emit_single_var_func fn e =
+    let vmap', cstmts, cexps = emit_exps vmap [e] fd in
+    let called = Map.find fn !toplevel in
+    begin
+      match called.vtype with
+      | TFun (rtype, _, _, _) ->
+        let tmp_result_var =
+          makeLocalVar fd ("tmp__" ^ (string_of_int (newVID ()))) rtype
+        in
+        let assign_instr =
+          Call (Some (var tmp_result_var), Lval (var (Map.find fn !toplevel)), cexps, locUnknown)
+        in
+        (vmap, RExp (cstmts @ [mkStmtOneInstr assign_instr], Lval (var tmp_result_var)))
+      | _ -> failwith "not a function"
+    end
   in
   match e with
-  | Var s -> Lval (var (Map.find s vmap))
-  | Num n -> Const (CReal (n, FDouble, None))
+  | Var s ->
+    vmap, RExp ([], Lval (var (Map.find s vmap)))
+  | Num n ->
+    vmap, RExp ([], Const (CReal (n, FDouble, None)))
   | Neg e ->
-    let cexp = emit_exp vmap e in
+    let vmap', RExp (cstmts, cexp) = emit_exp vmap e fd in
     let ty = typeOf cexp in
-    UnOp (Neg, cexp, ty)
+    vmap', RExp (cstmts, UnOp (Neg, cexp, ty))
   | Add el -> binop_aux vmap el (fun (e1, e2, ty) -> BinOp (PlusA, e1, e2, ty))
   | Sub el -> binop_aux vmap el (fun (e1, e2, ty) -> BinOp (MinusA, e1, e2, ty))
   | Mul el -> binop_aux vmap el (fun (e1, e2, ty) -> BinOp (Mult, e1, e2, ty))
@@ -254,11 +302,16 @@ and emit_exp (vmap : ty_vmap) (e : Type.exp) : Cil.exp =
   | Abs e -> failwith "abs not implemented"
   | Log e -> failwith "log not implemented"
   | Exp e -> failwith "exp not implemented"
-  | Sin e -> failwith "sin not implemented"
-  | Cos e -> failwith "cos not implemented"
-  | Tan e -> failwith "tan not implemented"
-  | Asin e -> failwith "asin not implemented"
-  | Acos e -> failwith "acos not implemented"
+  | Sin e ->
+    emit_single_var_func "sin" e
+  | Cos e ->
+    emit_single_var_func "cos" e
+  | Tan e ->
+    emit_single_var_func "tan" e
+  | Asin e ->
+    emit_single_var_func "asin" e
+  | Acos e ->
+    emit_single_var_func "acos" e
   | Atan e -> failwith "atan not implemented"
   | Atan2 (e1, e2) -> failwith "atan2 not implemented"
   | Matan e -> failwith "matan not implemented"
@@ -269,22 +322,36 @@ and emit_exp (vmap : ty_vmap) (e : Type.exp) : Cil.exp =
   | Acosh e -> failwith "acosh not implemented"
   | Atanh e -> failwith "atanh not implemented"
   | Integral (f, s1, sl, s2) -> failwith "integral not implemented"
+  | Invoke (s, el) ->
+    let vmap', cstmts, cexps = emit_exps vmap el fd in
+    let called = Map.find s vmap' in
+    begin
+      match called.vtype with
+      | TFun (rtype, _, _, _) ->
+        let tmp_result_var = makeLocalVar fd ("tmp__" ^ (string_of_int (newVID ()))) rtype in
+        let assign_instr = Call (Some (var tmp_result_var), Lval (var (Map.find s vmap)), cexps, locUnknown) in
+        (vmap, RExp (cstmts @ [mkStmtOneInstr assign_instr], Lval (var tmp_result_var)))
+      | _ -> failwith "not a function"
+    end
 
-and emit_bexp (vmap : ty_vmap) (b : Type.bexp) : Cil.exp =
+and emit_bexp (vmap : ty_vmap) (b : Type.bexp) (fd : Cil.fundec) : ty_vmap * reduce_exp =
   let cmp_aux bop e1 e2 =
-    let cexp1 = emit_exp vmap e1 in
-    let cexp2 = emit_exp vmap e2 in
-    BinOp (bop, cexp1, cexp2, Cil.intType)
+    let vmap', RExp (stmts1, cexp1) = emit_exp vmap e1 fd in
+    let vmap'', RExp (stmts2, cexp2) = emit_exp vmap' e2 fd in
+    vmap'', RExp (stmts1@stmts2, BinOp (bop, cexp1, cexp2, Cil.intType))
   in
   let logic_aux bop e1 e2 =
-    let cexp1 = emit_bexp vmap e1 in
-    let cexp2 = emit_bexp vmap e2 in
-    BinOp (bop, cexp1, cexp2, Cil.intType)
+    let vmap', RExp (stmts1, cexp1) = emit_bexp vmap e1 fd in
+    let vmap'', RExp (stmts2, cexp2) = emit_bexp vmap' e2 fd in
+    vmap'', RExp (stmts1@stmts2, BinOp (bop, cexp1, cexp2, Cil.intType))
   in
   match b with
-  | B_true -> one
-  | B_false -> zero
-  | B_var s -> Lval (var (Map.find s vmap))
+  | B_true ->
+    vmap, RExp ([], one)
+  | B_false ->
+    vmap, RExp ([], zero)
+  | B_var s ->
+    vmap, RExp ([], Lval (var (Map.find s vmap)))
   | B_gt (e1, e2) -> cmp_aux Gt e1 e2
   | B_lt (e1, e2)-> cmp_aux Lt e1 e2
   | B_ge (e1, e2)-> cmp_aux Ge e1 e2
@@ -292,5 +359,14 @@ and emit_bexp (vmap : ty_vmap) (b : Type.bexp) : Cil.exp =
   | B_eq (e1, e2)-> cmp_aux Eq e1 e2
   | B_and (e1, e2)-> logic_aux LAnd e1 e2
   | B_or (e1, e2)-> logic_aux LOr e1 e2
-and emit_exps (vmap : ty_vmap) (el : Type.exp list) : Cil.exp list =
-  List.map (emit_exp vmap) el
+and emit_exps (vmap : ty_vmap) (el : Type.exp list) (fd : Cil.fundec): ty_vmap * Cil.stmt list * Cil.exp list =
+  let vmap', stmts, el' =
+    List.fold_left
+      (fun acc e ->
+         let vmap, stmts, el = acc in
+         let vmap', RExp (stmts', e) = emit_exp vmap e fd in
+         (vmap', stmts@stmts', el@[e])
+      )
+      (vmap, [], []) el
+  in
+  (vmap', stmts, el')

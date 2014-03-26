@@ -81,9 +81,16 @@ rule token = parse
     (* identifier *)
     | id {
             let id = Lexing.lexeme lexbuf in
-            verbose ("ID: "^id);
-            try Hashtbl.find keyword_tbl id
-            with _ -> ID id
+
+            try
+              let r = Hashtbl.find keyword_tbl id in
+              verbose ("Keyword: "^id);
+              r
+            with _ ->
+              begin
+              verbose ("ID: "^id);
+              ID id
+              end
          }
     | "#define" { verbose (Lexing.lexeme lexbuf); DEFINE }
 
