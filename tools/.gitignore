@@ -1,7 +1,7 @@
 _build
 _tags
-bmc_main.native
-inv_main.native
+*.native
+*.byte
 myocamlbuild.ml
 setup.data
 setup.log
