@@ -9,6 +9,6 @@ Executable main
   Path:       src
   BuildTools: ocamlbuild
   MainIs:     main.ml
-  BuildDepends: batteries, cil
+  BuildDepends: batteries
   ByteOpt:    -passopt -annot
   CompiledObject : native
