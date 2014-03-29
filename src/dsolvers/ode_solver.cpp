@@ -188,13 +188,15 @@ void ode_solver::print_trace(ostream& out,
     out << "\t" << "\"mode\": \"" << m_mode << "\"," << endl;
     out << "\t" << "\"step\": \"" << m_step << "\"," << endl;
     out << "\t" << "\"values\": [" << endl;
-    auto iter = trajectory.cbegin();
-    print_datapoint(out, iter->first, iter->second[idx]);
-    for (++iter; iter != trajectory.cend(); iter++) {
-        out << ", " << endl;
+    if (!trajectory.empty()) {
+        auto iter = trajectory.cbegin();
         print_datapoint(out, iter->first, iter->second[idx]);
+        for (++iter; iter != trajectory.cend(); iter++) {
+            out << ", " << endl;
+            print_datapoint(out, iter->first, iter->second[idx]);
+        }
+        out << endl;
     }
-    out << endl;
     out << "\t" << "]" << endl;
     out << "}" << endl;
 }
@@ -202,10 +204,12 @@ void ode_solver::print_trace(ostream& out,
 void ode_solver::print_trajectory(ostream& out) const {
     out.precision(12);
     out << "[" << endl;
-    print_trace(out, m_var_list[0], 0, m_trajectory);
-    for (size_t i = 1; i < m_var_list.size(); i++) {
-        out << ", " << endl;
-        print_trace(out, m_var_list[i], i, m_trajectory);
+    if (!m_var_list.empty()) {
+        print_trace(out, m_var_list[0], 0, m_trajectory);
+        for (size_t i = 1; i < m_var_list.size(); i++) {
+            out << ", " << endl;
+            print_trace(out, m_var_list[i], i, m_trajectory);
+        }
     }
     out << endl << "]" << endl;
 }
