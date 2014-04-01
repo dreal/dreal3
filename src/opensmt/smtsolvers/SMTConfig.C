@@ -18,6 +18,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "SMTConfig.h"
+#include "version.h"
+#include "dsolvers/util/git_sha1.h"
 #include "dsolvers/util/logger.h"
 
 void
@@ -442,7 +444,8 @@ SMTConfig::parseCMDLine( int argc
 void SMTConfig::printHelp( )
 {
   const char help_string[]
-    = "Usage: ./dReal [OPTION] filename\n"
+      =
+      "Usage: ./solver [OPTION] filename\n"
       "where OPTION can be\n"
       "  --help [-h]              print this help\n"
       "  --config=<filename>      use configuration file <filename>\n"
@@ -495,6 +498,10 @@ void SMTConfig::printHelp( )
       "\n"
       "   --visualize             print out data for the visualization of ODE solving\n"
       "                           which will be saved to \"filename.json\".\n";
+
+  cerr << "dReal SMT solver "
+       << "(version " << DREAL_VERSION_MAJOR << "." << DREAL_VERSION_MINOR << ", commit "
+       << std::string(getGitSHA1()).substr(0, 12) << ")" << endl;
 
   cerr << help_string;
 }

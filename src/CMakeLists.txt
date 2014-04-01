@@ -138,8 +138,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -frounding-math")
 endif()
 
-
-
 ################################################################
 # CAPD
 ################################################################
@@ -151,6 +149,14 @@ set(ODE_ENABLED TRUE)
 # FILIB
 ################################################################
 set(EXTRA_LIBS ${EXTRA_LIBS} "-lprim")
+
+################################################################
+# GIT HASH
+################################################################
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/dsolvers/util/git_sha1.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp" @ONLY)
+add_library(git_sha1 "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/dsolvers/util/git_sha1.h")
 
 ################################################################
 # EGLIBC (Optional)
@@ -216,6 +222,7 @@ add_subdirectory(realpaver)
 set(DREAL_LIBS ${DREAL_LIBS} realpaver)
 add_subdirectory(dsolvers/util)
 set(DREAL_LIBS ${DREAL_LIBS} util)
+set(DREAL_LIBS ${DREAL_LIBS} git_sha1)
 
 #add tests
 add_subdirectory(tests/nra)
