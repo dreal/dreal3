@@ -15,7 +15,7 @@
 %token ASIN ACOS ATAN ATAN2 MATAN
 %token SINH COSH TANH
 %token LOG EXP
-%token UNSAT HOLE
+%token UNSAT HOLE TIME_PRECISION
 %token EOF
 %token <float> FNUM
 %token <string> ID
