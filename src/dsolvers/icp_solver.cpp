@@ -400,7 +400,6 @@ int icp_solver::get_var_split_delta1(rp_box b) {
     }
   }
   for ( i = 0; i < num_vars; i++ ){
-    DREAL_LOG_DEBUG("var = " << var);
     double var_width = rp_interval_width(rp_box_elem(b, i));
     variable_residuals[i] *= var_width;
   }
