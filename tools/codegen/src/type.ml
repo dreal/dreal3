@@ -19,13 +19,18 @@ and macro =
     (* define g 9.8 *)
     | Macro of string * float
 
+and anno =
+    (* [unroll, 0/t, var_index], used in BMC  *)
+    | VarAnno of int * string * int
+    | OdeAnno of string (* the name of define-ode command *)
+
 and var_decl =
     | RealVar  of string
-    | BRealVar of string * float * float (* bounded var *)
+    | BRealVar of string * float * float
     | IntVar   of string
 
 and exp =
-    | Var      of string
+    | Var      of string * anno option
     | Num      of float
     | Neg      of exp
     | Add      of exp list
@@ -78,7 +83,7 @@ and formula =
 
 (* boolean expression *)
 and bexp =
-    | B_var of string
+    | B_var of string * anno option
     | B_gt  of exp * exp
     | B_lt  of exp * exp
     | B_ge  of exp * exp
@@ -93,10 +98,12 @@ and bexp =
 and choice =
     | Case of float * stmt list
 and stmt =
-    | Ode of string * exp
+    | Ode of string * exp * anno option
     | Assert of bexp
+
     (* assignment *)
-    | Assign of string * exp
+    | Assign of string * exp * anno option
+
     (* if no else statement, the latter one is empty *)
     | If of bexp * stmt list * stmt list
     | Proceed of stmt list

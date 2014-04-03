@@ -12,3 +12,11 @@ Executable main
   BuildDepends: batteries, cil
   ByteOpt:    -passopt -annot
   CompiledObject : native
+
+Executable bmc
+  Path:       src
+  BuildTools: ocamlbuild
+  MainIs:     code_bmc/code_bmc.ml
+  BuildDepends: batteries, cil
+  ByteOpt:    -passopt -annot
+  CompiledObject : native

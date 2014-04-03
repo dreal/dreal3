@@ -80,7 +80,7 @@ let rec emit_defs (vmap : ty_vmap) (macros : Type.macro list)
 let rec emit_stmt (vmap : ty_vmap) (fd : Cil.fundec)
   : Type.stmt -> (ty_vmap * Cil.stmt list) =
   function
-  | Ode (s, exp) ->
+  | Ode (s, exp, _) ->
     let lv = var (Map.find s vmap) in
     let vmap', RExp (stmts, cexp) = emit_exp vmap exp fd in
     let cstmt = Formatcil.cStmt
@@ -97,7 +97,7 @@ let rec emit_stmt (vmap : ty_vmap) (fd : Cil.fundec)
       (* TODO(soonhok): implement *)
       (vmap, [dummyStmt])
     end
-  | Assign (s, exp) ->
+  | Assign (s, exp, _) ->
       let lv = var (Map.find s vmap) in
       let vmap', RExp (stmts, cexp) = emit_exp vmap exp fd in
       let cstmt = mkStmtOneInstr (Set (lv, cexp, locUnknown)) in
@@ -283,7 +283,7 @@ and emit_exp (vmap : ty_vmap) (e : Type.exp) (fd : Cil.fundec): ty_vmap * reduce
     end
   in
   match e with
-  | Var s ->
+  | Var (s, _) ->
     vmap, RExp ([], Lval (var (Map.find s vmap)))
   | Num n ->
     vmap, RExp ([], Const (CReal (n, FDouble, None)))
@@ -350,7 +350,7 @@ and emit_bexp (vmap : ty_vmap) (b : Type.bexp) (fd : Cil.fundec) : ty_vmap * red
     vmap, RExp ([], one)
   | B_false ->
     vmap, RExp ([], zero)
-  | B_var s ->
+  | B_var (s, _) ->
     vmap, RExp ([], Lval (var (Map.find s vmap)))
   | B_gt (e1, e2) -> cmp_aux Gt e1 e2
   | B_lt (e1, e2)-> cmp_aux Lt e1 e2

@@ -67,7 +67,7 @@ arg_list:
 ;
 
 exp:
- | ID                     { Var $1 }
+ | ID                     { Var ($1, None) }
  | ffnum                   { Num $1 }
  | LP exp RP              { $2 }
  | exp PLUS exp           { Add [$1; $3] }
@@ -98,7 +98,7 @@ exp:
 bexp:
   | TRUE                { B_true }
   | FALSE               { B_false }
-  | ID                  { B_var $1 }
+  | ID                  { B_var ($1, None) }
   | LP bexp RP          { $2 }
   | exp EQ exp          { B_eq  ($1, $3) }
   | exp GT exp          { B_gt  ($1, $3) }
@@ -139,10 +139,10 @@ ids:
 ;
 
 stmt:
-    | DDT LB ID RB EQ exp SEMICOLON                           { [Ode ($3, $6)] }
-    | ID EQ exp SEMICOLON                                     { [Assign ($1, $3)] }
-    | REAL ID EQ exp SEMICOLON                                { [Vardecl (RealVar $2); Assign ($2, $4);] }
-    | INT ID EQ exp SEMICOLON                                 { [Vardecl (IntVar $2); Assign ($2, $4);] }
+    | DDT LB ID RB EQ exp SEMICOLON                           { [Ode ($3, $6, None)] }
+    | ID EQ exp SEMICOLON                                     { [Assign ($1, $3, None)] }
+    | REAL ID EQ exp SEMICOLON                                { [Vardecl (RealVar $2); Assign ($2, $4, None);] }
+    | INT ID EQ exp SEMICOLON                                 { [Vardecl (IntVar $2); Assign ($2, $4, None);] }
 
     | REAL ids SEMICOLON                                      { List.map (fun v -> Vardecl (RealVar v)) $2 }
     | REAL LB ffnum COMMA ffnum RB ID SEMICOLON               { [Vardecl (BRealVar ($7, $3, $5))] }
