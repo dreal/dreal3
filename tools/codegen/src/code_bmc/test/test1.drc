@@ -1,0 +1,29 @@
+//Bouncing Ball:
+
+#define g 9.8
+
+process flow (real v, real x)
+{
+        d/dt[x] = v;
+        d/dt[v] = -g;
+
+        if (x <= 0.0) then {
+           v = -v * 0.8 ;
+           x = 0.0;
+        }
+
+}
+
+int main()
+{
+        real[0,50] x;
+        real[-50, 50] v;
+
+        x = 10;
+        v = 0;
+
+        proceed
+        {
+                flow(v,x);
+        }
+}
