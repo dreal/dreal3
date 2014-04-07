@@ -62,7 +62,7 @@ void rp_erep_create_unary(rp_erep * f, int op, rp_erep l)
   rp_erep_arity(*f) = 1;
   rp_erep_left(*f) = l;
   ++ rp_erep_ref(l);
-  rp_erep_right(*f) = NULL;
+  // rp_erep_right(*f) = NULL;
   rp_erep_symb(*f) = op;
 }
 
