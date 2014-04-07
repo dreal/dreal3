@@ -45,7 +45,7 @@ typedef struct
 }
 rp_parser_def;
 
-typedef rp_parser_def rp_parser[1];
+typedef rp_parser_def* rp_parser;
 
 #define rp_parser_error_msg(p)  (p)[0].msge
 #define rp_parser_lexer(p)      (p)[0].lex
@@ -55,15 +55,17 @@ typedef rp_parser_def rp_parser[1];
 #define rp_parser_vars(p)       (p)[0].symb->vars
 #define rp_parser_locvars(p)    (p)[0].lvars
 
+rp_parser rp_parser_create();
+
 /* Creation of a parser from a string */
 int rp_parser_create_string (rp_parser * p,
-			     const char * src,
-			     rp_table_symbol ts);
+                             const char * src,
+                             rp_table_symbol ts);
 
 /* Creation of a parser from a file */
 int rp_parser_create_file (rp_parser * p,
-			   char * filename,
-			   rp_table_symbol ts);
+                           char * filename,
+                           rp_table_symbol ts);
 
 /* Destruction of a parser */
 void rp_parser_destroy (rp_parser * p);
@@ -75,7 +77,7 @@ void rp_parser_destroy (rp_parser * p);
 /* variables */
 int rp_rule_variable      (rp_parser p, rp_variable * out);
 int rp_rule_vartype       (rp_parser p, int * is_int, double * prec,
-			   int * absolute);
+                           int * absolute);
 int rp_rule_domain        (rp_parser p, rp_union_interval u);
 int rp_rule_first_domain  (rp_parser p, rp_union_interval u);
 int rp_rule_interval      (rp_parser p, rp_interval i);
@@ -132,50 +134,50 @@ int rp_rule_solve_list_var           (rp_parser p, rp_problem problem);
 /* Parsing of variable from a string, return false if failure */
 /* If success, the variable is added in the array var         */
 int rp_parse_variable_string (rp_variable * v,
-			      char * src,
-			      rp_table_symbol ts);
+                              char * src,
+                              rp_table_symbol ts);
 
 /* Parsing of variable from a file, return false if failure */
 /* If success, the variable is added in the array var       */
 int rp_parse_variable_file (rp_variable * v,
-			    char * filename,
-			    rp_table_symbol ts);
+                            char * filename,
+                            rp_table_symbol ts);
 
 /* Parsing of expression from a string, return false if failure */
 int rp_parse_expression_string (rp_expression * e,
-				char * src,
-				rp_table_symbol ts);
+                                char * src,
+                                rp_table_symbol ts);
 
 /* Parsing of expression from a file, return false if failure */
 int rp_parse_expression_file (rp_expression * e,
-			      char * filename,
-			      rp_table_symbol ts);
+                              char * filename,
+                              rp_table_symbol ts);
 
 /* Parsing of constant from a string, return false if failure */
 /* If success, the constant is added in the array cst         */
 int rp_parse_constant_string (rp_constant * out,
-			      char * src,
-			      rp_table_symbol ts);
+                              char * src,
+                              rp_table_symbol ts);
 
 /* Parsing of constant from a file, return false if failure */
 /* If success, the constant is added in the array cst       */
 int rp_parse_constant_file (rp_constant * out,
-			    char * filename,
-			    rp_table_symbol ts);
+                            char * filename,
+                            rp_table_symbol ts);
 
 /* Parsing of constraint from a string, return false if failure */
 int rp_parse_constraint_string (rp_constraint * c,
-				const char * src,
-				rp_table_symbol ts);
+                                const char * src,
+                                rp_table_symbol ts);
 
 /* Parsing of constraint from a file, return false if failure */
 int rp_parse_constraint_file (rp_constraint * c,
-			      char * filename,
-			      rp_table_symbol ts);
+                              char * filename,
+                              rp_table_symbol ts);
 
 /* Parsing of a problem from a file, return false if failure */
 int rp_parse_problem_file (rp_problem * problem,
-			   char * filename);
+                           char * filename);
 
 #ifdef __cplusplus
 }
