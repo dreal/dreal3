@@ -21,6 +21,7 @@ void rp_box_create(rp_box* b, int n)
   {
     rp_malloc(*b,rp_box,(n+RP_BOX_RESERVED_CELL)*sizeof(rp_box_cell));
     rp_box_size(*b) = n;
+    (*b)[0].property.type = 0;
     rp_box_set_unsafe(*b);
     rp_box_nvdec(*b) = rp_box_nvaux(*b) = 0;
   }
