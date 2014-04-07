@@ -184,47 +184,55 @@ command: '(' TK_SETLOGIC symbol ')'
          {
             Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
             parser_ctx->addIntvCtr( "<", e, atof($6 ), ( $7 ? atof( $7 ) : 0.0)  );
+            free($6);
          }
        | '(' TK_ASSERT '(' TK_GT identifier spec_const precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-            parser_ctx->addIntvCtr( ">", e, atof($6), ( $7 ? atof( $7 ) : 0.0) );	 
+            parser_ctx->addIntvCtr( ">", e, atof($6), ( $7 ? atof( $7 ) : 0.0) );
+            free($6);
          }
 
        | '(' TK_ASSERT '(' TK_LEQ identifier spec_const precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
             parser_ctx->addIntvCtr( "<=", e, atof($6), ( $7 ? atof( $7 ) : 0.0) );
+            free($6);
          }
 
        | '(' TK_ASSERT '(' TK_GEQ identifier spec_const precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
             parser_ctx->addIntvCtr( ">=", e, atof($6), ( $7 ? atof( $7 ) : 0.0) );
+            free($6);
          }
 
        | '(' TK_ASSERT '(' TK_LT spec_const identifier precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
             parser_ctx->addIntvCtrR( "<", atof($5), e, ( $7 ? atof( $7 ) : 0.0) );
+            free($5);
          }
 
        | '(' TK_ASSERT '(' TK_GT spec_const identifier precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
             parser_ctx->addIntvCtrR( ">", atof($5), e, ( $7 ? atof( $7 ) : 0.0) );
+            free($5);
           }
 
        | '(' TK_ASSERT '(' TK_LEQ spec_const identifier precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
             parser_ctx->addIntvCtrR( "<=", atof($5), e, ( $7 ? atof( $7 ) : 0.0) );
+            free($5);
           }
 
        | '(' TK_ASSERT '(' TK_GEQ spec_const identifier precision ')' ')'
          {
             Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
             parser_ctx->addIntvCtrR( ">=", atof($5), e, ( $7 ? atof( $7 ) : 0.0) );
+            free($5);
           }
 
        | '(' TK_ASSERT term ')'
@@ -256,11 +264,11 @@ command: '(' TK_SETLOGIC symbol ')'
 
 /*  Added for dReal2
 */
-precision: TK_LB spec_const TK_RB 
-	   { $$ = $2; }
-	   | 
-	   { $$ = NULL; }
-	   ;
+precision: TK_LB spec_const TK_RB
+           { $$ = $2; }
+           |
+           { $$ = NULL; }
+           ;
 
 s_expr: spec_const
         { $$ = $1; }
@@ -349,10 +357,11 @@ term: spec_const
         free( $13 );
       }
     | '(' TK_EQ term_list precision ')'
-      { $$ = parser_ctx->mkEq( $3 ); 
-        if( $4 != NULL ) { 
-	  $$->setPrecision( atof($4) );
-	}
+      { $$ = parser_ctx->mkEq( $3 );
+        if( $4 != NULL ) {
+          $$->setPrecision( atof($4) );
+          free($4);
+        }
       }
     | '(' TK_ITE term_list ')'
       { $$ = parser_ctx->mkIte( $3 ); }
@@ -367,28 +376,28 @@ term: spec_const
     | '(' TK_DIV term_list ')'
       { $$ = parser_ctx->mkDiv( $3 ); }
     | '(' TK_LEQ term_list precision ')'
-      { $$ = parser_ctx->mkLeq( $3 );  
-      	if( $4 != NULL ) { 
-	  $$->setPrecision( atof($4) );
-	} 
+      { $$ = parser_ctx->mkLeq( $3 );
+        if( $4 != NULL ) {
+          $$->setPrecision( atof($4) );
+        }
       }
     | '(' TK_GEQ term_list precision ')'
       { $$ = parser_ctx->mkGeq( $3 );
-       	if( $4 != NULL ) { 
-	  $$->setPrecision( atof($4) );
-	} 
+        if( $4 != NULL ) {
+          $$->setPrecision( atof($4) );
+        }
       }
     | '(' TK_LT term_list precision ')'
-      { $$ = parser_ctx->mkLt( $3 ); 
-        if( $4 != NULL ) { 
-	  $$->setPrecision( atof($4) );
-	}
+      { $$ = parser_ctx->mkLt( $3 );
+        if( $4 != NULL ) {
+          $$->setPrecision( atof($4) );
+        }
       }
     | '(' TK_GT term_list precision ')'
       { $$ = parser_ctx->mkGt( $3 );
-      	if( $4 != NULL ) { 
-	  $$->setPrecision( atof($4) );
-	} 
+        if( $4 != NULL ) {
+          $$->setPrecision( atof($4) );
+        }
       }
     | '(' TK_DISTINCT term_list ')'
       { $$ = parser_ctx->mkDistinct( $3 ); }
