@@ -202,6 +202,8 @@ rp_problem* icp_solver::create_rp_problem() {
             for (int i = 0; i <rp_constraint_arity(*c); ++i) {
                 ++rp_variable_constrained(rp_problem_var(*rp_prob, rp_constraint_var(*c, i)));
             }
+        } else {
+            delete c;
         }
     }
     return rp_prob;
