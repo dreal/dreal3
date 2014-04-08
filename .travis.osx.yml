@@ -23,12 +23,12 @@ install:
  # autoconf automake cmake libtool pkg-config
  - brew install autoconf libtool pkg-config
  # ocaml, opam, ocamlfind, ocaml-batteries
- - brew install ocaml
- - brew install opam --without-aspcud
- - yes | opam init
- - eval `opam config env`
- - opam update
- - yes | opam install ocamlfind batteries oasis
+# - brew install ocaml
+# - brew install opam --without-aspcud
+# - yes | opam init
+# - eval `opam config env`
+# - opam update
+# - yes | opam install ocamlfind batteries oasis
 
 before_script:
   - SITE=OSX10.8.5@Travis
@@ -58,7 +58,7 @@ script:
   - ctest -D ExperimentalBuild -VV
   - cd ..
   # compile tools
-  - make -C tools
+  # - make -C tools
 
 after_script:
   - cd build
