@@ -94,6 +94,7 @@ SMTConfig::initializeConfig( )
   nra_ODE_grid_size            = 16;
   nra_ODE_step                 = 0.0;
   nra_contain_ODE              = false;
+  nra_ODE_timeout              = 0.0;
   nra_json                     = false;
   delta_test                   = false;
   use_delta_heuristic          = false;
