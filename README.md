@@ -3,13 +3,15 @@
     <th>Ubuntu</th>
     <th>OS X</th>
     <th>Coverage</th>
-    <th>Builds / UnitTests</th>
+    <th>Builds/UnitTests</th>
+    <th>Coverity Scan</th>
   </tr>
   <tr>
     <td><a href="https://travis-ci.org/soonhokong/dReal"><img src="https://travis-ci.org/soonhokong/dReal.png?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3"/></a></td>
     <td><a href="https://travis-ci.org/soonhokong/dReal-osx"><img src="https://travis-ci.org/soonhokong/dReal-osx.png?branch=master" title="Mac OS X 10.8.2, g++-4.9"/></a></td>
     <td><a href="https://coveralls.io/r/soonhokong/dReal"><img src="https://coveralls.io/repos/soonhokong/dReal/badge.png"/></a></td>
     <td><a href="http://borel.modck.cs.cmu.edu/CDash/index.php?project=dReal">Here</a></td>
+    <td><a href="https://scan.coverity.com/projects/1716"><img alt="Coverity Scan Build Status" src="https://scan.coverity.com/projects/1716/badge.svg"/></a></td>
   </tr>
 </table>
 
