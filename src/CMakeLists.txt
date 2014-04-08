@@ -254,4 +254,5 @@ ADD_CUSTOM_COMMAND(TARGET solver
           POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
           COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/solver ${DREAL_SOURCE_DIR}/../bin/
+          COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/solver ${DREAL_SOURCE_DIR}/../bin/dReal
 )
