@@ -1,0 +1,276 @@
+// Autonomous Underwater Vehicle
+// 
+// Based on the model published in "Modeling and Simulation of the LAUV Autonomous Underwater Vehicle" 
+// by da Silva, Terra, Martins and de Sousa.
+//
+// The full AUV model has 6 degrees of freedom in position and attitude. 
+// The AUV is a torpedo-like vessel, modeled as a prolate ellipsoid. 
+// Control is provided with thrust from a rear propeller and with 
+// aerodynamic forces/moments from the deflection of control surfaces 
+// on axisymmetric tail fins.
+//
+// A proportional-integral (PI) control method is used to track the desired pitch rate and pitch angle.
+// This version applies a pitch rate "doublet" command, where the desired pitch rate
+// is switched from 0 (initially) to -0.1 rad/sec (at 10 sec), then to +0.1 rad/sec
+// (at 20 sec), and finally back to 0 (at 30 sec).
+//
+// The desired pitch rate and pitch angle are treated as jump states, with d/dt[qDes] = d/dt[thetaDes] = 0
+// in the flow equations. qDes jumps at each mode transition to achieve the doublet command. 
+//
+// The satisfiability check is whether the control surface reaches its maximum deflection, an event
+// which is commonly referred to as "actuator saturation". 
+//
+// Command from dReal/tools/ directory:
+// ./dReach -k 2 ../../../models/auv/auv.drh --verbose --visualize --precision=0.01
+
+// trim state and controls
+#define U0 1.43
+#define W0 -0.0125
+#define thrust_eq 8.3398
+#define def_elev_eq 0.0488
+
+// vehicle parameters
+#define g 9.81
+#define mass 18
+#define rho 1000
+//#define vol 0.018
+//#define maxThrust 10
+//#define xCG 0
+//#define yCG 0
+#define zCG 0.01
+//#define motorFriction 0
+#define B 177.58
+#define W 176.58
+#define m mass
+
+// mass and added mass terms
+#define mx 19
+#define my 34
+#define mz 34
+#define Ix 0.04
+#define Iy 2.1
+#define Iz 2.1
+
+// linear damping terms
+#define Xu -2.4
+#define Yv -23
+#define Zw -23
+#define Kp -0.3
+#define Mq -9.7
+#define Nr -9.7
+#define Yr 11.5
+#define Zq -11.5
+#define Mw 3.1
+#define Nv -3.1
+
+// quadratic damping terms
+#define Xuu -2.4
+#define Yvv -80
+#define Zww -80
+#define Kpp -0.0006
+#define Mqq -9.1
+#define Nrr -9.1
+#define Yrr 0.3
+#define Zqq -0.3
+#define Mww 1.5
+#define Nvv -1.5
+#define Lvv -20.6
+#define Lvr 3.84
+#define Lww -20.6
+#define Lwq -3.84
+#define Lqw -6
+#define Lqq -1.53
+#define Lrv 6
+#define Lrr -1.53
+
+// fin coefficients
+#define finCL 3
+#define finX 0.4
+#define finS 0.0064
+#define Ffin 9.6
+#define Mfin 3.84
+
+// proportional - integral control for pitch rate / pitch angle tracking
+#define KP 1.2
+#define KI 0.6
+#define def_elev def_elev_eq + KP*(qDes - q) + KI*(thetaDes - theta)
+#define def_rud 0
+#define def_ail 0
+
+// mass matrix inversion terms
+#define Minv_uq11 0.052674
+#define Minv_uq12 -0.0045149
+#define Minv_uq21 -0.0045149
+#define Minv_uq22 0.47658
+#define Minv_vp11 0.03013
+#define Minv_vp12 0.13558
+#define Minv_vp21 0.13558
+#define Minv_vp22 25.6101
+
+// rotation matrix for linear velocity
+#define J1_11 cos(psi)*cos(theta)
+#define J1_12 cos(psi)*sin(theta)*sin(phi)-sin(psi)*cos(theta)
+#define J1_13 sin(psi)*sin(phi)+cos(psi)*cos(phi)*sin(theta)
+#define J1_21 sin(psi)*cos(theta)
+#define J1_22 cos(psi)*cos(phi)+sin(phi)*sin(theta)*sin(psi)
+#define J1_23 sin(theta)*sin(psi)*cos(phi)-cos(psi)*sin(phi)
+#define J1_31 -sin(theta)
+#define J1_32 cos(theta)*sin(psi)
+#define J1_33 cos(theta)*cos(phi)
+
+// rotation matirx for angular velocity
+#define J2_11 1
+#define J2_12 sin(phi)*sin(theta)/cos(theta)
+#define J2_13 cos(phi)*sin(theta)/cos(theta)
+#define J2_21 0 
+#define J2_22 cos(phi)
+#define J2_23 -sin(phi)
+#define J2_31 0
+#define J2_32 sin(phi)/cos(theta)
+#define J2_33 cos(phi)/cos(theta)
+
+// force and torque expressions
+#define Fu thrust_eq - (m*zCG*r*p + mz*w*q - m*v*r) - (-Xu*u - Xuu*sqrt(u*u)*u) - (W-B)*sin(theta)
+#define Fv Ffin * u*u * def_rud  - (-mz*w*p + m*zCG*r*q + mx*u*r) - (-Yv*v - Yvv*sqrt(v*v)*v - Yr*r - Yrr*sqrt(r*r)*r) - (Lvv*v + Lvr*r) - (B-W)*cos(theta)*sin(phi)
+//#define Fw Ffin * u*u * def_elev - ((-m*zCG*p+my*v)*p - (m*zCG*q+mx*u)*q) - (-Zw*w - Zww*sqrt(w*w)*w - Zq*q - Zqq*sqrt(q*q)*q) - (Lww*w + Lwq*q) - (B-W)*cos(theta)*cos(phi)
+#define Fw Ffin * u*u * def_elev - (-m*zCG*p*p + my*v*p) + (m*zCG*q*q + mx*u*q) - (-Zw*w - Zww*sqrt(w*w)*w - Zq*q - Zqq*sqrt(q*q)*q) - (Lww*w + Lwq*q) - (B-W)*cos(theta)*cos(phi)
+#define Tp Mfin * u*u * def_ail  - (-m*zCG*r*u + mz*w*v + (m*zCG*p-my*v)*w + Iz*r*q - Iy*q*r) - (-Kp*p - Kpp*sqrt(p*p)*p) - zCG*W*cos(theta)*sin(phi)
+#define Tq Mfin * u*u * def_elev - (-mz*w*u - m*zCG*r*v + m*zCG*q*w + mx*u*w - Iz*p*r + Ix*p*r) - (-Mw*w - Mq*q - Mww*sqrt(w*w)*w - Mqq*sqrt(q*q)*q) - (Lqw*w + Lqq*q) - zCG*W*sin(theta)
+#define Tr Mfin * u*u * def_rud  - (my*v*u - mx*u*v + Iy*q*p - Ix*p*q) - (-Nv*v - Nvv*sqrt(v*v)*v - Nr*r - Nrr*sqrt(r*r)*r) - (Lrv*v + Lrr*r)
+	
+[-50, 50] rx;
+[-50, 50] ry;
+[-50, 50] rz;
+[-50, 50] phi;
+[-50, 50] theta;
+[-50, 50] psi;
+[-50, 50] u;
+[-50, 50] v;
+[-50, 50] w;
+[-50, 50] p;
+[-50, 50] q;
+[-50, 50] r;
+
+[0, 30] time;
+[0, 30] tau;
+
+[-50, 50] qDes;
+[-50, 50] thetaDes;
+
+{
+mode 1;
+
+invt: (tau >= 0);
+
+flow:
+  
+        d/dt[rx] = J1_11*u + J1_12*v + J1_13*w;
+        d/dt[ry] = J1_21*u + J1_22*v + J1_23*w;
+	d/dt[rz] = J1_31*u + J1_32*v + J1_33*w;
+
+        d/dt[phi] = J2_11*p + J2_12*q + J2_13*r;
+        d/dt[theta] = J2_21*p + J2_22*q + J2_23*r;
+	d/dt[psi] = J2_31*p + J2_32*q + J2_33*r;
+
+	d/dt[u] = Minv_uq11*Fu + Minv_uq12*Tq;
+	d/dt[v] = Minv_vp11*Fv + Minv_vp12*Tp;
+	d/dt[w] = Fw/mz;
+
+	d/dt[p] = Minv_vp21*Fv + Minv_vp22*Tp;
+	d/dt[q] = Minv_uq21*Fu + Minv_uq22*Tq;
+	d/dt[r] = Tr/Iz;
+	
+	d/dt[tau] = 1;
+
+	d/dt[qDes] = 0;
+	d/dt[thetaDes] = qDes;
+
+jump: ( tau=10 ) ==> @2 (and (rx' = rx) 
+      	      	      (ry' = ry)
+		      (rz' = rz)
+		      (phi' = phi)
+		      (theta' = theta)
+		      (psi' = psi)
+		      (u' = u)
+		      (v' = v)
+		      (w' = w)
+		      (p' = p)
+		      (q' = q)
+		      (r' = r)
+		      (qDes' = -0.1)
+		      (thetaDes' = thetaDes)
+		      );
+}
+
+{
+mode 2;
+
+invt: ( rx>=0 );
+
+flow:
+  
+        d/dt[rx] = J1_11*u + J1_12*v + J1_13*w;
+        d/dt[ry] = J1_21*u + J1_22*v + J1_23*w;
+	d/dt[rz] = J1_31*u + J1_32*v + J1_33*w;
+
+        d/dt[phi] = J2_11*p + J2_12*q + J2_13*r;
+        d/dt[theta] = J2_21*p + J2_22*q + J2_23*r;
+	d/dt[psi] = J2_31*p + J2_32*q + J2_33*r;
+
+	d/dt[u] = Minv_uq11*Fu + Minv_uq12*Tq;
+	d/dt[v] = Minv_vp11*Fv + Minv_vp12*Tp;
+	d/dt[w] = Fw/mz;
+
+	d/dt[p] = Minv_vp21*Fv + Minv_vp22*Tp;
+	d/dt[q] = Minv_uq21*Fu + Minv_uq22*Tq;
+	d/dt[r] = Tr/Iz;
+
+	d/dt[tau] = 1;
+
+	d/dt[qDes] = 0;
+	d/dt[thetaDes] = qDes;
+
+jump: ( tau=20 ) ==> @2 (and (rx' = rx) 
+      	      	      (ry' = ry)
+		      (rz' = rz)
+		      (phi' = phi)
+		      (theta' = theta)
+		      (psi' = psi)
+		      (u' = u)
+		      (v' = v)
+		      (w' = w)
+		      (p' = p)
+		      (q' = q)
+		      (r' = r)
+		      (qDes' = 0.1)
+		      (thetaDes' = thetaDes)
+		      );
+      ( tau=30 ) ==> @1 (and (rx' = rx) 
+      	      	      (ry' = ry)
+		      (rz' = rz)
+		      (phi' = phi)
+		      (theta' = theta)
+		      (psi' = psi)
+		      (u' = u)
+		      (v' = v)
+		      (w' = w)
+		      (p' = p)
+		      (q' = q)
+		      (r' = r)
+		      (qDes' = 0)
+		      (thetaDes' = thetaDes)
+		      );
+}
+
+init:
+
+@1 (and (rx = 0) (ry = 0) (rz = 0)
+   	(phi = 0) (theta = 0) (psi = 0)
+	(u = U0) (v = 0) (w = W0)
+	(p = 0) (q = 0) (r=0)
+	(qDes = 0) (thetaDes = 0)
+   	);
+
+goal:
+
+@2 (def_elev > 0.6981);
