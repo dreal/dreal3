@@ -124,7 +124,7 @@ script:
 
 after_script:
   - cd build
-  - ctest -D ExperimentalTest -VV
+  - ctest -D ExperimentalTest --timeout 580 -VV
   - echo $PATH
   - export PATH=/usr/bin:$PATH
   - if [[ $DREALREPO == BLESSED && $TESTCOV == ON ]]; then
