@@ -20,6 +20,7 @@
      ("cosh", COSH);
      ("tanh", TANH);
      ("sqrt", SQRT);
+     ("abs", ABS);
      ("log", LOG);
      ("exp", EXP);
      ("mode", MODE);

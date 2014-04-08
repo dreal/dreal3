@@ -24,7 +24,7 @@ let main_routine vardecl_list mode_list init goal ginv =
 %token SIN COS TAN
 %token ASIN ACOS ATAN
 %token SINH COSH TANH
-%token LOG EXP SQRT 
+%token LOG EXP SQRT ABS
 %token MODE MACR INVT FLOW JUMP INIT GOAL IND TRUE FALSE TIME_PRECISION
 %token AND OR
 %token EOF
@@ -131,6 +131,7 @@ exp:
  | exp SLASH exp          { Basic.Div ($1, $3) }
  | exp CARET exp          { Basic.Pow ($1, $3) }
  | SQRT LP exp RP         { Basic.Sqrt $3 }
+ | ABS LP exp RP         { Basic.Abs $3 }
  | LOG  LP exp RP         { Basic.Log  $3 }
  | EXP  LP exp RP         { Basic.Exp  $3 }
  | SIN  LP exp RP         { Basic.Sin  $3 }
