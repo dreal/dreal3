@@ -187,11 +187,11 @@ rp_problem* icp_solver::create_rp_problem() {
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
-          m_rp_constraints.push_back(c);
-          if (l->hasPrecision())
-            m_rp_constraint_deltas.push_back(l->getPrecision());
-          else
-            m_rp_constraint_deltas.push_back(m_config.nra_precision);
+            m_rp_constraints.push_back(c);
+            if (l->hasPrecision())
+                m_rp_constraint_deltas.push_back(l->getPrecision());
+            else
+                m_rp_constraint_deltas.push_back(m_config.nra_precision);
             DREAL_LOG_DEBUG("Constraint: " << (l->getPolarity() == l_True ? " " : "Not") << l);
             DREAL_LOG_DEBUG(" : " << constraint_str);
             // Parse the string (infix form) to create the constraint c
