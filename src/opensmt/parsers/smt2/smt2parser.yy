@@ -128,6 +128,7 @@ ode: '(' TK_EQ TK_DDT TK_LB identifier TK_RB term ')'  {
         $$ = new pair<string, Enode*>;
         $$->first = $5;
         $$->second = $7;
+        free($5);
 }
 
 command_list: command_list command | command ;
@@ -173,6 +174,7 @@ command: '(' TK_SETLOGIC symbol ')'
          {
            parser_ctx->DefineODE($3, $5);
            free( $3 );
+           delete $5;
          }
        | '(' TK_PUSH numeral ')'
          { parser_ctx->addPush( atoi( $3 ) ); free( $3 ); }

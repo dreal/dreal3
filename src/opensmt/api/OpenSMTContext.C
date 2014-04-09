@@ -595,6 +595,7 @@ void OpenSMTContext::DefineODE( char const * name, vector<pair<string, Enode *> 
     map<string, Enode *> flow;
     for(auto const & name_odes : *odes) {
         flow[name_odes->first] = name_odes->second;
+        delete name_odes;
     }
     egraph.flow_maps[name] = flow;
 }
@@ -882,11 +883,11 @@ void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v, double d)
         // cerr << "addIntvCtr: " << e << " " << op << " " << e->getUpperBound()<< endl;
         if (starts_with(e->getCar()->getName(), "time_")) {
             // cerr << "time_ <=" << endl;
-	  Enode * leq = mkLeq(mkCons(e, mkCons(mkNum(v))));
-	  if(d != 0.0){
-	    leq->setPrecision(d);
-	  }
-	  addAssert(leq);
+          Enode * leq = mkLeq(mkCons(e, mkCons(mkNum(v))));
+          if(d != 0.0){
+            leq->setPrecision(d);
+          }
+          addAssert(leq);
         }
     }
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
@@ -894,11 +895,11 @@ void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v, double d)
         // cerr << "addIntvCtr: " << e << " " << op << " " << e->getLowerBound() << endl;
         if (starts_with(e->getCar()->getName(), "time_")) {
             // cerr << "time_ >=" << endl;
-	  Enode * geq = mkGeq(mkCons(e, mkCons(mkNum(v))));
-	  if(d != 0.0){
-	    geq->setPrecision(d);
-	  }
-	  addAssert(geq);
+          Enode * geq = mkGeq(mkCons(e, mkCons(mkNum(v))));
+          if(d != 0.0){
+            geq->setPrecision(d);
+          }
+          addAssert(geq);
         }
     }
     else {
