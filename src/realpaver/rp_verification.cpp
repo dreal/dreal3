@@ -131,7 +131,10 @@ rp_interval_satisfaction_prover::rp_interval_satisfaction_prover(const rp_interv
   _problem(p._problem),
   _boxes(rp_problem_nvar(*(p._problem))),
   _propag(p._problem),
-  _hpropag(p._problem)
+  _hpropag(p._problem),
+  _select(nullptr),
+  _split(nullptr),
+  _maxbox(0)
 {
   rp_box_create(&_midpoint,rp_problem_nvar(*(p._problem)));
 }

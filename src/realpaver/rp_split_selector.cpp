@@ -83,6 +83,7 @@ int rp_var_set::contains(int var) const
 }
 
 rp_var_set::rp_var_set(const rp_var_set& /*s*/)
+    : _a(nullptr), _size(0)
 {
   // nothing to do
 }
@@ -625,7 +626,8 @@ int rp_selector_decirrobust::apply(rp_box b)
 }
 
 rp_selector_decirrobust::rp_selector_decirrobust(const rp_selector_decirrobust& s):
-  rp_selector(s)
+  rp_selector(s),
+  _ratio(0.0)
 {}
 
 rp_selector_decirrobust&

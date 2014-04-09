@@ -28,7 +28,8 @@ rp_bpsolver::rp_bpsolver(rp_problem * p,
   _dsplit(ds),
   _ep(ep),
   _sol(0),
-  _nsplit(0)
+  _nsplit(0),
+  _improve(0.0)
 {
   // Check once the satisfiability of all the constraints
   // Necessary for variable-free constraints
@@ -166,8 +167,12 @@ rp_bpsolver::rp_bpsolver(const rp_bpsolver& s):
   _problem(s._problem),
   _propag(0),
   _boxes(rp_problem_nvar(*_problem)),
-  _vselect(NULL),
-  _ep(NULL)
+  _vselect(nullptr),
+  _dsplit(nullptr),
+  _ep(nullptr),
+  _sol(0),
+  _nsplit(0),
+  _improve(0.0)
 {}
 
 rp_bpsolver& rp_bpsolver::operator=(const rp_bpsolver& /*s*/)

@@ -571,6 +571,16 @@ int rp_propagator::apply(rp_box b, int v)
 // Copy protection
 rp_propagator::rp_propagator(const rp_propagator& p):
     rp_operator(p),
+    _problem(nullptr),
+    _id(0),
+    _vop(nullptr),
+    _dep({}),
+    _queue({}),
+    _bsave(nullptr),
+    _improve(0.0),
+    _priority(0),
+    _vars(nullptr),
+    _pruned_vars(nullptr),
     _verbose(p._verbose),
     _out(p._out)
 
