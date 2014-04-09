@@ -26,7 +26,11 @@ int rp_stream_create_string(rp_stream * s, const char * src)
   else
   {
     rp_stream_file(*s) = NULL;
-    strcpy(rp_stream_str(*s),src);
+    if (strlen(src) < RP_STREAM_STR_SIZE) {
+        strncpy(rp_stream_str(*s), src, strlen(src) + 1);
+    } else {
+        return 0;
+    }
     strcpy(rp_stream_filename(*s),"");
     rp_stream_col(*s) = -1;
     rp_stream_line(*s) = 0;
