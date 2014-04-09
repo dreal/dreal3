@@ -1,5 +1,5 @@
 language: cpp
-
+cache: apt
 env:
   global:
     # BB_TOKEN
