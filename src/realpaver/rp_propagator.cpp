@@ -15,7 +15,7 @@
 #include "rp_propagator.h"
 
 //dReal addition
-#include "dsolvers/icp_solver.h" 
+#include "dsolvers/icp_solver.h"
 
 
 
@@ -444,15 +444,15 @@ int rp_propagator::check_precision(rp_operator * o, rp_box b)
     // Prune based on variable precision
     for (int i=0; i<o->pruned_arity(); ++i)
       {
-	int v = o->pruned_var(i);
-	// double eps = rp_min_num(1.0e-14,
-	//                         rp_variable_precision(rp_problem_var(*_problem,v)));
-	double eps = rp_variable_precision(rp_problem_var(*_problem,v));
-	
-	if (rp_interval_width(rp_box_elem(b,v))>(eps))
-	  {
-	    return( 1 );
-	  }
+        int v = o->pruned_var(i);
+        // double eps = rp_min_num(1.0e-14,
+        //                         rp_variable_precision(rp_problem_var(*_problem,v)));
+        double eps = rp_variable_precision(rp_problem_var(*_problem,v));
+
+        if (rp_interval_width(rp_box_elem(b,v))>(eps))
+          {
+            return( 1 );
+          }
       }
     return( 0 );
   }
@@ -468,7 +468,7 @@ int rp_propagator::apply_loop(rp_box b)
 
     //added for dReal: Prune based on constraint precision
     if ( (*_problem)->rp_icp_solver->delta_test() &&
-	 (*_problem)->rp_icp_solver->is_box_within_delta(b) ){
+         (*_problem)->rp_icp_solver->is_box_within_delta(b) ){
       return ( 1 );
     }
 
@@ -574,8 +574,6 @@ rp_propagator::rp_propagator(const rp_propagator& p):
     _problem(nullptr),
     _id(0),
     _vop(nullptr),
-    _dep({}),
-    _queue({}),
     _bsave(nullptr),
     _improve(0.0),
     _priority(0),
@@ -585,6 +583,12 @@ rp_propagator::rp_propagator(const rp_propagator& p):
     _out(p._out)
 
 {
+    _dep[0].size = 0;
+    _dep[0].op = nullptr;
+    _queue[0].size = 0;
+    _queue[0].num = 0;
+    _queue[0].priority = nullptr;
+    _queue[0].queue = nullptr;
   // --> nothing to do
 }
 
