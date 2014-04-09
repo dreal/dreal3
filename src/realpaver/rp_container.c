@@ -110,7 +110,8 @@ int rp_vector_pop(rp_vector v, void * x)
   int i = 0;
   rp_vector_contains(v,x,&i);
   // x should be at the last position of v
-  assert(i == --rp_vector_size(v));
+  assert(i == rp_vector_size(v) - 1);
+  rp_vector_size(v)--;
 //  rp_vector_free(v)(rp_vector_elem(v,i));
   if (rp_vector_size(v) == 0)  {
 //      rp_free(rp_vector_ptr(v));
