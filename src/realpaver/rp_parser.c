@@ -59,25 +59,20 @@ int rp_parser_create_file(rp_parser * p,
     return( 1 );
   }
 }
-/* Construction of a parser */
-rp_parser rp_parser_create() {
-  return (rp_parser) malloc(sizeof(rp_parser_def));
-}
-
 
 /* Destruction of a parser */
 void rp_parser_destroy(rp_parser * p)
 {
   rp_lexer_destroy(&rp_parser_lexer(*p));
   rp_vector_destroy(&rp_parser_locvars(*p));
-  free(*p);
 }
 
 /* Parse a problem from a file */
 int rp_parse_problem_file(rp_problem * problem,
                           const char * filename)
 {
-  rp_parser p = rp_parser_create();
+  rp_parser p = NULL;
+  rp_malloc(p, rp_parser, sizeof(rp_parser_def));
   int res;
   rp_problem_create(problem,NULL);
   if ((res = rp_parser_create_file(&p,filename,rp_problem_symb(*problem))))
@@ -98,6 +93,7 @@ int rp_parse_problem_file(rp_problem * problem,
   {
     rp_problem_destroy(problem);
   }
+  free(p);
   return( res);
 }
 
@@ -106,7 +102,8 @@ int rp_parse_constraint_string(rp_constraint * c,
                                const char * src,
                                rp_table_symbol ts)
 {
-  rp_parser p = (rp_parser_def *) malloc(sizeof(rp_parser_def));
+  rp_parser p = NULL;
+  rp_malloc(p, rp_parser, sizeof(rp_parser_def));
   int res;
   if ((res = rp_parser_create_string(&p,src,ts)))
   {
@@ -117,6 +114,7 @@ int rp_parse_constraint_string(rp_constraint * c,
     }
     rp_parser_destroy(&p);
   }
+  free(p);
   return( res );
 }
 
@@ -125,7 +123,8 @@ int rp_parse_constraint_file(rp_constraint * c,
                              const char * filename,
                              rp_table_symbol ts)
 {
-  rp_parser p = rp_parser_create();
+  rp_parser p = NULL;
+  rp_malloc(p, rp_parser, sizeof(rp_parser_def));
   int res;
   if ((res = rp_parser_create_file(&p,filename,ts)))
   {
@@ -136,6 +135,7 @@ int rp_parse_constraint_file(rp_constraint * c,
     }
     rp_parser_destroy(&p);
   }
+  free(p);
   return( res);
 }
 
@@ -144,7 +144,8 @@ int rp_parse_variable_string(rp_variable * v,
                              const char * src,
                              rp_table_symbol ts)
 {
-  rp_parser p = rp_parser_create();
+  rp_parser p = NULL;
+  rp_malloc(p, rp_parser, sizeof(rp_parser_def));
   int res;
   if ((res = rp_parser_create_string(&p,src,ts)))
   {
@@ -155,6 +156,7 @@ int rp_parse_variable_string(rp_variable * v,
     }
     rp_parser_destroy(&p);
   }
+  free(p);
   return( res);
 }
 
@@ -163,7 +165,8 @@ int rp_parse_variable_file(rp_variable * v,
                            const char * filename,
                            rp_table_symbol ts)
 {
-  rp_parser p = rp_parser_create();
+  rp_parser p = NULL;
+  rp_malloc(p, rp_parser, sizeof(rp_parser_def));
   int res;
   if ((res = rp_parser_create_file(&p,filename,ts)))
   {
@@ -174,6 +177,7 @@ int rp_parse_variable_file(rp_variable * v,
     }
     rp_parser_destroy(&p);
   }
+  free(p);
   return( res);
 }
 
@@ -182,7 +186,8 @@ int rp_parse_constant_string(rp_constant * out,
                              const char * src,
                              rp_table_symbol ts)
 {
-  rp_parser p = rp_parser_create();
+  rp_parser p = NULL;
+  rp_malloc(p, rp_parser, sizeof(rp_parser_def));
   int res;
   if ((res = rp_parser_create_string(&p,src,ts)))
   {
@@ -193,6 +198,7 @@ int rp_parse_constant_string(rp_constant * out,
     }
     rp_parser_destroy(&p);
   }
+  free(p);
   return( res);
 }
 
@@ -201,7 +207,8 @@ int rp_parse_constant_file(rp_constant * out,
                            const char * filename,
                            rp_table_symbol ts)
 {
-  rp_parser p = rp_parser_create();
+  rp_parser p = NULL;
+  rp_malloc(p, rp_parser, sizeof(rp_parser_def));
   int res;
   if ((res = rp_parser_create_file(&p,filename,ts)))
   {
@@ -212,6 +219,7 @@ int rp_parse_constant_file(rp_constant * out,
     }
     rp_parser_destroy(&p);
   }
+  free(p);
   return( res);
 }
 
@@ -220,7 +228,8 @@ int rp_parse_expression_string(rp_expression * e,
                                const char * src,
                                rp_table_symbol ts)
 {
-  rp_parser p = rp_parser_create();
+  rp_parser p = NULL;
+  rp_malloc(p, rp_parser, sizeof(rp_parser_def));
   int res;
   if ((res = rp_parser_create_string(&p,src,ts)))
   {
@@ -240,6 +249,7 @@ int rp_parse_expression_string(rp_expression * e,
     }
     rp_parser_destroy(&p);
   }
+  free(p);
   return( res);
 }
 
@@ -248,7 +258,8 @@ int rp_parse_expression_file(rp_expression * e,
                              const char * filename,
                              rp_table_symbol ts)
 {
-  rp_parser p = rp_parser_create();
+  rp_parser p = NULL;
+  rp_malloc(p, rp_parser, sizeof(rp_parser_def));
   int res;
   if ((res = rp_parser_create_file(&p,filename,ts)))
   {
@@ -268,6 +279,7 @@ int rp_parse_expression_file(rp_expression * e,
     }
     rp_parser_destroy(&p);
   }
+  free(p);
   return( res);
 }
 
