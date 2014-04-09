@@ -53,7 +53,7 @@ let rec real_eval (e : (string, float) Map.t) (f : t) : float
     | Basic.Tanh f' -> tanh (real_eval e f')
 
 let rec apply (e : Env.t) (f : t) (d : int) : Intv.t =
-  Printf.printf "Apply %s %d\n" (IO.to_string Basic.print_exp f) d;
+  (* Printf.printf "Apply %s %d\n" (IO.to_string Basic.print_exp f) d; *)
   let heuristics =
     match d > apply_depth_limit with
       true -> [intv_eval]
@@ -63,8 +63,8 @@ let rec apply (e : Env.t) (f : t) (d : int) : Intv.t =
   List.reduce Intv.meet results
 
 and intv_eval (e : Env.t) (f : t) (d : int) : Intv.t
-    = 
-    Printf.printf "intv_eval %s %d\n" (IO.to_string Basic.print_exp f) d;
+    =
+    (* Printf.printf "intv_eval %s %d\n" (IO.to_string Basic.print_exp f) d; *)
     match f with
       Basic.Var x -> Env.find x e
     | Basic.Num n -> Intv.make n n
@@ -128,7 +128,7 @@ and intv_eval (e : Env.t) (f : t) (d : int) : Intv.t
     | Basic.Tanh f' -> tanh_I (apply e f' d)
 
 and taylor (e : Env.t) (f : t) (d : int) : Intv.t =
-  Printf.printf "taylor %s %d\n" (IO.to_string Basic.print_exp f) d;
+  (* Printf.printf "taylor %s %d\n" (IO.to_string Basic.print_exp f) d; *)
   try
     let keys : Env.key list = List.of_enum (Env.keys e) in
     let derivs : Basic.exp list = List.map (fun key -> Basic.deriv f key) keys in
@@ -150,7 +150,7 @@ and taylor (e : Env.t) (f : t) (d : int) : Intv.t =
   with Basic.DerivativeNotFound -> Intv.top
 
 and monotone (e : Env.t) (f : t) (d : int) : Intv.t =
-  Printf.printf "monotone %s %d\n" (IO.to_string Basic.print_exp f) d;
+  (* Printf.printf "monotone %s %d\n" (IO.to_string Basic.print_exp f) d; *)
   let get_sign {low=l; high=h} =
     match (h <= 0.0, l >= 0.0) with
     | (true, true) -> Const
