@@ -37,7 +37,7 @@ before_script:
     else
       BUILD_TYPE=Debug;
     fi
-  - BUILD_NAME=${TRAVIS_BRANCH}_g++-4.9.0_${BUILD_TYPE}
+  - BUILD_NAME=${TRAVIS_BRANCH}_g++-4.8.1_${BUILD_TYPE}
   - GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`
   - GIT_SUBJECT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 2-`
   - GIT_SUBJECT=${GIT_SUBJECT//\"/\\\"}
