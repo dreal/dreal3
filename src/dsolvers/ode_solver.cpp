@@ -777,7 +777,7 @@ bool ode_solver::inner_loop_forward(ITaylor & solver, interval prevTime, vector<
             // TODO(soonhok): invariant
             return true;
         }
-        // cerr << dt << "\t" << v << endl;
+        DREAL_LOG_DEBUG(dt << "\t" << v);
         if (prevTime + subsetOfDomain.rightBound() > m_T.leftBound()) {
             bucket.emplace_back(dt, v);
         }
@@ -810,6 +810,7 @@ bool ode_solver::inner_loop_backward(ITaylor & solver, interval prevTime, vector
             // TODO(soonhok): invariant
             return true;
         }
+        DREAL_LOG_DEBUG(dt << "\t" << v);
         if (prevTime + subsetOfDomain.rightBound() > m_T.leftBound()) {
             bucket.emplace_back(dt, v);
         }
