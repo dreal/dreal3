@@ -17,6 +17,8 @@ exception SMTException of string
 type ode = Ode.t
 type flows_annot = (int * ode list)  (** step, ode **)
 
+let global_vars = ref []
+
 (** rename variable to related name in each step **)
 let make_variable k suffix (s: string) : string =
   let str_step = string_of_int k in
@@ -76,9 +78,9 @@ let process_flow ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) : Basic.formu
       in
       (* mode_k = q && inva_q(x_i, x_i_t) *)
       (* TODO add flow constraint here *)
-      Basic.make_and (mode_formula::flow_formula::invt_conds)
+      Basic.make_and invt_conds
   in
-  inv_formula
+  Basic.make_and ([mode_formula; flow_formula; inv_formula])
 
 (** transition change **)
 let process_jump (modemap : Modemap.t) (q : Mode.id) (next_q : Mode.id) k : Basic.formula =
@@ -87,6 +89,15 @@ let process_jump (modemap : Modemap.t) (q : Mode.id) (next_q : Mode.id) k : Basi
   let jump = Map.find next_q jumpmap in
   let mode_formula = make_mode_cond ~k:(k+1) ~q:next_q in
   let gurad' = Basic.subst_formula (make_variable k "_t") jump.guard in
+  let used =
+    Set.map
+      (fun v ->
+         match String.ends_with v "'" with
+         | true -> String.rchop v
+         | false -> v
+      )
+     (Basic.collect_vars_in_formula jump.change)
+  in
   let change' =
     Basic.subst_formula
       (fun v -> match String.ends_with v "'" with
@@ -98,7 +109,19 @@ let process_jump (modemap : Modemap.t) (q : Mode.id) (next_q : Mode.id) k : Basi
       )
       jump.change
   in
-  Basic.make_and [gurad'; change'; mode_formula]
+  let change'' =
+    (* for variables that doesn't appear in code *)
+    Basic.make_and (
+      List.map
+        (fun name ->
+           match (Set.mem name used) with
+           | false -> Basic.Eq (Basic.Var (make_variable k "_t" name), Basic.Var (make_variable (k+1) "_0" name))
+           | true -> Basic.True
+        )
+        !global_vars
+    )
+  in
+  Basic.make_and [gurad'; change'; change''; mode_formula]
 
 
 (** transition constrint, seems like not necessary, we can prune it when processing jump  **)
@@ -196,6 +219,7 @@ let compile_vardecl (h : Hybrid.t) (k : int) (path : (int list) option) =
   let num_of_modes = Enum.count (Map.keys modemap) in
   let vardecls = varmap_to_list h.varmap in
   let (time_var_l, vardecls') = List.partition (fun (name, _) -> name = "time") vardecls in
+  ignore (global_vars := List.map (fun (k, v) -> k) vardecls');
 
   (* generate time variable declaration *)
   let time_intv =
