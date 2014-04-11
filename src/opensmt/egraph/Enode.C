@@ -331,7 +331,7 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
             os << "0 = 0";
         }
         else if (isPlus() || isMinus() || isTimes() || isDiv() || isEq() || isLeq() ||
-                 isGeq() || isLt() || isGt() || isPow()) {
+                 isGeq() || isLt() || isGt()) {
             // assert(getArity() == 2);
             Enode* op = getCar();
             p = getCdr();
@@ -343,6 +343,22 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
                 op->print_infix(os, polarity, variable_postfix);
                 // output argument
                 p->getCar()->print_infix(os, polarity, variable_postfix);
+                // move p
+                p = p->getCdr();
+            }
+        } else if (isPow()) {
+            Enode* op = getCar();
+            p = getCdr();
+            // Print 1st argument
+            p->getCar()->print_infix(os, polarity, variable_postfix);
+            p = p->getCdr();
+            while (!p->isEnil()) {
+                // output operator
+                op->print_infix(os, polarity, variable_postfix);
+                // output argument
+                os << "(";
+                p->getCar()->print_infix(os, polarity, variable_postfix);
+                os << ")";
                 // move p
                 p = p->getCdr();
             }
@@ -418,9 +434,9 @@ void Enode::print(ostream & os) {
             p->car->print(os);
             p = p->cdr;
         }
-	if(precision){
-	  os << " [" << getPrecision() << "]";
-	}
+        if(precision){
+          os << " [" << getPrecision() << "]";
+        }
         if (!cdr->isEnil())
             os << ")";
     } else if (isList()) {
