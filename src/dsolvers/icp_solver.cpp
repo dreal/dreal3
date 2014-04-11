@@ -324,9 +324,13 @@ int icp_solver::get_var_split_delta(rp_box b) {
     int i = 0, max_constraint = -1;
     double max_width = 0.0;
     for (auto const l : m_stack) {
+        if (l->isForallT() || l->isIntegral()) {
+            continue;
+        }
         stringstream buf;
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
+        LOG(INFO) << "Considering constraint" << constraint_str;
         if (constraint_str.compare("0 = 0") != 0) {
             const rp_constraint c = rp_problem_ctr(*m_problem, i);
             double width =  constraint_width(&c, b);
@@ -335,17 +339,14 @@ int icp_solver::get_var_split_delta(rp_box b) {
             if ( residual  > max_width ) {
                 max_width = residual;
                 max_constraint = i;
-                //      LOG(INFO) << "Max Constraint: " << i << " Max Residual: " << max_width;
+                // LOG(INFO) << "Max Constraint: " << i << " Max Residual: " << max_width;
                 l->print_infix(buf, l->getPolarity());
                 string constraint_str = buf.str();
-                LOG(INFO) << constraint_str;
             }
             d++;
             i++;
         }
     }
-
-
     if (max_constraint > -1) {
         // get var with max width in max width constraint
         const rp_constraint c = rp_problem_ctr(*m_problem, max_constraint);
@@ -357,13 +358,13 @@ int icp_solver::get_var_split_delta(rp_box b) {
             if ( width > max_width ) {
                 max_width = width;
                 max_var = var;
-                //      LOG(INFO) << "Max Var: " << max_var << " Max Width: " << max_width;
+                // LOG(INFO) << "Max Var: " << max_var << " Max Width: " << max_width;
             }
         }
-        //    LOG(INFO) << "Delta Split: " << max_var;
+        LOG(INFO) << "Delta Split: " << max_var;
         return max_var;
     } else {
-        //    LOG(INFO) << "Delta Split: -1";
+        LOG(INFO) << "Delta Split: -1";
         return ( -1 );
     }
 }
@@ -383,6 +384,9 @@ int icp_solver::get_var_split_delta1(rp_box b) {
 
     i = 0;
     for (auto const l : m_stack) {
+        if (l->isForallT() || l->isIntegral()) {
+            continue;
+        }
         stringstream buf;
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
