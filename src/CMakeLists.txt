@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.7)
-project(DREAL CXX)
+project(DREAL C CXX)
 set(DREAL_VERSION_MAJOR 2)
 set(DREAL_VERSION_MINOR 0)
 
@@ -125,9 +125,61 @@ ExternalProject_Add(CAPD
 )
 
 ################################################################
-# External: set up include dir
+# Threads
+################################################################
+find_package (Threads REQUIRED)
+set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+
+################################################################
+# External: gflags (Google Flags)
+################################################################
+ExternalProject_Add(GFLAGS
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/gflags
+  GIT_REPOSITORY https://github.com/soonhokong/gflags.git
+  GIT_TAG origin/master
+  UPDATE_COMMAND git pull origin master
+  CONFIGURE_COMMAND cmake -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
+  BUILD_COMMAND make -j
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND make install
+)
+set(EXTRA_LIBS ${EXTRA_LIBS} "-lgflags")
+
+################################################################
+# External: glog (Google Log)
+################################################################
+ExternalProject_Add(GLOG
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/glog
+  GIT_REPOSITORY https://github.com/soonhokong/glog.git
+  GIT_TAG origin/master
+  UPDATE_COMMAND git pull origin master
+  CONFIGURE_COMMAND autoreconf -if > /dev/null 2>&1 && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} > /dev/null 2>&1
+  BUILD_COMMAND make -j
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND make install
+)
+set(EXTRA_LIBS ${EXTRA_LIBS} "libglog.a")
+
+################################################################
+# External: json11 (Dropbox json11)
+################################################################
+ExternalProject_Add(JSON11
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/json11
+  GIT_REPOSITORY https://github.com/soonhokong/json11.git
+  GIT_TAG origin/master
+  UPDATE_COMMAND git pull origin master
+  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
+  BUILD_COMMAND make -j
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND make install
+)
+set(EXTRA_LIBS ${EXTRA_LIBS} "-ljson11")
+
+################################################################
+# External: set up include dir and libpath
 ################################################################
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+set(EXTERNAL_LD_FLAGS "-L${CMAKE_CURRENT_BINARY_DIR}/lib")
 
 ################################################################
 # CXX Flags
@@ -139,14 +191,14 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 ################################################################
-# CAPD
+# CAPD LIB
 ################################################################
-set(CAPD_LD_FLAGS "-L${CMAKE_CURRENT_BINARY_DIR}/lib")
 set(EXTRA_LIBS ${EXTRA_LIBS} "-lcapddynsysfacade -lcapdcovrel -lcapddiffIncl -lcapdpoincare -lcapddiffAlgebra -lcapddynsys -lcapdmap -lcapddynset -lcapdgeomset -lcapdalgfacade -lcapdmatrixAlgorithms -lcapdvectalg -lprim -lcapdintervals -lcapdrounding -lcapdbasicalg -lcapdauxil -lcapdalglib")
 
 set(ODE_ENABLED TRUE)
+
 ################################################################
-# FILIB
+# FILIB LIB
 ################################################################
 set(EXTRA_LIBS ${EXTRA_LIBS} "-lprim")
 
@@ -234,7 +286,7 @@ add_dependencies(realpaver FILIBXX)
 add_dependencies(dsolvers CAPD)
 add_dependencies(realpaver CAPD)
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${CAPD_LD_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 
 set(EXTRA_LIBS ${DREAL_LIBS} ${EXTRA_LIBS})
