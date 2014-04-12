@@ -75,6 +75,6 @@ after_script:
 notifications:
   email:
     recipients:
-     - dreal-dev@googlegroups.com
-    on_success: always
+     - dreal-build@googlegroups.com
+    on_success: change
     on_failure: always
