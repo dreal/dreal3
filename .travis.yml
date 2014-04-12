@@ -17,16 +17,24 @@ env:
       CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=RELEASE
       USE_LATEST_EGLIBC=TRUE
+      CTEST=TRUE
     - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
-      CMAKE_BUILD_TYPE=Debug
+      CMAKE_BUILD_TYPE=DEBUG
       USE_LATEST_EGLIBC=TRUE
-      TESTCOV=ON
+      CTEST=TRUE
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
       CMAKE_BUILD_TYPE=RELEASE
       USE_LATEST_EGLIBC=TRUE
+      CTEST=TRUE
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
       CMAKE_BUILD_TYPE=DEBUG
       USE_LATEST_EGLIBC=TRUE
+      CTEST=TRUE
+    - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
+      CMAKE_BUILD_TYPE=DEBUG
+      USE_LATEST_EGLIBC=TRUE
+      CTEST=FALSE
+      TESTCOV=ON
 
 install:
   # Check EGLIBC Version
@@ -124,8 +132,9 @@ script:
 
 after_script:
   - cd build
-  - ctest -D ExperimentalTest --timeout 500 -E ".*delta.*" -VV
-  - echo $PATH
+  - if [[ $CTEST == TRUE ]]; then
+      ctest -D ExperimentalTest --timeout 450 -VV;
+    fi
   - export PATH=/usr/bin:$PATH
   - if [[ $DREALREPO == BLESSED && $TESTCOV == ON ]]; then
       ctest -D ExperimentalCoverage;

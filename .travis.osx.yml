@@ -4,8 +4,10 @@ env:
   matrix:
     - CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc
       CMAKE_BUILD_TYPE=RELEASE
+      CTEST=TRUE
     - CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc
       CMAKE_BUILD_TYPE=DEBUG
+      CTEST=TRUE
 
 install:
  - brew update > /dev/null
@@ -62,7 +64,9 @@ script:
 
 after_script:
   - cd build
-  - ctest -D ExperimentalTest --timeout 500 -E ".*delta.*" -VV
+  - if [[ $CTEST == TRUE ]]; then
+      ctest -D ExperimentalTest --timeout 450 -VV;
+    fi
   - find Testing -name "*.xml" -exec sed -i "" "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";"
   - find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; ../script/demangle_cpptype.py {} > $TMP; mv -v $TMP {}' ";"
   - ctest -D ExperimentalSubmit
