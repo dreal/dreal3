@@ -471,11 +471,11 @@ rp_box icp_solver::compute_next() {
             // SAT => Split
             rp_box b = m_boxes.get();
             int i = m_vselect->apply(b);
-            LOG(INFO) << "Splitting var: " << i <<  " " << rp_variable_name(rp_problem_var(*m_problem, i));
             if (i >= 0 &&
                 ((m_config.delta_test ?
                   !is_box_within_delta(b) :
                   rp_box_width(b) >= m_config.nra_precision))) {
+                LOG(INFO) << "Splitting var: " << i <<  " " << rp_variable_name(rp_problem_var(*m_problem, i));
                 if (m_config.nra_proof) {
                     m_config.nra_proof_out << endl
                                            << "[branched on "
