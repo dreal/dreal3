@@ -30,6 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <glog/logging.h>
 #include "dsolvers/ode_solver.h"
 #include "dsolvers/util/logger.h"
 #include "dsolvers/util/string.h"
@@ -151,12 +152,12 @@ ode_solver::ode_solver(SMTConfig& c,
     }
     m_diff_sys_forward  += diff_var + diff_fun_forward;
     m_diff_sys_backward += diff_var + diff_fun_backward;
-    DREAL_LOG_DEBUG("diff_par          : " << diff_par);
-    DREAL_LOG_DEBUG("diff_var          : " << diff_var);
-    DREAL_LOG_DEBUG("diff_fun_forward  : " << diff_fun_forward);
-    DREAL_LOG_DEBUG("diff_fun_backward : " << diff_fun_backward);
-    DREAL_LOG_DEBUG("diff_sys_forward  : " << m_diff_sys_forward);
-    DREAL_LOG_DEBUG("diff_sys_backward : " << m_diff_sys_backward);
+    LOG(INFO) << "diff_par          : " << diff_par;
+    LOG(INFO) << "diff_var          : " << diff_var;
+    LOG(INFO) << "diff_fun_forward  : " << diff_fun_forward;
+    LOG(INFO) << "diff_fun_backward : " << diff_fun_backward;
+    LOG(INFO) << "diff_sys_forward  : " << m_diff_sys_forward;
+    LOG(INFO) << "diff_sys_backward : " << m_diff_sys_backward;
     for (auto ode_str : m_ode_list) {
         string const func_str = diff_par + diff_var + "fun:" + ode_str + ";";
         m_funcs.push_back(IFunction(func_str));
@@ -241,7 +242,7 @@ IVector ode_solver::varlist_to_IVector(vector<Enode*> const & vars) {
         double lb = get_lb(var);
         double ub = get_ub(var);
         intv = interval(lb, ub);
-        DREAL_LOG_DEBUG("The interval on " << var->getCar()->getName() << ": " << intv);
+        LOG(INFO) << "The interval on " << var->getCar()->getName() << ": " << intv;
     }
     return intvs;
 }
@@ -295,11 +296,11 @@ IVector ode_solver::extract_invariants() {
     for (auto const & m_t_var : m_t_vars) {
         if (inv_map.find(m_t_var) != inv_map.end()) {
             auto inv = interval(inv_map[m_t_var].first, inv_map[m_t_var].second);
-            DREAL_LOG_DEBUG("Invariant extracted from  " << m_t_var << " = " << inv);
+            LOG(INFO) << "Invariant extracted from  " << m_t_var << " = " << inv;
             ret[i++] = inv;
         } else {
             auto inv = interval(m_t_var->getLowerBound(), m_t_var->getUpperBound());
-            DREAL_LOG_DEBUG("Default Invariant set for " << m_t_var << " = " << inv);
+            LOG(INFO) << "Default Invariant set for " << m_t_var << " = " << inv;
             ret[i++] = inv;
         }
     }
@@ -339,7 +340,7 @@ ode_solver::ODE_result ode_solver::simple_ODE(rp_box b, bool forward) {
 }
 
 ode_solver::ODE_result ode_solver::solve_forward(rp_box b) {
-    DREAL_LOG_DEBUG("ODE_Solver::solve_forward()");
+    LOG(INFO) << "ODE_Solver::solve_forward()";
     ODE_result ret = ODE_result::SAT;
     update(b);
 
@@ -379,7 +380,7 @@ ode_solver::ODE_result ode_solver::solve_forward(rp_box b) {
 }
 
 ode_solver::ODE_result ode_solver::solve_backward(rp_box b) {
-    DREAL_LOG_DEBUG("ODE_Solver::solve_backward()");
+    LOG(INFO) << "ODE_Solver::solve_backward()";
     ODE_result ret = ODE_result::SAT;
     update(b);
 
@@ -600,10 +601,10 @@ ode_solver::ODE_result ode_solver::prune_forward(vector<pair<interval, IVector>>
         }
     }
     bucket.erase(remove_if (bucket.begin(), bucket.end(),
-                           [](pair<interval, IVector> const & item) {
-                               interval const & dt = item.first;
-                               return dt.leftBound() == 0.0 && dt.rightBound() == 0.0;
-                           }),
+                            [](pair<interval, IVector> const & item) {
+                                interval const & dt = item.first;
+                                return dt.leftBound() == 0.0 && dt.rightBound() == 0.0;
+                            }),
                  bucket.end());
     if (bucket.empty()) {
         // UNSAT
@@ -641,10 +642,10 @@ ode_solver::ODE_result ode_solver::prune_backward(vector<pair<interval, IVector>
         }
     }
     bucket.erase(remove_if (bucket.begin(), bucket.end(),
-                           [](pair<interval, IVector> const & item) {
-                               interval const & dt = item.first;
-                               return dt.leftBound() == 0.0 && dt.rightBound() == 0.0;
-                           }),
+                            [](pair<interval, IVector> const & item) {
+                                interval const & dt = item.first;
+                                return dt.leftBound() == 0.0 && dt.rightBound() == 0.0;
+                            }),
                  bucket.end());
     if (bucket.empty()) {
         // UNSAT
@@ -670,10 +671,10 @@ ode_solver::ODE_result ode_solver::prune_backward(vector<pair<interval, IVector>
 }
 
 bool ode_solver::updateValue(rp_box b, Enode * e, double lb, double ub) {
-    DREAL_LOG_DEBUG("UpdateValue : " << e
-                    << " ["      << rp_binf(rp_box_elem(b, m_enode_to_rp_id[e]))
-                    << ", "      << rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e]))
-                    << "] /\\ [" << lb << ", " << ub << "]");
+    LOG(INFO) << "UpdateValue : " << e
+              << " ["      << rp_binf(rp_box_elem(b, m_enode_to_rp_id[e]))
+              << ", "      << rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e]))
+              << "] /\\ [" << lb << ", " << ub << "]";
     double new_lb = max(lb, rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])));
     double new_ub = min(ub, rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])));
     if (new_lb <= new_ub) {
@@ -681,13 +682,13 @@ bool ode_solver::updateValue(rp_box b, Enode * e, double lb, double ub) {
         rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])) = new_lb;
         e->setUpperBound(new_ub);
         rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])) = new_ub;
-        DREAL_LOG_DEBUG(" = [" << new_lb << ", " << new_ub << "]");
+        LOG(INFO) << " = [" << new_lb << ", " << new_ub << "]";
         return true;
     } else {
         rp_interval_set_empty(rp_box_elem(b, m_enode_to_rp_id[e]));
         e->setLowerBound(+numeric_limits<double>::infinity());
         e->setUpperBound(-numeric_limits<double>::infinity());
-        DREAL_LOG_DEBUG(" = empty ");
+        LOG(INFO) << " = empty ";
         return false;
     }
 }
@@ -696,11 +697,11 @@ bool ode_solver::updateValue(rp_box b, Enode * e, double lb, double ub) {
 // If there is no intersection, return false.
 bool ode_solver::check_invariant(IVector & v, IVector const & inv) {
     if (!intersection(v, inv, v)) {
-        DREAL_LOG_DEBUG("invariant violated!");
+        LOG(INFO) << "invariant violated!";
         for (auto i = 0; i < v.dimension(); i++) {
             if (v[i].leftBound() < inv[i].leftBound() || v[i].rightBound() > inv[i].rightBound()) {
-                DREAL_LOG_DEBUG("inv[" << i << "] = " << inv[i]);
-                DREAL_LOG_DEBUG("  v[" << i << "] = " <<   v[i]);
+                LOG(INFO) << "inv[" << i << "] = " << inv[i];
+                LOG(INFO) << "  v[" << i << "] = " <<   v[i];
             }
         }
         return false;
@@ -718,7 +719,7 @@ bool ode_solver::check_invariant(C0Rect2Set & s, IVector const & inv) {
 bool ode_solver::contain_NaN(IVector const & v) {
     for (interval const & i : v) {
         if (std::isnan(i.leftBound()) || std::isnan(i.rightBound())) {
-            DREAL_LOG_DEBUG("NaN Found! : " << v);
+            LOG(INFO) << "NaN Found! : " << v;
             return true;
         }
     }
@@ -733,22 +734,22 @@ template<typename V>
 bool ode_solver::union_and_join(vector<V> const & bucket, V & result) {
     // 1. u = Union of all the elements of bucket
     if (bucket.size() == 0) {
-        DREAL_LOG_DEBUG("Union_Join: collect from the bucket");
+        LOG(INFO) << "Union_Join: collect from the bucket";
         return false;
     }
     V u = *(bucket.cbegin());
     for (auto ite = ++(bucket.cbegin()); ite != bucket.cend(); ite++) {
-        DREAL_LOG_DEBUG("U(" << u << ", " << *ite << ")");
+        LOG(INFO) << "U(" << u << ", " << *ite << ")";
         u = intervalHull(u, *ite);
-        DREAL_LOG_DEBUG(" = " << u);
+        LOG(INFO) << " = " << u;
     }
     // 2. result = intersection(u, result);
-    DREAL_LOG_DEBUG("Intersect(" << u << ", " << result << ")");
+    LOG(INFO) << "Intersect(" << u << ", " << result << ")";
     if (intersection(u, result, result)) {
-        DREAL_LOG_DEBUG(" = " << result);
+        LOG(INFO) << " = " << result;
     } else {
         // intersection is empty!!
-        DREAL_LOG_DEBUG(" = empty");
+        LOG(INFO) << " = empty";
         return false;
     }
     return true;
@@ -777,7 +778,7 @@ bool ode_solver::inner_loop_forward(ITaylor & solver, interval prevTime, vector<
             // TODO(soonhok): invariant
             return true;
         }
-        DREAL_LOG_DEBUG(dt << "\t" << v);
+        LOG(INFO) << dt << "\t" << v;
         if (prevTime + subsetOfDomain.rightBound() > m_T.leftBound()) {
             bucket.emplace_back(dt, v);
         }
@@ -810,7 +811,7 @@ bool ode_solver::inner_loop_backward(ITaylor & solver, interval prevTime, vector
             // TODO(soonhok): invariant
             return true;
         }
-        DREAL_LOG_DEBUG(dt << "\t" << v);
+        LOG(INFO) << dt << "\t" << v;
         if (prevTime + subsetOfDomain.rightBound() > m_T.leftBound()) {
             bucket.emplace_back(dt, v);
         }
@@ -823,7 +824,7 @@ bool ode_solver::inner_loop_backward(ITaylor & solver, interval prevTime, vector
 }
 
 ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t, interval const & T,
-                                    IVector const & inv, vector<IFunction> & funcs) {
+                                                      IVector const & inv, vector<IFunction> & funcs) {
     // X_t = X_t \cup (X_0 + (d/dt Inv) * T)
     for (int i = 0; i < X_0.dimension(); i++) {
         interval const & x_0 = X_0[i];
@@ -838,11 +839,11 @@ ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVect
         try {
             interval new_x_t = x_0 + dxdt(inv) * T;
             if (!intersection(new_x_t, x_t, x_t)) {
-                DREAL_LOG_DEBUG("Simple_ODE: no intersection for X_T");
+                LOG(INFO) << "Simple_ODE: no intersection for X_T";
                 return ODE_result::UNSAT;
             }
         } catch (exception& e) {
-            DREAL_LOG_DEBUG("Exception in Simple_ODE: " << e.what());
+            LOG(INFO) << "Exception in Simple_ODE: " << e.what();
         }
     }
     // update
@@ -851,7 +852,7 @@ ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVect
 }
 
 ode_solver::ODE_result ode_solver::simple_ODE_backward(IVector & X_0, IVector const & X_t, interval const & T,
-                                     IVector const & inv, vector<IFunction> & funcs) {
+                                                       IVector const & inv, vector<IFunction> & funcs) {
     // X_0 = X_0 \cup (X_t - + (d/dt Inv) * T)
     for (int i = 0; i < X_0.dimension(); i++) {
         interval & x_0 = X_0[i];
@@ -866,11 +867,11 @@ ode_solver::ODE_result ode_solver::simple_ODE_backward(IVector & X_0, IVector co
         try {
             interval const new_x_0 = x_t - dxdt(inv) * T;
             if (!intersection(new_x_0, x_0, x_0)) {
-                DREAL_LOG_DEBUG("Simple_ODE: no intersection for X_0");
+                LOG(INFO) << "Simple_ODE: no intersection for X_0";
                 return ODE_result::UNSAT;
             }
         } catch (exception& e) {
-            DREAL_LOG_DEBUG("Exception in Simple_ODE: " << e.what());
+            LOG(INFO) << "Exception in Simple_ODE: " << e.what();
         }
     }
     // update
