@@ -27,6 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <csignal>
 #include <iostream>
+#include <glog/logging.h>
 
 #if defined(__linux__)
 #include <fpu_control.h>
@@ -55,6 +56,7 @@ OpenSMTContext * parser_ctx;
 
 int main( int argc, char * argv[] )
 {
+  google::InitGoogleLogging(argv[0]);
   opensmt::stop = false;
   // Allocates Command Handler (since SMT-LIB 2.0)
   OpenSMTContext context( argc, argv );
