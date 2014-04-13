@@ -28,7 +28,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <glog/logging.h>
 #include "dsolvers/icp_solver.h"
-#include "dsolvers/util/logger.h"
 #include "dsolvers/util/scoped_env.h"
 #include "dsolvers/util/scoped_vec.h"
 

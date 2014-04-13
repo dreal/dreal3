@@ -32,7 +32,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <glog/logging.h>
 #include "dsolvers/ode_solver.h"
-#include "dsolvers/util/logger.h"
 #include "dsolvers/util/string.h"
 using capd::C0Rect2Set;
 using capd::IFunction;

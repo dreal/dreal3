@@ -23,7 +23,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <glog/logging.h>
 #include "dsolvers/icp_solver.h"
 #include "dsolvers/nra_solver.h"
-#include "dsolvers/util/logger.h"
 
 using std::pair;
 

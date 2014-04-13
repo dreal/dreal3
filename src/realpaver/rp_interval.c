@@ -17,7 +17,6 @@
 #include <glog/logging.h>
 #include "realpaver/rp_interval.h"
 //#include <capd/intervals/Interval.hpp>
-#include "dsolvers/util/logger.h"
 
 #define _max(x, y) (x > y ? x : y)
 #define _min(x, y) (x < y ? x : y)

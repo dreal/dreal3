@@ -20,7 +20,6 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "SMTConfig.h"
 #include "version.h"
 #include "dsolvers/util/git_sha1.h"
-#include "dsolvers/util/logger.h"
 
 void
 SMTConfig::initializeConfig( )
@@ -98,7 +97,8 @@ SMTConfig::initializeConfig( )
   nra_json                     = false;
   delta_test                   = false;
   use_delta_heuristic          = false;
-  init_log();
+  // TODO(soonhok)
+  // init_log();
 }
 
 void SMTConfig::parseConfig ( char * f )
@@ -431,7 +431,8 @@ SMTConfig::parseCMDLine( int argc
 
     if ( strcmp( buf, "--verbose" ) == 0)
     {
-        set_log_level(LogLevel::DEBUG);
+        // TODO(soonhok)
+        // set_log_level(LogLevel::DEBUG);
         nra_verbose = true;
         continue;
     }
