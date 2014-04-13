@@ -30,6 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "dsolvers/util/logger.h"
 #include "dsolvers/util/scoped_env.h"
 #include "dsolvers/util/scoped_vec.h"
+#include <glog/logging.h>
 
 using std::cerr;
 using std::endl;
@@ -90,7 +91,7 @@ icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const &
 }
 
 icp_solver::~icp_solver() {
-    DREAL_LOG_DEBUG("Number of delta checks: " << m_num_delta_checks);
+    LOG(INFO) << "Number of delta checks: " << m_num_delta_checks;
     rp_delete(m_vselect);
     rp_delete(m_dsplit);
     rp_reset_library();
@@ -169,7 +170,7 @@ rp_problem* icp_solver::create_rp_problem() {
         rp_variable_set_real(*v);
         rp_variable_precision(*v) = m_config.nra_precision;
         m_enode_to_rp_id[key] = rp_id;
-        DREAL_LOG_DEBUG("Key: " << name << "\t" << "value : [" << lb << ", " << ub << "] \t" << "precision : " << m_config.nra_precision << "\t" << "rp_id: " << rp_id);
+        LOG(INFO) << "Key: " << name << "\t" << "value : [" << lb << ", " << ub << "] \t" << "precision : " << m_config.nra_precision << "\t" << "rp_id: " << rp_id;
     }
 
     // ===============================================
@@ -192,8 +193,8 @@ rp_problem* icp_solver::create_rp_problem() {
                 m_rp_constraint_deltas.push_back(l->getPrecision());
             else
                 m_rp_constraint_deltas.push_back(m_config.nra_precision);
-            DREAL_LOG_DEBUG("Constraint: " << (l->getPolarity() == l_True ? " " : "Not") << l);
-            DREAL_LOG_DEBUG(" : " << constraint_str);
+            LOG(INFO) << "Constraint: " << (l->getPolarity() == l_True ? " " : "Not") << l;
+            LOG(INFO) << " : " << constraint_str;
             // Parse the string (infix form) to create the constraint c
             rp_parse_constraint_string(c, constraint_str.c_str(), rp_problem_symb(*rp_prob));
             // Add to the problem
@@ -282,8 +283,8 @@ bool icp_solver::prop_with_ODE() {
                 double const lv_xt = odeSolver->logVolume_Xt(b);
                 unsigned const mode = odeSolver->get_Mode();
                 bool forward = m_config.nra_ODE_forward_only ? true : lv_x0 <= lv_xt;
-                DREAL_LOG_DEBUG(setw(10) << mode << setw(20) << lv_x0 << setw(20) << lv_xt
-                                << setw(20) << (forward ? "Forward" : "Backward"));
+                LOG(INFO) << mode << "\t" << lv_x0 << "\t"<< lv_xt
+                          << "\t" << (forward ? "Forward" : "Backward");
                 ode_solver::ODE_result result = ode_solver::ODE_result::SAT;
                 callODESolver(odeSolver, forward, result);
                 if (result == ode_solver::ODE_result::UNSAT) {
@@ -306,7 +307,7 @@ double icp_solver::constraint_width(const rp_constraint * c, rp_box b) const {
     rp_interval res;
     rp_interval_add(res, rp_expression_val(lhs), rp_expression_val(rhs));
 
-    // DREAL_LOG_DEBUG("Width: LHS: [" << rp_binf(rp_expression_val(lhs))
+    // LOG(INFO) << "Width: LHS: [" << rp_binf(rp_expression_val(lhs)
     //      << ", " << rp_bsup(rp_expression_val(lhs)) << "], RHS: ["
     //      << rp_binf(rp_expression_val(rhs)) << ", "
     //      << rp_bsup(rp_expression_val(rhs)) << "], RES: ["
@@ -332,14 +333,14 @@ int icp_solver::get_var_split_delta(rp_box b) {
       const rp_constraint c = rp_problem_ctr(*m_problem, i);
       double width =  constraint_width(&c, b);
       double residual = width-2.0*(*d);
-      // DREAL_LOG_DEBUG("Constraint: " << i << " Residual: " << residual);
+      // LOG(INFO) << "Constraint: " << i << " Residual: " << residual;
       if ( residual  > max_width ) {
         max_width = residual;
         max_constraint = i;
-        //      DREAL_LOG_DEBUG("Max Constraint: " << i << " Max Residual: " << max_width);
+        //      LOG(INFO) << "Max Constraint: " << i << " Max Residual: " << max_width;
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
-        DREAL_LOG_DEBUG(constraint_str);
+        LOG(INFO) << constraint_str;
       }
       d++;
       i++;
@@ -358,13 +359,13 @@ int icp_solver::get_var_split_delta(rp_box b) {
       if ( width > max_width ) {
         max_width = width;
         max_var = var;
-        //      DREAL_LOG_DEBUG("Max Var: " << max_var << " Max Width: " << max_width);
+        //      LOG(INFO) << "Max Var: " << max_var << " Max Width: " << max_width;
       }
     }
-    //    DREAL_LOG_DEBUG("Delta Split: " << max_var);
+    //    LOG(INFO) << "Delta Split: " << max_var;
     return max_var;
   } else {
-    //    DREAL_LOG_DEBUG("Delta Split: -1");
+    //    LOG(INFO) << "Delta Split: -1";
     return ( -1 );
   }
 }
@@ -380,7 +381,7 @@ int icp_solver::get_var_split_delta1(rp_box b) {
   for ( i = 0; i < num_vars; i++ ){
     variable_residuals[i] = 0.0;
   }
-  DREAL_LOG_DEBUG("num_vars = " << num_vars);
+  LOG(INFO) << "num_vars = " << num_vars;
 
   i = 0;
   for (auto const l : m_stack) {
@@ -391,10 +392,10 @@ int icp_solver::get_var_split_delta1(rp_box b) {
       const rp_constraint c = rp_problem_ctr(*m_problem, i);
       double width =  constraint_width(&c, b);
       double residual = width-2.0*(*d);
-        DREAL_LOG_DEBUG("c = " << constraint_str);
+        LOG(INFO) << "c = " << constraint_str;
       for ( i = 0; i < rp_constraint_arity(c); i++ ){
         int var = rp_constraint_var(c, i);
-        DREAL_LOG_DEBUG("var = " << var);
+        LOG(INFO) << "var = " << var;
         variable_residuals[var] += residual;
       }
       d++;
@@ -423,7 +424,7 @@ bool icp_solver::is_box_within_delta(rp_box b) {
   // for each expression
   //  compute width given box
   //  check if expression width <= delta
-  DREAL_LOG_DEBUG("Checking box width...");
+  LOG(INFO) << "Checking box width...";
   m_num_delta_checks++;
 
   vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
@@ -450,7 +451,7 @@ bool icp_solver::is_box_within_delta(rp_box b) {
                       << "]");
       }
       if ( test ){
-        //      DREAL_LOG_DEBUG("Not Within Delta");
+        //      LOG(INFO) << "Not Within Delta";
         // return false;
         fail = true;
       }
@@ -458,8 +459,8 @@ bool icp_solver::is_box_within_delta(rp_box b) {
       i++;
     }
   }
-  // DREAL_LOG_DEBUG("Within Delta");
-  DREAL_LOG_DEBUG("Within Delta = " << (!fail));
+  // LOG(INFO) << "Within Delta";
+  LOG(INFO) << "Within Delta = " << (!fail);
   return !fail; // no constraint width is outside of delta or unsat
 }
 
@@ -470,7 +471,7 @@ rp_box icp_solver::compute_next() {
             // SAT => Split
             rp_box b = m_boxes.get();
             int i = m_vselect->apply(b);
-            DREAL_LOG_DEBUG("Splitting var: " << i <<  " " << rp_variable_name(rp_problem_var(*m_problem, i)));
+            LOG(INFO) << "Splitting var: " << i <<  " " << rp_variable_name(rp_problem_var(*m_problem, i));
             if (i >= 0 &&
                 ((m_config.delta_test ?
                   !is_box_within_delta(b) :
@@ -521,7 +522,7 @@ void icp_solver::print_ODE_trajectory(ostream& out) const {
 bool icp_solver::solve() {
     if (m_config.nra_proof) { output_problem(); }
     if (rp_box_empty(rp_problem_box(*m_problem))) {
-        DREAL_LOG_DEBUG("Unfeasibility detected before solving");
+        LOG(INFO) << "Unfeasibility detected before solving";
         m_explanation.clear();
         copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
         return false;
@@ -529,9 +530,9 @@ bool icp_solver::solve() {
         rp_box b = compute_next();
         if (b != nullptr) {
             /* SAT */
-            DREAL_LOG_DEBUG("SAT with the following box:");
+            LOG(INFO) << "SAT with the following box:";
             if (m_config.nra_verbose) { pprint_vars(cerr, *m_problem, b); pprint_lits(cerr, *m_problem, b); }
-            DREAL_LOG_DEBUG("SAT");
+            LOG(INFO) << "SAT";
             if (m_config.nra_proof) {
                 m_config.nra_proof_out.close();
                 m_config.nra_proof_out.open(m_config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
@@ -543,7 +544,7 @@ bool icp_solver::solve() {
             return true;
         } else {
             /* UNSAT */
-            DREAL_LOG_DEBUG("UNSAT!");
+            LOG(INFO) << "UNSAT!";
             m_explanation.clear();
             copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
             return false;
