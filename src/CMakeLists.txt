@@ -153,7 +153,7 @@ ExternalProject_Add(GLOG
   GIT_REPOSITORY https://github.com/soonhokong/glog.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND autoreconf -if > /dev/null 2>&1 && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} > /dev/null 2>&1
+  CONFIGURE_COMMAND autoreconf -if > /dev/null 2>&1 && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-gflags=${CMAKE_CURRENT_BINARY_DIR} > /dev/null 2>&1
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
