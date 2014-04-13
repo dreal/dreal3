@@ -131,6 +131,22 @@ find_package (Threads REQUIRED)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 ################################################################
+# External: libunwind (only for Linux)
+################################################################
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+ExternalProject_Add(LIBUNWIND
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/libunwind
+  GIT_REPOSITORY https://github.com/soonhokong/libunwind.git
+  GIT_TAG origin/master
+  UPDATE_COMMAND git pull origin master
+  CONFIGURE_COMMAND autoreconf -i > /dev/null 2>&1 && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} > /dev/null 2>&1
+  BUILD_COMMAND make -j
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND make install
+)
+endif()
+
+################################################################
 # External: gflags (Google Flags)
 ################################################################
 ExternalProject_Add(GFLAGS
@@ -138,12 +154,11 @@ ExternalProject_Add(GFLAGS
   GIT_REPOSITORY https://github.com/soonhokong/gflags.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND cmake -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
+  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
 )
-set(EXTRA_LIBS ${EXTRA_LIBS} "-lgflags")
 
 ################################################################
 # External: glog (Google Log)
@@ -159,6 +174,7 @@ ExternalProject_Add(GLOG
   INSTALL_COMMAND make install
 )
 set(EXTRA_LIBS ${EXTRA_LIBS} "libglog.a")
+set(EXTRA_LIBS ${EXTRA_LIBS} "gflags")
 
 ################################################################
 # External: json11 (Dropbox json11)
@@ -174,6 +190,10 @@ ExternalProject_Add(JSON11
   INSTALL_COMMAND make install
 )
 set(EXTRA_LIBS ${EXTRA_LIBS} "-ljson11")
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+set(EXTRA_LIBS ${EXTRA_LIBS} "libunwind.a")
+endif()
 
 ################################################################
 # External: set up include dir and libpath
