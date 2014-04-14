@@ -31,7 +31,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "dsolvers/util/scoped_env.h"
 #include "dsolvers/util/scoped_vec.h"
 
-using std::cerr;
 using std::endl;
 using std::setw;
 using std::stable_sort;
@@ -530,7 +529,10 @@ bool icp_solver::solve() {
         if (b != nullptr) {
             /* SAT */
             LOG(INFO) << "SAT with the following box:";
-            if (m_config.nra_verbose) { pprint_vars(cerr, *m_problem, b); pprint_lits(cerr, *m_problem, b); }
+            if (m_config.nra_verbose) {
+                pprint_vars(LOG(INFO), *m_problem, b);
+                pprint_lits(LOG(INFO), *m_problem, b);
+            }
             LOG(INFO) << "SAT";
             if (m_config.nra_proof) {
                 m_config.nra_proof_out.close();
