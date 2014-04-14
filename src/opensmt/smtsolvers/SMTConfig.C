@@ -20,6 +20,22 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "SMTConfig.h"
 #include "version.h"
 #include "dsolvers/util/git_sha1.h"
+#include <gflags/gflags.h>
+#include <glog/logging.h>
+
+DEFINE_double(precision,          0.0, "precision");
+DEFINE_bool  (delta,            false, "use delta");
+DEFINE_bool  (delta_heuristic,  false, "delta heuristic");
+DEFINE_double(ode_step,           0.0, "ode step");
+DEFINE_int32 (ode_order,           20, "ode order");
+DEFINE_int32 (ode_grid,            16, "ode grid");
+DEFINE_int32 (ode_timeout,          0, "ode timeout");
+DEFINE_bool  (ode_cache,        false, "ode cache");
+DEFINE_bool  (ode_forward_only, false, "ode forward only");
+DEFINE_bool  (ode_parallel,     false, "ode parallel");
+DEFINE_bool  (proof,            false, "proof");
+DEFINE_bool  (visualize,        false, "visualize");
+DEFINE_bool  (verbose,          false, "verbose");
 
 void
 SMTConfig::initializeConfig( )
@@ -97,8 +113,6 @@ SMTConfig::initializeConfig( )
   nra_json                     = false;
   delta_test                   = false;
   use_delta_heuristic          = false;
-  // TODO(soonhok)
-  // init_log();
 }
 
 void SMTConfig::parseConfig ( char * f )
@@ -321,126 +335,41 @@ void
 SMTConfig::parseCMDLine( int argc
                        , char * argv[ ] )
 {
-  char config_name[ 64 ];
-  for ( int i = 1 ; i < argc - 1 ; i ++ )
-  {
-    const char * buf = argv[ i ];
-    // Parsing of configuration options
-    if ( sscanf( buf, "--config=%s", config_name ) == 1 )
-    {
-      parseConfig( config_name );
-      continue;
-    }
-    if ( sscanf( buf, "--precision=%lf", &nra_precision ) == 1)
-    {
-        if(nra_precision <= 0.0)
-        {
-            printHelp( );
-            exit( 1 );
-        }
-        continue;
-    }
-    if ( strcmp( buf, "--delta" ) == 0 )
-    {
-        delta_test = true;
-        continue;
-    }
-
-    if ( strcmp( buf, "--delta-heuristic" ) == 0 )
-    {
-        use_delta_heuristic = true;
-        continue;
-    }
-
-    if ( sscanf( buf, "--ode-step=%lf", &nra_ODE_step ) == 1)
-    {
-        if(nra_ODE_step <= 0.0)
-        {
-            printHelp( );
-            exit( 1 );
-        }
-        continue;
-    }
-
-    if ( sscanf( buf, "--ode-order=%d", &nra_ODE_taylor_order ) == 1)
-    {
-        continue;
-    }
-
-    if ( sscanf( buf, "--ode-grid=%d", &nra_ODE_grid_size ) == 1)
-    {
-        continue;
-    }
-
-    if ( sscanf( buf, "--ode-timeout=%d", &nra_ODE_timeout ) == 1)
-    {
-        continue;
-    }
-
-    if ( strcmp( buf, "--ode-cache" ) == 0 )
-    {
-        nra_ODE_cache = true;
-        continue;
-    }
-
-    if ( strcmp( buf, "--ode-forward-only" ) == 0 )
-    {
-        nra_ODE_forward_only = true;
-        continue;
-    }
-
-    if ( strcmp( buf, "--ode-parallel" ) == 0 )
-    {
-        nra_ODE_parallel = true;
-        continue;
-    }
-
-    if ( strcmp( buf, "--help" ) == 0 )
-    {
-        printHelp( );
-        exit( 1 );
-    }
-
-    if ( strcmp( buf, "--proof" ) == 0 )
-    {
-        nra_proof = true;
-        /* Open file stream */
-        nra_proof_out_name = string(argv[ argc - 1 ]) + ".proof";
-        nra_proof_out.open (nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
-        if(nra_proof_out.fail())
-        {
-            cout << "Cannot create a file: " << nra_proof_out_name << endl;
-            exit( 1 );
-        }
-        continue;
-    }
-
-    if ( strcmp( buf, "--visualize" ) == 0 )
-    {
-        nra_json = true;
-        string filename = string(argv[ argc - 1 ]) + ".json";
-        /* Open file stream */
-        nra_json_out.open (filename.c_str(), std::ofstream::out | std::ofstream::trunc );
-        if(nra_json_out.fail())
-        {
-            cout << "Cannot create a file: " << filename << endl;
-            exit( 1 );
-        }
-        continue;
-    }
-
-    if ( strcmp( buf, "--verbose" ) == 0)
-    {
-        // TODO(soonhok)
-        // set_log_level(LogLevel::DEBUG);
-        nra_verbose = true;
-        continue;
-    }
-    else
-    {
-      printHelp( );
-      opensmt_error2( "unrecognized option", buf );
-    }
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+  nra_precision        = FLAGS_precision;
+  delta_test           = FLAGS_delta;
+  use_delta_heuristic  = FLAGS_delta_heuristic;
+  nra_ODE_step         = FLAGS_ode_step;
+  nra_ODE_taylor_order = FLAGS_ode_order;
+  nra_ODE_grid_size    = FLAGS_ode_grid;
+  nra_ODE_timeout      = FLAGS_ode_timeout;
+  nra_ODE_cache        = FLAGS_ode_cache;
+  nra_ODE_forward_only = FLAGS_ode_forward_only;
+  nra_ODE_parallel     = FLAGS_ode_parallel;
+  nra_proof            = FLAGS_proof;
+  nra_json             = FLAGS_visualize;
+  nra_verbose          = FLAGS_verbose;
+  if (nra_proof) {
+      nra_proof = true;
+      /* Open file stream */
+      nra_proof_out_name = string(argv[ argc - 1 ]) + ".proof";
+      nra_proof_out.open (nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
+      if(nra_proof_out.fail()) {
+          cout << "Cannot create a file: " << nra_proof_out_name << endl;
+          exit( 1 );
+      }
+  }
+  if (nra_json) {
+      string filename = string(argv[ argc - 1 ]) + ".json";
+      /* Open file stream */
+      nra_json_out.open (filename.c_str(), std::ofstream::out | std::ofstream::trunc );
+      if(nra_json_out.fail()) {
+          cout << "Cannot create a file: " << filename << endl;
+          exit( 1 );
+      }
+  }
+  if (nra_verbose) {
+      FLAGS_logtostderr = 1;
   }
 }
 
