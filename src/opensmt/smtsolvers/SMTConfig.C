@@ -17,11 +17,16 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <sstream>
+#include <string>
 #include "SMTConfig.h"
 #include "version.h"
 #include "dsolvers/util/git_sha1.h"
 #include <gflags/gflags.h>
 #include <glog/logging.h>
+
+using std::string;
+using std::stringstream;
 
 DEFINE_double(precision,          0.0, "precision");
 DEFINE_bool  (delta,            false, "use delta");
@@ -113,6 +118,11 @@ SMTConfig::initializeConfig( )
   nra_json                     = false;
   delta_test                   = false;
   use_delta_heuristic          = false;
+
+  stringstream ss;
+  ss << DREAL_VERSION_MAJOR << "." << DREAL_VERSION_MINOR
+     << " (commit " << string(getGitSHA1()).substr(0, 12) << ")";
+  gflags::SetVersionString(ss.str());
 }
 
 void SMTConfig::parseConfig ( char * f )
@@ -430,10 +440,5 @@ void SMTConfig::printHelp( )
       "\n"
       "   --visualize             print out data for the visualization of ODE solving\n"
       "                           which will be saved to \"filename.json\".\n";
-
-  cerr << "dReal SMT solver "
-       << "(version " << DREAL_VERSION_MAJOR << "." << DREAL_VERSION_MINOR << ", commit "
-       << std::string(getGitSHA1()).substr(0, 12) << ")" << endl;
-
   cerr << help_string;
 }
