@@ -19,11 +19,11 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include <sstream>
 #include <string>
+#include <gflags/gflags.h>
 #include "SMTConfig.h"
 #include "version.h"
 #include "util/git_sha1.h"
-#include <gflags/gflags.h>
-#include <glog/logging.h>
+#include "util/logging.h"
 
 using std::string;
 using std::stringstream;
@@ -382,9 +382,9 @@ SMTConfig::parseCMDLine( int argc
   FLAGS_log_prefix = 0;
   FLAGS_logtostderr = 1;
   if (nra_verbose) {
-      FLAGS_minloglevel = 0;
+      FLAGS_v = 3;
   } else {
-      FLAGS_minloglevel = 1;
+      FLAGS_v = 0;
   }
 }
 
