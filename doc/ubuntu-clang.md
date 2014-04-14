@@ -49,7 +49,7 @@ and install them on your machine. (NOTE: recommend to install on your home dir)
 Build dReal
 ===========
 
-    git clone git@github.com:soonhokong/dReal.git dreal
+    git clone https://github.com/dreal/dreal.git dreal
     cd dreal
     mkdir -p build/release
     cd build/release
@@ -77,7 +77,7 @@ system. Here are the recommended instructions for Ubuntu and OS X.
     opam init
     eval `opam config env`
     opam update
-    opam install ocamlfind batteries
+    opam install ocamlfind batteries oasis
 
 Once you set up everything, run `make` at `dReal/tools`. It will compile
 all the tools.

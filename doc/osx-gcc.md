@@ -21,7 +21,7 @@ gcc-4.8/automake/autoconf/libtool/git/cmake
 Build dReal
 ===========
 
-    git clone git@github.com:soonhokong/dReal.git dreal
+    git clone https://github.com/dreal/dreal.git dreal
     cd dreal
     mkdir -p build/release
     cd build/release
@@ -42,7 +42,7 @@ ocaml/opam
     opam init
     eval `opam config env --root=<ABSOLUTE_HOMEPATH>/ocamlbrew/ocaml-4.00.1/.opam`
     opam update
-    opam install ocamlfind batteries
+    opam install ocamlfind batteries oasis
 
 Once you set up everything, run `make` at `dReal/tools`. It will compile
 all the tools.
