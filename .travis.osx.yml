@@ -65,7 +65,7 @@ script:
 after_script:
   - cd build
   - if [[ $CTEST == TRUE ]]; then
-      ctest -D ExperimentalTest --timeout 450 -VV;
+      ctest -D ExperimentalTest --timeout 400 -VV;
     fi
   - find Testing -name "*.xml" -exec sed -i "" "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";"
   - find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; ../script/demangle_cpptype.py {} > $TMP; mv -v $TMP {}' ";"

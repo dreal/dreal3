@@ -133,11 +133,11 @@ script:
 after_script:
   - cd build
   - if [[ $CTEST == TRUE ]]; then
-      ctest -D ExperimentalTest --timeout 450 -VV;
+      ctest -D ExperimentalTest --timeout 400 -VV;
     fi
   - export PATH=/usr/bin:$PATH
   - if [[ $DREALREPO == BLESSED && $TESTCOV == ON ]]; then
-      ctest -D ExperimentalCoverage;
+      ctest -D ExperimentalCoverage --timeout 400;
       make cov;
       npm install coveralls --save;
       cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
