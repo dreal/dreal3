@@ -345,6 +345,7 @@ void
 SMTConfig::parseCMDLine( int argc
                        , char * argv[ ] )
 {
+  gflags::SetUsageMessage(argv[0]);
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   nra_precision        = FLAGS_precision;
   delta_test           = FLAGS_delta;
@@ -378,8 +379,12 @@ SMTConfig::parseCMDLine( int argc
           exit( 1 );
       }
   }
+  FLAGS_log_prefix = 0;
+  FLAGS_logtostderr = 1;
   if (nra_verbose) {
-      FLAGS_logtostderr = 1;
+      FLAGS_minloglevel = 0;
+  } else {
+      FLAGS_minloglevel = 1;
   }
 }
 
