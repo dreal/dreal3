@@ -20,7 +20,7 @@ k3-1:
 	$(DREACH) -k 3 quad3-1.drh --precision=0.01 --visualize $(OPT)
 
 k4:
-	$(DREACH) -k 4 quad4.drh --precision=0.005 --ode-grid=1024 --visualize $(OPT)
+	$(DREACH) -k 4 quad4.drh --precision=0.005 --ode_grid=1024 --visualize $(OPT)
 
 clean:
 	rm -f *.preprocessed.drh
