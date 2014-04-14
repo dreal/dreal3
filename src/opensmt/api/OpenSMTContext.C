@@ -28,7 +28,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include <csignal>
 #include <algorithm>
-#include "dsolvers/util/string.h"
+#include "util/string.h"
 
 namespace opensmt {
 

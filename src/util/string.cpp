@@ -20,7 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <string>
-#include "dsolvers/util/string.h"
+#include "util/string.h"
 
 bool starts_with(std::string const & s, std::string const & prefix) {
     if (!s.compare(0, prefix.size(), prefix)) {

@@ -227,8 +227,8 @@ set(EXTRA_LIBS ${EXTRA_LIBS} "-lprim")
 ################################################################
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/dsolvers/util/git_sha1.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp" @ONLY)
-add_library(git_sha1 "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/dsolvers/util/git_sha1.h")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/util/git_sha1.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp" @ONLY)
+add_library(git_sha1 "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/util/git_sha1.h")
 
 ################################################################
 # EGLIBC (Optional)
@@ -292,7 +292,7 @@ add_subdirectory(dsolvers)
 set(DREAL_LIBS ${DREAL_LIBS} dsolvers)
 add_subdirectory(realpaver)
 set(DREAL_LIBS ${DREAL_LIBS} realpaver)
-add_subdirectory(dsolvers/util)
+add_subdirectory(util)
 set(DREAL_LIBS ${DREAL_LIBS} util)
 set(DREAL_LIBS ${DREAL_LIBS} git_sha1)
 

@@ -28,8 +28,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <glog/logging.h>
 #include "dsolvers/icp_solver.h"
-#include "dsolvers/util/scoped_env.h"
-#include "dsolvers/util/scoped_vec.h"
+#include "util/scoped_env.h"
+#include "util/scoped_vec.h"
 
 using std::endl;
 using std::setw;

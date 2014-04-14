@@ -30,7 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <iomanip>
 #include <iostream>
-#include "dsolvers/util/scoped_env.h"
+#include "util/scoped_env.h"
 
 using std::endl;
 using std::setw;

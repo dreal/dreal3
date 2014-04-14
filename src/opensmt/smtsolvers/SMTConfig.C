@@ -21,7 +21,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include "SMTConfig.h"
 #include "version.h"
-#include "dsolvers/util/git_sha1.h"
+#include "util/git_sha1.h"
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 

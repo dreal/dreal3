@@ -22,7 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include "dsolvers/util/scoped_vec.h"
+#include "util/scoped_vec.h"
 
 using std::endl;
 using std::setw;
