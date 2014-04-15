@@ -268,31 +268,31 @@ let compile_vardecl (h : Hybrid.t) (k : int) (path : (int list) option) =
          (function
            | (name, Value.Intv (lb, ub)) ->
               begin
-                match path with Some(my_path) ->
+                match path with
+                  Some(my_path) ->
                   begin
-                  match (String.starts_with name "time_",
-                         (String.sub name
-                                     ((String.index name '_') + 1)
-                                     (String.length name - ((String.index name '_') + 1)))) with
-                    (true, time_id) ->
-                    let time =  int_of_string time_id in
-                    let mode_id = List.at my_path time in
-                    let mode = Modemap.find mode_id h.modemap in
-                    let tprecision = mode.time_precision in
-                    (DeclareFun name,
-                     [make_lbp name lb tprecision;
-                      make_ubp name ub tprecision])
-                  |  _ ->
+                    match (String.starts_with name "time_",
+                           (String.sub name
+                              ((String.index name '_') + 1)
+                              (String.length name - ((String.index name '_') + 1)))) with
+                      (true, time_id) ->
+                      let time =  int_of_string time_id in
+                      let mode_id = List.at my_path time in
+                      let mode = Modemap.find mode_id h.modemap in
+                      let tprecision = mode.time_precision in
+                      (DeclareFun name,
+                       [make_lbp name lb tprecision;
+                        make_ubp name ub tprecision])
+                    |  _ ->
                       (DeclareFun name,
                        [make_lb name lb;
                         make_ub name ub])
-		        end
-                |  _ ->
-                    (DeclareFun name,
-                     [make_lb name lb;
-                      make_ub name ub])
+                  end
+                | None ->
+                  (DeclareFun name,
+                   [make_lb name lb;
+                    make_ub name ub])
               end
-
            | _ -> raise (SMTException "We should only have interval here."))
          new_vardecls) in
   let org_vardecl_cmds = List.map (fun (var, _) -> DeclareFun var) vardecls' in
