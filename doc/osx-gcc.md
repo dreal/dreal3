@@ -28,6 +28,13 @@ Build dReal
     cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 ../../src
     make
 
+Test Your Build
+===============
+
+Please test your build by running our regression testcases:
+
+    ctest
+
 dReach(BMC) and other tools
 ===========================
 

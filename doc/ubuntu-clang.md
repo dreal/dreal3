@@ -67,6 +67,13 @@ cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=clang++-3.3 \
       -DCMAKE_C_COMPILER=clang-3.3 -DGLIBCPATH=/home/<user>/glibc ../src
 ~~~~~~~~~
 
+Test Your Build
+===============
+
+Please test your build by running our regression testcases:
+
+    ctest
+
 
 dReach(BMC) and other tools
 ===========================
