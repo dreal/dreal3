@@ -3,10 +3,10 @@ language: objective-c
 env:
   matrix:
     - CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc
-      CMAKE_BUILD_TYPE=RELEASE
+      CMAKE_BUILD_TYPE=Release
       CTEST=TRUE
     - CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc
-      CMAKE_BUILD_TYPE=DEBUG
+      CMAKE_BUILD_TYPE=Debug
       CTEST=TRUE
 
 install:
@@ -34,7 +34,7 @@ install:
 
 before_script:
   - SITE=OSX10.8.5@Travis
-  - if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
+  - if [[ $CMAKE_BUILD_TYPE == Release ]]; then
       BUILD_TYPE=Release;
     else
       BUILD_TYPE=Debug;
