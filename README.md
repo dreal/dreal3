@@ -17,7 +17,10 @@
 
 dReal: An SMT Solver for Nonlinear Theories of the Reals
 
-Please visit [dReal] for more information.
+Please visit [http://dreal.cs.cmu.edu][dReal] for more information.
+
+[dReal]: http://dreal.cs.cmu.edu
+
 
 Required Packages
 =================
@@ -35,7 +38,6 @@ Required Packages
 [gcc]: http://gcc.gnu.org/projects/cxx0x.html
 [git]: http://git-scm.com
 [clang]: http://clang.llvm.org/cxx_status.html
-[dReal]: http://dreal.cs.cmu.edu
 [cmake]:http://www.cmake.org/cmake/resources/software.html
 [bison]: http://www.gnu.org/software/bison
 [flex]: http://flex.sourceforge.net
@@ -44,6 +46,7 @@ Required Packages
 [ocaml-findlib]: http://projects.camlcity.org/projects/findlib.html
 [ocaml-batteries]: http://batteries.forge.ocamlcore.org
 [pkg-config]: http://www.freedesktop.org/wiki/Software/pkg-config
+
 
 Build Instructions
 ==================
@@ -55,3 +58,11 @@ Build Instructions
 [ubuntu-gcc]: doc/ubuntu-gcc.md
 [ubuntu-clang]: doc/ubuntu-clang.md
 [osx-gcc]: doc/osx-gcc.md
+
+
+Documentations
+==============
+
+ - [How to use ODE visualization][ode-vis]
+
+[ode-vis]: doc/ode-visualization.md
