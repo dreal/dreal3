@@ -44,10 +44,10 @@ ocaml/opam
     opam update
     opam install ocamlfind batteries oasis
 
-Once you set up everything, run `make` at `dReal/tools`. It will compile
+Once you set up everything, run `make` at `dreal/tools`. It will compile
 all the tools.
 
-    dReal/tools $ make
+    dreal/tools $ make
 
 
 Known Issue

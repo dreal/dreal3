@@ -1,6 +1,11 @@
 Install Packages
 ================
 
+0. Install Required Packages
+--------------------
+
+    sudo apt-get install -qq autoconf automake bison flex git libtool make pkg-config
+
 1. clang++-3.3
 --------------
 
@@ -8,17 +13,16 @@ Install Packages
     sudo add-apt-repository ppa:dns/gnu -y
     sudo add-apt-repository ppa:h-rayflood/llvm -y
     sudo apt-get update -y
-    sudo apt-get install -qq autoconf automake libtool git pkg-config
     sudo apt-get install -qq libstdc++-4.8-dev clang-3.3 clang-3.3-doc
     sudo apt-get upgrade -y
     sudo apt-get dist-upgrade -y
 
-2. Bison, Flex, Cmake
+2. Cmake
 ---------------------
 
     sudo add-apt-repository --yes ppa:kalakris/cmake
     sudo apt-get update
-    sudo apt-get install -qq bison flex cmake
+    sudo apt-get install -qq cmake
 
 3. EGLIBC-2.17 (Optional)
 -------------------------
@@ -79,7 +83,7 @@ system. Here are the recommended instructions for Ubuntu and OS X.
     opam update
     opam install ocamlfind batteries oasis
 
-Once you set up everything, run `make` at `dReal/tools`. It will compile
+Once you set up everything, run `make` at `dreal/tools`. It will compile
 all the tools.
 
-    dReal/tools $ make
+    dreal/tools $ make
