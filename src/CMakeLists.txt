@@ -103,8 +103,8 @@ ExternalProject_Add(FILIBXX
   GIT_REPOSITORY https://github.com/soonhokong/filibxx
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1  && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} > /dev/null 2>&1
-  BUILD_COMMAND make -j > /dev/null 2>&1
+  CONFIGURE_COMMAND autoreconf --install && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR}
+  BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make -j install
 )
@@ -118,8 +118,8 @@ ExternalProject_Add(CAPD
   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no > /dev/null 2>&1
-  BUILD_COMMAND make -j > /dev/null 2>&1
+  CONFIGURE_COMMAND autoreconf --install && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
+  BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make -j install
 )
@@ -139,10 +139,10 @@ ExternalProject_Add(LIBUNWIND
   GIT_REPOSITORY https://github.com/soonhokong/libunwind.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND autoreconf -i > /dev/null 2>&1 && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} > /dev/null 2>&1
-  BUILD_COMMAND make -j > /dev/null 2>&1
+  CONFIGURE_COMMAND autoreconf -i && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR}
+  BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make install > /dev/null 2>&1
+  INSTALL_COMMAND make install
 )
 endif()
 
@@ -168,7 +168,7 @@ ExternalProject_Add(GLOG
   GIT_REPOSITORY https://github.com/soonhokong/glog.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND autoreconf -if > /dev/null 2>&1 && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-gflags=${CMAKE_CURRENT_BINARY_DIR} > /dev/null 2>&1
+  CONFIGURE_COMMAND autoreconf -if && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-gflags=${CMAKE_CURRENT_BINARY_DIR}
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
