@@ -301,10 +301,17 @@ add_subdirectory(tests/nra)
 add_subdirectory(tests/nra_ode)
 
 #dependencies
+add_dependencies(GFLAGS LIBUNWIND)
+add_dependencies(GLOG GFLAGS)
+add_dependencies(opensmt_smtsolvers GFLAGS)
+add_dependencies(opensmt_smtsolvers GLOG)
+add_dependencies(dsolvers GLOG)
 add_dependencies(dsolvers FILIBXX)
-add_dependencies(realpaver FILIBXX)
 add_dependencies(dsolvers CAPD)
+add_dependencies(realpaver FILIBXX)
 add_dependencies(realpaver CAPD)
+add_dependencies(realpaver GLOG)
+add_dependencies(util GLOG)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
