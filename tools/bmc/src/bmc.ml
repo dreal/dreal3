@@ -331,6 +331,7 @@ let compile (h : Hybrid.t) (k : int) (path : (int list) option) =
 (** Enumerate all possible paths of length k in Hybrid Model h *)
 let pathgen (h : Hybrid.t) (k : int) : int list list =
   let init_mode_id = h.init_id in
+  let goal_mode_ids = List.map (fun (m, _) -> m ) h.goals in
   let init_path = [init_mode_id] in
   (* recursive function to generate reachable paths *)
   (* NOTE: it generates path in reverse order! *)
@@ -339,18 +340,28 @@ let pathgen (h : Hybrid.t) (k : int) : int list list =
       paths
     else
       let newpaths = List.flatten (
-                         List.map (fun path ->
-                                   match path with
-                                     last_mode_id::prefix ->
-                                     let last_mode = Map.find last_mode_id h.modemap in
-                                     let targets = List.of_enum (Map.keys last_mode.jumpmap) in
-                                     List.map (fun t -> t::last_mode_id::prefix) targets
-                                   | _ -> failwith "pathgen_aux gets empty path."
-                                  )
-                                  paths)
+          List.map (fun path ->
+              match path with
+                last_mode_id::prefix ->
+                let last_mode = Map.find last_mode_id h.modemap in
+                let targets = List.of_enum (Map.keys last_mode.jumpmap) in
+                List.map (fun t -> t::last_mode_id::prefix) targets
+              | _ -> failwith "pathgen_aux gets empty path."
+            )
+            paths)
       in
       pathgen_aux h (k - 1) newpaths
   in
-  let result = pathgen_aux h k [init_path] in
-  let result' = List.map List.rev result in
-  result'
+  let reversed_result = pathgen_aux h k [init_path] in
+  let result = List.map List.rev reversed_result in
+  let filtered_result =
+    (* Filter out an unfeasible path [m_0, m_1, ... m_k]:
+       - if [m_0] is not H.init_mode
+       - if [m_k] is not in h.goal_modes
+    *)
+    List.filter (fun l ->
+        let first = List.first l in
+        let last = List.last l in
+        first = init_mode_id && List.mem last goal_mode_ids
+      ) result in
+  filtered_result
