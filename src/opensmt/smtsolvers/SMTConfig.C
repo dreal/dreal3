@@ -113,11 +113,11 @@ SMTConfig::initializeConfig( )
   nra_ODE_taylor_order         = 20;
   nra_ODE_grid_size            = 16;
   nra_ODE_step                 = 0.0;
-  nra_contain_ODE              = false;
+  nra_ODE_contain              = false;
   nra_ODE_timeout              = 0.0;
   nra_json                     = false;
-  delta_test                   = false;
-  use_delta_heuristic          = false;
+  nra_delta_test               = false;
+  nra_use_delta_heuristic      = false;
 
   stringstream ss;
   ss << DREAL_VERSION_MAJOR << "." << DREAL_VERSION_MINOR
@@ -347,19 +347,19 @@ SMTConfig::parseCMDLine( int argc
 {
   gflags::SetUsageMessage(argv[0]);
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  nra_precision        = FLAGS_precision;
-  delta_test           = FLAGS_delta;
-  use_delta_heuristic  = FLAGS_delta_heuristic;
-  nra_ODE_step         = FLAGS_ode_step;
-  nra_ODE_taylor_order = FLAGS_ode_order;
-  nra_ODE_grid_size    = FLAGS_ode_grid;
-  nra_ODE_timeout      = FLAGS_ode_timeout;
-  nra_ODE_cache        = FLAGS_ode_cache;
-  nra_ODE_forward_only = FLAGS_ode_forward_only;
-  nra_ODE_parallel     = FLAGS_ode_parallel;
-  nra_proof            = FLAGS_proof;
-  nra_json             = FLAGS_visualize;
-  nra_verbose          = FLAGS_verbose;
+  nra_precision           = FLAGS_precision;
+  nra_delta_test          = FLAGS_delta;
+  nra_use_delta_heuristic = FLAGS_delta_heuristic;
+  nra_ODE_step            = FLAGS_ode_step;
+  nra_ODE_taylor_order    = FLAGS_ode_order;
+  nra_ODE_grid_size       = FLAGS_ode_grid;
+  nra_ODE_timeout         = FLAGS_ode_timeout;
+  nra_ODE_cache           = FLAGS_ode_cache;
+  nra_ODE_forward_only    = FLAGS_ode_forward_only;
+  nra_ODE_parallel        = FLAGS_ode_parallel;
+  nra_proof               = FLAGS_proof;
+  nra_json                = FLAGS_visualize;
+  nra_verbose             = FLAGS_verbose;
   if (nra_proof) {
       nra_proof = true;
       /* Open file stream */

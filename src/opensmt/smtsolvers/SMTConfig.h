@@ -166,8 +166,8 @@ struct SMTConfig
   int          lra_check_on_assert;          // Probability (0 to 100) to run check when assert is called
 
   // NRA-Solver related parameters (added for dReal2)
-  bool         delta_test;                    // precision=(delta_test ? delta : epsilon)
-  bool         use_delta_heuristic;           // Split variable in constraint with max residual delta?
+  bool         nra_delta_test;                // precision=(nra_delta_test ? delta : epsilon)
+  bool         nra_use_delta_heuristic;       // Split variable in constraint with max residual delta?
   double       nra_precision;                 // the value of delta
   double       nra_icp_improve;               // improve value for realpaver(ICP)
   bool         nra_verbose;                   // --verbose option
@@ -180,7 +180,7 @@ struct SMTConfig
   unsigned     nra_ODE_grid_size;             // --ode-grid option
   unsigned     nra_ODE_timeout;               // --ode-timeout option
   double       nra_ODE_step;                  // step control
-  bool         nra_contain_ODE;               // contain ODE or not
+  bool         nra_ODE_contain;               // contain ODE or not
   bool         nra_ODE_cache;                 // use cache for ODE computation
   bool         nra_ODE_forward_only;          // only use ODE forward pruning (not use ODE backward)
   bool         nra_ODE_parallel;              // solve ODE in parallel or not

@@ -51,7 +51,7 @@ public:
     bool        is_box_within_delta(rp_box b);
     int         get_var_split_delta(rp_box b);
     int         get_var_split_delta1(rp_box b);
-    bool        delta_test() const { return m_config.delta_test; }
+    bool        delta_test() const { return m_config.nra_delta_test; }
 private:
     // methods
     icp_solver(const icp_solver& s);

@@ -44,7 +44,7 @@ icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const &
     rp_init_library();
     m_problem = create_rp_problem();
     m_propag = new rp_propagator(m_problem, 10.0, c.nra_verbose, c.nra_proof_out);
-    if ( !m_config.use_delta_heuristic ){
+    if ( !m_config.nra_use_delta_heuristic ){
         rp_new(m_vselect, rp_selector_existence, (m_problem)); // rp_selector_roundrobin
     } else {
         rp_new(m_vselect, rp_selector_delta, (m_problem)); // rp_selector_roundrobin
@@ -82,7 +82,7 @@ icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const &
         rp_box_set_empty(rp_problem_box(*m_problem));
     }
 #ifdef ODE_ENABLED
-    if (m_complete_check && m_config.nra_contain_ODE) {
+    if (m_complete_check && m_config.nra_ODE_contain) {
         create_ode_solvers();
     }
 #endif
@@ -266,7 +266,7 @@ void print_interval(ostream & out, double lb, double ub) {
 bool icp_solver::prop_with_ODE() {
     if (m_propag->apply(m_boxes.get())) {
 #ifdef ODE_ENABLED
-        if (m_config.nra_contain_ODE) {
+        if (m_config.nra_ODE_contain) {
             // Sort ODE Solvers by their logVolume.
             sort(m_ode_solvers.begin(), m_ode_solvers.end(),
                  [this](ode_solver * odeSolver1, ode_solver * odeSolver2) {
@@ -474,7 +474,7 @@ rp_box icp_solver::compute_next() {
             rp_box b = m_boxes.get();
             int i = m_vselect->apply(b);
             if (i >= 0 &&
-                ((m_config.delta_test ?
+                ((m_config.nra_delta_test ?
                   !is_box_within_delta(b) :
                   rp_box_width(b) >= m_config.nra_precision))) {
                 DREAL_LOG_INFO << "Splitting var: " << i <<  " " << rp_variable_name(rp_problem_var(*m_problem, i));
