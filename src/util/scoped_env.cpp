@@ -33,8 +33,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_env.h"
 
 using std::endl;
-using std::setw;
+using std::setfill;
 using std::setprecision;
+using std::setw;
 
 scoped_env::scoped_env() {
 }
@@ -107,13 +108,11 @@ unsigned scoped_env::size() const {
 }
 
 std::ostream & operator<<(std::ostream & out, scoped_env const & e) {
-    out << "{" << endl;
     for (auto const & p : e) {
-        out << p.first
-            << " ==> [" << setw(15) << setprecision(15) << p.second.first
-            <<     ", " << setw(15) << setprecision(15) << p.second.second
+        out << setfill(' ') << setw(15) << p.first
+            << " ==> [" << setfill(' ') << setw(15) << setprecision(15) << p.second.first
+            <<     ", " << setfill(' ') << setw(15) << setprecision(15) << p.second.second
             << "];" << endl;
     }
-    out << "}";
     return out;
 }

@@ -25,8 +25,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_vec.h"
 
 using std::endl;
-using std::setw;
 using std::left;
+using std::right;
+using std::setfill;
+using std::setw;
 using std::stringstream;
 
 scoped_vec::scoped_vec()  { }
@@ -47,7 +49,8 @@ std::ostream & operator<<(std::ostream & out, scoped_vec const & s) {
     for (auto const & l : s) {
         stringstream ss;
         l->print(ss);
-        out << "literal : " << left << setw(40) << ss.str() << " : " << l->getPolarity().toInt() << endl;
+        out << right << setfill(' ') << setw(15) << "lit "
+            << left  << setfill(' ') << setw(40) << ss.str() << " : " << l->getPolarity().toInt() << endl;
     }
     return out;
 }
