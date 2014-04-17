@@ -283,12 +283,14 @@ IVector ode_solver::extract_invariants() {
                     inv_map.emplace(rhs, make_pair(lhs->getValue(), rhs->getUpperBound()));
                 }
             } else {
-                cerr << "ode_solver::extract_invariant: error:" << p << endl;
+                DREAL_LOG_WARNING << "ode_solver::extract_invariant: "
+                                  << "The provided invariant (" << p << ") is not of the form that we support.";
             }
         }
             break;
         default:
-            cerr << "ode_solver::extract_invariant: error" << p << endl;
+            DREAL_LOG_WARNING << "ode_solver::extract_invariant: "
+                              << "The provided invariant (" << p << ") is not of the form that we support.";
         }
     }
     IVector ret (m_t_vars.size());
