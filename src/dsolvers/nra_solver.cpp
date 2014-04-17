@@ -20,11 +20,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <utility>
+#include <sstream>
 #include "util/logging.h"
+#include "util/string.h"
 #include "dsolvers/icp_solver.h"
 #include "dsolvers/nra_solver.h"
 
 using std::pair;
+using std::boolalpha;
 
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
@@ -36,15 +39,22 @@ nra_solver::~nra_solver() { }
 
 // `inform` sets up env (mapping from variables(enode) in literals to their [lb, ub])
 lbool nra_solver::inform(Enode * e) {
-    DREAL_LOG_INFO << "===============";
-    DREAL_LOG_INFO << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt();
-    DREAL_LOG_INFO << "===============";
     unordered_set<Enode *> const & vars = e->get_vars();
+    static stringstream ss;
     for (auto const & v : vars) {
-        DREAL_LOG_INFO << v;
         double const lb = v->getLowerBound();
         double const ub = v->getUpperBound();
         m_env.insert(v, make_pair(lb, ub));
+        if (DREAL_LOG_INFO_IS_ON) {
+            ss << v << " ";
+        }
+    }
+    if (DREAL_LOG_INFO_IS_ON) {
+        DREAL_LOG_INFO << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt()
+                       << " vars = { "
+                       << ss.str()
+                       << "}";
+        ss.str(string());
     }
     return l_Undef;
 }
@@ -55,16 +65,16 @@ lbool nra_solver::inform(Enode * e) {
 //
 // assertLit adds a literal(e) to stack of asserted literals.
 bool nra_solver::assertLit (Enode * e, bool reason) {
-    DREAL_LOG_INFO << "===============";
-    DREAL_LOG_INFO << "nra_solver::assertLit: " << e << ", reason: " << (reason ? "true" : "false") << ", polarity: " << e->getPolarity().toInt();
-    DREAL_LOG_INFO << "===============";
+    DREAL_LOG_INFO << "nra_solver::assertLit: " << e
+                   << ", reason: " << boolalpha << reason
+                   << ", polarity: " << e->getPolarity().toInt();
     (void)reason;
     assert(e);
     assert(belongsToT(e));
     assert(e->hasPolarity());
     assert(e->getPolarity() == l_False || e->getPolarity() == l_True);
     if (e->isDeduced() && e->getPolarity() == e->getDeduced() && e->getDedIndex() == id) {
-        DREAL_LOG_INFO << "nra_solver::assertLit: DEDUCED" << e;
+        DREAL_LOG_INFO << "nra_solver::assertLit: " << e << " is deduced" << e;
         return true;
     }
     m_stack.push_back(e);
@@ -75,9 +85,7 @@ bool nra_solver::assertLit (Enode * e, bool reason) {
 // operations, for instance in a vector called "undo_stack_term", as
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint () {
-    DREAL_LOG_INFO << "===============";
     DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
-    DREAL_LOG_INFO << "===============";
     m_env.push();
     m_stack.push();
 }
@@ -88,9 +96,7 @@ void nra_solver::pushBacktrackPoint () {
 // backtrackToStackSize() in EgraphSolver) Also make sure you clean
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint () {
-    DREAL_LOG_INFO << "================";
     DREAL_LOG_INFO << "nra_solver::popBacktrackPoint";
-    DREAL_LOG_INFO << "================";
     m_stack.pop();
     m_env.pop();
 }
@@ -98,30 +104,30 @@ void nra_solver::popBacktrackPoint () {
 // Check for consistency.
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
-    DREAL_LOG_INFO << "================";
-    DREAL_LOG_INFO << "nra_solver::check " << (complete ? "complete" : "incomplete");
+    DREAL_LOG_INFO << "nra_solver::check: env = ";
     DREAL_LOG_INFO << m_env;
+    DREAL_LOG_INFO << "nra_solver::check: stack = ";
     DREAL_LOG_INFO << m_stack;
-    DREAL_LOG_INFO << "================";
     bool result = true;
     icp_solver solver(config, egraph, sstore, m_stack, m_env, explanation, complete);
     if (!complete) {
         // Incomplete Check
-        DREAL_LOG_INFO << "Before Prop" << endl << m_env;
         result = solver.prop();
-        DREAL_LOG_INFO << "After Prop" << endl << m_env;
     } else {
+        // Complete Check
         result = solver.solve();
     }
+    DREAL_LOG_INFO << "nra_solver::check(" << (complete ? "  complete" : "incomplete") << ")"
+                   << " result = " << boolalpha << result;
     if (!result) {
-        DREAL_LOG_INFO << "#explanation provided: ";
         for (Enode * const e : explanation) {
-            DREAL_LOG_INFO << e <<" with polarity " << toInt((e)->getPolarity()) << " ";
+            DREAL_LOG_INFO << "nra_solver::check:explanation provided: "
+                           << e <<" with polarity " << toInt((e)->getPolarity());
         }
     }
     // Print out JSON
 #ifdef ODE_ENABLED
-    if (complete && result && config.nra_contain_ODE && config.nra_json) {
+    if (complete && result && config.nra_ODE_contain && config.nra_json) {
         solver.print_json(config.nra_json_out);
     }
 #endif
@@ -138,7 +144,7 @@ bool nra_solver::belongsToT(Enode * e) {
 
 // Copy the model into enode's data
 void nra_solver::computeModel() {
-    DREAL_LOG_INFO << "computeModel" << endl;
+    DREAL_LOG_INFO << "nra_solver::computeModel" << endl;
 }
 
 #ifdef PRODUCE_PROOF
