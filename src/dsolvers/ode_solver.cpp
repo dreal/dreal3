@@ -152,12 +152,12 @@ ode_solver::ode_solver(SMTConfig& c,
     }
     m_diff_sys_forward  += diff_var + diff_fun_forward;
     m_diff_sys_backward += diff_var + diff_fun_backward;
-    DREAL_LOG_INFO << "diff_par          : " << diff_par;
-    DREAL_LOG_INFO << "diff_var          : " << diff_var;
-    DREAL_LOG_INFO << "diff_fun_forward  : " << diff_fun_forward;
-    DREAL_LOG_INFO << "diff_fun_backward : " << diff_fun_backward;
-    DREAL_LOG_INFO << "diff_sys_forward  : " << m_diff_sys_forward;
-    DREAL_LOG_INFO << "diff_sys_backward : " << m_diff_sys_backward;
+    DREAL_LOG_INFO << "ode_solver::ode_solver: diff_par          : " << diff_par;
+    DREAL_LOG_INFO << "ode_solver::ode_solver: diff_var          : " << diff_var;
+    DREAL_LOG_INFO << "ode_solver::ode_solver: diff_fun_forward  : " << diff_fun_forward;
+    DREAL_LOG_INFO << "ode_solver::ode_solver: diff_fun_backward : " << diff_fun_backward;
+    DREAL_LOG_INFO << "ode_solver::ode_solver: diff_sys_forward  : " << m_diff_sys_forward;
+    DREAL_LOG_INFO << "ode_solver::ode_solver: diff_sys_backward : " << m_diff_sys_backward;
     for (auto ode_str : m_ode_list) {
         string const func_str = diff_par + diff_var + "fun:" + ode_str + ";";
         m_funcs.push_back(IFunction(func_str));
@@ -242,7 +242,7 @@ IVector ode_solver::varlist_to_IVector(vector<Enode*> const & vars) {
         double lb = get_lb(var);
         double ub = get_ub(var);
         intv = interval(lb, ub);
-        DREAL_LOG_INFO << "The interval on " << var->getCar()->getName() << ": " << intv;
+        DREAL_LOG_INFO << "ode_solver::varlist_to_IVector: The interval on " << var->getCar()->getName() << ": " << intv;
     }
     return intvs;
 }
@@ -298,11 +298,11 @@ IVector ode_solver::extract_invariants() {
     for (auto const & m_t_var : m_t_vars) {
         if (inv_map.find(m_t_var) != inv_map.end()) {
             auto inv = interval(inv_map[m_t_var].first, inv_map[m_t_var].second);
-            DREAL_LOG_INFO << "Invariant extracted from  " << m_t_var << " = " << inv;
+            DREAL_LOG_INFO << "ode_solver::extract_invariant: Invariant extracted from  " << m_t_var << " = " << inv;
             ret[i++] = inv;
         } else {
             auto inv = interval(m_t_var->getLowerBound(), m_t_var->getUpperBound());
-            DREAL_LOG_INFO << "Default Invariant set for " << m_t_var << " = " << inv;
+            DREAL_LOG_INFO << "ode_solver::extract_invariant: Default Invariant set for " << m_t_var << " = " << inv;
             ret[i++] = inv;
         }
     }
@@ -342,7 +342,6 @@ ode_solver::ODE_result ode_solver::simple_ODE(rp_box b, bool forward) {
 }
 
 ode_solver::ODE_result ode_solver::solve_forward(rp_box b) {
-    DREAL_LOG_INFO << "ODE_Solver::solve_forward()";
     ODE_result ret = ODE_result::SAT;
     update(b);
 
@@ -382,7 +381,6 @@ ode_solver::ODE_result ode_solver::solve_forward(rp_box b) {
 }
 
 ode_solver::ODE_result ode_solver::solve_backward(rp_box b) {
-    DREAL_LOG_INFO << "ODE_Solver::solve_backward()";
     ODE_result ret = ODE_result::SAT;
     update(b);
 
@@ -673,10 +671,6 @@ ode_solver::ODE_result ode_solver::prune_backward(vector<pair<interval, IVector>
 }
 
 bool ode_solver::updateValue(rp_box b, Enode * e, double lb, double ub) {
-    DREAL_LOG_INFO << "UpdateValue : " << e
-                   << " ["      << rp_binf(rp_box_elem(b, m_enode_to_rp_id[e]))
-                   << ", "      << rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e]))
-                   << "] /\\ [" << lb << ", " << ub << "]";
     double new_lb = max(lb, rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])));
     double new_ub = min(ub, rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])));
     if (new_lb <= new_ub) {
@@ -684,13 +678,21 @@ bool ode_solver::updateValue(rp_box b, Enode * e, double lb, double ub) {
         rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])) = new_lb;
         e->setUpperBound(new_ub);
         rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])) = new_ub;
-        DREAL_LOG_INFO << " = [" << new_lb << ", " << new_ub << "]";
+        DREAL_LOG_INFO << "ode_solver::updateValue : " << e
+                       << " ["      << rp_binf(rp_box_elem(b, m_enode_to_rp_id[e]))
+                       << ", "      << rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e]))
+                       << "] /\\ [" << lb << ", " << ub << "]"
+                       << " = [" << new_lb << ", " << new_ub << "]";
         return true;
     } else {
         rp_interval_set_empty(rp_box_elem(b, m_enode_to_rp_id[e]));
         e->setLowerBound(+numeric_limits<double>::infinity());
         e->setUpperBound(-numeric_limits<double>::infinity());
-        DREAL_LOG_INFO << " = empty ";
+        DREAL_LOG_INFO << "ode_solver::updateValue : " << e
+                       << " ["      << rp_binf(rp_box_elem(b, m_enode_to_rp_id[e]))
+                       << ", "      << rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e]))
+                       << "] /\\ [" << lb << ", " << ub << "]"
+                       << " = empty ";
         return false;
     }
 }
@@ -699,11 +701,11 @@ bool ode_solver::updateValue(rp_box b, Enode * e, double lb, double ub) {
 // If there is no intersection, return false.
 bool ode_solver::check_invariant(IVector & v, IVector const & inv) {
     if (!intersection(v, inv, v)) {
-        DREAL_LOG_INFO << "invariant violated!";
+        DREAL_LOG_INFO << "ode_solver::check_invariant: invariant violated!";
         for (auto i = 0; i < v.dimension(); i++) {
             if (v[i].leftBound() < inv[i].leftBound() || v[i].rightBound() > inv[i].rightBound()) {
-                DREAL_LOG_INFO << "inv[" << i << "] = " << inv[i];
-                DREAL_LOG_INFO << "  v[" << i << "] = " <<   v[i];
+                DREAL_LOG_INFO << "ode_solver::check_invariant: inv[" << i << "] = " << inv[i];
+                DREAL_LOG_INFO << "ode_solver::check_invariant:   v[" << i << "] = " <<   v[i];
             }
         }
         return false;
@@ -721,7 +723,7 @@ bool ode_solver::check_invariant(C0Rect2Set & s, IVector const & inv) {
 bool ode_solver::contain_NaN(IVector const & v) {
     for (interval const & i : v) {
         if (std::isnan(i.leftBound()) || std::isnan(i.rightBound())) {
-            DREAL_LOG_INFO << "NaN Found! : " << v;
+            DREAL_LOG_INFO << "ode_solver::contain_Nan: NaN Found! : " << v;
             return true;
         }
     }
@@ -736,22 +738,22 @@ template<typename V>
 bool ode_solver::union_and_join(vector<V> const & bucket, V & result) {
     // 1. u = Union of all the elements of bucket
     if (bucket.size() == 0) {
-        DREAL_LOG_INFO << "Union_Join: collect from the bucket";
+        DREAL_LOG_INFO << "ode_solver::union_and_join: nothing to collect from the bucket";
         return false;
     }
     V u = *(bucket.cbegin());
     for (auto ite = ++(bucket.cbegin()); ite != bucket.cend(); ite++) {
-        DREAL_LOG_INFO << "U(" << u << ", " << *ite << ")";
+        DREAL_LOG_INFO << "ode_solver::union_and_join: U(" << u << ", " << *ite << ")";
         u = intervalHull(u, *ite);
-        DREAL_LOG_INFO << " = " << u;
+        DREAL_LOG_INFO << "ode_solver::union_and_join: = " << u;
     }
     // 2. result = intersection(u, result);
-    DREAL_LOG_INFO << "Intersect(" << u << ", " << result << ")";
+    DREAL_LOG_INFO << "ode_solver::union_and_join: Intersect(" << u << ", " << result << ")";
     if (intersection(u, result, result)) {
-        DREAL_LOG_INFO << " = " << result;
+        DREAL_LOG_INFO << "ode_solver::union_and_join: = " << result;
     } else {
         // intersection is empty!!
-        DREAL_LOG_INFO << " = empty";
+        DREAL_LOG_INFO << "ode_solver::union_and_join: = empty";
         return false;
     }
     return true;
@@ -780,7 +782,7 @@ bool ode_solver::inner_loop_forward(ITaylor & solver, interval prevTime, vector<
             // TODO(soonhok): invariant
             return true;
         }
-        DREAL_LOG_INFO << dt << "\t" << v;
+        DREAL_LOG_INFO << "ode_solver::inner_loop_forward:" << dt << "\t" << v;
         if (prevTime + subsetOfDomain.rightBound() > m_T.leftBound()) {
             bucket.emplace_back(dt, v);
         }
@@ -813,7 +815,7 @@ bool ode_solver::inner_loop_backward(ITaylor & solver, interval prevTime, vector
             // TODO(soonhok): invariant
             return true;
         }
-        DREAL_LOG_INFO << dt << "\t" << v;
+        DREAL_LOG_INFO << "ode_solver::inner_loop_backward:" << dt << "\t" << v;
         if (prevTime + subsetOfDomain.rightBound() > m_T.leftBound()) {
             bucket.emplace_back(dt, v);
         }
@@ -841,11 +843,11 @@ ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVect
         try {
             interval new_x_t = x_0 + dxdt(inv) * T;
             if (!intersection(new_x_t, x_t, x_t)) {
-                DREAL_LOG_INFO << "Simple_ODE: no intersection for X_T";
+                DREAL_LOG_INFO << "ode_solver::simple_ODE_forward: no intersection for X_T => UNSAT";
                 return ODE_result::UNSAT;
             }
         } catch (exception& e) {
-            DREAL_LOG_INFO << "Exception in Simple_ODE: " << e.what();
+            DREAL_LOG_WARNING << "ode_solver::simple_ODE_forward: Exception in Simple_ODE: " << e.what();
         }
     }
     // update
@@ -869,11 +871,11 @@ ode_solver::ODE_result ode_solver::simple_ODE_backward(IVector & X_0, IVector co
         try {
             interval const new_x_0 = x_t - dxdt(inv) * T;
             if (!intersection(new_x_0, x_0, x_0)) {
-                DREAL_LOG_INFO << "Simple_ODE: no intersection for X_0";
+                DREAL_LOG_INFO << "ode_solver::simple_ODE_backward: no intersection for X_0 => UNSAT";
                 return ODE_result::UNSAT;
             }
         } catch (exception& e) {
-            DREAL_LOG_INFO << "Exception in Simple_ODE: " << e.what();
+            DREAL_LOG_WARNING << "ode_solver::simple_ODE_backward: Exception in Simple_ODE: " << e.what();
         }
     }
     // update
