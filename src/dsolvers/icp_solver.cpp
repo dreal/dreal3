@@ -27,9 +27,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include "util/logging.h"
-#include "dsolvers/icp_solver.h"
 #include "util/scoped_env.h"
 #include "util/scoped_vec.h"
+#include "dsolvers/icp_solver.h"
 
 using std::endl;
 using std::setw;
@@ -89,7 +89,9 @@ icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const &
 }
 
 icp_solver::~icp_solver() {
-    DREAL_LOG_INFO << "Number of delta checks: " << m_num_delta_checks;
+    if (m_config.nra_delta_test) {
+        DREAL_LOG_INFO << "icp_solver::~icp_solver: Number of delta checks: " << m_num_delta_checks;
+    }
     rp_delete(m_vselect);
     rp_delete(m_dsplit);
     rp_reset_library();
@@ -168,9 +170,12 @@ rp_problem* icp_solver::create_rp_problem() {
         rp_variable_set_real(*v);
         rp_variable_precision(*v) = m_config.nra_precision;
         m_enode_to_rp_id[key] = rp_id;
-        DREAL_LOG_INFO << "Key: " << name << "\t" << "value : [" << lb << ", " << ub << "] \t" << "precision : " << m_config.nra_precision << "\t" << "rp_id: " << rp_id;
+        DREAL_LOG_INFO << "icp_solver::create_rp_problem:\t"
+                       << "key: " << setfill(' ') << setw(15) << name << ", "
+                       << "value : [" << setw(15) << lb << ", " << setw(15) << ub << "], "
+                       << "prec : " << m_config.nra_precision << ", "
+                       << "rp_id: " << setw(4) << rp_id;
     }
-
     // ===============================================
     // Create rp_constraints for each literal in stack
     // ===============================================
@@ -191,8 +196,7 @@ rp_problem* icp_solver::create_rp_problem() {
                 m_rp_constraint_deltas.push_back(l->getPrecision());
             else
                 m_rp_constraint_deltas.push_back(m_config.nra_precision);
-            DREAL_LOG_INFO << "Constraint: " << (l->getPolarity() == l_True ? " " : "Not") << l;
-            DREAL_LOG_INFO << " : " << constraint_str;
+            DREAL_LOG_INFO << "icp_solver::create_rp_problem: constraint: " << (l->getPolarity() == l_True ? " " : "Not ") << l;
             // Parse the string (infix form) to create the constraint c
             rp_parse_constraint_string(c, constraint_str.c_str(), rp_problem_symb(*rp_prob));
             // Add to the problem
@@ -281,7 +285,7 @@ bool icp_solver::prop_with_ODE() {
                 double const lv_xt = odeSolver->logVolume_Xt(b);
                 unsigned const mode = odeSolver->get_Mode();
                 bool forward = m_config.nra_ODE_forward_only ? true : lv_x0 <= lv_xt;
-                DREAL_LOG_INFO << mode << "\t" << lv_x0 << "\t"<< lv_xt
+                DREAL_LOG_INFO << "icp_solver::prop_with_ODE: " << mode << "\t" << lv_x0 << "\t"<< lv_xt
                                << "\t" << (forward ? "Forward" : "Backward");
                 ode_solver::ODE_result result = ode_solver::ODE_result::SAT;
                 callODESolver(odeSolver, forward, result);
@@ -304,14 +308,6 @@ double icp_solver::constraint_width(const rp_constraint * c, rp_box b) const {
         // expression value interval is non-empty
         rp_interval res;
         rp_interval_add(res, rp_expression_val(lhs), rp_expression_val(rhs));
-
-        // DREAL_LOG_INFO << "Width: LHS: [" << rp_binf(rp_expression_val(lhs)
-        //      << ", " << rp_bsup(rp_expression_val(lhs)) << "], RHS: ["
-        //      << rp_binf(rp_expression_val(rhs)) << ", "
-        //      << rp_bsup(rp_expression_val(rhs)) << "], RES: ["
-        //      << rp_binf(res) << ", "
-        //      << rp_bsup(res) << "]"  );
-
         return rp_interval_width(res);
     }
     return 0.0;
@@ -330,16 +326,14 @@ int icp_solver::get_var_split_delta(rp_box b) {
         stringstream buf;
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
-        DREAL_LOG_INFO << "Considering constraint" << constraint_str;
+        DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Considering constraint" << constraint_str;
         if (constraint_str.compare("0 = 0") != 0) {
             const rp_constraint c = rp_problem_ctr(*m_problem, i);
             double width =  constraint_width(&c, b);
             double residual = width-2.0*(*d);
-            // DREAL_LOG_INFO << "Constraint: " << i << " Residual: " << residual;
             if ( residual  > max_width ) {
                 max_width = residual;
                 max_constraint = i;
-                // DREAL_LOG_INFO << "Max Constraint: " << i << " Max Residual: " << max_width;
                 l->print_infix(buf, l->getPolarity());
                 string constraint_str = buf.str();
             }
@@ -358,13 +352,12 @@ int icp_solver::get_var_split_delta(rp_box b) {
             if ( width > max_width ) {
                 max_width = width;
                 max_var = var;
-                // DREAL_LOG_INFO << "Max Var: " << max_var << " Max Width: " << max_width;
             }
         }
-        DREAL_LOG_INFO << "Delta Split: " << max_var;
+        DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Delta Split: " << max_var;
         return max_var;
     } else {
-        DREAL_LOG_INFO << "Delta Split: -1";
+        DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Delta Split: -1";
         return ( -1 );
     }
 }
@@ -380,7 +373,7 @@ int icp_solver::get_var_split_delta1(rp_box b) {
     for ( i = 0; i < num_vars; i++ ){
         variable_residuals[i] = 0.0;
     }
-    DREAL_LOG_INFO << "num_vars = " << num_vars;
+    DREAL_LOG_INFO << "icp_solver::get_var_split_delta1: num_vars = " << num_vars;
 
     i = 0;
     for (auto const l : m_stack) {
@@ -394,10 +387,10 @@ int icp_solver::get_var_split_delta1(rp_box b) {
             const rp_constraint c = rp_problem_ctr(*m_problem, i);
             double width =  constraint_width(&c, b);
             double residual = width-2.0*(*d);
-            DREAL_LOG_INFO << "c = " << constraint_str;
+            DREAL_LOG_INFO << "icp_solver::get_var_split_delta1: c = " << constraint_str;
             for ( i = 0; i < rp_constraint_arity(c); i++ ){
                 int var = rp_constraint_var(c, i);
-                DREAL_LOG_INFO << "var = " << var;
+                DREAL_LOG_INFO << "icp_solver::get_var_split_delta1: var = " << var;
                 variable_residuals[var] += residual;
             }
             d++;
@@ -426,7 +419,7 @@ bool icp_solver::is_box_within_delta(rp_box b) {
     // for each expression
     //  compute width given box
     //  check if expression width <= delta
-    DREAL_LOG_INFO << "Checking box width...";
+    DREAL_LOG_INFO << "icp_solver::is_box_within_delta: Checking box width...";
     m_num_delta_checks++;
 
     vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
@@ -444,16 +437,17 @@ bool icp_solver::is_box_within_delta(rp_box b) {
             double width =  constraint_width(&c, b);
             bool test = width > 2.0*(*d);
             if (test){
-                DREAL_LOG_INFO << i << ": "
+                DREAL_LOG_INFO << "icp_solver::is_box_within_delta: " <<  i << ": "
                                << constraint_str
                                << "\t: [" << width << " <= "
-                               << 2.0*(l->hasPrecision() ?
-                                       l->getPrecision() :
-                                       m_config.nra_precision)
+                               << 2.0 * (l->hasPrecision() ?
+                                         l->getPrecision() :
+                                         m_config.nra_precision)
                                << "]";
             }
             if ( test ){
-                //      DREAL_LOG_INFO << "Not Within Delta";
+                // DREAL_LOG_INFO << "icp_solver::is_box_within_delta: "
+                //                << "Not Within Delta";
                 // return false;
                 fail = true;
             }
@@ -461,8 +455,7 @@ bool icp_solver::is_box_within_delta(rp_box b) {
             i++;
         }
     }
-// DREAL_LOG_INFO << "Within Delta";
-    DREAL_LOG_INFO << "Within Delta = " << (!fail);
+    DREAL_LOG_INFO << "icp_solver::is_box_within_delta: Within Delta = " << (!fail);
     return !fail; // no constraint width is outside of delta or unsat
 }
 
@@ -477,7 +470,7 @@ rp_box icp_solver::compute_next() {
                 ((m_config.nra_delta_test ?
                   !is_box_within_delta(b) :
                   rp_box_width(b) >= m_config.nra_precision))) {
-                DREAL_LOG_INFO << "Splitting var: " << i <<  " " << rp_variable_name(rp_problem_var(*m_problem, i));
+                DREAL_LOG_INFO << "icp_solver::compute_next: Splitting var: " << i <<  " " << rp_variable_name(rp_problem_var(*m_problem, i));
                 if (m_config.nra_proof) {
                     m_config.nra_proof_out << endl
                                            << "[branched on "
@@ -502,7 +495,6 @@ rp_box icp_solver::compute_next() {
     return nullptr;
 }
 
-
 #ifdef ODE_ENABLED
 void icp_solver::print_ODE_trajectory(ostream& out) const {
     if (m_ode_solvers.size() == 0)
@@ -524,7 +516,7 @@ void icp_solver::print_ODE_trajectory(ostream& out) const {
 bool icp_solver::solve() {
     if (m_config.nra_proof) { output_problem(); }
     if (rp_box_empty(rp_problem_box(*m_problem))) {
-        DREAL_LOG_INFO << "Unfeasibility detected before solving";
+        DREAL_LOG_INFO << "icp_solver::solve: Unfeasibility detected before solving";
         m_explanation.clear();
         copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
         return false;
@@ -532,24 +524,29 @@ bool icp_solver::solve() {
         rp_box b = compute_next();
         if (b != nullptr) {
             /* SAT */
-            DREAL_LOG_INFO << "SAT with the following box:";
+            DREAL_LOG_INFO << "icp_solver:: SAT with the following box:";
             if (m_config.nra_verbose) {
-                // pprint_vars(DREAL_LOG_INFO, *m_problem, b);
-                // pprint_lits(DREAL_LOG_INFO, *m_problem, b);
+                if (DREAL_LOG_INFO_IS_ON) {
+                    pprint_vars(cerr, *m_problem, b);
+                    if (m_config.nra_delta_test) {
+                        pprint_lits(cerr, *m_problem, b);
+                    }
+                }
             }
-            DREAL_LOG_INFO << "SAT";
             if (m_config.nra_proof) {
                 m_config.nra_proof_out.close();
                 m_config.nra_proof_out.open(m_config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
                 m_config.nra_proof_out << "SAT with the following box:" << endl;
                 pprint_vars(m_config.nra_proof_out, *m_problem, b);
-                pprint_lits(m_config.nra_proof_out, *m_problem, b);
+                if (m_config.nra_delta_test) {
+                    pprint_lits(m_config.nra_proof_out, *m_problem, b);
+                }
                 m_config.nra_proof_out << endl;
             }
             return true;
         } else {
             /* UNSAT */
-            DREAL_LOG_INFO << "UNSAT!";
+            DREAL_LOG_INFO << "icp_solver:: UNSAT";
             m_explanation.clear();
             copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
             return false;
