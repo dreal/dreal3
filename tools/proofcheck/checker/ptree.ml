@@ -77,14 +77,15 @@ let rec check (pt : t) (fl : formula list) =
       | true -> (incr num_of_branches; check pt1 fl; check pt2 fl)
       | false ->
         begin
+          String.println IO.stdout "\nEnv1: ";
+          Env.print IO.stdout env1;
+          String.println IO.stdout "\nEnv2: ";
+          Env.print IO.stdout env2;
+          String.println IO.stdout "\nEnvJoin: ";
+          Env.print IO.stdout env_join;
           String.println IO.stdout "Env: ";
           Env.print IO.stdout env;
-          String.println IO.stdout "Env1: ";
-          Env.print IO.stdout env1;
-          String.println IO.stdout "Env2: ";
-          Env.print IO.stdout env2;
-          String.println IO.stdout "Env Join: ";
-          Env.print IO.stdout env_join;
+          String.println IO.stdout "\nEnv is not a subset of EnvJoin(Env1 + Env2).";
           raise (Error "Branch")
         end
     end
