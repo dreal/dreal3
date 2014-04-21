@@ -28,4 +28,4 @@ let contain_pz {low = l; high = h} = h >= 0.0
 let contain_nz {low = l; high = h} = l <= 0.0
 
 let print out {low=l; high=h} =
-  Printf.fprintf out "[%f, %f]" l h
+  Printf.fprintf out "[%.30f, %.30f]" l h

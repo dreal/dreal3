@@ -29,7 +29,7 @@ let join (e1 : t) (e2 : t) : t =
     e2
 
 let print out =
-  Map.print ~first:"{" ~last:"}\n" ~sep:", \n"
+  Map.print ~first:"" ~last:"\n" ~sep:", \n"
     String.print
     Intv.print
     out
