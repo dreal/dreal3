@@ -2,7 +2,7 @@
 
 #################################################################
 # PLEASE EDIT THE FOLLOWING LINE
-DREAL=~/work/dreal2/dReal  #Absolute path of dReal binary
+DREAL=~/work/dreal/bin/dReal  #Absolute path of dReal binary
 TIMEOUT3=`dirname $0`/timeout3
 SPLIT=`dirname $0`/split.py
 MAX=30  #Number of CPUS to use
