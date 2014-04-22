@@ -6,7 +6,6 @@ open Type
 open Vcmap
 open Batteries
 open Codegen
-open Basic
 open Smt2_cmd
 open Smt2
 open IO
@@ -442,6 +441,37 @@ and gen_ode_decls fmap =
   in
   List.of_enum (Map.values decls_map)
 
+and gen_init_constraint stmts =
+  let fs =
+    List.map
+       (
+         fun stmt ->
+           match stmt with
+           | Assign (s, e, _) ->
+             let f exp =
+               match exp with
+               | Var (ss, _) -> Var(ss, Some(VarAnno(0, "0", 0)))
+               | _ -> exp
+             in
+             let e' = subst_exp f e in
+             let e'' = process_exp e' 0 in
+             Basic.Eq (Basic.Var (mk_var2 s 0 "0"), e'')
+           | _ -> Basic.True
+       )
+       stmts
+  in
+  Basic.make_and fs
+
+and extract_init_value stmts =
+  List.filter
+    (fun stmt ->
+       match stmt with
+       | Assign _ -> true
+       | _ -> false
+    )
+    stmts
+
+
 and bmc (program : Type.t) (fmap : fmap) (vcmap : Vcmap.t) (k : int) (vl : vlist) =
   let {macros; modes; main} = program in
   assert (List.length modes = 1);
@@ -449,7 +479,9 @@ and bmc (program : Type.t) (fmap : fmap) (vcmap : Vcmap.t) (k : int) (vl : vlist
   let vars = List.of_enum (Map.enum vcmap) in
   let mode_formulas = List.map (fun i -> gen_flow i mode fmap) (List.of_enum (0 -- (k-1))) in
   let mode_connect = List.map (fun i -> gen_conn i vars) (List.of_enum (1 -- (k-1))) in
-  let assert_formula = Assert (Basic.make_and (mode_formulas @ mode_connect)) in
+  let Main main_stmts = main in
+  let var_init_formula = gen_init_constraint (extract_init_value main_stmts) in
+  let assert_formula = Assert (Basic.make_and (mode_formulas @ mode_connect @ [var_init_formula])) in
   let logic_cmd = SetLogic QF_NRA_ODE in
 
   (* generate var declarations *)

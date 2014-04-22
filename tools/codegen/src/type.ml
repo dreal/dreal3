@@ -196,7 +196,7 @@ and const_fold_mode mode macros = {id = mode.id; args = mode.args; stmts = const
 and const_fold_modes modes macros =
   List.map (fun m -> const_fold_mode m macros) modes
 
-and const_fold_program (program:t) : t=
+and const_fold_program (program:t) =
   let macros = List.map (fun (Macro(s, l)) -> (s, l)) program.macros in
   match program.main with
   | Main m ->
@@ -205,3 +205,42 @@ and const_fold_program (program:t) : t=
     modes = const_fold_modes program.modes macros;
     main = Main m
   }
+
+
+let rec subst_exp f exp =
+  let transformer = subst_exps f in
+  match exp with
+  | Var (s, anno) ->
+    f exp
+  | Num _ -> f exp
+  | Neg e1 -> Neg (subst_exp f e1)
+  | Add es -> Add (transformer es)
+  | Sub es -> Sub (transformer es)
+  | Mul es -> Mul (transformer es)
+  | Div (e1, e2) -> Div (subst_exp f e1, subst_exp f e2)
+  | Pow (e1, e2) -> Pow (subst_exp f e1, subst_exp f e2)
+  | Ite (f, e1, e2) -> failwith ""
+  | Sqrt e -> Sqrt (subst_exp f e)
+  | Safesqrt e -> Safesqrt (subst_exp f e)
+  | Abs e -> Abs (subst_exp f e)
+  | Log e -> Log (subst_exp f e)
+  | Exp e -> Exp (subst_exp f e)
+  | Sin e -> Sin (subst_exp f e)
+  | Cos e -> Cos (subst_exp f e)
+  | Tan e -> Tan (subst_exp f e)
+  | Asin e -> Asin (subst_exp f e)
+  | Acos e -> Acos (subst_exp f e)
+  | Atan e -> Atan (subst_exp f e)
+  | Atan2 (e1, e2) -> Atan2 (subst_exp f e1, subst_exp f e2)
+  | Matan e -> Matan (subst_exp f e)
+  | Sinh e -> Sinh (subst_exp f e)
+  | Cosh e -> Cosh (subst_exp f e)
+  | Tanh e -> Tanh (subst_exp f e)
+  | Asinh e -> Asinh (subst_exp f e)
+  | Acosh e -> Acosh (subst_exp f e)
+  | Atanh e -> Atanh (subst_exp f e)
+  | Integral _ -> failwith ""
+  | Invoke (fn, exps) -> Invoke (fn, transformer exps)
+
+and subst_exps f exps  =
+    List.map f exps
