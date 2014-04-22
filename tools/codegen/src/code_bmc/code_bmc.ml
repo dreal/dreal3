@@ -257,12 +257,12 @@ let rec trans_exp (exp : Type.exp) =
   | Atanh e -> Basic.Atanh (trans_exp e)
   | Integral (_, _, _, _) -> failwith "todo"
   | Invoke (s, es) -> failwith "todo"
-  | _ -> failwith "todo"
 
 let rec process_exp (exp : Type.exp) i =
   match exp with
   | Var (s, Some (VarAnno (_, t, idx))) ->
-    Basic.Var (s ^ "_" ^ (string_of_int i) ^ "_" ^ t ^ "_" ^ (string_of_int idx))
+    let vname = mk_var s i t idx in
+    Basic.Var vname
   | Num n -> Basic.Num n
   | Neg e -> Basic.Neg (process_exp e i)
   | Add es -> Basic.Add (List.map (fun e -> process_exp e i) es)
@@ -403,27 +403,38 @@ and gen_conn k (vars : (Vcmap.key * Vcmap.value) list) : Basic.formula =
   Basic.make_and relations
 
 (* generate variable definition *)
-and gen_var_decls vl k =
-  let time_vars = List.map (fun i -> "time" ^ (string_of_int i)) (List.of_enum (0 -- k)) in
+and gen_var_decls vl k var_bound_map =
+  let time_vars = List.map (fun i -> ("time" ^ (string_of_int i), None)) (List.of_enum (0 -- k)) in
   let vars = List.flatten (
                  List.map
                    (fun i ->
                     List.map
                       (fun (s, t, idx) ->
-                       match idx with
-                       | Some d -> mk_var s k t d
-                       | None -> mk_var2 s k t
+                         let vname =
+                           match idx with
+                           | Some d -> mk_var s k t d
+                           | None -> mk_var2 s k t
+                         in
+                         let bound =
+                           match List.mem_assoc s var_bound_map with
+                           | true -> Some (List.assoc s var_bound_map)
+                           | false -> None
+                         in (vname, bound)
                       )
                       vl
                    )
                    (List.of_enum (0 -- k)))
   in
   let total = vars @ time_vars in
-  List.map
-    (fun s ->
-     Smt2_cmd.DeclareFun s
-    )
-    total
+  List.flatten (
+    List.map
+      (fun p ->
+         match p with
+         | (s, Some (l, u)) -> [Smt2_cmd.DeclareFun s; Smt2_cmd.make_lb s l; Smt2_cmd.make_ub s u]
+         | (s, None) -> [Smt2_cmd.DeclareFun s]
+      )
+      total
+  )
 
 and gen_ode_decls fmap =
   let decls_map = Map.mapi
@@ -471,6 +482,16 @@ and extract_init_value stmts =
     )
     stmts
 
+and extract_var_bound stmts =
+  match stmts with
+  | [] -> []
+  | hd :: tl ->
+    begin
+      match hd with
+      | Vardecl BRealVar(s, l, u) -> (s, (l, u)) :: (extract_var_bound tl)
+      | _ -> extract_var_bound tl
+    end
+
 
 and bmc (program : Type.t) (fmap : fmap) (vcmap : Vcmap.t) (k : int) (vl : vlist) =
   let {macros; modes; main} = program in
@@ -479,13 +500,17 @@ and bmc (program : Type.t) (fmap : fmap) (vcmap : Vcmap.t) (k : int) (vl : vlist
   let vars = List.of_enum (Map.enum vcmap) in
   let mode_formulas = List.map (fun i -> gen_flow i mode fmap) (List.of_enum (0 -- (k-1))) in
   let mode_connect = List.map (fun i -> gen_conn i vars) (List.of_enum (1 -- (k-1))) in
+
   let Main main_stmts = main in
   let var_init_formula = gen_init_constraint (extract_init_value main_stmts) in
+
   let assert_formula = Assert (Basic.make_and (mode_formulas @ mode_connect @ [var_init_formula])) in
   let logic_cmd = SetLogic QF_NRA_ODE in
 
   (* generate var declarations *)
-  let vardecl_cmds = gen_var_decls vl k in
+
+  let var_bound_map = extract_var_bound main_stmts in
+  let vardecl_cmds = gen_var_decls vl k var_bound_map in
 
   let defineodes = gen_ode_decls fmap  in
 
