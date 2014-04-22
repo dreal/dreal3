@@ -488,6 +488,7 @@ let main () =
     in
     let lexbuf = Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let ast = Parser.main Lexer.token lexbuf in
+    let ast = Type.const_fold_program ast in
     let ast', fmap, vcmap, vl = analysis ast in
     (* let _ = Codegen.emit_program ast' in (* check output *) *)
     bmc ast' fmap vcmap !k vl
