@@ -90,19 +90,24 @@ sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
 
 # Enumerate all paths and call dReal with options
 PATH_NUM=0
-for P in `$BMC -k $K --pathgen $PDRH`
-do
-    SMT=${BASE}_${K}_${PATH_NUM}.smt2
-    OUT=${BASE}_${K}_${PATH_NUM}.output
-    $BMC -k $K --path "$P" $PDRH > ${SMT}
-    echo SMT: ${SMT}, PATH : $P
-    ${SOLVER} ${SOLVER_OPT} ${SMT} 2>&1 | tee $OUT
-    RESULT=`tail -n 1 $OUT`
-    if [[ $RESULT == "sat" ]]
-    then
-        echo "sat -- $P"
-        exit 0
-    fi
-    PATH_NUM=$((${PATH_NUM} + 1))
-done
-echo "unsat"
+PATHS=`$BMC -k $K --pathgen $PDRH`
+if [[ $PATHS ]] ; then
+    for P in $PATHS
+    do
+        SMT=${BASE}_${K}_${PATH_NUM}.smt2
+        OUT=${BASE}_${K}_${PATH_NUM}.output
+        $BMC -k $K --path "$P" $PDRH > ${SMT}
+        echo SMT: ${SMT}, PATH : $P
+        ${SOLVER} ${SOLVER_OPT} ${SMT} 2>&1 | tee $OUT
+        RESULT=`tail -n 1 $OUT`
+        if [[ $RESULT == "sat" ]]
+        then
+            echo "sat -- $P"
+            exit 0
+        fi
+        PATH_NUM=$((${PATH_NUM} + 1))
+    done
+    echo "Tried ${PATH_NUM} feasible paths, all of them are unsat."
+else
+    echo There is no feasible path to check when k = $K.
+fi
