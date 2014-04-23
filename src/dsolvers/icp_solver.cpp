@@ -112,9 +112,9 @@ void icp_solver::create_ode_solvers() {
     vector<Enode*> vec_inv;
     for (auto const l : m_stack) {
         // ignore if the polarity is "false".
-        if (l->isIntegral() && l->getPolarity().toInt()) {
+        if (l->isIntegral() && l->getPolarity().toInt() == 1) {
             vec_integral.push_back(l);
-        } else if (l->isForallT() && l->getPolarity().toInt()) {
+        } else if (l->isForallT() && l->getPolarity().toInt() == 1) {
             vec_inv.push_back(l);
         }
     }
