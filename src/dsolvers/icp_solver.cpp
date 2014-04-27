@@ -31,12 +31,18 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_vec.h"
 #include "dsolvers/icp_solver.h"
 
+using std::any_of;
 using std::endl;
+using std::find;
+using std::min;
+using std::numeric_limits;
+using std::setfill;
 using std::setw;
 using std::stable_sort;
 using std::unordered_map;
 using std::unordered_set;
 
+namespace dreal {
 icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const & stack, scoped_env & env,
                        vector<Enode*> & exp, bool complete_check)
     : m_config(c), m_egraph(e), m_sstore(t), m_propag(nullptr), m_boxes(env.size()), m_ep(nullptr), m_sol(0),
@@ -743,3 +749,4 @@ void icp_solver::print_json(ostream & out) {
     out << "]" << endl << "}" << endl;
 }
 #endif
+}

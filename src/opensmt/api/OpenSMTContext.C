@@ -881,7 +881,7 @@ void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v, double d)
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
         e->setUpperBound(v);
         // cerr << "addIntvCtr: " << e << " " << op << " " << e->getUpperBound()<< endl;
-        if (starts_with(e->getCar()->getName(), "time_")) {
+        if (dreal::starts_with(e->getCar()->getName(), "time_")) {
             // cerr << "time_ <=" << endl;
           Enode * leq = mkLeq(mkCons(e, mkCons(mkNum(v))));
           if(d != 0.0){
@@ -893,7 +893,7 @@ void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v, double d)
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
         e->setLowerBound(v);
         // cerr << "addIntvCtr: " << e << " " << op << " " << e->getLowerBound() << endl;
-        if (starts_with(e->getCar()->getName(), "time_")) {
+        if (dreal::starts_with(e->getCar()->getName(), "time_")) {
             // cerr << "time_ >=" << endl;
           Enode * geq = mkGeq(mkCons(e, mkCons(mkNum(v))));
           if(d != 0.0){

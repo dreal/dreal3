@@ -608,7 +608,7 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
 
   if ( config.logic == QF_NRA )
   {
-     tsolvers.push_back( new nra_solver( tsolvers.size(),
+     tsolvers.push_back( new dreal::nra_solver( tsolvers.size(),
                                         "NRA Solver",
                                         config,
                                         *this,
@@ -623,7 +623,7 @@ void Egraph::initializeTheorySolvers( SimpSMTSolver * s )
   }
    else if (config.logic == QF_NRA_ODE) {
      config.nra_ODE_contain = true;
-     tsolvers.push_back( new nra_solver( tsolvers.size(),
+     tsolvers.push_back( new dreal::nra_solver( tsolvers.size(),
                                            "NRA Solver",
                                            config,
                                            *this,

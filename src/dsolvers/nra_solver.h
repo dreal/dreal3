@@ -30,6 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
 
+namespace dreal {
 class nra_solver : public OrdinaryTSolver {
 public:
     nra_solver(const int, const char *, SMTConfig &, Egraph &, SStore &, std::vector<Enode *> &,
@@ -48,3 +49,4 @@ private:
     scoped_env m_env;
     scoped_vec m_stack;
 };
+}

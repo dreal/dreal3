@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 // Backtrackable scoped_vec. -- Soonho Kong
 
+namespace dreal {
 class scoped_vec {
 private:
     typedef std::vector<Enode *> vec;
@@ -60,3 +61,4 @@ public:
 };
 
 std::ostream & operator<<(std::ostream & out, scoped_vec const & e);
+}

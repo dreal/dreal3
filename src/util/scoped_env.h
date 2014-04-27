@@ -34,6 +34,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include "opensmt/egraph/Enode.h"
 
+namespace dreal {
 class scoped_env {
 private:
     typedef std::unordered_map<Enode *, std::pair<double, double>> map;
@@ -64,3 +65,4 @@ public:
 };
 
 std::ostream & operator<<(std::ostream & out, scoped_env const & e);
+}

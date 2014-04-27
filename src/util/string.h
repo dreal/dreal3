@@ -27,6 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <string>
 
+namespace dreal {
 bool starts_with(std::string const & s, std::string const & prefix);
 bool ends_with(std::string const & s, std::string const & ending);
 template<typename T>
@@ -53,4 +54,5 @@ static inline std::string &rtrim(std::string &s) {
 
 static inline std::string &trim(std::string &s) {
     return ltrim(rtrim(s));
+}
 }

@@ -318,7 +318,7 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
     } else if (isNumb()) {
         string temp = getName();
         os << getName();
-        if(ends_with(temp, ".")) {
+        if(dreal::ends_with(temp, ".")) {
             os << "0";
         }
     } else if (isTerm()) {

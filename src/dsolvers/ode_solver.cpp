@@ -60,6 +60,7 @@ using std::tuple;
 using std::unordered_map;
 using std::unordered_set;
 
+namespace dreal {
 static unsigned g_hit = 0;
 static unsigned g_nohit = 0;
 
@@ -967,4 +968,5 @@ ostream& operator<<(ostream& out, ode_solver::ODE_result ret) {
         break;
     }
     return out;
+}
 }

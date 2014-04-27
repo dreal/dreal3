@@ -37,6 +37,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "dsolvers/ode_solver.h"
 #endif
 
+namespace dreal {
 class icp_solver {
 public:
     icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const & stack, scoped_env & env,
@@ -103,3 +104,4 @@ private:
     bool                             m_complete_check;
     int                              m_num_delta_checks;
 };
+}

@@ -17,11 +17,6 @@
 //dReal addition
 #include "dsolvers/icp_solver.h"
 
-
-
-using namespace std;
-
-
 void rp_propagator::rp_interval_local(rp_interval i, int digits, int mode)
 {
   char tmp[255];

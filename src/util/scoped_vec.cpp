@@ -31,6 +31,7 @@ using std::setfill;
 using std::setw;
 using std::stringstream;
 
+namespace dreal {
 scoped_vec::scoped_vec()  { }
 scoped_vec::~scoped_vec() { }
 void scoped_vec::push_back(value_type const & v) {
@@ -53,4 +54,5 @@ std::ostream & operator<<(std::ostream & out, scoped_vec const & s) {
             << left  << setfill(' ') << setw(40) << ss.str() << " : " << l->getPolarity().toInt() << endl;
     }
     return out;
+}
 }

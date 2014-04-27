@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include "util/string.h"
 
+namespace dreal {
 bool starts_with(std::string const & s, std::string const & prefix) {
     if (!s.compare(0, prefix.size(), prefix)) {
         return true;
@@ -35,4 +36,5 @@ bool ends_with (std::string const & s, std::string const & ending) {
     } else {
         return false;
     }
+}
 }

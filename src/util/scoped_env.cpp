@@ -37,6 +37,8 @@ using std::setfill;
 using std::setprecision;
 using std::setw;
 
+namespace dreal {
+
 scoped_env::scoped_env() {
 }
 
@@ -115,4 +117,5 @@ std::ostream & operator<<(std::ostream & out, scoped_env const & e) {
             << "];" << endl;
     }
     return out;
+}
 }

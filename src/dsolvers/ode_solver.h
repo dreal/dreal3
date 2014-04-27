@@ -32,6 +32,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "realpaver/rp_box.h"
 
+namespace dreal {
 class ode_solver {
 public:
     ode_solver(SMTConfig& c,
@@ -134,3 +135,4 @@ private:
 };
 
 ostream& operator<<(ostream& out, ode_solver::ODE_result ret);
+}

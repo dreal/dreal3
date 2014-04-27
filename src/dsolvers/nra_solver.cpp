@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <utility>
 #include <sstream>
+#include <unordered_set>
 #include "util/logging.h"
 #include "util/string.h"
 #include "dsolvers/icp_solver.h"
@@ -28,7 +29,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using std::pair;
 using std::boolalpha;
+using std::unordered_set;
 
+namespace dreal {
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
     : OrdinaryTSolver (i, n, c, e, t, x, d, s) {
@@ -152,3 +155,4 @@ Enode * nra_solver::getInterpolants() {
     return nullptr;
 }
 #endif
+}
