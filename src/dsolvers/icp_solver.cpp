@@ -209,6 +209,11 @@ rp_problem* icp_solver::create_rp_problem() {
             delete c;
         }
     }
+    cerr << "CREATE RP PROBLEM" << endl;
+    DREAL_LOG_INFO << "icp_solver::create_rp_problem rp_problem_display";
+    if (DREAL_LOG_INFO_IS_ON) {
+        rp_problem_display(stderr, *rp_prob);
+    }
     return rp_prob;
 }
 
