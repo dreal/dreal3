@@ -11,8 +11,7 @@
  * rp_operator_factory.h                                                    *
  ****************************************************************************/
 
-#ifndef RP_OPERATOR_FACTORY_H
-#define RP_OPERATOR_FACTORY_H 1
+#pragma once
 
 #include "rp_config.h"
 #include "rp_memory.h"
@@ -37,9 +36,9 @@ public:
   // Creation functions to be implemented in derived classes
   virtual void build(const rp_problem& p, rp_vector& vec);
   virtual void build(const rp_problem& p, const rp_ctr_num& c,
-		     rp_vector& vec);
+                     rp_vector& vec);
   virtual void build(const rp_problem& p, const rp_ctr_num& c,
-		     int var, rp_vector& vec);
+                     int var, rp_vector& vec);
 
 protected:
   // Copy
@@ -111,7 +110,7 @@ public:
 
   // Creation of a set of operators from p and insertion in the vector
   void build(const rp_problem& p, const rp_ctr_num& c,
-	     int var, rp_vector& vec);
+             int var, rp_vector& vec);
 
 private:
   double _improve;    // improvement factor of iterative method
@@ -210,5 +209,3 @@ private:
   rp_test_factory& operator=(const rp_test_factory& g);
   rp_test_factory(const rp_test_factory& g);
 };
-
-#endif /* RP_OPERATOR_FACTORY_H */

@@ -11,12 +11,7 @@
  * rp_stream.h                                                              *
  ****************************************************************************/
 
-#ifndef RP_STREAM
-#define RP_STREAM 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,9 +72,3 @@ void rp_stream_get_position (rp_stream s, char * dest);
 
 /* Display a stream on out */
 void rp_stream_display (FILE * out, rp_stream s);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_STREAM */

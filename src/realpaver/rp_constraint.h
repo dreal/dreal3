@@ -11,12 +11,7 @@
  * rp_constraint.h                                                          *
  ****************************************************************************/
 
-#ifndef RP_CONSTRAINT_H
-#define RP_CONSTRAINT_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include "rp_memory.h"
 #include "rp_constant.h"
@@ -57,7 +52,7 @@ typedef rp_ctr_num_def * rp_ctr_num;
 
 /* Creation of the numerical constraint (l rel r) */
 void rp_ctr_num_create (rp_ctr_num * c,
-			rp_erep * l, int rel, rp_erep * r);
+                        rp_erep * l, int rel, rp_erep * r);
 
 /* Destruction */
 void rp_ctr_num_destroy (rp_ctr_num * c);
@@ -75,7 +70,7 @@ int rp_ctr_num_inner         (rp_ctr_num c, rp_box b);
 
 /* Display c on out */
 void rp_ctr_num_display (FILE* out, rp_ctr_num c,
-			 rp_vector_variable var, int digits);
+                         rp_vector_variable var, int digits);
 
 /* ----------------------- */
 /* Conditional constraints */
@@ -121,7 +116,7 @@ int rp_ctr_cond_inner (rp_ctr_cond c, rp_box b);
 
 /* Display c on out */
 void rp_ctr_cond_display (FILE* out, rp_ctr_cond c,
-			  rp_vector_variable var, int digits);
+                          rp_vector_variable var, int digits);
 
 /* --------------------- */
 /* Piecewise constraints */
@@ -177,7 +172,7 @@ int rp_ctr_piecewise_inner (rp_ctr_piecewise c, rp_box b);
 
 /* Display c on out */
 void rp_ctr_piecewise_display (FILE* out, rp_ctr_piecewise c,
-			       rp_vector_variable var, int digits);
+                               rp_vector_variable var, int digits);
 
 /* ----------------------- */
 /* Generic constraint type */
@@ -225,15 +220,15 @@ void rp_constraint_insert_variable_num(rp_constraint c, rp_ctr_num cnum);
 
 /* Creation of a constraint representing a numerical constraint */
 void rp_constraint_create_num (rp_constraint * c,
-			       rp_ctr_num cnum);
+                               rp_ctr_num cnum);
 
 /* Creation of a constraint representing a conditional constraint */
 void rp_constraint_create_cond (rp_constraint * c,
-			        rp_ctr_cond cond);
+                                rp_ctr_cond cond);
 
 /* Creation of a constraint representing a piecewise constraint */
 void rp_constraint_create_piece (rp_constraint * c,
-				 rp_ctr_piecewise piece);
+                                 rp_ctr_piecewise piece);
 
 /* Destruction */
 void rp_constraint_destroy (rp_constraint * c);
@@ -244,7 +239,7 @@ int rp_constraint_inner      (rp_constraint c, rp_box b);
 
 /* Display c on out */
 void rp_constraint_display (FILE* out, rp_constraint c,
-			    rp_vector_variable var, int digits);
+                            rp_vector_variable var, int digits);
 
 #define rp_constraint_display_simple(c,a) \
   rp_constraint_display(stdout,c,a,8)
@@ -274,12 +269,6 @@ void rp_vector_constraint_create (rp_vector * v);
 
 /* Display v on out */
 void rp_vector_constraint_display (FILE * out,
-				   rp_vector_constraint v,
-				   rp_vector_variable vars,
-				   int digits);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_CONSTRAINT_H */
+                                   rp_vector_constraint v,
+                                   rp_vector_variable vars,
+                                   int digits);

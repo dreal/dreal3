@@ -11,15 +11,10 @@
  * rp_problem.h                                                             *
  ****************************************************************************/
 
-#ifndef RP_PROBLEM_H
-#define RP_PROBLEM_H 1
+#pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include "rp_config.h"
 #include "rp_memory.h"
 #include "rp_variable.h"
@@ -102,9 +97,3 @@ int rp_problem_set_initial_box (rp_problem p);
 
 /* Display p on out */
 void rp_problem_display(FILE * out, rp_problem p);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_PROBLEM_H */

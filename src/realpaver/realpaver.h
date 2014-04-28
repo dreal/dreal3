@@ -11,12 +11,7 @@
  * realpaver.h                                                              *
  ****************************************************************************/
 
-#ifndef REALPAVER_H
-#define REALPAVER_H 1
-
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#pragma once
 
 #include "realpaverbasic.h"
 #include "rp_operator.h"
@@ -37,10 +32,3 @@
 
 #define rp_reset_library() \
   { rp_basic_reset_library(); }
-
-
-//#ifdef __cplusplus
-//}
-//#endif
-
-#endif  /* REALPAVER_H */

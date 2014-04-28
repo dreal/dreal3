@@ -11,8 +11,7 @@
  * rp_split_selector.h                                                      *
  ****************************************************************************/
 
-#ifndef RP_SPLIT_SELECTOR_H
-#define RP_SPLIT_SELECTOR_H 1
+#pragma once
 
 #include "rp_problem.h"
 #include "rp_box.h"
@@ -321,5 +320,3 @@ private:
   rp_selector_existence(const rp_selector_existence& s);
   rp_selector_existence& operator=(const rp_selector_existence& s);
 };
-
-#endif /* RP_SPLIT_SELECTOR_H */

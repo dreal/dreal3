@@ -11,8 +11,7 @@
  * rp_split.h                                                               *
  ****************************************************************************/
 
-#ifndef RP_SPLIT_H
-#define RP_SPLIT_H 1
+#pragma once
 
 #include "rp_problem.h"
 #include "rp_box.h"
@@ -44,15 +43,15 @@ protected:
   // given an integer variable, in this case (i1 union i2) is the result
   // of the split on the hole found
   int integer_hole(rp_interval dom,
-		   rp_union_interval init_dom,
-		   rp_interval i1, rp_interval i2);
+                   rp_union_interval init_dom,
+                   rp_interval i1, rp_interval i2);
 
   // Returns true if (dom inter init_dom) contains at least two intervals
   // given a real variable, in this case (i1 union i2) is the result
   // of the split on the hole found
   int real_hole(rp_interval dom,
-		rp_union_interval init_dom,
-		rp_interval i1, rp_interval i2);
+                rp_union_interval init_dom,
+                rp_interval i1, rp_interval i2);
 
   // Copy protection
   rp_splitter(const rp_splitter& ds);
@@ -105,5 +104,3 @@ private:
   rp_splitter_bisection(const rp_splitter_bisection& ds);
   rp_splitter_bisection& operator=(const rp_splitter_bisection& ds);
 };
-
-#endif /* RP_SPLIT_H */

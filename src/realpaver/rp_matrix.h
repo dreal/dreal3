@@ -11,12 +11,7 @@
  * rp_matrix.h                                                              *
  ****************************************************************************/
 
-#ifndef RP_MATRIX_H
-#define RP_MATRIX_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include "rp_interval.h"
 
@@ -99,25 +94,25 @@ void rp_real_matrix_copy(rp_real_matrix m, rp_real_matrix src);
 /* inv := src-1, id is the identity matrix */
 /* Returns 1 if the matrix can be inverted */
 int rp_real_matrix_inverse(rp_real_matrix inv,
-			   rp_real_matrix src,
-			   rp_real_matrix id);
+                           rp_real_matrix src,
+                           rp_real_matrix id);
 
 /* r := m1 - m2 */
 void rp_real_matrix_sub(rp_real_matrix r,
-			rp_real_matrix m1,
-			rp_real_matrix m2);
+                        rp_real_matrix m1,
+                        rp_real_matrix m2);
 
 /* r := |m| */
 void rp_real_matrix_abs(rp_real_matrix r,
-			rp_real_matrix m);
+                        rp_real_matrix m);
 
 /* Returns 1 if m>=0 */
 int rp_real_matrix_positive(rp_real_matrix m);
 
 /* r_ij := m1_ik * m2_kj */
 void rp_matrix_mul_rm_rm(rp_real_matrix r,
-			 rp_real_matrix m1,
-			 rp_real_matrix m2);
+                         rp_real_matrix m1,
+                         rp_real_matrix m2);
 
 /* Display m on out */
 void rp_real_matrix_display(FILE * out, rp_real_matrix m, int digits);
@@ -184,21 +179,15 @@ void rp_interval_matrix_display(FILE * out, rp_interval_matrix m, int digits);
 
 /* r := m*v, dimension of v equal to the number of columns of m */
 void rp_matrix_mul_rm_iv(rp_interval_vector r,
-			 rp_real_matrix m,
-			 rp_interval_vector v);
+                         rp_real_matrix m,
+                         rp_interval_vector v);
 
 /* r_ij := m1_ik * m2_kj */
 void rp_matrix_mul_rm_im(rp_interval_matrix r,
-			 rp_real_matrix m1,
-			 rp_interval_matrix m2);
+                         rp_real_matrix m1,
+                         rp_interval_matrix m2);
 
 /* Computes center and delta st. src = [center-delta,center+delta] */
 void rp_matrix_center_delta(rp_real_matrix center,
-			    rp_real_matrix delta,
-			    rp_interval_matrix src);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_MATRIX_H */
+                            rp_real_matrix delta,
+                            rp_interval_matrix src);

@@ -11,8 +11,7 @@
  * rp_solver.h                                                              *
  ****************************************************************************/
 
-#ifndef RP_SOLVER_H
-#define RP_SOLVER_H 1
+#pragma once
 
 #include <iostream>
 #include "rp_clock.h"
@@ -32,10 +31,10 @@ class rp_bpsolver
 public:
   // Constructor
   rp_bpsolver(rp_problem * p,
-	      double improve,
-	      rp_selector * vs,
-	      rp_splitter * ds,
-	      rp_existence_prover * ep = 0);
+              double improve,
+              rp_selector * vs,
+              rp_splitter * ds,
+              rp_existence_prover * ep = 0);
 
   // Destructor
   ~rp_bpsolver();
@@ -67,5 +66,3 @@ private:
   rp_bpsolver(const rp_bpsolver& s);
   rp_bpsolver& operator=(const rp_bpsolver& s);
 };
-
-#endif /* RP_SOLVER_H */

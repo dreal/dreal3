@@ -11,12 +11,7 @@
  * rp_operator_sat.h                                                        *
  ****************************************************************************/
 
-#ifndef RP_OPERATOR_SAT
-#define RP_OPERATOR_SAT
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -123,9 +118,3 @@ void rp_opshrink_split_rb (rp_stack_interval search,
 int rp_opshrink (rp_expression f, rp_expression df_dx,
                  rp_box b, int x, double improve, double eps,
                  rp_opsplit bsplit, rp_opshrink_split shsplit);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_OPERATOR_SAT */

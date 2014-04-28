@@ -11,8 +11,7 @@
  * rp_verification.h                                                        *
  ****************************************************************************/
 
-#ifndef RP_VERIFICATION_H
-#define RP_VERIFICATION_H 1
+#pragma once
 
 #include "rp_problem.h"
 #include "rp_operator_factory.h"
@@ -21,7 +20,7 @@
 #include "rp_split.h"
 
 // -----------------------------------------
-// Base class for solution existence provers 
+// Base class for solution existence provers
 // -----------------------------------------
 class rp_existence_prover
 {
@@ -80,5 +79,3 @@ private:
   rp_splitter * _split;    /* splitting algorithm used during search     */
   int _maxbox;             /* maximum number of boxes to be tested       */
 };
-
-#endif /* RP_VERIFICATION_H */

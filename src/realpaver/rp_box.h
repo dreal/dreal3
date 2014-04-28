@@ -11,12 +11,7 @@
  * rp_box.h                                                                 *
  ****************************************************************************/
 
-#ifndef RP_BOX_H
-#define RP_BOX_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -173,9 +168,3 @@ void rp_box_display (FILE *out, rp_box b, int digits, int mode);
 #define rp_box_display_simple_nl(b) \
   rp_box_display_simple(b); \
   printf("\n")
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif  /* RP_BOX_H */

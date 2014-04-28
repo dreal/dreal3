@@ -11,12 +11,7 @@
  * rp_memory.h                                                              *
  ****************************************************************************/
 
-#ifndef RP_MEMORY_H
-#define RP_MEMORY_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,13 +19,8 @@ extern "C" {
 #include <sys/resource.h>
 #include "rp_config.h"
 
-#define rp_throw
-#ifdef __cplusplus
-#undef rp_throw
 #define rp_throw throw()
 #define rp_inline inline
-#endif
-
 
 /* Initialization and reset of the memory manager */
 void rp_memory_init  ();
@@ -65,15 +55,15 @@ size_t rp_memory_remove (void* ptr);
     rp_memory_insert((void*)ptr,size);                      \
   }
 
-# define rp_realloc(ptr,ptrtype,size)			    \
+# define rp_realloc(ptr,ptrtype,size)                       \
   if (ptr==NULL)                                            \
   {                                                         \
     fprintf(stderr,"rp_realloc: realloc a null pointer\n"); \
   }                                                         \
   else                                                      \
   {                                                         \
-    rp_memory_remove((void*)ptr);		            \
-    if ((ptr = (ptrtype)realloc(ptr,size)) == NULL)	    \
+    rp_memory_remove((void*)ptr);                           \
+    if ((ptr = (ptrtype)realloc(ptr,size)) == NULL)         \
     {                                                       \
       fprintf(stderr,"rp_realloc: not enough memory\n");    \
       exit(1);                                              \
@@ -91,20 +81,20 @@ size_t rp_memory_remove (void* ptr);
   }                                                         \
   else                                                      \
   {                                                         \
-    rp_memory_remove((void*)ptr);   	                    \
+    rp_memory_remove((void*)ptr);                           \
     free(ptr);                                              \
     ptr = NULL;                                             \
   }
 
-# define rp_new(ptr,type,args)	                            \
-  if ((ptr = new type args) == NULL)		            \
+# define rp_new(ptr,type,args)                              \
+  if ((ptr = new type args) == NULL)                        \
   {                                                         \
     fprintf(stderr,"rp_new: not enough memory\n");          \
     exit(1);                                                \
   }                                                         \
   else                                                      \
   {                                                         \
-    rp_memory_insert((void*)ptr,sizeof(type));		    \
+    rp_memory_insert((void*)ptr,sizeof(type));              \
   }
 
 # define rp_delete(ptr)                                     \
@@ -114,8 +104,8 @@ size_t rp_memory_remove (void* ptr);
   }                                                         \
   else                                                      \
   {                                                         \
-    rp_memory_remove((void*)ptr);   	                    \
-    delete ptr;     				            \
+    rp_memory_remove((void*)ptr);                           \
+    delete ptr;                                             \
     ptr = NULL;                                             \
   }
 
@@ -132,8 +122,8 @@ size_t rp_memory_remove (void* ptr);
     exit(1);                                                \
   }
 
-# define rp_realloc(ptr,ptrtype,size)			    \
-  if ((ptr = (ptrtype)realloc(ptr,size)) == NULL)	    \
+# define rp_realloc(ptr,ptrtype,size)                       \
+  if ((ptr = (ptrtype)realloc(ptr,size)) == NULL)           \
   {                                                         \
     fprintf(stderr,"rp_realloc: not enough memory\n");      \
     exit(1);                                                \
@@ -150,8 +140,8 @@ size_t rp_memory_remove (void* ptr);
     ptr = NULL;                                             \
   }
 
-# define rp_new(ptr,type,args)	                            \
-  if ((ptr = new type args) == NULL)		            \
+# define rp_new(ptr,type,args)                              \
+  if ((ptr = new type args) == NULL)                        \
   {                                                         \
     fprintf(stderr,"rp_new: not enough memory\n");          \
     exit(1);                                                \
@@ -164,7 +154,7 @@ size_t rp_memory_remove (void* ptr);
   }                                                         \
   else                                                      \
   {                                                         \
-    delete ptr;     				            \
+    delete ptr;                                             \
     ptr = NULL;                                             \
   }
 
@@ -174,10 +164,3 @@ size_t rp_memory_remove (void* ptr);
 #if RP_DEBUGGING_MODE
 #define RP_DEBUG(s) fprintf(stderr,s)
 #endif /* RP_DEBUGGING_MODE */
-
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_MEMORY_H */

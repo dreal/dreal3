@@ -71,7 +71,7 @@ void rp_variable_vector_display(FILE * out, void * x)
     fprintf(out,":real/%.4g",rp_variable_precision(v));
   }
   fprintf(out," ~ ");
-  rp_union_display_simple(rp_variable_domain(v));
+  rp_union_display_simple(out, rp_variable_domain(v));
 
   fprintf(out," occurs in %d constraints\n",rp_variable_constrained(v));
 }

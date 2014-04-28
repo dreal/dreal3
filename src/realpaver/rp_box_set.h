@@ -11,9 +11,7 @@
  * rp_box_set.h                                                             *
  ****************************************************************************/
 
-#ifndef RP_BOX_SET_H
-#define RP_BOX_SET_H 1
-
+#pragma once
 #include "rp_box.h"
 
 // ----------------------------
@@ -186,5 +184,3 @@ private:
   // Allocation in memory of a queue element
   rp_blist alloc();
 };
-
-#endif /* RP_BOX_SET_H */

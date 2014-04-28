@@ -11,12 +11,7 @@
  * rp_float.h                                                               *
  ****************************************************************************/
 
-#ifndef RP_FLOAT_H
-#define RP_FLOAT_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <math.h>
 #include "rp_config.h"
@@ -132,9 +127,3 @@ double rp_pow (double x, int n, int round);
 double rp_split_point (double x, double y, int h, int n);
 
 #define rp_split_center(x,y) rp_split_point(x,y,2,1)
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif  /* RP_FLOAT_H */

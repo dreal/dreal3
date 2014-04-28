@@ -11,12 +11,7 @@
  * rp_variable.h                                                            *
  ****************************************************************************/
 
-#ifndef RP_VARIABLE_H
-#define RP_VARIABLE_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -118,11 +113,5 @@ void rp_vector_variable_create(rp_vector * v);
 
 /* Returns the first occurrence of s in v, NULL if no occurrence*/
 rp_variable * rp_vector_variable_contains(rp_vector v,
-					  const char * s,
-					  int * index);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_VARIABLE_H */
+                                          const char * s,
+                                          int * index);

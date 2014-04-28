@@ -11,13 +11,7 @@
  * rp_constant.h                                                            *
  ****************************************************************************/
 
-#ifndef RP_CONSTANT_H
-#define RP_CONSTANT_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include "rp_config.h"
@@ -68,11 +62,5 @@ void rp_vector_constant_create(rp_vector * v);
 
 /* Returns the first occurrence of s in v, NULL if no occurrence */
 rp_constant * rp_vector_constant_contains(rp_vector v,
-					  const char * s,
-					  int * index);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_CONSTANT_H */
+                                          const char * s,
+                                          int * index);

@@ -11,12 +11,7 @@
  * rp_expression.h                                                          *
  ****************************************************************************/
 
-#ifndef RP_EXPRESSION_H
-#define RP_EXPRESSION_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include "rp_expression_symbol.h"
 
@@ -100,8 +95,8 @@ void rp_expression_copy (rp_expression * e, rp_expression src);
 
 /* Display e on out */
 void rp_expression_display (FILE * out, rp_expression e,
-			    rp_vector_variable vars,
-			    int digits, int mode);
+                            rp_vector_variable vars,
+                            int digits, int mode);
 
 #define rp_expression_display_simple(f,a)     \
   rp_expression_display(stdout,f,a,8,RP_INTERVAL_MODE_BOUND)
@@ -152,9 +147,3 @@ int rp_expression_deriv_val (rp_interval de, rp_expression e, int v);
 
 /* de := d(e)/d(v) */
 void rp_expression_deriv_symb (rp_expression * de, rp_expression e, int v);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_EXPRESSION_H */

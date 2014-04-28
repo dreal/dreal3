@@ -1,17 +1,33 @@
 project(realpaver)
 
-file(GLOB_RECURSE C_FILES ${CMAKE_CURRENT_SOURCE_DIR} *.c *.h)
-set_source_files_properties(${C_FILES} PROPERTIES LANGUAGE CXX)
-
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x c++")
-endif ()
-
-add_library(realpaver rp_interval.c rp_box.c rp_constant.c rp_container.c
-rp_expression_symbol.c rp_function.c rp_lexer.c rp_memory.c
-rp_operator_sat.c rp_problem.c rp_stream.c rp_variable.c rp_clock.c
-rp_constraint.c rp_expression.c rp_float.c rp_matrix.c
-rp_operator_num.c rp_parser.c rp_projection.c rp_union_interval.c
-rp_propagator.cpp rp_box_set.cpp rp_operator.cpp
-rp_operator_factory.cpp rp_output.cpp rp_solver.cpp rp_split.cpp
-rp_split_selector.cpp rp_verification.cpp)
+add_library(realpaver
+  rp_box.cpp
+  rp_box_set.cpp
+  rp_clock.cpp
+  rp_constant.cpp
+  rp_constraint.cpp
+  rp_container.cpp
+  rp_expression.cpp
+  rp_expression_symbol.cpp
+  rp_float.cpp
+  rp_function.cpp
+  rp_interval.cpp
+  rp_lexer.cpp
+  rp_matrix.cpp
+  rp_memory.cpp
+  rp_operator.cpp
+  rp_operator_factory.cpp
+  rp_operator_num.cpp
+  rp_operator_sat.cpp
+  rp_output.cpp
+  rp_parser.cpp
+  rp_problem.cpp
+  rp_projection.cpp
+  rp_propagator.cpp
+  rp_solver.cpp
+  rp_split.cpp
+  rp_split_selector.cpp
+  rp_stream.cpp
+  rp_union_interval.cpp
+  rp_variable.cpp
+  rp_verification.cpp)

@@ -11,12 +11,7 @@
  * rp_container.h                                                           *
  ****************************************************************************/
 
-#ifndef RP_CONTAINER_H
-#define RP_CONTAINER_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,9 +51,9 @@ typedef rp_vector_def * rp_vector;  /* vector type */
 
 /* Creation of a vector of elements */
 void rp_vector_create (rp_vector * v,
-		       rp_vector_cmp_elem cmp,
-		       rp_vector_free_elem dest,
-		       rp_vector_display_elem dis);
+                       rp_vector_cmp_elem cmp,
+                       rp_vector_free_elem dest,
+                       rp_vector_display_elem dis);
 
 /* Creation of a vector of elements */
 void rp_vector_create_basic (rp_vector * v);
@@ -108,9 +103,3 @@ int rp_intset_contains(rp_intset s, int e);
 
 /* Insertion of an element */
 void rp_intset_insert(rp_intset s, int e);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_CONTAINER_H */

@@ -11,12 +11,7 @@
  * rp_projection.h                                                          *
  ****************************************************************************/
 
-#ifndef RP_PROJECTION_H
-#define RP_PROJECTION_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include "rp_union_interval.h"
 
@@ -26,51 +21,51 @@ extern "C" {
 
 /* x = y + z <=> y = x - z <=> z = x - y */
 int rp_project_add_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_add_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_add_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 
 /* x = y - z <=> y = x + z <=> z = y - x */
 int rp_project_sub_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_sub_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_sub_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 
 /* x = y * z <=> y = x / z <=> z = x / y */
 int rp_project_mul_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_mul_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_mul_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 
 /* x = y / z <=> y = x * z <=> z = y / x */
 int rp_project_div_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_div_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_div_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 
 /* x = min(y,z) / z <=> y = min-1(x,z) <=> z = min-1(x,y) */
 int rp_project_min_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_min_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_min_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 
 /* x = max(y,z) / z <=> y = max-1(x,z) <=> z = max-1(x,y) */
 int rp_project_max_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_max_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 int rp_project_max_snd (rp_interval znew, rp_interval x, rp_interval y,
-			rp_interval z);
+                        rp_interval z);
 
 int rp_project_atan2_zro (rp_interval znew, rp_interval z, rp_interval y,
                           rp_interval x);
@@ -84,9 +79,9 @@ int rp_project_atan2_snd (rp_interval xnew, rp_interval z, rp_interval y,
 
 /* x = pow(y,n) <=> y = pow-1(x,n) */
 int rp_project_pow_zro (rp_interval xnew, rp_interval x, rp_interval y,
-			rp_interval n);
+                        rp_interval n);
 int rp_project_pow_fst (rp_interval ynew, rp_interval x, rp_interval y,
-			rp_interval n);
+                        rp_interval n);
 
 /* x = -y <=> y = -x */
 int rp_project_neg_zro (rp_interval xnew, rp_interval x, rp_interval y);
@@ -167,9 +162,3 @@ int rp_project_atanh_fst (rp_interval ynew, rp_interval x, rp_interval y);
 /* x = abs(y) <=> y = abs-1(x) */
 int rp_project_abs_zro (rp_interval xnew, rp_interval x, rp_interval y);
 int rp_project_abs_fst (rp_interval ynew, rp_interval x, rp_interval y);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_PROJECTION_H */

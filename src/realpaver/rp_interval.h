@@ -11,12 +11,7 @@
  * rp_interval.h                                                            *
  ****************************************************************************/
 
-#ifndef RP_INTERVAL_H
-#define RP_INTERVAL_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -272,9 +267,3 @@ void rp_interval_set_pi     (rp_interval i);
 void rp_interval_set_log2   (rp_interval i);
 void rp_interval_set_halfpi (rp_interval i);
 void rp_interval_set_e      (rp_interval i);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif  /* RP_INTERVAL_H */

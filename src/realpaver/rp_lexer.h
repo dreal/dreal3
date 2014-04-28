@@ -11,15 +11,10 @@
  * rp_lexer.h                                                               *
  ****************************************************************************/
 
-#ifndef RP_LEXER
-#define RP_LEXER 1
+#pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include "rp_config.h"
 #include "rp_memory.h"
 #include "rp_stream.h"
@@ -150,9 +145,3 @@ void rp_lexer_destroy (rp_lexer * l);
 int rp_lexer_get_token  (rp_lexer l);
 int rp_lexer_get_ident  (rp_lexer l);
 int rp_lexer_get_number (rp_lexer l);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_LEXER */

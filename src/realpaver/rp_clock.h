@@ -11,12 +11,7 @@
  * rp_clock.h                                                               *
  ****************************************************************************/
 
-#ifndef RP_CLOCK_H
-#define RP_CLOCK_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,9 +86,3 @@ void rp_clock_set (int i, unsigned long t);
 
 /* Get the value of the i-th clock since the last start */
 unsigned long rp_clock_elapsed_time (int i);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_CLOCK_H */

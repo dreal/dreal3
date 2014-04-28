@@ -11,14 +11,9 @@
  * rp_expression_symbol.h                                                   *
  ****************************************************************************/
 
-#ifndef RP_EXPRESSION_SYMBOL_H
-#define RP_EXPRESSION_SYMBOL_H 1
+#pragma once
 
 #define rp_inline inline
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include "rp_interval.h"
 #include "rp_variable.h"
@@ -2271,9 +2266,3 @@ static __inline__
 int __rp_symbol_set_used(){
   return rp_symbol_priority(0);
 }
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_EXPRESSION_SYMBOL_H */

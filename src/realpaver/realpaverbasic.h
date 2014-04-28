@@ -11,12 +11,7 @@
  * realpaver.h                                                              *
  ****************************************************************************/
 
-#ifndef REALPAVERBASIC_H
-#define REALPAVERBASIC_H 1
-
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#pragma once
 
 #include "rp_config.h"
 #include "rp_clock.h"
@@ -52,9 +47,3 @@
   { rp_clock_reset();  }   \
   { rp_interval_reset(); } \
   { rp_memory_reset(); }
-
-//#ifdef __cplusplus
-//}
-//#endif
-
-#endif  /* REALPAVER_H */

@@ -11,8 +11,7 @@
  * rp_output.h                                                              *
  ****************************************************************************/
 
-#ifndef RP_OUTPUT_H
-#define RP_OUTPUT_H 1
+#pragma once
 
 #include <iostream>
 #include "rp_config.h"
@@ -130,6 +129,3 @@ private:
   rp_ofilter_merge(const rp_ofilter_merge& f);
   rp_ofilter_merge& operator=(const rp_ofilter_merge& f);
 };
-
-
-#endif /* RP_OUTPUT_H */

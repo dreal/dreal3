@@ -11,12 +11,7 @@
  * rp_function.h                                                            *
  ****************************************************************************/
 
-#ifndef RP_FUNCTION_H
-#define RP_FUNCTION_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,9 +68,3 @@ void rp_vector_function_create(rp_vector * v);
 rp_function * rp_vector_function_contains(rp_vector v,
                                           const char * s,
                                           int * index);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_FUNCTION_H */

@@ -11,15 +11,10 @@
  * rp_parser.h                                                              *
  ****************************************************************************/
 
-#ifndef RP_PARSER
-#define RP_PARSER 1
+#pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include "rp_config.h"
 #include "rp_memory.h"
 #include "rp_lexer.h"
@@ -178,9 +173,3 @@ int rp_parse_constraint_file (rp_constraint * c,
 /* Parsing of a problem from a file, return false if failure */
 int rp_parse_problem_file (rp_problem * problem,
                            char * filename);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_PARSER */

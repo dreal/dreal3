@@ -11,12 +11,7 @@
  * rp_operator_num.h                                                        *
  ****************************************************************************/
 
-#ifndef RP_OPERATOR_NUM
-#define RP_OPERATOR_NUM
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,16 +32,10 @@ extern "C" {
 /* Iteration until bx is empty or bx cannot be reduced     */
 /* with improvement factor improve                         */
 int rp_num_newton (rp_expression f, rp_expression df_dx,
-		   rp_box b, int x, double improve);
+                   rp_box b, int x, double improve);
 
 /* Gauss-Seidel iteration over system ax = b */
 int rp_num_gs (rp_interval_matrix a,
-	       rp_interval_vector x,
-	       rp_interval_vector b,
-	       double improve);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_OPERATOR_NUM */
+               rp_interval_vector x,
+               rp_interval_vector b,
+               double improve);

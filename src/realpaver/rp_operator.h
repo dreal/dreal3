@@ -11,8 +11,7 @@
  * rp_operator.h                                                            *
  ****************************************************************************/
 
-#ifndef RP_OPERATOR_H
-#define RP_OPERATOR_H 1
+#pragma once
 
 #include "rp_config.h"
 #include "rp_memory.h"
@@ -550,5 +549,3 @@ private:
   rp_operator_3b(const rp_operator_3b& o);
   rp_operator_3b& operator=(const rp_operator_3b& o);
 };
-
-#endif /* RP_OPERATOR_H */
