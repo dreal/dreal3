@@ -78,4 +78,6 @@ rule start =
          }
     | hex_number { verbose (Lexing.lexeme lexbuf); FNUM (Float.of_string(Lexing.lexeme lexbuf)) } (* dec float *)
     | float_number { verbose (Lexing.lexeme lexbuf); FNUM (float_of_string(Lexing.lexeme lexbuf)) } (* hex float *)
+    | ('-'?)('0'|['1'-'9']dec_lit*) { verbose (Lexing.lexeme lexbuf); FNUM (Float.of_string(Lexing.lexeme lexbuf)) }
     | eof { verbose "eof"; EOF}
+    | _ { verbose (Lexing.lexeme lexbuf); EOF }
