@@ -4,6 +4,7 @@
 
 {
   open Parser
+  open Batteries
   open Error
   let debug_tag = false
   let verbose s =  if debug_tag then (print_string s; print_newline())
@@ -42,7 +43,12 @@
 
 let blank = [' ' '\t']+
 let id = ['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z' '0'-'9' '_'])*
+let dec_lit = ['0'-'9']
+let hex_lit = ['0'-'9''a'-'f''A'-'F']
+let hex_number = "0x" hex_lit ('.' hex_lit+)? 'p' ('+'|'-') dec_lit+
 let float_number = ('+'|'-')? ['0'-'9']+('.'(['0'-'9']*))?('e'('+'|'-')['0'-'9']+)?
+
+('+'|'-')? ['0'-'9']+('.'(['0'-'9']*))?('e'('+'|'-')['0'-'9']+)?
 rule start =
   parse blank { start lexbuf }
     | "\r\n"  { incr_ln (); start lexbuf}
@@ -70,5 +76,6 @@ rule start =
            in verbose ("ID:"^id); try Hashtbl.find keyword_tbl id
              with _ -> ID id
          }
-    | float_number { verbose (Lexing.lexeme lexbuf); FNUM (float_of_string(Lexing.lexeme lexbuf)) } (* float *)
+    | hex_number { verbose (Lexing.lexeme lexbuf); FNUM (Float.of_string(Lexing.lexeme lexbuf)) } (* dec float *)
+    | float_number { verbose (Lexing.lexeme lexbuf); FNUM (float_of_string(Lexing.lexeme lexbuf)) } (* hex float *)
     | eof { verbose "eof"; EOF}
