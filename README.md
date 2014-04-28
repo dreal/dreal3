@@ -22,6 +22,19 @@ Please visit [http://dreal.cs.cmu.edu][dReal] for more information.
 [dReal]: http://dreal.cs.cmu.edu
 
 
+How to Build
+==================
+
+ - [Ubuntu 12.04 LTS (using g++-4.8)][ubuntu-gcc]
+ - [Ubuntu 12.04 LTS (using clang++-3.3)][ubuntu-clang]
+ - [OS X 10.9/10.8 (using g++-4.8)][osx-gcc]
+
+[ubuntu-gcc]: doc/ubuntu-gcc.md
+[ubuntu-clang]: doc/ubuntu-clang.md
+[osx-gcc]: doc/osx-gcc.md
+
+
+
 Required Packages
 =================
 
@@ -46,19 +59,6 @@ Required Packages
 [ocaml-findlib]: http://projects.camlcity.org/projects/findlib.html
 [ocaml-batteries]: http://batteries.forge.ocamlcore.org
 [pkg-config]: http://www.freedesktop.org/wiki/Software/pkg-config
-
-
-Build Instructions
-==================
-
- - [Ubuntu 12.04 LTS (using g++-4.8)][ubuntu-gcc]
- - [Ubuntu 12.04 LTS (using clang++-3.3)][ubuntu-clang]
- - [OS X 10.9/10.8 (using g++-4.8)][osx-gcc]
-
-[ubuntu-gcc]: doc/ubuntu-gcc.md
-[ubuntu-clang]: doc/ubuntu-clang.md
-[osx-gcc]: doc/osx-gcc.md
-
 
 Documentations
 ==============
