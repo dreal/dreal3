@@ -26,6 +26,8 @@ Please visit [http://dreal.cs.cmu.edu][dReal] for more information.
 How to Build
 ==================
 
+In most cases, running "./build.sh" in the top dReal directory should suffice. If not, see below. 
+
  - [Ubuntu 12.04 LTS (using g++-4.8)][ubuntu-gcc]
  - [Ubuntu 12.04 LTS (using clang++-3.3)][ubuntu-clang]
  - [OS X 10.9/10.8 (using g++-4.8)][osx-gcc]
