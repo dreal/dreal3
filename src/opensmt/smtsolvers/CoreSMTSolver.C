@@ -1562,6 +1562,7 @@ CoreSMTSolver::reset( )
   |________________________________________________________________________________________________@*/
 lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 {
+  DREAL_LOG_INFO << "CoreSMTSolver::search()" << endl;
 #ifdef PRODUCE_PROOF
   // Force disable theory propagation, since we don't
   // have at the moment we don't construct the reasons
@@ -1646,6 +1647,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
     }else{
       // NO CONFLICT
+      DREAL_LOG_INFO << "No conflict" << endl;
 
       if (nof_conflicts >= 0 && conflictC >= nof_conflicts){
 	// Reached bound on number of conflicts:
@@ -1653,22 +1655,31 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 	cancelUntil(0);
 	return l_Undef; }
 
+      DREAL_LOG_INFO << "Didn't reach conflict bound" << endl;
+
 	// Simplify the set of problem clauses:
 	if (decisionLevel() == 0 && !simplify())
 	  return l_False;
+
+      DREAL_LOG_INFO << "Simplified" << endl;
 
 	if (nof_learnts >= 0 && learnts.size()-nAssigns() >= nof_learnts)
 	  // Reduce the set of learnt clauses:
 	  reduceDB();
 
+
+      DREAL_LOG_INFO << "Reduced" << endl;
+
 	if ( first_model_found )
 	{
+	  DREAL_LOG_INFO << "first_model_found" << endl;
 	  // Early Pruning Call
 	  // Step 1: check if the current assignment is theory-consistent
 #ifdef STATISTICS
 	  const double start = cpuTime( );
 #endif
 	  int res = checkTheory( false );
+	  DREAL_LOG_INFO << "checkTheory = " << res << endl;
 #ifdef STATISTICS
 	  tsolvers_time += cpuTime( ) - start;
 #endif
@@ -1725,10 +1736,14 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 	    //first_model_found = true;
 	    next = lit_Undef;
 	  }
+	  else{
+	    DREAL_LOG_INFO << "not SAT yet" << endl;
+	  }
 	}
 
 	if (next == lit_Undef){
 	  if( !isSAT ){
+	    DREAL_LOG_INFO << "About to pick branch lit" << endl;
 	    // New variable decision:
 	    decisions++;
 	    next = pickBranchLit(polarity_mode, random_var_freq);
@@ -1736,11 +1751,13 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 	  // Complete Call
 	  if ( next == lit_Undef )
 	  {
+	    DREAL_LOG_INFO << "Next is Undef" << endl;
 	    first_model_found = true;
 #ifdef STATISTICS
 	    const double start = cpuTime( );
 #endif
 	    int res = checkTheory( true );
+	    DREAL_LOG_INFO << "checkTheory = " << res << endl;
 #ifdef STATISTICS
 	    tsolvers_time += cpuTime( ) - start;
 #endif
@@ -1752,6 +1769,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 	    const double start2 = cpuTime( );
 #endif
 	    res = checkAxioms( );
+	    DREAL_LOG_INFO << "checkAxioms = " << res << endl;
 #ifdef STATISTICS
 	    tsolvers_time += cpuTime( ) - start2;
 #endif
@@ -1760,16 +1778,22 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 	    if ( res == 2 ) { continue; }
 	    if ( res == -1 ) return l_False;
 	    assert( res == 1 );
+
+	    if(config.short_sat){
+	      if ( res == 1 ) return l_True;
+	    }
+
 	    // Otherwise we still have to make sure that
 	    // splitting on demand did not add any new variable
 	    decisions++;
 	    next = pickBranchLit( polarity_mode, random_var_freq );
 	  }
 
-	  if (next == lit_Undef)
+	  if (next == lit_Undef){
 	    // Model found:
-	    
+	    DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
 	    return l_True;
+	  }
 	}
 
 	// Increase decision level and enqueue 'next'

@@ -67,7 +67,8 @@ void CoreSMTSolver::verifyModel()
     assert(clauses[i]->mark() == 0);
     Clause& c = *clauses[i];
     for (int j = 0; j < c.size(); j++)
-      if (modelValue(c[j]) == l_True)
+      if (modelValue(c[j]) == l_True ||
+	  (config.short_sat && modelValue(c[j]) != l_False))
         goto next;
 
     reportf("unsatisfied clause: ");

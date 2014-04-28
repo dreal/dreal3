@@ -945,7 +945,10 @@ void SimpSMTSolver::verifyModel()
           cnt++;
           Clause& c = *elimtable[i].eliminated[j];
           for (int k = 0; k < c.size(); k++)
-            if (modelValue(c[k]) == l_True)
+            if (modelValue(c[k]) == l_True 
+		||
+		(config.short_sat && modelValue(c[k]) != l_False)
+		)
               goto next;
 
           reportf("unsatisfied clause: ");
