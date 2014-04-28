@@ -549,7 +549,7 @@ let rec print_exp out =
   | Sinh e -> print_exps "sinh" [e]
   | Cosh e -> print_exps "cosh" [e]
   | Tanh e -> print_exps "tanh" [e]
-  | Matan e -> print_exps "matan" [e]
+  | Matan e -> print_exps "marctan" [e]
   | Safesqrt e -> print_exps "safesqrt" [e]
 
 and print_formula out =
