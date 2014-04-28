@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include "rp_propagator.h"
+#include "util/interval.h"
 
 //dReal addition
 #include "dsolvers/icp_solver.h"
@@ -48,13 +49,13 @@ void rp_propagator::rp_union_display(rp_union_interval u, int digits, int mode)
     }
 }
 
-void rp_propagator::rp_pprint_vars(rp_problem p, rp_box b)
+void rp_propagator::rp_pprint_vars(rp_problem p, rp_box b, int digits, bool exact)
 {
     for(int i = 0; i < rp_problem_nvar(p); i++)
     {
         _out << rp_variable_name(rp_problem_var(p, i))
               << ": ";
-        rp_interval_local(rp_box_elem(b,i), 15, RP_INTERVAL_MODE_BOUND);
+        dreal::interval(rp_box_elem(b,i)).print(_out, digits, exact);
         if (i != rp_problem_nvar(p) - 1)
             _out << ";";
         _out << endl;
@@ -477,7 +478,7 @@ int rp_propagator::apply_loop(rp_box b)
         if (this->check_precision(o,b)) {
 //add
             _out << endl << "[before pruning] " << endl;
-            rp_pprint_vars(*_problem, b);
+            rp_pprint_vars(*_problem, b, 16, true);
 //added
             if (o->apply(b)) {
                 // Propagation for every variable that can be modified by o
@@ -514,7 +515,7 @@ int rp_propagator::apply_loop(rp_box b)
                 // the dependency of every modified variable
 //add
                 _out<<"[after pruning] "<<endl;
-                rp_pprint_vars(*_problem, b);
+                rp_pprint_vars(*_problem, b, 16, true);
 //added
             } else {
                 rp_box_set_empty(b);

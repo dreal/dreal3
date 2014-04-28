@@ -11,8 +11,7 @@
  * rp_propagator.h                                                          *
  ****************************************************************************/
 
-#ifndef RP_PROPAGATOR_H
-#define RP_PROPAGATOR_H 1
+#pragma once
 
 #include "rp_config.h"
 #include "rp_memory.h"
@@ -20,10 +19,6 @@
 #include "rp_operator.h"
 #include <ostream>
 #include <iostream>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* ------------------------------------------------- */
 /* Dependency function: Variable -> Set of operators */
@@ -131,9 +126,6 @@ void rp_oqueue_list_push (rp_oqueue_list q, rp_operator * o);
 /* Pop a working operator from the priority queue during propagation */
 rp_operator * rp_oqueue_list_pop (rp_oqueue_list q);
 
-#ifdef __cplusplus
-}
-#endif
 
 // ----------------
 // Propagator class
@@ -195,11 +187,8 @@ private:
   int check_precision(rp_operator * o, rp_box b);
 
   void rp_interval_local(rp_interval i, int digits, int mode);
-  void rp_pprint_var(rp_variable v);
-  void rp_pprint_vars(rp_problem p, rp_box b);
+  void rp_pprint_vars(rp_problem p, rp_box b, int digits, bool exact);
   void rp_union_display(rp_union_interval u, int digits, int mode);
   bool _verbose;
   std::ostream& _out;
 };
-
-#endif /* RP_PROPAGATOR */
