@@ -15,29 +15,22 @@ env:
       TRIGGER_BB=TRUE
       CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=Release
-      USE_LATEST_EGLIBC=TRUE
       CTEST=TRUE
     - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=Debug
-      USE_LATEST_EGLIBC=TRUE
       CTEST=TRUE
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
       CMAKE_BUILD_TYPE=Release
-      USE_LATEST_EGLIBC=TRUE
       CTEST=TRUE
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
       CMAKE_BUILD_TYPE=Debug
-      USE_LATEST_EGLIBC=TRUE
       CTEST=TRUE
     - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=Debug
-      USE_LATEST_EGLIBC=TRUE
       CTEST=FALSE
       TESTCOV=ON
 
 install:
-  # Check EGLIBC Version
-  - ldd --version
   # PUSH TO BACKUP REPO
   - if [[ $DREALREPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/dReal-backup.git +master;
@@ -73,12 +66,6 @@ install:
   - eval `opam config env`
   - opam update
   - yes | opam install ocamlfind batteries oasis
-  # EGLIBC
-  - if [[ $USE_LATEST_EGLIBC == TRUE ]]; then
-      wget http://dreal.cs.cmu.edu/required_packages/eglibc-2.17.tar.bz2;
-      tar xfj eglibc-2.17.tar.bz2 -C /tmp;
-      sudo ln -s /usr/lib/gcc/x86_64-linux-gnu/4.8/libgcc_s.so /usr/lib/gcc/x86_64-linux-gnu/4.8/libgcc_s.so.1;
-    fi
   # TESTCOV - lcov
   - if [[ $TESTCOV == ON ]]; then
        wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;
@@ -108,9 +95,6 @@ script:
   - mkdir build
   - cd build
   - CMAKE_CMD_OPTION="-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_PROGRAM_PATH=/usr/bin"
-  - if [[ $USE_LATEST_EGLIBC == TRUE ]]; then
-      CMAKE_CMD_OPTION="$CMAKE_CMD_OPTION -DEGLIBCPATH=/tmp/eglibc";
-    fi
   - if [[ $TESTCOV == ON ]]; then
       CMAKE_CMD_OPTION="$CMAKE_CMD_OPTION -DTESTCOV=ON";
     fi
