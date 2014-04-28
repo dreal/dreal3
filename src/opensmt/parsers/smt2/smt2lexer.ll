@@ -96,6 +96,7 @@ char * pbuffer2;
 ">="                         { return TK_GEQ; }
 "<"                          { return TK_LT; }
 ">"                          { return TK_GT; }
+"~"                          { return TK_UMINUS; }
 "bvslt"                      { return TK_BVSLT; }
 "bvsgt"                      { return TK_BVSGT; }
 "bvsle"                      { return TK_BVSLE; }
