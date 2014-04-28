@@ -2,15 +2,14 @@ language: cpp
 cache: apt
 env:
   global:
-    # BB_TOKEN
-    - secure: "XwaQTGdRVSTuyQoRnlC5nG3fr8lpuxIu8Y+apMkeR8OEvGvENzBpECWmUpkeqUeqN/GO5Vj0SwWElSLYII1xuJGzdYdZq5660lzghjvF+uG5zQbT+PzfRzQMBAulcPmHg56ZFvxe2T3wTQulC28x5lNaMBndSp8ge/eFItaFESI="
+    # BB_TOKEN - encrypt "bitbucket key" with travis-ci key
+    - secure: "bnHVgMePE5LrduSIq/u1DcajThJqAGuBiKwCER9az8obcxE6I8aR7a0TBUohz4Rqb/9XA4eoqESVY/Uqbe5tT2OcluMd5Js9XHDG4qRTod96GfPdZs4/GTO4uYw+sgBvA0kcJ0O/e9ktSQXM4MNZtDD2+49648J6td8Fpdne6m8="
     # DREALREPO - encrypt "blessed" with private key (travis-ci)
     - secure: "VzZmRoTr6xvZYVPTyvtDzojBS9Acd/naRCABjh76zeZkM2PUZpe0h9Yeof1+YpTCDdfwe/WmWYRa2FyebSBc9yTtOWdlUJ1WFDTq9w4yFzZeCSdSaMtVNWLiW7FqR1AwQBkiuA/frYq1v5yjXPaRLqWD11wQtAFn4ykt14F7VlQ="
-    # GH_TOKEN - for OSX repository
-    - secure: "dgm4Dvk64PhJN0dWMdXoQVP0ObANaarW3IvGqxvJ4jADTRSZzFqeA4hYM3cLAb2Rkmx2ftKdQqFbRUfWysT26Zd3CykbdgqmNgYN+kHntkeUmGvoB8SidCwzwo1VsU8f53DG//bYw3ZpBJZY/ljfiehdsi4BTxrIcX7pW1DQZ0Q="
+    # GH_TOKEN - for OSX repository (soonhokong/dreal-osx)
+    - secure: "amz2nrE/TakMzDk1CvvpKLjznkS2m1Gzl3gEB+w05YcmCUUS3iP9UAFTJgIVQJTYQ4MjkfGj7NgyO6ZM0kyxXqtL+GQ5vs0rlMKQZNm1LkymKzsRKhrm5PgDrh3uJbucsIwlLLmethlw1i+99sx5FlEXp4UBEX/o0JDJsYtDXR4="
     # COVERALLS_REPO_TOKEN
-    - secure: "CZoXk4GAyGWxIapf+aSI0FhDr21McRxuih8X0kIikkSRLdNPOAlwdH0lj44bWF26T6RGI+GmayCVOMaD+Z53Sas/0tVtMgI1tu5LCgGn/kvCECi94R3n/u8V5s9eBcWps0QWujqG1IlLVPzzMbDWiP7SyIBBXcDVvWh91L3uJh0="
-
+    - secure: "euBGQ3urx4mL5tZVuN2uQ9Lt2NGMaaTOytMrSzJxvCVql+THYeK80SUDM6eaZ0XQwnKnKugA7vgrH5APhVER5Szzp14V53UnYNykzhVzXzJDU7UeUlqCEedPLy+WjUtIJc4VQWeELBpDh0o2dF4jfObBhcKlhjwjLH0k1CHH1Yg="
   matrix:
     - TRIGGER_OSX=TRUE
       TRIGGER_BB=TRUE
