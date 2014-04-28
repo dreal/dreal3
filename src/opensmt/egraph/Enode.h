@@ -89,11 +89,11 @@ public:
   inline bool isDiv               ( ) const { return hasSymbolId( ENODE_ID_DIV         ); }
 
   /* added for dReal2 */
-  inline bool isArcCos            ( ) const { return hasSymbolId( ENODE_ID_ARCCOS              ); }
-  inline bool isArcSin            ( ) const { return hasSymbolId( ENODE_ID_ARCSIN              ); }
-  inline bool isArcTan            ( ) const { return hasSymbolId( ENODE_ID_ARCTAN              ); }
-  inline bool isArcTan2           ( ) const { return hasSymbolId( ENODE_ID_ARCTAN2             ); }
-  inline bool isMArcTan           ( ) const { return hasSymbolId( ENODE_ID_MARCTAN             ); }
+  inline bool isAcos              ( ) const { return hasSymbolId( ENODE_ID_ACOS              ); }
+  inline bool isAsin              ( ) const { return hasSymbolId( ENODE_ID_ASIN              ); }
+  inline bool isAtan              ( ) const { return hasSymbolId( ENODE_ID_ATAN              ); }
+  inline bool isAtan2             ( ) const { return hasSymbolId( ENODE_ID_ATAN2             ); }
+  inline bool isMatan             ( ) const { return hasSymbolId( ENODE_ID_MATAN             ); }
   inline bool isSafeSqrt          ( ) const { return hasSymbolId( ENODE_ID_SAFESQRT            ); }
   inline bool isExp               ( ) const { return hasSymbolId( ENODE_ID_EXP         ); }
   inline bool isLog               ( ) const { return hasSymbolId( ENODE_ID_LOG         ); }
@@ -476,7 +476,7 @@ inline void Enode::setPrecision ( const double v )
 {
   assert( isTerm( ) );
 
-  if( isNot() ) 
+  if( isNot() )
   {
     //only set precision on the atom (not the literal)
     get1st()->setPrecision(v);

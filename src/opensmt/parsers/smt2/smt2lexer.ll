@@ -141,22 +141,21 @@ char * pbuffer2;
 "Real"                       { return TK_REAL; }
 "Bool"                       { return TK_BOOL; }
 
-"sin"			{ return TK_SIN; /* added for dReal2 */ }
-"cos"			{ return TK_COS; }
-"tan"			{ return TK_TAN; }
-"exp"			{ return TK_EXP; }
-"log"			{ return TK_LOG; }
-"arcsin"		{ return TK_ARCSIN; }
-"arccos"		{ return TK_ARCCOS; }
-"arctan"		{ return TK_ARCTAN; }
-"sinh"			{ return TK_SINH; }
-"cosh"			{ return TK_COSH; }
-"tanh"			{ return TK_TANH; }
-"arctan2"		{ return TK_ARCTAN2; }
-"marctan"		{ return TK_MARCTAN; }
-"safesqrt"		{ return TK_SAFESQRT; }
-"^"|"pow"		{ return TK_POW; }
-
+"sin"                        { return TK_SIN; /* added for dReal2 */ }
+"cos"                        { return TK_COS; }
+"tan"                        { return TK_TAN; }
+"exp"                        { return TK_EXP; }
+"log"                        { return TK_LOG; }
+"asin"|"arcsin"              { return TK_ASIN; }
+"acos"|"arccos"              { return TK_ACOS; }
+"atan"|"arctan"              { return TK_ATAN; }
+"sinh"                       { return TK_SINH; }
+"cosh"                       { return TK_COSH; }
+"tanh"                       { return TK_TANH; }
+"atan2"|"arctan2"            { return TK_ATAN2; }
+"matan"|"marctan"            { return TK_MATAN; }
+"safesqrt"                   { return TK_SAFESQRT; }
+"^"|"pow"                    { return TK_POW; }
 
 "-"?((([0-9]+)|([0-9]*\.?[0-9]+))([eE][-+]?[0-9]+)?)                           { smt2lval.str = strdup(yytext); return TK_NUM; }
 "-"?((([0-9]+)|([0-9]+\.)))                                                    { smt2lval.str = strdup(yytext); return TK_NUM; }
@@ -165,7 +164,7 @@ char * pbuffer2;
 \:[a-zA-Z0-9~!@\$\%\^&\*_\-\+=\<\>\.\?\/]+                                     { smt2lval.str = strdup( yytext ); return TK_KEY; }
 [a-zA-Z~!@\$\%\^&\*_\-\+=\<\>\.\?\/'][a-zA-Z0-9~!@\$\%\^&\*_\-\+=\<\>\.\?\/']* { smt2lval.str = strdup( yytext ); return TK_SYM; }
 
-\|		{ pbuffer2 = buffer2; BEGIN(start_source); }
+\|              { pbuffer2 = buffer2; BEGIN(start_source); }
 <start_source>{
   [^\|\n]       { *pbuffer2++ = yytext[0]; }
   \n            { *pbuffer2++ = '\n'; }

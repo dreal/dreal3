@@ -146,18 +146,18 @@ void Egraph::initializeStore( )
   newSymbol( "sin"       , sarith1 ); assert( ENODE_ID_SIN   == id_to_enode.size( ) - 1 );
   newSymbol( "cos"       , sarith1 ); assert( ENODE_ID_COS   == id_to_enode.size( ) - 1 );
   newSymbol( "tan"       , sarith1 ); assert( ENODE_ID_TAN   == id_to_enode.size( ) - 1 );
-  newSymbol( "asin"      , sarith1 ); assert( ENODE_ID_ARCSIN   == id_to_enode.size( ) - 1 );
-  newSymbol( "acos"      , sarith1 ); assert( ENODE_ID_ARCCOS   == id_to_enode.size( ) - 1 );
-  newSymbol( "atan"      , sarith1 ); assert( ENODE_ID_ARCTAN   == id_to_enode.size( ) - 1 );
+  newSymbol( "asin"      , sarith1 ); assert( ENODE_ID_ASIN == id_to_enode.size( ) - 1 );
+  newSymbol( "acos"      , sarith1 ); assert( ENODE_ID_ACOS == id_to_enode.size( ) - 1 );
+  newSymbol( "atan"      , sarith1 ); assert( ENODE_ID_ATAN == id_to_enode.size( ) - 1 );
   newSymbol( "sinh"      , sarith1 ); assert( ENODE_ID_SINH   == id_to_enode.size( ) - 1 );
   newSymbol( "cosh"      , sarith1 ); assert( ENODE_ID_COSH   == id_to_enode.size( ) - 1 );
   newSymbol( "tanh"      , sarith1 ); assert( ENODE_ID_TANH   == id_to_enode.size( ) - 1 );
-  newSymbol( "^"         , sarith2_left); assert (ENODE_ID_POW  == id_to_enode.size() - 1 );
-  newSymbol( "atan2"     , sarith2_left ); assert( ENODE_ID_ARCTAN2   == id_to_enode.size( ) - 1 );
-  newSymbol( "matan"     , sarith1 ); assert( ENODE_ID_MARCTAN   == id_to_enode.size( ) - 1 );
-  newSymbol( "safesqrt"  , sarith1 ); assert( ENODE_ID_SAFESQRT   == id_to_enode.size( ) - 1 );
-  newSymbol( "forallt"   , sarith1_bool ); assert( ENODE_ID_FORALLT   == id_to_enode.size( ) - 1 );
-  newSymbol( "integral"  , sarith5_bool ); assert( ENODE_ID_INTEGRAL   == id_to_enode.size( ) - 1 );
+  newSymbol( "^"         , sarith2_left); assert (ENODE_ID_POW == id_to_enode.size() - 1 );
+  newSymbol( "atan2"     , sarith2_left ); assert( ENODE_ID_ATAN2 == id_to_enode.size( ) - 1 );
+  newSymbol( "matan"     , sarith1 ); assert( ENODE_ID_MATAN == id_to_enode.size( ) - 1 );
+  newSymbol( "safesqrt"  , sarith1 ); assert( ENODE_ID_SAFESQRT == id_to_enode.size( ) - 1 );
+  newSymbol( "forallt"   , sarith1_bool ); assert( ENODE_ID_FORALLT == id_to_enode.size( ) - 1 );
+  newSymbol( "integral"  , sarith5_bool ); assert( ENODE_ID_INTEGRAL == id_to_enode.size( ) - 1 );
   /* ---------------- */
 
  //
@@ -807,29 +807,29 @@ Enode * Egraph::mkTan              ( Enode * args)
   return res;
 }
 
-Enode * Egraph::mkArcSin              ( Enode * args)
+Enode * Egraph::mkAsin              ( Enode * args)
 {
   assert( args );
   assert( args->getArity( ) == 1 );
-  Enode * res = cons( id_to_enode[ ENODE_ID_ARCSIN], args );
+  Enode * res = cons( id_to_enode[ ENODE_ID_ASIN], args );
   assert( res );
   return res;
 }
 
-Enode * Egraph::mkArcCos              ( Enode * args)
+Enode * Egraph::mkAcos              ( Enode * args)
 {
   assert( args );
   assert( args->getArity( ) == 1 );
-  Enode * res = cons( id_to_enode[ ENODE_ID_ARCCOS], args );
+  Enode * res = cons( id_to_enode[ ENODE_ID_ACOS], args );
   assert( res );
   return res;
 }
 
-Enode * Egraph::mkArcTan              ( Enode * args)
+Enode * Egraph::mkAtan              ( Enode * args)
 {
   assert( args );
   assert( args->getArity( ) == 1 );
-  Enode * res = cons( id_to_enode[ ENODE_ID_ARCTAN], args );
+  Enode * res = cons( id_to_enode[ ENODE_ID_ATAN], args );
   assert( res );
   return res;
 }
@@ -859,20 +859,20 @@ Enode * Egraph::mkTanh             ( Enode * args)
   return res;
 }
 
-Enode * Egraph::mkArcTan2             ( Enode * args)
+Enode * Egraph::mkAtan2             ( Enode * args)
 {
   assert( args );
   assert( args->getArity( ) == 2 );
-  Enode * res = cons( id_to_enode[ ENODE_ID_ARCTAN2], args );
+  Enode * res = cons( id_to_enode[ ENODE_ID_ATAN2], args );
   assert( res );
   return res;
 }
 
-Enode * Egraph::mkMArcTan             ( Enode * args)
+Enode * Egraph::mkMatan             ( Enode * args)
 {
   assert( args );
   assert( args->getArity( ) == 1 );
-  Enode * res = cons( id_to_enode[ ENODE_ID_MARCTAN], args );
+  Enode * res = cons( id_to_enode[ ENODE_ID_MATAN], args );
   assert( res );
   return res;
 }
@@ -1055,7 +1055,7 @@ Enode * Egraph::mkNot( Enode * args )
   // not not p --> p
   if ( arg->isNot( ) )
     return arg->get1st( );
-  
+
 
   // not false --> true
   if ( arg->isFalse( ) )

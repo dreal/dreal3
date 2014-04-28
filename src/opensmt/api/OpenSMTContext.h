@@ -177,14 +177,14 @@ public:
   inline Enode * mkSin       ( Enode * e )       { assert(e); return egraph.mkSin(e);}
   inline Enode * mkCos       ( Enode * e )       { assert(e); return egraph.mkCos(e);}
   inline Enode * mkTan       ( Enode * e )       { assert(e); return egraph.mkTan(e);}
-  inline Enode * mkArcSin    ( Enode * e )       { assert(e); return egraph.mkArcSin(e);}
-  inline Enode * mkArcCos    ( Enode * e )       { assert(e); return egraph.mkArcCos(e);}
-  inline Enode * mkArcTan    ( Enode * e )       { assert(e); return egraph.mkArcTan(e);}
+  inline Enode * mkAsin      ( Enode * e )       { assert(e); return egraph.mkAsin(e);}
+  inline Enode * mkAcos      ( Enode * e )       { assert(e); return egraph.mkAcos(e);}
+  inline Enode * mkAtan      ( Enode * e )       { assert(e); return egraph.mkAtan(e);}
   inline Enode * mkSinh      ( Enode * e )       { assert(e); return egraph.mkSinh(e);}
   inline Enode * mkCosh      ( Enode * e )       { assert(e); return egraph.mkCosh(e);}
   inline Enode * mkTanh      ( Enode * e )       { assert(e); return egraph.mkTanh(e);}
-  inline Enode * mkArcTan2   ( Enode * e )       { assert(e); return egraph.mkArcTan2(e);}
-  inline Enode * mkMArcTan   ( Enode * e )       { assert(e); return egraph.mkMArcTan(e);}
+  inline Enode * mkAtan2     ( Enode * e )       { assert(e); return egraph.mkAtan2(e);}
+  inline Enode * mkMatan     ( Enode * e )       { assert(e); return egraph.mkMatan(e);}
   inline Enode * mkSafeSqrt  ( Enode * e )       { assert(e); return egraph.mkSafeSqrt(e);}
   inline Enode * mkForallT   ( Enode * mode, Enode * lb, Enode * ub, Enode * e ) { assert(e); return egraph.mkForallT(mode, lb, ub, e);}
   inline Enode * mkIntegral  ( Enode * time_0, Enode * time_t, Enode * vec_0, Enode * vec_t, char * flowname ) {
@@ -195,8 +195,8 @@ public:
       assert(flowname);
       return egraph.mkIntegral(time_0, time_t, vec_0, vec_t, flowname);
   }
-  
-  inline void setMaxPrecision ( const double d ) 
+
+  inline void setMaxPrecision ( const double d )
   {
     if(d > config.nra_precision)
       config.nra_precision = d;

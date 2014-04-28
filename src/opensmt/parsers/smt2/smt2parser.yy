@@ -90,8 +90,8 @@ void smt2error( const char * s )
 %token TK_RANDOM_SEED TK_VERBOSITY
 
 /* added for dReal2 */
-%token TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW TK_SINH TK_COSH TK_TANH
-%token TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT TK_INTEGRAL
+%token TK_EXP TK_SIN TK_COS TK_ASIN TK_ACOS TK_LOG TK_TAN TK_ATAN TK_POW TK_SINH TK_COSH TK_TANH
+%token TK_ATAN2 TK_MATAN TK_SAFESQRT TK_INTEGRAL
 
 %type <str> precision
 
@@ -99,8 +99,8 @@ void smt2error( const char * s )
 %type <str> identifier spec_const b_value s_expr
 %type <str> TK_LEQ TK_GEQ TK_LT TK_GT TK_FORALLT
 %type <str> TK_PLUS TK_MINUS TK_TIMES TK_UMINUS TK_DIV
-%type <str> TK_EXP TK_SIN TK_COS TK_ARCSIN TK_ARCCOS TK_LOG TK_TAN TK_ARCTAN TK_POW TK_SINH TK_COSH TK_TANH
-%type <str> TK_ARCTAN2 TK_MARCTAN TK_SAFESQRT TK_INTEGRAL
+%type <str> TK_EXP TK_SIN TK_COS TK_ASIN TK_ACOS TK_LOG TK_TAN TK_ATAN TK_POW TK_SINH TK_COSH TK_TANH
+%type <str> TK_ATAN2 TK_MATAN TK_SAFESQRT TK_INTEGRAL
 
 /* %type <str_list> numeral_list */
 %type <enode> term_list term
@@ -440,14 +440,14 @@ term: spec_const
     | '(' TK_TAN term_list ')'
       { $$ = parser_ctx->mkTan( $3 ); }
 
-    | '(' TK_ARCSIN term_list ')'
-      { $$ = parser_ctx->mkArcSin( $3 ); }
+    | '(' TK_ASIN term_list ')'
+      { $$ = parser_ctx->mkAsin( $3 ); }
 
-    | '(' TK_ARCCOS term_list ')'
-      { $$ = parser_ctx->mkArcCos( $3 ); }
+    | '(' TK_ACOS term_list ')'
+      { $$ = parser_ctx->mkAcos( $3 ); }
 
-    | '(' TK_ARCTAN term_list ')'
-      { $$ = parser_ctx->mkArcTan( $3 ); }
+    | '(' TK_ATAN term_list ')'
+      { $$ = parser_ctx->mkAtan( $3 ); }
 
     | '(' TK_SINH term_list ')'
       { $$ = parser_ctx->mkSinh( $3 ); }
@@ -458,11 +458,11 @@ term: spec_const
     | '(' TK_TANH term_list ')'
       { $$ = parser_ctx->mkTanh( $3 ); }
 
-    | '(' TK_ARCTAN2 term_list ')'
-      { $$ = parser_ctx->mkArcTan2( $3 ); }
+    | '(' TK_ATAN2 term_list ')'
+      { $$ = parser_ctx->mkAtan2( $3 ); }
 
-    | '(' TK_MARCTAN term_list ')'
-      { $$ = parser_ctx->mkMArcTan( $3 ); }
+    | '(' TK_MATAN term_list ')'
+      { $$ = parser_ctx->mkMatan( $3 ); }
 
     | '(' TK_SAFESQRT term_list ')'
       { $$ = parser_ctx->mkSafeSqrt( $3 ); }
