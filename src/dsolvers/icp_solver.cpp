@@ -26,6 +26,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include "util/hexfloat.h"
 #include "util/logging.h"
 #include "util/scoped_env.h"
 #include "util/scoped_vec.h"
@@ -39,6 +40,7 @@ using std::numeric_limits;
 using std::setfill;
 using std::setw;
 using std::stable_sort;
+using std::streamsize;
 using std::unordered_map;
 using std::unordered_set;
 
@@ -156,8 +158,8 @@ rp_problem* icp_solver::create_rp_problem() {
     // ======================================
     for (auto const & p : m_env) {
         Enode* const key = p.first;
-        double const lb = p.second.first;
-        double const ub = p.second.second;
+        double const lb = p.second.lb;
+        double const ub = p.second.ub;
 
         rp_variable * v = new rp_variable;
         m_rp_variables.push_back(v);
@@ -178,7 +180,7 @@ rp_problem* icp_solver::create_rp_problem() {
         m_enode_to_rp_id[key] = rp_id;
         DREAL_LOG_INFO << "icp_solver::create_rp_problem:\t"
                        << "key: " << setfill(' ') << setw(15) << name << ", "
-                       << "value : [" << setw(15) << lb << ", " << setw(15) << ub << "], "
+                       << "value : " << interval(lb, ub)
                        << "prec : " << m_config.nra_precision << ", "
                        << "rp_id: " << setw(4) << rp_id;
     }
@@ -215,7 +217,6 @@ rp_problem* icp_solver::create_rp_problem() {
             delete c;
         }
     }
-    cerr << "CREATE RP PROBLEM" << endl;
     DREAL_LOG_INFO << "icp_solver::create_rp_problem rp_problem_display";
     if (DREAL_LOG_INFO_IS_ON) {
         rp_problem_display(stderr, *rp_prob);
@@ -273,10 +274,6 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver:
     return;
 }
 #endif
-
-void print_interval(ostream & out, double lb, double ub) {
-    out << "[" << lb << ", " << ub << "]";
-}
 
 bool icp_solver::prop_with_ODE() {
     if (m_propag->apply(m_boxes.get())) {
@@ -488,7 +485,7 @@ rp_box icp_solver::compute_next() {
                                            << rp_variable_name(rp_problem_var(*m_problem, i))
                                            << "]"
                                            << endl;
-                    pprint_vars(m_config.nra_proof_out, *m_problem, b);
+                    pprint_vars(m_config.nra_proof_out, *m_problem, b, true);
                 }
                 ++m_nsplit;
                 m_dsplit->apply(m_boxes, i);
@@ -538,7 +535,7 @@ bool icp_solver::solve() {
             DREAL_LOG_INFO << "icp_solver:: SAT with the following box:";
             if (m_config.nra_verbose) {
                 if (DREAL_LOG_INFO_IS_ON) {
-                    pprint_vars(cerr, *m_problem, b);
+                    pprint_vars(cerr, *m_problem, b, false);
                     if (m_config.nra_delta_test) {
                         pprint_lits(cerr, *m_problem, b);
                     }
@@ -548,7 +545,7 @@ bool icp_solver::solve() {
                 m_config.nra_proof_out.close();
                 m_config.nra_proof_out.open(m_config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
                 m_config.nra_proof_out << "SAT with the following box:" << endl;
-                pprint_vars(m_config.nra_proof_out, *m_problem, b);
+                pprint_vars(m_config.nra_proof_out, *m_problem, b, false);
                 if (m_config.nra_delta_test) {
                     pprint_lits(m_config.nra_proof_out, *m_problem, b);
                 }
@@ -565,81 +562,30 @@ bool icp_solver::solve() {
     }
 }
 
-void icp_solver::display_box(ostream& out, rp_box b, int digits, int mode) const {
-    if (rp_box_empty(b)) {
-        out << "empty";
+void display_number(ostream & out, double x, int digits, bool exact) {
+    if (exact) {
+        out << to_hexfloat(x);
     } else {
-        out << "(";
-        for (int i = 0; i < rp_box_size(b); ++i) {
-            display_interval(out, rp_box_elem(b, i), digits, mode);
-            if (i < (rp_box_size(b) - 1)) {
-                out << ",";
-            }
-        }
-        out << ")";
+        streamsize ss = out.precision();
+        out.precision(digits);
+        out << x;
+        out.precision(ss);
     }
 }
 
-void icp_solver::display_interval(ostream & out, rp_interval i, int digits, int mode) const {
-    if (rp_interval_empty(i)) {
-        out << "empty";
-        return;
-    }
-    if (rp_interval_point(i) == true) {
-        if (rp_binf(i) >= 0) {
-            out.precision(digits);
-            out << rp_binf(i);
-        } else {
-            out.precision(digits);
-            out << rp_binf(i);
-        }
-    } else {
-        if (mode == RP_INTERVAL_MODE_BOUND) {
-            if (rp_binf(i) >= 0) {
-                if (rp_binf(i) == 0) {
-                    out << "[0" << RP_INTERVAL_SEPARATOR;
-                } else {
-                    RP_ROUND_DOWNWARD();
-                    out.precision(digits);
-                    out << "[" << rp_binf(i) << RP_INTERVAL_SEPARATOR;
-                }
-                RP_ROUND_UPWARD();
-                if (rp_bsup(i) == RP_INFINITY) {
-                    out << "+oo";
-                } else {
-                    out.precision(digits);
-                    out << rp_bsup(i) << "]";
-                }
-            } else {
-                RP_ROUND_DOWNWARD();
-                if (rp_binf(i) == -RP_INFINITY) {
-                    out << "(-oo" << RP_INTERVAL_SEPARATOR;
-                } else {
-                    out.precision(digits);
-                    out << "[" << rp_binf(i) << RP_INTERVAL_SEPARATOR;
-                }
-                RP_ROUND_UPWARD();
-                if (rp_bsup(i) == RP_INFINITY) {
-                    out << "+oo";
-                } else {
-                    if (rp_bsup(i) == 0) {
-                        out << "0]";
-                    } else {
-                        out.precision(digits);
-                        out << rp_bsup(i) << "]";
-                    }
-                }
-            }
-        }
-    }
+void icp_solver::display_interval(ostream & out, rp_interval i, int digits, bool exact) const {
+    static interval tmp;
+    tmp.lb = rp_binf(i);
+    tmp.ub = rp_bsup(i);
+    tmp.print(out, digits, exact);
 }
 
-void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b) const {
+void icp_solver::pprint_vars(ostream & out, rp_problem p, rp_box b, bool exact) const {
     for (int i = 0; i <rp_problem_nvar(p); i++) {
         out << setw(15);
         out << rp_variable_name(rp_problem_var(p, i));
         out << " : ";
-        display_interval(out, rp_box_elem(b, i), 16, RP_INTERVAL_MODE_BOUND);
+        display_interval(out, rp_box_elem(b, i), 16, exact);
         if (i != rp_problem_nvar(p) - 1)
             out << ";";
         out << endl;
@@ -691,27 +637,7 @@ void icp_solver::output_problem() const {
     }
 
     // Print out the initial values
-    for (auto const & p : m_env) {
-        Enode* const key = p.first;
-        double const lb = p.second.first;
-        double const ub = p.second.second;
-
-        m_config.nra_proof_out << key << ": ";
-        if (lb == -numeric_limits<double>::infinity()) {
-            m_config.nra_proof_out << "(-oo";
-        } else {
-            m_config.nra_proof_out.precision(16);
-            m_config.nra_proof_out << "[" << lb;
-        }
-        m_config.nra_proof_out << ", ";
-        if (ub == numeric_limits<double>::infinity()) {
-            m_config.nra_proof_out << "+oo)";
-        } else {
-            m_config.nra_proof_out.precision(16);
-            m_config.nra_proof_out << ub << "]";
-        }
-        m_config.nra_proof_out << ";" << endl;
-    }
+    m_config.nra_proof_out << m_env << endl;
 }
 
 // return true if the box is non-empty after propagation
@@ -732,8 +658,8 @@ bool icp_solver::prop() {
         for (auto const & p : m_env) {
             Enode* const key = p.first;
             int const rp_id = m_enode_to_rp_id[key];
-            m_env.update(key, make_pair(rp_binf(rp_box_elem(b, rp_id)),
-                                        rp_bsup(rp_box_elem(b, rp_id))));
+            m_env.update(key, interval(rp_binf(rp_box_elem(b, rp_id)),
+                                       rp_bsup(rp_box_elem(b, rp_id))));
         }
         if (m_config.nra_proof) { m_config.nra_proof_out << "HOLE" << endl; }
     }

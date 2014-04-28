@@ -62,9 +62,9 @@ private:
     bool        prop_with_ODE(); // propagate with ODE (only in complete check)
     rp_box      compute_next(); // computation of the next solution
     void        output_problem() const;
-    void        display_box(ostream& out, rp_box b, int digits, int mode) const;
-    void        display_interval(ostream & out, rp_interval i, int digits, int mode) const;
-    void        pprint_vars(ostream & out, rp_problem p, rp_box b) const;
+    void        display_box(ostream& out, rp_box b, int digits, int mode, bool exact) const;
+    void        display_interval(ostream & out, rp_interval i, int digits, bool exact) const;
+    void        pprint_vars(ostream & out, rp_problem p, rp_box b, bool exact) const;
     void        pprint_lits(ostream & out, rp_problem p, rp_box b) const;
 
 #ifdef ODE_ENABLED

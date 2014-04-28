@@ -21,8 +21,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <utility>
 #include <sstream>
+#include <string>
 #include <unordered_set>
 #include "util/logging.h"
+#include "util/interval.h"
 #include "util/string.h"
 #include "dsolvers/icp_solver.h"
 #include "dsolvers/nra_solver.h"
@@ -47,7 +49,7 @@ lbool nra_solver::inform(Enode * e) {
     for (auto const & v : vars) {
         double const lb = v->getLowerBound();
         double const ub = v->getUpperBound();
-        m_env.insert(v, make_pair(lb, ub));
+        m_env.insert(v, interval(lb, ub));
         if (DREAL_LOG_INFO_IS_ON) {
             ss << v << " ";
         }
