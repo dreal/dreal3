@@ -40,7 +40,7 @@ char * pbuffer2;
 
 %%
 
-[ \t\n]                      { }
+[ \t\n\r]                    { }
 ";".*\n                      { }
 ":print-success"             { return TK_PRINT_SUCCESS; }
 ":expand-definitions"        { return TK_EXPAND_DEFINITIONS; }
