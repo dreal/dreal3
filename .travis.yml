@@ -4,9 +4,9 @@ env:
   global:
     # BB_TOKEN
     - secure: "XwaQTGdRVSTuyQoRnlC5nG3fr8lpuxIu8Y+apMkeR8OEvGvENzBpECWmUpkeqUeqN/GO5Vj0SwWElSLYII1xuJGzdYdZq5660lzghjvF+uG5zQbT+PzfRzQMBAulcPmHg56ZFvxe2T3wTQulC28x5lNaMBndSp8ge/eFItaFESI="
-    # DREALREPO
-    - secure: "Q0UZnALjy+EboS3XBUaH+liMrCITbDXybFGmriDOLPKGPmAeNxN9lCXLyl4T9ZOPNpjTEAeSBSDkmxKuBTbFGFEAOhamsTZQnLkXzFtIJNXxF13c/ubMPwkY0PgLrayvqJdmNcLqM1goz7OuLrMg/rb0JM7JVOScdn++7OfJae8="
-    # GH_TOKEN
+    # DREALREPO - encrypt "blessed" with private key (travis-ci)
+    - secure: "VzZmRoTr6xvZYVPTyvtDzojBS9Acd/naRCABjh76zeZkM2PUZpe0h9Yeof1+YpTCDdfwe/WmWYRa2FyebSBc9yTtOWdlUJ1WFDTq9w4yFzZeCSdSaMtVNWLiW7FqR1AwQBkiuA/frYq1v5yjXPaRLqWD11wQtAFn4ykt14F7VlQ="
+    # GH_TOKEN - for OSX repository
     - secure: "dgm4Dvk64PhJN0dWMdXoQVP0ObANaarW3IvGqxvJ4jADTRSZzFqeA4hYM3cLAb2Rkmx2ftKdQqFbRUfWysT26Zd3CykbdgqmNgYN+kHntkeUmGvoB8SidCwzwo1VsU8f53DG//bYw3ZpBJZY/ljfiehdsi4BTxrIcX7pW1DQZ0Q="
     # COVERALLS_REPO_TOKEN
     - secure: "CZoXk4GAyGWxIapf+aSI0FhDr21McRxuih8X0kIikkSRLdNPOAlwdH0lj44bWF26T6RGI+GmayCVOMaD+Z53Sas/0tVtMgI1tu5LCgGn/kvCECi94R3n/u8V5s9eBcWps0QWujqG1IlLVPzzMbDWiP7SyIBBXcDVvWh91L3uJh0="
