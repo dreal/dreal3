@@ -40,6 +40,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "THandler.h"
 #include "Sort.h"
 #include <cmath>
+#include "util/logging.h"
 
 #ifndef OPTIMIZE
 #include <iostream>
@@ -1709,11 +1710,29 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 	  }
 	}
 
-	if (next == lit_Undef){
-	  // New variable decision:
-	  decisions++;
-	  next = pickBranchLit(polarity_mode, random_var_freq);
+	bool isSAT = false;
+	if(config.short_sat){
+	  //check if SAT, even if not all literals are assigned
+	  isSAT = true;
+	  for (int c = 0; c < nClauses(); c++) {
+	    if (!satisfied(*clauses[c])) {
+	      isSAT = false;
+	      break;
+	    }
+	  }
+	  if( isSAT ){
+	    DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
+	    //first_model_found = true;
+	    next = lit_Undef;
+	  }
+	}
 
+	if (next == lit_Undef){
+	  if( !isSAT ){
+	    // New variable decision:
+	    decisions++;
+	    next = pickBranchLit(polarity_mode, random_var_freq);
+	  }
 	  // Complete Call
 	  if ( next == lit_Undef )
 	  {
@@ -1749,6 +1768,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
 	  if (next == lit_Undef)
 	    // Model found:
+	    
 	    return l_True;
 	}
 

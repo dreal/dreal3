@@ -321,6 +321,11 @@ double icp_solver::constraint_width(const rp_constraint * c, rp_box b) const {
     return 0.0;
 }
 
+bool icp_solver::constraint_sat(const rp_constraint * c, rp_box b) const {
+  return rp_constraint_inner(*c, b);
+}
+
+
 int icp_solver::get_var_split_delta(rp_box b) {
     // get constraint with max residual width
 
