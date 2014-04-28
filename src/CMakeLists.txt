@@ -7,6 +7,7 @@ set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
 option(REQUIRE_ODE "REQUIRE_ODE" OFF)
+option(STATIC      "STATIC"      OFF)
 
 # Added for CTest
 include(CTest)
@@ -20,6 +21,15 @@ set(DREAL_EXTRA_CXX_FLAGS "")
 # Set Module Path
 ################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
+################################################################
+# Static Build
+################################################################
+if("${STATIC}" MATCHES "ON")
+  set(DREAL_EXTRA_LINKER_FLAGS "${DREAL_EXTRA_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
+#  set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
+  message(STATUS "Creating a static executable")
+endif()
 
 ################################################################
 # Initialize CXXFLAGS.
@@ -221,6 +231,11 @@ set(ODE_ENABLED TRUE)
 # FILIB LIB
 ################################################################
 set(EXTRA_LIBS ${EXTRA_LIBS} "-lprim")
+
+################################################################
+# PTHREAD LIB
+################################################################
+set(EXTRA_LIBS ${EXTRA_LIBS} "-lpthread")
 
 ################################################################
 # GIT HASH
