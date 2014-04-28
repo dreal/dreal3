@@ -5,4 +5,6 @@ FOREACH(instance ${NRA_INSTANCES})
   GET_FILENAME_COMPONENT(instance_name ${instance} NAME)
   add_test(NAME "regression_nra_ode_${instance_name}"
            COMMAND "${DREAL_SOURCE_DIR}/tests/nra_ode/test.sh" ${DREAL_BINARY} ${instance})
+  add_test(NAME "regression_nra_ode_shortsat_${instance_name}"
+           COMMAND "${DREAL_SOURCE_DIR}/tests/nra_ode/test_shortsat.sh" ${DREAL_BINARY} ${instance})
 ENDFOREACH(instance)

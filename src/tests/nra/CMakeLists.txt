@@ -9,4 +9,7 @@ FOREACH(instance ${NRA_INSTANCES})
   add_test(NAME "regression_nra_delta_${instance_name}"
             COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test_delta.sh"
 	    ${DREAL_BINARY} ${instance} ${instance_name})
+  add_test(NAME "regression_nra_shortsat_${instance_name}"
+            COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test_shortsat.sh"
+	    ${DREAL_BINARY} ${instance} ${instance_name})
 ENDFOREACH(instance)

@@ -13,7 +13,7 @@ elif [ $INSTANCE_NAME == "fedor_12_dan_both.smt2" ] ; then
  exit 0
 fi
 
-$DREAL --delta --delta_heuristic $INSTANCE | tee $TMP
+$DREAL --short_sat $INSTANCE | tee $TMP
 diff $TMP $EXPECTED_OUT
 RESULT=$?
 rm $TMP
