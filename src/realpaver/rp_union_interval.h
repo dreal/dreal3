@@ -11,12 +11,7 @@
  * rp_union_interval.h                                                      *
  ****************************************************************************/
 
-#ifndef RP_UNION_INTERVAL_H
-#define RP_UNION_INTERVAL_H 1
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,11 +71,11 @@ void rp_union_display      (FILE *out, rp_union_interval u,
 #define rp_union_display_midpoint(o,u,d) \
   rp_union_display(o,u,d,RP_INTERVAL_MODE_MID)
 
-#define rp_union_display_simple(u) \
-  rp_union_display(stdout,u,8,RP_INTERVAL_MODE_BOUND)
+#define rp_union_display_simple(out, u)                  \
+  rp_union_display(out,u,8,RP_INTERVAL_MODE_BOUND)
 
-#define rp_union_display_simple_nl(u) \
-  rp_union_display_simple(u); \
+#define rp_union_display_simple_nl(out, u)       \
+  rp_union_display_simple(out, u);              \
   printf("\n")
 
 /* ----------- */
@@ -148,9 +143,3 @@ int rp_union_inter_iu (rp_interval i, rp_union_interval u);
 /* returns the cardinal of result                         */
 int rp_interval_extended_div (rp_union_interval result,
                               rp_interval i1, rp_interval i2);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* RP_UNION_INTERVAL_H */
