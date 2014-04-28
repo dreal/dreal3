@@ -1,1 +1,7 @@
-add_library(util scoped_env.cpp scoped_vec.cpp string.cpp hexfloat.cpp)
+add_library(util
+  hexfloat.cpp
+  interval.cpp
+  scoped_env.cpp
+  scoped_vec.cpp
+  string.cpp
+  )
