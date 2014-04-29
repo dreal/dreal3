@@ -24,10 +24,15 @@
      ("cos", COS);
      ("tan", TAN);
      ("safesqrt", SAFESQRT);
+     ("asin", ASIN);
+     ("acos", ACOS);
+     ("atan", ATAN);
      ("arcsin", ASIN);
      ("arccos", ACOS);
      ("arctan", ATAN);
+     ("atan2", ATAN2);
      ("arctan2", ATAN2);
+     ("matan", MATAN);
      ("marctan", MATAN);
      ("sinh", SINH);
      ("cosh", COSH);
