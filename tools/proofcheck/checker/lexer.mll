@@ -50,7 +50,7 @@ let blank = [' ' '\t']+
 let id = ['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z' '0'-'9' '_'])*
 let dec_lit = ['0'-'9']
 let hex_lit = ['0'-'9''a'-'f''A'-'F']
-let hex_number = "0x" hex_lit ('.' hex_lit+)? 'p' ('+'|'-') dec_lit+
+let hex_number = '-'?"0x" hex_lit ('.' hex_lit+)? 'p' ('+'|'-') dec_lit+
 let float_number = ('+'|'-')? ['0'-'9']+('.'(['0'-'9']*))?('e'('+'|'-')['0'-'9']+)?
 
 ('+'|'-')? ['0'-'9']+('.'(['0'-'9']*))?('e'('+'|'-')['0'-'9']+)?
