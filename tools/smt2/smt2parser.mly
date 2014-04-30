@@ -4,6 +4,7 @@
  */
 
 %{
+open Type
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
@@ -75,7 +76,7 @@ formula:
   | LET LP ebinding_list RP formula   { Basic.LetE ($3, $5) }
 ;
 
-precision: 
+precision:
  | LB FNUM RB { $2 }
 ;
 

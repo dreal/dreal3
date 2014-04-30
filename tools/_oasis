@@ -11,19 +11,26 @@ Library basic
   BuildTools: ocamlbuild
   BuildDepends: batteries
   NativeOpt:    -passopt -annot
-  Modules:    Type, Checker
+  Modules:    Type, Checker, Error
 
 Library parsing
-  Path:       ./parsing/
+  Path:       ./parsing
   BuildTools: ocamlbuild
   BuildDepends: basic
   NativeOpt:    -passopt -annot
-  Modules:    Drh_lexer, Drh_parser, Error
+  Modules:    Drh_lexer, Drh_parser
+
+Library smt2
+  Path:       ./smt2
+  BuildTools: ocamlbuild
+  BuildDepends: basic
+  NativeOpt:    -passopt -annot
+  Modules:    Smt2, Smt2_cmd
 
 Executable invck
   Path:       ./invariant-checking/src/
   BuildTools: ocamlbuild
-  BuildDepends: batteries, basic, parsing
+  BuildDepends: batteries, basic, parsing, smt2
   MainIs:     inv_main.ml
   NativeOpt:    -passopt -annot
   CompiledObject : native
@@ -31,7 +38,15 @@ Executable invck
 Executable bmc
   Path:       ./bmc/src/
   BuildTools: ocamlbuild
-  BuildDepends: batteries, basic, parsing
+  BuildDepends: batteries, basic, parsing, smt2
   MainIs:     bmc_main.ml
+  NativeOpt:    -passopt -annot
+  CompiledObject : native
+
+Executable smt2_stat
+  Path:       ./smt2_stat/
+  BuildTools: ocamlbuild
+  BuildDepends: batteries, basic, parsing, smt2
+  MainIs:     smt2_stat.ml
   NativeOpt:    -passopt -annot
   CompiledObject : native
