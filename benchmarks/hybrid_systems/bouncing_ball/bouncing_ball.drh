@@ -7,26 +7,28 @@
 { mode 1;
 
   invt:
-        (>= x 0);
+        (v <= 0);
+        (x >= 0);
   flow:
         d/dt[x] = v;
         d/dt[v] = g;
   jump:
-        (= x 0) ==> @2 (and (= x' x) (= v' (- 0 v)));
+        (x = 0) ==> @2 (and (x' = x) (v' = (0 - v)));
 }
 {
   mode 2;
   invt:
-        (>= x 0);
+        (v >= 0);
+        (x >= 0);
   flow:
         d/dt[x] = v; 
         d/dt[v] = g;
   jump:
-        (= v 0) ==> @1 (and (= x' x) (= v' v));
+        (v = 0) ==> @1 (and (x' = x) (v' = v));
 }
 
 init:
-@1	(and (= x 10) (= v 0));
+@1	(and (x = 10) (v = 0));
 
 goal:
-@2	(and (= x 1) (>= v -100));
+@2	(and (x = 1) (v >= 1));

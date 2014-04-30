@@ -1,6 +1,9 @@
 DREACH = dReach
 OPT =
 
+simple:
+	$(DREACH) -k 3 bouncing_ball.drh --precision=0.01 --ode_grid=1024 --visualize $(OPT)
+
 k2:
 	$(DREACH) -k 2 bouncing_ball_with_drag.drh --precision=0.01 --ode_grid=1024 --visualize $(OPT)
 
