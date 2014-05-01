@@ -57,7 +57,7 @@ module Basic = struct
   | Le  of exp * exp
   | Eq  of exp * exp
   | Gtp  of exp * exp * float
-  | Ltp  of exp * exp * float 
+  | Ltp  of exp * exp * float
   | Gep  of exp * exp * float
   | Lep  of exp * exp * float
   | Eqp  of exp * exp * float
@@ -720,19 +720,17 @@ module Basic = struct
         print_formula out f;
         String.print out ")";
       end
-
-  let rec print_infix_exp (out : 'a IO.output) : exp -> unit =
-    let print_infix_exps (op : string) (exps : exp list) =
-      begin
-        List.print
-          ~first:"("
-          ~sep: (" " ^ op ^ " ")
-          ~last:")"
-          print_infix_exp
-          out
-          exps
-      end
-    in
+  let rec print_infix_exps (out : 'a IO.output) (op : string) (exps : exp list) =
+    begin
+      List.print
+        ~first:"("
+        ~sep: (" " ^ op ^ " ")
+        ~last:")"
+        print_infix_exp
+        out
+        exps
+    end
+  and print_infix_exp (out : 'a IO.output) : exp -> unit =
     let print_fncall (fn_name : string) (exps : exp list) =
       begin
         List.print
@@ -775,12 +773,12 @@ module Basic = struct
         | false -> s
       in
       String.print out s'
-    | Neg e' -> print_infix_exps "-" [Num 0.0; e']
-    | Add es -> print_infix_exps "+" es
-    | Sub es -> print_infix_exps "-" es
-    | Mul es -> print_infix_exps "*" es
-    | Div (e1, e2) -> print_infix_exps "/" [e1; e2]
-    | Pow (e1, e2) -> print_infix_exps "^" [e1; e2]
+    | Neg e' -> print_infix_exps out "-" [Num 0.0; e']
+    | Add es -> print_infix_exps out "+" es
+    | Sub es -> print_infix_exps out "-" es
+    | Mul es -> print_infix_exps out "*" es
+    | Div (e1, e2) -> print_infix_exps out "/" [e1; e2]
+    | Pow (e1, e2) -> print_infix_exps out "^" [e1; e2]
     | Ite (f, e1, e2) ->
       begin
         String.print out "(ite ";
@@ -821,6 +819,31 @@ module Basic = struct
        begin
          List.print ~first:"integral( " ~last:")" ~sep:" " String.print out [string_of_float time_0; time_t; str_xs; flow]
        end
+  and print_infix_formula (out : 'a IO.output) : formula -> unit =
+    let print_infix_formulas (bop : string) (fs : formula list) : unit =
+      List.print ~first:"" ~sep:bop ~last:"" print_infix_formula out fs
+    in
+    function
+    | True -> String.print out "true"
+    | False -> String.print out "false"
+    | FVar x -> String.print out "x"
+    | Not f -> print_infix_formulas "not" [f]
+    | And fs -> print_infix_formulas "and" fs
+    | Or  fs -> print_infix_formulas "or"  fs
+    | Imply (f1, f2) -> print_infix_formulas "=>" [f1;f2]
+    | Gt (e1, e2) -> print_infix_exps out ">"  [e1; e2]
+    | Lt (e1, e2) -> print_infix_exps out "<"  [e1; e2]
+    | Ge (e1, e2) -> print_infix_exps out ">=" [e1; e2]
+    | Le (e1, e2) -> print_infix_exps out "<=" [e1; e2]
+    | Eq (e1, e2) -> print_infix_exps out "="  [e1 ; e2]
+    | Gtp  (e1, e2, p) -> failwith "print_infix_formula: not support Gtp yet"
+    | Ltp  (e1, e2, p) -> failwith "print_infix_formula: not support Ltp yet"
+    | Gep  (e1, e2, p) -> failwith "print_infix_formula: not support Gep yet"
+    | Lep  (e1, e2, p) -> failwith "print_infix_formula: not support Lep yet"
+    | Eqp  (e1, e2, p) -> failwith "print_infix_formula: not support Eqp yet"
+    | LetE _ -> failwith "print_infix_formula: not support LetE yet"
+    | LetF _ -> failwith "print_infix_formula: not support LetE yet"
+    | ForallT (m, lb, ub, f)-> failwith "print_infix_formula: not support ForallT yet"
 end
 
 module Value = struct
@@ -989,14 +1012,14 @@ module Mode = struct
                jumpmap= jumpmap}
       = id
 
-  let time_precision 
+  let time_precision
             {mode_id= id;
              time_precision= time_precision;
              invs_op= invs_op;
              flows= flows;
              jumpmap= jumpmap}
       = time_precision
-	     
+
   let invs_op {mode_id= id;
                invs_op= invs_op;
                flows= flows;
@@ -1122,10 +1145,10 @@ module Hybrid = struct
       Map.map
         (fun m ->
           Mode.make
-  	    (Mode.mode_id m,
-	     Mode.time_precision m,
+            (Mode.mode_id m,
+             Mode.time_precision m,
              begin
-	       match (Mode.invs_op m) with
+               match (Mode.invs_op m) with
                  None -> None
                | Some inv -> Some (List.map (Basic.preprocess_formula subst) inv)
              end,
