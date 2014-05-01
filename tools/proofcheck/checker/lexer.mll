@@ -64,6 +64,7 @@ rule start =
     | "("     { verbose (Lexing.lexeme lexbuf); LP }
     | ")"     { verbose (Lexing.lexeme lexbuf); RP }
     | "oo"   { verbose (Lexing.lexeme lexbuf); INFTY }
+    | "inf"   { verbose (Lexing.lexeme lexbuf); INFTY }
     | "="     { verbose (Lexing.lexeme lexbuf); EQ }
     | ">="    { verbose (Lexing.lexeme lexbuf); GE }
     | "<="    { verbose (Lexing.lexeme lexbuf); LE }
