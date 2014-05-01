@@ -56,7 +56,11 @@ let rec extract_nonlinear_func (smt2 : Smt2.t) : string Set.t =
     | Sub es           -> extract_nonlinear_func_from_es es
     | Mul es           -> extract_nonlinear_func_from_es es
     | Div (e1, e2)     -> extract_nonlinear_func_from_es [e1;e2]
-    | Pow (e1, e2)     -> extract_nonlinear_func_from_es [e1;e2]
+    | Pow (e1, e2)     -> 
+	let s = extract_nonlinear_func_from_es [e1;e2] in
+        if e2 = (Num 0.5) then
+	    Set.add "sqrt" s
+	else s
     | Ite (f', e1, e2) ->
       Set.union
         (extract_nonlinear_func_from_f f')
