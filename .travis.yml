@@ -41,7 +41,8 @@ env:
 install:
   # PUSH TO BACKUP REPO
   - if [[ $REPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
-      git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/dreal/dreal.git +master;
+      git fetch --unshallow;
+      git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/dreal/dreal.git +HEAD:master;
     fi
   # TRIGGER OSX Build
   - if [[ $REPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
