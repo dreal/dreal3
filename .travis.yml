@@ -3,9 +3,9 @@ cache: apt
 env:
   global:
     # BB_TOKEN - encrypt "bitbucket key" with travis-ci key
-    - secure: "bnHVgMePE5LrduSIq/u1DcajThJqAGuBiKwCER9az8obcxE6I8aR7a0TBUohz4Rqb/9XA4eoqESVY/Uqbe5tT2OcluMd5Js9XHDG4qRTod96GfPdZs4/GTO4uYw+sgBvA0kcJ0O/e9ktSQXM4MNZtDD2+49648J6td8Fpdne6m8="
-    # DREALREPO - encrypt "blessed" with private key (travis-ci)
-    - secure: "VzZmRoTr6xvZYVPTyvtDzojBS9Acd/naRCABjh76zeZkM2PUZpe0h9Yeof1+YpTCDdfwe/WmWYRa2FyebSBc9yTtOWdlUJ1WFDTq9w4yFzZeCSdSaMtVNWLiW7FqR1AwQBkiuA/frYq1v5yjXPaRLqWD11wQtAFn4ykt14F7VlQ="
+    - secure: "XhVgXQDJzjBBpzDpb2KeUf70xveR1sRQevU//k/mK/2ZLPnhZz/F9iMUC0vB3D0FNa+duA+euqZF+uJpwmsHxFQE4WCeLQVlUkQESoFGWxQp96Ql8uZ9xyMNCCrzc9oAYG1SBrno/yUtglWiLkhY15+wLWnMNTSmMm2Ap+4/kzM="
+    # REPO - encrypt "blessed" with private key (travis-ci)
+    - secure: "RGIRCTuB/1hOQmhVdkNJ6DUttbPOXhT/EQAB7+m/OWHsJsUP7ecvoFM6+tzfORZCZ++cpAyIB768UKKvV3FfpbWNLyDqOiZbgT9vKxnQqoJaJEg/dvzJHRHmxscoBYI0L72BA6Qb5298i+SG4PnryddtTw/AuqlHdIOsRg8O5hc="
     # GH_TOKEN - for OSX repository (soonhokong/dreal-osx)
     - secure: "amz2nrE/TakMzDk1CvvpKLjznkS2m1Gzl3gEB+w05YcmCUUS3iP9UAFTJgIVQJTYQ4MjkfGj7NgyO6ZM0kyxXqtL+GQ5vs0rlMKQZNm1LkymKzsRKhrm5PgDrh3uJbucsIwlLLmethlw1i+99sx5FlEXp4UBEX/o0JDJsYtDXR4="
     # COVERALLS_REPO_TOKEN
@@ -40,11 +40,11 @@ env:
 
 install:
   # PUSH TO BACKUP REPO
-  - if [[ $DREALREPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
-      git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/dReal-backup.git +master;
+  - if [[ $REPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
+      git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/dreal/dreal.git +master;
     fi
   # TRIGGER OSX Build
-  - if [[ $DREALREPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
+  - if [[ $REPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
       cp .travis.yml /tmp/.travis.temp.yml;
       cp .travis.osx.yml .travis.yml;
@@ -127,7 +127,7 @@ after_script:
       ctest -D ExperimentalTest --timeout 400 -VV;
     fi
   - export PATH=/usr/bin:$PATH
-  - if [[ $DREALREPO == BLESSED && $TESTCOV == ON ]]; then
+  - if [[ $REPO == BLESSED && $TESTCOV == ON ]]; then
       ctest -D ExperimentalCoverage --timeout 400;
       make cov;
       npm install coveralls --save;
