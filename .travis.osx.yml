@@ -23,7 +23,7 @@ install:
  - export LIBRARY_PATH
  - rm gcc-4.8-bin.tar.gz
  # autoconf automake cmake libtool pkg-config
- - brew install autoconf libtool pkg-config
+ - brew install autoconf automake cmake libtool pkg-config
  # ocaml, opam, ocamlfind, ocaml-batteries
 # - brew install ocaml
 # - brew install opam --without-aspcud
