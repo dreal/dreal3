@@ -104,7 +104,7 @@
 /* The lexer type */
 /* -------------- */
 
-#define RP_LEXER_TOKLEN 50
+#define RP_LEXER_TOKLEN 100
 #define RP_LEXER_ERRLEN 255
 
 typedef struct
