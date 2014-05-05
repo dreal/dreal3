@@ -15,21 +15,16 @@ env:
       TRIGGER_BB=ON
       CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=Release
-      CTEST=ON
-      STATIC=OFF
+      CTEST=ON TESTCOV=OFF STATIC=OFF
     - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=Debug
-      CTEST=ON
-      TESTCOV=ON
-      STATIC=OFF
+      CTEST=ON TESTCOV=ON  STATIC=OFF
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
       CMAKE_BUILD_TYPE=Release
-      CTEST=ON
-      STATIC=OFF
+      CTEST=ON TESTCOV=OFF STATIC=OFF
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
       CMAKE_BUILD_TYPE=Debug
-      CTEST=ON
-      STATIC=OFF
+      CTEST=ON TEST_COF=OFF STATIC=OFF
     - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=Release
       STATIC=ON
@@ -120,12 +115,12 @@ script:
 
 after_script:
   - cd build
-  - if [[ $CTEST == ON ]]; then
+  - if [[ $TESTCOV == OFF && $CTEST == ON ]]; then
       travis_wait ctest -D ExperimentalTest --timeout 250 -VV;
     fi
   - export PATH=/usr/bin:$PATH
   - if [[ $REPO == BLESSED && $TESTCOV == ON ]]; then
-      ctest -D ExperimentalCoverage --timeout 250;
+      travis_wait ctest -D ExperimentalCoverage --timeout 250;
       make cov;
       npm install coveralls --save;
       cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
