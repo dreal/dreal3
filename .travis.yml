@@ -11,28 +11,24 @@ env:
     # COVERALLS_REPO_TOKEN
     - secure: "euBGQ3urx4mL5tZVuN2uQ9Lt2NGMaaTOytMrSzJxvCVql+THYeK80SUDM6eaZ0XQwnKnKugA7vgrH5APhVER5Szzp14V53UnYNykzhVzXzJDU7UeUlqCEedPLy+WjUtIJc4VQWeELBpDh0o2dF4jfObBhcKlhjwjLH0k1CHH1Yg="
   matrix:
-    - TRIGGER_OSX=TRUE
-      TRIGGER_BB=TRUE
+    - TRIGGER_OSX=ON
+      TRIGGER_BB=ON
       CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=Release
-      CTEST=TRUE
+      CTEST=ON
       STATIC=OFF
     - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=Debug
-      CTEST=TRUE
+      CTEST=ON
+      TESTCOV=ON
       STATIC=OFF
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
       CMAKE_BUILD_TYPE=Release
-      CTEST=TRUE
+      CTEST=ON
       STATIC=OFF
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
       CMAKE_BUILD_TYPE=Debug
-      CTEST=TRUE
-      STATIC=OFF
-    - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
-      CMAKE_BUILD_TYPE=Debug
-      CTEST=FALSE
-      TESTCOV=ON
+      CTEST=ON
       STATIC=OFF
     - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
       CMAKE_BUILD_TYPE=Release
@@ -40,12 +36,12 @@ env:
 
 install:
   # PUSH TO BACKUP REPO
-  - if [[ $REPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
+  - if [[ $REPO == BLESSED && $TRIGGER_BB == ON ]]; then
       git fetch --unshallow;
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/dreal/dreal.git +HEAD:master;
     fi
   # TRIGGER OSX Build
-  - if [[ $REPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
+  - if [[ $REPO == BLESSED && $TRIGGER_OSX == ON ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
       cp .travis.yml /tmp/.travis.temp.yml;
       cp .travis.osx.yml .travis.yml;
@@ -124,12 +120,12 @@ script:
 
 after_script:
   - cd build
-  - if [[ $CTEST == TRUE ]]; then
-      ctest -D ExperimentalTest --timeout 400 -VV;
+  - if [[ $CTEST == ON ]]; then
+      travis_wait ctest -D ExperimentalTest --timeout 250 -VV;
     fi
   - export PATH=/usr/bin:$PATH
   - if [[ $REPO == BLESSED && $TESTCOV == ON ]]; then
-      ctest -D ExperimentalCoverage --timeout 400;
+      ctest -D ExperimentalCoverage --timeout 250;
       make cov;
       npm install coveralls --save;
       cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
