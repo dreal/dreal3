@@ -120,7 +120,8 @@ after_script:
     fi
   - export PATH=/usr/bin:$PATH
   - if [[ $REPO == BLESSED && $TESTCOV == ON ]]; then
-      ctest -D ExperimentalCoverage -L normal --timeout 250;
+      ctest -D ExperimentalTest -L normal --timeout 250 -VV;
+      ctest -D ExperimentalCoverage -L normal;
       travis_wait make cov;
       npm install coveralls --save;
       cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
