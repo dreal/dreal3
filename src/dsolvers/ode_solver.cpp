@@ -343,6 +343,7 @@ ode_solver::ODE_result ode_solver::simple_ODE(rp_box b, bool forward) {
 }
 
 ode_solver::ODE_result ode_solver::solve_forward(rp_box b) {
+    DREAL_LOG_INFO << "ode_solver::solve_forward";
     ODE_result ret = ODE_result::SAT;
     update(b);
 
@@ -382,6 +383,7 @@ ode_solver::ODE_result ode_solver::solve_forward(rp_box b) {
 }
 
 ode_solver::ODE_result ode_solver::solve_backward(rp_box b) {
+    DREAL_LOG_INFO << "ode_solver::solve_backward";
     ODE_result ret = ODE_result::SAT;
     update(b);
 
@@ -421,6 +423,7 @@ ode_solver::ODE_result ode_solver::solve_backward(rp_box b) {
 }
 
 ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector>> & bucket) {
+    DREAL_LOG_INFO << "ode_solver::compute_forward";
     ODE_result ret = ODE_result::SAT;
     auto start = high_resolution_clock::now();
     bool invariantViolated = false;
@@ -452,6 +455,7 @@ ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector
             if (m_config.nra_ODE_timeout > 0.0) {
                 auto end = high_resolution_clock::now();
                 if (duration_cast<milliseconds>(end - start).count() >= m_config.nra_ODE_timeout) {
+                    DREAL_LOG_INFO << "ode_solver::compute_forward: timeout";
                     return ODE_result::TIMEOUT;
                 }
             }
@@ -478,11 +482,15 @@ ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector
 
             // Move s toward m_T.rightBound()
             timeMap(m_T.rightBound(), s);
-            if (contain_NaN(s)) { return ODE_result::SAT; }
+            if (contain_NaN(s)) {
+                DREAL_LOG_INFO << "ode_solver::compute_forward: contain NaN";
+                return ODE_result::SAT;
+            }
             if (m_T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
                 invariantViolated = inner_loop_forward(solver, prevTime, bucket);
                 if (invariantViolated) {
                     // TODO(soonhok): invariant
+                    DREAL_LOG_INFO << "ode_solver::compute_forward: invariant violated";
                     ret = ODE_result::SAT;
                     break;
                 }
@@ -499,10 +507,12 @@ ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector
                         m_trajectory.emplace_back(dt, v);
                     }
                 }
+                DREAL_LOG_INFO << "ode_solver::compute_forward:" << prevTime; // << "\t" << v;
             }
             prevTime = timeMap.getCurrentTime();
         } while (!invariantViolated && !timeMap.completed());
     } catch (exception& e) {
+        DREAL_LOG_INFO << "ode_solver::compute_forward: exception: " << e.what();
         ret = ODE_result::EXCEPTION;
     }
     if (m_config.nra_json) {
@@ -512,6 +522,7 @@ ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector
 }
 
 ode_solver::ODE_result ode_solver::compute_backward(vector<pair<interval, IVector>> & bucket) {
+    DREAL_LOG_INFO << "ode_solver::compute_backward";
     ODE_result ret = ODE_result::SAT;
     auto start = high_resolution_clock::now();
     bool invariantViolated = false;
@@ -543,6 +554,7 @@ ode_solver::ODE_result ode_solver::compute_backward(vector<pair<interval, IVecto
             if (m_config.nra_ODE_timeout > 0.0) {
                 auto end = high_resolution_clock::now();
                 if (duration_cast<milliseconds>(end - start).count() >= m_config.nra_ODE_timeout) {
+                    DREAL_LOG_INFO << "ode_solver::compute_backward: timeout";
                     return ODE_result::TIMEOUT;
                 }
             }
@@ -551,6 +563,7 @@ ode_solver::ODE_result ode_solver::compute_backward(vector<pair<interval, IVecto
             invariantViolated = !check_invariant(s, m_inv);
             if (invariantViolated) {
                 // TODO(soonhok): invariant
+                DREAL_LOG_INFO << "ode_solver::compute_backward: invariant violated";
                 if (timeMap.getCurrentTime().rightBound() < m_T.leftBound()) {
                     ret = ODE_result::UNSAT;
                 } else {
@@ -569,18 +582,25 @@ ode_solver::ODE_result ode_solver::compute_backward(vector<pair<interval, IVecto
 
             // Move s toward m_T.rightBound()
             timeMap(m_T.rightBound(), s);
-            if (contain_NaN(s)) { return ODE_result::SAT; }
+            if (contain_NaN(s)) {
+                DREAL_LOG_INFO << "ode_solver::compute_backward: contain NaN";
+                return ODE_result::SAT;
+            }
             if (m_T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
                 invariantViolated = inner_loop_backward(solver, prevTime, bucket);
                 if (invariantViolated) {
                     // TODO(soonhok): invariant
+                    DREAL_LOG_INFO << "ode_solver::compute_backward: invariant violated";
                     ret = ODE_result::SAT;
                     break;
                 }
+            } else {
+                DREAL_LOG_INFO << "ode_solver::compute_backward:" << prevTime << "\t"; // << v;
             }
             prevTime = timeMap.getCurrentTime();
         } while (!invariantViolated && !timeMap.completed());
     } catch (exception& e) {
+        DREAL_LOG_INFO << "ode_solver::compute_backward: exception: " << e.what();
         ret = ODE_result::EXCEPTION;
     }
     if (m_config.nra_json) {
