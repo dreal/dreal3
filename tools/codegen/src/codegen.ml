@@ -107,7 +107,7 @@ let rec emit_stmt (vmap : ty_vmap) (fd : Cil.fundec)
     let (_, then_cstmts) = emit_stmts vmap fd then_stmts in
     let (_, else_cstmts) = emit_stmts vmap fd else_stmts in
     (vmap', stmts @ [mkStmt (If (bcexp, mkBlock then_cstmts, mkBlock else_cstmts, locUnknown))])
-  | Proceed stmts ->
+  | Proceed (_, _, stmts) ->
     let (_, cstmts) = emit_stmts vmap fd stmts in
     let cstmts' = List.map
         (fun cstmt ->

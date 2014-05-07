@@ -22,7 +22,7 @@ int main()
         x = 10;
         v = 0;
 
-        proceed
+        proceed[0.0, 1]
         {
                 flow(v,x);
         }

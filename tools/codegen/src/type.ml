@@ -106,7 +106,7 @@ and stmt =
 
     (* if no else statement, the latter one is empty *)
     | If of bexp * stmt list * stmt list
-    | Proceed of stmt list
+    | Proceed of float option * float option * stmt list
     | Vardecl of var_decl
     | Switch of string * choice list
     | Expr of exp
@@ -168,7 +168,7 @@ and const_fold_stmt stmt macros =
   | Assert be -> Assert (const_fold_bexp be macros)
   | Assign (s, e, anno) -> Assign (s, const_fold_exp e macros, anno)
   | If (be, stmts1, stmts2) -> If (const_fold_bexp be macros, const_fold_stmts stmts1 macros, const_fold_stmts stmts2 macros)
-  | Proceed stmts -> Proceed (const_fold_stmts stmts macros)
+  | Proceed (b1, b2, stmts) -> Proceed (b1, b2, const_fold_stmts stmts macros)
   | Vardecl _ -> stmt
   | Switch _ -> stmt
   | Expr e -> Expr (const_fold_exp e macros)

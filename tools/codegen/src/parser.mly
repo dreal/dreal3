@@ -151,7 +151,8 @@ stmt:
     | IF bexp THEN LC stmt_list RC                            { [If ($2, $5, [])] }
     | IF bexp THEN LC stmt_list RC ELSE LC stmt_list RC       { [If ($2, $5, $9)] }
 
-    | PROCEED LC stmt_list RC                                 { [Proceed $3] }
+    | PROCEED LC stmt_list RC                                 { [Proceed (None, None, $3)] }
+    | PROCEED LB ffnum COMMA ffnum RB LC stmt_list RC         { [Proceed (Some $3, Some $5, $8)] }
 
     | switch                                                  { [$1] }
     | ASSERT LP bexp RP SEMICOLON                             { [Assert $3] }

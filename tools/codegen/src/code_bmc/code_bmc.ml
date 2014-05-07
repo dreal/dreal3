@@ -13,6 +13,10 @@ open IO
 type fmap = (string, Type.stmt list) Map.t
 type vlist = (string * string * int option) list
 
+let k = ref 2
+let lb = ref (-1.0)
+let ub = ref (-1.0)
+
 (**************)
 (* utility    *)
 (**************)
@@ -20,6 +24,12 @@ let is_ode =
   function s ->
     match s with
       Ode (_, _, _) -> true
+    | _ -> false
+
+let is_proceed =
+  function stmt ->
+    match stmt with
+    | Proceed _ -> true
     | _ -> false
 
 let mk_var s k t idx =
@@ -404,7 +414,7 @@ and gen_conn k (vars : (Vcmap.key * Vcmap.value) list) : Basic.formula =
 
 (* generate variable definition *)
 and gen_var_decls vl k var_bound_map =
-  let time_vars = List.map (fun i -> ("time" ^ (string_of_int i), None)) (List.of_enum (0 -- k)) in
+  let time_vars = List.map (fun i -> ("time" ^ (string_of_int i), Some (!lb, !ub))) (List.of_enum (0 -- k)) in
   let vars = List.flatten (
                  List.map
                    (fun i ->
@@ -529,13 +539,32 @@ and bmc (program : Type.t) (fmap : fmap) (vcmap : Vcmap.t) (k : int) (vl : vlist
 (**************)
 (*    main    *)
 (**************)
-let k = ref 2
+
+
+let check_arg (ast:Type.t) =
+  let Main stmts = ast.main in
+  let proceeds = List.filter is_proceed stmts in
+  let _ =
+    match proceeds with
+    | [] -> ()
+    | [Proceed (Some l, Some u, ss)] ->
+       begin
+         lb := l;
+         ub := u;
+       end
+    | _ -> failwith "more than one proceed"
+  in
+  if !lb < 0.0 || !ub < 0.0
+  then failwith "time bound not specified"
+  else ()
 
 let spec = [
-  ("-k", Arg.Int (fun n -> k := n), ": number of unrolling depth")
+  ("-k", Arg.Int (fun n -> k := n), ": number of unrolling depth");
+  ("-lb", Arg.Float (fun b -> lb := b), "lower bound of time");
+  ("-ub", Arg.Float (fun b -> ub := b), "upper bound of time")
 ]
 
-let usage = "Usage: bmc.native [<options>] code.dl"
+let usage = "Usage: code_bmc.native [<options>] code.dl"
 
 let main () =
     let src = ref "" in
@@ -546,6 +575,7 @@ let main () =
     let lexbuf = Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let ast = Parser.main Lexer.token lexbuf in
     let ast = Type.const_fold_program ast in
+    let  () = check_arg ast in
     let ast', fmap, vcmap, vl = analysis ast in
     (* let _ = Codegen.emit_program ast' in (* check output *) *)
     bmc ast' fmap vcmap !k vl
