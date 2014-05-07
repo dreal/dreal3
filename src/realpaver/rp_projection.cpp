@@ -619,7 +619,7 @@ int rp_project_sin_fst (rp_interval ynew, rp_interval x, rp_interval y)
       /* reverse translation of the new left bound */
       rp_interval_mul_r_i(offset,step,RP_INTERVAL_2_PI);
       RP_ROUND_DOWNWARD();
-      rp_binf(ynew) = c + rp_bsup(offset);
+      rp_binf(ynew) = c + rp_binf(offset);
     }
   }
 
@@ -745,7 +745,7 @@ int rp_project_tan_fst (rp_interval ynew, rp_interval x, rp_interval y)
       /* reverse translation of the new left bound */
       rp_interval_mul_r_i(offset,step,RP_INTERVAL_PI);
       RP_ROUND_DOWNWARD();
-      rp_binf(ynew) = rp_binf(atan) + rp_bsup(offset);
+      rp_binf(ynew) = rp_binf(atan) + rp_binf(offset);
     }
   }
 
