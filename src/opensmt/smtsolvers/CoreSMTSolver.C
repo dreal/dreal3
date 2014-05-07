@@ -260,18 +260,18 @@ bool CoreSMTSolver::addClause( vec<Lit>& ps
       if (value(ps[i]) == l_True || ps[i] == ~p)
       {
 #ifdef PRODUCE_PROOF
-	proof.endChain( );
-	proof.forceDelete( root );
+        proof.endChain( );
+        proof.forceDelete( root );
 #endif
-	return true;
+        return true;
       }
       else if (value(ps[i]) != l_False && ps[i] != p)
-	ps[j++] = p = ps[i];
+        ps[j++] = p = ps[i];
 #ifdef PRODUCE_PROOF
       else if ( value(ps[i]) == l_False )
       {
-	resolved = true;
-	proof.resolve( units[ var(ps[i]) ], var( ps[i] ) );
+        resolved = true;
+        proof.resolve( units[ var(ps[i]) ], var( ps[i] ) );
       }
 #endif
     ps.shrink(i - j);
@@ -591,10 +591,10 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
       Lit sugg = theory_handler->getSuggestion( );
       // No suggestions
       if ( sugg == lit_Undef )
-	break;
+        break;
       // Atom already assigned or not to be used as decision
       if ( toLbool(assigns[var(sugg)]) != l_Undef || !decision_var[var(sugg)] )
-	continue;
+        continue;
       // If here, good decision has been found
       return sugg;
     }
@@ -602,33 +602,33 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
     // Activity based decision:
     while (next == var_Undef || toLbool(assigns[next]) != l_Undef || !decision_var[next])
       if (order_heap.empty()){
-	next = var_Undef;
-	break;
+        next = var_Undef;
+        break;
       }else
-	next = order_heap.removeMin();
+        next = order_heap.removeMin();
 
       if ( next == var_Undef
-	  && ( config.logic == QF_UFIDL || config.logic == QF_UFLRA )
-	  && config.sat_lazy_dtc != 0 )
-	next = generateMoreEij( );
+          && ( config.logic == QF_UFIDL || config.logic == QF_UFLRA )
+          && config.sat_lazy_dtc != 0 )
+        next = generateMoreEij( );
 
       if ( next == var_Undef )
-	return lit_Undef;
+        return lit_Undef;
 
 #if CACHE_POLARITY
       if ( prev_polarity[ next ] != toInt(l_Undef) )
-	return Lit( next, prev_polarity[ next ] < 0 );
+        return Lit( next, prev_polarity[ next ] < 0 );
 #endif
 
       bool sign = false;
       switch (polarity_mode){
-	case polarity_true:  sign = false; break;
-	case polarity_false: sign = true;  break;
-	case polarity_user:  sign = polarity[next]; break;
-	case polarity_rnd:   sign = irand(random_seed, 2); break;
-	default: assert(false); }
+        case polarity_true:  sign = false; break;
+        case polarity_false: sign = true;  break;
+        case polarity_user:  sign = polarity[next]; break;
+        case polarity_rnd:   sign = irand(random_seed, 2); break;
+        default: assert(false); }
 
-		 return next == var_Undef ? lit_Undef : Lit(next, sign);
+                 return next == var_Undef ? lit_Undef : Lit(next, sign);
 }
 
 #ifdef PRODUCE_PROOF
@@ -692,26 +692,26 @@ void CoreSMTSolver::analyze(Clause* confl, vec<Lit>& out_learnt, int& out_btleve
       Lit q = c[j];
 
       if (!seen[var(q)] && level[var(q)] > 0){
-	varBumpActivity(var(q));
-	seen[var(q)] = 1;
+        varBumpActivity(var(q));
+        seen[var(q)] = 1;
 
-	// Modified line
-	// if (level[var(q)] >= decisionLevel())
-	if (level[var(q)] >= decLev)
-	  pathC++;
-	else{
-	  out_learnt.push(q);
-	  if (level[var(q)] > out_btlevel)
-	    out_btlevel = level[var(q)];
-	}
+        // Modified line
+        // if (level[var(q)] >= decisionLevel())
+        if (level[var(q)] >= decLev)
+          pathC++;
+        else{
+          out_learnt.push(q);
+          if (level[var(q)] > out_btlevel)
+            out_btlevel = level[var(q)];
+        }
       }
 #ifdef PRODUCE_PROOF
       else if( !seen[var(q)] )
       {
-	if ( level[ var(q) ] == 0 )
-	{
-	  proof.resolve( units[ var( q ) ], var( q ) );
-	}
+        if ( level[ var(q) ] == 0 )
+        {
+          proof.resolve( units[ var( q ) ], var( q ) );
+        }
       }
 #endif
     }
@@ -744,22 +744,22 @@ void CoreSMTSolver::analyze(Clause* confl, vec<Lit>& out_learnt, int& out_btleve
       Clause * ct = NULL;
       if ( r.size( ) > config.sat_learn_up_to_size )
       {
-	ct = Clause_new( r );
-	cleanup.push( ct );
+        ct = Clause_new( r );
+        cleanup.push( ct );
       }
       else
       {
-	ct = Clause_new( r, config.sat_temporary_learn );
-	learnts.push(ct);
+        ct = Clause_new( r, config.sat_temporary_learn );
+        learnts.push(ct);
 #ifndef SMTCOMP
-	undo_stack_oper.push_back( NEWLEARNT );
-	undo_stack_elem.push_back( (void *)ct );
+        undo_stack_oper.push_back( NEWLEARNT );
+        undo_stack_elem.push_back( (void *)ct );
 #endif
-	attachClause(*ct);
-	claBumpActivity(*ct);
-	learnt_t_lemmata ++;
-	if ( !config.sat_temporary_learn )
-	  perm_learnt_t_lemmata ++;
+        attachClause(*ct);
+        claBumpActivity(*ct);
+        learnt_t_lemmata ++;
+        if ( !config.sat_temporary_learn )
+          perm_learnt_t_lemmata ++;
       }
       assert( ct );
       reason[var(p)] = ct;
@@ -767,17 +767,17 @@ void CoreSMTSolver::analyze(Clause* confl, vec<Lit>& out_learnt, int& out_btleve
       proof.addRoot( ct, CLA_THEORY );
       if ( config.incremental )
       {
-	undo_stack_oper.push_back( NEWPROOF );
-	undo_stack_elem.push_back( (void *)ct );
+        undo_stack_oper.push_back( NEWPROOF );
+        undo_stack_elem.push_back( (void *)ct );
       }
       if ( config.produce_inter > 0 )
       {
-	clause_to_in[ ct ] = theory_handler->getInterpolants( );
-	if ( config.incremental )
-	{
-	  undo_stack_oper.push_back( NEWINTER );
-	  undo_stack_elem.push_back( NULL );
-	}
+        clause_to_in[ ct ] = theory_handler->getInterpolants( );
+        if ( config.incremental )
+        {
+          undo_stack_oper.push_back( NEWINTER );
+          undo_stack_elem.push_back( NULL );
+        }
       }
 #endif
     }
@@ -832,7 +832,7 @@ void CoreSMTSolver::analyze(Clause* confl, vec<Lit>& out_learnt, int& out_btleve
     out_learnt.copyTo(analyze_toclear);
     for (i = j = 1; i < out_learnt.size(); i++)
       if (reason[var(out_learnt[i])] == NULL || !litRedundant(out_learnt[i], abstract_level))
-	out_learnt[j++] = out_learnt[i];
+        out_learnt[j++] = out_learnt[i];
   }else{
     // Added line
     assert( false );
@@ -840,9 +840,9 @@ void CoreSMTSolver::analyze(Clause* confl, vec<Lit>& out_learnt, int& out_btleve
     for (i = j = 1; i < out_learnt.size(); i++){
       Clause& c = *reason[var(out_learnt[i])];
       for (int k = 1; k < c.size(); k++)
-	if (!seen[var(c[k])] && level[var(c[k])] > 0){
-	  out_learnt[j++] = out_learnt[i];
-	  break; }
+        if (!seen[var(c[k])] && level[var(c[k])] > 0){
+          out_learnt[j++] = out_learnt[i];
+          break; }
     }
   }
   max_literals += out_learnt.size();
@@ -857,7 +857,7 @@ void CoreSMTSolver::analyze(Clause* confl, vec<Lit>& out_learnt, int& out_btleve
     int max_i = 1;
     for (int i = 2; i < out_learnt.size(); i++)
       if (level[var(out_learnt[i])] > level[var(out_learnt[max_i])])
-	max_i = i;
+        max_i = i;
 
     Lit p             = out_learnt[max_i];
     out_learnt[max_i] = out_learnt[1];
@@ -880,7 +880,7 @@ void CoreSMTSolver::analyze(Clause* confl, vec<Lit>& out_learnt, int& out_btleve
     for ( int j = 0 ; j < c.size( ) ; j++ )
       if ( level[ var(c[j]) ] == 0 )
       {
-	proof.resolve( units[ var(c[j]) ], var(c[j]) );
+        proof.resolve( units[ var(c[j]) ], var(c[j]) );
       }
   }
   // Chain will be ended outside analyze
@@ -929,58 +929,58 @@ bool CoreSMTSolver::litRedundant(Lit p, uint32_t abstract_levels)
     {
       if ( reason[ var(analyze_stack.last()) ] == fake_clause )
       {
-	// Before retrieving the reason it is necessary to backtrack
-	// a little bit in order to remove every atom pushed after
-	// p has been deduced
-	Lit p = analyze_stack.last( );
-	Var v = var( p );
-	vec< Lit > r;
-	// Temporairly backtracking
-	cancelUntilVarTempInit( v );
-	// Retrieving the reason
-	theory_handler->getReason( p, r );
-	// Restoring trail
-	cancelUntilVarTempDone( );
-	Clause * ct = NULL;
-	if ( r.size( ) > config.sat_learn_up_to_size )
-	{
-	  ct = Clause_new( r );
-	  tmp_reas.push( ct );
-	}
-	else
-	{
-	  ct = Clause_new( r, config.sat_temporary_learn );
-	  learnts.push(ct);
+        // Before retrieving the reason it is necessary to backtrack
+        // a little bit in order to remove every atom pushed after
+        // p has been deduced
+        Lit p = analyze_stack.last( );
+        Var v = var( p );
+        vec< Lit > r;
+        // Temporairly backtracking
+        cancelUntilVarTempInit( v );
+        // Retrieving the reason
+        theory_handler->getReason( p, r );
+        // Restoring trail
+        cancelUntilVarTempDone( );
+        Clause * ct = NULL;
+        if ( r.size( ) > config.sat_learn_up_to_size )
+        {
+          ct = Clause_new( r );
+          tmp_reas.push( ct );
+        }
+        else
+        {
+          ct = Clause_new( r, config.sat_temporary_learn );
+          learnts.push(ct);
 #ifndef SMTCOMP
-	  if ( config.incremental != 0 )
-	  {
-	    undo_stack_oper.push_back( NEWLEARNT );
-	    undo_stack_elem.push_back( (void *)ct );
-	  }
+          if ( config.incremental != 0 )
+          {
+            undo_stack_oper.push_back( NEWLEARNT );
+            undo_stack_elem.push_back( (void *)ct );
+          }
 #endif
-	  attachClause(*ct);
-	  claBumpActivity(*ct);
-	  learnt_t_lemmata ++;
-	  if ( !config.sat_temporary_learn )
-	    perm_learnt_t_lemmata ++;
-	}
-	reason[ v ] = ct;
+          attachClause(*ct);
+          claBumpActivity(*ct);
+          learnt_t_lemmata ++;
+          if ( !config.sat_temporary_learn )
+            perm_learnt_t_lemmata ++;
+        }
+        reason[ v ] = ct;
 #ifdef PRODUCE_PROOF
-	proof.addRoot( ct, CLA_THEORY );
-	if ( config.incremental )
-	{
-	  undo_stack_oper.push_back( NEWPROOF );
-	  undo_stack_elem.push_back( (void *)ct );
-	}
-	if ( config.produce_inter > 0 )
-	{
-	  clause_to_in[ ct ] = theory_handler->getInterpolants( );
-	  if ( config.incremental )
-	  {
-	    undo_stack_oper.push_back( NEWINTER );
-	    undo_stack_elem.push_back( NULL );
-	  }
-	}
+        proof.addRoot( ct, CLA_THEORY );
+        if ( config.incremental )
+        {
+          undo_stack_oper.push_back( NEWPROOF );
+          undo_stack_elem.push_back( (void *)ct );
+        }
+        if ( config.produce_inter > 0 )
+        {
+          clause_to_in[ ct ] = theory_handler->getInterpolants( );
+          if ( config.incremental )
+          {
+            undo_stack_oper.push_back( NEWINTER );
+            undo_stack_elem.push_back( NULL );
+          }
+        }
 #endif
       }
     }
@@ -990,11 +990,11 @@ bool CoreSMTSolver::litRedundant(Lit p, uint32_t abstract_levels)
       // Just give up when fake reason is found -- but clean analyze_toclear
       if( reason[ var(analyze_stack.last()) ] == fake_clause )
       {
-	for (int j = top; j < analyze_toclear.size(); j++)
-	  seen[var(analyze_toclear[j])] = 0;
-	analyze_toclear.shrink(analyze_toclear.size() - top);
+        for (int j = top; j < analyze_toclear.size(); j++)
+          seen[var(analyze_toclear[j])] = 0;
+        analyze_toclear.shrink(analyze_toclear.size() - top);
 
-	return false;
+        return false;
       }
     }
 
@@ -1007,17 +1007,17 @@ bool CoreSMTSolver::litRedundant(Lit p, uint32_t abstract_levels)
 
       if (!seen[var(p)] && level[var(p)] > 0){
 
-	if (reason[var(p)] != NULL && (abstractLevel(var(p)) & abstract_levels) != 0){
-	  seen[var(p)] = 1;
-	  analyze_stack.push(p);
-	  analyze_toclear.push(p);
-	}else{
-	  for (int j = top; j < analyze_toclear.size(); j++)
-	    seen[var(analyze_toclear[j])] = 0;
-	  analyze_toclear.shrink(analyze_toclear.size() - top);
+        if (reason[var(p)] != NULL && (abstractLevel(var(p)) & abstract_levels) != 0){
+          seen[var(p)] = 1;
+          analyze_stack.push(p);
+          analyze_toclear.push(p);
+        }else{
+          for (int j = top; j < analyze_toclear.size(); j++)
+            seen[var(analyze_toclear[j])] = 0;
+          analyze_toclear.shrink(analyze_toclear.size() - top);
 
-	  return false;
-	}
+          return false;
+        }
       }
     }
   }
@@ -1055,13 +1055,13 @@ void CoreSMTSolver::analyzeFinal(Lit p, vec<Lit>& out_conflict)
     Var x = var(trail[i]);
     if (seen[x]){
       if (reason[x] == NULL){
-	assert(level[x] > 0);
-	out_conflict.push(~trail[i]);
+        assert(level[x] > 0);
+        out_conflict.push(~trail[i]);
       }else{
-	Clause& c = *reason[x];
-	for (int j = 1; j < c.size(); j++)
-	  if (level[var(c[j])] > 0)
-	    seen[var(c[j])] = 1;
+        Clause& c = *reason[x];
+        for (int j = 1; j < c.size(); j++)
+          if (level[var(c[j])] > 0)
+            seen[var(c[j])] = 1;
       }
       seen[x] = 0;
     }
@@ -1134,68 +1134,68 @@ Clause* CoreSMTSolver::propagate()
       // Make sure the false literal is data[1]:
       Lit false_lit = ~p;
       if (c[0] == false_lit)
-	c[0] = c[1], c[1] = false_lit;
+        c[0] = c[1], c[1] = false_lit;
 
       assert(c[1] == false_lit);
 
       // If 0th watch is true, then clause is already satisfied.
       Lit first = c[0];
       if (value(first) == l_True){
-	*j++ = &c;
+        *j++ = &c;
       }else{
-	// Look for new watch:
-	for (int k = 2; k < c.size(); k++)
-	  if (value(c[k]) != l_False){
-	    c[1] = c[k]; c[k] = false_lit;
-	    watches[toInt(~c[1])].push(&c);
-	    goto FoundWatch; }
+        // Look for new watch:
+        for (int k = 2; k < c.size(); k++)
+          if (value(c[k]) != l_False){
+            c[1] = c[k]; c[k] = false_lit;
+            watches[toInt(~c[1])].push(&c);
+            goto FoundWatch; }
 
 #ifdef PRODUCE_PROOF
-	    // Did not find watch -- clause is unit under assignment:
-	    if ( decisionLevel() == 0 )
-	    {
-	      proof.beginChain( &c );
-	      for (int k = 1; k < c.size(); k++)
-	      {
-		assert( level[ var(c[k]) ] == 0 );
-		proof.resolve( units[var(c[k])], var(c[k]) );
-	      }
-	      assert( units[ var(first) ] == NULL
-		  || value( first ) == l_False );    // (if variable already has 'id', it must be with the other polarity and we should have derived the empty clause here)
-	      if ( value(first) != l_False )
-	      {
-		vec< Lit > tmp;
-		tmp.push( first );
-		Clause * uc = Clause_new( tmp );
-		proof.endChain( uc );
-		assert( units[ var(first) ] == NULL );
-		units[ var(first) ] = uc;
-	      }
-	      else
-	      {
-		vec< Lit > tmp;
-		tmp.push( first );
-		Clause * uc = Clause_new( tmp );
-		proof.endChain( uc );
-		pleaves.push( uc );
-		// Empty clause derived:
-		proof.beginChain( units[ var(first) ] );
-		proof.resolve( uc, var(first) );
-		proof.endChain( NULL );
-	      }
-	    }
+            // Did not find watch -- clause is unit under assignment:
+            if ( decisionLevel() == 0 )
+            {
+              proof.beginChain( &c );
+              for (int k = 1; k < c.size(); k++)
+              {
+                assert( level[ var(c[k]) ] == 0 );
+                proof.resolve( units[var(c[k])], var(c[k]) );
+              }
+              assert( units[ var(first) ] == NULL
+                  || value( first ) == l_False );    // (if variable already has 'id', it must be with the other polarity and we should have derived the empty clause here)
+              if ( value(first) != l_False )
+              {
+                vec< Lit > tmp;
+                tmp.push( first );
+                Clause * uc = Clause_new( tmp );
+                proof.endChain( uc );
+                assert( units[ var(first) ] == NULL );
+                units[ var(first) ] = uc;
+              }
+              else
+              {
+                vec< Lit > tmp;
+                tmp.push( first );
+                Clause * uc = Clause_new( tmp );
+                proof.endChain( uc );
+                pleaves.push( uc );
+                // Empty clause derived:
+                proof.beginChain( units[ var(first) ] );
+                proof.resolve( uc, var(first) );
+                proof.endChain( NULL );
+              }
+            }
 #endif
 
-	    // Did not find watch -- clause is unit under assignment:
-	    *j++ = &c;
-	    if (value(first) == l_False){
-	      confl = &c;
-	      qhead = trail.size();
-	      // Copy the remaining watches:
-	      while (i < end)
-		*j++ = *i++;
-	    }else
-	      uncheckedEnqueue(first, &c);
+            // Did not find watch -- clause is unit under assignment:
+            *j++ = &c;
+            if (value(first) == l_False){
+              confl = &c;
+              qhead = trail.size();
+              // Copy the remaining watches:
+              while (i < end)
+                *j++ = *i++;
+            }else
+              uncheckedEnqueue(first, &c);
       }
 FoundWatch:;
     }
@@ -1605,7 +1605,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
       // CONFLICT
       conflicts++; conflictC++;
       if (decisionLevel() == 0)
-	return l_False;
+        return l_False;
 
 //      first = false;
       learnt_clause.clear();
@@ -1615,31 +1615,31 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
       assert(value(learnt_clause[0]) == l_Undef);
 
       if (learnt_clause.size() == 1){
-	uncheckedEnqueue(learnt_clause[0]);
+        uncheckedEnqueue(learnt_clause[0]);
 #ifdef PRODUCE_PROOF
-	Clause * c = Clause_new( learnt_clause, false );
-	proof.endChain( c );
-	assert( units[ var(learnt_clause[0]) ] == NULL );
-	units[ var(learnt_clause[0]) ] = proof.last( );
+        Clause * c = Clause_new( learnt_clause, false );
+        proof.endChain( c );
+        assert( units[ var(learnt_clause[0]) ] == NULL );
+        units[ var(learnt_clause[0]) ] = proof.last( );
 #endif
       }else{
-	Clause * c = Clause_new( learnt_clause, true );
+        Clause * c = Clause_new( learnt_clause, true );
 #ifdef PRODUCE_PROOF
-	proof.endChain( c );
-	if ( config.incremental )
-	{
-	  undo_stack_oper.push_back( NEWPROOF );
-	  undo_stack_elem.push_back( (void *)c );
-	}
+        proof.endChain( c );
+        if ( config.incremental )
+        {
+          undo_stack_oper.push_back( NEWPROOF );
+          undo_stack_elem.push_back( (void *)c );
+        }
 #endif
-	learnts.push(c);
+        learnts.push(c);
 #ifndef SMTCOMP
-	undo_stack_oper.push_back( NEWLEARNT );
-	undo_stack_elem.push_back( (void *)c );
+        undo_stack_oper.push_back( NEWLEARNT );
+        undo_stack_elem.push_back( (void *)c );
 #endif
-	attachClause(*c);
-	claBumpActivity(*c);
-	uncheckedEnqueue(learnt_clause[0], c);
+        attachClause(*c);
+        claBumpActivity(*c);
+        uncheckedEnqueue(learnt_clause[0], c);
       }
 
       varDecayActivity();
@@ -1647,159 +1647,159 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
     }else{
       // NO CONFLICT
-      DREAL_LOG_INFO << "No conflict" << endl;
+      DREAL_LOG_INFO << "CoreSMTSolver::search: No conflict" << endl;
 
       if (nof_conflicts >= 0 && conflictC >= nof_conflicts){
-	// Reached bound on number of conflicts:
+        // Reached bound on number of conflicts:
         // progress_estimate = progressEstimate();
-	cancelUntil(0);
-	return l_Undef; }
+        cancelUntil(0);
+        return l_Undef; }
 
-      DREAL_LOG_INFO << "Didn't reach conflict bound" << endl;
+      DREAL_LOG_INFO << "CoreSMTSolver::search: Didn't reach conflict bound" << endl;
 
-	// Simplify the set of problem clauses:
-	if (decisionLevel() == 0 && !simplify())
-	  return l_False;
+        // Simplify the set of problem clauses:
+        if (decisionLevel() == 0 && !simplify())
+          return l_False;
 
-      DREAL_LOG_INFO << "Simplified" << endl;
+      DREAL_LOG_INFO << "CoreSMTSolver::search: Simplified" << endl;
 
-	if (nof_learnts >= 0 && learnts.size()-nAssigns() >= nof_learnts)
-	  // Reduce the set of learnt clauses:
-	  reduceDB();
+        if (nof_learnts >= 0 && learnts.size()-nAssigns() >= nof_learnts)
+          // Reduce the set of learnt clauses:
+          reduceDB();
 
 
-      DREAL_LOG_INFO << "Reduced" << endl;
+      DREAL_LOG_INFO << "CoreSMTSolver::search: Reduced" << endl;
 
-	if ( first_model_found )
-	{
-	  DREAL_LOG_INFO << "first_model_found" << endl;
-	  // Early Pruning Call
-	  // Step 1: check if the current assignment is theory-consistent
+        if ( first_model_found )
+        {
+          DREAL_LOG_INFO << "first_model_found" << endl;
+          // Early Pruning Call
+          // Step 1: check if the current assignment is theory-consistent
 #ifdef STATISTICS
-	  const double start = cpuTime( );
+          const double start = cpuTime( );
 #endif
-	  int res = checkTheory( false );
-	  DREAL_LOG_INFO << "checkTheory = " << res << endl;
+          int res = checkTheory( false );
+          DREAL_LOG_INFO << "CoreSMTSolver::search: checkTheory = " << res << endl;
 #ifdef STATISTICS
-	  tsolvers_time += cpuTime( ) - start;
+          tsolvers_time += cpuTime( ) - start;
 #endif
-	  switch( res )
-	  {
-	    case -1: return l_False;        // Top-Level conflict: unsat
-	    case  0: conflictC++; continue; // Theory conflict: time for bcp
-	    case  1: break;                 // Sat and no deductions: go ahead
-	    case  2: continue;              // Sat and deductions: time for bcp
-	    default: assert( false );
-	  }
+          switch( res )
+          {
+            case -1: return l_False;        // Top-Level conflict: unsat
+            case  0: conflictC++; continue; // Theory conflict: time for bcp
+            case  1: break;                 // Sat and no deductions: go ahead
+            case  2: continue;              // Sat and deductions: time for bcp
+            default: assert( false );
+          }
 
-	  // Check axioms
-	  res = checkAxioms( );
+          // Check axioms
+          res = checkAxioms( );
 
-	  switch( res )
-	  {
-	    case -1: return l_False;        // Top-Level conflict: unsat
-	    case  0: conflictC++; continue; // Theory conflict: time for bcp
-	    case  1: break;                 // Sat and no deductions: go ahead
-	    case  2: continue;              // Sat and deductions: time for bcp
-	    default: assert( false );
-	  }
-	}
+          switch( res )
+          {
+            case -1: return l_False;        // Top-Level conflict: unsat
+            case  0: conflictC++; continue; // Theory conflict: time for bcp
+            case  1: break;                 // Sat and no deductions: go ahead
+            case  2: continue;              // Sat and deductions: time for bcp
+            default: assert( false );
+          }
+        }
 
-	Lit next = lit_Undef;
-	while (decisionLevel() < assumptions.size()){
-	  // Perform user provided assumption:
-	  Lit p = assumptions[decisionLevel()];
-	  if (value(p) == l_True){
-	    // Dummy decision level:
-	    newDecisionLevel();
-	  }else if (value(p) == l_False){
-	    analyzeFinal(~p, conflict);
-	    return l_False;
-	  }else{
-	    next = p;
-	    break;
-	  }
-	}
+        Lit next = lit_Undef;
+        while (decisionLevel() < assumptions.size()){
+          // Perform user provided assumption:
+          Lit p = assumptions[decisionLevel()];
+          if (value(p) == l_True){
+            // Dummy decision level:
+            newDecisionLevel();
+          }else if (value(p) == l_False){
+            analyzeFinal(~p, conflict);
+            return l_False;
+          }else{
+            next = p;
+            break;
+          }
+        }
 
-	bool isSAT = false;
-	if(config.short_sat){
-	  //check if SAT, even if not all literals are assigned
-	  isSAT = true;
-	  for (int c = 0; c < nClauses(); c++) {
-	    if (!satisfied(*clauses[c])) {
-	      isSAT = false;
-	      break;
-	    }
-	  }
-	  if( isSAT ){
-	    DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
-	    //first_model_found = true;
-	    next = lit_Undef;
-	  }
-	  else{
-	    DREAL_LOG_INFO << "not SAT yet" << endl;
-	  }
-	}
+        bool isSAT = false;
+        if(config.short_sat){
+          //check if SAT, even if not all literals are assigned
+          isSAT = true;
+          for (int c = 0; c < nClauses(); c++) {
+            if (!satisfied(*clauses[c])) {
+              isSAT = false;
+              break;
+            }
+          }
+          if( isSAT ){
+            DREAL_LOG_INFO << "CoreSMTSolver::search: Found Model after # decisions " << decisions << endl;
+            //first_model_found = true;
+            next = lit_Undef;
+          }
+          else{
+            DREAL_LOG_INFO << "CoreSMTSolver::search: not SAT yet" << endl;
+          }
+        }
 
-	if (next == lit_Undef){
-	  if( !isSAT ){
-	    DREAL_LOG_INFO << "About to pick branch lit" << endl;
-	    // New variable decision:
-	    decisions++;
-	    next = pickBranchLit(polarity_mode, random_var_freq);
-	  }
-	  // Complete Call
-	  if ( next == lit_Undef )
-	  {
-	    DREAL_LOG_INFO << "Next is Undef" << endl;
-	    first_model_found = true;
+        if (next == lit_Undef){
+          if( !isSAT ){
+            DREAL_LOG_INFO << "CoreSMTSolver::search: About to pick branch lit" << endl;
+            // New variable decision:
+            decisions++;
+            next = pickBranchLit(polarity_mode, random_var_freq);
+          }
+          // Complete Call
+          if ( next == lit_Undef )
+          {
+            DREAL_LOG_INFO << "CoreSMTSolver::search: Next is Undef" << endl;
+            first_model_found = true;
 #ifdef STATISTICS
-	    const double start = cpuTime( );
+            const double start = cpuTime( );
 #endif
-	    int res = checkTheory( true );
-	    DREAL_LOG_INFO << "checkTheory = " << res << endl;
+            int res = checkTheory( true );
+            DREAL_LOG_INFO << "CoreSMTSolver::search: checkTheory = " << res << endl;
 #ifdef STATISTICS
-	    tsolvers_time += cpuTime( ) - start;
+            tsolvers_time += cpuTime( ) - start;
 #endif
-	    if ( res == 0 ) { conflictC++; continue; }
-	    if ( res == -1 ) return l_False;
-	    assert( res == 1 );
+            if ( res == 0 ) { conflictC++; continue; }
+            if ( res == -1 ) return l_False;
+            assert( res == 1 );
 
 #ifdef STATISTICS
-	    const double start2 = cpuTime( );
+            const double start2 = cpuTime( );
 #endif
-	    res = checkAxioms( );
-	    DREAL_LOG_INFO << "checkAxioms = " << res << endl;
+            res = checkAxioms( );
+            DREAL_LOG_INFO << "CoreSMTSolver::search: checkAxioms = " << res << endl;
 #ifdef STATISTICS
-	    tsolvers_time += cpuTime( ) - start2;
+            tsolvers_time += cpuTime( ) - start2;
 #endif
 
-	    if ( res == 0 ) { conflictC++; continue; }
-	    if ( res == 2 ) { continue; }
-	    if ( res == -1 ) return l_False;
-	    assert( res == 1 );
+            if ( res == 0 ) { conflictC++; continue; }
+            if ( res == 2 ) { continue; }
+            if ( res == -1 ) return l_False;
+            assert( res == 1 );
 
-	    if(config.short_sat){
-	      if ( res == 1 ) return l_True;
-	    }
+            if(config.short_sat){
+              if ( res == 1 ) return l_True;
+            }
 
-	    // Otherwise we still have to make sure that
-	    // splitting on demand did not add any new variable
-	    decisions++;
-	    next = pickBranchLit( polarity_mode, random_var_freq );
-	  }
+            // Otherwise we still have to make sure that
+            // splitting on demand did not add any new variable
+            decisions++;
+            next = pickBranchLit( polarity_mode, random_var_freq );
+          }
 
-	  if (next == lit_Undef){
-	    // Model found:
-	    DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
-	    return l_True;
-	  }
-	}
+          if (next == lit_Undef){
+            // Model found:
+            DREAL_LOG_INFO << "CoreSMTSolver::search: Found Model after # decisions " << decisions << endl;
+            return l_True;
+          }
+        }
 
-	// Increase decision level and enqueue 'next'
-	assert(value(next) == l_Undef);
-	newDecisionLevel();
-	uncheckedEnqueue(next);
+        // Increase decision level and enqueue 'next'
+        assert(value(next) == l_Undef);
+        newDecisionLevel();
+        uncheckedEnqueue(next);
     }
 
 
@@ -1894,31 +1894,31 @@ lbool CoreSMTSolver::solve( const vec<Lit> & assumps
     {
       if ( config.verbosity > 2 )
       {
-	reportf( "# %9d | %8d %8d | %8.3f s | %6.3f MB"
-	    , (int)conflicts
-	    , (int)nof_learnts
-	    , nLearnts()
-	    , cpuTime( )
-	    , memUsed( ) / 1048576.0 );
-	fflush( stderr );
+        reportf( "# %9d | %8d %8d | %8.3f s | %6.3f MB"
+            , (int)conflicts
+            , (int)nof_learnts
+            , nLearnts()
+            , cpuTime( )
+            , memUsed( ) / 1048576.0 );
+        fflush( stderr );
       }
 
       if ( config.sat_use_luby_restart )
-	next_printout *= 2;
+        next_printout *= 2;
       else
-	next_printout *= restart_inc;
+        next_printout *= restart_inc;
     }
 #endif
 
     status = search((int)nof_conflicts, (int)nof_learnts);
     nof_conflicts = restartNextLimit( nof_conflicts );
     cstop = cstop || ( max_conflicts != 0
-	            && nLearnts() > (int)max_conflicts + (int)old_conflicts );
+                    && nLearnts() > (int)max_conflicts + (int)old_conflicts );
 
     if ( config.sat_use_luby_restart )
     {
       if ( last_luby_k != luby_k )
-	nof_learnts *= 1.215;
+        nof_learnts *= 1.215;
       last_luby_k = luby_k;
     }
     else
@@ -1936,16 +1936,16 @@ lbool CoreSMTSolver::solve( const vec<Lit> & assumps
       verifyModel( );
       // Compute models in tsolvers
       if ( config.produce_models
-	&& !config.incremental )
+        && !config.incremental )
       {
-	egraph.computeModel( );
-	printModel( );
+        egraph.computeModel( );
+        printModel( );
       }
 #endif
     }else{
       assert( opensmt::stop || status == l_False);
       if (conflict.size() == 0)
-	ok = false;
+        ok = false;
     }
   }
 
