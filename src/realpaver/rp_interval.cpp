@@ -1077,7 +1077,7 @@ void rp_interval_sqrt(rp_interval result, rp_interval i)
     t = sqrt(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "sqrt([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "sqrt([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1161,7 +1161,7 @@ void rp_interval_exp(rp_interval result, rp_interval i)
     t = exp(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "exp([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "exp([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1184,7 +1184,7 @@ void rp_interval_log(rp_interval result, rp_interval i)
     t = log(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "log([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "log([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1214,7 +1214,7 @@ void rp_interval_sin(rp_interval result, rp_interval i)
     t = sin(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "sin([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "sin([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1317,7 +1317,7 @@ void rp_interval_cos(rp_interval result, rp_interval i)
     t = cos(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "cos([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "cos([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1340,7 +1340,7 @@ void rp_interval_tan(rp_interval result, rp_interval i)
     t = tan(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "tan([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "tan([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1424,7 +1424,7 @@ void rp_interval_cosh(rp_interval result, rp_interval i)
     t = cosh(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "cosh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "cosh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1464,7 +1464,7 @@ void rp_interval_sinh(rp_interval result, rp_interval i)
     t = sinh(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "sinh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "sinh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1483,7 +1483,7 @@ void rp_interval_tanh(rp_interval result, rp_interval i)
     t = tanh(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "tanh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "tanh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1502,7 +1502,7 @@ void rp_interval_asin(rp_interval result, rp_interval i)
     t = asin(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "asin([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "asin([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1531,7 +1531,7 @@ void rp_interval_acos(rp_interval result, rp_interval i)
     t = acos(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "acos([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "acos([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1559,7 +1559,7 @@ void rp_interval_atan(rp_interval result, rp_interval i)
     t = atan(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "atan([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "atan([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1578,7 +1578,7 @@ void rp_interval_asinh(rp_interval result, rp_interval i)
     t = asinh(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "asinh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "asinh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1597,7 +1597,7 @@ void rp_interval_acosh(rp_interval result, rp_interval i)
     t = acosh(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "acosh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "acosh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1636,7 +1636,7 @@ void rp_interval_atanh(rp_interval result, rp_interval i)
     t = atanh(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "atanh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "atanh([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1710,7 +1710,7 @@ void rp_interval_matan(rp_interval result, rp_interval x)
     if(rp_interval_contains(x, 0.0)) {
         rp_interval_hull(result, result, one);
     }
-    DREAL_LOG_INFO << "matan([" << rp_binf(x) << ", " << rp_bsup(x) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "matan([" << rp_binf(x) << ", " << rp_bsup(x) << "] = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
 }
 
@@ -1821,7 +1821,7 @@ void rp_interval_atan2(rp_interval result, rp_interval y, rp_interval x)
 
 //    printf("atan2(y, x) = ");
 //    rp_interval_display_simple_nl(result);
-    DREAL_LOG_INFO << "atan2([" << rp_binf(y) << ", " << rp_bsup(y) << "], "
+    DREAL_LOG_INFO << "rp_interval: " << "atan2([" << rp_binf(y) << ", " << rp_bsup(y) << "], "
                    << rp_binf(x) << ", " << rp_bsup(x) << "]) = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
 }
@@ -1927,7 +1927,7 @@ void rp_interval_nthroot(rp_interval result, rp_interval i, rp_interval n)
             }
         }
     }
-    DREAL_LOG_INFO << "nthroot([" << rp_binf(i) << ", " << rp_bsup(i) << "], "
+    DREAL_LOG_INFO << "rp_interval: " << "nthroot([" << rp_binf(i) << ", " << rp_bsup(i) << "], "
                    << rp_binf(n) << ", " << rp_bsup(n) << "]) = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
 }
