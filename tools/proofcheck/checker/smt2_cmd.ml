@@ -43,11 +43,22 @@ let print out =
       String.print out " () Real)";
     end
   | Assert f ->
-    begin
-      String.print out "(assert ";
-      Basic.print_formula out f;
-      String.print out ")";
-    end
+     begin
+       (* ignore trivial constraints *)
+       let print f =
+         begin
+           String.print out "(assert ";
+           print_formula out f;
+           String.print out ")";
+         end
+       in
+       match f with
+       | (Gt (_, Num x)) -> if x = infinity then () else print f
+       | (Ge (_, Num x)) -> if x = infinity then () else print f
+       | (Lt (Num x, _)) -> if x = neg_infinity then () else print f
+       | (Le (Num x, _)) -> if x = neg_infinity then () else print f
+       | _ -> print f
+     end
   | CheckSAT ->
     String.print out "(check-sat)"
   | Exit ->
