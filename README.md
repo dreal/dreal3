@@ -11,7 +11,7 @@
     <td><a href="https://travis-ci.org/soonhokong/dReal-osx"><img src="https://travis-ci.org/soonhokong/dReal-osx.svg?branch=master" title="Mac OS X 10.8.2, g++-4.9"/></a></td>
     <td><a href="https://coveralls.io/r/dreal/dreal"><img src="https://coveralls.io/repos/dreal/dreal/badge.png"/></a></td>
     <td><a href="http://borel.modck.cs.cmu.edu/CDash/index.php?project=dReal"><img src="https://dreal.github.io/images/cdash.svg"/></a></td>
-    <td><a href="https://scan.coverity.com/projects/1716"><img alt="Coverity Scan Build Status" src="https://scan.coverity.com/projects/1716/badge.svg"/></a></td>
+    <td><a href="https://scan.coverity.com/projects/2152"><img alt="Coverity Scan Build Status" src="https://scan.coverity.com/projects/2152/badge.svg"/></a></td>
   </tr>
 </table>
 
