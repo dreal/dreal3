@@ -1,4 +1,5 @@
 open Batteries
+open Basic
 
 type logic = QF_NRA
              | QF_NRA_ODE
@@ -12,8 +13,8 @@ type t = SetLogic of logic
          | CheckSAT
          | Exit
 
-let make_lb name v = Assert (Basic.Le (Basic.Num v,  Basic.Var name))
-let make_ub name v = Assert (Basic.Le (Basic.Var name, Basic.Num v ))
+let make_lb name v = Assert (Le (Num v,  Var name))
+let make_ub name v = Assert (Le (Var name, Num v ))
 
 let print_logic out =
   function
