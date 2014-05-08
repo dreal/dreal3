@@ -505,15 +505,16 @@ let rec print_exp out =
   function
   | Var x -> String.print out x
   | Num n ->
-    let str_n = string_of_float n in
-    let str_n' =
-      if String.ends_with str_n "." then
-        str_n ^ "0"
-      else
-        str_n
+     let str_n = Printf.sprintf "%.30f" n in
+     let str_n' = Str.global_replace (Str.regexp "0+$") "0" str_n in
+     let str_n'' =
+       if String.ends_with str_n' "." then
+         str_n' ^ "0"
+       else
+         str_n'
     in
-    String.print out str_n'
-  | Neg e' -> print_exps "-" [e']
+    String.print out str_n''
+  | Neg e' -> print_exps "~" [e']
   | Add el -> print_exps "+" el
   | Sub el -> print_exps "-" el
   | Mul el -> print_exps "*" el
