@@ -91,7 +91,14 @@ let rec check (pt : t) (fl : formula list) =
     end
   | Prune (env1, env2, pt') ->
     if not (Env.order env2 env1) then
-      raise (Error "Prune")
+        begin
+          String.println IO.stdout "\nEnv1: ";
+          Env.print IO.stdout env1;
+          String.println IO.stdout "\nEnv2: ";
+          Env.print IO.stdout env2;
+          String.println IO.stdout "\nEnv2 is not a subset of Env1.";
+          raise (Error "Prune")
+        end
     else if Env.equals env2 env1 then
       (incr num_of_trivial_pruning;
        check pt' fl)
