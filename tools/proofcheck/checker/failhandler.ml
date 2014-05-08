@@ -73,7 +73,12 @@ let split_on_x key env : (Env.t * Env.t) =
     List.map
       (fun ((name1, {low = l1; high = h1}), (name2, {low = l2; high = h2}))
       -> if (key = name1) then
-          let mid = ((l1 +. h1) /. 2.0) in
+          let mid =
+            if l1 = neg_infinity && h1 = infinity then  0.0
+            else if l1 = neg_infinity then (min_float /. 2.0) +. (h1 /. 2.0)
+            else if h1 = infinity     then (min_float /. 2.0) +. (l1 /. 2.0)
+            else ((l1 +. h1) /. 2.0)
+          in
           ((name1, {low = l1; high = mid}), (name2, {low = mid; high = h2}))
         else
           ((name1, {low = l1; high = h1}), (name2, {low = l2; high = h2}))
