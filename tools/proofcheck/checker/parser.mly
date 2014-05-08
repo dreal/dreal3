@@ -120,7 +120,9 @@ init_list: init { [$1] }
 entry: ID COLON LB FNUM COMMA FNUM RB { ($1, Intv.make $4 $6) }
      | ID COLON LP MINUS INFTY COMMA FNUM RB { ($1, Intv.make neg_infinity $7) }
      | ID COLON LB FNUM COMMA PLUS INFTY RP { ($1, Intv.make $4 infinity) }
+     | ID COLON LB FNUM COMMA INFTY RP { ($1, Intv.make $4 infinity) }
      | ID COLON LP MINUS INFTY COMMA PLUS INFTY RP { ($1, Intv.make neg_infinity infinity) }
+     | ID COLON LP MINUS INFTY COMMA INFTY RP { ($1, Intv.make neg_infinity infinity) }
      | ID COLON FNUM { ($1, Intv.make $3 $3) }
 ;
 
