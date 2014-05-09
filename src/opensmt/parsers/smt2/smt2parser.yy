@@ -336,6 +336,8 @@ term: spec_const
   /*
    * List of predefined identifiers
    */
+    | '(' term ')'
+      { $$ = $2; }
     | TK_TRUE
       { $$ = parser_ctx->mkTrue( ); }
     | TK_FALSE
