@@ -422,8 +422,8 @@ and gen_var_decls vl k var_bound_map =
                       (fun (s, t, idx) ->
                          let vname =
                            match idx with
-                           | Some d -> mk_var s k t d
-                           | None -> mk_var2 s k t
+                           | Some d -> mk_var s i t d
+                           | None -> mk_var2 s i t
                          in
                          let bound =
                            match List.mem_assoc s var_bound_map with
