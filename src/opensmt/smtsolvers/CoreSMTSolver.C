@@ -1722,7 +1722,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
         }
 
         bool isSAT = false;
-        if(config.short_sat){
+        if(config.nra_short_sat){
           //check if SAT, even if not all literals are assigned
           isSAT = true;
           for (int c = 0; c < nClauses(); c++) {
@@ -1779,7 +1779,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             if ( res == -1 ) return l_False;
             assert( res == 1 );
 
-            if(config.short_sat){
+            if(config.nra_short_sat){
               if ( res == 1 ) return l_True;
             }
 
