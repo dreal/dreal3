@@ -551,6 +551,15 @@ bool icp_solver::solve() {
                 }
                 m_config.nra_proof_out << endl;
             }
+            if (m_config.nra_model) {
+                m_config.nra_model_out.open (m_config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
+                if (m_config.nra_model_out.fail()) {
+                    cout << "Cannot create a file: " << m_config.nra_model_out_name << endl;
+                    exit(1);
+                }
+                m_config.nra_model_out << "SAT with the following box:" << endl;
+                pprint_vars(m_config.nra_model_out, *m_problem, b, false);
+            }
             return true;
         } else {
             /* UNSAT */

@@ -40,6 +40,7 @@ DEFINE_bool  (ode_cache,        false, "ode cache");
 DEFINE_bool  (ode_forward_only, false, "ode forward only");
 DEFINE_bool  (ode_parallel,     false, "ode parallel");
 DEFINE_bool  (proof,            false, "proof");
+DEFINE_bool  (model,            false, "model");
 DEFINE_bool  (visualize,        false, "visualize");
 DEFINE_bool  (verbose,          false, "verbose");
 
@@ -108,6 +109,7 @@ SMTConfig::initializeConfig( )
   nra_icp_improve              = 10.0;
   nra_verbose                  = false;
   nra_proof                    = false;
+  nra_model                    = false;
   nra_ODE_parallel             = false;
   nra_ODE_cache                = false;
   nra_ODE_forward_only         = false;
@@ -361,10 +363,10 @@ SMTConfig::parseCMDLine( int argc
   nra_ODE_forward_only    = FLAGS_ode_forward_only;
   nra_ODE_parallel        = FLAGS_ode_parallel;
   nra_proof               = FLAGS_proof;
+  nra_model               = FLAGS_model;
   nra_json                = FLAGS_visualize;
   nra_verbose             = FLAGS_verbose;
   if (nra_proof) {
-      nra_proof = true;
       /* Open file stream */
       nra_proof_out_name = string(argv[ argc - 1 ]) + ".proof";
       nra_proof_out.open (nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
@@ -372,6 +374,9 @@ SMTConfig::parseCMDLine( int argc
           cout << "Cannot create a file: " << nra_proof_out_name << endl;
           exit( 1 );
       }
+  }
+  if (nra_model) {
+      nra_model_out_name = string(argv[ argc - 1 ]) + ".model";
   }
   if (nra_json) {
       string filename = string(argv[ argc - 1 ]) + ".json";
