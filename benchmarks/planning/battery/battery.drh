@@ -1,0 +1,345 @@
+#define k 0.122
+#define c 0.166
+
+[-10, 10] d1;
+[-10, 10] d2;
+[-10, 10] g1;
+[-10, 10] g2;
+[0, 2] s;
+[0, 1] L;
+[0, 10] time;
+
+//deadB1, deadB2, loadProfile
+{ mode 1;
+
+  invt:
+  flow:
+        d/dt[d1] = 0;
+        d/dt[g1] = 0;
+        d/dt[d2] = 0;
+        d/dt[g2] = 0;
+
+  jump:
+	//deadB1, deadB2, notSatisfactory
+        (or (and (L = 0) (s > 0)) (and (L > 0) (s = 0))) ==> @10 (and ( L' = L) (s' = s) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//switchedOnB1, deadB2, loadProfile
+{ mode 2;
+
+  invt:
+  flow:
+        d/dt[d1] = (L / c) - (k * d1);
+        d/dt[g1] = -L;
+        d/dt[d2] = 0;
+        d/dt[g2] = 0;
+
+  jump:
+	//switchedOnB1, deadB2, notSatisfactory
+        (or (and (L = 0) (s > 0)) (and (L > 0) (s = 0))) ==> @11 (and ( L' = L) (s' = s) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//deadB1, deadB2, loadProfile
+	(g1 <= ((1-c) * d1)) ==> @1 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOffB1, deadB2, loadProfile
+	true ==> @3(and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+
+//switchedOffB1, deadB2, loadProfile
+{ mode 3;
+
+  invt:
+  flow:
+        d/dt[d1] = -(k * d1);
+        d/dt[g1] = 0;
+        d/dt[d2] = 0;
+        d/dt[g2] = 0;
+
+  jump:
+	//switchedOffB1, deadB2,  notSatisfactory
+        (or (and (L = 0) (s > 0)) (and (L > 0) (s = 0))) ==> @12 (and ( L' = L) (s' = s) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOnB1, deadB2, loadProfile
+       	true ==> @2 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//deadB1, switchedOnB2, loadProfile
+{ mode 4;
+
+  invt:
+  flow:
+        d/dt[d1] = 0;
+        d/dt[g1] = 0;
+        d/dt[d2] = (L / c) - (k * d2);
+        d/dt[g2] = -L;
+
+  jump:
+	//deadB1, switchedOnB2, notSatisfactory
+        (or (and (L = 0) (s > 0)) (and (L > 0) (s = 0))) ==> @13 (and ( L' = L) (s' = s) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//deadB1, deadB2, loadProfile
+	(g2 <= ((1-c) * d2)) ==> @1 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//deadB1, switchedOffB2, loadProfile
+	true ==> @7(and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//switchedOnB1, switchedOnB2, loadProfile
+{ mode 5;
+
+  invt:
+  flow:
+        d/dt[d1] = (L / c) - (k * d1);
+        d/dt[g1] = -L;
+        d/dt[d2] = (L / c) - (k * d2);
+        d/dt[g2] = -L;
+
+  jump:
+	//switchedOnB1, switchedOnB2, notSatisfactory
+        (or (and (L = 0) (s > 0)) (and (L > 0) (s = 0))) ==> @14 (and ( L' = L) (s' = s) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//deadB1, switchedOnB2, loadProfile
+	(g1 <= ((1-c) * d1)) ==> @4 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOffB1, switchedOnB2, loadProfile
+	true ==> @6(and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOnB1, deadB2, loadProfile
+	(g2 <= ((1-c) * d2)) ==> @2 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOnB1, switchedOffB2, loadProfile
+	true ==> @8(and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//switchedOffB1, switchedOnB2, loadProfile
+{ mode 6;
+
+  invt:
+  flow:
+        d/dt[d1] = - (k * d1);
+        d/dt[g1] = 0;
+        d/dt[d2] = (L / c) - (k * d2);
+        d/dt[g2] = -L;
+
+  jump:
+	//switchedOffB1, switchedOnB2, notSatisfactory
+        (or (and (L = 0) (s > 0)) (and (L > 0) (s = 0))) ==> @15 (and ( L' = L) (s' = s) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOnB1, switchedOnB2, loadProfile
+       	true ==> @5 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+
+	//switchedOffB1, deadB2, loadProfile
+	(g2 <= ((1-c) * d2)) ==> @3 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOffB1, switchedOffB2, loadProfile
+	true ==> @9(and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//deadB1, switchedOffB2, loadProfile
+{ mode 7;
+
+  invt:
+  flow:
+        d/dt[d1] = 0;
+        d/dt[g1] = 0;
+        d/dt[d2] = -(k * d2);
+        d/dt[g2] = 0;
+
+  jump:
+	//deadB1, switchedOffB2, notSatisfactory
+        (or (and (L = 0) (s > 0)) (and (L > 0) (s = 0))) ==> @16 (and ( L' = L) (s' = s) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//deadB1, switchedOnB2, loadProfile
+       	true ==> @4 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+
+//switchedOnB1, switchedOffB2, loadProfile
+{ mode 8;
+
+  invt:
+  flow:
+        d/dt[d1] = (L / c) - (k * d1);
+        d/dt[g1] = -L;
+        d/dt[d2] = -(k * d2);
+        d/dt[g2] = 0;
+
+  jump:
+	//switchedOnB1, switchedOffB2, notSatisfactory
+        (or (and (L = 0) (s > 0)) (and (L > 0) (s = 0))) ==> @16 (and ( L' = L) (s' = s) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOnB1, switchedOnB2, loadProfile
+       	true ==> @5 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//deadB1, switchedOffB2, loadProfile
+	(g1 <= ((1-c) * d1)) ==> @7 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOffB1, switchedOffB2, loadProfile
+	true ==> @9(and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//switchedOffB1, switchedOffB2, loadProfile
+{ mode 9;
+
+  invt:
+  flow:
+        d/dt[d1] = (L / c) - (k * d1);
+        d/dt[g1] = -L;
+        d/dt[d2] = -(k * d2);
+        d/dt[g2] = 0;
+
+  jump:
+	//switchedOffB1, switchedOffB2, notSatisfactory
+        (or (and (L = 0) (s > 0)) (and (L > 0) (s = 0))) ==> @18 (and ( L' = L) (s' = s) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOffB1, switchedOnB2, loadProfile
+       	true ==> @6 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOnB1, switchedOffB2, loadProfile
+       	true ==> @8 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//deadB1, deadB2, notSatisfactory
+{ mode 10;
+
+  invt:
+  flow:
+        d/dt[d1] = 0;
+        d/dt[g1] = 0;
+        d/dt[d2] = 0;
+        d/dt[g2] = 0;
+
+  jump:
+}
+
+//switchedOnB1, deadB2, notSatisfactory
+{ mode 11;
+
+  invt:
+  flow:
+        d/dt[d1] = (L / c) - (k * d1);
+        d/dt[g1] = -L;
+        d/dt[d2] = 0;
+        d/dt[g2] = 0;
+
+  jump:
+	//deadB1, deadB2, notSatisfactory
+	(g1 <= ((1-c) * d1)) ==> @10 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOffB1, deadB2, notSatisfactory
+	true ==> @12 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//switchedOffB1, deadB2, notSatisfactory
+{ mode 12;
+
+  invt:
+  flow:
+        d/dt[d1] = -(k * d1);
+        d/dt[g1] = 0;
+        d/dt[d2] = 0;
+        d/dt[g2] = 0;
+
+  jump:
+	//switchedOnB1, deadB2, notSatisfactory
+       	true ==> @11 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//deadB1, switchedOnB2, notSatisfactory
+{ mode 13;
+
+  invt:
+  flow:
+        d/dt[d1] = 0;
+        d/dt[g1] = 0;
+        d/dt[d2] = (L / c) - (k * d2);
+        d/dt[g2] = -L;
+
+  jump:
+	//deadB1, deadB2, notSatisfactory
+	(g2 <= ((1-c) * d2)) ==> @10 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//deadB1, switchedOffB2, notSatisfactory
+	true ==> @16 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//switchedOnB1, switchedOnB2, notSatisfactory
+{ mode 14;
+
+  invt:
+  flow:
+        d/dt[d1] = (L / c) - (k * d1);
+        d/dt[g1] = -L;
+        d/dt[d2] = (L / c) - (k * d2);
+        d/dt[g2] = -L;
+
+  jump:
+	//deadB1, switchedOnB2, notSatisfactory
+	(g1 <= ((1-c) * d1)) ==> @13 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOffB1, switchedOnB2, notSatisfactory
+	true ==> @15 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOnB1, deadB2, notSatisfactory
+	(g2 <= ((1-c) * d2)) ==> @11 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOnB1, switchedOffB2, notSatisfactory
+	true ==> @17 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//switchedOffB1, switchedOnB2, notSatisfactory
+{ mode 15;
+
+  invt:
+  flow:
+        d/dt[d1] = - (k * d1);
+        d/dt[g1] = 0;
+        d/dt[d2] = (L / c) - (k * d2);
+        d/dt[g2] = -L;
+
+  jump:
+	//switchedOnB1, switchedOnB2, notSatisfactory
+       	true ==> @14 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+
+	//switchedOffB1, deadB2, notSatisfactory
+	(g2 <= ((1-c) * d2)) ==> @12 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOffB1, switchedOffB2, loadProfile
+	true ==> @18 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+
+//deadB1, switchedOffB2, notSatisfactory
+{ mode 16;
+
+  invt:
+  flow:
+        d/dt[d1] = 0;
+        d/dt[g1] = 0;
+        d/dt[d2] = -(k * d2);
+        d/dt[g2] = 0;
+
+  jump:
+	//deadB1, switchedOnB2, notSatisfactory
+       	true ==> @13 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//switchedOnB1, switchedOffB2, notSatisfactory
+{ mode 17;
+
+  invt:
+  flow:
+        d/dt[d1] = (L / c) - (k * d1);
+        d/dt[g1] = -L;
+        d/dt[d2] = -(k * d2);
+        d/dt[g2] = 0;
+
+  jump:
+	//switchedOnB1, switchedOnB2, notSatisfactory
+       	true ==> @14 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//deadB1, switchedOffB2, notSatisfactory
+	(g1 <= ((1-c) * d1)) ==> @16 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOffB1, switchedOffB2, notSatisfactory
+	true ==> @18 (and ( L' = L) (s' = (s -1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+//switchedOffB1, switchedOffB2, notSatisfactory
+{ mode 18;
+
+  invt:
+  flow:
+        d/dt[d1] = (L / c) - (k * d1);
+        d/dt[g1] = -L;
+        d/dt[d2] = -(k * d2);
+        d/dt[g2] = 0;
+
+  jump:
+	//switchedOffB1, switchedOnB2, loadProfile
+       	true ==> @15 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+	//switchedOnB1, switchedOffB2, loadProfile
+       	true ==> @18 (and ( L' = L) (s' = (s + 1)) (d1' = d1) (g1' = g1)  (d2' = d2) (g2' = g2));
+}
+
+init:
+@9 (and (g1 = 5.5) (d1 = 0) (g2 = 5.5) (d2 = 0) (s = 0) (L = 0));
+
+goal: 
+@9 true;
