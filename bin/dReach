@@ -43,12 +43,12 @@ do
         k)
             K=$OPTARG
             ;;
-	b)
-	    BMCH=1 
-	    ;;
-	d)
-	    BMCH=2
-	    ;;
+        b)
+            BMCH=1
+            ;;
+        d)
+            BMCH=2
+            ;;
         \?)
             usage
             exit
@@ -100,12 +100,12 @@ sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
 
 if [ $BMCH ]
 then
-    # Construct Heuristic function 
+    # Construct Heuristic function
     if [ $BMCH -eq 1 ]
     then
-	HEURISTIC=${BASE}_${K}.bh
-	$BMC -k $K --bmc_heuristic $PDRH > ${HEURISTIC}
-	SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
+        HEURISTIC=${BASE}_${K}.bh
+        $BMC -k $K --bmc_heuristic $PDRH > ${HEURISTIC}
+        SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
     fi
     #  invoke dReal w/o paths
     SMT=${BASE}_${K}.smt2
@@ -124,8 +124,8 @@ else
     PATH_NUM=0
     PATHS=`$BMC -k $K --pathgen $PDRH`
     if [[ $PATHS ]] ; then
-	for P in $PATHS
-	do
+        for P in $PATHS
+        do
             SMT=${BASE}_${K}_${PATH_NUM}.smt2
             OUT=${BASE}_${K}_${PATH_NUM}.output
             $BMC -k $K --path "$P" $PDRH > ${SMT}
@@ -134,13 +134,13 @@ else
             RESULT=`tail -n 1 $OUT`
             if [[ $RESULT == "sat" ]]
             then
-		echo "sat -- $P"
-		exit 0
+                echo "sat -- $P"
+                exit 0
             fi
             PATH_NUM=$((${PATH_NUM} + 1))
-	done
-	echo "Tried ${PATH_NUM} feasible paths, all of them are unsat."
+        done
+        echo "Tried ${PATH_NUM} feasible paths, all of them are unsat."
     else
-	echo There is no feasible path to check when k = $K.
+        echo There is no feasible path to check when k = $K.
     fi
 fi

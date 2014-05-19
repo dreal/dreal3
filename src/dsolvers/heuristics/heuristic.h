@@ -30,7 +30,7 @@ namespace dreal {
     void initialize(SMTConfig &);
     ~heuristic() {
       for (auto i : predecessors)
-        delete *i;
+        delete i;
       for (auto p : mode_literals)
         delete p.second;
       for (auto d : m_decision_stack)
