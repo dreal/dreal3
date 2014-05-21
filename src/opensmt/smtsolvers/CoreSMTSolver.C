@@ -1832,7 +1832,6 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
         assert(value(next) == l_Undef);
         newDecisionLevel();
         uncheckedEnqueue(next);
->>>>>>> b2205b2... feat(smtsolver): added debugging and nra_solver suggestions for variable selection
     }
 
 

@@ -56,7 +56,7 @@ lbool nra_solver::inform(Enode * e) {
             ss << v << " ";
         }
     }
-    if (config.bmc_heuristic.compare("") != 0)
+    if (config.nra_bmc_heuristic.compare("") != 0)
       m_heuristic.inform(e);
     if (DREAL_LOG_INFO_IS_ON) {
         DREAL_LOG_INFO << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt()
@@ -88,7 +88,7 @@ bool nra_solver::assertLit (Enode * e, bool reason) {
     }
     m_stack.push_back(e);
 
-    if  (config.bmc_heuristic.compare("") != 0 && m_heuristic.is_initialized()) {
+    if  (config.nra_bmc_heuristic.compare("") != 0 && m_heuristic.is_initialized()) {
       suggestions.clear();
       m_heuristic.getSuggestions(suggestions, m_stack);
     }
@@ -145,7 +145,7 @@ bool nra_solver::check(bool complete) {
     // Only compute the heuristic after first check.  The first check is after
     // all level 0 literals have been asserted and the initial and goal modes
     // will be known
-    if  (config.bmc_heuristic.compare("") != 0 && !m_heuristic.is_initialized()) {
+    if  (config.nra_bmc_heuristic.compare("") != 0 && !m_heuristic.is_initialized()) {
       suggestions.clear();
       m_heuristic.getSuggestions(suggestions, m_stack);
     }

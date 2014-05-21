@@ -62,8 +62,8 @@ namespace dreal{
 
   void heuristic::initialize(SMTConfig & c){
     m_is_initialized = false; // Have we computed suggestions yet?  Does not happen here.
-    if (c.bmc_heuristic.compare("") != 0){
-      const string heuristic_string = get_file_contents(c.bmc_heuristic.c_str());
+    if (c.nra_bmc_heuristic.compare("") != 0){
+      const string heuristic_string = get_file_contents(c.nra_bmc_heuristic.c_str());
       string err;
       auto json = json11::Json::parse(heuristic_string, err);
       auto hinfo = json.array_items();

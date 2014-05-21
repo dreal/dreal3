@@ -166,7 +166,7 @@ struct SMTConfig
   int          lra_check_on_assert;          // Probability (0 to 100) to run check when assert is called
 
   // SMT related parameters used by dReal
-  string       bmc_heuristic;                 // Use BMC variable selection heuristic in Minisat from file
+  string       nra_bmc_heuristic;             // Use BMC variable selection heuristic in Minisat from file
 
   // NRA-Solver related parameters (added for dReal2)
   bool         nra_delta_test;                // precision=(nra_delta_test ? delta : epsilon)
