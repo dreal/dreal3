@@ -19,6 +19,8 @@ dReach: Bounded Model Checking for for Nonlinear Hybrid Systems
 
 OPTIONS:
    -k      unrolling steps  (default: 3)
+   -b      use BMC heuristic with disjunctive path encoding (default: do not use)
+   -d      disjunctive path encoding (default: do not use)
 
 EXAMPLE:
 
@@ -31,7 +33,7 @@ EOF
 # Parse Option
 #################################################################
 K=3
-while getopts "hk:p:i" OPTION
+while getopts "hbdk:p:i" OPTION
 do
     case $OPTION in
         h)
@@ -41,6 +43,12 @@ do
         k)
             K=$OPTARG
             ;;
+	b)
+	    BMCH=1 
+	    ;;
+	d)
+	    BMCH=2
+	    ;;
         \?)
             usage
             exit
@@ -88,26 +96,51 @@ echo dReal Options: $SOLVER_OPT
 # Preprocessing
 sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
 
-# Enumerate all paths and call dReal with options
-PATH_NUM=0
-PATHS=`$BMC -k $K --pathgen $PDRH`
-if [[ $PATHS ]] ; then
-    for P in $PATHS
-    do
-        SMT=${BASE}_${K}_${PATH_NUM}.smt2
-        OUT=${BASE}_${K}_${PATH_NUM}.output
-        $BMC -k $K --path "$P" $PDRH > ${SMT}
-        echo SMT: ${SMT}, PATH : $P
-        ${SOLVER} ${SOLVER_OPT} ${SMT} 2>&1 | tee $OUT
-        RESULT=`tail -n 1 $OUT`
-        if [[ $RESULT == "sat" ]]
-        then
-            echo "sat -- $P"
-            exit 0
-        fi
-        PATH_NUM=$((${PATH_NUM} + 1))
-    done
-    echo "Tried ${PATH_NUM} feasible paths, all of them are unsat."
+
+
+if [ $BMCH ]
+then
+    # Construct Heuristic function 
+    if [ $BMCH -eq 1 ]
+    then
+	HEURISTIC=${BASE}_${K}.bh
+	$BMC -k $K --bmc_heuristic $PDRH > ${HEURISTIC}
+	SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
+    fi
+    #  invoke dReal w/o paths
+    SMT=${BASE}_${K}.smt2
+    OUT=${BASE}_${K}.output
+    $BMC -k $K $PDRH > ${SMT}
+    echo SMT: ${SMT}
+    ${SOLVER} ${SOLVER_OPT} ${SMT} --short_sat 2>&1 | tee $OUT
+    RESULT=`tail -n 1 $OUT`
+    if [[ $RESULT == "sat" ]]
+    then
+        echo "sat -- $P"
+        exit 0
+    fi
 else
-    echo There is no feasible path to check when k = $K.
+    # Enumerate all paths and call dReal with options
+    PATH_NUM=0
+    PATHS=`$BMC -k $K --pathgen $PDRH`
+    if [[ $PATHS ]] ; then
+	for P in $PATHS
+	do
+            SMT=${BASE}_${K}_${PATH_NUM}.smt2
+            OUT=${BASE}_${K}_${PATH_NUM}.output
+            $BMC -k $K --path "$P" $PDRH > ${SMT}
+            echo SMT: ${SMT}, PATH : $P
+            ${SOLVER} ${SOLVER_OPT} ${SMT} --short_sat 2>&1 | tee $OUT
+            RESULT=`tail -n 1 $OUT`
+            if [[ $RESULT == "sat" ]]
+            then
+		echo "sat -- $P"
+		exit 0
+            fi
+            PATH_NUM=$((${PATH_NUM} + 1))
+	done
+	echo "Tried ${PATH_NUM} feasible paths, all of them are unsat."
+    else
+	echo There is no feasible path to check when k = $K.
+    fi
 fi

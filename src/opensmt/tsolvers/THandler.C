@@ -20,6 +20,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "THandler.h"
 #include "CoreSMTSolver.h"
 #include <sys/wait.h>
+#include "util/logging.h"
 
 //
 // Return the MiniSAT Variable corresponding to
@@ -154,6 +155,7 @@ bool THandler::assertLits( )
 
   assert( checked_trail_size == stack.size( ) );
   assert( (int)stack.size( ) <= trail.size( ) );
+  DREAL_LOG_INFO << "THandler::assertLits()" << endl;
 
   for ( int i = checked_trail_size ; i < trail.size( ) && res ; i ++ )
   {
@@ -178,9 +180,9 @@ bool THandler::assertLits( )
     core_solver.pushBacktrackPoint( );
 
     assert( !e->hasPolarity( ) );
+    DREAL_LOG_INFO << "THandler::assertLits(): asserting " << e << "with sign = " << sign(l) << endl;
     e->setPolarity( (sign( l ) ? l_False : l_True) );
     assert( e->hasPolarity( ) );
-
     res = core_solver.assertLit( e );
 
     if ( !res && config.certification_level > 2 )

@@ -1168,6 +1168,10 @@ module Hybrid = struct
     let ginvs' = List.map (fun ginv -> Basic.preprocess_formula subst ginv) ginvs in
     make (vm, mm', iid, init_formula', goals', ginvs')
 
+  let adjacent mode_id1 mode_id2 h  : bool = 
+    let mode1 = Map.find mode_id1 h.modemap in
+    Map.mem mode_id2 mode1.jumpmap 
+
   let print out (hm : t) =
     let id_formula_print out (id, f) =
       Printf.fprintf out "(%s, %s)" (IO.to_string Id.print id) (IO.to_string Basic.print_formula f)

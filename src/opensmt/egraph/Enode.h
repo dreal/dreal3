@@ -246,6 +246,7 @@ public:
 
   double          getValue               ( ) const;
   std::unordered_set<Enode *> get_vars   ( );
+  std::unordered_set<Enode *> get_constants   ( );
 
   double          getLowerBound          ( ) const; //added for dReal2
   double          getUpperBound          ( ) const; //added for dReal2

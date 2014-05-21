@@ -31,6 +31,7 @@ using std::stringstream;
 DEFINE_double(precision,          0.0, "precision");
 DEFINE_bool  (delta,            false, "use delta");
 DEFINE_bool  (delta_heuristic,  false, "delta heuristic");
+DEFINE_string(bmc_heuristic,       "", "bmc heuristic");
 DEFINE_bool  (short_sat,        false, "short sat");
 DEFINE_double(ode_step,           0.0, "ode step");
 DEFINE_int32 (ode_order,           20, "ode order");
@@ -122,6 +123,7 @@ SMTConfig::initializeConfig( )
   nra_delta_test               = false;
   nra_use_delta_heuristic      = false;
   nra_short_sat                = false;
+  nra_bmc_heuristic            = "";
 
   stringstream ss;
   ss << DREAL_VERSION_MAJOR << "." << DREAL_VERSION_MINOR
@@ -355,6 +357,7 @@ SMTConfig::parseCMDLine( int argc
   nra_delta_test          = FLAGS_delta;
   nra_use_delta_heuristic = FLAGS_delta_heuristic;
   nra_short_sat           = FLAGS_short_sat;
+  nra_bmc_heuristic       = FLAGS_bmc_heuristic;
   nra_ODE_step            = FLAGS_ode_step;
   nra_ODE_taylor_order    = FLAGS_ode_order;
   nra_ODE_grid_size       = FLAGS_ode_grid;

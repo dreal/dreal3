@@ -31,6 +31,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // Added to support compiling templates
 //#include "DLSolver.C"
 #include "dsolvers/nra_solver.h"
+#include "util/logging.h"
 //#include "nra_ode_solver.h"
 #include "SimpSMTSolver.h"
 
@@ -368,6 +369,11 @@ bool Egraph::assertLit( Enode * e, bool reason )
   if ( config.incremental )
     inform( e );
 
+  DREAL_LOG_INFO << "Egraph::assertLit()"
+		 << ( e->getPolarity( ) == l_True ? "" : "(not " )
+		 << e
+		 << ( e->getPolarity( ) == l_True ? "" : ")" ) << endl;
+
   // Runtime translation
   suggestions.clear( );
 
@@ -405,6 +411,9 @@ bool Egraph::assertLit( Enode * e, bool reason )
         ts.uns_calls ++;
 #endif
     }
+  }
+  else {
+    DREAL_LOG_INFO << "Egraph::assertLit(): assertLit_ returned false" << endl;
   }
 
   return res;
@@ -536,10 +545,25 @@ Enode * Egraph::getSuggestion( )
   {
     Enode * e = suggestions.back( );
     suggestions.pop_back( );
-    if ( e->hasPolarity( ) )
+    if ( e->hasPolarity( ) ){
+      DREAL_LOG_INFO << "Egraph::getSuggestion() not suggesting (has polarity):"
+    		     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
+    		     << e
+    		     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
       continue;
-    if ( e->isDeduced( ) )
+    }
+    if ( e->isDeduced( ) ){
+      DREAL_LOG_INFO << "Egraph::getSuggestion() not suggesting (is deduced): "
+    		     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
+    		     << e
+    		     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
       continue;
+    }
+
+    DREAL_LOG_INFO << "Egraph::getSuggestion() suggesting: "
+    		     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
+    		     << e
+    		     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
 
     return e;
   }

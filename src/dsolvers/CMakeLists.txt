@@ -1,5 +1,5 @@
 if (ODE_ENABLED)
-  add_library(dsolvers nra_solver.cpp icp_solver.cpp ode_solver.cpp)
+  add_library(dsolvers nra_solver.cpp icp_solver.cpp ode_solver.cpp heuristics/heuristic.cpp)
 else()
-  add_library(dsolvers nra_solver.cpp icp_solver.cpp)
+  add_library(dsolvers nra_solver.cpp icp_solver.cpp heuristics/heuristic.cpp)
 endif()

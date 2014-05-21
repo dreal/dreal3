@@ -29,6 +29,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_vec.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
+#include "dsolvers/heuristics/heuristic.h"
 
 namespace dreal {
 class nra_solver : public OrdinaryTSolver {
@@ -48,5 +49,6 @@ private:
     // fields
     scoped_env m_env;
     scoped_vec m_stack;
+    heuristic m_heuristic;
 };
 }

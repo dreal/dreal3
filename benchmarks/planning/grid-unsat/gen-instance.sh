@@ -12,8 +12,9 @@ outputInit(){
 
 outputGoal(){
     END=`expr ${DIMENSION} \* ${DIMENSION}`
+    UNSAT=1
     echo "goal:"
-    echo "@${END} (x <= 1);"
+    echo "@${END} (x = ${UNSAT});"
 }
 
 convertXYtoMode(){

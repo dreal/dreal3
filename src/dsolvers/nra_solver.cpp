@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/string.h"
 #include "dsolvers/icp_solver.h"
 #include "dsolvers/nra_solver.h"
+#include "dsolvers/heuristics/heuristic.h"
 
 using std::pair;
 using std::boolalpha;
@@ -38,6 +39,7 @@ nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, S
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
     : OrdinaryTSolver (i, n, c, e, t, x, d, s) {
     if (c.nra_precision == 0.0) c.nra_precision = 0.001;
+    m_heuristic.initialize(c);
 }
 
 nra_solver::~nra_solver() { }
@@ -54,6 +56,8 @@ lbool nra_solver::inform(Enode * e) {
             ss << v << " ";
         }
     }
+    if (config.bmc_heuristic.compare("") != 0)
+      m_heuristic.inform(e);
     if (DREAL_LOG_INFO_IS_ON) {
         DREAL_LOG_INFO << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt()
                        << " vars = { "
@@ -83,6 +87,12 @@ bool nra_solver::assertLit (Enode * e, bool reason) {
         return true;
     }
     m_stack.push_back(e);
+
+    if  (config.bmc_heuristic.compare("") != 0 && m_heuristic.is_initialized()) {
+      suggestions.clear();
+      m_heuristic.getSuggestions(suggestions, m_stack);
+    }
+
     return true;
 }
 
@@ -104,6 +114,7 @@ void nra_solver::popBacktrackPoint () {
     DREAL_LOG_INFO << "nra_solver::popBacktrackPoint";
     m_stack.pop();
     m_env.pop();
+    m_heuristic.resetSuggestions();
 }
 
 // Check for consistency.
@@ -130,6 +141,15 @@ bool nra_solver::check(bool complete) {
                            << e <<" with polarity " << toInt((e)->getPolarity());
         }
     }
+
+    // Only compute the heuristic after first check.  The first check is after
+    // all level 0 literals have been asserted and the initial and goal modes
+    // will be known
+    if  (config.bmc_heuristic.compare("") != 0 && !m_heuristic.is_initialized()) {
+      suggestions.clear();
+      m_heuristic.getSuggestions(suggestions, m_stack);
+    }
+
     // Print out JSON
 #ifdef ODE_ENABLED
     if (complete && result && config.nra_ODE_contain && config.nra_json) {
@@ -157,4 +177,5 @@ Enode * nra_solver::getInterpolants() {
     return nullptr;
 }
 #endif
+
 }

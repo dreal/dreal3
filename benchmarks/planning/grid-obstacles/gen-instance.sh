@@ -7,13 +7,13 @@ ADJACENCY="//set<pair<int, int>*> adjacent = {"
 
 outputInit(){
     echo "init:"
-    echo "@1 (x = 1);"
+    echo "@1 true;"
 }
 
 outputGoal(){
     END=`expr ${DIMENSION} \* ${DIMENSION}`
     echo "goal:"
-    echo "@${END} (x <= 1);"
+    echo "@${END} true;"
 }
 
 convertXYtoMode(){
@@ -31,7 +31,7 @@ outputMode(){
     MODE=`convertXYtoMode $i $j`
     echo "{ mode ${MODE};"
     echo "  invt:  true;"
-    echo "  flow: d/dt[x]=-1;"
+    echo "  flow: d/dt[x]=0;"
     echo "  jump: "
     outputNJump $i $j
     outputSJump $i $j
@@ -44,6 +44,8 @@ outputNJump(){
     i=$1
     j=$2
     BOUNDARY=`expr $j + 1`
+    getRandomBool
+    if [ $boolResult = "TRUE" ]; then
     if [ ${BOUNDARY} == ${DIMENSION} ]; then
 	echo "   //No North"
     else
@@ -51,14 +53,17 @@ outputNJump(){
 	THIS=`convertXYtoMode $i $j`
 	NEXT=`convertXYtoMode $i $JP`
 	ADJACENCY=${ADJACENCY}"new pair<int, int>("${THIS}","${NEXT}"), "
-	echo "   true ==> @${NEXT} (x' = x); //North"
+	echo "   true ==> @${NEXT} true; //North"
      fi
+    fi
 }
 
 outputEJump(){
     i=$1
     j=$2
     BOUNDARY=`expr $i + 1`
+    getRandomBool
+    if [ $boolResult = "TRUE" ]; then
     if [ ${BOUNDARY} == ${DIMENSION} ]; then
 	echo "   //No East"
     else
@@ -66,14 +71,17 @@ outputEJump(){
 	THIS=`convertXYtoMode $i $j`
 	NEXT=`convertXYtoMode $JP $j`
 	ADJACENCY=${ADJACENCY}"new pair<int, int>("${THIS}","${NEXT}"), "
-	echo "   true ==> @${NEXT} (x' = x); //East"
+	echo "   true ==> @${NEXT} true; //East"
      fi
+    fi
 }
 
 outputSJump(){
     i=$1
     j=$2
     BOUNDARY=$j
+    getRandomBool
+    if [ $boolResult = "TRUE" ]; then
     if [ ${BOUNDARY} == 0 ]; then
 	echo "   //No South"
     else
@@ -81,14 +89,17 @@ outputSJump(){
 	THIS=`convertXYtoMode $i $j`
 	NEXT=`convertXYtoMode $i $JP`
 	ADJACENCY=${ADJACENCY}"new pair<int, int>("${THIS}","${NEXT}"), "
-	echo "   true ==> @${NEXT} (x' = x); //South"
+	echo "   true ==> @${NEXT} true; //South"
      fi
+    fi
 }
 
 outputWJump(){
     i=$1
     j=$2
     BOUNDARY=$i
+    getRandomBool
+    if [ $boolResult = "TRUE" ]; then
     if [ ${BOUNDARY} == 0 ]; then
 	echo "   //No West"
     else
@@ -96,13 +107,31 @@ outputWJump(){
 	THIS=`convertXYtoMode $i $j`
 	NEXT=`convertXYtoMode $JP $j`
 	ADJACENCY=${ADJACENCY}"new pair<int, int>("${THIS}","${NEXT}"), "
-	echo "   true ==> @${NEXT} (x' = x); //West"
+	echo "   true ==> @${NEXT} true; //West"
+     fi
      fi
 }
 
+getRandomBool(){
+BINARY=2
+T=1
+number=$RANDOM
+
+let "number %= $BINARY"
+#  Note that    let "number >>= 14"    gives a better random distribution
+#+ (right shifts out everything except last binary digit).
+if [ "$number" -eq $T ]
+then
+  boolResult="TRUE"
+else
+  boolResult="FALSE"
+fi  
+}
+
+
 
 echo "[0, 1] x;"
-echo "[0.01, 1] time;"
+echo "[0, 1] time;"
 
 for((i=0;i<${DIMENSION};i++)); do {
     for((j=0;j<${DIMENSION};j++)); do {

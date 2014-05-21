@@ -579,16 +579,31 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
 {
   Var next = var_Undef;
 
+  DREAL_LOG_INFO << "CoreSMTSolver::pickBranchLit()" << endl;
+
   // Random decision:
   if (drand(random_seed) < random_var_freq && !order_heap.empty()){
     next = order_heap[irand(random_seed,order_heap.size())];
     if (toLbool(assigns[next]) == l_Undef && decision_var[next])
       rnd_decisions++; }
 
+  if(next != var_Undef){
+    DREAL_LOG_INFO << "CoreSMTSolver::pickBranchLit() Random Decision: "
+                   << theory_handler->varToEnode(next)
+                   << endl;
+  }
     // Theory suggestion-based decision
     for( ;; )
     {
       Lit sugg = theory_handler->getSuggestion( );
+      if(var(sugg) != var_Undef){
+        DREAL_LOG_INFO << "CoreSMTSolver::pickBranchLit() Theory Suggested Decision: "
+                       << sign(sugg) << " " << theory_handler->varToEnode(var(sugg))
+                       << endl;
+      }
+      else{
+        DREAL_LOG_INFO << "CoreSMTSolver::pickBranchLit() Theory Suggested Decision: var_Undef" << endl;
+      }
       // No suggestions
       if ( sugg == lit_Undef )
         break;
@@ -627,7 +642,11 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
         case polarity_user:  sign = polarity[next]; break;
         case polarity_rnd:   sign = irand(random_seed, 2); break;
         default: assert(false); }
-
+      if(next != var_Undef){
+        DREAL_LOG_INFO << "CoreSMTSolver::pickBranchLit() Activity Decision: "
+                       << sign << " " << theory_handler->varToEnode(next)
+                       << endl;
+      }
                  return next == var_Undef ? lit_Undef : Lit(next, sign);
 }
 
@@ -1092,6 +1111,12 @@ void CoreSMTSolver::uncheckedEnqueue(Lit p, Clause* from)
   level   [var(p)] = decisionLevel();
   reason  [var(p)] = from;
 
+  //  DREAL_LOG_INFO << "Assigned: "  << sign(p) << endl;
+
+  if(decisionLevel() > 0 ){
+    Enode * e = theory_handler->varToEnode( var(p) );
+    DREAL_LOG_INFO << "CoreSMTSolver::uncheckedEnqueue(): Assign: "  << e << " = " << toInt(lbool(!sign(p)))<< endl;
+  }
   // Added Code
 #if CACHE_POLARITY
   prev_polarity[var(p)] = assigns[var(p)];
@@ -1581,6 +1606,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 #ifdef STATISTICS
   const double start = cpuTime( );
 #endif
+  DREAL_LOG_INFO << "CoreSMTSolver::search() Checking level-0 atoms" << endl;
   // (Incomplete) Check of Level-0 atoms
   int res = checkTheory( false );
   if ( res == -1 ) return l_False;
@@ -1599,10 +1625,11 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
   {
     // Added line
     if ( opensmt::stop ) return l_Undef;
-
+    //DREAL_LOG_INFO << "CoreSMTSolver::propagate()" << endl;
     Clause* confl = propagate();
     if (confl != NULL){
       // CONFLICT
+      DREAL_LOG_INFO << "CoreSMTSolver::search() Conflict from propagate(): " << confl << endl;
       conflicts++; conflictC++;
       if (decisionLevel() == 0)
         return l_False;
@@ -1611,7 +1638,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
       learnt_clause.clear();
       analyze(confl, learnt_clause, backtrack_level);
       cancelUntil(backtrack_level);
-
+      DREAL_LOG_INFO << "CoreSMTSolver::search() Backtrack to level: " << backtrack_level << endl;
       assert(value(learnt_clause[0]) == l_Undef);
 
       if (learnt_clause.size() == 1){
@@ -1647,39 +1674,31 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
     }else{
       // NO CONFLICT
-      DREAL_LOG_INFO << "CoreSMTSolver::search: No conflict" << endl;
-
+      DREAL_LOG_INFO << "CoreSMTSolver::search() No Conflict from propagate()" << endl;
       if (nof_conflicts >= 0 && conflictC >= nof_conflicts){
         // Reached bound on number of conflicts:
         // progress_estimate = progressEstimate();
         cancelUntil(0);
         return l_Undef; }
 
-      DREAL_LOG_INFO << "CoreSMTSolver::search: Didn't reach conflict bound" << endl;
-
         // Simplify the set of problem clauses:
         if (decisionLevel() == 0 && !simplify())
           return l_False;
-
-      DREAL_LOG_INFO << "CoreSMTSolver::search: Simplified" << endl;
 
         if (nof_learnts >= 0 && learnts.size()-nAssigns() >= nof_learnts)
           // Reduce the set of learnt clauses:
           reduceDB();
 
-
-      DREAL_LOG_INFO << "CoreSMTSolver::search: Reduced" << endl;
-
         if ( first_model_found )
         {
-          DREAL_LOG_INFO << "first_model_found" << endl;
+          DREAL_LOG_INFO << "CoreSMTSolver::search() first_model_found" << endl;
           // Early Pruning Call
           // Step 1: check if the current assignment is theory-consistent
 #ifdef STATISTICS
           const double start = cpuTime( );
 #endif
           int res = checkTheory( false );
-          DREAL_LOG_INFO << "CoreSMTSolver::search: checkTheory = " << res << endl;
+          DREAL_LOG_INFO << "CoreSMTSolver::search() checkTheory1 = " << res << endl;
 #ifdef STATISTICS
           tsolvers_time += cpuTime( ) - start;
 #endif
@@ -1732,32 +1751,38 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             }
           }
           if( isSAT ){
-            DREAL_LOG_INFO << "CoreSMTSolver::search: Found Model after # decisions " << decisions << endl;
+            DREAL_LOG_INFO << "CoreSMTSolver::search() Found Model after # decisions " << decisions << endl;
             //first_model_found = true;
             next = lit_Undef;
           }
           else{
-            DREAL_LOG_INFO << "CoreSMTSolver::search: not SAT yet" << endl;
+            //DREAL_LOG_INFO << "CoreSMTSolver::search() not SAT yet" << endl;
           }
         }
 
         if (next == lit_Undef){
           if( !isSAT ){
-            DREAL_LOG_INFO << "CoreSMTSolver::search: About to pick branch lit" << endl;
             // New variable decision:
             decisions++;
             next = pickBranchLit(polarity_mode, random_var_freq);
+            if(next != lit_Undef){
+              DREAL_LOG_INFO << "CoreSMTSolver::search() Branching at: " << decisionLevel()
+                             << " on: "
+                             << theory_handler->varToEnode(var(next))
+                             << endl;
+            }
           }
           // Complete Call
           if ( next == lit_Undef )
           {
-            DREAL_LOG_INFO << "CoreSMTSolver::search: Next is Undef" << endl;
+            DREAL_LOG_INFO << "CoreSMTSolver::search() Next is Undef" << endl;
             first_model_found = true;
+
 #ifdef STATISTICS
             const double start = cpuTime( );
 #endif
             int res = checkTheory( true );
-            DREAL_LOG_INFO << "CoreSMTSolver::search: checkTheory = " << res << endl;
+            DREAL_LOG_INFO << "CoreSMTSolver::search() checkTheory2 = " << res << endl;
 #ifdef STATISTICS
             tsolvers_time += cpuTime( ) - start;
 #endif
@@ -1769,7 +1794,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             const double start2 = cpuTime( );
 #endif
             res = checkAxioms( );
-            DREAL_LOG_INFO << "CoreSMTSolver::search: checkAxioms = " << res << endl;
+            DREAL_LOG_INFO << "CoreSMTSolver::search() checkAxioms = " << res << endl;
 #ifdef STATISTICS
             tsolvers_time += cpuTime( ) - start2;
 #endif
@@ -1787,11 +1812,18 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             // splitting on demand did not add any new variable
             decisions++;
             next = pickBranchLit( polarity_mode, random_var_freq );
+            if(next != lit_Undef){
+              DREAL_LOG_INFO << "CoreSMTSolver::search() Branching at: " << decisionLevel()
+                             << " on: "
+                             << theory_handler->varToEnode(var(next))
+                             << endl;
+            }
           }
 
           if (next == lit_Undef){
             // Model found:
-            DREAL_LOG_INFO << "CoreSMTSolver::search: Found Model after # decisions " << decisions << endl;
+            DREAL_LOG_INFO << "CoreSMTSolver::search() Found Model after # decisions "
+                           << decisions << endl;
             return l_True;
           }
         }
@@ -1800,6 +1832,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
         assert(value(next) == l_Undef);
         newDecisionLevel();
         uncheckedEnqueue(next);
+>>>>>>> b2205b2... feat(smtsolver): added debugging and nra_solver suggestions for variable selection
     }
 
 

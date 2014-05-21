@@ -502,3 +502,30 @@ unordered_set<Enode *> Enode::get_vars() {
     else opensmt_error("unknown case value");
     return result;
 }
+
+unordered_set<Enode *> Enode::get_constants() {
+    // TODO(soonhok): need to support integral and forallt?
+    unordered_set<Enode *> result;
+    Enode const * p = nullptr;
+    if ( isSymb()) {  /* do nothing */ }
+    else if ( isConstant() ) { result.insert(this); }
+    else if (isTerm()) {
+        if ( isVar() ) { /* do nothing */ }
+        p = this;
+        while (!p->isEnil()) {
+            unordered_set<Enode *> const & tmp_set = p->getCar()->get_constants();
+            result.insert(tmp_set.begin(), tmp_set.end());
+            p = p->getCdr();
+        }
+    } else if (isList()) {
+        p = this;
+        while (!p->isEnil()) {
+            unordered_set<Enode *> const  & tmp_set = p->getCar()->get_constants();
+            result.insert(tmp_set.begin(), tmp_set.end());
+            p = p->getCdr();
+        }
+    } else if (isDef()) { /* do nothing */ }
+    else if (isEnil()) { /* do nothing */ }
+    else opensmt_error("unknown case value");
+    return result;
+}
