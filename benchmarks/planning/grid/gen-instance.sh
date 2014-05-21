@@ -102,7 +102,7 @@ outputWJump(){
 
 
 echo "[0, 1] x;"
-echo "[0.01, 1] time;"
+echo "[0.00001, 0.0001] time;"
 
 for((i=0;i<${DIMENSION};i++)); do {
     for((j=0;j<${DIMENSION};j++)); do {

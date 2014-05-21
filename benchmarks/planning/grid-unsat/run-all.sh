@@ -7,7 +7,7 @@ NUM=10
 TIMEFORMAT="%R"
 
 echo "Size Heuristic Disj Orig" >> grid.out
-for((i=5; i <=10; i++)); do {
+for((i=1; i <=10; i++)); do {
 	f=`expr $i \* 2`
    	echo "DELTA = ${d} STEPS = ${f}"
 	INST=grid${f}.drh
@@ -16,8 +16,9 @@ for((i=5; i <=10; i++)); do {
 
 	LINE="${f}"
 	for c in "-b" "-d" ""; do {
+#	for c in "-b"  ; do {
 
-	CMD=${c}" -k ${LEN} ${INST}"
+	CMD="dReach ${c} -k ${LEN} ${INST}"
 	echo $CMD
 	runtime=$( time ( $CMD ) 2>&1  1>/tmp/grid-unsat.tmp)
 	echo $runtime
