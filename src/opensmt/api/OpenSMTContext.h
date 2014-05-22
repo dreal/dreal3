@@ -20,9 +20,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef OPENSMT_CONTEXT_H
 #define OPENSMT_CONTEXT_H
 
-#include "Egraph.h"
-#include "SimpSMTSolver.h"
-#include "Tseitin.h"
+#include "egraph/Egraph.h"
+#include "smtsolvers/SimpSMTSolver.h"
+#include "cnfizers/Tseitin.h"
 
 class OpenSMTContext
 {

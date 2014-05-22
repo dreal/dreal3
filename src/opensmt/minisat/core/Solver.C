@@ -18,7 +18,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 **************************************************************************************************/
 
 #include "Solver.h"
-#include "Sort.h"
+#include "minisat/mtl/Sort.h"
 #include <cmath>
 
 
@@ -204,17 +204,17 @@ Lit Solver::pickBranchLit(int polarity_mode, double random_var_freq)
 /*_________________________________________________________________________________________________
 |
 |  analyze : (confl : Clause*) (out_learnt : vec<Lit>&) (out_btlevel : int&)  ->  [void]
-|  
+|
 |  Description:
 |    Analyze conflict and produce a reason clause.
-|  
+|
 |    Pre-conditions:
 |      * 'out_learnt' is assumed to be cleared.
 |      * Current decision level must be greater than root level.
-|  
+|
 |    Post-conditions:
 |      * 'out_learnt[0]' is the asserting literal at level 'out_btlevel'.
-|  
+|
 |  Effect:
 |    Will undo part of the trail, upto but not beyond the assumption of the current decision level.
 |________________________________________________________________________________________________@*/
@@ -342,7 +342,7 @@ bool Solver::litRedundant(Lit p, uint32_t abstract_levels)
 /*_________________________________________________________________________________________________
 |
 |  analyzeFinal : (p : Lit)  ->  [void]
-|  
+|
 |  Description:
 |    Specialized analysis procedure to express the final conflict in terms of assumptions.
 |    Calculates the (possibly empty) set of assumptions that led to the assignment of 'p', and
@@ -391,11 +391,11 @@ void Solver::uncheckedEnqueue(Lit p, Clause* from)
 /*_________________________________________________________________________________________________
 |
 |  propagate : [void]  ->  [Clause*]
-|  
+|
 |  Description:
 |    Propagates all enqueued facts. If a conflict arises, the conflicting clause is returned,
 |    otherwise NULL.
-|  
+|
 |    Post-conditions:
 |      * the propagation queue is empty, even if there was a conflict.
 |________________________________________________________________________________________________@*/
@@ -456,7 +456,7 @@ Clause* Solver::propagate()
 /*_________________________________________________________________________________________________
 |
 |  reduceDB : ()  ->  [void]
-|  
+|
 |  Description:
 |    Remove half of the learnt clauses, minus the clauses locked by the current assignment. Locked
 |    clauses are clauses that are reason to some assignment. Binary clauses are never removed.
@@ -500,7 +500,7 @@ void Solver::removeSatisfied(vec<Clause*>& cs)
 /*_________________________________________________________________________________________________
 |
 |  simplify : [void]  ->  [bool]
-|  
+|
 |  Description:
 |    Simplify the clause database according to the current top-level assigment. Currently, the only
 |    thing done here is the removal of satisfied clauses, but more things can be put here.
@@ -533,12 +533,12 @@ bool Solver::simplify()
 /*_________________________________________________________________________________________________
 |
 |  search : (nof_conflicts : int) (nof_learnts : int) (params : const SearchParams&)  ->  [lbool]
-|  
+|
 |  Description:
 |    Search for a model the specified number of conflicts, keeping the number of learnt clauses
 |    below the provided limit. NOTE! Use negative value for 'nof_conflicts' or 'nof_learnts' to
 |    indicate infinity.
-|  
+|
 |  Output:
 |    'l_True' if a partial assigment that is consistent with respect to the clauseset is found. If
 |    all variables are decision variables, this means that the clause set is satisfiable. 'l_False'

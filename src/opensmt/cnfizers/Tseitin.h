@@ -20,11 +20,11 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TSEITIN_H
 #define TSEITIN_H
 
-#include "Global.h"
-#include "Otl.h"
-#include "SMTSolver.h"
-#include "Egraph.h"
-#include "Cnfizer.h"
+#include "common/Global.h"
+#include "common/Otl.h"
+#include "smtsolvers/SMTSolver.h"
+#include "egraph/Egraph.h"
+#include "cnfizers/Cnfizer.h"
 
 class Tseitin : public Cnfizer
 {

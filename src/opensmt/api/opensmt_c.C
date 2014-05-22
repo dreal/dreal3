@@ -17,11 +17,11 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "opensmt_c.h"
-#include "OpenSMTContext.h"
-#include "Egraph.h"
-#include "Tseitin.h"
-#include "SimpSMTSolver.h"
+#include "api/opensmt_c.h"
+#include "api/OpenSMTContext.h"
+#include "egraph/Egraph.h"
+#include "cnfizers/Tseitin.h"
+#include "smtsolvers/SimpSMTSolver.h"
 #include "version.h"
 
 #ifndef SMTCOMP

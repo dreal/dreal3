@@ -18,10 +18,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 %{
-#include "Global.h"
-#include "Egraph.h"
-#include "SStore.h"
-#include "OpenSMTContext.h"
+#include "common/Global.h"
+#include "egraph/Egraph.h"
+#include "sorts/SStore.h"
+#include "api/OpenSMTContext.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>

@@ -21,9 +21,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef SolverTypes_h
 #define SolverTypes_h
 
-#include "Vec.h"
-#include "Heap.h"
-#include "Alg.h"
+#include "minisat/mtl/Vec.h"
+#include "minisat/mtl/Heap.h"
+#include "minisat/mtl/Alg.h"
 
 #include <cassert>
 #include <stdint.h>

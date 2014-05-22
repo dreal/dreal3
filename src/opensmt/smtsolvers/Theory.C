@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
  *********************************************************************/
 
-#include "CoreSMTSolver.h"
-#include "THandler.h"
+#include "smtsolvers/CoreSMTSolver.h"
+#include "tsolvers/THandler.h"
 
 int CoreSMTSolver::checkTheory( bool complete )
 {
@@ -47,32 +47,32 @@ int CoreSMTSolver::checkTheory( bool complete )
     {
       if ( !complete )
       {
-	int ded = deduceTheory( );
-	assert( ded == 0 || ded == 1 );
-	// There are deductions
-	if ( ded )
-	{
-	  res = theory_handler->assertLits( )
-	     && theory_handler->check( false );
+        int ded = deduceTheory( );
+        assert( ded == 0 || ded == 1 );
+        // There are deductions
+        if ( ded )
+        {
+          res = theory_handler->assertLits( )
+             && theory_handler->check( false );
 
-	  // SAT and deductions done, time for BCP
-	  if ( res ) return 2;
-	  // Otherwise goto Problem is T-Unsatisfiable
-	  // This case can happen only during DTC
-	  assert( res == 0 );
-	  assert( ( config.logic == QF_UFIDL
-		 || config.logic == QF_UFLRA )
-	         && config.sat_lazy_dtc != 0 );
-	}
-	// SAT and there are no deductions, time for decision
-	else
-	{
-	  skip_step *= config.sat_skip_step_factor;
-	  return 1; // SAT and nothing to deduce, time for decision
-	}
+          // SAT and deductions done, time for BCP
+          if ( res ) return 2;
+          // Otherwise goto Problem is T-Unsatisfiable
+          // This case can happen only during DTC
+          assert( res == 0 );
+          assert( ( config.logic == QF_UFIDL
+                 || config.logic == QF_UFLRA )
+                 && config.sat_lazy_dtc != 0 );
+        }
+        // SAT and there are no deductions, time for decision
+        else
+        {
+          skip_step *= config.sat_skip_step_factor;
+          return 1; // SAT and nothing to deduce, time for decision
+        }
       }
       else
-	return 1; // SAT and complete call, we are done
+        return 1; // SAT and complete call, we are done
     }
     else
     {
@@ -130,8 +130,8 @@ int CoreSMTSolver::checkTheory( bool complete )
       clause_to_in[ confl ] = interp;
       if ( config.incremental )
       {
-	undo_stack_oper.push_back( NEWINTER );
-	undo_stack_elem.push_back( NULL );
+        undo_stack_oper.push_back( NEWINTER );
+        undo_stack_elem.push_back( NULL );
       }
     }
     proof.beginChain( confl );
@@ -292,28 +292,28 @@ int CoreSMTSolver::checkAxioms( )
     for ( int i = 0 ; i < ax.size( ) ; i ++ )
     {
       if ( value( ax[ i ] ) == l_True )
-	continue;
+        continue;
 
       if ( value( ax[ i ] ) == l_False )
       {
-	assigned_false ++;
-	if ( level[ var(ax[i]) ] > max_decision_level )
-	  max_decision_level = level[ var(ax[i]) ];
+        assigned_false ++;
+        if ( level[ var(ax[i]) ] > max_decision_level )
+          max_decision_level = level[ var(ax[i]) ];
       }
       else
-	unassigned = ax[ i ];
+        unassigned = ax[ i ];
     }
     // All literals in lemma are false
     if ( assigned_false == ax.size( ) )
       return analyzeUnsatLemma( ax_ );
     // All literals but one are false: time for BCP
     if ( unassigned != lit_Undef
-	&& assigned_false == ax.size( ) - 1 )
+        && assigned_false == ax.size( ) - 1 )
     {
       // Determine the lowest decision level that
       // causes the propagation
       if ( decisionLevel( ) > max_decision_level )
-	cancelUntil( max_decision_level );
+        cancelUntil( max_decision_level );
 
       axioms_checked ++;
       uncheckedEnqueue( unassigned, ax_ );
@@ -405,7 +405,7 @@ int CoreSMTSolver::analyzeUnsatLemma( Clause * confl )
 
 //
 // Return values
-// 0 no deductions done 
+// 0 no deductions done
 // 1 some deductions done
 //
 int CoreSMTSolver::deduceTheory( )

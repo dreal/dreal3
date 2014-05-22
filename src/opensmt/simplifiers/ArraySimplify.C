@@ -18,9 +18,9 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
  *********************************************************************/
 
-#include "ArraySimplify.h"
-#include "Egraph.h"
-#include "Global.h"
+#include "simplifiers/ArraySimplify.h"
+#include "egraph/Egraph.h"
+#include "common/Global.h"
 
 //#define ASVERB
 //#define ARR_VERB
@@ -28,113 +28,113 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 Enode *
 ArraySimplify::doit( Enode * formula )
 {
-	assert( formula );
-	vector< Enode * > unprocessed_enodes;
-	egraph.initDup1( );
+        assert( formula );
+        vector< Enode * > unprocessed_enodes;
+        egraph.initDup1( );
 
-	//set<Enode*>indexWorld;
+        //set<Enode*>indexWorld;
 
-	unprocessed_enodes.push_back( formula );
-	//
-	// Visit the DAG of the formula from the leaves to the root
-	//
-	while( !unprocessed_enodes.empty( ) )
-	{
-		Enode * enode = unprocessed_enodes.back( );
-		//
-		// Skip if the node has already been processed before
-		//
-		if ( egraph.isDup1( enode ) )
-		{
-			unprocessed_enodes.pop_back( );
-			continue;
-		}
+        unprocessed_enodes.push_back( formula );
+        //
+        // Visit the DAG of the formula from the leaves to the root
+        //
+        while( !unprocessed_enodes.empty( ) )
+        {
+                Enode * enode = unprocessed_enodes.back( );
+                //
+                // Skip if the node has already been processed before
+                //
+                if ( egraph.isDup1( enode ) )
+                {
+                        unprocessed_enodes.pop_back( );
+                        continue;
+                }
 
-		bool unprocessed_children = false;
-		Enode * arg_list;
-		for ( arg_list = enode->getCdr( ) ;
-				arg_list != egraph.enil ;
-				arg_list = arg_list->getCdr( ) )
-		{
-			Enode * arg = arg_list->getCar( );
+                bool unprocessed_children = false;
+                Enode * arg_list;
+                for ( arg_list = enode->getCdr( ) ;
+                                arg_list != egraph.enil ;
+                                arg_list = arg_list->getCdr( ) )
+                {
+                        Enode * arg = arg_list->getCar( );
 
-			assert( arg->isTerm( ) );
-			//
-			// Push only if it is unprocessed
-			//
-			if ( !egraph.isDup1( arg ) )
-			{
-				unprocessed_enodes.push_back( arg );
-				unprocessed_children = true;
-			}
-		}
-		//
-		// SKip if unprocessed_children
-		//
-		if ( unprocessed_children )
-			continue;
+                        assert( arg->isTerm( ) );
+                        //
+                        // Push only if it is unprocessed
+                        //
+                        if ( !egraph.isDup1( arg ) )
+                        {
+                                unprocessed_enodes.push_back( arg );
+                                unprocessed_children = true;
+                        }
+                }
+                //
+                // SKip if unprocessed_children
+                //
+                if ( unprocessed_children )
+                        continue;
 
-		// If the term is a select or store, update its array argument info adding a new array user
-		if ( enode->isTerm( ) && enode->isStore( ) )
-		{
-			// Generate additional R(W(a,i,e),i)=e clause applying idx
-			preprocIdx( enode );
+                // If the term is a select or store, update its array argument info adding a new array user
+                if ( enode->isTerm( ) && enode->isStore( ) )
+                {
+                        // Generate additional R(W(a,i,e),i)=e clause applying idx
+                        preprocIdx( enode );
 
-			// Enode * a = enode->get1st( );
-			// egraph.addStoreSuperterm(a,enode);
-			//NB Not now but runtime!
-			//egraph.addArrayRelevantIndex(enode,i);
-		}
-		if( enode->isTerm( ) && enode->isSelect( ) )
-		{
-			// Enode * a = enode->get1st();
-			// Enode * i = enode->get2nd();
-		}
+                        // Enode * a = enode->get1st( );
+                        // egraph.addStoreSuperterm(a,enode);
+                        //NB Not now but runtime!
+                        //egraph.addArrayRelevantIndex(enode,i);
+                }
+                if( enode->isTerm( ) && enode->isSelect( ) )
+                {
+                        // Enode * a = enode->get1st();
+                        // Enode * i = enode->get2nd();
+                }
 
 //		if(enode->isTerm() && enode->isDTypeArrayIndex())
 //			indexWorld.insert(enode);
 
-		unprocessed_enodes.pop_back( );
-		assert( !egraph.isDup1( enode ) );
-		egraph.storeDup1( enode );
-	}
+                unprocessed_enodes.pop_back( );
+                assert( !egraph.isDup1( enode ) );
+                egraph.storeDup1( enode );
+        }
 
-	egraph.doneDup1( );
+        egraph.doneDup1( );
 
-	// Generate additional clauses applying arrow up
-	// preprocArrowUp( );
+        // Generate additional clauses applying arrow up
+        // preprocArrowUp( );
 
 #ifdef ASVERB
-	list<Enode*>::iterator it;
-	for(it=new_clauses.begin();it!=new_clauses.end();it++)
-		egraph.printStoreSupertermsList((*it)->get2nd()->get1st());
+        list<Enode*>::iterator it;
+        for(it=new_clauses.begin();it!=new_clauses.end();it++)
+                egraph.printStoreSupertermsList((*it)->get2nd()->get1st());
 #endif
 
-	new_clauses.push_back( formula );
-	Enode * total = egraph.mkAnd( egraph.cons( new_clauses ) );
+        new_clauses.push_back( formula );
+        Enode * total = egraph.mkAnd( egraph.cons( new_clauses ) );
 
-	//cout << "Index world size: " << indexWorld.size() << endl;
+        //cout << "Index world size: " << indexWorld.size() << endl;
 
-	return total;
+        return total;
 }
 
-// 
-// Don't like to have to treat these cases without 
+//
+// Don't like to have to treat these cases without
 // using the already existent axiom procedures...
 //
 void ArraySimplify::preprocIdx( Enode * store )
 {
-	// create term R(W(a,i,e),i)=e
-	Enode * i = store->get2nd( );
-	Enode * e = store->get3rd( );
+        // create term R(W(a,i,e),i)=e
+        Enode * i = store->get2nd( );
+        Enode * e = store->get3rd( );
 
-	// add clause R(W(a,i,e),i)=e
-	Enode * newSelect = egraph.mkSelect( store, i );
-	Enode * cl = egraph.mkEq( egraph.cons( newSelect, egraph.cons( e ) ) );
-	new_clauses.push_back( cl );
+        // add clause R(W(a,i,e),i)=e
+        Enode * newSelect = egraph.mkSelect( store, i );
+        Enode * cl = egraph.mkEq( egraph.cons( newSelect, egraph.cons( e ) ) );
+        new_clauses.push_back( cl );
 
 #ifdef ARR_VERB
-	cout << endl << "WAxiom:" << endl << store << endl << "->" << endl << cl << endl;
+        cout << endl << "WAxiom:" << endl << store << endl << "->" << endl << cl << endl;
 #endif
 }
 
@@ -155,45 +155,45 @@ void ArraySimplify::preprocIdx( Enode * store )
     aStoUsers = arrayUsersIt->second.storeUsers;
 
     for ( aSelUsersIt = aSelUsers.begin( )
-	; aSelUsersIt != aSelUsers.end( ) 
-	; aSelUsersIt++)
+        ; aSelUsersIt != aSelUsers.end( )
+        ; aSelUsersIt++)
     {
       for ( aStoUsersIt = aStoUsers.begin( )
-	  ; aStoUsersIt != aStoUsers.end( ) 
-	  ; aStoUsersIt++ )
+          ; aStoUsersIt != aStoUsers.end( )
+          ; aStoUsersIt++ )
       {
-	select =* aSelUsersIt; 
-	store =* aStoUsersIt;
+        select =* aSelUsersIt;
+        store =* aStoUsersIt;
 
-	// create new term R(W(a,i,e),j)
-	i = store->get2nd( );
-	e = store->get3rd( );
-	j = select->get2nd( );
+        // create new term R(W(a,i,e),j)
+        i = store->get2nd( );
+        e = store->get3rd( );
+        j = select->get2nd( );
 
-	// case i==j indirectly treated in idx
-	if( i != j )
-	{
-	  newSelect = egraph.mkSelect( store, j );
+        // case i==j indirectly treated in idx
+        if( i != j )
+        {
+          newSelect = egraph.mkSelect( store, j );
 
-	  // add clause IF i!=j THEN R(W(a,i,e),j)=R(a,j)
-	  // that is (i=j OR R(W(a,i,e),j)=R(a,j))
-	  lit1 = egraph.mkEq( egraph.cons( i, egraph.cons( j ) ) );
-	  lit2 = egraph.mkEq( egraph.cons( newSelect, egraph.cons( select ) ) );
-	  cl1 = egraph.mkOr( egraph.cons( lit1, egraph.cons( lit2 ) ) );
+          // add clause IF i!=j THEN R(W(a,i,e),j)=R(a,j)
+          // that is (i=j OR R(W(a,i,e),j)=R(a,j))
+          lit1 = egraph.mkEq( egraph.cons( i, egraph.cons( j ) ) );
+          lit2 = egraph.mkEq( egraph.cons( newSelect, egraph.cons( select ) ) );
+          cl1 = egraph.mkOr( egraph.cons( lit1, egraph.cons( lit2 ) ) );
 
-	  // add clause IF i=j THEN R(W(a,i,e),j)=e
-	  // that is (NOT(i=j) OR R(W(a,i,e),j)=e)
-	  lit3 = egraph.mkNot( egraph.cons( egraph.mkEq( egraph.cons( i, egraph.cons( j ) ) ) ) );
-	  lit4 = egraph.mkEq( egraph.cons( newSelect, egraph.cons( e ) ) );
-	  cl2 = egraph.mkOr( egraph.cons( lit3, egraph.cons( lit4 ) ) );
+          // add clause IF i=j THEN R(W(a,i,e),j)=e
+          // that is (NOT(i=j) OR R(W(a,i,e),j)=e)
+          lit3 = egraph.mkNot( egraph.cons( egraph.mkEq( egraph.cons( i, egraph.cons( j ) ) ) ) );
+          lit4 = egraph.mkEq( egraph.cons( newSelect, egraph.cons( e ) ) );
+          cl2 = egraph.mkOr( egraph.cons( lit3, egraph.cons( lit4 ) ) );
 
-	  new_clauses.push_back( cl1 );
-	  new_clauses.push_back( cl2 );
+          new_clauses.push_back( cl1 );
+          new_clauses.push_back( cl2 );
 #if VERBOSE
-	  cerr << "Adding: " << cl1 << endl;
-	  cerr << "Adding: " << cl2 << endl;
+          cerr << "Adding: " << cl1 << endl;
+          cerr << "Adding: " << cl2 << endl;
 #endif
-	}
+        }
       }
     }
   }
@@ -204,16 +204,16 @@ void ArraySimplify::preprocIdx( Enode * store )
 Enode * ArraySimplify::simp1( Enode * enode, bool & appl )
 {
   assert( false );
-  Enode * a = egraph.valDupMap1( enode->get1st( ) ); 
+  Enode * a = egraph.valDupMap1( enode->get1st( ) );
   assert( a );
-  Enode * i = egraph.valDupMap1( enode->get2nd( ) ); 
+  Enode * i = egraph.valDupMap1( enode->get2nd( ) );
   assert( i );
 
   if ( a->isTerm( ) && a->isStore( ) )
   {
-    Enode * indexStore = egraph.valDupMap1( a->get2nd() ); 
+    Enode * indexStore = egraph.valDupMap1( a->get2nd() );
     assert( indexStore );
-    Enode * elementStore = egraph.valDupMap1( a->get3rd() ); 
+    Enode * elementStore = egraph.valDupMap1( a->get3rd() );
     assert( elementStore );
 
     // Substitution by application axiom R(W(b,i,e),i)=e
@@ -232,18 +232,18 @@ Enode * ArraySimplify::simp1( Enode * enode, bool & appl )
 Enode * ArraySimplify::simp2( Enode * enode, bool & appl )
 {
   assert( false );
-  Enode * a = egraph.valDupMap1( enode->get1st( ) ); 
+  Enode * a = egraph.valDupMap1( enode->get1st( ) );
   assert( a );
-  Enode * i = egraph.valDupMap1( enode->get2nd( ) ); 
+  Enode * i = egraph.valDupMap1( enode->get2nd( ) );
   assert( i );
-  Enode * e = egraph.valDupMap1( enode->get3rd( ) ); 
+  Enode * e = egraph.valDupMap1( enode->get3rd( ) );
   assert( e );
 
   if ( a->isTerm( ) && a->isStore( ) )
   {
-    Enode * b = egraph.valDupMap1( a->get1st() ); 
+    Enode * b = egraph.valDupMap1( a->get1st() );
     assert( b );
-    Enode * indexStore = egraph.valDupMap1( a->get2nd() ); 
+    Enode * indexStore = egraph.valDupMap1( a->get2nd() );
     assert( indexStore );
 
     // Substitution by application axiom W(W(b,i,f),i,e)=W(b,i,e)
@@ -262,18 +262,18 @@ Enode * ArraySimplify::simp2( Enode * enode, bool & appl )
 Enode * ArraySimplify::simp3( Enode * enode, bool & appl )
 {
   assert( false );
-  Enode * a = egraph.valDupMap1( enode->get1st( ) ); 
+  Enode * a = egraph.valDupMap1( enode->get1st( ) );
   assert( a );
-  Enode * i = egraph.valDupMap1( enode->get2nd( ) ); 
+  Enode * i = egraph.valDupMap1( enode->get2nd( ) );
   assert( i );
-  Enode * e = egraph.valDupMap1( enode->get3rd( ) ); 
+  Enode * e = egraph.valDupMap1( enode->get3rd( ) );
   assert( e );
 
   if ( e->isTerm( ) && e->isSelect( ) )
   {
-    Enode * indexSelect = egraph.valDupMap1( e->get2nd( ) ); 
+    Enode * indexSelect = egraph.valDupMap1( e->get2nd( ) );
     assert( indexSelect );
-    Enode * arraySelect = egraph.valDupMap1( e->get1st() ); 
+    Enode * arraySelect = egraph.valDupMap1( e->get1st() );
     assert( arraySelect );
 
     // Substitution by application axiom W(a,i,R(a,i))=a
@@ -286,4 +286,3 @@ Enode * ArraySimplify::simp3( Enode * enode, bool & appl )
   }
   return enode;
 }*/
-

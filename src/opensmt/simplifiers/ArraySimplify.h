@@ -19,9 +19,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ARRAYSIMPLIFY_H
 #define ARRAYSIMPLIFY_H
 
-#include "Global.h"
-#include "Otl.h"
-#include "Egraph.h"
+#include "common/Global.h"
+#include "common/Otl.h"
+#include "egraph/Egraph.h"
 
 class ArraySimplify
 {
@@ -37,7 +37,7 @@ public:
   Enode * doit ( Enode * ); // Main routine
 
 private:
-  
+
   list< Enode * >             new_clauses;
 
   Egraph &    egraph;       // Reference to Egraph
@@ -51,4 +51,4 @@ private:
   Enode * simp3          ( Enode *, bool & );
 };
 
-#endif 
+#endif

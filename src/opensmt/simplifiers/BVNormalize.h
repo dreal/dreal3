@@ -20,9 +20,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BV_NORMALIZE_HH
 #define BV_NORMALIZE_HH
 
-#include "Global.h"
-#include "Otl.h"
-#include "Egraph.h"
+#include "common/Global.h"
+#include "common/Otl.h"
+#include "egraph/Egraph.h"
 
 class BVNormalize
 {
@@ -39,19 +39,19 @@ public:
 
 private:
 
-  Enode * normalize                       ( Enode * ); 
+  Enode * normalize                       ( Enode * );
 /*  Enode * makeNumberFromGmp               ( mpz_class &, const int );
   void    scanPolynome                    ( Enode *
-	                                  , map< enodeid_t, mpz_class * > &
-			                  , mpz_class &
-			                  , map< enodeid_t, Enode * > &
-			                  , vector< mpz_class * > &
-			                  , bool );
+                                          , map< enodeid_t, mpz_class * > &
+                                          , mpz_class &
+                                          , map< enodeid_t, Enode * > &
+                                          , vector< mpz_class * > &
+                                          , bool );
 */
   Enode * propagateUnconstrainedVariables ( Enode * );
   Enode * replaceUnconstrainedTerms       ( Enode *, vector< int > & , bool & );
   void    computeIncomingEdges            ( Enode *, vector< int > & );
-  
+
   Egraph &    egraph;       // Reference to Egraph
   SMTConfig & config;       // Reference to Config
 };

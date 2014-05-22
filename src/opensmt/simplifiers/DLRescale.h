@@ -22,9 +22,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLRESCALE_H
 #define DLRESCALE_H
 
-#include "Global.h"
-#include "Otl.h"
-#include "Egraph.h"
+#include "common/Global.h"
+#include "common/Otl.h"
+#include "egraph/Egraph.h"
 
 class DLRescale
 {

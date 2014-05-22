@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "Ackermanize.h"
+#include "simplifiers/Ackermanize.h"
 
 Enode *
 Ackermanize::doit( Enode * formula )

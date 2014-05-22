@@ -22,7 +22,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <cstdlib>
 /* Keep the following headers in their original order */
-#include "Egraph.h"
+#include "egraph/Egraph.h"
 #include "smt2parser.hh"
 
 #define BUFFER2_LENGTH 1024

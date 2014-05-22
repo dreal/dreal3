@@ -20,19 +20,19 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef EMPTYSOLVER_H
 #define EMPTYSOLVER_H
 
-#include "TSolver.h"
+#include "tsolvers/TSolver.h"
 
 class EmptySolver : public OrdinaryTSolver
 {
 public:
 
-  EmptySolver( const int           
-             , const char *        
-	     , SMTConfig &         
-	     , Egraph &            
-	     , SStore &
-	     , vector< Enode * > & 
-	     , vector< Enode * > & 
+  EmptySolver( const int
+             , const char *
+             , SMTConfig &
+             , Egraph &
+             , SStore &
+             , vector< Enode * > &
+             , vector< Enode * > &
              , vector< Enode * > & );
 
   ~EmptySolver ( );

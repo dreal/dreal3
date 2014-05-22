@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "SStore.h"
+#include "sorts/SStore.h"
 
 void SStore::initializeStore( )
 {
@@ -48,8 +48,8 @@ Snode * SStore::newSymbol( const char * name, const bool para )
   // Create new symbol/parameter
   Snode * new_snode = new Snode( id_to_snode.size( ), name, para );
   // Insert new symbol
-  insertSymbol( new_snode );	                   
-  assert( lookupSymbol( name ) == new_snode );     
+  insertSymbol( new_snode );
+  assert( lookupSymbol( name ) == new_snode );
   return new_snode;
 }
 
@@ -62,7 +62,7 @@ Snode * SStore::mkVar( const char * name )
 {
   Snode * s = lookupSymbol( name );
   // Not a variable, is it a define ?
-  if ( s == NULL ) 
+  if ( s == NULL )
       opensmt_error2( "undeclared sort identifier ", name );
   Snode * res = cons( s );
   return res;
@@ -159,7 +159,7 @@ Snode * SStore::cons( Snode * car, Snode * cdr )
   return e;
 }
 
-// 
+//
 // Create a parameter, unless it exists already
 // in which case it returns the same
 //
@@ -173,7 +173,7 @@ SStore::dumpSortsToFile ( ostream & dump_out )
 {
   // Dump function declarations
   for ( map< string, Snode * >::iterator it = name_to_symbol.begin( )
-      ; it != name_to_symbol.end( ) 
+      ; it != name_to_symbol.end( )
       ; it ++ )
   {
     Snode * s = it->second;

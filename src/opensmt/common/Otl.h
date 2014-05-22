@@ -23,8 +23,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef OTL_H
 #define OTL_H
 
-#include "Global.h"
-#include "SolverTypes.h"
+#include "common/Global.h"
+#include "minisat/core/SolverTypes.h"
 
 namespace std
 {

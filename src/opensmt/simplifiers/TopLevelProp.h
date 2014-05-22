@@ -20,10 +20,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TOP_LEVEL_PROP_H
 #define TOP_LEVEL_PROP_H
 
-#include "Global.h"
-#include "Otl.h"
-#include "Egraph.h"
-#include "LA.h"
+#include "common/Global.h"
+#include "common/Otl.h"
+#include "egraph/Egraph.h"
+#include "common/LA.h"
 
 class TopLevelProp
 {
@@ -54,7 +54,7 @@ private:
   Enode * propagateUnconstrainedVariables ( Enode *, bool & );
   Enode * replaceUnconstrainedTerms       ( Enode *, vector< int > & , bool & );
   void    computeIncomingEdges            ( Enode *, vector< int > & );
-  
+
   Egraph &    egraph; // Reference to Egraph
   SMTConfig & config; // Reference to Config
 };

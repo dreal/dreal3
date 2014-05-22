@@ -22,7 +22,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <cstdlib>
 /* Keep the following headers in their original order */
-#include "Egraph.h"
+#include "egraph/Egraph.h"
 #include "ysparser.hh"
 
 %}
@@ -37,12 +37,12 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 ";;".*\n                 { }
 "set-evidence!"          { return TK_EVIDENCE; }
 "reset"                  { return TK_RESET; }
-"define"		 { return TK_DEFINE; }
+"define"                 { return TK_DEFINE; }
 "subrange"               { return TK_SUBRANGE; }
-"assert"		 { return TK_ASSERT; }
-"assert+"		 { return TK_EXTASSERT; }
-"check"  		 { return TK_CHECK; }
-"::"		         { return TK_SEPARATOR; }
+"assert"                 { return TK_ASSERT; }
+"assert+"                { return TK_EXTASSERT; }
+"check"                  { return TK_CHECK; }
+"::"                     { return TK_SEPARATOR; }
 "int"                    { return TK_INT; }
 "bool"                   { return TK_BOOL; }
 "<"                      { return TK_LT; }
@@ -53,9 +53,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 "/="                     { return TK_NEQ; }
 "="                      { return TK_EQ; }
 "if"                     { return TK_IF; }
-"and"			 { return TK_AND; }
-"or"			 { return TK_OR; }
-"not"			 { return TK_NOT; }
+"and"                    { return TK_AND; }
+"or"                     { return TK_OR; }
+"not"                    { return TK_NOT; }
 "true"                   { return TK_TRUE; }
 "false"                  { return TK_FALSE; }
 

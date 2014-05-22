@@ -20,9 +20,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef THANDLER_H
 #define THANDLER_H
 
-#include "SMTConfig.h"
-#include "Egraph.h"
-#include "TSolver.h"
+#include "smtsolvers/SMTConfig.h"
+#include "egraph/Egraph.h"
+#include "tsolvers/TSolver.h"
 
 class SMTSolver; // Forward declaration
 
@@ -33,11 +33,11 @@ public:
   THandler ( Egraph &      e
            , SMTConfig &   c
            , SMTSolver &   s
-	   , vec< Lit > &  t
-	   , vec< int > &  l
-	   , vec< char > & a
-           , const Var vt 
-	   , const Var vf )
+           , vec< Lit > &  t
+           , vec< int > &  l
+           , vec< char > & a
+           , const Var vt
+           , const Var vf )
     : core_solver        ( e )
     , config             ( c )
     , solver             ( s )
@@ -50,28 +50,28 @@ public:
     , tatoms             ( 0 )
     , batoms             ( 0 )
     , tatoms_given       ( 0 )
-  { 
+  {
     // Reserve room for true and false
     var_to_enode   .resize( 65536, NULL );
     enode_id_to_var.resize( 65536, var_Undef );
   }
-  
+
   virtual ~THandler ( ) { }
 
   void    getConflict          ( vec< Lit > &, int & ); // Returns theory conflict in terms of literals
-#ifdef PRODUCE_PROOF 
+#ifdef PRODUCE_PROOF
   Enode * getInterpolants      ( );                     // Fill a vector with interpolants
 #endif
   Lit     getDeduction         ( );			// Returns a literal that is implied by the current state
   Lit     getSuggestion        ( );			// Returns a literal that is suggested by the current state
   void    getReason            ( Lit, vec< Lit > & );   // Returns the explanation for a deduced literal
-                                                 
+
   Var     enodeToVar           ( Enode * );             // Converts enode into boolean variable. Create a new variable if needed
   Lit     enodeToLit           ( Enode * );             // Converts enode into boolean literal. Create a new variable if needed
   Lit     enodeToLit           ( Enode *, Var & );      // Converts enode into boolean literal. Create a new variable if needed
   Enode * varToEnode           ( Var );                 // Return the enode corresponding to a variable
   void    clearVar             ( Var );                 // Clear a Var in translation table (used in incremental solving)
-                               
+
   bool    assertLits           ( );                     // Give to the TSolvers the newly added literals on the trail
   bool    check                ( bool );                // Check trail in the theories
   void    backtrack            ( );                     // Remove literals that are not anymore on the trail
@@ -82,21 +82,21 @@ public:
 
   lbool   evaluate             ( Enode * e ) { return core_solver.evaluate( e ); }
 
-private:                                 
+private:
 
   // Returns a random float 0 <= x < 1. Seed must never be 0.
-  static inline double drand(double& seed) 
+  static inline double drand(double& seed)
   {
     seed *= 1389796;
     int q = (int)(seed / 2147483647);
     seed -= (double)q * 2147483647;
-    return seed / 2147483647; 
+    return seed / 2147483647;
   }
 
   // Returns a random integer 0 <= x < size. Seed must never be 0.
-  static inline int irand(double& seed, int size) 
+  static inline int irand(double& seed, int size)
   {
-    return (int)(drand(seed) * size); 
+    return (int)(drand(seed) * size);
   }
 
   void verifyCallWithExternalTool        ( bool, size_t );
@@ -113,7 +113,7 @@ private:
 
   vector< Var >       enode_id_to_var;          // Conversion EnodeID --> Var
   vector< Enode * >   var_to_enode;             // Conversion Var --> EnodeID
-                                               
+
   Egraph &            core_solver;              // Pointer to Egraph that works as core solver
   SMTConfig &         config;                   // Reference to configuration
   SMTSolver &         solver;                   // Reference to SMT Solver
@@ -130,7 +130,7 @@ private:
 
   vector< bool >      tatoms_seen;              // Atoms seen
   unsigned            tatoms_given;             // Next atom to give
-  vector< Enode * >   tatoms_list;              // List of tatoms to communicate later 
+  vector< Enode * >   tatoms_list;              // List of tatoms to communicate later
   vector< bool >      tatoms_give;              // We might want not to give some atoms
 };
 

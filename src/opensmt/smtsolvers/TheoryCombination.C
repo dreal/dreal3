@@ -17,16 +17,16 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "SimpSMTSolver.h"
+#include "smtsolvers/SimpSMTSolver.h"
 
 /*
 inline bool isArithmeticOp( Enode * e )
 {
-  if ( e->isPlus    ( ) 
+  if ( e->isPlus    ( )
     || e->isUminus  ( )
     || e->isTimes   ( )
-    || e->isLeq     ( ) 
-    || e->isVar     ( ) 
+    || e->isLeq     ( )
+    || e->isVar     ( )
     || ( e->isConstant( ) && !e->isTrue( ) && !e->isFalse( ) ) )
     return true;
 
@@ -35,10 +35,10 @@ inline bool isArithmeticOp( Enode * e )
 
 inline bool isUFOp( Enode * e )
 {
-  if ( e->isUf       ( ) 
-    || e->isUp       ( ) 
-    || e->isDistinct ( ) 
-    || e->isVar      ( ) 
+  if ( e->isUf       ( )
+    || e->isUp       ( )
+    || e->isDistinct ( )
+    || e->isVar      ( )
     || ( e->isConstant( ) && !e->isTrue( ) && !e->isFalse( ) ) )
     return true;
 
@@ -62,7 +62,7 @@ void SimpSMTSolver::gatherInterfaceTerms( Enode * e )
   while( !unprocessed_enodes.empty( ) )
   {
     Enode * enode = unprocessed_enodes.back( );
-    // 
+    //
     // Skip if the node has already been processed before
     //
     if ( egraph.isDup1( enode ) )
@@ -73,9 +73,9 @@ void SimpSMTSolver::gatherInterfaceTerms( Enode * e )
 
     bool unprocessed_children = false;
     Enode * arg_list;
-    for ( arg_list = enode->getCdr( ) ; 
-	  arg_list != egraph.enil ; 
-	  arg_list = arg_list->getCdr( ) )
+    for ( arg_list = enode->getCdr( ) ;
+          arg_list != egraph.enil ;
+          arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
       assert( arg->isTerm( ) );
@@ -84,8 +84,8 @@ void SimpSMTSolver::gatherInterfaceTerms( Enode * e )
       //
       if ( !egraph.isDup1( arg ) )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -94,40 +94,40 @@ void SimpSMTSolver::gatherInterfaceTerms( Enode * e )
     if ( unprocessed_children )
       continue;
 
-    unprocessed_enodes.pop_back( );                      
+    unprocessed_enodes.pop_back( );
     //
     // At this point, every child has been processed
     //
     if ( isUFOp( enode ) )
     {
       // Retrieve arguments
-      for ( Enode * arg_list = enode->getCdr( ) 
-	  ; !arg_list->isEnil( ) 
-	  ; arg_list = arg_list->getCdr( ) )
+      for ( Enode * arg_list = enode->getCdr( )
+          ; !arg_list->isEnil( )
+          ; arg_list = arg_list->getCdr( ) )
       {
-	Enode * arg = arg_list->getCar( );
-	if ( isArithmeticOp( arg ) )
-	  if ( interface_terms_cache.insert( arg ).second )
-	  {
-	    interface_terms.push_back( arg );
-	    cerr << "Added: " << arg << endl;
-	  }
+        Enode * arg = arg_list->getCar( );
+        if ( isArithmeticOp( arg ) )
+          if ( interface_terms_cache.insert( arg ).second )
+          {
+            interface_terms.push_back( arg );
+            cerr << "Added: " << arg << endl;
+          }
       }
     }
     else if ( isArithmeticOp( enode ) )
     {
       // Retrieve arguments
-      for ( Enode * arg_list = enode->getCdr( ) 
-	  ; !arg_list->isEnil( ) 
-	  ; arg_list = arg_list->getCdr( ) )
+      for ( Enode * arg_list = enode->getCdr( )
+          ; !arg_list->isEnil( )
+          ; arg_list = arg_list->getCdr( ) )
       {
-	Enode * arg = arg_list->getCar( );
-	if ( isUFOp( arg ) )
-	  if ( interface_terms_cache.insert( arg ).second )
-	  {
-	    interface_terms.push_back( arg );
-	    cerr << "Added: " << arg << endl;
-	  }
+        Enode * arg = arg_list->getCar( );
+        if ( isUFOp( arg ) )
+          if ( interface_terms_cache.insert( arg ).second )
+          {
+            interface_terms.push_back( arg );
+            cerr << "Added: " << arg << endl;
+          }
       }
     }
 
@@ -144,13 +144,13 @@ Var CoreSMTSolver::generateMoreEij( )
 {
   Var ret = var_Undef;
 
-  for ( int i = 0 
-      ; i < (config.sat_lazy_dtc_burst < 0 ? 1 : config.sat_lazy_dtc_burst) 
+  for ( int i = 0
+      ; i < (config.sat_lazy_dtc_burst < 0 ? 1 : config.sat_lazy_dtc_burst)
       ; i ++ )
   {
     Var v = generateNextEij( );
     // Return if no more eij
-    if ( v == var_Undef ) 
+    if ( v == var_Undef )
       return v;
     // Save return variable
     if ( i == 0 ) ret = v;
@@ -170,7 +170,7 @@ Var CoreSMTSolver::generateNextEij( )
   while ( v == var_Undef )
   {
     // Already returned all the possible eij
-    if ( next_it_i == egraph.getInterfaceTermsNumber( ) - 1 
+    if ( next_it_i == egraph.getInterfaceTermsNumber( ) - 1
       && next_it_j == egraph.getInterfaceTermsNumber( ) )
       return var_Undef;
 
@@ -185,12 +185,12 @@ Var CoreSMTSolver::generateNextEij( )
     // if ( next_it_j == static_cast< int >( interface_terms.size( ) ) )
     if ( next_it_j == egraph.getInterfaceTermsNumber( ) )
     {
-      next_it_i ++; 
+      next_it_i ++;
       next_it_j = next_it_i + 1;
     }
     // No need to create eij if both numbers,
     // it's either trivially true or false
-    if ( i->isConstant( ) 
+    if ( i->isConstant( )
       && j->isConstant( ) )
       continue;
 
@@ -198,7 +198,7 @@ Var CoreSMTSolver::generateNextEij( )
       || config.logic == QF_UFIDL )
     {
       //
-      // Since arithmetic solvers do not 
+      // Since arithmetic solvers do not
       // understand equalities, produce
       // the splitted versions of equalities
       // and add linking clauses
@@ -206,7 +206,7 @@ Var CoreSMTSolver::generateNextEij( )
       Enode * eij = egraph.mkEq( egraph.cons( i, egraph.cons( j ) ) );
 
       if ( config.verbosity > 2 )
-	cerr << "# CoreSMTSolver::Adding eij: " << eij << endl;
+        cerr << "# CoreSMTSolver::Adding eij: " << eij << endl;
 
       if ( eij->isTrue( ) || eij->isFalse( ) ) continue;
       // Canonize
@@ -220,8 +220,8 @@ Var CoreSMTSolver::generateNextEij( )
       // Skip it
       if ( value( v ) != l_Undef )
       {
-	v = var_Undef;
-	continue;
+        v = var_Undef;
+        continue;
       }
       // Get lhs and rhs
       Enode * lhs = eij_can->get1st( );
@@ -272,12 +272,12 @@ Var CoreSMTSolver::generateNextEij( )
   assert( v != var_Undef );
   assert( polarity.size( ) > v );
   // Assign to false first. We merge the least possible
-  // Alternatively we can merge the most, or 
-  polarity[ v ] = ( pol == l_True 
-                    ? false 
-		    : ( pol == l_False 
-		        ? true 
-			: true ) );
+  // Alternatively we can merge the most, or
+  polarity[ v ] = ( pol == l_True
+                    ? false
+                    : ( pol == l_False
+                        ? true
+                        : true ) );
 
   return v;
 }

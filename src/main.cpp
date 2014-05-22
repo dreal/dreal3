@@ -19,9 +19,9 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "Egraph.h"
-#include "OpenSMTContext.h"
-#include "SimpSMTSolver.h"
+#include "egraph/Egraph.h"
+#include "api/OpenSMTContext.h"
+#include "smtsolvers/SimpSMTSolver.h"
 #include "version.h"
 #include <cstdlib>
 #include <cstdio>

@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "THandler.h"
-#include "CoreSMTSolver.h"
+#include "tsolvers/THandler.h"
+#include "smtsolvers/CoreSMTSolver.h"
 #include <sys/wait.h>
 #include "util/logging.h"
 
@@ -48,18 +48,18 @@ Var THandler::enodeToVar( Enode * atm )
     {
       // Give to theory solvers right away
       if ( config.incremental )
-	core_solver.inform( atm );
+        core_solver.inform( atm );
       // Accumulate and give to theory solvers later
       else
       {
-	if ( static_cast< int >( tatoms_seen.size( ) ) <= atm->getId( ) )
-	  tatoms_seen.resize( atm->getId( ) + 1, false );
-	if ( tatoms_seen[ atm->getId( ) ] == false )
-	{
-	  tatoms_seen[ atm->getId( ) ] = true;
-	  tatoms_list.push_back( atm );
-	  tatoms_give.push_back( true );
-	}
+        if ( static_cast< int >( tatoms_seen.size( ) ) <= atm->getId( ) )
+          tatoms_seen.resize( atm->getId( ) + 1, false );
+        if ( tatoms_seen[ atm->getId( ) ] == false )
+        {
+          tatoms_seen[ atm->getId( ) ] = true;
+          tatoms_list.push_back( atm );
+          tatoms_give.push_back( true );
+        }
       }
     }
 
@@ -70,34 +70,34 @@ Var THandler::enodeToVar( Enode * atm )
 
       // Assign custom polarity if any
       if ( atm->isTAtom( ) && atm->getDecPolarity( ) != l_Undef )
-	v = solver.newVar( atm->getDecPolarity( ) == l_False );
+        v = solver.newVar( atm->getDecPolarity( ) == l_False );
       else
       {
-	if ( config.sat_polarity_mode == 3 )
-	  v = solver.newVar( false ); // Positive polarity
-	else if ( config.sat_polarity_mode == 4 )
-	  v = solver.newVar( true );  // Negative polarity
-	else
-	{
-	  assert( (config.sat_polarity_mode == 5 && !atm->isTAtom( ))
-	       || (0 <= config.sat_polarity_mode && config.sat_polarity_mode <= 2 ) );
-	  double random_seed = 91648253;
-	  v = solver.newVar( irand( random_seed, 2 ) );
-	}
+        if ( config.sat_polarity_mode == 3 )
+          v = solver.newVar( false ); // Positive polarity
+        else if ( config.sat_polarity_mode == 4 )
+          v = solver.newVar( true );  // Negative polarity
+        else
+        {
+          assert( (config.sat_polarity_mode == 5 && !atm->isTAtom( ))
+               || (0 <= config.sat_polarity_mode && config.sat_polarity_mode <= 2 ) );
+          double random_seed = 91648253;
+          v = solver.newVar( irand( random_seed, 2 ) );
+        }
       }
 
       if ( atm->isTAtom( ) )
       {
-	solver.setFrozen( v, true );
-	tatoms ++;
+        solver.setFrozen( v, true );
+        tatoms ++;
       }
       else
-	batoms ++;
+        batoms ++;
 
       enode_id_to_var[ atm->getId( ) ] = v;
 
       if ( var_to_enode.size( ) <= (unsigned)v )
-	var_to_enode.resize( v + 1, NULL );
+        var_to_enode.resize( v + 1, NULL );
 
       assert( var_to_enode[ v ] == NULL );
       var_to_enode[ v ] = atm;
@@ -225,7 +225,7 @@ void THandler::backtrack( )
     assert( e->isTAtom( ) );
     assert( e->hasPolarity( ) );
     assert( e->getPolarity( ) == l_True
-	 || e->getPolarity( ) == l_False );
+         || e->getPolarity( ) == l_False );
     // Reset polarity
     e->resetPolarity( );
     assert( !e->hasPolarity( ) );
@@ -258,7 +258,7 @@ void THandler::getConflict ( vec< Lit > & conflict, int & max_decision_level )
     Enode * ei  = *it;
     assert( ei->hasPolarity( ) );
     assert( ei->getPolarity( ) == l_True
-	 || ei->getPolarity( ) == l_False );
+         || ei->getPolarity( ) == l_False );
     bool negate = ei->getPolarity( ) == l_False;
 
     Var v = enodeToVar( ei );
@@ -281,7 +281,7 @@ void THandler::getConflict ( vec< Lit > & conflict, int & max_decision_level )
     explanation.pop_back( );
     assert( ei->hasPolarity( ) );
     assert( ei->getPolarity( ) == l_True
-	 || ei->getPolarity( ) == l_False );
+         || ei->getPolarity( ) == l_False );
     bool negate = ei->getPolarity( ) == l_False;
 
     Var v = enodeToVar( ei );
@@ -398,7 +398,7 @@ void THandler::getReason( Lit l, vec< Lit > & reason )
     explanation.pop_back( );
     assert( ei->hasPolarity( ) );
     assert( ei->getPolarity( ) == l_True
-	 || ei->getPolarity( ) == l_False );
+         || ei->getPolarity( ) == l_False );
     bool negate = ei->getPolarity( ) == l_False;
     Var v = enodeToVar( ei );
 
@@ -603,21 +603,21 @@ bool THandler::callCertifyingSolver( const char * name )
     switch ( WEXITSTATUS( status ) )
     {
       case 0:
-	tool_res = false;
-	break;
+        tool_res = false;
+        break;
       case 1:
-	tool_res = true;
-	break;
+        tool_res = true;
+        break;
       default:
-	perror( "# Error: Certifying solver returned weird answer (should be 0 or 1)" );
-	exit( EXIT_FAILURE );
+        perror( "# Error: Certifying solver returned weird answer (should be 0 or 1)" );
+        exit( EXIT_FAILURE );
     }
   }
   else
   {
     execlp( config.certifying_solver
-	  , config.certifying_solver
-	  , name
+          , config.certifying_solver
+          , name
           , NULL );
     perror( "# Error: Cerifying solver had some problems (check that it is reachable and executable)" );
     exit( EXIT_FAILURE );
@@ -652,16 +652,16 @@ void THandler::verifyInterpolantWithExternalTool( vector< Enode * > & expl
       assert( e->isTAtom( ) );
       assert( e->getPolarity( ) != l_Undef );
       assert( (core_solver.getIPartitions( e ) &  mask) != 0
-    	   || (core_solver.getIPartitions( e ) & ~mask) != 0 );
+           || (core_solver.getIPartitions( e ) & ~mask) != 0 );
       if ( (core_solver.getIPartitions( e ) & ~mask) != 0 )
       {
-	bool negated = e->getPolarity( ) == l_False;
-	if ( negated )
-	  dump_out << "(not ";
-	e->print( dump_out );
-	if ( negated )
-	  dump_out << ")";
-	dump_out << endl;
+        bool negated = e->getPolarity( ) == l_False;
+        if ( negated )
+          dump_out << "(not ";
+        e->print( dump_out );
+        if ( negated )
+          dump_out << ")";
+        dump_out << endl;
       }
     }
 
@@ -678,15 +678,15 @@ void THandler::verifyInterpolantWithExternalTool( vector< Enode * > & expl
       waitpid(pid, &status, 0);
       switch ( WEXITSTATUS( status ) )
       {
-	case 0:
-	  tool_res = false;
-	  break;
-	case 1:
-	  tool_res = true;
-	  break;
-	default:
-	  perror( "Tool" );
-	  exit( EXIT_FAILURE );
+        case 0:
+          tool_res = false;
+          break;
+        case 1:
+          tool_res = true;
+          break;
+        default:
+          perror( "Tool" );
+          exit( EXIT_FAILURE );
       }
     }
     else
@@ -710,16 +710,16 @@ void THandler::verifyInterpolantWithExternalTool( vector< Enode * > & expl
       assert( e->isTAtom( ) );
       assert( e->getPolarity( ) != l_Undef );
       assert( (core_solver.getIPartitions( e ) &  mask) != 0
-    	   || (core_solver.getIPartitions( e ) & ~mask) != 0 );
+           || (core_solver.getIPartitions( e ) & ~mask) != 0 );
       if ( (core_solver.getIPartitions( e ) & mask) != 0 )
       {
-	bool negated = e->getPolarity( ) == l_False;
-	if ( negated )
-	  dump_out << "(not ";
-	e->print( dump_out );
-	if ( negated )
-	  dump_out << ")";
-	dump_out << endl;
+        bool negated = e->getPolarity( ) == l_False;
+        if ( negated )
+          dump_out << "(not ";
+        e->print( dump_out );
+        if ( negated )
+          dump_out << ")";
+        dump_out << endl;
       }
     }
     dump_out << interp << endl;
@@ -735,15 +735,15 @@ void THandler::verifyInterpolantWithExternalTool( vector< Enode * > & expl
       waitpid(pid, &status, 0);
       switch ( WEXITSTATUS( status ) )
       {
-	case 0:
-	  tool_res = false;
-	  break;
-	case 1:
-	  tool_res = true;
-	  break;
-	default:
-	  perror( "Tool" );
-	  exit( EXIT_FAILURE );
+        case 0:
+          tool_res = false;
+          break;
+        case 1:
+          tool_res = true;
+          break;
+        default:
+          perror( "Tool" );
+          exit( EXIT_FAILURE );
       }
     }
     else
@@ -757,4 +757,3 @@ void THandler::verifyInterpolantWithExternalTool( vector< Enode * > & expl
   }
 }
 #endif
-

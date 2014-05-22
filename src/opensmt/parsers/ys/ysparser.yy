@@ -19,9 +19,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 %{
 
-#include "Global.h"
+#include "common/Global.h"
 
-#include "Egraph.h"
+#include "egraph/Egraph.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
@@ -49,7 +49,7 @@ void yserror( char * s )
   vector< unsigned > * type_list;
 }
 
-%token TK_STR TK_NUM 
+%token TK_STR TK_NUM
 %token TK_BOOL TK_INT TK_DEFINE
 %token TK_LT TK_EQ TK_LEQ TK_PLUS TK_NEQ TK_MINUS
 %token TK_AND TK_OR TK_NOT TK_IF TK_IMPLIES
@@ -74,88 +74,88 @@ all: skipped_commands
    ;
 
 skipped_commands: all evidence
-		| all reset
+                | all reset
                 | all check
                 | evidence
-		| reset
+                | reset
                 | check
-	        ;
+                ;
 
-evidence: '(' TK_EVIDENCE TK_TRUE ')' 
-	;
+evidence: '(' TK_EVIDENCE TK_TRUE ')'
+        ;
 
-reset: '(' TK_RESET ')' 
+reset: '(' TK_RESET ')'
      ;
 
-check: '(' TK_CHECK ')' 
+check: '(' TK_CHECK ')'
      ;
 
 variables_declaration: all bool_variable_declaration
-		     | all int_variable_declaration
-		     | bool_variable_declaration
-		     | int_variable_declaration
+                     | all int_variable_declaration
+                     | bool_variable_declaration
+                     | int_variable_declaration
                      ;
 
 bool_variable_declaration: '(' TK_DEFINE TK_STR TK_SEPARATOR TK_BOOL ')'
-			   { 
-		             vector< unsigned > tmp;
-		             tmp.push_back( DTYPE_BOOL );
-		             parser_egraph->newSymbol( $3, tmp ); free( $3 ); 
-			   }
-			 ;
+                           {
+                             vector< unsigned > tmp;
+                             tmp.push_back( DTYPE_BOOL );
+                             parser_egraph->newSymbol( $3, tmp ); free( $3 );
+                           }
+                         ;
 
 int_variable_declaration: '(' TK_DEFINE TK_STR TK_SEPARATOR TK_INT ')'
-			  { 
-		            vector< unsigned > tmp;
-		            tmp.push_back( DTYPE_INT );
-		            parser_egraph->newSymbol( $3, tmp ); free( $3 ); 
-			  }
-			| '(' TK_DEFINE TK_STR TK_SEPARATOR '(' TK_SUBRANGE TK_NUM TK_NUM ')' ')'
-			  {
-		            vector< unsigned > tmp;
-		            tmp.push_back( DTYPE_INT );
-		            parser_egraph->newSymbol( $3, tmp );
-		            Enode * x  = parser_egraph->mkVar( $3 ); free( $3 ); 
-			    Enode * r1 = parser_egraph->mkNum( $7 ); free( $7 );
-			    Enode * r2 = parser_egraph->mkNum( $8 ); free( $8 );
-			    Enode * leq1 = parser_egraph->mkLeq( parser_egraph->cons( r1, parser_egraph->cons( x ) ) );
-			    Enode * leq2 = parser_egraph->mkLeq( parser_egraph->cons( x , parser_egraph->cons( r2 ) ) );
-			    Enode * conj  = parser_egraph->mkAnd( parser_egraph->cons( leq1, parser_egraph->cons( leq2 ) ) );
-			    parser_egraph->addAssumption( conj );
-			  }
-			;
+                          {
+                            vector< unsigned > tmp;
+                            tmp.push_back( DTYPE_INT );
+                            parser_egraph->newSymbol( $3, tmp ); free( $3 );
+                          }
+                        | '(' TK_DEFINE TK_STR TK_SEPARATOR '(' TK_SUBRANGE TK_NUM TK_NUM ')' ')'
+                          {
+                            vector< unsigned > tmp;
+                            tmp.push_back( DTYPE_INT );
+                            parser_egraph->newSymbol( $3, tmp );
+                            Enode * x  = parser_egraph->mkVar( $3 ); free( $3 );
+                            Enode * r1 = parser_egraph->mkNum( $7 ); free( $7 );
+                            Enode * r2 = parser_egraph->mkNum( $8 ); free( $8 );
+                            Enode * leq1 = parser_egraph->mkLeq( parser_egraph->cons( r1, parser_egraph->cons( x ) ) );
+                            Enode * leq2 = parser_egraph->mkLeq( parser_egraph->cons( x , parser_egraph->cons( r2 ) ) );
+                            Enode * conj  = parser_egraph->mkAnd( parser_egraph->cons( leq1, parser_egraph->cons( leq2 ) ) );
+                            parser_egraph->addAssumption( conj );
+                          }
+                        ;
 
 assert_declaration: all '(' TK_ASSERT formula ')'
-		    { parser_egraph->addAssumption( $4 ); }
-		  | '(' TK_ASSERT formula ')'
-		    { parser_egraph->addAssumption( $3 ); }
-		  ;
+                    { parser_egraph->addAssumption( $4 ); }
+                  | '(' TK_ASSERT formula ')'
+                    { parser_egraph->addAssumption( $3 ); }
+                  ;
 
 extassert_declaration: all '(' TK_EXTASSERT formula ')'
-		       { parser_egraph->addAssumption( $4 ); }
-		     | '(' TK_EXTASSERT formula ')'
-		       { parser_egraph->addAssumption( $3 ); }
-		     ;
+                       { parser_egraph->addAssumption( $4 ); }
+                     | '(' TK_EXTASSERT formula ')'
+                       { parser_egraph->addAssumption( $3 ); }
+                     ;
 
-formula: '(' TK_AND formula_list ')' 
-	 { $$ = parser_egraph->mkAnd( $3 ); } 
+formula: '(' TK_AND formula_list ')'
+         { $$ = parser_egraph->mkAnd( $3 ); }
        | '(' TK_OR formula_list ')'
-	 { $$ = parser_egraph->mkOr( $3 ); } 
+         { $$ = parser_egraph->mkOr( $3 ); }
        | '(' TK_IF formula_list ')'
-	 { $$ = parser_egraph->mkImplies( $3 ); } 
+         { $$ = parser_egraph->mkImplies( $3 ); }
        | '(' TK_NOT formula_list ')'
-	 { $$ = parser_egraph->mkNot( $3 ); }
+         { $$ = parser_egraph->mkNot( $3 ); }
        | '(' TK_IMPLIES formula_list ')'
-	 { $$ = parser_egraph->mkImplies( $3 ); }
+         { $$ = parser_egraph->mkImplies( $3 ); }
        | atom
-	 { $$ = $1; }
+         { $$ = $1; }
        ;
 
 formula_list: formula formula_list
-	      { $$ = parser_egraph->cons( $1, $2 ); }
-	    | formula
-	      { $$ = parser_egraph->cons( $1 ); }   
-	    ;
+              { $$ = parser_egraph->cons( $1, $2 ); }
+            | formula
+              { $$ = parser_egraph->cons( $1 ); }
+            ;
 
 atom: '(' TK_LT arithmetic_expression_list ')'
       { $$ = parser_egraph->mkLt( $3 ); }
@@ -173,22 +173,22 @@ atom: '(' TK_LT arithmetic_expression_list ')'
       { $$ = parser_egraph->mkFalse( ); }
     ;
 
-expression: arithmetic_expression 
-	    { $$ = $1; }
-	  | formula
-	    { $$ = $1; }
-	  ;
+expression: arithmetic_expression
+            { $$ = $1; }
+          | formula
+            { $$ = $1; }
+          ;
 
 expression_list: expression expression_list
-	         { $$ = parser_egraph->cons( $1, $2 ); }
-	       | expression
-		 { $$ = parser_egraph->cons( $1 ); }   
+                 { $$ = parser_egraph->cons( $1, $2 ); }
+               | expression
+                 { $$ = parser_egraph->cons( $1 ); }
                ;
 
-arithmetic_expression: '(' TK_PLUS arithmetic_expression_list ')' 
-		       { $$ = parser_egraph->mkPlus( $3 ); }
-		     | '(' TK_MINUS arithmetic_expression_list ')' 
-		       { $$ = parser_egraph->mkPlus( $3 ); }
+arithmetic_expression: '(' TK_PLUS arithmetic_expression_list ')'
+                       { $$ = parser_egraph->mkPlus( $3 ); }
+                     | '(' TK_MINUS arithmetic_expression_list ')'
+                       { $$ = parser_egraph->mkPlus( $3 ); }
                      | TK_NUM
                        { $$ = parser_egraph->mkNum( $1 ); free( $1 ); }
                      | TK_STR
@@ -196,9 +196,9 @@ arithmetic_expression: '(' TK_PLUS arithmetic_expression_list ')'
                      ;
 
 arithmetic_expression_list: arithmetic_expression arithmetic_expression_list
-	                    { $$ = parser_egraph->cons( $1, $2 ); }
-			  | arithmetic_expression
-		            { $$ = parser_egraph->cons( $1 ); }   
+                            { $$ = parser_egraph->cons( $1, $2 ); }
+                          | arithmetic_expression
+                            { $$ = parser_egraph->cons( $1 ); }
                           ;
 
 %%

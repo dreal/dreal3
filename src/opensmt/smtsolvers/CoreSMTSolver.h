@@ -41,20 +41,20 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #define CACHE_POLARITY     0
 
-#include "SMTSolver.h"
+#include "smtsolvers/SMTSolver.h"
 
 #include <cstdio>
 
-#include "Vec.h"
-#include "Heap.h"
-#include "Alg.h"
+#include "minisat/mtl/Vec.h"
+#include "minisat/mtl/Heap.h"
+#include "minisat/mtl/Alg.h"
 
-#include "SolverTypes.h"
-#include "LA.h"
+#include "minisat/core/SolverTypes.h"
+#include "common/LA.h"
 
 #ifdef PRODUCE_PROOF
-#include "ProofGraph.h"
-#include "Proof.h"
+#include "proof/ProofGraph.h"
+#include "proof/Proof.h"
 class Proof;
 #endif
 
@@ -65,349 +65,349 @@ class CoreSMTSolver : public SMTSolver
 {
 public:
 
-	// Constructor/Destructor:
-	//
-	CoreSMTSolver( Egraph &, SMTConfig & );
-	~CoreSMTSolver();
+        // Constructor/Destructor:
+        //
+        CoreSMTSolver( Egraph &, SMTConfig & );
+        ~CoreSMTSolver();
 
-	void     initialize       ( );
+        void     initialize       ( );
 
 #if NEW_SIMPLIFICATIONS
-	vector< LAExpression * > top_level_eqs;
-	bool                     doing_t_simp;
+        vector< LAExpression * > top_level_eqs;
+        bool                     doing_t_simp;
 #endif
 
-	// Problem specification:
-	//
-	Var     newVar    (bool polarity = true, bool dvar = true); // Add a new variable with parameters specifying variable mode.
-	bool    addClause (vec<Lit>& ps, uint64_t in = 0);          // Add a clause to the solver. NOTE! 'ps' may be shrunk by this method!
+        // Problem specification:
+        //
+        Var     newVar    (bool polarity = true, bool dvar = true); // Add a new variable with parameters specifying variable mode.
+        bool    addClause (vec<Lit>& ps, uint64_t in = 0);          // Add a clause to the solver. NOTE! 'ps' may be shrunk by this method!
 
-	// Solving:
-	//
-	bool    simplify     ();                        // Removes already satisfied clauses.
-	lbool   solve        ( const vec< Lit > & assumps );                 // Search for a model that respects a given set of assumptions.
+        // Solving:
+        //
+        bool    simplify     ();                        // Removes already satisfied clauses.
+        lbool   solve        ( const vec< Lit > & assumps );                 // Search for a model that respects a given set of assumptions.
         lbool   solve        ( const vec< Lit > & assumps, const unsigned ); // Search for a model that respects a given set of assumptions .
-	lbool   solve        ();                        // Search without assumptions.
-	bool    okay         () const;                  // FALSE means solver is in a conflicting state
+        lbool   solve        ();                        // Search without assumptions.
+        bool    okay         () const;                  // FALSE means solver is in a conflicting state
 
-	// Variable mode:
-	//
-	void    setPolarity    (Var v, bool b); // Declare which polarity the decision heuristic should use for a variable. Requires mode 'polarity_user'.
-	void    setDecisionVar (Var v, bool b); // Declare if a variable should be eligible for selection in the decision heuristic.
+        // Variable mode:
+        //
+        void    setPolarity    (Var v, bool b); // Declare which polarity the decision heuristic should use for a variable. Requires mode 'polarity_user'.
+        void    setDecisionVar (Var v, bool b); // Declare if a variable should be eligible for selection in the decision heuristic.
 
-	// Read state:
-	//
-	lbool   value      (Var x) const;       // The current value of a variable.
-	lbool   value      (Lit p) const;       // The current value of a literal.
-	lbool   modelValue (Lit p) const;       // The value of a literal in the last model. The last call to solve must have been satisfiable.
-	int     nAssigns   ()      const;       // The current number of assigned literals.
-	int     nClauses   ()      const;       // The current number of original clauses.
-	int     nLearnts   ()      const;       // The current number of learnt clauses.
-	int     nVars      ()      const;       // The current number of variables.
+        // Read state:
+        //
+        lbool   value      (Var x) const;       // The current value of a variable.
+        lbool   value      (Lit p) const;       // The current value of a literal.
+        lbool   modelValue (Lit p) const;       // The value of a literal in the last model. The last call to solve must have been satisfiable.
+        int     nAssigns   ()      const;       // The current number of assigned literals.
+        int     nClauses   ()      const;       // The current number of original clauses.
+        int     nLearnts   ()      const;       // The current number of learnt clauses.
+        int     nVars      ()      const;       // The current number of variables.
 
-	//=================================================================================================
-	// Added Code
+        //=================================================================================================
+        // Added Code
 
-	void addSMTAxiomClause  ( vector< Enode * > & );
-	void addNewAtom         ( Enode * e );
+        void addSMTAxiomClause  ( vector< Enode * > & );
+        void addNewAtom         ( Enode * e );
 
-	vec< Clause * >          axioms;         // List of axioms produced with splitting on demand
-	int                      axioms_checked; // Id of next axiom to be checked
+        vec< Clause * >          axioms;         // List of axioms produced with splitting on demand
+        int                      axioms_checked; // Id of next axiom to be checked
 
 #ifdef PRODUCE_PROOF
-	set< int >               axioms_ids;     // Set of ids for lemmas on demand
+        set< int >               axioms_ids;     // Set of ids for lemmas on demand
 #endif
 
-	// External support incremental and backtrackable APIs
-	void        pushBacktrackPoint ( );
-	void        popBacktrackPoint  ( );
-	void        reset              ( );
-	inline void restoreOK          ( )       { ok = true; }
-	inline bool isOK               ( ) const { return ok; }
+        // External support incremental and backtrackable APIs
+        void        pushBacktrackPoint ( );
+        void        popBacktrackPoint  ( );
+        void        reset              ( );
+        inline void restoreOK          ( )       { ok = true; }
+        inline bool isOK               ( ) const { return ok; }
 
-	template<class C>
-	void     printSMTClause   ( ostream &, const C& );
-	void     printSMTClause   ( ostream &, vec< Lit > &, bool = false );
-	void     printSMTClause   ( ostream &, vector< Lit > &, bool = false );
+        template<class C>
+        void     printSMTClause   ( ostream &, const C& );
+        void     printSMTClause   ( ostream &, vec< Lit > &, bool = false );
+        void     printSMTClause   ( ostream &, vector< Lit > &, bool = false );
 
-	set< Clause * > detached;
+        set< Clause * > detached;
 
-	// Added Code
-	//=================================================================================================
+        // Added Code
+        //=================================================================================================
 
-	// Extra results: (read-only member variable)
-	//
-	vec<lbool> model;             // If problem is satisfiable, this vector contains the model (if any).
-	vec<Lit>   conflict;          // If problem is unsatisfiable (possibly under assumptions),
-	// this vector represent the final conflict clause expressed in the assumptions.
+        // Extra results: (read-only member variable)
+        //
+        vec<lbool> model;             // If problem is satisfiable, this vector contains the model (if any).
+        vec<Lit>   conflict;          // If problem is unsatisfiable (possibly under assumptions),
+        // this vector represent the final conflict clause expressed in the assumptions.
 
-	// Mode of operation:
-	//
-	double    var_decay;          // Inverse of the variable activity decay factor.                                            (default 1 / 0.95)
-	double    clause_decay;       // Inverse of the clause activity decay factor.                                              (1 / 0.999)
-	double    random_var_freq;    // The frequency with which the decision heuristic tries to choose a random variable.        (default 0.02)
-	int       restart_first;      // The initial restart limit.                                                                (default 100)
-	double    restart_inc;        // The factor with which the restart limit is multiplied in each restart.                    (default 1.5)
-	double    learntsize_factor;  // The intitial limit for learnt clauses is a factor of the original clauses.                (default 1 / 3)
-	double    learntsize_inc;     // The limit for learnt clauses is multiplied with this factor each restart.                 (default 1.1)
-	bool      expensive_ccmin;    // Controls conflict clause minimization.                                                    (default TRUE)
-	int       polarity_mode;      // Controls which polarity the decision heuristic chooses. See enum below for allowed modes. (default polarity_false)
+        // Mode of operation:
+        //
+        double    var_decay;          // Inverse of the variable activity decay factor.                                            (default 1 / 0.95)
+        double    clause_decay;       // Inverse of the clause activity decay factor.                                              (1 / 0.999)
+        double    random_var_freq;    // The frequency with which the decision heuristic tries to choose a random variable.        (default 0.02)
+        int       restart_first;      // The initial restart limit.                                                                (default 100)
+        double    restart_inc;        // The factor with which the restart limit is multiplied in each restart.                    (default 1.5)
+        double    learntsize_factor;  // The intitial limit for learnt clauses is a factor of the original clauses.                (default 1 / 3)
+        double    learntsize_inc;     // The limit for learnt clauses is multiplied with this factor each restart.                 (default 1.1)
+        bool      expensive_ccmin;    // Controls conflict clause minimization.                                                    (default TRUE)
+        int       polarity_mode;      // Controls which polarity the decision heuristic chooses. See enum below for allowed modes. (default polarity_false)
 
-	enum { polarity_true = 0, polarity_false = 1, polarity_user = 2, polarity_rnd = 3 };
+        enum { polarity_true = 0, polarity_false = 1, polarity_user = 2, polarity_rnd = 3 };
 
-	// Statistics: (read-only member variable)
-	//
-	uint64_t starts, decisions, rnd_decisions, propagations, conflicts;
-	uint64_t clauses_literals, learnts_literals, max_literals, tot_literals;
+        // Statistics: (read-only member variable)
+        //
+        uint64_t starts, decisions, rnd_decisions, propagations, conflicts;
+        uint64_t clauses_literals, learnts_literals, max_literals, tot_literals;
 
 protected:
 
-	// Helper structures:
-	//
-	struct VarOrderLt {
-		const vec<double>&  activity;
-		bool operator () (Var x, Var y) const { return activity[x] > activity[y]; }
-		VarOrderLt(const vec<double>&  act) : activity(act) { }
-	};
+        // Helper structures:
+        //
+        struct VarOrderLt {
+                const vec<double>&  activity;
+                bool operator () (Var x, Var y) const { return activity[x] > activity[y]; }
+                VarOrderLt(const vec<double>&  act) : activity(act) { }
+        };
 
-	friend class VarFilter;
-	struct VarFilter {
-		const CoreSMTSolver& s;
-		VarFilter(const CoreSMTSolver& _s) : s(_s) {}
-		bool operator()(Var v) const { return toLbool(s.assigns[v]) == l_Undef && s.decision_var[v]; }
-	};
+        friend class VarFilter;
+        struct VarFilter {
+                const CoreSMTSolver& s;
+                VarFilter(const CoreSMTSolver& _s) : s(_s) {}
+                bool operator()(Var v) const { return toLbool(s.assigns[v]) == l_Undef && s.decision_var[v]; }
+        };
 
-	// Solver state:
-	//
-	bool                ok;               // If FALSE, the constraints are already unsatisfiable. No part of the solver state may be used!
-	vec<Clause*>        clauses;          // List of problem clauses.
-	vec<Clause*>        learnts;          // List of learnt clauses.
-	vec<Clause*>        tmp_reas;         // Reasons for minimize_conflicts 2
-	double              cla_inc;          // Amount to bump next clause with.
-	vec<double>         activity;         // A heuristic measurement of the activity of a variable.
-	double              var_inc;          // Amount to bump next variable with.
-	vec<vec<Clause*> >  watches;          // 'watches[lit]' is a list of constraints watching 'lit' (will go there if literal becomes true).
-	vec<char>           assigns;          // The current assignments (lbool:s stored as char:s).
-	vec<char>           polarity;         // The preferred polarity of each variable.
-	vec<char>           decision_var;     // Declares if a variable is eligible for selection in the decision heuristic.
-	vec<Lit>            trail;            // Assignment stack; stores all assigments made in the order they were made.
-	vec<int>            trail_lim;        // Separator indices for different decision levels in 'trail'.
+        // Solver state:
+        //
+        bool                ok;               // If FALSE, the constraints are already unsatisfiable. No part of the solver state may be used!
+        vec<Clause*>        clauses;          // List of problem clauses.
+        vec<Clause*>        learnts;          // List of learnt clauses.
+        vec<Clause*>        tmp_reas;         // Reasons for minimize_conflicts 2
+        double              cla_inc;          // Amount to bump next clause with.
+        vec<double>         activity;         // A heuristic measurement of the activity of a variable.
+        double              var_inc;          // Amount to bump next variable with.
+        vec<vec<Clause*> >  watches;          // 'watches[lit]' is a list of constraints watching 'lit' (will go there if literal becomes true).
+        vec<char>           assigns;          // The current assignments (lbool:s stored as char:s).
+        vec<char>           polarity;         // The preferred polarity of each variable.
+        vec<char>           decision_var;     // Declares if a variable is eligible for selection in the decision heuristic.
+        vec<Lit>            trail;            // Assignment stack; stores all assigments made in the order they were made.
+        vec<int>            trail_lim;        // Separator indices for different decision levels in 'trail'.
 #ifdef PRODUCE_PROOF
-	vec<int>            trail_pos;        // 'trail_pos[var]' is the variable's position in 'trail[]'. This supersedes 'level[]' in some sense, and 'level[]' will probably be removed in future releases.
+        vec<int>            trail_pos;        // 'trail_pos[var]' is the variable's position in 'trail[]'. This supersedes 'level[]' in some sense, and 'level[]' will probably be removed in future releases.
 #endif
-	vec<Clause*>        reason;           // 'reason[var]' is the clause that implied the variables current value, or 'NULL' if none.
-	vec<int>            level;            // 'level[var]' contains the level at which the assignment was made.
-	int                 qhead;            // Head of queue (as index into the trail -- no more explicit propagation queue in MiniSat).
-	int                 simpDB_assigns;   // Number of top-level assignments since last execution of 'simplify()'.
-	int64_t             simpDB_props;     // Remaining number of propagations that must be made before next execution of 'simplify()'.
-	vec<Lit>            assumptions;      // Current set of assumptions provided to solve by the user.
-	Heap<VarOrderLt>    order_heap;       // A priority queue of variables ordered with respect to the variable activity.
-	double              random_seed;      // Used by the random variable selection.
-	double              progress_estimate;// Set by 'search()'.
-	bool                remove_satisfied; // Indicates whether possibly inefficient linear scan for satisfied clauses should be performed in 'simplify'.
+        vec<Clause*>        reason;           // 'reason[var]' is the clause that implied the variables current value, or 'NULL' if none.
+        vec<int>            level;            // 'level[var]' contains the level at which the assignment was made.
+        int                 qhead;            // Head of queue (as index into the trail -- no more explicit propagation queue in MiniSat).
+        int                 simpDB_assigns;   // Number of top-level assignments since last execution of 'simplify()'.
+        int64_t             simpDB_props;     // Remaining number of propagations that must be made before next execution of 'simplify()'.
+        vec<Lit>            assumptions;      // Current set of assumptions provided to solve by the user.
+        Heap<VarOrderLt>    order_heap;       // A priority queue of variables ordered with respect to the variable activity.
+        double              random_seed;      // Used by the random variable selection.
+        double              progress_estimate;// Set by 'search()'.
+        bool                remove_satisfied; // Indicates whether possibly inefficient linear scan for satisfied clauses should be performed in 'simplify'.
 
 #if CACHE_POLARITY
-	vec<char>           prev_polarity;    // The previous polarity of each variable.
+        vec<char>           prev_polarity;    // The previous polarity of each variable.
 #endif
 
-	// Temporaries (to reduce allocation overhead). Each variable is prefixed by the method in which it is
-	// used, exept 'seen' wich is used in several places.
-	//
-	vec<char>           seen;
-	vec<Lit>            analyze_stack;
-	vec<Lit>            analyze_toclear;
-	vec<Lit>            add_tmp;
+        // Temporaries (to reduce allocation overhead). Each variable is prefixed by the method in which it is
+        // used, exept 'seen' wich is used in several places.
+        //
+        vec<char>           seen;
+        vec<Lit>            analyze_stack;
+        vec<Lit>            analyze_toclear;
+        vec<Lit>            add_tmp;
 
 #ifdef PRODUCE_PROOF
-	vec<Lit>            analyze_proof;
-	vec< Clause * >     units;
+        vec<Lit>            analyze_proof;
+        vec< Clause * >     units;
 #endif
 
-	// Main internal methods:
-	//
-	void     insertVarOrder   (Var x);                                                 // Insert a variable in the decision order priority queue.
-	Lit      pickBranchLit    (int polarity_mode, double random_var_freq);             // Return the next decision variable.
-	void     newDecisionLevel ();                                                      // Begins a new decision level.
-	void     uncheckedEnqueue (Lit p, Clause* from = NULL);                            // Enqueue a literal. Assumes value of literal is undefined.
-	bool     enqueue          (Lit p, Clause* from = NULL);                            // Test if fact 'p' contradicts current state, enqueue otherwise.
-	Clause*  propagate        ();                                                      // Perform unit propagation. Returns possibly conflicting clause.
-	void     cancelUntil      (int level);                                             // Backtrack until a certain level.
-	void     analyze          (Clause* confl, vec<Lit>& out_learnt, int& out_btlevel); // (bt = backtrack)
-	void     analyzeFinal     (Lit p, vec<Lit>& out_conflict);                         // COULD THIS BE IMPLEMENTED BY THE ORDINARIY "analyze" BY SOME REASONABLE GENERALIZATION?
-	bool     litRedundant     (Lit p, uint32_t abstract_levels);                       // (helper method for 'analyze()')
-	lbool    search           (int nof_conflicts, int nof_learnts);                    // Search for a given number of conflicts.
-	void     reduceDB         ();                                                      // Reduce the set of learnt clauses.
-	void     removeSatisfied  (vec<Clause*>& cs);                                      // Shrink 'cs' to contain only non-satisfied clauses.
+        // Main internal methods:
+        //
+        void     insertVarOrder   (Var x);                                                 // Insert a variable in the decision order priority queue.
+        Lit      pickBranchLit    (int polarity_mode, double random_var_freq);             // Return the next decision variable.
+        void     newDecisionLevel ();                                                      // Begins a new decision level.
+        void     uncheckedEnqueue (Lit p, Clause* from = NULL);                            // Enqueue a literal. Assumes value of literal is undefined.
+        bool     enqueue          (Lit p, Clause* from = NULL);                            // Test if fact 'p' contradicts current state, enqueue otherwise.
+        Clause*  propagate        ();                                                      // Perform unit propagation. Returns possibly conflicting clause.
+        void     cancelUntil      (int level);                                             // Backtrack until a certain level.
+        void     analyze          (Clause* confl, vec<Lit>& out_learnt, int& out_btlevel); // (bt = backtrack)
+        void     analyzeFinal     (Lit p, vec<Lit>& out_conflict);                         // COULD THIS BE IMPLEMENTED BY THE ORDINARIY "analyze" BY SOME REASONABLE GENERALIZATION?
+        bool     litRedundant     (Lit p, uint32_t abstract_levels);                       // (helper method for 'analyze()')
+        lbool    search           (int nof_conflicts, int nof_learnts);                    // Search for a given number of conflicts.
+        void     reduceDB         ();                                                      // Reduce the set of learnt clauses.
+        void     removeSatisfied  (vec<Clause*>& cs);                                      // Shrink 'cs' to contain only non-satisfied clauses.
 
-	// Maintaining Variable/Clause activity:
-	//
-	void     varDecayActivity ();                      // Decay all variables with the specified factor. Implemented by increasing the 'bump' value instead.
-	void     varBumpActivity  (Var v);                 // Increase a variable with the current 'bump' value.
+        // Maintaining Variable/Clause activity:
+        //
+        void     varDecayActivity ();                      // Decay all variables with the specified factor. Implemented by increasing the 'bump' value instead.
+        void     varBumpActivity  (Var v);                 // Increase a variable with the current 'bump' value.
 
-	// Added Line
-	void     boolVarDecActivity( );                    // Decrease boolean atoms activity
-	void     claDecayActivity  ( );                    // Decay all clauses with the specified factor. Implemented by increasing the 'bump' value instead.
-	void     claBumpActivity   ( Clause & c );         // Increase a clause with the current 'bump' value.
-	void     mixedVarDecActivity( );                   // Increase a clause with the current 'bump' value.
+        // Added Line
+        void     boolVarDecActivity( );                    // Decrease boolean atoms activity
+        void     claDecayActivity  ( );                    // Decay all clauses with the specified factor. Implemented by increasing the 'bump' value instead.
+        void     claBumpActivity   ( Clause & c );         // Increase a clause with the current 'bump' value.
+        void     mixedVarDecActivity( );                   // Increase a clause with the current 'bump' value.
 
 
-	// Operations on clauses:
-	//
-	void     attachClause     (Clause& c);             // Attach a clause to watcher lists.
-	void     detachClause     (Clause& c);             // Detach a clause to watcher lists.
-	void     removeClause     (Clause& c);             // Detach and free a clause.
-	bool     locked           (const Clause& c) const; // Returns TRUE if a clause is a reason for some implication in the current state.
-	bool     satisfied        (const Clause& c) const; // Returns TRUE if a clause is satisfied in the current state.
+        // Operations on clauses:
+        //
+        void     attachClause     (Clause& c);             // Attach a clause to watcher lists.
+        void     detachClause     (Clause& c);             // Detach a clause to watcher lists.
+        void     removeClause     (Clause& c);             // Detach and free a clause.
+        bool     locked           (const Clause& c) const; // Returns TRUE if a clause is a reason for some implication in the current state.
+        bool     satisfied        (const Clause& c) const; // Returns TRUE if a clause is satisfied in the current state.
 
-	// Misc:
-	//
-	int      decisionLevel    ()      const; // Gives the current decisionlevel.
-	uint32_t abstractLevel    (Var x) const; // Used to represent an abstraction of sets of decision levels.
-	double   progressEstimate ()      const; // DELETE THIS ?? IT'S NOT VERY USEFUL ...
+        // Misc:
+        //
+        int      decisionLevel    ()      const; // Gives the current decisionlevel.
+        uint32_t abstractLevel    (Var x) const; // Used to represent an abstraction of sets of decision levels.
+        double   progressEstimate ()      const; // DELETE THIS ?? IT'S NOT VERY USEFUL ...
 
-	// Debug:
-	/*    void     printLit         (Lit l);
+        // Debug:
+        /*    void     printLit         (Lit l);
     template<class C>
     void     printClause      (const C& c);*/
 
-	void     printSMTLit              ( ostream &, const Lit );
+        void     printSMTLit              ( ostream &, const Lit );
 #ifdef PRODUCE_PROOF
-	void     printRestrictedSMTClause ( ostream &, vec< Lit > &, uint64_t );
-	Enode *  mkRestrictedSMTClause    ( vec< Lit > &, uint64_t );
+        void     printRestrictedSMTClause ( ostream &, vec< Lit > &, uint64_t );
+        Enode *  mkRestrictedSMTClause    ( vec< Lit > &, uint64_t );
 #endif
-	void     verifyModel      ();
-	void     checkLiteralCount();
+        void     verifyModel      ();
+        void     checkLiteralCount();
 
-	// Static helpers:
-	//
+        // Static helpers:
+        //
 
-	// Returns a random float 0 <= x < 1. Seed must never be 0.
-	static inline double drand(double& seed) {
-		seed *= 1389796;
-		int q = (int)(seed / 2147483647);
-		seed -= (double)q * 2147483647;
-		return seed / 2147483647; }
+        // Returns a random float 0 <= x < 1. Seed must never be 0.
+        static inline double drand(double& seed) {
+                seed *= 1389796;
+                int q = (int)(seed / 2147483647);
+                seed -= (double)q * 2147483647;
+                return seed / 2147483647; }
 
-	// Returns a random integer 0 <= x < size. Seed must never be 0.
-	static inline int irand(double& seed, int size) {
-		return (int)(drand(seed) * size); }
+        // Returns a random integer 0 <= x < size. Seed must never be 0.
+        static inline int irand(double& seed, int size) {
+                return (int)(drand(seed) * size); }
 
 
-	//=================================================================================================
-	// Added Code
+        //=================================================================================================
+        // Added Code
 
 public:
 
-	void     printLit         (Lit l);
-	template<class C>
-	void     printClause      (const C& c);
+        void     printLit         (Lit l);
+        template<class C>
+        void     printClause      (const C& c);
 
-	lbool smtSolve                ( );             // Solve
+        lbool smtSolve                ( );             // Solve
 #ifndef SMTCOMP
-	lbool  getModel               ( Enode * );
-	void   printModel             ( );             // Wrapper
-	void   printModel             ( ostream & );   // Prints model
+        lbool  getModel               ( Enode * );
+        void   printModel             ( );             // Wrapper
+        void   printModel             ( ostream & );   // Prints model
 #endif
 #ifdef PRODUCE_PROOF
-	void   printProof              ( ostream & );
-	void   printInter              ( ostream & );   // Print interpolants
-	void   getMixedAtoms           ( set< Var > & );
-	void   checkPartitions         ( );
-	void   verifyInterpolantWithExternalTool ( vector< Enode * > & );
-	inline uint64_t getIPartitions ( Clause * c )            { assert( clause_to_partition.find( c ) != clause_to_partition.end( ) ); return clause_to_partition[ c ]; }
-	inline Enode *  getInterpolants( Clause * c )            { assert( clause_to_in.find( c ) != clause_to_in.end( ) ); return clause_to_in[ c ]; }
-	inline void     setInterpolant ( Clause * c, Enode * e ) { clause_to_in[ c ] = e; }
+        void   printProof              ( ostream & );
+        void   printInter              ( ostream & );   // Print interpolants
+        void   getMixedAtoms           ( set< Var > & );
+        void   checkPartitions         ( );
+        void   verifyInterpolantWithExternalTool ( vector< Enode * > & );
+        inline uint64_t getIPartitions ( Clause * c )            { assert( clause_to_partition.find( c ) != clause_to_partition.end( ) ); return clause_to_partition[ c ]; }
+        inline Enode *  getInterpolants( Clause * c )            { assert( clause_to_in.find( c ) != clause_to_in.end( ) ); return clause_to_in[ c ]; }
+        inline void     setInterpolant ( Clause * c, Enode * e ) { clause_to_in[ c ] = e; }
 #endif
 
 protected:
 
 #ifdef STATISTICS
-	void   printStatistics        ( ostream & );   // Prints statistics
+        void   printStatistics        ( ostream & );   // Prints statistics
 #endif
-	void   printTrail             ( );             // Prints the trail (debugging)
-	int    checkTheory            ( bool );        // Checks consistency in theory
-	int    deduceTheory           ( );             // Perform theory-deductions
-	int    checkAxioms            ( );             // Checks consistency of lemma on demand
-	int    analyzeUnsatLemma      ( Clause * );    // Conflict analysis for an unsat lemma on demand
-	void   cancelUntilVar         ( Var );         // Backtrack until a certain variable
-	void   cancelUntilVarTempInit ( Var );         // Backtrack until a certain variable
-	void   cancelUntilVarTempDone ( );             // Backtrack until a certain variable
-	int    restartNextLimit       ( int );         // Next conflict limit for restart
-	Var    generateMoreEij        ( );             // Generate more eij
-	Var    generateNextEij        ( );             // Generate next eij
+        void   printTrail             ( );             // Prints the trail (debugging)
+        int    checkTheory            ( bool );        // Checks consistency in theory
+        int    deduceTheory           ( );             // Perform theory-deductions
+        int    checkAxioms            ( );             // Checks consistency of lemma on demand
+        int    analyzeUnsatLemma      ( Clause * );    // Conflict analysis for an unsat lemma on demand
+        void   cancelUntilVar         ( Var );         // Backtrack until a certain variable
+        void   cancelUntilVarTempInit ( Var );         // Backtrack until a certain variable
+        void   cancelUntilVarTempDone ( );             // Backtrack until a certain variable
+        int    restartNextLimit       ( int );         // Next conflict limit for restart
+        Var    generateMoreEij        ( );             // Generate more eij
+        Var    generateNextEij        ( );             // Generate next eij
 
 #ifndef SMTCOMP
-	void   dumpCNF                ( );             // Dumps CNF to cnf.smt2
-	void   dumpRndInter           ( );             // Dumps a random interpolation problem
+        void   dumpCNF                ( );             // Dumps CNF to cnf.smt2
+        void   dumpRndInter           ( );             // Dumps a random interpolation problem
 #endif
 
-	Clause *	   fake_clause;                // Fake clause for unprovided reasons
-	vec< Clause * >    cleanup;                    // For cleaning up
-	bool	           first_model_found;          // True if we found a first boolean model
-	double	           skip_step;                  // Steps to skip in calling tsolvers
-	long               skipped_calls;              // Calls skipped so far
-	long               learnt_t_lemmata;           // T-Lemmata stored during search
-	long               perm_learnt_t_lemmata;      // T-Lemmata stored during search
-	unsigned           luby_i;                     // Keep track of luby index
-	unsigned           luby_k;                     // Keep track of luby k
-	vector< unsigned > luby_previous;              // Previously computed luby numbers
-	bool               cuvti;                      // For cancelUntilVarTemp
-	vec<Lit>           lit_to_restore;             // For cancelUntilVarTemp
-	vec<char>          val_to_restore;             // For cancelUntilVarTemp
+        Clause *           fake_clause;                // Fake clause for unprovided reasons
+        vec< Clause * >    cleanup;                    // For cleaning up
+        bool               first_model_found;          // True if we found a first boolean model
+        double             skip_step;                  // Steps to skip in calling tsolvers
+        long               skipped_calls;              // Calls skipped so far
+        long               learnt_t_lemmata;           // T-Lemmata stored during search
+        long               perm_learnt_t_lemmata;      // T-Lemmata stored during search
+        unsigned           luby_i;                     // Keep track of luby index
+        unsigned           luby_k;                     // Keep track of luby k
+        vector< unsigned > luby_previous;              // Previously computed luby numbers
+        bool               cuvti;                      // For cancelUntilVarTemp
+        vec<Lit>           lit_to_restore;             // For cancelUntilVarTemp
+        vec<char>          val_to_restore;             // For cancelUntilVarTemp
 #ifdef PRODUCE_PROOF
-	//
-	// Proof production
-	//
-	Proof *             proof_;                   // (Pointer to) Proof store
-	Proof &             proof;                    // Proof store
-	vec< Clause * >     pleaves;                  // Store clauses that are still involved in the proof
-	vec< Clause * >     tleaves;                  // Store theory clauses to be removed
-	// TODO: Maybe change to vectors
-	map< Clause *, Enode * >              clause_to_in;        // Clause id to interpolant (for theory clauses)
-	vector< pair< Clause *, uint64_t > >  units_and_partition; // Unit clauses and their partitions
-	map< Clause *, uint64_t >             clause_to_partition; // Clause id to interpolant partition
+        //
+        // Proof production
+        //
+        Proof *             proof_;                   // (Pointer to) Proof store
+        Proof &             proof;                    // Proof store
+        vec< Clause * >     pleaves;                  // Store clauses that are still involved in the proof
+        vec< Clause * >     tleaves;                  // Store theory clauses to be removed
+        // TODO: Maybe change to vectors
+        map< Clause *, Enode * >              clause_to_in;        // Clause id to interpolant (for theory clauses)
+        vector< pair< Clause *, uint64_t > >  units_and_partition; // Unit clauses and their partitions
+        map< Clause *, uint64_t >             clause_to_partition; // Clause id to interpolant partition
 #endif
-	//
-	// Data structures for DTC
-	//
-	// vector< Enode * >  interface_terms;            // Interface terms for lazy dtc
-	// set< Enode * >     interface_terms_cache;      // Interface terms for lazy dtc
-	set< Enode * >     interface_equalities;       // To check that we do not duplicate eij
-	int                next_it_i;                  // Next index i
-	int                next_it_j;                  // Next index j
-	//
-	// Data structures required for incrementality, backtrackability
-	//
-	enum oper_t
-	{
-	   NEWVAR
-	 , NEWUNIT
-	 , NEWCLAUSE
-	 , NEWLEARNT
-	 , NEWAXIOM
+        //
+        // Data structures for DTC
+        //
+        // vector< Enode * >  interface_terms;            // Interface terms for lazy dtc
+        // set< Enode * >     interface_terms_cache;      // Interface terms for lazy dtc
+        set< Enode * >     interface_equalities;       // To check that we do not duplicate eij
+        int                next_it_i;                  // Next index i
+        int                next_it_j;                  // Next index j
+        //
+        // Data structures required for incrementality, backtrackability
+        //
+        enum oper_t
+        {
+           NEWVAR
+         , NEWUNIT
+         , NEWCLAUSE
+         , NEWLEARNT
+         , NEWAXIOM
 #ifdef PRODUCE_PROOF
-	 , NEWPROOF
-	 , NEWINTER
+         , NEWPROOF
+         , NEWINTER
 #endif
-	};
-	//
-	// Automatic push and pop, for enable undo
-	//
-	vector< size_t >   undo_stack_size;            // Keep track of stack_oper size
-	vector< oper_t >   undo_stack_oper;            // Keep track of operations
-	vector< void * >   undo_stack_elem;            // Keep track of aux info
-	vector< int >      undo_trail_size;            // Keep track of trail size
-	//
-	// TODO: move more data in STATISTICS
-	//
+        };
+        //
+        // Automatic push and pop, for enable undo
+        //
+        vector< size_t >   undo_stack_size;            // Keep track of stack_oper size
+        vector< oper_t >   undo_stack_oper;            // Keep track of operations
+        vector< void * >   undo_stack_elem;            // Keep track of aux info
+        vector< int >      undo_trail_size;            // Keep track of trail size
+        //
+        // TODO: move more data in STATISTICS
+        //
 #ifdef STATISTICS
-	double             preproc_time;
-	double             tsolvers_time;
-	unsigned           elim_tvars;
-	unsigned           total_tvars;
-	unsigned           ie_generated;
+        double             preproc_time;
+        double             tsolvers_time;
+        unsigned           elim_tvars;
+        unsigned           total_tvars;
+        unsigned           ie_generated;
 #endif
-	bool               init;
+        bool               init;
 
 // Added Code
 //=================================================================================================

@@ -17,15 +17,14 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "OpenSMTContext.h"
-#include "ExpandITEs.h"
-#include "ArraySimplify.h"
-#include "BVBooleanize.h"
-#include "TopLevelProp.h"
-#include "DLRescale.h"
-#include "Ackermanize.h"
-#include "Purify.h"
-
+#include "api/OpenSMTContext.h"
+#include "simplifiers/ExpandITEs.h"
+#include "simplifiers/ArraySimplify.h"
+#include "simplifiers/BVBooleanize.h"
+#include "simplifiers/TopLevelProp.h"
+#include "simplifiers/DLRescale.h"
+#include "simplifiers/Ackermanize.h"
+#include "simplifiers/Purify.h"
 #include <csignal>
 #include <algorithm>
 #include "util/string.h"

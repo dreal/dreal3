@@ -22,8 +22,8 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include <cstdio>
 
-#include "Queue.h"
-#include "Solver.h"
+#include "minisat/mtl/Queue.h"
+#include "minisat/core/Solver.h"
 
 
 class SimpSolver : public Solver {
@@ -39,14 +39,14 @@ class SimpSolver : public Solver {
     bool    addClause (vec<Lit>& ps);
 
     // Variable mode:
-    // 
+    //
     void    setFrozen (Var v, bool b); // If a variable is frozen it will not be eliminated.
 
     // Solving:
     //
     bool    solve     (const vec<Lit>& assumps, bool do_simp = true, bool turn_off_simp = false);
     bool    solve     (bool do_simp = true, bool turn_off_simp = false);
-    bool    eliminate (bool turn_off_elim = false);  // Perform variable elimination based simplification. 
+    bool    eliminate (bool turn_off_elim = false);  // Perform variable elimination based simplification.
 
     // Generate a (possibly simplified) DIMACS file:
     //

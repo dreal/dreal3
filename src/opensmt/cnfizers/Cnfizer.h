@@ -20,10 +20,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CNFIZER_H
 #define CNFIZER_H
 
-#include "Global.h"
-#include "Otl.h"
-#include "SMTSolver.h"
-#include "Egraph.h"
+#include "common/Global.h"
+#include "common/Otl.h"
+#include "smtsolvers/SMTSolver.h"
+#include "egraph/Egraph.h"
 
 //
 // Generic class for conversion into CNF
@@ -34,8 +34,8 @@ public:
 
   Cnfizer( Egraph &    egraph_
          , SMTSolver & solver_
-	 , SMTConfig & config_
-	 , SStore &    sstore_ )
+         , SMTConfig & config_
+         , SStore &    sstore_ )
    : egraph  ( egraph_ )
    , solver  ( solver_ )
    , config  ( config_ )
@@ -44,29 +44,29 @@ public:
 
   virtual ~Cnfizer( ) { }
 
-  lbool cnfizeAndGiveToSolver 
-    ( Enode * 
+  lbool cnfizeAndGiveToSolver
+    ( Enode *
 #ifdef PRODUCE_PROOF
     ,  const uint64_t partitions = 0
 #endif
     );                                   // Main routine
 
 protected:
-  
-  virtual bool cnfize	       ( Enode *, map< enodeid_t, Enode * > & ) = 0; // Actual cnfization. To be implemented in derived classes
-  bool         deMorganize     ( Enode * ); 		                     // Apply deMorgan rules whenever feasible
+
+  virtual bool cnfize          ( Enode *, map< enodeid_t, Enode * > & ) = 0; // Actual cnfization. To be implemented in derived classes
+  bool         deMorganize     ( Enode * );                                  // Apply deMorgan rules whenever feasible
   Enode *      rewriteMaxArity ( Enode *, map< enodeid_t, int > & );         // Rewrite terms using maximum arity
 
-  bool  checkCnf                   ( Enode * );			             // Check if formula is in CNF
+  bool  checkCnf                   ( Enode * );                              // Check if formula is in CNF
   bool  checkDeMorgan              ( Enode * );                              // Check if formula can be deMorganized
   bool  giveToSolver               ( Enode * );                              // Gives formula to the SAT solver
-                                                                             
+
   void  retrieveTopLevelFormulae   ( Enode *, vector< Enode * > & );         // Retrieves the list of top-level formulae
   void  retrieveClause             ( Enode *, vector< Enode * > & );         // Retrieve a clause from a formula
   void  retrieveConjuncts          ( Enode *, vector< Enode * > & );         // Retrieve the list of conjuncts
-                                                                             
-  Enode * toggleLit		   ( Enode * );                              // Handy function for toggling literals
-                                                                             
+
+  Enode * toggleLit                ( Enode * );                              // Handy function for toggling literals
+
   Egraph &    egraph;                                                        // Reference to Egraph
   SMTSolver & solver;                                                        // Reference to Solver
   SMTConfig & config;                                                        // Reference to Config

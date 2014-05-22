@@ -20,14 +20,14 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef EGRAPH_H
 #define EGRAPH_H
 
-#include "Enode.h"
-#include "SStore.h"
-#include "TSolver.h"
-#include "SigTab.h"
-#include "SplayTree.h"
+#include "egraph/Enode.h"
+#include "sorts/SStore.h"
+#include "tsolvers/TSolver.h"
+#include "egraph/SigTab.h"
+#include "common/SplayTree.h"
 
 #ifdef PRODUCE_PROOF
-#include "UFInterpolator.h"
+#include "proof/UFInterpolator.h"
 #endif
 
 class Egraph : public CoreTSolver

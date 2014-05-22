@@ -9,7 +9,7 @@
 #include <cfloat>
 #include <new>
 
-#include "Global.h"
+#include "common/Global.h"
 
 //=================================================================================================
 // Basic Types & Minor Things:

@@ -20,9 +20,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PROOF2_H
 #define PROOF2_H
 
-#include "Global.h"
-#include "CoreSMTSolver.h"
-#include "THandler.h"
+#include "common/Global.h"
+#include "smtsolvers/CoreSMTSolver.h"
+#include "tsolvers/THandler.h"
 #include "SolverTypes.h"
 
 //=================================================================================================
@@ -34,58 +34,58 @@ typedef enum { CLA_ORIG, CLA_LEARNT, CLA_THEORY } clause_type_t;
 
 struct ProofDer
 {
-	ProofDer( )
-	: chain_cla ( NULL )
-	, chain_var ( NULL )
-	, ref       ( 0 )
-	{ }
+        ProofDer( )
+        : chain_cla ( NULL )
+        , chain_var ( NULL )
+        , ref       ( 0 )
+        { }
 
-	~ProofDer( )
-	{
-		assert( chain_cla );
-		delete chain_cla;
-		if ( chain_var ) delete chain_var;
-	}
+        ~ProofDer( )
+        {
+                assert( chain_cla );
+                delete chain_cla;
+                if ( chain_var ) delete chain_var;
+        }
 
-	vector< Clause * > * chain_cla;               // Clauses chain
-	vector< Var > *      chain_var;               // Pivot chain
-	int                  ref;                     // Reference counter
-	clause_type_t        type;                    // The type of the clause
+        vector< Clause * > * chain_cla;               // Clauses chain
+        vector< Var > *      chain_var;               // Pivot chain
+        int                  ref;                     // Reference counter
+        clause_type_t        type;                    // The type of the clause
 };
 
-class Proof 
+class Proof
 {
-	bool begun;					// For debugging
+        bool begun;					// For debugging
 
-	vector< Clause * > *        chain_cla;
-	vector< Var > *             chain_var;
-	map< Clause *, ProofDer * > clause_to_proof_der;
-	Clause *                    last_added;
+        vector< Clause * > *        chain_cla;
+        vector< Var > *             chain_var;
+        map< Clause *, ProofDer * > clause_to_proof_der;
+        Clause *                    last_added;
 
 public:
 
-	Proof ( );
-	~Proof( );
+        Proof ( );
+        ~Proof( );
 
-	void addRoot    ( Clause *, clause_type_t );              // Adds a new root clause
-	void beginChain ( Clause * );                             // Beginnig of resolution chain
-	void resolve    ( Clause *, Var );                        // Resolve
-	void endChain   ( );                                      // Chain that ended in sat
-	void endChain   ( Clause * );                             // Last chain refers to clause
-	bool deleted    ( Clause * );                             // Remove clauses if possible
-	void forceDelete( Clause *, const bool = false );         // Remove unconditionally
+        void addRoot    ( Clause *, clause_type_t );              // Adds a new root clause
+        void beginChain ( Clause * );                             // Beginnig of resolution chain
+        void resolve    ( Clause *, Var );                        // Resolve
+        void endChain   ( );                                      // Chain that ended in sat
+        void endChain   ( Clause * );                             // Last chain refers to clause
+        bool deleted    ( Clause * );                             // Remove clauses if possible
+        void forceDelete( Clause *, const bool = false );         // Remove unconditionally
 
-	void pushBacktrackPoint     ( );                          // Restore previous state
-	void popBacktrackPoint      ( );                          // Restore previous state
-	void reset                  ( );                          // Reset proof data structures
+        void pushBacktrackPoint     ( );                          // Restore previous state
+        void popBacktrackPoint      ( );                          // Restore previous state
+        void reset                  ( );                          // Reset proof data structures
 
-	inline Clause * last        ( ) { return last_added; }    // Return last clause added
+        inline Clause * last        ( ) { return last_added; }    // Return last clause added
 
-	inline bool     checkState  ( ) { return !begun; }        // Stupid check
+        inline bool     checkState  ( ) { return !begun; }        // Stupid check
 
-	void print( ostream &, CoreSMTSolver &, THandler & );     // Print proof in SMT-LIB format
+        void print( ostream &, CoreSMTSolver &, THandler & );     // Print proof in SMT-LIB format
 
-	map< Clause *, ProofDer * > & getProof( ) { return clause_to_proof_der; }
+        map< Clause *, ProofDer * > & getProof( ) { return clause_to_proof_der; }
 };
 
 //=================================================================================================

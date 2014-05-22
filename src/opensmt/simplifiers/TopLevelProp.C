@@ -18,7 +18,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
  *********************************************************************/
 
 #include "TopLevelProp.h"
-#include "LA.h"
+#include "common/LA.h"
 #include "BVNormalize.h"
 
 #define INLINE_CONSTANTS         0
@@ -48,8 +48,8 @@ TopLevelProp::doit( Enode * formula )
     || config.logic == QF_UFLRA )
   {
     if ( ( config.logic == QF_UFIDL
-	|| config.logic == QF_UFLRA )
-	&& config.sat_lazy_dtc != 0 )
+        || config.logic == QF_UFLRA )
+        && config.sat_lazy_dtc != 0 )
       formula = egraph.canonizeDTC( formula );
     else
       formula = egraph.canonize( formula );
@@ -151,27 +151,27 @@ TopLevelProp::retrieveSubstitutions( Enode * formula
       bool new_polarity;
 
       if ( enode->isAnd( ) && polarity )
-	new_polarity = true;
+        new_polarity = true;
       else if ( enode->isNot( ) )
-	new_polarity = !polarity;
+        new_polarity = !polarity;
       else if ( enode->isOr( ) && !polarity )
-	new_polarity = false;
+        new_polarity = false;
       else
-	recurse = false;
+        recurse = false;
 
       if ( recurse )
       {
-	Enode * arg_list;
-	for ( arg_list = enode->getCdr( )
-	    ; arg_list != egraph.enil
-	    ; arg_list = arg_list->getCdr( ) )
-	{
-	  Enode * arg = arg_list->getCar( );
-	  assert( arg->isTerm( ) );
-	  unprocessed_enodes  .push_back( arg );
-	  unprocessed_polarity.push_back( new_polarity );
-	}
-	continue;
+        Enode * arg_list;
+        for ( arg_list = enode->getCdr( )
+            ; arg_list != egraph.enil
+            ; arg_list = arg_list->getCdr( ) )
+        {
+          Enode * arg = arg_list->getCar( );
+          assert( arg->isTerm( ) );
+          unprocessed_enodes  .push_back( arg );
+          unprocessed_polarity.push_back( new_polarity );
+        }
+        continue;
       }
     }
     //
@@ -183,13 +183,13 @@ TopLevelProp::retrieveSubstitutions( Enode * formula
       Enode * rhs = enode->get2nd( );
 
       if ( !lhs->isVar( ) && !rhs->isVar( ) )
-	continue;
+        continue;
 
       Enode * var  = lhs->isVar( ) ? lhs : rhs;
       Enode * term = lhs->isVar( ) ? rhs : lhs;
 
       if ( contains( term, var ) )
-	continue;
+        continue;
 
       // Substitute variable with term that does not contain it
       substitutions[ var->getId( ) ] = term;
@@ -206,35 +206,35 @@ TopLevelProp::retrieveSubstitutions( Enode * formula
     {
       if ( enode->isTrue( ) )
       {
-	substitutions[ enode->getId( ) ] = egraph.mkTrue( );
+        substitutions[ enode->getId( ) ] = egraph.mkTrue( );
 #ifndef SMTCOMP
-	// Save substitution for retrieving model
-	egraph.addSubstitution( enode, egraph.mkTrue( ) );
+        // Save substitution for retrieving model
+        egraph.addSubstitution( enode, egraph.mkTrue( ) );
 #endif
-	continue;
+        continue;
       }
 
       if ( enode->isFalse( ) )
       {
-	substitutions[ enode->getId( ) ] = egraph.mkFalse( );
+        substitutions[ enode->getId( ) ] = egraph.mkFalse( );
 #ifndef SMTCOMP
-	// Save substitution for retrieving model
-	egraph.addSubstitution( enode, egraph.mkFalse( ) );
+        // Save substitution for retrieving model
+        egraph.addSubstitution( enode, egraph.mkFalse( ) );
 #endif
-	continue;
+        continue;
       }
 
       // Substitute boolean variable with true/false
       if ( enode->isVar( ) )
       {
-	substitutions[ enode->getId( ) ] = polarity
-	                                 ? egraph.mkTrue( )
-	                                 : egraph.mkFalse( );
+        substitutions[ enode->getId( ) ] = polarity
+                                         ? egraph.mkTrue( )
+                                         : egraph.mkFalse( );
 #ifndef SMTCOMP
-	// Save substitution for retrieving model
-	egraph.addSubstitution( enode, substitutions[ enode->getId( ) ] );
+        // Save substitution for retrieving model
+        egraph.addSubstitution( enode, substitutions[ enode->getId( ) ] );
 #endif
-	continue;
+        continue;
       }
 
       assert( enode->isTAtom( ) );
@@ -242,90 +242,90 @@ TopLevelProp::retrieveSubstitutions( Enode * formula
       // Substitute only positive equalities from now on
       //
       if ( !enode->isEq( ) || !polarity )
-	continue;
+        continue;
 
       assert( enode->isEq( ) );
       assert( polarity );
 
       if ( config.logic == QF_UF )
       {
-	Enode * lhs = enode->get1st( );
-	Enode * rhs = enode->get2nd( );
+        Enode * lhs = enode->get1st( );
+        Enode * rhs = enode->get2nd( );
 
-	if ( !lhs->isVar( ) && !rhs->isVar( ) )
-	  continue;
+        if ( !lhs->isVar( ) && !rhs->isVar( ) )
+          continue;
 
-	Enode * var  = lhs->isVar( ) ? lhs : rhs;
-	Enode * term = lhs->isVar( ) ? rhs : lhs;
+        Enode * var  = lhs->isVar( ) ? lhs : rhs;
+        Enode * term = lhs->isVar( ) ? rhs : lhs;
 
-	if ( contains( term, var ) )
-	  continue;
+        if ( contains( term, var ) )
+          continue;
 
-	// Substitute variable with term that does not contain it
-	substitutions[ var->getId( ) ] = term;
+        // Substitute variable with term that does not contain it
+        substitutions[ var->getId( ) ] = term;
 
 #ifndef SMTCOMP
-	// Save substitution for retrieving model
-	egraph.addSubstitution( var, term );
+        // Save substitution for retrieving model
+        egraph.addSubstitution( var, term );
 #endif
       }
       else if ( config.logic == QF_IDL
-	     || config.logic == QF_RDL
-	     || config.logic == QF_LRA
-	     || config.logic == QF_LIA
-	     || config.logic == QF_UFIDL
-	     || config.logic == QF_UFLRA )
+             || config.logic == QF_RDL
+             || config.logic == QF_LRA
+             || config.logic == QF_LIA
+             || config.logic == QF_UFIDL
+             || config.logic == QF_UFLRA )
       {
-	top_level_arith.push_back( enode );
+        top_level_arith.push_back( enode );
       }
       else if ( config.logic == QF_BV )
       {
-	// TODO: do something for BV
+        // TODO: do something for BV
       }
       else if ( config.logic == QF_NRA || config.logic == QF_NRA_ODE )
       {
-	// TODO: do something for BV
+        // TODO: do something for BV
       }
       else if ( config.logic == QF_AX )
       {
-	Enode * lhs = enode->get1st( );
-	Enode * rhs = enode->get2nd( );
-	Enode * var, * term;
+        Enode * lhs = enode->get1st( );
+        Enode * rhs = enode->get2nd( );
+        Enode * var, * term;
 
-	if( lhs->isVar( ) && rhs->isVar( ) )
-	{
-	  substitutions[ lhs->getId( ) ] = rhs;
+        if( lhs->isVar( ) && rhs->isVar( ) )
+        {
+          substitutions[ lhs->getId( ) ] = rhs;
 #ifndef SMTCOMP
-	  // Save substitution for retrieving model
-	  egraph.addSubstitution( lhs, rhs );
+          // Save substitution for retrieving model
+          egraph.addSubstitution( lhs, rhs );
 #endif
-	}
-	else if ( !lhs->isVar( ) && !rhs->isVar( ) )
-	{
-	  // Accumulate array equations for gaussian elim
-	  continue;
-	}
-	else
-	{
-	  var  = lhs->isVar( ) ? lhs : rhs;
-	  term = lhs->isVar( ) ? rhs : lhs;
-	  if ( contains( term, var ) )
-	    continue;
-	  // Substitute variable with term that does not contain it
-	  substitutions[ var->getId( ) ] = term;
+        }
+        else if ( !lhs->isVar( ) && !rhs->isVar( ) )
+        {
+          // Accumulate array equations for gaussian elim
+          continue;
+        }
+        else
+        {
+          var  = lhs->isVar( ) ? lhs : rhs;
+          term = lhs->isVar( ) ? rhs : lhs;
+          if ( contains( term, var ) )
+            continue;
+          // Substitute variable with term that does not contain it
+          substitutions[ var->getId( ) ] = term;
 
 #ifndef SMTCOMP
-	  // Save substitution for retrieving model
-	  egraph.addSubstitution( var, term );
+          // Save substitution for retrieving model
+          egraph.addSubstitution( var, term );
 #endif
-	}
+        }
       }
       // DO NOT REMOVE THIS COMMENT !!
       // IT IS USED BY CREATE_THEORY.SH SCRIPT !!
       // NEW_THEORY_INIT
       else
       {
-	opensmt_error( "logic not supported yet" );
+        opensmt_error( "logic not supported yet" );
       }
     }
   }
@@ -396,17 +396,17 @@ bool TopLevelProp::arithmeticElimination( vector< Enode * > & top_level_arith
       // Solve w.r.t. first variable
       if ( s.solve( ) == NULL )
       {
-	if ( s.toEnode( egraph ) == egraph.mkTrue( ) )
-	  continue;
-	assert( s.toEnode( egraph ) == egraph.mkFalse( ) );
-	return false;
+        if ( s.toEnode( egraph ) == egraph.mkTrue( ) )
+          continue;
+        assert( s.toEnode( egraph ) == egraph.mkFalse( ) );
+        return false;
       }
       // Use the first variable x in s to generate a
       // substitution and replace x in lac
       for ( unsigned j = i + 1 ; j < equalities.size( ) ; j ++ )
       {
-	LAExpression & lac = *equalities[ j ];
-	combine( s, lac );
+        LAExpression & lac = *equalities[ j ];
+        combine( s, lac );
       }
     }
     //
@@ -420,17 +420,17 @@ bool TopLevelProp::arithmeticElimination( vector< Enode * > & top_level_arith
       // Solve w.r.t. first variable
       if ( s.solve( ) == NULL )
       {
-	if ( s.toEnode( egraph ) == egraph.mkTrue( ) )
-	  continue;
-	assert( s.toEnode( egraph ) == egraph.mkFalse( ) );
-	return false;
+        if ( s.toEnode( egraph ) == egraph.mkTrue( ) )
+          continue;
+        assert( s.toEnode( egraph ) == egraph.mkFalse( ) );
+        return false;
       }
       // Use the first variable x in s as a
       // substitution and replace x in lac
       for ( int j = i - 1 ; j >= 0 ; j -- )
       {
-	LAExpression & lac = *equalities[ j ];
-	combine( s, lac );
+        LAExpression & lac = *equalities[ j ];
+        combine( s, lac );
       }
     }
     //
@@ -491,8 +491,8 @@ TopLevelProp::contains( Enode * term, Enode * var )
     bool unprocessed_children = false;
     Enode * arg_list;
     for ( arg_list = enode->getCdr( ) ;
-	arg_list != egraph.enil ;
-	arg_list = arg_list->getCdr( ) )
+        arg_list != egraph.enil ;
+        arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
       assert( arg->isTerm( ) );
@@ -501,8 +501,8 @@ TopLevelProp::contains( Enode * term, Enode * var )
       //
       if ( !egraph.isDup2( arg ) )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -550,8 +550,8 @@ TopLevelProp::substitute( Enode * formula
     bool unprocessed_children = false;
     Enode * arg_list;
     for ( arg_list = enode->getCdr( )
-	; arg_list != egraph.enil
-	; arg_list = arg_list->getCdr( ) )
+        ; arg_list != egraph.enil
+        ; arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
 
@@ -561,8 +561,8 @@ TopLevelProp::substitute( Enode * formula
       //
       if ( egraph.valDupMap1( arg ) == NULL )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -589,7 +589,7 @@ TopLevelProp::substitute( Enode * formula
       // Substitute
       if ( it != substitutions.end( ) )
       {
-	result = it->second;
+        result = it->second;
       }
     }
     else if ( enode->isTAtom( ) )
@@ -597,7 +597,7 @@ TopLevelProp::substitute( Enode * formula
       map< enodeid_t, Enode * >::iterator it = substitutions.find( enode->getId( ) );
       // Substitute
       if ( it != substitutions.end( ) )
-	result = it->second;
+        result = it->second;
     }
 #endif
 
@@ -612,14 +612,14 @@ TopLevelProp::substitute( Enode * formula
     if ( result->isTAtom( ) && !result->isUp( ) )
     {
       if ( config.logic == QF_IDL
-	|| config.logic == QF_RDL
-	|| config.logic == QF_LRA
-	|| config.logic == QF_LIA
-	|| config.logic == QF_UFIDL
-	|| config.logic == QF_UFLRA )
+        || config.logic == QF_RDL
+        || config.logic == QF_LRA
+        || config.logic == QF_LIA
+        || config.logic == QF_UFIDL
+        || config.logic == QF_UFLRA )
       {
-	LAExpression a( result );
-	result = a.toEnode( egraph );
+        LAExpression a( result );
+        result = a.toEnode( egraph );
       }
     }
 
@@ -664,8 +664,8 @@ TopLevelProp::learnEqTransitivity( Enode * formula )
     bool unprocessed_children = false;
     Enode * arg_list;
     for ( arg_list = enode->getCdr( ) ;
-	arg_list != egraph.enil ;
-	arg_list = arg_list->getCdr( ) )
+        arg_list != egraph.enil ;
+        arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
       assert( arg->isTerm( ) );
@@ -674,8 +674,8 @@ TopLevelProp::learnEqTransitivity( Enode * formula )
       //
       if ( egraph.valDupMap1( arg ) == NULL )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -718,22 +718,22 @@ TopLevelProp::learnEqTransitivity( Enode * formula )
 
       if ( condition2a && condition2b )
       {
-	Enode * w  = (v1 == v3 || v1 == v4 ? v1 : v2);
-	Enode * x1 = (v1 == w ? v2 : v1);
-	Enode * z1 = (v3 == w ? v4 : v3);
+        Enode * w  = (v1 == v3 || v1 == v4 ? v1 : v2);
+        Enode * x1 = (v1 == w ? v2 : v1);
+        Enode * z1 = (v3 == w ? v4 : v3);
 
-	Enode * y  = (t1 == t3 || t1 == t4 ? t1 : t2);
-	Enode * x2 = (t1 == y ? t2 : t1);
-	Enode * z2 = (t3 == y ? t4 : t3);
+        Enode * y  = (t1 == t3 || t1 == t4 ? t1 : t2);
+        Enode * x2 = (t1 == y ? t2 : t1);
+        Enode * z2 = (t3 == y ? t4 : t3);
 
-	const bool condition2 = (x1 == x2 && z1 == z2)
-	  || (x1 == z2 && x2 == z1);
+        const bool condition2 = (x1 == x2 && z1 == z2)
+          || (x1 == z2 && x2 == z1);
 
-	if ( condition2 )
-	{
-	  Enode * impl = egraph.mkEq( egraph.cons( x1, egraph.cons( z1 ) ) );
-	  implications.push_back( egraph.mkImplies( egraph.cons( enode, egraph.cons( impl ) ) ) );
-	}
+        if ( condition2 )
+        {
+          Enode * impl = egraph.mkEq( egraph.cons( x1, egraph.cons( z1 ) ) );
+          implications.push_back( egraph.mkImplies( egraph.cons( enode, egraph.cons( impl ) ) ) );
+        }
       }
     }
 
@@ -813,8 +813,8 @@ TopLevelProp::replaceUnconstrainedTerms( Enode * formula
     bool unprocessed_children = false;
     Enode * arg_list;
     for ( arg_list = enode->getCdr( )
-	; arg_list != egraph.enil
-	; arg_list = arg_list->getCdr( ) )
+        ; arg_list != egraph.enil
+        ; arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
       assert( arg->isTerm( ) );
@@ -823,8 +823,8 @@ TopLevelProp::replaceUnconstrainedTerms( Enode * formula
       //
       if ( egraph.valDupMap1( arg ) == NULL )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -840,53 +840,53 @@ TopLevelProp::replaceUnconstrainedTerms( Enode * formula
     //
     if ( false ) { }
     else if ( enode->isEq ( )
-	   || enode->isNot( )
-	   || enode->isXor( )
-	   )
+           || enode->isNot( )
+           || enode->isXor( )
+           )
     {
       for ( Enode * ll = enode->getCdr( )
-	  ; !ll->isEnil( )
-	  ; ll = ll->getCdr( ) )
+          ; !ll->isEnil( )
+          ; ll = ll->getCdr( ) )
       {
-	Enode * arg = egraph.valDupMap1( ll->getCar( ) );
-	if ( arg->isVar( )
-	    && id_to_inc_edges[ arg->getId( ) ] == 1 )
-	{
-	  // Allocate a new unconstrained variable for the term
-	  char def_name[ 32 ];
-	  sprintf( def_name, "UNC_%d", enode->getId( ) );
-	  egraph.newSymbol( def_name, DTYPE_BOOL );
-	  result = egraph.mkVar( def_name );
-	  if ( static_cast< int >( id_to_inc_edges.size( ) ) < result->getId( ) )
-	    id_to_inc_edges.resize( result->getId( ) + 1, 0 );
-	  fix_point_not_reached = true;
-	  break;
-	}
+        Enode * arg = egraph.valDupMap1( ll->getCar( ) );
+        if ( arg->isVar( )
+            && id_to_inc_edges[ arg->getId( ) ] == 1 )
+        {
+          // Allocate a new unconstrained variable for the term
+          char def_name[ 32 ];
+          sprintf( def_name, "UNC_%d", enode->getId( ) );
+          egraph.newSymbol( def_name, DTYPE_BOOL );
+          result = egraph.mkVar( def_name );
+          if ( static_cast< int >( id_to_inc_edges.size( ) ) < result->getId( ) )
+            id_to_inc_edges.resize( result->getId( ) + 1, 0 );
+          fix_point_not_reached = true;
+          break;
+        }
       }
     }
     else if ( enode->isAnd( )
-	|| enode->isOr ( ) )
+        || enode->isOr ( ) )
     {
       bool unconstrained = true;
       for ( Enode * ll = enode->getCdr( )
-	  ; !ll->isEnil( ) && unconstrained
-	  ; ll = ll->getCdr( ) )
+          ; !ll->isEnil( ) && unconstrained
+          ; ll = ll->getCdr( ) )
       {
-	Enode * arg = egraph.valDupMap1( ll->getCar( ) );
-	if ( !arg->isVar( )
-	    || id_to_inc_edges[ arg->getId( ) ] != 1 )
-	  unconstrained = false;
+        Enode * arg = egraph.valDupMap1( ll->getCar( ) );
+        if ( !arg->isVar( )
+            || id_to_inc_edges[ arg->getId( ) ] != 1 )
+          unconstrained = false;
       }
       if ( unconstrained )
       {
-	// Allocate a new unconstrained variable for the term
-	char def_name[ 32 ];
-	sprintf( def_name, "UNC_%d", enode->getId( ) );
-	egraph.newSymbol( def_name, DTYPE_BOOL );
-	result = egraph.mkVar( def_name );
-	if ( static_cast< int >( id_to_inc_edges.size( ) ) < result->getId( ) )
-	  id_to_inc_edges.resize( result->getId( ) + 1, 0 );
-	fix_point_not_reached = true;
+        // Allocate a new unconstrained variable for the term
+        char def_name[ 32 ];
+        sprintf( def_name, "UNC_%d", enode->getId( ) );
+        egraph.newSymbol( def_name, DTYPE_BOOL );
+        result = egraph.mkVar( def_name );
+        if ( static_cast< int >( id_to_inc_edges.size( ) ) < result->getId( ) )
+          id_to_inc_edges.resize( result->getId( ) + 1, 0 );
+        fix_point_not_reached = true;
       }
     }
     else if ( enode->isIte( ) )
@@ -897,17 +897,17 @@ TopLevelProp::replaceUnconstrainedTerms( Enode * formula
 
       if ( i->isVar( ) && id_to_inc_edges[ i->getId( ) ] == 1 )
       {
-	if ( (t->isVar( ) && id_to_inc_edges[ t->getId( ) ] == 1)
-	    || (e->isVar( ) && id_to_inc_edges[ e->getId( ) ] == 1) )
-	{
-	  char def_name[ 32 ];
-	  sprintf( def_name, "UNC_%d", enode->getId( ) );
-	  egraph.newSymbol( def_name, DTYPE_BITVEC | enode->getWidth( ) );
-	  result = egraph.mkVar( def_name );
-	  if ( static_cast< int >( id_to_inc_edges.size( ) ) < result->getId( ) )
-	    id_to_inc_edges.resize( result->getId( ) + 1, 0 );
-	  fix_point_not_reached = true;
-	}
+        if ( (t->isVar( ) && id_to_inc_edges[ t->getId( ) ] == 1)
+            || (e->isVar( ) && id_to_inc_edges[ e->getId( ) ] == 1) )
+        {
+          char def_name[ 32 ];
+          sprintf( def_name, "UNC_%d", enode->getId( ) );
+          egraph.newSymbol( def_name, DTYPE_BITVEC | enode->getWidth( ) );
+          result = egraph.mkVar( def_name );
+          if ( static_cast< int >( id_to_inc_edges.size( ) ) < result->getId( ) )
+            id_to_inc_edges.resize( result->getId( ) + 1, 0 );
+          fix_point_not_reached = true;
+        }
       }
     }
     //
@@ -959,8 +959,8 @@ void TopLevelProp::computeIncomingEdges( Enode * formula
     bool unprocessed_children = false;
     Enode * arg_list;
     for ( arg_list = enode->getCdr( )
-	; !arg_list->isEnil( )
-	; arg_list = arg_list->getCdr( ) )
+        ; !arg_list->isEnil( )
+        ; arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
       assert( arg->isTerm( ) );
@@ -969,8 +969,8 @@ void TopLevelProp::computeIncomingEdges( Enode * formula
       //
       if ( !egraph.isDup1( arg ) )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -982,12 +982,12 @@ void TopLevelProp::computeIncomingEdges( Enode * formula
     unprocessed_enodes.pop_back( );
 
     for ( Enode * ll = enode->getCdr( )
-	; !ll->isEnil( )
-	; ll = ll->getCdr( ) )
+        ; !ll->isEnil( )
+        ; ll = ll->getCdr( ) )
     {
       Enode * arg = ll->getCar( );
       if ( arg->getId( ) >= (enodeid_t)id_to_inc_edges.size( ) )
-	id_to_inc_edges.resize( arg->getId( ) + 1, 0 );
+        id_to_inc_edges.resize( arg->getId( ) + 1, 0 );
       id_to_inc_edges[ arg->getId( ) ] ++;
     }
 
@@ -1033,8 +1033,8 @@ TopLevelProp::splitEqs( Enode * formula )
     bool unprocessed_children = false;
     Enode * arg_list;
     for ( arg_list = enode->getCdr( )
-	; arg_list != egraph.enil
-	; arg_list = arg_list->getCdr( ) )
+        ; arg_list != egraph.enil
+        ; arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
       assert( arg->isTerm( ) );
@@ -1043,8 +1043,8 @@ TopLevelProp::splitEqs( Enode * formula )
       //
       if ( egraph.valDupMap1( arg ) == NULL )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -1065,81 +1065,81 @@ TopLevelProp::splitEqs( Enode * formula )
       // If DTC is active
       //
       if ( ( config.logic == QF_UFIDL
-	  || config.logic == QF_UFLRA )
-	  && config.sat_lazy_dtc != 0 )
+          || config.logic == QF_UFLRA )
+          && config.sat_lazy_dtc != 0 )
       {
-	//
-	// These equalities will be given to the arithmetic
-	// solvers, and hence split, only if they are not
-	// "purely" uf (at the root level -- we assume we
-	// did purification before).
-	//
-	if ( !egraph.isRootUF( enode ) )
-	{
+        //
+        // These equalities will be given to the arithmetic
+        // solvers, and hence split, only if they are not
+        // "purely" uf (at the root level -- we assume we
+        // did purification before).
+        //
+        if ( !egraph.isRootUF( enode ) )
+        {
 #ifdef PRODUCE_PROOF
-	  if ( config.produce_inter > 0 )
-	    opensmt_error( "can't produce interpolants for this benchmark" );
+          if ( config.produce_inter > 0 )
+            opensmt_error( "can't produce interpolants for this benchmark" );
 #endif
-	  LAExpression a( enode );
-	  Enode * e = a.toEnode( egraph );
-	  Enode * lhs = e->get1st( );
-	  Enode * rhs = e->get2nd( );
-	  Enode * leq = egraph.mkLeq( egraph.cons( lhs
-		                    , egraph.cons( rhs ) ) );
-	  LAExpression b( leq );
-	  leq = b.toEnode( egraph );
-	  Enode * geq = egraph.mkGeq( egraph.cons( lhs
-		                    , egraph.cons( rhs ) ) );
-	  LAExpression c( geq );
-	  geq = c.toEnode( egraph );
-	  Enode * not_e = egraph.mkNot( egraph.cons( enode ) );
-	  Enode * not_l = egraph.mkNot( egraph.cons( leq ) );
-	  Enode * not_g = egraph.mkNot( egraph.cons( geq ) );
-	  // Add clause ( !x=y v x<=y )
-	  Enode * c1 = egraph.mkOr( egraph.cons( not_e
-		                  , egraph.cons( leq ) ) );
-	  // Add clause ( !x=y v x>=y )
-	  Enode * c2 = egraph.mkOr( egraph.cons( not_e
-		                  , egraph.cons( geq ) ) );
-	  // Add clause ( x=y v !x>=y v !x<=y )
-	  Enode * c3 = egraph.mkOr( egraph.cons( enode
-		                  , egraph.cons( not_l
-		                  , egraph.cons( not_g ) ) ) );
-	  // Add conjunction of clauses
-	  Enode * ax = egraph.mkAnd( egraph.cons( c1
-	 	                   , egraph.cons( c2
-		                   , egraph.cons( c3 ) ) ) );
+          LAExpression a( enode );
+          Enode * e = a.toEnode( egraph );
+          Enode * lhs = e->get1st( );
+          Enode * rhs = e->get2nd( );
+          Enode * leq = egraph.mkLeq( egraph.cons( lhs
+                                    , egraph.cons( rhs ) ) );
+          LAExpression b( leq );
+          leq = b.toEnode( egraph );
+          Enode * geq = egraph.mkGeq( egraph.cons( lhs
+                                    , egraph.cons( rhs ) ) );
+          LAExpression c( geq );
+          geq = c.toEnode( egraph );
+          Enode * not_e = egraph.mkNot( egraph.cons( enode ) );
+          Enode * not_l = egraph.mkNot( egraph.cons( leq ) );
+          Enode * not_g = egraph.mkNot( egraph.cons( geq ) );
+          // Add clause ( !x=y v x<=y )
+          Enode * c1 = egraph.mkOr( egraph.cons( not_e
+                                  , egraph.cons( leq ) ) );
+          // Add clause ( !x=y v x>=y )
+          Enode * c2 = egraph.mkOr( egraph.cons( not_e
+                                  , egraph.cons( geq ) ) );
+          // Add clause ( x=y v !x>=y v !x<=y )
+          Enode * c3 = egraph.mkOr( egraph.cons( enode
+                                  , egraph.cons( not_l
+                                  , egraph.cons( not_g ) ) ) );
+          // Add conjunction of clauses
+          Enode * ax = egraph.mkAnd( egraph.cons( c1
+                                   , egraph.cons( c2
+                                   , egraph.cons( c3 ) ) ) );
 
-	  dtc_axioms.push_back( ax );
+          dtc_axioms.push_back( ax );
 #ifdef PRODUCE_PROOF
-	  if ( config.produce_inter > 0 )
-	    opensmt_error( "Cannot produce interpolants in theory combination" );
+          if ( config.produce_inter > 0 )
+            opensmt_error( "Cannot produce interpolants in theory combination" );
 #endif
-	}
-	result = enode;
+        }
+        result = enode;
       }
       else
       {
-	LAExpression a( enode );
-	Enode * e = a.toEnode( egraph );
-	Enode * lhs = e->get1st( );
-	Enode * rhs = e->get2nd( );
-	Enode * leq = egraph.mkLeq( egraph.cons( lhs, egraph.cons( rhs ) ) );
-	LAExpression b( leq );
-	leq = b.toEnode( egraph );
-	Enode * geq = egraph.mkGeq( egraph.cons( lhs, egraph.cons( rhs ) ) );
-	LAExpression c( geq );
-	geq = c.toEnode( egraph );
+        LAExpression a( enode );
+        Enode * e = a.toEnode( egraph );
+        Enode * lhs = e->get1st( );
+        Enode * rhs = e->get2nd( );
+        Enode * leq = egraph.mkLeq( egraph.cons( lhs, egraph.cons( rhs ) ) );
+        LAExpression b( leq );
+        leq = b.toEnode( egraph );
+        Enode * geq = egraph.mkGeq( egraph.cons( lhs, egraph.cons( rhs ) ) );
+        LAExpression c( geq );
+        geq = c.toEnode( egraph );
 
-	result = egraph.mkAnd( egraph.cons( leq, egraph.cons( geq ) ) );
+        result = egraph.mkAnd( egraph.cons( leq, egraph.cons( geq ) ) );
 #ifdef PRODUCE_PROOF
-	if ( config.produce_inter > 0 )
-	{
-	  egraph.tagIFormula( result
-			    , egraph.getIPartitions( enode ) );
-	  egraph.tagIFormula( egraph.mkNot( egraph.cons( result ) )
-			    , egraph.getIPartitions( enode ) );
-	}
+        if ( config.produce_inter > 0 )
+        {
+          egraph.tagIFormula( result
+                            , egraph.getIPartitions( enode ) );
+          egraph.tagIFormula( egraph.mkNot( egraph.cons( result ) )
+                            , egraph.getIPartitions( enode ) );
+        }
 #endif
       }
     }

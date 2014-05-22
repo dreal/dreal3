@@ -17,11 +17,11 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "Egraph.h"
-#include "LA.h"
-#include "BVNormalize.h"
-#include "BVBooleanize.h"
-#include "SimpSMTSolver.h"
+#include "egraph/Egraph.h"
+#include "common/LA.h"
+#include "simplifiers/BVNormalize.h"
+#include "simplifiers/BVBooleanize.h"
+#include "smtsolvers/SimpSMTSolver.h"
 #include "version.h"
 
 void Egraph::initializeStore( )

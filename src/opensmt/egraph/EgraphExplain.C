@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "Egraph.h"
+#include "egraph/Egraph.h"
 
 //=============================================================================
 // Explanation Routines: details about these routines are in paper
@@ -131,9 +131,9 @@ void Egraph::expExplain ( )
 // Produce an explanation between nodes x and y
 // Wrapper for expExplain
 //
-void Egraph::expExplain ( Enode * x, Enode * y, Enode * 
+void Egraph::expExplain ( Enode * x, Enode * y, Enode *
 #ifdef PRODUCE_PROOF
-    r 
+    r
 #endif
     )
 {
@@ -182,9 +182,9 @@ void Egraph::expExplainAlongPath ( Enode * x, Enode * y )
     {
       if ( !isDup1( r ) )
       {
-	assert( r->isTerm( ) );
-	explanation.push_back( r );
-	storeDup1( r );
+        assert( r->isTerm( ) );
+        explanation.push_back( r );
+        storeDup1( r );
       }
     }
     // Otherwise it is a congruence edge
@@ -200,7 +200,7 @@ void Egraph::expExplainAlongPath ( Enode * x, Enode * y )
     }
 
 #ifdef PRODUCE_PROOF
-    if ( config.produce_inter > 0 
+    if ( config.produce_inter > 0
       && config.logic != QF_AX )
     {
       cgraph.addCNode( v );
@@ -323,24 +323,24 @@ Enode * Egraph::expNCA ( Enode * x, Enode * y )
     {
       // We reached a node already marked by h_y
       if ( h_x->getExpTimeStamp( ) == time_stamp )
-	return h_x;
+        return h_x;
       // Mark the node and move to the next
       if ( h_x->getExpParent( ) != h_x )
       {
-	h_x->setExpTimeStamp( time_stamp );
-	h_x = h_x->getExpParent( );
+        h_x->setExpTimeStamp( time_stamp );
+        h_x = h_x->getExpParent( );
       }
     }
     if ( h_y != NULL )
     {
       // We reached a node already marked by h_x
       if ( h_y->getExpTimeStamp( ) == time_stamp )
-	return h_y;
+        return h_y;
       // Mark the node and move to the next
       if ( h_y->getExpParent( ) != h_y )
       {
-	h_y->setExpTimeStamp( time_stamp );
-	h_y = h_y->getExpParent( );
+        h_y->setExpTimeStamp( time_stamp );
+        h_y = h_y->getExpParent( );
       }
     }
   }

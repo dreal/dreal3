@@ -20,9 +20,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SMTCONFIG_H
 #define SMTCONFIG_H
 
-#include "Global.h"
-#include "SolverTypes.h"
 #include <fstream>
+#include "common/Global.h"
+#include "minisat/core/SolverTypes.h"
 
 using std::ofstream;
 

@@ -17,13 +17,13 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "Egraph.h"
-#include "Enode.h"
-#include "LA.h"
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "common/LA.h"
 // DO NOT REMOVE THIS COMMENT !!
 // IT IS USED BY CREATE_THEORY.SH SCRIPT !!
 // NEW_THEORY_HEADER
-#include "EmptySolver.h"
+#include "tsolvers/emptysolver/EmptySolver.h"
 //#include "BVSolver.h"
 //#include "LRASolver.h"
 //#include "DLSolver.h"
@@ -33,7 +33,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "dsolvers/nra_solver.h"
 #include "util/logging.h"
 //#include "nra_ode_solver.h"
-#include "SimpSMTSolver.h"
+#include "smtsolvers/SimpSMTSolver.h"
 
 #define VERBOSE 0
 
@@ -370,9 +370,9 @@ bool Egraph::assertLit( Enode * e, bool reason )
     inform( e );
 
   DREAL_LOG_INFO << "Egraph::assertLit()"
-		 << ( e->getPolarity( ) == l_True ? "" : "(not " )
-		 << e
-		 << ( e->getPolarity( ) == l_True ? "" : ")" ) << endl;
+                 << ( e->getPolarity( ) == l_True ? "" : "(not " )
+                 << e
+                 << ( e->getPolarity( ) == l_True ? "" : ")" ) << endl;
 
   // Runtime translation
   suggestions.clear( );
@@ -547,23 +547,23 @@ Enode * Egraph::getSuggestion( )
     suggestions.pop_back( );
     if ( e->hasPolarity( ) ){
       DREAL_LOG_INFO << "Egraph::getSuggestion() not suggesting (has polarity):"
-    		     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
-    		     << e
-    		     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
+                     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
+                     << e
+                     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
       continue;
     }
     if ( e->isDeduced( ) ){
       DREAL_LOG_INFO << "Egraph::getSuggestion() not suggesting (is deduced): "
-    		     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
-    		     << e
-    		     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
+                     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
+                     << e
+                     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
       continue;
     }
 
     DREAL_LOG_INFO << "Egraph::getSuggestion() suggesting: "
-    		     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
-    		     << e
-    		     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
+                     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
+                     << e
+                     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
 
     return e;
   }

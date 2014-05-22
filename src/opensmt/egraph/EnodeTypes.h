@@ -20,9 +20,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ENODE_TYPES_H
 #define ENODE_TYPES_H
 
-#include "SolverTypes.h"
-#include "Global.h"
-#include "Snode.h"
+#include "minisat/core/SolverTypes.h"
+#include "common/Global.h"
+#include "sorts/Snode.h"
 //
 // IMPORTANT: CHANGE THESE VALUES ONLY IF YOU KNOW WHAT YOU ARE DOING !!!
 // IMPORTANT: CHANGE THESE VALUES ONLY IF YOU KNOW WHAT YOU ARE DOING !!!

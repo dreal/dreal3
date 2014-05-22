@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "Egraph.h"
-#include "SigTab.h"
+#include "egraph/Egraph.h"
+#include "egraph/SigTab.h"
 
 // Choose debugging level
 #define CHECK_INVARIANTS                            1
@@ -68,14 +68,14 @@ bool SigTab::checkInvariantSTC( )
       continue;
 
     for ( HashTable::iterator it = store[ first ]->begin( )
-	; it != store[ first ]->end( )
-	; it ++ )
+        ; it != store[ first ]->end( )
+        ; it ++ )
     {
       const Pair( int ) p = make_pair( first, it->first );
       Cell * x_cell = (it->second);
       assert( x_cell );
       if ( !x_cell->active )
-	continue;
+        continue;
       Enode * x = x_cell->elem;
 #endif
       assert( x );
@@ -83,39 +83,39 @@ bool SigTab::checkInvariantSTC( )
       // Check that x is a congruence root
       if ( x != x->getCgPtr( ) )
       {
-	cerr << "STC Invariant broken: " 
-	     << x 
-	     << " is not congruence root" 
-	     << endl;
-	return false;
+        cerr << "STC Invariant broken: "
+             << x
+             << " is not congruence root"
+             << endl;
+        return false;
       }
       if ( x->getSig( ) != p )
       {
-	cerr << "x root: " << x->getRoot( ) << endl;
-	cerr << "x root car: " << x->getRoot( )->getCar( ) << endl;
-	cerr << "x root car root: " << x->getRoot( )->getCar( )->getRoot( ) << endl;
-	cerr << "x->getCar( ): " << x->getCar( )->getId( ) << endl;
-	cerr << "STC Invariant broken: "
-	     << x
-	     << " signature is wrong."
-	     << " It is " 
-	     << "(" << x->getSigCar( )
-	     << ", " << x->getSigCdr( )
-	     << ") instead of ("
+        cerr << "x root: " << x->getRoot( ) << endl;
+        cerr << "x root car: " << x->getRoot( )->getCar( ) << endl;
+        cerr << "x root car root: " << x->getRoot( )->getCar( )->getRoot( ) << endl;
+        cerr << "x->getCar( ): " << x->getCar( )->getId( ) << endl;
+        cerr << "STC Invariant broken: "
+             << x
+             << " signature is wrong."
+             << " It is "
+             << "(" << x->getSigCar( )
+             << ", " << x->getSigCdr( )
+             << ") instead of ("
 #ifdef BUILD_64
-	     << (p>>32)
+             << (p>>32)
 #else
-	     << p.first
+             << p.first
 #endif
-	     << ", " 
+             << ", "
 #ifdef BUILD_64
-	     << (p & 0x00000000FFFFFFFF)
+             << (p & 0x00000000FFFFFFFF)
 #else
-	     << p.second
+             << p.second
 #endif
-	     << ")"
-	     << endl;
-	return false;
+             << ")"
+             << endl;
+        return false;
       }
 #ifndef BUILD_64
     }
@@ -136,22 +136,22 @@ bool Egraph::checkParents( Enode * e )
   for ( ; p != NULL ; )
   {
     assert ( p->isTerm( ) || p->isList( ) );
-    if ( scdr && p->getCdr( )->getRoot( ) != e->getRoot( ) ) 
+    if ( scdr && p->getCdr( )->getRoot( ) != e->getRoot( ) )
     {
       cerr << "Parent invariant broken in parents of " << e << ": "
-	   << p->getCdr( )->getRoot( )
-	   << " differs from"
-	   << e->getRoot( )
-	   << endl;
+           << p->getCdr( )->getRoot( )
+           << " differs from"
+           << e->getRoot( )
+           << endl;
       return false;
     }
-    if ( !scdr && p->getCar( )->getRoot( ) != e->getRoot( ) ) 
+    if ( !scdr && p->getCar( )->getRoot( ) != e->getRoot( ) )
     {
       cerr << "Parent invariant broken in parents of " << e << ": "
-	   << p->getCar( )->getRoot( )
-	   << " differs from "
-	   << e->getRoot( )
-	   << endl;
+           << p->getCar( )->getRoot( )
+           << " differs from "
+           << e->getRoot( )
+           << endl;
       return false;
     }
     // Next element
@@ -161,34 +161,34 @@ bool Egraph::checkParents( Enode * e )
       p = NULL;
     count ++;
   }
-  if ( e->getParent( ) == NULL 
+  if ( e->getParent( ) == NULL
     && e->getParentSize( ) != 0 )
   {
-    cerr << "Parent invariant broken: " 
+    cerr << "Parent invariant broken: "
          << endl
-         << " wrong parent size for " 
-	 << e 
-	 << endl;
+         << " wrong parent size for "
+         << e
+         << endl;
     return false;
   }
-  // This invariant is valid only if it has some parents 
+  // This invariant is valid only if it has some parents
   // (see "Merge parent lists": if y is empty
   // it will stay empty, as y will not become
   // root ...)
   if ( count != e->getRoot( )->getParentSize( )
     && e->getParent( ) != NULL )
   {
-    cerr << "Parent invariant broken: " 
+    cerr << "Parent invariant broken: "
          << endl
-         << " wrong parent size for " 
-	 << e << " (" << e->getRoot( ) << ")"
-	 << "; "
-	 << endl
-	 << " they should be " 
-	 << e->getRoot( )->getParentSize( )
-	 << " but they are " 
-	 << count 
-	 << endl;
+         << " wrong parent size for "
+         << e << " (" << e->getRoot( ) << ")"
+         << "; "
+         << endl
+         << " they should be "
+         << e->getRoot( )->getParentSize( )
+         << " but they are "
+         << count
+         << endl;
     return false;
   }
 
@@ -229,8 +229,8 @@ bool Egraph::checkExpTree ( Enode * x )
     {
       if ( visited.find( x->getExpReason( ) ) != visited.end( ) )
       {
-	cerr << "Error: explanation is present twice" << endl;
-	return false;
+        cerr << "Error: explanation is present twice" << endl;
+        return false;
       }
       visited.insert( x->getExpReason( ) );
     }

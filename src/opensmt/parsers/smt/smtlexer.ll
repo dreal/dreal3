@@ -22,14 +22,14 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <cstdlib>
 /* Keep the following headers in their original order */
-#include "Egraph.h"
+#include "egraph/Egraph.h"
 #include "smtparser.hh"
 
 #define BUFFER_LENGTH 1024
 
 char   buffer[ BUFFER_LENGTH ];
 char * pbuffer;
-  
+
 %}
 
 %x start_source
@@ -55,13 +55,13 @@ char * pbuffer;
 ":category"              { return TK_CATEGORY; }
 ":difficulty"            { return TK_DIFFICULTY; }
 ":notes"                 { return TK_NOTES; }
-"U"                      { return TK_U; }    
-"Real"			 { return TK_REAL; }
+"U"                      { return TK_U; }
+"Real"                   { return TK_REAL; }
 "Int"                    { return TK_INT; }
-"BitVec"                 { return TK_BITVEC; }   
-"Array"		 	 { return TK_ARRAY; } 
-"Index"		 	 { return TK_ARRAY_INDEX; }
-"Element"		 { return TK_ARRAY_ELEMENT; }
+"BitVec"                 { return TK_BITVEC; }
+"Array"                  { return TK_ARRAY; }
+"Index"                  { return TK_ARRAY_INDEX; }
+"Element"                { return TK_ARRAY_ELEMENT; }
 "repeat"                 { return TK_REPEAT; }
 "+"                      { return TK_PLUS; }
 "-"                      { return TK_MINUS; }
@@ -98,16 +98,16 @@ char * pbuffer;
 "bvurem"                 { return TK_BVUREM; }
 "bvsdiv"                 { return TK_BVSDIV; }
 "bvudiv"                 { return TK_BVUDIV; }
-"select"		 { return TK_ARRAY_SELECT; }
-"store"			 { return TK_ARRAY_STORE; }
+"select"                 { return TK_ARRAY_SELECT; }
+"store"                  { return TK_ARRAY_STORE; }
 "sign_extend"            { return TK_SIGN_EXTEND; }
 "zero_extend"            { return TK_ZERO_EXTEND; }
 "rotate_left"            { return TK_ROTATE_LEFT; }
 "rotate_right"           { return TK_ROTATE_RIGHT; }
 "implies"                { return TK_IMPLIES; }
-"and"			 { return TK_AND; }
-"or"			 { return TK_OR; }
-"not"			 { return TK_NOT; }
+"and"                    { return TK_AND; }
+"or"                     { return TK_OR; }
+"not"                    { return TK_NOT; }
 "iff"                    { return TK_IFF; }
 "xor"                    { return TK_XOR; }
 "flet"                   { return TK_FLET; }

@@ -22,7 +22,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <cstdlib>
 /* Keep the following headers in their original order */
-#include "Egraph.h"
+#include "egraph/Egraph.h"
 #include "cnfparser.hh"
 
 %}
@@ -41,7 +41,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 "-"                      { return TK_NOT; }
 "0"                      { return TK_END; }
 [1-9][0-9]*              { cnflval.str = strdup( yytext ); return TK_NUM; }
-"%"                      { } 
+"%"                      { }
 .                        { printf( "Syntax error at line %d near %s\n", yylineno, yytext ); exit( 1 ); }
 
 %%

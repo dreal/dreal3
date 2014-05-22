@@ -17,14 +17,14 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "Cnfizer.h"
+#include "cnfizers/Cnfizer.h"
 
 //
 // Main Routine. Examine formula and give it to the solver
 //
-lbool Cnfizer::cnfizeAndGiveToSolver( Enode * formula 
+lbool Cnfizer::cnfizeAndGiveToSolver( Enode * formula
 #ifdef PRODUCE_PROOF
-				      , const uint64_t partitions
+                                      , const uint64_t partitions
 #endif
                                     )
 {
@@ -34,7 +34,7 @@ lbool Cnfizer::cnfizeAndGiveToSolver( Enode * formula
   // Mixed partition assigned ?
   assert( config.produce_inter == 0 || partitions != 1 );
   // Not a power of two ?
-  assert( (partitions & (partitions - 1)) == 0 ); 
+  assert( (partitions & (partitions - 1)) == 0 );
   current_partitions = partitions;
 #endif
   egraph.initDupMap1( );
@@ -43,7 +43,7 @@ lbool Cnfizer::cnfizeAndGiveToSolver( Enode * formula
 
   vector< Enode * > top_level_formulae;
   // Retrieve top-level formulae
-  retrieveTopLevelFormulae( formula, top_level_formulae ); 
+  retrieveTopLevelFormulae( formula, top_level_formulae );
   assert( !top_level_formulae.empty( ) );
 
   map< enodeid_t, Enode * > cnf_cache;
@@ -54,8 +54,8 @@ lbool Cnfizer::cnfizeAndGiveToSolver( Enode * formula
     Enode * f = top_level_formulae[ i ];
 
 #ifdef PRODUCE_PROOF
-    if ( config.produce_inter != 0 
-      && config.sat_dump_rnd_inter == 0 
+    if ( config.produce_inter != 0
+      && config.sat_dump_rnd_inter == 0
       && !checkCnf( f ) )
       opensmt_warning( "Input formula must be in CNF to be correctly interpolated" );
 #endif
@@ -104,7 +104,7 @@ bool Cnfizer::deMorganize( Enode * formula )
     retrieveConjuncts( conj, conjuncts );
     vector< Enode * > clause;
     for ( unsigned i = 0 ; i < conjuncts.size( ) ; i ++ )
-      clause.push_back( toggleLit( conjuncts[ i ] ) ); 
+      clause.push_back( toggleLit( conjuncts[ i ] ) );
 #ifdef PRODUCE_PROOF
     if ( config.produce_inter > 0 )
       return solver.addSMTClause( clause, current_partitions );
@@ -133,7 +133,7 @@ void Cnfizer::computeIncomingEdges( Enode * e
   while( !unprocessed_enodes.empty( ) )
   {
     Enode * enode = unprocessed_enodes.back( );
-    // 
+    //
     // Skip if the node has already been processed before
     //
     map< enodeid_t, int >::iterator it = enodeid_to_incoming_edges.find( enode->getId( ) );
@@ -147,24 +147,24 @@ void Cnfizer::computeIncomingEdges( Enode * e
     bool unprocessed_children = false;
     if ( enode->isBooleanOperator( ) )
     {
-      for ( Enode * arg_list = enode->getCdr( ) 
-	  ; !arg_list->isEnil( )
-	  ; arg_list = arg_list->getCdr( ) )
+      for ( Enode * arg_list = enode->getCdr( )
+          ; !arg_list->isEnil( )
+          ; arg_list = arg_list->getCdr( ) )
       {
-	Enode * arg = arg_list->getCar( );
-	//
-	// Push only if it is an unprocessed boolean operator
-	//
-	map< enodeid_t, int >::iterator it = enodeid_to_incoming_edges.find( arg->getId( ) );
-	if ( it == enodeid_to_incoming_edges.end( ) )
-	{
-	  unprocessed_enodes.push_back( arg );
-	  unprocessed_children = true;
-	}
-	else
-	{
-	  it->second ++;
-	}
+        Enode * arg = arg_list->getCar( );
+        //
+        // Push only if it is an unprocessed boolean operator
+        //
+        map< enodeid_t, int >::iterator it = enodeid_to_incoming_edges.find( arg->getId( ) );
+        if ( it == enodeid_to_incoming_edges.end( ) )
+        {
+          unprocessed_enodes.push_back( arg );
+          unprocessed_children = true;
+        }
+        else
+        {
+          it->second ++;
+        }
       }
     }
     //
@@ -173,7 +173,7 @@ void Cnfizer::computeIncomingEdges( Enode * e
     if ( unprocessed_children )
       continue;
 
-    unprocessed_enodes.pop_back( );                      
+    unprocessed_enodes.pop_back( );
     //
     // At this point, every child has been processed
     //
@@ -199,7 +199,7 @@ Enode * Cnfizer::rewriteMaxArity( Enode * formula, map< enodeid_t, int > & enode
   while( !unprocessed_enodes.empty( ) )
   {
     Enode * enode = unprocessed_enodes.back( );
-    // 
+    //
     // Skip if the node has already been processed before
     //
     if ( cache.find( enode->getId( ) ) != cache.end( ) )
@@ -210,9 +210,9 @@ Enode * Cnfizer::rewriteMaxArity( Enode * formula, map< enodeid_t, int > & enode
 
     bool unprocessed_children = false;
     Enode * arg_list;
-    for ( arg_list = enode->getCdr( ) ; 
-	  arg_list != egraph.enil ; 
-	  arg_list = arg_list->getCdr( ) )
+    for ( arg_list = enode->getCdr( ) ;
+          arg_list != egraph.enil ;
+          arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
 
@@ -220,11 +220,11 @@ Enode * Cnfizer::rewriteMaxArity( Enode * formula, map< enodeid_t, int > & enode
       //
       // Push only if it is an unprocessed boolean operator
       //
-      if ( arg->isBooleanOperator( ) 
-	&& cache.find( arg->getId( ) ) == cache.end( ) )
+      if ( arg->isBooleanOperator( )
+        && cache.find( arg->getId( ) ) == cache.end( ) )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
       //
       // If it is an atom (either boolean or theory) just
@@ -232,7 +232,7 @@ Enode * Cnfizer::rewriteMaxArity( Enode * formula, map< enodeid_t, int > & enode
       //
       else if ( arg->isAtom( ) )
       {
-	cache.insert( make_pair( arg->getId( ), arg ) );
+        cache.insert( make_pair( arg->getId( ), arg ) );
       }
     }
     //
@@ -241,14 +241,14 @@ Enode * Cnfizer::rewriteMaxArity( Enode * formula, map< enodeid_t, int > & enode
     if ( unprocessed_children )
       continue;
 
-    unprocessed_enodes.pop_back( );                      
+    unprocessed_enodes.pop_back( );
     Enode * result = NULL;
     //
     // At this point, every child has been processed
     //
     assert ( enode->isBooleanOperator( ) );
 
-    if ( enode->isAnd( ) 
+    if ( enode->isAnd( )
       || enode->isOr ( ) )
     {
       assert( enode->isAnd( ) || enode->isOr( ) );
@@ -276,16 +276,16 @@ Enode * Cnfizer::rewriteMaxArity( Enode * formula, map< enodeid_t, int > & enode
 //
 Enode * Cnfizer::mergeEnodeArgs( Enode * e
                                , map< enodeid_t, Enode * > & cache
-		               , map< enodeid_t, int > & enodeid_to_incoming_edges )
+                               , map< enodeid_t, int > & enodeid_to_incoming_edges )
 {
   assert( e->isAnd( ) || e->isOr( ) );
 
   Enode * e_symb = e->getCar( );
   vector< Enode * > new_args;
-  
-  for ( Enode * list = e->getCdr( ) ; 
+
+  for ( Enode * list = e->getCdr( ) ;
         !list->isEnil( ) ;
-	list = list->getCdr( ) )
+        list = list->getCdr( ) )
   {
     Enode * arg = list->getCar( );
     Enode * sub_arg = cache[ arg->getId( ) ];
@@ -306,9 +306,9 @@ Enode * Cnfizer::mergeEnodeArgs( Enode * e
       continue;
     }
 
-    for ( Enode * sub_arg_list = sub_arg->getCdr( ) ; 
-	  !sub_arg_list->isEnil( ) ; 
-	  sub_arg_list = sub_arg_list->getCdr( ) )
+    for ( Enode * sub_arg_list = sub_arg->getCdr( ) ;
+          !sub_arg_list->isEnil( ) ;
+          sub_arg_list = sub_arg_list->getCdr( ) )
       new_args.push_back( sub_arg_list->getCar( ) );
   }
 
@@ -326,10 +326,10 @@ Enode * Cnfizer::mergeEnodeArgs( Enode * e
 //
 // Check whether a formula is in cnf
 //
-bool Cnfizer::checkCnf( Enode * formula ) 
-{ 
+bool Cnfizer::checkCnf( Enode * formula )
+{
   set< enodeid_t > check_cache;
-  bool res = checkConj( formula, check_cache ) || checkClause( formula, check_cache ); 
+  bool res = checkConj( formula, check_cache ) || checkClause( formula, check_cache );
   return res;
 }
 
@@ -375,11 +375,11 @@ bool Cnfizer::checkClause( Enode * e, set< enodeid_t > & check_cache )
 
   if ( check_cache.find( e->getId( ) ) != check_cache.end( ) )   // Already visited term
     return true;
-  
+
   bool is_clause = true;
-  for ( Enode * list = e->getCdr( ) ; 
-        list != egraph.enil && is_clause ; 
-	list = list->getCdr( ) )
+  for ( Enode * list = e->getCdr( ) ;
+        list != egraph.enil && is_clause ;
+        list = list->getCdr( ) )
     is_clause = checkClause( list->getCar( ), check_cache );
 
   if ( !is_clause )
@@ -408,7 +408,7 @@ bool Cnfizer::checkPureConj( Enode * e, set< enodeid_t > & check_cache )
   if ( check_cache.find( e->getId( ) ) != check_cache.end( ) )
     return true;
 
-  if ( e->isLit( ) ) 
+  if ( e->isLit( ) )
   {
     check_cache.insert( e->getId( ) );
     return true;
@@ -418,13 +418,13 @@ bool Cnfizer::checkPureConj( Enode * e, set< enodeid_t > & check_cache )
     return false;
 
   bool is_pure_conj = true;
-  for ( Enode * list = e->getCdr( ) ; 
-        list != egraph.enil && is_pure_conj ; 
+  for ( Enode * list = e->getCdr( ) ;
+        list != egraph.enil && is_pure_conj ;
         list = list->getCdr( ) )
     is_pure_conj = checkPureConj( list->getCar( ), check_cache );
 
   if ( !is_pure_conj )
-   return false; 
+   return false;
 
   check_cache.insert( e->getId( ) );
 
@@ -469,7 +469,7 @@ bool Cnfizer::giveToSolver( Enode * f )
 #else
     return solver.addSMTClause( clause );
 #endif
-  } 
+  }
   //
   // Conjunction
   //
@@ -479,7 +479,7 @@ bool Cnfizer::giveToSolver( Enode * f )
   bool result = true;
   for ( unsigned i = 0 ; i < conj.size( ) && result ; i ++ )
     result = giveToSolver( conj[ i ] );
-  
+
   return result;
 }
 
@@ -489,9 +489,9 @@ bool Cnfizer::giveToSolver( Enode * f )
 void Cnfizer::retrieveTopLevelFormulae( Enode * f, vector< Enode * > & top_level_formulae )
 {
   if ( f->isAnd( ) )
-    for ( Enode * list = f->getCdr( ) ; 
-	  list != egraph.enil ; 
-	  list = list->getCdr( ) )
+    for ( Enode * list = f->getCdr( ) ;
+          list != egraph.enil ;
+          list = list->getCdr( ) )
       retrieveTopLevelFormulae( list->getCar( ), top_level_formulae );
   else
     top_level_formulae.push_back( f );
@@ -510,9 +510,9 @@ void Cnfizer::retrieveClause( Enode * f, vector< Enode * > & clause )
   }
   else if ( f->isOr( ) )
   {
-    for ( Enode * list = f->getCdr( ) ; 
-	  list != egraph.enil ; 
-	  list = list->getCdr( ) )
+    for ( Enode * list = f->getCdr( ) ;
+          list != egraph.enil ;
+          list = list->getCdr( ) )
       retrieveClause( list->getCar( ), clause );
   }
 }
@@ -530,9 +530,9 @@ void Cnfizer::retrieveConjuncts( Enode * f, vector< Enode * > & conjuncts )
   }
   else if ( f->isAnd( ) )
   {
-    for ( Enode * list = f->getCdr( ) ; 
-	  list != egraph.enil ; 
-	  list = list->getCdr( ) )
+    for ( Enode * list = f->getCdr( ) ;
+          list != egraph.enil ;
+          list = list->getCdr( ) )
       retrieveConjuncts( list->getCar( ), conjuncts );
   }
 }

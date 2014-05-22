@@ -20,8 +20,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SNODE_H
 #define SNODE_H
 
-#include "Global.h"
-#include "Otl.h"
+#include "common/Global.h"
+#include "common/Otl.h"
 
 //
 // Predefined snodes id
@@ -29,8 +29,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define SNODE_ID_UNDEF      (-1)  // Undefined sort
 #define SNODE_ID_SNIL        (0)  // Empty list
 #define SNODE_ID_DOT         (1)  // To create sorts of arity > 0
-#define SNODE_ID_BOOL        (2) 
-#define SNODE_ID_REAL        (3) 
+#define SNODE_ID_BOOL        (2)
+#define SNODE_ID_REAL        (3)
 #define SNODE_ID_INT         (4)
 #define SNODE_ID_ARRAY       (5)
 #define SNODE_ID_ELEM        (6)
@@ -41,8 +41,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 //
 // Snode type
 //
-enum stype_t 
-{ 
+enum stype_t
+{
    STYPE_UNDEF    = 0x00000000 // 0000 0000 0000 0000 0000 0000 0000 0000
  , STYPE_SYMB     = 0x10000000 // 0001 0000 0000 0000 0000 0000 0000 0000
  , STYPE_PARA     = 0x20000000 // 0001 0000 0000 0000 0000 0000 0000 0000
@@ -74,7 +74,7 @@ public:
   //
   Snode ( const snodeid_t       // id
         , const char *          // name/value
-	, const bool = false    // Is parameter ?
+        , const bool = false    // Is parameter ?
         );
   //
   // Constructor for terms and lists
@@ -99,16 +99,16 @@ public:
   inline void setStype          ( const stype_t t )
   {
     assert( t == STYPE_SYMB
-	 || t == STYPE_PARA
-	 || t == STYPE_LIST
-	 || t == STYPE_TERM );
+         || t == STYPE_PARA
+         || t == STYPE_LIST
+         || t == STYPE_TERM );
     properties |= t;
   }
 
   inline void setSassoc         ( const sassoc_t a )
   {
     assert( a == LEFT_ASSOC
-	 || a == RIGHT_ASSOC );
+         || a == RIGHT_ASSOC );
     properties |= a;
   }
 
@@ -126,7 +126,7 @@ public:
   inline Snode *   get2nd           ( ) const;                   // Get second argument in constant time
   inline Snode *   get3rd           ( ) const;                   // Get third argument in constant time
 
-  void             print	    ( ostream &, bool = true ); // Prints the snode
+  void             print            ( ostream &, bool = true ); // Prints the snode
 
   inline friend ostream &  operator<<( ostream & os, Snode * e )    { assert( e ); e->print( os ); return os; }
 
@@ -135,7 +135,7 @@ public:
     inline bool operator( )( Snode * x, Snode * y )
     {
       return (x->getCar( )->getId( ) <  y->getCar( )->getId( ))
-	  || (x->getCar( )->getId( ) == y->getCar( )->getId( ) && x->getCdr( )->getId( ) < y->getCdr( )->getId( ) );
+          || (x->getCar( )->getId( ) == y->getCar( )->getId( ) && x->getCdr( )->getId( ) < y->getCdr( )->getId( ) );
     }
   };
 
@@ -153,8 +153,8 @@ public:
 
   inline Snode * getLast ( )
   {
-    Snode * l = this; 
-    Snode * t = this; 
+    Snode * l = this;
+    Snode * t = this;
     t = t->getCdr( );
     while( !t->isSnil( ) )
     {
@@ -191,7 +191,7 @@ private:
   //
   const snodeid_t   id;         // Node unique identifier
   uint32_t          properties; // Contains all the properties of this node (see SnodeTypes.h for bitfields definition)
-  Snode *           car;        // For car 
+  Snode *           car;        // For car
   Snode *           cdr;        // For cdr
   char *            name;       // Name for symbols
 };

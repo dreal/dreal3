@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "Cnfizer.h"
+#include "cnfizers/Cnfizer.h"
 #include "Tseitin.h"
 
 //
@@ -61,8 +61,8 @@ bool Tseitin::cnfize( Enode * formula, map< enodeid_t, Enode * > & cnf_cache )
     bool unprocessed_children = false;
     Enode * arg_list;
     for ( arg_list = enode->getCdr( ) ;
-	  arg_list != egraph.enil ;
-	  arg_list = arg_list->getCdr( ) )
+          arg_list != egraph.enil ;
+          arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
 
@@ -71,10 +71,10 @@ bool Tseitin::cnfize( Enode * formula, map< enodeid_t, Enode * > & cnf_cache )
       // Push only if it is an unprocessed boolean operator
       //
       if ( enode->isBooleanOperator( )
-	&& egraph.valDupMap1( arg ) == NULL )
+        && egraph.valDupMap1( arg ) == NULL )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
       //
       // If it is an atom (either boolean or theory) just
@@ -82,7 +82,7 @@ bool Tseitin::cnfize( Enode * formula, map< enodeid_t, Enode * > & cnf_cache )
       //
       else if ( arg->isAtom( ) )
       {
-	egraph.storeDupMap1( arg, arg );
+        egraph.storeDupMap1( arg, arg );
       }
     }
     //
@@ -120,62 +120,62 @@ bool Tseitin::cnfize( Enode * formula, map< enodeid_t, Enode * > & cnf_cache )
       //
       if ( formula != enode )
       {
-	sprintf( def_name, CNF_STR, formula->getId( ), enode->getId( ) );
-	egraph.newSymbol( def_name, sstore.mkBool( ) );
-	arg_def = egraph.mkVar( def_name );
+        sprintf( def_name, CNF_STR, formula->getId( ), enode->getId( ) );
+        egraph.newSymbol( def_name, sstore.mkBool( ) );
+        arg_def = egraph.mkVar( def_name );
 #ifdef PRODUCE_PROOF
-	if ( config.produce_inter > 0 )
-	{
-	  // Tag Positive and negative literals
-	  egraph.tagIFormula( arg_def
-	                    , egraph.getIPartitions( enode ) );
-	  egraph.tagIFormula( egraph.mkNot( egraph.cons( arg_def ) )
-	                    , egraph.getIPartitions( enode ) );
-	}
+        if ( config.produce_inter > 0 )
+        {
+          // Tag Positive and negative literals
+          egraph.tagIFormula( arg_def
+                            , egraph.getIPartitions( enode ) );
+          egraph.tagIFormula( egraph.mkNot( egraph.cons( arg_def ) )
+                            , egraph.getIPartitions( enode ) );
+        }
 #endif
       }
 #ifdef PRODUCE_PROOF
       uint64_t partitions = 0;
       if ( config.produce_inter > 0 )
       {
-	partitions = egraph.getIPartitions( enode );
-	assert( partitions != 0 );
+        partitions = egraph.getIPartitions( enode );
+        assert( partitions != 0 );
       }
 #endif
       //
       // Handle boolean operators
       //
       if ( enode->isAnd( ) )
-	cnfizeAnd( new_arg_list, arg_def 
+        cnfizeAnd( new_arg_list, arg_def
 #ifdef PRODUCE_PROOF
-	, partitions
-#endif	    
+        , partitions
+#endif
         );
       else if ( enode->isOr( ) )
-	cnfizeOr( new_arg_list, arg_def
+        cnfizeOr( new_arg_list, arg_def
 #ifdef PRODUCE_PROOF
-	, partitions
-#endif	    
+        , partitions
+#endif
         );
       else if ( enode->isIff( ) )
-	cnfizeIff( new_arg_list, arg_def
+        cnfizeIff( new_arg_list, arg_def
 #ifdef PRODUCE_PROOF
-	, partitions
-#endif	    
+        , partitions
+#endif
         );
       else if ( enode->isXor( ) )
-	cnfizeXor( new_arg_list, arg_def 
+        cnfizeXor( new_arg_list, arg_def
 #ifdef PRODUCE_PROOF
-	, partitions
-#endif	    
+        , partitions
+#endif
         );
       else
       {
-	opensmt_error2( "operator not handled ", enode->getCar( ) );
+        opensmt_error2( "operator not handled ", enode->getCar( ) );
       }
 
       if ( arg_def != NULL )
-	result = arg_def;
+        result = arg_def;
     }
 
     assert( egraph.valDupMap1( enode ) == NULL );
@@ -201,7 +201,7 @@ bool Tseitin::cnfize( Enode * formula, map< enodeid_t, Enode * > & cnf_cache )
 
 void Tseitin::cnfizeAnd( Enode * list, Enode * arg_def
 #ifdef PRODUCE_PROOF
-    , const uint64_t partitions 
+    , const uint64_t partitions
 #endif
     )
 {
@@ -216,7 +216,7 @@ void Tseitin::cnfizeAnd( Enode * list, Enode * arg_def
       little_clause.push_back( arg );
 #ifdef PRODUCE_PROOF
       if ( config.produce_inter > 0 )
-	solver.addSMTClause( little_clause, partitions );
+        solver.addSMTClause( little_clause, partitions );
       else
 #endif
       solver.addSMTClause( little_clause );        // Adds a little clause to the solver
@@ -242,7 +242,7 @@ void Tseitin::cnfizeAnd( Enode * list, Enode * arg_def
       big_clause   .push_back( toggleLit( arg ) );
 #ifdef PRODUCE_PROOF
       if ( config.produce_inter > 0 )
-	solver.addSMTClause( little_clause, partitions );
+        solver.addSMTClause( little_clause, partitions );
       else
 #endif
       solver       .addSMTClause( little_clause );        // Adds a little clause to the solver
@@ -250,7 +250,7 @@ void Tseitin::cnfizeAnd( Enode * list, Enode * arg_def
     }
 #ifdef PRODUCE_PROOF
       if ( config.produce_inter > 0 )
-	solver.addSMTClause( big_clause, partitions );
+        solver.addSMTClause( big_clause, partitions );
       else
 #endif
     solver.addSMTClause( big_clause );                    // Adds a big clause to the solver
@@ -259,7 +259,7 @@ void Tseitin::cnfizeAnd( Enode * list, Enode * arg_def
 
 void Tseitin::cnfizeOr( Enode * list, Enode * arg_def
 #ifdef PRODUCE_PROOF
-    , const uint64_t partitions 
+    , const uint64_t partitions
 #endif
     )
 {
@@ -275,10 +275,10 @@ void Tseitin::cnfizeOr( Enode * list, Enode * arg_def
     }
 #ifdef PRODUCE_PROOF
       if ( config.produce_inter > 0 )
-	solver.addSMTClause( big_clause, partitions );
+        solver.addSMTClause( big_clause, partitions );
       else
 #endif
-    solver.addSMTClause( big_clause );        
+    solver.addSMTClause( big_clause );
   }
   else
   {
@@ -300,7 +300,7 @@ void Tseitin::cnfizeOr( Enode * list, Enode * arg_def
       big_clause   .push_back( arg );
 #ifdef PRODUCE_PROOF
       if ( config.produce_inter > 0 )
-	solver.addSMTClause( little_clause, egraph.getIPartitions( arg_def ) );
+        solver.addSMTClause( little_clause, egraph.getIPartitions( arg_def ) );
       else
 #endif
       solver       .addSMTClause( little_clause );        // Adds a little clause to the solver
@@ -317,7 +317,7 @@ void Tseitin::cnfizeOr( Enode * list, Enode * arg_def
 
 void Tseitin::cnfizeXor( Enode * list, Enode * arg_def
 #ifdef PRODUCE_PROOF
-    , const uint64_t partitions 
+    , const uint64_t partitions
 #endif
     )
 {
@@ -336,7 +336,7 @@ void Tseitin::cnfizeXor( Enode * list, Enode * arg_def
       solver.addSMTClause( clause, partitions );
     else
 #endif
-    solver.addSMTClause( clause );        
+    solver.addSMTClause( clause );
 
     clause.pop_back( );
     clause.pop_back( );
@@ -348,7 +348,7 @@ void Tseitin::cnfizeXor( Enode * list, Enode * arg_def
       solver.addSMTClause( clause, partitions );
     else
 #endif
-    solver.addSMTClause( clause );        
+    solver.addSMTClause( clause );
   }
   else
   {
@@ -371,7 +371,7 @@ void Tseitin::cnfizeXor( Enode * list, Enode * arg_def
     clause.push_back( arg1 );
 #ifdef PRODUCE_PROOF
     if ( config.produce_inter > 0 )
-      solver.addSMTClause( clause, partitions ); 
+      solver.addSMTClause( clause, partitions );
     else
 #endif
     solver.addSMTClause( clause ); // Adds a little clause to the solver
@@ -383,7 +383,7 @@ void Tseitin::cnfizeXor( Enode * list, Enode * arg_def
     clause.push_back( toggleLit( arg1 ) );
 #ifdef PRODUCE_PROOF
     if ( config.produce_inter > 0 )
-      solver.addSMTClause( clause, partitions ); 
+      solver.addSMTClause( clause, partitions );
     else
 #endif
     solver.addSMTClause( clause ); // Adds a little clause to the solver
@@ -419,7 +419,7 @@ void Tseitin::cnfizeXor( Enode * list, Enode * arg_def
 
 void Tseitin::cnfizeIff( Enode * list, Enode * arg_def
 #ifdef PRODUCE_PROOF
-    , const uint64_t partitions 
+    , const uint64_t partitions
 #endif
     )
 {
@@ -435,10 +435,10 @@ void Tseitin::cnfizeIff( Enode * list, Enode * arg_def
 #ifdef PRODUCE_PROOF
     if ( config.produce_inter > 0 )
       solver.addSMTClause( clause, partitions );
-	                         
+
     else
 #endif
-    solver.addSMTClause( clause );        
+    solver.addSMTClause( clause );
 
     clause.pop_back( );
     clause.pop_back( );
@@ -450,7 +450,7 @@ void Tseitin::cnfizeIff( Enode * list, Enode * arg_def
       solver.addSMTClause( clause, partitions );
     else
 #endif
-    solver.addSMTClause( clause );        
+    solver.addSMTClause( clause );
   }
   else
   {
@@ -460,7 +460,7 @@ void Tseitin::cnfizeIff( Enode * list, Enode * arg_def
     // <=>
     //
     // aux = ( -aux |  a_0 | -a_1 ) & ( -aux | -a_0 |  a_1 ) &
-    //	   (  aux |  a_0 |  a_1 ) & (  aux | -a_0 | -a_1 )
+    //     (  aux |  a_0 |  a_1 ) & (  aux | -a_0 | -a_1 )
     //
     assert( list->getArity( ) == 2 );
     Enode * arg0 = list->getCar( );
@@ -541,7 +541,7 @@ void Tseitin::cnfizeIfthenelse( Enode * list, Enode * arg_def
       solver.addSMTClause( clause, partitions );
     else
 #endif
-    solver.addSMTClause( clause );        
+    solver.addSMTClause( clause );
 
     clause.pop_back( );
     clause.pop_back( );
@@ -553,7 +553,7 @@ void Tseitin::cnfizeIfthenelse( Enode * list, Enode * arg_def
       solver.addSMTClause( clause, partitions );
     else
 #endif
-    solver.addSMTClause( clause );        
+    solver.addSMTClause( clause );
   }
   else
   {

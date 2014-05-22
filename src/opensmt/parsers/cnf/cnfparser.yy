@@ -19,10 +19,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 %{
 
-#include "Global.h"
+#include "common/Global.h"
 
-#include "Egraph.h"
-#include "OpenSMTContext.h"
+#include "egraph/Egraph.h"
+#include "api/OpenSMTContext.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
@@ -60,27 +60,27 @@ void cnferror( const char * s )
 
 %%
 
-top: header formula 
+top: header formula
    ;
 
 header: TK_P TK_CNF TK_NUM TK_NUM
-	{ 
+        {
           const int n_vars = atoi( $3 );
           free( $3 ); free( $4 );
-	  int i;
-	  vector< unsigned > tmp;
+          int i;
+          vector< unsigned > tmp;
           char buf[ 16 ];
-	  for ( i = 1 ; i <= n_vars ; i ++ )
-	  {
-	    sprintf( buf, "%d", i ); 
-	    /*
-	    tmp.push_back( DTYPE_BOOL );
-	    parser_ctx->newSymbol( buf , tmp );
+          for ( i = 1 ; i <= n_vars ; i ++ )
+          {
+            sprintf( buf, "%d", i );
+            /*
+            tmp.push_back( DTYPE_BOOL );
+            parser_ctx->newSymbol( buf , tmp );
             */
-	    Snode * s = parser_ctx->mkSortBool( );
+            Snode * s = parser_ctx->mkSortBool( );
             parser_ctx->DeclareFun( buf, s );
-	  }
-	}
+          }
+        }
       ;
 
 formula: formula clause
@@ -93,16 +93,16 @@ clause: literal_list TK_END
         { $$ = parser_ctx->mkOr( $1 ); }
       ;
 
-literal_list: literal literal_list 
-	      { $$ = parser_ctx->mkCons( $1, $2 ); }
+literal_list: literal literal_list
+              { $$ = parser_ctx->mkCons( $1, $2 ); }
             | literal
               { $$ = parser_ctx->mkCons( $1 ); }
             ;
 
 literal: TK_NOT TK_NUM
-         { $$ = parser_ctx->mkNot( parser_ctx->mkCons( parser_ctx->mkVar( $2 ) ) ); free( $2 ); } 
+         { $$ = parser_ctx->mkNot( parser_ctx->mkCons( parser_ctx->mkVar( $2 ) ) ); free( $2 ); }
        | TK_NUM
-         { $$ = parser_ctx->mkVar( $1 ); free( $1 ); } 
+         { $$ = parser_ctx->mkVar( $1 ); free( $1 ); }
        ;
 
 %%

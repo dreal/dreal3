@@ -20,9 +20,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TSOLVER_H
 #define TSOLVER_H
 
-#include "Enode.h"
-#include "SMTConfig.h"
-#include "SolverTypes.h"
+#include "egraph/Enode.h"
+#include "smtsolvers/SMTConfig.h"
+#include "minisat/core/SolverTypes.h"
 
 class SimpSMTSolver;
 class Egraph;
@@ -61,9 +61,9 @@ struct TSolverStats
       os << "# Conflicts sent...........: " << conflicts_sent << endl;
       if ( conflicts_sent > 0 )
       {
-	os << "# Average conflict size....: " << avg_conf_size / (float)conflicts_sent << endl;
-	os << "# Max conflict size........: " << max_conf_size << endl;
-	os << "# Min conflict size........: " << min_conf_size << endl;
+        os << "# Average conflict size....: " << avg_conf_size / (float)conflicts_sent << endl;
+        os << "# Max conflict size........: " << max_conf_size << endl;
+        os << "# Min conflict size........: " << min_conf_size << endl;
       }
     }
     if ( sat_calls > 0 )
@@ -73,17 +73,17 @@ struct TSolverStats
       os << "# Reasons sent.............: " << reasons_sent << endl;
       if ( reasons_sent > 0 )
       {
-	os << "# Average reason size......: " << avg_reas_size / (float)reasons_sent << endl;
-	os << "# Max reason size..........: " << max_reas_size << endl;
-	os << "# Min reason size..........: " << min_reas_size << endl;
+        os << "# Average reason size......: " << avg_reas_size / (float)reasons_sent << endl;
+        os << "# Max reason size..........: " << max_reas_size << endl;
+        os << "# Min reason size..........: " << min_reas_size << endl;
       }
       os << "# SOD done.................: " << sod_done << endl;
       os << "# SOD sent.................: " << sod_sent << endl;
       if ( sod_sent > 0 )
       {
-	os << "# Average reason size......: " << avg_reas_size / (float)sod_sent << endl;
-	os << "# Max reason size..........: " << max_reas_size << endl;
-	os << "# Min reason size..........: " << min_reas_size << endl;
+        os << "# Average reason size......: " << avg_reas_size / (float)sod_sent << endl;
+        os << "# Max reason size..........: " << max_reas_size << endl;
+        os << "# Min reason size..........: " << min_reas_size << endl;
       }
     }
   }
@@ -150,12 +150,12 @@ public:
 
   OrdinaryTSolver ( const int           i
                   , const char *        n
-		  , SMTConfig &         c
-		  , Egraph &            e
-		  , SStore &            t
-		  , vector< Enode * > & x
-		  , vector< Enode * > & d
-		  , vector< Enode * > & s )
+                  , SMTConfig &         c
+                  , Egraph &            e
+                  , SStore &            t
+                  , vector< Enode * > & x
+                  , vector< Enode * > & d
+                  , vector< Enode * > & s )
     : TSolver     ( i, n, c )
     , egraph      ( e )
     , sstore      ( t )
@@ -185,7 +185,7 @@ public:
 
   CoreTSolver ( const int    i
               , const char * n
-	      , SMTConfig &  c )
+              , SMTConfig &  c )
     : TSolver         ( i, n, c )
     , deductions_next ( 0 )
     , solver          ( NULL )

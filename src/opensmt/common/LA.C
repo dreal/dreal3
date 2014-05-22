@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "LA.h"
+#include "common/LA.h"
 
 //
 // Scan the enode and prepare the polynome

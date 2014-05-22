@@ -20,22 +20,22 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef LA_H
 #define LA_H
 
-#include "Egraph.h"
+#include "egraph/Egraph.h"
 
 class LAExpression
 {
 public:
 
-  LAExpression  ( )           
+  LAExpression  ( )
     : r         ( UNDEF )
-  { 
+  {
     polynome[ 0 ] = 0;
   }
 
-  LAExpression  ( Enode * e ) 
+  LAExpression  ( Enode * e )
     : r         ( e->isEq( ) ? EQ : e->isLeq( ) ? LEQ : UNDEF )
-  { 
-    initialize( e ); 
+  {
+    initialize( e );
   }
 
   inline bool              isTrue     ( ) { return polynome.size( ) == 1 && ( r == EQ ? polynome[ 0 ] == 0 : polynome[ 0 ] <= 0 ); }
@@ -66,9 +66,9 @@ public:
   // For Reals we assume that the first coeffient is 1 or -1
   // For Integers we don't care
   //
-  inline bool isCanonized ( ) 
-  { 
-    if ( polynome.size( ) == 1 ) return true; 
+  inline bool isCanonized ( )
+  {
+    if ( polynome.size( ) == 1 ) return true;
     polynome_t::iterator it = polynome.begin( );
     if ( it->first == 0 ) it ++;
     Enode * var = it->first;
@@ -80,7 +80,7 @@ private:
   typedef enum { UNDEF, EQ, LEQ } la_relation_t;
 
   polynome_t          polynome;            // Enode --> coefficient (NULL for constant)
-  const la_relation_t r;	           // Arithmetic relation
+  const la_relation_t r;                   // Arithmetic relation
   bool                integers;            // If we need reasoning on the integers
   //
   // Friend methods
@@ -108,7 +108,7 @@ private:
     //
     // Variable not present in q, just return
     //
-    LAExpression::polynome_t::iterator qit = poly_q.find( var ); 
+    LAExpression::polynome_t::iterator qit = poly_q.find( var );
     if ( qit == poly_q.end( ) )
       return;
     Real icoeff = (-1)/(qit->second);
@@ -120,7 +120,7 @@ private:
     qit = poly_q.begin( );
     pit = poly_p.begin( );
     bool done = false;
-    while ( !done ) 
+    while ( !done )
     {
       //
       // Case 1, same variable. Sum them
@@ -128,30 +128,30 @@ private:
       bool incp = false, incq = false;
       if ( qit->first == pit->first )
       {
-	qit->second = qit->second * icoeff + pit->second;
-	assert( qit->first != var || qit->second == 0 );
-	incp = true;
-	incq = true;
+        qit->second = qit->second * icoeff + pit->second;
+        assert( qit->first != var || qit->second == 0 );
+        incp = true;
+        incq = true;
       }
       //
       // Case 2, not present in p
       //
       else if ( qit->first < pit->first )
       {
-	qit->second *= icoeff;
-	incq = true;
+        qit->second *= icoeff;
+        incq = true;
       }
       //
       // Case 3, not present in q
       //
       else
       {
-	to_add.push_back( pit );
-	incp = true;
+        to_add.push_back( pit );
+        incp = true;
       }
 
       if ( qit->first != 0 && qit->second == 0 )
-	to_remove.push_back( qit );
+        to_remove.push_back( qit );
 
       if ( incp ) pit ++;
       if ( incq ) qit ++;
@@ -160,16 +160,16 @@ private:
       //
       if ( qit == poly_q.end( ) )
       {
-	for ( ; pit != poly_p.end( ) ; pit ++ )
-	  to_add.push_back( pit );
-	done = true;
+        for ( ; pit != poly_p.end( ) ; pit ++ )
+          to_add.push_back( pit );
+        done = true;
       }
       if ( pit == poly_p.end( ) )
       {
-	for ( ; qit != poly_q.end( ) ; qit ++ )
-	  qit->second *= icoeff;
+        for ( ; qit != poly_q.end( ) ; qit ++ )
+          qit->second *= icoeff;
 
-	done = true;
+        done = true;
       }
     }
     //
