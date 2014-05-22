@@ -31,3 +31,4 @@ add_library(realpaver
   rp_union_interval.cpp
   rp_variable.cpp
   rp_verification.cpp)
+target_link_libraries(realpaver util)
