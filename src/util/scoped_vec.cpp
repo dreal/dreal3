@@ -46,6 +46,12 @@ void scoped_vec::pop() {
     unsigned cur_size = m_vec.size();
     while (cur_size-- > prev_size) { m_vec.pop_back(); }
 }
+scoped_vec::reference scoped_vec::operator[] (size_type n) {
+    return m_vec[n];
+}
+scoped_vec::const_reference scoped_vec::operator[] (size_type n) const {
+    return m_vec[n];
+}
 std::ostream & operator<<(std::ostream & out, scoped_vec const & s) {
     for (auto const & l : s) {
         stringstream ss;
