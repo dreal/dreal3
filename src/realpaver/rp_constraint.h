@@ -36,6 +36,7 @@ typedef struct
   /* functional view of the constraint: func relfunc 0 */
   rp_expression func;
   int relfunc;
+  bool used;
 }
 rp_ctr_num_def;
 
@@ -49,6 +50,7 @@ typedef rp_ctr_num_def * rp_ctr_num;
 #define rp_ctr_num_arity(c)    rp_expression_arity((c)->func)
 #define rp_ctr_num_var(c,i)    rp_expression_var((c)->func,i)
 #define rp_ctr_num_occur(c,i)  rp_expression_occur_var((c)->func,i)
+#define rp_ctr_num_used(c)     (c)->used
 
 /* Creation of the numerical constraint (l rel r) */
 void rp_ctr_num_create (rp_ctr_num * c,

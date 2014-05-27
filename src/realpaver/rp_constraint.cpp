@@ -68,6 +68,7 @@ void rp_ctr_num_create(rp_ctr_num * c,
   rp_expression_create(&rp_ctr_num_left(*c),l);
   rp_expression_create(&rp_ctr_num_right(*c),r);
   rp_ctr_num_rel(*c) = rel;
+  rp_ctr_num_used(*c) = 0;
 }
 
 /* Destruction */
@@ -82,6 +83,7 @@ void rp_ctr_num_destroy(rp_ctr_num * c)
 /* Returns true if no point of b is solution of c */
 int rp_ctr_numeq_unfeasible(rp_ctr_num c, rp_box b)
 {
+  rp_ctr_num_used(c) = 1;
   int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
       (!rp_expression_eval(rp_ctr_num_right(c),b)))
@@ -103,6 +105,7 @@ int rp_ctr_numeq_unfeasible(rp_ctr_num c, rp_box b)
 /* Returns true if no point of b is solution of c */
 int rp_ctr_numsup_unfeasible(rp_ctr_num c, rp_box b)
 {
+  rp_ctr_num_used(c) = 1;
   int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
       (!rp_expression_eval(rp_ctr_num_right(c),b)))
@@ -122,6 +125,7 @@ int rp_ctr_numsup_unfeasible(rp_ctr_num c, rp_box b)
 /* Returns true if no point of b is solution of c */
 int rp_ctr_numinf_unfeasible(rp_ctr_num c, rp_box b)
 {
+  rp_ctr_num_used(c) = 1;
   int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
       (!rp_expression_eval(rp_ctr_num_right(c),b)))
@@ -162,6 +166,7 @@ int rp_ctr_num_unfeasible(rp_ctr_num c, rp_box b)
 /* Returns true if all the points of b are solutions of c */
 int rp_ctr_numeq_inner(rp_ctr_num c, rp_box b)
 {
+  rp_ctr_num_used(c) = 1;
   int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b))||
       (!rp_expression_eval(rp_ctr_num_right(c),b)))
@@ -182,6 +187,7 @@ int rp_ctr_numeq_inner(rp_ctr_num c, rp_box b)
 /* Returns true if all the points of b are solutions of c */
 int rp_ctr_numsup_inner(rp_ctr_num c, rp_box b)
 {
+  rp_ctr_num_used(c) = 1;
   int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
       (!rp_expression_eval(rp_ctr_num_right(c),b)))
@@ -201,6 +207,7 @@ int rp_ctr_numsup_inner(rp_ctr_num c, rp_box b)
 /* Returns true if all the points of b are solutions of c */
 int rp_ctr_numinf_inner(rp_ctr_num c, rp_box b)
 {
+  rp_ctr_num_used(c) = 1;
   int res;
   if (!(rp_expression_eval(rp_ctr_num_left(c),b))||
       !(rp_expression_eval(rp_ctr_num_right(c),b)))
@@ -260,6 +267,11 @@ void rp_ctr_num_display(FILE* out, rp_ctr_num c,
   }
   rp_expression_display(out,rp_ctr_num_right(c),var,digits,
                         RP_INTERVAL_MODE_BOUND);
+  if ( rp_ctr_num_used(c) ) {
+      fprintf(out, " used");
+  } else {
+      fprintf(out, " NOT used");
+  }
 }
 
 /* Creation of an empty piecewise constraint for variable v */
