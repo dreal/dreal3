@@ -570,7 +570,7 @@ module Basic = struct
                            out
                            xs
     | Num n ->
-      let str_n = Printf.sprintf "%f" n in
+      let str_n = Printf.sprintf "%g" n in
       let str_n' =
         if String.ends_with str_n "." then
           str_n ^ "0"
@@ -1168,9 +1168,9 @@ module Hybrid = struct
     let ginvs' = List.map (fun ginv -> Basic.preprocess_formula subst ginv) ginvs in
     make (vm, mm', iid, init_formula', goals', ginvs')
 
-  let adjacent mode_id1 mode_id2 h  : bool = 
+  let adjacent mode_id1 mode_id2 h  : bool =
     let mode1 = Map.find mode_id1 h.modemap in
-    Map.mem mode_id2 mode1.jumpmap 
+    Map.mem mode_id2 mode1.jumpmap
 
   let print out (hm : t) =
     let id_formula_print out (id, f) =
