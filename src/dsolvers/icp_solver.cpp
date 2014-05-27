@@ -175,11 +175,17 @@ rp_problem* icp_solver::create_rp_problem() {
         rp_union_copy(rp_variable_domain(*v), u);
         rp_union_destroy(&u);
 
-        rp_variable_set_real(*v);
-        rp_variable_precision(*v) = m_config.nra_precision;
+        if (key->hasSortInt()) {
+            rp_variable_set_integer(*v);
+            rp_variable_precision(*v) = m_config.nra_precision;
+        } else if (key->hasSortReal()) {
+            rp_variable_set_real(*v);
+            rp_variable_precision(*v) = m_config.nra_precision;
+        }
         m_enode_to_rp_id[key] = rp_id;
         DREAL_LOG_INFO << "icp_solver::create_rp_problem:\t"
                        << "key: " << setfill(' ') << setw(15) << name << ", "
+                       << "sort: " << setfill(' ') << setw(10) << key->getCar()->getSort() << ", "
                        << "value : " << interval(lb, ub)
                        << "prec : " << m_config.nra_precision << ", "
                        << "rp_id: " << setw(4) << rp_id;
