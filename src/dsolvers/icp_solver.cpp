@@ -531,8 +531,7 @@ bool icp_solver::solve() {
     if (m_config.nra_proof) { output_problem(); }
     if (rp_box_empty(rp_problem_box(*m_problem))) {
         DREAL_LOG_INFO << "icp_solver::solve: Unfeasibility detected before solving";
-        m_explanation.clear();
-        copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
+        build_explanation();
         return false;
     } else {
         rp_box b = compute_next();
@@ -570,8 +569,7 @@ bool icp_solver::solve() {
         } else {
             /* UNSAT */
             DREAL_LOG_INFO << "icp_solver:: UNSAT";
-            m_explanation.clear();
-            copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
+            build_explanation();
             return false;
         }
     }
@@ -665,8 +663,8 @@ bool icp_solver::prop() {
     if (!result) {
         // UNSAT
         if (m_config.nra_proof) { m_config.nra_proof_out << "[conflict detected]" << endl; }
-        m_explanation.clear();
-        copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
+        DREAL_LOG_INFO << "[conflict detected]";
+        build_explanation();
     } else {
         // SAT, Update Env
         rp_box const b = m_boxes.get();
@@ -679,6 +677,26 @@ bool icp_solver::prop() {
         if (m_config.nra_proof) { m_config.nra_proof_out << "HOLE" << endl; }
     }
     return result;
+}
+
+void icp_solver::build_explanation() {
+    m_explanation.clear();
+    for (int i = 0; i < rp_problem_nctr(*m_problem); i++) {
+        rp_constraint c = rp_problem_ctr(*m_problem, i);
+        assert(rp_constraint_type(c) == RP_CONSTRAINT_NUMERICAL);
+        rp_ctr_num cnum = rp_constraint_num(c);
+        if (rp_ctr_num_used(cnum)) {
+            m_explanation.push_back(m_stack[i]);
+            DREAL_LOG_INFO << "ADDED TO EXPLANATION: " << m_stack[i];
+        }
+#ifdef ODE_ENABLED
+        else if (m_stack[i]->isIntegral() || m_stack[i]->isForallT()) {
+        m_explanation.push_back(m_stack[i]);
+        DREAL_LOG_INFO << "ADDED TO EXPLANATION (ODE): " << m_stack[i];
+        }
+#endif
+    }
+//  copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
 }
 
 #ifdef ODE_ENABLED

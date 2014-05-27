@@ -61,6 +61,7 @@ private:
 //    bool        updateValue(Enode * e, double lb, double ub);
     bool        prop_with_ODE(); // propagate with ODE (only in complete check)
     rp_box      compute_next(); // computation of the next solution
+    void        build_explanation();
     void        output_problem() const;
     void        display_box(ostream& out, rp_box b, int digits, int mode, bool exact) const;
     void        display_interval(ostream & out, rp_interval i, int digits, bool exact) const;
