@@ -113,7 +113,7 @@ find_package(FLEX REQUIRED)
 # External: FILIB++
 ################################################################
 ExternalProject_Add(FILIBXX
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/filibxx
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/filibxx
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
@@ -127,7 +127,7 @@ ExternalProject_Add(FILIBXX
 # External: CAPD-DynSys-3.0
 ################################################################
 ExternalProject_Add(CAPD
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/capd_dynsys
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
 # GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-4.0.git
   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
   GIT_TAG origin/master
@@ -149,7 +149,7 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 ################################################################
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 ExternalProject_Add(LIBUNWIND
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/libunwind
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/libunwind.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
@@ -164,11 +164,11 @@ endif()
 # External: gflags (Google Flags)
 ################################################################
 ExternalProject_Add(GFLAGS
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/gflags
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/gflags.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
+  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${DREAL_CXX_FLAGS} -fPIC -DNDEBUG" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
@@ -179,11 +179,11 @@ set(EXTRA_LIBS ${EXTRA_LIBS} "gflags")
 # External: glog (Google Log)
 ################################################################
 ExternalProject_Add(GLOG
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/glog
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/glog.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --disable-shared --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-gflags=${CMAKE_CURRENT_BINARY_DIR}
+  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --disable-shared CXX_FLAGS=-DNDEBUG CFLAGS=-DNDEBUG --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-gflags=${CMAKE_CURRENT_BINARY_DIR}
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
@@ -194,18 +194,16 @@ set(EXTRA_LIBS ${EXTRA_LIBS} "glog")
 # External: json11 (Dropbox json11)
 ################################################################
 ExternalProject_Add(JSON11
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/json11
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/json11.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
   CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
- # INSTALL_COMMAND make install
+  INSTALL_COMMAND make install
 )
 set(EXTRA_LIBS ${EXTRA_LIBS} "-ljson11")
-
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/external/json11/src/JSON11")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 set(EXTRA_LIBS ${EXTRA_LIBS} "libunwind.a")
@@ -230,7 +228,6 @@ endif()
 # CAPD LIB
 ################################################################
 set(EXTRA_LIBS ${EXTRA_LIBS} "-lcapddynsysfacade -lcapdcovrel -lcapddiffIncl -lcapdpoincare -lcapddiffAlgebra -lcapddynsys -lcapdmap -lcapddynset -lcapdgeomset -lcapdalgfacade -lcapdmatrixAlgorithms -lcapdvectalg -lprim -lcapdintervals -lcapdrounding -lcapdbasicalg -lcapdauxil -lcapdalglib")
-
 set(ODE_ENABLED TRUE)
 
 ################################################################
