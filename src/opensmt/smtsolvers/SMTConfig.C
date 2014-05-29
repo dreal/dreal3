@@ -19,14 +19,11 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include <sstream>
 #include <string>
-#include <gflags/gflags.h>
 #include "SMTConfig.h"
 #include "version.h"
-#include "util/git_sha1.h"
 #include "util/logging.h"
 
 using std::string;
-using std::stringstream;
 
 DEFINE_double(precision,          0.0, "precision");
 DEFINE_bool  (delta,            false, "use delta");
@@ -124,11 +121,6 @@ SMTConfig::initializeConfig( )
   nra_use_delta_heuristic      = false;
   nra_short_sat                = false;
   nra_bmc_heuristic            = "";
-
-  stringstream ss;
-  ss << DREAL_VERSION_MAJOR << "." << DREAL_VERSION_MINOR
-     << " (commit " << string(getGitSHA1()).substr(0, 12) << ")";
-  gflags::SetVersionString(ss.str());
 }
 
 void SMTConfig::parseConfig ( char * f )
@@ -348,11 +340,9 @@ void SMTConfig::printConfig ( ostream & out )
 }
 
 void
-SMTConfig::parseCMDLine( int argc
-                       , char * argv[ ] )
+SMTConfig::parseCMDLine( int /* argc */
+                       , char * /* argv */ [] )
 {
-  gflags::SetUsageMessage(argv[0]);
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
   nra_precision           = FLAGS_precision;
   nra_delta_test          = FLAGS_delta;
   nra_use_delta_heuristic = FLAGS_delta_heuristic;
@@ -369,9 +359,10 @@ SMTConfig::parseCMDLine( int argc
   nra_model               = FLAGS_model;
   nra_json                = FLAGS_visualize;
   nra_verbose             = FLAGS_verbose;
+
   if (nra_proof) {
       /* Open file stream */
-      nra_proof_out_name = string(argv[ argc - 1 ]) + ".proof";
+      nra_proof_out_name = string(filename) + ".proof";
       nra_proof_out.open (nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
       if(nra_proof_out.fail()) {
           cout << "Cannot create a file: " << nra_proof_out_name << endl;
@@ -379,10 +370,10 @@ SMTConfig::parseCMDLine( int argc
       }
   }
   if (nra_model) {
-      nra_model_out_name = string(argv[ argc - 1 ]) + ".model";
+      nra_model_out_name = string(filename) + ".model";
   }
   if (nra_json) {
-      string filename = string(argv[ argc - 1 ]) + ".json";
+      string filename = string(filename) + ".json";
       /* Open file stream */
       nra_json_out.open (filename.c_str(), std::ofstream::out | std::ofstream::trunc );
       if(nra_json_out.fail()) {

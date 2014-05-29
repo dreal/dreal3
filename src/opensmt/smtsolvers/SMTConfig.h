@@ -21,10 +21,13 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define SMTCONFIG_H
 
 #include <fstream>
+#include <iostream>
+#include <sys/stat.h>
 #include "common/Global.h"
 #include "minisat/core/SolverTypes.h"
 
 using std::ofstream;
+using std::ifstream;
 
 //
 // Holds informations about the configuration of the solver
@@ -36,11 +39,19 @@ struct SMTConfig
   //
   SMTConfig ( int    argc
             , char * argv[ ] )
-    : filename ( argv[ argc - 1 ] )
-    , rocset   ( false )
+    : rocset   ( false )
     , docset   ( false )
   {
     initializeConfig( );
+    if (argc > 1) {
+        filename = argv[argc - 1];
+        struct stat s;
+        if(stat(filename,&s) != 0 || !(s.st_mode & S_IFREG)) {
+            opensmt_error( "can't open file" );
+        }
+    } else {
+        filename = "output";
+    }
     // Parse command-line options
     parseCMDLine( argc, argv );
   }

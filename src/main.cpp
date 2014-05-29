@@ -28,10 +28,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <csignal>
 #include <iostream>
 #include <glog/logging.h>
+#include <gflags/gflags.h>
+#include "util/git_sha1.h"
 
 #if defined(__linux__)
 #include <fpu_control.h>
 #endif
+
+using std::stringstream;
 
 namespace opensmt {
 
@@ -56,7 +60,19 @@ OpenSMTContext * parser_ctx;
 
 int main( int argc, char * argv[] )
 {
+  // Init Google Logging
   google::InitGoogleLogging(argv[0]);
+
+  // Set up version, usage message
+  stringstream ss;
+  ss << DREAL_VERSION_MAJOR << "." << DREAL_VERSION_MINOR
+     << " (commit " << string(dreal::getGitSHA1()).substr(0, 12) << ")";
+  gflags::SetVersionString(ss.str());
+  gflags::SetUsageMessage(argv[0]);
+
+  // Parse cmd-line, it will update argc and argv
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+
   opensmt::stop = false;
   // Allocates Command Handler (since SMT-LIB 2.0)
   OpenSMTContext context( argc, argv );
@@ -69,17 +85,6 @@ int main( int argc, char * argv[] )
   assert( filename );
   // Accepts file from stdin if nothing specified
   FILE * fin = NULL;
-  // Print help if required
-  if ( strcmp( filename, "--help" ) == 0
-    || strcmp( filename, "-h" ) == 0 )
-  {
-    context.getConfig( ).printHelp( );
-    return 0;
-  }
-  // File must be last arg
-  if ( strncmp( filename, "--", 2 ) == 0
-    || strncmp( filename, "-", 1 ) == 0 )
-    opensmt_error( "input file must be last argument" );
   // Make sure file exists
   if ( argc == 1 )
     fin = stdin;
