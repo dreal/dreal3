@@ -20,5 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+namespace dreal {
 extern const char g_GIT_SHA1[];
 const char *getGitSHA1();
+}
