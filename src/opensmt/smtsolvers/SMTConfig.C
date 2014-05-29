@@ -373,9 +373,9 @@ SMTConfig::parseCMDLine( int /* argc */
       nra_model_out_name = string(filename) + ".model";
   }
   if (nra_json) {
-      string filename = string(filename) + ".json";
+      nra_json_out_name = string(filename) + ".json";
       /* Open file stream */
-      nra_json_out.open (filename.c_str(), std::ofstream::out | std::ofstream::trunc );
+      nra_json_out.open (nra_json_out_name.c_str(), std::ofstream::out | std::ofstream::trunc );
       if(nra_json_out.fail()) {
           cout << "Cannot create a file: " << filename << endl;
           exit( 1 );

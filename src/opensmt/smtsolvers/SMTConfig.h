@@ -193,7 +193,8 @@ struct SMTConfig
   ofstream     nra_proof_out;                 // file stream for proof
   string       nra_proof_out_name;            // filename for proof
   bool         nra_json;                      // --proof option
-  ofstream     nra_json_out;                  // file stream for proof
+  ofstream     nra_json_out;                  // file stream for json (visualization)
+  string       nra_json_out_name;             // filename for json (visualization)
   unsigned     nra_ODE_taylor_order;          // --ode-order option
   unsigned     nra_ODE_grid_size;             // --ode-grid option
   unsigned     nra_ODE_timeout;               // --ode-timeout option
