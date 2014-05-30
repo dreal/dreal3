@@ -45,7 +45,7 @@ Required Packages
  - [autoconf][autoconf], [automake][automake], [bison][bison],
    [cmake][cmake], [flex][flex], [git][git], [libtool][libtool], [make][make],
    [pkg-config][pkg-config]
- - [ocaml (>=4.0.0)][ocaml], [opam][opam], [ocaml-findlib][ocaml-findlib], [ocaml-batteries (>=2.0)][ocaml-batteries]
+ - [ocaml (>=4.01.0)][ocaml], [opam][opam], [ocaml-findlib][ocaml-findlib], [ocaml-batteries (>=2.0)][ocaml-batteries]
 
 [automake]: http://www.gnu.org/software/automake
 [autoconf]: http://www.gnu.org/software/autoconf

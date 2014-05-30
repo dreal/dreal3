@@ -87,6 +87,7 @@ system. Here are the recommended instructions for Ubuntu and OS X.
     sudo apt-get -qq install ocaml opam
     opam init
     eval `opam config env`
+    opam switch 4.01.0
     opam update
     opam install ocamlfind batteries oasis
 
