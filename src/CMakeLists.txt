@@ -147,7 +147,7 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 ################################################################
 # External: libunwind (only for Linux)
 ################################################################
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND ${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
 ExternalProject_Add(LIBUNWIND
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/libunwind.git
@@ -158,6 +158,7 @@ ExternalProject_Add(LIBUNWIND
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
 )
+set(EXTRA_LIBS ${EXTRA_LIBS} "libunwind.a")
 endif()
 
 ################################################################
@@ -204,10 +205,6 @@ ExternalProject_Add(JSON11
   INSTALL_COMMAND make install
 )
 set(EXTRA_LIBS ${EXTRA_LIBS} "-ljson11")
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-set(EXTRA_LIBS ${EXTRA_LIBS} "libunwind.a")
-endif()
 
 ################################################################
 # External: set up include dir and libpath
