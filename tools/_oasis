@@ -11,7 +11,7 @@ Library basic
   BuildTools: ocamlbuild
   BuildDepends: batteries
   NativeOpt:    -passopt -annot
-  Modules:    Type, Checker, Error
+  Modules:    Type, Checker, Error, Basic, Ode, Value, Vardecl, Vardeclmap, Jump, Jumpmap, Mode, Modemap, Hybrid, Id
 
 Library heuristic
   Path:       ./heuristic
