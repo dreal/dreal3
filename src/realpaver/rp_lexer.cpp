@@ -644,12 +644,39 @@ int rp_lexer_get_number(rp_lexer l)
   /* decimal part? */
   i = strlen(rp_lexer_text(l));
   rp_lexer_text(l)[i] = rp_stream_get_char(rp_lexer_input(l));
-  if (rp_lexer_text(l)[i]!='.')
-  {
-    /* integer */
-    rp_stream_unget_char(rp_lexer_input(l),rp_lexer_text(l)[i]);
-    rp_lexer_text(l)[i] = '\0';
-    return( rp_lexer_token(l)=RP_TOKEN_INTEGER );
+  if (rp_lexer_text(l)[i]!='.') {
+      if (toupper(rp_lexer_text(l)[i]) =='E') {
+          if (rp_lexer_end(l)) {
+              return( rp_lexer_stop(l,"exponent part of float unterminated"));
+          }
+          rp_lexer_text(l)[++i] = rp_stream_get_char(rp_lexer_input(l));
+
+          /* sign?*/
+          if ((rp_lexer_text(l)[i]=='+') || (rp_lexer_text(l)[i]=='-')) {
+              if (rp_lexer_end(l)) {
+                  return( rp_lexer_stop(l,"exponent part of float null") );
+              }
+              rp_lexer_text(l)[++i] = rp_stream_get_char(rp_lexer_input(l));
+          }
+
+          /* unsigned exponent */
+          if (!isdigit(rp_lexer_text(l)[i])) {
+              return( rp_lexer_stop(l,"exponent part of float null") );
+          }
+
+          /* Get the rest of the decimal part */
+          i++;
+          if (!rp_lexer_get_sequence(l,&(rp_lexer_text(l)[i]),
+                                     RP_LEXER_TOKLEN-i-1,isdigit)) {
+              return( rp_lexer_stop(l,"float too long") );
+          }
+          return( rp_lexer_token(l)=RP_TOKEN_FLOAT );
+      } else {
+          /* integer */
+          rp_stream_unget_char(rp_lexer_input(l),rp_lexer_text(l)[i]);
+          rp_lexer_text(l)[i] = '\0';
+          return( rp_lexer_token(l)=RP_TOKEN_INTEGER );
+      }
   }
 
   /* float, at least one digit in the decimal part */
