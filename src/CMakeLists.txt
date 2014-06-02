@@ -28,6 +28,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 if("${STATIC}" MATCHES "ON")
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     message(STATUS "Static linking of user binaries is not supported on Mac OS X. See https://developer.apple.com/library/mac/qa/qa1118/_index.html")
+    set(DREAL_EXTRA_LINKER_FLAGS "${DREAL_EXE_EXTRA_LINKER_FLAGS} -static-libgcc -static-libstdc++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
   else()
     set(DREAL_EXTRA_LINKER_FLAGS "${DREAL_EXTRA_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
     #  set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
@@ -109,6 +111,15 @@ SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 
+function(JOIN VALUES GLUE OUTPUT)
+  string (REGEX REPLACE "([^\\]|^);" "\\1${GLUE}" _TMP_STR "${VALUES}")
+  string (REGEX REPLACE "[\\](.)" "\\1" _TMP_STR "${_TMP_STR}") #fixes escaping
+  set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
+endfunction()
+
+JOIN("${CMAKE_CXX_FLAGS}" "," EXTERNAL_CXX_FLAGS)
+JOIN("${DREAL_EXTRA_LINKER_FLAGS}" "," EXTERNAL_LD_FLAGS)
+
 ################################################################
 # External: FILIB++
 ################################################################
@@ -117,7 +128,7 @@ ExternalProject_Add(FILIBXX
   GIT_REPOSITORY https://github.com/soonhokong/filibxx
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR}
+  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXX_FLAGS=${EXTERNAL_CXX_FLAGS}" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR}
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make -j install
@@ -132,7 +143,7 @@ ExternalProject_Add(CAPD
   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
+  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS}" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make -j install
@@ -153,7 +164,7 @@ ExternalProject_Add(LIBUNWIND
   GIT_REPOSITORY https://github.com/soonhokong/libunwind.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --prefix=${CMAKE_CURRENT_BINARY_DIR} --disable-minidebuginfo
+  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXX_FLAGS=${EXTERNAL_CXX_FLAGS}" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --disable-minidebuginfo
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
@@ -169,7 +180,7 @@ ExternalProject_Add(GFLAGS
   GIT_REPOSITORY https://github.com/soonhokong/gflags.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${DREAL_CXX_FLAGS} -fPIC -DNDEBUG" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
+  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS} -fPIC -DNDEBUG" "-DCMAKE_EXE_LINKER_FLAGS=${EXTERNAL_LD_FLAGS}" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
@@ -184,7 +195,7 @@ ExternalProject_Add(GLOG
   GIT_REPOSITORY https://github.com/soonhokong/glog.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --disable-shared CXX_FLAGS=-DNDEBUG CFLAGS=-DNDEBUG --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-gflags=${CMAKE_CURRENT_BINARY_DIR}
+  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --disable-shared "CXX_FLAGS=-DNDEBUG ${EXTERNAL_CXX_FLAGS}" CFLAGS=-DNDEBUG "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-gflags=${CMAKE_CURRENT_BINARY_DIR}
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
@@ -199,7 +210,7 @@ ExternalProject_Add(JSON11
   GIT_REPOSITORY https://github.com/soonhokong/json11.git
   GIT_TAG origin/master
   UPDATE_COMMAND git pull origin master
-  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
+  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS}" "-DCMAKE_EXE_LINKER_FLAGS=${EXTERNAL_LD_FLAGS}" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
