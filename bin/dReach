@@ -5,7 +5,7 @@ SCRIPT_PATH="$( cd "$( dirname "${SCRIPT_PATHNAME}" )" && pwd )"
 
 # TODO: Specify the paths for BMC tool and DREAL
 BMC=${SCRIPT_PATH}/bmc
-SOLVER=${SCRIPT_PATH}/solver
+SOLVER=${SCRIPT_PATH}/dReal
 
 #################################################################
 # USAGE
@@ -72,7 +72,7 @@ fi
 if [ ! -e "$SOLVER" ]
 then
     cat << EOF
-Error: Can't find solver. Please try "build.sh" first to compile it.
+Error: Can't find dReal. Please try "build.sh" first to compile it.
 EOF
     exit 1
 fi

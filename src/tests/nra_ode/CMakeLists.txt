@@ -1,4 +1,4 @@
-set(DREAL_BINARY ${DREAL_SOURCE_DIR}/../bin/solver)
+set(DREAL_BINARY ${DREAL_SOURCE_DIR}/../bin/dReal)
 file(GLOB_RECURSE NRA_INSTANCES ${DREAL_SOURCE_DIR}/tests/nra "*.smt2")
 list(SORT NRA_INSTANCES)
 FOREACH(instance ${NRA_INSTANCES})
