@@ -1077,7 +1077,7 @@ void rp_interval_sqrt(rp_interval result, rp_interval i)
     t = sqrt(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "rp_interval: " << "sqrt([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "sqrt([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1161,7 +1161,7 @@ void rp_interval_exp(rp_interval result, rp_interval i)
     t = exp(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "rp_interval: " << "exp([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "exp([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1184,7 +1184,7 @@ void rp_interval_log(rp_interval result, rp_interval i)
     t = log(t);
     rp_binf(result) = t.inf();
     rp_bsup(result) = t.sup();
-    DREAL_LOG_INFO << "rp_interval: " << "log([" << rp_binf(i) << ", " << rp_bsup(i) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "log([" << rp_binf(i) << ", " << rp_bsup(i) << "]) = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
     return;
 
@@ -1710,7 +1710,7 @@ void rp_interval_matan(rp_interval result, rp_interval x)
     if(rp_interval_contains(x, 0.0)) {
         rp_interval_hull(result, result, one);
     }
-    DREAL_LOG_INFO << "rp_interval: " << "matan([" << rp_binf(x) << ", " << rp_bsup(x) << "] = "
+    DREAL_LOG_INFO << "rp_interval: " << "matan([" << rp_binf(x) << ", " << rp_bsup(x) << "]) = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
 }
 
@@ -1928,7 +1928,7 @@ void rp_interval_nthroot(rp_interval result, rp_interval i, rp_interval n)
         }
     }
     DREAL_LOG_INFO << "rp_interval: " << "nthroot([" << rp_binf(i) << ", " << rp_bsup(i) << "], "
-                   << rp_binf(n) << ", " << rp_bsup(n) << "]) = "
+                   << "[" << rp_binf(n) << ", " << rp_bsup(n) << "]) = "
                    << "[" << rp_binf(result) << ", " << rp_bsup(result) << "]";
 }
 
