@@ -161,6 +161,7 @@ ode_solver::ode_solver(SMTConfig& c,
     DREAL_LOG_INFO << "ode_solver::ode_solver: diff_sys_backward : " << m_diff_sys_backward;
     for (auto ode_str : m_ode_list) {
         string const func_str = diff_par + diff_var + "fun:" + ode_str + ";";
+        DREAL_LOG_INFO << "ode_solver::ode_solver: func = " << func_str;
         m_funcs.push_back(IFunction(func_str));
     };
     m_inv = extract_invariants();
