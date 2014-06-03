@@ -57,7 +57,8 @@ void rp_constant_vector_display(FILE * out, void * x)
 {
   rp_constant c = (rp_constant)x;
   fprintf(out,"%s := ",rp_constant_name(c));
-  rp_interval_display_simple_nl(rp_constant_val(c));
+  rp_interval_display_simple_file(out, rp_constant_val(c));
+  fprintf(out, "\n");
 }
 
 /* Creation of v */
@@ -79,8 +80,8 @@ void rp_vector_constant_create(rp_vector * v)
 
 /* Returns the first occurrence of s in v, NULL if no occurrence*/
 rp_constant * rp_vector_constant_contains(rp_vector v,
-					  const char * s,
-					  int * index)
+                                          const char * s,
+                                          int * index)
 {
   if (rp_vector_contains(v,s,index))
   {
