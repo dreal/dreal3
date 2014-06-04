@@ -15,8 +15,8 @@ for((i=1; i <=10; i++)); do {
 	LEN=`expr 2 \* $LEN`
 
 	LINE="${f}"
-	for c in "-b" "-d" ""; do {
-#	for c in "-b"  ; do {
+#	for c in "-b" "-d" ""; do {
+	for c in "-b"  ; do {
 
 	CMD="dReach ${c} -k ${LEN} ${INST}"
 	echo $CMD

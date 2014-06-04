@@ -162,8 +162,11 @@ jump_list: /* */ { [] }
 ;
 
 jump:
-  formula IMPLY AT FNUM formula SEMICOLON { Jump.make ($1, int_of_float $4, $5) }
+    formula IMPLY AT FNUM formula SEMICOLON { Jump.make ($1, int_of_float $4, $5) }
+  | formula IMPLY precision AT FNUM formula SEMICOLON { Jump.makep ($1, $3, int_of_float $5, $6) }
 ;
+
+
 
 init: INIT COLON mode_formula { $3 }
 ;

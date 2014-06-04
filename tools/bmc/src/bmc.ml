@@ -89,6 +89,7 @@ let process_jump (modemap : Modemap.t) (q : Mode.id) (next_q : Mode.id) k : Basi
   let jump = Map.find next_q jumpmap in
   let mode_formula = make_mode_cond ~k:(k+1) ~q:next_q in
   let gurad' = Basic.subst_formula (make_variable k "_t") jump.guard in
+  let precision = Jump.precision jump in
   let used =
     Set.map
       (fun v ->
@@ -114,9 +115,10 @@ let process_jump (modemap : Modemap.t) (q : Mode.id) (next_q : Mode.id) k : Basi
     Basic.make_and (
       List.map
         (fun name ->
-           match (Set.mem name used) with
-           | false -> Basic.Eq (Basic.Var (make_variable k "_t" name), Basic.Var (make_variable (k+1) "_0" name))
-           | true -> Basic.True
+           match (Set.mem name used, precision) with
+           | (false, 0.0) -> Basic.Eq (Basic.Var (make_variable k "_t" name), Basic.Var (make_variable (k+1) "_0" name))
+           | (false, _) -> Basic.Eqp (Basic.Var (make_variable k "_t" name), Basic.Var (make_variable (k+1) "_0" name), precision)
+           | (true, _) -> Basic.True
         )
         !global_vars
     )
