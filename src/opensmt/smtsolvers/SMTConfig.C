@@ -41,6 +41,7 @@ DEFINE_bool  (proof,            false, "proof");
 DEFINE_bool  (model,            false, "model");
 DEFINE_bool  (visualize,        false, "visualize");
 DEFINE_bool  (verbose,          false, "verbose");
+DEFINE_bool  (debug,            false, "debug mode");
 
 void
 SMTConfig::initializeConfig( )
@@ -106,6 +107,7 @@ SMTConfig::initializeConfig( )
   nra_precision                = 0.0;
   nra_icp_improve              = 10.0;
   nra_verbose                  = false;
+  nra_debug                    = false;
   nra_proof                    = false;
   nra_model                    = false;
   nra_ODE_parallel             = false;
@@ -358,7 +360,8 @@ SMTConfig::parseCMDLine( int /* argc */
   nra_proof               = FLAGS_proof;
   nra_model               = FLAGS_model;
   nra_json                = FLAGS_visualize;
-  nra_verbose             = FLAGS_verbose;
+  nra_verbose             = FLAGS_verbose || FLAGS_debug;
+  nra_debug               = FLAGS_debug;
 
   if (nra_proof) {
       /* Open file stream */
@@ -383,11 +386,9 @@ SMTConfig::parseCMDLine( int /* argc */
   }
   FLAGS_log_prefix = 0;
   FLAGS_logtostderr = 1;
-  if (nra_verbose) {
-      FLAGS_v = 3;
-  } else {
-      FLAGS_v = 0;
-  }
+  if (nra_debug) { FLAGS_v = 4; }
+  else if (nra_verbose) { FLAGS_v = 3; }
+  else { FLAGS_v = 0; }
 }
 
 void SMTConfig::printHelp( )

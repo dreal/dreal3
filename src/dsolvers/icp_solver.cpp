@@ -156,6 +156,7 @@ rp_problem* icp_solver::create_rp_problem() {
     // ======================================
     // Create rp_variable for each var in env
     // ======================================
+    DREAL_LOG_INFO << "icp_solver::create_rp_problem: variables";
     for (auto const & p : m_env) {
         Enode* const key = p.first;
         double const lb = p.second.lb;
@@ -183,18 +184,24 @@ rp_problem* icp_solver::create_rp_problem() {
             rp_variable_precision(*v) = m_config.nra_precision;
         }
         m_enode_to_rp_id[key] = rp_id;
-        DREAL_LOG_INFO << "icp_solver::create_rp_problem:\t"
-                       << "key: " << setfill(' ') << setw(15) << name << ", "
-                       << "sort: " << setfill(' ') << setw(10) << key->getCar()->getSort() << ", "
-                       << "value : " << interval(lb, ub)
-                       << "prec : " << m_config.nra_precision << ", "
-                       << "rp_id: " << setw(4) << rp_id;
+        if (DREAL_LOG_INFO_IS_ON) {
+            string sort = "unknown";
+            if (key->hasSortReal()) {
+                sort = "Real";
+            } else if (key->hasSortInt()) {
+                sort = "Int";
+            }
+            DREAL_LOG_INFO << "\t"
+                           << name << " : " << sort
+                           << " = " << interval(lb, ub);
+        }
     }
     // ===============================================
     // Create rp_constraints for each literal in stack
     // ===============================================
     m_rp_constraint_deltas.clear();
     m_rp_constraints.clear();
+    DREAL_LOG_INFO << "icp_solver::create_rp_problem: constraints";
     for (auto const l : m_stack) {
         // Do not create rp_constraints for ForallT and Integral
         if (l->isForallT() || l->isIntegral()) {
@@ -210,7 +217,7 @@ rp_problem* icp_solver::create_rp_problem() {
                 m_rp_constraint_deltas.push_back(l->getPrecision());
             else
                 m_rp_constraint_deltas.push_back(m_config.nra_precision);
-            DREAL_LOG_INFO << "icp_solver::create_rp_problem: constraint: " << (l->getPolarity() == l_True ? " " : "Not ") << l;
+            DREAL_LOG_INFO << "\t" << (l->getPolarity() == l_True ? " " : "!") << l;
             // Parse the string (infix form) to create the constraint c
             rp_parse_constraint_string(c, constraint_str.c_str(), rp_problem_symb(*rp_prob));
             // Add to the problem
@@ -223,8 +230,8 @@ rp_problem* icp_solver::create_rp_problem() {
             delete c;
         }
     }
-    DREAL_LOG_INFO << "icp_solver::create_rp_problem rp_problem_display";
-    if (DREAL_LOG_INFO_IS_ON) {
+    DREAL_LOG_DEBUG << "icp_solver::create_rp_problem rp_problem_display";
+    if (DREAL_LOG_DEBUG_IS_ON) {
         rp_problem_display(stderr, *rp_prob);
     }
     return rp_prob;
@@ -484,7 +491,7 @@ rp_box icp_solver::compute_next() {
                 ((m_config.nra_delta_test ?
                   !is_box_within_delta(b) :
                   rp_box_width(b) >= m_config.nra_precision))) {
-                DREAL_LOG_INFO << "icp_solver::compute_next: Splitting var: " << i <<  " " << rp_variable_name(rp_problem_var(*m_problem, i));
+                DREAL_LOG_DEBUG << "icp_solver::compute_next: branched on: " << rp_variable_name(rp_problem_var(*m_problem, i));
                 if (m_config.nra_proof) {
                     m_config.nra_proof_out << endl
                                            << "[branched on "

@@ -99,7 +99,7 @@ int rp_operator_test::pruned_var(int /*i*/) const
 
 int rp_operator_test::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_test::apply";
+  DREAL_LOG_DEBUG << "rp_operator_test::apply";
   return( !rp_constraint_unfeasible(_c,b) );
 }
 
@@ -173,7 +173,7 @@ int rp_operator_cond::pruned_var(int i) const
 // Application of operator to reduce the box b
 int rp_operator_cond::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_cond::apply";
+  DREAL_LOG_DEBUG << "rp_operator_cond::apply";
   // check whether the guard is certainly satisfied
   int sat = 1;
   int i = 0;
@@ -261,7 +261,7 @@ int rp_operator_condvar::pruned_var(int i) const
 // Application of operator to reduce the box b
 int rp_operator_condvar::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_condvar::apply";
+  DREAL_LOG_DEBUG << "rp_operator_condvar::apply";
   // check whether the guard is certainly satisfied
   if (rp_interval_included(rp_box_elem(b,_v),_dom))
   {
@@ -338,7 +338,7 @@ int rp_operator_piecewise::pruned_var(int /*i*/) const
 // Application of operator to reduce the box b
 int rp_operator_piecewise::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_piecewise::apply";
+  DREAL_LOG_DEBUG << "rp_operator_piecewise::apply";
   // Check each piece Ij:Cj, if Cj violated then the elements of Ij
   // are removed from the domain of the main variable of _c
   for (int i=0; i<rp_ctr_piecewise_arity(_c); ++i)
@@ -427,7 +427,7 @@ rp_operator_hull_eq::operator=(const rp_operator_hull_eq& /*o*/)
 // Application function of hull consistency operator
 int rp_operator_hull_eq::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_hull_eq::apply";
+  DREAL_LOG_DEBUG << "rp_operator_hull_eq::apply";
   return( rp_sat_hull_eq(_c,b) );
 }
 
@@ -474,7 +474,7 @@ rp_operator_hull_inf::operator=(const rp_operator_hull_inf& /*o*/)
 // Application function of hull consistency operator
 int rp_operator_hull_inf::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_hull_inf::apply";
+  DREAL_LOG_DEBUG << "rp_operator_hull_inf::apply";
   return( rp_sat_hull_inf(_c,b) );
 }
 
@@ -521,7 +521,7 @@ rp_operator_hull_sup::operator=(const rp_operator_hull_sup& /*o*/)
 // Application function of hull consistency operator
 int rp_operator_hull_sup::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_hull_sup::apply";
+  DREAL_LOG_DEBUG << "rp_operator_hull_sup::apply";
   return( rp_sat_hull_sup(_c,b) );
 }
 
@@ -595,7 +595,7 @@ rp_operator_box_eq::rp_operator_box_eq(const rp_operator_box_eq& o):
 // Application function
 int rp_operator_box_eq::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_box_eq::apply";
+  DREAL_LOG_DEBUG << "rp_operator_box_eq::apply";
   return( rp_sat_box_eq(_f,_df,b,_x,_improve,_eps) );
 }
 
@@ -756,7 +756,7 @@ rp_operator_box_sup::rp_operator_box_sup(const rp_operator_box_sup& o):
 // Application function
 int rp_operator_box_sup::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_box_sup::apply";
+  DREAL_LOG_DEBUG << "rp_operator_box_sup::apply";
   return( rp_sat_box_sup(_f,_df,b,_x,_improve,_eps) );
 }
 
@@ -805,7 +805,7 @@ rp_operator_domain::rp_operator_domain(const rp_operator_domain& o):
 // b(x) := hull (b(x) inter initial_domain)
 int rp_operator_domain::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_domain::apply";
+  DREAL_LOG_DEBUG << "rp_operator_domain::apply";
   /* Rounding for discrete variables */
   if (rp_variable_integer(_x))
   {
@@ -1047,7 +1047,7 @@ int rp_operator_newton::reduce(rp_box b)
 // Application function
 int rp_operator_newton::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_newton::apply";
+  DREAL_LOG_DEBUG << "rp_operator_newton::apply";
   if (!this->compute_jacobi(b))
   {
     return( 0 );
@@ -1157,7 +1157,7 @@ int rp_operator_3b::pruned_var(int i) const
 // Application of operator to reduce the box b
 int rp_operator_3b::apply(rp_box b)
 {
-  DREAL_LOG_INFO << "rp_operator_3b::apply";
+  DREAL_LOG_DEBUG << "rp_operator_3b::apply";
   // domain to be reduced
   double u = rp_binf(rp_box_elem(b,_v));
   double v = rp_bsup(rp_box_elem(b,_v));

@@ -369,10 +369,10 @@ bool Egraph::assertLit( Enode * e, bool reason )
   if ( config.incremental )
     inform( e );
 
-  DREAL_LOG_INFO << "Egraph::assertLit()"
-                 << ( e->getPolarity( ) == l_True ? "" : "(not " )
-                 << e
-                 << ( e->getPolarity( ) == l_True ? "" : ")" ) << endl;
+  DREAL_LOG_DEBUG << "Egraph::assertLit()"
+                  << ( e->getPolarity( ) == l_True ? "" : "(not " )
+                  << e
+                  << ( e->getPolarity( ) == l_True ? "" : ")" ) << endl;
 
   // Runtime translation
   suggestions.clear( );
@@ -413,7 +413,7 @@ bool Egraph::assertLit( Enode * e, bool reason )
     }
   }
   else {
-    DREAL_LOG_INFO << "Egraph::assertLit(): assertLit_ returned false" << endl;
+    DREAL_LOG_DEBUG << "Egraph::assertLit(): assertLit_ returned false" << endl;
   }
 
   return res;
@@ -546,24 +546,24 @@ Enode * Egraph::getSuggestion( )
     Enode * e = suggestions.back( );
     suggestions.pop_back( );
     if ( e->hasPolarity( ) ){
-      DREAL_LOG_INFO << "Egraph::getSuggestion() not suggesting (has polarity):"
-                     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
-                     << e
-                     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
+        DREAL_LOG_DEBUG << "Egraph::getSuggestion() not suggesting (has polarity):"
+                        << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
+                        << e
+                        << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
       continue;
     }
     if ( e->isDeduced( ) ){
-      DREAL_LOG_INFO << "Egraph::getSuggestion() not suggesting (is deduced): "
-                     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
-                     << e
-                     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
+        DREAL_LOG_DEBUG << "Egraph::getSuggestion() not suggesting (is deduced): "
+                        << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
+                        << e
+                        << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
       continue;
     }
 
-    DREAL_LOG_INFO << "Egraph::getSuggestion() suggesting: "
-                     << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
-                     << e
-                     << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
+    DREAL_LOG_DEBUG << "Egraph::getSuggestion() suggesting: "
+                    << ( e->getDecPolarity( ) == l_True ? "     " : "(not " )
+                    << e
+                    << ( e->getDecPolarity( ) == l_True ? "" : ")" ) << endl;
 
     return e;
   }

@@ -52,17 +52,17 @@ lbool nra_solver::inform(Enode * e) {
         double const lb = v->getLowerBound();
         double const ub = v->getUpperBound();
         m_env.insert(v, interval(lb, ub));
-        if (DREAL_LOG_INFO_IS_ON) {
+        if (DREAL_LOG_DEBUG_IS_ON) {
             ss << v << " ";
         }
     }
     if (config.nra_bmc_heuristic.compare("") != 0)
       m_heuristic.inform(e);
-    if (DREAL_LOG_INFO_IS_ON) {
-        DREAL_LOG_INFO << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt()
-                       << " vars = { "
-                       << ss.str()
-                       << "}";
+    if (DREAL_LOG_DEBUG_IS_ON) {
+        DREAL_LOG_DEBUG << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt()
+                        << " vars = { "
+                        << ss.str()
+                        << "}";
         ss.str(string());
     }
     return l_Undef;
@@ -74,16 +74,16 @@ lbool nra_solver::inform(Enode * e) {
 //
 // assertLit adds a literal(e) to stack of asserted literals.
 bool nra_solver::assertLit (Enode * e, bool reason) {
-    DREAL_LOG_INFO << "nra_solver::assertLit: " << e
-                   << ", reason: " << boolalpha << reason
-                   << ", polarity: " << e->getPolarity().toInt();
+    DREAL_LOG_DEBUG << "nra_solver::assertLit: " << e
+                    << ", reason: " << boolalpha << reason
+                    << ", polarity: " << e->getPolarity().toInt();
     (void)reason;
     assert(e);
     assert(belongsToT(e));
     assert(e->hasPolarity());
     assert(e->getPolarity() == l_False || e->getPolarity() == l_True);
     if (e->isDeduced() && e->getPolarity() == e->getDeduced() && e->getDedIndex() == id) {
-        DREAL_LOG_INFO << "nra_solver::assertLit: " << e << " is deduced" << e;
+        DREAL_LOG_DEBUG << "nra_solver::assertLit: " << e << " is deduced" << e;
         return true;
     }
     m_stack.push_back(e);
@@ -100,7 +100,7 @@ bool nra_solver::assertLit (Enode * e, bool reason) {
 // operations, for instance in a vector called "undo_stack_term", as
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint () {
-    DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
+    DREAL_LOG_DEBUG << "nra_solver::pushBacktrackPoint " << m_stack.size();
     m_env.push();
     m_stack.push();
 }
@@ -111,7 +111,7 @@ void nra_solver::pushBacktrackPoint () {
 // backtrackToStackSize() in EgraphSolver) Also make sure you clean
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint () {
-    DREAL_LOG_INFO << "nra_solver::popBacktrackPoint";
+    DREAL_LOG_DEBUG << "nra_solver::popBacktrackPoint";
     m_stack.pop();
     m_env.pop();
     m_heuristic.resetSuggestions();
@@ -120,10 +120,11 @@ void nra_solver::popBacktrackPoint () {
 // Check for consistency.
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
-    DREAL_LOG_INFO << "nra_solver::check: env = ";
-    DREAL_LOG_INFO << m_env;
-    DREAL_LOG_INFO << "nra_solver::check: stack = ";
-    DREAL_LOG_INFO << m_stack;
+    DREAL_LOG_INFO << "nra_solver::check(" << (complete ? "complete" : "incomplete") << ")";
+    DREAL_LOG_DEBUG << "nra_solver::check: env = ";
+    DREAL_LOG_DEBUG << m_env;
+    DREAL_LOG_DEBUG << "nra_solver::check: stack = ";
+    DREAL_LOG_DEBUG << m_stack;
     bool result = true;
     icp_solver solver(config, egraph, sstore, m_stack, m_env, explanation, complete);
     if (!complete) {
@@ -133,7 +134,7 @@ bool nra_solver::check(bool complete) {
         // Complete Check
         result = solver.solve();
     }
-    DREAL_LOG_INFO << "nra_solver::check(" << (complete ? "  complete" : "incomplete") << ")"
+    DREAL_LOG_INFO << "nra_solver::check(" << (complete ? "complete" : "incomplete") << ")"
                    << " result = " << boolalpha << result;
     if (!result) {
         for (Enode * const e : explanation) {
@@ -141,7 +142,6 @@ bool nra_solver::check(bool complete) {
                            << e <<" with polarity " << toInt((e)->getPolarity());
         }
     }
-
     // Only compute the heuristic after first check.  The first check is after
     // all level 0 literals have been asserted and the initial and goal modes
     // will be known
@@ -156,6 +156,7 @@ bool nra_solver::check(bool complete) {
         solver.print_json(config.nra_json_out);
     }
 #endif
+    DREAL_LOG_INFO << "============================";
     return result;
 }
 
@@ -169,7 +170,7 @@ bool nra_solver::belongsToT(Enode * e) {
 
 // Copy the model into enode's data
 void nra_solver::computeModel() {
-    DREAL_LOG_INFO << "nra_solver::computeModel" << endl;
+    DREAL_LOG_DEBUG << "nra_solver::computeModel" << endl;
 }
 
 #ifdef PRODUCE_PROOF
