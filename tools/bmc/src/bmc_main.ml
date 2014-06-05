@@ -11,7 +11,8 @@ open Heuristic
 
 let k = ref 3 (* default unrolling value is 3 *)
 let pathgen = ref false
-let bmc_heuristic = ref false
+let bmc_heuristic = ref None
+let bmc_heuristic_prune = ref None
 let path = ref None
 
 (* Takes in string s (ex: "[1,2,3,4,5]")
@@ -35,8 +36,11 @@ let spec = [
    Arg.Unit (fun n -> pathgen := true),
    ": generate paths");
   ("--bmc_heuristic",
-   Arg.Unit (fun n -> bmc_heuristic := true),
+   Arg.String (fun n -> bmc_heuristic := Some(n)),
    ": generate BMC heuristic for dReal");
+  ("--bmc_heuristic_prune",
+   Arg.String (fun n -> bmc_heuristic_prune := Some(n)),
+   ": generate BMC heuristic to generate a pruned encoding");
   ("--path",
    Arg.String (fun s -> path := Some (process_path s)),
    ": specify the path (ex: \"[1,2,1,2,1]\" to focus (Default: none)");
@@ -60,25 +64,19 @@ let run () =
                  out
                  paths
     else 
-      if !bmc_heuristic then
+      if Option.is_some !bmc_heuristic then
 	let heuristic = Heuristic.heuristicgen hm !k in
-	let () = print_endline "[" in
-	let () = Printf.fprintf out "[%d, "  hm.init_id in
-	let () = List.print ~first:"[" ~last:"]" ~sep:","
-			    (fun out g -> Int.print out g)
-			    out
-			    (Hybrid.goal_ids hm) in
-	let () = Printf.fprintf out ", %d" !k in
-	let () = print_endline "], " in
-	let () = Costmap.print out heuristic in
-	let () = print_endline "," in
-	let mode_adjacency = Heuristic.get_mode_adjacency hm in
-	let () = List.print ~first:"[" ~last:"]" ~sep:","
-			    (fun out path ->
-			     List.print ~first:"[" ~last:"]" ~sep:"," Int.print out path)
-			    out
-			    mode_adjacency in
-	print_endline "]"
+	let hout = open_out (Option.get !bmc_heuristic) in
+	let () = Heuristic.writeHeuristic heuristic hm !k hout in
+	close_out hout
+      else if Option.is_some !bmc_heuristic_prune then
+	let heuristic = Heuristic.heuristicgen hm !k in
+	let heuristic_back = Heuristic.heuristicgen_back hm !k in
+	let hout = open_out (Option.get !bmc_heuristic_prune) in
+	let () = Heuristic.writeHeuristic heuristic hm !k hout in
+	let () = close_out hout in
+	let smt = Bmc.compile_pruned hm !k heuristic heuristic_back in
+	Smt2.print out smt 
       else
 	let _ = Hybrid.check_path hm !path !k in
 	let smt = Bmc.compile hm !k !path in

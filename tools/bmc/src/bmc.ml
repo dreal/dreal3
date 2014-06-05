@@ -11,6 +11,7 @@ open Batteries
 open IO
 open Smt2_cmd
 open Smt2
+open Costmap
 
 exception SMTException of string
 
@@ -143,6 +144,55 @@ let process_goals (k : int) (goals : (int * formula) list) =
   Basic.make_or goal_formulas
 
 (** generate logic formula for each step 0...k **)
+let process_step_pruned (varmap : Vardeclmap.t)
+                 (modemap : Modemap.t)
+                 (heuristic : Costmap.t)
+                 (heuristic_back : Costmap.t)
+		 (k : int)
+                 (step : int)
+    : Basic.formula =
+  let num_of_modes = Enum.count (Map.keys modemap) in
+  let list_of_modes = List.of_enum ( 1 -- num_of_modes ) in
+  let list_of_possible_modes = List.filter 
+				 (fun q -> 
+				   ((Costmap.find q heuristic) <= float_of_int step) &&
+				   ((Costmap.find q heuristic_back) <=  float_of_int (k - step))
+				 )
+				 list_of_modes 
+  in
+  let jump_flow_part =
+    List.map
+      (fun q ->
+       try
+         let flow_for_q = process_flow ~k:step ~q varmap modemap in
+         let mode_q = Map.find q modemap in
+         let jumpmap_q = mode_q.jumpmap in
+         let list_of_nq = List.of_enum (Map.keys jumpmap_q) in
+	 let list_of_possible_nq = List.filter 
+				 (fun q -> 
+				   ((Costmap.find q heuristic) <= float_of_int (step + 1)) &&
+				   ((Costmap.find q heuristic_back) <=  float_of_int (k - (step + 1)))
+				 )
+				 list_of_nq
+	 in
+         let jump_for_q_nq  = Basic.make_or (List.map
+                                               (fun nq ->
+                                                process_jump modemap q nq step
+                                               )
+                                               list_of_possible_nq)
+         in
+         Basic.make_and [flow_for_q; jump_for_q_nq]
+       with e ->
+         begin
+           Printexc.print_backtrace IO.stderr;
+           raise e
+         end
+      )
+      list_of_possible_modes
+  in
+  Basic.make_or jump_flow_part
+
+(** generate logic formula for each step 0...k **)
 let process_step (varmap : Vardeclmap.t)
                  (modemap : Modemap.t)
                  (mode : int option)
@@ -195,6 +245,19 @@ let final_flow varmap modemap mode k =
      Basic.make_or flows
 
 (* compile Hybrid automata into SMT formulas *)
+let compile_logic_formula_pruned (h : Hybrid.t) (k : int) (heuristic : Costmap.t) (heuristic_back : Costmap.t) =
+  let {init_id; init_formula; varmap; modemap; goals} = h in
+  let init_clause = process_init ~init_id ~init_formula in
+  let list_of_steps = List.of_enum (0 -- (k-1)) in
+  let step_clauses =
+    List.map (process_step_pruned varmap modemap heuristic heuristic_back k) list_of_steps
+  in
+  (* tricky case, final mode need flow without jump  *)
+  let final_flow_clause = final_flow varmap modemap None k in
+  let goal_clause = process_goals k goals in
+  let smt_formula = Basic.make_and (List.flatten [[init_clause]; step_clauses; [final_flow_clause];  [goal_clause]]) in
+  Assert smt_formula
+
 let compile_logic_formula (h : Hybrid.t) (k : int) (path : int list option) =
   let {init_id; init_formula; varmap; modemap; goals} = h in
   let init_clause = process_init ~init_id ~init_formula in
@@ -315,6 +378,20 @@ let build_flow_annot_list (h : Hybrid.t) (step:int) =
 let compile_ode_definition (h : Hybrid.t) k =
   let flows = build_flow_annot_list h k in
   List.map (fun (g, odes) -> DefineODE ((make_variable g "" "flow"), odes)) flows
+
+let compile_pruned (h : Hybrid.t) (k : int) (heuristic : Costmap.t)  (heuristic_back : Costmap.t) =
+  let logic_cmd = SetLogic QF_NRA_ODE in
+  let (vardecl_cmds, assert_cmds) = compile_vardecl h k None in
+  let defineodes = compile_ode_definition h k in
+  let assert_formula = compile_logic_formula_pruned h k heuristic heuristic_back in
+  List.flatten
+    [[logic_cmd];
+     vardecl_cmds;
+     defineodes;
+     assert_cmds;
+     [assert_formula];
+     [CheckSAT; Exit];
+    ]
 
 let compile (h : Hybrid.t) (k : int) (path : (int list) option) =
   let logic_cmd = SetLogic QF_NRA_ODE in

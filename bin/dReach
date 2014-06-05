@@ -38,7 +38,7 @@ EOF
 # Parse Option
 #################################################################
 K=3
-while getopts "hbdk:p:i" OPTION
+while getopts "hbdk:p:ir" OPTION
 do
     case $OPTION in
         h)
@@ -53,6 +53,9 @@ do
             ;;
         d)
             BMCH=2
+            ;;
+        r)
+            BMCH=3
             ;;
         \?)
             usage
@@ -105,18 +108,36 @@ sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
 
 if [ $BMCH ]
 then
-    # Construct Heuristic function
-    if [ $BMCH -eq 1 ]
-    then
-        HEURISTIC=${BASE}_${K}.bh
-        $BMC -k $K --bmc_heuristic $PDRH > ${HEURISTIC}
-        SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
-    fi
     #  invoke dReal w/o paths
     SMT=${BASE}_${K}.smt2
     OUT=${BASE}_${K}.output
-    $BMC -k $K $PDRH > ${SMT}
+    HEURISTIC=${BASE}_${K}.bh
+
+    if [ $BMCH -eq 1 ]
+    then
+	# Construct Heuristic function
+	$BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH 
+        SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
+    fi
+
+    if [ $BMCH -lt 3 ] 
+    then
+	#Generate Disjunctive Encoding w/o pruning
+	$BMC -k $K $PDRH > ${SMT}
+    fi
+
+
+    #Construct Heuristic Function and use it to prune encoding
+    if [ $BMCH -eq 3 ]
+    then
+	#Construct pruned encoding and heuristic
+	$BMC -k $K --bmc_heuristic_prune $HEURISTIC $PDRH  > ${SMT}
+        SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
+    fi
+	
     echo SMT: ${SMT}
+
+    #Solve
     ${SOLVER} ${SOLVER_OPT} ${SMT} --short_sat 2>&1 | tee $OUT
     RESULT=`tail -n 1 $OUT`
     if [[ $RESULT == "sat" ]]

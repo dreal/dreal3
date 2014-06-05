@@ -6,9 +6,10 @@ NUM=10
 #TIMEFORMAT="%U"
 TIMEFORMAT="%R"
 
-echo "Size Heuristic Disj Orig" >> grid.out
+#echo "Size Heuristic Disj Orig" >> grid.out
+echo "Size Heuristic Reduced" >> grid.out
 for((i=1; i <=10; i++)); do {
-	f=`expr $i \* 2`
+	f=`expr $i \* 5`
    	echo "DELTA = ${d} STEPS = ${f}"
 	INST=grid${f}.drh
 	LEN=`expr $f - 1`
@@ -16,7 +17,7 @@ for((i=1; i <=10; i++)); do {
 
 	LINE="${f}"
 #	for c in "-b" "-d" ""; do {
-	for c in "-b"  ; do {
+	for c in "-b" "-r"  ; do {
 
 	CMD="dReach ${c} -k ${LEN} ${INST}"
 	echo $CMD
