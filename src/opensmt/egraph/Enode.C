@@ -316,8 +316,15 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
             }
         }
     } else if (isNumb()) {
-        double r = *(symb_data->value);
-        os << std::fixed << r;
+        string name = getName();
+        if (name.find('e') != std::string::npos || name.find('E') != std::string::npos) {
+            // Scientific Notation
+            double r = *(symb_data->value);
+            os << std::fixed << r;
+        } else {
+            // Fixed Notation
+            os << name;
+        }
     } else if (isTerm()) {
         // output "("
         if (!getCdr()->isEnil() && (isPlus() || isMinus() || isTimes() || isPow())) {
