@@ -315,7 +315,9 @@ int rp_lexer_get_token(rp_lexer l)
       }
       else
       {
-        return( rp_lexer_stop(l,"'>' not supported") );
+        rp_stream_unget_char(rp_lexer_input(l), d);
+        strcpy(rp_lexer_text(l),">");
+        return(rp_lexer_token(l)=RP_TOKEN_SUP);
       }
     }
 
@@ -330,7 +332,9 @@ int rp_lexer_get_token(rp_lexer l)
       }
       else
       {
-        return( rp_lexer_stop(l,"'<' not supported") );
+        rp_stream_unget_char(rp_lexer_input(l), d);
+        strcpy(rp_lexer_text(l),"<");
+        return(rp_lexer_token(l)=RP_TOKEN_INF);
       }
     }
 

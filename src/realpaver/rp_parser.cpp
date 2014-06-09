@@ -1244,6 +1244,20 @@ int rp_rule_ctr_num(rp_parser p, rp_ctr_num * c)
       isrel = 1;
     }
 
+    /* inequality > */
+    else if (rp_parser_accept(p,RP_TOKEN_SUP))
+    {
+      rel = RP_RELATION_SUP;
+      isrel = 1;
+    }
+
+    /* inequality < */
+    else if (rp_parser_accept(p,RP_TOKEN_INF))
+    {
+      rel = RP_RELATION_INF;
+      isrel = 1;
+    }
+
     /* no relation symbol */
     else
     {

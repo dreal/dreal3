@@ -81,7 +81,9 @@
 #define RP_TOKEN_EQUAL         401
 #define RP_TOKEN_SUPEQUAL      402
 #define RP_TOKEN_INFEQUAL      403
-#define RP_TOKEN_PIECEWISE     404
+#define RP_TOKEN_SUP           404
+#define RP_TOKEN_INF           405
+#define RP_TOKEN_PIECEWISE     406
 
 /* Types */
 #define RP_TOKEN_TYPE_INT      500

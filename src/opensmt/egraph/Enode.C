@@ -305,10 +305,27 @@ void Enode::removeParent ( Enode * p )
 void Enode::print_infix(ostream & os, lbool polarity, string const & variable_postfix) const {
     Enode *p = NULL;
     if(isSymb()) {
-        if (polarity == l_False && (getId() == ENODE_ID_LEQ || getId() == ENODE_ID_LT)) {
-            os << ">=";
-        } else if (polarity == l_False && (getId() == ENODE_ID_GEQ || getId() == ENODE_ID_GT)) {
-            os << "<=";
+        if (polarity == l_False) {
+            switch (getId()) {
+            case ENODE_ID_LEQ:
+                os << ">";
+                break;
+            case ENODE_ID_LT:
+                os << ">=";
+                break;
+            case ENODE_ID_GEQ:
+                os << "<";
+                break;
+            case ENODE_ID_GT:
+                os << "<=";
+                break;
+            default:
+                os << getName();
+                if (getId() > ENODE_ID_LAST) {
+                    os << variable_postfix;
+                }
+                break;
+            }
         } else {
             os << getName();
             if (getId() > ENODE_ID_LAST) {

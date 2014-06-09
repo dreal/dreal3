@@ -25,6 +25,8 @@
 #define RP_RELATION_EQUAL     1
 #define RP_RELATION_SUPEQUAL  2
 #define RP_RELATION_INFEQUAL  3
+#define RP_RELATION_SUP       4
+#define RP_RELATION_INF       5
 
 typedef struct
 {
@@ -63,9 +65,13 @@ void rp_ctr_num_destroy (rp_ctr_num * c);
 int rp_ctr_numeq_unfeasible  (rp_ctr_num c, rp_box b);
 int rp_ctr_numsup_unfeasible (rp_ctr_num c, rp_box b);
 int rp_ctr_numinf_unfeasible (rp_ctr_num c, rp_box b);
+int rp_ctr_numsup_strict_unfeasible (rp_ctr_num c, rp_box b);
+int rp_ctr_numinf_strict_unfeasible (rp_ctr_num c, rp_box b);
 int rp_ctr_numeq_inner       (rp_ctr_num c, rp_box b);
 int rp_ctr_numsup_inner      (rp_ctr_num c, rp_box b);
 int rp_ctr_numinf_inner      (rp_ctr_num c, rp_box b);
+int rp_ctr_numsup_strict_inner (rp_ctr_num c, rp_box b);
+int rp_ctr_numinf_strict_inner (rp_ctr_num c, rp_box b);
 
 int rp_ctr_num_unfeasible    (rp_ctr_num c, rp_box b);
 int rp_ctr_num_inner         (rp_ctr_num c, rp_box b);

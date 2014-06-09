@@ -231,6 +231,16 @@ void rp_hull_factory::build(const rp_problem& /*p*/,
   case RP_RELATION_INFEQUAL:
     rp_new(o,rp_operator_hull_inf,(c));
     break;
+
+  // TODO(soonhok): need a separate operator for this?
+  case RP_RELATION_SUP:
+    rp_new(o,rp_operator_hull_sup,(c));
+    break;
+
+  // TODO(soonhok): need a separate operator for this?
+  case RP_RELATION_INF:
+    rp_new(o,rp_operator_hull_inf,(c));
+    break;
   }
   rp_vector_insert(vec,o);
 }
@@ -283,6 +293,16 @@ void rp_box_factory::build(const rp_problem& p,
     break;
 
   case RP_RELATION_INFEQUAL:
+    rp_new(o,rp_operator_box_inf,(rp_ctr_num_func(c),var,_improve,eps));
+    break;
+
+  // TODO(soonhok): need a special operator for this?
+  case RP_RELATION_SUP:
+    rp_new(o,rp_operator_box_sup,(rp_ctr_num_func(c),var,_improve,eps));
+    break;
+
+  // TODO(soonhok): need a special operator for this?
+  case RP_RELATION_INF:
     rp_new(o,rp_operator_box_inf,(rp_ctr_num_func(c),var,_improve,eps));
     break;
   }

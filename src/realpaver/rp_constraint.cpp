@@ -34,10 +34,18 @@ void rp_ctr_num_create(rp_ctr_num * c,
         break;
 
       case RP_RELATION_SUPEQUAL:
-        rp_ctr_num_relfunc(*c) = RP_RELATION_INFEQUAL;
+        rp_ctr_num_relfunc(*c) = RP_RELATION_INF;
         break;
 
       case RP_RELATION_INFEQUAL:
+        rp_ctr_num_relfunc(*c) = RP_RELATION_SUP;
+        break;
+
+      case RP_RELATION_SUP:
+        rp_ctr_num_relfunc(*c) = RP_RELATION_INFEQUAL;
+        break;
+
+      case RP_RELATION_INF:
         rp_ctr_num_relfunc(*c) = RP_RELATION_SUPEQUAL;
         break;
     }
@@ -143,6 +151,46 @@ int rp_ctr_numinf_unfeasible(rp_ctr_num c, rp_box b)
 }
 
 /* Returns true if no point of b is solution of c */
+int rp_ctr_numsup_strict_unfeasible(rp_ctr_num c, rp_box b)
+{
+  rp_ctr_num_used(c) = 1;
+  int res;
+  if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
+      (!rp_expression_eval(rp_ctr_num_right(c),b)))
+  {
+    /* at least one expression has an empty range over b */
+    res = 1;
+  }
+  else
+  {
+    /* unfeasible if left is entirely smaller than right */
+    res = (rp_bsup(rp_expression_val(rp_ctr_num_left(c))) <=
+           rp_binf(rp_expression_val(rp_ctr_num_right(c))));
+  }
+  return( res );
+}
+
+/* Returns true if no point of b is solution of c */
+int rp_ctr_numinf_strict_unfeasible(rp_ctr_num c, rp_box b)
+{
+  rp_ctr_num_used(c) = 1;
+  int res;
+  if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
+      (!rp_expression_eval(rp_ctr_num_right(c),b)))
+  {
+    /* at least one expression has an empty range over b */
+    res = 1;
+  }
+  else
+  {
+    /* unfeasible if left is entirely greater than right */
+    res = (rp_binf(rp_expression_val(rp_ctr_num_left(c))) >=
+           rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
+  }
+  return( res );
+}
+
+/* Returns true if no point of b is solution of c */
 int rp_ctr_num_unfeasible(rp_ctr_num c, rp_box b)
 {
   int res = 1;
@@ -158,6 +206,14 @@ int rp_ctr_num_unfeasible(rp_ctr_num c, rp_box b)
 
     case RP_RELATION_INFEQUAL:
       res = rp_ctr_numinf_unfeasible(c,b);
+      break;
+
+    case RP_RELATION_SUP:
+      res = rp_ctr_numsup_strict_unfeasible(c,b);
+      break;
+
+    case RP_RELATION_INF:
+      res = rp_ctr_numinf_strict_unfeasible(c,b);
       break;
   }
   return( res );
@@ -205,6 +261,26 @@ int rp_ctr_numsup_inner(rp_ctr_num c, rp_box b)
 }
 
 /* Returns true if all the points of b are solutions of c */
+int rp_ctr_numsup_strict_inner(rp_ctr_num c, rp_box b)
+{
+  rp_ctr_num_used(c) = 1;
+  int res;
+  if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
+      (!rp_expression_eval(rp_ctr_num_right(c),b)))
+  {
+    /* at least one expression has an empty range over b */
+    res = 0;
+  }
+  else
+  {
+    /* inner if left is greater than right */
+    res = (rp_binf(rp_expression_val(rp_ctr_num_left(c))) >
+           rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
+  }
+  return( res );
+}
+
+/* Returns true if all the points of b are solutions of c */
 int rp_ctr_numinf_inner(rp_ctr_num c, rp_box b)
 {
   rp_ctr_num_used(c) = 1;
@@ -219,6 +295,26 @@ int rp_ctr_numinf_inner(rp_ctr_num c, rp_box b)
   {
     /* inner if left is smaller than right */
     res = (rp_bsup(rp_expression_val(rp_ctr_num_left(c))) <=
+           rp_binf(rp_expression_val(rp_ctr_num_right(c))));
+  }
+  return( res );
+}
+
+/* Returns true if all the points of b are solutions of c */
+int rp_ctr_numinf_strict_inner(rp_ctr_num c, rp_box b)
+{
+  rp_ctr_num_used(c) = 1;
+  int res;
+  if (!(rp_expression_eval(rp_ctr_num_left(c),b))||
+      !(rp_expression_eval(rp_ctr_num_right(c),b)))
+  {
+    /* at least one expression has an empty range over b */
+    res = 0;
+  }
+  else
+  {
+    /* inner if left is smaller than right */
+    res = (rp_bsup(rp_expression_val(rp_ctr_num_left(c))) <
            rp_binf(rp_expression_val(rp_ctr_num_right(c))));
   }
   return( res );
@@ -240,6 +336,14 @@ int rp_ctr_num_inner(rp_ctr_num c, rp_box b)
 
     case RP_RELATION_INFEQUAL:
       res = rp_ctr_numinf_inner(c,b);
+      break;
+
+    case RP_RELATION_SUP:
+      res = rp_ctr_numsup_strict_inner(c,b);
+      break;
+
+    case RP_RELATION_INF:
+      res = rp_ctr_numinf_strict_inner(c,b);
       break;
   }
   return( res );
@@ -263,6 +367,14 @@ void rp_ctr_num_display(FILE* out, rp_ctr_num c,
 
     case RP_RELATION_INFEQUAL:
       fprintf(out,"<=");
+      break;
+
+    case RP_RELATION_SUP:
+      fprintf(out,">");
+      break;
+
+    case RP_RELATION_INF:
+      fprintf(out,"<");
       break;
   }
   rp_expression_display(out,rp_ctr_num_right(c),var,digits,
