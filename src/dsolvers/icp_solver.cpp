@@ -199,7 +199,6 @@ rp_problem* icp_solver::create_rp_problem() {
     // ===============================================
     // Create rp_constraints for each literal in stack
     // ===============================================
-    m_rp_constraint_deltas.clear();
     m_rp_constraints.clear();
     DREAL_LOG_INFO << "icp_solver::create_rp_problem: constraints";
     for (auto const l : m_stack) {
@@ -213,6 +212,7 @@ rp_problem* icp_solver::create_rp_problem() {
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
             m_rp_constraints.push_back(c);
+<<<<<<< HEAD
             if (l->hasPrecision())
                 m_rp_constraint_deltas.push_back(l->getPrecision());
             else
@@ -224,6 +224,13 @@ rp_problem* icp_solver::create_rp_problem() {
             m_rp_constraint_deltas.push_back(l->hasPrecision() ? l->getPrecision() : m_config.nra_precision);
             // Assign Delta (NEW)
             // rp_constraint_delta(*c) = l->hasPrecision() ? l->getPrecision() : m_config.nra_precision;
+=======
+            DREAL_LOG_INFO << "icp_solver::create_rp_problem: constraint: " << (l->getPolarity() == l_True ? " " : "Not ") << l;
+            // Parse the string (infix form) to create the constraint c
+            rp_parse_constraint_string(c, constraint_str.c_str(), rp_problem_symb(*rp_prob));
+	    //set delta
+	    rp_ctr_set_delta(c, (l->hasPrecision() ? l->getPrecision() : m_config.nra_precision));
+>>>>>>> fix(icp_solver): removed old ineffiency that propagated all constraints if  delta satisfiability is not met, now checks if propagating constraint will may help
             // Add to the problem
             rp_vector_insert(rp_problem_ctrs(*rp_prob), *c);
             // Update Counter
@@ -343,7 +350,7 @@ double icp_solver::constraint_width(const rp_constraint * c, rp_box const b) con
 int icp_solver::get_var_split_delta(rp_box b) {
     // get constraint with max residual width
 
-    vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
+    //vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
     int i = 0, max_constraint = -1;
     double max_width = 0.0;
     for (auto const l : m_stack) {
@@ -356,15 +363,20 @@ int icp_solver::get_var_split_delta(rp_box b) {
         DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Considering constraint" << constraint_str;
         if (constraint_str.compare("0 = 0") != 0) {
             const rp_constraint c = rp_problem_ctr(*m_problem, i);
+<<<<<<< HEAD
             double width = constraint_width(&c, b);
             double residual = width - (*d);
+=======
+            double width =  constraint_width(&c, b);
+            double residual = width-2.0*rp_constraint_delta(c);
+>>>>>>> fix(icp_solver): removed old ineffiency that propagated all constraints if  delta satisfiability is not met, now checks if propagating constraint will may help
             if ( residual  > max_width ) {
                 max_width = residual;
                 max_constraint = i;
                 l->print_infix(buf, l->getPolarity());
                 string constraint_str = buf.str();
             }
-            d++;
+            //d++;
             i++;
         }
     }
@@ -389,6 +401,62 @@ int icp_solver::get_var_split_delta(rp_box b) {
     }
 }
 
+<<<<<<< HEAD
+=======
+int icp_solver::get_var_split_delta1(rp_box b) {
+    // get var with maximal sum of constraint residuals
+
+    int num_vars = m_rp_variables.size(); // ;rp_box_size(b);
+    double* variable_residuals = new double[num_vars];
+    // vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
+    int i;
+
+    for ( i = 0; i < num_vars; i++ ){
+        variable_residuals[i] = 0.0;
+    }
+    DREAL_LOG_INFO << "icp_solver::get_var_split_delta1: num_vars = " << num_vars;
+
+    i = 0;
+    for (auto const l : m_stack) {
+        if (l->isForallT() || l->isIntegral()) {
+            continue;
+        }
+        stringstream buf;
+        l->print_infix(buf, l->getPolarity());
+        string constraint_str = buf.str();
+        if (constraint_str.compare("0 = 0") != 0) {
+            const rp_constraint c = rp_problem_ctr(*m_problem, i);
+            double width =  constraint_width(&c, b);
+            double residual = width-2.0*rp_constraint_delta(c);
+            DREAL_LOG_INFO << "icp_solver::get_var_split_delta1: c = " << constraint_str;
+            for ( i = 0; i < rp_constraint_arity(c); i++ ){
+                int var = rp_constraint_var(c, i);
+                DREAL_LOG_INFO << "icp_solver::get_var_split_delta1: var = " << var;
+                variable_residuals[var] += residual;
+            }
+            //d++;
+            i++;
+        }
+    }
+    for ( i = 0; i < num_vars; i++ ){
+        double var_width = rp_interval_width(rp_box_elem(b, i));
+        variable_residuals[i] *= var_width;
+    }
+    double max_residual = 0.0;
+    int max_var = -1;
+    for ( i = 0; i < num_vars; i++ ){
+        if (variable_residuals[i] > max_residual){
+            max_residual  = variable_residuals[i];
+            max_var = i;
+        }
+    }
+
+    delete [] variable_residuals;
+    return max_var;
+}
+
+
+>>>>>>> fix(icp_solver): removed old ineffiency that propagated all constraints if  delta satisfiability is not met, now checks if propagating constraint will may help
 bool icp_solver::is_box_within_delta(rp_box b) {
     // for each expression
     //  compute width given box
@@ -396,7 +464,7 @@ bool icp_solver::is_box_within_delta(rp_box b) {
     DREAL_LOG_INFO << "icp_solver::is_box_within_delta: Checking box width...";
     m_num_delta_checks++;
 
-    vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
+    //    vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
     int i = 0;
     bool fail = false;
     for (auto const l : m_stack) {
@@ -408,6 +476,7 @@ bool icp_solver::is_box_within_delta(rp_box b) {
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
             const rp_constraint c = rp_problem_ctr(*m_problem, i);
+<<<<<<< HEAD
             double width = constraint_width(&c, b);
             bool test = width > (*d);
             DREAL_LOG_INFO << "icp_solver::is_box_within_delta: " <<  i << ": "
@@ -417,11 +486,24 @@ bool icp_solver::is_box_within_delta(rp_box b) {
                                l->getPrecision() :
                                m_config.nra_precision)
                            << "]";
+=======
+            double width =  constraint_width(&c, b);
+            bool test = width > 2.0*rp_constraint_delta(c);
+            if (test){
+                DREAL_LOG_INFO << "icp_solver::is_box_within_delta: " <<  i << ": "
+                               << constraint_str
+                               << "\t: [" << width << " <= "
+                               << 2.0 * (l->hasPrecision() ?
+                                         l->getPrecision() :
+                                         m_config.nra_precision)
+                               << "]";
+            }
+>>>>>>> fix(icp_solver): removed old ineffiency that propagated all constraints if  delta satisfiability is not met, now checks if propagating constraint will may help
             if ( test ){
                 fail = true;
                 break;
             }
-            d++;
+	    //            d++;
             i++;
         }
     }
@@ -584,11 +666,7 @@ void icp_solver::pprint_lits(ostream & out, rp_problem p, rp_box b) const {
             out << i << ": " <<   constraint_str << "\t: "
                 << constraint_width(&c, b);
             out << ";";
-
-            if (l->hasPrecision())
-                out << " [delta = " << l->getPrecision() << "]";
-            else
-                out << " [delta = " << m_config.nra_precision << "]";
+	    out << " [delta = " << rp_constraint_delta(c) << "]";
             out << endl;
             i++;
         }

@@ -385,7 +385,7 @@ public:
 
   void                setPrecision            ( double );
   double              getPrecision            ( ) const;
-
+  const vector<OrdinaryTSolver*>     getTSolvers             ( ) const { return tsolvers; }
 private:
 
   //===========================================================================

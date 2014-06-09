@@ -15,17 +15,19 @@ for((i=1; i <=10; i++)); do {
 	LEN=`expr 2 \* $LEN`
 
 	LINE="${f}"
-	for c in "-b" "-r" ""  ; do {
-	CMD="dReach ${c} -k ${LEN} ${INST}"
+	for c in "-b" "-r"   ; do {
+	CMD="dReach ${c} -k ${LEN} ${INST} --delta --delta_heuristic"
 	echo $CMD
 	runtime=$( time ( $CMD ) 2>&1  1>/tmp/grid-sat.tmp)
 	echo $runtime
-	cat /tmp/grid-sat.tmp
+#	cat /tmp/grid-sat.tmp 
+	SATNODES=`cat /tmp/grid-sat.tmp | grep "nodes:" | cut -f 2 -d " "`
+	NRANODES=`cat /tmp/grid-sat.tmp | grep "nodes:" | cut -f 3 -d " "`
 	FAIL=`cat /tmp/grid-sat.tmp | grep "There is no" `
 	if [ -n "${FAIL}" ]; then
 	    runtime="?"
 	fi
-	LINE=${LINE}" "${runtime}
+	LINE=${LINE}" "${runtime}" "${SATNODES}" "${NRANODES}
 	
 }; done
 	echo $LINE >> grid.out

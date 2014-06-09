@@ -13,6 +13,12 @@
 
 #include "rp_constraint.h"
 
+/* set constraint delta */
+void rp_ctr_set_delta(rp_constraint * c, double delta)
+{
+  rp_constraint_delta(*c) = delta;
+}
+
 /* Creation of the numerical constraint (l rel r) */
 void rp_ctr_num_create(rp_ctr_num * c,
                        rp_erep * l, int rel, rp_erep * r)

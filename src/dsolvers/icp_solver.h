@@ -52,6 +52,7 @@ public:
     bool        is_box_within_delta(rp_box b);
     int         get_var_split_delta(rp_box b);
     bool        delta_test() const { return m_config.nra_delta_test; }
+    int         nsplit() const { return m_nsplit; }
 private:
     // methods
     icp_solver(const icp_solver& s);
@@ -97,7 +98,7 @@ private:
     bool                             m_ODEresult;
 
     std::unordered_map<Enode *, int> m_enode_to_rp_id;
-    vector<double>                   m_rp_constraint_deltas;
+    //    vector<double>                   m_rp_constraint_deltas;
 #ifdef ODE_ENABLED
     std::vector<ode_solver *>        m_ode_solvers;
 #endif

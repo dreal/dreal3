@@ -39,6 +39,7 @@ typedef struct
   rp_expression func;
   int relfunc;
   bool used;
+  double delta;
 }
 rp_ctr_num_def;
 
@@ -53,6 +54,7 @@ typedef rp_ctr_num_def * rp_ctr_num;
 #define rp_ctr_num_var(c,i)    rp_expression_var((c)->func,i)
 #define rp_ctr_num_occur(c,i)  rp_expression_occur_var((c)->func,i)
 #define rp_ctr_num_used(c)     (c)->used
+#define rp_ctr_num_delta(c)    (c)->delta
 
 /* Creation of the numerical constraint (l rel r) */
 void rp_ctr_num_create (rp_ctr_num * c,
@@ -219,8 +221,8 @@ typedef rp_constraint_def * rp_constraint;
 #define rp_constraint_vptr(c)        (c)->vptr
 #define rp_constraint_arity(c)       (c)->vsize
 #define rp_constraint_var(c,i)       (c)->vptr[i]
-#define rp_constraint_delta(c)       (c)->delta
-
+#define rp_constraint_delta(c)       rp_ctr_num_delta(rp_constraint_num(c))
+void rp_ctr_set_delta(rp_constraint * c, double delta);
 
 /* Declare that c contains var */
 void rp_constraint_insert_variable(rp_constraint c, int var);

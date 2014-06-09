@@ -44,11 +44,12 @@ public:
     bool  check(bool c);
     bool  belongsToT(Enode * e);
     void  computeModel();
-
+    int   decisions() { return m_decisions; }
 private:
     // fields
     scoped_env m_env;
     scoped_vec m_stack;
-    heuristic m_heuristic;
+    heuristic  m_heuristic;
+    int        m_decisions;
 };
 }

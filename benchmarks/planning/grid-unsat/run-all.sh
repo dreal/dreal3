@@ -24,11 +24,14 @@ for((i=1; i <=10; i++)); do {
 	runtime=$( time ( $CMD ) 2>&1  1>/tmp/grid-unsat.tmp)
 	echo $runtime
 	cat /tmp/grid-unsat.tmp
+	SATNODES=`cat /tmp/grid-unsat.tmp | grep "nodes:" | cut -f 2 -d " "`
+	NRANODES=`cat /tmp/grid-unsat.tmp | grep "nodes:" | cut -f 3 -d " "`
+
 	SUCC=`cat /tmp/grid-unsat.tmp | grep "unsat" `
 	if [ -z "${SUCC}" ]; then
 	    runtime="?"
 	fi
-	LINE=${LINE}" "${runtime}
+	LINE=${LINE}" "${runtime}" "${SATNODES}" "${NRANODES}
 	
 }; done
 	echo $LINE >> grid.out

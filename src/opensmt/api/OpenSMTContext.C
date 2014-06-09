@@ -28,6 +28,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <csignal>
 #include <algorithm>
 #include "util/string.h"
+#include "dsolvers/nra_solver.h"
 
 namespace opensmt {
 
@@ -785,6 +786,16 @@ void OpenSMTContext::PrintResult( const lbool & result, const lbool & config_sta
     out << "error" << endl;
   else
 #endif
+    if (config.produce_stats){
+      for( auto t : getEgraphP()->getTSolvers()){
+	dreal::nra_solver* nra = dynamic_cast<dreal::nra_solver*>(t);
+	if(nra){
+	  //	  out << "nodes: " << solver.decisions << " " << nra->decisions() << endl;
+	  break;
+	}
+      }
+    }
+
   if ( result == l_True )
     out << "sat" << endl;
   else if ( result == l_False )

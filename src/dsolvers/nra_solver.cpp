@@ -37,7 +37,7 @@ using std::unordered_set;
 namespace dreal {
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
-    : OrdinaryTSolver (i, n, c, e, t, x, d, s) {
+  : OrdinaryTSolver (i, n, c, e, t, x, d, s), m_decisions(0) {
     if (c.nra_precision == 0.0) c.nra_precision = 0.001;
     m_heuristic.initialize(c);
 }
@@ -159,6 +159,7 @@ bool nra_solver::check(bool complete) {
     }
 #endif
     DREAL_LOG_INFO << "============================";
+    m_decisions += solver.nsplit();
     return result;
 }
 
