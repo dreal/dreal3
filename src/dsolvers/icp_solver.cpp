@@ -491,7 +491,7 @@ rp_box icp_solver::compute_next() {
                 ((m_config.nra_delta_test ?
                   !is_box_within_delta(b) :
                   rp_box_width(b) >= m_config.nra_precision))) {
-                DREAL_LOG_DEBUG << "icp_solver::compute_next: branched on: " << rp_variable_name(rp_problem_var(*m_problem, i));
+                DREAL_LOG_INFO << "icp_solver::compute_next: branched on " << rp_variable_name(rp_problem_var(*m_problem, i));
                 if (m_config.nra_proof) {
                     m_config.nra_proof_out << endl
                                            << "[branched on "
@@ -544,13 +544,11 @@ bool icp_solver::solve() {
         rp_box b = compute_next();
         if (b != nullptr) {
             /* SAT */
-            DREAL_LOG_INFO << "icp_solver:: SAT with the following box:";
-            if (m_config.nra_verbose) {
-                if (DREAL_LOG_INFO_IS_ON) {
-                    pprint_vars(cerr, *m_problem, b, false);
-                    if (m_config.nra_delta_test) {
-                        pprint_lits(cerr, *m_problem, b);
-                    }
+            DREAL_LOG_INFO << "icp_solver::solve: SAT with the following box:";
+            if (DREAL_LOG_INFO_IS_ON) {
+                pprint_vars(cerr, *m_problem, b, false);
+                if (m_config.nra_delta_test) {
+                    pprint_lits(cerr, *m_problem, b);
                 }
             }
             if (m_config.nra_proof) {
@@ -575,7 +573,7 @@ bool icp_solver::solve() {
             return true;
         } else {
             /* UNSAT */
-            DREAL_LOG_INFO << "icp_solver:: UNSAT";
+            DREAL_LOG_INFO << "icp_solver::solve: UNSAT";
             build_explanation();
             return false;
         }
@@ -694,12 +692,12 @@ void icp_solver::build_explanation() {
         rp_ctr_num cnum = rp_constraint_num(c);
         if (rp_ctr_num_used(cnum)) {
             m_explanation.push_back(m_stack[i]);
-            DREAL_LOG_INFO << "ADDED TO EXPLANATION: " << m_stack[i];
+            DREAL_LOG_DEBUG << "icp_solver::build_explanation: " << m_stack[i];
         }
 #ifdef ODE_ENABLED
         else if (m_stack[i]->isIntegral() || m_stack[i]->isForallT()) {
-        m_explanation.push_back(m_stack[i]);
-        DREAL_LOG_INFO << "ADDED TO EXPLANATION (ODE): " << m_stack[i];
+            m_explanation.push_back(m_stack[i]);
+            DREAL_LOG_DEBUG << "icp_solver::build_explanation: [ODE] " << m_stack[i];
         }
 #endif
     }

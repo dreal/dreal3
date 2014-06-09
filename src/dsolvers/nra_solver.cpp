@@ -137,9 +137,11 @@ bool nra_solver::check(bool complete) {
     DREAL_LOG_INFO << "nra_solver::check(" << (complete ? "complete" : "incomplete") << ")"
                    << " result = " << boolalpha << result;
     if (!result) {
-        for (Enode * const e : explanation) {
-            DREAL_LOG_INFO << "nra_solver::check:explanation provided: "
-                           << e <<" with polarity " << toInt((e)->getPolarity());
+        if (DREAL_LOG_INFO_IS_ON) {
+            DREAL_LOG_INFO << "nra_solver::check: explanation provided:";
+            for (Enode * const e : explanation) {
+                DREAL_LOG_INFO << "\t" << (e->getPolarity() == l_False ? "!" : "") << e;
+            }
         }
     }
     // Only compute the heuristic after first check.  The first check is after
