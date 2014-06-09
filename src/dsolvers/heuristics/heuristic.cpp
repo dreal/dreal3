@@ -131,9 +131,9 @@ namespace dreal{
       if (var.find("mode") != string::npos) {
         int time = atoi(var.substr(var.find("_")+1).c_str());
         int mode = get_mode(e);
-        //DREAL_LOG_INFO << "mode = " << mode << " time = " << time << endl;
+        // DREAL_LOG_INFO << "mode = " << mode << " time = " << time << endl;
         mode_literals[ e ] = new pair<int, int>(mode, time);
-	//DREAL_LOG_INFO << "Mode_lit[" << e << "] = " << mode << " " << time << endl;
+        // DREAL_LOG_INFO << "Mode_lit[" << e << "] = " << mode << " " << time << endl;
         (*time_mode_enodes[time])[mode-1] = e;
       }
     }
@@ -340,17 +340,17 @@ namespace dreal{
         DREAL_LOG_INFO << "Suggested Pos: " << s << endl;
       }
 
-      if(time_mode_enodes[time]->size() > 0){
-	for (int i = 0; i < static_cast<int>(predecessors.size()); i++){
-	  if (i != mode - 1){
-	    s = (*time_mode_enodes[time])[i];
-	    if (s && !s->hasPolarity() && !s->isDeduced()){
-	      s->setDecPolarity(l_False);
-	      suggestions.push_back(s);
-	      DREAL_LOG_INFO << "Suggested Neg: " << s << endl;
-	    }
-	  }
-	}
+      if (time_mode_enodes[time]->size() > 0){
+        for (int i = 0; i < static_cast<int>(predecessors.size()); i++){
+          if (i != mode - 1){
+            s = (*time_mode_enodes[time])[i];
+            if (s && !s->hasPolarity() && !s->isDeduced()){
+              s->setDecPolarity(l_False);
+              suggestions.push_back(s);
+              DREAL_LOG_INFO << "Suggested Neg: " << s << endl;
+            }
+          }
+        }
       }
     }
 
