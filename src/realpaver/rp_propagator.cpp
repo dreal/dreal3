@@ -429,11 +429,9 @@ int rp_propagator::check_precision(rp_operator * o, rp_box b)
   /* Dangerous to stop the application of one operator
      but it can be efficient for slow convergences... */
 
-
   //added for dReal: Prune based on constraint precision
   if((*_problem)->rp_icp_solver->delta_test())
   {
-    //    cout << "check_precision" << endl;
     return !(*_problem)->rp_icp_solver->is_box_within_delta(b);
   }
   else {
@@ -520,6 +518,14 @@ int rp_propagator::apply_loop(rp_box b)
             } else {
                 rp_box_set_empty(b);
                 return( 0 );
+            }
+        } else {
+            for (int i = 0; i < rp_problem_nctr(*_problem); i++) {
+                // rp_constraint_display(stdout, rp_problem_ctr(*_problem, i), rp_problem_vars(*_problem), 8);
+                if (rp_constraint_unfeasible(rp_problem_ctr(*_problem, i), b)) {
+                    rp_box_set_empty(b);
+                    return( 0 );
+                }
             }
         }
     }
