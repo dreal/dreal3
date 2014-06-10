@@ -220,10 +220,14 @@ rp_problem* icp_solver::create_rp_problem() {
             DREAL_LOG_INFO << "\t" << (l->getPolarity() == l_True ? " " : "!") << l;
             // Parse the string (infix form) to create the constraint c
             rp_parse_constraint_string(c, constraint_str.c_str(), rp_problem_symb(*rp_prob));
+            // Assign Delta
+            m_rp_constraint_deltas.push_back(l->hasPrecision() ? l->getPrecision() : m_config.nra_precision);
+            // Assign Delta (NEW)
+            // rp_constraint_delta(*c) = l->hasPrecision() ? l->getPrecision() : m_config.nra_precision;
             // Add to the problem
             rp_vector_insert(rp_problem_ctrs(*rp_prob), *c);
             // Update Counter
-            for (int i = 0; i <rp_constraint_arity(*c); ++i) {
+            for (int i = 0; i < rp_constraint_arity(*c); ++i) {
                 ++rp_variable_constrained(rp_problem_var(*rp_prob, rp_constraint_var(*c, i)));
             }
         } else {
@@ -321,17 +325,23 @@ bool icp_solver::prop_with_ODE() {
     return false;
 }
 
-double icp_solver::constraint_width(const rp_constraint * c, rp_box b) const {
-    rp_expression lhs = rp_ctr_num_left(rp_constraint_num(*c));
-    rp_expression rhs = rp_ctr_num_right(rp_constraint_num(*c));
+double icp_solver::constraint_width(const rp_constraint * c, rp_box const b) const {
+    rp_erep const lhs = rp_expression_rep(rp_ctr_num_left(rp_constraint_num(*c)));
+    rp_erep const rhs = rp_expression_rep(rp_ctr_num_right(rp_constraint_num(*c)));
+    rp_erep lhs_minus_rhs_rep;
+    rp_erep_create_binary (&lhs_minus_rhs_rep, RP_SYMBOL_SUB, lhs, rhs);
+    rp_expression lhs_minus_rhs;
+    double res = 0.0;
+    rp_expression_create(&lhs_minus_rhs, &lhs_minus_rhs_rep);
 
-    if ( rp_expression_eval(lhs, b) && rp_expression_eval(rhs, b) ){
+    if ( rp_expression_eval(lhs_minus_rhs, b) ) {
         // expression value interval is non-empty
-        rp_interval res;
-        rp_interval_add(res, rp_expression_val(lhs), rp_expression_val(rhs));
-        return rp_interval_width(res);
+        res = rp_interval_width(rp_expression_val(lhs_minus_rhs));
+        // rp_constraint_display(stdout, *c, rp_problem_vars(*m_problem), 8); printf(" = ");
+        // rp_interval_display_simple_nl(rp_expression_val(lhs_minus_rhs));
     }
-    return 0.0;
+    rp_expression_destroy(&lhs_minus_rhs);
+    return res;
 }
 
 int icp_solver::get_var_split_delta(rp_box b) {
@@ -350,8 +360,8 @@ int icp_solver::get_var_split_delta(rp_box b) {
         DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Considering constraint" << constraint_str;
         if (constraint_str.compare("0 = 0") != 0) {
             const rp_constraint c = rp_problem_ctr(*m_problem, i);
-            double width =  constraint_width(&c, b);
-            double residual = width-2.0*(*d);
+            double width = constraint_width(&c, b);
+            double residual = width - (*d);
             if ( residual  > max_width ) {
                 max_width = residual;
                 max_constraint = i;
@@ -402,22 +412,18 @@ bool icp_solver::is_box_within_delta(rp_box b) {
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
             const rp_constraint c = rp_problem_ctr(*m_problem, i);
-            double width =  constraint_width(&c, b);
-            bool test = width > 2.0*(*d);
-            if (test){
-                DREAL_LOG_INFO << "icp_solver::is_box_within_delta: " <<  i << ": "
-                               << constraint_str
-                               << "\t: [" << width << " <= "
-                               << 2.0 * (l->hasPrecision() ?
-                                         l->getPrecision() :
-                                         m_config.nra_precision)
-                               << "]";
-            }
+            double width = constraint_width(&c, b);
+            bool test = width > (*d);
+            DREAL_LOG_INFO << "icp_solver::is_box_within_delta: " <<  i << ": "
+                           << constraint_str
+                           << "\t: [" << width << (test ? " > " : " <= ")
+                           << (l->hasPrecision() ?
+                               l->getPrecision() :
+                               m_config.nra_precision)
+                           << "]";
             if ( test ){
-                // DREAL_LOG_INFO << "icp_solver::is_box_within_delta: "
-                //                << "Not Within Delta";
-                // return false;
                 fail = true;
+                break;
             }
             d++;
             i++;
