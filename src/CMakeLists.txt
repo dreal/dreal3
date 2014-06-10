@@ -332,4 +332,15 @@ endif()
 include(CPack)
 
 install(TARGETS dReal DESTINATION bin)
-install(FILES ${DREAL_SOURCE_DIR}/../bin/dReach DESTINATION bin)
+install(FILES ${DREAL_SOURCE_DIR}/../bin/dReach DESTINATION bin
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+              GROUP_READ GROUP_WRITE GROUP_EXECUTE
+              WORLD_READ WORLD_EXECUTE)
+set(BMC_PATH ${DREAL_SOURCE_DIR}/../tools/_build/bmc/src/bmc_main.native)
+if(EXISTS ${BMC_PATH})
+  message(STATUS "found bmc")
+  install(FILES ${BMC_PATH} DESTINATION bin
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                GROUP_READ GROUP_WRITE GROUP_EXECUTE
+                WORLD_READ WORLD_EXECUTE)
+endif()

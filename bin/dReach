@@ -4,7 +4,12 @@ SCRIPT_PATHNAME=`python -c "import os,sys; print os.path.realpath(\"$0\")"`
 SCRIPT_PATH="$( cd "$( dirname "${SCRIPT_PATHNAME}" )" && pwd )"
 
 # TODO: Specify the paths for BMC tool and DREAL
-BMC=${SCRIPT_PATH}/bmc
+for BMC_NAME in bmc bmc_main.native; do
+    BMC=${SCRIPT_PATH}/${BMC_NAME}
+    if [ -e ${BMC} ] ; then
+        break
+    fi
+done
 SOLVER=${SCRIPT_PATH}/dReal
 
 #################################################################
