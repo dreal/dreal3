@@ -206,6 +206,7 @@ typedef struct
   rp_constraint_val val;   /* the constraint      */
   int * vptr;              /* subset of variables */
   int vsize;               /* size of vars        */
+  double delta;
 }
 rp_constraint_def;
 
@@ -218,6 +219,7 @@ typedef rp_constraint_def * rp_constraint;
 #define rp_constraint_vptr(c)        (c)->vptr
 #define rp_constraint_arity(c)       (c)->vsize
 #define rp_constraint_var(c,i)       (c)->vptr[i]
+#define rp_constraint_delta(c)       (c)->delta
 
 
 /* Declare that c contains var */
