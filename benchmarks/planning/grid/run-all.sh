@@ -26,6 +26,8 @@ for((i=1; i <=10; i++)); do {
 	FAIL=`cat /tmp/grid-sat.tmp | grep "There is no" `
 	if [ -n "${FAIL}" ]; then
 	    runtime="?"
+	    SATNODES="?"
+	    NRANODES="?"
 	fi
 	LINE=${LINE}" "${runtime}" "${SATNODES}" "${NRANODES}
 	

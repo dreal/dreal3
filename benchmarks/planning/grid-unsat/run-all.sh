@@ -1,6 +1,6 @@
 #!/bin/bash
 LIMIT=1200
-#ulimit -t $LIMIT
+ulimit -t $LIMIT
 
 NUM=10
 #TIMEFORMAT="%U"
@@ -19,7 +19,7 @@ for((i=1; i <=10; i++)); do {
 #	for c in "-b" "-d" ""; do {
 	for c in "-b" "-r"  ; do {
 
-	CMD="dReach ${c} -k ${LEN} ${INST}"
+	CMD="dReach ${c} -k ${LEN} ${INST} --delta --delta_heuristic"
 	echo $CMD
 	runtime=$( time ( $CMD ) 2>&1  1>/tmp/grid-unsat.tmp)
 	echo $runtime

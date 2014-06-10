@@ -21,8 +21,8 @@ set title "Grid SAT solver nodes -- UNSAT problem"
 plot 'grid.out' using 1:3 t "Full Encoding", \
      'grid.out' using 1:6 t "Reduced Encoding"
 
-set ylabel "ICP Nodes"
-set output "grid-icp-nodes.ps"
-set title "Grid ICP solver nodes -- UNSAT problem"
-plot 'grid.out' using 1:4 t "Full Encoding", \
-     'grid.out' using 1:7 t "Reduced Encoding"
+#set ylabel "ICP Nodes"
+#set output "grid-icp-nodes.ps"
+#set title "Grid ICP solver nodes -- UNSAT problem"
+#plot 'grid.out' using 1:4 t "Full Encoding", \
+#     'grid.out' using 1:7 t "Reduced Encoding"
