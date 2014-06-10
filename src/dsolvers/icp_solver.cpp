@@ -383,59 +383,6 @@ int icp_solver::get_var_split_delta(rp_box b) {
     }
 }
 
-int icp_solver::get_var_split_delta1(rp_box b) {
-    // get var with maximal sum of constraint residuals
-
-    int num_vars = m_rp_variables.size(); // ;rp_box_size(b);
-    double* variable_residuals = new double[num_vars];
-    vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
-    int i;
-
-    for ( i = 0; i < num_vars; i++ ){
-        variable_residuals[i] = 0.0;
-    }
-    DREAL_LOG_INFO << "icp_solver::get_var_split_delta1: num_vars = " << num_vars;
-
-    i = 0;
-    for (auto const l : m_stack) {
-        if (l->isForallT() || l->isIntegral()) {
-            continue;
-        }
-        stringstream buf;
-        l->print_infix(buf, l->getPolarity());
-        string constraint_str = buf.str();
-        if (constraint_str.compare("0 = 0") != 0) {
-            const rp_constraint c = rp_problem_ctr(*m_problem, i);
-            double width =  constraint_width(&c, b);
-            double residual = width-2.0*(*d);
-            DREAL_LOG_INFO << "icp_solver::get_var_split_delta1: c = " << constraint_str;
-            for ( i = 0; i < rp_constraint_arity(c); i++ ){
-                int var = rp_constraint_var(c, i);
-                DREAL_LOG_INFO << "icp_solver::get_var_split_delta1: var = " << var;
-                variable_residuals[var] += residual;
-            }
-            d++;
-            i++;
-        }
-    }
-    for ( i = 0; i < num_vars; i++ ){
-        double var_width = rp_interval_width(rp_box_elem(b, i));
-        variable_residuals[i] *= var_width;
-    }
-    double max_residual = 0.0;
-    int max_var = -1;
-    for ( i = 0; i < num_vars; i++ ){
-        if (variable_residuals[i] > max_residual){
-            max_residual  = variable_residuals[i];
-            max_var = i;
-        }
-    }
-
-    delete [] variable_residuals;
-    return max_var;
-}
-
-
 bool icp_solver::is_box_within_delta(rp_box b) {
     // for each expression
     //  compute width given box
