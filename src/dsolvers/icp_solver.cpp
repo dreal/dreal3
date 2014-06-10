@@ -333,12 +333,8 @@ double icp_solver::constraint_width(const rp_constraint * c, rp_box const b) con
     rp_expression lhs_minus_rhs;
     double res = 0.0;
     rp_expression_create(&lhs_minus_rhs, &lhs_minus_rhs_rep);
-
     if ( rp_expression_eval(lhs_minus_rhs, b) ) {
-        // expression value interval is non-empty
         res = rp_interval_width(rp_expression_val(lhs_minus_rhs));
-        // rp_constraint_display(stdout, *c, rp_problem_vars(*m_problem), 8); printf(" = ");
-        // rp_interval_display_simple_nl(rp_expression_val(lhs_minus_rhs));
     }
     rp_expression_destroy(&lhs_minus_rhs);
     return res;
@@ -497,6 +493,17 @@ bool icp_solver::solve() {
         rp_box b = compute_next();
         if (b != nullptr) {
             /* SAT */
+            // Check feasibility
+            for (int i = 0; i < rp_problem_nctr(*m_problem); i++) {
+                rp_constraint c = rp_problem_ctr(*m_problem, i);
+                rp_expression const lhs = rp_ctr_num_left(rp_constraint_num(c));
+                rp_expression const rhs = rp_ctr_num_right(rp_constraint_num(c));
+                rp_expression_eval(lhs, b);
+                rp_expression_eval(rhs, b);
+                if (rp_constraint_unfeasible(rp_problem_ctr(*m_problem, i), b)) {
+                    return false;
+                }
+            }
             DREAL_LOG_INFO << "icp_solver::solve: SAT with the following box:";
             if (DREAL_LOG_INFO_IS_ON) {
                 pprint_vars(cerr, *m_problem, b, false);
