@@ -78,13 +78,7 @@ install:
 
 before_script:
   - SITE=Ubuntu12.04@Travis
-  - if [[ $CMAKE_BUILD_TYPE == Release ]]; then
-      BUILD_TYPE=Release;
-    else
-      BUILD_TYPE=Debug;
-    fi
-  - BUILD_NAME=${TRAVIS_BRANCH}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE}
-  - GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`
+  - BUILD_NAME=${TRAVIS_BRANCH}_${CMAKE_CXX_COMPILER}_${CMAKE_BUILD_TYPE}
   - GIT_SUBJECT=`git log --oneline -n 1 | cut -d ' ' -f 2-`
   - GIT_SUBJECT=${GIT_SUBJECT//\"/\\\"}
   - GIT_SUBJECT=${GIT_SUBJECT//,/\,}
@@ -126,7 +120,7 @@ after_script:
       npm install coveralls --save;
       cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
     fi
-  - find Testing -name "*.xml" -exec sed -i "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";"
+  - find Testing -name "*.xml" -exec sed -i "s,Generator=\".*\",Generator=\"${TRAVIS_COMMIT}###${GIT_SUBJECT}\"," {} ";"
   - find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; ../script/demangle_cpptype.py {} > $TMP; mv -v $TMP {}' ";"
   - ctest -D ExperimentalSubmit
   -  cd ..
