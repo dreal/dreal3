@@ -167,10 +167,10 @@ CoreSMTSolver::~CoreSMTSolver()
 
   for (int i = 0; i < tmp_reas.size(); i++) free(tmp_reas[i]);
 
-  //#ifdef STATISTICS
+#ifdef STATISTICS
   if ( config.produce_stats )
     printStatistics ( config.getStatsOut( ) );
-  //#endif
+#endif
 
   delete theory_handler;
   free(fake_clause);
