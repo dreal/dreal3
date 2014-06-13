@@ -14,9 +14,8 @@ Install Packages
 gcc-4.8/automake/autoconf/libtool/git/cmake
 -------------------------------------------
 
-    brew tap homebrew/versions
     brew update
-    brew install gcc48 automake autoconf libtool git cmake
+    brew install gcc automake autoconf libtool git cmake
 
 Build dReal
 ===========
