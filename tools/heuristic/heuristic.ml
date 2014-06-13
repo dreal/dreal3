@@ -11,89 +11,90 @@ open IO
 open Printf
 open Costmap
 
+module SearchNode = struct
+  type t  = { cost : float; 
+	      mode : id}
+  let make (c, m) = { cost = c;  mode = m }
+  let cost { cost = c;  mode = m } = c
+  let mode { cost = c;  mode = m } = m
+
+  let compare (a : t) (b : t) : int =
+    if cost a > cost b then
+      -1
+    else if cost a < cost b then
+      1
+    else
+      0
+					       
+end
+
 module Heuristic = struct
 
       
-  let get_min_open (openl : id list) (costs : Costmap.t) : int option =
-    match List.length openl > 0 with
-      true ->    
-      Some (List.hd openl) 
-    | false ->
-       None
-	 
-	   
-
-  let update_costs (min_mode : Mode.id) (openl : id list) (closed : id list) (costs : Costmap.t) (h : Hybrid.t) : Costmap.t =
-    let min_mode_cost = Map.find min_mode costs in
-    let newcosts = Map.mapi (fun  mode_id   -> 
-	     let c = Map.find mode_id costs in
-	     match (Hybrid.adjacent min_mode mode_id h, List.mem mode_id closed) with
-	       (true, false) ->
-		 let trans_cost = min_mode_cost +. 1.0 in
-		 let new_cost = min c trans_cost in
-		 (fun mode_id -> new_cost)
-	     | (_, _) ->
-		(fun mode_id -> c)
-	     )
-	    costs
-    in
-    (*
-    let () = print_endline "updated Costs:" in
-    let () = Costmap.print IO.stdout newcosts in
-    let () = print_endline "" in
-     *)
-    newcosts
-
-  let update_costs_backward (min_mode : Mode.id) (openl : id list) (closed : id list) (costs : Costmap.t) (h : Hybrid.t) : Costmap.t =
-    let min_mode_cost = Map.find min_mode costs in
-    let newcosts = Map.mapi (fun  mode_id   -> 
-	     let c = Map.find mode_id costs in
-	     match (Hybrid.adjacent  mode_id min_mode h, List.mem mode_id closed) with
-	       (true, false) ->
-		 let trans_cost = min_mode_cost +. 1.0 in
-		 let new_cost = min c trans_cost in
-		 (fun mode_id -> new_cost)
-	     | (_, _) ->
-		(fun mode_id -> c)
-	     )
-	    costs
-    in
-    (*
-    let () = print_endline "updated Costs:" in
-    let () = Costmap.print IO.stdout newcosts in
-    let () = print_endline "" in
-     *)
-    newcosts
 
 
 
+let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) fwd h : id BatSet.t =
+  match fwd with
+    true ->
+    let adjacent = BatSet.of_enum (Map.keys (Mode.jumpmap (Map.find (SearchNode.mode min_mode) h.modemap))) in
+    let close = (BatSet.map (fun x -> SearchNode.mode x) closed) in
+    BatSet.diff adjacent close
+  | false ->
+     let modes = Map.bindings h.modemap in
+     let jumps = List.map (fun (k, m) -> (m, List.of_enum (Map.keys (Mode.jumpmap m)))) modes in
+     let jumps_to_min_open = List.filter (fun (m, nm) -> (List.mem (SearchNode.mode min_mode) nm)) jumps in
+     let adjacent = BatSet.of_list (List.map (fun (m, nm) -> Mode.mode_id m) jumps_to_min_open) in
+     BatSet.diff adjacent (BatSet.map (fun x -> SearchNode.mode x) closed)
 
 
-
-  let rec get_costs (openl : id list) (closed : id list) (costs : Costmap.t) (h : Hybrid.t) : Costmap.t =
+  let get_costs (openq : SearchNode.t BatHeap.t) (closed : SearchNode.t BatSet.t) 
+		(costs : Costmap.t) (h : Hybrid.t) (fwd : bool) 
+      : Costmap.t =
     (*
     let () = print_endline "Open list:" in
      let () = List.iter (printf "%d ") openl in
      let () = print_endline "" in
      *)
+    (*
     let cost_compare (a : id) (b : id) : int = 
       let a_cost = Map.find a costs in
       let b_cost = Map.find b costs in
       (int_of_float a_cost) - (int_of_float b_cost)
     in
-    let sorted = List.sort cost_compare openl in
-    let min_open = get_min_open sorted costs in
-    match min_open with
-      Some min_mode -> 
-      (*
-      let () = fprintf IO.stdout "Min cost open node: %d \n" min_mode in
-       *)
-      let closedp = List.append closed [ min_mode ] in
-      let openp = List.tl sorted in
-      let adjacent = List.of_enum (Map.keys (Mode.jumpmap (Map.find min_mode h.modemap))) in
-      let open_adjacent = List.filter (fun x -> not (List.mem x closedp) && not (List.mem x openp)) adjacent in
-      let openq = List.append openp open_adjacent in
-      let costsp = update_costs min_mode openp closedp costs h in
+    
+    let sorted = List.sort cost_compare openl in 
+     *)
+    let closedr = Ref.ref closed in
+    let openqr = Ref.ref openq in
+    let costsr = Ref.ref costs in
+    begin
+      closedr := BatSet.union closed (BatSet.of_list (BatHeap.to_list (Ref.get openqr)));
+      while (BatHeap.size (Ref.get openqr) > 0) do
+	let min_mode = BatHeap.find_min (Ref.get openqr) in
+	let adjacent = get_new_adjacent min_mode (Ref.get closedr) fwd h in
+	let min_open_cost = SearchNode.cost min_mode in	  
+	let adjcosts = BatSet.map (fun x  -> SearchNode.make ((min_open_cost +. 1.0), x)) adjacent in
+	(*
+        let () = fprintf IO.stdout "Min cost open node: %d \n" (SearchNode.mode min_mode) in
+	let () = print_endline "Adjacent nodes:" in
+	let () = BatSet.iter (printf "%d ") adjacent in
+	let () = print_endline "" in
+	 *)
+	begin
+	  openqr :=  BatHeap.del_min (Ref.get openqr);
+	  openqr :=  BatSet.fold BatHeap.add adjcosts (Ref.get openqr);
+	  costsr :=  BatSet.fold (fun x c -> Map.add (SearchNode.mode x) (SearchNode.cost x) c)  adjcosts (Ref.get costsr);
+	  closedr :=  BatSet.union (Ref.get closedr) adjcosts;
+	end
+      done;
+      Ref.get costsr
+    end
+
+    
+(*	let openq = List.append openp open_adjacent in
+	let costsp = update_costs min_mode openq closedp costs h in
+ *)
       (*
       let () = print_endline "Adjacent nodes:" in
       let () = List.iter (printf "%d ") adjacent in
@@ -107,62 +108,10 @@ module Heuristic = struct
       let () = print_endline "Costs:" in
       let () = Costmap.print IO.stdout costsp in
        *)
-      get_costs openq closedp costsp h
-    | None -> costs
+  
+  
 
-  let rec get_costs_backward (openl : id list) (closed : id list) (costs : Costmap.t) (h : Hybrid.t) : Costmap.t =
-    (*
-    let () = print_endline "Open list:" in
-     let () = List.iter (printf "%d ") openl in
-     let () = print_endline "" in
-     *)
-    let cost_compare (a : id) (b : id) : int = 
-      let a_cost = Map.find a costs in
-      let b_cost = Map.find b costs in
-      (int_of_float a_cost) - (int_of_float b_cost)
-    in
-    let sorted = List.sort cost_compare openl in
-(*
-    let () = print_endline "Sorted nodes:" in
-    let () = List.iter (printf "%d ") sorted in
-    let () = print_endline "" in
- *)
-    let min_open = get_min_open sorted costs in
-    match min_open with
-      Some min_mode -> 
-      (*
-      let () = fprintf IO.stdout "Min cost open node: %d \n" min_mode in
-       *)
-      let closedp = List.append closed [ min_mode ] in
-      let openp = List.tl sorted in
-      let modes = Map.bindings h.modemap in
-      let jumps = List.map (fun (k, m) -> (m, List.of_enum (Map.keys (Mode.jumpmap m)))) modes in
-      let jumps_to_min_open = List.filter 
-				(fun (m, nm) -> 
-				 (List.mem min_mode nm)
-				)
-				jumps
-      in
-      let adjacent = List.map (fun (m, nm) -> Mode.mode_id m) jumps_to_min_open in
-      let open_adjacent = List.filter (fun x -> not (List.mem x closedp) && not (List.mem x openp)) adjacent in
-      let openq = List.append openp open_adjacent in
-      let costsp = update_costs_backward min_mode openp closedp costs h in
-      
-(*
-      let () = print_endline "Adjacent nodes:" in
-      let () = List.iter (printf "%d ") adjacent in
-      let () = print_endline "" in
-      let () = print_endline "New open list:" in
-      let () = List.iter (printf "%d ") openq in
-      let () = print_endline "" in
-      let () = print_endline "Closed List:" in
-      let () = List.iter (printf "%d ") closedp in
-      let () = print_endline "" in
-      let () = print_endline "Costs:" in
-      let () = Costmap.print IO.stdout costsp in
- *)
-      get_costs_backward openq closedp costsp h
-    | None -> costs
+		
 
   (** Generate H1 heuristic *)
   let heuristicgen (h : Hybrid.t) (k : int) : Costmap.t =
@@ -177,14 +126,11 @@ module Heuristic = struct
 			       (fun id -> infinity))
 			     mycosts
     in
-    (*
-    let () = print_endline "init Costs:" in
-    let () = Costmap.print IO.stdout initcosts in
-    let () = print_endline "" in 
-     *)
-    let openl = [ init_mode_id ] in
-    let closed = [ ] in
-    let init_costs = get_costs openl closed initcosts h in
+     
+    let openempty = BatHeap.empty   in
+    let openq = BatHeap.insert openempty (SearchNode.make (0.0, init_mode_id))  in
+    let closed = BatSet.empty in
+    let init_costs = (get_costs openq closed initcosts h) true in
    (*
     let () = print_endline "init Costs:" in
     let () = Costmap.print IO.stdout init_costs in
@@ -196,7 +142,7 @@ module Heuristic = struct
   (** Generate H1 heuristic backwards from goals *)
   let heuristicgen_back (h : Hybrid.t) (k : int) : Costmap.t =
     let init_mode_id = h.init_id in
-    let goal_mode_ids = List.map (fun (m, _) -> m ) h.goals in
+    let goal_mode_ids = List.map (fun (m, _) ->  m ) h.goals in
     let mycosts = Costmap.of_modemap h.modemap in
     let initcosts = Map.mapi (fun id ->
 			     if List.mem id goal_mode_ids
@@ -211,9 +157,10 @@ module Heuristic = struct
     let () = Costmap.print IO.stdout initcosts in
     let () = print_endline "" in 
      *)
-    let openl = goal_mode_ids in
-    let closed = [ ] in
-    let final_costs = get_costs_backward openl closed initcosts h in
+    let openempty = BatHeap.empty   in
+    let openq = List.fold_right (fun e h -> BatHeap.insert h (SearchNode.make (0.0, e)) ) goal_mode_ids openempty  in
+    let closed = BatSet.empty in
+    let final_costs = (get_costs openq closed initcosts h) true in
    (*
     let () = print_endline "goal Costs:" in
     let () = Costmap.print IO.stdout final_costs in

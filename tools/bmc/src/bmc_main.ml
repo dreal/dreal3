@@ -13,6 +13,7 @@ let k = ref 3 (* default unrolling value is 3 *)
 let pathgen = ref false
 let bmc_heuristic = ref None
 let bmc_heuristic_prune = ref None
+let bmc_heuristic_prune_deep = ref None
 let path = ref None
 
 (* Takes in string s (ex: "[1,2,3,4,5]")
@@ -41,6 +42,9 @@ let spec = [
   ("--bmc_heuristic_prune",
    Arg.String (fun n -> bmc_heuristic_prune := Some(n)),
    ": generate BMC heuristic to generate a pruned encoding");
+  ("--bmc_heuristic_prune_deep",
+   Arg.String (fun n -> bmc_heuristic_prune_deep := Some(n)),
+   ": generate BMC heuristic to generate a pruned encoding (including continuous variables)");
   ("--path",
    Arg.String (fun s -> path := Some (process_path s)),
    ": specify the path (ex: \"[1,2,1,2,1]\" to focus (Default: none)");
@@ -77,7 +81,17 @@ let run () =
 	let () = close_out hout in
 	let smt = Bmc.compile_pruned hm !k heuristic heuristic_back in
 	Smt2.print out smt 
-      else
+
+(*      else if Option.is_some !bmc_heuristic_prune_deep then
+	let heuristic = Heuristic.heuristicgen hm !k in
+	let heuristic_back = Heuristic.heuristicrelgen_back hm !k in
+	let hout = open_out (Option.get !bmc_heuristic_prune) in
+	let () = Heuristic.writeHeuristic heuristic hm !k hout in
+	let () = close_out hout in
+	let smt = Bmc.compile_pruned hm !k heuristic heuristic_back in
+	Smt2.print out smt 
+ *)  
+    else
 	let _ = Hybrid.check_path hm !path !k in
 	let smt = Bmc.compile hm !k !path in
 	Smt2.print out smt
