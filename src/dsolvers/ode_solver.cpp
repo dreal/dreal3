@@ -116,17 +116,20 @@ ode_solver::ode_solver(SMTConfig& c,
             assert(flow_map.find(name_prefix) != flow_map.end());
         }
 
-        Enode * rhs = flow_map[name_prefix];
+        Enode * const rhs = flow_map[name_prefix];
         stringstream ss;
         rhs->print_infix(ss, true, name_postfix);
+        Enode * const _0_var = var_list->getCar();
+        Enode * const _t_var = var_list->getCdr()->getCar();
         if (rhs->isConstant() && rhs->getValue() == 0.0) {
             // If RHS of ODE == 0.0, we treat it as a parameter in CAPD
-            m_pars.push_back(var_list->getCar());
+            m_0_pars.push_back(_0_var);
+            m_t_pars.push_back(_t_var);
             m_par_list.push_back(name);
         } else {
             // Otherwise, we treat it as an ODE variable.
-            m_0_vars.push_back(var_list->getCar());
-            m_t_vars.push_back(var_list->getCdr()->getCar());
+            m_0_vars.push_back(_0_var);
+            m_t_vars.push_back(_t_var);
             m_var_list.push_back(name);
             m_ode_list.push_back(ss.str());
         }
@@ -348,6 +351,11 @@ ode_solver::ODE_result ode_solver::solve_forward(rp_box b) {
     ODE_result ret = ODE_result::SAT;
     update(b);
 
+    bool prune_params_result = prune_params();
+    if (!prune_params_result) {
+        return ODE_result::UNSAT;
+    }
+
     static map<vector<double>, tuple<ODE_result, vector<pair<interval, IVector>>>> cache;
     vector<pair<interval, IVector>> bucket;
 
@@ -387,6 +395,11 @@ ode_solver::ODE_result ode_solver::solve_backward(rp_box b) {
     DREAL_LOG_INFO << "ode_solver::solve_backward";
     ODE_result ret = ODE_result::SAT;
     update(b);
+
+    bool prune_params_result = prune_params();
+    if (!prune_params_result) {
+        return ODE_result::UNSAT;
+    }
 
     static map<vector<double>, tuple<ODE_result, vector<pair<interval, IVector>>>> cache;
     vector<pair<interval, IVector>> bucket;
@@ -432,12 +445,7 @@ ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector
     try {
         // Set up VectorField
         IMap vectorField(m_diff_sys_forward);
-        for (Enode * par : m_pars) {
-            double lb = get_lb(par);
-            double ub = get_ub(par);
-            string name = par->getCar()->getName();
-            vectorField.setParameter(name, interval(lb, ub));
-        }
+        set_params(vectorField);
         ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .001);
         ITimeMap timeMap(solver);
         C0Rect2Set s(m_X_0);
@@ -531,12 +539,7 @@ ode_solver::ODE_result ode_solver::compute_backward(vector<pair<interval, IVecto
     try {
         // Set up VectorField
         IMap vectorField(m_diff_sys_backward);
-        for (Enode * par : m_pars) {
-            double lb = get_lb(par);
-            double ub = get_ub(par);
-            string name = par->getCar()->getName();
-            vectorField.setParameter(name, interval(lb, ub));
-        }
+        set_params(vectorField);
         ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .001);
         ITimeMap timeMap(solver);
         C0Rect2Set s(m_X_t);
@@ -849,19 +852,41 @@ bool ode_solver::inner_loop_backward(ITaylor & solver, interval prevTime, vector
     return false;
 }
 
+bool ode_solver::prune_params() {
+    for (unsigned i = 0; i < m_0_pars.size(); i++) {
+        Enode * const _0_par = m_0_pars[i];
+        Enode * const _t_par = m_t_pars[i];
+        interval _0_intv = interval(get_lb(_0_par), get_ub(_0_par));
+        interval const _t_intv = interval(get_lb(_t_par), get_ub(_t_par));
+        DREAL_LOG_DEBUG << "ode_solver::prune_params _0_intv = " << _0_intv;
+        DREAL_LOG_DEBUG << "ode_solver::prune_params _t_intv = " << _t_intv;
+        if (!intersection(_0_intv, _t_intv, _0_intv)) {
+            DREAL_LOG_DEBUG << "ode_solver::prune_params intersection = " << "empty";
+            return false;
+        } else {
+            DREAL_LOG_DEBUG << "ode_solver::prune_params intersection = " << _0_intv;
+            set_lb(_0_par, _0_intv.leftBound());
+            set_ub(_0_par, _0_intv.rightBound());
+            set_lb(_t_par, _0_intv.leftBound());
+            set_ub(_t_par, _0_intv.rightBound());
+        }
+    }
+    return true;
+}
+
 ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t, interval const & T,
                                                       IVector const & inv, vector<IFunction> & funcs) {
+    bool prune_params_result = prune_params();
+    if (!prune_params_result) {
+        return ODE_result::UNSAT;
+    }
+
     // X_t = X_t \cup (X_0 + (d/dt Inv) * T)
     for (int i = 0; i < X_0.dimension(); i++) {
         interval const & x_0 = X_0[i];
         interval & x_t = X_t[i];
         IFunction & dxdt = funcs[i];
-        for (Enode * par : m_pars) {
-            double lb = get_lb(par);
-            double ub = get_ub(par);
-            string name = par->getCar()->getName();
-            dxdt.setParameter(name, interval(lb, ub));
-        }
+        set_params(dxdt);
         try {
             interval new_x_t = x_0 + dxdt(inv) * T;
             if (!intersection(new_x_t, x_t, x_t)) {
@@ -879,17 +904,17 @@ ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVect
 
 ode_solver::ODE_result ode_solver::simple_ODE_backward(IVector & X_0, IVector const & X_t, interval const & T,
                                                        IVector const & inv, vector<IFunction> & funcs) {
+    bool prune_params_result = prune_params();
+    if (!prune_params_result) {
+        return ODE_result::UNSAT;
+    }
+
     // X_0 = X_0 \cup (X_t - + (d/dt Inv) * T)
     for (int i = 0; i < X_0.dimension(); i++) {
         interval & x_0 = X_0[i];
         interval const & x_t = X_t[i];
         IFunction & dxdt = funcs[i];
-        for (Enode * par : m_pars) {
-            double lb = get_lb(par);
-            double ub = get_ub(par);
-            string name = par->getCar()->getName();
-            dxdt.setParameter(name, interval(lb, ub));
-        }
+        set_params(dxdt);
         try {
             interval const new_x_0 = x_t - dxdt(inv) * T;
             if (!intersection(new_x_0, x_0, x_0)) {

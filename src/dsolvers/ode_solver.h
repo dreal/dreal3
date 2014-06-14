@@ -27,6 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "capd/capdlib.h"
+#include "util/logging.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
@@ -74,7 +75,8 @@ private:
     std::vector<std::string>       m_var_list;
     std::vector<Enode*>            m_0_vars;
     std::vector<Enode*>            m_t_vars;
-    std::vector<Enode*>            m_pars;
+    std::vector<Enode*>            m_0_pars;
+    std::vector<Enode*>            m_t_pars;
     capd::IVector                  m_X_0;
     capd::IVector                  m_X_t;
     capd::IVector                  m_inv;
@@ -125,7 +127,19 @@ private:
     ODE_result prune_forward(std::vector<std::pair<capd::interval, capd::IVector>> & bucket);
     ODE_result compute_backward(std::vector<std::pair<capd::interval, capd::IVector>> & bucket);
     ODE_result prune_backward(std::vector<std::pair<capd::interval, capd::IVector>> & bucket);
+    bool prune_params();
 
+    template<typename T>
+    void set_params(T & f) {
+        for (Enode * const par : m_0_pars) {
+            double const lb = get_lb(par);
+            double const ub = get_ub(par);
+            capd::interval const intv = capd::interval(lb, ub);
+            string const & name = par->getCar()->getName();
+            DREAL_LOG_DEBUG << "ode_solver::set_params " << name << "\t = " << intv;
+            f.setParameter(name, intv);
+        }
+    }
     // Inline functions
     inline double get_lb(Enode* const e) const { return rp_binf(rp_box_elem(m_b, m_enode_to_rp_id[e])); }
     inline double get_ub(Enode* const e) const { return rp_bsup(rp_box_elem(m_b, m_enode_to_rp_id[e])); }
