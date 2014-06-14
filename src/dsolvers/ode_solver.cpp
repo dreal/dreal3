@@ -89,7 +89,8 @@ ode_solver::ode_solver(SMTConfig& c,
     m_invs(invs),
     m_enode_to_rp_id(enode_to_rp_id),
     m_stepControl(c.nra_ODE_step),
-    m_time(nullptr) {
+    m_time(nullptr),
+    m_trivial(false) {
     // Pick the right flow_map (var |-> ODE) using current mode
     m_mode = l_int->getCdr()->getCar()->getValue();
     map<string, Enode *> & flow_map = m_egraph.flow_maps[string("flow_") + to_string(m_mode)];
@@ -140,6 +141,9 @@ ode_solver::ode_solver(SMTConfig& c,
     string diff_var = "";
     if (!m_var_list.empty()) {
         diff_var = "var:" + join(m_var_list, ", ") + ";";
+    } else {
+        DREAL_LOG_INFO << "TRIVIAL";
+        m_trivial = true;
     }
     string diff_fun_forward = "";
     string diff_fun_backward = "";
@@ -384,7 +388,7 @@ ode_solver::ODE_result ode_solver::solve_forward(rp_box b) {
     } else {
         ret = compute_forward(bucket);
     }
-    if (ret == ODE_result::SAT) {
+    if ((ret == ODE_result::SAT) || (ret == ODE_result::EXCEPTION)) {
         return prune_forward(bucket);
     } else {
         return ret;
@@ -429,7 +433,7 @@ ode_solver::ODE_result ode_solver::solve_backward(rp_box b) {
     } else {
         ret = compute_backward(bucket);
     }
-    if (ret == ODE_result::SAT) {
+    if ((ret == ODE_result::SAT) || (ret == ODE_result::EXCEPTION)) {
         return prune_backward(bucket);
     } else {
         return ret;
@@ -441,6 +445,10 @@ ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector
     ODE_result ret = ODE_result::SAT;
     auto start = high_resolution_clock::now();
     bool invariantViolated = false;
+
+    if (m_trivial) {
+        return ODE_result::SAT;
+    }
 
     try {
         // Set up VectorField
@@ -535,6 +543,10 @@ ode_solver::ODE_result ode_solver::compute_backward(vector<pair<interval, IVecto
     ODE_result ret = ODE_result::SAT;
     auto start = high_resolution_clock::now();
     bool invariantViolated = false;
+
+    if (m_trivial) {
+        return ODE_result::SAT;
+    }
 
     try {
         // Set up VectorField

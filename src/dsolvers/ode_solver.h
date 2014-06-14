@@ -52,6 +52,7 @@ public:
     double              logVolume_X0(rp_box b) const;
     double              logVolume_Xt(rp_box b) const;
     unsigned            get_Mode() const { return m_mode; }
+    bool                is_trivial() const { return m_trivial; }
 
 private:
     std::vector<Enode*> get_X0() const { return m_0_vars; }
@@ -87,6 +88,7 @@ private:
     unsigned                       m_mode;
     unsigned                       m_step;
     std::vector<capd::IFunction>   m_funcs;
+    bool                           m_trivial;  // on if there is no ODE variables (possibly have params)
 
     // Private Methods
     ode_solver& operator=(const ode_solver& o);
