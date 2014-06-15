@@ -21,22 +21,23 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/scoped_vec.h"
 
 namespace dreal {
-  class heuristic {
-  public:
+class heuristic {
+public:
     heuristic(){}
     void initialize(SMTConfig &);
     ~heuristic() {
-      for (auto i : predecessors)
-        delete i;
-      for (auto p : mode_literals)
-        delete p.second;
-      for (auto d : m_decision_stack)
-        delete d;
-      for (auto t : time_mode_enodes)
-        delete t;
+        for (auto i : predecessors)
+            delete i;
+        for (auto p : mode_literals)
+            delete p.second;
+        for (auto d : m_decision_stack)
+            delete d;
+        for (auto t : time_mode_enodes)
+            delete t;
     }
 
     void resetSuggestions() { m_suggestions.clear(); }
@@ -47,13 +48,13 @@ namespace dreal {
 
     // Is mode1 a predecessor of mode2
     bool predecssor(int mode1, int mode2) {
-      set<int>* i = predecessors[mode2-1];
-      return i->find(mode1) != i->end();
+        set<int>* i = predecessors[mode2-1];
+        return i->find(mode1) != i->end();
     }
 
     double getCost(int i) { return m_cost[i];  }
 
-  private:
+private:
     vector<set<int>*> predecessors;
     vector< double >  m_cost;
     vector< Enode * > m_suggestions;
@@ -69,13 +70,13 @@ namespace dreal {
     bool expand_path(scoped_vec &);
     bool unwind_path(scoped_vec &);
 
-  public:
+public:
     struct SubgoalCompare {
         SubgoalCompare(heuristic& c) : myHeuristic(c) {}
         bool operator () (const int & i, const int & j) {
-          return myHeuristic.getCost(i-1) > myHeuristic.getCost(j-1);
+            return myHeuristic.getCost(i-1) > myHeuristic.getCost(j-1);
         }
         heuristic& myHeuristic;
     };
-  };
+};
 }
