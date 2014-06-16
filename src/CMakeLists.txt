@@ -133,7 +133,7 @@ ExternalProject_Add(FILIBXX
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/filibxx
   GIT_TAG origin/master
-  UPDATE_COMMAND git pull origin master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
   CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXX_FLAGS=${EXTERNAL_CXX_FLAGS}" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR}
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
@@ -148,7 +148,7 @@ ExternalProject_Add(CAPD
 # GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-4.0.git
   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
   GIT_TAG origin/master
-  UPDATE_COMMAND git pull origin master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
   CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS}" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
@@ -169,7 +169,7 @@ ExternalProject_Add(LIBUNWIND
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/libunwind.git
   GIT_TAG origin/master
-  UPDATE_COMMAND git pull origin master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
   CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXX_FLAGS=${EXTERNAL_CXX_FLAGS}" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --disable-minidebuginfo
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
@@ -185,7 +185,7 @@ ExternalProject_Add(GFLAGS
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/gflags.git
   GIT_TAG origin/master
-  UPDATE_COMMAND git pull origin master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
   CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS} -fPIC -DNDEBUG" "-DCMAKE_EXE_LINKER_FLAGS=${EXTERNAL_LD_FLAGS}" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
@@ -200,7 +200,7 @@ ExternalProject_Add(GLOG
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/glog.git
   GIT_TAG origin/master
-  UPDATE_COMMAND git pull origin master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
   CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --disable-shared "CXX_FLAGS=-DNDEBUG ${EXTERNAL_CXX_FLAGS}" CFLAGS=-DNDEBUG "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-gflags=${CMAKE_CURRENT_BINARY_DIR}
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
@@ -215,7 +215,7 @@ ExternalProject_Add(JSON11
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/json11.git
   GIT_TAG origin/master
-  UPDATE_COMMAND git pull origin master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
   CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS}" "-DCMAKE_EXE_LINKER_FLAGS=${EXTERNAL_LD_FLAGS}" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
