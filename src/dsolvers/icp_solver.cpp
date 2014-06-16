@@ -338,9 +338,9 @@ int icp_solver::get_var_split_delta(rp_box b) {
         DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Considering constraint" << constraint_str;
         if (constraint_str.compare("0 = 0") != 0) {
             const rp_constraint c = rp_problem_ctr(*m_problem, i);
-            double width =  constraint_width(&c, b);
-            double residual = width-2.0*rp_constraint_delta(c);
-            if ( residual  > max_width ) {
+            double const width =  constraint_width(&c, b);
+            double const residual = width - rp_constraint_delta(c);
+            if (residual > max_width) {
                 max_width = residual;
                 max_constraint = i;
                 l->print_infix(buf, l->getPolarity());
