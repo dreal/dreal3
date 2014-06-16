@@ -142,7 +142,6 @@ ode_solver::ode_solver(SMTConfig& c,
     if (!m_var_list.empty()) {
         diff_var = "var:" + join(m_var_list, ", ") + ";";
     } else {
-        DREAL_LOG_INFO << "TRIVIAL";
         m_trivial = true;
     }
     string diff_fun_forward = "";

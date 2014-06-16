@@ -53,12 +53,11 @@ public:
     int         get_var_split_delta(rp_box b);
     bool        delta_test() const { return m_config.nra_delta_test; }
     int         nsplit() const { return m_nsplit; }
+
 private:
-    // methods
     icp_solver(const icp_solver& s);
     icp_solver& operator=(const icp_solver& s);
     rp_problem* create_rp_problem();
-//    bool        updateValue(Enode * e, double lb, double ub);
     bool        prop_with_ODE(); // propagate with ODE (only in complete check)
     rp_box      compute_next(); // computation of the next solution
     void        build_explanation();
@@ -74,9 +73,6 @@ private:
     void        print_ODE_trajectory(ostream& out) const;
 #endif
 
-    // =================================================================================
-    //   fields
-    // =================================================================================
     SMTConfig &                      m_config;
     Egraph &                         m_egraph;
     SStore &                         m_sstore;
@@ -89,7 +85,6 @@ private:
     int                              m_sol; /* number of computed solutions */
     int                              m_nsplit; /* number of split steps */
     double                           m_improve; /* improvement factor of iterative methods */
-
     vector<Enode *> &                m_explanation;
     vector<rp_variable *>            m_rp_variables;
     vector<rp_constraint *>          m_rp_constraints;

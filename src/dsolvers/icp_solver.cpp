@@ -328,7 +328,7 @@ int icp_solver::get_var_split_delta(rp_box b) {
 
     int i = 0, max_constraint = -1;
     double max_width = 0.0;
-    for (auto const l : m_stack) {
+    for (Enode * const l : m_stack) {
         if (l->isForallT() || l->isIntegral()) {
             continue;
         }
@@ -354,10 +354,10 @@ int icp_solver::get_var_split_delta(rp_box b) {
         const rp_constraint c = rp_problem_ctr(*m_problem, max_constraint);
         max_width = 0.0;
         int max_var = -1;
-        for ( i = 0; i < rp_constraint_arity(c); i++ ){
-            int var = rp_constraint_var(c, i);
-            double width = rp_interval_width(rp_box_elem(b, var));
-            if ( width > max_width ) {
+        for (i = 0; i < rp_constraint_arity(c); i++){
+            int const var = rp_constraint_var(c, i);
+            double const width = rp_interval_width(rp_box_elem(b, var));
+            if (width > max_width) {
                 max_width = width;
                 max_var = var;
             }
@@ -366,7 +366,7 @@ int icp_solver::get_var_split_delta(rp_box b) {
         return max_var;
     } else {
         DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Delta Split: -1";
-        return ( -1 );
+        return -1;
     }
 }
 
@@ -377,7 +377,6 @@ bool icp_solver::is_box_within_delta(rp_box b) {
     DREAL_LOG_INFO << "icp_solver::is_box_within_delta: Checking box width...";
     m_num_delta_checks++;
 
-    //    vector<double>::const_iterator d = m_rp_constraint_deltas.begin();
     int i = 0;
     bool fail = false;
     for (auto const l : m_stack) {
@@ -404,7 +403,7 @@ bool icp_solver::is_box_within_delta(rp_box b) {
                 fail = true;
                 break;
             }
-            //            d++;
+            // d++;
             i++;
         }
     }

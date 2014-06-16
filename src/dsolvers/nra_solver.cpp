@@ -60,9 +60,7 @@ lbool nra_solver::inform(Enode * e) {
       m_heuristic.inform(e);
     if (DREAL_LOG_DEBUG_IS_ON) {
         DREAL_LOG_DEBUG << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt()
-                        << " vars = { "
-                        << ss.str()
-                        << "}";
+                        << " vars = { " << ss.str() << "}";
         ss.str(string());
     }
     return l_Undef;
@@ -181,5 +179,4 @@ Enode * nra_solver::getInterpolants() {
     return nullptr;
 }
 #endif
-
 }
