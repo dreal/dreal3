@@ -299,6 +299,8 @@ add_subdirectory(tests/nra_ode)
 
 #dependencies
 add_dependencies(util GLOG)
+add_dependencies(util GFLAGS)
+add_dependencies(dsolvers JSON11)
 add_dependencies(dsolvers realpaver)
 add_dependencies(realpaver FILIBXX)
 add_dependencies(realpaver CAPD)
