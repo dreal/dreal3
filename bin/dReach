@@ -38,7 +38,7 @@ EOF
 # Parse Option
 #################################################################
 K=3
-while getopts "hbdk:p:ir" OPTION
+while getopts "hbdk:ep:ir" OPTION
 do
     case $OPTION in
         h)
@@ -56,6 +56,9 @@ do
             ;;
         r)
             BMCH=3
+            ;;
+        e)
+            BMCH=4
             ;;
         \?)
             usage
@@ -132,6 +135,12 @@ then
     then
 	#Construct pruned encoding and heuristic
 	$BMC -k $K --bmc_heuristic_prune $HEURISTIC $PDRH  > ${SMT}
+        SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
+	#exit
+    elif [ $BMCH -eq 4 ] 
+    then
+	#Construct pruned encoding and heuristic
+	$BMC -k $K --bmc_heuristic_prune_deep $HEURISTIC $PDRH > ${SMT}
         SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
     fi
 	

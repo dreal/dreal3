@@ -597,6 +597,8 @@ void OpenSMTContext::DefineODE( char const * name, vector<pair<string, Enode *> 
         flow[name_odes->first] = name_odes->second;
         delete name_odes;
     }
+    string sname (name);
+    egraph.stepped_flows = (sname.find_first_of("_") != sname.find_last_of("_"));
     egraph.flow_maps[name] = flow;
 }
 
@@ -790,7 +792,7 @@ void OpenSMTContext::PrintResult( const lbool & result, const lbool & config_sta
       for( auto t : getEgraphP()->getTSolvers()){
 	dreal::nra_solver* nra = dynamic_cast<dreal::nra_solver*>(t);
 	if(nra){
-	  //	  out << "nodes: " << solver.decisions << " " << nra->decisions() << endl;
+	  //out << "nodes: " << solver.decisions << " " << nra->decisions() << endl;
 	  break;
 	}
       }

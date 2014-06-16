@@ -93,11 +93,14 @@ ode_solver::ode_solver(SMTConfig& c,
     m_trivial(false) {
     // Pick the right flow_map (var |-> ODE) using current mode
     m_mode = l_int->getCdr()->getCar()->getValue();
-    map<string, Enode *> & flow_map = m_egraph.flow_maps[string("flow_") + to_string(m_mode)];
     m_time = l_int->getCdr()->getCdr()->getCdr()->getCar();
     string time_str = m_time->getCar()->getName();                       // i.e. "time_1"
     m_step = stoi(time_str.substr(time_str.find_last_of("_") + 1));      // i.e. 1
+    string flow_step = (m_egraph.stepped_flows ? to_string(m_step) + "_" : "");
+
+    map<string, Enode *> & flow_map = m_egraph.flow_maps[string("flow_") + flow_step  + to_string(m_mode)];
     Enode * var_list = l_int->getCdr()->getCdr()->getCdr()->getCdr();
+
 
     // Collect _0, _t variables from variable list in integral literal
     while (!var_list->isEnil()) {
