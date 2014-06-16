@@ -221,7 +221,7 @@ ExternalProject_Add(JSON11
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
 )
-set(EXTRA_LIBS ${EXTRA_LIBS} "-ljson11")
+set(EXTRA_LIBS ${EXTRA_LIBS} "json11")
 
 ################################################################
 # External: set up include dir and libpath
