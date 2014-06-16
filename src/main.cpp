@@ -65,7 +65,7 @@ int main( int argc, char * argv[] )
 
   // Set up version, usage message
   stringstream ss;
-  ss << DREAL_VERSION_MAJOR << "." << DREAL_VERSION_MINOR
+  ss << PACKAGE_VERSION
      << " (commit " << string(dreal::getGitSHA1()).substr(0, 12) << ")";
   gflags::SetVersionString(ss.str());
   gflags::SetUsageMessage(argv[0]);

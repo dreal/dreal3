@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 2.8.7)
 project(DREAL C CXX)
 set(DREAL_VERSION_MAJOR 2)
-set(DREAL_VERSION_MINOR 0)
+set(DREAL_VERSION_MINOR 14)
+set(DREAL_VERSION_PATCH 06)
+set(PACKAGE_NAME dReal)
+set(PACKAGE_VERSION "${DREAL_VERSION_MAJOR}.${DREAL_VERSION_MINOR}.${DREAL_VERSION_PATCH}")
+set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
+set(PACKAGE_BUGREPORT "http://github.com/dreal/dreal/issues")
+set(BUG_REPORT_URL "${PACKAGE_BUGREPORT}" CACHE STRING "Default URL where bug reports are to be submitted.")
 
 set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
@@ -320,7 +326,9 @@ ADD_CUSTOM_COMMAND(TARGET dReal
           COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dReal ${DREAL_SOURCE_DIR}/../bin/
 )
 
+#########################################
 # CPack
+#########################################
 set(CPACK_PACKAGE_NAME dReal)
 string(TOLOWER ${CMAKE_SYSTEM_NAME} LOWER_SYSTEM_NAME)
 set(CPACK_PACKAGE_FILE_NAME "dReal-${DREAL_VERSION_MAJOR}.${DREAL_VERSION_MINOR}-${LOWER_SYSTEM_NAME}")
