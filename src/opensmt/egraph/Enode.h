@@ -399,7 +399,7 @@ private:
   double *          value;      // enode value (modified for dReal2)
   double *          lb;         // enode lower bound
   double *          ub;         // enode upper bound
-  double *          precision; //added for dReal2
+  double            precision; //added for dReal2
 
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
@@ -433,12 +433,12 @@ inline double Enode::getUpperBound ( ) const
 inline double Enode::getPrecision ( ) const
 {
   assert( hasPrecision() );
-  return *precision;
+  return precision;
 }
 
 inline bool Enode::hasPrecision ( ) const
 {
-  return precision != NULL;
+  return precision != 0.0;
 }
 
 
@@ -482,9 +482,8 @@ inline void Enode::setPrecision ( const double v )
     //only set precision on the atom (not the literal)
     get1st()->setPrecision(v);
   }
-  else{
-    precision = new double;
-    *precision = v;
+  else {
+    precision = v;
   }
 }
 
