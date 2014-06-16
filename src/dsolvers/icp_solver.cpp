@@ -157,28 +157,21 @@ rp_problem* icp_solver::create_rp_problem() {
     // Create rp_variable for each var in env
     // ======================================
     DREAL_LOG_INFO << "icp_solver::create_rp_problem: variables";
+    rp_box_enlarge_size(&rp_problem_box(*rp_prob), m_env.size());
     for (auto const & p : m_env) {
         Enode* const key = p.first;
         double const lb = p.second.lb;
         double const ub = p.second.ub;
-
         rp_variable * v = new rp_variable;
         m_rp_variables.push_back(v);
-        string name = key->getCar()->getName();
+        string const & name = key->getCar()->getName();
         rp_variable_create(v, name.c_str());
         int rp_id = rp_vector_insert(rp_table_symbol_vars(rp_problem_symb(*rp_prob)), *v);
-        rp_box_enlarge_size(&rp_problem_box(*rp_prob), 1);
         rp_bsup(rp_box_elem(rp_problem_box(*rp_prob), rp_id)) = ub;
         rp_binf(rp_box_elem(rp_problem_box(*rp_prob), rp_id)) = lb;
-        rp_union_interval u;
-        rp_union_create(&u);
-        rp_union_insert(u, rp_box_elem(rp_problem_box(*rp_prob), rp_id));
-        rp_union_copy(rp_variable_domain(*v), u);
-        rp_union_destroy(&u);
-
+        rp_union_insert(rp_variable_domain(*v), rp_box_elem(rp_problem_box(*rp_prob), rp_id));
         if (key->hasSortInt()) {
             rp_variable_set_integer(*v);
-            rp_variable_precision(*v) = m_config.nra_precision;
         } else if (key->hasSortReal()) {
             rp_variable_set_real(*v);
             rp_variable_precision(*v) = m_config.nra_precision;
@@ -196,6 +189,7 @@ rp_problem* icp_solver::create_rp_problem() {
                            << " = " << interval(lb, ub);
         }
     }
+
     // ===============================================
     // Create rp_constraints for each literal in stack
     // ===============================================
@@ -203,14 +197,12 @@ rp_problem* icp_solver::create_rp_problem() {
     DREAL_LOG_INFO << "icp_solver::create_rp_problem: constraints";
     for (auto const l : m_stack) {
         // Do not create rp_constraints for ForallT and Integral
-        if (l->isForallT() || l->isIntegral()) {
-            continue;
-        }
+        if (l->isForallT() || l->isIntegral()) { continue; }
         stringstream buf;
-        rp_constraint * c = new rp_constraint;
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
+            rp_constraint * c = new rp_constraint;
             m_rp_constraints.push_back(c);
             DREAL_LOG_INFO << "icp_solver::create_rp_problem: constraint: " << (l->getPolarity() == l_True ? " " : "Not ") << l;
             // Parse the string (infix form) to create the constraint c
@@ -223,8 +215,6 @@ rp_problem* icp_solver::create_rp_problem() {
             for (int i = 0; i < rp_constraint_arity(*c); ++i) {
                 ++rp_variable_constrained(rp_problem_var(*rp_prob, rp_constraint_var(*c, i)));
             }
-        } else {
-            delete c;
         }
     }
     DREAL_LOG_DEBUG << "icp_solver::create_rp_problem rp_problem_display";
