@@ -126,8 +126,8 @@ public:
   // For script: add a command to the queue
   //
   void          addAssert            ( Enode * );               // Command for (assert ...)
-  void          addIntvCtr           ( const char*, Enode *, double, double);
-  void          addIntvCtrR          ( const char*, double , Enode *, double);
+  void          addIntvCtr           ( const char* const, Enode * const, double const, double const);
+  void          addIntvCtrR          ( const char* const, double const, Enode * const, double const);
   void          addCheckSAT          ( );                       // Command for (check-sat)
   void          addPush              ( int );                   // Command for (push ...)
   void          addPop               ( int );                   // Command for (pop ...)

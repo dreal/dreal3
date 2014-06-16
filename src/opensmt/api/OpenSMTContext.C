@@ -886,44 +886,34 @@ void OpenSMTContext::addGetInterpolants( )
   command_list.push_back( c );
 }
 
-void OpenSMTContext::addIntvCtr( const char* op, Enode* e, double v, double d)
-{
+void OpenSMTContext::addIntvCtr(const char* const op, Enode* const e, double const v, double const d) {
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
         e->setUpperBound(v);
-        // cerr << "addIntvCtr: " << e << " " << op << " " << e->getUpperBound()<< endl;
-        if (dreal::starts_with(e->getCar()->getName(), "time_")) {
-            // cerr << "time_ <=" << endl;
-          Enode * leq = mkLeq(mkCons(e, mkCons(mkNum(v))));
-          if(d != 0.0){
+        Enode * const leq = mkLeq(mkCons(e, mkCons(mkNum(v))));
+        if(d != 0.0){
             leq->setPrecision(d);
-          }
-          addAssert(leq);
         }
+        addAssert(leq);
     }
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
         e->setLowerBound(v);
-        // cerr << "addIntvCtr: " << e << " " << op << " " << e->getLowerBound() << endl;
-        if (dreal::starts_with(e->getCar()->getName(), "time_")) {
-            // cerr << "time_ >=" << endl;
-          Enode * geq = mkGeq(mkCons(e, mkCons(mkNum(v))));
-          if(d != 0.0){
+        Enode * const geq = mkGeq(mkCons(e, mkCons(mkNum(v))));
+        if(d != 0.0){
             geq->setPrecision(d);
-          }
-          addAssert(geq);
         }
+        addAssert(geq);
     }
     else {
         opensmt_error2( "command not supported (yet)", "" );
     }
 }
 
-void OpenSMTContext::addIntvCtrR( const char* op, double v, Enode * e, double d)
-{
+void OpenSMTContext::addIntvCtrR(const char* const op, double const v, Enode * const e, double const d) {
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
-      addIntvCtr( ">=", e, v, d);
+        addIntvCtr( ">=", e, v, d);
     }
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
-      addIntvCtr( "<=", e, v, d);
+        addIntvCtr( "<=", e, v, d);
     }
     else {
         opensmt_error2( "command not supported (yet)", "" );
