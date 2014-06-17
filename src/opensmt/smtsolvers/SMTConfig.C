@@ -19,6 +19,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include <sstream>
 #include <string>
+#include <gflags/gflags.h>
 #include "SMTConfig.h"
 #include "version.h"
 #include "util/logging.h"
