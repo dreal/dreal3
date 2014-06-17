@@ -25,6 +25,8 @@ dReach: Bounded Model Checking for for Nonlinear Hybrid Systems
 OPTIONS:
    -k      unrolling steps  (default: 3)
    -b      use BMC heuristic with disjunctive path encoding (default: do not use)
+   -r      -b and filter unreachable modes from SMT encoding (default: do not use)
+   -e      -r and filter continuous variables from SMT encoding (default: do not use)
    -d      disjunctive path encoding (default: do not use)
 
 EXAMPLE:
