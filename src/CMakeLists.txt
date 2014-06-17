@@ -113,7 +113,8 @@ SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
 ################################################################
 # Packages
 ################################################################
-# Bison & Flex
+# Git & Bison & Flex
+find_package(GIT REQUIRED)
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 
