@@ -390,7 +390,7 @@ ode_solver::ODE_result ode_solver::solve_forward(rp_box b) {
     } else {
         ret = compute_forward(bucket);
     }
-    if ((ret == ODE_result::SAT) || (ret == ODE_result::EXCEPTION)) {
+    if (ret == ODE_result::SAT) {
         return prune_forward(bucket);
     } else {
         return ret;
@@ -435,7 +435,7 @@ ode_solver::ODE_result ode_solver::solve_backward(rp_box b) {
     } else {
         ret = compute_backward(bucket);
     }
-    if ((ret == ODE_result::SAT) || (ret == ODE_result::EXCEPTION)) {
+    if (ret == ODE_result::SAT) {
         return prune_backward(bucket);
     } else {
         return ret;
