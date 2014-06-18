@@ -13,7 +13,7 @@ outputInit(){
 outputGoal(){
     END=`expr ${DIMENSION} \* ${DIMENSION}`
     echo "goal:"
-    echo "@${END} (x <= 1);"
+    echo "@${END} (x = 1);"
 }
 
 convertXYtoMode(){
@@ -31,7 +31,7 @@ outputMode(){
     MODE=`convertXYtoMode $i $j`
     echo "{ mode ${MODE};"
     echo "  invt:  true;"
-    echo "  flow: d/dt[x]=-1;"
+    echo "  flow: d/dt[x]=0;"
     echo "  jump: "
     outputNJump $i $j
     outputSJump $i $j

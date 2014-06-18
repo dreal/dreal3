@@ -51,6 +51,8 @@ public:
     double      constraint_width(const rp_constraint * c, rp_box const b) const;
     bool        is_box_within_delta(rp_box b);
     int         get_var_split_delta(rp_box b);
+    int         get_var_split_delta_hybrid(rp_box b);
+    int         get_max_time_index(rp_constraint c);
     bool        delta_test() const { return m_config.nra_delta_test; }
     int         nsplit() const { return m_nsplit; }
 
@@ -91,6 +93,7 @@ private:
     bool                             m_ODEresult;
     std::unordered_map<Enode *, int> m_enode_to_rp_id;
     std::unordered_map<Enode *, rp_constraint *> m_enode_to_rp_ctr;
+    std::unordered_map<int, Enode *> m_rp_id_to_enode;
 #ifdef ODE_ENABLED
     std::vector<ode_solver *>        m_ode_solvers;
 #endif

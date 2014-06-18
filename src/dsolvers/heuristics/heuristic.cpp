@@ -125,7 +125,8 @@ void heuristic::initialize(SMTConfig & c){
 }
 
 void heuristic::inform(Enode * e){
-    DREAL_LOG_INFO << "heuristic::inform(): " << e << endl;
+  //  DREAL_LOG_INFO << "heuristic::inform(): " << e << endl;
+  if(e->isEq()){
     unordered_set<Enode *> const & vars = e->get_vars();
     for (auto const & v : vars) {
         stringstream ss;
@@ -136,10 +137,11 @@ void heuristic::inform(Enode * e){
             int mode = get_mode(e);
             // DREAL_LOG_INFO << "mode = " << mode << " time = " << time << endl;
             mode_literals[ e ] = new pair<int, int>(mode, time);
-            // DREAL_LOG_INFO << "Mode_lit[" << e << "] = " << mode << " " << time << endl;
+	    //	    DREAL_LOG_INFO << "Mode_lit[" << e << "] = " << mode << " " << time << endl;
             (*time_mode_enodes[time])[mode-1] = e;
         }
     }
+  }
 }
 
 // Assume that m_decision_stack matches m_stack
@@ -247,11 +249,14 @@ bool heuristic::unwind_path(scoped_vec & m_stack) {
     vector<int> path;
     path.assign(m_depth+1, -1);
     for (auto e : m_stack) {
-        DREAL_LOG_INFO << "Checking path " << (e->getDecPolarity() == l_True ? "     " : "(not ")
-                       << e
-                       << (e->getDecPolarity() == l_True ? "" : ")") << endl;
+      if (e->getDecPolarity() != l_Undef){
+         DREAL_LOG_INFO << "Checking path " << (e->getPolarity() == l_True ? "     " : "(not ")
+                        << e
+                        << (e->getPolarity() == l_True ? "" : ")")
+			<< " = " << (e->getDecPolarity() == l_True ? " True" : (e->getDecPolarity() == l_False ? " False" : " Unknown")) << endl;
+      }
 
-        if (e->getPolarity() == l_True){
+        if (e->getDecPolarity() == l_True){
             auto i = mode_literals.find(e);
             if (i != mode_literals.end()){
                 path[(*i).second->second] = (*i).second->first;
@@ -327,7 +332,7 @@ void heuristic::getSuggestions(vector< Enode * > & suggestions, scoped_vec & m_s
         DREAL_LOG_INFO << "mode = " << mode << endl;
         Enode * s = (*time_mode_enodes[time])[mode-1];
         DREAL_LOG_INFO << "enode = " << s << endl;
-        if (!s->hasPolarity() && !s->isDeduced()){
+        if (s->getDecPolarity() == l_Undef && !s->isDeduced()){
             s->setDecPolarity(l_True);
             suggestions.push_back(s);
             DREAL_LOG_INFO << "Suggested Pos: " << s << endl;
@@ -337,7 +342,7 @@ void heuristic::getSuggestions(vector< Enode * > & suggestions, scoped_vec & m_s
             for (int i = 0; i < static_cast<int>(predecessors.size()); i++){
                 if (i != mode - 1){
                     s = (*time_mode_enodes[time])[i];
-                    if (s && !s->hasPolarity() && !s->isDeduced()){
+                    if (s && s->getDecPolarity() == l_Undef && !s->isDeduced()){
                         s->setDecPolarity(l_False);
                         suggestions.push_back(s);
                         DREAL_LOG_INFO << "Suggested Neg: " << s << endl;
@@ -349,9 +354,10 @@ void heuristic::getSuggestions(vector< Enode * > & suggestions, scoped_vec & m_s
 
     for (auto e : suggestions) {
         DREAL_LOG_INFO << "heuristic::getSuggestions(): Suggesting "
-                       << (e->getDecPolarity() == l_True ? "     " : "(not ")
+                       << (e->getPolarity() == l_True ? "     " : "(not ")
                        << e
-                       << (e->getDecPolarity() == l_True ? "" : ")") << endl;
+                       << (e->getPolarity() == l_True ? "" : ")")
+		       << " = " << (e->getDecPolarity() == l_True ? " True" : (e->getDecPolarity() == l_False ? " False" : " Unknown"))  << endl;
     }
 
     m_suggestions.assign(suggestions.begin(), suggestions.end());

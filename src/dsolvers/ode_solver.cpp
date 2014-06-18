@@ -506,6 +506,7 @@ ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector
                 DREAL_LOG_INFO << "ode_solver::compute_forward: contain NaN";
                 return ODE_result::SAT;
             }
+
             if (m_T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
                 invariantViolated = inner_loop_forward(solver, prevTime, bucket);
                 if (invariantViolated) {

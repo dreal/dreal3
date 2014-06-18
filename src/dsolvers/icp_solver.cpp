@@ -55,7 +55,7 @@ icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const &
     if ( !m_config.nra_use_delta_heuristic ){
         rp_new(m_vselect, rp_selector_existence, (m_problem)); // rp_selector_roundrobin
     } else {
-        rp_new(m_vselect, rp_selector_delta, (m_problem)); // rp_selector_roundrobin
+        rp_new(m_vselect, rp_selector_delta, (m_problem)); // rp_selector_delta
     }
     rp_new(m_dsplit, rp_splitter_bisection, (m_problem)); // rp_splitter_mixed
     // Check once the satisfiability of all the constraints
@@ -177,6 +177,7 @@ rp_problem* icp_solver::create_rp_problem() {
             rp_variable_precision(*v) = m_config.nra_precision;
         }
         m_enode_to_rp_id[key] = rp_id;
+        m_rp_id_to_enode[rp_id] = key;
         if (DREAL_LOG_INFO_IS_ON) {
             string sort = "unknown";
             if (key->hasSortReal()) {
@@ -364,7 +365,102 @@ int icp_solver::get_var_split_delta(rp_box b) {
                 max_var = var;
             }
         }
-        DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Delta Split: " << max_var;
+	Enode* lit = m_rp_id_to_enode[max_var]; 
+        DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Delta Split: " << max_var << " " << lit;
+        return max_var;
+    } else {
+        DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Delta Split: -1";
+        return -1;
+    }
+}
+
+
+  //get the maximum time index of any variable in constraint
+  int icp_solver::get_max_time_index(rp_constraint c){
+    int max = -1;
+    for (int i = 0; i < rp_constraint_arity(c); i++){
+      int const var = rp_constraint_var(c, i);
+    
+      Enode* v = m_rp_id_to_enode[var];
+      stringstream ss;
+      ss << v;
+      string svar = ss.str();
+      //time index is first number after an "_"
+      int start = svar.find("_")+1;
+      int end = svar.find("_", start)-1;
+      if ((const size_t) end == string::npos)
+	end = svar.size();
+      int time =  atoi(svar.substr(start, end).c_str());
+      //      DREAL_LOG_INFO << "time("<< svar << ") = " << time;
+      if( time > max )
+	max = time;
+      
+    }
+    return max;
+  }
+
+int icp_solver::get_var_split_delta_hybrid(rp_box b) {
+    // get constraints by time index
+
+
+  //collect constraints that are loose and fall within the same minimum maximum time step
+  //of these constraints pick the loosest.
+  
+    int i = 0, max_constraint = -1;
+    double max_width = 0.0;
+    int min_max_time_index = 0;//INT_MAX;
+    for (Enode * const l : m_stack) {
+        if (l->isForallT() || l->isIntegral()) {
+            continue;
+        }
+        stringstream buf;
+        l->print_infix(buf, l->getPolarity());
+        string constraint_str = buf.str();
+        if (constraint_str.compare("0 = 0") != 0) {
+            const rp_constraint c = rp_problem_ctr(*m_problem, i);
+
+	    int max_time_index = get_max_time_index(c);
+	    double const width =  constraint_width(&c, b);
+	    double const residual = width - rp_constraint_delta(c);
+
+
+	
+
+	    if(max_time_index >= min_max_time_index && width > 2.0*rp_constraint_delta(c)){
+	      if(max_time_index > min_max_time_index){
+		max_width = 0;
+	      }
+	      min_max_time_index = max_time_index;
+	      if (residual > max_width) {
+	    DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Considering constraint " 
+			   << constraint_str 
+			   << " max_time = " << max_time_index
+			   << " width = " << width
+			   << " residual = " << residual;
+                max_width = residual;
+                max_constraint = i;
+                l->print_infix(buf, l->getPolarity());
+                string constraint_str = buf.str();
+	      }
+	    }
+            i++;
+        }
+    }
+    if (max_constraint > -1) {
+        // get var with max width in max width constraint
+        const rp_constraint c = rp_problem_ctr(*m_problem, max_constraint);
+        max_width = 0.0;
+        int max_var = -1;
+        for (i = 0; i < rp_constraint_arity(c); i++){
+            int const var = rp_constraint_var(c, i);
+            double const width = rp_interval_width(rp_box_elem(b, var));
+            if (width > max_width) {
+                max_width = width;
+                max_var = var;
+            }
+        }
+	Enode* lit = m_rp_id_to_enode[max_var]; 
+        DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Delta Split: " << max_var << " " << lit;
         return max_var;
     } else {
         DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Delta Split: -1";
@@ -392,18 +488,17 @@ bool icp_solver::is_box_within_delta(rp_box b) {
             const rp_constraint c = rp_problem_ctr(*m_problem, i);
             double width =  constraint_width(&c, b);
             bool test = width > 2.0*rp_constraint_delta(c);
-            if (test){
+	    if (test){
                 DREAL_LOG_INFO << "icp_solver::is_box_within_delta: " <<  i << ": "
                                << constraint_str
                                << "\t: [" << width << " <= "
-                               << 2.0 * (l->hasPrecision() ?
-                                         l->getPrecision() :
-                                         m_config.nra_precision)
-                               << "]";
-            }
+                               << 2.0 *rp_constraint_delta(c)
+                               << "]\t" 
+			       << (width - 2.0*rp_constraint_delta(c));
+	    }
             if ( test ){
                 fail = true;
-                break;
+                //break;
             }
             // d++;
             i++;
@@ -439,6 +534,7 @@ rp_box icp_solver::compute_next() {
             }
         } else {
             // UNSAT => Remove box
+	  DREAL_LOG_INFO << "***************** Not branched on Found UNSAT box ***********";
             if (m_config.nra_proof) { m_config.nra_proof_out << "[conflict detected]" << endl; }
             m_boxes.remove();
         }

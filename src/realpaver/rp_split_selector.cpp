@@ -534,6 +534,14 @@ int rp_selector::rr_delta_dec(rp_box b) const
   return (*_problem)->rp_icp_solver->get_var_split_delta(b);
 }
 
+int rp_selector::rr_delta_hybrid_dec(rp_box b) const
+{
+  //get constraint with max residual width
+  //get var with max width in max width constraint
+  return (*_problem)->rp_icp_solver->get_var_split_delta_hybrid(b);
+}
+
+
 rp_selector::rp_selector(const rp_selector& /*s*/):
   _problem(NULL),
   _var_int_dec(),
@@ -699,6 +707,37 @@ rp_selector_delta::operator=(const rp_selector_delta& /*s*/)
   return( *this );
 }
 
+// -----------------------------------------------
+// Variable choice heuristics
+// -----------------------------------------------
+rp_selector_delta_hybrid::rp_selector_delta_hybrid(rp_problem * p):
+  rp_selector(p)
+{}
+
+rp_selector_delta_hybrid::~rp_selector_delta_hybrid()
+{}
+
+int rp_selector_delta_hybrid::apply(rp_box b)
+{
+  int var;
+  if (this->solution(b)) return( -1 );
+  if ((var=rr_delta_hybrid_dec(b))>=0)  return( var );
+  if ((var=rr_int_dec(b))>=0)  return( var );
+  if ((var=rr_real_dec(b))>=0) return( var );
+  if ((var=rr_int_aux(b))>=0)  return( var );
+  if ((var=rr_real_aux(b))>=0) return( var );
+  return( -1 );
+}
+
+rp_selector_delta_hybrid::rp_selector_delta_hybrid(const rp_selector_delta_hybrid& s):
+  rp_selector(s)
+{}
+
+rp_selector_delta_hybrid&
+rp_selector_delta_hybrid::operator=(const rp_selector_delta_hybrid& /*s*/)
+{
+  return( *this );
+}
 
 // -----------------------------------------------
 // Variable choice heuristics

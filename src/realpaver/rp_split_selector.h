@@ -111,6 +111,9 @@ protected:
   // Heuristics: dReal delta
   int rr_delta_dec(rp_box b) const;
 
+  // Heuristics: dReal delta hybrid
+  int rr_delta_hybrid_dec(rp_box b) const;
+
   // Returns true if (b(var) inter initial domain(var))
   // is a union of at least two intervals (a hole exists)
   int hole(rp_box b, int var) const;
@@ -184,6 +187,29 @@ private:
   // Copy protection
   rp_selector_delta(const rp_selector_delta& s);
   rp_selector_delta& operator=(const rp_selector_delta& s);
+};
+
+// ---------------------------------------------------
+// Variable choice heuristics
+// Varible with largest interval in constraint with
+//  with the largest interval.
+// ---------------------------------------------------
+class rp_selector_delta_hybrid : public rp_selector
+{
+public:
+  // Constructor
+  rp_selector_delta_hybrid(rp_problem * p);
+
+  // Destructor
+  ~rp_selector_delta_hybrid();
+
+  // Selection of a variable to be split
+  int apply(rp_box b);
+
+private:
+  // Copy protection
+  rp_selector_delta_hybrid(const rp_selector_delta_hybrid& s);
+  rp_selector_delta_hybrid& operator=(const rp_selector_delta_hybrid& s);
 };
 
 // ---------------------------------------------------
