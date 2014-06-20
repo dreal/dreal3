@@ -299,6 +299,7 @@ add_subdirectory(tests/nra)
 add_subdirectory(tests/nra_ode)
 
 #dependencies
+add_dependencies(GLOG GFLAGS)
 add_dependencies(util GLOG)
 add_dependencies(util GFLAGS)
 add_dependencies(dsolvers JSON11)
