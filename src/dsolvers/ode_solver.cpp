@@ -283,13 +283,13 @@ IVector ode_solver::extract_invariants() {
             Enode * rhs = pos ? p->getCdr()->getCdr()->getCar() : p->getCdr()->getCar();
             if (lhs->isVar() && rhs->isConstant()) {
                 if (inv_map.find(lhs) != inv_map.end()) {
-                    inv_map[lhs].second = rhs->getValue();
+                    inv_map[lhs].second = std::min(inv_map[lhs].second, rhs->getValue());
                 } else {
                     inv_map.emplace(lhs, make_pair(lhs->getLowerBound(), rhs->getValue()));
                 }
             } else if (lhs->isConstant() && rhs->isVar()) {
                 if (inv_map.find(rhs) != inv_map.end()) {
-                    inv_map[rhs].first = lhs->getValue();
+                    inv_map[rhs].first = std::max(inv_map[rhs].first, lhs->getValue());
                 } else {
                     inv_map.emplace(rhs, make_pair(lhs->getValue(), rhs->getUpperBound()));
                 }
