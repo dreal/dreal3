@@ -98,6 +98,7 @@ int rp_sat_hull_eq(rp_ctr_num c, rp_box b)
       }
     }
   }
+  rp_ctr_num_used(c) = 1;
   return( result );
 }
 
@@ -136,6 +137,7 @@ int rp_sat_hull_inf(rp_ctr_num c, rp_box b)
       }
     }
   }
+  rp_ctr_num_used(c) = 1;
   return( result );
 }
 
@@ -174,6 +176,7 @@ int rp_sat_hull_sup(rp_ctr_num c, rp_box b)
       }
     }
   }
+  rp_ctr_num_used(c) = 1;
   return( result );
 }
 

@@ -11,7 +11,9 @@
  * rp_operator_factory.cpp                                                  *
  ****************************************************************************/
 
+#include <cassert>
 #include "rp_operator_factory.h"
+#include "util/logging.h"
 
 // ------------------------------------------------
 // Creation of operators from problems
@@ -64,6 +66,10 @@ void rp_operator_factory::build(const rp_problem& p,
   case RP_CONSTRAINT_PIECEWISE:
     this->build(p,rp_constraint_piece(c),vec);
     break;
+
+  default:
+    DREAL_LOG_FATAL << "FATAL";
+    assert(false);
   }
 }
 
@@ -241,6 +247,9 @@ void rp_hull_factory::build(const rp_problem& /*p*/,
   case RP_RELATION_INF:
     rp_new(o,rp_operator_hull_inf,(c));
     break;
+
+  default:
+    assert(false);
   }
   rp_vector_insert(vec,o);
 }
@@ -413,6 +422,7 @@ void rp_newton_factory::build(const rp_problem& p, rp_vector& vec)
       if (rp_ctr_num_rel(cn)==RP_RELATION_EQUAL)
       {
         o->insert_function(rp_ctr_num_func(cn));
+        rp_ctr_num_used(cn) = 1;
         ++neq;
       }
     }
