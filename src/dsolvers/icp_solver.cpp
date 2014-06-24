@@ -135,8 +135,8 @@ void icp_solver::create_ode_solvers() {
     for (auto const l_int : vec_integral) {
         vector<Enode*> invs;
         for (auto const l_inv : vec_inv) {
-            unordered_set<Enode *> vars_int = l_int->get_vars();
-            unordered_set<Enode *> vars_inv = l_inv->get_vars();
+            unordered_set<Enode *> const vars_int = l_int->get_vars();
+            unordered_set<Enode *> const vars_inv = l_inv->get_vars();
             bool intersect = any_of(vars_int.begin(), vars_int.end(), [&vars_inv](Enode * v_int) {
                     return find(vars_inv.begin(), vars_inv.end(), v_int) != vars_inv.end();
                 });
@@ -166,7 +166,7 @@ rp_problem* icp_solver::create_rp_problem() {
         m_rp_variables.push_back(v);
         string const & name = key->getCar()->getName();
         rp_variable_create(v, name.c_str());
-        int rp_id = rp_vector_insert(rp_table_symbol_vars(rp_problem_symb(*rp_prob)), *v);
+        int const rp_id = rp_vector_insert(rp_table_symbol_vars(rp_problem_symb(*rp_prob)), *v);
         rp_bsup(rp_box_elem(rp_problem_box(*rp_prob), rp_id)) = ub;
         rp_binf(rp_box_elem(rp_problem_box(*rp_prob), rp_id)) = lb;
         rp_union_insert(rp_variable_domain(*v), rp_box_elem(rp_problem_box(*rp_prob), rp_id));
@@ -312,14 +312,15 @@ bool icp_solver::prop_with_ODE() {
 }
 
 double icp_solver::constraint_width(const rp_constraint * c, rp_box const b) const {
-    rp_erep const lhs = rp_expression_rep(rp_ctr_num_left(rp_constraint_num(*c)));
-    rp_erep const rhs = rp_expression_rep(rp_ctr_num_right(rp_constraint_num(*c)));
+    rp_ctr_num const c_num = rp_constraint_num(*c);
+    rp_erep const lhs = rp_expression_rep(rp_ctr_num_left(c_num));
+    rp_erep const rhs = rp_expression_rep(rp_ctr_num_right(c_num));
     rp_erep lhs_minus_rhs_rep;
     rp_erep_create_binary (&lhs_minus_rhs_rep, RP_SYMBOL_SUB, lhs, rhs);
     rp_expression lhs_minus_rhs;
     double res = 0.0;
     rp_expression_create(&lhs_minus_rhs, &lhs_minus_rhs_rep);
-    if ( rp_expression_eval(lhs_minus_rhs, b) ) {
+    if (rp_expression_eval(lhs_minus_rhs, b)) {
         res = rp_interval_width(rp_expression_val(lhs_minus_rhs));
     }
     rp_expression_destroy(&lhs_minus_rhs);
@@ -328,7 +329,6 @@ double icp_solver::constraint_width(const rp_constraint * c, rp_box const b) con
 
 int icp_solver::get_var_split_delta(rp_box b) {
     // get constraint with max residual width
-
     int i = 0, max_constraint = -1;
     double max_width = 0.0;
     for (Enode * const l : m_stack) {
@@ -340,14 +340,13 @@ int icp_solver::get_var_split_delta(rp_box b) {
         string constraint_str = buf.str();
         DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Considering constraint" << constraint_str;
         if (constraint_str.compare("0 = 0") != 0) {
-            const rp_constraint c = rp_problem_ctr(*m_problem, i);
+            rp_constraint const c = rp_problem_ctr(*m_problem, i);
             double const width =  constraint_width(&c, b);
             double const residual = width - rp_constraint_delta(c);
             if (residual > max_width) {
                 max_width = residual;
                 max_constraint = i;
                 l->print_infix(buf, l->getPolarity());
-                string constraint_str = buf.str();
             }
             i++;
         }
