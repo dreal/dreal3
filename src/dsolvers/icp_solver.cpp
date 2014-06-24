@@ -483,6 +483,7 @@ bool icp_solver::solve() {
                 rp_expression_eval(lhs, b);
                 rp_expression_eval(rhs, b);
                 if (rp_constraint_unfeasible(rp_problem_ctr(*m_problem, i), b)) {
+                    build_explanation();
                     return false;
                 }
             }
