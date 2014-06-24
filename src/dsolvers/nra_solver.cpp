@@ -37,7 +37,7 @@ using std::unordered_set;
 namespace dreal {
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
-  : OrdinaryTSolver (i, n, c, e, t, x, d, s), m_decisions(0) {
+    : OrdinaryTSolver (i, n, c, e, t, x, d, s), m_decisions(0) {
     if (c.nra_precision == 0.0) c.nra_precision = 0.001;
     m_heuristic.initialize(c);
 }
@@ -57,7 +57,7 @@ lbool nra_solver::inform(Enode * e) {
         }
     }
     if (config.nra_bmc_heuristic.compare("") != 0)
-      m_heuristic.inform(e);
+        m_heuristic.inform(e);
     if (DREAL_LOG_DEBUG_IS_ON) {
         DREAL_LOG_DEBUG << "nra_solver::inform: " << e << " with polarity " << e->getPolarity().toInt()
                         << " vars = { " << ss.str() << "}";
@@ -87,8 +87,8 @@ bool nra_solver::assertLit (Enode * e, bool reason) {
     m_stack.push_back(e);
 
     if  (config.nra_bmc_heuristic.compare("") != 0 && m_heuristic.is_initialized()) {
-      suggestions.clear();
-      m_heuristic.getSuggestions(suggestions, m_stack);
+        suggestions.clear();
+        m_heuristic.getSuggestions(suggestions, m_stack);
     }
 
     return true;
@@ -145,9 +145,9 @@ bool nra_solver::check(bool complete) {
     // Only compute the heuristic after first check.  The first check is after
     // all level 0 literals have been asserted and the initial and goal modes
     // will be known
-    if  (config.nra_bmc_heuristic.compare("") != 0 && !m_heuristic.is_initialized()) {
-      suggestions.clear();
-      m_heuristic.getSuggestions(suggestions, m_stack);
+    if (config.nra_bmc_heuristic.compare("") != 0 && !m_heuristic.is_initialized()) {
+        suggestions.clear();
+        m_heuristic.getSuggestions(suggestions, m_stack);
     }
 
     // Print out JSON
