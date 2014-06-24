@@ -97,18 +97,15 @@ void rp_ctr_num_destroy(rp_ctr_num * c)
 /* Returns true if no point of b is solution of c */
 int rp_ctr_numeq_unfeasible(rp_ctr_num c, rp_box b)
 {
+  int res = 0;
   rp_ctr_num_used(c) = 1;
-  int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
-      (!rp_expression_eval(rp_ctr_num_right(c),b)))
-  {
+      (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
     res = 1;
-  }
-  else
-  {
+  } else {
     /* unfeasible if empty intersection */
-    rp_interval i;
+    static rp_interval i;
     rp_interval_inter(i,rp_expression_val(rp_ctr_num_left(c)),
                         rp_expression_val(rp_ctr_num_right(c)));
     res = rp_interval_empty(i);
@@ -119,16 +116,13 @@ int rp_ctr_numeq_unfeasible(rp_ctr_num c, rp_box b)
 /* Returns true if no point of b is solution of c */
 int rp_ctr_numsup_unfeasible(rp_ctr_num c, rp_box b)
 {
+  int res = 0;
   rp_ctr_num_used(c) = 1;
-  int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
-      (!rp_expression_eval(rp_ctr_num_right(c),b)))
-  {
+      (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
     res = 1;
-  }
-  else
-  {
+  } else {
     /* unfeasible if left is entirely smaller than right */
     res = (rp_bsup(rp_expression_val(rp_ctr_num_left(c))) <
            rp_binf(rp_expression_val(rp_ctr_num_right(c))));
@@ -139,16 +133,13 @@ int rp_ctr_numsup_unfeasible(rp_ctr_num c, rp_box b)
 /* Returns true if no point of b is solution of c */
 int rp_ctr_numinf_unfeasible(rp_ctr_num c, rp_box b)
 {
+  int res = 0;
   rp_ctr_num_used(c) = 1;
-  int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
-      (!rp_expression_eval(rp_ctr_num_right(c),b)))
-  {
+      (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
     res = 1;
-  }
-  else
-  {
+  } else {
     /* unfeasible if left is entirely greater than right */
     res = (rp_binf(rp_expression_val(rp_ctr_num_left(c))) >
            rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
@@ -159,16 +150,13 @@ int rp_ctr_numinf_unfeasible(rp_ctr_num c, rp_box b)
 /* Returns true if no point of b is solution of c */
 int rp_ctr_numsup_strict_unfeasible(rp_ctr_num c, rp_box b)
 {
+  int res = 0;
   rp_ctr_num_used(c) = 1;
-  int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
-      (!rp_expression_eval(rp_ctr_num_right(c),b)))
-  {
+      (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
     res = 1;
-  }
-  else
-  {
+  } else {
     /* unfeasible if left is entirely smaller than right */
     res = (rp_bsup(rp_expression_val(rp_ctr_num_left(c))) <=
            rp_binf(rp_expression_val(rp_ctr_num_right(c))));
@@ -179,16 +167,13 @@ int rp_ctr_numsup_strict_unfeasible(rp_ctr_num c, rp_box b)
 /* Returns true if no point of b is solution of c */
 int rp_ctr_numinf_strict_unfeasible(rp_ctr_num c, rp_box b)
 {
+  int res = 0;
   rp_ctr_num_used(c) = 1;
-  int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
-      (!rp_expression_eval(rp_ctr_num_right(c),b)))
-  {
+      (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
     res = 1;
-  }
-  else
-  {
+  } else {
     /* unfeasible if left is entirely greater than right */
     res = (rp_binf(rp_expression_val(rp_ctr_num_left(c))) >=
            rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
@@ -200,8 +185,7 @@ int rp_ctr_numinf_strict_unfeasible(rp_ctr_num c, rp_box b)
 int rp_ctr_num_unfeasible(rp_ctr_num c, rp_box b)
 {
   int res = 1;
-  switch( rp_ctr_num_rel(c) )
-  {
+  switch( rp_ctr_num_rel(c) ) {
     case RP_RELATION_EQUAL:
       res = rp_ctr_numeq_unfeasible(c,b);
       break;
@@ -228,16 +212,13 @@ int rp_ctr_num_unfeasible(rp_ctr_num c, rp_box b)
 /* Returns true if all the points of b are solutions of c */
 int rp_ctr_numeq_inner(rp_ctr_num c, rp_box b)
 {
-  rp_ctr_num_used(c) = 1;
   int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b))||
-      (!rp_expression_eval(rp_ctr_num_right(c),b)))
-  {
+      (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
     res = 0;
-  }
-  else
-  {
+    rp_ctr_num_used(c) = 1;
+  } else {
     /* inner if the value of both expressions is a number */
     res = (rp_interval_point(rp_expression_val(rp_ctr_num_left(c))) &&
            rp_interval_equal(rp_expression_val(rp_ctr_num_left(c)),
@@ -249,16 +230,13 @@ int rp_ctr_numeq_inner(rp_ctr_num c, rp_box b)
 /* Returns true if all the points of b are solutions of c */
 int rp_ctr_numsup_inner(rp_ctr_num c, rp_box b)
 {
-  rp_ctr_num_used(c) = 1;
   int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
-      (!rp_expression_eval(rp_ctr_num_right(c),b)))
-  {
+      (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
     res = 0;
-  }
-  else
-  {
+    rp_ctr_num_used(c) = 1;
+  } else {
     /* inner if left is greater than right */
     res = (rp_binf(rp_expression_val(rp_ctr_num_left(c))) >=
            rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
@@ -269,13 +247,13 @@ int rp_ctr_numsup_inner(rp_ctr_num c, rp_box b)
 /* Returns true if all the points of b are solutions of c */
 int rp_ctr_numsup_strict_inner(rp_ctr_num c, rp_box b)
 {
-  rp_ctr_num_used(c) = 1;
   int res;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
       (!rp_expression_eval(rp_ctr_num_right(c),b)))
   {
     /* at least one expression has an empty range over b */
     res = 0;
+    rp_ctr_num_used(c) = 1;
   }
   else
   {
@@ -289,13 +267,13 @@ int rp_ctr_numsup_strict_inner(rp_ctr_num c, rp_box b)
 /* Returns true if all the points of b are solutions of c */
 int rp_ctr_numinf_inner(rp_ctr_num c, rp_box b)
 {
-  rp_ctr_num_used(c) = 1;
   int res;
   if (!(rp_expression_eval(rp_ctr_num_left(c),b))||
       !(rp_expression_eval(rp_ctr_num_right(c),b)))
   {
     /* at least one expression has an empty range over b */
     res = 0;
+    rp_ctr_num_used(c) = 1;
   }
   else
   {
@@ -309,13 +287,13 @@ int rp_ctr_numinf_inner(rp_ctr_num c, rp_box b)
 /* Returns true if all the points of b are solutions of c */
 int rp_ctr_numinf_strict_inner(rp_ctr_num c, rp_box b)
 {
-  rp_ctr_num_used(c) = 1;
   int res;
   if (!(rp_expression_eval(rp_ctr_num_left(c),b))||
       !(rp_expression_eval(rp_ctr_num_right(c),b)))
   {
     /* at least one expression has an empty range over b */
     res = 0;
+    rp_ctr_num_used(c) = 1;
   }
   else
   {
