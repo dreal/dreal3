@@ -91,9 +91,8 @@ private:
     scoped_vec const &               m_stack;
     scoped_env &                     m_env;
     bool                             m_ODEresult;
-
     std::unordered_map<Enode *, int> m_enode_to_rp_id;
-    //    vector<double>                   m_rp_constraint_deltas;
+    std::unordered_map<Enode *, rp_constraint *> m_enode_to_rp_ctr;
 #ifdef ODE_ENABLED
     std::vector<ode_solver *>        m_ode_solvers;
 #endif

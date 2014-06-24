@@ -215,6 +215,9 @@ rp_problem* icp_solver::create_rp_problem() {
             for (int i = 0; i < rp_constraint_arity(*c); ++i) {
                 ++rp_variable_constrained(rp_problem_var(*rp_prob, rp_constraint_var(*c, i)));
             }
+            m_enode_to_rp_ctr[l] = c;
+        } else {
+            m_enode_to_rp_ctr[l] = nullptr;
         }
     }
     DREAL_LOG_DEBUG << "icp_solver::create_rp_problem rp_problem_display";
@@ -625,22 +628,29 @@ bool icp_solver::prop() {
 
 void icp_solver::build_explanation() {
     m_explanation.clear();
-    for (int i = 0; i < rp_problem_nctr(*m_problem); i++) {
-        rp_constraint c = rp_problem_ctr(*m_problem, i);
-        assert(rp_constraint_type(c) == RP_CONSTRAINT_NUMERICAL);
-        rp_ctr_num cnum = rp_constraint_num(c);
-        if (rp_ctr_num_used(cnum)) {
-            m_explanation.push_back(m_stack[i]);
-            DREAL_LOG_DEBUG << "icp_solver::build_explanation: " << m_stack[i];
+    for (Enode * const l : m_stack) {
+        if (m_enode_to_rp_ctr.find(l) != m_enode_to_rp_ctr.end()) {
+            rp_constraint * const c = m_enode_to_rp_ctr[l];
+            // if the constraint is "0 = 0" (= trivial), we have c ==
+            // nullptr and do not add it in the explanation
+            if (c == nullptr) continue;
+            assert(rp_constraint_type(*c) == RP_CONSTRAINT_NUMERICAL);
+            rp_ctr_num cnum = rp_constraint_num(*c);
+            if (rp_ctr_num_used(cnum)) {
+                m_explanation.push_back(l);
+                DREAL_LOG_DEBUG << "icp_solver::build_explanation: " << l;
+            } else {
+                DREAL_LOG_DEBUG << "icp_solver::build_explanation: SKIP " << l;
+            }
+        } else {
+            // For ODE literals (intergral, forall_t), we don't have
+            // an entry in m_enode_to_rp_ctr. For now, we always add
+            // them to the explanation to make it sound. Later we may
+            // implement a better explanation for them.
+            m_explanation.push_back(l);
+            DREAL_LOG_DEBUG << "icp_solver::build_explanation: [ODE] " << l;
         }
-#ifdef ODE_ENABLED
-        else if (m_stack[i]->isIntegral() || m_stack[i]->isForallT()) {
-            m_explanation.push_back(m_stack[i]);
-            DREAL_LOG_DEBUG << "icp_solver::build_explanation: [ODE] " << m_stack[i];
-        }
-#endif
     }
-//  copy(m_stack.cbegin(), m_stack.cend(), back_inserter(m_explanation));
 }
 
 #ifdef ODE_ENABLED
