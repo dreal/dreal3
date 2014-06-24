@@ -47,7 +47,7 @@ using std::unordered_set;
 namespace dreal {
 icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const & stack, scoped_env & env,
                        vector<Enode*> & exp, bool complete_check)
-    : m_config(c), m_egraph(e), m_sstore(t), m_propag(nullptr), m_boxes(env.size()), m_ep(nullptr), m_sol(0),
+    : m_config(c), m_egraph(e), m_sstore(t), m_propag(nullptr), m_boxes(env.size()),
       m_nsplit(0), m_explanation(exp), m_stack(stack), m_env(env), m_complete_check(complete_check), m_num_delta_checks(0) {
     rp_init_library();
     m_problem = create_rp_problem();
@@ -415,7 +415,6 @@ bool icp_solver::is_box_within_delta(rp_box b) {
 }
 
 rp_box icp_solver::compute_next() {
-    if (m_sol > 0) { m_boxes.remove(); }
     while (!m_boxes.empty()) {
         if (prop_with_ODE()) { // sean: here it is! propagation before split!!!
             // SAT => Split
@@ -437,8 +436,6 @@ rp_box icp_solver::compute_next() {
                 ++m_nsplit;
                 m_dsplit->apply(m_boxes, i);
             } else {
-                ++m_sol;
-                if (m_ep) m_ep->prove(b);
                 return(b);
             }
         } else {
@@ -605,7 +602,6 @@ void icp_solver::output_problem() const {
 bool icp_solver::prop() {
     bool result = false;
     if (m_config.nra_proof) { output_problem(); }
-    if (m_sol > 0) { m_boxes.remove(); }
     if (!m_boxes.empty()) { result = m_propag->apply(m_boxes.get()); }
     if (!result) {
         // UNSAT

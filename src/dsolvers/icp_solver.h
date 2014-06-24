@@ -81,8 +81,6 @@ private:
     rp_box_stack                     m_boxes; /* the set of boxes during search */
     rp_selector *                    m_vselect; /* selection of variable to be split */
     rp_splitter *                    m_dsplit; /* split function of variable domain */
-    rp_existence_prover *            m_ep; /* existence prover */
-    int                              m_sol; /* number of computed solutions */
     int                              m_nsplit; /* number of split steps */
     double                           m_improve; /* improvement factor of iterative methods */
     vector<Enode *> &                m_explanation;
