@@ -49,6 +49,7 @@ private:
     // fields
     scoped_env m_env;
     scoped_vec m_stack;
+    scoped_vec m_explanation_stack;
     heuristic  m_heuristic;
     int        m_decisions;
 };

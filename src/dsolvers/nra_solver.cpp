@@ -101,6 +101,7 @@ void nra_solver::pushBacktrackPoint () {
     DREAL_LOG_DEBUG << "nra_solver::pushBacktrackPoint " << m_stack.size();
     m_env.push();
     m_stack.push();
+    m_explanation_stack.push();
 }
 
 // Restore a previous state. You can now retrieve the size of the
@@ -110,6 +111,7 @@ void nra_solver::pushBacktrackPoint () {
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint () {
     DREAL_LOG_DEBUG << "nra_solver::popBacktrackPoint";
+    m_explanation_stack.pop();
     m_stack.pop();
     m_env.pop();
     m_heuristic.resetSuggestions();
@@ -123,8 +125,10 @@ bool nra_solver::check(bool complete) {
     DREAL_LOG_DEBUG << m_env;
     DREAL_LOG_DEBUG << "nra_solver::check: stack = ";
     DREAL_LOG_DEBUG << m_stack;
+    DREAL_LOG_DEBUG << "nra_solver::check: explanation_stack = ";
+    DREAL_LOG_DEBUG << m_explanation_stack;
     bool result = true;
-    icp_solver solver(config, egraph, sstore, m_stack, m_env, explanation, complete);
+    icp_solver solver(config, egraph, sstore, m_stack, m_env, complete);
     if (!complete) {
         // Incomplete Check
         result = solver.prop();
@@ -132,9 +136,17 @@ bool nra_solver::check(bool complete) {
         // Complete Check
         result = solver.solve();
     }
+
+    for (Enode * const l : solver.get_explanation()) {
+        if (find(m_explanation_stack.begin(), m_explanation_stack.end(), l) == m_explanation_stack.end()) {
+            m_explanation_stack.push_back(l);
+        }
+    }
+
     DREAL_LOG_INFO << "nra_solver::check(" << (complete ? "complete" : "incomplete") << ")"
                    << " result = " << boolalpha << result;
     if (!result) {
+        explanation = m_explanation_stack.get_vec();
         if (DREAL_LOG_INFO_IS_ON) {
             DREAL_LOG_INFO << "nra_solver::check: explanation provided:";
             for (Enode * const e : explanation) {
