@@ -98,7 +98,6 @@ void rp_ctr_num_destroy(rp_ctr_num * c)
 int rp_ctr_numeq_unfeasible(rp_ctr_num c, rp_box b)
 {
   int res = 0;
-  rp_ctr_num_used(c) = 1;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
       (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
@@ -117,7 +116,6 @@ int rp_ctr_numeq_unfeasible(rp_ctr_num c, rp_box b)
 int rp_ctr_numsup_unfeasible(rp_ctr_num c, rp_box b)
 {
   int res = 0;
-  rp_ctr_num_used(c) = 1;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
       (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
@@ -134,7 +132,6 @@ int rp_ctr_numsup_unfeasible(rp_ctr_num c, rp_box b)
 int rp_ctr_numinf_unfeasible(rp_ctr_num c, rp_box b)
 {
   int res = 0;
-  rp_ctr_num_used(c) = 1;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
       (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
@@ -151,7 +148,6 @@ int rp_ctr_numinf_unfeasible(rp_ctr_num c, rp_box b)
 int rp_ctr_numsup_strict_unfeasible(rp_ctr_num c, rp_box b)
 {
   int res = 0;
-  rp_ctr_num_used(c) = 1;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
       (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
@@ -168,7 +164,6 @@ int rp_ctr_numsup_strict_unfeasible(rp_ctr_num c, rp_box b)
 int rp_ctr_numinf_strict_unfeasible(rp_ctr_num c, rp_box b)
 {
   int res = 0;
-  rp_ctr_num_used(c) = 1;
   if ((!rp_expression_eval(rp_ctr_num_left(c),b)) ||
       (!rp_expression_eval(rp_ctr_num_right(c),b))) {
     /* at least one expression has an empty range over b */
@@ -206,6 +201,7 @@ int rp_ctr_num_unfeasible(rp_ctr_num c, rp_box b)
       res = rp_ctr_numinf_strict_unfeasible(c,b);
       break;
   }
+  if (res) { rp_ctr_num_used(c) = 1; }
   return( res );
 }
 
