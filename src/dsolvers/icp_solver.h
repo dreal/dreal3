@@ -54,6 +54,7 @@ public:
     int         get_max_time_index(rp_constraint c);
     bool        delta_test() const { return m_config.nra_delta_test; }
     int         nsplit() const { return m_nsplit; }
+    std::vector<Enode *> get_explanation();
 
 private:
     icp_solver(const icp_solver& s);
@@ -61,7 +62,6 @@ private:
     rp_problem* create_rp_problem();
     bool        prop_with_ODE(); // propagate with ODE (only in complete check)
     rp_box      compute_next(); // computation of the next solution
-    void        build_explanation();
     void        output_problem() const;
     void        display_box(ostream& out, rp_box b, int digits, int mode, bool exact) const;
     void        display_interval(ostream & out, rp_interval i, int digits, bool exact) const;

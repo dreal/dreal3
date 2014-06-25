@@ -559,7 +559,6 @@ bool icp_solver::solve() {
     if (m_config.nra_proof) { output_problem(); }
     if (rp_box_empty(rp_problem_box(*m_problem))) {
         DREAL_LOG_INFO << "icp_solver::solve: Unfeasibility detected before solving";
-        build_explanation();
         return false;
     } else {
         rp_box b = compute_next();
@@ -595,7 +594,6 @@ bool icp_solver::solve() {
         } else {
             /* UNSAT */
             DREAL_LOG_INFO << "icp_solver::solve: UNSAT";
-            build_explanation();
             return false;
         }
     }
@@ -685,7 +683,6 @@ bool icp_solver::prop() {
         // UNSAT
         if (m_config.nra_proof) { m_config.nra_proof_out << "[conflict detected]" << endl; }
         DREAL_LOG_INFO << "[conflict detected]";
-        build_explanation();
     } else {
         // SAT, Update Env
         rp_box const b = m_boxes.get();
@@ -700,8 +697,8 @@ bool icp_solver::prop() {
     return result;
 }
 
-void icp_solver::build_explanation() {
-    m_explanation.clear();
+vector<Enode *> icp_solver::get_explanation() {
+    vector<Enode *> explanation;
     for (Enode * const l : m_stack) {
         if (m_enode_to_rp_ctr.find(l) != m_enode_to_rp_ctr.end()) {
             rp_constraint * const c = m_enode_to_rp_ctr[l];
@@ -711,7 +708,7 @@ void icp_solver::build_explanation() {
             assert(rp_constraint_type(*c) == RP_CONSTRAINT_NUMERICAL);
             rp_ctr_num cnum = rp_constraint_num(*c);
             if (rp_ctr_num_used(cnum)) {
-                m_explanation.push_back(l);
+                explanation.push_back(l);
                 DREAL_LOG_DEBUG << "icp_solver::build_explanation: " << l;
             } else {
                 DREAL_LOG_DEBUG << "icp_solver::build_explanation: SKIP " << l;
@@ -721,10 +718,11 @@ void icp_solver::build_explanation() {
             // an entry in m_enode_to_rp_ctr. For now, we always add
             // them to the explanation to make it sound. Later we may
             // implement a better explanation for them.
-            m_explanation.push_back(l);
+            explanation.push_back(l);
             DREAL_LOG_DEBUG << "icp_solver::build_explanation: [ODE] " << l;
         }
     }
+    return explanation;
 }
 
 #ifdef ODE_ENABLED
