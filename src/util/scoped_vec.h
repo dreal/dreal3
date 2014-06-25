@@ -39,7 +39,7 @@ private:
     typedef vec::reference       reference;
     typedef vec::const_reference const_reference;
 
-    vector<Enode *>  m_vec;
+    vec              m_vec;
     vector<unsigned> m_scopes;
 
 public:
@@ -54,7 +54,8 @@ public:
     void push_back(value_type const & v);
     void push();
     void pop();
-    unsigned size() const { return m_vec.size(); }
+    unsigned size() const    { return m_vec.size(); }
+    vec const & get_vec() { return m_vec; }
     friend std::ostream & operator<<(std::ostream & out, scoped_vec const & e);
     reference operator[] (size_type n);
     const_reference operator[] (size_type n) const;
