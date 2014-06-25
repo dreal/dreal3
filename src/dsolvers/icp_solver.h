@@ -40,8 +40,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 class icp_solver {
 public:
-    icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const & stack, scoped_env & env,
-               std::vector<Enode *> & exp, bool complete_check);
+    icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const & stack, scoped_env & env, bool complete_check);
     ~icp_solver();
     bool prop(); // only propagate
     bool solve();
@@ -85,7 +84,6 @@ private:
     rp_splitter *                    m_dsplit; /* split function of variable domain */
     int                              m_nsplit; /* number of split steps */
     double                           m_improve; /* improvement factor of iterative methods */
-    vector<Enode *> &                m_explanation;
     vector<rp_variable *>            m_rp_variables;
     vector<rp_constraint *>          m_rp_constraints;
     scoped_vec const &               m_stack;

@@ -45,10 +45,9 @@ using std::unordered_map;
 using std::unordered_set;
 
 namespace dreal {
-icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const & stack, scoped_env & env,
-                       vector<Enode*> & exp, bool complete_check)
+icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const & stack, scoped_env & env, bool complete_check)
     : m_config(c), m_egraph(e), m_sstore(t), m_propag(nullptr), m_boxes(env.size()),
-      m_nsplit(0), m_explanation(exp), m_stack(stack), m_env(env), m_complete_check(complete_check), m_num_delta_checks(0) {
+      m_nsplit(0), m_stack(stack), m_env(env), m_complete_check(complete_check), m_num_delta_checks(0) {
     rp_init_library();
     m_problem = create_rp_problem();
     m_propag = new rp_propagator(m_problem, 10.0, c.nra_verbose, c.nra_proof_out);
