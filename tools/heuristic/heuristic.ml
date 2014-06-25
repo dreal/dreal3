@@ -236,14 +236,16 @@ module Heuristic = struct
 
     in
    
-    (*
+  (*  
     let () = print_endline "relevant goal vars:" in
     let () = Relevantvariables.print IO.stdout relevant_goal_vars in
     let () = print_endline "" in 
-     *)
-
-    List.append 
-      (relevantgenr_back h k (k-1) heuristic heuristic_back relevant_goal_vars) 
+   *)
+    if k > 0 then
+      List.append 
+	(relevantgenr_back h k (k-1) heuristic heuristic_back relevant_goal_vars) 
+	[ relevant_goal_vars ]
+    else
       [ relevant_goal_vars ]
 
     (*
