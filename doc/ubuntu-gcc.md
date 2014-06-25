@@ -25,32 +25,6 @@ Install Packages
     sudo apt-get update
     sudo apt-get install -qq cmake
 
-3. EGLIBC-2.17 (Optional)
--------------------------
-
-Using eglibc (<= 2.16) may cause severe errors in floating point
-computation if ``FE_UPWARD``, ``FE_DOWNWARD``, and ``FE_TOWARDZERO``
-rounding modes are used. If you're using Ubuntu OS (<= 12.10) or
-Debian (<= 7.2), please check the version of your eglibc by typing:
-
-    ldd --version
-
-If the version is <= 2.16, please check out the latest version of eglibc:
-
-    svn co http://www.eglibc.org/svn/trunk eglibc
-
-and install them on your machine. (NOTE: recommend to install on your home dir)
-
-    cd <HOME_PATH>
-    svn co svn://svn.eglibc.org/branches/eglibc-2_17 eglibc-2.17
-    mkdir eglibc-2.17-build
-    mkdir eglibc
-    cd eglibc-2.17-build
-    ../eglibc-2.17/libc/configure --prefix=<HOME_PATH>/../eglibc
-    make
-    make install
-
-
 Build dReal
 ===========
 
