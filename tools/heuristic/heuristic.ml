@@ -63,7 +63,7 @@ module Heuristic = struct
 	(Mode.flows mode)
     in
     begin
-      while not ((Ref.get new_vars) = (Ref.get old_vars)) do
+      while  ((BatSet.cardinal (Ref.get new_vars)) - (BatSet.cardinal (Ref.get old_vars)) > 0) do
 	begin
 	  old_vars := Ref.get new_vars;
 	  (*
@@ -284,11 +284,7 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
   let get_costs (openq : SearchNode.t BatHeap.t) (closed : SearchNode.t BatSet.t) 
 		(costs : Costmap.t) (h : Hybrid.t) (fwd : bool) 
       : Costmap.t =
-    (*
-    let () = print_endline "Open list:" in
-     let () = List.iter (printf "%d ") openl in
-     let () = print_endline "" in
-     *)
+    
     (*
     let cost_compare (a : id) (b : id) : int = 
       let a_cost = Map.find a costs in
@@ -369,7 +365,7 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
     let () = print_endline "init Costs:" in
     let () = Costmap.print IO.stdout init_costs in
     let () = print_endline "" in 
- *) 
+ *)
     init_costs 
 
 
@@ -394,7 +390,7 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
     let openempty = BatHeap.empty   in
     let openq = List.fold_right (fun e h -> BatHeap.insert h (SearchNode.make (0.0, e)) ) goal_mode_ids openempty  in
     let closed = BatSet.empty in
-    let final_costs = (get_costs openq closed initcosts h) true in
+    let final_costs = (get_costs openq closed initcosts h) false in
    (*
     let () = print_endline "goal Costs:" in
     let () = Costmap.print IO.stdout final_costs in
