@@ -144,9 +144,8 @@ ExternalProject_Add(FILIBXX
 ################################################################
 # External: CAPD-DynSys-3.0
 ################################################################
-ExternalProject_Add(CAPD
+ExternalProject_Add(CAPD3
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-# GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-4.0.git
   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
@@ -304,8 +303,8 @@ add_dependencies(util GLOG)
 add_dependencies(util GFLAGS)
 add_dependencies(dsolvers JSON11)
 add_dependencies(dsolvers realpaver)
+add_dependencies(dsolvers CAPD3)
 add_dependencies(realpaver FILIBXX)
-add_dependencies(realpaver CAPD)
 add_dependencies(realpaver util)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
