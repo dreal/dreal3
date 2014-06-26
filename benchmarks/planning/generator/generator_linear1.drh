@@ -1,0 +1,101 @@
+#define STARTING_FUEL 700
+#define GENERATOR_CAPACITY 1600
+#define TANK_DURATION 20
+#define GENERATOR_DURATION 1000
+
+[0, GENERATOR_CAPACITY] fuel_level;
+[0, TANK_DURATION] tank1_level;
+[0, GENERATOR_DURATION] generator_time;
+[0, 1000] time;
+
+
+{ mode 1; //generator is off, no pouring
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[generator_time] = 0;
+  jump:
+        (fuel_level >= 0) ==> @2 true;
+	true ==> @3 true;
+}
+
+{ mode 2; //generator is on, no pouring
+  invt: 
+  	(fuel_level >= 0);
+  flow:
+        d/dt[fuel_level] = -1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[generator_time] = 1;
+  jump:
+        true ==> @4 true;
+	(generator_time = GENERATOR_DURATION) ==> @7 true; 
+}
+
+{ mode 3; //generator is off, pouring
+  invt:
+	(fuel_level < GENERATOR_CAPACITY);
+  	(tank1_refuel_time <= TANK_DURATION);
+  flow:
+        d/dt[fuel_level] = 2;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[generator_time] = 0;
+  jump:
+        (fuel_level >= 0) ==> @4 true;
+	(tank1_refuel_time = TANK_DURATION) ==> @5 true;
+}
+
+{ mode 4; //generator is on, pouring
+  invt:
+	(fuel_level < GENERATOR_CAPACITY);
+  	(fuel_level >= 0);
+  	(tank1_refuel_time <= TANK_DURATION);
+  flow:
+        d/dt[fuel_level] = (2 - 1);
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[generator_time] = 1;
+  jump:
+	(generator_time = GENERATOR_DURATION) ==> @7 true; 
+	(tank1_refuel_time = TANK_DURATION) ==> @6 true;
+}
+
+{ mode 5; //generator is off, done pouring
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[generator_time] = 0;
+  jump:
+        (fuel_level >= 0) ==> @6 true;
+}
+
+{ mode 6; //generator is on, done pouring
+  invt:
+	(fuel_level < GENERATOR_CAPACITY);
+  	(fuel_level >= 0);
+  	(tank1_refuel_time <= TANK_DURATION);
+  flow:
+        d/dt[fuel_level] = -1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[generator_time] = 1;
+  jump:
+	(generator_time = GENERATOR_DURATION) ==> @7 true; 
+}
+
+{ mode 7; //generator ran
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[generator_time] = 0;
+  jump:
+	true ==> @7 true; 
+}
+
+
+init:
+
+@1 (and (fuel_level          = STARTING_FUEL) 
+	(generator_time      = 0) 
+	(tank1_refuel_time   = 0));
+
+goal:
+//@1 (and (generator_time > 100) );
+@7 true;
