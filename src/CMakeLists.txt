@@ -318,9 +318,10 @@ add_dependencies(realpaver util)
 # Include style check
 include(StyleCheck)
 file(GLOB_RECURSE DREAL_SOURCES
-         ${DREAL_SOURCE_DIR}
-         ${DREAL_SOURCE_DIR}/dsolvers/[A-Za-z]*.cpp
-         ${DREAL_SOURCE_DIR}/dsolvers/[A-Za-z]*.h)
+  ${DREAL_SOURCE_DIR}/util/*.cpp       ${DREAL_SOURCE_DIR}/util/*.h
+  ${DREAL_SOURCE_DIR}/dsolvers/*.cpp   ${DREAL_SOURCE_DIR}/dsolvers/*.h
+  ${DREAL_SOURCE_DIR}/tests/*.cpp      ${DREAL_SOURCE_DIR}/tests/*.h
+  )
 add_style_check_target(style "${DREAL_SOURCES}")
 add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py ${DREAL_SOURCES})
 
