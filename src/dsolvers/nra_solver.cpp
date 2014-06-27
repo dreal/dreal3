@@ -148,7 +148,7 @@ bool nra_solver::check(bool complete) {
     if (!result) {
         explanation = m_explanation_stack.get_vec();
         if (DREAL_LOG_INFO_IS_ON) {
-            DREAL_LOG_INFO << "nra_solver::check: explanation provided:";
+            DREAL_LOG_INFO << "nra_solver::check: explanation provided: (size = " << explanation.size() << " out of " << m_stack.size() << ")";
             for (Enode * const e : explanation) {
                 DREAL_LOG_INFO << "\t" << (e->getPolarity() == l_False ? "!" : "") << e;
             }
