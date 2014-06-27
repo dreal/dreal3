@@ -60,15 +60,15 @@ void rp_stack_interval_push (rp_stack_interval s, rp_interval i);
 
 /* Projection of c onto the variables belonging to b */
 /* Returns false if an empty domain is computed      */
-int rp_sat_hull_eq (rp_ctr_num c, rp_box b);
+int rp_sat_hull_eq (rp_ctr_num c, rp_box const b);
 
 /* Projection of c onto the variables belonging to b */
 /* Returns false if an empty domain is computed      */
-int rp_sat_hull_inf (rp_ctr_num c, rp_box b);
+int rp_sat_hull_inf (rp_ctr_num c, rp_box const b);
 
 /* Projection of c onto the variables belonging to b */
 /* Returns false if an empty domain is computed      */
-int rp_sat_hull_sup (rp_ctr_num c, rp_box b);
+int rp_sat_hull_sup (rp_ctr_num c, rp_box const b);
 
 
 /* Reduction of b(x) with precision eps by box consistency onto f = 0 */

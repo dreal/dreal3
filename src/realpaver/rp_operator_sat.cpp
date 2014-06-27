@@ -77,106 +77,100 @@ void rp_stack_interval_push(rp_stack_interval s, rp_interval i)
 
 /* Projection of c onto the variables belonging to b */
 /* Returns false if an empty domain is computed      */
-int rp_sat_hull_eq(rp_ctr_num c, rp_box b)
+int rp_sat_hull_eq(rp_ctr_num c, rp_box const b)
 {
+  bool improved = false;
   int result = 0;
-  if (rp_expression_eval(rp_ctr_num_left(c),b))
-  {
-    if (rp_expression_eval(rp_ctr_num_right(c),b))
-    {
+  if (rp_expression_eval(rp_ctr_num_left(c),b)) {
+    if (rp_expression_eval(rp_ctr_num_right(c),b)) {
       /* interpretation of equality as non empty intersection */
-      rp_interval i;
-      rp_interval_inter(i,
-                        rp_expression_val(rp_ctr_num_left(c)),
+      static rp_interval i;
+      rp_interval_inter(i, rp_expression_val(rp_ctr_num_left(c)),
                         rp_expression_val(rp_ctr_num_right(c)));
-      if (!rp_interval_empty(i))
-      {
-        if (rp_expression_project(rp_ctr_num_left(c),i,b))
-        {
+      if (!rp_interval_empty(i)) {
+        static rp_box old;
+        rp_box_clone(&old, b);
+        if (rp_expression_project(rp_ctr_num_left(c),i,b)) {
           result = rp_expression_project(rp_ctr_num_right(c),i,b);
         }
+        improved = !rp_box_equal(old, b);
       }
     }
   }
-  rp_ctr_num_used(c) = 1;
+  // mark c used if 1) empty domain is computted, or 2) box is improved
+  if(!result || improved) { rp_ctr_num_used(c) = 1; }
   return( result );
 }
 
 /* Projection of c onto the variables belonging to b */
 /* Returns false if an empty domain is computed      */
-int rp_sat_hull_inf(rp_ctr_num c, rp_box b)
-{
+int rp_sat_hull_inf(rp_ctr_num c, rp_box const b) {
+  bool improved = false;
   int result = 0;
-  if (rp_expression_eval(rp_ctr_num_left(c),b))
-  {
-    if (rp_expression_eval(rp_ctr_num_right(c),b))
-    {
+  if (rp_expression_eval(rp_ctr_num_left(c),b)) {
+    if (rp_expression_eval(rp_ctr_num_right(c),b)) {
       /* interpretation of equality as non empty intersection */
-      rp_interval ileft, iright;
-
+      static rp_interval ileft, iright;
       /* [a,b] <= [c,d]  -->  ileft := [a,b] inter [-oo,d] */
       rp_interval_set(
             ileft,
             rp_binf(rp_expression_val(rp_ctr_num_left(c))),
             rp_min_num(rp_bsup(rp_expression_val(rp_ctr_num_left(c))),
                        rp_bsup(rp_expression_val(rp_ctr_num_right(c)))));
-
       /* [a,b] <= [c,d]  -->  iright := [c,d] inter [a,+oo] */
       rp_interval_set(
             iright,
             rp_max_num(rp_binf(rp_expression_val(rp_ctr_num_left(c))),
                        rp_binf(rp_expression_val(rp_ctr_num_right(c)))),
             rp_bsup(rp_expression_val(rp_ctr_num_right(c))));
-
-      if ((!rp_interval_empty(ileft)) && (!rp_interval_empty(iright)))
-      {
-        if (rp_expression_project(rp_ctr_num_left(c),ileft,b))
-        {
+      if ((!rp_interval_empty(ileft)) && (!rp_interval_empty(iright))) {
+        static rp_box old;
+        rp_box_clone(&old, b);
+        if (rp_expression_project(rp_ctr_num_left(c),ileft,b)) {
           result = rp_expression_project(rp_ctr_num_right(c),iright,b);
         }
+        improved = !rp_box_equal(old, b);
       }
     }
   }
-  rp_ctr_num_used(c) = 1;
+  // mark c used if 1) empty domain is computted, or 2) box is improved
+  if(!result || improved) { rp_ctr_num_used(c) = 1; }
   return( result );
 }
 
 /* Projection of c onto the variables belonging to b */
 /* Returns false if an empty domain is computed      */
-int rp_sat_hull_sup(rp_ctr_num c, rp_box b)
-{
+int rp_sat_hull_sup(rp_ctr_num c, rp_box const b) {
+  bool improved = false;
   int result = 0;
-  if (rp_expression_eval(rp_ctr_num_left(c),b))
-  {
-    if (rp_expression_eval(rp_ctr_num_right(c),b))
-    {
+  if (rp_expression_eval(rp_ctr_num_left(c),b)) {
+    if (rp_expression_eval(rp_ctr_num_right(c),b)) {
       /* interpretation of equality as non empty intersection */
-      rp_interval ileft, iright;
-
+      static rp_interval ileft, iright;
       /* [a,b] >= [c,d]  -->  ileft := [a,b] inter [c,+oo] */
       rp_interval_set(
             ileft,
             rp_max_num(rp_binf(rp_expression_val(rp_ctr_num_left(c))),
                        rp_binf(rp_expression_val(rp_ctr_num_right(c)))),
             rp_bsup(rp_expression_val(rp_ctr_num_left(c))));
-
       /* [a,b] >= [c,d]  -->  iright := [c,d] inter [-oo,b] */
       rp_interval_set(
             iright,
             rp_binf(rp_expression_val(rp_ctr_num_right(c))),
             rp_min_num(rp_bsup(rp_expression_val(rp_ctr_num_left(c))),
                        rp_bsup(rp_expression_val(rp_ctr_num_right(c)))));
-
-      if ((!rp_interval_empty(ileft)) && (!rp_interval_empty(iright)))
-      {
-        if (rp_expression_project(rp_ctr_num_left(c),ileft,b))
-        {
+      if ((!rp_interval_empty(ileft)) && (!rp_interval_empty(iright))) {
+        static rp_box old;
+        rp_box_clone(&old, b);
+        if (rp_expression_project(rp_ctr_num_left(c),ileft,b)) {
           result = rp_expression_project(rp_ctr_num_right(c),iright,b);
         }
+        improved = !rp_box_equal(old, b);
       }
     }
   }
-  rp_ctr_num_used(c) = 1;
+  // mark c used if 1) empty domain is computted, or 2) box is improved
+  if(!result || improved) { rp_ctr_num_used(c) = 1; }
   return( result );
 }
 
