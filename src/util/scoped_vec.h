@@ -39,8 +39,8 @@ private:
     typedef vec::reference       reference;
     typedef vec::const_reference const_reference;
 
-    vec              m_vec;
-    vector<unsigned> m_scopes;
+    vec                   m_vec;
+    std::vector<unsigned> m_scopes;
 
 public:
     scoped_vec();
