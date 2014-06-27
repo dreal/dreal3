@@ -448,11 +448,7 @@ ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector
     ODE_result ret = ODE_result::SAT;
     auto start = high_resolution_clock::now();
     bool invariantViolated = false;
-
-    if (m_trivial) {
-        return ODE_result::SAT;
-    }
-
+    if (m_trivial) { return ODE_result::SAT; }
     try {
         // Set up VectorField
         IMap vectorField(m_diff_sys_forward);
@@ -461,7 +457,14 @@ ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector
         ITimeMap timeMap(solver);
         C0Rect2Set s(m_X_0);
         timeMap.stopAfterStep(true);
-        timeMap.turnOnStepControl();
+
+        // Control TimeStep
+        if (m_stepControl > 0) {
+            timeMap.turnOffStepControl();
+            solver.setStep(m_stepControl);
+        } else {
+            solver.turnOnStepControl();
+        }
 
         // TODO(soonhok): visualization
         if (m_config.nra_json) {
@@ -490,14 +493,6 @@ ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector
                     ret = ODE_result::SAT;
                 }
                 break;
-            }
-
-            // Control TimeStep
-            timeMap.turnOnStepControl();
-            if (m_stepControl > 0 && solver.getStep() < m_stepControl) {
-                timeMap.turnOffStepControl();
-                solver.setStep(m_stepControl);
-                timeMap.setStep(m_stepControl);
             }
 
             // Move s toward m_T.rightBound()
@@ -547,11 +542,7 @@ ode_solver::ODE_result ode_solver::compute_backward(vector<pair<interval, IVecto
     ODE_result ret = ODE_result::SAT;
     auto start = high_resolution_clock::now();
     bool invariantViolated = false;
-
-    if (m_trivial) {
-        return ODE_result::SAT;
-    }
-
+    if (m_trivial) { return ODE_result::SAT; }
     try {
         // Set up VectorField
         IMap vectorField(m_diff_sys_backward);
@@ -560,7 +551,14 @@ ode_solver::ODE_result ode_solver::compute_backward(vector<pair<interval, IVecto
         ITimeMap timeMap(solver);
         C0Rect2Set s(m_X_t);
         timeMap.stopAfterStep(true);
-        timeMap.turnOnStepControl();
+
+        // Control TimeStep
+        if (m_stepControl > 0) {
+            timeMap.turnOffStepControl();
+            solver.setStep(m_stepControl);
+        } else {
+            solver.turnOnStepControl();
+        }
 
         // TODO(soonhok): visualization
         // if (m_config.nra_json) {
@@ -590,14 +588,6 @@ ode_solver::ODE_result ode_solver::compute_backward(vector<pair<interval, IVecto
                     ret = ODE_result::SAT;
                 }
                 break;
-            }
-
-            // Control TimeStep
-            timeMap.turnOnStepControl();
-            if (m_stepControl > 0 && solver.getStep() < m_stepControl) {
-                timeMap.turnOffStepControl();
-                solver.setStep(m_stepControl);
-                timeMap.setStep(m_stepControl);
             }
 
             // Move s toward m_T.rightBound()
