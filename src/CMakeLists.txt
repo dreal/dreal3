@@ -293,9 +293,17 @@ set(DREAL_LIBS ${DREAL_LIBS} realpaver)
 add_subdirectory(util)
 set(DREAL_LIBS ${DREAL_LIBS} util)
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+
+set(EXTRA_LIBS ${DREAL_LIBS} ${EXTRA_LIBS})
+add_executable(dReal main.cpp)
+target_link_libraries(dReal ${EXTRA_LIBS})
+
 #add tests
 add_subdirectory(tests/nra)
 add_subdirectory(tests/nra_ode)
+add_subdirectory(tests/capd3)
 
 #dependencies
 add_dependencies(GLOG GFLAGS)
@@ -306,13 +314,6 @@ add_dependencies(dsolvers realpaver)
 add_dependencies(dsolvers CAPD3)
 add_dependencies(realpaver FILIBXX)
 add_dependencies(realpaver util)
-
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
-
-set(EXTRA_LIBS ${DREAL_LIBS} ${EXTRA_LIBS})
-add_executable(dReal main.cpp)
-target_link_libraries(dReal ${EXTRA_LIBS})
 
 # Include style check
 include(StyleCheck)
