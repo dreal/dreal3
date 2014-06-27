@@ -29,7 +29,7 @@ namespace dreal {
 string to_hexfloat(double x) {
     static int const BUF_SIZE = 100;
     char buf[BUF_SIZE];
-    int len = snprintf(buf, 100, "%a", x);
+    int len = snprintf(buf, sizeof(buf), "%a", x);
     if (len >= BUF_SIZE) {
         DREAL_LOG_WARNING << "to_hexfloat: printing " << x
                           << " requires more than " << BUF_SIZE << " bytes of buffer.";
