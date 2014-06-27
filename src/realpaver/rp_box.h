@@ -65,6 +65,7 @@ typedef union
 rp_box_cell;
 
 typedef rp_box_cell * rp_box;
+typedef rp_box_cell const * rp_const_box;
 
 #define RP_BOX_RESERVED_CELL 1
 

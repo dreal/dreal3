@@ -250,7 +250,7 @@ void rp_expression_copy(rp_expression* e, rp_expression src)
 
 /* rp_expression_val(e) := e(b)                     */
 /* Returns false if the resulting interval is empty */
-int rp_expression_eval(rp_expression e, rp_box b)
+int rp_expression_eval(rp_expression e, rp_const_box const b)
 {
   return( rp_erep_eval(rp_expression_rep(e),b) );
 }

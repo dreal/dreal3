@@ -107,7 +107,7 @@ void rp_expression_display (FILE * out, rp_expression e,
 
 /* rp_expression_val(e) := e(b)                     */
 /* Returns false if the resulting interval is empty */
-int rp_expression_eval (rp_expression e, rp_box b);
+int rp_expression_eval (rp_expression e, rp_const_box const b);
 
 #define rp_expression_val(e) rp_erep_val(rp_expression_rep(e))
 

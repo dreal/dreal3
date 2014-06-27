@@ -201,7 +201,7 @@ void rp_erep_display (FILE* out, rp_erep f,
 
 /* Evaluation of f on b                             */
 /* Returns false if the resulting interval is empty */
-int rp_erep_eval (rp_erep f, rp_box b);
+int rp_erep_eval (rp_erep f, rp_const_box const b);
 
 /* Projection onto every subterm of f                          */
 /* b is intersected with the projections onto the variables    */

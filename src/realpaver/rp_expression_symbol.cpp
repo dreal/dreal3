@@ -1371,7 +1371,7 @@ void rp_erep_display(FILE* out, rp_erep f, rp_vector_variable vars,
 
 /* Evaluation of f on b                             */
 /* Returns false if the resulting interval is empty */
-int rp_erep_eval(rp_erep f, rp_box b)
+int rp_erep_eval(rp_erep f, rp_const_box const b)
 {
   int result = 0;
   if (f!=NULL)
