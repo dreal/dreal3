@@ -81,9 +81,9 @@ list<interval> split(interval const & i, unsigned n) {
 
 ode_solver::ode_solver(SMTConfig& c,
                        Egraph & e,
-                       Enode * l_int,
-                       vector<Enode*> invs,
-                       unordered_map<Enode*, int>& enode_to_rp_id) :
+                       Enode * const l_int,
+                       vector<Enode*> const & invs,
+                       unordered_map<Enode*, int> & enode_to_rp_id) :
     m_config(c),
     m_egraph(e),
     m_int(l_int),
@@ -457,7 +457,7 @@ ode_solver::ODE_result ode_solver::compute_forward(vector<pair<interval, IVector
         // Set up VectorField
         IMap vectorField(m_diff_sys_forward);
         set_params(vectorField);
-        ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, .001);
+        ITaylor solver(vectorField, m_config.nra_ODE_taylor_order, 0.001);
         ITimeMap timeMap(solver);
         C0Rect2Set s(m_X_0);
         timeMap.stopAfterStep(true);
@@ -711,33 +711,6 @@ ode_solver::ODE_result ode_solver::prune_backward(vector<pair<interval, IVector>
     }
 }
 
-bool ode_solver::updateValue(rp_box b, Enode * e, double lb, double ub) {
-    double new_lb = max(lb, rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])));
-    double new_ub = min(ub, rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])));
-    if (new_lb <= new_ub) {
-        e->setLowerBound(new_lb);
-        rp_binf(rp_box_elem(b, m_enode_to_rp_id[e])) = new_lb;
-        e->setUpperBound(new_ub);
-        rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e])) = new_ub;
-        DREAL_LOG_INFO << "ode_solver::updateValue : " << e
-                       << " ["      << rp_binf(rp_box_elem(b, m_enode_to_rp_id[e]))
-                       << ", "      << rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e]))
-                       << "] /\\ [" << lb << ", " << ub << "]"
-                       << " = [" << new_lb << ", " << new_ub << "]";
-        return true;
-    } else {
-        rp_interval_set_empty(rp_box_elem(b, m_enode_to_rp_id[e]));
-        e->setLowerBound(+numeric_limits<double>::infinity());
-        e->setUpperBound(-numeric_limits<double>::infinity());
-        DREAL_LOG_INFO << "ode_solver::updateValue : " << e
-                       << " ["      << rp_binf(rp_box_elem(b, m_enode_to_rp_id[e]))
-                       << ", "      << rp_bsup(rp_box_elem(b, m_enode_to_rp_id[e]))
-                       << "] /\\ [" << lb << ", " << ub << "]"
-                       << " = empty ";
-        return false;
-    }
-}
-
 // Take an intersection of v and inv.
 // If there is no intersection, return false.
 bool ode_solver::check_invariant(IVector & v, IVector const & inv) {
@@ -802,7 +775,7 @@ bool ode_solver::union_and_join(vector<V> const & bucket, V & result) {
 
 // Run inner loop
 // return true if it violates invariant otherwise return false.
-bool ode_solver::inner_loop_forward(ITaylor & solver, interval prevTime, vector<pair<interval, IVector>> & bucket) {
+bool ode_solver::inner_loop_forward(ITaylor & solver, interval const & prevTime, vector<pair<interval, IVector>> & bucket) {
     interval const stepMade = solver.getStep();
     const ITaylor::CurveType& curve = solver.getCurve();
     interval domain = interval(0, 1) * stepMade;
@@ -835,7 +808,7 @@ bool ode_solver::inner_loop_forward(ITaylor & solver, interval prevTime, vector<
     return false;
 }
 
-bool ode_solver::inner_loop_backward(ITaylor & solver, interval prevTime, vector<pair<interval, IVector>> & bucket) {
+bool ode_solver::inner_loop_backward(ITaylor & solver, interval const & prevTime, vector<pair<interval, IVector>> & bucket) {
     interval const stepMade = solver.getStep();
     const ITaylor::CurveType& curve = solver.getCurve();
     interval domain = interval(0, 1) * stepMade;
