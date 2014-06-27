@@ -20,6 +20,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef EGRAPH_H
 #define EGRAPH_H
 
+#include <unordered_map>
 #include "egraph/Enode.h"
 #include "sorts/SStore.h"
 #include "tsolvers/TSolver.h"
@@ -343,7 +344,7 @@ public:
   bool    isPureLA                 ( Enode * );
 
   /* added for dReal */
-  map<string, map<string, Enode *>> flow_maps;
+  std::unordered_map<string, std::unordered_map<string, Enode *>> flow_maps;
   bool                              stepped_flows; //Does flow name have step index?
 
 private:

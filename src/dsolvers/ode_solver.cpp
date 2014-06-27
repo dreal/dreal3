@@ -99,7 +99,7 @@ ode_solver::ode_solver(SMTConfig& c,
     m_step = stoi(time_str.substr(time_str.find_last_of("_") + 1));      // i.e. 1
     string flow_step = (m_egraph.stepped_flows ? to_string(m_step) + "_" : "");
 
-    map<string, Enode *> & flow_map = m_egraph.flow_maps[string("flow_") + flow_step  + to_string(m_mode)];
+    unordered_map<string, Enode *> & flow_map = m_egraph.flow_maps[string("flow_") + flow_step  + to_string(m_mode)];
     Enode * var_list = l_int->getCdr()->getCdr()->getCdr()->getCdr();
 
 
@@ -260,7 +260,7 @@ IVector ode_solver::varlist_to_IVector(vector<Enode*> const & vars) {
 }
 
 IVector ode_solver::extract_invariants() {
-    map<Enode*, pair<double, double>> inv_map;
+    unordered_map<Enode*, pair<double, double>> inv_map;
     for (auto inv : m_invs) {
         Enode * p = inv->getCdr()->getCdr()->getCdr()->getCdr()->getCar();
         Enode * op = p->getCar();

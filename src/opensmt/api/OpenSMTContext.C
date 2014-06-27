@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <algorithm>
+#include <csignal>
+#include <unordered_map>
 #include "api/OpenSMTContext.h"
 #include "simplifiers/ExpandITEs.h"
 #include "simplifiers/ArraySimplify.h"
@@ -25,10 +28,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "simplifiers/DLRescale.h"
 #include "simplifiers/Ackermanize.h"
 #include "simplifiers/Purify.h"
-#include <csignal>
-#include <algorithm>
 #include "util/string.h"
 #include "dsolvers/nra_solver.h"
+
+using std::unordered_map;
 
 namespace opensmt {
 
@@ -592,12 +595,12 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
 
 void OpenSMTContext::DefineODE( char const * name, vector<pair<string, Enode *> *> * odes)
 {
-    map<string, Enode *> flow;
+    unordered_map<string, Enode *> flow;
     for(auto const & name_odes : *odes) {
         flow[name_odes->first] = name_odes->second;
         delete name_odes;
     }
-    string sname (name);
+    string const sname (name);
     egraph.stepped_flows = (sname.find_first_of("_") != sname.find_last_of("_"));
     egraph.flow_maps[name] = flow;
 }
