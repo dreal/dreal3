@@ -87,6 +87,19 @@ int rp_box_empty(rp_box b)
   }
 }
 
+/* Compare two boxes: b1 and b2 */
+bool rp_box_equal(rp_box b1, rp_box b2) {
+  if (rp_box_empty(b1) && rp_box_empty(b2)) return true;
+  if (!rp_box_empty(b1) && !rp_box_empty(b2)) {
+    for (int i = 0; i < rp_box_size(b1); ++i) {
+      if (!rp_interval_equal(rp_box_elem(b1, i), rp_box_elem(b2, i)))
+        return false;
+    }
+    return true;
+  }
+  return false;
+}
+
 /* Returns the width of b as max_i width(b[i]) */
 double rp_box_width(rp_box b)
 {

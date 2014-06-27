@@ -136,6 +136,9 @@ void rp_box_clone (rp_box* b, rp_box src);
 /* Returns true if b is equal to the empty set */
 int rp_box_empty (rp_box b);
 
+/* Compare two boxes: b1 and b2 */
+bool rp_box_equal(rp_box b1, rp_box b2);
+
 /* Returns the width of b as max_i width(b[i]) */
 double rp_box_width (rp_box b);
 
