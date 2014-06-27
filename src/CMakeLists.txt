@@ -162,23 +162,6 @@ find_package (Threads REQUIRED)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 ################################################################
-# External: libunwind (only for Linux)
-################################################################
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND ${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
-ExternalProject_Add(LIBUNWIND
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/soonhokong/libunwind.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXX_FLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --disable-minidebuginfo
-  BUILD_COMMAND make -j
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make install
-)
-set(EXTRA_LIBS ${EXTRA_LIBS} "libunwind.a")
-endif()
-
-################################################################
 # External: gflags (Google Flags)
 ################################################################
 ExternalProject_Add(GFLAGS
