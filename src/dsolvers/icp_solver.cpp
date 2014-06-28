@@ -46,11 +46,11 @@ using std::unordered_set;
 
 namespace dreal {
 icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const & stack, scoped_env & env, bool complete_check)
-    : m_config(c), m_egraph(e), m_sstore(t), m_propag(nullptr), m_boxes(env.size()),
-      m_nsplit(0), m_stack(stack), m_env(env), m_complete_check(complete_check), m_num_delta_checks(0) {
+    : m_config(c), m_egraph(e), m_sstore(t),
+      m_propag(&m_problem, 10.0, c.nra_verbose, c.nra_proof_out),
+      m_boxes(env.size()), m_nsplit(0), m_stack(stack), m_env(env), m_complete_check(complete_check), m_num_delta_checks(0) {
     rp_init_library();
     m_problem = create_rp_problem();
-    m_propag = new rp_propagator(&m_problem, 10.0, c.nra_verbose, c.nra_proof_out);
     if ( !m_config.nra_use_delta_heuristic ){
         rp_new(m_vselect, rp_selector_existence, (&m_problem)); // rp_selector_roundrobin
     } else {
@@ -75,14 +75,14 @@ icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const &
         } else {
             m_improve = 0.875; /* 12.5% */
         }
-        m_propag->set_improve(m_improve);
+        m_propag.set_improve(m_improve);
         // Creation of the operators and insertion in the propagator
         rp_hybrid_factory hfact(m_improve);
-        hfact.apply(&m_problem, *m_propag);
+        hfact.apply(&m_problem, m_propag);
         rp_domain_factory dfact;
-        dfact.apply(&m_problem, *m_propag);
+        dfact.apply(&m_problem, m_propag);
         rp_newton_factory nfact(m_improve);
-        nfact.apply(&m_problem, *m_propag);
+        nfact.apply(&m_problem, m_propag);
         // Used for round-robin strategy: last variable split
         rp_box_set_split(m_boxes.get(), -1);// sean: why is the last variable -1? oh, must be length - this number
     } else {
@@ -102,7 +102,6 @@ icp_solver::~icp_solver() {
     rp_delete(m_vselect);
     rp_delete(m_dsplit);
     rp_reset_library();
-    delete m_propag;
 #ifdef ODE_ENABLED
     for (ode_solver * s : m_ode_solvers)       { delete s; }
 #endif
@@ -228,7 +227,7 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver:
 
     if (result == ode_solver::ODE_result::UNSAT)
         return;
-    if (!m_propag->apply(m_boxes.get())) {
+    if (!m_propag.apply(m_boxes.get())) {
         result = ode_solver::ODE_result::UNSAT;
         return;
     }
@@ -238,7 +237,7 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver:
         result = odeSolver->solve_forward(m_boxes.get());
         if (result == ode_solver::ODE_result::UNSAT)
             return;
-        if (!m_propag->apply(m_boxes.get())) {
+        if (!m_propag.apply(m_boxes.get())) {
             result = ode_solver::ODE_result::UNSAT;
             return;
         }
@@ -246,7 +245,7 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver:
         result = odeSolver->solve_backward(m_boxes.get());
         if (result == ode_solver::ODE_result::UNSAT)
             return;
-        if (!m_propag->apply(m_boxes.get())) {
+        if (!m_propag.apply(m_boxes.get())) {
             result = ode_solver::ODE_result::UNSAT;
             return;
         }
@@ -255,7 +254,7 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver:
         result = odeSolver->solve_backward(m_boxes.get());
         if (result == ode_solver::ODE_result::UNSAT)
             return;
-        if (!m_propag->apply(m_boxes.get())) {
+        if (!m_propag.apply(m_boxes.get())) {
             result = ode_solver::ODE_result::UNSAT;
             return;
         }
@@ -263,7 +262,7 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver:
         result = odeSolver->solve_forward(m_boxes.get());
         if (result == ode_solver::ODE_result::UNSAT)
             return;
-        if (!m_propag->apply(m_boxes.get())) {
+        if (!m_propag.apply(m_boxes.get())) {
             result = ode_solver::ODE_result::UNSAT;
             return;
         }
@@ -273,7 +272,7 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver:
 #endif
 
 bool icp_solver::prop_with_ODE() {
-    if (m_propag->apply(m_boxes.get())) {
+    if (m_propag.apply(m_boxes.get())) {
 #ifdef ODE_ENABLED
         if (m_config.nra_ODE_contain) {
             // Sort ODE Solvers by their logVolume.
@@ -672,7 +671,7 @@ void icp_solver::output_problem() const {
 bool icp_solver::prop() {
     bool result = false;
     if (m_config.nra_proof) { output_problem(); }
-    if (!m_boxes.empty()) { result = m_propag->apply(m_boxes.get()); }
+    if (!m_boxes.empty()) { result = m_propag.apply(m_boxes.get()); }
     if (!result) {
         // UNSAT
         if (m_config.nra_proof) { m_config.nra_proof_out << "[conflict detected]" << endl; }

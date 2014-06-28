@@ -78,7 +78,7 @@ private:
     Egraph &                         m_egraph;
     SStore &                         m_sstore;
     rp_problem                       m_problem; /* problem to be solved */
-    rp_propagator *                  m_propag; /* reduction algorithm using propagation */
+    rp_propagator                    m_propag; /* reduction algorithm using propagation */
     rp_box_stack                     m_boxes; /* the set of boxes during search */
     rp_selector *                    m_vselect; /* selection of variable to be split */
     rp_splitter *                    m_dsplit; /* split function of variable domain */
