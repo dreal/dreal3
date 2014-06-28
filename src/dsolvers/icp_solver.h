@@ -59,7 +59,7 @@ public:
 private:
     icp_solver(const icp_solver& s);
     icp_solver& operator=(const icp_solver& s);
-    rp_problem* create_rp_problem();
+    rp_problem  create_rp_problem();
     bool        prop_with_ODE(); // propagate with ODE (only in complete check)
     rp_box      compute_next(); // computation of the next solution
     void        output_problem() const;
@@ -77,14 +77,13 @@ private:
     SMTConfig &                      m_config;
     Egraph &                         m_egraph;
     SStore &                         m_sstore;
-    rp_problem *                     m_problem; /* problem to be solved */
+    rp_problem                       m_problem; /* problem to be solved */
     rp_propagator *                  m_propag; /* reduction algorithm using propagation */
     rp_box_stack                     m_boxes; /* the set of boxes during search */
     rp_selector *                    m_vselect; /* selection of variable to be split */
     rp_splitter *                    m_dsplit; /* split function of variable domain */
     int                              m_nsplit; /* number of split steps */
     double                           m_improve; /* improvement factor of iterative methods */
-    vector<rp_variable *>            m_rp_variables;
     vector<rp_constraint *>          m_rp_constraints;
     scoped_vec const &               m_stack;
     scoped_env &                     m_env;

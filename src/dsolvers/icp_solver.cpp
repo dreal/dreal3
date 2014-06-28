@@ -50,25 +50,25 @@ icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const &
       m_nsplit(0), m_stack(stack), m_env(env), m_complete_check(complete_check), m_num_delta_checks(0) {
     rp_init_library();
     m_problem = create_rp_problem();
-    m_propag = new rp_propagator(m_problem, 10.0, c.nra_verbose, c.nra_proof_out);
+    m_propag = new rp_propagator(&m_problem, 10.0, c.nra_verbose, c.nra_proof_out);
     if ( !m_config.nra_use_delta_heuristic ){
-        rp_new(m_vselect, rp_selector_existence, (m_problem)); // rp_selector_roundrobin
+        rp_new(m_vselect, rp_selector_existence, (&m_problem)); // rp_selector_roundrobin
     } else {
-        rp_new(m_vselect, rp_selector_delta, (m_problem)); // rp_selector_delta
+        rp_new(m_vselect, rp_selector_delta, (&m_problem)); // rp_selector_delta
     }
-    rp_new(m_dsplit, rp_splitter_bisection, (m_problem)); // rp_splitter_mixed
+    rp_new(m_dsplit, rp_splitter_bisection, (&m_problem)); // rp_splitter_mixed
     // Check once the satisfiability of all the constraints
     // Necessary for variable-free constraints
     bool sat = true;
-    for (int i = 0; i < rp_problem_nctr(*m_problem); i++) {
-        if (rp_constraint_unfeasible(rp_problem_ctr(*m_problem, i), rp_problem_box(*m_problem))) {
+    for (int i = 0; i < rp_problem_nctr(m_problem); i++) {
+        if (rp_constraint_unfeasible(rp_problem_ctr(m_problem, i), rp_problem_box(m_problem))) {
             sat = false;
             break;
         }
     }
     if (sat) {
         // Insertion of the initial box in the search structure
-        m_boxes.insert(rp_problem_box(*m_problem));
+        m_boxes.insert(rp_problem_box(m_problem));
         // Management of improvement factor
         if ((c.nra_icp_improve >= 0.0) && (c.nra_icp_improve <= 100.0)) {
             m_improve = 1.0 - c.nra_icp_improve / 100.0;
@@ -78,15 +78,15 @@ icp_solver::icp_solver(SMTConfig & c, Egraph & e, SStore & t, scoped_vec const &
         m_propag->set_improve(m_improve);
         // Creation of the operators and insertion in the propagator
         rp_hybrid_factory hfact(m_improve);
-        hfact.apply(m_problem, *m_propag);
+        hfact.apply(&m_problem, *m_propag);
         rp_domain_factory dfact;
-        dfact.apply(m_problem, *m_propag);
+        dfact.apply(&m_problem, *m_propag);
         rp_newton_factory nfact(m_improve);
-        nfact.apply(m_problem, *m_propag);
+        nfact.apply(&m_problem, *m_propag);
         // Used for round-robin strategy: last variable split
         rp_box_set_split(m_boxes.get(), -1);// sean: why is the last variable -1? oh, must be length - this number
     } else {
-        rp_box_set_empty(rp_problem_box(*m_problem));
+        rp_box_set_empty(rp_problem_box(m_problem));
     }
 #ifdef ODE_ENABLED
     if (m_complete_check && m_config.nra_ODE_contain) {
@@ -103,12 +103,11 @@ icp_solver::~icp_solver() {
     rp_delete(m_dsplit);
     rp_reset_library();
     delete m_propag;
-    for (rp_variable * v : m_rp_variables)     { delete v; }
     for (const rp_constraint * c : m_rp_constraints) { delete c; }
 #ifdef ODE_ENABLED
     for (ode_solver * s : m_ode_solvers)       { delete s; }
 #endif
-    rp_problem_destroy(m_problem);
+    rp_problem_destroy(&m_problem);
     delete m_problem;
 }
 
@@ -148,32 +147,31 @@ void icp_solver::create_ode_solvers() {
 }
 #endif
 
-rp_problem* icp_solver::create_rp_problem() {
-    rp_problem* rp_prob = new rp_problem;
-    rp_problem_create(rp_prob, "icp_holder");
-    (*rp_prob)->rp_icp_solver = this;
+rp_problem icp_solver::create_rp_problem() {
+    rp_problem rp_prob;
+    rp_problem_create(&rp_prob, "icp_holder");
+    rp_prob->rp_icp_solver = this;
     // ======================================
     // Create rp_variable for each var in env
     // ======================================
     DREAL_LOG_INFO << "icp_solver::create_rp_problem: variables";
-    rp_box_enlarge_size(&rp_problem_box(*rp_prob), m_env.size());
+    rp_box_enlarge_size(&rp_problem_box(rp_prob), m_env.size());
     for (auto const & p : m_env) {
         Enode* const key = p.first;
         double const lb = p.second.lb;
         double const ub = p.second.ub;
-        rp_variable * v = new rp_variable;
-        m_rp_variables.push_back(v);
+        rp_variable  v;
         string const & name = key->getCar()->getName();
-        rp_variable_create(v, name.c_str());
-        int const rp_id = rp_vector_insert(rp_table_symbol_vars(rp_problem_symb(*rp_prob)), *v);
-        rp_bsup(rp_box_elem(rp_problem_box(*rp_prob), rp_id)) = ub;
-        rp_binf(rp_box_elem(rp_problem_box(*rp_prob), rp_id)) = lb;
-        rp_union_insert(rp_variable_domain(*v), rp_box_elem(rp_problem_box(*rp_prob), rp_id));
+        rp_variable_create(&v, name.c_str());
+        int const rp_id = rp_vector_insert(rp_table_symbol_vars(rp_problem_symb(rp_prob)), v);
+        rp_bsup(rp_box_elem(rp_problem_box(rp_prob), rp_id)) = ub;
+        rp_binf(rp_box_elem(rp_problem_box(rp_prob), rp_id)) = lb;
+        rp_union_insert(rp_variable_domain(v), rp_box_elem(rp_problem_box(rp_prob), rp_id));
         if (key->hasSortInt()) {
-            rp_variable_set_integer(*v);
+            rp_variable_set_integer(v);
         } else if (key->hasSortReal()) {
-            rp_variable_set_real(*v);
-            rp_variable_precision(*v) = m_config.nra_precision;
+            rp_variable_set_real(v);
+            rp_variable_precision(v) = m_config.nra_precision;
         }
         m_enode_to_rp_id[key] = rp_id;
         m_rp_id_to_enode[rp_id] = key;
@@ -206,14 +204,14 @@ rp_problem* icp_solver::create_rp_problem() {
             m_rp_constraints.push_back(c);
             DREAL_LOG_INFO << "icp_solver::create_rp_problem: constraint: " << (l->getPolarity() == l_True ? " " : "Not ") << l;
             // Parse the string (infix form) to create the constraint c
-            rp_parse_constraint_string(c, constraint_str.c_str(), rp_problem_symb(*rp_prob));
+            rp_parse_constraint_string(c, constraint_str.c_str(), rp_problem_symb(rp_prob));
             // set delta
             rp_ctr_set_delta(c, (l->hasPrecision() ? l->getPrecision() : m_config.nra_precision));
             // Add to the problem
-            rp_vector_insert(rp_problem_ctrs(*rp_prob), *c);
+            rp_vector_insert(rp_problem_ctrs(rp_prob), *c);
             // Update Counter
             for (int i = 0; i < rp_constraint_arity(*c); ++i) {
-                ++rp_variable_constrained(rp_problem_var(*rp_prob, rp_constraint_var(*c, i)));
+                ++rp_variable_constrained(rp_problem_var(rp_prob, rp_constraint_var(*c, i)));
             }
             m_enode_to_rp_ctr[l] = c;
         } else {
@@ -222,7 +220,7 @@ rp_problem* icp_solver::create_rp_problem() {
     }
     DREAL_LOG_DEBUG << "icp_solver::create_rp_problem rp_problem_display";
     if (DREAL_LOG_DEBUG_IS_ON) {
-        rp_problem_display(stderr, *rp_prob);
+        rp_problem_display(stderr, rp_prob);
     }
     return rp_prob;
 }
@@ -340,7 +338,7 @@ int icp_solver::get_var_split_delta(rp_box b) {
         string constraint_str = buf.str();
         DREAL_LOG_INFO << "icp_solver::get_var_split_delta: Considering constraint" << constraint_str;
         if (constraint_str.compare("0 = 0") != 0) {
-            rp_constraint const c = rp_problem_ctr(*m_problem, i);
+            rp_constraint const c = rp_problem_ctr(m_problem, i);
             double const width =  constraint_width(&c, b);
             double const residual = width - rp_constraint_delta(c);
             if (residual > max_width) {
@@ -353,7 +351,7 @@ int icp_solver::get_var_split_delta(rp_box b) {
     }
     if (max_constraint > -1) {
         // get var with max width in max width constraint
-        const rp_constraint c = rp_problem_ctr(*m_problem, max_constraint);
+        const rp_constraint c = rp_problem_ctr(m_problem, max_constraint);
         max_width = 0.0;
         int max_var = -1;
         for (i = 0; i < rp_constraint_arity(c); i++){
@@ -415,7 +413,7 @@ int icp_solver::get_var_split_delta_hybrid(rp_box b) {
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
-            const rp_constraint c = rp_problem_ctr(*m_problem, i);
+            const rp_constraint c = rp_problem_ctr(m_problem, i);
 
             int max_time_index = get_max_time_index(c);
             double const width =  constraint_width(&c, b);
@@ -443,7 +441,7 @@ int icp_solver::get_var_split_delta_hybrid(rp_box b) {
     }
     if (max_constraint > -1) {
         // get var with max width in max width constraint
-        const rp_constraint c = rp_problem_ctr(*m_problem, max_constraint);
+        const rp_constraint c = rp_problem_ctr(m_problem, max_constraint);
         max_width = 0.0;
         int max_var = -1;
         for (i = 0; i < rp_constraint_arity(c); i++){
@@ -480,7 +478,7 @@ bool icp_solver::is_box_within_delta(rp_box b) {
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
-            const rp_constraint c = rp_problem_ctr(*m_problem, i);
+            const rp_constraint c = rp_problem_ctr(m_problem, i);
             double width =  constraint_width(&c, b);
             bool test = width > 2.0*rp_constraint_delta(c);
             if (test){
@@ -513,14 +511,14 @@ rp_box icp_solver::compute_next() {
                 ((m_config.nra_delta_test ?
                   !is_box_within_delta(b) :
                   rp_box_width(b) >= m_config.nra_precision))) {
-                DREAL_LOG_INFO << "icp_solver::compute_next: branched on " << rp_variable_name(rp_problem_var(*m_problem, i));
+                DREAL_LOG_INFO << "icp_solver::compute_next: branched on " << rp_variable_name(rp_problem_var(m_problem, i));
                 if (m_config.nra_proof) {
                     m_config.nra_proof_out << endl
                                            << "[branched on "
-                                           << rp_variable_name(rp_problem_var(*m_problem, i))
+                                           << rp_variable_name(rp_problem_var(m_problem, i))
                                            << "]"
                                            << endl;
-                    pprint_vars(m_config.nra_proof_out, *m_problem, b, true);
+                    pprint_vars(m_config.nra_proof_out, m_problem, b, true);
                 }
                 ++m_nsplit;
                 m_dsplit->apply(m_boxes, i);
@@ -557,7 +555,7 @@ void icp_solver::print_ODE_trajectory(ostream& out) const {
 
 bool icp_solver::solve() {
     if (m_config.nra_proof) { output_problem(); }
-    if (rp_box_empty(rp_problem_box(*m_problem))) {
+    if (rp_box_empty(rp_problem_box(m_problem))) {
         DREAL_LOG_INFO << "icp_solver::solve: Unfeasibility detected before solving";
         return false;
     } else {
@@ -566,18 +564,18 @@ bool icp_solver::solve() {
             /* SAT */
             DREAL_LOG_INFO << "icp_solver::solve: SAT with the following box:";
             if (DREAL_LOG_INFO_IS_ON) {
-                pprint_vars(cerr, *m_problem, b, false);
+                pprint_vars(cerr, m_problem, b, false);
                 if (m_config.nra_delta_test) {
-                    pprint_lits(cerr, *m_problem, b);
+                    pprint_lits(cerr, m_problem, b);
                 }
             }
             if (m_config.nra_proof) {
                 m_config.nra_proof_out.close();
                 m_config.nra_proof_out.open(m_config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
                 m_config.nra_proof_out << "SAT with the following box:" << endl;
-                pprint_vars(m_config.nra_proof_out, *m_problem, b, false);
+                pprint_vars(m_config.nra_proof_out, m_problem, b, false);
                 if (m_config.nra_delta_test) {
-                    pprint_lits(m_config.nra_proof_out, *m_problem, b);
+                    pprint_lits(m_config.nra_proof_out, m_problem, b);
                 }
                 m_config.nra_proof_out << endl;
             }
@@ -588,7 +586,7 @@ bool icp_solver::solve() {
                     exit(1);
                 }
                 m_config.nra_model_out << "SAT with the following box:" << endl;
-                pprint_vars(m_config.nra_model_out, *m_problem, b, false);
+                pprint_vars(m_config.nra_model_out, m_problem, b, false);
             }
             return true;
         } else {
