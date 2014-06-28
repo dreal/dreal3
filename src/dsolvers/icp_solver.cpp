@@ -103,12 +103,10 @@ icp_solver::~icp_solver() {
     rp_delete(m_dsplit);
     rp_reset_library();
     delete m_propag;
-    for (const rp_constraint * c : m_rp_constraints) { delete c; }
 #ifdef ODE_ENABLED
     for (ode_solver * s : m_ode_solvers)       { delete s; }
 #endif
     rp_problem_destroy(&m_problem);
-    delete m_problem;
 }
 
 #ifdef ODE_ENABLED
@@ -191,7 +189,6 @@ rp_problem icp_solver::create_rp_problem() {
     // ===============================================
     // Create rp_constraints for each literal in stack
     // ===============================================
-    m_rp_constraints.clear();
     DREAL_LOG_INFO << "icp_solver::create_rp_problem: constraints";
     for (auto const l : m_stack) {
         // Do not create rp_constraints for ForallT and Integral
@@ -200,18 +197,17 @@ rp_problem icp_solver::create_rp_problem() {
         l->print_infix(buf, l->getPolarity());
         string constraint_str = buf.str();
         if (constraint_str.compare("0 = 0") != 0) {
-            rp_constraint * c = new rp_constraint;
-            m_rp_constraints.push_back(c);
+            rp_constraint c;
             DREAL_LOG_INFO << "icp_solver::create_rp_problem: constraint: " << (l->getPolarity() == l_True ? " " : "Not ") << l;
             // Parse the string (infix form) to create the constraint c
-            rp_parse_constraint_string(c, constraint_str.c_str(), rp_problem_symb(rp_prob));
+            rp_parse_constraint_string(&c, constraint_str.c_str(), rp_problem_symb(rp_prob));
             // set delta
-            rp_ctr_set_delta(c, (l->hasPrecision() ? l->getPrecision() : m_config.nra_precision));
+            rp_ctr_set_delta(&c, (l->hasPrecision() ? l->getPrecision() : m_config.nra_precision));
             // Add to the problem
-            rp_vector_insert(rp_problem_ctrs(rp_prob), *c);
+            rp_vector_insert(rp_problem_ctrs(rp_prob), c);
             // Update Counter
-            for (int i = 0; i < rp_constraint_arity(*c); ++i) {
-                ++rp_variable_constrained(rp_problem_var(rp_prob, rp_constraint_var(*c, i)));
+            for (int i = 0; i < rp_constraint_arity(c); ++i) {
+                ++rp_variable_constrained(rp_problem_var(rp_prob, rp_constraint_var(c, i)));
             }
             m_enode_to_rp_ctr[l] = c;
         } else {
@@ -699,12 +695,12 @@ vector<Enode *> icp_solver::get_explanation() {
     vector<Enode *> explanation;
     for (Enode * const l : m_stack) {
         if (m_enode_to_rp_ctr.find(l) != m_enode_to_rp_ctr.end()) {
-            rp_constraint * const c = m_enode_to_rp_ctr[l];
+            rp_constraint const c = m_enode_to_rp_ctr[l];
             // if the constraint is "0 = 0" (= trivial), we have c ==
             // nullptr and do not add it in the explanation
             if (c == nullptr) continue;
-            assert(rp_constraint_type(*c) == RP_CONSTRAINT_NUMERICAL);
-            rp_ctr_num cnum = rp_constraint_num(*c);
+            assert(rp_constraint_type(c) == RP_CONSTRAINT_NUMERICAL);
+            rp_ctr_num cnum = rp_constraint_num(c);
             if (rp_ctr_num_used(cnum)) {
                 explanation.push_back(l);
                 DREAL_LOG_DEBUG << "icp_solver::build_explanation: " << l;
