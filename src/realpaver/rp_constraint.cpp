@@ -204,10 +204,10 @@ int rp_ctr_num_unfeasible(rp_ctr_num c, rp_box b)
       res = rp_ctr_numinf_strict_unfeasible(c,b);
       break;
   }
-  if (FLAGS_new_explanation && res) {
-    rp_ctr_num_used(c) = 1;
+  if (FLAGS_new_explanation) {
+      if (res) { rp_ctr_num_used(c) = 1; }
   } else {
-    rp_ctr_num_used(c) = 1;
+      rp_ctr_num_used(c) = 1;
   }
   return( res );
 }
