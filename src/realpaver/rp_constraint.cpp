@@ -11,7 +11,10 @@
  * rp_constraint.c                                                          *
  ****************************************************************************/
 
+#include <gflags/gflags.h>
 #include "rp_constraint.h"
+
+DEFINE_bool  (new_explanation,            false, "use new explanation generation");
 
 /* set constraint delta */
 void rp_ctr_set_delta(rp_constraint * c, double delta)
@@ -201,7 +204,11 @@ int rp_ctr_num_unfeasible(rp_ctr_num c, rp_box b)
       res = rp_ctr_numinf_strict_unfeasible(c,b);
       break;
   }
-  if (res) { rp_ctr_num_used(c) = 1; }
+  if (FLAGS_new_explanation && res) {
+    rp_ctr_num_used(c) = 1;
+  } else {
+    rp_ctr_num_used(c) = 1;
+  }
   return( res );
 }
 
