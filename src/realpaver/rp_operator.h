@@ -306,7 +306,7 @@ class rp_operator_box_eq : public rp_operator
 {
 public:
   // Construction
-  rp_operator_box_eq(rp_expression f, int x,
+  rp_operator_box_eq(rp_ctr_num c, int x,
                      double improve, double eps);
 
   // Destruction
@@ -330,6 +330,7 @@ private:
   rp_expression _df;  /* the derivative of _f wrt. _x              */
   double _improve;    /* improvement factor of iterative algorithm */
   double _eps;        /* precision of search algorithm             */
+  rp_ctr_num _c;      /* the associated numerical constraint       */
 
   // Copy protection
   rp_operator_box_eq& operator=(const rp_operator_box_eq& o);
@@ -343,7 +344,7 @@ class rp_operator_box_inf: public rp_operator
 {
 public:
   // Construction
-  rp_operator_box_inf(rp_expression f, int x,
+  rp_operator_box_inf(rp_ctr_num c, int x,
                       double improve, double eps);
 
   // Destruction
@@ -367,6 +368,7 @@ private:
   rp_expression _df;  /* the derivative of _f wrt. _x        */
   double _improve;    /* improvement factor of iterative algorithm */
   double _eps;        /* precision of search algorithm             */
+  rp_ctr_num _c;      /* the associated numerical constraint       */
 
   // Copy protection
   rp_operator_box_inf& operator=(const rp_operator_box_inf& o);
@@ -380,7 +382,7 @@ class rp_operator_box_sup : public rp_operator
 {
 public:
   // Construction
-  rp_operator_box_sup(rp_expression f, int x,
+  rp_operator_box_sup(rp_ctr_num c, int x,
                       double improve, double eps);
 
   // Destruction
@@ -404,6 +406,7 @@ private:
   rp_expression _df;  /* the derivative of _f wrt. _x        */
   double _improve;    /* improvement factor of iterative algorithm */
   double _eps;        /* precision of search algorithm             */
+  rp_ctr_num _c;      /* the associated numerical constraint       */
 
   // Copy protection
   rp_operator_box_sup& operator=(const rp_operator_box_sup& o);

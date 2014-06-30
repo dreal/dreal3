@@ -294,25 +294,25 @@ void rp_box_factory::build(const rp_problem& p,
   switch( rp_ctr_num_relfunc(c) )
   {
   case RP_RELATION_EQUAL:
-    rp_new(o,rp_operator_box_eq,(rp_ctr_num_func(c),var,_improve,eps));
+    rp_new(o,rp_operator_box_eq,(c,var,_improve,eps));
     break;
 
   case RP_RELATION_SUPEQUAL:
-    rp_new(o,rp_operator_box_sup,(rp_ctr_num_func(c),var,_improve,eps));
+    rp_new(o,rp_operator_box_sup,(c,var,_improve,eps));
     break;
 
   case RP_RELATION_INFEQUAL:
-    rp_new(o,rp_operator_box_inf,(rp_ctr_num_func(c),var,_improve,eps));
+    rp_new(o,rp_operator_box_inf,(c,var,_improve,eps));
     break;
 
   // TODO(soonhok): need a special operator for this?
   case RP_RELATION_SUP:
-    rp_new(o,rp_operator_box_sup,(rp_ctr_num_func(c),var,_improve,eps));
+    rp_new(o,rp_operator_box_sup,(c,var,_improve,eps));
     break;
 
   // TODO(soonhok): need a special operator for this?
   case RP_RELATION_INF:
-    rp_new(o,rp_operator_box_inf,(rp_ctr_num_func(c),var,_improve,eps));
+    rp_new(o,rp_operator_box_inf,(c,var,_improve,eps));
     break;
   }
   rp_vector_insert(vec,o);

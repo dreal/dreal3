@@ -542,19 +542,20 @@ int rp_operator_hull_sup::pruned_var(int i) const
 // -------------------------------------------------------------------
 
 // Construction
-rp_operator_box_eq::rp_operator_box_eq(rp_expression f,
+rp_operator_box_eq::rp_operator_box_eq(rp_ctr_num c,
                                        int x,
                                        double improve,
                                        double eps):
-  rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(f),1),
+  rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(rp_ctr_num_func(c)),1),
   _x(x),
   _improve(improve),
-  _eps(eps)
+  _eps(eps),
+  _c(c)
 {
-  rp_expression_copy(&_f,f);
-  if (rp_expression_derivable(f))
+  rp_expression_copy(&_f,rp_ctr_num_func(c));
+  if (rp_expression_derivable(_f))
   {
-    rp_expression_deriv_symb(&_df,f,x);
+    rp_expression_deriv_symb(&_df,_f,x);
   }
   else
   {
@@ -596,6 +597,7 @@ rp_operator_box_eq::rp_operator_box_eq(const rp_operator_box_eq& o):
 int rp_operator_box_eq::apply(rp_box b)
 {
   DREAL_LOG_DEBUG << "rp_operator_box_eq::apply";
+  rp_ctr_num_used(_c) = 1;
   return( rp_sat_box_eq(_f,_df,b,_x,_improve,_eps) );
 }
 
@@ -623,19 +625,20 @@ rp_operator_box_eq::operator=(const rp_operator_box_eq& /*o*/)
 // ----------------------------------------------------------------------
 
 // Construction
-rp_operator_box_inf::rp_operator_box_inf(rp_expression f,
+rp_operator_box_inf::rp_operator_box_inf(rp_ctr_num c,
                                          int x,
                                          double improve,
                                          double eps):
-  rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(f),1),
+  rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(rp_ctr_num_func(c)),1),
   _x(x),
   _improve(improve),
-  _eps(eps)
+  _eps(eps),
+  _c(c)
 {
-  rp_expression_copy(&_f,f);
-  if (rp_expression_derivable(f))
+  rp_expression_copy(&_f,rp_ctr_num_func(c));
+  if (rp_expression_derivable(_f))
   {
-    rp_expression_deriv_symb(&_df,f,x);
+    rp_expression_deriv_symb(&_df,_f,x);
   }
   else
   {
@@ -676,6 +679,8 @@ rp_operator_box_inf::rp_operator_box_inf(const rp_operator_box_inf& o):
 // Application function
 int rp_operator_box_inf::apply(rp_box b)
 {
+  DREAL_LOG_DEBUG << "rp_operator_box_inf::apply";
+  rp_ctr_num_used(_c) = 1;
   return( rp_sat_box_inf(_f,_df,b,_x,_improve,_eps) );
 }
 
@@ -703,19 +708,20 @@ rp_operator_box_inf::operator=(const rp_operator_box_inf& /*o*/)
 // ----------------------------------------------------------------------
 
 // Construction
-rp_operator_box_sup::rp_operator_box_sup(rp_expression f,
+rp_operator_box_sup::rp_operator_box_sup(rp_ctr_num c,
                                          int x,
                                          double improve,
                                          double eps):
-  rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(f),1),
+  rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(rp_ctr_num_func(c)),1),
   _x(x),
   _improve(improve),
-  _eps(eps)
+  _eps(eps),
+  _c(c)
 {
-  rp_expression_copy(&_f,f);
-  if (rp_expression_derivable(f))
+  rp_expression_copy(&_f,rp_ctr_num_func(c));
+  if (rp_expression_derivable(_f))
   {
-    rp_expression_deriv_symb(&_df,f,x);
+    rp_expression_deriv_symb(&_df,_f,x);
   }
   else
   {
@@ -757,6 +763,7 @@ rp_operator_box_sup::rp_operator_box_sup(const rp_operator_box_sup& o):
 int rp_operator_box_sup::apply(rp_box b)
 {
   DREAL_LOG_DEBUG << "rp_operator_box_sup::apply";
+  rp_ctr_num_used(_c) = 1;
   return( rp_sat_box_sup(_f,_df,b,_x,_improve,_eps) );
 }
 
