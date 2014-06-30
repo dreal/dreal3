@@ -235,6 +235,7 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver:
     if (forward) {
         // First Try (Forward).
         result = odeSolver->solve_forward(m_boxes.get());
+        DREAL_LOG_DEBUG << "callODESolver: solve_forward result = " << result;
         if (result == ode_solver::ODE_result::UNSAT)
             return;
         if (!m_propag.apply(m_boxes.get())) {
@@ -243,6 +244,7 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver:
         }
         // Second Try (Backward).
         result = odeSolver->solve_backward(m_boxes.get());
+        DREAL_LOG_DEBUG << "callODESolver: solve_backward result = " << result;
         if (result == ode_solver::ODE_result::UNSAT)
             return;
         if (!m_propag.apply(m_boxes.get())) {
@@ -252,6 +254,7 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver:
     } else {
         // First Try (Backward).
         result = odeSolver->solve_backward(m_boxes.get());
+        DREAL_LOG_DEBUG << "callODESolver: solve_backward result = " << result;
         if (result == ode_solver::ODE_result::UNSAT)
             return;
         if (!m_propag.apply(m_boxes.get())) {
@@ -260,6 +263,7 @@ void icp_solver::callODESolver(ode_solver * odeSolver, bool forward, ode_solver:
         }
         // Second Try (Forward).
         result = odeSolver->solve_forward(m_boxes.get());
+        DREAL_LOG_DEBUG << "callODESolver: solve_forward result = " << result;
         if (result == ode_solver::ODE_result::UNSAT)
             return;
         if (!m_propag.apply(m_boxes.get())) {
