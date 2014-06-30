@@ -390,8 +390,9 @@ ode_solver::ODE_result ode_solver::solve_forward(rp_box b) {
         }
     } else {
         ret = compute_forward(bucket);
+        DREAL_LOG_DEBUG << "ode_solver::compute_forward result = " << ret;
     }
-    if (ret == ODE_result::SAT) {
+    if (!m_trivial && ret == ODE_result::SAT) {
         return prune_forward(bucket);
     } else {
         return ret;
@@ -434,9 +435,10 @@ ode_solver::ODE_result ode_solver::solve_backward(rp_box b) {
             cache.emplace(currentXtT, make_tuple(ret, bucket));
         }
     } else {
+        DREAL_LOG_DEBUG << "ode_solver::compute_backward result = " << ret;
         ret = compute_backward(bucket);
     }
-    if (ret == ODE_result::SAT) {
+    if (!m_trivial && ret == ODE_result::SAT) {
         return prune_backward(bucket);
     } else {
         return ret;
@@ -850,6 +852,7 @@ bool ode_solver::prune_params() {
             set_ub(_t_par, _0_intv.rightBound());
         }
     }
+    DREAL_LOG_DEBUG << "ode_solver::prune_params result = true";
     return true;
 }
 
