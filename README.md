@@ -23,10 +23,17 @@ Please visit [http://dreal.cs.cmu.edu][dReal] for more information.
 [dReal]: http://dreal.cs.cmu.edu
 
 
+Download
+========
+Please check out our [releases page][release] to download latest static binaries.
+
+[release]: https://github.com/dreal/dreal/releases
+
+
 How to Build
 ==================
 
-In most cases, running "./build.sh" in the top dReal directory should suffice. If not, see below. 
+In most cases, running ``./build.sh`` in the top dReal directory should suffice. If not, see below. 
 
  - [Ubuntu 12.04 LTS (using g++-4.8)][ubuntu-gcc]
  - [Ubuntu 12.04 LTS (using clang++-3.3)][ubuntu-clang]
