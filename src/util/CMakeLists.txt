@@ -8,7 +8,6 @@ add_library(util
   hexfloat.cpp
   interval.cpp
   scoped_env.cpp
-  scoped_vec.cpp
   string.cpp
   "${DREAL_BINARY_DIR}/git_sha1.cpp"
   "${DREAL_SOURCE_DIR}/util/git_sha1.h"
