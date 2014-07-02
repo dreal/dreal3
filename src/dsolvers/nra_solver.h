@@ -29,7 +29,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_vec.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
-#include "dsolvers/heuristics/heuristic.h"
+#include "realpaver/realpaver.h"
 
 namespace dreal {
 class nra_solver : public OrdinaryTSolver {
@@ -44,13 +44,31 @@ public:
     bool  check(bool c);
     bool  belongsToT(Enode * e);
     void  computeModel();
-    int   decisions() { return m_decisions; }
+
 private:
-    // fields
-    scoped_env m_env;
-    scoped_vec m_stack;
-    scoped_vec m_explanation_stack;
-    heuristic  m_heuristic;
-    int        m_decisions;
+    std::vector<Enode *> _vars;
+    std::vector<Enode *> _lits;
+    std::vector<rp_box> _boxes;
+    scoped_vec<Enode *> _stack;
+    scoped_vec<std::pair<Enode *, bool>> _deductions_stack;
+    scoped_vec<std::vector<bool>> _used_constraints_stack;
+    rp_problem _rp_problem;
+    unsigned int _stat_check_incomplete;
+    unsigned int _stat_check_complete;
+
+    std::unordered_map<Enode *, int> _enode_to_rp_id;
+    std::unordered_map<Enode *, rp_variable> _enode_to_rp_var;
+    std::unordered_map<Enode *, rp_constraint> _enode_to_rp_ctr_pos;
+    std::unordered_map<Enode *, rp_constraint> _enode_to_rp_ctr_neg;
+    std::unordered_map<int, Enode *> _rp_id_to_enode;
+
+    void get_explanation();
+    vector<bool> get_used_constraints();
+    void set_used_constraints(vector<bool> const & v);
+    void get_deductions();
+    bool prop();
+    bool solve();
+    void create_rp_var(Enode * const v);
+    void create_rp_ctr(Enode * const l);
 };
 }
