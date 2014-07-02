@@ -252,6 +252,8 @@ int rp_constraint_inner      (rp_constraint c, rp_box b);
 /* Display c on out */
 void rp_constraint_display (FILE* out, rp_constraint c,
                             rp_vector_variable var, int digits);
+void rp_constraint_display_nl(FILE* out, rp_constraint c,
+                              rp_vector_variable var, int digits);
 
 #define rp_constraint_display_simple(c,a) \
   rp_constraint_display(stdout,c,a,8)

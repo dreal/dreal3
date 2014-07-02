@@ -15,8 +15,8 @@
 #include "rp_propagator.h"
 #include "util/interval.h"
 
-//dReal addition
-#include "dsolvers/icp_solver.h"
+using std::endl;
+using std::ostream;
 
 void rp_propagator::rp_interval_local(rp_interval i, int digits, int mode)
 {
@@ -429,32 +429,6 @@ int rp_propagator::check_precision(rp_operator * o, rp_box b)
   /* Dangerous to stop the application of one operator
      but it can be efficient for slow convergences... */
 
-  //added for dReal: Prune based on constraint precision
-  if((*_problem)->rp_icp_solver->delta_test())
-  {
-
-    //do any of the constraints involving a pruned var have excessive width?
-    // Prune based on variable precision
-    for (int i=0; i<o->pruned_arity(); ++i)
-      {
-        int v = o->pruned_var(i);
-	for (int j=0; j<rp_problem_nctr(*_problem);j++)
-	  {
-	    rp_constraint c = rp_problem_ctr(*_problem, j);
-	    for(int k = 0; k<rp_constraint_arity(c); ++k)
-	    {
-	      if(rp_constraint_var(c, k) == v &&
-		 (*_problem)->rp_icp_solver->constraint_width(&c, b) > 
-		 2.0 * rp_constraint_delta(c) )
-		{
-		  return( 1 );
-		}
-	    }
-	  }
-      }
-    return( 0 );
-  }
-  else {
     // Prune based on variable precision
     for (int i=0; i<o->pruned_arity(); ++i)
       {
@@ -469,7 +443,6 @@ int rp_propagator::check_precision(rp_operator * o, rp_box b)
           }
       }
     return( 0 );
-  }
 }
 
 // Application once the working operators have been defined
@@ -479,13 +452,6 @@ int rp_propagator::apply_loop(rp_box b)
     if (rp_box_size(_bsave)<rp_box_size(b)) {
         rp_box_enlarge_size(&_bsave,rp_box_size(b)-rp_box_size(_bsave));
     }
-
-    //added for dReal: Prune based on constraint precision
-    if ( (*_problem)->rp_icp_solver->delta_test() &&
-         (*_problem)->rp_icp_solver->is_box_within_delta(b) ){
-      return ( 1 );
-    }
-
 
     // Loop until empty queue or empty domain
     while (!rp_oqueue_list_empty(_queue)) {

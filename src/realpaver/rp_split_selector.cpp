@@ -14,8 +14,7 @@
 #include "rp_split_selector.h"
 
 //dReal addition
-#include "dsolvers/icp_solver.h" 
-
+#include "util/logging.h"
 
 // --------------------------------------------------------
 // Class for managing sets of variables in split operations
@@ -224,14 +223,6 @@ int rp_selector::solution(rp_box b) const
     return( 1 );
   }
 
-
-
-
-
-
-
-
-
   for (int i=0; i<rp_problem_nvar(*_problem); ++i)
   {
     if (this->splitable(b,i))
@@ -240,22 +231,6 @@ int rp_selector::solution(rp_box b) const
     }
   }
   return( 1 );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   // integer and decision variables
   for (int i=0; i<_var_int_dec.size(); ++i)
@@ -527,21 +502,6 @@ int rp_selector::rr_real_aux(rp_box b) const
   return( -1 );
 }
 
-int rp_selector::rr_delta_dec(rp_box b) const
-{
-  //get constraint with max residual width
-  //get var with max width in max width constraint
-  return (*_problem)->rp_icp_solver->get_var_split_delta(b);
-}
-
-int rp_selector::rr_delta_hybrid_dec(rp_box b) const
-{
-  //get constraint with max residual width
-  //get var with max width in max width constraint
-  return (*_problem)->rp_icp_solver->get_var_split_delta_hybrid(b);
-}
-
-
 rp_selector::rp_selector(const rp_selector& /*s*/):
   _problem(NULL),
   _var_int_dec(),
@@ -678,70 +638,6 @@ rp_selector_decirrr::operator=(const rp_selector_decirrr& /*s*/)
 // -----------------------------------------------
 // Variable choice heuristics
 // -----------------------------------------------
-rp_selector_delta::rp_selector_delta(rp_problem * p):
-  rp_selector(p)
-{}
-
-rp_selector_delta::~rp_selector_delta()
-{}
-
-int rp_selector_delta::apply(rp_box b)
-{
-  int var;
-  if (this->solution(b)) return( -1 );
-  if ((var=rr_delta_dec(b))>=0)  return( var );
-  if ((var=rr_int_dec(b))>=0)  return( var );
-  if ((var=rr_real_dec(b))>=0) return( var );
-  if ((var=rr_int_aux(b))>=0)  return( var );
-  if ((var=rr_real_aux(b))>=0) return( var );
-  return( -1 );
-}
-
-rp_selector_delta::rp_selector_delta(const rp_selector_delta& s):
-  rp_selector(s)
-{}
-
-rp_selector_delta&
-rp_selector_delta::operator=(const rp_selector_delta& /*s*/)
-{
-  return( *this );
-}
-
-// -----------------------------------------------
-// Variable choice heuristics
-// -----------------------------------------------
-rp_selector_delta_hybrid::rp_selector_delta_hybrid(rp_problem * p):
-  rp_selector(p)
-{}
-
-rp_selector_delta_hybrid::~rp_selector_delta_hybrid()
-{}
-
-int rp_selector_delta_hybrid::apply(rp_box b)
-{
-  int var;
-  if (this->solution(b)) return( -1 );
-  if ((var=rr_delta_hybrid_dec(b))>=0)  return( var );
-  if ((var=rr_int_dec(b))>=0)  return( var );
-  if ((var=rr_real_dec(b))>=0) return( var );
-  if ((var=rr_int_aux(b))>=0)  return( var );
-  if ((var=rr_real_aux(b))>=0) return( var );
-  return( -1 );
-}
-
-rp_selector_delta_hybrid::rp_selector_delta_hybrid(const rp_selector_delta_hybrid& s):
-  rp_selector(s)
-{}
-
-rp_selector_delta_hybrid&
-rp_selector_delta_hybrid::operator=(const rp_selector_delta_hybrid& /*s*/)
-{
-  return( *this );
-}
-
-// -----------------------------------------------
-// Variable choice heuristics
-// -----------------------------------------------
 rp_selector_decircmax::rp_selector_decircmax(rp_problem * p):
   rp_selector(p)
 {}
@@ -814,6 +710,13 @@ rp_selector_ircmax::~rp_selector_ircmax()
 int rp_selector_ircmax::apply(rp_box b)
 {
   int var;
+  DREAL_LOG_DEBUG << "rp_selector_ircmax::apply: "
+                  << this->solution(b) << "\t"
+                  << "maxctr_int_dec = "  << maxctr_int_dec(b) << "\t"
+                  << "maxctr_int_aux = "  << maxctr_int_aux(b) << "\t"
+                  << "maxctr_real_dec = " << maxctr_real_dec(b) << "\t"
+                  << "maxctr_real_aux = " << maxctr_real_aux(b);
+
   if (this->solution(b)) return( -1 );
   if ((var=maxctr_int_dec(b))>=0)  return( var );
   if ((var=maxctr_int_aux(b))>=0)  return( var );

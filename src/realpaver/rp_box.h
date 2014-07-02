@@ -167,8 +167,8 @@ void rp_box_display (FILE *out, rp_box b, int digits, int mode);
   rp_box_display(o,b,d,RP_INTERVAL_MODE_MID)
 
 #define rp_box_display_simple(b) \
-  rp_box_display(stdout,b,8,RP_INTERVAL_MODE_BOUND)
+  rp_box_display(stderr,b,8,RP_INTERVAL_MODE_BOUND)
 
 #define rp_box_display_simple_nl(b) \
   rp_box_display_simple(b); \
-  printf("\n")
+  fprintf(stderr, "\n")

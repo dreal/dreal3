@@ -14,7 +14,7 @@
 #include <gflags/gflags.h>
 #include "rp_constraint.h"
 
-DEFINE_bool  (new_explanation,            false, "use new explanation generation");
+DECLARE_bool(new_exp);
 
 /* set constraint delta */
 void rp_ctr_set_delta(rp_constraint * c, double delta)
@@ -204,7 +204,7 @@ int rp_ctr_num_unfeasible(rp_ctr_num c, rp_box b)
       res = rp_ctr_numinf_strict_unfeasible(c,b);
       break;
   }
-  if (FLAGS_new_explanation) {
+  if (FLAGS_new_exp) {
       if (res) { rp_ctr_num_used(c) = 1; }
   } else {
       rp_ctr_num_used(c) = 1;
@@ -846,6 +846,12 @@ void rp_constraint_display(FILE* out, rp_constraint c,
       rp_ctr_piecewise_display(out,rp_constraint_piece(c),var,digits);
       break;
   }
+}
+
+void rp_constraint_display_nl(FILE* out, rp_constraint c,
+                              rp_vector_variable var, int digits) {
+    rp_constraint_display(out, c, var, digits);
+    fprintf(out, "\n");
 }
 
 /* Returns true if no point of b is solution of c */
