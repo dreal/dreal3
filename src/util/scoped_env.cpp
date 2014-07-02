@@ -45,6 +45,10 @@ scoped_env::scoped_env() {
 scoped_env::~scoped_env() {
 }
 
+void scoped_env::insert(key_type const & k) {
+    insert(k, interval(k->getLowerBound(), k->getUpperBound()));
+}
+
 void scoped_env::insert(key_type const & k, mapped_type const & v) {
     auto p = make_pair(k, v);
     auto ite = m_map.find(k);

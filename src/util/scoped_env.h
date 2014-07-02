@@ -38,10 +38,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 class scoped_env {
 private:
-    typedef std::unordered_map<Enode *, interval> map;
-    typedef map::key_type key_type;
+    typedef Enode * key_type;
+    typedef interval mapped_type;
+    typedef std::unordered_map<key_type, mapped_type> map;
     typedef map::value_type value_type;
-    typedef map::mapped_type mapped_type;
+    typedef map::iterator iterator;
     typedef map::const_iterator const_iterator;
 
     enum class Action {INSERT, UPDATE, ERASE};
@@ -53,10 +54,17 @@ private:
 public:
     scoped_env();
     ~scoped_env();
-    const_iterator begin() const { return m_map.cbegin(); }
-    const_iterator end() const { return m_map.cend(); }
+    iterator begin()              { return m_map.begin(); }
+    iterator end()                { return m_map.end(); }
+    const_iterator begin()  const { return m_map.cbegin(); }
+    const_iterator end()    const { return m_map.cend(); }
+    const_iterator cbegin() const { return m_map.cbegin(); }
+    const_iterator cend()   const { return m_map.cend(); }
+    void insert(key_type const & k);
     void insert(key_type const & k, mapped_type const & v);
     void update(key_type const & k, mapped_type const & v);
+    iterator find(key_type const & k)             { return m_map.find(k); }
+    const_iterator find(key_type const & k) const { return m_map.find(k); }
     mapped_type lookup(key_type const & k);
     void erase(key_type const & k);
     void push();
