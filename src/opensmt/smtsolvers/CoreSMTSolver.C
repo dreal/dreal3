@@ -579,31 +579,16 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
 {
   Var next = var_Undef;
 
-  DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit()" << endl;
-
   // Random decision:
   if (drand(random_seed) < random_var_freq && !order_heap.empty()){
     next = order_heap[irand(random_seed,order_heap.size())];
     if (toLbool(assigns[next]) == l_Undef && decision_var[next])
       rnd_decisions++; }
 
-  if(next != var_Undef){
-    DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Random Decision: "
-                    << theory_handler->varToEnode(next)
-                    << endl;
-  }
     // Theory suggestion-based decision
     for( ;; )
     {
       Lit sugg = theory_handler->getSuggestion( );
-      if(var(sugg) != var_Undef){
-        DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Theory Suggested Decision: "
-                        << sign(sugg) << " " << theory_handler->varToEnode(var(sugg))
-                        << endl;
-      }
-      else{
-        DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Theory Suggested Decision: var_Undef" << endl;
-      }
       // No suggestions
       if ( sugg == lit_Undef )
         break;
@@ -642,11 +627,7 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
         case polarity_user:  sign = polarity[next]; break;
         case polarity_rnd:   sign = irand(random_seed, 2); break;
         default: assert(false); }
-      if(next != var_Undef){
-        DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Activity Decision: "
-                        << sign << " " << theory_handler->varToEnode(next)
-                        << endl;
-      }
+
                  return next == var_Undef ? lit_Undef : Lit(next, sign);
 }
 
@@ -1111,12 +1092,6 @@ void CoreSMTSolver::uncheckedEnqueue(Lit p, Clause* from)
   level   [var(p)] = decisionLevel();
   reason  [var(p)] = from;
 
-  // DREAL_LOG_DEBUG << "Assigned: "  << sign(p) << endl;
-
-  if(decisionLevel() > 0 ){
-    Enode * e = theory_handler->varToEnode( var(p) );
-    DREAL_LOG_DEBUG << "CoreSMTSolver::uncheckedEnqueue(): Assign: "  << e << " = " << toInt(lbool(!sign(p)))<< endl;
-  }
   // Added Code
 #if CACHE_POLARITY
   prev_polarity[var(p)] = assigns[var(p)];
@@ -1587,7 +1562,6 @@ CoreSMTSolver::reset( )
   |________________________________________________________________________________________________@*/
 lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 {
-  DREAL_LOG_DEBUG << "CoreSMTSolver::search()" << endl;
 #ifdef PRODUCE_PROOF
   // Force disable theory propagation, since we don't
   // have at the moment we don't construct the reasons
@@ -1606,7 +1580,6 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 #ifdef STATISTICS
   const double start = cpuTime( );
 #endif
-  DREAL_LOG_DEBUG << "CoreSMTSolver::search() Checking level-0 atoms" << endl;
   // (Incomplete) Check of Level-0 atoms
   int res = checkTheory( false );
   if ( res == -1 ) return l_False;
@@ -1625,11 +1598,10 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
   {
     // Added line
     if ( opensmt::stop ) return l_Undef;
-    //DREAL_LOG_DEBUG << "CoreSMTSolver::propagate()" << endl;
+
     Clause* confl = propagate();
     if (confl != NULL){
       // CONFLICT
-      DREAL_LOG_DEBUG << "CoreSMTSolver::search() Conflict from propagate(): " << confl << endl;
       conflicts++; conflictC++;
       if (decisionLevel() == 0)
         return l_False;
@@ -1638,7 +1610,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
       learnt_clause.clear();
       analyze(confl, learnt_clause, backtrack_level);
       cancelUntil(backtrack_level);
-      DREAL_LOG_DEBUG << "CoreSMTSolver::search() Backtrack to level: " << backtrack_level << endl;
+
       assert(value(learnt_clause[0]) == l_Undef);
 
       if (learnt_clause.size() == 1){
@@ -1674,7 +1646,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
     }else{
       // NO CONFLICT
-      DREAL_LOG_DEBUG << "CoreSMTSolver::search() No Conflict from propagate()" << endl;
+
       if (nof_conflicts >= 0 && conflictC >= nof_conflicts){
         // Reached bound on number of conflicts:
         // progress_estimate = progressEstimate();
@@ -1691,14 +1663,12 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
         if ( first_model_found )
         {
-          DREAL_LOG_DEBUG << "CoreSMTSolver::search() first_model_found" << endl;
           // Early Pruning Call
           // Step 1: check if the current assignment is theory-consistent
 #ifdef STATISTICS
           const double start = cpuTime( );
 #endif
           int res = checkTheory( false );
-          DREAL_LOG_DEBUG << "CoreSMTSolver::search() checkTheory1 = " << res << endl;
 #ifdef STATISTICS
           tsolvers_time += cpuTime( ) - start;
 #endif
@@ -1740,49 +1710,19 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
           }
         }
 
-        bool isSAT = false;
-        if(config.nra_short_sat){
-          //check if SAT, even if not all literals are assigned
-          isSAT = true;
-          for (int c = 0; c < nClauses(); c++) {
-            if (!satisfied(*clauses[c])) {
-              isSAT = false;
-              break;
-            }
-          }
-          if( isSAT ){
-            DREAL_LOG_DEBUG << "CoreSMTSolver::search() Found Model after # decisions " << decisions << endl;
-            //first_model_found = true;
-            next = lit_Undef;
-          }
-          else{
-            //DREAL_LOG_DEBUG << "CoreSMTSolver::search() not SAT yet" << endl;
-          }
-        }
-
         if (next == lit_Undef){
-          if( !isSAT ){
-            // New variable decision:
-            decisions++;
-            next = pickBranchLit(polarity_mode, random_var_freq);
-            if(next != lit_Undef){
-                DREAL_LOG_DEBUG << "CoreSMTSolver::search() Branching at: " << decisionLevel()
-                                << " on: "
-                                << theory_handler->varToEnode(var(next))
-                                << endl;
-            }
-          }
+          // New variable decision:
+          decisions++;
+          next = pickBranchLit(polarity_mode, random_var_freq);
+
           // Complete Call
           if ( next == lit_Undef )
           {
-            DREAL_LOG_DEBUG << "CoreSMTSolver::search() Next is Undef" << endl;
             first_model_found = true;
-
 #ifdef STATISTICS
             const double start = cpuTime( );
 #endif
             int res = checkTheory( true );
-            DREAL_LOG_DEBUG << "CoreSMTSolver::search() checkTheory2 = " << res << endl;
 #ifdef STATISTICS
             tsolvers_time += cpuTime( ) - start;
 #endif
@@ -1794,7 +1734,6 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             const double start2 = cpuTime( );
 #endif
             res = checkAxioms( );
-            DREAL_LOG_DEBUG << "CoreSMTSolver::search() checkAxioms = " << res << endl;
 #ifdef STATISTICS
             tsolvers_time += cpuTime( ) - start2;
 #endif
@@ -1803,29 +1742,15 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             if ( res == 2 ) { continue; }
             if ( res == -1 ) return l_False;
             assert( res == 1 );
-
-            if(config.nra_short_sat){
-              if ( res == 1 ) return l_True;
-            }
-
             // Otherwise we still have to make sure that
             // splitting on demand did not add any new variable
             decisions++;
             next = pickBranchLit( polarity_mode, random_var_freq );
-            if(next != lit_Undef){
-                DREAL_LOG_DEBUG << "CoreSMTSolver::search() Branching at: " << decisionLevel()
-                                << " on: "
-                                << theory_handler->varToEnode(var(next))
-                                << endl;
-            }
           }
 
-          if (next == lit_Undef){
+          if (next == lit_Undef)
             // Model found:
-            DREAL_LOG_DEBUG << "CoreSMTSolver::search() Found Model after # decisions "
-                            << decisions << endl;
             return l_True;
-          }
         }
 
         // Increase decision level and enqueue 'next'
