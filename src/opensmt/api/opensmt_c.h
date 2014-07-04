@@ -80,8 +80,8 @@ void             opensmt_print_interpolant         ( opensmt_context, const char
 opensmt_expr     opensmt_mk_true                   ( opensmt_context );
 opensmt_expr     opensmt_mk_false                  ( opensmt_context );
 opensmt_expr     opensmt_mk_bool_var               ( opensmt_context, char * );
-opensmt_expr     opensmt_mk_int_var                ( opensmt_context, char * );
-opensmt_expr     opensmt_mk_real_var               ( opensmt_context, char * );
+opensmt_expr     opensmt_mk_int_var                ( opensmt_context, char * , int , int );
+opensmt_expr     opensmt_mk_real_var               ( opensmt_context, char * , double, double );
 /*
 opensmt_expr     opensmt_mk_bv_var                 ( opensmt_context, char *, unsigned );
 */

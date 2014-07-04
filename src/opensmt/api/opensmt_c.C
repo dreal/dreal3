@@ -278,7 +278,7 @@ opensmt_expr opensmt_mk_bool_var( opensmt_context c, char * s )
   return static_cast< void * >( res );
 }
 
-opensmt_expr opensmt_mk_int_var( opensmt_context c, char * s )
+opensmt_expr opensmt_mk_int_var( opensmt_context c, char * s , int lb, int ub)
 {
   assert( c );
   assert( s );
@@ -287,10 +287,12 @@ opensmt_expr opensmt_mk_int_var( opensmt_context c, char * s )
   Snode * sort = context.mkSortInt( );
   context.DeclareFun( s, sort );
   Enode * res = context.mkVar( s, true );
+  res->setLowerBound(lb);
+  res->setUpperBound(ub);
   return static_cast< void * >( res );
 }
 
-opensmt_expr opensmt_mk_real_var( opensmt_context c, char * s )
+opensmt_expr opensmt_mk_real_var( opensmt_context c, char * s , double lb, double ub)
 {
   assert( c );
   assert( s );
@@ -299,6 +301,8 @@ opensmt_expr opensmt_mk_real_var( opensmt_context c, char * s )
   Snode * sort = context.mkSortReal( );
   context.DeclareFun( s, sort );
   Enode * res = context.mkVar( s, true );
+  res->setLowerBound(lb);
+  res->setUpperBound(ub);
   return static_cast< void * >( res );
 }
 
