@@ -724,7 +724,11 @@ Enode * Egraph::mkEq( Enode * args )
 
   Enode * x = args->getCar( );
   Enode * y = args->getCdr( )->getCar( );
-  assert( x->getLastSort( ) == y->getLastSort( ) );
+  // TODO(soonhok): for now, we remove the requirement that
+  // "sort(LHS) = sort(RHS)". We still need to check LHS and RHS are
+  // Real and Int (or Int/Real).
+  //
+  // assert( x->getLastSort( ) == y->getLastSort( ) );
 
   if ( x->hasSortBool( ) )
     return mkIff( args );
