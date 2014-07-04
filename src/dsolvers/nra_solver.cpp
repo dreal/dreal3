@@ -33,6 +33,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 DEFINE_bool(new_exp,             true,      "new_exp");
 DEFINE_string(split_heuristic,  "existence", "split heuristic");
+DEFINE_bool(stat,                false,     "show stat");
 
 using std::setw;
 using std::pair;
@@ -52,8 +53,10 @@ nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, S
 nra_solver::~nra_solver() {
     rp_reset_library();
     rp_problem_destroy(&_rp_problem);
-    DREAL_LOG_FATAL << "# Incomplete Check " << _stat_check_incomplete;
-    DREAL_LOG_FATAL << "# Complete Check " << _stat_check_complete;
+    if (FLAGS_stat) {
+        DREAL_LOG_FATAL << "# Incomplete Check " << _stat_check_incomplete;
+        DREAL_LOG_FATAL << "# Complete Check "   << _stat_check_complete;
+    }
 }
 
 void nra_solver::create_rp_var(Enode * const v) {
