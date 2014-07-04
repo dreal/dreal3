@@ -35,11 +35,13 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 //
 // Communication APIs
 //
-void opensmt_set_verbosity( opensmt_context, int )
+void opensmt_set_verbosity( opensmt_context c, int v )
 {
-  // assert( c );
-  // OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
-  // OpenSMTContext & context = *c_;
+  assert( c );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  context.setDebug(v > 3);
+  context.setVerbose(v > 2);
 }
 
 char * opensmt_version( )
