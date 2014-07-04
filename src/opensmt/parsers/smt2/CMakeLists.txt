@@ -30,7 +30,8 @@ INCLUDE_DIRECTORIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2)
 
 add_library(opensmt_smt2parser smt2parser.cc smt2lexer.cc)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-null-conversion -Wno-unneeded-internal-declaration -Wno-deprecated-register -Wno-sign-compare")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-null-conversion -Wno-unneeded-internal-declaration -Wno-deprecated-register")
 endif ()
 target_link_libraries(opensmt_smt2parser util)
