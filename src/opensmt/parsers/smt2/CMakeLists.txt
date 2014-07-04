@@ -6,6 +6,7 @@ ADD_CUSTOM_COMMAND(
    COMMAND ${FLEX_EXECUTABLE}
    ARGS -o ${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc -Psmt2
         ${DREAL_SOURCE_DIR}/opensmt/parsers/smt2/smt2lexer.ll
+   DEPENDS ${DREAL_SOURCE_DIR}/opensmt/parsers/smt2/smt2lexer.ll
    OUTPUT ${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc)
 
 # Create custom command for bison/yacc (note the DEPENDS)
@@ -14,6 +15,7 @@ ADD_CUSTOM_COMMAND(
    ARGS -d --name-prefix=smt2 -y ${DREAL_SOURCE_DIR}/opensmt/parsers/smt2/smt2parser.yy
         -o ${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2parser.cc
    DEPENDS ${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc
+   DEPENDS ${DREAL_SOURCE_DIR}/opensmt/parsers/smt2/smt2parser.yy
    OUTPUT ${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2parser.cc)
 
 # Add parser.c to the list of sources
