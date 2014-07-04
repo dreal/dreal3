@@ -171,6 +171,7 @@ public:
   inline Enode * mkGt        ( Enode * e )       { assert( e ); return egraph.mkGt    ( e ); }
 
   // added for dReal2
+  inline Enode * mkAbs       ( Enode * e )       { assert(e); return egraph.mkAbs(e);}
   inline Enode * mkExp       ( Enode * e )       { assert(e); return egraph.mkExp(e);}
   inline Enode * mkLog       ( Enode * e )       { assert(e); return egraph.mkLog(e);}
   inline Enode * mkPow       ( Enode * e )       { assert(e); return egraph.mkPow(e);}

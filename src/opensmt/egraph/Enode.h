@@ -98,6 +98,7 @@ public:
   inline bool isExp               ( ) const { return hasSymbolId( ENODE_ID_EXP         ); }
   inline bool isLog               ( ) const { return hasSymbolId( ENODE_ID_LOG         ); }
   inline bool isPow               ( ) const { return hasSymbolId( ENODE_ID_POW         ); }
+  inline bool isAbs               ( ) const { return hasSymbolId( ENODE_ID_ABS         ); }
   inline bool isSin               ( ) const { return hasSymbolId( ENODE_ID_SIN         ); }
   inline bool isCos               ( ) const { return hasSymbolId( ENODE_ID_COS         ); }
   inline bool isTan               ( ) const { return hasSymbolId( ENODE_ID_TAN         ); }

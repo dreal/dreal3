@@ -75,6 +75,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define ENODE_ID_SAFESQRT         (36)
 #define ENODE_ID_FORALLT          (37)
 #define ENODE_ID_INTEGRAL         (38)
+#define ENODE_ID_ABS              (39)
 /* ------------------- */
 
 /*
@@ -113,7 +114,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // it is used to check whether a function symbol
 // is predefined or uninterpreted
 //
-#define ENODE_ID_LAST             (38)  /* modified for dReal2 */
+#define ENODE_ID_LAST             (39)  /* modified for dReal2 */
 
 //
 // Properties stored in integers

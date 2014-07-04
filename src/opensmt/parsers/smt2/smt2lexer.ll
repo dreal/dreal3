@@ -146,6 +146,7 @@ char * pbuffer2;
 "tan"                        { return TK_TAN; }
 "exp"                        { return TK_EXP; }
 "log"                        { return TK_LOG; }
+"abs"                        { return TK_ABS; }
 "asin"|"arcsin"              { return TK_ASIN; }
 "acos"|"arccos"              { return TK_ACOS; }
 "atan"|"arctan"              { return TK_ATAN; }

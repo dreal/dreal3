@@ -90,7 +90,7 @@ void smt2error( const char * s )
 %token TK_RANDOM_SEED TK_VERBOSITY
 
 /* added for dReal2 */
-%token TK_EXP TK_SIN TK_COS TK_ASIN TK_ACOS TK_LOG TK_TAN TK_ATAN TK_POW TK_SINH TK_COSH TK_TANH
+%token TK_EXP TK_SIN TK_COS TK_ASIN TK_ACOS TK_LOG TK_TAN TK_ATAN TK_POW TK_SINH TK_COSH TK_TANH TK_ABS
 %token TK_ATAN2 TK_MATAN TK_SAFESQRT TK_INTEGRAL
 
 %type <str> precision
@@ -99,7 +99,7 @@ void smt2error( const char * s )
 %type <str> identifier spec_const b_value s_expr
 %type <str> TK_LEQ TK_GEQ TK_LT TK_GT TK_FORALLT
 %type <str> TK_PLUS TK_MINUS TK_TIMES TK_UMINUS TK_DIV
-%type <str> TK_EXP TK_SIN TK_COS TK_ASIN TK_ACOS TK_LOG TK_TAN TK_ATAN TK_POW TK_SINH TK_COSH TK_TANH
+%type <str> TK_EXP TK_SIN TK_COS TK_ASIN TK_ACOS TK_LOG TK_TAN TK_ATAN TK_POW TK_SINH TK_COSH TK_TANH TK_ABS
 %type <str> TK_ATAN2 TK_MATAN TK_SAFESQRT TK_INTEGRAL
 
 /* %type <str_list> numeral_list */
@@ -433,6 +433,9 @@ term: spec_const
     */
 
     /* added for dReal2 */
+    | '(' TK_ABS term_list ')'
+      { $$ = parser_ctx->mkAbs( $3 ); }
+
     | '(' TK_SIN term_list ')'
       { $$ = parser_ctx->mkSin( $3 ); }
 

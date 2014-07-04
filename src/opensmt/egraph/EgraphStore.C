@@ -158,6 +158,7 @@ void Egraph::initializeStore( )
   newSymbol( "safesqrt"  , sarith1 ); assert( ENODE_ID_SAFESQRT == id_to_enode.size( ) - 1 );
   newSymbol( "forallt"   , sarith1_bool ); assert( ENODE_ID_FORALLT == id_to_enode.size( ) - 1 );
   newSymbol( "integral"  , sarith5_bool ); assert( ENODE_ID_INTEGRAL == id_to_enode.size( ) - 1 );
+  newSymbol( "abs"       , sarith1 ); assert( ENODE_ID_ABS    == id_to_enode.size( ) - 1 );
   /* ---------------- */
 
  //
@@ -773,6 +774,15 @@ Enode * Egraph::mkLeq( Enode * args )
 
 /* added for dReal2 */
 //transcendental functions
+Enode * Egraph::mkAbs (Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 1 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_ABS], args );
+  assert( res );
+  return res;
+}
+
 Enode * Egraph::mkPow (Enode * args)
 {
   assert( args );

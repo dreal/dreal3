@@ -177,6 +177,7 @@ public:
   Enode * mkXor              ( Enode * );
 
   /* added for dReal2 */
+  Enode * mkAbs              ( Enode * );
   Enode * mkSin              ( Enode * );
   Enode * mkCos              ( Enode * );
   Enode * mkTan              ( Enode * );
