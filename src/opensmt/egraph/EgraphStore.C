@@ -1008,8 +1008,9 @@ Enode * Egraph::mkTimes( Enode * args )
     double times = xval * yval;
     res = mkNum( times );
   }
-  else
-  {
+  else if ( x == y ) {
+      return mkPow( cons(x, mkNum(2.0) ) );
+  } else {
     res = cons( id_to_enode[ ENODE_ID_TIMES ], args );
   }
   assert( res );
