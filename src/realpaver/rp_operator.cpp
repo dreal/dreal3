@@ -401,11 +401,12 @@ rp_operator_piecewise::operator=(const rp_operator_piecewise& /*o*/)
 // --------------------------------------------------------------------
 
 // Hull consistency operator over numerical equations
-rp_operator_hull_eq::rp_operator_hull_eq(rp_ctr_num c):
+rp_operator_hull_eq::rp_operator_hull_eq(rp_ctr_num c, rp_vector_variable vars):
   rp_operator(RP_OPERATOR_HULL_PRIORITY,
               rp_ctr_num_arity(c),
               rp_ctr_num_arity(c)),
-  _c(c)
+  _c(c),
+  _vars(vars)
 {}
 
 // Destruction
@@ -414,7 +415,7 @@ rp_operator_hull_eq::~rp_operator_hull_eq()
 
 // Copy
 rp_operator_hull_eq::rp_operator_hull_eq(const rp_operator_hull_eq& o):
-  rp_operator(o), _c(o._c)
+  rp_operator(o), _c(o._c), _vars(o._vars)
 {}
 
 // Copy protection --> nothing to do
@@ -428,6 +429,10 @@ rp_operator_hull_eq::operator=(const rp_operator_hull_eq& /*o*/)
 int rp_operator_hull_eq::apply(rp_box b)
 {
   DREAL_LOG_DEBUG << "rp_operator_hull_eq::apply";
+  if(DREAL_LOG_DEBUG_IS_ON) {
+      rp_ctr_num_display(stderr, _c, _vars, 16);
+      fprintf(stderr, "\n");
+  }
   return( rp_sat_hull_eq(_c,b) );
 }
 
@@ -448,11 +453,11 @@ int rp_operator_hull_eq::pruned_var(int i) const
 // -----------------------------------------------------------------------
 
 // Hull consistency operator over numerical inequalities f<=0
-rp_operator_hull_inf::rp_operator_hull_inf(rp_ctr_num c):
+rp_operator_hull_inf::rp_operator_hull_inf(rp_ctr_num c, rp_vector_variable vars):
   rp_operator(RP_OPERATOR_HULL_PRIORITY,
               rp_ctr_num_arity(c),
               rp_ctr_num_arity(c)),
-  _c(c)
+  _c(c), _vars(vars)
 {}
 
 // Destruction
@@ -461,7 +466,7 @@ rp_operator_hull_inf::~rp_operator_hull_inf()
 
 // Copy
 rp_operator_hull_inf::rp_operator_hull_inf(const rp_operator_hull_inf& o):
-  rp_operator(o), _c(o._c)
+  rp_operator(o), _c(o._c), _vars(o._vars)
 {}
 
 // Copy protection --> nothing to do
@@ -475,6 +480,10 @@ rp_operator_hull_inf::operator=(const rp_operator_hull_inf& /*o*/)
 int rp_operator_hull_inf::apply(rp_box b)
 {
   DREAL_LOG_DEBUG << "rp_operator_hull_inf::apply";
+  if(DREAL_LOG_DEBUG_IS_ON) {
+      rp_ctr_num_display(stderr, _c, _vars, 16);
+      fprintf(stderr, "\n");
+  }
   return( rp_sat_hull_inf(_c,b) );
 }
 
@@ -495,11 +504,11 @@ int rp_operator_hull_inf::pruned_var(int i) const
 // -----------------------------------------------------------------------
 
 // Hull consistency operator over numerical inequalities f>=0
-rp_operator_hull_sup::rp_operator_hull_sup(rp_ctr_num c):
+rp_operator_hull_sup::rp_operator_hull_sup(rp_ctr_num c, rp_vector_variable vars):
   rp_operator(RP_OPERATOR_HULL_PRIORITY,
               rp_ctr_num_arity(c),
               rp_ctr_num_arity(c)),
-  _c(c)
+  _c(c), _vars(vars)
 {}
 
 // Destruction
@@ -508,7 +517,7 @@ rp_operator_hull_sup::~rp_operator_hull_sup()
 
 // Copy
 rp_operator_hull_sup::rp_operator_hull_sup(const rp_operator_hull_sup& o):
-  rp_operator(o), _c(o._c)
+  rp_operator(o), _c(o._c), _vars(o._vars)
 {}
 
 // Copy protection --> nothing to do
@@ -522,6 +531,10 @@ rp_operator_hull_sup::operator=(const rp_operator_hull_sup& /*o*/)
 int rp_operator_hull_sup::apply(rp_box b)
 {
   DREAL_LOG_DEBUG << "rp_operator_hull_sup::apply";
+  if(DREAL_LOG_DEBUG_IS_ON) {
+      rp_ctr_num_display(stderr, _c, _vars, 16);
+      fprintf(stderr, "\n");
+  }
   return( rp_sat_hull_sup(_c,b) );
 }
 
@@ -545,12 +558,15 @@ int rp_operator_hull_sup::pruned_var(int i) const
 rp_operator_box_eq::rp_operator_box_eq(rp_ctr_num c,
                                        int x,
                                        double improve,
-                                       double eps):
+                                       double eps,
+                                       rp_vector_variable vars
+    ):
   rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(rp_ctr_num_func(c)),1),
   _x(x),
   _improve(improve),
   _eps(eps),
-  _c(c)
+  _c(c),
+  _vars(vars)
 {
   rp_expression_copy(&_f,rp_ctr_num_func(c));
   if (rp_expression_derivable(_f))
@@ -578,7 +594,9 @@ rp_operator_box_eq::rp_operator_box_eq(const rp_operator_box_eq& o):
   rp_operator(o),
   _x(o._x),
   _improve(o._improve),
-  _eps(o._eps)
+  _eps(o._eps),
+  _c(o._c),
+  _vars(o._vars)
 {
   rp_erep aux;
   rp_erep_copy(&aux,rp_expression_rep(o._f));
@@ -598,6 +616,10 @@ int rp_operator_box_eq::apply(rp_box b)
 {
   DREAL_LOG_DEBUG << "rp_operator_box_eq::apply";
   rp_ctr_num_used(_c) = 1;
+  if(DREAL_LOG_DEBUG_IS_ON) {
+      rp_ctr_num_display(stderr, _c, _vars, 16);
+      fprintf(stderr, "\n");
+  }
   return( rp_sat_box_eq(_f,_df,b,_x,_improve,_eps) );
 }
 
@@ -628,12 +650,15 @@ rp_operator_box_eq::operator=(const rp_operator_box_eq& /*o*/)
 rp_operator_box_inf::rp_operator_box_inf(rp_ctr_num c,
                                          int x,
                                          double improve,
-                                         double eps):
+                                         double eps,
+                                         rp_vector_variable vars
+    ):
   rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(rp_ctr_num_func(c)),1),
   _x(x),
   _improve(improve),
   _eps(eps),
-  _c(c)
+  _c(c),
+  _vars(vars)
 {
   rp_expression_copy(&_f,rp_ctr_num_func(c));
   if (rp_expression_derivable(_f))
@@ -661,7 +686,9 @@ rp_operator_box_inf::rp_operator_box_inf(const rp_operator_box_inf& o):
   rp_operator(o),
   _x(o._x),
   _improve(o._improve),
-  _eps(o._eps)
+  _eps(o._eps),
+  _c(o._c),
+  _vars(o._vars)
 {
   rp_erep aux;
   rp_erep_copy(&aux,rp_expression_rep(o._f));
@@ -681,6 +708,10 @@ int rp_operator_box_inf::apply(rp_box b)
 {
   DREAL_LOG_DEBUG << "rp_operator_box_inf::apply";
   rp_ctr_num_used(_c) = 1;
+  if(DREAL_LOG_DEBUG_IS_ON) {
+      rp_ctr_num_display(stderr, _c, _vars, 16);
+      fprintf(stderr, "\n");
+  }
   return( rp_sat_box_inf(_f,_df,b,_x,_improve,_eps) );
 }
 
@@ -711,12 +742,15 @@ rp_operator_box_inf::operator=(const rp_operator_box_inf& /*o*/)
 rp_operator_box_sup::rp_operator_box_sup(rp_ctr_num c,
                                          int x,
                                          double improve,
-                                         double eps):
+                                         double eps,
+                                         rp_vector_variable vars
+    ):
   rp_operator(RP_OPERATOR_BOX_PRIORITY,rp_expression_arity(rp_ctr_num_func(c)),1),
   _x(x),
   _improve(improve),
   _eps(eps),
-  _c(c)
+  _c(c),
+  _vars(vars)
 {
   rp_expression_copy(&_f,rp_ctr_num_func(c));
   if (rp_expression_derivable(_f))
@@ -744,7 +778,9 @@ rp_operator_box_sup::rp_operator_box_sup(const rp_operator_box_sup& o):
   rp_operator(o),
   _x(o._x),
   _improve(o._improve),
-  _eps(o._eps)
+  _eps(o._eps),
+  _c(o._c),
+  _vars(o._vars)
 {
   rp_erep aux;
   rp_erep_copy(&aux,rp_expression_rep(o._f));
@@ -764,6 +800,10 @@ int rp_operator_box_sup::apply(rp_box b)
 {
   DREAL_LOG_DEBUG << "rp_operator_box_sup::apply";
   rp_ctr_num_used(_c) = 1;
+  if(DREAL_LOG_DEBUG_IS_ON) {
+      rp_ctr_num_display(stderr, _c, _vars, 16);
+      fprintf(stderr, "\n");
+  }
   return( rp_sat_box_sup(_f,_df,b,_x,_improve,_eps) );
 }
 

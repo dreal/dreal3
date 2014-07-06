@@ -212,7 +212,7 @@ class rp_operator_hull_eq : public rp_operator
 {
 public:
   // Construction
-  rp_operator_hull_eq(rp_ctr_num c);
+  rp_operator_hull_eq(rp_ctr_num c, rp_vector_variable vars);
 
   // Destruction
   ~rp_operator_hull_eq();
@@ -231,6 +231,7 @@ public:
 
 private:
   rp_ctr_num _c;   /* the associated numerical equation f=0 */
+  rp_vector_variable _vars;
 
   // Copy protection
   rp_operator_hull_eq& operator=(const rp_operator_hull_eq& o);
@@ -243,7 +244,7 @@ class rp_operator_hull_inf : public rp_operator
 {
 public:
   // Construction
-  rp_operator_hull_inf(rp_ctr_num c);
+  rp_operator_hull_inf(rp_ctr_num c, rp_vector_variable vars);
 
   // Destruction
   ~rp_operator_hull_inf();
@@ -262,6 +263,7 @@ public:
 
 private:
   rp_ctr_num _c;   /* the associated numerical inequality f<=0 */
+  rp_vector_variable _vars;
 
   // Copy protection
   rp_operator_hull_inf& operator=(const rp_operator_hull_inf& o);
@@ -274,7 +276,7 @@ class rp_operator_hull_sup : public rp_operator
 {
 public:
   // Construction
-  rp_operator_hull_sup(rp_ctr_num c);
+  rp_operator_hull_sup(rp_ctr_num c, rp_vector_variable vars);
 
   // Destruction
   ~rp_operator_hull_sup();
@@ -293,6 +295,7 @@ public:
 
 private:
   rp_ctr_num _c;   /* the associated numerical inequality f>=0 */
+  rp_vector_variable _vars;
 
   // Copy protection
   rp_operator_hull_sup& operator=(const rp_operator_hull_sup& o);
@@ -307,7 +310,7 @@ class rp_operator_box_eq : public rp_operator
 public:
   // Construction
   rp_operator_box_eq(rp_ctr_num c, int x,
-                     double improve, double eps);
+                     double improve, double eps, rp_vector_variable vars);
 
   // Destruction
   ~rp_operator_box_eq();
@@ -331,6 +334,7 @@ private:
   double _improve;    /* improvement factor of iterative algorithm */
   double _eps;        /* precision of search algorithm             */
   rp_ctr_num _c;      /* the associated numerical constraint       */
+  rp_vector_variable _vars;
 
   // Copy protection
   rp_operator_box_eq& operator=(const rp_operator_box_eq& o);
@@ -345,7 +349,7 @@ class rp_operator_box_inf: public rp_operator
 public:
   // Construction
   rp_operator_box_inf(rp_ctr_num c, int x,
-                      double improve, double eps);
+                      double improve, double eps, rp_vector_variable vars);
 
   // Destruction
   ~rp_operator_box_inf();
@@ -369,7 +373,7 @@ private:
   double _improve;    /* improvement factor of iterative algorithm */
   double _eps;        /* precision of search algorithm             */
   rp_ctr_num _c;      /* the associated numerical constraint       */
-
+  rp_vector_variable _vars;
   // Copy protection
   rp_operator_box_inf& operator=(const rp_operator_box_inf& o);
 };
@@ -383,7 +387,7 @@ class rp_operator_box_sup : public rp_operator
 public:
   // Construction
   rp_operator_box_sup(rp_ctr_num c, int x,
-                      double improve, double eps);
+                      double improve, double eps, rp_vector_variable vars);
 
   // Destruction
   ~rp_operator_box_sup();
@@ -407,7 +411,7 @@ private:
   double _improve;    /* improvement factor of iterative algorithm */
   double _eps;        /* precision of search algorithm             */
   rp_ctr_num _c;      /* the associated numerical constraint       */
-
+  rp_vector_variable _vars;
   // Copy protection
   rp_operator_box_sup& operator=(const rp_operator_box_sup& o);
 };

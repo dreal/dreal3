@@ -220,32 +220,32 @@ rp_hull_factory::~rp_hull_factory()
 {}
 
 // Creation of a set of operators from p and insertion in vop
-void rp_hull_factory::build(const rp_problem& /*p*/,
+void rp_hull_factory::build(const rp_problem& p,
                             const rp_ctr_num& c, rp_vector& vec)
 {
   rp_operator * o = NULL;
   switch( rp_ctr_num_rel(c) )
   {
   case RP_RELATION_EQUAL:
-    rp_new(o,rp_operator_hull_eq,(c));
+    rp_new(o,rp_operator_hull_eq,(c,rp_problem_vars(p)));
     break;
 
   case RP_RELATION_SUPEQUAL:
-    rp_new(o,rp_operator_hull_sup,(c));
+    rp_new(o,rp_operator_hull_sup,(c,rp_problem_vars(p)));
     break;
 
   case RP_RELATION_INFEQUAL:
-    rp_new(o,rp_operator_hull_inf,(c));
+    rp_new(o,rp_operator_hull_inf,(c,rp_problem_vars(p)));
     break;
 
   // TODO(soonhok): need a separate operator for this?
   case RP_RELATION_SUP:
-    rp_new(o,rp_operator_hull_sup,(c));
+    rp_new(o,rp_operator_hull_sup,(c,rp_problem_vars(p)));
     break;
 
   // TODO(soonhok): need a separate operator for this?
   case RP_RELATION_INF:
-    rp_new(o,rp_operator_hull_inf,(c));
+    rp_new(o,rp_operator_hull_inf,(c,rp_problem_vars(p)));
     break;
 
   default:
@@ -294,25 +294,25 @@ void rp_box_factory::build(const rp_problem& p,
   switch( rp_ctr_num_relfunc(c) )
   {
   case RP_RELATION_EQUAL:
-    rp_new(o,rp_operator_box_eq,(c,var,_improve,eps));
+    rp_new(o,rp_operator_box_eq,(c,var,_improve,eps,rp_problem_vars(p)));
     break;
 
   case RP_RELATION_SUPEQUAL:
-    rp_new(o,rp_operator_box_sup,(c,var,_improve,eps));
+    rp_new(o,rp_operator_box_sup,(c,var,_improve,eps,rp_problem_vars(p)));
     break;
 
   case RP_RELATION_INFEQUAL:
-    rp_new(o,rp_operator_box_inf,(c,var,_improve,eps));
+    rp_new(o,rp_operator_box_inf,(c,var,_improve,eps,rp_problem_vars(p)));
     break;
 
   // TODO(soonhok): need a special operator for this?
   case RP_RELATION_SUP:
-    rp_new(o,rp_operator_box_sup,(c,var,_improve,eps));
+    rp_new(o,rp_operator_box_sup,(c,var,_improve,eps,rp_problem_vars(p)));
     break;
 
   // TODO(soonhok): need a special operator for this?
   case RP_RELATION_INF:
-    rp_new(o,rp_operator_box_inf,(c,var,_improve,eps));
+    rp_new(o,rp_operator_box_inf,(c,var,_improve,eps,rp_problem_vars(p)));
     break;
   }
   rp_vector_insert(vec,o);
