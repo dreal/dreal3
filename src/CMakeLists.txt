@@ -192,6 +192,21 @@ ExternalProject_Add(GLOG
 set(EXTRA_LIBS ${EXTRA_LIBS} "glog")
 
 ################################################################
+# External: googletest (Google Test)
+################################################################
+ExternalProject_Add(GTEST
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+  GIT_REPOSITORY https://github.com/soonhokong/googletest.git
+  GIT_TAG origin/master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS} -w" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
+  BUILD_COMMAND make -j
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND make install
+)
+set(EXTRA_LIBS ${EXTRA_LIBS} "gtest")
+
+################################################################
 # External: json11 (Dropbox json11)
 ################################################################
 ExternalProject_Add(JSON11
@@ -287,6 +302,7 @@ target_link_libraries(dReal ${EXTRA_LIBS})
 add_subdirectory(tests/nra)
 add_subdirectory(tests/nra_ode)
 add_subdirectory(tests/capd3)
+add_subdirectory(tests/realpaver)
 
 #dependencies
 add_dependencies(GLOG GFLAGS)
