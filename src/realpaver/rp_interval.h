@@ -173,7 +173,7 @@ void rp_interval_display (FILE *out, rp_interval i, int digits, int mode);
         rp_interval_display(o,i,d,RP_INTERVAL_MODE_MID)
 
 #define rp_interval_display_simple(i) \
-        rp_interval_display(stdout,i,16,RP_INTERVAL_MODE_BOUND)
+        rp_interval_display(stderr,i,16,RP_INTERVAL_MODE_BOUND)
 
 #define rp_interval_display_simple_file(o,i) \
         rp_interval_display(o,i,16,RP_INTERVAL_MODE_BOUND)
