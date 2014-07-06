@@ -94,6 +94,7 @@ int rp_sat_hull_eq(rp_ctr_num c, rp_box const b)
           result = rp_expression_project(rp_ctr_num_right(c),i,b);
         }
         improved = !rp_box_equal(old, b);
+        rp_box_destroy(&old);
       }
     }
   }
@@ -130,6 +131,7 @@ int rp_sat_hull_inf(rp_ctr_num c, rp_box const b) {
           result = rp_expression_project(rp_ctr_num_right(c),iright,b);
         }
         improved = !rp_box_equal(old, b);
+        rp_box_destroy(&old);
       }
     }
   }
@@ -166,6 +168,7 @@ int rp_sat_hull_sup(rp_ctr_num c, rp_box const b) {
           result = rp_expression_project(rp_ctr_num_right(c),iright,b);
         }
         improved = !rp_box_equal(old, b);
+        rp_box_destroy(&old);
       }
     }
   }
