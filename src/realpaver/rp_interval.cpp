@@ -1702,7 +1702,7 @@ void rp_interval_matan(rp_interval result, rp_interval x)
         rp_interval_sqrt(aux1, neg_x);        /* aux1 = sqrt(-x) */
         rp_interval_add_r_i(aux2, one, aux1); /* aux2 = 1 + sqrt(-x) */
         rp_interval_sub_r_i(aux3, one, aux1); /* aux3 = 1 - sqrt(-x) */
-        rp_interval_mul_r_i(aux4, two, aux1); /* aux4 = 2 - sqrt(-x) */
+        rp_interval_mul_r_i(aux4, two, aux1); /* aux4 = 2 * sqrt(-x) */
         rp_interval_div(aux5, aux2, aux3);    /* aux5 = (1 + sqrt(-x)) / (1 - sqrt(-x)) */
         rp_interval_log(aux6, aux5);          /* aux6 = log(aux5) */
         rp_interval_div(aux7, aux6, aux4);    /* aux7 = aux6 / aux4 */

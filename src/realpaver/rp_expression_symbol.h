@@ -24,7 +24,6 @@
 /* Term symbols */
 /* ------------ */
 #define RP_SYMBOL_NO          -1
-
 #define RP_SYMBOL_ADD          0
 #define RP_SYMBOL_ADD_R_I      1
 #define RP_SYMBOL_SUB          2
