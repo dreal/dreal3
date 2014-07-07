@@ -12,6 +12,7 @@
  ****************************************************************************/
 
 #include <string.h>
+#include <cstdlib>
 #include "rp_parser.h"
 #include "rp_interval.h"
 #include "rp_constant.h"
@@ -1923,6 +1924,9 @@ int rp_rule_unsigned_number(rp_parser p, rp_interval i)
       rp_parser_accept(p,RP_TOKEN_FLOAT))
   {
     rp_interval_from_str(rp_lexer_prev_text(rp_parser_lexer(p)),i);
+    result = 1;
+  } else if (rp_parser_accept(p,RP_TOKEN_HEX_FLOAT)) {
+    rp_interval_set_point(i, atof(rp_lexer_prev_text(rp_parser_lexer(p))));
     result = 1;
   }
   else if (rp_parser_accept(p,RP_TOKEN_INFINITY))

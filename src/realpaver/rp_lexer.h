@@ -60,7 +60,8 @@
 #define RP_TOKEN_IDENT         200
 #define RP_TOKEN_INTEGER       201
 #define RP_TOKEN_FLOAT         202
-#define RP_TOKEN_INFINITY      203
+#define RP_TOKEN_HEX_FLOAT     203
+#define RP_TOKEN_INFINITY      204
 
 /* Brackets () [] {} and punctuation */
 #define RP_TOKEN_LBR           300

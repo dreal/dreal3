@@ -628,6 +628,13 @@ int rp_lexer_get_ident(rp_lexer l)
   }
 }
 
+int ishexdigit(int c) {
+    if (isdigit(c)) return true;
+    if (c >= 'a' && c <= 'f')  return true;
+    if (c >= 'A' && c <= 'F')  return true;
+    return false;
+}
+
 /* Get a number from l */
 int rp_lexer_get_number(rp_lexer l)
 {
@@ -648,6 +655,46 @@ int rp_lexer_get_number(rp_lexer l)
   /* decimal part? */
   i = strlen(rp_lexer_text(l));
   rp_lexer_text(l)[i] = rp_stream_get_char(rp_lexer_input(l));
+  if (rp_lexer_text(l)[i]=='x' || rp_lexer_text(l)[i]=='X') {
+
+      i++;
+      rp_lexer_text(l)[i] = rp_stream_get_char(rp_lexer_input(l));
+      if (!isdigit(rp_lexer_text(l)[i])) {
+          return( rp_lexer_stop(l,"decimal part of hexdecimal float is expected."));
+      }
+      i++;
+
+      rp_lexer_text(l)[i] = rp_stream_get_char(rp_lexer_input(l));
+      if (rp_lexer_text(l)[i] != '.') {
+          return( rp_lexer_stop(l,"decimal point is expected."));
+      }
+      i++;
+
+      if (!rp_lexer_get_sequence(l,&(rp_lexer_text(l)[i]),
+                                 RP_LEXER_TOKLEN-i-1,ishexdigit)) {
+          return( rp_lexer_stop(l,"subdecimal part of hexdecimal float is expected."));
+      }
+      i = strlen(rp_lexer_text(l));
+
+      rp_lexer_text(l)[i] = rp_stream_get_char(rp_lexer_input(l));
+      if(rp_lexer_text(l)[i] != 'p' && rp_lexer_text(l)[i] != 'P') {
+          fprintf(stderr, "%c found\n", rp_lexer_text(l)[i]);
+          return( rp_lexer_stop(l,"p is expected."));
+      }
+      i++;
+
+      rp_lexer_text(l)[i] = rp_stream_get_char(rp_lexer_input(l));
+      if (rp_lexer_text(l)[i] != '+' && rp_lexer_text(l)[i] != '-') {
+          rp_stream_unget_char(rp_lexer_input(l),rp_lexer_text(l)[i]);
+      } else {
+          i++;
+      }
+      if (!rp_lexer_get_sequence(l,&(rp_lexer_text(l)[i]),
+                                 RP_LEXER_TOKLEN-i-1,isdigit)) {
+          return( rp_lexer_stop(l,"subdecimal part of hexdecimal float is expected."));
+      }
+      return( rp_lexer_token(l)=RP_TOKEN_HEX_FLOAT );
+  }
   if (rp_lexer_text(l)[i]!='.') {
       if (toupper(rp_lexer_text(l)[i]) =='E') {
           if (rp_lexer_end(l)) {
