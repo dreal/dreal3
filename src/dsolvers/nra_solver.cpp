@@ -32,8 +32,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <gflags/gflags.h>
 
 DEFINE_bool(new_exp,             true,      "new_exp");
-DEFINE_string(split_heuristic,  "existence", "split heuristic");
+DEFINE_bool(show_model,          false,     "show model");
 DEFINE_bool(stat,                false,     "show stat");
+DEFINE_bool(hmodel,              false,     "human_readable model");
+DEFINE_string(split_heuristic,  "existence", "split heuristic");
 
 using std::setw;
 using std::pair;
@@ -97,7 +99,9 @@ void nra_solver::create_rp_ctr(Enode * const l) {
     string const ctr_str_neg = buf_neg.str();
     rp_constraint c_pos, c_neg;
     DREAL_LOG_INFO << "nra_solver::create_rp_ctr: constraint+: " << l;
+    DREAL_LOG_INFO << "nra_solver::create_rp_ctr: constraint+: " << ctr_str_pos;
     DREAL_LOG_INFO << "nra_solver::create_rp_ctr: constraint-: " << "not" << l;
+    DREAL_LOG_INFO << "nra_solver::create_rp_ctr: constraint-: " << ctr_str_neg;
     rp_parse_constraint_string(&c_pos, ctr_str_pos.c_str(), rp_problem_symb(_rp_problem));
     rp_parse_constraint_string(&c_neg, ctr_str_neg.c_str(), rp_problem_symb(_rp_problem));
     rp_ctr_set_delta(&c_pos, (l->hasPrecision() ? l->getPrecision() : config.nra_precision));
@@ -127,9 +131,9 @@ vector<bool> nra_solver::get_used_constraints() {
     return v;
 }
 void nra_solver::set_used_constraints(vector<bool> const & v) {
-    assert(_stack.size() <= v.size());
     DREAL_LOG_DEBUG << "set_used_constraints _stack.size() = " << _stack.size();
     DREAL_LOG_DEBUG << "set_used_constraints      v.size() = " << v.size();
+    assert(_stack.size() >= v.size());
     for (vector<bool>::size_type i = 0; i < v.size(); i++) {
         Enode * const l = _stack[i];
         if (l->getPolarity() == l_True) {
@@ -167,7 +171,7 @@ void nra_solver::get_explanation() {
             if (added) {
                 DREAL_LOG_DEBUG << "nra_solver::build_explanation: " << l << " [ADDED]";
             } else {
-                DREAL_LOG_DEBUG << "nra_solver::build_explanation: " << l << " [SKIPED]";
+                DREAL_LOG_DEBUG << "nra_solver::build_explanation: " << l << " [SKIPPED]";
             }
         }
     } else {
@@ -176,18 +180,15 @@ void nra_solver::get_explanation() {
 }
 
 void nra_solver::get_deductions() {
-    // rp_box_display_simple_nl(rp_problem_box(_rp_problem));
     for (Enode * const l : _lits) {
-        if (find(_deductions_stack.begin(), _deductions_stack.end(), l) != _deductions_stack.end())
-            continue;
         if (l->getPolarity() == l_Undef && !l->isDeduced()) {
             if (rp_constraint_unfeasible(_enode_to_rp_ctr_pos[l], rp_problem_box(_rp_problem))) {
                 l->setDeduced(l_False, id);
-                _deductions_stack.push_back(make_pair(l, false));
+                deductions.push_back(l);
                 DREAL_LOG_DEBUG << "nra_solver::get_deductions: added (-) " << l;
             } else if (rp_constraint_unfeasible(_enode_to_rp_ctr_neg[l], rp_problem_box(_rp_problem))) {
                 l->setDeduced(l_True, id);
-                _deductions_stack.push_back(make_pair(l, true));
+                deductions.push_back(l);
                 DREAL_LOG_DEBUG << "nra_solver::get_deductions: added (+)" << l;
             }
         }
@@ -207,9 +208,7 @@ void pprint_vars(ostream & out, rp_problem p, rp_box b, bool exact) {
         out << rp_variable_name(rp_problem_var(p, i));
         out << " : ";
         display_interval(out, rp_box_elem(b, i), 16, exact);
-        if (i != rp_problem_nvar(p) - 1)
-            out << ";";
-        out << endl;
+        out << ";" << endl;
     }
 }
 
@@ -251,11 +250,11 @@ bool nra_solver::solve() {
     } else if (FLAGS_split_heuristic == "roundrobin") {
         vselect = std::move(unique_ptr<rp_selector>(new rp_selector_roundrobin(&_rp_problem)));
     } else { // By default: existence
-        vselect = std::move(unique_ptr<rp_selector>(new rp_selector_roundrobin(&_rp_problem)));
+        vselect = std::move(unique_ptr<rp_selector>(new rp_selector_existence(&_rp_problem)));
     }
     unique_ptr<rp_splitter> dsplit(new rp_splitter_bisection(&_rp_problem)); /* split function of variable domain */
     while (!boxes.empty()) {
-        if (_propag.apply(boxes.get())) { // sean: here it is! propagation before split!!!
+        if (_propag.apply(boxes.get())) {
             // SAT => Split
             rp_box b = boxes.get();
             int i = vselect->apply(b);
@@ -264,7 +263,29 @@ bool nra_solver::solve() {
                 dsplit->apply(boxes, i);
             } else {
                 if (b != nullptr) {
-                    pprint_vars(cerr, _rp_problem, b, false);
+                    DREAL_LOG_FATAL << "precision = " << config.nra_precision;
+                    DREAL_LOG_FATAL << "Last split i = " << i;
+                    if (i >= 0) {
+                        DREAL_LOG_FATAL << "i-th width = " << rp_interval_width(rp_box_elem(b, i));
+                    }
+                    if (FLAGS_show_model) {
+                        pprint_vars(cout, _rp_problem, b, false);
+                    }
+                    if (config.nra_model) {
+                        /* Open file stream */
+                        config.nra_model_out.open (config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
+                        if (config.nra_model_out.fail()) {
+                            cout << "Cannot create a file: " << config.nra_model_out_name << endl;
+                            exit(1);
+                        } else {
+                            pprint_vars(config.nra_model_out, _rp_problem, b, !FLAGS_hmodel);
+                        }
+                    }
+                    for (Enode * const l : _stack) {
+                        if (l->getPolarity() == l_True) {
+                            cerr << "Assigned Literal (+):" << l << endl;
+                        }
+                    }
                     return true;
                 }
                 get_explanation();
@@ -308,7 +329,9 @@ bool nra_solver::assertLit (Enode * e, bool reason) {
     DREAL_LOG_INFO << "nra_solver::assertLit: " << e
                    << ", reason: " << boolalpha << reason
                    << ", polarity: " << e->getPolarity().toInt()
-                   << ", level: " << _stack.size();
+                   << ", level: " << _stack.size()
+                   << ", ded.size = " << deductions.size();
+
     (void)reason;
     assert(e);
     assert(belongsToT(e));
@@ -346,8 +369,6 @@ void nra_solver::pushBacktrackPoint () {
     _boxes.push_back(b);
     // _stack
     _stack.push();
-    // _deductions_stack
-    _deductions_stack.push();
     // _used_constraints_stack
     _used_constraints_stack.push();
     static bool init = false;
@@ -357,6 +378,17 @@ void nra_solver::pushBacktrackPoint () {
     }
 }
 
+ostream & operator<<(ostream & out, lbool const & l) {
+    if (l == l_True) {
+        out << "True";
+    } else if (l == l_False) {
+        out << "False";
+    } else {
+        out << "Undef";
+    }
+    return out;
+}
+
 // Restore a previous state. You can now retrieve the size of the
 // stack when you pushed the last backtrack point. You have to
 // implement the necessary backtrack operations (see for instance
@@ -364,21 +396,10 @@ void nra_solver::pushBacktrackPoint () {
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint () {
     DREAL_LOG_INFO << "nra_solver::popBacktrackPoint\t _stack.size()      = " << _stack.size();
+    DREAL_LOG_INFO << "nra_solver::popBacktrackPoint\t deductions.size()   = " << deductions.size();
 
     // _stack
     _stack.pop();
-
-    // _deductions_stack
-    _deductions_stack.pop();
-    for (pair<Enode *, bool> const p : _deductions_stack) {
-        Enode * const l = p.first;
-        bool const b = p.second;
-        l->setDeduced(b ? l_True : l_False, id);
-        DREAL_LOG_INFO << "Deductions: " << l << "\t"
-                       << (l->getPolarity() != l_Undef) << " "
-                       << l->getPolarity().toInt() << "\t" << l->isDeduced();
-    }
-    deductions.assign(_deductions_stack.begin(), _deductions_stack.end());
 
     // _boxes
     rp_box b = _boxes.back();

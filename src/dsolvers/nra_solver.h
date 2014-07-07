@@ -50,7 +50,6 @@ private:
     std::vector<Enode *> _lits;
     std::vector<rp_box> _boxes;
     scoped_vec<Enode *> _stack;
-    scoped_vec<std::pair<Enode *, bool>> _deductions_stack;
     scoped_vec<std::vector<bool>> _used_constraints_stack;
     rp_problem _rp_problem;
     unsigned int _stat_check_incomplete;
