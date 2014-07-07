@@ -160,6 +160,7 @@ char * pbuffer2;
 
 "-"?((([0-9]+)|([0-9]*\.?[0-9]+))([eE][-+]?[0-9]+)?)                           { smt2lval.str = strdup(yytext); return TK_NUM; }
 "-"?((([0-9]+)|([0-9]+\.)))                                                    { smt2lval.str = strdup(yytext); return TK_NUM; }
+"-"?"0"("x"|"X")[0-9]\.[0-9a-fA-F]+"p"("+"|"-")?[0-9]+                         { smt2lval.str = strdup(yytext); return TK_NUM; }
 #x[a-fA-F0-9]+                                                                 { smt2lval.str = strdup( yytext ); return TK_HEX; }
 #b[0-1]+                                                                       { smt2lval.str = strdup( yytext ); return TK_BIN; }
 \:[a-zA-Z0-9~!@\$\%\^&\*_\-\+=\<\>\.\?\/]+                                     { smt2lval.str = strdup( yytext ); return TK_KEY; }
