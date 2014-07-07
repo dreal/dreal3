@@ -19,16 +19,14 @@ add_library(realpaver
   rp_operator_factory.cpp
   rp_operator_num.cpp
   rp_operator_sat.cpp
-  rp_output.cpp
   rp_parser.cpp
   rp_problem.cpp
   rp_projection.cpp
   rp_propagator.cpp
-  rp_solver.cpp
   rp_split.cpp
   rp_split_selector.cpp
   rp_stream.cpp
   rp_union_interval.cpp
   rp_variable.cpp
-  rp_verification.cpp)
+  )
 target_link_libraries(realpaver util)
