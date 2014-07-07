@@ -1009,7 +1009,7 @@ Enode * Egraph::mkTimes( Enode * args )
     res = mkNum( times );
   }
   else if ( x == y ) {
-      return mkPow( cons(x, mkNum(2.0) ) );
+      return mkPow( cons(x, cons(mkNum(2.0)) ) );
   } else {
     res = cons( id_to_enode[ ENODE_ID_TIMES ], args );
   }
