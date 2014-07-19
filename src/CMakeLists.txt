@@ -306,6 +306,7 @@ add_subdirectory(tests/nra_ode)
 add_subdirectory(tests/capd3)
 add_subdirectory(tests/realpaver)
 add_subdirectory(tests/new_realpaver)
+add_subdirectory(tests/c_api)
 
 #dependencies
 add_dependencies(GLOG GFLAGS)
