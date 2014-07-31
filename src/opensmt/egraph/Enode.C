@@ -334,7 +334,7 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
         fesetround(old_rnd);
     } else if (isTerm()) {
         // output "("
-        if (!getCdr()->isEnil() && (isPlus() || isMinus() || isTimes() || isPow())) {
+      if (!getCdr()->isEnil() && (isPlus() || isMinus() || isTimes() || isPow() || isDiv())) {
             os << "(";
         }
         // !(X = Y) ==> (0 = 0)
@@ -404,7 +404,7 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
             }
         }
         // output ")"
-        if (!getCdr()->isEnil() && (isPlus() || isMinus() || isTimes() || isPow())) {
+        if (!getCdr()->isEnil() && (isPlus() || isMinus() || isTimes() || isPow() || isDiv())) {
             os << ")";
         }
     } else if (isList()) {
