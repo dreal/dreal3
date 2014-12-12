@@ -50,24 +50,5 @@ private:
     std::vector<Enode *> _lits;
     std::vector<rp_box> _boxes;
     scoped_vec<Enode *> _stack;
-    scoped_vec<std::vector<bool>> _used_constraints_stack;
-    rp_problem _rp_problem;
-    unsigned int _stat_check_incomplete;
-    unsigned int _stat_check_complete;
-
-    std::unordered_map<Enode *, int> _enode_to_rp_id;
-    std::unordered_map<Enode *, rp_variable> _enode_to_rp_var;
-    std::unordered_map<Enode *, rp_constraint> _enode_to_rp_ctr_pos;
-    std::unordered_map<Enode *, rp_constraint> _enode_to_rp_ctr_neg;
-    std::unordered_map<int, Enode *> _rp_id_to_enode;
-
-    void get_explanation();
-    vector<bool> get_used_constraints();
-    void set_used_constraints(vector<bool> const & v);
-    void get_deductions();
-    bool prop();
-    bool solve();
-    void create_rp_var(Enode * const v);
-    void create_rp_ctr(Enode * const l);
 };
 }
