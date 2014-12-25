@@ -31,6 +31,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "dsolvers/nra_solver.h"
 #include <gflags/gflags.h>
 
+using std::boolalpha;
+
 namespace dreal {
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
@@ -42,6 +44,11 @@ nra_solver::~nra_solver() {
 
 // `inform` sets up env (mapping from variables(enode) in literals to their [lb, ub])
 lbool nra_solver::inform(Enode * e) {
+    m_lits.push_back(e);
+    for (Enode * const v : e->get_vars()) {
+        m_box.add(v);
+    }
+    return l_Undef;
 }
 
 // Asserts a literal into the solver. If by chance you are able to
@@ -49,12 +56,31 @@ lbool nra_solver::inform(Enode * e) {
 // state will be checked with "check" assertLit adds a literal(e) to
 // stack of asserted literals.
 bool nra_solver::assertLit (Enode * e, bool reason) {
+    DREAL_LOG_INFO << "nra_solver::assertLit: " << e
+                   << ", reason: " << boolalpha << reason
+                   << ", polarity: " << e->getPolarity().toInt()
+                   << ", level: " << m_stack.size()
+                   << ", ded.size = " << deductions.size();
+    (void)reason;
+    assert(e);
+    assert(belongsToT(e));
+    assert(e->hasPolarity());
+    assert(e->getPolarity() == l_False || e->getPolarity() == l_True);
+    if (e->isDeduced() && e->getPolarity() == e->getDeduced() && e->getDedIndex() == id) {
+        DREAL_LOG_INFO << "nra_solver::assertLit: " << e << " is deduced";
+        return true;
+    }
+    m_stack.push_back(e);
+    return true;
 }
 
 // Saves a backtrack point You are supposed to keep track of the
 // operations, for instance in a vector called "undo_stack_term", as
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint () {
+    DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
+    // _stack
+    m_stack.push();
 }
 
 // Restore a previous state. You can now retrieve the size of the
@@ -63,16 +89,28 @@ void nra_solver::pushBacktrackPoint () {
 // backtrackToStackSize() in EgraphSolver) Also make sure you clean
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint () {
+    DREAL_LOG_INFO << "nra_solver::popBacktrackPoint\t m_stack.size()      = " << m_stack.size();
+    m_stack.pop();
 }
 
 // Check for consistency.
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
+    DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")";
+    DREAL_LOG_INFO << "nra_solver::check: box";
+    DREAL_LOG_INFO << m_box;
+    if (complete) {
+        return false;
+    }
+    return true;
 }
 
 // Return true if the enode belongs to this theory. You should examine
 // the structure of the node to see if it matches the theory operators
 bool nra_solver::belongsToT(Enode * e) {
+    (void)e;
+    assert(e);
+    return true;
 }
 
 // Copy the model into enode's data

@@ -25,11 +25,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "config.h"
-#include "util/scoped_env.h"
 #include "util/scoped_vec.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
-#include "realpaver/realpaver.h"
+// #include "realpaver/realpaver.h"
+#include "util/var.h"
+#include "util/box.h"
 
 namespace dreal {
 class nra_solver : public OrdinaryTSolver {
@@ -46,9 +47,8 @@ public:
     void  computeModel();
 
 private:
-    std::vector<Enode *> _vars;
-    std::vector<Enode *> _lits;
-    std::vector<rp_box> _boxes;
-    scoped_vec<Enode *> _stack;
+    box m_box;
+    std::vector<Enode *> m_lits;
+    scoped_vec<Enode *>  m_stack;
 };
 }
