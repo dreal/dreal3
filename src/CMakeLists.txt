@@ -156,21 +156,6 @@ ExternalProject_Add(CAPD4
 )
 
 ################################################################
-# External: CLP
-################################################################
-ExternalProject_Add(CLP
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/soonhokong/clp.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS}" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --disable-shared
-  BUILD_COMMAND make clean && make -j
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make -j install
-)
-
-
-################################################################
 # External: ibex
 ################################################################
 ExternalProject_Add(IBEX
@@ -178,7 +163,7 @@ ExternalProject_Add(IBEX
   GIT_REPOSITORY https://github.com/ibex-team/ibex-lib.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND ./waf configure --with-clp=${CMAKE_CURRENT_BINARY_DIR}/external/src/CLP --prefix=${CMAKE_CURRENT_BINARY_DIR}
+  CONFIGURE_COMMAND ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR}
   BUILD_COMMAND ./waf build
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND ./waf install
@@ -316,8 +301,6 @@ include_directories("${DREAL_BINARY_DIR}")
 add_subdirectory(opensmt)
 add_subdirectory(dsolvers)
 set(DREAL_LIBS ${DREAL_LIBS} dsolvers)
-# add_subdirectory(realpaver)
-# set(DREAL_LIBS ${DREAL_LIBS} realpaver)
 add_subdirectory(util)
 set(DREAL_LIBS ${DREAL_LIBS} util)
 
@@ -331,7 +314,6 @@ target_link_libraries(dReal ${EXTRA_LIBS})
 #add tests
 add_subdirectory(tests/nra)
 add_subdirectory(tests/nra_ode)
-# add_subdirectory(tests/realpaver)
 add_subdirectory(tests/c_api)
 
 #dependencies
@@ -340,15 +322,8 @@ add_dependencies(util FILIBXX)
 add_dependencies(util GLOG)
 add_dependencies(util GFLAGS)
 add_dependencies(dsolvers JSON11)
-# add_dependencies(dsolvers realpaver)
 add_dependencies(dsolvers CAPD4)
-add_dependencies(dsolvers CLP)
 add_dependencies(dsolvers IBEX)
-add_dependencies(IBEX CLP)
-# add_dependencies(realpaver GFLAGS)
-# add_dependencies(realpaver CAPD4)
-# add_dependencies(realpaver FILIBXX)
-# add_dependencies(realpaver util)
 
 # Include style check
 include(StyleCheck)
