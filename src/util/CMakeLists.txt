@@ -7,8 +7,11 @@ configure_file("${DREAL_SOURCE_DIR}/util/git_sha1.cpp.in" "${DREAL_BINARY_DIR}/g
 add_library(util
   hexfloat.cpp
   interval.cpp
-  scoped_env.cpp
+  # scoped_env.cpp
   string.cpp
+  var.cpp
+  box.cpp
+  contractor.cpp
   "${DREAL_BINARY_DIR}/git_sha1.cpp"
   "${DREAL_SOURCE_DIR}/util/git_sha1.h"
   )
