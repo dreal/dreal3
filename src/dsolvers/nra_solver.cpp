@@ -86,7 +86,9 @@ bool nra_solver::assertLit (Enode * e, bool reason) {
         DREAL_LOG_INFO << "nra_solver::assertLit: " << e << " is deduced";
         return true;
     }
-    m_stack.push_back(m_ctr_map[e]);
+    if (m_ctr_map.find(e) != m_ctr_map.end()) {
+        m_stack.push_back(m_ctr_map.at(e));
+    }
     return true;
 }
 
