@@ -3,7 +3,7 @@ Author: Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
         Edmund Clarke <emc@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2014, Soonho Kong, Sicun Gao, and Edmund Clarke
+dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,51 +19,108 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <algorithm>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include "util/interval.h"
-#include "util/var.h"
 #include "util/logging.h"
 
+using std::copy;
+using std::endl;
 using std::initializer_list;
-using std::vector;
-using std::string;
 using std::ostream;
+using std::pair;
+using std::sort;
+using std::string;
+using std::unordered_set;
+using std::vector;
 
 namespace dreal {
 box::box() { }
-box::box(initializer_list<var> const & var_list) : m_vec(var_list), m_name_map(m_vec.size()) {
-    for (vector<var>::size_type i = 0; i < m_vec.size(); i++) {
-        m_name_map.emplace(m_vec[i].getName(), i);
-    }
-}
-void box::add(var const & v) {
-    string const & name = v.getName();
-    if (m_name_map.find(name) == m_name_map.end()) {
-        m_name_map.emplace(name, m_vec.size());
-        m_vec.push_back(v);
-    }
-}
-void box::add(initializer_list<var> const & var_list) {
-    for (auto const & v : var_list) {
-        add(v);
-    }
+box::box(std::vector<Enode *> const & vars) : m_vars(vars) {
+    constructFromVariables(m_vars);
 }
 
-void box::intersect(box const & other) {
-    assert(m_vec.size() == other.m_vec.size());
-    for (vector<var>::size_type i = 0; i < m_vec.size(); i++) {
-        m_vec[i].intersect(other.m_vec[i]);
+box::box(std::vector<Enode *> const & vars, ibex::IntervalVector values)
+    : m_vars(vars), m_values(values) { }
+
+
+void box::constructFromVariables(vector<Enode *> const & vars) {
+    DREAL_LOG_INFO << "box::constructFromVariables";
+    m_vars = vars;
+    // Construct ibex::IntervalVector
+    unsigned num_var = m_vars.size();
+    m_values.resize(num_var);
+    m_domains.resize(num_var);
+    DREAL_LOG_INFO << "box::constructFromVariables\t" << num_var;
+    DREAL_LOG_INFO << "box::constructFromVariables\t" << m_values.size();
+    for (unsigned i = 0; i < num_var; i++) {
+        Enode const * const e = m_vars[i];
+        double const lb = e->getLowerBound();
+        double const ub = e->getUpperBound();
+        m_values[i] = ibex::Interval(lb, ub);
+        m_domains[i] = ibex::Interval(lb, ub);
+        m_name_index_map.emplace(e->getCar()->getName(), i);
     }
+    return;
 }
+
+void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
+    DREAL_LOG_INFO << "box::constructFromLiterals";
+    // Construct a list of variables
+    unordered_set<Enode *> var_set;
+    for (auto const & lit : lit_vec) {
+        unordered_set<Enode *> const & temp_vars = lit->get_vars();
+        var_set.insert(temp_vars.begin(), temp_vars.end());
+    }
+    std::copy(var_set.begin(), var_set.end(), std::back_inserter(m_vars));
+    std::sort(m_vars.begin(), m_vars.end(),
+              [](Enode const * e1, Enode const * e2) {
+                  return e1->getCar()->getName() < e2->getCar()->getName();
+              });
+    constructFromVariables(m_vars);
+    return;
+}
+std::ostream& operator<<(ostream& out, box const & b);
 
 ostream& operator<<(ostream& out, box const & b) {
-    DREAL_LOG_INFO << "box size = " << b.size();
-    for (auto const & v : b.m_vec) {
-        out << "\t" << v << endl;
+    unsigned const s = b.size();
+    for (unsigned i = 0; i < s; i++) {
+        Enode * e = b.m_vars[i];
+        ibex::Interval const & v = b.m_values[i];
+        ibex::Interval const & d = b.m_domains[i];
+        out << e->getCar()->getName()
+            << " : " << d << " = " << v << endl;
     }
     return out;
 }
+
+pair<box, box> box::split() const {
+    // TODO(soonhok): implement other split policy
+
+    // static int i = -1;
+    // i++;
+    // i = i % size();
+    // return split(i);
+
+    return split(m_values.extr_diam_index(false));
+}
+
+// Split a box into two boxes by bisecting i-th interval.
+pair<box, box> box::split(int i) const {
+    DREAL_LOG_INFO << "box::split(" << i << ")";
+    assert(0 <= i && i < m_values.size());
+    box b1(*this);
+    box b2(*this);
+    ibex::Interval iv = b1.m_values[i];
+    pair<ibex::Interval, ibex::Interval> new_intervals = iv.bisect();
+    b1.m_values[i] = new_intervals.first;
+    b2.m_values[i] = new_intervals.second;
+    return make_pair(b1, b2);
+}
+
 }
