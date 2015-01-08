@@ -348,7 +348,7 @@ public:
   unsigned       sizeInMem              ( ) const;
 
   void           print_infix( ostream & os, lbool polarity, string const & variable_postfix = "") const;
-  void           print                  ( ostream & ); // Prints the
+  void           print                  ( ostream & ) const; // Prints the
 
   string         stripName              ( string ) const;
   void           printSig               ( ostream & ); // Prints the enode signature
@@ -361,7 +361,7 @@ public:
   inline enodeid_t               getSigCar ( ) const { return car->getRoot( )->getCid( ); }
   inline enodeid_t               getSigCdr ( ) const { return cdr->getRoot( )->getCid( ); }
 
-  inline friend ostream &  operator<<( ostream & os, Enode * e )    { assert( e ); e->print( os ); return os; }
+  inline friend ostream &  operator<<( ostream & os, Enode const * const e )    { assert( e ); e->print( os ); return os; }
 
   struct idLessThan
   {

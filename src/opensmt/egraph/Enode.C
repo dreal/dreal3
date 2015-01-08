@@ -436,7 +436,7 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
     } else opensmt_error("unknown case value");
 }
 
-void Enode::print(ostream & os) {
+void Enode::print(ostream & os) const {
     Enode * p = NULL;
     if(isSymb()) {
         os << getName();
