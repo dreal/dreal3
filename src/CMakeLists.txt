@@ -228,6 +228,7 @@ set(EXTRA_LIBS ${EXTRA_LIBS} "json11")
 # External: set up include dir and libpath
 ################################################################
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ibex)
 set(EXTERNAL_LD_FLAGS "-L${CMAKE_CURRENT_BINARY_DIR}/lib")
 
 ################################################################
