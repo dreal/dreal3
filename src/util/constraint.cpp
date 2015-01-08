@@ -24,6 +24,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iterator>
 #include <unordered_map>
 #include <initializer_list>
+#include <iostream>
 #include "opensmt/egraph/Enode.h"
 #include "util/constraint.h"
 
@@ -36,6 +37,27 @@ using std::unordered_set;
 using std::vector;
 
 namespace dreal {
+
+ostream & operator<<(ostream & out, constraint_type const & ty) {
+    switch (ty) {
+    case constraint_type::Algebraic:
+        out << "Algebraic";
+        break;
+    case constraint_type::ODE:
+        out << "ODE";
+        break;
+    case constraint_type::Integral:
+        out << "Integral";
+        break;
+    case constraint_type::ForallT:
+        out << "ForallT";
+        break;
+    default:
+        throw std::logic_error("unmatched case in ostream & operator<<(ostream & out, constraint_type const & ty)");
+    }
+    return out;
+}
+
 
 // ====================================================
 // constraint

@@ -24,6 +24,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <vector>
 #include <initializer_list>
+#include <iostream>
 #include <stdexcept>
 #include <memory>
 #include "opensmt/egraph/Enode.h"
@@ -31,6 +32,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 
 enum class constraint_type { Algebraic, ODE, Integral, ForallT };
+std::ostream & operator<<(std::ostream & out, constraint_type const & ty);
 
 class constraint {
 protected:
