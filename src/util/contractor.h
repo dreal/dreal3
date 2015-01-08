@@ -3,7 +3,7 @@ Author: Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
         Edmund Clarke <emc@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2014, Soonho Kong, Sicun Gao, and Edmund Clarke
+dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,13 +26,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <memory>
 #include "opensmt/egraph/Enode.h"
-#include "util/interval.h"
-#include "util/var.h"
 #include "util/box.h"
 
 namespace dreal {
 
-enum class contractor_kind { Seq, Or, If_Then_Else, While, Parallel_First, Parallel_All, Timeout, Realpaver, CAPD_Forward, CAPD_Backward };
+enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
+        PARALLEL_ALL, TIMEOUT, REALPAVER, CAPD_FORWARD, CAPD_BACKWARD,
+        TRY, IBEX, IBEX_FWDBWD, INT};
 
 class contractor;
 
@@ -40,55 +40,152 @@ class contractor_exception : public std::exception {
     virtual const char* what() const throw();
 };
 
+// Base Cell
 class contractor_cell {
 protected:
     contractor_kind m_kind;
+    mutable std::vector<bool> m_input;
+    mutable std::vector<bool> m_output;
+    mutable std::unordered_set<constraint const *> m_used_constraints;
 public:
+    inline std::vector<bool> input() const { return m_input; }
+    inline std::vector<bool> output() const { return m_output; }
+    inline std::unordered_set<constraint const *> used_constraints() const { return m_used_constraints; }
     virtual box prune(box b) const = 0;
+    contractor_cell(contractor_kind kind) : m_kind(kind) { }
+    virtual ~contractor_cell() { }
 };
 
-class contractor {
+class contractor_ibex_fwdbwd : public contractor_cell {
 private:
-    std::shared_ptr<contractor_cell> m_ptr;
+    algebraic_constraint const * m_ctr;
+    ibex::ExprCtr const * m_exprctr;
+    ibex::NumConstraint const * m_numctr;
+    ibex::Array<ibex::ExprSymbol const> m_var_array;
+    std::unordered_map<int, std::string> m_var_index_map;
+    ibex::Ctc * m_ctc = nullptr;
 
 public:
+    contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
+    ~contractor_ibex_fwdbwd();
     box prune(box b) const;
 };
 
+// // contractor_IBEX : contractor using IBEX
+// class contractor_ibex : public contractor_cell {
+// private:
+//     ibex::Array<ibex::NumConstraint> m_numctrs;
+//     ibex::SystemFactory              m_sf;
+//     ibex::System                     m_sys;
+//     ibex::System *                   m_sys_eqs = nullptr;
+//     ibex::LinearRelaxCombo *         m_lrc = nullptr;
+//     std::vector<ibex::Ctc *>         m_sub_ctcs;
+//     ibex::Ctc *                      m_ctc = nullptr;
+
+// public:
+//     contractor_ibex(box const & box, std::vector<algebraic_constraint *> const & ctrs);
+//     ~contractor_ibex();
+//     box prune(box b) const;
+// };
+
+// contractor_seq : Try C1, C2, ... , Cn sequentially.
 class contractor_seq : public contractor_cell {
 private:
     std::vector<contractor> m_vec;
 public:
-    contractor_seq(std::initializer_list<contractor> l);
+    contractor_seq(std::initializer_list<contractor> const & l);
     box prune(box b) const;
 };
 
-class contractor_or : public contractor_cell {
+// contractor_try : Try C1 if it fails, try C2.
+class contractor_try : public contractor_cell {
 private:
-    contractor m_c1;
-    contractor m_c2;
+    contractor const & m_c1;
+    contractor const & m_c2;
 public:
-    contractor_or(contractor const & c1, contractor const & c2);
+    contractor_try(contractor const & c1, contractor const & c2);
     box prune(box b) const;
 };
 
+// contractor_ite : If then else
 class contractor_ite : public contractor_cell {
 private:
     std::function<bool(box)> m_guard;
-    contractor m_c_then;
-    contractor m_c_else;
+    contractor const & m_c_then;
+    contractor const & m_c_else;
 public:
     contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
     box prune(box b) const;
 };
 
-class contractor_while : public contractor_cell {
+// contractor_fixpoint
+// Repeatedly applying the contractor while the condition is met
+class contractor_fixpoint : public contractor_cell {
 private:
     std::function<bool(box const &, box const &)> m_guard;
-    contractor m_c;
+    std::vector<contractor> m_clist;
 public:
-    contractor_while(std::function<bool(box const &, box const &)> guard, contractor const & c);
+    contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
+    contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
+    contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
     box prune(box b) const;
 };
 
+class contractor_int : public contractor_cell {
+private:
+public:
+    contractor_int();
+    box prune(box b) const;
+};
+
+class contractor_capd_forward : public contractor_cell {
+private:
+    ode_constraint const * m_ctr;
+public:
+    contractor_capd_forward();
+    box prune(box b) const;
+};
+
+class contractor_capd_backward : public contractor_cell {
+private:
+    ode_constraint const * m_ctr;
+public:
+    contractor_capd_backward();
+    box prune(box b) const;
+};
+
+
+// Wrapper on contractor_cell and its derived classes
+class contractor {
+private:
+    std::shared_ptr<contractor_cell const> m_ptr;
+
+public:
+    contractor() : m_ptr(nullptr) { }
+    contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) { }
+    ~contractor() { m_ptr.reset(); }
+
+    inline std::vector<bool> input() const { return m_ptr->input(); }
+    inline std::vector<bool> output() const { return m_ptr->output(); }
+    inline std::unordered_set<constraint const *> used_constraints() const { return m_ptr->used_constraints(); }
+    inline box prune(box b) const { b = m_ptr->prune(b); return b; };
+
+    friend contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
+    friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
+    friend contractor mk_contractor_try(contractor const & c1, contractor const & c2);
+    friend contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
+    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
+    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
+    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
+    friend contractor mk_contractor_int();
+};
+
+contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
+contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
+contractor mk_contractor_try(contractor const & c1, contractor const & c2);
+contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
+contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
+contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
+contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
+contractor mk_contractor_int();
 }
