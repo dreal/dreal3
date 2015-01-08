@@ -54,6 +54,8 @@ void box::constructFromVariables(vector<Enode *> const & vars) {
     DREAL_LOG_INFO << "box::constructFromVariables";
     m_vars = vars;
     // Construct ibex::IntervalVector
+    m_values.resize(m_vars.size());
+    m_domains.resize(m_vars.size());
     unsigned num_var = m_vars.size();
     for (unsigned i = 0; i < num_var; i++) {
         Enode const * const e = m_vars[i];
