@@ -19,19 +19,30 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <gflags/gflags.h>
 #include <iomanip>
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <stack>
 #include <string>
 #include <utility>
-#include "util/logging.h"
-#include "util/interval.h"
-#include "util/string.h"
+#include <vector>
 #include "dsolvers/nra_solver.h"
-#include <gflags/gflags.h>
+#include "ibex/ibex.h"
+#include "util/box.h"
+#include "util/constraint.h"
+#include "util/contractor.h"
+#include "util/ibex_enode.h"
+#include "util/logging.h"
+#include "util/stat.h"
 
+using ibex::IntervalVector;
 using std::boolalpha;
+using std::logic_error;
+using std::pair;
+using std::stack;
+using std::vector;
 
 namespace dreal {
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
@@ -40,14 +51,17 @@ nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, S
 }
 
 nra_solver::~nra_solver() {
+    for (auto it_ctr : m_ctrs) {
+        delete it_ctr;
+    }
+    DREAL_LOG_FATAL << m_stat;
 }
 
 // `inform` sets up env (mapping from variables(enode) in literals to their [lb, ub])
 lbool nra_solver::inform(Enode * e) {
+    DREAL_LOG_INFO << "nra_solver::inform: " << e;
+    // Collect Literal
     m_lits.push_back(e);
-    for (Enode * const v : e->get_vars()) {
-        m_box.add(v);
-    }
     return l_Undef;
 }
 
@@ -56,6 +70,7 @@ lbool nra_solver::inform(Enode * e) {
 // state will be checked with "check" assertLit adds a literal(e) to
 // stack of asserted literals.
 bool nra_solver::assertLit (Enode * e, bool reason) {
+    m_stat.increase_assert();
     DREAL_LOG_INFO << "nra_solver::assertLit: " << e
                    << ", reason: " << boolalpha << reason
                    << ", polarity: " << e->getPolarity().toInt()
@@ -70,17 +85,90 @@ bool nra_solver::assertLit (Enode * e, bool reason) {
         DREAL_LOG_INFO << "nra_solver::assertLit: " << e << " is deduced";
         return true;
     }
-    m_stack.push_back(e);
+    m_stack.push_back(m_ctr_map[e]);
     return true;
+}
+
+// Given a list of theory literals (vector<Enode *>), build a list of constraints vector<constraint *>
+std::vector<constraint *> nra_solver::initialize_constraints() {
+    std::vector<constraint *> ctrs;
+
+    // Collect Algebrac constraints.
+    // Partition ODE-related constraint into integrals and forallTs
+    std::vector<integral_constraint> ints;
+    std::vector<forallt_constraint> invs;
+    for (Enode * l : m_lits) {
+        if (l->isIntegral()) {
+            integral_constraint ic(l);
+            ints.push_back(ic);
+        } else if (l->isForallT()) {
+            forallt_constraint fc(l);
+            invs.push_back(fc);
+        } else {
+            algebraic_constraint * ac = new algebraic_constraint(l);
+            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect AlgebraicConstraint: " << *ac;
+            ctrs.push_back(ac);
+            m_ctr_map.emplace(l, ac);
+        }
+    }
+    // Attach the corresponding forallT literals to integrals
+    for (integral_constraint ic : ints) {
+        std::vector<forallt_constraint> local_invs;
+        for (forallt_constraint fc : invs) {
+            // Link ForallTConstraint fc with IntegralConstraint ic, if
+            //    fc.flow == ic.flow
+            //    vars(fc.inv) \subseteq ic.vars_t
+            if (fc.get_flow() == ic.get_flow()) {
+                unordered_set<Enode *> vars_in_fc = fc.get_inv()->get_vars();
+                bool const included = all_of(vars_in_fc.begin(), vars_in_fc.end(),
+                       [&ic](Enode const * var_in_fc) {
+                           vector<Enode *> const & vars_t_in_ic = ic.get_vars_t();
+                           return find(vars_t_in_ic.begin(), vars_t_in_ic.end(), var_in_fc) != vars_t_in_ic.end();
+                       });
+                if (included) {
+                    local_invs.push_back(fc);
+                }
+                ode_constraint * oc = new ode_constraint(ic, local_invs);
+                ctrs.push_back(oc);
+                m_ctr_map.emplace(ic.get_enodes()[0], oc);
+                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ODEConstraint: " << *oc;
+            }
+        }
+    }
+    return ctrs;
+}
+
+contractor nra_solver::build_contractors(box const & box, scoped_vec<constraint *> const &ctrs) {
+    vector<contractor> alg_ctcs;
+    vector<ode_constraint *> ode_ctrs;
+    for (constraint * const ctr : ctrs) {
+        if (ctr->get_type() == constraint_type::Algebraic) {
+            alg_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, dynamic_cast<algebraic_constraint *>(ctr)));
+        } else if (ctr->get_type() == constraint_type::ODE) {
+            ode_ctrs.push_back(dynamic_cast<ode_constraint *>(ctr));
+        }
+    }
+    auto guard_fn = [](dreal::box const & old_box, dreal::box const & new_box) {
+        double const threshold = 0.50;
+        return (new_box.volume() / old_box.volume()) < threshold;
+    };
+    return mk_contractor_fixpoint(guard_fn, alg_ctcs);
 }
 
 // Saves a backtrack point You are supposed to keep track of the
 // operations, for instance in a vector called "undo_stack_term", as
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint () {
+    m_stat.increase_push();
     DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
-    // _stack
+    if (m_stack.size() == 0) {
+        m_box.constructFromLiterals(m_lits);
+        m_ctrs = initialize_constraints();
+    }
     m_stack.push();
+    m_used_constraint_vec.push();
+    m_boxes.push_back(m_box);
+    m_boxes.push();
 }
 
 // Restore a previous state. You can now retrieve the size of the
@@ -89,20 +177,69 @@ void nra_solver::pushBacktrackPoint () {
 // backtrackToStackSize() in EgraphSolver) Also make sure you clean
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint () {
+    m_stat.increase_pop();
     DREAL_LOG_INFO << "nra_solver::popBacktrackPoint\t m_stack.size()      = " << m_stack.size();
+    m_boxes.pop();
+    m_box = m_boxes.last();
+    m_used_constraint_vec.pop();
     m_stack.pop();
 }
 
 // Check for consistency.
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
+    m_stat.increase_check(complete);
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")";
-    DREAL_LOG_INFO << "nra_solver::check: box";
-    DREAL_LOG_INFO << m_box;
-    if (complete) {
-        return false;
+    // TODO(soonhok): parameterize precision
+    double prec = 0.001;
+    m_ctc = build_contractors(m_box, m_stack);
+    m_box = m_ctc.prune(m_box);
+    if (complete && !m_box.is_empty() && m_box.max_diam() > prec) {
+        stack<box> box_stack;
+        box_stack.push(m_box);
+        while (box_stack.size() > 0) {
+            DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")"
+                           << "\t" << "box stack Size = " << box_stack.size();
+            m_box = box_stack.top();
+            box_stack.pop();
+            m_box = m_ctc.prune(m_box);
+            if (!m_box.is_empty()) {
+                if (m_box.max_diam() > prec) {
+                    pair<box, box> splits = m_box.split();
+                    box_stack.push(splits.first);
+                    box_stack.push(splits.second);
+                } else {
+                    break;
+                }
+            }
+        }
     }
-    return true;
+    if (complete && !m_box.is_empty() && m_box.max_diam() <= prec) {
+        DREAL_LOG_FATAL << "Solution:";
+        DREAL_LOG_FATAL << m_box;
+        return true;
+    }
+    bool result = !m_box.is_empty();
+    DREAL_LOG_INFO << "nra_solver::check: result = " << boolalpha << result;
+    for (constraint const * ctr : m_ctc.used_constraints()) {
+        m_used_constraint_vec.push_back(ctr);
+    }
+    if (!result) {
+        explanation = generate_explanation(m_used_constraint_vec);
+        // DREAL_LOG_FATAL << "nra_solver::check: explanation size = " << explanation.size();
+    }
+    return result;
+}
+
+vector<Enode *> nra_solver::generate_explanation(scoped_vec<constraint const *> const & ctr_vec) {
+    vector<Enode *> exps;
+    unordered_set<Enode *> bag;
+    for (constraint const * ctr : ctr_vec) {
+        vector<Enode *> const & enodes_in_ctr = ctr->get_enodes();
+        bag.insert(enodes_in_ctr.begin(), enodes_in_ctr.end());
+    }
+    copy(bag.begin(), bag.end(), back_inserter(exps));
+    return exps;
 }
 
 // Return true if the enode belongs to this theory. You should examine

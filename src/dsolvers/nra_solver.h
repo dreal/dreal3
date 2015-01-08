@@ -20,17 +20,40 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include <set>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
 #include "config.h"
-#include "util/scoped_vec.h"
+#include "ibex/ibex.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
-// #include "realpaver/realpaver.h"
-#include "util/var.h"
 #include "util/box.h"
+#include "util/constraint.h"
+#include "util/contractor.h"
+#include "util/logging.h"
+#include "util/scoped_vec.h"
+#include "util/stat.h"
+
+namespace std {
+template<>
+struct hash<ibex::Variable> {
+    size_t operator () (const ibex::Variable & v) const {
+        int h = 0;
+        char const * str = v.symbol->name;
+        while (*str)
+            h = h << 1 ^ *str++;
+        return h;
+    }
+};
+template<>
+struct equal_to<ibex::Variable> {
+    bool operator() (const ibex::Variable & v1, const ibex::Variable & v2) const {
+        return strcmp(v1.symbol->name, v2.symbol->name) == 0;
+    }
+};
+}
 
 namespace dreal {
 class nra_solver : public OrdinaryTSolver {
@@ -47,8 +70,24 @@ public:
     void  computeModel();
 
 private:
-    box m_box;
+    // std::unordered_map<std::string, ibex::Variable const> m_var_map;
+    // std::unordered_map<Enode*, ibex::ExprCtr const *> m_lit_ctr_map;
+    // std::unordered_map<Enode*, ibex::Ctc *> m_lit_ctc_map;
+    // std::unordered_set<Enode *> m_var_set;
+    // std::vector<Enode *> m_var_vec;  // unsigned int -> Enode* (Variable)
     std::vector<Enode *> m_lits;
-    scoped_vec<Enode *>  m_stack;
+    scoped_vec<constraint *>  m_stack;
+    scoped_vec<constraint const *>  m_used_constraint_vec;
+    scoped_vec<box> m_boxes;
+    std::vector<constraint *> m_ctrs;
+    std::unordered_map<Enode*, constraint *> m_ctr_map;
+
+    contractor m_ctc;
+    box m_box;
+    stat m_stat;
+
+    contractor build_contractors(box const & box, scoped_vec<constraint *> const & ctrs);
+    std::vector<constraint *> initialize_constraints();
+    std::vector<Enode *> generate_explanation(scoped_vec<constraint const *> const & ctr_vec);
 };
 }
