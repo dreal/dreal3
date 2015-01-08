@@ -42,18 +42,28 @@ using std::unordered_set;
 
 namespace dreal {
 
-contractor_capd_forward::contractor_capd_forward() : contractor_cell(contractor_kind::CAPD_FORWARD) {
+contractor_capd_fwd::contractor_capd_fwd(box const & box, ode_constraint const * const ctr)
+    : contractor_cell(contractor_kind::CAPD_FWD), m_ctr(ctr) {
 }
-box contractor_capd_forward::prune(box b) const {
+box contractor_capd_fwd::prune(box b) const {
     // TODO(soonhok): implement this
     return b;
 }
 
-contractor_capd_backward::contractor_capd_backward() : contractor_cell(contractor_kind::CAPD_BACKWARD) {
+contractor_capd_bwd::contractor_capd_bwd(box const & box, ode_constraint const * const ctr)
+    : contractor_cell(contractor_kind::CAPD_BWD), m_ctr(ctr) {
 }
-box contractor_capd_backward::prune(box b) const {
+box contractor_capd_bwd::prune(box b) const {
     // TODO(soonhok): implement this
     return b;
 }
+
+contractor mk_contractor_capd_fwd(box const & box, ode_constraint const * const ctr) {
+    return contractor(shared_ptr<contractor_cell>(new contractor_capd_fwd(box, ctr)));
+}
+contractor mk_contractor_capd_bwd(box const & box, ode_constraint const * const ctr) {
+    return contractor(shared_ptr<contractor_cell>(new contractor_capd_bwd(box, ctr)));
+}
+
 
 }

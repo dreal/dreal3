@@ -31,7 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 
 enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
-        PARALLEL_ALL, TIMEOUT, REALPAVER, CAPD_FORWARD, CAPD_BACKWARD,
+        PARALLEL_ALL, TIMEOUT, REALPAVER, CAPD_FWD, CAPD_BWD,
         TRY, IBEX, IBEX_FWDBWD, INT};
 
 class contractor;
@@ -138,19 +138,19 @@ public:
     box prune(box b) const;
 };
 
-class contractor_capd_forward : public contractor_cell {
+class contractor_capd_fwd : public contractor_cell {
 private:
     ode_constraint const * m_ctr;
 public:
-    contractor_capd_forward();
+    contractor_capd_fwd(box const & box, ode_constraint const * const ctr);
     box prune(box b) const;
 };
 
-class contractor_capd_backward : public contractor_cell {
+class contractor_capd_bwd : public contractor_cell {
 private:
     ode_constraint const * m_ctr;
 public:
-    contractor_capd_backward();
+    contractor_capd_bwd(box const & box, ode_constraint const * const ctr);
     box prune(box b) const;
 };
 
@@ -178,6 +178,8 @@ public:
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
     friend contractor mk_contractor_int();
+    friend contractor mk_contractor_capd_fwd(box const & box, ode_constraint const * const ctr);
+    friend contractor mk_contractor_capd_bwd(box const & box, ode_constraint const * const ctr);
 };
 
 contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
@@ -188,4 +190,6 @@ contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> 
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
 contractor mk_contractor_int();
+contractor mk_contractor_capd_fwd(box const & box, ode_constraint const * const ctr);
+contractor mk_contractor_capd_bwd(box const & box, ode_constraint const * const ctr);
 }
