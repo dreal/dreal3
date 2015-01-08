@@ -47,7 +47,8 @@ using std::vector;
 namespace dreal {
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
-    : OrdinaryTSolver (i, n, c, e, t, x, d, s) {
+    : OrdinaryTSolver (i, n, c, e, t, x, d, s), m_box(vector<Enode*>({})) {
+    if (c.nra_precision == 0.0) c.nra_precision = 0.001;
 }
 
 nra_solver::~nra_solver() {
@@ -190,8 +191,7 @@ void nra_solver::popBacktrackPoint () {
 bool nra_solver::check(bool complete) {
     m_stat.increase_check(complete);
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")";
-    // TODO(soonhok): parameterize precision
-    double prec = 0.001;
+    double const prec = config.nra_precision;
     m_ctc = build_contractors(m_box, m_stack);
     m_box = m_ctc.prune(m_box);
     if (complete && !m_box.is_empty() && m_box.max_diam() > prec) {

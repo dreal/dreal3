@@ -40,13 +40,14 @@ using std::unordered_set;
 using std::vector;
 
 namespace dreal {
-box::box() { }
-box::box(std::vector<Enode *> const & vars) : m_vars(vars) {
+box::box(std::vector<Enode *> const & vars)
+    : m_vars(vars), m_values(m_vars.size()), m_domains(m_vars.size())
+{
     constructFromVariables(m_vars);
 }
 
 box::box(std::vector<Enode *> const & vars, ibex::IntervalVector values)
-    : m_vars(vars), m_values(values) { }
+    : m_vars(vars), m_values(values), m_domains(values) { }
 
 
 void box::constructFromVariables(vector<Enode *> const & vars) {
@@ -54,10 +55,6 @@ void box::constructFromVariables(vector<Enode *> const & vars) {
     m_vars = vars;
     // Construct ibex::IntervalVector
     unsigned num_var = m_vars.size();
-    m_values.resize(num_var);
-    m_domains.resize(num_var);
-    DREAL_LOG_INFO << "box::constructFromVariables\t" << num_var;
-    DREAL_LOG_INFO << "box::constructFromVariables\t" << m_values.size();
     for (unsigned i = 0; i < num_var; i++) {
         Enode const * const e = m_vars[i];
         double const lb = e->getLowerBound();
