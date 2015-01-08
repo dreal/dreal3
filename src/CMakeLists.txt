@@ -128,20 +128,6 @@ JOIN("${CMAKE_CXX_FLAGS}" "," EXTERNAL_CXX_FLAGS)
 JOIN("${DREAL_EXTRA_LINKER_FLAGS}" "," EXTERNAL_LD_FLAGS)
 
 ################################################################
-# External: FILIB++
-################################################################
-ExternalProject_Add(FILIBXX
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/soonhokong/filibxx
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXX_FLAGS=${EXTERNAL_CXX_FLAGS}" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR}
-  BUILD_COMMAND make -j
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make -j install
-)
-
-################################################################
 # External: CAPD-DynSys-4.0
 ################################################################
 ExternalProject_Add(CAPD4
@@ -154,21 +140,23 @@ ExternalProject_Add(CAPD4
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make -j install
 )
+set(EXTRA_LIBS ${EXTRA_LIBS} "-lcapd")
+set(ODE_ENABLED TRUE)
 
 ################################################################
 # External: ibex
 ################################################################
 ExternalProject_Add(IBEX
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/ibex-team/ibex-lib.git
+  GIT_REPOSITORY https://github.com/soonhokong/ibex-lib.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR}
-  BUILD_COMMAND ./waf build
+  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR} #--with-clp=${CMAKE_CURRENT_BINARY_DIR}/external/CLP/
+  BUILD_COMMAND ./waf build || ./waf build
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND ./waf install
+  INSTALL_COMMAND ./waf install || ./waf install
 )
-
+set(EXTRA_LIBS ${EXTRA_LIBS} "ibex" "prim" "Clp" "CoinUtils")
 
 ################################################################
 # Threads
@@ -252,17 +240,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 ################################################################
-# CAPD LIB
-################################################################
-set(EXTRA_LIBS ${EXTRA_LIBS} "-lcapd")
-set(ODE_ENABLED TRUE)
-
-################################################################
-# FILIB LIB
-################################################################
-set(EXTRA_LIBS ${EXTRA_LIBS} "-lprim")
-
-################################################################
 # PTHREAD LIB
 ################################################################
 set(EXTRA_LIBS ${EXTRA_LIBS} "-lpthread")
@@ -278,6 +255,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   else()
     message(STATUS "Use built-in EGLIBC.")
   endif()
+endif()
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--rpath=${DREAL_BINARY_DIR}/lib")
 endif()
 
 ################################################################
@@ -318,9 +299,11 @@ add_subdirectory(tests/c_api)
 
 #dependencies
 add_dependencies(GLOG GFLAGS)
-add_dependencies(util FILIBXX)
+add_dependencies(util IBEX)
 add_dependencies(util GLOG)
 add_dependencies(util GFLAGS)
+add_dependencies(dsolvers util)
+add_dependencies(opensmt_api dsolvers)
 add_dependencies(dsolvers JSON11)
 add_dependencies(dsolvers CAPD4)
 add_dependencies(dsolvers IBEX)
