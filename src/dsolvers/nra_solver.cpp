@@ -102,10 +102,10 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
     std::vector<forallt_constraint> invs;
     for (Enode * l : m_lits) {
         if (l->isIntegral()) {
-            integral_constraint ic(l);
+            integral_constraint ic = mk_integral_constraint(l, egraph.flow_maps);
             ints.push_back(ic);
         } else if (l->isForallT()) {
-            forallt_constraint fc(l);
+            forallt_constraint fc = mk_forallt_constraint(l);
             invs.push_back(fc);
         } else {
             algebraic_constraint * ac = new algebraic_constraint(l);
@@ -155,6 +155,9 @@ contractor nra_solver::build_contractors(box const & box, scoped_vec<constraint 
         double const threshold = 0.50;
         return (new_box.volume() / old_box.volume()) < threshold;
     };
+
+    // std::unordered_map<string, std::unordered_map<string, Enode *>> flow_maps;
+
     return mk_contractor_fixpoint(guard_fn, alg_ctcs);
 }
 

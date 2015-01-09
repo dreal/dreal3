@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <vector>
+#include <string>
 #include <algorithm>
 #include <iterator>
 #include <unordered_map>
@@ -33,8 +34,11 @@ using std::copy;
 using std::endl;
 using std::initializer_list;
 using std::ostream;
+using std::string;
+using std::unordered_map;
 using std::unordered_set;
 using std::vector;
+using std::to_string;
 
 namespace dreal {
 
@@ -64,7 +68,7 @@ ostream & operator<<(ostream & out, constraint_type const & ty) {
 // ====================================================
 constraint::constraint(constraint_type ty) : m_type(ty) {
 }
-constraint::constraint(constraint_type ty, Enode * e)
+constraint::constraint(constraint_type ty, Enode * const e)
     : m_type(ty), m_enodes(1, e), m_vars(e->get_vars()) {
 }
 
@@ -79,10 +83,10 @@ unordered_set<Enode *> build_vars_from_enodes(initializer_list<vector<Enode *>> 
     return ret;
 }
 
-constraint::constraint(constraint_type ty, std::vector<Enode *> const & enodes)
+constraint::constraint(constraint_type ty, vector<Enode *> const & enodes)
     : m_type(ty), m_enodes(enodes), m_vars(build_vars_from_enodes({enodes})) {
 }
-constraint::constraint(constraint_type ty, std::vector<Enode *> const & enodes_1, std::vector<Enode *> const & enodes_2)
+constraint::constraint(constraint_type ty, vector<Enode *> const & enodes_1, vector<Enode *> const & enodes_2)
     : m_type(ty), m_enodes(enodes_1), m_vars(build_vars_from_enodes({enodes_1, enodes_2})) {
     copy(enodes_2.begin(), enodes_2.end(), back_inserter(m_enodes));
 }
@@ -93,7 +97,7 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // ====================================================
 // Algebraic constraint
 // ====================================================
-algebraic_constraint::algebraic_constraint(Enode * e)
+algebraic_constraint::algebraic_constraint(Enode * const e)
     : constraint(constraint_type::Algebraic, e) {
 }
 algebraic_constraint::~algebraic_constraint() { }
@@ -126,26 +130,39 @@ ostream & ode_constraint::display(ostream & out) const {
 // ====================================================
 // Integral constraint
 // ====================================================
-integral_constraint::integral_constraint(Enode * e)
-    : constraint(constraint_type::Integral, e) {
+integral_constraint mk_integral_constraint(Enode * const e, unordered_map<string, unordered_map<string, Enode *>> const & flow_maps) {
     // nra_solver::inform: (integral 2 0 time_9 v_9_0 v_9_t x_9_0 x_9_t)
-    e = e->getCdr();
-    m_flow = e->getCar()->getValue();
-    e = e->getCdr();
+    Enode const * tmp = e->getCdr();
+    unsigned flow = tmp->getCar()->getValue();
+    tmp = tmp->getCdr();
 
-    m_time_0 = e->getCar();
-    e = e->getCdr();
+    Enode * const time_0 = tmp->getCar();
+    tmp = tmp->getCdr();
 
-    m_time_t = e->getCar();
-    e = e->getCdr();
+    Enode * const time_t = tmp->getCar();
+    tmp = tmp->getCdr();
 
-    while (!e->isEnil()) {
-        m_vars_0.push_back(e->getCar());
-        e = e->getCdr();
-        m_vars_t.push_back(e->getCar());
-        e = e->getCdr();
+    vector<Enode *> vars_0, vars_t;
+    while (!tmp->isEnil()) {
+        vars_0.push_back(tmp->getCar());
+        tmp = tmp->getCdr();
+        vars_t.push_back(tmp->getCar());
+        tmp = tmp->getCdr();
+    }
+    string key = string("flow_") + to_string(flow);
+    auto const it = flow_maps.find(key);
+    if (it != flow_maps.end()) {
+        unordered_map<string, Enode *> const & flow_map = it->second;
+        return integral_constraint(e, flow, time_0, time_t, vars_0, vars_t, flow_map);
+    } else {
+        throw std::logic_error(key + " is not in flow_map. Failed to create integral constraint");
     }
 }
+integral_constraint::integral_constraint(Enode * const e, unsigned const flow, Enode * const time_0, Enode * const time_t,
+                                         vector<Enode *> const & vars_0, vector<Enode *> const & vars_t,
+                                         unordered_map<string, Enode *> const & flow_map)
+    : constraint(constraint_type::Integral, e),
+      m_flow(flow), m_time_0(time_0), m_time_t(time_t), m_vars_0(vars_0), m_vars_t(vars_t), m_flow_map(flow_map) { }
 integral_constraint::~integral_constraint() {
 }
 ostream & integral_constraint::display(ostream & out) const {
@@ -161,23 +178,28 @@ ostream & integral_constraint::display(ostream & out) const {
     return out;
 }
 
+
+forallt_constraint mk_forallt_constraint(Enode * const e) {
+    // nra_solver::inform: (forallt 2 0 time_9 (<= 0 v_9_t))
+    Enode const * tmp = e->getCdr();
+    unsigned const flow = tmp->getCar()->getValue();
+    tmp = tmp->getCdr();
+
+    Enode * const time_0 = tmp->getCar();
+    tmp = tmp->getCdr();
+
+    Enode * const time_t = tmp->getCar();
+    tmp = tmp->getCdr();
+
+    Enode * const inv = tmp->getCar();
+    return forallt_constraint(e, flow, time_0, time_t, inv);
+}
+
 // ====================================================
 // ForallT constraint
 // ====================================================
-forallt_constraint::forallt_constraint(Enode * e)
-    : constraint(constraint_type::ForallT, e) {
-    // nra_solver::inform: (forallt 2 0 time_9 (<= 0 v_9_t))
-    e = e->getCdr();
-    m_flow = e->getCar()->getValue();
-    e = e->getCdr();
-
-    m_time_0 = e->getCar();
-    e = e->getCdr();
-
-    m_time_t = e->getCar();
-    e = e->getCdr();
-
-    m_inv = e->getCar();
+forallt_constraint::forallt_constraint(Enode * const e, unsigned const flow, Enode * const time_0, Enode * const time_t, Enode * const inv)
+    : constraint(constraint_type::ForallT, e), m_flow(flow), m_time_0(time_0), m_time_t(time_t), m_inv(inv) {
 }
 forallt_constraint::~forallt_constraint() {
 }

@@ -36,13 +36,13 @@ std::ostream & operator<<(std::ostream & out, constraint_type const & ty);
 
 class constraint {
 protected:
-    constraint_type m_type;
+    constraint_type const m_type;
     std::vector<Enode *> m_enodes;
     std::unordered_set<Enode *> m_vars;
 
 public:
     constraint(constraint_type ty);
-    constraint(constraint_type ty, Enode * e);
+    constraint(constraint_type ty, Enode * const e);
     constraint(constraint_type ty, std::vector<Enode *> const & enodes);
     constraint(constraint_type ty, std::vector<Enode *> const & enodes_1, std::vector<Enode *> const & enodes_2);
     inline constraint_type const & get_type() const { return m_type; }
@@ -57,46 +57,54 @@ std::ostream & operator<<(ostream & out, constraint const & c);
 
 class algebraic_constraint : public constraint {
 public:
-    algebraic_constraint(Enode * e);
+    algebraic_constraint(Enode * const e);
     virtual ~algebraic_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
 
 class integral_constraint : public constraint {
 private:
-    unsigned m_flow;
-    Enode * m_time_0;
-    Enode * m_time_t;
-    std::vector<Enode *> m_vars_0;
-    std::vector<Enode *> m_vars_t;
+    unsigned const                              m_flow;
+    Enode * const                               m_time_0;
+    Enode * const                               m_time_t;
+    std::vector<Enode *> const                  m_vars_0;
+    std::vector<Enode *> const                  m_vars_t;
+    std::unordered_map<string, Enode *> const & m_flow_map;
 
 public:
-    inline unsigned get_flow()                      const { return m_flow; }
+    inline unsigned get_flow()                       const { return m_flow; }
     inline Enode * get_time_0()                      const { return m_time_0; }
     inline Enode * get_time_t()                      const { return m_time_t; }
     inline std::vector<Enode *> const & get_vars_0() const { return m_vars_0; }
     inline std::vector<Enode *> const & get_vars_t() const { return m_vars_t; }
-    integral_constraint(Enode * e);
+    integral_constraint(Enode * const e, unsigned const flow, Enode * const time_0, Enode * const time_t,
+                        std::vector<Enode *> const & vars_0, std::vector<Enode *> const & vars_t,
+                        std::unordered_map<std::string, Enode *> const & flow_map);
     virtual ~integral_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
 
+integral_constraint mk_integral_constraint(Enode * const e, std::unordered_map<std::string, std::unordered_map<string, Enode *>> const & flow_maps);
+
 class forallt_constraint : public constraint {
 private:
-    unsigned m_flow;
-    Enode * m_time_0;
-    Enode * m_time_t;
-    Enode * m_inv;
+    unsigned const m_flow;
+    Enode * const m_time_0;
+    Enode * const m_time_t;
+    Enode * const m_inv;
 
 public:
-    inline unsigned get_flow() const { return m_flow; }
+    inline unsigned get_flow()  const { return m_flow; }
     inline Enode * get_time_0() const { return m_time_0; }
     inline Enode * get_time_t() const { return m_time_t; }
-    inline Enode * get_inv()   const { return m_inv; }
+    inline Enode * get_inv()    const { return m_inv; }
     forallt_constraint(Enode * e);
+    forallt_constraint(Enode * const e, unsigned const flow, Enode * const time_0, Enode * const time_t, Enode * const inv);
     virtual ~forallt_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
+
+forallt_constraint mk_forallt_constraint(Enode * const e);
 
 class ode_constraint : public constraint {
 private:
