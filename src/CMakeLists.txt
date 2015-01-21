@@ -135,12 +135,12 @@ ExternalProject_Add(CAPD4
   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-4.0.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=yes --disable-shared
+  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=no --disable-shared
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make -j install
 )
-set(EXTRA_LIBS ${EXTRA_LIBS} "-lcapd")
+set(EXTRA_LIBS ${EXTRA_LIBS} "capd")
 set(ODE_ENABLED TRUE)
 
 ################################################################
@@ -300,6 +300,7 @@ add_subdirectory(tests/c_api)
 
 #dependencies
 add_dependencies(GLOG GFLAGS)
+add_dependencies(util CAPD4)
 add_dependencies(util IBEX)
 add_dependencies(util GLOG)
 add_dependencies(util GFLAGS)
