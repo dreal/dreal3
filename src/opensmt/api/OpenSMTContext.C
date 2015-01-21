@@ -595,14 +595,14 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
 
 void OpenSMTContext::DefineODE( char const * name, vector<pair<string, Enode *> *> * odes)
 {
-    unordered_map<string, Enode *> flow;
+    dreal::flow _flow;
     for(auto const & name_odes : *odes) {
-        flow[name_odes->first] = name_odes->second;
+        _flow.add(name_odes->first, name_odes->second);
         delete name_odes;
     }
     string const sname (name);
     egraph.stepped_flows = (sname.find_first_of("_") != sname.find_last_of("_"));
-    egraph.flow_maps[name] = flow;
+    egraph.flow_maps[name] = _flow;
 }
 
 void OpenSMTContext::Push( )

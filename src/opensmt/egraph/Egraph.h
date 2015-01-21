@@ -26,6 +26,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "tsolvers/TSolver.h"
 #include "egraph/SigTab.h"
 #include "common/SplayTree.h"
+#include "util/flow.h"
 
 #ifdef PRODUCE_PROOF
 #include "proof/UFInterpolator.h"
@@ -345,8 +346,8 @@ public:
   bool    isPureLA                 ( Enode * );
 
   /* added for dReal */
-  std::unordered_map<string, std::unordered_map<string, Enode *>> flow_maps;
-  bool                              stepped_flows; //Does flow name have step index?
+  std::unordered_map<string, dreal::flow> flow_maps;
+  bool                                    stepped_flows; //Does flow name have step index?
 
 private:
 
