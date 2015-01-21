@@ -71,22 +71,22 @@ public:
     box prune(box b) const;
 };
 
-// // contractor_IBEX : contractor using IBEX
-// class contractor_ibex : public contractor_cell {
-// private:
-//     ibex::Array<ibex::NumConstraint> m_numctrs;
-//     ibex::SystemFactory              m_sf;
-//     ibex::System                     m_sys;
-//     ibex::System *                   m_sys_eqs = nullptr;
-//     ibex::LinearRelaxCombo *         m_lrc = nullptr;
-//     std::vector<ibex::Ctc *>         m_sub_ctcs;
-//     ibex::Ctc *                      m_ctc = nullptr;
+// contractor_IBEX : contractor using IBEX
+class contractor_ibex : public contractor_cell {
+private:
+    ibex::Array<ibex::NumConstraint> m_numctrs;
+    ibex::SystemFactory              m_sf;
+    ibex::System                     m_sys;
+    ibex::System *                   m_sys_eqs = nullptr;
+    ibex::LinearRelaxCombo *         m_lrc = nullptr;
+    std::vector<ibex::Ctc *>         m_sub_ctcs;
+    ibex::Ctc *                      m_ctc = nullptr;
 
-// public:
-//     contractor_ibex(box const & box, std::vector<algebraic_constraint *> const & ctrs);
-//     ~contractor_ibex();
-//     box prune(box b) const;
-// };
+public:
+    contractor_ibex(box const & box, std::vector<algebraic_constraint *> const & ctrs);
+    ~contractor_ibex();
+    box prune(box b) const;
+};
 
 // contractor_seq : Try C1, C2, ... , Cn sequentially.
 class contractor_seq : public contractor_cell {

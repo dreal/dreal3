@@ -170,62 +170,62 @@ box contractor_ibex_fwdbwd::prune(box b) const {
     DREAL_LOG_DEBUG << b;
     return b;
 }
-// contractor_ibex::contractor_ibex(box const & box, vector<algebraic_constraint *> const & ctrs)
-//     : contractor_cell(contractor_kind::IBEX), m_sf(build_system_factory(box, ctrs)), m_sys(m_sf) {
-//     DREAL_LOG_INFO << "contractor_ibex:";
-//     // TODO(soonhok): parameterize this one.
-//     double const prec = 0.001;
-//     unsigned index = 0;
+contractor_ibex::contractor_ibex(box const & box, vector<algebraic_constraint *> const & ctrs)
+    : contractor_cell(contractor_kind::IBEX), m_sf(build_system_factory(box, ctrs)), m_sys(m_sf) {
+    DREAL_LOG_INFO << "contractor_ibex:";
+    // TODO(soonhok): parameterize this one.
+    double const prec = 0.001;
+    unsigned index = 0;
 
-//     ibex::Array<ibex::Ctc> ctc_list(4);
-//     ibex::CtcHC4 * ctc_hc4 = new ibex::CtcHC4(m_sys.ctrs, 0.01);
-//     ctc_list.set_ref(index++, *ctc_hc4);
-//     m_sub_ctcs.push_back(ctc_hc4);
+    ibex::Array<ibex::Ctc> ctc_list(4);
+    ibex::CtcHC4 * ctc_hc4 = new ibex::CtcHC4(m_sys.ctrs, 0.01);
+    ctc_list.set_ref(index++, *ctc_hc4);
+    m_sub_ctcs.push_back(ctc_hc4);
 
-//     ibex::CtcAcid * ctc_acid = new ibex::CtcAcid(m_sys, *ctc_hc4);
-//     ctc_list.set_ref(index++, *ctc_acid);
-//     m_sub_ctcs.push_back(ctc_acid);
+    ibex::CtcAcid * ctc_acid = new ibex::CtcAcid(m_sys, *ctc_hc4);
+    ctc_list.set_ref(index++, *ctc_acid);
+    m_sub_ctcs.push_back(ctc_acid);
 
-//     m_sys_eqs= square_eq_sys(m_sys);
-//     if (m_sys_eqs) {
-//         DREAL_LOG_INFO << "contractor_ibex: SQUARE SYSTEM";
-//         ibex::CtcNewton * ctc_newton = new ibex::CtcNewton(m_sys_eqs->f, 5e8, prec, 1.e-4);
-//         ctc_list.set_ref(index++, *ctc_newton);
-//         m_sub_ctcs.push_back(ctc_newton);
-//     }
+    m_sys_eqs= square_eq_sys(m_sys);
+    if (m_sys_eqs) {
+        DREAL_LOG_INFO << "contractor_ibex: SQUARE SYSTEM";
+        ibex::CtcNewton * ctc_newton = new ibex::CtcNewton(m_sys_eqs->f, 5e8, prec, 1.e-4);
+        ctc_list.set_ref(index++, *ctc_newton);
+        m_sub_ctcs.push_back(ctc_newton);
+    }
 
-//     m_lrc = new ibex::LinearRelaxCombo(m_sys, ibex::LinearRelaxCombo::XNEWTON);
-//     ibex::CtcPolytopeHull * ctc_ph = new ibex::CtcPolytopeHull(*m_lrc, ibex::CtcPolytopeHull::ALL_BOX);
-//     ibex::CtcCompo * ctc_combo = new ibex::CtcCompo(*ctc_ph, *ctc_hc4);
-//     m_sub_ctcs.push_back(ctc_ph);
-//     m_sub_ctcs.push_back(ctc_combo);
-//     ibex::CtcFixPoint * ctc_fp = new ibex::CtcFixPoint(*ctc_combo);
-//     m_sub_ctcs.push_back(ctc_fp);
-//     ctc_list.set_ref(index++, *ctc_fp);
+    m_lrc = new ibex::LinearRelaxCombo(m_sys, ibex::LinearRelaxCombo::XNEWTON);
+    ibex::CtcPolytopeHull * ctc_ph = new ibex::CtcPolytopeHull(*m_lrc, ibex::CtcPolytopeHull::ALL_BOX);
+    ibex::CtcCompo * ctc_combo = new ibex::CtcCompo(*ctc_ph, *ctc_hc4);
+    m_sub_ctcs.push_back(ctc_ph);
+    m_sub_ctcs.push_back(ctc_combo);
+    ibex::CtcFixPoint * ctc_fp = new ibex::CtcFixPoint(*ctc_combo);
+    m_sub_ctcs.push_back(ctc_fp);
+    ctc_list.set_ref(index++, *ctc_fp);
 
-//     ctc_list.resize(index);
-//     m_ctc = new ibex::CtcCompo (ctc_list);
-//     DREAL_LOG_INFO << "contractor_ibex: DONE";
-// }
+    ctc_list.resize(index);
+    m_ctc = new ibex::CtcCompo (ctc_list);
+    DREAL_LOG_INFO << "contractor_ibex: DONE";
+}
 
-// contractor_ibex::~contractor_ibex() {
-//     DREAL_LOG_INFO << "~contractor_ibex: DELETED";
-//     delete m_lrc;
-//     for (ibex::Ctc * sub_ctc : m_sub_ctcs) {
-//         delete sub_ctc;
-//     }
-//     delete m_ctc;
-//     delete m_sys_eqs;
-// }
+contractor_ibex::~contractor_ibex() {
+    DREAL_LOG_INFO << "~contractor_ibex: DELETED";
+    delete m_lrc;
+    for (ibex::Ctc * sub_ctc : m_sub_ctcs) {
+        delete sub_ctc;
+    }
+    delete m_ctc;
+    delete m_sys_eqs;
+}
 
-// box contractor_ibex::prune(box b) const {
-//     try {
-//         m_ctc->contract(b.get_values());
-//     } catch(ibex::EmptyBoxException&) {
-//         assert(b.is_empty());
-//     }
-//     return b;
-// }
+box contractor_ibex::prune(box b) const {
+    try {
+        m_ctc->contract(b.get_values());
+    } catch(ibex::EmptyBoxException&) {
+        assert(b.is_empty());
+    }
+    return b;
+}
 
 contractor_seq::contractor_seq(initializer_list<contractor> const & l)
     : contractor_cell(contractor_kind::SEQ), m_vec(l) { }
