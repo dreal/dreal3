@@ -67,8 +67,14 @@
 (declare-fun mode_8 () Real)
 (declare-fun mode_9 () Real)
 (declare-fun mode_10 () Real)
-(define-ode flow_1 ((= d/dt[x] v) (= d/dt[v] (+ (- 0.000000 9.800000) (* -0.450000 (^ v 1.000000))))))
-(define-ode flow_2 ((= d/dt[x] v) (= d/dt[v] (+ (- 0.000000 9.800000) (* -0.450000 (^ v 1.000000))))))
+(define-ode flow_1 (
+(= d/dt[v] (+ (- 0.000000 9.800000) (* -0.450000 v)))
+(= d/dt[x] v) 
+))
+(define-ode flow_2 (
+(= d/dt[v] (+ (- 0.000000 9.800000) (* -0.450000 v)))
+(= d/dt[x] v) 
+))
 (assert (<= 0.000000 x_0_0))
 (assert (<= x_0_0 15.000000))
 (assert (<= 0.000000 x_0_t))
