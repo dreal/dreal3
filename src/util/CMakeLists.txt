@@ -9,8 +9,10 @@ add_library(util
   constraint.cpp
   contractor.cpp
   contractor_capd.cpp
+  flow.cpp
   ibex_enode.cpp
   stat.cpp
+  string.cpp
   "${DREAL_BINARY_DIR}/git_sha1.cpp"
   "${DREAL_SOURCE_DIR}/util/git_sha1.h"
   )
