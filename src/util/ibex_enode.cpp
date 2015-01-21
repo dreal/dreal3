@@ -65,14 +65,14 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
         switch (id) {
         case ENODE_ID_PLUS:
             e = e->getCdr()->getCdr(); // e is pointing to the 2nd arg
-            while(!e->isEnil()) {
+            while (!e->isEnil()) {
                 ret = &(*ret + *translate_enode_to_exprnode(var_map, e->getCar()));
                 e = e->getCdr();
             }
             return ret;
         case ENODE_ID_MINUS:
             e = e->getCdr()->getCdr(); // e is pointing to the 2nd arg
-            while(!e->isEnil()) {
+            while (!e->isEnil()) {
                 ret = &(*ret - *translate_enode_to_exprnode(var_map, e->getCar()));
                 e = e->getCdr();
             }
@@ -82,14 +82,14 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
             return &(- *ret);
         case ENODE_ID_TIMES:
             e = e->getCdr()->getCdr(); // e is pointing to the 2nd arg
-            while(!e->isEnil()) {
+            while (!e->isEnil()) {
                 ret = &(*ret * *translate_enode_to_exprnode(var_map, e->getCar()));
                 e = e->getCdr();
             }
             return ret;
         case ENODE_ID_DIV:
             e = e->getCdr()->getCdr(); // e is pointing to the 2nd arg
-            while(!e->isEnil()) {
+            while (!e->isEnil()) {
                 ret = &(*ret / *translate_enode_to_exprnode(var_map, e->getCar()));
                 e = e->getCdr();
             }
