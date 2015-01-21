@@ -26,8 +26,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <initializer_list>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 #include <memory>
 #include "opensmt/egraph/Enode.h"
+#include "util/flow.h"
 
 namespace dreal {
 
@@ -64,42 +66,44 @@ public:
 
 class integral_constraint : public constraint {
 private:
-    unsigned const                              m_flow;
-    Enode * const                               m_time_0;
-    Enode * const                               m_time_t;
-    std::vector<Enode *> const                  m_vars_0;
-    std::vector<Enode *> const                  m_vars_t;
-    std::unordered_map<string, Enode *> const & m_flow_map;
+    unsigned const             m_flow_id;
+    Enode * const              m_time_0;
+    Enode * const              m_time_t;
+    std::vector<Enode *> const m_vars_0;
+    std::vector<Enode *> const m_vars_t;
+    flow const                 m_flow;
 
 public:
-    inline unsigned get_flow()                       const { return m_flow; }
+    inline unsigned get_flow_id()                    const { return m_flow_id; }
     inline Enode * get_time_0()                      const { return m_time_0; }
     inline Enode * get_time_t()                      const { return m_time_t; }
     inline std::vector<Enode *> const & get_vars_0() const { return m_vars_0; }
     inline std::vector<Enode *> const & get_vars_t() const { return m_vars_t; }
-    integral_constraint(Enode * const e, unsigned const flow, Enode * const time_0, Enode * const time_t,
+    flow const & get_flow()                          const { return m_flow; }
+    flow         get_flow()                                { return m_flow; }
+    integral_constraint(Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t,
                         std::vector<Enode *> const & vars_0, std::vector<Enode *> const & vars_t,
-                        std::unordered_map<std::string, Enode *> const & flow_map);
+                        flow const & _flow);
     virtual ~integral_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
 
-integral_constraint mk_integral_constraint(Enode * const e, std::unordered_map<std::string, std::unordered_map<string, Enode *>> const & flow_maps);
+integral_constraint mk_integral_constraint(Enode * const e, std::unordered_map<std::string, flow> const & flow_map);
 
 class forallt_constraint : public constraint {
 private:
-    unsigned const m_flow;
+    unsigned const m_flow_id;
     Enode * const m_time_0;
     Enode * const m_time_t;
     Enode * const m_inv;
 
 public:
-    inline unsigned get_flow()  const { return m_flow; }
+    inline unsigned get_flow_id()  const { return m_flow_id; }
     inline Enode * get_time_0() const { return m_time_0; }
     inline Enode * get_time_t() const { return m_time_t; }
     inline Enode * get_inv()    const { return m_inv; }
     forallt_constraint(Enode * e);
-    forallt_constraint(Enode * const e, unsigned const flow, Enode * const time_0, Enode * const time_t, Enode * const inv);
+    forallt_constraint(Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t, Enode * const inv);
     virtual ~forallt_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
@@ -108,11 +112,19 @@ forallt_constraint mk_forallt_constraint(Enode * const e);
 
 class ode_constraint : public constraint {
 private:
-    integral_constraint m_int;
-    std::vector<forallt_constraint> m_invs;
+    integral_constraint const m_int;
+    std::vector<forallt_constraint> const m_invs;
 
 public:
     ode_constraint(integral_constraint const & integral, std::vector<forallt_constraint> const & invs);
+    inline flow const & get_flow() const {
+        return m_int.get_flow();
+    }
+    inline flow get_flow() {
+        return m_int.get_flow();
+    }
+    inline integral_constraint const & get_ic() const { return m_int; }
+    inline std::vector<forallt_constraint> const & get_invs() const { return m_invs; }
     virtual ~ode_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
