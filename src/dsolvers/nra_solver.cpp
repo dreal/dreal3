@@ -142,13 +142,16 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
 }
 
 contractor nra_solver::build_contractors(box const & box, scoped_vec<constraint *> const &ctrs) {
+    vector<algebraic_constraint *> alg_ctrs;
     vector<contractor> alg_ctcs;
-    vector<ode_constraint *> ode_ctrs;
+    vector<contractor> ode_ctcs;
     for (constraint * const ctr : ctrs) {
         if (ctr->get_type() == constraint_type::Algebraic) {
-            alg_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, dynamic_cast<algebraic_constraint *>(ctr)));
+            algebraic_constraint * alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
+            alg_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, alg_ctr));
+            alg_ctrs.push_back(alg_ctr);
         } else if (ctr->get_type() == constraint_type::ODE) {
-            ode_ctrs.push_back(dynamic_cast<ode_constraint *>(ctr));
+            ode_ctcs.push_back(mk_contractor_capd_fwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size));
         }
     }
     auto guard_fn = [](dreal::box const & old_box, dreal::box const & new_box) {
@@ -157,8 +160,9 @@ contractor nra_solver::build_contractors(box const & box, scoped_vec<constraint 
     };
 
     // std::unordered_map<string, std::unordered_map<string, Enode *>> flow_maps;
+    alg_ctcs.push_back(mk_contractor_ibex(box, alg_ctrs));
 
-    return mk_contractor_fixpoint(guard_fn, alg_ctcs);
+    return mk_contractor_fixpoint(guard_fn, alg_ctcs, ode_ctcs);
 }
 
 // Saves a backtrack point You are supposed to keep track of the
