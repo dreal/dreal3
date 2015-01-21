@@ -195,6 +195,9 @@ void nra_solver::popBacktrackPoint () {
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
     m_stat.increase_check(complete);
+    if (m_stack.size() == 0) {
+        return true;
+    }
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")";
     double const prec = config.nra_precision;
     m_ctc = build_contractors(m_box, m_stack);
