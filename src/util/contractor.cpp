@@ -21,23 +21,25 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <functional>
 #include <initializer_list>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include "opensmt/egraph/Enode.h"
 #include "ibex/ibex.h"
+#include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include "util/logging.h"
-#include "util/ibex_enode.h"
 #include "util/constraint.h"
 #include "util/contractor.h"
+#include "util/ibex_enode.h"
+#include "util/logging.h"
 
+using std::back_inserter;
 using std::function;
 using std::initializer_list;
-using std::vector;
 using std::unordered_set;
+using std::vector;
 
 namespace dreal {
 
@@ -114,7 +116,7 @@ ibex::System* square_eq_sys(ibex::System& sys) {
 }
 
 ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_set<Enode *> const & s) {
-    // TODO the caller has to delete the symbols
+    // TODO(soonhok): the caller has to delete the symbols
     unsigned const size = s.size();
     unsigned i = 0;
     ibex::Array<ibex::ExprSymbol const> ret(size);
@@ -148,8 +150,6 @@ contractor_ibex_fwdbwd::~contractor_ibex_fwdbwd() {
     delete m_exprctr;
 }
 box contractor_ibex_fwdbwd::prune(box b) const {
-    DREAL_LOG_DEBUG << "contractor_ibex_fwdbwd::prune(box b) -- start";
-    DREAL_LOG_DEBUG << b;
     // Construct iv from box b
     ibex::IntervalVector iv(m_var_array.size());
     for (int i = 0; i < m_var_array.size(); i++) {
@@ -166,8 +166,6 @@ box contractor_ibex_fwdbwd::prune(box b) const {
     for (int i = 0; i < m_var_array.size(); i++) {
         b[m_var_index_map.at(i)] = iv[i];
     }
-    DREAL_LOG_DEBUG << "contractor_ibex_fwdbwd::prune(box b) -- done";
-    DREAL_LOG_DEBUG << b;
     return b;
 }
 contractor_ibex::contractor_ibex(box const & box, vector<algebraic_constraint *> const & ctrs)
@@ -279,13 +277,18 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
     : contractor_cell(contractor_kind::FP), m_guard(guard), m_clist(clist) { }
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> guard, vector<contractor> const & cvec)
     : contractor_cell(contractor_kind::FP), m_guard(guard), m_clist(cvec) { }
+contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> guard,
+                                         vector<contractor> const & cvec1, vector<contractor> const & cvec2)
+    : contractor_cell(contractor_kind::FP), m_guard(guard), m_clist(cvec1) {
+    copy(cvec2.begin(), cvec2.end(), back_inserter(m_clist));
+}
 
 box contractor_fixpoint::prune(box old_b) const {
     box new_b = old_b;
     do {
         old_b = new_b;
         for (contractor const & c : m_clist) {
-            DREAL_LOG_INFO << new_b;
+            // DREAL_LOG_INFO << new_b;
             new_b = c.prune(new_b);
             unordered_set<constraint const *> const & used_constraints = c.used_constraints();
             m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
@@ -312,26 +315,34 @@ box contractor_int::prune(box b) const {
     return b;
 }
 
+contractor mk_contractor_ibex(box const & box, vector<algebraic_constraint *> const & ctrs) {
+    return contractor(shared_ptr<contractor_cell>(new contractor_ibex(box, ctrs)));
+}
+
 contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr) {
     return contractor(shared_ptr<contractor_cell>(new contractor_ibex_fwdbwd(box, ctr)));
 }
-contractor mk_contractor_seq(std::initializer_list<contractor> const & l) {
+contractor mk_contractor_seq(initializer_list<contractor> const & l) {
     return contractor(shared_ptr<contractor_cell>(new contractor_seq(l)));
 }
 contractor mk_contractor_try(contractor const & c1, contractor const & c2) {
     return contractor(shared_ptr<contractor_cell>(new contractor_try(c1, c2)));
 }
-contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else) {
+contractor mk_contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else) {
     return contractor(shared_ptr<contractor_cell>(new contractor_ite(guard, c_then, c_else)));
 }
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c) {
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, contractor const & c) {
     return contractor(shared_ptr<contractor_cell>(new contractor_fixpoint(guard, c)));
 }
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist) {
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, initializer_list<contractor> const & clist) {
     return contractor(shared_ptr<contractor_cell>(new contractor_fixpoint(guard, clist)));
 }
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec) {
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, vector<contractor> const & cvec) {
     return contractor(shared_ptr<contractor_cell>(new contractor_fixpoint(guard, cvec)));
+}
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
+                                  vector<contractor> const & cvec1, vector<contractor> const & cvec2) {
+    return contractor(shared_ptr<contractor_cell>(new contractor_fixpoint(guard, cvec1, cvec2)));
 }
 contractor mk_contractor_int() {
     return contractor(shared_ptr<contractor_cell>(new contractor_int()));
