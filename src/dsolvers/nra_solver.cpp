@@ -121,7 +121,7 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
             // Link ForallTConstraint fc with IntegralConstraint ic, if
             //    fc.flow == ic.flow
             //    vars(fc.inv) \subseteq ic.vars_t
-            if (fc.get_flow() == ic.get_flow()) {
+            if (fc.get_flow_id() == ic.get_flow_id()) {
                 unordered_set<Enode *> vars_in_fc = fc.get_inv()->get_vars();
                 bool const included = all_of(vars_in_fc.begin(), vars_in_fc.end(),
                        [&ic](Enode const * var_in_fc) {
