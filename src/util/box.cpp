@@ -41,8 +41,7 @@ using std::vector;
 
 namespace dreal {
 box::box(std::vector<Enode *> const & vars)
-    : m_vars(vars), m_values(m_vars.size()), m_domains(m_vars.size())
-{
+    : m_vars(vars), m_values(m_vars.size()), m_domains(m_vars.size()) {
     constructFromVariables(m_vars);
 }
 
@@ -84,7 +83,6 @@ void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
     constructFromVariables(m_vars);
     return;
 }
-std::ostream& operator<<(ostream& out, box const & b);
 
 ostream& operator<<(ostream& out, box const & b) {
     unsigned const s = b.size();

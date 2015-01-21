@@ -25,6 +25,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <vector>
 #include <utility>
+#include <string>
 #include "opensmt/egraph/Enode.h"
 #include "ibex/ibex.h"
 
@@ -49,7 +50,7 @@ public:
     std::pair<box, box> split() const;
     std::pair<box, box> split(int i) const;
 
-    inline bool is_empty() { return m_values.is_empty(); }
+    inline bool is_empty() { return size() == 0 || m_values.is_empty(); }
     inline ibex::IntervalVector & get_values() { return m_values; }
     inline ibex::IntervalVector const & get_values() const { return m_values; }
     inline ibex::IntervalVector const & get_domains() const { return m_domains; }
@@ -60,7 +61,6 @@ public:
         assert(i >= 0 && i < static_cast<int>(size()));
         return m_values[i];
     }
-
     inline ibex::Interval& operator[](int i) {
         assert(i >= 0 && i < static_cast<int>(size()));
         return m_values[i];
@@ -73,19 +73,21 @@ public:
             throw std::logic_error("Box[] (const): Box does not have a key " + s);
         }
     }
-
     inline ibex::Interval& operator[](std::string const & s) {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
             return m_values[it->second];
         } else {
-            for (auto p : m_name_index_map) {
-                std::cerr << p.first << " : " << p.second << std::endl;
-            }
             throw std::logic_error("Box[] : Box does not have a key " + s);
         }
     }
+    inline const ibex::Interval& operator[](Enode * const e) const {
+        return operator[](e->getCar()->getName());
+    }
 
+    inline ibex::Interval& operator[](Enode * const e) {
+        return operator[](e->getCar()->getName());
+    }
     inline double max_diam() const { return m_values.max_diam(); }
     inline int extr_diam_index(bool min) const { return m_values.extr_diam_index(min); }
     inline double volume() const { return m_values.volume(); }
