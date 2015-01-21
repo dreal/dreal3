@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "capd/capdlib.h"
 
 namespace dreal {
 
@@ -141,19 +142,45 @@ public:
     box prune(box b) const;
 };
 
-class contractor_capd_fwd : public contractor_cell {
+class contractor_capd_fwd_simple : public contractor_cell {
 private:
-    ode_constraint const * m_ctr;
+    ode_constraint const * const m_ctr;
+
 public:
-    contractor_capd_fwd(box const & box, ode_constraint const * const ctr);
+    contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr);
     box prune(box b) const;
 };
 
-class contractor_capd_bwd : public contractor_cell {
+class contractor_capd_fwd_full : public contractor_cell {
 private:
-    ode_constraint const * m_ctr;
+    ode_constraint const * const m_ctr;
+    unsigned const m_taylor_order;
+    unsigned const m_grid_size;
+
+    bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, vector<pair<capd::interval, capd::IVector>> & enclosures) const;
+    bool prune(std::vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVector & X_t, capd::interval & T) const;
+
 public:
-    contractor_capd_bwd(box const & box, ode_constraint const * const ctr);
+    contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    box prune(box b) const;
+};
+
+class contractor_capd_bwd_simple : public contractor_cell {
+private:
+    ode_constraint const * const m_ctr;
+
+public:
+    contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr);
+    box prune(box b) const;
+};
+
+class contractor_capd_bwd_full : public contractor_cell {
+private:
+    ode_constraint const * const m_ctr;
+    unsigned const m_taylor_order;
+    unsigned const m_grid_size;
+public:
+    contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     box prune(box b) const;
 };
 
@@ -182,8 +209,10 @@ public:
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
     friend contractor mk_contractor_int();
-    friend contractor mk_contractor_capd_fwd(box const & box, ode_constraint const * const ctr);
-    friend contractor mk_contractor_capd_bwd(box const & box, ode_constraint const * const ctr);
+    friend contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    friend contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    friend contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    friend contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
 };
 
 contractor mk_contractor_ibex(box const & box, std::vector<algebraic_constraint *> const & ctrs);
@@ -197,6 +226,8 @@ contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> 
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard,
                                   std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2);
 contractor mk_contractor_int();
-contractor mk_contractor_capd_fwd(box const & box, ode_constraint const * const ctr);
-contractor mk_contractor_capd_bwd(box const & box, ode_constraint const * const ctr);
+contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
+contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
+contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
+contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
 }
