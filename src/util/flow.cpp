@@ -50,4 +50,4 @@ ostream & operator<<(ostream & out, flow const & _flow) {
     }
     return out;
 }
-}
+}  // namespace dreal

@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <gflags/gflags.h>
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <memory>
@@ -47,7 +48,7 @@ using std::vector;
 namespace dreal {
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
-    : OrdinaryTSolver (i, n, c, e, t, x, d, s), m_box(vector<Enode*>({})) {
+    : OrdinaryTSolver(i, n, c, e, t, x, d, s), m_box(vector<Enode*>({})) {
     if (c.nra_precision == 0.0) c.nra_precision = 0.001;
 }
 
@@ -70,7 +71,7 @@ lbool nra_solver::inform(Enode * e) {
 // discover inconsistency you may return false. The real consistency
 // state will be checked with "check" assertLit adds a literal(e) to
 // stack of asserted literals.
-bool nra_solver::assertLit (Enode * e, bool reason) {
+bool nra_solver::assertLit(Enode * e, bool reason) {
     m_stat.increase_assert();
     DREAL_LOG_INFO << "nra_solver::assertLit: " << e
                    << ", reason: " << boolalpha << reason
@@ -168,7 +169,7 @@ contractor nra_solver::build_contractors(box const & box, scoped_vec<constraint 
 // Saves a backtrack point You are supposed to keep track of the
 // operations, for instance in a vector called "undo_stack_term", as
 // happens in EgraphSolver
-void nra_solver::pushBacktrackPoint () {
+void nra_solver::pushBacktrackPoint() {
     m_stat.increase_push();
     DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
     if (m_stack.size() == 0) {
@@ -186,7 +187,7 @@ void nra_solver::pushBacktrackPoint () {
 // implement the necessary backtrack operations (see for instance
 // backtrackToStackSize() in EgraphSolver) Also make sure you clean
 // the deductions you did not communicate
-void nra_solver::popBacktrackPoint () {
+void nra_solver::popBacktrackPoint() {
     m_stat.increase_pop();
     DREAL_LOG_INFO << "nra_solver::popBacktrackPoint\t m_stack.size()      = " << m_stack.size();
     m_boxes.pop();
@@ -266,5 +267,4 @@ bool nra_solver::belongsToT(Enode * e) {
 void nra_solver::computeModel() {
     DREAL_LOG_DEBUG << "nra_solver::computeModel" << endl;
 }
-
-}
+}  // namespace dreal

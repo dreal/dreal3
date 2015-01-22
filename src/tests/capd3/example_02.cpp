@@ -18,7 +18,7 @@ int main() {
     // initial condition
     IVector v(3);
     double sizeOfSet = 0.005;
-    v[0]=0.0;    v[1]= DInterval(1.563-sizeOfSet, 1.563+sizeOfSet);  v[2]=0.0;
+    v[0] = 0.0;    v[1] = DInterval(1.563-sizeOfSet, 1.563+sizeOfSet);  v[2] = 0.0;
     int rank = 3;
     CnRect2Set set(v, IEuclLNorm(), rank);
     ICnTimeMap timeMap(dynsys);

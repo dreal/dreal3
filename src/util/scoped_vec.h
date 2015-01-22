@@ -53,7 +53,7 @@ public:
     const_iterator cbegin() const { return m_vec.cbegin(); }
     const_iterator cend()   const { return m_vec.cend(); }
     void push_back(value_type const & v) { m_vec.push_back(v); }
-    void push() { m_scopes.push_back(m_vec.size()); };
+    void push() { m_scopes.push_back(m_vec.size()); }
     unsigned int pop() {
         unsigned int count = 0;
         unsigned const prev_size = m_scopes.back();
@@ -88,4 +88,4 @@ public:
     reference operator[] (size_type n) { return m_vec[n]; }
     const_reference operator[] (size_type n) const { return m_vec[n]; }
 };
-}
+}  // namespace dreal

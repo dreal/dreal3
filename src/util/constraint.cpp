@@ -212,4 +212,4 @@ ostream & forallt_constraint::display(ostream & out) const {
     out << "\t" << "inv : " << m_inv << endl;
     return out;
 }
-}
+}  // namespace dreal

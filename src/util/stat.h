@@ -39,4 +39,4 @@ public:
 };
 
 std::ostream & operator<<(std::ostream & out, stat const & stat);
-}
+}  // namespace dreal

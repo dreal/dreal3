@@ -20,12 +20,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include <functional>
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include "config.h"
+#include "./config.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
@@ -53,7 +54,7 @@ struct equal_to<ibex::Variable> {
         return strcmp(v1.symbol->name, v2.symbol->name) == 0;
     }
 };
-}
+}  // namespace std
 
 namespace dreal {
 class nra_solver : public OrdinaryTSolver {
@@ -63,8 +64,8 @@ public:
     ~nra_solver();
     lbool inform(Enode * e);
     bool  assertLit(Enode * e, bool = false);
-    void  pushBacktrackPoint ();
-    void  popBacktrackPoint ();
+    void  pushBacktrackPoint();
+    void  popBacktrackPoint();
     bool  check(bool c);
     bool  belongsToT(Enode * e);
     void  computeModel();
@@ -90,4 +91,4 @@ private:
     std::vector<constraint *> initialize_constraints();
     std::vector<Enode *> generate_explanation(scoped_vec<constraint const *> const & ctr_vec);
 };
-}
+}  // namespace dreal

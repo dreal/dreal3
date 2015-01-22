@@ -19,12 +19,15 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <algorithm>
 #include <functional>
 #include <initializer_list>
+#include <list>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 #include "opensmt/egraph/Enode.h"
 #include "ibex/ibex.h"
@@ -39,9 +42,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using std::function;
 using std::initializer_list;
-using std::vector;
+using std::list;
 using std::string;
 using std::unordered_set;
+using std::vector;
 
 namespace dreal {
 
@@ -228,7 +232,7 @@ string build_capd_string(integral_constraint const & ic) {
 }
 
 capd::IVector extract_ivector(box const & b, std::vector<Enode *> const & vars) {
-    capd::IVector intvs (vars.size());
+    capd::IVector intvs(vars.size());
     for (unsigned i = 0; i < vars.size(); i++) {
         Enode * const var = vars[i];
         ibex::Interval const & intv = b[var];
@@ -238,7 +242,7 @@ capd::IVector extract_ivector(box const & b, std::vector<Enode *> const & vars) 
 }
 
 void update_box_with_ivector(box & b, std::vector<Enode *> const & vars, capd::IVector iv) {
-    capd::IVector intvs (vars.size());
+    capd::IVector intvs(vars.size());
     for (unsigned i = 0; i < vars.size(); i++) {
         b[vars[i]] = ibex::Interval(iv[i].leftBound(), iv[i].rightBound());
     }
@@ -331,7 +335,7 @@ bool contractor_capd_fwd_full::prune(vector<pair<capd::interval, capd::IVector>>
             dt.setRightBound(0.0);
         }
     }
-    enclosures.erase(remove_if (enclosures.begin(), enclosures.end(),
+    enclosures.erase(remove_if(enclosures.begin(), enclosures.end(),
                             [](pair<capd::interval, capd::IVector> const & item) {
                                 capd::interval const & dt = item.first;
                                 return dt.leftBound() == 0.0 && dt.rightBound() == 0.0;
@@ -404,7 +408,7 @@ box contractor_capd_fwd_full::prune(box b) const {
     } else {
         // UNSAT
         b.set_empty();
-    };
+    }
     DREAL_LOG_INFO << "X_0 : " << X_0;
     DREAL_LOG_INFO << "X_t : " << X_t;
     DREAL_LOG_INFO << "T   : " << T;
@@ -442,6 +446,4 @@ contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const *
 contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size) {
     return contractor(shared_ptr<contractor_cell>(new contractor_capd_bwd_full(box, ctr, taylor_order, grid_size)));
 }
-
-
-}
+}  // namespace dreal

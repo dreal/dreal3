@@ -36,7 +36,7 @@ public:
     typedef charT char_type;
     typedef traits traits_type;
     typedef std::basic_ostream<charT, traits> ostream_type;
-    infix_ostream_iterator(ostream_type& s)
+    explicit infix_ostream_iterator(ostream_type& s)
         : os(&s), delimiter(0), first_elem(true) {}
     infix_ostream_iterator(ostream_type& s, charT const *d)
         : os(&s), delimiter(d), first_elem(true) {}

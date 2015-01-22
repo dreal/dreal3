@@ -119,5 +119,4 @@ pair<box, box> box::split(int i) const {
     b2.m_values[i] = new_intervals.second;
     return make_pair(b1, b2);
 }
-
-}
+}  // namespace dreal

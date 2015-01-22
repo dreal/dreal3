@@ -64,14 +64,14 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
         enodeid_t id = e->getCar()->getId();
         switch (id) {
         case ENODE_ID_PLUS:
-            e = e->getCdr()->getCdr(); // e is pointing to the 2nd arg
+            e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
             while (!e->isEnil()) {
                 ret = &(*ret + *translate_enode_to_exprnode(var_map, e->getCar()));
                 e = e->getCdr();
             }
             return ret;
         case ENODE_ID_MINUS:
-            e = e->getCdr()->getCdr(); // e is pointing to the 2nd arg
+            e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
             while (!e->isEnil()) {
                 ret = &(*ret - *translate_enode_to_exprnode(var_map, e->getCar()));
                 e = e->getCdr();
@@ -81,14 +81,14 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
             assert(e->getArity() == 1);
             return &(- *ret);
         case ENODE_ID_TIMES:
-            e = e->getCdr()->getCdr(); // e is pointing to the 2nd arg
+            e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
             while (!e->isEnil()) {
                 ret = &(*ret * *translate_enode_to_exprnode(var_map, e->getCar()));
                 e = e->getCdr();
             }
             return ret;
         case ENODE_ID_DIV:
-            e = e->getCdr()->getCdr(); // e is pointing to the 2nd arg
+            e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
             while (!e->isEnil()) {
                 ret = &(*ret / *translate_enode_to_exprnode(var_map, e->getCar()));
                 e = e->getCdr();
@@ -184,4 +184,4 @@ ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const>
     }
     throw logic_error("Not implemented yet: translate_enode_to_exprctr");
 }
-}
+}  // namespace dreal

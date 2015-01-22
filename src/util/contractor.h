@@ -26,6 +26,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <string>
 #include <memory>
+#include <utility>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "capd/capdlib.h"
@@ -54,7 +55,7 @@ public:
     inline std::vector<bool> output() const { return m_output; }
     inline std::unordered_set<constraint const *> used_constraints() const { return m_used_constraints; }
     virtual box prune(box b) const = 0;
-    contractor_cell(contractor_kind kind) : m_kind(kind) { }
+    explicit contractor_cell(contractor_kind kind) : m_kind(kind) { }
     virtual ~contractor_cell() { }
 };
 
@@ -192,13 +193,13 @@ private:
 
 public:
     contractor() : m_ptr(nullptr) { }
-    contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) { }
+    explicit contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) { }
     ~contractor() { m_ptr.reset(); }
 
     inline std::vector<bool> input() const { return m_ptr->input(); }
     inline std::vector<bool> output() const { return m_ptr->output(); }
     inline std::unordered_set<constraint const *> used_constraints() const { return m_ptr->used_constraints(); }
-    inline box prune(box b) const { b = m_ptr->prune(b); return b; };
+    inline box prune(box b) const { b = m_ptr->prune(b); return b; }
 
     friend contractor mk_contractor_ibex(box const & box, std::vector<algebraic_constraint *> const & ctrs);
     friend contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
@@ -230,4 +231,4 @@ contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const *
 contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
 contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
 contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
-}
+}  // namespace dreal

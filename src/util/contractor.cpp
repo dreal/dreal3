@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <algorithm>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -106,12 +107,12 @@ ibex::System* square_eq_sys(ibex::System& sys) {
     }
     if (sys.nb_var == nb_eq) {
         if (nb_eq == sys.f.image_dim()) {
-            return &sys; // useless to create a new one
+            return &sys;  // useless to create a new one
         } else {
             return new ibex::System(sys, ibex::System::EQ_ONLY);
         }
     } else {
-        return NULL; // not square
+        return nullptr;  // not square
     }
 }
 
@@ -184,7 +185,7 @@ contractor_ibex::contractor_ibex(box const & box, vector<algebraic_constraint *>
     ctc_list.set_ref(index++, *ctc_acid);
     m_sub_ctcs.push_back(ctc_acid);
 
-    m_sys_eqs= square_eq_sys(m_sys);
+    m_sys_eqs = square_eq_sys(m_sys);
     if (m_sys_eqs) {
         DREAL_LOG_INFO << "contractor_ibex: SQUARE SYSTEM";
         ibex::CtcNewton * ctc_newton = new ibex::CtcNewton(m_sys_eqs->f, 5e8, prec, 1.e-4);
@@ -301,7 +302,7 @@ box contractor_fixpoint::prune(box old_b) const {
 }
 
 // TODO(soonhok): need to take alg/ode constraints
-contractor_int::contractor_int() : contractor_cell(contractor_kind::INT){ }
+contractor_int::contractor_int() : contractor_cell(contractor_kind::INT) { }
 box contractor_int::prune(box b) const {
     unsigned i = 0;
     ibex::IntervalVector iv = b.get_values();
@@ -347,4 +348,4 @@ contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard
 contractor mk_contractor_int() {
     return contractor(shared_ptr<contractor_cell>(new contractor_int()));
 }
-}
+}  // namespace dreal

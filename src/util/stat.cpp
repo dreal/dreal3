@@ -67,4 +67,4 @@ ostream & operator<<(ostream & out, stat const & stat) {
     out << "Number of Pop              = " << stat.m_num_of_pop << endl;
     return out;
 }
-}
+}  // namespace dreal

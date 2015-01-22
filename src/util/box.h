@@ -43,7 +43,7 @@ private:
     void constructFromVariables(std::vector<Enode *> const & vars);
 
 public:
-    box(std::vector<Enode *> const & vars);
+    explicit box(std::vector<Enode *> const & vars);
     box(std::vector<Enode *> const & vars, ibex::IntervalVector ivec);
     void constructFromLiterals(std::vector<Enode *> const & lit_vec);
 
@@ -97,4 +97,4 @@ public:
 
 
 std::ostream& operator<<(ostream& out, box const & b);
-}
+}  // namespace dreal

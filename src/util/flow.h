@@ -30,7 +30,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "ibex/ibex.h"
 
 namespace dreal {
-
 class flow {
 private:
     std::vector<string> m_vars;
@@ -47,4 +46,4 @@ public:
     friend std::ostream & operator<<(std::ostream & out, flow const & _flow);
 };
 std::ostream & operator<<(std::ostream & out, flow const & _flow);
-}
+}  // namespace dreal

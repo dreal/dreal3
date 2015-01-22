@@ -36,4 +36,4 @@ string to_hexfloat(double x) {
     }
     return buf;
 }
-}
+}  // namespace dreal

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <algorithm>
 #include <iostream>
 #include <unordered_map>
 #include <vector>
@@ -30,6 +31,7 @@ class scoped_map {
     map                                        m_map;
     std::vector<pair<action_kind, value_type>> m_actions;
     std::vector<unsigned>                      m_scopes;
+
 public:
     explicit scoped_map(size_type bucket_count = LEAN_SCOPED_MAP_INITIAL_BUCKET_SIZE,
                         const Hash& hash = Hash(),
@@ -169,7 +171,7 @@ public:
         out << "{";
         for (auto e : m) {
             out << e.first << " |-> " << e.second << "; ";
-        };
+        }
         out << "}";
         return out;
     }
@@ -181,8 +183,8 @@ public:
     class mk_scope {
         scoped_map & m_map;
     public:
-        mk_scope(scoped_map & m):m_map(m) { m_map.push(); }
+        explicit mk_scope(scoped_map & m):m_map(m) { m_map.push(); }
         ~mk_scope() { m_map.pop(); }
     };
 };
-}
+}  // namespace lean

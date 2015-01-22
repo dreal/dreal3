@@ -120,4 +120,4 @@ std::ostream & operator<<(std::ostream & out, scoped_env const & e) {
     }
     return out;
 }
-}
+}  // namespace dreal

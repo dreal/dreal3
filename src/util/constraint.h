@@ -43,7 +43,7 @@ protected:
     std::unordered_set<Enode *> m_vars;
 
 public:
-    constraint(constraint_type ty);
+    explicit constraint(constraint_type ty);
     constraint(constraint_type ty, Enode * const e);
     constraint(constraint_type ty, std::vector<Enode *> const & enodes);
     constraint(constraint_type ty, std::vector<Enode *> const & enodes_1, std::vector<Enode *> const & enodes_2);
@@ -59,7 +59,7 @@ std::ostream & operator<<(ostream & out, constraint const & c);
 
 class algebraic_constraint : public constraint {
 public:
-    algebraic_constraint(Enode * const e);
+    explicit algebraic_constraint(Enode * const e);
     virtual ~algebraic_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
@@ -102,7 +102,7 @@ public:
     inline Enode * get_time_0() const { return m_time_0; }
     inline Enode * get_time_t() const { return m_time_t; }
     inline Enode * get_inv()    const { return m_inv; }
-    forallt_constraint(Enode * e);
+    explicit forallt_constraint(Enode * e);
     forallt_constraint(Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t, Enode * const inv);
     virtual ~forallt_constraint();
     virtual std::ostream & display(std::ostream & out) const;
@@ -128,4 +128,4 @@ public:
     virtual ~ode_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
-}
+}  // namespace dreal

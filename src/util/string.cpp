@@ -30,11 +30,11 @@ bool starts_with(std::string const & s, std::string const & prefix) {
     return false;
 }
 
-bool ends_with (std::string const & s, std::string const & ending) {
+bool ends_with(std::string const & s, std::string const & ending) {
     if (s.length() >= ending.length()) {
         return (0 == s.compare (s.length() - ending.length(), ending.length(), ending));
     } else {
         return false;
     }
 }
-}
+}  // namespace dreal
