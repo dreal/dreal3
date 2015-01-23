@@ -66,7 +66,7 @@ mode_list: /* */ { [] }
 
 mode: LC mode_id time_precision invts_op flows jumps RC
   {
-    Mode.make ($2, $3, $4, $5, Jumpmap.of_list $6)
+    Mode.make ($2, $3, $4, $5, $6, Jumpmap.of_list $6)
   }
 ;
 

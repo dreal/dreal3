@@ -67,7 +67,7 @@ let run () =
                   List.print ~first:"[" ~last:"]" ~sep:"," Int.print out path)
                  out
                  paths
-    else 
+    else
       if Option.is_some !bmc_heuristic then
 	let heuristic = Heuristic.heuristicgen hm !k in
 	let hout = open_out (Option.get !bmc_heuristic) in
@@ -80,7 +80,7 @@ let run () =
 	let () = Heuristic.writeHeuristic heuristic hm !k hout in
 	let () = close_out hout in
 	let smt = Bmc.compile_pruned hm !k heuristic heuristic_back None in
-	Smt2.print out smt 
+	Smt2.print out smt
       else if Option.is_some !bmc_heuristic_prune_deep then
 	let heuristic = Heuristic.heuristicgen hm !k in
 	let heuristic_back = Heuristic.heuristicgen_back hm !k in
@@ -89,9 +89,10 @@ let run () =
 	let () = Heuristic.writeHeuristic heuristic hm !k hout in
 	let () = close_out hout in
 	let smt = Bmc.compile_pruned hm !k heuristic heuristic_back (Some rel_back) in
-	Smt2.print out smt 
+	Smt2.print out smt
     else
-	let _ = Hybrid.check_path hm !path !k in
+      let _ = Hybrid.check_path hm !path !k in
+      let _ = Hybrid.print out hm in
 	let smt = Bmc.compile hm !k !path in
 	Smt2.print out smt
   with v -> Error.handle_exn v

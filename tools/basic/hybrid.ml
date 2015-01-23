@@ -61,6 +61,14 @@ let preprocess (vm, cm, mm, iid, iformula, gs, ginvs) : t =
             | Some inv -> Some (List.map (Basic.preprocess_formula subst) inv)
           end,
           List.map (fun (v, e) -> (v, Basic.preprocess_exp subst e)) (Mode.flows m),
+          List.map
+            (fun j ->
+             Jump.makep
+               (Basic.preprocess_formula subst (Jump.guard j),
+		Jump.precision j,
+                Jump.target j,
+                Basic.preprocess_formula subst (Jump.change j)))
+            (Mode.jumps m),
           Map.map
             (fun j ->
              Jump.makep
