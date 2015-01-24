@@ -117,6 +117,16 @@ SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
 find_package(GIT REQUIRED)
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
+# Libunwind
+find_package(Libunwind)
+if(LIBUNWIND_FOUND)
+  message(STATUS "libunwind found")
+  message(STATUS "lib: ${LIBUNWIND_LIBRARY}")
+  include_directories(${LIBUNWIND_INCLUDE_DIR})
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${LIBUNWIND_LIBRARY})
+elseif()
+  message(STATUS "libunwind not found")
+endif()
 
 function(JOIN VALUES GLUE OUTPUT)
   string (REGEX REPLACE "([^\\]|^);" "\\1${GLUE}" _TMP_STR "${VALUES}")
