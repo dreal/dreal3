@@ -15,10 +15,10 @@ if(LIBUNWIND_INCLUDE_DIR)
 endif()
 
 FIND_PATH(LIBUNWIND_INCLUDE_DIR libunwind.h)
-if(NOT EXISTS "${LIBUNWIND_INCLUDE_DIR}/unwind.h")
-  message(FATAL_ERROR "libunwind.h found without matching unwind.h")
-  SET(LIBUNWIND_INCLUDE_DIR "")
-endif()
+#if(NOT EXISTS "${LIBUNWIND_INCLUDE_DIR}/unwind.h")
+#  message(FATAL_ERROR "libunwind.h found without matching unwind.h")
+#  SET(LIBUNWIND_INCLUDE_DIR "")
+#endif()
 
 FIND_LIBRARY(LIBUNWIND_LIBRARY unwind)
 
