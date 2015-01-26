@@ -117,16 +117,6 @@ SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
 find_package(GIT REQUIRED)
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
-# Libunwind
-find_package(Libunwind)
-if(LIBUNWIND_FOUND)
-  message(STATUS "libunwind found")
-  message(STATUS "lib: ${LIBUNWIND_LIBRARY}")
-  include_directories(${LIBUNWIND_INCLUDE_DIR})
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${LIBUNWIND_LIBRARY})
-elseif()
-  message(STATUS "libunwind not found")
-endif()
 
 function(JOIN VALUES GLUE OUTPUT)
   string (REGEX REPLACE "([^\\]|^);" "\\1${GLUE}" _TMP_STR "${VALUES}")
@@ -154,19 +144,35 @@ set(EXTRA_LIBS ${EXTRA_LIBS} "capd")
 set(ODE_ENABLED TRUE)
 
 ################################################################
+# External: CLP
+################################################################
+ExternalProject_Add(CLP
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+  GIT_REPOSITORY https://github.com/soonhokong/clp-1.16.git
+  GIT_TAG origin/master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --disable-shared --enable-static --with-blas=BUILD --with-lapack=BUILD
+  BUILD_COMMAND make -j
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND make install
+)
+set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "z" "m" ${EXTRA_LIBS})
+
+################################################################
 # External: ibex
 ################################################################
 ExternalProject_Add(IBEX
+  DEPENDS CLP
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/ibex-lib.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR} #--with-clp=${CMAKE_CURRENT_BINARY_DIR}/external/CLP/
-  BUILD_COMMAND ./waf build || ./waf build
+  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR}
+  BUILD_COMMAND ./waf build
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND ./waf install || ./waf install
+  INSTALL_COMMAND ./waf install
 )
-set(EXTRA_LIBS ${EXTRA_LIBS} "ibex" "prim" "Clp" "CoinUtils")
+set(EXTRA_LIBS "ibex" "prim" ${EXTRA_LIBS})
 
 ################################################################
 # Threads
@@ -187,12 +193,13 @@ ExternalProject_Add(GFLAGS
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
 )
-set(EXTRA_LIBS ${EXTRA_LIBS} "gflags")
+set(EXTRA_LIBS "gflags" ${EXTRA_LIBS})
 
 ################################################################
 # External: glog (Google Log)
 ################################################################
 ExternalProject_Add(GLOG
+  DEPENDS GFLAGS
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/glog.git
   GIT_TAG origin/master
@@ -202,7 +209,8 @@ ExternalProject_Add(GLOG
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
 )
-set(EXTRA_LIBS ${EXTRA_LIBS} "glog")
+set(EXTRA_LIBS "glog" ${EXTRA_LIBS})
+
 
 ################################################################
 # External: googletest (Google Test)
@@ -241,6 +249,17 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ibex)
 set(EXTERNAL_LD_FLAGS "-L${CMAKE_CURRENT_BINARY_DIR}/lib")
 
+# Libunwind
+find_package(Libunwind)
+if(LIBUNWIND_FOUND)
+  message(STATUS "libunwind found")
+  message(STATUS "lib: ${LIBUNWIND_LIBRARY}")
+  include_directories(${LIBUNWIND_INCLUDE_DIR})
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${LIBUNWIND_LIBRARY})
+else()
+  message(STATUS "libunwind not found")
+endif()
+
 ################################################################
 # CXX Flags
 ################################################################
@@ -249,11 +268,6 @@ set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -mfpmath=sse -msse -msse2 -f
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -frounding-math")
 endif()
-
-################################################################
-# PTHREAD LIB
-################################################################
-set(EXTRA_LIBS ${EXTRA_LIBS} "-lpthread")
 
 ################################################################
 # EGLIBC (Optional)
@@ -307,18 +321,6 @@ target_link_libraries(dReal ${EXTRA_LIBS})
 add_subdirectory(tests/nra)
 add_subdirectory(tests/nra_ode)
 add_subdirectory(tests/c_api)
-
-#dependencies
-add_dependencies(GLOG GFLAGS)
-add_dependencies(util CAPD4)
-add_dependencies(util IBEX)
-add_dependencies(util GLOG)
-add_dependencies(util GFLAGS)
-add_dependencies(dsolvers util)
-add_dependencies(opensmt_api dsolvers)
-add_dependencies(dsolvers JSON11)
-add_dependencies(dsolvers CAPD4)
-add_dependencies(dsolvers IBEX)
 
 # Include style check
 include(StyleCheck)

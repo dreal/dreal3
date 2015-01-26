@@ -16,4 +16,7 @@ add_library(util
   "${DREAL_BINARY_DIR}/git_sha1.cpp"
   "${DREAL_SOURCE_DIR}/util/git_sha1.h"
   )
-target_link_libraries(util glog)
+add_dependencies(util CAPD4)
+add_dependencies(util IBEX)
+add_dependencies(util GLOG)
+add_dependencies(util GFLAGS)
