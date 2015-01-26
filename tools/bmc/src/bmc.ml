@@ -553,11 +553,29 @@ let compile_vardecl_pruned (h : Hybrid.t) (k : int) (path : (int list) option) (
          (List.map
             (function (var, v) ->
               List.map
-                (fun k' ->
-                  [
-                    (var ^ "_" ^ (Int.to_string k') ^ "_0", v);
-                    (var ^ "_" ^ (Int.to_string k') ^ "_t", v)
-                  ]
+                (fun k' -> 
+		 match relevant with
+		   Some(rel) -> (
+		   let relevant_at_k = List.nth rel k' in
+		   let in_a_relevant_mode (mvar : String.t)  = 
+		     let mode_relevant key mset  = BatSet.mem mvar mset in
+		     (Map.exists mode_relevant relevant_at_k)
+		   in
+		   match in_a_relevant_mode var with  
+		     false -> []
+		   | true ->
+                      [
+			(var ^ "_" ^ (Int.to_string k') ^ "_0", 
+			 v);
+			(var ^ "_" ^ (Int.to_string k') ^ "_t", v)
+                      ]
+		 )
+		  |
+		    None  ->
+                      [
+			(var ^ "_" ^ (Int.to_string k') ^ "_0", v);
+			(var ^ "_" ^ (Int.to_string k') ^ "_t", v)
+                      ]		 
                 )
                 (List.of_enum ( 0 -- k))
             )
