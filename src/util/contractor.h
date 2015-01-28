@@ -66,7 +66,7 @@ private:
     ibex::NumConstraint const * m_numctr;
     ibex::Array<ibex::ExprSymbol const> m_var_array;
     std::unordered_map<int, std::string> m_var_index_map;
-    ibex::Ctc * m_ctc = nullptr;
+    ibex::CtcFwdBwd * m_ctc = nullptr;
 
 public:
     contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
