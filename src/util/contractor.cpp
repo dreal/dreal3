@@ -162,12 +162,14 @@ box contractor_ibex_fwdbwd::prune(box b) const {
     try {
         DREAL_LOG_INFO << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
         DREAL_LOG_INFO << b;
-        DREAL_LOG_INFO << "ibex interval = " << iv << " (before)";
+        DREAL_LOG_DEBUG << "ibex interval = " << iv << " (before)";
+        DREAL_LOG_DEBUG << "function = " << m_ctc->f;
+        DREAL_LOG_DEBUG << "domain   = " << m_ctc->d;
         m_ctc->contract(iv);
     } catch(ibex::EmptyBoxException& e) {
         b.set_empty();
     }
-    DREAL_LOG_INFO << "ibex interval = " << iv << " (after)";
+    DREAL_LOG_DEBUG << "ibex interval = " << iv << " (after)";
     // Reconstruct box b from pruned result iv.
     if (!b.is_empty()) {
         for (int i = 0; i < m_var_array.size(); i++) {
