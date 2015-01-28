@@ -46,6 +46,8 @@ using std::stack;
 using std::vector;
 
 namespace dreal {
+using std::cout;
+using std::endl;
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
     : OrdinaryTSolver(i, n, c, e, t, x, d, s), m_box(vector<Enode*>({})) {
@@ -56,7 +58,9 @@ nra_solver::~nra_solver() {
     for (auto it_ctr : m_ctrs) {
         delete it_ctr;
     }
-    DREAL_LOG_FATAL << m_stat;
+    if (config.nra_stat) {
+        cout << m_stat << endl;
+    }
 }
 
 // `inform` sets up env (mapping from variables(enode) in literals to their [lb, ub])
@@ -72,7 +76,7 @@ lbool nra_solver::inform(Enode * e) {
 // state will be checked with "check" assertLit adds a literal(e) to
 // stack of asserted literals.
 bool nra_solver::assertLit(Enode * e, bool reason) {
-    m_stat.increase_assert();
+    if (config.nra_stat) { m_stat.increase_assert(); }
     DREAL_LOG_INFO << "nra_solver::assertLit: " << e
                    << ", reason: " << boolalpha << reason
                    << ", polarity: " << e->getPolarity().toInt()
@@ -170,7 +174,7 @@ contractor nra_solver::build_contractors(box const & box, scoped_vec<constraint 
 // operations, for instance in a vector called "undo_stack_term", as
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint() {
-    m_stat.increase_push();
+    if (config.nra_stat) { m_stat.increase_push(); }
     DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
     if (m_stack.size() == 0) {
         m_box.constructFromLiterals(m_lits);
@@ -188,7 +192,7 @@ void nra_solver::pushBacktrackPoint() {
 // backtrackToStackSize() in EgraphSolver) Also make sure you clean
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint() {
-    m_stat.increase_pop();
+    if (config.nra_stat) { m_stat.increase_pop(); }
     DREAL_LOG_INFO << "nra_solver::popBacktrackPoint\t m_stack.size()      = " << m_stack.size();
     m_boxes.pop();
     m_box = m_boxes.last();
@@ -199,7 +203,7 @@ void nra_solver::popBacktrackPoint() {
 // Check for consistency.
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
-    m_stat.increase_check(complete);
+    if (config.nra_stat) { m_stat.increase_check(complete); }
     if (m_stack.size() == 0) {
         return true;
     }

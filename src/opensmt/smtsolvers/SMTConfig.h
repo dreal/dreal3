@@ -186,7 +186,8 @@ struct SMTConfig
   double       nra_precision;                 // the value of delta
   double       nra_icp_improve;               // improve value for realpaver(ICP)
   bool         nra_verbose;                   // --verbose option
-  bool         nra_debug;                     // --verbose option
+  bool         nra_debug;                     // --debug option
+  bool         nra_stat;                      // --stat option
   bool         nra_proof;                     // --proof option
   bool         nra_model;                     // --model option
   ofstream     nra_model_out;                 // file stream for model

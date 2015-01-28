@@ -43,6 +43,7 @@ DEFINE_bool  (model,            false, "model");
 DEFINE_bool  (visualize,        false, "visualize");
 DEFINE_bool  (verbose,          false, "verbose");
 DEFINE_bool  (debug,            false, "debug mode");
+DEFINE_bool  (stat,             false, "show stat");
 
 void
 SMTConfig::initializeConfig( )
@@ -109,6 +110,7 @@ SMTConfig::initializeConfig( )
   nra_icp_improve              = 10.0;
   nra_verbose                  = false;
   nra_debug                    = false;
+  nra_stat                     = false;
   nra_proof                    = false;
   nra_model                    = false;
   nra_ODE_parallel             = false;
@@ -363,6 +365,7 @@ SMTConfig::parseCMDLine( int /* argc */
   nra_json                = FLAGS_visualize;
   nra_verbose             = FLAGS_verbose || FLAGS_debug;
   nra_debug               = FLAGS_debug;
+  nra_stat                = FLAGS_stat;
 
   if (nra_proof) {
       /* Open file stream */
