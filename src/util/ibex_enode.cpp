@@ -120,7 +120,12 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
             return &log(*translate_enode_to_exprnode(var_map, e->get1st()));
         case ENODE_ID_POW:
             assert(e->getArity() == 2);
-            return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
+            if (e->get2nd()->isConstant() && e->get2nd()->getValue() == 2) {
+                // If x^2, use sqr(x) instead of pow(x, y)
+                return &sqr(*translate_enode_to_exprnode(var_map, e->get1st()));
+            } else {
+                return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
+            }
         case ENODE_ID_ABS:
             assert(e->getArity() == 1);
             return &abs(*translate_enode_to_exprnode(var_map, e->get1st()));
