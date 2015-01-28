@@ -345,7 +345,7 @@ file(GLOB_RECURSE DREAL_SOURCES
   ${DREAL_SOURCE_DIR}/tests/*.cpp      ${DREAL_SOURCE_DIR}/tests/*.h
   )
 add_style_check_target(style "${DREAL_SOURCES}")
-add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py ${DREAL_SOURCES})
+add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py "--filter=-readability/casting,-whitespace/line_length,-build/header_guard,-whitespace/indent,-runtime/references" ${DREAL_SOURCES})
 
 ADD_CUSTOM_COMMAND(TARGET dReal
           POST_BUILD
