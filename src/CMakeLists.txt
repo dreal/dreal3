@@ -151,12 +151,12 @@ ExternalProject_Add(CLP
   GIT_REPOSITORY https://github.com/soonhokong/clp-1.16.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --enable-static --with-blas=BUILD --with-lapack=BUILD
+  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
 )
-set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "z" "m" ${EXTRA_LIBS})
+set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "m" ${EXTRA_LIBS})
 
 ################################################################
 # External: FILIB
