@@ -49,7 +49,7 @@ char const * contractor_exception::what() const throw() {
 }
 
 ibex::SystemFactory build_system_factory(box const & box, vector<algebraic_constraint *> const & ctrs) {
-    DREAL_LOG_INFO << "build_system_factory:";
+    DREAL_LOG_DEBUG << "build_system_factory:";
     ibex::SystemFactory sf;
     unordered_map<string, ibex::Variable const> var_map;  // Needed for translateEnodeToExprCtr
     // Construct System: add Variables
@@ -70,7 +70,7 @@ ibex::SystemFactory build_system_factory(box const & box, vector<algebraic_const
         var_map.emplace(name, *var);
         sf.add_var(*var);
     }
-    DREAL_LOG_INFO << "build_system_factory: Add Variable: DONE";
+    DREAL_LOG_DEBUG << "build_system_factory: Add Variable: DONE";
     // Construct System: add constraints
     thread_local static unordered_map<Enode *, ibex::ExprCtr const *> tls_exprctr_cache_pos;
     thread_local static unordered_map<Enode *, ibex::ExprCtr const *> tls_exprctr_cache_neg;
@@ -93,8 +93,8 @@ ibex::SystemFactory build_system_factory(box const & box, vector<algebraic_const
         DREAL_LOG_INFO << "build_system_factory: Add Constraint: expr: " << *exprctr;
         sf.add_ctr(*exprctr);
     }
-    DREAL_LOG_INFO << "build_system_factory: Add Constraint: " << "DONE";
-    DREAL_LOG_INFO << "build_system_factory: DONE";
+    DREAL_LOG_DEBUG << "build_system_factory: Add Constraint: " << "DONE";
+    DREAL_LOG_DEBUG << "build_system_factory: DONE";
     return sf;
 }
 
@@ -151,27 +151,36 @@ contractor_ibex_fwdbwd::~contractor_ibex_fwdbwd() {
     delete m_exprctr;
 }
 box contractor_ibex_fwdbwd::prune(box b) const {
+    DREAL_LOG_INFO << "==================================================";
     // Construct iv from box b
     ibex::IntervalVector iv(m_var_array.size());
     for (int i = 0; i < m_var_array.size(); i++) {
         iv[i] = b[m_var_index_map.at(i)];
+        DREAL_LOG_INFO << m_var_index_map.at(i) << " = " << iv[i];
     }
     // Prune on iv
     try {
+        DREAL_LOG_INFO << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
+        DREAL_LOG_INFO << b;
+        DREAL_LOG_INFO << "ibex interval = " << iv << " (before)";
         m_ctc->contract(iv);
-    } catch(ibex::EmptyBoxException&) {
+    } catch(ibex::EmptyBoxException& e) {
         b.set_empty();
-        return b;
     }
+    DREAL_LOG_INFO << "ibex interval = " << iv << " (after)";
     // Reconstruct box b from pruned result iv.
-    for (int i = 0; i < m_var_array.size(); i++) {
-        b[m_var_index_map.at(i)] = iv[i];
+    if (!b.is_empty()) {
+        for (int i = 0; i < m_var_array.size(); i++) {
+            b[m_var_index_map.at(i)] = iv[i];
+        }
     }
+    DREAL_LOG_INFO << "After pruning using ibex_fwdbwd(" << *m_numctr << ")";
+    DREAL_LOG_INFO << b;
     return b;
 }
 contractor_ibex::contractor_ibex(box const & box, vector<algebraic_constraint *> const & ctrs)
     : contractor_cell(contractor_kind::IBEX), m_sf(build_system_factory(box, ctrs)), m_sys(m_sf) {
-    DREAL_LOG_INFO << "contractor_ibex:";
+    DREAL_LOG_DEBUG << "contractor_ibex:";
     // TODO(soonhok): parameterize this one.
     double const prec = 0.001;
     unsigned index = 0;
@@ -204,11 +213,11 @@ contractor_ibex::contractor_ibex(box const & box, vector<algebraic_constraint *>
 
     ctc_list.resize(index);
     m_ctc = new ibex::CtcCompo (ctc_list);
-    DREAL_LOG_INFO << "contractor_ibex: DONE";
+    DREAL_LOG_DEBUG << "contractor_ibex: DONE";
 }
 
 contractor_ibex::~contractor_ibex() {
-    DREAL_LOG_INFO << "~contractor_ibex: DELETED";
+    DREAL_LOG_DEBUG << "~contractor_ibex: DELETED";
     delete m_lrc;
     for (ibex::Ctc * sub_ctc : m_sub_ctcs) {
         delete sub_ctc;
