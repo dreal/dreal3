@@ -159,20 +159,35 @@ ExternalProject_Add(CLP
 set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "z" "m" ${EXTRA_LIBS})
 
 ################################################################
+# External: FILIB
+################################################################
+ExternalProject_Add(FILIB
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+  GIT_REPOSITORY https://github.com/soonhokong/filibxx.git
+  GIT_TAG origin/master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR}
+  BUILD_COMMAND make -j
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND make -j install
+)
+set(EXTRA_LIBS "prim" ${EXTRA_LIBS})
+
+################################################################
 # External: ibex
 ################################################################
 ExternalProject_Add(IBEX
-  DEPENDS CLP
+  DEPENDS CLP FILIB
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/soonhokong/ibex-lib.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR}
+  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR}
   BUILD_COMMAND ./waf build
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND ./waf install
 )
-set(EXTRA_LIBS "ibex" "prim" ${EXTRA_LIBS})
+set(EXTRA_LIBS "ibex" ${EXTRA_LIBS})
 
 ################################################################
 # Threads
