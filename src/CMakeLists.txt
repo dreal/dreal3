@@ -151,7 +151,7 @@ ExternalProject_Add(CLP
   GIT_REPOSITORY https://github.com/soonhokong/clp-1.16.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
+  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --disable-shared --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
