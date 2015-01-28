@@ -182,6 +182,7 @@ struct SMTConfig
   // NRA-Solver related parameters (added for dReal2)
   bool         nra_delta_test;                // precision=(nra_delta_test ? delta : epsilon)
   bool         nra_use_delta_heuristic;       // Split variable in constraint with max residual delta?
+  bool         nra_time_split_heuristic;      // Perform non-uniform splits on time variables
   bool         nra_short_sat;                 // Test theory if CNF is SAT, before have full model.
   double       nra_precision;                 // the value of delta
   double       nra_icp_improve;               // improve value for realpaver(ICP)
