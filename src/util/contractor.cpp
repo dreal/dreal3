@@ -225,7 +225,9 @@ contractor_ibex::~contractor_ibex() {
         delete sub_ctc;
     }
     delete m_ctc;
-    delete m_sys_eqs;
+    if (m_sys_eqs && m_sys_eqs != &m_sys) {
+        delete m_sys_eqs;
+    }
 }
 
 box contractor_ibex::prune(box b) const {
