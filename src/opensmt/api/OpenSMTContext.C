@@ -171,6 +171,12 @@ OpenSMTContext::SetOption( const char * key, const char * attr )
     opensmt_warning2( key, " not yet supported, skipping.")
   else if ( strcmp( key, ":verbosity" ) == 0 )
     config.verbosity = atoi( attr );
+  else if ( strcmp( key, ":precision" ) == 0 ) {
+      // Give precedence to the command line option "--precision"
+      if (config.nra_precision == 0) {
+          config.nra_precision = strtod(attr, nullptr);
+      }
+  }
   else
     opensmt_warning2( "skipping option ", key );
 }
