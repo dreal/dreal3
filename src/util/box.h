@@ -93,6 +93,7 @@ public:
     inline double volume() const { return m_values.volume(); }
 
     friend std::ostream& operator<<(ostream& out, box const & b);
+    std::ostream& display_old_style_model(ostream& out) const;
 };
 
 

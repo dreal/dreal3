@@ -96,6 +96,23 @@ ostream& operator<<(ostream& out, box const & b) {
     return out;
 }
 
+ostream& box::display_old_style_model(ostream& out) const {
+    out << "SAT with the following box:" << endl;
+    out.precision(16);
+    unsigned const s = size();
+    for (unsigned i = 0; i < s; i++) {
+        Enode * e = m_vars[i];
+        string const & name = e->getCar()->getName();
+        ibex::Interval const & v = m_values[i];
+        out << "\t" << name << " : " << v;
+        if (i != (s - 1)) {
+            out << ";";
+        }
+        out << endl;
+    }
+    return out;
+}
+
 pair<box, box> box::split() const {
     // TODO(soonhok): implement other split policy
 

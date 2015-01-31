@@ -232,8 +232,15 @@ bool nra_solver::check(bool complete) {
         }
     }
     if (complete && !m_box.is_empty() && m_box.max_diam() <= prec) {
+        // SAT
         DREAL_LOG_FATAL << "Solution:";
         DREAL_LOG_FATAL << m_box;
+
+        if (config.nra_proof) {
+            config.nra_proof_out.close();
+            config.nra_proof_out.open(config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
+            m_box.display_old_style_model(config.nra_proof_out);
+        }
         return true;
     }
     bool result = !m_box.is_empty();
