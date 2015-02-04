@@ -231,18 +231,6 @@ bool nra_solver::check(bool complete) {
             }
         }
     }
-    if (complete && !m_box.is_empty() && m_box.max_diam() <= prec) {
-        // SAT
-        DREAL_LOG_FATAL << "Solution:";
-        DREAL_LOG_FATAL << m_box;
-
-        if (config.nra_proof) {
-            config.nra_proof_out.close();
-            config.nra_proof_out.open(config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
-            m_box.display_old_style_model(config.nra_proof_out);
-        }
-        return true;
-    }
     bool result = !m_box.is_empty();
     DREAL_LOG_INFO << "nra_solver::check: result = " << boolalpha << result;
     for (constraint const * ctr : m_ctc.used_constraints()) {
@@ -251,6 +239,24 @@ bool nra_solver::check(bool complete) {
     if (!result) {
         explanation = generate_explanation(m_used_constraint_vec);
         // DREAL_LOG_FATAL << "nra_solver::check: explanation size = " << explanation.size();
+    } else if (complete) {
+        // SAT
+        DREAL_LOG_FATAL << "Solution:";
+        DREAL_LOG_FATAL << m_box;
+        // --proof option
+        if (config.nra_proof) {
+            config.nra_proof_out.close();
+            config.nra_proof_out.open(config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
+            m_box.display_old_style_model(config.nra_proof_out);
+        }
+        // --model option
+        if (config.nra_model) {
+            config.nra_model_out.open (config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);            if (config.nra_model_out.fail()) {
+                cout << "Cannot create a file: " << config.nra_model_out_name << endl;
+                exit(1);
+            }
+            m_box.display_old_style_model(config.nra_model_out);
+        }
     }
     return result;
 }
