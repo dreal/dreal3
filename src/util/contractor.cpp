@@ -90,8 +90,10 @@ ibex::SystemFactory build_system_factory(box const & box, vector<algebraic_const
             // Found
             exprctr = exprctr_it->second;
         }
-        DREAL_LOG_INFO << "build_system_factory: Add Constraint: expr: " << *exprctr;
-        sf.add_ctr(*exprctr);
+        if (exprctr) {
+            DREAL_LOG_INFO << "build_system_factory: Add Constraint: expr: " << *exprctr;
+            sf.add_ctr(*exprctr);
+        }
     }
     DREAL_LOG_DEBUG << "build_system_factory: Add Constraint: " << "DONE";
     DREAL_LOG_DEBUG << "build_system_factory: DONE";
@@ -130,27 +132,32 @@ ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_se
 }
 
 contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & /* box */, algebraic_constraint const * const ctr)
-    : contractor_cell(contractor_kind::IBEX_FWDBWD), m_ctr(ctr) {
+    : contractor_cell(contractor_kind::IBEX_FWDBWD), m_ctr(ctr), m_numctr(nullptr), m_exprctr(nullptr) {
     unordered_map<string, ibex::Variable const> var_map;
     m_exprctr = translate_enode_to_exprctr(var_map, ctr->get_enodes()[0]);
-    m_var_array.resize(var_map.size());
-    unsigned i = 0;
-    for (auto const p : var_map) {
-        m_var_array.set_ref(i, p.second);
-        // TODO(soonhok): m_var_index_map is unnecessary. remove it
-        m_var_index_map.emplace(i, p.second.symbol->name);
-        i++;
+    if (m_exprctr) {
+        m_var_array.resize(var_map.size());
+        unsigned i = 0;
+        for (auto const p : var_map) {
+            m_var_array.set_ref(i, p.second);
+            // TODO(soonhok): m_var_index_map is unnecessary. remove it
+            m_var_index_map.emplace(i, p.second.symbol->name);
+            i++;
+        }
+        m_numctr = new ibex::NumConstraint(m_var_array, *m_exprctr);
+        m_ctc = new ibex::CtcFwdBwd(*m_numctr);
+        m_used_constraints.insert(m_ctr);
     }
-    m_numctr = new ibex::NumConstraint(m_var_array, *m_exprctr);
-    m_ctc = new ibex::CtcFwdBwd(*m_numctr);
-    m_used_constraints.insert(m_ctr);
 }
 contractor_ibex_fwdbwd::~contractor_ibex_fwdbwd() {
-    delete m_ctc;
-    delete m_numctr;
-    delete m_exprctr;
+    if (m_ctc) { delete m_ctc; }
+    if (m_numctr) { delete m_numctr; }
+    if (m_exprctr) { delete m_exprctr; }
 }
 box contractor_ibex_fwdbwd::prune(box b) const {
+    if (m_ctc == nullptr) {
+        return b;
+    }
     DREAL_LOG_INFO << "==================================================";
     // Construct iv from box b
     ibex::IntervalVector iv(m_var_array.size());
