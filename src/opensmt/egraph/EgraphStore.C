@@ -577,8 +577,8 @@ Enode * Egraph::mkNum( const char * value )
 
 Enode * Egraph::mkNum(const double v)
 {
-  char buf[ 128 ];
-  sprintf( buf, "%lf", v );
+  char buf[ 256 ];
+  sprintf( buf, "%.30lf", v );
   return mkNum( buf );
 }
 
