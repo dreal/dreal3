@@ -90,6 +90,7 @@ ostream& operator<<(ostream& out, box const & b) {
         Enode * e = b.m_vars[i];
         ibex::Interval const & v = b.m_values[i];
         ibex::Interval const & d = b.m_domains[i];
+        out.precision(16);
         out << e->getCar()->getName()
             << " : " << d << " = " << v << endl;
     }
