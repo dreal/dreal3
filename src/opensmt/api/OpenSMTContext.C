@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <fenv.h>
 #include <algorithm>
 #include <csignal>
 #include <unordered_map>
@@ -30,6 +31,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "simplifiers/Purify.h"
 #include "util/string.h"
 #include "dsolvers/nra_solver.h"
+
+#pragma STDC FENV_ACCESS on
 
 using std::unordered_map;
 
@@ -897,20 +900,26 @@ void OpenSMTContext::addGetInterpolants( )
   command_list.push_back( c );
 }
 
-void OpenSMTContext::addIntvCtr(const char* const op, Enode* const e, double const v, double const d) {
+void OpenSMTContext::addIntvCtr(const char* const op, Enode* const e, const char * v, const char * d) {
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
-        e->setUpperBound(v);
+        fesetround(FE_UPWARD);
+        double const vval = strtod(v, nullptr);
+        e->setUpperBound(vval);
         Enode * const leq = mkLeq(mkCons(e, mkCons(mkNum(v))));
-        if(d != 0.0){
-            leq->setPrecision(d);
+        if(d != nullptr){
+            double const dval = strtod(d, nullptr);
+            leq->setPrecision(dval);
         }
         addAssert(leq);
     }
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
-        e->setLowerBound(v);
+        fesetround(FE_DOWNWARD);
+        double const vval = strtod(v, nullptr);
+        e->setLowerBound(vval);
         Enode * const geq = mkGeq(mkCons(e, mkCons(mkNum(v))));
-        if(d != 0.0){
-            geq->setPrecision(d);
+        if(d != nullptr){
+            double const dval = strtod(d, nullptr);
+            geq->setPrecision(dval);
         }
         addAssert(geq);
     }
@@ -919,7 +928,7 @@ void OpenSMTContext::addIntvCtr(const char* const op, Enode* const e, double con
     }
 }
 
-void OpenSMTContext::addIntvCtrR(const char* const op, double const v, Enode * const e, double const d) {
+void OpenSMTContext::addIntvCtrR(const char* const op, const char * v, Enode * const e, const char * d) {
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
         addIntvCtr( ">=", e, v, d);
     }
