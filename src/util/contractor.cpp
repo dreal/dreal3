@@ -132,7 +132,7 @@ ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_se
 }
 
 contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & /* box */, algebraic_constraint const * const ctr)
-    : contractor_cell(contractor_kind::IBEX_FWDBWD), m_ctr(ctr), m_numctr(nullptr), m_exprctr(nullptr) {
+    : contractor_cell(contractor_kind::IBEX_FWDBWD), m_ctr(ctr), m_exprctr(nullptr), m_numctr(nullptr) {
     unordered_map<string, ibex::Variable const> var_map;
     m_exprctr = translate_enode_to_exprctr(var_map, ctr->get_enodes()[0]);
     if (m_exprctr) {
