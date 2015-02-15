@@ -121,6 +121,9 @@ OpenSMTContext::SetInfo( const char * key, const char * attr )
     ; // Do nothing
   else if ( strcmp( key, ":precision" ) == 0) {
       egraph.setPrecision(atof(attr));
+      if (config.nra_precision == 0) {
+          config.nra_precision = strtod(attr, nullptr);
+      }
   }
   else
     opensmt_error2( "unrecognized key", key );
