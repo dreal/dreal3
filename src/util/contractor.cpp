@@ -247,6 +247,10 @@ contractor_ibex::contractor_ibex(double const prec, box const & box, vector<alge
 
     ctc_list.resize(index);
     m_ctc = new ibex::CtcCompo (ctc_list);
+
+    // Setup Input
+    // TODO(soonhok): this is a rough approximation, which needs to be refined.
+    m_input  = ibex::BitSet::all(box.size());
     DREAL_LOG_DEBUG << "contractor_ibex: DONE";
 }
 
@@ -263,10 +267,19 @@ contractor_ibex::~contractor_ibex() {
 }
 
 box contractor_ibex::prune(box b) const {
+    box old_box = b;
     try {
         m_ctc->contract(b.get_values());
     } catch(ibex::EmptyBoxException&) {
         assert(b.is_empty());
+    }
+    // setup output
+    vector<bool> diff_dims = b.diff_dims(old_box);
+    m_output = ibex::BitSet::empty(old_box.size());
+    for (unsigned i = 0; i < diff_dims.size(); i++) {
+        if (diff_dims[i]) {
+            m_output.add(i);
+        }
     }
     return b;
 }
