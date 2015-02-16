@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <algorithm>
+#include <limits>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -32,6 +33,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 using std::copy;
 using std::endl;
 using std::initializer_list;
+using std::numeric_limits;
 using std::ostream;
 using std::pair;
 using std::sort;
@@ -114,28 +116,36 @@ ostream& box::display_old_style_model(ostream& out) const {
     return out;
 }
 
-pair<box, box> box::split() const {
-    // TODO(soonhok): implement other split policy
+pair<box, box> box::bisect() const {
+    // TODO(soonhok): implement other bisect policy
+    int index = 0;
+    double max_diam = numeric_limits<double>::min();
 
-    // static int i = -1;
-    // i++;
-    // i = i % size();
-    // return split(i);
-
-    return split(m_values.extr_diam_index(false));
+    for (int i = 0; i < m_values.size(); i++) {
+        double current_diam = m_values[i].diam();
+        if (current_diam > max_diam && m_values[i].is_bisectable()) {
+            index = i;
+            max_diam = current_diam;
+        }
+    }
+    return bisect(index);
 }
 
-// Split a box into two boxes by bisecting i-th interval.
-pair<box, box> box::split(int i) const {
-    DREAL_LOG_INFO << "box::split(" << i << ")";
+// Bisect a box into two boxes by bisecting i-th interval.
+pair<box, box> box::bisect(int i) const {
     assert(0 <= i && i < m_values.size());
     box b1(*this);
     box b2(*this);
     ibex::Interval iv = b1.m_values[i];
+    assert(iv.is_bisectable());
     pair<ibex::Interval, ibex::Interval> new_intervals = iv.bisect();
     b1.m_values[i] = new_intervals.first;
     b2.m_values[i] = new_intervals.second;
+    DREAL_LOG_INFO << "box::bisect on " << m_vars[i] << " = " << m_values[i]
+                   << " into " << b1.m_values[i] << " and " << b2.m_values[i];
     return make_pair(b1, b2);
+}
+
 double box::max_diam() const {
     double max_diam = numeric_limits<double>::min();
     for (int i = 0; i < m_values.size(); i++) {
@@ -146,6 +156,7 @@ double box::max_diam() const {
     }
     return max_diam;
 }
+
 vector<bool> box::diff_dims(box const & b) const {
     assert(size() == b.size());
     vector<bool> ret(size(), false);
