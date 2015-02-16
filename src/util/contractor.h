@@ -234,6 +234,9 @@ public:
         assert(m_ptr != nullptr);
         return m_ptr->prune(b);
     }
+    inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
+    inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
+
     friend contractor mk_contractor_ibex(double const prec, box const & box, std::vector<algebraic_constraint const *> const & ctrs);
     friend contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
     friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
@@ -247,6 +250,7 @@ public:
     friend contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     friend contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     friend contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    std::size_t hash() const { return (std::size_t) m_ptr.get(); }
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
 };
 
@@ -266,4 +270,12 @@ contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * c
 contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
 contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
 std::ostream & operator<<(std::ostream & out, contractor const & c);
+
 }  // namespace dreal
+
+namespace std {
+template <>
+struct hash<dreal::contractor> {
+    std::size_t operator()(dreal::contractor const & c) const { return c.hash(); }
+};
+}  // namespace std
