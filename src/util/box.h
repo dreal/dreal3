@@ -50,6 +50,7 @@ public:
     std::pair<box, box> split() const;
     std::pair<box, box> split(int i) const;
 
+    inline bool is_bisectable() const { return m_values.is_bisectable(); }
     inline bool is_empty() { return size() == 0 || m_values.is_empty(); }
     inline ibex::IntervalVector & get_values() { return m_values; }
     inline ibex::IntervalVector const & get_values() const { return m_values; }
