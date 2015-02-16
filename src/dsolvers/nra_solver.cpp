@@ -205,6 +205,55 @@ void nra_solver::popBacktrackPoint() {
     m_stack.pop();
 }
 
+box icp_loop(box b, contractor const & ctc, double const prec) {
+    stack<box> box_stack;
+    box_stack.push(b);
+    do {
+        DREAL_LOG_INFO << "icp_loop()"
+                       << "\t" << "box stack Size = " << box_stack.size();
+        b = box_stack.top();
+        box_stack.pop();
+        b = ctc.prune(b);
+        if (!b.is_empty()) {
+            if (b.max_diam() > prec) {
+                pair<box, box> splits = b.bisect();
+                if (splits.second.is_bisectable()) {
+                    box_stack.push(splits.second);
+                    box_stack.push(splits.first);
+                } else {
+                    box_stack.push(splits.first);
+                    box_stack.push(splits.second);
+                }
+            } else {
+                break;
+            }
+        }
+    } while (box_stack.size() > 0);
+    return b;
+}
+
+void nra_solver::handle_sat_case(box const & b) const {
+    // SAT
+    DREAL_LOG_FATAL << "Solution:";
+    DREAL_LOG_FATAL << b;
+    // --proof option
+    if (config.nra_proof) {
+        config.nra_proof_out.close();
+        config.nra_proof_out.open(config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
+        b.display_old_style_model(config.nra_proof_out);
+    }
+    // --model option
+    if (config.nra_model) {
+        config.nra_model_out.open(config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
+        if (config.nra_model_out.fail()) {
+            cout << "Cannot create a file: " << config.nra_model_out_name << endl;
+            exit(1);
+        }
+        b.display_old_style_model(config.nra_model_out);
+    }
+    return;
+}
+
 // Check for consistency.
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
@@ -215,29 +264,7 @@ bool nra_solver::check(bool complete) {
     m_ctc = build_contractor(m_box, m_stack);
     m_box = m_ctc.prune(m_box);
     if (complete && !m_box.is_empty() && m_box.max_diam() > prec) {
-        stack<box> box_stack;
-        box_stack.push(m_box);
-        while (box_stack.size() > 0) {
-            DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")"
-                           << "\t" << "box stack Size = " << box_stack.size();
-            m_box = box_stack.top();
-            box_stack.pop();
-            m_box = m_ctc.prune(m_box);
-            if (!m_box.is_empty()) {
-                if (m_box.max_diam() > prec) {
-                    pair<box, box> splits = m_box.bisect();
-                    if (splits.second.is_bisectable()) {
-                        box_stack.push(splits.second);
-                        box_stack.push(splits.first);
-                    } else {
-                        box_stack.push(splits.first);
-                        box_stack.push(splits.second);
-                    }
-                } else {
-                    break;
-                }
-            }
-        }
+        m_box = icp_loop(m_box, m_ctc, prec);
     }
     bool result = !m_box.is_empty();
     DREAL_LOG_INFO << "nra_solver::check: result = " << boolalpha << result;
@@ -247,24 +274,7 @@ bool nra_solver::check(bool complete) {
     if (!result) {
         explanation = generate_explanation(m_used_constraint_vec);
     } else if (complete) {
-        // SAT
-        DREAL_LOG_FATAL << "Solution:";
-        DREAL_LOG_FATAL << m_box;
-        // --proof option
-        if (config.nra_proof) {
-            config.nra_proof_out.close();
-            config.nra_proof_out.open(config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
-            m_box.display_old_style_model(config.nra_proof_out);
-        }
-        // --model option
-        if (config.nra_model) {
-            config.nra_model_out.open(config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
-            if (config.nra_model_out.fail()) {
-                cout << "Cannot create a file: " << config.nra_model_out_name << endl;
-                exit(1);
-            }
-            m_box.display_old_style_model(config.nra_model_out);
-        }
+        handle_sat_case(m_box);
     }
     return result;
 }

@@ -90,5 +90,6 @@ private:
     contractor build_contractor(box const & box, scoped_vec<constraint *> const & ctrs);
     std::vector<constraint *> initialize_constraints();
     std::vector<Enode *> generate_explanation(scoped_vec<constraint const *> const & ctr_vec);
+    void handle_sat_case(box const & b) const;
 };
 }  // namespace dreal
