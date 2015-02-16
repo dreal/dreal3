@@ -227,9 +227,14 @@ bool nra_solver::check(bool complete) {
             m_box = m_ctc.prune(m_box);
             if (!m_box.is_empty()) {
                 if (m_box.max_diam() > prec) {
-                    pair<box, box> splits = m_box.split();
-                    box_stack.push(splits.first);
-                    box_stack.push(splits.second);
+                    pair<box, box> splits = m_box.bisect();
+                    if (splits.second.is_bisectable()) {
+                        box_stack.push(splits.second);
+                        box_stack.push(splits.first);
+                    } else {
+                        box_stack.push(splits.first);
+                        box_stack.push(splits.second);
+                    }
                 } else {
                     break;
                 }
