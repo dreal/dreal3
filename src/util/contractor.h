@@ -83,6 +83,7 @@ public:
 // contractor_IBEX : contractor using IBEX
 class contractor_ibex : public contractor_cell {
 private:
+    double const                     m_prec;
     ibex::Array<ibex::NumConstraint> m_numctrs;
     ibex::SystemFactory              m_sf;
     ibex::System                     m_sys;
@@ -92,7 +93,7 @@ private:
     ibex::Ctc *                      m_ctc = nullptr;
 
 public:
-    contractor_ibex(box const & box, std::vector<algebraic_constraint *> const & ctrs);
+    contractor_ibex(double const prec, box const & box, std::vector<algebraic_constraint const *> const & ctrs);
     ~contractor_ibex();
     box prune(box b) const;
     std::ostream & display(std::ostream & out) const;
@@ -135,18 +136,21 @@ public:
 // Repeatedly applying the contractor while the condition is met
 class contractor_fixpoint : public contractor_cell {
 private:
-    std::function<bool(box const &, box const &)> m_guard;
+    double const m_prec;
+    std::function<bool(box const &, box const &)> m_term_cond;
     std::vector<contractor> m_clist;
+
     // Naive fixedpoint algorithm
     box naive_fixpoint_alg(box old_b) const;
     box naive_fixpoint_alg_old(box old_b) const;
     // Worklist fixedpoint algorithm
     box worklist_fixpoint_alg(box old_b) const;
+
 public:
-    contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
-    contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
-    contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
-    contractor_fixpoint(std::function<bool(box const &, box const &)> guard,
+    contractor_fixpoint(double const prec, std::function<bool(box const &, box const &)> term_cond, contractor const & c);
+    contractor_fixpoint(double const prec, std::function<bool(box const &, box const &)> term_cond, std::initializer_list<contractor> const & clist);
+    contractor_fixpoint(double const prec, std::function<bool(box const &, box const &)> term_cond, std::vector<contractor> const & cvec);
+    contractor_fixpoint(double const prec, std::function<bool(box const &, box const &)> term_cond,
                         std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2);
     box prune(box b) const;
     std::ostream & display(std::ostream & out) const;
@@ -224,6 +228,7 @@ public:
         assert(m_ptr != nullptr);
         return m_ptr->prune(b);
     }
+    friend contractor mk_contractor_ibex(double const prec, box const & box, std::vector<algebraic_constraint const *> const & ctrs);
     friend contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
     friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
     friend contractor mk_contractor_try(contractor const & c1, contractor const & c2);
@@ -239,15 +244,15 @@ public:
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
 };
 
-contractor mk_contractor_ibex(box const & box, std::vector<algebraic_constraint *> const & ctrs);
+contractor mk_contractor_ibex(double const prec, box const & box, std::vector<algebraic_constraint const *> const & ctrs);
 contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
 contractor mk_contractor_try(contractor const & c1, contractor const & c2);
 contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard,
+contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &, box const &)> guard, contractor const & c);
+contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
+contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
+contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &, box const &)> guard,
                                   std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2);
 contractor mk_contractor_int();
 contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);

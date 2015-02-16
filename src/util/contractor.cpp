@@ -216,13 +216,13 @@ ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
     }
     return out;
 }
+contractor_ibex::contractor_ibex(double const prec, box const & box, vector<algebraic_constraint const *> const & ctrs)
+    : contractor_cell(contractor_kind::IBEX), m_prec(prec), m_sf(build_system_factory(box, ctrs)), m_sys(m_sf) {
     DREAL_LOG_DEBUG << "contractor_ibex:";
-    // TODO(soonhok): parameterize this one.
-    double const prec = 0.001;
     unsigned index = 0;
 
     ibex::Array<ibex::Ctc> ctc_list(4);
-    ibex::CtcHC4 * ctc_hc4 = new ibex::CtcHC4(m_sys.ctrs, 0.01);
+    ibex::CtcHC4 * ctc_hc4 = new ibex::CtcHC4(m_sys.ctrs, prec);
     ctc_list.set_ref(index++, *ctc_hc4);
     m_sub_ctcs.push_back(ctc_hc4);
 
@@ -359,15 +359,15 @@ ostream & contractor_ite::display(ostream & out) const {
     return out;
 }
 
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> guard, contractor const & c)
-    : contractor_cell(contractor_kind::FP), m_guard(guard), m_clist(1, c) { }
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> guard, initializer_list<contractor> const & clist)
-    : contractor_cell(contractor_kind::FP), m_guard(guard), m_clist(clist) { }
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> guard, vector<contractor> const & cvec)
-    : contractor_cell(contractor_kind::FP), m_guard(guard), m_clist(cvec) { }
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> guard,
+contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const &, box const &)> term_cond, contractor const & c)
+    : contractor_cell(contractor_kind::FP), m_prec(p), m_term_cond(term_cond), m_clist(1, c) { }
+contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const &, box const &)> term_cond, initializer_list<contractor> const & clist)
+    : contractor_cell(contractor_kind::FP), m_prec(p), m_term_cond(term_cond), m_clist(clist) { }
+contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const &, box const &)> term_cond, vector<contractor> const & cvec)
+    : contractor_cell(contractor_kind::FP), m_prec(p), m_term_cond(term_cond), m_clist(cvec) { }
+contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const &, box const &)> term_cond,
                                          vector<contractor> const & cvec1, vector<contractor> const & cvec2)
-    : contractor_cell(contractor_kind::FP), m_guard(guard), m_clist(cvec1) {
+    : contractor_cell(contractor_kind::FP), m_prec(p), m_term_cond(term_cond), m_clist(cvec1) {
     copy(cvec2.begin(), cvec2.end(), back_inserter(m_clist));
 }
 
