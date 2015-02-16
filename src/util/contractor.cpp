@@ -51,10 +51,10 @@ char const * contractor_exception::what() const throw() {
     return "contractor exception";
 }
 
-ibex::SystemFactory build_system_factory(box const & box, vector<algebraic_constraint *> const & ctrs) {
 std::ostream & operator<<(std::ostream & out, contractor_cell const & c) {
     return c.display(out);
 }
+ibex::SystemFactory build_system_factory(box const & box, vector<algebraic_constraint const *> const & ctrs) {
     DREAL_LOG_DEBUG << "build_system_factory:";
     ibex::SystemFactory sf;
     unordered_map<string, ibex::Variable const> var_map;  // Needed for translateEnodeToExprCtr
@@ -80,7 +80,7 @@ std::ostream & operator<<(std::ostream & out, contractor_cell const & c) {
     // Construct System: add constraints
     thread_local static unordered_map<Enode *, ibex::ExprCtr const *> tls_exprctr_cache_pos;
     thread_local static unordered_map<Enode *, ibex::ExprCtr const *> tls_exprctr_cache_neg;
-    for (algebraic_constraint * ctr : ctrs) {
+    for (algebraic_constraint const * ctr : ctrs) {
         DREAL_LOG_INFO << "build_system_factory: Add Constraint: " << *ctr;
         Enode * e = ctr->get_enodes()[0];
         auto p = e->getPolarity();
@@ -137,8 +137,8 @@ ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_se
     return ret;
 }
 
-contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & /* box */, algebraic_constraint const * const ctr)
-    : contractor_cell(contractor_kind::IBEX_FWDBWD), m_ctr(ctr), m_exprctr(nullptr), m_numctr(nullptr) {
+contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr)
+    : contractor_cell(contractor_kind::IBEX_FWDBWD, box.size()), m_ctr(ctr), m_exprctr(nullptr), m_numctr(nullptr) {
     unordered_map<string, ibex::Variable const> var_map;
     m_exprctr = translate_enode_to_exprctr(var_map, ctr->get_enodes()[0]);
     if (m_exprctr) {
@@ -172,17 +172,17 @@ box contractor_ibex_fwdbwd::prune(box b) const {
     if (m_ctc == nullptr) {
         return b;
     }
-    DREAL_LOG_INFO << "==================================================";
+    DREAL_LOG_DEBUG << "==================================================";
     // Construct iv from box b
     ibex::IntervalVector iv(m_var_array.size());
     for (int i = 0; i < m_var_array.size(); i++) {
         iv[i] = b[m_var_index_map.at(i)];
-        DREAL_LOG_INFO << m_var_index_map.at(i) << " = " << iv[i];
+        DREAL_LOG_DEBUG << m_var_index_map.at(i) << " = " << iv[i];
     }
     // Prune on iv
     try {
-        DREAL_LOG_INFO << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
-        DREAL_LOG_INFO << b;
+        DREAL_LOG_DEBUG << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
+        DREAL_LOG_DEBUG << b;
         DREAL_LOG_DEBUG << "ibex interval = " << iv << " (before)";
         DREAL_LOG_DEBUG << "function = " << m_ctc->f;
         DREAL_LOG_DEBUG << "domain   = " << m_ctc->d;
@@ -208,8 +208,6 @@ box contractor_ibex_fwdbwd::prune(box b) const {
     DREAL_LOG_DEBUG << b;
     return b;
 }
-contractor_ibex::contractor_ibex(box const & box, vector<algebraic_constraint *> const & ctrs)
-    : contractor_cell(contractor_kind::IBEX), m_sf(build_system_factory(box, ctrs)), m_sys(m_sf) {
 ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
     if (m_ctc != nullptr) {
         out << "contractor_ibex_fwdbwd(" << *m_numctr << ")";
@@ -372,9 +370,9 @@ contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const
 }
 
 box contractor_fixpoint::prune(box old_b) const {
-//    box naive_result    = naive_fixpoint_alg(old_b);
+//    box naive_result const & = naive_fixpoint_alg(old_b);
 //    return naive_result;
-    box worklist_result = worklist_fixpoint_alg(old_b);
+    box const & worklist_result = worklist_fixpoint_alg(old_b);
     return worklist_result;
 }
 ostream & contractor_fixpoint::display(ostream & out) const {
@@ -458,7 +456,6 @@ box contractor_fixpoint::worklist_fixpoint_alg(box old_box) const {
     return new_box;
 }
 
-// TODO(soonhok): need to take alg/ode constraints
 contractor_int::contractor_int() : contractor_cell(contractor_kind::INT) { }
 box contractor_int::prune(box b) const {
     m_input  = ibex::BitSet::empty(b.size());
@@ -479,7 +476,6 @@ box contractor_int::prune(box b) const {
             }
         }
         i++;
-        // TODO(soonhok): stop when iv[i] is empty
     }
     return b;
 }
