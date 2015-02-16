@@ -283,6 +283,10 @@ box contractor_capd_fwd_simple::prune(box b) const {
 //     IVector_to_varlist(X_t, m_t_vars);
 //     return ODE_result::SAT;
 // }
+ostream & contractor_capd_fwd_simple::display(ostream & out) const {
+    // TODO(soonhok): implement this
+    return out;
+}
 
 contractor_capd_fwd_full::contractor_capd_fwd_full(box const & /* box */, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size)
     : contractor_cell(contractor_kind::CAPD_FWD), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size) {
@@ -414,6 +418,10 @@ box contractor_capd_fwd_full::prune(box b) const {
     DREAL_LOG_INFO << "T   : " << T;
     return b;
 }
+ostream & contractor_capd_fwd_full::display(ostream & out) const {
+    // TODO(soonhok): implement this
+    return out;
+}
 
 contractor_capd_bwd_simple::contractor_capd_bwd_simple(box const & /* box */, ode_constraint const * const ctr)
     : contractor_cell(contractor_kind::CAPD_FWD), m_ctr(ctr) {
@@ -422,6 +430,10 @@ contractor_capd_bwd_simple::contractor_capd_bwd_simple(box const & /* box */, od
 box contractor_capd_bwd_simple::prune(box b) const {
     // TODO(soonhok): implement this
     return b;
+}
+ostream & contractor_capd_bwd_simple::display(ostream & out) const {
+    // TODO(soonhok): implement this
+    return out;
 }
 
 contractor_capd_bwd_full::contractor_capd_bwd_full(box const & /*box*/, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size)
@@ -432,6 +444,10 @@ box contractor_capd_bwd_full::prune(box b) const {
     DREAL_LOG_INFO << "contractor_capd_bwd_full::prune";
     DREAL_LOG_INFO << *m_ctr;
     return b;
+}
+ostream & contractor_capd_bwd_full::display(ostream & out) const {
+    // TODO(soonhok): implement this
+    return out;
 }
 
 contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr) {

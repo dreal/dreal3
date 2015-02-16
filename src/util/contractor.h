@@ -57,7 +57,10 @@ public:
     virtual box prune(box b) const = 0;
     explicit contractor_cell(contractor_kind kind) : m_kind(kind) { }
     virtual ~contractor_cell() { }
+    virtual std::ostream & display(std::ostream & out) const = 0;
 };
+
+std::ostream & operator<<(std::ostream & out, contractor_cell const & c);
 
 class contractor_ibex_fwdbwd : public contractor_cell {
 private:
@@ -72,6 +75,7 @@ public:
     contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
     ~contractor_ibex_fwdbwd();
     box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
 };
 
 // contractor_IBEX : contractor using IBEX
@@ -89,6 +93,7 @@ public:
     contractor_ibex(box const & box, std::vector<algebraic_constraint *> const & ctrs);
     ~contractor_ibex();
     box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
 };
 
 // contractor_seq : Try C1, C2, ... , Cn sequentially.
@@ -98,6 +103,7 @@ private:
 public:
     contractor_seq(std::initializer_list<contractor> const & l);
     box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
 };
 
 // contractor_try : Try C1 if it fails, try C2.
@@ -108,6 +114,7 @@ private:
 public:
     contractor_try(contractor const & c1, contractor const & c2);
     box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
 };
 
 // contractor_ite : If then else
@@ -119,6 +126,7 @@ private:
 public:
     contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
     box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
 };
 
 // contractor_fixpoint
@@ -134,6 +142,7 @@ public:
     contractor_fixpoint(std::function<bool(box const &, box const &)> guard,
                         std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2);
     box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
 };
 
 class contractor_int : public contractor_cell {
@@ -141,6 +150,7 @@ private:
 public:
     contractor_int();
     box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
 };
 
 class contractor_capd_fwd_simple : public contractor_cell {
@@ -150,6 +160,7 @@ private:
 public:
     contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr);
     box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
 };
 
 class contractor_capd_fwd_full : public contractor_cell {
@@ -164,6 +175,7 @@ private:
 public:
     contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
 };
 
 class contractor_capd_bwd_simple : public contractor_cell {
@@ -173,6 +185,7 @@ private:
 public:
     contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr);
     box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
 };
 
 class contractor_capd_bwd_full : public contractor_cell {
@@ -183,6 +196,7 @@ private:
 public:
     contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
 };
 
 
@@ -214,6 +228,7 @@ public:
     friend contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     friend contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     friend contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    friend std::ostream & operator<<(std::ostream & out, contractor const & c);
 };
 
 contractor mk_contractor_ibex(box const & box, std::vector<algebraic_constraint *> const & ctrs);
@@ -231,4 +246,5 @@ contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const *
 contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
 contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
 contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
+std::ostream & operator<<(std::ostream & out, contractor const & c);
 }  // namespace dreal

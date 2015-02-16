@@ -49,6 +49,9 @@ char const * contractor_exception::what() const throw() {
 }
 
 ibex::SystemFactory build_system_factory(box const & box, vector<algebraic_constraint *> const & ctrs) {
+std::ostream & operator<<(std::ostream & out, contractor_cell const & c) {
+    return c.display(out);
+}
     DREAL_LOG_DEBUG << "build_system_factory:";
     ibex::SystemFactory sf;
     unordered_map<string, ibex::Variable const> var_map;  // Needed for translateEnodeToExprCtr
@@ -189,6 +192,12 @@ box contractor_ibex_fwdbwd::prune(box b) const {
 }
 contractor_ibex::contractor_ibex(box const & box, vector<algebraic_constraint *> const & ctrs)
     : contractor_cell(contractor_kind::IBEX), m_sf(build_system_factory(box, ctrs)), m_sys(m_sf) {
+ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
+    if (m_ctc != nullptr) {
+        out << "contractor_ibex_fwdbwd(" << *m_numctr << ")";
+    }
+    return out;
+}
     DREAL_LOG_DEBUG << "contractor_ibex:";
     // TODO(soonhok): parameterize this one.
     double const prec = 0.001;
@@ -245,6 +254,14 @@ box contractor_ibex::prune(box b) const {
     }
     return b;
 }
+ostream & contractor_ibex::display(ostream & out) const {
+    out << "contractor_ibex(";
+    for (int i = 0; i < m_numctrs.size(); i++) {
+        out << m_numctrs[i] << ", ";
+    }
+    out << ")";
+    return out;
+}
 
 contractor_seq::contractor_seq(initializer_list<contractor> const & l)
     : contractor_cell(contractor_kind::SEQ), m_vec(l) { }
@@ -258,6 +275,14 @@ box contractor_seq::prune(box b) const {
         }
     }
     return b;
+}
+ostream & contractor_seq::display(ostream & out) const {
+    out << "contractor_seq(";
+    for (contractor const & c : m_vec) {
+        out << c << ", ";
+    }
+    out << ")";
+    return out;
 }
 
 contractor_try::contractor_try(contractor const & c1, contractor const & c2)
@@ -275,6 +300,12 @@ box contractor_try::prune(box b) const {
         return b;
     }
 }
+ostream & contractor_try::display(ostream & out) const {
+    out << "contractor_try("
+        << m_c1 << ", "
+        << m_c2 << ")";
+    return out;
+}
 
 contractor_ite::contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else)
     : contractor_cell(contractor_kind::ITE), m_guard(guard), m_c_then(c_then), m_c_else(c_else) { }
@@ -291,6 +322,12 @@ box contractor_ite::prune(box b) const {
         return b;
     }
 }
+ostream & contractor_ite::display(ostream & out) const {
+    out << "contractor_ite("
+        << m_c_then << ", "
+        << m_c_else << ")";
+    return out;
+}
 
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> guard, contractor const & c)
     : contractor_cell(contractor_kind::FP), m_guard(guard), m_clist(1, c) { }
@@ -306,6 +343,14 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
 
 box contractor_fixpoint::prune(box old_b) const {
     box new_b = old_b;
+ostream & contractor_fixpoint::display(ostream & out) const {
+    out << "contractor_fixpoint(";
+    for (contractor const & c : m_clist) {
+        out << c << ", ";
+    }
+    out << ")";
+    return out;
+}
     do {
         old_b = new_b;
         for (contractor const & c : m_clist) {
@@ -334,6 +379,10 @@ box contractor_int::prune(box b) const {
         // TODO(soonhok): stop when iv[i] is empty
     }
     return b;
+}
+ostream & contractor_int::display(ostream & out) const {
+    out << "contractor_int()";
+    return out;
 }
 
 contractor mk_contractor_ibex(box const & box, vector<algebraic_constraint *> const & ctrs) {
@@ -368,4 +417,9 @@ contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard
 contractor mk_contractor_int() {
     return contractor(shared_ptr<contractor_cell>(new contractor_int()));
 }
+std::ostream & operator<<(std::ostream & out, contractor const & c) {
+    out << *(c.m_ptr);
+    return out;
+}
+
 }  // namespace dreal
