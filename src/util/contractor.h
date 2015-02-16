@@ -47,16 +47,18 @@ class contractor_exception : public std::exception {
 class contractor_cell {
 protected:
     contractor_kind m_kind;
-    mutable std::vector<bool> m_input;
-    mutable std::vector<bool> m_output;
+    mutable ibex::BitSet m_input;
+    mutable ibex::BitSet m_output;
     mutable std::unordered_set<constraint const *> m_used_constraints;
 public:
-    inline std::vector<bool> input() const { return m_input; }
-    inline std::vector<bool> output() const { return m_output; }
+    explicit contractor_cell(contractor_kind kind) : m_kind(kind) { }
+    contractor_cell(contractor_kind kind, unsigned n)
+        : m_kind(kind), m_input(ibex::BitSet::empty(n)), m_output(ibex::BitSet::all(n)) { }
+    virtual ~contractor_cell() { }
+    inline ibex::BitSet input()  const { return m_input; }
+    inline ibex::BitSet output() const { return m_output; }
     inline std::unordered_set<constraint const *> used_constraints() const { return m_used_constraints; }
     virtual box prune(box b) const = 0;
-    explicit contractor_cell(contractor_kind kind) : m_kind(kind) { }
-    virtual ~contractor_cell() { }
     virtual std::ostream & display(std::ostream & out) const = 0;
 };
 
@@ -210,12 +212,13 @@ public:
     explicit contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) { }
     ~contractor() { m_ptr.reset(); }
 
-    inline std::vector<bool> input() const { return m_ptr->input(); }
-    inline std::vector<bool> output() const { return m_ptr->output(); }
+    inline ibex::BitSet input() const { return m_ptr->input(); }
+    inline ibex::BitSet output() const { return m_ptr->output(); }
     inline std::unordered_set<constraint const *> used_constraints() const { return m_ptr->used_constraints(); }
-    inline box prune(box b) const { b = m_ptr->prune(b); return b; }
-
-    friend contractor mk_contractor_ibex(box const & box, std::vector<algebraic_constraint *> const & ctrs);
+    inline box prune(box const & b) const {
+        assert(m_ptr != nullptr);
+        return m_ptr->prune(b);
+    }
     friend contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
     friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
     friend contractor mk_contractor_try(contractor const & c1, contractor const & c2);

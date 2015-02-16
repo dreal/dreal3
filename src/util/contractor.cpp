@@ -150,6 +150,14 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & /* box */, algebraic_
         }
         m_numctr = new ibex::NumConstraint(m_var_array, *m_exprctr);
         m_ctc = new ibex::CtcFwdBwd(*m_numctr);
+
+        // Set up input
+        ibex::BitSet const * const input = m_ctc->input;
+        for (unsigned i = 0; i <  input->size(); i++) {
+            if ((*input)[i]) {
+                m_input.add(box.get_index(m_var_index_map.at(i)));
+            }
+        }
         m_used_constraints.insert(m_ctr);
     }
 }
@@ -187,8 +195,15 @@ box contractor_ibex_fwdbwd::prune(box b) const {
             b[m_var_index_map.at(i)] = iv[i];
         }
     }
-    DREAL_LOG_INFO << "After pruning using ibex_fwdbwd(" << *m_numctr << ")";
-    DREAL_LOG_INFO << b;
+    ibex::BitSet const * const output = m_ctc->output;
+    for (unsigned i = 0; i <  output->size(); i++) {
+        if ((*output)[i]) {
+            m_output.add(b.get_index(m_var_index_map.at(i)));
+        }
+    }
+
+    DREAL_LOG_DEBUG << "After pruning using ibex_fwdbwd(" << *m_numctr << ")";
+    DREAL_LOG_DEBUG << b;
     return b;
 }
 contractor_ibex::contractor_ibex(box const & box, vector<algebraic_constraint *> const & ctrs)
@@ -267,8 +282,12 @@ ostream & contractor_ibex::display(ostream & out) const {
 contractor_seq::contractor_seq(initializer_list<contractor> const & l)
     : contractor_cell(contractor_kind::SEQ), m_vec(l) { }
 box contractor_seq::prune(box b) const {
+    m_input  = ibex::BitSet::empty(b.size());
+    m_output = ibex::BitSet::empty(b.size());
     for (contractor const & c : m_vec) {
         b = c.prune(b);
+        m_input.union_with(c.input());
+        m_output.union_with(c.output());
         unordered_set<constraint const *> const & used_ctrs = c.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         if (b.is_empty()) {
@@ -291,11 +310,15 @@ contractor_try::contractor_try(contractor const & c1, contractor const & c2)
 box contractor_try::prune(box b) const {
     try {
         b = m_c1.prune(b);
+        m_input  = m_c1.input();
+        m_output = m_c1.input();
         unordered_set<constraint const *> const & used_ctrs = m_c1.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
     } catch (contractor_exception & e) {
         b = m_c2.prune(b);
+        m_input  = m_c2.input();
+        m_output = m_c2.input();
         unordered_set<constraint const *> const & used_ctrs = m_c2.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
@@ -313,11 +336,15 @@ contractor_ite::contractor_ite(function<bool(box const &)> guard, contractor con
 box contractor_ite::prune(box b) const {
     if (m_guard(b)) {
         b = m_c_then.prune(b);
+        m_input  = m_c_then.input();
+        m_output = m_c_then.input();
         unordered_set<constraint const *> const & used_ctrs = m_c_then.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
     } else {
         b = m_c_else.prune(b);
+        m_input  = m_c_else.input();
+        m_output = m_c_else.input();
         unordered_set<constraint const *> const & used_ctrs = m_c_else.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
@@ -370,11 +397,22 @@ ostream & contractor_fixpoint::display(ostream & out) const {
 // TODO(soonhok): need to take alg/ode constraints
 contractor_int::contractor_int() : contractor_cell(contractor_kind::INT) { }
 box contractor_int::prune(box b) const {
+    m_input  = ibex::BitSet::empty(b.size());
+    m_output = ibex::BitSet::empty(b.size());
     unsigned i = 0;
     ibex::IntervalVector iv = b.get_values();
     for (Enode * e : b.get_vars()) {
         if (e->hasSortInt()) {
+            auto old_iv = iv[i];
             iv[i] = ibex::integer(iv[i]);
+            if (old_iv != iv[i]) {
+                m_input.add(i);
+                m_output.add(i);
+            }
+            if (iv[i].is_empty()) {
+                b.set_empty();
+                break;
+            }
         }
         i++;
         // TODO(soonhok): stop when iv[i] is empty
