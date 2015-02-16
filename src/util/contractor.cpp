@@ -220,7 +220,7 @@ contractor_ibex::contractor_ibex(double const prec, box const & box, vector<alge
     unsigned index = 0;
 
     ibex::Array<ibex::Ctc> ctc_list(4);
-    ibex::CtcHC4 * ctc_hc4 = new ibex::CtcHC4(m_sys.ctrs, prec);
+    ibex::CtcHC4 * ctc_hc4 = new ibex::CtcHC4(m_sys.ctrs, m_prec);
     ctc_list.set_ref(index++, *ctc_hc4);
     m_sub_ctcs.push_back(ctc_hc4);
 
@@ -231,7 +231,7 @@ contractor_ibex::contractor_ibex(double const prec, box const & box, vector<alge
     m_sys_eqs = square_eq_sys(m_sys);
     if (m_sys_eqs) {
         DREAL_LOG_INFO << "contractor_ibex: SQUARE SYSTEM";
-        ibex::CtcNewton * ctc_newton = new ibex::CtcNewton(m_sys_eqs->f, 5e8, prec, 1.e-4);
+        ibex::CtcNewton * ctc_newton = new ibex::CtcNewton(m_sys_eqs->f, 5e8, m_prec, 1.e-4);
         ctc_list.set_ref(index++, *ctc_newton);
         m_sub_ctcs.push_back(ctc_newton);
     }
