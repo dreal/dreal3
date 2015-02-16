@@ -218,7 +218,13 @@ private:
 
 public:
     contractor() : m_ptr(nullptr) { }
-    explicit contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) { }
+    explicit contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) {
+            assert(m_ptr != nullptr);
+    }
+    contractor(contractor const & c) : m_ptr(c.m_ptr) {
+        assert(m_ptr);
+    }
+    // contractor(contractor && c) : m_id(c.m_id), m_ptr(std::move(c.m_ptr)) {}
     ~contractor() { m_ptr.reset(); }
 
     inline ibex::BitSet input() const { return m_ptr->input(); }
