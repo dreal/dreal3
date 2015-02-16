@@ -136,6 +136,16 @@ pair<box, box> box::split(int i) const {
     b1.m_values[i] = new_intervals.first;
     b2.m_values[i] = new_intervals.second;
     return make_pair(b1, b2);
+double box::max_diam() const {
+    double max_diam = numeric_limits<double>::min();
+    for (int i = 0; i < m_values.size(); i++) {
+        double current_diam = m_values[i].diam();
+        if (current_diam > max_diam && m_values[i].is_bisectable()) {
+            max_diam = current_diam;
+        }
+    }
+    return max_diam;
+}
 vector<bool> box::diff_dims(box const & b) const {
     assert(size() == b.size());
     vector<bool> ret(size(), false);

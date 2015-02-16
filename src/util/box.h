@@ -90,8 +90,7 @@ public:
     inline ibex::Interval& operator[](Enode * const e) {
         return operator[](e->getCar()->getName());
     }
-    inline double max_diam() const { return m_values.max_diam(); }
-    inline int extr_diam_index(bool min) const { return m_values.extr_diam_index(min); }
+    double max_diam() const;
     inline double volume() const { return m_values.volume(); }
 
     friend std::ostream& operator<<(ostream& out, box const & b);
