@@ -36,6 +36,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/ibex_enode.h"
 #include "util/logging.h"
 
+using std::make_shared;
 using std::back_inserter;
 using std::function;
 using std::initializer_list;
@@ -385,38 +386,39 @@ ostream & contractor_int::display(ostream & out) const {
     return out;
 }
 
-contractor mk_contractor_ibex(box const & box, vector<algebraic_constraint *> const & ctrs) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_ibex(box, ctrs)));
+contractor mk_contractor_ibex(double const prec, box const & box, vector<algebraic_constraint const *> const & ctrs) {
+    return contractor(make_shared<contractor_ibex>(prec, box, ctrs));
 }
 
 contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_ibex_fwdbwd(box, ctr)));
+    return contractor(make_shared<contractor_ibex_fwdbwd>(box, ctr));
 }
 contractor mk_contractor_seq(initializer_list<contractor> const & l) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_seq(l)));
+    return contractor(make_shared<contractor_seq>(l));
 }
 contractor mk_contractor_try(contractor const & c1, contractor const & c2) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_try(c1, c2)));
+    return contractor(make_shared<contractor_try>(c1, c2));
 }
 contractor mk_contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_ite(guard, c_then, c_else)));
+    return contractor(make_shared<contractor_ite>(guard, c_then, c_else));
 }
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, contractor const & c) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_fixpoint(guard, c)));
+contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box const &)> guard, contractor const & c) {
+    return contractor(make_shared<contractor_fixpoint>(p, guard, c));
 }
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, initializer_list<contractor> const & clist) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_fixpoint(guard, clist)));
+contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box const &)> guard, initializer_list<contractor> const & clist) {
+    return contractor(make_shared<contractor_fixpoint>(p, guard, clist));
 }
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, vector<contractor> const & cvec) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_fixpoint(guard, cvec)));
+contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box const &)> guard, vector<contractor> const & cvec) {
+    return contractor(make_shared<contractor_fixpoint>(p, guard, cvec));
 }
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
+contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box const &)> guard,
                                   vector<contractor> const & cvec1, vector<contractor> const & cvec2) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_fixpoint(guard, cvec1, cvec2)));
+    return contractor(make_shared<contractor_fixpoint>(p, guard, cvec1, cvec2));
 }
 contractor mk_contractor_int() {
-    return contractor(shared_ptr<contractor_cell>(new contractor_int()));
+    return contractor(make_shared<contractor_int>());
 }
+
 std::ostream & operator<<(std::ostream & out, contractor const & c) {
     out << *(c.m_ptr);
     return out;

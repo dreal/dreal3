@@ -40,6 +40,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/constraint.h"
 #include "util/contractor.h"
 
+using std::make_shared;
 using std::function;
 using std::initializer_list;
 using std::list;
@@ -451,15 +452,15 @@ ostream & contractor_capd_bwd_full::display(ostream & out) const {
 }
 
 contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_capd_fwd_simple(box, ctr)));
+    return contractor(make_shared<contractor_capd_fwd_simple>(box, ctr));
 }
 contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_capd_fwd_full(box, ctr, taylor_order, grid_size)));
+    return contractor(make_shared<contractor_capd_fwd_full>(box, ctr, taylor_order, grid_size));
 }
 contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_capd_bwd_simple(box, ctr)));
+    return contractor(make_shared<contractor_capd_bwd_simple>(box, ctr));
 }
 contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size) {
-    return contractor(shared_ptr<contractor_cell>(new contractor_capd_bwd_full(box, ctr, taylor_order, grid_size)));
+    return contractor(make_shared<contractor_capd_bwd_full>(box, ctr, taylor_order, grid_size));
 }
 }  // namespace dreal
