@@ -58,6 +58,14 @@ public:
     inline std::vector<Enode *> const & get_vars() const { return m_vars; }
     inline unsigned size() const { return m_values.size(); }
     inline void set_empty() { m_values.set_empty(); }
+    inline unsigned get_index(string const & s) const {
+        auto const it = m_name_index_map.find(s);
+        if (m_name_index_map.find(s) != m_name_index_map.end()) {
+            return it->second;
+        } else {
+            throw std::logic_error("box::get_index(" + s + "): doesn not have the key " + s);
+        }
+    }
     inline const ibex::Interval& operator[](int i) const {
         assert(i >= 0 && i < static_cast<int>(size()));
         return m_values[i];
@@ -89,6 +97,11 @@ public:
     inline ibex::Interval& operator[](Enode * const e) {
         return operator[](e->getCar()->getName());
     }
+
+    inline string get_name(unsigned i) const {
+        return m_vars[i]->getCar()->getName();
+    }
+
     double max_diam() const;
     inline double volume() const { return m_values.volume(); }
 
