@@ -87,7 +87,7 @@ private:
     box m_box;
     stat m_stat;
 
-    contractor build_contractors(box const & box, scoped_vec<constraint *> const & ctrs);
+    contractor build_contractor(box const & box, scoped_vec<constraint *> const & ctrs);
     std::vector<constraint *> initialize_constraints();
     std::vector<Enode *> generate_explanation(scoped_vec<constraint const *> const & ctr_vec);
 };

@@ -146,28 +146,33 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
     return ctrs;
 }
 
-contractor nra_solver::build_contractors(box const & box, scoped_vec<constraint *> const &ctrs) {
-    vector<algebraic_constraint *> alg_ctrs;
+contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *> const &ctrs) {
+    vector<algebraic_constraint const *> alg_ctrs;
     vector<contractor> alg_ctcs;
+    alg_ctcs.reserve(ctrs.size());
     vector<contractor> ode_ctcs;
+    ode_ctcs.reserve(ctrs.size());
     for (constraint * const ctr : ctrs) {
         if (ctr->get_type() == constraint_type::Algebraic) {
-            algebraic_constraint * alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
-            alg_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, alg_ctr));
+            algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
+            alg_ctcs.emplace_back(make_shared<contractor_ibex_fwdbwd>(box, alg_ctr));
             alg_ctrs.push_back(alg_ctr);
         } else if (ctr->get_type() == constraint_type::ODE) {
-            ode_ctcs.push_back(mk_contractor_capd_fwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size));
+            ode_ctcs.emplace_back(make_shared<contractor_capd_fwd_full>(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size));
         }
     }
-    auto guard_fn = [](dreal::box const & old_box, dreal::box const & new_box) {
-        double const threshold = 0.50;
-        return (new_box.volume() / old_box.volume()) < threshold;
+
+    auto term_cond = [](dreal::box const & old_box, dreal::box const & new_box) {
+        double const threshold = 0.05;
+        double const new_volume = new_box.volume();
+        double const old_volume = old_box.volume();
+        if (old_volume == 0.0) return true;
+        double const improvement = 1.00 - (new_volume / old_volume);
+        return improvement < threshold;
     };
 
-    // std::unordered_map<string, std::unordered_map<string, Enode *>> flow_maps;
-    alg_ctcs.push_back(mk_contractor_ibex(box, alg_ctrs));
-
-    return mk_contractor_fixpoint(guard_fn, alg_ctcs, ode_ctcs);
+    alg_ctcs.push_back(mk_contractor_ibex(config.nra_precision, box, alg_ctrs));
+    return mk_contractor_fixpoint(config.nra_precision, term_cond, alg_ctcs, ode_ctcs);
 }
 
 // Saves a backtrack point You are supposed to keep track of the
@@ -209,7 +214,7 @@ bool nra_solver::check(bool complete) {
     }
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")";
     double const prec = config.nra_precision;
-    m_ctc = build_contractors(m_box, m_stack);
+    m_ctc = build_contractor(m_box, m_stack);
     m_box = m_ctc.prune(m_box);
     if (complete && !m_box.is_empty() && m_box.max_diam() > prec) {
         stack<box> box_stack;
