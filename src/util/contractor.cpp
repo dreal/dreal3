@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <queue>
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
@@ -42,6 +43,7 @@ using std::function;
 using std::initializer_list;
 using std::unordered_set;
 using std::vector;
+using std::queue;
 
 namespace dreal {
 
@@ -370,7 +372,11 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
 }
 
 box contractor_fixpoint::prune(box old_b) const {
-    box new_b = old_b;
+//    box naive_result    = naive_fixpoint_alg(old_b);
+//    return naive_result;
+    box worklist_result = worklist_fixpoint_alg(old_b);
+    return worklist_result;
+}
 ostream & contractor_fixpoint::display(ostream & out) const {
     out << "contractor_fixpoint(";
     for (contractor const & c : m_clist) {
@@ -379,19 +385,77 @@ ostream & contractor_fixpoint::display(ostream & out) const {
     out << ")";
     return out;
 }
+
+box contractor_fixpoint::naive_fixpoint_alg(box old_box) const {
+    box new_box = old_box;
+    m_input  = ibex::BitSet::empty(old_box.size());
+    m_output = ibex::BitSet::empty(old_box.size());
+    // Fixed Point Loop
     do {
-        old_b = new_b;
+        old_box = new_box;
         for (contractor const & c : m_clist) {
-            // DREAL_LOG_INFO << new_b;
-            new_b = c.prune(new_b);
+            new_box = c.prune(new_box);
+            m_input.union_with(c.input());
+            m_output.union_with(c.output());
             unordered_set<constraint const *> const & used_constraints = c.used_constraints();
             m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
-            if (new_b.is_empty()) {
-                return new_b;
+            if (new_box.is_empty() || new_box.max_diam() < m_prec) {
+                return new_box;
             }
         }
-    } while (m_guard(old_b, new_b));
-    return new_b;
+    } while (!m_term_cond(old_box, new_box));
+    return new_box;
+}
+
+box contractor_fixpoint::worklist_fixpoint_alg(box old_box) const {
+    box new_box = old_box;
+    m_input  = ibex::BitSet::empty(old_box.size());
+    m_output = ibex::BitSet::empty(old_box.size());
+
+    // Add all contractors to the queue.
+    unordered_set<contractor> c_set;
+    queue<contractor> q;
+
+    for (contractor const & c : m_clist) {
+        if (c_set.find(c) == c_set.end()) {
+            q.push(c);
+            c_set.insert(c);
+        }
+    }
+    unsigned const num_initial_ctcs = c_set.size();
+    unsigned count = 0;
+    // Fixed Point Loop
+    do {
+        old_box = new_box;
+        contractor const & c = q.front();
+        new_box = c.prune(new_box);
+        count++;
+        m_input.union_with(c.input());
+        m_output.union_with(c.output());
+        unordered_set<constraint const *> const & used_constraints = c.used_constraints();
+        m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
+        if (new_box.is_empty() || new_box.max_diam() < m_prec) {
+            return new_box;
+        }
+        c_set.erase(c);
+        q.pop();
+
+        vector<bool> diff_dims = new_box.diff_dims(old_box);
+        for (unsigned i = 0; i < diff_dims.size(); i++) {
+            if (diff_dims[i]) {
+                for (contractor const & c : m_clist) {
+                    if (c.input()[i]) {
+                        if (c_set.find(c) == c_set.end()) {
+                            q.push(c);
+                            c_set.insert(c);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    } while ((count < num_initial_ctcs) || !m_term_cond(old_box, new_box));
+    return new_box;
 }
 
 // TODO(soonhok): need to take alg/ode constraints

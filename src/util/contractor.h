@@ -137,6 +137,11 @@ class contractor_fixpoint : public contractor_cell {
 private:
     std::function<bool(box const &, box const &)> m_guard;
     std::vector<contractor> m_clist;
+    // Naive fixedpoint algorithm
+    box naive_fixpoint_alg(box old_b) const;
+    box naive_fixpoint_alg_old(box old_b) const;
+    // Worklist fixedpoint algorithm
+    box worklist_fixpoint_alg(box old_b) const;
 public:
     contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
     contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
