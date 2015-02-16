@@ -136,5 +136,12 @@ pair<box, box> box::split(int i) const {
     b1.m_values[i] = new_intervals.first;
     b2.m_values[i] = new_intervals.second;
     return make_pair(b1, b2);
+vector<bool> box::diff_dims(box const & b) const {
+    assert(size() == b.size());
+    vector<bool> ret(size(), false);
+    for (unsigned i = 0; i < b.size(); i++) {
+        if (m_values[i] != b.m_values[i]) { ret[i] = true; }
+    }
+    return ret;
 }
 }  // namespace dreal
