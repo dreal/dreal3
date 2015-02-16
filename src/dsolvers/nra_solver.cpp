@@ -209,9 +209,7 @@ void nra_solver::popBacktrackPoint() {
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
     if (config.nra_stat) { m_stat.increase_check(complete); }
-    if (m_stack.size() == 0) {
-        return true;
-    }
+    if (m_stack.size() == 0) { return true; }
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")";
     double const prec = config.nra_precision;
     m_ctc = build_contractor(m_box, m_stack);
@@ -248,7 +246,6 @@ bool nra_solver::check(bool complete) {
     }
     if (!result) {
         explanation = generate_explanation(m_used_constraint_vec);
-        // DREAL_LOG_FATAL << "nra_solver::check: explanation size = " << explanation.size();
     } else if (complete) {
         // SAT
         DREAL_LOG_FATAL << "Solution:";
@@ -261,7 +258,8 @@ bool nra_solver::check(bool complete) {
         }
         // --model option
         if (config.nra_model) {
-            config.nra_model_out.open (config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);            if (config.nra_model_out.fail()) {
+            config.nra_model_out.open(config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
+            if (config.nra_model_out.fail()) {
                 cout << "Cannot create a file: " << config.nra_model_out_name << endl;
                 exit(1);
             }
