@@ -92,19 +92,22 @@ void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
 
 ostream& operator<<(ostream& out, box const & b) {
     unsigned const s = b.size();
+    std::streamsize ss = out.precision();
+    out.precision(16);
     for (unsigned i = 0; i < s; i++) {
         Enode * e = b.m_vars[i];
         ibex::Interval const & v = b.m_values[i];
         ibex::Interval const & d = b.m_domains[i];
-        out.precision(16);
         out << e->getCar()->getName()
             << " : " << d << " = " << v << endl;
     }
+    out.precision(ss);
     return out;
 }
 
 ostream& box::display_old_style_model(ostream& out) const {
     out << "SAT with the following box:" << endl;
+    std::streamsize ss = out.precision();
     out.precision(16);
     unsigned const s = size();
     for (unsigned i = 0; i < s; i++) {
@@ -117,6 +120,7 @@ ostream& box::display_old_style_model(ostream& out) const {
         }
         out << endl;
     }
+    out.precision(ss);
     return out;
 }
 
