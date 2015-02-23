@@ -333,6 +333,7 @@ add_executable(dReal main.cpp)
 target_link_libraries(dReal ${EXTRA_LIBS})
 
 #add tests
+add_subdirectory(tests/util)
 add_subdirectory(tests/nra)
 add_subdirectory(tests/nra_ode)
 add_subdirectory(tests/c_api)
