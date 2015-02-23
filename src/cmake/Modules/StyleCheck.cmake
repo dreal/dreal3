@@ -32,7 +32,7 @@ function(add_style_check_target TARGET_NAME SOURCES_LIST)
                         "${CMAKE_SOURCE_DIR}"
                         "${PYTHON_EXECUTABLE}"
                         "${CMAKE_MODULE_PATH}cpplint.py"
-                        "--filter=-readability/casting,-whitespace/line_length,-build/header_guard,-whitespace/indent,-runtime/references"
+                        "--filter=-readability/casting,-whitespace/line_length,-build/header_guard,-whitespace/indent,-runtime/references,-build/c++11"
                         ${SOURCES_LIST}
                 DEPENDS ${SOURCES_LIST}
                 COMMENT "Checking code style."
