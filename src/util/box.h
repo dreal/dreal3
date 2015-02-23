@@ -23,6 +23,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <initializer_list>
 #include <unordered_map>
+#include <unordered_set>
+#include <set>
 #include <vector>
 #include <utility>
 #include <string>
@@ -50,6 +52,7 @@ public:
     std::pair<box, box> bisect() const;
     std::pair<box, box> bisect(int i) const;
     vector<bool> diff_dims(box const & b) const;
+    std::set<std::vector<double>> sample_points(unsigned const n) const;
     inline bool is_bisectable() const { return m_values.is_bisectable(); }
     inline bool is_empty() { return size() == 0 || m_values.is_empty(); }
     inline ibex::IntervalVector & get_values() { return m_values; }

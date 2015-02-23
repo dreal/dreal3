@@ -20,7 +20,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <algorithm>
+#include <chrono>
 #include <limits>
+#include <random>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -36,6 +39,7 @@ using std::initializer_list;
 using std::numeric_limits;
 using std::ostream;
 using std::pair;
+using std::set;
 using std::sort;
 using std::string;
 using std::unordered_set;
@@ -165,4 +169,32 @@ vector<bool> box::diff_dims(box const & b) const {
     }
     return ret;
 }
+
+vector<double> sample_point(ibex::IntervalVector const & values) {
+    static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
+    unsigned const n = values.size();
+    vector<double> point(n);
+    for (unsigned i = 0; i < n; i++) {
+        ibex::Interval const & iv = values[i];
+        double const lb = iv.lb();
+        double const ub = iv.ub();
+        if (lb == ub) {
+            point[i] = lb;
+        } else {
+            std::uniform_real_distribution<double> m_dist(lb, ub);
+            point[i] = m_dist(rg);
+        }
+    }
+    return point;
+}
+
+set<vector<double>> box::sample_points(unsigned const n) const {
+    set<vector<double>> points;
+    for (unsigned i = 0; i < n; i++) {
+        points.insert(sample_point(m_values));
+    }
+    return points;
+}
+
+
 }  // namespace dreal
