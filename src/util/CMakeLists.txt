@@ -11,6 +11,7 @@ add_library(util
   contractor_capd.cpp
   flow.cpp
   ibex_enode.cpp
+  point.cpp
   stat.cpp
   string.cpp
   "${DREAL_BINARY_DIR}/git_sha1.cpp"
