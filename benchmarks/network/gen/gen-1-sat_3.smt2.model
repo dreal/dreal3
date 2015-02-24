@@ -1,0 +1,197 @@
+delta-sat with the following box:
+	fuellevel_gen_0_0 : [980, 980];
+	fuellevel_gen_0_t : [980, 980];
+	fuellevel_gen_1_0 : [980, 980];
+	fuellevel_gen_1_t : [980, 980];
+	fuellevel_gen_2_0 : [980, 980];
+	fuellevel_gen_2_t : [979.9999999999999, 980];
+	fuellevel_gen_3_0 : [979.9999999999999, 980];
+	fuellevel_gen_3_t : [979.9999999999998, 980];
+	gamma_available_tank1_1_1_0 : [0, 0];
+	gamma_available_tank1_1_2_0 : [0, 0];
+	gamma_available_tank1_1_3_0 : [1, 1];
+	gamma_available_tank1_2_0_0 : [1, 1];
+	gamma_available_tank1_2_1_0 : [1, 1];
+	gamma_available_tank1_2_2_0 : [1, 1];
+	gamma_available_tank1_2_3_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_1_0 : [1, 1];
+	gamma_generate_gen_automaton0_1_2_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_3_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_0_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_1_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_2_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_3_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_2_0 : [1, 1];
+	gamma_generate_gen_automaton0_3_3_0 : [1, 1];
+	gamma_generate_gen_automaton0_4_3_0 : [0, 0];
+	gamma_generator_ran0_1_0_0 : [1, 1];
+	gamma_generator_ran0_1_1_0 : [1, 1];
+	gamma_generator_ran0_1_2_0 : [1, 1];
+	gamma_generator_ran0_1_3_0 : [1, 1];
+	gamma_generator_ran0_2_1_0 : [0, 0];
+	gamma_generator_ran0_2_2_0 : [0, 0];
+	gamma_generator_ran0_2_3_0 : [0, 0];
+	gamma_lock_automaton0_1_1_0 : [1, 1];
+	gamma_lock_automaton0_1_2_0 : [0, 0];
+	gamma_lock_automaton0_1_3_0 : [1, 1];
+	gamma_lock_automaton0_2_0_0 : [1, 1];
+	gamma_lock_automaton0_2_1_0 : [0, 0];
+	gamma_lock_automaton0_2_2_0 : [1, 1];
+	gamma_lock_automaton0_2_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_1_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_2_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_3_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_2_0_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_2_1_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_2_2_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_2_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_3_2_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_3_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_3_0 : [0, 0];
+	gamma_refueling_gen1_1_0_0 : [1, 1];
+	gamma_refueling_gen1_1_1_0 : [1, 1];
+	gamma_refueling_gen1_1_2_0 : [1, 1];
+	gamma_refueling_gen1_1_3_0 : [0, 0];
+	gamma_refueling_gen1_2_1_0 : [0, 0];
+	gamma_refueling_gen1_2_2_0 : [0, 0];
+	gamma_refueling_gen1_2_3_0 : [1, 1];
+	mode_1_0 : [1, 1];
+	mode_1_1 : [1, 1];
+	mode_1_2 : [1, 1];
+	mode_1_3 : [2, 2];
+	mode_2_0 : [2, 2];
+	mode_2_1 : [2, 2];
+	mode_2_2 : [2, 2];
+	mode_2_3 : [1, 1];
+	mode_3_0 : [1, 1];
+	mode_3_1 : [1, 1];
+	mode_3_2 : [1, 1];
+	mode_3_3 : [1, 1];
+	mode_4_0 : [2, 2];
+	mode_4_1 : [1, 1];
+	mode_4_2 : [3, 3];
+	mode_4_3 : [3, 3];
+	mode_5_0 : [2, 2];
+	mode_5_1 : [1, 1];
+	mode_5_2 : [2, 2];
+	mode_5_3 : [1, 1];
+	mode_6_0 : [2, 2];
+	mode_6_1 : [2, 2];
+	mode_6_2 : [2, 2];
+	mode_6_3 : [1, 1];
+	time_0 : [0, 1e-05];
+	time_1 : [0, 4.940656458412465e-324];
+	time_2 : [0, 4.940656458412465e-324];
+	time_3 : [0, 4.940656458412465e-324];
+	time_generate_gen_automaton_0_0 : [0, 0];
+	time_generate_gen_automaton_0_t : [0, 0];
+	time_generate_gen_automaton_1_0 : [0, 0];
+	time_generate_gen_automaton_1_t : [0, 0];
+	time_generate_gen_automaton_2_0 : [0, 0];
+	time_generate_gen_automaton_2_t : [0, 0];
+	time_generate_gen_automaton_3_0 : [0, 0];
+	time_generate_gen_automaton_3_t : [0, 0];
+	time_rt1_0_0 : [0, 0];
+	time_rt1_0_t : [0, 0];
+	time_rt1_1_0 : [0, 0];
+	time_rt1_1_t : [0, 0];
+	time_rt1_2_0 : [0, 0];
+	time_rt1_2_t : [0, 0];
+	time_rt1_3_0 : [0, 0];
+	time_rt1_3_t : [0, 0]                  sync_do_stop_refuel1_0 : U
+                      sync_do_stop_gen_0 : U
+                 sync_do_start_refuel1_0 : U
+                     sync_do_start_gen_0 : U
+                 sync_did_stop_refuel1_0 : U
+                     sync_did_stop_gen_0 : U
+                sync_did_start_refuel1_0 : U
+                    sync_did_start_gen_0 : U
+                           CNF_1195_1192 : U
+                           CNF_1195_1181 : U
+                           CNF_1254_1248 : U
+                           CNF_1254_1239 : U
+                           CNF_1254_1232 : U
+                           CNF_1254_1227 : U
+                           CNF_1254_1215 : U
+                           CNF_1277_1274 : U
+                           CNF_1277_1265 : U
+                           CNF_1289_1286 : U
+                           CNF_1289_1281 : U
+                           CNF_1302_1299 : U
+                           CNF_1302_1294 : U
+                           CNF_1316_1313 : U
+                           CNF_1316_1307 : U
+                           CNF_1325_1320 : U
+                           CNF_1332_1327 : U
+                  sync_do_stop_refuel1_1 : U
+                      sync_do_stop_gen_1 : U
+                 sync_do_start_refuel1_1 : U
+                     sync_do_start_gen_1 : U
+                 sync_did_stop_refuel1_1 : U
+                     sync_did_stop_gen_1 : U
+                sync_did_start_refuel1_1 : U
+                    sync_did_start_gen_1 : U
+                           CNF_1794_1790 : U
+                           CNF_1794_1776 : U
+                           CNF_1794_1765 : U
+                           CNF_1886_1876 : U
+                           CNF_1886_1868 : U
+                           CNF_1886_1862 : U
+                           CNF_1886_1858 : U
+                           CNF_1886_1847 : U
+                           CNF_1886_1838 : U
+                           CNF_1886_1831 : U
+                           CNF_1886_1826 : U
+                           CNF_1886_1814 : U
+                           CNF_1919_1915 : U
+                           CNF_1919_1906 : U
+                           CNF_1919_1895 : U
+                           CNF_1931_1928 : U
+                           CNF_1931_1923 : U
+                           CNF_1944_1941 : U
+                           CNF_1944_1936 : U
+                           CNF_1965_1961 : U
+                           CNF_1965_1956 : U
+                           CNF_1965_1950 : U
+                           CNF_1977_1973 : U
+                           CNF_1977_1971 : U
+                           CNF_1987_1983 : U
+                           CNF_1987_1981 : U
+                  sync_do_stop_refuel1_2 : U
+                      sync_do_stop_gen_2 : U
+                 sync_do_start_refuel1_2 : U
+                     sync_do_start_gen_2 : U
+                 sync_did_stop_refuel1_2 : U
+                     sync_did_stop_gen_2 : U
+                sync_did_start_refuel1_2 : U
+                    sync_did_start_gen_2 : U
+                           CNF_2550_2545 : U
+                           CNF_2550_2534 : U
+                           CNF_2550_2525 : U
+                           CNF_2550_2513 : U
+                           CNF_2642_2632 : U
+                           CNF_2642_2624 : U
+                           CNF_2642_2618 : U
+                           CNF_2642_2614 : U
+                           CNF_2642_2603 : U
+                           CNF_2642_2594 : U
+                           CNF_2642_2587 : U
+                           CNF_2642_2582 : U
+                           CNF_2642_2570 : U
+                           CNF_2686_2681 : U
+                           CNF_2686_2672 : F
+                           CNF_2686_2663 : F
+                           CNF_2686_2651 : U
+                           CNF_2698_2695 : U
+                           CNF_2698_2690 : U
+                           CNF_2711_2708 : U
+                           CNF_2711_2703 : U
+                           CNF_2732_2728 : U
+                           CNF_2732_2723 : U
+                           CNF_2732_2717 : U
+                           CNF_2747_2742 : U
+                           CNF_2747_2740 : U
+                           CNF_2747_2738 : U
+                           CNF_2760_2755 : U
+                           CNF_2760_2753 : F
+                           CNF_2760_2751 : F

@@ -1,0 +1,3298 @@
+delta-sat with the following box:
+	fuellevel_gen_0_0 : [920, 920];
+	fuellevel_gen_0_t : [920, 920];
+	fuellevel_gen_10_0 : [979.9999999999999, 980.0000000000009];
+	fuellevel_gen_10_t : [979.9999999999999, 980.000000000001];
+	fuellevel_gen_11_0 : [979.9999999999999, 980.000000000001];
+	fuellevel_gen_11_t : [979.9999999999999, 980.0000000000011];
+	fuellevel_gen_12_0 : [979.9999999999999, 980.0000000000011];
+	fuellevel_gen_12_t : [979.9999999999999, 980.0000000000013];
+	fuellevel_gen_13_0 : [979.9999999999999, 980.0000000000013];
+	fuellevel_gen_13_t : [979.9999999999999, 980.0000000000014];
+	fuellevel_gen_14_0 : [979.9999999999999, 980.0000000000014];
+	fuellevel_gen_14_t : [979.9999999999999, 980.0000000000015];
+	fuellevel_gen_15_0 : [979.9999999999999, 980.0000000000015];
+	fuellevel_gen_15_t : [979.9999999999999, 980.0000000000016];
+	fuellevel_gen_16_0 : [979.9999999999999, 980.0000000000016];
+	fuellevel_gen_16_t : [989.9999999999999, 990.0000000000017];
+	fuellevel_gen_17_0 : [989.9999999999999, 990.0000000000017];
+	fuellevel_gen_17_t : [989.9999999999999, 990.0000000000017];
+	fuellevel_gen_18_0 : [989.9999999999999, 990.0000000000017];
+	fuellevel_gen_18_t : [0, 1.818989403545856e-12];
+	fuellevel_gen_19_0 : [0, 1.818989403545856e-12];
+	fuellevel_gen_19_t : [0, 1.818989403545856e-12];
+	fuellevel_gen_1_0 : [920, 920];
+	fuellevel_gen_1_t : [920, 920];
+	fuellevel_gen_2_0 : [920, 920];
+	fuellevel_gen_2_t : [920, 920.0000000000001];
+	fuellevel_gen_3_0 : [920, 920.0000000000001];
+	fuellevel_gen_3_t : [920, 920.0000000000002];
+	fuellevel_gen_4_0 : [920, 920.0000000000002];
+	fuellevel_gen_4_t : [920, 920.0000000000003];
+	fuellevel_gen_5_0 : [920, 920.0000000000003];
+	fuellevel_gen_5_t : [920, 920.0000000000005];
+	fuellevel_gen_6_0 : [920, 920.0000000000005];
+	fuellevel_gen_6_t : [979.9999999999999, 980.0000000000006];
+	fuellevel_gen_7_0 : [979.9999999999999, 980.0000000000006];
+	fuellevel_gen_7_t : [979.9999999999999, 980.0000000000007];
+	fuellevel_gen_8_0 : [979.9999999999999, 980.0000000000007];
+	fuellevel_gen_8_t : [979.9999999999999, 980.0000000000008];
+	fuellevel_gen_9_0 : [979.9999999999999, 980.0000000000008];
+	fuellevel_gen_9_t : [979.9999999999999, 980.0000000000009];
+	gamma_available_tank1_1_10_0 : [1, 1];
+	gamma_available_tank1_1_11_0 : [1, 1];
+	gamma_available_tank1_1_12_0 : [1, 1];
+	gamma_available_tank1_1_13_0 : [1, 1];
+	gamma_available_tank1_1_14_0 : [1, 1];
+	gamma_available_tank1_1_15_0 : [1, 1];
+	gamma_available_tank1_1_16_0 : [1, 1];
+	gamma_available_tank1_1_17_0 : [1, 1];
+	gamma_available_tank1_1_18_0 : [1, 1];
+	gamma_available_tank1_1_19_0 : [1, 1];
+	gamma_available_tank1_1_1_0 : [1, 1];
+	gamma_available_tank1_1_2_0 : [1, 1];
+	gamma_available_tank1_1_3_0 : [1, 1];
+	gamma_available_tank1_1_4_0 : [1, 1];
+	gamma_available_tank1_1_5_0 : [1, 1];
+	gamma_available_tank1_1_6_0 : [1, 1];
+	gamma_available_tank1_1_7_0 : [1, 1];
+	gamma_available_tank1_1_8_0 : [1, 1];
+	gamma_available_tank1_1_9_0 : [1, 1];
+	gamma_available_tank1_2_0_0 : [1, 1];
+	gamma_available_tank1_2_10_0 : [0, 0];
+	gamma_available_tank1_2_11_0 : [0, 0];
+	gamma_available_tank1_2_12_0 : [0, 0];
+	gamma_available_tank1_2_13_0 : [0, 0];
+	gamma_available_tank1_2_14_0 : [0, 0];
+	gamma_available_tank1_2_15_0 : [0, 0];
+	gamma_available_tank1_2_16_0 : [0, 0];
+	gamma_available_tank1_2_17_0 : [0, 0];
+	gamma_available_tank1_2_18_0 : [0, 0];
+	gamma_available_tank1_2_19_0 : [0, 0];
+	gamma_available_tank1_2_1_0 : [0, 0];
+	gamma_available_tank1_2_2_0 : [0, 0];
+	gamma_available_tank1_2_3_0 : [0, 0];
+	gamma_available_tank1_2_4_0 : [0, 0];
+	gamma_available_tank1_2_5_0 : [0, 0];
+	gamma_available_tank1_2_6_0 : [0, 0];
+	gamma_available_tank1_2_7_0 : [0, 0];
+	gamma_available_tank1_2_8_0 : [0, 0];
+	gamma_available_tank1_2_9_0 : [0, 0];
+	gamma_available_tank2_1_10_0 : [1, 1];
+	gamma_available_tank2_1_11_0 : [1, 1];
+	gamma_available_tank2_1_12_0 : [1, 1];
+	gamma_available_tank2_1_13_0 : [1, 1];
+	gamma_available_tank2_1_14_0 : [1, 1];
+	gamma_available_tank2_1_15_0 : [1, 1];
+	gamma_available_tank2_1_16_0 : [1, 1];
+	gamma_available_tank2_1_17_0 : [1, 1];
+	gamma_available_tank2_1_18_0 : [1, 1];
+	gamma_available_tank2_1_19_0 : [1, 1];
+	gamma_available_tank2_1_1_0 : [0, 0];
+	gamma_available_tank2_1_2_0 : [0, 0];
+	gamma_available_tank2_1_3_0 : [0, 0];
+	gamma_available_tank2_1_4_0 : [0, 0];
+	gamma_available_tank2_1_5_0 : [1, 1];
+	gamma_available_tank2_1_6_0 : [1, 1];
+	gamma_available_tank2_1_7_0 : [1, 1];
+	gamma_available_tank2_1_8_0 : [1, 1];
+	gamma_available_tank2_1_9_0 : [1, 1];
+	gamma_available_tank2_2_0_0 : [1, 1];
+	gamma_available_tank2_2_10_0 : [0, 0];
+	gamma_available_tank2_2_11_0 : [0, 0];
+	gamma_available_tank2_2_12_0 : [0, 0];
+	gamma_available_tank2_2_13_0 : [0, 0];
+	gamma_available_tank2_2_14_0 : [0, 0];
+	gamma_available_tank2_2_15_0 : [0, 0];
+	gamma_available_tank2_2_16_0 : [0, 0];
+	gamma_available_tank2_2_17_0 : [0, 0];
+	gamma_available_tank2_2_18_0 : [0, 0];
+	gamma_available_tank2_2_19_0 : [0, 0];
+	gamma_available_tank2_2_1_0 : [1, 1];
+	gamma_available_tank2_2_2_0 : [1, 1];
+	gamma_available_tank2_2_3_0 : [1, 1];
+	gamma_available_tank2_2_4_0 : [1, 1];
+	gamma_available_tank2_2_5_0 : [0, 0];
+	gamma_available_tank2_2_6_0 : [0, 0];
+	gamma_available_tank2_2_7_0 : [0, 0];
+	gamma_available_tank2_2_8_0 : [0, 0];
+	gamma_available_tank2_2_9_0 : [0, 0];
+	gamma_available_tank3_1_10_0 : [1, 1];
+	gamma_available_tank3_1_11_0 : [1, 1];
+	gamma_available_tank3_1_12_0 : [1, 1];
+	gamma_available_tank3_1_13_0 : [1, 1];
+	gamma_available_tank3_1_14_0 : [1, 1];
+	gamma_available_tank3_1_15_0 : [1, 1];
+	gamma_available_tank3_1_16_0 : [1, 1];
+	gamma_available_tank3_1_17_0 : [1, 1];
+	gamma_available_tank3_1_18_0 : [1, 1];
+	gamma_available_tank3_1_19_0 : [1, 1];
+	gamma_available_tank3_1_1_0 : [0, 0];
+	gamma_available_tank3_1_2_0 : [0, 0];
+	gamma_available_tank3_1_3_0 : [0, 0];
+	gamma_available_tank3_1_4_0 : [0, 0];
+	gamma_available_tank3_1_5_0 : [0, 0];
+	gamma_available_tank3_1_6_0 : [0, 0];
+	gamma_available_tank3_1_7_0 : [0, 0];
+	gamma_available_tank3_1_8_0 : [0, 0];
+	gamma_available_tank3_1_9_0 : [1, 1];
+	gamma_available_tank3_2_0_0 : [1, 1];
+	gamma_available_tank3_2_10_0 : [0, 0];
+	gamma_available_tank3_2_11_0 : [0, 0];
+	gamma_available_tank3_2_12_0 : [0, 0];
+	gamma_available_tank3_2_13_0 : [0, 0];
+	gamma_available_tank3_2_14_0 : [0, 0];
+	gamma_available_tank3_2_15_0 : [0, 0];
+	gamma_available_tank3_2_16_0 : [0, 0];
+	gamma_available_tank3_2_17_0 : [0, 0];
+	gamma_available_tank3_2_18_0 : [0, 0];
+	gamma_available_tank3_2_19_0 : [0, 0];
+	gamma_available_tank3_2_1_0 : [1, 1];
+	gamma_available_tank3_2_2_0 : [1, 1];
+	gamma_available_tank3_2_3_0 : [1, 1];
+	gamma_available_tank3_2_4_0 : [1, 1];
+	gamma_available_tank3_2_5_0 : [1, 1];
+	gamma_available_tank3_2_6_0 : [1, 1];
+	gamma_available_tank3_2_7_0 : [1, 1];
+	gamma_available_tank3_2_8_0 : [1, 1];
+	gamma_available_tank3_2_9_0 : [0, 0];
+	gamma_available_tank4_1_10_0 : [1, 1];
+	gamma_available_tank4_1_11_0 : [1, 1];
+	gamma_available_tank4_1_12_0 : [1, 1];
+	gamma_available_tank4_1_13_0 : [1, 1];
+	gamma_available_tank4_1_14_0 : [1, 1];
+	gamma_available_tank4_1_15_0 : [1, 1];
+	gamma_available_tank4_1_16_0 : [1, 1];
+	gamma_available_tank4_1_17_0 : [1, 1];
+	gamma_available_tank4_1_18_0 : [1, 1];
+	gamma_available_tank4_1_19_0 : [1, 1];
+	gamma_available_tank4_1_1_0 : [0, 0];
+	gamma_available_tank4_1_2_0 : [0, 0];
+	gamma_available_tank4_1_3_0 : [1, 1];
+	gamma_available_tank4_1_4_0 : [1, 1];
+	gamma_available_tank4_1_5_0 : [1, 1];
+	gamma_available_tank4_1_6_0 : [1, 1];
+	gamma_available_tank4_1_7_0 : [1, 1];
+	gamma_available_tank4_1_8_0 : [1, 1];
+	gamma_available_tank4_1_9_0 : [1, 1];
+	gamma_available_tank4_2_0_0 : [1, 1];
+	gamma_available_tank4_2_10_0 : [0, 0];
+	gamma_available_tank4_2_11_0 : [0, 0];
+	gamma_available_tank4_2_12_0 : [0, 0];
+	gamma_available_tank4_2_13_0 : [0, 0];
+	gamma_available_tank4_2_14_0 : [0, 0];
+	gamma_available_tank4_2_15_0 : [0, 0];
+	gamma_available_tank4_2_16_0 : [0, 0];
+	gamma_available_tank4_2_17_0 : [0, 0];
+	gamma_available_tank4_2_18_0 : [0, 0];
+	gamma_available_tank4_2_19_0 : [0, 0];
+	gamma_available_tank4_2_1_0 : [1, 1];
+	gamma_available_tank4_2_2_0 : [1, 1];
+	gamma_available_tank4_2_3_0 : [0, 0];
+	gamma_available_tank4_2_4_0 : [0, 0];
+	gamma_available_tank4_2_5_0 : [0, 0];
+	gamma_available_tank4_2_6_0 : [0, 0];
+	gamma_available_tank4_2_7_0 : [0, 0];
+	gamma_available_tank4_2_8_0 : [0, 0];
+	gamma_available_tank4_2_9_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_10_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_11_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_12_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_13_0 : [1, 1];
+	gamma_generate_gen_automaton0_1_14_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_15_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_16_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_17_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_18_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_19_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_1_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_2_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_3_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_4_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_5_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_6_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_7_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_8_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_9_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_0_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_10_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_11_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_12_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_13_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_14_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_15_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_16_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_17_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_18_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_19_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_1_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_2_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_3_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_4_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_5_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_6_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_7_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_8_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_9_0 : [1, 1];
+	gamma_generate_gen_automaton0_3_10_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_11_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_12_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_13_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_14_0 : [1, 1];
+	gamma_generate_gen_automaton0_3_15_0 : [1, 1];
+	gamma_generate_gen_automaton0_3_16_0 : [1, 1];
+	gamma_generate_gen_automaton0_3_17_0 : [1, 1];
+	gamma_generate_gen_automaton0_3_18_0 : [1, 1];
+	gamma_generate_gen_automaton0_3_19_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_2_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_3_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_4_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_5_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_6_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_7_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_8_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_9_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_10_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_11_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_12_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_13_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_14_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_15_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_16_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_17_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_18_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_19_0 : [1, 1];
+	gamma_generate_gen_automaton0_4_3_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_4_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_5_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_6_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_7_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_8_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_9_0 : [0, 0];
+	gamma_generator_ran0_1_0_0 : [1, 1];
+	gamma_generator_ran0_1_10_0 : [1, 1];
+	gamma_generator_ran0_1_11_0 : [1, 1];
+	gamma_generator_ran0_1_12_0 : [1, 1];
+	gamma_generator_ran0_1_13_0 : [1, 1];
+	gamma_generator_ran0_1_14_0 : [1, 1];
+	gamma_generator_ran0_1_15_0 : [1, 1];
+	gamma_generator_ran0_1_16_0 : [1, 1];
+	gamma_generator_ran0_1_17_0 : [1, 1];
+	gamma_generator_ran0_1_18_0 : [1, 1];
+	gamma_generator_ran0_1_19_0 : [0, 0];
+	gamma_generator_ran0_1_1_0 : [1, 1];
+	gamma_generator_ran0_1_2_0 : [1, 1];
+	gamma_generator_ran0_1_3_0 : [1, 1];
+	gamma_generator_ran0_1_4_0 : [1, 1];
+	gamma_generator_ran0_1_5_0 : [1, 1];
+	gamma_generator_ran0_1_6_0 : [1, 1];
+	gamma_generator_ran0_1_7_0 : [1, 1];
+	gamma_generator_ran0_1_8_0 : [1, 1];
+	gamma_generator_ran0_1_9_0 : [1, 1];
+	gamma_generator_ran0_2_10_0 : [0, 0];
+	gamma_generator_ran0_2_11_0 : [0, 0];
+	gamma_generator_ran0_2_12_0 : [0, 0];
+	gamma_generator_ran0_2_13_0 : [0, 0];
+	gamma_generator_ran0_2_14_0 : [0, 0];
+	gamma_generator_ran0_2_15_0 : [0, 0];
+	gamma_generator_ran0_2_16_0 : [0, 0];
+	gamma_generator_ran0_2_17_0 : [0, 0];
+	gamma_generator_ran0_2_18_0 : [0, 0];
+	gamma_generator_ran0_2_19_0 : [1, 1];
+	gamma_generator_ran0_2_1_0 : [0, 0];
+	gamma_generator_ran0_2_2_0 : [0, 0];
+	gamma_generator_ran0_2_3_0 : [0, 0];
+	gamma_generator_ran0_2_4_0 : [0, 0];
+	gamma_generator_ran0_2_5_0 : [0, 0];
+	gamma_generator_ran0_2_6_0 : [0, 0];
+	gamma_generator_ran0_2_7_0 : [0, 0];
+	gamma_generator_ran0_2_8_0 : [0, 0];
+	gamma_generator_ran0_2_9_0 : [0, 0];
+	gamma_lock_automaton0_1_10_0 : [0, 0];
+	gamma_lock_automaton0_1_11_0 : [1, 1];
+	gamma_lock_automaton0_1_12_0 : [0, 0];
+	gamma_lock_automaton0_1_13_0 : [1, 1];
+	gamma_lock_automaton0_1_14_0 : [0, 0];
+	gamma_lock_automaton0_1_15_0 : [1, 1];
+	gamma_lock_automaton0_1_16_0 : [0, 0];
+	gamma_lock_automaton0_1_17_0 : [1, 1];
+	gamma_lock_automaton0_1_18_0 : [0, 0];
+	gamma_lock_automaton0_1_19_0 : [1, 1];
+	gamma_lock_automaton0_1_1_0 : [1, 1];
+	gamma_lock_automaton0_1_2_0 : [0, 0];
+	gamma_lock_automaton0_1_3_0 : [1, 1];
+	gamma_lock_automaton0_1_4_0 : [0, 0];
+	gamma_lock_automaton0_1_5_0 : [1, 1];
+	gamma_lock_automaton0_1_6_0 : [0, 0];
+	gamma_lock_automaton0_1_7_0 : [1, 1];
+	gamma_lock_automaton0_1_8_0 : [0, 0];
+	gamma_lock_automaton0_1_9_0 : [1, 1];
+	gamma_lock_automaton0_2_0_0 : [1, 1];
+	gamma_lock_automaton0_2_10_0 : [1, 1];
+	gamma_lock_automaton0_2_11_0 : [0, 0];
+	gamma_lock_automaton0_2_12_0 : [1, 1];
+	gamma_lock_automaton0_2_13_0 : [0, 0];
+	gamma_lock_automaton0_2_14_0 : [1, 1];
+	gamma_lock_automaton0_2_15_0 : [0, 0];
+	gamma_lock_automaton0_2_16_0 : [1, 1];
+	gamma_lock_automaton0_2_17_0 : [0, 0];
+	gamma_lock_automaton0_2_18_0 : [1, 1];
+	gamma_lock_automaton0_2_19_0 : [0, 0];
+	gamma_lock_automaton0_2_1_0 : [0, 0];
+	gamma_lock_automaton0_2_2_0 : [1, 1];
+	gamma_lock_automaton0_2_3_0 : [0, 0];
+	gamma_lock_automaton0_2_4_0 : [1, 1];
+	gamma_lock_automaton0_2_5_0 : [0, 0];
+	gamma_lock_automaton0_2_6_0 : [1, 1];
+	gamma_lock_automaton0_2_7_0 : [0, 0];
+	gamma_lock_automaton0_2_8_0 : [1, 1];
+	gamma_lock_automaton0_2_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_1_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_1_2_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_0_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_2_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_16_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_2_17_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_2_18_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_2_19_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_2_1_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_2_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_3_10_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_11_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_12_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_13_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_14_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_3_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_3_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_3_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_3_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_3_2_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_3_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_4_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_5_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_6_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_7_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_8_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_3_9_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_4_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_15_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_4_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_4_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_1_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_2_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_5_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_1_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_1_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_2_0_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_10_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_11_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_12_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_13_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_14_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_15_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_16_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_17_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_18_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_19_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_1_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_2_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_3_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_4_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_2_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_2_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_2_8_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_2_9_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_3_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_2_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_6_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_3_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_3_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_7_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton2_4_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton2_4_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_1_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_2_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_1_9_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_0_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_2_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_2_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_2_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_2_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_2_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_2_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_2_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_2_18_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_19_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_1_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_2_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_3_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_4_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_5_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_6_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_7_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_8_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_2_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_3_10_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_3_11_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_3_12_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_3_13_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_3_14_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_3_15_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_3_16_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_3_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_3_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_3_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_3_2_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_3_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_3_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_3_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_3_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_3_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_3_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_3_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_17_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton3_4_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton3_4_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_1_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_2_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_3_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_1_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_1_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_2_0_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_2_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_2_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_2_12_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_2_13_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_2_14_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_2_15_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_2_16_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_2_17_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_2_18_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_2_19_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_2_1_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_2_2_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_2_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_2_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_2_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_2_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_2_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_2_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_2_9_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_10_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_3_11_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_2_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_3_4_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_3_5_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_3_6_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_3_7_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_3_8_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_3_9_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_4_10_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_11_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton4_4_12_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_13_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_14_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_15_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_16_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_17_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_18_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_19_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_3_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_4_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_5_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_6_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_7_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_8_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton4_4_9_0 : [0, 0];
+	gamma_refueling_gen1_1_0_0 : [1, 1];
+	gamma_refueling_gen1_1_10_0 : [0, 0];
+	gamma_refueling_gen1_1_11_0 : [0, 0];
+	gamma_refueling_gen1_1_12_0 : [0, 0];
+	gamma_refueling_gen1_1_13_0 : [0, 0];
+	gamma_refueling_gen1_1_14_0 : [0, 0];
+	gamma_refueling_gen1_1_15_0 : [1, 1];
+	gamma_refueling_gen1_1_16_0 : [1, 1];
+	gamma_refueling_gen1_1_17_0 : [1, 1];
+	gamma_refueling_gen1_1_18_0 : [1, 1];
+	gamma_refueling_gen1_1_19_0 : [1, 1];
+	gamma_refueling_gen1_1_1_0 : [0, 0];
+	gamma_refueling_gen1_1_2_0 : [0, 0];
+	gamma_refueling_gen1_1_3_0 : [0, 0];
+	gamma_refueling_gen1_1_4_0 : [0, 0];
+	gamma_refueling_gen1_1_5_0 : [0, 0];
+	gamma_refueling_gen1_1_6_0 : [0, 0];
+	gamma_refueling_gen1_1_7_0 : [0, 0];
+	gamma_refueling_gen1_1_8_0 : [0, 0];
+	gamma_refueling_gen1_1_9_0 : [0, 0];
+	gamma_refueling_gen1_2_10_0 : [1, 1];
+	gamma_refueling_gen1_2_11_0 : [1, 1];
+	gamma_refueling_gen1_2_12_0 : [1, 1];
+	gamma_refueling_gen1_2_13_0 : [1, 1];
+	gamma_refueling_gen1_2_14_0 : [1, 1];
+	gamma_refueling_gen1_2_15_0 : [0, 0];
+	gamma_refueling_gen1_2_16_0 : [0, 0];
+	gamma_refueling_gen1_2_17_0 : [0, 0];
+	gamma_refueling_gen1_2_18_0 : [0, 0];
+	gamma_refueling_gen1_2_19_0 : [0, 0];
+	gamma_refueling_gen1_2_1_0 : [1, 1];
+	gamma_refueling_gen1_2_2_0 : [1, 1];
+	gamma_refueling_gen1_2_3_0 : [1, 1];
+	gamma_refueling_gen1_2_4_0 : [1, 1];
+	gamma_refueling_gen1_2_5_0 : [1, 1];
+	gamma_refueling_gen1_2_6_0 : [1, 1];
+	gamma_refueling_gen1_2_7_0 : [1, 1];
+	gamma_refueling_gen1_2_8_0 : [1, 1];
+	gamma_refueling_gen1_2_9_0 : [1, 1];
+	gamma_refueling_gen2_1_0_0 : [1, 1];
+	gamma_refueling_gen2_1_10_0 : [1, 1];
+	gamma_refueling_gen2_1_11_0 : [1, 1];
+	gamma_refueling_gen2_1_12_0 : [1, 1];
+	gamma_refueling_gen2_1_13_0 : [1, 1];
+	gamma_refueling_gen2_1_14_0 : [1, 1];
+	gamma_refueling_gen2_1_15_0 : [1, 1];
+	gamma_refueling_gen2_1_16_0 : [1, 1];
+	gamma_refueling_gen2_1_17_0 : [1, 1];
+	gamma_refueling_gen2_1_18_0 : [1, 1];
+	gamma_refueling_gen2_1_19_0 : [1, 1];
+	gamma_refueling_gen2_1_1_0 : [1, 1];
+	gamma_refueling_gen2_1_2_0 : [1, 1];
+	gamma_refueling_gen2_1_3_0 : [1, 1];
+	gamma_refueling_gen2_1_4_0 : [1, 1];
+	gamma_refueling_gen2_1_5_0 : [0, 0];
+	gamma_refueling_gen2_1_6_0 : [0, 0];
+	gamma_refueling_gen2_1_7_0 : [1, 1];
+	gamma_refueling_gen2_1_8_0 : [1, 1];
+	gamma_refueling_gen2_1_9_0 : [1, 1];
+	gamma_refueling_gen2_2_10_0 : [0, 0];
+	gamma_refueling_gen2_2_11_0 : [0, 0];
+	gamma_refueling_gen2_2_12_0 : [0, 0];
+	gamma_refueling_gen2_2_13_0 : [0, 0];
+	gamma_refueling_gen2_2_14_0 : [0, 0];
+	gamma_refueling_gen2_2_15_0 : [0, 0];
+	gamma_refueling_gen2_2_16_0 : [0, 0];
+	gamma_refueling_gen2_2_17_0 : [0, 0];
+	gamma_refueling_gen2_2_18_0 : [0, 0];
+	gamma_refueling_gen2_2_19_0 : [0, 0];
+	gamma_refueling_gen2_2_1_0 : [0, 0];
+	gamma_refueling_gen2_2_2_0 : [0, 0];
+	gamma_refueling_gen2_2_3_0 : [0, 0];
+	gamma_refueling_gen2_2_4_0 : [0, 0];
+	gamma_refueling_gen2_2_5_0 : [1, 1];
+	gamma_refueling_gen2_2_6_0 : [1, 1];
+	gamma_refueling_gen2_2_7_0 : [0, 0];
+	gamma_refueling_gen2_2_8_0 : [0, 0];
+	gamma_refueling_gen2_2_9_0 : [0, 0];
+	gamma_refueling_gen3_1_0_0 : [1, 1];
+	gamma_refueling_gen3_1_10_0 : [0, 0];
+	gamma_refueling_gen3_1_11_0 : [0, 0];
+	gamma_refueling_gen3_1_12_0 : [0, 0];
+	gamma_refueling_gen3_1_13_0 : [0, 0];
+	gamma_refueling_gen3_1_14_0 : [0, 0];
+	gamma_refueling_gen3_1_15_0 : [0, 0];
+	gamma_refueling_gen3_1_16_0 : [0, 0];
+	gamma_refueling_gen3_1_17_0 : [1, 1];
+	gamma_refueling_gen3_1_18_0 : [1, 1];
+	gamma_refueling_gen3_1_19_0 : [1, 1];
+	gamma_refueling_gen3_1_1_0 : [1, 1];
+	gamma_refueling_gen3_1_2_0 : [1, 1];
+	gamma_refueling_gen3_1_3_0 : [1, 1];
+	gamma_refueling_gen3_1_4_0 : [1, 1];
+	gamma_refueling_gen3_1_5_0 : [1, 1];
+	gamma_refueling_gen3_1_6_0 : [1, 1];
+	gamma_refueling_gen3_1_7_0 : [1, 1];
+	gamma_refueling_gen3_1_8_0 : [1, 1];
+	gamma_refueling_gen3_1_9_0 : [0, 0];
+	gamma_refueling_gen3_2_10_0 : [1, 1];
+	gamma_refueling_gen3_2_11_0 : [1, 1];
+	gamma_refueling_gen3_2_12_0 : [1, 1];
+	gamma_refueling_gen3_2_13_0 : [1, 1];
+	gamma_refueling_gen3_2_14_0 : [1, 1];
+	gamma_refueling_gen3_2_15_0 : [1, 1];
+	gamma_refueling_gen3_2_16_0 : [1, 1];
+	gamma_refueling_gen3_2_17_0 : [0, 0];
+	gamma_refueling_gen3_2_18_0 : [0, 0];
+	gamma_refueling_gen3_2_19_0 : [0, 0];
+	gamma_refueling_gen3_2_1_0 : [0, 0];
+	gamma_refueling_gen3_2_2_0 : [0, 0];
+	gamma_refueling_gen3_2_3_0 : [0, 0];
+	gamma_refueling_gen3_2_4_0 : [0, 0];
+	gamma_refueling_gen3_2_5_0 : [0, 0];
+	gamma_refueling_gen3_2_6_0 : [0, 0];
+	gamma_refueling_gen3_2_7_0 : [0, 0];
+	gamma_refueling_gen3_2_8_0 : [0, 0];
+	gamma_refueling_gen3_2_9_0 : [1, 1];
+	gamma_refueling_gen4_1_0_0 : [1, 1];
+	gamma_refueling_gen4_1_10_0 : [0, 0];
+	gamma_refueling_gen4_1_11_0 : [1, 1];
+	gamma_refueling_gen4_1_12_0 : [1, 1];
+	gamma_refueling_gen4_1_13_0 : [1, 1];
+	gamma_refueling_gen4_1_14_0 : [1, 1];
+	gamma_refueling_gen4_1_15_0 : [1, 1];
+	gamma_refueling_gen4_1_16_0 : [1, 1];
+	gamma_refueling_gen4_1_17_0 : [1, 1];
+	gamma_refueling_gen4_1_18_0 : [1, 1];
+	gamma_refueling_gen4_1_19_0 : [1, 1];
+	gamma_refueling_gen4_1_1_0 : [1, 1];
+	gamma_refueling_gen4_1_2_0 : [1, 1];
+	gamma_refueling_gen4_1_3_0 : [0, 0];
+	gamma_refueling_gen4_1_4_0 : [0, 0];
+	gamma_refueling_gen4_1_5_0 : [0, 0];
+	gamma_refueling_gen4_1_6_0 : [0, 0];
+	gamma_refueling_gen4_1_7_0 : [0, 0];
+	gamma_refueling_gen4_1_8_0 : [0, 0];
+	gamma_refueling_gen4_1_9_0 : [0, 0];
+	gamma_refueling_gen4_2_10_0 : [1, 1];
+	gamma_refueling_gen4_2_11_0 : [0, 0];
+	gamma_refueling_gen4_2_12_0 : [0, 0];
+	gamma_refueling_gen4_2_13_0 : [0, 0];
+	gamma_refueling_gen4_2_14_0 : [0, 0];
+	gamma_refueling_gen4_2_15_0 : [0, 0];
+	gamma_refueling_gen4_2_16_0 : [0, 0];
+	gamma_refueling_gen4_2_17_0 : [0, 0];
+	gamma_refueling_gen4_2_18_0 : [0, 0];
+	gamma_refueling_gen4_2_19_0 : [0, 0];
+	gamma_refueling_gen4_2_1_0 : [0, 0];
+	gamma_refueling_gen4_2_2_0 : [0, 0];
+	gamma_refueling_gen4_2_3_0 : [1, 1];
+	gamma_refueling_gen4_2_4_0 : [1, 1];
+	gamma_refueling_gen4_2_5_0 : [1, 1];
+	gamma_refueling_gen4_2_6_0 : [1, 1];
+	gamma_refueling_gen4_2_7_0 : [1, 1];
+	gamma_refueling_gen4_2_8_0 : [1, 1];
+	gamma_refueling_gen4_2_9_0 : [1, 1];
+	mode_10_0 : [2, 2];
+	mode_10_1 : [2, 2];
+	mode_10_10 : [2, 2];
+	mode_10_11 : [2, 2];
+	mode_10_12 : [2, 2];
+	mode_10_13 : [1, 1];
+	mode_10_14 : [3, 3];
+	mode_10_15 : [3, 3];
+	mode_10_16 : [3, 3];
+	mode_10_17 : [3, 3];
+	mode_10_18 : [3, 3];
+	mode_10_19 : [4, 4];
+	mode_10_2 : [2, 2];
+	mode_10_3 : [2, 2];
+	mode_10_4 : [2, 2];
+	mode_10_5 : [2, 2];
+	mode_10_6 : [2, 2];
+	mode_10_7 : [2, 2];
+	mode_10_8 : [2, 2];
+	mode_10_9 : [2, 2];
+	mode_11_0 : [2, 2];
+	mode_11_1 : [1, 1];
+	mode_11_10 : [2, 2];
+	mode_11_11 : [1, 1];
+	mode_11_12 : [2, 2];
+	mode_11_13 : [1, 1];
+	mode_11_14 : [2, 2];
+	mode_11_15 : [1, 1];
+	mode_11_16 : [2, 2];
+	mode_11_17 : [1, 1];
+	mode_11_18 : [2, 2];
+	mode_11_19 : [1, 1];
+	mode_11_2 : [2, 2];
+	mode_11_3 : [1, 1];
+	mode_11_4 : [2, 2];
+	mode_11_5 : [1, 1];
+	mode_11_6 : [2, 2];
+	mode_11_7 : [1, 1];
+	mode_11_8 : [2, 2];
+	mode_11_9 : [1, 1];
+	mode_12_0 : [2, 2];
+	mode_12_1 : [2, 2];
+	mode_12_10 : [3, 3];
+	mode_12_11 : [4, 4];
+	mode_12_12 : [2, 2];
+	mode_12_13 : [2, 2];
+	mode_12_14 : [2, 2];
+	mode_12_15 : [2, 2];
+	mode_12_16 : [2, 2];
+	mode_12_17 : [2, 2];
+	mode_12_18 : [2, 2];
+	mode_12_19 : [2, 2];
+	mode_12_2 : [2, 2];
+	mode_12_3 : [1, 1];
+	mode_12_4 : [3, 3];
+	mode_12_5 : [3, 3];
+	mode_12_6 : [3, 3];
+	mode_12_7 : [3, 3];
+	mode_12_8 : [3, 3];
+	mode_12_9 : [3, 3];
+	mode_13_0 : [2, 2];
+	mode_13_1 : [2, 2];
+	mode_13_10 : [3, 3];
+	mode_13_11 : [3, 3];
+	mode_13_12 : [3, 3];
+	mode_13_13 : [3, 3];
+	mode_13_14 : [3, 3];
+	mode_13_15 : [3, 3];
+	mode_13_16 : [3, 3];
+	mode_13_17 : [4, 4];
+	mode_13_18 : [2, 2];
+	mode_13_19 : [2, 2];
+	mode_13_2 : [2, 2];
+	mode_13_3 : [2, 2];
+	mode_13_4 : [2, 2];
+	mode_13_5 : [2, 2];
+	mode_13_6 : [2, 2];
+	mode_13_7 : [2, 2];
+	mode_13_8 : [2, 2];
+	mode_13_9 : [1, 1];
+	mode_14_0 : [2, 2];
+	mode_14_1 : [2, 2];
+	mode_14_10 : [2, 2];
+	mode_14_11 : [2, 2];
+	mode_14_12 : [2, 2];
+	mode_14_13 : [2, 2];
+	mode_14_14 : [2, 2];
+	mode_14_15 : [2, 2];
+	mode_14_16 : [2, 2];
+	mode_14_17 : [2, 2];
+	mode_14_18 : [2, 2];
+	mode_14_19 : [2, 2];
+	mode_14_2 : [2, 2];
+	mode_14_3 : [2, 2];
+	mode_14_4 : [2, 2];
+	mode_14_5 : [1, 1];
+	mode_14_6 : [3, 3];
+	mode_14_7 : [4, 4];
+	mode_14_8 : [2, 2];
+	mode_14_9 : [2, 2];
+	mode_15_0 : [2, 2];
+	mode_15_1 : [1, 1];
+	mode_15_10 : [3, 3];
+	mode_15_11 : [3, 3];
+	mode_15_12 : [3, 3];
+	mode_15_13 : [3, 3];
+	mode_15_14 : [3, 3];
+	mode_15_15 : [4, 4];
+	mode_15_16 : [2, 2];
+	mode_15_17 : [2, 2];
+	mode_15_18 : [2, 2];
+	mode_15_19 : [2, 2];
+	mode_15_2 : [3, 3];
+	mode_15_3 : [3, 3];
+	mode_15_4 : [3, 3];
+	mode_15_5 : [3, 3];
+	mode_15_6 : [3, 3];
+	mode_15_7 : [3, 3];
+	mode_15_8 : [3, 3];
+	mode_15_9 : [3, 3];
+	mode_1_0 : [1, 1];
+	mode_1_1 : [1, 1];
+	mode_1_10 : [2, 2];
+	mode_1_11 : [1, 1];
+	mode_1_12 : [1, 1];
+	mode_1_13 : [1, 1];
+	mode_1_14 : [1, 1];
+	mode_1_15 : [1, 1];
+	mode_1_16 : [1, 1];
+	mode_1_17 : [1, 1];
+	mode_1_18 : [1, 1];
+	mode_1_19 : [1, 1];
+	mode_1_2 : [1, 1];
+	mode_1_3 : [2, 2];
+	mode_1_4 : [2, 2];
+	mode_1_5 : [2, 2];
+	mode_1_6 : [2, 2];
+	mode_1_7 : [2, 2];
+	mode_1_8 : [2, 2];
+	mode_1_9 : [2, 2];
+	mode_2_0 : [1, 1];
+	mode_2_1 : [1, 1];
+	mode_2_10 : [2, 2];
+	mode_2_11 : [2, 2];
+	mode_2_12 : [2, 2];
+	mode_2_13 : [2, 2];
+	mode_2_14 : [2, 2];
+	mode_2_15 : [2, 2];
+	mode_2_16 : [2, 2];
+	mode_2_17 : [1, 1];
+	mode_2_18 : [1, 1];
+	mode_2_19 : [1, 1];
+	mode_2_2 : [1, 1];
+	mode_2_3 : [1, 1];
+	mode_2_4 : [1, 1];
+	mode_2_5 : [1, 1];
+	mode_2_6 : [1, 1];
+	mode_2_7 : [1, 1];
+	mode_2_8 : [1, 1];
+	mode_2_9 : [2, 2];
+	mode_3_0 : [1, 1];
+	mode_3_1 : [1, 1];
+	mode_3_10 : [1, 1];
+	mode_3_11 : [1, 1];
+	mode_3_12 : [1, 1];
+	mode_3_13 : [1, 1];
+	mode_3_14 : [1, 1];
+	mode_3_15 : [1, 1];
+	mode_3_16 : [1, 1];
+	mode_3_17 : [1, 1];
+	mode_3_18 : [1, 1];
+	mode_3_19 : [1, 1];
+	mode_3_2 : [1, 1];
+	mode_3_3 : [1, 1];
+	mode_3_4 : [1, 1];
+	mode_3_5 : [2, 2];
+	mode_3_6 : [2, 2];
+	mode_3_7 : [1, 1];
+	mode_3_8 : [1, 1];
+	mode_3_9 : [1, 1];
+	mode_4_0 : [1, 1];
+	mode_4_1 : [2, 2];
+	mode_4_10 : [2, 2];
+	mode_4_11 : [2, 2];
+	mode_4_12 : [2, 2];
+	mode_4_13 : [2, 2];
+	mode_4_14 : [2, 2];
+	mode_4_15 : [1, 1];
+	mode_4_16 : [1, 1];
+	mode_4_17 : [1, 1];
+	mode_4_18 : [1, 1];
+	mode_4_19 : [1, 1];
+	mode_4_2 : [2, 2];
+	mode_4_3 : [2, 2];
+	mode_4_4 : [2, 2];
+	mode_4_5 : [2, 2];
+	mode_4_6 : [2, 2];
+	mode_4_7 : [2, 2];
+	mode_4_8 : [2, 2];
+	mode_4_9 : [2, 2];
+	mode_5_0 : [2, 2];
+	mode_5_1 : [2, 2];
+	mode_5_10 : [1, 1];
+	mode_5_11 : [1, 1];
+	mode_5_12 : [1, 1];
+	mode_5_13 : [1, 1];
+	mode_5_14 : [1, 1];
+	mode_5_15 : [1, 1];
+	mode_5_16 : [1, 1];
+	mode_5_17 : [1, 1];
+	mode_5_18 : [1, 1];
+	mode_5_19 : [1, 1];
+	mode_5_2 : [2, 2];
+	mode_5_3 : [1, 1];
+	mode_5_4 : [1, 1];
+	mode_5_5 : [1, 1];
+	mode_5_6 : [1, 1];
+	mode_5_7 : [1, 1];
+	mode_5_8 : [1, 1];
+	mode_5_9 : [1, 1];
+	mode_6_0 : [2, 2];
+	mode_6_1 : [2, 2];
+	mode_6_10 : [1, 1];
+	mode_6_11 : [1, 1];
+	mode_6_12 : [1, 1];
+	mode_6_13 : [1, 1];
+	mode_6_14 : [1, 1];
+	mode_6_15 : [1, 1];
+	mode_6_16 : [1, 1];
+	mode_6_17 : [1, 1];
+	mode_6_18 : [1, 1];
+	mode_6_19 : [1, 1];
+	mode_6_2 : [2, 2];
+	mode_6_3 : [2, 2];
+	mode_6_4 : [2, 2];
+	mode_6_5 : [2, 2];
+	mode_6_6 : [2, 2];
+	mode_6_7 : [2, 2];
+	mode_6_8 : [2, 2];
+	mode_6_9 : [1, 1];
+	mode_7_0 : [2, 2];
+	mode_7_1 : [2, 2];
+	mode_7_10 : [1, 1];
+	mode_7_11 : [1, 1];
+	mode_7_12 : [1, 1];
+	mode_7_13 : [1, 1];
+	mode_7_14 : [1, 1];
+	mode_7_15 : [1, 1];
+	mode_7_16 : [1, 1];
+	mode_7_17 : [1, 1];
+	mode_7_18 : [1, 1];
+	mode_7_19 : [1, 1];
+	mode_7_2 : [2, 2];
+	mode_7_3 : [2, 2];
+	mode_7_4 : [2, 2];
+	mode_7_5 : [1, 1];
+	mode_7_6 : [1, 1];
+	mode_7_7 : [1, 1];
+	mode_7_8 : [1, 1];
+	mode_7_9 : [1, 1];
+	mode_8_0 : [2, 2];
+	mode_8_1 : [1, 1];
+	mode_8_10 : [1, 1];
+	mode_8_11 : [1, 1];
+	mode_8_12 : [1, 1];
+	mode_8_13 : [1, 1];
+	mode_8_14 : [1, 1];
+	mode_8_15 : [1, 1];
+	mode_8_16 : [1, 1];
+	mode_8_17 : [1, 1];
+	mode_8_18 : [1, 1];
+	mode_8_19 : [1, 1];
+	mode_8_2 : [1, 1];
+	mode_8_3 : [1, 1];
+	mode_8_4 : [1, 1];
+	mode_8_5 : [1, 1];
+	mode_8_6 : [1, 1];
+	mode_8_7 : [1, 1];
+	mode_8_8 : [1, 1];
+	mode_8_9 : [1, 1];
+	mode_9_0 : [1, 1];
+	mode_9_1 : [1, 1];
+	mode_9_10 : [1, 1];
+	mode_9_11 : [1, 1];
+	mode_9_12 : [1, 1];
+	mode_9_13 : [1, 1];
+	mode_9_14 : [1, 1];
+	mode_9_15 : [1, 1];
+	mode_9_16 : [1, 1];
+	mode_9_17 : [1, 1];
+	mode_9_18 : [1, 1];
+	mode_9_19 : [2, 2];
+	mode_9_2 : [1, 1];
+	mode_9_3 : [1, 1];
+	mode_9_4 : [1, 1];
+	mode_9_5 : [1, 1];
+	mode_9_6 : [1, 1];
+	mode_9_7 : [1, 1];
+	mode_9_8 : [1, 1];
+	mode_9_9 : [1, 1];
+	time_0 : [0, 0.06103515625];
+	time_1 : [0, 4.940656458412465e-324];
+	time_10 : [0, 5.412337245047638e-15];
+	time_11 : [0, 4.940656458412465e-324];
+	time_12 : [0, 5.620504062164855e-15];
+	time_13 : [0, 4.940656458412465e-324];
+	time_14 : [0, 5.412337245047638e-15];
+	time_15 : [0, 4.940656458412465e-324];
+	time_16 : [9.999999999999982, 10];
+	time_17 : [0, 4.940656458412465e-324];
+	time_18 : [989.9999999999999, 990.0000000000001];
+	time_19 : [0, 4.940656458412465e-324];
+	time_2 : [0, 4.683753385137379e-16];
+	time_3 : [0, 4.940656458412465e-324];
+	time_4 : [0, 4.683753385137379e-16];
+	time_5 : [0, 4.940656458412465e-324];
+	time_6 : [9.999999999999998, 10];
+	time_7 : [0, 4.940656458412465e-324];
+	time_8 : [0, 5.620504062164855e-15];
+	time_9 : [0, 4.940656458412465e-324];
+	time_generate_gen_automaton_0_0 : [0, 0];
+	time_generate_gen_automaton_0_t : [0, 0];
+	time_generate_gen_automaton_10_0 : [0, 0];
+	time_generate_gen_automaton_10_t : [0, 0];
+	time_generate_gen_automaton_11_0 : [0, 0];
+	time_generate_gen_automaton_11_t : [0, 0];
+	time_generate_gen_automaton_12_0 : [0, 0];
+	time_generate_gen_automaton_12_t : [0, 0];
+	time_generate_gen_automaton_13_0 : [0, 0];
+	time_generate_gen_automaton_13_t : [0, 0];
+	time_generate_gen_automaton_14_0 : [0, 0];
+	time_generate_gen_automaton_14_t : [0, 5.412337245047638e-15];
+	time_generate_gen_automaton_15_0 : [0, 5.412337245047638e-15];
+	time_generate_gen_automaton_15_t : [0, 5.412337245047639e-15];
+	time_generate_gen_automaton_16_0 : [0, 5.412337245047639e-15];
+	time_generate_gen_automaton_16_t : [9.99999999999998, 10.00000000000001];
+	time_generate_gen_automaton_17_0 : [9.99999999999998, 10.00000000000001];
+	time_generate_gen_automaton_17_t : [9.99999999999998, 10.00000000000001];
+	time_generate_gen_automaton_18_0 : [9.99999999999998, 10.00000000000001];
+	time_generate_gen_automaton_18_t : [1000, 1000];
+	time_generate_gen_automaton_19_0 : [0, 0];
+	time_generate_gen_automaton_19_t : [0, 0];
+	time_generate_gen_automaton_1_0 : [0, 0];
+	time_generate_gen_automaton_1_t : [0, 0];
+	time_generate_gen_automaton_2_0 : [0, 0];
+	time_generate_gen_automaton_2_t : [0, 0];
+	time_generate_gen_automaton_3_0 : [0, 0];
+	time_generate_gen_automaton_3_t : [0, 0];
+	time_generate_gen_automaton_4_0 : [0, 0];
+	time_generate_gen_automaton_4_t : [0, 0];
+	time_generate_gen_automaton_5_0 : [0, 0];
+	time_generate_gen_automaton_5_t : [0, 0];
+	time_generate_gen_automaton_6_0 : [0, 0];
+	time_generate_gen_automaton_6_t : [0, 0];
+	time_generate_gen_automaton_7_0 : [0, 0];
+	time_generate_gen_automaton_7_t : [0, 0];
+	time_generate_gen_automaton_8_0 : [0, 0];
+	time_generate_gen_automaton_8_t : [0, 0];
+	time_generate_gen_automaton_9_0 : [0, 0];
+	time_generate_gen_automaton_9_t : [0, 0];
+	time_rt1_0_0 : [0, 0];
+	time_rt1_0_t : [0, 0];
+	time_rt1_10_0 : [9.999999999999996, 10];
+	time_rt1_10_t : [9.999999999999996, 10];
+	time_rt1_11_0 : [9.999999999999996, 10];
+	time_rt1_11_t : [9.999999999999996, 10];
+	time_rt1_12_0 : [9.999999999999996, 10];
+	time_rt1_12_t : [9.999999999999996, 10];
+	time_rt1_13_0 : [9.999999999999996, 10];
+	time_rt1_13_t : [9.999999999999996, 10];
+	time_rt1_14_0 : [9.999999999999996, 10];
+	time_rt1_14_t : [10, 10];
+	time_rt1_15_0 : [0, 0];
+	time_rt1_15_t : [0, 0];
+	time_rt1_16_0 : [0, 0];
+	time_rt1_16_t : [0, 0];
+	time_rt1_17_0 : [0, 0];
+	time_rt1_17_t : [0, 0];
+	time_rt1_18_0 : [0, 0];
+	time_rt1_18_t : [0, 0];
+	time_rt1_19_0 : [0, 0];
+	time_rt1_19_t : [0, 0];
+	time_rt1_1_0 : [0, 0];
+	time_rt1_1_t : [0, 0];
+	time_rt1_2_0 : [0, 0];
+	time_rt1_2_t : [0, 4.440892098500626e-16];
+	time_rt1_3_0 : [0, 4.440892098500626e-16];
+	time_rt1_3_t : [0, 4.440892098500626e-16];
+	time_rt1_4_0 : [0, 4.440892098500626e-16];
+	time_rt1_4_t : [0, 4.440892098500626e-16];
+	time_rt1_5_0 : [0, 4.440892098500626e-16];
+	time_rt1_5_t : [0, 4.440892098500626e-16];
+	time_rt1_6_0 : [0, 4.440892098500626e-16];
+	time_rt1_6_t : [9.999999999999996, 10];
+	time_rt1_7_0 : [9.999999999999996, 10];
+	time_rt1_7_t : [9.999999999999996, 10];
+	time_rt1_8_0 : [9.999999999999996, 10];
+	time_rt1_8_t : [9.999999999999996, 10];
+	time_rt1_9_0 : [9.999999999999996, 10];
+	time_rt1_9_t : [9.999999999999996, 10];
+	time_rt2_0_0 : [0, 0];
+	time_rt2_0_t : [0, 0];
+	time_rt2_10_0 : [0, 0];
+	time_rt2_10_t : [0, 0];
+	time_rt2_11_0 : [0, 0];
+	time_rt2_11_t : [0, 0];
+	time_rt2_12_0 : [0, 0];
+	time_rt2_12_t : [0, 0];
+	time_rt2_13_0 : [0, 0];
+	time_rt2_13_t : [0, 0];
+	time_rt2_14_0 : [0, 0];
+	time_rt2_14_t : [0, 0];
+	time_rt2_15_0 : [0, 0];
+	time_rt2_15_t : [0, 0];
+	time_rt2_16_0 : [0, 0];
+	time_rt2_16_t : [0, 0];
+	time_rt2_17_0 : [0, 0];
+	time_rt2_17_t : [0, 0];
+	time_rt2_18_0 : [0, 0];
+	time_rt2_18_t : [0, 0];
+	time_rt2_19_0 : [0, 0];
+	time_rt2_19_t : [0, 0];
+	time_rt2_1_0 : [0, 0];
+	time_rt2_1_t : [0, 0];
+	time_rt2_2_0 : [0, 0];
+	time_rt2_2_t : [0, 0];
+	time_rt2_3_0 : [0, 0];
+	time_rt2_3_t : [0, 0];
+	time_rt2_4_0 : [0, 0];
+	time_rt2_4_t : [0, 0];
+	time_rt2_5_0 : [0, 0];
+	time_rt2_5_t : [0, 0];
+	time_rt2_6_0 : [0, 0];
+	time_rt2_6_t : [10, 10];
+	time_rt2_7_0 : [0, 0];
+	time_rt2_7_t : [0, 0];
+	time_rt2_8_0 : [0, 0];
+	time_rt2_8_t : [0, 0];
+	time_rt2_9_0 : [0, 0];
+	time_rt2_9_t : [0, 0];
+	time_rt3_0_0 : [0, 0];
+	time_rt3_0_t : [0, 0];
+	time_rt3_10_0 : [0, 0];
+	time_rt3_10_t : [0, 5.412337245047638e-15];
+	time_rt3_11_0 : [0, 5.412337245047638e-15];
+	time_rt3_11_t : [0, 5.412337245047639e-15];
+	time_rt3_12_0 : [0, 5.412337245047639e-15];
+	time_rt3_12_t : [0, 1.103284130721249e-14];
+	time_rt3_13_0 : [0, 1.103284130721249e-14];
+	time_rt3_13_t : [0, 1.10328413072125e-14];
+	time_rt3_14_0 : [0, 1.10328413072125e-14];
+	time_rt3_14_t : [0, 1.644517855226013e-14];
+	time_rt3_15_0 : [0, 1.644517855226013e-14];
+	time_rt3_15_t : [0, 1.644517855226014e-14];
+	time_rt3_16_0 : [0, 1.644517855226014e-14];
+	time_rt3_16_t : [10, 10];
+	time_rt3_17_0 : [0, 0];
+	time_rt3_17_t : [0, 0];
+	time_rt3_18_0 : [0, 0];
+	time_rt3_18_t : [0, 0];
+	time_rt3_19_0 : [0, 0];
+	time_rt3_19_t : [0, 0];
+	time_rt3_1_0 : [0, 0];
+	time_rt3_1_t : [0, 0];
+	time_rt3_2_0 : [0, 0];
+	time_rt3_2_t : [0, 0];
+	time_rt3_3_0 : [0, 0];
+	time_rt3_3_t : [0, 0];
+	time_rt3_4_0 : [0, 0];
+	time_rt3_4_t : [0, 0];
+	time_rt3_5_0 : [0, 0];
+	time_rt3_5_t : [0, 0];
+	time_rt3_6_0 : [0, 0];
+	time_rt3_6_t : [0, 0];
+	time_rt3_7_0 : [0, 0];
+	time_rt3_7_t : [0, 0];
+	time_rt3_8_0 : [0, 0];
+	time_rt3_8_t : [0, 0];
+	time_rt3_9_0 : [0, 0];
+	time_rt3_9_t : [0, 0];
+	time_rt4_0_0 : [0, 0];
+	time_rt4_0_t : [0, 0];
+	time_rt4_10_0 : [9.999999999999996, 10];
+	time_rt4_10_t : [10, 10];
+	time_rt4_11_0 : [0, 0];
+	time_rt4_11_t : [0, 0];
+	time_rt4_12_0 : [0, 0];
+	time_rt4_12_t : [0, 0];
+	time_rt4_13_0 : [0, 0];
+	time_rt4_13_t : [0, 0];
+	time_rt4_14_0 : [0, 0];
+	time_rt4_14_t : [0, 0];
+	time_rt4_15_0 : [0, 0];
+	time_rt4_15_t : [0, 0];
+	time_rt4_16_0 : [0, 0];
+	time_rt4_16_t : [0, 0];
+	time_rt4_17_0 : [0, 0];
+	time_rt4_17_t : [0, 0];
+	time_rt4_18_0 : [0, 0];
+	time_rt4_18_t : [0, 0];
+	time_rt4_19_0 : [0, 0];
+	time_rt4_19_t : [0, 0];
+	time_rt4_1_0 : [0, 0];
+	time_rt4_1_t : [0, 0];
+	time_rt4_2_0 : [0, 0];
+	time_rt4_2_t : [0, 0];
+	time_rt4_3_0 : [0, 0];
+	time_rt4_3_t : [0, 0];
+	time_rt4_4_0 : [0, 0];
+	time_rt4_4_t : [0, 4.440892098500626e-16];
+	time_rt4_5_0 : [0, 4.440892098500626e-16];
+	time_rt4_5_t : [0, 4.440892098500626e-16];
+	time_rt4_6_0 : [0, 4.440892098500626e-16];
+	time_rt4_6_t : [9.999999999999996, 10];
+	time_rt4_7_0 : [9.999999999999996, 10];
+	time_rt4_7_t : [9.999999999999996, 10];
+	time_rt4_8_0 : [9.999999999999996, 10];
+	time_rt4_8_t : [9.999999999999996, 10];
+	time_rt4_9_0 : [9.999999999999996, 10];
+	time_rt4_9_t : [9.999999999999996, 10]                  sync_do_stop_refuel4_0 : U
+                  sync_do_stop_refuel3_0 : U
+                  sync_do_stop_refuel2_0 : U
+                  sync_do_stop_refuel1_0 : U
+                      sync_do_stop_gen_0 : U
+                 sync_do_start_refuel4_0 : U
+                 sync_do_start_refuel3_0 : U
+                 sync_do_start_refuel2_0 : U
+                 sync_do_start_refuel1_0 : U
+                     sync_do_start_gen_0 : U
+                 sync_did_stop_refuel4_0 : U
+                 sync_did_stop_refuel3_0 : U
+                 sync_did_stop_refuel2_0 : U
+                 sync_did_stop_refuel1_0 : U
+                     sync_did_stop_gen_0 : U
+                sync_did_start_refuel4_0 : U
+                sync_did_start_refuel3_0 : U
+                sync_did_start_refuel2_0 : U
+                sync_did_start_refuel1_0 : U
+                    sync_did_start_gen_0 : U
+                         CNF_10931_10928 : U
+                         CNF_10931_10917 : U
+                         CNF_10962_10959 : U
+                         CNF_10962_10948 : U
+                         CNF_10993_10990 : U
+                         CNF_10993_10979 : U
+                         CNF_11024_11021 : U
+                         CNF_11024_11010 : U
+                         CNF_11209_11197 : U
+                         CNF_11209_11176 : U
+                         CNF_11209_11157 : U
+                         CNF_11209_11140 : U
+                         CNF_11209_11125 : U
+                         CNF_11209_11112 : U
+                         CNF_11209_11101 : U
+                         CNF_11209_11092 : U
+                         CNF_11209_11085 : U
+                         CNF_11209_11080 : U
+                         CNF_11209_11056 : U
+                         CNF_11232_11229 : U
+                         CNF_11232_11220 : U
+                         CNF_11244_11241 : U
+                         CNF_11244_11236 : U
+                         CNF_11257_11254 : U
+                         CNF_11257_11249 : U
+                         CNF_11271_11268 : U
+                         CNF_11271_11262 : U
+                         CNF_11285_11282 : U
+                         CNF_11285_11276 : U
+                         CNF_11299_11296 : U
+                         CNF_11299_11290 : U
+                         CNF_11313_11310 : U
+                         CNF_11313_11304 : U
+                         CNF_11327_11324 : U
+                         CNF_11327_11318 : U
+                         CNF_11341_11338 : U
+                         CNF_11341_11332 : U
+                         CNF_11355_11352 : U
+                         CNF_11355_11346 : U
+                         CNF_11364_11359 : U
+                         CNF_11371_11366 : U
+                         CNF_11378_11373 : U
+                         CNF_11385_11380 : U
+                         CNF_11392_11387 : U
+                  sync_do_stop_refuel4_1 : U
+                  sync_do_stop_refuel3_1 : U
+                  sync_do_stop_refuel2_1 : U
+                  sync_do_stop_refuel1_1 : U
+                      sync_do_stop_gen_1 : U
+                 sync_do_start_refuel4_1 : U
+                 sync_do_start_refuel3_1 : U
+                 sync_do_start_refuel2_1 : U
+                 sync_do_start_refuel1_1 : U
+                     sync_do_start_gen_1 : U
+                 sync_did_stop_refuel4_1 : U
+                 sync_did_stop_refuel3_1 : U
+                 sync_did_stop_refuel2_1 : U
+                 sync_did_stop_refuel1_1 : U
+                     sync_did_stop_gen_1 : U
+                sync_did_start_refuel4_1 : U
+                sync_did_start_refuel3_1 : U
+                sync_did_start_refuel2_1 : U
+                sync_did_start_refuel1_1 : U
+                    sync_did_start_gen_1 : U
+                         CNF_12457_12453 : U
+                         CNF_12457_12439 : U
+                         CNF_12457_12428 : U
+                         CNF_12500_12496 : U
+                         CNF_12500_12485 : U
+                         CNF_12500_12474 : U
+                         CNF_12543_12539 : U
+                         CNF_12543_12528 : U
+                         CNF_12543_12517 : U
+                         CNF_12586_12582 : U
+                         CNF_12586_12571 : U
+                         CNF_12586_12560 : U
+                         CNF_12912_12890 : U
+                         CNF_12912_12870 : U
+                         CNF_12912_12852 : U
+                         CNF_12912_12836 : U
+                         CNF_12912_12822 : U
+                         CNF_12912_12810 : U
+                         CNF_12912_12800 : U
+                         CNF_12912_12792 : U
+                         CNF_12912_12786 : U
+                         CNF_12912_12782 : U
+                         CNF_12912_12759 : U
+                         CNF_12912_12738 : U
+                         CNF_12912_12719 : U
+                         CNF_12912_12702 : U
+                         CNF_12912_12687 : U
+                         CNF_12912_12674 : U
+                         CNF_12912_12663 : U
+                         CNF_12912_12654 : U
+                         CNF_12912_12647 : U
+                         CNF_12912_12642 : U
+                         CNF_12912_12618 : U
+                         CNF_12945_12941 : U
+                         CNF_12945_12932 : U
+                         CNF_12945_12921 : U
+                         CNF_12957_12954 : U
+                         CNF_12957_12949 : U
+                         CNF_12970_12967 : U
+                         CNF_12970_12962 : U
+                         CNF_12984_12981 : U
+                         CNF_12984_12975 : U
+                         CNF_12998_12995 : U
+                         CNF_12998_12989 : U
+                         CNF_13012_13009 : U
+                         CNF_13012_13003 : U
+                         CNF_13033_13029 : U
+                         CNF_13033_13024 : U
+                         CNF_13033_13018 : U
+                         CNF_13054_13050 : U
+                         CNF_13054_13045 : U
+                         CNF_13054_13039 : U
+                         CNF_13075_13071 : U
+                         CNF_13075_13066 : U
+                         CNF_13075_13060 : U
+                         CNF_13096_13092 : U
+                         CNF_13096_13087 : U
+                         CNF_13096_13081 : U
+                         CNF_13108_13104 : U
+                         CNF_13108_13102 : U
+                         CNF_13118_13114 : U
+                         CNF_13118_13112 : U
+                         CNF_13128_13124 : U
+                         CNF_13128_13122 : U
+                         CNF_13138_13134 : U
+                         CNF_13138_13132 : U
+                         CNF_13148_13144 : U
+                         CNF_13148_13142 : U
+                  sync_do_stop_refuel4_2 : U
+                  sync_do_stop_refuel3_2 : U
+                  sync_do_stop_refuel2_2 : U
+                  sync_do_stop_refuel1_2 : U
+                      sync_do_stop_gen_2 : U
+                 sync_do_start_refuel4_2 : U
+                 sync_do_start_refuel3_2 : U
+                 sync_do_start_refuel2_2 : U
+                 sync_do_start_refuel1_2 : U
+                     sync_do_start_gen_2 : U
+                 sync_did_stop_refuel4_2 : U
+                 sync_did_stop_refuel3_2 : U
+                 sync_did_stop_refuel2_2 : U
+                 sync_did_stop_refuel1_2 : U
+                     sync_did_stop_gen_2 : U
+                sync_did_start_refuel4_2 : U
+                sync_did_start_refuel3_2 : U
+                sync_did_start_refuel2_2 : U
+                sync_did_start_refuel1_2 : U
+                    sync_did_start_gen_2 : U
+                         CNF_14449_14444 : U
+                         CNF_14449_14433 : U
+                         CNF_14449_14424 : U
+                         CNF_14449_14412 : U
+                         CNF_14503_14498 : U
+                         CNF_14503_14487 : U
+                         CNF_14503_14478 : U
+                         CNF_14503_14466 : U
+                         CNF_14557_14552 : U
+                         CNF_14557_14541 : U
+                         CNF_14557_14532 : U
+                         CNF_14557_14520 : U
+                         CNF_14611_14606 : U
+                         CNF_14611_14595 : U
+                         CNF_14611_14586 : U
+                         CNF_14611_14574 : U
+                         CNF_14937_14915 : U
+                         CNF_14937_14895 : U
+                         CNF_14937_14877 : U
+                         CNF_14937_14861 : U
+                         CNF_14937_14847 : U
+                         CNF_14937_14835 : U
+                         CNF_14937_14825 : U
+                         CNF_14937_14817 : U
+                         CNF_14937_14811 : U
+                         CNF_14937_14807 : U
+                         CNF_14937_14784 : U
+                         CNF_14937_14763 : U
+                         CNF_14937_14744 : U
+                         CNF_14937_14727 : U
+                         CNF_14937_14712 : U
+                         CNF_14937_14699 : U
+                         CNF_14937_14688 : U
+                         CNF_14937_14679 : U
+                         CNF_14937_14672 : U
+                         CNF_14937_14667 : U
+                         CNF_14937_14643 : U
+                         CNF_14981_14976 : U
+                         CNF_14981_14967 : U
+                         CNF_14981_14958 : U
+                         CNF_14981_14946 : U
+                         CNF_14993_14990 : U
+                         CNF_14993_14985 : U
+                         CNF_15006_15003 : U
+                         CNF_15006_14998 : U
+                         CNF_15020_15017 : U
+                         CNF_15020_15011 : U
+                         CNF_15034_15031 : U
+                         CNF_15034_15025 : U
+                         CNF_15048_15045 : U
+                         CNF_15048_15039 : U
+                         CNF_15069_15065 : U
+                         CNF_15069_15060 : U
+                         CNF_15069_15054 : U
+                         CNF_15090_15086 : U
+                         CNF_15090_15081 : U
+                         CNF_15090_15075 : U
+                         CNF_15111_15107 : U
+                         CNF_15111_15102 : U
+                         CNF_15111_15096 : U
+                         CNF_15132_15128 : U
+                         CNF_15132_15123 : U
+                         CNF_15132_15117 : U
+                         CNF_15147_15142 : U
+                         CNF_15147_15140 : U
+                         CNF_15147_15138 : U
+                         CNF_15160_15155 : U
+                         CNF_15160_15153 : U
+                         CNF_15160_15151 : U
+                         CNF_15173_15168 : U
+                         CNF_15173_15166 : U
+                         CNF_15173_15164 : U
+                         CNF_15186_15181 : U
+                         CNF_15186_15179 : U
+                         CNF_15186_15177 : U
+                         CNF_15199_15194 : U
+                         CNF_15199_15192 : U
+                         CNF_15199_15190 : U
+                  sync_do_stop_refuel4_3 : U
+                  sync_do_stop_refuel3_3 : U
+                  sync_do_stop_refuel2_3 : U
+                  sync_do_stop_refuel1_3 : U
+                      sync_do_stop_gen_3 : U
+                 sync_do_start_refuel4_3 : U
+                 sync_do_start_refuel3_3 : U
+                 sync_do_start_refuel2_3 : U
+                 sync_do_start_refuel1_3 : U
+                     sync_do_start_gen_3 : U
+                 sync_did_stop_refuel4_3 : U
+                 sync_did_stop_refuel3_3 : U
+                 sync_did_stop_refuel2_3 : U
+                 sync_did_stop_refuel1_3 : U
+                     sync_did_stop_gen_3 : U
+                sync_did_start_refuel4_3 : U
+                sync_did_start_refuel3_3 : U
+                sync_did_start_refuel2_3 : U
+                sync_did_start_refuel1_3 : U
+                    sync_did_start_gen_3 : U
+                         CNF_16708_16702 : U
+                         CNF_16708_16692 : U
+                         CNF_16708_16683 : U
+                         CNF_16708_16673 : U
+                         CNF_16708_16660 : U
+                         CNF_16773_16767 : U
+                         CNF_16773_16757 : U
+                         CNF_16773_16748 : U
+                         CNF_16773_16738 : U
+                         CNF_16773_16725 : U
+                         CNF_16838_16832 : U
+                         CNF_16838_16822 : U
+                         CNF_16838_16813 : U
+                         CNF_16838_16803 : U
+                         CNF_16838_16790 : U
+                         CNF_16903_16897 : U
+                         CNF_16903_16887 : U
+                         CNF_16903_16878 : U
+                         CNF_16903_16868 : U
+                         CNF_16903_16855 : U
+                         CNF_17229_17207 : U
+                         CNF_17229_17187 : U
+                         CNF_17229_17169 : U
+                         CNF_17229_17153 : U
+                         CNF_17229_17139 : U
+                         CNF_17229_17127 : U
+                         CNF_17229_17117 : U
+                         CNF_17229_17109 : U
+                         CNF_17229_17103 : U
+                         CNF_17229_17099 : U
+                         CNF_17229_17076 : U
+                         CNF_17229_17055 : U
+                         CNF_17229_17036 : U
+                         CNF_17229_17019 : U
+                         CNF_17229_17004 : U
+                         CNF_17229_16991 : U
+                         CNF_17229_16980 : U
+                         CNF_17229_16971 : U
+                         CNF_17229_16964 : U
+                         CNF_17229_16959 : U
+                         CNF_17229_16935 : U
+                         CNF_17285_17279 : U
+                         CNF_17285_17270 : U
+                         CNF_17285_17261 : U
+                         CNF_17285_17251 : U
+                         CNF_17285_17238 : U
+                         CNF_17297_17294 : U
+                         CNF_17297_17289 : U
+                         CNF_17310_17307 : U
+                         CNF_17310_17302 : U
+                         CNF_17324_17321 : U
+                         CNF_17324_17315 : U
+                         CNF_17338_17335 : U
+                         CNF_17338_17329 : U
+                         CNF_17352_17349 : U
+                         CNF_17352_17343 : U
+                         CNF_17373_17369 : U
+                         CNF_17373_17364 : U
+                         CNF_17373_17358 : U
+                         CNF_17394_17390 : U
+                         CNF_17394_17385 : U
+                         CNF_17394_17379 : U
+                         CNF_17415_17411 : U
+                         CNF_17415_17406 : U
+                         CNF_17415_17400 : U
+                         CNF_17436_17432 : U
+                         CNF_17436_17427 : U
+                         CNF_17436_17421 : U
+                         CNF_17454_17448 : U
+                         CNF_17454_17446 : U
+                         CNF_17454_17444 : U
+                         CNF_17454_17442 : U
+                         CNF_17470_17464 : U
+                         CNF_17470_17462 : U
+                         CNF_17470_17460 : U
+                         CNF_17470_17458 : U
+                         CNF_17486_17480 : U
+                         CNF_17486_17478 : U
+                         CNF_17486_17476 : U
+                         CNF_17486_17474 : U
+                         CNF_17502_17496 : U
+                         CNF_17502_17494 : U
+                         CNF_17502_17492 : U
+                         CNF_17502_17490 : U
+                         CNF_17518_17512 : U
+                         CNF_17518_17510 : U
+                         CNF_17518_17508 : U
+                         CNF_17518_17506 : U
+                  sync_do_stop_refuel4_4 : U
+                  sync_do_stop_refuel3_4 : U
+                  sync_do_stop_refuel2_4 : U
+                  sync_do_stop_refuel1_4 : U
+                      sync_do_stop_gen_4 : U
+                 sync_do_start_refuel4_4 : U
+                 sync_do_start_refuel3_4 : U
+                 sync_do_start_refuel2_4 : U
+                 sync_do_start_refuel1_4 : U
+                     sync_do_start_gen_4 : U
+                 sync_did_stop_refuel4_4 : U
+                 sync_did_stop_refuel3_4 : U
+                 sync_did_stop_refuel2_4 : U
+                 sync_did_stop_refuel1_4 : U
+                     sync_did_stop_gen_4 : U
+                sync_did_start_refuel4_4 : U
+                sync_did_start_refuel3_4 : U
+                sync_did_start_refuel2_4 : U
+                sync_did_start_refuel1_4 : U
+                    sync_did_start_gen_4 : U
+                         CNF_19017_19011 : U
+                         CNF_19017_19001 : U
+                         CNF_19017_18992 : U
+                         CNF_19017_18982 : U
+                         CNF_19017_18969 : U
+                         CNF_19082_19076 : U
+                         CNF_19082_19066 : U
+                         CNF_19082_19057 : U
+                         CNF_19082_19047 : U
+                         CNF_19082_19034 : U
+                         CNF_19147_19141 : U
+                         CNF_19147_19131 : U
+                         CNF_19147_19122 : U
+                         CNF_19147_19112 : U
+                         CNF_19147_19099 : U
+                         CNF_19212_19206 : U
+                         CNF_19212_19196 : U
+                         CNF_19212_19187 : U
+                         CNF_19212_19177 : U
+                         CNF_19212_19164 : U
+                         CNF_19538_19516 : U
+                         CNF_19538_19496 : U
+                         CNF_19538_19478 : U
+                         CNF_19538_19462 : U
+                         CNF_19538_19448 : U
+                         CNF_19538_19436 : U
+                         CNF_19538_19426 : U
+                         CNF_19538_19418 : U
+                         CNF_19538_19412 : U
+                         CNF_19538_19408 : U
+                         CNF_19538_19385 : U
+                         CNF_19538_19364 : U
+                         CNF_19538_19345 : U
+                         CNF_19538_19328 : U
+                         CNF_19538_19313 : U
+                         CNF_19538_19300 : U
+                         CNF_19538_19289 : U
+                         CNF_19538_19280 : U
+                         CNF_19538_19273 : U
+                         CNF_19538_19268 : U
+                         CNF_19538_19244 : U
+                         CNF_19594_19588 : U
+                         CNF_19594_19579 : U
+                         CNF_19594_19570 : U
+                         CNF_19594_19560 : U
+                         CNF_19594_19547 : U
+                         CNF_19606_19603 : U
+                         CNF_19606_19598 : U
+                         CNF_19619_19616 : U
+                         CNF_19619_19611 : U
+                         CNF_19633_19630 : U
+                         CNF_19633_19624 : U
+                         CNF_19647_19644 : U
+                         CNF_19647_19638 : U
+                         CNF_19661_19658 : U
+                         CNF_19661_19652 : U
+                         CNF_19682_19678 : U
+                         CNF_19682_19673 : U
+                         CNF_19682_19667 : U
+                         CNF_19703_19699 : U
+                         CNF_19703_19694 : U
+                         CNF_19703_19688 : U
+                         CNF_19724_19720 : U
+                         CNF_19724_19715 : U
+                         CNF_19724_19709 : U
+                         CNF_19745_19741 : U
+                         CNF_19745_19736 : U
+                         CNF_19745_19730 : U
+                         CNF_19763_19757 : U
+                         CNF_19763_19755 : U
+                         CNF_19763_19753 : U
+                         CNF_19763_19751 : U
+                         CNF_19779_19773 : U
+                         CNF_19779_19771 : U
+                         CNF_19779_19769 : U
+                         CNF_19779_19767 : U
+                         CNF_19795_19789 : U
+                         CNF_19795_19787 : U
+                         CNF_19795_19785 : U
+                         CNF_19795_19783 : U
+                         CNF_19811_19805 : U
+                         CNF_19811_19803 : U
+                         CNF_19811_19801 : U
+                         CNF_19811_19799 : U
+                         CNF_19827_19821 : U
+                         CNF_19827_19819 : U
+                         CNF_19827_19817 : U
+                         CNF_19827_19815 : U
+                  sync_do_stop_refuel4_5 : U
+                  sync_do_stop_refuel3_5 : U
+                  sync_do_stop_refuel2_5 : U
+                  sync_do_stop_refuel1_5 : U
+                      sync_do_stop_gen_5 : U
+                 sync_do_start_refuel4_5 : U
+                 sync_do_start_refuel3_5 : U
+                 sync_do_start_refuel2_5 : U
+                 sync_do_start_refuel1_5 : U
+                     sync_do_start_gen_5 : U
+                 sync_did_stop_refuel4_5 : U
+                 sync_did_stop_refuel3_5 : U
+                 sync_did_stop_refuel2_5 : U
+                 sync_did_stop_refuel1_5 : U
+                     sync_did_stop_gen_5 : U
+                sync_did_start_refuel4_5 : U
+                sync_did_start_refuel3_5 : U
+                sync_did_start_refuel2_5 : U
+                sync_did_start_refuel1_5 : U
+                    sync_did_start_gen_5 : U
+                         CNF_21328_21322 : U
+                         CNF_21328_21312 : U
+                         CNF_21328_21303 : U
+                         CNF_21328_21293 : U
+                         CNF_21328_21280 : U
+                         CNF_21393_21387 : U
+                         CNF_21393_21377 : U
+                         CNF_21393_21368 : U
+                         CNF_21393_21358 : U
+                         CNF_21393_21345 : U
+                         CNF_21458_21452 : U
+                         CNF_21458_21442 : U
+                         CNF_21458_21433 : U
+                         CNF_21458_21423 : U
+                         CNF_21458_21410 : U
+                         CNF_21523_21517 : U
+                         CNF_21523_21507 : U
+                         CNF_21523_21498 : U
+                         CNF_21523_21488 : U
+                         CNF_21523_21475 : U
+                         CNF_21849_21827 : U
+                         CNF_21849_21807 : U
+                         CNF_21849_21789 : U
+                         CNF_21849_21773 : U
+                         CNF_21849_21759 : U
+                         CNF_21849_21747 : U
+                         CNF_21849_21737 : U
+                         CNF_21849_21729 : U
+                         CNF_21849_21723 : U
+                         CNF_21849_21719 : U
+                         CNF_21849_21696 : U
+                         CNF_21849_21675 : U
+                         CNF_21849_21656 : U
+                         CNF_21849_21639 : U
+                         CNF_21849_21624 : U
+                         CNF_21849_21611 : U
+                         CNF_21849_21600 : U
+                         CNF_21849_21591 : U
+                         CNF_21849_21584 : U
+                         CNF_21849_21579 : U
+                         CNF_21849_21555 : U
+                         CNF_21905_21899 : U
+                         CNF_21905_21890 : U
+                         CNF_21905_21881 : U
+                         CNF_21905_21871 : U
+                         CNF_21905_21858 : U
+                         CNF_21917_21914 : U
+                         CNF_21917_21909 : U
+                         CNF_21930_21927 : U
+                         CNF_21930_21922 : U
+                         CNF_21944_21941 : U
+                         CNF_21944_21935 : U
+                         CNF_21958_21955 : U
+                         CNF_21958_21949 : U
+                         CNF_21972_21969 : U
+                         CNF_21972_21963 : U
+                         CNF_21993_21989 : U
+                         CNF_21993_21984 : U
+                         CNF_21993_21978 : U
+                         CNF_22014_22010 : U
+                         CNF_22014_22005 : U
+                         CNF_22014_21999 : U
+                         CNF_22035_22031 : U
+                         CNF_22035_22026 : U
+                         CNF_22035_22020 : U
+                         CNF_22056_22052 : U
+                         CNF_22056_22047 : U
+                         CNF_22056_22041 : U
+                         CNF_22074_22068 : U
+                         CNF_22074_22066 : U
+                         CNF_22074_22064 : U
+                         CNF_22074_22062 : U
+                         CNF_22090_22084 : U
+                         CNF_22090_22082 : U
+                         CNF_22090_22080 : U
+                         CNF_22090_22078 : U
+                         CNF_22106_22100 : U
+                         CNF_22106_22098 : U
+                         CNF_22106_22096 : U
+                         CNF_22106_22094 : U
+                         CNF_22122_22116 : U
+                         CNF_22122_22114 : U
+                         CNF_22122_22112 : U
+                         CNF_22122_22110 : U
+                         CNF_22138_22132 : U
+                         CNF_22138_22130 : U
+                         CNF_22138_22128 : U
+                         CNF_22138_22126 : U
+                  sync_do_stop_refuel4_6 : U
+                  sync_do_stop_refuel3_6 : U
+                  sync_do_stop_refuel2_6 : U
+                  sync_do_stop_refuel1_6 : U
+                      sync_do_stop_gen_6 : U
+                 sync_do_start_refuel4_6 : U
+                 sync_do_start_refuel3_6 : U
+                 sync_do_start_refuel2_6 : U
+                 sync_do_start_refuel1_6 : U
+                     sync_do_start_gen_6 : U
+                 sync_did_stop_refuel4_6 : U
+                 sync_did_stop_refuel3_6 : U
+                 sync_did_stop_refuel2_6 : U
+                 sync_did_stop_refuel1_6 : U
+                     sync_did_stop_gen_6 : U
+                sync_did_start_refuel4_6 : U
+                sync_did_start_refuel3_6 : U
+                sync_did_start_refuel2_6 : U
+                sync_did_start_refuel1_6 : U
+                    sync_did_start_gen_6 : U
+                         CNF_23639_23633 : U
+                         CNF_23639_23623 : U
+                         CNF_23639_23614 : U
+                         CNF_23639_23604 : U
+                         CNF_23639_23591 : U
+                         CNF_23704_23698 : U
+                         CNF_23704_23688 : U
+                         CNF_23704_23679 : U
+                         CNF_23704_23669 : U
+                         CNF_23704_23656 : U
+                         CNF_23769_23763 : U
+                         CNF_23769_23753 : U
+                         CNF_23769_23744 : U
+                         CNF_23769_23734 : U
+                         CNF_23769_23721 : U
+                         CNF_23834_23828 : U
+                         CNF_23834_23818 : U
+                         CNF_23834_23809 : U
+                         CNF_23834_23799 : U
+                         CNF_23834_23786 : U
+                         CNF_24160_24138 : U
+                         CNF_24160_24118 : U
+                         CNF_24160_24100 : U
+                         CNF_24160_24084 : U
+                         CNF_24160_24070 : U
+                         CNF_24160_24058 : U
+                         CNF_24160_24048 : U
+                         CNF_24160_24040 : U
+                         CNF_24160_24034 : U
+                         CNF_24160_24030 : U
+                         CNF_24160_24007 : U
+                         CNF_24160_23986 : U
+                         CNF_24160_23967 : U
+                         CNF_24160_23950 : U
+                         CNF_24160_23935 : U
+                         CNF_24160_23922 : U
+                         CNF_24160_23911 : U
+                         CNF_24160_23902 : U
+                         CNF_24160_23895 : U
+                         CNF_24160_23890 : U
+                         CNF_24160_23866 : U
+                         CNF_24216_24210 : U
+                         CNF_24216_24201 : U
+                         CNF_24216_24192 : U
+                         CNF_24216_24182 : U
+                         CNF_24216_24169 : U
+                         CNF_24228_24225 : U
+                         CNF_24228_24220 : U
+                         CNF_24241_24238 : U
+                         CNF_24241_24233 : U
+                         CNF_24255_24252 : U
+                         CNF_24255_24246 : U
+                         CNF_24269_24266 : U
+                         CNF_24269_24260 : U
+                         CNF_24283_24280 : U
+                         CNF_24283_24274 : U
+                         CNF_24304_24300 : U
+                         CNF_24304_24295 : U
+                         CNF_24304_24289 : U
+                         CNF_24325_24321 : U
+                         CNF_24325_24316 : U
+                         CNF_24325_24310 : U
+                         CNF_24346_24342 : U
+                         CNF_24346_24337 : U
+                         CNF_24346_24331 : U
+                         CNF_24367_24363 : U
+                         CNF_24367_24358 : U
+                         CNF_24367_24352 : U
+                         CNF_24385_24379 : U
+                         CNF_24385_24377 : U
+                         CNF_24385_24375 : U
+                         CNF_24385_24373 : U
+                         CNF_24401_24395 : U
+                         CNF_24401_24393 : U
+                         CNF_24401_24391 : U
+                         CNF_24401_24389 : U
+                         CNF_24417_24411 : U
+                         CNF_24417_24409 : U
+                         CNF_24417_24407 : U
+                         CNF_24417_24405 : U
+                         CNF_24433_24427 : U
+                         CNF_24433_24425 : U
+                         CNF_24433_24423 : U
+                         CNF_24433_24421 : U
+                         CNF_24449_24443 : U
+                         CNF_24449_24441 : U
+                         CNF_24449_24439 : U
+                         CNF_24449_24437 : U
+                  sync_do_stop_refuel4_7 : U
+                  sync_do_stop_refuel3_7 : U
+                  sync_do_stop_refuel2_7 : U
+                  sync_do_stop_refuel1_7 : U
+                      sync_do_stop_gen_7 : U
+                 sync_do_start_refuel4_7 : U
+                 sync_do_start_refuel3_7 : U
+                 sync_do_start_refuel2_7 : U
+                 sync_do_start_refuel1_7 : U
+                     sync_do_start_gen_7 : U
+                 sync_did_stop_refuel4_7 : U
+                 sync_did_stop_refuel3_7 : U
+                 sync_did_stop_refuel2_7 : U
+                 sync_did_stop_refuel1_7 : U
+                     sync_did_stop_gen_7 : U
+                sync_did_start_refuel4_7 : U
+                sync_did_start_refuel3_7 : U
+                sync_did_start_refuel2_7 : U
+                sync_did_start_refuel1_7 : U
+                    sync_did_start_gen_7 : U
+                         CNF_25950_25944 : U
+                         CNF_25950_25934 : U
+                         CNF_25950_25925 : U
+                         CNF_25950_25915 : U
+                         CNF_25950_25902 : U
+                         CNF_26015_26009 : U
+                         CNF_26015_25999 : U
+                         CNF_26015_25990 : U
+                         CNF_26015_25980 : U
+                         CNF_26015_25967 : U
+                         CNF_26080_26074 : U
+                         CNF_26080_26064 : U
+                         CNF_26080_26055 : U
+                         CNF_26080_26045 : U
+                         CNF_26080_26032 : U
+                         CNF_26145_26139 : U
+                         CNF_26145_26129 : U
+                         CNF_26145_26120 : U
+                         CNF_26145_26110 : U
+                         CNF_26145_26097 : U
+                         CNF_26471_26449 : U
+                         CNF_26471_26429 : U
+                         CNF_26471_26411 : U
+                         CNF_26471_26395 : U
+                         CNF_26471_26381 : U
+                         CNF_26471_26369 : U
+                         CNF_26471_26359 : U
+                         CNF_26471_26351 : U
+                         CNF_26471_26345 : U
+                         CNF_26471_26341 : U
+                         CNF_26471_26318 : U
+                         CNF_26471_26297 : U
+                         CNF_26471_26278 : U
+                         CNF_26471_26261 : U
+                         CNF_26471_26246 : U
+                         CNF_26471_26233 : U
+                         CNF_26471_26222 : U
+                         CNF_26471_26213 : U
+                         CNF_26471_26206 : U
+                         CNF_26471_26201 : U
+                         CNF_26471_26177 : U
+                         CNF_26527_26521 : U
+                         CNF_26527_26512 : U
+                         CNF_26527_26503 : U
+                         CNF_26527_26493 : U
+                         CNF_26527_26480 : U
+                         CNF_26539_26536 : U
+                         CNF_26539_26531 : U
+                         CNF_26552_26549 : U
+                         CNF_26552_26544 : U
+                         CNF_26566_26563 : U
+                         CNF_26566_26557 : U
+                         CNF_26580_26577 : U
+                         CNF_26580_26571 : U
+                         CNF_26594_26591 : U
+                         CNF_26594_26585 : U
+                         CNF_26615_26611 : U
+                         CNF_26615_26606 : U
+                         CNF_26615_26600 : U
+                         CNF_26636_26632 : U
+                         CNF_26636_26627 : U
+                         CNF_26636_26621 : U
+                         CNF_26657_26653 : U
+                         CNF_26657_26648 : U
+                         CNF_26657_26642 : U
+                         CNF_26678_26674 : U
+                         CNF_26678_26669 : U
+                         CNF_26678_26663 : U
+                         CNF_26696_26690 : U
+                         CNF_26696_26688 : U
+                         CNF_26696_26686 : U
+                         CNF_26696_26684 : U
+                         CNF_26712_26706 : U
+                         CNF_26712_26704 : U
+                         CNF_26712_26702 : U
+                         CNF_26712_26700 : U
+                         CNF_26728_26722 : U
+                         CNF_26728_26720 : U
+                         CNF_26728_26718 : U
+                         CNF_26728_26716 : U
+                         CNF_26744_26738 : U
+                         CNF_26744_26736 : U
+                         CNF_26744_26734 : U
+                         CNF_26744_26732 : U
+                         CNF_26760_26754 : U
+                         CNF_26760_26752 : U
+                         CNF_26760_26750 : U
+                         CNF_26760_26748 : U
+                  sync_do_stop_refuel4_8 : U
+                  sync_do_stop_refuel3_8 : U
+                  sync_do_stop_refuel2_8 : U
+                  sync_do_stop_refuel1_8 : U
+                      sync_do_stop_gen_8 : U
+                 sync_do_start_refuel4_8 : U
+                 sync_do_start_refuel3_8 : U
+                 sync_do_start_refuel2_8 : U
+                 sync_do_start_refuel1_8 : U
+                     sync_do_start_gen_8 : U
+                 sync_did_stop_refuel4_8 : U
+                 sync_did_stop_refuel3_8 : U
+                 sync_did_stop_refuel2_8 : U
+                 sync_did_stop_refuel1_8 : U
+                     sync_did_stop_gen_8 : U
+                sync_did_start_refuel4_8 : U
+                sync_did_start_refuel3_8 : U
+                sync_did_start_refuel2_8 : U
+                sync_did_start_refuel1_8 : U
+                    sync_did_start_gen_8 : U
+                         CNF_28261_28255 : U
+                         CNF_28261_28245 : U
+                         CNF_28261_28236 : U
+                         CNF_28261_28226 : U
+                         CNF_28261_28213 : U
+                         CNF_28326_28320 : U
+                         CNF_28326_28310 : U
+                         CNF_28326_28301 : U
+                         CNF_28326_28291 : U
+                         CNF_28326_28278 : U
+                         CNF_28391_28385 : U
+                         CNF_28391_28375 : U
+                         CNF_28391_28366 : U
+                         CNF_28391_28356 : U
+                         CNF_28391_28343 : U
+                         CNF_28456_28450 : U
+                         CNF_28456_28440 : U
+                         CNF_28456_28431 : U
+                         CNF_28456_28421 : U
+                         CNF_28456_28408 : U
+                         CNF_28782_28760 : U
+                         CNF_28782_28740 : U
+                         CNF_28782_28722 : U
+                         CNF_28782_28706 : U
+                         CNF_28782_28692 : U
+                         CNF_28782_28680 : U
+                         CNF_28782_28670 : U
+                         CNF_28782_28662 : U
+                         CNF_28782_28656 : U
+                         CNF_28782_28652 : U
+                         CNF_28782_28629 : U
+                         CNF_28782_28608 : U
+                         CNF_28782_28589 : U
+                         CNF_28782_28572 : U
+                         CNF_28782_28557 : U
+                         CNF_28782_28544 : U
+                         CNF_28782_28533 : U
+                         CNF_28782_28524 : U
+                         CNF_28782_28517 : U
+                         CNF_28782_28512 : U
+                         CNF_28782_28488 : U
+                         CNF_28838_28832 : U
+                         CNF_28838_28823 : U
+                         CNF_28838_28814 : U
+                         CNF_28838_28804 : U
+                         CNF_28838_28791 : U
+                         CNF_28850_28847 : U
+                         CNF_28850_28842 : U
+                         CNF_28863_28860 : U
+                         CNF_28863_28855 : U
+                         CNF_28877_28874 : U
+                         CNF_28877_28868 : U
+                         CNF_28891_28888 : U
+                         CNF_28891_28882 : U
+                         CNF_28905_28902 : U
+                         CNF_28905_28896 : U
+                         CNF_28926_28922 : U
+                         CNF_28926_28917 : U
+                         CNF_28926_28911 : U
+                         CNF_28947_28943 : U
+                         CNF_28947_28938 : U
+                         CNF_28947_28932 : U
+                         CNF_28968_28964 : U
+                         CNF_28968_28959 : U
+                         CNF_28968_28953 : U
+                         CNF_28989_28985 : U
+                         CNF_28989_28980 : U
+                         CNF_28989_28974 : U
+                         CNF_29007_29001 : U
+                         CNF_29007_28999 : U
+                         CNF_29007_28997 : U
+                         CNF_29007_28995 : U
+                         CNF_29023_29017 : U
+                         CNF_29023_29015 : U
+                         CNF_29023_29013 : U
+                         CNF_29023_29011 : U
+                         CNF_29039_29033 : U
+                         CNF_29039_29031 : U
+                         CNF_29039_29029 : U
+                         CNF_29039_29027 : U
+                         CNF_29055_29049 : U
+                         CNF_29055_29047 : U
+                         CNF_29055_29045 : U
+                         CNF_29055_29043 : U
+                         CNF_29071_29065 : U
+                         CNF_29071_29063 : U
+                         CNF_29071_29061 : U
+                         CNF_29071_29059 : U
+                  sync_do_stop_refuel4_9 : U
+                  sync_do_stop_refuel3_9 : U
+                  sync_do_stop_refuel2_9 : U
+                  sync_do_stop_refuel1_9 : U
+                      sync_do_stop_gen_9 : U
+                 sync_do_start_refuel4_9 : U
+                 sync_do_start_refuel3_9 : U
+                 sync_do_start_refuel2_9 : U
+                 sync_do_start_refuel1_9 : U
+                     sync_do_start_gen_9 : U
+                 sync_did_stop_refuel4_9 : U
+                 sync_did_stop_refuel3_9 : U
+                 sync_did_stop_refuel2_9 : U
+                 sync_did_stop_refuel1_9 : U
+                     sync_did_stop_gen_9 : U
+                sync_did_start_refuel4_9 : U
+                sync_did_start_refuel3_9 : U
+                sync_did_start_refuel2_9 : U
+                sync_did_start_refuel1_9 : U
+                    sync_did_start_gen_9 : U
+                         CNF_30572_30566 : U
+                         CNF_30572_30556 : U
+                         CNF_30572_30547 : U
+                         CNF_30572_30537 : U
+                         CNF_30572_30524 : U
+                         CNF_30637_30631 : U
+                         CNF_30637_30621 : U
+                         CNF_30637_30612 : U
+                         CNF_30637_30602 : U
+                         CNF_30637_30589 : U
+                         CNF_30702_30696 : U
+                         CNF_30702_30686 : U
+                         CNF_30702_30677 : U
+                         CNF_30702_30667 : U
+                         CNF_30702_30654 : U
+                         CNF_30767_30761 : U
+                         CNF_30767_30751 : U
+                         CNF_30767_30742 : U
+                         CNF_30767_30732 : U
+                         CNF_30767_30719 : U
+                         CNF_31093_31071 : U
+                         CNF_31093_31051 : U
+                         CNF_31093_31033 : U
+                         CNF_31093_31017 : U
+                         CNF_31093_31003 : U
+                         CNF_31093_30991 : U
+                         CNF_31093_30981 : U
+                         CNF_31093_30973 : U
+                         CNF_31093_30967 : U
+                         CNF_31093_30963 : U
+                         CNF_31093_30940 : U
+                         CNF_31093_30919 : U
+                         CNF_31093_30900 : U
+                         CNF_31093_30883 : U
+                         CNF_31093_30868 : U
+                         CNF_31093_30855 : U
+                         CNF_31093_30844 : U
+                         CNF_31093_30835 : U
+                         CNF_31093_30828 : U
+                         CNF_31093_30823 : U
+                         CNF_31093_30799 : U
+                         CNF_31149_31143 : U
+                         CNF_31149_31134 : U
+                         CNF_31149_31125 : U
+                         CNF_31149_31115 : U
+                         CNF_31149_31102 : U
+                         CNF_31161_31158 : U
+                         CNF_31161_31153 : U
+                         CNF_31174_31171 : U
+                         CNF_31174_31166 : U
+                         CNF_31188_31185 : U
+                         CNF_31188_31179 : U
+                         CNF_31202_31199 : U
+                         CNF_31202_31193 : U
+                         CNF_31216_31213 : U
+                         CNF_31216_31207 : U
+                         CNF_31237_31233 : U
+                         CNF_31237_31228 : U
+                         CNF_31237_31222 : U
+                         CNF_31258_31254 : U
+                         CNF_31258_31249 : U
+                         CNF_31258_31243 : U
+                         CNF_31279_31275 : U
+                         CNF_31279_31270 : U
+                         CNF_31279_31264 : U
+                         CNF_31300_31296 : U
+                         CNF_31300_31291 : U
+                         CNF_31300_31285 : U
+                         CNF_31318_31312 : U
+                         CNF_31318_31310 : U
+                         CNF_31318_31308 : U
+                         CNF_31318_31306 : U
+                         CNF_31334_31328 : U
+                         CNF_31334_31326 : U
+                         CNF_31334_31324 : U
+                         CNF_31334_31322 : U
+                         CNF_31350_31344 : U
+                         CNF_31350_31342 : U
+                         CNF_31350_31340 : U
+                         CNF_31350_31338 : U
+                         CNF_31366_31360 : U
+                         CNF_31366_31358 : U
+                         CNF_31366_31356 : U
+                         CNF_31366_31354 : U
+                         CNF_31382_31376 : U
+                         CNF_31382_31374 : U
+                         CNF_31382_31372 : U
+                         CNF_31382_31370 : U
+                 sync_do_stop_refuel4_10 : U
+                 sync_do_stop_refuel3_10 : U
+                 sync_do_stop_refuel2_10 : U
+                 sync_do_stop_refuel1_10 : U
+                     sync_do_stop_gen_10 : U
+                sync_do_start_refuel4_10 : U
+                sync_do_start_refuel3_10 : U
+                sync_do_start_refuel2_10 : U
+                sync_do_start_refuel1_10 : U
+                    sync_do_start_gen_10 : U
+                sync_did_stop_refuel4_10 : U
+                sync_did_stop_refuel3_10 : U
+                sync_did_stop_refuel2_10 : U
+                sync_did_stop_refuel1_10 : U
+                    sync_did_stop_gen_10 : U
+               sync_did_start_refuel4_10 : U
+               sync_did_start_refuel3_10 : U
+               sync_did_start_refuel2_10 : U
+               sync_did_start_refuel1_10 : U
+                   sync_did_start_gen_10 : U
+                         CNF_32881_32875 : U
+                         CNF_32881_32865 : U
+                         CNF_32881_32856 : U
+                         CNF_32881_32846 : U
+                         CNF_32881_32833 : U
+                         CNF_32946_32940 : U
+                         CNF_32946_32930 : U
+                         CNF_32946_32921 : U
+                         CNF_32946_32911 : U
+                         CNF_32946_32898 : U
+                         CNF_33011_33005 : U
+                         CNF_33011_32995 : U
+                         CNF_33011_32986 : U
+                         CNF_33011_32976 : U
+                         CNF_33011_32963 : U
+                         CNF_33076_33070 : U
+                         CNF_33076_33060 : U
+                         CNF_33076_33051 : U
+                         CNF_33076_33041 : U
+                         CNF_33076_33028 : U
+                         CNF_33402_33380 : U
+                         CNF_33402_33360 : U
+                         CNF_33402_33342 : U
+                         CNF_33402_33326 : U
+                         CNF_33402_33312 : U
+                         CNF_33402_33300 : U
+                         CNF_33402_33290 : U
+                         CNF_33402_33282 : U
+                         CNF_33402_33276 : U
+                         CNF_33402_33272 : U
+                         CNF_33402_33249 : U
+                         CNF_33402_33228 : U
+                         CNF_33402_33209 : U
+                         CNF_33402_33192 : U
+                         CNF_33402_33177 : U
+                         CNF_33402_33164 : U
+                         CNF_33402_33153 : U
+                         CNF_33402_33144 : U
+                         CNF_33402_33137 : U
+                         CNF_33402_33132 : U
+                         CNF_33402_33108 : U
+                         CNF_33458_33452 : U
+                         CNF_33458_33443 : U
+                         CNF_33458_33434 : U
+                         CNF_33458_33424 : U
+                         CNF_33458_33411 : U
+                         CNF_33470_33467 : U
+                         CNF_33470_33462 : U
+                         CNF_33483_33480 : U
+                         CNF_33483_33475 : U
+                         CNF_33497_33494 : U
+                         CNF_33497_33488 : U
+                         CNF_33511_33508 : U
+                         CNF_33511_33502 : U
+                         CNF_33525_33522 : U
+                         CNF_33525_33516 : U
+                         CNF_33546_33542 : U
+                         CNF_33546_33537 : U
+                         CNF_33546_33531 : U
+                         CNF_33567_33563 : U
+                         CNF_33567_33558 : U
+                         CNF_33567_33552 : U
+                         CNF_33588_33584 : U
+                         CNF_33588_33579 : U
+                         CNF_33588_33573 : U
+                         CNF_33609_33605 : U
+                         CNF_33609_33600 : U
+                         CNF_33609_33594 : U
+                         CNF_33627_33621 : U
+                         CNF_33627_33619 : U
+                         CNF_33627_33617 : U
+                         CNF_33627_33615 : U
+                         CNF_33643_33637 : U
+                         CNF_33643_33635 : U
+                         CNF_33643_33633 : U
+                         CNF_33643_33631 : U
+                         CNF_33659_33653 : U
+                         CNF_33659_33651 : U
+                         CNF_33659_33649 : U
+                         CNF_33659_33647 : U
+                         CNF_33675_33669 : U
+                         CNF_33675_33667 : U
+                         CNF_33675_33665 : U
+                         CNF_33675_33663 : U
+                         CNF_33691_33685 : U
+                         CNF_33691_33683 : U
+                         CNF_33691_33681 : U
+                         CNF_33691_33679 : U
+                 sync_do_stop_refuel4_11 : U
+                 sync_do_stop_refuel3_11 : U
+                 sync_do_stop_refuel2_11 : U
+                 sync_do_stop_refuel1_11 : U
+                     sync_do_stop_gen_11 : U
+                sync_do_start_refuel4_11 : U
+                sync_do_start_refuel3_11 : U
+                sync_do_start_refuel2_11 : U
+                sync_do_start_refuel1_11 : U
+                    sync_do_start_gen_11 : U
+                sync_did_stop_refuel4_11 : U
+                sync_did_stop_refuel3_11 : U
+                sync_did_stop_refuel2_11 : U
+                sync_did_stop_refuel1_11 : U
+                    sync_did_stop_gen_11 : U
+               sync_did_start_refuel4_11 : U
+               sync_did_start_refuel3_11 : U
+               sync_did_start_refuel2_11 : U
+               sync_did_start_refuel1_11 : U
+                   sync_did_start_gen_11 : U
+                         CNF_35192_35186 : U
+                         CNF_35192_35176 : U
+                         CNF_35192_35167 : U
+                         CNF_35192_35157 : U
+                         CNF_35192_35144 : U
+                         CNF_35257_35251 : U
+                         CNF_35257_35241 : U
+                         CNF_35257_35232 : U
+                         CNF_35257_35222 : U
+                         CNF_35257_35209 : U
+                         CNF_35322_35316 : U
+                         CNF_35322_35306 : U
+                         CNF_35322_35297 : U
+                         CNF_35322_35287 : U
+                         CNF_35322_35274 : U
+                         CNF_35387_35381 : U
+                         CNF_35387_35371 : U
+                         CNF_35387_35362 : U
+                         CNF_35387_35352 : U
+                         CNF_35387_35339 : U
+                         CNF_35713_35691 : U
+                         CNF_35713_35671 : U
+                         CNF_35713_35653 : U
+                         CNF_35713_35637 : U
+                         CNF_35713_35623 : U
+                         CNF_35713_35611 : U
+                         CNF_35713_35601 : U
+                         CNF_35713_35593 : U
+                         CNF_35713_35587 : U
+                         CNF_35713_35583 : U
+                         CNF_35713_35560 : U
+                         CNF_35713_35539 : U
+                         CNF_35713_35520 : U
+                         CNF_35713_35503 : U
+                         CNF_35713_35488 : U
+                         CNF_35713_35475 : U
+                         CNF_35713_35464 : U
+                         CNF_35713_35455 : U
+                         CNF_35713_35448 : U
+                         CNF_35713_35443 : U
+                         CNF_35713_35419 : U
+                         CNF_35769_35763 : U
+                         CNF_35769_35754 : U
+                         CNF_35769_35745 : U
+                         CNF_35769_35735 : U
+                         CNF_35769_35722 : U
+                         CNF_35781_35778 : U
+                         CNF_35781_35773 : U
+                         CNF_35794_35791 : U
+                         CNF_35794_35786 : U
+                         CNF_35808_35805 : U
+                         CNF_35808_35799 : U
+                         CNF_35822_35819 : U
+                         CNF_35822_35813 : U
+                         CNF_35836_35833 : U
+                         CNF_35836_35827 : U
+                         CNF_35857_35853 : U
+                         CNF_35857_35848 : U
+                         CNF_35857_35842 : U
+                         CNF_35878_35874 : U
+                         CNF_35878_35869 : U
+                         CNF_35878_35863 : U
+                         CNF_35899_35895 : U
+                         CNF_35899_35890 : U
+                         CNF_35899_35884 : U
+                         CNF_35920_35916 : U
+                         CNF_35920_35911 : U
+                         CNF_35920_35905 : U
+                         CNF_35938_35932 : U
+                         CNF_35938_35930 : U
+                         CNF_35938_35928 : U
+                         CNF_35938_35926 : U
+                         CNF_35954_35948 : U
+                         CNF_35954_35946 : U
+                         CNF_35954_35944 : U
+                         CNF_35954_35942 : U
+                         CNF_35970_35964 : U
+                         CNF_35970_35962 : U
+                         CNF_35970_35960 : U
+                         CNF_35970_35958 : U
+                         CNF_35986_35980 : U
+                         CNF_35986_35978 : U
+                         CNF_35986_35976 : U
+                         CNF_35986_35974 : U
+                         CNF_36002_35996 : U
+                         CNF_36002_35994 : U
+                         CNF_36002_35992 : U
+                         CNF_36002_35990 : U
+                 sync_do_stop_refuel4_12 : U
+                 sync_do_stop_refuel3_12 : U
+                 sync_do_stop_refuel2_12 : U
+                 sync_do_stop_refuel1_12 : U
+                     sync_do_stop_gen_12 : U
+                sync_do_start_refuel4_12 : U
+                sync_do_start_refuel3_12 : U
+                sync_do_start_refuel2_12 : U
+                sync_do_start_refuel1_12 : U
+                    sync_do_start_gen_12 : U
+                sync_did_stop_refuel4_12 : U
+                sync_did_stop_refuel3_12 : U
+                sync_did_stop_refuel2_12 : U
+                sync_did_stop_refuel1_12 : U
+                    sync_did_stop_gen_12 : U
+               sync_did_start_refuel4_12 : U
+               sync_did_start_refuel3_12 : U
+               sync_did_start_refuel2_12 : U
+               sync_did_start_refuel1_12 : U
+                   sync_did_start_gen_12 : U
+                         CNF_37503_37497 : U
+                         CNF_37503_37487 : U
+                         CNF_37503_37478 : U
+                         CNF_37503_37468 : U
+                         CNF_37503_37455 : U
+                         CNF_37568_37562 : U
+                         CNF_37568_37552 : U
+                         CNF_37568_37543 : U
+                         CNF_37568_37533 : U
+                         CNF_37568_37520 : U
+                         CNF_37633_37627 : U
+                         CNF_37633_37617 : U
+                         CNF_37633_37608 : U
+                         CNF_37633_37598 : U
+                         CNF_37633_37585 : U
+                         CNF_37698_37692 : U
+                         CNF_37698_37682 : U
+                         CNF_37698_37673 : U
+                         CNF_37698_37663 : U
+                         CNF_37698_37650 : U
+                         CNF_38024_38002 : U
+                         CNF_38024_37982 : U
+                         CNF_38024_37964 : U
+                         CNF_38024_37948 : U
+                         CNF_38024_37934 : U
+                         CNF_38024_37922 : U
+                         CNF_38024_37912 : U
+                         CNF_38024_37904 : U
+                         CNF_38024_37898 : U
+                         CNF_38024_37894 : U
+                         CNF_38024_37871 : U
+                         CNF_38024_37850 : U
+                         CNF_38024_37831 : U
+                         CNF_38024_37814 : U
+                         CNF_38024_37799 : U
+                         CNF_38024_37786 : U
+                         CNF_38024_37775 : U
+                         CNF_38024_37766 : U
+                         CNF_38024_37759 : U
+                         CNF_38024_37754 : U
+                         CNF_38024_37730 : U
+                         CNF_38080_38074 : U
+                         CNF_38080_38065 : U
+                         CNF_38080_38056 : U
+                         CNF_38080_38046 : U
+                         CNF_38080_38033 : U
+                         CNF_38092_38089 : U
+                         CNF_38092_38084 : U
+                         CNF_38105_38102 : U
+                         CNF_38105_38097 : U
+                         CNF_38119_38116 : U
+                         CNF_38119_38110 : U
+                         CNF_38133_38130 : U
+                         CNF_38133_38124 : U
+                         CNF_38147_38144 : U
+                         CNF_38147_38138 : U
+                         CNF_38168_38164 : U
+                         CNF_38168_38159 : U
+                         CNF_38168_38153 : U
+                         CNF_38189_38185 : U
+                         CNF_38189_38180 : U
+                         CNF_38189_38174 : U
+                         CNF_38210_38206 : U
+                         CNF_38210_38201 : U
+                         CNF_38210_38195 : U
+                         CNF_38231_38227 : U
+                         CNF_38231_38222 : U
+                         CNF_38231_38216 : U
+                         CNF_38249_38243 : U
+                         CNF_38249_38241 : U
+                         CNF_38249_38239 : U
+                         CNF_38249_38237 : U
+                         CNF_38265_38259 : U
+                         CNF_38265_38257 : U
+                         CNF_38265_38255 : U
+                         CNF_38265_38253 : U
+                         CNF_38281_38275 : U
+                         CNF_38281_38273 : U
+                         CNF_38281_38271 : U
+                         CNF_38281_38269 : U
+                         CNF_38297_38291 : U
+                         CNF_38297_38289 : U
+                         CNF_38297_38287 : U
+                         CNF_38297_38285 : U
+                         CNF_38313_38307 : U
+                         CNF_38313_38305 : U
+                         CNF_38313_38303 : U
+                         CNF_38313_38301 : U
+                 sync_do_stop_refuel4_13 : U
+                 sync_do_stop_refuel3_13 : U
+                 sync_do_stop_refuel2_13 : U
+                 sync_do_stop_refuel1_13 : U
+                     sync_do_stop_gen_13 : U
+                sync_do_start_refuel4_13 : U
+                sync_do_start_refuel3_13 : U
+                sync_do_start_refuel2_13 : U
+                sync_do_start_refuel1_13 : U
+                    sync_do_start_gen_13 : U
+                sync_did_stop_refuel4_13 : U
+                sync_did_stop_refuel3_13 : U
+                sync_did_stop_refuel2_13 : U
+                sync_did_stop_refuel1_13 : U
+                    sync_did_stop_gen_13 : U
+               sync_did_start_refuel4_13 : U
+               sync_did_start_refuel3_13 : U
+               sync_did_start_refuel2_13 : U
+               sync_did_start_refuel1_13 : U
+                   sync_did_start_gen_13 : U
+                         CNF_39814_39808 : U
+                         CNF_39814_39798 : U
+                         CNF_39814_39789 : U
+                         CNF_39814_39779 : U
+                         CNF_39814_39766 : U
+                         CNF_39879_39873 : U
+                         CNF_39879_39863 : U
+                         CNF_39879_39854 : U
+                         CNF_39879_39844 : U
+                         CNF_39879_39831 : U
+                         CNF_39944_39938 : U
+                         CNF_39944_39928 : U
+                         CNF_39944_39919 : U
+                         CNF_39944_39909 : U
+                         CNF_39944_39896 : U
+                         CNF_40009_40003 : U
+                         CNF_40009_39993 : U
+                         CNF_40009_39984 : U
+                         CNF_40009_39974 : U
+                         CNF_40009_39961 : U
+                         CNF_40335_40313 : U
+                         CNF_40335_40293 : U
+                         CNF_40335_40275 : U
+                         CNF_40335_40259 : U
+                         CNF_40335_40245 : U
+                         CNF_40335_40233 : U
+                         CNF_40335_40223 : U
+                         CNF_40335_40215 : U
+                         CNF_40335_40209 : U
+                         CNF_40335_40205 : U
+                         CNF_40335_40182 : U
+                         CNF_40335_40161 : U
+                         CNF_40335_40142 : U
+                         CNF_40335_40125 : U
+                         CNF_40335_40110 : U
+                         CNF_40335_40097 : U
+                         CNF_40335_40086 : U
+                         CNF_40335_40077 : U
+                         CNF_40335_40070 : U
+                         CNF_40335_40065 : U
+                         CNF_40335_40041 : U
+                         CNF_40391_40385 : U
+                         CNF_40391_40376 : U
+                         CNF_40391_40367 : U
+                         CNF_40391_40357 : U
+                         CNF_40391_40344 : U
+                         CNF_40403_40400 : U
+                         CNF_40403_40395 : U
+                         CNF_40416_40413 : U
+                         CNF_40416_40408 : U
+                         CNF_40430_40427 : U
+                         CNF_40430_40421 : U
+                         CNF_40444_40441 : U
+                         CNF_40444_40435 : U
+                         CNF_40458_40455 : U
+                         CNF_40458_40449 : U
+                         CNF_40479_40475 : U
+                         CNF_40479_40470 : U
+                         CNF_40479_40464 : U
+                         CNF_40500_40496 : U
+                         CNF_40500_40491 : U
+                         CNF_40500_40485 : U
+                         CNF_40521_40517 : U
+                         CNF_40521_40512 : U
+                         CNF_40521_40506 : U
+                         CNF_40542_40538 : U
+                         CNF_40542_40533 : U
+                         CNF_40542_40527 : U
+                         CNF_40560_40554 : U
+                         CNF_40560_40552 : U
+                         CNF_40560_40550 : U
+                         CNF_40560_40548 : U
+                         CNF_40576_40570 : U
+                         CNF_40576_40568 : U
+                         CNF_40576_40566 : U
+                         CNF_40576_40564 : U
+                         CNF_40592_40586 : U
+                         CNF_40592_40584 : U
+                         CNF_40592_40582 : U
+                         CNF_40592_40580 : U
+                         CNF_40608_40602 : U
+                         CNF_40608_40600 : U
+                         CNF_40608_40598 : U
+                         CNF_40608_40596 : U
+                         CNF_40624_40618 : U
+                         CNF_40624_40616 : U
+                         CNF_40624_40614 : U
+                         CNF_40624_40612 : U
+                 sync_do_stop_refuel4_14 : U
+                 sync_do_stop_refuel3_14 : U
+                 sync_do_stop_refuel2_14 : U
+                 sync_do_stop_refuel1_14 : U
+                     sync_do_stop_gen_14 : U
+                sync_do_start_refuel4_14 : U
+                sync_do_start_refuel3_14 : U
+                sync_do_start_refuel2_14 : U
+                sync_do_start_refuel1_14 : U
+                    sync_do_start_gen_14 : U
+                sync_did_stop_refuel4_14 : U
+                sync_did_stop_refuel3_14 : U
+                sync_did_stop_refuel2_14 : U
+                sync_did_stop_refuel1_14 : U
+                    sync_did_stop_gen_14 : U
+               sync_did_start_refuel4_14 : U
+               sync_did_start_refuel3_14 : U
+               sync_did_start_refuel2_14 : U
+               sync_did_start_refuel1_14 : U
+                   sync_did_start_gen_14 : U
+                         CNF_42125_42119 : U
+                         CNF_42125_42109 : U
+                         CNF_42125_42100 : U
+                         CNF_42125_42090 : U
+                         CNF_42125_42077 : U
+                         CNF_42190_42184 : U
+                         CNF_42190_42174 : U
+                         CNF_42190_42165 : U
+                         CNF_42190_42155 : U
+                         CNF_42190_42142 : U
+                         CNF_42255_42249 : U
+                         CNF_42255_42239 : U
+                         CNF_42255_42230 : U
+                         CNF_42255_42220 : U
+                         CNF_42255_42207 : U
+                         CNF_42320_42314 : U
+                         CNF_42320_42304 : U
+                         CNF_42320_42295 : U
+                         CNF_42320_42285 : U
+                         CNF_42320_42272 : U
+                         CNF_42646_42624 : U
+                         CNF_42646_42604 : U
+                         CNF_42646_42586 : U
+                         CNF_42646_42570 : U
+                         CNF_42646_42556 : U
+                         CNF_42646_42544 : U
+                         CNF_42646_42534 : U
+                         CNF_42646_42526 : U
+                         CNF_42646_42520 : U
+                         CNF_42646_42516 : U
+                         CNF_42646_42493 : U
+                         CNF_42646_42472 : U
+                         CNF_42646_42453 : U
+                         CNF_42646_42436 : U
+                         CNF_42646_42421 : U
+                         CNF_42646_42408 : U
+                         CNF_42646_42397 : U
+                         CNF_42646_42388 : U
+                         CNF_42646_42381 : U
+                         CNF_42646_42376 : U
+                         CNF_42646_42352 : U
+                         CNF_42702_42696 : U
+                         CNF_42702_42687 : U
+                         CNF_42702_42678 : U
+                         CNF_42702_42668 : U
+                         CNF_42702_42655 : U
+                         CNF_42714_42711 : U
+                         CNF_42714_42706 : U
+                         CNF_42727_42724 : U
+                         CNF_42727_42719 : U
+                         CNF_42741_42738 : U
+                         CNF_42741_42732 : U
+                         CNF_42755_42752 : U
+                         CNF_42755_42746 : U
+                         CNF_42769_42766 : U
+                         CNF_42769_42760 : U
+                         CNF_42790_42786 : U
+                         CNF_42790_42781 : U
+                         CNF_42790_42775 : U
+                         CNF_42811_42807 : U
+                         CNF_42811_42802 : U
+                         CNF_42811_42796 : U
+                         CNF_42832_42828 : U
+                         CNF_42832_42823 : U
+                         CNF_42832_42817 : U
+                         CNF_42853_42849 : U
+                         CNF_42853_42844 : U
+                         CNF_42853_42838 : U
+                         CNF_42871_42865 : U
+                         CNF_42871_42863 : U
+                         CNF_42871_42861 : U
+                         CNF_42871_42859 : U
+                         CNF_42887_42881 : U
+                         CNF_42887_42879 : U
+                         CNF_42887_42877 : U
+                         CNF_42887_42875 : U
+                         CNF_42903_42897 : U
+                         CNF_42903_42895 : U
+                         CNF_42903_42893 : U
+                         CNF_42903_42891 : U
+                         CNF_42919_42913 : U
+                         CNF_42919_42911 : U
+                         CNF_42919_42909 : U
+                         CNF_42919_42907 : U
+                         CNF_42935_42929 : U
+                         CNF_42935_42927 : U
+                         CNF_42935_42925 : U
+                         CNF_42935_42923 : U
+                 sync_do_stop_refuel4_15 : U
+                 sync_do_stop_refuel3_15 : U
+                 sync_do_stop_refuel2_15 : U
+                 sync_do_stop_refuel1_15 : U
+                     sync_do_stop_gen_15 : U
+                sync_do_start_refuel4_15 : U
+                sync_do_start_refuel3_15 : U
+                sync_do_start_refuel2_15 : U
+                sync_do_start_refuel1_15 : U
+                    sync_do_start_gen_15 : U
+                sync_did_stop_refuel4_15 : U
+                sync_did_stop_refuel3_15 : U
+                sync_did_stop_refuel2_15 : U
+                sync_did_stop_refuel1_15 : U
+                    sync_did_stop_gen_15 : U
+               sync_did_start_refuel4_15 : U
+               sync_did_start_refuel3_15 : U
+               sync_did_start_refuel2_15 : U
+               sync_did_start_refuel1_15 : U
+                   sync_did_start_gen_15 : U
+                         CNF_44436_44430 : U
+                         CNF_44436_44420 : U
+                         CNF_44436_44411 : U
+                         CNF_44436_44401 : U
+                         CNF_44436_44388 : U
+                         CNF_44501_44495 : U
+                         CNF_44501_44485 : U
+                         CNF_44501_44476 : U
+                         CNF_44501_44466 : U
+                         CNF_44501_44453 : U
+                         CNF_44566_44560 : U
+                         CNF_44566_44550 : U
+                         CNF_44566_44541 : U
+                         CNF_44566_44531 : U
+                         CNF_44566_44518 : U
+                         CNF_44631_44625 : U
+                         CNF_44631_44615 : U
+                         CNF_44631_44606 : U
+                         CNF_44631_44596 : U
+                         CNF_44631_44583 : U
+                         CNF_44957_44935 : U
+                         CNF_44957_44915 : U
+                         CNF_44957_44897 : U
+                         CNF_44957_44881 : U
+                         CNF_44957_44867 : U
+                         CNF_44957_44855 : U
+                         CNF_44957_44845 : U
+                         CNF_44957_44837 : U
+                         CNF_44957_44831 : U
+                         CNF_44957_44827 : U
+                         CNF_44957_44804 : U
+                         CNF_44957_44783 : U
+                         CNF_44957_44764 : U
+                         CNF_44957_44747 : U
+                         CNF_44957_44732 : U
+                         CNF_44957_44719 : U
+                         CNF_44957_44708 : U
+                         CNF_44957_44699 : U
+                         CNF_44957_44692 : U
+                         CNF_44957_44687 : U
+                         CNF_44957_44663 : U
+                         CNF_45013_45007 : U
+                         CNF_45013_44998 : U
+                         CNF_45013_44989 : U
+                         CNF_45013_44979 : U
+                         CNF_45013_44966 : U
+                         CNF_45025_45022 : U
+                         CNF_45025_45017 : U
+                         CNF_45038_45035 : U
+                         CNF_45038_45030 : U
+                         CNF_45052_45049 : U
+                         CNF_45052_45043 : U
+                         CNF_45066_45063 : U
+                         CNF_45066_45057 : U
+                         CNF_45080_45077 : U
+                         CNF_45080_45071 : U
+                         CNF_45101_45097 : U
+                         CNF_45101_45092 : U
+                         CNF_45101_45086 : U
+                         CNF_45122_45118 : U
+                         CNF_45122_45113 : U
+                         CNF_45122_45107 : U
+                         CNF_45143_45139 : U
+                         CNF_45143_45134 : U
+                         CNF_45143_45128 : U
+                         CNF_45164_45160 : U
+                         CNF_45164_45155 : U
+                         CNF_45164_45149 : U
+                         CNF_45182_45176 : U
+                         CNF_45182_45174 : U
+                         CNF_45182_45172 : U
+                         CNF_45182_45170 : U
+                         CNF_45198_45192 : U
+                         CNF_45198_45190 : U
+                         CNF_45198_45188 : U
+                         CNF_45198_45186 : U
+                         CNF_45214_45208 : U
+                         CNF_45214_45206 : U
+                         CNF_45214_45204 : U
+                         CNF_45214_45202 : U
+                         CNF_45230_45224 : U
+                         CNF_45230_45222 : U
+                         CNF_45230_45220 : U
+                         CNF_45230_45218 : U
+                         CNF_45246_45240 : U
+                         CNF_45246_45238 : U
+                         CNF_45246_45236 : U
+                         CNF_45246_45234 : U
+                 sync_do_stop_refuel4_16 : U
+                 sync_do_stop_refuel3_16 : U
+                 sync_do_stop_refuel2_16 : U
+                 sync_do_stop_refuel1_16 : U
+                     sync_do_stop_gen_16 : U
+                sync_do_start_refuel4_16 : U
+                sync_do_start_refuel3_16 : U
+                sync_do_start_refuel2_16 : U
+                sync_do_start_refuel1_16 : U
+                    sync_do_start_gen_16 : U
+                sync_did_stop_refuel4_16 : U
+                sync_did_stop_refuel3_16 : U
+                sync_did_stop_refuel2_16 : U
+                sync_did_stop_refuel1_16 : U
+                    sync_did_stop_gen_16 : U
+               sync_did_start_refuel4_16 : U
+               sync_did_start_refuel3_16 : U
+               sync_did_start_refuel2_16 : U
+               sync_did_start_refuel1_16 : U
+                   sync_did_start_gen_16 : U
+                         CNF_46747_46741 : U
+                         CNF_46747_46731 : U
+                         CNF_46747_46722 : U
+                         CNF_46747_46712 : U
+                         CNF_46747_46699 : U
+                         CNF_46812_46806 : U
+                         CNF_46812_46796 : U
+                         CNF_46812_46787 : U
+                         CNF_46812_46777 : U
+                         CNF_46812_46764 : U
+                         CNF_46877_46871 : U
+                         CNF_46877_46861 : U
+                         CNF_46877_46852 : U
+                         CNF_46877_46842 : U
+                         CNF_46877_46829 : U
+                         CNF_46942_46936 : U
+                         CNF_46942_46926 : U
+                         CNF_46942_46917 : U
+                         CNF_46942_46907 : U
+                         CNF_46942_46894 : U
+                         CNF_47268_47246 : U
+                         CNF_47268_47226 : U
+                         CNF_47268_47208 : U
+                         CNF_47268_47192 : U
+                         CNF_47268_47178 : U
+                         CNF_47268_47166 : U
+                         CNF_47268_47156 : U
+                         CNF_47268_47148 : U
+                         CNF_47268_47142 : U
+                         CNF_47268_47138 : U
+                         CNF_47268_47115 : U
+                         CNF_47268_47094 : U
+                         CNF_47268_47075 : U
+                         CNF_47268_47058 : U
+                         CNF_47268_47043 : U
+                         CNF_47268_47030 : U
+                         CNF_47268_47019 : U
+                         CNF_47268_47010 : U
+                         CNF_47268_47003 : U
+                         CNF_47268_46998 : U
+                         CNF_47268_46974 : U
+                         CNF_47324_47318 : U
+                         CNF_47324_47309 : U
+                         CNF_47324_47300 : U
+                         CNF_47324_47290 : U
+                         CNF_47324_47277 : U
+                         CNF_47336_47333 : U
+                         CNF_47336_47328 : U
+                         CNF_47349_47346 : U
+                         CNF_47349_47341 : U
+                         CNF_47363_47360 : U
+                         CNF_47363_47354 : U
+                         CNF_47377_47374 : U
+                         CNF_47377_47368 : U
+                         CNF_47391_47388 : U
+                         CNF_47391_47382 : U
+                         CNF_47412_47408 : U
+                         CNF_47412_47403 : U
+                         CNF_47412_47397 : U
+                         CNF_47433_47429 : U
+                         CNF_47433_47424 : U
+                         CNF_47433_47418 : U
+                         CNF_47454_47450 : U
+                         CNF_47454_47445 : U
+                         CNF_47454_47439 : U
+                         CNF_47475_47471 : U
+                         CNF_47475_47466 : U
+                         CNF_47475_47460 : U
+                         CNF_47493_47487 : U
+                         CNF_47493_47485 : U
+                         CNF_47493_47483 : U
+                         CNF_47493_47481 : U
+                         CNF_47509_47503 : U
+                         CNF_47509_47501 : U
+                         CNF_47509_47499 : U
+                         CNF_47509_47497 : U
+                         CNF_47525_47519 : U
+                         CNF_47525_47517 : U
+                         CNF_47525_47515 : U
+                         CNF_47525_47513 : U
+                         CNF_47541_47535 : U
+                         CNF_47541_47533 : U
+                         CNF_47541_47531 : U
+                         CNF_47541_47529 : U
+                         CNF_47557_47551 : U
+                         CNF_47557_47549 : U
+                         CNF_47557_47547 : U
+                         CNF_47557_47545 : U
+                 sync_do_stop_refuel4_17 : U
+                 sync_do_stop_refuel3_17 : U
+                 sync_do_stop_refuel2_17 : U
+                 sync_do_stop_refuel1_17 : U
+                     sync_do_stop_gen_17 : U
+                sync_do_start_refuel4_17 : U
+                sync_do_start_refuel3_17 : U
+                sync_do_start_refuel2_17 : U
+                sync_do_start_refuel1_17 : U
+                    sync_do_start_gen_17 : U
+                sync_did_stop_refuel4_17 : U
+                sync_did_stop_refuel3_17 : U
+                sync_did_stop_refuel2_17 : U
+                sync_did_stop_refuel1_17 : U
+                    sync_did_stop_gen_17 : U
+               sync_did_start_refuel4_17 : U
+               sync_did_start_refuel3_17 : U
+               sync_did_start_refuel2_17 : U
+               sync_did_start_refuel1_17 : U
+                   sync_did_start_gen_17 : U
+                         CNF_49058_49052 : U
+                         CNF_49058_49042 : U
+                         CNF_49058_49033 : U
+                         CNF_49058_49023 : U
+                         CNF_49058_49010 : U
+                         CNF_49123_49117 : U
+                         CNF_49123_49107 : U
+                         CNF_49123_49098 : U
+                         CNF_49123_49088 : U
+                         CNF_49123_49075 : U
+                         CNF_49188_49182 : U
+                         CNF_49188_49172 : U
+                         CNF_49188_49163 : U
+                         CNF_49188_49153 : U
+                         CNF_49188_49140 : U
+                         CNF_49253_49247 : U
+                         CNF_49253_49237 : U
+                         CNF_49253_49228 : U
+                         CNF_49253_49218 : U
+                         CNF_49253_49205 : U
+                         CNF_49579_49557 : U
+                         CNF_49579_49537 : U
+                         CNF_49579_49519 : U
+                         CNF_49579_49503 : U
+                         CNF_49579_49489 : U
+                         CNF_49579_49477 : U
+                         CNF_49579_49467 : U
+                         CNF_49579_49459 : U
+                         CNF_49579_49453 : U
+                         CNF_49579_49449 : U
+                         CNF_49579_49426 : U
+                         CNF_49579_49405 : U
+                         CNF_49579_49386 : U
+                         CNF_49579_49369 : U
+                         CNF_49579_49354 : U
+                         CNF_49579_49341 : U
+                         CNF_49579_49330 : U
+                         CNF_49579_49321 : U
+                         CNF_49579_49314 : U
+                         CNF_49579_49309 : U
+                         CNF_49579_49285 : U
+                         CNF_49635_49629 : U
+                         CNF_49635_49620 : U
+                         CNF_49635_49611 : U
+                         CNF_49635_49601 : U
+                         CNF_49635_49588 : U
+                         CNF_49647_49644 : U
+                         CNF_49647_49639 : U
+                         CNF_49660_49657 : U
+                         CNF_49660_49652 : U
+                         CNF_49674_49671 : U
+                         CNF_49674_49665 : U
+                         CNF_49688_49685 : U
+                         CNF_49688_49679 : U
+                         CNF_49702_49699 : U
+                         CNF_49702_49693 : U
+                         CNF_49723_49719 : U
+                         CNF_49723_49714 : U
+                         CNF_49723_49708 : U
+                         CNF_49744_49740 : U
+                         CNF_49744_49735 : U
+                         CNF_49744_49729 : U
+                         CNF_49765_49761 : U
+                         CNF_49765_49756 : U
+                         CNF_49765_49750 : U
+                         CNF_49786_49782 : U
+                         CNF_49786_49777 : U
+                         CNF_49786_49771 : U
+                         CNF_49804_49798 : U
+                         CNF_49804_49796 : U
+                         CNF_49804_49794 : U
+                         CNF_49804_49792 : U
+                         CNF_49820_49814 : U
+                         CNF_49820_49812 : U
+                         CNF_49820_49810 : U
+                         CNF_49820_49808 : U
+                         CNF_49836_49830 : U
+                         CNF_49836_49828 : U
+                         CNF_49836_49826 : U
+                         CNF_49836_49824 : U
+                         CNF_49852_49846 : U
+                         CNF_49852_49844 : U
+                         CNF_49852_49842 : U
+                         CNF_49852_49840 : U
+                         CNF_49868_49862 : U
+                         CNF_49868_49860 : U
+                         CNF_49868_49858 : U
+                         CNF_49868_49856 : U
+                 sync_do_stop_refuel4_18 : U
+                 sync_do_stop_refuel3_18 : U
+                 sync_do_stop_refuel2_18 : U
+                 sync_do_stop_refuel1_18 : U
+                     sync_do_stop_gen_18 : U
+                sync_do_start_refuel4_18 : U
+                sync_do_start_refuel3_18 : U
+                sync_do_start_refuel2_18 : U
+                sync_do_start_refuel1_18 : U
+                    sync_do_start_gen_18 : U
+                sync_did_stop_refuel4_18 : U
+                sync_did_stop_refuel3_18 : U
+                sync_did_stop_refuel2_18 : U
+                sync_did_stop_refuel1_18 : U
+                    sync_did_stop_gen_18 : U
+               sync_did_start_refuel4_18 : U
+               sync_did_start_refuel3_18 : U
+               sync_did_start_refuel2_18 : U
+               sync_did_start_refuel1_18 : U
+                   sync_did_start_gen_18 : U
+                         CNF_51369_51363 : U
+                         CNF_51369_51353 : U
+                         CNF_51369_51344 : U
+                         CNF_51369_51334 : U
+                         CNF_51369_51321 : U
+                         CNF_51434_51428 : U
+                         CNF_51434_51418 : U
+                         CNF_51434_51409 : U
+                         CNF_51434_51399 : U
+                         CNF_51434_51386 : U
+                         CNF_51499_51493 : U
+                         CNF_51499_51483 : U
+                         CNF_51499_51474 : U
+                         CNF_51499_51464 : U
+                         CNF_51499_51451 : U
+                         CNF_51564_51558 : U
+                         CNF_51564_51548 : U
+                         CNF_51564_51539 : U
+                         CNF_51564_51529 : U
+                         CNF_51564_51516 : U
+                         CNF_51890_51868 : U
+                         CNF_51890_51848 : U
+                         CNF_51890_51830 : U
+                         CNF_51890_51814 : U
+                         CNF_51890_51800 : U
+                         CNF_51890_51788 : U
+                         CNF_51890_51778 : U
+                         CNF_51890_51770 : U
+                         CNF_51890_51764 : U
+                         CNF_51890_51760 : U
+                         CNF_51890_51737 : U
+                         CNF_51890_51716 : U
+                         CNF_51890_51697 : U
+                         CNF_51890_51680 : U
+                         CNF_51890_51665 : U
+                         CNF_51890_51652 : U
+                         CNF_51890_51641 : U
+                         CNF_51890_51632 : U
+                         CNF_51890_51625 : U
+                         CNF_51890_51620 : U
+                         CNF_51890_51596 : U
+                         CNF_51946_51940 : U
+                         CNF_51946_51931 : U
+                         CNF_51946_51922 : U
+                         CNF_51946_51912 : U
+                         CNF_51946_51899 : U
+                         CNF_51958_51955 : U
+                         CNF_51958_51950 : U
+                         CNF_51971_51968 : U
+                         CNF_51971_51963 : U
+                         CNF_51985_51982 : U
+                         CNF_51985_51976 : U
+                         CNF_51999_51996 : U
+                         CNF_51999_51990 : U
+                         CNF_52013_52010 : U
+                         CNF_52013_52004 : U
+                         CNF_52034_52030 : U
+                         CNF_52034_52025 : U
+                         CNF_52034_52019 : U
+                         CNF_52055_52051 : U
+                         CNF_52055_52046 : U
+                         CNF_52055_52040 : U
+                         CNF_52076_52072 : U
+                         CNF_52076_52067 : U
+                         CNF_52076_52061 : U
+                         CNF_52097_52093 : U
+                         CNF_52097_52088 : U
+                         CNF_52097_52082 : U
+                         CNF_52115_52109 : U
+                         CNF_52115_52107 : U
+                         CNF_52115_52105 : U
+                         CNF_52115_52103 : U
+                         CNF_52131_52125 : U
+                         CNF_52131_52123 : U
+                         CNF_52131_52121 : U
+                         CNF_52131_52119 : U
+                         CNF_52147_52141 : U
+                         CNF_52147_52139 : U
+                         CNF_52147_52137 : U
+                         CNF_52147_52135 : U
+                         CNF_52163_52157 : U
+                         CNF_52163_52155 : U
+                         CNF_52163_52153 : U
+                         CNF_52163_52151 : U
+                         CNF_52179_52173 : U
+                         CNF_52179_52171 : U
+                         CNF_52179_52169 : U
+                         CNF_52179_52167 : U

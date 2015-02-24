@@ -18,6 +18,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <fenv.h>
+#include <iomanip>
 #include "Enode.h"
 #include "util/string.h"
 
@@ -330,7 +331,7 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
         if (name.find('e') != std::string::npos || name.find('E') != std::string::npos) {
             // Scientific Notation
             double r = *(symb_data->value);
-            os << setprecision(16) << std::fixed << "(" << r << ")";
+            os << std::setprecision(16) << std::fixed << "(" << r << ")";
         } else {
             // Fixed Notation
 	  os << "(" << name << ")";

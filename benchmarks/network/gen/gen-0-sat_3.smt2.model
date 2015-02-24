@@ -1,0 +1,124 @@
+delta-sat with the following box:
+	fuellevel_gen_0_0 : [1000, 1000];
+	fuellevel_gen_0_t : [1000, 1000];
+	fuellevel_gen_1_0 : [1000, 1000];
+	fuellevel_gen_1_t : [1000, 1000];
+	fuellevel_gen_2_0 : [1000, 1000];
+	fuellevel_gen_2_t : [0, 1.13686837721616e-13];
+	fuellevel_gen_3_0 : [0, 1.13686837721616e-13];
+	fuellevel_gen_3_t : [0, 1.13686837721616e-13];
+	gamma_generate_gen_automaton0_1_0_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_1_0 : [1, 1];
+	gamma_generate_gen_automaton0_1_2_0 : [0, 0];
+	gamma_generate_gen_automaton0_1_3_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_0_0 : [1, 1];
+	gamma_generate_gen_automaton0_2_1_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_2_0 : [0, 0];
+	gamma_generate_gen_automaton0_2_3_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_0_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_1_0 : [0, 0];
+	gamma_generate_gen_automaton0_3_2_0 : [1, 1];
+	gamma_generate_gen_automaton0_3_3_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_0_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_1_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_2_0 : [0, 0];
+	gamma_generate_gen_automaton0_4_3_0 : [1, 1];
+	gamma_generator_ran0_1_0_0 : [1, 1];
+	gamma_generator_ran0_1_1_0 : [1, 1];
+	gamma_generator_ran0_1_2_0 : [1, 1];
+	gamma_generator_ran0_1_3_0 : [0, 0];
+	gamma_generator_ran0_2_0_0 : [0, 0];
+	gamma_generator_ran0_2_1_0 : [0, 0];
+	gamma_generator_ran0_2_2_0 : [0, 0];
+	gamma_generator_ran0_2_3_0 : [1, 1];
+	gamma_lock_automaton0_1_0_0 : [0, 0];
+	gamma_lock_automaton0_1_1_0 : [1, 1];
+	gamma_lock_automaton0_1_2_0 : [0, 0];
+	gamma_lock_automaton0_1_3_0 : [1, 1];
+	gamma_lock_automaton0_2_0_0 : [1, 1];
+	gamma_lock_automaton0_2_1_0 : [0, 0];
+	gamma_lock_automaton0_2_2_0 : [1, 1];
+	gamma_lock_automaton0_2_3_0 : [0, 0];
+	mode_1_0 : [1, 1];
+	mode_1_1 : [1, 1];
+	mode_1_2 : [1, 1];
+	mode_1_3 : [2, 2];
+	mode_2_0 : [2, 2];
+	mode_2_1 : [1, 1];
+	mode_2_2 : [3, 3];
+	mode_2_3 : [4, 4];
+	mode_3_0 : [2, 2];
+	mode_3_1 : [1, 1];
+	mode_3_2 : [2, 2];
+	mode_3_3 : [1, 1];
+	time_0 : [0, 1e-05];
+	time_1 : [0, 4.940656458412465e-324];
+	time_2 : [999.9999999999999, 1000];
+	time_3 : [0, 4.940656458412465e-324];
+	time_generate_gen_automaton_0_0 : [0, 0];
+	time_generate_gen_automaton_0_t : [0, 0];
+	time_generate_gen_automaton_1_0 : [0, 0];
+	time_generate_gen_automaton_1_t : [0, 0];
+	time_generate_gen_automaton_2_0 : [0, 0];
+	time_generate_gen_automaton_2_t : [1000, 1000];
+	time_generate_gen_automaton_3_0 : [0, 0];
+	time_generate_gen_automaton_3_t : [0, 0]                      sync_do_stop_gen_0 : F
+                     sync_do_start_gen_0 : T
+                     sync_did_stop_gen_0 : F
+                    sync_did_start_gen_0 : F
+                             CNF_954_948 : F
+                             CNF_954_944 : F
+                             CNF_954_937 : F
+                             CNF_954_932 : T
+                             CNF_954_924 : F
+                           CNF_1008_1002 : F
+                            CNF_1008_993 : T
+                            CNF_1008_984 : F
+                            CNF_1008_974 : F
+                            CNF_1008_961 : F
+                           CNF_1020_1017 : T
+                           CNF_1020_1012 : F
+                           CNF_1038_1032 : F
+                           CNF_1038_1030 : T
+                           CNF_1038_1028 : F
+                           CNF_1038_1026 : F
+                      sync_do_stop_gen_1 : F
+                     sync_do_start_gen_1 : F
+                     sync_did_stop_gen_1 : F
+                    sync_did_start_gen_1 : T
+                           CNF_1382_1376 : T
+                           CNF_1382_1372 : F
+                           CNF_1382_1365 : F
+                           CNF_1382_1360 : F
+                           CNF_1382_1352 : F
+                           CNF_1436_1430 : T
+                           CNF_1436_1421 : F
+                           CNF_1436_1412 : F
+                           CNF_1436_1402 : F
+                           CNF_1436_1389 : F
+                           CNF_1448_1445 : T
+                           CNF_1448_1440 : F
+                           CNF_1466_1460 : T
+                           CNF_1466_1458 : F
+                           CNF_1466_1456 : F
+                           CNF_1466_1454 : F
+                      sync_do_stop_gen_2 : T
+                     sync_do_start_gen_2 : F
+                     sync_did_stop_gen_2 : F
+                    sync_did_start_gen_2 : F
+                           CNF_1810_1804 : F
+                           CNF_1810_1800 : F
+                           CNF_1810_1793 : T
+                           CNF_1810_1788 : F
+                           CNF_1810_1780 : F
+                           CNF_1864_1858 : F
+                           CNF_1864_1849 : F
+                           CNF_1864_1840 : T
+                           CNF_1864_1830 : F
+                           CNF_1864_1817 : F
+                           CNF_1876_1873 : F
+                           CNF_1876_1868 : T
+                           CNF_1894_1888 : F
+                           CNF_1894_1886 : F
+                           CNF_1894_1884 : T
+                           CNF_1894_1882 : F

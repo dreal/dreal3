@@ -1,0 +1,54 @@
+delta-sat with the following box:
+	fuellevel_gen_0_0 : [980, 980];
+	fuellevel_gen_0_t : [989.9999999837019, 990.0000000025611];
+	fuellevel_gen_1_0 : [989.9999999837019, 990.0000000025611];
+	fuellevel_gen_1_t : [0, 0];
+	gamma_generate_gen_automaton0_1_0_0 : [1, 1];
+	gamma_generate_gen_automaton0_1_1_0 : [1, 1];
+	gamma_lock_automaton0_1_0_0 : [0, 0];
+	gamma_lock_automaton0_1_1_0 : [1, 1];
+	gamma_lock_automaton0_2_0_0 : [1, 1];
+	gamma_lock_automaton0_2_1_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_0_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_1_1_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_2_0_0 : [1, 1];
+	gamma_refuel_gen_tank1_automaton1_2_1_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_3_0_0 : [0, 0];
+	gamma_refuel_gen_tank1_automaton1_3_1_0 : [1, 1];
+	mode_1_0 : [1, 1];
+	mode_1_1 : [1, 1];
+	mode_2_0 : [2, 2];
+	mode_2_1 : [1, 1];
+	mode_3_0 : [2, 2];
+	mode_3_1 : [3, 3];
+	time_0 : [9.999999999025022, 10.00000000020373];
+	time_1 : [989.9999996613246, 990.0000006091295];
+	time_generate_gen_automaton_0_0 : [0, 0];
+	time_generate_gen_automaton_0_t : [9.999999983701855, 10.00000000256114];
+	time_generate_gen_automaton_1_0 : [9.999999983701855, 10.00000000256114];
+	time_generate_gen_automaton_1_t : [999.999988210453, 1000];
+	time_rt1_0_0 : [0, 0];
+	time_rt1_0_t : [10, 10];
+	time_rt1_1_0 : [0, 0];
+	time_rt1_1_t : [989.9999911310806, 990.0000062959589]                  sync_do_stop_refuel1_0 : T
+                      sync_do_stop_gen_0 : F
+                 sync_do_start_refuel1_0 : F
+                     sync_do_start_gen_0 : F
+                 sync_did_stop_refuel1_0 : F
+                     sync_did_stop_gen_0 : F
+                sync_did_start_refuel1_0 : F
+                    sync_did_start_gen_0 : F
+                             CNF_676_672 : F
+                             CNF_676_661 : T
+                             CNF_676_649 : F
+                             CNF_768_758 : F
+                             CNF_768_750 : F
+                             CNF_768_744 : F
+                             CNF_768_740 : F
+                             CNF_768_729 : F
+                             CNF_768_720 : T
+                             CNF_768_713 : F
+                             CNF_768_708 : F
+                             CNF_768_696 : F
+                             CNF_781_777 : F
+                             CNF_781_775 : T

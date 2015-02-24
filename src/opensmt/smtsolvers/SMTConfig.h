@@ -218,6 +218,7 @@ struct SMTConfig
   bool         nra_simulation_thread;         // use a separate thread for simulation in ICP
   bool         nra_precision_output;          // print precision info in case of delta-sat
   unsigned     nra_random_seed;               // seed to random generators (default = std::random_device())
+  bool         nra_output_num_nodes;          // print num sat and icp nodes
 
   void setODEFwdTimeout(double const ode_fwd_timeout);
   void setODEBwdTimeout(double const ode_bwd_timeout);
