@@ -627,7 +627,12 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
         case polarity_user:  sign = polarity[next]; break;
         case polarity_rnd:   sign = irand(random_seed, 2); break;
         default: assert(false); }
-
+      if(next != var_Undef){
+        DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Activity Decision: "
+                        << sign << " " << theory_handler->varToEnode(next)
+			<< " activity = " << activity[next]
+                        << endl;
+      }
                  return next == var_Undef ? lit_Undef : Lit(next, sign);
 }
 
@@ -1310,6 +1315,7 @@ bool CoreSMTSolver::simplify()
   // Remove fixed variables from the variable heap:
   order_heap.filter(VarFilter(*this));
 
+
   simpDB_assigns = nAssigns();
   simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
 
@@ -1710,6 +1716,30 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
           }
         }
 
+        bool isSAT = false;
+        if(config.nra_short_sat){
+          //check if SAT, even if not all literals are assigned
+          isSAT = true;
+          for (int c = 0; c < nClauses(); c++) {
+            if (!satisfied(*clauses[c])) {
+              isSAT = false;
+              break;
+            }
+          }
+
+	  //Filter variables that don't need assignment
+	  filterUnassigned();
+
+          if( isSAT ){
+            DREAL_LOG_DEBUG << "CoreSMTSolver::search() Found Model after # decisions " << decisions << endl;
+            //first_model_found = true;
+            next = lit_Undef;
+          }
+          else{
+            DREAL_LOG_DEBUG << "CoreSMTSolver::search() not SAT yet" << endl;
+          }
+        }
+
         if (next == lit_Undef){
           if ((!config.nra_short_sat) || (!entailment())) {
         	// New variable decision:
@@ -1775,6 +1805,8 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
   }
 }
 
+void CoreSMTSolver::filterUnassigned(){
+}
 
 double CoreSMTSolver::progressEstimate() const
 {
