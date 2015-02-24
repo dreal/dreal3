@@ -126,6 +126,7 @@ SMTConfig::initializeConfig( )
   nra_simp                     = true;
   nra_ncbt                     = false;
   nra_worklist_fp              = false;
+  nra_output_num_nodes         = false;
   initLogging();
 }
 
