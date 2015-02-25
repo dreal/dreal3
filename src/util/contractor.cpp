@@ -138,26 +138,15 @@ ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_se
 }
 
 contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr)
-    : contractor_cell(contractor_kind::IBEX_FWDBWD, box.size()), m_ctr(ctr), m_exprctr(nullptr), m_numctr(nullptr) {
-    unordered_map<string, ibex::Variable const> var_map;
-    m_exprctr = translate_enode_to_exprctr(var_map, ctr->get_enodes()[0]);
-    if (m_exprctr) {
-        m_var_array.resize(var_map.size());
-        unsigned i = 0;
-        for (auto const p : var_map) {
-            m_var_array.set_ref(i, p.second);
-            // TODO(soonhok): m_var_index_map is unnecessary. remove it
-            m_var_index_map.emplace(i, p.second.symbol->name);
-            i++;
-        }
-        m_numctr = new ibex::NumConstraint(m_var_array, *m_exprctr);
+    : contractor_cell(contractor_kind::IBEX_FWDBWD, box.size()), m_ctr(ctr),
+      m_numctr(ctr->get_numctr()), m_var_array(ctr->get_var_array()) {
+    if (m_numctr) {
         m_ctc = new ibex::CtcFwdBwd(*m_numctr);
-
         // Set up input
         ibex::BitSet const * const input = m_ctc->input;
         for (unsigned i = 0; i <  input->size(); i++) {
             if ((*input)[i]) {
-                m_input.add(box.get_index(m_var_index_map.at(i)));
+                m_input.add(box.get_index(m_var_array[i].name));
             }
         }
         m_used_constraints.insert(m_ctr);
@@ -165,8 +154,6 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, algebraic_constr
 }
 contractor_ibex_fwdbwd::~contractor_ibex_fwdbwd() {
     if (m_ctc) { delete m_ctc; }
-    if (m_numctr) { delete m_numctr; }
-    if (m_exprctr) { delete m_exprctr; }
 }
 box contractor_ibex_fwdbwd::prune(box b) const {
     if (m_ctc == nullptr) {
@@ -176,8 +163,8 @@ box contractor_ibex_fwdbwd::prune(box b) const {
     // Construct iv from box b
     ibex::IntervalVector iv(m_var_array.size());
     for (int i = 0; i < m_var_array.size(); i++) {
-        iv[i] = b[m_var_index_map.at(i)];
-        DREAL_LOG_DEBUG << m_var_index_map.at(i) << " = " << iv[i];
+        iv[i] = b[m_var_array[i].name];
+        DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
     }
     // Prune on iv
     try {
@@ -194,13 +181,13 @@ box contractor_ibex_fwdbwd::prune(box b) const {
     // Reconstruct box b from pruned result iv.
     if (!b.is_empty()) {
         for (int i = 0; i < m_var_array.size(); i++) {
-            b[m_var_index_map.at(i)] = iv[i];
+            b[m_var_array[i].name] = iv[i];
         }
     }
     ibex::BitSet const * const output = m_ctc->output;
     for (unsigned i = 0; i <  output->size(); i++) {
         if ((*output)[i]) {
-            m_output.add(b.get_index(m_var_index_map.at(i)));
+            m_output.add(b.get_index(m_var_array[i].name));
         }
     }
 

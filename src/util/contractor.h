@@ -67,10 +67,8 @@ std::ostream & operator<<(std::ostream & out, contractor_cell const & c);
 class contractor_ibex_fwdbwd : public contractor_cell {
 private:
     algebraic_constraint const * m_ctr;
-    ibex::ExprCtr const * m_exprctr;
     ibex::NumConstraint const * m_numctr;
-    ibex::Array<ibex::ExprSymbol const> m_var_array;
-    std::unordered_map<int, std::string> m_var_index_map;
+    ibex::Array<ibex::ExprSymbol const> const & m_var_array;
     ibex::CtcFwdBwd * m_ctc = nullptr;
 
 public:
