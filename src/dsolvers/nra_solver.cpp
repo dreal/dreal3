@@ -255,6 +255,68 @@ box icp_loop(box b, contractor const & ctc, double const prec) {
     return b;
 }
 
+box icp_loop_with_nc_bt(box b, contractor const & ctc, double const prec) {
+    static unsigned prune_count = 0;
+    stack<box> box_stack;
+    stack<int> bisect_var_stack;
+    box_stack.push(b);
+    bisect_var_stack.push(-1);  // Dummy var
+    do {
+        // Loop Invariant
+        assert(box_stack.size() == bisect_var_stack.size());
+        DREAL_LOG_INFO << "new_icp_loop()"
+                       << "\t" << "box stack Size = " << box_stack.size();
+        b = box_stack.top();
+        b = ctc.prune(b);
+        prune_count++;
+        box_stack.pop();
+        bisect_var_stack.pop();
+        if (!b.is_empty()) {
+            // SAT
+            if (b.max_diam() > prec) {
+                tuple<int, box, box> splits = b.bisect();
+                unsigned const index = get<0>(splits);
+                box const & first    = get<1>(splits);
+                box const & second   = get<2>(splits);
+                if (second.is_bisectable()) {
+                    box_stack.push(second);
+                    box_stack.push(first);
+                } else {
+                    box_stack.push(first);
+                    box_stack.push(second);
+                }
+                bisect_var_stack.push(index);
+                bisect_var_stack.push(index);
+            } else {
+                break;
+            }
+        } else {
+            // UNSAT
+            while (box_stack.size() > 0) {
+                assert(box_stack.size() == bisect_var_stack.size());
+                int bisect_var = bisect_var_stack.top();
+                ibex::BitSet const & input = ctc.input();
+
+                // cerr << ctc << endl;
+
+                input.display(cerr);
+                cerr << "\n";
+
+
+                if (!input[bisect_var]) {
+                    box_stack.pop();
+                    bisect_var_stack.pop();
+                    cerr << "HERE!!! POP!!" << endl;
+                } else {
+                    break;
+                }
+            }
+        }
+    } while (box_stack.size() > 0);
+    cerr << "prune count = " << prune_count << endl;
+    return b;
+}
+
 void nra_solver::handle_sat_case(box const & b) const {
     // SAT
     DREAL_LOG_FATAL << "Solution:";
