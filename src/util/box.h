@@ -111,6 +111,10 @@ public:
     std::ostream& display_old_style_model(ostream& out) const;
 };
 
+bool operator<(ibex::Interval const & a, ibex::Interval const & b);
+bool operator>(ibex::Interval const & a, ibex::Interval const & b);
+bool operator<=(ibex::Interval const & a, ibex::Interval const & b);
+bool operator>=(ibex::Interval const & a, ibex::Interval const & b);
 
 std::ostream& operator<<(ostream& out, box const & b);
 }  // namespace dreal

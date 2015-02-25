@@ -198,4 +198,23 @@ vector<bool> box::diff_dims(box const & b) const {
 }
 
 
+bool operator<(ibex::Interval const & a, ibex::Interval const & b) {
+    if (a.is_empty() || b.is_empty()) {
+        return false;
+    }
+    return a.ub() < b.lb();
+    return false;
+}
+bool operator>(ibex::Interval const & a, ibex::Interval const & b) {
+    if (a.is_empty() || b.is_empty()) {
+        return false;
+    }
+    return a.lb() > b.ub();
+}
+bool operator<=(ibex::Interval const & a, ibex::Interval const & b) {
+    return a == b || a < b;
+}
+bool operator>=(ibex::Interval const & a, ibex::Interval const & b) {
+    return a == b || a > b;
+}
 }  // namespace dreal
