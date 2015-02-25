@@ -370,6 +370,14 @@ contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const
     : contractor_cell(contractor_kind::FP), m_prec(p), m_term_cond(term_cond), m_clist(cvec1) {
     copy(cvec2.begin(), cvec2.end(), back_inserter(m_clist));
 }
+contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const &, box const &)> term_cond,
+                                         vector<contractor> const & cvec1,
+                                         vector<contractor> const & cvec2,
+                                         vector<contractor> const & cvec3)
+    : contractor_cell(contractor_kind::FP), m_prec(p), m_term_cond(term_cond), m_clist(cvec1) {
+    copy(cvec2.begin(), cvec2.end(), back_inserter(m_clist));
+    copy(cvec3.begin(), cvec3.end(), back_inserter(m_clist));
+}
 
 box contractor_fixpoint::prune(box old_b) const {
     // box const & naive_result = naive_fixpoint_alg(old_b);
@@ -545,6 +553,13 @@ contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box
                                   vector<contractor> const & cvec1, vector<contractor> const & cvec2) {
     return contractor(make_shared<contractor_fixpoint>(p, guard, cvec1, cvec2));
 }
+contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box const &)> guard,
+                                  vector<contractor> const & cvec1,
+                                  vector<contractor> const & cvec2,
+                                  vector<contractor> const & cvec3) {
+    return contractor(make_shared<contractor_fixpoint>(p, guard, cvec1, cvec2, cvec3));
+}
+
 contractor mk_contractor_int() {
     return contractor(make_shared<contractor_int>());
 }

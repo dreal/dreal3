@@ -149,6 +149,8 @@ public:
     contractor_fixpoint(double const prec, std::function<bool(box const &, box const &)> term_cond, std::vector<contractor> const & cvec);
     contractor_fixpoint(double const prec, std::function<bool(box const &, box const &)> term_cond,
                         std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2);
+    contractor_fixpoint(double const prec, std::function<bool(box const &, box const &)> term_cond,
+                        std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2, std::vector<contractor> const & cvec3);
     box prune(box b) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -271,6 +273,8 @@ contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &
 contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
 contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &, box const &)> guard,
                                   std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2);
+contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &, box const &)> guard,
+                                  std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2, std::vector<contractor> const & cvec3);
 contractor mk_contractor_int();
 contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr);
 contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);

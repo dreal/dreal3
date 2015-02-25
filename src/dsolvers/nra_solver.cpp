@@ -156,15 +156,22 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
 
 contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *> const &ctrs) {
     vector<algebraic_constraint const *> alg_ctrs;
+
     vector<contractor> alg_ctcs;
     alg_ctcs.reserve(ctrs.size());
+
+    vector<contractor> alg_eval_ctcs;
+    alg_eval_ctcs.reserve(ctrs.size());
+
     vector<contractor> ode_ctcs;
     ode_ctcs.reserve(ctrs.size());
+
     for (constraint * const ctr : ctrs) {
         if (ctr->get_type() == constraint_type::Algebraic) {
             algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
             alg_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, alg_ctr));
             alg_ctrs.push_back(alg_ctr);
+            alg_eval_ctcs.push_back(mk_contractor_eval(box, alg_ctr));
         } else if (ctr->get_type() == constraint_type::ODE) {
             ode_ctcs.emplace_back(mk_contractor_capd_fwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size));
         }
@@ -183,7 +190,7 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
     };
 
     alg_ctcs.push_back(mk_contractor_ibex(config.nra_precision, box, alg_ctrs));
-    return mk_contractor_fixpoint(config.nra_precision, term_cond, alg_ctcs, ode_ctcs);
+    return mk_contractor_fixpoint(config.nra_precision, term_cond, alg_ctcs, ode_ctcs, alg_eval_ctcs);
 }
 
 // Saves a backtrack point You are supposed to keep track of the
