@@ -27,5 +27,5 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dreal {
 ibex::ExprNode const * translate_enode_to_exprnode(unordered_map<string, ibex::Variable const> & var_map, Enode const * e);
-ibex::ExprCtr  const * translate_enode_to_exprctr(unordered_map<string, ibex::Variable const> & var_map, Enode const * e);
+ibex::ExprCtr  const * translate_enode_to_exprctr(unordered_map<string, ibex::Variable const> & var_map, Enode const * e, lbool p = l_Undef);
 }

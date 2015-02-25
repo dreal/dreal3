@@ -162,7 +162,7 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
     throw logic_error("Not implemented yet: translateEnodeExprNode");
 }
 
-ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const> & var_map, Enode const * e) {
+ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const> & var_map, Enode const * e, lbool p) {
     assert(e->isTerm() && (e->isEq() || e->isLeq() || e->isGeq() || e->isLt() || e->isGt()));
 
     // Enode const * const rel = e->getCar();
@@ -171,7 +171,7 @@ ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const>
 
     ExprNode const * left = translate_enode_to_exprnode(var_map, first_op);
     ExprNode const * right = translate_enode_to_exprnode(var_map, second_op);
-    auto const polarity = e->getPolarity();
+    auto const polarity = p == l_Undef ? e->getPolarity() : p;
     switch (e->getCar()->getId()) {
     case ENODE_ID_EQ:
         // TODO(soonhok): remove != case
