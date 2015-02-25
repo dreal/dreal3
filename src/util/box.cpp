@@ -174,25 +174,26 @@ vector<bool> box::diff_dims(box const & b) const {
     return ret;
 }
 
+box sample_point(box b) {
     static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
-    unsigned const n = values.size();
-    vector<double> v(n);
+    unsigned const n = b.size();
+    ibex::IntervalVector & values = b.get_values();
     for (unsigned i = 0; i < n; i++) {
-        ibex::Interval const & iv = values[i];
+        ibex::Interval & iv = values[i];
         double const lb = iv.lb();
         double const ub = iv.ub();
-        if (lb == ub) {
-            v[i] = lb;
-        } else {
+        if (lb != ub) {
             std::uniform_real_distribution<double> m_dist(lb, ub);
-            v[i] = m_dist(rg);
+            iv = ibex::Interval(m_dist(rg));
         }
     }
-    return point(v);
+    return b;
 }
 
+set<box> box::sample_points(unsigned const n) const {
+    set<box> points;
     for (unsigned i = 0; i < n; i++) {
-        points.insert(sample_point(m_values));
+        points.insert(sample_point(*this));
     }
     return points;
 }
