@@ -91,8 +91,12 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
         DREAL_LOG_INFO << "nra_solver::assertLit: " << e << " is deduced";
         return true;
     }
-    if (m_ctr_map.find(e) != m_ctr_map.end()) {
-        m_stack.push_back(m_ctr_map.at(e));
+    auto it = m_ctr_map.find(make_pair(e, e->getPolarity() == l_True));
+    if (it != m_ctr_map.end()) {
+        m_stack.push_back(it->second);
+    } else {
+        DREAL_LOG_FATAL << "Unknown literal " << e << " is asserted";
+        throw std::logic_error("unknown literal is asserted");
     }
     return true;
 }
@@ -113,10 +117,14 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
             forallt_constraint fc = mk_forallt_constraint(l);
             invs.push_back(fc);
         } else {
-            algebraic_constraint * ac = new algebraic_constraint(l);
-            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect AlgebraicConstraint: " << *ac;
-            ctrs.push_back(ac);
-            m_ctr_map.emplace(l, ac);
+            algebraic_constraint * ac_pos = new algebraic_constraint(l, l_True);
+            algebraic_constraint * ac_neg = new algebraic_constraint(l, l_False);
+            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect AlgebraicConstraint (+): " << *ac_pos;
+            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect AlgebraicConstraint (-): " << *ac_neg;
+            ctrs.push_back(ac_pos);
+            ctrs.push_back(ac_neg);
+            m_ctr_map.emplace(make_pair(l, true),  ac_pos);
+            m_ctr_map.emplace(make_pair(l, false), ac_neg);
         }
     }
     // Attach the corresponding forallT literals to integrals
@@ -129,16 +137,16 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
             if (fc.get_flow_id() == ic.get_flow_id()) {
                 unordered_set<Enode *> vars_in_fc = fc.get_inv()->get_vars();
                 bool const included = all_of(vars_in_fc.begin(), vars_in_fc.end(),
-                       [&ic](Enode const * var_in_fc) {
-                           vector<Enode *> const & vars_t_in_ic = ic.get_vars_t();
-                           return find(vars_t_in_ic.begin(), vars_t_in_ic.end(), var_in_fc) != vars_t_in_ic.end();
-                       });
+                                             [&ic](Enode const * var_in_fc) {
+                                                 vector<Enode *> const & vars_t_in_ic = ic.get_vars_t();
+                                                 return find(vars_t_in_ic.begin(), vars_t_in_ic.end(), var_in_fc) != vars_t_in_ic.end();
+                                             });
                 if (included) {
                     local_invs.push_back(fc);
                 }
                 ode_constraint * oc = new ode_constraint(ic, local_invs);
                 ctrs.push_back(oc);
-                m_ctr_map.emplace(ic.get_enodes()[0], oc);
+                m_ctr_map.emplace(make_pair(ic.get_enodes()[0], true), oc);
                 DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ODEConstraint: " << *oc;
             }
         }
