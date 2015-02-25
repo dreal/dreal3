@@ -87,5 +87,13 @@ public:
     }
     reference operator[] (size_type n) { return m_vec[n]; }
     const_reference operator[] (size_type n) const { return m_vec[n]; }
+    bool operator<(scoped_vec<T> const & v) const {
+        for (unsigned i = 0; i < m_vec.size(); i++) {
+            if (m_vec[i] < v.m_vec[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
 };
 }  // namespace dreal
