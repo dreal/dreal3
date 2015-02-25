@@ -378,7 +378,7 @@ box contractor_fixpoint::prune(box old_b) const {
 ostream & contractor_fixpoint::display(ostream & out) const {
     out << "contractor_fixpoint(";
     for (contractor const & c : m_clist) {
-        out << c << ", ";
+        out << c << ", " << endl;
     }
     out << ")";
     return out;
