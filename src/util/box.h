@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <utility>
 #include <string>
+#include <tuple>
 #include "opensmt/egraph/Enode.h"
 #include "ibex/ibex.h"
 
@@ -49,8 +50,8 @@ public:
     box(std::vector<Enode *> const & vars, ibex::IntervalVector ivec);
     void constructFromLiterals(std::vector<Enode *> const & lit_vec);
 
-    std::pair<box, box> bisect() const;
-    std::pair<box, box> bisect(int i) const;
+    std::tuple<int, box, box> bisect() const;
+    std::tuple<int, box, box> bisect(int i) const;
     vector<bool> diff_dims(box const & b) const;
     std::set<box> sample_points(unsigned const n) const;
     inline bool is_bisectable() const { return m_values.is_bisectable(); }

@@ -24,9 +24,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <set>
 #include <sstream>
 #include <stack>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 #include "dsolvers/nra_solver.h"
@@ -44,6 +46,7 @@ using std::logic_error;
 using std::pair;
 using std::stack;
 using std::vector;
+using std::get;
 
 namespace dreal {
 using std::cout;
@@ -234,13 +237,15 @@ box icp_loop(box b, contractor const & ctc, double const prec) {
         b = ctc.prune(b);
         if (!b.is_empty()) {
             if (b.max_diam() > prec) {
-                pair<box, box> splits = b.bisect();
-                if (splits.second.is_bisectable()) {
-                    box_stack.push(splits.second);
-                    box_stack.push(splits.first);
+                tuple<int, box, box> splits = b.bisect();
+                box const & first  = get<1>(splits);
+                box const & second = get<2>(splits);
+                if (second.is_bisectable()) {
+                    box_stack.push(second);
+                    box_stack.push(first);
                 } else {
-                    box_stack.push(splits.first);
-                    box_stack.push(splits.second);
+                    box_stack.push(first);
+                    box_stack.push(second);
                 }
             } else {
                 break;
@@ -281,7 +286,7 @@ bool nra_solver::check(bool complete) {
     double const prec = config.nra_precision;
     m_ctc = build_contractor(m_box, m_stack);
     m_box = m_ctc.prune(m_box);
-    if (complete && !m_box.is_empty() && m_box.max_diam() > prec) {
+    if (!m_box.is_empty() && m_box.max_diam() > prec && complete) {
         m_box = icp_loop(m_box, m_ctc, prec);
     }
     bool result = !m_box.is_empty();

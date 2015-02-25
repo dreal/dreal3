@@ -25,6 +25,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #include <set>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -44,6 +45,7 @@ using std::sort;
 using std::string;
 using std::unordered_set;
 using std::vector;
+using std::make_tuple;
 
 namespace dreal {
 box::box(std::vector<Enode *> const & vars)
@@ -124,7 +126,7 @@ ostream& box::display_old_style_model(ostream& out) const {
     return out;
 }
 
-pair<box, box> box::bisect() const {
+tuple<int, box, box> box::bisect() const {
     // TODO(soonhok): implement other bisect policy
     int index = 0;
     double max_diam = numeric_limits<double>::min();
@@ -140,7 +142,7 @@ pair<box, box> box::bisect() const {
 }
 
 // Bisect a box into two boxes by bisecting i-th interval.
-pair<box, box> box::bisect(int i) const {
+tuple<int, box, box> box::bisect(int i) const {
     assert(0 <= i && i < m_values.size());
     box b1(*this);
     box b2(*this);
@@ -151,7 +153,7 @@ pair<box, box> box::bisect(int i) const {
     b2.m_values[i] = new_intervals.second;
     DREAL_LOG_INFO << "box::bisect on " << m_vars[i] << " = " << m_values[i]
                    << " into " << b1.m_values[i] << " and " << b2.m_values[i];
-    return make_pair(b1, b2);
+    return make_tuple(i, b1, b2);
 }
 
 double box::max_diam() const {
