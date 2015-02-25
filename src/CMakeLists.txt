@@ -128,6 +128,12 @@ JOIN("${CMAKE_CXX_FLAGS}" "," EXTERNAL_CXX_FLAGS)
 JOIN("${DREAL_EXTRA_LINKER_FLAGS}" "," EXTERNAL_LD_FLAGS)
 
 ################################################################
+# Threads
+################################################################
+find_package (Threads REQUIRED)
+set(EXTRA_LIBS ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIBS})
+
+################################################################
 # External: CAPD-DynSys-4.0
 ################################################################
 ExternalProject_Add(CAPD4
@@ -140,23 +146,8 @@ ExternalProject_Add(CAPD4
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make -j install
 )
-set(EXTRA_LIBS ${EXTRA_LIBS} "capd")
+set(EXTRA_LIBS "capd" ${EXTRA_LIBS})
 set(ODE_ENABLED TRUE)
-
-################################################################
-# External: CLP
-################################################################
-ExternalProject_Add(CLP
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/soonhokong/clp-1.16.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --disable-shared --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
-  BUILD_COMMAND make -j
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make install
-)
-set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "m" ${EXTRA_LIBS})
 
 ################################################################
 # External: FILIB
@@ -174,6 +165,21 @@ ExternalProject_Add(FILIB
 set(EXTRA_LIBS "prim" ${EXTRA_LIBS})
 
 ################################################################
+# External: CLP
+################################################################
+ExternalProject_Add(CLP
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+  GIT_REPOSITORY https://github.com/soonhokong/clp-1.16.git
+  GIT_TAG origin/master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --disable-shared --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
+  BUILD_COMMAND make -j
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND make install
+)
+set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "m" ${EXTRA_LIBS})
+
+################################################################
 # External: ibex
 ################################################################
 ExternalProject_Add(IBEX
@@ -189,11 +195,16 @@ ExternalProject_Add(IBEX
 )
 set(EXTRA_LIBS "ibex" ${EXTRA_LIBS})
 
-################################################################
-# Threads
-################################################################
-find_package (Threads REQUIRED)
-set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+# Libunwind
+find_package(Libunwind)
+if(LIBUNWIND_FOUND)
+  message(STATUS "libunwind found")
+  message(STATUS "lib: ${LIBUNWIND_LIBRARY}")
+  include_directories(${LIBUNWIND_INCLUDE_DIR})
+  set(EXTRA_LIBS ${LIBUNWIND_LIBRARY} ${EXTRA_LIBS})
+else()
+  message(STATUS "libunwind not found")
+endif()
 
 ################################################################
 # External: gflags (Google Flags)
@@ -226,7 +237,6 @@ ExternalProject_Add(GLOG
 )
 set(EXTRA_LIBS "glog" ${EXTRA_LIBS})
 
-
 ################################################################
 # External: googletest (Google Test)
 ################################################################
@@ -240,7 +250,7 @@ ExternalProject_Add(GTEST
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
 )
-set(EXTRA_LIBS ${EXTRA_LIBS} "gtest")
+set(EXTRA_LIBS "gtest" ${EXTRA_LIBS})
 
 ################################################################
 # External: json11 (Dropbox json11)
@@ -255,7 +265,7 @@ ExternalProject_Add(JSON11
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
 )
-set(EXTRA_LIBS ${EXTRA_LIBS} "json11")
+set(EXTRA_LIBS "json11" ${EXTRA_LIBS})
 
 ################################################################
 # External: set up include dir and libpath
@@ -263,17 +273,6 @@ set(EXTRA_LIBS ${EXTRA_LIBS} "json11")
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ibex)
 set(EXTERNAL_LD_FLAGS "-L${CMAKE_CURRENT_BINARY_DIR}/lib")
-
-# Libunwind
-find_package(Libunwind)
-if(LIBUNWIND_FOUND)
-  message(STATUS "libunwind found")
-  message(STATUS "lib: ${LIBUNWIND_LIBRARY}")
-  include_directories(${LIBUNWIND_INCLUDE_DIR})
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${LIBUNWIND_LIBRARY})
-else()
-  message(STATUS "libunwind not found")
-endif()
 
 ################################################################
 # CXX Flags
@@ -328,9 +327,10 @@ set(DREAL_LIBS ${DREAL_LIBS} util)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 
-set(EXTRA_LIBS ${DREAL_LIBS} ${EXTRA_LIBS})
 add_executable(dReal main.cpp)
-target_link_libraries(dReal ${EXTRA_LIBS})
+message(STATUS ${DREAL_LIBS})
+message(STATUS ${EXTRA_LIBS})
+target_link_libraries(dReal ${DREAL_LIBS} ${EXTRA_LIBS})
 
 #add tests
 add_subdirectory(tests/util)
