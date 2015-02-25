@@ -44,6 +44,7 @@ DEFINE_bool  (visualize,        false, "visualize");
 DEFINE_bool  (verbose,          false, "verbose");
 DEFINE_bool  (debug,            false, "debug mode");
 DEFINE_bool  (stat,             false, "show stat");
+DEFINE_int32 (aggressive,           0, "number of samples to use for aggressive sampling");
 
 void
 SMTConfig::initializeConfig( )
@@ -126,6 +127,7 @@ SMTConfig::initializeConfig( )
   nra_use_delta_heuristic      = false;
   nra_short_sat                = false;
   nra_bmc_heuristic            = "";
+  nra_aggressive               = 0;
 }
 
 void SMTConfig::parseConfig ( char * f )
@@ -366,6 +368,7 @@ SMTConfig::parseCMDLine( int /* argc */
   nra_verbose             = FLAGS_verbose || FLAGS_debug;
   nra_debug               = FLAGS_debug;
   nra_stat                = FLAGS_stat;
+  nra_aggressive          = FLAGS_aggressive;
 
   if (nra_proof) {
       /* Open file stream */

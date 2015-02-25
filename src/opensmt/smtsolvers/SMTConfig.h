@@ -205,6 +205,7 @@ struct SMTConfig
   bool         nra_ODE_cache;                 // use cache for ODE computation
   bool         nra_ODE_forward_only;          // only use ODE forward pruning (not use ODE backward)
   bool         nra_ODE_parallel;              // solve ODE in parallel or not
+  unsigned     nra_aggressive;                // number of samples to use for aggressive sampling
 
 private:
 
