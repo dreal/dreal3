@@ -24,11 +24,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <initializer_list>
 #include <iterator>
 #include <memory>
+#include <queue>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
-#include <queue>
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
@@ -485,6 +486,28 @@ ostream & contractor_int::display(ostream & out) const {
     return out;
 }
 
+contractor_eval::contractor_eval(box const & box, algebraic_constraint const * const ctr)
+    : contractor_cell(contractor_kind::EVAL), m_alg_ctr(ctr) {
+    m_used_constraints.insert(m_alg_ctr);
+    // // Set up input
+    auto const & var_array = m_alg_ctr->get_var_array();
+    for (int i = 0; i < var_array.size(); i++) {
+        m_input.add(box.get_index(var_array[i].name));
+    }
+}
+
+box contractor_eval::prune(box b) const {
+    pair<bool, ibex::Interval> eval_result = m_alg_ctr->eval(b);
+    if (!eval_result.first) {
+        b.set_empty();
+    }
+    return b;
+}
+ostream & contractor_eval::display(ostream & out) const {
+    out << "contractor_eval(" << *m_alg_ctr << ")";
+    return out;
+}
+
 contractor mk_contractor_ibex(double const prec, box const & box, vector<algebraic_constraint const *> const & ctrs) {
     return contractor(make_shared<contractor_ibex>(prec, box, ctrs));
 }
@@ -524,6 +547,17 @@ contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box
 }
 contractor mk_contractor_int() {
     return contractor(make_shared<contractor_int>());
+}
+contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr) {
+    static thread_local unordered_map<algebraic_constraint const *, contractor> cache;
+    auto const it = cache.find(ctr);
+    if (it == cache.cend()) {
+        contractor ctc(make_shared<contractor_eval>(box, ctr));
+        cache.emplace(ctr, ctc);
+        return ctc;
+    } else {
+        return it->second;
+    }
 }
 
 std::ostream & operator<<(std::ostream & out, contractor const & c) {
