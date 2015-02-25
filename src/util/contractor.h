@@ -140,7 +140,6 @@ private:
 
     // Naive fixedpoint algorithm
     box naive_fixpoint_alg(box old_b) const;
-    box naive_fixpoint_alg_old(box old_b) const;
     // Worklist fixedpoint algorithm
     box worklist_fixpoint_alg(box old_b) const;
 
