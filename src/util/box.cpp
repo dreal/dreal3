@@ -197,6 +197,44 @@ vector<bool> box::diff_dims(box const & b) const {
     return points;
 }
 
+bool box::operator==(box const & b) const {
+    assert(m_values.size() == b.m_values.size());
+    for (int i = 0; i < m_values.size(); i++) {
+        if (m_values[i] == b.m_values[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool box::operator<(box const & b) const {
+    assert(m_values.size() == b.m_values.size());
+    for (int i = 0; i < m_values.size(); i++) {
+        if (m_values[i] < b.m_values[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool box::operator>(box const & b) const {
+    assert(m_values.size() == b.m_values.size());
+    for (int i = 0; i < m_values.size(); i++) {
+        if (m_values[i] > b.m_values[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool box::operator<=(box const & b) const {
+    return *this == b || *this < b;
+}
+
+bool box::operator>=(box const & b) const {
+    return *this == b || *this > b;
+    return false;
+}
 
 bool operator<(ibex::Interval const & a, ibex::Interval const & b) {
     if (a.is_empty() || b.is_empty()) {

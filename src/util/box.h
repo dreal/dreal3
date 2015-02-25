@@ -100,6 +100,12 @@ public:
         return operator[](e->getCar()->getName());
     }
 
+    bool operator==(box const & b) const;
+    bool operator<(box const & b) const;
+    bool operator<=(box const & b) const;
+    bool operator>(box const & b) const;
+    bool operator>=(box const & b) const;
+
     inline string get_name(unsigned i) const {
         return m_vars[i]->getCar()->getName();
     }
