@@ -489,7 +489,15 @@ contractor mk_contractor_ibex(double const prec, box const & box, vector<algebra
 }
 
 contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr) {
-    return contractor(make_shared<contractor_ibex_fwdbwd>(box, ctr));
+    static thread_local unordered_map<algebraic_constraint const *, contractor> cache;
+    auto const it = cache.find(ctr);
+    if (it == cache.cend()) {
+        contractor ctc(make_shared<contractor_ibex_fwdbwd>(box, ctr));
+        cache.emplace(ctr, ctc);
+        return ctc;
+    } else {
+        return it->second;
+    }
 }
 contractor mk_contractor_seq(initializer_list<contractor> const & l) {
     return contractor(make_shared<contractor_seq>(l));

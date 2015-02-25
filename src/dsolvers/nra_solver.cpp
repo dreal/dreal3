@@ -155,10 +155,10 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
     for (constraint * const ctr : ctrs) {
         if (ctr->get_type() == constraint_type::Algebraic) {
             algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
-            alg_ctcs.emplace_back(make_shared<contractor_ibex_fwdbwd>(box, alg_ctr));
+            alg_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, alg_ctr));
             alg_ctrs.push_back(alg_ctr);
         } else if (ctr->get_type() == constraint_type::ODE) {
-            ode_ctcs.emplace_back(make_shared<contractor_capd_fwd_full>(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size));
+            ode_ctcs.emplace_back(mk_contractor_capd_fwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size));
         }
     }
 
