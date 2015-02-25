@@ -58,10 +58,18 @@ public:
 std::ostream & operator<<(ostream & out, constraint const & c);
 
 class algebraic_constraint : public constraint {
+private:
+    ibex::ExprCtr const * m_exprctr;
+    ibex::NumConstraint const * m_numctr;
+    ibex::Array<ibex::ExprSymbol const> m_var_array;
+    std::pair<bool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
+
 public:
-    explicit algebraic_constraint(Enode * const e);
+    explicit algebraic_constraint(Enode * const e, lbool p = l_Undef);
     virtual ~algebraic_constraint();
     virtual std::ostream & display(std::ostream & out) const;
+    inline ibex::NumConstraint const * get_numctr() const { return m_numctr; }
+    ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
 };
 
 class integral_constraint : public constraint {

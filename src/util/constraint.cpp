@@ -26,9 +26,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <initializer_list>
 #include <iostream>
+#include <utility>
 #include "opensmt/egraph/Enode.h"
 #include "util/constraint.h"
 #include "util/flow.h"
+#include "util/ibex_enode.h"
+#include "util/logging.h"
 
 using std::back_inserter;
 using std::copy;
@@ -98,10 +101,27 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // ====================================================
 // Algebraic constraint
 // ====================================================
-algebraic_constraint::algebraic_constraint(Enode * const e)
-    : constraint(constraint_type::Algebraic, e) {
+algebraic_constraint::algebraic_constraint(Enode * const e, lbool p)
+    : constraint(constraint_type::Algebraic, e), m_exprctr(nullptr), m_numctr(nullptr) {
+
+    unordered_map<string, ibex::Variable const> var_map;
+    m_exprctr = translate_enode_to_exprctr(var_map, e, p);
+    if (m_exprctr) {
+        m_var_array.resize(var_map.size());
+        unsigned i = 0;
+        for (auto const p : var_map) {
+            m_var_array.set_ref(i, p.second);
+            i++;
+        }
+        m_numctr = new ibex::NumConstraint(m_var_array, *m_exprctr);
+    }
+    DREAL_LOG_INFO << "algebraic_constraint: "<< *this;
 }
-algebraic_constraint::~algebraic_constraint() { }
+
+algebraic_constraint::~algebraic_constraint() {
+    if (m_numctr) { delete m_numctr; }
+    if (m_exprctr) { delete m_exprctr; }
+}
 ostream & algebraic_constraint::display(ostream & out) const {
     out << "algebraic_constraint " << m_enodes[0];
     return out;
