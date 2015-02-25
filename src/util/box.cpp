@@ -174,7 +174,6 @@ vector<bool> box::diff_dims(box const & b) const {
     return ret;
 }
 
-point sample_point(ibex::IntervalVector const & values) {
     static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
     unsigned const n = values.size();
     vector<double> v(n);
@@ -192,8 +191,6 @@ point sample_point(ibex::IntervalVector const & values) {
     return point(v);
 }
 
-set<point> box::sample_points(unsigned const n) const {
-    set<point> points;
     for (unsigned i = 0; i < n; i++) {
         points.insert(sample_point(m_values));
     }
