@@ -162,8 +162,11 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         }
     }
 
-    auto term_cond = [](dreal::box const & old_box, dreal::box const & new_box) {
-        double const threshold = 0.05;
+    auto term_cond = [this](dreal::box const & old_box, dreal::box const & new_box) {
+        if (new_box.max_diam() < config.nra_precision) {
+            return true;
+        }
+        double const threshold = 0.01;
         double const new_volume = new_box.volume();
         double const old_volume = old_box.volume();
         if (old_volume == 0.0) return true;

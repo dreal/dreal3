@@ -397,7 +397,7 @@ box contractor_fixpoint::naive_fixpoint_alg(box old_box) const {
             m_output.union_with(c.output());
             unordered_set<constraint const *> const & used_constraints = c.used_constraints();
             m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
-            if (new_box.is_empty() || new_box.max_diam() < m_prec) {
+            if (new_box.is_empty()) {
                 return new_box;
             }
         }
@@ -432,7 +432,7 @@ box contractor_fixpoint::worklist_fixpoint_alg(box old_box) const {
         m_output.union_with(c.output());
         unordered_set<constraint const *> const & used_constraints = c.used_constraints();
         m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
-        if (new_box.is_empty() || new_box.max_diam() < m_prec) {
+        if (new_box.is_empty()) {
             return new_box;
         }
         c_set.erase(c);
