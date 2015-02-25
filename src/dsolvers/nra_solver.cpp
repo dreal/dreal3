@@ -289,6 +289,35 @@ bool nra_solver::check(bool complete) {
     for (constraint const * ctr : m_ctc.used_constraints()) {
         m_used_constraint_vec.push_back(ctr);
     }
+
+    if (config.nra_aggressive > 0 && complete && result) {
+        // Sample n points
+        set<box> points = m_box.sample_points(config.nra_aggressive);
+
+        // ∃c. ∀p. eval(c, p) = false   ===>  UNSAT
+        for (constraint * const ctr : m_stack) {
+            if (ctr->get_type() == constraint_type::Algebraic) {
+                algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
+                bool check = false;
+                for (box const & p : points) {
+                    pair<bool, ibex::Interval> eval_result = alg_ctr->eval(p);
+                    if (eval_result.first) {
+                        check = true;
+                        break;
+                    }
+                }
+                if (!check) {
+                    m_used_constraint_vec.push_back(ctr);
+                    result = false;
+                    pair<bool, ibex::Interval> eval_result = alg_ctr->eval(m_box);
+                    cerr << "Constraint: " << *alg_ctr << " is violated by all " << points.size() << " points" << endl;
+                    cerr << "FYI, the interval evaluation gives us : " << eval_result.second << endl;
+                    break;
+                }
+            }
+        }
+    }
+
     if (!result) {
         explanation = generate_explanation(m_used_constraint_vec);
     } else if (complete) {
