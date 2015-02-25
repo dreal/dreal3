@@ -127,8 +127,45 @@ ostream & algebraic_constraint::display(ostream & out) const {
     return out;
 }
 
+pair<bool, ibex::Interval> algebraic_constraint::eval(ibex::IntervalVector const & iv) const {
+    bool sat = true;
+    if (m_numctr) {
+        ibex::Interval const & result = m_numctr->f.eval(iv);
+        switch (m_numctr->op) {
+            case ibex::LT:
+                sat = result.lb() < 0;
+                break;
+            case ibex::LEQ:
+                sat = result.lb() <= 0;
+                break;
+            case ibex::GT:
+                sat = result.ub() > 0;
+                break;
+            case ibex::GEQ:
+                sat = result.ub() >= 0;
+                break;
+            case ibex::EQ:
+                sat = (result.lb() <= 0) && (result.ub() >= 0);
+                break;
+        }
+        return make_pair(sat, result);
+    } else {
+        return make_pair(sat, ibex::Interval());
+    }
+}
+
+pair<bool, ibex::Interval> algebraic_constraint::eval(box const & b) const {
+    // Construct iv from box b
+    ibex::IntervalVector iv(m_var_array.size());
+    for (int i = 0; i < m_var_array.size(); i++) {
+        iv[i] = b[m_var_array[i].name];
+        DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
+    }
+    return eval(iv);
+}
+
 // ====================================================
-// Algebraic constraint
+// ODE constraint
 // ====================================================
 ode_constraint::ode_constraint(integral_constraint const & integral, vector<forallt_constraint> const & invs)
     : constraint(constraint_type::ODE, integral.get_enodes()), m_int(integral), m_invs(invs) {

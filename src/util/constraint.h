@@ -28,7 +28,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <string>
 #include <memory>
+#include <utility>
 #include "opensmt/egraph/Enode.h"
+#include "util/box.h"
 #include "util/flow.h"
 
 namespace dreal {
@@ -68,6 +70,7 @@ public:
     explicit algebraic_constraint(Enode * const e, lbool p = l_Undef);
     virtual ~algebraic_constraint();
     virtual std::ostream & display(std::ostream & out) const;
+    std::pair<bool, ibex::Interval> eval(box const & b) const;
     inline ibex::NumConstraint const * get_numctr() const { return m_numctr; }
     ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
 };
