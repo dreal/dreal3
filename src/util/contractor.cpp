@@ -371,8 +371,8 @@ contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const
 }
 
 box contractor_fixpoint::prune(box old_b) const {
-//    box naive_result const & = naive_fixpoint_alg(old_b);
-//    return naive_result;
+    // box const & naive_result = naive_fixpoint_alg(old_b);
+    // return naive_result;
     box const & worklist_result = worklist_fixpoint_alg(old_b);
     return worklist_result;
 }
