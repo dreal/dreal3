@@ -238,6 +238,7 @@ contractor_ibex::contractor_ibex(double const prec, box const & box, vector<alge
     // Setup Input
     // TODO(soonhok): this is a rough approximation, which needs to be refined.
     m_input  = ibex::BitSet::all(box.size());
+    m_used_constraints.insert(ctrs.begin(), ctrs.end());
     DREAL_LOG_DEBUG << "contractor_ibex: DONE";
 }
 
