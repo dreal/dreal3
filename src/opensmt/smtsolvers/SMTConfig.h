@@ -206,6 +206,7 @@ struct SMTConfig
   bool         nra_ODE_forward_only;          // only use ODE forward pruning (not use ODE backward)
   bool         nra_ODE_parallel;              // solve ODE in parallel or not
   unsigned     nra_aggressive;                // number of samples to use for aggressive sampling
+  bool         nra_polytope;                  // use polytope contractor in IBEX
 
 private:
 
