@@ -192,7 +192,10 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         return improvement < threshold;
     };
 
-    alg_ctcs.push_back(mk_contractor_ibex(config.nra_precision, box, alg_ctrs));
+    // TODO(soonhok): wrap with if-then-else, pass config
+    if (config.nra_polytope) {
+        alg_ctcs.push_back(mk_contractor_ibex(config.nra_precision, box, alg_ctrs));
+    }
     return mk_contractor_fixpoint(config.nra_precision, term_cond, alg_ctcs, ode_ctcs, alg_eval_ctcs);
 }
 
