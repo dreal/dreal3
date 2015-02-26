@@ -6,9 +6,9 @@ EXPECTED_OUT=${INSTANCE}.expected
 TMP=${INSTANCE}.out
 OPTIONS=$@
 OPTION=
-if [[ -e $2.option ]]
+if [[ -e ${INSTANCE}.option ]]
 then
-    OPTION=`cat $2.option`
+    OPTION=`cat ${INSTANCE}.option`
 fi
 echo $DREAL $OPTIONS $OPTION -- "$INSTANCE"
 $DREAL $OPTIONS $OPTION -- "$INSTANCE" | tee $TMP
