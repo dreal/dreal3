@@ -45,7 +45,7 @@ DEFINE_bool  (verbose,          false, "verbose");
 DEFINE_bool  (debug,            false, "debug mode");
 DEFINE_bool  (stat,             false, "show stat");
 DEFINE_int32 (aggressive,           0, "number of samples to use for aggressive sampling");
-DEFINE_int32 (polytope,         false, "use polytope contractor in IBEX");
+DEFINE_bool  (polytope,         false, "use polytope contractor in IBEX");
 
 void
 SMTConfig::initializeConfig( )
