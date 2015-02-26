@@ -108,7 +108,7 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
 std::vector<constraint *> nra_solver::initialize_constraints() {
     std::vector<constraint *> ctrs;
 
-    // Collect Algebrac constraints.
+    // Collect Algebraic constraints.
     // Partition ODE-related constraint into integrals and forallTs
     std::vector<integral_constraint> ints;
     std::vector<forallt_constraint> invs;
@@ -172,9 +172,13 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
     for (constraint * const ctr : ctrs) {
         if (ctr->get_type() == constraint_type::Algebraic) {
             algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
-            alg_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, alg_ctr));
-            alg_ctrs.push_back(alg_ctr);
-            alg_eval_ctcs.push_back(mk_contractor_eval(box, alg_ctr));
+            if (alg_ctr->get_numctr()) {
+                alg_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, alg_ctr));
+                alg_ctrs.push_back(alg_ctr);
+                alg_eval_ctcs.push_back(mk_contractor_eval(box, alg_ctr));
+            } else {
+                // This is identity, do nothing
+            }
         } else if (ctr->get_type() == constraint_type::ODE) {
             ode_ctcs.emplace_back(mk_contractor_capd_fwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size));
         }
