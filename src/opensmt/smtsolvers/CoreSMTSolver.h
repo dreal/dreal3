@@ -313,6 +313,8 @@ public:
         void   printModel             ( );             // Wrapper
         void   printModel             ( ostream & );   // Prints model
         void   printExtModel          ( ostream & out ); // Prints SAT model
+        void   printCurrentAssignment ( );             // Wrapper
+        void   printCurrentAssignment ( ostream & );   // Prints model
 #endif
 #ifdef PRODUCE_PROOF
         void   printProof              ( ostream & );
