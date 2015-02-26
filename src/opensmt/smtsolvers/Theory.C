@@ -19,6 +19,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "smtsolvers/CoreSMTSolver.h"
 #include "tsolvers/THandler.h"
+#include "util/logging.h"
 
 int CoreSMTSolver::checkTheory( bool complete )
 {
@@ -29,6 +30,11 @@ int CoreSMTSolver::checkTheory( bool complete )
   {
     skipped_calls ++;
     return 1;
+  }
+
+  if(DREAL_LOG_DEBUG_IS_ON){
+    DREAL_LOG_DEBUG << "CoreSMTSolver::checkTheory() Current Model is:";
+    printCurrentAssignment(std::cout);
   }
 
   skipped_calls = 0;
