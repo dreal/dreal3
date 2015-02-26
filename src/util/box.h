@@ -117,6 +117,15 @@ public:
 
     friend std::ostream& operator<<(ostream& out, box const & b);
     std::ostream& display_old_style_model(ostream& out) const;
+    inline std::size_t hash() const {
+        // TODO(soonhok): possibly cache the hash value?
+        std::size_t seed = 0;
+        for (int i = 0; i < m_values.size(); i++) {
+            seed ^= (size_t)(m_values[i].lb()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= (size_t)(m_values[i].ub()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+        return seed;
+    }
 };
 
 bool operator<(ibex::Interval const & a, ibex::Interval const & b);
@@ -126,3 +135,10 @@ bool operator>=(ibex::Interval const & a, ibex::Interval const & b);
 
 std::ostream& operator<<(ostream& out, box const & b);
 }  // namespace dreal
+
+namespace std {
+template <>
+struct hash<dreal::box> {
+    std::size_t operator()(dreal::box const & c) const { return c.hash(); }
+};
+}  // namespace std
