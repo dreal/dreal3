@@ -35,7 +35,7 @@ namespace dreal {
 
 enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
         PARALLEL_ALL, TIMEOUT, REALPAVER, CAPD_FWD, CAPD_BWD,
-        TRY, IBEX, IBEX_FWDBWD, INT, EVAL};
+        TRY, IBEX, IBEX_FWDBWD, INT, EVAL, CACHE};
 
 class contractor;
 
@@ -172,6 +172,15 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
+class contractor_cache : public contractor_cell {
+private:
+    contractor const & m_ctc;
+public:
+    explicit contractor_cache(contractor const & ctc);
+    box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
+};
+
 class contractor_capd_fwd_simple : public contractor_cell {
 private:
     ode_constraint const * const m_ctr;
@@ -255,6 +264,7 @@ public:
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
     friend contractor mk_contractor_int();
     friend contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr);
+    friend contractor mk_contractor_cache(contractor const & ctc);
     friend contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     friend contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     friend contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
@@ -277,6 +287,7 @@ contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &
                                   std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2, std::vector<contractor> const & cvec3);
 contractor mk_contractor_int();
 contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr);
+contractor mk_contractor_cache(contractor const & ctc);
 contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
 contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
 contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);

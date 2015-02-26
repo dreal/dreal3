@@ -516,6 +516,35 @@ ostream & contractor_eval::display(ostream & out) const {
     return out;
 }
 
+contractor_cache::contractor_cache(contractor const & ctc)
+    : contractor_cell(contractor_kind::CACHE), m_ctc(ctc) {
+    // TODO(soonhok): implement this
+    //
+    // Need to set up:
+    //
+    // - ibex::BitSet m_input;
+    // - ibex::BitSet m_output;
+    // - std::unordered_set<constraint const *> m_used_constraints;
+}
+
+box contractor_cache::prune(box b) const {
+    // TODO(soonhok): implement this
+    thread_local static unordered_map<box, box> cache;
+    auto const it = cache.find(b);
+    if (it == cache.cend()) {
+        // Not Found
+        return m_ctc.prune(b);
+    } else {
+        // Found
+        return it->second;
+    }
+}
+
+ostream & contractor_cache::display(ostream & out) const {
+    out << "contractor_cache(" << m_ctc << ")";
+    return out;
+}
+
 contractor mk_contractor_ibex(double const prec, box const & box, vector<algebraic_constraint const *> const & ctrs) {
     return contractor(make_shared<contractor_ibex>(prec, box, ctrs));
 }
@@ -573,6 +602,9 @@ contractor mk_contractor_eval(box const & box, algebraic_constraint const * cons
     } else {
         return it->second;
     }
+}
+contractor mk_contractor_cache(contractor const & ctc) {
+    return contractor(make_shared<contractor_cache>(ctc));
 }
 
 std::ostream & operator<<(std::ostream & out, contractor const & c) {
