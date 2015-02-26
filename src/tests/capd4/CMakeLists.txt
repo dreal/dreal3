@@ -1,3 +1,3 @@
 add_executable(capd4_example_01 example_01.cpp)
-target_link_libraries(capd4_example_01 ${EXTRA_LIBS})
+target_link_libraries(capd4_example_01 ${DREAL_LIBS} ${EXTRA_LIBS})
 add_test(capd4_example_01 ${CMAKE_CURRENT_BINARY_DIR}/capd4_example_01)
