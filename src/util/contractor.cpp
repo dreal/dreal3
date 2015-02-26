@@ -467,7 +467,7 @@ box contractor_fixpoint::worklist_fixpoint_alg(box old_box) const {
                 }
             }
         }
-    } while ((count < num_initial_ctcs) || !m_term_cond(old_box, new_box));
+    } while (q.size() > 0 && ((count < num_initial_ctcs) || !m_term_cond(old_box, new_box)));
     return new_box;
 }
 
