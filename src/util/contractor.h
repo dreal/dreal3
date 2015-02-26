@@ -35,7 +35,7 @@ namespace dreal {
 
 enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
         PARALLEL_ALL, TIMEOUT, REALPAVER, CAPD_FWD, CAPD_BWD,
-        TRY, IBEX, IBEX_FWDBWD, INT, EVAL, CACHE};
+        TRY, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE};
 
 class contractor;
 
@@ -78,21 +78,25 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
-// contractor_IBEX : contractor using IBEX
-class contractor_ibex : public contractor_cell {
+// contractor_ibex_polytope : contractor using IBEX POLYTOPE
+class contractor_ibex_polytope : public contractor_cell {
 private:
-    double const                     m_prec;
-    ibex::Array<ibex::NumConstraint> m_numctrs;
-    ibex::SystemFactory              m_sf;
-    ibex::System                     m_sys;
-    ibex::System *                   m_sys_eqs = nullptr;
-    ibex::LinearRelaxCombo *         m_lrc = nullptr;
-    std::vector<ibex::Ctc *>         m_sub_ctcs;
-    ibex::Ctc *                      m_ctc = nullptr;
+    vector<algebraic_constraint const *> m_ctrs;
+    double const                         m_prec;
+
+    // TODO(soonhok): this is a hack to avoid const problem, we need to fix them
+    mutable ibex::SystemFactory *            m_sf  = nullptr;
+    mutable ibex::System *                   m_sys = nullptr;
+    mutable ibex::System *                   m_sys_eqs = nullptr;
+    mutable ibex::LinearRelaxCombo *         m_lrc = nullptr;
+    mutable std::vector<ibex::Ctc *>         m_sub_ctcs;
+    mutable ibex::Ctc *                      m_ctc = nullptr;
+
+    void init(box const & box) const;
 
 public:
-    contractor_ibex(double const prec, box const & box, std::vector<algebraic_constraint const *> const & ctrs);
-    ~contractor_ibex();
+    contractor_ibex_polytope(double const prec, std::vector<algebraic_constraint const *> const & ctrs);
+    ~contractor_ibex_polytope();
     box prune(box b) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -254,7 +258,7 @@ public:
     inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
     inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
 
-    friend contractor mk_contractor_ibex(double const prec, box const & box, std::vector<algebraic_constraint const *> const & ctrs);
+    friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<algebraic_constraint const *> const & ctrs);
     friend contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
     friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
     friend contractor mk_contractor_try(contractor const & c1, contractor const & c2);
@@ -273,7 +277,7 @@ public:
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
 };
 
-contractor mk_contractor_ibex(double const prec, box const & box, std::vector<algebraic_constraint const *> const & ctrs);
+contractor mk_contractor_ibex_polytope(double const prec, std::vector<algebraic_constraint const *> const & ctrs);
 contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
 contractor mk_contractor_try(contractor const & c1, contractor const & c2);

@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <functional>
 #include <initializer_list>
 #include <iterator>
+#include <map>
 #include <memory>
 #include <queue>
 #include <string>
@@ -55,9 +56,9 @@ char const * contractor_exception::what() const throw() {
 std::ostream & operator<<(std::ostream & out, contractor_cell const & c) {
     return c.display(out);
 }
-ibex::SystemFactory build_system_factory(box const & box, vector<algebraic_constraint const *> const & ctrs) {
+ibex::SystemFactory* build_system_factory(box const & box, vector<algebraic_constraint const *> const & ctrs) {
     DREAL_LOG_DEBUG << "build_system_factory:";
-    ibex::SystemFactory sf;
+    ibex::SystemFactory * sf = new ibex::SystemFactory();
     unordered_map<string, ibex::Variable const> var_map;  // Needed for translateEnodeToExprCtr
     // Construct System: add Variables
     thread_local static unordered_map<Enode*, ibex::Variable const *> tls_var_cache;
@@ -75,7 +76,7 @@ ibex::SystemFactory build_system_factory(box const & box, vector<algebraic_const
             var = var_it->second;
         }
         var_map.emplace(name, *var);
-        sf.add_var(*var);
+        sf->add_var(*var);
     }
     DREAL_LOG_DEBUG << "build_system_factory: Add Variable: DONE";
     // Construct System: add constraints
@@ -99,7 +100,7 @@ ibex::SystemFactory build_system_factory(box const & box, vector<algebraic_const
         }
         if (exprctr) {
             DREAL_LOG_INFO << "build_system_factory: Add Constraint: expr: " << *exprctr;
-            sf.add_ctr(*exprctr);
+            sf->add_ctr(*exprctr);
         }
     }
     DREAL_LOG_DEBUG << "build_system_factory: Add Constraint: " << "DONE";
@@ -197,37 +198,36 @@ box contractor_ibex_fwdbwd::prune(box b) const {
     return b;
 }
 ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
+    out << "contractor_ibex_fwdbwd(";
     if (m_ctc != nullptr) {
-        out << "contractor_ibex_fwdbwd(" << *m_numctr << ")";
+        out << *m_numctr;
     }
+    out << ")";
     return out;
 }
-contractor_ibex::contractor_ibex(double const prec, box const & box, vector<algebraic_constraint const *> const & ctrs)
-    : contractor_cell(contractor_kind::IBEX), m_prec(prec), m_sf(build_system_factory(box, ctrs)), m_sys(m_sf) {
-    DREAL_LOG_DEBUG << "contractor_ibex:";
+
+void contractor_ibex_polytope::init(box const & box) const {
+    m_sf = build_system_factory(box, m_ctrs);
+    m_sys = new ibex::System(*m_sf);
+
     unsigned index = 0;
 
-    ibex::Array<ibex::Ctc> ctc_list(4);
-    ibex::CtcHC4 * ctc_hc4 = new ibex::CtcHC4(m_sys.ctrs, m_prec);
-    ctc_list.set_ref(index++, *ctc_hc4);
-    m_sub_ctcs.push_back(ctc_hc4);
+    ibex::Array<ibex::Ctc> ctc_list(2);
 
-    ibex::CtcAcid * ctc_acid = new ibex::CtcAcid(m_sys, *ctc_hc4);
-    ctc_list.set_ref(index++, *ctc_acid);
-    m_sub_ctcs.push_back(ctc_acid);
-
-    m_sys_eqs = square_eq_sys(m_sys);
+    m_sys_eqs = square_eq_sys(*m_sys);
     if (m_sys_eqs) {
-        DREAL_LOG_INFO << "contractor_ibex: SQUARE SYSTEM";
+        DREAL_LOG_INFO << "contractor_ibex_polytope: SQUARE SYSTEM";
         ibex::CtcNewton * ctc_newton = new ibex::CtcNewton(m_sys_eqs->f, 5e8, m_prec, 1.e-4);
         ctc_list.set_ref(index++, *ctc_newton);
         m_sub_ctcs.push_back(ctc_newton);
     }
 
-    m_lrc = new ibex::LinearRelaxCombo(m_sys, ibex::LinearRelaxCombo::XNEWTON);
+    m_lrc = new ibex::LinearRelaxCombo(*m_sys, ibex::LinearRelaxCombo::XNEWTON);
     ibex::CtcPolytopeHull * ctc_ph = new ibex::CtcPolytopeHull(*m_lrc, ibex::CtcPolytopeHull::ALL_BOX);
+    ibex::CtcHC4 * ctc_hc4 = new ibex::CtcHC4(m_sys->ctrs, m_prec);
     ibex::CtcCompo * ctc_combo = new ibex::CtcCompo(*ctc_ph, *ctc_hc4);
     m_sub_ctcs.push_back(ctc_ph);
+    m_sub_ctcs.push_back(ctc_hc4);
     m_sub_ctcs.push_back(ctc_combo);
     ibex::CtcFixPoint * ctc_fp = new ibex::CtcFixPoint(*ctc_combo);
     m_sub_ctcs.push_back(ctc_fp);
@@ -239,23 +239,28 @@ contractor_ibex::contractor_ibex(double const prec, box const & box, vector<alge
     // Setup Input
     // TODO(soonhok): this is a rough approximation, which needs to be refined.
     m_input  = ibex::BitSet::all(box.size());
-    m_used_constraints.insert(ctrs.begin(), ctrs.end());
-    DREAL_LOG_DEBUG << "contractor_ibex: DONE";
+    m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
+    DREAL_LOG_DEBUG << "contractor_ibex_polytope: DONE";
 }
 
-contractor_ibex::~contractor_ibex() {
-    DREAL_LOG_DEBUG << "~contractor_ibex: DELETED";
+contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<algebraic_constraint const *> const & ctrs)
+    : contractor_cell(contractor_kind::IBEX_POLYTOPE), m_ctrs(ctrs), m_prec(prec) {
+}
+
+contractor_ibex_polytope::~contractor_ibex_polytope() {
+    DREAL_LOG_DEBUG << "~contractor_ibex_polytope: DELETED";
     delete m_lrc;
     for (ibex::Ctc * sub_ctc : m_sub_ctcs) {
         delete sub_ctc;
     }
     delete m_ctc;
-    if (m_sys_eqs && m_sys_eqs != &m_sys) {
-        delete m_sys_eqs;
-    }
+    if (m_sys_eqs && m_sys_eqs != m_sys) { delete m_sys_eqs; }
+    if (m_sys) { delete m_sys; }
+    if (m_sf) { delete m_sf; }
 }
 
-box contractor_ibex::prune(box b) const {
+box contractor_ibex_polytope::prune(box b) const {
+    if (!m_ctc) { init(b); }
     box old_box = b;
     try {
         m_ctc->contract(b.get_values());
@@ -272,10 +277,10 @@ box contractor_ibex::prune(box b) const {
     }
     return b;
 }
-ostream & contractor_ibex::display(ostream & out) const {
-    out << "contractor_ibex(";
-    for (int i = 0; i < m_numctrs.size(); i++) {
-        out << m_numctrs[i] << ", ";
+ostream & contractor_ibex_polytope::display(ostream & out) const {
+    out << "contractor_ibex_polytope(";
+    for (unsigned i = 0; i < m_ctrs.size(); i++) {
+        out << *m_ctrs[i] << ", ";
     }
     out << ")";
     return out;
@@ -545,8 +550,8 @@ ostream & contractor_cache::display(ostream & out) const {
     return out;
 }
 
-contractor mk_contractor_ibex(double const prec, box const & box, vector<algebraic_constraint const *> const & ctrs) {
-    return contractor(make_shared<contractor_ibex>(prec, box, ctrs));
+contractor mk_contractor_ibex_polytope(double const prec, vector<algebraic_constraint const *> const & ctrs) {
+    return contractor(make_shared<contractor_ibex_polytope>(prec, ctrs));
 }
 
 contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr) {
