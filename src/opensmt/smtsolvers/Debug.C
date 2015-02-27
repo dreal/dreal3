@@ -18,6 +18,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "smtsolvers/CoreSMTSolver.h"
+#include <iomanip>
 
 #ifndef SMTCOMP
 void CoreSMTSolver::dumpCNF( )
@@ -145,19 +146,32 @@ void CoreSMTSolver::printExtModel( ostream & out )
   }
 }
 
-void CoreSMTSolver::printCurrentAssignment( )
+void CoreSMTSolver::printCurrentAssignment( bool withLiterals = true )
 {
-  printCurrentAssignment( config.getRegularOut( ) );
+  printCurrentAssignment( config.getRegularOut( ), withLiterals );
 }
 
-void CoreSMTSolver::printCurrentAssignment( ostream & out )
+void CoreSMTSolver::printCurrentAssignment( ostream & out, bool withLiterals = true )
 {
-  for (Var v = 2; v < nVars(); v++)
-  {
-    Enode * e = theory_handler->varToEnode( v );
-    if(e ){
-      out << (value(v) == l_True ? "T" : (value(v) == l_False ? "F" : "U")) << " : " << e << endl;      
+ 
+    for (Var v = 2; v < nVars(); v++)
+      {
+	Enode * e = theory_handler->varToEnode( v );
+	if(e && !e->isTLit() && model != NULL && model.size() >= v && !e->isSymb()){
+	  
+	  out << std::setw(40) << e << " : " << (model[v] == l_True ? "T" : (model[v] == l_False ? "F" : "U"))  << endl;      
+	}
+      }
+ 
+  const vector< Pair (Enode *) > substitutions = egraph.getSubstitutions();
+  for(auto p : substitutions){
+    if (p.second->isTrue()) {
+      out  << std::setw(40) << p.first << " : T";
+    } else if (p.second->isFalse()) {
+      out  << std::setw(40) << p.first << " : F";
     }
+    out << endl;
   }
+  
 }
 #endif
