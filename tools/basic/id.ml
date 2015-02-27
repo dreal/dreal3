@@ -1,4 +1,4 @@
 open Batteries
 
-type t = int
-let print = Int.print
+type t = string
+let print = String.print

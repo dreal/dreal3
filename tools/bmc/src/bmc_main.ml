@@ -18,7 +18,18 @@ let path = ref None
 
 (* Takes in string s (ex: "[1,2,3,4,5]")
    and return int list [1;2;3;4;5]        *)
-let process_path (s : string) : int list =
+let process_path (s : string) : string list =
+  match (String.starts_with s "[", String.ends_with s "]") with
+    (true, true) ->
+      begin
+        let content = String.sub s 1 ((String.length s) - 2) in
+        let items = String.nsplit content "," in
+        let path = items in
+        path
+      end
+  | _ -> raise (Arg.Bad ("Path " ^ s ^ " is not well-formed"))
+
+(*let process_path (s : string) : int list =
   match (String.starts_with s "[", String.ends_with s "]") with
     (true, true) ->
       begin
@@ -27,7 +38,7 @@ let process_path (s : string) : int list =
         let path = List.map Int.of_string items in
         path
       end
-  | _ -> raise (Arg.Bad ("Path " ^ s ^ " is not well-formed"))
+  | _ -> raise (Arg.Bad ("Path " ^ s ^ " is not well-formed"))*)
 
 let spec = [
   ("-k",
@@ -60,11 +71,21 @@ let run () =
     let out = IO.stdout in
     let lexbuf = Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let hm = Drh_parser.main Drh_lexer.start lexbuf in
-    if !pathgen then
+    begin
+		(*Network.print out hm;*)
+		(*let paths = Bmc.pathgen hm !k in*)
+		let smt = Bmc.compile hm !k None false in
+		Smt2.print out smt
+    end
+    (*if !pathgen then (*TODO*)
       let paths = Bmc.pathgen hm !k in
-      List.print ~first:"" ~last:"\n" ~sep:"\n"
+      ()
+    else
+      ()*)
+      (*List.print ~first:"" ~last:"\n" ~sep:"\n"
                  (fun out path ->
-                  List.print ~first:"[" ~last:"]" ~sep:"," Int.print out path)
+                  (*List.print ~first:"[" ~last:"]" ~sep:"," Int.print out path)*)
+                  List.print ~first:"[" ~last:"]" ~sep:"," String.print out path)
                  out
                  paths
     else 
@@ -93,6 +114,6 @@ let run () =
     else
 	let _ = Hybrid.check_path hm !path !k in
 	let smt = Bmc.compile hm !k !path in
-	Smt2.print out smt
+	Smt2.print out smt*)
   with v -> Error.handle_exn v
 let _ = Printexc.catch run ()

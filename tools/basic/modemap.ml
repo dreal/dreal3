@@ -1,6 +1,6 @@
 open Batteries
 
-type id = int
+type id = string
 type mode = Mode.t
 type t = (id, mode) Map.t
 

@@ -17,7 +17,7 @@ open Type
 %token AND OR ARROW DOT LET
 %token EOF
 %token SETLOGIC SETINFO DECLAREFUN ASSERT CHECKSAT EXIT SMTLIBVERSION DECLARECONST
-%token QF_NRA QF_NRA_ODE REAL INFTY
+%token QF_NRA QF_NRA_ODE REAL INFTY BOOL
 %token <float> FNUM
 %token <string> ID
 
@@ -42,6 +42,7 @@ cmd: LP SETLOGIC QF_NRA RP        { Smt2_cmd.SetLogic Smt2_cmd.QF_NRA }
  | LP SETINFO COLON ID FNUM RP    { Smt2_cmd.SetInfo (":" ^ $4, string_of_float $5) }
  | LP SETINFO COLON ID ID RP      { Smt2_cmd.SetInfo (":" ^ $4, $5) }
  | LP DECLAREFUN ID LP RP REAL RP { Smt2_cmd.DeclareFun $3 }
+ | LP DECLAREFUN ID LP RP BOOL RP { Smt2_cmd.DeclareBool $3 }
  | LP DECLARECONST ID REAL RP     { Smt2_cmd.DeclareConst $3 }
  | LP ASSERT formula RP           { Smt2_cmd.Assert $3 }
  | LP CHECKSAT RP                 { Smt2_cmd.CheckSAT }
