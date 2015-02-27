@@ -89,7 +89,7 @@ module Heuristic = struct
   let rec relevantgenr_back (h : Hybrid.t) (k :int) (step : int) (heuristic: Costmap.t) (heuristic_back : Costmap.t) (next : Relevantvariables.t) : Relevantvariables.t List.t =
     let variables = BatSet.of_enum (Map.keys h.varmap) in
     let modes = Map.bindings h.modemap in
-    let get_prev_modes (mode_id : int) =
+    let get_prev_modes (mode_id : string) =
      let jumps = List.map (fun (k, m) -> (m, List.of_enum (Map.keys (Mode.jumpmap m)))) modes in
      let jumps_to_mode_id = List.filter (fun (m, nm) -> (List.mem  mode_id nm)) jumps in
      let adjacent = BatSet.of_list (List.map (fun (m, nm) ->  m) jumps_to_mode_id) in
@@ -412,9 +412,9 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
 
   let writeHeuristic heuristic hm k hout =
 	let () = Printf.fprintf hout "[" in
-	let () = Printf.fprintf hout "[%d, "  hm.init_id in
+	let () = Printf.fprintf hout "[%s, "  hm.init_id in
 	let () = List.print ~first:"[" ~last:"]" ~sep:","
-			    (fun out g -> Int.print hout g)
+			    (fun out g -> String.print hout g)
 			    hout
 			    (Hybrid.goal_ids hm) in
 	let () = Printf.fprintf hout ", %d" k in
@@ -424,7 +424,7 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
 	let mode_adjacency = get_mode_adjacency hm in
 	let () = List.print ~first:"[" ~last:"]" ~sep:","
 			    (fun hout path ->
-			     List.print ~first:"[" ~last:"]" ~sep:"," Int.print hout path)
+			     List.print ~first:"[" ~last:"]" ~sep:"," String.print hout path)
 			    hout
 			    mode_adjacency in
 	Printf.fprintf hout "]"
