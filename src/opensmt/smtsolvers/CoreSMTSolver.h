@@ -318,8 +318,8 @@ public:
         void   printModel             ( );             // Wrapper
         void   printModel             ( std::ostream & );   // Prints model
         void   printExtModel          ( std::ostream & out ); // Prints SAT model
-        void   printCurrentAssignment ( );             // Wrapper
-        void   printCurrentAssignment ( ostream & );   // Prints model
+        void   printCurrentAssignment ( bool withLiterals );             // Wrapper
+        void   printCurrentAssignment ( ostream &, bool withLiterals );   // Prints model
 #endif
 #ifdef PRODUCE_PROOF
         void   printProof              ( std::ostream & );
