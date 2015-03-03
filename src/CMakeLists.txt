@@ -182,13 +182,17 @@ set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "m" ${EXTRA_LIBS})
 ################################################################
 # External: ibex
 ################################################################
+if(CMAKE_BUILD_TYPE MATCHES "DEBUG")
+  set(IBEX_DEBUG_MODE "--with-debug")
+endif()
+
 ExternalProject_Add(IBEX
   DEPENDS CLP FILIB
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/dreal-deps/ibex-lib.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR}
+  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE}
   BUILD_COMMAND ./waf build
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND ./waf install
