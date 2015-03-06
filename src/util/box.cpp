@@ -49,8 +49,10 @@ using std::make_tuple;
 
 namespace dreal {
 box::box(std::vector<Enode *> const & vars)
-    : m_vars(vars), m_values(m_vars.size()), m_domains(m_vars.size()) {
-    constructFromVariables(m_vars);
+    : m_vars(vars), m_values(m_vars.size() == 0 ? 1 : m_vars.size()), m_domains(m_values.size()) {
+    if (m_vars.size() > 0) {
+        constructFromVariables(m_vars);
+    }
 }
 
 box::box(std::vector<Enode *> const & vars, ibex::IntervalVector values)
