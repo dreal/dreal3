@@ -105,6 +105,8 @@ algebraic_constraint::algebraic_constraint(Enode * const e, lbool p)
     : constraint(constraint_type::Algebraic, e), m_exprctr(nullptr), m_numctr(nullptr) {
 
     unordered_map<string, ibex::Variable const> var_map;
+    // lhs != rhs case is always true under delta-perturbation
+    if (e->getCar()->getId() == ENODE_ID_EQ && p == l_False) { return; }
     m_exprctr = translate_enode_to_exprctr(var_map, e, p);
     if (m_exprctr) {
         m_var_array.resize(var_map.size());

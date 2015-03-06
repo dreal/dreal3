@@ -71,6 +71,7 @@ public:
     virtual ~algebraic_constraint();
     virtual std::ostream & display(std::ostream & out) const;
     std::pair<bool, ibex::Interval> eval(box const & b) const;
+    inline ibex::ExprCtr const * get_exprctr() const { return m_exprctr; }
     inline ibex::NumConstraint const * get_numctr() const { return m_numctr; }
     ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
 };
