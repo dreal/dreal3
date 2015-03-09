@@ -23,6 +23,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "cnfizers/Tseitin.h"
 #include "smtsolvers/SimpSMTSolver.h"
 #include "version.h"
+#include <glog/logging.h>
 
 #ifndef SMTCOMP
 
@@ -35,6 +36,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 //
 // Communication APIs
 //
+void opensmt_init() {
+  google::InitGoogleLogging("");
+}
+
 void opensmt_set_verbosity( opensmt_context c, int v )
 {
   assert( c );

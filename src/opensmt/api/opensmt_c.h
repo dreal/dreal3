@@ -50,6 +50,7 @@ typedef enum
 //
 // Communication APIs
 //
+void             opensmt_init                      ();
 void             opensmt_set_verbosity             ( opensmt_context, int );
 char *           opensmt_version                   ( );
 void             opensmt_print_expr                ( opensmt_expr );
