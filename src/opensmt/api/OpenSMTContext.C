@@ -907,7 +907,8 @@ void OpenSMTContext::addIntvCtr(const char* const op, Enode* const e, const char
     if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
         fesetround(FE_UPWARD);
         double const vval = strtod(v, nullptr);
-        e->setUpperBound(vval);
+        e->setDomainUpperBound(vval);
+        e->setValueUpperBound(vval);
         Enode * const leq = mkLeq(mkCons(e, mkCons(mkNum(v))));
         if(d != nullptr){
             double const dval = strtod(d, nullptr);
@@ -918,7 +919,8 @@ void OpenSMTContext::addIntvCtr(const char* const op, Enode* const e, const char
     else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
         fesetround(FE_DOWNWARD);
         double const vval = strtod(v, nullptr);
-        e->setLowerBound(vval);
+        e->setDomainLowerBound(vval);
+        e->setValueLowerBound(vval);
         Enode * const geq = mkGeq(mkCons(e, mkCons(mkNum(v))));
         if(d != nullptr){
             double const dval = strtod(d, nullptr);

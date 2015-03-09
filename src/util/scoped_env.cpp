@@ -46,7 +46,7 @@ scoped_env::~scoped_env() {
 }
 
 void scoped_env::insert(key_type const & k) {
-    insert(k, interval(k->getLowerBound(), k->getUpperBound()));
+    insert(k, interval(k->getDomainLowerBound(), k->getDomainUpperBound()));
 }
 
 void scoped_env::insert(key_type const & k, mapped_type const & v) {

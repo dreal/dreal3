@@ -249,14 +249,18 @@ public:
   std::unordered_set<Enode *> get_vars   ( );
   std::unordered_set<Enode *> get_constants   ( );
 
-  double          getLowerBound          ( ) const; //added for dReal2
-  double          getUpperBound          ( ) const; //added for dReal2
+  double          getDomainLowerBound          ( ) const; //added for dReal2
+  double          getDomainUpperBound          ( ) const; //added for dReal2
+  double          getValueLowerBound          ( ) const; //added for dReal2
+  double          getValueUpperBound          ( ) const; //added for dReal2
   double          getPrecision           ( ) const; //added for dReal2
   bool            hasPrecision           ( ) const; //added for dReal2
   double          getComplexValue        ( ) const;
   void            setValue               ( const double );
-  void            setLowerBound          ( const double ); //added for dReal2
-  void            setUpperBound          ( const double ); //added for dReal2
+  void            setDomainLowerBound          ( const double ); //added for dReal2
+  void            setDomainUpperBound          ( const double ); //added for dReal2
+  void            setValueLowerBound          ( const double ); //added for dReal2
+  void            setValueUpperBound          ( const double ); //added for dReal2
   void            setPrecision           ( const double ); //added for dReal2
   bool            hasValue               ( ) const;
   Enode *         getRoot                ( ) const;
@@ -398,9 +402,11 @@ private:
   };
   AtomData *        atom_data;  // For atom terms only
   double *          value;      // enode value (modified for dReal2)
-  double *          lb;         // enode lower bound
-  double *          ub;         // enode upper bound
-  double            precision; //added for dReal2
+  double            val_lb = -std::numeric_limits<double>::infinity(); // enode lower bound (value)
+  double            val_ub = +std::numeric_limits<double>::infinity(); // enode upper bound (value)
+  double            dom_lb = -std::numeric_limits<double>::infinity(); // enode lower bound (domain)
+  double            dom_ub = +std::numeric_limits<double>::infinity(); // enode upper bound (domain)
+  double            precision;   //added for dReal2
 
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
@@ -415,20 +421,24 @@ inline double       Enode::getValue ( ) const
   return *value;
 }
 
-inline double Enode::getLowerBound ( ) const
+inline double Enode::getDomainLowerBound ( ) const
 {
-    if (lb != NULL)
-        return *lb;
-    else
-        return -std::numeric_limits<double>::infinity();
+    return dom_lb;
 }
 
-inline double Enode::getUpperBound ( ) const
+inline double Enode::getDomainUpperBound ( ) const
 {
-    if (ub != NULL)
-        return *ub;
-    else
-        return +std::numeric_limits<double>::infinity();
+    return dom_ub;
+}
+
+inline double Enode::getValueLowerBound ( ) const
+{
+    return val_lb;
+}
+
+inline double Enode::getValueUpperBound ( ) const
+{
+    return val_ub;
 }
 
 inline double Enode::getPrecision ( ) const
@@ -460,19 +470,30 @@ inline void Enode::setValue ( const double v )
   *value = v;
 }
 
-inline void Enode::setLowerBound ( const double v )
+inline void Enode::setDomainLowerBound ( const double v )
 {
   assert( isTerm( ) );
-  lb = new double;
-  *lb = v;
+  dom_lb = v;
 }
 
-inline void Enode::setUpperBound ( const double v )
+inline void Enode::setDomainUpperBound ( const double v )
 {
   assert( isTerm( ) );
-  ub = new double;
-  *ub = v;
+  dom_ub = v;
 }
+
+inline void Enode::setValueLowerBound ( const double v )
+{
+  assert( isTerm( ) );
+  val_lb = v;
+}
+
+inline void Enode::setValueUpperBound ( const double v )
+{
+  assert( isTerm( ) );
+  val_ub = v;
+}
+
 
 inline void Enode::setPrecision ( const double v )
 {

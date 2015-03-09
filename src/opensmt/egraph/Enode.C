@@ -33,8 +33,6 @@ Enode::Enode( )
   , cong_data ( NULL )
   , atom_data ( NULL )
   , value     ( NULL )
-  , lb        ( NULL )
-  , ub        ( NULL )
   , precision ( 0.0 )
 {
   setEtype( ETYPE_LIST );
@@ -54,8 +52,6 @@ Enode::Enode( const enodeid_t      id_
   , cdr        ( NULL )
   , atom_data  ( NULL )
   , value      ( NULL )
-  , lb         ( NULL )
-  , ub         ( NULL )
   , precision  ( 0.0 )
 {
   setEtype( etype_ );
@@ -76,8 +72,6 @@ Enode::Enode( const enodeid_t id_
   , cong_data  ( NULL )
   , atom_data  ( NULL )
   , value      ( NULL )
-  , lb         ( NULL )
-  , ub         ( NULL )
   , precision  ( 0.0 )
   // , dynamic   ( NULL )
 {
@@ -135,8 +129,6 @@ Enode::Enode( const enodeid_t	id_
   , cong_data  ( NULL )
   , atom_data  ( NULL )
   , value      ( NULL )
-  , lb         ( NULL )
-  , ub         ( NULL )
   , precision  ( 0.0 )
   // , dynamic   ( NULL )
 { }
@@ -151,10 +143,6 @@ Enode::~Enode ( )
     delete atom_data;
   if ( value )
     delete value;
-  if ( ub )
-      delete ub;
-  if ( lb )
-      delete lb;
 }
 
 Snode * Enode::getLastSort ( )
