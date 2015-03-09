@@ -68,8 +68,8 @@ void box::constructFromVariables(vector<Enode *> const & vars) {
     unsigned num_var = m_vars.size();
     for (unsigned i = 0; i < num_var; i++) {
         Enode const * const e = m_vars[i];
-        double const lb = e->getLowerBound();
-        double const ub = e->getUpperBound();
+        double const lb = e->getDomainLowerBound();
+        double const ub = e->getDomainUpperBound();
         m_values[i] = ibex::Interval(lb, ub);
         m_domains[i] = ibex::Interval(lb, ub);
         m_name_index_map.emplace(e->getCar()->getName(), i);
@@ -259,5 +259,12 @@ bool operator<=(ibex::Interval const & a, ibex::Interval const & b) {
 }
 bool operator>=(ibex::Interval const & a, ibex::Interval const & b) {
     return a == b || a > b;
+}
+
+void box::assign_to_enode() const {
+    for (unsigned i = 0; i < m_vars.size(); i++) {
+        m_vars[i]->setValueLowerBound(m_values[i].lb());
+        m_vars[i]->setValueUpperBound(m_values[i].ub());
+    }
 }
 }  // namespace dreal

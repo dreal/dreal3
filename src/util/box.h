@@ -126,6 +126,8 @@ public:
         }
         return seed;
     }
+
+    void assign_to_enode() const;
 };
 
 bool operator<(ibex::Interval const & a, ibex::Interval const & b);
