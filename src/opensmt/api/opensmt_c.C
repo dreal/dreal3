@@ -48,6 +48,19 @@ void opensmt_set_verbosity( opensmt_context c, int v )
   context.setDebug(v > 3);
   context.setVerbose(v > 2);
 }
+void opensmt_set_precision ( opensmt_context c, const double p) {
+  assert( c );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  context.setPrecision(p);
+}
+
+double opensmt_get_precision ( opensmt_context c ) {
+  assert( c );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  return context.getPrecision();
+}
 
 char * opensmt_version( )
 {
@@ -292,8 +305,10 @@ opensmt_expr opensmt_mk_int_var( opensmt_context c, char * s , int lb, int ub)
   Snode * sort = context.mkSortInt( );
   context.DeclareFun( s, sort );
   Enode * res = context.mkVar( s, true );
-  res->setLowerBound(lb);
-  res->setUpperBound(ub);
+  res->setDomainLowerBound(lb);
+  res->setDomainUpperBound(ub);
+  res->setValueLowerBound(lb);
+  res->setValueUpperBound(ub);
   return static_cast< void * >( res );
 }
 
@@ -306,8 +321,10 @@ opensmt_expr opensmt_mk_real_var( opensmt_context c, char * s , double lb, doubl
   Snode * sort = context.mkSortReal( );
   context.DeclareFun( s, sort );
   Enode * res = context.mkVar( s, true );
-  res->setLowerBound(lb);
-  res->setUpperBound(ub);
+  res->setDomainLowerBound(lb);
+  res->setDomainUpperBound(ub);
+  res->setValueLowerBound(lb);
+  res->setValueUpperBound(ub);
   return static_cast< void * >( res );
 }
 
@@ -512,6 +529,133 @@ opensmt_expr opensmt_mk_geq( opensmt_context c, opensmt_expr lhs, opensmt_expr r
   Enode * args_list = context.mkCons( static_cast< Enode * >( lhs )
                     , context.mkCons( static_cast< Enode * >( rhs ) ) );
   Enode * res = context.mkGeq( args_list );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_abs( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkAbs( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_exp( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkExp( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_log( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkLog( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_pow( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkPow( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_sin( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkSin( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_cos( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkCos( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_tan( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkTan( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_asin( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkAsin( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_acos( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkAcos( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_atan( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkAtan( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_sinh( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkSinh( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_cosh( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkCosh( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_tanh( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkTanh( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_atan2( opensmt_context c, opensmt_expr arg1, opensmt_expr arg2)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg1 )
+                    , context.mkCons( static_cast< Enode * >( arg2 ) ) );
+  Enode * res = context.mkAtan2( static_cast< Enode * >( args_list ) );
   return static_cast< void * >( res );
 }
 
@@ -858,6 +1002,29 @@ opensmt_expr opensmt_get_value( opensmt_context c, opensmt_expr v )
   Enode * res = context.mkNum( value );
   return static_cast< void * >( res );
 }
+
+double opensmt_get_lb( opensmt_context c, opensmt_expr v )
+{
+  assert( c );
+  assert( v );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  assert( context.getStatus( ) == l_True );
+  Enode * var = static_cast< Enode * >( v );
+  return var->getValueLowerBound();
+}
+
+double opensmt_get_ub( opensmt_context c, opensmt_expr v )
+{
+  assert( c );
+  assert( v );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  assert( context.getStatus( ) == l_True );
+  Enode * var = static_cast< Enode * >( v );
+  return var->getValueUpperBound();
+}
+
 /*
 void opensmt_get_num( opensmt_expr n, mpz_t val )
 {
