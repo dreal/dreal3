@@ -197,10 +197,19 @@ public:
       return egraph.mkIntegral(time_0, time_t, vec_0, vec_t, flowname);
   }
 
+  inline double getPrecision() {
+      return config.nra_precision;
+  }
+
+  inline void setPrecision (const double d ) {
+      config.nra_precision = d;
+  }
+
   inline void setMaxPrecision ( const double d )
   {
-    if(d > config.nra_precision)
-      config.nra_precision = d;
+      if(d > config.nra_precision) {
+          setPrecision(d);
+      }
   }
 
   inline Enode * mkCons   ( Enode * car
