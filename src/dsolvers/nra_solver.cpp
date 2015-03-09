@@ -343,6 +343,7 @@ void nra_solver::handle_sat_case(box const & b) const {
         }
         b.display_old_style_model(config.nra_model_out);
     }
+    b.assign_to_enode();
     return;
 }
 
