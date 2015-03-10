@@ -106,7 +106,7 @@ algebraic_constraint::algebraic_constraint(Enode * const e, lbool p)
 
     unordered_map<string, ibex::Variable const> var_map;
     // lhs != rhs case is always true under delta-perturbation
-    if (e->getCar()->getId() == ENODE_ID_EQ && p == l_False) { return; }
+    if (e->isEq() && p == l_False) { return; }
     m_exprctr = translate_enode_to_exprctr(var_map, e, p);
     if (m_exprctr) {
         m_var_array.resize(var_map.size());
@@ -125,7 +125,12 @@ algebraic_constraint::~algebraic_constraint() {
     if (m_exprctr) { delete m_exprctr; }
 }
 ostream & algebraic_constraint::display(ostream & out) const {
-    out << "algebraic_constraint " << m_enodes[0];
+    out << "algebraic_constraint ";
+    if (m_numctr) {
+        out << *m_numctr;
+    } else {
+        out << "True";
+    }
     return out;
 }
 
