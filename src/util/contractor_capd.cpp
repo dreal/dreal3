@@ -291,6 +291,20 @@ ostream & contractor_capd_fwd_simple::display(ostream & out) const {
 
 contractor_capd_fwd_full::contractor_capd_fwd_full(box const & /* box */, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size)
     : contractor_cell(contractor_kind::CAPD_FWD), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size) {
+
+    DREAL_LOG_INFO << "contractor_capd_fwd_full::prune";
+    integral_constraint const & ic = m_ctr->get_ic();
+    string const & capd_str = build_capd_string(ic);
+    DREAL_LOG_INFO << "contractor_capd_fwd_full: diff sys = " << capd_str;
+    m_vectorField = new capd::IMap(capd_str);
+    m_solver = new capd::IOdeSolver(*m_vectorField, m_taylor_order);
+    m_timeMap = new capd::ITimeMap(*m_solver);
+}
+
+contractor_capd_fwd_full::~contractor_capd_fwd_full() {
+    delete m_timeMap;
+    delete m_solver;
+    delete m_vectorField;
 }
 
 bool contractor_capd_fwd_full::inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, vector<pair<capd::interval, capd::IVector>> & enclosures) const {
@@ -363,60 +377,64 @@ bool contractor_capd_fwd_full::prune(vector<pair<capd::interval, capd::IVector>>
 
 box contractor_capd_fwd_full::prune(box b) const {
     m_used_constraints.insert(m_ctr);
-    DREAL_LOG_INFO << "contractor_capd_fwd_full::prune";
-    integral_constraint const & ic = m_ctr->get_ic();
-    string const & capd_str = build_capd_string(ic);
-    capd::IVector X_0 = extract_ivector(b, ic.get_vars_0());
-    capd::IVector X_t = extract_ivector(b, ic.get_vars_t());
-    // TODO(soonhok): Here we still assume that time_0 = zero.
-    ibex::Interval const & ibex_T = b[ic.get_time_t()];
-    capd::interval T(ibex_T.lb(), ibex_T.ub());
-    DREAL_LOG_INFO << "contractor_capd_fwd_full: diff sys = " << capd_str;
-    DREAL_LOG_INFO << "X_0 : " << X_0;
-    DREAL_LOG_INFO << "X_t : " << X_t;
-    DREAL_LOG_INFO << "T   : " << T;
-    capd::IMap vectorField(capd_str);
+    box old_b = b;
+    try {
+        integral_constraint const & ic = m_ctr->get_ic();
+        capd::IVector  m_X_0 = extract_ivector(b, ic.get_vars_0());
+        capd::IVector  m_X_t = extract_ivector(b, ic.get_vars_t());
+        ibex::Interval const & ibex_T = b[ic.get_time_t()];
+        capd::interval m_T;
+        m_T.setLeftBound(ibex_T.lb());
+        m_T.setRightBound(ibex_T.ub());
 
-    // set_params(vectorField);
-    capd::IOdeSolver solver(vectorField, m_taylor_order);
-    capd::ITimeMap timeMap(solver);
-    capd::C0Rect2Set s(X_0);
-    timeMap.stopAfterStep(true);
-    capd::interval prevTime(0.);
+        DREAL_LOG_INFO << "X_0 : " << m_X_0;
+        DREAL_LOG_INFO << "X_t : " << m_X_t;
+        DREAL_LOG_INFO << "T   : " << m_T;
 
-    vector<pair<capd::interval, capd::IVector>> enclosures;
-    do {
-        // Move s toward m_T.rightBound()
-        timeMap(T.rightBound(), s);
-        if (contain_nan(s)) {
-            DREAL_LOG_INFO << "ode_solver::compute_forward: contain NaN";
-        }
+        capd::C0Rect2Set s(m_X_0);
+        m_timeMap->stopAfterStep(true);
+        capd::interval prevTime(0.);
 
-        if (T.leftBound() <= timeMap.getCurrentTime().rightBound()) {
-            //                     [     T      ]
-            // [     current Time     ]
-            bool invariantViolated = inner_loop(solver, prevTime, T, enclosures);
-            if (invariantViolated) {
-                // TODO(soonhok): invariant
-                DREAL_LOG_INFO << "ode_solver::compute_forward: invariant violated";
-                // ret = ODE_result::SAT;
-                break;
+        vector<pair<capd::interval, capd::IVector>> enclosures;
+        do {
+            // Move s toward m_T.rightBound()
+            (*m_timeMap)(m_T.rightBound(), s);
+            if (contain_nan(s)) {
+                DREAL_LOG_INFO << "ode_solver::compute_forward: contain NaN";
             }
+
+            if (m_T.leftBound() <= m_timeMap->getCurrentTime().rightBound()) {
+                //                     [     T      ]
+                // [     current Time     ]
+                bool invariantViolated = inner_loop(*m_solver, prevTime, m_T, enclosures);
+                if (invariantViolated) {
+                    // TODO(soonhok): invariant
+                    DREAL_LOG_INFO << "ode_solver::compute_forward: invariant violated";
+                    // ret = ODE_result::SAT;
+                    break;
+                }
+            }
+            prevTime = m_timeMap->getCurrentTime();
+        } while (/*!invariantViolated &&*/ !m_timeMap->completed());
+        if (prune(enclosures, m_X_t, m_T)) {
+            // SAT
+            update_box_with_ivector(b, ic.get_vars_t(), m_X_t);
+            // TODO(soonhok): Here we still assume that time_0 = zero.
+            b[ic.get_time_t()] = ibex::Interval(m_T.leftBound(), m_T.rightBound());
+        } else {
+            // UNSAT
+            b.set_empty();
         }
-        prevTime = timeMap.getCurrentTime();
-    } while (/*!invariantViolated &&*/ !timeMap.completed());
-    if (prune(enclosures, X_t, T)) {
-        // SAT
-        update_box_with_ivector(b, ic.get_vars_t(), X_t);
-        // TODO(soonhok): Here we still assume that time_0 = zero.
-        b[ic.get_time_t()] = ibex::Interval(T.leftBound(), T.rightBound());
-    } else {
-        // UNSAT
-        b.set_empty();
+        DREAL_LOG_INFO << "m_X_0 : " << m_X_0;
+        DREAL_LOG_INFO << "m_X_t : " << m_X_t;
+        DREAL_LOG_INFO << "m_T   : " << m_T;
+    } catch (capd::intervals::IntervalError<double> & e) {
+        b = old_b;
+        throw contractor_exception(e.what());
+    } catch (capd::ISolverException & e) {
+        b = old_b;
+        throw contractor_exception(e.what());
     }
-    DREAL_LOG_INFO << "X_0 : " << X_0;
-    DREAL_LOG_INFO << "X_t : " << X_t;
-    DREAL_LOG_INFO << "T   : " << T;
     return b;
 }
 ostream & contractor_capd_fwd_full::display(ostream & out) const {

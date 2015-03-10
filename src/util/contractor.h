@@ -201,11 +201,15 @@ private:
     unsigned const m_taylor_order;
     unsigned const m_grid_size;
 
+    capd::IMap * m_vectorField;
+    capd::IOdeSolver * m_solver;
+    capd::ITimeMap * m_timeMap;
     bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, vector<pair<capd::interval, capd::IVector>> & enclosures) const;
     bool prune(std::vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVector & X_t, capd::interval & T) const;
 
 public:
     contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    ~contractor_capd_fwd_full();
     box prune(box b) const;
     std::ostream & display(std::ostream & out) const;
 };
