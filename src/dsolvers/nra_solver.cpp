@@ -241,7 +241,11 @@ box icp_loop(box b, contractor const & ctc, double const prec) {
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.top();
         box_stack.pop();
-        b = ctc.prune(b);
+        try {
+            b = ctc.prune(b);
+        } catch (contractor_exception & e) {
+            // Do nothing
+        }
         if (!b.is_empty()) {
             if (b.max_diam() > prec) {
                 tuple<int, box, box> splits = b.bisect();
@@ -274,7 +278,11 @@ box icp_loop_with_nc_bt(box b, contractor const & ctc, double const prec) {
         DREAL_LOG_INFO << "new_icp_loop()"
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.top();
-        b = ctc.prune(b);
+        try {
+            b = ctc.prune(b);
+        } catch (contractor_exception & e) {
+            // Do nothing
+        }
         prune_count++;
         box_stack.pop();
         bisect_var_stack.pop();
@@ -355,7 +363,11 @@ bool nra_solver::check(bool complete) {
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")";
     double const prec = config.nra_precision;
     m_ctc = build_contractor(m_box, m_stack);
-    m_box = m_ctc.prune(m_box);
+    try {
+        m_box = m_ctc.prune(m_box);
+    } catch (contractor_exception & e) {
+        // Do nothing
+    }
     if (!m_box.is_empty() && m_box.max_diam() > prec && complete) {
         m_box = icp_loop(m_box, m_ctc, prec);
     }
