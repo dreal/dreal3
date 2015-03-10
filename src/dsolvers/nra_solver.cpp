@@ -97,6 +97,7 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
     auto it = m_ctr_map.find(make_pair(e, e->getPolarity() == l_True));
     if (it != m_ctr_map.end()) {
         m_stack.push_back(it->second);
+    } else if (e->isForallT()) {
     } else {
         DREAL_LOG_FATAL << "Unknown literal " << e << " is asserted";
         throw std::logic_error("unknown literal is asserted");
