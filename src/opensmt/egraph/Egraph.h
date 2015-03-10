@@ -191,6 +191,7 @@ public:
   Enode * mkAtan2            ( Enode * );
   Enode * mkMatan            ( Enode * );
   Enode * mkSafeSqrt         ( Enode * );
+  Enode * mkSqrt             ( Enode * );
   Enode * mkExp              ( Enode * );
   Enode * mkLog              ( Enode * );
   Enode * mkPow              ( Enode * );

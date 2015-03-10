@@ -89,12 +89,13 @@ public:
   inline bool isDiv               ( ) const { return hasSymbolId( ENODE_ID_DIV         ); }
 
   /* added for dReal2 */
-  inline bool isAcos              ( ) const { return hasSymbolId( ENODE_ID_ACOS              ); }
-  inline bool isAsin              ( ) const { return hasSymbolId( ENODE_ID_ASIN              ); }
-  inline bool isAtan              ( ) const { return hasSymbolId( ENODE_ID_ATAN              ); }
-  inline bool isAtan2             ( ) const { return hasSymbolId( ENODE_ID_ATAN2             ); }
-  inline bool isMatan             ( ) const { return hasSymbolId( ENODE_ID_MATAN             ); }
-  inline bool isSafeSqrt          ( ) const { return hasSymbolId( ENODE_ID_SAFESQRT            ); }
+  inline bool isAcos              ( ) const { return hasSymbolId( ENODE_ID_ACOS        ); }
+  inline bool isAsin              ( ) const { return hasSymbolId( ENODE_ID_ASIN        ); }
+  inline bool isAtan              ( ) const { return hasSymbolId( ENODE_ID_ATAN        ); }
+  inline bool isAtan2             ( ) const { return hasSymbolId( ENODE_ID_ATAN2       ); }
+  inline bool isMatan             ( ) const { return hasSymbolId( ENODE_ID_MATAN       ); }
+  inline bool isSafeSqrt          ( ) const { return hasSymbolId( ENODE_ID_SAFESQRT    ); }
+  inline bool isSqrt              ( ) const { return hasSymbolId( ENODE_ID_SQRT        ); }
   inline bool isExp               ( ) const { return hasSymbolId( ENODE_ID_EXP         ); }
   inline bool isLog               ( ) const { return hasSymbolId( ENODE_ID_LOG         ); }
   inline bool isPow               ( ) const { return hasSymbolId( ENODE_ID_POW         ); }

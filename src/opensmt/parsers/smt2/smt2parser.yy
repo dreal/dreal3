@@ -91,16 +91,12 @@ void smt2error( const char * s )
 
 /* added for dReal2 */
 %token TK_EXP TK_SIN TK_COS TK_ASIN TK_ACOS TK_LOG TK_TAN TK_ATAN TK_POW TK_SINH TK_COSH TK_TANH TK_ABS
-%token TK_ATAN2 TK_MATAN TK_SAFESQRT TK_INTEGRAL
+%token TK_ATAN2 TK_MATAN TK_SAFESQRT TK_INTEGRAL TK_SQRT
 
 %type <str> precision
 
 %type <str> TK_NUM TK_DEC TK_HEX TK_STR TK_SYM TK_KEY numeral decimal hexadecimal /*binary*/ symbol
 %type <str> identifier spec_const b_value s_expr
-%type <str> TK_LEQ TK_GEQ TK_LT TK_GT TK_FORALLT
-%type <str> TK_PLUS TK_MINUS TK_TIMES TK_UMINUS TK_DIV
-%type <str> TK_EXP TK_SIN TK_COS TK_ASIN TK_ACOS TK_LOG TK_TAN TK_ATAN TK_POW TK_SINH TK_COSH TK_TANH TK_ABS
-%type <str> TK_ATAN2 TK_MATAN TK_SAFESQRT TK_INTEGRAL
 
 /* %type <str_list> numeral_list */
 %type <enode> term_list term
@@ -469,6 +465,9 @@ term: spec_const
     | '(' TK_MATAN term_list ')'
       { $$ = parser_ctx->mkMatan( $3 ); }
 
+    | '(' TK_SQRT term_list ')'
+      { $$ = parser_ctx->mkSqrt( $3 ); }
+
     | '(' TK_SAFESQRT term_list ')'
       { $$ = parser_ctx->mkSafeSqrt( $3 ); }
 
@@ -479,7 +478,7 @@ term: spec_const
       { $$ = parser_ctx->mkLog( $3 ); }
 
     | '(' TK_POW term_list ')'
-      { $$ = parser_ctx -> mkPow( $3 ); }
+      { $$ = parser_ctx->mkPow( $3 ); }
     ;
 
 sort_list: sort_list sort

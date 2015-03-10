@@ -155,6 +155,7 @@ char * pbuffer2;
 "tanh"                       { return TK_TANH; }
 "atan2"|"arctan2"            { return TK_ATAN2; }
 "matan"|"marctan"            { return TK_MATAN; }
+"sqrt"                       { return TK_SQRT; }
 "safesqrt"                   { return TK_SAFESQRT; }
 "^"|"pow"                    { return TK_POW; }
 

@@ -112,6 +112,9 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
         case ENODE_ID_SAFESQRT:
             // TODO(soonhok): SAFESQRT
             throw logic_error("translateEnodeExprNode: SAFESQRT");
+        case ENODE_ID_SQRT:
+            assert(e->getArity() == 1);
+            return &sqrt(*translate_enode_to_exprnode(var_map, e->get1st()));
         case ENODE_ID_EXP:
             assert(e->getArity() == 1);
             return &exp(*translate_enode_to_exprnode(var_map, e->get1st()));

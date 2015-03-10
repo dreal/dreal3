@@ -187,6 +187,7 @@ public:
   inline Enode * mkAtan2     ( Enode * e )       { assert(e); return egraph.mkAtan2(e);}
   inline Enode * mkMatan     ( Enode * e )       { assert(e); return egraph.mkMatan(e);}
   inline Enode * mkSafeSqrt  ( Enode * e )       { assert(e); return egraph.mkSafeSqrt(e);}
+  inline Enode * mkSqrt      ( Enode * e )       { assert(e); return egraph.mkSqrt(e);}
   inline Enode * mkForallT   ( Enode * mode, Enode * lb, Enode * ub, Enode * e ) { assert(e); return egraph.mkForallT(mode, lb, ub, e);}
   inline Enode * mkIntegral  ( Enode * time_0, Enode * time_t, Enode * vec_0, Enode * vec_t, char * flowname ) {
       assert(time_0);
