@@ -214,6 +214,8 @@ integral_constraint mk_integral_constraint(Enode * const e, unordered_map<string
         vars_t.push_back(tmp->getCar());
         tmp = tmp->getCdr();
     }
+    reverse(vars_0.begin(), vars_0.end());
+    reverse(vars_t.begin(), vars_t.end());
     string key = string("flow_") + to_string(flow_id);
     auto const it = flow_map.find(key);
     if (it != flow_map.end()) {
