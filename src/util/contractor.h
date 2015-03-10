@@ -39,8 +39,10 @@ enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
 
 class contractor;
 
-class contractor_exception : public std::exception {
-    virtual const char* what() const throw();
+class contractor_exception : public std::runtime_error {
+public:
+    explicit contractor_exception( const std::string& what_arg ) : runtime_error(what_arg) { }
+    explicit contractor_exception( const char* what_arg ) : runtime_error(what_arg) { }
 };
 
 // Base Cell

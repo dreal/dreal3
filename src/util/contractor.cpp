@@ -49,10 +49,6 @@ using std::queue;
 
 namespace dreal {
 
-char const * contractor_exception::what() const throw() {
-    return "contractor exception";
-}
-
 std::ostream & operator<<(std::ostream & out, contractor_cell const & c) {
     return c.display(out);
 }
