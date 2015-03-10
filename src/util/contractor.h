@@ -41,8 +41,8 @@ class contractor;
 
 class contractor_exception : public std::runtime_error {
 public:
-    explicit contractor_exception( const std::string& what_arg ) : runtime_error(what_arg) { }
-    explicit contractor_exception( const char* what_arg ) : runtime_error(what_arg) { }
+    explicit contractor_exception(const std::string& what_arg) : runtime_error(what_arg) { }
+    explicit contractor_exception(const char* what_arg) : runtime_error(what_arg) { }
 };
 
 // Base Cell
