@@ -20,12 +20,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <string>
+#include <cmath>
 #include "ibex/ibex.h"
 #include "util/logging.h"
 #include "util/ibex_enode.h"
 
 namespace dreal {
 
+using std::modf;
 using ibex::ExprNode;
 using ibex::Variable;
 using ibex::ExprConstant;
@@ -123,9 +125,15 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
             return &log(*translate_enode_to_exprnode(var_map, e->get1st()));
         case ENODE_ID_POW:
             assert(e->getArity() == 2);
-            if (e->get2nd()->isConstant() && e->get2nd()->getValue() == 2) {
-                // If x^2, use sqr(x) instead of pow(x, y)
-                return &sqr(*translate_enode_to_exprnode(var_map, e->get1st()));
+            if (e->get2nd()->isConstant()) {
+                double const expon = e->get2nd()->getValue();
+                double intpart;
+                if (modf(expon, &intpart) == 0.0) {
+                    int const expon_int = static_cast<int>(expon);
+                    return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), expon_int);
+                } else {
+                    return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), expon);
+                }
             } else {
                 return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
             }
