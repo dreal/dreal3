@@ -792,6 +792,9 @@ Enode * Egraph::mkPow (Enode * args)
 {
   assert( args );
   assert( args->getArity( ) == 2 );
+  if (args->getArity( ) != 2) {
+      throw std::runtime_error("Egraph::mkPow: The number of arguments should be two.");
+  }
   Enode * res = cons( id_to_enode[ ENODE_ID_POW], args );
   assert( res );
   return res;
