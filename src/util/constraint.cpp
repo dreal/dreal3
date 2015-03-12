@@ -155,6 +155,12 @@ pair<bool, ibex::Interval> algebraic_constraint::eval(ibex::IntervalVector const
                 sat = (result.lb() <= 0) && (result.ub() >= 0);
                 break;
         }
+        if (DREAL_LOG_DEBUG_IS_ON && !sat) {
+            DREAL_LOG_DEBUG << "algebraic_constraint::eval: unsat detected";
+            DREAL_LOG_DEBUG << "\t" << *m_numctr;
+            DREAL_LOG_DEBUG << "input: " << iv;
+            DREAL_LOG_DEBUG << "output:" << result;
+        }
         return make_pair(sat, result);
     } else {
         return make_pair(sat, ibex::Interval());
