@@ -33,7 +33,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/tsolvers/TSolver.h"
 #include "util/box.h"
 #include "util/constraint.h"
-#include "util/contractor.h"
+#include "contractor/contractor.h"
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 #include "util/stat.h"

@@ -145,7 +145,21 @@ ExternalProject_Add(CAPD4
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make -j install
-)
+  )
+
+################################################################
+# External: CAPD-DynSys-3.0
+################################################################
+# ExternalProject_Add(CAPD3
+#   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+#   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
+#   GIT_TAG origin/master
+#   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+#   CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
+#   BUILD_COMMAND make -j
+#   BUILD_IN_SOURCE 1
+#   INSTALL_COMMAND make -j install
+# )
 set(EXTRA_LIBS "capd" ${EXTRA_LIBS})
 set(ODE_ENABLED TRUE)
 
@@ -327,6 +341,8 @@ add_subdirectory(dsolvers)
 set(DREAL_LIBS ${DREAL_LIBS} dsolvers)
 add_subdirectory(util)
 set(DREAL_LIBS ${DREAL_LIBS} util)
+add_subdirectory(contractor)
+set(DREAL_LIBS ${DREAL_LIBS} contractor)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")

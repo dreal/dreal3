@@ -29,7 +29,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include "capd/capdlib.h"
 
 namespace dreal {
 
@@ -65,43 +64,6 @@ public:
 };
 
 std::ostream & operator<<(std::ostream & out, contractor_cell const & c);
-
-class contractor_ibex_fwdbwd : public contractor_cell {
-private:
-    algebraic_constraint const * m_ctr;
-    ibex::NumConstraint const * m_numctr;
-    ibex::Array<ibex::ExprSymbol const> const & m_var_array;
-    ibex::CtcFwdBwd * m_ctc = nullptr;
-
-public:
-    contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
-    ~contractor_ibex_fwdbwd();
-    box prune(box b) const;
-    std::ostream & display(std::ostream & out) const;
-};
-
-// contractor_ibex_polytope : contractor using IBEX POLYTOPE
-class contractor_ibex_polytope : public contractor_cell {
-private:
-    vector<algebraic_constraint const *> m_ctrs;
-    double const                         m_prec;
-
-    // TODO(soonhok): this is a hack to avoid const problem, we need to fix them
-    mutable ibex::SystemFactory *            m_sf  = nullptr;
-    mutable ibex::System *                   m_sys = nullptr;
-    mutable ibex::System *                   m_sys_eqs = nullptr;
-    mutable ibex::LinearRelaxCombo *         m_lrc = nullptr;
-    mutable std::vector<ibex::Ctc *>         m_sub_ctcs;
-    mutable ibex::Ctc *                      m_ctc = nullptr;
-
-    void init(box const & box) const;
-
-public:
-    contractor_ibex_polytope(double const prec, std::vector<algebraic_constraint const *> const & ctrs);
-    ~contractor_ibex_polytope();
-    box prune(box b) const;
-    std::ostream & display(std::ostream & out) const;
-};
 
 // contractor_seq : Try C1, C2, ... , Cn sequentially.
 class contractor_seq : public contractor_cell {
@@ -187,57 +149,6 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
-class contractor_capd_fwd_simple : public contractor_cell {
-private:
-    ode_constraint const * const m_ctr;
-
-public:
-    contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr);
-    box prune(box b) const;
-    std::ostream & display(std::ostream & out) const;
-};
-
-class contractor_capd_fwd_full : public contractor_cell {
-private:
-    ode_constraint const * const m_ctr;
-    unsigned const m_taylor_order;
-    unsigned const m_grid_size;
-
-    capd::IMap * m_vectorField;
-    capd::IOdeSolver * m_solver;
-    capd::ITimeMap * m_timeMap;
-    bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, vector<pair<capd::interval, capd::IVector>> & enclosures) const;
-    bool prune(std::vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVector & X_t, capd::interval & T) const;
-
-public:
-    contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
-    ~contractor_capd_fwd_full();
-    box prune(box b) const;
-    std::ostream & display(std::ostream & out) const;
-};
-
-class contractor_capd_bwd_simple : public contractor_cell {
-private:
-    ode_constraint const * const m_ctr;
-
-public:
-    contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr);
-    box prune(box b) const;
-    std::ostream & display(std::ostream & out) const;
-};
-
-class contractor_capd_bwd_full : public contractor_cell {
-private:
-    ode_constraint const * const m_ctr;
-    unsigned const m_taylor_order;
-    unsigned const m_grid_size;
-public:
-    contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
-    box prune(box b) const;
-    std::ostream & display(std::ostream & out) const;
-};
-
-
 // Wrapper on contractor_cell and its derived classes
 class contractor {
 private:
@@ -283,8 +194,6 @@ public:
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
 };
 
-contractor mk_contractor_ibex_polytope(double const prec, std::vector<algebraic_constraint const *> const & ctrs);
-contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
 contractor mk_contractor_try(contractor const & c1, contractor const & c2);
 contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
@@ -298,10 +207,6 @@ contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &
 contractor mk_contractor_int();
 contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr);
 contractor mk_contractor_cache(contractor const & ctc);
-contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
-contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
-contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
-contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
 std::ostream & operator<<(std::ostream & out, contractor const & c);
 
 }  // namespace dreal

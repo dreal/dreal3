@@ -35,7 +35,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "ibex/ibex.h"
 #include "util/box.h"
 #include "util/constraint.h"
-#include "util/contractor.h"
+#include "contractor/contractor.h"
 #include "util/ibex_enode.h"
 #include "util/logging.h"
 #include "util/stat.h"
@@ -181,7 +181,10 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
                 // This is identity, do nothing
             }
         } else if (ctr->get_type() == constraint_type::ODE) {
+            // TODO(soonhok): add heuristics to choose fwd/bwd
+            // TODO(soonhok): perform ODE only for complete check
             ode_ctcs.emplace_back(mk_contractor_capd_fwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size));
+            ode_ctcs.emplace_back(mk_contractor_capd_bwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size));
         }
     }
 
