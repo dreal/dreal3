@@ -3050,10 +3050,19 @@ Enode * Egraph::mkIntegral             ( Enode * time_0, Enode * time_t, Enode *
   assert( flowname );
   // elist = vec_0_n, vec_t_n, vec_0_{n-1}, vec_t_{n-1}, ..., vec_0_0, vec_t_0
   Enode * elist = const_cast< Enode * >( enil );
+  vector<Enode*> v0s;
+  vector<Enode*> vts;
+
   while(!vec_0->isEnil() && !vec_t->isEnil()) {
-      elist = cons(vec_0->getCar(), cons(vec_t->getCar(), elist));
+      v0s.push_back(vec_0->getCar());
+      vts.push_back(vec_t->getCar());
       vec_0 = vec_0->getCdr();
       vec_t = vec_t->getCdr();
+  }
+  reverse(v0s.begin(), v0s.end());
+  reverse(vts.begin(), vts.end());
+  for (unsigned int i = 0; i < v0s.size(); i++) {
+      elist = cons(v0s[i], cons(vts[i], elist));
   }
   string flow_str(flowname);
   unsigned flow_id = std::stoi(flow_str.substr(flow_str.find_last_of('_') + 1)); /* flow_xxx => xxx */
