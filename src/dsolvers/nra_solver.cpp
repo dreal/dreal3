@@ -176,10 +176,10 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
             if (alg_ctr->get_numctr()) {
                 alg_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, alg_ctr));
                 alg_ctrs.push_back(alg_ctr);
-                alg_eval_ctcs.push_back(mk_contractor_eval(box, alg_ctr));
             } else {
                 // This is identity, do nothing
             }
+            alg_eval_ctcs.push_back(mk_contractor_eval(box, alg_ctr));
         } else if (ctr->get_type() == constraint_type::ODE) {
             // TODO(soonhok): add heuristics to choose fwd/bwd
             // TODO(soonhok): perform ODE only for complete check
