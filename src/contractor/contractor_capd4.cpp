@@ -96,7 +96,7 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
         if (it == subst_map.end()) {
             return name;
         } else {
-            // std::cerr << "Subst! " << name << " => " << it->second << std::endl;
+            DREAL_LOG_DEBUG << "Subst! " << name << " => " << it->second;
             return it->second;
         }
     } else if (e->isNumb()) {

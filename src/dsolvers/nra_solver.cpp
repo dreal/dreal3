@@ -315,24 +315,17 @@ box icp_loop_with_nc_bt(box b, contractor const & ctc, double const prec) {
                 assert(box_stack.size() == bisect_var_stack.size());
                 int bisect_var = bisect_var_stack.top();
                 ibex::BitSet const & input = ctc.input();
-
-                // cerr << ctc << endl;
-
-                input.display(cerr);
-                cerr << "\n";
-
-
+                DREAL_LOG_DEBUG << ctc;
                 if (!input[bisect_var]) {
                     box_stack.pop();
                     bisect_var_stack.pop();
-                    cerr << "HERE!!! POP!!" << endl;
                 } else {
                     break;
                 }
             }
         }
     } while (box_stack.size() > 0);
-    cerr << "prune count = " << prune_count << endl;
+    DREAL_LOG_DEBUG << "prune count = " << prune_count;
     return b;
 }
 
@@ -401,8 +394,8 @@ bool nra_solver::check(bool complete) {
                     m_used_constraint_vec.push_back(ctr);
                     result = false;
                     pair<bool, ibex::Interval> eval_result = alg_ctr->eval(m_box);
-                    cerr << "Constraint: " << *alg_ctr << " is violated by all " << points.size() << " points" << endl;
-                    cerr << "FYI, the interval evaluation gives us : " << eval_result.second << endl;
+                    DREAL_LOG_DEBUG << "Constraint: " << *alg_ctr << " is violated by all " << points.size() << " points";
+                    DREAL_LOG_DEBUG << "FYI, the interval evaluation gives us : " << eval_result.second;
                     break;
                 }
             }
