@@ -123,20 +123,53 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
         case ENODE_ID_LOG:
             assert(e->getArity() == 1);
             return &log(*translate_enode_to_exprnode(var_map, e->get1st()));
-        case ENODE_ID_POW:
+        case ENODE_ID_POW: {
             assert(e->getArity() == 2);
-            if (e->get2nd()->isConstant()) {
-                double const expon = e->get2nd()->getValue();
-                double intpart;
-                if (modf(expon, &intpart) == 0.0) {
-                    int const expon_int = static_cast<int>(expon);
-                    return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), expon_int);
-                } else {
-                    return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), expon);
+            bool   is_1st_constant = false;
+            bool   is_1st_int      = false;
+            bool   is_2nd_constant = false;
+            bool   is_2nd_int      = false;
+            double dbl_1st;
+            int    int_1st;
+            double dbl_2nd;
+            int    int_2nd;
+            if (e->get1st()->isConstant()) {
+                dbl_1st = e->get1st()->getValue();
+                is_1st_constant = true;
+                double tmp;
+                if (modf(dbl_1st, &tmp) == 0.0) {
+                    is_1st_int = true;
+                    int_1st = static_cast<int>(tmp);
                 }
-            } else {
-                return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
             }
+            if (e->get2nd()->isConstant()) {
+                dbl_2nd = e->get2nd()->getValue();
+                is_2nd_constant = true;
+                double tmp;
+                if (modf(dbl_2nd, &tmp) == 0.0) {
+                    is_2nd_int = true;
+                    int_2nd = static_cast<int>(tmp);
+                }
+            }
+            if (is_1st_constant && is_2nd_constant) {
+                // Both of them are constant, just compute and return a number
+                return &ExprConstant::new_scalar(pow(dbl_1st, dbl_2nd));
+            }
+            // Now, either of them is non-constant.
+            if (is_1st_int) {
+                return &pow(int_1st, *translate_enode_to_exprnode(var_map, e->get2nd()));
+            }
+            if (is_1st_constant) {
+                return &pow(dbl_1st, *translate_enode_to_exprnode(var_map, e->get2nd()));
+            }
+            if (is_2nd_int) {
+                return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), int_2nd);
+            }
+            if (is_2nd_constant) {
+                return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), dbl_2nd);
+            }
+            return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
+        }
         case ENODE_ID_ABS:
             assert(e->getArity() == 1);
             return &abs(*translate_enode_to_exprnode(var_map, e->get1st()));
