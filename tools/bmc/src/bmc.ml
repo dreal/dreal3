@@ -93,18 +93,18 @@ let process_flow_pruned ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) (relev
   let flow_formula =
     let vardecls = varmap_to_list varmap in
     let vars = List.map (fun (name, _) -> name) vardecls in
-    let vars_pruned = List.filter 
-			(fun x -> 
-			 match relevant with
-			   Some(rel) -> (
-			   let relevant_at_k = List.nth rel k in
-			   match Map.mem q relevant_at_k with  
-			     false -> false
-			   | true ->
-			      (Set.mem x (Map.find q relevant_at_k))
-			 )
-			 | None -> true
-			) vars in
+    let vars_pruned = List.filter
+                        (fun x ->
+                         match relevant with
+                           Some(rel) -> (
+                           let relevant_at_k = List.nth rel k in
+                           match Map.mem q relevant_at_k with
+                             false -> false
+                           | true ->
+                              (Set.mem x (Map.find q relevant_at_k))
+                         )
+                         | None -> true
+                        ) vars in
     if List.length vars_pruned = 0 then
       True
     else
@@ -209,15 +209,15 @@ let process_jump_pruned (modemap : Modemap.t) (q : Mode.id) (next_q : Mode.id) (
       )
       jump.change
   in
-  let changevars =  
+  let changevars =
     List.filter
       (fun x ->
        match relevant with
-	 Some(rel) -> (
-	 let relevant_at_k = List.nth rel k in
-	 match Map.mem q relevant_at_k with  
-	   false -> false
-	 | true ->  (Set.mem x (Map.find q relevant_at_k))
+         Some(rel) -> (
+         let relevant_at_k = List.nth rel k in
+         match Map.mem q relevant_at_k with
+           false -> false
+         | true ->  (Set.mem x (Map.find q relevant_at_k))
        )
        | None -> true )
       !global_vars
@@ -259,18 +259,18 @@ let process_step_pruned (varmap : Vardeclmap.t)
                  (modemap : Modemap.t)
                  (heuristic : Costmap.t)
                  (heuristic_back : Costmap.t)
-		 (relevant : Relevantvariables.t list option)
-		 (k : int)
+                 (relevant : Relevantvariables.t list option)
+                 (k : int)
                  (step : int)
     : Basic.formula =
   let num_of_modes = Enum.count (Map.keys modemap) in
   let list_of_modes = List.of_enum ( 1 -- num_of_modes ) in
-  let list_of_possible_modes = List.filter 
-				 (fun q -> 
-				   ((Costmap.find q heuristic) <= float_of_int step) &&
-				   ((Costmap.find q heuristic_back) <=  float_of_int (k - step))
-				 )
-				 list_of_modes 
+  let list_of_possible_modes = List.filter
+                                 (fun q ->
+                                   ((Costmap.find q heuristic) <= float_of_int step) &&
+                                   ((Costmap.find q heuristic_back) <=  float_of_int (k - step))
+                                 )
+                                 list_of_modes
   in
   let jump_flow_part =
     List.map
@@ -280,16 +280,16 @@ let process_step_pruned (varmap : Vardeclmap.t)
          let mode_q = Map.find q modemap in
          let jumpmap_q = mode_q.jumpmap in
          let list_of_nq = List.of_enum (Map.keys jumpmap_q) in
-	 let list_of_possible_nq = List.filter 
-				 (fun q -> 
-				   ((Costmap.find q heuristic) <= float_of_int (step + 1)) &&
-				   ((Costmap.find q heuristic_back) <=  float_of_int (k - (step + 1)))
-				 )
-				 list_of_nq
-	 in
+         let list_of_possible_nq = List.filter
+                                 (fun q ->
+                                   ((Costmap.find q heuristic) <= float_of_int (step + 1)) &&
+                                   ((Costmap.find q heuristic_back) <=  float_of_int (k - (step + 1)))
+                                 )
+                                 list_of_nq
+         in
          let jump_for_q_nq  = Basic.make_or (List.map
                                                (fun nq ->
-                                                process_jump_pruned modemap q nq relevant step 
+                                                process_jump_pruned modemap q nq relevant step
                                                )
                                                list_of_possible_nq)
          in
@@ -521,7 +521,7 @@ let compile_vardecl_pruned (h : Hybrid.t) (k : int) (path : (int list) option) (
          (List.map
             (function (var, v) ->
               List.map
-                (fun k' -> 
+                (fun k' ->
                   [
                     (var ^ "_" ^ (Int.to_string k') ^ "_0", v);
                     (var ^ "_" ^ (Int.to_string k') ^ "_t", v)
@@ -599,15 +599,15 @@ let compile_ode_definition (h : Hybrid.t) k =
 let compile_ode_definition_pruned (h : Hybrid.t) k (relevant : Relevantvariables.t list option) =
   let flows = build_flow_annot_list h k in
   let list_of_steps = List.of_enum ( 0 -- k ) in
-  List.flatten 
-    (List.map 
-    (fun (g, odes) -> 
-     List.map 
-       (fun step -> 
-	let g_string = (String.join "_" [""; (string_of_int g);]) in
-	(DefineODE ((make_variable step g_string "flow"), odes)))
+  List.flatten
+    (List.map
+    (fun (g, odes) ->
+     List.map
+       (fun step ->
+        let g_string = (String.join "_" [""; (string_of_int g);]) in
+        (DefineODE ((make_variable step g_string "flow"), odes)))
        list_of_steps
-    ) 
+    )
     flows)
 
 
