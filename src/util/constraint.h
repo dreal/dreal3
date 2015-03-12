@@ -61,8 +61,10 @@ std::ostream & operator<<(ostream & out, constraint const & c);
 
 class algebraic_constraint : public constraint {
 private:
+    Enode * const m_enode;
     ibex::ExprCtr const * m_exprctr;
     ibex::NumConstraint const * m_numctr;
+    ibex::NumConstraint const * m_numctr_ineq;
     ibex::Array<ibex::ExprSymbol const> m_var_array;
     std::pair<bool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
 

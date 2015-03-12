@@ -102,19 +102,24 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // Algebraic constraint
 // ====================================================
 algebraic_constraint::algebraic_constraint(Enode * const e, lbool p)
-    : constraint(constraint_type::Algebraic, e), m_exprctr(nullptr), m_numctr(nullptr) {
-
+    : constraint(constraint_type::Algebraic, e), m_enode(e), m_exprctr(nullptr), m_numctr(nullptr), m_numctr_ineq(nullptr) {
     unordered_map<string, ibex::Variable const> var_map;
-    // lhs != rhs case is always true under delta-perturbation
-    if (e->isEq() && p == l_False) { return; }
+    bool is_ineq = (p == l_False && e->isEq());
+    p = is_ineq ? true : p;
+
     m_exprctr = translate_enode_to_exprctr(var_map, e, p);
-    if (m_exprctr) {
-        m_var_array.resize(var_map.size());
-        unsigned i = 0;
-        for (auto const p : var_map) {
-            m_var_array.set_ref(i, p.second);
-            i++;
-        }
+    assert(m_exprctr);
+
+    m_var_array.resize(var_map.size());
+    unsigned i = 0;
+    for (auto const p : var_map) {
+        m_var_array.set_ref(i, p.second);
+        i++;
+    }
+
+    if (is_ineq) {
+        m_numctr_ineq = new ibex::NumConstraint(m_var_array, *m_exprctr);
+    } else {
         m_numctr = new ibex::NumConstraint(m_var_array, *m_exprctr);
     }
     DREAL_LOG_INFO << "algebraic_constraint: "<< *this;
@@ -122,22 +127,24 @@ algebraic_constraint::algebraic_constraint(Enode * const e, lbool p)
 
 algebraic_constraint::~algebraic_constraint() {
     if (m_numctr) { delete m_numctr; }
+    if (m_numctr_ineq) { delete m_numctr_ineq; }
     if (m_exprctr) { delete m_exprctr; }
 }
 ostream & algebraic_constraint::display(ostream & out) const {
     out << "algebraic_constraint ";
     if (m_numctr) {
-        out << *m_numctr;
+        out << m_numctr;
     } else {
-        out << "True";
+        out << "!(" << *m_numctr_ineq << ")";
     }
     return out;
 }
 
 pair<bool, ibex::Interval> algebraic_constraint::eval(ibex::IntervalVector const & iv) const {
     bool sat = true;
+    ibex::Interval result;
     if (m_numctr) {
-        ibex::Interval const & result = m_numctr->f.eval(iv);
+        result = m_numctr->f.eval(iv);
         switch (m_numctr->op) {
             case ibex::LT:
                 sat = result.lb() < 0;
@@ -155,16 +162,19 @@ pair<bool, ibex::Interval> algebraic_constraint::eval(ibex::IntervalVector const
                 sat = (result.lb() <= 0) && (result.ub() >= 0);
                 break;
         }
-        if (DREAL_LOG_DEBUG_IS_ON && !sat) {
-            DREAL_LOG_DEBUG << "algebraic_constraint::eval: unsat detected";
-            DREAL_LOG_DEBUG << "\t" << *m_numctr;
-            DREAL_LOG_DEBUG << "input: " << iv;
-            DREAL_LOG_DEBUG << "output:" << result;
-        }
-        return make_pair(sat, result);
     } else {
-        return make_pair(sat, ibex::Interval());
+        assert(m_numctr_ineq);
+        result = m_numctr_ineq->f.eval(iv);
+        // Ineq case: lhs - rhs != 0
+        sat = !(result.lb() == 0 && result.ub() == 0);
     }
+    if (DREAL_LOG_DEBUG_IS_ON && !sat) {
+        DREAL_LOG_DEBUG << "algebraic_constraint::eval: unsat detected";
+        DREAL_LOG_DEBUG << "\t" << *this;
+        DREAL_LOG_DEBUG << "input: " << iv;
+        DREAL_LOG_DEBUG << "output:" << result;
+    }
+    return make_pair(sat, ibex::Interval());
 }
 
 pair<bool, ibex::Interval> algebraic_constraint::eval(box const & b) const {
