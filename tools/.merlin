@@ -1,0 +1,8 @@
+S basic
+S bmc/src
+S heuristic
+S parsing
+S smt2
+S smt2_stat
+B _build/*
+PKG batteries
