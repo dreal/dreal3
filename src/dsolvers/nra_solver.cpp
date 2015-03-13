@@ -246,7 +246,7 @@ void nra_solver::popBacktrackPoint() {
     m_stack.pop();
 }
 
-box icp_loop(box b, contractor const & ctc, double const prec) {
+box icp_loop(box b, contractor const & ctc, SMTConfig & config, bool const complete) {
     stack<box> box_stack;
     box_stack.push(b);
     do {
@@ -255,13 +255,14 @@ box icp_loop(box b, contractor const & ctc, double const prec) {
         b = box_stack.top();
         box_stack.pop();
         try {
-            b = ctc.prune(b);
+            b = ctc.prune(b, config, complete);
         } catch (contractor_exception & e) {
             // Do nothing
         }
         if (!b.is_empty()) {
-            if (b.max_diam() > prec) {
+            if (b.max_diam() > config.nra_precision) {
                 tuple<int, box, box> splits = b.bisect();
+                unsigned const i   = get<0>(splits);
                 box const & first  = get<1>(splits);
                 box const & second = get<2>(splits);
                 if (second.is_bisectable()) {
@@ -271,6 +272,11 @@ box icp_loop(box b, contractor const & ctc, double const prec) {
                     box_stack.push(first);
                     box_stack.push(second);
                 }
+                if (config.nra_proof) {
+                    config.nra_proof_out << "[branched on "
+                                         << b.get_name(i)
+                                         << "]" << endl;
+                }
             } else {
                 break;
             }
@@ -279,7 +285,7 @@ box icp_loop(box b, contractor const & ctc, double const prec) {
     return b;
 }
 
-box icp_loop_with_nc_bt(box b, contractor const & ctc, double const prec) {
+box icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & config, bool const complete) {
     static unsigned prune_count = 0;
     stack<box> box_stack;
     stack<int> bisect_var_stack;
@@ -292,7 +298,7 @@ box icp_loop_with_nc_bt(box b, contractor const & ctc, double const prec) {
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.top();
         try {
-            b = ctc.prune(b);
+            b = ctc.prune(b, config, complete);
         } catch (contractor_exception & e) {
             // Do nothing
         }
@@ -301,7 +307,7 @@ box icp_loop_with_nc_bt(box b, contractor const & ctc, double const prec) {
         bisect_var_stack.pop();
         if (!b.is_empty()) {
             // SAT
-            if (b.max_diam() > prec) {
+            if (b.max_diam() > config.nra_precision) {
                 tuple<int, box, box> splits = b.bisect();
                 unsigned const index = get<0>(splits);
                 box const & first    = get<1>(splits);
@@ -370,12 +376,12 @@ bool nra_solver::check(bool complete) {
     double const prec = config.nra_precision;
     m_ctc = build_contractor(m_box, m_stack);
     try {
-        m_box = m_ctc.prune(m_box);
+        m_box = m_ctc.prune(m_box, config, complete);
     } catch (contractor_exception & e) {
         // Do nothing
     }
     if (!m_box.is_empty() && m_box.max_diam() > prec && complete) {
-        m_box = icp_loop(m_box, m_ctc, prec);
+        m_box = icp_loop(m_box, m_ctc, config, complete);
     }
     bool result = !m_box.is_empty();
     DREAL_LOG_INFO << "nra_solver::check: result = " << boolalpha << result;

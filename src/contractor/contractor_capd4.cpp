@@ -285,7 +285,7 @@ contractor_capd_fwd_simple::contractor_capd_fwd_simple(box const & /* box */, od
     : contractor_cell(contractor_kind::CAPD_FWD), m_ctr(ctr) {
 }
 
-box contractor_capd_fwd_simple::prune(box b) const {
+box contractor_capd_fwd_simple::prune(box b, SMTConfig &, bool const) const {
     // TODO(soonhok): implement this
     return b;
 }
@@ -434,7 +434,7 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
     }
 }
 
-box contractor_capd_fwd_full::prune(box b) const {
+box contractor_capd_fwd_full::prune(box b, SMTConfig &, bool const) const {
     m_used_constraints.insert(m_ctr);
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
@@ -511,7 +511,7 @@ contractor_capd_bwd_simple::contractor_capd_bwd_simple(box const & /* box */, od
     : contractor_cell(contractor_kind::CAPD_FWD), m_ctr(ctr) {
 }
 
-box contractor_capd_bwd_simple::prune(box b) const {
+box contractor_capd_bwd_simple::prune(box b, SMTConfig &, bool const) const {
     // TODO(soonhok): implement this
     return b;
 }
@@ -541,7 +541,7 @@ contractor_capd_bwd_full::~contractor_capd_bwd_full() {
     if (m_vectorField) { delete m_vectorField; }
 }
 
-box contractor_capd_bwd_full::prune(box b) const {
+box contractor_capd_bwd_full::prune(box b, SMTConfig &, bool const) const {
     m_used_constraints.insert(m_ctr);
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);

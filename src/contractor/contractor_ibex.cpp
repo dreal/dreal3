@@ -149,7 +149,7 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, algebraic_constr
 contractor_ibex_fwdbwd::~contractor_ibex_fwdbwd() {
     if (m_ctc) { delete m_ctc; }
 }
-box contractor_ibex_fwdbwd::prune(box b) const {
+box contractor_ibex_fwdbwd::prune(box b, SMTConfig &, bool const) const {
     if (m_ctc == nullptr) {
         return b;
     }
@@ -251,7 +251,7 @@ contractor_ibex_polytope::~contractor_ibex_polytope() {
     if (m_sf) { delete m_sf; }
 }
 
-box contractor_ibex_polytope::prune(box b) const {
+box contractor_ibex_polytope::prune(box b, SMTConfig &, bool const) const {
     if (!m_ctc) { init(b); }
     box old_box = b;
     try {

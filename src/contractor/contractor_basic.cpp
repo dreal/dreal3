@@ -53,11 +53,11 @@ std::ostream & operator<<(std::ostream & out, contractor_cell const & c) {
 
 contractor_seq::contractor_seq(initializer_list<contractor> const & l)
     : contractor_cell(contractor_kind::SEQ), m_vec(l) { }
-box contractor_seq::prune(box b) const {
+box contractor_seq::prune(box b, SMTConfig & config, bool const complete) const {
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
     for (contractor const & c : m_vec) {
-        b = c.prune(b);
+        b = c.prune(b, config, complete);
         m_input.union_with(c.input());
         m_output.union_with(c.output());
         unordered_set<constraint const *> const & used_ctrs = c.used_constraints();
@@ -79,9 +79,9 @@ ostream & contractor_seq::display(ostream & out) const {
 
 contractor_try::contractor_try(contractor const & c)
     : contractor_cell(contractor_kind::TRY), m_c(c) { }
-box contractor_try::prune(box b) const {
+box contractor_try::prune(box b, SMTConfig & config, bool const complete) const {
     try {
-        b = m_c.prune(b);
+        b = m_c.prune(b, config, complete);
     } catch (contractor_exception & e) {
         return b;
     }
@@ -99,16 +99,16 @@ ostream & contractor_try::display(ostream & out) const {
 
 contractor_try_or::contractor_try_or(contractor const & c1, contractor const & c2)
     : contractor_cell(contractor_kind::TRY_OR), m_c1(c1), m_c2(c2) { }
-box contractor_try_or::prune(box b) const {
+box contractor_try_or::prune(box b, SMTConfig & config, bool const complete) const {
     try {
-        b = m_c1.prune(b);
+        b = m_c1.prune(b, config, complete);
         m_input  = m_c1.input();
         m_output = m_c1.input();
         unordered_set<constraint const *> const & used_ctrs = m_c1.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
     } catch (contractor_exception & e) {
-        b = m_c2.prune(b);
+        b = m_c2.prune(b, config, complete);
         m_input  = m_c2.input();
         m_output = m_c2.input();
         unordered_set<constraint const *> const & used_ctrs = m_c2.used_constraints();
@@ -126,16 +126,16 @@ ostream & contractor_try_or::display(ostream & out) const {
 
 contractor_ite::contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else)
     : contractor_cell(contractor_kind::ITE), m_guard(guard), m_c_then(c_then), m_c_else(c_else) { }
-box contractor_ite::prune(box b) const {
+box contractor_ite::prune(box b, SMTConfig & config, bool const complete) const {
     if (m_guard(b)) {
-        b = m_c_then.prune(b);
+        b = m_c_then.prune(b, config, complete);
         m_input  = m_c_then.input();
         m_output = m_c_then.input();
         unordered_set<constraint const *> const & used_ctrs = m_c_then.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
     } else {
-        b = m_c_else.prune(b);
+        b = m_c_else.prune(b, config, complete);
         m_input  = m_c_else.input();
         m_output = m_c_else.input();
         unordered_set<constraint const *> const & used_ctrs = m_c_else.used_constraints();
@@ -170,10 +170,10 @@ contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const
     copy(cvec3.begin(), cvec3.end(), back_inserter(m_clist));
 }
 
-box contractor_fixpoint::prune(box old_b) const {
+box contractor_fixpoint::prune(box old_b, SMTConfig & config, bool const complete) const {
     //box const & naive_result = naive_fixpoint_alg(old_b);
     //return naive_result;
-    box const & worklist_result = worklist_fixpoint_alg(old_b);
+    box const & worklist_result = worklist_fixpoint_alg(old_b, config, complete);
     return worklist_result;
 }
 ostream & contractor_fixpoint::display(ostream & out) const {
@@ -185,7 +185,7 @@ ostream & contractor_fixpoint::display(ostream & out) const {
     return out;
 }
 
-box contractor_fixpoint::naive_fixpoint_alg(box old_box) const {
+box contractor_fixpoint::naive_fixpoint_alg(box old_box, SMTConfig & config, bool const complete) const {
     box new_box = old_box;
     m_input  = ibex::BitSet::empty(old_box.size());
     m_output = ibex::BitSet::empty(old_box.size());
@@ -193,7 +193,7 @@ box contractor_fixpoint::naive_fixpoint_alg(box old_box) const {
     do {
         old_box = new_box;
         for (contractor const & c : m_clist) {
-            new_box = c.prune(new_box);
+            new_box = c.prune(new_box, config, complete);
             m_input.union_with(c.input());
             m_output.union_with(c.output());
             unordered_set<constraint const *> const & used_constraints = c.used_constraints();
@@ -206,7 +206,7 @@ box contractor_fixpoint::naive_fixpoint_alg(box old_box) const {
     return new_box;
 }
 
-box contractor_fixpoint::worklist_fixpoint_alg(box old_box) const {
+box contractor_fixpoint::worklist_fixpoint_alg(box old_box, SMTConfig & config, bool const complete) const {
     box new_box = old_box;
     m_input  = ibex::BitSet::empty(old_box.size());
     m_output = ibex::BitSet::empty(old_box.size());
@@ -227,7 +227,7 @@ box contractor_fixpoint::worklist_fixpoint_alg(box old_box) const {
     do {
         old_box = new_box;
         contractor const & c = q.front();
-        new_box = c.prune(new_box);
+        new_box = c.prune(new_box, config, complete);
         count++;
         m_input.union_with(c.input());
         m_output.union_with(c.output());
@@ -258,7 +258,7 @@ box contractor_fixpoint::worklist_fixpoint_alg(box old_box) const {
 }
 
 contractor_int::contractor_int() : contractor_cell(contractor_kind::INT) { }
-box contractor_int::prune(box b) const {
+box contractor_int::prune(box b, SMTConfig &, bool const) const {
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
     unsigned i = 0;
@@ -295,7 +295,7 @@ contractor_eval::contractor_eval(box const & box, algebraic_constraint const * c
     }
 }
 
-box contractor_eval::prune(box b) const {
+box contractor_eval::prune(box b, SMTConfig &, bool const) const {
     pair<bool, ibex::Interval> eval_result = m_alg_ctr->eval(b);
     if (!eval_result.first) {
         b.set_empty();
@@ -318,13 +318,13 @@ contractor_cache::contractor_cache(contractor const & ctc)
     // - std::unordered_set<constraint const *> m_used_constraints;
 }
 
-box contractor_cache::prune(box b) const {
+box contractor_cache::prune(box b, SMTConfig & config, bool const complete) const {
     // TODO(soonhok): implement this
     thread_local static unordered_map<box, box> cache;
     auto const it = cache.find(b);
     if (it == cache.cend()) {
         // Not Found
-        return m_ctc.prune(b);
+        return m_ctc.prune(b, config, complete);
     } else {
         // Found
         return it->second;

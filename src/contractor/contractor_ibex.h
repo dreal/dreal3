@@ -43,7 +43,7 @@ private:
 public:
     contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
     ~contractor_ibex_fwdbwd();
-    box prune(box b) const;
+    box prune(box b, SMTConfig & config, bool const complete) const;
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -66,7 +66,7 @@ private:
 public:
     contractor_ibex_polytope(double const prec, std::vector<algebraic_constraint const *> const & ctrs);
     ~contractor_ibex_polytope();
-    box prune(box b) const;
+    box prune(box b, SMTConfig & config, bool const complete) const;
     std::ostream & display(std::ostream & out) const;
 };
 
