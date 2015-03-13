@@ -16,7 +16,12 @@ let main_routine vardecl_list mode_list init goal ginv =
   let macromap = Vardeclmap.of_list float_list in
   let modemap = Modemap.of_list mode_list in
   let (init_mode, init_formula) = init in
-  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv)
+  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv, n, 0, label_list)
+  
+let get_network time_decl hybrid_list analyze goals_list = 
+	(* analyze :: [string, [(string, string)]]*)
+	let (instances, composition) = analyze in
+    Network.postprocess_network (Network.makep (time_decl, hybrid_list, Vardeclmap.of_list [], goals_list)) analyze
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
@@ -41,10 +46,33 @@ let main_routine vardecl_list mode_list init goal ginv =
 %type <Type.Hybrid.t> main
 %type <Type.Hybrid.formula> formula
 
+%type <Type.Network.t> main
+
 %%
 
-main: varDecl_list mode_list init goal ind { main_routine $1 $2 $3 $4 $5 }
-| varDecl_list mode_list init goal { main_routine $1 $2 $3 $4 [] }
+main: time_decl hybrid_list analyze goal_aut { get_network $1 $2 $3 $4 }
+;
+
+time_decl: varDecl { $1 }
+
+hybrid_list : { [] } 
+          | hybrid hybrid_list { $1::$2 }
+;
+
+hybrid: LP COMPONENT ID SEMICOLON varDecl_list label_list mode_list /*init goal ind*/ RP { get_hybrid $5 $7 ("", Basic.True)(*$8*) [] [] (*$9 $10*) $3 $6 }
+/* | varDecl_list mode_list init goal { main_routine $4 $6 $7 $8 [] $3 $5 } */
+;
+
+label_list: { [] } 
+          | labelDecl label_list { $1@$2 }
+;
+
+labelDecl: LABEL label_list_ids SEMICOLON { $2 }
+;
+
+label_list_ids: { [] }
+              | ID label_list_ids { $1::$2 }
+              | COMMA label_list_ids { $2 }
 ;
 
 varDecl_list: /* */ { [] }
@@ -58,6 +86,60 @@ FFNUM: FNUM { $1 }
 varDecl:
     LB FFNUM RB ID SEMICOLON { ($4, Value.Num $2) }
   | LB FFNUM COMMA FFNUM RB ID SEMICOLON { ($6, Value.Intv ($2, $4)) }
+;
+
+/*analyze: ANALYZE COLON analyze_list SEMICOLON { $3 }
+;*/
+
+analyze: ANALYZE COLON hybrid_instance_list LP hybrid_analyze_composition RP SEMICOLON { ($3, $5) } 
+;
+
+analyze_list: { [] }
+            | PIPE PIPE analyze_list { $3 }
+            | substitution analyze_list { $1::$2 }
+;
+
+substitution: ID LB substitution_list RB { ($1, $3) }
+;
+
+substitution_list: { [] }
+                 | substitution_id substitution_list { $1::$2 }
+                 | COMMA substitution_list { $2 }
+;
+
+substitution_id: ID SLASH ID { ($1, $3) }
+;
+
+hybrid_instance_analyze_list: { [] }
+							| PIPE PIPE hybrid_instance_analyze_list { $3 }
+							| ID hybrid_instance_analyze_list { ($1, [])::$2 }
+							| ID LB substitution_list RB hybrid_instance_analyze_list { ($1, $3)::$5 }  
+;
+
+hybrid_analyze_composition: { [] }
+							| PIPE PIPE  hybrid_analyze_composition { $3 }
+							| ID hybrid_analyze_composition { $1::$2 }
+
+hybrid_instance_list: { [] }
+					| hybrid_instance hybrid_instance_list { $1::$2 }
+;
+
+hybrid_instance: 
+	ID EQ ID 								/* 1, 2, 3 */
+	LB 										/* 4 */
+	hybrid_instance_substitution COMMA 		/* 5, 6 */
+	mode_formula				 			/* 7 */
+	RB SEMICOLON 							/* 8, 9 */
+	{ ($1, $3, $5, $7) }
+;
+
+hybrid_instance_init_assign: LB formula RB { $2 }
+;
+
+hybrid_instance_init_mode: AT ID { $2 }
+;
+
+hybrid_instance_substitution: LB substitution_list RB { $2 }
 ;
 
 mode_list: /* */ { [] }
@@ -76,7 +158,7 @@ mode_id: MODE FNUM SEMICOLON { int_of_float $2 }
 
 mode: LP mode_id_str SEMICOLON time_precision invts_op flows jumps RP
   {
-    Mode.make ($2, $4, $5, $6, $7, Jumpmap.of_list $7)
+    Mode.make ($2, 0, $4, $5, $6, $7, Jumpmap.of_list $7)
   }
 ;
 
@@ -180,7 +262,7 @@ jump:
 
 
 
-init: INIT COLON mode_formula { $3 }
+init: INIT COLON mode_formula SEMICOLON { $3 }
 ;
 
 goal: GOAL COLON mode_formula_list { $3 }
@@ -193,9 +275,20 @@ formula_list:
   | /**/ { [] }
   | formula SEMICOLON formula_list { $1 :: $3 }
 
-mode_formula_list: /* */ { [] }
-  | mode_formula mode_formula_list { $1::$2 }
+mode_formula_list: { [] }
+  | mode_formula SEMICOLON mode_formula_list { $1::$3 }
 ;
 
-mode_formula: AT FNUM formula SEMICOLON { (int_of_float $2, $3) }
+mode_formula: AT ID formula { ($2, $3) }
+;
+
+/*goal_aut: GOAL COLON mode_formula_aut_list { $3 }
+;*/
+
+mode_formula_aut_list: { [] }
+  | mode_formula_aut mode_formula_aut_list { $1::$2 }
+;
+
+mode_formula_aut: formula { (("", ""), $1) }
+                | AT ID DOT ID formula SEMICOLON { (($2, $4), $5) }
 ;

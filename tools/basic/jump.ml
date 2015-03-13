@@ -18,11 +18,18 @@ let change     {guard = g; precision = p; target = t; change = c} = c
 let print out {guard  = g;
 	       precision = p;
                target = t;
-               change = c}
+               change = c;
+               label = l}
   =
+  let print_jumps_str jlist = 
+    match jlist with
+	  | [] -> "<no labels>"
+	  | _ -> List.fold_left (fun str x -> x^str) "" jlist
+  in
   Printf.fprintf out
-                 "(%s, %s, %s, %s)"
+                 "(%s, %s, %s, %s, %s)"
                  (IO.to_string Basic.print_formula g)
 		 (Printf.sprintf "%.5f" p)
                  (IO.to_string Id.print t)
                  (IO.to_string Basic.print_formula c)
+                 (print_jumps_str l)
