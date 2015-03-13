@@ -107,6 +107,7 @@ public:
     bool operator<=(box const & b) const;
     bool operator>(box const & b) const;
     bool operator>=(box const & b) const;
+    inline bool operator!=(box const & b) const { return !(*this == b); }
 
     inline string get_name(unsigned i) const {
         return m_vars[i]->getCar()->getName();

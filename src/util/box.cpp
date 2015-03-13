@@ -205,11 +205,11 @@ set<box> box::sample_points(unsigned const n) const {
 bool box::operator==(box const & b) const {
     assert(m_values.size() == b.m_values.size());
     for (int i = 0; i < m_values.size(); i++) {
-        if (m_values[i] == b.m_values[i]) {
-            return true;
+        if (m_values[i] != b.m_values[i]) {
+            return false;
         }
     }
-    return false;
+    return true;
 }
 
 bool box::operator<(box const & b) const {
