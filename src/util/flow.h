@@ -32,7 +32,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 class flow {
 private:
-    std::vector<string> m_vars;
+    std::vector<string>  m_vars;
     std::vector<Enode *> m_odes;
 
 public:

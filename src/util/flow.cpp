@@ -36,13 +36,15 @@ using std::ostream;
 using std::endl;
 
 flow::flow() { }
-flow::flow(string const v, Enode * e)
-    : m_vars(1, v), m_odes(1, e) { }
+flow::flow(string const v, Enode * e) {
+    add(v, e);
+}
 void flow::add(string const & v, Enode * const e) {
     assert(m_vars.size() == m_odes.size());
     m_vars.push_back(v);
     m_odes.push_back(e);
 }
+
 ostream & operator<<(ostream & out, flow const & _flow) {
     for (unsigned i = 0; i < _flow.m_vars.size(); i++) {
         out << "d/dt[" << _flow.m_vars[i] << "] = "
