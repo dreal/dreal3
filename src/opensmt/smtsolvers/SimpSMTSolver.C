@@ -135,6 +135,11 @@ void SimpSMTSolver::initialize( )
   addClause( clauseFalse );
 
   theory_handler = new THandler( egraph, config, *this, trail, level, assigns, var_True, var_False );
+
+  if(config.nra_plan_heuristic.compare("") != 0){
+    heuristic.initialize(config, egraph, theory_handler, &trail, &trail_lim);
+  }
+
 }
 
 Var SimpSMTSolver::newVar(bool sign, bool dvar)
@@ -539,7 +544,9 @@ bool SimpSMTSolver::addSMTClause( vector< Enode * > & smt_clause, uint64_t in )
     // Just add the literal
     //
     Lit l = theory_handler->enodeToLit( e );
-
+    if(config.nra_plan_heuristic.compare("") != 0){
+      heuristic.inform(e);
+    }
 #if NEW_SIMPLIFICATIONS
     if ( e->isTAtom( ) )
     {

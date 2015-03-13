@@ -157,9 +157,11 @@ void CoreSMTSolver::printCurrentAssignment( ostream & out, bool withLiterals = t
     for (Var v = 2; v < nVars(); v++)
       {
 	Enode * e = theory_handler->varToEnode( v );
-	if(e && !e->isTLit() && model != NULL && model.size() >= v && !e->isSymb()){
+	if(e && !e->isTLit() && //model != NULL && model.size() >= v &&
+	   !e->isSymb()
+	   ){
 	  
-	  out << std::setw(40) << e << " : " << (model[v] == l_True ? "T" : (model[v] == l_False ? "F" : "U"))  << endl;      
+	  out << std::setw(40) << e << " : " << (assigns[v] == toInt(l_True) ? "T" : (assigns[v] == toInt(l_False) ? "F" : "U"))  << endl;      
 	}
       }
  
