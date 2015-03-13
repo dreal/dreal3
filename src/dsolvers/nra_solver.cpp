@@ -98,8 +98,12 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
     if (it != m_ctr_map.end()) {
         m_stack.push_back(it->second);
     } else if (e->isForallT()) {
+    } else if (e->isIntegral() && e->getPolarity() == l_False) {
+        return true;
     } else {
-        DREAL_LOG_FATAL << "Unknown literal " << e << " is asserted";
+        DREAL_LOG_FATAL << "Unknown literal "
+                        << (e->getPolarity() == l_False ? "!" : "")
+                        << e << " is asserted";
         throw std::logic_error("unknown literal is asserted");
     }
     return true;
@@ -183,8 +187,12 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         } else if (ctr->get_type() == constraint_type::ODE) {
             // TODO(soonhok): add heuristics to choose fwd/bwd
             // TODO(soonhok): perform ODE only for complete check
-            ode_ctcs.emplace_back(mk_contractor_capd_fwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size));
-            ode_ctcs.emplace_back(mk_contractor_capd_bwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size));
+            ode_ctcs.emplace_back(
+                mk_contractor_try(
+                    mk_contractor_capd_fwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size)));
+            ode_ctcs.emplace_back(
+                mk_contractor_try(
+                    mk_contractor_capd_bwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size)));
         }
     }
 
@@ -408,6 +416,7 @@ bool nra_solver::check(bool complete) {
     } else if (complete) {
         handle_sat_case(m_box);
     }
+    DREAL_LOG_DEBUG << "nra_solver::check(" << (complete ? "complete" : "incomplete") << ") = " << result;
     return result;
 }
 
