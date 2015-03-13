@@ -32,6 +32,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "util/hexfloat.h"
 #include "util/logging.h"
 
 using std::copy;
@@ -94,38 +95,53 @@ void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
     return;
 }
 
-ostream& operator<<(ostream& out, box const & b) {
-    unsigned const s = b.size();
+ostream& display(ostream& out, ibex::Interval const & iv, bool const exact) {
+    if (exact) {
+        out << "[" << to_hexfloat(iv.lb()) << ","
+            << to_hexfloat(iv.ub()) << "]";
+    } else {
+        out << iv;
+    }
+    return out;
+}
+
+
+ostream& display(ostream& out, box const & b, bool const exact, bool const old_style) {
     std::streamsize ss = out.precision();
     out.precision(16);
-    for (unsigned i = 0; i < s; i++) {
-        Enode * e = b.m_vars[i];
-        ibex::Interval const & v = b.m_values[i];
-        ibex::Interval const & d = b.m_domains[i];
-        out << e->getCar()->getName()
-            << " : " << d << " = " << v << endl;
+    if (old_style) {
+        out << "SAT with the following box:" << endl;
+        unsigned const s = b.size();
+        for (unsigned i = 0; i < s; i++) {
+            Enode * e = b.m_vars[i];
+            string const & name = e->getCar()->getName();
+            ibex::Interval const & v = b.m_values[i];
+            out << "\t" << name << " : " << v;
+            if (i != (s - 1)) {
+                out << ";";
+            }
+            out << endl;
+        }
+    } else {
+        unsigned const s = b.size();
+        for (unsigned i = 0; i < s; i++) {
+            Enode * e = b.m_vars[i];
+            ibex::Interval const & v = b.m_values[i];
+            ibex::Interval const & d = b.m_domains[i];
+            out << e->getCar()->getName()
+                << " : ";
+            display(out, d, exact);
+            out << " = ";
+            display(out, v, exact);
+            out << endl;
+        }
     }
     out.precision(ss);
     return out;
 }
 
-ostream& box::display_old_style_model(ostream& out) const {
-    out << "SAT with the following box:" << endl;
-    std::streamsize ss = out.precision();
-    out.precision(16);
-    unsigned const s = size();
-    for (unsigned i = 0; i < s; i++) {
-        Enode * e = m_vars[i];
-        string const & name = e->getCar()->getName();
-        ibex::Interval const & v = m_values[i];
-        out << "\t" << name << " : " << v;
-        if (i != (s - 1)) {
-            out << ";";
-        }
-        out << endl;
-    }
-    out.precision(ss);
-    return out;
+ostream& operator<<(ostream& out, box const & b) {
+    return display(out, b);
 }
 
 tuple<int, box, box> box::bisect() const {

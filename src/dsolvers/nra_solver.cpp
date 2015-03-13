@@ -352,7 +352,7 @@ void nra_solver::handle_sat_case(box const & b) const {
     if (config.nra_proof) {
         config.nra_proof_out.close();
         config.nra_proof_out.open(config.nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
-        b.display_old_style_model(config.nra_proof_out);
+        display(config.nra_proof_out, b, !config.nra_readable_proof, true);
     }
     // --model option
     if (config.nra_model) {
@@ -361,7 +361,7 @@ void nra_solver::handle_sat_case(box const & b) const {
             cout << "Cannot create a file: " << config.nra_model_out_name << endl;
             exit(1);
         }
-        b.display_old_style_model(config.nra_model_out);
+        display(config.nra_model_out, b, false, true);
     }
     b.assign_to_enode();
     return;
