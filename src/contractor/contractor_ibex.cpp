@@ -38,6 +38,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor.h"
 #include "util/ibex_enode.h"
 #include "util/logging.h"
+#include "util/proof.h"
 
 using std::make_shared;
 using std::back_inserter;
@@ -149,10 +150,13 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, algebraic_constr
 contractor_ibex_fwdbwd::~contractor_ibex_fwdbwd() {
     if (m_ctc) { delete m_ctc; }
 }
-box contractor_ibex_fwdbwd::prune(box b, SMTConfig &, bool const) const {
-    if (m_ctc == nullptr) {
-        return b;
-    }
+box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config, bool const) const {
+    if (m_ctc == nullptr) { return b; }
+
+    // ======= Proof =======
+    thread_local static box old_box(b);
+    if (config.nra_proof) { old_box = b; }
+
     DREAL_LOG_DEBUG << "==================================================";
     // Construct iv from box b
     ibex::IntervalVector iv(m_var_array.size());
@@ -187,6 +191,11 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig &, bool const) const {
 
     DREAL_LOG_DEBUG << "After pruning using ibex_fwdbwd(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << b;
+
+    // ======= Proof =======
+    if (config.nra_proof) {
+        proof_write_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof);
+    }
     return b;
 }
 ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
@@ -251,9 +260,10 @@ contractor_ibex_polytope::~contractor_ibex_polytope() {
     if (m_sf) { delete m_sf; }
 }
 
-box contractor_ibex_polytope::prune(box b, SMTConfig &, bool const) const {
+box contractor_ibex_polytope::prune(box b, SMTConfig & config, bool const) const {
     if (!m_ctc) { init(b); }
-    box old_box = b;
+    thread_local static box old_box(b);
+    old_box = b;
     try {
         m_ctc->contract(b.get_values());
     } catch(ibex::EmptyBoxException&) {
@@ -266,6 +276,10 @@ box contractor_ibex_polytope::prune(box b, SMTConfig &, bool const) const {
         if (diff_dims[i]) {
             m_output.add(i);
         }
+    }
+    // ======= Proof =======
+    if (config.nra_proof) {
+        proof_write_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof);
     }
     return b;
 }
