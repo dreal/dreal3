@@ -204,6 +204,7 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
     if (config.nra_polytope) {
         alg_ctcs.push_back(mk_contractor_ibex_polytope(config.nra_precision, alg_ctrs));
     }
+    alg_ctcs.push_back(mk_contractor_int());
     return mk_contractor_fixpoint(config.nra_precision, term_cond, alg_ctcs, ode_ctcs, alg_eval_ctcs);
 }
 
