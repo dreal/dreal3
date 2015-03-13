@@ -26,6 +26,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <memory>
 #include <queue>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -34,17 +35,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "util/proof.h"
 #include "util/constraint.h"
 #include "contractor/contractor.h"
 #include "util/logging.h"
 
-using std::make_shared;
 using std::back_inserter;
 using std::function;
 using std::initializer_list;
+using std::make_shared;
+using std::queue;
+using std::stringstream;
 using std::unordered_set;
 using std::vector;
-using std::queue;
 
 namespace dreal {
 std::ostream & operator<<(std::ostream & out, contractor_cell const & c) {
@@ -258,7 +261,11 @@ box contractor_fixpoint::worklist_fixpoint_alg(box old_box, SMTConfig & config, 
 }
 
 contractor_int::contractor_int() : contractor_cell(contractor_kind::INT) { }
-box contractor_int::prune(box b, SMTConfig &, bool const) const {
+box contractor_int::prune(box b, SMTConfig & config, bool const) const {
+    // ======= Proof =======
+    thread_local static box old_box(b);
+    if (config.nra_proof) { old_box = b; }
+
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
     unsigned i = 0;
@@ -277,6 +284,11 @@ box contractor_int::prune(box b, SMTConfig &, bool const) const {
             }
         }
         i++;
+    }
+
+    // ======= Proof =======
+    if (config.nra_proof) {
+        proof_write_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof);
     }
     return b;
 }
