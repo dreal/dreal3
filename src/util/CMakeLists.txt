@@ -8,6 +8,7 @@ add_library(util
   box.cpp
   constraint.cpp
   flow.cpp
+  hexfloat.cpp
   ibex_enode.cpp
   stat.cpp
   string.cpp
