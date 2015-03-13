@@ -5,6 +5,7 @@ type vardeclmap = Vardeclmap.t
 
 (* 2. Mode *)
 type modeId = Mode.id
+type numId = int
 type mode = Mode.t
 type modemap = Modemap.t
 type formula = Basic.formula
@@ -22,23 +23,59 @@ type t = {varmap: vardeclmap;
           init_id: Mode.id;
           init_formula: formula;
           goals: goals;
-          ginvs: ginvs}
+          ginvs: ginvs;
+          name: name;
+          num_id: numId;
+          labels: labellist}
 
 
-let make (vm, mm, iid, iformula, gs, ginvs)
+let make (vm, mm, iid, iformula, gs, ginvs, n, nid, ll)
   =
   {varmap= vm;
    modemap= mm;
    init_id = iid;
    init_formula = iformula;
    goals= gs;
-   ginvs = ginvs}
+   ginvs = ginvs;
+   name = n;
+   num_id = nid;
+   labels = ll}
+   
+(*let makep (vm, mm, gs ginvs, n, ll) 
+  =
+  {varmap= vm;
+   modemap= mm;
+   init_id = "";
+   init_formula = False;
+   goals= gs;
+   ginvs = ginvs;
+   name = n;
+   labels = ll}*)
+   
+let vardeclmap {varmap = var; modemap = mo; init_id = iid; init_formula = ifo; goals = gs; ginvs = g; name = n; num_id = nid; labels = ll } = var
+
+let labellist {varmap = var; modemap = mo; init_id = iid; init_formula = ifo; goals = gs; ginvs = g; name = n; num_id = nid; labels = ll } = ll
+
+let name {varmap = var; modemap = mo; init_id = iid; init_formula = ifo; goals = gs; ginvs = g; name = n; num_id = nid; labels = ll } = n
+
+let modemap {varmap = var; modemap = mo; init_id = iid; init_formula = ifo; goals = gs; ginvs = g; name = n; num_id = nid; labels = ll } = mo
+
+let init_id {varmap = var; modemap = mo; init_id = iid; init_formula = ifo; goals = gs; ginvs = g; name = n; num_id = nid; labels = ll } = iid
+
+let init_formula {varmap = var; modemap = mo; init_id = iid; init_formula = ifo; goals = gs; ginvs = g; name = n; num_id = nid; labels = ll } = ifo
+
+let goals {varmap = var; modemap = mo; init_id = iid; init_formula = ifo; goals = gs; ginvs = g; name = n; num_id = nid; labels = ll } = gs
+
+let ginvs {varmap = var; modemap = mo; init_id = iid; init_formula = ifo; goals = gs; ginvs = g; name = n; num_id = nid; labels = ll } = g
+
+let numid {varmap = var; modemap = mo; init_id = iid; init_formula = ifo; goals = gs; ginvs = g; name = n; num_id = nid; labels = ll } = nid
 
 (**
       Only used in the parser.
       Substitute all the constant variables with their values.
  **)
-let preprocess (vm, cm, mm, iid, iformula, gs, ginvs) : t =
+
+let preprocess (vm, cm, mm, iid, iformula, gs, ginvs, n, nid, ll) : t =
   let subst s =
     match Map.mem s cm with
     | true ->
@@ -49,11 +86,14 @@ let preprocess (vm, cm, mm, iid, iformula, gs, ginvs) : t =
        end
     | false -> Basic.Var s
   in
+  let cnt: int ref = ref 0 in
   let mm' =
     Map.map
-      (fun m ->
+      (fun m -> begin
+      cnt := !cnt + 1;
        Mode.make
          (Mode.mode_id m,
+         !cnt,
           Mode.time_precision m,
           begin
             match (Mode.invs_op m) with
@@ -79,12 +119,13 @@ let preprocess (vm, cm, mm, iid, iformula, gs, ginvs) : t =
                 Basic.preprocess_formula subst (Jump.change j)))
             (Mode.jumpmap m)
          )
+         end
       )
       mm in
   let init_formula' = Basic.preprocess_formula subst iformula in
   let goals' = List.map (fun (id, goal) -> (id, Basic.preprocess_formula subst goal)) gs in
   let ginvs' = List.map (fun ginv -> Basic.preprocess_formula subst ginv) ginvs in
-  make (vm, mm', iid, init_formula', goals', ginvs')
+  make (vm, mm', iid, init_formula', goals', ginvs', n, nid, ll)
 
 let adjacent mode_id1 mode_id2 h  : bool =
   let mode1 = Map.find mode_id1 h.modemap in
@@ -98,6 +139,8 @@ let print out (hm : t) =
     Printf.fprintf out "====================\n%s====================" str
   in
   begin
+	(* print name *)
+	print_header out (name hm);
     (* print varDecl list *)
     print_header out "VarDecl Map";
     Vardeclmap.print out hm.varmap;

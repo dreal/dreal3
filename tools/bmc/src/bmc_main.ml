@@ -60,7 +60,13 @@ let run () =
     let out = IO.stdout in
     let lexbuf = Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let hm = Drh_parser.main Drh_lexer.start lexbuf in
-    if !pathgen then
+    begin
+		(*Network.print out hm;*)
+		(*let paths = Bmc.pathgen hm !k in*)
+		let smt = Bmc.compile hm !k None false in
+		Smt2.print out smt
+    end
+    (*if !pathgen then (*TODO*)
       let paths = Bmc.pathgen hm !k in
       List.print ~first:"" ~last:"\n" ~sep:"\n"
                  (fun out path ->
