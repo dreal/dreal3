@@ -22,16 +22,18 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include "opensmt/smtsolvers/SMTConfig.h"
+#include "opensmt/tsolvers/THandler.h"
 #include "opensmt/egraph/Egraph.h"
 #include "util/scoped_vec.h"
 #include <map>
+#include <set>
 #include <string>
 
 namespace dreal {
 class plan_heuristic {
 public:
-    plan_heuristic(){}
-    void initialize(SMTConfig &, Egraph &);
+ plan_heuristic() : lastTrailEnd(2) {}
+    void initialize(SMTConfig &, Egraph &, THandler* thandler, vec<Lit> *trail, vec<int> *trail_lim);
     ~plan_heuristic() {
       for (auto t : time_process_enodes)
            delete t;
@@ -41,21 +43,43 @@ public:
 
     void resetSuggestions() { m_suggestions.clear(); }
     bool is_initialized() { return m_is_initialized; }
-    void getSuggestions(vector< Enode * > & suggestions, scoped_vec & m_stack);
+    void getSuggestions();
     void inform(Enode * e);
+    Lit getSuggestion();
+    void backtrack();
+    void assertLits();
+   
+    
 
 private:
+    void pushTrailOnStack();
+    void completeSuggestionsForTrail();
+
+    THandler *theory_handler;
     vector<string> m_actions;
     vector<string> m_events;
     vector<string> m_processes;
     vector<string> m_durative_actions;
-    vector< Enode * > m_suggestions;
+    vector< std::pair<Enode*, bool>* > m_suggestions;
+    vector < std::pair<Enode*, bool>* > m_stack;
+    set<Enode*> stack_literals;
+    set< Enode * > m_atoms;
+    vec<Lit> *trail;
+    vec<int> *trail_lim;
     bool m_is_initialized;
     int m_depth;
-     map< Enode *, pair<int, int>* > process_literals;
-     vector< map<string, Enode* >* > time_process_enodes;
-     vector< map<string, Enode* >* > time_event_enodes;
-     vector< Enode* > time_enodes;
+    int lastTrailEnd;
+    //     map< Enode *, pair<int, int>* > process_literals;
+    vector< map<string, Enode* >* > time_process_enodes;
+    vector< map<string, Enode* >* > time_event_enodes;
+    vector< map<string, Enode* >* > time_act_enodes;
+    vector< map<string, Enode* >* > time_duract_enodes;
+    set<Enode*> process_enodes;
+    set<Enode*> act_enodes;
+    set<Enode*> duract_enodes;
+    set<Enode*> event_enodes;
+    vector< Enode* > time_enodes;
     Egraph * m_egraph;
+    void displayTrail();
 };
 }
