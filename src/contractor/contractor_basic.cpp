@@ -77,9 +77,29 @@ ostream & contractor_seq::display(ostream & out) const {
     return out;
 }
 
-contractor_try::contractor_try(contractor const & c1, contractor const & c2)
-    : contractor_cell(contractor_kind::TRY), m_c1(c1), m_c2(c2) { }
+contractor_try::contractor_try(contractor const & c)
+    : contractor_cell(contractor_kind::TRY), m_c(c) { }
 box contractor_try::prune(box b) const {
+    try {
+        b = m_c.prune(b);
+    } catch (contractor_exception & e) {
+        return b;
+    }
+    m_input  = m_c.input();
+    m_output = m_c.input();
+    unordered_set<constraint const *> const & used_ctrs = m_c.used_constraints();
+    m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
+    return b;
+}
+ostream & contractor_try::display(ostream & out) const {
+    out << "contractor_try("
+        << m_c << ")";
+    return out;
+}
+
+contractor_try_or::contractor_try_or(contractor const & c1, contractor const & c2)
+    : contractor_cell(contractor_kind::TRY_OR), m_c1(c1), m_c2(c2) { }
+box contractor_try_or::prune(box b) const {
     try {
         b = m_c1.prune(b);
         m_input  = m_c1.input();
@@ -96,12 +116,13 @@ box contractor_try::prune(box b) const {
         return b;
     }
 }
-ostream & contractor_try::display(ostream & out) const {
-    out << "contractor_try("
+ostream & contractor_try_or::display(ostream & out) const {
+    out << "contractor_try_or("
         << m_c1 << ", "
         << m_c2 << ")";
     return out;
 }
+
 
 contractor_ite::contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else)
     : contractor_cell(contractor_kind::ITE), m_guard(guard), m_c_then(c_then), m_c_else(c_else) { }
@@ -241,7 +262,7 @@ box contractor_int::prune(box b) const {
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
     unsigned i = 0;
-    ibex::IntervalVector iv = b.get_values();
+    ibex::IntervalVector & iv = b.get_values();
     for (Enode * e : b.get_vars()) {
         if (e->hasSortInt()) {
             auto old_iv = iv[i];
@@ -318,8 +339,11 @@ ostream & contractor_cache::display(ostream & out) const {
 contractor mk_contractor_seq(initializer_list<contractor> const & l) {
     return contractor(make_shared<contractor_seq>(l));
 }
-contractor mk_contractor_try(contractor const & c1, contractor const & c2) {
-    return contractor(make_shared<contractor_try>(c1, c2));
+contractor mk_contractor_try(contractor const & c) {
+    return contractor(make_shared<contractor_try>(c));
+}
+contractor mk_contractor_try_or(contractor const & c1, contractor const & c2) {
+    return contractor(make_shared<contractor_try_or>(c1, c2));
 }
 contractor mk_contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else) {
     return contractor(make_shared<contractor_ite>(guard, c_then, c_else));

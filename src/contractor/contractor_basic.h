@@ -34,9 +34,7 @@ namespace dreal {
 
 enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
         PARALLEL_ALL, TIMEOUT, REALPAVER, CAPD_FWD, CAPD_BWD,
-        TRY, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE};
-
-class contractor;
+        TRY, TRY_OR, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE};
 
 class contractor_exception : public std::runtime_error {
 public:
@@ -65,7 +63,53 @@ public:
 
 std::ostream & operator<<(std::ostream & out, contractor_cell const & c);
 
-// contractor_seq : Try C1, C2, ... , Cn sequentially.
+// Wrapper on contractor_cell and its derived classes
+class contractor {
+private:
+    std::shared_ptr<contractor_cell const> m_ptr;
+
+public:
+    contractor() : m_ptr(nullptr) { }
+    explicit contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) {
+            assert(m_ptr != nullptr);
+    }
+    contractor(contractor const & c) : m_ptr(c.m_ptr) {
+        assert(m_ptr);
+    }
+    // contractor(contractor && c) : m_id(c.m_id), m_ptr(std::move(c.m_ptr)) {}
+    ~contractor() { m_ptr.reset(); }
+
+    inline ibex::BitSet input() const { return m_ptr->input(); }
+    inline ibex::BitSet output() const { return m_ptr->output(); }
+    inline std::unordered_set<constraint const *> used_constraints() const { return m_ptr->used_constraints(); }
+    inline box prune(box const & b) const {
+        assert(m_ptr != nullptr);
+        return m_ptr->prune(b);
+    }
+    inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
+    inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
+
+    friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<algebraic_constraint const *> const & ctrs);
+    friend contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
+    friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
+    friend contractor mk_contractor_try(contractor const & c);
+    friend contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
+    friend contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
+    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
+    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
+    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
+    friend contractor mk_contractor_int();
+    friend contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr);
+    friend contractor mk_contractor_cache(contractor const & ctc);
+    friend contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    friend contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    friend contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    friend contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    std::size_t hash() const { return (std::size_t) m_ptr.get(); }
+    friend std::ostream & operator<<(std::ostream & out, contractor const & c);
+};
+
+// contractor_seq : Run C1, C2, ... , Cn sequentially.
 class contractor_seq : public contractor_cell {
 private:
     std::vector<contractor> m_vec;
@@ -75,13 +119,23 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
-// contractor_try : Try C1 if it fails, try C2.
+// contractor_try : Try C1 if it fails, return id.
 class contractor_try : public contractor_cell {
 private:
-    contractor const & m_c1;
-    contractor const & m_c2;
+    contractor const m_c;
 public:
-    contractor_try(contractor const & c1, contractor const & c2);
+    contractor_try(contractor const & c);
+    box prune(box b) const;
+    std::ostream & display(std::ostream & out) const;
+};
+
+// contractor_try_or : Try C1 if it fails, do C2.
+class contractor_try_or : public contractor_cell {
+private:
+    contractor const m_c1;
+    contractor const m_c2;
+public:
+    contractor_try_or(contractor const & c1, contractor const & c2);
     box prune(box b) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -90,8 +144,8 @@ public:
 class contractor_ite : public contractor_cell {
 private:
     std::function<bool(box)> m_guard;
-    contractor const & m_c_then;
-    contractor const & m_c_else;
+    contractor const m_c_then;
+    contractor const m_c_else;
 public:
     contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
     box prune(box b) const;
@@ -142,60 +196,16 @@ public:
 
 class contractor_cache : public contractor_cell {
 private:
-    contractor const & m_ctc;
+    contractor const m_ctc;
 public:
     explicit contractor_cache(contractor const & ctc);
     box prune(box b) const;
     std::ostream & display(std::ostream & out) const;
 };
 
-// Wrapper on contractor_cell and its derived classes
-class contractor {
-private:
-    std::shared_ptr<contractor_cell const> m_ptr;
-
-public:
-    contractor() : m_ptr(nullptr) { }
-    explicit contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) {
-            assert(m_ptr != nullptr);
-    }
-    contractor(contractor const & c) : m_ptr(c.m_ptr) {
-        assert(m_ptr);
-    }
-    // contractor(contractor && c) : m_id(c.m_id), m_ptr(std::move(c.m_ptr)) {}
-    ~contractor() { m_ptr.reset(); }
-
-    inline ibex::BitSet input() const { return m_ptr->input(); }
-    inline ibex::BitSet output() const { return m_ptr->output(); }
-    inline std::unordered_set<constraint const *> used_constraints() const { return m_ptr->used_constraints(); }
-    inline box prune(box const & b) const {
-        assert(m_ptr != nullptr);
-        return m_ptr->prune(b);
-    }
-    inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
-    inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
-
-    friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<algebraic_constraint const *> const & ctrs);
-    friend contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
-    friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
-    friend contractor mk_contractor_try(contractor const & c1, contractor const & c2);
-    friend contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
-    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
-    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
-    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
-    friend contractor mk_contractor_int();
-    friend contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr);
-    friend contractor mk_contractor_cache(contractor const & ctc);
-    friend contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
-    friend contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
-    friend contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
-    friend contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
-    std::size_t hash() const { return (std::size_t) m_ptr.get(); }
-    friend std::ostream & operator<<(std::ostream & out, contractor const & c);
-};
-
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
-contractor mk_contractor_try(contractor const & c1, contractor const & c2);
+contractor mk_contractor_try(contractor const & c);
+contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
 contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
 contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &, box const &)> guard, contractor const & c);
 contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
