@@ -25,4 +25,8 @@ module Mode = Mode
 
 module Modemap = Modemap
 
+module Mademapping = Modemapping
+
+(*module Labelmap = Labelmap*)
+
 module Hybrid = Hybrid

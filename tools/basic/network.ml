@@ -14,21 +14,46 @@ type modeId = Hybrid.modeId
 type modeIds = modeId list
 type modeIdsMap = (Hybrid.name, modeIds) Map.t
 type hybGoals = Hybrid.goals
+type time = Vardecl.t
 
-type t = { automata: automata;
+type modemapping = Modemapping.t
+
+type t = { modemapping: modemapping;
+           time: time;
+           automata: automata;
            mapping: mapping;
            globalvars: globalvars; 
            goals: goals }
            
-let automata {automata = aut; mapping = lm; globalvars = gv; goals = g} = aut
+let modemapping {modemapping = mo; time = t; automata = aut; mapping = lm; globalvars = gv; goals = g} = mo
+           
+let automata {modemapping = mo; time = t; automata = aut; mapping = lm; globalvars = gv; goals = g} = aut
 
-let mapping {automata = aut; mapping = lm; globalvars = gv; goals = g} = lm
+let mapping {modemapping = mo; time = t; automata = aut; mapping = lm; globalvars = gv; goals = g} = lm
 
-let globalvars {automata = aut; mapping = lm; globalvars = gv; goals = g} = gv
+let globalvars {modemapping = mo; time = t; automata = aut; mapping = lm; globalvars = gv; goals = g} = gv
 
-let goals {automata = aut; mapping = lm; globalvars = gv; goals = g} = g
+let goals {modemapping = mo; time = t; automata = aut; mapping = lm; globalvars = gv; goals = g} = g
 
-let make (aut, lm, gv, g): t = { automata = aut; mapping = lm; globalvars = gv; goals = g}
+let time {modemapping = mo; time = t; automata = aut; mapping = lm; globalvars = gv; goals = g} = t
+
+let make (mo, t, aut, lm, gv, g): t = {modemapping = mo; time = t; automata = aut; mapping = lm; globalvars = gv; goals = g}
+
+let makep (t, aut, gv, g):t = {modemapping = (Modemapping.make (Map.empty, Map.empty)); time = t; automata = aut; mapping = []; globalvars = gv; goals = g}
+
+(*let unified_modemap_encoded nw = 
+	let auta = automata nw in
+	let mm = modemapping nw in
+	List.fold_left (
+		fun map a ->
+			begin
+				let mm_local = List.map (fun (mn, _) -> mn) (Map.bindings (Hybrid.modemap a)) in
+				let name = Hybrid.name a in
+				let 
+			end
+	)
+	Map.empty
+	auta*)
 
 let rec get_all_vardecls (auta: automata):Vardeclmap.t list = 
 	match
@@ -223,6 +248,22 @@ let rec all_var_names auta =
 				List.append vars (all_var_names (List.tl auta))
 			end
 		| None -> []
+		
+let rec all_vars auta = 
+	match
+		try Some (List.hd auta)
+		with _ -> None
+	with
+		| Some x -> 
+			begin
+				let l = (Map.bindings (Hybrid.vardeclmap x)) in
+				List.append l (all_vars (List.tl auta))
+			end
+		| None -> []
+		
+let all_vars_unique auta  = List.sort_unique compare (all_vars auta)
+
+let all_varnames_unique auta = List.sort_unique compare (all_var_names auta)
 
 let rec all_label_names auta = 
 	match
@@ -232,14 +273,75 @@ let rec all_label_names auta =
 		| Some x -> List.append (Hybrid.labellist x) (all_label_names (List.tl auta))
 		| None -> []
 		
+let all_label_names_unique auta =
+	List.sort_unique compare (all_label_names auta)
+		
 let process_variable_label_check_after_mapping auta = 
 	let vars = all_var_names auta in
 	let labels = all_label_names auta in
 	match same_variables_and_labels_name_aut vars labels with
 		| (_, false) -> ()
 		| (var, true) -> raise (Error.Variable_Label_Mapping (var^": is being mapped from both variable and label"))
+		
+let remap_formula f m = 
+	let subst v = 
+		match String.contains v '\'' with
+			true -> begin
+				let cv = String.filter (fun x -> x != '\'') v in
+				match Map.mem cv m with
+					true -> Basic.Var ((Map.find cv m)^"\'")
+					| false -> Basic.Var (cv^"\'")
+			end
+			| false -> begin
+				match Map.mem v m with
+					true -> Basic.Var (Map.find v m)
+					| false -> Basic.Var v
+			end
+	in
+	(Basic.preprocess_formula subst) f
+	
+let remap_formula_autname f m a_n = 
+	match Map.mem a_n m with
+		false -> f
+		| true -> remap_formula f (Map.find a_n m)
+		
+let remap_flows f m = 
+	List.map (
+		fun x -> begin
+			Ode.subst (
+				fun y -> begin
+					match Map.mem y m with
+						true -> Map.find y m
+						| false -> y
+				end
+			)
+			x
+		end
+	) 
+	f
+	
+let remap_flows_autname f m a_n = 
+	match Map.mem a_n m with
+		false -> f
+		| true -> remap_flows f (Map.find a_n m)
+		
+let remap_labels l m =
+	List.map (
+		fun x -> begin
+			match Map.mem x m with
+				false -> x
+				| true -> Map.find x m
+		end
+	)
+	l
+		
+let remap_labels_autname l m a_n = 
+	match Map.mem a_n m with
+		false -> l
+		| true -> remap_labels l (Map.find a_n m)
 
-let postprocess_aut a m = 
+let postprocess_aut a m (mcnt: int ref) (acnt: int ref) = 
+	acnt := !acnt + 1;
 	let remapping = Replaceautmap.of_list m in
 	let name = Hybrid.name a in
 	let vardecls_t = Hybrid.vardeclmap a in
@@ -249,8 +351,66 @@ let postprocess_aut a m =
 			| true -> map_replace_vardecls vardecls_t (Map.find name remapping)
 	in
 	let modemap = Hybrid.modemap a in
+	let nmm = Map.map (
+		fun x -> begin
+			mcnt := !mcnt + 1;
+			let mode_id = Mode.mode_id x in
+			let prec = Mode.time_precision x in
+			let invs_op = Mode.invs_op x in
+			let flows = Mode.flows x in
+			let jumpmap = Mode.jumpmap x in
+			let jumps = Mode.jumps x in
+			let n_id = Mode.mode_numId x in
+			(*let n_id = !mcnt in*)
+			
+			let n_invs_op = match invs_op with
+				None -> None
+				| Some y -> Some (List.map (fun a -> remap_formula_autname a remapping name) y)
+			in
+			
+			let n_flows = remap_flows_autname flows remapping name in
+			
+			let n_jumpmap = Map.map (
+				fun y -> begin
+					let guard = Jump.guard y in
+					let precision = Jump.precision y in
+					let target = Jump.target y in
+					let change = Jump.change y in
+					let label = Jump.label y in
+					
+					let n_guard = remap_formula_autname guard remapping name in
+					let n_change = remap_formula_autname change remapping name in
+					let n_label = remap_labels_autname label remapping name in
+					
+					Jump.makep (n_guard, precision, target, n_change, n_label)
+				end
+			) 
+			jumpmap 
+			in
+			
+			let n_jumps = List.map (
+				fun y -> begin
+					let guard = Jump.guard y in
+					let precision = Jump.precision y in
+					let target = Jump.target y in
+					let change = Jump.change y in
+					let label = Jump.label y in
+					
+					let n_guard = remap_formula_autname guard remapping name in
+					let n_change = remap_formula_autname change remapping name in
+					let n_label = remap_labels_autname label remapping name in
+					
+					Jump.makep (n_guard, precision, target, n_change, n_label)
+				end
+			)
+			jumps
+			in
+			Mode.make (mode_id, n_id, prec, n_invs_op, n_flows, n_jumps, n_jumpmap)
+		end
+	)
+	modemap in
 	let init_id = Hybrid.init_id a in
-	let init_formula = Hybrid.init_formula a in
+	let init_formula = remap_formula_autname (Hybrid.init_formula a) remapping name in
 	let goals = Hybrid.goals a in
 	let ginvs = Hybrid.ginvs a in
 	let labels_t = Hybrid.labellist a in
@@ -259,21 +419,74 @@ let postprocess_aut a m =
 			| false -> labels_t
 			| true -> map_replace_labels labels_t (Map.find name remapping)
 	in
-	Hybrid.make (vardecls, modemap, init_id, init_formula, goals, ginvs, name, labels)
+	Hybrid.make (vardecls, nmm, init_id, init_formula, goals, ginvs, name, !acnt, labels)
 
 let postprocess_automata a m = 
-	List.map (fun x -> postprocess_aut x m) a
+	let mcnt: int ref = ref 0 in
+	let acnt: int ref = ref 0 in
+	List.map (fun x -> postprocess_aut x m mcnt acnt) a
+	
+let check_time_variable t = 
+	let (var, value) = t in
+	match var = "time" with
+		true -> ()
+		| false -> raise (Error.Lex_err ("Global variable declaration is supposed to be of the time.", 0))
 
-let postprocess_network n =
+let postprocess_network n analyze =
+	let (instances, composition) = analyze in
 	let auta = automata n in
-	let maps = mapping n in
-	process_variable_label_check_before_mapping auta;
-	let auta_n = postprocess_automata auta maps in
+	
+	(* Create instances of existing, defined automata *)
+	let aut_instanced = List.fold_left (
+		fun lst (inst, temp, sub, init) ->
+			begin
+				match
+					try Some (List.find (fun a -> (Hybrid.name a) = temp) auta)
+					with Not_found -> None
+				with
+					Some x -> 
+						begin
+							let (loc, form) = init in
+							let nx = Hybrid.make (
+								Hybrid.vardeclmap x,
+								Hybrid.modemap x,
+								loc,
+								form,
+								Hybrid.goals x,
+								Hybrid.ginvs x,
+								inst,
+								Hybrid.numid x,
+								Hybrid.labellist x
+							) in
+							nx::lst
+						end
+					| None -> 
+						begin
+							raise (Error.Instance_Error (temp, inst))
+							lst
+						end
+			end
+	)
+	[]
+	instances in
+	let t = time n in
+	check_time_variable t;
+	let instance_maps = List.map (fun (inst, temp, sub, init) -> (inst, sub)) instances in
+	let maps = instance_maps(*List.append instance_maps composition*) in
+	let compositionlist = (*List.map (fun (x, y) -> x)*) composition in
+	let aut_instance_names = List.map (fun x -> Hybrid.name x) aut_instanced in
+	ignore (List.map (fun x -> match List.mem x aut_instance_names with 
+		| true -> ()
+		| false -> raise (Error.Composition_Error x)) composition);
+	let aut_compose = List.filter (fun x -> List.mem (Hybrid.name x) compositionlist) aut_instanced in
+	process_variable_label_check_before_mapping aut_compose;
+	let auta_n = postprocess_automata aut_compose maps in
 	process_variable_domains auta_n;
 	process_variable_label_check_after_mapping auta_n;
 	let gl = get_vardeclmap_global auta_n in
 	let go = goals n in
-	make (auta_n, maps, gl, go)
+	let mm = Modemapping.process_automata auta_n in
+	make (mm, t, auta_n, maps, gl, go)
 	
 let init_mode_map nw =
 	List.fold_left
@@ -346,7 +559,6 @@ let rec last_modes_goals modecomp mim =
 					| false -> last_modes_goals (List.tl modecomp) mim
 			end
 		| None -> false
-	
 
 let check_path (nw : t) (path : comppath option) (k : int) : unit =
 	let init = init_mode_map nw in
