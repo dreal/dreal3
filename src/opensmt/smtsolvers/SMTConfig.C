@@ -39,6 +39,7 @@ DEFINE_bool  (ode_cache,        false, "ode cache");
 DEFINE_bool  (ode_forward_only, false, "ode forward only");
 DEFINE_bool  (ode_parallel,     false, "ode parallel");
 DEFINE_bool  (proof,            false, "proof");
+DEFINE_bool  (readable_proof,   false, "readable proof");
 DEFINE_bool  (model,            false, "model");
 DEFINE_bool  (visualize,        false, "visualize");
 DEFINE_bool  (verbose,          false, "verbose");
@@ -114,6 +115,7 @@ SMTConfig::initializeConfig( )
   nra_debug                    = false;
   nra_stat                     = false;
   nra_proof                    = false;
+  nra_readable_proof           = false;
   nra_model                    = false;
   nra_ODE_parallel             = false;
   nra_ODE_cache                = false;
@@ -364,7 +366,8 @@ SMTConfig::parseCMDLine( int /* argc */
   nra_ODE_cache           = FLAGS_ode_cache;
   nra_ODE_forward_only    = FLAGS_ode_forward_only;
   nra_ODE_parallel        = FLAGS_ode_parallel;
-  nra_proof               = FLAGS_proof;
+  nra_readable_proof      = FLAGS_readable_proof;
+  nra_proof               = nra_readable_proof || FLAGS_proof;
   nra_model               = FLAGS_model;
   nra_json                = FLAGS_visualize;
   nra_verbose             = FLAGS_verbose || FLAGS_debug;

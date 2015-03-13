@@ -189,6 +189,7 @@ struct SMTConfig
   bool         nra_debug;                     // --debug option
   bool         nra_stat;                      // --stat option
   bool         nra_proof;                     // --proof option
+  bool         nra_readable_proof;            // --readable_proof option
   bool         nra_model;                     // --model option
   ofstream     nra_model_out;                 // file stream for model
   string       nra_model_out_name;            // filename for model
