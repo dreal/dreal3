@@ -20,7 +20,7 @@ let make (id, t_precision, invs_op, flows, jumpmap)
   = {mode_id= id;
      time_precision = t_precision;
      invs_op= invs_op;
-     flows= flows;
+     flows= List.sort (fun (v1, ode1) (v2, ode2) -> String.compare v1 v2) flows;
      jumpmap= jumpmap}
 
 let mode_id {mode_id= id;
