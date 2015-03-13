@@ -48,9 +48,9 @@ private:
     unsigned const m_taylor_order;
     unsigned const m_grid_size;
 
-    capd::IMap * m_vectorField;
-    capd::IOdeSolver * m_solver;
-    capd::ITimeMap * m_timeMap;
+    capd::IMap * m_vectorField = nullptr;
+    capd::IOdeSolver * m_solver = nullptr;
+    capd::ITimeMap * m_timeMap = nullptr;
     bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, vector<pair<capd::interval, capd::IVector>> & enclosures) const;
 
 public:
@@ -76,9 +76,9 @@ private:
     unsigned const m_taylor_order;
     unsigned const m_grid_size;
 
-    capd::IMap * m_vectorField;
-    capd::IOdeSolver * m_solver;
-    capd::ITimeMap * m_timeMap;
+    capd::IMap * m_vectorField  = nullptr;
+    capd::IOdeSolver * m_solver = nullptr;
+    capd::ITimeMap * m_timeMap  = nullptr;
 
 public:
     contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);

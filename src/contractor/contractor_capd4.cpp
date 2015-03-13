@@ -100,7 +100,10 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
             return it->second;
         }
     } else if (e->isNumb()) {
-        string const & name = e->getName();
+        string name = e->getName();
+        if (starts_with(name, "-")) {
+            name = "(" + name + ")";
+        }
         return name;
         // }
     } else if (e->isTerm()) {
@@ -205,34 +208,60 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
 string build_capd_string(integral_constraint const & ic, bool forward = true) {
     // Collect _0 variables
     vector<Enode *> const & vars_0 = ic.get_vars_0();
-    vector<string> vars_0_strs;
-    for (Enode * const var_0 : vars_0) {
-        vars_0_strs.push_back(var_0->getCar()->getName());
-    }
-    string diff_var = "var:" + join(vars_0_strs, ", ") + ";";
-    flow const & _flow = ic.get_flow();
-    vector<string> params_strs = _flow.get_vars();
+    vector<Enode *> const & pars_0 = ic.get_pars_0();
+    vector<string>  const & par_lhs_names = ic.get_par_lhs_names();
+    vector<pair<string, Enode *>> const & odes = ic.get_odes();
 
     // Build Map
     unordered_map<string, string> subst_map;
     for (unsigned i = 0; i < vars_0.size(); i++) {
-        string const & from = params_strs[i];
+        string const & from = odes[i].first;
         string const & to   = vars_0[i]->getCar()->getName();
         subst_map.emplace(from, to);
-        DREAL_LOG_INFO << "Subst Map: " << from << " -> " << to;
+        DREAL_LOG_INFO << "Subst Map (Var): " << from << " -> " << to;
+    }
+    for (unsigned i = 0; i < pars_0.size(); i++) {
+        string const & from = par_lhs_names[i];
+        string const & to   = pars_0[i]->getCar()->getName();
+        subst_map.emplace(from, to);
+        DREAL_LOG_INFO << "Subst Map (Par): " << from << " -> " << to;
     }
 
     // Call Subst, and collect strings
     vector<string> ode_strs;
-    for (Enode * const ode : _flow.get_odes()) {
+    for (unsigned i = 0; i < vars_0.size(); i++) {
+        Enode * const ode = odes[i].second;
         string ode_str = subst(ode, subst_map);
         if (!forward) {
             ode_str = "-" + ode_str;
         }
         ode_strs.push_back(ode_str);
     }
-    string diff_fun = "fun:" + join(ode_strs, ", ") + ";";
-    return diff_var + diff_fun;
+
+    string diff_var   = "";
+    string diff_par = "";
+    string diff_fun   = "";
+    if (vars_0.size() > 0) {
+        vector<string> vars_0_strs;
+        for (auto const & var : vars_0) {
+            vars_0_strs.push_back(var->getCar()->getName());
+        }
+        diff_var = "var:" + join(vars_0_strs, ", ") + ";";
+    }
+    if (pars_0.size() > 0) {
+        vector<string> pars_0_strs;
+        for (auto const & par : pars_0) {
+            pars_0_strs.push_back(par->getCar()->getName());
+        }
+        diff_par = "par:" + join(pars_0_strs, ", ") + ";";
+    }
+    if (ode_strs.size() > 0) {
+        diff_fun = "fun:" + join(ode_strs, ", ") + ";";
+    }
+    DREAL_LOG_DEBUG << diff_var;
+    DREAL_LOG_DEBUG << diff_par;
+    DREAL_LOG_DEBUG << diff_fun;
+    return diff_var + diff_par + diff_fun;
 }
 
 capd::IVector extract_ivector(box const & b, std::vector<Enode *> const & vars) {
@@ -296,17 +325,21 @@ contractor_capd_fwd_full::contractor_capd_fwd_full(box const & /* box */, ode_co
     : contractor_cell(contractor_kind::CAPD_FWD), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size) {
     DREAL_LOG_INFO << "contractor_capd_fwd_full::contractor_capd_fwd_full()";
     integral_constraint const & ic = m_ctr->get_ic();
-    string const & capd_str = build_capd_string(ic);
-    DREAL_LOG_INFO << "contractor_capd_fwd_full: diff sys = " << capd_str;
-    m_vectorField = new capd::IMap(capd_str);
-    m_solver = new capd::IOdeSolver(*m_vectorField, m_taylor_order);
-    m_timeMap = new capd::ITimeMap(*m_solver);
+    string const capd_str = build_capd_string(ic);
+    if (capd_str.find("var:") != string::npos) {
+        DREAL_LOG_INFO << "contractor_capd_fwd_full: diff sys = " << capd_str;
+        m_vectorField = new capd::IMap(capd_str);
+        m_solver = new capd::IOdeSolver(*m_vectorField, m_taylor_order);
+        m_timeMap = new capd::ITimeMap(*m_solver);
+    } else {
+        // Trivial Case with all params and no ODE variables
+    }
 }
 
 contractor_capd_fwd_full::~contractor_capd_fwd_full() {
-    delete m_timeMap;
-    delete m_solver;
-    delete m_vectorField;
+    if (m_timeMap)     { delete m_timeMap; }
+    if (m_solver)      { delete m_solver; }
+    if (m_vectorField) { delete m_vectorField; }
 }
 
 bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, unsigned const grid_size, vector<pair<capd::interval, capd::IVector>> & enclosures) {
@@ -375,11 +408,43 @@ bool filter(vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVec
     }
 }
 
+box intersect_params(box & b, integral_constraint const & ic) {
+    vector<Enode*> const & pars_0 = ic.get_pars_0();
+    vector<Enode*> const & pars_t = ic.get_pars_t();
+    capd::IVector X_0 = extract_ivector(b, pars_0);
+    capd::IVector const & X_t = extract_ivector(b, pars_t);
+    if(!intersection(X_0, X_t, X_0)) {
+        // intersection is empty
+        b.set_empty();
+    } else {
+        update_box_with_ivector(b, ic.get_pars_0(), X_0);
+        update_box_with_ivector(b, ic.get_pars_t(), X_0);
+    }
+    return b;
+}
+
+template<typename T>
+void set_params(T & f, box const & b, integral_constraint const & ic) {
+    vector<Enode*> const & pars_0 = ic.get_pars_0();
+    capd::IVector X_0 = extract_ivector(b, pars_0);
+    for (unsigned i = 0; i < pars_0.size(); i++) {
+        string const & name = pars_0[i]->getCar()->getName();
+        f.setParameter(name, X_0[i]);
+        DREAL_LOG_DEBUG << "set_param: " << name << " ==> " << X_0[i];
+    }
+}
+
 box contractor_capd_fwd_full::prune(box b) const {
     m_used_constraints.insert(m_ctr);
-    box old_b = b;
+    integral_constraint const & ic = m_ctr->get_ic();
+    b = intersect_params(b, ic);
+    if (!m_solver) {
+        // Trivial Case where there are only params and no real ODE vars.
+        return b;
+    }
+    set_params(*m_vectorField, b, ic);
+
     try {
-        integral_constraint const & ic = m_ctr->get_ic();
         capd::IVector  m_X_0 = extract_ivector(b, ic.get_vars_0());
         capd::IVector  m_X_t = extract_ivector(b, ic.get_vars_t());
         ibex::Interval const & ibex_T = b[ic.get_time_t()];
@@ -429,10 +494,8 @@ box contractor_capd_fwd_full::prune(box b) const {
         DREAL_LOG_INFO << "m_X_t : " << m_X_t;
         DREAL_LOG_INFO << "m_T   : " << m_T;
     } catch (capd::intervals::IntervalError<double> & e) {
-        b = old_b;
         throw contractor_exception(e.what());
     } catch (capd::ISolverException & e) {
-        b = old_b;
         throw contractor_exception(e.what());
     }
     return b;
@@ -462,23 +525,33 @@ contractor_capd_bwd_full::contractor_capd_bwd_full(box const & /*box*/, ode_cons
     DREAL_LOG_INFO << "contractor_capd_bwd_full::contractor_capd_bwd_full()";
     integral_constraint const & ic = m_ctr->get_ic();
     string const & capd_str = build_capd_string(ic, false);
-    DREAL_LOG_INFO << "contractor_capd_bwd_full: diff sys = " << capd_str;
-    m_vectorField = new capd::IMap(capd_str);
-    m_solver = new capd::IOdeSolver(*m_vectorField, m_taylor_order);
-    m_timeMap = new capd::ITimeMap(*m_solver);
+    if (capd_str.find("var:") != string::npos) {
+        DREAL_LOG_INFO << "contractor_capd_bwd_full: diff sys = " << capd_str;
+        m_vectorField = new capd::IMap(capd_str);
+        m_solver = new capd::IOdeSolver(*m_vectorField, m_taylor_order);
+        m_timeMap = new capd::ITimeMap(*m_solver);
+    } else {
+        // Trivial Case with all params and no ODE variables
+    }
 }
 
 contractor_capd_bwd_full::~contractor_capd_bwd_full() {
-    delete m_timeMap;
-    delete m_solver;
-    delete m_vectorField;
+    if (m_timeMap)     { delete m_timeMap; }
+    if (m_solver)      { delete m_solver; }
+    if (m_vectorField) { delete m_vectorField; }
 }
 
 box contractor_capd_bwd_full::prune(box b) const {
     m_used_constraints.insert(m_ctr);
-    box old_b = b;
+    integral_constraint const & ic = m_ctr->get_ic();
+    b = intersect_params(b, ic);
+    if (!m_solver) {
+        // Trivial Case where there are only params and no real ODE vars.
+        return b;
+    }
+    set_params(*m_vectorField, b, ic);
+
     try {
-        integral_constraint const & ic = m_ctr->get_ic();
         capd::IVector  m_X_0 = extract_ivector(b, ic.get_vars_0());
         capd::IVector  m_X_t = extract_ivector(b, ic.get_vars_t());
         ibex::Interval const & ibex_T = b[ic.get_time_t()];
@@ -528,10 +601,8 @@ box contractor_capd_bwd_full::prune(box b) const {
         DREAL_LOG_INFO << "m_X_t : " << m_X_t;
         DREAL_LOG_INFO << "m_T   : " << m_T;
     } catch (capd::intervals::IntervalError<double> & e) {
-        b = old_b;
         throw contractor_exception(e.what());
     } catch (capd::ISolverException & e) {
-        b = old_b;
         throw contractor_exception(e.what());
     }
     return b;

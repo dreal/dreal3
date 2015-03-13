@@ -133,7 +133,7 @@ algebraic_constraint::~algebraic_constraint() {
 ostream & algebraic_constraint::display(ostream & out) const {
     out << "algebraic_constraint ";
     if (m_numctr) {
-        out << m_numctr;
+        out << *m_numctr;
     } else {
         out << "!(" << *m_numctr_ineq << ")";
     }
@@ -223,42 +223,65 @@ integral_constraint mk_integral_constraint(Enode * const e, unordered_map<string
     Enode * const time_t = tmp->getCar();
     tmp = tmp->getCdr();
 
-    vector<Enode *> vars_0, vars_t;
-    while (!tmp->isEnil()) {
-        vars_0.push_back(tmp->getCar());
-        tmp = tmp->getCdr();
-        vars_t.push_back(tmp->getCar());
-        tmp = tmp->getCdr();
-    }
-    reverse(vars_0.begin(), vars_0.end());
-    reverse(vars_t.begin(), vars_t.end());
     string key = string("flow_") + to_string(flow_id);
     auto const it = flow_map.find(key);
-    if (it != flow_map.end()) {
-        flow const & _flow = it->second;
-        return integral_constraint(e, flow_id, time_0, time_t, vars_0, vars_t, _flow);
-    } else {
+    if (it == flow_map.end()) {
         throw std::logic_error(key + " is not in flow_map. Failed to create integral constraint");
     }
+    flow const & _flow = it->second;
+    vector<string> const & flow_vars = _flow.get_vars();
+    vector<Enode *> const & flow_odes = _flow.get_odes();
+    vector<Enode *> vars_0, vars_t, pars_0, pars_t;
+    vector<string> par_lhs_names;
+    vector<pair<string, Enode *>> odes;
+
+    for (unsigned i = 0; i < flow_vars.size(); i++) {
+        Enode * const var_0 = tmp->getCar();
+        tmp = tmp->getCdr();
+        Enode * const var_t = tmp->getCar();
+        tmp = tmp->getCdr();
+        string const & ode_var = flow_vars[i];
+        Enode * const ode_rhs  = flow_odes[i];
+
+        if (ode_rhs->isConstant() && ode_rhs->getValue() == 0.0) {
+            // Parameter
+            pars_0.push_back(var_0);
+            pars_t.push_back(var_t);
+            par_lhs_names.push_back(ode_var);
+        } else {
+            // Variable
+            vars_0.push_back(var_0);
+            vars_t.push_back(var_t);
+            odes.emplace_back(ode_var, ode_rhs);
+        }
+    }
+    assert(tmp->isEnil());
+
+    return integral_constraint(e, flow_id, time_0, time_t, vars_0, pars_0, vars_t, pars_t, par_lhs_names, odes);
 }
+
 integral_constraint::integral_constraint(Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t,
-                                         vector<Enode *> const & vars_0, vector<Enode *> const & vars_t,
-                                         flow const & _flow)
+                                         vector<Enode *> const & vars_0, vector<Enode *> const & pars_0,
+                                         vector<Enode *> const & vars_t, vector<Enode *> const & pars_t,
+                                         vector<string> const & par_lhs_names,
+                                         vector<pair<string, Enode *>> const & odes)
     : constraint(constraint_type::Integral, e),
-      m_flow_id(flow_id), m_time_0(time_0), m_time_t(time_t), m_vars_0(vars_0), m_vars_t(vars_t), m_flow(_flow) { }
+      m_flow_id(flow_id), m_time_0(time_0), m_time_t(time_t),
+      m_vars_0(vars_0), m_pars_0(pars_0), m_vars_t(vars_t), m_pars_t(pars_t),
+      m_par_lhs_names(par_lhs_names), m_odes(odes) { }
 integral_constraint::~integral_constraint() {
 }
 ostream & integral_constraint::display(ostream & out) const {
     out << "integral_constraint = " << m_enodes[0] << endl;
     out << "\t" << "flow_id = " << m_flow_id << endl;
     out << "\t" << "time = [" << m_time_0 << "," << m_time_t << "]" << endl;
-    for (Enode * var_0 : m_vars_0) {
-        out << "\t" << "var_0 : " << var_0 << endl;
+    for (Enode * par_0 : m_pars_0) { out << "\t" << "par_0 : " << par_0 << endl; }
+    for (Enode * par_t : m_pars_t) { out << "\t" << "par_t : " << par_t << endl; }
+    for (Enode * var_0 : m_vars_0) { out << "\t" << "var_0 : " << var_0 << endl; }
+    for (Enode * var_t : m_vars_t) { out << "\t" << "var_t : " << var_t << endl; }
+    for (auto const & ode : m_odes) {
+        out << "\t" << "d/dt[" << ode.first << "] = " << ode.second << endl;
     }
-    for (Enode * var_t : m_vars_t) {
-        out << "\t" << "var_t : " << var_t << endl;
-    }
-    out << m_flow << endl;
     return out;
 }
 
