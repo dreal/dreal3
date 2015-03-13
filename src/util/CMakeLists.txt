@@ -10,6 +10,7 @@ add_library(util
   flow.cpp
   hexfloat.cpp
   ibex_enode.cpp
+  proof.cpp
   stat.cpp
   string.cpp
   "${DREAL_BINARY_DIR}/git_sha1.cpp"
