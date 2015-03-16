@@ -150,7 +150,7 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, algebraic_constr
 contractor_ibex_fwdbwd::~contractor_ibex_fwdbwd() {
     if (m_ctc) { delete m_ctc; }
 }
-box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config, bool const) const {
+box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
     if (m_ctc == nullptr) { return b; }
 
     // ======= Proof =======
@@ -260,7 +260,7 @@ contractor_ibex_polytope::~contractor_ibex_polytope() {
     if (m_sf) { delete m_sf; }
 }
 
-box contractor_ibex_polytope::prune(box b, SMTConfig & config, bool const) const {
+box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
     if (!m_ctc) { init(b); }
     thread_local static box old_box(b);
     old_box = b;

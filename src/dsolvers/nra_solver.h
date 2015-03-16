@@ -88,7 +88,7 @@ private:
     box m_box;
     stat m_stat;
 
-    contractor build_contractor(box const & box, scoped_vec<constraint *> const & ctrs);
+    contractor build_contractor(box const & box, scoped_vec<constraint *> const & ctrs, bool const complete);
     std::vector<constraint *> initialize_constraints();
     std::vector<Enode *> generate_explanation(scoped_vec<constraint const *> const & ctr_vec);
     void handle_sat_case(box const & b) const;

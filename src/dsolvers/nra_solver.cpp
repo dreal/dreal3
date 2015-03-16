@@ -162,23 +162,18 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
     return ctrs;
 }
 
-contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *> const &ctrs) {
+contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *> const &ctrs, bool const complete) {
     vector<algebraic_constraint const *> alg_ctrs;
-
     vector<contractor> alg_ctcs;
     alg_ctcs.reserve(ctrs.size());
-
     vector<contractor> alg_eval_ctcs;
     alg_eval_ctcs.reserve(ctrs.size());
-
     vector<contractor> ode_ctcs;
     ode_ctcs.reserve(ctrs.size());
-
     // Add contractor_sample if --sample option is used
-    if (config.nra_sample > 0) {
+    if (config.nra_sample > 0 && complete) {
         alg_ctcs.push_back(mk_contractor_sample(config.nra_sample, ctrs.get_vec()));
     }
-
     for (constraint * const ctr : ctrs) {
         if (ctr->get_type() == constraint_type::Algebraic) {
             algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
@@ -200,6 +195,14 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
                     mk_contractor_capd_bwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size)));
         }
     }
+    if (config.nra_polytope) {
+        alg_ctcs.push_back(mk_contractor_ibex_polytope(config.nra_precision, alg_ctrs));
+    }
+    alg_ctcs.push_back(mk_contractor_int());
+    // Add contractor_sample if --sample option is used
+    if (config.nra_aggressive > 0 && complete) {
+        alg_ctcs.push_back(mk_contractor_sample(config.nra_aggressive, ctrs.get_vec()));
+    }
 
     auto term_cond = [this](dreal::box const & old_box, dreal::box const & new_box) {
         if (new_box.max_diam() < config.nra_precision) {
@@ -212,12 +215,6 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         double const improvement = 1.00 - (new_volume / old_volume);
         return improvement < threshold;
     };
-
-    // TODO(soonhok): wrap with if-then-else, pass config
-    if (config.nra_polytope) {
-        alg_ctcs.push_back(mk_contractor_ibex_polytope(config.nra_precision, alg_ctrs));
-    }
-    alg_ctcs.push_back(mk_contractor_int());
     return mk_contractor_fixpoint(config.nra_precision, term_cond, alg_ctcs, ode_ctcs, alg_eval_ctcs);
 }
 
@@ -251,7 +248,7 @@ void nra_solver::popBacktrackPoint() {
     m_stack.pop();
 }
 
-box icp_loop(box b, contractor const & ctc, SMTConfig & config, bool const complete) {
+box icp_loop(box b, contractor const & ctc, SMTConfig & config) {
     stack<box> box_stack;
     box_stack.push(b);
     do {
@@ -260,7 +257,7 @@ box icp_loop(box b, contractor const & ctc, SMTConfig & config, bool const compl
         b = box_stack.top();
         box_stack.pop();
         try {
-            b = ctc.prune(b, config, complete);
+            b = ctc.prune(b, config);
         } catch (contractor_exception & e) {
             // Do nothing
         }
@@ -290,7 +287,7 @@ box icp_loop(box b, contractor const & ctc, SMTConfig & config, bool const compl
     return b;
 }
 
-box icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & config, bool const complete) {
+box icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & config) {
     static unsigned prune_count = 0;
     stack<box> box_stack;
     stack<int> bisect_var_stack;
@@ -303,7 +300,7 @@ box icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & config, bool 
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.top();
         try {
-            b = ctc.prune(b, config, complete);
+            b = ctc.prune(b, config);
         } catch (contractor_exception & e) {
             // Do nothing
         }
@@ -379,49 +376,20 @@ bool nra_solver::check(bool complete) {
     if (m_stack.size() == 0) { return true; }
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")";
     double const prec = config.nra_precision;
-    m_ctc = build_contractor(m_box, m_stack);
+    m_ctc = build_contractor(m_box, m_stack, complete);
     try {
-        m_box = m_ctc.prune(m_box, config, complete);
+        m_box = m_ctc.prune(m_box, config);
     } catch (contractor_exception & e) {
         // Do nothing
     }
     if (!m_box.is_empty() && m_box.max_diam() > prec && complete) {
-        m_box = icp_loop(m_box, m_ctc, config, complete);
+        m_box = icp_loop(m_box, m_ctc, config);
     }
     bool result = !m_box.is_empty();
     DREAL_LOG_INFO << "nra_solver::check: result = " << boolalpha << result;
     for (constraint const * ctr : m_ctc.used_constraints()) {
         m_used_constraint_vec.push_back(ctr);
     }
-
-    if (config.nra_aggressive > 0 && complete && result) {
-        // Sample n points
-        set<box> points = m_box.sample_points(config.nra_aggressive);
-
-        // ∃c. ∀p. eval(c, p) = false   ===>  UNSAT
-        for (constraint * const ctr : m_stack) {
-            if (ctr->get_type() == constraint_type::Algebraic) {
-                algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
-                bool check = false;
-                for (box const & p : points) {
-                    pair<bool, ibex::Interval> eval_result = alg_ctr->eval(p);
-                    if (eval_result.first) {
-                        check = true;
-                        break;
-                    }
-                }
-                if (!check) {
-                    m_used_constraint_vec.push_back(ctr);
-                    result = false;
-                    pair<bool, ibex::Interval> eval_result = alg_ctr->eval(m_box);
-                    DREAL_LOG_DEBUG << "Constraint: " << *alg_ctr << " is violated by all " << points.size() << " points";
-                    DREAL_LOG_DEBUG << "FYI, the interval evaluation gives us : " << eval_result.second;
-                    break;
-                }
-            }
-        }
-    }
-
     if (!result) {
         explanation = generate_explanation(m_used_constraint_vec);
     } else if (complete) {

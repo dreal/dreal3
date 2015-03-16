@@ -56,11 +56,11 @@ std::ostream & operator<<(std::ostream & out, contractor_cell const & c) {
 
 contractor_seq::contractor_seq(initializer_list<contractor> const & l)
     : contractor_cell(contractor_kind::SEQ), m_vec(l) { }
-box contractor_seq::prune(box b, SMTConfig & config, bool const complete) const {
+box contractor_seq::prune(box b, SMTConfig & config) const {
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
     for (contractor const & c : m_vec) {
-        b = c.prune(b, config, complete);
+        b = c.prune(b, config);
         m_input.union_with(c.input());
         m_output.union_with(c.output());
         unordered_set<constraint const *> const & used_ctrs = c.used_constraints();
@@ -82,9 +82,9 @@ ostream & contractor_seq::display(ostream & out) const {
 
 contractor_try::contractor_try(contractor const & c)
     : contractor_cell(contractor_kind::TRY), m_c(c) { }
-box contractor_try::prune(box b, SMTConfig & config, bool const complete) const {
+box contractor_try::prune(box b, SMTConfig & config) const {
     try {
-        b = m_c.prune(b, config, complete);
+        b = m_c.prune(b, config);
     } catch (contractor_exception & e) {
         return b;
     }
@@ -102,16 +102,16 @@ ostream & contractor_try::display(ostream & out) const {
 
 contractor_try_or::contractor_try_or(contractor const & c1, contractor const & c2)
     : contractor_cell(contractor_kind::TRY_OR), m_c1(c1), m_c2(c2) { }
-box contractor_try_or::prune(box b, SMTConfig & config, bool const complete) const {
+box contractor_try_or::prune(box b, SMTConfig & config) const {
     try {
-        b = m_c1.prune(b, config, complete);
+        b = m_c1.prune(b, config);
         m_input  = m_c1.input();
         m_output = m_c1.input();
         unordered_set<constraint const *> const & used_ctrs = m_c1.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
     } catch (contractor_exception & e) {
-        b = m_c2.prune(b, config, complete);
+        b = m_c2.prune(b, config);
         m_input  = m_c2.input();
         m_output = m_c2.input();
         unordered_set<constraint const *> const & used_ctrs = m_c2.used_constraints();
@@ -129,16 +129,16 @@ ostream & contractor_try_or::display(ostream & out) const {
 
 contractor_ite::contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else)
     : contractor_cell(contractor_kind::ITE), m_guard(guard), m_c_then(c_then), m_c_else(c_else) { }
-box contractor_ite::prune(box b, SMTConfig & config, bool const complete) const {
+box contractor_ite::prune(box b, SMTConfig & config) const {
     if (m_guard(b)) {
-        b = m_c_then.prune(b, config, complete);
+        b = m_c_then.prune(b, config);
         m_input  = m_c_then.input();
         m_output = m_c_then.input();
         unordered_set<constraint const *> const & used_ctrs = m_c_then.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
     } else {
-        b = m_c_else.prune(b, config, complete);
+        b = m_c_else.prune(b, config);
         m_input  = m_c_else.input();
         m_output = m_c_else.input();
         unordered_set<constraint const *> const & used_ctrs = m_c_else.used_constraints();
@@ -173,10 +173,10 @@ contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const
     copy(cvec3.begin(), cvec3.end(), back_inserter(m_clist));
 }
 
-box contractor_fixpoint::prune(box old_b, SMTConfig & config, bool const complete) const {
+box contractor_fixpoint::prune(box old_b, SMTConfig & config) const {
     //box const & naive_result = naive_fixpoint_alg(old_b);
     //return naive_result;
-    box const & worklist_result = worklist_fixpoint_alg(old_b, config, complete);
+    box const & worklist_result = worklist_fixpoint_alg(old_b, config);
     return worklist_result;
 }
 ostream & contractor_fixpoint::display(ostream & out) const {
@@ -188,7 +188,7 @@ ostream & contractor_fixpoint::display(ostream & out) const {
     return out;
 }
 
-box contractor_fixpoint::naive_fixpoint_alg(box old_box, SMTConfig & config, bool const complete) const {
+box contractor_fixpoint::naive_fixpoint_alg(box old_box, SMTConfig & config) const {
     box new_box = old_box;
     m_input  = ibex::BitSet::empty(old_box.size());
     m_output = ibex::BitSet::empty(old_box.size());
@@ -196,7 +196,7 @@ box contractor_fixpoint::naive_fixpoint_alg(box old_box, SMTConfig & config, boo
     do {
         old_box = new_box;
         for (contractor const & c : m_clist) {
-            new_box = c.prune(new_box, config, complete);
+            new_box = c.prune(new_box, config);
             m_input.union_with(c.input());
             m_output.union_with(c.output());
             unordered_set<constraint const *> const & used_constraints = c.used_constraints();
@@ -209,7 +209,7 @@ box contractor_fixpoint::naive_fixpoint_alg(box old_box, SMTConfig & config, boo
     return new_box;
 }
 
-box contractor_fixpoint::worklist_fixpoint_alg(box old_box, SMTConfig & config, bool const complete) const {
+box contractor_fixpoint::worklist_fixpoint_alg(box old_box, SMTConfig & config) const {
     box new_box = old_box;
     m_input  = ibex::BitSet::empty(old_box.size());
     m_output = ibex::BitSet::empty(old_box.size());
@@ -230,7 +230,7 @@ box contractor_fixpoint::worklist_fixpoint_alg(box old_box, SMTConfig & config, 
     do {
         old_box = new_box;
         contractor const & c = q.front();
-        new_box = c.prune(new_box, config, complete);
+        new_box = c.prune(new_box, config);
         count++;
         m_input.union_with(c.input());
         m_output.union_with(c.output());
@@ -261,7 +261,7 @@ box contractor_fixpoint::worklist_fixpoint_alg(box old_box, SMTConfig & config, 
 }
 
 contractor_int::contractor_int() : contractor_cell(contractor_kind::INT) { }
-box contractor_int::prune(box b, SMTConfig & config, bool const) const {
+box contractor_int::prune(box b, SMTConfig & config) const {
     // ======= Proof =======
     thread_local static box old_box(b);
     if (config.nra_proof) { old_box = b; }
@@ -307,7 +307,7 @@ contractor_eval::contractor_eval(box const & box, algebraic_constraint const * c
     }
 }
 
-box contractor_eval::prune(box b, SMTConfig &, bool const) const {
+box contractor_eval::prune(box b, SMTConfig &) const {
     pair<bool, ibex::Interval> eval_result = m_alg_ctr->eval(b);
     if (!eval_result.first) {
         b.set_empty();
@@ -330,13 +330,13 @@ contractor_cache::contractor_cache(contractor const & ctc)
     // - std::unordered_set<constraint const *> m_used_constraints;
 }
 
-box contractor_cache::prune(box b, SMTConfig & config, bool const complete) const {
+box contractor_cache::prune(box b, SMTConfig & config) const {
     // TODO(soonhok): implement this
     thread_local static unordered_map<box, box> cache;
     auto const it = cache.find(b);
     if (it == cache.cend()) {
         // Not Found
-        return m_ctc.prune(b, config, complete);
+        return m_ctc.prune(b, config);
     } else {
         // Found
         return it->second;
@@ -352,31 +352,29 @@ contractor_sample::contractor_sample(unsigned const n, vector<constraint *> cons
     : contractor_cell(contractor_kind::SAMPLE), m_num_samples(n), m_ctrs(ctrs) {
 }
 
-box contractor_sample::prune(box b, SMTConfig &, bool const complete) const {
-    if (complete) {
-        DREAL_LOG_DEBUG << "contractor_sample::prune";
-        // Sample n points
-        set<box> points = b.sample_points(m_num_samples);
-        // If ∃p. ∀c. eval(c, p) = true, return 'SAT'
-        unsigned count = 0;
-        for (box const & p : points) {
-            DREAL_LOG_DEBUG << "contractor_sample::prune -- sample " << ++count << "th point = " << p;
-            bool check = true;
-            for (constraint * const ctr : m_ctrs) {
-                if (ctr->get_type() == constraint_type::Algebraic) {
-                    algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
-                    pair<bool, ibex::Interval> eval_result = alg_ctr->eval(p);
-                    if (!eval_result.first) {
-                        check = false;
-                        DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " does not satisfy " << *ctr;
-                        break;
-                    }
+box contractor_sample::prune(box b, SMTConfig &) const {
+    DREAL_LOG_DEBUG << "contractor_sample::prune";
+    // Sample n points
+    set<box> points = b.sample_points(m_num_samples);
+    // If ∃p. ∀c. eval(c, p) = true, return 'SAT'
+    unsigned count = 0;
+    for (box const & p : points) {
+        DREAL_LOG_DEBUG << "contractor_sample::prune -- sample " << ++count << "th point = " << p;
+        bool check = true;
+        for (constraint * const ctr : m_ctrs) {
+            if (ctr->get_type() == constraint_type::Algebraic) {
+                algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
+                pair<bool, ibex::Interval> eval_result = alg_ctr->eval(p);
+                if (!eval_result.first) {
+                    check = false;
+                    DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " does not satisfy " << *ctr;
+                    break;
                 }
             }
-            if (check) {
-                DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " satisfies all constraints";
-                return p;
-            }
+        }
+        if (check) {
+            DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " satisfies all constraints";
+            return p;
         }
     }
     return b;
@@ -386,6 +384,44 @@ ostream & contractor_sample::display(ostream & out) const {
     out << "contractor_sample(" << m_num_samples << ")";
     return out;
 }
+
+contractor_aggressive::contractor_aggressive(unsigned const n, vector<constraint *> const & ctrs)
+    : contractor_cell(contractor_kind::SAMPLE), m_num_samples(n), m_ctrs(ctrs) {
+}
+
+box contractor_aggressive::prune(box b, SMTConfig &) const {
+    // Sample n points
+    set<box> points = b.sample_points(m_num_samples);
+    // ∃c. ∀p. eval(c, p) = false   ===>  UNSAT
+    for (constraint * const ctr : m_ctrs) {
+        if (ctr->get_type() == constraint_type::Algebraic) {
+            algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
+            bool check = false;
+            for (box const & p : points) {
+                pair<bool, ibex::Interval> eval_result = alg_ctr->eval(p);
+                if (eval_result.first) {
+                    check = true;
+                    break;
+                }
+            }
+            if (!check) {
+                m_used_constraints.insert(ctr);
+                pair<bool, ibex::Interval> eval_result = alg_ctr->eval(b);
+                DREAL_LOG_DEBUG << "Constraint: " << *alg_ctr << " is violated by all " << points.size() << " points";
+                DREAL_LOG_DEBUG << "FYI, the interval evaluation gives us : " << eval_result.second;
+                b.set_empty();
+                return b;
+            }
+        }
+    }
+    return b;
+}
+
+ostream & contractor_aggressive::display(ostream & out) const {
+    out << "contractor_aggressive(" << m_num_samples << ")";
+    return out;
+}
+
 
 contractor mk_contractor_seq(initializer_list<contractor> const & l) {
     return contractor(make_shared<contractor_seq>(l));
@@ -418,7 +454,6 @@ contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box
                                   vector<contractor> const & cvec3) {
     return contractor(make_shared<contractor_fixpoint>(p, guard, cvec1, cvec2, cvec3));
 }
-
 contractor mk_contractor_int() {
     return contractor(make_shared<contractor_int>());
 }
@@ -436,11 +471,12 @@ contractor mk_contractor_eval(box const & box, algebraic_constraint const * cons
 contractor mk_contractor_cache(contractor const & ctc) {
     return contractor(make_shared<contractor_cache>(ctc));
 }
-
 contractor mk_contractor_sample(unsigned const n, vector<constraint *> const & ctrs) {
     return contractor(make_shared<contractor_sample>(n, ctrs));
 }
-
+contractor mk_contractor_aggressive(unsigned const n, vector<constraint *> const & ctrs) {
+    return contractor(make_shared<contractor_aggressive>(n, ctrs));
+}
 std::ostream & operator<<(std::ostream & out, contractor const & c) {
     out << *(c.m_ptr);
     return out;
