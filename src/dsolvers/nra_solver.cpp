@@ -174,6 +174,11 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
     vector<contractor> ode_ctcs;
     ode_ctcs.reserve(ctrs.size());
 
+    // Add contractor_sample if --sample option is used
+    if (config.nra_sample > 0) {
+        alg_ctcs.push_back(mk_contractor_sample(config.nra_sample, ctrs.get_vec()));
+    }
+
     for (constraint * const ctr : ctrs) {
         if (ctr->get_type() == constraint_type::Algebraic) {
             algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
