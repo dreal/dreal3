@@ -63,7 +63,8 @@ public:
         return count;
     }
     unsigned size() const    { return m_vec.size(); }
-    vec const & get_vec() { return m_vec; }
+    vec const & get_vec() const { return m_vec; }
+    vec         get_vec()       { return m_vec; }
     friend std::ostream & operator<<(std::ostream & out, scoped_vec<T> const & v) {
         for (auto const & e : v) {
             out << e << std::endl;
