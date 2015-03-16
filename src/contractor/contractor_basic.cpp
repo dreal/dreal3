@@ -348,6 +348,45 @@ ostream & contractor_cache::display(ostream & out) const {
     return out;
 }
 
+contractor_sample::contractor_sample(unsigned const n, vector<constraint *> const & ctrs)
+    : contractor_cell(contractor_kind::SAMPLE), m_num_samples(n), m_ctrs(ctrs) {
+}
+
+box contractor_sample::prune(box b, SMTConfig &, bool const complete) const {
+    if (complete) {
+        DREAL_LOG_DEBUG << "contractor_sample::prune";
+        // Sample n points
+        set<box> points = b.sample_points(m_num_samples);
+        // If ∃p. ∀c. eval(c, p) = true, return 'SAT'
+        unsigned count = 0;
+        for (box const & p : points) {
+            DREAL_LOG_DEBUG << "contractor_sample::prune -- sample " << ++count << "th point = " << p;
+            bool check = true;
+            for (constraint * const ctr : m_ctrs) {
+                if (ctr->get_type() == constraint_type::Algebraic) {
+                    algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
+                    pair<bool, ibex::Interval> eval_result = alg_ctr->eval(p);
+                    if (!eval_result.first) {
+                        check = false;
+                        DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " does not satisfy " << *ctr;
+                        break;
+                    }
+                }
+            }
+            if (check) {
+                DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " satisfies all constraints";
+                return p;
+            }
+        }
+    }
+    return b;
+}
+
+ostream & contractor_sample::display(ostream & out) const {
+    out << "contractor_sample(" << m_num_samples << ")";
+    return out;
+}
+
 contractor mk_contractor_seq(initializer_list<contractor> const & l) {
     return contractor(make_shared<contractor_seq>(l));
 }
@@ -396,6 +435,10 @@ contractor mk_contractor_eval(box const & box, algebraic_constraint const * cons
 }
 contractor mk_contractor_cache(contractor const & ctc) {
     return contractor(make_shared<contractor_cache>(ctc));
+}
+
+contractor mk_contractor_sample(unsigned const n, vector<constraint *> const & ctrs) {
+    return contractor(make_shared<contractor_sample>(n, ctrs));
 }
 
 std::ostream & operator<<(std::ostream & out, contractor const & c) {

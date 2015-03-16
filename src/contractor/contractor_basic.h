@@ -35,7 +35,8 @@ namespace dreal {
 
 enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
         PARALLEL_ALL, TIMEOUT, REALPAVER, CAPD_FWD, CAPD_BWD,
-        TRY, TRY_OR, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE};
+        TRY, TRY_OR, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE,
+        SAMPLE};
 
 class contractor_exception : public std::runtime_error {
 public:
@@ -102,6 +103,7 @@ public:
     friend contractor mk_contractor_int();
     friend contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr);
     friend contractor mk_contractor_cache(contractor const & ctc);
+    friend contractor mk_contractor_sample(unsigned const n, vector<constraint *> const & ctrs);
     friend contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     friend contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     friend contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
@@ -204,6 +206,16 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
+class contractor_sample : public contractor_cell {
+private:
+    unsigned const m_num_samples;
+    vector<constraint *> m_ctrs;
+public:
+    explicit contractor_sample(unsigned const n, vector<constraint *> const & ctrs);
+    box prune(box b, SMTConfig & config, bool const complete) const;
+    std::ostream & display(std::ostream & out) const;
+};
+
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
 contractor mk_contractor_try(contractor const & c);
 contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
@@ -218,6 +230,7 @@ contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &
 contractor mk_contractor_int();
 contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr);
 contractor mk_contractor_cache(contractor const & ctc);
+contractor mk_contractor_sample(unsigned const n, vector<constraint *> const & ctrs);
 std::ostream & operator<<(std::ostream & out, contractor const & c);
 
 }  // namespace dreal
