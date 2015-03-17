@@ -1,0 +1,114 @@
+#define FUEL_CAPACITY 1000
+#define WATER_CAPACITY 1000
+#define CARGO_CAPACITY 1000
+
+
+[0, FUEL_CAPACITY] fuel;
+[0, WATER_CAPACITY] water;
+[0, CARGO_CAPACITY] cargo;
+[0, 1000] fire;
+[0, 10] v;
+[0, 100] alt;
+[0, 1000] d;
+[0, 100] time;
+
+//on ground, stopped
+{ mode 1;
+
+  flow:
+        d/dt[fuel] = 0;
+        d/dt[water] = 0;
+        d/dt[cargo] = 0;	
+        d/dt[fire] = 0;	
+        d/dt[v] = 0;
+        d/dt[alt] = 0;
+        d/dt[d] = 0;	
+  jump:
+        (fuel > 0) ==> @2 (v' = 10);
+}
+
+
+//takeoff
+{
+  mode 2;
+  flow:
+        d/dt[fuel] = (-2 * v);
+        d/dt[water] = 0;
+        d/dt[cargo] = -v;	
+        d/dt[fire] = 0;	
+        d/dt[alt] = 1;
+        d/dt[v] = 0;	
+        d/dt[d] = v;	
+  jump:
+	(alt = 10) ==> @3 true;
+}
+
+//fly to fire
+{
+  mode 3;
+  flow:
+        d/dt[fuel] = -v;
+        d/dt[water] = 0;
+        d/dt[cargo] = -v;	
+        d/dt[fire] = 0;	
+        d/dt[alt] = 0;
+        d/dt[v] = 0;	
+        d/dt[d] = v;	
+  jump:
+	(d = 100) ==> @4 true;
+}
+
+//extinguish fire
+{
+  mode 4;
+  flow:
+        d/dt[fuel] = -v;
+        d/dt[water] = -5;
+        d/dt[cargo] = -(v + 5);	
+        d/dt[fire] = -5;	
+        d/dt[alt] = 0;
+        d/dt[v] = 0;	
+        d/dt[d] = 0;	
+  jump:
+	true ==> @5 true;
+}
+
+//fly home
+{
+  mode 5;
+  flow:
+        d/dt[fuel] = -v;
+        d/dt[water] = 0;
+        d/dt[cargo] = -v;	
+        d/dt[fire] = 0;	
+        d/dt[alt] = 0;
+        d/dt[v] = 0;	
+        d/dt[d] = -v;	
+  jump:
+	true ==> @6 true;
+}
+
+//land
+{
+  mode 6;
+  flow:
+        d/dt[fuel] = -v;
+        d/dt[water] = 0;
+        d/dt[cargo] = -v;	
+        d/dt[fire] = 0;	
+        d/dt[alt] = -1;
+        d/dt[v] = 0;	
+        d/dt[d] = -v;	
+  jump:
+	(and (d = 0) (alt = 0)) ==> @1 (v' = 0);
+}
+
+
+init:
+@1	(and (d = 0) (v = 0) (alt = 0)
+	     (fire = 100)
+	     (cargo = fuel + water) 
+	     );
+
+goal:
+@1	(and  (fire = 0) );

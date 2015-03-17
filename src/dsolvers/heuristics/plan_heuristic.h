@@ -28,11 +28,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <set>
 #include <string>
+#include <utility>
 
 namespace dreal {
 class plan_heuristic {
 public:
- plan_heuristic() : lastTrailEnd(2) {}
+  plan_heuristic() : lastTrailEnd(2) {}
     void initialize(SMTConfig &, Egraph &, THandler* thandler, vec<Lit> *trail, vec<int> *trail_lim);
     ~plan_heuristic() {
       for (auto t : time_process_enodes)
@@ -48,8 +49,8 @@ public:
     Lit getSuggestion();
     void backtrack();
     void assertLits();
-   
-    
+
+
 
 private:
     void pushTrailOnStack();
