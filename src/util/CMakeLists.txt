@@ -18,3 +18,4 @@ add_library(util
   )
 add_dependencies(util GLOG)
 add_dependencies(util GFLAGS)
+add_dependencies(util IBEX)
