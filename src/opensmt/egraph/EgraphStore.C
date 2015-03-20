@@ -999,32 +999,36 @@ Enode * Egraph::mkTimes( Enode * args )
   assert( args->getArity( ) >= 2 );
 
   Enode * res = NULL;
-  Enode * x = args->getCar( );
-  Enode * y = args->getCdr( )->getCar( );
-
-  double zero_ = 0;
+  double const zero_ = 0;
   Enode * zero = mkNum( zero_ );
-  //
-  // x * 0 --> 0
-  //
-  if ( x == zero || y == zero )
-  {
-    res = zero;
+
+  // Check whether it contains zero or not
+  bool contain_zero = false;
+  for (Enode const * head = args; !head->isEnil(); head = head->getCdr()) {
+      Enode const * const arg = head->getCar();
+      if (arg->isConstant() && arg->getValue() == 0.0) {
+          contain_zero = true;
+          break;
+      }
   }
-  //
-  // Simplify constants
-  //
-  else if ( x->isConstant( ) && y->isConstant( ) )
-  {
-    const double xval = x->getValue( );
-    const double yval = y->getValue( );
-    double times = xval * yval;
-    res = mkNum( times );
+  if (contain_zero) {
+      res = zero;
+  } else if (args->getArity() == 2) {
+      Enode * x = args->getCar( );
+      Enode * y = args->getCdr( )->getCar( );
+      if ( x->isConstant( ) && y->isConstant( ) ) {
+          // Simplify constants
+          const double xval = x->getValue( );
+          const double yval = y->getValue( );
+          double times = xval * yval;
+          res = mkNum( times );
+      }
+      else if ( x == y ) {
+          return mkPow( cons(x, cons(mkNum(2.0)) ) );
+      }
   }
-  else if ( x == y ) {
-      return mkPow( cons(x, cons(mkNum(2.0)) ) );
-  } else {
-    res = cons( id_to_enode[ ENODE_ID_TIMES ], args );
+  if (!res) {
+      res = cons( id_to_enode[ ENODE_ID_TIMES ], args );
   }
   assert( res );
   return res;
