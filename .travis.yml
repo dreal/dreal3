@@ -61,11 +61,11 @@ install:
   # Install Bison, Flex, CMAKE
   - sudo apt-get -qq install bison flex wget cmake
   # Ocaml
-  - sudo apt-get -qq install ocaml opam
-  - yes | opam init
-  - eval `opam config env`
-  - opam update
-  - yes | opam install ocamlfind batteries oasis
+  # - sudo apt-get -qq install ocaml opam
+  # - yes | opam init
+  # - eval `opam config env`
+  # - opam update
+  # - yes | opam install ocamlfind batteries oasis
   # TESTCOV - lcov
   - if [[ $TESTCOV == ON ]]; then
        wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;
@@ -103,9 +103,9 @@ script:
   - ctest -D ExperimentalBuild -VV
   - cd ..
   # compile tools
-  - make -C tools
+  # - make -C tools
   # compile proof checker
-  - make -C tools/proofcheck/checker
+  # - make -C tools/proofcheck/checker
 
 after_script:
   - cd build
