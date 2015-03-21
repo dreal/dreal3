@@ -29,7 +29,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "json11/json11.hpp"
 #include "capd/capdlib.h"
+
+using json11::Json;
 
 namespace dreal {
 class contractor_capd_fwd_simple : public contractor_cell {
