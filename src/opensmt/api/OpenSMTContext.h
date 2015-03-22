@@ -197,6 +197,16 @@ public:
       assert(flowname);
       return egraph.mkIntegral(time_0, time_t, vec_0, vec_t, flowname);
   }
+  inline Enode * mkForall ( vector<pair<string, Snode *>*>* sorted_var_list, Enode * e) {
+      assert(sorted_var_list);
+      assert(e);
+      return egraph.mkForall(sorted_var_list, e);
+  }
+  inline Enode * mkExists ( vector<pair<string, Snode *>*>* sorted_var_list, Enode * e) {
+      assert(sorted_var_list);
+      assert(e);
+      return egraph.mkExists(sorted_var_list, e);
+  }
 
   inline double getPrecision() {
       return config.nra_precision;

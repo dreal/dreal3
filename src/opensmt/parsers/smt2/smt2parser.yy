@@ -61,6 +61,8 @@ void smt2error( const char * s )
   std::string *                      string_ptr;
   list< Snode * > *                  snode_list;
   map< Enode *, Enode * > *          binding_list;
+  pair<string, Snode *> *            sorted_var;
+  vector< pair<string, Snode *> * > *  sorted_var_list;
 }
 
 %error-verbose
@@ -104,6 +106,8 @@ void smt2error( const char * s )
 %type <ode_list> ode_list
 %type <snode> sort
 %type <snode_list> sort_list
+%type <sorted_var> sorted_var
+%type <sorted_var_list> sorted_var_list
 
 %start script
 
@@ -325,7 +329,12 @@ sort: TK_BOOL
    */
     ;
 
-/* sorted_var: '(' TK_SYM sort ')' ; */
+sorted_var: '(' TK_SYM sort ')' {
+        $$ = new pair<string, Snode *>;
+        $$->first = $2;
+        $$->second = $3;
+        free($2);
+}
 
 term: spec_const
       { $$ = parser_ctx->mkNum( $1 ); free( $1 ); }
@@ -405,11 +414,11 @@ term: spec_const
       { $$ = $6; }
     | '(' TK_FORALLT term TK_LB term term TK_RB term_list ')'
       { $$ = parser_ctx->mkForallT($3, $5, $6, $8); }
-    /*
     | '(' TK_FORALL '(' sorted_var_list ')' term ')'
-      { opensmt_error2( "case not handled (yet)", "" ); }
+      { $$ = parser_ctx->mkForall($4, $6); }
     | '(' TK_EXISTS '(' sorted_var_list ')' term ')'
-      { opensmt_error2( "case not handled (yet)", "" ); }
+      { $$ = parser_ctx->mkExists($4, $6); }
+    /*
     | '(' TK_ANNOT term attribute_list ')'
       { opensmt_error2( "case not handled (yet)", "" ); }
     */
@@ -487,7 +496,14 @@ sort_list: sort_list sort
            { $$ = createSortList( $1 ); }
          ;
 
-/* sorted_var_list: sorted_var_list sorted_var | sorted_var ; */
+sorted_var_list: sorted_var_list sorted_var {
+    $1->push_back($2);
+    $$ = $1;
+           }
+| sorted_var {
+     $$ = new vector<pair<string, Snode*>*>;
+     $$->push_back( $1 );
+  };
 
 var_binding_list: var_binding_list '(' TK_SYM term ')'
                   { parser_ctx->mkBind( $3, $4 ); free($3); }

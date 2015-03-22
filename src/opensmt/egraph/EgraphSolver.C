@@ -294,8 +294,15 @@ bool Egraph::assertLit_ ( Enode * e )
       res = assertEq( e, mkFalse( ), s );
     if ( !n )
       res = assertEq( e, mkTrue( ), s );
-  } else
-    opensmt_error2( "can't handle ", e );
+  }
+  else if ( e->isForall() || e->isExists() ) {
+    if ( n )
+      res = assertEq( e, mkFalse( ), s );
+    else
+      res = assertEq( e, mkTrue( ), s );
+  } else {
+      opensmt_error2( "can't handle ", e );
+  }
 
   // Cleanup the eq-classes generated during expExplain
   if ( !res )
