@@ -365,6 +365,19 @@ void nra_solver::handle_sat_case(box const & b) const {
         }
         display(config.nra_model_out, b, false, true);
     }
+    // --visualize option
+    if (config.nra_json) {
+        // Need to run ODE pruning operator once again to generate a trace
+        for (constraint * const ctr : m_stack) {
+            if (ctr->get_type() == constraint_type::ODE) {
+                contractor_capd_fwd_full fwd_full(b, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size);
+                Json trace = fwd_full.generate_trace(b, config);
+                config.nra_json_out << trace.dump() << endl;;
+            }
+        }
+    }
+
+    // For API call
     b.assign_to_enode();
     return;
 }

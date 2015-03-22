@@ -500,6 +500,18 @@ box contractor_capd_fwd_full::prune(box b, SMTConfig &) const {
     }
     return b;
 }
+
+json11::Json contractor_capd_fwd_full::generate_trace(box, SMTConfig &) const {
+    // TODO(soonhok): implement this
+    // Json my_json = Json::object {
+    //     { "key1", "value1" },
+    //     { "key2", false },
+    //     { "key3", Json::array { 1, 2, 3 } },
+    // };
+    // return my_json;
+    throw std::runtime_error("generate_trace is not yet implemented.");
+}
+
 ostream & contractor_capd_fwd_full::display(ostream & out) const {
     out << "contractor_capd_fwd("
         << *m_ctr
