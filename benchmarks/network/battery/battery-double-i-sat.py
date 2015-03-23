@@ -39,7 +39,7 @@ state_dec[0] = """
 """
 
 state_val[0] = """
-(assert (<= 0 time_{0}))  (assert (<= time_{0} 20))
+(assert (<= 0 time_{0}))  (assert (<= time_{0} 0.01))
 (assert (<= 0 tau_{0}_0)) (assert (<= tau_{0}_0 50))
 (assert (<= 0 tau_{0}_t)) (assert (<= tau_{0}_t 50))
 (assert (<= -10 d1_{0}_0)) (assert (<= d1_{0}_0 10))
@@ -50,28 +50,14 @@ state_val[0] = """
 (assert (<= -10 d2_{0}_t)) (assert (<= d2_{0}_t 10))
 (assert (<= -10 g2_{0}_0)) (assert (<= g2_{0}_0 10))
 (assert (<= -10 g2_{0}_t)) (assert (<= g2_{0}_t 10))
-(assert (and (not (and (= mode_1_{0} 1) (= mode_1_{0} 2))) (not (and (= mode_1_{0} 1) (= mode_1_{0} 3))) (not (and (= mode_1_{0} 1) (= mode_1_{0} 4)))
-             (not (and (= mode_1_{0} 2) (= mode_1_{0} 3))) (not (and (= mode_1_{0} 2) (= mode_1_{0} 4)))
-             (not (and (= mode_1_{0} 3) (= mode_1_{0} 4)))))
-(assert (and (not (and (= mode_2_{0} 1) (= mode_2_{0} 2))) (not (and (= mode_2_{0} 1) (= mode_2_{0} 3))) (not (and (= mode_2_{0} 1) (= mode_2_{0} 4)))
-             (not (and (= mode_2_{0} 2) (= mode_2_{0} 3))) (not (and (= mode_2_{0} 2) (= mode_2_{0} 4)))
-             (not (and (= mode_2_{0} 3) (= mode_2_{0} 4)))))
 (assert (or 
-  (and (= mode_1_{0} 4) (= mode_2_{0} 4))
-  (and (= mode_1_{0} 3) (= mode_2_{0} 2))
-  (and (= mode_1_{0} 3) (= mode_2_{0} 1))
-  (and (= mode_1_{0} 2) (= mode_2_{0} 3))
-  (and (= mode_1_{0} 1) (= mode_2_{0} 3))
-  (and (= mode_1_{0} 1) (= mode_2_{0} 1))))
+  (and (= mode_1_{0} 4) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 3)) (= mode_2_{0} 4) (not (= mode_2_{0} 1)) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 3)))
+  (and (= mode_1_{0} 3) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 4)) (= mode_2_{0} 2) (not (= mode_2_{0} 1)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 3)))
+  (and (= mode_1_{0} 3) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 4)) (= mode_2_{0} 1) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 3)))
+  (and (= mode_1_{0} 2) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 3)) (not (= mode_1_{0} 4)) (= mode_2_{0} 3) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 1)))
+  (and (= mode_1_{0} 1) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 3)) (not (= mode_1_{0} 4)) (= mode_2_{0} 3) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 1)))
+  (and (= mode_1_{0} 1) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 3)) (not (= mode_1_{0} 4)) (= mode_2_{0} 1) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 3)))))
 """
-
-## (assert (or 
-##   (and (= mode_1_{0} 4) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 3)) (= mode_2_{0} 4) (not (= mode_2_{0} 1)) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 3)))
-##   (and (= mode_1_{0} 3) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 4)) (= mode_2_{0} 2) (not (= mode_2_{0} 1)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 3)))
-##   (and (= mode_1_{0} 3) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 4)) (= mode_2_{0} 1) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 3)))
-##   (and (= mode_1_{0} 2) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 3)) (not (= mode_1_{0} 4)) (= mode_2_{0} 3) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 1)))
-##   (and (= mode_1_{0} 1) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 3)) (not (= mode_1_{0} 4)) (= mode_2_{0} 3) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 1)))
-##   (and (= mode_1_{0} 1) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 3)) (not (= mode_1_{0} 4)) (= mode_2_{0} 1) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 3)))))
 
 cont_cond[0] = ["""
 (assert (or
@@ -123,7 +109,7 @@ init_cond = """
 """
 
 goal_cond = """
-(assert (and (>= tau_{0}_t 10)
+(assert (and (>= tau_{0}_t 0.01)
              (not (and (= mode_1_{0} 1) 
                        (= mode_2_{0} 1)))))
 """

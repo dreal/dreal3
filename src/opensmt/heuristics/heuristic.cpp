@@ -52,10 +52,19 @@ namespace dreal{
 
   Lit heuristic::getSuggestion(){
   DREAL_LOG_INFO << "heuristic::getSuggestion()";
-    if (!m_is_initialized || m_suggestions.empty()){
-      getSuggestions();
-    }
-    if (!m_suggestions.empty()){
+ 
+  if(!m_is_initialized)
+    return lit_Undef;
+
+  if (trail->size() > lastTrailEnd){
+    pushTrailOnStack();
+    //}
+
+    //if (!m_is_initialized ||  backtracked){
+    getSuggestions();
+    backtracked = false;
+  }
+  if (!m_suggestions.empty()){
       std::pair<Enode *, bool> *s = m_suggestions.back();
       m_suggestions.pop_back();
       Enode *e = s->first;
@@ -79,4 +88,47 @@ namespace dreal{
 
   void heuristic::getSuggestions(){
   }
+
+  void heuristic::displayTrail(){
+    int indx_low = 0;
+    int indx_high = 0;
+    //DREAL_LOG_INFO << "Trail size = " << trail->size() << " " << trail_lim->size();
+    DREAL_LOG_INFO << " -- Start Trail --";
+   for (int level = 0; level <= trail_lim->size(); level++){
+      if (level > 0){
+        indx_low = (*trail_lim)[level-1];
+      }
+      indx_high = (trail_lim->size() == level  ? trail->size() : (*trail_lim)[level]);
+
+      DREAL_LOG_INFO << " -- LEVEL " << level << " (" << indx_low << ", " << indx_high << ") -- ";
+      for (int i = indx_low; i < indx_high; i++){
+	//DREAL_LOG_INFO << i << " " << var((*trail)[i]);
+        if (var((*trail)[i]) > 1) // 0 and 1 are false and true
+          DREAL_LOG_INFO << i << ":\t"<<  theory_handler->varToEnode(var((*trail)[i])) << " = " << !sign((*trail)[i]);
+      }
+    }
+   DREAL_LOG_INFO << " -- End Trail --";
+  }
+
+
+  void heuristic::displayStack(){
+   int indx_low = 0;
+    int indx_high = 0;
+    //DREAL_LOG_INFO << "Trail size = " << trail->size() << " " << trail_lim->size();
+    DREAL_LOG_INFO << " -- Start Stack --";
+   for (int level = 0; level <= m_stack_lim.size(); level++){
+      if (level > 0){
+        indx_low = m_stack_lim[level-1];
+      }
+      indx_high = (m_stack_lim.size() == level  ? m_stack.size() : m_stack_lim[level]);
+
+      DREAL_LOG_INFO << " -- LEVEL " << level << " (" << indx_low << ", " << indx_high << ") -- ";
+      for (int i = indx_low; i < indx_high; i++){
+	DREAL_LOG_INFO << i << ":\t"<<  m_stack[i]->first << " = " << m_stack[i]->second;
+      }
+    }
+   DREAL_LOG_INFO << " -- End Stack --";
+  }
+
+  void heuristic::pushTrailOnStack(){}
 }
