@@ -74,15 +74,15 @@ public:
     double getCost(int autom, int i) { return (*m_cost[autom])[i];  }
 
  protected:
- void getSuggestions();
-private:
+    void getSuggestions();
+    void pushTrailOnStack();
+
+ private:
     int num_autom;
     vector<vector<set<int>*>*> predecessors;
     vector<vector< double >*>  m_cost;
-    // vector< Enode * > m_suggestions;
     vector<int> m_init_mode;
     vector<vector<int>*> m_goal_modes;
-    // bool m_is_initialized;
     vector<pair<int, vector<int>*>*> m_decision_stack;
     int m_depth;
     vector<Enode*> default_false_suggestions;
@@ -90,6 +90,10 @@ private:
     vector<map< Enode *, pair<int, int>* >*> mode_literals;
     vector<vector< vector< Enode* >* >*> time_mode_enodes;
     vector<vector< vector< Enode* >* >*> time_mode_integral_enodes;
+    bool isStackConsistentWithSuggestion();
+
+    set<Enode*> mode_enodes;
+
     Egraph * m_egraph;
     // vector<int> * last_decision;
 

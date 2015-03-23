@@ -243,6 +243,7 @@ void plan_heuristic::inform(Enode * e){
       delete s;
       lastTrailEnd--;
     }
+    backtracked = true;
     // displayTrail();
   }
 
@@ -252,24 +253,6 @@ void plan_heuristic::inform(Enode * e){
     getSuggestions();
   }
 
-  void plan_heuristic::displayTrail(){
-    int indx_low = 0;
-    int indx_high;
-    DREAL_LOG_INFO << "Trail size = " << trail->size();
-    for (int level = 0; level <= trail_lim->size(); level++){
-      if (level > 0){
-        indx_low = (*trail_lim)[level-1];
-      }
-      indx_high = (*trail_lim)[level];
-
-      DREAL_LOG_INFO << " -- LEVEL " << level << " (" << indx_low << ", " << indx_high << ") -- ";
-      for (int i = indx_low; i <= indx_high; i++){
-        // DREAL_LOG_INFO << i << " " << var((*trail)[i]);
-        if (var((*trail)[i]) > 1) // 0 and 1 are false and true
-          DREAL_LOG_INFO << theory_handler->varToEnode(var((*trail)[i]));
-      }
-    }
-  }
 
   void plan_heuristic::pushTrailOnStack(){
     DREAL_LOG_INFO << "plan_heuristic::pushTrailOnStack() lastTrailEnd = "

@@ -428,6 +428,7 @@ void CoreSMTSolver::cancelUntil(int level)
 	heuristic.backtrack();
       }
     }
+    heuristic->backtrack();      
   }
 }
 
