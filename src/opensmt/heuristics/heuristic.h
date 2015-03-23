@@ -31,7 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
   class heuristic {
   public:
-  heuristic() : m_is_initialized(false) {}
+  heuristic() : m_is_initialized(false), backtracked(false), lastTrailEnd(2) {}
     virtual ~heuristic();
     virtual void initialize(SMTConfig &, Egraph &, THandler* thandler,
 		    vec<Lit> *trail, vec<int> *trail_lim);
@@ -41,10 +41,21 @@ namespace dreal {
 
   protected:
     virtual void getSuggestions();
+    virtual void pushTrailOnStack();
 
-    bool m_is_initialized;
-    vector<std::pair<Enode*, bool>*> m_suggestions;
     THandler *theory_handler;
+    bool m_is_initialized;
+    bool backtracked;
+    vector<std::pair<Enode*, bool>*> m_suggestions;
     vector < std::pair<Enode*, bool>* > m_stack;
+    vector<int> m_stack_lim;
+    vec<Lit> *trail;
+    vec<int> *trail_lim;
+    int lastTrailEnd;
+    int m_depth;
+    void displayTrail();
+    void displayStack();
+    Egraph * m_egraph;
+    set<Enode*> stack_literals;
   };
 }
