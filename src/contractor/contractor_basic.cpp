@@ -297,25 +297,25 @@ ostream & contractor_int::display(ostream & out) const {
     return out;
 }
 
-contractor_eval::contractor_eval(box const & box, algebraic_constraint const * const ctr)
-    : contractor_cell(contractor_kind::EVAL), m_alg_ctr(ctr) {
-    m_used_constraints.insert(m_alg_ctr);
+contractor_eval::contractor_eval(box const & box, nonlinear_constraint const * const ctr)
+    : contractor_cell(contractor_kind::EVAL), m_nl_ctr(ctr) {
+    m_used_constraints.insert(m_nl_ctr);
     // // Set up input
-    auto const & var_array = m_alg_ctr->get_var_array();
+    auto const & var_array = m_nl_ctr->get_var_array();
     for (int i = 0; i < var_array.size(); i++) {
         m_input.add(box.get_index(var_array[i].name));
     }
 }
 
 box contractor_eval::prune(box b, SMTConfig &) const {
-    pair<bool, ibex::Interval> eval_result = m_alg_ctr->eval(b);
+    pair<bool, ibex::Interval> eval_result = m_nl_ctr->eval(b);
     if (!eval_result.first) {
         b.set_empty();
     }
     return b;
 }
 ostream & contractor_eval::display(ostream & out) const {
-    out << "contractor_eval(" << *m_alg_ctr << ")";
+    out << "contractor_eval(" << *m_nl_ctr << ")";
     return out;
 }
 
@@ -362,9 +362,9 @@ box contractor_sample::prune(box b, SMTConfig &) const {
         DREAL_LOG_DEBUG << "contractor_sample::prune -- sample " << ++count << "th point = " << p;
         bool check = true;
         for (constraint * const ctr : m_ctrs) {
-            if (ctr->get_type() == constraint_type::Algebraic) {
-                algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
-                pair<bool, ibex::Interval> eval_result = alg_ctr->eval(p);
+            if (ctr->get_type() == constraint_type::Nonlinear) {
+                nonlinear_constraint const * const nl_ctr = dynamic_cast<nonlinear_constraint *>(ctr);
+                pair<bool, ibex::Interval> eval_result = nl_ctr->eval(p);
                 if (!eval_result.first) {
                     check = false;
                     DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " does not satisfy " << *ctr;
@@ -394,11 +394,11 @@ box contractor_aggressive::prune(box b, SMTConfig &) const {
     set<box> points = b.sample_points(m_num_samples);
     // ∃c. ∀p. eval(c, p) = false   ===>  UNSAT
     for (constraint * const ctr : m_ctrs) {
-        if (ctr->get_type() == constraint_type::Algebraic) {
-            algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
+        if (ctr->get_type() == constraint_type::Nonlinear) {
+            nonlinear_constraint const * const nl_ctr = dynamic_cast<nonlinear_constraint *>(ctr);
             bool check = false;
             for (box const & p : points) {
-                pair<bool, ibex::Interval> eval_result = alg_ctr->eval(p);
+                pair<bool, ibex::Interval> eval_result = nl_ctr->eval(p);
                 if (eval_result.first) {
                     check = true;
                     break;
@@ -406,8 +406,8 @@ box contractor_aggressive::prune(box b, SMTConfig &) const {
             }
             if (!check) {
                 m_used_constraints.insert(ctr);
-                pair<bool, ibex::Interval> eval_result = alg_ctr->eval(b);
-                DREAL_LOG_DEBUG << "Constraint: " << *alg_ctr << " is violated by all " << points.size() << " points";
+                pair<bool, ibex::Interval> eval_result = nl_ctr->eval(b);
+                DREAL_LOG_DEBUG << "Constraint: " << *nl_ctr << " is violated by all " << points.size() << " points";
                 DREAL_LOG_DEBUG << "FYI, the interval evaluation gives us : " << eval_result.second;
                 b.set_empty();
                 return b;
@@ -457,8 +457,8 @@ contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box
 contractor mk_contractor_int() {
     return contractor(make_shared<contractor_int>());
 }
-contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr) {
-    static thread_local unordered_map<algebraic_constraint const *, contractor> cache;
+contractor mk_contractor_eval(box const & box, nonlinear_constraint const * const ctr) {
+    static thread_local unordered_map<nonlinear_constraint const *, contractor> cache;
     auto const it = cache.find(ctr);
     if (it == cache.cend()) {
         contractor ctc(make_shared<contractor_eval>(box, ctr));

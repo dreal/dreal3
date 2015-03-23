@@ -49,7 +49,7 @@ using std::vector;
 using std::queue;
 
 namespace dreal {
-ibex::SystemFactory* build_system_factory(box const & box, vector<algebraic_constraint const *> const & ctrs) {
+ibex::SystemFactory* build_system_factory(box const & box, vector<nonlinear_constraint const *> const & ctrs) {
     DREAL_LOG_DEBUG << "build_system_factory:";
     ibex::SystemFactory * sf = new ibex::SystemFactory();
     unordered_map<string, ibex::Variable const> var_map;  // Needed for translateEnodeToExprCtr
@@ -75,7 +75,7 @@ ibex::SystemFactory* build_system_factory(box const & box, vector<algebraic_cons
     // Construct System: add constraints
     thread_local static unordered_map<Enode *, ibex::ExprCtr const *> tls_exprctr_cache_pos;
     thread_local static unordered_map<Enode *, ibex::ExprCtr const *> tls_exprctr_cache_neg;
-    for (algebraic_constraint const * ctr : ctrs) {
+    for (nonlinear_constraint const * ctr : ctrs) {
         DREAL_LOG_INFO << "build_system_factory: Add Constraint: " << *ctr;
         Enode * e = ctr->get_enodes()[0];
         auto p = e->getPolarity();
@@ -132,7 +132,7 @@ ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_se
     return ret;
 }
 
-contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr)
+contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr)
     : contractor_cell(contractor_kind::IBEX_FWDBWD, box.size()), m_ctr(ctr),
       m_numctr(ctr->get_numctr()), m_var_array(ctr->get_var_array()) {
     if (m_numctr) {
@@ -244,7 +244,7 @@ void contractor_ibex_polytope::init(box const & box) const {
     DREAL_LOG_DEBUG << "contractor_ibex_polytope: DONE";
 }
 
-contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<algebraic_constraint const *> const & ctrs)
+contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<nonlinear_constraint const *> const & ctrs)
     : contractor_cell(contractor_kind::IBEX_POLYTOPE), m_ctrs(ctrs), m_prec(prec) {
 }
 
@@ -292,12 +292,12 @@ ostream & contractor_ibex_polytope::display(ostream & out) const {
     return out;
 }
 
-contractor mk_contractor_ibex_polytope(double const prec, vector<algebraic_constraint const *> const & ctrs) {
+contractor mk_contractor_ibex_polytope(double const prec, vector<nonlinear_constraint const *> const & ctrs) {
     return contractor(make_shared<contractor_ibex_polytope>(prec, ctrs));
 }
 
-contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr) {
-    static thread_local unordered_map<algebraic_constraint const *, contractor> cache;
+contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr) {
+    static thread_local unordered_map<nonlinear_constraint const *, contractor> cache;
     auto const it = cache.find(ctr);
     if (it == cache.cend()) {
         contractor ctc(make_shared<contractor_ibex_fwdbwd>(box, ctr));

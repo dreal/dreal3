@@ -113,11 +113,10 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
 std::vector<constraint *> nra_solver::initialize_constraints() {
     std::vector<constraint *> ctrs;
 
-    // Collect Algebraic constraints.
-    // Partition ODE-related constraint into integrals and forallTs
     std::vector<integral_constraint> ints;
     std::vector<forallt_constraint> invs;
     for (Enode * l : m_lits) {
+        // Partition ODE-related constraint into integrals and forallTs
         if (l->isIntegral()) {
             integral_constraint ic = mk_integral_constraint(l, egraph.flow_maps);
             ints.push_back(ic);
@@ -125,14 +124,15 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
             forallt_constraint fc = mk_forallt_constraint(l);
             invs.push_back(fc);
         } else {
-            algebraic_constraint * ac_pos = new algebraic_constraint(l, l_True);
-            algebraic_constraint * ac_neg = new algebraic_constraint(l, l_False);
-            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect AlgebraicConstraint (+): " << *ac_pos;
-            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect AlgebraicConstraint (-): " << *ac_neg;
-            ctrs.push_back(ac_pos);
-            ctrs.push_back(ac_neg);
-            m_ctr_map.emplace(make_pair(l, true),  ac_pos);
-            m_ctr_map.emplace(make_pair(l, false), ac_neg);
+            // Collect Nonlinear constraints.
+            nonlinear_constraint * nc_pos = new nonlinear_constraint(l, l_True);
+            nonlinear_constraint * nc_neg = new nonlinear_constraint(l, l_False);
+            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (+): " << *nc_pos;
+            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (-): " << *nc_neg;
+            ctrs.push_back(nc_pos);
+            ctrs.push_back(nc_neg);
+            m_ctr_map.emplace(make_pair(l, true),  nc_pos);
+            m_ctr_map.emplace(make_pair(l, false), nc_neg);
         }
     }
     // Attach the corresponding forallT literals to integrals
@@ -163,27 +163,27 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
 }
 
 contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *> const &ctrs, bool const complete) {
-    vector<algebraic_constraint const *> alg_ctrs;
-    vector<contractor> alg_ctcs;
-    alg_ctcs.reserve(ctrs.size());
-    vector<contractor> alg_eval_ctcs;
-    alg_eval_ctcs.reserve(ctrs.size());
+    vector<nonlinear_constraint const *> nl_ctrs;
+    vector<contractor> nl_ctcs;
+    nl_ctcs.reserve(ctrs.size());
+    vector<contractor> nl_eval_ctcs;
+    nl_eval_ctcs.reserve(ctrs.size());
     vector<contractor> ode_ctcs;
     ode_ctcs.reserve(ctrs.size());
     // Add contractor_sample if --sample option is used
     if (config.nra_sample > 0 && complete) {
-        alg_ctcs.push_back(mk_contractor_sample(config.nra_sample, ctrs.get_vec()));
+        nl_ctcs.push_back(mk_contractor_sample(config.nra_sample, ctrs.get_vec()));
     }
     for (constraint * const ctr : ctrs) {
-        if (ctr->get_type() == constraint_type::Algebraic) {
-            algebraic_constraint const * const alg_ctr = dynamic_cast<algebraic_constraint *>(ctr);
-            if (alg_ctr->get_numctr()) {
-                alg_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, alg_ctr));
-                alg_ctrs.push_back(alg_ctr);
+        if (ctr->get_type() == constraint_type::Nonlinear) {
+            nonlinear_constraint const * const nl_ctr = dynamic_cast<nonlinear_constraint *>(ctr);
+            if (nl_ctr->get_numctr()) {
+                nl_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, nl_ctr));
+                nl_ctrs.push_back(nl_ctr);
             } else {
                 // This is identity, do nothing
             }
-            alg_eval_ctcs.push_back(mk_contractor_eval(box, alg_ctr));
+            nl_eval_ctcs.push_back(mk_contractor_eval(box, nl_ctr));
         } else if (ctr->get_type() == constraint_type::ODE) {
             // TODO(soonhok): add heuristics to choose fwd/bwd
             // TODO(soonhok): perform ODE only for complete check
@@ -196,12 +196,12 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         }
     }
     if (config.nra_polytope) {
-        alg_ctcs.push_back(mk_contractor_ibex_polytope(config.nra_precision, alg_ctrs));
+        nl_ctcs.push_back(mk_contractor_ibex_polytope(config.nra_precision, nl_ctrs));
     }
-    alg_ctcs.push_back(mk_contractor_int());
+    nl_ctcs.push_back(mk_contractor_int());
     // Add contractor_sample if --sample option is used
     if (config.nra_aggressive > 0 && complete) {
-        alg_ctcs.push_back(mk_contractor_sample(config.nra_aggressive, ctrs.get_vec()));
+        nl_ctcs.push_back(mk_contractor_sample(config.nra_aggressive, ctrs.get_vec()));
     }
 
     auto term_cond = [this](dreal::box const & old_box, dreal::box const & new_box) {
@@ -215,7 +215,7 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         double const improvement = 1.00 - (new_volume / old_volume);
         return improvement < threshold;
     };
-    return mk_contractor_fixpoint(config.nra_precision, term_cond, alg_ctcs, ode_ctcs, alg_eval_ctcs);
+    return mk_contractor_fixpoint(config.nra_precision, term_cond, nl_ctcs, ode_ctcs, nl_eval_ctcs);
 }
 
 // Saves a backtrack point You are supposed to keep track of the

@@ -35,7 +35,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dreal {
 
-enum class constraint_type { Algebraic, ODE, Integral, ForallT };
+enum class constraint_type { Nonlinear, ODE, Integral, ForallT };
 std::ostream & operator<<(std::ostream & out, constraint_type const & ty);
 
 class constraint {
@@ -59,7 +59,7 @@ public:
 
 std::ostream & operator<<(ostream & out, constraint const & c);
 
-class algebraic_constraint : public constraint {
+class nonlinear_constraint : public constraint {
 private:
     Enode * const m_enode;
     ibex::ExprCtr const * m_exprctr;
@@ -69,8 +69,8 @@ private:
     std::pair<bool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
 
 public:
-    explicit algebraic_constraint(Enode * const e, lbool p = l_Undef);
-    virtual ~algebraic_constraint();
+    explicit nonlinear_constraint(Enode * const e, lbool p = l_Undef);
+    virtual ~nonlinear_constraint();
     virtual std::ostream & display(std::ostream & out) const;
     std::pair<bool, ibex::Interval> eval(box const & b) const;
     inline ibex::ExprCtr const * get_exprctr() const { return m_exprctr; }

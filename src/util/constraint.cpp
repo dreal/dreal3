@@ -48,8 +48,8 @@ namespace dreal {
 
 ostream & operator<<(ostream & out, constraint_type const & ty) {
     switch (ty) {
-    case constraint_type::Algebraic:
-        out << "Algebraic";
+    case constraint_type::Nonlinear:
+        out << "Nonlinear";
         break;
     case constraint_type::ODE:
         out << "ODE";
@@ -99,10 +99,10 @@ ostream & operator<<(ostream & out, constraint const & c) {
 }
 
 // ====================================================
-// Algebraic constraint
+// Nonlinear constraint
 // ====================================================
-algebraic_constraint::algebraic_constraint(Enode * const e, lbool p)
-    : constraint(constraint_type::Algebraic, e), m_enode(e), m_exprctr(nullptr), m_numctr(nullptr), m_numctr_ineq(nullptr) {
+nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p)
+    : constraint(constraint_type::Nonlinear, e), m_enode(e), m_exprctr(nullptr), m_numctr(nullptr), m_numctr_ineq(nullptr) {
     unordered_map<string, ibex::Variable const> var_map;
     bool is_ineq = (p == l_False && e->isEq());
     p = is_ineq ? true : p;
@@ -122,16 +122,16 @@ algebraic_constraint::algebraic_constraint(Enode * const e, lbool p)
     } else {
         m_numctr = new ibex::NumConstraint(m_var_array, *m_exprctr);
     }
-    DREAL_LOG_INFO << "algebraic_constraint: "<< *this;
+    DREAL_LOG_INFO << "nonlinear_constraint: "<< *this;
 }
 
-algebraic_constraint::~algebraic_constraint() {
+nonlinear_constraint::~nonlinear_constraint() {
     if (m_numctr) { delete m_numctr; }
     if (m_numctr_ineq) { delete m_numctr_ineq; }
     if (m_exprctr) { delete m_exprctr; }
 }
-ostream & algebraic_constraint::display(ostream & out) const {
-    out << "algebraic_constraint ";
+ostream & nonlinear_constraint::display(ostream & out) const {
+    out << "nonlinear_constraint ";
     if (m_numctr) {
         out << *m_numctr;
     } else {
@@ -140,7 +140,7 @@ ostream & algebraic_constraint::display(ostream & out) const {
     return out;
 }
 
-pair<bool, ibex::Interval> algebraic_constraint::eval(ibex::IntervalVector const & iv) const {
+pair<bool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector const & iv) const {
     bool sat = true;
     ibex::Interval result;
     if (m_numctr) {
@@ -169,7 +169,7 @@ pair<bool, ibex::Interval> algebraic_constraint::eval(ibex::IntervalVector const
         sat = !(result.lb() == 0 && result.ub() == 0);
     }
     if (DREAL_LOG_DEBUG_IS_ON && !sat) {
-        DREAL_LOG_DEBUG << "algebraic_constraint::eval: unsat detected";
+        DREAL_LOG_DEBUG << "nonlinear_constraint::eval: unsat detected";
         DREAL_LOG_DEBUG << "\t" << *this;
         DREAL_LOG_DEBUG << "input: " << iv;
         DREAL_LOG_DEBUG << "output:" << result;
@@ -177,7 +177,7 @@ pair<bool, ibex::Interval> algebraic_constraint::eval(ibex::IntervalVector const
     return make_pair(sat, ibex::Interval());
 }
 
-pair<bool, ibex::Interval> algebraic_constraint::eval(box const & b) const {
+pair<bool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
     // Construct iv from box b
     ibex::IntervalVector iv(m_var_array.size());
     for (int i = 0; i < m_var_array.size(); i++) {

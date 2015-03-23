@@ -35,13 +35,13 @@ namespace dreal {
 
 class contractor_ibex_fwdbwd : public contractor_cell {
 private:
-    algebraic_constraint const * m_ctr;
+    nonlinear_constraint const * m_ctr;
     ibex::NumConstraint const * m_numctr;
     ibex::Array<ibex::ExprSymbol const> const & m_var_array;
     ibex::CtcFwdBwd * m_ctc = nullptr;
 
 public:
-    contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
+    contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
     ~contractor_ibex_fwdbwd();
     box prune(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
@@ -50,7 +50,7 @@ public:
 // contractor_ibex_polytope : contractor using IBEX POLYTOPE
 class contractor_ibex_polytope : public contractor_cell {
 private:
-    vector<algebraic_constraint const *> m_ctrs;
+    vector<nonlinear_constraint const *> m_ctrs;
     double const                         m_prec;
 
     // TODO(soonhok): this is a hack to avoid const problem, we need to fix them
@@ -64,13 +64,13 @@ private:
     void init(box const & box) const;
 
 public:
-    contractor_ibex_polytope(double const prec, std::vector<algebraic_constraint const *> const & ctrs);
+    contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
     ~contractor_ibex_polytope();
     box prune(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
-contractor mk_contractor_ibex_polytope(double const prec, std::vector<algebraic_constraint const *> const & ctrs);
-contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
+contractor mk_contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
+contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
 
 }  // namespace dreal

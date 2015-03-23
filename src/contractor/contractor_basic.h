@@ -91,8 +91,8 @@ public:
     inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
     inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
 
-    friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<algebraic_constraint const *> const & ctrs);
-    friend contractor mk_contractor_ibex_fwdbwd(box const & box, algebraic_constraint const * const ctr);
+    friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
+    friend contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
     friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
     friend contractor mk_contractor_try(contractor const & c);
     friend contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
@@ -101,7 +101,7 @@ public:
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
     friend contractor mk_contractor_int();
-    friend contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr);
+    friend contractor mk_contractor_eval(box const & box, nonlinear_constraint const * const ctr);
     friend contractor mk_contractor_cache(contractor const & ctc);
     friend contractor mk_contractor_sample(unsigned const n, vector<constraint *> const & ctrs);
     friend contractor mk_contractor_aggressive(unsigned const n, vector<constraint *> const & ctrs);
@@ -191,9 +191,9 @@ public:
 
 class contractor_eval : public contractor_cell {
 private:
-    algebraic_constraint const * const m_alg_ctr;
+    nonlinear_constraint const * const m_nl_ctr;
 public:
-    contractor_eval(box const & box, algebraic_constraint const * const ctr);
+    contractor_eval(box const & box, nonlinear_constraint const * const ctr);
     box prune(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -240,7 +240,7 @@ contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &
 contractor mk_contractor_fixpoint(double const p, std::function<bool(box const &, box const &)> guard,
                                   std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2, std::vector<contractor> const & cvec3);
 contractor mk_contractor_int();
-contractor mk_contractor_eval(box const & box, algebraic_constraint const * const ctr);
+contractor mk_contractor_eval(box const & box, nonlinear_constraint const * const ctr);
 contractor mk_contractor_cache(contractor const & ctc);
 contractor mk_contractor_sample(unsigned const n, vector<constraint *> const & ctrs);
 contractor mk_contractor_aggressive(unsigned const n, vector<constraint *> const & ctrs);
