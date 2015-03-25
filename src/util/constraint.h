@@ -35,7 +35,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dreal {
 
-enum class constraint_type { Nonlinear, ODE, Integral, ForallT };
+enum class constraint_type { Nonlinear, ODE, Integral, ForallT, Forall, Exists };
 std::ostream & operator<<(std::ostream & out, constraint_type const & ty);
 
 class constraint {
@@ -143,4 +143,27 @@ public:
     virtual ~ode_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
+
+class forall_constraint : public constraint {
+private:
+    std::vector<nonlinear_constraint> m_ctrs;
+    std::vector<Enode *> m_vars;
+public:
+    forall_constraint(Enode * const e, lbool const p);
+    virtual ~forall_constraint();
+    virtual std::ostream & display(std::ostream & out) const;
+};
+
+class exists_constraint : public constraint {
+private:
+    std::vector<nonlinear_constraint> m_ctrs;
+    std::vector<Enode *> m_vars;
+public:
+    exists_constraint(Enode * const e, lbool const p);
+    virtual ~exists_constraint();
+    virtual std::ostream & display(std::ostream & out) const;
+};
+
+constraint * mk_quantified_constraint(Enode * const e, lbool const p);
+
 }  // namespace dreal

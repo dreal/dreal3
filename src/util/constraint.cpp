@@ -34,6 +34,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 
 using std::back_inserter;
+using std::cerr;
 using std::copy;
 using std::endl;
 using std::initializer_list;
@@ -60,8 +61,12 @@ ostream & operator<<(ostream & out, constraint_type const & ty) {
     case constraint_type::ForallT:
         out << "ForallT";
         break;
-    default:
-        throw std::logic_error("unmatched case in ostream & operator<<(ostream & out, constraint_type const & ty)");
+    case constraint_type::Forall:
+        out << "Forall";
+        break;
+    case constraint_type::Exists:
+        out << "Exists";
+        break;
     }
     return out;
 }
@@ -103,6 +108,8 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // ====================================================
 nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p)
     : constraint(constraint_type::Nonlinear, e), m_enode(e), m_exprctr(nullptr), m_numctr(nullptr), m_numctr_ineq(nullptr) {
+    cerr << "nonlinear_constraint::nonlinear_constraint(" << e << ")" << endl;
+
     unordered_map<string, ibex::Variable const> var_map;
     bool is_ineq = (p == l_False && e->isEq());
     p = is_ineq ? true : p;
@@ -317,4 +324,83 @@ ostream & forallt_constraint::display(ostream & out) const {
     out << "\t" << "inv : " << m_inv << endl;
     return out;
 }
+
+// ====================================================
+// Forall constraint
+// ====================================================
+forall_constraint::forall_constraint(Enode * const e, lbool const p)
+    : constraint(constraint_type::Forall, e) {
+    cerr << "forall_constraint : " << e << endl;
+    Enode * const formula = e->get1st();
+    Enode * const vars = e->getCdr()->getCdr();
+
+    if (formula->isAnd()) {
+        Enode * elist = formula->getCdr();
+        while (!elist->isEnil()) {
+            Enode * head = elist->getCar();
+            lbool head_p = p;
+            if (head->isNot()) {
+                head = head->get1st();
+                head_p = head_p == l_True ? l_False : l_True;
+            }
+            cerr << "add: " << head << " : " << (head_p == l_True) << endl;
+            m_ctrs.emplace_back(head, head_p);
+            elist = elist->getCdr();
+        }
+    }
+    cerr << "formula = " << formula << endl;
+    cerr << "vars    = " << vars << endl;
+    cerr << "polarity= " << (p == l_True) << endl;
+    cerr << *this << endl;;
+    cerr << "===============" << endl;
+}
+forall_constraint::~forall_constraint() {
+}
+ostream & forall_constraint::display(ostream & out) const {
+    out << "forall_constraint = " << m_enodes[0] << endl;
+    out << "display!" << m_ctrs.size() << endl;
+    for (constraint const & ctr : m_ctrs) {
+        out << "\t" << ctr << endl;
+    }
+    return out;
+}
+
+// ====================================================
+// Exists constraint
+// ====================================================
+exists_constraint::exists_constraint(Enode * const e, lbool const p)
+    : constraint(constraint_type::Exists, e) {
+    cerr << "exists_constraint" << endl;
+    Enode * const formula = e->get1st();
+    Enode * const vars = e->getCdr()->getCdr();
+    cerr << "formula = " << formula << endl;
+    cerr << "vars    = " << vars << endl;
+    cerr << "polarity= " << (p == l_True) << endl;
+    cerr << *this << endl;;
+    cerr << "===============" << endl;
+}
+exists_constraint::~exists_constraint() {
+}
+ostream & exists_constraint::display(ostream & out) const {
+    out << "exists_constraint = " << m_enodes[0] << endl;
+    for (constraint const & ctr : m_ctrs) {
+        out << "\t" << ctr << endl;
+    }
+    return out;
+}
+
+constraint * mk_quantified_constraint(Enode * const e, lbool const p) {
+    assert(e);
+    DREAL_LOG_INFO << "mk_quantified_constraint: " << e;
+    assert(e->isForall() || e->isExists());
+    assert(p == l_True || p == l_False);
+    if ((e->isForall() && p == l_True) || (e->isExists() && p == l_False)) {
+        return new forall_constraint(e, p);
+    } else {
+        assert((e->isExists() && p == l_True) || (e->isForall() && p == l_False));
+        return new exists_constraint(e, p);
+    }
+    return nullptr;
+}
+
 }  // namespace dreal
