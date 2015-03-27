@@ -323,32 +323,49 @@ endif()
 ################################################################
 include_directories(${DREAL_SOURCE_DIR})
 include_directories(${DREAL_SOURCE_DIR}/opensmt)
-set(DREAL_LIBS ${DREAL_LIBS} opensmt_api)
-set(DREAL_LIBS ${DREAL_LIBS} opensmt_cnfizers)
-set(DREAL_LIBS ${DREAL_LIBS} opensmt_common)
-set(DREAL_LIBS ${DREAL_LIBS} opensmt_egraph)
-set(DREAL_LIBS ${DREAL_LIBS} opensmt_emptysolver)
-set(DREAL_LIBS ${DREAL_LIBS} opensmt_simplifiers)
-set(DREAL_LIBS ${DREAL_LIBS} opensmt_smt2parser)
-set(DREAL_LIBS ${DREAL_LIBS} opensmt_smtsolvers)
-set(DREAL_LIBS ${DREAL_LIBS} opensmt_sorts)
-set(DREAL_LIBS ${DREAL_LIBS} opensmt_tsolvers)
 configure_file("${DREAL_SOURCE_DIR}/version.h.in" "${DREAL_BINARY_DIR}/version.h")
 configure_file("${DREAL_SOURCE_DIR}/config.h.in" "${DREAL_BINARY_DIR}/config.h")
 include_directories("${DREAL_BINARY_DIR}")
 add_subdirectory(opensmt)
+################################################################
+# PARSER
+################################################################
+# Create custom command for flex/lex (note the outputs)
+ADD_CUSTOM_COMMAND(
+  COMMAND ${FLEX_EXECUTABLE}
+  ARGS -o ${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc -Psmt2
+  ${DREAL_SOURCE_DIR}/opensmt/parsers/smt2/smt2lexer.ll
+  DEPENDS ${DREAL_SOURCE_DIR}/opensmt/parsers/smt2/smt2lexer.ll
+  OUTPUT  ${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc
+  )
+
+# Create custom command for bison/yacc (note the DEPENDS)
+ADD_CUSTOM_COMMAND(
+  COMMAND ${BISON_EXECUTABLE}
+  ARGS -d --name-prefix=smt2 -y ${DREAL_SOURCE_DIR}/opensmt/parsers/smt2/smt2parser.yy
+  -o ${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2parser.cc
+  DEPENDS ${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc
+  DEPENDS ${DREAL_SOURCE_DIR}/opensmt/parsers/smt2/smt2parser.yy
+  OUTPUT  ${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2parser.cc
+  )
+# Since parser.c does not exists yet when cmake is run, mark
+# it as generated
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2parser.cc GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc GENERATED)
+################################################################
 add_subdirectory(dsolvers)
-set(DREAL_LIBS ${DREAL_LIBS} dsolvers)
 add_subdirectory(util)
-set(DREAL_LIBS ${DREAL_LIBS} util)
 add_subdirectory(contractor)
-set(DREAL_LIBS ${DREAL_LIBS} contractor)
+message(STATUS "DREAL_SRCS = ${DREAL_SRCS}")
+add_library(dreal ${DREAL_SRCS})
+add_dependencies(dreal CAPD4)
+add_dependencies(dreal JSON11)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 
 add_executable(dReal main.cpp)
-target_link_libraries(dReal ${DREAL_LIBS} ${EXTRA_LIBS})
+target_link_libraries(dReal dreal ${EXTRA_LIBS})
 
 #add tests
 add_subdirectory(tests/util)

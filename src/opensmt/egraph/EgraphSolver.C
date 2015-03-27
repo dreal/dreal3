@@ -23,7 +23,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // DO NOT REMOVE THIS COMMENT !!
 // IT IS USED BY CREATE_THEORY.SH SCRIPT !!
 // NEW_THEORY_HEADER
-#include "tsolvers/emptysolver/EmptySolver.h"
+// #include "tsolvers/emptysolver/EmptySolver.h"
 //#include "BVSolver.h"
 //#include "LRASolver.h"
 //#include "DLSolver.h"
