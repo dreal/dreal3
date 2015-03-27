@@ -73,6 +73,17 @@ mode: LC mode_id time_precision invts_op flows jumps RC
 mode_id: MODE FNUM SEMICOLON { int_of_float $2 }
 ;
 
+
+mode: LP mode_id_str SEMICOLON time_precision invts_op flows jumps RP
+  {
+    Mode.make ($2, $4, $5, $6, $7, Jumpmap.of_list $7)
+  }
+;
+
+
+mode_id_str: MODE ID { $2 }
+;
+
 time_precision: TIME_PRECISION COLON FNUM SEMICOLON { $3 }
 | { 0.0 }
 ;

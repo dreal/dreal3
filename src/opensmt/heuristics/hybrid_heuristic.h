@@ -90,7 +90,7 @@ public:
     vector<map< Enode *, pair<int, int>* >*> mode_literals;
     vector<vector< vector< Enode* >* >*> time_mode_enodes;
     vector<vector< vector< Enode* >* >*> time_mode_integral_enodes;
-    bool isStackConsistentWithSuggestion();
+    
 
     set<Enode*> mode_enodes;
 
