@@ -75,7 +75,7 @@ namespace dreal{
 
 
 
-    DREAL_LOG_INFO << "heuristic::getSuggestion() " << e;
+    DREAL_LOG_INFO << "heuristic::getSuggestion() " << e << " = " << s->second;
     if (theory_handler == NULL)
       DREAL_LOG_INFO << "heuristic::getSuggestion() NULL";
     Var v = theory_handler->enodeToVar(e);
@@ -131,4 +131,19 @@ namespace dreal{
   }
 
   void heuristic::pushTrailOnStack(){}
+
+ bool heuristic::isStackConsistentWithSuggestion(){
+    // return true if no suggestion is inconsistent with the stack
+    for(auto sug : m_suggestions){
+      for(auto sta : m_stack){
+	if(sug->first == sta->first && sug->second != sta->second) {
+	  DREAL_LOG_DEBUG << "Stack and Suggestion Inconsistent: " << sug->first << " = " << sug->second << " " << sta->first << " = "  <<  sta->second;
+	  return false;
+	}
+      }
+    }
+    return true;
+  }
+
+
 }
