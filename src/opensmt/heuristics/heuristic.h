@@ -43,6 +43,10 @@ namespace dreal {
     virtual void getSuggestions();
     virtual void pushTrailOnStack();
 
+    bool isStackConsistentWithSuggestion();
+    void displayTrail();
+    void displayStack();
+
     THandler *theory_handler;
     bool m_is_initialized;
     bool backtracked;
@@ -53,8 +57,6 @@ namespace dreal {
     vec<int> *trail_lim;
     int lastTrailEnd;
     int m_depth;
-    void displayTrail();
-    void displayStack();
     Egraph * m_egraph;
     set<Enode*> stack_literals;
   };

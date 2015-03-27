@@ -561,20 +561,7 @@ bool hybrid_heuristic::unwind_path() {
     return m_decision_stack.size() > 0;
   }
 
-  bool hybrid_heuristic::isStackConsistentWithSuggestion(){
-    // return true if no suggestion is inconsistent with the stack
-    for(auto sug : m_suggestions){
-      for(auto sta : m_stack){
-	if(sug->first == sta->first && sug->second != sta->second) {
-	  DREAL_LOG_DEBUG << "Stack and Suggestion Inconsistent: " << sug->first << " = " << sug->second << " " << sta->first << " = "  <<  sta->second;
-	  return false;
-	}
-      }
-    }
-    return true;
-  }
-
-
+ 
   void hybrid_heuristic::pushTrailOnStack(){
     DREAL_LOG_INFO << "hybrid_heuristic::pushTrailOnStack() lastTrailEnd = "
                    << lastTrailEnd << " trail->size() = " << trail->size();
