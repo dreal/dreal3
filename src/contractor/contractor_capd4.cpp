@@ -337,9 +337,9 @@ contractor_capd_fwd_full::contractor_capd_fwd_full(box const & /* box */, ode_co
 }
 
 contractor_capd_fwd_full::~contractor_capd_fwd_full() {
-    if (m_timeMap)     { delete m_timeMap; }
-    if (m_solver)      { delete m_solver; }
-    if (m_vectorField) { delete m_vectorField; }
+    delete m_timeMap;
+    delete m_solver;
+    delete m_vectorField;
 }
 
 bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, unsigned const grid_size, vector<pair<capd::interval, capd::IVector>> & enclosures) {
@@ -548,9 +548,9 @@ contractor_capd_bwd_full::contractor_capd_bwd_full(box const & /*box*/, ode_cons
 }
 
 contractor_capd_bwd_full::~contractor_capd_bwd_full() {
-    if (m_timeMap)     { delete m_timeMap; }
-    if (m_solver)      { delete m_solver; }
-    if (m_vectorField) { delete m_vectorField; }
+    delete m_timeMap;
+    delete m_solver;
+    delete m_vectorField;
 }
 
 box contractor_capd_bwd_full::prune(box b, SMTConfig &) const {

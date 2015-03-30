@@ -148,7 +148,7 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, nonlinear_constr
     }
 }
 contractor_ibex_fwdbwd::~contractor_ibex_fwdbwd() {
-    if (m_ctc) { delete m_ctc; }
+    delete m_ctc;
 }
 box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
     if (m_ctc == nullptr) { return b; }
@@ -256,8 +256,8 @@ contractor_ibex_polytope::~contractor_ibex_polytope() {
     }
     delete m_ctc;
     if (m_sys_eqs && m_sys_eqs != m_sys) { delete m_sys_eqs; }
-    if (m_sys) { delete m_sys; }
-    if (m_sf) { delete m_sf; }
+    delete m_sys;
+    delete m_sf;
 }
 
 box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
