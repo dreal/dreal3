@@ -15,4 +15,4 @@ SET(DREAL_SRCS ${DREAL_SRCS}
 # add_library(opensmt ${DREAL_SRCS})
 # target_link_libraries(opensmt util)
 # add_dependencies(opensmt CAPD4)
-# add_dependencies(opensmt JSON11)
+# add_dependencies(opensmt JSON)

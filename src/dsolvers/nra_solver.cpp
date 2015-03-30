@@ -47,6 +47,7 @@ using std::pair;
 using std::stack;
 using std::vector;
 using std::get;
+using nlohmann::json;
 
 namespace dreal {
 using std::cout;
@@ -371,7 +372,7 @@ void nra_solver::handle_sat_case(box const & b) const {
         for (constraint * const ctr : m_stack) {
             if (ctr->get_type() == constraint_type::ODE) {
                 contractor_capd_fwd_full fwd_full(b, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size);
-                Json trace = fwd_full.generate_trace(b, config);
+                json trace = fwd_full.generate_trace(b, config);
                 config.nra_json_out << trace.dump() << endl;;
             }
         }

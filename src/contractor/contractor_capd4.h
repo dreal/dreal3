@@ -29,10 +29,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include "json11/json11.hpp"
+#include "json/json.hpp"
 #include "capd/capdlib.h"
-
-using json11::Json;
 
 namespace dreal {
 class contractor_capd_fwd_simple : public contractor_cell {
@@ -60,7 +58,7 @@ public:
     contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     ~contractor_capd_fwd_full();
     box prune(box b, SMTConfig & config) const;
-    Json generate_trace(box b, SMTConfig & config) const;
+    nlohmann::json generate_trace(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 

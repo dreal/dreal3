@@ -273,17 +273,31 @@ set(EXTRA_LIBS "gtest" ${EXTRA_LIBS})
 ################################################################
 # External: json11 (Dropbox json11)
 ################################################################
-ExternalProject_Add(JSON11
+# ExternalProject_Add(JSON11
+#   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+#   GIT_REPOSITORY https://github.com/dreal-deps/json11.git
+#   GIT_TAG origin/master
+#   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+#   CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS}" "-DCMAKE_EXE_LINKER_FLAGS=${EXTERNAL_LD_FLAGS}" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
+#   BUILD_COMMAND make -j
+#   BUILD_IN_SOURCE 1
+#   INSTALL_COMMAND make install
+# )
+# set(EXTRA_LIBS "json11" ${EXTRA_LIBS})
+
+################################################################
+# External: json11 (Dropbox json11)
+################################################################
+ExternalProject_Add(JSON
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/json11.git
+  GIT_REPOSITORY https://github.com/dreal-deps/json.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS}" "-DCMAKE_EXE_LINKER_FLAGS=${EXTERNAL_LD_FLAGS}" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
-  BUILD_COMMAND make -j
+  CONFIGURE_COMMAND echo "nothing to configure"
+  BUILD_COMMAND CXX=${CMAKE_CXX_COMPILER} make -j
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make install
+  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/
 )
-set(EXTRA_LIBS "json11" ${EXTRA_LIBS})
 
 ################################################################
 # External: set up include dir and libpath
@@ -359,7 +373,7 @@ add_subdirectory(contractor)
 message(STATUS "DREAL_SRCS = ${DREAL_SRCS}")
 add_library(dreal ${DREAL_SRCS})
 add_dependencies(dreal CAPD4)
-add_dependencies(dreal JSON11)
+add_dependencies(dreal JSON)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
@@ -373,7 +387,7 @@ add_subdirectory(tests/nra)
 add_subdirectory(tests/nra_ode)
 add_subdirectory(tests/c_api)
 add_subdirectory(tests/capd4)
-add_subdirectory(tests/json11)
+# add_subdirectory(tests/json)
 
 # Include style check
 include(StyleCheck)
