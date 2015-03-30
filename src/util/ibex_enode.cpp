@@ -129,10 +129,10 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
             bool   is_1st_int      = false;
             bool   is_2nd_constant = false;
             bool   is_2nd_int      = false;
-            double dbl_1st;
-            int    int_1st;
-            double dbl_2nd;
-            int    int_2nd;
+            double dbl_1st = 0.0;
+            int    int_1st = 0;
+            double dbl_2nd = 0.0;
+            int    int_2nd = 0;
             if (e->get1st()->isConstant()) {
                 dbl_1st = e->get1st()->getValue();
                 is_1st_constant = true;
