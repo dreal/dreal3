@@ -39,6 +39,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/ibex_enode.h"
 #include "util/logging.h"
 #include "util/stat.h"
+#include "json/json.hpp"
 
 using ibex::IntervalVector;
 using std::boolalpha;
