@@ -27,6 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <memory>
 #include <utility>
+#include "util/constraint.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
