@@ -9,7 +9,7 @@ add_subdirectory(smtsolvers)
 add_subdirectory(sorts)
 add_subdirectory(tsolvers)
 
-SET(DREAL_SRCS ${DREAL_SRCS}
+SET(DREAL_SRCS "${DREAL_SRCS}" "${CMAKE_CURRENT_LIST_DIR}/global.cpp"
   PARENT_SCOPE)
 
 # add_library(opensmt ${DREAL_SRCS})

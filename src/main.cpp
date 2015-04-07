@@ -50,7 +50,7 @@ extern bool stop;
 // extern int  cnfparse           ( );
 extern int  smt2set_in         ( FILE * );
 extern int  smt2parse          ( );
-OpenSMTContext * parser_ctx;
+extern OpenSMTContext * parser_ctx;
 
 /*****************************************************************************\
  *                                                                           *
@@ -182,7 +182,7 @@ void catcher( int sig )
     case SIGTERM:
       if ( opensmt::stop )
       {
-        parser_ctx->PrintResult( l_Undef );
+        ::parser_ctx->PrintResult( l_Undef );
         exit( 1 );
       }
       opensmt::stop = true;
