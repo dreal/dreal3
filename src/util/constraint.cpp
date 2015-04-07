@@ -108,8 +108,6 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // ====================================================
 nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p)
     : constraint(constraint_type::Nonlinear, e), m_enode(e), m_exprctr(nullptr), m_numctr(nullptr), m_numctr_ineq(nullptr) {
-    cerr << "nonlinear_constraint::nonlinear_constraint(" << e << ")" << endl;
-
     unordered_map<string, ibex::Variable const> var_map;
     bool is_ineq = (p == l_False && e->isEq());
     p = is_ineq ? true : p;
@@ -204,7 +202,6 @@ ode_constraint::ode_constraint(integral_constraint const & integral, vector<fora
     }
 }
 ode_constraint::~ode_constraint() {
-    // TODO(soonhok): implement this?
 }
 ostream & ode_constraint::display(ostream & out) const {
     out << "ode_constraint" << endl;
