@@ -20,6 +20,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include "config.h"
 #include "contractor/contractor_basic.h"
 #include "contractor/contractor_ibex.h"
+#ifdef SUPPORT_ODE
 #include "contractor/contractor_capd4.h"
+#endif

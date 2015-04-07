@@ -27,6 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <memory>
 #include <utility>
+#include "config.h"
 #include "util/constraint.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "opensmt/egraph/Enode.h"
@@ -35,9 +36,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 
 enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
-        PARALLEL_ALL, TIMEOUT, REALPAVER, CAPD_FWD, CAPD_BWD,
+        PARALLEL_ALL, TIMEOUT, REALPAVER,
         TRY, TRY_OR, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE,
-        SAMPLE, AGGRESSIVE};
+        SAMPLE, AGGRESSIVE
+#ifdef SUPPORT_ODE
+        ,CAPD_FWD, CAPD_BWD
+#endif
+        };
 
 class contractor_exception : public std::runtime_error {
 public:
@@ -106,10 +111,12 @@ public:
     friend contractor mk_contractor_cache(contractor const & ctc);
     friend contractor mk_contractor_sample(unsigned const n, vector<constraint *> const & ctrs);
     friend contractor mk_contractor_aggressive(unsigned const n, vector<constraint *> const & ctrs);
+#ifdef SUPPORT_ODE
     friend contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     friend contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     friend contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
     friend contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+#endif
     std::size_t hash() const { return (std::size_t) m_ptr.get(); }
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
 };

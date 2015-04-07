@@ -1,1 +1,2 @@
-#cmakedefine ODE_ENABLED
+#pragma once
+#cmakedefine SUPPORT_ODE

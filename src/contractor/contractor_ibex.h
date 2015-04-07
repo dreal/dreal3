@@ -29,7 +29,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include "capd/capdlib.h"
 
 namespace dreal {
 

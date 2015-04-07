@@ -21,8 +21,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <gflags/gflags.h>
 #include "SMTConfig.h"
-#include "version.h"
+#include "config.h"
 #include "util/logging.h"
+#include "version.h"
 
 using std::string;
 
@@ -442,6 +443,7 @@ void SMTConfig::printHelp( )
       "                           trace in the constraint propagation procedures for checking\n"
       "                           consistency of theory atoms, as well as DPLL-level\n"
       "                           assert/check/backtracking operations.\n"
+#ifdef SUPPORT_ODE
       "\n"
       "   --ode-order             specify the maximum order that will be used in Taylor method ODE solving\n"
       "                           (Default: 20)\n"
@@ -465,6 +467,8 @@ void SMTConfig::printHelp( )
       "                           (Default: automatically decided by CAPD)\n"
       "\n"
       "   --visualize             print out data for the visualization of ODE solving\n"
-      "                           which will be saved to \"filename.json\".\n";
+      "                           which will be saved to \"filename.json\".\n"
+#endif
+      ;
   cerr << help_string;
 }
