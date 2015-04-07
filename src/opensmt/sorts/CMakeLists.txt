@@ -2,5 +2,3 @@ SET(DREAL_SRCS ${DREAL_SRCS}
   ${CMAKE_CURRENT_LIST_DIR}/SStore.C
   ${CMAKE_CURRENT_LIST_DIR}/Snode.C
   PARENT_SCOPE)
-# add_library(opensmt_sorts SStore.C Snode.C)
-# target_link_libraries(opensmt_sorts util)
