@@ -86,6 +86,8 @@ box contractor_try::prune(box b, SMTConfig & config) const {
     try {
         b = m_c.prune(b, config);
     } catch (contractor_exception & e) {
+        DREAL_LOG_INFO << "contractor_try: exception caught, \""
+                       << e.what() << "\n";
         return b;
     }
     m_input  = m_c.input();
