@@ -42,7 +42,7 @@
 
 let blank = [' ' '\t']+
 let id = ['a'-'z' 'A'-'Z'](['a'-'z' 'A'-'Z' '0'-'9' '_' '\''])*
-let float_number = ('+')? ['0'-'9']+('.'(['0'-'9']*))?(('e'|'E')('+'|'-')?['0'-'9']+)?
+let float_number = ['0'-'9']+('.'(['0'-'9']*))?(('e'|'E')('+'|'-')?['0'-'9']+)?
 rule start =
   parse blank { start lexbuf }
     | "\r\n"  { incr_ln (); start lexbuf}
