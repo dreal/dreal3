@@ -12,16 +12,17 @@ set(BUG_REPORT_URL "${PACKAGE_BUGREPORT}" CACHE STRING "Default URL where bug re
 set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
-option(REQUIRE_ODE "REQUIRE_ODE" OFF)
-option(STATIC      "STATIC"      OFF)
+option(SUPPORT_ODE "Support ODE" ON)
+option(BUILD_STATIC_BIN  "Build static binary" OFF)
+option(BUILD_SHARED_LIB "Build shared library" OFF)
 
 # Added for CTest
 include(CTest)
 # Added for External Projects
 include(ExternalProject)
 
-set(DREAL_EXTRA_LINKER_FLAGS "")
-set(DREAL_EXTRA_CXX_FLAGS "")
+set(DREAL_EXTRA_LINKER_FLAGS "-D__USE_FILIB__")
+set(DREAL_EXTRA_CXX_FLAGS "-D__USE_FILIB__")
 
 ################################################################
 # Set Module Path
@@ -31,7 +32,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 ################################################################
 # Static Build
 ################################################################
-if("${STATIC}" MATCHES "ON")
+if(BUILD_STATIC_BIN)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     message(STATUS "Static linking of user binaries is not supported on Mac OS X. See https://developer.apple.com/library/mac/qa/qa1118/_index.html")
     set(DREAL_EXTRA_LINKER_FLAGS "${DREAL_EXE_EXTRA_LINKER_FLAGS} -static-libgcc -static-libstdc++")
@@ -57,6 +58,25 @@ if(APPLE)
   endif()
 endif()
 
+################################################################
+# Shared Lib
+################################################################
+if(BUILD_STATIC_BIN AND BUILD_SHARED_LIB)
+  message(FATAL_ERROR "Can't handle both of BUILD_STATIC_BIN and BUILD_SHARED_LIB options." )
+endif()
+if(APPLE AND (${BUILD_SHARED_LIB} MATCHES "ON"))
+  message(STATUS "On Mac OS X, we do not support shared library generation yet.")
+  set(BUILD_SHARED_LIB "OFF")
+endif()
+if(BUILD_SHARED_LIB)
+  set(SHARED_LIB_CONFIG_COMMAND "--enable-shared")
+  set(SHARED_LIB_IBEX_COMMAND   "")
+  set(SHARED_LIB_CMAKE_COMMAND  "-DBUILD_SHARED_LIBS=ON")
+else()
+  set(SHARED_LIB_CONFIG_COMMAND "--disable-shared")
+  set(SHARED_LIB_IBEX_COMMAND   "")
+  set(SHARED_LIB_CMAKE_COMMAND  "-DBUILD_SHARED_LIBS=OFF")
+endif()
 
 ################################################################
 # Initialize CXXFLAGS.
@@ -70,7 +90,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 ################################################################
 # Test coverage
 ################################################################
-if("${TESTCOV}" MATCHES "ON")
+if(TESTCOV)
   include(CodeCoverage)
   message(STATUS "Enable test-coverage")
   set(CMAKE_CXX_FLAGS_DEBUG        "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fprofile-arcs -ftest-coverage --coverage")
@@ -143,42 +163,6 @@ JOIN("${CMAKE_CXX_FLAGS}" "," EXTERNAL_CXX_FLAGS)
 JOIN("${DREAL_EXTRA_LINKER_FLAGS}" "," EXTERNAL_LD_FLAGS)
 
 ################################################################
-# Threads
-################################################################
-find_package (Threads REQUIRED)
-set(EXTRA_LIBS ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIBS})
-
-################################################################
-# External: CAPD-DynSys-4.0
-################################################################
-ExternalProject_Add(CAPD4
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/capdDynSys-4.0.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=no --disable-shared
-  BUILD_COMMAND make -j
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make -j install
-  )
-
-################################################################
-# External: CAPD-DynSys-3.0
-################################################################
-# ExternalProject_Add(CAPD3
-#   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-#   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
-#   GIT_TAG origin/master
-#   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-#   CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
-#   BUILD_COMMAND make -j
-#   BUILD_IN_SOURCE 1
-#   INSTALL_COMMAND make -j install
-# )
-set(EXTRA_LIBS "capd" ${EXTRA_LIBS})
-set(ODE_ENABLED TRUE)
-
-################################################################
 # External: FILIB
 ################################################################
 ExternalProject_Add(FILIB
@@ -186,12 +170,44 @@ ExternalProject_Add(FILIB
   GIT_REPOSITORY https://github.com/dreal-deps/filibxx.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR}
+  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make -j install
 )
 set(EXTRA_LIBS "prim" ${EXTRA_LIBS})
+
+if(SUPPORT_ODE)
+  ################################################################
+  # External: CAPD-DynSys-4.0
+  ################################################################
+  ExternalProject_Add(CAPD4
+    DEPENDS FILIB
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/capdDynSys-4.0.git
+    GIT_TAG origin/master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+    BUILD_COMMAND make -j
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND make -j install
+    )
+
+  ################################################################
+  # External: CAPD-DynSys-3.0
+  ################################################################
+  # ExternalProject_Add(CAPD3
+  #   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+  #   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
+  #   GIT_TAG origin/master
+  #   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  #   CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
+  #   BUILD_COMMAND make -j
+  #   BUILD_IN_SOURCE 1
+  #   INSTALL_COMMAND make -j install
+  # )
+  set(EXTRA_LIBS "capd" ${EXTRA_LIBS})
+endif()
 
 ################################################################
 # External: CLP
@@ -201,7 +217,7 @@ ExternalProject_Add(CLP
   GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --disable-shared --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
+  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
@@ -221,7 +237,7 @@ ExternalProject_Add(IBEX
   GIT_REPOSITORY https://github.com/dreal-deps/ibex-lib.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE}
+  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE} ${SHARED_LIB_IBEX_COMMAND}
   BUILD_COMMAND ./waf build
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND ./waf install
@@ -247,7 +263,7 @@ ExternalProject_Add(GFLAGS
   GIT_REPOSITORY https://github.com/dreal-deps/gflags.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS} -fPIC -DNDEBUG -w" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
+  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS} -fPIC -DNDEBUG -w" ${SHARED_LIB_CMAKE_COMMAND} -DBUILD_STATIC_LIBS=ON -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
@@ -263,7 +279,7 @@ ExternalProject_Add(GLOG
   GIT_REPOSITORY https://github.com/dreal-deps/glog.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} --disable-shared "CXX_FLAGS=-DNDEBUG ${EXTERNAL_CXX_FLAGS}" CFLAGS=-DNDEBUG "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gflags
+  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXX_FLAGS=-DNDEBUG ${EXTERNAL_CXX_FLAGS}" CFLAGS=-DNDEBUG "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
@@ -278,30 +294,14 @@ ExternalProject_Add(GTEST
   GIT_REPOSITORY https://github.com/dreal-deps/googletest.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS} -w" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
+  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS} -w" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
 )
-set(EXTRA_LIBS "gtest" ${EXTRA_LIBS})
 
 ################################################################
-# External: json11 (Dropbox json11)
-################################################################
-# ExternalProject_Add(JSON11
-#   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-#   GIT_REPOSITORY https://github.com/dreal-deps/json11.git
-#   GIT_TAG origin/master
-#   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-#   CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS}" "-DCMAKE_EXE_LINKER_FLAGS=${EXTERNAL_LD_FLAGS}" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
-#   BUILD_COMMAND make -j
-#   BUILD_IN_SOURCE 1
-#   INSTALL_COMMAND make install
-# )
-# set(EXTRA_LIBS "json11" ${EXTRA_LIBS})
-
-################################################################
-# External: json11 (Dropbox json11)
+# External: json
 ################################################################
 ExternalProject_Add(JSON
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
@@ -313,6 +313,12 @@ ExternalProject_Add(JSON
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/
 )
+
+################################################################
+# Threads
+################################################################
+find_package (Threads REQUIRED)
+set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 ################################################################
 # External: set up include dir and libpath
@@ -344,7 +350,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--rpath=${DREAL_BINARY_DIR}/lib")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--rpath=${DREAL_BINARY_DIR}/lib -Wl,--no-as-needed")
+endif()
+if(APPLE)
+  list(APPEND CMAKE_SHARED_LINKER_FLAGS "-L ${DREAL_BINARY_DIR}/lib -Xlinker -rpath -Xlinker `pwd`")
 endif()
 
 ################################################################
@@ -385,9 +394,20 @@ SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.c
 add_subdirectory(dsolvers)
 add_subdirectory(util)
 add_subdirectory(contractor)
-message(STATUS "DREAL_SRCS = ${DREAL_SRCS}")
-add_library(dreal ${DREAL_SRCS})
-add_dependencies(dreal CAPD4)
+
+if(BUILD_SHARED_LIB)
+  add_library(dreal SHARED ${DREAL_SRCS})
+  if(APPLE)
+    target_link_libraries(dreal ${EXTRA_LIBS})
+  endif()
+else()
+  add_library(dreal ${DREAL_SRCS})
+endif()
+
+add_dependencies(dreal GFLAGS)
+if(SUPPORT_ODE)
+  add_dependencies(dreal CAPD4)
+endif()
 add_dependencies(dreal JSON)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
@@ -401,8 +421,9 @@ add_subdirectory(tests/util)
 add_subdirectory(tests/nra)
 add_subdirectory(tests/nra_ode)
 add_subdirectory(tests/c_api)
-add_subdirectory(tests/capd4)
-# add_subdirectory(tests/json)
+if(SUPPORT_ODE)
+  add_subdirectory(tests/capd4)
+endif()
 
 # Include style check
 include(StyleCheck)
