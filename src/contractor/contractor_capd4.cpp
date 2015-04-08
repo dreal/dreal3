@@ -322,8 +322,8 @@ ostream & contractor_capd_fwd_simple::display(ostream & out) const {
     return out;
 }
 
-contractor_capd_fwd_full::contractor_capd_fwd_full(box const & /* box */, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size)
-    : contractor_cell(contractor_kind::CAPD_FWD), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size) {
+contractor_capd_fwd_full::contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size)
+    : contractor_cell(contractor_kind::CAPD_FWD, box.size()), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size) {
     DREAL_LOG_INFO << "contractor_capd_fwd_full::contractor_capd_fwd_full()";
     integral_constraint const & ic = m_ctr->get_ic();
     string const capd_str = build_capd_string(ic);
@@ -335,6 +335,16 @@ contractor_capd_fwd_full::contractor_capd_fwd_full(box const & /* box */, ode_co
     } else {
         // Trivial Case with all params and no ODE variables
     }
+
+    // TODO(soonhok): Setup Input and Output
+    // Input X_0, X_T, and Time
+    // for (unsigned i = 0; i <  input->size(); i++) {
+    //     if ((*input)[i]) {
+    //         m_input.add(box.get_index(m_var_array[i].name));
+    //     }
+    // }
+    // Output X_T and Time
+    m_used_constraints.insert(m_ctr);
 }
 
 contractor_capd_fwd_full::~contractor_capd_fwd_full() {
@@ -343,14 +353,13 @@ contractor_capd_fwd_full::~contractor_capd_fwd_full() {
     delete m_vectorField;
 }
 
-bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, unsigned const grid_size, vector<pair<capd::interval, capd::IVector>> & enclosures) {
-    DREAL_LOG_INFO << "compute_enclosures";
-    // vector<pair<capd::interval, capd::IVector>> enclosures;
+bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, unsigned const grid_size, vector<pair<capd::interval, capd::IVector>> & enclosures, bool add_all = false) {
     capd::interval const stepMade = solver.getStep();
     capd::IOdeSolver::SolutionCurve const & curve = solver.getCurve();
     capd::interval domain = capd::interval(0, 1) * stepMade;
+
     list<capd::interval> intvs;
-    if (prevTime.rightBound() < T.leftBound()) {
+    if (!add_all && (prevTime.rightBound() < T.leftBound())) {
         capd::interval pre_T = capd::interval(0, T.leftBound() - prevTime.rightBound());
         domain.setLeftBound(T.leftBound() - prevTime.rightBound());
         intvs = split(domain, grid_size);
@@ -365,13 +374,9 @@ bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTi
         // TODO(soonhok): check invariant
         // if (!check_invariant(v, m_inv)) {
         DREAL_LOG_INFO << "compute_enclosures:" << dt << "\t" << v;
-        if (prevTime + subsetOfDomain.rightBound() > T.leftBound()) {
+        if (add_all || (prevTime + subsetOfDomain.rightBound() > T.leftBound())) {
             enclosures.emplace_back(dt, v);
         }
-        // TODO(soonhok): visualization
-        // if (m_config.nra_json) {
-        //     m_trajectory.emplace_back(prevTime + subsetOfDomain, v);
-        // }
     }
     return false;
 }
@@ -436,7 +441,6 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
 }
 
 box contractor_capd_fwd_full::prune(box b, SMTConfig &) const {
-    m_used_constraints.insert(m_ctr);
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
     if (!m_solver) {
@@ -502,21 +506,88 @@ box contractor_capd_fwd_full::prune(box b, SMTConfig &) const {
     return b;
 }
 
-json contractor_capd_fwd_full::generate_trace(box, SMTConfig &) const {
-    // TODO(soonhok): implement this
-    // Json my_json = Json::object {
-    //     { "key1", "value1" },
-    //     { "key2", false },
-    //     { "key3", Json::array { 1, 2, 3 } },
-    // };
-    // return my_json;
-    throw std::runtime_error("generate_trace is not yet implemented.");
+unsigned int extract_step(string const & name) {
+    // We assume that the following convention holds for naming a ODE
+    // variable.
+    //
+    //     <VAR_NAME>_<STEP>_{0,t}
+    //
+    // This function returns <STEP> part as an integer.
+    std::size_t last_pos_of_underscore = name.rfind("_");
+    assert(last_pos_of_underscore != string::npos);
+    std::size_t second_to_last_pos_of_underscore = name.rfind("_", last_pos_of_underscore - 1);
+    assert(second_to_last_pos_of_underscore != string::npos);
+    std::size_t l = last_pos_of_underscore - second_to_last_pos_of_underscore - 1;
+    string step_part = name.substr(second_to_last_pos_of_underscore + 1, l);
+    return stoi(step_part, nullptr);
+}
+
+json contractor_capd_fwd_full::generate_trace(box b, SMTConfig &) const {
+    integral_constraint const & ic = m_ctr->get_ic();
+    b = intersect_params(b, ic);
+    if (!m_solver) {
+        // Trivial Case where there are only params and no real ODE vars.
+        return {};
+    }
+    set_params(*m_vectorField, b, ic);
+    try {
+        capd::IVector  m_X_0 = extract_ivector(b, ic.get_vars_0());
+        capd::IVector  m_X_t = extract_ivector(b, ic.get_vars_t());
+        ibex::Interval const & ibex_T = b[ic.get_time_t()];
+        capd::interval m_T;
+        m_T.setLeftBound(ibex_T.lb());
+        m_T.setRightBound(ibex_T.ub());
+
+        capd::C0Rect2Set s(m_X_0);
+        m_timeMap->stopAfterStep(true);
+        capd::interval prevTime(0.);
+
+        // Convert enclosures to json
+        vector<pair<capd::interval, capd::IVector>> enclosures;
+        do {
+            // Move s toward m_T.rightBound()
+            (*m_timeMap)(m_T.rightBound(), s);
+            if (contain_nan(s)) {
+                DREAL_LOG_INFO << "ode_solver::compute_forward: contain NaN";
+            }
+            bool invariantViolated = compute_enclosures(*m_solver, prevTime, m_T, m_grid_size, enclosures, true);
+            if (invariantViolated) {
+                DREAL_LOG_INFO << "ode_solver::compute_forward: invariant violated";
+                break;
+            }
+            prevTime = m_timeMap->getCurrentTime();
+        } while (/*!invariantViolated &&*/ !m_timeMap->completed());
+
+        unsigned i = 0;
+        json ret = {};
+        for (auto const & var : ic.get_vars_0()) {
+            json entry;
+            string const name = var->getCar()->getName();
+            entry["key"] = name;
+            entry["mode"] = m_ctr->get_ic().get_flow_id();
+            entry["step"] = extract_step(name);
+            entry["values"] = {};
+            for (auto const & p : enclosures) {
+                json value;
+                value["time"] = {p.first.leftBound(), p.first.rightBound()};
+                value["enclosure"] = {p.second[i].leftBound(), p.second[i].rightBound()};
+                entry["values"].push_back(value);
+            }
+            ret.push_back(entry);
+            i++;
+        }
+        return ret;
+    } catch (capd::intervals::IntervalError<double> & e) {
+        throw contractor_exception(e.what());
+    } catch (capd::ISolverException & e) {
+        throw contractor_exception(e.what());
+    } catch (std::exception & e) {
+        throw contractor_exception(e.what());
+    }
 }
 
 ostream & contractor_capd_fwd_full::display(ostream & out) const {
-    out << "contractor_capd_fwd("
-        << *m_ctr
-        << ")";
+    out << "contractor_capd_fwd(" << *m_ctr << ")";
     return out;
 }
 
@@ -546,6 +617,8 @@ contractor_capd_bwd_full::contractor_capd_bwd_full(box const & /*box*/, ode_cons
     } else {
         // Trivial Case with all params and no ODE variables
     }
+    // TODO(soonhok): Setup Input and Output
+    m_used_constraints.insert(m_ctr);
 }
 
 contractor_capd_bwd_full::~contractor_capd_bwd_full() {
@@ -555,7 +628,6 @@ contractor_capd_bwd_full::~contractor_capd_bwd_full() {
 }
 
 box contractor_capd_bwd_full::prune(box b, SMTConfig &) const {
-    m_used_constraints.insert(m_ctr);
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
     if (!m_solver) {
@@ -621,9 +693,7 @@ box contractor_capd_bwd_full::prune(box b, SMTConfig &) const {
     return b;
 }
 ostream & contractor_capd_bwd_full::display(ostream & out) const {
-    out << "contractor_capd_bwd("
-        << *m_ctr
-        << ")";
+    out << "contractor_capd_bwd(" << *m_ctr << ")";
     return out;
 }
 

@@ -31,6 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "json/json.hpp"
 #include "capd/capdlib.h"
+#include "contractor/contractor_basic.h"
 
 namespace dreal {
 class contractor_capd_fwd_simple : public contractor_cell {
