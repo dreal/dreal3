@@ -31,6 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <utility>
 #include <vector>
+#include "./config.h"
 #include "dsolvers/nra_solver.h"
 #include "ibex/ibex.h"
 #include "util/box.h"
@@ -186,6 +187,7 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
                 // This is identity, do nothing
             }
             nl_eval_ctcs.push_back(mk_contractor_eval(box, nl_ctr));
+#ifdef SUPPORT_ODE
         } else if (ctr->get_type() == constraint_type::ODE) {
             // TODO(soonhok): add heuristics to choose fwd/bwd
             // TODO(soonhok): perform ODE only for complete check
@@ -195,6 +197,7 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
             ode_ctcs.emplace_back(
                 mk_contractor_try(
                     mk_contractor_capd_bwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size)));
+#endif
         }
     }
     if (config.nra_polytope) {
@@ -367,6 +370,7 @@ void nra_solver::handle_sat_case(box const & b) const {
         }
         display(config.nra_model_out, b, false, true);
     }
+#ifdef SUPPORT_ODE
     // --visualize option
     if (config.nra_json) {
         // Need to run ODE pruning operator once again to generate a trace
@@ -379,6 +383,7 @@ void nra_solver::handle_sat_case(box const & b) const {
         }
     }
 
+#endif
     // For API call
     b.assign_to_enode();
     return;
