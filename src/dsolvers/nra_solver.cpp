@@ -426,7 +426,11 @@ vector<Enode *> nra_solver::generate_explanation(scoped_vec<constraint const *> 
     unordered_set<Enode *> bag;
     for (constraint const * ctr : ctr_vec) {
         vector<Enode *> const & enodes_in_ctr = ctr->get_enodes();
-        bag.insert(enodes_in_ctr.begin(), enodes_in_ctr.end());
+        for (Enode * const e : enodes_in_ctr) {
+            if (e->hasPolarity()) {
+                bag.insert(e);
+            }
+        }
     }
     vector<Enode *> exps;
     copy(bag.begin(), bag.end(), back_inserter(exps));
