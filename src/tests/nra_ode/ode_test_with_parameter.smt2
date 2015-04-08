@@ -1,12 +1,15 @@
 (set-logic QF_NRA_ODE)
 (declare-fun x_t () Real)
 (declare-fun x_0 () Real)
+(declare-fun x () Real)
 (declare-fun a_t () Real)
 (declare-fun a_0 () Real)
+(declare-fun a () Real)
 
 (declare-fun time_1 () Real)
-(define-ode 1 (= d/dt[x] (a * x)))
-(define-ode 1 (= d/dt[a] 0))
+(define-ode flow_1 (
+    (= d/dt[x] (* a x))
+    (= d/dt[a] 0)))
 
 (assert (<= 0.0 time_1))
 (assert (<= time_1 3))
