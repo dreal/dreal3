@@ -421,10 +421,10 @@ target_link_libraries(dReal dreal ${EXTRA_LIBS})
 #add tests
 add_subdirectory(tests/util)
 add_subdirectory(tests/nra)
-add_subdirectory(tests/nra_ode)
 add_subdirectory(tests/c_api)
 if(SUPPORT_ODE)
   add_subdirectory(tests/capd4)
+  add_subdirectory(tests/nra_ode)
 endif()
 
 # Include style check
