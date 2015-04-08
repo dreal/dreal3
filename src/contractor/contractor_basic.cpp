@@ -301,7 +301,6 @@ ostream & contractor_int::display(ostream & out) const {
 
 contractor_eval::contractor_eval(box const & box, nonlinear_constraint const * const ctr)
     : contractor_cell(contractor_kind::EVAL), m_nl_ctr(ctr) {
-    m_used_constraints.insert(m_nl_ctr);
     // // Set up input
     auto const & var_array = m_nl_ctr->get_var_array();
     for (int i = 0; i < var_array.size(); i++) {
@@ -322,6 +321,7 @@ box contractor_eval::prune(box b, SMTConfig & config) const {
         } else {
             b.set_empty();
         }
+        m_used_constraints.insert(m_nl_ctr);
     }
     return b;
 }
