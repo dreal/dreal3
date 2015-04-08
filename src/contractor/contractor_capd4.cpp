@@ -276,6 +276,7 @@ capd::IVector extract_ivector(box const & b, std::vector<Enode *> const & vars) 
 }
 
 void update_box_with_ivector(box & b, std::vector<Enode *> const & vars, capd::IVector iv) {
+    DREAL_LOG_INFO << "update_box_with_ivector: [before update]";
     capd::IVector intvs(vars.size());
     for (unsigned i = 0; i < vars.size(); i++) {
         b[vars[i]] = ibex::Interval(iv[i].leftBound(), iv[i].rightBound());
@@ -441,6 +442,7 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
 }
 
 box contractor_capd_fwd_full::prune(box b, SMTConfig &) const {
+    DREAL_LOG_INFO << "contractor_capd_fwd_full::prune";
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
     if (!m_solver) {
@@ -453,9 +455,7 @@ box contractor_capd_fwd_full::prune(box b, SMTConfig &) const {
         capd::IVector  m_X_0 = extract_ivector(b, ic.get_vars_0());
         capd::IVector  m_X_t = extract_ivector(b, ic.get_vars_t());
         ibex::Interval const & ibex_T = b[ic.get_time_t()];
-        capd::interval m_T;
-        m_T.setLeftBound(ibex_T.lb());
-        m_T.setRightBound(ibex_T.ub());
+        capd::interval m_T(ibex_T.lb(), ibex_T.ub());
 
         DREAL_LOG_INFO << "X_0 : " << m_X_0;
         DREAL_LOG_INFO << "X_t : " << m_X_t;
@@ -628,6 +628,7 @@ contractor_capd_bwd_full::~contractor_capd_bwd_full() {
 }
 
 box contractor_capd_bwd_full::prune(box b, SMTConfig &) const {
+    DREAL_LOG_INFO << "contractor_capd_bwd_full::prune";
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
     if (!m_solver) {
@@ -640,9 +641,7 @@ box contractor_capd_bwd_full::prune(box b, SMTConfig &) const {
         capd::IVector  m_X_0 = extract_ivector(b, ic.get_vars_0());
         capd::IVector  m_X_t = extract_ivector(b, ic.get_vars_t());
         ibex::Interval const & ibex_T = b[ic.get_time_t()];
-        capd::interval m_T;
-        m_T.setLeftBound(ibex_T.lb());
-        m_T.setRightBound(ibex_T.ub());
+        capd::interval m_T(ibex_T.lb(), ibex_T.ub());
 
         DREAL_LOG_INFO << "X_0 : " << m_X_0;
         DREAL_LOG_INFO << "X_t : " << m_X_t;
