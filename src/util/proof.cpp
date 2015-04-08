@@ -20,16 +20,24 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/proof.h"
+#include <string>
 
 namespace dreal {
-void proof_write_pruning_step(ostream & out, box const & old_box, box const & new_box, bool const readable_proof) {
+using std::string;
+void output_pruning_step(ostream & out, box const & old_box, box const & new_box, bool const readable_proof, string const & constraint) {
     if (old_box != new_box) {
-        out << "[before pruning] " << endl;
+        out << "[before pruning]" << endl;
         dreal::display(out, old_box, !readable_proof);
         if (new_box.is_empty()) {
-            out << "[conflict detected] " << endl;
+            out << "[conflict detected]";
         } else {
-            out << "[after pruning] " << endl;
+            out << "[after pruning]";
+        }
+        if (constraint.length() > 0) {
+            out << " by " << constraint;
+        }
+        out << endl;
+        if (!new_box.is_empty()) {
             dreal::display(out, new_box, !readable_proof);
         }
     }

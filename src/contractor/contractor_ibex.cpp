@@ -26,16 +26,17 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <memory>
 #include <queue>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include "contractor/contractor.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/constraint.h"
-#include "contractor/contractor.h"
 #include "util/ibex_enode.h"
 #include "util/logging.h"
 #include "util/proof.h"
@@ -194,7 +195,9 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
 
     // ======= Proof =======
     if (config.nra_proof) {
-        proof_write_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof);
+        stringstream ss;
+        ss << *m_numctr;
+        output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
     }
     return b;
 }
@@ -279,7 +282,11 @@ box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
     }
     // ======= Proof =======
     if (config.nra_proof) {
-        proof_write_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof);
+        stringstream ss;
+        for (auto const & ctr : m_ctrs) {
+            ss << *(ctr->get_numctr()) << ";";
+        }
+        output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
     }
     return b;
 }

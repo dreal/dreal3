@@ -22,8 +22,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <iostream>
+#include <string>
 #include "util/box.h"
 
 namespace dreal {
-void proof_write_pruning_step(std::ostream & out, box const & old_box, box const & new_box, bool const readable_proof);
+void output_pruning_step(std::ostream & out, box const & old_box, box const & new_box, bool const readable_proof, std::string const & constraint);
 }  // namespace dreal

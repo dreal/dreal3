@@ -168,7 +168,6 @@ public:
 // Repeatedly applying the contractor while the condition is met
 class contractor_fixpoint : public contractor_cell {
 private:
-    double const m_prec;
     std::function<bool(box const &, box const &)> m_term_cond;
     std::vector<contractor> m_clist;
 

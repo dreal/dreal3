@@ -156,21 +156,21 @@ ostream & contractor_ite::display(ostream & out) const {
 }
 
 contractor_fixpoint::contractor_fixpoint(double const prec, function<bool(box const &, box const &)> term_cond, contractor const & c)
-    : contractor_cell(contractor_kind::FP), m_prec(prec), m_term_cond(term_cond), m_clist(1, c) { }
+    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(1, c) { }
 contractor_fixpoint::contractor_fixpoint(double const prec, function<bool(box const &, box const &)> term_cond, initializer_list<contractor> const & clist)
-    : contractor_cell(contractor_kind::FP), m_prec(prec), m_term_cond(term_cond), m_clist(clist) { }
+    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(clist) { }
 contractor_fixpoint::contractor_fixpoint(double const prec, function<bool(box const &, box const &)> term_cond, vector<contractor> const & cvec)
-    : contractor_cell(contractor_kind::FP), m_prec(prec), m_term_cond(term_cond), m_clist(cvec) { }
+    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec) { }
 contractor_fixpoint::contractor_fixpoint(double const prec, function<bool(box const &, box const &)> term_cond,
                                          vector<contractor> const & cvec1, vector<contractor> const & cvec2)
-    : contractor_cell(contractor_kind::FP), m_prec(prec), m_term_cond(term_cond), m_clist(cvec1) {
+    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec1) {
     copy(cvec2.begin(), cvec2.end(), back_inserter(m_clist));
 }
 contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const &, box const &)> term_cond,
                                          vector<contractor> const & cvec1,
                                          vector<contractor> const & cvec2,
                                          vector<contractor> const & cvec3)
-    : contractor_cell(contractor_kind::FP), m_prec(p), m_term_cond(term_cond), m_clist(cvec1) {
+    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec1) {
     copy(cvec2.begin(), cvec2.end(), back_inserter(m_clist));
     copy(cvec3.begin(), cvec3.end(), back_inserter(m_clist));
 }
@@ -290,7 +290,7 @@ box contractor_int::prune(box b, SMTConfig & config) const {
 
     // ======= Proof =======
     if (config.nra_proof) {
-        proof_write_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof);
+        output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, "integer pruning");
     }
     return b;
 }
@@ -309,10 +309,19 @@ contractor_eval::contractor_eval(box const & box, nonlinear_constraint const * c
     }
 }
 
-box contractor_eval::prune(box b, SMTConfig &) const {
+box contractor_eval::prune(box b, SMTConfig & config) const {
     pair<bool, ibex::Interval> eval_result = m_nl_ctr->eval(b);
     if (!eval_result.first) {
-        b.set_empty();
+        // ======= Proof =======
+        if (config.nra_proof) {
+            box old_box = b;
+            b.set_empty();
+            stringstream ss;
+            ss << *(m_nl_ctr->get_numctr());
+            output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+        } else {
+            b.set_empty();
+        }
     }
     return b;
 }
