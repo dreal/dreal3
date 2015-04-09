@@ -424,8 +424,10 @@ box intersect_params(box & b, integral_constraint const & ic) {
         // intersection is empty
         b.set_empty();
     } else {
+        // X_0 is the result of intersection of X_0 and X_t
+        // So, use it to update pars_0 and pars_t
         update_box_with_ivector(b, ic.get_pars_0(), X_0);
-        update_box_with_ivector(b, ic.get_pars_t(), X_t);
+        update_box_with_ivector(b, ic.get_pars_t(), X_0);
     }
     return b;
 }
