@@ -186,7 +186,8 @@ if(SUPPORT_ODE)
   ExternalProject_Add(CAPD4
     DEPENDS FILIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-    GIT_REPOSITORY https://github.com/dreal-deps/capdDynSys-4.0.git
+    GIT_REPOSITORY https://github.com/soonhokong/capd4.git
+    #dreal-deps/capdDynSys-4.0.git
     GIT_TAG origin/master
     UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=no ${SHARED_LIB_CONFIG_COMMAND}
