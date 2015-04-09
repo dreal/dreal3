@@ -102,11 +102,17 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
         }
     } else if (e->isNumb()) {
         string name = e->getName();
+        if (name.find('e') != std::string::npos || name.find('E') != std::string::npos) {
+            // Scientific Notation
+            stringstream ss;
+            double const r = stod(name);
+            ss << setprecision(16) << std::fixed << r;
+            name = ss.str();
+        }
         if (starts_with(name, "-")) {
             name = "(" + name + ")";
         }
         return name;
-        // }
     } else if (e->isTerm()) {
         // output "("
         if (!e->getCdr()->isEnil() && (e->isPlus() || e->isMinus() || e->isTimes() || e->isPow())) {
