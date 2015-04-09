@@ -1,4 +1,4 @@
-DREACH = dReach
+DREACH = ../../../bin/dReach
 OPT =
 
 k0:
@@ -8,7 +8,7 @@ k1:
 	$(DREACH) -k 1 quad1.drh --precision=0.01 --visualize $(OPT)
 
 k2:
-	$(DREACH) -k 2 quad2.drh --precision=0.01 --visualize $(OPT)
+	$(DREACH) -l 2 -k 2 quad2.drh --precision=0.01 --visualize $(OPT)
 
 k2-1:
 	$(DREACH) -k 2 quad2-1.drh --precision=0.01 --visualize $(OPT)
