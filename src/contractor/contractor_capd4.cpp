@@ -425,7 +425,7 @@ box intersect_params(box & b, integral_constraint const & ic) {
         b.set_empty();
     } else {
         update_box_with_ivector(b, ic.get_pars_0(), X_0);
-        update_box_with_ivector(b, ic.get_pars_t(), X_0);
+        update_box_with_ivector(b, ic.get_pars_t(), X_t);
     }
     return b;
 }
