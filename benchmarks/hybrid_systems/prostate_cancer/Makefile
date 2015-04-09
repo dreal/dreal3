@@ -1,18 +1,14 @@
-BMC = ../../../tools/bmc/bmc.sh
-DREAL = dReal
+DREACH = ../../../bin/dReach
 OPT =
 
 k2:
-	$(BMC) -k 2  scaled_prostate_infix.drh
-	$(DREAL) --precision=0.005 --visualize $(OPT) scaled_prostate_infix_2_0.smt2
+	$(DREACH) -k 2 scaled_prostate_infix.drh --precision=0.005 --visualize $(OPT)
 
 k2-precise:
-	$(BMC) -k 2 scaled_prostate_infix.drh
-	$(DREAL) --precision=0.002 --visualize scaled_prostate_infix_2_0.smt2
+	$(DREACH) -k 2 scaled_prostate_infix.drh --precision=0.002 --visualize $(OPT)
 
 full:
-	$(BMC) -k 6 scaled_prostate_infix_full.drh
-	$(DREAL) --precision=0.005 --visualize scaled_prostate_infix_full_6_0.smt2
+	$(DREACH) -k 6 scaled_prostate_infix_full.drh --precision=0.005 --visualize $(OPT)
 
 clean:
 	rm -f *.preprocessed.drh

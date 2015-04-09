@@ -1,4 +1,4 @@
-DREACH = dReach
+DREACH = ../../../bin/dReach
 OPT =
 
 k2:
