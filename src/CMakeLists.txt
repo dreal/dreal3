@@ -21,8 +21,10 @@ include(CTest)
 # Added for External Projects
 include(ExternalProject)
 
-set(DREAL_EXTRA_LINKER_FLAGS "-D__USE_FILIB__")
-set(DREAL_EXTRA_CXX_FLAGS "-D__USE_FILIB__")
+#set(DREAL_EXTRA_LINKER_FLAGS "-D__USE_FILIB__")
+#set(DREAL_EXTRA_CXX_FLAGS "-D__USE_FILIB__")
+set(DREAL_EXTRA_LINKER_FLAGS "")
+set(DREAL_EXTRA_CXX_FLAGS "")
 
 ################################################################
 # Set Module Path
@@ -184,10 +186,10 @@ if(SUPPORT_ODE)
   ExternalProject_Add(CAPD4
     DEPENDS FILIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-    GIT_REPOSITORY https://github.com/dreal-deps/capdDynSys-4.0.git
+    GIT_REPOSITORY https://github.com/soonhokong/capd4.git
     GIT_TAG origin/master
     UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=no ${SHARED_LIB_CONFIG_COMMAND}
     BUILD_COMMAND make -j
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND make -j install
