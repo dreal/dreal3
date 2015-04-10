@@ -417,8 +417,10 @@ endif()
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 
-add_executable(dReal main.cpp)
-target_link_libraries(dReal dreal ${EXTRA_LIBS})
+add_executable(dReal-bin main.cpp)
+SET_TARGET_PROPERTIES(dReal-bin
+  PROPERTIES OUTPUT_NAME dReal)
+target_link_libraries(dReal-bin ${EXTRA_LIBS} dreal)
 
 #add tests
 add_subdirectory(tests/util)
@@ -439,7 +441,7 @@ file(GLOB_RECURSE DREAL_SOURCES
 add_style_check_target(style "${DREAL_SOURCES}")
 add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py "--filter=-readability/casting,-whitespace/line_length,-build/header_guard,-whitespace/indent,-runtime/references,-build/c++11" ${DREAL_SOURCES})
 
-ADD_CUSTOM_COMMAND(TARGET dReal
+ADD_CUSTOM_COMMAND(TARGET dReal-bin
           POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
           COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dReal ${DREAL_SOURCE_DIR}/../bin/
@@ -459,7 +461,7 @@ else()
 endif()
 include(CPack)
 
-install(TARGETS dReal DESTINATION bin)
+install(TARGETS dReal-bin DESTINATION bin)
 install(FILES ${DREAL_SOURCE_DIR}/../bin/dReach DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
               GROUP_READ GROUP_WRITE GROUP_EXECUTE
