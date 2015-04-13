@@ -1711,9 +1711,16 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
         }
 
         if (next == lit_Undef){
-          // New variable decision:
-          decisions++;
-          next = pickBranchLit(polarity_mode, random_var_freq);
+          if ((!config.nra_short_sat) || (!entailment())) {
+        	// New variable decision:
+        		DREAL_LOG_INFO << "Pick branch on a lit: " << endl;
+        		decisions++;
+        		next = pickBranchLit(polarity_mode, random_var_freq);
+        	} else {
+        		// SAT formula is satisfiable
+        		next = lit_Undef;
+        		DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
+        	}
 
           // Complete Call
           if ( next == lit_Undef )
@@ -1742,6 +1749,11 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             if ( res == 2 ) { continue; }
             if ( res == -1 ) return l_False;
             assert( res == 1 );
+
+            if(config.nra_short_sat) {
+            	// the problem is satisfiable as res = 1 at this point
+            	return l_True;
+            }
             // Otherwise we still have to make sure that
             // splitting on demand did not add any new variable
             decisions++;
@@ -1949,6 +1961,27 @@ int CoreSMTSolver::restartNextLimit ( int nof_conflicts )
   }
   // Standard restart
   return nof_conflicts * restart_inc;
+}
+/*_________________________________________________________________________________________________
+ |
+ |  entailment : ()  ->  [lbool]
+ |
+ |  Description:
+ |   Checks if all clauses are satisfied.
+ |
+ |  Output:
+ |    'l_True' if all clauses are satisfied. 'l_False'
+ |    if there exists unsatisfied clause.
+ |________________________________________________________________________________________________@*/
+
+bool CoreSMTSolver::entailment() {
+  for (int c = 0; c < nClauses(); c++) {
+    if (!satisfied(*clauses[c])) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 #ifdef STATISTICS
