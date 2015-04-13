@@ -335,6 +335,7 @@ protected:
         int    restartNextLimit       ( int );         // Next conflict limit for restart
         Var    generateMoreEij        ( );             // Generate more eij
         Var    generateNextEij        ( );             // Generate next eij
+        bool   entailment             ( );             // Check is a partial assignment entails a formula
 
 #ifndef SMTCOMP
         void   dumpCNF                ( );             // Dumps CNF to cnf.smt2
