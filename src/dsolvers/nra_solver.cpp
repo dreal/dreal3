@@ -220,7 +220,7 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         double const improvement = 1.00 - (new_volume / old_volume);
         return improvement < threshold;
     };
-    return mk_contractor_fixpoint(config.nra_precision, term_cond, nl_ctcs, ode_ctcs, nl_eval_ctcs);
+    return mk_contractor_fixpoint(term_cond, nl_ctcs, ode_ctcs, nl_eval_ctcs);
 }
 
 // Saves a backtrack point You are supposed to keep track of the

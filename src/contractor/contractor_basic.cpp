@@ -155,18 +155,18 @@ ostream & contractor_ite::display(ostream & out) const {
     return out;
 }
 
-contractor_fixpoint::contractor_fixpoint(double const prec, function<bool(box const &, box const &)> term_cond, contractor const & c)
+contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, contractor const & c)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(1, c) { }
-contractor_fixpoint::contractor_fixpoint(double const prec, function<bool(box const &, box const &)> term_cond, initializer_list<contractor> const & clist)
+contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, initializer_list<contractor> const & clist)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(clist) { }
-contractor_fixpoint::contractor_fixpoint(double const prec, function<bool(box const &, box const &)> term_cond, vector<contractor> const & cvec)
+contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, vector<contractor> const & cvec)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec) { }
-contractor_fixpoint::contractor_fixpoint(double const prec, function<bool(box const &, box const &)> term_cond,
+contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
                                          vector<contractor> const & cvec1, vector<contractor> const & cvec2)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec1) {
     copy(cvec2.begin(), cvec2.end(), back_inserter(m_clist));
 }
-contractor_fixpoint::contractor_fixpoint(double const p, function<bool(box const &, box const &)> term_cond,
+contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
                                          vector<contractor> const & cvec1,
                                          vector<contractor> const & cvec2,
                                          vector<contractor> const & cvec3)
@@ -446,24 +446,24 @@ contractor mk_contractor_try_or(contractor const & c1, contractor const & c2) {
 contractor mk_contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else) {
     return contractor(make_shared<contractor_ite>(guard, c_then, c_else));
 }
-contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box const &)> guard, contractor const & c) {
-    return contractor(make_shared<contractor_fixpoint>(p, guard, c));
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, contractor const & c) {
+    return contractor(make_shared<contractor_fixpoint>(guard, c));
 }
-contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box const &)> guard, initializer_list<contractor> const & clist) {
-    return contractor(make_shared<contractor_fixpoint>(p, guard, clist));
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, initializer_list<contractor> const & clist) {
+    return contractor(make_shared<contractor_fixpoint>(guard, clist));
 }
-contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box const &)> guard, vector<contractor> const & cvec) {
-    return contractor(make_shared<contractor_fixpoint>(p, guard, cvec));
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, vector<contractor> const & cvec) {
+    return contractor(make_shared<contractor_fixpoint>(guard, cvec));
 }
-contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box const &)> guard,
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
                                   vector<contractor> const & cvec1, vector<contractor> const & cvec2) {
-    return contractor(make_shared<contractor_fixpoint>(p, guard, cvec1, cvec2));
+    return contractor(make_shared<contractor_fixpoint>(guard, cvec1, cvec2));
 }
-contractor mk_contractor_fixpoint(double const p, function<bool(box const &, box const &)> guard,
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
                                   vector<contractor> const & cvec1,
                                   vector<contractor> const & cvec2,
                                   vector<contractor> const & cvec3) {
-    return contractor(make_shared<contractor_fixpoint>(p, guard, cvec1, cvec2, cvec3));
+    return contractor(make_shared<contractor_fixpoint>(guard, cvec1, cvec2, cvec3));
 }
 contractor mk_contractor_int() {
     return contractor(make_shared<contractor_int>());
