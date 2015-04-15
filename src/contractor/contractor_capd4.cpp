@@ -52,13 +52,15 @@ using nlohmann::json;
 namespace dreal {
 
 list<capd::interval> split(capd::interval const & i, unsigned n) {
+    assert(i.leftBound() <= i.rightBound());
     list<capd::interval> ret;
     double lb = i.leftBound();
     double const rb = i.rightBound();
     double const width = rb - lb;
     double const step = width / n;
-    for (unsigned i = 0; i < n - 1; i++) {
+    for (unsigned i = 0; (lb <= rb) && (i < n - 1); i++) {
         ret.emplace_back(lb, min(lb + step, rb));
+        assert(lb <= min(lb + step, rb));
         lb += step;
     }
     if (lb < rb) {
@@ -376,6 +378,7 @@ bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTi
     }
 
     for (capd::interval const & subsetOfDomain : intvs) {
+        DREAL_LOG_INFO << "compute_enclosures: subsetOfDomain = " << subsetOfDomain;
         capd::interval dt = prevTime + subsetOfDomain;
         capd::IVector v = curve(subsetOfDomain);
         // TODO(soonhok): check invariant
