@@ -421,7 +421,7 @@ set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ft
 add_executable(dReal-bin main.cpp)
 SET_TARGET_PROPERTIES(dReal-bin
   PROPERTIES OUTPUT_NAME dReal)
-target_link_libraries(dReal-bin ${EXTRA_LIBS} dreal)
+target_link_libraries(dReal-bin dreal ${EXTRA_LIBS})
 
 #add tests
 add_subdirectory(tests/util)
