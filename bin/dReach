@@ -174,11 +174,10 @@ do
         if [ $BMCH -eq 1 ]
         then
             # Construct Heuristic function
-            $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH
+            echo $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH 
+            $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH > ${SMT}
             SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
-        fi
-
-        if [ $BMCH -lt 3 ]
+        elif [ $BMCH -lt 3 ]
         then
             #Generate Disjunctive Encoding w/o pruning
             $BMC -k $K $PDRH > ${SMT}
@@ -199,7 +198,7 @@ do
             SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
         fi
 
-        echo SMT: ${SMT}
+        #echo SMT: ${SMT}
 
         #Solve
         ${SOLVER} ${SOLVER_OPT} --short_sat --delta_heuristic --delta --time_split_heuristic $SMT 2>&1 | tee $OUT
