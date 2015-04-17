@@ -74,6 +74,7 @@ lbool nra_solver::inform(Enode * e) {
     DREAL_LOG_INFO << "nra_solver::inform: " << e;
     // Collect Literal
     m_lits.push_back(e);
+    m_need_init = true;
     return l_Undef;
 }
 
@@ -83,6 +84,13 @@ lbool nra_solver::inform(Enode * e) {
 // stack of asserted literals.
 bool nra_solver::assertLit(Enode * e, bool reason) {
     if (config.nra_stat) { m_stat.increase_assert(); }
+
+    if (m_need_init) {
+        m_box.constructFromLiterals(m_lits);
+        m_ctrs = initialize_constraints();
+        m_need_init = false;
+    }
+
     DREAL_LOG_INFO << "nra_solver::assertLit: " << e
                    << ", reason: " << boolalpha << reason
                    << ", polarity: " << e->getPolarity().toInt()
@@ -229,10 +237,6 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
 void nra_solver::pushBacktrackPoint() {
     if (config.nra_stat) { m_stat.increase_push(); }
     DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
-    if (m_stack.size() == 0) {
-        m_box.constructFromLiterals(m_lits);
-        m_ctrs = initialize_constraints();
-    }
     m_stack.push();
     m_used_constraint_vec.push();
     m_boxes.push_back(m_box);

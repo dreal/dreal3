@@ -77,6 +77,7 @@ private:
     // std::unordered_map<Enode*, ibex::Ctc *> m_lit_ctc_map;
     // std::unordered_set<Enode *> m_var_set;
     // std::vector<Enode *> m_var_vec;  // unsigned int -> Enode* (Variable)
+    bool m_need_init = true;
     std::vector<Enode *> m_lits;
     scoped_vec<constraint *>  m_stack;
     scoped_vec<constraint const *>  m_used_constraint_vec;
