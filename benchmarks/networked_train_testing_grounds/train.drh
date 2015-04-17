@@ -11,7 +11,7 @@
 		flow:
 			d/dt[x] = -1;
 		jump:
-			(approach): (x = 1000) ==> @near true;
+			(approach): (x = 1000) ==> @near (true);
 	)
 
 	(mode near;
@@ -113,7 +113,7 @@
 			d/dt[z] = 1;
 		jump:
 			(approach): (true) ==> @dodown (z' = z);
-			(exit): (true) ==> @dodown (z' = z);
+			(exit): (true) ==> @doup (z' = z);
 			(lower): (true) ==> @idle (z' = z);
 	)
 )
@@ -125,5 +125,5 @@ analyze:
 	(train0 || gate0 || controller0);
 	
 goal:
-//	(): (and (x <= 1000) (x >= 0) (y >= 0));
-	(@gate.closed): true;
+	(): (and (x <= 1000) (x >= 0) (y >= 0));
+//	(): (and (x));
