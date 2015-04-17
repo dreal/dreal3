@@ -20,9 +20,9 @@ module Costmap = struct
   type t = (id, cost) Map.t
 
 
-  let of_modemap (modes : Modemap.t) : t
+  let of_modemap  (modes : Modemap.t) : t
       =
-      let list_of_modes = List.of_enum (Map.keys modes) in
+      let list_of_modes = List.map (fun m -> (string_of_int (Mode.mode_numId (Modemap.find m modes)))) (List.of_enum (Map.keys modes)) in
       List.fold_left
       (fun (map : (id, cost) Map.t) (m : id) ->
         Map.add m infinity map
@@ -31,7 +31,7 @@ module Costmap = struct
       list_of_modes
 
   let print out = 
-    let id_print out id = Printf.fprintf out "\"%s\"" (IO.to_string Id.print id) in
+    let id_print out id = Printf.fprintf out "\"%s\"" id in
     let f_print out f = Printf.fprintf out "\"%f\"" (f) in
     Map.print id_print f_print out
 	      

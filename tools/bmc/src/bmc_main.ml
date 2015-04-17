@@ -60,45 +60,49 @@ let run () =
     let out = IO.stdout in
     let lexbuf = Lexing.from_channel (if !src = "" then stdin else open_in !src) in
     let hm = Drh_parser.main Drh_lexer.start lexbuf in
-    begin
+ (*   begin
 		(*Network.print out hm;*)
 		(*let paths = Bmc.pathgen hm !k in*)
 		let smt = Bmc.compile hm !k None false in
 		Smt2.print out smt
     end
-    (*if !pathgen then (*TODO*)
+  *)
+   (* if !pathgen then (*TODO*)
       let paths = Bmc.pathgen hm !k in
       List.print ~first:"" ~last:"\n" ~sep:"\n"
-                 (fun out path ->
-                  List.print ~first:"[" ~last:"]" ~sep:"," Int.print out path)
-                 out
-                 paths
-    else
-      if Option.is_some !bmc_heuristic then
-        let heuristic = Heuristic.heuristicgen hm !k in
-        let hout = open_out (Option.get !bmc_heuristic) in
-        let () = Heuristic.writeHeuristic heuristic hm !k hout in
-        close_out hout
-      else if Option.is_some !bmc_heuristic_prune then
-        let heuristic = Heuristic.heuristicgen hm !k in
-        let heuristic_back = Heuristic.heuristicgen_back hm !k in
-        let hout = open_out (Option.get !bmc_heuristic_prune) in
-        let () = Heuristic.writeHeuristic heuristic hm !k hout in
-        let () = close_out hout in
-        let smt = Bmc.compile_pruned hm !k heuristic heuristic_back None in
-        Smt2.print out smt
-      else if Option.is_some !bmc_heuristic_prune_deep then
-        let heuristic = Heuristic.heuristicgen hm !k in
-        let heuristic_back = Heuristic.heuristicgen_back hm !k in
-        let rel_back = Heuristic.relevantgen_back hm !k heuristic heuristic_back in
-        let hout = open_out (Option.get !bmc_heuristic_prune_deep) in
-        let () = Heuristic.writeHeuristic heuristic hm !k hout in
-        let () = close_out hout in
-        let smt = Bmc.compile_pruned hm !k heuristic heuristic_back (Some rel_back) in
-        Smt2.print out smt
-    else
-      let _ = Hybrid.check_path hm !path !k in
-        let smt = Bmc.compile hm !k !path in
-        Smt2.print out smt
-  with v -> Error.handle_exn v
+		 (fun out path ->
+		  (*List.print ~first:"[" ~last:"]" ~sep:"," Int.print out path)*)
+		  List.print ~first:"[" ~last:"]" ~sep:"," String.print out path)
+		 out
+		 paths
+    else *)
+    
+    if Option.is_some !bmc_heuristic then
+      let heuristic = Heuristic.heuristicgen hm !k in
+      let hout = open_out (Option.get !bmc_heuristic) in
+      let () = Heuristic.writeHeuristic heuristic hm !k hout in
+      let () = close_out hout in
+      let smt = Bmc.compile hm !k None false in
+      Smt2.print out smt
+    else if Option.is_some !bmc_heuristic_prune then
+      let heuristic = Heuristic.heuristicgen hm !k in
+      let heuristic_back = Heuristic.heuristicgen_back hm !k in
+      let hout = open_out (Option.get !bmc_heuristic_prune) in
+      let () = Heuristic.writeHeuristic heuristic hm !k hout in
+      let () = close_out hout in
+      (*	let smt = Bmc.compile_pruned hm !k heuristic heuristic_back None in *)
+      let smt = Bmc.compile hm !k None false in
+      Smt2.print out smt
+    else if Option.is_some !bmc_heuristic_prune_deep then
+      let heuristic = Heuristic.heuristicgen hm !k in
+      let heuristic_back = Heuristic.heuristicgen_back hm !k in
+      (*	let rel_back = Heuristic.relevantgen_back hm !k heuristic heuristic_back in *)
+      let hout = open_out (Option.get !bmc_heuristic_prune_deep) in
+      let () = Heuristic.writeHeuristic heuristic hm !k hout in
+      let () = close_out hout in
+      (*	let smt = Bmc.compile_pruned hm !k heuristic heuristic_back (Some rel_back) in *)
+      let smt = Bmc.compile hm !k None false in
+      Smt2.print out smt
+		 
+	       with v -> Error.handle_exn v
 let _ = Printexc.catch run ()
