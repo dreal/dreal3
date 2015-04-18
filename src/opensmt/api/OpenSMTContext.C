@@ -712,10 +712,14 @@ lbool OpenSMTContext::CheckSAT( )
       out << "unknown" << endl;
     else if ( state == l_False )
       out << "unsat" << endl;
-    else
-      out << "sat" << endl;
+    else {
+      fesetround(FE_TONEAREST);
+      std::streamsize ss = out.precision();
+      out.precision(17);
+      out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      out.precision(ss);
+    }
   }
-
   return state;
 }
 
@@ -743,10 +747,14 @@ lbool OpenSMTContext::CheckSAT( vec< Enode * > & assumptions )
       out << "unknown" << endl;
     else if ( state == l_False )
       out << "unsat" << endl;
-    else
-      out << "sat" << endl;
+    else {
+      fesetround(FE_TONEAREST);
+      std::streamsize ss = out.precision();
+      out.precision(17);
+      out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      out.precision(ss);
+    }
   }
-
   return state;
 }
 
@@ -774,10 +782,14 @@ lbool OpenSMTContext::CheckSAT( vec< Enode * > & assumptions, unsigned limit )
       out << "unknown" << endl;
     else if ( state == l_False )
       out << "unsat" << endl;
-    else
-      out << "sat" << endl;
+    else {
+      fesetround(FE_TONEAREST);
+      std::streamsize ss = out.precision();
+      out.precision(17);
+      out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      out.precision(ss);
+    }
   }
-
   return state;
 }
 
@@ -813,9 +825,13 @@ void OpenSMTContext::PrintResult( const lbool & result, const lbool & config_sta
       }
     }
 
-  if ( result == l_True )
-    out << "sat" << endl;
-  else if ( result == l_False )
+  if ( result == l_True ) {
+      fesetround(FE_TONEAREST);
+      std::streamsize ss = out.precision();
+      out.precision(17);
+      out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      out.precision(ss);
+  } else if ( result == l_False )
     out << "unsat" << endl;
   else if ( result == l_Undef )
     out << "unknown" << endl;
