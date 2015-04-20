@@ -111,7 +111,7 @@ ostream& display(ostream& out, box const & b, bool const exact, bool const old_s
     std::streamsize ss = out.precision();
     out.precision(16);
     if (old_style) {
-        out << "SAT with the following box:" << endl;
+        out << "delta-sat with the following box:" << endl;
         unsigned const s = b.size();
         for (unsigned i = 0; i < s; i++) {
             Enode * e = b.m_vars[i];
