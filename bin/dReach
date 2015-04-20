@@ -42,6 +42,8 @@ OPTIONS:
                                 52 if UNSAT,
                                 1 abnormal termination
 
+   -o               parse old .drh file format (default: do not use)
+
 EXAMPLE:
 
    dReach -k 10      bouncing_ball.drh --verbose --precision 0.001 --visualize
@@ -58,8 +60,9 @@ L=0
 U=NONE
 DEFAULT_U=3
 Z_OPT=FALSE #(edited: FS)
+OLD=""
 
-while getopts "zhbdk:l:u:ep:ir" OPTION
+while getopts "zohbdk:l:u:ep:ir" OPTION
 do
     case $OPTION in
         h)
@@ -90,6 +93,9 @@ do
         z)                  #(edited: FS)
             Z_OPT=TRUE      #
             ;;              #
+        o)
+            OLD=" --old_format"
+            ;;
         \?)
             usage
             exit 1
@@ -157,6 +163,12 @@ shift 1
 SOLVER_OPT=$*
 echo dReal Options: $SOLVER_OPT
 
+# Preprocessing
+sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
+
+# Append option to parse old file format
+BMC=$BMC$OLD
+
 UNROLLS=`seq $L $U`
 for K in $UNROLLS
 do
@@ -170,7 +182,7 @@ do
         if [ $BMCH -eq 1 ]
         then
             # Construct Heuristic function
-            echo $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH 
+            #echo $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH 
             $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH > ${SMT}
             SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
         elif [ $BMCH -lt 3 ]
@@ -197,7 +209,8 @@ do
         #echo SMT: ${SMT}
 
         #Solve
-        ${SOLVER} ${SOLVER_OPT} --short_sat --delta_heuristic --delta --time_split_heuristic $SMT 2>&1 | tee $OUT
+        echo "${SOLVER} ${SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta --time_split_heuristic 2>&1 | tee $OUT"
+        ${SOLVER} ${SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta 2>&1 | tee $OUT
         RESULT=`tail -n 1 $OUT`
         if [[ $RESULT == delta-sat* ]]
         then
