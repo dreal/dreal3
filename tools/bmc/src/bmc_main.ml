@@ -15,6 +15,7 @@ let bmc_heuristic = ref None
 let bmc_heuristic_prune = ref None
 let bmc_heuristic_prune_deep = ref None
 let path = ref None
+let old_format = ref false
 
 (* Takes in string s (ex: "[1,2,3,4,5]")
    and return int list [1;2;3;4;5]        *)
@@ -48,6 +49,9 @@ let spec = [
   ("--path",
    Arg.String (fun s -> path := Some (process_path s)),
    ": specify the path (ex: \"[1,2,1,2,1]\" to focus (Default: none)");
+  ("--old_format",
+   Arg.Unit (fun o -> old_format := true),
+   ": parse file using the old file format");
 ]
 let usage = "Usage: main.native [<options>] <.drh>\n<options> are: "
 
@@ -59,7 +63,9 @@ let run () =
   try
     let out = IO.stdout in
     let lexbuf = Lexing.from_channel (if !src = "" then stdin else open_in !src) in
-    let hm = Drh_parser.main Drh_lexer.start lexbuf in
+    let hm = match !old_format with
+               | false -> Drh_parser_networks.main Drh_lexer_networks.start lexbuf
+               | true -> Drh_parser.main Drh_lexer.start lexbuf in
  (*   begin
 		(*Network.print out hm;*)
 		(*let paths = Bmc.pathgen hm !k in*)
@@ -103,6 +109,8 @@ let run () =
       (*	let smt = Bmc.compile_pruned hm !k heuristic heuristic_back (Some rel_back) in *)
       let smt = Bmc.compile hm !k None false in
       Smt2.print out smt
-		 
+    else 
+      let smt = Bmc.compile hm !k None false in
+      Smt2.print out smt
 	       with v -> Error.handle_exn v
 let _ = Printexc.catch run ()

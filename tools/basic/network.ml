@@ -41,20 +41,6 @@ let make (mo, t, aut, lm, gv, g): t = {modemapping = mo; time = t; automata = au
 
 let makep (t, aut, gv, g):t = {modemapping = (Modemapping.make (Map.empty, Map.empty)); time = t; automata = aut; mapping = []; globalvars = gv; goals = g}
 
-(*let unified_modemap_encoded nw = 
-	let auta = automata nw in
-	let mm = modemapping nw in
-	List.fold_left (
-		fun map a ->
-			begin
-				let mm_local = List.map (fun (mn, _) -> mn) (Map.bindings (Hybrid.modemap a)) in
-				let name = Hybrid.name a in
-				let 
-			end
-	)
-	Map.empty
-	auta*)
-
 let rec get_all_vardecls (auta: automata):Vardeclmap.t list = 
 	match
 		try Some (List.hd auta)

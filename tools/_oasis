@@ -25,7 +25,7 @@ Library parsing
   BuildTools: ocamlbuild
   BuildDepends: basic
   NativeOpt:    -passopt -annot
-  Modules:    Drh_lexer, Drh_parser
+  Modules:    Drh_lexer, Drh_parser, Drh_lexer_networks, Drh_parser_networks
 
 Library smt2
   Path:       ./smt2
