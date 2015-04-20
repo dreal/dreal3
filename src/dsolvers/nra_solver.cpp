@@ -253,6 +253,7 @@ void nra_solver::popBacktrackPoint() {
     DREAL_LOG_INFO << "nra_solver::popBacktrackPoint\t m_stack.size()      = " << m_stack.size();
     m_boxes.pop();
     m_box = m_boxes.last();
+    m_box.assign_to_enode();
     m_used_constraint_vec.pop();
     m_stack.pop();
 }
