@@ -63,11 +63,10 @@ let process_flow ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) : Basic.formu
     let vars = List.map (fun (name, _) -> name) vardecls in
     let flow_var = (make_variable q "" "flow") in
     let ode_vars = List.filter (fun name -> name <> "time") vars in
-    let ode_vars' = List.sort String.compare ode_vars in
-    let ode_vars_0 = List.map (make_variable k "_0") ode_vars' in
-    let ode_vars_t = List.map (make_variable k "_t") ode_vars' in
+    let ode_vars_0 = List.map (make_variable k "_0") ode_vars in
+    let ode_vars_t = List.map (make_variable k "_t") ode_vars in
     Eq(Vec ode_vars_t (* ["x_1_t"; "y_1_t"] *),
-       Integral(0.0, time_var, ode_vars_0, flow_var)) in
+                         Integral(0.0, time_var, ode_vars_0, flow_var)) in
   let inv_formula = match (Mode.invs_op m) with
       None -> Basic.True
     | Some invs ->
@@ -93,31 +92,43 @@ let process_flow ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) : Basic.formu
 let process_flow_pruned ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) (relevant : Relevantvariables.t list option) : Basic.formula =
   let m = Map.find q modemap in
   let mode_formula = make_mode_cond ~k ~q in
+  let not_mode_formula = Basic.make_and(
+			     List.map (fun nm -> if nm = q then
+					       Basic.True
+					     else
+					       Basic.Not (make_mode_cond k nm) 
+				      )
+				      (match relevant with
+					Some(rel) -> (
+					let relevant_at_k = List.nth rel k in
+					(List.of_enum (Map.keys relevant_at_k))
+				      )
+				      | None -> (List.of_enum (Map.keys modemap)))
+			   ) in
   let time_var = (make_variable k "" "time") in
   let flow_formula =
     let vardecls = varmap_to_list varmap in
     let vars = List.map (fun (name, _) -> name) vardecls in
     let vars_pruned = List.filter
-                        (fun x ->
-                         match relevant with
-                           Some(rel) -> (
-                           let relevant_at_k = List.nth rel k in
-                           match Map.mem q relevant_at_k with
-                             false -> false
-                           | true ->
-                              (Set.mem x (Map.find q relevant_at_k))
-                         )
-                         | None -> true
-                        ) vars in
+			(fun x ->
+			 match relevant with
+			   Some(rel) -> (
+			   let relevant_at_k = List.nth rel k in
+			   match Map.mem q relevant_at_k with
+			     false -> false
+			   | true ->
+			      (Set.mem x (Map.find q relevant_at_k))
+			 )
+			 | None -> true
+			) vars in
     if List.length vars_pruned = 0 then
       True
     else
     let q_string = (String.join "_" [""; (string_of_int q);]) in
     let flow_var = (make_variable k q_string "flow") in
     let ode_vars = List.filter (fun name -> name <> "time") vars_pruned in
-    let ode_vars' = List.sort String.compare ode_vars in
-    let ode_vars_0 = List.map (make_variable k "_0") ode_vars' in
-    let ode_vars_t = List.map (make_variable k "_t") ode_vars' in
+    let ode_vars_0 = List.map (make_variable k "_0") ode_vars in
+    let ode_vars_t = List.map (make_variable k "_t") ode_vars in
     Eq(Vec ode_vars_t (* ["x_1_t"; "y_1_t"] *),
                          Integral(0.0, time_var, ode_vars_0, flow_var))
   in
@@ -130,10 +141,10 @@ let process_flow_pruned ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) (relev
             Basic.make_and
               [Basic.subst_formula (make_variable k "_0") invt_f;
                Basic.subst_formula (make_variable k "_t") invt_f;
-               Basic.ForallT (Num (float_of_int q),
-                              Num 0.0,
-                              Var time_var,
-                              (Basic.subst_formula (make_variable k "_t") invt_f))])
+				   Basic.ForallT (Num (float_of_int q),
+						  Num 0.0,
+						  Var time_var,
+						  (Basic.subst_formula (make_variable k "_t") invt_f))])
           invs
       in
       (* mode_k = q && inva_q(x_i, x_i_t) *)
@@ -141,12 +152,12 @@ let process_flow_pruned ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) (relev
       Basic.make_and invt_conds
   in
   Basic.make_and ([mode_formula; flow_formula; inv_formula])
+(*		 Basic.make_and ([mode_formula; not_mode_formula; flow_formula; inv_formula])*)
 
 (** transition change **)
-let process_jump (modemap : Modemap.t) (q : Mode.id) (next_q : Mode.id) k : Basic.formula =
+let process_jump (modemap : Modemap.t) (q : Mode.id) (jump : Jump.t) k : Basic.formula =
+  let next_q = jump.Jump.target in
   let mode = Map.find q modemap in
-  let jumpmap = mode.jumpmap in
-  let jump = Map.find next_q jumpmap in
   let mode_formula = make_mode_cond ~k:(k+1) ~q:next_q in
   let gurad' = Basic.subst_formula (make_variable k "_t") jump.guard in
   let precision = Jump.precision jump in
@@ -192,7 +203,19 @@ let process_jump_pruned (modemap : Modemap.t) (q : Mode.id) (next_q : Mode.id) (
   let jumpmap = mode.jumpmap in
   let jump = Map.find next_q jumpmap in
   let mode_formula = make_mode_cond ~k:(k+1) ~q:next_q in
-  let gurad' = Basic.subst_formula (make_variable k "_t") jump.guard in
+  let not_mode_formula = Basic.make_and(
+			     List.map (fun nm -> if nm = next_q then
+					       Basic.True
+					     else
+					       Basic.Not (make_mode_cond (k+1) nm) 
+				      )
+				      (match relevant with
+					 Some(rel) -> (
+					 let relevant_at_k = List.nth rel k in
+					 (List.of_enum (Map.keys relevant_at_k))
+				       )
+				       | None -> (List.of_enum (Map.keys modemap)))) in
+  let guard' = Basic.subst_formula (make_variable k "_t") jump.guard in
   let precision = Jump.precision jump in
   let used =
     Set.map
@@ -218,11 +241,11 @@ let process_jump_pruned (modemap : Modemap.t) (q : Mode.id) (next_q : Mode.id) (
     List.filter
       (fun x ->
        match relevant with
-         Some(rel) -> (
-         let relevant_at_k = List.nth rel k in
-         match Map.mem q relevant_at_k with
-           false -> false
-         | true ->  (Set.mem x (Map.find q relevant_at_k))
+	 Some(rel) -> (
+	 let relevant_at_k = List.nth rel k in
+	 match Map.mem q relevant_at_k with
+	   false -> false
+	 | true ->  (Set.mem x (Map.find q relevant_at_k))
        )
        | None -> true )
       !global_vars
@@ -231,16 +254,34 @@ let process_jump_pruned (modemap : Modemap.t) (q : Mode.id) (next_q : Mode.id) (
     (* for variables that doesn't appear in code *)
     Basic.make_and (
       List.map
-        (fun name ->
-           match (Set.mem name used, precision) with
-           | (false, 0.0) -> Basic.Eq (Basic.Var (make_variable k "_t" name), Basic.Var (make_variable (k+1) "_0" name))
-           | (false, _) -> Basic.Eqp (Basic.Var (make_variable k "_t" name), Basic.Var (make_variable (k+1) "_0" name), precision)
-           | (true, _) -> Basic.True
+        (fun name -> 
+	 match relevant with
+	   Some(rel) -> (
+	   let relevant_at_k = List.nth rel k in
+	   let relevant_at_k' = List.nth rel (k+1) in
+	   match  ((Map.mem q relevant_at_k) &&
+		     (Set.mem name (Map.find q relevant_at_k)) &&
+		       (Map.mem next_q relevant_at_k') &&
+			 (Set.mem name (Map.find next_q relevant_at_k')))
+	   with  
+	     false -> Basic.True
+	   | true ->  
+	      match (Set.mem name used, precision) with
+	      | (false, 0.0) -> Basic.Eq (Basic.Var (make_variable k "_t" name), Basic.Var (make_variable (k+1) "_0" name))
+	      | (false, _) -> Basic.Eqp (Basic.Var (make_variable k "_t" name), Basic.Var (make_variable (k+1) "_0" name), precision)
+	      | (true, _) -> Basic.True
+	 )
+	 | None ->  
+            match (Set.mem name used, precision) with
+            | (false, 0.0) -> Basic.Eq (Basic.Var (make_variable k "_t" name), Basic.Var (make_variable (k+1) "_0" name))
+            | (false, _) -> Basic.Eqp (Basic.Var (make_variable k "_t" name), Basic.Var (make_variable (k+1) "_0" name), precision)
+            | (true, _) -> Basic.True
         )
         changevars
     )
   in
-  Basic.make_and [gurad'; change'; change''; mode_formula]
+(*  Basic.make_and [guard'; change'; change''; mode_formula ; not_mode_formula] *)
+  Basic.make_and [guard'; change'; change''; mode_formula] 
 
 
 (** transition constrint, seems like not necessary, we can prune it when processing jump  **)
@@ -262,20 +303,20 @@ let process_goals (k : int) (goals : (int * formula) list) =
 (** generate logic formula for each step 0...k **)
 let process_step_pruned (varmap : Vardeclmap.t)
                  (modemap : Modemap.t)
-                 (heuristic : Costmap.t)
+		 (heuristic : Costmap.t)
                  (heuristic_back : Costmap.t)
-                 (relevant : Relevantvariables.t list option)
-                 (k : int)
+		 (relevant : Relevantvariables.t list option)
+		 (k : int)
                  (step : int)
     : Basic.formula =
   let num_of_modes = Enum.count (Map.keys modemap) in
   let list_of_modes = List.of_enum ( 1 -- num_of_modes ) in
   let list_of_possible_modes = List.filter
-                                 (fun q ->
-                                   ((Costmap.find q heuristic) <= float_of_int step) &&
-                                   ((Costmap.find q heuristic_back) <=  float_of_int (k - step))
-                                 )
-                                 list_of_modes
+				 (fun q ->
+				   ((Costmap.find q heuristic) <= float_of_int step) &&
+				   ((Costmap.find q heuristic_back) <=  float_of_int (k - step))
+				 )
+				 list_of_modes
   in
   let jump_flow_part =
     List.map
@@ -285,20 +326,28 @@ let process_step_pruned (varmap : Vardeclmap.t)
          let mode_q = Map.find q modemap in
          let jumpmap_q = mode_q.jumpmap in
          let list_of_nq = List.of_enum (Map.keys jumpmap_q) in
-         let list_of_possible_nq = List.filter
-                                 (fun q ->
-                                   ((Costmap.find q heuristic) <= float_of_int (step + 1)) &&
-                                   ((Costmap.find q heuristic_back) <=  float_of_int (k - (step + 1)))
-                                 )
-                                 list_of_nq
-         in
-         let jump_for_q_nq  = Basic.make_or (List.map
+	 let list_of_possible_nq = List.filter
+				 (fun q ->
+				   ((Costmap.find q heuristic) <= float_of_int (step + 1)) &&
+				   ((Costmap.find q heuristic_back) <=  float_of_int (k - (step + 1)))
+				 )
+				 list_of_nq
+	 in
+(*         let jump_for_q_nq  = Basic.make_or (List.map
                                                (fun nq ->
                                                 process_jump_pruned modemap q nq relevant step
                                                )
                                                list_of_possible_nq)
          in
-         Basic.make_and [flow_for_q; jump_for_q_nq]
+         Basic.make_and [flow_for_q; jump_for_q_nq] *)
+         let jump_for_q_nq  = Basic.make_or (List.map
+                                               (fun nq ->
+						Basic.make_and [flow_for_q; (process_jump_pruned modemap q nq relevant step)]
+                                               )
+                                               list_of_possible_nq)
+         in
+         
+	 jump_for_q_nq
        with e ->
          begin
            Printexc.print_backtrace IO.stderr;
@@ -325,13 +374,10 @@ let process_step (varmap : Vardeclmap.t)
        try
          let flow_for_q = process_flow ~k:step ~q varmap modemap in
          let mode_q = Map.find q modemap in
-         let jumpmap_q = mode_q.jumpmap in
-         let list_of_nq = List.of_enum (Map.keys jumpmap_q) in
-         let jump_for_q_nq  = Basic.make_or (List.map
-                                               (fun nq ->
-                                                process_jump modemap q nq step
-                                               )
-                                               list_of_nq)
+         let jump_for_q_nq  =
+           Basic.make_or (List.map
+                            (fun j -> process_jump modemap q j step)
+                            (Mode.jumps mode_q))
          in
          Basic.make_and [flow_for_q; jump_for_q_nq]
        with e ->
@@ -361,12 +407,13 @@ let final_flow varmap modemap mode k =
      in
      Basic.make_or flows
 
-let final_flow_pruned varmap modemap mode k relevant =
+let final_flow_pruned varmap modemap mode k relevant goals =
   let list_of_modes = match mode with
       Some n -> [n]
     | None ->
-       let num_modes = Enum.count (Map.keys modemap) in
-       List.of_enum ( 1 -- num_modes )
+       (*let num_modes = Enum.count (Map.keys modemap) in	*)
+       List.map (fun (m, _) -> m ) goals
+(*       List.of_enum ( 1 -- num_modes ) *)
   in let flows =
        List.map
          (
@@ -377,7 +424,6 @@ let final_flow_pruned varmap modemap mode k relevant =
      in
      Basic.make_or flows
 
-
 (* compile Hybrid automata into SMT formulas *)
 let compile_logic_formula_pruned (h : Hybrid.t) (k : int) (heuristic : Costmap.t) (heuristic_back : Costmap.t) (relevant : Relevantvariables.t list option) =
   let {init_id; init_formula; varmap; modemap; goals} = h in
@@ -387,7 +433,7 @@ let compile_logic_formula_pruned (h : Hybrid.t) (k : int) (heuristic : Costmap.t
     List.map (process_step_pruned varmap modemap heuristic heuristic_back relevant k) list_of_steps
   in
   (* tricky case, final mode need flow without jump  *)
-  let final_flow_clause = final_flow_pruned varmap modemap None k relevant in
+  let final_flow_clause = final_flow_pruned varmap modemap None k relevant goals in
   let goal_clause = process_goals k goals in
   let smt_formula = Basic.make_and (List.flatten [[init_clause]; step_clauses; [final_flow_clause];  [goal_clause]]) in
   Assert smt_formula
@@ -612,11 +658,29 @@ let compile_vardecl_pruned (h : Hybrid.t) (k : int) (path : (int list) option) (
          (List.map
             (function (var, v) ->
               List.map
-                (fun k' ->
-                  [
-                    (var ^ "_" ^ (Int.to_string k') ^ "_0", v);
-                    (var ^ "_" ^ (Int.to_string k') ^ "_t", v)
-                  ]
+                (fun k' -> 
+		 match relevant with
+		   Some(rel) -> (
+		   let relevant_at_k = List.nth rel k' in
+		   let in_a_relevant_mode (mvar : String.t)  = 
+		     let mode_relevant key mset  = BatSet.mem mvar mset in
+		     (Map.exists mode_relevant relevant_at_k)
+		   in
+		   match in_a_relevant_mode var with  
+		     false -> []
+		   | true ->
+                      [
+			(var ^ "_" ^ (Int.to_string k') ^ "_0", 
+			 v);
+			(var ^ "_" ^ (Int.to_string k') ^ "_t", v)
+                      ]
+		 )
+		  |
+		    None  ->
+                      [
+			(var ^ "_" ^ (Int.to_string k') ^ "_0", v);
+			(var ^ "_" ^ (Int.to_string k') ^ "_t", v)
+                      ]		 
                 )
                 (List.of_enum ( 0 -- k))
             )
@@ -695,8 +759,8 @@ let compile_ode_definition_pruned (h : Hybrid.t) k (relevant : Relevantvariables
     (fun (g, odes) ->
      List.map
        (fun step ->
-        let g_string = (String.join "_" [""; (string_of_int g);]) in
-        (DefineODE ((make_variable step g_string "flow"), odes)))
+	let g_string = (String.join "_" [""; (string_of_int g);]) in
+	(DefineODE ((make_variable step g_string "flow"), odes)))
        list_of_steps
     )
     flows)
@@ -897,12 +961,7 @@ let build_var_flow_list (n: Network.t) =
 	sum_flows@gamma_plain@const_change_flows
 	
 let compile_ode_definition (n: Network.t) k = 
-	(*let steps = List.of_enum (0 -- k) in
-	let flows = List.map (fun x -> DefineODE ("flow_"^(string_of_int x), build_var_flow_list n x)) steps in
-	flows*)
-	(*[DefineODE ("flow", flist)]*)
-	(*List.map (fun (a, m, odes) -> DefineODE (mk_flow_var a m k, odes)) flows*)
-	(*List.flatten (List.map (fun (a, m, odes) -> List.map (fun i -> DefineODE (mk_flow_var a m i, mk_flow_mul_gamma odes i a m)) steps) flows)*)
+	(* We require only one actual flow definition since it's basically a factorization of all flows *)
 	[(DefineODE ("flow_0", build_var_flow_list n))]
 	
 let get_ode_var_map (n: Network.t) (k: int) = 
@@ -921,11 +980,9 @@ let get_ode_var_map (n: Network.t) (k: int) =
 	)
 	Map.empty
 	flowlist
-	
-	(* (integral 0 time_1 [x_1_0 ... x_i_0] flow1) *)
+
 let mk_flow (n: Network.t) i = 
 	let fl = build_var_flow_list n in
-	(*let fvar = "flow_"^(string_of_int i) in*)
 	let fvar = "flow_0" in
 	let timevar = mk_variable i "" "time" in
 	let vvars = List.map (fun (v, _) -> v) fl in
@@ -934,19 +991,9 @@ let mk_flow (n: Network.t) i =
 		false -> mk_variable i "_t" v
 		|true -> mk_variable i "_0" v 
 	) vvars in
-	(*let varEnd = List.map (fun v -> mk_variable i "_t" v) vvars in*)
 	let vecBegin = Basic.Vec varBegin in
 	let vecEnd = Basic.Vec varEnd in
 	Basic.Eq (vecEnd, Basic.Integral (0.0, timevar, varBegin, fvar))
-	(*let fvar = mk_flow_var aut mode i in
-	let gvar = mk_gamma i aut mode in
-	let vvars = Map.find fvar flowmap in
-	let timevar = mk_variable i "" "time" in
-	let varBegin = List.map (fun v -> mk_variable i "_0" v) vvars in
-	let varEnd = List.map (fun v -> mk_variable i "_t" v) vvars in
-	let vecBegin = Basic.Vec varBegin in
-	let vecEnd = Basic.Vec varEnd in
-	Basic.Eq (vecEnd, Basic.Integral (0.0, timevar, varBegin, fvar))*)
 	
 let mk_inv_q mode i = 
 	let invs = mode.invs_op in
@@ -955,16 +1002,11 @@ let mk_inv_q mode i =
 		None -> Basic.True
 		| Some fl -> begin
 			let invs_mapped = List.map (fun f -> Basic.subst_formula (mk_variable i "_t") f) fl in
-			let invs_forall = List.map (fun f -> Basic.ForallT (Basic.Num (float_of_int i),
-												 Basic.Num 0.0,
-												 Basic.Var time_var,
-												 f)) invs_mapped in
 			let conj_invs = Basic.make_and invs_mapped in
 			Basic.ForallT (Basic.Num (float_of_int i),
 											Basic.Num 0.0,
 											Basic.Var time_var,
 											conj_invs)
-			(*conj_invs*)
 			end
 			
 let mk_inv (n: Network.t) i = 
@@ -1125,10 +1167,7 @@ let compile_vardecl (h : Network.t) (k : int) (path : comppath option) (precompu
   let assert_gam = List.flatten assert_gam_list in
   let assert_gam_t = List.flatten assert_gam_list_t in
   (org_vardecl_cmds@vardecl_cmds@syncs@enfdecl_cmds@gamma_plain@gamdecl_cmds(*@gamdecl_cmds_t*), assert_cmds@assert_enf@assert_gam(*@assert_gam_t*))
-  
-(*let make_mode_cond ~k ~q =
-  Basic.Eq (Basic.Var ("mode_" ^ (string_of_int k)), Basic.Num (float_of_int q)) *)
-  
+
 let rec lst_intersection' slst1 slst2 inter =
 	match
 		try Some (List.hd slst1, List.hd slst2)
@@ -1248,7 +1287,6 @@ let trans n aut i =
 		end
 	) 
 	modes)
-	(*Basic.make_or (List.map (fun ml -> trans_jump aut ml i) jumps)*)
 	
 let global_label_set n = 
 	let auta = Network.automata n in
@@ -1264,44 +1302,9 @@ let get_labeled_jumptable n aut_jlist =
 	let labels = global_label_set n in
 	List.map (fun l -> (l, List.map (fun aj -> get_all_jumps_for_label l aj) aut_jlist)) labels
 	
-(*let rec mk_blah_cmp record autrecordlist = 
-	let (org, lab, des, jmp) = record in
-	match
-		try Some (List.hd autrecordlist)
-		with _ -> None
-	with 
-		Some x ->  
-		None ->*)
-	
-(*let mk_blah jlist = 
-	match 
-		try Some (List.hd jlist)
-		with _ -> None
-	with
-		|Some x ->
-		|None
-	
-let mk_jumptable jlist = 
-	List.fold_left (
-		fun map aut_jlist -> begin
-			List.fold_left (
-				fun mapx (origin, label, destination, jump) -> begin
-					
-				end
-			)
-			map
-			aut_jlist
-		end
-	) 
-	Map.empty 
-	jlist*)
-	
 let create_jumplist j jlothers cur = 
 	j::(List.map (fun (aut, jmps) -> (aut, List.at jmps (List.assoc aut cur))) jlothers)
-	
-(*let isOverflowing idxList end = 
-	List.length (List.filter (fun (aut, cnt) -> cnt >= (List.assoc aut end)) idxList) > 0*)
-	
+
 let idx_list_op op lst idx = 
 	let lNum = List.of_enum (0 -- ((List.length lst)-1)) in
 	List.map (
@@ -1441,44 +1444,28 @@ let mk_active (n: Network.t) (i: int) =
 	let amodes = List.map (fun a -> (a, List.map (fun (_, x) -> x) (Map.bindings (Hybrid.modemap a)))) auta in
 	Basic.make_and (List.map (fun (a, mlist) -> Basic.make_and (List.map (fun m -> mk_active_mode a m i) mlist)) amodes)
 	
-(*Integral of float * string * string list * string (* (integral 0 time_1 [x_1_0 ... x_i_0] flow1) *)*)
+let mk_mode_pair_mutex (aut: Hybrid.t) (m: Mode.t) (m1: Mode.t) (i: int) = 
+  let nId = Mode.mode_numId m in
+  let nId1 = Mode.mode_numId m1 in
+  Basic.make_or( [Basic.Not(mk_cnd (mk_enforce i aut) nId);Basic.Not(mk_cnd (mk_enforce i aut) nId1)] )
 
-(*let mk_flow *)
 
-(*let mk_inv_mode (aut: Hybrid.t) (m: Mode.t) (i: int) = 
-	*)
+let mk_mode_mutex (n: Network.t) (i: int) = 
+	let auta = Network.automata n in
+	let amodes = List.map (fun a -> (a, List.map (fun (_, x) -> x) (Map.bindings (Hybrid.modemap a)))) auta in
+	Basic.make_and (List.map (fun (a, mlist) -> 
+				  Basic.make_and (List.map (fun m -> Basic.make_and (List.map (fun m1 -> if m != m1 then mk_mode_pair_mutex a m m1 i else Basic.True) mlist)) mlist)) amodes)
   
 let compile_logic_formula (h : Network.t) (k : int) (path : comppath option) (precompute: bool) =
   let init_clause = mk_init_network h in
   let list_of_steps = List.of_enum (0 -- (k-1)) in
   let steps = match precompute with
-    | true -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_active h x);(mk_maintain h x);(trans_network_precomposed h x)]) list_of_steps)
-    | false -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_active h x);(mk_maintain h x);(trans_network h x)]) list_of_steps) in
+    | true -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_mode_mutex h x);(mk_active h x);(mk_maintain h x);(trans_network_precomposed h x)]) list_of_steps)
+    | false -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_mode_mutex h x);(mk_active h x);(mk_maintain h x);(trans_network h x)]) list_of_steps) in
   let goal_clause = mk_goal_network h k in
-  let end_step = (*mk_maintain h k*) Basic.make_and [(mk_active h k); (mk_maintain h k)] in
+  let end_step = Basic.make_and [(mk_active h k); (mk_maintain h k)] in
   let smt_formula = Basic.make_and (List.flatten [[init_clause]; [steps]; [goal_clause]]) in
-  (*Assert smt_formula*)
   [(Assert init_clause); (Assert steps); (Assert end_step); (Assert goal_clause)]
-  
-(*let compile_logic_formula (h : Network.t) (k : int) (path : comppath list option) =
-  let {init_id; init_formula; varmap; modemap; goals} = h in
-  let init_clause = process_init ~init_id ~init_formula in
-  (*let list_of_steps = List.of_enum (0 -- (k-1)) in
-  let step_clauses =
-    match path with
-      Some p -> List.map2 (fun q k -> process_step varmap modemap (Some q) k)
-                          (List.take k p)
-                          list_of_steps
-    | None -> List.map (process_step varmap modemap None) list_of_steps
-  in
-  (* tricky case, final mode need flow without jump  *)
-  let final_flow_clause = match path with
-      Some p -> final_flow varmap modemap (Some (List.last p)) k
-    | None -> final_flow varmap modemap None k in
-  let goal_clause = process_goals k goals in
-  let smt_formula = Basic.make_and (List.flatten [[init_clause]; step_clauses; [final_flow_clause];  [goal_clause]]) in*)
-  let smt_formula = Basic.make_and (List.flatten [[init_clause]] in
-  Assert smt_formula*)
 
 let compile (h : Network.t) (k : int) (path : comppath option) (precompute: bool) =
   let logic_cmd = SetLogic QF_NRA_ODE in
@@ -1486,14 +1473,3 @@ let compile (h : Network.t) (k : int) (path : comppath option) (precompute: bool
   let odedef = compile_ode_definition h k in
   let assert_formula = compile_logic_formula h k path precompute in
   List.flatten [[logic_cmd];vardecl_cmds; odedef; assert_cmds; assert_formula; [CheckSAT; Exit]]
-  (*let (vardecl_cmds, assert_cmds) = compile_vardecl h k path in
-  let defineodes = compile_ode_definition h k in
-  let assert_formula = compile_logic_formula h k path in
-  List.flatten
-    [[logic_cmd];
-     vardecl_cmds;
-     defineodes;
-     assert_cmds;
-     [assert_formula];
-     [CheckSAT; Exit];
-    ]*)

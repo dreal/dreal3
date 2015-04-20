@@ -6,7 +6,7 @@
 open Batteries
 open Type
 
-let get_hybrid vardecl_list mode_list init goal ginv n label_list =
+let main_routine vardecl_list mode_list init goal ginv =
   let (float_list, intv_list) =
     List.partition
       (function (_, Value.Num _) -> true | _ -> false)
@@ -16,16 +16,34 @@ let get_hybrid vardecl_list mode_list init goal ginv n label_list =
   let macromap = Vardeclmap.of_list float_list in
   let modemap = Modemap.of_list mode_list in
   let (init_mode, init_formula) = init in
-  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv, n, 0, label_list)
+  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv, "singleton", 0, [])
   
-let get_network time_decl hybrid_list analyze goals_list = 
-	(* analyze :: [string, [(string, string)]]*)
-	let (instances, composition) = analyze in
-    Network.postprocess_network (Network.makep (time_decl, hybrid_list, Vardeclmap.of_list [], goals_list)) analyze
+let remove_time (singleton: Hybrid.t) = 
+  let vm = Map.remove "time" (Hybrid.vardeclmap singleton) in
+  let mm = Hybrid.modemap singleton in
+  let init_id = Hybrid.init_id singleton in
+  let init_formula = Hybrid.init_formula singleton in
+  let goals = Hybrid.goals singleton in
+  let ginvs = Hybrid.ginvs singleton in
+  let name = Hybrid.name singleton in
+  let num_id = Hybrid.numid singleton in
+  let labellist = Hybrid.labellist singleton in
+  Hybrid.make (vm, mm, init_id, init_formula, goals, ginvs, name, num_id, labellist)
+  
+let get_network (singleton: Hybrid.t) = 
+  (* analyze :: [string, [(string, string)]]*)
+  let base = "singleton" in
+  let inst = "singleton0" in
+  let subs = [] in
+  let init = (Hybrid.init_id singleton, Hybrid.init_formula singleton) in
+  let anal = ([(inst, base, subs, init)], ["singleton0"]) in
+  let vars = Hybrid.vardeclmap singleton in
+  let time = ("time", Map.find "time" vars) in
+  let (mid, mfo) = List.hd (Hybrid.goals singleton) in (* [(modeid, formula)] *)
+  Network.postprocess_network (Network.makep (time, [remove_time singleton], Vardeclmap.of_list [], ([(inst, mid)], mfo))) anal
 %}
 
-%token COMPONENT LABEL ANALYZE DOT
-%token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON PIPE
+%token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
 %token AT LT LTE GT GTE IMPLY DDT CARET NOT
 %token SIN COS TAN
 %token ASIN ACOS ATAN
@@ -36,6 +54,8 @@ let get_network time_decl hybrid_list analyze goals_list =
 %token EOF
 %token <float> FNUM
 %token <string> ID
+/* unused*/
+%token COMPONENT LABEL ANALYZE PIPE DOT
 
 %left PLUS MINUS
 %left AST SLASH
@@ -44,37 +64,13 @@ let get_network time_decl hybrid_list analyze goals_list =
 
 %start main
 
-%type <Type.Network.automaton> hybrid
-%type <Type.Network.automata> hybrid_list
-%type <Type.Hybrid.formula> formula
-
 %type <Type.Network.t> main
+%type <Type.Hybrid.formula> formula
 
 %%
 
-main: time_decl hybrid_list analyze goal_aut { get_network $1 $2 $3 $4 }
-;
-
-time_decl: varDecl { $1 }
-
-hybrid_list : { [] } 
-          | hybrid hybrid_list { $1::$2 }
-;
-
-hybrid: LP COMPONENT ID SEMICOLON varDecl_list label_list mode_list /*init goal ind*/ RP { get_hybrid $5 $7 ("", Basic.True)(*$8*) [] [] (*$9 $10*) $3 $6 }
-/* | varDecl_list mode_list init goal { main_routine $4 $6 $7 $8 [] $3 $5 } */
-;
-
-label_list: { [] } 
-          | labelDecl label_list { $1@$2 }
-;
-
-labelDecl: LABEL label_list_ids SEMICOLON { $2 }
-;
-
-label_list_ids: { [] }
-              | ID label_list_ids { $1::$2 }
-              | COMMA label_list_ids { $2 }
+main: varDecl_list mode_list init goal ind { get_network (main_routine $1 $2 $3 $4 $5) }
+| varDecl_list mode_list init goal { get_network (main_routine $1 $2 $3 $4 []) }
 ;
 
 varDecl_list: /* */ { [] }
@@ -90,86 +86,17 @@ varDecl:
   | LB FFNUM COMMA FFNUM RB ID SEMICOLON { ($6, Value.Intv ($2, $4)) }
 ;
 
-/*analyze: ANALYZE COLON analyze_list SEMICOLON { $3 }
-;*/
-
-analyze: ANALYZE COLON hybrid_instance_list LP hybrid_analyze_composition RP SEMICOLON { ($3, $5) } 
-;
-
-analyze_list: { [] }
-            | PIPE PIPE analyze_list { $3 }
-            | substitution analyze_list { $1::$2 }
-;
-
-substitution: ID LB substitution_list RB { ($1, $3) }
-;
-
-substitution_list: { [] }
-                 | substitution_id substitution_list { $1::$2 }
-                 | COMMA substitution_list { $2 }
-;
-
-substitution_id: ID SLASH ID { ($1, $3) }
-;
-
-hybrid_instance_analyze_list: { [] }
-							| PIPE PIPE hybrid_instance_analyze_list { $3 }
-							| ID hybrid_instance_analyze_list { ($1, [])::$2 }
-							| ID LB substitution_list RB hybrid_instance_analyze_list { ($1, $3)::$5 }  
-;
-
-hybrid_analyze_composition: { [] }
-							| PIPE PIPE  hybrid_analyze_composition { $3 }
-							| ID hybrid_analyze_composition { $1::$2 }
-
-hybrid_instance_list: { [] }
-					| hybrid_instance hybrid_instance_list { $1::$2 }
-;
-
-hybrid_instance: 
-	ID EQ ID 								/* 1, 2, 3 */
-	LB 										/* 4 */
-	hybrid_instance_substitution COMMA 		/* 5, 6 */
-	mode_formula				 			/* 7 */
-	RB SEMICOLON 							/* 8, 9 */
-	{ ($1, $3, $5, $7) }
-;
-
-hybrid_instance_init_assign: LB formula RB { $2 }
-;
-
-hybrid_instance_init_mode: AT ID { $2 }
-;
-
-hybrid_instance_substitution: LB substitution_list RB { $2 }
-;
-
 mode_list: /* */ { [] }
   | mode mode_list { $1::$2 }
 ;
 
-/*mode: LP mode_id_str time_precision invts_op flows jumps RC
+mode: LC mode_id time_precision invts_op flows jumps RC
   {
-    Mode.make ($2, $3, $4, $5, Jumpmap.of_list $6)
+    Mode.make (string_of_int $2, $2, $3, $4, $5, $6, Jumpmap.of_list $6)
   }
 ;
 
 mode_id: MODE FNUM SEMICOLON { int_of_float $2 }
-;
-
-mode_id_str: MODE ID SEMICOLON { $2 }
-; */
-
-mode: LP mode_id_str SEMICOLON time_precision invts_op flows jumps RP
-  {
-    Mode.make ($2, 0, $4, $5, $6, $7, Jumpmap.of_list $7)
-  }
-;
-
-mode_id: MODE FNUM SEMICOLON { int_of_float $2 }
-;
-
-mode_id_str: MODE ID { $2 }
 ;
 
 time_precision: TIME_PRECISION COLON FNUM SEMICOLON { $3 }
@@ -258,67 +185,33 @@ ode: DDT LB ID RB EQ exp SEMICOLON { ($3, $6) }
 ;
 
 jump_list: /* */ { [] }
-  | jump_str jump_list { $1::$2 }
+  | jump jump_list { $1::$2 }
 ;
 
-/*jump:
-    jump_labels formula IMPLY AT FNUM formula SEMICOLON { Jump.make ($2, int_of_float $5, $6, $1) }
-  | jump_labels formula IMPLY precision AT FNUM formula SEMICOLON { Jump.makep ($2, $4, int_of_float $6, $7, $1) }
-;*/
-
-jump_str: 
-	jump_labels formula IMPLY AT ID formula SEMICOLON { Jump.make ($2, $5, $6, $1) }
-  | jump_labels formula IMPLY precision AT ID formula SEMICOLON { Jump.makep ($2, $4, $6, $7, $1) }
+jump:
+    formula IMPLY AT FNUM formula SEMICOLON { Jump.make ($1, string_of_int (int_of_float $4), $5, []) }
+  | formula IMPLY precision AT FNUM formula SEMICOLON { Jump.makep ($1, $3, string_of_int (int_of_float $5), $6, []) }
 ;
 
-jump_labels:
-	LP label_list_ids RP COLON { $2 }
-;
 
-init: INIT COLON mode_formula SEMICOLON { $3 }
+
+init: INIT COLON mode_formula { $3 }
 ;
 
 goal: GOAL COLON mode_formula_list { $3 }
-;
-
-goal_aut: GOAL COLON goal_aut_elem { $3 }
-;
-
-goal_aut_elems: { [] }
-	| goal_aut_elem goal_aut_elems { $1::$2 }
-;
-
-goal_aut_elem: LP loc_list RP COLON formula SEMICOLON { ($2, $5) }
-;
-
-loc_list: 
-	| { [] }
-	| AT ID DOT ID loc_list { ($2, $4)::$5 }
-	| COMMA loc_list { $2 }
 ;
 
 ind: IND COLON formula_list { $3 }
 ;
 
 formula_list:
-  |  { [] }
-  | formula SEMICOLON formula_list { $1::$3 }
+  | /**/ { [] }
+  | formula SEMICOLON formula_list { $1 :: $3 }
 ;
 
-mode_formula_list: { [] }
-  | mode_formula SEMICOLON mode_formula_list { $1::$3 }
+mode_formula_list: /* */ { [] }
+  | mode_formula mode_formula_list { $1::$2 }
 ;
 
-mode_formula: AT ID formula { ($2, $3) }
-;
-
-/*goal_aut: GOAL COLON mode_formula_aut_list { $3 }
-;*/
-
-mode_formula_aut_list: { [] }
-  | mode_formula_aut mode_formula_aut_list { $1::$2 }
-;
-
-mode_formula_aut: formula { (("", ""), $1) }
-                | AT ID DOT ID formula SEMICOLON { (($2, $4), $5) }
+mode_formula: AT FNUM formula SEMICOLON { (string_of_int (int_of_float $2), $3) }
 ;
