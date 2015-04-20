@@ -297,7 +297,20 @@ bool hybrid_heuristic::expand_path(){
         DREAL_LOG_INFO << "Adding decision at time " << time  << " to reach " << parent << " in a" << autom;
 
         set<int> * preds = (*predecessors[autom])[parent-1];
-        current_decision->insert(current_decision->begin(), preds->begin(), preds->end());
+
+	if (time == 0){
+	  //intersect initial state with current_decision
+	  int init_mode = m_init_mode[autom];
+	  
+	  if (preds->find(init_mode) == preds->end()){
+            DREAL_LOG_INFO << "No decisions left at time " << time << endl;
+            return false;
+	  }
+	  current_decision->insert(current_decision->begin(), init_mode);
+	} else {
+	  current_decision->insert(current_decision->begin(), preds->begin(), preds->end());
+	}
+
 
         set<int> current_decision_copy (current_decision->begin(), current_decision->end());
         // prune out choices that are negated in m_stack
@@ -554,9 +567,12 @@ bool hybrid_heuristic::unwind_path() {
     }
 
     DREAL_LOG_DEBUG << "After BT stack:";
-    int i = 0;
-    for (std::size_t time = (m_depth+1)*num_autom ; time > m_depth-m_decision_stack.size(); time--) {
-      DREAL_LOG_DEBUG << "Stack(" << time << ") =" << m_decision_stack[i++]->second->back();
+    //    int i = 0;
+    for (int i = 0; i < m_decision_stack.size(); i++){
+
+// std::size_t time = (m_depth+1)*num_autom ; 
+// 	 time > (m_depth+1)-m_decision_stack.size(); time--) {
+      DREAL_LOG_DEBUG << "Stack[" << i << "] =" << m_decision_stack[i]->second->back();
     }
     return m_decision_stack.size() > 0;
   }
