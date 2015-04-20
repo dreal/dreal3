@@ -86,6 +86,7 @@ void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
         unordered_set<Enode *> const & temp_vars = lit->get_vars();
         var_set.insert(temp_vars.begin(), temp_vars.end());
     }
+    m_vars.clear();
     std::copy(var_set.begin(), var_set.end(), std::back_inserter(m_vars));
     std::sort(m_vars.begin(), m_vars.end(),
               [](Enode const * e1, Enode const * e2) {
