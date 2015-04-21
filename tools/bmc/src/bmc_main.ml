@@ -15,7 +15,7 @@ let bmc_heuristic = ref None
 let bmc_heuristic_prune = ref None
 let bmc_heuristic_prune_deep = ref None
 let path = ref None
-let old_format = ref false
+let new_format = ref false
 
 (* Takes in string s (ex: "[1,2,3,4,5]")
    and return int list [1;2;3;4;5]        *)
@@ -49,9 +49,9 @@ let spec = [
   ("--path",
    Arg.String (fun s -> path := Some (process_path s)),
    ": specify the path (ex: \"[1,2,1,2,1]\" to focus (Default: none)");
-  ("--old_format",
-   Arg.Unit (fun o -> old_format := true),
-   ": parse file using the old file format");
+  ("--new_format",
+   Arg.Unit (fun o -> new_format := true),
+   ": parse file using the new file format");
 ]
 let usage = "Usage: main.native [<options>] <.drh>\n<options> are: "
 
@@ -63,9 +63,9 @@ let run () =
   try
     let out = IO.stdout in
     let lexbuf = Lexing.from_channel (if !src = "" then stdin else open_in !src) in
-    let hm = match !old_format with
-               | false -> Drh_parser_networks.main Drh_lexer_networks.start lexbuf
-               | true -> Drh_parser.main Drh_lexer.start lexbuf in
+    let hm = match !new_format with
+               | true -> Drh_parser_networks.main Drh_lexer_networks.start lexbuf
+               | false -> Drh_parser.main Drh_lexer.start lexbuf in
  (*   begin
 		(*Network.print out hm;*)
 		(*let paths = Bmc.pathgen hm !k in*)
