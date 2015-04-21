@@ -475,3 +475,9 @@ if(EXISTS ${BMC_PATH})
                 GROUP_READ GROUP_WRITE GROUP_EXECUTE
                 WORLD_READ WORLD_EXECUTE)
 endif()
+if(BUILD_SHARED_LIB)
+  install(DIRECTORY "${DREAL_BINARY_DIR}/lib"
+          DESTINATION ".")
+  install(FILES "${DREAL_BINARY_DIR}/libdreal.so"
+          DESTINATION "lib")
+endif()
