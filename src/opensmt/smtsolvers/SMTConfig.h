@@ -208,6 +208,8 @@ struct SMTConfig
   bool         nra_ODE_parallel;              // solve ODE in parallel or not
   unsigned     nra_aggressive;                // number of samples to use for aggressive sampling
   unsigned     nra_sample;                    // number of samples to use for sound sampling
+  unsigned     nra_multiple_soln;             // maximum number of solutions to find
+  unsigned     nra_found_soln;                // number of solutions found so far
   bool         nra_polytope;                  // use polytope contractor in IBEX
 
 private:

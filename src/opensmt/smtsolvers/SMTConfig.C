@@ -48,6 +48,7 @@ DEFINE_bool  (debug,            false, "debug mode");
 DEFINE_bool  (stat,             false, "show stat");
 DEFINE_uint64(aggressive,           0, "number of samples to use for aggressive sampling");
 DEFINE_uint64(sample,               0, "number of samples to use for sound sampling");
+DEFINE_uint64(multiple_soln,        1, "maximum number of solutions to find");
 DEFINE_bool  (polytope,         false, "use polytope contractor in IBEX");
 
 void
@@ -134,6 +135,8 @@ SMTConfig::initializeConfig( )
   nra_bmc_heuristic            = "";
   nra_aggressive               = 0;
   nra_sample                   = 0;
+  nra_multiple_soln            = 1;
+  nra_found_soln               = 0;
   nra_polytope                 = false;
 }
 
@@ -378,6 +381,7 @@ SMTConfig::parseCMDLine( int /* argc */
   nra_stat                = FLAGS_stat;
   nra_aggressive          = FLAGS_aggressive;
   nra_sample              = FLAGS_sample;
+  nra_multiple_soln       = FLAGS_multiple_soln;
   nra_polytope            = FLAGS_polytope;
 
   if (nra_proof) {

@@ -259,6 +259,7 @@ void nra_solver::popBacktrackPoint() {
 }
 
 box icp_loop(box b, contractor const & ctc, SMTConfig & config) {
+    vector<box> solns;
     stack<box> box_stack;
     box_stack.push(b);
     do {
@@ -290,11 +291,20 @@ box icp_loop(box b, contractor const & ctc, SMTConfig & config) {
                                          << "]" << endl;
                 }
             } else {
-                break;
+                cerr << "Find " << ++config.nra_found_soln << "-th solution:" << endl;
+                cerr << b << endl;
+                solns.push_back(b);
+                if (config.nra_found_soln >= config.nra_multiple_soln) {
+                    break;
+                }
             }
         }
     } while (box_stack.size() > 0);
-    return b;
+    if (solns.size() > 0) {
+        return solns.back();
+    } else {
+        return b;
+    }
 }
 
 box icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & config) {
