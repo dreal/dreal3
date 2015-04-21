@@ -42,7 +42,7 @@ OPTIONS:
                                 52 if UNSAT,
                                 1 abnormal termination
 
-   -o               parse old .drh file format (default: do not use)
+   -n               parse new .drh file format (default: do not use)
 
 EXAMPLE:
 
@@ -60,9 +60,9 @@ L=0
 U=NONE
 DEFAULT_U=3
 Z_OPT=FALSE #(edited: FS)
-OLD=""
+NEW=""
 
-while getopts "zohbdk:l:u:ep:ir" OPTION
+while getopts "zohbdk:l:u:ep:irn" OPTION
 do
     case $OPTION in
         h)
@@ -93,8 +93,8 @@ do
         z)                  #(edited: FS)
             Z_OPT=TRUE      #
             ;;              #
-        o)
-            OLD=" --old_format"
+        n)
+            NEW=" --new_format"
             ;;
         \?)
             usage
@@ -167,8 +167,8 @@ echo dReal Options: $SOLVER_OPT
 # Preprocessing
 sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
 
-# Append option to parse old file format
-BMC=$BMC$OLD
+# Append option to parse new file format
+BMC=$BMC$NEW
 
 UNROLLS=`seq $L $U`
 for K in $UNROLLS
