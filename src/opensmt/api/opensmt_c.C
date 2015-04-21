@@ -1,7 +1,9 @@
 /*********************************************************************
 Author: Roberto Bruttomesso <roberto.bruttomesso@gmail.com>
+        Soonho  Kong        <soonhok@cs.cmu.edu>
 
 OpenSMT -- Copyright (C) 2010, Roberto Bruttomesso
+dReal   -- Copyright (C) 2013 - 2015, Soonho Kong
 
 OpenSMT is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -80,31 +82,11 @@ opensmt_context opensmt_mk_context( opensmt_logic l )
   // When API is active incremental solving must be on
   config.incremental = 1;
   //
-  // Set ad-hoc default parameters
-  //
-  if ( l == qf_ct )
-  {
-    // Settings copied/adapted from pbct 0.1.2
-    config.sat_polarity_mode = 1;
-    config.sat_use_luby_restart = 1;
-    config.sat_preprocess_booleans = 0;
-    config.uf_disable = 1;
-  }
   // Set the right logic
   switch( l )
   {
-    case qf_uf:    context.SetLogic( QF_UF );    break;
-    case qf_bv:    context.SetLogic( QF_BV );    break;
-    case qf_rdl:   context.SetLogic( QF_RDL );   break;
-    case qf_idl:   context.SetLogic( QF_IDL );   break;
-    case qf_lra:   context.SetLogic( QF_LRA );   break;
-    case qf_lia:   context.SetLogic( QF_LIA );   break;
-    case qf_ufidl: context.SetLogic( QF_UFIDL ); break;
-    case qf_uflra: context.SetLogic( QF_UFLRA ); break;
     case qf_nra:     context.SetLogic( QF_NRA ); break;
     case qf_nra_ode: context.SetLogic( QF_NRA_ODE ); break;
-    case qf_bool:  context.SetLogic( QF_BOOL );  break;
-    case qf_ct:    context.SetLogic( QF_CT );    break;
     opensmt_error2( "unsupported logic: ", l );
   }
 
@@ -328,29 +310,6 @@ opensmt_expr opensmt_mk_real_var( opensmt_context c, char * s , double lb, doubl
   return static_cast< void * >( res );
 }
 
-/*
-opensmt_expr opensmt_mk_bv_var( opensmt_context c, char * s, unsigned w )
-{
-  assert( c );
-  assert( s );
-  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
-  OpenSMTContext & context = *c_;
-  Enode * res = context.mkVar( s, true );
-  return static_cast< void * >( res );
-}
-
-opensmt_expr opensmt_mk_cost_var( opensmt_context c, char * s )
-{
-  assert( c );
-  assert( s );
-  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
-  OpenSMTContext & context = *c_;
-  Snode * sort = context.mkSortCost( );
-  context.DeclareFun( s, sort );
-  Enode * res = context.mkVar( s, true );
-  return static_cast< void * >( res );
-}
-*/
 opensmt_expr opensmt_mk_or( opensmt_context c, opensmt_expr * expr_list, unsigned n )
 {
   assert( c );
@@ -427,31 +386,7 @@ opensmt_expr opensmt_mk_num_from_string( opensmt_context c, const char * s )
   Enode * res = context.mkNum( s );
   return res;
 }
-/*
-opensmt_expr opensmt_mk_num_from_mpz( opensmt_context c, const mpz_t n )
-{
-  assert( c );
-  assert( n );
-  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
-  OpenSMTContext & context = *c_;
-  mpz_class n_( n );
-  Real num( n_ );
-  Enode * res = context.mkNum( num );
-  return res;
-}
 
-opensmt_expr opensmt_mk_num_from_mpq( opensmt_context c, const mpq_t n )
-{
-  assert( c );
-  assert( n );
-  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
-  OpenSMTContext & context = *c_;
-  mpq_class n_( n );
-  Real num( n_ );
-  Enode * res = context.mkNum( num );
-  return res;
-}
-*/
 opensmt_expr opensmt_mk_plus( opensmt_context c, opensmt_expr * expr_list, unsigned n )
 {
   list< Enode * > args;
