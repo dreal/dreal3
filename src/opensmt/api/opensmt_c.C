@@ -492,6 +492,16 @@ opensmt_expr opensmt_mk_times( opensmt_context c, opensmt_expr * expr_list, unsi
   return static_cast< void * >( res );
 }
 
+opensmt_expr opensmt_mk_div( opensmt_context c, opensmt_expr x, opensmt_expr y )
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( x )
+                    , context.mkCons( static_cast< Enode * >( y ) ) );
+  Enode * res = context.mkDiv( args_list );
+  return static_cast< void * >( res );
+}
+
 opensmt_expr opensmt_mk_leq( opensmt_context c, opensmt_expr lhs, opensmt_expr rhs )
 {
   OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );

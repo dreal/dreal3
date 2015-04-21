@@ -105,6 +105,7 @@ opensmt_expr     opensmt_mk_num_from_string        ( opensmt_context, const char
 opensmt_expr     opensmt_mk_plus                   ( opensmt_context, opensmt_expr *, unsigned );
 opensmt_expr     opensmt_mk_minus                  ( opensmt_context, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_times                  ( opensmt_context, opensmt_expr *, unsigned );
+opensmt_expr     opensmt_mk_div                    ( opensmt_context, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_lt                     ( opensmt_context, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_leq                    ( opensmt_context, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_gt                     ( opensmt_context, opensmt_expr, opensmt_expr );
