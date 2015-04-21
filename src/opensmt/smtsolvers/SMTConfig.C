@@ -33,9 +33,9 @@ DEFINE_bool  (delta_heuristic,  false, "delta heuristic");
 DEFINE_string(bmc_heuristic,       "", "bmc heuristic");
 DEFINE_bool  (short_sat,        false, "short sat");
 DEFINE_double(ode_step,           0.0, "ode step");
-DEFINE_int32 (ode_order,           20, "ode order");
-DEFINE_int32 (ode_grid,            16, "ode grid");
-DEFINE_int32 (ode_timeout,          0, "ode timeout");
+DEFINE_uint64(ode_order,           20, "ode order");
+DEFINE_uint64(ode_grid,            16, "ode grid");
+DEFINE_uint64(ode_timeout,          0, "ode timeout");
 DEFINE_bool  (ode_cache,        false, "ode cache");
 DEFINE_bool  (ode_forward_only, false, "ode forward only");
 DEFINE_bool  (ode_parallel,     false, "ode parallel");
@@ -46,8 +46,8 @@ DEFINE_bool  (visualize,        false, "visualize");
 DEFINE_bool  (verbose,          false, "verbose");
 DEFINE_bool  (debug,            false, "debug mode");
 DEFINE_bool  (stat,             false, "show stat");
-DEFINE_int32 (aggressive,           0, "number of samples to use for aggressive sampling");
-DEFINE_int32 (sample,               0, "number of samples to use for sound sampling");
+DEFINE_uint64(aggressive,           0, "number of samples to use for aggressive sampling");
+DEFINE_uint64(sample,               0, "number of samples to use for sound sampling");
 DEFINE_bool  (polytope,         false, "use polytope contractor in IBEX");
 
 void
