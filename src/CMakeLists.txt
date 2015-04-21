@@ -480,4 +480,6 @@ if(BUILD_SHARED_LIB)
           DESTINATION ".")
   install(FILES "${DREAL_BINARY_DIR}/libdreal.so"
           DESTINATION "lib")
+  install(FILES "${DREAL_SOURCE_DIR}/opensmt/api/opensmt_c.h"
+          DESTINATION "include")
 endif()
