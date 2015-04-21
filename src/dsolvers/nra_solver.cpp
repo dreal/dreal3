@@ -291,8 +291,11 @@ box icp_loop(box b, contractor const & ctc, SMTConfig & config) {
                                          << "]" << endl;
                 }
             } else {
-                cerr << "Find " << ++config.nra_found_soln << "-th solution:" << endl;
-                cerr << b << endl;
+                config.nra_found_soln++;
+                if (config.nra_multiple_soln > 1) {
+                    cerr << "Find " << config.nra_found_soln << "-th solution:" << endl;
+                    cerr << b << endl;
+                }
                 solns.push_back(b);
                 if (config.nra_found_soln >= config.nra_multiple_soln) {
                     break;
