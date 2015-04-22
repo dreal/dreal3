@@ -96,6 +96,8 @@ mode: LC mode_id time_precision invts_op flows jumps RC
   }
 ;
 
+mode_id: MODE FNUM SEMICOLON { int_of_float $2 }
+;
 
 time_precision: TIME_PRECISION COLON FNUM SEMICOLON { $3 }
 | { 0.0 }
@@ -156,7 +158,7 @@ exp:
  | exp SLASH exp          { Basic.Div ($1, $3) }
  | exp CARET exp          { Basic.Pow ($1, $3) }
  | SQRT LP exp RP         { Basic.Sqrt $3 }
- | ABS LP exp RP          { Basic.Abs $3 }
+ | ABS LP exp RP         { Basic.Abs $3 }
  | LOG  LP exp RP         { Basic.Log  $3 }
  | EXP  LP exp RP         { Basic.Exp  $3 }
  | SIN  LP exp RP         { Basic.Sin  $3 }
@@ -188,30 +190,17 @@ ode: DDT LB ID RB EQ exp SEMICOLON { ($3, $6) }
 jump_list: /* */ { [] }
   | jump jump_list { $1::$2 }
 ;
-<<<<<<< HEAD
-
-jump:
-    formula IMPLY AT FNUM formula SEMICOLON { Jump.make ($1, int_of_float $4, $5) }
-  | formula IMPLY precision AT FNUM formula SEMICOLON { Jump.makep ($1, $3, int_of_float $5, $6) }
-;
-
-
-=======
->>>>>>> 0029b5f... Added basic backwards compatability. Creation of singleton network.
 
 jump:
     formula IMPLY AT FNUM formula SEMICOLON { Jump.make ($1, string_of_int (int_of_float $4), $5, []) }
   | formula IMPLY precision AT FNUM formula SEMICOLON { Jump.makep ($1, $3, string_of_int (int_of_float $5), $6, []) }
 ;
 
-<<<<<<< HEAD
-=======
 
 
 init: INIT COLON mode_formula { $3 }
 ;
 
->>>>>>> 0029b5f... Added basic backwards compatability. Creation of singleton network.
 goal: GOAL COLON mode_formula_list { $3 }
 ;
 
@@ -221,15 +210,6 @@ ind: IND COLON formula_list { $3 }
 formula_list:
   | /**/ { [] }
   | formula SEMICOLON formula_list { $1 :: $3 }
-<<<<<<< HEAD
-
-mode_formula_list: { [] }
-  | mode_formula SEMICOLON mode_formula_list { $1::$3 }
-;
-
-mode_formula: AT ID formula { ($2, $3) }
-=======
->>>>>>> 0029b5f... Added basic backwards compatability. Creation of singleton network.
 ;
 
 mode_formula_list: /* */ { [] }

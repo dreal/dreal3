@@ -66,7 +66,7 @@ let print out {mode_id= id;
     IO.to_string (List.print ~first:"" ~sep:"\n    " ~last:"\n" Ode.print) flows in
   let jump_str = IO.to_string (List.print Jump.print) jumps in
   Printf.fprintf out
-                 "{\nModeID = %d\nInvariant = %s\nFlows = %s\nJump = %s\n}"
+                 "{\nModeID = %s\nInvariant = %s\nFlows = %s\nJump = %s\n}"
                  mode_id
                  inv_str
                  flow_str

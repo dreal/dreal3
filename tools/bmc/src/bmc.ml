@@ -17,7 +17,8 @@ open Relevantvariables
 exception SMTException of string
 
 type ode = Ode.t
-type flows_annot = (int * ode list)  (** step, ode **)
+type flows_annot = (string * ode list)  (** step, ode **)
+type comppath = Network.comppath
 
 let global_vars = ref []
 
@@ -1480,7 +1481,7 @@ let compile_logic_formula (h : Network.t) (k : int) (path : comppath option) (pr
   let steps = match precompute with
     | true -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_mode_mutex h x);(mk_active h x);(mk_maintain h x);(trans_network_precomposed h x)]) list_of_steps)
     | false -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_mode_mutex h x);(mk_active h x);(mk_maintain h x);(trans_network h x)]) list_of_steps) in
-  let goal_clause = mk_goal_network h k in
+  let goal_clause = Basic.make_and [(mk_goal_network h k);(mk_mode_mutex h k)] in
   let end_step = Basic.make_and [(mk_active h k); (mk_maintain h k)] in
   let smt_formula = Basic.make_and (List.flatten [[init_clause]; [steps]; [goal_clause]]) in
   [(Assert init_clause); (Assert steps); (Assert end_step); (Assert goal_clause)]

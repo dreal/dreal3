@@ -28,13 +28,20 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 
 namespace dreal {
+
+  typedef pair<set<int>*, int> labeled_transition;
+
 class hybrid_heuristic : public heuristic {
 public:
- hybrid_heuristic() : heuristic() {}
+ hybrid_heuristic() : heuristic(), num_labels(0) {}
   ~hybrid_heuristic() {
       for (auto i : predecessors){
 	for (auto j : *i){
-            delete j;
+	  for (auto k : *j){
+	    delete k->first;
+	    delete k;
+	  }
+	  delete j;
 	}
 	delete i;
       }
@@ -67,8 +74,12 @@ public:
 
     // Is mode1 a predecessor of mode2
     bool predecessor(int autom, int mode1, int mode2) {
-      set<int>* i = (*predecessors[autom])[mode2-1];
-      return i->find(mode1) != i->end();
+      vector<labeled_transition*>* i = (*predecessors[autom])[mode2-1];
+      for(auto lt : (*i)){
+	if(lt->second == mode1)
+	  return true;
+      }
+      return false;
     }
 
     double getCost(int autom, int i) { return (*m_cost[autom])[i];  }
@@ -79,18 +90,20 @@ public:
 
  private:
     int num_autom;
-    vector<vector<set<int>*>*> predecessors;
+    int num_labels;
+    map<string, int> label_indices;
+    vector<vector<vector<labeled_transition*>*>*> predecessors;
     vector<vector< double >*>  m_cost;
     vector<int> m_init_mode;
     vector<vector<int>*> m_goal_modes;
-    vector<pair<int, vector<int>*>*> m_decision_stack;
+    vector<pair<int, vector<labeled_transition*>*>*> m_decision_stack;
     int m_depth;
     vector<Enode*> default_false_suggestions;
     vector<Enode*> default_true_suggestions;
     vector<map< Enode *, pair<int, int>* >*> mode_literals;
     vector<vector< vector< Enode* >* >*> time_mode_enodes;
     vector<vector< vector< Enode* >* >*> time_mode_integral_enodes;
-    
+    vector<set<int>*> m_aut_labels;
 
     set<Enode*> mode_enodes;
 
@@ -100,11 +113,15 @@ public:
     bool expand_path();
     bool unwind_path();
     bool pbacktrack();
+
+    bool can_synchronize(vector<pair<int, labeled_transition*>*>& parallel_transitions,
+					 pair<int, labeled_transition*> &trans);
+
 public:
     struct SubgoalCompare {
     SubgoalCompare(int a, hybrid_heuristic& c) : autom(a), myHeuristic(c) {}
-        bool operator () (const int & i, const int & j) {
-          return myHeuristic.getCost(autom, i-1) < myHeuristic.getCost(autom, j-1);
+        bool operator () (const labeled_transition  *i, const labeled_transition *j) {
+          return myHeuristic.getCost(autom, (i->second)-1) < myHeuristic.getCost(autom, (j->second)-1);
         }
       hybrid_heuristic& myHeuristic;
       int autom;
