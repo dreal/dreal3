@@ -278,7 +278,7 @@ opensmt_expr opensmt_mk_bool_var( opensmt_context c, char * s )
   return static_cast< void * >( res );
 }
 
-opensmt_expr opensmt_mk_int_var( opensmt_context c, char * s , int lb, int ub)
+opensmt_expr opensmt_mk_int_var( opensmt_context c, char * s , long lb, long ub)
 {
   assert( c );
   assert( s );
