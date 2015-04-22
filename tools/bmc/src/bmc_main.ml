@@ -19,7 +19,18 @@ let new_format = ref false
 
 (* Takes in string s (ex: "[1,2,3,4,5]")
    and return int list [1;2;3;4;5]        *)
-let process_path (s : string) : int list =
+let process_path (s : string) : string list =
+  match (String.starts_with s "[", String.ends_with s "]") with
+    (true, true) ->
+      begin
+        let content = String.sub s 1 ((String.length s) - 2) in
+        let items = String.nsplit content "," in
+        let path = items in
+        path
+      end
+  | _ -> raise (Arg.Bad ("Path " ^ s ^ " is not well-formed"))
+
+(*let process_path (s : string) : int list =
   match (String.starts_with s "[", String.ends_with s "]") with
     (true, true) ->
       begin
@@ -28,7 +39,7 @@ let process_path (s : string) : int list =
         let path = List.map Int.of_string items in
         path
       end
-  | _ -> raise (Arg.Bad ("Path " ^ s ^ " is not well-formed"))
+  | _ -> raise (Arg.Bad ("Path " ^ s ^ " is not well-formed"))*)
 
 let spec = [
   ("-k",

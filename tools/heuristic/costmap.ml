@@ -15,7 +15,7 @@ module Costmap = struct
 
 
 
-  type id = int
+  type id = string
   type cost = float
   type t = (id, cost) Map.t
 

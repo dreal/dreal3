@@ -432,11 +432,8 @@ void CoreSMTSolver::cancelUntil(int level)
 
     if ( first_model_found ) {
       theory_handler->backtrack( );
-      if(config.nra_plan_heuristic.compare("") != 0){
-	heuristic.backtrack();
-      }
+      heuristic.backtrack();
     }
-    heuristic->backtrack();      
   }
 }
 
@@ -500,9 +497,7 @@ void CoreSMTSolver::addNewAtom( Enode * e )
   // Automatically adds new variable for e
   //Lit l = theory_handler->enodeToLit( e );
   theory_handler->enodeToLit( e );
-  if(config.nra_plan_heuristic.compare("") != 0){
-    heuristic.inform(e);
-  }
+  heuristic.inform(e);
 }
 
 void CoreSMTSolver::cancelUntilVar( Var v )
@@ -536,9 +531,7 @@ void CoreSMTSolver::cancelUntilVar( Var v )
   }
 
   theory_handler->backtrack( );
-  if(config.nra_plan_heuristic.compare("") != 0){
-    heuristic.backtrack();
-  }
+  heuristic.backtrack();
 }
 
 void CoreSMTSolver::cancelUntilVarTempInit( Var v )
@@ -567,9 +560,7 @@ void CoreSMTSolver::cancelUntilVarTempInit( Var v )
 
   trail.shrink(trail.size( ) - c );
   theory_handler->backtrack( );
-  if(config.nra_plan_heuristic.compare("") != 0){
-    heuristic.backtrack();
-  }
+  heuristic.backtrack();
 }
 
 void CoreSMTSolver::cancelUntilVarTempDone( )
@@ -596,10 +587,6 @@ void CoreSMTSolver::cancelUntilVarTempDone( )
     int        max_decision_level;
     theory_handler->getConflict( conflicting, max_decision_level );
   } 
-  
-  if(config.nra_plan_heuristic.compare("") != 0){
-    heuristic.assertLits();
-  }
 }
 
 //=================================================================================================
@@ -630,7 +617,6 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
     }
 
     // Heuristic suggestion-based decision
-    if(config.nra_plan_heuristic.compare("") != 0){
     for( ;; )
     {
       Lit sugg = heuristic.getSuggestion( );
@@ -651,7 +637,6 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
         continue;
       // If here, good decision has been found
       return sugg;
-    }
     }
 
     // Activity based decision:
@@ -1844,15 +1829,18 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
         if (next == lit_Undef){
           if ((!config.nra_short_sat) || (!entailment())) {
-                // New variable decision:
-                        DREAL_LOG_INFO << "Pick branch on a lit: " << endl;
-                        decisions++;
-                        next = pickBranchLit(polarity_mode, random_var_freq);
-                } else {
-                        // SAT formula is satisfiable
-                        next = lit_Undef;
-                        DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
-                }
+	    if( !isSAT ){
+	
+        	// New variable decision:
+        		DREAL_LOG_INFO << "Pick branch on a lit: " << endl;
+        		decisions++;
+        		next = pickBranchLit(polarity_mode, random_var_freq);
+	    }
+        	} else {
+        		// SAT formula is satisfiable
+        		next = lit_Undef;
+        		DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
+        	}
 
           // Complete Call
           if ( next == lit_Undef )
@@ -1883,8 +1871,8 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             assert( res == 1 );
 
             if (config.nra_short_sat) {
-                // the problem is satisfiable as res = 1 at this point
-                return l_True;
+            	// the problem is satisfiable as res = 1 at this point
+	      if ( res == 1 ) return l_True;
             }
             // Otherwise we still have to make sure that
             // splitting on demand did not add any new variable
@@ -1892,7 +1880,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             next = pickBranchLit( polarity_mode, random_var_freq );
           }
 
-          if (next == lit_Undef)
+          if (next == lit_Undef){
             // Model found:
             DREAL_LOG_DEBUG << "CoreSMTSolver::search() Found Model after # decisions "
                             << decisions << endl;
@@ -1901,6 +1889,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 	      printCurrentAssignment(std::cout);
 	    }
             return l_True;
+	  }
         }
 
         // Increase decision level and enqueue 'next'
@@ -2064,9 +2053,7 @@ lbool CoreSMTSolver::solve( const vec<Lit> & assumps
     cancelUntil(-1);
     if ( first_model_found ) {
       theory_handler->backtrack( );
-      if(config.nra_plan_heuristic.compare("") != 0){
-	heuristic.backtrack();
-      }
+      heuristic.backtrack();
     }
   }
   else

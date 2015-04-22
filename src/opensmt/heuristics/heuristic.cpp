@@ -40,7 +40,7 @@ namespace dreal{
   heuristic::~heuristic(){
   }
 
-  void heuristic::initialize(SMTConfig &, Egraph &, THandler* thandler,
+  void heuristic::initialize(SMTConfig &c, Egraph &e, THandler* thandler,
 			     vec<Lit> *trail, vec<int> *trail_lim)  {
   }
 

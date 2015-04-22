@@ -57,7 +57,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "minisat/core/SolverTypes.h"
 #include "common/LA.h"
 
-#include "dsolvers/heuristics/plan_heuristic.h"
+#include "heuristics/heuristic.h"
 
 #ifdef PRODUCE_PROOF
 #include "proof/ProofGraph.h"
@@ -144,7 +144,7 @@ public:
         //=================================================================================================
 
 	// Heuristics
-	dreal::plan_heuristic heuristic;
+	dreal::heuristic heuristic;
 
         // Extra results: (read-only member variable)
         //

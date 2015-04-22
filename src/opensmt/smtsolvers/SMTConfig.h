@@ -219,6 +219,7 @@ struct SMTConfig
   bool         nra_precision_output;          // print precision info in case of delta-sat
   unsigned     nra_random_seed;               // seed to random generators (default = std::random_device())
   bool         nra_output_num_nodes;          // print num sat and icp nodes
+  string       nra_plan_heuristic;
 
   void setODEFwdTimeout(double const ode_fwd_timeout);
   void setODEBwdTimeout(double const ode_bwd_timeout);
