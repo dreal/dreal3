@@ -89,7 +89,7 @@ module Heuristic = struct
   let rec relevantgenr_back (h : Hybrid.t) (k :int) (step : int) (heuristic: Costmap.t) (heuristic_back : Costmap.t) (next : Relevantvariables.t) : Relevantvariables.t List.t =
     let variables = BatSet.of_enum (Map.keys h.varmap) in
     let modes = Map.bindings h.modemap in
-    let get_prev_modes (mode_id : int) =
+    let get_prev_modes (mode_id : string) =
      let jumps = List.map (fun (k, m) -> (m, List.of_enum (Map.keys (Mode.jumpmap m)))) modes in
      let jumps_to_mode_id = List.filter (fun (m, nm) -> (List.mem  mode_id nm)) jumps in
      let adjacent = BatSet.of_list (List.map (fun (m, nm) ->  m) jumps_to_mode_id) in
@@ -102,12 +102,12 @@ module Heuristic = struct
 						      (List.map get_prev_modes (List.of_enum (Map.keys next)))
 						      BatSet.empty))
     in 
-    (*
+(*    
     let () = print_endline "" in
     let () = Printf.fprintf IO.stdout "Relevant modes at: %d "step in
     let () = List.print ~first:"[" ~last:"]" ~sep:","  (fun out m -> Int.print out (Mode.mode_id m)) IO.stdout relevant_modes in
     let () = print_endline "" in
-     *)
+ *)   
     let relevant_var = Relevantvariables.of_modelist relevant_modes in
     let  get_relevant_mode_mode_variables (mode : Mode.t) (nm : Mode.t) (jm : Jumpmap.t) = 
       (*
@@ -152,7 +152,7 @@ module Heuristic = struct
       let depvars = BatSet.union (BatSet.union guard_vars invariant_vars) (Map.find nm.mode_id next) in
       let flow_vars = get_relevant_flow_vars mode depvars h in
       
-      (*
+    (*  
       let () = print_endline "" in
       let () = Printf.fprintf IO.stdout "Relevant Guards:" in
       let () = BatSet.print ~first:"[" ~last:"]" ~sep:","  String.print IO.stdout guard_vars in
@@ -163,7 +163,7 @@ module Heuristic = struct
      let () = Printf.fprintf IO.stdout "Relevant Invariants:" in
       let () = BatSet.print ~first:"[" ~last:"]" ~sep:","  String.print IO.stdout invariant_vars in
       let () = print_endline "" in
-       *)
+     *)
 
       BatSet.union flow_vars depvars
 
@@ -195,6 +195,14 @@ module Heuristic = struct
 			  relevant_modes
 			  relevant_var
     in
+
+      (*
+      let () = print_endline "" in
+      let () = Printf.fprintf IO.stdout "Relevant at %d" step in
+      let () = Relevantvariables.print IO.stdout relevant_vars in
+      let () = print_endline "" in
+       *)
+
     if step > 0 then
       List.append 
 	(relevantgenr_back h k (step-1) heuristic heuristic_back relevant_vars)
@@ -236,23 +244,26 @@ module Heuristic = struct
 
     in
    
-  (*  
+    (*
     let () = print_endline "relevant goal vars:" in
     let () = Relevantvariables.print IO.stdout relevant_goal_vars in
     let () = print_endline "" in 
-   *)
+     *)
+
+    let result =
     if k > 0 then
       List.append 
 	(relevantgenr_back h k (k-1) heuristic heuristic_back relevant_goal_vars) 
 	[ relevant_goal_vars ]
     else
       [ relevant_goal_vars ]
-
+    in
     (*
     let () = print_endline "relevant goal vars:" in
     let () = Relevantvariables.print IO.stdout relevant_goal_vars in
     let () = print_endline "" in 
-     *)
+    *)
+    result
 (*
     let openempty = BatHeap.empty   in
     let openq = List.fold_right (fun e h -> BatHeap.insert h (SearchNode.make (0.0, e)) ) goal_mode_ids openempty  in
@@ -455,30 +466,41 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
 					    (fun y -> 
 					     (string_of_int (Mode.mode_numId (Modemap.find y x.modemap)))) 
 					    (Hybrid.goal_ids x)
-
 				      )
 				      (Network.automata hm)) in
 	let () = Printf.fprintf hout ", %d" k in
 	Printf.fprintf hout "], " 
 
 
+  let writeJump aut source out dest =
+    let jump = Jumpmap.find dest source.jumpmap in
+    let () = Printf.fprintf out "[" in
+    let () = List.print 
+	       ~first:"[" ~last:"]" ~sep:"," 
+	       (fun out lab ->  Printf.fprintf out "\"%s\"" lab)
+	       out jump.label 
+    in
+    Printf.fprintf out ",%d]"  (Mode.mode_numId (Modemap.find dest aut.modemap))
+  
+  let writeLabeledModeTransitions  aut out mode   =
+    let successors = List.of_enum (Map.keys mode.jumpmap) in
+    let () = Printf.fprintf out "[" in
+    let () = List.print ~first:"" ~last:"" ~sep:"," (writeJump aut mode) out successors in 
+    let () = if List.length successors > 0 then Printf.fprintf out "," in
+    let () = Printf.fprintf out "[[],%d]" mode.mode_numId in
+    Printf.fprintf out "]" 
+     
+
+  let writeAutomatonAdjacency aut out =
+   (* let mode_adjacency = (get_mode_adjacency aut) in *)
+    let modes = List.map (fun x -> (Modemap.find x aut.modemap)) (List.of_enum (Map.keys aut.modemap)) in
+    List.print ~first:"[" ~last:"]" ~sep:","
+	       (writeLabeledModeTransitions aut)
+	       out
+	       modes
+  
   let writeHeuristic heuristic hm k hout =
 	let () = Printf.fprintf hout "[" in
-	let () = Printf.fprintf hout "[%d, "  hm.init_id in
-	let () = List.print ~first:"[" ~last:"]" ~sep:","
-			    (fun out g -> Int.print hout g)
-			    hout
-			    (Hybrid.goal_ids hm) in
-	let () = Printf.fprintf hout ", %d" k in
-	let () = Printf.fprintf hout "], " in
-	let () = Costmap.print hout heuristic in
-	let () = Printf.fprintf hout "," in
-	let mode_adjacency = get_mode_adjacency hm in
-	let () = List.print ~first:"[" ~last:"]" ~sep:","
-			    (fun hout path ->
-			     List.print ~first:"[" ~last:"]" ~sep:"," Int.print hout path)
-			    hout
-			    mode_adjacency in
 	let () = writeHeuristicHeader heuristic hm k hout in
 	let () = List.print ~first:"[" ~last:"]" ~sep:","
 			    (fun hout (h, i) -> Costmap.print_id (List.nth (Network.automata hm) i) hout h)
@@ -489,17 +511,7 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
 						((List.length heuristic) - 1)))) in
 	let () = Printf.fprintf hout "," in
 	let () = List.print ~first:"[" ~last:"]" ~sep:","
-			    (fun hout h ->
-			     let mode_adjacency = (get_mode_adjacency h) in
-			     List.print ~first:"[" ~last:"]" ~sep:","
-						 (fun hout path ->
-						  let id_path = List.map 
-								  (fun m -> (Mode.mode_numId (Modemap.find m h.modemap))) path in
-						  List.print ~first:"[" ~last:"]" ~sep:","
-							     Int
-.print hout id_path)
-						 hout
-						 mode_adjacency)
+			    (fun hout h -> writeAutomatonAdjacency h hout)
 			    hout
 			    (Network.automata hm) in
 	Printf.fprintf hout "]"

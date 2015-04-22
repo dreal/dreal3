@@ -191,7 +191,6 @@ struct SMTConfig
   bool         nra_stat;                      // --stat option
   bool         nra_proof;                     // --proof option
   bool         nra_readable_proof;            // --readable_proof option
-  bool         nra_model;                     // --model option
   ofstream     nra_model_out;                 // file stream for model
   bool         nra_model;                     // --model option
   string       nra_model_out_name;            // filename for model
@@ -213,6 +212,8 @@ struct SMTConfig
   unsigned     nra_multiple_soln;             // maximum number of solutions to find
   unsigned     nra_found_soln;                // number of solutions found so far
   bool         nra_polytope;                  // use polytope contractor in IBEX
+  int          nra_output_num_nodes;          // output number of SAT and ICP nodes
+  string       nra_plan_heuristic;
 
 private:
 
