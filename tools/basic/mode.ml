@@ -16,6 +16,7 @@ type t = {mode_id: id;
           time_precision: float;
           invs_op: invs option;
           flows: ode list;
+          jumps: jump list;
           jumpmap: jumpmap}
 
 let make (id, n_id, t_precision, invs_op, flows, jumps, jumpmap)
@@ -23,7 +24,8 @@ let make (id, n_id, t_precision, invs_op, flows, jumps, jumpmap)
      mode_numId = n_id;
      time_precision = t_precision;
      invs_op= invs_op;
-     flows= List.sort (fun (v1, ode1) (v2, ode2) -> String.compare v1 v2) flows;
+     flows= flows;
+     jumps;
      jumpmap= jumpmap}
 
 let mode_id {mode_id= id;
@@ -52,6 +54,7 @@ let print out {mode_id= id;
                mode_numId = n_id;
                invs_op= invs_op;
                flows= flows;
+               jumps= jumps;
                jumpmap= jumpmap}
   =
   let mode_id = id in
@@ -61,7 +64,7 @@ let print out {mode_id= id;
        IO.to_string (List.print ~first:"" ~sep:"\n    " ~last:"\n" Basic.print_formula) inv in
   let flow_str =
     IO.to_string (List.print ~first:"" ~sep:"\n    " ~last:"\n" Ode.print) flows in
-  let jump_str = IO.to_string Jumpmap.print jumpmap in
+  let jump_str = IO.to_string (List.print Jump.print) jumps in
   Printf.fprintf out
                  "{\nModeID = %s\nInvariant = %s\nFlows = %s\nJump = %s\n}"
                  mode_id
