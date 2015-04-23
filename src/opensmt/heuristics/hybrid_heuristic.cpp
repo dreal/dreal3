@@ -25,16 +25,18 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include "hybrid_heuristic.h"
-#include "json11/json11.hpp"
+#include "json/json.hpp"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
 #include "util/logging.h"
+#include "util/scoped_vec.h"
 
 using std::string;
 using std::ifstream;
 using std::unordered_set;
 using std::ios;
 using std::sort;
+using nlohmann::json;
 
 namespace dreal{
 string get_file_contents(const char *filename) {
@@ -74,42 +76,41 @@ int get_mode(Enode * lit) {
     m_is_initialized = true; // Have we computed suggestions yet?  Does not happen here.
     if (c.nra_bmc_heuristic.compare("") != 0){ 
       const string heuristic_string = get_file_contents(c.nra_bmc_heuristic.c_str());
-      string err;
-      auto hinfo = json11::Json::parse(heuristic_string, err);
+      auto hinfo = json::parse(heuristic_string);
       //auto hinfo = json.array_items();
       auto init_list = hinfo[0][0];
       auto goal_list = hinfo[0][1];
       DREAL_LOG_DEBUG << "hybrid_heuristic::initialize() init";
       // get init
-      for(auto i : init_list.array_items()){
-	m_init_mode.push_back(i.int_value());
+      for(auto i : init_list){
+	m_init_mode.push_back(i);
       }
 
        DREAL_LOG_DEBUG << "hybrid_heuristic::initialize() depth ";
       // BMC depth
-      m_depth = hinfo[0][2].int_value();
+       m_depth = hinfo[0][2];
 
       // DREAL_LOG_INFO << "Init = " << m_init_mode << " Steps = " << m_depth << endl;
-      num_autom = hinfo[0][0].array_items().size();
+      num_autom = hinfo[0][0].size();
 
       DREAL_LOG_DEBUG << "hybrid_heuristic::initialize() goals";      
       // get goals
-      for (auto gs : goal_list.array_items()){
+      for (auto gs : goal_list){
 	vector<int> *mg = new vector<int>();
-	for (auto g : gs.array_items()){
-	  mg->push_back(g.int_value());
+	for (auto g : gs){
+	  mg->push_back(g);
 	}
 	m_goal_modes.push_back(mg);
       }
 
       DREAL_LOG_DEBUG << "hybrid_heuristic::initialize() costs";   
       // get mode costs
-      for(auto i : hinfo[1].array_items()){
+      for(auto i : hinfo[1]){
 	vector<double> *mc = new vector<double>();
-	mc->assign(i.object_items().size(), 0.0);
-	for (auto object :  i.object_items()){
-	  (*mc)[atoi(object.first.c_str())-1] = atof(object.second.dump().substr(1, object.second.dump().size()-1).c_str());
-	  DREAL_LOG_DEBUG << (atoi(object.first.c_str())-1) << " = " << (*mc)[atoi(object.first.c_str())-1];
+	mc->assign(i.size(), 0.0);
+	for (json::iterator object = i.begin(); object!= i.end(); object++){
+	  (*mc)[atoi(object.key().c_str())-1] = atof(object.value().dump().substr(1, object.value().dump().size()-1).c_str());
+	  DREAL_LOG_DEBUG << (atoi(object.key().c_str())-1) << " = " << (*mc)[atoi(object.key().c_str())-1];
 	}
 	m_cost.push_back(mc);
       }
@@ -117,26 +118,26 @@ int get_mode(Enode * lit) {
       DREAL_LOG_DEBUG << "hybrid_heuristic::initialize() adjacency " << hinfo[2].dump();   
       
       // build reverse adjanceny map (succ -> set(predecessors))      
-      for(int j = 0; j < hinfo[2].array_items().size(); j++){ // loop over automata
+      for(int j = 0; j < hinfo[2].size(); j++){ // loop over automata
 	//DREAL_LOG_DEBUG << "Getting Transitions For Autom ";
 	vector<vector<labeled_transition*>*>* aut_predecessors = new vector<vector<labeled_transition*>*>();
-	for (unsigned int i = 0; i < hinfo[2][j].array_items().size(); i++){ // loop over modes
+	for (unsigned int i = 0; i < hinfo[2][j].size(); i++){ // loop over modes
 	  // DREAL_LOG_DEBUG << "Getting Transitions From " << i;
 	  vector<labeled_transition*>* mp = new vector<labeled_transition*>();  
 	  aut_predecessors->push_back(mp);
 	}	
-	for (unsigned int src = 0; src < hinfo[2][j].array_items().size(); src++){
+	for (unsigned int src = 0; src < hinfo[2][j].size(); src++){
 	  //DREAL_LOG_DEBUG << "Getting Transitions From " << src << " " << hinfo[2][j][src].dump();
 	  m_aut_labels.push_back(new set<int>());
 	  auto adj = hinfo[2][j][src]; // transitions from src
-	  for(auto adj_trans : adj.array_items()){ // loop over transitions
+	  for(auto adj_trans : adj){ // loop over transitions
 	    //DREAL_LOG_DEBUG << "Getting Transition " << adj_trans.dump();
 	    labeled_transition *trans = new labeled_transition();
 	    trans->first = new set<int>();
 	    trans->second = src+1;
 
-	    auto labels = adj_trans.array_items()[0];
-	    for(auto l : labels.array_items()){
+	    auto labels = adj_trans[0];
+	    for(auto l : labels){
 	      
 	      string label_string = l.dump().c_str();
 	      auto li = label_indices.find(label_string);
@@ -151,7 +152,7 @@ int get_mode(Enode * lit) {
 	      trans->first->insert(ind);
 	    }
 
-	    int dest = adj_trans.array_items()[1].int_value();
+	    int dest = adj_trans[1];
 	    (*aut_predecessors)[dest-1]->push_back(trans);
 	    //DREAL_LOG_DEBUG << "Got Transition " << adj_trans.dump();
 	  }
@@ -432,26 +433,26 @@ bool hybrid_heuristic::expand_path(){
     return static_cast<int>(m_decision_stack.size()) == num_autom*(m_depth + 1); // successfully found a full path
 }
 
-// Get the literal for assigning mode at time
-// side effect is to set the last_decision (a branch point to continue)
-Enode * getLiteral(int mode, int time, scoped_vec & m_literals){
-    for (auto e : m_literals){
-        unordered_set<Enode *> const & vars = e->get_vars();
-        for (auto const & v : vars) {
-            stringstream ss;
-            ss << v;
-            string var = ss.str();
-            if (var.find("mode") != string::npos) {
-                int t = atoi(var.substr(var.find("_")+1).c_str());
-                int m = get_mode(e);
-                if (m == mode && time == t){
-                    return e;
-                }
-            }
-        }
-    }
-    return NULL;
-}
+// // Get the literal for assigning mode at time
+// // side effect is to set the last_decision (a branch point to continue)
+// Enode * getLiteral(int mode, int time, scoped_vec & m_literals){
+//     for (auto const e : m_literals){
+//         unordered_set<Enode *> const & vars = e->get_vars();
+//         for (auto const & v : vars) {
+//             stringstream ss;
+//             ss << v;
+//             string var = ss.str();
+//             if (var.find("mode") != string::npos) {
+//                 int t = atoi(var.substr(var.find("_")+1).c_str());
+//                 int m = get_mode(e);
+//                 if (m == mode && time == t){
+//                     return e;
+//                 }
+//             }
+//         }
+//     }
+//     return NULL;
+// }
 
   bool hybrid_heuristic::can_synchronize(vector<pair<int, labeled_transition*>*>& parallel_transitions,
 					 pair<int, labeled_transition*> &trans){

@@ -358,6 +358,138 @@ void nra_solver::popBacktrackPoint() {
     m_stack.pop();
 }
 
+box nra_solver::icp_loop(box b, contractor const & ctc, SMTConfig & config) const {
+    vector<box> solns;
+    stack<box> box_stack;
+    box_stack.push(b);
+    do {
+        DREAL_LOG_INFO << "icp_loop()"
+                       << "\t" << "box stack Size = " << box_stack.size();
+        b = box_stack.top();
+        box_stack.pop();
+        try {
+            b = ctc.prune(b, config);
+            if (config.nra_stat) { m_stat.increase_prune(); }
+        } catch (contractor_exception & e) {
+            // Do nothing
+        }
+        if (!b.is_empty()) {
+            tuple<int, box, box> splits = b.bisect(config.nra_precision);
+            if (config.nra_stat) { m_stat.increase_branch(); }
+            int const i = get<0>(splits);
+            if (i >= 0) {
+                box const & first  = get<1>(splits);
+                box const & second = get<2>(splits);
+                if (second.is_bisectable()) {
+                    box_stack.push(second);
+                    box_stack.push(first);
+                } else {
+                    box_stack.push(first);
+                    box_stack.push(second);
+                }
+                if (config.nra_proof) {
+                    config.nra_proof_out << "[branched on "
+                                         << b.get_name(i)
+                                         << "]" << endl;
+                }
+            } else {
+                if (config.nra_found_soln >= config.nra_multiple_soln) {
+                    break;
+                }
+                config.nra_found_soln++;
+                if (config.nra_multiple_soln > 1) {
+                    // If --multiple_soln is used
+                    output_solution(b, config.nra_found_soln);
+                }
+                solns.push_back(b);
+            }
+        }
+    } while (box_stack.size() > 0);
+    if (config.nra_multiple_soln > 1 && solns.size() > 0) {
+        return solns.back();
+    } else {
+        return b;
+    }
+}
+
+box nra_solver::icp_loop_with_ncbt(box b, contractor const & ctc, SMTConfig & config) const {
+    static unsigned prune_count = 0;
+    stack<box> box_stack;
+    stack<int> bisect_var_stack;
+    box_stack.push(b);
+    bisect_var_stack.push(-1);  // Dummy var
+    do {
+        // Loop Invariant
+        assert(box_stack.size() == bisect_var_stack.size());
+        DREAL_LOG_INFO << "new_icp_loop()"
+                       << "\t" << "box stack Size = " << box_stack.size();
+        b = box_stack.top();
+        try {
+            b = ctc.prune(b, config);
+            if (config.nra_stat) { m_stat.increase_prune(); }
+        } catch (contractor_exception & e) {
+            // Do nothing
+        }
+        prune_count++;
+        box_stack.pop();
+        bisect_var_stack.pop();
+        if (!b.is_empty()) {
+            // SAT
+            tuple<int, box, box> splits = b.bisect(config.nra_precision);
+            if (config.nra_stat) { m_stat.increase_branch(); }
+            int const index = get<0>(splits);
+            if (index >= 0) {
+	        config.inc_icp_decisions();
+                box const & first    = get<1>(splits);
+                box const & second   = get<2>(splits);
+                if (second.is_bisectable()) {
+                    box_stack.push(second);
+                    box_stack.push(first);
+                } else {
+                    box_stack.push(first);
+                    box_stack.push(second);
+                }
+                bisect_var_stack.push(index);
+                bisect_var_stack.push(index);
+            } else {
+                break;
+            }
+        } else {
+            // UNSAT
+            while (box_stack.size() > 0) {
+                assert(box_stack.size() == bisect_var_stack.size());
+                int bisect_var = bisect_var_stack.top();
+                ibex::BitSet const & input = ctc.input();
+                DREAL_LOG_DEBUG << ctc;
+                if (!input[bisect_var]) {
+                    box_stack.pop();
+                    bisect_var_stack.pop();
+                } else {
+                    break;
+                }
+            }
+        }
+    } while (box_stack.size() > 0);
+    DREAL_LOG_DEBUG << "prune count = " << prune_count;
+    return b;
+}
+
+void nra_solver::output_solution(box const & b, unsigned i) const {
+    if (i > 0) {
+        cout << i << "-th ";
+    }
+    cout << "Solution:" << endl;
+    cout << b << endl;
+    if (!config.nra_model_out.is_open()) {
+        config.nra_model_out.open(config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
+        if (config.nra_model_out.fail()) {
+            cout << "Cannot create a file: " << config.nra_model_out_name << endl;
+            exit(1);
+        }
+    }
+    display(config.nra_model_out, b, false, true);
+}
+
 void nra_solver::handle_sat_case(box const & b) const {
     // SAT
     // --proof option
