@@ -357,6 +357,7 @@ box icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & config) {
         if (!b.is_empty()) {
             // SAT
             if (b.max_diam() > config.nra_precision) {
+	      config.inc_icp_decisions();
                 tuple<int, box, box> splits = b.bisect();
                 unsigned const index = get<0>(splits);
                 box const & first    = get<1>(splits);
