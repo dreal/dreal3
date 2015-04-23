@@ -51,7 +51,6 @@ public:
     bool  check(bool c);
     bool  belongsToT(Enode * e);
     void  computeModel();
-    int   decisions() { return m_decisions; }
 
 private:
     bool m_need_init = true;

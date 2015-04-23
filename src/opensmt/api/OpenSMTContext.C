@@ -863,7 +863,8 @@ void OpenSMTContext::PrintResult( const lbool & result, const lbool & config_sta
       for( auto t : getEgraphP()->getTSolvers()){
 	dreal::nra_solver* nra = dynamic_cast<dreal::nra_solver*>(t);
 	if(nra && config.nra_output_num_nodes){
-	  out << "nodes: " << solver.decisions << " " << nra->decisions() << endl;
+	  out << "nodes: " << solver.decisions  << " " << config.icp_decisions() 
+	      << endl;
 	} 
 	if(nra && config.nra_model){
 	  solver.printCurrentAssignment(config.nra_model_out, true);  
