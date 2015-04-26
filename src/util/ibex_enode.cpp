@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <algorithm>
 #include <string>
 #include <cmath>
 #include "ibex/ibex.h"
@@ -108,6 +109,12 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
         case ENODE_ID_ATAN2:
             assert(e->getArity() == 2);
             return &atan2(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
+        case ENODE_ID_MIN:
+            assert(e->getArity() == 2);
+            return &min(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
+        case ENODE_ID_MAX:
+            assert(e->getArity() == 2);
+            return &max(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
         case ENODE_ID_MATAN:
             // TODO(soonhok): MATAN
             throw logic_error("translateEnodeExprNode: MATAN");
