@@ -153,6 +153,8 @@ char * pbuffer2;
 "sinh"                       { return TK_SINH; }
 "cosh"                       { return TK_COSH; }
 "tanh"                       { return TK_TANH; }
+"min"                        { return TK_MIN; }
+"max"                        { return TK_MAX; }
 "atan2"|"arctan2"            { return TK_ATAN2; }
 "matan"|"marctan"            { return TK_MATAN; }
 "sqrt"                       { return TK_SQRT; }

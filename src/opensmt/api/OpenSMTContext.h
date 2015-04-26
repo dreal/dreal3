@@ -185,6 +185,8 @@ public:
   inline Enode * mkCosh      ( Enode * e )       { assert(e); return egraph.mkCosh(e);}
   inline Enode * mkTanh      ( Enode * e )       { assert(e); return egraph.mkTanh(e);}
   inline Enode * mkAtan2     ( Enode * e )       { assert(e); return egraph.mkAtan2(e);}
+  inline Enode * mkMin       ( Enode * e )       { assert(e); return egraph.mkMin(e);}
+  inline Enode * mkMax       ( Enode * e )       { assert(e); return egraph.mkMax(e);}
   inline Enode * mkMatan     ( Enode * e )       { assert(e); return egraph.mkMatan(e);}
   inline Enode * mkSafeSqrt  ( Enode * e )       { assert(e); return egraph.mkSafeSqrt(e);}
   inline Enode * mkSqrt      ( Enode * e )       { assert(e); return egraph.mkSqrt(e);}

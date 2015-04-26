@@ -104,6 +104,8 @@ opensmt_expr     opensmt_mk_sinh                   ( opensmt_context, opensmt_ex
 opensmt_expr     opensmt_mk_cosh                   ( opensmt_context, opensmt_expr);
 opensmt_expr     opensmt_mk_tanh                   ( opensmt_context, opensmt_expr);
 opensmt_expr     opensmt_mk_atan2                  ( opensmt_context, opensmt_expr, opensmt_expr);
+opensmt_expr     opensmt_mk_min                    ( opensmt_context, opensmt_expr, opensmt_expr);
+opensmt_expr     opensmt_mk_max                    ( opensmt_context, opensmt_expr, opensmt_expr);
 #ifdef __cplusplus
 }
 #endif

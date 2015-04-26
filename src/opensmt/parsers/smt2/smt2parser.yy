@@ -93,7 +93,7 @@ void smt2error( const char * s )
 
 /* added for dReal2 */
 %token TK_EXP TK_SIN TK_COS TK_ASIN TK_ACOS TK_LOG TK_TAN TK_ATAN TK_POW TK_SINH TK_COSH TK_TANH TK_ABS
-%token TK_ATAN2 TK_MATAN TK_SAFESQRT TK_INTEGRAL TK_SQRT
+%token TK_ATAN2 TK_MATAN TK_SAFESQRT TK_INTEGRAL TK_SQRT TK_MIN TK_MAX
 
 %type <str> precision
 
@@ -470,6 +470,12 @@ term: spec_const
 
     | '(' TK_ATAN2 term_list ')'
       { $$ = parser_ctx->mkAtan2( $3 ); }
+
+    | '(' TK_MIN term_list ')'
+      { $$ = parser_ctx->mkMin( $3 ); }
+
+    | '(' TK_MAX term_list ')'
+      { $$ = parser_ctx->mkMax( $3 ); }
 
     | '(' TK_MATAN term_list ')'
       { $$ = parser_ctx->mkMatan( $3 ); }

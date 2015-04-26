@@ -189,6 +189,8 @@ public:
   Enode * mkCosh             ( Enode * );
   Enode * mkTanh             ( Enode * );
   Enode * mkAtan2            ( Enode * );
+  Enode * mkMin              ( Enode * );
+  Enode * mkMax              ( Enode * );
   Enode * mkMatan            ( Enode * );
   Enode * mkSafeSqrt         ( Enode * );
   Enode * mkSqrt             ( Enode * );

@@ -160,6 +160,8 @@ void Egraph::initializeStore( )
   newSymbol( "forallt"   , sarith1_bool ); assert( ENODE_ID_FORALLT == id_to_enode.size( ) - 1 );
   newSymbol( "integral"  , sarith5_bool ); assert( ENODE_ID_INTEGRAL == id_to_enode.size( ) - 1 );
   newSymbol( "abs"       , sarith1 ); assert( ENODE_ID_ABS == id_to_enode.size( ) - 1 );
+  newSymbol( "min"       , sarith2_left ); assert( ENODE_ID_MIN == id_to_enode.size( ) - 1 );
+  newSymbol( "max"       , sarith2_left ); assert( ENODE_ID_MAX == id_to_enode.size( ) - 1 );
   newSymbol( "forall"    , sbool2 ); assert( ENODE_ID_FORALL == id_to_enode.size( ) - 1 );
   newSymbol( "exists"    , sbool2 ); assert( ENODE_ID_EXISTS == id_to_enode.size( ) - 1 );
   /* ---------------- */
@@ -884,6 +886,24 @@ Enode * Egraph::mkAtan2             ( Enode * args)
   assert( args );
   assert( args->getArity( ) == 2 );
   Enode * res = cons( id_to_enode[ ENODE_ID_ATAN2], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkMin             ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 2 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_MIN], args );
+  assert( res );
+  return res;
+}
+
+Enode * Egraph::mkMax             ( Enode * args)
+{
+  assert( args );
+  assert( args->getArity( ) == 2 );
+  Enode * res = cons( id_to_enode[ ENODE_ID_MAX], args );
   assert( res );
   return res;
 }

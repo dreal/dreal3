@@ -605,6 +605,26 @@ opensmt_expr opensmt_mk_atan2( opensmt_context c, opensmt_expr arg1, opensmt_exp
   return static_cast< void * >( res );
 }
 
+opensmt_expr opensmt_mk_min( opensmt_context c, opensmt_expr arg1, opensmt_expr arg2)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg1 )
+                    , context.mkCons( static_cast< Enode * >( arg2 ) ) );
+  Enode * res = context.mkMin( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_max( opensmt_context c, opensmt_expr arg1, opensmt_expr arg2)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg1 )
+                    , context.mkCons( static_cast< Enode * >( arg2 ) ) );
+  Enode * res = context.mkMax( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
 /*
 opensmt_expr opensmt_mk_bv_constant( opensmt_context c, unsigned w, unsigned long n )
 {

@@ -93,6 +93,8 @@ public:
   inline bool isAsin              ( ) const { return hasSymbolId( ENODE_ID_ASIN        ); }
   inline bool isAtan              ( ) const { return hasSymbolId( ENODE_ID_ATAN        ); }
   inline bool isAtan2             ( ) const { return hasSymbolId( ENODE_ID_ATAN2       ); }
+  inline bool isMin               ( ) const { return hasSymbolId( ENODE_ID_MIN         ); }
+  inline bool isMax               ( ) const { return hasSymbolId( ENODE_ID_MAX         ); }
   inline bool isMatan             ( ) const { return hasSymbolId( ENODE_ID_MATAN       ); }
   inline bool isSafeSqrt          ( ) const { return hasSymbolId( ENODE_ID_SAFESQRT    ); }
   inline bool isSqrt              ( ) const { return hasSymbolId( ENODE_ID_SQRT        ); }
