@@ -60,12 +60,11 @@ let process_flow ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) : Basic.formu
     let vars = List.map (fun (name, _) -> name) vardecls in
     let flow_var = (make_variable q "" "flow") in
     let ode_vars = List.filter (fun name -> name <> "time") vars in
-    let ode_vars_0 = List.map (make_variable k "_0") ode_vars in
-    let ode_vars_t = List.map (make_variable k "_t") ode_vars in
-    let ode_vars_0' = List.sort String.compare ode_vars_0 in
-    let ode_vars_t' = List.sort String.compare ode_vars_t in
-    Eq(Vec ode_vars_t' (* ["x_1_t"; "y_1_t"] *),
-       Integral(0.0, time_var, ode_vars_0', flow_var)) in
+    let ode_vars' = List.sort String.compare ode_vars in
+    let ode_vars_0 = List.map (make_variable k "_0") ode_vars' in
+    let ode_vars_t = List.map (make_variable k "_t") ode_vars' in
+    Eq(Vec ode_vars_t (* ["x_1_t"; "y_1_t"] *),
+       Integral(0.0, time_var, ode_vars_0, flow_var)) in
   let inv_formula = match (Mode.invs_op m) with
       None -> Basic.True
     | Some invs ->
@@ -113,8 +112,9 @@ let process_flow_pruned ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) (relev
     let q_string = (String.join "_" [""; (string_of_int q);]) in
     let flow_var = (make_variable k q_string "flow") in
     let ode_vars = List.filter (fun name -> name <> "time") vars_pruned in
-    let ode_vars_0 = List.map (make_variable k "_0") ode_vars in
-    let ode_vars_t = List.map (make_variable k "_t") ode_vars in
+    let ode_vars' = List.sort String.compare ode_vars in
+    let ode_vars_0 = List.map (make_variable k "_0") ode_vars' in
+    let ode_vars_t = List.map (make_variable k "_t") ode_vars' in
     Eq(Vec ode_vars_t (* ["x_1_t"; "y_1_t"] *),
                          Integral(0.0, time_var, ode_vars_0, flow_var))
   in
