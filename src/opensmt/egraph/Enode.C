@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <fenv.h>
 #include "Enode.h"
 #include "util/string.h"
 
@@ -319,6 +320,8 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
             }
         }
     } else if (isNumb()) {
+        int old_rnd = fegetround();
+        fesetround(FE_TONEAREST);
         string name = getName();
         if (name.find('e') != std::string::npos || name.find('E') != std::string::npos) {
             // Scientific Notation
@@ -328,6 +331,7 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
             // Fixed Notation
             os << name;
         }
+        fesetround(old_rnd);
     } else if (isTerm()) {
         // output "("
         if (!getCdr()->isEnil() && (isPlus() || isMinus() || isTimes() || isPow())) {
@@ -429,8 +433,11 @@ void Enode::print(ostream & os) const {
     if(isSymb()) {
         os << getName();
     } else if (isNumb()) {
+        int old_rnd = fegetround();
+        fesetround(FE_TONEAREST);
         double r = *(symb_data->value);
         os << r;
+        fesetround(old_rnd);
     } else if (isTerm()) {
         if (!cdr->isEnil())
             os << "(";
