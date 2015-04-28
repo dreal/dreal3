@@ -26,25 +26,27 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <memory>
 #include <queue>
+#include <set>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include "contractor/contractor.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include "util/proof.h"
 #include "util/constraint.h"
-#include "contractor/contractor.h"
 #include "util/logging.h"
+#include "util/proof.h"
 
 using std::back_inserter;
 using std::function;
 using std::initializer_list;
 using std::make_shared;
 using std::queue;
+using std::set;
 using std::stringstream;
 using std::unordered_set;
 using std::vector;
@@ -176,8 +178,8 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
 }
 
 box contractor_fixpoint::prune(box old_b, SMTConfig & config) const {
-    //box const & naive_result = naive_fixpoint_alg(old_b);
-    //return naive_result;
+    // box const & naive_result = naive_fixpoint_alg(old_b);
+    // return naive_result;
     box const & worklist_result = worklist_fixpoint_alg(old_b, config);
     return worklist_result;
 }

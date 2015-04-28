@@ -27,7 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <memory>
 #include <utility>
-#include "config.h"
+#include "./config.h"
 #include "util/constraint.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "opensmt/egraph/Enode.h"
@@ -38,9 +38,9 @@ namespace dreal {
 enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
         PARALLEL_ALL, TIMEOUT, REALPAVER,
         TRY, TRY_OR, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE,
-        SAMPLE, AGGRESSIVE
+        SAMPLE, AGGRESSIVE,
 #ifdef SUPPORT_ODE
-        ,CAPD_FWD, CAPD_BWD
+        CAPD_FWD, CAPD_BWD,
 #endif
         };
 
@@ -136,7 +136,7 @@ class contractor_try : public contractor_cell {
 private:
     contractor const m_c;
 public:
-    contractor_try(contractor const & c);
+    explicit contractor_try(contractor const & c);
     box prune(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };

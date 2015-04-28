@@ -429,7 +429,7 @@ box intersect_params(box & b, integral_constraint const & ic) {
     vector<Enode*> const & pars_t = ic.get_pars_t();
     capd::IVector X_0 = extract_ivector(b, pars_0);
     capd::IVector const & X_t = extract_ivector(b, pars_t);
-    if(!intersection(X_0, X_t, X_0)) {
+    if (!intersection(X_0, X_t, X_0)) {
         // intersection is empty
         b.set_empty();
     } else {
@@ -685,7 +685,7 @@ box contractor_capd_bwd_full::prune(box b, SMTConfig &) const {
         } while (/*!invariantViolated &&*/ !m_timeMap->completed());
         if (filter(enclosures, m_X_0, m_T)) {
             // SAT
-            update_box_with_ivector(b, ic.get_vars_0(), m_X_0); // X_t
+            update_box_with_ivector(b, ic.get_vars_0(), m_X_0);  // X_t
             // TODO(soonhok): Here we still assume that time_0 = zero.
             b[ic.get_time_t()] = ibex::Interval(m_T.leftBound(), m_T.rightBound());
         } else {
