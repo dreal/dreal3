@@ -11,7 +11,7 @@ Library basic
   BuildTools: ocamlbuild
   BuildDepends: batteries
   NativeOpt:    -passopt -annot
-  Modules:    Type, Checker, Error, Basic, Ode, Value, Vardecl, Vardeclmap, Jump, Jumpmap, Mode, Modemap, Hybrid, Id
+  Modules:    Type, Checker, Error, Basic, Ode, Value, Vardecl, Vardeclmap, Jump, Jumpmap, Mode, Modemap, Hybrid, Id, Network, Replace, Replacemap, Replaceautmap, Modemapping
 
 Library heuristic
   Path:       ./heuristic
@@ -25,7 +25,7 @@ Library parsing
   BuildTools: ocamlbuild
   BuildDepends: basic
   NativeOpt:    -passopt -annot
-  Modules:    Drh_lexer, Drh_parser
+  Modules:    Drh_lexer, Drh_parser, Drh_lexer_networks, Drh_parser_networks
 
 Library smt2
   Path:       ./smt2

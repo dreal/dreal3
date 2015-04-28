@@ -1,0 +1,53 @@
+[0, 2000] time;
+
+(component generate;
+	[0, 1000] duration;
+	[-2000, 2000] fuellevel;
+	[0, 1] ran;
+	
+	(mode running;
+		invt:
+			(duration >= 0);
+		flow:
+			d/dt[fuellevel] = -1;
+			d/dt[duration] = -1;
+		jump:
+			(): (and (duration <= 0) (fuellevel >= 0)) ==> @not_running (ran' = 1);
+			(): (and (duration <= 0) (fuellevel < 0)) ==> @not_running (ran' = 0);
+	)
+	
+	(mode not_running;
+		invt:
+		flow:
+		jump:
+	)
+)
+
+(component refuel;
+	[0, 10] duration;
+	[-2000, 2000] fuellevel;
+
+	(mode running;
+		invt:
+			(duration >= 0);
+		flow:
+			d/dt[fuellevel] = 2;
+			d/dt[duration] = -1;
+		jump:
+			(): (duration <= 0) ==> @not_running (true);
+	)
+	
+	(mode not_running;
+		invt:
+		flow:
+		jump:
+	)
+)
+
+analyze:
+	gen0 = generate[[duration/dur1], @running (and (ran = 0) (fuellevel = 970) (duration = 1000))];
+	ref0 = refuel[[duration/dur2], @running (duration = 10)];
+	(gen0 || ref0);
+
+goal:
+	(): (ran = 1);

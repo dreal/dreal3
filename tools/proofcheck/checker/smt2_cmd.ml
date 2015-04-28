@@ -9,6 +9,7 @@ type formula = Basic.formula
 type t = SetLogic of logic
          | SetInfo of string * string
          | DeclareFun of string
+         | DeclareBool of string
          | Assert of formula
          | CheckSAT
          | Exit
@@ -42,6 +43,12 @@ let print out =
       String.print   out "(declare-fun ";
       String.print   out v;
       String.print out " () Real)";
+    end
+  | DeclareBool v ->
+    begin
+      String.print out "(declare-fun ";
+      String.print out v;
+      String.print out " () Bool)";
     end
   | Assert f ->
      begin
