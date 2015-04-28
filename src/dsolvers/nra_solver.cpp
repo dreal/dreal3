@@ -235,6 +235,11 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
 // operations, for instance in a vector called "undo_stack_term", as
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint() {
+    if (m_need_init) {
+        m_box.constructFromLiterals(m_lits);
+        m_ctrs = initialize_constraints();
+        m_need_init = false;
+    }
     if (config.nra_stat) { m_stat.increase_push(); }
     DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
     m_stack.push();
