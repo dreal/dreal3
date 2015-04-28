@@ -13,10 +13,10 @@ env:
   matrix:
     - TRIGGER_OSX=ON
       TRIGGER_BB=ON
-      CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
+      CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
       CMAKE_BUILD_TYPE=Release
       CTEST=ON TESTCOV=OFF STATIC=OFF
-    - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
+    - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
       CMAKE_BUILD_TYPE=Debug
       CTEST=ON TESTCOV=ON  STATIC=OFF
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
@@ -25,7 +25,7 @@ env:
     - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
       CMAKE_BUILD_TYPE=Debug
       CTEST=ON TESTCOV=OFF STATIC=OFF
-    - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
+    - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
       CMAKE_BUILD_TYPE=Release
       STATIC=ON
 
@@ -55,8 +55,8 @@ install:
   - sudo add-apt-repository --yes ppa:avsm/ppa
   - sudo add-apt-repository --yes ppa:kalakris/cmake
   - sudo apt-get -qq update
-  - sudo apt-get -qq install libstdc++-4.8-dev
-  - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then until sudo apt-get -qq install g++-4.8; do echo retry; done fi
+  - sudo apt-get -qq install libstdc++-4.9-dev
+  - if [[ $CMAKE_CXX_COMPILER == g++-4.9 ]]; then until sudo apt-get -qq install g++-4.9; do echo retry; done fi
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
   # Install Bison, Flex, CMAKE
   - sudo apt-get -qq install bison flex wget cmake
@@ -68,12 +68,10 @@ install:
   # - yes | opam install ocamlfind batteries oasis
   # TESTCOV - lcov
   - if [[ $TESTCOV == ON ]]; then
-       wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;
-       tar xvfz lcov-1.10.tar.gz;
-       sudo cp -v lcov-1.10/bin/{lcov,genpng,gendesc,genhtml,geninfo} /usr/bin/;
-       sudo chmod 777 /usr/bin/lcov /usr/bin/genhtml /usr/bin/geninfo /usr/bin/genpng /usr/bin/gendesc;
-       rm -rf lcov-1.10.tar.gz lcov-1.10;
-       sudo cp -v `which gcov-4.8` `which gcov`;
+      wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz &&
+      tar xf lcov_1.11.orig.tar.gz &&
+      sudo make -C lcov-1.11/ install &&
+      gem install coveralls-lcov &&;
     fi
 
 before_script:
