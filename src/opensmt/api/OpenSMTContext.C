@@ -32,7 +32,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "util/string.h"
 #include "dsolvers/nra_solver.h"
 
-#pragma STDC FENV_ACCESS on
+#pragma STDC FENV_ACCESS ON
 
 using std::unordered_map;
 
