@@ -196,7 +196,8 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
     // ======= Proof =======
     if (config.nra_proof) {
         stringstream ss;
-        ss << m_ctr->get_enodes()[0];
+        Enode const * const e = m_ctr->get_enodes()[0];
+        ss << (e->getPolarity() == l_False ? "!" : "") << e;
         output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
     }
     return b;
@@ -284,7 +285,8 @@ box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
     if (config.nra_proof) {
         stringstream ss;
         for (auto const & ctr : m_ctrs) {
-            ss << ctr->get_enodes()[0] << ";";
+            Enode const * const e = ctr->get_enodes()[0];
+            ss << (e->getPolarity() == l_False ? "!" : "") << e << ";";
         }
         output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
     }

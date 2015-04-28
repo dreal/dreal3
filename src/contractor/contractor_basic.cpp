@@ -318,7 +318,8 @@ box contractor_eval::prune(box b, SMTConfig & config) const {
             box old_box = b;
             b.set_empty();
             stringstream ss;
-            ss << m_nl_ctr->get_enodes()[0];
+            Enode const * const e = m_nl_ctr->get_enodes()[0];
+            ss << (e->getPolarity() == l_False ? "!" : "") << e;
             output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
         } else {
             b.set_empty();
