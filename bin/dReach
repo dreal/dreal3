@@ -43,6 +43,8 @@ OPTIONS:
                                 1 abnormal termination
 
    -n               parse new .drh file format (default: do not use)
+   
+   -f               filter out mode encodings unreachable within k steps (default: do not use)
 
 EXAMPLE:
 
@@ -61,8 +63,9 @@ U=NONE
 DEFAULT_U=3
 Z_OPT=FALSE #(edited: FS)
 NEW=""
+FILTER=""
 
-while getopts "zohbdk:l:u:ep:irn" OPTION
+while getopts "zohbdk:l:u:ep:irnf" OPTION
 do
     case $OPTION in
         h)
@@ -95,6 +98,9 @@ do
             ;;              #
         n)
             NEW=" --new_format"
+            ;;
+        f)
+            FILTER=" --length_filter"
             ;;
         \?)
             usage
@@ -167,8 +173,8 @@ echo dReal Options: $SOLVER_OPT
 # Preprocessing
 sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
 
-# Append option to parse new file format
-BMC=$BMC$NEW
+# Append option to parse new file format and filter mode encodings
+BMC=$BMC$NEW$FILTER
 
 UNROLLS=`seq $L $U`
 for K in $UNROLLS
