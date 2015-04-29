@@ -92,7 +92,7 @@ mode_list: /* */ { [] }
 
 mode: LC mode_id time_precision invts_op flows jumps RC
   {
-    Mode.make (string_of_int $2, $2, $3, $4, $5, $6, Jumpmap.of_list $6)
+    Mode.make (string_of_int $2, $2, $3, $4, $5, $6, Jumpmap.of_list $6, 0)
   }
 ;
 

@@ -41,6 +41,8 @@ let make (mo, t, aut, lm, gv, g): t = {modemapping = mo; time = t; automata = au
 
 let makep (t, aut, gv, g):t = {modemapping = (Modemapping.make (Map.empty, Map.empty)); time = t; automata = aut; mapping = []; globalvars = gv; goals = g}
 
+let infinity = max_int
+
 let rec get_all_vardecls (auta: automata):Vardeclmap.t list = 
 	match
 		try Some (List.hd auta)
@@ -326,6 +328,27 @@ let remap_labels_autname l m a_n =
 		false -> l
 		| true -> remap_labels l (Map.find a_n m)
 
+let rec bfs graph fringe visited goal depth = 
+	if List.is_empty fringe then
+		(goal, infinity)
+	else if List.mem goal fringe then
+		(goal, depth)
+	else
+		(bfs 
+			graph 
+			(List.flatten (List.map (fun m -> List.filter (fun x -> not (List.mem x visited)) (List.assoc m graph)) fringe)) 
+			(visited@fringe) 
+			goal 
+			(depth + 1))
+
+let calc_distances_to_init aut = 
+	let modemap = Hybrid.modemap aut in
+	let init_mode = Hybrid.init_id aut in
+	let modes = List.map (fun (_, x) -> x) (Map.bindings (Hybrid.modemap aut)) in
+	let mode_names = List.map (fun (x, _) -> x) (Map.bindings (Hybrid.modemap aut)) in
+	let edges = List.map (fun m -> (Mode.mode_id m, List.map (fun (_, x) -> Jump.target x) (Map.bindings (Mode.jumpmap m)))) modes in
+	List.map (fun m -> bfs edges [init_mode] [] m 0) mode_names
+
 let postprocess_aut a m (mcnt: int ref) (acnt: int ref) = 
 	acnt := !acnt + 1;
 	let remapping = Replaceautmap.of_list m in
@@ -337,6 +360,7 @@ let postprocess_aut a m (mcnt: int ref) (acnt: int ref) =
 			| true -> map_replace_vardecls vardecls_t (Map.find name remapping)
 	in
 	let modemap = Hybrid.modemap a in
+	let dists = calc_distances_to_init a in
 	let nmm = Map.map (
 		fun x -> begin
 			mcnt := !mcnt + 1;
@@ -347,6 +371,7 @@ let postprocess_aut a m (mcnt: int ref) (acnt: int ref) =
 			let jumpmap = Mode.jumpmap x in
 			let jumps = Mode.jumps x in
 			let n_id = Mode.mode_numId x in
+			let m_dist = List.assoc mode_id dists in
 			(*let n_id = !mcnt in*)
 			
 			let n_invs_op = match invs_op with
@@ -391,7 +416,7 @@ let postprocess_aut a m (mcnt: int ref) (acnt: int ref) =
 			)
 			jumps
 			in
-			Mode.make (mode_id, n_id, prec, n_invs_op, n_flows, n_jumps, n_jumpmap)
+			Mode.make (mode_id, n_id, prec, n_invs_op, n_flows, n_jumps, n_jumpmap, m_dist)
 		end
 	)
 	modemap in
