@@ -98,6 +98,17 @@ const lbool l_True  = toLbool( 1);
 const lbool l_False = toLbool(-1);
 const lbool l_Undef = toLbool( 0);
 
+inline std::ostream& operator<<(std::ostream & out, lbool const l) {
+    if (l == l_True) {
+        out << "true";
+    } else if (l == l_False) {
+        out << "false";
+    } else {
+        out << "undef";
+    }
+    return out;
+}
+
 //=================================================================================================
 // Clause -- a simple class for representing a clause:
 
