@@ -178,10 +178,11 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
 }
 
 box contractor_fixpoint::prune(box old_b, SMTConfig & config) const {
-    // box const & naive_result = naive_fixpoint_alg(old_b, config);
-    // return naive_result;
-    box const & worklist_result = worklist_fixpoint_alg(old_b, config);
-    return worklist_result;
+    // TODO(soonhok): worklist_fixpoint still has a problem
+    box const & naive_result = naive_fixpoint_alg(old_b, config);
+    return naive_result;
+    // box const & worklist_result = worklist_fixpoint_alg(old_b, config);
+    // return worklist_result;
 }
 ostream & contractor_fixpoint::display(ostream & out) const {
     out << "contractor_fixpoint(";
