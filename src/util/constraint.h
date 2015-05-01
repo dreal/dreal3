@@ -66,13 +66,13 @@ private:
     ibex::NumConstraint const * m_numctr;
     ibex::NumConstraint const * m_numctr_ineq;
     ibex::Array<ibex::ExprSymbol const> m_var_array;
-    std::pair<bool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
+    std::pair<lbool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
 
 public:
     explicit nonlinear_constraint(Enode * const e, lbool p = l_Undef);
     virtual ~nonlinear_constraint();
     virtual std::ostream & display(std::ostream & out) const;
-    std::pair<bool, ibex::Interval> eval(box const & b) const;
+    std::pair<lbool, ibex::Interval> eval(box const & b) const;
     inline ibex::ExprCtr const * get_exprctr() const { return m_exprctr; }
     inline ibex::NumConstraint const * get_numctr() const { return m_numctr; }
     ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }

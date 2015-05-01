@@ -145,44 +145,90 @@ ostream & nonlinear_constraint::display(ostream & out) const {
     return out;
 }
 
-pair<bool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector const & iv) const {
-    bool sat = true;
+pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector const & iv) const {
+    lbool sat = l_Undef;
     ibex::Interval result;
     if (m_numctr) {
         result = m_numctr->f.eval(iv);
         switch (m_numctr->op) {
             case ibex::LT:
-                sat = result.lb() < 0;
+                if (result.ub() < 0) {
+                    //    [         ]
+                    // --------------- 0 --------------
+                    sat = l_True;
+                } else if (0 <= result.lb()) {
+                    //                 [         ]
+                    // --------------- 0 --------------
+                    sat = l_False;
+                }
                 break;
             case ibex::LEQ:
-                sat = result.lb() <= 0;
+                if (result.ub() <= 0) {
+                    //       [         ]
+                    // --------------- 0 --------------
+                    sat = l_True;
+                } else if (0 < result.lb()) {
+                    //                   [         ]
+                    // --------------- 0 --------------
+                    sat = l_False;
+                }
                 break;
             case ibex::GT:
-                sat = result.ub() > 0;
+                if (0 < result.lb()) {
+                    //                   [         ]
+                    // --------------- 0 --------------
+                    sat = l_True;
+                } else if (result.ub() <= 0) {
+                    //       [         ]
+                    // --------------- 0 --------------
+                    sat = l_False;
+                }
                 break;
             case ibex::GEQ:
-                sat = result.ub() >= 0;
+                if (0 <= result.lb()) {
+                    //                 [         ]
+                    // --------------- 0 --------------
+                    sat = l_True;
+                } else if (result.ub() < 0) {
+                    //     [         ]
+                    // --------------- 0 --------------
+                    sat = l_False;
+                }
                 break;
             case ibex::EQ:
-                sat = (result.lb() <= 0) && (result.ub() >= 0);
+                if (result.lb() == 0 && result.ub() == 0) {
+                    //                 x
+                    // --------------- 0 --------------
+                    sat = l_True;
+                } else if ((result.ub() < 0) || (0 < result.lb())) {
+                    //  [            ] | [            ]
+                    // --------------- 0 --------------
+                    sat = l_False;
+                }
                 break;
         }
     } else {
+        // Ineq case: lhs - rhs != 0
         assert(m_numctr_ineq);
         result = m_numctr_ineq->f.eval(iv);
-        // Ineq case: lhs - rhs != 0
-        sat = !(result.lb() == 0 && result.ub() == 0);
+        if ((result.lb() == 0) && (result.ub() == 0)) {
+            //     [      lhs      ]
+            //     [      rhs      ]
+            sat = l_False;
+        } else {
+            sat = l_True;
+        }
     }
-    if (DREAL_LOG_DEBUG_IS_ON && !sat) {
+    if (DREAL_LOG_DEBUG_IS_ON && sat == l_False) {
         DREAL_LOG_DEBUG << "nonlinear_constraint::eval: unsat detected";
         DREAL_LOG_DEBUG << "\t" << *this;
         DREAL_LOG_DEBUG << "input: " << iv;
         DREAL_LOG_DEBUG << "output:" << result;
     }
-    return make_pair(sat, ibex::Interval());
+    return make_pair(sat, result);
 }
 
-pair<bool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
+pair<lbool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
     // Construct iv from box b
     ibex::IntervalVector iv(m_var_array.size());
     for (int i = 0; i < m_var_array.size(); i++) {
