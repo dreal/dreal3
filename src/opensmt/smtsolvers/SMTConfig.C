@@ -407,6 +407,9 @@ SMTConfig::parseCMDLine( int /* argc */
           exit( 1 );
       }
   }
+  if (nra_verbose || nra_debug) {
+      verbosity = 10;
+  }
   FLAGS_log_prefix = 0;
   FLAGS_logtostderr = 1;
   if (nra_debug) { FLAGS_v = 4; }
