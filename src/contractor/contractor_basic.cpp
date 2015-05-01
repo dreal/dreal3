@@ -312,8 +312,8 @@ contractor_eval::contractor_eval(box const & box, nonlinear_constraint const * c
 }
 
 box contractor_eval::prune(box b, SMTConfig & config) const {
-    pair<bool, ibex::Interval> eval_result = m_nl_ctr->eval(b);
-    if (!eval_result.first) {
+    pair<lbool, ibex::Interval> eval_result = m_nl_ctr->eval(b);
+    if (eval_result.first == l_False) {
         // ======= Proof =======
         if (config.nra_proof) {
             box old_box = b;
@@ -379,8 +379,8 @@ box contractor_sample::prune(box b, SMTConfig &) const {
         for (constraint * const ctr : m_ctrs) {
             if (ctr->get_type() == constraint_type::Nonlinear) {
                 nonlinear_constraint const * const nl_ctr = dynamic_cast<nonlinear_constraint *>(ctr);
-                pair<bool, ibex::Interval> eval_result = nl_ctr->eval(p);
-                if (!eval_result.first) {
+                pair<lbool, ibex::Interval> eval_result = nl_ctr->eval(p);
+                if (eval_result.first == l_False) {
                     check = false;
                     DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " does not satisfy " << *ctr;
                     break;
@@ -413,15 +413,15 @@ box contractor_aggressive::prune(box b, SMTConfig &) const {
             nonlinear_constraint const * const nl_ctr = dynamic_cast<nonlinear_constraint *>(ctr);
             bool check = false;
             for (box const & p : points) {
-                pair<bool, ibex::Interval> eval_result = nl_ctr->eval(p);
-                if (eval_result.first) {
+                pair<lbool, ibex::Interval> eval_result = nl_ctr->eval(p);
+                if (eval_result.first != l_False) {
                     check = true;
                     break;
                 }
             }
             if (!check) {
                 m_used_constraints.insert(ctr);
-                pair<bool, ibex::Interval> eval_result = nl_ctr->eval(b);
+                pair<lbool, ibex::Interval> eval_result = nl_ctr->eval(b);
                 DREAL_LOG_DEBUG << "Constraint: " << *nl_ctr << " is violated by all " << points.size() << " points";
                 DREAL_LOG_DEBUG << "FYI, the interval evaluation gives us : " << eval_result.second;
                 b.set_empty();
