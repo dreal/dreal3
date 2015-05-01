@@ -222,11 +222,35 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
             return true;
         }
         double const threshold = 0.01;
-        double const new_volume = new_box.volume();
-        double const old_volume = old_box.volume();
-        if (old_volume == 0.0) return true;
-        double const improvement = 1.00 - (new_volume / old_volume);
-        return improvement < threshold;
+        // If there is a dimension which is improved more than
+        // threshold, we stop the current fixed-point computation.
+        bool is_corner_case = true;
+        for (unsigned i = 0; i < old_box.size(); i++) {
+            double const new_box_i = new_box[i].diam();
+            double const old_box_i = old_box[i].diam();
+            if (new_box_i == numeric_limits<double>::infinity()) {
+                continue;
+            }
+            if (old_box_i == 0) {
+                // The i-th dimension was already a point, nothing to improve.
+                continue;
+            }
+            double const improvement = 1 - new_box_i / old_box_i;
+            assert(!isnan(improvement));
+            if (improvement >= threshold) {
+                return false;
+            } else {
+                is_corner_case = false;
+            }
+        }
+
+        if (is_corner_case && new_box == old_box) {
+            // We only do the equality check if it's a corner case
+            // where every dimension has either [ENTIRE] or a point
+            // value.
+            return false;
+        }
+        return true;
     };
     return mk_contractor_fixpoint(term_cond, nl_ctcs, ode_ctcs, nl_eval_ctcs);
 }
