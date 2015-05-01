@@ -19,10 +19,12 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "dsolvers/nra_solver.h"
 #include <gflags/gflags.h>
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <set>
 #include <sstream>
@@ -32,7 +34,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "./config.h"
-#include "dsolvers/nra_solver.h"
 #include "ibex/ibex.h"
 #include "util/box.h"
 #include "util/constraint.h"
@@ -43,13 +44,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "json/json.hpp"
 
 using ibex::IntervalVector;
+using nlohmann::json;
 using std::boolalpha;
+using std::get;
 using std::logic_error;
+using std::numeric_limits;
 using std::pair;
 using std::stack;
 using std::vector;
-using std::get;
-using nlohmann::json;
 
 namespace dreal {
 using std::cout;
