@@ -241,7 +241,7 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
                 continue;
             }
             double const improvement = 1 - new_box_i / old_box_i;
-            assert(!isnan(improvement));
+            assert(!std::isnan(improvement));
             if (improvement >= threshold) {
                 return false;
             } else {
