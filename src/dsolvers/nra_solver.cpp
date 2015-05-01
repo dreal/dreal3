@@ -442,6 +442,32 @@ void nra_solver::handle_sat_case(box const & b) const {
     return;
 }
 
+void nra_solver::handle_deduction() {
+    for (Enode * const l : m_lits) {
+        if (l->getPolarity() == l_Undef && !l->isDeduced()) {
+            auto it = m_ctr_map.find(make_pair(l, true));
+            if (it != m_ctr_map.end()) {
+                constraint * ctr = it->second;
+                nonlinear_constraint const * const nl_ctr = dynamic_cast<nonlinear_constraint *>(ctr);
+                if (nl_ctr) {
+                    pair<lbool, ibex::Interval> p = nl_ctr->eval(m_box);
+                    if (p.first == l_False) {
+                        // We know that this literal has to be false;
+                        l->setDeduced(l_False, id);
+                        deductions.push_back(l);
+                        DREAL_LOG_INFO << "Deduced: " << *nl_ctr << "\t" << p.first << "\t" << p.second;
+                    } else if (p.first == l_True) {
+                        // We know that this literal has to be true;
+                        l->setDeduced(l_True, id);
+                        deductions.push_back(l);
+                        DREAL_LOG_INFO << "Deduced: " << *nl_ctr << "\t" << p.first << "\t" << p.second;
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Check for consistency.
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
@@ -466,8 +492,13 @@ bool nra_solver::check(bool complete) {
     }
     if (!result) {
         explanation = generate_explanation(m_used_constraint_vec);
-    } else if (complete) {
-        handle_sat_case(m_box);
+    } else {
+        if (!complete && config.sat_theory_propagation) {
+            handle_deduction();
+        }
+        if (complete) {
+            handle_sat_case(m_box);
+        }
     }
     DREAL_LOG_DEBUG << "nra_solver::check(" << (complete ? "complete" : "incomplete") << ") = " << result;
     return result;
