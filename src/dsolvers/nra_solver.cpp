@@ -94,6 +94,9 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
     DREAL_LOG_INFO << "nra_solver::assertLit: " << e
                    << ", reason: " << boolalpha << reason
                    << ", polarity: " << e->getPolarity().toInt()
+                   << ", deduced: " << e->isDeduced()
+                   << ", getDeduced: " << e->getDeduced().toInt()
+                   << ", getIndex: " << e->getDedIndex()
                    << ", level: " << m_stack.size()
                    << ", ded.size = " << deductions.size();
     (void)reason;
@@ -444,7 +447,8 @@ void nra_solver::handle_sat_case(box const & b) const {
 bool nra_solver::check(bool complete) {
     if (config.nra_stat) { m_stat.increase_check(complete); }
     if (m_stack.size() == 0) { return true; }
-    DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")";
+    DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")"
+                   << "stack size = " << m_stack.size();
     double const prec = config.nra_precision;
     m_ctc = build_contractor(m_box, m_stack, complete);
     try {
