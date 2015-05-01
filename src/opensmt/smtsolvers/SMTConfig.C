@@ -41,6 +41,7 @@ DEFINE_bool  (ode_forward_only, false, "ode forward only");
 DEFINE_bool  (ode_parallel,     false, "ode parallel");
 DEFINE_bool  (proof,            false, "proof");
 DEFINE_bool  (readable_proof,   false, "readable proof");
+DEFINE_bool  (theory_propagation, false, "use theory propagation / deduction");
 DEFINE_bool  (model,            false, "model");
 DEFINE_bool  (visualize,        false, "visualize");
 DEFINE_bool  (verbose,          false, "verbose");
@@ -373,6 +374,7 @@ SMTConfig::parseCMDLine( int /* argc */
   nra_ODE_forward_only    = FLAGS_ode_forward_only;
   nra_ODE_parallel        = FLAGS_ode_parallel;
   nra_readable_proof      = FLAGS_readable_proof;
+  sat_theory_propagation  = FLAGS_theory_propagation;
   nra_proof               = nra_readable_proof || FLAGS_proof;
   nra_model               = FLAGS_model;
   nra_json                = FLAGS_visualize;
