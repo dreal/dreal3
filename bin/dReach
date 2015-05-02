@@ -151,6 +151,7 @@ fi
 BASE=${1%.drh}
 DRH=$BASE.drh
 PDRH=$BASE.preprocessed.drh
+PATH_FILE=$BASE.paths
 
 # Extract dReal Options
 shift 1
@@ -218,10 +219,13 @@ do
     else
         # Enumerate all paths and call dReal with options
         PATH_NUM=0
-        PATHS=`$BMC -k $K --pathgen $PDRH`
-        if [[ $PATHS ]] ; then
-            for P in $PATHS
+        $BMC -k $K --pathgen $PDRH > ${PATH_FILE}
+        if [[ -s ${PATH_FILE} ]] ; then
+            while read P
             do
+                if [ -z ${P} ]; then
+                    continue;
+                fi
                 SMT=${BASE}_${K}_${PATH_NUM}.smt2
                 OUT=${BASE}_${K}_${PATH_NUM}.output
                 ERR=${BASE}.err
@@ -262,7 +266,7 @@ do
                     rm $OUT                 #
                 fi                          #
                 PATH_NUM=$((${PATH_NUM} + 1))
-            done
+            done < ${PATH_FILE}
             echo "For k = $K, dReach tried ${PATH_NUM} feasible paths, all of them are unsat."
         else
             echo "For k = $K, there is no feasible path to check."
