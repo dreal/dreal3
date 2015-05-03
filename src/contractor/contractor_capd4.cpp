@@ -165,8 +165,15 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
             // output 1st argument
             ret += subst(e->getCdr()->getCdr()->getCar(), subst_map);
             ret += ")";
+        } else if (e->isTan()) {
+            // CAPD does not support tan.
+            // We use an identity -- tan(x) = sin(x) / cos(x)
+            assert(e->getArity() == 1);
+            string arg = subst(e->getCdr()->getCar(), subst_map);
+            ret = "(sin(" + arg + ")/cos(" + arg + "))";
         } else if (e->isAcos() || e->isAsin() || e->isAtan() || e->isMatan() || e->isSafeSqrt() ||
-                   e->isSin() || e->isCos() || e->isTan() || e->isLog() || e->isExp() || e->isSinh() || e->isCosh() || e->isTanh() || e->isAbs()) {
+                   e->isSin() || e->isCos() || e->isLog() || e->isExp() ||
+                   e->isSinh() || e->isCosh() || e->isTanh() || e->isAbs()) {
             assert(e->getArity() == 1);
             // output operator
             ret += subst(e->getCar(), subst_map);
