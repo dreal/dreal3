@@ -174,11 +174,15 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
         DREAL_LOG_DEBUG << "domain   = " << m_ctc->d;
         m_ctc->contract(iv);
     } catch(ibex::EmptyBoxException& e) {
-        b.set_empty();
+        // Do nothing
+        // TODO(soonhok): we will remove this try-catch block once
+        // IBEX-team eliminate EmptyBoxException
     }
     DREAL_LOG_DEBUG << "ibex interval = " << iv << " (after)";
-    // Reconstruct box b from pruned result iv.
-    if (!b.is_empty()) {
+    if (iv.is_empty()) {
+        b.set_empty();
+    } else {
+        // Reconstruct box b from pruned result iv.
         for (int i = 0; i < m_var_array.size(); i++) {
             b[m_var_array[i].name] = iv[i];
         }
@@ -271,6 +275,9 @@ box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
     try {
         m_ctc->contract(b.get_values());
     } catch(ibex::EmptyBoxException&) {
+        // Do nothing
+        // TODO(soonhok): we will remove this try-catch block once
+        // IBEX-team eliminate EmptyBoxException
         assert(b.is_empty());
     }
     // setup output
