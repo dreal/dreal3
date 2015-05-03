@@ -19,10 +19,10 @@ env:
     - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
       CMAKE_BUILD_TYPE=Debug
       CTEST=ON TESTCOV=ON  STATIC=OFF
-    - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
+    - CMAKE_CXX_COMPILER=clang++-3.4 CMAKE_C_COMPILER=clang-3.4
       CMAKE_BUILD_TYPE=Release
       CTEST=ON TESTCOV=OFF STATIC=OFF
-    - CMAKE_CXX_COMPILER=clang++-3.3 CMAKE_C_COMPILER=clang-3.3
+    - CMAKE_CXX_COMPILER=clang++-3.4 CMAKE_C_COMPILER=clang-3.4
       CMAKE_BUILD_TYPE=Debug
       CTEST=ON TESTCOV=OFF STATIC=OFF
     - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
@@ -57,7 +57,7 @@ install:
   - sudo apt-get -qq update
   - sudo apt-get -qq install libstdc++-4.9-dev
   - if [[ $CMAKE_CXX_COMPILER == g++-4.9 ]]; then until sudo apt-get -qq install g++-4.9; do echo retry; done fi
-  - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
+  - if [[ $CMAKE_CXX_COMPILER == clang++-3.4 ]]; then until sudo apt-get -qq install clang-3.4; do echo retry; done fi
   # Install Bison, Flex, CMAKE
   - sudo apt-get -qq install bison flex wget cmake
   # Ocaml
