@@ -29,7 +29,12 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 char   buffer2[ BUFFER2_LENGTH ];
 char * pbuffer2;
 
-
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-register"
+#pragma clang diagnostic ignored "-Wnull-conversion"
+#pragma clang diagnostic ignored "-Wunneeded-internal-declaration"
+#endif
 %}
 
 %x start_source
@@ -182,3 +187,7 @@ char * pbuffer2;
 .               { printf( "Syntax error at line %d near %s\n", yylineno, yytext ); exit( 1 ); }
 
 %%
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
