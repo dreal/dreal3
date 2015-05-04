@@ -166,18 +166,12 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
         DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
     }
     // Prune on iv
-    try {
-        DREAL_LOG_DEBUG << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
-        DREAL_LOG_DEBUG << b;
-        DREAL_LOG_DEBUG << "ibex interval = " << iv << " (before)";
-        DREAL_LOG_DEBUG << "function = " << m_ctc->f;
-        DREAL_LOG_DEBUG << "domain   = " << m_ctc->d;
-        m_ctc->contract(iv);
-    } catch(ibex::EmptyBoxException& e) {
-        // Do nothing
-        // TODO(soonhok): we will remove this try-catch block once
-        // IBEX-team eliminate EmptyBoxException
-    }
+    DREAL_LOG_DEBUG << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
+    DREAL_LOG_DEBUG << b;
+    DREAL_LOG_DEBUG << "ibex interval = " << iv << " (before)";
+    DREAL_LOG_DEBUG << "function = " << m_ctc->f;
+    DREAL_LOG_DEBUG << "domain   = " << m_ctc->d;
+    m_ctc->contract(iv);
     DREAL_LOG_DEBUG << "ibex interval = " << iv << " (after)";
     if (iv.is_empty()) {
         b.set_empty();
@@ -272,14 +266,8 @@ box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
     if (!m_ctc) { init(b); }
     thread_local static box old_box(b);
     old_box = b;
-    try {
-        m_ctc->contract(b.get_values());
-    } catch(ibex::EmptyBoxException&) {
-        // Do nothing
-        // TODO(soonhok): we will remove this try-catch block once
-        // IBEX-team eliminate EmptyBoxException
-        assert(b.is_empty());
-    }
+    m_ctc->contract(b.get_values());
+    
     // setup output
     vector<bool> diff_dims = b.diff_dims(old_box);
     m_output = ibex::BitSet::empty(old_box.size());
