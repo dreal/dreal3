@@ -99,6 +99,7 @@ public:
         //
         lbool   value      (Var x) const;       // The current value of a variable.
         lbool   value      (Lit p) const;       // The current value of a literal.
+        lbool   modelValue (Var x) const;       // The value of a variable in the last model. The last call to solve must have been satisfiable.
         lbool   modelValue (Lit p) const;       // The value of a literal in the last model. The last call to solve must have been satisfiable.
         int     nAssigns   ()      const;       // The current number of assigned literals.
         int     nClauses   ()      const;       // The current number of original clauses.
@@ -505,6 +506,7 @@ inline int      CoreSMTSolver::decisionLevel ()      const                { retu
 inline uint32_t CoreSMTSolver::abstractLevel (Var x) const                { return 1 << (level[x] & 31); }
 inline lbool    CoreSMTSolver::value         (Var x) const                { return toLbool(assigns[x]); }
 inline lbool    CoreSMTSolver::value         (Lit p) const                { return toLbool(assigns[var(p)]) ^ sign(p); }
+inline lbool    CoreSMTSolver::modelValue    (Var x) const                { return model[x]; }
 inline lbool    CoreSMTSolver::modelValue    (Lit p) const                { return model[var(p)] ^ sign(p); }
 inline int      CoreSMTSolver::nAssigns      ()      const                { return trail.size(); }
 inline int      CoreSMTSolver::nClauses      ()      const                { return clauses.size(); }

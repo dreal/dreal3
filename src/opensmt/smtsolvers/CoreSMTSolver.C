@@ -1918,7 +1918,7 @@ lbool CoreSMTSolver::solve( const vec<Lit> & assumps
     }
   }
 
-  if ( !config.incremental )
+  if ( !config.incremental && !(config.nra_multiple_soln > 1))
   {
     // We terminate
     cancelUntil(-1);
