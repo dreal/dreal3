@@ -1778,17 +1778,24 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
         if (next == lit_Undef){
           if ((!config.nra_short_sat) || (!entailment())) {
-	    if( !isSAT ){
-	
+	    if( !isSAT ){       
         	// New variable decision:
         		DREAL_LOG_INFO << "Pick branch on a lit: " << endl;
         		decisions++;
         		next = pickBranchLit(polarity_mode, random_var_freq);
 	    }
         	} else {
+	    if( !isSAT ){	      
+        	// New variable decision:
+        		DREAL_LOG_INFO << "Pick branch on a lit: " << endl;
+        		decisions++;
+        		next = pickBranchLit(polarity_mode, random_var_freq);
+	    } else {
+ 
         		// SAT formula is satisfiable
         		next = lit_Undef;
         		DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
+	    }
         	}
 
           // Complete Call
