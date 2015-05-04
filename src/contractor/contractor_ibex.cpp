@@ -267,7 +267,6 @@ box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
     thread_local static box old_box(b);
     old_box = b;
     m_ctc->contract(b.get_values());
-    
     // setup output
     vector<bool> diff_dims = b.diff_dims(old_box);
     m_output = ibex::BitSet::empty(old_box.size());
