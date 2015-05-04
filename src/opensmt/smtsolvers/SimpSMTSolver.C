@@ -311,6 +311,18 @@ skip_theory_preproc:
       }
     }
 
+    if (config.nra_multiple_soln > 1) {
+      // we temporary freeze literals that correspond to theory atoms
+      for (int v = 2; v < CoreSMTSolver::nVars(); v++) {
+        Enode * e = theory_handler->varToEnode(v);
+        if (!e->isTAtom()) {
+          continue;
+        }
+        // Freeze and store.
+        setFrozen(v, true);
+        extra_frozen.push(v);
+      }
+    }
     result = eliminate(turn_off_simp);
   }
 
@@ -319,11 +331,39 @@ skip_theory_preproc:
 #endif
 
   lbool lresult = l_Undef;
-  if (result)
-    lresult = CoreSMTSolver::solve(assumps, conflicts);
-  else
-    lresult = l_False;
+  if (result) {
+    if (!(config.nra_multiple_soln > 1)) {
+      //
+      // Satisfiability check
+      //
+      lresult = CoreSMTSolver::solve(assumps, conflicts);
+    } else {
+      //
+      // Enumerate solutions
+      //
+      vec<Lit> blocking_clause;
+      uint64_t num_models = 0;
+      while ((CoreSMTSolver::solve(assumps) != l_False) && (num_models < config.nra_multiple_soln)){
+        // Create a blocking clause from the current model to rule out this solution
+        blocking_clause.clear();
+        for (int v = 2; v < CoreSMTSolver::nVars(); v++) {
+          // we block a conjunction of assigned literals
+          if (CoreSMTSolver::modelValue(v) != l_Undef) {
+            blocking_clause.push(Lit(v, CoreSMTSolver::modelValue(v) == l_True));
+          }
+        }
+        if (!CoreSMTSolver::addClause(blocking_clause)) {
+          lresult = l_False;
+          break;
+        }
+        num_models++;
+      }
+      lresult = l_False;
+    }
 
+  } else {
+    lresult = l_False;
+  }
   if (lresult == l_True)
   {
     extendModel();
@@ -336,8 +376,9 @@ skip_theory_preproc:
 
   if (do_simp)
     // Unfreeze the assumptions that were frozen:
-    for (int i = 0; i < extra_frozen.size(); i++)
+    for (int i = 0; i < extra_frozen.size(); i++) {
       setFrozen(extra_frozen[i], false);
+    }
 
   return lresult;
 }
