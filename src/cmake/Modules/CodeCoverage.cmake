@@ -58,7 +58,7 @@ IF(NOT CMAKE_COMPILER_IS_GNUCXX)
         ENDIF()
 ENDIF() # NOT CMAKE_COMPILER_IS_GNUCXX
 
-IF ( NOT CMAKE_BUILD_TYPE STREQUAL "Debug" )
+IF ( NOT ((CMAKE_BUILD_TYPE STREQUAL "Debug" ) OR (CMAKE_BUILD_TYPE STREQUAL "DEBUG")) )
   MESSAGE( WARNING "Code coverage results with an optimized (non-Debug) build may be misleading" )
 ENDIF() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
 
