@@ -21,10 +21,30 @@ include(CTest)
 # Added for External Projects
 include(ExternalProject)
 
-#set(DREAL_EXTRA_LINKER_FLAGS "-D__USE_FILIB__")
-#set(DREAL_EXTRA_CXX_FLAGS "-D__USE_FILIB__")
-set(DREAL_EXTRA_LINKER_FLAGS "")
-set(DREAL_EXTRA_CXX_FLAGS "")
+################################################################
+# CXX Flags
+################################################################
+set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -mfpmath=sse -msse -msse2")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -ffloat-store -frounding-math")
+elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+  message(WARNING "Clang does not support -ffloat-store and -frounding-math options"
+    "which are required to guarantee the correctness of the interval arithmetic.")
+else()
+  message(WARNING "We added compiler flags -ffloat-store and -frounding-math,"
+    "but it is possible that your compiler do not support the options."
+    "If that is the case, please contact Soonho Kong <soonhok@cs.cmu.edu>.")
+  set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -ffloat-store -frounding-math")
+endif()
+
+################################################################
+# Initialize CXXFLAGS.
+################################################################
+set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++11 ${DREAL_EXTRA_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS_DEBUG          "-g -DDREAL_DEBUG -DDREAL_TRACE -fno-inline")
+set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 ################################################################
 # Set Module Path
@@ -79,15 +99,6 @@ else()
   set(SHARED_LIB_IBEX_COMMAND   "")
   set(SHARED_LIB_CMAKE_COMMAND  "-DBUILD_SHARED_LIBS=OFF")
 endif()
-
-################################################################
-# Initialize CXXFLAGS.
-################################################################
-set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++11 ${DREAL_EXTRA_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_DEBUG          "-g -DDREAL_DEBUG -DDREAL_TRACE -fno-inline")
-set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 ################################################################
 # Test coverage
@@ -329,15 +340,6 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ibex)
 set(EXTERNAL_LD_FLAGS "-L${CMAKE_CURRENT_BINARY_DIR}/lib")
-
-################################################################
-# CXX Flags
-################################################################
-set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -mfpmath=sse -msse -msse2 -ffloat-store")
-
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -frounding-math")
-endif()
 
 ################################################################
 # EGLIBC (Optional)

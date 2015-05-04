@@ -32,10 +32,6 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "util/string.h"
 #include "dsolvers/nra_solver.h"
 
-#ifndef __clang__
-#pragma STDC FENV_ACCESS ON
-#endif
-
 using std::unordered_map;
 
 namespace opensmt {
