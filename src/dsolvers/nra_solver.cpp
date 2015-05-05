@@ -229,7 +229,6 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         double const threshold = 0.01;
         // If there is a dimension which is improved more than
         // threshold, we stop the current fixed-point computation.
-        bool is_corner_case = true;
         for (unsigned i = 0; i < old_box.size(); i++) {
             double const new_box_i = new_box[i].diam();
             double const old_box_i = old_box[i].diam();
@@ -244,16 +243,7 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
             assert(!std::isnan(improvement));
             if (improvement >= threshold) {
                 return false;
-            } else {
-                is_corner_case = false;
             }
-        }
-
-        if (is_corner_case && new_box == old_box) {
-            // We only do the equality check if it's a corner case
-            // where every dimension has either [ENTIRE] or a point
-            // value.
-            return false;
         }
         return true;
     };
