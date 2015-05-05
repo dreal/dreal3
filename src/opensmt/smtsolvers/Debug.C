@@ -132,4 +132,16 @@ void CoreSMTSolver::printModel( ostream & out )
         out << ( model[ v ] == l_True ? "" : "(not " ) << e << ( model[ v ] == l_True ? "" : ")" ) << endl;
   }
 }
+
+void CoreSMTSolver::printExtModel( ostream & out )
+{
+  for (Var v = 2; v < model.size(); v++)
+  {
+    Enode * e = theory_handler->varToEnode( v );
+    int tmp1, tmp2;
+    if( sscanf( (e->getCar( )->getName( )).c_str( ), CNF_STR, &tmp1, &tmp2 ) != 1 )
+      if ( model[ v ] != l_Undef )
+        out << ( model[ v ] == l_True ? "" : "(not " ) << e << ( model[ v ] == l_True ? "" : ")" ) << endl;
+  }
+}
 #endif
