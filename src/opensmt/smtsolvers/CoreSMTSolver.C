@@ -1750,7 +1750,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             if ( res == -1 ) return l_False;
             assert( res == 1 );
 
-            if(config.nra_short_sat) {
+            if (config.nra_short_sat) {
             	// the problem is satisfiable as res = 1 at this point
             	return l_True;
             }
@@ -1964,13 +1964,13 @@ int CoreSMTSolver::restartNextLimit ( int nof_conflicts )
 }
 /*_________________________________________________________________________________________________
  |
- |  entailment : ()  ->  [lbool]
+ |  entailment : ()  ->  [bool]
  |
  |  Description:
  |   Checks if all clauses are satisfied.
  |
  |  Output:
- |    'l_True' if all clauses are satisfied. 'l_False'
+ |    'true' if all clauses are satisfied. 'false'
  |    if there exists unsatisfied clause.
  |________________________________________________________________________________________________@*/
 
