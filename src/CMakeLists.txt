@@ -28,11 +28,11 @@ set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -mfpmath=sse -msse -msse2")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -ffloat-store -frounding-math")
 elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-  message(WARNING "Clang does not support -ffloat-store and -frounding-math options"
+  message(WARNING "Clang does not support -ffloat-store and -frounding-math options "
     "which are required to guarantee the correctness of the interval arithmetic.")
 else()
-  message(WARNING "We added compiler flags -ffloat-store and -frounding-math,"
-    "but it is possible that your compiler do not support the options."
+  message(WARNING "We added compiler flags -ffloat-store and -frounding-math, "
+    "but it is possible that your compiler do not support the options. "
     "If that is the case, please contact Soonho Kong <soonhok@cs.cmu.edu>.")
   set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -ffloat-store -frounding-math")
 endif()
