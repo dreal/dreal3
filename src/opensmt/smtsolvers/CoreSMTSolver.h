@@ -308,6 +308,7 @@ public:
         lbool  getModel               ( Enode * );
         void   printModel             ( );             // Wrapper
         void   printModel             ( ostream & );   // Prints model
+        void   printExtModel          ( ostream & out ); // Prints SAT model
 #endif
 #ifdef PRODUCE_PROOF
         void   printProof              ( ostream & );
