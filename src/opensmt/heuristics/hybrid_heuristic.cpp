@@ -118,7 +118,7 @@ int get_mode(Enode * lit) {
       DREAL_LOG_DEBUG << "hybrid_heuristic::initialize() adjacency " << hinfo[2].dump();   
       
       // build reverse adjanceny map (succ -> set(predecessors))      
-      for(int j = 0; j < hinfo[2].size(); j++){ // loop over automata
+      for(unsigned long j = 0; j < hinfo[2].size(); j++){ // loop over automata
 	//DREAL_LOG_DEBUG << "Getting Transitions For Autom ";
 	vector<vector<labeled_transition*>*>* aut_predecessors = new vector<vector<labeled_transition*>*>();
 	for (unsigned int i = 0; i < hinfo[2][j].size(); i++){ // loop over modes
@@ -274,10 +274,10 @@ void hybrid_heuristic::inform(Enode * e){
     displayTrail();
     displayStack();
 
-    int bt_point = (trail_lim->size() == 0 ? 0 : (m_stack_lim.size() == trail_lim->size() ? m_stack.size() : m_stack_lim[trail_lim->size()]-1));
+    int bt_point = (trail_lim->size() ==  0 ? 0 : (m_stack_lim.size() == (unsigned long)trail_lim->size() ? m_stack.size() : m_stack_lim[trail_lim->size()]-1));
     DREAL_LOG_DEBUG << "level = " << trail_lim->size() << " pt = " << bt_point;
 
-    while(m_stack_lim.size() != trail_lim->size()) m_stack_lim.pop_back();
+    while(m_stack_lim.size() != (unsigned long)trail_lim->size()) m_stack_lim.pop_back();
 
     for (int i = m_stack.size(); i > bt_point; i--){
       std::pair<Enode *, bool> *s = m_stack.back();
@@ -487,7 +487,7 @@ bool hybrid_heuristic::expand_path(){
     }
     
 
-    for(int i = 0; i < parallel_transitions.size(); i++){
+    for(unsigned long i = 0; i < parallel_transitions.size(); i++){
       pair<int, labeled_transition*> *trans_i = parallel_transitions[i];
       set<int> sync_trans_i;
       set<int> *trans_i_aut_labels = m_aut_labels[trans_i->first];
@@ -739,7 +739,7 @@ bool hybrid_heuristic::unwind_path() {
 
     DREAL_LOG_DEBUG << "After BT stack:";
     //    int i = 0;
-    for (int i = 0; i < m_decision_stack.size(); i++){
+    for (unsigned int i = 0; i < m_decision_stack.size(); i++){
 
 // std::size_t time = (m_depth+1)*num_autom ; 
 // 	 time > (m_depth+1)-m_decision_stack.size(); time--) {
@@ -752,7 +752,7 @@ bool hybrid_heuristic::unwind_path() {
   void hybrid_heuristic::pushTrailOnStack(){
     DREAL_LOG_INFO << "hybrid_heuristic::pushTrailOnStack() lastTrailEnd = "
                    << lastTrailEnd << " trail->size() = " << trail->size();
-    if(trail_lim->size() > m_stack_lim.size() ) //track start of levels after the first level
+    if((unsigned int) trail_lim->size() >  m_stack_lim.size() ) //track start of levels after the first level
       m_stack_lim.push_back(m_stack.size());
     for (int i = lastTrailEnd; i < trail->size(); i++){
       Enode *e = theory_handler->varToEnode(var((*trail)[i]));
