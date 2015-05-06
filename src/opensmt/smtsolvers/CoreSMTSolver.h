@@ -248,7 +248,7 @@ protected:
         lbool    search           (int nof_conflicts, int nof_learnts);                    // Search for a given number of conflicts.
         void     reduceDB         ();                                                      // Reduce the set of learnt clauses.
         void     removeSatisfied  (vec<Clause*>& cs);                                      // Shrink 'cs' to contain only non-satisfied clauses.
-	virtual void     filterUnassigned ();                                                      // Filter decision variables that don't need a decision
+        virtual void filterUnassigned () = 0;                                              // Filter decision variables that don't need a decision
 
         // Maintaining Variable/Clause activity:
         //
