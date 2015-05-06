@@ -586,7 +586,7 @@ void CoreSMTSolver::cancelUntilVarTempDone( )
     vec< Lit > conflicting;
     int        max_decision_level;
     theory_handler->getConflict( conflicting, max_decision_level );
-  } 
+  }
 }
 
 //=================================================================================================
@@ -622,9 +622,9 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
       Lit sugg = heuristic.getSuggestion( );
       if(var(sugg) != var_Undef){
         DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Heuristic Suggested Decision: "
-			<< sign(sugg) << " " << theory_handler->varToEnode(var(sugg))
-			<< " activity = " << activity[var(sugg)]
-			<< endl;
+                        << sign(sugg) << " " << theory_handler->varToEnode(var(sugg))
+                        << " activity = " << activity[var(sugg)]
+                        << endl;
       }
       else{
         DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Heuristic Suggested Decision: var_Undef" << endl;
@@ -670,7 +670,7 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
       if(next != var_Undef){
         DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Activity Decision: "
                         << sign << " " << theory_handler->varToEnode(next)
-			<< " activity = " << activity[next]
+                        << " activity = " << activity[next]
                         << endl;
       }
                  return next == var_Undef ? lit_Undef : Lit(next, sign);
@@ -1800,54 +1800,35 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
         bool isSAT = false;
         if(config.nra_short_sat){
           //check if SAT, even if not all literals are assigned
-          isSAT = true;
-          for (int c = 0; c < nClauses(); c++) {
-            if (!satisfied(*clauses[c])) {
-              isSAT = false;
-              break;
-            }
-          }
+          isSAT = entailment();
 
-	  //Filter variables that don't need assignment
-	  filterUnassigned();
+          //Filter variables that don't need assignment
+          filterUnassigned();
 
           if( isSAT ){
             DREAL_LOG_DEBUG << "CoreSMTSolver::search() Found Model after # decisions " << decisions << endl;
-            //first_model_found = true;
             next = lit_Undef;
-          }
-          else{
+          } else {
             DREAL_LOG_DEBUG << "CoreSMTSolver::search() not SAT yet" << endl;
           }
-	  
-	  if(DREAL_LOG_DEBUG_IS_ON){
-	    DREAL_LOG_DEBUG << "Model is:";
-	    printCurrentAssignment(std::cout);
-	  }
 
+          if(DREAL_LOG_DEBUG_IS_ON){
+            DREAL_LOG_DEBUG << "Model is:";
+            printCurrentAssignment(std::cout);
+          }
         }
 
         if (next == lit_Undef){
-          if ((!config.nra_short_sat) || (!entailment())) {
-	    if( !isSAT ){       
-        	// New variable decision:
-        		DREAL_LOG_INFO << "Pick branch on a lit: " << endl;
-        		decisions++;
-        		next = pickBranchLit(polarity_mode, random_var_freq);
-	    }
-        	} else {
-	    if( !isSAT ){	      
-        	// New variable decision:
-        		DREAL_LOG_INFO << "Pick branch on a lit: " << endl;
-        		decisions++;
-        		next = pickBranchLit(polarity_mode, random_var_freq);
-	    } else {
- 
-        		// SAT formula is satisfiable
-        		next = lit_Undef;
-        		DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
-	    }
-        	}
+          if( !isSAT ){
+            // New variable decision:
+            DREAL_LOG_INFO << "Pick branch on a lit: " << endl;
+            decisions++;
+            next = pickBranchLit(polarity_mode, random_var_freq);
+          } else {
+            // SAT formula is satisfiable
+            next = lit_Undef;
+            DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
+          }
 
           // Complete Call
           if ( next == lit_Undef )
@@ -1878,8 +1859,8 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             assert( res == 1 );
 
             if (config.nra_short_sat) {
-            	// the problem is satisfiable as res = 1 at this point
-	      if ( res == 1 ) return l_True;
+              // the problem is satisfiable as res = 1 at this point
+              return l_True;
             }
             // Otherwise we still have to make sure that
             // splitting on demand did not add any new variable
@@ -1891,12 +1872,12 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             // Model found:
             DREAL_LOG_DEBUG << "CoreSMTSolver::search() Found Model after # decisions "
                             << decisions << endl;
-	    if(DREAL_LOG_DEBUG_IS_ON){
-	      DREAL_LOG_DEBUG << "Model is:";
-	      printCurrentAssignment(std::cout);
-	    }
+            if(DREAL_LOG_DEBUG_IS_ON){
+              DREAL_LOG_DEBUG << "Model is:";
+              printCurrentAssignment(std::cout);
+            }
             return l_True;
-	  }
+          }
         }
 
         // Increase decision level and enqueue 'next'
