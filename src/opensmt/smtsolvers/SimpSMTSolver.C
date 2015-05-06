@@ -541,7 +541,7 @@ bool SimpSMTSolver::addSMTClause( vector< Enode * > & smt_clause, uint64_t in )
     // Just add the literal
     //
     Lit l = theory_handler->enodeToLit( e );
-    heuristic.inform(e);    
+    heuristic.inform(e);
 #if NEW_SIMPLIFICATIONS
     if ( e->isTAtom( ) )
     {
@@ -978,21 +978,21 @@ void SimpSMTSolver::filterUnassigned()
     // order_heap.filter(ShortSatVarFilter(*this));
     for (int i = 2; i < nVars(); i++)
       {
-	if (order_heap.inHeap(i) && toLbool(assigns[i]) == l_Undef){
-	  const vec<Clause*>& clauses = occurs[i];
-	  bool isInUnsat = false;
-	  for (int c = 0; c < clauses.size(); c++) {
-	    if (!satisfied(*clauses[c])) {
-	      isInUnsat = true;
-	      break;
-	    }
-	  }
-	  if(!isInUnsat){
-	    DREAL_LOG_DEBUG << "SimpSMTSolver::filterUnassigned() " << theory_handler->varToEnode(i) << " is not a required decision var";
-	    activity[i] -= 10;
-	    order_heap.update(i);
-	  }
-	}
+        if (order_heap.inHeap(i) && toLbool(assigns[i]) == l_Undef){
+          const vec<Clause*>& clauses = occurs[i];
+          bool isInUnsat = false;
+          for (int c = 0; c < clauses.size(); c++) {
+            if (!satisfied(*clauses[c])) {
+              isInUnsat = true;
+              break;
+            }
+          }
+          if(!isInUnsat){
+            DREAL_LOG_DEBUG << "SimpSMTSolver::filterUnassigned() " << theory_handler->varToEnode(i) << " is not a required decision var";
+            activity[i] -= 10;
+            order_heap.update(i);
+          }
+        }
       }
   }
 }

@@ -39,11 +39,11 @@ Var THandler::enodeToVar( Enode * atm )
 
   Var v = enode_id_to_var[ atm->getId( ) ];
 
-  
+
 
 
   if ( v == var_Undef )
-  { 
+  {
     lbool state = l_Undef;
 
     // Store TAtom and give later

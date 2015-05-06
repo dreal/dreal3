@@ -59,19 +59,19 @@ private:
     bool expand_path();
     bool unwind_path();
     bool pbacktrack();
-    
+
     vector<string> m_actions;
     vector<string> m_events;
     vector<string> m_processes;
     vector<string> m_durative_actions;
     // vector< std::pair<Enode*, bool>* > m_suggestions;
     vector<pair<Enode*, vector<bool>*>*> m_decision_stack;
-    
+
     set< Enode * > m_atoms;
     int num_choices_per_happening;
     int choice_index;
     bool first_path;
-    
+
     //     map< Enode *, pair<int, int>* > process_literals;
     vector< map<string, Enode* >* > time_process_enodes;
     vector< map<string, Enode* >* > time_event_enodes;
@@ -85,7 +85,7 @@ private:
     set<Enode*> duract_enodes;
     set<Enode*> event_enodes;
     vector< Enode* > time_enodes;
-    
-   
+
+
 };
 }
