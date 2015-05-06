@@ -119,7 +119,7 @@ public:
 
 public:
     struct SubgoalCompare {
-    SubgoalCompare(int a, hybrid_heuristic& c) : autom(a), myHeuristic(c) {}
+    SubgoalCompare(int a, hybrid_heuristic& c) : myHeuristic(c), autom(a) {}
         bool operator () (const labeled_transition  *i, const labeled_transition *j) {
           return myHeuristic.getCost(autom, (i->second)-1) < myHeuristic.getCost(autom, (j->second)-1);
         }

@@ -39,11 +39,11 @@ namespace dreal{
   heuristic::~heuristic(){
   }
 
-  void heuristic::initialize(SMTConfig &c, Egraph &e, THandler* thandler,
-			     vec<Lit> *trail, vec<int> *trail_lim)  {
+  void heuristic::initialize(SMTConfig &, Egraph &, THandler*,
+			     vec<Lit> *, vec<int> *)  {
   }
 
-  void heuristic::inform(Enode * e){
+  void heuristic::inform(Enode * ){
   }
 
   void heuristic::backtrack(){   
@@ -115,7 +115,7 @@ namespace dreal{
     int indx_high = 0;
     //DREAL_LOG_INFO << "Trail size = " << trail->size() << " " << trail_lim->size();
     DREAL_LOG_INFO << " -- Start Stack --";
-   for (int level = 0; level <= m_stack_lim.size(); level++){
+   for (unsigned int level = 0; level <= m_stack_lim.size(); level++){
       if (level > 0){
         indx_low = m_stack_lim[level-1];
       }

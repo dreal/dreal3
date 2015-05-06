@@ -121,7 +121,7 @@ void plan_heuristic::inform(Enode * e) {
   //  DREAL_LOG_INFO << "plan_heuristic::inform(): " << e << endl;
   if (!e->isTAtom() && !e->isNot()) {
     unordered_set<Enode *> const & vars = e->get_vars();
-    unordered_set<Enode *> const & consts = e->get_constants();
+    //unordered_set<Enode *> const & consts = e->get_constants();
     for (auto const & v : vars) {
       stringstream ss;
       ss << v;
@@ -303,12 +303,12 @@ void plan_heuristic::inform(Enode * e) {
     displayStack();
 
     int bt_point = (trail_lim->size() == 0 ? 
-		    0 : (m_stack_lim.size() <= trail_lim->size() ? 
+		    0 : (m_stack_lim.size() <= (unsigned int) trail_lim->size() ? 
 			 m_stack.size() : 
 			  m_stack_lim[trail_lim->size()]-1));
     DREAL_LOG_DEBUG << "level = " << trail_lim->size() << " pt = " << bt_point;
 
-    while(m_stack_lim.size() > trail_lim->size() && !m_stack_lim.empty()) 
+    while(m_stack_lim.size() > (unsigned int) trail_lim->size() && !m_stack_lim.empty()) 
       m_stack_lim.pop_back();
 
     for (int i = m_stack.size(); i > bt_point+1; i--) {
@@ -345,7 +345,7 @@ void plan_heuristic::inform(Enode * e) {
   void plan_heuristic::pushTrailOnStack() {
     DREAL_LOG_INFO << "plan_heuristic::pushTrailOnStack() lastTrailEnd = "
                    << lastTrailEnd << " trail->size() = " << trail->size();
-    if(trail_lim->size() > m_stack_lim.size() ) //track start of levels after the first level
+    if((unsigned int) trail_lim->size() > m_stack_lim.size() ) //track start of levels after the first level
       m_stack_lim.push_back(m_stack.size());
 
     for (int i = lastTrailEnd; i < trail->size(); i++) {
@@ -378,7 +378,7 @@ void plan_heuristic::inform(Enode * e) {
   }
 
   void plan_heuristic::completeSuggestionsForTrail() {
-    for(int i = 0; i < m_decision_stack.size(); i++) {
+    for(unsigned int i = 0; i < m_decision_stack.size(); i++) {
       pair<Enode*, vector<bool>*>* decision = m_decision_stack[i];
       if(decision->first != NULL) {
 	m_suggestions.push_back(new std::pair<Enode *, bool>(decision->first, decision->second->back()));
@@ -489,7 +489,7 @@ bool plan_heuristic::expand_path() {
         for (auto e : m_stack) {
 	  if(e->first == current_enode) {
 	    current_decision->push_back(e->second);
-	    found_existing_value;
+	    found_existing_value = true;
 	    break;
 	  }
 	  
@@ -570,11 +570,11 @@ bool plan_heuristic::unwind_path() {
   for(int i = m_decision_stack.size()-1; i >= 0; i--) {
     pair<Enode*, vector<bool>*> *decision = m_decision_stack[i];
     
-    bool found_decision = false;
+    // bool found_decision = false;
     for(int j = m_stack.size()-1; j >= 0; j--) {
       pair<Enode*, bool>* sdecision = m_stack[j];
       if(decision->first == sdecision->first) {
-	found_decision = true;
+	// found_decision = true;
 
 	//decision disagrees w/ m_stack
 	if(sdecision->second != decision->second->back()) {
