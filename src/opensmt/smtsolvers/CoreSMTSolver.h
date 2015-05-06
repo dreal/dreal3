@@ -321,10 +321,17 @@ public:
 #ifndef SMTCOMP
         lbool  getModel               ( Enode * );
         void   printModel             ( );             // Wrapper
+<<<<<<< HEAD
         void   printModel             ( std::ostream & );   // Prints model
         void   printExtModel          ( std::ostream & out ); // Prints SAT model
         void   printCurrentAssignment ( bool withLiterals );             // Wrapper
         void   printCurrentAssignment ( ostream &, bool withLiterals );   // Prints model
+=======
+        void   printModel             ( ostream & );   // Prints model
+        void   printExtModel          ( ostream & out ); // Prints SAT model
+        void   printCurrentAssignment ( bool withLiterals = true);             // Wrapper
+        void   printCurrentAssignment ( ostream &, bool withLiterals = true);   // Prints model
+>>>>>>> 20a5e2a... fix(opensmt/smtsolvers/CoreSMTSolver.h): define default arg in declaration
 #endif
 #ifdef PRODUCE_PROOF
         void   printProof              ( std::ostream & );
