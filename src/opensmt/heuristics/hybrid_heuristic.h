@@ -36,39 +36,39 @@ public:
  hybrid_heuristic() : heuristic(), num_labels(0) {}
   ~hybrid_heuristic() {
       for (auto i : predecessors){
-	for (auto j : *i){
-	  for (auto k : *j){
-	    delete k->first;
-	    delete k;
-	  }
-	  delete j;
-	}
-	delete i;
+        for (auto j : *i){
+          for (auto k : *j){
+            delete k->first;
+            delete k;
+          }
+          delete j;
+        }
+        delete i;
       }
-	
+
       for (auto p : mode_literals){
-	for (auto j : *p){
-	  delete j.second;
-	}
-	delete p;
+        for (auto j : *p){
+          delete j.second;
+        }
+        delete p;
       }
       for (auto d : m_decision_stack){
-	delete d->second;
-	delete d;
+        delete d->second;
+        delete d;
       }
       for (auto t : time_mode_enodes){
-	for (auto j : *t){
-	  delete j;
-	}
-	delete t;
+        for (auto j : *t){
+          delete j;
+        }
+        delete t;
       }
     }
   void initialize(SMTConfig & c, Egraph & egraph, THandler* thandler,
-		  vec<Lit> *trail, vec<int> *trail_lim);
+                  vec<Lit> *trail, vec<int> *trail_lim);
   void backtrack();
     void resetSuggestions() { m_suggestions.clear(); }
     bool is_initialized() { return m_is_initialized; }
-    
+
     static bool subgoal_compare(int i, int  j);
     void inform(Enode * e);
 
@@ -76,8 +76,8 @@ public:
     bool predecessor(int autom, int mode1, int mode2) {
       vector<labeled_transition*>* i = (*predecessors[autom])[mode2-1];
       for(auto lt : (*i)){
-	if(lt->second == mode1)
-	  return true;
+        if(lt->second == mode1)
+          return true;
       }
       return false;
     }
@@ -115,7 +115,7 @@ public:
     bool pbacktrack();
 
     bool can_synchronize(vector<pair<int, labeled_transition*>*>& parallel_transitions,
-					 pair<int, labeled_transition*> &trans);
+                                         pair<int, labeled_transition*> &trans);
 
 public:
     struct SubgoalCompare {

@@ -334,7 +334,7 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
             os << "(" << r << ")";
         } else {
             // Fixed Notation
-	  os << "(" << name << ")";
+          os << "(" << name << ")";
         }
         fesetround(old_rnd);
     } else if (isTerm()) {
