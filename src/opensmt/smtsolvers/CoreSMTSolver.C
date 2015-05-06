@@ -1890,9 +1890,6 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
   }
 }
 
-void CoreSMTSolver::filterUnassigned(){
-}
-
 double CoreSMTSolver::progressEstimate() const
 {
   double  progress = 0;
