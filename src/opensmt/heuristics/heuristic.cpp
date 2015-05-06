@@ -40,18 +40,18 @@ namespace dreal{
   }
 
   void heuristic::initialize(SMTConfig &, Egraph &, THandler*,
-			     vec<Lit> *, vec<int> *)  {
+                             vec<Lit> *, vec<int> *)  {
   }
 
   void heuristic::inform(Enode * ){
   }
 
-  void heuristic::backtrack(){   
+  void heuristic::backtrack(){
   }
 
   Lit heuristic::getSuggestion(){
   DREAL_LOG_INFO << "heuristic::getSuggestion()";
- 
+
   if(!m_is_initialized)
     return lit_Undef;
 
@@ -101,7 +101,7 @@ namespace dreal{
 
       DREAL_LOG_INFO << " -- LEVEL " << level << " (" << indx_low << ", " << indx_high << ") -- ";
       for (int i = indx_low; i < indx_high; i++){
-	//DREAL_LOG_INFO << i << " " << var((*trail)[i]);
+        //DREAL_LOG_INFO << i << " " << var((*trail)[i]);
         if (var((*trail)[i]) > 1) // 0 and 1 are false and true
           DREAL_LOG_INFO << i << ":\t"<<  theory_handler->varToEnode(var((*trail)[i])) << " = " << !sign((*trail)[i]);
       }
@@ -123,7 +123,7 @@ namespace dreal{
 
       DREAL_LOG_INFO << " -- LEVEL " << level << " (" << indx_low << ", " << indx_high << ") -- ";
       for (int i = indx_low; i < indx_high; i++){
-	DREAL_LOG_INFO << i << ":\t"<<  m_stack[i]->first << " = " << m_stack[i]->second;
+        DREAL_LOG_INFO << i << ":\t"<<  m_stack[i]->first << " = " << m_stack[i]->second;
       }
     }
    DREAL_LOG_INFO << " -- End Stack --";
@@ -135,10 +135,10 @@ namespace dreal{
     // return true if no suggestion is inconsistent with the stack
     for(auto sug : m_suggestions){
       for(auto sta : m_stack){
-	if(sug->first == sta->first && sug->second != sta->second) {
-	  DREAL_LOG_DEBUG << "Stack and Suggestion Inconsistent: " << sug->first << " = " << sug->second << " " << sta->first << " = "  <<  sta->second;
-	  return false;
-	}
+        if(sug->first == sta->first && sug->second != sta->second) {
+          DREAL_LOG_DEBUG << "Stack and Suggestion Inconsistent: " << sug->first << " = " << sug->second << " " << sta->first << " = "  <<  sta->second;
+          return false;
+        }
       }
     }
     return true;

@@ -48,7 +48,7 @@ namespace dreal {
     theory_handler = thandler;
     trail = trl;
     trail_lim = trl_lim;
-    m_is_initialized = true; 
+    m_is_initialized = true;
     if (c.nra_plan_heuristic.compare("") != 0) {
         const string heuristic_string = get_file_contents(c.nra_plan_heuristic.c_str());
         string err;
@@ -100,16 +100,16 @@ namespace dreal {
         }
 
         time_enodes.assign(static_cast<int>(m_depth+1), NULL);
-	
-	num_choices_per_happening = m_actions.size() + 3 * m_durative_actions.size();
-	choices.assign(num_choices_per_happening*(m_depth+1), NULL);
 
-	DREAL_LOG_DEBUG << "num_choices_per_happening = " << num_choices_per_happening;
+        num_choices_per_happening = m_actions.size() + 3 * m_durative_actions.size();
+        choices.assign(num_choices_per_happening*(m_depth+1), NULL);
 
-	// vector<bool> *first_decision = new vector<bool>();
-	// first_decision->push_back(true);
-	// first_decision->push_back(false);
-	// m_decision_stack.push_back(new pair<Enode*, vector<bool>*>( ,first_decision));
+        DREAL_LOG_DEBUG << "num_choices_per_happening = " << num_choices_per_happening;
+
+        // vector<bool> *first_decision = new vector<bool>();
+        // first_decision->push_back(true);
+        // first_decision->push_back(false);
+        // m_decision_stack.push_back(new pair<Enode*, vector<bool>*>( ,first_decision));
     }
 }
 
@@ -158,7 +158,7 @@ void plan_heuristic::inform(Enode * e) {
       //       event_enodes.insert(e);
       //   //    }
       //   //  }
-      // } else 
+      // } else
       if (var.find("act") == 0) {
         int time = atoi(var.substr(var.find_last_of("_")+1).c_str());
         int spos = var.find_first_of("_")+1;
@@ -173,9 +173,9 @@ void plan_heuristic::inform(Enode * e) {
             DREAL_LOG_INFO << "action = " << proc << " time = " << time << endl;
             (*time_act_enodes[time])[proc] = e;
             act_enodes.insert(e);
-	    int choice = getChoiceIndex(e);
-	    DREAL_LOG_INFO << "index = " << choice;
-	    choices[num_choices_per_happening*(time)+choice] = e;
+            int choice = getChoiceIndex(e);
+            DREAL_LOG_INFO << "index = " << choice;
+            choices[num_choices_per_happening*(time)+choice] = e;
 
         //    }
         //  }
@@ -193,9 +193,9 @@ void plan_heuristic::inform(Enode * e) {
             DREAL_LOG_INFO << "durative action = " << proc << " time = " << time << endl;
             (*time_duract_enodes[time])[proc] = e;
             duract_enodes.insert(e);
-	    int choice = getChoiceIndex(e);
-	    DREAL_LOG_INFO << "index = " << choice;
-	    choices[num_choices_per_happening*(time)+choice] = e;
+            int choice = getChoiceIndex(e);
+            DREAL_LOG_INFO << "index = " << choice;
+            choices[num_choices_per_happening*(time)+choice] = e;
         //    }
         //  }
       }
@@ -230,26 +230,26 @@ void plan_heuristic::inform(Enode * e) {
       DREAL_LOG_INFO << "Generating new time choice index for " << e;
       unordered_set<Enode *> const & vars = e->get_vars();
       for (auto const & v : vars) {
-	stringstream ss;
-	ss << v;
-	string var = ss.str();
-	if (var.find("duract_") != string::npos || 
-	    var.find("act_") != string::npos) {
-	  
-	  int spos = var.find_first_of("_")+1;
-	  int epos = var.find_last_of("_")-1;
-	  string proc = var.substr(spos, epos-spos).c_str();
-	  map<string, int>::iterator j = schoice_indices.find(proc);
-	  if(j == schoice_indices.end()) {
-	    DREAL_LOG_INFO << "Generating new choice index for " << e;
-	    index = choice_index++;
-	    schoice_indices[proc] = index;
-	    break;
-	  } else {
-	    index = (*j).second;	   
-	    break;
-	  }	  	  
-	}
+        stringstream ss;
+        ss << v;
+        string var = ss.str();
+        if (var.find("duract_") != string::npos ||
+            var.find("act_") != string::npos) {
+
+          int spos = var.find_first_of("_")+1;
+          int epos = var.find_last_of("_")-1;
+          string proc = var.substr(spos, epos-spos).c_str();
+          map<string, int>::iterator j = schoice_indices.find(proc);
+          if(j == schoice_indices.end()) {
+            DREAL_LOG_INFO << "Generating new choice index for " << e;
+            index = choice_index++;
+            schoice_indices[proc] = index;
+            break;
+          } else {
+            index = (*j).second;
+            break;
+          }
+        }
       }
       assert(index >= 0);
       choice_indices[e] = index;
@@ -283,7 +283,7 @@ void plan_heuristic::inform(Enode * e) {
   //   return Lit( v, !s->second );
   //   } else {
   //     return lit_Undef;
-  //   
+  //
   // }
 
   void plan_heuristic::backtrack() {
@@ -302,13 +302,13 @@ void plan_heuristic::inform(Enode * e) {
     displayTrail();
     displayStack();
 
-    int bt_point = (trail_lim->size() == 0 ? 
-		    0 : (m_stack_lim.size() <= (unsigned int) trail_lim->size() ? 
-			 m_stack.size() : 
-			  m_stack_lim[trail_lim->size()]-1));
+    int bt_point = (trail_lim->size() == 0 ?
+                    0 : (m_stack_lim.size() <= (unsigned int) trail_lim->size() ?
+                         m_stack.size() :
+                          m_stack_lim[trail_lim->size()]-1));
     DREAL_LOG_DEBUG << "level = " << trail_lim->size() << " pt = " << bt_point;
 
-    while(m_stack_lim.size() > (unsigned int) trail_lim->size() && !m_stack_lim.empty()) 
+    while(m_stack_lim.size() > (unsigned int) trail_lim->size() && !m_stack_lim.empty())
       m_stack_lim.pop_back();
 
     for (int i = m_stack.size(); i > bt_point+1; i--) {
@@ -361,7 +361,7 @@ void plan_heuristic::inform(Enode * e) {
       //   m_stack.push_back(new std::pair<Enode *, bool>(e, msign));
       //   stack_literals.insert(e);
       // } else
-	if (act_enodes.find(e) != act_enodes.end()) {
+        if (act_enodes.find(e) != act_enodes.end()) {
         DREAL_LOG_INFO << "plan_heuristic::pushTrailOnStack() " << e << " " << msign;
         m_stack.push_back(new std::pair<Enode *, bool>(e, msign));
         stack_literals.insert(e);
@@ -381,7 +381,7 @@ void plan_heuristic::inform(Enode * e) {
     for(unsigned int i = 0; i < m_decision_stack.size(); i++) {
       pair<Enode*, vector<bool>*>* decision = m_decision_stack[i];
       if(decision->first != NULL) {
-	m_suggestions.push_back(new std::pair<Enode *, bool>(decision->first, decision->second->back()));
+        m_suggestions.push_back(new std::pair<Enode *, bool>(decision->first, decision->second->back()));
       }
     }
 
@@ -452,27 +452,27 @@ bool plan_heuristic::expand_path() {
     DREAL_LOG_INFO << "Adding #steps: " << steps_to_add << endl;
     for (int i = 0; i < steps_to_add; i++) {
       int time = m_depth - ((static_cast<int>(m_decision_stack.size()))/
-			    num_choices_per_happening);
+                            num_choices_per_happening);
       int choice = (static_cast<int>(m_decision_stack.size()))%num_choices_per_happening;
 
       vector<bool> * current_decision = new vector<bool>();
 
       //      int parent_index = (static_cast<int>(m_decision_stack.size()))-num_autom;
-      
-      // if (parent_index < 0) {
-      // 	DREAL_LOG_INFO << "Adding goal at time " << time << " for a" << autom;
-      // 	pair<int, vector<int>*>* astack = new pair<int, vector<int>*>();
-      // 	m_decision_stack.push_back(astack);
 
-      // 	vector<int> *dec = new vector<int>();
-      // 	dec->insert(dec->begin(), m_goal_modes[autom]->begin(), m_goal_modes[autom]->end());
-      // 	sort (dec->begin(), dec->end(), SubgoalCompare(autom, *this));
-      // 	astack->first = autom;
-      // 	astack->second = dec;
+      // if (parent_index < 0) {
+      //        DREAL_LOG_INFO << "Adding goal at time " << time << " for a" << autom;
+      //        pair<int, vector<int>*>* astack = new pair<int, vector<int>*>();
+      //        m_decision_stack.push_back(astack);
+
+      //        vector<int> *dec = new vector<int>();
+      //        dec->insert(dec->begin(), m_goal_modes[autom]->begin(), m_goal_modes[autom]->end());
+      //        sort (dec->begin(), dec->end(), SubgoalCompare(autom, *this));
+      //        astack->first = autom;
+      //        astack->second = dec;
 
       // } else {
       //	int parent = m_decision_stack[parent_index]->second->back();
-      
+
 
       // set<int> * preds = (*predecessors[autom])[parent-1];
       // current_decision->insert(current_decision->begin(), preds->begin(), preds->end());
@@ -481,22 +481,22 @@ bool plan_heuristic::expand_path() {
       bool found_existing_value = false;
 
       if (current_enode != NULL) { //already has a preprocessed value
-	DREAL_LOG_INFO << "Adding decision at happening " << time << " " << current_enode;
+        DREAL_LOG_INFO << "Adding decision at happening " << time << " " << current_enode;
       }
 
       vector<bool> current_decision_copy (current_decision->begin(), current_decision->end());
         // prune out choices that are negated in m_stack
         for (auto e : m_stack) {
-	  if(e->first == current_enode) {
-	    current_decision->push_back(e->second);
-	    found_existing_value = true;
-	    break;
-	  }
-	  
-	  // if (e->second != true) {
+          if(e->first == current_enode) {
+            current_decision->push_back(e->second);
+            found_existing_value = true;
+            break;
+          }
+
+          // if (e->second != true) {
           //       //      DREAL_LOG_INFO << "Checking removal of " << e << endl;
-	  //     auto p = (*mode_literals[autom]).find(e->first);
-	  //     if (p != (*mode_literals[autom]).end()) {
+          //     auto p = (*mode_literals[autom]).find(e->first);
+          //     if (p != (*mode_literals[autom]).end()) {
           //           // DREAL_LOG_INFO << "Removing negated " << p->second->first << endl;
           //           if (p->second->second == time) {
           //               DREAL_LOG_INFO << "Removing negated " << p->second->first << endl;
@@ -508,15 +508,15 @@ bool plan_heuristic::expand_path() {
           //       }
           //   }
         }
-	if(!found_existing_value) {
-	  current_decision->push_back(false);
-	  current_decision->push_back(true);
+        if(!found_existing_value) {
+          current_decision->push_back(false);
+          current_decision->push_back(true);
 
-	}
+        }
 
         // // remove choices that are too costly for time
         // for (auto c : *current_decision)  {
-	//   if ((*m_cost[autom])[ c-1 ] > time)  {
+        //   if ((*m_cost[autom])[ c-1 ] > time)  {
         //         DREAL_LOG_INFO << "Removing too costly " << c << endl;
         //         auto e = current_decision_copy.find(c);
         //         if (e != current_decision_copy.end()) {
@@ -533,14 +533,14 @@ bool plan_heuristic::expand_path() {
             return false;
         }
 
-	//    sort (current_decision->begin(), current_decision->end(), SubgoalCompare(autom, *this));
+        //    sort (current_decision->begin(), current_decision->end(), SubgoalCompare(autom, *this));
 
         m_decision_stack.push_back(new pair<Enode*, vector<bool>*>(current_enode, current_decision));
 
         // for (auto d : *current_decision) {
         //     DREAL_LOG_INFO << "dec = " << d << endl;
         // }
-	// }
+        // }
     }
 
     return static_cast<int>(m_decision_stack.size()) ==
@@ -555,13 +555,13 @@ bool plan_heuristic::unwind_path() {
   // for (auto e : m_stack) {
   //   DREAL_LOG_INFO << "Checking path " << e->first << " = " << e->second;
   //   auto i = (*tim_act_enodeserals[a]).find(e->first);
-  // 	if (i != (*mode_literals[a]).end()) {
-  // 	  DREAL_LOG_DEBUG << "setting path[" << (((*i).second->second*num_autom)+(num_autom-a)-1) << "] = "
-  // 			   << (*i).second->first;
-  // 	  path[((*i).second->second*num_autom)+(num_autom-a-1)] = (*i).second->first;
-  // 	  actual_path_size++;
-  // 	  break;
-  // 	}
+  //    if (i != (*mode_literals[a]).end()) {
+  //      DREAL_LOG_DEBUG << "setting path[" << (((*i).second->second*num_autom)+(num_autom-a)-1) << "] = "
+  //                       << (*i).second->first;
+  //      path[((*i).second->second*num_autom)+(num_autom-a-1)] = (*i).second->first;
+  //      actual_path_size++;
+  //      break;
+  //    }
   //     }
   //   }
 
@@ -569,29 +569,29 @@ bool plan_heuristic::unwind_path() {
   bool need_bt_to_decision = false;
   for(int i = m_decision_stack.size()-1; i >= 0; i--) {
     pair<Enode*, vector<bool>*> *decision = m_decision_stack[i];
-    
+
     // bool found_decision = false;
     for(int j = m_stack.size()-1; j >= 0; j--) {
       pair<Enode*, bool>* sdecision = m_stack[j];
       if(decision->first == sdecision->first) {
-	// found_decision = true;
+        // found_decision = true;
 
-	//decision disagrees w/ m_stack
-	if(sdecision->second != decision->second->back()) {
-	  //found possibly earliest disagreement, clear decision stack to this point
-	  for(int k = m_decision_stack.size()-1; k > i; k--) {
-	    delete m_decision_stack[k]->second;
-	    delete m_decision_stack[k];
-	    m_decision_stack.pop_back();
-	  }
-	  need_bt_to_decision = false; //backtracked over any empty decisions
+        //decision disagrees w/ m_stack
+        if(sdecision->second != decision->second->back()) {
+          //found possibly earliest disagreement, clear decision stack to this point
+          for(int k = m_decision_stack.size()-1; k > i; k--) {
+            delete m_decision_stack[k]->second;
+            delete m_decision_stack[k];
+            m_decision_stack.pop_back();
+          }
+          need_bt_to_decision = false; //backtracked over any empty decisions
 
-	  //clear conflicting decision 
-	  m_decision_stack[i]->second->pop_back();  
-	  if(m_decision_stack[i]->second->empty()) {
-	    need_bt_to_decision = true;
-	  }
-	} 	   
+          //clear conflicting decision
+          m_decision_stack[i]->second->pop_back();
+          if(m_decision_stack[i]->second->empty()) {
+            need_bt_to_decision = true;
+          }
+        }
       }
     }
   }
@@ -600,7 +600,7 @@ bool plan_heuristic::unwind_path() {
     //clean up decision stack so that there are no levels with no decisions
     pbacktrack();
   }
- 
+
 
 
   // bool paths_agree = true;
@@ -609,25 +609,25 @@ bool plan_heuristic::unwind_path() {
   //   DREAL_LOG_INFO << "Path (" << j << ") = " << path[j] << endl;
   //   int stack_index_for_path_index = static_cast<int>(path.size() - j - 1);
   //   if (stack_index_for_path_index < static_cast<int>(m_decision_stack.size()))
-  //     DREAL_LOG_INFO << "Stack(" << stack_index_for_path_index << ") = a" 
-  // 		     << (m_decision_stack[stack_index_for_path_index]->first+1)
-  // 		     << " m"
-  // 		     << m_decision_stack[stack_index_for_path_index]->second->back();
+  //     DREAL_LOG_INFO << "Stack(" << stack_index_for_path_index << ") = a"
+  //                 << (m_decision_stack[stack_index_for_path_index]->first+1)
+  //                 << " m"
+  //                 << m_decision_stack[stack_index_for_path_index]->second->back();
   //   else
   //     DREAL_LOG_INFO << "Stack(" << stack_index_for_path_index << ") = *";
 
   //   if (stack_index_for_path_index <  static_cast<int>(m_decision_stack.size())) {
   //     if (m_decision_stack[stack_index_for_path_index]->second->back() != path[j]) {
-  // 	if (paths_agree) {
-  // 	  agree_depth = stack_index_for_path_index-1;
-  // 	  DREAL_LOG_INFO << "Last Agreed at: " << agree_depth << endl;
-  // 	}
-  // 	paths_agree = false;
+  //    if (paths_agree) {
+  //      agree_depth = stack_index_for_path_index-1;
+  //      DREAL_LOG_INFO << "Last Agreed at: " << agree_depth << endl;
+  //    }
+  //    paths_agree = false;
   //     }
   //   } else {
   //     if (paths_agree) {
-  // 	agree_depth = stack_index_for_path_index-1;
-  // 	DREAL_LOG_INFO << "Last Agreed at: " << agree_depth << endl;
+  //    agree_depth = stack_index_for_path_index-1;
+  //    DREAL_LOG_INFO << "Last Agreed at: " << agree_depth << endl;
   //     }
   //     paths_agree = false;
   //   }
@@ -642,77 +642,77 @@ bool plan_heuristic::unwind_path() {
   //   for (int i = 0; i <  num_backtrack_steps; i++) {
   //     DREAL_LOG_INFO << "Backtracking " << i << endl;
   //     if (i == num_backtrack_steps-1) {
-  // 	//choose sibling of at this level if it exists
-  // 	int path_index_for_stack_pos = i;//((m_depth+1)*num_autom) - m_decision_stack.size()+1;
-  // 	// if SAT solver already chose a sibling, then choose it, otherwise take the last
-  // 	if (path[path_index_for_stack_pos] != -1) {
-  // 	  DREAL_LOG_DEBUG << "Moving to back " << path[path_index_for_stack_pos];
-  // 	  m_decision_stack.back()->second->pop_back();
-  // 	  for (vector<int>::iterator e = m_decision_stack.back()->second->begin();
-  // 	       e != m_decision_stack.back()->second->end(); ) {
-  // 	    if (*e == path[path_index_for_stack_pos]) {
-  // 	      DREAL_LOG_DEBUG << "ReMoving " << *e;
-  // 	      m_decision_stack.back()->second->erase(e);
-  // 	      e = m_decision_stack.back()->second->begin();
-  // 	    } else {
-  // 	      e++;
-  // 	    }
-  // 	  }
-  // 	  m_decision_stack.back()->second->push_back(path[path_index_for_stack_pos]);
-  // 	} else {
-  // 	  m_decision_stack.back()->second->pop_back();
-  // 	  if( m_decision_stack.back()->second->empty()) {
-  // 	    delete m_decision_stack.back()->second;
-  // 	    delete m_decision_stack.back();
-  // 	    m_decision_stack.pop_back();
-  // 	  }
-  // 	}
+  //    //choose sibling of at this level if it exists
+  //    int path_index_for_stack_pos = i;//((m_depth+1)*num_autom) - m_decision_stack.size()+1;
+  //    // if SAT solver already chose a sibling, then choose it, otherwise take the last
+  //    if (path[path_index_for_stack_pos] != -1) {
+  //      DREAL_LOG_DEBUG << "Moving to back " << path[path_index_for_stack_pos];
+  //      m_decision_stack.back()->second->pop_back();
+  //      for (vector<int>::iterator e = m_decision_stack.back()->second->begin();
+  //           e != m_decision_stack.back()->second->end(); ) {
+  //        if (*e == path[path_index_for_stack_pos]) {
+  //          DREAL_LOG_DEBUG << "ReMoving " << *e;
+  //          m_decision_stack.back()->second->erase(e);
+  //          e = m_decision_stack.back()->second->begin();
+  //        } else {
+  //          e++;
+  //        }
+  //      }
+  //      m_decision_stack.back()->second->push_back(path[path_index_for_stack_pos]);
+  //    } else {
+  //      m_decision_stack.back()->second->pop_back();
+  //      if( m_decision_stack.back()->second->empty()) {
+  //        delete m_decision_stack.back()->second;
+  //        delete m_decision_stack.back();
+  //        m_decision_stack.pop_back();
+  //      }
+  //    }
   //     } else {
-  // 	  // the parent choice was unassigned too, so this decision no longer needed
-  // 	  delete m_decision_stack.back()->second;
-  // 	  delete m_decision_stack.back();
-  // 	  m_decision_stack.pop_back();
-  // 	}
+  //      // the parent choice was unassigned too, so this decision no longer needed
+  //      delete m_decision_stack.back()->second;
+  //      delete m_decision_stack.back();
+  //      m_decision_stack.pop_back();
+  //    }
 
   //     // there is only a decision to backtrack if m_decision_stack.size() > m_depth - i
   //     //if (static_cast<int>(m_decision_stack.size()) > 0) { // ((m_depth+1)*num_autom)-1 - i) {
-  // 	// if (i == 0) {
-  // 	//   // remove decision for time zero, which must be initial node
-  // 	//   // this is never to blame for the backtrack, but must be backtracked over
-  // 	//   delete m_decision_stack.back()->second;
-  // 	//   delete m_decision_stack.back();
-  // 	//   m_decision_stack.pop_back();
-  // 	// } else if (m_decision_stack.back() != NULL &&
-  // 	// 	   m_decision_stack.back()->second->size() > 1) {
-  // 	//   // there is an unexplored sibling at this level
-  // 	//   // remove current choice at time and choose a sibling
+  //    // if (i == 0) {
+  //    //   // remove decision for time zero, which must be initial node
+  //    //   // this is never to blame for the backtrack, but must be backtracked over
+  //    //   delete m_decision_stack.back()->second;
+  //    //   delete m_decision_stack.back();
+  //    //   m_decision_stack.pop_back();
+  //    // } else if (m_decision_stack.back() != NULL &&
+  //    //         m_decision_stack.back()->second->size() > 1) {
+  //    //   // there is an unexplored sibling at this level
+  //    //   // remove current choice at time and choose a sibling
 
-  // 	//   int path_index_for_stack_pos = ((m_depth+1)*num_autom) - m_decision_stack.size()+1;
-  // 	//   // if SAT solver already chose a sibling, then choose it, otherwise take the last
-  // 	//   if (path[path_index_for_stack_pos] != -1) {
-  // 	//     DREAL_LOG_DEBUG << "Moving to back " << path[path_index_for_stack_pos];
-  // 	//     m_decision_stack.back()->second->pop_back();
-  // 	//     for (vector<int>::iterator e = m_decision_stack.back()->second->begin();
-  // 	// 	 e != m_decision_stack.back()->second->end(); ) {
-  // 	//       if (*e == path[path_index_for_stack_pos]) {
-  // 	// 	DREAL_LOG_DEBUG << "ReMoving " << *e;
-  // 	// 	m_decision_stack.back()->second->erase(e);
-  // 	// 	e = m_decision_stack.back()->second->begin();
-  // 	//       } else {
-  // 	// 	e++;
-  // 	//       }
-  // 	//     }
-  // 	//     m_decision_stack.back()->second->push_back(path[path_index_for_stack_pos]);
-  // 	//   } else {
-  // 	//     m_decision_stack.back()->second->pop_back();
-  // 	//   }
-  // 	//   break;
-  // 	// } else  {
-  // 	//   // the parent choice was unassigned too, so this decision no longer needed
-  // 	//   delete m_decision_stack.back()->second;
-  // 	//   delete m_decision_stack.back();
-  // 	//   m_decision_stack.pop_back();
-  // 	// }
+  //    //   int path_index_for_stack_pos = ((m_depth+1)*num_autom) - m_decision_stack.size()+1;
+  //    //   // if SAT solver already chose a sibling, then choose it, otherwise take the last
+  //    //   if (path[path_index_for_stack_pos] != -1) {
+  //    //     DREAL_LOG_DEBUG << "Moving to back " << path[path_index_for_stack_pos];
+  //    //     m_decision_stack.back()->second->pop_back();
+  //    //     for (vector<int>::iterator e = m_decision_stack.back()->second->begin();
+  //    //       e != m_decision_stack.back()->second->end(); ) {
+  //    //       if (*e == path[path_index_for_stack_pos]) {
+  //    //      DREAL_LOG_DEBUG << "ReMoving " << *e;
+  //    //      m_decision_stack.back()->second->erase(e);
+  //    //      e = m_decision_stack.back()->second->begin();
+  //    //       } else {
+  //    //      e++;
+  //    //       }
+  //    //     }
+  //    //     m_decision_stack.back()->second->push_back(path[path_index_for_stack_pos]);
+  //    //   } else {
+  //    //     m_decision_stack.back()->second->pop_back();
+  //    //   }
+  //    //   break;
+  //    // } else  {
+  //    //   // the parent choice was unassigned too, so this decision no longer needed
+  //    //   delete m_decision_stack.back()->second;
+  //    //   delete m_decision_stack.back();
+  //    //   m_decision_stack.pop_back();
+  //    // }
   //     // }
   //   }
   // }
@@ -721,8 +721,8 @@ bool plan_heuristic::unwind_path() {
   //   DREAL_LOG_INFO << "Path (" << j << ") = " << path[j] << endl;
   //   int stack_index_for_path_index = static_cast<int>(path.size() - j - 1);
   //   if (stack_index_for_path_index < static_cast<int>(m_decision_stack.size()))
-  //     DREAL_LOG_INFO << "Stack(" << stack_index_for_path_index << ") = " 
-  // 		     << m_decision_stack[stack_index_for_path_index]->second->back();
+  //     DREAL_LOG_INFO << "Stack(" << stack_index_for_path_index << ") = "
+  //                 << m_decision_stack[stack_index_for_path_index]->second->back();
   //   else  {
   //     DREAL_LOG_INFO << "No choices left!";
   //   }
@@ -736,40 +736,40 @@ bool plan_heuristic::unwind_path() {
     for(int i = m_decision_stack.size()-1; i >= 0; i--) {
       pair<Enode*, vector<bool>*> *decision = m_decision_stack[i];
       if(decision->second->size() <= 1) {
-	delete m_decision_stack[i]->second;
-	delete m_decision_stack[i];
-	m_decision_stack.pop_back();	    
+        delete m_decision_stack[i]->second;
+        delete m_decision_stack[i];
+        m_decision_stack.pop_back();
       } else  {
-	m_decision_stack[i]->second->pop_back();
-	break;
+        m_decision_stack[i]->second->pop_back();
+        break;
       }
     }
 
     // //      int num_backtrack_steps = 1; // actual_path_size;
     // bool found_sibling = false;
     // while (!found_sibling && m_decision_stack.size() > 1) {
-    //   DREAL_LOG_INFO << "Backtracking at level " 
-    // 		     << m_decision_stack.size() << endl;
-      
+    //   DREAL_LOG_INFO << "Backtracking at level "
+    //               << m_decision_stack.size() << endl;
+
     //   if (m_decision_stack.back()->second != NULL &&
-    // 	  m_decision_stack.back()->second->size() > 1) {
-    // 	// there is an unexplored sibling at this level
-    // 	// remove current choice at time and choose a sibling
-    // 	m_decision_stack.back()->second->pop_back();
-    // 	found_sibling = true;
-    // 	break;
+    //    m_decision_stack.back()->second->size() > 1) {
+    //  // there is an unexplored sibling at this level
+    //  // remove current choice at time and choose a sibling
+    //  m_decision_stack.back()->second->pop_back();
+    //  found_sibling = true;
+    //  break;
     //   } else  {
-    // 	// the parent choice was unassigned too, so this decision no longer needed
-    // 	delete m_decision_stack.back()->second;
-    // 	delete m_decision_stack.back();
-    // 	m_decision_stack.pop_back();
+    //  // the parent choice was unassigned too, so this decision no longer needed
+    //  delete m_decision_stack.back()->second;
+    //  delete m_decision_stack.back();
+    //  m_decision_stack.pop_back();
     //   }
     // }
 
     // DREAL_LOG_DEBUG << "After BT stack:";
     // int i = 0;
-    // for (std::size_t time = (m_depth+1)*num_autom ; 
-    // 	 time > (m_depth+1)-m_decision_stack.size(); time--)  {
+    // for (std::size_t time = (m_depth+1)*num_autom ;
+    //   time > (m_depth+1)-m_decision_stack.size(); time--)  {
     //   DREAL_LOG_DEBUG << "Stack(" << time << ") =" << m_decision_stack[i++]->second->back();
     // }
     return m_decision_stack.size() > 0;
@@ -784,7 +784,7 @@ bool plan_heuristic::unwind_path() {
     DREAL_LOG_INFO << "plan_heuristic::getSuggestions()";
     displayTrail();
 
-    
+
     if (trail->size() > lastTrailEnd)
       pushTrailOnStack();
 

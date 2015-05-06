@@ -138,8 +138,8 @@ public:
         // Added Code
         //=================================================================================================
 
-	// Heuristics
-	dreal::heuristic heuristic;
+        // Heuristics
+        dreal::heuristic heuristic;
 
         // Extra results: (read-only member variable)
         //
