@@ -319,8 +319,8 @@ public:
         void   printModel             ( );             // Wrapper
         void   printModel             ( ostream & );   // Prints model
         void   printExtModel          ( ostream & out ); // Prints SAT model
-        void   printCurrentAssignment ( bool withLiterals );             // Wrapper
-        void   printCurrentAssignment ( ostream &, bool withLiterals );   // Prints model
+        void   printCurrentAssignment ( bool withLiterals = true);             // Wrapper
+        void   printCurrentAssignment ( ostream &, bool withLiterals = true);   // Prints model
 #endif
 #ifdef PRODUCE_PROOF
         void   printProof              ( ostream & );
