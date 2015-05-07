@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include <algorithm>
 #include <iostream>
 #include <unordered_map>
 #include <vector>
@@ -103,6 +104,11 @@ public:
             }
         }
         return false;
+    }
+    vec get_reverse() const {
+        vec tmp = m_vec;
+        std::reverse(tmp.begin(), tmp.end());
+        return tmp;
     }
 };
 }  // namespace dreal
