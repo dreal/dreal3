@@ -543,11 +543,7 @@ bool SimpSMTSolver::addSMTClause( vector< Enode * > & smt_clause, uint64_t in )
     // Just add the literal
     //
     Lit l = theory_handler->enodeToLit( e );
-<<<<<<< HEAD
-    heuristic.inform(e);
-=======
     heuristic->inform(e);    
->>>>>>> 07de9d5... feat(heuristics): call the appropriate heuristic
 #if NEW_SIMPLIFICATIONS
     if ( e->isTAtom( ) )
     {

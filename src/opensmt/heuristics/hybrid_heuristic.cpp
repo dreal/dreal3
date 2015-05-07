@@ -115,50 +115,49 @@ int get_mode(Enode * lit) {
         m_cost.push_back(mc);
       }
 
-      DREAL_LOG_DEBUG << "hybrid_heuristic::initialize() adjacency " << hinfo[2].dump();
+      // build reverse adjanceny map (succ -> set(predecessors))      
+      for(unsigned int j = 0; j < hinfo[2].size(); j++){ // loop over automata
+	//DREAL_LOG_DEBUG << "Getting Transitions For Autom ";
+	vector<vector<labeled_transition*>*>* aut_predecessors = new vector<vector<labeled_transition*>*>();
+	for (unsigned int i = 0; i < hinfo[2][j].size(); i++){ // loop over modes
+	  // DREAL_LOG_DEBUG << "Getting Transitions From " << i;
+	  vector<labeled_transition*>* mp = new vector<labeled_transition*>();  
+	  aut_predecessors->push_back(mp);
+	}	
+	for (unsigned int src = 0; src < hinfo[2][j].size(); src++){
+	  //DREAL_LOG_DEBUG << "Getting Transitions From " << src << " " << hinfo[2][j][src].dump();
+	  m_aut_labels.push_back(new set<int>());
+	  auto adj = hinfo[2][j][src]; // transitions from src
+	  for(auto adj_trans : adj){ // loop over transitions
+	    //DREAL_LOG_DEBUG << "Getting Transition " << adj_trans.dump();
+	    labeled_transition *trans = new labeled_transition();
+	    trans->first = new set<int>();
+	    trans->second = src+1;
 
-      // build reverse adjanceny map (succ -> set(predecessors))
-      for(unsigned long j = 0; j < hinfo[2].size(); j++){ // loop over automata
-        //DREAL_LOG_DEBUG << "Getting Transitions For Autom ";
-        vector<vector<labeled_transition*>*>* aut_predecessors = new vector<vector<labeled_transition*>*>();
-        for (unsigned int i = 0; i < hinfo[2][j].size(); i++){ // loop over modes
-          // DREAL_LOG_DEBUG << "Getting Transitions From " << i;
-          vector<labeled_transition*>* mp = new vector<labeled_transition*>();
-          aut_predecessors->push_back(mp);
-        }
-        for (unsigned int src = 0; src < hinfo[2][j].size(); src++){
-          //DREAL_LOG_DEBUG << "Getting Transitions From " << src << " " << hinfo[2][j][src].dump();
-          m_aut_labels.push_back(new set<int>());
-          auto adj = hinfo[2][j][src]; // transitions from src
-          for(auto adj_trans : adj){ // loop over transitions
-            //DREAL_LOG_DEBUG << "Getting Transition " << adj_trans.dump();
-            labeled_transition *trans = new labeled_transition();
-            trans->first = new set<int>();
-            trans->second = src+1;
+	    auto labels = adj_trans[0];
+	    for(auto l : labels){
+	      
+	      string label_string = l.dump().c_str();
+	      auto li = label_indices.find(label_string);
+	      int ind;
+	      if(li == label_indices.end()){
+		label_indices[label_string] = num_labels++;
+		ind = num_labels-1;
+	      } else {
+		ind = li->second;
+	      }    
+	      m_aut_labels[j]->insert(ind);
+	      trans->first->insert(ind);
+	    }
 
-            auto labels = adj_trans[0];
-            for(auto l : labels){
-
-              string label_string = l.dump().c_str();
-              auto li = label_indices.find(label_string);
-              int ind;
-              if(li == label_indices.end()){
-                label_indices[label_string] = num_labels++;
-                ind = num_labels-1;
-              } else {
-                ind = li->second;
-              }
-              m_aut_labels[j]->insert(ind);
-              trans->first->insert(ind);
-            }
-
-            int dest = adj_trans[1];
-            (*aut_predecessors)[dest-1]->push_back(trans);
-            //DREAL_LOG_DEBUG << "Got Transition " << adj_trans.dump();
-          }
-        }
-        predecessors.push_back(aut_predecessors);
+	    int dest = adj_trans[1];
+	    (*aut_predecessors)[dest-1]->push_back(trans);
+	    //DREAL_LOG_DEBUG << "Got Transition " << adj_trans.dump();
+	  }
+	}
+	predecessors.push_back(aut_predecessors);
       }
+
 
         // initialize decision stack
         pair<int, vector<labeled_transition*>*>* astack = new pair<int, vector<labeled_transition*>*>();
@@ -176,24 +175,24 @@ int get_mode(Enode * lit) {
         astack->second = dec;
 
 
-        for(int a = 0; a < num_autom; a++){
-          mode_literals.push_back(new map<Enode*, pair<int,int>*>());
+ 	for(int a = 0; a < num_autom; a++){
+	  mode_literals.push_back(new map<Enode*, pair<int,int>*>());
 
-          vector<vector<Enode*>*>* tme = new vector<vector<Enode*>*>();
-          vector<vector<Enode*>*>* tmi = new vector<vector<Enode*>*>();
-          time_mode_enodes.push_back(tme);
-          time_mode_integral_enodes.push_back(tmi);
-          for (int i = 0; i < m_depth+1; i++){
-            vector< Enode* > * en = new vector< Enode* >();
-            en->assign(static_cast<int>(predecessors[a]->size()), NULL);
-            tme->push_back(en);
-            // if (m_egraph->stepped_flows){
-            en = new vector< Enode* >();
-            en->assign(static_cast<int>(predecessors.size()), NULL);
-            tmi->push_back(en);
-            // }
-          }
-        }
+	  vector<vector<Enode*>*>* tme = new vector<vector<Enode*>*>();
+	  vector<vector<Enode*>*>* tmi = new vector<vector<Enode*>*>();
+	  time_mode_enodes.push_back(tme);
+	  time_mode_integral_enodes.push_back(tmi);
+	  for (int i = 0; i < m_depth+1; i++){
+	    vector< Enode* > * en = new vector< Enode* >();
+	    en->assign(static_cast<int>(predecessors[a]->size()), NULL);
+	    tme->push_back(en);
+	    // if (m_egraph->stepped_flows){
+	    en = new vector< Enode* >();
+	    en->assign(static_cast<int>(predecessors.size()), NULL);
+	    tmi->push_back(en);
+	    // }
+	  }
+	}
 
     }
 }
@@ -210,24 +209,24 @@ void hybrid_heuristic::inform(Enode * e){
         ss << v;
         string var = ss.str();
         if (var.find("mode") != string::npos) {
-          int autom_pos = var.find("_")+1;
-          int time_pos = var.rfind("_")+1;
-          int time = atoi(var.substr(time_pos).c_str());
-          int autom = (predecessors.size() == 1 ?
-                       0 :
-                       atoi(var.substr(autom_pos, time_pos-1).c_str()));
-          int mode = get_mode(e);
+	  int autom_pos = var.find("_")+1;
+	  int time_pos = var.rfind("_")+1;
+	  int time = atoi(var.substr(time_pos).c_str());
+	  int autom = (predecessors.size() == 1 ? 
+		       1 : 
+		       atoi(var.substr(autom_pos, time_pos-1).c_str()));
+	  int mode = get_mode(e);
 
-          DREAL_LOG_INFO << "autom = " << autom << " mode = " << mode << " time = " << time << endl;
-          (*mode_literals[autom-1])[ e ] = new pair<int, int>(mode, time);
-          DREAL_LOG_INFO << "Mode_lit[" <<  (e->getPolarity() == l_True ? "     " : "(not ")
-                         << e
-                         << (e->getPolarity() == l_True ? "" : ")")
-                         << "] = " << mode << " " << time << endl;
+	  DREAL_LOG_INFO << "autom = " << autom << " mode = " << mode << " time = " << time << endl;
+	  (*mode_literals[autom-1])[ e ] = new pair<int, int>(mode, time);
+	  DREAL_LOG_INFO << "Mode_lit[" <<  (e->getPolarity() == l_True ? "     " : "(not ")
+			 << e
+			 << (e->getPolarity() == l_True ? "" : ")")
+			 << "] = " << mode << " " << time << endl;
 
-          (*(*time_mode_enodes[autom-1])[time])[mode-1] = e;
-          found_mode_literal = true;
-          mode_enodes.insert(e);
+	  (*(*time_mode_enodes[autom-1])[time])[mode-1] = e;
+	  found_mode_literal = true;
+	  mode_enodes.insert(e);
         }
     }
     if (!found_mode_literal){
