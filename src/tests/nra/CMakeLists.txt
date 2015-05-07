@@ -20,6 +20,14 @@ ENDFOREACH(instance)
 
 FOREACH(instance ${NRA_INSTANCES})
   GET_FILENAME_COMPONENT(instance_name ${instance} NAME)
+  add_test(NAME "regression_nra_polytope_${instance_name}"
+           COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test.sh"
+           ${DREAL_BINARY} ${instance} "--polytope")
+  set_tests_properties("regression_nra_polytope_${instance_name}" PROPERTIES LABELS "nra_polytope")
+ENDFOREACH(instance)
+
+FOREACH(instance ${NRA_INSTANCES})
+  GET_FILENAME_COMPONENT(instance_name ${instance} NAME)
   add_test(NAME "regression_nra_short_sat_${instance_name}"
            COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test.sh"
            ${DREAL_BINARY} ${instance} "--short_sat")
