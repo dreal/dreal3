@@ -52,6 +52,8 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "minisat/core/SolverTypes.h"
 #include "common/LA.h"
 
+#include "heuristics/heuristic.h"
+
 #ifdef PRODUCE_PROOF
 #include "proof/ProofGraph.h"
 #include "proof/Proof.h"
@@ -136,6 +138,9 @@ public:
         // Added Code
         //=================================================================================================
 
+	// Heuristics
+	dreal::heuristic *heuristic;
+
         // Extra results: (read-only member variable)
         //
         vec<lbool> model;             // If problem is satisfiable, this vector contains the model (if any).
@@ -177,6 +182,9 @@ protected:
                 VarFilter(const CoreSMTSolver& _s) : s(_s) {}
                 bool operator()(Var v) const { return toLbool(s.assigns[v]) == l_Undef && s.decision_var[v]; }
         };
+
+
+
 
         // Solver state:
         //
@@ -239,6 +247,7 @@ protected:
         lbool    search           (int nof_conflicts, int nof_learnts);                    // Search for a given number of conflicts.
         void     reduceDB         ();                                                      // Reduce the set of learnt clauses.
         void     removeSatisfied  (vec<Clause*>& cs);                                      // Shrink 'cs' to contain only non-satisfied clauses.
+        virtual void filterUnassigned () = 0;                                              // Filter decision variables that don't need a decision
 
         // Maintaining Variable/Clause activity:
         //
@@ -309,6 +318,8 @@ public:
         void   printModel             ( );             // Wrapper
         void   printModel             ( ostream & );   // Prints model
         void   printExtModel          ( ostream & out ); // Prints SAT model
+        void   printCurrentAssignment ( bool withLiterals = true);             // Wrapper
+        void   printCurrentAssignment ( ostream &, bool withLiterals = true);   // Prints model
 #endif
 #ifdef PRODUCE_PROOF
         void   printProof              ( ostream & );

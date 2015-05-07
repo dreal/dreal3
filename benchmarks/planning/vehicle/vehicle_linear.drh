@@ -1,0 +1,120 @@
+#define MAX_V 200
+
+[0, 5000] d;
+[0, 200] v;
+[-5, 5] a;
+[0, 200] clock;
+[0, 100] overheat_clock;
+[0, 100] time;
+
+
+{ mode 1;
+  invt: (v = 0);
+  flow:
+        d/dt[d] = 0;
+        d/dt[v] = 0;
+        d/dt[a] = 0;
+        d/dt[clock] = 1;
+        d/dt[overheat_clock] = 0;
+  jump:
+        true ==> @2 (and (a' = a) (not (a' = (a + 1))) (not (a' = (a - 1))) );
+        true ==> @3 (and (a' = a) (not (a' = (a + 1))) (not (a' = (a - 1))) );
+}
+
+{ mode 2;
+
+  invt: (v <= 50);
+  flow:
+        d/dt[d] = v;
+        d/dt[v] = a;
+        d/dt[a] = 0;
+        d/dt[clock] = 1;
+        d/dt[overheat_clock] = 0;
+  jump:
+        true ==> @2 (and  (a' = (a - 1)) (not (a' = (a + 1)))  (not (a' = a)));
+        true ==> @3 (and  (a' = (a + 1)) (not (a' = (a - 1)))  (not (a' = a)));
+        (a = 0) ==> @1 (and (a' = a) (not (a' = (a + 1))) (not (a' = (a - 1))) );
+	true ==> @4 (and (a' = a) (not (a' = (a + 1))) (not (a' = (a - 1))) );
+}
+
+{ mode 3;
+
+  invt: (v <= 50);
+  flow:
+        d/dt[d] = v;
+        d/dt[v] = a;
+        d/dt[a] = 0;
+        d/dt[clock] = 1;
+        d/dt[overheat_clock] = 0;
+  jump:
+        true ==> @2 (and  (a' = (a - 1)) (not (a' = (a + 1)))  (not (a' = a)));
+        true ==> @3 (and  (and  (a' = (a + 1)) (not (a' = (a - 1)))  (not (a' = a))));
+        (a = 0) ==> @1 (and (a' = a) (not (a' = (a + 1))) (not (a' = (a - 1))) );
+	(v = 50) ==> @5 (and (a' = a) (not (a' = (a + 1))) (not (a' = (a - 1))) );
+
+}
+
+{ mode 4;
+  invt: (v >= 50);
+  	(v <= MAX_V);
+  flow:
+        d/dt[d] = v;
+        d/dt[v] = a - (0.1 * ((v - 50)^2));
+        d/dt[a] = 0;
+        d/dt[clock] = 1;
+        d/dt[overheat_clock] = 1;
+  jump:
+        true ==> @4 (and  (a' = (a - 1)) (not (a' = (a + 1)))  (not (a' = a)));
+        true ==> @5 (and  (and  (a' = (a + 1)) (not (a' = (a - 1)))  (not (a' = a))));
+        true ==> @6 (and (a' = a) (not (a' = (a + 1))) (not (a' = (a - 1))) );
+	true ==> @2 (and (a' = a) (not (a' = (a + 1))) (not (a' = (a - 1))) );
+}
+
+{ mode 5;
+  invt: (v >= 50);
+  	(v <= MAX_V);
+  flow:
+        d/dt[d] = v;
+        d/dt[v] = a - (0.1 * ((v - 50)^2));
+        d/dt[a] = 0;
+        d/dt[clock] = 1;
+        d/dt[overheat_clock] = 1;
+  jump:
+        true ==> @4 (and  (a' = (a - 1)) (not (a' = (a + 1)))  (not (a' = a)));
+        true ==> @5 (and  (and  (a' = (a + 1)) (not (a' = (a - 1)))  (not (a' = a))));
+        true ==> @6 (and (a' = a) (not (a' = (a + 1))) (not (a' = (a - 1))) );
+	true ==> @2 (and (a' = a) (not (a' = (a + 1))) (not (a' = (a - 1))) );
+}
+
+{ mode 6;
+  invt: (v >= MAX_V);
+  flow:
+        d/dt[d] = 0;
+        d/dt[v] = 0;
+        d/dt[a] = 0;
+        d/dt[clock] = 1;
+        d/dt[overheat_clock] = 0;
+  jump:
+	true ==> @6 true;
+}
+
+
+init:
+//@3	(and (d = 0) ( v = 0) ( a = 0)  (clock = 0) (overheat_clock = 0));
+@3	(and (d = 0) ( v = 0) ( a = 1)  (clock = 0) (overheat_clock = 0));
+//@5	(and (d = 1250) ( v = 50) ( a = 1)  (clock = 50) (overheat_clock = 0));
+
+goal:
+//@3	(and (d > 2500) (v=0) (overheat_clock > 1) (clock <= 110));
+@2	(and (d >= 3000) (v=0)  (clock <= 110));
+//@4	(and (d > 1250) (v=50)  (clock <= 60));
+//@1	(and (d > 2500)  (overheat_clock > 1) (clock <= 110));
+
+
+//0  1  2  3  4  5
+//1, 3, 3, 2, 2, 1
+//1, 2, 3, 2, 2, 1
+
+
+//3, 5, 4, 4, 2
+//3, 2, 2, 3, 2
