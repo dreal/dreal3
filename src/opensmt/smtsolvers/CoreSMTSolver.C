@@ -41,6 +41,10 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "minisat/mtl/Sort.h"
 #include <cmath>
 #include "util/logging.h"
+#include "heuristics/heuristic.h"
+#include "heuristics/plan_heuristic.h"
+#include "heuristics/hybrid_heuristic.h"
+ 
 
 #ifndef OPTIMIZE
 #include <iostream>
@@ -105,6 +109,14 @@ CoreSMTSolver::CoreSMTSolver( Egraph & e, SMTConfig & c )
 #endif
   , init                  (false)
 {
+
+  if(c.nra_plan_heuristic.compare("") != 0){
+    heuristic = new dreal::plan_heuristic();
+  } else if(c.nra_bmc_heuristic.compare("") != 0){
+    heuristic = new dreal::hybrid_heuristic();
+  } else {
+    heuristic = new dreal::heuristic();
+  } 
 
 }
 
@@ -178,6 +190,8 @@ CoreSMTSolver::~CoreSMTSolver()
 #ifdef PRODUCE_PROOF
   delete proof_;
 #endif
+
+  delete heuristic;
 }
 
 //=================================================================================================
@@ -421,8 +435,8 @@ void CoreSMTSolver::cancelUntil(int level)
 
     if ( first_model_found ) {
       theory_handler->backtrack( );
-      heuristic.backtrack();
     }
+    heuristic->backtrack();
   }
 }
 
@@ -486,7 +500,7 @@ void CoreSMTSolver::addNewAtom( Enode * e )
   // Automatically adds new variable for e
   //Lit l = theory_handler->enodeToLit( e );
   theory_handler->enodeToLit( e );
-  heuristic.inform(e);
+  heuristic->inform(e);
 }
 
 void CoreSMTSolver::cancelUntilVar( Var v )
@@ -520,7 +534,7 @@ void CoreSMTSolver::cancelUntilVar( Var v )
   }
 
   theory_handler->backtrack( );
-  heuristic.backtrack();
+  heuristic->backtrack();
 }
 
 void CoreSMTSolver::cancelUntilVarTempInit( Var v )
@@ -549,7 +563,7 @@ void CoreSMTSolver::cancelUntilVarTempInit( Var v )
 
   trail.shrink(trail.size( ) - c );
   theory_handler->backtrack( );
-  heuristic.backtrack();
+  heuristic->backtrack();
 }
 
 void CoreSMTSolver::cancelUntilVarTempDone( )
@@ -608,7 +622,7 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
     // Heuristic suggestion-based decision
     for( ;; )
     {
-      Lit sugg = heuristic.getSuggestion( );
+      Lit sugg = heuristic->getSuggestion( );
       if(var(sugg) != var_Undef){
         DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Heuristic Suggested Decision: "
                         << sign(sugg) << " " << theory_handler->varToEnode(var(sugg))
@@ -1468,7 +1482,7 @@ CoreSMTSolver::popBacktrackPoint ( )
 #endif
   // Backtrack theory solvers
   theory_handler->backtrack( );
-  heuristic.backtrack();
+  heuristic->backtrack();
   // Restore OK
   restoreOK( );
   assert( isOK( ) );
@@ -1987,7 +2001,7 @@ lbool CoreSMTSolver::solve( const vec<Lit> & assumps
     cancelUntil(-1);
     if ( first_model_found ) {
       theory_handler->backtrack( );
-      heuristic.backtrack();
+      heuristic->backtrack();
     }
   }
   else
