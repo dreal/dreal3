@@ -190,7 +190,7 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
     if (config.nra_sample > 0 && complete) {
         nl_ctcs.push_back(mk_contractor_sample(config.nra_sample, ctrs.get_vec()));
     }
-    for (constraint * const ctr : ctrs) {
+    for (constraint * const ctr : ctrs.get_reverse()) {
         if (ctr->get_type() == constraint_type::Nonlinear) {
             nonlinear_constraint const * const nl_ctr = dynamic_cast<nonlinear_constraint *>(ctr);
             if (nl_ctr->get_numctr()) {
