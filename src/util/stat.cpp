@@ -20,14 +20,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <iostream>
+#include <chrono>
 #include "util/stat.h"
 
 using std::ostream;
+using std::cerr;
 using std::endl;
 
 namespace dreal {
 
-stat::stat() {
+stat::stat() : m_start_time(std::chrono::high_resolution_clock::now()) {
     reset();
 }
 
@@ -65,6 +67,9 @@ ostream & operator<<(ostream & out, stat const & stat) {
     out << "Number of Assert           = " << stat.m_num_of_assert << endl;
     out << "Number of Push             = " << stat.m_num_of_push << endl;
     out << "Number of Pop              = " << stat.m_num_of_pop << endl;
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> diff = end_time - stat.m_start_time;
+    out << "Running time               = " << diff.count() << " s" << endl;
     return out;
 }
 }  // namespace dreal

@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <iostream>
+#include <chrono>
 namespace dreal {
 class stat {
 public:
@@ -29,6 +30,7 @@ public:
     unsigned m_num_of_assert;
     unsigned m_num_of_push;
     unsigned m_num_of_pop;
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_start_time;
     stat();
     void reset();
     void increase_check(bool complete);
