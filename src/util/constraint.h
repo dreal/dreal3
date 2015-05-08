@@ -76,6 +76,7 @@ public:
     inline ibex::ExprCtr const * get_exprctr() const { return m_exprctr; }
     inline ibex::NumConstraint const * get_numctr() const { return m_numctr; }
     ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
+    inline Enode * get_enode() const { return get_enodes()[0]; }
 };
 
 class integral_constraint : public constraint {
@@ -100,6 +101,7 @@ public:
     inline std::vector<Enode *> const & get_pars_t() const { return m_pars_t; }
     inline std::vector<string>  const & get_par_lhs_names() const { return m_par_lhs_names; }
     inline std::vector<std::pair<std::string, Enode *>> const & get_odes() const { return m_odes; }
+    inline Enode * get_enode() const { return get_enodes()[0]; }
     integral_constraint(Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t,
                         std::vector<Enode *> const & vars_0, std::vector<Enode *> const & pars_0,
                         std::vector<Enode *> const & vars_t, std::vector<Enode *> const & pars_t,

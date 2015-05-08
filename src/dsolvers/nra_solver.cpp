@@ -172,7 +172,7 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
         }
         ode_constraint * oc = new ode_constraint(ic, local_invs);
         ctrs.push_back(oc);
-        m_ctr_map.emplace(make_pair(ic.get_enodes()[0], true), oc);
+        m_ctr_map.emplace(make_pair(ic.get_enode(), true), oc);
         DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ODEConstraint: " << *oc;
     }
     return ctrs;

@@ -78,7 +78,7 @@ ibex::SystemFactory* build_system_factory(box const & box, vector<nonlinear_cons
     thread_local static unordered_map<Enode *, ibex::ExprCtr const *> tls_exprctr_cache_neg;
     for (nonlinear_constraint const * ctr : ctrs) {
         DREAL_LOG_INFO << "build_system_factory: Add Constraint: " << *ctr;
-        Enode * e = ctr->get_enodes()[0];
+        Enode * e = ctr->get_enode();
         auto p = e->getPolarity();
         assert(p == l_True || p == l_False);
         auto & tls_exprctr_cache = (p == l_True) ? tls_exprctr_cache_pos : tls_exprctr_cache_neg;
@@ -194,7 +194,7 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
     // ======= Proof =======
     if (config.nra_proof) {
         stringstream ss;
-        Enode const * const e = m_ctr->get_enodes()[0];
+        Enode const * const e = m_ctr->get_enode();
         ss << (e->getPolarity() == l_False ? "!" : "") << e;
         output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
     }
@@ -279,7 +279,7 @@ box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
     if (config.nra_proof) {
         stringstream ss;
         for (auto const & ctr : m_ctrs) {
-            Enode const * const e = ctr->get_enodes()[0];
+            Enode const * const e = ctr->get_enode();
             ss << (e->getPolarity() == l_False ? "!" : "") << e << ";";
         }
         output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
