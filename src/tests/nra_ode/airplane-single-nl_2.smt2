@@ -166,29 +166,21 @@
 (assert (and (>= tau_0_0 0) (<= tau_0_0 0.5)
              (>= tau_0_t 0) (<= tau_0_t 0.5)))
 (assert (or (and (= modeA_0 true) (= modeR_0 true)
-                 (= [xRDR_0_t xAIL_0_t tau_0_t r_0_t psi_0_t
-                     phi_0_t p_0_t gRDR_0_t gAIL_0_t gDir_0_t beta_0_t]
+                 (= [beta_0_t p_0_t r_0_t phi_0_t psi_0_t xAIL_0_t xRDR_0_t gAIL_0_t gRDR_0_t gDir_0_t tau_0_t]
                     (integral 0. time_0 
-                       [xRDR_0_0 xAIL_0_0 tau_0_0 r_0_0 psi_0_0 
-                        phi_0_0 p_0_0 gRDR_0_0 gAIL_0_0 gDir_0_0 beta_0_0] flow_1)))
+		       [beta_0_0 p_0_0 r_0_0 phi_0_0 psi_0_0 xAIL_0_0 xRDR_0_0 gAIL_0_0 gRDR_0_0 gDir_0_0 tau_0_0] flow_1)))
             (and (= modeA_0 true) (= modeR_0 false)
-                 (= [xRDR_0_t xAIL_0_t tau_0_t r_0_t psi_0_t
-                     phi_0_t p_0_t gRDR_0_t gAIL_0_t gDir_0_t beta_0_t]
+                 (= [beta_0_t p_0_t r_0_t phi_0_t psi_0_t xAIL_0_t xRDR_0_t gAIL_0_t gRDR_0_t gDir_0_t tau_0_t]
                     (integral 0. time_0 
-                       [xRDR_0_0 xAIL_0_0 tau_0_0 r_0_0 psi_0_0 
-                        phi_0_0 p_0_0 gRDR_0_0 gAIL_0_0 gDir_0_0 beta_0_0] flow_2)))
+		       [beta_0_0 p_0_0 r_0_0 phi_0_0 psi_0_0 xAIL_0_0 xRDR_0_0 gAIL_0_0 gRDR_0_0 gDir_0_0 tau_0_0] flow_2)))
             (and (= modeA_0 false) (= modeR_0 true)
-                 (= [xRDR_0_t xAIL_0_t tau_0_t r_0_t psi_0_t
-                     phi_0_t p_0_t gRDR_0_t gAIL_0_t gDir_0_t beta_0_t]
+                 (= [beta_0_t p_0_t r_0_t phi_0_t psi_0_t xAIL_0_t xRDR_0_t gAIL_0_t gRDR_0_t gDir_0_t tau_0_t]
                     (integral 0. time_0 
-                       [xRDR_0_0 xAIL_0_0 tau_0_0 r_0_0 psi_0_0 
-                        phi_0_0 p_0_0 gRDR_0_0 gAIL_0_0 gDir_0_0 beta_0_0] flow_3)))
+		       [beta_0_0 p_0_0 r_0_0 phi_0_0 psi_0_0 xAIL_0_0 xRDR_0_0 gAIL_0_0 gRDR_0_0 gDir_0_0 tau_0_0] flow_3)))
             (and (= modeA_0 false) (= modeR_0 false)
-                 (= [xRDR_0_t xAIL_0_t tau_0_t r_0_t psi_0_t
-                     phi_0_t p_0_t gRDR_0_t gAIL_0_t gDir_0_t beta_0_t]
+                 (= [beta_0_t p_0_t r_0_t phi_0_t psi_0_t xAIL_0_t xRDR_0_t gAIL_0_t gRDR_0_t gDir_0_t tau_0_t]
                     (integral 0. time_0 
-                       [xRDR_0_0 xAIL_0_0 tau_0_0 r_0_0 psi_0_0 
-                        phi_0_0 p_0_0 gRDR_0_0 gAIL_0_0 gDir_0_0 beta_0_0] flow_4)))))
+		       [beta_0_0 p_0_0 r_0_0 phi_0_0 psi_0_0 xAIL_0_0 xRDR_0_0 gAIL_0_0 gRDR_0_0 gDir_0_0 tau_0_0] flow_4)))))
 (assert (and (= tau_0_t 0.5)         (= tau_1_0 0)
              (= gRDR_1_0 (* beta_0_t 0.35))
              (= gAIL_1_0 (* (- gDir_0_t (/ (* psi_0_t 180) 3.14)) 0.5))
@@ -204,29 +196,21 @@
 (assert (and (>= tau_1_0 0) (<= tau_1_0 0.5)
              (>= tau_1_t 0) (<= tau_1_t 0.5)))
 (assert (or (and (= modeA_1 true) (= modeR_1 true)
-                 (= [xRDR_1_t xAIL_1_t tau_1_t r_1_t psi_1_t
-                     phi_1_t p_1_t gRDR_1_t gAIL_1_t gDir_1_t beta_1_t]
+                 (= [beta_1_t p_1_t r_1_t phi_1_t psi_1_t xAIL_1_t xRDR_1_t gAIL_1_t gRDR_1_t gDir_1_t tau_1_t]
                     (integral 0. time_1 
-                       [xRDR_1_0 xAIL_1_0 tau_1_0 r_1_0 psi_1_0 
-                        phi_1_0 p_1_0 gRDR_1_0 gAIL_1_0 gDir_1_0 beta_1_0] flow_1)))
+		       [beta_1_0 p_1_0 r_1_0 phi_1_0 psi_1_0 xAIL_1_0 xRDR_1_0 gAIL_1_0 gRDR_1_0 gDir_1_0 tau_1_0] flow_1)))
             (and (= modeA_1 true) (= modeR_1 false)
-                 (= [xRDR_1_t xAIL_1_t tau_1_t r_1_t psi_1_t
-                     phi_1_t p_1_t gRDR_1_t gAIL_1_t gDir_1_t beta_1_t]
+                 (= [beta_1_t p_1_t r_1_t phi_1_t psi_1_t xAIL_1_t xRDR_1_t gAIL_1_t gRDR_1_t gDir_1_t tau_1_t]
                     (integral 0. time_1 
-                       [xRDR_1_0 xAIL_1_0 tau_1_0 r_1_0 psi_1_0 
-                        phi_1_0 p_1_0 gRDR_1_0 gAIL_1_0 gDir_1_0 beta_1_0] flow_2)))
+		       [beta_1_0 p_1_0 r_1_0 phi_1_0 psi_1_0 xAIL_1_0 xRDR_1_0 gAIL_1_0 gRDR_1_0 gDir_1_0 tau_1_0] flow_2)))
             (and (= modeA_1 false) (= modeR_1 true)
-                 (= [xRDR_1_t xAIL_1_t tau_1_t r_1_t psi_1_t
-                     phi_1_t p_1_t gRDR_1_t gAIL_1_t gDir_1_t beta_1_t]
+                 (= [beta_1_t p_1_t r_1_t phi_1_t psi_1_t xAIL_1_t xRDR_1_t gAIL_1_t gRDR_1_t gDir_1_t tau_1_t]
                     (integral 0. time_1 
-                       [xRDR_1_0 xAIL_1_0 tau_1_0 r_1_0 psi_1_0 
-                        phi_1_0 p_1_0 gRDR_1_0 gAIL_1_0 gDir_1_0 beta_1_0] flow_3)))
+		       [beta_1_0 p_1_0 r_1_0 phi_1_0 psi_1_0 xAIL_1_0 xRDR_1_0 gAIL_1_0 gRDR_1_0 gDir_1_0 tau_1_0] flow_3)))
             (and (= modeA_1 false) (= modeR_1 false)
-                 (= [xRDR_1_t xAIL_1_t tau_1_t r_1_t psi_1_t
-                     phi_1_t p_1_t gRDR_1_t gAIL_1_t gDir_1_t beta_1_t]
+                 (= [beta_1_t p_1_t r_1_t phi_1_t psi_1_t xAIL_1_t xRDR_1_t gAIL_1_t gRDR_1_t gDir_1_t tau_1_t]
                     (integral 0. time_1 
-                       [xRDR_1_0 xAIL_1_0 tau_1_0 r_1_0 psi_1_0 
-                        phi_1_0 p_1_0 gRDR_1_0 gAIL_1_0 gDir_1_0 beta_1_0] flow_4)))))
+		       [beta_1_0 p_1_0 r_1_0 phi_1_0 psi_1_0 xAIL_1_0 xRDR_1_0 gAIL_1_0 gRDR_1_0 gDir_1_0 tau_1_0] flow_4)))))
 (assert (and (= tau_1_t 0.5)         (= tau_2_0 0)
              (= gRDR_2_0 (* beta_1_t 0.35))
              (= gAIL_2_0 (* (- gDir_1_t (/ (* psi_1_t 180) 3.14)) 0.5))
@@ -242,29 +226,21 @@
 (assert (and (>= tau_2_0 0) (<= tau_2_0 0.5)
              (>= tau_2_t 0) (<= tau_2_t 0.5)))
 (assert (or (and (= modeA_2 true) (= modeR_2 true)
-                 (= [xRDR_2_t xAIL_2_t tau_2_t r_2_t psi_2_t
-                     phi_2_t p_2_t gRDR_2_t gAIL_2_t gDir_2_t beta_2_t]
+                 (= [beta_2_t p_2_t r_2_t phi_2_t psi_2_t xAIL_2_t xRDR_2_t gAIL_2_t gRDR_2_t gDir_2_t tau_2_t]
                     (integral 0. time_2 
-                       [xRDR_2_0 xAIL_2_0 tau_2_0 r_2_0 psi_2_0 
-                        phi_2_0 p_2_0 gRDR_2_0 gAIL_2_0 gDir_2_0 beta_2_0] flow_1)))
+		       [beta_2_0 p_2_0 r_2_0 phi_2_0 psi_2_0 xAIL_2_0 xRDR_2_0 gAIL_2_0 gRDR_2_0 gDir_2_0 tau_2_0] flow_1)))
             (and (= modeA_2 true) (= modeR_2 false)
-                 (= [xRDR_2_t xAIL_2_t tau_2_t r_2_t psi_2_t
-                     phi_2_t p_2_t gRDR_2_t gAIL_2_t gDir_2_t beta_2_t]
+                 (= [beta_2_t p_2_t r_2_t phi_2_t psi_2_t xAIL_2_t xRDR_2_t gAIL_2_t gRDR_2_t gDir_2_t tau_2_t]
                     (integral 0. time_2 
-                       [xRDR_2_0 xAIL_2_0 tau_2_0 r_2_0 psi_2_0 
-                        phi_2_0 p_2_0 gRDR_2_0 gAIL_2_0 gDir_2_0 beta_2_0] flow_2)))
+		       [beta_2_0 p_2_0 r_2_0 phi_2_0 psi_2_0 xAIL_2_0 xRDR_2_0 gAIL_2_0 gRDR_2_0 gDir_2_0 tau_2_0] flow_2)))
             (and (= modeA_2 false) (= modeR_2 true)
-                 (= [xRDR_2_t xAIL_2_t tau_2_t r_2_t psi_2_t
-                     phi_2_t p_2_t gRDR_2_t gAIL_2_t gDir_2_t beta_2_t]
+                 (= [beta_2_t p_2_t r_2_t phi_2_t psi_2_t xAIL_2_t xRDR_2_t gAIL_2_t gRDR_2_t gDir_2_t tau_2_t]
                     (integral 0. time_2 
-                       [xRDR_2_0 xAIL_2_0 tau_2_0 r_2_0 psi_2_0 
-                        phi_2_0 p_2_0 gRDR_2_0 gAIL_2_0 gDir_2_0 beta_2_0] flow_3)))
+		       [beta_2_0 p_2_0 r_2_0 phi_2_0 psi_2_0 xAIL_2_0 xRDR_2_0 gAIL_2_0 gRDR_2_0 gDir_2_0 tau_2_0] flow_3)))
             (and (= modeA_2 false) (= modeR_2 false)
-                 (= [xRDR_2_t xAIL_2_t tau_2_t r_2_t psi_2_t
-                     phi_2_t p_2_t gRDR_2_t gAIL_2_t gDir_2_t beta_2_t]
+                 (= [beta_2_t p_2_t r_2_t phi_2_t psi_2_t xAIL_2_t xRDR_2_t gAIL_2_t gRDR_2_t gDir_2_t tau_2_t]
                     (integral 0. time_2 
-                       [xRDR_2_0 xAIL_2_0 tau_2_0 r_2_0 psi_2_0 
-                        phi_2_0 p_2_0 gRDR_2_0 gAIL_2_0 gDir_2_0 beta_2_0] flow_4)))))
+		       [beta_2_0 p_2_0 r_2_0 phi_2_0 psi_2_0 xAIL_2_0 xRDR_2_0 gAIL_2_0 gRDR_2_0 gDir_2_0 tau_2_0] flow_4)))))
 (assert (> (^ (^ beta_2_t 2) 0.5) 0.2))
 (check-sat)
 (exit)
