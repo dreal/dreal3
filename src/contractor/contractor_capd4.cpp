@@ -401,14 +401,17 @@ bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTi
 bool filter(vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVector & X_t, capd::interval & T) {
     // 1) Intersect each v in enclosure with X_t.
     // 2) If there is no intersection in 1), set dt an empty interval [0, 0]
+    DREAL_LOG_DEBUG << "filter : enclosure.size = " << enclosures.size();
     for (pair<capd::interval, capd::IVector> & item : enclosures) {
         capd::interval & dt = item.first;
         capd::IVector &  v  = item.second;
         // v = v union X_t
+        DREAL_LOG_DEBUG << "before filter: " << v << "\t" << X_t;
         if (!intersection(v, X_t, v)) {
             dt.setLeftBound(0.0);
             dt.setRightBound(0.0);
         }
+        DREAL_LOG_DEBUG << "after filter: " << v;
     }
     enclosures.erase(remove_if(enclosures.begin(), enclosures.end(),
                             [](pair<capd::interval, capd::IVector> const & item) {
