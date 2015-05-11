@@ -72,11 +72,6 @@ public:
     void  computeModel();
 
 private:
-    // std::unordered_map<std::string, ibex::Variable const> m_var_map;
-    // std::unordered_map<Enode*, ibex::ExprCtr const *> m_lit_ctr_map;
-    // std::unordered_map<Enode*, ibex::Ctc *> m_lit_ctc_map;
-    // std::unordered_set<Enode *> m_var_set;
-    // std::vector<Enode *> m_var_vec;  // unsigned int -> Enode* (Variable)
     bool m_need_init = true;
     std::vector<Enode *> m_lits;
     scoped_vec<constraint *>  m_stack;
@@ -93,6 +88,9 @@ private:
     std::vector<constraint *> initialize_constraints();
     std::vector<Enode *> generate_explanation(scoped_vec<constraint const *> const & ctr_vec);
     void handle_sat_case(box const & b) const;
+    void output_solution(box const & b, unsigned i = 0) const;
     void handle_deduction();
+    box icp_loop(box b, contractor const & ctc, SMTConfig & config) const;
+    box icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & config) const;
 };
 }  // namespace dreal

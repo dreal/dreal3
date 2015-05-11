@@ -279,7 +279,7 @@ void nra_solver::popBacktrackPoint() {
     m_stack.pop();
 }
 
-box icp_loop(box b, contractor const & ctc, SMTConfig & config) {
+box nra_solver::icp_loop(box b, contractor const & ctc, SMTConfig & config) const {
     vector<box> solns;
     stack<box> box_stack;
     box_stack.push(b);
@@ -312,26 +312,26 @@ box icp_loop(box b, contractor const & ctc, SMTConfig & config) {
                                          << "]" << endl;
                 }
             } else {
-                config.nra_found_soln++;
-                if (config.nra_multiple_soln > 1) {
-                    cerr << "Find " << config.nra_found_soln << "-th solution:" << endl;
-                    cerr << b << endl;
-                }
-                solns.push_back(b);
                 if (config.nra_found_soln >= config.nra_multiple_soln) {
                     break;
                 }
+                config.nra_found_soln++;
+                if (config.nra_multiple_soln > 1) {
+                    // If --multiple_soln is used
+                    output_solution(b, config.nra_found_soln);
+                }
+                solns.push_back(b);
             }
         }
     } while (box_stack.size() > 0);
-    if (solns.size() > 0) {
+    if (config.nra_multiple_soln > 1 && solns.size() > 0) {
         return solns.back();
     } else {
         return b;
     }
 }
 
-box icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & config) {
+box nra_solver::icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & config) const {
     static unsigned prune_count = 0;
     stack<box> box_stack;
     stack<int> bisect_var_stack;
@@ -390,10 +390,25 @@ box icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & config) {
     return b;
 }
 
+void nra_solver::output_solution(box const & b, unsigned i) const {
+    if (i > 0) {
+        cout << i << "-th ";
+    }
+    cout << "Solution:" << endl;
+    cout << b << endl;
+    if (!config.nra_model_out.is_open()) {
+        DREAL_LOG_FATAL << "open " << config.nra_model_out_name;
+        config.nra_model_out.open(config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
+        if (config.nra_model_out.fail()) {
+            cout << "Cannot create a file: " << config.nra_model_out_name << endl;
+            exit(1);
+        }
+    }
+    display(config.nra_model_out, b, false, true);
+}
+
 void nra_solver::handle_sat_case(box const & b) const {
     // SAT
-    DREAL_LOG_FATAL << "Solution:";
-    DREAL_LOG_FATAL << b;
     // --proof option
     if (config.nra_proof) {
         config.nra_proof_out.close();
@@ -401,13 +416,9 @@ void nra_solver::handle_sat_case(box const & b) const {
         display(config.nra_proof_out, b, !config.nra_readable_proof, true);
     }
     // --model option
-    if (config.nra_model) {
-        config.nra_model_out.open(config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
-        if (config.nra_model_out.fail()) {
-            cout << "Cannot create a file: " << config.nra_model_out_name << endl;
-            exit(1);
-        }
-        display(config.nra_model_out, b, false, true);
+    if (config.nra_model && config.nra_multiple_soln == 1) {
+        // Only output here when --multiple_soln is not used
+        output_solution(b);
     }
 #ifdef SUPPORT_ODE
     // --visualize option
@@ -464,15 +475,17 @@ bool nra_solver::check(bool complete) {
     if (m_stack.size() == 0) { return true; }
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")"
                    << "stack size = " << m_stack.size();
-    double const prec = config.nra_precision;
     m_ctc = build_contractor(m_box, m_stack, complete);
-    try {
-        m_box = m_ctc.prune(m_box, config);
-    } catch (contractor_exception & e) {
-        // Do nothing
-    }
-    if (!m_box.is_empty() && m_box.max_diam() > prec && complete) {
+    if (complete) {
+        // Complete Check ==> Run ICP
         m_box = icp_loop(m_box, m_ctc, config);
+    } else {
+        // Incomplete Check ==> Prune Only
+        try {
+            m_box = m_ctc.prune(m_box, config);
+        } catch (contractor_exception & e) {
+            // Do nothing
+        }
     }
     bool result = !m_box.is_empty();
     DREAL_LOG_INFO << "nra_solver::check: result = " << boolalpha << result;
