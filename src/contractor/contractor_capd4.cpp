@@ -422,13 +422,19 @@ bool filter(vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVec
     if (enclosures.empty()) {
         return false;
     } else {
-        T = enclosures.begin()->first;
-        X_t  = enclosures.begin()->second;
+        capd::interval all_T = enclosures.begin()->first;
+        capd::IVector all_X_t = enclosures.begin()->second;
         for (pair<capd::interval, capd::IVector> & item : enclosures) {
             capd::interval & dt = item.first;
             capd::IVector &  v  = item.second;
-            X_t  = intervalHull(X_t,  v);
-            T    = intervalHull(T, dt);
+            all_X_t = intervalHull(all_X_t,  v);
+            all_T = intervalHull(all_T, dt);
+        }
+        if (!intersection(T, all_T, T)) {
+            return false;
+        }
+        if (!intersection(X_t, all_X_t, X_t)) {
+            return false;
         }
         return true;
     }
@@ -512,8 +518,10 @@ box contractor_capd_fwd_full::prune(box b, SMTConfig &) const {
             update_box_with_ivector(b, ic.get_vars_t(), m_X_t);
             // TODO(soonhok): Here we still assume that time_0 = zero.
             b[ic.get_time_t()] = ibex::Interval(m_T.leftBound(), m_T.rightBound());
+            DREAL_LOG_DEBUG << "contractor_capd_fwd_full::prune: get non-empty set after filtering";
         } else {
             // UNSAT
+            DREAL_LOG_DEBUG << "contractor_capd_fwd_full::prune: get empty set after filtering";
             b.set_empty();
         }
         DREAL_LOG_INFO << "m_X_0 : " << m_X_0;
