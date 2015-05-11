@@ -114,7 +114,6 @@ SMTConfig::initializeConfig( )
   proof_certify_inter          = 0;
   // NRA-Solver Default configuration
   nra_precision                = 0.0;
-  nra_icp_improve              = 10.0;
   nra_verbose                  = false;
   nra_debug                    = false;
   nra_stat                     = false;

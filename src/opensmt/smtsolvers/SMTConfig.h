@@ -184,7 +184,6 @@ struct SMTConfig
   bool         nra_use_delta_heuristic;       // Split variable in constraint with max residual delta?
   bool         nra_short_sat;                 // Test theory if CNF is SAT, before have full model.
   double       nra_precision;                 // the value of delta
-  double       nra_icp_improve;               // improve value for realpaver(ICP)
   bool         nra_verbose;                   // --verbose option
   bool         nra_debug;                     // --debug option
   bool         nra_stat;                      // --stat option
