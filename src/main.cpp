@@ -27,7 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <csignal>
 #include <iostream>
-#include <gflags/gflags.h>
+#include <ezOptionParser/ezOptionParser.hpp>
 #include "util/git_sha1.h"
 #include "util/logging.h"
 
@@ -58,7 +58,7 @@ extern OpenSMTContext * parser_ctx;
  *                                                                           *
 \*****************************************************************************/
 
-int main( int argc, char * argv[] )
+int main( int argc, const char * argv[] )
 {
   START_EASYLOGGINGPP(argc, argv);
 
@@ -66,11 +66,6 @@ int main( int argc, char * argv[] )
   stringstream ss;
   ss << PACKAGE_VERSION
      << " (commit " << string(dreal::getGitSHA1()).substr(0, 12) << ")";
-  gflags::SetVersionString(ss.str());
-  gflags::SetUsageMessage(argv[0]);
-
-  // Parse cmd-line, it will update argc and argv
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   opensmt::stop = false;
   // Allocates Command Handler (since SMT-LIB 2.0)

@@ -20,7 +20,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "dsolvers/nra_solver.h"
-#include <gflags/gflags.h>
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -397,7 +396,6 @@ void nra_solver::output_solution(box const & b, unsigned i) const {
     cout << "Solution:" << endl;
     cout << b << endl;
     if (!config.nra_model_out.is_open()) {
-        DREAL_LOG_FATAL << "open " << config.nra_model_out_name;
         config.nra_model_out.open(config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
         if (config.nra_model_out.fail()) {
             cout << "Cannot create a file: " << config.nra_model_out_name << endl;

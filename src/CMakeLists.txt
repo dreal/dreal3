@@ -264,21 +264,6 @@ ExternalProject_Add(IBEX
 set(EXTRA_LIBS "ibex" ${EXTRA_LIBS})
 
 ################################################################
-# External: gflags (Google Flags)
-################################################################
-ExternalProject_Add(GFLAGS
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/gflags.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS} -fPIC -DNDEBUG -w" ${SHARED_LIB_CMAKE_COMMAND} -DBUILD_STATIC_LIBS=ON -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
-  BUILD_COMMAND make -j
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make install
-)
-set(EXTRA_LIBS "gflags" ${EXTRA_LIBS})
-
-################################################################
 # External: googletest (Google Test)
 ################################################################
 ExternalProject_Add(GTEST
@@ -304,6 +289,20 @@ ExternalProject_Add(EASYLOGGINGPP
   BUILD_COMMAND echo "nothing to build"
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/
+)
+
+################################################################
+# External: ezoptionparser
+################################################################
+ExternalProject_Add(EZOPTIONPARSER
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+  GIT_REPOSITORY https://github.com/dreal-deps/ezoptionparser.git
+  GIT_TAG origin/master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  CONFIGURE_COMMAND echo "nothing to configure"
+  BUILD_COMMAND make -j
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND mkdir ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install
 )
 
 ################################################################
@@ -403,7 +402,7 @@ endif()
 
 add_dependencies(dreal IBEX)
 add_dependencies(dreal EASYLOGGINGPP)
-add_dependencies(dreal GFLAGS)
+add_dependencies(dreal EZOPTIONPARSER)
 add_dependencies(dreal JSON)
 if(SUPPORT_ODE)
   add_dependencies(dreal CAPD4)

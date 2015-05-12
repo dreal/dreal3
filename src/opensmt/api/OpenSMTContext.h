@@ -31,7 +31,7 @@ public:
   // For scripts
   //
   OpenSMTContext( int    argc
-                , char * argv[ ] )
+                , const char * argv[ ] )
     : config_p     ( new SMTConfig( argc, argv ) )
     , config       ( *config_p )
     , sstore_p     ( new SStore( config ) )
