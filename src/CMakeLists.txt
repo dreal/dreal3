@@ -399,6 +399,7 @@ if(BUILD_SHARED_LIB)
 else()
   add_library(dreal ${DREAL_SRCS})
 endif()
+set_target_properties(dreal PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${DREAL_BINARY_DIR}/lib")
 
 add_dependencies(dreal IBEX)
 add_dependencies(dreal EASYLOGGINGPP)
@@ -473,8 +474,6 @@ endif()
 if(BUILD_SHARED_LIB)
   install(DIRECTORY "${DREAL_BINARY_DIR}/lib"
           DESTINATION ".")
-  install(FILES "${DREAL_BINARY_DIR}/libdreal.so"
-          DESTINATION "lib")
   install(FILES "${DREAL_SOURCE_DIR}/opensmt/api/opensmt_c.h"
           DESTINATION "include")
 endif()
