@@ -10,7 +10,7 @@ open Type
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
 %token AT LT LE GT GE IMPLY DDT CARET DP NOT ITE
 %token SIN COS TAN
-%token ASIN ACOS ATAN ATAN2 MATAN SAFESQRT
+%token ASIN ACOS ATAN ATAN2 MIN MAX MATAN SAFESQRT
 %token SINH COSH TANH
 %token LOG EXP SQRT ABS
 %token TRUE FALSE
@@ -127,4 +127,6 @@ exp:
  | COSH exp                     { Basic.Cosh $2 }
  | TANH exp                     { Basic.Tanh $2 }
  | ITE formula exp exp { Basic.Ite ($2, $3, $4) }
+ | MIN exp exp                  { Basic.Min ($2, $3) }
+ | MAX exp exp                  { Basic.Max ($2, $3) }
 ;

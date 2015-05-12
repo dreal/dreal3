@@ -13,10 +13,17 @@
     [("sin", SIN);
      ("cos", COS);
      ("tan", TAN);
+     ("asin", ASIN);
      ("arcsin", ASIN);
+     ("acos", ACOS);
      ("arccos", ACOS);
+     ("atan", ATAN);
      ("arctan", ATAN);
      ("arctan2", ATAN2);
+     ("atan2", ATAN2);
+     ("min", MIN);
+     ("max", MAX);
+     ("matan", MATAN);
      ("marctan", MATAN);
      ("safesqrt", SAFESQRT);
      ("sinh", SINH);

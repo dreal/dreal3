@@ -14,8 +14,15 @@
      ("cos", COS);
      ("tan", TAN);
      ("asin", ASIN);
+     ("arcsin", ASIN);
      ("acos", ACOS);
+     ("arccos", ACOS);
      ("atan", ATAN);
+     ("arctan", ATAN);
+     ("atan2", ATAN2);
+     ("arctan2", ATAN2);
+     ("min", MIN);
+     ("max", MAX);
      ("sinh", SINH);
      ("cosh", COSH);
      ("tanh", TANH);

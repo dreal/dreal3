@@ -35,6 +35,8 @@ type exp =
   | Asinh    of exp
   | Acosh    of exp
   | Atanh    of exp
+  | Min      of exp * exp
+  | Max      of exp * exp
   | Integral of float * string * string list * string (* (integral 0 time_1 [x_1_0 ... x_i_0] flow1) *)
  and formula =
    | True
@@ -85,7 +87,7 @@ and collect_vars_in_exp (e : exp) : var Set.t = match e with
   | Num _ -> Set.empty
   | Neg e' -> collect_vars_in_exp e'
   | Add es | Sub es | Mul es -> collect_vars_in_exps es
-  | Div (e1, e2) | Pow (e1, e2) | Atan2 (e1, e2) -> collect_vars_in_exps [e1;e2]
+  | Div (e1, e2) | Pow (e1, e2) | Atan2 (e1, e2) | Min (e1, e2) | Max (e1, e2) -> collect_vars_in_exps [e1;e2]
   | Ite (f, e1, e2) ->
      let s1 = collect_vars_in_formula f in
      let s2 = collect_vars_in_exps [e1; e2] in
@@ -155,6 +157,8 @@ let rec map_exp (fn_f: formula -> formula) (fn_e: exp -> exp) : (exp -> exp) =
          | Acosh e'         -> fn_e (Acosh    (map_exp fn_f fn_e e'))
          | Atanh e'         -> fn_e (Atanh    (map_exp fn_f fn_e e'))
          | Atan2 (e1, e2)   -> fn_e (Atan2    (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+         | Min   (e1, e2)   -> fn_e (Min      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
+         | Max   (e1, e2)   -> fn_e (Max      (map_exp fn_f fn_e e1, map_exp fn_f fn_e e2))
          | Matan e'         -> fn_e (Matan    (map_exp fn_f fn_e e'))
          | Sinh e'          -> fn_e (Sinh     (map_exp fn_f fn_e e'))
          | Cosh e'          -> fn_e (Cosh     (map_exp fn_f fn_e e'))
@@ -323,6 +327,8 @@ let rec deriv (e: exp) (x: string) : exp
                Pow (g, Num 2.0)])
 
   | Matan f -> raise DerivativeNotFound
+  | Min (f, g) -> raise DerivativeNotFound
+  | Max (f, g) -> raise DerivativeNotFound
 
   (** (sinh f)' = (e^f + e^(-f))/2 * f' **)
   | Sinh f ->
@@ -403,7 +409,7 @@ let rec count_mathfn_e =
   | Sqrt e | Abs e | Log e | Exp e | Sin e | Cos e | Tan e | Asin e
   | Acos e | Atan e | Sinh e | Cosh e | Tanh e | Asinh e | Acosh e
   | Safesqrt e | Matan e | Atanh e -> (count_mathfn_e e) + 1
-  | Atan2 (e1, e2) -> (count_mathfn_e e1) + (count_mathfn_e e2) + 1
+  | Atan2 (e1, e2) | Min (e1, e2) | Max (e1, e2) -> (count_mathfn_e e1) + (count_mathfn_e e2) + 1
   | Integral _ -> raise TODO
 
 and count_mathfn_f =
@@ -445,7 +451,7 @@ let rec count_arith_e =
   | Asin e | Acos e | Atan e | Sinh e | Cosh e | Tanh e
   | Asinh e | Acosh e | Atanh e | Matan e
   | Safesqrt e -> count_arith_e e
-  | Atan2 (e1, e2) -> (count_arith_e e1) + (count_arith_e e2)
+  | Atan2 (e1, e2) | Min (e1, e2) | Max (e1, e2) -> (count_arith_e e1) + (count_arith_e e2)
   | Integral _ -> raise TODO
 
 and count_arith_f =
@@ -513,8 +519,8 @@ and collect_var_in_e e : string Set.t =
      List.reduce Set.union  (List.map collect_var_in_e el)
   | Mul el ->
      List.reduce Set.union  (List.map collect_var_in_e el)
-  | Div (e1, e2) | Pow (e1, e2 ) | Atan2 (e1, e2) ->
-                                    Set.union (collect_var_in_e e1) (collect_var_in_e e2)
+  | Div (e1, e2) | Pow (e1, e2 ) | Atan2 (e1, e2) | Min (e1, e2) | Max (e1, e2) ->
+     Set.union (collect_var_in_e e1) (collect_var_in_e e2)
   | Ite (f, e1, e2) ->
      Set.union
        (collect_var_in_f f)
@@ -604,6 +610,8 @@ let rec print_exp out =
   | Acos e -> print_exps "arccos" [e]
   | Atan e -> print_exps "arctan" [e]
   | Atan2 (e1, e2) -> print_exps "arctan2" [e1; e2]
+  | Min (e1, e2) -> print_exps "min" [e1; e2]
+  | Max (e1, e2) -> print_exps "max" [e1; e2]
   | Sinh e -> print_exps "sinh" [e]
   | Cosh e -> print_exps "cosh" [e]
   | Tanh e -> print_exps "tanh" [e]
@@ -800,6 +808,8 @@ and print_infix_exp (out : 'a IO.output) : exp -> unit =
   | Acos e -> print_fncall "arccos" [e]
   | Atan e -> print_fncall "arctan" [e]
   | Atan2 (e1, e2) -> print_fncall "arctan2" [e1;e2]
+  | Min (e1, e2) -> print_fncall "min" [e1;e2]
+  | Max (e1, e2) -> print_fncall "max" [e1;e2]
   | Matan e -> print_fncall "marctan" [e]
   | Sinh e -> print_fncall "sinh" [e]
   | Cosh e -> print_fncall "cosh" [e]

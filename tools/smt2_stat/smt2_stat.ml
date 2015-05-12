@@ -56,11 +56,11 @@ let rec extract_nonlinear_func (smt2 : Smt2.t) : string Set.t =
     | Sub es           -> extract_nonlinear_func_from_es es
     | Mul es           -> extract_nonlinear_func_from_es es
     | Div (e1, e2)     -> extract_nonlinear_func_from_es [e1;e2]
-    | Pow (e1, e2)     -> 
-	let s = extract_nonlinear_func_from_es [e1;e2] in
+    | Pow (e1, e2)     ->
+        let s = extract_nonlinear_func_from_es [e1;e2] in
         if e2 = (Num 0.5) then
-	    Set.add "sqrt" s
-	else s
+            Set.add "sqrt" s
+        else s
     | Ite (f', e1, e2) ->
       Set.union
         (extract_nonlinear_func_from_f f')
@@ -80,6 +80,8 @@ let rec extract_nonlinear_func (smt2 : Smt2.t) : string Set.t =
     | Acosh e'         -> Set.add "acosh" (extract_nonlinear_func_from_e e')
     | Atanh e'         -> Set.add "atanh" (extract_nonlinear_func_from_e e')
     | Atan2 (e1, e2)   -> Set.add "atan2" (extract_nonlinear_func_from_es [e1;e2])
+    | Min   (e1, e2)   -> Set.add "min" (extract_nonlinear_func_from_es [e1;e2])
+    | Max   (e1, e2)   -> Set.add "max" (extract_nonlinear_func_from_es [e1;e2])
     | Matan e'         -> Set.add "matan" (extract_nonlinear_func_from_e e')
     | Sinh e'          -> Set.add "sinh" (extract_nonlinear_func_from_e e')
     | Cosh e'          -> Set.add "cosh" (extract_nonlinear_func_from_e e')
