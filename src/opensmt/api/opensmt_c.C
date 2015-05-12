@@ -25,7 +25,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "cnfizers/Tseitin.h"
 #include "smtsolvers/SimpSMTSolver.h"
 #include "version.h"
-#include <glog/logging.h>
+#include "util/logging.h"
 
 #ifndef SMTCOMP
 
@@ -34,12 +34,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
   OpenSMTContext * FROM_ = static_cast< OpenSMTContext * >( FROM ); \
   OpenSMTContext & TO = *FROM_;
 
-
 //
 // Communication APIs
 //
 void opensmt_init() {
-  google::InitGoogleLogging("");
 }
 
 void opensmt_set_verbosity( opensmt_context c, int v )

@@ -20,9 +20,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <glog/logging.h>
-#include <iosfwd>
+#define ELPP_CUSTOM_COUT std::cerr
+#include <easylogingpp/easylogging++.h>
 
+#include <iosfwd>
 #define DREAL_FATAL_LEVEL   0
 #define DREAL_ERROR_LEVEL   1
 #define DREAL_WARNING_LEVEL 2

@@ -27,9 +27,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <csignal>
 #include <iostream>
-#include <glog/logging.h>
 #include <gflags/gflags.h>
 #include "util/git_sha1.h"
+#include "util/logging.h"
 
 #if defined(__linux__)
 #include <fpu_control.h>
@@ -60,8 +60,7 @@ extern OpenSMTContext * parser_ctx;
 
 int main( int argc, char * argv[] )
 {
-  // Init Google Logging
-  google::InitGoogleLogging(argv[0]);
+  START_EASYLOGGINGPP(argc, argv);
 
   // Set up version, usage message
   stringstream ss;

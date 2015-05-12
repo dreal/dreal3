@@ -25,6 +25,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "version.h"
 
+INITIALIZE_EASYLOGGINGPP
+
 using std::string;
 
 DEFINE_double(precision,          0.0, "precision");
@@ -409,11 +411,20 @@ SMTConfig::parseCMDLine( int /* argc */
   if (nra_verbose || nra_debug) {
       verbosity = 10;
   }
-  FLAGS_log_prefix = 0;
-  FLAGS_logtostderr = 1;
-  if (nra_debug) { FLAGS_v = 4; }
-  else if (nra_verbose) { FLAGS_v = 3; }
-  else { FLAGS_v = 0; }
+
+  // EasyLogging
+  el::Configurations defaultConf;
+  defaultConf.setToDefault();
+  el::Loggers::reconfigureLogger("default", defaultConf);
+
+  el::Loggers::reconfigureAllLoggers(el::ConfigurationType::Format, "%msg");
+  if (nra_debug) {
+      el::Loggers::setVerboseLevel(DREAL_DEBUG_LEVEL);
+  } else if (nra_verbose) {
+      el::Loggers::setVerboseLevel(DREAL_INFO_LEVEL);
+  } else {
+      el::Loggers::setVerboseLevel(DREAL_ERROR_LEVEL);
+  }
 }
 
 void SMTConfig::printHelp( )

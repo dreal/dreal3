@@ -13,7 +13,7 @@ set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
 option(SUPPORT_ODE "Support ODE" ON)
-option(BUILD_STATIC_BIN  "Build static binary" OFF)
+option(BUILD_STATIC_BIN "Build static binary"  OFF)
 option(BUILD_SHARED_LIB "Build shared library" OFF)
 
 # Added for CTest
@@ -263,17 +263,6 @@ ExternalProject_Add(IBEX
 )
 set(EXTRA_LIBS "ibex" ${EXTRA_LIBS})
 
-# Libunwind
-find_package(Libunwind)
-if(LIBUNWIND_FOUND)
-  message(STATUS "libunwind found")
-  message(STATUS "lib: ${LIBUNWIND_LIBRARY}")
-  include_directories(${LIBUNWIND_INCLUDE_DIR})
-  set(EXTRA_LIBS ${LIBUNWIND_LIBRARY} ${EXTRA_LIBS})
-else()
-  message(STATUS "libunwind not found")
-endif()
-
 ################################################################
 # External: gflags (Google Flags)
 ################################################################
@@ -290,22 +279,6 @@ ExternalProject_Add(GFLAGS
 set(EXTRA_LIBS "gflags" ${EXTRA_LIBS})
 
 ################################################################
-# External: glog (Google Log)
-################################################################
-ExternalProject_Add(GLOG
-  DEPENDS GFLAGS
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/glog.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXX_FLAGS=-DNDEBUG ${EXTERNAL_CXX_FLAGS}" CFLAGS=-DNDEBUG "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --with-gflags=${CMAKE_CURRENT_BINARY_DIR}
-  BUILD_COMMAND make -j
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make install
-)
-set(EXTRA_LIBS "glog" ${EXTRA_LIBS})
-
-################################################################
 # External: googletest (Google Test)
 ################################################################
 ExternalProject_Add(GTEST
@@ -317,6 +290,20 @@ ExternalProject_Add(GTEST
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND make install
+)
+
+################################################################
+# External: Easylogging++
+################################################################
+ExternalProject_Add(EASYLOGGINGPP
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+  GIT_REPOSITORY https://github.com/dreal-deps/easyloggingpp.git
+  GIT_TAG origin/master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  CONFIGURE_COMMAND echo "nothing to configure"
+  BUILD_COMMAND echo "nothing to build"
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/
 )
 
 ################################################################
@@ -415,7 +402,7 @@ else()
 endif()
 
 add_dependencies(dreal IBEX)
-add_dependencies(dreal GLOG)
+add_dependencies(dreal EASYLOGGINGPP)
 add_dependencies(dreal GFLAGS)
 add_dependencies(dreal JSON)
 if(SUPPORT_ODE)
