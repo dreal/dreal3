@@ -70,36 +70,45 @@ public:
             throw std::logic_error("box::get_index(" + s + "): doesn not have the key " + s);
         }
     }
-    inline const ibex::Interval& operator[](int i) const {
-        assert(i >= 0 && i < static_cast<int>(size()));
-        return m_values[i];
-    }
-    inline ibex::Interval& operator[](int i) {
-        assert(i >= 0 && i < static_cast<int>(size()));
-        return m_values[i];
-    }
-    inline const ibex::Interval& operator[](std::string const & s) const {
+
+    // get_value
+    inline ibex::Interval & get_value(int i) { return m_values[i]; }
+    inline ibex::Interval const & get_value(int i) const { return m_values[i]; }
+    inline ibex::Interval & get_value(string const & s) {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
             return m_values[it->second];
         } else {
-            throw std::logic_error("Box[] (const): Box does not have a key " + s);
+            throw std::logic_error("get_value : Box does not have a key " + s);
         }
     }
-    inline ibex::Interval& operator[](std::string const & s) {
+    inline ibex::Interval const & get_value(string const & s) const {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
             return m_values[it->second];
         } else {
-            throw std::logic_error("Box[] : Box does not have a key " + s);
+            throw std::logic_error("get_value : Box does not have a key " + s);
         }
     }
-    inline const ibex::Interval& operator[](Enode * const e) const {
-        return operator[](e->getCar()->getName());
+    inline const ibex::Interval& get_value(Enode * const e) const {
+        return get_value(e->getCar()->getName());
     }
 
-    inline ibex::Interval& operator[](Enode * const e) {
-        return operator[](e->getCar()->getName());
+    inline ibex::Interval& get_value(Enode * const e) {
+        return get_value(e->getCar()->getName());
+    }
+        }
+    }
+    }
+
+    // operator[]
+    inline const ibex::Interval& operator[](int i) const { return get_value(i); }
+    inline ibex::Interval& operator[](int i) { return get_value(i); }
+    inline const ibex::Interval& operator[](std::string const & s) const { return get_value(s); }
+    inline ibex::Interval& operator[](std::string const & s) { return get_value(s); }
+    inline const ibex::Interval& operator[](Enode * const e) const { return get_value(e); }
+    inline ibex::Interval& operator[](Enode * const e) { return get_value(e); }
+
     }
 
     bool operator==(box const & b) const;
