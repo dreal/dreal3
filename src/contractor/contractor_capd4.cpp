@@ -472,6 +472,9 @@ box contractor_capd_fwd_full::prune(box b, SMTConfig &) const {
     DREAL_LOG_INFO << "contractor_capd_fwd_full::prune";
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
+    if (b.is_empty()) {
+        return b;
+    }
     if (!m_solver) {
         // Trivial Case where there are only params and no real ODE vars.
         return b;
@@ -660,6 +663,9 @@ box contractor_capd_bwd_full::prune(box b, SMTConfig &) const {
     DREAL_LOG_INFO << "contractor_capd_bwd_full::prune";
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
+    if (b.is_empty()) {
+        return b;
+    }
     if (!m_solver) {
         // Trivial Case where there are only params and no real ODE vars.
         return b;
