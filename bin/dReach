@@ -202,7 +202,7 @@ do
         echo SMT: ${SMT}
 
         #Solve
-        ${SOLVER} ${SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta --time_split_heuristic 2>&1 | tee $OUT
+        ${SOLVER} ${SOLVER_OPT} --short_sat --delta_heuristic --delta --time_split_heuristic $SMT 2>&1 | tee $OUT
         RESULT=`tail -n 1 $OUT`
         if [[ $RESULT == "sat" ]]
         then
@@ -233,7 +233,7 @@ do
                 echo SMT: ${SMT}, PATH : $P
                 if [ $Z_OPT == TRUE ];                                          # (edited: FS)
                 then                                                            #
-                    ${SOLVER} ${SOLVER_OPT} ${SMT} --short_sat 2>$ERR 1>$OUT    #
+                    ${SOLVER} ${SOLVER_OPT} --short_sat ${SMT} 2>$ERR 1>$OUT    #
                     if [ $? == 0 ];                                             #
                     then                                                        #
                         rm $ERR                                                 #
@@ -246,7 +246,7 @@ do
                         exit 1                                                  #
                     fi                                                          #
                 else
-                    ${SOLVER} ${SOLVER_OPT} ${SMT} --short_sat 2>&1 | tee $OUT
+                    ${SOLVER} ${SOLVER_OPT} --short_sat ${SMT} 2>&1 | tee $OUT
                 fi
                 RESULT=`tail -n 1 $OUT`
                 if [[ $RESULT == "sat" ]]
