@@ -474,6 +474,17 @@ SMTConfig::parseCMDLine( int argc
     opt.get("--sample")->getULong(nra_sample);
     opt.get("--multiple-soln")->getULong(nra_multiple_soln);
 
+    // Parse command-line options
+    if (argc > 1) {
+        filename = argv[argc - 1];
+        struct stat s;
+        if(stat(filename,&s) != 0 || !(s.st_mode & S_IFREG)) {
+            opensmt_error2( "can't open file:", filename );
+        }
+    } else {
+        filename = "output";
+    }
+
     if (nra_proof) {
         /* Open file stream */
         nra_proof_out_name = string(filename) + ".proof";

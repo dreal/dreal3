@@ -43,16 +43,6 @@ struct SMTConfig
     , docset   ( false )
   {
     initializeConfig( );
-    // Parse command-line options
-    if (argc > 1) {
-        filename = argv[argc - 1];
-        struct stat s;
-        if(stat(filename,&s) != 0 || !(s.st_mode & S_IFREG)) {
-            opensmt_error( "can't open file" );
-        }
-    } else {
-        filename = "output";
-    }
     parseCMDLine( argc, argv );
   }
   //
