@@ -109,6 +109,11 @@ public:
     inline const ibex::Interval& operator[](Enode * const e) const { return get_value(e); }
     inline ibex::Interval& operator[](Enode * const e) { return get_value(e); }
 
+    inline bool is_subset(box const & b) const {
+        return m_values.is_subset(b.m_values);
+    }
+    inline bool is_superset(box const & b) const {
+        return m_values.is_superset(b.m_values);
     }
 
     bool operator==(box const & b) const;
