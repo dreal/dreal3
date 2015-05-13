@@ -97,8 +97,32 @@ public:
     inline ibex::Interval& get_value(Enode * const e) {
         return get_value(e->getCar()->getName());
     }
+
+    // get_domain
+    inline ibex::Interval & get_domain(int i) { return m_domains[i]; }
+    inline ibex::Interval const & get_domain(int i) const { return m_domains[i]; }
+    inline ibex::Interval & get_domain(string const & s) {
+        auto const it = m_name_index_map.find(s);
+        if (m_name_index_map.find(s) != m_name_index_map.end()) {
+            return m_domains[it->second];
+        } else {
+            throw std::logic_error("get_domain : Box does not have a key " + s);
         }
     }
+    inline ibex::Interval const & get_domain(string const & s) const {
+        auto const it = m_name_index_map.find(s);
+        if (m_name_index_map.find(s) != m_name_index_map.end()) {
+            return m_domains[it->second];
+        } else {
+            throw std::logic_error("get_domain : Box does not have a key " + s);
+        }
+    }
+    inline const ibex::Interval& get_domain(Enode * const e) const {
+        return get_domain(e->getCar()->getName());
+    }
+
+    inline ibex::Interval& get_domain(Enode * const e) {
+        return get_domain(e->getCar()->getName());
     }
 
     // operator[]
