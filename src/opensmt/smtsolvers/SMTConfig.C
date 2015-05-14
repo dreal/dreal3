@@ -501,7 +501,6 @@ SMTConfig::parseCMDLine( int argc
         filename = *opt.lastArgs[0];
     }
     if (filename.length() > 0) {
-        cerr << "Open: " << filename << endl;
         struct stat s;
         if(stat(filename.c_str(),&s) != 0 || !(s.st_mode & S_IFREG)) {
             opensmt_error2( "can't open file:", filename );
