@@ -223,7 +223,7 @@ do
         if [[ -s ${PATH_FILE} ]] ; then
             while read P
             do
-                if [ -z ${P} ]; then
+                if [ -z "${P}" ]; then
                     continue;
                 fi
                 SMT=${BASE}_${K}_${PATH_NUM}.smt2
