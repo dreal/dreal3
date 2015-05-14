@@ -148,23 +148,30 @@ ostream& operator<<(ostream& out, box const & b) {
     return display(out, b);
 }
 
-tuple<int, box, box> box::bisect() const {
+tuple<int, box, box> box::bisect(double precision) const {
     // TODO(soonhok): implement other bisect policy
-    int index = 0;
+    int index = -1;
     double max_diam = numeric_limits<double>::min();
 
     for (int i = 0; i < m_values.size(); i++) {
         double current_diam = m_values[i].diam();
-        if (current_diam > max_diam && m_values[i].is_bisectable()) {
+        double ith_precision = m_precisions[i] == 0 ? precision : m_precisions[i];
+        if (current_diam > max_diam && current_diam > ith_precision && m_values[i].is_bisectable()) {
             index = i;
             max_diam = current_diam;
         }
     }
-    return bisect(index);
+
+    if (index == -1) {
+        // Fail to find a dimension to bisect
+        return make_tuple(-1, *this, *this);
+    } else {
+        return bisect_at(index);
+    }
 }
 
 // Bisect a box into two boxes by bisecting i-th interval.
-tuple<int, box, box> box::bisect(int i) const {
+tuple<int, box, box> box::bisect_at(int i) const {
     assert(0 <= i && i < m_values.size());
     box b1(*this);
     box b2(*this);

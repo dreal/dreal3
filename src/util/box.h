@@ -43,7 +43,7 @@ private:
     ibex::IntervalVector m_domains;
     std::vector<double>  m_precisions;
     std::unordered_map<std::string, int> m_name_index_map;
-
+    std::tuple<int, box, box> bisect_at(int i) const;
     void constructFromVariables(std::vector<Enode *> const & vars);
 
 public:
@@ -51,8 +51,7 @@ public:
     box(std::vector<Enode *> const & vars, ibex::IntervalVector ivec);
     void constructFromLiterals(std::vector<Enode *> const & lit_vec);
 
-    std::tuple<int, box, box> bisect() const;
-    std::tuple<int, box, box> bisect(int i) const;
+    std::tuple<int, box, box> bisect(double precision) const;
     vector<bool> diff_dims(box const & b) const;
     std::set<box> sample_points(unsigned const n) const;
     inline bool is_bisectable() const { return m_values.is_bisectable(); }
@@ -94,7 +93,6 @@ public:
     inline const ibex::Interval& get_value(Enode * const e) const {
         return get_value(e->getCar()->getName());
     }
-
     inline ibex::Interval& get_value(Enode * const e) {
         return get_value(e->getCar()->getName());
     }
@@ -121,7 +119,6 @@ public:
     inline const ibex::Interval& get_domain(Enode * const e) const {
         return get_domain(e->getCar()->getName());
     }
-
     inline ibex::Interval& get_domain(Enode * const e) {
         return get_domain(e->getCar()->getName());
     }
@@ -171,7 +168,6 @@ public:
 
     friend ostream& display(ostream& out, box const & b, bool const exact, bool const old_style);
     inline std::size_t hash() const {
-        // TODO(soonhok): possibly cache the hash value?
         std::size_t seed = 0;
         for (int i = 0; i < m_values.size(); i++) {
             seed ^= (size_t)(m_values[i].lb()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
