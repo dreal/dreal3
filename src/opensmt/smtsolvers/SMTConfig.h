@@ -98,7 +98,7 @@ struct SMTConfig
     }
   }
 
-  const char * filename;                     // Holds the name of the input filename
+  string       filename;                     // Holds the name of the input filename
   logic_t      logic;                        // SMT-Logic under consideration
   lbool        status;                       // Status of the benchmark
   int          incremental;                  // Incremental solving

@@ -334,6 +334,13 @@ void SMTConfig::printConfig ( ostream & out )
   out << "lra_check_on_assert "      << lra_check_on_assert << endl;
 }
 
+void printUsage(ez::ezOptionParser & opt) {
+    string usage;
+    opt.getUsage(usage, 160);
+    std::cout << usage;
+    exit(1);
+}
+
 void
 SMTConfig::parseCMDLine( int argc
                          , const char * argv [] ) {
@@ -346,7 +353,7 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "print out version information.",
             "--version");
-    opt.add("0.001", false, 1, 0,
+    opt.add("", false, 1, 0,
             "set precision (default 0.001)\n"
             "this overrides the value specified in input files",
             "--precision");
@@ -362,16 +369,16 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "short cut SAT solver assignments if SAT",
             "--short-sat", "--short_sat");
-    opt.add("0", false, 1, 0,
+    opt.add("", false, 1, 0,
             "manually specify the step size (positive double) in ODE solving (default: automatic control)",
             "--ode-step", "--ode_step");
-    opt.add("20", false, 1, 0,
+    opt.add("", false, 1, 0,
             "specify the maximum order that will be used in Taylor method ODE solving (Default: 20)",
             "--ode-order", "--ode_order");
-    opt.add("16", false, 1, 0,
+    opt.add("", false, 1, 0,
             "specify the number of grids that we use in ODE solving (default: 16)",
             "--ode-grid", "--ode_grid");
-    opt.add("0", false, 1, 0,
+    opt.add("", false, 1, 0,
             "specify the timeout (msec) to be used in single ODE solving step (default: +oo)",
             "--ode-timeout", "--ode_timeout");
     opt.add("", false, 0, 0,
@@ -407,13 +414,13 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "output solving stats",
             "--stat");
-    opt.add("0", false, 1, 0,
+    opt.add("", false, 1, 0,
             "number of samples to use for aggressive sampling",
             "--aggressive");
-    opt.add("0", false, 1, 0,
+    opt.add("", false, 1, 0,
             "number of samples to use for sound sampling",
             "--sample");
-    opt.add("1", false, 1, 0,
+    opt.add("", false, 1, 0,
             "maximum number of solutions to find",
             "--multiple-soln", "--multiple_soln", "--multiple-solution");
     opt.add("", false, 0, 0,
@@ -425,19 +432,18 @@ SMTConfig::parseCMDLine( int argc
     opt.overview += "v" + string(PACKAGE_VERSION);
     opt.overview += " (commit " + string(dreal::getGitSHA1()).substr(0, 12) + ")";
 
-    if (opt.isSet("-h")) {
-        // Usage Information
-        opt.overview += " : delta-complete SMT solver";
-        opt.syntax    = "dReal [OPTIONS] <input file>";
-        string usage;
-        opt.getUsage(usage, 160);
-        std::cout << usage;
-        exit(1);
-    }
     if (opt.isSet("--version")) {
         // Usage Information
         std::cout << opt.overview << endl;
         exit(0);
+    }
+
+    // Usage Information
+    opt.overview += " : delta-complete SMT solver";
+    opt.syntax    = "dReal [OPTIONS] <input file>";
+
+    if (opt.isSet("-h")) {
+        printUsage(opt);
     }
 
     // Extract Boolean Args
@@ -458,47 +464,71 @@ SMTConfig::parseCMDLine( int argc
     nra_polytope            = opt.isSet("--polytope");
 
     // Extract Double Args
-    if (opt.isSet("--precision")) {
-        opt.get("--precision")->getDouble(nra_precision);
-    }
-    opt.get("--ode-step")->getDouble(nra_ODE_step);
+    if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }
+    if (opt.isSet("--ode-step")) { opt.get("--ode-step")->getDouble(nra_ODE_step); }
 
     // Extract String Args
-    opt.get("--bmc-heuristic")->getString(nra_bmc_heuristic);
+    if (opt.isSet("--bmc-heuristic")) { opt.get("--bmc-heuristic")->getString(nra_bmc_heuristic); }
 
     // Extract ULong Args
-    opt.get("--ode-order")->getULong(nra_ODE_taylor_order);
-    opt.get("--ode-grid")->getULong(nra_ODE_grid_size);
-    opt.get("--ode-timeout")->getULong(nra_ODE_timeout);
-    opt.get("--aggressive")->getULong(nra_aggressive);
-    opt.get("--sample")->getULong(nra_sample);
-    opt.get("--multiple-soln")->getULong(nra_multiple_soln);
+    if (opt.isSet("--ode-order")) { opt.get("--ode-order")->getULong(nra_ODE_taylor_order); }
+    if (opt.isSet("--ode-grid")) { opt.get("--ode-grid")->getULong(nra_ODE_grid_size); }
+    if (opt.isSet("--ode-timeout")) { opt.get("--ode-timeout")->getULong(nra_ODE_timeout); }
+    if (opt.isSet("--aggressive")) { opt.get("--aggressive")->getULong(nra_aggressive); }
+    if (opt.isSet("--sample")) { opt.get("--sample")->getULong(nra_sample); }
+    if (opt.isSet("--multiple")) { opt.get("--multiple-soln")->getULong(nra_multiple_soln); }
 
-    // Parse command-line options
-    if (argc > 1) {
-        filename = argv[argc - 1];
+    std::vector<std::string> badOptions;
+    if(!opt.gotRequired(badOptions)) {
+        for (size_t i = 0; i < badOptions.size(); ++i)
+            std::cerr << "ERROR: Missing required option " << badOptions[i] << ".\n\n";
+        printUsage(opt);
+    }
+
+    if(!opt.gotExpected(badOptions)) {
+        for (size_t i = 0; i < badOptions.size(); ++i)
+            std::cerr << "ERROR: Got unexpected number of arguments for option " << badOptions[i] << ".\n\n";
+        printUsage(opt);
+    }
+
+    // Set up filename
+    filename = "";
+    if (opt.firstArgs.size() > 1) {
+        filename = *opt.firstArgs[1];
+    } else if (opt.unknownArgs.size() > 0) {
+        filename = *opt.unknownArgs[0];
+    } else if (opt.lastArgs.size() > 0) {
+        filename = *opt.lastArgs[0];
+    }
+    if (filename.length() > 0) {
+        cerr << "Open: " << filename << endl;
         struct stat s;
-        if(stat(filename,&s) != 0 || !(s.st_mode & S_IFREG)) {
+        if(stat(filename.c_str(),&s) != 0 || !(s.st_mode & S_IFREG)) {
             opensmt_error2( "can't open file:", filename );
         }
     } else {
         filename = "output";
     }
 
+    // --proof
     if (nra_proof) {
         /* Open file stream */
-        nra_proof_out_name = string(filename) + ".proof";
+        nra_proof_out_name = filename + ".proof";
         nra_proof_out.open (nra_proof_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
         if(nra_proof_out.fail()) {
             cout << "Cannot create a file: " << nra_proof_out_name << endl;
             exit( 1 );
         }
     }
+
+    // --model
     if (nra_model) {
-        nra_model_out_name = string(filename) + ".model";
+        nra_model_out_name = filename + ".model";
     }
+
+    // --visualize
     if (nra_json) {
-        nra_json_out_name = string(filename) + ".json";
+        nra_json_out_name = filename + ".json";
         /* Open file stream */
         nra_json_out.open (nra_json_out_name.c_str(), std::ofstream::out | std::ofstream::trunc );
         if(nra_json_out.fail()) {
@@ -506,14 +536,13 @@ SMTConfig::parseCMDLine( int argc
             exit( 1 );
         }
     }
+
+    // --verbose, --debug
     if (nra_verbose || nra_debug) {
         verbosity = 10;
     }
 
-    // EasyLogging
-    // el::Configurations defaultConf;
-    // defaultConf.setToDefault();
-    // el::Loggers::reconfigureLogger("default", defaultConf);
+    // logging
     el::Loggers::reconfigureAllLoggers(el::ConfigurationType::Format, "%msg");
     if (nra_debug) {
         el::Loggers::setVerboseLevel(DREAL_DEBUG_LEVEL);

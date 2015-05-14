@@ -75,15 +75,16 @@ int main( int argc, const char * argv[] )
   signal( SIGINT , opensmt::catcher );
   // Initialize pointer to context for parsing
   parser_ctx    = &context;
-  const char * filename = argv[ argc - 1 ];
+  const char * filename = context.getConfig().filename.c_str();
   assert( filename );
   // Accepts file from stdin if nothing specified
   FILE * fin = NULL;
   // Make sure file exists
-  if ( argc == 1 )
+  if ( context.getConfig().filename == "output" )
     fin = stdin;
-  else if ( (fin = fopen( filename, "rt" )) == NULL )
-    opensmt_error( "can't open file" );
+  else if ( (fin = fopen( filename, "rt" )) == NULL ) {
+    opensmt_error2( "can't open file", filename );
+  }
 
   // Parse
   // Parse according to filetype
