@@ -159,6 +159,10 @@ command: '(' TK_SETLOGIC symbol ')'
          {
             parser_ctx->DeclareFun( $3, $6 ); free( $3 );
           }
+       | '(' TK_DECLAREFUN symbol '(' ')' sort TK_LB spec_const TK_RB ')'
+         {
+             parser_ctx->DeclareFun( $3, $6, $8 ); free( $3 ); free ( $8 );
+         }
        | '(' TK_DECLARECONST symbol sort ')'
          {
             parser_ctx->DeclareFun( $3, $4 ); free( $3 );

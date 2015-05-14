@@ -411,7 +411,7 @@ private:
   double            val_ub = +std::numeric_limits<double>::infinity(); // enode upper bound (value)
   double            dom_lb = -std::numeric_limits<double>::infinity(); // enode lower bound (domain)
   double            dom_ub = +std::numeric_limits<double>::infinity(); // enode upper bound (domain)
-  double            precision;   //added for dReal2
+  double            precision = 0.0;   //added for dReal2
 
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
@@ -502,9 +502,7 @@ inline void Enode::setValueUpperBound ( const double v )
 
 inline void Enode::setPrecision ( const double v )
 {
-  assert( isTerm( ) );
-
-  if( isNot() )
+  if( isTerm() && isNot() )
   {
     //only set precision on the atom (not the literal)
     get1st()->setPrecision(v);

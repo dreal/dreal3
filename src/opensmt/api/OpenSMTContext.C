@@ -603,6 +603,20 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
   egraph.newSymbol( name, s );
 }
 
+void OpenSMTContext::DeclareFun( const char * name, Snode * s, const char * p )
+{
+  if ( config.verbosity > 1 )
+    cerr << "# OpenSMTContext::Declaring function "
+         << name
+         << " of sort "
+         << s
+         << " with precision = "
+         << p
+         << endl;
+  double const vval = strtod(p, nullptr);
+  egraph.newSymbol( name, s, vval );
+}
+
 void OpenSMTContext::DefineODE( char const * name, vector<pair<string, Enode *> *> * odes)
 {
     dreal::flow _flow;

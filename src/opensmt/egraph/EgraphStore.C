@@ -639,7 +639,7 @@ Enode * Egraph::mkFun( const char * name, Enode * args )
 //
 // Creates a new symbol. Name must be new
 //
-Enode * Egraph::newSymbol( const char * name, Snode * s )
+Enode * Egraph::newSymbol( const char * name, Snode * s , double p )
 {
   assert( s );
   assert( s->isTerm( ) );
@@ -659,6 +659,9 @@ Enode * Egraph::newSymbol( const char * name, Snode * s )
 
   insertSymbol( new_enode );
   assert( lookupSymbol( ss.str( ).c_str( ) ) == new_enode );
+  if (p != 0.0) {
+    new_enode->setPrecision(p);
+  }
   return new_enode;
 }
 
