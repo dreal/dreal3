@@ -21,6 +21,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define GLOBAL_H
 
 #include <cassert>
+#include <chrono>
 #include <cstring>
 #include <vector>
 #include <map>
@@ -48,7 +49,6 @@ using std::priority_queue;
 #include <algorithm>
 
 #include <sys/time.h>
-#include <sys/resource.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <limits.h>
@@ -170,11 +170,13 @@ typedef enum
 // NEW_THEORY_INIT
 } logic_t;
 
+extern std::chrono::time_point<std::chrono::high_resolution_clock> g_epoch_time;
+
 static inline double cpuTime(void)
 {
-    struct rusage ru;
-    getrusage(RUSAGE_SELF, &ru);
-    return (double)ru.ru_utime.tv_sec + (double)ru.ru_utime.tv_usec / 1000000;
+    auto now = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> diff = now - g_epoch_time;
+    return diff.count();
 }
 
 #if defined(__linux__)
