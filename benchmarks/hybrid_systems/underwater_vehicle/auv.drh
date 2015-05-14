@@ -21,7 +21,7 @@
 // which is commonly referred to as "actuator saturation". 
 //
 // Command from dReal/tools/ directory:
-// ./dReach -k 2 ../../../models/auv/auv.drh --verbose --visualize --precision=0.01
+// ./dReach -k 2 ../../../models/auv/auv.drh --verbose --visualize --precision 0.01
 
 // trim state and controls
 #define U0 1.43
