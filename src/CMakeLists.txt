@@ -231,16 +231,29 @@ endif()
 ################################################################
 # External: CLP
 ################################################################
-ExternalProject_Add(CLP
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
-  BUILD_COMMAND make -j
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make install
-)
+if(MINGW)
+  ExternalProject_Add(CLP
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
+    GIT_TAG origin/master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --build=x86_64-w64-mingw32 --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
+    BUILD_COMMAND make -j
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND make install
+    )
+else(MINGW)
+  ExternalProject_Add(CLP
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
+    GIT_TAG origin/master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
+    BUILD_COMMAND make -j
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND make install
+    )
+endif()
 set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "m" ${EXTRA_LIBS})
 
 ################################################################
