@@ -293,9 +293,9 @@ box nra_solver::icp_loop(box b, contractor const & ctc, SMTConfig & config) cons
             // Do nothing
         }
         if (!b.is_empty()) {
-            if (b.max_diam() > config.nra_precision) {
-                tuple<int, box, box> splits = b.bisect();
-                unsigned const i   = get<0>(splits);
+            tuple<int, box, box> splits = b.bisect(config.nra_precision);
+            int const i = get<0>(splits);
+            if (i >= 0) {
                 box const & first  = get<1>(splits);
                 box const & second = get<2>(splits);
                 if (second.is_bisectable()) {
@@ -352,9 +352,9 @@ box nra_solver::icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & c
         bisect_var_stack.pop();
         if (!b.is_empty()) {
             // SAT
-            if (b.max_diam() > config.nra_precision) {
-                tuple<int, box, box> splits = b.bisect();
-                unsigned const index = get<0>(splits);
+            tuple<int, box, box> splits = b.bisect(config.nra_precision);
+            int const index = get<0>(splits);
+            if (index >= 0) {
                 box const & first    = get<1>(splits);
                 box const & second   = get<2>(splits);
                 if (second.is_bisectable()) {
