@@ -50,15 +50,14 @@ using std::make_tuple;
 
 namespace dreal {
 box::box(std::vector<Enode *> const & vars)
-    : m_vars(vars), m_values(m_vars.size() == 0 ? 1 : m_vars.size()), m_domains(m_values.size()) {
+    : m_vars(vars), m_values(m_vars.size() == 0 ? 1 : m_vars.size()), m_domains(m_values.size()), m_precisions(m_values.size(), 0.0) {
     if (m_vars.size() > 0) {
         constructFromVariables(m_vars);
     }
 }
 
 box::box(std::vector<Enode *> const & vars, ibex::IntervalVector values)
-    : m_vars(vars), m_values(values), m_domains(values) { }
-
+    : m_vars(vars), m_values(values), m_domains(values), m_precisions(values.size(), 0.0) { }
 
 void box::constructFromVariables(vector<Enode *> const & vars) {
     DREAL_LOG_DEBUG << "box::constructFromVariables";
@@ -66,11 +65,15 @@ void box::constructFromVariables(vector<Enode *> const & vars) {
     // Construct ibex::IntervalVector
     m_values.resize(m_vars.size());
     m_domains.resize(m_vars.size());
+    m_precisions.resize(m_vars.size());
     unsigned num_var = m_vars.size();
     for (unsigned i = 0; i < num_var; i++) {
         Enode const * const e = m_vars[i];
         double const lb = e->getDomainLowerBound();
         double const ub = e->getDomainUpperBound();
+        if (e->hasPrecision()) {
+            m_precisions[i] = e->getPrecision();
+        }
         m_values[i] = ibex::Interval(lb, ub);
         m_domains[i] = ibex::Interval(lb, ub);
         m_name_index_map.emplace(e->getCar()->getName(), i);

@@ -41,6 +41,7 @@ private:
     std::vector<Enode *> m_vars;
     ibex::IntervalVector m_values;
     ibex::IntervalVector m_domains;
+    std::vector<double>  m_precisions;
     std::unordered_map<std::string, int> m_name_index_map;
 
     void constructFromVariables(std::vector<Enode *> const & vars);
@@ -123,6 +124,20 @@ public:
 
     inline ibex::Interval& get_domain(Enode * const e) {
         return get_domain(e->getCar()->getName());
+    }
+
+    // get_precision
+    inline double get_precision(int i) const { return m_precisions[i]; }
+    inline double get_precision(string const & s) const {
+        auto const it = m_name_index_map.find(s);
+        if (m_name_index_map.find(s) != m_name_index_map.end()) {
+            return m_precisions[it->second];
+        } else {
+            throw std::logic_error("get_precision : Box does not have a key " + s);
+        }
+    }
+    inline double get_precision(Enode * const e) {
+        return get_precision(e->getCar()->getName());
     }
 
     // operator[]
