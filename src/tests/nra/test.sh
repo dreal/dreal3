@@ -10,8 +10,8 @@ if [[ -e ${INSTANCE}.option ]]
 then
     OPTION=`cat ${INSTANCE}.option`
 fi
-echo $DREAL $OPTIONS $OPTION -- "$INSTANCE"
-$DREAL $OPTIONS $OPTION -- "$INSTANCE" | tee $TMP
+echo $DREAL $OPTIONS $OPTION "$INSTANCE"
+$DREAL $OPTIONS $OPTION "$INSTANCE" | tee $TMP
 diff $TMP $EXPECTED_OUT
 RESULT=$?
 rm $TMP
