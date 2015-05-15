@@ -70,6 +70,7 @@ contractor_seq::contractor_seq(contractor const & c1, std::vector<contractor> co
 }
 
 box contractor_seq::prune(box b, SMTConfig & config) const {
+    DREAL_LOG_DEBUG << "contractor_seq::prune";
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
     for (contractor const & c : m_vec) {
@@ -96,6 +97,7 @@ ostream & contractor_seq::display(ostream & out) const {
 contractor_try::contractor_try(contractor const & c)
     : contractor_cell(contractor_kind::TRY), m_c(c) { }
 box contractor_try::prune(box b, SMTConfig & config) const {
+    DREAL_LOG_DEBUG << "contractor_try::prune: ";
     try {
         b = m_c.prune(b, config);
     } catch (contractor_exception & e) {
@@ -118,6 +120,7 @@ ostream & contractor_try::display(ostream & out) const {
 contractor_try_or::contractor_try_or(contractor const & c1, contractor const & c2)
     : contractor_cell(contractor_kind::TRY_OR), m_c1(c1), m_c2(c2) { }
 box contractor_try_or::prune(box b, SMTConfig & config) const {
+    DREAL_LOG_DEBUG << "contractor_try_or::prune";
     try {
         b = m_c1.prune(b, config);
         m_input  = m_c1.input();
@@ -145,6 +148,7 @@ ostream & contractor_try_or::display(ostream & out) const {
 contractor_ite::contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else)
     : contractor_cell(contractor_kind::ITE), m_guard(guard), m_c_then(c_then), m_c_else(c_else) { }
 box contractor_ite::prune(box b, SMTConfig & config) const {
+    DREAL_LOG_DEBUG << "contractor_ite::prune";
     if (m_guard(b)) {
         b = m_c_then.prune(b, config);
         m_input  = m_c_then.input();
@@ -189,8 +193,10 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
 }
 
 box contractor_fixpoint::prune(box old_b, SMTConfig & config) const {
+    DREAL_LOG_DEBUG << "contractor_fix::prune -- begin";
     // TODO(soonhok): worklist_fixpoint still has a problem
     box const & naive_result = naive_fixpoint_alg(old_b, config);
+    DREAL_LOG_DEBUG << "contractor_fix::prune -- end";
     return naive_result;
     // box const & worklist_result = worklist_fixpoint_alg(old_b, config);
     // return worklist_result;
@@ -278,6 +284,7 @@ box contractor_fixpoint::worklist_fixpoint_alg(box old_box, SMTConfig & config) 
 
 contractor_int::contractor_int() : contractor_cell(contractor_kind::INT) { }
 box contractor_int::prune(box b, SMTConfig & config) const {
+    DREAL_LOG_DEBUG << "contractor_int::prune";
     // ======= Proof =======
     thread_local static box old_box(b);
     if (config.nra_proof) { old_box = b; }
@@ -323,6 +330,7 @@ contractor_eval::contractor_eval(box const & box, nonlinear_constraint const * c
 }
 
 box contractor_eval::prune(box b, SMTConfig & config) const {
+    DREAL_LOG_DEBUG << "contractor_eval::prune";
     pair<lbool, ibex::Interval> eval_result = m_nl_ctr->eval(b);
     if (eval_result.first == l_False) {
         // ======= Proof =======
@@ -357,6 +365,7 @@ contractor_cache::contractor_cache(contractor const & ctc)
 }
 
 box contractor_cache::prune(box b, SMTConfig & config) const {
+    DREAL_LOG_DEBUG << "contractor_cache::prune";
     // TODO(soonhok): implement this
     thread_local static unordered_map<box, box> cache;
     auto const it = cache.find(b);
@@ -416,6 +425,7 @@ contractor_aggressive::contractor_aggressive(unsigned const n, vector<constraint
 }
 
 box contractor_aggressive::prune(box b, SMTConfig &) const {
+    DREAL_LOG_DEBUG << "contractor_eval::aggressive";
     // Sample n points
     set<box> points = b.sample_points(m_num_samples);
     // ∃c. ∀p. eval(c, p) = false   ===>  UNSAT

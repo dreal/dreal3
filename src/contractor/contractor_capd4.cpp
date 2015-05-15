@@ -476,7 +476,7 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
 }
 
 box contractor_capd_fwd_full::prune(box b, SMTConfig &) const {
-    DREAL_LOG_INFO << "contractor_capd_fwd_full::prune";
+    DREAL_LOG_DEBUG << "contractor_capd_fwd_full::prune";
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
     if (b.is_empty()) {
@@ -667,7 +667,7 @@ contractor_capd_bwd_full::~contractor_capd_bwd_full() {
 }
 
 box contractor_capd_bwd_full::prune(box b, SMTConfig &) const {
-    DREAL_LOG_INFO << "contractor_capd_bwd_full::prune";
+    DREAL_LOG_DEBUG << "contractor_capd_bwd_full::prune";
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
     if (b.is_empty()) {
