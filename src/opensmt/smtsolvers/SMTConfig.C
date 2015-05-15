@@ -499,12 +499,16 @@ SMTConfig::parseCMDLine( int argc
 
     // Set up filename
     filename = "";
-    if (opt.firstArgs.size() > 1) {
-        filename = *opt.firstArgs[1];
-    } else if (opt.unknownArgs.size() > 0) {
-        filename = *opt.unknownArgs[0];
-    } else if (opt.lastArgs.size() > 0) {
-        filename = *opt.lastArgs[0];
+    std::vector<std::string*> args;
+    copy(opt.firstArgs.begin() + 1, opt.firstArgs.end(),   back_inserter(args));
+    copy(opt.unknownArgs.begin(),   opt.unknownArgs.end(), back_inserter(args));
+    copy(opt.lastArgs.begin(),      opt.lastArgs.end(),    back_inserter(args));
+    if (args.size() > 0) {
+        filename = *args[0];
+        if (args.size() > 1) {
+            cerr << "Error: wrong argument " << *args[1] << ".\n\n";
+            printUsage(opt);
+        }
     }
     if (filename.length() > 0) {
         struct stat s;
