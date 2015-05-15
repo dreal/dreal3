@@ -390,7 +390,15 @@ bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTi
         // TODO(soonhok): check invariant
         // if (!check_invariant(v, m_inv)) {
         DREAL_LOG_INFO << "compute_enclosures:" << dt << "\t" << v;
-        if (add_all || (T.leftBound() <= prevTime + subsetOfDomain.rightBound())) {
+        if (add_all || (T.leftBound() <= prevTime + subsetOfDomain.leftBound())
+            || (T.leftBound() < prevTime + subsetOfDomain.rightBound())) {
+            //           [       T         ]
+            // --------------------------------
+            // 1.  [  O   ]
+            // 2.         [   O   ]
+            // 3.   [   O   ]
+            // 4.  [  X  ]
+            // 5. [  X ]
             enclosures.emplace_back(dt, v);
         }
     }
