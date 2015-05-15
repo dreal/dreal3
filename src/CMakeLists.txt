@@ -278,17 +278,17 @@ ExternalProject_Add(IBEX
 set(EXTRA_LIBS "ibex" ${EXTRA_LIBS})
 
 ################################################################
-# External: googletest (Google Test)
+# External: Catch (testing framework)
 ################################################################
-ExternalProject_Add(GTEST
+ExternalProject_Add(CATCH
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/googletest.git
+  GIT_REPOSITORY https://github.com/dreal-deps/Catch.git
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
-  CONFIGURE_COMMAND cmake -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} "-DCMAKE_CXX_FLAGS=${EXTERNAL_CXX_FLAGS} -w" -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} ./
-  BUILD_COMMAND make -j
+  CONFIGURE_COMMAND echo "nothing to configure"
+  BUILD_COMMAND echo "nothing to build"
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make install
+  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/
 )
 
 ################################################################

@@ -1,7 +1,5 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-        Sicun Gao <sicung@cs.cmu.edu>
-        Edmund Clarke <emc@cs.cmu.edu>
 
 dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
 
@@ -20,19 +18,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <iostream>
-#include "gtest/gtest.h"
 #include "opensmt/egraph/Enode.h"
+#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
+#include "catch/catch.hpp"
 
 using std::cerr;
 using std::endl;
 
 namespace dreal {
-TEST(sample_points, 1) {
+TEST_CASE("sample_points", "sample_points") {
 }
 }  // namespace dreal
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    cerr << "hi" << endl;
-    return RUN_ALL_TESTS();
-}
