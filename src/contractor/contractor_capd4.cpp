@@ -291,7 +291,6 @@ capd::IVector extract_ivector(box const & b, std::vector<Enode *> const & vars) 
 }
 
 void update_box_with_ivector(box & b, std::vector<Enode *> const & vars, capd::IVector iv) {
-    DREAL_LOG_INFO << "update_box_with_ivector: [before update]";
     capd::IVector intvs(vars.size());
     for (unsigned i = 0; i < vars.size(); i++) {
         b[vars[i]] = ibex::Interval(iv[i].leftBound(), iv[i].rightBound());
