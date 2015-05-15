@@ -56,15 +56,20 @@ list<capd::interval> split(capd::interval const & i, unsigned n) {
     list<capd::interval> ret;
     double lb = i.leftBound();
     double const rb = i.rightBound();
-    double const width = rb - lb;
-    double const step = width / n;
-    for (unsigned i = 0; (lb <= rb) && (i < n - 1); i++) {
-        ret.emplace_back(lb, min(lb + step, rb));
-        assert(lb <= min(lb + step, rb));
-        lb += step;
-    }
     if (lb < rb) {
-        ret.emplace_back(lb, rb);
+        double const width = rb - lb;
+        double const step = width / n;
+        for (unsigned i = 0; (lb <= rb) && (i < n - 1); i++) {
+            ret.emplace_back(lb, min(lb + step, rb));
+            assert(lb <= min(lb + step, rb));
+            lb += step;
+        }
+        if (lb < rb) {
+            ret.emplace_back(lb, rb);
+        }
+    } else {
+        // lb == rb
+        ret.push_back(i);
     }
     return ret;
 }
