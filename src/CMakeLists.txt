@@ -12,7 +12,8 @@ set(BUG_REPORT_URL "${PACKAGE_BUGREPORT}" CACHE STRING "Default URL where bug re
 set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
-option(SUPPORT_ODE "Support ODE" ON)
+option(SUPPORT_ODE      "Support ODE" ON)
+option(LOGGING          "Enable Logging" ON)
 option(BUILD_STATIC_BIN "Build static binary"  OFF)
 option(BUILD_SHARED_LIB "Build shared library" OFF)
 

@@ -1,2 +1,3 @@
 #pragma once
 #cmakedefine SUPPORT_ODE
+#cmakedefine LOGGING

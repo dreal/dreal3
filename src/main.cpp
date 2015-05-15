@@ -60,8 +60,9 @@ extern OpenSMTContext * parser_ctx;
 
 int main( int argc, const char * argv[] )
 {
+#ifdef LOGGING
   START_EASYLOGGINGPP(argc, argv);
-
+#endif
   // Set up version, usage message
   stringstream ss;
   ss << PACKAGE_VERSION

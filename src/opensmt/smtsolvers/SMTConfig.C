@@ -26,7 +26,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "util/git_sha1.h"
 #include "version.h"
 
+#ifdef LOGGING
 INITIALIZE_EASYLOGGINGPP
+#endif
 
 using std::string;
 
@@ -405,12 +407,14 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "output visualization file (.json)",
             "--visualize", "--vis");
+#ifdef LOGGING
     opt.add("", false, 0, 0,
             "output debugging messages",
             "--debug");
     opt.add("", false, 0, 0,
             "output info messages",
-            "--info");
+            "--verbose");
+#endif
     opt.add("", false, 0, 0,
             "output solving stats",
             "--stat");
@@ -458,8 +462,10 @@ SMTConfig::parseCMDLine( int argc
     nra_proof               = nra_readable_proof || opt.isSet("--proof");
     nra_model               = opt.isSet("--model");
     nra_json                = opt.isSet("--visualize");
+#ifdef LOGGING
     nra_verbose             = opt.isSet("--verbose") || opt.isSet("--debug");
     nra_debug               = opt.isSet("--debug");
+#endif
     nra_stat                = opt.isSet("--stat");
     nra_polytope            = opt.isSet("--polytope");
 
@@ -536,6 +542,7 @@ SMTConfig::parseCMDLine( int argc
         }
     }
 
+#ifdef LOGGING
     // --verbose, --debug
     if (nra_verbose || nra_debug) {
         verbosity = 10;
@@ -550,4 +557,5 @@ SMTConfig::parseCMDLine( int argc
     } else {
         el::Loggers::setVerboseLevel(DREAL_ERROR_LEVEL);
     }
+    #endif
 }
