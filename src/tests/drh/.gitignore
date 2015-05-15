@@ -1,0 +1,4 @@
+*.smt2
+*.output
+*.preprocessed.drh
+*.paths

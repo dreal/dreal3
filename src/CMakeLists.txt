@@ -438,6 +438,7 @@ add_subdirectory(tests/ibex)
 if(SUPPORT_ODE)
   add_subdirectory(tests/capd4)
   add_subdirectory(tests/nra_ode)
+  add_subdirectory(tests/drh)
 endif()
 
 # Include style check

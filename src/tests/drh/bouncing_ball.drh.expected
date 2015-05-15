@@ -1,0 +1,22 @@
+dReal Options:
+For k = 0, dReach tried 0 feasible paths, all of them are unsat.
+SMT: bouncing_ball_1_0.smt2, PATH : [1,2]
+delta-sat with delta = 0.00100000000000000
+For k = 1, dReach tried 1 feasible paths, all of them are unsat.
+For k = 2, dReach tried 0 feasible paths, all of them are unsat.
+SMT: bouncing_ball_3_0.smt2, PATH : [1,2,1,2]
+delta-sat with delta = 0.00100000000000000
+For k = 3, dReach tried 1 feasible paths, all of them are unsat.
+For k = 4, dReach tried 0 feasible paths, all of them are unsat.
+SMT: bouncing_ball_5_0.smt2, PATH : [1,2,1,2,1,2]
+delta-sat with delta = 0.00100000000000000
+For k = 5, dReach tried 1 feasible paths, all of them are unsat.
+For k = 6, dReach tried 0 feasible paths, all of them are unsat.
+SMT: bouncing_ball_7_0.smt2, PATH : [1,2,1,2,1,2,1,2]
+delta-sat with delta = 0.00100000000000000
+For k = 7, dReach tried 1 feasible paths, all of them are unsat.
+For k = 8, dReach tried 0 feasible paths, all of them are unsat.
+SMT: bouncing_ball_9_0.smt2, PATH : [1,2,1,2,1,2,1,2,1,2]
+delta-sat with delta = 0.00100000000000000
+For k = 9, dReach tried 1 feasible paths, all of them are unsat.
+For k = 10, dReach tried 0 feasible paths, all of them are unsat.
