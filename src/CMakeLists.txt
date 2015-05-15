@@ -314,7 +314,7 @@ ExternalProject_Add(EZOPTIONPARSER
   GIT_TAG origin/master
   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
   CONFIGURE_COMMAND echo "nothing to configure"
-  BUILD_COMMAND make -j
+  BUILD_COMMAND echo "nothing to build"
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install
 )
