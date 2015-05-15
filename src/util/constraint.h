@@ -61,7 +61,6 @@ std::ostream & operator<<(ostream & out, constraint const & c);
 
 class nonlinear_constraint : public constraint {
 private:
-    Enode * const m_enode;
     ibex::ExprCtr const * m_exprctr;
     ibex::NumConstraint const * m_numctr;
     ibex::NumConstraint const * m_numctr_ineq;

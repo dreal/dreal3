@@ -107,7 +107,7 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // Nonlinear constraint
 // ====================================================
 nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p)
-    : constraint(constraint_type::Nonlinear, e), m_enode(e), m_exprctr(nullptr), m_numctr(nullptr), m_numctr_ineq(nullptr) {
+    : constraint(constraint_type::Nonlinear, e), m_exprctr(nullptr), m_numctr(nullptr), m_numctr_ineq(nullptr) {
     unordered_map<string, ibex::Variable const> var_map;
     bool is_ineq = (p == l_False && e->isEq());
     p = is_ineq ? true : p;
