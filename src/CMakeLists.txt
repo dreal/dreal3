@@ -316,7 +316,7 @@ ExternalProject_Add(EZOPTIONPARSER
   CONFIGURE_COMMAND echo "nothing to configure"
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND mkdir ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install
+  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install
 )
 
 ################################################################
