@@ -202,13 +202,16 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
 #ifdef SUPPORT_ODE
         } else if (ctr->get_type() == constraint_type::ODE) {
             // TODO(soonhok): add heuristics to choose fwd/bwd
-            // TODO(soonhok): perform ODE only for complete check
-            ode_ctcs.emplace_back(
-                mk_contractor_try(
-                    mk_contractor_capd_fwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size)));
-            ode_ctcs.emplace_back(
-                mk_contractor_try(
-                    mk_contractor_capd_bwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size)));
+            if (complete) {
+                ode_ctcs.emplace_back(
+                    mk_contractor_try(
+                        mk_contractor_capd_fwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size)));
+                if (!config.nra_ODE_forward_only) {
+                    ode_ctcs.emplace_back(
+                        mk_contractor_try(
+                            mk_contractor_capd_bwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size)));
+                }
+            }
 #endif
         }
     }
@@ -243,7 +246,11 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         }
         return true;
     };
-    return mk_contractor_fixpoint(term_cond, nl_ctcs, ode_ctcs, nl_eval_ctcs);
+    if (complete && ode_ctcs.size() > 0) {
+        return mk_contractor_fixpoint(term_cond, nl_ctcs, ode_ctcs, nl_eval_ctcs);
+    } else {
+        return mk_contractor_fixpoint(term_cond, nl_ctcs, nl_eval_ctcs);
+    }
 }
 
 // Saves a backtrack point You are supposed to keep track of the
