@@ -1,1 +1,1 @@
---precision 0.001 --ode_grid 1024 --ode_cache --visualize
+--precision 0.001 --ode_cache --visualize
