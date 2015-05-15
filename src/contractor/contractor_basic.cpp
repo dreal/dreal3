@@ -58,6 +58,17 @@ std::ostream & operator<<(std::ostream & out, contractor_cell const & c) {
 
 contractor_seq::contractor_seq(initializer_list<contractor> const & l)
     : contractor_cell(contractor_kind::SEQ), m_vec(l) { }
+
+contractor_seq::contractor_seq(contractor const & c, std::vector<contractor> const & v)
+    : contractor_cell(contractor_kind::SEQ), m_vec(1, c) {
+    copy(v.begin(), v.end(), back_inserter(m_vec));
+}
+contractor_seq::contractor_seq(contractor const & c1, std::vector<contractor> const & v, contractor const & c2)
+    : contractor_cell(contractor_kind::SEQ), m_vec(1, c1) {
+    copy(v.begin(), v.end(), back_inserter(m_vec));
+    m_vec.push_back(c2);
+}
+
 box contractor_seq::prune(box b, SMTConfig & config) const {
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
@@ -440,6 +451,12 @@ ostream & contractor_aggressive::display(ostream & out) const {
 
 contractor mk_contractor_seq(initializer_list<contractor> const & l) {
     return contractor(make_shared<contractor_seq>(l));
+}
+contractor mk_contractor_seq(contractor const & c, vector<contractor> const & v) {
+    return contractor(make_shared<contractor_seq>(c, v));
+}
+contractor mk_contractor_seq(contractor const & c1, vector<contractor> const & v, contractor const & c2) {
+    return contractor(make_shared<contractor_seq>(c1, v, c2));
 }
 contractor mk_contractor_try(contractor const & c) {
     return contractor(make_shared<contractor_try>(c));
