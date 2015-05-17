@@ -50,6 +50,8 @@ extern bool stop;
 // extern int  cnfparse           ( );
 extern int  smt2set_in         ( FILE * );
 extern int  smt2parse          ( );
+extern int  smt2lex_destroy    ( );
+
 extern OpenSMTContext * parser_ctx;
 
 /*****************************************************************************\
@@ -120,7 +122,7 @@ int main( int argc, const char * argv[] )
       opensmt_error2( extension, " extension not recognized. Please use one in { smt2, cnf } or stdin (smtlib2 is assumed)" );
     }
   }
-
+  smt2lex_destroy();
   fclose( fin );
 
 #ifndef SMTCOMP
