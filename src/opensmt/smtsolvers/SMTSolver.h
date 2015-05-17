@@ -36,7 +36,8 @@ class SMTSolver
 public:
 
   SMTSolver ( Egraph & e, SMTConfig & c )
-    : egraph( e )
+    : theory_handler(nullptr)
+    , egraph( e )
     , config( c )
   { }
 
