@@ -18,7 +18,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <iostream>
+#include <vector>
+#include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/egraph/Enode.h"
+#include "opensmt/egraph/Egraph.h"
+#include "util/box.h"
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"
 
@@ -26,6 +30,23 @@ using std::cerr;
 using std::endl;
 
 namespace dreal {
-TEST_CASE("sample_points", "sample_points") {
+
+TEST_CASE("Create a box") {
+    auto context = OpenSMTContext();
+    Snode * real_sort = context.mkSortReal();
+    context.DeclareFun("x", real_sort);
+    context.DeclareFun("y", real_sort);
+    context.DeclareFun("z", real_sort);
+
+    auto x = context.mkVar("x");
+    auto y = context.mkVar("y");
+    auto z = context.mkVar("z");
+    x->setDomainLowerBound(3);
+    x->setDomainUpperBound(5);
+    vector<Enode *> vars {x, y, z};
+    box b1(vars);
+    cerr << b1 << endl;
+    REQUIRE(b1[x].lb() == 3);
+    REQUIRE(b1[x].ub() == 5);
 }
 }  // namespace dreal
