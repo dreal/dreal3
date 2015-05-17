@@ -49,6 +49,9 @@ struct SMTConfig
   // For API
   //
   SMTConfig ( )
+    : produce_stats ( false )
+    , rocset ( false )
+    , docset ( false )
   {
     initializeConfig( );
   }
