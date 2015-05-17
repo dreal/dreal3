@@ -487,7 +487,7 @@ void Enode::printSig( ostream & os )
 
 string Enode::stripName( string s ) const
 {
-  return s.substr( 0, s.find( ' ', 0 ) );
+  return s.substr( 0, s.find( " ", 0 ) );
 }
 
 unordered_set<Enode *> Enode::get_vars() {
