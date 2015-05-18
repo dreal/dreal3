@@ -384,7 +384,6 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
     let openq = BatHeap.insert openempty (SearchNode.make (0.0, init_mode_id))  in
     let closed = BatSet.empty in
     let init_costs = (get_costs openq closed initcosts h) true in
-   
     (*
     let () = print_endline "init Costs:" in
     let () = Costmap.print_id h IO.stdout init_costs in

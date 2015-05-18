@@ -23,6 +23,6 @@ type flows_annot = (string * ode list)  (** step, mode, ode **)
 (*val compile : Hybrid.t -> int -> string list option -> Smt2.t
 val compile_pruned : Hybrid.t -> int -> Costmap.t -> Costmap.t -> Relevantvariables.t list option -> Smt2.t
 val pathgen : Hybrid.t -> int -> (string list) list*)
-val compile : Network.t -> int -> Network.comppath option -> bool -> bool -> Smt2.t
+val compile : Network.t -> int -> Network.comppath option -> bool -> bool -> (Costmap.t list option) -> Smt2.t
 (*val compile_pruned : Network.t -> int -> Costmap.t -> Costmap.t -> Relevantvariables.t list option -> Smt2.t
 val pathgen : Network.t -> int -> Network.comppath list*)
