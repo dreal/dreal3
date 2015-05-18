@@ -101,7 +101,7 @@ let run () =
       let hout = open_out (Option.get !bmc_heuristic) in
       let () = Heuristic.writeHeuristic heuristic hm !k hout in
       let () = close_out hout in
-      let smt = Bmc.compile hm !k None false false (Some heuristic) in
+      let smt = Bmc.compile hm !k None false None in
       Smt2.print out smt
     else if Option.is_some !bmc_heuristic_prune then
       let heuristic = Heuristic.heuristicgen hm !k in
@@ -110,7 +110,7 @@ let run () =
       let () = Heuristic.writeHeuristic heuristic hm !k hout in
       let () = close_out hout in
       (*	let smt = Bmc.compile_pruned hm !k heuristic heuristic_back None in *)
-      let smt = Bmc.compile hm !k None false true (Some heuristic) in
+      let smt = Bmc.compile hm !k None false (Some heuristic) in
       Smt2.print out smt
     else if Option.is_some !bmc_heuristic_prune_deep then
       let heuristic = Heuristic.heuristicgen hm !k in
@@ -120,10 +120,10 @@ let run () =
       let () = Heuristic.writeHeuristic heuristic hm !k hout in
       let () = close_out hout in
       (*	let smt = Bmc.compile_pruned hm !k heuristic heuristic_back (Some rel_back) in *)
-      let smt = Bmc.compile hm !k None false true (Some heuristic) in
+      let smt = Bmc.compile hm !k None false (Some heuristic) in
       Smt2.print out smt
     else 
-      let smt = Bmc.compile hm !k None false false None in
+      let smt = Bmc.compile hm !k None false None in
       Smt2.print out smt
 	       with v -> Error.handle_exn v
 let _ = Printexc.catch run ()
