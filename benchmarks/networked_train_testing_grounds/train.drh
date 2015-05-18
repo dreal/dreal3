@@ -125,5 +125,5 @@ analyze:
 	(train0 || gate0 || controller0);
 	
 goal:
-	(@train0.near, @gate0.open, @controller0.dodown): (and (x <= 1000) (x >= 0) (y >= 0));
+	(@train0.near, @gate0.closed, @controller0.idle): true;
 //	(): (and (x));

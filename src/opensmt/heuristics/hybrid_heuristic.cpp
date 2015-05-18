@@ -263,6 +263,10 @@ void hybrid_heuristic::inform(Enode * e){
     }
 
     DREAL_LOG_DEBUG << "hybrid_heuristic::backtrack()";
+
+    if( m_stack_lim.size() < (unsigned long)trail_lim->size())
+      return;
+
     for(auto a : m_suggestions){
       delete a;
     }
@@ -273,10 +277,12 @@ void hybrid_heuristic::inform(Enode * e){
     displayTrail();
     displayStack();
 
-    int bt_point = (trail_lim->size() ==  0 ? 0 : (m_stack_lim.size() == (unsigned long)trail_lim->size() ? m_stack.size() : m_stack_lim[trail_lim->size()]-1));
-    DREAL_LOG_DEBUG << "level = " << trail_lim->size() << " pt = " << bt_point;
 
-    while(m_stack_lim.size() != (unsigned long)trail_lim->size()) m_stack_lim.pop_back();
+    
+    int bt_point = (trail_lim->size() ==  0 ? 0 : (m_stack_lim.size() == (unsigned long)trail_lim->size() ? m_stack.size() : m_stack_lim[trail_lim->size()]-1));
+    DREAL_LOG_DEBUG << "stack size = " << m_stack_lim.size() << " level = " << trail_lim->size() << " pt = " << bt_point;
+
+    while(m_stack_lim.size() > (unsigned long)trail_lim->size()) m_stack_lim.pop_back();
 
     for (int i = m_stack.size(); i > bt_point; i--){
       std::pair<Enode *, bool> *s = m_stack.back();
