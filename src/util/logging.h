@@ -25,6 +25,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #ifdef LOGGING
 
 #define ELPP_CUSTOM_COUT std::cerr
+#define ELPP_NO_DEFAULT_LOG_FILE
 #include <easylogingpp/easylogging++.h>
 #include <iosfwd>
 

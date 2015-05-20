@@ -554,6 +554,7 @@ SMTConfig::parseCMDLine( int argc
 
     // logging
     el::Loggers::reconfigureAllLoggers(el::ConfigurationType::Format, "%msg");
+    el::Loggers::reconfigureAllLoggers(el::ConfigurationType::ToFile, "false");
     if (nra_debug) {
         el::Loggers::setVerboseLevel(DREAL_DEBUG_LEVEL);
     } else if (nra_verbose) {
