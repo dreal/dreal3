@@ -187,13 +187,13 @@ JOIN("${DREAL_EXTRA_LINKER_FLAGS}" "," EXTERNAL_LD_FLAGS)
 ExternalProject_Add(FILIB
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/dreal-deps/filibxx.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  GIT_TAG master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
   CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
   BUILD_COMMAND make -j
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make -j install
-)
+  INSTALL_COMMAND make -j install)
 set(EXTRA_LIBS "prim" ${EXTRA_LIBS})
 
 if(SUPPORT_ODE)
@@ -205,13 +205,13 @@ if(SUPPORT_ODE)
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/soonhokong/capd4.git
     #dreal-deps/capdDynSys-4.0.git
-    GIT_TAG origin/master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+           COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=no ${SHARED_LIB_CONFIG_COMMAND}
     BUILD_COMMAND make -j
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make -j install
-    )
+    INSTALL_COMMAND make -j install)
 
   ################################################################
   # External: CAPD-DynSys-3.0
@@ -219,8 +219,9 @@ if(SUPPORT_ODE)
   # ExternalProject_Add(CAPD3
   #   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   #   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
-  #   GIT_TAG origin/master
-  #   UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  #   GIT_TAG master
+  #   UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+  #          COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
   #   CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
   #   BUILD_COMMAND make -j
   #   BUILD_IN_SOURCE 1
@@ -236,24 +237,24 @@ if(MINGW)
   ExternalProject_Add(CLP
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
-    GIT_TAG origin/master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+           COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
     CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --build=x86_64-w64-mingw32 --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
     BUILD_COMMAND make -j
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make install
-    )
+    INSTALL_COMMAND make install)
 else(MINGW)
   ExternalProject_Add(CLP
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
-    GIT_TAG origin/master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+           COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
     CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
     BUILD_COMMAND make -j
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make install
-    )
+    INSTALL_COMMAND make install)
 endif()
 set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "m" ${EXTRA_LIBS})
 
@@ -268,13 +269,13 @@ ExternalProject_Add(IBEX
   DEPENDS CLP FILIB
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/dreal-deps/ibex-lib.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  GIT_TAG master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
   CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE} ${SHARED_LIB_IBEX_COMMAND}
   BUILD_COMMAND ./waf build
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND ./waf install
-)
+  INSTALL_COMMAND ./waf install)
 set(EXTRA_LIBS "ibex" ${EXTRA_LIBS})
 
 ################################################################
@@ -283,13 +284,13 @@ set(EXTRA_LIBS "ibex" ${EXTRA_LIBS})
 ExternalProject_Add(CATCH
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/dreal-deps/Catch.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  GIT_TAG master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
   CONFIGURE_COMMAND echo "nothing to configure"
   BUILD_COMMAND echo "nothing to build"
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/
-)
+  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/)
 
 ################################################################
 # External: Easylogging++
@@ -297,13 +298,13 @@ ExternalProject_Add(CATCH
 ExternalProject_Add(EASYLOGGINGPP
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/dreal-deps/easyloggingpp.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  GIT_TAG master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
   CONFIGURE_COMMAND echo "nothing to configure"
   BUILD_COMMAND echo "nothing to build"
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/
-)
+  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/)
 
 ################################################################
 # External: ezoptionparser
@@ -311,13 +312,13 @@ ExternalProject_Add(EASYLOGGINGPP
 ExternalProject_Add(EZOPTIONPARSER
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/dreal-deps/ezoptionparser.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  GIT_TAG master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
   CONFIGURE_COMMAND echo "nothing to configure"
   BUILD_COMMAND echo "nothing to build"
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install
-)
+  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install)
 
 ################################################################
 # External: json
@@ -325,13 +326,13 @@ ExternalProject_Add(EZOPTIONPARSER
 ExternalProject_Add(JSON
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
   GIT_REPOSITORY https://github.com/dreal-deps/json.git
-  GIT_TAG origin/master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} pull -s recursive -X theirs origin master
+  GIT_TAG master
+  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
   CONFIGURE_COMMAND echo "nothing to configure"
   BUILD_COMMAND echo "nothing to build"
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/
-)
+  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/)
 
 ################################################################
 # Threads
