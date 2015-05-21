@@ -15,8 +15,7 @@
 
 [0, 1] k;
 [100, 200] h;
-[0, 1] c1;
-[0, 1] c2;
+[0, 1] c;
 
 
 [0, 1] tau;
@@ -26,13 +25,12 @@
   invt: (tau >= 0);
         (tau <= 1);
   flow:
-        d/dt[x1] = k * (h - ((1 - c1) * x1 + c2 * x2));
+        d/dt[x1] = k * (h - ((1 - c) * x1 + c * x2));
         d/dt[x2] = 0;
         d/dt[k] = 0;
         d/dt[h1] = 0;
-        d/dt[c1] = 0;
         d/dt[h2] = 0;
-        d/dt[c2] = 0;		
+        d/dt[c] = 0;		
         d/dt[tau]  = 1;
   jump:
         () : (and (tau = 1) (x1 <= gT)) ==> @on (tau' = 0);
@@ -44,13 +42,12 @@
   invt: (tau >= 0);
         (tau <= 1);
   flow:
-        d/dt[x1] = -k * ((1 - c1) * x1 + c2 * x2);
+        d/dt[x1] = -k * ((1 - c) * x1 + c * x2);
         d/dt[x2] = 0;
         d/dt[k] = 0;
         d/dt[h1] = 0;
-        d/dt[c1] = 0;
         d/dt[h2] = 0;
-        d/dt[c2] = 0;		
+        d/dt[c] = 0;		
         d/dt[tau]  = 1;
   jump:
         () : (and (tau = 1) (x1 <= gT)) ==> @on (tau' = 0);
@@ -61,10 +58,10 @@
 
 
 analyze:
- t1 = thermostat2[[x1/x1,x2/x2,k/k1,h/h1,c1/c1,c2/c2], @on  (and (x1 >= gT - 1) (x1 <= gT + 1) (x2 >= gT - 1) (x2 <= gT + 1) (tau = 0) (k1 = K1) (h1 = H1) (h2 = H2) (c1 = C) (c2 = C))];
- t2 = thermostat2[[x1/x2,x2/x1,k/k2,h/h2,c1/c2,c2/c1], @on  (and (x1 >= gT - 1) (x1 <= gT + 1) (x2 >= gT - 1) (x2 <= gT + 1) (tau = 0) (k2 = K2) (h1 = H1) (h2 = H2) (c1 = C) (c2 = C))];
+ t1 = thermostat2[[x1/x1,x2/x2,k/k1,h/h1,c/c], @on  (and (x1 >= gT - 1) (x1 <= gT + 1) (x2 >= gT - 1) (x2 <= gT + 1) (tau = 0) (k1 = K1) (h1 = H1) (h2 = H2) (c = C) )];
+ t2 = thermostat2[[x1/x2,x2/x1,k/k2,h/h2,c/c], @on  (and (x1 >= gT - 1) (x1 <= gT + 1) (x2 >= gT - 1) (x2 <= gT + 1) (tau = 0) (k2 = K2) (h1 = H1) (h2 = H2) (c = C) )];
  (t1 || t2);
 
 goal:
-	() : (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)));
+	() : (and (or (x1 < gT - 1) (x1 > gT + 1)) (or (x2 < gT - 1) (x2 > gT + 1)));
 
