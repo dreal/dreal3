@@ -109,6 +109,35 @@ ostream& display(ostream& out, ibex::Interval const & iv, bool const exact) {
     return out;
 }
 
+ostream& display_diff(ostream& out, box const & b1, box const & b2) {
+    if (b1 == b2) {
+        return out;
+    }
+    std::streamsize ss = out.precision();
+    out.precision(16);
+    assert(b1.size() == b2.size());
+    unsigned const s = b1.size();
+    for (unsigned i = 0; i < s; i++) {
+        Enode * e1 = b1.m_vars[i];
+        Enode * e2 = b1.m_vars[i];
+        assert(e1 == e2);
+        ibex::Interval const & v1 = b1.m_values[i];
+        ibex::Interval const & d1 = b1.m_domains[i];
+        ibex::Interval const & v2 = b2.m_values[i];
+        ibex::Interval const & d2 = b2.m_domains[i];
+        assert(d1 == d2);
+        if (v1 != v2) {
+            out << e1->getCar()->getName()
+                << " : ";
+            display(out, v1, false);
+            out << " => ";
+            display(out, v2, false);
+        }
+        out << endl;
+    }
+    out.precision(ss);
+    return out;
+}
 
 ostream& display(ostream& out, box const & b, bool const exact, bool const old_style) {
     std::streamsize ss = out.precision();

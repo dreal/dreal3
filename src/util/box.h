@@ -166,6 +166,7 @@ public:
     double max_diam() const;
     inline double volume() const { return m_values.volume(); }
 
+    friend ostream& display_diff(ostream& out, box const & b1, box const & b2);
     friend ostream& display(ostream& out, box const & b, bool const exact, bool const old_style);
     inline std::size_t hash() const {
         std::size_t seed = 0;
@@ -184,6 +185,7 @@ bool operator>(ibex::Interval const & a, ibex::Interval const & b);
 bool operator<=(ibex::Interval const & a, ibex::Interval const & b);
 bool operator>=(ibex::Interval const & a, ibex::Interval const & b);
 
+ostream& display_diff(ostream& out, box const & b1, box const & b2);
 ostream& display(ostream& out, box const & b, bool const exact = false, bool const old_style = false);
 std::ostream& operator<<(ostream& out, box const & b);
 }  // namespace dreal
