@@ -26,12 +26,15 @@ using ibex::NumConstraint;
 using ibex::CtcFwdBwd;
 using ibex::IntervalVector;
 using ibex::Interval;
+using ibex::ExprSymbol;
 using std::cout;
 using std::endl;
 
 int main() {
     // z = atan2(y, x)
-    Variable x, y, z;
+    const ExprSymbol& x=ExprSymbol::new_();
+    const ExprSymbol& y=ExprSymbol::new_();
+    const ExprSymbol& z=ExprSymbol::new_();
     Function f(y, x, z, z - atan2(y, x));
     NumConstraint c(f);
     CtcFwdBwd ctc(c);
