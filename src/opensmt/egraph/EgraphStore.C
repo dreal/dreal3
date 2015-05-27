@@ -1038,7 +1038,7 @@ Enode * Egraph::mkPlus( Enode * args )
   //
   // Simplify constants
   //
-  if ( x->isConstant( ) && y->isConstant( ) && args->getArity( ) == 2 )
+  if ( config.nra_simp && x->isConstant( ) && y->isConstant( ) && args->getArity( ) == 2 )
   {
     const double xval = x->getValue( );
     const double yval = y->getValue( );
@@ -1101,32 +1101,34 @@ Enode * Egraph::mkTimes( Enode * args )
   }
 
   Enode * res = NULL;
-  double const zero_ = 0;
-  Enode * zero = mkNum( zero_ );
+  if (config.nra_simp) {
+      double const zero_ = 0;
+      Enode * zero = mkNum( zero_ );
 
-  // Check whether it contains zero or not
-  bool contain_zero = false;
-  for (Enode const * head = args; !head->isEnil(); head = head->getCdr()) {
-      Enode const * const arg = head->getCar();
-      if (arg->isConstant() && arg->getValue() == 0.0) {
-          contain_zero = true;
-          break;
+      // Check whether it contains zero or not
+      bool contain_zero = false;
+      for (Enode const * head = args; !head->isEnil(); head = head->getCdr()) {
+          Enode const * const arg = head->getCar();
+          if (arg->isConstant() && arg->getValue() == 0.0) {
+              contain_zero = true;
+              break;
+          }
       }
-  }
-  if (contain_zero) {
-      res = zero;
-  } else if (args->getArity() == 2) {
-      Enode * x = args->getCar( );
-      Enode * y = args->getCdr( )->getCar( );
-      if ( x->isConstant( ) && y->isConstant( ) ) {
-          // Simplify constants
-          const double xval = x->getValue( );
-          const double yval = y->getValue( );
-          double times = xval * yval;
-          res = mkNum( times );
-      }
-      else if ( x == y ) {
-          return mkPow( cons(x, cons(mkNum(2.0)) ) );
+      if (contain_zero) {
+          res = zero;
+      } else if (args->getArity() == 2) {
+          Enode * x = args->getCar( );
+          Enode * y = args->getCdr( )->getCar( );
+          if ( x->isConstant( ) && y->isConstant( ) ) {
+              // Simplify constants
+              const double xval = x->getValue( );
+              const double yval = y->getValue( );
+              double times = xval * yval;
+              res = mkNum( times );
+          }
+          else if ( x == y ) {
+              return mkPow( cons(x, cons(mkNum(2.0)) ) );
+          }
       }
   }
   if (!res) {
@@ -1154,26 +1156,26 @@ Enode * Egraph::mkDiv( Enode * args )
   if ( y == zero )
     opensmt_error2( "explicit division by zero in formula", "" );
 
-  //
-  // 0 * x --> 0
-  //
-  if ( x == zero )
-  {
-    res = zero;
+  if (config.nra_simp) {
+      //
+      // 0 * x --> 0
+      //
+      if ( x == zero )
+          {
+              res = zero;
+          }
+      //
+      // Simplify constants
+      //
+      else if ( x->isConstant( ) && y->isConstant( ) ) {
+          const double xval = x->getValue( );
+          const double yval = y->getValue( );
+          double div = xval / yval;
+          res = mkNum( div );
+      }
   }
-  //
-  // Simplify constants
-  //
-  else if ( x->isConstant( ) && y->isConstant( ) )
-  {
-    const double xval = x->getValue( );
-    const double yval = y->getValue( );
-    double div = xval / yval;
-    res = mkNum( div );
-  }
-  else
-  {
-    res = cons( id_to_enode[ ENODE_ID_DIV ], args );
+  if (!res) {
+      res = cons( id_to_enode[ ENODE_ID_DIV ], args );
   }
 
   assert( res );

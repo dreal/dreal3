@@ -202,6 +202,7 @@ struct SMTConfig
   unsigned long nra_multiple_soln;             // maximum number of solutions to find
   unsigned long nra_found_soln;                // number of solutions found so far
   bool         nra_polytope;                  // use polytope contractor in IBEX
+  bool         nra_simp;                      // use simplification in preprocessing
 
 private:
 

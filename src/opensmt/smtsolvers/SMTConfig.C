@@ -118,6 +118,7 @@ SMTConfig::initializeConfig( )
   nra_multiple_soln            = 1;
   nra_found_soln               = 0;
   nra_polytope                 = false;
+  nra_simp                     = true;
 }
 
 void SMTConfig::parseConfig ( char * f )
@@ -430,6 +431,12 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "use polytope contractor in IBEX",
             "--polytope");
+    opt.add("", false, 0, 0,
+            "use simplification in preprocessing",
+            "--simp");
+    opt.add("", false, 0, 0,
+            "do not use simplification in preprocessing",
+            "--no-simp");
 
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
@@ -468,6 +475,7 @@ SMTConfig::parseCMDLine( int argc
 #endif
     nra_stat                = opt.isSet("--stat");
     nra_polytope            = opt.isSet("--polytope");
+    nra_simp                = !opt.isSet("--no-simp");
 
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }
