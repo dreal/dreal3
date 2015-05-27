@@ -480,7 +480,7 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
     }
 }
 
-box contractor_capd_fwd_full::prune(box b, SMTConfig &) const {
+box contractor_capd_fwd_full::prune(box b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_capd_fwd_full::prune";
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
@@ -494,6 +494,9 @@ box contractor_capd_fwd_full::prune(box b, SMTConfig &) const {
     set_params(*m_vectorField, b, ic);
 
     try {
+        if (config.nra_ODE_step > 0) {
+            m_solver->setStep(config.nra_ODE_step);
+        }
         capd::IVector  m_X_0 = extract_ivector(b, ic.get_vars_0());
         capd::IVector  m_X_t = extract_ivector(b, ic.get_vars_t());
         ibex::Interval const & ibex_T = b[ic.get_time_t()];
@@ -566,7 +569,7 @@ unsigned int extract_step(string const & name) {
     return stoi(step_part, nullptr);
 }
 
-json contractor_capd_fwd_full::generate_trace(box b, SMTConfig &) const {
+json contractor_capd_fwd_full::generate_trace(box b, SMTConfig & config) const {
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
     if (!m_solver) {
@@ -575,6 +578,9 @@ json contractor_capd_fwd_full::generate_trace(box b, SMTConfig &) const {
     }
     set_params(*m_vectorField, b, ic);
     try {
+        if (config.nra_ODE_step > 0) {
+            m_solver->setStep(config.nra_ODE_step);
+        }
         capd::IVector  m_X_0 = extract_ivector(b, ic.get_vars_0());
         capd::IVector  m_X_t = extract_ivector(b, ic.get_vars_t());
         ibex::Interval const & ibex_T = b[ic.get_time_t()];
@@ -671,7 +677,7 @@ contractor_capd_bwd_full::~contractor_capd_bwd_full() {
     delete m_vectorField;
 }
 
-box contractor_capd_bwd_full::prune(box b, SMTConfig &) const {
+box contractor_capd_bwd_full::prune(box b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_capd_bwd_full::prune";
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
@@ -685,6 +691,9 @@ box contractor_capd_bwd_full::prune(box b, SMTConfig &) const {
     set_params(*m_vectorField, b, ic);
 
     try {
+        if (config.nra_ODE_step > 0) {
+            m_solver->setStep(config.nra_ODE_step);
+        }
         capd::IVector  m_X_0 = extract_ivector(b, ic.get_vars_0());
         capd::IVector  m_X_t = extract_ivector(b, ic.get_vars_t());
         ibex::Interval const & ibex_T = b[ic.get_time_t()];
