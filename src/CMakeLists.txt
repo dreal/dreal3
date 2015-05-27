@@ -494,3 +494,41 @@ if(BUILD_SHARED_LIB)
   install(FILES "${DREAL_SOURCE_DIR}/opensmt/api/opensmt_c.h"
           DESTINATION "include")
 endif()
+
+add_custom_target(update_pkgs
+  COMMAND echo "Update External Packages"
+  DEPENDS update_clp update_filib update_ibex update_capd update_catch
+  update_easyloggingpp update_ezoptionparser update_json)
+
+add_custom_target(update_clp
+  COMMAND git fetch --all && git reset --hard origin/master && make install -j
+  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CLP)
+
+add_custom_target(update_filib
+  COMMAND git fetch --all && git reset --hard origin/master && make install -j
+  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/FILIB)
+
+add_custom_target(update_ibex
+  COMMAND git fetch --all && git reset --hard origin/master && ./waf install
+  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/IBEX
+  DEPENDS update_filib update_clp)
+
+add_custom_target(update_capd
+  COMMAND git fetch --all && git reset --hard origin/master && make install -j
+  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CAPD4)
+
+add_custom_target(update_catch
+  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/
+  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CATCH)
+
+add_custom_target(update_easyloggingpp
+  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/
+  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/EASYLOGGINGPP)
+
+add_custom_target(update_ezoptionparser
+  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install
+  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/EZOPTIONPARSER)
+
+add_custom_target(update_json
+  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/
+  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/JSON)
