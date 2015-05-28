@@ -108,11 +108,11 @@ script:
 after_script:
   - cd build
   - if [[ $TESTCOV == OFF && $CTEST == ON ]]; then
-      ctest -D ExperimentalTest -L normal --timeout 250 -VV;
+      ctest -D ExperimentalTest -L normal --timeout 250 -VV -j 2;
     fi
   - export PATH=/usr/bin:$PATH
   - if [[ $REPO == BLESSED && $TESTCOV == ON ]]; then
-      ctest -D ExperimentalTest -L normal --timeout 250 -VV;
+      ctest -D ExperimentalTest -L normal --timeout 250 -VV -j 2;
       ctest -D ExperimentalCoverage -L normal;
       travis_wait make cov;
       npm install coveralls --save;
