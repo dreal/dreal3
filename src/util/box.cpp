@@ -119,8 +119,7 @@ ostream& display_diff(ostream& out, box const & b1, box const & b2) {
     unsigned const s = b1.size();
     for (unsigned i = 0; i < s; i++) {
         Enode * e1 = b1.m_vars[i];
-        Enode * e2 = b1.m_vars[i];
-        assert(e1 == e2);
+        assert(e1 == b2.m_vars[i]);
         ibex::Interval const & v1 = b1.m_values[i];
         ibex::Interval const & d1 = b1.m_domains[i];
         ibex::Interval const & v2 = b2.m_values[i];
