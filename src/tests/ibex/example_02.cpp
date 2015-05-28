@@ -19,6 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 // Related issue: https://github.com/ibex-team/ibex-lib/issues/145
 
+#include <algorithm>
 #include <iostream>
 #include "ibex/ibex.h"
 
@@ -50,7 +51,7 @@ int main() {
     IntervalVector box(3);
     box[0] = Interval(-10, 10);
     box[1] = Interval(-10, 10);
-    box[2] = Interval( -1,  1);
+    box[2] = Interval(-1, 1);
 
     cout << "Before contract: " << box << endl;
     cout << box << endl;

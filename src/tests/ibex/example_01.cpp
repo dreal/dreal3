@@ -32,9 +32,9 @@ using std::endl;
 
 int main() {
     // z = atan2(y, x)
-    const ExprSymbol& x=ExprSymbol::new_();
-    const ExprSymbol& y=ExprSymbol::new_();
-    const ExprSymbol& z=ExprSymbol::new_();
+    const ExprSymbol& x = ExprSymbol::new_();
+    const ExprSymbol& y = ExprSymbol::new_();
+    const ExprSymbol& z = ExprSymbol::new_();
     Function f(y, x, z, z - atan2(y, x));
     NumConstraint c(f);
     CtcFwdBwd ctc(c);
