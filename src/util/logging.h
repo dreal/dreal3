@@ -26,6 +26,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #define ELPP_CUSTOM_COUT std::cerr
 #define ELPP_NO_DEFAULT_LOG_FILE
+#define ELPP_DISABLE_DEFAULT_CRASH_HANDLING
 #include <easylogingpp/easylogging++.h>
 #include <iosfwd>
 
