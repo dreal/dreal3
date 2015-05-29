@@ -85,7 +85,7 @@ public:
         assert(m_ptr);
     }
     // contractor(contractor && c) : m_id(c.m_id), m_ptr(std::move(c.m_ptr)) {}
-    ~contractor() { m_ptr.reset(); }
+    // ~contractor() { }
 
     inline ibex::BitSet input() const { return m_ptr->input(); }
     inline ibex::BitSet output() const { return m_ptr->output(); }
