@@ -62,8 +62,9 @@ nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, S
 }
 
 nra_solver::~nra_solver() {
-    for (auto it_ctr : m_ctrs) {
-        delete it_ctr;
+    DREAL_LOG_INFO << "~nra_solver(): m_ctrs.size() = " << m_ctrs.size();
+    for (auto ctr : m_ctrs) {
+        delete ctr;
     }
     if (config.nra_stat) {
         cout << m_stat << endl;
@@ -84,14 +85,6 @@ lbool nra_solver::inform(Enode * e) {
 // state will be checked with "check" assertLit adds a literal(e) to
 // stack of asserted literals.
 bool nra_solver::assertLit(Enode * e, bool reason) {
-    if (config.nra_stat) { m_stat.increase_assert(); }
-
-    if (m_need_init) {
-        m_box.constructFromLiterals(m_lits);
-        m_ctrs = initialize_constraints();
-        m_need_init = false;
-    }
-
     DREAL_LOG_INFO << "nra_solver::assertLit: " << e
                    << ", reason: " << boolalpha << reason
                    << ", polarity: " << e->getPolarity().toInt()
@@ -100,6 +93,15 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
                    << ", getIndex: " << e->getDedIndex()
                    << ", level: " << m_stack.size()
                    << ", ded.size = " << deductions.size();
+
+    if (config.nra_stat) { m_stat.increase_assert(); }
+
+    if (m_need_init) {
+        m_box.constructFromLiterals(m_lits);
+        m_ctrs = initialize_constraints();
+        m_need_init = false;
+    }
+
     (void)reason;
     assert(e);
     assert(belongsToT(e));
@@ -140,14 +142,26 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
             invs.push_back(fc);
         } else {
             // Collect Nonlinear constraints.
-            nonlinear_constraint * nc_pos = new nonlinear_constraint(l, l_True);
-            nonlinear_constraint * nc_neg = new nonlinear_constraint(l, l_False);
-            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (+): " << *nc_pos;
-            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (-): " << *nc_neg;
-            ctrs.push_back(nc_pos);
-            ctrs.push_back(nc_neg);
-            m_ctr_map.emplace(make_pair(l, true),  nc_pos);
-            m_ctr_map.emplace(make_pair(l, false), nc_neg);
+            auto it_nc_pos = m_ctr_map.find(make_pair(l, true));
+            auto it_nc_neg = m_ctr_map.find(make_pair(l, false));
+            if (it_nc_pos == m_ctr_map.end()) {
+                nonlinear_constraint * nc_pos = new nonlinear_constraint(l, l_True);
+                DREAL_LOG_ERROR << "nra_solver::initialize_constraints: collect NonlinearConstraint (+): " << *nc_pos;
+                ctrs.push_back(nc_pos);
+                m_ctr_map.emplace(make_pair(l, true),  nc_pos);
+            } else {
+                DREAL_LOG_ERROR << "Skip " << *it_nc_pos->second;
+                ctrs.push_back(it_nc_pos->second);
+            }
+            if (it_nc_neg == m_ctr_map.end()) {
+                nonlinear_constraint * nc_neg = new nonlinear_constraint(l, l_False);
+                DREAL_LOG_ERROR << "nra_solver::initialize_constraints: collect NonlinearConstraint (-): " << *nc_neg;
+                ctrs.push_back(nc_neg);
+                m_ctr_map.emplace(make_pair(l, false), nc_neg);
+            } else {
+                DREAL_LOG_ERROR << "Skip " << *it_nc_neg->second;
+                ctrs.push_back(it_nc_neg->second);
+            }
         }
     }
     // Attach the corresponding forallT literals to integrals
@@ -257,13 +271,13 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
 // operations, for instance in a vector called "undo_stack_term", as
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint() {
+    DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
     if (m_need_init) {
         m_box.constructFromLiterals(m_lits);
         m_ctrs = initialize_constraints();
         m_need_init = false;
     }
     if (config.nra_stat) { m_stat.increase_push(); }
-    DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
     m_stack.push();
     m_used_constraint_vec.push();
     m_boxes.push_back(m_box);
