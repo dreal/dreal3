@@ -29,6 +29,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "util/constraint.h"
+#include "contractor/contractor_basic.h"
 
 namespace dreal {
 
@@ -51,6 +53,9 @@ class contractor_ibex_polytope : public contractor_cell {
 private:
     vector<nonlinear_constraint const *> m_ctrs;
     double const                         m_prec;
+    unordered_map<Enode *, ibex::Variable const *> m_var_cache;
+    unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_pos;
+    unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_neg;
 
     // TODO(soonhok): this is a hack to avoid const problem, we need to fix them
     mutable ibex::SystemFactory *            m_sf  = nullptr;
@@ -59,17 +64,16 @@ private:
     mutable ibex::LinearRelaxCombo *         m_lrc = nullptr;
     mutable std::vector<ibex::Ctc *>         m_sub_ctcs;
     mutable ibex::Ctc *                      m_ctc = nullptr;
-
-    void init(box const & box) const;
+    ibex::SystemFactory* build_system_factory(vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs);
 
 public:
-    contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
+    contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
     ~contractor_ibex_polytope();
     box prune(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
-contractor mk_contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
+contractor mk_contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
 contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
 
 }  // namespace dreal

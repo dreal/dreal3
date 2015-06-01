@@ -228,7 +228,7 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         }
     }
     if (config.nra_polytope) {
-        nl_ctcs.push_back(mk_contractor_ibex_polytope(config.nra_precision, nl_ctrs));
+        nl_ctcs.push_back(mk_contractor_ibex_polytope(config.nra_precision, box.get_vars(), nl_ctrs));
     }
     nl_ctcs.push_back(mk_contractor_int());
     // Add contractor_sample if --sample option is used
