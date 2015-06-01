@@ -63,10 +63,11 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
         throw logic_error("translateEnodeExprNode: Numb");
     } else if (e->isTerm()) {
         assert(e->getArity() >= 1);
-        ExprNode const * ret = translate_enode_to_exprnode(var_map, e->get1st());
         enodeid_t id = e->getCar()->getId();
+        ExprNode const * ret = nullptr;
         switch (id) {
         case ENODE_ID_PLUS:
+            ret = translate_enode_to_exprnode(var_map, e->get1st());
             e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
             while (!e->isEnil()) {
                 ret = &(*ret + *translate_enode_to_exprnode(var_map, e->getCar()));
@@ -74,6 +75,7 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
             }
             return ret;
         case ENODE_ID_MINUS:
+            ret = translate_enode_to_exprnode(var_map, e->get1st());
             e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
             while (!e->isEnil()) {
                 ret = &(*ret - *translate_enode_to_exprnode(var_map, e->getCar()));
@@ -81,9 +83,11 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
             }
             return ret;
         case ENODE_ID_UMINUS:
+            ret = translate_enode_to_exprnode(var_map, e->get1st());
             assert(e->getArity() == 1);
             return &(- *ret);
         case ENODE_ID_TIMES:
+            ret = translate_enode_to_exprnode(var_map, e->get1st());
             e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
             while (!e->isEnil()) {
                 ret = &(*ret * *translate_enode_to_exprnode(var_map, e->getCar()));
@@ -91,6 +95,7 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
             }
             return ret;
         case ENODE_ID_DIV:
+            ret = translate_enode_to_exprnode(var_map, e->get1st());
             e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
             while (!e->isEnil()) {
                 ret = &(*ret / *translate_enode_to_exprnode(var_map, e->getCar()));
