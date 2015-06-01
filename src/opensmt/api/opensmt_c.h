@@ -81,6 +81,7 @@ opensmt_expr     opensmt_mk_eq                     ( opensmt_context, opensmt_ex
 opensmt_expr     opensmt_mk_ite                    ( opensmt_context, opensmt_expr, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_not                    ( opensmt_context, opensmt_expr );
 opensmt_expr     opensmt_mk_num_from_string        ( opensmt_context, const char * );
+opensmt_expr     opensmt_mk_num                    ( opensmt_context, double const );
 opensmt_expr     opensmt_mk_plus                   ( opensmt_context, opensmt_expr *, unsigned );
 opensmt_expr     opensmt_mk_minus                  ( opensmt_context, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_times                  ( opensmt_context, opensmt_expr *, unsigned );

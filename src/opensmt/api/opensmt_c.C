@@ -385,6 +385,15 @@ opensmt_expr opensmt_mk_num_from_string( opensmt_context c, const char * s )
   return res;
 }
 
+opensmt_expr opensmt_mk_num( opensmt_context c, double const v )
+{
+  assert( c );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * res = context.mkNum( v );
+  return res;
+}
+
 opensmt_expr opensmt_mk_plus( opensmt_context c, opensmt_expr * expr_list, unsigned n )
 {
   list< Enode * > args;
