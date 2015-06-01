@@ -224,12 +224,13 @@ ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const>
     // Enode const * const rel = e->getCar();
     Enode const * const first_op = e->get1st();
     Enode const * const second_op = e->get2nd();
+    ExprCtr const * ret = nullptr;
 
     ExprNode const * left = nullptr;
     ExprNode const * right = nullptr;
-    static ExprConstant const & zero = ExprConstant::new_scalar(0.0);
-    if (second_op->isConstant() && second_op->getValue() == 0.0) {
-        right = &zero;
+    bool const is_right_zero = second_op->isConstant() && second_op->getValue() == 0.0;
+    if (is_right_zero) {
+        right = &ExprConstant::new_scalar(0.0);
     }
 
     auto const polarity = p == l_Undef ? e->getPolarity() : p;
@@ -238,41 +239,47 @@ ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const>
         // TODO(soonhok): remove != case
         if (polarity == l_True) {
             left = translate_enode_to_exprnode(var_map, first_op);
-            if (!right) {
+            if (!is_right_zero) {
                 right = translate_enode_to_exprnode(var_map, second_op);
             }
-            return &(*left = *right);
-        } else {
-            return nullptr;
+            ret = &(*left = *right);
         }
+        break;
     }
     case ENODE_ID_LEQ:
         left = translate_enode_to_exprnode(var_map, first_op);
-        if (!right) {
+        if (!is_right_zero) {
             right = translate_enode_to_exprnode(var_map, second_op);
         }
-        return (polarity == l_True) ? &(*left <= *right) : &(*left >  *right);
+        ret = (polarity == l_True) ? &(*left <= *right) : &(*left >  *right);
+        break;
     case ENODE_ID_GEQ:
         left = translate_enode_to_exprnode(var_map, first_op);
-        if (!right) {
+        if (!is_right_zero) {
             right = translate_enode_to_exprnode(var_map, second_op);
         }
-        return (polarity == l_True) ? &(*left >= *right) : &(*left < *right);
+        ret = (polarity == l_True) ? &(*left >= *right) : &(*left < *right);
+        break;
     case ENODE_ID_LT:
         left = translate_enode_to_exprnode(var_map, first_op);
-        if (!right) {
+        if (!is_right_zero) {
             right = translate_enode_to_exprnode(var_map, second_op);
         }
-        return (polarity == l_True) ? &(*left <  *right) : &(*left >=  *right);
+        ret = (polarity == l_True) ? &(*left <  *right) : &(*left >=  *right);
+        break;
     case ENODE_ID_GT:
         left = translate_enode_to_exprnode(var_map, first_op);
         if (!right) {
             right = translate_enode_to_exprnode(var_map, second_op);
         }
-        return (polarity == l_True) ? &(*left >  *right) : &(*left <=  *right);
+        ret = (polarity == l_True) ? &(*left >  *right) : &(*left <=  *right);
+        break;
     default:
         throw logic_error("translate_enode_to_exprctr: default");
     }
-    throw logic_error("Not implemented yet: translate_enode_to_exprctr");
+    if (is_right_zero) {
+        delete right;
+    }
+    return ret;
 }
 }  // namespace dreal
