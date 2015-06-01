@@ -249,12 +249,6 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
 }
 
 contractor_ibex_polytope::~contractor_ibex_polytope() {
-    for (auto p : m_exprctr_cache_pos) {
-        delete p.second;
-    }
-    for (auto p : m_exprctr_cache_neg) {
-        delete p.second;
-    }
     delete m_lrc;
     for (ibex::Ctc * sub_ctc : m_sub_ctcs) {
         delete sub_ctc;
@@ -263,8 +257,19 @@ contractor_ibex_polytope::~contractor_ibex_polytope() {
     if (m_sys_eqs && m_sys_eqs != m_sys) { delete m_sys_eqs; }
     delete m_sys;
     delete m_sf;
-    for (auto p : m_var_cache) {
+    for (auto p : m_exprctr_cache_pos) {
+        ibex::cleanup(p.second->e, false);
         delete p.second;
+    }
+    for (auto p : m_exprctr_cache_neg) {
+        ibex::cleanup(p.second->e, false);
+        delete p.second;
+    }
+    for (auto p : m_var_cache) {
+        ibex::Variable const * var = p.second;
+        ibex::ExprSymbol* symbol = var->symbol;
+        delete var;
+        delete symbol;
     }
 }
 
