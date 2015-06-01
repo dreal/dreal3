@@ -146,20 +146,18 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
             auto it_nc_neg = m_ctr_map.find(make_pair(l, false));
             if (it_nc_pos == m_ctr_map.end()) {
                 nonlinear_constraint * nc_pos = new nonlinear_constraint(l, l_True);
-                DREAL_LOG_ERROR << "nra_solver::initialize_constraints: collect NonlinearConstraint (+): " << *nc_pos;
+                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (+): " << *nc_pos;
                 ctrs.push_back(nc_pos);
                 m_ctr_map.emplace(make_pair(l, true),  nc_pos);
             } else {
-                DREAL_LOG_ERROR << "Skip " << *it_nc_pos->second;
                 ctrs.push_back(it_nc_pos->second);
             }
             if (it_nc_neg == m_ctr_map.end()) {
                 nonlinear_constraint * nc_neg = new nonlinear_constraint(l, l_False);
-                DREAL_LOG_ERROR << "nra_solver::initialize_constraints: collect NonlinearConstraint (-): " << *nc_neg;
+                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (-): " << *nc_neg;
                 ctrs.push_back(nc_neg);
                 m_ctr_map.emplace(make_pair(l, false), nc_neg);
             } else {
-                DREAL_LOG_ERROR << "Skip " << *it_nc_neg->second;
                 ctrs.push_back(it_nc_neg->second);
             }
         }
