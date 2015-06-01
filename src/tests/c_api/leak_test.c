@@ -20,10 +20,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include "opensmt/api/opensmt_c.h"
 
 // Test Memory Leaks
 int main(int argc, char * argv[]) {
+    srand(time(NULL));
     int i = 0;
     opensmt_init();
     opensmt_context ctx = opensmt_mk_context(qf_nra);
@@ -31,14 +34,17 @@ int main(int argc, char * argv[]) {
     opensmt_expr x = opensmt_mk_real_var(ctx, "x" , 0.0, 1.0);
     for (i=0;i<100;++i) {
         opensmt_push(ctx);
-        opensmt_expr lb = opensmt_mk_num_from_string(ctx, "0.1");
-        opensmt_expr ub = opensmt_mk_num_from_string(ctx, "0.9");
+        double v1 = (double)rand()/RAND_MAX;
+        double v2 = (double)rand()/RAND_MAX;
+        opensmt_expr lb = opensmt_mk_num(ctx, v1);
+        opensmt_expr ub = opensmt_mk_num(ctx, v2);
         opensmt_expr geq = opensmt_mk_geq(ctx, x, lb);
-        opensmt_expr leq = opensmt_mk_leq(ctx, x, lb);
+        opensmt_expr leq = opensmt_mk_leq(ctx, x, ub);
         opensmt_assert(ctx, geq);
         opensmt_assert(ctx, leq);
+        printf("%g < x < %g --- ", v1, v2);
         opensmt_result res = opensmt_check( ctx );
-        printf( "%s\n\n", res == l_false ? "unsat" : "sat" );
+        printf( "%s\n", res == l_false ? "unsat" : "sat" );
         opensmt_pop(ctx);
     }
     opensmt_del_context(ctx);
