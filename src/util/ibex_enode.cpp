@@ -225,21 +225,51 @@ ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const>
     Enode const * const first_op = e->get1st();
     Enode const * const second_op = e->get2nd();
 
-    ExprNode const * left = translate_enode_to_exprnode(var_map, first_op);
-    ExprNode const * right = translate_enode_to_exprnode(var_map, second_op);
+    ExprNode const * left = nullptr;
+    ExprNode const * right = nullptr;
+    static ExprConstant const & zero = ExprConstant::new_scalar(0.0);
+    if (second_op->isConstant() && second_op->getValue() == 0.0) {
+        right = &zero;
+    }
+
     auto const polarity = p == l_Undef ? e->getPolarity() : p;
     switch (e->getCar()->getId()) {
-    case ENODE_ID_EQ:
+    case ENODE_ID_EQ: {
         // TODO(soonhok): remove != case
-        return (polarity == l_True) ? &(*left =  *right) : nullptr;
+        if (polarity == l_True) {
+            left = translate_enode_to_exprnode(var_map, first_op);
+            if (!right) {
+                right = translate_enode_to_exprnode(var_map, second_op);
+            }
+            return &(*left = *right);
+        } else {
+            return nullptr;
+        }
+    }
     case ENODE_ID_LEQ:
+        left = translate_enode_to_exprnode(var_map, first_op);
+        if (!right) {
+            right = translate_enode_to_exprnode(var_map, second_op);
+        }
         return (polarity == l_True) ? &(*left <= *right) : &(*left >  *right);
     case ENODE_ID_GEQ:
-        return (polarity == l_True) ? &(*left >= *right) : &(*left <= *right);
+        left = translate_enode_to_exprnode(var_map, first_op);
+        if (!right) {
+            right = translate_enode_to_exprnode(var_map, second_op);
+        }
+        return (polarity == l_True) ? &(*left >= *right) : &(*left < *right);
     case ENODE_ID_LT:
-        return (polarity == l_True) ? &(*left <  *right) : &(*left >  *right);
+        left = translate_enode_to_exprnode(var_map, first_op);
+        if (!right) {
+            right = translate_enode_to_exprnode(var_map, second_op);
+        }
+        return (polarity == l_True) ? &(*left <  *right) : &(*left >=  *right);
     case ENODE_ID_GT:
-        return (polarity == l_True) ? &(*left >  *right) : &(*left <  *right);
+        left = translate_enode_to_exprnode(var_map, first_op);
+        if (!right) {
+            right = translate_enode_to_exprnode(var_map, second_op);
+        }
+        return (polarity == l_True) ? &(*left >  *right) : &(*left <=  *right);
     default:
         throw logic_error("translate_enode_to_exprctr: default");
     }
