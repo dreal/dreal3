@@ -264,7 +264,7 @@ opensmt_expr opensmt_mk_false( opensmt_context c )
   return static_cast< void * >( res );
 }
 
-opensmt_expr opensmt_mk_bool_var( opensmt_context c, char * s )
+opensmt_expr opensmt_mk_bool_var( opensmt_context c, char const * s )
 {
   assert( c );
   assert( s );
@@ -276,7 +276,7 @@ opensmt_expr opensmt_mk_bool_var( opensmt_context c, char * s )
   return static_cast< void * >( res );
 }
 
-opensmt_expr opensmt_mk_int_var( opensmt_context c, char * s , long lb, long ub)
+opensmt_expr opensmt_mk_int_var( opensmt_context c, char const * s , long lb, long ub)
 {
   assert( c );
   assert( s );
@@ -292,7 +292,7 @@ opensmt_expr opensmt_mk_int_var( opensmt_context c, char * s , long lb, long ub)
   return static_cast< void * >( res );
 }
 
-opensmt_expr opensmt_mk_real_var( opensmt_context c, char * s , double lb, double ub)
+opensmt_expr opensmt_mk_real_var( opensmt_context c, char const * s , double lb, double ub)
 {
   assert( c );
   assert( s );
