@@ -308,11 +308,13 @@ box nra_solver::icp_loop(box b, contractor const & ctc, SMTConfig & config) cons
         box_stack.pop();
         try {
             b = ctc.prune(b, config);
+            if (config.nra_stat) { m_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
         }
         if (!b.is_empty()) {
             tuple<int, box, box> splits = b.bisect(config.nra_precision);
+            if (config.nra_stat) { m_stat.increase_branch(); }
             int const i = get<0>(splits);
             if (i >= 0) {
                 box const & first  = get<1>(splits);
@@ -363,6 +365,7 @@ box nra_solver::icp_loop_with_ncbt(box b, contractor const & ctc, SMTConfig & co
         b = box_stack.top();
         try {
             b = ctc.prune(b, config);
+            if (config.nra_stat) { m_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
         }
@@ -372,6 +375,7 @@ box nra_solver::icp_loop_with_ncbt(box b, contractor const & ctc, SMTConfig & co
         if (!b.is_empty()) {
             // SAT
             tuple<int, box, box> splits = b.bisect(config.nra_precision);
+            if (config.nra_stat) { m_stat.increase_branch(); }
             int const index = get<0>(splits);
             if (index >= 0) {
                 box const & first    = get<1>(splits);
@@ -500,6 +504,7 @@ bool nra_solver::check(bool complete) {
         // Incomplete Check ==> Prune Only
         try {
             m_box = m_ctc.prune(m_box, config);
+            if (config.nra_stat) { m_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
         }
