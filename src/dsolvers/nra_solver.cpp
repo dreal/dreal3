@@ -349,7 +349,7 @@ box nra_solver::icp_loop(box b, contractor const & ctc, SMTConfig & config) cons
     }
 }
 
-box nra_solver::icp_loop_with_nc_bt(box b, contractor const & ctc, SMTConfig & config) const {
+box nra_solver::icp_loop_with_ncbt(box b, contractor const & ctc, SMTConfig & config) const {
     static unsigned prune_count = 0;
     stack<box> box_stack;
     stack<int> bisect_var_stack;
