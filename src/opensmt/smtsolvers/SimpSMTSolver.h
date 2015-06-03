@@ -194,11 +194,19 @@ inline void SimpSMTSolver::cleanOcc(Var v)
     Clause **begin = (Clause**)occurs[v];
     Clause **end = begin + occurs[v].size();
     Clause **i, **j;
-    for (i = begin, j = end; i < j; i++)
-        if ((*i)->mark() == 1){
+    for (i = begin, j = end; i < j; i++) {
+        bool found_in_clauses = false;
+        for (int k = 0; k < clauses.size(); k++) {
+            if (*i == clauses[k]) {
+                found_in_clauses = true;
+                break;
+            }
+        }
+        if (!found_in_clauses || (*i)->mark() == 1){
             *i = *(--j);
             i--;
         }
+    }
     //occurs[v].shrink_(end - j);  // This seems slower. Why?!
     occurs[v].shrink(end - j);
 }
