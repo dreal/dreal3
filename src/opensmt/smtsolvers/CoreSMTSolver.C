@@ -1403,9 +1403,11 @@ CoreSMTSolver::popBacktrackPoint ( )
     else if ( op == NEWCLAUSE )
     {
       Clause * c = (Clause *)undo_stack_elem.back( );
-      assert( clauses.last( ) == c );
-      clauses.pop( );
-      removeClause( *c );
+      if (find(clauses, c)) {
+        assert( clauses.last( ) == c );
+        clauses.pop( );
+        removeClause( *c );
+      }
     }
     else if ( op == NEWLEARNT )
     {
@@ -1508,9 +1510,11 @@ CoreSMTSolver::reset( )
     else if ( op == NEWCLAUSE )
     {
       Clause * c = (Clause *)undo_stack_elem.back( );
-      assert( clauses.last( ) == c );
-      clauses.pop( );
-      removeClause( *c );
+      if (find(clauses, c)) {
+        assert( clauses.last( ) == c );
+        clauses.pop( );
+        removeClause( *c );
+      }
     }
     else if ( op == NEWLEARNT )
     {
