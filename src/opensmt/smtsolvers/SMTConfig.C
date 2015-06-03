@@ -119,6 +119,7 @@ SMTConfig::initializeConfig( )
   nra_found_soln               = 0;
   nra_polytope                 = false;
   nra_simp                     = true;
+  nra_ncbt                     = false;
 }
 
 void SMTConfig::parseConfig ( char * f )
@@ -437,6 +438,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "do not use simplification in preprocessing",
             "--no-simp");
+    opt.add("", false, 0, 0,
+            "use non-chronological backtracking in ICP loop",
+            "--ncbt");
 
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
@@ -476,6 +480,7 @@ SMTConfig::parseCMDLine( int argc
     nra_stat                = opt.isSet("--stat");
     nra_polytope            = opt.isSet("--polytope");
     nra_simp                = !opt.isSet("--no-simp");
+    nra_ncbt                = opt.isSet("--ncbt");
 
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }

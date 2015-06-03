@@ -203,6 +203,7 @@ struct SMTConfig
   unsigned long nra_found_soln;                // number of solutions found so far
   bool         nra_polytope;                  // use polytope contractor in IBEX
   bool         nra_simp;                      // use simplification in preprocessing
+  bool         nra_ncbt;                      // use nonchronological backtracking in icp
 
 private:
 
