@@ -54,13 +54,16 @@ TEST_CASE("ibex_fwdbwd") {
     contractor c = mk_contractor_ibex_fwdbwd(b, &nc);
     cerr << nc << endl;
     cerr << b << endl;
-    c.input().display(cerr) << endl;
-    c.output().display(cerr) << endl;
-
+    auto input1 = c.input();
+    auto output1 = c.input();
+    cerr << "Input : ";  input1.display(cerr) << endl;
+    cerr << "Output : "; output1.display(cerr) << endl;
     b = c.prune(b, opensmt_ctx->getConfig());
     cerr << b << endl;
-    c.input().display(cerr) << endl;
-    c.output().display(cerr) << endl;
+    auto input2 = c.input();
+    auto output2 = c.output();
+    cerr << "Input : ";  input2.display(cerr) << endl;
+    cerr << "Output : "; output2.display(cerr) << endl;
     opensmt_del_context(ctx);
 }
 }  // namespace dreal
