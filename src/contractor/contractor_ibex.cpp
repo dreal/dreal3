@@ -184,6 +184,7 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
         }
     }
     ibex::BitSet const * const output = m_ctc->output;
+    m_output.clear();
     for (unsigned i = 0; i <  output->size(); i++) {
         if ((*output)[i]) {
             m_output.add(b.get_index(m_var_array[i].name));

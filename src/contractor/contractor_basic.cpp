@@ -106,7 +106,7 @@ box contractor_try::prune(box b, SMTConfig & config) const {
         return b;
     }
     m_input  = m_c.input();
-    m_output = m_c.input();
+    m_output = m_c.output();
     unordered_set<constraint const *> const & used_ctrs = m_c.used_constraints();
     m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
     return b;
@@ -124,14 +124,14 @@ box contractor_try_or::prune(box b, SMTConfig & config) const {
     try {
         b = m_c1.prune(b, config);
         m_input  = m_c1.input();
-        m_output = m_c1.input();
+        m_output = m_c1.output();
         unordered_set<constraint const *> const & used_ctrs = m_c1.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
     } catch (contractor_exception & e) {
         b = m_c2.prune(b, config);
         m_input  = m_c2.input();
-        m_output = m_c2.input();
+        m_output = m_c2.output();
         unordered_set<constraint const *> const & used_ctrs = m_c2.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
@@ -152,14 +152,14 @@ box contractor_ite::prune(box b, SMTConfig & config) const {
     if (m_guard(b)) {
         b = m_c_then.prune(b, config);
         m_input  = m_c_then.input();
-        m_output = m_c_then.input();
+        m_output = m_c_then.output();
         unordered_set<constraint const *> const & used_ctrs = m_c_then.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
     } else {
         b = m_c_else.prune(b, config);
         m_input  = m_c_else.input();
-        m_output = m_c_else.input();
+        m_output = m_c_else.output();
         unordered_set<constraint const *> const & used_ctrs = m_c_else.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
         return b;
@@ -331,6 +331,8 @@ contractor_eval::contractor_eval(box const & box, nonlinear_constraint const * c
 
 box contractor_eval::prune(box b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_eval::prune";
+    m_input  = ibex::BitSet::empty(b.size());
+    m_output = ibex::BitSet::empty(b.size());
     pair<lbool, ibex::Interval> eval_result = m_nl_ctr->eval(b);
     if (eval_result.first == l_False) {
         // ======= Proof =======
@@ -343,6 +345,9 @@ box contractor_eval::prune(box b, SMTConfig & config) const {
             output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
         } else {
             b.set_empty();
+            // TODO(soonhok):
+            m_input.flip();
+            m_output.flip();
         }
         m_used_constraints.insert(m_nl_ctr);
     }
@@ -366,6 +371,8 @@ contractor_cache::contractor_cache(contractor const & ctc)
 
 box contractor_cache::prune(box b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_cache::prune";
+    m_input  = ibex::BitSet::empty(b.size());
+    m_output = ibex::BitSet::empty(b.size());
     // TODO(soonhok): implement this
     thread_local static unordered_map<box, box> cache;
     auto const it = cache.find(b);
@@ -389,6 +396,9 @@ contractor_sample::contractor_sample(unsigned const n, vector<constraint *> cons
 
 box contractor_sample::prune(box b, SMTConfig &) const {
     DREAL_LOG_DEBUG << "contractor_sample::prune";
+    m_input  = ibex::BitSet::empty(b.size());
+    m_output = ibex::BitSet::empty(b.size());
+    // TODO(soonhok): set input & output
     // Sample n points
     set<box> points = b.sample_points(m_num_samples);
     // If ∃p. ∀c. eval(c, p) = true, return 'SAT'
@@ -426,6 +436,9 @@ contractor_aggressive::contractor_aggressive(unsigned const n, vector<constraint
 
 box contractor_aggressive::prune(box b, SMTConfig &) const {
     DREAL_LOG_DEBUG << "contractor_eval::aggressive";
+    m_input  = ibex::BitSet::empty(b.size());
+    m_output = ibex::BitSet::empty(b.size());
+    // TODO(soonhok): set input & output
     // Sample n points
     set<box> points = b.sample_points(m_num_samples);
     // ∃c. ∀p. eval(c, p) = false   ===>  UNSAT
