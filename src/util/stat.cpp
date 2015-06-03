@@ -53,12 +53,22 @@ void stat::increase_pop() {
     m_num_of_pop++;
 }
 
+void stat::increase_branch() {
+    m_num_of_branch++;
+}
+
+void stat::increase_prune() {
+    m_num_of_prune++;
+}
+
 void stat::reset() {
     m_num_of_complete_check   = 0;
     m_num_of_incomplete_check = 0;
     m_num_of_assert           = 0;
     m_num_of_push             = 0;
     m_num_of_pop              = 0;
+    m_num_of_branch           = 0;
+    m_num_of_prune            = 0;
 }
 
 ostream & operator<<(ostream & out, stat const & stat) {
@@ -67,6 +77,8 @@ ostream & operator<<(ostream & out, stat const & stat) {
     out << "Number of Assert           = " << stat.m_num_of_assert << endl;
     out << "Number of Push             = " << stat.m_num_of_push << endl;
     out << "Number of Pop              = " << stat.m_num_of_pop << endl;
+    out << "Number of Branch           = " << stat.m_num_of_branch << endl;
+    out << "Number of Prune            = " << stat.m_num_of_prune << endl;
     auto end_time = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> diff = end_time - stat.m_start_time;
     out << "Running time               = " << diff.count() << " s" << endl;
