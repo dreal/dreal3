@@ -82,7 +82,7 @@ private:
 
     contractor m_ctc;
     box m_box;
-    stat m_stat;
+    mutable stat m_stat;
 
     contractor build_contractor(box const & box, scoped_vec<constraint *> const & ctrs, bool const complete);
     std::vector<constraint *> initialize_constraints();
