@@ -499,7 +499,11 @@ bool nra_solver::check(bool complete) {
     m_ctc = build_contractor(m_box, m_stack, complete);
     if (complete) {
         // Complete Check ==> Run ICP
-        m_box = icp_loop(m_box, m_ctc, config);
+        if (config.nra_ncbt) {
+            m_box = icp_loop_with_ncbt(m_box, m_ctc, config);
+        } else {
+            m_box = icp_loop(m_box, m_ctc, config);
+        }
     } else {
         // Incomplete Check ==> Prune Only
         try {
