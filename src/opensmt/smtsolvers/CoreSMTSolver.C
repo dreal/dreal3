@@ -362,10 +362,12 @@ void CoreSMTSolver::attachClause(Clause& c) {
 
 void CoreSMTSolver::detachClause(Clause& c) {
   assert(c.size() > 1);
-  assert(find(watches[toInt(~c[0])], &c));
-  assert(find(watches[toInt(~c[1])], &c));
-  remove(watches[toInt(~c[0])], &c);
-  remove(watches[toInt(~c[1])], &c);
+  if (find(watches[toInt(~c[0])], &c)) {
+    remove(watches[toInt(~c[0])], &c);
+  }
+  if (find(watches[toInt(~c[1])], &c)) {
+    remove(watches[toInt(~c[1])], &c);
+  }
   if (c.learnt()) learnts_literals -= c.size();
   else            clauses_literals -= c.size();
 }
