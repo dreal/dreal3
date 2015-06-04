@@ -1332,14 +1332,14 @@ CoreSMTSolver::pushBacktrackPoint( )
 #endif
 }
 
-bool find(vec< Clause * > const & clauses, Clause * c) {
-    for (int i = 0; clauses.size(); i++) {
-      if (clauses[i] == c) {
-        return true;
-      }
-    }
-    return false;
-}
+// bool find(vec< Clause * > const & clauses, Clause * c) {
+//     for (int i = 0; clauses.size(); i++) {
+//       if (clauses[i] == c) {
+//         return true;
+//       }
+//     }
+//     return false;
+// }
 
   void
 CoreSMTSolver::popBacktrackPoint ( )
