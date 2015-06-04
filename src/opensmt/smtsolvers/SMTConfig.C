@@ -38,7 +38,7 @@ SMTConfig::initializeConfig( )
   // Set Global Default configuration
   logic                        = UNDEF;
   status                       = l_Undef;
-  incremental                  = 0;
+  incremental                  = 1;
   produce_stats                = 1;
   produce_models               = 0;
   produce_proofs               = 0;

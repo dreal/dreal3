@@ -197,7 +197,7 @@ OpenSMTContext::executeCommands( )
     return 2;
 
   // Trick for efficiency
-  if ( nof_checksat == 1 )
+  if ( config.incremental == 0 && nof_checksat == 1 )
     ret_val = executeStatic( );
   // Normal incremental solving
   else
