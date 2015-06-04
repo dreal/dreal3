@@ -315,8 +315,10 @@ bool Egraph::assertLit_ ( Enode * e )
   if ( res ) tsolvers_stats[ 0 ]->sat_calls ++;
   else       tsolvers_stats[ 0 ]->uns_calls ++;
 #endif
-
-  assert( !res || explanation.empty( ) );
+  if ( res ) {
+      explanation.clear();
+  }
+  // assert( !res || explanation.empty( ) );
   assert( exp_cleanup.empty( ) );
 
 #ifdef PRODUCE_PROOF
