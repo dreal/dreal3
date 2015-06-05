@@ -1,20 +1,22 @@
 /*********************************************************************
-Author: Roberto Bruttomesso <roberto.bruttomesso@gmail.com>
+Author: Roberto Bruttomesso   <roberto.bruttomesso@gmail.com>
+Author: Simone Fulvio Rollini <simone.rollini@gmail.com>
 
-OpenSMT -- Copyright (C) 2009, Roberto Bruttomesso
+OpenSMT -- Copyright (C) 2010, Roberto Bruttomesso
+PeRIPLO -- Copyright (C) 2013, Simone Fulvio Rollini
 
-OpenSMT is free software: you can redistribute it and/or modify
+Periplo is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-OpenSMT is distributed in the hope that it will be useful,
+Periplo is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
+along with Periplo. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 /*********************************************************************
@@ -29,6 +31,8 @@ stored and the comparison function C
 #ifndef SPLAY_TREE_H
 #define SPLAY_TREE_H
 
+#include "opensmt/minisat/mtl/Vec.h"
+
 template <class T, class C >
 class SplayTree
 {
@@ -37,14 +41,12 @@ public:
   SplayTree( )
     : last_node  ( NULL )
     , initialized( false )
-#ifndef SMTCOMP
     , size       ( 0 )
-#endif
   { }
 
   ~SplayTree( )
   {
-    deleteTree( root );
+    deleteTree();
     delete bnil_node;
     if ( last_node )
       delete last_node;
@@ -74,11 +76,13 @@ public:
   //
   // Copy is not supported
   //
-    const SplayTree & operator=( const SplayTree & /*rhs*/ ) { assert( false ); }
+  const SplayTree & operator=( const SplayTree & rhs ) { assert( false ); }
 
-#ifndef SMTCOMP
   void printStatistics( ostream & );
-#endif
+
+  void printTree            ();
+
+  void debug                (const T elems[], int size);
 
 private:
   //
@@ -103,7 +107,7 @@ private:
     Bnode * right;
   };
 
-  void deleteTree           ( Bnode * t );
+  void deleteTree           ();
   void rotateWithLeftChild  ( Bnode * & k2 );
   void rotateWithRightChild ( Bnode * & k1 );
   void splay                ( T & x, Bnode * & t );
@@ -113,9 +117,15 @@ private:
   Bnode *  bnil_node;        // nil node
   C        cmp;              // Comparison structure
   bool     initialized;      // Check if the nil node has been initialized
-#ifndef SMTCOMP
   unsigned size;             // Keep track of the size of the tree (number of nodes)
-#endif
+  struct SplayTreePair {
+    Bnode* node;
+    int    depth;
+  };
+
+public:
+  void perf                 ( ostream & os );
+  void printTree            ( Bnode* t );
 };
 
 //
@@ -126,23 +136,17 @@ T & SplayTree< T, C >::insert( T & x )
 {
   assert( initialized );
 
-  static Bnode * new_node = NULL;
-
-  if( new_node == NULL )
+  if( last_node == NULL )
   {
-    new_node = new Bnode;
-    last_node = new_node;
-#ifndef SMTCOMP
-    size ++;
-#endif
+    last_node = new Bnode;
   }
 
-  new_node->element = x;
+  last_node->element = x;
 
   if( root == bnil_node )
   {
-    new_node->left = new_node->right = bnil_node;
-    root = new_node;
+    last_node->left = last_node->right = bnil_node;
+    root = last_node;
   }
   else
   {
@@ -152,20 +156,20 @@ T & SplayTree< T, C >::insert( T & x )
     //
     if( cmp( x, root->element ) )
     {
-      new_node->left = root->left;
-      new_node->right = root;
+      last_node->left = root->left;
+      last_node->right = root;
       root->left = bnil_node;
-      root = new_node;
+      root = last_node;
     }
     //
     // Element is greater than
     //
     else if( cmp( root->element, x ) )
     {
-      new_node->right = root->right;
-      new_node->left = root;
+      last_node->right = root->right;
+      last_node->left = root;
       root->right = bnil_node;
-      root = new_node;
+      root = last_node;
     }
     //
     // Element is equal; do not insert
@@ -177,7 +181,7 @@ T & SplayTree< T, C >::insert( T & x )
   }
 
   last_node = NULL;  // Element inserted
-  new_node = NULL;   // So next insert will call new
+   size ++;
   return x;          // Insertion took place
 }
 
@@ -188,6 +192,8 @@ template <class T, class C>
 void SplayTree< T, C >::remove( T & x )
 {
   assert( initialized );
+
+  if (root == bnil_node) return;
 
   Bnode * new_tree;
 
@@ -208,6 +214,8 @@ void SplayTree< T, C >::remove( T & x )
   }
   delete root;
   root = new_tree;
+
+  size --;
 }
 
 //
@@ -219,10 +227,10 @@ T & SplayTree< T, C >::find( T & x )
   assert( initialized );
 
   if( isEmpty( ) )
-    return bnil_node;
+    return bnil_node->element;
   splay( x, root );
   if( root->element != x )
-    return bnil_node;
+    return bnil_node->element;
 
   return root->element;
 }
@@ -235,90 +243,123 @@ void SplayTree< T, C >::splay( T & t, Bnode * & n )
 {
   assert( initialized );
 
-  Bnode *leftTreeMat, *rightTreeMin;
-  static Bnode header;
+  Bnode N, *l, *r, *y;
 
-  header.left = header.right = bnil_node;
-  leftTreeMat = rightTreeMin = &header;
+  if (n == bnil_node) return;
 
-  bnil_node->element = t;
+  N.left = N.right = bnil_node;
+
+  l = r = &N;
+
+//  Bnode *leftTreeMat, *rightTreeMin;
+//  static Bnode header;
+
+//  header.left = header.right = bnil_node;
+//  leftTreeMat = rightTreeMin = &header;
+
+  // t is always assigned to bnil_node->element
+  // If the tree is empty, t will now be inserted to the tree!
+//  bnil_node->element = t;
 
   for(;;)
   {
     if( cmp( t, n->element ) )
     {
-      if( cmp( t, n->left->element ) )
-        rotateWithLeftChild( n );
       if( n->left == bnil_node )
         break;
+      if( cmp( t, n->left->element ) ) {
+        y = n->left;
+        n->left = y->right;
+        y->right = n;
+        n = y;
+        if (n->left == bnil_node) break;
+      }
       // Link Right
-      rightTreeMin->left = n;
-      rightTreeMin = n;
+      r->left = n;
+      r = n;
       n = n->left;
     }
-    else if( cmp( n->element, t ) )
+    else if ( cmp( n->element, t ) )
     {
-      if( cmp( n->right->element, t ) )
-        rotateWithRightChild( n );
-      if( n->right == bnil_node )
-        break;
+      if ( n->right == bnil_node ) break;
+      if ( cmp( n->right->element, t ) ) {
+        y = n->right;
+        n->right = y->left;
+        y->left = n;
+        n = y;
+        if( n->right == bnil_node ) break;
+      }
       // Link Left
-      leftTreeMat->right = n;
-      leftTreeMat = n;
+      l->right = n;
+      l = n;
       n = n->right;
     }
     else
       break;
   }
 
-  leftTreeMat->right = n->left;
-  rightTreeMin->left = n->right;
-  n->left = header.right;
-  n->right = header.left;
-}
+  l->right = r->left = bnil_node;
 
-//
-// Rotate using left child of k2
-//
-template <class T, class C>
-void SplayTree< T, C >::rotateWithLeftChild( Bnode * & k2 )
-{
-  assert( initialized );
-  Bnode * k1 = k2->left;
-  k2->left = k1->right;
-  k1->right = k2;
-  k2 = k1;
-}
+  l->right = n->left;
+  r->left = n->right;
+  n->left = N.right;
+  n->right = N.left;
 
-//
-// Rotate using right child of k1
-//
-template <class T, class C>
-void SplayTree< T, C >::rotateWithRightChild( Bnode * & k1 )
-{
-  assert( initialized );
-  Bnode * k2 = k1->right;
-  k1->right = k2->left;
-  k2->left = k1;
-  k1 = k2;
 }
 
 //
 // Recursively delete the tree
 //
 template <class T, class C>
-void SplayTree< T, C >::deleteTree( Bnode * t )
+void SplayTree< T, C >::deleteTree()
 {
   assert( initialized );
-  if( t != t->left )
-  {
-    deleteTree( t->left );
-    deleteTree( t->right );
-    delete t;
+
+  Bnode** stack = new Bnode*[this->size];
+  int idx = 0;
+  stack[idx] = root;
+
+  while (idx >= 0) {
+    Bnode* t = stack[idx--];
+
+    // Weird test, but essentially leaves out the bnil_node
+    if( t != t->left )
+    {
+      stack[++idx] = t->left;
+      stack[++idx] = t->right;
+      delete t;
+    }
   }
+
+  delete[] stack;
 }
 
-#ifndef SMTCOMP
+template <class T, class C>
+void SplayTree<T,C>::printTree(Bnode* t)
+{
+  if ( t == bnil_node) return;
+
+  cout << "el: " << t->element;
+  if (t->left != bnil_node)
+    cout << " left: " << t->left->element;
+  if (t->right != bnil_node)
+    cout << " right : " << t->right->element;
+  cout << endl;
+
+  if (t->left != bnil_node)
+    printTree(t->left);
+  if (t->right != bnil_node)
+    printTree(t->right);
+}
+
+template <class T, class C>
+void SplayTree< T, C>::printTree()
+{
+  cout << "======" << endl << "Tree of size " << size << endl;
+  printTree(root);
+  cout << "======" << endl;
+}
+
 template <class T, class C>
 void SplayTree< T, C >::printStatistics( ostream & os )
 {
@@ -328,6 +369,54 @@ void SplayTree< T, C >::printStatistics( ostream & os )
   os << "# Avg size per bnode....: " << sizeof( Bnode ) << " B" << endl;
 }
 
-#endif
+template <class T, class C>
+void SplayTree<T,C>::debug(const T elems[], int size)
+{
+  assert( isEmpty() );
+  if (size == 0) return;
+  Bnode* prev = bnil_node;
+  for (int i = size-1; i >= 0; i--) {
+    Bnode* c = new Bnode;
+    c->left = bnil_node;
+    c->right = prev;
+    c->element = elems[i];
+    prev = c;
+  }
+  root = prev;
+  this->size = size;
+}
+
+
+template <class T, class C>
+void SplayTree<T,C>::perf( ostream & os ) {
+  os << "#" << endl;
+  os << "# Total bnodes..........: " << size << endl;
+  os << "# Max depth.............: ";
+  vec<SplayTreePair> queue;
+  SplayTreePair p;
+  p.node = root;
+  p.depth = 0;
+  queue.push(p);
+  int max_depth = 0;
+  while (queue.size() > 0) {
+    SplayTreePair& pr = queue.last();
+    queue.pop();
+    if (pr.node->left != bnil_node) {
+      SplayTreePair l;
+      l.node = pr.node->left;
+      l.depth = pr.depth+1;
+      queue.push(l);
+    }
+    if (pr.node->right != bnil_node) {
+      SplayTreePair r;
+      r.node = pr.node->right;
+      r.depth = pr.depth+1;
+      queue.push(r);
+    }
+    max_depth = max_depth < pr.depth ? pr.depth : max_depth;
+  }
+
+  os << max_depth << endl;
+}
 
 #endif
