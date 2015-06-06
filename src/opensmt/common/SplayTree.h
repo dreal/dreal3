@@ -31,7 +31,12 @@ stored and the comparison function C
 #ifndef SPLAY_TREE_H
 #define SPLAY_TREE_H
 
+#include <iostream>
 #include "opensmt/minisat/mtl/Vec.h"
+
+using std::ostream;
+using std::cout;
+using std::endl;
 
 template <class T, class C >
 class SplayTree
@@ -76,7 +81,7 @@ public:
   //
   // Copy is not supported
   //
-  const SplayTree & operator=( const SplayTree & rhs ) { assert( false ); }
+  const SplayTree & operator=( const SplayTree & ) = delete;
 
   void printStatistics( ostream & );
 
