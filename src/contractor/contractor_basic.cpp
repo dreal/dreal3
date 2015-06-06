@@ -513,15 +513,8 @@ contractor mk_contractor_int() {
     return contractor(make_shared<contractor_int>());
 }
 contractor mk_contractor_eval(box const & box, nonlinear_constraint const * const ctr) {
-    static thread_local unordered_map<nonlinear_constraint const *, contractor> cache;
-    auto const it = cache.find(ctr);
-    if (it == cache.cend()) {
-        contractor ctc(make_shared<contractor_eval>(box, ctr));
-        cache.emplace(ctr, ctc);
-        return ctc;
-    } else {
-        return it->second;
-    }
+    contractor ctc(make_shared<contractor_eval>(box, ctr));
+    return ctc;
 }
 contractor mk_contractor_cache(contractor const & ctc) {
     return contractor(make_shared<contractor_cache>(ctc));

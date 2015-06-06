@@ -313,14 +313,7 @@ contractor mk_contractor_ibex_polytope(double const prec, vector<Enode *> const 
 }
 
 contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr) {
-    static thread_local unordered_map<nonlinear_constraint const *, contractor> cache;
-    auto const it = cache.find(ctr);
-    if (it == cache.cend()) {
-        contractor ctc(make_shared<contractor_ibex_fwdbwd>(box, ctr));
-        cache.emplace(ctr, ctc);
-        return ctc;
-    } else {
-        return it->second;
-    }
+    contractor ctc(make_shared<contractor_ibex_fwdbwd>(box, ctr));
+    return ctc;
 }
 }  // namespace dreal
