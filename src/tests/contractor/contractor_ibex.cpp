@@ -31,7 +31,7 @@ using std::cerr;
 using std::endl;
 
 namespace dreal {
-TEST_CASE("ibex_fwdbwd") {
+TEST_CASE("ibex_fwdbwd_01") {
     opensmt_init();
     opensmt_context ctx = opensmt_mk_context(qf_nra);
     OpenSMTContext * opensmt_ctx = static_cast<OpenSMTContext *>(ctx);
@@ -56,14 +56,50 @@ TEST_CASE("ibex_fwdbwd") {
     cerr << b << endl;
     auto input1 = c.input();
     auto output1 = c.input();
-    cerr << "Input : ";  input1.display(cerr) << endl;
-    cerr << "Output : "; output1.display(cerr) << endl;
+    cerr << "Input  (BEFORE) : ";  input1.display(cerr) << endl;
+    cerr << "Output (BEFORE) : "; output1.display(cerr) << endl;
     b = c.prune(b, opensmt_ctx->getConfig());
     cerr << b << endl;
     auto input2 = c.input();
     auto output2 = c.output();
-    cerr << "Input : ";  input2.display(cerr) << endl;
-    cerr << "Output : "; output2.display(cerr) << endl;
+    cerr << "Input  (AFTER)  : ";  input2.display(cerr) << endl;
+    cerr << "Output (AFTER)  : "; output2.display(cerr) << endl;
+    opensmt_del_context(ctx);
+}
+
+TEST_CASE("ibex_fwdbwd_02") {
+    opensmt_init();
+    opensmt_context ctx = opensmt_mk_context(qf_nra);
+    OpenSMTContext * opensmt_ctx = static_cast<OpenSMTContext *>(ctx);
+    opensmt_set_precision(ctx, 0.0000001);
+    opensmt_expr x = opensmt_mk_real_var(ctx, "x" , -3, 3);
+    opensmt_expr y = opensmt_mk_real_var(ctx, "y" , -3, 3);
+    opensmt_expr z = opensmt_mk_real_var(ctx, "z" , -3, 3);
+    Enode * var_x = static_cast<Enode *>(x);
+    Enode * var_y = static_cast<Enode *>(y);
+    Enode * var_z = static_cast<Enode *>(z);
+    opensmt_expr exp1 = opensmt_mk_abs(ctx, x);           // abs(x)
+    opensmt_expr exp2 = opensmt_mk_cos(ctx, y);           // cos(y)
+    opensmt_expr exp3 = opensmt_mk_div(ctx, exp1, exp2);  // abs(x) / cos(y)
+    opensmt_expr exp4 = opensmt_mk_sin(ctx, x);           // sin(x)
+    opensmt_expr eq   = opensmt_mk_eq(ctx, exp4, exp3);   // sin(x) == abs(x) / cos(y)
+    Enode * node_eq   = static_cast<Enode *>(eq);
+
+    nonlinear_constraint nc(node_eq, true);
+    box b({var_x, var_y, var_z});
+    contractor c = mk_contractor_ibex_fwdbwd(b, &nc);
+    cerr << nc << endl;
+    cerr << b << endl;
+    auto input1 = c.input();
+    auto output1 = c.input();
+    cerr << "Input  (BEFORE) : "; input1.display(cerr)  << endl;
+    cerr << "Output (BEFORE) : "; output1.display(cerr) << endl;
+    b = c.prune(b, opensmt_ctx->getConfig());
+    cerr << b << endl;
+    auto input2 = c.input();
+    auto output2 = c.output();
+    cerr << "Input  (AFTER)  : "; input2.display(cerr)  << endl;
+    cerr << "Output (AFTER)  : "; output2.display(cerr) << endl;
     opensmt_del_context(ctx);
 }
 
@@ -85,9 +121,6 @@ TEST_CASE("ibex_polytope") {
     opensmt_expr eq   = opensmt_mk_eq(ctx, exp4, exp3);
     Enode * node_eq   = static_cast<Enode *>(eq);
     node_eq->setPolarity(l_True);
-    cerr << (node_eq->getPolarity() == l_True) << endl;
-    cerr << (node_eq->getPolarity() == l_False) << endl;
-    cerr << (node_eq->getPolarity() == l_Undef) << endl;
 
     nonlinear_constraint nc(node_eq, true);
     box b({var_x, var_y, var_z});
@@ -96,14 +129,14 @@ TEST_CASE("ibex_polytope") {
     cerr << b << endl;
     auto input1 = c.input();
     auto output1 = c.input();
-    cerr << "ibex_polytope Input  (before) : ";  input1.display(cerr) << endl;
-    cerr << "ibex_polytope Output (before) : "; output1.display(cerr) << endl;
+    cerr << "IBEX_polytope Input  (BEFORE) : ";  input1.display(cerr) << endl;
+    cerr << "IBEX_polytope Output (BEFORE) : "; output1.display(cerr) << endl;
     b = c.prune(b, opensmt_ctx->getConfig());
     cerr << b << endl;
     auto input2 = c.input();
     auto output2 = c.output();
-    cerr << "ibex_polytope Input  (after) : ";  input2.display(cerr) << endl;
-    cerr << "ibex_polytope Output (after) : "; output2.display(cerr) << endl;
-    cerr << "before del" << endl;
+    cerr << "IBEX_polytope Input  (AFTER)  : ";  input2.display(cerr) << endl;
+    cerr << "IBEX_polytope Output (AFTER)  : "; output2.display(cerr) << endl;
+    opensmt_del_context(ctx);
 }
 }  // namespace dreal
