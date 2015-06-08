@@ -533,3 +533,9 @@ add_custom_target(update_ezoptionparser
 add_custom_target(update_json
   COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/JSON)
+
+# Add a distclean target to the Makefile
+ADD_CUSTOM_TARGET(distclean
+  COMMAND ${CMAKE_BUILD_TOOL} "clean"
+  COMMAND ${CMAKE_COMMAND} -P "${CMAKE_MODULE_PATH}/distclean.cmake"
+)
