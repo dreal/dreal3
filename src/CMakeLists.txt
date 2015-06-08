@@ -498,6 +498,7 @@ endif()
 
 add_custom_target(update_pkgs
   COMMAND echo "Update External Packages"
+  COMMAND ${CMAKE_BUILD_TOOL}
   DEPENDS update_clp update_filib update_ibex update_capd update_catch
   update_easyloggingpp update_ezoptionparser update_json)
 
