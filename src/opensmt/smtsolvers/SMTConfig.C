@@ -441,6 +441,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "use non-chronological backtracking in ICP loop",
             "--ncbt");
+    opt.add("", false, 0, 0,
+            "read formula from standard input",
+            "--in");
 
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
@@ -512,21 +515,34 @@ SMTConfig::parseCMDLine( int argc
 
     // Set up filename
     filename = "";
+    bool stdin_is_on = opt.isSet("--in");
     std::vector<std::string*> args;
     copy(opt.firstArgs.begin() + 1, opt.firstArgs.end(),   back_inserter(args));
     copy(opt.unknownArgs.begin(),   opt.unknownArgs.end(), back_inserter(args));
     copy(opt.lastArgs.begin(),      opt.lastArgs.end(),    back_inserter(args));
-    if (args.size() > 0) {
-        filename = *args[0];
-        if (args.size() > 1) {
-            cerr << "Error: wrong argument " << *args[1] << ".\n\n";
-            printUsage(opt);
-        }
+
+    if (stdin_is_on && args.size() > 0) {
+        printUsage(opt);
     }
-    if (filename.length() > 0) {
-        struct stat s;
-        if(stat(filename.c_str(),&s) != 0 || !(s.st_mode & S_IFREG)) {
-            opensmt_error2( "can't open file:", filename );
+
+    if (!stdin_is_on && args.size() == 0) {
+        printUsage(opt);
+    }
+
+    if (args.size() > 1) {
+        printUsage(opt);
+    }
+
+    assert((args.size() == 1 && !stdin_is_on) ||
+           (args.size() == 0 && stdin_is_on));
+
+    if (args.size() == 1) {
+        filename = *args[0];
+        if (filename.length() > 0) {
+            struct stat s;
+            if(stat(filename.c_str(),&s) != 0 || !(s.st_mode & S_IFREG)) {
+                opensmt_error2( "can't open file:", filename );
+            }
         }
     } else {
         filename = "output";
