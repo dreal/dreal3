@@ -626,6 +626,22 @@ json contractor_capd_fwd_full::generate_trace(box b, SMTConfig & config) const {
             ret.push_back(entry);
             i++;
         }
+        for (auto const & var : ic.get_pars_0()) {
+            json entry;
+            string const name = var->getCar()->getName();
+            entry["key"] = name;
+            entry["mode"] = m_ctr->get_ic().get_flow_id();
+            entry["step"] = extract_step(name);
+            entry["values"] = {};
+            json value_begin, value_end;
+            value_begin["time"] = {0.0, 0.0};
+            value_begin["enclosure"] = {b[var].lb(), b[var].ub()};
+            entry["values"].push_back(value_begin);
+            value_end["time"] = {m_T.leftBound(), m_T.rightBound()};
+            value_end["enclosure"] = {b[var].lb(), b[var].ub()};
+            entry["values"].push_back(value_end);
+            ret.push_back(entry);
+        }
         return ret;
     } catch (capd::intervals::IntervalError<double> & e) {
         throw contractor_exception(e.what());
