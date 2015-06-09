@@ -1113,7 +1113,7 @@ let split_decls_assertions lst path =
            | _ -> raise (SMTException "We should only have interval here."))
          lst)
   
-let compile_vardecl (h : Network.t) (k : int) (path : comppath option) (precompute: bool) (heuristic : Costmap.t list option) =
+let compile_vardecl (h : Network.t) (k : int) (path : (string list) option) (precompute: bool) (heuristic : Costmap.t list option) =
   let automatalist = List.map (fun x -> Hybrid.name x) (Network.automata h) in
   let vardecls = Network.all_vars_unique (Network.automata h) in (*global vars, basically*)
   let time_var_l = Network.time h in
@@ -1458,6 +1458,53 @@ let rec get_jump_conjunctions jlist curjumplist =
 			end
 		| None -> curjumplist
 		
+(** Enumerate all possible paths of length k in Hybrid Model h *)
+let pathgen_aut (h: Hybrid.t) (n : Network.t) (k : int) : (string list) list =
+  let init_mode_id = Hybrid.init_id h in
+  let (glist, forms) = Network.goals n in
+  let goal_mode_ids = List.map (fun (auto, modename) -> modename) glist in
+  let init_path = [init_mode_id] in
+  (* recursive function to generate reachable paths *)
+  (* NOTE: it generates path in reverse order! *)
+  let rec pathgen_aux h k paths =
+    if k = 0 then
+      paths
+    else
+      let newpaths = List.flatten (
+          List.map (fun path ->
+              match path with
+                last_mode_id::prefix ->
+                let last_mode = Map.find last_mode_id h.modemap in
+                let targets = List.of_enum (Map.keys last_mode.jumpmap) in
+                List.map (fun t -> t::last_mode_id::prefix) targets
+              | _ -> failwith "pathgen_aux gets empty path."
+            )
+            paths)
+      in
+      pathgen_aux h (k - 1) newpaths
+  in
+  let reversed_result = pathgen_aux h k [init_path] in
+  let result = List.map List.rev reversed_result in
+  let filtered_result =
+    (* Filter out an unfeasible path [m_0, m_1, ... m_k]:
+       - if [m_0] is not H.init_mode
+       - if [m_k] is not in h.goal_modes
+    *)
+    List.filter (fun l ->
+        let first = List.first l in
+        let last = List.last l in
+        first = init_mode_id && List.mem last goal_mode_ids
+      ) result in
+  filtered_result
+		
+(** Enumerate all possible paths of length k in Hybrid Model h *)
+let pathgen (n : Network.t) (k : int) : (string list) list =
+	let automata = Network.automata n in
+	let auta = match List.length automata == 1 with
+		| true -> List.hd automata
+		| false -> raise (Error.Pathgen_Error ("Pathgen implementation currently only supports unlabeled singleton Networks.")) in
+	pathgen_aut auta n k
+		
 let get_unlabeled_jumps jmplist = 
 	let a = List.map (fun (aut, jlist) -> List.map (fun jmp -> (aut, jmp)) jlist) jmplist in
 	let b = List.flatten a in
@@ -1512,23 +1559,59 @@ let mk_mode_mutex (n: Network.t) (i: int) k (heuristic : Costmap.t list option) 
 	Basic.make_and (List.map (fun (a, mlist) -> 
 				  Basic.make_and (List.map (fun m -> Basic.make_and (List.map (fun m1 -> if m != m1 then mk_mode_pair_mutex a m m1 i else Basic.True) mlist)) mlist))
 				 amodes)
-  
+
+let mk_step (n: Network.t) (mode: string option) (step: int) (k: int) (heuristic : Costmap.t list option): Basic.formula = 
+  let h = List.hd (n.automata) in
+  let mm = Hybrid.modemap h in
+  let list_of_modes = match mode with
+      Some n -> [n]
+    | None -> List.map (fun (id, mo) -> id) (Map.bindings h.modemap) in
+  let jump_flow_part =
+    List.map
+      (fun q ->
+       try
+	 let flow_for_q = mk_maintain n step k heuristic in (*process_flow ~k:step ~q varmap modemap in*)
+	 let mode_q = Map.find q h.modemap in
+	 let jump_for_q_nq  =
+	   Basic.make_or (List.map
+			    (*(fun j -> process_jump modemap q j step)*)
+			    (fun j -> trans_jump_sync h (mode_q, Jump.label j, Map.find (Jump.target j) mm, j) step)
+			    (Mode.jumps mode_q))
+	 in
+	 Basic.make_and [flow_for_q; jump_for_q_nq]
+       with e ->
+	 begin
+	   Printexc.print_backtrace IO.stderr;
+	   raise e
+	 end
+      )
+      list_of_modes
+  in
+  Basic.make_or jump_flow_part
+		
 let compile_logic_formula (h : Network.t)
 			  (k : int)
-			  (path : comppath option)
+			  (path: (string list) option)
 			  (precompute: bool)
 			  (heuristic : Costmap.t list option) =
   let init_clause = mk_init_network h in
   let list_of_steps = List.of_enum (0 -- (k-1)) in
-  let steps = match precompute with
-    | true -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_mode_mutex h x k heuristic);
-								 (mk_active h x k heuristic);
-								 (mk_maintain h x k heuristic);
-								 (trans_network_precomposed h x k heuristic)]) list_of_steps)
-    | false -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_mode_mutex h x k heuristic);
-								  (mk_active h x k heuristic);
-								  (mk_maintain h x k heuristic);
-								  (trans_network h x k heuristic)]) list_of_steps) in
+    let steps = match path with 
+	| None -> begin
+		  match precompute with
+		  | true -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_mode_mutex h x k heuristic);
+									       (mk_active h x k heuristic);
+									       (mk_maintain h x k heuristic);
+									       (trans_network_precomposed h x k heuristic)]) list_of_steps)
+		  | false -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_mode_mutex h x k heuristic);
+										(mk_active h x k heuristic);
+										(mk_maintain h x k heuristic);
+										(trans_network h x k heuristic)]) list_of_steps)
+		end
+	| Some p -> Basic.make_and (List.map2 (fun q x -> Basic.make_and [(mk_mode_mutex h x k heuristic);(mk_active h x k heuristic);(mk_step h (Some q) x k heuristic)])
+					      (List.take k p)
+					      list_of_steps)
+    in
   let goal_clause = Basic.make_and [(mk_goal_network h k);(mk_mode_mutex h k k heuristic)] in
   let end_step = Basic.make_and [(mk_active h k k heuristic); (mk_maintain h k k heuristic)] in
   let smt_formula = Basic.make_and (List.flatten [[init_clause]; [steps]; [goal_clause]]) in
@@ -1536,7 +1619,7 @@ let compile_logic_formula (h : Network.t)
 
 let compile (h : Network.t)
 	    (k : int)
-	    (path : comppath option)
+	    (path : (string list) option)
 	    (precompute : bool)
 	    (heuristic : Costmap.t list option) =
   let logic_cmd = SetLogic QF_NRA_ODE in

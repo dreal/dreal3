@@ -10,6 +10,7 @@ exception Variable_Label_Mapping of string
 exception Automaton_Not_Found of string
 exception Instance_Error of string * string
 exception Composition_Error of string
+exception Pathgen_Error of string
 
 let linenum = ref 1
 let incr_ln () = linenum := !linenum + 1
