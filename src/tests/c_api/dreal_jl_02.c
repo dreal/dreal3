@@ -23,10 +23,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 void print_sol(opensmt_context ctx, opensmt_expr x, opensmt_expr y) {
     double const x_lb = opensmt_get_lb(ctx, x);
     double const x_ub = opensmt_get_ub(ctx, x);
-    fprintf(stderr, "x %p = [%f, %f]\n", x, x_lb, x_ub);
+    fprintf(stderr, "x = [%f, %f]\n", x_lb, x_ub);
     double const y_lb = opensmt_get_lb(ctx, y);
     double const y_ub = opensmt_get_ub(ctx, y);
-    fprintf(stderr, "y %p = [%f, %f]\n", y, y_lb, y_ub);
+    fprintf(stderr, "y = [%f, %f]\n", y_lb, y_ub);
     return;
 }
 
