@@ -8,7 +8,7 @@ type globalvars = Vardeclmap.t
 
 type modeTupel = (Hybrid.name * Hybrid.modeId)
 type modecomposition = modeTupel list
-type comppath = modecomposition list
+type comppath = modecomposition list (*[[name, id]]*)
 
 type modeId = Hybrid.modeId
 type modeIds = modeId list
