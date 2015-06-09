@@ -62,6 +62,9 @@ public:
     inline std::vector<Enode *> const & get_vars() const { return m_vars; }
     inline unsigned size() const { return m_values.size(); }
     inline void set_empty() { m_values.set_empty(); }
+    inline unsigned get_index(Enode * e) const {
+        return get_index(e->getCar()->getName());
+    }
     inline unsigned get_index(string const & s) const {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
