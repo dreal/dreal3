@@ -713,6 +713,20 @@ lbool OpenSMTContext::CheckSAT( )
   if ( config.verbosity > 1 )
     cerr << "# OpenSMTContext::Processing: " << formula << endl;
 
+  // Removes ITEs if there is any
+  if ( egraph.hasItes( ) )
+  {
+#ifdef PRODUCE_PROOF
+    if ( config.produce_inter > 0 )
+      opensmt_error( "Interpolation not supported for ite construct" );
+#endif
+    ExpandITEs expander( egraph, config );
+    formula = expander.doit( formula );
+
+    if ( config.dump_formula != 0 )
+      egraph.dumpToFile( "ite_expanded.smt2", formula );
+  }
+
   state = cnfizer.cnfizeAndGiveToSolver( formula );
   if ( state == l_Undef )
     state = solver.solve( );
