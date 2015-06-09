@@ -161,8 +161,7 @@ TEST_CASE("ibex_polytope") {
     cerr << "IBEX_polytope Input  (AFTER)  : ";  input_after.display(cerr) << endl;
     cerr << "IBEX_polytope Output (AFTER)  : "; output_after.display(cerr) << endl;
 
-    // TODO(soonhok): !input_after has to be false.
-    REQUIRE((input_after[0]  && input_after[1]  &&  input_after[2]));
+    REQUIRE((input_after[0]  && input_after[1]  && !input_after[2]));
     REQUIRE((output_after[0] && output_after[1] && !output_after[2]));
 
     auto used_ctcs = c.used_constraints();
