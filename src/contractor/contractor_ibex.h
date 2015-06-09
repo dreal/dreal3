@@ -51,6 +51,7 @@ public:
 // contractor_ibex_polytope : contractor using IBEX POLYTOPE
 class contractor_ibex_polytope : public contractor_cell {
 private:
+    unordered_set<Enode *>               m_vars_in_ctrs;
     vector<nonlinear_constraint const *> m_ctrs;
     double const                         m_prec;
     unordered_map<Enode *, ibex::Variable const *> m_var_cache;

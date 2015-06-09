@@ -246,6 +246,12 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
     // Setup Input
     // TODO(soonhok): this is a rough approximation, which needs to be refined.
     m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
+    m_input  = ibex::BitSet::empty(vars.size());
+
+    for (nonlinear_constraint const * ctr : ctrs) {
+        unordered_set<Enode*> const & vars_in_ctr = ctr->get_enode()->get_vars();
+        m_vars_in_ctrs.insert(vars_in_ctr.begin(), vars_in_ctr.end());
+    }
     DREAL_LOG_INFO << "contractor_ibex_polytope: DONE" << endl;
 }
 
@@ -276,7 +282,9 @@ contractor_ibex_polytope::~contractor_ibex_polytope() {
 
 box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_ibex_polytope::prune";
-    m_input  = ibex::BitSet::all(b.size());
+    for (Enode * var : m_vars_in_ctrs) {
+        m_input.add(b.get_index(var));
+    }
     thread_local static box old_box(b);
     old_box = b;
     m_ctc->contract(b.get_values());
