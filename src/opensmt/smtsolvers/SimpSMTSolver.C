@@ -978,7 +978,7 @@ void SimpSMTSolver::filterUnassigned()
     // order_heap.filter(ShortSatVarFilter(*this));
     for (int i = 2; i < nVars(); i++)
       {
-        if (order_heap.inHeap(i) && toLbool(assigns[i]) == l_Undef){
+        if (order_heap.inHeap(i) && toLbool(assigns[i]) == l_Undef && i < occurs.size()){
           const vec<Clause*>& clauses = occurs[i];
           bool isInUnsat = false;
           for (int c = 0; c < clauses.size(); c++) {
