@@ -90,6 +90,7 @@ opensmt_expr     opensmt_mk_plus                   ( opensmt_context, opensmt_ex
 opensmt_expr     opensmt_mk_plus_2                 ( opensmt_context, opensmt_expr, opensmt_expr);
 opensmt_expr     opensmt_mk_plus_3                 ( opensmt_context, opensmt_expr, opensmt_expr, opensmt_expr);
 opensmt_expr     opensmt_mk_minus                  ( opensmt_context, opensmt_expr, opensmt_expr );
+opensmt_expr     opensmt_mk_uminus                 ( opensmt_context, opensmt_expr );
 opensmt_expr     opensmt_mk_times                  ( opensmt_context, opensmt_expr *, unsigned );
 opensmt_expr     opensmt_mk_times_2                ( opensmt_context, opensmt_expr, opensmt_expr);
 opensmt_expr     opensmt_mk_times_3                ( opensmt_context, opensmt_expr, opensmt_expr, opensmt_expr);
