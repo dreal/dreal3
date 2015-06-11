@@ -70,6 +70,8 @@ void             opensmt_print_model               ( opensmt_context, const char
 void             opensmt_print_proof               ( opensmt_context, const char * );
 void             opensmt_print_interpolant         ( opensmt_context, const char * );
 
+void             opensmt_define_ode                ( opensmt_context, const char *, opensmt_expr *, opensmt_expr *, unsigned);
+
 opensmt_expr     opensmt_mk_true                   ( opensmt_context );
 opensmt_expr     opensmt_mk_false                  ( opensmt_context );
 opensmt_expr     opensmt_mk_bool_var               ( opensmt_context, char const * );

@@ -19,6 +19,8 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <string>
+#include <utility>
 #include "api/opensmt_c.h"
 #include "api/OpenSMTContext.h"
 #include "egraph/Egraph.h"
@@ -26,6 +28,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "smtsolvers/SimpSMTSolver.h"
 #include "version.h"
 #include "util/logging.h"
+
+using std::string;
+using std::pair;
 
 #ifndef SMTCOMP
 
@@ -246,6 +251,22 @@ void opensmt_print_interpolant( opensmt_context
 //
 // Formula construction APIs
 //
+
+void opensmt_define_ode( opensmt_context c, const char * flowname, opensmt_expr * vars, opensmt_expr * rhses, unsigned n)
+{
+  assert( c );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  vector<pair<string, Enode *> *> odes;
+  for (unsigned i = 0; i < n; i++) {
+      Enode * var = static_cast<Enode *>(vars[i]);
+      Enode * rhs = static_cast<Enode *>(rhses[i]);
+      odes.push_back(new pair<string, Enode*>(var->getCar()->getName(), rhs));
+  }
+  context.DefineODE(flowname, &odes);
+}
+
+
 opensmt_expr opensmt_mk_true( opensmt_context c )
 {
   assert( c );
