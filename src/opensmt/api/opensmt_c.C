@@ -325,6 +325,18 @@ opensmt_expr opensmt_mk_or( opensmt_context c, opensmt_expr * expr_list, unsigne
   return static_cast< void * >( res );
 }
 
+opensmt_expr opensmt_mk_or_2( opensmt_context c, opensmt_expr expr1, opensmt_expr expr2)
+{
+  opensmt_expr list[2] = {expr1, expr2};
+  return opensmt_mk_or(c, list, 2);
+}
+
+opensmt_expr opensmt_mk_or_3( opensmt_context c, opensmt_expr expr1, opensmt_expr expr2, opensmt_expr expr3)
+{
+  opensmt_expr list[3] = {expr1, expr2, expr3};
+  return opensmt_mk_or(c, list, 3);
+}
+
 opensmt_expr opensmt_mk_and( opensmt_context c, opensmt_expr * expr_list, unsigned n )
 {
   assert( c );
@@ -340,6 +352,18 @@ opensmt_expr opensmt_mk_and( opensmt_context c, opensmt_expr * expr_list, unsign
   Enode * args_list = context.mkCons( args );
   Enode * res = context.mkAnd( args_list );
   return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_and_2( opensmt_context c, opensmt_expr expr1, opensmt_expr expr2)
+{
+  opensmt_expr list[2] = {expr1, expr2};
+  return opensmt_mk_and(c, list, 2);
+}
+
+opensmt_expr opensmt_mk_and_3( opensmt_context c, opensmt_expr expr1, opensmt_expr expr2, opensmt_expr expr3)
+{
+  opensmt_expr list[3] = {expr1, expr2, expr3};
+  return opensmt_mk_and(c, list, 3);
 }
 
 opensmt_expr opensmt_mk_eq ( opensmt_context c, opensmt_expr x, opensmt_expr y )
@@ -409,6 +433,18 @@ opensmt_expr opensmt_mk_plus( opensmt_context c, opensmt_expr * expr_list, unsig
   return static_cast< void * >( res );
 }
 
+opensmt_expr opensmt_mk_plus_2( opensmt_context c, opensmt_expr expr1, opensmt_expr expr2)
+{
+  opensmt_expr list[2] = {expr1, expr2};
+  return opensmt_mk_plus(c, list, 2);
+}
+
+opensmt_expr opensmt_mk_plus_3( opensmt_context c, opensmt_expr expr1, opensmt_expr expr2, opensmt_expr expr3)
+{
+  opensmt_expr list[3] = {expr1, expr2, expr3};
+  return opensmt_mk_plus(c, list, 3);
+}
+
 opensmt_expr opensmt_mk_minus( opensmt_context c, opensmt_expr x, opensmt_expr y )
 {
   OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
@@ -433,6 +469,19 @@ opensmt_expr opensmt_mk_times( opensmt_context c, opensmt_expr * expr_list, unsi
   Enode * res = context.mkTimes( args_list );
   return static_cast< void * >( res );
 }
+
+opensmt_expr opensmt_mk_times_2( opensmt_context c, opensmt_expr expr1, opensmt_expr expr2)
+{
+  opensmt_expr list[2] = {expr1, expr2};
+  return opensmt_mk_times(c, list, 2);
+}
+
+opensmt_expr opensmt_mk_times_3( opensmt_context c, opensmt_expr expr1, opensmt_expr expr2, opensmt_expr expr3)
+{
+  opensmt_expr list[3] = {expr1, expr2, expr3};
+  return opensmt_mk_times(c, list, 3);
+}
+
 
 opensmt_expr opensmt_mk_div( opensmt_context c, opensmt_expr x, opensmt_expr y )
 {
