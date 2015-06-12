@@ -13,3 +13,5 @@ It indicates that there are certain functions which still require the
 shared libraries during the runtime if used. Fortunately, we don't use
 those functions and you can simply ignore those warnings. You can find
 details about this warning at http://stackoverflow.com/a/3087067.
+
+Note that it does not work on OS X. See http://stackoverflow.com/a/3801032 for details.
