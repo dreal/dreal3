@@ -49,6 +49,7 @@ Executable bmc
   MainIs:     bmc_main.ml
   NativeOpt:    -passopt -annot
   CompiledObject : native
+# CCLib: -static
 
 Executable smt2_stat
   Path:       ./smt2_stat/
