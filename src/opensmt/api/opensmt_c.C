@@ -266,6 +266,26 @@ void opensmt_define_ode( opensmt_context c, const char * flowname, opensmt_expr 
   context.DefineODE(flowname, &odes);
 }
 
+opensmt_expr opensmt_mk_integral ( opensmt_context c, opensmt_expr * vars_t,
+                                   opensmt_expr time_l, opensmt_expr time_u,
+                                   opensmt_expr * vars_0, unsigned n,
+                                   const char * flowname) {
+  assert( c );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  list< Enode * > args_t, args_0;
+  for ( unsigned i = 0 ; i < n ; i ++ ) {
+    Enode * arg_t = static_cast< Enode * >( vars_t[ i ] );
+    Enode * arg_0 = static_cast< Enode * >( vars_0[ i ] );
+    args_t.push_back( arg_t );
+    args_0.push_back( arg_0 );
+  }
+  Enode * args_list_t = context.mkCons( args_t );
+  Enode * args_list_0 = context.mkCons( args_0 );
+  Enode * res = context.mkIntegral(static_cast<Enode*>(time_l), static_cast<Enode*>(time_u),
+                                   args_list_0, args_list_t, flowname);
+  return static_cast< void * >( res );
+}
 
 opensmt_expr opensmt_mk_true( opensmt_context c )
 {
