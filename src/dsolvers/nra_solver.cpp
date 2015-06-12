@@ -439,7 +439,7 @@ box nra_solver::icp_loop_with_ncbt(box b, contractor const & ctc, SMTConfig & co
             if (config.nra_stat) { m_stat.increase_branch(); }
             int const index = get<0>(splits);
             if (index >= 0) {
-	        config.inc_icp_decisions();
+                config.inc_icp_decisions();
                 box const & first    = get<1>(splits);
                 box const & second   = get<2>(splits);
                 if (second.is_bisectable()) {
