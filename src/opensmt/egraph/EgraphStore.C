@@ -3192,7 +3192,7 @@ Enode * Egraph::mkForallT             ( Enode * mode, Enode * lb, Enode * rb, En
   return res;
 }
 
-Enode * Egraph::mkIntegral             ( Enode * time_0, Enode * time_t, Enode * vec_0, Enode * vec_t, char * flowname )
+Enode * Egraph::mkIntegral             ( Enode * time_0, Enode * time_t, Enode * vec_0, Enode * vec_t, const char * flowname )
 {
   assert( time_0 );
   assert( time_t );
