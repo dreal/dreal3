@@ -8,12 +8,13 @@ setup.ml: _oasis
 setup.data: _oasis setup.ml
 	ocaml setup.ml -configure
 
-build:
+build: setup.ml setup.data
 	ocaml setup.ml -build
 
-clean:
+clean: setup.ml
 	-ocaml setup.ml -clean
 
-dist-clean:
-	-ocaml setup.ml -clean
-	-rm setup.ml setup.data _tags myocamlbuild.ml
+dist-clean: clean
+	-rm -f setup.ml setup.data _tags myocamlbuild.ml
+
+.PHONY: all build clean dist-clean
