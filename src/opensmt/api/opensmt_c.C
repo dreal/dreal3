@@ -43,6 +43,12 @@ using std::pair;
 // Communication APIs
 //
 void opensmt_init() {
+    static bool already_init = false;
+    if (!already_init) {
+        const char * argv[] = {};
+        START_EASYLOGGINGPP(0, argv);
+        already_init = true;
+    }
 }
 
 void opensmt_set_verbosity( opensmt_context c, int v )
