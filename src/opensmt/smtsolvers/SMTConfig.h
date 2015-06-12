@@ -100,6 +100,10 @@ struct SMTConfig
       rocset = true;
     }
   }
+  void initLogging();
+  void setVerbosityDebugLevel();
+  void setVerbosityInfoLevel();
+  void setVerbosityErrorLevel();  // Default
 
   string       filename;                     // Holds the name of the input filename
   logic_t      logic;                        // SMT-Logic under consideration

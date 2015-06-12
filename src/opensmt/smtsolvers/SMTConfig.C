@@ -120,6 +120,7 @@ SMTConfig::initializeConfig( )
   nra_polytope                 = false;
   nra_simp                     = true;
   nra_ncbt                     = false;
+  initLogging();
 }
 
 void SMTConfig::parseConfig ( char * f )
@@ -582,14 +583,34 @@ SMTConfig::parseCMDLine( int argc
     }
 
     // logging
-    el::Loggers::reconfigureAllLoggers(el::ConfigurationType::Format, "%msg");
-    el::Loggers::reconfigureAllLoggers(el::ConfigurationType::ToFile, "false");
+    initLogging();
     if (nra_debug) {
-        el::Loggers::setVerboseLevel(DREAL_DEBUG_LEVEL);
+        setVerbosityDebugLevel();
     } else if (nra_verbose) {
-        el::Loggers::setVerboseLevel(DREAL_INFO_LEVEL);
+        setVerbosityInfoLevel();
     } else {
-        el::Loggers::setVerboseLevel(DREAL_ERROR_LEVEL);
+        setVerbosityErrorLevel();
     }
     #endif
+}
+
+void SMTConfig::initLogging() {
+    static bool already_init = false;
+    if (!already_init) {
+        el::Loggers::reconfigureAllLoggers(el::ConfigurationType::Format, "%msg");
+        el::Loggers::reconfigureAllLoggers(el::ConfigurationType::ToFile, "false");
+        already_init = true;
+    }
+}
+
+void SMTConfig::setVerbosityDebugLevel() {
+    el::Loggers::setVerboseLevel(DREAL_DEBUG_LEVEL);
+}
+
+void SMTConfig::setVerbosityInfoLevel() {
+    el::Loggers::setVerboseLevel(DREAL_INFO_LEVEL);
+}
+
+void SMTConfig::setVerbosityErrorLevel() {
+    el::Loggers::setVerboseLevel(DREAL_ERROR_LEVEL);
 }
