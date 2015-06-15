@@ -47,7 +47,7 @@ ocaml/opam
 
     brew install ocaml opam
     opam init
-    eval `opam config env --root=<ABSOLUTE_HOMEPATH>/ocamlbrew/ocaml-4.00.1/.opam`
+    eval `opam config env`
     opam update
     opam install ocamlfind batteries oasis
 
