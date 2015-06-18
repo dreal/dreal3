@@ -194,12 +194,16 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
 
 box contractor_fixpoint::prune(box old_b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_fix::prune -- begin";
-    // TODO(soonhok): worklist_fixpoint still has a problem
-    box const & naive_result = naive_fixpoint_alg(old_b, config);
-    DREAL_LOG_DEBUG << "contractor_fix::prune -- end";
-    return naive_result;
-    // box const & worklist_result = worklist_fixpoint_alg(old_b, config);
-    // return worklist_result;
+    if (config.nra_worklist_fp) {
+        // TODO(soonhok): worklist_fixpoint still has a problem
+        box const & worklist_result = worklist_fixpoint_alg(old_b, config);
+        DREAL_LOG_DEBUG << "contractor_fix::prune -- end";
+        return worklist_result;
+    } else {
+        box const & naive_result = naive_fixpoint_alg(old_b, config);
+        DREAL_LOG_DEBUG << "contractor_fix::prune -- end";
+        return naive_result;
+    }
 }
 ostream & contractor_fixpoint::display(ostream & out) const {
     out << "contractor_fixpoint(";
