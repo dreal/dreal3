@@ -170,6 +170,8 @@ public:
   //  inline bool isCostBound       ( ) const { return hasSymbolId( ENODE_ID_CTBOUND ); }
 
   bool        isVar               ( ) const; // True if it is a variable
+  bool        isExistVar          ( ) const; // True if it is a exist variable
+  bool        isForallVar         ( ) const; // True if it is a forall variable
   bool        isConstant          ( ) const; // True if it is a constant
   bool        isLit               ( ) const; // True if it is a literal
   bool        isAtom              ( ) const; // True if it is an atom
@@ -178,6 +180,8 @@ public:
   bool        isBooleanOperator   ( ) const; // True if it is a boolean operator
   bool        isArithmeticOp      ( ) const; // True if root is an arith term
   bool        isUFOp              ( ) const; // True if root is UF
+  void        setExistVar         ( );
+  void        setForallVar        ( );
 
   inline bool hasSortBool( ) const
   {
@@ -412,6 +416,7 @@ private:
   double            dom_lb = -std::numeric_limits<double>::infinity(); // enode lower bound (domain)
   double            dom_ub = +std::numeric_limits<double>::infinity(); // enode upper bound (domain)
   double            precision = 0.0;   //added for dReal2
+  bool              is_exist_var = true;
 
 #if 0
   Enode *           dynamic;    // Pointer to dynamic equivalent
@@ -611,6 +616,28 @@ inline bool Enode::isVar( ) const
   if ( !isTerm( ) ) return false;                            // If is not a term is not a variable
   if ( getArity( ) != 0 ) return false;
   return car->isSymb( );                                     // Final check
+}
+
+inline bool Enode::isExistVar( ) const
+{
+  return isVar() && is_exist_var;
+}
+
+inline bool Enode::isForallVar( ) const
+{
+  return isVar() && !is_exist_var;
+}
+
+inline void Enode::setExistVar( )
+{
+  assert(isVar());
+  is_exist_var = true;
+}
+
+inline void Enode::setForallVar( )
+{
+  assert(isVar());
+  is_exist_var = false;
 }
 
 inline bool Enode::isConstant( ) const
