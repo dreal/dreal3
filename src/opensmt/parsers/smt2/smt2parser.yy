@@ -69,7 +69,7 @@ void smt2error( const char * s )
 
 %token TK_NUM TK_DEC TK_HEX TK_STR TK_SYM TK_KEY TK_BIN
 %token TK_BOOL
-%token TK_DDT TK_LB TK_RB
+%token TK_DDT TK_LB TK_RB TK_COMMA
 %token TK_SETLOGIC TK_SETINFO TK_SETOPTION TK_DECLARESORT TK_DEFINESORT TK_DECLAREFUN TK_DECLARECONST
 %token TK_PUSH TK_POP TK_CHECKSAT TK_GETASSERTIONS TK_GETPROOF TK_GETUNSATCORE TK_GETINTERPOLANTS
 %token TK_GETVALUE TK_GETASSIGNMENT TK_GETOPTION TK_GETINFO TK_EXIT
@@ -157,12 +157,21 @@ command: '(' TK_SETLOGIC symbol ')'
          }
        | '(' TK_DECLAREFUN symbol '(' ')' sort ')'
          {
-            parser_ctx->DeclareFun( $3, $6 ); free( $3 );
-          }
-       | '(' TK_DECLAREFUN TK_FORALL symbol '(' ')' sort ')'
+           parser_ctx->DeclareFun( $3, $6 ); free( $3 );
+         }
+       | '(' TK_DECLAREFUN TK_FORALL symbol '(' ')' sort TK_LB spec_const TK_COMMA spec_const TK_RB ')'
          {
-            parser_ctx->DeclareFun( $4, $7 ); free( $4 );
-          }
+           parser_ctx->DeclareFun( $4, $7 );
+           double const lb = strtod($9, nullptr);
+           double const ub = strtod($11, nullptr);
+           Enode * e = parser_ctx->mkVar($4);
+           e->setDomainLowerBound(lb);
+           e->setDomainUpperBound(ub);
+           e->setValueLowerBound(lb);
+           e->setValueUpperBound(ub);
+           e->setForallVar();
+           free( $4 ); free($9); free($11);
+         }
        | '(' TK_DECLAREFUN symbol '(' ')' sort TK_LB spec_const TK_RB ')'
          {
              parser_ctx->DeclareFun( $3, $6, $8 ); free( $3 ); free ( $8 );
