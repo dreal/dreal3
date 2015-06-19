@@ -28,7 +28,6 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 class Enode
 {
 public:
-
   //
   // Constructor for Enil
   //
@@ -256,6 +255,7 @@ public:
 
   double          getValue               ( ) const;
   std::unordered_set<Enode *> get_vars   ( );
+  std::unordered_set<Enode *> get_exist_vars ( );
   std::unordered_set<Enode *> get_constants   ( );
 
   double          getDomainLowerBound          ( ) const; //added for dReal2
@@ -639,6 +639,7 @@ inline void Enode::setForallVar( )
   assert(isVar());
   is_exist_var = false;
 }
+
 
 inline bool Enode::isConstant( ) const
 {
