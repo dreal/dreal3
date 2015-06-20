@@ -86,7 +86,7 @@ void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
     // Construct a list of variables
     unordered_set<Enode *> var_set;
     for (auto const & lit : lit_vec) {
-        unordered_set<Enode *> const & temp_vars = lit->get_vars();
+        unordered_set<Enode *> const & temp_vars = lit->get_exist_vars();
         var_set.insert(temp_vars.begin(), temp_vars.end());
     }
     m_vars.clear();
