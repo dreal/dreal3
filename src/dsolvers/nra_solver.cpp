@@ -140,7 +140,7 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
         } else if (l->isForallT()) {
             forallt_constraint fc = mk_forallt_constraint(l);
             invs.push_back(fc);
-        } else {
+        } else if (l->get_forall_vars().empty()) {
             // Collect Nonlinear constraints.
             auto it_nc_pos = m_ctr_map.find(make_pair(l, true));
             auto it_nc_neg = m_ctr_map.find(make_pair(l, false));
@@ -159,6 +159,26 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
                 m_ctr_map.emplace(make_pair(l, false), nc_neg);
             } else {
                 ctrs.push_back(it_nc_neg->second);
+            }
+        } else {
+            // Collect Forall constraints.
+            auto it_fc_pos = m_ctr_map.find(make_pair(l, true));
+            auto it_fc_neg = m_ctr_map.find(make_pair(l, false));
+            if (it_fc_pos == m_ctr_map.end()) {
+                forall_constraint * fc_pos = new forall_constraint(l, l_True);
+                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ForallConstraint (+): " << *fc_pos;
+                ctrs.push_back(fc_pos);
+                m_ctr_map.emplace(make_pair(l, true),  fc_pos);
+            } else {
+                ctrs.push_back(it_fc_pos->second);
+            }
+            if (it_fc_neg == m_ctr_map.end()) {
+                forall_constraint * fc_neg = new forall_constraint(l, l_False);
+                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ForallConstraint (-): " << *fc_neg;
+                ctrs.push_back(fc_neg);
+                m_ctr_map.emplace(make_pair(l, false), fc_neg);
+            } else {
+                ctrs.push_back(it_fc_neg->second);
             }
         }
     }
