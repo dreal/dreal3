@@ -147,24 +147,15 @@ public:
 
 class forall_constraint : public constraint {
 private:
-    std::vector<nonlinear_constraint> m_ctrs;
-    std::vector<Enode *> m_vars;
+    std::unordered_set<Enode *> const m_forall_vars;
+    lbool const                       m_polarity;
 public:
     forall_constraint(Enode * const e, lbool const p);
     virtual ~forall_constraint();
     virtual std::ostream & display(std::ostream & out) const;
+    std::unordered_set<Enode *> get_forall_vars() const;
+    inline Enode * get_enode() const { return get_enodes()[0]; }
+    inline lbool get_polarity() const { return m_polarity; }
 };
-
-class exists_constraint : public constraint {
-private:
-    std::vector<nonlinear_constraint> m_ctrs;
-    std::vector<Enode *> m_vars;
-public:
-    exists_constraint(Enode * const e, lbool const p);
-    virtual ~exists_constraint();
-    virtual std::ostream & display(std::ostream & out) const;
-};
-
-constraint * mk_quantified_constraint(Enode * const e, lbool const p);
 
 }  // namespace dreal

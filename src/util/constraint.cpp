@@ -372,78 +372,21 @@ ostream & forallt_constraint::display(ostream & out) const {
 // Forall constraint
 // ====================================================
 forall_constraint::forall_constraint(Enode * const e, lbool const p)
-    : constraint(constraint_type::Forall, e) {
-    cerr << "forall_constraint : " << e << endl;
-    Enode * const formula = e->get1st();
-    Enode * const vars = e->getCdr()->getCdr();
-
-    if (formula->isAnd()) {
-        Enode * elist = formula->getCdr();
-        while (!elist->isEnil()) {
-            Enode * head = elist->getCar();
-            lbool head_p = p;
-            if (head->isNot()) {
-                head = head->get1st();
-                head_p = head_p == l_True ? l_False : l_True;
-            }
-            cerr << "add: " << head << " : " << (head_p == l_True) << endl;
-            m_ctrs.emplace_back(head, head_p);
-            elist = elist->getCdr();
-        }
-    }
-    cerr << "formula = " << formula << endl;
-    cerr << "vars    = " << vars << endl;
-    cerr << "polarity= " << (p == l_True) << endl;
-    cerr << *this << endl;;
-    cerr << "===============" << endl;
+    : constraint(constraint_type::Forall, e), m_forall_vars(e->get_forall_vars()), m_polarity(p) {
+}
+unordered_set<Enode *> forall_constraint::get_forall_vars() const {
+    return m_forall_vars;
 }
 forall_constraint::~forall_constraint() {
 }
 ostream & forall_constraint::display(ostream & out) const {
-    out << "forall_constraint = " << m_enodes[0] << endl;
-    out << "display!" << m_ctrs.size() << endl;
-    for (constraint const & ctr : m_ctrs) {
-        out << "\t" << ctr << endl;
+    out << "forall_constraint = "
+        << (m_polarity == l_True ? "" : "!")
+        << m_enodes[0] << endl;
+    for (Enode * const var : m_forall_vars) {
+        out << "quantified var = " << var << endl;
     }
     return out;
-}
-
-// ====================================================
-// Exists constraint
-// ====================================================
-exists_constraint::exists_constraint(Enode * const e, lbool const p)
-    : constraint(constraint_type::Exists, e) {
-    cerr << "exists_constraint" << endl;
-    Enode * const formula = e->get1st();
-    Enode * const vars = e->getCdr()->getCdr();
-    cerr << "formula = " << formula << endl;
-    cerr << "vars    = " << vars << endl;
-    cerr << "polarity= " << (p == l_True) << endl;
-    cerr << *this << endl;;
-    cerr << "===============" << endl;
-}
-exists_constraint::~exists_constraint() {
-}
-ostream & exists_constraint::display(ostream & out) const {
-    out << "exists_constraint = " << m_enodes[0] << endl;
-    for (constraint const & ctr : m_ctrs) {
-        out << "\t" << ctr << endl;
-    }
-    return out;
-}
-
-constraint * mk_quantified_constraint(Enode * const e, lbool const p) {
-    assert(e);
-    DREAL_LOG_INFO << "mk_quantified_constraint: " << e;
-    assert(e->isForall() || e->isExists());
-    assert(p == l_True || p == l_False);
-    if ((e->isForall() && p == l_True) || (e->isExists() && p == l_False)) {
-        return new forall_constraint(e, p);
-    } else {
-        assert((e->isExists() && p == l_True) || (e->isForall() && p == l_False));
-        return new exists_constraint(e, p);
-    }
-    return nullptr;
 }
 
 }  // namespace dreal
