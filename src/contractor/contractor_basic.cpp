@@ -20,12 +20,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <algorithm>
+#include <chrono>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
+#include <limits>
 #include <map>
 #include <memory>
 #include <queue>
+#include <random>
 #include <set>
 #include <sstream>
 #include <string>
@@ -485,6 +488,186 @@ ostream & contractor_aggressive::display(ostream & out) const {
     return out;
 }
 
+contractor_forall::contractor_forall(box const & , forall_constraint const * const ctr)
+    : contractor_cell(contractor_kind::FORALL), m_ctr(ctr) {
+}
+
+bool random_bool() {
+    static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
+    std::uniform_real_distribution<double> m_dist(0.0, 1.0);
+    return m_dist(rg) >= 0.5;
+}
+
+box icp_loop(box b, contractor const & ctc, SMTConfig & config ) {
+    vector<box> solns;
+    stack<box> box_stack;
+    box_stack.push(b);
+    do {
+        DREAL_LOG_INFO << "icp_loop()"
+                       << "\t" << "box stack Size = " << box_stack.size();
+        b = box_stack.top();
+        box_stack.pop();
+        try {
+            b = ctc.prune(b, config);
+        } catch (contractor_exception & e) {
+            // Do nothing
+        }
+        if (!b.is_empty()) {
+            tuple<int, box, box> splits = b.bisect(config.nra_precision);
+            int const i = get<0>(splits);
+            if (i >= 0) {
+                box const & first  = get<1>(splits);
+                box const & second = get<2>(splits);
+                if (random_bool()) {
+                    box_stack.push(second);
+                    box_stack.push(first);
+                } else {
+                    box_stack.push(first);
+                    box_stack.push(second);
+                }
+                if (config.nra_proof) {
+                    config.nra_proof_out << "[branched on "
+                                         << b.get_name(i)
+                                         << "]" << endl;
+                }
+            } else {
+                if (config.nra_found_soln >= config.nra_multiple_soln) {
+                    break;
+                }
+                config.nra_found_soln++;
+                solns.push_back(b);
+            }
+        }
+    } while (box_stack.size() > 0);
+    if (config.nra_multiple_soln > 1 && solns.size() > 0) {
+        return solns.back();
+    } else {
+        return b;
+    }
+}
+
+unordered_map<Enode*, double> make_random_subst(unordered_set<Enode *> const & vars) {
+    static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
+    unordered_map<Enode*, double> subst;
+    for (Enode * const var : vars) {
+        double const lb = var->getDomainLowerBound();
+        double const ub = var->getDomainUpperBound();
+        std::uniform_real_distribution<double> m_dist(lb, ub);
+        double const v = m_dist(rg);
+        subst.emplace(var, v);
+    }
+    return subst;
+}
+
+unordered_map<Enode*, double> make_random_subst(box const & b, unordered_set<Enode *> const & vars) {
+    static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
+    unordered_map<Enode*, double> subst;
+    for (Enode * const var : vars) {
+        double const lb = b[var].lb();
+        double const ub = b[var].ub();
+        std::uniform_real_distribution<double> m_dist(lb, ub);
+        double const v = m_dist(rg);
+        subst.emplace(var, v);
+    }
+    return subst;
+}
+
+lbool operator!(lbool const p) {
+    lbool ret = l_Undef;
+    if (p == l_True) {
+        ret = l_False;
+    } else if (p == l_False) {
+        ret = l_True;
+    }
+    return ret;
+}
+
+ostream & operator<<(ostream & out, unordered_map<Enode *, double> const & subst) {
+    for (auto const & p : subst) {
+        out << p.first << " |-> " << p.second << endl;
+    }
+    return out;
+}
+
+box contractor_forall::prune(box b, SMTConfig & config) const {
+    // Prep
+    static thread_local box old_box(b);
+    lbool const p = m_ctr->get_polarity();
+    Enode * const e = m_ctr->get_enode();
+    unordered_set<Enode*> const & forall_vars = m_ctr->get_forall_vars();
+    // cerr << "\n\n==================================" << endl;
+    // cerr << "contractor_forall::prune: begin = " << b << endl;
+
+    // Make a random subst from forall_vars, prune b using
+    unordered_map<Enode*, double> subst = make_random_subst(forall_vars);
+    // cerr << "subst = " << subst << endl;
+    nonlinear_constraint const * const ctr = new nonlinear_constraint(e, p, subst);
+    contractor ctc = mk_contractor_ibex_fwdbwd(b, ctr);
+    old_box = b;
+    // cerr << "prune using " << ctc << endl;
+    b = ctc.prune(b, config);
+    if (b == old_box) {
+        // cerr << "Sampling doesn't help. Try to find a counter example" << endl;
+        // ask dreal whether its negation is possible (note: we run icp_loop)
+        nonlinear_constraint const * const not_ctr = new nonlinear_constraint(e, !p);
+        box counter_example(b, forall_vars);
+        contractor not_ctc = mk_contractor_ibex_fwdbwd(counter_example, not_ctr);
+        // cerr << "icp with " << not_ctc << endl;
+        counter_example = icp_loop(counter_example, not_ctc, config);
+        if (!counter_example.is_empty()) {
+
+            cerr << "Found possible counterexample" << endl;
+            cerr << "not_ctc = " << not_ctc << endl;
+            cerr << counter_example << endl;
+
+            subst = make_random_subst(counter_example, forall_vars);
+            cerr << "subst = " << subst << endl;
+            nonlinear_constraint const * const ctr2 = new nonlinear_constraint(e, p, subst);
+            contractor ctc2 = mk_contractor_ibex_fwdbwd(b, ctr2);
+            // cerr << "prune using " << ctc2 << endl;
+            b = ctc2.prune(b, config);
+            if(b != old_box) {
+                cerr << "Pruned from counterexample (stop)" << endl;
+            } else {
+                cerr << "b == old_box. a counter example doesn't prune anything. repeat." << endl;
+                cerr << b << endl;
+                // tuple<int, box, box> splits = b.bisect_at(0);
+                // int const split_dim = get<0>(splits);
+                // if (split_dim < 0) {
+                //     cerr << "can't even split it. (stop)" << endl;
+                // }
+                // box b1 = get<1>(splits);
+                // box b2 = get<2>(splits);
+                // b1 = ctc2.prune(b1, config);
+                // b2 = ctc2.prune(b2, config);
+                // b = hull(b1, b2);
+                // if (b != old_box) {
+                //     cerr << "OK. split on " << split_dim << " works. (stop)" << endl;
+                // } else {
+                //     cerr << "Nono... split on " << split_dim << " doesn't help." << endl;
+                // }
+            }
+            delete ctr2;
+        } else {
+            // cerr << "counter_example is empty. b should be the right answer." << endl;
+        }
+        delete not_ctr;
+    } else {
+        // cerr << "b != old_box, we made a progress, exit." << endl;
+    }
+    // cerr << "contractor_forall::prune: result = " << b << endl;
+    // cerr << "==================================\n\n" << endl;
+    m_used_constraints.insert(m_ctr);
+    m_input  = ibex::BitSet::all(b.size());
+    m_output = ibex::BitSet::all(b.size());
+    delete ctr;
+    return b;
+}
+
+ostream & contractor_forall::display(ostream & out) const {
+    out << "contractor_forall(" << *m_ctr << ")";
+    return out;
+}
 
 contractor mk_contractor_seq(initializer_list<contractor> const & l) {
     return contractor(make_shared<contractor_seq>(l));
@@ -545,6 +728,9 @@ contractor mk_contractor_sample(unsigned const n, vector<constraint *> const & c
 }
 contractor mk_contractor_aggressive(unsigned const n, vector<constraint *> const & ctrs) {
     return contractor(make_shared<contractor_aggressive>(n, ctrs));
+}
+contractor mk_contractor_forall(box const & b, forall_constraint const * const ctr) {
+    return contractor(make_shared<contractor_forall>(b, ctr));
 }
 std::ostream & operator<<(std::ostream & out, contractor const & c) {
     out << *(c.m_ptr);

@@ -38,7 +38,7 @@ namespace dreal {
 enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
         PARALLEL_ALL, TIMEOUT, REALPAVER,
         TRY, TRY_OR, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE,
-        SAMPLE, AGGRESSIVE,
+        SAMPLE, AGGRESSIVE, FORALL,
 #ifdef SUPPORT_ODE
         CAPD_FWD, CAPD_BWD,
 #endif
@@ -226,7 +226,7 @@ private:
     unsigned const m_num_samples;
     vector<constraint *> m_ctrs;
 public:
-    explicit contractor_sample(unsigned const n, vector<constraint *> const & ctrs);
+    contractor_sample(unsigned const n, vector<constraint *> const & ctrs);
     box prune(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -236,11 +236,20 @@ private:
     unsigned const m_num_samples;
     vector<constraint *> m_ctrs;
 public:
-    explicit contractor_aggressive(unsigned const n, vector<constraint *> const & ctrs);
+    contractor_aggressive(unsigned const n, vector<constraint *> const & ctrs);
     box prune(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
+class contractor_forall : public contractor_cell {
+private:
+    forall_constraint const * const m_ctr;
+
+public:
+    contractor_forall(box const & b, forall_constraint const * const ctr);
+    box prune(box b, SMTConfig & config) const;
+    std::ostream & display(std::ostream & out) const;
+};
 
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
 contractor mk_contractor_seq(contractor const & c, std::vector<contractor> const & v);
