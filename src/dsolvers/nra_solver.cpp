@@ -217,12 +217,15 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
     nl_eval_ctcs.reserve(ctrs.size());
     vector<contractor> ode_ctcs;
     ode_ctcs.reserve(ctrs.size());
+    vector<contractor> forall_ctcs;
+    forall_ctcs.reserve(ctrs.size());
     // Add contractor_sample if --sample option is used
     if (config.nra_sample > 0 && complete) {
         nl_ctcs.push_back(mk_contractor_sample(config.nra_sample, ctrs.get_vec()));
     }
     for (constraint * const ctr : ctrs.get_reverse()) {
-        if (ctr->get_type() == constraint_type::Nonlinear) {
+        switch (ctr->get_type()) {
+        case constraint_type::Nonlinear: {
             nonlinear_constraint const * const nl_ctr = dynamic_cast<nonlinear_constraint *>(ctr);
             if (nl_ctr->get_numctr()) {
                 nl_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, nl_ctr));
@@ -231,8 +234,10 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
                 // This is identity, do nothing
             }
             nl_eval_ctcs.push_back(mk_contractor_eval(box, nl_ctr));
+            break;
+        }
 #ifdef SUPPORT_ODE
-        } else if (ctr->get_type() == constraint_type::ODE) {
+        case constraint_type::ODE: {
             // TODO(soonhok): add heuristics to choose fwd/bwd
             if (complete) {
                 ode_ctcs.emplace_back(
@@ -244,7 +249,16 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
                             mk_contractor_capd_bwd_full(box, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size)));
                 }
             }
+            break;
+        }
 #endif
+        case constraint_type::Forall: {
+            forall_constraint const * const forall_ctr = dynamic_cast<forall_constraint *>(ctr);
+            forall_ctcs.push_back(mk_contractor_forall(box, forall_ctr));
+            break;
+        }
+        default:
+            DREAL_LOG_FATAL << "Unknown Constraint Type: " << ctr->get_type() << " " <<  *ctr << endl;
         }
     }
     if (config.nra_polytope) {
@@ -279,9 +293,9 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         return true;
     };
     if (complete && ode_ctcs.size() > 0) {
-        return mk_contractor_fixpoint(term_cond, nl_ctcs, ode_ctcs, nl_eval_ctcs);
+        return mk_contractor_fixpoint(term_cond, nl_ctcs, forall_ctcs, ode_ctcs, nl_eval_ctcs);
     } else {
-        return mk_contractor_fixpoint(term_cond, nl_ctcs, nl_eval_ctcs);
+        return mk_contractor_fixpoint(term_cond, nl_ctcs, forall_ctcs, nl_eval_ctcs);
     }
 }
 
