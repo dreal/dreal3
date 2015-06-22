@@ -188,6 +188,9 @@ public:
                         std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2);
     contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
                         std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2, std::vector<contractor> const & cvec3);
+    contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
+                        std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2,
+                        std::vector<contractor> const & cvec3, std::vector<contractor> const & cvec4);
     box prune(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -252,11 +255,15 @@ contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> 
                                   std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2);
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard,
                                   std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2, std::vector<contractor> const & cvec3);
+contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard,
+                                  std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2,
+                                  std::vector<contractor> const & cvec3, std::vector<contractor> const & cvec4);
 contractor mk_contractor_int();
 contractor mk_contractor_eval(box const & box, nonlinear_constraint const * const ctr);
 contractor mk_contractor_cache(contractor const & ctc);
 contractor mk_contractor_sample(unsigned const n, vector<constraint *> const & ctrs);
 contractor mk_contractor_aggressive(unsigned const n, vector<constraint *> const & ctrs);
+contractor mk_contractor_forall(box const & box, forall_constraint const * const ctr);
 std::ostream & operator<<(std::ostream & out, contractor const & c);
 
 }  // namespace dreal
