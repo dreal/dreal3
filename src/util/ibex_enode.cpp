@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <string>
 #include <cmath>
+#include <unordered_map>
 #include "ibex/ibex.h"
 #include "util/logging.h"
 #include "util/ibex_enode.h"
@@ -29,19 +30,25 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 
 using std::modf;
+using std::unordered_map;
 using ibex::ExprNode;
 using ibex::Variable;
 using ibex::ExprConstant;
 using ibex::ExprCtr;
 using ibex::ExprNode;
 
-ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable const> & var_map, Enode const * e) {
+ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable const> & var_map, Enode * const e, unordered_map<Enode*, double> const & subst) {
     // TODO(soonhok): for the simple case such as 0 <= x or x <= 10.
     // Handle it as a domain specification instead of constraints.
     if (e->isVar()) {
+        auto const subst_it = subst.find(e);
+        if (subst_it != subst.cend()) {
+            double const v = subst_it->second;
+            return &ExprConstant::new_scalar(v);
+        }
         string const & var_name = e->getCar()->getName();
-        auto it = var_map.find(var_name);
-        if (it == var_map.end()) {
+        auto const it = var_map.find(var_name);
+        if (it == var_map.cend()) {
             // The variable is new, we need to make one.
             Variable v(var_name.c_str());
             // double const lb = e->getLowerBound();
@@ -65,61 +72,62 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
         assert(e->getArity() >= 1);
         enodeid_t id = e->getCar()->getId();
         ExprNode const * ret = nullptr;
+        Enode * tmp = e;
         switch (id) {
         case ENODE_ID_PLUS:
-            ret = translate_enode_to_exprnode(var_map, e->get1st());
-            e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
-            while (!e->isEnil()) {
-                ret = &(*ret + *translate_enode_to_exprnode(var_map, e->getCar()));
-                e = e->getCdr();
+            ret = translate_enode_to_exprnode(var_map, tmp->get1st(), subst);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = &(*ret + *translate_enode_to_exprnode(var_map, tmp->getCar(), subst));
+                tmp = tmp->getCdr();
             }
             return ret;
         case ENODE_ID_MINUS:
-            ret = translate_enode_to_exprnode(var_map, e->get1st());
-            e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
-            while (!e->isEnil()) {
-                ret = &(*ret - *translate_enode_to_exprnode(var_map, e->getCar()));
-                e = e->getCdr();
+            ret = translate_enode_to_exprnode(var_map, tmp->get1st(), subst);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = &(*ret - *translate_enode_to_exprnode(var_map, tmp->getCar(), subst));
+                tmp = tmp->getCdr();
             }
             return ret;
         case ENODE_ID_UMINUS:
-            ret = translate_enode_to_exprnode(var_map, e->get1st());
-            assert(e->getArity() == 1);
+            ret = translate_enode_to_exprnode(var_map, tmp->get1st(), subst);
+            assert(tmp->getArity() == 1);
             return &(- *ret);
         case ENODE_ID_TIMES:
-            ret = translate_enode_to_exprnode(var_map, e->get1st());
-            e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
-            while (!e->isEnil()) {
-                ret = &(*ret * *translate_enode_to_exprnode(var_map, e->getCar()));
-                e = e->getCdr();
+            ret = translate_enode_to_exprnode(var_map, tmp->get1st(), subst);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = &(*ret * *translate_enode_to_exprnode(var_map, tmp->getCar(), subst));
+                tmp = tmp->getCdr();
             }
             return ret;
         case ENODE_ID_DIV:
-            ret = translate_enode_to_exprnode(var_map, e->get1st());
-            e = e->getCdr()->getCdr();  // e is pointing to the 2nd arg
-            while (!e->isEnil()) {
-                ret = &(*ret / *translate_enode_to_exprnode(var_map, e->getCar()));
-                e = e->getCdr();
+            ret = translate_enode_to_exprnode(var_map, tmp->get1st(), subst);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = &(*ret / *translate_enode_to_exprnode(var_map, tmp->getCar(), subst));
+                tmp = tmp->getCdr();
             }
             return ret;
         case ENODE_ID_ACOS:
             assert(e->getArity() == 1);
-            return &acos(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &acos(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_ASIN:
             assert(e->getArity() == 1);
-            return &asin(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &asin(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_ATAN:
             assert(e->getArity() == 1);
-            return &atan(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &atan(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_ATAN2:
             assert(e->getArity() == 2);
-            return &atan2(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
+            return &atan2(*translate_enode_to_exprnode(var_map, e->get1st(), subst), *translate_enode_to_exprnode(var_map, e->get2nd(), subst));
         case ENODE_ID_MIN:
             assert(e->getArity() == 2);
-            return &min(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
+            return &min(*translate_enode_to_exprnode(var_map, e->get1st(), subst), *translate_enode_to_exprnode(var_map, e->get2nd(), subst));
         case ENODE_ID_MAX:
             assert(e->getArity() == 2);
-            return &max(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
+            return &max(*translate_enode_to_exprnode(var_map, e->get1st(), subst), *translate_enode_to_exprnode(var_map, e->get2nd(), subst));
         case ENODE_ID_MATAN:
             // TODO(soonhok): MATAN
             throw logic_error("translateEnodeExprNode: MATAN");
@@ -128,13 +136,13 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
             throw logic_error("translateEnodeExprNode: SAFESQRT");
         case ENODE_ID_SQRT:
             assert(e->getArity() == 1);
-            return &sqrt(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &sqrt(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_EXP:
             assert(e->getArity() == 1);
-            return &exp(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &exp(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_LOG:
             assert(e->getArity() == 1);
-            return &log(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &log(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_POW: {
             assert(e->getArity() == 2);
             bool   is_1st_constant = false;
@@ -169,40 +177,40 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
             }
             // Now, either of them is non-constant.
             if (is_1st_int) {
-                return &pow(int_1st, *translate_enode_to_exprnode(var_map, e->get2nd()));
+                return &pow(int_1st, *translate_enode_to_exprnode(var_map, e->get2nd(), subst));
             }
             if (is_1st_constant) {
-                return &pow(dbl_1st, *translate_enode_to_exprnode(var_map, e->get2nd()));
+                return &pow(dbl_1st, *translate_enode_to_exprnode(var_map, e->get2nd(), subst));
             }
             if (is_2nd_int) {
-                return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), int_2nd);
+                return &pow(*translate_enode_to_exprnode(var_map, e->get1st(), subst), int_2nd);
             }
             if (is_2nd_constant) {
-                return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), dbl_2nd);
+                return &pow(*translate_enode_to_exprnode(var_map, e->get1st(), subst), dbl_2nd);
             }
-            return &pow(*translate_enode_to_exprnode(var_map, e->get1st()), *translate_enode_to_exprnode(var_map, e->get2nd()));
+            return &pow(*translate_enode_to_exprnode(var_map, e->get1st(), subst), *translate_enode_to_exprnode(var_map, e->get2nd(), subst));
         }
         case ENODE_ID_ABS:
             assert(e->getArity() == 1);
-            return &abs(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &abs(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_SIN:
             assert(e->getArity() == 1);
-            return &sin(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &sin(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_COS:
             assert(e->getArity() == 1);
-            return &cos(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &cos(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_TAN:
             assert(e->getArity() == 1);
-            return &tan(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &tan(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_SINH:
             assert(e->getArity() == 1);
-            return &sinh(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &sinh(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_COSH:
             assert(e->getArity() == 1);
-            return &cosh(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &cosh(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         case ENODE_ID_TANH:
             assert(e->getArity() == 1);
-            return &tanh(*translate_enode_to_exprnode(var_map, e->get1st()));
+            return &tanh(*translate_enode_to_exprnode(var_map, e->get1st(), subst));
         default:
             throw logic_error("translateEnodeExprNode: Unknown Term");
         }
@@ -218,12 +226,12 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
     throw logic_error("Not implemented yet: translateEnodeExprNode");
 }
 
-ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const> & var_map, Enode const * e, lbool p) {
+ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const> & var_map, Enode * const e, lbool p, unordered_map<Enode*, double> const & subst) {
     assert(e->isTerm() && (e->isEq() || e->isLeq() || e->isGeq() || e->isLt() || e->isGt()));
 
-    // Enode const * const rel = e->getCar();
-    Enode const * const first_op = e->get1st();
-    Enode const * const second_op = e->get2nd();
+    // Enode * const rel = e->getCar();
+    Enode * const first_op = e->get1st();
+    Enode * const second_op = e->get2nd();
     ExprCtr const * ret = nullptr;
 
     ExprNode const * left = nullptr;
@@ -238,39 +246,39 @@ ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const>
     case ENODE_ID_EQ: {
         // TODO(soonhok): remove != case
         if (polarity == l_True) {
-            left = translate_enode_to_exprnode(var_map, first_op);
+            left = translate_enode_to_exprnode(var_map, first_op, subst);
             if (!is_right_zero) {
-                right = translate_enode_to_exprnode(var_map, second_op);
+                right = translate_enode_to_exprnode(var_map, second_op, subst);
             }
             ret = &(*left = *right);
         }
         break;
     }
     case ENODE_ID_LEQ:
-        left = translate_enode_to_exprnode(var_map, first_op);
+        left = translate_enode_to_exprnode(var_map, first_op, subst);
         if (!is_right_zero) {
-            right = translate_enode_to_exprnode(var_map, second_op);
+            right = translate_enode_to_exprnode(var_map, second_op, subst);
         }
         ret = (polarity == l_True) ? &(*left <= *right) : &(*left >  *right);
         break;
     case ENODE_ID_GEQ:
-        left = translate_enode_to_exprnode(var_map, first_op);
+        left = translate_enode_to_exprnode(var_map, first_op, subst);
         if (!is_right_zero) {
-            right = translate_enode_to_exprnode(var_map, second_op);
+            right = translate_enode_to_exprnode(var_map, second_op, subst);
         }
         ret = (polarity == l_True) ? &(*left >= *right) : &(*left < *right);
         break;
     case ENODE_ID_LT:
-        left = translate_enode_to_exprnode(var_map, first_op);
+        left = translate_enode_to_exprnode(var_map, first_op, subst);
         if (!is_right_zero) {
-            right = translate_enode_to_exprnode(var_map, second_op);
+            right = translate_enode_to_exprnode(var_map, second_op, subst);
         }
         ret = (polarity == l_True) ? &(*left <  *right) : &(*left >=  *right);
         break;
     case ENODE_ID_GT:
-        left = translate_enode_to_exprnode(var_map, first_op);
+        left = translate_enode_to_exprnode(var_map, first_op, subst);
         if (!right) {
-            right = translate_enode_to_exprnode(var_map, second_op);
+            right = translate_enode_to_exprnode(var_map, second_op, subst);
         }
         ret = (polarity == l_True) ? &(*left >  *right) : &(*left <=  *right);
         break;
