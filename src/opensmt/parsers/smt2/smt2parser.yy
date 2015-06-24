@@ -159,6 +159,31 @@ command: '(' TK_SETLOGIC symbol ')'
          {
            parser_ctx->DeclareFun( $3, $6 ); free( $3 );
          }
+       | '(' TK_DECLAREFUN symbol '(' ')' sort TK_LB spec_const TK_COMMA spec_const TK_RB ')'
+         {
+           parser_ctx->DeclareFun( $3, $6 );
+           double const lb = strtod($8, nullptr);
+           double const ub = strtod($10, nullptr);
+
+           Enode * e = parser_ctx->mkVar($3);
+           e->setDomainLowerBound(lb);
+           e->setDomainUpperBound(ub);
+           e->setValueLowerBound(lb);
+           e->setValueUpperBound(ub);
+           free( $3 ); free($8); free($10);
+         }
+       | '(' TK_DECLAREFUN TK_EXISTS symbol '(' ')' sort TK_LB spec_const TK_COMMA spec_const TK_RB ')'
+         {
+           parser_ctx->DeclareFun( $4, $7 );
+           double const lb = strtod($9, nullptr);
+           double const ub = strtod($11, nullptr);
+           Enode * e = parser_ctx->mkVar($4);
+           e->setDomainLowerBound(lb);
+           e->setDomainUpperBound(ub);
+           e->setValueLowerBound(lb);
+           e->setValueUpperBound(ub);
+           free( $4 ); free($9); free($11);
+         }
        | '(' TK_DECLAREFUN TK_FORALL symbol '(' ')' sort TK_LB spec_const TK_COMMA spec_const TK_RB ')'
          {
            parser_ctx->DeclareFun( $4, $7 );
