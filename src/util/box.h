@@ -48,6 +48,7 @@ private:
 
 public:
     explicit box(std::vector<Enode *> const & vars);
+    box(box const & b, std::unordered_set<Enode *> const & extra_vars);
     box(std::vector<Enode *> const & vars, ibex::IntervalVector ivec);
     void constructFromLiterals(std::vector<Enode *> const & lit_vec);
 

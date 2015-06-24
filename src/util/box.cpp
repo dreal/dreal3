@@ -99,6 +99,21 @@ void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
     return;
 }
 
+box::box(box const & b, std::unordered_set<Enode *> const & extra_vars)
+    : m_vars(b.m_vars), m_values(m_vars.size() + extra_vars.size()), m_domains(m_values.size()), m_precisions(m_values.size(), 0.0) {
+    copy(extra_vars.begin(), extra_vars.end(), back_inserter(m_vars));
+    std::sort(m_vars.begin(), m_vars.end(),
+              [](Enode const * e1, Enode const * e2) {
+                  return e1->getCar()->getName() < e2->getCar()->getName();
+              });
+    if (m_vars.size() > 0) {
+        constructFromVariables(m_vars);
+        for (unsigned i = 0; i < b.m_vars.size(); i++) {
+            m_values[get_index(b.m_vars[i])] = b.m_values[i];
+        }
+    }
+}
+
 ostream& display(ostream& out, ibex::Interval const & iv, bool const exact) {
     if (exact) {
         out << "[" << to_hexfloat(iv.lb()) << ","
