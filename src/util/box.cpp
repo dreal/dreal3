@@ -145,6 +145,9 @@ ostream& display(ostream& out, box const & b, bool const exact, bool const old_s
         out << "delta-sat with the following box:" << endl;
         unsigned const s = b.size();
         for (unsigned i = 0; i < s; i++) {
+            if (i != 0) {
+                out << endl;
+            }
             Enode * e = b.m_vars[i];
             string const & name = e->getCar()->getName();
             ibex::Interval const & v = b.m_values[i];
@@ -152,11 +155,13 @@ ostream& display(ostream& out, box const & b, bool const exact, bool const old_s
             if (i != (s - 1)) {
                 out << ";";
             }
-            out << endl;
         }
     } else {
         unsigned const s = b.size();
         for (unsigned i = 0; i < s; i++) {
+            if (i != 0) {
+                out << endl;
+            }
             Enode * e = b.m_vars[i];
             ibex::Interval const & v = b.m_values[i];
             ibex::Interval const & d = b.m_domains[i];
@@ -165,7 +170,6 @@ ostream& display(ostream& out, box const & b, bool const exact, bool const old_s
             display(out, d, exact);
             out << " = ";
             display(out, v, exact);
-            out << endl;
         }
     }
     out.precision(ss);
