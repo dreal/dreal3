@@ -322,4 +322,15 @@ void box::assign_to_enode() const {
         m_vars[i]->setValueUpperBound(m_values[i].ub());
     }
 }
+
+box intersect(box b1, box const & b2) {
+    b1.m_values &= b2.m_values;
+    return b1;
+}
+
+box hull(box b1, box const & b2) {
+    b1.m_values |= b2.m_values;
+    return b1;
+}
+
 }  // namespace dreal

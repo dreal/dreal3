@@ -179,6 +179,8 @@ public:
         }
         return seed;
     }
+    friend box intersect(box b1, box const & b2);
+    friend box hull(box b1, box const & b2);
 
     void assign_to_enode() const;
 };
@@ -187,6 +189,9 @@ bool operator<(ibex::Interval const & a, ibex::Interval const & b);
 bool operator>(ibex::Interval const & a, ibex::Interval const & b);
 bool operator<=(ibex::Interval const & a, ibex::Interval const & b);
 bool operator>=(ibex::Interval const & a, ibex::Interval const & b);
+
+box intersect(box b1, box const & b2);
+box hull(box b1, box const & b2);
 
 ostream& display_diff(ostream& out, box const & b1, box const & b2);
 ostream& display(ostream& out, box const & b, bool const exact = false, bool const old_style = false);
