@@ -61,14 +61,16 @@ std::ostream & operator<<(ostream & out, constraint const & c);
 
 class nonlinear_constraint : public constraint {
 private:
-    ibex::ExprCtr const * m_exprctr;
-    ibex::NumConstraint const * m_numctr;
-    ibex::NumConstraint const * m_numctr_ineq;
-    ibex::Array<ibex::ExprSymbol const> m_var_array;
+    ibex::ExprCtr const *                    m_exprctr;
+    ibex::NumConstraint const *              m_numctr;
+    ibex::NumConstraint const *              m_numctr_ineq;
+    ibex::Array<ibex::ExprSymbol const>      m_var_array;
+    std::unordered_map<Enode*, double> const m_subst;
+
     std::pair<lbool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
 
 public:
-    explicit nonlinear_constraint(Enode * const e, lbool p = l_Undef);
+    explicit nonlinear_constraint(Enode * const e, lbool p = l_Undef, std::unordered_map<Enode*, double> const & subst = std::unordered_map<Enode *, double>());
     virtual ~nonlinear_constraint();
     virtual std::ostream & display(std::ostream & out) const;
     std::pair<lbool, ibex::Interval> eval(box const & b) const;
