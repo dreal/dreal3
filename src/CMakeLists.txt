@@ -419,18 +419,23 @@ SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.c
 add_subdirectory(dsolvers)
 add_subdirectory(util)
 add_subdirectory(contractor)
+add_subdirectory(tools/dop)
 
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${DREAL_BINARY_DIR}/lib")
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${DREAL_BINARY_DIR}/lib")
 if(BUILD_SHARED_LIB)
   add_library(dreal SHARED ${DREAL_SRCS})
+  add_library(dop SHARED ${DOP_SRCS})
   if(APPLE)
     target_link_libraries(dreal ${EXTRA_LIBS})
+    target_link_libraries(dop ${EXTRA_LIBS})
   endif()
 else()
   add_library(dreal ${DREAL_SRCS})
+  add_library(dop ${DOP_SRCS})
 endif()
 
+add_dependencies(dop PEGTL)
 add_dependencies(dreal IBEX)
 add_dependencies(dreal EASYLOGGINGPP)
 add_dependencies(dreal EZOPTIONPARSER)
@@ -446,6 +451,11 @@ add_executable(dReal-bin main.cpp)
 SET_TARGET_PROPERTIES(dReal-bin
   PROPERTIES OUTPUT_NAME dReal)
 target_link_libraries(dReal-bin dreal ${EXTRA_LIBS})
+
+add_executable(dop-bin tools/dop/main.cpp)
+SET_TARGET_PROPERTIES(dop-bin
+  PROPERTIES OUTPUT_NAME dop)
+target_link_libraries(dop-bin dop dreal ${EXTRA_LIBS})
 
 #add tests
 add_subdirectory(tests/util)
@@ -466,7 +476,7 @@ file(GLOB_RECURSE DREAL_SOURCES
   ${DREAL_SOURCE_DIR}/util/*.cpp       ${DREAL_SOURCE_DIR}/util/*.h
   ${DREAL_SOURCE_DIR}/dsolvers/*.cpp   ${DREAL_SOURCE_DIR}/dsolvers/*.h
   ${DREAL_SOURCE_DIR}/tests/*.cpp      ${DREAL_SOURCE_DIR}/tests/*.h
-  )
+  ${DREAL_SOURCE_DIR}/tools/dop/*.cpp  ${DREAL_SOURCE_DIR}/tools/dop/*.h)
 add_style_check_target(style "${DREAL_SOURCES}")
 add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py "--filter=-readability/casting,-whitespace/line_length,-build/header_guard,-whitespace/indent,-runtime/references,-build/c++11,-runtime/int" ${DREAL_SOURCES})
 
