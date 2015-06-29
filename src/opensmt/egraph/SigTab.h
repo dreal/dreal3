@@ -51,8 +51,8 @@ public:
   };
 #endif
 
-  void initialize        ( vector< int > & );
-  void printStatistics   ( ostream &, int * );
+  void initialize        ( std::vector< int > & );
+  void printStatistics   ( std::ostream &, int * );
 #if PEDANTIC_DEBUG
   bool checkInvariantSTC ( );
 #endif
@@ -60,13 +60,13 @@ public:
 private:
 
 #ifdef BUILD_64
-  typedef hash_map< enodeid_pair_t, Enode * > HashTable;       // Hash Table type
+  typedef std::unordered_map< enodeid_pair_t, Enode * > HashTable;       // Hash Table type
   HashTable                                   store;           // Store
-#else                                         
-  typedef hash_map< enodeid_t, Cell * >       HashTable;       // Hash Table type
-  vector< HashTable * >                       store;           // The actual store 
-  vector< Cell * >		              cells;           // Collects cells for deletion
-#endif                                        
+#else
+  typedef std::unordered_map< enodeid_t, Cell * >       HashTable;       // Hash Table type
+  std::vector< HashTable * >                       store;           // The actual store
+  std::vector< Cell * >                       cells;           // Collects cells for deletion
+#endif
   bool                                        initialized;     // Has it been initialized ?
 
 };

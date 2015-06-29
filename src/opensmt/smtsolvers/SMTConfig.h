@@ -26,9 +26,6 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "common/Global.h"
 #include "minisat/core/SolverTypes.h"
 
-using std::ofstream;
-using std::ifstream;
-
 //
 // Holds informations about the configuration of the solver
 //
@@ -67,13 +64,13 @@ struct SMTConfig
 
   void parseConfig      ( char * );
   void parseCMDLine     ( int argc, const char * argv[ ] );
-  void printConfig      ( ostream & out );
+  void printConfig      ( std::ostream & out );
 
   inline bool      isInit      ( ) { return logic != UNDEF; }
 
-  inline ostream & getStatsOut     ( ) { assert( produce_stats );  return stats_out; }
-  inline ostream & getRegularOut   ( ) { return rocset ? out : cout; }
-  inline ostream & getDiagnosticOut( ) { return docset ? err : cerr; }
+  inline std::ostream & getStatsOut     ( ) { assert( produce_stats );  return stats_out; }
+  inline std::ostream & getRegularOut   ( ) { return rocset ? out : std::cout; }
+  inline std::ostream & getDiagnosticOut( ) { return docset ? err : std::cerr; }
 
   inline void setProduceModels( ) { if ( produce_models != 0 ) return; produce_models = 1; }
   inline void setProduceProofs( ) { if ( produce_proofs != 0 ) return; produce_proofs = 1; }
@@ -105,7 +102,7 @@ struct SMTConfig
   void setVerbosityInfoLevel();
   void setVerbosityErrorLevel();  // Default
 
-  string       filename;                     // Holds the name of the input filename
+  std::string  filename;                     // Holds the name of the input filename
   logic_t      logic;                        // SMT-Logic under consideration
   lbool        status;                       // Status of the benchmark
   int          incremental;                  // Incremental solving
@@ -173,7 +170,7 @@ struct SMTConfig
   int          lra_check_on_assert;          // Probability (0 to 100) to run check when assert is called
 
   // SMT related parameters used by dReal
-  string       nra_bmc_heuristic;             // Use BMC variable selection heuristic in Minisat from file
+  std::string  nra_bmc_heuristic;             // Use BMC variable selection heuristic in Minisat from file
 
   // NRA-Solver related parameters (added for dReal2)
   bool         nra_delta_test;                // precision=(nra_delta_test ? delta : epsilon)
@@ -186,13 +183,13 @@ struct SMTConfig
   bool         nra_proof;                     // --proof option
   bool         nra_readable_proof;            // --readable_proof option
   bool         nra_model;                     // --model option
-  ofstream     nra_model_out;                 // file stream for model
-  string       nra_model_out_name;            // filename for model
-  ofstream     nra_proof_out;                 // file stream for proof
-  string       nra_proof_out_name;            // filename for proof
+  std::ofstream nra_model_out;                 // file stream for model
+  std::string  nra_model_out_name;            // filename for model
+  std::ofstream nra_proof_out;                 // file stream for proof
+  std::string  nra_proof_out_name;            // filename for proof
   bool         nra_json;                      // --proof option
-  ofstream     nra_json_out;                  // file stream for json (visualization)
-  string       nra_json_out_name;             // filename for json (visualization)
+  std::ofstream nra_json_out;                  // file stream for json (visualization)
+  std::string   nra_json_out_name;             // filename for json (visualization)
   unsigned long nra_ODE_taylor_order;          // --ode-order option
   unsigned long nra_ODE_grid_size;             // --ode-grid option
   unsigned long nra_ODE_timeout;               // --ode-timeout option
@@ -212,9 +209,9 @@ struct SMTConfig
 
 private:
 
-  ofstream     stats_out;                    // File for statistics
-  ofstream     out;                          // Regular output channel
-  ofstream     err;                          // Diagnostic output channel
+  std::ofstream     stats_out;                    // File for statistics
+  std::ofstream     out;                          // Regular output channel
+  std::ofstream     err;                          // Diagnostic output channel
 };
 
 #endif

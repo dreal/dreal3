@@ -34,10 +34,6 @@ stored and the comparison function C
 #include <iostream>
 #include "opensmt/minisat/mtl/Vec.h"
 
-using std::ostream;
-using std::cout;
-using std::endl;
-
 template <class T, class C >
 class SplayTree
 {
@@ -83,7 +79,7 @@ public:
   //
   const SplayTree & operator=( const SplayTree & ) = delete;
 
-  void printStatistics( ostream & );
+  void printStatistics( std::ostream & );
 
   void printTree            ();
 
@@ -129,7 +125,7 @@ private:
   };
 
 public:
-  void perf                 ( ostream & os );
+  void perf                 ( std::ostream & os );
   void printTree            ( Bnode* t );
 };
 
@@ -344,12 +340,12 @@ void SplayTree<T,C>::printTree(Bnode* t)
 {
   if ( t == bnil_node) return;
 
-  cout << "el: " << t->element;
+  std::cout << "el: " << t->element;
   if (t->left != bnil_node)
-    cout << " left: " << t->left->element;
+    std::cout << " left: " << t->left->element;
   if (t->right != bnil_node)
-    cout << " right : " << t->right->element;
-  cout << endl;
+    std::cout << " right : " << t->right->element;
+  std::cout << std::endl;
 
   if (t->left != bnil_node)
     printTree(t->left);
@@ -360,18 +356,18 @@ void SplayTree<T,C>::printTree(Bnode* t)
 template <class T, class C>
 void SplayTree< T, C>::printTree()
 {
-  cout << "======" << endl << "Tree of size " << size << endl;
+  std::cout << "======" << std::endl << "Tree of size " << size << std::endl;
   printTree(root);
-  cout << "======" << endl;
+  std::cout << "======" << std::endl;
 }
 
 template <class T, class C>
-void SplayTree< T, C >::printStatistics( ostream & os )
+void SplayTree< T, C >::printStatistics( std::ostream & os )
 {
-  os << "#" << endl;
-  os << "# Total bnodes..........: " << size << endl;
-  os << "# Bnode size in memory..: " << size * sizeof( Bnode ) / ( 1024.0 * 1024.0 ) << " MB" << endl;
-  os << "# Avg size per bnode....: " << sizeof( Bnode ) << " B" << endl;
+  os << "#" << std::endl;
+  os << "# Total bnodes..........: " << size << std::endl;
+  os << "# Bnode size in memory..: " << size * sizeof( Bnode ) / ( 1024.0 * 1024.0 ) << " MB" << std::endl;
+  os << "# Avg size per bnode....: " << sizeof( Bnode ) << " B" << std::endl;
 }
 
 template <class T, class C>
@@ -393,9 +389,9 @@ void SplayTree<T,C>::debug(const T elems[], int size)
 
 
 template <class T, class C>
-void SplayTree<T,C>::perf( ostream & os ) {
-  os << "#" << endl;
-  os << "# Total bnodes..........: " << size << endl;
+void SplayTree<T,C>::perf( std::ostream & os ) {
+  os << "#" << std::endl;
+  os << "# Total bnodes..........: " << size << std::endl;
   os << "# Max depth.............: ";
   vec<SplayTreePair> queue;
   SplayTreePair p;
@@ -421,7 +417,7 @@ void SplayTree<T,C>::perf( ostream & os ) {
     max_depth = max_depth < pr.depth ? pr.depth : max_depth;
   }
 
-  os << max_depth << endl;
+  os << max_depth << std::endl;
 }
 
 #endif

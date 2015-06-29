@@ -19,6 +19,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Snode.h"
 
+using std::ostream;
+using std::string;
+
 //
 // Constructor for ENIL
 //
@@ -28,16 +31,16 @@ Snode::Snode( )
   , car        ( NULL )
   , cdr        ( NULL )
   , name       ( NULL )
-{ 
+{
   setStype( STYPE_LIST );
 }
 //
 // Constructor for new Symbols/Parameters
 //
 Snode::Snode( const snodeid_t id_
-	    , const char *    name_ 
-	    , const bool      para
-	    )
+            , const char *    name_
+            , const bool      para
+            )
   : id         ( id_ )
   , properties ( 0 )
   , car        ( NULL )
@@ -115,31 +118,31 @@ void Snode::print( ostream & os, bool par )
     if ( car->isDot( ) )
     {
       if ( par )
-	os << "(";
+        os << "(";
       p = cdr;
       for ( int i = 0 ; i < arity - 1 ; i ++ )
       {
         assert( !p->isSnil( ) );
         os << space;
-	if ( p->car->isDot( ) )
-	  p->car->print( os );
-	else
-	  p->car->car->print( os );
+        if ( p->car->isDot( ) )
+          p->car->print( os );
+        else
+          p->car->car->print( os );
         p = p->cdr;
         space = " ";
       }
       if ( par )
-	os << ") ";
+        os << ") ";
       if ( p->car->isDot( ) )
-	p->car->print( os );
+        p->car->print( os );
       else
-	p->car->car->print( os );
+        p->car->car->print( os );
     }
     else
     {
       // Print return symbol
       if ( par )
-	os << "() ";
+        os << "() ";
       car->print( os );
     }
   }
@@ -155,9 +158,9 @@ void Snode::print( ostream & os, bool par )
       p = cdr;
       while ( !p->isSnil( ) )
       {
-	os << ", ";
-	p->car->print( os );
-	p = p->cdr;
+        os << ", ";
+        p->car->print( os );
+        p = p->cdr;
       }
 
       os << "]";

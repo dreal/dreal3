@@ -19,6 +19,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SigTab.h"
 
+using std::pair;
+using std::make_pair;
+using std::ostream;
+
 SigTab::SigTab( )
 {
 #ifdef BUILD_64
@@ -90,18 +94,18 @@ Enode * SigTab::insert ( const enodeid_t id, Enode * car, Enode * cdr )
     else
     {
       c->active = true;
-      Enode * e = new Enode( id, car, cdr );   
+      Enode * e = new Enode( id, car, cdr );
       c->elem = e;
       ret_value = e;
     }
   }
-  // Otherwise there is no entry for this 
+  // Otherwise there is no entry for this
   // data, we create a new one and make it active
   else
   {
     Cell * cell = new Cell;
     cells.push_back( cell );
-    cell->elem = new Enode( id, car, cdr );   
+    cell->elem = new Enode( id, car, cdr );
     cell->active = true;
     ht[ second ] = cell;
     ret_value = cell->elem;
@@ -155,7 +159,7 @@ Enode * SigTab::insert ( Enode * data )
       ret_value = data;
     }
   }
-  // Otherwise there is no entry for this 
+  // Otherwise there is no entry for this
   // data, we create a new one and make it active
   else
   {
@@ -176,7 +180,7 @@ Enode * SigTab::insert ( Enode * data )
 // TODO: change this erase to stack-based erase:
 // since elements are deleted stack-based we can
 // just pop the last pushed cell and deactivate it
-// 
+//
 // or is insert stack-based ?
 //
 void SigTab::erase ( Enode * p )
@@ -187,7 +191,7 @@ void SigTab::erase ( Enode * p )
 
 #ifdef BUILD_64
   enodeid_pair_t key = encode( first, second );
-  HashTable::iterator it = store.find( key ); 
+  HashTable::iterator it = store.find( key );
   assert( it != store.end( ) );
   store.erase( it );
 #else
@@ -204,7 +208,7 @@ void SigTab::erase ( Enode * p )
 #ifdef BUILD_64
 Enode * SigTab::lookup ( const enodeid_pair_t & p )
 {
-  HashTable::iterator it = store.find( p ); 
+  HashTable::iterator it = store.find( p );
   if ( it == store.end( ) )
     return NULL;
   return it->second;
@@ -226,7 +230,7 @@ Enode * SigTab::lookup ( const Pair( int ) & p )
   if ( it == store[ first ]->end( ) )
     return NULL;
   // First and second are there, but not active
-  if ( !it->second->active ) 
+  if ( !it->second->active )
     return NULL;
 
   return it->second->elem;
@@ -236,7 +240,7 @@ Enode * SigTab::lookup ( const Pair( int ) & p )
 #ifdef BUILD_64
 void
 SigTab::printStatistics( ostream &, int * )
-{ 
+{
   assert( false );
 }
 #else
@@ -245,7 +249,7 @@ SigTab::printStatistics( ostream & os, int * maximal )
 {
   unsigned max = 0, min = 0xFFFFFFFF, total = 0, elem = 0
          , over1000 = 0, over100 = 0, over10000 = 0, over10 = 0
-	 , over5 = 0, one = 0, two = 0, thr = 0, fou = 0, fiv = 0;
+         , over5 = 0, one = 0, two = 0, thr = 0, fou = 0, fiv = 0;
   for ( unsigned i = 0 ; i < store.size( ) ; i ++ )
   {
     if ( store[ i ] == NULL )

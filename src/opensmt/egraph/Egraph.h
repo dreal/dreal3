@@ -617,9 +617,9 @@ private:
   vector< bool >                 arrayAtomTermDone;
 
 #ifdef BUILD_64
-  hash_set< enodeid_pair_t >     clauses_sent;
+  unordered_set< enodeid_pair_t >     clauses_sent;
 #else
-  hash_set< Pair( enodeid_t ) >  clauses_sent;
+  unordered_set< Pair( enodeid_t ) >  clauses_sent;
 #endif
 
   //===========================================================================

@@ -22,6 +22,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "util/string.h"
 
 using std::unordered_set;
+using std::cerr;
+using std::endl;
+using std::ostream;
+using std::string;
 
 //
 // Constructor for ENIL

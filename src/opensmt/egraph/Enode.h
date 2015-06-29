@@ -237,8 +237,8 @@ public:
   inline unsigned             getArity   ( ) const { return ((properties & ARITY_MASK) >> ARITY_SHIFT); }
   Snode *                     getSort    ( ) const { assert( isTerm( ) || isSymb( ) ); return isTerm( ) ? car->symb_data->sort : symb_data->sort; }
   Snode *                     getLastSort( );
-  inline string   getName                ( ) const { assert( isSymb( ) || isNumb( ) ); assert( symb_data ); return stripName( symb_data->name ); }
-  inline string   getNameFull            ( ) const { assert( isSymb( ) || isNumb( ) ); assert( symb_data ); return symb_data->name; }
+  inline std::string   getName           ( ) const { assert( isSymb( ) || isNumb( ) ); assert( symb_data ); return stripName( symb_data->name ); }
+  inline std::string   getNameFull       ( ) const { assert( isSymb( ) || isNumb( ) ); assert( symb_data ); return symb_data->name; }
   inline Enode *  getCar                 ( ) const { return car; }
   inline Enode *  getCdr                 ( ) const { return cdr; }
   inline Enode *  getDef                 ( ) const { assert( isDef( ) ); assert( car ); return car; }
@@ -361,11 +361,11 @@ public:
   bool           addToCongruence        ( ) const;
   unsigned       sizeInMem              ( ) const;
 
-  void           print_infix( ostream & os, lbool polarity, string const & variable_postfix = "") const;
-  void           print                  ( ostream & ) const; // Prints the
+  void           print_infix( std::ostream & os, lbool polarity, std::string const & variable_postfix = "") const;
+  void           print                  ( std::ostream & ) const; // Prints the
 
-  string         stripName              ( string ) const;
-  void           printSig               ( ostream & ); // Prints the enode signature
+  std::string    stripName              ( std::string ) const;
+  void           printSig               ( std::ostream & ); // Prints the enode signature
 
 #ifdef BUILD_64
   inline enodeid_pair_t          getSig    ( ) const { return encode( car->getRoot( )->getCid( ), cdr->getRoot( )->getCid( ) ); }
@@ -375,7 +375,7 @@ public:
   inline enodeid_t               getSigCar ( ) const { return car->getRoot( )->getCid( ); }
   inline enodeid_t               getSigCdr ( ) const { return cdr->getRoot( )->getCid( ); }
 
-  inline friend ostream &  operator<<( ostream & os, Enode const * const e )    { assert( e ); e->print( os ); return os; }
+  inline friend std::ostream &  operator<<( std::ostream & os, Enode const * const e )    { assert( e ); e->print( os ); return os; }
 
   struct idLessThan
   {

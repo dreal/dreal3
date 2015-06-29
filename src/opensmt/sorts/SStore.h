@@ -65,7 +65,7 @@ public:
 
   Snode *  newSymbol           ( const char *, const bool = false );                            // Creates a sort symbol
   Snode *  newPara             ( const char * );                            // Creates a sort symbol
-  Snode *  cons                ( list< Snode * > & );                                           // Shortcut, but not efficient
+  Snode *  cons                ( std::list< Snode * > & );                                           // Shortcut, but not efficient
   Snode *  cons                ( Snode *, Snode * );                                            // Create Lists/Terms
   Snode *  cons                ( Snode * e ) { return cons( e, const_cast< Snode * >(snil) ); } // Shortcut for singleton
 
@@ -88,7 +88,7 @@ public:
   Snode * mkVar         ( const char * );
   Snode * mkPara        ( const char * );
 
-  void dumpSortsToFile ( ostream & );
+  void dumpSortsToFile ( std::ostream & );
 
 private:
   //
@@ -112,8 +112,8 @@ private:
   Snode * insertStore     ( const snodeid_t, Snode *, Snode * );   // Insert node into the global store
 
   SplayTree< Snode *, Snode::idLessThan > store;                   // The actual store
-  map< string, Snode * >                  name_to_symbol;          // From sort name to pointer to symbol
-  vector< Snode * >                       id_to_snode;             // Table SNODE_ID --> SNODE
+  std::map< std::string, Snode * >        name_to_symbol;          // From sort name to pointer to symbol
+  std::vector< Snode * >                  id_to_snode;             // Table SNODE_ID --> SNODE
 };
 
 #endif

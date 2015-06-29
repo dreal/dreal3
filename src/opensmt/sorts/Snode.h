@@ -126,9 +126,9 @@ public:
   inline Snode *   get2nd           ( ) const;                   // Get second argument in constant time
   inline Snode *   get3rd           ( ) const;                   // Get third argument in constant time
 
-  void             print            ( ostream &, bool = true ); // Prints the snode
+  void             print            ( std::ostream &, bool = true ); // Prints the snode
 
-  inline friend ostream &  operator<<( ostream & os, Snode * e )    { assert( e ); e->print( os ); return os; }
+  inline friend std::ostream &  operator<<( std::ostream & os, Snode * e )    { assert( e ); e->print( os ); return os; }
 
   struct idLessThan
   {
@@ -165,10 +165,10 @@ public:
     return l;
   }
 
-  inline string getArgs ( )
+  inline std::string getArgs ( )
   {
-    stringstream ss;
-    string space = "";
+    std::stringstream ss;
+    std::string space = "";
     Snode * l = this->getCdr( );
     const unsigned n = getArity( );
     for ( unsigned i = 1 ; i < n ; i ++ )
