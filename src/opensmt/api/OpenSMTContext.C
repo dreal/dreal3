@@ -951,7 +951,12 @@ void OpenSMTContext::addIntvCtr(const char* const op, Enode* const e, const char
         double const vval = strtod(v, nullptr);
         e->setDomainUpperBound(vval);
         e->setValueUpperBound(vval);
-        Enode * const leq = mkLeq(mkCons(e, mkCons(mkNum(v))));
+        Enode * leq = nullptr;
+        if(strcmp(op, "<=") == 0) {
+            leq = mkLeq(mkCons(e, mkCons(mkNum(v))));
+        } else {
+            leq = mkLt(mkCons(e, mkCons(mkNum(v))));
+        }
         if(d != nullptr){
             double const dval = strtod(d, nullptr);
             leq->setPrecision(dval);
@@ -963,7 +968,12 @@ void OpenSMTContext::addIntvCtr(const char* const op, Enode* const e, const char
         double const vval = strtod(v, nullptr);
         e->setDomainLowerBound(vval);
         e->setValueLowerBound(vval);
-        Enode * const geq = mkGeq(mkCons(e, mkCons(mkNum(v))));
+        Enode * geq = nullptr;
+        if(strcmp(op, ">=") == 0) {
+            geq = mkGeq(mkCons(e, mkCons(mkNum(v))));
+        } else {
+            geq = mkGt(mkCons(e, mkCons(mkNum(v))));
+        }
         if(d != nullptr){
             double const dval = strtod(d, nullptr);
             geq->setPrecision(dval);
@@ -976,13 +986,15 @@ void OpenSMTContext::addIntvCtr(const char* const op, Enode* const e, const char
 }
 
 void OpenSMTContext::addIntvCtrR(const char* const op, const char * v, Enode * const e, const char * d) {
-    if(strcmp(op, "<=") == 0 || strcmp(op, "<") == 0) {
-        addIntvCtr( ">=", e, v, d);
-    }
-    else if(strcmp(op, ">=") == 0 || strcmp(op, ">" ) == 0) {
-        addIntvCtr( "<=", e, v, d);
-    }
-    else {
+    if(strcmp(op, "<=") == 0) {
+        addIntvCtr(">=", e, v, d);
+    } else if(strcmp(op, "<") == 0) {
+        addIntvCtr(">", e, v, d);
+    } else if(strcmp(op, ">=")) {
+        addIntvCtr("<=", e, v, d);
+    } else if(strcmp(op, ">") == 0) {
+        addIntvCtr("<", e, v, d);
+    } else {
         opensmt_error2( "command not supported (yet)", "" );
     }
 }
