@@ -36,6 +36,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <stack>
+#include <tuple>
 #include "contractor/contractor.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
@@ -53,20 +55,21 @@ using std::set;
 using std::stringstream;
 using std::unordered_set;
 using std::vector;
+using std::ostream;
 
 namespace dreal {
-std::ostream & operator<<(std::ostream & out, contractor_cell const & c) {
+ostream & operator<<(ostream & out, contractor_cell const & c) {
     return c.display(out);
 }
 
 contractor_seq::contractor_seq(initializer_list<contractor> const & l)
     : contractor_cell(contractor_kind::SEQ), m_vec(l) { }
 
-contractor_seq::contractor_seq(contractor const & c, std::vector<contractor> const & v)
+contractor_seq::contractor_seq(contractor const & c, vector<contractor> const & v)
     : contractor_cell(contractor_kind::SEQ), m_vec(1, c) {
     copy(v.begin(), v.end(), back_inserter(m_vec));
 }
-contractor_seq::contractor_seq(contractor const & c1, std::vector<contractor> const & v, contractor const & c2)
+contractor_seq::contractor_seq(contractor const & c1, vector<contractor> const & v, contractor const & c2)
     : contractor_cell(contractor_kind::SEQ), m_vec(1, c1) {
     copy(v.begin(), v.end(), back_inserter(m_vec));
     m_vec.push_back(c2);
@@ -595,68 +598,51 @@ box contractor_forall::prune(box b, SMTConfig & config) const {
     lbool const p = m_ctr->get_polarity();
     Enode * const e = m_ctr->get_enode();
     unordered_set<Enode*> const & forall_vars = m_ctr->get_forall_vars();
-    // cerr << "\n\n==================================" << endl;
-    // cerr << "contractor_forall::prune: begin = " << b << endl;
+    DREAL_LOG_DEBUG << "\n\n==================================" << endl;
+    DREAL_LOG_DEBUG << "contractor_forall::prune: begin = " << b << endl;
 
     // Make a random subst from forall_vars, prune b using
     unordered_map<Enode*, double> subst = make_random_subst(forall_vars);
-    // cerr << "subst = " << subst << endl;
+    // DREAL_LOG_DEBUG << "subst = " << subst << endl;
     nonlinear_constraint const * const ctr = new nonlinear_constraint(e, p, subst);
     contractor ctc = mk_contractor_ibex_fwdbwd(b, ctr);
     old_box = b;
-    // cerr << "prune using " << ctc << endl;
+    DREAL_LOG_DEBUG << "prune using " << ctc << endl;
     b = ctc.prune(b, config);
     if (b == old_box) {
-        // cerr << "Sampling doesn't help. Try to find a counter example" << endl;
         // ask dreal whether its negation is possible (note: we run icp_loop)
+        DREAL_LOG_DEBUG << "Sampling doesn't help. Try to find a counter example" << endl;
         nonlinear_constraint const * const not_ctr = new nonlinear_constraint(e, !p);
         box counter_example(b, forall_vars);
         contractor not_ctc = mk_contractor_ibex_fwdbwd(counter_example, not_ctr);
-        // cerr << "icp with " << not_ctc << endl;
+        DREAL_LOG_DEBUG << "icp with " << not_ctc << endl;
         counter_example = icp_loop(counter_example, not_ctc, config);
         if (!counter_example.is_empty()) {
-
-            cerr << "Found possible counterexample" << endl;
-            cerr << "not_ctc = " << not_ctc << endl;
-            cerr << counter_example << endl;
-
+            DREAL_LOG_DEBUG << "Found possible counterexample" << endl;
+            DREAL_LOG_DEBUG << "not_ctc = " << not_ctc << endl;
+            DREAL_LOG_DEBUG << counter_example << endl;
             subst = make_random_subst(counter_example, forall_vars);
-            cerr << "subst = " << subst << endl;
+            // DREAL_LOG_DEBUG << "subst = " << subst << endl;
             nonlinear_constraint const * const ctr2 = new nonlinear_constraint(e, p, subst);
             contractor ctc2 = mk_contractor_ibex_fwdbwd(b, ctr2);
-            // cerr << "prune using " << ctc2 << endl;
+            DREAL_LOG_DEBUG << "prune using " << ctc2 << endl;
             b = ctc2.prune(b, config);
-            if(b != old_box) {
-                cerr << "Pruned from counterexample (stop)" << endl;
+            if (b != old_box) {
+                DREAL_LOG_DEBUG << "Pruned from counterexample (stop)" << endl;
             } else {
-                cerr << "b == old_box. a counter example doesn't prune anything. repeat." << endl;
-                cerr << b << endl;
-                // tuple<int, box, box> splits = b.bisect_at(0);
-                // int const split_dim = get<0>(splits);
-                // if (split_dim < 0) {
-                //     cerr << "can't even split it. (stop)" << endl;
-                // }
-                // box b1 = get<1>(splits);
-                // box b2 = get<2>(splits);
-                // b1 = ctc2.prune(b1, config);
-                // b2 = ctc2.prune(b2, config);
-                // b = hull(b1, b2);
-                // if (b != old_box) {
-                //     cerr << "OK. split on " << split_dim << " works. (stop)" << endl;
-                // } else {
-                //     cerr << "Nono... split on " << split_dim << " doesn't help." << endl;
-                // }
+                DREAL_LOG_DEBUG << "b == old_box. a counter example doesn't prune anything. repeat." << endl;
+                DREAL_LOG_DEBUG << b << endl;
             }
             delete ctr2;
         } else {
-            // cerr << "counter_example is empty. b should be the right answer." << endl;
+            DREAL_LOG_DEBUG << "counter_example is empty. b should be the right answer." << endl;
         }
         delete not_ctr;
     } else {
-        // cerr << "b != old_box, we made a progress, exit." << endl;
+        DREAL_LOG_DEBUG << "b != old_box, we made a progress, exit." << endl;
     }
-    // cerr << "contractor_forall::prune: result = " << b << endl;
-    // cerr << "==================================\n\n" << endl;
+    DREAL_LOG_DEBUG << "contractor_forall::prune: result = " << b << endl;
+    DREAL_LOG_DEBUG << "==================================\n\n" << endl;
     m_used_constraints.insert(m_ctr);
     m_input  = ibex::BitSet::all(b.size());
     m_output = ibex::BitSet::all(b.size());
@@ -732,7 +718,7 @@ contractor mk_contractor_aggressive(unsigned const n, vector<constraint *> const
 contractor mk_contractor_forall(box const & b, forall_constraint const * const ctr) {
     return contractor(make_shared<contractor_forall>(b, ctr));
 }
-std::ostream & operator<<(std::ostream & out, contractor const & c) {
+ostream & operator<<(ostream & out, contractor const & c) {
     out << *(c.m_ptr);
     return out;
 }
