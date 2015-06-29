@@ -457,10 +457,10 @@ SET_TARGET_PROPERTIES(dReal-bin
   PROPERTIES OUTPUT_NAME dReal)
 target_link_libraries(dReal-bin dreal ${EXTRA_LIBS})
 
-add_executable(dop-bin tools/dop/main.cpp)
-SET_TARGET_PROPERTIES(dop-bin
-  PROPERTIES OUTPUT_NAME dop)
-target_link_libraries(dop-bin dop dreal ${EXTRA_LIBS})
+add_executable(dOp-bin tools/dop/main.cpp)
+SET_TARGET_PROPERTIES(dOp-bin
+  PROPERTIES OUTPUT_NAME dOp)
+target_link_libraries(dOp-bin dop dreal ${EXTRA_LIBS})
 
 #add tests
 add_subdirectory(tests/util)
@@ -490,6 +490,11 @@ ADD_CUSTOM_COMMAND(TARGET dReal-bin
           COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
           COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dReal ${DREAL_SOURCE_DIR}/../bin/
 )
+ADD_CUSTOM_COMMAND(TARGET dOp-bin
+          POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
+          COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dOp ${DREAL_SOURCE_DIR}/../bin/
+)
 
 #########################################
 # CPack
@@ -506,6 +511,7 @@ endif()
 include(CPack)
 
 install(TARGETS dReal-bin DESTINATION bin)
+install(TARGETS dOp-bin DESTINATION bin)
 install(FILES ${DREAL_SOURCE_DIR}/../bin/dReach DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
               GROUP_READ GROUP_WRITE GROUP_EXECUTE
