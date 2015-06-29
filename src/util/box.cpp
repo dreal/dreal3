@@ -136,10 +136,12 @@ ostream& display_diff(ostream& out, box const & b1, box const & b2) {
         Enode * e1 = b1.m_vars[i];
         assert(e1 == b2.m_vars[i]);
         ibex::Interval const & v1 = b1.m_values[i];
-        ibex::Interval const & d1 = b1.m_domains[i];
         ibex::Interval const & v2 = b2.m_values[i];
+#ifdef DEBIG
+        ibex::Interval const & d1 = b1.m_domains[i];
         ibex::Interval const & d2 = b2.m_domains[i];
         assert(d1 == d2);
+#endif
         if (v1 != v2) {
             out << e1->getCar()->getName()
                 << " : ";
