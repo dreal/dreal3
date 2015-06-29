@@ -327,7 +327,9 @@ void SplayTree< T, C >::deleteTree()
     if( t != t->left )
     {
       stack[++idx] = t->left;
-      stack[++idx] = t->right;
+      if (this->size >= 2) {
+          stack[++idx] = t->right;
+      }
       delete t;
     }
   }
