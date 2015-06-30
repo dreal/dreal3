@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "tools/dop/config.h"
+#include "tools/dop/dopconfig.h"
 #include <pegtl.hh>
 #include <cassert>
 #include <algorithm>

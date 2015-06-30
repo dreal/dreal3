@@ -35,7 +35,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "./version.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/egraph/Enode.h"
-#include "tools/dop/config.h"
+#include "tools/dop/dopconfig.h"
 #include "util/subst_enode.h"
 #include "tools/dop/parser.h"
 #include "util/logging.h"
