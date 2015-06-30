@@ -32,20 +32,20 @@ namespace dop {
 class config {
 private:
     std::string m_filename;
-    unsigned long m_viz_gridsize = 50;
-    bool m_read_from_stdin = false;
+    unsigned long m_vis_cell = 50;
+    bool m_visualize = false;
     void printUsage(ez::ezOptionParser & opt);
-    void init(std::string const & filename, unsigned long const viz_gridsize, bool const read_from_stdin) {
+    void init(std::string const & filename, bool const visualize, unsigned long const vis_cell) {
         m_filename = filename;
-        m_viz_gridsize = viz_gridsize;
-        m_read_from_stdin = read_from_stdin;
+        m_visualize = visualize;
+        m_vis_cell = vis_cell;
     }
 
 public:
     config(int const argc, const char * argv[]);
     std::string get_filename() { return m_filename; }
-    unsigned long get_viz_gridsize() { return m_viz_gridsize; }
-    bool get_read_from_stdin() { return m_read_from_stdin; }
+    unsigned long get_vis_cell() { return m_vis_cell; }
+    bool get_visualize() const { return m_visualize; }
 };
 
 }  // namespace dop

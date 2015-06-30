@@ -47,39 +47,24 @@ config::config(int const argc, const char * argv[]) {
             "Display usage instructions.",
             "-h", "-help", "--help", "--usage");
     opt.add("", false, 0, 0,
-            "print out version information.",
-            "--version");
+            "visualize the result",
+            "--visualize", "--vis");
     opt.add("", false, 1, 0,
-            "# of splits in visualization",
-            "--grid");
-    opt.add("", false, 0, 0,
-            "read formula from standard input",
-            "--in");
+            "[visualization] # of cells in one dimension",
+            "--vis-cell");
     opt.parse(argc, argv);
     opt.overview  = "dop ";
-    if (opt.isSet("--version")) {
-        // Usage Information
-        cout << opt.overview << endl;
-        exit(0);
-    }
     // Usage Information
     opt.overview += " : delta-complete Optimizer";
     opt.syntax    = "dop [OPTIONS] <input file>";
     if (opt.isSet("-h")) {
         printUsage(opt);
     }
-    if (opt.isSet("--version")) {
-        // Usage Information
-        cout << opt.overview << endl;
-        exit(0);
-    }
 
-    // Gridsize
-    unsigned long gridsize = 50.0;
-    if (opt.isSet("--grid")) { opt.get("--grid")->getULong(gridsize); }
-
-    // stdin
-    bool stdin_is_on = opt.isSet("--in");
+    // visualization options
+    bool vis_is_on = opt.isSet("--visualize");
+    unsigned long vis_cell = 50.0;
+    if (opt.isSet("--vis-cell")) { opt.get("--vis-cell")->getULong(vis_cell); }
 
     // Set up filename
     string filename;
@@ -87,29 +72,17 @@ config::config(int const argc, const char * argv[]) {
     copy(opt.firstArgs.begin() + 1, opt.firstArgs.end(),   back_inserter(args));
     copy(opt.unknownArgs.begin(),   opt.unknownArgs.end(), back_inserter(args));
     copy(opt.lastArgs.begin(),      opt.lastArgs.end(),    back_inserter(args));
-    if (stdin_is_on && args.size() > 0) {
+    if (args.size() != 1) {
         printUsage(opt);
     }
-    if (!stdin_is_on && args.size() == 0) {
-        printUsage(opt);
-    }
-    if (args.size() > 1) {
-        printUsage(opt);
-    }
-    assert((args.size() == 1 && !stdin_is_on) ||
-           (args.size() == 0 && stdin_is_on));
-    if (args.size() == 1) {
-        filename = *args[0];
-        if (filename.length() > 0) {
-            struct stat s;
-            if (stat(filename.c_str(), &s) != 0 || !(s.st_mode & S_IFREG)) {
-                cerr << "can't open file:" << filename << endl;
-                exit(1);
-            }
+    filename = *args[0];
+    if (filename.length() > 0) {
+        struct stat s;
+        if (stat(filename.c_str(), &s) != 0 || !(s.st_mode & S_IFREG)) {
+            cerr << "can't open file:" << filename << endl;
+            exit(1);
         }
-    } else {
-        filename = "stdin";
     }
-    init(filename, gridsize, stdin_is_on);
+    init(filename, vis_is_on, vis_cell);
 }
 }  // namespace dop
