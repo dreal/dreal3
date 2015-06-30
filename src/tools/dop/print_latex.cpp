@@ -31,6 +31,20 @@ using std::unordered_map;
 using std::stringstream;
 using std::runtime_error;
 
+ostream & print_latex_infix_op(ostream & out, Enode * const e, string const & op, std::function<ostream & (ostream &, Enode * const)> const & f) {
+    assert(e->getArity() >= 2);
+    out << "{";
+    f(out, e->get1st());
+    Enode * tmp = e->getCdr()->getCdr();
+    while (!tmp->isEnil()) {
+        out << "} " << op << " {";
+        f(out, tmp->getCar());
+        tmp = tmp->getCdr();
+    }
+    out << "}";
+    return out;
+}
+
 ostream & print_latex_infix(ostream & out, Enode * const e) {
     if (e->isSymb()) {
         out << e;
@@ -40,15 +54,15 @@ ostream & print_latex_infix(ostream & out, Enode * const e) {
         out << e;
     } else if (e->isTerm()) {
         if (e->isPlus()) {
-            print_infix_op(out, e, "+", print_latex_infix);
+            print_latex_infix_op(out, e, "+", print_latex_infix);
         } else if (e->isMinus()) {
-            print_infix_op(out, e, "-", print_latex_infix);
+            print_latex_infix_op(out, e, "-", print_latex_infix);
         } else if (e->isTimes()) {
-            print_infix_op(out, e, "*", print_latex_infix);
+            print_latex_infix_op(out, e, "*", print_latex_infix);
         } else if (e->isDiv()) {
-            print_infix_op(out, e, "/", print_latex_infix);
+            print_latex_infix_op(out, e, "/", print_latex_infix);
         } else if (e->isPow()) {
-            print_infix_op(out, e, "^", print_latex_infix);
+            print_latex_infix_op(out, e, "^", print_latex_infix);
         } else if (e->isAbs()) {
             print_call_bar(out, e, "", print_latex_infix);
         } else if (e->isSin()) {

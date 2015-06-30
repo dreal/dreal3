@@ -21,9 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <string>
 #include "opensmt/egraph/Enode.h"
-#include "config.h"
-#include "version.h"
 
 namespace dop {
-void visualize_result_via_python(Enode * const f, std::unordered_map<std::string, Enode *> const & var_map, std::string const & s);
+void visualize_result_via_python(Enode * const f, std::unordered_map<std::string, Enode *> const & var_map, unsigned const gridsize, std::string const & s);
 }  // namespace dop
