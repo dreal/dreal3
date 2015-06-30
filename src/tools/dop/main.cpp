@@ -38,6 +38,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "tools/dop/dopconfig.h"
 #include "util/subst_enode.h"
 #include "tools/dop/parser.h"
+#include "tools/dop/print_py.h"
+#include "tools/dop/print_latex.h"
+#include "tools/dop/visualize.h"
 #include "util/logging.h"
 
 using std::back_inserter;
@@ -129,35 +132,36 @@ int main(int argc, const char * argv[]) {
     START_EASYLOGGINGPP(argc, argv);
 #endif
     dop::config config(argc, argv);
-    if (!config.get_read_from_stdin()) {
-        string const filename = config.get_filename();
-        pegtl::read_parser parser { filename };
-        dop::pstate p;
-        try {
-            parser.parse<dop::grammar, dop::action, dop::control>(p);
-        } catch (pegtl::parse_error const & e) {
-            throw runtime_error(e.what());
+    string const filename = config.get_filename();
+    pegtl::read_parser parser { filename };
+    dop::pstate p;
+    try {
+        parser.parse<dop::grammar, dop::action, dop::control>(p);
+    } catch (pegtl::parse_error const & e) {
+        throw runtime_error(e.what());
+    }
+    double const prec = p.get_prec();
+    OpenSMTContext & ctx = p.get_ctx();
+    unordered_map<string, Enode *> var_map = p.get_var_map();
+    Enode * const f = p.get_result();
+    ctx.setPrecision(prec);
+    Enode * min_var = dop::make_min_var(ctx, var_map);
+    Enode * leq_ctr = dop::make_leq_ctr(ctx, var_map, f, min_var);
+    Enode * eq_ctr = dop::make_eq_ctr(ctx, f, min_var);
+    ctx.Assert(leq_ctr);
+    ctx.Assert(eq_ctr);
+    cout << "Minimize: " << f << endl;
+    cout << "Solve   : " << leq_ctr << endl
+         << "          " << eq_ctr << endl;
+    cout << "Result  : ";
+    if (ctx.CheckSAT() == l_True) {
+        cout << "delta-sat" << endl;
+        dop::print_result(var_map);
+        if (config.get_visualize()) {
+            dop::visualize_result_via_python(f, var_map, config.get_vis_cell(), dop::g_minimum_name);
         }
-        double const prec = p.get_prec();
-        OpenSMTContext & ctx = p.get_ctx();
-        unordered_map<string, Enode *> var_map = p.get_var_map();
-        Enode * const f = p.get_result();
-        ctx.setPrecision(prec);
-        Enode * min_var = dop::make_min_var(ctx, var_map);
-        Enode * leq_ctr = dop::make_leq_ctr(ctx, var_map, f, min_var);
-        Enode * eq_ctr = dop::make_eq_ctr(ctx, f, min_var);
-        ctx.Assert(leq_ctr);
-        ctx.Assert(eq_ctr);
-        cout << "Minimize: " << f << endl;
-        cout << "Solve   : " << leq_ctr << endl
-             << "          " << eq_ctr << endl;
-        cout << "Result  : ";
-        if (ctx.CheckSAT() == l_True) {
-            cout << "delta-sat" << endl;
-            dop::print_result(var_map);
-        } else {
-            cout << "unsat" << endl;
-        }
+    } else {
+        cout << "unsat" << endl;
     }
     return 0;
 }
