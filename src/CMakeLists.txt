@@ -172,6 +172,15 @@ find_package(GIT REQUIRED)
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 
+# FindPythonLibs
+set(Python_ADDITIONAL_VERSIONS 2.7)
+find_package(PythonInterp 2.7)
+find_package(PythonLibs 2.7)
+if(PYTHONLIBS_FOUND)
+  include_directories("${PYTHON_INCLUDE_DIR}")
+  set(EXTRA_LIBS "${PYTHON_LIBRARIES}" ${EXTRA_LIBS})
+endif()
+
 function(JOIN VALUES GLUE OUTPUT)
   string (REGEX REPLACE "([^\\]|^);" "\\1${GLUE}" _TMP_STR "${VALUES}")
   string (REGEX REPLACE "[\\](.)" "\\1" _TMP_STR "${_TMP_STR}") #fixes escaping
