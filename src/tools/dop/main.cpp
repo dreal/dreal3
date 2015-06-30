@@ -55,7 +55,7 @@ namespace dop {
 
 static const char g_minimum_name[] = "min";
 
-Enode * make_leq_ctr(OpenSMTContext & ctx, unordered_map<string, Enode *> const & m, Enode * f) {
+Enode * make_leq_ctr(OpenSMTContext & ctx, unordered_map<string, Enode *> const & m, Enode * f, Enode * min_var) {
     unordered_map<Enode *, Enode *> subst_map;
 
     // 1. need to create a mapping from exist variables to forall variables
@@ -79,17 +79,21 @@ Enode * make_leq_ctr(OpenSMTContext & ctx, unordered_map<string, Enode *> const 
     Enode * forall_f = dreal::subst(ctx, f, subst_map);
 
     // 3. return f(x1, x2) <= f(y1, y2) /\ min* = f(x1, x2)
-    Enode * const args_list = ctx.mkCons(f, ctx.mkCons(forall_f));
+    Enode * const args_list = ctx.mkCons(min_var, ctx.mkCons(forall_f));
     Enode * const leq = ctx.mkLeq(args_list);
     return leq;
 }
 
-Enode * make_eq_ctr(OpenSMTContext & ctx, unordered_map<string, Enode *> & m, Enode * f) {
+Enode * make_min_var(OpenSMTContext & ctx, unordered_map<string, Enode *> & m) {
     Snode * const real_sort = ctx.mkSortReal();
     ctx.DeclareFun(g_minimum_name, real_sort);
     Enode * const min_var = ctx.mkVar(g_minimum_name, true);
-    Enode * const eq = ctx.mkEq(ctx.mkCons(f, ctx.mkCons(min_var)));
     m.emplace(g_minimum_name, min_var);
+    return min_var;
+}
+
+Enode * make_eq_ctr(OpenSMTContext & ctx, Enode * e1, Enode * e2) {
+    Enode * const eq = ctx.mkEq(ctx.mkCons(e1, ctx.mkCons(e2)));
     return eq;
 }
 
@@ -139,8 +143,9 @@ int main(int argc, const char * argv[]) {
         unordered_map<string, Enode *> var_map = p.get_var_map();
         Enode * const f = p.get_result();
         ctx.setPrecision(prec);
-        Enode * leq_ctr = dop::make_leq_ctr(ctx, var_map, f);
-        Enode * eq_ctr = dop::make_eq_ctr(ctx, var_map, f);
+        Enode * min_var = dop::make_min_var(ctx, var_map);
+        Enode * leq_ctr = dop::make_leq_ctr(ctx, var_map, f, min_var);
+        Enode * eq_ctr = dop::make_eq_ctr(ctx, f, min_var);
         ctx.Assert(leq_ctr);
         ctx.Assert(eq_ctr);
         cout << "Minimize: " << f << endl;
