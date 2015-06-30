@@ -3,4 +3,7 @@ SET(DOP_SRCS "${DOP_SRCS}"
   "${CMAKE_CURRENT_LIST_DIR}/pstate.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/stacks.cpp"
   "${CMAKE_CURRENT_LIST_DIR}/var_map.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/print.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/print_py.cpp"
+  "${CMAKE_CURRENT_LIST_DIR}/print_latex.cpp"
   PARENT_SCOPE)
