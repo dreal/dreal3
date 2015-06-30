@@ -111,6 +111,11 @@ template<> struct action<tk_pow> {
         p.push_back_op("^");
     }
 };
+template<> struct action<tk_abs> {
+    static void apply(const pegtl::input &, pstate &p ) {
+        p.push_back_op("abs");
+    }
+};
 template<> struct action<tk_sin> {
     static void apply(const pegtl::input &, pstate &p ) {
         p.push_back_op("sin");
@@ -231,6 +236,20 @@ template<> struct action<exp_sin> {
                 assert(ops.back() == "sin");
                 Enode * const args_list = ctx.mkCons(vec.back());
                 Enode * const res = ctx.mkSin(args_list);
+                vec.pop_back();
+                ops.pop_back();
+                return res;
+            });
+    }
+};
+
+template<> struct action<exp_abs> {
+    static void apply(const pegtl::input &, pstate & p) {
+        p.reduce([](OpenSMTContext & ctx, std::vector<Enode *> & vec, std::vector<std::string> & ops) {
+                assert(vec.size() == 1 && ops.size() == 1);
+                assert(ops.back() == "abs");
+                Enode * const args_list = ctx.mkCons(vec.back());
+                Enode * const res = ctx.mkAbs(args_list);
                 vec.pop_back();
                 ops.pop_back();
                 return res;

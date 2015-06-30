@@ -78,6 +78,11 @@ Enode * subst(OpenSMTContext & ctx, Enode * e, unordered_map<Enode *, Enode *> c
             Enode * const e2 = subst(ctx, e->get2nd(), m);
             Enode * res = ctx.mkPow(ctx.mkCons(e1, ctx.mkCons(e2)));
             return res;
+        } else if (e->isAbs()) {
+            assert(e->getArity() == 1);
+            Enode * const e1 = subst(ctx, e->get1st(), m);
+            Enode * res = ctx.mkAbs(ctx.mkCons(e1));
+            return res;
         } else if (e->isSin()) {
             assert(e->getArity() == 1);
             Enode * const e1 = subst(ctx, e->get1st(), m);

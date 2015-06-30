@@ -52,6 +52,7 @@ struct tk_times : pegtl::one<'*'> {};
 struct tk_div   : pegtl::one<'/'> {};
 struct tk_pow   : pegtl::one<'^'> {};
 
+struct tk_abs   : pegtl::string<'a', 'b', 's'> {};
 struct tk_sin   : pegtl::string<'s', 'i', 'n'> {};
 struct tk_cos   : pegtl::string<'c', 'o', 's'> {};
 struct tk_tan   : pegtl::string<'t', 'a', 'n'> {};
@@ -95,6 +96,7 @@ struct exp_plus_minus : pegtl::list<exp_prod,  pegtl::sor<tk_plus,  tk_minus>, s
 struct exp_times_div  : pegtl::list<exp_term,  pegtl::sor<tk_times, tk_div>,   sep> { };
 struct exp_pow   : pegtl::list<exp_value, tk_pow,   sep> { };
 
+struct exp_abs   : pegtl::seq<tk_abs,   seps, lp, seps, exp_sum, seps, rp> { };
 struct exp_sin   : pegtl::seq<tk_sin,   seps, lp, seps, exp_sum, seps, rp> { };
 struct exp_cos   : pegtl::seq<tk_cos,   seps, lp, seps, exp_sum, seps, rp> { };
 struct exp_tan   : pegtl::seq<tk_tan,   seps, lp, seps, exp_sum, seps, rp> { };
@@ -110,7 +112,7 @@ struct exp_sum   : pegtl::seq<exp_plus_minus> { };
 struct exp_prod  : pegtl::seq<exp_times_div>  { };
 struct exp_term  : pegtl::sor<exp_pow>              { };
 
-struct exp_call  : pegtl::sor<exp_sin, exp_cos, exp_tan, exp_asin, exp_acos, exp_atan, exp_atan2, exp_log, exp_exp> { };
+struct exp_call  : pegtl::sor<exp_abs, exp_sin, exp_cos, exp_tan, exp_asin, exp_acos, exp_atan, exp_atan2, exp_log, exp_exp, exp_sqrt> { };
 struct exp_value : pegtl::sor<numeral,
                               pegtl::seq<lp, seps, exp_sum, seps, rp>,
                               exp_call,
