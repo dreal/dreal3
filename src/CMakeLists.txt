@@ -174,7 +174,6 @@ find_package(FLEX REQUIRED)
 
 # FindPythonLibs
 set(Python_ADDITIONAL_VERSIONS 2.7)
-find_package(PythonInterp 2.7)
 find_package(PythonLibs 2.7)
 if(PYTHONLIBS_FOUND)
   include_directories("${PYTHON_INCLUDE_DIR}")
