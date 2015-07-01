@@ -64,7 +64,7 @@ template<> struct action<var_decl> {
 
 template<> struct action<prec_sec> {
     static void apply(const pegtl::input &, pstate & p) {
-        p.set_prec(p.pop_num());
+        p.set_precision(p.pop_num());
     }
 };
 

@@ -32,20 +32,27 @@ namespace dop {
 class config {
 private:
     std::string m_filename;
-    unsigned long m_vis_cell = 50;
+    unsigned long m_vis_cell = 50.0;
     bool m_visualize = false;
+    double m_prec = 0.0;
+
     void printUsage(ez::ezOptionParser & opt);
-    void init(std::string const & filename, bool const visualize, unsigned long const vis_cell) {
-        m_filename = filename;
-        m_visualize = visualize;
-        m_vis_cell = vis_cell;
-    }
+    void set_filename(std::string const & filename) { m_filename = filename; }
+    void set_visualize(bool const b) { m_visualize = b; }
+    void set_vis_cell(unsigned long const vis_cell) { m_vis_cell = vis_cell; }
+    void set_precision(double const prec) { m_prec = prec; }
 
 public:
     config(int const argc, const char * argv[]);
     std::string get_filename() { return m_filename; }
     unsigned long get_vis_cell() { return m_vis_cell; }
     bool get_visualize() const { return m_visualize; }
+    double get_precision() const {
+        return m_prec;
+    }
+    friend std::ostream & operator<<(std::ostream & out, config const & c);
 };
+
+std::ostream & operator<<(std::ostream & out, config const & c);
 
 }  // namespace dop

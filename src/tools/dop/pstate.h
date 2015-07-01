@@ -62,8 +62,8 @@ public:
     // =========
     // Precision
     // =========
-    void set_prec(double const v) { m_prec = v; }
-    double get_prec() const { return m_prec; }
+    void set_precision(double const v) { m_prec = v; }
+    double get_precision() const { return m_prec; }
 
     // ==============
     // var_map

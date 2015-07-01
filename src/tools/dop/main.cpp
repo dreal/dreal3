@@ -140,20 +140,21 @@ int main(int argc, const char * argv[]) {
     } catch (pegtl::parse_error const & e) {
         throw runtime_error(e.what());
     }
-    double const prec = p.get_prec();
     OpenSMTContext & ctx = p.get_ctx();
     unordered_map<string, Enode *> var_map = p.get_var_map();
     Enode * const f = p.get_result();
+    double const prec = config.get_precision() > 0 ? config.get_precision() : p.get_precision();
     ctx.setPrecision(prec);
     Enode * min_var = dop::make_min_var(ctx, var_map);
     Enode * leq_ctr = dop::make_leq_ctr(ctx, var_map, f, min_var);
     Enode * eq_ctr = dop::make_eq_ctr(ctx, f, min_var);
     ctx.Assert(leq_ctr);
     ctx.Assert(eq_ctr);
-    cout << "Minimize: " << f << endl;
-    cout << "Solve   : " << leq_ctr << endl
-         << "          " << eq_ctr << endl;
-    cout << "Result  : ";
+    cout << "Minimize : " << f << endl;
+    cout << "Precision: " << prec << endl;
+    cout << "Solve    : " << leq_ctr << endl
+         << "           " << eq_ctr << endl;
+    cout << "Result   : ";
     if (ctx.CheckSAT() == l_True) {
         cout << "delta-sat" << endl;
         dop::print_result(var_map);

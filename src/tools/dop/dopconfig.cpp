@@ -31,6 +31,7 @@ namespace dop {
 using std::cerr;
 using std::cout;
 using std::endl;
+using std::ostream;
 using std::string;
 using std::vector;
 
@@ -52,19 +53,36 @@ config::config(int const argc, const char * argv[]) {
     opt.add("", false, 1, 0,
             "[visualization] # of cells in one dimension",
             "--vis-cell");
+    opt.add("", false, 1, 0,
+            "set precision (default 0.001)\n"
+            "this overrides the value specified in input files",
+            "--precision");
     opt.parse(argc, argv);
-    opt.overview  = "dop ";
+    opt.overview  = "dOp ";
+
     // Usage Information
     opt.overview += " : delta-complete Optimizer";
-    opt.syntax    = "dop [OPTIONS] <input file>";
+    opt.syntax    = "dOp [OPTIONS] <input file>";
     if (opt.isSet("-h")) {
         printUsage(opt);
     }
 
+    // precision
+    if (opt.isSet("--precision")) {
+        double prec = 0.0;
+        opt.get("--precision")->getDouble(prec);
+        set_precision(prec);
+    }
+
     // visualization options
-    bool vis_is_on = opt.isSet("--visualize");
-    unsigned long vis_cell = 50.0;
-    if (opt.isSet("--vis-cell")) { opt.get("--vis-cell")->getULong(vis_cell); }
+    if (opt.isSet("--visualize")) {
+        set_visualize(true);
+        if (opt.isSet("--vis-cell")) {
+            unsigned long vis_cell = 0.0;
+            opt.get("--vis-cell")->getULong(vis_cell);
+            set_vis_cell(vis_cell);
+        }
+    }
 
     // Set up filename
     string filename;
@@ -83,6 +101,15 @@ config::config(int const argc, const char * argv[]) {
             exit(1);
         }
     }
-    init(filename, vis_is_on, vis_cell);
+    set_filename(filename);
 }
+
+ostream & operator<<(ostream & out, config const & c) {
+    out << "filename = " << c.m_filename << endl;
+    out << "vis_cell = " << c.m_vis_cell << endl;
+    out << "visualize = " << c.m_visualize << endl;
+    out << "precision = " << c.m_prec;
+    return out;
+}
+
 }  // namespace dop
