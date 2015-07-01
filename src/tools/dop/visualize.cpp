@@ -17,12 +17,15 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "./config.h"
+#include "./version.h"
+#ifdef PYTHONLIBS_FOUND
+#include "Python.h"
+#endif
 #include <unordered_map>
 #include <exception>
 #include <string>
 #include <sstream>
-#include "./config.h"
-#include "./version.h"
 #include "tools/dop/visualize.h"
 #include "opensmt/egraph/Enode.h"
 #include "tools/dop/print_py.h"
@@ -38,8 +41,6 @@ using std::to_string;
 using std::unordered_map;
 
 #ifdef PYTHONLIBS_FOUND
-#include "Python.h"
-
 string generate_py_visualization_string_3d(Enode * const f, unordered_map<string, Enode *> var_map, unsigned const num_of_cells, string const & minimum_name) {
     Enode * minimum = var_map[minimum_name];
     var_map.erase(minimum_name);
