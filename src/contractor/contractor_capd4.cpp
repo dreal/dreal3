@@ -23,7 +23,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <exception>
 #include <functional>
 #include <initializer_list>
-#include <list>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -253,13 +252,14 @@ string build_capd_string(integral_constraint const & ic, bool forward = true) {
 
     // Call Subst, and collect strings
     vector<string> ode_strs;
+    ode_strs.reserve(vars_0.size());
     for (unsigned i = 0; i < vars_0.size(); i++) {
         Enode * const ode = odes[i].second;
         string ode_str = subst(ode, subst_map);
         if (!forward) {
             ode_str = "-" + ode_str;
         }
-        ode_strs.push_back(ode_str);
+        ode_strs.emplace_back(ode_str);
     }
 
     string diff_var   = "";
@@ -267,15 +267,17 @@ string build_capd_string(integral_constraint const & ic, bool forward = true) {
     string diff_fun   = "";
     if (vars_0.size() > 0) {
         vector<string> vars_0_strs;
+        vars_0_strs.reserve(vars_0.size());
         for (auto const & var : vars_0) {
-            vars_0_strs.push_back(var->getCar()->getName());
+            vars_0_strs.emplace_back(var->getCar()->getName());
         }
         diff_var = "var:" + join(vars_0_strs, ", ") + ";";
     }
     if (pars_0.size() > 0) {
         vector<string> pars_0_strs;
+        pars_0_strs.reserve(pars_0.size());
         for (auto const & par : pars_0) {
-            pars_0_strs.push_back(par->getCar()->getName());
+            pars_0_strs.emplace_back(par->getCar()->getName());
         }
         diff_par = "par:" + join(pars_0_strs, ", ") + ";";
     }
@@ -382,18 +384,18 @@ bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTi
 
     vector<capd::interval> intvs;
     if (!add_all && (prevTime.rightBound() < T.leftBound())) {
-        capd::interval pre_T = capd::interval(0, T.leftBound() - prevTime.rightBound());
+        capd::interval const pre_T(0, T.leftBound() - prevTime.rightBound());
         domain.setLeftBound(T.leftBound() - prevTime.rightBound());
         intvs.push_back(pre_T);
         split(domain, grid_size, intvs);
     } else {
         split(domain, grid_size, intvs);
     }
-
+    enclosures.reserve(enclosures.size() + intvs.size());
     for (capd::interval const & subsetOfDomain : intvs) {
         DREAL_LOG_INFO << "compute_enclosures: subsetOfDomain = " << subsetOfDomain;
-        capd::interval dt = prevTime + subsetOfDomain;
-        capd::IVector v = curve(subsetOfDomain);
+        capd::interval const dt = prevTime + subsetOfDomain;
+        capd::IVector  const  v = curve(subsetOfDomain);
         // TODO(soonhok): check invariant
         // if (!check_invariant(v, m_inv)) {
         DREAL_LOG_INFO << "compute_enclosures:" << dt << "\t" << v;
@@ -428,11 +430,11 @@ bool filter(vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVec
         DREAL_LOG_DEBUG << "after filter: " << v;
     }
     enclosures.erase(remove_if(enclosures.begin(), enclosures.end(),
-                            [](pair<capd::interval, capd::IVector> const & item) {
-                                capd::interval const & dt = item.first;
-                                return dt.leftBound() == 0.0 && dt.rightBound() == 0.0;
-                            }),
-                 enclosures.end());
+                               [](pair<capd::interval, capd::IVector> const & item) {
+                                   capd::interval const & dt = item.first;
+                                   return dt.leftBound() == 0.0 && dt.rightBound() == 0.0;
+                               }),
+                     enclosures.end());
     if (enclosures.empty()) {
         return false;
     } else {
