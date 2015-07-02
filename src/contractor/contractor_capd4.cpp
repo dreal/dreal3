@@ -55,9 +55,9 @@ using nlohmann::json;
 
 namespace dreal {
 
-list<capd::interval> split(capd::interval const & i, unsigned n) {
+void split(capd::interval const & i, unsigned n, vector<capd::interval> & ret) {
     assert(i.leftBound() <= i.rightBound());
-    list<capd::interval> ret;
+    ret.reserve(ret.size() + n);
     double lb = i.leftBound();
     double const rb = i.rightBound();
     if (lb < rb) {
@@ -75,7 +75,6 @@ list<capd::interval> split(capd::interval const & i, unsigned n) {
         // lb == rb
         ret.push_back(i);
     }
-    return ret;
 }
 
 bool contain_nan(capd::IVector const & v) {
@@ -381,14 +380,14 @@ bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTi
     capd::IOdeSolver::SolutionCurve const & curve = solver.getCurve();
     capd::interval domain = capd::interval(0, 1) * stepMade;
 
-    list<capd::interval> intvs;
+    vector<capd::interval> intvs;
     if (!add_all && (prevTime.rightBound() < T.leftBound())) {
         capd::interval pre_T = capd::interval(0, T.leftBound() - prevTime.rightBound());
         domain.setLeftBound(T.leftBound() - prevTime.rightBound());
-        intvs = split(domain, grid_size);
-        intvs.push_front(pre_T);
+        intvs.push_back(pre_T);
+        split(domain, grid_size, intvs);
     } else {
-        intvs = split(domain, grid_size);
+        split(domain, grid_size, intvs);
     }
 
     for (capd::interval const & subsetOfDomain : intvs) {
