@@ -35,7 +35,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <fpu_control.h>
 #endif
 
-using std::stringstream;
+using std::ostringstream;
 
 namespace opensmt {
 
@@ -66,7 +66,7 @@ int main( int argc, const char * argv[] )
   START_EASYLOGGINGPP(argc, argv);
 #endif
   // Set up version, usage message
-  stringstream ss;
+  ostringstream ss;
   ss << PACKAGE_VERSION
      << " (commit " << string(dreal::getGitSHA1()).substr(0, 12) << ")";
 

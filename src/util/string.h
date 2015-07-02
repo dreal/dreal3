@@ -34,7 +34,7 @@ template<typename T>
 std::string join(T const & container, std::string const & sep) {
     auto it = begin(container);
     auto end_it = end(container);
-    std::stringstream ss;
+    std::ostringstream ss;
     ss << *(it++);
     for (; it != end_it; it++) {
         ss << sep << *it;

@@ -17,12 +17,15 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <sstream>
 #include "egraph/Egraph.h"
 #include "common/LA.h"
 #include "simplifiers/BVNormalize.h"
 #include "simplifiers/BVBooleanize.h"
 #include "smtsolvers/SimpSMTSolver.h"
 #include "version.h"
+
+using std::ostringstream;
 
 void Egraph::initializeStore( )
 {
@@ -620,7 +623,7 @@ Enode * Egraph::mkFun( const char * name, Enode * args )
   //
   // Retrieve sort from arguments
   //
-  stringstream ss;
+  ostringstream ss;
   ss << name;
   for ( Enode * l = args ; !l->isEnil( ) ; l = l->getCdr( ) )
   {
@@ -644,7 +647,7 @@ Enode * Egraph::newSymbol( const char * name, Snode * s , double p )
   assert( s );
   assert( s->isTerm( ) );
 
-  stringstream ss;
+  ostringstream ss;
   ss << name;
   const string args = s->getArgs( );
   if ( args != "" ) ss << " " << args;
@@ -3003,7 +3006,7 @@ void Egraph::printEnodeList( ostream & os )
     if( e->isSymb( ) || e->isNumb( ) || e->isDef( ) )
     {
       // Print index formatted
-      stringstream tmp; tmp << i;
+      ostringstream tmp; tmp << i;
       os << "# ";
       for ( int j = 3 - tmp.str( ).size( ) ; j >= 0 ; j -- ) os << " ";
       os << tmp.str( ) << " | ";
@@ -3021,7 +3024,7 @@ void Egraph::printEnodeList( ostream & os )
     if( e->isTerm( ) )
     {
       // Print index formatted
-      stringstream tmp; tmp << i;
+      ostringstream tmp; tmp << i;
       os << "# ";
       for ( int j = 3 - tmp.str( ).size( ) ; j >= 0 ; j -- ) os << " ";
       os << tmp.str( ) << " | ";
@@ -3039,7 +3042,7 @@ void Egraph::printEnodeList( ostream & os )
     if( e->isList( ) )
     {
       // Print index formatted
-      stringstream tmp; tmp << i;
+      ostringstream tmp; tmp << i;
       os << "# ";
       for ( int j = 3 - tmp.str( ).size( ) ; j >= 0 ; j -- ) os << " ";
       os << tmp.str( ) << " | ";

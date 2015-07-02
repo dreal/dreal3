@@ -167,7 +167,7 @@ public:
 
   inline std::string getArgs ( )
   {
-    std::stringstream ss;
+    std::ostringstream ss;
     std::string space = "";
     Snode * l = this->getCdr( );
     const unsigned n = getArity( );

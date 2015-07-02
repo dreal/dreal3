@@ -28,7 +28,7 @@ namespace dop {
 using std::ostream;
 using std::string;
 using std::unordered_map;
-using std::stringstream;
+using std::ostringstream;
 using std::runtime_error;
 
 ostream & print_latex_infix_op(ostream & out, Enode * const e, string const & op, std::function<ostream & (ostream &, Enode * const)> const & f) {
@@ -89,19 +89,19 @@ ostream & print_latex_infix(ostream & out, Enode * const e) {
             out << e;
         }
     } else if (e->isList()) {
-        stringstream ss;
+        ostringstream ss;
         ss << e;
         throw std::runtime_error("List " + ss.str() + " doesn't have a mapping in print_latex_infix");
     } else if (e->isDef()) {
-        stringstream ss;
+        ostringstream ss;
         ss << e;
         throw std::runtime_error("Def " + ss.str() + " doesn't have a mapping in print_latex_infix");
     } else if (e->isEnil()) {
-        stringstream ss;
+        ostringstream ss;
         ss << e;
         throw std::runtime_error("Enil " + ss.str() + " doesn't have a mapping in print_latex_infix");
     } else {
-        stringstream ss;
+        ostringstream ss;
         ss << e;
         throw std::runtime_error("Unknown enode " + ss.str() + " doesn't have a mapping in print_latex_infix");
     }

@@ -44,6 +44,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 using std::make_shared;
 using std::function;
 using std::initializer_list;
+using std::ostringstream;
 using std::list;
 using std::string;
 using std::unordered_set;
@@ -114,7 +115,7 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
         string name = e->getName();
         if (name.find('e') != std::string::npos || name.find('E') != std::string::npos) {
             // Scientific Notation
-            stringstream ss;
+            ostringstream ss;
             double const r = stod(name);
             ss << setprecision(16) << std::fixed << r;
             name = ss.str();

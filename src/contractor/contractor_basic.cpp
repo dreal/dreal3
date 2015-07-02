@@ -52,10 +52,10 @@ using std::initializer_list;
 using std::make_shared;
 using std::queue;
 using std::set;
-using std::stringstream;
 using std::unordered_set;
 using std::vector;
 using std::ostream;
+using std::ostringstream;
 
 namespace dreal {
 ostream & operator<<(ostream & out, contractor_cell const & c) {
@@ -359,7 +359,7 @@ box contractor_eval::prune(box b, SMTConfig & config) const {
         if (config.nra_proof) {
             box old_box = b;
             b.set_empty();
-            stringstream ss;
+            ostringstream ss;
             Enode const * const e = m_nl_ctr->get_enode();
             ss << (e->getPolarity() == l_False ? "!" : "") << e;
             output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());

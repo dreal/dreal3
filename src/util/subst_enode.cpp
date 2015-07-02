@@ -29,7 +29,7 @@ using std::unordered_map;
 using std::cerr;
 using std::cout;
 using std::endl;
-using std::stringstream;
+using std::ostringstream;
 
 Enode * subst(OpenSMTContext & ctx, Enode * e, unordered_map<Enode *, Enode *> const & m) {
     if (e->isSymb()) {
@@ -41,7 +41,7 @@ Enode * subst(OpenSMTContext & ctx, Enode * e, unordered_map<Enode *, Enode *> c
         if (it != m.end()) {
             return it->second;
         } else {
-            stringstream ss;
+            ostringstream ss;
             ss << e;
             throw std::runtime_error("Variable " + ss.str() + " doesn't have a mapping in subst_map");
         }
@@ -135,7 +135,7 @@ Enode * subst(OpenSMTContext & ctx, Enode * e, unordered_map<Enode *, Enode *> c
             Enode * res = ctx.mkAtan2(ctx.mkCons(e1, ctx.mkCons(e2)));
             return res;
         } else {
-            stringstream ss;
+            ostringstream ss;
             ss << e;
             throw std::runtime_error("Term " + ss.str() + " doesn't have a mapping in enode_subst");
         }

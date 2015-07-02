@@ -48,6 +48,7 @@ using std::initializer_list;
 using std::unordered_set;
 using std::vector;
 using std::queue;
+using std::ostringstream;
 
 namespace dreal {
 ibex::SystemFactory* contractor_ibex_polytope::build_system_factory(vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
@@ -196,7 +197,7 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
 
     // ======= Proof =======
     if (config.nra_proof) {
-        stringstream ss;
+        ostringstream ss;
         Enode const * const e = m_ctr->get_enode();
         ss << (e->getPolarity() == l_False ? "!" : "") << e;
         output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
@@ -298,7 +299,7 @@ box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
     }
     // ======= Proof =======
     if (config.nra_proof) {
-        stringstream ss;
+        ostringstream ss;
         for (auto const & ctr : m_ctrs) {
             Enode const * const e = ctr->get_enode();
             ss << (e->getPolarity() == l_False ? "!" : "") << e << ";";

@@ -36,7 +36,7 @@ using std::cerr;
 using std::endl;
 using std::runtime_error;
 using std::string;
-using std::stringstream;
+using std::ostringstream;
 using std::to_string;
 using std::unordered_map;
 
@@ -44,7 +44,7 @@ using std::unordered_map;
 string generate_py_visualization_string_3d(Enode * const f, unordered_map<string, Enode *> var_map, unsigned const num_of_cells, string const & minimum_name) {
     Enode * minimum = var_map[minimum_name];
     var_map.erase(minimum_name);
-    stringstream ss;
+    ostringstream ss;
 
     // print function
     ss << "def object_function(";
@@ -196,7 +196,7 @@ ax = fig.add_subplot(111)
     }
     double const box_y = min;
 
-    stringstream ss;
+    ostringstream ss;
     ss << var << " = " << "numpy.linspace("
        << dom_lb << ", " << dom_ub << ", " << num_of_cells << ")" << endl;
     ss << "result = "; print_py_infix(ss, f); ss << endl;

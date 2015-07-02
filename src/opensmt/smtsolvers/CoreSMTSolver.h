@@ -44,6 +44,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "smtsolvers/SMTSolver.h"
 
 #include <cstdio>
+#include <sstream>
 
 #include "minisat/mtl/Vec.h"
 #include "minisat/mtl/Heap.h"
@@ -637,7 +638,7 @@ inline void CoreSMTSolver::printRestrictedSMTClause( ostream & os, vec< Lit > & 
 {
   assert( c.size( ) > 0 );
   int nof_lits = 0;
-  stringstream s;
+  std::ostringstream s;
   for ( int i = 0 ; i < c.size( ) ; i++ )
   {
     Var v = var(c[i]);
