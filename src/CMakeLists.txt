@@ -177,7 +177,6 @@ set(Python_ADDITIONAL_VERSIONS 2.7)
 find_package(PythonLibs 2.7)
 if(PYTHONLIBS_FOUND)
   include_directories("${PYTHON_INCLUDE_DIR}")
-  set(EXTRA_LIBS "${PYTHON_LIBRARIES}" ${EXTRA_LIBS})
 endif()
 
 function(JOIN VALUES GLUE OUTPUT)
@@ -436,7 +435,7 @@ if(BUILD_SHARED_LIB)
   add_library(dop SHARED ${DOP_SRCS})
   if(APPLE)
     target_link_libraries(dreal ${EXTRA_LIBS})
-    target_link_libraries(dop ${EXTRA_LIBS})
+    target_link_libraries(dop ${PYTHON_LIBRARIES} ${EXTRA_LIBS})
   endif()
 else()
   add_library(dreal ${DREAL_SRCS})
@@ -465,10 +464,12 @@ SET_TARGET_PROPERTIES(dReal-bin
   PROPERTIES OUTPUT_NAME dReal)
 target_link_libraries(dReal-bin dreal ${EXTRA_LIBS})
 
-add_executable(dOp-bin tools/dop/main.cpp)
-SET_TARGET_PROPERTIES(dOp-bin
-  PROPERTIES OUTPUT_NAME dOp)
-target_link_libraries(dOp-bin dop dreal ${EXTRA_LIBS})
+if(NOT BUILD_STATIC_BIN)
+  add_executable(dOp-bin tools/dop/main.cpp)
+  SET_TARGET_PROPERTIES(dOp-bin
+    PROPERTIES OUTPUT_NAME dOp)
+  target_link_libraries(dOp-bin dop dreal ${PYTHON_LIBRARIES} ${EXTRA_LIBS})
+endif()
 
 #add tests
 add_subdirectory(tests/util)
@@ -498,11 +499,13 @@ ADD_CUSTOM_COMMAND(TARGET dReal-bin
           COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
           COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dReal ${DREAL_SOURCE_DIR}/../bin/
 )
-ADD_CUSTOM_COMMAND(TARGET dOp-bin
-          POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
-          COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dOp ${DREAL_SOURCE_DIR}/../bin/
-)
+if(NOT BUILD_STATIC_BIN)
+  ADD_CUSTOM_COMMAND(TARGET dOp-bin
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
+            COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dOp ${DREAL_SOURCE_DIR}/../bin/
+  )
+endif()
 
 #########################################
 # CPack
@@ -519,7 +522,9 @@ endif()
 include(CPack)
 
 install(TARGETS dReal-bin DESTINATION bin)
-install(TARGETS dOp-bin DESTINATION bin)
+if(NOT BUILD_STATIC_BIN)
+  install(TARGETS dOp-bin DESTINATION bin)
+endif()
 install(FILES ${DREAL_SOURCE_DIR}/../bin/dReach DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
               GROUP_READ GROUP_WRITE GROUP_EXECUTE
