@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include <algorithm>
 #include <unordered_map>
 #include <vector>
 #include <initializer_list>
@@ -61,7 +62,7 @@ public:
     explicit contractor_cell(contractor_kind kind) : m_kind(kind) { }
     contractor_cell(contractor_kind kind, unsigned n)
         : m_kind(kind), m_input(ibex::BitSet::empty(n)), m_output(ibex::BitSet::all(n)) { }
-    virtual ~contractor_cell() { }
+    virtual ~contractor_cell() noexcept { }
     inline ibex::BitSet input()  const { return m_input; }
     inline ibex::BitSet output() const { return m_output; }
     inline std::unordered_set<constraint const *> used_constraints() const { return m_used_constraints; }
@@ -84,8 +85,18 @@ public:
     contractor(contractor const & c) : m_ptr(c.m_ptr) {
         assert(m_ptr);
     }
-    // contractor(contractor && c) : m_id(c.m_id), m_ptr(std::move(c.m_ptr)) {}
-    // ~contractor() { }
+    contractor(contractor && c) noexcept : m_ptr(std::move(c.m_ptr)) {}
+    ~contractor() noexcept { }
+
+    friend void swap(contractor & c1, contractor & c2) {
+        using std::swap;
+        swap(c1.m_ptr, c2.m_ptr);
+    }
+
+    contractor& operator=(contractor c) {
+        swap(*this, c);
+        return *this;
+    }
 
     inline ibex::BitSet input() const { return m_ptr->input(); }
     inline ibex::BitSet output() const { return m_ptr->output(); }
