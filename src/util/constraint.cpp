@@ -131,7 +131,7 @@ nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p, std::unorde
     DREAL_LOG_INFO << "nonlinear_constraint: "<< *this;
 }
 
-nonlinear_constraint::~nonlinear_constraint() {
+nonlinear_constraint::~nonlinear_constraint() noexcept {
     delete m_numctr;
     delete m_numctr_ineq;
     delete m_exprctr;
@@ -248,8 +248,6 @@ ode_constraint::ode_constraint(integral_constraint const & integral, vector<fora
         copy(inv.get_enodes().begin(), inv.get_enodes().end(), back_inserter(m_enodes));
     }
 }
-ode_constraint::~ode_constraint() {
-}
 ostream & ode_constraint::display(ostream & out) const {
     out << "ode_constraint" << endl;
     out << m_int << endl;
@@ -320,8 +318,6 @@ integral_constraint::integral_constraint(Enode * const e, unsigned const flow_id
       m_flow_id(flow_id), m_time_0(time_0), m_time_t(time_t),
       m_vars_0(vars_0), m_pars_0(pars_0), m_vars_t(vars_t), m_pars_t(pars_t),
       m_par_lhs_names(par_lhs_names), m_odes(odes) { }
-integral_constraint::~integral_constraint() {
-}
 ostream & integral_constraint::display(ostream & out) const {
     out << "integral_constraint = " << m_enodes[0] << endl;
     out << "\t" << "flow_id = " << m_flow_id << endl;
@@ -359,8 +355,6 @@ forallt_constraint mk_forallt_constraint(Enode * const e) {
 forallt_constraint::forallt_constraint(Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t, Enode * const inv)
     : constraint(constraint_type::ForallT, e), m_flow_id(flow_id), m_time_0(time_0), m_time_t(time_t), m_inv(inv) {
 }
-forallt_constraint::~forallt_constraint() {
-}
 ostream & forallt_constraint::display(ostream & out) const {
     out << "forallt_constraint = " << m_enodes[0] << endl;
     out << "\t" << "flow_id = " << m_flow_id << endl;
@@ -377,8 +371,6 @@ forall_constraint::forall_constraint(Enode * const e, lbool const p)
 }
 unordered_set<Enode *> forall_constraint::get_forall_vars() const {
     return m_forall_vars;
-}
-forall_constraint::~forall_constraint() {
 }
 ostream & forall_constraint::display(ostream & out) const {
     out << "forall_constraint = "

@@ -53,7 +53,7 @@ public:
     inline std::vector<Enode *> const & get_enodes() const { return m_enodes; }
     inline std::unordered_set<Enode *> const & get_vars() const { return m_vars; }
     virtual std::ostream & display(std::ostream & out) const = 0;
-    virtual ~constraint() { }
+    virtual ~constraint() noexcept { }
     friend std::ostream & operator<<(std::ostream & out, constraint const & c);
 };
 
@@ -71,7 +71,7 @@ private:
 
 public:
     explicit nonlinear_constraint(Enode * const e, lbool p = l_Undef, std::unordered_map<Enode*, double> const & subst = std::unordered_map<Enode *, double>());
-    virtual ~nonlinear_constraint();
+    virtual ~nonlinear_constraint() noexcept;
     virtual std::ostream & display(std::ostream & out) const;
     std::pair<lbool, ibex::Interval> eval(box const & b) const;
     inline ibex::ExprCtr const * get_exprctr() const { return m_exprctr; }
@@ -108,7 +108,6 @@ public:
                         std::vector<Enode *> const & vars_t, std::vector<Enode *> const & pars_t,
                         std::vector<string>  const & par_lhs_names,
                         std::vector<std::pair<std::string, Enode *>> const & odes);
-    virtual ~integral_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
 
@@ -128,7 +127,6 @@ public:
     inline Enode * get_inv()    const { return m_inv; }
     explicit forallt_constraint(Enode * e);
     forallt_constraint(Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t, Enode * const inv);
-    virtual ~forallt_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
 
@@ -143,7 +141,6 @@ public:
     ode_constraint(integral_constraint const & integral, std::vector<forallt_constraint> const & invs);
     inline integral_constraint const & get_ic() const { return m_int; }
     inline std::vector<forallt_constraint> const & get_invs() const { return m_invs; }
-    virtual ~ode_constraint();
     virtual std::ostream & display(std::ostream & out) const;
 };
 
@@ -153,7 +150,6 @@ private:
     lbool const                       m_polarity;
 public:
     forall_constraint(Enode * const e, lbool const p);
-    virtual ~forall_constraint();
     virtual std::ostream & display(std::ostream & out) const;
     std::unordered_set<Enode *> get_forall_vars() const;
     inline Enode * get_enode() const { return get_enodes()[0]; }
