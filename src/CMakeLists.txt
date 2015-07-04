@@ -310,7 +310,7 @@ ExternalProject_Add(PEGTL
   UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
          COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
   CONFIGURE_COMMAND echo "nothing to configure"
-  BUILD_COMMAND CXX=${CMAKE_CXX_COMPILER} make -j
+  BUILD_COMMAND echo "nothing to build"
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND cp -r -v pegtl.hh pegtl ${CMAKE_CURRENT_BINARY_DIR}/include/)
 
