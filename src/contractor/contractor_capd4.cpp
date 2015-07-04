@@ -753,7 +753,7 @@ box contractor_capd_bwd_full::prune(box b, SMTConfig & config) const {
             // Move s toward m_T.rightBound()
             (*m_timeMap)(m_T.rightBound(), s);
             if (contain_nan(s)) {
-                DREAL_LOG_INFO << "ode_solver::compute_forward: contain NaN";
+                DREAL_LOG_INFO << "contractor_capd_bwd_full: contain NaN";
             }
 
             if (m_T.leftBound() <= m_timeMap->getCurrentTime().rightBound()) {
@@ -762,7 +762,7 @@ box contractor_capd_bwd_full::prune(box b, SMTConfig & config) const {
                 bool invariantViolated = compute_enclosures(*m_solver, prevTime, m_T, m_grid_size, enclosures);
                 if (invariantViolated) {
                     // TODO(soonhok): invariant
-                    DREAL_LOG_INFO << "ode_solver::compute_forward: invariant violated";
+                    DREAL_LOG_INFO << "contractor_capd_bwd_full: invariant violated";
                     // ret = ODE_result::SAT;
                     break;
                 }
