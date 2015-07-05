@@ -103,7 +103,7 @@ public:
     inline std::unordered_set<constraint const *> used_constraints() const { return m_ptr->used_constraints(); }
     inline box prune(box const & b, SMTConfig & config) const {
         assert(m_ptr != nullptr);
-        return m_ptr->prune(b, config);
+        return m_ptr->prune(b, config).shrink_bounds();
     }
     inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
     inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
