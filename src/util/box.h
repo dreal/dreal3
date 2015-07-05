@@ -40,6 +40,7 @@ private:
     // Invariant: m_vars[i] ~ m_ivec[i]
     std::vector<Enode *> m_vars;
     ibex::IntervalVector m_values;
+    ibex::IntervalVector m_bounds;
     ibex::IntervalVector m_domains;
     std::vector<double>  m_precisions;
     std::unordered_map<std::string, int> m_name_index_map;
@@ -63,6 +64,8 @@ public:
     inline std::vector<Enode *> const & get_vars() const { return m_vars; }
     inline unsigned size() const { return m_values.size(); }
     inline void set_empty() { m_values.set_empty(); }
+    ibex::IntervalVector get_bounds() const { return m_bounds; }
+    inline void set_bounds(ibex::IntervalVector const & iv) { m_bounds = iv; }
     inline unsigned get_index(Enode * e) const {
         return get_index(e->getCar()->getName());
     }
@@ -73,6 +76,10 @@ public:
         } else {
             throw std::logic_error("box::get_index(" + s + "): doesn not have the key " + s);
         }
+    }
+    inline box & shrink_bounds() {
+        m_bounds = m_values;
+        return *this;
     }
 
     // get_value

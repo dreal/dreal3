@@ -50,20 +50,22 @@ using std::make_tuple;
 
 namespace dreal {
 box::box(std::vector<Enode *> const & vars)
-    : m_vars(vars), m_values(m_vars.size() == 0 ? 1 : m_vars.size()), m_domains(m_values.size()), m_precisions(m_values.size(), 0.0) {
+    : m_vars(vars), m_values(m_vars.size() == 0 ? 1 : m_vars.size()),
+      m_bounds(m_values.size()), m_domains(m_values.size()), m_precisions(m_values.size(), 0.0) {
     if (m_vars.size() > 0) {
         constructFromVariables(m_vars);
     }
 }
 
 box::box(std::vector<Enode *> const & vars, ibex::IntervalVector values)
-    : m_vars(vars), m_values(values), m_domains(values), m_precisions(values.size(), 0.0) { }
+    : m_vars(vars), m_values(values), m_bounds(values), m_domains(values), m_precisions(values.size(), 0.0) { }
 
 void box::constructFromVariables(vector<Enode *> const & vars) {
     DREAL_LOG_DEBUG << "box::constructFromVariables";
     m_vars = vars;
     // Construct ibex::IntervalVector
     m_values.resize(m_vars.size());
+    m_bounds.resize(m_vars.size());
     m_domains.resize(m_vars.size());
     m_precisions.resize(m_vars.size());
     unsigned num_var = m_vars.size();
@@ -75,6 +77,7 @@ void box::constructFromVariables(vector<Enode *> const & vars) {
             m_precisions[i] = e->getPrecision();
         }
         m_values[i] = ibex::Interval(lb, ub);
+        m_bounds[i] = ibex::Interval(lb, ub);
         m_domains[i] = ibex::Interval(lb, ub);
         m_name_index_map.emplace(e->getCar()->getName(), i);
     }
@@ -100,7 +103,8 @@ void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
 }
 
 box::box(box const & b, std::unordered_set<Enode *> const & extra_vars)
-    : m_vars(b.m_vars), m_values(m_vars.size() + extra_vars.size()), m_domains(m_values.size()), m_precisions(m_values.size(), 0.0) {
+    : m_vars(b.m_vars), m_values(m_vars.size() + extra_vars.size()),
+      m_bounds(m_values.size()), m_domains(m_values.size()), m_precisions(m_values.size(), 0.0) {
     copy(extra_vars.begin(), extra_vars.end(), back_inserter(m_vars));
     std::sort(m_vars.begin(), m_vars.end(),
               [](Enode const * e1, Enode const * e2) {
@@ -137,7 +141,7 @@ ostream& display_diff(ostream& out, box const & b1, box const & b2) {
         assert(e1 == b2.m_vars[i]);
         ibex::Interval const & v1 = b1.m_values[i];
         ibex::Interval const & v2 = b2.m_values[i];
-#ifdef DEBIG
+#ifdef DEBUG
         ibex::Interval const & d1 = b1.m_domains[i];
         ibex::Interval const & d2 = b2.m_domains[i];
         assert(d1 == d2);
@@ -341,6 +345,8 @@ void box::assign_to_enode() const {
     for (unsigned i = 0; i < m_vars.size(); i++) {
         m_vars[i]->setValueLowerBound(m_values[i].lb());
         m_vars[i]->setValueUpperBound(m_values[i].ub());
+        m_vars[i]->setBoundLowerBound(m_values[i].lb());
+        m_vars[i]->setBoundUpperBound(m_values[i].ub());
     }
 }
 
