@@ -61,6 +61,8 @@ unsigned         opensmt_decisions                 ( opensmt_context );
 opensmt_expr     opensmt_get_value                 ( opensmt_context, opensmt_expr );
 double           opensmt_get_lb                    ( opensmt_context, opensmt_expr );
 double           opensmt_get_ub                    ( opensmt_context, opensmt_expr );
+double           opensmt_get_bound_lb              ( opensmt_context, opensmt_expr );
+double           opensmt_get_bound_ub              ( opensmt_context, opensmt_expr );
 opensmt_result   opensmt_get_bool                  ( opensmt_context c, opensmt_expr p );
 void             opensmt_prefer                    ( opensmt_expr a );
 void             opensmt_polarity                  ( opensmt_context c, opensmt_expr a, int pos );

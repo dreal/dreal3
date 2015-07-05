@@ -1102,6 +1102,27 @@ double opensmt_get_ub( opensmt_context c, opensmt_expr v )
   Enode * var = static_cast< Enode * >( v );
   return var->getValueUpperBound();
 }
+double opensmt_get_bound_lb( opensmt_context c, opensmt_expr v )
+{
+  assert( c );
+  assert( v );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  assert( context.getStatus( ) == l_True );
+  Enode * var = static_cast< Enode * >( v );
+  return var->getBoundLowerBound();
+}
+
+double opensmt_get_bound_ub( opensmt_context c, opensmt_expr v )
+{
+  assert( c );
+  assert( v );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  assert( context.getStatus( ) == l_True );
+  Enode * var = static_cast< Enode * >( v );
+  return var->getBoundUpperBound();
+}
 
 /*
 void opensmt_get_num( opensmt_expr n, mpz_t val )
