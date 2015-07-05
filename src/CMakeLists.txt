@@ -311,7 +311,7 @@ ExternalProject_Add(PEGTL
   CONFIGURE_COMMAND echo "nothing to configure"
   BUILD_COMMAND echo "nothing to build"
   BUILD_IN_SOURCE 1
-  INSTALL_COMMAND cp -r -v pegtl.hh pegtl ${CMAKE_CURRENT_BINARY_DIR}/include/)
+  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include && cp -r -v pegtl.hh pegtl ${CMAKE_CURRENT_BINARY_DIR}/include/)
 
 ################################################################
 # External: Easylogging++
@@ -575,7 +575,7 @@ add_custom_target(update_catch
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CATCH)
 
 add_custom_target(update_pegtl
-  COMMAND git fetch --all && git reset --hard origin/master && cp -v -r pegtl.hh pegtl ${CMAKE_CURRENT_BINARY_DIR}/include/
+  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include && cp -v -r pegtl.hh pegtl ${CMAKE_CURRENT_BINARY_DIR}/include/
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/PEGTL)
 
 add_custom_target(update_easyloggingpp
