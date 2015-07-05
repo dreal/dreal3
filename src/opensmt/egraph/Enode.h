@@ -259,18 +259,22 @@ public:
   std::unordered_set<Enode *> get_forall_vars ( );
   std::unordered_set<Enode *> get_constants   ( );
 
-  double          getDomainLowerBound          ( ) const; //added for dReal2
-  double          getDomainUpperBound          ( ) const; //added for dReal2
-  double          getValueLowerBound          ( ) const; //added for dReal2
-  double          getValueUpperBound          ( ) const; //added for dReal2
+  double          getDomainLowerBound    ( ) const; //added for dReal2
+  double          getDomainUpperBound    ( ) const; //added for dReal2
+  double          getValueLowerBound     ( ) const; //added for dReal2
+  double          getValueUpperBound     ( ) const; //added for dReal2
+  double          getBoundLowerBound     ( ) const; //added for dReal2
+  double          getBoundUpperBound     ( ) const; //added for dReal2
   double          getPrecision           ( ) const; //added for dReal2
   bool            hasPrecision           ( ) const; //added for dReal2
   double          getComplexValue        ( ) const;
   void            setValue               ( const double );
-  void            setDomainLowerBound          ( const double ); //added for dReal2
-  void            setDomainUpperBound          ( const double ); //added for dReal2
-  void            setValueLowerBound          ( const double ); //added for dReal2
-  void            setValueUpperBound          ( const double ); //added for dReal2
+  void            setDomainLowerBound    ( const double ); //added for dReal2
+  void            setDomainUpperBound    ( const double ); //added for dReal2
+  void            setBoundLowerBound     ( const double ); //added for dReal2
+  void            setBoundUpperBound     ( const double ); //added for dReal2
+  void            setValueLowerBound     ( const double ); //added for dReal2
+  void            setValueUpperBound     ( const double ); //added for dReal2
   void            setPrecision           ( const double ); //added for dReal2
   bool            hasValue               ( ) const;
   Enode *         getRoot                ( ) const;
@@ -416,6 +420,8 @@ private:
   double            val_ub = +std::numeric_limits<double>::infinity(); // enode upper bound (value)
   double            dom_lb = -std::numeric_limits<double>::infinity(); // enode lower bound (domain)
   double            dom_ub = +std::numeric_limits<double>::infinity(); // enode upper bound (domain)
+  double            bound_lb = -std::numeric_limits<double>::infinity(); // enode lower bound (bound)
+  double            bound_ub = +std::numeric_limits<double>::infinity(); // enode upper bound (bound)
   double            precision = 0.0;   //added for dReal2
   bool              is_exist_var = true;
 
@@ -450,6 +456,15 @@ inline double Enode::getValueLowerBound ( ) const
 inline double Enode::getValueUpperBound ( ) const
 {
     return val_ub;
+}
+inline double Enode::getBoundLowerBound ( ) const
+{
+    return bound_lb;
+}
+
+inline double Enode::getBoundUpperBound ( ) const
+{
+    return bound_ub;
 }
 
 inline double Enode::getPrecision ( ) const
@@ -491,6 +506,18 @@ inline void Enode::setDomainUpperBound ( const double v )
 {
   assert( isTerm( ) );
   dom_ub = v;
+}
+
+inline void Enode::setBoundLowerBound ( const double v )
+{
+  assert( isTerm( ) );
+  bound_lb = v;
+}
+
+inline void Enode::setBoundUpperBound ( const double v )
+{
+  assert( isTerm( ) );
+  bound_ub = v;
 }
 
 inline void Enode::setValueLowerBound ( const double v )
