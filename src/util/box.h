@@ -187,7 +187,12 @@ public:
         }
         return seed;
     }
+    void intersect(box const & b);
+    void intersect(std::vector<box> const & vec);
+    void hull(box const & b);
+    void hull(std::vector<box> const & vec);
     friend box intersect(box b1, box const & b2);
+    friend box hull(std::vector<box> const & s);
     friend box hull(box b1, box const & b2);
 
     void assign_to_enode() const;
@@ -199,7 +204,9 @@ bool operator<=(ibex::Interval const & a, ibex::Interval const & b);
 bool operator>=(ibex::Interval const & a, ibex::Interval const & b);
 
 box intersect(box b1, box const & b2);
+box intersect(std::vector<box> const & vec);
 box hull(box b1, box const & b2);
+box hull(std::vector<box> const & vec);
 
 ostream& display_diff(ostream& out, box const & b1, box const & b2);
 ostream& display(ostream& out, box const & b, bool const exact = false, bool const old_style = false);

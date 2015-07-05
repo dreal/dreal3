@@ -350,14 +350,44 @@ void box::assign_to_enode() const {
     }
 }
 
+void box::intersect(box const & b) {
+    m_values &= b.m_values;
+}
+void box::intersect(vector<box> const & vec) {
+    assert(vec.size() > 0);
+    for (box const & b : vec) {
+        this->intersect(b);
+    }
+}
 box intersect(box b1, box const & b2) {
-    b1.m_values &= b2.m_values;
+    b1.intersect(b2);
     return b1;
 }
+box intersect(vector<box> const & vec) {
+    assert(vec.size() > 0);
+    box b = vec.front();
+    b.intersect(vec);
+    return b;
+}
 
+void box::hull(box const & b) {
+    m_values |= b.m_values;
+}
+void box::hull(vector<box> const & vec) {
+    assert(vec.size() > 0);
+    for (box const & b : vec) {
+        this->hull(b);
+    }
+}
 box hull(box b1, box const & b2) {
-    b1.m_values |= b2.m_values;
+    b1.hull(b2);
     return b1;
+}
+box hull(vector<box> const & vec) {
+    assert(vec.size() > 0);
+    box b = vec.front();
+    b.hull(vec);
+    return b;
 }
 
 }  // namespace dreal
