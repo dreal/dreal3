@@ -87,6 +87,7 @@ public:
         bool  operator == (lbool b) const { return value == b.value; }
         bool  operator != (lbool b) const { return value != b.value; }
         lbool operator ^ (bool b) const { return b ? lbool(-value) : lbool(value); }
+        lbool operator ! () const { return lbool(-value); }
 
         friend int   toInt  (lbool l);
         friend lbool toLbool(int   v);
