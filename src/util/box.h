@@ -61,10 +61,10 @@ public:
     inline ibex::IntervalVector & get_values() { return m_values; }
     inline ibex::IntervalVector const & get_values() const { return m_values; }
     inline ibex::IntervalVector const & get_domains() const { return m_domains; }
+    inline ibex::IntervalVector const & get_bounds() const { return m_bounds; }
     inline std::vector<Enode *> const & get_vars() const { return m_vars; }
     inline unsigned size() const { return m_values.size(); }
     inline void set_empty() { m_values.set_empty(); }
-    ibex::IntervalVector get_bounds() const { return m_bounds; }
     inline void set_bounds(ibex::IntervalVector const & iv) { m_bounds = iv; }
     inline unsigned get_index(Enode * e) const {
         return get_index(e->getCar()->getName());
@@ -106,6 +106,32 @@ public:
     }
     inline ibex::Interval& get_value(Enode * const e) {
         return get_value(e->getCar()->getName());
+    }
+
+    // get_bound
+    inline ibex::Interval & get_bound(int i) { return m_bounds[i]; }
+    inline ibex::Interval const & get_bound(int i) const { return m_bounds[i]; }
+    inline ibex::Interval & get_bound(string const & s) {
+        auto const it = m_name_index_map.find(s);
+        if (m_name_index_map.find(s) != m_name_index_map.end()) {
+            return m_bounds[it->second];
+        } else {
+            throw std::logic_error("get_bound : Box does not have a key " + s);
+        }
+    }
+    inline ibex::Interval const & get_bound(string const & s) const {
+        auto const it = m_name_index_map.find(s);
+        if (m_name_index_map.find(s) != m_name_index_map.end()) {
+            return m_bounds[it->second];
+        } else {
+            throw std::logic_error("get_bound : Box does not have a key " + s);
+        }
+    }
+    inline const ibex::Interval& get_bound(Enode * const e) const {
+        return get_bound(e->getCar()->getName());
+    }
+    inline ibex::Interval& get_bound(Enode * const e) {
+        return get_bound(e->getCar()->getName());
     }
 
     // get_domain
