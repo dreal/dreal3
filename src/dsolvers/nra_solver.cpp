@@ -340,7 +340,7 @@ void nra_solver::handle_sat_case(box const & b) const {
     // --model option
     if (config.nra_model && config.nra_multiple_soln == 1) {
         // Only output here when --multiple_soln is not used
-        output_solution(b);
+        output_solution(b, config);
     }
 #ifdef SUPPORT_ODE
     // --visualize option

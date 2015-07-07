@@ -88,7 +88,6 @@ private:
     std::vector<constraint *> initialize_constraints();
     std::vector<Enode *> generate_explanation(scoped_vec<constraint const *> const & ctr_vec);
     void handle_sat_case(box const & b) const;
-    void output_solution(box const & b, unsigned i = 0) const;
     void handle_deduction();
 };
 }  // namespace dreal
