@@ -37,7 +37,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/flow.h"
 #include "util/logging.h"
 #include "util/ibex_enode.h"
-#include "util/constraint.h"
+#include "constraint/constraint.h"
 #include "contractor/contractor.h"
 
 using std::make_shared;

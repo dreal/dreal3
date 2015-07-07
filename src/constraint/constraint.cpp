@@ -29,7 +29,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <utility>
 #include "opensmt/egraph/Enode.h"
-#include "util/constraint.h"
+#include "constraint/constraint.h"
 #include "util/flow.h"
 #include "util/ibex_enode.h"
 #include "util/logging.h"

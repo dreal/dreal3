@@ -34,7 +34,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "./config.h"
 #include "ibex/ibex.h"
 #include "util/box.h"
-#include "util/constraint.h"
+#include "constraint/constraint.h"
 #include "contractor/contractor.h"
 #include "util/ibex_enode.h"
 #include "util/logging.h"

@@ -155,5 +155,4 @@ public:
     inline Enode * get_enode() const { return get_enodes()[0]; }
     inline lbool get_polarity() const { return m_polarity; }
 };
-
 }  // namespace dreal

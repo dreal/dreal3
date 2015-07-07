@@ -31,7 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
-#include "util/constraint.h"
+#include "constraint/constraint.h"
 
 namespace dreal {
 

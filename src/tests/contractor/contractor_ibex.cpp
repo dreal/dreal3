@@ -22,7 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/api/opensmt_c.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "util/box.h"
-#include "util/constraint.h"
+#include "constraint/constraint.h"
 #include "contractor/contractor.h"
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"

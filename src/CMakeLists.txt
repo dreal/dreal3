@@ -426,6 +426,7 @@ SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.c
 add_subdirectory(icp)
 add_subdirectory(dsolvers)
 add_subdirectory(util)
+add_subdirectory(constraint)
 add_subdirectory(contractor)
 add_subdirectory(tools/dop)
 
@@ -488,6 +489,7 @@ endif()
 include(StyleCheck)
 file(GLOB_RECURSE DREAL_SOURCES
   ${DREAL_SOURCE_DIR}/contractor/*.cpp ${DREAL_SOURCE_DIR}/contractor/*.h
+  ${DREAL_SOURCE_DIR}/constraint/*.cpp ${DREAL_SOURCE_DIR}/constraint/*.h
   ${DREAL_SOURCE_DIR}/util/*.cpp       ${DREAL_SOURCE_DIR}/util/*.h
   ${DREAL_SOURCE_DIR}/icp/*.cpp        ${DREAL_SOURCE_DIR}/icp/*.h
   ${DREAL_SOURCE_DIR}/dsolvers/*.cpp   ${DREAL_SOURCE_DIR}/dsolvers/*.h

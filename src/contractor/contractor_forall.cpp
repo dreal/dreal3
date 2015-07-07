@@ -41,7 +41,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "icp/icp.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include "util/constraint.h"
+#include "constraint/constraint.h"
 #include "util/logging.h"
 #include "util/proof.h"
 
