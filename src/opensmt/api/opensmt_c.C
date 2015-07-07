@@ -20,6 +20,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <string>
+#include <limits>
 #include <utility>
 #include "api/opensmt_c.h"
 #include "api/OpenSMTContext.h"
@@ -30,6 +31,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 
 using std::string;
+using std::numeric_limits;
 using std::pair;
 
 #ifndef SMTCOMP
@@ -339,6 +341,34 @@ opensmt_expr opensmt_mk_int_var( opensmt_context c, char const * s , long lb, lo
   return static_cast< void * >( res );
 }
 
+opensmt_expr opensmt_mk_unbounded_int_var( opensmt_context c, char const * s)
+{
+  return opensmt_mk_int_var(c, s, numeric_limits<long>::lowest(), numeric_limits<long>::max());
+}
+
+opensmt_expr opensmt_mk_forall_int_var( opensmt_context c, char const * s , long lb, long ub)
+{
+  assert( c );
+  assert( s );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Snode * sort = context.mkSortInt( );
+  context.DeclareFun( s, sort );
+  Enode * res = context.mkVar( s, true );
+  res->setDomainLowerBound(lb);
+  res->setDomainUpperBound(ub);
+  res->setValueLowerBound(lb);
+  res->setValueUpperBound(ub);
+  res->setForallVar();
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_forall_unbounded_int_var( opensmt_context c, char const * s)
+{
+  return opensmt_mk_int_var(c, s, numeric_limits<long>::lowest(), numeric_limits<long>::max());
+}
+
+
 opensmt_expr opensmt_mk_real_var( opensmt_context c, char const * s , double lb, double ub)
 {
   assert( c );
@@ -354,6 +384,34 @@ opensmt_expr opensmt_mk_real_var( opensmt_context c, char const * s , double lb,
   res->setValueUpperBound(ub);
   return static_cast< void * >( res );
 }
+
+opensmt_expr opensmt_mk_unbounded_real_var( opensmt_context c, char const * s)
+{
+  return opensmt_mk_real_var(c, s, numeric_limits<double>::lowest(), numeric_limits<double>::max());
+}
+
+opensmt_expr opensmt_mk_forall_real_var( opensmt_context c, char const * s , double lb, double ub)
+{
+  assert( c );
+  assert( s );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Snode * sort = context.mkSortReal( );
+  context.DeclareFun( s, sort );
+  Enode * res = context.mkVar( s, true );
+  res->setDomainLowerBound(lb);
+  res->setDomainUpperBound(ub);
+  res->setValueLowerBound(lb);
+  res->setValueUpperBound(ub);
+  res->setForallVar();
+  return static_cast< void * >( res );
+}
+
+opensmt_expr opensmt_mk_forall_unbounded_real_var( opensmt_context c, char const * s)
+{
+  return opensmt_mk_real_var(c, s, numeric_limits<double>::lowest(), numeric_limits<double>::max());
+}
+
 
 opensmt_expr opensmt_mk_or( opensmt_context c, opensmt_expr * expr_list, unsigned n )
 {
