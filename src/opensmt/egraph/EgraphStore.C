@@ -26,6 +26,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "version.h"
 
 using std::ostringstream;
+using std::stod;
 
 void Egraph::initializeStore( )
 {
@@ -611,9 +612,9 @@ Enode * Egraph::mkNum( const char * num, const char * den )
 //   Real real_value( s.c_str() );
 //   return mkNum( const_cast< char * >(real_value.get_str( ).c_str( )) );
 // #else
-  double num_d = atof( num );
-  double den_d = atof( den );
-  double value = num_d / den_d;
+  double const num_d = stod( num );
+  double const den_d = stod( den );
+  double const value = num_d / den_d;
   return mkNum( value );
 }
 
