@@ -90,7 +90,5 @@ private:
     void handle_sat_case(box const & b) const;
     void output_solution(box const & b, unsigned i = 0) const;
     void handle_deduction();
-    box icp_loop(box b, contractor const & ctc, SMTConfig & config) const;
-    box icp_loop_with_ncbt(box b, contractor const & ctc, SMTConfig & config) const;
 };
 }  // namespace dreal

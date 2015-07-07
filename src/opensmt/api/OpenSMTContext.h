@@ -278,7 +278,7 @@ public:
   inline void       setPolarityMode ( unsigned m ) { assert( m <= 6 ); config.sat_polarity_mode = m; }
   inline void       setVerbose(bool b) { config.nra_verbose = b; }
   inline void       setDebug(bool b) { config.nra_debug = b; }
-  inline void       setStat(bool b) { config.nra_stat = b; }
+  inline void       setStat(bool b) { config.nra_use_stat = b; }
 
 private:
 

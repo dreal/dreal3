@@ -101,7 +101,7 @@ SMTConfig::initializeConfig( )
   nra_precision                = 0.0;
   nra_verbose                  = false;
   nra_debug                    = false;
-  nra_stat                     = false;
+  nra_use_stat                 = false;
   nra_proof                    = false;
   nra_readable_proof           = false;
   nra_model                    = false;
@@ -490,7 +490,7 @@ SMTConfig::parseCMDLine( int argc
     nra_verbose             = opt.isSet("--verbose") || opt.isSet("--debug");
     nra_debug               = opt.isSet("--debug");
 #endif
-    nra_stat                = opt.isSet("--stat");
+    nra_use_stat            = opt.isSet("--stat");
     nra_polytope            = opt.isSet("--polytope");
     nra_simp                = !opt.isSet("--no-simp");
     nra_ncbt                = opt.isSet("--ncbt");

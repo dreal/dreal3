@@ -65,8 +65,8 @@ nra_solver::~nra_solver() {
     for (auto ctr : m_ctrs) {
         delete ctr;
     }
-    if (config.nra_stat) {
-        cout << m_stat << endl;
+    if (config.nra_use_stat) {
+        cout << config.nra_stat << endl;
     }
 }
 
@@ -93,7 +93,7 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
                    << ", level: " << m_stack.size()
                    << ", ded.size = " << deductions.size();
 
-    if (config.nra_stat) { m_stat.increase_assert(); }
+    if (config.nra_use_stat) { config.nra_stat.increase_assert(); }
 
     if (m_need_init) {
         m_box.constructFromLiterals(m_lits);
@@ -308,7 +308,7 @@ void nra_solver::pushBacktrackPoint() {
         m_ctrs = initialize_constraints();
         m_need_init = false;
     }
-    if (config.nra_stat) { m_stat.increase_push(); }
+    if (config.nra_use_stat) { config.nra_stat.increase_push(); }
     m_stack.push();
     m_used_constraint_vec.push();
     m_boxes.push_back(m_box);
@@ -321,7 +321,7 @@ void nra_solver::pushBacktrackPoint() {
 // backtrackToStackSize() in EgraphSolver) Also make sure you clean
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint() {
-    if (config.nra_stat) { m_stat.increase_pop(); }
+    if (config.nra_use_stat) { config.nra_stat.increase_pop(); }
     DREAL_LOG_INFO << "nra_solver::popBacktrackPoint\t m_stack.size()      = " << m_stack.size();
     m_boxes.pop();
     m_box = m_boxes.last();
@@ -393,7 +393,7 @@ void nra_solver::handle_deduction() {
 // Check for consistency.
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
-    if (config.nra_stat) { m_stat.increase_check(complete); }
+    if (config.nra_use_stat) { config.nra_stat.increase_check(complete); }
     if (m_stack.size() == 0) { return true; }
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")"
                    << "stack size = " << m_stack.size();
@@ -409,7 +409,7 @@ bool nra_solver::check(bool complete) {
         // Incomplete Check ==> Prune Only
         try {
             m_box = m_ctc.prune(m_box, config);
-            if (config.nra_stat) { m_stat.increase_prune(); }
+            if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
         }

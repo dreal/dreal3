@@ -24,6 +24,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <sys/stat.h>
 #include "common/Global.h"
+#include "util/stat.h"
 #include "minisat/core/SolverTypes.h"
 
 //
@@ -179,7 +180,8 @@ struct SMTConfig
   double       nra_precision;                 // the value of delta
   bool         nra_verbose;                   // --verbose option
   bool         nra_debug;                     // --debug option
-  bool         nra_stat;                      // --stat option
+  bool         nra_use_stat;                  // --stat option
+  dreal::stat  nra_stat;
   bool         nra_proof;                     // --proof option
   bool         nra_readable_proof;            // --readable_proof option
   bool         nra_model;                     // --model option
