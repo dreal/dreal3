@@ -1,7 +1,5 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-        Sicun Gao <sicung@cs.cmu.edu>
-        Edmund Clarke <emc@cs.cmu.edu>
 
 dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
 
@@ -29,10 +27,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include <utility>
 #include "./config.h"
-#include "util/constraint.h"
-#include "opensmt/smtsolvers/SMTConfig.h"
+#include "contractor/contractor.h"
 #include "opensmt/egraph/Enode.h"
+#include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
+#include "util/constraint.h"
 
 namespace dreal {
 
@@ -252,16 +251,6 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
-class contractor_forall : public contractor_cell {
-private:
-    forall_constraint const * const m_ctr;
-
-public:
-    contractor_forall(box const & b, forall_constraint const * const ctr);
-    box prune(box b, SMTConfig & config) const;
-    std::ostream & display(std::ostream & out) const;
-};
-
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
 contractor mk_contractor_seq(contractor const & c, std::vector<contractor> const & v);
 contractor mk_contractor_seq(contractor const & c1, std::vector<contractor> const & v, contractor const & c2);
@@ -283,7 +272,6 @@ contractor mk_contractor_eval(box const & box, nonlinear_constraint const * cons
 contractor mk_contractor_cache(contractor const & ctc);
 contractor mk_contractor_sample(unsigned const n, vector<constraint *> const & ctrs);
 contractor mk_contractor_aggressive(unsigned const n, vector<constraint *> const & ctrs);
-contractor mk_contractor_forall(box const & box, forall_constraint const * const ctr);
 std::ostream & operator<<(std::ostream & out, contractor const & c);
 
 }  // namespace dreal
