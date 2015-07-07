@@ -196,6 +196,7 @@ public:
     friend box hull(box b1, box const & b2);
 
     void assign_to_enode() const;
+    void adjust_bound(vector<box> const & box_stack);
 };
 
 bool operator<(ibex::Interval const & a, ibex::Interval const & b);

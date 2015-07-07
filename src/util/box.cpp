@@ -390,4 +390,11 @@ box hull(vector<box> const & vec) {
     return b;
 }
 
+void box::adjust_bound(vector<box> const & box_stack) {
+    if (!is_empty() && box_stack.size() > 0) {
+        box bound(*this);
+        bound.hull(box_stack);
+        set_bounds(bound.get_values());
+    }
+}
 }  // namespace dreal
