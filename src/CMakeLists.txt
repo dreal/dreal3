@@ -423,6 +423,7 @@ ADD_CUSTOM_COMMAND(
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2parser.cc GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc GENERATED)
 ################################################################
+add_subdirectory(icp)
 add_subdirectory(dsolvers)
 add_subdirectory(util)
 add_subdirectory(contractor)
@@ -488,6 +489,7 @@ include(StyleCheck)
 file(GLOB_RECURSE DREAL_SOURCES
   ${DREAL_SOURCE_DIR}/contractor/*.cpp ${DREAL_SOURCE_DIR}/contractor/*.h
   ${DREAL_SOURCE_DIR}/util/*.cpp       ${DREAL_SOURCE_DIR}/util/*.h
+  ${DREAL_SOURCE_DIR}/icp/*.cpp        ${DREAL_SOURCE_DIR}/icp/*.h
   ${DREAL_SOURCE_DIR}/dsolvers/*.cpp   ${DREAL_SOURCE_DIR}/dsolvers/*.h
   ${DREAL_SOURCE_DIR}/tests/*.cpp      ${DREAL_SOURCE_DIR}/tests/*.h
   ${DREAL_SOURCE_DIR}/tools/dop/*.cpp  ${DREAL_SOURCE_DIR}/tools/dop/*.h)
