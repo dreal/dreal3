@@ -68,6 +68,9 @@ ostream & operator<<(ostream & out, constraint_type const & ty) {
     case constraint_type::Exists:
         out << "Exists";
         break;
+    case constraint_type::GenericForall:
+        out << "GenericForall";
+        break;
     }
     return out;
 }
@@ -382,4 +385,35 @@ ostream & forall_constraint::display(ostream & out) const {
     return out;
 }
 
+// ====================================================
+// Generic Forall constraint
+// ====================================================
+unordered_set<Enode *> generic_forall_constraint::extract_forall_vars(Enode const * elist) {
+    unordered_set<Enode *> ret;
+    while (!elist->isEnil()) {
+        ret.insert(elist->getCar());
+        elist = elist->getCdr();
+    }
+    return ret;
+}
+
+generic_forall_constraint::generic_forall_constraint(Enode * const e, lbool const p)
+    : constraint(constraint_type::GenericForall, e),
+      m_forall_vars(extract_forall_vars(e->getCdr()->getCdr())),
+      m_body(e->getCdr()->getCdr()),
+      m_polarity(p) {
+}
+unordered_set<Enode *> generic_forall_constraint::get_forall_vars() const {
+    return m_forall_vars;
+}
+ostream & generic_forall_constraint::display(ostream & out) const {
+    out << "generic_forall([ ";
+    for (Enode * const var : m_forall_vars) {
+        out << var << " ";
+    }
+    out << "], "
+        << (m_polarity == l_True ? "" : "!")
+        << get_enode() << ")" << endl;
+    return out;
+}
 }  // namespace dreal
