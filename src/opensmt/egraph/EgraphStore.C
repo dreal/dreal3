@@ -3237,7 +3237,9 @@ Enode * Egraph::mkForall ( vector<pair<string, Snode *>*>* sorted_var_list, Enod
     std::reverse(sorted_var_list->begin(), sorted_var_list->end());
     Enode * elist = const_cast< Enode * >( enil );
     for (pair<string, Snode *> * const sorted_var : *sorted_var_list) {
-        elist = cons(mkVar((*sorted_var).first.c_str()), elist);
+        pair<string, Snode *> const & p = *sorted_var;
+        string const & name = p.first;
+        elist = cons(mkVar(name.c_str()), elist);
     }
     Enode * res = cons(id_to_enode[ ENODE_ID_FORALL ], cons(e, elist));
     assert (res);
