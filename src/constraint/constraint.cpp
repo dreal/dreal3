@@ -400,11 +400,15 @@ unordered_set<Enode *> generic_forall_constraint::extract_forall_vars(Enode cons
 generic_forall_constraint::generic_forall_constraint(Enode * const e, lbool const p)
     : constraint(constraint_type::GenericForall, e),
       m_forall_vars(extract_forall_vars(e->getCdr()->getCdr())),
-      m_body(e->getCdr()->getCdr()),
+      m_body(e->getCdr()->getCar()),
       m_polarity(p) {
+    cerr << "m_body = " << m_body << endl;
 }
 unordered_set<Enode *> generic_forall_constraint::get_forall_vars() const {
     return m_forall_vars;
+}
+Enode * generic_forall_constraint::get_body() const {
+    return m_body;
 }
 ostream & generic_forall_constraint::display(ostream & out) const {
     out << "generic_forall([ ";

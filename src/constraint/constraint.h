@@ -183,6 +183,7 @@ public:
     generic_forall_constraint(Enode * const e, lbool const p);
     virtual std::ostream & display(std::ostream & out) const;
     std::unordered_set<Enode *> get_forall_vars() const;
+    Enode * get_body() const;
     inline Enode * get_enode() const { return get_enodes()[0]; }
     inline lbool get_polarity() const { return m_polarity; }
 };

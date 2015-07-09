@@ -18,11 +18,31 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+
+#include <algorithm>
+#include <initializer_list>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 #include "./config.h"
-#include "contractor/contractor_basic.h"
-#include "contractor/contractor_ibex.h"
-#include "contractor/contractor_forall.h"
-#include "contractor/contractor_generic_forall.h"
-#ifdef SUPPORT_ODE
-#include "contractor/contractor_capd4.h"
-#endif
+#include "opensmt/egraph/Enode.h"
+#include "opensmt/smtsolvers/SMTConfig.h"
+#include "util/box.h"
+#include "constraint/constraint.h"
+#include "contractor/contractor.h"
+
+namespace dreal {
+class contractor_generic_forall : public contractor_cell {
+private:
+    generic_forall_constraint const * const m_ctr;
+
+public:
+    contractor_generic_forall(box const & b, generic_forall_constraint const * const ctr);
+    box prune(box b, SMTConfig & config) const;
+    std::ostream & display(std::ostream & out) const;
+};
+contractor mk_contractor_generic_forall(box const & box, generic_forall_constraint const * const ctr);
+}  // namespace dreal
