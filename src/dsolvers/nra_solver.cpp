@@ -136,6 +136,26 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
         if (l->isIntegral()) {
             integral_constraint ic = mk_integral_constraint(l, egraph.flow_maps);
             ints.push_back(ic);
+        } else if (l->isForall()) {
+            // Collect Generic Forall constraints.
+            auto it_fc_pos = m_ctr_map.find(make_pair(l, true));
+            auto it_fc_neg = m_ctr_map.find(make_pair(l, false));
+            if (it_fc_pos == m_ctr_map.end()) {
+                generic_forall_constraint * fc_pos = new generic_forall_constraint(l, l_True);
+                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect GenericForallConstraint (+): " << *fc_pos;
+                ctrs.push_back(fc_pos);
+                m_ctr_map.emplace(make_pair(l, true),  fc_pos);
+            } else {
+                ctrs.push_back(it_fc_pos->second);
+            }
+            if (it_fc_neg == m_ctr_map.end()) {
+                generic_forall_constraint * fc_neg = new generic_forall_constraint(l, l_False);
+                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect GenericForallConstraint (-): " << *fc_neg;
+                ctrs.push_back(fc_neg);
+                m_ctr_map.emplace(make_pair(l, false), fc_neg);
+            } else {
+                ctrs.push_back(it_fc_neg->second);
+            }
         } else if (l->isForallT()) {
             forallt_constraint fc = mk_forallt_constraint(l);
             invs.push_back(fc);
@@ -218,6 +238,8 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
     ode_ctcs.reserve(ctrs.size());
     vector<contractor> forall_ctcs;
     forall_ctcs.reserve(ctrs.size());
+    vector<contractor> generic_forall_ctcs;
+    generic_forall_ctcs.reserve(ctrs.size());
     // Add contractor_sample if --sample option is used
     if (config.nra_sample > 0 && complete) {
         nl_ctcs.push_back(mk_contractor_sample(config.nra_sample, ctrs.get_vec()));
@@ -254,6 +276,11 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         case constraint_type::Forall: {
             forall_constraint const * const forall_ctr = dynamic_cast<forall_constraint *>(ctr);
             forall_ctcs.push_back(mk_contractor_forall(box, forall_ctr));
+            break;
+        }
+        case constraint_type::GenericForall: {
+            generic_forall_constraint const * const generic_forall_ctr = dynamic_cast<generic_forall_constraint *>(ctr);
+            generic_forall_ctcs.push_back(mk_contractor_generic_forall(box, generic_forall_ctr));
             break;
         }
         default:
