@@ -60,7 +60,7 @@ using std::vector;
 
 namespace dreal {
 
-unordered_map<Enode*, double> make_random_subst_from_bound(box const & b, unordered_set<Enode *> const & vars) {
+static unordered_map<Enode*, double> make_random_subst_from_bound(box const & b, unordered_set<Enode *> const & vars) {
     static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
     unordered_map<Enode*, double> subst;
     for (Enode * const var : vars) {
@@ -74,7 +74,7 @@ unordered_map<Enode*, double> make_random_subst_from_bound(box const & b, unorde
     return subst;
 }
 
-unordered_map<Enode*, double> make_random_subst_from_value(box const & b, unordered_set<Enode *> const & vars) {
+static unordered_map<Enode*, double> make_random_subst_from_value(box const & b, unordered_set<Enode *> const & vars) {
     static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
     unordered_map<Enode*, double> subst;
     for (Enode * const var : vars) {
@@ -88,7 +88,7 @@ unordered_map<Enode*, double> make_random_subst_from_value(box const & b, unorde
     return subst;
 }
 
-ostream & operator<<(ostream & out, unordered_map<Enode *, double> const & subst) {
+static ostream & operator<<(ostream & out, unordered_map<Enode *, double> const & subst) {
     for (auto const & p : subst) {
         out << p.first << " |-> " << p.second << endl;
     }
