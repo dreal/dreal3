@@ -135,10 +135,9 @@ static bool term_cond(dreal::box const & old_box, dreal::box const & new_box) {
         }
     }
     return true;
-};
+}
 
 vector<Enode *> contractor_generic_forall::elist_to_vector(Enode * e) const {
-    // TODO(soonhok): implement this
     vector<Enode *> vec;
     while (!e->isEnil()) {
         vec.push_back(e->getCar());
@@ -261,7 +260,6 @@ box contractor_generic_forall::handle_disjunction(box b, unordered_set<Enode *> 
     return b;
 }
 box contractor_generic_forall::handle_conjunction(box b, unordered_set<Enode *> const & forall_vars, vector<Enode *> const & vec, bool const p, SMTConfig & config) const {
-    // TODO(soonhok): implement
     DREAL_LOG_DEBUG << "contractor_generic_forall::handle_conjunction" << endl;
     for (Enode * e : vec) {
         DREAL_LOG_DEBUG << "process conjunction element : " << e << endl;
@@ -273,15 +271,12 @@ box contractor_generic_forall::handle_conjunction(box b, unordered_set<Enode *> 
     return b;
 }
 box contractor_generic_forall::handle_atomic(box b, unordered_set<Enode *> const & forall_vars, Enode * body, bool const p, SMTConfig & config) const {
-    // TODO(soonhok): for now, it is treated as a special case of disjunction
     vector<Enode*> vec;
     vec.push_back(body);
     return handle_disjunction(b, forall_vars, vec, p, config);
 }
 
-box contractor_generic_forall::prune(box b, SMTConfig & config) const
-{
-    // TODO(soonhok): implement
+box contractor_generic_forall::prune(box b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "prune: " << *m_ctr << endl;
     Enode * body = m_ctr->get_body();
     unordered_set<Enode *> const forall_vars = m_ctr->get_forall_vars();
