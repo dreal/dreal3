@@ -374,10 +374,8 @@ sort: TK_BOOL
     ;
 
 sorted_var: '(' TK_SYM sort ')' {
-        $$ = new pair<string, Snode *>;
-        $$->first = $2;
-        $$->second = $3;
-        free($2);
+    $$ = new pair<string, Snode *>($2, $3);
+    free($2);
 }
 
 term: spec_const
@@ -527,9 +525,15 @@ term: spec_const
     | '(' TK_FORALLT term TK_LB term term TK_RB term_list ')'
       { $$ = parser_ctx->mkForallT($3, $5, $6, $8); }
     | '(' TK_FORALL '(' sorted_var_list ')' term ')'
-      { $$ = parser_ctx->mkForall($4, $6); }
+      {
+          $$ = parser_ctx->mkForall($4, $6);
+          delete $4;
+      }
     | '(' TK_EXISTS '(' sorted_var_list ')' term ')'
-      { $$ = parser_ctx->mkExists($4, $6); }
+      {
+          $$ = parser_ctx->mkExists($4, $6);
+          delete $4;
+      }
     /*
     | '(' TK_ANNOT term attribute_list ')'
       { opensmt_error2( "case not handled (yet)", "" ); }

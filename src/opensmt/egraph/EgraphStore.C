@@ -3236,10 +3236,11 @@ Enode * Egraph::mkForall ( vector<pair<string, Snode *>*>* sorted_var_list, Enod
     assert(sorted_var_list);
     std::reverse(sorted_var_list->begin(), sorted_var_list->end());
     Enode * elist = const_cast< Enode * >( enil );
-    for (pair<string, Snode *> * const sorted_var : *sorted_var_list) {
-        pair<string, Snode *> const & p = *sorted_var;
+    for (pair<string, Snode *> * sorted_var : *sorted_var_list) {
+        pair<string, Snode *> p = *sorted_var;
         string const & name = p.first;
         elist = cons(mkVar(name.c_str()), elist);
+        delete sorted_var;
     }
     Enode * res = cons(id_to_enode[ ENODE_ID_FORALL ], cons(e, elist));
     assert (res);
@@ -3251,6 +3252,7 @@ Enode * Egraph::mkExists ( vector<pair<string, Snode *>*>* sorted_var_list, Enod
     Enode * elist = const_cast< Enode * >( enil );
     for (pair<string, Snode *> * const sorted_var : *sorted_var_list) {
         elist = cons(mkVar((*sorted_var).first.c_str()), elist);
+        delete sorted_var;
     }
     Enode * res = cons(id_to_enode[ ENODE_ID_EXISTS ], cons(e, elist));
     assert (res);
