@@ -319,9 +319,11 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
         return true;
     };
     if (complete && ode_ctcs.size() > 0) {
-        return mk_contractor_fixpoint(term_cond, nl_ctcs, forall_ctcs, ode_ctcs, nl_eval_ctcs);
+        return mk_contractor_fixpoint(term_cond,
+                                      {nl_ctcs, forall_ctcs, generic_forall_ctcs, ode_ctcs, nl_eval_ctcs});
     } else {
-        return mk_contractor_fixpoint(term_cond, nl_ctcs, forall_ctcs, nl_eval_ctcs);
+        return mk_contractor_fixpoint(term_cond,
+                                      {nl_ctcs, forall_ctcs, generic_forall_ctcs, nl_eval_ctcs});
     }
 }
 
