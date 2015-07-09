@@ -234,12 +234,17 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector cons
 
 pair<lbool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
     // Construct iv from box b
-    ibex::IntervalVector iv(m_var_array.size());
-    for (int i = 0; i < m_var_array.size(); i++) {
-        iv[i] = b[m_var_array[i].name];
-        DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
+    if (m_var_array.size() > 0) {
+        ibex::IntervalVector iv(m_var_array.size());
+        for (int i = 0; i < m_var_array.size(); i++) {
+            iv[i] = b[m_var_array[i].name];
+            DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
+        }
+        return eval(iv);
+    } else {
+        ibex::IntervalVector iv(1);
+        return eval(iv);
     }
-    return eval(iv);
 }
 
 // ====================================================
