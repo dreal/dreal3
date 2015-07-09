@@ -110,9 +110,9 @@ box contractor_forall::prune(box b, SMTConfig & config) const {
 
     // ==================================================================
     // Stpe 1.
-    // For \exist x, \forall y, f(x, y)
-    // Check \exist x, \exist y, f(x, y) to try to reduce the range of y
-    // If \exist x, \exist y, f(x, y) is UNSAT, then return empty box.
+    // For ∃ x, ∀ y, f(x, y)
+    // Check ∃ x, ∃ y, f(x, y) to try to reduce the range of y
+    // If ∃ x, ∃ y, f(x, y) is UNSAT, then return empty box.
     // ==================================================================
     box extended_box(b, forall_vars);
     nonlinear_constraint const * const ctr0 = new nonlinear_constraint(e, p);
@@ -127,8 +127,8 @@ box contractor_forall::prune(box b, SMTConfig & config) const {
 
     // ====================================================================================
     // Stpe 2.
-    // For \exist x, \forall y, f(x, y)
-    // Sample c for y (which is pruned by step 1), and prune x by solving \exist x, f(x, c)
+    // For ∃ x, ∀ y, f(x, y)
+    // Sample c for y (which is pruned by step 1), and prune x by solving ∃ x, f(x, c)
     // ====================================================================================
 
     // Make a random subst from forall_vars, prune b using
@@ -142,7 +142,7 @@ box contractor_forall::prune(box b, SMTConfig & config) const {
     if (b == old_box) {
         // =========================================================
         // Step 3.
-        // Check Counterexample -- \exist x, \exist y. \neg f(x, y).
+        // Check Counterexample -- ∃ x, ∃ y. ¬ f(x, y).
         // (note: we run icp_loop)
         // =========================================================
         DREAL_LOG_DEBUG << "Sampling doesn't help. Try to find a counter example" << endl;
@@ -154,7 +154,7 @@ box contractor_forall::prune(box b, SMTConfig & config) const {
         if (!counter_example.is_empty()) {
             // =========================================================
             // Step 4.
-            // We've found a counterexample (c1, c2) where \neg f(c1, c2) holds
+            // We've found a counterexample (c1, c2) where ¬ f(c1, c2) holds
             // Prune X using a point 'y = c2'. (technically, a point in c2, which is an interval)
             // =========================================================
             DREAL_LOG_DEBUG << "Found possible counterexample" << endl;
