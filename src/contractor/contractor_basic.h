@@ -118,6 +118,7 @@ public:
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
+    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<vector<contractor>> const & cvec_list);
     friend contractor mk_contractor_int();
     friend contractor mk_contractor_eval(box const & box, nonlinear_constraint const * const ctr);
     friend contractor mk_contractor_cache(contractor const & ctc);
@@ -201,6 +202,7 @@ public:
     contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
                         std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2,
                         std::vector<contractor> const & cvec3, std::vector<contractor> const & cvec4);
+    contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::initializer_list<vector<contractor>> const & cvec_list);
     box prune(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -257,16 +259,10 @@ contractor mk_contractor_seq(contractor const & c1, std::vector<contractor> cons
 contractor mk_contractor_try(contractor const & c);
 contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
 contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard,
-                                  std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard,
-                                  std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2, std::vector<contractor> const & cvec3);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard,
-                                  std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2,
-                                  std::vector<contractor> const & cvec3, std::vector<contractor> const & cvec4);
+contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, contractor const & c);
+contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::initializer_list<contractor> const & clist);
+contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::vector<contractor> const & cvec);
+contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::initializer_list<vector<contractor>> const & cvec_list);
 contractor mk_contractor_int();
 contractor mk_contractor_eval(box const & box, nonlinear_constraint const * const ctr);
 contractor mk_contractor_cache(contractor const & ctc);

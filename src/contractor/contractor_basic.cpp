@@ -182,28 +182,11 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(clist) { }
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, vector<contractor> const & cvec)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec) { }
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
-                                         vector<contractor> const & cvec1, vector<contractor> const & cvec2)
-    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec1) {
-    copy(cvec2.begin(), cvec2.end(), back_inserter(m_clist));
-}
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
-                                         vector<contractor> const & cvec1,
-                                         vector<contractor> const & cvec2,
-                                         vector<contractor> const & cvec3)
-    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec1) {
-    copy(cvec2.begin(), cvec2.end(), back_inserter(m_clist));
-    copy(cvec3.begin(), cvec3.end(), back_inserter(m_clist));
-}
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
-                                         vector<contractor> const & cvec1,
-                                         vector<contractor> const & cvec2,
-                                         vector<contractor> const & cvec3,
-                                         vector<contractor> const & cvec4)
-    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec1) {
-    copy(cvec2.begin(), cvec2.end(), back_inserter(m_clist));
-    copy(cvec3.begin(), cvec3.end(), back_inserter(m_clist));
-    copy(cvec4.begin(), cvec4.end(), back_inserter(m_clist));
+contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, initializer_list<vector<contractor>> const & cvec_list)
+    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist() {
+    for (auto const & cvec : cvec_list) {
+        copy(cvec.begin(), cvec.end(), back_inserter(m_clist));
+    }
 }
 
 box contractor_fixpoint::prune(box old_b, SMTConfig & config) const {
@@ -516,22 +499,8 @@ contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard
 contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, vector<contractor> const & cvec) {
     return contractor(make_shared<contractor_fixpoint>(guard, cvec));
 }
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
-                                  vector<contractor> const & cvec1, vector<contractor> const & cvec2) {
-    return contractor(make_shared<contractor_fixpoint>(guard, cvec1, cvec2));
-}
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
-                                  vector<contractor> const & cvec1,
-                                  vector<contractor> const & cvec2,
-                                  vector<contractor> const & cvec3) {
-    return contractor(make_shared<contractor_fixpoint>(guard, cvec1, cvec2, cvec3));
-}
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
-                                  vector<contractor> const & cvec1,
-                                  vector<contractor> const & cvec2,
-                                  vector<contractor> const & cvec3,
-                                  vector<contractor> const & cvec4) {
-    return contractor(make_shared<contractor_fixpoint>(guard, cvec1, cvec2, cvec3, cvec4));
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, initializer_list<vector<contractor>> const & cvec_list) {
+    return contractor(make_shared<contractor_fixpoint>(guard, cvec_list));
 }
 contractor mk_contractor_int() {
     return contractor(make_shared<contractor_int>());
