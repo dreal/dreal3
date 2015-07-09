@@ -38,6 +38,11 @@ namespace dreal {
 class contractor_generic_forall : public contractor_cell {
 private:
     generic_forall_constraint const * const m_ctr;
+    box handle(box b, std::unordered_set<Enode *> const & forall_vars, Enode * body, bool const p, SMTConfig & config) const;
+    std::vector<Enode *> elist_to_vector(Enode * e) const;
+    box handle_disjunction(box b, std::unordered_set<Enode *> const & forall_vars, std::vector<Enode *> const & vec, bool const p, SMTConfig & config) const;
+    box handle_conjunction(box b, std::unordered_set<Enode *> const & forall_vars, std::vector<Enode *> const & vec, bool const p, SMTConfig & config) const;
+    box handle_atomic(box b, std::unordered_set<Enode *> const & forall_vars, Enode * body, bool const p, SMTConfig & config) const;
 
 public:
     contractor_generic_forall(box const & b, generic_forall_constraint const * const ctr);
