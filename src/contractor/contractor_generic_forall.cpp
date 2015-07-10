@@ -184,108 +184,76 @@ box contractor_generic_forall::handle_disjunction(box b, unordered_set<Enode *> 
     // Step 1. Sample y \in By.
     box extended_box(b, forall_vars);
     unordered_map<Enode*, double> subst = make_random_subst_from_bound(extended_box, forall_vars);
-    // cerr << "SAMPLING" << "\t" << subst << endl;
-
-    // Step 2. Compute B_i = prune(B, l_i)
-    //         Update B with ∨ B_i
-    //                        i
-    std::vector<box> boxes;
-    DREAL_LOG_DEBUG << "before disjunction box = " << boolalpha << p << endl;
-    DREAL_LOG_DEBUG << b << endl;
-    for (Enode * e : vec) {
-        DREAL_LOG_DEBUG << "process disjunction element : " << e << endl;
-        lbool polarity = p ? l_True : l_False;
-        if (e->isNot()) {
-            polarity = !polarity;
-            e = e->get1st();
-        }
-        nonlinear_constraint * ctr = new nonlinear_constraint(e, polarity, subst);
-        contractor ctc = mk_contractor_ibex_fwdbwd(b, ctr);
-        // make ctc
-        // prune
-        // join.push_back(ctc.p
-        // cerr << "ctc = " << ctc << endl;
-        // cerr << "box = " << b << endl;
-        box const bt = ctc.prune(b, config);
-        DREAL_LOG_DEBUG << "temp box = " << endl;
-        DREAL_LOG_DEBUG << "!!!!! polarity = " << polarity << endl;
-        DREAL_LOG_DEBUG << "!!!!! e = " << e << endl;
-        DREAL_LOG_DEBUG << "!!!!! ctr = " << *ctr << endl;
-        DREAL_LOG_DEBUG << bt << endl;
-        DREAL_LOG_DEBUG << "================" << endl;
-        boxes.emplace_back(bt);
-        delete ctr;
-    }
-    b = hull(boxes);
-    DREAL_LOG_DEBUG << "after disjunction box = " << endl;
-    DREAL_LOG_DEBUG << b << endl;
-
-
-    // Step 3. Find a counter-example
-    //         Solve(¬ l_1 ∧ ¬ l_2 ∧ ... ∧ ¬ l_n)
-    //
-    //         Make each ¬ l_i as a contractor ctc_i
-    //         Make a fixed_point contractor with ctc_is.
-    //         Pass it to icp::solve
-    box counterexample = find_counterexample(b, forall_vars, vec, p, config);
-
-    if (counterexample.is_empty()) {
-        // Step 3.1. (NO Counterexample)
-        //           Return B.
-        return b;
-    } else {
-        //
-        // Step 3.2. (There IS a counterexample C)
-        //
-        //           Using C, prune B.
-        //
-        // We've found a counterexample (c1, c2) where ¬ f(c1, c2) holds
-        // Prune X using a point 'y = c2'. (technically, a point in c2, which is an interval)
-        // =========================================================
-        DREAL_LOG_DEBUG << "Found possible counterexample" << endl;
-        DREAL_LOG_DEBUG << "CE = " << counterexample << endl;
-
-
-        subst = make_random_subst_from_value(counterexample, forall_vars);
-
-        vector<box> boxes;
-        DREAL_LOG_DEBUG << "[CE] before disjunction box = " << boolalpha << p << endl;
-        DREAL_LOG_DEBUG << b << endl;
+    box old_box = b;
+    do {
+        old_box = b;
+        // Step 2. Compute B_i = prune(B, l_i)
+        //         Update B with ∨ B_i
+        //                       i
+        std::vector<box> boxes;
         for (Enode * e : vec) {
-            DREAL_LOG_DEBUG << "process disjunction element : " << e << endl;
             lbool polarity = p ? l_True : l_False;
             if (e->isNot()) {
                 polarity = !polarity;
                 e = e->get1st();
             }
             nonlinear_constraint * ctr = new nonlinear_constraint(e, polarity, subst);
-            contractor ctc = mk_contractor_ibex_fwdbwd(b, ctr);
-            box const bt = ctc.prune(b, config);
-            DREAL_LOG_DEBUG << "temp box = " << endl;
-            DREAL_LOG_DEBUG << "!!!!! polarity = " << polarity << endl;
-            DREAL_LOG_DEBUG << "!!!!! e = " << e << endl;
-            DREAL_LOG_DEBUG << "!!!!! ctr = " << *ctr << endl;
-            DREAL_LOG_DEBUG << bt << endl;
-            DREAL_LOG_DEBUG << "================" << endl;
-            boxes.emplace_back(bt);
+            if (ctr->get_var_array().size() == 0) {
+                auto result = ctr->eval(b);
+                if (result.first != false) {
+                    boxes.emplace_back(b);
+                }
+            } else {
+                contractor ctc = mk_contractor_ibex_fwdbwd(b, ctr);
+                box const bt = ctc.prune(b, config);
+                boxes.emplace_back(bt);
+            }
             delete ctr;
         }
         b = hull(boxes);
-        DREAL_LOG_DEBUG << "[CE] after disjunction box = " << endl;
-        DREAL_LOG_DEBUG << b << endl;
-    }
-    DREAL_LOG_DEBUG << "===================\n\n\n\n\n";
+
+        // Step 3. Find a counter-example
+        //         Solve(¬ l_1 ∧ ¬ l_2 ∧ ... ∧ ¬ l_n)
+        //
+        //         Make each ¬ l_i as a contractor ctc_i
+        //         Make a fixed_point contractor with ctc_is.
+        //         Pass it to icp::solve
+        // cerr << "Find counter example from the following box" << endl
+        //      << "===========================================" << endl
+        //      << b << endl
+        //      << "===========================================" << endl;
+        box counterexample = find_counterexample(b, forall_vars, vec, p, config);
+        if (counterexample.is_empty()) {
+            // Step 3.1. (NO Counterexample)
+            //           Return B.
+            return b;
+        } else {
+            // Step 3.2. (There IS a counterexample C)
+            //
+            //           Using C, prune B.
+            //
+            // We've found a counterexample (c1, c2) where ¬ f(c1, c2) holds
+            // Prune X using a point 'y = c2'. (technically, a point in c2, which is an interval)
+            subst = make_random_subst_from_value(counterexample, forall_vars);
+            // cerr << "counterexample = " << counterexample << endl;
+            // cerr << "counterexample = " << subst << endl << endl;
+        }
+    } while (b != old_box);
     return b;
 }
 box contractor_generic_forall::handle_conjunction(box b, unordered_set<Enode *> const & forall_vars, vector<Enode *> const & vec, bool const p, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_generic_forall::handle_conjunction" << endl;
-    for (Enode * e : vec) {
-        DREAL_LOG_DEBUG << "process conjunction element : " << e << endl;
-        b = handle(b, forall_vars, e, p, config);
-        if (b.is_empty()) {
-            return b;
+    box old_b = b;
+    do {
+        old_b = b;
+        for (Enode * e : vec) {
+            DREAL_LOG_DEBUG << "process conjunction element : " << e << endl;
+            b = handle(b, forall_vars, e, p, config);
+            if (b.is_empty()) {
+                return b;
+            }
         }
-    }
+    } while (old_b != b);
     return b;
 }
 box contractor_generic_forall::handle_atomic(box b, unordered_set<Enode *> const & forall_vars, Enode * body, bool const p, SMTConfig & config) const {
