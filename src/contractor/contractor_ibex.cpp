@@ -164,15 +164,11 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "==================================================";
 
     if (m_var_array.size() == 0) {
-        cerr << "special case" << endl;
-        cerr << "special case: " << *m_ctr << endl;
         auto eval_result = m_ctr->eval(b);
         if (eval_result.first == l_False) {
             b.set_empty();
-            cerr << "special case: => empty" << endl;
             return b;
         } else {
-            cerr << "special case: => ok" << endl;
             return b;
         }
     }
