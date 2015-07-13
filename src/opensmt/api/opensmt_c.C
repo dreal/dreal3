@@ -1199,6 +1199,72 @@ double opensmt_get_bound_ub( opensmt_context c, opensmt_expr v )
   return var->getBoundUpperBound();
 }
 
+void opensmt_set_bound_lb( opensmt_context c, opensmt_expr v, double n )
+{
+  assert( c );
+  assert( v );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  assert( context.getStatus( ) == l_True );
+  Enode * var = static_cast< Enode * >( v );
+  var->setBoundLowerBound(n);
+}
+
+void opensmt_set_bound_ub( opensmt_context c, opensmt_expr v, double n )
+{
+  assert( c );
+  assert( v );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  assert( context.getStatus( ) == l_True );
+  Enode * var = static_cast< Enode * >( v );
+  var->setBoundUpperBound(n);
+}
+
+double opensmt_get_domain_lb( opensmt_context c, opensmt_expr v )
+{
+  assert( c );
+  assert( v );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  assert( context.getStatus( ) == l_True );
+  Enode * var = static_cast< Enode * >( v );
+  return var->getDomainLowerBound();
+}
+
+double opensmt_get_domain_ub( opensmt_context c, opensmt_expr v )
+{
+  assert( c );
+  assert( v );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  assert( context.getStatus( ) == l_True );
+  Enode * var = static_cast< Enode * >( v );
+  return var->getDomainUpperBound();
+}
+
+void opensmt_set_domain_lb( opensmt_context c, opensmt_expr v, double n )
+{
+  assert( c );
+  assert( v );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  assert( context.getStatus( ) == l_True );
+  Enode * var = static_cast< Enode * >( v );
+  var->setDomainLowerBound(n);
+}
+
+void opensmt_set_domain_ub( opensmt_context c, opensmt_expr v, double n )
+{
+  assert( c );
+  assert( v );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  assert( context.getStatus( ) == l_True );
+  Enode * var = static_cast< Enode * >( v );
+  var->setDomainUpperBound(n);
+}
+
 /*
 void opensmt_get_num( opensmt_expr n, mpz_t val )
 {

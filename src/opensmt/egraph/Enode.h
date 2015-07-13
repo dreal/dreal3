@@ -500,12 +500,18 @@ inline void Enode::setDomainLowerBound ( const double v )
 {
   assert( isTerm( ) );
   dom_lb = v;
+  if (getBoundLowerBound() < v) {
+      setBoundLowerBound(v);
+  }
 }
 
 inline void Enode::setDomainUpperBound ( const double v )
 {
   assert( isTerm( ) );
   dom_ub = v;
+  if (getBoundUpperBound() > v) {
+      setBoundUpperBound(v);
+  }
 }
 
 inline void Enode::setBoundLowerBound ( const double v )

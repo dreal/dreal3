@@ -63,6 +63,12 @@ double           opensmt_get_lb                    ( opensmt_context, opensmt_ex
 double           opensmt_get_ub                    ( opensmt_context, opensmt_expr );
 double           opensmt_get_bound_lb              ( opensmt_context, opensmt_expr );
 double           opensmt_get_bound_ub              ( opensmt_context, opensmt_expr );
+void             opensmt_set_bound_lb              ( opensmt_context, opensmt_expr, double );
+void             opensmt_set_bound_ub              ( opensmt_context, opensmt_expr, double );
+double           opensmt_get_domain_lb             ( opensmt_context, opensmt_expr );
+double           opensmt_get_domain_ub             ( opensmt_context, opensmt_expr );
+void             opensmt_set_domain_lb             ( opensmt_context, opensmt_expr, double );
+void             opensmt_set_domain_ub             ( opensmt_context, opensmt_expr, double );
 opensmt_result   opensmt_get_bool                  ( opensmt_context c, opensmt_expr p );
 void             opensmt_prefer                    ( opensmt_expr a );
 void             opensmt_polarity                  ( opensmt_context c, opensmt_expr a, int pos );
