@@ -989,6 +989,32 @@ let build_var_flow_list (n: Network.t) k (heuristic : Costmap.t list option) =
 	) (Network.automata n)) in
 	let const_change_flows = List.map (fun (v, _) -> (v, Basic.Num (0.0))) empty_flows in
 	sum_flows@gamma_plain@const_change_flows
+	
+(*let build_var_flow_list (n: Network.t) k (heuristic : Costmap.t list option) =
+	let flows = build_flow_annot_list_network n k heuristic in
+	let gvars = Network.all_varnames_unique (Network.automata n) in
+	let fflows = List.flatten (List.map (fun (a, m, odes) -> List.map (fun ode -> (a, m, ode)) odes) flows) in
+	let usedflowvars = List.map (fun (a, m, ode) -> (a, m, Ode.collect_vars ode)) fflows in (* (a, m, (v, vcollect)) *)
+	let vflows = List.map (fun v -> (v, List.filter (fun (a, m, (vi, _)) -> v = vi) fflows)) gvars in
+	(*let (non_empty_flows, empty_flows) = List.partition (fun (_, vf) -> (List.length vf) > 0) vflows in*)
+	let non_empty_flows = List.filter (fun (_, vf) -> (List.length vf) > 0) vflows in
+	let vflowsSecondary = List.map (fun v -> (v, List.filter (fun (a, m, (vi, vl)) -> Set.mem v vl) usedflowvars)) gvars in
+	let vflowsSecondaryNon = List.filter (fun (_, vf) -> (List.length vf) > 0) vflowsSecondary in
+	let vflowsEmpty = List.filter (fun (v, _) -> not (List.mem v (List.map (fun (x, _) -> x) non_empty_flows))) vflowsSecondaryNon in
+	let mul_flows = List.map (fun (v, fl) -> (v, List.map (fun (a, m, ode) -> mk_flow_mul_gamma_nt ode a m) fl)) non_empty_flows in
+	let sum_flows = List.map (fun (v, fl) -> 
+		match (List.length fl) > 1 with
+			true -> (v, Basic.Add fl)
+			| false -> (v, List.hd fl)
+	) mul_flows in
+	let gamma_plain = List.flatten (List.mapi (
+		fun i x -> List.map (
+			fun y -> (mk_gamma_nt x y, Basic.Num (0.0))
+		)
+		(filter_aut_mode_distance x k heuristic i)
+	) (Network.automata n)) in
+	let const_change_flows = List.map (fun (v, _) -> (v, Basic.Num (0.0))) vflowsEmpty in
+	sum_flows@gamma_plain@const_change_flows*)
 			
 let compile_ode_definition (n: Network.t) k (heuristic : Costmap.t list option) =
   let flows = List.map (fun x -> build_var_flow_list n x heuristic) (List.of_enum ( 0 -- k )) in
@@ -1280,7 +1306,7 @@ let mk_jump aut j i =
     ) in
 	let guard_mapped = Basic.subst_formula (mk_variable i "_t") guard in
 	let change_mapped = Basic.subst_formula (mk_jmp_variable i) change in
-	Basic.make_and [guard_mapped; change_mapped; change_unused]
+	Basic.make_and [guard_mapped; change_mapped(*; change_unused*)]
   
 let trans_jump aut j i =
 	let (org, lab, des, jmp) = j in
@@ -1303,10 +1329,28 @@ let trans_jump_sync aut j i =
 	let nsyncs = Basic.make_and (List.map (fun v -> Basic.Not (Basic.FVar (mk_sync i v))) ninter) in
 	Basic.make_and [syncs; nsyncs; jmp; enforcement]
 	
+let trans_jump_sync_noop aut i heuristic ia = 
+	let amodes = filter_aut_mode_distance aut i heuristic ia in
+	let glab = Hybrid.labellist aut in
+	List.map (
+		fun m -> begin
+			let syncs = Basic.make_and (List.map (fun v -> Basic.Not (Basic.FVar (mk_sync i v))) glab) in
+			let enforce_org = mk_cnd (mk_enforce i aut) (Mode.mode_numId m) in
+			let enforce_des = mk_cnd (mk_enforce (i+1) aut) (Mode.mode_numId m) in
+			Basic.make_and [syncs; enforce_org; enforce_des]
+		end
+	) amodes
+	
 let mk_noop aut mode = 
 	let aut_vars = List.map (fun (var, _) -> var) (Map.bindings (Hybrid.vardeclmap aut)) in
 	let change = Basic.make_and (List.map (fun v -> Basic.Eq (Basic.Var (v ^ "'"), Basic.Var v)) aut_vars) in
 	Jump.make (True, Mode.mode_id mode, change, [])
+	
+let mk_noop_global aut i = 
+	let glab = Hybrid.labellist aut in
+	let syncs = Basic.make_and (List.map (fun v -> Basic.Not (Basic.FVar (mk_sync i v))) glab) in
+	let enforce = Basic.Eq (Basic.Var (mk_enforce (i+1) aut), Basic.Var (mk_enforce i aut)) in
+	Basic.make_and [syncs; enforce]
   
 let trans n aut i k heuristic ia = 
 	let name = Hybrid.name aut in
@@ -1337,7 +1381,7 @@ let trans n aut i k heuristic ia =
 				  in
 
 				  (* Add noop transition *)
-				  let jmn = (mk_noop aut modeobj)::jm in
+				  let jmn = (*(mk_noop aut modeobj)::*)jm in
 				  List.map (fun j -> (modeobj, Jump.label j, getMode (Jump.target j), j)) jmn
 				end
 			       ) 
@@ -1404,7 +1448,7 @@ let rec collect_comb j jlothers cur endl curIdx =
 			lNum)
 			end
 	
-let get_all_jump_intersections jmp jlothers =
+let get_all_jump_intersections jmp jlothers : ((string list) * ((Hybrid.t * (Mode.t * (string list) * Mode.t * Jump.t)) list list)) =
 	let (_, jp) = jmp in
 	let (_, (_, lbl, _, _)) = jmp in
 	let possible = List.map (
@@ -1428,7 +1472,7 @@ let get_new_labels jmp jmplist =
 	let (org, labels, dest, jump) = jmp in
 	List.filter (fun x -> not (label_contained jmplist x)) labels
 	
-let rec jump_inter jl jlothers curjumplist = 
+let rec jump_inter jl jlothers curjumplist : ((string list) * ((Hybrid.t * (Mode.t * (string list) * Mode.t * Jump.t)) list list)) list = 
 	let (aut, jumps) = jl in
 	let nljumps = List.map (fun j -> 
 		begin
@@ -1440,7 +1484,7 @@ let rec jump_inter jl jlothers curjumplist =
 	let apJumps = List.map (fun x -> (aut, x)) pJumps in
 	curjumplist@(List.map (fun j -> get_all_jump_intersections j jlothers) apJumps)
 	
-let rec get_jump_conjunctions jlist curjumplist = 
+let rec get_jump_conjunctions jlist curjumplist : ((string list) * ((Hybrid.t * (Mode.t * (string list) * Mode.t * Jump.t)) list list)) list = 
 	match
 		try Some (List.hd jlist)
 		with _ -> None
@@ -1514,9 +1558,9 @@ let get_unlabeled_jumps jmplist =
 let trans_network_precomposed n i k heuristic =
 	let automata = Network.automata n in
 	let jumplst = List.mapi (fun ia a -> (a, trans n a i k heuristic ia)) automata in
-	let jc = get_jump_conjunctions jumplst [] in
-	let a = List.map (fun (x, y) -> y) jc in
-	let b = List.flatten a in
+	let jc = get_jump_conjunctions jumplst [] in (* [(labels, [[(automaton, (from, labels, to, jump))]])] *)
+	let a = List.map (fun (x, y) -> y) jc in (* [[[(automaton, (from, labels, to, jump))]]] *)
+	let b = List.flatten a in (* [[(automaton, (from, labels, to, jump))]] *)
 	let c = List.map (fun x -> Basic.make_and (List.map (fun (aut, jmp) -> trans_jump aut jmp i) x)) b in
 	let uj = get_unlabeled_jumps jumplst in
 	let muj = List.map (fun (aut, jmp) -> trans_jump aut jmp i) uj in
@@ -1526,9 +1570,13 @@ let trans_network_precomposed n i k heuristic =
 	
 let trans_network n i k heuristic =
 	let automata = Network.automata n in
-	let jumplst = List.mapi (fun ia a -> (a, trans n a i k heuristic ia)) automata in
-	let ax = List.map (fun (a, jlist) ->
-		Basic.make_or (List.map (fun j -> trans_jump_sync a j i) jlist)
+	let jumplst = List.mapi (fun ia a -> (a, trans n a i k heuristic ia, trans_jump_sync_noop a i heuristic ia)) automata in
+	let ax = List.map (fun (a, jlist, nooplist) -> 
+		begin
+			let jmpor = Basic.make_or (List.map (fun j -> trans_jump_sync a j i) jlist) in
+			let noopr = Basic.make_or nooplist in
+			Basic.make_or [mk_noop_global a i; jmpor] (*[noopr; jmpor]*)
+		end
 	) 
 	jumplst in
 	let bx = Basic.make_and ax in
@@ -1546,6 +1594,123 @@ let mk_active (n: Network.t) (i: int) k (heuristic : Costmap.t list option) =
 	let auta = Network.automata n in
 	let amodes = List.mapi (fun ia a -> (a, filter_aut_mode_distance a i heuristic ia)) auta in
 	Basic.make_and (List.map (fun (a, mlist) -> Basic.make_and (List.map (fun m -> mk_active_mode a m i) mlist)) amodes)
+	
+(*let mk_frame_axiom (n: Network.t) (i: int) k (heuristic : Costmap.t list option) =
+	let auta = Network.automata n in
+	let gvars = Network.all_varnames_unique (Network.automata n) in
+	let amodes = List.mapi (fun ia a -> (a, filter_aut_mode_distance a i heuristic ia)) auta in
+	let ajumps = List.map (fun (a, modes) -> List.map (fun m -> m.jumps) modes) amodes in (* [[[jmp]]] *)
+	let ajumps_flat = List.flatten (List.flatten ajumps) in
+	let achanges = List.map (fun j -> j.change) ajumps_flat in (* [change] *)
+	let set_vars_formulas = List.map (fun c -> Set.elements (Basic.collect_update_assignments_in_formula c)) achanges in
+	let list_vars_formulas = List.flatten set_vars_formulas in
+	let list_vars = List.sort_unique compare (List.map (fun (v, f) -> v) list_vars_formulas) in
+	(* [v, [~f]] *)
+	let list_vars_formulas_boxed = List.map (fun v -> (v, List.map (fun (_, fl) -> fl) (List.filter (fun (vi, _) -> vi = v) list_vars_formulas))) list_vars in
+	let list_vars_formulas_dash = List.map (fun (v, fl) -> (String.filter (fun c -> not (c = '\'')) v, fl)) list_vars_formulas_boxed in
+	
+	(*let dasdas = List.map (fun (v, fl) -> begin
+		match v = "lock" with
+			| true -> raise (Error.Lex_err ("whaat", (List.length fl)))
+			| false -> fl
+	end
+	) list_vars_formulas_dash in*)
+	
+	let list_vars_used = List.map (fun (v, fl) -> v) list_vars_formulas_dash in
+	let list_vars_unchanged = List.filter (fun v -> not (List.mem v list_vars_used)) gvars in
+	let list_vars_formulas_unchanged = List.map (fun v -> Basic.Eq (Basic.Var (mk_variable i "_t" v), Basic.Var (mk_variable (i+1) "_0" v))) list_vars_unchanged in
+	let list_vars_unchanged_boxed = Basic.make_and list_vars_formulas_unchanged in
+	let list_vars_formulas_boxed_rep = List.map (fun (v, fl) -> 
+		begin
+			let vrep = Basic.Eq (Basic.Var (mk_variable i "_t" v), Basic.Var (mk_variable (i+1) "_0" v)) in
+			let frep = List.map (fun f -> Basic.subst_formula (mk_jmp_variable i) f) fl in
+			let frepnot = List.map (fun f -> Basic.Not f) frep in
+			(vrep, Basic.make_and frepnot)
+		end
+	) list_vars_formulas_dash in
+	(*let axiom = List.map (fun (v, f) -> Basic.make_and [Basic.Imply (f, v); Basic.Imply (v, f)]) list_vars_formulas_boxed_rep in*)
+	let axiom = List.map (fun (v, f) -> Basic.Imply (f, v)) list_vars_formulas_boxed_rep in
+	let ax_boxed = Basic.make_and axiom in
+	Basic.make_and [ax_boxed; list_vars_unchanged_boxed]*)
+
+let mk_frame_axiom (n: Network.t) (i: int) k (heuristic : Costmap.t list option) =
+	let getMode aut mname = begin
+		let name = Hybrid.name aut in
+		let mapping = Network.modemapping n in
+		let name_to_obj = Modemapping.name_to_obj mapping in
+		try Map.find (name, mname) name_to_obj with
+		  e ->
+		  Printexc.print_backtrace IO.stderr;
+		  raise e
+	  end in
+	let auta = Network.automata n in
+	let gvars = Network.all_varnames_unique (Network.automata n) in
+	let amodes = List.mapi (fun ia a -> (a, filter_aut_mode_distance a i heuristic ia)) auta in (* [a, [mode]] *)
+	let ajumps = List.map (fun (a, modes) -> List.map (fun m -> (List.map (fun j -> (a, m, j)) m.jumps)) modes) amodes in (* [[[a, m, jmp]]] *)
+	let ajumps_flat = List.flatten (List.flatten ajumps) in (* [a, m, jmp] *)
+	let achanges = List.map (fun (a, m, j) -> (a, m, j.target, j.label, j.change)) ajumps_flat in 
+	let set_vars_formulasx = List.map (fun (a, m, t, l, c) -> (a, m, t, l, Set.elements (Basic.collect_update_assignments_in_formula c))) achanges in
+	let set_vars_formulas = List.map (fun (a, m, t, l, cl) -> List.map (fun (v, f) -> (a, m, t, l, v, f)) cl) set_vars_formulasx in
+	let list_vars_formulas = List.flatten set_vars_formulas in
+	let list_vars = List.sort_unique compare (List.map (fun (a, m, t, l, v, f) -> v) list_vars_formulas) in
+	(* [v, [~f]] *)
+	let list_vars_formulas_boxed = List.map (fun v -> (v, List.map (fun (a, m, t, l, _, fl) -> (a, m, t, l, fl)) (List.filter (fun (_, _, _, _, vi, _) -> vi = v) list_vars_formulas))) list_vars in
+	let list_vars_formulas_dash = List.map (fun (v, fl) -> (String.filter (fun c -> not (c = '\'')) v, fl)) list_vars_formulas_boxed in
+	(*let dasdas = List.map (fun (v, fl) -> begin
+		match v = "lock" with
+			| true -> raise (Error.Lex_err ("whaat", (List.length fl)))
+			| false -> fl
+	end
+	) list_vars_formulas_dash in*)
+	let list_vars_used = List.map (fun (v, fl) -> v) list_vars_formulas_dash in
+	let list_vars_unchanged = List.filter (fun v -> not (List.mem v list_vars_used)) gvars in
+	let list_vars_formulas_unchanged = List.map (fun v -> Basic.Eq (Basic.Var (mk_variable i "_t" v), Basic.Var (mk_variable (i+1) "_0" v))) list_vars_unchanged in
+	let list_vars_unchanged_boxed = Basic.make_and list_vars_formulas_unchanged in
+	let list_vars_formulas_boxed_rep = List.map (fun (v, fl) -> 
+		begin
+			let vrep = Basic.Eq (Basic.Var (mk_variable i "_t" v), Basic.Var (mk_variable (i+1) "_0" v)) in
+			let frep = List.map (fun (a, m, t, l, f) -> (a, m, t, l, (Basic.subst_formula (mk_jmp_variable i) f))) fl in
+			let frepconj = List.map (fun (a, m, t, l, f) -> Basic.Not (Basic.make_and [(mk_cnd (mk_enforce (i) a) m.mode_numId); f])) frep in
+			let frepnot = List.map (fun f -> f) frepconj in
+			
+			let ax = List.map (fun (a, m, t, l, f) -> Basic.make_and [(mk_cnd (mk_enforce (i+1) a) m.mode_numId);f]) frep in
+			let wx = List.map (fun (a, m, t, l, f) -> 
+				begin
+					let glab = Hybrid.labellist a in
+					let inter = lst_intersection l glab in
+					let ninter = List.filter (fun x -> not (List.mem x inter)) glab in
+					let syncs = Basic.make_and (List.map (fun v -> Basic.FVar (mk_sync i v)) inter) in
+					let nsyncs = Basic.make_and (List.map (fun v -> Basic.Not (Basic.FVar (mk_sync i v))) ninter) in
+					(Basic.make_and [syncs; nsyncs])
+					
+				end
+			) frep in
+			
+			let ds = List.map (fun (a, m, t, l, f) -> (*Basic.Not*) (Basic.make_and [(mk_cnd (mk_enforce i a) m.mode_numId);(mk_cnd (mk_enforce (i+1) a) (Mode.mode_numId (getMode a t))); f])) frep in
+			
+			let bx = vrep::ds in
+			let cx = List.map (fun x -> Basic.make_and ((List.nth bx x)::(List.mapi (fun ai el -> 
+			begin
+				match ai = x with
+					| true -> Basic.True
+					| false -> Basic.Not el
+			end
+			) 
+			bx
+			)))
+			(List.of_enum (0 -- ((List.length bx)-1))) in
+			
+			(*let ds = List.map (fun (a, m, t, l, f) -> (*Basic.Not*) (Basic.make_and [(mk_cnd (mk_enforce i a) m.mode_numId);(mk_cnd (mk_enforce (i+1) a) (Mode.mode_numId (getMode a t))); f])) frep in*)
+			
+			(vrep, Basic.make_or ds)
+		end
+	) list_vars_formulas_dash in
+	(*let axiom = List.map (fun (v, f) -> Basic.make_and [Basic.Imply (f, v); Basic.Imply (v, f)]) list_vars_formulas_boxed_rep in*)
+	(*let axiom = List.map (fun (v, f) -> Basic.Imply (f, v)) list_vars_formulas_boxed_rep in*)
+	let axiom = List.map (fun (v, f) -> Basic.make_or [v;f]) list_vars_formulas_boxed_rep in
+	(*let axiom = List.map (fun (v, f) -> Basic.make_or [Basic.make_and [Basic.Not v; f]; Basic.make_and [v; Basic.Not f]]) list_vars_formulas_boxed_rep in*)
+	let ax_boxed = Basic.make_and axiom in
+	Basic.make_and [ax_boxed; list_vars_unchanged_boxed]
 	
 let mk_mode_pair_mutex (aut: Hybrid.t) (m: Mode.t) (m1: Mode.t) (i: int) = 
   let nId = Mode.mode_numId m in
@@ -1606,7 +1771,8 @@ let compile_logic_formula (h : Network.t)
 		  | false -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_mode_mutex h x k heuristic);
 										(mk_active h x k heuristic);
 										(mk_maintain h x k heuristic);
-										(trans_network h x k heuristic)]) list_of_steps)
+										(trans_network h x k heuristic);
+										(mk_frame_axiom h x k heuristic)]) list_of_steps);
 		end
 	| Some p -> Basic.make_and (List.map2 (fun q x -> Basic.make_and [(mk_mode_mutex h x k heuristic);(mk_active h x k heuristic);(mk_step h (Some q) x k heuristic)])
 					      (List.take k p)
