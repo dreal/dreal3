@@ -59,6 +59,47 @@ type exp =
    | LetF of ((string * formula) list * formula)
    | LetE of ((string * exp) list * formula)
    | ForallT of exp * exp * exp * formula
+   
+let rec collect_update_assignments_in_formula (f : formula) : (var * formula) Set.t =
+  match f with
+    True -> Set.empty
+  | False -> Set.empty
+  | Not f' -> collect_update_assignments_in_formula f'
+  | And fs -> collect_update_assignments_in_formulas fs
+  | Or  fs -> collect_update_assignments_in_formulas fs
+  | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) | Gtp (e1, e2, _) | Ltp (e1, e2, _) | Gep (e1, e2, _) | Lep (e1, e2, _) | Eqp (e1, e2, _) -> 
+    begin
+      let vars = contains_update_vars_list [e1;e2] in
+      match Set.is_empty (contains_update_vars_list [e1;e2]) with
+        | false -> Set.singleton (Set.choose vars, f)
+        | true -> Set.empty
+    end
+  | Imply (f1, f2) -> collect_update_assignments_in_formulas [f1;f2]
+  | FVar x -> Set.empty
+  | ForallT (m, lb, ub, f') -> Set.empty
+  | LetF _ -> raise TODO
+  | LetE _ -> raise TODO
+and contains_update_vars_list (es : exp list) =
+  List.reduce Set.union (List.map contains_update_vars es)
+and collect_update_assignments_in_formulas (fs : formula list) =
+  List.reduce Set.union (List.map collect_update_assignments_in_formula fs)
+and contains_update_vars (e : exp) : var Set.t = match e with
+    Var x -> 
+      begin
+        match String.ends_with x "'" with
+          | true -> Set.singleton x
+          | false -> Set.empty
+      end
+  | Vec xs -> Set.of_list (List.filter (fun s -> String.ends_with s "'") xs)
+  | Num _ -> Set.empty
+  | Neg e' -> contains_update_vars e'
+  | Add es | Sub es | Mul es -> contains_update_vars_list es
+  | Div (e1, e2) | Pow (e1, e2) | Atan2 (e1, e2) | Min (e1, e2) | Max (e1, e2) -> contains_update_vars_list [e1;e2]
+  | Ite (f, e1, e2) -> raise TODO
+  | Sqrt e' | Abs e'  | Log e'  | Exp e'   | Sin e'   | Cos e'   | Tan e'
+  | Asin e' | Acos e' | Atan e' | Asinh e' | Acosh e' | Atanh e' | Matan e'
+  | Sinh e' | Cosh e' | Tanh e' | Safesqrt e' -> contains_update_vars e'
+  | Integral (n, t, x0s, flow) -> raise TODO
 
 let rec collect_vars_in_formula (f : formula) : var Set.t =
   match f with
@@ -97,6 +138,7 @@ and collect_vars_in_exp (e : exp) : var Set.t = match e with
   | Sinh e' | Cosh e' | Tanh e' | Safesqrt e' -> collect_vars_in_exp e'
   | Integral (n, t, x0s, flow) ->
      Set.add t (Set.of_list x0s)
+     
 let make_or (fs : formula list) =
   let reduced_fs_opt = List.fold_left
                          (fun fs f -> match (fs, f) with
