@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <string>
 #include <cmath>
+#include <limits>
 #include <unordered_map>
 #include "ibex/ibex.h"
 #include "util/logging.h"
@@ -31,6 +32,7 @@ namespace dreal {
 
 using std::modf;
 using std::unordered_map;
+using std::numeric_limits;
 using ibex::ExprNode;
 using ibex::Variable;
 using ibex::ExprConstant;
@@ -63,7 +65,14 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
 
     } else if (e->isConstant()) {
         // TODO(soonhok): handle number c as an interval [lb(c), ub(c)]
-        return &ExprConstant::new_scalar(e->getValue());
+        double const v = e->getValue();
+        if (v == +numeric_limits<double>::infinity()) {
+            return &ExprConstant::new_scalar(ibex::Interval(numeric_limits<double>::max(), v));
+        } else if (v == -numeric_limits<double>::infinity()) {
+            return &ExprConstant::new_scalar(ibex::Interval(v, numeric_limits<double>::lowest()));
+        } else {
+            return &ExprConstant::new_scalar(v);
+        }
     } else if (e->isSymb()) {
         throw logic_error("translateEnodeExprNode: Symb");
     } else if (e->isNumb()) {
