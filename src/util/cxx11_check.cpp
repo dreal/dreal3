@@ -24,13 +24,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 
 void check_nothrow_move_constructible() {
-    static_assert(std::is_nothrow_move_constructible<ibex::IntervalVector>::value,
-                  "class ibex::IntervalVector is not nothrow-move-constructible.");
-    static_assert(std::is_nothrow_move_constructible<ibex::Interval>::value,
-                  "class ibex::Interval is not nothrow-move-constructible.");
-    static_assert(std::is_nothrow_move_constructible<box>::value,
-                  "class dreal::box is not nothrow-move-constructible.");
-    static_assert(std::is_nothrow_move_constructible<contractor>::value,
-                  "class dreal::contractor is not nothrow-move-constructible.");
+    // TODO(soonhok): use static-warning
+    // reference: http://stackoverflow.com/questions/8936063/does-there-exist-a-static-warning
+
+    // static_assert(std::is_nothrow_move_constructible<ibex::IntervalVector>::value,
+    //               "class ibex::IntervalVector is not nothrow-move-constructible.");
+    // static_assert(std::is_nothrow_move_constructible<ibex::Interval>::value,
+    //               "class ibex::Interval is not nothrow-move-constructible.");
+    // static_assert(std::is_nothrow_move_constructible<box>::value,
+    //               "class dreal::box is not nothrow-move-constructible.");
+    // static_assert(std::is_nothrow_move_constructible<contractor>::value,
+    //               "class dreal::contractor is not nothrow-move-constructible.");
 }
 }  // namespace dreal
