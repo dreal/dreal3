@@ -117,7 +117,7 @@ int get_mode(Enode * lit) {
 
       // build reverse adjanceny map (succ -> set(predecessors))      
       for(unsigned int j = 0; j < hinfo[2].size(); j++){ // loop over automata
-	//DREAL_LOG_DEBUG << "Getting Transitions For Autom ";
+	DREAL_LOG_DEBUG << "Getting Transitions For Autom ";
 	vector<vector<labeled_transition*>*>* aut_predecessors = new vector<vector<labeled_transition*>*>();
 	for (unsigned int i = 0; i < hinfo[2][j].size(); i++){ // loop over modes
 	  // DREAL_LOG_DEBUG << "Getting Transitions From " << i;
@@ -125,7 +125,7 @@ int get_mode(Enode * lit) {
 	  aut_predecessors->push_back(mp);
 	}	
 	for (unsigned int src = 0; src < hinfo[2][j].size(); src++){
-	  //DREAL_LOG_DEBUG << "Getting Transitions From " << src << " " << hinfo[2][j][src].dump();
+	  DREAL_LOG_DEBUG << "Getting Transitions From " << src << " " << hinfo[2][j][src].dump();
 	  m_aut_labels.push_back(new set<int>());
 	  auto adj = hinfo[2][j][src]; // transitions from src
 	  for(auto adj_trans : adj){ // loop over transitions
@@ -138,11 +138,12 @@ int get_mode(Enode * lit) {
 	    for(auto l : labels){
 	      
 	      string label_string = l.dump().c_str();
-	      auto li = label_indices.find(label_string);
+	      auto li = label_to_indices.find(label_string);
 	      int ind;
-	      if(li == label_indices.end()){
-		label_indices[label_string] = num_labels++;
+	      if(li == label_to_indices.end()){
+		label_to_indices[label_string] = num_labels++;
 		ind = num_labels-1;
+		label_from_indices[ind] = label_string;
 	      } else {
 		ind = li->second;
 	      }    
@@ -152,6 +153,11 @@ int get_mode(Enode * lit) {
 
 	    int dest = adj_trans[1];
 	    (*aut_predecessors)[dest-1]->push_back(trans);
+
+	    if(adj_trans[2] == 1){
+	      noops.insert(trans);
+	    }
+	    
 	    //DREAL_LOG_DEBUG << "Got Transition " << adj_trans.dump();
 	  }
 	}
@@ -166,7 +172,37 @@ int get_mode(Enode * lit) {
         vector<labeled_transition*>*dec = new vector<labeled_transition*>();
 
         for (auto goalm : *m_goal_modes[0]){
-          dec->push_back(new labeled_transition(NULL, goalm));
+	  if ((*m_cost[0])[ (goalm)-1 ] <=  m_depth) {
+	    dec->push_back(new labeled_transition(NULL, goalm));
+	  }
+        }
+		set<labeled_transition*> toRemove;
+        for (auto e : m_stack) {
+            if (e->first->getPolarity() != l_True){
+                //      DREAL_LOG_INFO << "Checking removal of " << e << endl;
+              auto p = (*mode_literals[0]).find(e->first);
+                if (p != (*mode_literals[0]).end()){
+                    // DREAL_LOG_INFO << "Removing negated " << p->second->first << endl;
+                    if (p->second->second == m_depth){
+                        DREAL_LOG_INFO << "Removing negated " << p->second->first << endl;
+                        for (auto e1 : *dec){
+                          if (e1->second == p->second->first){
+                            toRemove.insert(e1);
+                          }
+                        }
+                    }
+                }
+            }
+        }
+
+	for(auto tr : toRemove){
+          for(vector<labeled_transition*>::iterator tri = dec->begin();
+              tri != dec->end(); tri++){
+            if(*tri == tr){
+              dec->erase(tri);
+              break;
+            }
+          }
         }
 
         //dec->insert(dec->begin(), m_goal_modes[autom]->begin(), m_goal_modes[autom]->end());
@@ -199,7 +235,7 @@ int get_mode(Enode * lit) {
 
 
 void hybrid_heuristic::inform(Enode * e){
-
+  DREAL_LOG_INFO << "hybrid_heuristic::inform()" ;
     if (e->isEq() && !e->isNot()){
     DREAL_LOG_INFO << "hybrid_heuristic::inform(): " << e << endl;
     unordered_set<Enode *> const & vars = e->get_vars();
@@ -274,12 +310,12 @@ void hybrid_heuristic::inform(Enode * e){
     backtracked = true;
 
     lastTrailEnd = trail->size();
-    displayTrail();
-    displayStack();
+    // displayTrail();
+    // displayStack();
 
 
     
-    int bt_point = (trail_lim->size() ==  0 ? m_stack.size() : (m_stack_lim.size() == (unsigned long)trail_lim->size() ? m_stack.size() : m_stack_lim[trail_lim->size()-1]));
+    int bt_point = (trail_lim->size() ==  0 ? m_stack.size() : (m_stack_lim.size() == (unsigned long)trail_lim->size() ? m_stack.size() : m_stack_lim[m_stack_lim.size()-1]));
     DREAL_LOG_DEBUG << "stack size = " << m_stack_lim.size() << " level = " << trail_lim->size() << " pt = " << bt_point;
 
     while(m_stack_lim.size() > (unsigned long)trail_lim->size()) m_stack_lim.pop_back();
@@ -291,7 +327,7 @@ void hybrid_heuristic::inform(Enode * e){
       delete s;
       lastTrailEnd--;
     }
- displayStack();
+    // displayStack();
 
   }
 
@@ -305,13 +341,16 @@ bool hybrid_heuristic::expand_path(){
     DREAL_LOG_INFO << "hybrid_heuristic::expand_path()" << endl;
 
     // cannot expand path if out of choices
-    if (m_decision_stack.size() == 0)
+    if (m_decision_stack.size() == 0){
+      DREAL_LOG_INFO << "out of choices";
         return false;
+    }
 
     // path already expanded by SAT solver, and already pushed on m_stack
-    if (m_stack.size() == (num_autom*(m_depth+1)))
+    if (m_stack.size() == (num_autom*(m_depth+1))){
+      DREAL_LOG_INFO << "path already full"; 
         return true;
-
+    }
 
     
     int steps_to_add = (num_autom*(m_depth+1))-static_cast<int>(m_decision_stack.size());
@@ -332,7 +371,38 @@ bool hybrid_heuristic::expand_path(){
         vector<labeled_transition*>*dec = new vector<labeled_transition*>();
 
         for (auto goalm : *m_goal_modes[autom]){
-          dec->push_back(new labeled_transition(NULL, goalm));
+	  if ((*m_cost[autom])[ (goalm)-1 ] <= time) {
+	    dec->push_back(new labeled_transition(NULL, goalm));
+	    DREAL_LOG_INFO << "possible goal: " << goalm;
+	  }
+        }
+	set<labeled_transition*> toRemove;
+        for (auto e : m_stack) {
+            if (e->first->getPolarity() != l_True){
+                //      DREAL_LOG_INFO << "Checking removal of " << e << endl;
+              auto p = (*mode_literals[autom]).find(e->first);
+                if (p != (*mode_literals[autom]).end()){
+                    // DREAL_LOG_INFO << "Removing negated " << p->second->first << endl;
+                    if (p->second->second == time){
+                        DREAL_LOG_INFO << "Removing negated " << p->second->first << endl;
+                        for (auto e1 : *dec){
+                          if (e1->second == p->second->first){
+                            toRemove.insert(e1);
+                          }
+                        }
+                    }
+                }
+            }
+        }
+
+	for(auto tr : toRemove){
+          for(vector<labeled_transition*>::iterator tri = dec->begin();
+              tri != dec->end(); tri++){
+            if(*tri == tr){
+              dec->erase(tri);
+              break;
+            }
+          }
         }
 
         //dec->insert(dec->begin(), m_goal_modes[autom]->begin(), m_goal_modes[autom]->end());
@@ -347,12 +417,20 @@ bool hybrid_heuristic::expand_path(){
 
         vector<labeled_transition*> * preds = (*predecessors[autom])[(parent->second)-1];
 
-        if (time == 0){
+	for (auto pred : *preds){
+	  stringstream labels;
+	  for(auto lab : *(pred->first)) {
+	    labels << lab;
+	  }
+	  DREAL_LOG_DEBUG << "Checking predecessor " << pred->second << " lab = [" << labels.str() << "]";
+	}
+
+	if (time == 0){
           //intersect initial state with current_decision
           int init_mode = m_init_mode[autom];
 
           for (auto pred : *preds){
-            //DREAL_LOG_DEBUG << "Checking predecessor " << pred->second << " = " << init_mode;
+            // DREAL_LOG_DEBUG << "Checking predecessor " << pred->second << " = " << init_mode;
             if(pred->second == init_mode){
               current_decision->insert(current_decision->begin(), pred);
             }
@@ -379,9 +457,9 @@ bool hybrid_heuristic::expand_path(){
                 if (p != (*mode_literals[autom]).end()){
                     // DREAL_LOG_INFO << "Removing negated " << p->second->first << endl;
                     if (p->second->second == time){
-                        DREAL_LOG_INFO << "Removing negated " << p->second->first << endl;
                         for (auto e1 : *current_decision){
                           if (e1->second == p->second->first){
+			    DREAL_LOG_INFO << "Removing negated " << p->second->first << endl;
                             toRemove.insert(e1);
                           }
                         }
@@ -390,6 +468,16 @@ bool hybrid_heuristic::expand_path(){
             }
         }
 
+	for(auto tr : toRemove){
+          for(vector<labeled_transition*>::iterator tri = current_decision->begin();
+              tri != current_decision->end(); tri++){
+            if(*tri == tr){
+              current_decision->erase(tri);
+              break;
+            }
+          }
+        }
+		
         // remove choices that are too costly for time
         for (auto c : *current_decision) {
           if ((*m_cost[autom])[ (c->second)-1 ] > time) {
@@ -398,11 +486,22 @@ bool hybrid_heuristic::expand_path(){
           }
         }
 
+	for(auto tr : toRemove){
+          for(vector<labeled_transition*>::iterator tri = current_decision->begin();
+              tri != current_decision->end(); tri++){
+            if(*tri == tr){
+              current_decision->erase(tri);
+              break;
+            }
+          }
+        }
+
+
         //remove choices that do not synchronize
-        if(time < m_depth && autom > 0){
+        if(time < m_depth && autom > 0 && !current_decision->empty()){
         vector<pair<int, labeled_transition*>*> parallel_transitions;
         for(int k = 0; k < autom; k++){
-          DREAL_LOG_DEBUG << "checking sync with a" << k << " stack loc " << (m_decision_stack.size()-(autom-k));
+          DREAL_LOG_DEBUG << "checking sync with a" << k;
           parallel_transitions.push_back(new pair<int, labeled_transition*>(k, m_decision_stack[m_decision_stack.size()-(autom-k)]->second->back()));
         }
          for (auto c : *current_decision) {
@@ -427,7 +526,7 @@ bool hybrid_heuristic::expand_path(){
         // current_decision->insert(current_decision->begin(), current_decision_copy.begin(), current_decision_copy.end());
 
         if (current_decision->size() == 0){
-            DREAL_LOG_INFO << "No decisions left at time " << time << endl;
+	  DREAL_LOG_INFO << "No decisions left at time " << time << " for a" << autom << endl;
             return false;
         }
 
@@ -436,7 +535,11 @@ bool hybrid_heuristic::expand_path(){
         m_decision_stack.push_back(new pair<int, vector<labeled_transition*>*>(autom, current_decision));
 
         for (auto d : *current_decision){
-            DREAL_LOG_INFO << "dec = " << d->second << endl;
+	  stringstream labels;
+	  for(auto lab : *(d->first)) {
+	    labels << lab;
+	  }
+	  DREAL_LOG_INFO << "dec = " << d->second << " [" << labels.str() << "]";
         }
       }
     }
@@ -468,14 +571,18 @@ bool hybrid_heuristic::expand_path(){
   bool hybrid_heuristic::can_synchronize(vector<pair<int, labeled_transition*>*>& parallel_transitions,
                                          pair<int, labeled_transition*> &trans){
 
-    DREAL_LOG_DEBUG << "can_synchronize a" << trans.first << " src " << trans.second->second;
-    for(auto lab : *trans.second->first){
-      DREAL_LOG_DEBUG << "lab = " << lab;
-    }
+   
 
     set<int> *trans_aut_labels = m_aut_labels[trans.first];
     set<int> sync_trans;//(static_cast<int>(trans_aut_labels->size());
+    bool trans_noop = is_noop(trans.second);
 
+
+     DREAL_LOG_DEBUG << "can_synchronize a" << trans.first << " src " << trans.second->second << (trans_noop ? " noop" : "");
+    for(auto lab : *trans.second->first){
+      DREAL_LOG_DEBUG << "lab = " << lab;
+    }
+    
     DREAL_LOG_DEBUG << "aut_labels:";
     for(auto lab : *trans_aut_labels){
       DREAL_LOG_DEBUG << "lab = " << lab;
@@ -502,8 +609,9 @@ bool hybrid_heuristic::expand_path(){
       pair<int, labeled_transition*> *trans_i = parallel_transitions[i];
       set<int> sync_trans_i;
       set<int> *trans_i_aut_labels = m_aut_labels[trans_i->first];
+      bool trans_i_noop = is_noop(trans_i->second);
 
-      DREAL_LOG_DEBUG << "with a" << trans_i->first << " src " << trans_i->second->second;
+      DREAL_LOG_DEBUG << "with a" << trans_i->first << " src " << trans_i->second->second << (trans_i_noop ? " noop" : "");
       for(auto lab : *trans_i->second->first){
         DREAL_LOG_DEBUG << "lab = " << lab;
       }
@@ -557,8 +665,15 @@ bool hybrid_heuristic::expand_path(){
         DREAL_LOG_DEBUG << "lab = " << lab;
       }
 
-      if(lhs != rhs)
-        return false;
+      if(!trans_noop && !trans_i_noop){
+	if(lhs != rhs)
+	  return false;
+      } else if (trans_i_noop) {
+	return rhs.empty();
+      }
+      else if (trans_noop) {
+	return lhs.empty();
+      }
 
       //if sync_trans \cap trans_i_aut_labels != sync_trans_i \cap trans_aut_labels, then fail
 
@@ -656,6 +771,7 @@ bool hybrid_heuristic::unwind_path() {
           }
           m_decision_stack.back()->second->push_back(new labeled_transition( new set<int>(), path[path_index_for_stack_pos]));
         } else{
+	  DREAL_LOG_DEBUG << "Choose sibling";
           m_decision_stack.back()->second->pop_back();
           if( m_decision_stack.back()->second->empty()){
             delete m_decision_stack.back()->second;
@@ -756,7 +872,13 @@ bool hybrid_heuristic::unwind_path() {
 
 // std::size_t time = (m_depth+1)*num_autom ;
 //       time > (m_depth+1)-m_decision_stack.size(); time--) {
-      DREAL_LOG_DEBUG << "Stack[" << i << "] =" << m_decision_stack[i]->second->back()->second;
+      stringstream labels;
+      if(m_decision_stack[i]->second->back()->first){
+      for(auto lab : *(m_decision_stack[i]->second->back()->first)) {
+	labels << lab;
+      }
+	}
+      DREAL_LOG_DEBUG << "Stack[" << i << "] =" << m_decision_stack[i]->second->back()->second << " [" << labels.str() << "]";
     }
     return m_decision_stack.size() > 0;
   }
@@ -765,8 +887,8 @@ bool hybrid_heuristic::unwind_path() {
   void hybrid_heuristic::pushTrailOnStack(){
     DREAL_LOG_INFO << "hybrid_heuristic::pushTrailOnStack() lastTrailEnd = "
                    << lastTrailEnd << " trail->size() = " << trail->size();
-    displayTrail();
-    displayStack();
+    //    displayTrail();
+    //    displayStack();
 
     if((unsigned int) trail_lim->size() >  m_stack_lim.size() ) //track start of levels after the first level
       m_stack_lim.push_back(m_stack.size());
@@ -781,18 +903,18 @@ bool hybrid_heuristic::unwind_path() {
       }
     }
     lastTrailEnd = trail->size();
-    displayTrail();
-    displayStack();
+    //    displayTrail();
+    //    displayStack();
     DREAL_LOG_INFO << "Pushed trail";
   }
 
 // unwind current current path to match stack
 // complete path
 // make suggestions for path
-void hybrid_heuristic::getSuggestions() {
+bool hybrid_heuristic::getSuggestions() {
   DREAL_LOG_INFO << "hybrid_heuristic::getSuggestions()";
-  displayTrail();
-  displayStack();
+  //  displayTrail();
+  //  displayStack();
   // if (m_suggestions.size() > 0){
   //   suggestions.assign(m_suggestions.begin(), m_suggestions.end());
   //   return;
@@ -811,7 +933,8 @@ void hybrid_heuristic::getSuggestions() {
   // bool suggest_defaults = true;
 
   if(!m_suggestions.empty() && suggestion_consistent) {
-    return;
+    DREAL_LOG_INFO << "have more suggestions";
+    return true;
   } else if(!suggestion_consistent || backtracked) {
     path_possible = unwind_path();
   }
@@ -826,11 +949,15 @@ void hybrid_heuristic::getSuggestions() {
     }
   }
 
-  if (m_decision_stack.size() == 0)
-    return;
-
-  if (m_stack.size() == (unsigned int)num_autom*(m_depth+1))
-    return;
+  if (m_decision_stack.size() == 0){
+    DREAL_LOG_INFO << "Ran out of suggestions, should be unsat!";
+    return false;
+  }
+    
+  if (m_stack.size() == (unsigned int)num_autom*(m_depth+1)){
+    DREAL_LOG_INFO << "Made all the suggestions";
+    return true;
+  }
 
     // suggest default guesses at other literals
     // if(suggest_defaults){
@@ -1034,12 +1161,19 @@ void hybrid_heuristic::getSuggestions() {
     }
     stringstream ss;
     for (int i =  m_decision_stack.size()-1; i > -1; i--){
-      ss << "(a" << (m_decision_stack[i]->first+1) << ",m"
+      stringstream label;
+      if(m_decision_stack[i]->second->back()->first){
+      for( auto lab : *(m_decision_stack[i]->second->back()->first)){
+	label << label_from_indices[lab] << ",";
+      }
+      }
+      ss << "(a" << (m_decision_stack[i]->first+1) << ",[" << label.str() << "],m"
          << m_decision_stack[i]->second->back()->second << ")";
       if (i != 0)
         ss << ",";
     }
     DREAL_LOG_INFO << "Suggesting the Path: [" << ss.str() << "]";
     //    cout << "Suggesting the Path: [" << ss.str() << "]" << endl;
+    return true;
 }
 }

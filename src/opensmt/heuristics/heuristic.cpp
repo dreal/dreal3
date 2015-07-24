@@ -51,7 +51,7 @@ namespace dreal{
 
   Lit heuristic::getSuggestion(){
   DREAL_LOG_INFO << "heuristic::getSuggestion()";
-
+  bool unsat = false;
   if(!m_is_initialized)
     return lit_Undef;
 
@@ -60,9 +60,14 @@ namespace dreal{
     //}
 
     //if (!m_is_initialized ||  backtracked){
-    getSuggestions();
+    unsat = !getSuggestions();
     backtracked = false;
   }
+
+  if (unsat){
+    return lit_Error;
+  }
+  
   if (!m_suggestions.empty()){
       std::pair<Enode *, bool> *s = m_suggestions.back();
       m_suggestions.pop_back();
@@ -85,7 +90,7 @@ namespace dreal{
     }
   }
 
-  void heuristic::getSuggestions(){
+  bool heuristic::getSuggestions(){
   }
 
   void heuristic::displayTrail(){

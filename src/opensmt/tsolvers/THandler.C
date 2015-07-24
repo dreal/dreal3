@@ -160,7 +160,7 @@ bool THandler::assertLits( )
 
   assert( checked_trail_size == stack.size( ) );
   assert( (int)stack.size( ) <= trail.size( ) );
-  DREAL_LOG_DEBUG << "THandler::assertLits()" << endl;
+  DREAL_LOG_DEBUG << "THandler::assertLits() " << checked_trail_size << " " << trail.size() << endl;
 
   for ( int i = checked_trail_size ; i < trail.size( ) && res ; i ++ )
   {

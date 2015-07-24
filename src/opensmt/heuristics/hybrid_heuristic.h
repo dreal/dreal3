@@ -30,7 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 
   typedef pair<set<int>*, int> labeled_transition;
-
+  
 class hybrid_heuristic : public heuristic {
 public:
  hybrid_heuristic() : heuristic(), num_labels(0) {}
@@ -83,15 +83,17 @@ public:
     }
 
     double getCost(int autom, int i) { return (*m_cost[autom])[i];  }
-
+    bool is_noop(labeled_transition* t) { return noops.find(t) != noops.end(); }
+    
  protected:
-    void getSuggestions();
+    bool getSuggestions();
     void pushTrailOnStack();
 
  private:
     int num_autom;
     int num_labels;
-    map<string, int> label_indices;
+    map<string, int> label_to_indices;
+    map<int, string> label_from_indices;
     vector<vector<vector<labeled_transition*>*>*> predecessors;
     vector<vector< double >*>  m_cost;
     vector<int> m_init_mode;
@@ -106,7 +108,7 @@ public:
     vector<set<int>*> m_aut_labels;
 
     set<Enode*> mode_enodes;
-
+    set<labeled_transition*> noops;
     Egraph * m_egraph;
     // vector<int> * last_decision;
 
