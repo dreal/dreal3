@@ -85,7 +85,7 @@ opensmt_expr     opensmt_mk_true                   ( opensmt_context );
 opensmt_expr     opensmt_mk_false                  ( opensmt_context );
 opensmt_expr     opensmt_mk_bool_var               ( opensmt_context, char const * );
 opensmt_expr     opensmt_mk_int_var                ( opensmt_context, char const * , long , long );
-opensmt_expr     opensmt_mk_unbounded_int_var      ( opensmt_context, char const * , long , long );
+opensmt_expr     opensmt_mk_unbounded_int_var      ( opensmt_context, char const * );
 opensmt_expr     opensmt_mk_forall_int_var         ( opensmt_context, char const * , long , long );
 opensmt_expr     opensmt_mk_forall_unbounded_int_var ( opensmt_context, char const * , long , long );
 opensmt_expr     opensmt_mk_real_var               ( opensmt_context, char const * , double, double );
