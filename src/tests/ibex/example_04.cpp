@@ -34,10 +34,10 @@ using std::cout;
 using std::endl;
 
 int main() {
-    NumConstraint c("x1","x2","cost","cost = cos(x1^30 + x2^30)");
+    NumConstraint c("x1", "x2", "cost", "cost = cos(x1^30 + x2^30)");
     IntervalVector box(3);
-    box[0]=Interval(-100000, 100000);
-    box[1]=Interval(-100000, 100000);
+    box[0] = Interval(-100000, 100000);
+    box[1] = Interval(-100000, 100000);
 
     cout << "box before=" << box << endl;
     CtcFwdBwd(c).contract(box);
