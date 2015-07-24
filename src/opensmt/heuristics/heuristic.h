@@ -40,7 +40,7 @@ namespace dreal {
     virtual Lit getSuggestion();
 
   protected:
-    virtual void getSuggestions();
+    virtual bool getSuggestions();
     virtual void pushTrailOnStack();
 
     bool isStackConsistentWithSuggestion();

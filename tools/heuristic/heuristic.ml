@@ -471,22 +471,23 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
 	Printf.fprintf hout "], " 
 
 
-  let writeJump aut source out dest =
-    let jump = Jumpmap.find dest source.jumpmap in
+  let writeJump aut source out jump =
+    (* let jump = Jumpmap.find dest source.jumpmap in *)
+    let dest = jump.target in
     let () = Printf.fprintf out "[" in
     let () = List.print 
 	       ~first:"[" ~last:"]" ~sep:"," 
 	       (fun out lab ->  Printf.fprintf out "\"%s\"" lab)
 	       out jump.label 
     in
-    Printf.fprintf out ",%d]"  (Mode.mode_numId (Modemap.find dest aut.modemap))
+    Printf.fprintf out ",%d, 0]"  (Mode.mode_numId (Modemap.find dest aut.modemap))
   
   let writeLabeledModeTransitions  aut out mode   =
-    let successors = List.of_enum (Map.keys mode.jumpmap) in
+    (* let successors = List.of_enum (Map.keys mode.jumpmap) in *)
     let () = Printf.fprintf out "[" in
-    let () = List.print ~first:"" ~last:"" ~sep:"," (writeJump aut mode) out successors in 
-    let () = if List.length successors > 0 then Printf.fprintf out "," in
-    let () = Printf.fprintf out "[[],%d]" mode.mode_numId in
+    let () = List.print ~first:"" ~last:"" ~sep:"," (writeJump aut mode) out mode.jumps in 
+    let () = if List.length mode.jumps > 0 then Printf.fprintf out "," in
+    let () = Printf.fprintf out "[[],%d,1]" mode.mode_numId in
     Printf.fprintf out "]" 
      
 
