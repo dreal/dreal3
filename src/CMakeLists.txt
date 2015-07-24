@@ -93,15 +93,16 @@ endif()
 if(BUILD_STATIC_BIN AND BUILD_SHARED_LIB)
   message(FATAL_ERROR "Can't handle both of BUILD_STATIC_BIN and BUILD_SHARED_LIB options." )
 endif()
-if(APPLE AND (${BUILD_SHARED_LIB} MATCHES "ON"))
-  message(STATUS "On Mac OS X, we do not support shared library generation yet.")
-  set(BUILD_SHARED_LIB "OFF")
+if(APPLE AND BUILD_SHARED_LIB)
+  message(STATUS "OSX + BUILD_SHARED_LIB: Run target 'shared_lib' to generate lib/libdreal.dylib")
 endif()
-if(BUILD_SHARED_LIB)
+if((NOT APPLE) AND BUILD_SHARED_LIB)
   set(SHARED_LIB_CONFIG_COMMAND "--enable-shared")
   set(SHARED_LIB_IBEX_COMMAND   "--enable-shared")
   set(SHARED_LIB_CMAKE_COMMAND  "-DBUILD_SHARED_LIBS=ON")
 else()
+  # In case of APPLE, we still only generate static libraries (.a). We
+  # will later convert them to a single dylib file.
   set(SHARED_LIB_CONFIG_COMMAND "--disable-shared")
   set(SHARED_LIB_IBEX_COMMAND   "")
   set(SHARED_LIB_CMAKE_COMMAND  "-DBUILD_SHARED_LIBS=OFF")
@@ -432,13 +433,9 @@ add_subdirectory(tools/dop)
 
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${DREAL_BINARY_DIR}/lib")
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${DREAL_BINARY_DIR}/lib")
-if(BUILD_SHARED_LIB)
+if((NOT APPLE) AND BUILD_SHARED_LIB)
   add_library(dreal SHARED ${DREAL_SRCS})
   add_library(dop SHARED ${DOP_SRCS})
-  if(APPLE)
-    target_link_libraries(dreal ${EXTRA_LIBS})
-    target_link_libraries(dop ${PYTHON_LIBRARIES} ${EXTRA_LIBS})
-  endif()
 else()
   add_library(dreal ${DREAL_SRCS})
   add_library(dop ${DOP_SRCS})
@@ -550,6 +547,14 @@ if(BUILD_SHARED_LIB)
           DESTINATION ".")
   install(FILES "${DREAL_SOURCE_DIR}/opensmt/api/opensmt_c.h"
           DESTINATION "include")
+endif()
+
+if(APPLE AND BUILD_SHARED_LIB)
+  add_custom_target(shared_lib
+    COMMAND echo "Building Shared Library..."
+    COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libibex.a libprim.a libClp.a libClpSolver.a libCoinUtils.a -o libdreal.dylib
+    DEPENDS dreal CAPD4 IBEX FILIB CLP
+  )
 endif()
 
 add_custom_target(update_pkgs
