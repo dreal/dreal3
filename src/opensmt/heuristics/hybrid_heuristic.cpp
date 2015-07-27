@@ -847,7 +847,10 @@ bool hybrid_heuristic::unwind_path() {
   bool hybrid_heuristic::pbacktrack(){
     //      int num_backtrack_steps = 1; // actual_path_size;
     bool found_sibling = false;
-    while (!found_sibling && m_decision_stack.size() > 0){
+    while (!found_sibling &&
+	   m_decision_stack.size() > 0 &&
+	   m_decision_stack.size() > m_stack_lim.size()
+	   ){
       DREAL_LOG_INFO << "Backtracking at level "
                      << m_decision_stack.size() << endl;
 
@@ -880,7 +883,7 @@ bool hybrid_heuristic::unwind_path() {
 	}
       DREAL_LOG_DEBUG << "Stack[" << i << "] =" << m_decision_stack[i]->second->back()->second << " [" << labels.str() << "]";
     }
-    return m_decision_stack.size() > 0;
+    return m_decision_stack.size() > m_stack_lim.size();
   }
 
 

@@ -65,7 +65,7 @@ namespace dreal{
   }
 
   if (unsat){
-    return lit_Error;
+    // return lit_Error;
   }
   
   if (!m_suggestions.empty()){
