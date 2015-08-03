@@ -58,8 +58,11 @@ void opensmt_set_verbosity( opensmt_context c, int v )
   assert( c );
   OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
   OpenSMTContext & context = *c_;
-  context.setDebug(v > 3);
-  context.setVerbose(v > 2);
+  if (v > 3) {
+      context.setDebug(true);
+  } else if (v > 2) {
+      context.setVerbose(true);
+  }
 }
 void opensmt_set_precision ( opensmt_context c, const double p) {
   assert( c );

@@ -22,6 +22,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #include "./config.h"
 
+#define DREAL_FATAL_LEVEL   0
+#define DREAL_ERROR_LEVEL   1
+#define DREAL_WARNING_LEVEL 2
+#define DREAL_INFO_LEVEL    3
+#define DREAL_DEBUG_LEVEL   4
+
 #ifdef LOGGING
 
 #define ELPP_CUSTOM_COUT std::cerr
@@ -29,12 +35,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #define ELPP_DISABLE_DEFAULT_CRASH_HANDLING
 #include <easylogingpp/easylogging++.h>
 #include <iosfwd>
-
-#define DREAL_FATAL_LEVEL   0
-#define DREAL_ERROR_LEVEL   1
-#define DREAL_WARNING_LEVEL 2
-#define DREAL_INFO_LEVEL    3
-#define DREAL_DEBUG_LEVEL   4
 
 #define DREAL_LOG_FATAL   VLOG(DREAL_FATAL_LEVEL)
 #define DREAL_LOG_ERROR   VLOG(DREAL_ERROR_LEVEL)
