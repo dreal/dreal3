@@ -25,6 +25,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/egraph/Egraph.h"
 #include "util/scoped_vec.h"
 #include "heuristic.h"
+#include "json/json.hpp"
 #include <map>
 
 namespace dreal {
@@ -97,7 +98,7 @@ public:
     vector<vector<vector<labeled_transition*>*>*> predecessors;
     vector<vector< double >*>  m_cost;
     vector<int> m_init_mode;
-    vector<vector<int>*> m_goal_modes;
+    vector<vector<labeled_transition*>*> m_goal_modes;
     vector<pair<int, vector<labeled_transition*>*>*> m_decision_stack;
     int m_depth;
     vector<Enode*> default_false_suggestions;
@@ -105,20 +106,24 @@ public:
     vector<map< Enode *, pair<int, int>* >*> mode_literals;
     vector<vector< vector< Enode* >* >*> time_mode_enodes;
     vector<vector< vector< Enode* >* >*> time_mode_integral_enodes;
+    vector<vector<Enode*>* > time_label_enodes;
+    map<Enode*, int> label_enode_indices;
     vector<set<int>*> m_aut_labels;
 
     set<Enode*> mode_enodes;
+    set<Enode*> label_enodes;
     set<labeled_transition*> noops;
     Egraph * m_egraph;
     // vector<int> * last_decision;
-
-    bool expand_path();
+    nlohmann::json hinfo;
+    bool expand_path(bool first_expansion);
     bool unwind_path();
     bool pbacktrack();
-
+    void removeImpossibleTransitions(vector<labeled_transition*>* dec, int time, int autom);
     bool can_synchronize(vector<pair<int, labeled_transition*>*>& parallel_transitions,
                                          pair<int, labeled_transition*> &trans);
-
+    string network_to_string();
+    int lastDecisionStackEnd;
 public:
     struct SubgoalCompare {
     SubgoalCompare(int a, hybrid_heuristic& c) : myHeuristic(c), autom(a) {}

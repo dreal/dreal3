@@ -2,6 +2,7 @@
 #define eps 0.001
 
 [0, 2000] time;
+
 (component generate_gen_automaton;
 [0, 2000] fuellevel_gen;
 [0, 1001] T_generate_gen_automaton;
@@ -10,6 +11,7 @@ label lock_is_set_generator_ran_1_inc_fuellevel_gen_velocity_by_1_generate_gen_a
 label release_is_set_generate_gen_automaton;
 label release_is_set_generate_gen_automaton2;
 label lock_is_set_dec_fuellevel_gen_velocity_by_1_generate_gen_automaton;
+
 (mode running_generate_gen_automaton;
 invt:
 (T_generate_gen_automaton <= 1000);
@@ -20,6 +22,7 @@ d/dt[fuellevel_gen] = -1;
 jump:
 (lock_is_set_generator_ran_1_inc_fuellevel_gen_velocity_by_1_generate_gen_automaton): (and (T_generate_gen_automaton >= 1000)) ==> @running_to_non_active_generate_gen_automaton (and (T_generate_gen_automaton' = 0) (generator_ran' = 1));
 )
+
 (mode non_active_generate_gen_automaton;
 invt:
 flow:
