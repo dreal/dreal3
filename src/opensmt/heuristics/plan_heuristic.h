@@ -49,7 +49,7 @@ public:
     void inform(Enode * e);
     void backtrack();
     void assertLits();
-
+    Clause* getConflict() {return NULL;}
 
 
 private:

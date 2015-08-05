@@ -69,7 +69,8 @@ public:
   void backtrack();
     void resetSuggestions() { m_suggestions.clear(); }
     bool is_initialized() { return m_is_initialized; }
-
+    Clause* getConflict();
+    
     static bool subgoal_compare(int i, int  j);
     void inform(Enode * e);
 

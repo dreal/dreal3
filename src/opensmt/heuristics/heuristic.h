@@ -38,7 +38,8 @@ namespace dreal {
     virtual void inform(Enode * e);
     virtual void backtrack();
     virtual Lit getSuggestion();
-
+    virtual Clause* getConflict();
+    
   protected:
     virtual bool getSuggestions();
     virtual void pushTrailOnStack();

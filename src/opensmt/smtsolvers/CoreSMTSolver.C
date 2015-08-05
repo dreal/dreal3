@@ -1826,7 +1826,54 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
 	  if ( next == lit_Error )
 	    {
-	      return l_False;
+	      //	      return l_False;
+	      Clause* confl = heuristic->getConflict( );
+	      if (confl != NULL){
+		// CONFLICT
+		conflicts++; conflictC++;
+		if (decisionLevel() == 0)
+		  return l_False;
+		
+		//      first = false;
+		learnt_clause.clear();
+		analyze(confl, learnt_clause, backtrack_level);
+		cancelUntil(backtrack_level);
+
+		assert(value(learnt_clause[0]) == l_Undef);
+
+		if (learnt_clause.size() == 1){
+		  uncheckedEnqueue(learnt_clause[0]);
+#ifdef PRODUCE_PROOF
+		  Clause * c = Clause_new( learnt_clause, false );
+		  proof.endChain( c );
+		  assert( units[ var(learnt_clause[0]) ] == NULL );
+		  units[ var(learnt_clause[0]) ] = proof.last( );
+#endif
+		}else{
+		  Clause * c = Clause_new( learnt_clause, true );
+#ifdef PRODUCE_PROOF
+		  proof.endChain( c );
+		  if ( config.incremental )
+		    {
+		      undo_stack_oper.push_back( NEWPROOF );
+		      undo_stack_elem.push_back( (void *)c );
+		    }
+#endif
+		  learnts.push(c);
+#ifndef SMTCOMP
+		  undo_stack_oper.push_back( NEWLEARNT );
+		  undo_stack_elem.push_back( (void *)c );
+#endif
+		  attachClause(*c);
+		  claBumpActivity(*c);
+		  uncheckedEnqueue(learnt_clause[0], c);
+		}
+		
+		varDecayActivity();
+		claDecayActivity();
+		
+	      }
+	      continue;
 	    }
 	  
           // Complete Call

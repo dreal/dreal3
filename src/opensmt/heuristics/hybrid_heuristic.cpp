@@ -1290,3 +1290,13 @@ bool hybrid_heuristic::getSuggestions() {
     return true;
 }
 }
+
+Clause* hybrid_heuristic::getConflict(){
+  vec< Lit >  literals;
+
+  for(auto lit : stack_literals){
+    literals.push_back(stack_literals);
+  }
+  
+  return Clause_new(literals);
+}
