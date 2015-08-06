@@ -1289,14 +1289,22 @@ bool hybrid_heuristic::getSuggestions() {
     //    cout << "Suggesting the Path: [" << ss.str() << "]" << endl;
     return true;
 }
-}
 
-Clause* hybrid_heuristic::getConflict(){
+
+  Clause*  hybrid_heuristic::getConflict(){
   vec< Lit >  literals;
 
-  for(auto lit : stack_literals){
-    literals.push_back(stack_literals);
+  for(auto lit : m_stack){
+    Enode* e = lit->first;
+    //bool sign = lit->second;
+    Lit l = theory_handler->enodeToLit(e);
+    
+    literals.push(l);
   }
   
   return Clause_new(literals);
 }
+  
+}
+
+
