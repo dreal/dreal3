@@ -1,0 +1,1355 @@
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_0.bh gen-1-sat_0.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_0.output
+unsat
+Number of Complete   Check = 1
+Number of Incomplete Check = 1
+Number of Assert           = 91
+Number of Push             = 91
+Number of Pop              = 0
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 0.0342158 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_1.bh gen-1-sat_1.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_1.output
+unsat
+Number of Complete   Check = 3
+Number of Incomplete Check = 21
+Number of Assert           = 324
+Number of Push             = 330
+Number of Pop              = 146
+Number of Branch           = 0
+Number of Prune            = 24
+Running time               = 0.330263 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_2.bh gen-1-sat_2.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_2.output
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_3.bh gen-1-sat_3.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_3.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 7
+Number of Assert           = 334
+Number of Push             = 337
+Number of Pop              = 83
+Number of Branch           = 0
+Number of Prune            = 7
+Running time               = 0.375743 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_4.bh gen-1-sat_4.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_4.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 6
+Number of Assert           = 428
+Number of Push             = 430
+Number of Pop              = 122
+Number of Branch           = 0
+Number of Prune            = 6
+Running time               = 0.445044 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_5.bh gen-1-sat_5.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_5.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 468
+Number of Push             = 469
+Number of Pop              = 107
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 0.354346 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_6.bh gen-1-sat_6.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_6.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 563
+Number of Push             = 564
+Number of Pop              = 148
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 0.351479 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_7.bh gen-1-sat_7.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_7.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 658
+Number of Push             = 659
+Number of Pop              = 189
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 0.415042 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_8.bh gen-1-sat_8.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_8.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 753
+Number of Push             = 754
+Number of Pop              = 230
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 0.832274 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_9.bh gen-1-sat_9.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_9.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 848
+Number of Push             = 849
+Number of Pop              = 271
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.00994 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_10.bh gen-1-sat_10.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_10.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 943
+Number of Push             = 944
+Number of Pop              = 312
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.19631 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_11.bh gen-1-sat_11.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_11.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1038
+Number of Push             = 1039
+Number of Pop              = 353
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.0853 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_12.bh gen-1-sat_12.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_12.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1158
+Number of Push             = 1159
+Number of Pop              = 419
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.41475 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_13.bh gen-1-sat_13.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_13.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1253
+Number of Push             = 1254
+Number of Pop              = 460
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.33117 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_14.bh gen-1-sat_14.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_14.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1348
+Number of Push             = 1349
+Number of Pop              = 501
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.50742 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_15.bh gen-1-sat_15.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_15.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1443
+Number of Push             = 1444
+Number of Pop              = 542
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.63233 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_16.bh gen-1-sat_16.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_16.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1538
+Number of Push             = 1539
+Number of Pop              = 583
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.86528 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_17.bh gen-1-sat_17.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_17.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1633
+Number of Push             = 1634
+Number of Pop              = 624
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 2.08061 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_18.bh gen-1-sat_18.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_18.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1767
+Number of Push             = 1768
+Number of Pop              = 704
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 2.05721 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_19.bh gen-1-sat_19.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_19.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1823
+Number of Push             = 1824
+Number of Pop              = 706
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 2.5325 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-1-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-1-sat_20.bh gen-1-sat_20.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-1-sat_20.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1918
+Number of Push             = 1919
+Number of Pop              = 747
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 3.43788 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_0.bh gen-2-sat_0.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_0.output
+unsat
+Number of Complete   Check = 1
+Number of Incomplete Check = 1
+Number of Assert           = 123
+Number of Push             = 123
+Number of Pop              = 0
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 0.0224967 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_1.bh gen-2-sat_1.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_1.output
+unsat
+Number of Complete   Check = 4
+Number of Incomplete Check = 29
+Number of Assert           = 524
+Number of Push             = 532
+Number of Pop              = 283
+Number of Branch           = 0
+Number of Prune            = 33
+Running time               = 1.20424 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_2.bh gen-2-sat_2.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_2.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 16
+Number of Assert           = 507
+Number of Push             = 514
+Number of Pop              = 246
+Number of Branch           = 0
+Number of Prune            = 16
+Running time               = 0.958527 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_3.bh gen-2-sat_3.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_3.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 7
+Number of Assert           = 435
+Number of Push             = 438
+Number of Pop              = 98
+Number of Branch           = 0
+Number of Prune            = 7
+Running time               = 0.497704 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_4.bh gen-2-sat_4.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_4.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 7
+Number of Assert           = 561
+Number of Push             = 563
+Number of Pop              = 151
+Number of Branch           = 0
+Number of Prune            = 7
+Running time               = 0.762141 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_5.bh gen-2-sat_5.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_5.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 1
+Number of Assert           = 484
+Number of Push             = 484
+Number of Pop              = 0
+Number of Branch           = 0
+Number of Prune            = 1
+Running time               = 0.259213 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_6.bh gen-2-sat_6.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_6.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 748
+Number of Push             = 749
+Number of Pop              = 193
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 0.699734 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_7.bh gen-2-sat_7.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_7.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 877
+Number of Push             = 878
+Number of Pop              = 250
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.2447 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_8.bh gen-2-sat_8.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_8.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1006
+Number of Push             = 1007
+Number of Pop              = 307
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.53906 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_9.bh gen-2-sat_9.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_9.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1135
+Number of Push             = 1136
+Number of Pop              = 364
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.23623 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_10.bh gen-2-sat_10.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_10.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1264
+Number of Push             = 1265
+Number of Pop              = 421
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.44024 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_11.bh gen-2-sat_11.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_11.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1393
+Number of Push             = 1394
+Number of Pop              = 478
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.7145 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_12.bh gen-2-sat_12.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_12.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1522
+Number of Push             = 1523
+Number of Pop              = 535
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 2.10679 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_13.bh gen-2-sat_13.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_13.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1651
+Number of Push             = 1652
+Number of Pop              = 592
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 2.93896 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_14.bh gen-2-sat_14.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_14.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1780
+Number of Push             = 1781
+Number of Pop              = 649
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 2.58227 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_15.bh gen-2-sat_15.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_15.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1909
+Number of Push             = 1910
+Number of Pop              = 706
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 2.9116 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_16.bh gen-2-sat_16.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_16.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2038
+Number of Push             = 2039
+Number of Pop              = 763
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 4.54173 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_17.bh gen-2-sat_17.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_17.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2167
+Number of Push             = 2168
+Number of Pop              = 820
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 4.95037 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_18.bh gen-2-sat_18.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_18.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2296
+Number of Push             = 2297
+Number of Pop              = 877
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 6.87075 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_19.bh gen-2-sat_19.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_19.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2425
+Number of Push             = 2426
+Number of Pop              = 934
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 4.66803 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-2-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-2-sat_20.bh gen-2-sat_20.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-2-sat_20.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2554
+Number of Push             = 2555
+Number of Pop              = 991
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 5.29102 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_0.bh gen-3-sat_0.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_0.output
+unsat
+Number of Complete   Check = 1
+Number of Incomplete Check = 1
+Number of Assert           = 155
+Number of Push             = 155
+Number of Pop              = 0
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 0.0246635 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_1.bh gen-3-sat_1.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_1.output
+unsat
+Number of Complete   Check = 5
+Number of Incomplete Check = 37
+Number of Assert           = 723
+Number of Push             = 732
+Number of Pop              = 418
+Number of Branch           = 0
+Number of Prune            = 42
+Running time               = 2.24365 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_2.bh gen-3-sat_2.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_2.output
+unsat
+Number of Complete   Check = 1
+Number of Incomplete Check = 63
+Number of Assert           = 1251
+Number of Push             = 1268
+Number of Pop              = 932
+Number of Branch           = 0
+Number of Prune            = 64
+Running time               = 3.59781 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_3.bh gen-3-sat_3.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_3.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 7
+Number of Assert           = 537
+Number of Push             = 540
+Number of Pop              = 114
+Number of Branch           = 0
+Number of Prune            = 7
+Running time               = 1.00378 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_4.bh gen-3-sat_4.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_4.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 8
+Number of Assert           = 696
+Number of Push             = 698
+Number of Pop              = 182
+Number of Branch           = 0
+Number of Prune            = 8
+Running time               = 1.33795 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_5.bh gen-3-sat_5.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_5.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 772
+Number of Push             = 773
+Number of Pop              = 167
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.13285 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_6.bh gen-3-sat_6.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_6.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 935
+Number of Push             = 936
+Number of Pop              = 240
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.37436 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_7.bh gen-3-sat_7.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_7.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1098
+Number of Push             = 1099
+Number of Pop              = 313
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 2.9096 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_8.bh gen-3-sat_8.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_8.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1261
+Number of Push             = 1262
+Number of Pop              = 386
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 3.38497 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_9.bh gen-3-sat_9.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_9.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1424
+Number of Push             = 1425
+Number of Pop              = 459
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 2.68705 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_10.bh gen-3-sat_10.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_10.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1587
+Number of Push             = 1588
+Number of Pop              = 532
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 3.11926 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_11.bh gen-3-sat_11.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_11.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1750
+Number of Push             = 1751
+Number of Pop              = 605
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 3.27785 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_12.bh gen-3-sat_12.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_12.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1913
+Number of Push             = 1914
+Number of Pop              = 678
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 3.96707 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_13.bh gen-3-sat_13.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_13.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2076
+Number of Push             = 2077
+Number of Pop              = 751
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 4.85124 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_14.bh gen-3-sat_14.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_14.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2239
+Number of Push             = 2240
+Number of Pop              = 824
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 6.35336 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_15.bh gen-3-sat_15.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_15.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2402
+Number of Push             = 2403
+Number of Pop              = 897
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 7.3197 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_16.bh gen-3-sat_16.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_16.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2565
+Number of Push             = 2566
+Number of Pop              = 970
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 8.74479 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_17.bh gen-3-sat_17.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_17.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2728
+Number of Push             = 2729
+Number of Pop              = 1043
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 8.85928 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_18.bh gen-3-sat_18.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_18.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2891
+Number of Push             = 2892
+Number of Pop              = 1116
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 8.8392 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_19.bh gen-3-sat_19.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_19.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 3054
+Number of Push             = 3055
+Number of Pop              = 1189
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 11.5017 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-3-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-3-sat_20.bh gen-3-sat_20.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-3-sat_20.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 3217
+Number of Push             = 3218
+Number of Pop              = 1262
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 14.8313 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_0.bh gen-4-sat_0.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_0.output
+unsat
+Number of Complete   Check = 1
+Number of Incomplete Check = 1
+Number of Assert           = 187
+Number of Push             = 187
+Number of Pop              = 0
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 0.0297772 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_1.bh gen-4-sat_1.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_1.output
+unsat
+Number of Complete   Check = 6
+Number of Incomplete Check = 46
+Number of Assert           = 949
+Number of Push             = 959
+Number of Pop              = 580
+Number of Branch           = 0
+Number of Prune            = 52
+Running time               = 2.49828 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_2.bh gen-4-sat_2.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_2.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 20
+Number of Assert           = 727
+Number of Push             = 734
+Number of Pop              = 330
+Number of Branch           = 0
+Number of Prune            = 20
+Running time               = 1.73541 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_3.bh gen-4-sat_3.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_3.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 7
+Number of Assert           = 639
+Number of Push             = 642
+Number of Pop              = 130
+Number of Branch           = 0
+Number of Prune            = 7
+Running time               = 1.26605 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_4.bh gen-4-sat_4.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_4.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 9
+Number of Assert           = 831
+Number of Push             = 833
+Number of Pop              = 213
+Number of Branch           = 0
+Number of Prune            = 9
+Running time               = 2.09058 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_5.bh gen-4-sat_5.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_5.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 925
+Number of Push             = 926
+Number of Pop              = 198
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 1.52064 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_6.bh gen-4-sat_6.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_6.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1122
+Number of Push             = 1123
+Number of Pop              = 287
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 5.2793 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_7.bh gen-4-sat_7.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_7.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1319
+Number of Push             = 1320
+Number of Pop              = 376
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 5.92084 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_8.bh gen-4-sat_8.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_8.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1516
+Number of Push             = 1517
+Number of Pop              = 465
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 7.40542 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_9.bh gen-4-sat_9.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_9.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1713
+Number of Push             = 1714
+Number of Pop              = 554
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 8.38677 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_10.bh gen-4-sat_10.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_10.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1910
+Number of Push             = 1911
+Number of Pop              = 643
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 8.7404 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_11.bh gen-4-sat_11.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_11.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2107
+Number of Push             = 2108
+Number of Pop              = 732
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 12.0234 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_12.bh gen-4-sat_12.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_12.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2304
+Number of Push             = 2305
+Number of Pop              = 821
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 11.0628 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_13.bh gen-4-sat_13.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_13.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2501
+Number of Push             = 2502
+Number of Pop              = 910
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 12.9799 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_14.bh gen-4-sat_14.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_14.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2698
+Number of Push             = 2699
+Number of Pop              = 999
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 13.9311 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_15.bh gen-4-sat_15.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_15.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2895
+Number of Push             = 2896
+Number of Pop              = 1088
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 17.746 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_16.bh gen-4-sat_16.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_16.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 3092
+Number of Push             = 3093
+Number of Pop              = 1177
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 16.4989 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_17.bh gen-4-sat_17.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_17.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 3289
+Number of Push             = 3290
+Number of Pop              = 1266
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 17.2617 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_18.bh gen-4-sat_18.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_18.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 3486
+Number of Push             = 3487
+Number of Pop              = 1355
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 20.8414 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_19.bh gen-4-sat_19.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_19.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 3683
+Number of Push             = 3684
+Number of Pop              = 1444
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 22.9926 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-4-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-4-sat_20.bh gen-4-sat_20.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-4-sat_20.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 3880
+Number of Push             = 3881
+Number of Pop              = 1533
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 22.8602 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_0.bh gen-5-sat_0.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_0.output
+unsat
+Number of Complete   Check = 1
+Number of Incomplete Check = 1
+Number of Assert           = 219
+Number of Push             = 219
+Number of Pop              = 0
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 0.0457019 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_1.bh gen-5-sat_1.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_1.output
+unsat
+Number of Complete   Check = 7
+Number of Incomplete Check = 54
+Number of Assert           = 1199
+Number of Push             = 1210
+Number of Pop              = 766
+Number of Branch           = 0
+Number of Prune            = 61
+Running time               = 3.73478 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_2.bh gen-5-sat_2.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_2.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 22
+Number of Assert           = 838
+Number of Push             = 845
+Number of Pop              = 373
+Number of Branch           = 0
+Number of Prune            = 22
+Running time               = 2.44522 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_3.bh gen-5-sat_3.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_3.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 7
+Number of Assert           = 741
+Number of Push             = 744
+Number of Pop              = 146
+Number of Branch           = 0
+Number of Prune            = 7
+Running time               = 3.73947 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_4.bh gen-5-sat_4.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_4.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 10
+Number of Assert           = 966
+Number of Push             = 968
+Number of Pop              = 244
+Number of Branch           = 0
+Number of Prune            = 10
+Running time               = 3.46446 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_5.bh gen-5-sat_5.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_5.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1078
+Number of Push             = 1079
+Number of Pop              = 229
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 4.39644 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_6.bh gen-5-sat_6.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_6.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1309
+Number of Push             = 1310
+Number of Pop              = 334
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 27.3799 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_7.bh gen-5-sat_7.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_7.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1540
+Number of Push             = 1541
+Number of Pop              = 439
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 30.4474 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_8.bh gen-5-sat_8.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_8.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 1771
+Number of Push             = 1772
+Number of Pop              = 544
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 34.849 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_9.bh gen-5-sat_9.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_9.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2002
+Number of Push             = 2003
+Number of Pop              = 649
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 37.1303 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_10.bh gen-5-sat_10.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_10.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2233
+Number of Push             = 2234
+Number of Pop              = 754
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 44.7224 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_11.bh gen-5-sat_11.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_11.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2464
+Number of Push             = 2465
+Number of Pop              = 859
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 48.6124 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_12.bh gen-5-sat_12.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_12.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2695
+Number of Push             = 2696
+Number of Pop              = 964
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 52.2139 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_13.bh gen-5-sat_13.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_13.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 2926
+Number of Push             = 2927
+Number of Pop              = 1069
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 56.9405 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_14.bh gen-5-sat_14.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_14.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 3157
+Number of Push             = 3158
+Number of Pop              = 1174
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 59.6769 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_15.bh gen-5-sat_15.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_15.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 3388
+Number of Push             = 3389
+Number of Pop              = 1279
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 65.7495 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_16.bh gen-5-sat_16.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_16.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 3619
+Number of Push             = 3620
+Number of Pop              = 1384
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 71.8034 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_17.bh gen-5-sat_17.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_17.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 3850
+Number of Push             = 3851
+Number of Pop              = 1489
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 78.4134 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_18.bh gen-5-sat_18.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_18.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 4081
+Number of Push             = 4082
+Number of Pop              = 1594
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 82.1608 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_19.bh gen-5-sat_19.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_19.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 4312
+Number of Push             = 4313
+Number of Pop              = 1699
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 88.787 s
+
+Output for: /home/alex/Documents/actual/dreal3/benchmarks/network/gen/gen-5-sat.drh
+dReal Options: --stat
+/home/alex/Documents/actual/dreal3/bin/dReal --stat --bmc_heuristic gen-5-sat_20.bh gen-5-sat_20.smt2 --short_sat --delta_heuristic --delta 2>&1 | tee gen-5-sat_20.output
+unsat
+Number of Complete   Check = 0
+Number of Incomplete Check = 2
+Number of Assert           = 4543
+Number of Push             = 4544
+Number of Pop              = 1804
+Number of Branch           = 0
+Number of Prune            = 2
+Running time               = 93.6068 s
+
