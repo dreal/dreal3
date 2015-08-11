@@ -356,7 +356,9 @@ void hybrid_heuristic::inform(Enode * e){
 
 
     //end of m_stack level corresponding to end of trail
-     int bt_point = (trail_lim->size() > 0 ? m_stack_lim[trail_lim->size()-1] : m_stack.size());
+     int bt_point = ((trail_lim->size() < m_stack_lim.size() && trail_lim->size() > 0)  ?
+		     m_stack_lim[trail_lim->size()] :
+		     m_stack.size());
 
      //      (m_stack_lim->size() ==  0 ? m_stack.size() : (m_stack_lim.size() == (unsigned long)trail_lim->size() ? m_stack.size() : m_stack_lim[m_stack_lim.size()-1]));
     DREAL_LOG_DEBUG << "stack size = " << m_stack_lim.size() << " level = " << trail_lim->size() << " pt = " << bt_point;
@@ -381,7 +383,8 @@ void hybrid_heuristic::inform(Enode * e){
 
 
   void hybrid_heuristic::removeImpossibleTransitions(vector<labeled_transition*>* dec, int time, int autom){
-    DREAL_LOG_INFO << "hybrid_heuristic::removeImpossibleTransitions() time = " << time << " autom = " << autom;
+    DREAL_LOG_INFO << "hybrid_heuristic::removeImpossibleTransitions() time = " << time << " autom = " << autom
+		   << " |dec| = " << dec->size();
     set<labeled_transition*> toRemove;
     for (auto e : m_stack) {
       if (!e->second){
@@ -470,7 +473,9 @@ void hybrid_heuristic::inform(Enode * e){
 	  break;
 	}
       }
-    }    
+    }
+    DREAL_LOG_INFO << "hybrid_heuristic::removeImpossibleTransitions() time = " << time << " autom = " << autom
+		   << " |dec| = " << dec->size();
   }
 
   string hybrid_heuristic::network_to_string(){
@@ -548,7 +553,7 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
         astack->first = autom;
         astack->second = dec;
 
-	 if (current_decision->size() == 0){
+	 if (dec->size() == 0){
 	  DREAL_LOG_INFO << "No decisions left at time " << time << " for a" << autom << endl;
             return false;
         }
@@ -748,10 +753,10 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
 	if(lhs != rhs)
 	  return false;
       } else if (trans_i_noop) {
-	return rhs.empty();
+	return lhs.empty();
       }
       else if (trans_noop) {
-	return lhs.empty();
+	return rhs.empty();
       }
 
       //if sync_trans \cap trans_i_aut_labels != sync_trans_i \cap trans_aut_labels, then fail
@@ -926,9 +931,13 @@ bool hybrid_heuristic::unwind_path() {
   bool hybrid_heuristic::pbacktrack(){
     //      int num_backtrack_steps = 1; // actual_path_size;
     bool found_sibling = false;
+      DREAL_LOG_INFO << "Starting backtrack from level "
+                     << m_decision_stack.size()
+		     << " lastDecisionStackEnd = " << lastDecisionStackEnd << endl;
+
     while (!found_sibling &&
 	   m_decision_stack.size() > 0 &&
-	   m_decision_stack.size() > m_stack_lim.size()
+	   m_decision_stack.size() >= lastDecisionStackEnd
 	   ){
       DREAL_LOG_INFO << "Backtracking at level "
                      << m_decision_stack.size() << endl;
@@ -975,8 +984,10 @@ bool hybrid_heuristic::unwind_path() {
     //    displayTrail();
     //    displayStack();
 
-    if((unsigned int) trail_lim->size() >  m_stack_lim.size() ) //track start of levels after the first level
+    if((unsigned int) trail_lim->size() >  m_stack_lim.size() &&
+       m_stack.size() > 0) { //track start of levels after the first level
       m_stack_lim.push_back(m_stack.size());
+    }
     for (int i = lastTrailEnd; i < trail->size(); i++){
       Enode *e = theory_handler->varToEnode(var((*trail)[i]));
       bool msign = !sign((*trail)[i]);
@@ -992,7 +1003,7 @@ bool hybrid_heuristic::unwind_path() {
       }
     }
     lastTrailEnd = trail->size();
-    //    displayTrail();
+    displayTrail();
     displayStack();
     DREAL_LOG_INFO << "Pushed trail";
   }
@@ -1027,8 +1038,9 @@ bool hybrid_heuristic::getSuggestions() {
   } else if(!suggestion_consistent || backtracked) {
     //path_possible =
       unwind_path();
-      lastDecisionStackEnd = m_decision_stack.size();
   }
+
+  lastDecisionStackEnd = m_decision_stack.size();
 
   bool first_expansion = true;
   while (!found_path && path_possible){
@@ -1294,13 +1306,21 @@ bool hybrid_heuristic::getSuggestions() {
   Clause*  hybrid_heuristic::getConflict(){
   vec< Lit >  literals;
 
-  for(auto lit : m_stack){
-    Enode* e = lit->first;
-    //bool sign = lit->second;
-    Lit l = theory_handler->enodeToLit(e);
-    
-    literals.push(l);
+  stringstream cc;
+  if(m_stack_lim.size() > 0){
+    int start = m_stack_lim[0];
+    for(int i = start; i < m_stack.size(); i++){
+	auto lit = m_stack[i];
+	Enode* e = lit->first;
+	//bool sign = lit->second;
+	Lit l = (!lit->second ? theory_handler->enodeToLit(e) : ~theory_handler->enodeToLit(e));
+	
+	literals.push(l);
+	cc << (sign(l) ? "(not ": "") <<  e << (sign(l) ? ")": "") << " ";
+      }
   }
+
+  DREAL_LOG_DEBUG << "Conflict from heuristic: (" << cc.str() << ")";
   
   return Clause_new(literals);
 }
