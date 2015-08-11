@@ -113,7 +113,7 @@ public:
 
     set<Enode*> mode_enodes;
     set<Enode*> label_enodes;
-    set<labeled_transition*> noops;
+    set<const labeled_transition*> noops;
     Egraph * m_egraph;
     // vector<int> * last_decision;
     nlohmann::json hinfo;
@@ -129,7 +129,17 @@ public:
     struct SubgoalCompare {
     SubgoalCompare(int a, hybrid_heuristic& c) : myHeuristic(c), autom(a) {}
         bool operator () (const labeled_transition  *i, const labeled_transition *j) {
-          return myHeuristic.getCost(autom, (i->second)-1) < myHeuristic.getCost(autom, (j->second)-1);
+	  bool noopi = myHeuristic.noops.find(i) != myHeuristic.noops.end();
+	  bool noopj = myHeuristic.noops.find(i) != myHeuristic.noops.end();
+
+	  if(noopi == noopj){
+	    return myHeuristic.getCost(autom, (i->second)-1) > myHeuristic.getCost(autom, (j->second)-1);
+	  } else if (noopi){
+	    return true;
+	  } else{
+	    return false;
+	  }
+	
         }
       hybrid_heuristic& myHeuristic;
       int autom;

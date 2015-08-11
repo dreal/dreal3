@@ -49,6 +49,9 @@ namespace dreal{
   void heuristic::backtrack(){
   }
 
+  Clause* heuristic::getConflict(){
+  }
+
   Lit heuristic::getSuggestion(){
   DREAL_LOG_INFO << "heuristic::getSuggestion()";
   bool unsat = false;
@@ -65,7 +68,7 @@ namespace dreal{
   }
 
   if (unsat){
-    // return lit_Error;
+     return lit_Error;
   }
   
   if (!m_suggestions.empty()){
