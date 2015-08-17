@@ -654,8 +654,12 @@ Enode * Egraph::newSymbol( const char * name, Snode * s , double p )
   if ( args != "" ) ss << " " << args;
 
   Enode * e = lookupSymbol( ss.str( ).c_str( ) );
-  if ( e != NULL && e->getSort() != s ) {
-    opensmt_error2( "symbol already declared ", ss.str( ).c_str( ) );
+  if ( e != NULL ) {
+      if ( e->getSort() != s ) {
+          opensmt_error2( "symbol already declared ", ss.str( ).c_str( ) );
+      } else {
+          return e;
+      }
   }
 
   Enode * new_enode = new Enode( id_to_enode.size( )
