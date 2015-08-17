@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <string>
 #include <functional>
+#include <iostream>
 #include "tools/dop/pstate.h"
 
 namespace dop {
@@ -27,14 +28,69 @@ namespace dop {
 using std::function;
 using std::vector;
 using std::string;
+using std::ostream;
+using std::pair;
+
+pair<Enode *, Enode *> pstate::parse_formula_helper() {
+    vector<Enode*> & top_stack = m_stacks.get_top_stack();
+    assert(top_stack.size() >= 2);
+    Enode * rhs = top_stack.back();
+    top_stack.pop_back();
+    Enode * lhs = top_stack.back();
+    top_stack.pop_back();
+    clear_stacks();
+    return make_pair(lhs, rhs);
+}
 
 pstate::pstate() : m_stacks(m_ctx), m_var_map(m_ctx) {
     SMTConfig & cfg = m_ctx.getConfig();
     cfg.incremental = 1;
     cfg.sat_theory_propagation = 1;
-    cfg.nra_worklist_fp = 1;
-    cfg.nra_ncbt = 1;
+    // cfg.nra_worklist_fp = 1;
+    // cfg.nra_ncbt = 1;
+    // m_ctx.setDebug(true);
     m_ctx.SetLogic(QF_NRA);
+}
+
+ostream & pstate::debug_stacks(ostream & out) const {
+    return m_stacks.debug(out);
+}
+
+void pstate::parse_formula_lt() {
+    std::pair<Enode *, Enode *> nodes = parse_formula_helper();
+    Enode * lhs = nodes.first;
+    Enode * rhs = nodes.second;
+    m_ctrs.push_back(m_ctx.mkLt(m_ctx.mkCons(lhs, m_ctx.mkCons(rhs))));
+}
+void pstate::parse_formula_gt() {
+    std::pair<Enode *, Enode *> nodes = parse_formula_helper();
+    Enode * lhs = nodes.first;
+    Enode * rhs = nodes.second;
+    m_ctrs.push_back(m_ctx.mkGt(m_ctx.mkCons(lhs, m_ctx.mkCons(rhs))));
+}
+void pstate::parse_formula_le() {
+    std::pair<Enode *, Enode *> nodes = parse_formula_helper();
+    Enode * lhs = nodes.first;
+    Enode * rhs = nodes.second;
+    m_ctrs.push_back(m_ctx.mkLeq(m_ctx.mkCons(lhs, m_ctx.mkCons(rhs))));
+}
+void pstate::parse_formula_ge() {
+    std::pair<Enode *, Enode *> nodes = parse_formula_helper();
+    Enode * lhs = nodes.first;
+    Enode * rhs = nodes.second;
+    m_ctrs.push_back(m_ctx.mkGeq(m_ctx.mkCons(lhs, m_ctx.mkCons(rhs))));
+}
+void pstate::parse_formula_eq() {
+    std::pair<Enode *, Enode *> nodes = parse_formula_helper();
+    Enode * lhs = nodes.first;
+    Enode * rhs = nodes.second;
+    m_ctrs.push_back(m_ctx.mkEq(m_ctx.mkCons(lhs, m_ctx.mkCons(rhs))));
+}
+void pstate::parse_formula_neq() {
+    std::pair<Enode *, Enode *> nodes = parse_formula_helper();
+    Enode * lhs = nodes.first;
+    Enode * rhs = nodes.second;
+    m_ctrs.push_back(m_ctx.mkNot(m_ctx.mkEq(m_ctx.mkCons(lhs, m_ctx.mkCons(rhs)))));
 }
 
 // ============================
@@ -60,8 +116,4 @@ void pstate::close() {
 void pstate::reduce(function<Enode*(OpenSMTContext & ctx, vector<Enode*> &, vector<string> &)> const & f) {
     m_stacks.reduce(f);
 }
-Enode * pstate::get_result() const {
-    return m_stacks.get_result();
-}
-
 }  // namespace dop

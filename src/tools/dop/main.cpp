@@ -25,6 +25,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
+#include <list>
 #include <exception>
 #include <iostream>
 #include <string>
@@ -48,6 +49,7 @@ using std::cerr;
 using std::copy;
 using std::endl;
 using std::pair;
+using std::list;
 using std::runtime_error;
 using std::sort;
 using std::string;
@@ -58,9 +60,10 @@ namespace dop {
 
 static const char g_minimum_name[] = "min";
 
-Enode * make_leq_ctr(OpenSMTContext & ctx, unordered_map<string, Enode *> const & m, Enode * f, Enode * min_var) {
+Enode * subst_exist_vars_to_univerally_quantified(OpenSMTContext & ctx, unordered_map<string, Enode *> const & m, Enode * f) {
+    // Input:  f(x1, ..., xn) where xi is existentially quantified var.
+    // Output: f(y1, ..., yn) where yi is universally quantified var.
     unordered_map<Enode *, Enode *> subst_map;
-
     // 1. need to create a mapping from exist variables to forall variables
     Snode * const real_sort = ctx.mkSortReal();
     for (auto const & p : m) {
@@ -80,8 +83,13 @@ Enode * make_leq_ctr(OpenSMTContext & ctx, unordered_map<string, Enode *> const 
     }
     // 2. need to make f(y1, y2) based on f(x1, x2)
     Enode * forall_f = dreal::subst(ctx, f, subst_map);
+    return forall_f;
+}
 
-    // 3. return f(x1, x2) <= f(y1, y2) /\ min* = f(x1, x2)
+Enode * make_leq_cost(OpenSMTContext & ctx, unordered_map<string, Enode *> const & m, Enode * f, Enode * min_var) {
+    // Input:  f(x1, ..., xn)        where xi is existentially quantified var.
+    // Output: min <= f(y1, ..., yn) where yi is universally quantified var.
+    Enode * forall_f = subst_exist_vars_to_univerally_quantified(ctx, m, f);
     Enode * const args_list = ctx.mkCons(min_var, ctx.mkCons(forall_f));
     Enode * const leq = ctx.mkLeq(args_list);
     return leq;
@@ -95,7 +103,7 @@ Enode * make_min_var(OpenSMTContext & ctx, unordered_map<string, Enode *> & m) {
     return min_var;
 }
 
-Enode * make_eq_ctr(OpenSMTContext & ctx, Enode * e1, Enode * e2) {
+Enode * make_eq_cost(OpenSMTContext & ctx, Enode * e1, Enode * e2) {
     Enode * const eq = ctx.mkEq(ctx.mkCons(e1, ctx.mkCons(e2)));
     return eq;
 }
@@ -125,7 +133,20 @@ void print_result(unordered_map<string, Enode*> const & map) {
         cout << "\t"; dop::display(cout, name, e) << endl;
     }
 }
+
+Enode * make_vec_to_list(OpenSMTContext & ctx, std::vector<Enode *> v) {
+    list<Enode*> args(v.begin(), v.end());
+    return ctx.mkCons(args);
+}
 }  // namespace dop
+
+// minimize cost(x)
+// satisfying ctr(x)
+// exists x. ctr(x) /\ forall y. [ctr(y) -> (cost(x) <= cost(y))]
+// exists x. ctr(x) /\ forall y. [!ctr(y) \/ (cost(x) <= cost(y))]
+// exists x, min. cost(x) = min
+//              /\ ctr(x)
+//              /\ forall y. [!ctr(y) \/ min <= cost(y))]
 
 int main(int argc, const char * argv[]) {
 #ifdef LOGGING
@@ -142,24 +163,47 @@ int main(int argc, const char * argv[]) {
     }
     OpenSMTContext & ctx = p.get_ctx();
     unordered_map<string, Enode *> var_map = p.get_var_map();
-    Enode * const f = p.get_result();
+    Enode * const cost = p.get_cost();
+    std::vector<Enode *> ctrs_X = p.get_ctrs();
+    std::vector<Enode *> ctrs_not_Y;
+    for (Enode * ctr_X : ctrs_X) {
+        Enode * ctr_not_Y = ctx.mkNot(ctx.mkCons(dop::subst_exist_vars_to_univerally_quantified(ctx, var_map, ctr_X)));         // ctr(y)
+        ctrs_not_Y.push_back(ctr_not_Y);
+    }
     double const prec = config.get_precision() > 0 ? config.get_precision() : p.get_precision();
     ctx.setPrecision(prec);
-    Enode * min_var = dop::make_min_var(ctx, var_map);
-    Enode * leq_ctr = dop::make_leq_ctr(ctx, var_map, f, min_var);
-    Enode * eq_ctr = dop::make_eq_ctr(ctx, f, min_var);
-    ctx.Assert(leq_ctr);
-    ctx.Assert(eq_ctr);
-    cout << "Minimize : " << f << endl;
-    cout << "Precision: " << prec << endl;
-    cout << "Solve    : " << leq_ctr << endl
-         << "           " << eq_ctr << endl;
-    cout << "Result   : ";
-    if (ctx.CheckSAT() == l_True) {
+    Enode * min_var  = dop::make_min_var(ctx, var_map);                  // min
+    Enode * eq_cost  = dop::make_eq_cost(ctx, cost, min_var);            // cost(x) = min
+    Enode * leq_cost = dop::make_leq_cost(ctx, var_map, cost, min_var);  // min <= cost(y)
+    Enode * list_ctrs_not_Y = dop::make_vec_to_list(ctx, ctrs_not_Y);    // !ctr1(y), ... , !ctrn(y)
+    Enode * or_term  = ctx.mkOr(ctx.mkCons(leq_cost, list_ctrs_not_Y));  // !ctr1(y) \/ ... \/ !ctrn(y) \/ (min <= cost(y))
+
+    vector<pair<string, Snode *>*> sorted_var_list;
+    for (Enode * e : or_term->get_forall_vars()) {
+        std::pair<string, Snode *> * p = new std::pair<string, Snode *>(e->getCar()->getName(), e->getSort());
+        sorted_var_list.push_back(p);
+    }
+    Enode * quantified = ctx.mkForall(&sorted_var_list, or_term);
+    cout << "Minimize   : " << cost << endl;
+    for (Enode * ctr_X : ctrs_X) {
+        cout << "Constraint : " << ctr_X << endl;
+    }
+    cout << "Precision  : " << prec << endl;
+    ctx.Assert(eq_cost);
+    cout << "Assert     : " << eq_cost << endl;
+    for (Enode * ctr_X : ctrs_X) {
+        ctx.Assert(ctr_X);
+        cout << "Assert     : " << ctr_X << endl;
+    }
+    ctx.Assert(quantified);
+    cout << "Assert     : " << quantified << endl;
+    auto result = ctx.CheckSAT();
+    cout << "Result     : ";
+    if (result == l_True) {
         cout << "delta-sat" << endl;
         dop::print_result(var_map);
         if (config.get_visualize()) {
-            dop::visualize_result_via_python(f, var_map, config.get_vis_cell(), dop::g_minimum_name);
+            dop::visualize_result_via_python(cost, var_map, config.get_vis_cell(), dop::g_minimum_name);
         }
     } else {
         cout << "unsat" << endl;

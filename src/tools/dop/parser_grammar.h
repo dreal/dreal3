@@ -37,10 +37,16 @@ struct sep : pegtl::sor<pegtl::space, comment> {};
 struct seps : pegtl::star<sep> {};
 struct str_prec : pegtl::string<'p', 'r', 'e', 'c'> {};
 struct str_var : pegtl::string<'v', 'a', 'r'> {};
+struct str_cost : pegtl::string<'c', 'o', 's', 't'> {};
 struct str_ctr : pegtl::string<'c', 't', 'r'> {};
+struct eq : pegtl::string<'=', '='> {};
+struct neq : pegtl::string<'!', '='> {};
+struct le : pegtl::string<'<', '='> {};
+struct ge : pegtl::string<'>', '='> {};
 struct colon : pegtl::one<':'> {};
 struct comma : pegtl::one<','> {};
-struct eq : pegtl::one<'='> {};
+struct lt : pegtl::one<'<'> {};
+struct gt : pegtl::one<'>'> {};
 struct lb : pegtl::one<'['> {};
 struct rb : pegtl::one<']'> {};
 struct lp : pegtl::one<'('> {};
@@ -110,7 +116,20 @@ struct exp_sqrt  : pegtl::seq<tk_sqrt,  seps, lp, seps, exp_sum, seps, rp> { };
 
 struct exp_sum   : pegtl::seq<exp_plus_minus> { };
 struct exp_prod  : pegtl::seq<exp_times_div>  { };
-struct exp_term  : pegtl::sor<exp_pow>              { };
+struct exp_term  : pegtl::sor<exp_pow>        { };
+
+struct formula_gt  : pegtl::seq<exp_sum, seps, gt,  seps, exp_sum> { };
+struct formula_lt  : pegtl::seq<exp_sum, seps, lt,  seps, exp_sum> { };
+struct formula_ge  : pegtl::seq<exp_sum, seps, ge,  seps, exp_sum> { };
+struct formula_le  : pegtl::seq<exp_sum, seps, le,  seps, exp_sum> { };
+struct formula_eq  : pegtl::seq<exp_sum, seps, eq,  seps, exp_sum> { };
+struct formula_neq : pegtl::seq<exp_sum, seps, neq, seps, exp_sum> { };
+struct formula : pegtl::sor<formula_gt,
+                            formula_lt,
+                            formula_ge,
+                            formula_le,
+                            formula_eq,
+                            formula_neq> { };
 
 struct exp_call  : pegtl::sor<exp_abs, exp_sin, exp_cos, exp_tan, exp_asin, exp_acos, exp_atan, exp_atan2, exp_log, exp_exp, exp_sqrt> { };
 struct exp_value : pegtl::sor<numeral,
@@ -128,10 +147,20 @@ struct var_decl : pegtl::seq<pegtl::identifier, seps, colon, seps, interval> {};
 struct var_decl_list : pegtl::list<var_decl, seps> {};
 struct var_decl_sec : pegtl::seq<str_var, colon, seps, var_decl_list> {};
 
+// cost_decl
+struct cost_decl : pegtl::must<exp_sum> {};
+struct cost_decl_sec : pegtl::seq<str_cost, colon, seps, cost_decl> {};
+
 // ctr_decl
-struct ctr_decl : pegtl::must<exp_sum> {};
-struct ctr_decl_sec : pegtl::seq<str_ctr, colon, seps, ctr_decl> {};
-struct grammar : pegtl::must<pegtl::opt<prec_sec>, seps, var_decl_sec, seps, ctr_decl_sec, seps, pegtl::eof> {};
+struct ctr_decl_list : pegtl::list<formula, seps> {};
+struct ctr_decl_sec  : pegtl::seq<str_ctr, colon, seps, ctr_decl_list> {};
+
+// grammar
+struct grammar : pegtl::must<pegtl::opt<prec_sec>, seps,
+                             var_decl_sec, seps,
+                             cost_decl_sec, seps,
+                             pegtl::opt<pegtl::seq<ctr_decl_sec, seps>>,
+                             pegtl::eof> {};
 
 void check_grammar() {
     std::cerr << "exp_plus_minus\n"; pegtl::analyze<dop::exp_plus_minus>();
@@ -141,6 +170,7 @@ void check_grammar() {
     std::cerr << "exp_term\n";       pegtl::analyze<dop::exp_term>();
     std::cerr << "grammar\n";        pegtl::analyze<dop::grammar>();
     std::cerr << "vardecl\n";        pegtl::analyze<dop::var_decl_sec>();
+    std::cerr << "costdecl\n";       pegtl::analyze<dop::cost_decl_sec>();
     std::cerr << "ctrdecl\n";        pegtl::analyze<dop::ctr_decl_sec>();
 }
 

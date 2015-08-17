@@ -385,4 +385,50 @@ template<> struct action<exp_sqrt> {
             });
     }
 };
+
+template<> struct action<cost_decl> {
+    static void apply(const pegtl::input &, pstate &p ) {
+        p.parse_cost();
+        p.clear_stacks();
+    }
+};
+
+template<> struct action<formula_lt> {
+    static void apply(const pegtl::input &, pstate &p ) {
+        p.parse_formula_lt();
+    }
+};
+
+template<> struct action<formula_gt> {
+    static void apply(const pegtl::input &, pstate &p ) {
+        p.parse_formula_gt();
+    }
+};
+
+template<> struct action<formula_le> {
+    static void apply(const pegtl::input &, pstate &p ) {
+        p.parse_formula_le();
+    }
+};
+
+template<> struct action<formula_ge> {
+    static void apply(const pegtl::input &, pstate &p ) {
+        p.parse_formula_ge();
+    }
+};
+
+template<> struct action<formula_eq> {
+    static void apply(const pegtl::input &, pstate &p ) {
+        p.parse_formula_eq();
+    }
+};
+
+template<> struct action<formula_neq> {
+    static void apply(const pegtl::input &, pstate &p ) {
+        p.parse_formula_neq();
+    }
+};
+
+
+
 }  // namespace dop

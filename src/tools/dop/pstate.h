@@ -36,17 +36,32 @@ namespace dop {
 
 class pstate {
 private:
-    OpenSMTContext m_ctx;
-    stacks         m_stacks;
-    var_map        m_var_map;
-    bool           m_var_decl_done = false;
-    double         m_prec = 0.001;
+    OpenSMTContext       m_ctx;
+    stacks               m_stacks;
+    var_map              m_var_map;
+    bool                 m_var_decl_done = false;
+    double               m_prec = 0.001;
+    Enode *              m_cost;
+    std::vector<Enode *> m_ctrs;
+    std::pair<Enode *, Enode *> parse_formula_helper();
 
 public:
     pstate();
+    std::ostream & debug_stacks(std::ostream & out) const;
     bool is_var_decl_done() const { return m_var_decl_done; }
     void mark_var_decl_done() { m_var_decl_done = true; }
     OpenSMTContext & get_ctx() { return m_ctx; }
+    Enode * get_cost() const { return m_cost; };
+    void parse_cost() {
+        m_cost = m_stacks.get_result();
+    }
+    std::vector<Enode *> get_ctrs() const { return m_ctrs; };
+    void parse_formula_lt();
+    void parse_formula_gt();
+    void parse_formula_le();
+    void parse_formula_ge();
+    void parse_formula_eq();
+    void parse_formula_neq();
 
     // ============================
     // m_stacks (expression stacks)
@@ -57,7 +72,9 @@ public:
     void open();
     void close();
     void reduce(std::function<Enode*(OpenSMTContext & ctx, std::vector<Enode*> &, std::vector<std::string> &)> const & f);
-    Enode * get_result() const;
+    void clear_stacks() {
+        m_stacks.clear();
+    }
 
     // =========
     // Precision

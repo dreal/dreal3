@@ -155,8 +155,8 @@ plt.show()
 plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
 )";
     string python_code_main = generate_py_visualization_string_3d(f, var_map, num_of_cells, minimum_name);
-
-    eval_python_string(python_code_header + "\n" + python_code_main + "\n" + python_code_footer);
+    string python_code = python_code_header + "\n" + python_code_main + "\n" + python_code_footer;
+    eval_python_string(python_code);
 }
 
 void visualize_result_via_python_2d(Enode * const f, unordered_map<string, Enode *> var_map, unsigned const num_of_cells, string const & minimum_name) {
@@ -214,8 +214,8 @@ ax = fig.add_subplot(111)
     ss << "plt.subplots_adjust(left=0.15)" << endl;
     ss << "plt.show()" << endl;
 
-    eval_python_string(python_code + ss.str());
-    throw runtime_error("Sorry: It's not implemented yet.");
+    python_code = python_code + ss.str();
+    eval_python_string(python_code);
 }
 
 void visualize_result_via_python(Enode * const f, unordered_map<string, Enode *> const & var_map, unsigned const num_of_cells, string const & minimum_name) {

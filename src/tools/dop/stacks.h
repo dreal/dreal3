@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <functional>
 #include <vector>
 #include <string>
+#include <iostream>
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/api/OpenSMTContext.h"
 
@@ -38,8 +39,16 @@ public:
     void close();
     void push_back_op(std::string const & s);
     void push_back(Enode * const e);
-    Enode * get_result() const;
+    Enode * get_result();
+    std::vector<Enode *> & get_top_stack() {
+        return m_exp_stacks.back();
+    }
     void reduce(std::function<Enode*(OpenSMTContext & ctx, std::vector<Enode*> &, std::vector<std::string> &)> const & f);
+    std::ostream & debug(std::ostream & out) const;
+    void clear() {
+        m_exp_stacks.clear();
+        m_op_stacks.clear();
+    }
 };
 
 

@@ -109,4 +109,125 @@ template<> struct control<exp_sum> {
     }
 };
 
+template<> struct control<formula_lt> {
+    static void start(const pegtl::input &, pstate & p) {
+        p.open();
+    }
+    static void success(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    static void failure(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    template<typename Input, typename ... States>
+    static void raise(const Input & in, States && ...) {
+        throw pegtl::parse_error("parse error matching " + pegtl::internal::demangle<formula_lt>(), in);
+    }
+    template<pegtl::apply_mode A, template<typename ...> class Action, template<typename ...> class Control, typename Input, typename ... States>
+    static bool match(Input & in, States && ... st) {
+        return pegtl::internal::rule_match_one<formula_lt, A, Action, Control>::match(in, st ...);
+    }
+};
+
+template<> struct control<formula_le> {
+    static void start(const pegtl::input &, pstate & p) {
+        p.open();
+    }
+    static void success(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    static void failure(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    template<typename Input, typename ... States>
+    static void raise(const Input & in, States && ...) {
+        throw pegtl::parse_error("parse error matching " + pegtl::internal::demangle<formula_le>(), in);
+    }
+    template<pegtl::apply_mode A, template<typename ...> class Action, template<typename ...> class Control, typename Input, typename ... States>
+    static bool match(Input & in, States && ... st) {
+        return pegtl::internal::rule_match_one<formula_le, A, Action, Control>::match(in, st ...);
+    }
+};
+
+
+template<> struct control<formula_gt> {
+    static void start(const pegtl::input &, pstate & p) {
+        p.open();
+    }
+    static void success(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    static void failure(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    template<typename Input, typename ... States>
+    static void raise(const Input & in, States && ...) {
+        throw pegtl::parse_error("parse error matching " + pegtl::internal::demangle<formula_gt>(), in);
+    }
+    template<pegtl::apply_mode A, template<typename ...> class Action, template<typename ...> class Control, typename Input, typename ... States>
+    static bool match(Input & in, States && ... st) {
+        return pegtl::internal::rule_match_one<formula_gt, A, Action, Control>::match(in, st ...);
+    }
+};
+
+template<> struct control<formula_ge> {
+    static void start(const pegtl::input &, pstate & p) {
+        p.open();
+    }
+    static void success(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    static void failure(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    template<typename Input, typename ... States>
+    static void raise(const Input & in, States && ...) {
+        throw pegtl::parse_error("parse error matching " + pegtl::internal::demangle<formula_ge>(), in);
+    }
+    template<pegtl::apply_mode A, template<typename ...> class Action, template<typename ...> class Control, typename Input, typename ... States>
+    static bool match(Input & in, States && ... st) {
+        return pegtl::internal::rule_match_one<formula_ge, A, Action, Control>::match(in, st ...);
+    }
+};
+
+template<> struct control<formula_eq> {
+    static void start(const pegtl::input &, pstate & p) {
+        p.open();
+    }
+    static void success(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    static void failure(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    template<typename Input, typename ... States>
+    static void raise(const Input & in, States && ...) {
+        throw pegtl::parse_error("parse error matching " + pegtl::internal::demangle<formula_eq>(), in);
+    }
+    template<pegtl::apply_mode A, template<typename ...> class Action, template<typename ...> class Control, typename Input, typename ... States>
+    static bool match(Input & in, States && ... st) {
+        return pegtl::internal::rule_match_one<formula_eq, A, Action, Control>::match(in, st ...);
+    }
+};
+
+template<> struct control<formula_neq> {
+    static void start(const pegtl::input &, pstate & p) {
+        p.open();
+    }
+    static void success(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    static void failure(const pegtl::input &, pstate & p) {
+        p.close();
+    }
+    template<typename Input, typename ... States>
+    static void raise(const Input & in, States && ...) {
+        throw pegtl::parse_error("parse error matching " + pegtl::internal::demangle<formula_neq>(), in);
+    }
+    template<pegtl::apply_mode A, template<typename ...> class Action, template<typename ...> class Control, typename Input, typename ... States>
+    static bool match(Input & in, States && ... st) {
+        return pegtl::internal::rule_match_one<formula_neq, A, Action, Control>::match(in, st ...);
+    }
+};
+
 }  // namespace dop
