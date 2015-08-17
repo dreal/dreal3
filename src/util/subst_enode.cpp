@@ -134,6 +134,41 @@ Enode * subst(OpenSMTContext & ctx, Enode * e, unordered_map<Enode *, Enode *> c
             Enode * const e2 = subst(ctx, e->get2nd(), m);
             Enode * res = ctx.mkAtan2(ctx.mkCons(e1, ctx.mkCons(e2)));
             return res;
+        } else if (e->isNot()) {
+            assert(e->getArity() == 1);
+            Enode * const e1 = subst(ctx, e->get1st(), m);
+            Enode * res = ctx.mkNot(ctx.mkCons(e1));
+            return res;
+        } else if (e->isGt()) {
+            assert(e->getArity() == 2);
+            Enode * const e1 = subst(ctx, e->get1st(), m);
+            Enode * const e2 = subst(ctx, e->get2nd(), m);
+            Enode * res = ctx.mkGt(ctx.mkCons(e1, ctx.mkCons(e2)));
+            return res;
+        } else if (e->isLt()) {
+            assert(e->getArity() == 2);
+            Enode * const e1 = subst(ctx, e->get1st(), m);
+            Enode * const e2 = subst(ctx, e->get2nd(), m);
+            Enode * res = ctx.mkLt(ctx.mkCons(e1, ctx.mkCons(e2)));
+            return res;
+        } else if (e->isGeq()) {
+            assert(e->getArity() == 2);
+            Enode * const e1 = subst(ctx, e->get1st(), m);
+            Enode * const e2 = subst(ctx, e->get2nd(), m);
+            Enode * res = ctx.mkGeq(ctx.mkCons(e1, ctx.mkCons(e2)));
+            return res;
+        } else if (e->isLeq()) {
+            assert(e->getArity() == 2);
+            Enode * const e1 = subst(ctx, e->get1st(), m);
+            Enode * const e2 = subst(ctx, e->get2nd(), m);
+            Enode * res = ctx.mkLeq(ctx.mkCons(e1, ctx.mkCons(e2)));
+            return res;
+        } else if (e->isEq()) {
+            assert(e->getArity() == 2);
+            Enode * const e1 = subst(ctx, e->get1st(), m);
+            Enode * const e2 = subst(ctx, e->get2nd(), m);
+            Enode * res = ctx.mkEq(ctx.mkCons(e1, ctx.mkCons(e2)));
+            return res;
         } else {
             ostringstream ss;
             ss << e;
