@@ -39,14 +39,14 @@ using ibex::ExprConstant;
 using ibex::ExprCtr;
 using ibex::ExprNode;
 
-ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable const> & var_map, Enode * const e, unordered_map<Enode*, double> const & subst) {
+ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable const> & var_map, Enode * const e, unordered_map<Enode*, ibex::Interval> const & subst) {
     // TODO(soonhok): for the simple case such as 0 <= x or x <= 10.
     // Handle it as a domain specification instead of constraints.
     if (e->isVar()) {
         auto const subst_it = subst.find(e);
         if (subst_it != subst.cend()) {
-            double const v = subst_it->second;
-            return &ExprConstant::new_scalar(v);
+            auto const i = subst_it->second;
+            return &ExprConstant::new_scalar(i);
         }
         string const & var_name = e->getCar()->getName();
         auto const it = var_map.find(var_name);
@@ -235,7 +235,7 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
     throw logic_error("Not implemented yet: translateEnodeExprNode");
 }
 
-ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const> & var_map, Enode * const e, lbool p, unordered_map<Enode*, double> const & subst) {
+ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const> & var_map, Enode * const e, lbool p, unordered_map<Enode*, ibex::Interval> const & subst) {
     assert(e->isTerm() && (e->isEq() || e->isLeq() || e->isGeq() || e->isLt() || e->isGt()));
 
     // Enode * const rel = e->getCar();

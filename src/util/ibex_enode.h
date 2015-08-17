@@ -26,6 +26,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/egraph/Egraph.h"
 
 namespace dreal {
-ibex::ExprNode const * translate_enode_to_exprnode(unordered_map<string, ibex::Variable const> & var_map, Enode * const e, std::unordered_map<Enode*, double> const & subst = std::unordered_map<Enode*, double>());
-ibex::ExprCtr  const * translate_enode_to_exprctr(unordered_map<string, ibex::Variable const> & var_map, Enode * const e, lbool p = l_Undef, std::unordered_map<Enode*, double> const & subst = std::unordered_map<Enode*, double>());
+ibex::ExprNode const * translate_enode_to_exprnode(unordered_map<string, ibex::Variable const> & var_map, Enode * const e, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode*, ibex::Interval>());
+ibex::ExprCtr  const * translate_enode_to_exprctr(unordered_map<string, ibex::Variable const> & var_map, Enode * const e, lbool p = l_Undef, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode*, ibex::Interval>());
 }

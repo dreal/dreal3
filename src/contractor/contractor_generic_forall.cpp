@@ -61,6 +61,16 @@ using std::vector;
 
 namespace dreal {
 
+static unordered_map<Enode*, ibex::Interval> make_subst_from_bound(box const & b, unordered_set<Enode *> const & vars) {
+    unordered_map<Enode*, ibex::Interval> subst;
+    for (Enode * const var : vars) {
+        auto bound = b.get_bound(var);
+        subst.emplace(var, bound);
+    }
+    return subst;
+}
+
+
 static unordered_map<Enode*, double> make_random_subst_from_bound(box const & b, unordered_set<Enode *> const & vars) {
     static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
     unordered_map<Enode*, double> subst;
@@ -71,6 +81,15 @@ static unordered_map<Enode*, double> make_random_subst_from_bound(box const & b,
         std::uniform_real_distribution<double> m_dist(lb, ub);
         double const v = m_dist(rg);
         subst.emplace(var, v);
+    }
+    return subst;
+}
+
+static unordered_map<Enode*, ibex::Interval> make_subst_from_value(box const & b, unordered_set<Enode *> const & vars) {
+    unordered_map<Enode*, ibex::Interval> subst;
+    for (Enode * const var : vars) {
+        auto value = b[var];
+        subst.emplace(var, value);
     }
     return subst;
 }

@@ -60,30 +60,20 @@ using std::vector;
 
 namespace dreal {
 
-static unordered_map<Enode*, double> make_random_subst_from_bound(box const & b, unordered_set<Enode *> const & vars) {
-    static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
-    unordered_map<Enode*, double> subst;
+static unordered_map<Enode*, ibex::Interval> make_subst_from_bound(box const & b, unordered_set<Enode *> const & vars) {
+    unordered_map<Enode*, ibex::Interval> subst;
     for (Enode * const var : vars) {
-        auto const & bound = b.get_bound(var);
-        double const lb = bound.lb();
-        double const ub = bound.ub();
-        std::uniform_real_distribution<double> m_dist(lb, ub);
-        double const v = m_dist(rg);
-        subst.emplace(var, v);
+        auto & bound = b.get_bound(var);
+        subst.emplace(var, bound);
     }
     return subst;
 }
 
-static unordered_map<Enode*, double> make_random_subst_from_value(box const & b, unordered_set<Enode *> const & vars) {
-    static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
-    unordered_map<Enode*, double> subst;
+static unordered_map<Enode*, ibex::Interval> make_subst_from_value(box const & b, unordered_set<Enode *> const & vars) {
+    unordered_map<Enode*, ibex::Interval> subst;
     for (Enode * const var : vars) {
-        auto const & value = b[var];
-        double const lb = value.lb();
-        double const ub = value.ub();
-        std::uniform_real_distribution<double> m_dist(lb, ub);
-        double const v = m_dist(rg);
-        subst.emplace(var, v);
+        auto & value = b[var];
+        subst.emplace(var, value);
     }
     return subst;
 }
@@ -132,7 +122,7 @@ box contractor_forall::prune(box b, SMTConfig & config) const {
     // ====================================================================================
 
     // Make a random subst from forall_vars, prune b using
-    unordered_map<Enode*, double> subst = make_random_subst_from_bound(extended_box, forall_vars);
+    unordered_map<Enode*, ibex::Interval> subst = make_subst_from_bound(extended_box, forall_vars);
     // DREAL_LOG_DEBUG << "subst = " << subst << endl;
     nonlinear_constraint const * const ctr = new nonlinear_constraint(e, p, subst);
     contractor ctc = mk_contractor_ibex_fwdbwd(b, ctr);
@@ -160,7 +150,7 @@ box contractor_forall::prune(box b, SMTConfig & config) const {
             DREAL_LOG_DEBUG << "Found possible counterexample" << endl;
             DREAL_LOG_DEBUG << "not_ctc = " << not_ctc << endl;
             DREAL_LOG_DEBUG << counter_example << endl;
-            subst = make_random_subst_from_value(counter_example, forall_vars);
+            subst = make_subst_from_value(counter_example, forall_vars);
             // DREAL_LOG_DEBUG << "subst = " << subst << endl;
             nonlinear_constraint const * const ctr2 = new nonlinear_constraint(e, p, subst);
             contractor ctc2 = mk_contractor_ibex_fwdbwd(b, ctr2);

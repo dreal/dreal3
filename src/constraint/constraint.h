@@ -66,12 +66,12 @@ private:
     ibex::NumConstraint const *              m_numctr;
     ibex::NumConstraint const *              m_numctr_ineq;
     ibex::Array<ibex::ExprSymbol const>      m_var_array;
-    std::unordered_map<Enode*, double> const m_subst;
+    std::unordered_map<Enode*, ibex::Interval> const m_subst;
 
     std::pair<lbool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
 
 public:
-    explicit nonlinear_constraint(Enode * const e, lbool p = l_Undef, std::unordered_map<Enode*, double> const & subst = std::unordered_map<Enode *, double>());
+    explicit nonlinear_constraint(Enode * const e, lbool p = l_Undef, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
     virtual ~nonlinear_constraint() noexcept;
     virtual std::ostream & display(std::ostream & out) const;
     std::pair<lbool, ibex::Interval> eval(box const & b) const;
