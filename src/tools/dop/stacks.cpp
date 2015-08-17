@@ -17,9 +17,11 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <functional>
+#include <iterator>
 #include "tools/dop/stacks.h"
 #include "tools/dop/pstate.h"
 
@@ -28,6 +30,8 @@ namespace dop {
 using std::vector;
 using std::string;
 using std::function;
+using std::copy;
+using std::back_inserter;
 
 void stacks::open() {
     m_exp_stacks.push_back(vector<Enode*>());
@@ -89,7 +93,7 @@ ostream & stacks::debug(ostream & out) const {
     out << "exp stacks = " << m_exp_stacks.size() << endl;
     out << "=============" << endl;
     unsigned i = 0;
-    for(auto const & exp_stack : m_exp_stacks) {
+    for (auto const & exp_stack : m_exp_stacks) {
         out << "exp stack(" << (i++) << "), len = " << exp_stack.size() << endl;
         out << "--------" << endl;
         for (auto enode : exp_stack) {
@@ -100,7 +104,7 @@ ostream & stacks::debug(ostream & out) const {
     i = 0;
     out << "op stacks = " << m_op_stacks.size() << endl;
     out << "=============" << endl;
-    for(auto const & op_stack : m_op_stacks) {
+    for (auto const & op_stack : m_op_stacks) {
         out << "op stack(" << (i++) << "), len = " << op_stack.size() << endl;
         out << "--------" << endl;
         for (auto op : op_stack) {

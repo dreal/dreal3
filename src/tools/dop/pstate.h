@@ -27,6 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "tools/dop/stacks.h"
@@ -51,11 +52,11 @@ public:
     bool is_var_decl_done() const { return m_var_decl_done; }
     void mark_var_decl_done() { m_var_decl_done = true; }
     OpenSMTContext & get_ctx() { return m_ctx; }
-    Enode * get_cost() const { return m_cost; };
+    Enode * get_cost() const { return m_cost; }
     void parse_cost() {
         m_cost = m_stacks.get_result();
     }
-    std::vector<Enode *> get_ctrs() const { return m_ctrs; };
+    std::vector<Enode *> get_ctrs() const { return m_ctrs; }
     void parse_formula_lt();
     void parse_formula_gt();
     void parse_formula_le();
