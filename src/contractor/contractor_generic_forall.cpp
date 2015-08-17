@@ -61,30 +61,6 @@ using std::vector;
 
 namespace dreal {
 
-static unordered_map<Enode*, ibex::Interval> make_subst_from_bound(box const & b, unordered_set<Enode *> const & vars) {
-    unordered_map<Enode*, ibex::Interval> subst;
-    for (Enode * const var : vars) {
-        auto bound = b.get_bound(var);
-        subst.emplace(var, bound);
-    }
-    return subst;
-}
-
-
-static unordered_map<Enode*, double> make_random_subst_from_bound(box const & b, unordered_set<Enode *> const & vars) {
-    static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
-    unordered_map<Enode*, double> subst;
-    for (Enode * const var : vars) {
-        auto const & bound = b.get_bound(var);
-        double const lb = bound.lb();
-        double const ub = bound.ub();
-        std::uniform_real_distribution<double> m_dist(lb, ub);
-        double const v = m_dist(rg);
-        subst.emplace(var, v);
-    }
-    return subst;
-}
-
 static unordered_map<Enode*, ibex::Interval> make_subst_from_value(box const & b, unordered_set<Enode *> const & vars) {
     unordered_map<Enode*, ibex::Interval> subst;
     for (Enode * const var : vars) {
@@ -92,27 +68,6 @@ static unordered_map<Enode*, ibex::Interval> make_subst_from_value(box const & b
         subst.emplace(var, value);
     }
     return subst;
-}
-
-static unordered_map<Enode*, double> make_random_subst_from_value(box const & b, unordered_set<Enode *> const & vars) {
-    static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
-    unordered_map<Enode*, double> subst;
-    for (Enode * const var : vars) {
-        auto const & value = b[var];
-        double const lb = value.lb();
-        double const ub = value.ub();
-        std::uniform_real_distribution<double> m_dist(lb, ub);
-        double const v = m_dist(rg);
-        subst.emplace(var, v);
-    }
-    return subst;
-}
-
-static ostream & operator<<(ostream & out, unordered_map<Enode *, double> const & subst) {
-    for (auto const & p : subst) {
-        out << p.first << " |-> " << p.second << endl;
-    }
-    return out;
 }
 
 contractor_generic_forall::contractor_generic_forall(box const & , generic_forall_constraint const * const ctr)
@@ -202,61 +157,56 @@ box contractor_generic_forall::handle_disjunction(box b, unordered_set<Enode *> 
     // TODO(soonhok): generalize this assumption
     // Step 1. Sample y \in By.
     box extended_box(b, forall_vars);
-    unordered_map<Enode*, double> subst = make_random_subst_from_bound(extended_box, forall_vars);
+    unordered_map<Enode*, ibex::Interval> subst;
     box old_box = b;
     do {
         old_box = b;
-        // Step 2. Compute B_i = prune(B, l_i)
-        //         Update B with ∨ B_i
-        //                       i
-        std::vector<box> boxes;
-        for (Enode * e : vec) {
-            lbool polarity = p ? l_True : l_False;
-            if (e->isNot()) {
-                polarity = !polarity;
-                e = e->get1st();
-            }
-            nonlinear_constraint * ctr = new nonlinear_constraint(e, polarity, subst);
-            if (ctr->get_var_array().size() == 0) {
-                auto result = ctr->eval(b);
-                if (result.first != false) {
-                    boxes.emplace_back(b);
-                }
-            } else {
-                contractor ctc = mk_contractor_ibex_fwdbwd(b, ctr);
-                box const bt = ctc.prune(b, config);
-                boxes.emplace_back(bt);
-            }
-            delete ctr;
-        }
-        b = hull(boxes);
-
-        // Step 3. Find a counter-example
+        // Step 2. Find a counter-example
         //         Solve(¬ l_1 ∧ ¬ l_2 ∧ ... ∧ ¬ l_n)
         //
         //         Make each ¬ l_i as a contractor ctc_i
         //         Make a fixed_point contractor with ctc_is.
         //         Pass it to icp::solve
-        // cerr << "Find counter example from the following box" << endl
-        //      << "===========================================" << endl
-        //      << b << endl
-        //      << "===========================================" << endl;
         box counterexample = find_counterexample(b, forall_vars, vec, p, config);
         if (counterexample.is_empty()) {
-            // Step 3.1. (NO Counterexample)
+            // Step 2.1. (NO Counterexample)
             //           Return B.
             return b;
         } else {
-            // Step 3.2. (There IS a counterexample C)
+            // Step 2.2. (There IS a counterexample C)
             //
             //           Using C, prune B.
             //
             // We've found a counterexample (c1, c2) where ¬ f(c1, c2) holds
             // Prune X using a point 'y = c2'. (technically, a point in c2, which is an interval)
-            subst = make_random_subst_from_value(counterexample, forall_vars);
-            // cerr << "counterexample = " << counterexample << endl;
-            // cerr << "counterexample = " << subst << endl << endl;
+            subst = make_subst_from_value(counterexample, forall_vars);
         }
+        // Step 3. Compute B_i = prune(B, l_i)
+        //         Update B with ∨ B_i
+        //                       i
+        std::vector<box> boxes;
+        for (Enode * e : vec) {
+            if (!e->get_exist_vars().empty()) {
+                lbool polarity = p ? l_True : l_False;
+                if (e->isNot()) {
+                    polarity = !polarity;
+                    e = e->get1st();
+                }
+                nonlinear_constraint * ctr = new nonlinear_constraint(e, polarity, subst);
+                if (ctr->get_var_array().size() == 0) {
+                    auto result = ctr->eval(b);
+                    if (result.first != false) {
+                        boxes.emplace_back(b);
+                    }
+                } else {
+                    contractor ctc = mk_contractor_ibex_fwdbwd(b, ctr);
+                    box const bt = ctc.prune(b, config);
+                    boxes.emplace_back(bt);
+                }
+                delete ctr;
+            }
+        }
+        b = hull(boxes);
     } while (b != old_box);
     return b;
 }
