@@ -2,5 +2,5 @@ var:
     x : [3,4]
     y : [4,5]
 
-ctr:
+cost:
     x + y
