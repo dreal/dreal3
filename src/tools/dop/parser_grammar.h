@@ -39,7 +39,7 @@ struct str_prec : pegtl::string<'p', 'r', 'e', 'c'> {};
 struct str_var : pegtl::string<'v', 'a', 'r'> {};
 struct str_cost : pegtl::string<'c', 'o', 's', 't'> {};
 struct str_ctr : pegtl::string<'c', 't', 'r'> {};
-struct eq : pegtl::string<'=', '='> {};
+struct eq : pegtl::string<'='> {};
 struct neq : pegtl::string<'!', '='> {};
 struct le : pegtl::string<'<', '='> {};
 struct ge : pegtl::string<'>', '='> {};
