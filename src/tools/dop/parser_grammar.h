@@ -157,8 +157,8 @@ struct ctr_decl_sec  : pegtl::seq<str_ctr, colon, seps, ctr_decl_list> {};
 
 // grammar
 struct grammar : pegtl::must<pegtl::opt<prec_sec>, seps,
-                             var_decl_sec, seps,
-                             cost_decl_sec, seps,
+                             pegtl::must<var_decl_sec>, seps,
+                             pegtl::must<cost_decl_sec>, seps,
                              pegtl::opt<pegtl::seq<ctr_decl_sec, seps>>,
                              pegtl::eof> {};
 

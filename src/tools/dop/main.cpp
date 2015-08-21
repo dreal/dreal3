@@ -25,9 +25,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
-#include <list>
 #include <exception>
+#include <fstream>
 #include <iostream>
+#include <list>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -48,8 +49,9 @@ using std::back_inserter;
 using std::cerr;
 using std::copy;
 using std::endl;
-using std::pair;
 using std::list;
+using std::ofstream;
+using std::pair;
 using std::runtime_error;
 using std::sort;
 using std::string;
@@ -159,7 +161,8 @@ int main(int argc, const char * argv[]) {
     try {
         parser.parse<dop::grammar, dop::action, dop::control>(p);
     } catch (pegtl::parse_error const & e) {
-        throw runtime_error(e.what());
+        cerr << e.what() << std::endl;
+        return 1;
     }
     OpenSMTContext & ctx = p.get_ctx();
     unordered_map<string, Enode *> var_map = p.get_var_map();
@@ -184,26 +187,35 @@ int main(int argc, const char * argv[]) {
         sorted_var_list.push_back(p);
     }
     Enode * quantified = ctx.mkForall(&sorted_var_list, or_term);
+
+    cout << "Precision  : " << prec << endl;
+    for (auto var : var_map) {
+        cout << "Variable   : " << var.first
+             << " in [" << var.second->getDomainLowerBound() << ", "
+             << var.second->getDomainUpperBound() << "]" << endl;
+    }
     cout << "Minimize   : " << cost << endl;
     for (Enode * ctr_X : ctrs_X) {
         cout << "Constraint : " << ctr_X << endl;
     }
-    cout << "Precision  : " << prec << endl;
     ctx.Assert(eq_cost);
-    cout << "Assert     : " << eq_cost << endl;
     for (Enode * ctr_X : ctrs_X) {
         ctx.Assert(ctr_X);
-        cout << "Assert     : " << ctr_X << endl;
     }
     ctx.Assert(quantified);
-    cout << "Assert     : " << quantified << endl;
     auto result = ctx.CheckSAT();
     cout << "Result     : ";
     if (result == l_True) {
         cout << "delta-sat" << endl;
         dop::print_result(var_map);
-        if (config.get_visualize()) {
-            dop::visualize_result_via_python(cost, var_map, config.get_vis_cell(), dop::g_minimum_name);
+        if (config.get_save_visualization()) {
+            string vis_filename = config.get_filename() + ".py";
+            ofstream of(vis_filename);
+            dop::save_visualization_code(of, cost, var_map, config.get_vis_cell(), dop::g_minimum_name);
+            cout << "Visualization Code is saved at " << vis_filename << endl;
+        }
+        if (config.get_run_visualization()) {
+            dop::run_visualization(cost, var_map, config.get_vis_cell(), dop::g_minimum_name);
         }
     } else {
         cout << "unsat" << endl;

@@ -49,7 +49,10 @@ config::config(int const argc, const char * argv[]) {
             "-h", "-help", "--help", "--usage");
     opt.add("", false, 0, 0,
             "visualize the result",
-            "--visualize", "--vis");
+            "--run-visualization", "--run-vis");
+    opt.add("", false, 0, 0,
+            "save Python visualization code",
+            "--save-visualization", "--save-vis");
     opt.add("", false, 1, 0,
             "[visualization] # of cells in one dimension",
             "--vis-cell");
@@ -75,14 +78,19 @@ config::config(int const argc, const char * argv[]) {
     }
 
     // visualization options
-    if (opt.isSet("--visualize")) {
-        set_visualize(true);
-        if (opt.isSet("--vis-cell")) {
-            unsigned long vis_cell = 0.0;
-            opt.get("--vis-cell")->getULong(vis_cell);
-            set_vis_cell(vis_cell);
-        }
+    if (opt.isSet("--run-visualization")) {
+        set_run_visualization(true);
     }
+    if (opt.isSet("--save-visualization")) {
+        set_save_visualization(true);
+    }
+    if (opt.isSet("--vis-cell")) {
+        unsigned long vis_cell = 0.0;
+        opt.get("--vis-cell")->getULong(vis_cell);
+        set_vis_cell(vis_cell);
+    }
+
+
 
     // Set up filename
     string filename;
@@ -105,10 +113,11 @@ config::config(int const argc, const char * argv[]) {
 }
 
 ostream & operator<<(ostream & out, config const & c) {
-    out << "filename = " << c.m_filename << endl;
-    out << "vis_cell = " << c.m_vis_cell << endl;
-    out << "visualize = " << c.m_visualize << endl;
-    out << "precision = " << c.m_prec;
+    out << "filename           = " << c.m_filename << endl;
+    out << "vis_cell           = " << c.m_vis_cell << endl;
+    out << "run visualization  = " << c.m_run_visualization << endl;
+    out << "save visualization = " << c.m_save_visualization << endl;
+    out << "precision          = " << c.m_prec;
     return out;
 }
 

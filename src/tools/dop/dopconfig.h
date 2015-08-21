@@ -33,12 +33,14 @@ class config {
 private:
     std::string m_filename;
     unsigned long m_vis_cell = 50.0;
-    bool m_visualize = false;
+    bool m_run_visualization = false;
+    bool m_save_visualization = false;
     double m_prec = 0.0;
 
     void printUsage(ez::ezOptionParser & opt);
     void set_filename(std::string const & filename) { m_filename = filename; }
-    void set_visualize(bool const b) { m_visualize = b; }
+    void set_run_visualization(bool const b) { m_run_visualization = b; }
+    void set_save_visualization(bool const b) { m_save_visualization = b; }
     void set_vis_cell(unsigned long const vis_cell) { m_vis_cell = vis_cell; }
     void set_precision(double const prec) { m_prec = prec; }
 
@@ -46,7 +48,8 @@ public:
     config(int const argc, const char * argv[]);
     std::string get_filename() { return m_filename; }
     unsigned long get_vis_cell() { return m_vis_cell; }
-    bool get_visualize() const { return m_visualize; }
+    bool get_run_visualization() const { return m_run_visualization; }
+    bool get_save_visualization() const { return m_save_visualization; }
     double get_precision() const {
         return m_prec;
     }
