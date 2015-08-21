@@ -1,20 +1,16 @@
 #define k 0.122
 #define c 0.166
 
-
-[0, 20]   time;
-
-(component batteries;
-
 [-10, 10] d1;
 [-10, 10] d2;
 [-10, 10] g1;
 [-10, 10] g2;
-[0, 50]   tau;
 
+[0, 0.01]   time;
+[0, 50]  tau;
 
 // use both, both alive
-(mode m1;
+{mode 1;
   invt: 
   flow:
         d/dt[d1]  = (0.5 / c) - (k * d1);
@@ -23,22 +19,22 @@
         d/dt[g2]  = -0.5;
         d/dt[tau] = 1;
   jump:
-	() : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
-        @m1 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
-        @m2 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
-        @m3 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
-        @m4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
-        @m5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
-        @m6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-)
+        (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @1 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @2 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @3 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
+        @4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
+        @5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
+        @6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+}
 
 // use only 1, both alive
-(mode m2;
+{mode 2;
   invt: 
   flow:
         d/dt[d1]  = (1 / c) - (k * d1);
@@ -47,22 +43,22 @@
         d/dt[g2]  = 0;
         d/dt[tau] = 1;
   jump:
-        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
-        @m1 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
-        @m2 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
-        @m3 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
-        @m4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
-        @m5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
-        @m6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-)
+        (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @1 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @2 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @3 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
+        @4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
+        @5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
+        @6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+}
 
 // use only 2, both alive
-(mode m3;
+{mode 3;
   invt: 
   flow:
         d/dt[d1]  = - (k * d1);
@@ -71,22 +67,22 @@
         d/dt[g2]  = -1;
         d/dt[tau] = 1;
   jump:
-        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
-        @m1 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
-        @m2 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
-        @m3 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
-        @m4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
-        @m5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
-        @m6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-)
+        (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @1 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @2 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @3 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
+        @4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
+        @5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
+        @6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+}
 
 // use only 2, 1 dead
-(mode m4;
+{mode 4;
   invt: 
   flow:
         d/dt[d1]  = 0;
@@ -95,14 +91,14 @@
         d/dt[g2]  = -1;
         d/dt[tau] = 1;
   jump:
-        () : (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
-        @m4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
-        @m6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-)
+        (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
+        @4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
+        @6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+}
 
 // use only 1, 2 dead
-(mode m5;
+{mode 5;
   invt: 
   flow:
         d/dt[d1]  = (1 / c) - (k * d1);
@@ -111,14 +107,14 @@
         d/dt[g2]  = 0;
         d/dt[tau] = 1;
   jump:
-        () : (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
-        @m5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-        () : (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
-        @m6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
-)
+        (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
+        @5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
+        @6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+}
 
 // both dead
-(mode m6;
+{mode 6;
   invt: 
   flow:
         d/dt[d1]  = 0;
@@ -127,12 +123,15 @@
         d/dt[g2]  = 0;
         d/dt[tau] = 1;
   jump:
-)
-)
+}
 
-analyze:
-	b = batteries[[], @m1 (and (g1 = 8.5) (d1 = 0) (g2 = 7.5) (d2 = 0) (tau = 0))];
-	(b);
 
-goal:
-	() : (tau >= 0);
+init:
+@1 (and (g1 = 8.5) (d1 = 0) (g2 = 7.5) (d2 = 0) (tau = 0));
+
+goal: 
+@1 (tau >= 0);
+@2 (tau >= 0);
+@3 (tau >= 0);
+@4 (tau >= 0);
+@5 (tau >= 0);

@@ -67,7 +67,8 @@ namespace dreal{
     backtracked = false;
   }
 
-  if (unsat){
+  if (//false &&
+      unsat){
      return lit_Error;
   }
   

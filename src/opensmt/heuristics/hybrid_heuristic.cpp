@@ -1053,7 +1053,8 @@ bool hybrid_heuristic::getSuggestions() {
     }
   }
 
-  if (m_decision_stack.size() == m_stack_lim.size()){
+  // if couldn't expand path and not already at end of path
+  if (m_decision_stack.size() == m_stack_lim.size() && m_decision_stack.size() < (m_depth+1)*num_autom){
     DREAL_LOG_INFO << "Ran out of suggestions, subtree is unsat!";
     //generate conflict clause
     return false;
