@@ -1,5 +1,30 @@
+os:
+  - linux
 language: cpp
+sudo: false
 cache: apt
+addons:
+  apt:
+    sources:
+    - kalakris-cmake
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.6
+    packages:
+    - autoconf
+    - automake
+    - bison
+    - clang-3.6
+    - cmake
+    - flex
+    - g++-4.9
+    - git
+    - lcov
+    - libstdc++-4.9-dev
+    - libtool
+    - make
+    - pkg-config
+    - python-software-properties
+    - wget
 env:
   global:
     # BB_TOKEN - encrypt "bitbucket key" with travis-ci key
@@ -19,10 +44,10 @@ env:
     - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
       CMAKE_BUILD_TYPE=Debug
       CTEST=ON TESTCOV=ON  STATIC=OFF
-    - CMAKE_CXX_COMPILER=clang++-3.4 CMAKE_C_COMPILER=clang-3.4
+    - CMAKE_CXX_COMPILER=clang++-3.6 CMAKE_C_COMPILER=clang-3.6
       CMAKE_BUILD_TYPE=Release
       CTEST=ON TESTCOV=OFF STATIC=OFF
-    - CMAKE_CXX_COMPILER=clang++-3.4 CMAKE_C_COMPILER=clang-3.4
+    - CMAKE_CXX_COMPILER=clang++-3.6 CMAKE_C_COMPILER=clang-3.6
       CMAKE_BUILD_TYPE=Debug
       CTEST=ON TESTCOV=OFF STATIC=OFF
     - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
@@ -47,31 +72,6 @@ install:
       git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/dReal-osx.git +HEAD:refs/heads/${TRAVIS_BRANCH};
       mv /tmp/.travis.temp.yml .travis.yml;
       git reset --hard HEAD~;
-    fi
-  # Add ppas
-  - sudo add-apt-repository --yes ppa:h-rayflood/llvm
-  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-  - sudo add-apt-repository --yes ppa:dns/gnu
-  - sudo add-apt-repository --yes ppa:avsm/ppa
-  - sudo add-apt-repository --yes ppa:kalakris/cmake
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install libstdc++-4.9-dev
-  - if [[ $CMAKE_CXX_COMPILER == g++-4.9 ]]; then until sudo apt-get -qq install g++-4.9; do echo retry; done fi
-  - if [[ $CMAKE_CXX_COMPILER == clang++-3.4 ]]; then until sudo apt-get -qq install clang-3.4; do echo retry; done fi
-  # Install Bison, Flex, CMAKE
-  - sudo apt-get -qq install bison flex wget cmake
-  # Ocaml
-  # - sudo apt-get -qq install ocaml opam
-  # - yes | opam init
-  # - eval `opam config env`
-  # - opam update
-  # - yes | opam install ocamlfind batteries oasis
-  # TESTCOV - lcov
-  - if [[ $TESTCOV == ON ]]; then
-      wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz &&
-      tar xf lcov_1.11.orig.tar.gz &&
-      sudo make -C lcov-1.11/ install &&
-      gem install coveralls-lcov;
     fi
 
 before_script:
@@ -100,10 +100,6 @@ script:
   - sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
   - ctest -D ExperimentalBuild -VV
   - cd ..
-  # compile tools
-  # - make -C tools
-  # compile proof checker
-  # - make -C tools/proofcheck/checker
 
 after_script:
   - cd build
@@ -121,7 +117,7 @@ after_script:
   - find Testing -name "*.xml" -exec sed -i "s,Generator=\".*\",Generator=\"${TRAVIS_COMMIT}###${GIT_SUBJECT}\"," {} ";"
   - find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; ../script/demangle_cpptype.py {} > $TMP; mv -v $TMP {}' ";"
   - ctest -D ExperimentalSubmit
-  -  cd ..
+  - cd ..
 
 notifications:
   email:
