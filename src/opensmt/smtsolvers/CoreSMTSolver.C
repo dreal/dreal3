@@ -1850,7 +1850,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
           }
 
-	  if ( next == lit_Error )
+	  if ( next == lit_Error)
 	    {
 	      //	      return l_False;
 	      Clause* confl = heuristic->getConflict( );
@@ -1858,7 +1858,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 		DREAL_LOG_DEBUG << "Analyze Conflict";
 		// CONFLICT
 		conflicts++; conflictC++;
-		if (decisionLevel() == 0)
+		if (decisionLevel() == 0 || confl->size() == 0)
 		  return l_False;
 		
 		//      first = false;

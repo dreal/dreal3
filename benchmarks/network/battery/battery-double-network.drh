@@ -1,0 +1,143 @@
+#define k 0.122
+#define c 0.166
+
+
+[0, 20]   time;
+
+(component batteries;
+
+[-10, 10] d1;
+[-10, 10] d2;
+[-10, 10] g1;
+[-10, 10] g2;
+[0, 50]   tau;
+
+
+// use both, both alive
+(mode m1;
+  invt: 
+  flow:
+        d/dt[d1]  = (0.5 / c) - (k * d1);
+        d/dt[g1]  = -0.5;
+        d/dt[d2]  = (0.5 / c) - (k * d2);
+        d/dt[g2]  = -0.5;
+        d/dt[tau] = 1;
+  jump:
+	() : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @m1 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @m2 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @m3 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
+        @m4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
+        @m5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
+        @m6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+)
+
+// use only 1, both alive
+(mode m2;
+  invt: 
+  flow:
+        d/dt[d1]  = (1 / c) - (k * d1);
+        d/dt[g1]  = -1;
+        d/dt[d2]  = - (k * d2);
+        d/dt[g2]  = 0;
+        d/dt[tau] = 1;
+  jump:
+        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @m1 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @m2 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @m3 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
+        @m4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
+        @m5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
+        @m6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+)
+
+// use only 2, both alive
+(mode m3;
+  invt: 
+  flow:
+        d/dt[d1]  = - (k * d1);
+        d/dt[g1]  = 0;
+        d/dt[d2]  = (1 / c) - (k * d2);
+        d/dt[g2]  = -1;
+        d/dt[tau] = 1;
+  jump:
+        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @m1 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @m2 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 > ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>
+        @m3 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
+        @m4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
+        @m5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
+        @m6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+)
+
+// use only 2, 1 dead
+(mode m4;
+  invt: 
+  flow:
+        d/dt[d1]  = 0;
+        d/dt[g1]  = 0;
+        d/dt[d2]  = (1 / c) - (k * d2);
+        d/dt[g2]  = -1;
+        d/dt[tau] = 1;
+  jump:
+        () : (and (g1 <= ((1-c)*d1)) (g2 > ((1-c)*d2))) ==>     // 1 dead
+        @m4 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
+        @m6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+)
+
+// use only 1, 2 dead
+(mode m5;
+  invt: 
+  flow:
+        d/dt[d1]  = (1 / c) - (k * d1);
+        d/dt[g1]  = -1;
+        d/dt[d2]  = 0;
+        d/dt[g2]  = 0;
+        d/dt[tau] = 1;
+  jump:
+        () : (and (g1 > ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 2 dead
+        @m5 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+        () : (and (g1 <= ((1-c)*d1)) (g2 <= ((1-c)*d2))) ==>     // 1,2 dead
+        @m6 (and (d1' = d1) (g1' = g1) (d2' = d2) (g2' = g2) (tau' = tau));
+)
+
+// both dead
+(mode m6;
+  invt: 
+  flow:
+        d/dt[d1]  = 0;
+        d/dt[g1]  = 0;
+        d/dt[d2]  = 0;
+        d/dt[g2]  = 0;
+        d/dt[tau] = 1;
+  jump:
+)
+)
+
+analyze:
+	b = batteries[[], @m1 (and (g1 = 8.5) (d1 = 0) (g2 = 7.5) (d2 = 0) (tau = 0))];
+	(b);
+
+goal:
+	(@b.m1) : (tau >= 10);
+	(@b.m2) : (tau >= 10);
+	(@b.m3) : (tau >= 10);
+	(@b.m4) : (tau >= 10);
+	(@b.m5) : (tau >= 10);
+
