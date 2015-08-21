@@ -7,7 +7,7 @@
     <th>Coverity Scan</th>
   </tr>
   <tr>
-    <td><a href="https://travis-ci.org/dreal/dreal"><img src="https://travis-ci.org/dreal/dreal.svg?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3"/></a></td>
+    <td><a href="https://travis-ci.org/dreal/dreal"><img src="https://travis-ci.org/dreal/dreal3.svg?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.9 | clang++-3.8"/></a></td>
     <td><a href="https://travis-ci.org/soonhokong/dReal-osx"><img src="https://travis-ci.org/soonhokong/dReal-osx.svg?branch=master" title="Mac OS X 10.8.2, g++-4.9"/></a></td>
     <td><a href='https://coveralls.io/r/dreal/dreal3'><img src='https://coveralls.io/repos/dreal/dreal3/badge.svg?branch=master%0A' alt='Coverage Status' /></a></td>
     <td><a href="http://borel.modck.cs.cmu.edu/CDash/index.php?project=dReal"><img src="https://dreal.github.io/images/cdash.svg"/></a></td>
@@ -33,11 +33,11 @@ Please check out our [releases page][release] to download latest static binaries
 How to Build
 ==================
 
-In most cases, running ``./build.sh`` in the top dReal directory should suffice. If not, see below. 
+In most cases, running ``./build.sh`` in the top dReal directory should suffice. If not, see below.
 
- - [Ubuntu 12.04 LTS (using g++-4.8)][ubuntu-gcc]
- - [Ubuntu 12.04 LTS (using clang++-3.3)][ubuntu-clang]
- - [OS X 10.9/10.8 (using g++-4.8)][osx-gcc]
+ - [Ubuntu 12.04 LTS (using g++-4.9)][ubuntu-gcc]
+ - [Ubuntu 12.04 LTS (using clang++-3.8)][ubuntu-clang]
+ - [OS X 10.9/10.8 (using g++-4.9)][osx-gcc]
 
 [ubuntu-gcc]: doc/ubuntu-gcc.md
 [ubuntu-clang]: doc/ubuntu-clang.md
