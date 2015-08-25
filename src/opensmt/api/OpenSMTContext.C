@@ -990,7 +990,7 @@ void OpenSMTContext::addIntvCtrR(const char* const op, const char * v, Enode * c
         addIntvCtr(">=", e, v, d);
     } else if(strcmp(op, "<") == 0) {
         addIntvCtr(">", e, v, d);
-    } else if(strcmp(op, ">=")) {
+    } else if(strcmp(op, ">=") == 0) {
         addIntvCtr("<=", e, v, d);
     } else if(strcmp(op, ">") == 0) {
         addIntvCtr("<", e, v, d);
