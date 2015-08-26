@@ -78,13 +78,6 @@ static unordered_map<Enode*, ibex::Interval> make_subst_from_value(box const & b
     return subst;
 }
 
-static ostream & operator<<(ostream & out, unordered_map<Enode *, double> const & subst) {
-    for (auto const & p : subst) {
-        out << p.first << " |-> " << p.second << endl;
-    }
-    return out;
-}
-
 contractor_forall::contractor_forall(box const & , forall_constraint const * const ctr)
     : contractor_cell(contractor_kind::FORALL), m_ctr(ctr) {
 }
