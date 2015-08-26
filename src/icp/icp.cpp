@@ -78,10 +78,10 @@ box naive_icp::solve(box b, contractor const & ctc, SMTConfig & config) {
                                          << "]" << endl;
                 }
             } else {
+                config.nra_found_soln++;
                 if (config.nra_found_soln >= config.nra_multiple_soln) {
                     break;
                 }
-                config.nra_found_soln++;
                 if (config.nra_multiple_soln > 1) {
                     // If --multiple_soln is used
                     output_solution(b, config, config.nra_found_soln);
@@ -202,10 +202,14 @@ box random_icp::solve(box b, contractor const & ctc, SMTConfig & config ) {
                                          << "]" << endl;
                 }
             } else {
+                config.nra_found_soln++;
                 if (config.nra_found_soln >= config.nra_multiple_soln) {
                     break;
                 }
-                config.nra_found_soln++;
+                if (config.nra_multiple_soln > 1) {
+                    // If --multiple_soln is used
+                    output_solution(b, config, config.nra_found_soln);
+                }
                 solns.push_back(b);
             }
         }
