@@ -24,6 +24,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <limits>
 #include <random>
 #include <set>
+#include <sstream>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -40,6 +41,7 @@ using std::endl;
 using std::initializer_list;
 using std::numeric_limits;
 using std::ostream;
+using std::ostringstream;
 using std::pair;
 using std::set;
 using std::sort;
@@ -223,8 +225,25 @@ tuple<int, box, box> box::bisect(double precision) const {
     }
 }
 
-// Bisect a box into two boxes by bisecting i-th interval.
-tuple<int, box, box> box::bisect_at(int i) const {
+tuple<int, box, box> box::bisect_int_at(int i) const {
+    assert(0 <= i && i < m_values.size());
+    box b1(*this);
+    box b2(*this);
+    ibex::Interval iv = ibex::integer(b1.m_values[i]);
+    double const lb = iv.lb();
+    double const ub = iv.ub();
+    double const mid = iv.mid();
+    double const mid_floor = floor(mid);
+    double const mid_ceil  = ceil(mid);
+    pair<ibex::Interval, ibex::Interval> new_intervals = iv.bisect();
+    b1.m_values[i] = ibex::Interval(lb, mid_floor);
+    b2.m_values[i] = ibex::Interval(mid_ceil, ub);
+    DREAL_LOG_DEBUG << "box::bisect on " << m_vars[i] << " : int = " << m_values[i]
+                    << " into " << b1.m_values[i] << " and " << b2.m_values[i];
+    return make_tuple(i, b1, b2);
+}
+
+tuple<int, box, box> box::bisect_real_at(int i) const {
     assert(0 <= i && i < m_values.size());
     box b1(*this);
     box b2(*this);
@@ -233,9 +252,23 @@ tuple<int, box, box> box::bisect_at(int i) const {
     pair<ibex::Interval, ibex::Interval> new_intervals = iv.bisect();
     b1.m_values[i] = new_intervals.first;
     b2.m_values[i] = new_intervals.second;
-    DREAL_LOG_INFO << "box::bisect on " << m_vars[i] << " = " << m_values[i]
-                   << " into " << b1.m_values[i] << " and " << b2.m_values[i];
+    DREAL_LOG_DEBUG << "box::bisect on " << m_vars[i] << " : real = " << m_values[i]
+                    << " into " << b1.m_values[i] << " and " << b2.m_values[i];
     return make_tuple(i, b1, b2);
+}
+
+// Bisect a box into two boxes by bisecting i-th interval.
+tuple<int, box, box> box::bisect_at(int i) const {
+    Enode * const e = m_vars[i];
+    if (e->hasSortInt()) {
+        return bisect_int_at(i);
+    } else if (e->hasSortReal()) {
+        return bisect_real_at(i);
+    } else {
+        ostringstream os;
+        os << "variable " << e << " has neither Int sort nor Real sort." << endl;
+        throw runtime_error(os.str());
+    }
 }
 
 double box::max_diam() const {

@@ -44,6 +44,8 @@ private:
     ibex::IntervalVector m_domains;
     std::vector<double>  m_precisions;
     std::unordered_map<std::string, int> m_name_index_map;
+    std::tuple<int, box, box> bisect_int_at(int i) const;
+    std::tuple<int, box, box> bisect_real_at(int i) const;
     std::tuple<int, box, box> bisect_at(int i) const;
     void constructFromVariables(std::vector<Enode *> const & vars);
 
