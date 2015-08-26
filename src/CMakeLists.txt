@@ -594,7 +594,7 @@ add_custom_target(update_ibex
   DEPENDS update_filib update_clp)
 
 add_custom_target(update_nlopt
-  COMMAND git fetch --all && git reset --hard origin/master && ./waf install
+  COMMAND git fetch --all && git reset --hard origin/master && make install -j
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/NLOPT)
 
 add_custom_target(update_capd
