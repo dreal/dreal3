@@ -455,7 +455,7 @@ void hybrid_heuristic::inform(Enode * e){
     if(time < m_depth && autom > 0 && !dec->empty()){
       vector<pair<int, labeled_transition*>*> parallel_transitions;
       for(int k = 0; k < autom; k++){
-	DREAL_LOG_DEBUG << "checking sync with a" << k;
+	DREAL_LOG_DEBUG << "checking sync with a" << (k+1);
 	parallel_transitions.push_back(new pair<int, labeled_transition*>(k, m_decision_stack[m_decision_stack.size()-(autom-k)]->second->back()));
       }
       for (auto c : *dec) {
@@ -556,7 +556,7 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
         astack->second = dec;
 
 	 if (dec->size() == 0){
-	  DREAL_LOG_INFO << "No decisions left at time " << time << " for a" << autom << endl;
+	   DREAL_LOG_INFO << "No decisions left at time " << time << " for a" << (autom+1) << endl;
             return false;
         }
 
@@ -564,7 +564,7 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
       } else {
         labeled_transition* parent = m_decision_stack[parent_index]->second->back();
 
-        DREAL_LOG_INFO << "Adding decision at time " << time  << " to reach " << parent->second << " in a" << autom << " parent_index = " << parent_index;
+        DREAL_LOG_INFO << "Adding decision at time " << time  << " to reach " << parent->second << " in a" << (autom+1) << " parent_index = " << parent_index;
 
         vector<labeled_transition*> * preds = (*predecessors[autom])[(parent->second)-1];
 	DREAL_LOG_INFO << "|preds| = " << preds->size();
@@ -579,7 +579,7 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
 		   << lab << " ";
 	  }
 	  }
-	  DREAL_LOG_DEBUG << "Checking predecessor a" << autom << " "
+	  DREAL_LOG_DEBUG << "Checking predecessor a" << (autom+1) << " "
 			  << pred->second << "--[" << labels.str() << "]--> " << parent->second;
 	}
 	//	DREAL_LOG_DEBUG << "HI";
@@ -660,7 +660,7 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
     bool trans_noop = is_noop(trans.second);
 
 
-     DREAL_LOG_DEBUG << "can_synchronize a" << trans.first << " src " << trans.second->second << (trans_noop ? " noop" : "");
+    DREAL_LOG_DEBUG << "can_synchronize a" << trans.first << " src " << trans.second->second << (trans_noop ? " noop" : "") << "?";
      if(trans.second->first){
     for(auto lab : *trans.second->first){
       DREAL_LOG_DEBUG << "lab = " << label_from_indices[lab]<< ":" << lab;
