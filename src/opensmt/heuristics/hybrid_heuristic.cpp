@@ -778,6 +778,24 @@ bool mode_literal_compare (Enode *  i, Enode *  j) {
 bool hybrid_heuristic::unwind_path() {
   vector<int> path;
   path.assign(num_autom*(m_depth+1), -1);
+
+  vector<set<int>*> path_labels;
+  for (int i = 0; i < m_depth; i++){
+    set<int>* step_labels = new set<int>();
+    path_labels.push_back(step_labels);
+    vector<Enode*> *time_label_enode = time_label_enodes[i];
+    for (auto e : m_stack) {
+      for(auto l : *time_label_enode){
+	if(e->second && !e->first->isNot() && e->first == l){
+	  step_labels->insert(label_enode_indices[e->first]);
+	  DREAL_LOG_DEBUG << "Path Label " << label_enode_indices[e->first]
+			  << " " << e->first << " at time " << i;
+	}
+      }
+    }
+  }
+  
+  
   int actual_path_size = 0;
   for (auto e : m_stack) {
     // if (e->getDecPolarity() != l_Undef){
@@ -798,6 +816,7 @@ bool hybrid_heuristic::unwind_path() {
       }
     }
   }
+  
 
   bool paths_agree = true;
   int agree_depth = -1;
@@ -814,7 +833,20 @@ bool hybrid_heuristic::unwind_path() {
       DREAL_LOG_INFO << "Stack(" << stack_index_for_path_index << ") = *";
 
     if (stack_index_for_path_index <  static_cast<int>(m_decision_stack.size())){
-      if (m_decision_stack[stack_index_for_path_index]->second->back()->second != path[j]){
+      set<int> *transition_labels = m_decision_stack[stack_index_for_path_index]->second->back()->first;
+      bool labels_agree = true;
+      int stack_time_step = m_depth - (stack_index_for_path_index/num_autom);
+      for (auto l : *transition_labels){
+	DREAL_LOG_DEBUG << "Checking if label " << l << " is on path at time " << stack_time_step;
+	if(path_labels[stack_time_step]->find(l) == path_labels[stack_time_step]->end()){
+	  DREAL_LOG_DEBUG << "Label " << l << " is not on path";
+	  labels_agree = false;
+	  break;
+	}
+      }
+      
+      if (m_decision_stack[stack_index_for_path_index]->second->back()->second != path[j] ||
+	  !labels_agree){
         if (paths_agree){
           agree_depth = stack_index_for_path_index-1;
           DREAL_LOG_INFO << "Last Agreed at: " << agree_depth << endl;
@@ -927,6 +959,12 @@ bool hybrid_heuristic::unwind_path() {
     }
   }
 
+  for (int i = 0; i < m_depth; i++){
+    delete path_labels[i];
+  }
+ 
+
+  
   return m_decision_stack.size() > 0;
 }
 
