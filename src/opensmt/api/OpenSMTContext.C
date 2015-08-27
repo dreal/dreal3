@@ -600,7 +600,7 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
          << s
          << endl;
 
-  egraph.newSymbol( name, s );
+  egraph.newSymbol( name, s, true );
 }
 
 void OpenSMTContext::DeclareFun( const char * name, Snode * s, const char * p )
@@ -614,7 +614,7 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s, const char * p )
          << p
          << endl;
   double const vval = strtod(p, nullptr);
-  egraph.newSymbol( name, s, vval );
+  egraph.newSymbol( name, s, true, vval );
 }
 
 void OpenSMTContext::DefineODE( char const * name, vector<pair<string, Enode *> *> * odes)
@@ -658,7 +658,8 @@ void OpenSMTContext::Assert( Enode * e )
   if ( config.verbosity > 1 )
   {
     if ( e->isBooleanOperator( ) )
-      cerr << "# OpenSMTContext::Asserting formula with id " << e->getId( ) << endl;
+        cerr << "# OpenSMTContext::Asserting formula " << e
+             << " with id " << e->getId( ) << endl;
     else
       cerr << "# OpenSMTContext::Asserting formula " << e << endl;
   }

@@ -643,7 +643,7 @@ Enode * Egraph::mkFun( const char * name, Enode * args )
 //
 // Creates a new symbol. Name must be new
 //
-Enode * Egraph::newSymbol( const char * name, Snode * s , double p )
+Enode * Egraph::newSymbol( const char * name, Snode * s , bool isModelVar, double p )
 {
   assert( s );
   assert( s->isTerm( ) );
@@ -672,6 +672,11 @@ Enode * Egraph::newSymbol( const char * name, Snode * s , double p )
   if (p != 0.0) {
     new_enode->setPrecision(p);
   }
+
+  if (isModelVar) {
+      mkVar(ss.str().c_str(), true);
+  }
+
   return new_enode;
 }
 

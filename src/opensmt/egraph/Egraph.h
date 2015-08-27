@@ -127,7 +127,7 @@ public:
   //===========================================================================
   // Public APIs for enode construction/destruction
 
-  Enode *  newSymbol           ( const char *, Snode *, double p = 0.0 );                        // Creates a new symbol
+  Enode *  newSymbol           ( const char *, Snode *, bool isModelVar = false, double p = 0.0 );                        // Creates a new symbol
   Enode *  cons                ( list< Enode * > & );                                            // Shortcut, but not efficient
   Enode *  cons                ( Enode *, Enode * );                                             // Create Lists/Terms
   Enode *  cons                ( Enode *, Enode *, bool & );                                     // Create Lists/Terms; notifies if already existent
