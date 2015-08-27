@@ -485,6 +485,7 @@ SMTConfig::parseCMDLine( int argc
     sat_theory_propagation  = opt.isSet("--theory-propagation");
     nra_proof               = nra_readable_proof || opt.isSet("--proof");
     nra_model               = opt.isSet("--model");
+    if (nra_model) { produce_models = true; }
     nra_json                = opt.isSet("--visualize");
 #ifdef LOGGING
     nra_verbose             = opt.isSet("--verbose") || opt.isSet("--debug");
