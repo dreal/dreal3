@@ -111,6 +111,29 @@ void CoreSMTSolver::printTrail( )
   }
 }
 
+map<Enode *, bool> CoreSMTSolver::getBoolModel() {
+    map<Enode *, bool> ret;
+    for (int i = 0; i < trail.size(); i++) {
+        Lit const & l = trail[i];
+        Var const v = var(l);
+        if (v >= 2) {
+            Enode * e = theory_handler->varToEnode(v);
+            bool p = value(l) == l_True;
+            if (e->isNot()) {
+                e = e->get1st();
+                p = !p;
+            }
+            if (e->isVar()) {
+                if (sign(l)) {
+                    p = !p;
+                }
+                ret.emplace(e, p);
+            }
+        }
+    }
+    return ret;
+}
+
 void CoreSMTSolver::printModel( )
 {
   // Print Boolean model

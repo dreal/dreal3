@@ -34,6 +34,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 //#include "nra_ode_solver.h"
 #include "smtsolvers/SimpSMTSolver.h"
+#include <map>
+#include <sstream>
+using std::map;
+using std::ostringstream;
 
 #define VERBOSE 0
 
@@ -464,6 +468,9 @@ bool Egraph::check( bool complete )
   assert( !res || explanation.empty( ) );
   assert( exp_cleanup.empty( ) );
 
+  if (complete && res && config.nra_model) {
+      printModel(std::cout);
+  }
   return res;
 }
 
@@ -720,6 +727,8 @@ void Egraph::printModel( ostream & os )
   //
   // Print values
   //
+  std::map<Enode*, bool> boolModel = solver->getBoolModel();
+
   for( set< Enode * >::iterator it = variables.begin( )
       ; it != variables.end( )
       ; it ++ )
@@ -727,32 +736,38 @@ void Egraph::printModel( ostream & os )
     // Retrieve enode
     Enode * v = *it;
     // Print depending on type
-    if ( v->hasSortBool( ) )
-      continue;
-    else if ( v->hasSortInt( )
-           || v->hasSortReal( ) )
-    {
-      os << "(= " << v << " ";
-      if ( v->hasValue( ) )
-        os << v->getValue( );
-      else
-        os << "?";
-      os << ")";
+    if ( v->hasSortBool( ) ) {
+        lbool p = l_Undef;
+        if (boolModel.find(v) != boolModel.end()) {
+            p = boolModel[v];
+        }//  else {
+        //     ostringstream os;
+        //     os << v << " has Bool sort but couldn't find a model.";
+        //     throw runtime_error(os.str());
+        // }
+        cerr << v << " : Bool = " << p << endl;
+    }
+    else if ( v->hasSortInt( ) || v->hasSortReal( ) ) {
+        // TODO(soonhok): for now, we only print Boolean variables
+        // here and let nra_solver prints Real/Int variables to handle
+        // multiple solutions
+
+        // os << "(= " << v << " ["
+        //    << v->getValueLowerBound() << ", "
+        //    << v->getValueUpperBound() << "])" << endl;
     }
     else if ( config.logic == QF_UF )
     {
-      os << "(= " << v << " " << v->getRoot( ) << ")";
+      os << "(= " << v << " " << v->getRoot( ) << ")" << endl;
     }
     else if ( config.logic == QF_CT )
     {
-      os << "(= " << v << " " << v->getValue( ) << ")";
+      os << "(= " << v << " " << v->getValue( ) << ")" << endl;
     }
     else
     {
       opensmt_error2( "model printing unsupported for this variable: ", v );
     }
-
-    os << endl;
   }
 }
 #endif

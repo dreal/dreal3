@@ -321,6 +321,7 @@ public:
         inline Enode *  getInterpolants( Clause * c )            { assert( clause_to_in.find( c ) != clause_to_in.end( ) ); return clause_to_in[ c ]; }
         inline void     setInterpolant ( Clause * c, Enode * e ) { clause_to_in[ c ] = e; }
 #endif
+        map<Enode *, bool> getBoolModel( );             // get Boolean Model
 
 protected:
 
