@@ -390,7 +390,7 @@ opensmt_expr opensmt_mk_real_var( opensmt_context c, char const * s , double lb,
 
 opensmt_expr opensmt_mk_unbounded_real_var( opensmt_context c, char const * s)
 {
-  return opensmt_mk_real_var(c, s, numeric_limits<double>::lowest(), numeric_limits<double>::max());
+    return opensmt_mk_real_var(c, s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
 }
 
 opensmt_expr opensmt_mk_forall_real_var( opensmt_context c, char const * s , double lb, double ub)
