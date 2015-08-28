@@ -226,6 +226,8 @@ ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
 
 contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs)
     : contractor_cell(contractor_kind::IBEX_POLYTOPE), m_ctrs(ctrs), m_prec(prec) {
+    // Trivial Case
+    if (m_ctrs.size() == 0) { return; }
     m_sf = build_system_factory(vars, m_ctrs);
     m_sys = new ibex::System(*m_sf);
 
@@ -294,6 +296,7 @@ contractor_ibex_polytope::~contractor_ibex_polytope() {
 
 box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_ibex_polytope::prune";
+    if (!m_ctc) { return b; }
     for (Enode * var : m_vars_in_ctrs) {
         m_input.add(b.get_index(var));
     }
