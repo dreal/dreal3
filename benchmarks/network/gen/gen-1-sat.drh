@@ -131,5 +131,11 @@ lock_automaton0 = lock_automaton[[], @unlocked (true)];
 (generate_gen_automaton0 || refuel_gen_tank1_automaton1 || lock_automaton0);
 
 goal: 
-(): (generator_ran = 1);
+(
+ @generate_gen_automaton0.running_to_non_active_generate_gen_automaton,
+ @refuel_gen_tank1_automaton1.non_active_refuel_gen_tank1_automaton,
+ @lock_automaton0.locked
+)
+:
+(generator_ran = 1);
 

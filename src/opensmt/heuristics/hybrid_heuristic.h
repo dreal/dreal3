@@ -130,7 +130,7 @@ public:
     SubgoalCompare(int a, hybrid_heuristic& c) : myHeuristic(c), autom(a) {}
         bool operator () (const labeled_transition  *i, const labeled_transition *j) {
 	  bool noopi = myHeuristic.noops.find(i) != myHeuristic.noops.end();
-	  bool noopj = myHeuristic.noops.find(i) != myHeuristic.noops.end();
+	  bool noopj = myHeuristic.noops.find(j) != myHeuristic.noops.end();
 
 	  if(noopi == noopj){
 	    return myHeuristic.getCost(autom, (i->second)-1) > myHeuristic.getCost(autom, (j->second)-1);
