@@ -129,7 +129,7 @@ int main( int argc, const char * argv[] )
   if ( context.getConfig( ).verbosity > 0 )
   {
     const int len_pack = strlen( PACKAGE_STRING );
-    const char * site = "http://verify.inf.usi.ch/opensmt";
+    const char * site = "https://dreal.github.io";
     const int len_site = strlen( site );
 
     cerr << "#" << endl
