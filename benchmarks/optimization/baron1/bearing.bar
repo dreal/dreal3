@@ -1,0 +1,90 @@
+//  NLP written by GAMS Convert at 02/19/13 20:49:39
+//  
+//  Equation counts
+//      Total        E        G        L        N        X        C        B
+//         13       10        1        2        0        0        0        0
+//  
+//  Variable counts
+//                   x        b        i      s1s      s2s       sc       si
+//      Total     cont   binary  integer     sos1     sos2    scont     sint
+//         14       14        0        0        0        0        0        0
+//  FX      0        0        0        0        0        0        0        0
+//  
+//  Nonzero counts
+//      Total    const       NL      DLL
+//         41       13       28        0
+//
+// Reformulation has removed 1 variable and 1 equation
+//
+
+
+VARIABLES  x1,x2,x3,x4,x6,x7,x8,x9,x10,x11,x12,x13,x14;
+
+LOWER_BOUNDS{
+x1: 1;
+x2: 1;
+x3: 1;
+x4: 1;
+x6: 1;
+x7: 0.0001;
+x8: 0.0001;
+x9: 1;
+x11: 100;
+x12: 1;
+x13: 0.0001;
+x14: 0.01;
+}
+
+UPPER_BOUNDS{
+x1: 16;
+x2: 16;
+x3: 16;
+x4: 16;
+x6: 1000;
+x10: 50;
+}
+
+EQUATIONS  e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13;
+
+
+e2: -1.42857142857143*x4*x6 + 10000*x8 == 0;
+
+e3: 10*x7*x9 - 0.00968946189201592*(x1^4 - x2^4)*x3 == 0;
+
+e4: 143.3076*x10*x4 - 10000*x7 == 0;
+
+e5: 3.1415927*(0.001*x9)^3*x6 - 6e-6*x3*x4*x13 == 0;
+
+e6: 101000*x12*x13 - 1.57079635*x6*x14 == 0;
+
+e7: 0.434294481903525*log(0.8 + 8.112*x3) - 10964781961.4318*x11^(-3.55) == 0;
+
+e8:  - 0.5*x10 + x11 == 560;
+
+e9:    x1 - x2 >= 0;
+
+e10: 0.0307*x4^2 - 0.3864*(0.0062831854*x1*x9)^2*x6 <= 0;
+
+e11:    101000*x12 - 15707.9635*x14 <= 0;
+
+e12: -(log(x1) - log(x2)) + x13 == 0;
+
+e13: -(x1^2 - x2^2) + x14 == 0;
+
+OBJ: minimize    x7 + x8;
+
+STARTING_POINT{
+x1: 6;
+x2: 5;
+x3: 6;
+x4: 3;
+x6: 1000;
+x7: 1.6;
+x8: 0.3;
+x9: 1;
+x10: 50;
+x11: 600;
+x12: 1;
+x13: 0.0001;
+x14: 0.01;
+}

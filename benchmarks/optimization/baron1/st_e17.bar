@@ -1,0 +1,43 @@
+//  NLP written by GAMS Convert at 02/19/13 20:49:55
+//  
+//  Equation counts
+//      Total        E        G        L        N        X        C        B
+//          2        1        1        0        0        0        0        0
+//  
+//  Variable counts
+//                   x        b        i      s1s      s2s       sc       si
+//      Total     cont   binary  integer     sos1     sos2    scont     sint
+//          3        3        0        0        0        0        0        0
+//  FX      0        0        0        0        0        0        0        0
+//  
+//  Nonzero counts
+//      Total    const       NL      DLL
+//          5        3        2        0
+//
+// Reformulation has removed 1 variable and 1 equation
+//
+
+
+VARIABLES  x1,x2;
+
+POSITIVE_VARIABLES  x1;
+
+LOWER_BOUNDS{
+x2: 1e-5;
+}
+
+UPPER_BOUNDS{
+x1: 115.8;
+x2: 30;
+}
+
+EQUATIONS  e1;
+
+
+e1: x1 - 0.2458*x1^2/x2 >= 6;
+
+OBJ: minimize    29.4*x1 + 18*x2;
+
+STARTING_POINT{
+x2: 1e-5;
+}

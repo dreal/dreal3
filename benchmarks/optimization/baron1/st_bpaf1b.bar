@@ -1,0 +1,62 @@
+//  NLP written by GAMS Convert at 02/19/13 20:49:54
+//  
+//  Equation counts
+//      Total        E        G        L        N        X        C        B
+//         11        1        0       10        0        0        0        0
+//  
+//  Variable counts
+//                   x        b        i      s1s      s2s       sc       si
+//      Total     cont   binary  integer     sos1     sos2    scont     sint
+//         11       11        0        0        0        0        0        0
+//  FX      0        0        0        0        0        0        0        0
+//  
+//  Nonzero counts
+//      Total    const       NL      DLL
+//         56       46       10        0
+//
+// Reformulation has removed 1 variable and 1 equation
+//
+
+
+VARIABLES  x1,x2,x3,x4,x5,x6,x7,x8,x9,x10;
+
+POSITIVE_VARIABLES  x1,x2,x3,x4,x5,x6,x7,x8,x9,x10;
+
+UPPER_BOUNDS{
+x1: 20;
+x2: 20;
+x3: 20;
+x4: 20;
+x5: 20;
+x6: 20;
+x7: 20;
+x8: 20;
+x9: 20;
+x10: 20;
+}
+
+EQUATIONS  e1,e2,e3,e4,e5,e6,e7,e8,e9,e10;
+
+
+e1:  - 8*x1 - 6*x3 + 7*x4 - 7*x5 <= 1;
+
+e2:  - 6*x1 + 2*x2 - 3*x3 + 9*x4 - 3*x5 <= 3;
+
+e3:    6*x1 - 7*x3 - 8*x4 + 2*x5 <= 5;
+
+e4:  - x1 + x2 - 8*x3 - 7*x4 - 5*x5 <= 4;
+
+e5:    4*x1 - 7*x2 + 4*x3 + 5*x4 + x5 <= 0;
+
+e6:    5*x7 - 4*x8 + 9*x9 - 7*x10 <= 0;
+
+e7:    7*x6 + 4*x7 + 3*x8 + 7*x9 + 5*x10 <= 7;
+
+e8:    6*x6 + x7 - 8*x8 + 8*x9 <= 3;
+
+e9:  - 3*x6 + 2*x7 + 7*x8 + x10 <= 6;
+
+e10:  - 2*x6 - 3*x7 + 8*x8 + 5*x9 - 2*x10 <= 2;
+
+OBJ: minimize x1*x6 + 2*x1 - 2*x6 + x2*x7 + 4*x2 - x7 + x3*x8 + 8*x3 - 2*x8 + 
+              x4*x9 - x4 - 4*x9 + x5*x10 - 3*x5 + 5*x10;

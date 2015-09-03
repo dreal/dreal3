@@ -1,0 +1,81 @@
+//  NLP written by GAMS Convert at 02/19/13 20:49:46
+//  
+//  Equation counts
+//      Total        E        G        L        N        X        C        B
+//         16       15        0        1        0        0        0        0
+//  
+//  Variable counts
+//                   x        b        i      s1s      s2s       sc       si
+//      Total     cont   binary  integer     sos1     sos2    scont     sint
+//         17       17        0        0        0        0        0        0
+//  FX      0        0        0        0        0        0        0        0
+//  
+//  Nonzero counts
+//      Total    const       NL      DLL
+//         45       33       12        0
+//
+// Reformulation has removed 1 variable and 1 equation
+//
+
+
+VARIABLES  x1,x2,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17;
+
+POSITIVE_VARIABLES  x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17;
+
+UPPER_BOUNDS{
+x4: 50;
+x5: 50;
+x6: 200;
+x7: 200;
+x8: 200;
+x9: 200;
+x10: 200;
+x11: 200;
+x12: 200;
+x13: 200;
+x14: 200;
+x15: 200;
+x16: 200;
+x17: 200;
+}
+
+EQUATIONS  e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16;
+
+
+e2:    x1 - 2*x2 + x4 + x5 <= 40;
+
+e3:    2*x1 - x4 + x6 == -10;
+
+e4:    2*x2 - x5 + x7 == -10;
+
+e5:  - x1 + x8 == 10;
+
+e6:    x1 + x9 == 20;
+
+e7:  - x2 + x10 == 10;
+
+e8:    x2 + x11 == 20;
+
+e9: x6*x12 == 0;
+
+e10: x7*x13 == 0;
+
+e11: x8*x14 == 0;
+
+e12: x9*x15 == 0;
+
+e13: x10*x16 == 0;
+
+e14: x11*x17 == 0;
+
+e15:    2*x1 - 2*x4 + 2*x12 - x14 + x15 == -40;
+
+e16:    2*x2 - 2*x5 + 2*x13 - x16 + x17 == -40;
+
+OBJ: minimize  - 3*x1 - 3*x2 + 2*x4 + 2*x5 - 60;
+
+STARTING_POINT{
+x1: -8;
+x2: -8;
+x4: 1;
+}

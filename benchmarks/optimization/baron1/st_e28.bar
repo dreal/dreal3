@@ -1,0 +1,70 @@
+//  NLP written by GAMS Convert at 02/19/13 20:49:55
+//  
+//  Equation counts
+//      Total        E        G        L        N        X        C        B
+//          5        4        1        0        0        0        0        0
+//  
+//  Variable counts
+//                   x        b        i      s1s      s2s       sc       si
+//      Total     cont   binary  integer     sos1     sos2    scont     sint
+//         10       10        0        0        0        0        0        0
+//  FX      0        0        0        0        0        0        0        0
+//  
+//  Nonzero counts
+//      Total    const       NL      DLL
+//         27       11       16        0
+//
+// Reformulation has removed 1 variable and 1 equation
+//
+
+
+VARIABLES  x1,x2,x3,x4,x5,x6,x7,x8,x9;
+
+POSITIVE_VARIABLES  x1,x4;
+
+LOWER_BOUNDS{
+x2: 90;
+x3: 20;
+x5: 78;
+x6: 33;
+x7: 27;
+x8: 27;
+x9: 27;
+}
+
+UPPER_BOUNDS{
+x1: 92;
+x2: 110;
+x3: 25;
+x5: 102;
+x6: 45;
+x7: 45;
+x8: 45;
+x9: 45;
+}
+
+EQUATIONS  e1,e2,e3,e4;
+
+
+e1:    5*x4 - x5 + 7*x7 - x9 >= 0;
+
+e2: -(0.0056858*x6*x9 + 0.0006262*x5*x8 - 0.0022053*x7*x9) + x1 + 2*x4
+     == 85.334407;
+
+e3: -(0.0071317*x6*x9 + 0.0029955*x5*x6 + 0.0021813*x7^2) + x2 == 80.51249;
+
+e4: -(0.0047026*x7*x9 + 0.0012547*x5*x7 + 0.0019085*x7*x8) + x3 + 4*x4
+     == 9.300961;
+
+OBJ: minimize 5.3578547*x7^2 + 0.8356891*x5*x9 + 37.293239*x5 + 5000*x4
+               - 40792.141;
+
+STARTING_POINT{
+x2: 90;
+x3: 20;
+x5: 78.62;
+x6: 33.44;
+x7: 31.07;
+x8: 44.18;
+x9: 35.22;
+}
