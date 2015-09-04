@@ -175,6 +175,8 @@ int main(int argc, const char * argv[]) {
     }
     double const prec = config.get_precision() > 0 ? config.get_precision() : p.get_precision();
     ctx.setPrecision(prec);
+    ctx.setLocalOpt(config.get_local_opt());
+    ctx.setDebug(config.get_debug());
     Enode * min_var  = dop::make_min_var(ctx, var_map);                  // min
     Enode * eq_cost  = dop::make_eq_cost(ctx, cost, min_var);            // cost(x) = min
     Enode * leq_cost = dop::make_leq_cost(ctx, var_map, cost, min_var);  // min <= cost(y)

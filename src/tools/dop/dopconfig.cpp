@@ -60,6 +60,12 @@ config::config(int const argc, const char * argv[]) {
             "set precision (default 0.001)\n"
             "this overrides the value specified in input files",
             "--precision");
+    opt.add("", false, 0, 0,
+            "use local optimization to refine counterexamples",
+            "--local-opt");
+    opt.add("", false, 0, 0,
+            "show debug information",
+            "--debug");
     opt.parse(argc, argv);
     opt.overview  = "dOp ";
 
@@ -89,8 +95,12 @@ config::config(int const argc, const char * argv[]) {
         opt.get("--vis-cell")->getULong(vis_cell);
         set_vis_cell(vis_cell);
     }
-
-
+    if (opt.isSet("--local-opt")) {
+        set_local_opt(true);
+    }
+    if (opt.isSet("--debug")) {
+        set_debug(true);
+    }
 
     // Set up filename
     string filename;
