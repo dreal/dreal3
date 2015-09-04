@@ -112,10 +112,10 @@ double eval_enode(Enode * const e, unordered_map<Enode*, double> const & var_map
             return fmax(eval_enode(e->get1st(), var_map),
                         eval_enode(e->get2nd(), var_map));
         case ENODE_ID_MATAN:
-            // TODO(soonhok): MATAN
+            assert(e->getArity() == 1);
             throw runtime_error("eval_enode: MATAN");
         case ENODE_ID_SAFESQRT:
-            // TODO(soonhok): SAFESQRT
+            assert(e->getArity() == 1);
             throw runtime_error("eval_enode: SAFESQRT");
         case ENODE_ID_SQRT:
             assert(e->getArity() == 1);
@@ -164,6 +164,215 @@ double eval_enode(Enode * const e, unordered_map<Enode*, double> const & var_map
         throw runtime_error("eval_enode: unknown case");
     }
     throw runtime_error("Not implemented yet: eval_enode");
+}
+
+double deriv_enode(Enode * const e, Enode * const v, unordered_map<Enode*, double> const & var_map) {
+    if (e == v) {
+        return 1.0;
+    }
+    if (e->isVar()) {
+        auto const it = var_map.find(e);
+        if (it == var_map.cend()) {
+            throw runtime_error("variable not found");
+        } else {
+            // Variable is found in var_map
+            return 0.0;
+        }
+    } else if (e->isConstant()) {
+        return 0.0;
+    } else if (e->isSymb()) {
+        throw runtime_error("eval_enode: Symb");
+    } else if (e->isNumb()) {
+        throw runtime_error("eval_enode: Numb");
+    } else if (e->isTerm()) {
+        assert(e->getArity() >= 1);
+        enodeid_t id = e->getCar()->getId();
+        double ret = 0.0;
+        Enode * tmp = e;
+        switch (id) {
+        case ENODE_ID_PLUS:
+            ret = deriv_enode(tmp->get1st(), v, var_map);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = ret + deriv_enode(tmp->getCar(), v, var_map);
+                tmp = tmp->getCdr();
+            }
+            return ret;
+        case ENODE_ID_MINUS:
+            ret = deriv_enode(tmp->get1st(), v, var_map);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = ret - deriv_enode(tmp->getCar(), v, var_map);
+                tmp = tmp->getCdr();
+            }
+            return ret;
+        case ENODE_ID_UMINUS:
+            ret = deriv_enode(tmp->get1st(), v, var_map);
+            assert(tmp->getArity() == 1);
+            return (- ret);
+        case ENODE_ID_TIMES: {
+            // (f * g)' = f' * g + f * g'
+            if (tmp->getArity() != 2) {
+                throw runtime_error("deriv_enode: only support arity = 2 case for multiplication");
+            }
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            double const g = eval_enode(e->get2nd(), var_map);
+            double const g_ = deriv_enode(e->get2nd(), v, var_map);
+            return f_ * g + f * g_;
+        }
+        case ENODE_ID_DIV: {
+            // (f / g)' = (f' * g - f * g') / g^2
+            if (tmp->getArity() != 2) {
+                throw runtime_error("deriv_enode: only support arity = 2 case for division");
+            }
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            double const g = eval_enode(e->get2nd(), var_map);
+            double const g_ = deriv_enode(e->get2nd(), v, var_map);
+            return (f_ * g - f * g_) / (g * g);
+        }
+        case ENODE_ID_ACOS: {
+            // (acos f)' = -(1 / sqrt(1 - f^2)) f'
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return - (1 / sqrt(1 - f * f)) * f_;
+        }
+        case ENODE_ID_ASIN: {
+            // (asin f)' = (1 / sqrt(1 - f^2)) f'
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return 1 / sqrt(1 - f * f) * f_;
+        }
+        case ENODE_ID_ATAN: {
+            // (atan f)' = (1 / (1 + f^2)) * f'
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return 1 / (1 + f * f) * f_;
+        }
+        case ENODE_ID_ATAN2: {
+            // atan2(x,y)' = -y / (x^2 + y^2) dx + x / (x^2 + y^2) dy
+            //             = (-y dx + x dy) / (x^2 + y^2)
+            assert(e->getArity() == 2);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            double const g = eval_enode(e->get2nd(), var_map);
+            double const g_ = deriv_enode(e->get2nd(), v, var_map);
+            return (-g * f_ + f * g_) / (f * f + g * g);
+        }
+        case ENODE_ID_MIN:
+            assert(e->getArity() == 2);
+            throw runtime_error("deriv_enode: no support for min");
+        case ENODE_ID_MAX:
+            assert(e->getArity() == 2);
+            throw runtime_error("deriv_enode: no support for max");
+        case ENODE_ID_MATAN:
+            assert(e->getArity() == 1);
+            throw runtime_error("deriv_enode: no support for matan");
+        case ENODE_ID_SAFESQRT:
+            assert(e->getArity() == 1);
+            throw runtime_error("deriv_enode: no support for safesqrt");
+        case ENODE_ID_SQRT: {
+            // (sqrt(f))' = 1/2 * 1/(sqrt(f)) * f'
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return 0.5 * 1 / sqrt(f) * f_;
+        }
+        case ENODE_ID_EXP: {
+            // (exp f)' = (exp f) * f'
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return exp(f) * f_;
+        }
+        case ENODE_ID_LOG: {
+            // (log f)' = f' / f
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return f_ / f;
+        }
+        case ENODE_ID_POW: {
+            // (f^g)' = f^g (f' * g / f + g' * ln g)
+            assert(e->getArity() == 2);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            double const g = eval_enode(e->get2nd(), var_map);
+            double const g_ = deriv_enode(e->get2nd(), v, var_map);
+            return pow(f, g) * (f_ * g / f + g_ * log(g));
+        }
+        case ENODE_ID_ABS: {
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            if (f > 0) {
+                return f_;
+            } else {
+                return - f_;
+            }
+        }
+        case ENODE_ID_SIN: {
+            // (sin f)' = (cos f) * f'
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return cos(f) * f_;
+        }
+        case ENODE_ID_COS: {
+            // (cos f)' = - (sin f) * f'
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return - sin(f) * f_;
+        }
+        case ENODE_ID_TAN: {
+            // (tan f)' = (1 + tan^2 f) * f'
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return (1 + tan(f) * tan(f)) * f_;
+        }
+        case ENODE_ID_SINH: {
+            // (sinh f)' = (e^f + e^(-f))/2 * f'
+            //           = cosh(f) * f'
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return cosh(f) * f_;
+        }
+        case ENODE_ID_COSH: {
+            // (cosh f)' = (e^f - e^(-f))/2 * f'
+            //           = sinh(f) * f'
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return sinh(f) * f_;
+        }
+        case ENODE_ID_TANH: {
+            // (tanh f)' = (sech^2 f) * f'
+            //           = (1 - tanh(f) ^ 2) * f'
+            assert(e->getArity() == 1);
+            double const f = eval_enode(e->get1st(), var_map);
+            double const f_ = deriv_enode(e->get1st(), v, var_map);
+            return (1 - tanh(f) * tanh(f)) * f_;
+        }
+        default:
+            throw runtime_error("deriv_enode: Unknown Term");
+        }
+    } else if (e->isList()) {
+        throw runtime_error("deriv_enode: List");
+    } else if (e->isDef()) {
+        throw runtime_error("deriv_enode: Def");
+    } else if (e->isEnil()) {
+        throw runtime_error("deriv_enode: Nil");
+    } else {
+        throw runtime_error("deriv_enode: unknown case");
+    }
+    throw runtime_error("Not implemented yet: deriv_enode");
 }
 
 }  // namespace dreal

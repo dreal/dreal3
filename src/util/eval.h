@@ -24,4 +24,5 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dreal {
 double eval_enode(Enode * const e, std::unordered_map<Enode*, double> const & var_map);
+double deriv_enode(Enode * const e, Enode * const v, std::unordered_map<Enode*, double> const & var_map);
 }  // namespace dreal
