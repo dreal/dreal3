@@ -125,6 +125,7 @@ SMTConfig::initializeConfig( )
   nra_polytope                 = false;
   nra_simp                     = true;
   nra_ncbt                     = false;
+  nra_local_opt                = false;
   nra_worklist_fp              = false;
   initLogging();
 }
@@ -449,6 +450,9 @@ SMTConfig::parseCMDLine( int argc
             "use non-chronological backtracking in ICP loop",
             "--ncbt");
     opt.add("", false, 0, 0,
+            "use local optimization to refine counter example (for exist-forall problems)",
+            "--local-opt");
+    opt.add("", false, 0, 0,
             "use worklist fixpoint algorithm",
             "--worklist-fp");
     opt.add("", false, 0, 0,
@@ -495,6 +499,7 @@ SMTConfig::parseCMDLine( int argc
     nra_polytope            = opt.isSet("--polytope");
     nra_simp                = !opt.isSet("--no-simp");
     nra_ncbt                = opt.isSet("--ncbt");
+    nra_local_opt           = opt.isSet("--local-opt");
     nra_worklist_fp         = opt.isSet("--worklist-fp");
 
     // Extract Double Args

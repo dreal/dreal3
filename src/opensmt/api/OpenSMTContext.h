@@ -219,6 +219,10 @@ public:
       config.nra_precision = d;
   }
 
+  inline void setLocalOpt (const bool b ) {
+      config.nra_local_opt = b;
+  }
+
   inline void setMaxPrecision ( const double d )
   {
       if(d > config.nra_precision) {
