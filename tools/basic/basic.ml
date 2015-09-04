@@ -228,7 +228,7 @@ let rec deriv (e: exp) (x: string) : exp
   | Sub es -> Sub (List.map (fun e' -> deriv e' x) es)
   | Mul [] -> Num 0.0
 
-  (** (f * g)' = f' * g +   **)
+  (** (f * g)' = f' * g + f * g' **)
   | Mul (f::g) ->
      let f' = deriv f x in
      let g' = deriv (Mul g) x in
@@ -276,7 +276,7 @@ let rec deriv (e: exp) (x: string) : exp
      let f' = deriv f x in
      Div (f', f)
 
-  (** (exp f)' = (cos f) * f' **)
+  (** (exp f)' = f * f' **)
   | Exp  f ->
      let f' = deriv f x in
      Mul [Exp f; f']
