@@ -179,7 +179,7 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
             string arg = subst(e->getCdr()->getCar(), subst_map);
             ret = "(sin(" + arg + ")/cos(" + arg + "))";
         } else if (e->isAcos() || e->isAsin() || e->isAtan() || e->isMatan() || e->isSafeSqrt() ||
-                   e->isSin() || e->isCos() || e->isLog() || e->isExp() ||
+                   e->isSin() || e->isCos() || e->isLog() || e->isExp() || e->isSqrt() ||
                    e->isSinh() || e->isCosh() || e->isTanh() || e->isAbs()) {
             assert(e->getArity() == 1);
             // output operator
