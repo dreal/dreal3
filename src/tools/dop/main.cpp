@@ -183,12 +183,12 @@ int main(int argc, const char * argv[]) {
     Enode * list_ctrs_not_Y = dop::make_vec_to_list(ctx, ctrs_not_Y);    // !ctr1(y), ... , !ctrn(y)
     Enode * or_term  = ctx.mkOr(ctx.mkCons(leq_cost, list_ctrs_not_Y));  // !ctr1(y) \/ ... \/ !ctrn(y) \/ (min <= cost(y))
 
-    vector<pair<string, Snode *>*> sorted_var_list;
+    vector<pair<string, Snode *>> sorted_var_list;
     for (Enode * e : or_term->get_forall_vars()) {
-        std::pair<string, Snode *> * p = new std::pair<string, Snode *>(e->getCar()->getName(), e->getSort());
+        std::pair<string, Snode *> p = make_pair(e->getCar()->getName(), e->getSort());
         sorted_var_list.push_back(p);
     }
-    Enode * quantified = ctx.mkForall(&sorted_var_list, or_term);
+    Enode * quantified = ctx.mkForall(sorted_var_list, or_term);
 
     cout << "Precision  : " << prec << endl;
     for (auto var : var_map) {
