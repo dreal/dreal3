@@ -121,6 +121,7 @@ opensmt_expr     opensmt_mk_geq                    ( opensmt_context, opensmt_ex
 opensmt_expr     opensmt_mk_abs                    ( opensmt_context, opensmt_expr);
 opensmt_expr     opensmt_mk_exp                    ( opensmt_context, opensmt_expr);
 opensmt_expr     opensmt_mk_log                    ( opensmt_context, opensmt_expr);
+opensmt_expr     opensmt_mk_sqrt                   ( opensmt_context, opensmt_expr);
 opensmt_expr     opensmt_mk_pow                    ( opensmt_context, opensmt_expr, opensmt_expr);
 opensmt_expr     opensmt_mk_sin                    ( opensmt_context, opensmt_expr);
 opensmt_expr     opensmt_mk_cos                    ( opensmt_context, opensmt_expr);

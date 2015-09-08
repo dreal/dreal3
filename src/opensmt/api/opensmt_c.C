@@ -693,6 +693,15 @@ opensmt_expr opensmt_mk_log( opensmt_context c, opensmt_expr arg)
   return static_cast< void * >( res );
 }
 
+opensmt_expr opensmt_mk_sqrt( opensmt_context c, opensmt_expr arg)
+{
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  OpenSMTContext & context = *c_;
+  Enode * args_list = context.mkCons( static_cast< Enode * >( arg ) );
+  Enode * res = context.mkSqrt( static_cast< Enode * >( args_list ) );
+  return static_cast< void * >( res );
+}
+
 opensmt_expr opensmt_mk_pow( opensmt_context c, opensmt_expr arg1, opensmt_expr arg2)
 {
   OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
