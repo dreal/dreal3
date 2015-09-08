@@ -208,6 +208,14 @@ struct SMTConfig
   bool         nra_simp;                      // use simplification in preprocessing
   bool         nra_ncbt;                      // use nonchronological backtracking in icp
   bool         nra_worklist_fp;               // use worklist fixpoint algorithm
+  bool         nra_output_num_nodes;          // print num sat and icp nodes
+  std::string  nra_plan_heuristic;
+  std::string  nra_plan_domain;               // planning domain
+  std::string  nra_plan_problem;              // planning instance
+  int          nra_icp_decisions;             // number of icp branch nodes
+
+  void inc_icp_decisions() { nra_icp_decisions++; }
+  int  icp_decisions() { return nra_icp_decisions; }
 
 private:
 

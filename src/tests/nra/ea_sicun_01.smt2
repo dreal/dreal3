@@ -1,0 +1,18 @@
+(set-logic QF_NRA)
+(declare-fun x () Real [-5, 5])
+(declare-fun y () Real [-5, 5])
+(declare-fun z () Real [-10, 10])
+(declare-fun forall x_u () Real [-5, 5])
+(declare-fun forall y_u () Real [-5, 5])
+(assert (> (+ (cos x) y) 0.6))
+(assert (< (* x (exp y)) 3.5))
+(assert (= z (* y (sin x))))
+(assert (forall
+         ((x_u Real)
+          (y_u Real))
+         (or
+          (< (+ (cos x_u) y_u) 0.6)
+          (> (* x_u (exp y_u)) 3.5)
+          (<= z (* y_u (sin x_u))))))
+(check-sat)
+(exit)

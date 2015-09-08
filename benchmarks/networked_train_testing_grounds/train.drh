@@ -1,0 +1,129 @@
+[0, 100000] time;
+
+(component train;
+	[0, 5000] x;
+
+	label approach, exit;
+
+	(mode far;
+		invt:
+			(x >= 1000);
+		flow:
+			d/dt[x] = -1;
+		jump:
+			(approach): (x = 1000) ==> @near (true);
+	)
+
+	(mode near;
+		invt:
+			(x >= 0);
+		flow:
+			d/dt[x] = -1;
+		jump:
+			(): (true) ==> @past (x' = 0);
+	)
+
+	(mode past;
+		invt:
+			(x >= -100);
+		flow:
+			d/dt[x] = -1;
+		jump:
+			(exit): (x = -100) ==> @near (x' = 4900);
+	)
+)
+
+(component gate;
+	[0, 90] y;
+	
+	label raise, lower;
+	
+	(mode open;
+		invt:
+			(y <= 90);
+		flow:
+			d/dt[y] = 0;
+		jump:
+			(raise): (true) ==> @open (y' = y);
+			(lower): (true) ==> @movedown (y' = y);
+	)
+	
+	(mode closed;
+		invt:
+			(y = 0);
+		flow:
+			d/dt[y] = 0;
+		jump:
+			(lower): (true) ==> @closed (y' = y);
+			(raise): (true) ==> @moveup (y' = y);
+	)
+	
+	(mode movedown;
+		invt:
+			(y >= 0);
+		flow:
+			d/dt[y] = -9;
+		jump:
+			(): (true) ==> @closed (y' = 0);
+			(lower): (true) ==> @movedown (y' = y);
+			(raise): (true) ==> @moveup (y' = y);
+	)
+	
+	(mode moveup;
+		invt:
+			(y >= 90);
+		flow:
+			d/dt[y] = 9;
+		jump:
+			(): (true) ==> @open (y' = 90);
+			(raise): (true) ==> @moveup (y' = y);
+			(lower): (true) ==> @movedown (y' = y);
+	)
+)
+
+(component controller;
+	[0, 100000] z;
+	
+	label lower, raise, approach, exit;
+	
+	(mode doup;
+		invt:
+			(z <= 5);
+		flow:
+			d/dt[z] = 1;
+		jump:
+			(exit): (true) ==> @doup (z' = z);
+			(raise): (true) ==> @idle (z' = z);
+			(approach): (true) ==> @dodown (z' = z);
+	)
+	
+	(mode idle;
+		invt:
+		flow:
+			d/dt[z] = 1;
+		jump:
+			(exit): (true) ==> @doup (z' = 0);
+			(approach): (true) ==> @dodown (z' = 0);
+	)
+	
+	(mode dodown;
+		invt:
+			(z <= 5);
+		flow:
+			d/dt[z] = 1;
+		jump:
+			(approach): (true) ==> @dodown (z' = z);
+			(exit): (true) ==> @doup (z' = z);
+			(lower): (true) ==> @idle (z' = z);
+	)
+)
+
+analyze:
+	train0 = train[[], @far (x=5000)];
+	gate0 = gate[[], @open (y = 90)];
+	controller0 = controller[[], @idle (z = 0)];
+	(train0 || gate0 || controller0);
+	
+goal:
+	(@train0.near, @gate0.closed, @controller0.idle): true;
+//	(): (and (x));

@@ -42,6 +42,8 @@ OPTIONS:
                                 52 if UNSAT,
                                 1 abnormal termination
 
+   -n               parse new .drh file format (default: do not use)
+   
 EXAMPLE:
 
    dReach -k 10      bouncing_ball.drh --verbose --precision=0.001 --visualize
@@ -58,8 +60,10 @@ L=0
 U=NONE
 DEFAULT_U=3
 Z_OPT=FALSE #(edited: FS)
+NEW=""
+FILTER=""
 
-while getopts "zhbdk:l:u:ep:ir" OPTION
+while getopts "zohbdk:l:u:ep:irn" OPTION
 do
     case $OPTION in
         h)
@@ -90,6 +94,9 @@ do
         z)                  #(edited: FS)
             Z_OPT=TRUE      #
             ;;              #
+        n)
+            NEW=" --new_format"
+            ;;
         \?)
             usage
             exit 1
@@ -161,6 +168,9 @@ echo dReal Options: $SOLVER_OPT
 # Preprocessing
 sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
 
+# Append option to parse new file format and filter mode encodings
+BMC=$BMC$NEW
+
 UNROLLS=`seq $L $U`
 for K in $UNROLLS
 do
@@ -174,14 +184,14 @@ do
         if [ $BMCH -eq 1 ]
         then
             # Construct Heuristic function
-            $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH
-            SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
-        fi
-
-        if [ $BMCH -lt 3 ]
+            #echo $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH 
+            $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH > ${SMT}
+            MY_SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
+        elif [ $BMCH -lt 3 ]
         then
             #Generate Disjunctive Encoding w/o pruning
             $BMC -k $K $PDRH > ${SMT}
+	    MY_SOLVER_OPT="${SOLVER_OPT}"
         fi
 
 
@@ -190,19 +200,20 @@ do
         then
             #Construct pruned encoding and heuristic
             $BMC -k $K --bmc_heuristic_prune $HEURISTIC $PDRH  > ${SMT}
-            SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
+            MY_SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
             #exit
         elif [ $BMCH -eq 4 ]
         then
             #Construct pruned encoding and heuristic
             $BMC -k $K --bmc_heuristic_prune_deep $HEURISTIC $PDRH > ${SMT}
-            SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
+            MY_SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
         fi
 
-        echo SMT: ${SMT}
+        #echo SMT: ${SMT}
 
         #Solve
-        ${SOLVER} ${SOLVER_OPT} --short_sat --delta_heuristic --delta --time_split_heuristic $SMT 2>&1 | tee $OUT
+        echo "${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta 2>&1 | tee $OUT"
+        ${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta 2>&1 | tee $OUT
         RESULT=`tail -n 1 $OUT`
         if [[ $RESULT == "sat" ]]
         then

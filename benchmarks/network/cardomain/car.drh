@@ -1,0 +1,155 @@
+#define eps 0.001
+
+[0, 1000] time;
+(component moving_automaton;
+[-1000, 1000] a;
+[-1000, 1000] d;
+[-1000, 1000] v;
+[0, 1] running;
+label is_running_0_set_dec_d_velocity_by_v_dec_v_velocity_by_a_moving_automaton;
+label is_running_1_set_inc_d_velocity_by_v_inc_v_velocity_by_a_moving_automaton;
+(mode on_moving_automaton;
+invt:
+flow:
+d/dt[d] = v;
+d/dt[v] = a;
+jump:
+(is_running_0_set_dec_d_velocity_by_v_dec_v_velocity_by_a_moving_automaton): (running = 0) ==> @off_moving_automaton (true);
+)
+(mode off_moving_automaton;
+invt:
+flow:
+jump:
+(is_running_1_set_inc_d_velocity_by_v_inc_v_velocity_by_a_moving_automaton): (running = 1) ==> @on_moving_automaton (true);
+)
+)
+
+(component windresistance_automaton;
+[-1000, 1000] v;
+[0, 1] running;
+label is_running_0_set_inc_v_velocity_by_0_point_100000_mul_v_minus_50_mul_v_minus_50_windresistance_automaton;
+label is_set_inc_v_velocity_by_0_point_100000_mul_v_minus_50_mul_v_minus_50_windresistance_automaton;
+label is_running_1_set_dec_v_velocity_by_0_point_100000_mul_v_minus_50_mul_v_minus_50_windresistance_automaton;
+(mode on_windresistance_automaton;
+invt:
+flow:
+d/dt[v] = -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(is_running_0_set_inc_v_velocity_by_0_point_100000_mul_v_minus_50_mul_v_minus_50_windresistance_automaton): (running = 0) ==> @off_windresistance_automaton (true);
+(is_set_inc_v_velocity_by_0_point_100000_mul_v_minus_50_mul_v_minus_50_windresistance_automaton): (true) ==> @off_windresistance_automaton (true);
+)
+(mode off_windresistance_automaton;
+invt:
+flow:
+jump:
+(is_running_1_set_dec_v_velocity_by_0_point_100000_mul_v_minus_50_mul_v_minus_50_windresistance_automaton): (and (running = 1) (v >= 50)) ==> @on_windresistance_automaton (true);
+)
+)
+
+(component accelerate_automaton;
+[0, 1] T_accelerate_automaton;
+[0, 1] running;
+label release_accelerate_automaton;
+label lock_is_running_1_set_running_1_inc_a_by_1_accelerate_automaton;
+(mode on_accelerate_automaton;
+invt:
+(T_accelerate_automaton <= 0);
+flow:
+d/dt[T_accelerate_automaton] = 1;
+jump:
+(release_accelerate_automaton): (T_accelerate_automaton >= 0) ==> @off_accelerate_automaton (T_accelerate_automaton' = 0);
+)
+(mode off_accelerate_automaton;
+invt:
+flow:
+d/dt[T_accelerate_automaton] = 0;
+jump:
+(lock_is_running_1_set_running_1_inc_a_by_1_accelerate_automaton): (running = 1) ==> @on_accelerate_automaton (and (T_accelerate_automaton' = 0) (running' = 1) (a' = a + 1));
+)
+)
+
+(component decelerate_automaton;
+[0, 1] T_decelerate_automaton;
+[0, 1] running;
+label release_decelerate_automaton;
+label lock_is_running_1_set_running_1_dec_a_by_1_decelerate_automaton;
+(mode on_decelerate_automaton;
+invt:
+(T_decelerate_automaton <= 0);
+flow:
+d/dt[T_decelerate_automaton] = 1;
+jump:
+(release_decelerate_automaton): (T_decelerate_automaton >= 0) ==> @off_decelerate_automaton (T_decelerate_automaton' = 0);
+)
+(mode off_decelerate_automaton;
+invt:
+flow:
+d/dt[T_decelerate_automaton] = 0;
+jump:
+(lock_is_running_1_set_running_1_dec_a_by_1_decelerate_automaton): (running = 1) ==> @on_decelerate_automaton (and (T_decelerate_automaton' = 0) (running' = 1) (a' = a - 1));
+)
+)
+
+(component engineexplode_automaton;
+[-1000, 1000] a;
+[-1000, 1000] v;
+[0, 1] T_engineexplode_automaton;
+[0, 1] engineblown;
+[0, 1] running;
+label release_engineexplode_automaton;
+label lock_is_running_1_set_engineblown_1_running_0_asgn_a_0_engineexplode_automaton;
+(mode on_engineexplode_automaton;
+invt:
+(T_engineexplode_automaton <= 0);
+flow:
+d/dt[T_engineexplode_automaton] = 1;
+jump:
+(release_engineexplode_automaton): (T_engineexplode_automaton >= 0) ==> @off_engineexplode_automaton (T_engineexplode_automaton' = 0);
+)
+(mode off_engineexplode_automaton;
+invt:
+flow:
+d/dt[T_engineexplode_automaton] = 0;
+jump:
+(lock_is_running_1_set_engineblown_1_running_0_asgn_a_0_engineexplode_automaton): (and (running = 1) (a >= 1) (v >= 200)) ==> @on_engineexplode_automaton (and (T_engineexplode_automaton' = 0) (engineblown' = 1) (running' = 0) (a' = 0));
+)
+)
+
+(component lock_automaton;
+label release_accelerate_automaton;
+label lock_is_running_1_set_running_1_inc_a_by_1_accelerate_automaton;
+label release_decelerate_automaton;
+label lock_is_running_1_set_running_1_dec_a_by_1_decelerate_automaton;
+label release_engineexplode_automaton;
+label lock_is_running_1_set_engineblown_1_running_0_asgn_a_0_engineexplode_automaton;
+(mode lock_enabled;
+invt:
+flow:
+jump:
+(release_accelerate_automaton): (true) ==> @lock_released (true);
+(release_decelerate_automaton): (true) ==> @lock_released (true);
+(release_engineexplode_automaton): (true) ==> @lock_released (true);
+)
+(mode lock_released;
+invt:
+flow:
+jump:
+(lock_is_running_1_set_running_1_inc_a_by_1_accelerate_automaton): (true) ==> @lock_enabled (true);
+(lock_is_running_1_set_running_1_dec_a_by_1_decelerate_automaton): (true) ==> @lock_enabled (true);
+(lock_is_running_1_set_engineblown_1_running_0_asgn_a_0_engineexplode_automaton): (true) ==> @lock_enabled (true);
+)
+)
+
+
+analyze: 
+moving_automaton0 = moving_automaton[[], @off_moving_automaton (and (running = 1) (a = 0) (d = 0) (v = 0))];
+windresistance_automaton0 = windresistance_automaton[[], @off_windresistance_automaton (and (running = 1) (v = 0))];
+accelerate_automaton0 = accelerate_automaton[[], @off_accelerate_automaton (and (running = 1) (a = 0) (T_accelerate_automaton = 0))];
+decelerate_automaton0 = decelerate_automaton[[], @off_decelerate_automaton (and (running = 1) (a = 0) (T_decelerate_automaton = 0))];
+engineexplode_automaton0 = engineexplode_automaton[[], @off_engineexplode_automaton (and (engineblown = 0) (running = 1) (a = 0) (v = 0) (T_engineexplode_automaton = 0))];
+lock_automaton0 = lock_automaton[[], @lock_released (true)];
+(moving_automaton0 || windresistance_automaton0 || accelerate_automaton0 || decelerate_automaton0 || engineexplode_automaton0 || lock_automaton0);
+
+goal: 
+(): (and (engineblown = 0) (d=30) (v=0));
+

@@ -42,6 +42,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "minisat/mtl/Queue.h"
 #include "smtsolvers/CoreSMTSolver.h"
 
+
 class SimpSMTSolver : public CoreSMTSolver
 {
  public:
@@ -104,7 +105,7 @@ class SimpSMTSolver : public CoreSMTSolver
     // Generate a (possibly simplified) DIMACS file:
     //
     void    toDimacs  (const char* file);
-
+    virtual void filterUnassigned();
     // Mode of operation:
     //
     int     grow;             // Allow a variable elimination step to grow by a number of clauses (default to zero).

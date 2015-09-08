@@ -16,7 +16,7 @@ open Smt2
 exception SMTException of string
 
 type ode = Ode.t
-type flows_annot = (int * ode list)  (** step, ode **)
+type flows_annot = (string * ode list)  (** step, ode **)
 
 (* add suffix to variables *)
 let make_start = fun v -> v ^ "_0"
@@ -38,8 +38,10 @@ let process_flow_single varmap modemap ginvs q =
   let flow_formula =
     let vardecls = varmap_to_list varmap in
     let vars = List.map (fun (name, _) -> name) vardecls in
-    let time_var = String.join "_" ["time"; string_of_int q; ] in
-    let flow_var = String.join "_" ["flow"; string_of_int q; ] in
+    (*let time_var = String.join "_" ["time"; string_of_int q; ] in
+    let flow_var = String.join "_" ["flow"; string_of_int q; ] in*)
+    let time_var = String.join "_" ["time"; q; ] in
+    let flow_var = String.join "_" ["flow"; q; ] in
     let ode_vars = List.filter (fun name -> name <> "time") vars in
     let ode_vars_0 = List.map make_start ode_vars in
     let ode_vars_t = List.map make_end ode_vars in
@@ -100,7 +102,7 @@ let process_jump_single varmap modemap ginvs q =
 
 
 let compile_logic_formula h =
-  let {init_id; init_formula; varmap; modemap; goals; ginvs} = h in
+  let {init_id; init_formula; varmap; modemap; goals; ginvs;} = h in
   let mode_clause =
     let modes = List.of_enum (Map.keys modemap) in
     Basic.make_or (
@@ -122,14 +124,17 @@ let calc_num_of_mode (modemap : Modemap.t) =
 (** build a list of odes **)
 let build_flow_annot_list h =
   let {varmap; modemap} = h in
-  let num_of_modes = Enum.count (Map.keys modemap) in
-  let list_of_modes = List.of_enum ( 1 -- num_of_modes ) in
+  (*let num_of_modes = Enum.count (Map.keys modemap) in
+  let list_of_modes = List.of_enum ( 1 -- num_of_modes ) in*)
+  (* Why not just list mode names as is, instead of creating a list of index numbers? *)
+  let list_of_modes = List.of_enum (Map.keys modemap) in
   List.map (function q -> extract_flows q modemap) list_of_modes
 
 (** build list of ode definition **)
 let compile_ode_definition h =
   let flows = build_flow_annot_list h in
-  List.map (fun (g, odes) -> DefineODE (("flow_" ^ (string_of_int g)), odes)) flows
+  List.map (fun (g, odes) -> DefineODE (("flow_" ^ g), odes)) flows
+  (*List.map (fun (g, odes) -> DefineODE (("flow_" ^ (string_of_int g)), odes)) flows*)
 
 (* generate variable definitions *)
 let compile_vardecl h epi =

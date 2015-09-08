@@ -39,6 +39,9 @@ Var THandler::enodeToVar( Enode * atm )
 
   Var v = enode_id_to_var[ atm->getId( ) ];
 
+
+
+
   if ( v == var_Undef )
   {
     lbool state = l_Undef;
@@ -91,8 +94,10 @@ Var THandler::enodeToVar( Enode * atm )
         solver.setFrozen( v, true );
         tatoms ++;
       }
-      else
+      else {
+        solver.setFrozen( v, true );
         batoms ++;
+      }
 
       enode_id_to_var[ atm->getId( ) ] = v;
 
@@ -155,7 +160,7 @@ bool THandler::assertLits( )
 
   assert( checked_trail_size == stack.size( ) );
   assert( (int)stack.size( ) <= trail.size( ) );
-  DREAL_LOG_DEBUG << "THandler::assertLits()" << endl;
+  DREAL_LOG_DEBUG << "THandler::assertLits() " << checked_trail_size << " " << trail.size() << endl;
 
   for ( int i = checked_trail_size ; i < trail.size( ) && res ; i ++ )
   {

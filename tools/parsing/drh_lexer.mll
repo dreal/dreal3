@@ -44,6 +44,9 @@
      ("and", AND);
      ("or", OR);
      ("not", NOT);
+     ("component", COMPONENT);
+     ("label", LABEL);
+     ("analyze", ANALYZE);
     ]
 }
 
@@ -77,6 +80,8 @@ rule start =
     | "==>"   { verbose (Lexing.lexeme lexbuf); IMPLY }
     | "d/dt"  { verbose (Lexing.lexeme lexbuf); DDT }
     | "^"     { verbose (Lexing.lexeme lexbuf); CARET }
+    | "|"     { verbose (Lexing.lexeme lexbuf); PIPE }
+    | "."     { verbose (Lexing.lexeme lexbuf); DOT }
     | id { let id = Lexing.lexeme lexbuf
            in verbose ("ID:"^id); try Hashtbl.find keyword_tbl id
              with _ -> ID id
