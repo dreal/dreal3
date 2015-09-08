@@ -285,7 +285,7 @@ opensmt_expr opensmt_mk_integral ( opensmt_context c, opensmt_expr * vars_t,
   OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
   OpenSMTContext & context = *c_;
   list< Enode * > args_t, args_0;
-  for ( unsigned i = 0 ; i < n ; i ++ ) {
+  for ( int i = n-1 ; i >= 0 ; --i ) {
     Enode * arg_t = static_cast< Enode * >( vars_t[ i ] );
     Enode * arg_0 = static_cast< Enode * >( vars_0[ i ] );
     args_t.push_back( arg_t );
