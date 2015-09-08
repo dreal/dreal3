@@ -617,12 +617,11 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s, const char * p )
   egraph.newSymbol( name, s, true, vval );
 }
 
-void OpenSMTContext::DefineODE( char const * name, vector<pair<string, Enode *> *> * odes)
+void OpenSMTContext::DefineODE( char const * name, vector<pair<string, Enode *>> const & odes)
 {
     dreal::flow _flow;
-    for(auto const & name_odes : *odes) {
-        _flow.add(name_odes->first, name_odes->second);
-        delete name_odes;
+    for(auto const & name_odes : odes) {
+        _flow.add(name_odes.first, name_odes.second);
     }
     string const sname (name);
     egraph.stepped_flows = (sname.find_first_of("_") != sname.find_last_of("_"));

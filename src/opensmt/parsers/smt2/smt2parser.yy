@@ -55,7 +55,7 @@ void smt2error( const char * s )
   char  *                            str;
   vector< string > *                 str_list;
   pair<string, Enode *> *            ode;
-  vector<pair<string, Enode *> * > * ode_list;
+  vector<pair<string, Enode *> > *   ode_list;
   Enode *                            enode;
   Snode *                            snode;
   std::string *                      string_ptr;
@@ -116,12 +116,14 @@ void smt2error( const char * s )
 script: command_list
 
 ode_list: ode_list ode
-          { $1->push_back($2);
+          { $1->push_back(*($2));
             $$ = $1;
+            delete $2;
           }
         | ode
-          { $$ = new vector<pair<string, Enode*>*>;
-            $$->push_back( $1 );
+          { $$ = new vector<pair<string, Enode*>>;
+            $$->push_back( *($1) );
+            delete $1;
           }
 ;
 ode: '(' TK_EQ TK_DDT TK_LB identifier TK_RB term ')'  {
@@ -216,7 +218,7 @@ command: '(' TK_SETLOGIC symbol ')'
        /* Added for dReal2. */
        | '(' TK_DEFINEODE identifier '(' ode_list ')' ')'
          {
-           parser_ctx->DefineODE($3, $5);
+           parser_ctx->DefineODE($3, *($5));
            free( $3 );
            delete $5;
          }
