@@ -48,7 +48,9 @@ namespace dreal {
     theory_handler = thandler;
     trail = trl;
     trail_lim = trl_lim;
+    m_config = &c;
     m_is_initialized = true;
+    
     if (c.nra_plan_heuristic.compare("") != 0) {
         const string heuristic_string = get_file_contents(c.nra_plan_heuristic.c_str());
         string err;
