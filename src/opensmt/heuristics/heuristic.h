@@ -60,5 +60,6 @@ namespace dreal {
     int m_depth;
     Egraph * m_egraph;
     set<Enode*> stack_literals;
+    SMTConfig *m_config;
   };
 }

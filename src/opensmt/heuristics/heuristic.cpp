@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
 #include "util/logging.h"
+#include "util/stat.h"
 
 using std::string;
 using std::ifstream;
@@ -39,8 +40,9 @@ namespace dreal{
   heuristic::~heuristic(){
   }
 
-  void heuristic::initialize(SMTConfig &, Egraph &, THandler*,
+  void heuristic::initialize(SMTConfig & config, Egraph &, THandler*,
                              vec<Lit> *, vec<int> *)  {
+    m_config = &config;
   }
 
   void heuristic::inform(Enode * ){
@@ -53,45 +55,64 @@ namespace dreal{
   }
 
   Lit heuristic::getSuggestion(){
-  DREAL_LOG_INFO << "heuristic::getSuggestion()";
-  bool unsat = false;
-  if(!m_is_initialized)
-    return lit_Undef;
+    DREAL_LOG_INFO << "heuristic::getSuggestion()";
+    std::chrono::high_resolution_clock::time_point
+      start_time = std::chrono::high_resolution_clock::now();
+    
+    Lit rvalue;
+    
 
-  if (trail->size() > lastTrailEnd){
-    pushTrailOnStack();
-    //}
+    bool unsat = false;
+    if(!m_is_initialized){
+      rvalue = lit_Undef;
+    } else {  
+      if (trail->size() > lastTrailEnd){
+	pushTrailOnStack();
+	//}
 
-    //if (!m_is_initialized ||  backtracked){
-    unsat = !getSuggestions();
-    backtracked = false;
-  }
+	//if (!m_is_initialized ||  backtracked){
+	unsat = !getSuggestions();
+	backtracked = false;
+      }
 
-  if (//false &&
-      unsat){
-     return lit_Error;
-  }
-  
-  if (!m_suggestions.empty()){
-      std::pair<Enode *, bool> *s = m_suggestions.back();
-      m_suggestions.pop_back();
-      Enode *e = s->first;
-
-
-    if ( e == NULL )
-      return lit_Undef;
-
-
-
-    DREAL_LOG_INFO << "heuristic::getSuggestion() " << e << " = " << s->second;
-    if (theory_handler == NULL)
-      DREAL_LOG_INFO << "heuristic::getSuggestion() NULL";
-    Var v = theory_handler->enodeToVar(e);
-    delete s;
-    return Lit( v, !s->second );
-    } else {
-      return lit_Undef;
+      if (//false &&
+	  unsat){
+	rvalue = lit_Error;
+      } else {
+	
+	if (!m_suggestions.empty()){
+	  std::pair<Enode *, bool> *s = m_suggestions.back();
+	  m_suggestions.pop_back();
+	  Enode *e = s->first;
+	  
+	  if ( e == NULL ) {
+	    rvalue = lit_Undef;
+	  } else {
+	    DREAL_LOG_INFO << "heuristic::getSuggestion() " << e << " = " << s->second;
+	    if (theory_handler == NULL)
+	      DREAL_LOG_INFO << "heuristic::getSuggestion() NULL";
+	    Var v = theory_handler->enodeToVar(e);
+	    delete s;
+	    rvalue = Lit( v, !s->second );
+	  }
+	} else {
+	  rvalue = lit_Undef;
+	}
+      }
     }
+
+    if (m_config->nra_use_stat) {
+      std::chrono::high_resolution_clock::time_point
+	end_time = std::chrono::high_resolution_clock::now();
+      //DREAL_LOG_DEBUG << end_time << " " << start_time;
+      
+       std::chrono::duration<double> elapsed_seconds =
+       	std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time);
+       m_config->nra_stat.increase_heuristic_time( elapsed_seconds );
+      DREAL_LOG_INFO << "heuristic::getSuggestion() used " << elapsed_seconds.count();
+    }
+
+    return rvalue;
   }
 
   bool heuristic::getSuggestions(){

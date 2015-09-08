@@ -73,6 +73,7 @@ int get_mode(Enode * lit) {
     theory_handler = thandler;
     trail = trl;
     trail_lim = trl_lim;
+    m_config = &c;
 
     m_is_initialized = true; // Have we computed suggestions yet?  Does not happen here.
     if (c.nra_bmc_heuristic.compare("") != 0){
