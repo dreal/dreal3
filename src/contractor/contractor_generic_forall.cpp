@@ -36,6 +36,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
+#include "nlopt.hpp"
 #include "contractor/contractor.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
@@ -44,6 +46,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "constraint/constraint.h"
 #include "util/logging.h"
 #include "util/proof.h"
+#include "util/eval.h"
 
 using std::back_inserter;
 using std::boolalpha;
@@ -54,8 +57,10 @@ using std::initializer_list;
 using std::make_shared;
 using std::ostream;
 using std::ostringstream;
+using std::pair;
 using std::queue;
 using std::set;
+using std::tuple;
 using std::unordered_set;
 using std::vector;
 
@@ -120,10 +125,202 @@ vector<Enode *> contractor_generic_forall::elist_to_vector(Enode * e) const {
     return vec;
 }
 
+double nlopt_eval_enode(const double* x, void * extra) {
+    auto extra_info = static_cast<tuple<Enode *, box const &, bool> *>(extra);
+    Enode * e = get<0>(*extra_info);
+    box const & b = get<1>(*extra_info);
+    bool const polarity = get<2>(*extra_info);
+    unordered_map<Enode *, double> var_map;
+    unsigned i = 0;
+    for (Enode * e : b.get_vars()) {
+        if (e->isForallVar()) {
+            var_map.emplace(e, x[i]);
+            i++;
+        } else {
+            var_map.emplace(e, b[e].mid());
+        }
+    }
+    try {
+        double const ret1 = eval_enode(e->get1st(), var_map);
+        double const ret2 = eval_enode(e->get2nd(), var_map);
+        double ret = 0;
+        if (e->isLt() || e->isLeq() || e->isEq()) {
+            ret = ret1 - ret2;
+        } else if (e->isGt() || e->isGeq()) {
+            ret = ret2 - ret1;
+        } else if (e->isEq()) {
+            throw runtime_error("nlopt_obj: something is wrong.");
+        }
+        if (!polarity) {
+            ret = - ret;
+        }
+        return ret;
+    } catch (exception & e) {
+        DREAL_LOG_FATAL << "Exception in nlopt_eval_enode: " << e.what() << endl;
+        throw e;
+    }
+}
+
+void nlopt_fill_gradient(const double * x, double * grad, void * extra) {
+    auto extra_info = static_cast<tuple<Enode *, box const &, bool> *>(extra);
+    Enode * e = get<0>(*extra_info);
+    box const & b = get<1>(*extra_info);
+    bool const polarity = get<2>(*extra_info);
+    unordered_map<Enode *, double> var_map;
+    unsigned i = 0;
+    vector<Enode*> forall_var_vec;
+    for (Enode * e : b.get_vars()) {
+        if (e->isForallVar()) {
+            var_map.emplace(e, x[i]);
+            i++;
+            forall_var_vec.push_back(e);
+        } else {
+            var_map.emplace(e, b[e].mid());
+        }
+    }
+    i = 0;
+    for (Enode * var : forall_var_vec) {
+        double deriv_i = deriv_enode(e->get1st(), var, var_map) - deriv_enode(e->get2nd(), var, var_map);
+        if (e->isGt() || e->isGeq()) {
+            deriv_i = - deriv_i;
+        }
+        if (!polarity) {
+            deriv_i = - deriv_i;
+        }
+        grad[i] = deriv_i;
+        // cerr << e->get1st() << "\t" << e->get2nd() << "\t" << var << "\t"
+        //      << "x[" << i << "] = " << x[i] << "\t"
+        //      << "grad[" << i << "] = " << grad[i] << endl;
+        i++;
+    }
+}
+
+double nlopt_obj(unsigned, const double * x, double * grad, void * extra) {
+    double const ret = nlopt_eval_enode(x, extra);
+    if (grad) {
+        nlopt_fill_gradient(x, grad, extra);
+    }
+    return ret;
+}
+
+double nlopt_side_condition(unsigned, const double * x, double * grad, void * extra) {
+    double const ret = nlopt_eval_enode(x, extra);
+    if (grad) {
+        nlopt_fill_gradient(x, grad, extra);
+    }
+    return ret;
+}
+
+box refine_counterexample_with_nlopt(box counterexample, vector<Enode*> const & opt_ctrs, vector<Enode*> const & side_ctrs) {
+    // Plug-in `a` into the constraint and optimize `b` in the counterexample `M` by solving:
+    //
+    //    ∃ y_opt ∈ I_y. ∀ y ∈ I_y. f(a, y_opt) >= f(a, y) — (2)
+    //
+    // using local optimizer (i.e. nlopt).
+    // Let `M’ = (a, b_opt)` be a model for (2).
+    DREAL_LOG_DEBUG << "================================" << endl;
+    DREAL_LOG_DEBUG << "  Before Refinement              " << endl;
+    DREAL_LOG_DEBUG << "================================" << endl;
+    DREAL_LOG_DEBUG << counterexample << endl;
+    DREAL_LOG_DEBUG << "================================" << endl;
+    static bool initialized = false;
+    static vector<double> lb, ub, init;
+    init.clear();
+    for (Enode * e : counterexample.get_vars()) {
+        if (e->isForallVar()) {
+            if (!initialized) {
+                lb.push_back(e->getDomainLowerBound());
+                ub.push_back(e->getDomainUpperBound());
+            }
+            init.push_back(counterexample[e].mid());
+            DREAL_LOG_DEBUG << lb.back() << " <= " << init.back() << " <= " << ub.back() << endl;
+        }
+    }
+    auto const n = init.size();
+    static nlopt::opt opt(nlopt::LD_SLSQP, n);
+    if (!initialized) {
+        opt.set_lower_bounds(lb);
+        opt.set_upper_bounds(ub);
+        // set tollerance
+        // TODO(soonhok): set precision
+        // opt.set_xtol_rel(0.0001);
+        opt.set_xtol_abs(0.001);
+        opt.set_maxtime(0.01);
+        initialized = true;
+    }
+
+    opt.remove_equality_constraints();
+    opt.remove_inequality_constraints();
+
+    // set objective function
+    vector<tuple<Enode *, box const &, bool> *> extra_vec;
+    Enode * e = opt_ctrs[0];
+    bool polarity = false;
+    while (e->isNot()) {
+        e = e->get1st();
+        polarity = !polarity;
+    }
+    auto extra = new tuple<Enode *, box const &, bool>(e, counterexample, polarity);
+    extra_vec.push_back(extra);
+    opt.set_min_objective(nlopt_obj, extra);
+    opt.add_inequality_constraint(nlopt_side_condition, extra);
+    DREAL_LOG_DEBUG << "objective function is added: " << e << endl;
+
+    // set side conditions
+    for (Enode * e : side_ctrs) {
+        bool polarity = false;
+        while (e->isNot()) {
+            e = e->get1st();
+            polarity = !polarity;
+        }
+        auto extra = new tuple<Enode *, box const &, bool>(e, counterexample, polarity);
+        extra_vec.push_back(extra);
+        DREAL_LOG_DEBUG << "refine_counterexample_with_nlopt: Side condition is added: " << e << endl;
+        if (e->isEq()) {
+            opt.add_equality_constraint(nlopt_side_condition, extra);
+        } else if (e->isLt() || e->isLeq() || e->isGt() || e->isGeq()) {
+            opt.add_inequality_constraint(nlopt_side_condition, extra);
+        }
+    }
+    try {
+        vector<double> output = opt.optimize(init);
+        unsigned i = 0;
+        for (Enode * e : counterexample.get_vars()) {
+            if (e->isForallVar()) {
+                counterexample[e] = output[i];
+                i++;
+            }
+        }
+    } catch (nlopt::roundoff_limited & e) {
+    } catch (std::runtime_error & e) {
+        DREAL_LOG_DEBUG << e.what() << endl;
+    }
+
+    for (auto extra : extra_vec) {
+        delete extra;
+    }
+    DREAL_LOG_DEBUG << "================================" << endl;
+    DREAL_LOG_DEBUG << "  After Refinement              " << endl;
+    DREAL_LOG_DEBUG << "================================" << endl;
+    DREAL_LOG_DEBUG << counterexample << endl;
+    DREAL_LOG_DEBUG << "================================" << endl;
+    return counterexample;
+}
+
 box contractor_generic_forall::find_counterexample(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) const {
+    static unsigned counter = 0;
+    static unsigned useful_refinement = 0;
     vector<nonlinear_constraint *> ctrs;
     vector<contractor> ctcs;
     box counterexample(b, forall_vars);
+
+    if (DREAL_LOG_DEBUG_IS_ON) {
+        for (Enode * e : vec) {
+            DREAL_LOG_DEBUG << "Find Counterexample: " << e << endl;
+        }
+        DREAL_LOG_DEBUG << "=====================" << endl << endl;
+    }
+
     for (Enode * e : vec) {
         lbool polarity = p ? l_False : l_True;
         if (e->isNot()) {
@@ -136,17 +333,59 @@ box contractor_generic_forall::find_counterexample(box const & b, unordered_set<
         ctcs.push_back(ctc);
     }
     contractor fp = mk_contractor_fixpoint(term_cond, ctcs);
-    DREAL_LOG_DEBUG << "Counter Example = \n=============="
-         << counterexample
-         << "===================" << endl;
-    counterexample = random_icp::solve(counterexample, fp, config);
+    counterexample = ncbt_icp::solve(counterexample, fp, config);
     for (auto ctr : ctrs) {
         delete ctr;
     }
+    if (!counterexample.is_empty()) {
+        DREAL_LOG_DEBUG << "=====================" << endl
+                        << "Counter Example" << endl
+                        << counterexample
+                        << "=====================" << endl;
+
+        vector<Enode *> opt_ctrs;
+        vector<Enode *> side_ctrs;
+        for (Enode * e : vec) {
+            if (!e->get_exist_vars().empty()) {
+                DREAL_LOG_DEBUG << "optimization constraint: " << e << endl;
+                opt_ctrs.push_back(e);
+            } else if (!e->get_forall_vars().empty()) {
+                DREAL_LOG_DEBUG << "side constraint: " << e << endl;
+                side_ctrs.push_back(e);
+            }
+        }
+
+        if (config.nra_local_opt && opt_ctrs.size() == 1) {
+            box refined_counterexample = refine_counterexample_with_nlopt(counterexample, opt_ctrs, side_ctrs);
+            if (refined_counterexample.is_subset(counterexample)) {
+                DREAL_LOG_DEBUG << "find_counterexample: " << useful_refinement << " / " << ++counter << endl;
+                return counterexample;
+            } else {
+                DREAL_LOG_DEBUG << "REFINED ONE: " << endl
+                                << "====================" << endl
+                                << refined_counterexample <<endl
+                                << "====================" << endl;
+                DREAL_LOG_DEBUG << "Original One: " << endl
+                                << "====================" << endl
+                                << counterexample <<endl
+                                << "====================" << endl;
+                ++useful_refinement;
+                DREAL_LOG_DEBUG << "find_counterexample: " << useful_refinement << " / " << ++counter << endl;
+                return refined_counterexample;
+            }
+        } else {
+            DREAL_LOG_DEBUG << "NO REFINEMENT, opt_ctrs.size = " << opt_ctrs.size() << endl;
+        }
+    } else {
+        DREAL_LOG_DEBUG << "======================" << endl
+        << "No Counter Example found" << endl
+        << "======================" << endl;
+    }
+    DREAL_LOG_DEBUG << "find_counterexample: " << useful_refinement << " / " << ++counter << endl;
     return counterexample;
 }
 
-box contractor_generic_forall::handle_disjunction(box b, unordered_set<Enode *> const & forall_vars, std::vector<Enode *> const &vec, bool const p, SMTConfig & config) const {
+box contractor_generic_forall::handle_disjunction(box b, unordered_set<Enode *> const & forall_vars, vector<Enode *> const &vec, bool const p, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_generic_forall::handle_disjunction" << endl;
     // For now, we assume that body is a disjunction of *literals*. That is
     //
@@ -171,6 +410,9 @@ box contractor_generic_forall::handle_disjunction(box b, unordered_set<Enode *> 
         if (counterexample.is_empty()) {
             // Step 2.1. (NO Counterexample)
             //           Return B.
+            DREAL_LOG_DEBUG << "handle_disjunction: no counterexample found." << endl
+                            << "current box = " << endl
+                            << b << endl;
             return b;
         } else {
             // Step 2.2. (There IS a counterexample C)
@@ -184,7 +426,7 @@ box contractor_generic_forall::handle_disjunction(box b, unordered_set<Enode *> 
         // Step 3. Compute B_i = prune(B, l_i)
         //         Update B with ∨ B_i
         //                       i
-        std::vector<box> boxes;
+        vector<box> boxes;
         for (Enode * e : vec) {
             if (!e->get_exist_vars().empty()) {
                 lbool polarity = p ? l_True : l_False;
@@ -232,7 +474,7 @@ box contractor_generic_forall::handle_atomic(box b, unordered_set<Enode *> const
 }
 
 box contractor_generic_forall::prune(box b, SMTConfig & config) const {
-    DREAL_LOG_DEBUG << "prune: " << *m_ctr << endl;
+    DREAL_LOG_DEBUG << "contractor_generic_forall prune: " << *m_ctr << endl;
     Enode * body = m_ctr->get_body();
     unordered_set<Enode *> const forall_vars = m_ctr->get_forall_vars();
     DREAL_LOG_DEBUG << "body = " << body << endl;
