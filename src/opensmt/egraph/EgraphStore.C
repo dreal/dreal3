@@ -3237,33 +3237,29 @@ Enode * Egraph::mkIntegral             ( Enode * time_0, Enode * time_t, Enode *
   return res;
 }
 
-Enode * Egraph::mkForall ( vector<pair<string, Snode *>*>* sorted_var_list, Enode * e) {
+Enode * Egraph::mkForall ( vector<pair<string, Snode *>> const & sorted_var_list, Enode * e) {
     /// TODO(soonhok): For now, we ignore sorts in the sorted_var_list
     /// and only collect the names of variables, relying on the sorts
     /// used to define those quantified variables in `declare-fun`.
     /// It should be fixed while it's unclear for me how to do it.
     ///
     /// This is the case for 'mkExists' as well.
-    assert(sorted_var_list);
-    std::reverse(sorted_var_list->begin(), sorted_var_list->end());
     Enode * elist = const_cast< Enode * >( enil );
-    for (pair<string, Snode *> * sorted_var : *sorted_var_list) {
-        pair<string, Snode *> p = *sorted_var;
+    for (auto it = sorted_var_list.crbegin(); it != sorted_var_list.crend(); ++it) {
+        pair<string, Snode *> p = *it;
         string const & name = p.first;
         elist = cons(mkVar(name.c_str()), elist);
-        delete sorted_var;
     }
     Enode * res = cons(id_to_enode[ ENODE_ID_FORALL ], cons(e, elist));
     assert (res);
     return res;
 }
-Enode * Egraph::mkExists ( vector<pair<string, Snode *>*>* sorted_var_list, Enode * e) {
-    assert(sorted_var_list);
-    std::reverse(sorted_var_list->begin(), sorted_var_list->end());
+Enode * Egraph::mkExists ( vector<pair<string, Snode *>> const & sorted_var_list, Enode * e) {
     Enode * elist = const_cast< Enode * >( enil );
-    for (pair<string, Snode *> * const sorted_var : *sorted_var_list) {
-        elist = cons(mkVar((*sorted_var).first.c_str()), elist);
-        delete sorted_var;
+    for (auto it = sorted_var_list.crbegin(); it != sorted_var_list.crend(); ++it) {
+        pair<string, Snode *> p = *it;
+        string const & name = p.first;
+        elist = cons(mkVar(name.c_str()), elist);
     }
     Enode * res = cons(id_to_enode[ ENODE_ID_EXISTS ], cons(e, elist));
     assert (res);

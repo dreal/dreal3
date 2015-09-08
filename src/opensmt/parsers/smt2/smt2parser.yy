@@ -62,7 +62,7 @@ void smt2error( const char * s )
   list< Snode * > *                  snode_list;
   map< Enode *, Enode * > *          binding_list;
   pair<string, Snode *> *            sorted_var;
-  vector< pair<string, Snode *> * > *  sorted_var_list;
+  vector< pair<string, Snode *> > *  sorted_var_list;
 }
 
 %error-verbose
@@ -528,12 +528,12 @@ term: spec_const
       { $$ = parser_ctx->mkForallT($3, $5, $6, $8); }
     | '(' TK_FORALL '(' sorted_var_list ')' term ')'
       {
-          $$ = parser_ctx->mkForall($4, $6);
+          $$ = parser_ctx->mkForall(*($4), $6);
           delete $4;
       }
     | '(' TK_EXISTS '(' sorted_var_list ')' term ')'
       {
-          $$ = parser_ctx->mkExists($4, $6);
+          $$ = parser_ctx->mkExists(*($4), $6);
           delete $4;
       }
     /*
@@ -697,12 +697,14 @@ sort_list: sort_list sort
          ;
 
 sorted_var_list: sorted_var_list sorted_var {
-    $1->push_back($2);
+    $1->push_back(*($2));
+    delete $2;
     $$ = $1;
-           }
+  }
 | sorted_var {
-     $$ = new vector<pair<string, Snode*>*>;
-     $$->push_back( $1 );
+     $$ = new vector<pair<string, Snode*>>;
+     $$->push_back( *($1) );
+     delete $1;
   };
 
 var_binding_list: var_binding_list '(' TK_SYM term ')'

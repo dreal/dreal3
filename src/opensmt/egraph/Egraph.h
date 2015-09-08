@@ -199,8 +199,8 @@ public:
   Enode * mkPow              ( Enode * );
   Enode * mkForallT          ( Enode *, Enode *, Enode *, Enode * );
   Enode * mkIntegral         ( Enode * time_0, Enode * time_t, Enode * vec_0, Enode * vec_t, const char * flowname );
-  Enode * mkForall ( vector<pair<string, Snode *>*>* sorted_var_list, Enode * e);
-  Enode * mkExists ( vector<pair<string, Snode *>*>* sorted_var_list, Enode * e);
+  Enode * mkForall ( vector<pair<string, Snode *>> const & sorted_var_list, Enode * e);
+  Enode * mkExists ( vector<pair<string, Snode *>> const & sorted_var_list, Enode * e);
 
   /* ----------------- */
 
