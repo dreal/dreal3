@@ -226,8 +226,7 @@ if(SUPPORT_ODE)
   ExternalProject_Add(CAPD4
     DEPENDS FILIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-    GIT_REPOSITORY https://github.com/soonhokong/capd4.git
-    #dreal-deps/capdDynSys-4.0.git
+    GIT_REPOSITORY https://github.com/dreal-deps/capdDynSys-4.0.git
     GIT_TAG master
     UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
            COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
