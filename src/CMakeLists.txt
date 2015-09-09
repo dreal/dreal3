@@ -6,7 +6,7 @@ set(DREAL_VERSION_PATCH 08.03)
 set(PACKAGE_NAME dReal)
 set(PACKAGE_VERSION "${DREAL_VERSION_MAJOR}.${DREAL_VERSION_MINOR}.${DREAL_VERSION_PATCH}")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
-set(PACKAGE_BUGREPORT "http://github.com/dreal/dreal/issues")
+set(PACKAGE_BUGREPORT "http://github.com/dreal/dreal3/issues")
 set(BUG_REPORT_URL "${PACKAGE_BUGREPORT}" CACHE STRING "Default URL where bug reports are to be submitted.")
 
 set(CMAKE_COLOR_MAKEFILE ON)
