@@ -145,6 +145,7 @@ SMTConfig::initializeConfig( )
   nra_precision_output         = true;
   nra_random_seed              = random_device{}();
   nra_output_num_nodes         = false;
+  nra_icp_decisions            = 0;
   initLogging();
 }
 
