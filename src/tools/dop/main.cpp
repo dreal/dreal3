@@ -39,7 +39,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/egraph/Enode.h"
 #include "tools/dop/dopconfig.h"
 #include "util/subst_enode.h"
-#include "tools/dop/parser.h"
+#include "tools/dop/parsers/dop/parser.h"
 #include "tools/dop/print_py.h"
 #include "tools/dop/print_latex.h"
 #include "tools/dop/visualize.h"

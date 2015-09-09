@@ -22,8 +22,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <functional>
 #include <iterator>
-#include "tools/dop/stacks.h"
-#include "tools/dop/pstate.h"
+#include "tools/dop/parsers/dop/stacks.h"
+#include "tools/dop/parsers/dop/pstate.h"
 
 namespace dop {
 

@@ -22,7 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <functional>
 #include <iostream>
 #include <utility>
-#include "tools/dop/pstate.h"
+#include "tools/dop/parsers/dop/pstate.h"
 
 namespace dop {
 

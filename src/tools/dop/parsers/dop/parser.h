@@ -18,6 +18,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include "tools/dop/parser_grammar.h"
-#include "tools/dop/parser_action.h"
-#include "tools/dop/parser_control.h"
+#include "tools/dop/parsers/dop/parser_grammar.h"
+#include "tools/dop/parsers/dop/parser_action.h"
+#include "tools/dop/parsers/dop/parser_control.h"

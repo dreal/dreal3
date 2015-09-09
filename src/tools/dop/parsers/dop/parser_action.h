@@ -27,8 +27,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <list>
 #include <string>
 #include <unordered_map>
-#include "tools/dop/pstate.h"
-#include "tools/dop/parser.h"
+#include "tools/dop/parsers/dop/pstate.h"
+#include "tools/dop/parsers/dop/parser.h"
 
 namespace dop {
 template<typename Rule>

@@ -30,7 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/api/OpenSMTContext.h"
-#include "tools/dop/stacks.h"
+#include "tools/dop/parsers/dop/stacks.h"
 #include "tools/dop/var_map.h"
 
 namespace dop {
