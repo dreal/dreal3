@@ -164,25 +164,25 @@ state_val[1] = """
 
 # 4 steps (1/3, 1/2, 2/3, 1) * 0.5
 cont_cond[1] = ["""
-(assert (or (not (= mode_1_{0} 1)) (not (= mode_1_{0} 0))))
-(assert (or (not (= mode_1_{1} 1)) (not (= mode_1_{1} 0))))
-(assert (or (not (= mode_2_{0} 1)) (not (= mode_2_{0} 0))))
-(assert (or (not (= mode_2_{1} 1)) (not (= mode_2_{1} 0))))
+(assert (or (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2))))
+(assert (or (not (= mode_1_{1} 1)) (not (= mode_1_{1} 2))))
+(assert (or (not (= mode_2_{0} 2)) (not (= mode_2_{0} 1))))
+(assert (or (not (= mode_2_{1} 2)) (not (= mode_2_{1} 1))))
 
-(assert (or (and (= mode_1_{0} 1)  (connect holder_{1} flow_2))
-            (and (= mode_1_{0} 0) (connect holder_{1} flow_3))))
+(assert (or (and (= mode_1_{0} 2)  (connect holder_{1} flow_2))
+            (and (= mode_1_{0} 1) (connect holder_{1} flow_3))))
 (assert (not (and (connect holder_{1} flow_2)  (connect holder_{1} flow_3))))""",
 """
-(assert (or (and (= mode_1_{0} 1)  (connect holder_{1} flow_2))
-            (and (= mode_1_{0} 0) (connect holder_{1} flow_3))))
+(assert (or (and (= mode_1_{0} 2)  (connect holder_{1} flow_2))
+            (and (= mode_1_{0} 1) (connect holder_{1} flow_3))))
 (assert (not (and (connect holder_{1} flow_2)  (connect holder_{1} flow_3))))""",
 """
-(assert (or (and (= mode_1_{0} 1)  (connect holder_{1} flow_2))
-            (and (= mode_1_{0} 0) (connect holder_{1} flow_3))))
+(assert (or (and (= mode_1_{0} 2)  (connect holder_{1} flow_2))
+            (and (= mode_1_{0} 1) (connect holder_{1} flow_3))))
 (assert (not (and (connect holder_{1} flow_2) (connect holder_{1} flow_3))))""",
 """
-(assert (or (and (= mode_1_{0} 1)  (connect holder_{1} flow_2))
-            (and (= mode_1_{0} 0) (connect holder_{1} flow_3))))
+(assert (or (and (= mode_1_{0} 2)  (connect holder_{1} flow_2))
+            (and (= mode_1_{0} 1) (connect holder_{1} flow_3))))
 (assert (not (and (connect holder_{1} flow_2) (connect holder_{1} flow_3))))"""]
 
 # 4 steps (1/3, 1/2, 2/3, 1) * 0.5
@@ -191,15 +191,15 @@ jump_cond[1] = ["""
 (assert (= mode_1_{1} mode_1_{0}))""",
 """
 (assert (= xAIL_{1}_0 xAIL_{0}_t))
-(assert (or (and (>= gAIL_{0}_t xAIL_{0}_t) (= mode_1_{1} 1))
-            (and (<  gAIL_{0}_t xAIL_{0}_t) (= mode_1_{1} 0))))""",
+(assert (or (and (>= gAIL_{0}_t xAIL_{0}_t) (= mode_1_{1} 2))
+            (and (<  gAIL_{0}_t xAIL_{0}_t) (= mode_1_{1} 1))))""",
 """
 (assert (= xAIL_{1}_0 xAIL_{0}_t))
 (assert (= mode_1_{1} mode_1_{0}))""",
 """
 (assert (and (= xAIL_{1}_0 xAIL_{0}_t)))
-(assert (or (and (>= gAIL_{0}_t xAIL_{0}_t) (= mode_1_{1} 1))
-            (and (<  gAIL_{0}_t xAIL_{0}_t) (= mode_1_{1} 0))))"""]
+(assert (or (and (>= gAIL_{0}_t xAIL_{0}_t) (= mode_1_{1} 2))
+            (and (<  gAIL_{0}_t xAIL_{0}_t) (= mode_1_{1} 1))))"""]
 
 ##########
 # Rudder #
@@ -227,39 +227,39 @@ state_val[2] = """
 
 # 4 steps (1/3, 1/2, 2/3, 1) * 0.5
 cont_cond[2] = ["""
-(assert (or (and (= mode_2_{0} 1)  (connect holder_{2} flow_4))
-            (and (= mode_2_{0} 0) (connect holder_{2} flow_5))))
+(assert (or (and (= mode_2_{0} 2)  (connect holder_{2} flow_4))
+            (and (= mode_2_{0} 1) (connect holder_{2} flow_5))))
 (assert (not (and (connect holder_{2} flow_4)  (connect holder_{2} flow_5))))""",
 """
-(assert (or (and (= mode_2_{0} 1)  (connect holder_{2} flow_4))
-            (and (= mode_2_{0} 0) (connect holder_{2} flow_5))))
+(assert (or (and (= mode_2_{0} 2)  (connect holder_{2} flow_4))
+            (and (= mode_2_{0} 1) (connect holder_{2} flow_5))))
 (assert (not (and (connect holder_{2} flow_4)  (connect holder_{2} flow_5))))""",
 """
-(assert (or (and (= mode_2_{0} 1)  (connect holder_{2} flow_4))
-            (and (= mode_2_{0} 0) (connect holder_{2} flow_5))))
+(assert (or (and (= mode_2_{0} 2)  (connect holder_{2} flow_4))
+            (and (= mode_2_{0} 1) (connect holder_{2} flow_5))))
 (assert (not (and (connect holder_{2} flow_4) (connect holder_{2} flow_5))))""",
 """
-(assert (or (and (= mode_2_{0} 1)  (connect holder_{2} flow_4))
-            (and (= mode_2_{0} 0) (connect holder_{2} flow_5))))
+(assert (or (and (= mode_2_{0} 2)  (connect holder_{2} flow_4))
+            (and (= mode_2_{0} 1) (connect holder_{2} flow_5))))
 (assert (not (and (connect holder_{2} flow_4) (connect holder_{2} flow_5))))"""]
            
 
 # 4 steps (1/3, 1/2, 2/3, 1) * 0.5
 jump_cond[2] = ["""
 (assert (= xRDR_{1}_0 xRDR_{0}_t))
-(assert (or (and (>= gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 1))
-            (and (<  gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 0))))""", 
+(assert (or (and (>= gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 2))
+            (and (<  gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 1))))""", 
 """
 (assert (= xRDR_{1}_0 xRDR_{0}_t))
 (assert (= mode_2_{1} mode_2_{0}))""", 
 """
 (assert (= xRDR_{1}_0 xRDR_{0}_t))
-(assert (or (and (>= gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 1))
-            (and (<  gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 0))))""", 
+(assert (or (and (>= gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 2))
+            (and (<  gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 1))))""", 
 """
 (assert (= xRDR_{1}_0 xRDR_{0}_t))
-(assert (or (and (>= gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 1))
-            (and (<  gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 0))))"""] 
+(assert (or (and (>= gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 2))
+            (and (<  gRDR_{0}_t xRDR_{0}_t) (= mode_2_{1} 1))))"""] 
 
 
 
@@ -270,8 +270,8 @@ jump_cond[2] = ["""
 init_cond = """
 (assert (and (= tau_{0}_0 0)  (= gRDR_{0}_0 0) (= gAIL_{0}_0 0) (= psi_{0}_0 0) 
              (= phi_{0}_0 0)  (= r_{0}_0 0)    (= p_{0}_0 0)    (= beta_{0}_0 0)))
-(assert (and (= xAIL_{0}_0 0) (= mode_1_{0} 1)))
-(assert (and (= xRDR_{0}_0 0) (= mode_2_{0} 1)))
+(assert (and (= xAIL_{0}_0 0) (= mode_1_{0} 2)))
+(assert (and (= xRDR_{0}_0 0) (= mode_2_{0} 2)))
 """
 
 goal_cond = """
