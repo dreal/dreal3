@@ -28,11 +28,11 @@ state_val[0] = """
 cont_cond[0] = ["""
 (assert (and (>= tau_{0}_0 0) (<= tau_{0}_0 1)
              (>= tau_{0}_t 0) (<= tau_{0}_t 1)))
-(assert (and (= [x1_{0}_t x2_{0}_t x3_{0}_t tau_{0}_t] 
+(assert (and (= [x1_{0}_t x2_{0}_t tau_{0}_t] 
                 (pintegral 0. time_{0} 
-                           [x1_{0}_0 x2_{0}_0 x3_{0}_0 tau_{0}_0]
-                           [holder_{1} holder_{2} holder_{3} holder_{4}]))
-             (connect holder_{4} flow_1)))"""]
+                           [x1_{0}_0 x2_{0}_0 tau_{0}_0] 
+                           [holder_{1} holder_{2} holder_{3}]))
+             (connect holder_{3} flow_1)))"""]
 
 jump_cond[0] = ["""
 (assert (and (= tau_{0}_t 1) (= tau_{1}_0 0)))"""]
@@ -51,9 +51,9 @@ flow_dec[1] = """
 """
 
 state_dec[1] = """
-(declare-fun mode_1_{0} () Int) 
-(declare-fun x1_{0}_0 () Real)  
-(declare-fun x1_{0}_t () Real)  
+(declare-fun mode_1_{0} () Int)
+(declare-fun x1_{0}_0 () Real)
+(declare-fun x1_{0}_t () Real)
 """
 
 state_val[1] = """
@@ -62,13 +62,16 @@ state_val[1] = """
 """
 
 cont_cond[1] = ["""
-(assert (or (and (= mode_1_{0} true) (connect holder_{1} flow_2))
+(assert (or (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2))))
+(assert (or (not (= mode_2_{0} 2)) (not (= mode_2_{0} 1))))
+
+(assert (or (and (= mode_1_{0} 2) (connect holder_{1} flow_2))
             (and (= mode_1_{0} 1) (connect holder_{1} flow_3))))
 (assert (not (and (connect holder_{1} flow_2) (connect holder_{1} flow_3))))"""]
 
 jump_cond[1] = ["""
 (assert (and (= x1_{1}_0 x1_{0}_t)))
-(assert (or (and (< x1_{0}_t 5) (= mode_1_{1} true))
+(assert (or (and (< x1_{0}_t 5) (= mode_1_{1} 2))
             (and (>= x1_{0}_t 5) (= mode_1_{1} 1))))"""]
 
 ################
@@ -105,44 +108,6 @@ jump_cond[2] = ["""
 (assert (or (and (< x2_{0}_t 5) (= mode_2_{1} 2))
             (and (>= x2_{0}_t 5) (= mode_2_{1} 1))))"""]
 
-################
-# water tank 3 #
-################
-
-flow_var[3] = """
-(declare-fun x3 () Real)
-"""
-
-flow_dec[3] = """
-(define-ode flow_6 ((= d/dt[x3] (/ (+ 4 (* (* 0.5 (^ (* 2 9.80665) 0.5)) (- (^ x2 0.5) (^ x3 0.5)))) 3))))
-(define-ode flow_7 ((= d/dt[x3] (/ (* (* 0.5 (^ (* 2 9.80665) 0.5)) (- (^ x2 0.5) (^ x3 0.5))) 3))))
-"""
-
-state_dec[3] = """
-(declare-fun mode_3_{0} () Int)
-(declare-fun x3_{0}_0 () Real)  
-(declare-fun x3_{0}_t () Real)  
-"""
-
-state_val[3] = """
-(assert (<= 0 x3_{0}_0)) (assert (<= x3_{0}_0 10))
-(assert (<= 0 x3_{0}_t)) (assert (<= x3_{0}_t 10))
-"""
-
-cont_cond[3] = ["""
-(assert (or (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2))))
-(assert (or (not (= mode_2_{0} 2)) (not (= mode_2_{0} 1))))
-(assert (or (not (= mode_3_{0} 2)) (not (= mode_3_{0} 1))))
-
-(assert (or (and (= mode_3_{0} 2) (connect holder_{3} flow_6))
-            (and (= mode_3_{0} 1) (connect holder_{3} flow_7))))
-(assert (not (and (connect holder_{3} flow_6) (connect holder_{3} flow_7))))"""]
-
-jump_cond[3] = ["""
-(assert (and (= x3_{1}_0 x3_{0}_t)))
-(assert (or (and (< x3_{0}_t 5) (= mode_3_{1} 2))
-            (and (>= x3_{0}_t 5) (= mode_3_{1} 1))))"""]
-
 
 #############
 # Init/Goal #
@@ -154,14 +119,11 @@ init_cond = """
 (assert (and (>= x1_{0}_0 (- 5 0.1)) (<= x1_{0}_0 (+ 5 0.1))))
 (assert (= mode_2_{0} 2))
 (assert (and (>= x2_{0}_0 (- 5 0.1)) (<= x2_{0}_0 (+ 5 0.1))))
-(assert (= mode_3_{0} 2))
-(assert (and (>= x3_{0}_0 (- 5 0.1)) (<= x3_{0}_0 (+ 5 0.1))))
 """
 
 goal_cond = """
 (assert (or (< x1_{0}_t (- 5 2)) (> x1_{0}_t (+ 5 2))))
 (assert (or (< x2_{0}_t (- 5 2)) (> x2_{0}_t (+ 5 2))))
-(assert (or (< x3_{0}_t (- 5 2)) (> x3_{0}_t (+ 5 2))))
 """
 
 import sys
@@ -170,5 +132,5 @@ try:
 except:
     print("Usage:", sys.argv[0], "<Bound>")
 else:
-    generate(bound, 1, [0,1,2,3], 4, init_cond, goal_cond)
+    generate(bound, 1, [0,1,2], 3, init_cond, goal_cond)
 

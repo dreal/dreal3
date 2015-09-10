@@ -62,13 +62,13 @@ state_val[1] = """
 """
 
 cont_cond[1] = ["""
-(assert (or (and (= mode_1_{0} true) (connect holder_{1} flow_2))
+(assert (or (and (= mode_1_{0} 2) (connect holder_{1} flow_2))
             (and (= mode_1_{0} 1) (connect holder_{1} flow_3))))
 (assert (not (and (connect holder_{1} flow_2) (connect holder_{1} flow_3))))"""]
 
 jump_cond[1] = ["""
 (assert (and (= x1_{1}_0 x1_{0}_t)))
-(assert (or (and (< x1_{0}_t 5) (= mode_1_{1} true))
+(assert (or (and (< x1_{0}_t 5) (= mode_1_{1} 2))
             (and (>= x1_{0}_t 5) (= mode_1_{1} 1))))"""]
 
 ################
@@ -159,9 +159,9 @@ init_cond = """
 """
 
 goal_cond = """
-(assert (or (< x1_{0}_t (- 5 2)) (> x1_{0}_t (+ 5 2))))
-(assert (or (< x2_{0}_t (- 5 2)) (> x2_{0}_t (+ 5 2))))
-(assert (or (< x3_{0}_t (- 5 2)) (> x3_{0}_t (+ 5 2))))
+(assert (or (< x1_{0}_t (- 5 0.1)) (> x1_{0}_t (+ 5 0.1))))
+(assert (or (< x2_{0}_t (- 5 0.1)) (> x2_{0}_t (+ 5 0.1))))
+(assert (or (< x3_{0}_t (- 5 0.1)) (> x3_{0}_t (+ 5 0.1))))
 """
 
 import sys
