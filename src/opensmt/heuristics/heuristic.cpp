@@ -24,6 +24,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unordered_set>
 #include <utility>
+#include <chrono>
 #include "heuristic.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"

@@ -510,19 +510,39 @@ bool plan_heuristic::expand_path() {
           current_decision->push_back(false);
           current_decision->push_back(true);
 
-      if (current_decision->size() == 0){
-	DREAL_LOG_INFO << "No decisions left at time " << time << endl;
-	return false;
-      }
-    
-      m_decision_stack.push_back(new pair<Enode*, vector<bool>*>(current_enode, current_decision));
-    
+        }
+
+        // // remove choices that are too costly for time
+        // for (auto c : *current_decision)  {
+        //   if ((*m_cost[autom])[ c-1 ] > time)  {
+        //         DREAL_LOG_INFO << "Removing too costly " << c << endl;
+        //         auto e = current_decision_copy.find(c);
+        //         if (e != current_decision_copy.end()) {
+        //             current_decision_copy.erase(e);
+        //         }
+        //     }
+        // }
+
+        // current_decision->clear();
+        // current_decision->insert(current_decision->begin(), current_decision_copy.begin(), current_decision_copy.end());
+
+        if (current_decision->size() == 0) {
+            DREAL_LOG_INFO << "No decisions left at time " << time << endl;
+            return false;
+        }
+
+        //    sort (current_decision->begin(), current_decision->end(), SubgoalCompare(autom, *this));
+
+        m_decision_stack.push_back(new pair<Enode*, vector<bool>*>(current_enode, current_decision));
+
+        // for (auto d : *current_decision) {
+        //     DREAL_LOG_INFO << "dec = " << d << endl;
+        // }
+        // }
     }
-    }
-	return static_cast<int>(m_decision_stack.size()) ==
-	  num_choices_per_happening*(m_depth); // successfully found a full path
-      // static_cast<int>(m_decision_stack.size()) ==
-      // num_choices_per_happening*(m_depth); // successfully found a full path
+
+    return static_cast<int>(m_decision_stack.size()) ==
+      num_choices_per_happening*(m_depth); // successfully found a full path
 }
 
   // undo choices on m_decision_stack until earliest violated decision
