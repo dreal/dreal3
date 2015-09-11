@@ -114,6 +114,8 @@ Enode * make_min_var(OpenSMTContext & ctx, unordered_map<string, Enode *> & m) {
     Snode * const real_sort = ctx.mkSortReal();
     ctx.DeclareFun(g_minimum_name, real_sort);
     Enode * const min_var = ctx.mkVar(g_minimum_name, true);
+    min_var->setDomainLowerBound(numeric_limits<double>::lowest());
+    min_var->setDomainUpperBound(numeric_limits<double>::max());
     m.emplace(g_minimum_name, min_var);
     return min_var;
 }
