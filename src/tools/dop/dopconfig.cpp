@@ -66,6 +66,9 @@ config::config(int const argc, const char * argv[]) {
     opt.add("", false, 0, 0,
             "show debug information",
             "--debug");
+    opt.add("", false, 0, 0,
+            "use polytope contractor",
+            "--polytope");
     opt.parse(argc, argv);
     opt.overview  = "dOp ";
 
@@ -100,6 +103,9 @@ config::config(int const argc, const char * argv[]) {
     }
     if (opt.isSet("--debug")) {
         set_debug(true);
+    }
+    if (opt.isSet("--polytope")) {
+        set_polytope(true);
     }
 
     // Set up filename

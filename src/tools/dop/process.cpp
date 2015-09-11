@@ -169,6 +169,7 @@ int process_baron(config const & config) {
     OpenSMTContext & ctx = *baron_ctx;
     ctx.setLocalOpt(config.get_local_opt());
     ctx.setDebug(config.get_debug());
+    ctx.setPolytope(config.get_polytope());
     unordered_map<string, Enode *> var_map = baron_var_map;
     Enode * const cost_fn = baron_cost_fn;
     vector<Enode *> & ctrs_X = baron_ctrs;
@@ -193,6 +194,7 @@ int process_dop(config const & config) {
     ctx.setPrecision(prec);
     ctx.setLocalOpt(config.get_local_opt());
     ctx.setDebug(config.get_debug());
+    ctx.setPolytope(config.get_polytope());
     unordered_map<string, Enode *> var_map = p.get_var_map();
     Enode * const cost_fn = p.get_cost();
     vector<Enode *> ctrs_X = p.get_ctrs();

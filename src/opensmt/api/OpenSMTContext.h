@@ -290,6 +290,9 @@ public:
       }
       config.nra_debug = b;
   }
+  inline void       setPolytope(bool b) {
+      config.nra_polytope = b;
+  }
   inline void       setStat(bool b) { config.nra_use_stat = b; }
 
 private:
