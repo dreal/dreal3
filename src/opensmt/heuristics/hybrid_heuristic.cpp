@@ -530,6 +530,7 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
       int time = m_depth - ((static_cast<int>(m_decision_stack.size()))/num_autom);
       int autom = (static_cast<int>(m_decision_stack.size()))%num_autom;
 
+  
       vector<labeled_transition*> * current_decision = new vector<labeled_transition*>();
 
       int parent_index = (static_cast<int>(m_decision_stack.size()))-num_autom;
@@ -1102,6 +1103,8 @@ bool hybrid_heuristic::getSuggestions() {
     return true;
   }
 
+  
+
     // suggest default guesses at other literals
     // if(suggest_defaults){
     //   for(auto e : default_true_suggestions){
@@ -1363,7 +1366,7 @@ bool hybrid_heuristic::getSuggestions() {
   }
 
   DREAL_LOG_DEBUG << "Conflict from heuristic: (" << cc.str() << ")";
-  
+
   return Clause_new(literals);
 }
   

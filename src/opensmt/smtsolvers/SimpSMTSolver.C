@@ -334,7 +334,7 @@ skip_theory_preproc:
 #ifdef STATISTICS
   CoreSMTSolver::preproc_time = cpuTime( );
 #endif
-
+  
   lbool lresult = l_Undef;
   if (result) {
     if (!(config.nra_multiple_soln > 1)) {

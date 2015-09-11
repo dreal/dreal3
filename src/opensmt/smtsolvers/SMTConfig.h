@@ -22,6 +22,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
 #include <iostream>
+#include <chrono>
 #include <sys/stat.h>
 #include "common/Global.h"
 #include "util/stat.h"
@@ -222,7 +223,6 @@ struct SMTConfig
   std::string  nra_plan_domain;               // planning domain
   std::string  nra_plan_problem;              // planning instance
   int          nra_icp_decisions;             // number of icp branch nodes
-
   void inc_icp_decisions() { nra_icp_decisions++; }
   int  icp_decisions() { return nra_icp_decisions; }
 
