@@ -31,6 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "tools/dop/parsers/dop/parser.h"
 
 namespace dop {
+namespace dop_parser {
 template<typename Rule>
 struct action : pegtl::nothing<Rule> {};
 
@@ -428,7 +429,5 @@ template<> struct action<formula_neq> {
         p.parse_formula_neq();
     }
 };
-
-
-
+}  // namespace dop_parser
 }  // namespace dop

@@ -30,7 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "tools/dop/parsers/dop/pstate.h"
 
 namespace dop {
-
+namespace dop_parser {
 // Comments are introduced by a '#' and proceed to the end-of-line/file.
 struct comment : pegtl::if_must<pegtl::one<'#'>, pegtl::until<pegtl::eolf>> {};
 struct sep : pegtl::sor<pegtl::space, comment> {};
@@ -162,16 +162,16 @@ struct grammar : pegtl::must<pegtl::opt<prec_sec>, seps,
                              pegtl::opt<pegtl::seq<ctr_decl_sec, seps>>,
                              pegtl::eof> {};
 
-void check_grammar() {
-    std::cerr << "exp_plus_minus\n"; pegtl::analyze<dop::exp_plus_minus>();
-    std::cerr << "exp_times_div\n";  pegtl::analyze<dop::exp_times_div>();
-    std::cerr << "exp_sum\n";        pegtl::analyze<dop::exp_sum>();
-    std::cerr << "exp_prod\n";       pegtl::analyze<dop::exp_prod>();
-    std::cerr << "exp_term\n";       pegtl::analyze<dop::exp_term>();
-    std::cerr << "grammar\n";        pegtl::analyze<dop::grammar>();
-    std::cerr << "vardecl\n";        pegtl::analyze<dop::var_decl_sec>();
-    std::cerr << "costdecl\n";       pegtl::analyze<dop::cost_decl_sec>();
-    std::cerr << "ctrdecl\n";        pegtl::analyze<dop::ctr_decl_sec>();
-}
-
+// void check_grammar() {
+//     std::cerr << "exp_plus_minus\n"; pegtl::analyze<exp_plus_minus>();
+//     std::cerr << "exp_times_div\n";  pegtl::analyze<exp_times_div>();
+//     std::cerr << "exp_sum\n";        pegtl::analyze<exp_sum>();
+//     std::cerr << "exp_prod\n";       pegtl::analyze<exp_prod>();
+//     std::cerr << "exp_term\n";       pegtl::analyze<exp_term>();
+//     std::cerr << "grammar\n";        pegtl::analyze<grammar>();
+//     std::cerr << "vardecl\n";        pegtl::analyze<var_decl_sec>();
+//     std::cerr << "costdecl\n";       pegtl::analyze<cost_decl_sec>();
+//     std::cerr << "ctrdecl\n";        pegtl::analyze<ctr_decl_sec>();
+// }
+}  // namespace dop_parser
 }  // namespace dop

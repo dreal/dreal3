@@ -26,6 +26,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "tools/dop/parsers/dop/pstate.h"
 
 namespace dop {
+namespace dop_parser {
 
 using std::vector;
 using std::string;
@@ -115,4 +116,5 @@ ostream & stacks::debug(ostream & out) const {
     return out;
 }
 
+}  // namespace dop_parser
 }  // namespace dop

@@ -26,6 +26,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/api/OpenSMTContext.h"
 
 namespace dop {
+namespace dop_parser {
 
 class stacks {
 private:
@@ -50,6 +51,5 @@ public:
         m_op_stacks.clear();
     }
 };
-
-
+}  // namespace dop_parser
 }  // namespace dop

@@ -29,8 +29,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dop {
 
+enum class type { DOP, BARON };
+
 class config {
 private:
+    type m_type;
     std::string m_filename;
     unsigned long m_vis_cell = 50.0;
     bool m_run_visualization = false;
@@ -40,6 +43,7 @@ private:
     double m_prec = 0.0;
 
     void printUsage(ez::ezOptionParser & opt);
+    void set_type(type const ty) { m_type = ty; }
     void set_filename(std::string const & filename) { m_filename = filename; }
     void set_run_visualization(bool const b) { m_run_visualization = b; }
     void set_save_visualization(bool const b) { m_save_visualization = b; }
@@ -50,15 +54,16 @@ private:
 
 public:
     config(int const argc, const char * argv[]);
-    std::string get_filename() { return m_filename; }
-    unsigned long get_vis_cell() { return m_vis_cell; }
+    type get_type() const { return m_type; }
+    std::string get_filename() const { return m_filename; }
+    unsigned long get_vis_cell() const { return m_vis_cell; }
     bool get_run_visualization() const { return m_run_visualization; }
     bool get_save_visualization() const { return m_save_visualization; }
     double get_precision() const {
         return m_prec;
     }
-    bool get_local_opt() { return m_local_opt; }
-    bool get_debug() { return m_debug; }
+    bool get_local_opt() const { return m_local_opt; }
+    bool get_debug() const { return m_debug; }
     friend std::ostream & operator<<(std::ostream & out, config const & c);
 };
 

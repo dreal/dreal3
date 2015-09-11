@@ -118,6 +118,22 @@ config::config(int const argc, const char * argv[]) {
             cerr << "can't open file:" << filename << endl;
             exit(1);
         }
+        size_t pos_of_dot_in_filename = filename.find_last_of(".");
+        if (pos_of_dot_in_filename == string::npos) {
+            cerr << "filename: " << filename
+                 << " does not have an extension.";
+            exit(1);
+        }
+        string const file_ext = filename.substr(pos_of_dot_in_filename + 1);
+        if (file_ext == "dop") {
+            set_type(type::DOP);
+        } else if (file_ext == "bar") {
+            set_type(type::BARON);
+        } else {
+            cerr << "Input file: " << filename << endl
+                 << "Note: we only support .dop and .bar files." << endl;
+            exit(1);
+        }
     }
     set_filename(filename);
 }

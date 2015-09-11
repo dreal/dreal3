@@ -25,6 +25,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "tools/dop/parsers/dop/pstate.h"
 
 namespace dop {
+namespace dop_parser {
 
 using std::function;
 using std::vector;
@@ -117,4 +118,5 @@ void pstate::close() {
 void pstate::reduce(function<Enode*(OpenSMTContext & ctx, vector<Enode*> &, vector<string> &)> const & f) {
     m_stacks.reduce(f);
 }
+}  // namespace dop_parser
 }  // namespace dop

@@ -413,7 +413,7 @@ configure_file("${DREAL_SOURCE_DIR}/config.h.in" "${DREAL_BINARY_DIR}/config.h")
 include_directories("${DREAL_BINARY_DIR}")
 add_subdirectory(opensmt)
 ################################################################
-# PARSER
+# PARSER: SMT2
 ################################################################
 # Create custom command for flex/lex (note the outputs)
 ADD_CUSTOM_COMMAND(
@@ -437,6 +437,31 @@ ADD_CUSTOM_COMMAND(
 # it as generated
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2parser.cc GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc GENERATED)
+################################################################
+# PARSER: BARON
+################################################################
+# Create custom command for flex/lex (note the outputs)
+ADD_CUSTOM_COMMAND(
+  COMMAND ${FLEX_EXECUTABLE}
+  ARGS -o ${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronlexer.cc -Pbaron
+  ${DREAL_SOURCE_DIR}/tools/dop/parsers/baron/baronlexer.ll
+  DEPENDS ${DREAL_SOURCE_DIR}/tools/dop/parsers/baron/baronlexer.ll
+  OUTPUT  ${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronlexer.cc
+  )
+
+# Create custom command for bison/yacc (note the DEPENDS)
+ADD_CUSTOM_COMMAND(
+  COMMAND ${BISON_EXECUTABLE}
+  ARGS -d --name-prefix=baron -y ${DREAL_SOURCE_DIR}/tools/dop/parsers/baron/baronparser.yy
+  -o ${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronparser.cc
+  DEPENDS ${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronlexer.cc
+  DEPENDS ${DREAL_SOURCE_DIR}/tools/dop/parsers/baron/baronparser.yy
+  OUTPUT  ${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronparser.cc
+  )
+# Since parser.c does not exists yet when cmake is run, mark
+# it as generated
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronparser.cc GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronlexer.cc GENERATED)
 ################################################################
 add_subdirectory(icp)
 add_subdirectory(dsolvers)

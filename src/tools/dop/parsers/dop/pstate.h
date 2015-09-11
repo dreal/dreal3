@@ -34,7 +34,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "tools/dop/var_map.h"
 
 namespace dop {
-
+namespace dop_parser {
 class pstate {
 private:
     OpenSMTContext       m_ctx;
@@ -94,4 +94,5 @@ public:
         return m_var_map.get_var_map();
     }
 };
+}  // namespace dop_parser
 }  // namespace dop
