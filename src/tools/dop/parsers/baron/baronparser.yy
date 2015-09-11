@@ -115,7 +115,10 @@ script:         var_decl_sec
 
 var_decl:       TK_ID {
                     baron_ctx->DeclareFun($1, baron_ctx->mkSortReal());
-                    baron_var_map.emplace($1, baron_ctx->mkVar($1, true ));
+                    Enode * e = baron_ctx->mkVar($1, true);
+                    e->setDomainLowerBound(-1e51);
+                    e->setDomainUpperBound(+1e51);
+                    baron_var_map.emplace($1, e);
         }
         ;
 
