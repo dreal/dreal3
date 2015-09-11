@@ -167,6 +167,9 @@ int process_baron(config const & config) {
     ::baron_init_parser();
     ::baronparse();
     OpenSMTContext & ctx = *baron_ctx;
+    if (config.get_precision() > 0) {
+        ctx.setPrecision(config.get_precision());
+    }
     ctx.setLocalOpt(config.get_local_opt());
     ctx.setDebug(config.get_debug());
     ctx.setPolytope(config.get_polytope());
