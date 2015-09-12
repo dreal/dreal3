@@ -6,7 +6,7 @@ import re
 from subprocess import Popen, PIPE, call
 
 
-timeout = 20*60 # 10 Minute timeout
+timeout = 20*60 # 20 Minute timeout
 break_on_sat = False
 break_on_timeout = True
 
@@ -306,6 +306,8 @@ if __name__ == '__main__':
 			
 			benchmark_path = os.path.dirname(main_path + '/' + folder + '/')
 			
+			f = open(benchmark_path + '/' + gen + '_output.txt', 'w')
+			
 			normal_and_heuristic = []
 			
 			for z in range(0, 2):
@@ -316,6 +318,8 @@ if __name__ == '__main__':
 					
 				results_sub = []
 				final_bound = 0
+				
+				f.write('# Heuristic = ' + str(heuristic) + '\n')
 				
 				for x in range (min_bound, max_bound + 1):
 					final_bound = x
@@ -356,6 +360,8 @@ if __name__ == '__main__':
 					if not bench_result[0]:
 						print((x, bench_result[1], bench_result[3], bench_result[2]))
 						results_sub.append((x, bench_result[1], bench_result[3], bench_result[2]))
+						f.write(str(x) + ': ' + 'Result = ' + bench_result[1] + ', SAT Nodes = ' + bench_result[2] + ', Time = ' + bench_result[3] + '\n')
+						f.flush()
 					else:
 						if break_on_timeout:
 							break
@@ -364,6 +370,7 @@ if __name__ == '__main__':
 						break
 				normal_and_heuristic.append(((min_bound, final_bound), results_sub))
 				print(normal_and_heuristic)
+			f.close()
 			results_series.append((sub_series_description, normal_and_heuristic))
 		write_latex_tables([get_latex_table(results_series, description)], main_path, 'series_' + description)
 		#results.append(results_series)
