@@ -37,7 +37,7 @@ namespace dreal {
 
 enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
         PARALLEL_ALL, TIMEOUT, REALPAVER,
-        TRY, TRY_OR, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE,
+        TRY, TRY_OR, JOIN, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE,
         SAMPLE, AGGRESSIVE, FORALL,
 #ifdef SUPPORT_ODE
         CAPD_FWD, CAPD_BWD,
@@ -110,10 +110,12 @@ public:
     friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
     friend contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
     friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
+    friend contractor mk_contractor_seq(std::vector<contractor> const & v);
     friend contractor mk_contractor_seq(contractor const & c, std::vector<contractor> const & v);
     friend contractor mk_contractor_seq(contractor const & c1, std::vector<contractor> const & v, contractor const & c2);
     friend contractor mk_contractor_try(contractor const & c);
     friend contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
+    friend contractor mk_contractor_join(contractor const & c1, contractor const & c2);
     friend contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
@@ -139,7 +141,8 @@ class contractor_seq : public contractor_cell {
 private:
     std::vector<contractor> m_vec;
 public:
-    contractor_seq(std::initializer_list<contractor> const & l);
+    explicit contractor_seq(std::initializer_list<contractor> const & l);
+    explicit contractor_seq(std::vector<contractor> const & v);
     contractor_seq(contractor const & c, std::vector<contractor> const & v);
     contractor_seq(contractor const & c1, std::vector<contractor> const & v, contractor const & c2);
     box prune(box b, SMTConfig & config) const;
@@ -163,6 +166,17 @@ private:
     contractor const m_c2;
 public:
     contractor_try_or(contractor const & c1, contractor const & c2);
+    box prune(box b, SMTConfig & config) const;
+    std::ostream & display(std::ostream & out) const;
+};
+
+// contractor_join : Run C1 and C2, join the result (take a hull of the two results)
+class contractor_join : public contractor_cell {
+private:
+    contractor const m_c1;
+    contractor const m_c2;
+public:
+    contractor_join(contractor const & c1, contractor const & c2);
     box prune(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -254,10 +268,12 @@ public:
 };
 
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
+contractor mk_contractor_seq(std::vector<contractor> const & v);
 contractor mk_contractor_seq(contractor const & c, std::vector<contractor> const & v);
 contractor mk_contractor_seq(contractor const & c1, std::vector<contractor> const & v, contractor const & c2);
 contractor mk_contractor_try(contractor const & c);
 contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
+contractor mk_contractor_join(contractor const & c1, contractor const & c2);
 contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, contractor const & c);
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::initializer_list<contractor> const & clist);
