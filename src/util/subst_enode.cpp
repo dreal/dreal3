@@ -169,6 +169,10 @@ Enode * subst(OpenSMTContext & ctx, Enode * e, unordered_map<Enode *, Enode *> c
             Enode * const e2 = subst(ctx, e->get2nd(), m);
             Enode * res = ctx.mkEq(ctx.mkCons(e1, ctx.mkCons(e2)));
             return res;
+        } else if (e->isOr()) {
+            return ctx.mkOr(subst(ctx, e->getCdr(), m));
+        } else if (e->isAnd()) {
+            return ctx.mkAnd(subst(ctx, e->getCdr(), m));
         } else {
             ostringstream ss;
             ss << e;

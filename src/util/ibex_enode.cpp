@@ -238,7 +238,6 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
 ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const> & var_map, Enode * const e, lbool p, unordered_map<Enode*, ibex::Interval> const & subst) {
     assert(e->isTerm() && (e->isEq() || e->isLeq() || e->isGeq() || e->isLt() || e->isGt()));
 
-    // Enode * const rel = e->getCar();
     Enode * const first_op = e->get1st();
     Enode * const second_op = e->get2nd();
     ExprCtr const * ret = nullptr;
