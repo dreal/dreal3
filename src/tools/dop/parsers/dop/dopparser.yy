@@ -137,7 +137,7 @@ var_decl:       TK_LB numeral TK_COMMA numeral TK_RB TK_ID TK_SEMICOLON {
                     e->setDomainLowerBound(lb);
                     e->setDomainUpperBound(ub);
                     dop_var_map.emplace($6, e);
-                    // TODO(soonhok): free more?
+                    free($6);
         }
         |       numeral TK_ID TK_SEMICOLON {
                     double const c = $1;
@@ -148,7 +148,7 @@ var_decl:       TK_LB numeral TK_COMMA numeral TK_RB TK_ID TK_SEMICOLON {
                     e->setValueLowerBound(c);
                     e->setValueUpperBound(c);
                     dop_var_map.emplace($2, e);
-                    // TODO(soonhok): free more?
+                    free($2);
         }
         ;
 

@@ -170,7 +170,7 @@ Enode * make_vec_to_list(OpenSMTContext & ctx, vector<Enode *> v) {
     return ctx.mkCons(args);
 }
 
-int process_main(OpenSMTContext & ctx, config const & config, Enode * const cost_fn, unordered_map<string, Enode*> var_map, vector<Enode *> const & ctrs_X);
+int process_main(OpenSMTContext & ctx, config const & config, vector<Enode *> const & costs, unordered_map<string, Enode*> var_map, vector<Enode *> const & ctrs_X);
 
 int process_baron(config const & config) {
     FILE * fin = nullptr;
@@ -192,11 +192,11 @@ int process_baron(config const & config) {
     unordered_map<string, Enode *> var_map = baron_var_map;
     Enode * const cost_fn = baron_cost_fn;
     vector<Enode *> & ctrs_X = baron_ctrs;
-    return process_main(ctx, config, cost_fn, var_map, ctrs_X);
+    int const ret = process_main(ctx, config, {cost_fn}, var_map, ctrs_X);
     ::baronlex_destroy();
     fclose(fin);
     ::baron_cleanup_parser();
-    return 0;
+    return ret;
 }
 
 int process_dop(config const & config) {
@@ -240,16 +240,16 @@ int process_dop(config const & config) {
     unordered_map<string, Enode *> var_map = dop_var_map;
     vector<Enode *> & costs = dop_costs;
     vector<Enode *> & ctrs_X = dop_ctrs;
-    return process_main(ctx, config, costs[0], var_map, ctrs_X);
+    int const ret = process_main(ctx, config, costs, var_map, ctrs_X);
     ::doplex_destroy();
     fclose(fin);
     ::dop_cleanup_parser();
-    return 0;
+    return ret;
 }
 
 int process_main(OpenSMTContext & ctx,
                  config const & config,
-                 Enode * const cost_fn,
+                 vector<Enode *> const & costs,
                  unordered_map<string, Enode*> var_map,
                  vector<Enode *> const & ctrs_X) {
     // minimize cost(x)
@@ -265,10 +265,10 @@ int process_main(OpenSMTContext & ctx,
         ctrs_not_Y.push_back(ctr_not_Y);
     }
     Enode * min_var  = make_min_var(ctx, var_map);                       // min
-    Enode * eq_cost  = make_eq_cost(ctx, cost_fn, min_var);              // cost_fn(x) = min
-    Enode * leq_cost = make_leq_cost(ctx, var_map, cost_fn, min_var);    // min <= cost_fn(y)
+    Enode * eq_cost  = make_eq_cost(ctx, costs[0], min_var);              // costs[0](x) = min
+    Enode * leq_cost = make_leq_cost(ctx, var_map, costs[0], min_var);    // min <= costs[0](y)
     Enode * list_ctrs_not_Y = make_vec_to_list(ctx, ctrs_not_Y);         // !ctr1(y), ... , !ctrn(y)
-    Enode * or_term  = ctx.mkOr(ctx.mkCons(leq_cost, list_ctrs_not_Y));  // !ctr1(y) \/ ... \/ !ctrn(y) \/ (min <= cost_fn(y))
+    Enode * or_term  = ctx.mkOr(ctx.mkCons(leq_cost, list_ctrs_not_Y));  // !ctr1(y) \/ ... \/ !ctrn(y) \/ (min <= costs[0](y))
 
     vector<pair<string, Snode *>> sorted_var_list;
     for (Enode * e : or_term->get_forall_vars()) {
@@ -282,7 +282,7 @@ int process_main(OpenSMTContext & ctx,
              << " in [" << var.second->getDomainLowerBound() << ", "
              << var.second->getDomainUpperBound() << "]" << endl;
     }
-    cout << "Minimize   : " << cost_fn << endl;
+    cout << "Minimize   : " << costs[0] << endl;
     for (Enode * ctr_X : ctrs_X) {
         cout << "Constraint : " << ctr_X << endl;
     }
@@ -299,11 +299,11 @@ int process_main(OpenSMTContext & ctx,
         if (config.get_save_visualization()) {
             string vis_filename = config.get_filename() + ".py";
             ofstream of(vis_filename);
-            save_visualization_code(of, cost_fn, var_map, config.get_vis_cell(), g_minimum_name);
+            save_visualization_code(of, costs[0], var_map, config.get_vis_cell(), g_minimum_name);
             cout << "Visualization Code is saved at " << vis_filename << endl;
         }
         if (config.get_run_visualization()) {
-            run_visualization(cost_fn, var_map, config.get_vis_cell(), g_minimum_name);
+            run_visualization(costs[0], var_map, config.get_vis_cell(), g_minimum_name);
         }
     } else {
         cout << "unsat" << endl;
