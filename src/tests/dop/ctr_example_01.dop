@@ -1,11 +1,10 @@
 var:
-    x : [-5,5]
-    y : [-5,5]
+    [-5,5] x;
+    [-5,5] y;
 
 cost:
-    y * sin(x)
+    y * sin(x);
 
 ctr:
-    0.6 < cos(x) + y
-    3.5 > x * exp(y)
-
+    0.6 < cos(x) + y;
+    3.5 > x * exp(y);

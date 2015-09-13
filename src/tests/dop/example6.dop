@@ -1,6 +1,6 @@
 var:
-    x : [3,4]
-    y : [4,5]
+    [3,4] x;
+    [4,5] y;
 
 cost:
-        x * y + log (x + y) * exp (x + y / x)
+    x * y + log (x + y) * exp (x + y / x);
