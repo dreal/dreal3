@@ -18,7 +18,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "tools/dop/dopconfig.h"
-#include <pegtl.hh>
+#include <sys/stat.h>
 #include <cassert>
 #include <algorithm>
 #include <iostream>

@@ -315,20 +315,6 @@ ExternalProject_Add(CATCH
   INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/)
 
 ################################################################
-# External: PEGTL (parsing)
-################################################################
-ExternalProject_Add(PEGTL
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/PEGTL.git
-  GIT_TAG master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-  CONFIGURE_COMMAND echo "nothing to configure"
-  BUILD_COMMAND echo "nothing to build"
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include && cp -r -v pegtl.hh pegtl ${CMAKE_CURRENT_BINARY_DIR}/include/)
-
-################################################################
 # External: Easylogging++
 ################################################################
 ExternalProject_Add(EASYLOGGINGPP
@@ -505,7 +491,6 @@ else()
   add_library(dop ${DOP_SRCS})
 endif()
 
-add_dependencies(dop PEGTL)
 add_dependencies(dop IBEX)
 add_dependencies(dop NLOPT)
 add_dependencies(dop EASYLOGGINGPP)
@@ -627,7 +612,7 @@ endif()
 add_custom_target(update_pkgs
   COMMAND echo "Update External Packages"
   COMMAND ${CMAKE_BUILD_TOOL}
-  DEPENDS update_clp update_filib update_ibex update_nlopt update_capd update_catch update_pegtl update_easyloggingpp update_ezoptionparser update_json)
+  DEPENDS update_clp update_filib update_ibex update_nlopt update_capd update_catch update_easyloggingpp update_ezoptionparser update_json)
 
 add_custom_target(update_clp
   COMMAND git fetch --all && git reset --hard origin/master && make install -j
@@ -653,10 +638,6 @@ add_custom_target(update_capd
 add_custom_target(update_catch
   COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CATCH)
-
-add_custom_target(update_pegtl
-  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include && cp -v -r pegtl.hh pegtl ${CMAKE_CURRENT_BINARY_DIR}/include/
-  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/PEGTL)
 
 add_custom_target(update_easyloggingpp
   COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/

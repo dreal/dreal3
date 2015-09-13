@@ -18,7 +18,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <pegtl.hh>
 #include <cassert>
 #include <iostream>
 #include <string>
