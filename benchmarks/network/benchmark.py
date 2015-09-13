@@ -84,7 +84,7 @@ def preprocess_drh(path, drhfilename):
 		line = f_content_lines[i]
 		idx = str.find(line, '//')
 		if idx != -1:
-			line = line[0..idx]
+			line = line[0:idx]
 		f_content_lines[i] = line
 	
 	# Recreate content without comments
