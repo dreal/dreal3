@@ -19,7 +19,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <sys/stat.h>
 #include <ezOptionParser/ezOptionParser.hpp>
-#include <pegtl.hh>
 #include <algorithm>
 #include <cassert>
 #include <csignal>
@@ -39,7 +38,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/egraph/Enode.h"
 #include "tools/dop/dopconfig.h"
 #include "util/subst_enode.h"
-#include "tools/dop/parsers/dop/parser.h"
 #include "tools/dop/print_latex.h"
 #include "tools/dop/print_py.h"
 #include "tools/dop/process.h"
@@ -59,12 +57,26 @@ using std::string;
 using std::unordered_map;
 using std::vector;
 
+
+// Dop Parser
+extern int dopset_in(FILE * fin);
+extern int dopparse();
+extern int doplex_destroy();
+extern void dop_init_parser();
+extern void dop_cleanup_parser();
+extern OpenSMTContext * dop_ctx;
+extern bool dop_minimize;
+extern double dop_prec;
+extern vector<Enode *> dop_ctrs;
+extern vector<Enode *> dop_costs;
+extern unordered_map<string, Enode*> dop_var_map;
+
+// Baron Parser
 extern int baronset_in(FILE * fin);
 extern int baronparse();
 extern int baronlex_destroy();
 extern void baron_init_parser();
 extern void baron_cleanup_parser();
-
 extern OpenSMTContext * baron_ctx;
 extern bool baron_minimize;
 extern vector<Enode*> baron_ctrs;
@@ -186,24 +198,51 @@ int process_baron(config const & config) {
 }
 
 int process_dop(config const & config) {
-    pegtl::read_parser parser { config.get_filename() };
-    dop_parser::pstate p;
-    try {
-        parser.parse<dop_parser::grammar, dop_parser::action, dop_parser::control>(p);
-    } catch (pegtl::parse_error const & e) {
-        cerr << e.what() << endl;
-        return 1;
+    // pegtl::read_parser parser { config.get_filename() };
+    // dop_parser::pstate p;
+    // try {
+    //     parser.parse<dop_parser::grammar, dop_parser::action, dop_parser::control>(p);
+    // } catch (pegtl::parse_error const & e) {
+    //     cerr << e.what() << endl;
+    //     return 1;
+    // }
+    // OpenSMTContext & ctx = p.get_ctx();
+    // double const prec = config.get_precision() > 0 ? config.get_precision() : p.get_precision();
+    // ctx.setPrecision(prec);
+    // ctx.setLocalOpt(config.get_local_opt());
+    // ctx.setDebug(config.get_debug());
+    // ctx.setPolytope(config.get_polytope());
+    // unordered_map<string, Enode *> var_map = p.get_var_map();
+    // Enode * const cost_fn = p.get_cost();
+    // vector<Enode *> ctrs_X = p.get_ctrs();
+    // return process_main(ctx, config, cost_fn, var_map, ctrs_X);
+    FILE * fin = nullptr;
+    string filename = config.get_filename();
+    // Make sure file exists
+    if ((fin = fopen(filename.c_str(), "rt")) == nullptr) {
+        opensmt_error2("can't open file", filename.c_str());
     }
-    OpenSMTContext & ctx = p.get_ctx();
-    double const prec = config.get_precision() > 0 ? config.get_precision() : p.get_precision();
-    ctx.setPrecision(prec);
+    ::dopset_in(fin);
+    ::dop_init_parser();
+    ::dopparse();
+    OpenSMTContext & ctx = *dop_ctx;
+    if (dop_prec > 0) {
+        ctx.setPrecision(dop_prec);
+    }
+    if (config.get_precision() > 0) {
+        ctx.setPrecision(config.get_precision());
+    }
     ctx.setLocalOpt(config.get_local_opt());
     ctx.setDebug(config.get_debug());
     ctx.setPolytope(config.get_polytope());
-    unordered_map<string, Enode *> var_map = p.get_var_map();
-    Enode * const cost_fn = p.get_cost();
-    vector<Enode *> ctrs_X = p.get_ctrs();
-    return process_main(ctx, config, cost_fn, var_map, ctrs_X);
+    unordered_map<string, Enode *> var_map = dop_var_map;
+    vector<Enode *> & costs = dop_costs;
+    vector<Enode *> & ctrs_X = dop_ctrs;
+    return process_main(ctx, config, costs[0], var_map, ctrs_X);
+    ::doplex_destroy();
+    fclose(fin);
+    ::dop_cleanup_parser();
+    return 0;
 }
 
 int process_main(OpenSMTContext & ctx,

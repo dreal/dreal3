@@ -438,6 +438,31 @@ ADD_CUSTOM_COMMAND(
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2parser.cc GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc GENERATED)
 ################################################################
+# PARSER: DOP
+################################################################
+# Create custom command for flex/lex (note the outputs)
+ADD_CUSTOM_COMMAND(
+  COMMAND ${FLEX_EXECUTABLE}
+  ARGS -o ${DREAL_BINARY_DIR}/tools/dop/parsers/dop/doplexer.cc -Pdop
+  ${DREAL_SOURCE_DIR}/tools/dop/parsers/dop/doplexer.ll
+  DEPENDS ${DREAL_SOURCE_DIR}/tools/dop/parsers/dop/doplexer.ll
+  OUTPUT  ${DREAL_BINARY_DIR}/tools/dop/parsers/dop/doplexer.cc
+  )
+
+# Create custom command for bison/yacc (note the DEPENDS)
+ADD_CUSTOM_COMMAND(
+  COMMAND ${BISON_EXECUTABLE}
+  ARGS -d --name-prefix=dop -y ${DREAL_SOURCE_DIR}/tools/dop/parsers/dop/dopparser.yy
+  -o ${DREAL_BINARY_DIR}/tools/dop/parsers/dop/dopparser.cc
+  DEPENDS ${DREAL_BINARY_DIR}/tools/dop/parsers/dop/doplexer.cc
+  DEPENDS ${DREAL_SOURCE_DIR}/tools/dop/parsers/dop/dopparser.yy
+  OUTPUT  ${DREAL_BINARY_DIR}/tools/dop/parsers/dop/dopparser.cc
+  )
+# Since parser.c does not exists yet when cmake is run, mark
+# it as generated
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/dop/dopparser.cc GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/dop/doplexer.cc GENERATED)
+################################################################
 # PARSER: BARON
 ################################################################
 # Create custom command for flex/lex (note the outputs)
