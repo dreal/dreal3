@@ -44,6 +44,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "tools/dop/process.h"
 #include "tools/dop/visualize.h"
 #include "util/logging.h"
+#include "util/string.h"
 
 using std::back_inserter;
 using std::cerr;
@@ -124,13 +125,16 @@ Enode * make_leq_cost(OpenSMTContext & ctx, unordered_map<string, Enode *> const
     return leq;
 }
 
-Enode * make_min_var(OpenSMTContext & ctx, unordered_map<string, Enode *> & m) {
+Enode * make_min_var(OpenSMTContext & ctx, unordered_map<string, Enode *> & m, unsigned int i) {
+    stringstream ss;
     Snode * const real_sort = ctx.mkSortReal();
-    ctx.DeclareFun(g_minimum_name, real_sort);
-    Enode * const min_var = ctx.mkVar(g_minimum_name, true);
+    ss << g_minimum_name << "_" << i;
+    string name = ss.str();
+    ctx.DeclareFun(name.c_str(), real_sort);
+    Enode * const min_var = ctx.mkVar(name.c_str(), true);
     min_var->setDomainLowerBound(numeric_limits<double>::lowest());
     min_var->setDomainUpperBound(numeric_limits<double>::max());
-    m.emplace(g_minimum_name, min_var);
+    m.emplace(name, min_var);
     return min_var;
 }
 
@@ -150,13 +154,15 @@ void print_result(unordered_map<string, Enode*> const & map) {
     vector<pair<string, Enode*>> vec;
     copy(map.begin(), map.end(), back_inserter(vec));
     sort(vec.begin(), vec.end(), [](pair<string, Enode *> const & p1, pair<string, Enode *> const & p2) {
-            if (p1.first == g_minimum_name) {
+            bool const p1_starts_with_min = dreal::starts_with(p1.first, g_minimum_name);
+            bool const p2_starts_with_min = dreal::starts_with(p2.first, g_minimum_name);
+            if (p1_starts_with_min && !p2_starts_with_min) {
                 return false;
-            } else if (p2.first == g_minimum_name) {
-                return true;
-            } else {
-                return p1.first < p2.first;
             }
+            if (!p1_starts_with_min && p2_starts_with_min) {
+                return true;
+            }
+            return p1.first < p2.first;
         });
     for (auto const item : vec) {
         string name = item.first;
@@ -200,24 +206,6 @@ int process_baron(config const & config) {
 }
 
 int process_dop(config const & config) {
-    // pegtl::read_parser parser { config.get_filename() };
-    // dop_parser::pstate p;
-    // try {
-    //     parser.parse<dop_parser::grammar, dop_parser::action, dop_parser::control>(p);
-    // } catch (pegtl::parse_error const & e) {
-    //     cerr << e.what() << endl;
-    //     return 1;
-    // }
-    // OpenSMTContext & ctx = p.get_ctx();
-    // double const prec = config.get_precision() > 0 ? config.get_precision() : p.get_precision();
-    // ctx.setPrecision(prec);
-    // ctx.setLocalOpt(config.get_local_opt());
-    // ctx.setDebug(config.get_debug());
-    // ctx.setPolytope(config.get_polytope());
-    // unordered_map<string, Enode *> var_map = p.get_var_map();
-    // Enode * const cost_fn = p.get_cost();
-    // vector<Enode *> ctrs_X = p.get_ctrs();
-    // return process_main(ctx, config, cost_fn, var_map, ctrs_X);
     FILE * fin = nullptr;
     string filename = config.get_filename();
     // Make sure file exists
@@ -252,24 +240,39 @@ int process_main(OpenSMTContext & ctx,
                  vector<Enode *> const & costs,
                  unordered_map<string, Enode*> var_map,
                  vector<Enode *> const & ctrs_X) {
-    // minimize cost(x)
-    // satisfying ctr(x)
+    // minimize cost_i(x)
+    // satisfying ctr_j(x)
+    //
     // exists x. ctr(x) /\ forall y. [ctr(y) -> (cost(x) <= cost(y))]
     // exists x. ctr(x) /\ forall y. [!ctr(y) \/ (cost(x) <= cost(y))]
-    // exists x, min. cost(x) = min
-    //              /\ ctr(x)
-    //              /\ forall y. [!ctr(y) \/ min <= cost(y))]
-    vector<Enode *> ctrs_not_Y;
+    // exists x, min_1, ..., min_n.
+    //              /\ cost_i(x) = min_i
+    //               i
+    //
+    //              /\ ctr_j(x)
+    //               j
+    //
+    //              /\ forall y. [\/ !ctr_j(y) \/ min_i <= cost_i(y))]
+    //                             j            i
+    vector<Enode *> inside_forall_ctrs;
     for (Enode * ctr_X : ctrs_X) {
         Enode * ctr_not_Y = ctx.mkNot(ctx.mkCons(subst_exist_vars_to_univerally_quantified(ctx, var_map, ctr_X)));  // ctr(y)
-        ctrs_not_Y.push_back(ctr_not_Y);
+        inside_forall_ctrs.push_back(ctr_not_Y);
     }
-    Enode * min_var  = make_min_var(ctx, var_map);                       // min
-    Enode * eq_cost  = make_eq_cost(ctx, costs[0], min_var);              // costs[0](x) = min
-    Enode * leq_cost = make_leq_cost(ctx, var_map, costs[0], min_var);    // min <= costs[0](y)
-    Enode * list_ctrs_not_Y = make_vec_to_list(ctx, ctrs_not_Y);         // !ctr1(y), ... , !ctrn(y)
-    Enode * or_term  = ctx.mkOr(ctx.mkCons(leq_cost, list_ctrs_not_Y));  // !ctr1(y) \/ ... \/ !ctrn(y) \/ (min <= costs[0](y))
 
+    vector<Enode*> min_vars;
+    vector<Enode*> eq_costs;
+    for (unsigned i = 0; i < costs.size(); ++i) {
+        Enode * min_var_i = make_min_var(ctx, var_map, i);                      // min
+        Enode * eq_cost  = make_eq_cost(ctx, costs[i], min_var_i);              // cost_i(x) = min_i
+        Enode * leq_cost = make_leq_cost(ctx, var_map, costs[i], min_var_i);    // min <= costs[0](y)
+        min_vars.push_back(min_var_i);
+        eq_costs.push_back(eq_cost);
+        inside_forall_ctrs.push_back(leq_cost);
+    }
+
+    // !ctr_1(y) \/ ... \/ !ctr_m(y) \/ (min_1 <= costs_1(y) ... \/ (min_n <= costs_n(y)
+    Enode * or_term = ctx.mkOr(make_vec_to_list(ctx, inside_forall_ctrs));
     vector<pair<string, Snode *>> sorted_var_list;
     for (Enode * e : or_term->get_forall_vars()) {
         pair<string, Snode *> p = make_pair(e->getCar()->getName(), e->getSort());
@@ -282,11 +285,15 @@ int process_main(OpenSMTContext & ctx,
              << " in [" << var.second->getDomainLowerBound() << ", "
              << var.second->getDomainUpperBound() << "]" << endl;
     }
-    cout << "Minimize   : " << costs[0] << endl;
+    for (Enode * cost : costs) {
+        cout << "Minimize   : " << cost << endl;
+    }
     for (Enode * ctr_X : ctrs_X) {
         cout << "Constraint : " << ctr_X << endl;
     }
-    ctx.Assert(eq_cost);
+    for (Enode * eq_cost : eq_costs) {
+        ctx.Assert(eq_cost);
+    }
     for (Enode * ctr_X : ctrs_X) {
         ctx.Assert(ctr_X);
     }
@@ -299,11 +306,13 @@ int process_main(OpenSMTContext & ctx,
         if (config.get_save_visualization()) {
             string vis_filename = config.get_filename() + ".py";
             ofstream of(vis_filename);
-            save_visualization_code(of, costs[0], var_map, config.get_vis_cell(), g_minimum_name);
+            // TODO(soonhok): generalize for a multi-obj case
+            save_visualization_code(of, costs[0], var_map, config.get_vis_cell(), "min_0");
             cout << "Visualization Code is saved at " << vis_filename << endl;
         }
         if (config.get_run_visualization()) {
-            run_visualization(costs[0], var_map, config.get_vis_cell(), g_minimum_name);
+            // TODO(soonhok): generalize for a multi-obj case
+            run_visualization(costs[0], var_map, config.get_vis_cell(), "min_0");
         }
     } else {
         cout << "unsat" << endl;
