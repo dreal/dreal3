@@ -307,6 +307,32 @@ box refine_counterexample_with_nlopt(box counterexample, vector<Enode*> const & 
     return counterexample;
 }
 
+contractor make_contractor(Enode * e, lbool const polarity, box const & b, vector<nonlinear_constraint *> & ctrs) {
+    if (e->isNot()) {
+        return make_contractor(e->get1st(), !polarity, b, ctrs);
+    }
+    if (e->isOr()) {
+        // TODO(soonhok): arbitrary number of args
+        assert(e->getArity() == 2);
+        contractor c1 = make_contractor(e->get1st(), polarity, b, ctrs);
+        contractor c2 = make_contractor(e->get2nd(), polarity, b, ctrs);
+        return mk_contractor_join(c1, c2);
+    }
+    if (e->isAnd()) {
+        vector<contractor> ctcs;
+        e = e->getCdr();
+        while (!e->isEnil()) {
+            ctcs.push_back(make_contractor(e->getCar(), polarity, b, ctrs));
+            e = e->getCdr();
+        }
+        return mk_contractor_seq(ctcs);
+    } else {
+        nonlinear_constraint * ctr = new nonlinear_constraint(e, polarity);
+        ctrs.push_back(ctr);
+        return mk_contractor_ibex_fwdbwd(b, ctr);
+    }
+}
+
 box contractor_generic_forall::find_counterexample(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) const {
     static unsigned counter = 0;
     static unsigned useful_refinement = 0;
@@ -327,9 +353,7 @@ box contractor_generic_forall::find_counterexample(box const & b, unordered_set<
             polarity = !polarity;
             e = e->get1st();
         }
-        nonlinear_constraint * ctr = new nonlinear_constraint(e, polarity);
-        ctrs.push_back(ctr);
-        contractor ctc = mk_contractor_ibex_fwdbwd(counterexample, ctr);
+        contractor ctc = make_contractor(e, polarity, counterexample, ctrs);
         ctcs.push_back(ctc);
     }
     contractor fp = mk_contractor_fixpoint(term_cond, ctcs);
