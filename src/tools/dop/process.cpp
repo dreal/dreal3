@@ -27,6 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <exception>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <list>
 #include <string>
 #include <unordered_map>
@@ -49,6 +50,7 @@ using std::cerr;
 using std::copy;
 using std::endl;
 using std::list;
+using std::numeric_limits;
 using std::ofstream;
 using std::pair;
 using std::runtime_error;
