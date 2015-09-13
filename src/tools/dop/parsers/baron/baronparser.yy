@@ -40,14 +40,6 @@ std::vector<Enode*> baron_ctrs;
 Enode * baron_cost_fn;
 std::unordered_map<string, Enode*> baron_var_map;
 
-vector< string > * createNumeralList  ( const char * );
-vector< string > * pushNumeralList    ( vector< string > *, const char * );
-void               destroyNumeralList ( vector< string > * );
-
-list< Snode * > * createSortList  ( Snode * );
-list< Snode * > * pushSortList    ( list< Snode * > *, Snode * );
-void              destroySortList ( list< Snode * > * );
-
 void baronerror( const char * s )
 {
   printf( "At line %d: %s\n", baronlineno, s );
@@ -69,8 +61,8 @@ void baron_cleanup_parser() {
 
 %union
 {
-    std::pair<const char *, const char *> * char_ptr_pair;
-    std::vector<std::pair<const char *, const char *>> * char_ptr_pair_vec;
+    std::pair<char *, char *> * char_ptr_pair;
+    std::vector<std::pair<char *, char *>> * char_ptr_pair_vec;
     char  *                  str;
     Enode *                  enode;
 }
@@ -119,6 +111,7 @@ var_decl:       TK_ID {
                     e->setDomainLowerBound(-1e51);
                     e->setDomainUpperBound(+1e51);
                     baron_var_map.emplace($1, e);
+                    free($1);
         }
         ;
 
@@ -136,6 +129,7 @@ pos_var_decl:       TK_ID {
                         Enode * e = baron_ctx->mkVar($1);
                         e->setDomainLowerBound(0);
                         e->setValueLowerBound(0);
+                        free($1);
         }
         ;
 
@@ -157,13 +151,13 @@ pos_var_decl_sec:   TK_POS_VARIABLES pos_var_decl_list TK_SEMICOLON
 // =============================
 var_value_pair:
                 TK_ID TK_COLON TK_NUM TK_SEMICOLON {
-                    $$ = new std::pair<const char *, const char *>($1, $3);
+                    $$ = new std::pair<char *, char *>($1, $3);
                 }
         ;
 
 var_value_pair_list:
                 var_value_pair {
-                    auto l = new std::vector<std::pair<const char *, const char *>>();
+                    auto l = new std::vector<std::pair<char *, char *>>();
                     l->push_back(*($1));
                     delete $1;
                     $$ = l;
@@ -180,11 +174,14 @@ opt_lb_decl_sec:
 
 lb_decl_sec:    TK_LOWER_BOUNDS TK_LC var_value_pair_list TK_RC {
                     for (auto p : *$3) {
-                        const char * name = p.first;
-                        double const value = stod(p.second, nullptr);
+                        char * name = p.first;
+                        char * val = p.second;
+                        double const value = stod(val, nullptr);
                         Enode * e = baron_ctx->mkVar(name);
                         e->setDomainLowerBound(value);
                         e->setValueLowerBound(value);
+                        free(name);
+                        free(val);
                     }
                     delete $3;
                 }
@@ -197,11 +194,14 @@ opt_ub_decl_sec:
 
 ub_decl_sec:    TK_UPPER_BOUNDS TK_LC var_value_pair_list TK_RC {
                     for (auto p : *$3) {
-                        const char * name = p.first;
-                        double const value = stod(p.second, nullptr);
+                        char * name = p.first;
+                        char * val= p.second;
+                        double const value = stod(val, nullptr);
                         Enode * e = baron_ctx->mkVar(name);
                         e->setDomainUpperBound(value);
                         e->setValueUpperBound(value);
+                        free(name);
+                        free(val);
                     }
                     delete $3;
                 }
@@ -213,6 +213,7 @@ ub_decl_sec:    TK_UPPER_BOUNDS TK_LC var_value_pair_list TK_RC {
 
 eq_decl:        TK_ID TK_COLON formula TK_SEMICOLON {
                     $$ = $3;
+                    free($1);
         }
         ;
 
@@ -224,8 +225,8 @@ eq_decl_list:   eq_decl {
         }
         ;
 
-var_list:       TK_ID
-        |       TK_ID TK_COMMA var_list
+var_list:       TK_ID { free($1); }
+        |       TK_ID TK_COMMA var_list { free($1); }
         ;
 
 opt_eq_decl_sec:
