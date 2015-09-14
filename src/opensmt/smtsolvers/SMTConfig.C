@@ -127,6 +127,7 @@ SMTConfig::initializeConfig( )
   nra_ncbt                     = false;
   nra_local_opt                = false;
   nra_worklist_fp              = false;
+  nra_shrink_for_dop            = false;
   initLogging();
 }
 
@@ -456,6 +457,9 @@ SMTConfig::parseCMDLine( int argc
             "use worklist fixpoint algorithm",
             "--worklist-fp");
     opt.add("", false, 0, 0,
+            "shrink forall domain for dOp optimization",
+            "--shrink-for-dop");
+    opt.add("", false, 0, 0,
             "read formula from standard input",
             "--in");
 
@@ -501,6 +505,7 @@ SMTConfig::parseCMDLine( int argc
     nra_ncbt                = opt.isSet("--ncbt");
     nra_local_opt           = opt.isSet("--local-opt");
     nra_worklist_fp         = opt.isSet("--worklist-fp");
+    nra_shrink_for_dop      = opt.isSet("--shrink-for-opt");
 
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }

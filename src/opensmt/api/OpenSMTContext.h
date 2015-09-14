@@ -293,6 +293,9 @@ public:
   inline void       setPolytope(bool b) {
       config.nra_polytope = b;
   }
+  inline void       setShrinkForDop(bool b) {
+      config.nra_shrink_for_dop = b;
+  }
   inline void       setStat(bool b) { config.nra_use_stat = b; }
 
 private:
