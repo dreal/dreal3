@@ -28,7 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dop {
 
-enum class type { DOP, BARON };
+enum class type { DOP, BARON, BCH };
 
 class config {
 private:

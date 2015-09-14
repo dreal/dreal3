@@ -86,6 +86,18 @@ extern vector<Enode*> baron_ctrs;
 extern Enode * baron_cost_fn;
 extern unordered_map<string, Enode*> baron_var_map;
 
+// BCH Parser
+extern int bchset_in(FILE * fin);
+extern int bchparse();
+extern int bchlex_destroy();
+extern void bch_init_parser();
+extern void bch_cleanup_parser();
+extern OpenSMTContext * bch_ctx;
+extern bool bch_minimize;
+extern vector<Enode*> bch_ctrs;
+extern vector<Enode *> bch_costs;
+extern unordered_map<string, Enode*> bch_var_map;
+
 namespace dop {
 
 static const char g_minimum_name[] = "min";
@@ -234,6 +246,34 @@ int process_dop(config const & config) {
     ::doplex_destroy();
     fclose(fin);
     ::dop_cleanup_parser();
+    return ret;
+}
+
+int process_bch(config const & config) {
+    FILE * fin = nullptr;
+    string filename = config.get_filename();
+    // Make sure file exists
+    if ((fin = fopen(filename.c_str(), "rt")) == nullptr) {
+        opensmt_error2("can't open file", filename.c_str());
+    }
+    ::bchset_in(fin);
+    ::bch_init_parser();
+    ::bchparse();
+    OpenSMTContext & ctx = *bch_ctx;
+    if (config.get_precision() > 0) {
+        ctx.setPrecision(config.get_precision());
+    }
+    ctx.setLocalOpt(config.get_local_opt());
+    ctx.setDebug(config.get_debug());
+    ctx.setPolytope(config.get_polytope());
+    ctx.setShrinkForDop(config.get_sync());
+    unordered_map<string, Enode *> var_map = bch_var_map;
+    vector<Enode *> & costs = bch_costs;
+    vector<Enode *> & ctrs_X = bch_ctrs;
+    int const ret = process_main(ctx, config, costs, var_map, ctrs_X);
+    ::bchlex_destroy();
+    fclose(fin);
+    ::bch_cleanup_parser();
     return ret;
 }
 

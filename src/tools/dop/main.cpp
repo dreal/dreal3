@@ -29,5 +29,7 @@ int main(int argc, const char * argv[]) {
         return dop::process_dop(config);
     case dop::type::BARON:
         return dop::process_baron(config);
+    case dop::type::BCH:
+        return dop::process_bch(config);
     }
 }

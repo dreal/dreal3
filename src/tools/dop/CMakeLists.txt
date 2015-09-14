@@ -10,7 +10,8 @@ SET(DOP_SRCS "${DOP_SRCS}"
   "${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronlexer.cc"
   "${DREAL_BINARY_DIR}/tools/dop/parsers/dop/dopparser.cc"
   "${DREAL_BINARY_DIR}/tools/dop/parsers/dop/doplexer.cc"
-
+  "${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchparser.cc"
+  "${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchlexer.cc"
   PARENT_SCOPE)
 add_subdirectory(parsers/baron)
 add_subdirectory(parsers/dop)

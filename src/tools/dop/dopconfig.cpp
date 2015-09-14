@@ -141,6 +141,8 @@ config::config(int const argc, const char * argv[]) {
             set_type(type::DOP);
         } else if (file_ext == "bar") {
             set_type(type::BARON);
+        } else if (file_ext == "bch") {
+            set_type(type::BCH);
         } else {
             cerr << "Input file: " << filename << endl
                  << "Note: we only support .dop and .bar files." << endl;

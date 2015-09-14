@@ -24,4 +24,5 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dop {
 int process_baron(config const & config);
 int process_dop(config const & config);
+int process_bch(config const & config);
 }  // namespace dop

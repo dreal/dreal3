@@ -474,6 +474,31 @@ ADD_CUSTOM_COMMAND(
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronparser.cc GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronlexer.cc GENERATED)
 ################################################################
+# PARSER: BCH
+################################################################
+# Create custom command for flex/lex (note the outputs)
+ADD_CUSTOM_COMMAND(
+  COMMAND ${FLEX_EXECUTABLE}
+  ARGS -o ${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchlexer.cc -Pbch
+  ${DREAL_SOURCE_DIR}/tools/dop/parsers/bch/bchlexer.ll
+  DEPENDS ${DREAL_SOURCE_DIR}/tools/dop/parsers/bch/bchlexer.ll
+  OUTPUT  ${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchlexer.cc
+  )
+
+# Create custom command for bison/yacc (note the DEPENDS)
+ADD_CUSTOM_COMMAND(
+  COMMAND ${BISON_EXECUTABLE}
+  ARGS -d --name-prefix=bch -y ${DREAL_SOURCE_DIR}/tools/dop/parsers/bch/bchparser.yy
+  -o ${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchparser.cc
+  DEPENDS ${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchlexer.cc
+  DEPENDS ${DREAL_SOURCE_DIR}/tools/dop/parsers/bch/bchparser.yy
+  OUTPUT  ${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchparser.cc
+  )
+# Since parser.c does not exists yet when cmake is run, mark
+# it as generated
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchparser.cc GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchlexer.cc GENERATED)
+################################################################
 add_subdirectory(icp)
 add_subdirectory(dsolvers)
 add_subdirectory(util)
