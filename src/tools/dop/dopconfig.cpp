@@ -69,6 +69,9 @@ config::config(int const argc, const char * argv[]) {
     opt.add("", false, 0, 0,
             "use polytope contractor",
             "--polytope");
+    opt.add("", false, 0, 0,
+            "sync the domains of forall variables using corresponding existential variables",
+            "--sync");
     opt.parse(argc, argv);
     opt.overview  = "dOp ";
 
@@ -106,6 +109,9 @@ config::config(int const argc, const char * argv[]) {
     }
     if (opt.isSet("--polytope")) {
         set_polytope(true);
+    }
+    if (opt.isSet("--sync")) {
+        set_sync(true);
     }
 
     // Set up filename

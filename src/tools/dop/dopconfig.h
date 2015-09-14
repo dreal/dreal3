@@ -41,6 +41,7 @@ private:
     bool m_debug = false;
     bool m_polytope = false;
     double m_prec = 0.0;
+    bool m_sync = false;
 
     void printUsage(ez::ezOptionParser & opt);
     void set_type(type const ty) { m_type = ty; }
@@ -52,6 +53,7 @@ private:
     void set_local_opt(bool const b) { m_local_opt = b; }
     void set_debug(bool const b) { m_debug = b; }
     void set_polytope(bool const b) { m_polytope = b; }
+    void set_sync(bool const b) { m_sync = b; }
 
 public:
     config(int const argc, const char * argv[]);
@@ -66,6 +68,7 @@ public:
     bool get_local_opt() const { return m_local_opt; }
     bool get_debug() const { return m_debug; }
     bool get_polytope() const { return m_polytope; }
+    bool get_sync() const { return m_sync; }
     friend std::ostream & operator<<(std::ostream & out, config const & c);
 };
 

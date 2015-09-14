@@ -195,6 +195,7 @@ int process_baron(config const & config) {
     ctx.setLocalOpt(config.get_local_opt());
     ctx.setDebug(config.get_debug());
     ctx.setPolytope(config.get_polytope());
+    ctx.setShrinkForDop(config.get_sync());
     unordered_map<string, Enode *> var_map = baron_var_map;
     Enode * const cost_fn = baron_cost_fn;
     vector<Enode *> & ctrs_X = baron_ctrs;
@@ -225,6 +226,7 @@ int process_dop(config const & config) {
     ctx.setLocalOpt(config.get_local_opt());
     ctx.setDebug(config.get_debug());
     ctx.setPolytope(config.get_polytope());
+    ctx.setShrinkForDop(config.get_sync());
     unordered_map<string, Enode *> var_map = dop_var_map;
     vector<Enode *> & costs = dop_costs;
     vector<Enode *> & ctrs_X = dop_ctrs;
