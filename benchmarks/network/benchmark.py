@@ -242,48 +242,48 @@ if __name__ == '__main__':
 						#	("airplane", "Airplane", "N UNSAT", "airplane-network", ".drh", "unsat", True, (1, 5)),
 						#	("airplane", "Airplane", "N SAT", "airplane-network-sat", ".drh", "sat", True, (1, 5))
 						#  ],
+						  ## [
+							
+						  ## 	 ("airplane", "Airplane Single SAT", "Old", "airplane-single-sat", ".drh", "sat", False, (1, 5)),
+						  ## 	 ("airplane", "Airplane Single SAT", "New", "airplane-single-i-p-sat", ".py", "sat",False, (1, 5)),
+						  ## 	("airplane", "Airplane Single SAT", "Net", "airplane-single-network-sat", ".drh", "sat", True, (1, 5))
+						  ## ],
+						  ## [
+						  ## 	("airplane", "Airplane Single UNSAT", "Old", "airplane-single", ".drh", "unsat", False, (1, 5)),
+						  ## 	("airplane", "Airplane Single UNSAT", "New", "airplane-single-i-p", ".py", "unsat", False, (1, 5)),
+						  ## 	("airplane", "Airplane Single UNSAT", "Net", "airplane-single-network", ".drh", "unsat", True, (1, 5))
+						  ## ],
+						  ## [
+							
+						  ## 	("airplane-nl", "Airplane NL Single SAT", "Old", "airplane-single-nl-sat", ".drh", "sat", False, (1, 5)),
+						  ## 	("airplane-nl", "Airplane NL Single SAT", "New", "airplane-single-nl-i-p-sat", ".py", "sat", False, (1, 5)),
+						  ## 	("airplane-nl", "Airplane NL Single SAT", "Net", "airplane-single-nl-network-sat", ".drh", "sat", True, (1, 5))
+						  ## ],
+						  ## [
+						  ## 	("airplane-nl", "Airplane NL Single UNSAT", "Old", "airplane-single-nl", ".drh", "unsat", False, (1, 5)),
+						  ## 	("airplane-nl", "Airplane NL Single UNSAT", "New", "airplane-single-nl-i-p", ".py", "unsat", False, (1, 5)),
+						  ## 	("airplane-nl", "Airplane NL Single UNSAT", "Net", "airplane-single-nl-network", ".drh", "unsat", True, (1, 5))
+						  ## ],
+						  ## [
+							
+						  ## 	("water", "Water Double SAT", "Old", "water-double-sat", ".drh", "sat", False, (1, 5)),
+						  ## 	("water", "Water Double SAT", "New", "water-double-i-p-sat", ".py", "sat", False, (1, 5)),
+						  ## 	("water", "Water Double SAT", "Net", "water-double-network-sat", ".drh", "sat", True, (1, 5))
+						  ## ],
+						  ## [
+						  ## 	("water", "Water Double UNSAT", "Old", "water-double", ".drh", "unsat", False, (1, 5)),
+						  ## 	("water", "Water Double UNSAT", "New", "water-double-i-p", ".py", "unsat", False, (1, 5)),
+						  ## 	("water", "Water Double UNSAT", "Net", "water-double-network", ".drh", "unsat", True, (1, 5))
+						  ## ],
 						  [
 							
-							 ("airplane", "Airplane Single SAT", "Old", "airplane-single-sat", ".drh", "sat", False, (1, 5)),
-							## ("airplane", "Airplane Single SAT", "New", "airplane-single-i-p-sat", ".py", "sat",False, (1, 5)),
-							("airplane", "Airplane Single SAT", "Net", "airplane-single-network-sat", ".drh", "sat", True, (1, 5))
-						  ],
-						  [
-							("airplane", "Airplane Single UNSAT", "Old", "airplane-single", ".drh", "unsat", False, (1, 5)),
-							("airplane", "Airplane Single UNSAT", "New", "airplane-single-i-p", ".py", "unsat", False, (1, 5)),
-							("airplane", "Airplane Single UNSAT", "Net", "airplane-single-network", ".drh", "unsat", True, (1, 5))
-						  ],
-						  [
-							
-							("airplane-nl", "Airplane NL Single SAT", "Old", "airplane-single-nl-sat", ".drh", "sat", False, (1, 5)),
-							("airplane-nl", "Airplane NL Single SAT", "New", "airplane-single-nl-i-p-sat", ".py", "sat", False, (1, 5)),
-							("airplane-nl", "Airplane NL Single SAT", "Net", "airplane-single-nl-network-sat", ".drh", "sat", True, (1, 5))
-						  ],
-						  [
-							("airplane-nl", "Airplane NL Single UNSAT", "Old", "airplane-single-nl", ".drh", "unsat", False, (1, 5)),
-							("airplane-nl", "Airplane NL Single UNSAT", "New", "airplane-single-nl-i-p", ".py", "unsat", False, (1, 5)),
-							("airplane-nl", "Airplane NL Single UNSAT", "Net", "airplane-single-nl-network", ".drh", "unsat", True, (1, 5))
-						  ],
-						  [
-							
-							("water", "Water Double SAT", "Old", "water-double-sat", ".drh", "sat", False, (1, 5)),
-							("water", "Water Double SAT", "New", "water-double-i-p-sat", ".py", "sat", False, (1, 5)),
-							("water", "Water Double SAT", "Net", "water-double-network-sat", ".drh", "sat", True, (1, 5))
-						  ],
-						  [
-							("water", "Water Double UNSAT", "Old", "water-double", ".drh", "unsat", False, (1, 5)),
-							("water", "Water Double UNSAT", "New", "water-double-i-p", ".py", "unsat", False, (1, 5)),
-							("water", "Water Double UNSAT", "Net", "water-double-network", ".drh", "unsat", True, (1, 5))
-						  ],
-						  [
-							
-							("water", "Water Triple SAT", "Old", "water-triple-sat", ".drh", "sat", False, (1, 5)),
-							("water", "Water Triple SAT", "New", "water-triple-i-p-sat", ".py", "sat", False, (1, 5)),
+							## ("water", "Water Triple SAT", "Old", "water-triple-sat", ".drh", "sat", False, (1, 5)),
+							## ("water", "Water Triple SAT", "New", "water-triple-i-p-sat", ".py", "sat", False, (1, 5)),
 							("water", "Water Triple SAT", "Net", "water-triple-network-sat", ".drh", "sat", True, (1, 5))
 						  ],
 						  [
-							("water", "Water Triple UNSAT", "Old", "water-triple", ".drh", "unsat", False, (1, 5)),
-							("water", "Water Triple UNSAT", "New", "water-triple-i-p", ".py", "unsat", False, (1, 5)),
+							## ("water", "Water Triple UNSAT", "Old", "water-triple", ".drh", "unsat", False, (1, 5)),
+							## ("water", "Water Triple UNSAT", "New", "water-triple-i-p", ".py", "unsat", False, (1, 5)),
 							("water", "Water Triple UNSAT", "Net", "water-triple-network", ".drh", "unsat", True, (1, 5))
 						  ]
 						]
