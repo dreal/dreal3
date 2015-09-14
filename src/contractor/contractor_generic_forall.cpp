@@ -45,6 +45,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "constraint/constraint.h"
 #include "util/logging.h"
+#include "util/string.h"
 #include "util/proof.h"
 #include "util/eval.h"
 
@@ -333,12 +334,28 @@ contractor make_contractor(Enode * e, lbool const polarity, box const & b, vecto
     }
 }
 
+box shrink_for_dop(box b) {
+    for (Enode * e : b.get_vars()) {
+        string const name = e->getCar()->getName();
+        if (starts_with(name, "forall_")) {
+            string const exist_var_name = name.substr(7);
+            auto exist_var_intv = b[exist_var_name];
+            b[name] = exist_var_intv;
+        }
+    }
+    return b;
+}
+
 box contractor_generic_forall::find_counterexample(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) const {
     static unsigned counter = 0;
     static unsigned useful_refinement = 0;
     vector<nonlinear_constraint *> ctrs;
     vector<contractor> ctcs;
     box counterexample(b, forall_vars);
+
+    if (config.nra_shrink_for_dop) {
+        counterexample = shrink_for_dop(counterexample);
+    }
 
     if (DREAL_LOG_DEBUG_IS_ON) {
         for (Enode * e : vec) {
@@ -411,15 +428,7 @@ box contractor_generic_forall::find_counterexample(box const & b, unordered_set<
 
 box contractor_generic_forall::handle_disjunction(box b, unordered_set<Enode *> const & forall_vars, vector<Enode *> const &vec, bool const p, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_generic_forall::handle_disjunction" << endl;
-    // For now, we assume that body is a disjunction of *literals*. That is
-    //
-    //    body = l_1 ∨ .... ∨ l_n
-    //
-    // where l_i is either c_i or ¬ c_i
-    //
-    // TODO(soonhok): generalize this assumption
     // Step 1. Sample y \in By.
-    box extended_box(b, forall_vars);
     unordered_map<Enode*, ibex::Interval> subst;
     box old_box = b;
     do {
@@ -441,7 +450,7 @@ box contractor_generic_forall::handle_disjunction(box b, unordered_set<Enode *> 
         } else {
             // Step 2.2. (There IS a counterexample C)
             //
-            //           Using C, prune B.
+            //      Using C, prune B.
             //
             // We've found a counterexample (c1, c2) where ¬ f(c1, c2) holds
             // Prune X using a point 'y = c2'. (technically, a point in c2, which is an interval)
