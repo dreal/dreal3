@@ -374,7 +374,7 @@ box contractor_generic_forall::find_counterexample(box const & b, unordered_set<
         ctcs.push_back(ctc);
     }
     contractor fp = mk_contractor_fixpoint(term_cond, ctcs);
-    counterexample = ncbt_icp::solve(counterexample, fp, config);
+    counterexample = random_icp::solve(counterexample, fp, config);
     for (auto ctr : ctrs) {
         delete ctr;
     }
