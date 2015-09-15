@@ -80,17 +80,17 @@ contractor_generic_forall::contractor_generic_forall(box const & , generic_foral
     : contractor_cell(contractor_kind::FORALL), m_ctr(ctr) {
 }
 
-box contractor_generic_forall::handle(box b, unordered_set<Enode *> const & forall_vars, Enode * body, bool const p,  SMTConfig & config) const {
+box contractor_generic_forall::handle(box b, Enode * body, bool const p,  SMTConfig & config) const {
     if (body->isOr()) {
         vector<Enode *> vec = elist_to_vector(body->getCdr());
-        return handle_disjunction(b, forall_vars, vec, p, config);
+        return handle_disjunction(b, vec, p, config);
     } else if (body->isAnd()) {
         vector<Enode *> vec = elist_to_vector(body->getCdr());
-        return handle_conjunction(b, forall_vars, vec, p, config);
+        return handle_conjunction(b, vec, p, config);
     } else if (body->isNot()) {
-        return handle(b, forall_vars, body->get1st(), !p, config);
+        return handle(b, body->get1st(), !p, config);
     } else {
-        return handle_atomic(b, forall_vars, body, p, config);
+        return handle_atomic(b, body, p, config);
     }
 }
 
@@ -189,9 +189,6 @@ void nlopt_fill_gradient(const double * x, double * grad, void * extra) {
             deriv_i = - deriv_i;
         }
         grad[i] = deriv_i;
-        // cerr << e->get1st() << "\t" << e->get2nd() << "\t" << var << "\t"
-        //      << "x[" << i << "] = " << x[i] << "\t"
-        //      << "grad[" << i << "] = " << grad[i] << endl;
         i++;
     }
 }
@@ -374,72 +371,56 @@ box contractor_generic_forall::find_counterexample(box const & b, unordered_set<
         ctcs.push_back(ctc);
     }
     contractor fp = mk_contractor_fixpoint(term_cond, ctcs);
-    counterexample = random_icp::solve(counterexample, fp, config);
+    // double const prec = std::max(b.max_diam() / 10.0, config.nra_precision);
+    double const prec = config.nra_precision;
+    // cerr << "find CE, prec = " << prec << endl;
+    counterexample = random_icp::solve(counterexample, fp, config, prec);
     for (auto ctr : ctrs) {
         delete ctr;
     }
-    if (!counterexample.is_empty()) {
-        DREAL_LOG_DEBUG << "=====================" << endl
-                        << "Counter Example" << endl
-                        << counterexample
-                        << "=====================" << endl;
-
-        vector<Enode *> opt_ctrs;
-        vector<Enode *> side_ctrs;
-        for (Enode * e : vec) {
-            if (!e->get_exist_vars().empty()) {
-                DREAL_LOG_DEBUG << "optimization constraint: " << e << endl;
-                opt_ctrs.push_back(e);
-            } else if (!e->get_forall_vars().empty()) {
-                DREAL_LOG_DEBUG << "side constraint: " << e << endl;
-                side_ctrs.push_back(e);
-            }
-        }
-
-        if (config.nra_local_opt && opt_ctrs.size() == 1) {
-            box refined_counterexample = refine_counterexample_with_nlopt(counterexample, opt_ctrs, side_ctrs);
-            if (refined_counterexample.is_subset(counterexample)) {
-                DREAL_LOG_DEBUG << "find_counterexample: " << useful_refinement << " / " << ++counter << endl;
-                return counterexample;
-            } else {
-                DREAL_LOG_DEBUG << "REFINED ONE: " << endl
-                                << "====================" << endl
-                                << refined_counterexample <<endl
-                                << "====================" << endl;
-                DREAL_LOG_DEBUG << "Original One: " << endl
-                                << "====================" << endl
-                                << counterexample <<endl
-                                << "====================" << endl;
-                ++useful_refinement;
-                DREAL_LOG_DEBUG << "find_counterexample: " << useful_refinement << " / " << ++counter << endl;
-                return refined_counterexample;
-            }
-        } else {
-            DREAL_LOG_DEBUG << "NO REFINEMENT, opt_ctrs.size = " << opt_ctrs.size() << endl;
-        }
-    } else {
-        DREAL_LOG_DEBUG << "======================" << endl
-        << "No Counter Example found" << endl
-        << "======================" << endl;
-    }
-    DREAL_LOG_DEBUG << "find_counterexample: " << useful_refinement << " / " << ++counter << endl;
     return counterexample;
 }
 
-box contractor_generic_forall::handle_disjunction(box b, unordered_set<Enode *> const & forall_vars, vector<Enode *> const &vec, bool const p, SMTConfig & config) const {
+box contractor_generic_forall::find_CE(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) const {
+
+    // static unsigned under_approx = 0;
+    // static unsigned over_approx = 0;
+    box counterexample = find_CE_via_underapprox(b, forall_vars, vec, p, config);
+    if (!counterexample.is_empty()) {
+        // ++under_approx;
+        // cerr << "WE USE UNDERAPPROX: " << under_approx << "/" << over_approx<< "/" << (under_approx + over_approx) << endl;
+    }
+    else {
+        counterexample = find_CE_via_overapprox(b, forall_vars, vec, p, config);
+        // ++over_approx;
+        // cerr << "WE USE FULL       : " << under_approx << "/" << over_approx << "/" << (under_approx + over_approx)
+        //      << " " << counterexample.is_empty()
+        //      << endl;
+    }
+    if (!counterexample.is_empty() && config.nra_local_opt) {
+        return refine_counterexample_with_nlopt(counterexample, vec);
+    }
+    return counterexample;
+}
+
+box contractor_generic_forall::handle_disjunction(box b, vector<Enode *> const &vec, bool const p, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_generic_forall::handle_disjunction" << endl;
-    // Step 1. Sample y \in By.
+    unordered_set<Enode *> forall_vars;
+    for (Enode * e : vec) {
+        std::unordered_set<Enode *> const & vars = e->get_forall_vars();
+        forall_vars.insert(vars.begin(), vars.end());
+    }
+
     unordered_map<Enode*, ibex::Interval> subst;
-    box old_box = b;
-    do {
-        old_box = b;
+    if (!forall_vars.empty()) {
         // Step 2. Find a counter-example
         //         Solve(¬ l_1 ∧ ¬ l_2 ∧ ... ∧ ¬ l_n)
         //
         //         Make each ¬ l_i as a contractor ctc_i
         //         Make a fixed_point contractor with ctc_is.
         //         Pass it to icp::solve
-        box counterexample = find_counterexample(b, forall_vars, vec, p, config);
+
+        box counterexample = find_CE(b, forall_vars, vec, p, config);
         if (counterexample.is_empty()) {
             // Step 2.1. (NO Counterexample)
             //           Return B.
@@ -456,62 +437,59 @@ box contractor_generic_forall::handle_disjunction(box b, unordered_set<Enode *> 
             // Prune X using a point 'y = c2'. (technically, a point in c2, which is an interval)
             subst = make_subst_from_value(counterexample, forall_vars);
         }
-        // Step 3. Compute B_i = prune(B, l_i)
-        //         Update B with ∨ B_i
-        //                       i
-        vector<box> boxes;
-        for (Enode * e : vec) {
-            if (!e->get_exist_vars().empty()) {
-                lbool polarity = p ? l_True : l_False;
-                if (e->isNot()) {
-                    polarity = !polarity;
-                    e = e->get1st();
+    }
+
+    // Step 3. Compute B_i = prune(B, l_i)
+    //         Update B with ∨ B_i
+    //                       i
+    vector<box> boxes;
+    for (Enode * e : vec) {
+        if (!e->get_exist_vars().empty()) {
+            lbool polarity = p ? l_True : l_False;
+            if (e->isNot()) {
+                polarity = !polarity;
+                e = e->get1st();
+            }
+            nonlinear_constraint ctr(e, polarity, subst);
+            if (ctr.get_var_array().size() == 0) {
+                auto result = ctr.eval(b);
+                if (result.first != false) {
+                    boxes.emplace_back(b);
                 }
-                nonlinear_constraint * ctr = new nonlinear_constraint(e, polarity, subst);
-                if (ctr->get_var_array().size() == 0) {
-                    auto result = ctr->eval(b);
-                    if (result.first != false) {
-                        boxes.emplace_back(b);
-                    }
-                } else {
-                    contractor ctc = mk_contractor_ibex_fwdbwd(b, ctr);
-                    box const bt = ctc.prune(b, config);
-                    boxes.emplace_back(bt);
-                }
-                delete ctr;
+            } else {
+                contractor ctc = mk_contractor_ibex_fwdbwd(b, &ctr);
+                box const bt = ctc.prune(b, config);
+                boxes.emplace_back(bt);
             }
         }
-        b = hull(boxes);
-    } while (b != old_box);
+    }
+    b = hull(boxes);
     return b;
 }
-box contractor_generic_forall::handle_conjunction(box b, unordered_set<Enode *> const & forall_vars, vector<Enode *> const & vec, bool const p, SMTConfig & config) const {
+
+box contractor_generic_forall::handle_conjunction(box b, vector<Enode *> const & vec, bool const p, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_generic_forall::handle_conjunction" << endl;
-    box old_b = b;
-    do {
-        old_b = b;
-        for (Enode * e : vec) {
-            DREAL_LOG_DEBUG << "process conjunction element : " << e << endl;
-            b = handle(b, forall_vars, e, p, config);
-            if (b.is_empty()) {
-                return b;
-            }
+    for (Enode * e : vec) {
+        DREAL_LOG_DEBUG << "process conjunction element : " << e << endl;
+        b = handle(b, e, p, config);
+        if (b.is_empty()) {
+            return b;
         }
-    } while (old_b != b);
+    }
     return b;
 }
-box contractor_generic_forall::handle_atomic(box b, unordered_set<Enode *> const & forall_vars, Enode * body, bool const p, SMTConfig & config) const {
+box contractor_generic_forall::handle_atomic(box b, Enode * body, bool const p, SMTConfig & config) const {
     vector<Enode*> vec;
     vec.push_back(body);
-    return handle_disjunction(b, forall_vars, vec, p, config);
+    return handle_disjunction(b, vec, p, config);
 }
 
 box contractor_generic_forall::prune(box b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_generic_forall prune: " << *m_ctr << endl;
     Enode * body = m_ctr->get_body();
-    unordered_set<Enode *> const forall_vars = m_ctr->get_forall_vars();
     DREAL_LOG_DEBUG << "body = " << body << endl;
-    return handle(b, forall_vars, body, true, config);
+    b = handle(b, body, true, config);
+    return b;
 }
 
 ostream & contractor_generic_forall::display(ostream & out) const {
