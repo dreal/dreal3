@@ -70,8 +70,11 @@ config::config(int const argc, const char * argv[]) {
             "use polytope contractor",
             "--polytope");
     opt.add("", false, 0, 0,
-            "sync the domains of forall variables using corresponding existential variables",
-            "--sync");
+            "NO sync the domains of forall variables using corresponding existential variables",
+            "--no-sync");
+    opt.add("", false, 0, 0,
+            "print out statistics",
+            "--stat");
     opt.parse(argc, argv);
     opt.overview  = "dOp ";
 
@@ -90,29 +93,18 @@ config::config(int const argc, const char * argv[]) {
     }
 
     // visualization options
-    if (opt.isSet("--run-visualization")) {
-        set_run_visualization(true);
-    }
-    if (opt.isSet("--save-visualization")) {
-        set_save_visualization(true);
-    }
+    if (opt.isSet("--run-visualization")) { set_run_visualization(true); }
+    if (opt.isSet("--save-visualization")) { set_save_visualization(true); }
     if (opt.isSet("--vis-cell")) {
         unsigned long vis_cell = 0.0;
         opt.get("--vis-cell")->getULong(vis_cell);
         set_vis_cell(vis_cell);
     }
-    if (opt.isSet("--local-opt")) {
-        set_local_opt(true);
-    }
-    if (opt.isSet("--debug")) {
-        set_debug(true);
-    }
-    if (opt.isSet("--polytope")) {
-        set_polytope(true);
-    }
-    if (opt.isSet("--sync")) {
-        set_sync(true);
-    }
+    if (opt.isSet("--local-opt")) { set_local_opt(true); }
+    if (opt.isSet("--debug")) { set_debug(true); }
+    if (opt.isSet("--polytope")) { set_polytope(true); }
+    if (opt.isSet("--no-sync")) { set_sync(false); }
+    if (opt.isSet("--stat")) { set_stat(true); }
 
     // Set up filename
     string filename;

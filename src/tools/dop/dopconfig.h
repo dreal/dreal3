@@ -41,7 +41,8 @@ private:
     bool m_debug = false;
     bool m_polytope = false;
     double m_prec = 0.0;
-    bool m_sync = false;
+    bool m_sync = true;
+    bool m_stat = false;
 
     void printUsage(ez::ezOptionParser & opt);
     void set_type(type const ty) { m_type = ty; }
@@ -54,6 +55,7 @@ private:
     void set_debug(bool const b) { m_debug = b; }
     void set_polytope(bool const b) { m_polytope = b; }
     void set_sync(bool const b) { m_sync = b; }
+    void set_stat(bool const b) { m_stat = b; }
 
 public:
     config(int const argc, const char * argv[]);
@@ -69,6 +71,7 @@ public:
     bool get_debug() const { return m_debug; }
     bool get_polytope() const { return m_polytope; }
     bool get_sync() const { return m_sync; }
+    bool get_stat() const { return m_stat; }
     friend std::ostream & operator<<(std::ostream & out, config const & c);
 };
 
