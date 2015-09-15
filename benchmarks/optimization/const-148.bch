@@ -1,0 +1,29 @@
+variables
+x1 in    [-10,10] ;
+x2 in    [-10,10] ;
+x3 in    [-10,10] ;
+x4 in    [-10,10] ;
+x5 in    [-10,10] ;
+x6 in    [-10,10] ;
+x7 in    [-10,10] ;
+x8 in    [-10,10] ;
+x9 in    [-10,10] ;
+x10 in   [-10,10] ;
+y1 in    [-20,20] ;
+y2 in    [-20,20] ;
+y3 in    [-20,20] ;
+y4 in    [-20,20] ;
+
+minimize
+   y1*y2+y3*y4+y2*y4;
+
+constraints
+    y1 = -4 * (sin(x1)*cos(x2)*exp(abs(cos((x1^2+x2^2)/200))));
+    y2 = -3.2 * (sin(x4)*cos(x5)*exp(abs(cos((x4^2+x5^2)/200))));
+    y3 = -5 * (sin(x6)*cos(x7)*exp(abs(cos((x7^2+x6^2)/200))));
+    y4 = -1.4 * (sin(x9)*cos(x10)*exp(abs(cos((x8^2+x7^2)/200))));
+    y1 >= y2;
+    y3 <= y4;
+
+end
+
