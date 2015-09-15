@@ -363,24 +363,55 @@ box shrink_for_dop(box b) {
     return b;
 }
 
-box contractor_generic_forall::find_counterexample(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) const {
-    static unsigned counter = 0;
-    static unsigned useful_refinement = 0;
-    vector<nonlinear_constraint *> ctrs;
-    vector<contractor> ctcs;
+box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) {
     box counterexample(b, forall_vars);
-
     if (config.nra_shrink_for_dop) {
         counterexample = shrink_for_dop(counterexample);
     }
-
-    if (DREAL_LOG_DEBUG_IS_ON) {
-        for (Enode * e : vec) {
-            DREAL_LOG_DEBUG << "Find Counterexample: " << e << endl;
+    for (Enode * e : vec) {
+        lbool polarity = p ? l_False : l_True;
+        if (e->isNot()) {
+            e = e->get1st();
+            polarity = !polarity;
         }
-        DREAL_LOG_DEBUG << "=====================" << endl << endl;
-    }
+        nonlinear_constraint ctr(e, polarity);
+        auto numctr = ctr.get_numctr();
 
+        // Construct iv from box b
+        auto & var_array = ctr.get_var_array();
+        ibex::IntervalVector iv(var_array.size());
+        for (int i = 0; i < var_array.size(); i++) {
+            iv[i] = counterexample[var_array[i].name];
+        }
+        if (numctr->op == ibex::CmpOp::GT || numctr->op == ibex::CmpOp::GEQ) {
+            numctr->f.ibwd(ibex::Interval(-config.nra_precision, POS_INFINITY), iv);
+        } else if (numctr->op == ibex::CmpOp::LT || numctr->op == ibex::CmpOp::LEQ) {
+            numctr->f.ibwd(ibex::Interval(NEG_INFINITY, config.nra_precision), iv);
+        } else if (numctr->op == ibex::CmpOp::EQ) {
+            numctr->f.ibwd(ibex::Interval(-config.nra_precision, config.nra_precision), iv);
+        } else {
+            throw runtime_error("??");
+        }
+        if (iv.is_empty()) {
+            counterexample.set_empty();
+            return counterexample;
+        } else {
+            // Reconstruct box b from pruned result iv.
+            for (int i = 0; i < var_array.size(); i++) {
+                counterexample[var_array[i].name] = iv[i];
+            }
+        }
+    }
+    return counterexample;
+}
+
+box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) {
+    vector<nonlinear_constraint *> ctrs;
+    vector<contractor> ctcs;
+    box counterexample(b, forall_vars);
+    if (config.nra_shrink_for_dop) {
+        counterexample = shrink_for_dop(counterexample);
+    }
     for (Enode * e : vec) {
         lbool polarity = p ? l_False : l_True;
         if (e->isNot()) {
@@ -402,15 +433,13 @@ box contractor_generic_forall::find_counterexample(box const & b, unordered_set<
 }
 
 box contractor_generic_forall::find_CE(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) const {
-
     // static unsigned under_approx = 0;
     // static unsigned over_approx = 0;
     box counterexample = find_CE_via_underapprox(b, forall_vars, vec, p, config);
     if (!counterexample.is_empty()) {
         // ++under_approx;
         // cerr << "WE USE UNDERAPPROX: " << under_approx << "/" << over_approx<< "/" << (under_approx + over_approx) << endl;
-    }
-    else {
+    } else {
         counterexample = find_CE_via_overapprox(b, forall_vars, vec, p, config);
         // ++over_approx;
         // cerr << "WE USE FULL       : " << under_approx << "/" << over_approx << "/" << (under_approx + over_approx)

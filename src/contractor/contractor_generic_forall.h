@@ -38,7 +38,7 @@ namespace dreal {
 class contractor_generic_forall : public contractor_cell {
 private:
     generic_forall_constraint const * const m_ctr;
-    box find_counterexample(box const & b, std::unordered_set<Enode*> const & forall_vars, std::vector<Enode*> const & vec, bool const p, SMTConfig & config) const;
+    box find_CE(box const & b, std::unordered_set<Enode*> const & forall_vars, std::vector<Enode*> const & vec, bool const p, SMTConfig & config) const;
     box handle(box b, Enode * body, bool const p, SMTConfig & config) const;
     std::vector<Enode *> elist_to_vector(Enode * e) const;
     box handle_disjunction(box b, std::vector<Enode *> const & vec, bool const p, SMTConfig & config) const;
