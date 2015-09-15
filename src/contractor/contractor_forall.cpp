@@ -133,7 +133,7 @@ box contractor_forall::prune(box b, SMTConfig & config) const {
         box counter_example(b, forall_vars);
         contractor not_ctc = mk_contractor_ibex_fwdbwd(counter_example, not_ctr);
         DREAL_LOG_DEBUG << "icp with " << not_ctc << endl;
-        counter_example = random_icp::solve(counter_example, not_ctc, config);
+        counter_example = random_icp::solve(counter_example, not_ctc, config, config.nra_precision);
         if (!counter_example.is_empty()) {
             // =========================================================
             // Step 4.

@@ -42,7 +42,7 @@ private:
     static bool random_bool();
 
 public:
-    static box solve(box b, contractor const & ctc, SMTConfig & config);
+    static box solve(box b, contractor const & ctc, SMTConfig & config, double const precision);
 };
 
 }  // namespace dreal

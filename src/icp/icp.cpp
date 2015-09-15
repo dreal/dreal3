@@ -169,7 +169,7 @@ bool random_icp::random_bool() {
     return m_dist(rg) >= 0.5;
 }
 
-box random_icp::solve(box b, contractor const & ctc, SMTConfig & config ) {
+box random_icp::solve(box b, contractor const & ctc, SMTConfig & config, double const precision ) {
     vector<box> solns;
     vector<box> box_stack;
     box_stack.push_back(b);
@@ -184,7 +184,7 @@ box random_icp::solve(box b, contractor const & ctc, SMTConfig & config ) {
             // Do nothing
         }
         if (!b.is_empty()) {
-            tuple<int, box, box> splits = b.bisect(config.nra_precision);
+            tuple<int, box, box> splits = b.bisect(precision);
             int const i = get<0>(splits);
             if (i >= 0) {
                 box const & first  = get<1>(splits);
