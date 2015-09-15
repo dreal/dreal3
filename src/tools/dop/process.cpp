@@ -296,25 +296,23 @@ int process_main(OpenSMTContext & ctx,
     //
     //              /\ forall y. [\/ !ctr_j(y) \/ min_i <= cost_i(y))]
     //                             j            i
-    vector<Enode *> inside_forall_ctrs;
+    vector<Enode *> or_ctrs;
     for (Enode * ctr_X : ctrs_X) {
         Enode * ctr_not_Y = ctx.mkNot(ctx.mkCons(subst_exist_vars_to_univerally_quantified(ctx, var_map, ctr_X)));  // ctr(y)
-        inside_forall_ctrs.push_back(ctr_not_Y);
+        or_ctrs.push_back(ctr_not_Y);
     }
 
-    vector<Enode*> min_vars;
     vector<Enode*> eq_costs;
     for (unsigned i = 0; i < costs.size(); ++i) {
         Enode * min_var_i = make_min_var(ctx, var_map, i);                      // min
         Enode * eq_cost  = make_eq_cost(ctx, costs[i], min_var_i);              // cost_i(x) = min_i
         Enode * leq_cost = make_leq_cost(ctx, var_map, costs[i], min_var_i);    // min <= costs[0](y)
-        min_vars.push_back(min_var_i);
         eq_costs.push_back(eq_cost);
-        inside_forall_ctrs.push_back(leq_cost);
+        or_ctrs.push_back(leq_cost);
     }
 
     // !ctr_1(y) \/ ... \/ !ctr_m(y) \/ (min_1 <= costs_1(y) ... \/ (min_n <= costs_n(y)
-    Enode * or_term = ctx.mkOr(make_vec_to_list(ctx, inside_forall_ctrs));
+    Enode * or_term = ctx.mkOr(make_vec_to_list(ctx, or_ctrs));
     vector<pair<string, Snode *>> sorted_var_list;
     for (Enode * e : or_term->get_forall_vars()) {
         pair<string, Snode *> p = make_pair(e->getCar()->getName(), e->getSort());
