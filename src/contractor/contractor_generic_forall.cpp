@@ -209,13 +209,14 @@ double nlopt_side_condition(unsigned, const double * x, double * grad, void * ex
     return ret;
 }
 
-box refine_counterexample_with_nlopt(box counterexample, vector<Enode*> const & opt_ctrs, vector<Enode*> const & side_ctrs) {
+box refine_CE_with_nlopt_core(box counterexample, vector<Enode*> const & opt_ctrs, vector<Enode*> const & side_ctrs) {
     // Plug-in `a` into the constraint and optimize `b` in the counterexample `M` by solving:
     //
     //    ∃ y_opt ∈ I_y. ∀ y ∈ I_y. f(a, y_opt) >= f(a, y) — (2)
     //
     // using local optimizer (i.e. nlopt).
     // Let `M’ = (a, b_opt)` be a model for (2).
+
     DREAL_LOG_DEBUG << "================================" << endl;
     DREAL_LOG_DEBUG << "  Before Refinement              " << endl;
     DREAL_LOG_DEBUG << "================================" << endl;
@@ -303,6 +304,25 @@ box refine_counterexample_with_nlopt(box counterexample, vector<Enode*> const & 
     DREAL_LOG_DEBUG << counterexample << endl;
     DREAL_LOG_DEBUG << "================================" << endl;
     return counterexample;
+}
+
+box refine_CE_with_nlopt(box const & b, vector<Enode*> const & vec) {
+    vector<Enode *> opt_ctrs;
+    vector<Enode *> side_ctrs;
+    for (Enode * e : vec) {
+        if (!e->get_exist_vars().empty()) {
+            opt_ctrs.push_back(e);
+        } else if (!e->get_forall_vars().empty()) {
+            side_ctrs.push_back(e);
+        }
+    }
+    if (opt_ctrs.size() != 1) { return b; }
+    box refined_counterexample = refine_CE_with_nlopt_core(b, opt_ctrs, side_ctrs);
+    if (refined_counterexample.is_subset(b)) {
+        return b;
+    } else {
+        return refined_counterexample;
+    }
 }
 
 contractor make_contractor(Enode * e, lbool const polarity, box const & b, vector<nonlinear_constraint *> & ctrs) {
@@ -398,7 +418,7 @@ box contractor_generic_forall::find_CE(box const & b, unordered_set<Enode*> cons
         //      << endl;
     }
     if (!counterexample.is_empty() && config.nra_local_opt) {
-        return refine_counterexample_with_nlopt(counterexample, vec);
+        return refine_CE_with_nlopt(counterexample, vec);
     }
     return counterexample;
 }
