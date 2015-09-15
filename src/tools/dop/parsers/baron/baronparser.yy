@@ -83,8 +83,8 @@ void baron_cleanup_parser() {
 
 %left TK_PLUS TK_MINUS
 %left TK_TIMES TK_DIV
-%right TK_POW
 %left UMINUS
+%right TK_POW
 
 %start script
 

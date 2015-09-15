@@ -93,8 +93,8 @@ void dop_cleanup_parser() {
 %nonassoc TK_EQ TK_NEQ TK_LT TK_LEQ TK_GT TK_GEQ
 %left TK_PLUS TK_MINUS
 %left TK_TIMES TK_DIV
-%right TK_POW
 %nonassoc UMINUS
+%right TK_POW
 
 %start script
 
