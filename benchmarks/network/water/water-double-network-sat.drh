@@ -10,6 +10,8 @@
  [0, 10] x;
  [0, 1]  tau;
 
+ label go;
+
  (mode on;
   invt:
     (tau >= 0);
@@ -18,10 +20,10 @@
     d/dt[q]   = 0;
     d/dt[A]   = 0;
     d/dt[x]   = (q - a * sqrt(2*g) * sqrt(x)) / A;
-    d/dt[tau] = 1;
+    d/dt[tau] = 0.5;
   jump:
-    () : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
-    () : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
  )
 
  (mode off;
@@ -32,10 +34,10 @@
     d/dt[q]   = 0;
     d/dt[A]   = 0;
     d/dt[x]   =  (- a * sqrt(2*g) * sqrt(x)) / A; 
-    d/dt[tau] = 1;
+    d/dt[tau] = 0.5;
   jump:
-    () : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
-    () : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
  )
 )
 
@@ -46,6 +48,8 @@
  [0, 10] xprev;
  [0, 1]  tau;
 
+ label go;
+
  (mode on;
   invt:
     (tau >= 0);
@@ -55,10 +59,10 @@
     d/dt[A]   = 0;
     d/dt[x]   = (q + a * sqrt(2*g) * (sqrt(xprev) - sqrt(x))) / A;
     d/dt[xprev] = 0;
-    d/dt[tau] = 1;
+    d/dt[tau] = 0.5;
   jump:
-    () : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
-    () : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
  )
 
  (mode off;
@@ -70,17 +74,17 @@
     d/dt[A]   = 0;
     d/dt[x]   =  (a * sqrt(2*g) * (sqrt(xprev) - sqrt(x))) / A;
     d/dt[xprev] = 0;
-    d/dt[tau] = 1;
+    d/dt[tau] = 0.5;
   jump:
-    () : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
-    () : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
  )
 )
 
 analyze:
-	tank0 = origin_tank[[x/x1,q/q1,A/A1],   @on (and (x1>= gH - 0.1) (x1 <= gH + 0.1) (q1 = 5.0) (A1 = 2.0) (tau = 0))];
-	tank1 = tank[[x/x2,q/q2,A/A2,xprev/x1], @on (and (x2>= gH - 0.1) (x2 <= gH + 0.1) (q2 = 3.0) (A2 = 4.0) (tau = 0))];
+	tank0 = origin_tank[[x/x1,q/q1,A/A1],   @on (and (x1>= gH - 0.05) (x1 <= gH + 0.05) (q1 = 5.0) (A1 = 2.0) (tau = 0))];
+	tank1 = tank[[x/x2,q/q2,A/A2,xprev/x1], @on (and (x2>= gH - 0.05) (x2 <= gH + 0.05) (q2 = 3.0) (A2 = 4.0) (tau = 0))];
 	(tank0 || tank1);
 	
 goal:
-	(): (and (or (x1 < gH - 0.1) (x1 > gH + 0.1)) (or (x2 < gH - 0.1) (x2 > gH + 0.1)));
+	(): (and (or  (x1 > gH + 0.05)) (or  (x2 > gH + 0.05)));

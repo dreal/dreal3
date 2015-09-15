@@ -3,10 +3,12 @@
 import os
 import signal
 import re
+import json
+import time
 from subprocess import Popen, PIPE, call
 
 
-timeout = 20*60 # 20 Minute timeout
+timeout = 60*60 # 20 Minute timeout
 break_on_sat = False
 break_on_timeout = True
 
@@ -32,6 +34,7 @@ def run_cmd_write_out(out_file, cmd, path):
 	f.close()
 	
 def run_cmd_parse_results(cmd, wpath):
+	start = time.time()
 	p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=wpath)
 			
 	# Set timeout signals
@@ -53,7 +56,8 @@ def run_cmd_parse_results(cmd, wpath):
 		
 	if timedout:
 		return (True, '', '', '')
-					
+
+						
 	# Get output data
 	run_result_sat = len(filter(lambda x: x == 'sat', proc_std[0].splitlines())) > 0
 	#run_output = [map(str.strip, s.strip().split('=')) for s in filter(lambda x: '=' in x, proc_std[0].splitlines())]
@@ -63,15 +67,19 @@ def run_cmd_parse_results(cmd, wpath):
 	sat_str = 'sat' if run_result_sat else 'unsat'
 	out_lines = [map(str.strip, s.strip().split()) for s in proc_std[0].splitlines()]
 	stats = out_lines[0]
-	sat_nodes = stats[3]
+	hybrid_nodes = stats[0]
+	hybrid_conflict = stats[1]
+	sat_nodes = stats[2]
+	icp_nodes = stats[3]
 	sat_process_time = float(stats[4])
 	hybrid_solve_time = float(stats[5])
 	sat_solver_time = float(stats[6])
 	icp_solver_time = float(stats[7])
-	total_time = sat_process_time + hybrid_solve_time + sat_solver_time + icp_solver_time
-	run_time = "%.2f" % total_time
-	
-	return (False, sat_str, sat_nodes, run_time)
+	#total_time = sat_process_time + hybrid_solve_time + sat_solver_time + icp_solver_time
+	end = time.time()
+	run_time = end - start
+	run_time = "%.2f" % run_time
+	return (False, sat_str, sat_nodes, run_time, hybrid_nodes, hybrid_conflict, icp_nodes, sat_process_time, hybrid_solve_time, sat_solver_time, icp_solver_time)
 
 def preprocess_drh(path, drhfilename):
 	f = open(path + '/' + drhfilename + '.drh', 'r')
@@ -150,7 +158,7 @@ def get_latex_table (results, desc):
 				for g in range(0, len(sub_result_iter)):
 					sub_sub_result = sub_result_iter[g]
 					if sub_sub_result[0] == j:
-						a_result = sub_sub_result[2] + ' (' + sub_sub_result[1] + ') (' + sub_sub_result[3] + ')'
+						a_result = str(sub_sub_result[2]) + ' (' + sub_sub_result[1] + ') (' + sub_sub_result[3] + ')'
 						#a_result = sub_sub_result[2] + ' (' + sub_sub_result[3] + ')'
 				
 				latex_file += ' & ' + a_result
@@ -184,7 +192,7 @@ if __name__ == '__main__':
 	dreal2 = '/Users/danbryce/Documents/sift/silver-surfer/trunk/code/externals/dreal-git/bin/dReal'
 	dreal2_bin = os.path.abspath(dreal2)
 	dreal_bin = dreal2_bin
-	dreal_cmd = [dreal2_bin, '--output_num_nodes', '--short_sat', '--delta_heuristic', '--delta']
+	dreal_cmd = [dreal2_bin, '--output_num_nodes', '--short_sat', '--delta_heuristic', '--delta', '--time_split_heuristic']
 	
 	bmc_path = '/Users/danbryce/Documents/sift/silver-surfer/trunk/code/externals/dreal-git/bin/bmc'
 	bmc_bin = os.path.abspath(bmc_path)
@@ -200,34 +208,36 @@ if __name__ == '__main__':
 	# and instance iteration encoding.
 	
 	bench_info_static = [ # folder, description, column name, filename, file extension, expected result, True = network; False = singular, instances
-		               #   [ 
-				       #     ("thermostat", "Thermostat Triple", "UNSAT", "thermostat-triple", ".drh", "unsat", False, (1, 1)),
-					   #     ("thermostat", "Thermostat Triple", "SAT", "thermostat-triple-sat", ".drh", "sat", False, (1, 1)),
-					   #     ("thermostat", "Thermostat Triple", "P SAT", "thermostat-triple-i-p-sat", ".py", "sat", False, (1, 1)),
-					   #     ("thermostat", "Thermostat Triple", "P UNSAT", "thermostat-triple-i-p", ".py", "unsat", False, (1, 5)),
-					   #     ("thermostat", "Thermostat Triple", "N SAT", "thermostat-triple-network", ".drh", "unsat", True, (1, 1)),
-					   #     ("thermostat", "Thermostat Triple", "N UNSAT", "thermostat-triple-network-sat", ".drh", "sat", True, (1, 1))
-					   #   ],
-				          ## [
-					        
-					      ##   ("thermostat", "Thermostat Double SAT", "Old", "thermostat-double-sat", ".drh", "sat", False, (1, 5)),
-					      ##   ("thermostat", "Thermostat Double SAT", "New", "thermostat-double-i-p-sat", ".py", "sat", False, (1, 5)),
-					      ##   ("thermostat", "Thermostat Double SAT", "Net", "thermostat-double-network-sat", ".drh", "sat", True, (1, 5))
-					      ## ],
-						  ## [
-						  ## 	("thermostat", "Thermostat Double UNSAT", "Old", "thermostat-double", ".drh", "unsat", False, (1, 5)),
-						  ## 	("thermostat", "Thermostat Double UNSAT", "New", "thermostat-double-i-p", ".py", "unsat", False, (1, 5)),
-						  ## 	("thermostat", "Thermostat Double UNSAT", "Net", "thermostat-double-network", ".drh", "unsat", True, (1, 5))
-							  
+		                 ## [ 
+				        
+					     ##   ("thermostat", "Thermostat Triple SAT", "Old", "thermostat-triple-sat", ".drh", "sat", False, (1, 5)),
+					     ##   ("thermostat", "Thermostat Triple SAT", "New", "thermostat-triple-i-p-sat", ".py", "sat", False, (1, 5)),
+					     ##   ("thermostat", "Thermostat Triple SAT", "Net", "thermostat-triple-network", ".drh", "unsat", True, (1, 5))
+						 ##   ],
+						   [
+						   ("thermostat", "Thermostat Triple UNSAT", "Old", "thermostat-triple", ".drh", "unsat", False, (1, 5)),
+						    ("thermostat", "Thermostat Triple UNSAT", "New", "thermostat-triple-i-p", ".py", "unsat", False, (1, 5)),
+					     
+					       ("thermostat", "Thermostat Triple UNSAT", "Net", "thermostat-triple-network-sat", ".drh", "sat", True, (1, 5))
+					     ],
+				         ##   [					        
+					        ## ("thermostat", "Thermostat Double SAT", "Old", "thermostat-double-sat", ".drh", "sat", False, (1, 5)),
+					        ## ("thermostat", "Thermostat Double SAT", "New", "thermostat-double-i-p-sat", ".py", "sat", False, (1, 5)),
+					       ##   ("thermostat", "Thermostat Double SAT", "Net", "thermostat-double-network-sat", ".drh", "sat", True, (1, 5))
+					       ## ],
+						  ##   [
+						  ##  ("thermostat", "Thermostat Double UNSAT", "Old", "thermostat-double", ".drh", "unsat", False, (1, 5)),
+						  ##  ("thermostat", "Thermostat Double UNSAT", "New", "thermostat-double-i-p", ".py", "unsat", False, (1, 5)),
+						  ##  	("thermostat", "Thermostat Double UNSAT", "Net", "thermostat-double-network", ".drh", "unsat", True, (1, 5))							  
+						  ##  ],
+						  ##  [
+						  ## 	("gen", "Generator SAT", "GEN 1", "gen-1-sat", ".drh", "sat", True, (6, 7)),
+						  ## 	("gen", "Generator SAT", "GEN 1", "gen-2-sat", ".drh", "sat", True, (10, 11)),
+						  ## 	("gen", "Generator SAT", "GEN 1", "gen-3-sat", ".drh", "sat", True, (14, 15)),
+						  ## 	("gen", "Generator SAT", "GEN 1", "gen-4-sat", ".drh", "sat", True, (18, 19)),
+						  ## 	("gen", "Generator SAT", "GEN 1", "gen-5-sat", ".drh", "sat", True, (22, 23))
 						  ## ],
-						  ## [
-						  ## 	("gen", "Generator SAT", "GEN 1", "gen-1-sat", ".drh", "sat", True, (1, 8)),
-						  ## 	("gen", "Generator SAT", "GEN 1", "gen-2-sat", ".drh", "sat", True, (1, 16)),
-						  ## 	("gen", "Generator SAT", "GEN 1", "gen-3-sat", ".drh", "sat", True, (1, 24)),
-						  ## 	("gen", "Generator SAT", "GEN 1", "gen-4-sat", ".drh", "sat", True, (1, 32)),
-						  ## 	("gen", "Generator SAT", "GEN 1", "gen-5-sat", ".drh", "sat", True, (1, 40))
-						  ## ],
-						  ## [
+						  ## ## [
 						  ## 	("gen", "Generator UNSAT", "GEN 1", "gen-1-unsat", ".drh", "unsat", True, (1, 8)),
 						  ## 	("gen", "Generator UNSAT", "GEN 1", "gen-2-unsat", ".drh", "unsat", True, (1, 16)),
 						  ## 	("gen", "Generator UNSAT", "GEN 1", "gen-3-unsat", ".drh", "unsat", True, (1, 24)),
@@ -242,19 +252,17 @@ if __name__ == '__main__':
 						#	("airplane", "Airplane", "N UNSAT", "airplane-network", ".drh", "unsat", True, (1, 5)),
 						#	("airplane", "Airplane", "N SAT", "airplane-network-sat", ".drh", "sat", True, (1, 5))
 						#  ],
-						  ## [
-							
+						 ##  [							
 						  ## 	 ("airplane", "Airplane Single SAT", "Old", "airplane-single-sat", ".drh", "sat", False, (1, 5)),
 						  ## 	 ("airplane", "Airplane Single SAT", "New", "airplane-single-i-p-sat", ".py", "sat",False, (1, 5)),
-						  ## 	("airplane", "Airplane Single SAT", "Net", "airplane-single-network-sat", ".drh", "sat", True, (1, 5))
-						  ## ],
-						  ## [
-						  ## 	("airplane", "Airplane Single UNSAT", "Old", "airplane-single", ".drh", "unsat", False, (1, 5)),
-						  ## 	("airplane", "Airplane Single UNSAT", "New", "airplane-single-i-p", ".py", "unsat", False, (1, 5)),
-						  ## 	("airplane", "Airplane Single UNSAT", "Net", "airplane-single-network", ".drh", "unsat", True, (1, 5))
-						  ## ],
-						  ## [
-							
+						 ##  	("airplane", "Airplane Single SAT", "Net", "airplane-single-network-sat", ".drh", "sat", True, (1, 5))
+						##   ],
+						      ## [
+						      ## 	("airplane", "Airplane Single UNSAT", "Old", "airplane-single", ".drh", "unsat", False, (1, 5)),
+						      ## 	("airplane", "Airplane Single UNSAT", "New", "airplane-single-i-p", ".py", "unsat", False, (1, 5)),
+						      ## 	("airplane", "Airplane Single UNSAT", "Net", "airplane-single-network", ".drh", "unsat", True, (1, 5))
+						      ## ],
+						  ## [							
 						  ## 	("airplane-nl", "Airplane NL Single SAT", "Old", "airplane-single-nl-sat", ".drh", "sat", False, (1, 5)),
 						  ## 	("airplane-nl", "Airplane NL Single SAT", "New", "airplane-single-nl-i-p-sat", ".py", "sat", False, (1, 5)),
 						  ## 	("airplane-nl", "Airplane NL Single SAT", "Net", "airplane-single-nl-network-sat", ".drh", "sat", True, (1, 5))
@@ -264,28 +272,28 @@ if __name__ == '__main__':
 						  ## 	("airplane-nl", "Airplane NL Single UNSAT", "New", "airplane-single-nl-i-p", ".py", "unsat", False, (1, 5)),
 						  ## 	("airplane-nl", "Airplane NL Single UNSAT", "Net", "airplane-single-nl-network", ".drh", "unsat", True, (1, 5))
 						  ## ],
+						   ## [
+							
+						   ##  	("water", "Water Double SAT", "Old", "water-double-sat", ".drh", "sat", False, (1, 5)),
+						   ##  	("water", "Water Double SAT", "New", "water-double-i-p-sat", ".py", "sat", False, (1, 5)),
+						   ## 	("water", "Water Double SAT", "Net", "water-double-network-sat", ".drh", "sat", True, (1, 5))
+						   ## ],
+						    ## [
+						    ## 	("water", "Water Double UNSAT", "Old", "water-double", ".drh", "unsat", False, (1, 5)),
+						    ## 	("water", "Water Double UNSAT", "New", "water-double-i-p", ".py", "unsat", False, (1, 5)),
+						    ## 	("water", "Water Double UNSAT", "Net", "water-double-network", ".drh", "unsat", True, (1, 5))
+						    ## ],
 						  ## [
 							
-						  ## 	("water", "Water Double SAT", "Old", "water-double-sat", ".drh", "sat", False, (1, 5)),
-						  ## 	("water", "Water Double SAT", "New", "water-double-i-p-sat", ".py", "sat", False, (1, 5)),
-						  ## 	("water", "Water Double SAT", "Net", "water-double-network-sat", ".drh", "sat", True, (1, 5))
+						  ## 	("water", "Water Triple SAT", "Old", "water-triple-sat", ".drh", "sat", False, (1, 5)),
+						  ## 	("water", "Water Triple SAT", "New", "water-triple-i-p-sat", ".py", "sat", False, (1, 5)),
+						  ## 	("water", "Water Triple SAT", "Net", "water-triple-network-sat", ".drh", "sat", True, (1, 5))
 						  ## ],
 						  ## [
-						  ## 	("water", "Water Double UNSAT", "Old", "water-double", ".drh", "unsat", False, (1, 5)),
-						  ## 	("water", "Water Double UNSAT", "New", "water-double-i-p", ".py", "unsat", False, (1, 5)),
-						  ## 	("water", "Water Double UNSAT", "Net", "water-double-network", ".drh", "unsat", True, (1, 5))
-						  ## ],
-						  [
-							
-							## ("water", "Water Triple SAT", "Old", "water-triple-sat", ".drh", "sat", False, (1, 5)),
-							## ("water", "Water Triple SAT", "New", "water-triple-i-p-sat", ".py", "sat", False, (1, 5)),
-							("water", "Water Triple SAT", "Net", "water-triple-network-sat", ".drh", "sat", True, (1, 5))
-						  ],
-						  [
-							## ("water", "Water Triple UNSAT", "Old", "water-triple", ".drh", "unsat", False, (1, 5)),
-							## ("water", "Water Triple UNSAT", "New", "water-triple-i-p", ".py", "unsat", False, (1, 5)),
-							("water", "Water Triple UNSAT", "Net", "water-triple-network", ".drh", "unsat", True, (1, 5))
-						  ]
+						  ## 	("water", "Water Triple UNSAT", "Old", "water-triple", ".drh", "unsat", False, (1, 5)),
+						  ## 	("water", "Water Triple UNSAT", "New", "water-triple-i-p", ".py", "unsat", False, (1, 5)),
+						  ## 	("water", "Water Triple UNSAT", "Net", "water-triple-network", ".drh", "unsat", True, (1, 5))
+						  ## ]
 						]
 						  
 	
@@ -330,7 +338,7 @@ if __name__ == '__main__':
 				results_sub = []
 				final_bound = 0
 				
-				f.write('# Heuristic = ' + str(heuristic) + '\n')
+				#f.write('# Heuristic = ' + str(heuristic) + '\n')
 				
 				for x in range (min_bound, max_bound + 1):
 					final_bound = x
@@ -371,7 +379,9 @@ if __name__ == '__main__':
 					if not bench_result[0]:
 						print((x, bench_result[1], bench_result[3], bench_result[2]))
 						results_sub.append((x, bench_result[1], bench_result[3], bench_result[2]))
-						f.write(str(x) + ': ' + 'Result = ' + bench_result[1] + ', SAT Nodes = ' + bench_result[2] + ', Time = ' + bench_result[3] + '\n')
+						json.dump(bench_result, f)
+						f.write('\n')
+						#f.write(str(x) + ' ' bench_result + '\n')
 						f.flush()
 					else:
 						if break_on_timeout:

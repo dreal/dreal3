@@ -100,8 +100,8 @@ label go;
     d/dt[xRDR]= -0.5;
     d/dt[gRDR]= 0;
   jump:
-    () : (and (gRDR >= xRDR))  ==> @up   true;
-    () : (and (gRDR < xRDR))   ==> @down true;
+    (go) : (and (gRDR >= xRDR))  ==> @up   true;
+    (go) : (and (gRDR < xRDR))   ==> @down true;
  )
 )
 
@@ -114,4 +114,4 @@ analyze:
 	(main0 || aileron0 || rudder0);
 	
 goal:
-	():  (abs(beta) > 0.2);
+	():  (abs(beta) > 0.75);

@@ -174,7 +174,7 @@ init_cond = """
 """
 
 goal_cond = """
-(assert (> (^ (^ beta_{0}_t 2) 0.5) 0.2))
+(assert (> (^ (^ beta_{0}_t 2) 0.5) 0.75))
 """
 
 import sys

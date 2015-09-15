@@ -29,6 +29,8 @@
 
 [0, 1] tau;
 
+label go;
+
 (mode on;
 
   invt: (tau >= 0);
@@ -44,8 +46,8 @@
 
         d/dt[tau]  = 1;
   jump:
-        () : (and (tau = 1) (x1 <= gT)) ==> @on (tau' = 0);
-        () : (and (tau = 1) (x1 > gT)) ==>  @off (tau' = 0);
+        (go) : (and (tau = 1) (x1 <= gT)) ==> @on (tau' = 0);
+        (go) : (and (tau = 1) (x1 > gT)) ==>  @off (tau' = 0);
 )
 
 (mode off;
@@ -62,8 +64,8 @@
         d/dt[c2] = 0;
         d/dt[tau]  = 1;
   jump:
-        () : (and (tau = 1) (x1 <= gT)) ==> @on (tau' = 0);
-        () : (and (tau = 1) (x1 > gT)) ==>  @off (tau' = 0);
+        (go) : (and (tau = 1) (x1 <= gT)) ==> @on (tau' = 0);
+        (go) : (and (tau = 1) (x1 > gT)) ==>  @off (tau' = 0);
 )
 )
 

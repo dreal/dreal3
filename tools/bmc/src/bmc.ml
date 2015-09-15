@@ -1596,7 +1596,7 @@ let trans_network n i k heuristic =
 		begin
 			let jmpor = Basic.make_or (List.map (fun j -> trans_jump_sync a j i) jlist) in
 			let noopr = Basic.make_or nooplist in
-			Basic.make_or [mk_noop_global a i; jmpor] (*[noopr; jmpor]*)
+			Basic.make_or [(*mk_noop_global a i;*) jmpor] (*[noopr; jmpor]*)
 		end
 	) 
 	jumplst in

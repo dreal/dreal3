@@ -16,9 +16,9 @@
 [0, 1] k;
 [100, 200] h;
 [C, C] c;
+[0, 1] tau;
 
-
-label tick;
+label go;
 
 (mode on;
 
@@ -30,10 +30,11 @@ label tick;
         d/dt[k] = 0;
         d/dt[h1] = 0;
         d/dt[h2] = 0;
-        d/dt[c] = 0;		
+        d/dt[c] = 0;
+	d/dt[tau] = 0.5;
   jump:
-        (tick) : (and (tau = 1) (x1 <= gT)) ==> @on (tau' = 0);
-        (tick) : (and (tau = 1) (x1 > gT)) ==>  @off (tau' = 0);
+        (go) : (and (tau = 1) (x1 <= gT)) ==> @on (tau' = 0);
+        (go) : (and (tau = 1) (x1 > gT)) ==>  @off (tau' = 0);
 )
 
 (mode off;
@@ -49,32 +50,17 @@ label tick;
         d/dt[c] = 0;		
         d/dt[tau]  = 0.5;
   jump:
-        (tick) : (and (tau = 1) (x1 <= gT)) ==> @on (tau' = 0);
-        (tick) : (and (tau = 1) (x1 > gT)) ==>  @off (tau' = 0);
+        (go) : (and (tau = 1) (x1 <= gT)) ==> @on (tau' = 0);
+        (go) : (and (tau = 1) (x1 > gT)) ==>  @off (tau' = 0);
 )
-)
-
-(component timer;
- [0, 1] tau;
- label tick;
- (mode on;
-
-  invt: (tau >= 0);
-        (tau <= 1);
-  flow:
-        d/dt[tau]  = 1;
-  jump:
-        (tick) : (tau = 1) ==> @on (tau' = 0);
- )
 )
 
 
 analyze:
  t1 = thermostat2[[x1/x1,x2/x2,k/k1,h/h1,c/c,tau/tau], @on  (and (x1 >= gT - 1) (x1 <= gT + 1) (k1 = K1) (h1 = H1) (c = C) )];
  t2 = thermostat2[[x1/x2,x2/x1,k/k2,h/h2,c/c,tau/tau], @on  (and (x1 >= gT - 1) (x1 <= gT + 1) (k2 = K2) (h2 = H2) (c = C) )];
- timer1 = timer[[taut/tau], @on (tau = 0)];
- (t1 || t2 || timer1);
+ (t1 || t2);
 
 goal:
-	() : (and (or (x1 < gT - 1) (x1 > gT + 1)) (or (x2 < gT - 1) (x2 > gT + 1)));
+	() : (and (or (x1 < gT - 0.5) (x1 > gT + 0.5)) (or (x2 < gT - 0.5) (x2 > gT + 0.5)));
 

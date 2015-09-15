@@ -486,8 +486,8 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
     (* let successors = List.of_enum (Map.keys mode.jumpmap) in *)
     let () = Printf.fprintf out "[" in
     let () = List.print ~first:"" ~last:"" ~sep:"," (writeJump aut mode) out mode.jumps in 
-    let () = if List.length mode.jumps > 0 then Printf.fprintf out "," in
-    let () = Printf.fprintf out "[[],%d,1]" mode.mode_numId in
+    (* let () = if List.length mode.jumps > 0 then Printf.fprintf out "," in
+        let () = Printf.fprintf out "[[],%d,1]" mode.mode_numId in *)
     Printf.fprintf out "]" 
      
 
