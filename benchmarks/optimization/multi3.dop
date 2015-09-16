@@ -1,11 +1,9 @@
-var:
+# NOT WORKING
 
-[0,1.57] theta;
-[-0.785, 0.785] gamma;
-[0,50] gr;
+var:
+[-50, 50] x;
+[-50, 50] y;
 
 cost:
-
-(1+gr)*cos(theta)*cos(gamma+3.14/4);
-(1+gr)*cos(theta)*sin(gamma+3.14/4);
-(1+gr)*sin(theta);
+(x^2 + y^2)^(1/8);
+((x - 0.5)^2 + (y - 0.5)^2)^(1/4);

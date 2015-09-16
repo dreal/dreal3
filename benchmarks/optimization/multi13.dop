@@ -1,0 +1,9 @@
+var:
+
+[0,1.57] theta;
+[-0.785, 0.785] gamma;
+
+cost:
+
+cos(theta)*cos(gamma+3.14/4);
+cos(theta)*sin(gamma+3.14/4);
