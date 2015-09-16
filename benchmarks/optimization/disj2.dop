@@ -1,0 +1,20 @@
+var:
+
+[-10, 10] x1;
+[-10, 10] x2;
+[-10, 10] x3;
+[-10, 10] x4;
+[-10, 10] x5;
+[-10, 10] x6;
+
+cost:
+
+sin(x1 * x2) + cos(x3 * x4) + sin(x5 * x6);
+
+ctr:
+
+exp(x1) * sin(x1) > 5 || exp(x2) * sin(x2) < 5;
+exp(x2) * sin(x2) > 5 || exp(x3) * sin(x3) < 5;
+exp(x3) * sin(x3) > 5 || exp(x4) * sin(x4) < 5;
+exp(x4) * sin(x4) > 5 || exp(x5) * sin(x5) < 5;
+exp(x5) * sin(x5) > 5 || exp(x6) * sin(x6) < 5;
