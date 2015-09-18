@@ -23,8 +23,6 @@ state_val[0] = """
 (assert (<= 0 time_{0}))  (assert (<= time_{0} 1))
 (assert (<= 0 tau_{0}_0)) (assert (<= tau_{0}_0 1))
 (assert (<= 0 tau_{0}_t)) (assert (<= tau_{0}_t 1))
-(assert (and (not (and (= mode_1_{0} 1) (= mode_1_{0} 2)))
-             (not (and (= mode_2_{0} 1) (= mode_2_{0} 2)))))
 """
 
 cont_cond[0] = ["""
@@ -117,14 +115,14 @@ jump_cond[2] = ["""
 init_cond = """
 (assert (= tau_{0}_0 0))
 (assert (= mode_1_{0} 2))
-(assert (and (>= x1_{0}_0 (- 20 1)) (<= x1_{0}_0 (+ 20 1))))
+(assert (<= (^ (^ (- x1_{0}_0 20) 2) 0.5) 1))
 (assert (= mode_2_{0} 2))
-(assert (and (>= x2_{0}_0 (- 20 1)) (<= x2_{0}_0 (+ 20 1))))
+(assert (<= (^ (^ (- x2_{0}_0 20) 2) 0.5) 1))
 """
 
 goal_cond = """
-(assert (or (< x1_{0}_t (- 20 5)) (> x1_{0}_t (+ 20 5))))
-(assert (or (< x2_{0}_t (- 20 5)) (> x2_{0}_t (+ 20 5))))
+(assert (> (^ (^ (- x1_{0}_0 20) 2) 0.5) 5))
+(assert (> (^ (^ (- x2_{0}_0 20) 2) 0.5) 5))
 """
 
 import sys

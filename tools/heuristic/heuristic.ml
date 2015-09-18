@@ -482,24 +482,26 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
     in
     Printf.fprintf out ",%d, 0]"  (Mode.mode_numId (Modemap.find dest aut.modemap))
   
-  let writeLabeledModeTransitions  aut out mode   =
+  let writeLabeledModeTransitions  aut is_synchronous out mode   =
     (* let successors = List.of_enum (Map.keys mode.jumpmap) in *)
     let () = Printf.fprintf out "[" in
-    let () = List.print ~first:"" ~last:"" ~sep:"," (writeJump aut mode) out mode.jumps in 
-    (* let () = if List.length mode.jumps > 0 then Printf.fprintf out "," in
-        let () = Printf.fprintf out "[[],%d,1]" mode.mode_numId in *)
+    let () = List.print ~first:"" ~last:"" ~sep:"," (writeJump aut mode) out mode.jumps in
+    let () = if not is_synchronous then
+	       if List.length mode.jumps > 0 then Printf.fprintf out "," in
+    let () = if not is_synchronous then
+	       Printf.fprintf out "[[],%d,1]" mode.mode_numId in
     Printf.fprintf out "]" 
      
 
-  let writeAutomatonAdjacency aut out =
+  let writeAutomatonAdjacency aut out is_synchronous=
    (* let mode_adjacency = (get_mode_adjacency aut) in *)
     let modes = List.map (fun x -> (Modemap.find x aut.modemap)) (List.of_enum (Map.keys aut.modemap)) in
     List.print ~first:"[" ~last:"]" ~sep:","
-	       (writeLabeledModeTransitions aut)
+	       (writeLabeledModeTransitions aut is_synchronous)
 	       out
 	       modes
   
-  let writeHeuristic heuristic hm k hout =
+  let writeHeuristic heuristic hm k hout is_synchronous =
 	let () = Printf.fprintf hout "[" in
 	let () = writeHeuristicHeader heuristic hm k hout in
 	let () = List.print ~first:"[" ~last:"]" ~sep:","
@@ -511,7 +513,7 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
 						((List.length heuristic) - 1)))) in
 	let () = Printf.fprintf hout "," in
 	let () = List.print ~first:"[" ~last:"]" ~sep:","
-			    (fun hout h -> writeAutomatonAdjacency h hout)
+			    (fun hout h -> writeAutomatonAdjacency h hout  is_synchronous)
 			    hout
 			    (Network.automata hm) in
 	Printf.fprintf hout "]"

@@ -65,10 +65,10 @@ label go;
 
 
 analyze:
- t1 = thermostat2[[x1/x1,x2/x2,k/k1,h/h1,c1/c1,c2/c2], @on  (and (x1 >= gT - 1) (x1 <= gT + 1) (x2 >= gT - 1) (x2 <= gT + 1) (tau = 0) (k1 = K1) (h1 = H1) (h2 = H2) (c1 = C) (c2 = C))];
- t2 = thermostat2[[x1/x2,x2/x1,k/k2,h/h2,c1/c2,c2/c1], @on  (and (x1 >= gT - 1) (x1 <= gT + 1) (x2 >= gT - 1) (x2 <= gT + 1) (tau = 0) (k2 = K2) (h1 = H1) (h2 = H2) (c1 = C) (c2 = C))];
+ t1 = thermostat2[[x1/x1,x2/x2,k/k1,h/h1,c1/c1,c2/c2], @on  (and (1 > abs(x1 - gT)) (tau = 0) (k1 = K1) (h1 = H1) (h2 = H2) (c1 = C) (c2 = C))];
+ t2 = thermostat2[[x1/x2,x2/x1,k/k2,h/h2,c1/c2,c2/c1], @on  (and (1 > abs(x2 - gT)) (tau = 0) (k2 = K2) (h1 = H1) (h2 = H2) (c1 = C) (c2 = C))];
  (t1 || t2);
 
 goal:
-	() : (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)));
+	() : (and (5 < abs(x1 - gT))(5 < abs(x2 - gT)));
 

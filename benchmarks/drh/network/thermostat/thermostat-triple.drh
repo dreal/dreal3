@@ -238,16 +238,16 @@
 
 
 init:
-@1  (and (x1 >= gT - 1) (x1 <= gT + 1) 
-         (x2 >= gT - 1) (x2 <= gT + 1) (x3 >= gT - 1) (x3 <= gT + 1) (tau = 0));
+@1  (and (abs(x1 - gT) <= 1)  (abs(x2 - gT) <= 1) (abs(x3 - gT) <= 1)
+         (tau = 0));
 
 goal:
-@1  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)) (or (x3 < gT - 5) (x3 > gT + 5)));
-@2  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)) (or (x3 < gT - 5) (x3 > gT + 5)));
-@3  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)) (or (x3 < gT - 5) (x3 > gT + 5)));
-@4  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)) (or (x3 < gT - 5) (x3 > gT + 5)));
-@5  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)) (or (x3 < gT - 5) (x3 > gT + 5)));
-@6  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)) (or (x3 < gT - 5) (x3 > gT + 5)));
-@7  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)) (or (x3 < gT - 5) (x3 > gT + 5)));
-@8  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)) (or (x3 < gT - 5) (x3 > gT + 5)));
+@1  (and (abs(x1 - gT) > 7)  (abs(x2 - gT) > 7) (abs(x3 - gT) > 7));
+@2  (and (abs(x1 - gT) > 7)  (abs(x2 - gT) > 7) (abs(x3 - gT) > 7));
+@3  (and (abs(x1 - gT) > 7)  (abs(x2 - gT) > 7) (abs(x3 - gT) > 7));
+@4  (and (abs(x1 - gT) > 7)  (abs(x2 - gT) > 7) (abs(x3 - gT) > 7));
+@5  (and (abs(x1 - gT) > 7)  (abs(x2 - gT) > 7) (abs(x3 - gT) > 7));
+@6  (and (abs(x1 - gT) > 7)  (abs(x2 - gT) > 7) (abs(x3 - gT) > 7));
+@7  (and (abs(x1 - gT) > 7)  (abs(x2 - gT) > 7) (abs(x3 - gT) > 7));
+@8  (and (abs(x1 - gT) > 7)  (abs(x2 - gT) > 7) (abs(x3 - gT) > 7));
 

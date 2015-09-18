@@ -82,10 +82,10 @@
 )
 
 analyze:
-	tank0 = origin_tank[[x/x1,q/q1,A/A1],   @on (and (x1>= gH - 0.1) (x1 <= gH + 0.1) (q1 = 5.0) (A1 = 2.0) (tau = 0))];
-	tank1 = tank[[x/x2,q/q2,A/A2,xprev/x1], @on (and (x2>= gH - 0.1) (x2 <= gH + 0.1) (q2 = 3.0) (A2 = 4.0) (tau = 0))];
-	tank2 = tank[[x/x3,q/q3,A/A3,xprev/x2], @on (and (x3>= gH - 0.1) (x3 <= gH + 0.1) (q3 = 4.0) (A3 = 3.0) (tau = 0))];
+	tank0 = origin_tank[[x/x1,q/q1,A/A1],   @on (and (abs(x1 - gH) <=  0.1) (q1 = 5.0) (A1 = 2.0) (tau = 0))];
+	tank1 = tank[[x/x2,q/q2,A/A2,xprev/x1], @on (and (abs(x2 - gH) <=  0.1) (q2 = 3.0) (A2 = 4.0) (tau = 0))];
+	tank2 = tank[[x/x3,q/q3,A/A3,xprev/x2], @on (and (abs(x3 - gH) <=  0.1) (q3 = 4.0) (A3 = 3.0) (tau = 0))];
 	(tank0 || tank1 || tank2);
 	
 goal:
-	(): (and (or (x1 < gH - 2) (x1 > gH + 2)) (or (x2 < gH - 2) (x2 > gH + 2)) (or (x3 < gH - 2) (x3 > gH + 2)));
+	(): (and (abs(x1 - gH) > 2) (abs(x2 - gH) > 2) (abs(x3 - gH) > 2));

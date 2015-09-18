@@ -1589,14 +1589,16 @@ let trans_network_precomposed n i k heuristic =
 	let omuj = Basic.make_or muj in
 	Basic.make_or [oc; omuj]
 	
-let trans_network n i k heuristic =
+let trans_network n i k heuristic is_synchronous =
 	let automata = Network.automata n in
 	let jumplst = List.mapi (fun ia a -> (a, trans n a i k heuristic ia, trans_jump_sync_noop a i heuristic ia)) automata in
 	let ax = List.map (fun (a, jlist, nooplist) -> 
 		begin
 			let jmpor = Basic.make_or (List.map (fun j -> trans_jump_sync a j i) jlist) in
 			let noopr = Basic.make_or nooplist in
-			Basic.make_or [(*mk_noop_global a i;*) jmpor] (*[noopr; jmpor]*)
+			match is_synchronous with
+			  false -> Basic.make_or [mk_noop_global a i; jmpor] (*[noopr; jmpor]*)
+			| true -> jmpor (*[noopr; jmpor]*)
 		end
 	) 
 	jumplst in
@@ -1779,7 +1781,8 @@ let compile_logic_formula (h : Network.t)
 			  (k : int)
 			  (path: (string list) option)
 			  (precompute: bool)
-			  (heuristic : Costmap.t list option) =
+			  (heuristic : Costmap.t list option)
+			  (is_synchronous : bool) =
   let init_clause = mk_init_network h in
   let list_of_steps = List.of_enum (0 -- (k-1)) in
     let steps = match path with 
@@ -1792,7 +1795,7 @@ let compile_logic_formula (h : Network.t)
 		  | false -> Basic.make_and (List.map (fun x -> Basic.make_and [(mk_mode_mutex h x k heuristic);
 										(mk_active h x k heuristic);
 										(mk_maintain h x k heuristic);
-										(trans_network h x k heuristic);
+										(trans_network h x k heuristic is_synchronous);
 										(mk_frame_axiom h x k heuristic)]) list_of_steps);
 		end
 	| Some p -> Basic.make_and (List.map2 (fun q x -> Basic.make_and [(mk_mode_mutex h x k heuristic);(mk_active h x k heuristic);(mk_step h (Some q) x k heuristic)])
@@ -1808,9 +1811,10 @@ let compile (h : Network.t)
 	    (k : int)
 	    (path : (string list) option)
 	    (precompute : bool)
-	    (heuristic : Costmap.t list option) =
+	    (heuristic : Costmap.t list option)
+	    (is_synchronous : bool) =
   let logic_cmd = SetLogic QF_NRA_ODE in
   let (vardecl_cmds, assert_cmds) = compile_vardecl h k path precompute heuristic in
   let odedef = compile_ode_definition h k heuristic in
-  let assert_formula = compile_logic_formula h k path precompute heuristic in
+  let assert_formula = compile_logic_formula h k path precompute heuristic is_synchronous in
   List.flatten [[logic_cmd];vardecl_cmds; odedef; assert_cmds; assert_formula; [CheckSAT; Exit]]

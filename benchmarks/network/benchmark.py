@@ -8,7 +8,7 @@ import time
 from subprocess import Popen, PIPE, call
 
 
-timeout = 60*60 # 20 Minute timeout
+timeout = 20*60 # 20 Minute timeout
 break_on_sat = False
 break_on_timeout = True
 
@@ -212,30 +212,30 @@ if __name__ == '__main__':
 				        
 					     ##   ("thermostat", "Thermostat Triple SAT", "Old", "thermostat-triple-sat", ".drh", "sat", False, (1, 5)),
 					     ##   ("thermostat", "Thermostat Triple SAT", "New", "thermostat-triple-i-p-sat", ".py", "sat", False, (1, 5)),
-					     ##   ("thermostat", "Thermostat Triple SAT", "Net", "thermostat-triple-network", ".drh", "unsat", True, (1, 5))
+					     ##   ("thermostat", "Thermostat Triple SAT", "Net", "thermostat-triple-network-sat", ".drh", "unsat", True, (1, 5))
 						 ##   ],
-						   [
-						   ("thermostat", "Thermostat Triple UNSAT", "Old", "thermostat-triple", ".drh", "unsat", False, (1, 5)),
-						    ("thermostat", "Thermostat Triple UNSAT", "New", "thermostat-triple-i-p", ".py", "unsat", False, (1, 5)),
+						  ##   [
+						  ##   ("thermostat", "Thermostat Triple UNSAT", "Old", "thermostat-triple", ".drh", "unsat", False, (1, 5), True),
+						  ##    ("thermostat", "Thermostat Triple UNSAT", "New", "thermostat-triple-i-p", ".py", "unsat", False, (1, 5), True),
 					     
-					       ("thermostat", "Thermostat Triple UNSAT", "Net", "thermostat-triple-network-sat", ".drh", "sat", True, (1, 5))
-					     ],
+					      ##   ("thermostat", "Thermostat Triple UNSAT", "Net", "thermostat-triple-network", ".drh", "sat", True, (1, 5), True)
+					      ## ],
 				         ##   [					        
 					        ## ("thermostat", "Thermostat Double SAT", "Old", "thermostat-double-sat", ".drh", "sat", False, (1, 5)),
 					        ## ("thermostat", "Thermostat Double SAT", "New", "thermostat-double-i-p-sat", ".py", "sat", False, (1, 5)),
 					       ##   ("thermostat", "Thermostat Double SAT", "Net", "thermostat-double-network-sat", ".drh", "sat", True, (1, 5))
 					       ## ],
-						  ##   [
-						  ##  ("thermostat", "Thermostat Double UNSAT", "Old", "thermostat-double", ".drh", "unsat", False, (1, 5)),
-						  ##  ("thermostat", "Thermostat Double UNSAT", "New", "thermostat-double-i-p", ".py", "unsat", False, (1, 5)),
-						  ##  	("thermostat", "Thermostat Double UNSAT", "Net", "thermostat-double-network", ".drh", "unsat", True, (1, 5))							  
-						  ##  ],
+						      [
+						    ## ("thermostat", "Thermostat Double UNSAT", "Old", "thermostat-double", ".drh", "unsat", False, (1, 5), True),
+						     ("thermostat", "Thermostat Double UNSAT", "New", "thermostat-double-i-p", ".py", "unsat", False, (1, 5), True),
+						    ## 	("thermostat", "Thermostat Double UNSAT", "Net", "thermostat-double-network", ".drh", "unsat", True, (1, 5), True)							  
+						    ],
 						  ##  [
-						  ## 	("gen", "Generator SAT", "GEN 1", "gen-1-sat", ".drh", "sat", True, (6, 7)),
-						  ## 	("gen", "Generator SAT", "GEN 1", "gen-2-sat", ".drh", "sat", True, (10, 11)),
-						  ## 	("gen", "Generator SAT", "GEN 1", "gen-3-sat", ".drh", "sat", True, (14, 15)),
-						  ## 	("gen", "Generator SAT", "GEN 1", "gen-4-sat", ".drh", "sat", True, (18, 19)),
-						  ## 	("gen", "Generator SAT", "GEN 1", "gen-5-sat", ".drh", "sat", True, (22, 23))
+						  ## 	("gen", "Generator SAT", "GEN 1", "gen-1-sat", ".drh", "sat", True, (7, 7)),
+						  ## 	("gen", "Generator SAT", "GEN 1", "gen-2-sat", ".drh", "sat", True, (11, 11)),
+						  ## 	("gen", "Generator SAT", "GEN 1", "gen-3-sat", ".drh", "sat", True, (15, 15)),
+						  ## 	("gen", "Generator SAT", "GEN 1", "gen-4-sat", ".drh", "sat", True, (19, 19)),
+						  ## 	("gen", "Generator SAT", "GEN 1", "gen-5-sat", ".drh", "sat", True, (23, 23))
 						  ## ],
 						  ## ## [
 						  ## 	("gen", "Generator UNSAT", "GEN 1", "gen-1-unsat", ".drh", "unsat", True, (1, 8)),
@@ -258,9 +258,9 @@ if __name__ == '__main__':
 						 ##  	("airplane", "Airplane Single SAT", "Net", "airplane-single-network-sat", ".drh", "sat", True, (1, 5))
 						##   ],
 						      ## [
-						      ## 	("airplane", "Airplane Single UNSAT", "Old", "airplane-single", ".drh", "unsat", False, (1, 5)),
-						      ## 	("airplane", "Airplane Single UNSAT", "New", "airplane-single-i-p", ".py", "unsat", False, (1, 5)),
-						      ## 	("airplane", "Airplane Single UNSAT", "Net", "airplane-single-network", ".drh", "unsat", True, (1, 5))
+						      ## 	("airplane", "Airplane Single UNSAT", "Old", "airplane-single", ".drh", "unsat", False, (1, 5), True),
+						      ## 	("airplane", "Airplane Single UNSAT", "New", "airplane-single-i-p", ".py", "unsat", False, (1, 5), True),
+						      ## 	("airplane", "Airplane Single UNSAT", "Net", "airplane-single-network", ".drh", "unsat", True, (1, 5), True)
 						      ## ],
 						  ## [							
 						  ## 	("airplane-nl", "Airplane NL Single SAT", "Old", "airplane-single-nl-sat", ".drh", "sat", False, (1, 5)),
@@ -268,9 +268,9 @@ if __name__ == '__main__':
 						  ## 	("airplane-nl", "Airplane NL Single SAT", "Net", "airplane-single-nl-network-sat", ".drh", "sat", True, (1, 5))
 						  ## ],
 						  ## [
-						  ## 	("airplane-nl", "Airplane NL Single UNSAT", "Old", "airplane-single-nl", ".drh", "unsat", False, (1, 5)),
-						  ## 	("airplane-nl", "Airplane NL Single UNSAT", "New", "airplane-single-nl-i-p", ".py", "unsat", False, (1, 5)),
-						  ## 	("airplane-nl", "Airplane NL Single UNSAT", "Net", "airplane-single-nl-network", ".drh", "unsat", True, (1, 5))
+						  ## 	("airplane-nl", "Airplane NL Single UNSAT", "Old", "airplane-single-nl", ".drh", "unsat", False, (1, 5), True),
+						  ## 	("airplane-nl", "Airplane NL Single UNSAT", "New", "airplane-single-nl-i-p", ".py", "unsat", False, (1, 5), True),
+						  ## 	("airplane-nl", "Airplane NL Single UNSAT", "Net", "airplane-single-nl-network", ".drh", "unsat", True, (1, 5), True)
 						  ## ],
 						   ## [
 							
@@ -279,21 +279,21 @@ if __name__ == '__main__':
 						   ## 	("water", "Water Double SAT", "Net", "water-double-network-sat", ".drh", "sat", True, (1, 5))
 						   ## ],
 						    ## [
-						    ## 	("water", "Water Double UNSAT", "Old", "water-double", ".drh", "unsat", False, (1, 5)),
-						    ## 	("water", "Water Double UNSAT", "New", "water-double-i-p", ".py", "unsat", False, (1, 5)),
-						    ## 	("water", "Water Double UNSAT", "Net", "water-double-network", ".drh", "unsat", True, (1, 5))
+						    ## 	("water", "Water Double UNSAT", "Old", "water-double", ".drh", "unsat", False, (1, 5), True),
+						    ## 	("water", "Water Double UNSAT", "New", "water-double-i-p", ".py", "unsat", False, (1, 5), True),
+						    ## 	("water", "Water Double UNSAT", "Net", "water-double-network", ".drh", "unsat", True, (1, 5), True)
 						    ## ],
 						  ## [
 							
-						  ## 	("water", "Water Triple SAT", "Old", "water-triple-sat", ".drh", "sat", False, (1, 5)),
-						  ## 	("water", "Water Triple SAT", "New", "water-triple-i-p-sat", ".py", "sat", False, (1, 5)),
-						  ## 	("water", "Water Triple SAT", "Net", "water-triple-network-sat", ".drh", "sat", True, (1, 5))
+						  ## 	("water", "Water Triple SAT", "Old", "water-triple-sat", ".drh", "sat", False, (1, 5), True),
+						  ## 	("water", "Water Triple SAT", "New", "water-triple-i-p-sat", ".py", "sat", False, (1, 5), True),
+						  ## 	("water", "Water Triple SAT", "Net", "water-triple-network-sat", ".drh", "sat", True, (1, 5), True)
 						  ## ],
 						  ## [
-						  ## 	("water", "Water Triple UNSAT", "Old", "water-triple", ".drh", "unsat", False, (1, 5)),
-						  ## 	("water", "Water Triple UNSAT", "New", "water-triple-i-p", ".py", "unsat", False, (1, 5)),
-						  ## 	("water", "Water Triple UNSAT", "Net", "water-triple-network", ".drh", "unsat", True, (1, 5))
-						  ## ]
+						  ## 	("water", "Water Triple UNSAT", "Old", "water-triple", ".drh", "unsat", False, (1, 5), True),
+						  ## 	("water", "Water Triple UNSAT", "New", "water-triple-i-p", ".py", "unsat", False, (1, 5), True),
+						   ##	("water", "Water Triple UNSAT", "Net", "water-triple-network", ".drh", "unsat", True, (1, 5), True)
+						##   ]
 						]
 						  
 	
@@ -316,6 +316,7 @@ if __name__ == '__main__':
 			expected_result = series_info[5]
 			new_format = series_info[6]
 			bounds = series_info[7]
+			synchronous = series_info[8]
 			
 			min_bound = bounds[0]
 			max_bound = bounds[1]
@@ -356,7 +357,10 @@ if __name__ == '__main__':
 						trans_cmd.extend([gen + '.preprocessed.drh', '-k', str(x)])
 						
 						if new_format:
-							trans_cmd.extend(['--new_format'])
+							if synchronous:
+								trans_cmd.extend(['--new_format_synchronous'])
+							else:
+								trans_cmd.extend(['--new_format'])
 							
 						if heuristic:
 							trans_cmd.extend(['--bmc_heuristic', bmc_file])
