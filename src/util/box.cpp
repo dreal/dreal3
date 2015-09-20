@@ -292,7 +292,7 @@ vector<bool> box::diff_dims(box const & b) const {
 }
 
 box sample_point(box b) {
-    static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
+    static std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
     unsigned const n = b.size();
     ibex::IntervalVector & values = b.get_values();
     for (unsigned i = 0; i < n; i++) {

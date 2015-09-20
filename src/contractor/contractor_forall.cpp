@@ -84,7 +84,7 @@ contractor_forall::contractor_forall(box const & , forall_constraint const * con
 
 box contractor_forall::prune(box b, SMTConfig & config) const {
     // Prep
-    static thread_local box old_box(b);
+    static box old_box(b);
     lbool const p = m_ctr->get_polarity();
     Enode * const e = m_ctr->get_enode();
     unordered_set<Enode*> const & forall_vars = m_ctr->get_forall_vars();

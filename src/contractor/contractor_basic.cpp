@@ -310,7 +310,7 @@ contractor_int::contractor_int() : contractor_cell(contractor_kind::INT) { }
 box contractor_int::prune(box b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_int::prune";
     // ======= Proof =======
-    thread_local static box old_box(b);
+    static box old_box(b);
     if (config.nra_proof) { old_box = b; }
 
     m_input  = ibex::BitSet::empty(b.size());
@@ -398,7 +398,7 @@ box contractor_cache::prune(box b, SMTConfig & config) const {
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
     // TODO(soonhok): implement this
-    thread_local static unordered_map<box, box> cache;
+    static unordered_map<box, box> cache;
     auto const it = cache.find(b);
     if (it == cache.cend()) {
         // Not Found

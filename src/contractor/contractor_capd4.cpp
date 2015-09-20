@@ -485,7 +485,7 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
 }
 
 box contractor_capd_fwd_full::prune(box b, SMTConfig & config) const {
-    static thread_local box old_box(b);
+    static box old_box(b);
     old_box = b;
     DREAL_LOG_DEBUG << "contractor_capd_fwd_full::prune";
     integral_constraint const & ic = m_ctr->get_ic();
@@ -715,7 +715,7 @@ contractor_capd_bwd_full::~contractor_capd_bwd_full() {
 }
 
 box contractor_capd_bwd_full::prune(box b, SMTConfig & config) const {
-    static thread_local box old_box(b);
+    static box old_box(b);
     old_box = b;
     DREAL_LOG_DEBUG << "contractor_capd_bwd_full::prune";
     integral_constraint const & ic = m_ctr->get_ic();

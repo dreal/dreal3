@@ -164,7 +164,7 @@ box ncbt_icp::solve(box b, contractor const & ctc, SMTConfig & config) {
 }
 
 bool random_icp::random_bool() {
-    static thread_local std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
+    static std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
     std::uniform_real_distribution<double> m_dist(0, 1);
     return m_dist(rg) >= 0.5;
 }
