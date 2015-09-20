@@ -15,3 +15,4 @@ SET(DOP_SRCS "${DOP_SRCS}"
   PARENT_SCOPE)
 add_subdirectory(parsers/baron)
 add_subdirectory(parsers/dop)
+add_subdirectory(parsers/bch)
