@@ -265,7 +265,7 @@ if(MINGW)
     CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --build=x86_64-w64-mingw32 --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
     BUILD_COMMAND make -j
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make install)
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/coin && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/share/coin/doc/CoinUtils && make install)
 else(MINGW)
   ExternalProject_Add(CLP
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
@@ -276,7 +276,7 @@ else(MINGW)
     CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
     BUILD_COMMAND make -j
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make install)
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/coin && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/share/coin/doc/CoinUtils && make install)
 endif()
 set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "m" ${EXTRA_LIBS})
 
