@@ -223,6 +223,8 @@ struct SMTConfig
   std::string  nra_plan_domain;               // planning domain
   std::string  nra_plan_problem;              // planning instance
   int          nra_icp_decisions;             // number of icp branch nodes
+  bool         nra_show_search_progress;      // print search progress to console
+  bool         nra_heuristic_forward;         // use forward search in the heuristic solution
   void inc_icp_decisions() { nra_icp_decisions++; }
   int  icp_decisions() { return nra_icp_decisions; }
 

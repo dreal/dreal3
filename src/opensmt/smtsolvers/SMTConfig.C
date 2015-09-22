@@ -146,6 +146,8 @@ SMTConfig::initializeConfig( )
   nra_random_seed              = random_device{}();
   nra_output_num_nodes         = false;
   nra_icp_decisions            = 0;
+  nra_show_search_progress     = false;
+  nra_heuristic_forward        = false;
   initLogging();
 }
 
@@ -557,6 +559,8 @@ SMTConfig::parseCMDLine( int argc
     nra_simulation_thread   = opt.isSet("--simulation");
     nra_precision_output    =!opt.isSet("--no-precision-output");
     sat_preprocess_booleans = opt.isSet("--sat-prep-bool");
+    nra_show_search_progress= opt.isSet("--show-search");
+    nra_heuristic_forward   = opt.isSet("--heuristic_forward");
 
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }

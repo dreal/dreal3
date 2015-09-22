@@ -28,6 +28,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "json/json.hpp"
 #include <map>
 
+using namespace std;
+
 namespace dreal {
 
   typedef std::pair<std::set<int>*, int> labeled_transition;
@@ -94,13 +96,14 @@ public:
  private:
     int num_autom;
     int num_labels;
-    std::map<std::string, int> label_to_indices;
-    std::map<int, std::string> label_from_indices;
-    std::vector<std::vector<std::vector<labeled_transition*>*>*> predecessors;
-    std::vector<std::vector< double >*>  m_cost;
-    std::vector<int> m_init_mode;
-    std::vector<std::vector<labeled_transition*>*> m_goal_modes;
-    std::vector<std::pair<int, std::vector<labeled_transition*>*>*> m_decision_stack;
+    map<string, int> label_to_indices;
+    map<int, string> label_from_indices;
+    vector<vector<vector<labeled_transition*>*>*> predecessors;
+    vector<vector<vector<labeled_transition*>*>*> successors;
+    vector<vector< double >*>  m_cost;
+    vector<vector<labeled_transition*>*> m_init_mode;
+    vector<vector<labeled_transition*>*> m_goal_modes;
+    vector<pair<int, vector<labeled_transition*>*>*> m_decision_stack;
     int m_depth;
     std::vector<Enode*> default_false_suggestions;
     std::vector<Enode*> default_true_suggestions;

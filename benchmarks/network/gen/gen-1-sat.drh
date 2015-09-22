@@ -1,11 +1,11 @@
 #define capacity_gen 1000
 #define eps 0.001
 
-[0, 2000] time;
+[0, 1000] time;
 
 (component generate_gen_automaton;
-[0, 2000] fuellevel_gen;
-[0, 1001] T_generate_gen_automaton;
+[0, capacity_gen] fuellevel_gen;
+[0, 1000] T_generate_gen_automaton;
 [0, 1] generator_ran;
 label lock_is_set_generator_ran_1_inc_fuellevel_gen_velocity_by_1_generate_gen_automaton;
 label release_is_set_generate_gen_automaton;
@@ -19,14 +19,17 @@ invt:
 flow:
 d/dt[T_generate_gen_automaton] = 1;
 d/dt[fuellevel_gen] = -1;
+d/dt[generator_ran] = 0;
 jump:
-(lock_is_set_generator_ran_1_inc_fuellevel_gen_velocity_by_1_generate_gen_automaton): (and (T_generate_gen_automaton >= 1000)) ==> @running_to_non_active_generate_gen_automaton (and (T_generate_gen_automaton' = 0) (generator_ran' = 1));
+(lock_is_set_generator_ran_1_inc_fuellevel_gen_velocity_by_1_generate_gen_automaton): (and (T_generate_gen_automaton = 1000)) ==> @running_to_non_active_generate_gen_automaton (and (T_generate_gen_automaton' = 0) (generator_ran' = 1));
 )
 
 (mode non_active_generate_gen_automaton;
 invt:
 flow:
 d/dt[T_generate_gen_automaton] = 1;
+d/dt[fuellevel_gen] = 0;
+d/dt[generator_ran] = 0;
 jump:
 (lock_is_set_dec_fuellevel_gen_velocity_by_1_generate_gen_automaton): (true) ==> @interm_to_running_generate_gen_automaton (and (T_generate_gen_automaton' = 0));
 )
@@ -35,22 +38,26 @@ invt:
 (T_generate_gen_automaton <= 0);
 flow:
 d/dt[T_generate_gen_automaton] = 1;
+d/dt[fuellevel_gen] = 0;
+d/dt[generator_ran] = 0;
 jump:
-(release_is_set_generate_gen_automaton): (and (T_generate_gen_automaton >= 0)) ==> @running_generate_gen_automaton (and (T_generate_gen_automaton' = 0));
+(release_is_set_generate_gen_automaton): (and (T_generate_gen_automaton = 0)) ==> @running_generate_gen_automaton (and (T_generate_gen_automaton' = 0));
 )
 (mode running_to_non_active_generate_gen_automaton;
 invt:
 (T_generate_gen_automaton <= 0);
 flow:
 d/dt[T_generate_gen_automaton] = 1;
+d/dt[fuellevel_gen] = 0;
+d/dt[generator_ran] = 0;
 jump:
-(release_is_set_generate_gen_automaton2): (and (T_generate_gen_automaton >= 0)) ==> @non_active_generate_gen_automaton (and (T_generate_gen_automaton' = 0));
+(release_is_set_generate_gen_automaton2): (and (T_generate_gen_automaton = 0)) ==> @non_active_generate_gen_automaton (and (T_generate_gen_automaton' = 0));
 )
 )
 
 (component refuel_gen_tank1_automaton;
-[0, 2000] fuellevel_gen;
-[0, 1001] T_refuel_gen_tank1_automaton;
+[0, capacity_gen] fuellevel_gen;
+[0, 1000] T_refuel_gen_tank1_automaton;
 [0, 1] available_tank1;
 [0, 1] refueling_gen;
 label lock_is_set_refueling_gen_0_dec_fuellevel_gen_velocity_by_2_refuel_gen_tank1_automaton;
@@ -64,13 +71,18 @@ invt:
 flow:
 d/dt[T_refuel_gen_tank1_automaton] = 1;
 d/dt[fuellevel_gen] = 2;
+d/dt[available_tank1] = 0;
+d/dt[refueling_gen] = 0;
 jump:
-(lock_is_set_refueling_gen_0_dec_fuellevel_gen_velocity_by_2_refuel_gen_tank1_automaton): (and (T_refuel_gen_tank1_automaton >= 10)) ==> @running_to_non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0) (refueling_gen' = 0));
+(lock_is_set_refueling_gen_0_dec_fuellevel_gen_velocity_by_2_refuel_gen_tank1_automaton): (and (T_refuel_gen_tank1_automaton = 10)) ==> @running_to_non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0) (refueling_gen' = 0));
 )
 (mode non_active_refuel_gen_tank1_automaton;
 invt:
 flow:
 d/dt[T_refuel_gen_tank1_automaton] = 1;
+d/dt[fuellevel_gen] = 0;
+d/dt[available_tank1] = 0;
+d/dt[refueling_gen] = 0;
 jump:
 (lock_is_available_tank1_1_set_inc_fuellevel_gen_velocity_by_2_available_tank1_0_refueling_gen_1_refuel_gen_tank1_automaton): (and (available_tank1 = 1)) ==> @interm_to_running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0) (available_tank1' = 0) (refueling_gen' = 1));
 )
@@ -79,16 +91,22 @@ invt:
 (T_refuel_gen_tank1_automaton <= 0);
 flow:
 d/dt[T_refuel_gen_tank1_automaton] = 1;
+d/dt[fuellevel_gen] = 0;
+d/dt[available_tank1] = 0;
+d/dt[refueling_gen] = 0;
 jump:
-(release_is_set_refuel_gen_tank1_automaton): (and (T_refuel_gen_tank1_automaton >= 0)) ==> @running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+(release_is_set_refuel_gen_tank1_automaton): (and (T_refuel_gen_tank1_automaton = 0)) ==> @running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
 )
 (mode running_to_non_active_refuel_gen_tank1_automaton;
 invt:
 (T_refuel_gen_tank1_automaton <= 0);
 flow:
 d/dt[T_refuel_gen_tank1_automaton] = 1;
+d/dt[fuellevel_gen] = 0;
+d/dt[available_tank1] = 0;
+d/dt[refueling_gen] = 0;
 jump:
-(release_is_set_refuel_gen_tank1_automaton2): (and (T_refuel_gen_tank1_automaton >= 0)) ==> @non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+(release_is_set_refuel_gen_tank1_automaton2): (and (T_refuel_gen_tank1_automaton = 0)) ==> @non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
 )
 )
 
@@ -126,13 +144,13 @@ jump:
 
 analyze: 
 generate_gen_automaton0 =
- generate_gen_automaton[[],
+ generate_gen_automaton[[T_generate_gen_automaton/time_generate_gen_automaton],
                         @non_active_generate_gen_automaton
                         (and (generator_ran = 0) (fuellevel_gen = 980) (T_generate_gen_automaton = 0))];
 
 refuel_gen_tank1_automaton1 =
  refuel_gen_tank1_automaton[
-  [available_tank1/at1, T_refuel_gen_tank1_automaton/rt1, lock_is_set_refueling_gen_0_dec_fuellevel_gen_velocity_by_2_refuel_gen_tank1_automaton/lock_1_1, release_is_set_refuel_gen_tank1_automaton/release_1_1, release_is_set_refuel_gen_tank1_automaton2/release_1_2, lock_is_available_tank1_1_set_inc_fuellevel_gen_velocity_by_2_available_tank1_0_refueling_gen_1_refuel_gen_tank1_automaton/lock_1_2],
+  [available_tank1/at1, T_refuel_gen_tank1_automaton/time_rt1, lock_is_set_refueling_gen_0_dec_fuellevel_gen_velocity_by_2_refuel_gen_tank1_automaton/lock_1_1, release_is_set_refuel_gen_tank1_automaton/release_1_1, release_is_set_refuel_gen_tank1_automaton2/release_1_2, lock_is_available_tank1_1_set_inc_fuellevel_gen_velocity_by_2_available_tank1_0_refueling_gen_1_refuel_gen_tank1_automaton/lock_1_2],
   @non_active_refuel_gen_tank1_automaton
   (and (available_tank1 = 1) (refueling_gen = 0) (fuellevel_gen = 980) (T_refuel_gen_tank1_automaton = 0))];
 

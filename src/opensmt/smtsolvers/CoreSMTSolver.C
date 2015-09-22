@@ -1701,7 +1701,8 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
   // Decrease activity for booleans
   //
   boolVarDecActivity( );
-
+  bool justBacktracked = false;
+  
   for (;;)
   {   
     // Added line
@@ -1709,6 +1710,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
     Clause* confl = propagate();
     if (confl != NULL){
+      
       DREAL_LOG_DEBUG << "Found conflict";
       // CONFLICT
       conflicts++; conflictC++;
@@ -1721,6 +1723,9 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
       cancelUntil(backtrack_level);
 
       assert(value(learnt_clause[0]) == l_Undef);
+
+
+      justBacktracked = true;
 
       if (learnt_clause.size() == 1){
         uncheckedEnqueue(learnt_clause[0]);
@@ -1754,6 +1759,17 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
       claDecayActivity();
 
     }else{
+      if(justBacktracked && config.nra_show_search_progress){
+	std::cout << endl;
+	for(int bt = 0; bt < decisionLevel(); bt++){
+	  std::cout << " " << std::flush;
+	}
+	justBacktracked = false;
+      }
+
+      if (config.nra_show_search_progress){
+	std::cout << "+" << std::flush;
+      }
       // NO CONFLICT
 
       if (nof_conflicts >= 0 && conflictC >= nof_conflicts){
@@ -1770,7 +1786,8 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
           // Reduce the set of learnt clauses:
           reduceDB();
 
-        if ( first_model_found )
+        if ( //false &&
+	     first_model_found )
         {
           // Early Pruning Call
           // Step 1: check if the current assignment is theory-consistent
@@ -1782,6 +1799,11 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 #ifdef STATISTICS
           tsolvers_time += cpuTime( ) - start;
 #endif
+	   if (res < 1){
+	     justBacktracked = true;
+	   }
+
+	  
           switch( res )
           {
             case -1: return l_False;        // Top-Level conflict: unsat
@@ -1858,6 +1880,9 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 	      //	      return l_False;
 	      Clause* confl = heuristic->getConflict( );
 	      if (confl != NULL){
+
+		justBacktracked=true;
+		
 		DREAL_LOG_DEBUG << "Analyze Conflict";
 		// CONFLICT
 		conflicts++; conflictC++;
@@ -1915,6 +1940,11 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             const double start = cpuTime( );
 #endif
             int res = checkTheory( true );
+
+	    if (res < 1){
+	      justBacktracked=true;
+	    }
+
 #ifdef STATISTICS
             tsolvers_time += cpuTime( ) - start;
 #endif
