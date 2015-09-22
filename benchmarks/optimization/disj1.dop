@@ -1,0 +1,22 @@
+prec: 0.01
+
+var:
+
+[-10, 10] x1;
+[-10, 10] x2;
+[-10, 10] x3;
+[-10, 10] x4;
+[-10, 10] x5;
+[-10, 10] x6;
+
+cost:
+
+x1 * x2 + x3 * x4 + x5 * x6;
+
+ctr:
+
+(sin(x1) + cos(x2) > 1) || (sin(x1) * cos(x2) > 0);
+(sin(x2) + cos(x3) > 1) || (sin(x2) * cos(x3) > 0);
+(sin(x3) + cos(x4) > 1) || (sin(x3) * cos(x4) > 0);
+(sin(x4) + cos(x5) > 1) || (sin(x4) * cos(x5) > 0);
+(sin(x5) + cos(x6) > 1) || (sin(x5) * cos(x6) > 0);
