@@ -323,7 +323,7 @@ if(USE_LOCAL_THIRD_PARTY)
     BUILD_COMMAND ./waf build
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND ./waf install)
-elseif()
+else()
   ExternalProject_Add(IBEX
     DEPENDS CLP FILIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
