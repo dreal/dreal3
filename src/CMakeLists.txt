@@ -615,9 +615,12 @@ target_link_libraries(dReal-bin dreal ${EXTRA_LIBS})
 
 if(NOT BUILD_STATIC_BIN)
   add_executable(dOp-bin tools/dop/main.cpp)
-  SET_TARGET_PROPERTIES(dOp-bin
-    PROPERTIES OUTPUT_NAME dOp)
-  target_link_libraries(dOp-bin dop dreal ${PYTHON_LIBRARIES} ${EXTRA_LIBS})
+  SET_TARGET_PROPERTIES(dOp-bin PROPERTIES OUTPUT_NAME dOp)
+  if(${PYTHONLIBS_FOUND})
+    target_link_libraries(dOp-bin dop dreal ${PYTHON_LIBRARIES} ${EXTRA_LIBS})
+  else()
+    target_link_libraries(dOp-bin dop dreal ${EXTRA_LIBS})
+  endif()
 endif()
 
 #add tests
