@@ -1,8 +1,8 @@
 (set-logic QF_NRA)
-(declare-fun x1 () Real)
+(declare-fun exists x1 () Real [3.0, 3.14])
 (declare-fun forall x2 () Real [-7.0, 5.0])
-(assert (<= 3.0 x1))
-(assert (<= x1 3.14))
-(assert (< (* x1 x2) 0))
+(assert
+ (forall ((x2 Real))
+         (< (* x1 x2) 0)))
 (check-sat)
 (exit)

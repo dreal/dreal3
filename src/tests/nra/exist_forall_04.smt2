@@ -12,18 +12,19 @@
 (assert (<= 0.0 y1))
 (assert (<= y1 3.0))
 (assert
- (>=
+ (forall ((x2 Real)
+          (y2 Real))
+         (>=
 
-  (+ (* (sin (+ x1 1))
-        (cos (- y1 1)))
-     (* (cos x1)
-        (sin x1)))
+          (+ (* (sin (+ x1 1))
+                (cos (- y1 1)))
+             (* (cos x1)
+                (sin x1)))
 
-  (+ (* (sin (+ x2 1))
-        (cos (- y2 1)))
-     (* (cos x2)
-        (sin x2))))
- )
+          (+ (* (sin (+ x2 1))
+                (cos (- y2 1)))
+             (* (cos x2)
+                (sin x2))))))
 (assert (= z
            (+ (* (sin (+ x1 1))
                  (cos (- y1 1)))

@@ -5,11 +5,12 @@
 (assert (<= 0.0 x1))
 (assert (<= x1 7.0))
 (assert
- (<=
-  (- (* (sin x1) (^ x1 2))
-     (* (cos x1) x1))
-  (- (* (sin x2) (^ x2 2))
-     (* (cos x2) x2))))
+ (forall ((x2 Real))
+         (<=
+          (- (* (sin x1) (^ x1 2))
+             (* (cos x1) x1))
+          (- (* (sin x2) (^ x2 2))
+             (* (cos x2) x2)))))
 (assert (= x3
            (- (* (sin x1) (^ x1 2))
               (* (cos x1) x1))))

@@ -11,17 +11,18 @@
 (assert (<= -1.0 y1))
 (assert (<= y1 1.0))
 (assert
- (<=
-  (- (* (cos x1)
-        (sin y1))
-     (/ x1
-        (+ (^ y1 2)
-           1)))
-     (- (* (cos x2)
-           (sin y2))
-        (/ x2
-           (+ (^ y2 2)
-              1)))))
+ (forall ((x2 Real) (y2 Real))
+         (<=
+          (- (* (cos x1)
+                (sin y1))
+             (/ x1
+                (+ (^ y1 2)
+                   1)))
+          (- (* (cos x2)
+                (sin y2))
+             (/ x2
+                (+ (^ y2 2)
+                   1))))))
 (assert (= z
            (- (* (cos x1)
                  (sin y1))

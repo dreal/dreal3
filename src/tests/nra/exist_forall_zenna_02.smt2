@@ -9,11 +9,12 @@
 (declare-fun        t4 () Real [-10, 10])
 (declare-fun forall x  () Real [-10, 10])
 (assert
- (=
-  (^ x 2)
-  (+ t1
-     (* t2 x)
-     (* t3 (^ x 2))
-     (* t4 (^ x 3)))))
+ (forall ((x Real))
+         (=
+          (^ x 2)
+          (+ t1
+             (* t2 x)
+             (* t3 (^ x 2))
+             (* t4 (^ x 3))))))
 (check-sat)
 (exit)
