@@ -41,7 +41,6 @@ using std::to_string;
 using std::unordered_map;
 using std::ostream;
 
-#ifdef PYTHONLIBS_FOUND
 string generate_py_visualization_string_3d(Enode * const f, unordered_map<string, Enode *> var_map, unsigned const num_of_cells, string const & minimum_name) {
     Enode * minimum = var_map[minimum_name];
     var_map.erase(minimum_name);
@@ -225,7 +224,7 @@ void visualize_result_via_python_2d(Enode * const f, unordered_map<string, Enode
     string python_code = generate_py_visualization_string_2d(f, var_map, num_of_cells, minimum_name);
     eval_python_string(python_code);
 }
-
+#ifdef PYTHONLIBS_FOUND
 void run_visualization(Enode * const f, unordered_map<string, Enode *> const & var_map, unsigned const num_of_cells, string const & minimum_name) {
     unsigned const var_map_size = var_map.size();
     if (var_map_size == 3) {
