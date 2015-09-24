@@ -209,6 +209,7 @@ ax = fig.add_subplot(111)
     return python_code;
 }
 
+#ifdef PYTHONLIBS_FOUND
 void eval_python_string(string const & s) {
     Py_Initialize();
     PyRun_SimpleString(s.c_str());
@@ -224,7 +225,7 @@ void visualize_result_via_python_2d(Enode * const f, unordered_map<string, Enode
     string python_code = generate_py_visualization_string_2d(f, var_map, num_of_cells, minimum_name);
     eval_python_string(python_code);
 }
-#ifdef PYTHONLIBS_FOUND
+
 void run_visualization(Enode * const f, unordered_map<string, Enode *> const & var_map, unsigned const num_of_cells, string const & minimum_name) {
     unsigned const var_map_size = var_map.size();
     if (var_map_size == 3) {
