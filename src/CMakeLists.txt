@@ -16,6 +16,7 @@ option(SUPPORT_ODE      "Support ODE" ON)
 option(LOGGING          "Enable Logging" ON)
 option(BUILD_STATIC_BIN "Build static binary"  OFF)
 option(BUILD_SHARED_LIB "Build shared library" OFF)
+option(USE_LOCAL_THIRD_PARTY "Use local third party libraries" OFF)
 
 # Added for CTest
 include(CTest)
@@ -192,63 +193,79 @@ JOIN("${DREAL_EXTRA_LINKER_FLAGS}" "," EXTERNAL_LD_FLAGS)
 ################################################################
 # External: FILIB
 ################################################################
-ExternalProject_Add(FILIB
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/filibxx.git
-  GIT_TAG master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
-  BUILD_COMMAND make -j
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make -j install)
+if(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(FILIB
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    URL ${CMAKE_SOURCE_DIR}/third_party/filibxx.zip
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+    BUILD_COMMAND make -j
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND make -j install)
+else()
+  ExternalProject_Add(FILIB
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/filibxx.git
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+    BUILD_COMMAND make -j
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND make -j install)
+endif()
 set(EXTRA_LIBS "prim" ${EXTRA_LIBS})
 
 ################################################################
 # External: NLOPT
 ################################################################
-ExternalProject_Add(NLOPT
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/nlopt.git
-  GIT_TAG master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-  CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
-  BUILD_COMMAND make -j
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND make -j install)
+if(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(NLOPT
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    URL ${CMAKE_SOURCE_DIR}/third_party/nlopt.zip
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
+    BUILD_COMMAND make -j
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND make -j install)
+else()
+  ExternalProject_Add(NLOPT
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/nlopt.git
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
+    BUILD_COMMAND make -j
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND make -j install)
+endif()
 set(EXTRA_LIBS "nlopt" ${EXTRA_LIBS})
 
 if(SUPPORT_ODE)
   ################################################################
   # External: CAPD-DynSys-4.0
   ################################################################
+  if(USE_LOCAL_THIRD_PARTY)
   ExternalProject_Add(CAPD4
     DEPENDS FILIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-    GIT_REPOSITORY https://github.com/dreal-deps/capdDynSys-4.0.git
-    GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-           COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    URL ${CMAKE_SOURCE_DIR}/third_party/capdDynSys-4.0.zip
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=no ${SHARED_LIB_CONFIG_COMMAND}
     BUILD_COMMAND make -j
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND make -j install)
-
-  ################################################################
-  # External: CAPD-DynSys-3.0
-  ################################################################
-  # ExternalProject_Add(CAPD3
-  #   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  #   GIT_REPOSITORY https://github.com/soonhokong/capdDynSys-3.0.git
-  #   GIT_TAG master
-  #   UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-  #          COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-  #   CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --with-filib=no --with-mpfr=no
-  #   BUILD_COMMAND make -j
-  #   BUILD_IN_SOURCE 1
-  #   INSTALL_COMMAND make -j install
-  # )
+  else()
+    ExternalProject_Add(CAPD4
+      DEPENDS FILIB
+      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+      GIT_REPOSITORY https://github.com/dreal-deps/capdDynSys-4.0.git
+      GIT_TAG master
+      UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+      COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+      CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=no ${SHARED_LIB_CONFIG_COMMAND}
+      BUILD_COMMAND make -j
+      BUILD_IN_SOURCE 1
+      INSTALL_COMMAND make -j install)
+  endif()
   set(EXTRA_LIBS "capd" ${EXTRA_LIBS})
 endif()
 
@@ -267,16 +284,26 @@ if(MINGW)
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/coin && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/share/coin/doc/CoinUtils && make install)
 else(MINGW)
-  ExternalProject_Add(CLP
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-    GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
-    GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-           COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
-    BUILD_COMMAND make -j
-    BUILD_IN_SOURCE 1
-    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/coin && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/share/coin/doc/CoinUtils && make install)
+  if(USE_LOCAL_THIRD_PARTY)
+    ExternalProject_Add(CLP
+      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+      URL ${CMAKE_SOURCE_DIR}/third_party/clp-1.16.zip
+      CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
+      BUILD_COMMAND make -j
+      BUILD_IN_SOURCE 1
+      INSTALL_COMMAND make install)
+  else(USE_LOCAL_THIRD_PARTY)
+    ExternalProject_Add(CLP
+      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+      GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
+      GIT_TAG master
+      UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+      COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+      CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
+      BUILD_COMMAND make -j
+      BUILD_IN_SOURCE 1
+      INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/coin && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/share/coin/doc/CoinUtils && make install)
+  endif()
 endif()
 set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "m" ${EXTRA_LIBS})
 
@@ -287,75 +314,122 @@ if(CMAKE_BUILD_TYPE MATCHES "DEBUG")
   set(IBEX_DEBUG_MODE "--with-debug")
 endif()
 
-ExternalProject_Add(IBEX
-  DEPENDS CLP FILIB
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/ibex-lib.git
-  GIT_TAG master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-  CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --with-c++11 --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE} ${SHARED_LIB_IBEX_COMMAND}
-  BUILD_COMMAND ./waf build
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND ./waf install)
+if(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(IBEX
+    DEPENDS CLP FILIB
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    URL ${CMAKE_SOURCE_DIR}/third_party/ibex-lib.zip
+    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --with-c++11 --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE} ${SHARED_LIB_IBEX_COMMAND}
+    BUILD_COMMAND ./waf build
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND ./waf install)
+elseif()
+  ExternalProject_Add(IBEX
+    DEPENDS CLP FILIB
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/ibex-lib.git
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --with-c++11 --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE} ${SHARED_LIB_IBEX_COMMAND}
+    BUILD_COMMAND ./waf build
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND ./waf install)
+endif()
 set(EXTRA_LIBS "ibex" ${EXTRA_LIBS})
 
 ################################################################
 # External: Catch (testing framework)
 ################################################################
-ExternalProject_Add(CATCH
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/Catch.git
-  GIT_TAG master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-  CONFIGURE_COMMAND echo "nothing to configure"
-  BUILD_COMMAND echo "nothing to build"
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/)
-
+if(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(CATCH
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    URL ${CMAKE_SOURCE_DIR}/third_party/Catch.zip
+    CONFIGURE_COMMAND echo "nothing to configure"
+    BUILD_COMMAND echo "nothing to build"
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/)
+else(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(CATCH
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/Catch.git
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    CONFIGURE_COMMAND echo "nothing to configure"
+    BUILD_COMMAND echo "nothing to build"
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/)
+endif()
 ################################################################
 # External: Easylogging++
 ################################################################
-ExternalProject_Add(EASYLOGGINGPP
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/easyloggingpp.git
-  GIT_TAG master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-  CONFIGURE_COMMAND echo "nothing to configure"
-  BUILD_COMMAND echo "nothing to build"
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/)
-
+if(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(EASYLOGGINGPP
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    URL ${CMAKE_SOURCE_DIR}/third_party/easyloggingpp.zip
+    CONFIGURE_COMMAND echo "nothing to configure"
+    BUILD_COMMAND echo "nothing to build"
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/)
+else()
+  ExternalProject_Add(EASYLOGGINGPP
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/easyloggingpp.git
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    CONFIGURE_COMMAND echo "nothing to configure"
+    BUILD_COMMAND echo "nothing to build"
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/)
+endif()
 ################################################################
 # External: ezoptionparser
 ################################################################
-ExternalProject_Add(EZOPTIONPARSER
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/ezoptionparser.git
-  GIT_TAG master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-  CONFIGURE_COMMAND echo "nothing to configure"
-  BUILD_COMMAND echo "nothing to build"
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install)
-
+if(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(EZOPTIONPARSER
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    URL ${CMAKE_SOURCE_DIR}/third_party/ezoptionparser.zip
+    CONFIGURE_COMMAND echo "nothing to configure"
+    BUILD_COMMAND echo "nothing to build"
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install)
+else()
+  ExternalProject_Add(EZOPTIONPARSER
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/ezoptionparser.git
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    CONFIGURE_COMMAND echo "nothing to configure"
+    BUILD_COMMAND echo "nothing to build"
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install)
+endif()
 ################################################################
 # External: json
 ################################################################
-ExternalProject_Add(JSON
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-  GIT_REPOSITORY https://github.com/dreal-deps/json.git
-  GIT_TAG master
-  UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-         COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-  CONFIGURE_COMMAND echo "nothing to configure"
-  BUILD_COMMAND echo "nothing to build"
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/)
-
+if(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(JSON
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    URL ${CMAKE_SOURCE_DIR}/third_party/json.zip
+    CONFIGURE_COMMAND echo "nothing to configure"
+    BUILD_COMMAND echo "nothing to build"
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/)
+else()
+  ExternalProject_Add(JSON
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/json.git
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    CONFIGURE_COMMAND echo "nothing to configure"
+    BUILD_COMMAND echo "nothing to build"
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/)
+endif()
 ################################################################
 # Threads
 ################################################################
