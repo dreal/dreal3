@@ -8,12 +8,12 @@ addons:
     sources:
     - kalakris-cmake
     - ubuntu-toolchain-r-test
-    - llvm-toolchain-precise-3.6
+    - llvm-toolchain-precise-3.7
     packages:
     - autoconf
     - automake
     - bison
-    - clang-3.6
+    - clang-3.7
     - cmake
     - flex
     - g++-4.9
@@ -44,10 +44,10 @@ env:
     - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
       CMAKE_BUILD_TYPE=Debug
       CTEST=ON TESTCOV=ON  STATIC=OFF
-    - CMAKE_CXX_COMPILER=clang++-3.6 CMAKE_C_COMPILER=clang-3.6
+    - CMAKE_CXX_COMPILER=clang++-3.7 CMAKE_C_COMPILER=clang-3.7
       CMAKE_BUILD_TYPE=Release
       CTEST=ON TESTCOV=OFF STATIC=OFF
-    - CMAKE_CXX_COMPILER=clang++-3.6 CMAKE_C_COMPILER=clang-3.6
+    - CMAKE_CXX_COMPILER=clang++-3.7 CMAKE_C_COMPILER=clang-3.7
       CMAKE_BUILD_TYPE=Debug
       CTEST=ON TESTCOV=OFF STATIC=OFF
     - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
