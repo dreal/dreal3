@@ -22,6 +22,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 using std::pair;
 using std::make_pair;
 using std::ostream;
+using std::endl;
 
 SigTab::SigTab( )
 {

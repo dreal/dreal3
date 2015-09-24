@@ -35,6 +35,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <queue>
 #include <algorithm>
+#include <utility>
 #include <sys/time.h>
 #include <unistd.h>
 #include <stdint.h>
@@ -82,7 +83,7 @@ typedef long Integer;
 #endif
 
 
-#define Pair( T ) pair< T, T >
+#define Pair( T ) std::pair< T, T >
 
 typedef int       enodeid_t;
 typedef enodeid_t snodeid_t;
@@ -99,7 +100,7 @@ inline enodeid_pair_t encode( enodeid_t car, enodeid_t cdr )
 #else
 typedef Pair( enodeid_t ) enodeid_pair_t;
 inline enodeid_pair_t encode( enodeid_t car, enodeid_t cdr )
-{ return make_pair( car, cdr ); }
+{ return std::make_pair( car, cdr ); }
 #endif
 typedef enodeid_pair_t snodeid_pair_t;
 

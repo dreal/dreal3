@@ -374,7 +374,7 @@ public:
 #ifdef BUILD_64
   inline enodeid_pair_t          getSig    ( ) const { return encode( car->getRoot( )->getCid( ), cdr->getRoot( )->getCid( ) ); }
 #else
-  inline const Pair( enodeid_t ) getSig    ( ) const { return make_pair( car->getRoot( )->getCid( ), cdr->getRoot( )->getCid( ) ); }
+  inline const Pair( enodeid_t ) getSig    ( ) const { return std::make_pair( car->getRoot( )->getCid( ), cdr->getRoot( )->getCid( ) ); }
 #endif
   inline enodeid_t               getSigCar ( ) const { return car->getRoot( )->getCid( ); }
   inline enodeid_t               getSigCdr ( ) const { return cdr->getRoot( )->getCid( ); }
