@@ -180,25 +180,8 @@ std::vector<constraint *> nra_solver::initialize_constraints() {
                 ctrs.push_back(it_nc_neg->second);
             }
         } else {
-            // Collect Forall constraints.
-            auto it_fc_pos = m_ctr_map.find(make_pair(l, true));
-            auto it_fc_neg = m_ctr_map.find(make_pair(l, false));
-            if (it_fc_pos == m_ctr_map.end()) {
-                forall_constraint * fc_pos = new forall_constraint(l, l_True);
-                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ForallConstraint (+): " << *fc_pos;
-                ctrs.push_back(fc_pos);
-                m_ctr_map.emplace(make_pair(l, true),  fc_pos);
-            } else {
-                ctrs.push_back(it_fc_pos->second);
-            }
-            if (it_fc_neg == m_ctr_map.end()) {
-                forall_constraint * fc_neg = new forall_constraint(l, l_False);
-                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ForallConstraint (-): " << *fc_neg;
-                ctrs.push_back(fc_neg);
-                m_ctr_map.emplace(make_pair(l, false), fc_neg);
-            } else {
-                ctrs.push_back(it_fc_neg->second);
-            }
+            DREAL_LOG_FATAL << "nra_solver::initialize_constraints: No Patten";
+            exit(1);
         }
     }
     // Attach the corresponding forallT literals to integrals
@@ -273,11 +256,6 @@ contractor nra_solver::build_contractor(box const & box, scoped_vec<constraint *
             break;
         }
 #endif
-        case constraint_type::Forall: {
-            forall_constraint const * const forall_ctr = dynamic_cast<forall_constraint *>(ctr);
-            forall_ctcs.push_back(mk_contractor_forall(box, forall_ctr));
-            break;
-        }
         case constraint_type::GenericForall: {
             generic_forall_constraint const * const generic_forall_ctr = dynamic_cast<generic_forall_constraint *>(ctr);
             generic_forall_ctcs.push_back(mk_contractor_generic_forall(box, generic_forall_ctr));
