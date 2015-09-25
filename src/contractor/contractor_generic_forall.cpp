@@ -376,6 +376,10 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
         }
         nonlinear_constraint ctr(e, polarity);
         auto numctr = ctr.get_numctr();
+        if (!numctr) {
+            counterexample.set_empty();
+            return counterexample;
+        }
 
         // Construct iv from box b
         auto & var_array = ctr.get_var_array();
@@ -384,11 +388,11 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
             iv[i] = counterexample[var_array[i].name];
         }
         if (numctr->op == ibex::CmpOp::GT || numctr->op == ibex::CmpOp::GEQ) {
-            numctr->f.ibwd(ibex::Interval(-config.nra_precision, POS_INFINITY), iv);
+            numctr->f.ibwd(ibex::Interval(0.0, POS_INFINITY), iv);
         } else if (numctr->op == ibex::CmpOp::LT || numctr->op == ibex::CmpOp::LEQ) {
-            numctr->f.ibwd(ibex::Interval(NEG_INFINITY, config.nra_precision), iv);
+            numctr->f.ibwd(ibex::Interval(NEG_INFINITY, 0.0), iv);
         } else if (numctr->op == ibex::CmpOp::EQ) {
-            numctr->f.ibwd(ibex::Interval(-config.nra_precision, config.nra_precision), iv);
+            numctr->f.ibwd(ibex::Interval(0.0, 0.0), iv);
         } else {
             throw runtime_error("??");
         }
