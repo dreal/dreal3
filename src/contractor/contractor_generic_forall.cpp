@@ -398,7 +398,7 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
         } else {
             // Reconstruct box b from pruned result iv.
             for (int i = 0; i < var_array.size(); i++) {
-                counterexample[var_array[i].name] = iv[i];
+                counterexample[var_array[i].name] = iv[i].mid();
             }
         }
     }
