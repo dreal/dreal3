@@ -17,7 +17,13 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <vector>
+#include <iostream>
 #include "smtsolvers/SimpSMTSolver.h"
+
+using std::cerr;
+using std::endl;
+using std::vector;
 
 /*
 inline bool isArithmeticOp( Enode * e )

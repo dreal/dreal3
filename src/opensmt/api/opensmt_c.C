@@ -33,6 +33,16 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 using std::string;
 using std::numeric_limits;
 using std::pair;
+using std::cerr;
+using std::endl;
+using std::ofstream;
+using std::ostream;
+using std::vector;
+using std::pair;
+using std::make_pair;
+using std::list;
+using std::map;
+using std::set;
 
 #ifndef SMTCOMP
 

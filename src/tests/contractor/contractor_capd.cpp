@@ -19,6 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 #include <iostream>
+#include <utility>
 #include "opensmt/api/opensmt_c.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "util/box.h"
@@ -27,9 +28,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"
 
-
 using std::cerr;
 using std::endl;
+using std::make_pair;
 
 namespace dreal {
 

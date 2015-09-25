@@ -20,6 +20,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACKERMANIZE_H
 #define ACKERMANIZE_H
 
+#include <vector>
+#include <map>
 #include "common/Global.h"
 #include "common/Otl.h"
 #include "egraph/Egraph.h"
@@ -39,8 +41,8 @@ public:
 
 private:
 
-  Enode * retrieveAckVarsAndArguments( Enode *, map< Enode *, vector< Enode * > > &, map< Enode *, vector< Enode * > > & );
-  Enode * generateAckermannExpansion ( Enode *, map< Enode *, vector< Enode * > > &, map< Enode *, vector< Enode * > > & );
+  Enode * retrieveAckVarsAndArguments( Enode *, std::map< Enode *, std::vector< Enode * > > &, std::map< Enode *, std::vector< Enode * > > & );
+  Enode * generateAckermannExpansion ( Enode *, std::map< Enode *, std::vector< Enode * > > &, std::map< Enode *, std::vector< Enode * > > & );
 
   Egraph &    egraph;       // Reference to Egraph
   SMTConfig & config;       // Reference to Config

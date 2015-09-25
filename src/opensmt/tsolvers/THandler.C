@@ -22,6 +22,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #include "util/logging.h"
 
+using std::vector;
+using std::cout;
+using std::endl;
+
 //
 // Return the MiniSAT Variable corresponding to
 // the positive input enode. Creates the correspondence

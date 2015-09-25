@@ -19,12 +19,16 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "util/proof.h"
+#include <ostream>
 #include <string>
+#include "util/proof.h"
+#include "util/box.h"
+
+using std::endl;
 
 namespace dreal {
 using std::string;
-void output_pruning_step(ostream & out, box const & old_box, box const & new_box, bool const readable_proof, string const & constraint) {
+void output_pruning_step(std::ostream & out, box const & old_box, box const & new_box, bool const readable_proof, std::string const & constraint) {
     if (old_box != new_box) {
         out << "[before pruning]" << endl;
         dreal::display(out, old_box, !readable_proof);

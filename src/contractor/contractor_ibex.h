@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <initializer_list>
 #include <stdexcept>
@@ -51,12 +52,12 @@ public:
 // contractor_ibex_polytope : contractor using IBEX POLYTOPE
 class contractor_ibex_polytope : public contractor_cell {
 private:
-    unordered_set<Enode *>               m_vars_in_ctrs;
-    vector<nonlinear_constraint const *> m_ctrs;
+    std::unordered_set<Enode *>               m_vars_in_ctrs;
+    std::vector<nonlinear_constraint const *> m_ctrs;
     double const                         m_prec;
-    unordered_map<Enode *, ibex::Variable const *> m_var_cache;
-    unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_pos;
-    unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_neg;
+    std::unordered_map<Enode *, ibex::Variable const *> m_var_cache;
+    std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_pos;
+    std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_neg;
 
     // TODO(soonhok): this is a hack to avoid const problem, we need to fix them
     mutable ibex::SystemFactory *            m_sf  = nullptr;
@@ -65,7 +66,7 @@ private:
     mutable ibex::LinearRelaxCombo *         m_lrc = nullptr;
     mutable std::vector<ibex::Ctc *>         m_sub_ctcs;
     mutable ibex::Ctc *                      m_ctc = nullptr;
-    ibex::SystemFactory* build_system_factory(vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs);
+    ibex::SystemFactory* build_system_factory(std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
 
 public:
     contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);

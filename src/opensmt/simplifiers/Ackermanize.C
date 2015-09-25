@@ -19,6 +19,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "simplifiers/Ackermanize.h"
 
+using std::vector;
+using std::map;
+using std::list;
+
 Enode *
 Ackermanize::doit( Enode * formula )
 {

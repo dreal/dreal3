@@ -18,15 +18,26 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 %{
-#include "common/Global.h"
-#include "egraph/Egraph.h"
-#include "sorts/SStore.h"
-#include "api/OpenSMTContext.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
 #include <vector>
 #include <utility>
+#include <string>
+#include <list>
+#include <limits>
+
+#include "common/Global.h"
+#include "egraph/Egraph.h"
+#include "sorts/SStore.h"
+#include "api/OpenSMTContext.h"
+
+using std::vector;
+using std::unordered_map;
+using std::string;
+using std::list;
+using std::stod;
+using std::numeric_limits;
 
 extern int doplineno;
 extern int doplex( );
@@ -37,9 +48,9 @@ extern int doplex( );
 OpenSMTContext * dop_ctx;
 bool dop_minimize; // true if minimize, false if maximize
 double dop_prec; // true if minimize, false if maximize
-std::vector<Enode*> dop_ctrs;
-std::vector<Enode*> dop_costs;
-std::unordered_map<string, Enode*> dop_var_map;
+vector<Enode*> dop_ctrs;
+vector<Enode*> dop_costs;
+unordered_map<string, Enode*> dop_var_map;
 
 vector< string > * createNumeralList  ( const char * );
 vector< string > * pushNumeralList    ( vector< string > *, const char * );

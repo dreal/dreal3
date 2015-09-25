@@ -18,15 +18,25 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 %{
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <list>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 #include "common/Global.h"
 #include "egraph/Egraph.h"
 #include "sorts/SStore.h"
 #include "api/OpenSMTContext.h"
-#include <cstdio>
-#include <cstdlib>
-#include <cassert>
-#include <vector>
-#include <utility>
+
+using std::list;
+using std::make_pair;
+using std::map;
+using std::pair;
+using std::string;
+using std::vector;
 
 extern int smt2lineno;
 extern int smt2lex( );
@@ -53,16 +63,16 @@ void smt2error( const char * s )
 %union
 {
   char  *                            str;
-  vector< string > *                 str_list;
-  pair<string, Enode *> *            ode;
-  vector<pair<string, Enode *> > *   ode_list;
+  std::vector< std::string > *                 str_list;
+  std::pair<std::string, Enode *> *            ode;
+  std::vector<std::pair<std::string, Enode *> > *   ode_list;
   Enode *                            enode;
   Snode *                            snode;
   std::string *                      string_ptr;
-  list< Snode * > *                  snode_list;
-  map< Enode *, Enode * > *          binding_list;
-  pair<string, Snode *> *            sorted_var;
-  vector< pair<string, Snode *> > *  sorted_var_list;
+  std::list< Snode * > *                  snode_list;
+  std::map< Enode *, Enode * > *          binding_list;
+  std::pair< std::string, Snode *> *            sorted_var;
+  std::vector< std::pair< std::string, Snode *> > *  sorted_var_list;
 }
 
 %error-verbose

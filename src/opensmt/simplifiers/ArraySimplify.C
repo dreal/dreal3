@@ -18,9 +18,13 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
  *********************************************************************/
 
+#include <vector>
 #include "simplifiers/ArraySimplify.h"
 #include "egraph/Egraph.h"
 #include "common/Global.h"
+
+using std::list;
+using std::vector;
 
 //#define ASVERB
 //#define ARR_VERB

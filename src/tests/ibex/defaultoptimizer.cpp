@@ -8,8 +8,13 @@
  * Copyright 2015 IBEX Team
  * ---------------------------------------------------------------------------- */
 
+#include <iostream>
 #include <sstream>
 #include "ibex/ibex.h"
+
+using std::stringstream;
+using std::cout;
+using std::endl;
 
 double convert(const char* argname, const char* arg) {
     char* endptr;

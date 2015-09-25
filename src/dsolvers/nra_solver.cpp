@@ -49,7 +49,10 @@ using std::get;
 using std::logic_error;
 using std::numeric_limits;
 using std::pair;
+using std::make_pair;
 using std::vector;
+using std::unordered_set;
+using std::all_of;
 
 namespace dreal {
 using std::cout;

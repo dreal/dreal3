@@ -20,6 +20,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef LA_H
 #define LA_H
 
+#include <map>
+#include <vector>
+#include <utility>
 #include "egraph/Egraph.h"
 
 class LAExpression
@@ -41,7 +44,7 @@ public:
   inline bool              isTrue     ( ) { return polynome.size( ) == 1 && ( r == EQ ? polynome[ 0 ] == 0 : polynome[ 0 ] <= 0 ); }
   inline bool              isFalse    ( ) { return polynome.size( ) == 1 && ( r == EQ ? polynome[ 0 ] != 0 : polynome[ 0 ] > 0 ); }
 
-  typedef map< Enode *, Real >    polynome_t;
+  typedef std::map< Enode *, Real >    polynome_t;
 
   void                     initialize   ( Enode * );   // Initialize
   Enode *                  solve        ( );           // Solve w.r.t. some variable
@@ -49,10 +52,10 @@ public:
   void                     canonizeReal ( );           // Canonize (different from solve!)
   void                     canonizeInt  ( );           // Canonize (different from solve!)
   Enode *                  toEnode      ( Egraph & );  // Output as enode
-  void                     print        ( ostream & ); // Output as enode
-  pair< Enode *, Enode * > getSubst     ( Egraph & );  // Get a valid substitution
-  pair< Enode *, Enode * > getSubstReal ( Egraph & );  // Get a valid substitution for reals
-  pair< Enode *, Enode * > getSubstInt  ( Egraph & );  // Get a valid substitution for integers
+  void                     print        ( std::ostream & ); // Output as enode
+  std::pair< Enode *, Enode * > getSubst     ( Egraph & );  // Get a valid substitution
+  std::pair< Enode *, Enode * > getSubstReal ( Egraph & );  // Get a valid substitution for reals
+  std::pair< Enode *, Enode * > getSubstInt  ( Egraph & );  // Get a valid substitution for integers
   //
   // Export iterator in order to allow external procedures to read the polynomes
   //
@@ -88,7 +91,7 @@ private:
   //
   // Print overloading
   //
-  inline friend ostream & operator<<( ostream & os, LAExpression & p ) { p.print( os ); return os; }
+  inline friend std::ostream & operator<<( std::ostream & os, LAExpression & p ) { p.print( os ); return os; }
   //
   // Substitute p in q, using the first variable in p
   //
@@ -115,8 +118,8 @@ private:
     //
     // Compute p + q*icoeff
     //
-    vector< LAExpression::polynome_t::iterator > to_remove;
-    vector< LAExpression::polynome_t::iterator > to_add;
+    std::vector< LAExpression::polynome_t::iterator > to_remove;
+    std::vector< LAExpression::polynome_t::iterator > to_add;
     qit = poly_q.begin( );
     pit = poly_p.begin( );
     bool done = false;

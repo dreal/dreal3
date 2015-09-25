@@ -19,6 +19,11 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "smtsolvers/CoreSMTSolver.h"
 
+using std::map;
+using std::endl;
+using std::cerr;
+using std::ostream;
+
 #ifndef SMTCOMP
 void CoreSMTSolver::dumpCNF( )
 {

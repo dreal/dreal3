@@ -18,6 +18,12 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "common/LA.h"
+using std::vector;
+using std::map;
+using std::list;
+using std::ostream;
+using std::pair;
+using std::make_pair;
 
 //
 // Scan the enode and prepare the polynome

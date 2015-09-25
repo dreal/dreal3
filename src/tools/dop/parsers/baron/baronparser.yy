@@ -18,15 +18,24 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 %{
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 #include "common/Global.h"
 #include "egraph/Egraph.h"
 #include "sorts/SStore.h"
 #include "api/OpenSMTContext.h"
-#include <cstdio>
-#include <cstdlib>
-#include <cassert>
-#include <vector>
-#include <utility>
+
+using std::vector;
+using std::unordered_map;
+using std::string;
+using std::pair;
+using std::stod;
 
 extern int baronlineno;
 extern int baronlex( );
@@ -36,9 +45,9 @@ extern int baronlex( );
 // ===========
 OpenSMTContext * baron_ctx;
 bool baron_minimize; // true if minimize, false if maximize
-std::vector<Enode*> baron_ctrs;
+vector<Enode*> baron_ctrs;
 Enode * baron_cost_fn;
-std::unordered_map<string, Enode*> baron_var_map;
+unordered_map<string, Enode*> baron_var_map;
 
 void baronerror( const char * s )
 {
@@ -61,8 +70,8 @@ void baron_cleanup_parser() {
 
 %union
 {
-    std::pair<char *, char *> * char_ptr_pair;
-    std::vector<std::pair<char *, char *>> * char_ptr_pair_vec;
+    std::pair< char *, char * > * char_ptr_pair;
+    std::vector< std::pair< char *, char * > > * char_ptr_pair_vec;
     char  *                  str;
     Enode *                  enode;
 }
@@ -151,13 +160,13 @@ pos_var_decl_sec:   TK_POS_VARIABLES pos_var_decl_list TK_SEMICOLON
 // =============================
 var_value_pair:
                 TK_ID TK_COLON TK_NUM TK_SEMICOLON {
-                    $$ = new std::pair<char *, char *>($1, $3);
+                    $$ = new pair<char *, char *>($1, $3);
                 }
         ;
 
 var_value_pair_list:
                 var_value_pair {
-                    auto l = new std::vector<std::pair<char *, char *>>();
+                    auto l = new vector<pair<char *, char *>>();
                     l->push_back(*($1));
                     delete $1;
                     $$ = l;

@@ -46,8 +46,12 @@ using std::back_inserter;
 using std::function;
 using std::initializer_list;
 using std::unordered_set;
+using std::unordered_map;
+using std::string;
+using std::endl;
 using std::vector;
 using std::queue;
+using std::ostream;
 using std::ostringstream;
 
 namespace dreal {

@@ -29,6 +29,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <limits>
 #include <list>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -48,6 +49,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using std::back_inserter;
 using std::cerr;
+using std::cout;
 using std::copy;
 using std::endl;
 using std::list;
@@ -59,6 +61,8 @@ using std::sort;
 using std::string;
 using std::unordered_map;
 using std::vector;
+using std::stringstream;
+using std::ostream;
 
 
 // Dop Parser

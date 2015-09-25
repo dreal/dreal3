@@ -45,6 +45,8 @@ using std::unordered_map;
 using std::unordered_set;
 using std::vector;
 using std::to_string;
+using std::pair;
+using std::make_pair;
 
 namespace dreal {
 

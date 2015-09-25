@@ -33,6 +33,12 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "dsolvers/nra_solver.h"
 
 using std::unordered_map;
+using std::cerr;
+using std::endl;
+using std::vector;
+using std::ostream;
+using std::string;
+using std::pair;
 
 namespace opensmt {
 

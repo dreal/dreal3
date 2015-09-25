@@ -20,6 +20,11 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "egraph/Egraph.h"
 #include "common/LA.h"
 
+using std::vector;
+using std::list;
+using std::cerr;
+using std::endl;
+
 int Egraph::getInterfaceTermsNumber( )
 {
   return interface_terms.size( );

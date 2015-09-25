@@ -43,7 +43,7 @@ public:
     void set_ub();
     void push_var_decl();
     Enode * find(std::string const & name) const;
-    unordered_map<std::string, Enode*> get_var_map() const { return m_map; }
+    std::unordered_map<std::string, Enode*> get_var_map() const { return m_map; }
 };
 
 }  // namespace dop

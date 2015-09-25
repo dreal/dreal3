@@ -20,6 +20,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TSEITIN_H
 #define TSEITIN_H
 
+#include <map>
 #include "common/Global.h"
 #include "common/Otl.h"
 #include "smtsolvers/SMTSolver.h"
@@ -38,7 +39,7 @@ public:
 
 private:
 
-  bool cnfize           ( Enode *, map< int, Enode * > & );       // Do the actual cnfization
+  bool cnfize           ( Enode *, std::map< int, Enode * > & );       // Do the actual cnfization
 #ifdef PRODUCE_PROOF
   void cnfizeAnd        ( Enode *, Enode *, const uint64_t = 0 ); // Cnfize conjunctions
   void cnfizeOr         ( Enode *, Enode *, const uint64_t = 0 ); // Cnfize disjunctions

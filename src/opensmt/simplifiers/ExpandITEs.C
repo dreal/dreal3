@@ -19,6 +19,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ExpandITEs.h"
 
+using std::list;
+using std::vector;
+
 Enode *
 ExpandITEs::doit( Enode * formula )
 {
@@ -46,8 +49,8 @@ ExpandITEs::doit( Enode * formula )
     bool unprocessed_children = false;
     Enode * arg_list;
     for ( arg_list = enode->getCdr( ) ;
-	  arg_list != egraph.enil ;
-	  arg_list = arg_list->getCdr( ) )
+          arg_list != egraph.enil ;
+          arg_list = arg_list->getCdr( ) )
     {
       Enode * arg = arg_list->getCar( );
 
@@ -57,8 +60,8 @@ ExpandITEs::doit( Enode * formula )
       //
       if ( egraph.valDupMap1( arg ) == NULL )
       {
-	unprocessed_enodes.push_back( arg );
-	unprocessed_children = true;
+        unprocessed_enodes.push_back( arg );
+        unprocessed_children = true;
       }
     }
     //
@@ -97,13 +100,13 @@ ExpandITEs::doit( Enode * formula )
       // Generate additional clauses
       //
       Enode * eq_then = egraph.mkEq( egraph.cons( result
-	                           , egraph.cons( t ) ) );
+                                   , egraph.cons( t ) ) );
       Enode * eq_else = egraph.mkEq( egraph.cons( result
-	                           , egraph.cons( e ) ) );
+                                   , egraph.cons( e ) ) );
       new_clauses.push_back( egraph.mkOr( egraph.cons( not_i
-	                                , egraph.cons( eq_then ) ) ) );
+                                        , egraph.cons( eq_then ) ) ) );
       new_clauses.push_back( egraph.mkOr( egraph.cons( i
-	                                , egraph.cons( eq_else ) ) ) );
+                                        , egraph.cons( eq_else ) ) ) );
     }
     else
     {

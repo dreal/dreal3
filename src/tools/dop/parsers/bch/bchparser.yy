@@ -26,7 +26,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include <cassert>
 #include <vector>
+#include <string>
+#include <unordered_map>
 #include <utility>
+#include <list>
+#include <limits>
+
+using std::list;
+using std::pair;
+using std::vector;
+using std::string;
+using std::unordered_map;
+using std::stod;
+using std::numeric_limits;
 
 extern int bchlineno;
 extern int bchlex( );
@@ -36,9 +48,9 @@ extern int bchlex( );
 // ===========
 OpenSMTContext * bch_ctx;
 bool bch_minimize; // true if minimize, false if maximize
-std::vector<Enode*> bch_ctrs;
-std::vector<Enode*> bch_costs;
-std::unordered_map<string, Enode*> bch_var_map;
+vector<Enode*> bch_ctrs;
+vector<Enode*> bch_costs;
+unordered_map<string, Enode*> bch_var_map;
 
 vector< string > * createNumeralList  ( const char * );
 vector< string > * pushNumeralList    ( vector< string > *, const char * );

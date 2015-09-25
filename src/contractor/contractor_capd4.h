@@ -53,7 +53,7 @@ private:
     capd::IMap * m_vectorField = nullptr;
     capd::IOdeSolver * m_solver = nullptr;
     capd::ITimeMap * m_timeMap = nullptr;
-    bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, vector<pair<capd::interval, capd::IVector>> & enclosures) const;
+    bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, std::vector<std::pair<capd::interval, capd::IVector>> & enclosures) const;
 
 public:
     contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);

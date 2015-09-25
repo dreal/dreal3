@@ -25,6 +25,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/stat.h"
 
+using std::cout;
+using std::vector;
+using std::endl;
+using std::tuple;
+using std::get;
+
+
 namespace dreal {
 
 void output_solution(box const & b, SMTConfig & config, unsigned i) {

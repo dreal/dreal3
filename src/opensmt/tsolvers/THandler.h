@@ -20,6 +20,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef THANDLER_H
 #define THANDLER_H
 
+#include <vector>
 #include "smtsolvers/SMTConfig.h"
 #include "egraph/Egraph.h"
 #include "tsolvers/TSolver.h"
@@ -100,19 +101,19 @@ private:
   }
 
   void verifyCallWithExternalTool        ( bool, size_t );
-  void verifyExplanationWithExternalTool ( vector< Enode * > & );
+  void verifyExplanationWithExternalTool ( std::vector< Enode * > & );
   void verifyDeductionWithExternalTool   ( Enode * = NULL );
   bool callCertifyingSolver              ( const char * );
 #ifdef PRODUCE_PROOF
-  void verifyInterpolantWithExternalTool ( vector< Enode * > &, Enode * );
+  void verifyInterpolantWithExternalTool ( std::vector< Enode * > &, Enode * );
 #endif
 
 #ifdef PEDANTIC_DEBUG
   bool  isOnTrail     ( Lit );
 #endif
 
-  vector< Var >       enode_id_to_var;          // Conversion EnodeID --> Var
-  vector< Enode * >   var_to_enode;             // Conversion Var --> EnodeID
+  std::vector< Var >       enode_id_to_var;          // Conversion EnodeID --> Var
+  std::vector< Enode * >   var_to_enode;             // Conversion Var --> EnodeID
 
   Egraph &            core_solver;              // Pointer to Egraph that works as core solver
   SMTConfig &         config;                   // Reference to configuration
@@ -122,16 +123,16 @@ private:
   vec< char > &       assigns;                  // Reference to SMT Solver assigns
   const Var           var_True;                 // To specify constantly true atoms
   const Var           var_False;                // To specify constantly false atoms
-  vector< Enode * >   stack;                    // Stacked atoms
+  std::vector< Enode * >   stack;                    // Stacked atoms
   size_t              checked_trail_size;       // Store last size of the trail checked by the solvers
 
   int                 tatoms;                   // Tracks theory atoms
   int                 batoms;                   // Tracks boolean atoms
 
-  vector< bool >      tatoms_seen;              // Atoms seen
+  std::vector< bool >      tatoms_seen;              // Atoms seen
   unsigned            tatoms_given;             // Next atom to give
-  vector< Enode * >   tatoms_list;              // List of tatoms to communicate later
-  vector< bool >      tatoms_give;              // We might want not to give some atoms
+  std::vector< Enode * >   tatoms_list;              // List of tatoms to communicate later
+  std::vector< bool >      tatoms_give;              // We might want not to give some atoms
 };
 
 #endif

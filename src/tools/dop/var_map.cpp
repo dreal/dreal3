@@ -25,6 +25,8 @@ namespace dop {
 
 using std::string;
 using std::runtime_error;
+using std::cerr;
+using std::endl;
 
 double var_map::pop_num() {
     double const v = m_double_vec.back();

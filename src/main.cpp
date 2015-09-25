@@ -24,6 +24,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "smtsolvers/SimpSMTSolver.h"
 #include "version.h"
 #include <cstdlib>
+#include <string>
 #include <cstdio>
 #include <csignal>
 #include <iostream>
@@ -36,6 +37,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 using std::ostringstream;
+using std::string;
+using std::cerr;
+using std::endl;
 
 namespace opensmt {
 

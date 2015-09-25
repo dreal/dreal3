@@ -38,6 +38,13 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 using std::map;
 using std::ostringstream;
+using std::ostream;
+using std::cerr;
+using std::endl;
+using std::vector;
+using std::set;
+using std::pair;
+using std::make_pair;
 
 #define VERBOSE 0
 

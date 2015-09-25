@@ -20,6 +20,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BV_NORMALIZE_HH
 #define BV_NORMALIZE_HH
 
+#include <vector>
 #include "common/Global.h"
 #include "common/Otl.h"
 #include "egraph/Egraph.h"
@@ -45,12 +46,12 @@ private:
                                           , map< enodeid_t, mpz_class * > &
                                           , mpz_class &
                                           , map< enodeid_t, Enode * > &
-                                          , vector< mpz_class * > &
+                                          , std::vector< mpz_class * > &
                                           , bool );
 */
   Enode * propagateUnconstrainedVariables ( Enode * );
-  Enode * replaceUnconstrainedTerms       ( Enode *, vector< int > & , bool & );
-  void    computeIncomingEdges            ( Enode *, vector< int > & );
+  Enode * replaceUnconstrainedTerms       ( Enode *, std::vector< int > & , bool & );
+  void    computeIncomingEdges            ( Enode *, std::vector< int > & );
 
   Egraph &    egraph;       // Reference to Egraph
   SMTConfig & config;       // Reference to Config

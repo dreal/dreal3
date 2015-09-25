@@ -21,6 +21,13 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define EGRAPH_H
 
 #include <unordered_map>
+#include <unordered_set>
+#include <iostream>
+#include <map>
+#include <string>
+#include <set>
+#include <vector>
+#include <utility>
 #include "egraph/Enode.h"
 #include "sorts/SStore.h"
 #include "tsolvers/TSolver.h"
@@ -75,9 +82,9 @@ public:
 #ifdef STATISTICS
     if ( config.produce_stats && tsolvers_stats.size( ) > 0 )
     {
-      config.getStatsOut( ) << "# -------------------------" << endl;
-      config.getStatsOut( ) << "# STATISTICS FOR EUF SOLVER" << endl;
-      config.getStatsOut( ) << "# -------------------------" << endl;
+      config.getStatsOut( ) << "# -------------------------" << std::endl;
+      config.getStatsOut( ) << "# STATISTICS FOR EUF SOLVER" << std::endl;
+      config.getStatsOut( ) << "# -------------------------" << std::endl;
       tsolvers_stats[ 0 ]->printStatistics( config.getStatsOut( ) );
       delete tsolvers_stats[ 0 ];
     }
@@ -91,9 +98,9 @@ public:
     for ( unsigned i = 1 ; config.produce_stats && i < tsolvers.size( ) ; i ++ )
     {
 #ifdef STATISTICS
-      config.getStatsOut( ) << "# -------------------------" << endl;
-      config.getStatsOut( ) << "# STATISTICS FOR " << tsolvers[ i ]->getName( ) << endl;
-      config.getStatsOut( ) << "# -------------------------" << endl;
+      config.getStatsOut( ) << "# -------------------------" << std::endl;
+      config.getStatsOut( ) << "# STATISTICS FOR " << tsolvers[ i ]->getName( ) << std::endl;
+      config.getStatsOut( ) << "# -------------------------" << std::endl;
       assert( tsolvers_stats[ i ] );
       tsolvers_stats[ i ]->printStatistics( config.getStatsOut( ) );
       delete tsolvers_stats[ i ];
@@ -128,7 +135,7 @@ public:
   // Public APIs for enode construction/destruction
 
   Enode *  newSymbol           ( const char *, Snode *, bool isModelVar = false, double p = 0.0 );                        // Creates a new symbol
-  Enode *  cons                ( list< Enode * > & );                                            // Shortcut, but not efficient
+  Enode *  cons                ( std::list< Enode * > & );                                            // Shortcut, but not efficient
   Enode *  cons                ( Enode *, Enode * );                                             // Create Lists/Terms
   Enode *  cons                ( Enode *, Enode *, bool & );                                     // Create Lists/Terms; notifies if already existent
   Enode *  cons                ( Enode * e ) { return cons( e, const_cast< Enode * >(enil) ); }  // Shortcut for singleton
@@ -199,8 +206,8 @@ public:
   Enode * mkPow              ( Enode * );
   Enode * mkForallT          ( Enode *, Enode *, Enode *, Enode * );
   Enode * mkIntegral         ( Enode * time_0, Enode * time_t, Enode * vec_0, Enode * vec_t, const char * flowname );
-  Enode * mkForall ( vector<pair<string, Snode *>> const & sorted_var_list, Enode * e);
-  Enode * mkExists ( vector<pair<string, Snode *>> const & sorted_var_list, Enode * e);
+  Enode * mkForall ( std::vector<std::pair<std::string, Snode *>> const & sorted_var_list, Enode * e);
+  Enode * mkExists ( std::vector<std::pair<std::string, Snode *>> const & sorted_var_list, Enode * e);
 
   /* ----------------- */
 
@@ -259,16 +266,16 @@ public:
 #ifdef PRODUCE_PROOF
   Enode * getNextAssertion        ( );
 #endif
-  void    setDistinctEnodes       ( vector< Enode * > & );
+  void    setDistinctEnodes       ( std::vector< Enode * > & );
 
-  void    printEnodeList          ( ostream & );
+  void    printEnodeList          ( std::ostream & );
   void    addAssertion            ( Enode * );
 
   void    evaluateTerm            ( Enode *, double& );
 
   void          initializeStore   ( );
 #ifndef SMTCOMP
-  inline void   addSubstitution   ( Enode * s, Enode * t ) { top_level_substs.push_back( make_pair( s, t ) ); }
+  inline void   addSubstitution   ( Enode * s, Enode * t ) { top_level_substs.push_back( std::make_pair( s, t ) ); }
 #endif
   inline void   setTopEnode       ( Enode * e )            { assert( e ); top = e; }
   inline size_t nofEnodes         ( )                      { return id_to_enode.size( ); }
@@ -286,7 +293,7 @@ public:
   inline unsigned getNofPartitions ( )                       { return iformula - 1; }
   inline void     formulaToTag     ( Enode * e )             { formulae_to_tag.push_back( e ); }
   void            tagIFormulae     ( const uint64_t );
-  void            tagIFormulae     ( const uint64_t, vector< Enode * > & );
+  void            tagIFormulae     ( const uint64_t, std::vector< Enode * > & );
   void            tagIFormula      ( Enode *, const uint64_t );
 #endif
 
@@ -303,7 +310,7 @@ public:
   Enode * canonize                      ( Enode *, bool = false );
 
 #ifdef STATISTICS
-  void        printMemStats             ( ostream & );
+  void        printMemStats             ( std::ostream & );
 #endif
   //
   // Fast duplicates checking. Cannot be nested !
@@ -334,8 +341,8 @@ public:
 
   void    computePolarities ( Enode * );
 
-  void dumpHeaderToFile  ( ostream & );
-  void dumpFormulaToFile ( ostream &, Enode *, bool = false );
+  void dumpHeaderToFile  ( std::ostream & );
+  void dumpFormulaToFile ( std::ostream &, Enode *, bool = false );
   void dumpToFile        ( const char *, Enode * );
 
   //===========================================================================
@@ -351,16 +358,16 @@ public:
   bool    isPureLA                 ( Enode * );
 
   /* added for dReal */
-  std::unordered_map<string, dreal::flow> flow_maps;
+  std::unordered_map<std::string, dreal::flow> flow_maps;
   bool                                    stepped_flows; //Does flow name have step index?
 
 private:
 
-  vector< Enode * > interface_terms;
+  std::vector< Enode * > interface_terms;
   // Cache for interface terms
-  set< Enode * >    interface_terms_cache;
+  std::set< Enode * >    interface_terms_cache;
   // Cache for uf terms and la terms
-  set< Enode * > it_uf, it_la;
+  std::set< Enode * > it_uf, it_la;
   static constexpr double      default_precision = 0.001;
   double            precision;     /* added for dReal */
 
@@ -376,7 +383,7 @@ public:
   void                popBacktrackPoint       ( );                          // Backtrack to last saved point
   Enode *             getDeduction            ( );                          // Return an implied node based on the current state
   Enode *             getSuggestion           ( );                          // Return a suggested literal based on the current state
-  vector< Enode * > & getConflict             ( bool = false );             // Get explanation
+  std::vector< Enode * > & getConflict             ( bool = false );             // Get explanation
 #ifdef PRODUCE_PROOF
   Enode *             getInterpolants         ( );                          // Get interpolant
 #endif
@@ -384,17 +391,17 @@ public:
   void                initializeCong          ( Enode * );                  // Initialize congruence structures for a node
 #ifndef SMTCOMP
   void                computeModel            ( );
-  void                printModel              ( ostream & );                // Computes and print the model
+  void                printModel              ( std::ostream & );                // Computes and print the model
 #endif
   inline void         setUseGmp               ( ) { use_gmp = true; }
   inline bool         getUseGmp               ( ) { return use_gmp; }
-  void                splitOnDemand           ( vector< Enode * > &, int ); // Splitting on demand modulo equality
+  void                splitOnDemand           ( std::vector< Enode * > &, int ); // Splitting on demand modulo equality
   void                splitOnDemand           ( Enode *, int );             // Splitting on demand
   bool                checkDupClause          ( Enode *, Enode * );         // Check if a clause is duplicate
 
   void                setPrecision            ( double );
   double              getPrecision            ( ) const;
-  const vector<OrdinaryTSolver*>     getTSolvers             ( ) const { return tsolvers; }
+  const std::vector<OrdinaryTSolver*>     getTSolvers             ( ) const { return tsolvers; }
 private:
 
   //===========================================================================
@@ -455,47 +462,47 @@ private:
 
   bool                        active_dup1;                      // To prevent nested usage
   bool                        active_dup2;                      // To prevent nested usage
-  vector< int >               duplicates1;                      // Fast duplicate checking
-  vector< int >               duplicates2;                      // Fast duplicate checking
+  std::vector< int >               duplicates1;                      // Fast duplicate checking
+  std::vector< int >               duplicates2;                      // Fast duplicate checking
   int                         dup_count1;                       // Current dup token
   int                         dup_count2;                       // Current dup token
   bool                        active_dup_map1;                  // To prevent nested usage
   bool                        active_dup_map2;                  // To prevent nested usage
-  vector< Enode * >           dup_map1;                         // Fast duplicate checking
-  vector< int >               dup_set1;                         // Fast duplicate checking
-  vector< Enode * >           dup_map2;                         // Fast duplicate checking
-  vector< int >               dup_set2;                         // Fast duplicate checking
+  std::vector< Enode * >           dup_map1;                         // Fast duplicate checking
+  std::vector< int >               dup_set1;                         // Fast duplicate checking
+  std::vector< Enode * >           dup_map2;                         // Fast duplicate checking
+  std::vector< int >               dup_set2;                         // Fast duplicate checking
   int                         dup_map_count1;                   // Current dup token
   int                         dup_map_count2;                   // Current dup token
-  map< string, Enode * >      name_to_number;                   // Store for numbers
-  map< string, Enode * >      name_to_symbol;                   // Store for symbols
-  map< string, Enode * >      name_to_define;                   // Store for defines
+  std::map< std::string, Enode * >      name_to_number;                   // Store for numbers
+  std::map< std::string, Enode * >      name_to_symbol;                   // Store for symbols
+  std::map< std::string, Enode * >      name_to_define;                   // Store for defines
 
   SplayTree< Enode *, Enode::idLessThan > store;                // The actual store
   SigTab                                  sig_tab;		// (Supposely) Efficient Signature table for congruence closure
 
-  vector< Enode * >              id_to_enode;                   // Table ENODE_ID --> ENODE
-  vector< int >                  id_to_belong_mask;             // Table ENODE_ID --> ENODE
-  vector< int >                  id_to_fan_in;                  // Table ENODE_ID --> fan in
-  vector< Enode * >              index_to_dist;                 // Table distinction index --> enode
-  list< Enode * >                assertions;                    // List of assertions
-  vector< Enode * >              cache;                         // Cache simplifications
+  std::vector< Enode * >              id_to_enode;                   // Table ENODE_ID --> ENODE
+  std::vector< int >                  id_to_belong_mask;             // Table ENODE_ID --> ENODE
+  std::vector< int >                  id_to_fan_in;                  // Table ENODE_ID --> fan in
+  std::vector< Enode * >              index_to_dist;                 // Table distinction index --> enode
+  std::list< Enode * >                assertions;                    // List of assertions
+  std::vector< Enode * >              cache;                         // Cache simplifications
   Enode *                        top;                           // Top node of the formula
-  map< Pair( int ), Enode * >    ext_store;                     // For fast extraction handling
-  vector< Enode * >              se_store;                      // For fast sign extension
-  vector< int >                  id_to_inc_edges;               // Keeps track of how many edges enter an enode
+  std::map< Pair( int ), Enode * >    ext_store;                     // For fast extraction handling
+  std::vector< Enode * >              se_store;                      // For fast sign extension
+  std::vector< int >                  id_to_inc_edges;               // Keeps track of how many edges enter an enode
   bool                           has_ites;                      // True if there is at least one ite
-  set< Enode * >                 variables;                     // List of variables
+  std::set< Enode * >                 variables;                     // List of variables
 #ifndef SMTCOMP
-  vector< Pair( Enode * ) >      top_level_substs;              // Keep track of substitutuions in TopLevelProp.C
+  std::vector< Pair( Enode * ) >      top_level_substs;              // Keep track of substitutuions in TopLevelProp.C
   bool                           model_computed;                // Has model been computed lately ?
 #endif
   bool                           congruence_running;            // True if congruence is running
 
 #ifdef PRODUCE_PROOF
   unsigned                iformula;                             // Current formula id
-  vector< Enode * >       formulae_to_tag;                      // Formulae to be tagged
-  vector< uint64_t >      id_to_iformula;                       // From enode to iformula it belongs to
+  std::vector< Enode * >       formulae_to_tag;                      // Formulae to be tagged
+  std::vector< uint64_t >      id_to_iformula;                       // From enode to iformula it belongs to
   CGraph *                cgraph_;                              // Holds congrunce graph and compute interpolant
   CGraph &                cgraph;                               // Holds congrunce graph and compute interpolant
 #endif
@@ -560,16 +567,16 @@ private:
 
   bool                        theoryInitialized;                // True if theory solvers are initialized
   bool                        state;                            // the hell is this ?
-  set< enodeid_t >            initialized;                      // Keep track of initialized nodes
-  map< enodeid_t, lbool >     informed;                         // Keep track of informed nodes
-  vector< Enode * >           pending;                          // Pending merges
-  vector< Enode * >           undo_stack_term;                  // Keeps track of terms involved in operations
-  vector< oper_t >            undo_stack_oper;                  // Keeps track of operations
-  vector< Enode * >           explanation;                      // Stores explanation
+  std::set< enodeid_t >            initialized;                      // Keep track of initialized nodes
+  std::map< enodeid_t, lbool >     informed;                         // Keep track of informed nodes
+  std::vector< Enode * >           pending;                          // Pending merges
+  std::vector< Enode * >           undo_stack_term;                  // Keeps track of terms involved in operations
+  std::vector< oper_t >            undo_stack_oper;                  // Keeps track of operations
+  std::vector< Enode * >           explanation;                      // Stores explanation
 
-  vector< Enode * >           exp_pending;                      // Pending explanations
-  vector< Enode * >           exp_undo_stack;                   // Keep track of exp_parent merges
-  vector< Enode * >           exp_cleanup;                      // List of nodes to be restored
+  std::vector< Enode * >           exp_pending;                      // Pending explanations
+  std::vector< Enode * >           exp_undo_stack;                   // Keep track of exp_parent merges
+  std::vector< Enode * >           exp_cleanup;                      // List of nodes to be restored
   int                         time_stamp;                       // Need for finding NCA
   int                         conf_index;                       // Index of theory solver that caused conflict
 
@@ -605,34 +612,34 @@ private:
   void              printStoreSupertermsList              ( Enode * );
   bool              addArrayRelevantIndex                 ( Enode *, Enode *);
   bool              findArrayRelevantIndex                ( Enode *, Enode *);
-  list< Enode * > & getStoreSupertermsList                ( Enode * );
-  set< Enode * > &  getArrayRelevantIndicesSet            ( Enode * );
+  std::list< Enode * > & getStoreSupertermsList                ( Enode * );
+  std::set< Enode * > &  getArrayRelevantIndicesSet            ( Enode * );
   void              printArrayRelevantIndicesSets         ( Enode * );
 
-  map< enodeid_t, list< Enode * > > storeSuperterms;
-  map< enodeid_t, set< Enode * > >  arrayRelevantIndicesSet;
+  std::map< enodeid_t, std::list< Enode * > > storeSuperterms;
+  std::map< enodeid_t, std::set< Enode * > >  arrayRelevantIndicesSet;
 
   //============================================================================
 
-  vector< bool >                 arrayAtomTermDone;
+  std::vector< bool >                 arrayAtomTermDone;
 
 #ifdef BUILD_64
-  unordered_set< enodeid_pair_t >     clauses_sent;
+  std::unordered_set< enodeid_pair_t >     clauses_sent;
 #else
-  unordered_set< Pair( enodeid_t ) >  clauses_sent;
+  std::unordered_set< Pair( enodeid_t ) >  clauses_sent;
 #endif
 
   //===========================================================================
   // Debugging routines - Implemented in EgraphDebug.C
 
-  void printEqClass              ( ostream &, Enode * );
-  void printExplanation          ( ostream & );
-  void printExplanationTree      ( ostream &, Enode * );
-  void printExplanationTreeDotty ( ostream &, Enode * );
-  void printDistinctionList      ( ostream &, Enode * );
+  void printEqClass              ( std::ostream &, Enode * );
+  void printExplanation          ( std::ostream & );
+  void printExplanationTree      ( std::ostream &, Enode * );
+  void printExplanationTreeDotty ( std::ostream &, Enode * );
+  void printDistinctionList      ( std::ostream &, Enode * );
   void printCbeStructure         ( );
-  void printCbeStructure         ( ostream &, Enode *, set< int > & );
-  void printParents              ( ostream &, Enode * );
+  void printCbeStructure         ( std::ostream &, Enode *, std::set< int > & );
+  void printParents              ( std::ostream &, Enode * );
 #if PEDANTIC_DEBUG
   bool checkParents              ( Enode * );
   bool checkInvariants           ( );
@@ -645,7 +652,7 @@ private:
   bool checkStaticDynamicTable   ( );
 
 #ifdef STATISTICS
-  void printStatistics ( ofstream & );
+  void printStatistics ( std::ofstream & );
 #endif
 };
 

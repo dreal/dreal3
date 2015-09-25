@@ -20,6 +20,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "cnfizers/Cnfizer.h"
 #include "Tseitin.h"
 
+using std::vector;
+using std::map;
+
 //
 // Performs the actual cnfization
 //

@@ -19,6 +19,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ARRAYSIMPLIFY_H
 #define ARRAYSIMPLIFY_H
 
+#include <list>
+
 #include "common/Global.h"
 #include "common/Otl.h"
 #include "egraph/Egraph.h"
@@ -38,7 +40,7 @@ public:
 
 private:
 
-  list< Enode * >             new_clauses;
+  std::list< Enode * >             new_clauses;
 
   Egraph &    egraph;       // Reference to Egraph
   SMTConfig & config;       // Reference to Config

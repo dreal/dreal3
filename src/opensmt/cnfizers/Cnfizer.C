@@ -18,6 +18,10 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "cnfizers/Cnfizer.h"
+using std::vector;
+using std::map;
+using std::set;
+using std::make_pair;
 
 //
 // Main Routine. Examine formula and give it to the solver

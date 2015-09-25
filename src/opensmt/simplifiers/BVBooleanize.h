@@ -20,6 +20,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BV_BOOLEANIZE_HH
 #define BV_BOOLEANIZE_HH
 
+#include <map>
 #include "common/Global.h"
 #include "common/Otl.h"
 #include "egraph/Egraph.h"
@@ -50,8 +51,8 @@ private:
   // Egraph &    egraph;                         // Reference to Egraph
   // SMTConfig & config;                         // Reference to Config
 
-  map< enodeid_t, Enode * > extraction_cache; // Cache for extraction propagation
-  map< enodeid_t, Enode * > boolcast_cache;   // Cache for boolcast propagation
+  std::map< enodeid_t, Enode * > extraction_cache; // Cache for extraction propagation
+  std::map< enodeid_t, Enode * > boolcast_cache;   // Cache for boolcast propagation
 };
 
 #endif

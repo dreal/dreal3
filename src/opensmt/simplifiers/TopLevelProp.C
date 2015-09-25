@@ -24,6 +24,11 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define INLINE_CONSTANTS         0
 #define SIMPLIFY_TWIN_EQUALITIES 1
 
+using std::vector;
+using std::map;
+using std::pair;
+using std::list;
+
 Enode *
 TopLevelProp::doit( Enode * formula )
 {

@@ -56,7 +56,7 @@ public:
     void constructFromLiterals(std::vector<Enode *> const & lit_vec);
 
     std::tuple<int, box, box> bisect(double precision) const;
-    vector<bool> diff_dims(box const & b) const;
+    std::vector<bool> diff_dims(box const & b) const;
     std::set<box> sample_points(unsigned const n) const;
     inline bool is_bisectable() const { return m_values.is_bisectable(); }
     inline bool is_empty() const { return size() == 0 || m_values.is_empty(); }
@@ -71,7 +71,7 @@ public:
     inline unsigned get_index(Enode * e) const {
         return get_index(e->getCar()->getName());
     }
-    inline unsigned get_index(string const & s) const {
+    inline unsigned get_index(std::string const & s) const {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
             return it->second;
@@ -87,7 +87,7 @@ public:
     // get_value
     inline ibex::Interval & get_value(int i) { return m_values[i]; }
     inline ibex::Interval const & get_value(int i) const { return m_values[i]; }
-    inline ibex::Interval & get_value(string const & s) {
+    inline ibex::Interval & get_value(std::string const & s) {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
             return m_values[it->second];
@@ -95,7 +95,7 @@ public:
             throw std::logic_error("get_value : Box does not have a key " + s);
         }
     }
-    inline ibex::Interval const & get_value(string const & s) const {
+    inline ibex::Interval const & get_value(std::string const & s) const {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
             return m_values[it->second];
@@ -113,7 +113,7 @@ public:
     // get_bound
     inline ibex::Interval & get_bound(int i) { return m_bounds[i]; }
     inline ibex::Interval const & get_bound(int i) const { return m_bounds[i]; }
-    inline ibex::Interval & get_bound(string const & s) {
+    inline ibex::Interval & get_bound(std::string const & s) {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
             return m_bounds[it->second];
@@ -121,7 +121,7 @@ public:
             throw std::logic_error("get_bound : Box does not have a key " + s);
         }
     }
-    inline ibex::Interval const & get_bound(string const & s) const {
+    inline ibex::Interval const & get_bound(std::string const & s) const {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
             return m_bounds[it->second];
@@ -139,7 +139,7 @@ public:
     // get_domain
     inline ibex::Interval & get_domain(int i) { return m_domains[i]; }
     inline ibex::Interval const & get_domain(int i) const { return m_domains[i]; }
-    inline ibex::Interval & get_domain(string const & s) {
+    inline ibex::Interval & get_domain(std::string const & s) {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
             return m_domains[it->second];
@@ -147,7 +147,7 @@ public:
             throw std::logic_error("get_domain : Box does not have a key " + s);
         }
     }
-    inline ibex::Interval const & get_domain(string const & s) const {
+    inline ibex::Interval const & get_domain(std::string const & s) const {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
             return m_domains[it->second];
@@ -164,7 +164,7 @@ public:
 
     // get_precision
     inline double get_precision(int i) const { return m_precisions[i]; }
-    inline double get_precision(string const & s) const {
+    inline double get_precision(std::string const & s) const {
         auto const it = m_name_index_map.find(s);
         if (m_name_index_map.find(s) != m_name_index_map.end()) {
             return m_precisions[it->second];
@@ -198,15 +198,15 @@ public:
     bool operator>=(box const & b) const;
     inline bool operator!=(box const & b) const { return !(*this == b); }
 
-    inline string get_name(unsigned i) const {
+    inline std::string get_name(unsigned i) const {
         return m_vars[i]->getCar()->getName();
     }
 
     double max_diam() const;
     inline double volume() const { return m_values.volume(); }
 
-    friend ostream& display_diff(ostream& out, box const & b1, box const & b2);
-    friend ostream& display(ostream& out, box const & b, bool const exact, bool const old_style);
+    friend std::ostream& display_diff(std::ostream& out, box const & b1, box const & b2);
+    friend std::ostream& display(std::ostream& out, box const & b, bool const exact, bool const old_style);
     inline std::size_t hash() const {
         std::size_t seed = 0;
         for (int i = 0; i < m_values.size(); i++) {
@@ -224,7 +224,7 @@ public:
     friend box hull(box b1, box const & b2);
 
     void assign_to_enode() const;
-    void adjust_bound(vector<box> const & box_stack);
+    void adjust_bound(std::vector<box> const & box_stack);
 };
 
 bool operator<(ibex::Interval const & a, ibex::Interval const & b);
@@ -237,9 +237,9 @@ box intersect(std::vector<box> const & vec);
 box hull(box b1, box const & b2);
 box hull(std::vector<box> const & vec);
 
-ostream& display_diff(ostream& out, box const & b1, box const & b2);
-ostream& display(ostream& out, box const & b, bool const exact = false, bool const old_style = false);
-std::ostream& operator<<(ostream& out, box const & b);
+std::ostream& display_diff(std::ostream& out, box const & b1, box const & b2);
+std::ostream& display(std::ostream& out, box const & b, bool const exact = false, bool const old_style = false);
+std::ostream& operator<<(std::ostream& out, box const & b);
 }  // namespace dreal
 
 namespace std {

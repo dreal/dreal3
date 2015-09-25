@@ -40,16 +40,21 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
 
-using std::make_shared;
+using std::exception;
 using std::function;
 using std::initializer_list;
-using std::ostringstream;
 using std::list;
+using std::logic_error;
+using std::make_shared;
+using std::min;
+using std::ostringstream;
+using std::pair;
 using std::string;
+using std::unordered_map;
 using std::unordered_set;
 using std::vector;
-using std::logic_error;
-using std::exception;
+using std::setprecision;
+using std::ostream;
 using nlohmann::json;
 
 namespace dreal {

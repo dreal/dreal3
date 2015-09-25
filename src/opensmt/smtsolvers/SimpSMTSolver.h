@@ -39,6 +39,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef SIMP_SMT_SOLVER_H
 #define SIMP_SMT_SOLVER_H
 
+#include <set>
+#include <map>
+#include <vector>
 #include "minisat/mtl/Queue.h"
 #include "smtsolvers/CoreSMTSolver.h"
 
@@ -50,7 +53,7 @@ class SimpSMTSolver : public CoreSMTSolver
     SimpSMTSolver ( Egraph &, SMTConfig & );
     ~SimpSMTSolver( );
 
-    bool         addSMTClause         ( vector< Enode * > &, uint64_t in = 0 );
+    bool         addSMTClause         ( std::vector< Enode * > &, uint64_t in = 0 );
     inline lbool smtSolve             ( ) { return solve( false, false ); }
     inline lbool smtSolve             ( bool do_simp ) { return solve( do_simp, false ); }
     Enode *      mergeTAtoms          ( Enode *, bool, Enode *, bool, Enode * );
@@ -68,19 +71,19 @@ class SimpSMTSolver : public CoreSMTSolver
 
     void         gatherInterfaceTerms ( Enode * );
 
-    set< Clause * >                      to_remove;
-    vector< Clause * >                   unary_to_remove;
+    std::set< Clause * >                      to_remove;
+    std::vector< Clause * >                   unary_to_remove;
 #if NEW_SIMPLIFICATIONS
-    set< Enode * >                       t_var; // Theory variables
+    std::set< Enode * >                       t_var; // Theory variables
 #else
-    // TODO: change to vector< list< Clauses * > >
-    map< Enode *, set< enodeid_t > >     t_var; // Variables to which is connected to
+    // TODO: change to std::vector< list< Clauses * > >
+    std::map< Enode *, std::set< enodeid_t > >     t_var; // Variables to which is connected to
 #endif
-    map< enodeid_t, vector< Clause * > > t_pos; // Clauses where theory variable appears positively
-    map< enodeid_t, vector< Clause * > > t_neg; // Clauses where theory variable appears negatively
+    std::map< enodeid_t, std::vector< Clause * > > t_pos; // Clauses where theory variable appears positively
+    std::map< enodeid_t, std::vector< Clause * > > t_neg; // Clauses where theory variable appears negatively
 
 #if NEW_SIMPLIFICATIONS
-    vector< LAExpression * >             var_to_lae;
+    std::vector< LAExpression * >             var_to_lae;
 #endif
 
     // Problem specification:

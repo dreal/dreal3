@@ -20,6 +20,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SMTSOLVER_H
 #define SMTSOLVER_H
 
+#include <vector>
 #include "tsolvers/THandler.h"
 #include "minisat/core/SolverTypes.h"
 #include "common/Global.h"
@@ -50,7 +51,7 @@ public:
   // (atom or negated atom) and feeds a
   // corresponding clause in the SAT Solver
   //
-  virtual bool   addSMTClause  ( vector< Enode * > &, uint64_t = 0 ) = 0;
+  virtual bool   addSMTClause  ( std::vector< Enode * > &, uint64_t = 0 ) = 0;
   virtual lbool  smtSolve      ( )                                   = 0;
   virtual Var    newVar        ( bool = true, bool = true )          = 0;
   virtual void   setFrozen     ( Var, bool )                         = 0;

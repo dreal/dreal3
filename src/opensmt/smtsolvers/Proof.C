@@ -26,6 +26,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #endif
 
+using std::cerr;
+using std::endl;
+
 void CoreSMTSolver::dumpRndInter( )
 {
   const char * name = "rnd_inter.smt2";

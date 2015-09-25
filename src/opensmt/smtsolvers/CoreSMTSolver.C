@@ -48,6 +48,14 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <sys/wait.h>
 #endif
 
+using std::vector;
+using std::set;
+using std::map;
+using std::list;
+using std::cerr;
+using std::endl;
+using std::ostream;
+
 namespace opensmt
 {
   extern bool stop;

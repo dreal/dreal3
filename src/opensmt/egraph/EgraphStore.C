@@ -27,6 +27,16 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 using std::ostringstream;
 using std::stod;
+using std::cerr;
+using std::endl;
+using std::pair;
+using std::make_pair;
+using std::vector;
+using std::map;
+using std::string;
+using std::list;
+using std::ostream;
+using std::ofstream;
 
 void Egraph::initializeStore( )
 {

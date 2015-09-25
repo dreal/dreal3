@@ -50,10 +50,14 @@ using std::initializer_list;
 using std::make_shared;
 using std::queue;
 using std::set;
+using std::unordered_map;
 using std::unordered_set;
 using std::vector;
 using std::ostream;
 using std::ostringstream;
+using std::endl;
+using std::pair;
+using std::make_pair;
 
 namespace dreal {
 ostream & operator<<(ostream & out, contractor_cell const & c) {

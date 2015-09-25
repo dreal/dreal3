@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using std::cerr;
 using std::endl;
+using std::vector;
 
 namespace dreal {
 

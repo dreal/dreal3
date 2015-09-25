@@ -20,6 +20,9 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CNFIZER_H
 #define CNFIZER_H
 
+#include <map>
+#include <set>
+#include <vector>
 #include "common/Global.h"
 #include "common/Otl.h"
 #include "smtsolvers/SMTSolver.h"
@@ -53,17 +56,17 @@ public:
 
 protected:
 
-  virtual bool cnfize          ( Enode *, map< enodeid_t, Enode * > & ) = 0; // Actual cnfization. To be implemented in derived classes
+  virtual bool cnfize          ( Enode *, std::map< enodeid_t, Enode * > & ) = 0; // Actual cnfization. To be implemented in derived classes
   bool         deMorganize     ( Enode * );                                  // Apply deMorgan rules whenever feasible
-  Enode *      rewriteMaxArity ( Enode *, map< enodeid_t, int > & );         // Rewrite terms using maximum arity
+  Enode *      rewriteMaxArity ( Enode *, std::map< enodeid_t, int > & );         // Rewrite terms using maximum arity
 
   bool  checkCnf                   ( Enode * );                              // Check if formula is in CNF
   bool  checkDeMorgan              ( Enode * );                              // Check if formula can be deMorganized
   bool  giveToSolver               ( Enode * );                              // Gives formula to the SAT solver
 
-  void  retrieveTopLevelFormulae   ( Enode *, vector< Enode * > & );         // Retrieves the list of top-level formulae
-  void  retrieveClause             ( Enode *, vector< Enode * > & );         // Retrieve a clause from a formula
-  void  retrieveConjuncts          ( Enode *, vector< Enode * > & );         // Retrieve the list of conjuncts
+  void  retrieveTopLevelFormulae   ( Enode *, std::vector< Enode * > & );         // Retrieves the list of top-level formulae
+  void  retrieveClause             ( Enode *, std::vector< Enode * > & );         // Retrieve a clause from a formula
+  void  retrieveConjuncts          ( Enode *, std::vector< Enode * > & );         // Retrieve the list of conjuncts
 
   Enode * toggleLit                ( Enode * );                              // Handy function for toggling literals
 
@@ -77,14 +80,14 @@ protected:
 
 private:
 
-  void    computeIncomingEdges ( Enode *, map< enodeid_t, int > & );         // Computes the list of incoming edges for a node
+  void    computeIncomingEdges ( Enode *, std::map< enodeid_t, int > & );         // Computes the list of incoming edges for a node
   Enode * mergeEnodeArgs       ( Enode *
-                               , map< enodeid_t, Enode * > &
-                               , map< enodeid_t, int > & );                  // Subroutine for rewriteMaxArity
+                               , std::map< enodeid_t, Enode * > &
+                               , std::map< enodeid_t, int > & );                  // Subroutine for rewriteMaxArity
 
-  bool    checkConj            ( Enode *, set< enodeid_t > & );              // Check if a formula is a conjunction
-  bool    checkClause          ( Enode *, set< enodeid_t > & );              // Check if a formula is a clause
-  bool    checkPureConj        ( Enode *, set< enodeid_t > & );              // Check if a formula is purely a conjuntion
+  bool    checkConj            ( Enode *, std::set< enodeid_t > & );              // Check if a formula is a conjunction
+  bool    checkClause          ( Enode *, std::set< enodeid_t > & );              // Check if a formula is a clause
+  bool    checkPureConj        ( Enode *, std::set< enodeid_t > & );              // Check if a formula is purely a conjuntion
 };
 
 #endif

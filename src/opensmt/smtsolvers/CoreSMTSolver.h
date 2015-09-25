@@ -45,6 +45,10 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include <cstdio>
 #include <sstream>
+#include <vector>
+#include <set>
+#include <map>
+#include <iostream>
 
 #include "minisat/mtl/Vec.h"
 #include "minisat/mtl/Heap.h"
@@ -74,7 +78,7 @@ public:
         void     initialize       ( );
 
 #if NEW_SIMPLIFICATIONS
-        vector< LAExpression * > top_level_eqs;
+        std::vector< LAExpression * > top_level_eqs;
         bool                     doing_t_simp;
 #endif
 
@@ -110,14 +114,14 @@ public:
         //=================================================================================================
         // Added Code
 
-        void addSMTAxiomClause  ( vector< Enode * > & );
+        void addSMTAxiomClause  ( std::vector< Enode * > & );
         void addNewAtom         ( Enode * e );
 
         vec< Clause * >          axioms;         // List of axioms produced with splitting on demand
         int                      axioms_checked; // Id of next axiom to be checked
 
 #ifdef PRODUCE_PROOF
-        set< int >               axioms_ids;     // Set of ids for lemmas on demand
+        std::set< int >               axioms_ids;     // Set of ids for lemmas on demand
 #endif
 
         // External support incremental and backtrackable APIs
@@ -128,11 +132,11 @@ public:
         inline bool isOK               ( ) const { return ok; }
 
         template<class C>
-        void     printSMTClause   ( ostream &, const C& );
-        void     printSMTClause   ( ostream &, vec< Lit > &, bool = false );
-        void     printSMTClause   ( ostream &, vector< Lit > &, bool = false );
+        void     printSMTClause   ( std::ostream &, const C& );
+        void     printSMTClause   ( std::ostream &, vec< Lit > &, bool = false );
+        void     printSMTClause   ( std::ostream &, std::vector< Lit > &, bool = false );
 
-        set< Clause * > detached;
+        std::set< Clause * > detached;
 
         // Added Code
         //=================================================================================================
@@ -272,9 +276,9 @@ protected:
     template<class C>
     void     printClause      (const C& c);*/
 
-        void     printSMTLit              ( ostream &, const Lit );
+        void     printSMTLit              ( std::ostream &, const Lit );
 #ifdef PRODUCE_PROOF
-        void     printRestrictedSMTClause ( ostream &, vec< Lit > &, uint64_t );
+        void     printRestrictedSMTClause ( std::ostream &, vec< Lit > &, uint64_t );
         Enode *  mkRestrictedSMTClause    ( vec< Lit > &, uint64_t );
 #endif
         void     verifyModel      ();
@@ -308,25 +312,25 @@ public:
 #ifndef SMTCOMP
         lbool  getModel               ( Enode * );
         void   printModel             ( );             // Wrapper
-        void   printModel             ( ostream & );   // Prints model
-        void   printExtModel          ( ostream & out ); // Prints SAT model
+        void   printModel             ( std::ostream & );   // Prints model
+        void   printExtModel          ( std::ostream & out ); // Prints SAT model
 #endif
 #ifdef PRODUCE_PROOF
-        void   printProof              ( ostream & );
-        void   printInter              ( ostream & );   // Print interpolants
-        void   getMixedAtoms           ( set< Var > & );
+        void   printProof              ( std::ostream & );
+        void   printInter              ( std::ostream & );   // Print interpolants
+        void   getMixedAtoms           ( std::set< Var > & );
         void   checkPartitions         ( );
-        void   verifyInterpolantWithExternalTool ( vector< Enode * > & );
+        void   verifyInterpolantWithExternalTool ( std::vector< Enode * > & );
         inline uint64_t getIPartitions ( Clause * c )            { assert( clause_to_partition.find( c ) != clause_to_partition.end( ) ); return clause_to_partition[ c ]; }
         inline Enode *  getInterpolants( Clause * c )            { assert( clause_to_in.find( c ) != clause_to_in.end( ) ); return clause_to_in[ c ]; }
         inline void     setInterpolant ( Clause * c, Enode * e ) { clause_to_in[ c ] = e; }
 #endif
-        map<Enode *, bool> getBoolModel( );             // get Boolean Model
+        std::map<Enode *, bool> getBoolModel( );             // get Boolean Model
 
 protected:
 
 #ifdef STATISTICS
-        void   printStatistics        ( ostream & );   // Prints statistics
+        void   printStatistics        ( std::ostream & );   // Prints statistics
 #endif
         void   printTrail             ( );             // Prints the trail (debugging)
         int    checkTheory            ( bool );        // Checks consistency in theory
@@ -355,7 +359,7 @@ protected:
         long               perm_learnt_t_lemmata;      // T-Lemmata stored during search
         unsigned           luby_i;                     // Keep track of luby index
         unsigned           luby_k;                     // Keep track of luby k
-        vector< unsigned > luby_previous;              // Previously computed luby numbers
+        std::vector< unsigned > luby_previous;              // Previously computed luby numbers
         bool               cuvti;                      // For cancelUntilVarTemp
         vec<Lit>           lit_to_restore;             // For cancelUntilVarTemp
         vec<char>          val_to_restore;             // For cancelUntilVarTemp
@@ -368,16 +372,16 @@ protected:
         vec< Clause * >     pleaves;                  // Store clauses that are still involved in the proof
         vec< Clause * >     tleaves;                  // Store theory clauses to be removed
         // TODO: Maybe change to vectors
-        map< Clause *, Enode * >              clause_to_in;        // Clause id to interpolant (for theory clauses)
-        vector< pair< Clause *, uint64_t > >  units_and_partition; // Unit clauses and their partitions
-        map< Clause *, uint64_t >             clause_to_partition; // Clause id to interpolant partition
+        std::map< Clause *, Enode * >              clause_to_in;        // Clause id to interpolant (for theory clauses)
+        std::vector< pair< Clause *, uint64_t > >  units_and_partition; // Unit clauses and their partitions
+        std::map< Clause *, uint64_t >             clause_to_partition; // Clause id to interpolant partition
 #endif
         //
         // Data structures for DTC
         //
-        // vector< Enode * >  interface_terms;            // Interface terms for lazy dtc
-        // set< Enode * >     interface_terms_cache;      // Interface terms for lazy dtc
-        set< Enode * >     interface_equalities;       // To check that we do not duplicate eij
+        // std::vector< Enode * >  interface_terms;            // Interface terms for lazy dtc
+        // std::set< Enode * >     interface_terms_cache;      // Interface terms for lazy dtc
+        std::set< Enode * >     interface_equalities;       // To check that we do not duplicate eij
         int                next_it_i;                  // Next index i
         int                next_it_j;                  // Next index j
         //
@@ -398,10 +402,10 @@ protected:
         //
         // Automatic push and pop, for enable undo
         //
-        vector< size_t >   undo_stack_size;            // Keep track of stack_oper size
-        vector< oper_t >   undo_stack_oper;            // Keep track of operations
-        vector< void * >   undo_stack_elem;            // Keep track of aux info
-        vector< int >      undo_trail_size;            // Keep track of trail size
+        std::vector< size_t >   undo_stack_size;            // Keep track of stack_oper size
+        std::vector< oper_t >   undo_stack_oper;            // Keep track of operations
+        std::vector< void * >   undo_stack_elem;            // Keep track of aux info
+        std::vector< int >      undo_trail_size;            // Keep track of trail size
         //
         // TODO: move more data in STATISTICS
         //
@@ -570,7 +574,7 @@ inline void CoreSMTSolver::printClause(const C& c)
 // Added code
 
 template<class C>
-inline void CoreSMTSolver::printSMTClause( ostream & os, const C& c )
+inline void CoreSMTSolver::printSMTClause( std::ostream & os, const C& c )
 {
   if ( c.size( ) == 0 ) os << "-";
   if ( c.size( ) > 1 ) os << "(or ";
@@ -584,7 +588,7 @@ inline void CoreSMTSolver::printSMTClause( ostream & os, const C& c )
   if ( c.size( ) > 1 ) os << ")";
 }
 
-inline void CoreSMTSolver::printSMTClause( ostream & os, vec< Lit > & c, bool ids )
+inline void CoreSMTSolver::printSMTClause( std::ostream & os, vec< Lit > & c, bool ids )
 {
   if ( c.size( ) == 0 ) os << "-";
   if ( c.size( ) > 1 ) os << "(or ";
@@ -603,7 +607,7 @@ inline void CoreSMTSolver::printSMTClause( ostream & os, vec< Lit > & c, bool id
   if ( c.size( ) > 1 ) os << ")";
 }
 
-inline void CoreSMTSolver::printSMTClause( ostream & os, vector< Lit > & c, bool ids )
+inline void CoreSMTSolver::printSMTClause( std::ostream & os, std::vector< Lit > & c, bool ids )
 {
   if ( c.size( ) == 0 ) os << "-";
   if ( c.size( ) > 1 ) os << "(or ";
@@ -622,7 +626,7 @@ inline void CoreSMTSolver::printSMTClause( ostream & os, vector< Lit > & c, bool
   if ( c.size( ) > 1 ) os << ")";
 }
 
-inline void CoreSMTSolver::printSMTLit( ostream & os, const Lit l )
+inline void CoreSMTSolver::printSMTLit( std::ostream & os, const Lit l )
 {
   Var v = var( l );
   if ( v == 0 ) os << "true";
@@ -635,7 +639,7 @@ inline void CoreSMTSolver::printSMTLit( ostream & os, const Lit l )
 }
 
 #ifdef PRODUCE_PROOF
-inline void CoreSMTSolver::printRestrictedSMTClause( ostream & os, vec< Lit > & c, uint64_t mask )
+inline void CoreSMTSolver::printRestrictedSMTClause( std::ostream & os, vec< Lit > & c, uint64_t mask )
 {
   assert( c.size( ) > 0 );
   int nof_lits = 0;

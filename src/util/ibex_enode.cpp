@@ -32,12 +32,14 @@ namespace dreal {
 
 using std::modf;
 using std::unordered_map;
+using std::string;
 using std::numeric_limits;
 using ibex::ExprNode;
 using ibex::Variable;
 using ibex::ExprConstant;
 using ibex::ExprCtr;
 using ibex::ExprNode;
+using std::logic_error;
 
 ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable const> & var_map, Enode * const e, unordered_map<Enode*, ibex::Interval> const & subst) {
     // TODO(soonhok): for the simple case such as 0 <= x or x <= 10.

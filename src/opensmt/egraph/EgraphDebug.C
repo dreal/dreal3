@@ -20,6 +20,11 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "egraph/Egraph.h"
 #include "egraph/SigTab.h"
 
+using std::ostream;
+using std::cerr;
+using std::endl;
+using std::string;
+
 // Choose debugging level
 #define CHECK_INVARIANTS                            1
 #define CHECK_INVARIANT_FORBID_LIST_SYMMERTRY       0

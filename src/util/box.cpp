@@ -46,9 +46,11 @@ using std::pair;
 using std::set;
 using std::sort;
 using std::string;
+using std::tuple;
 using std::unordered_set;
 using std::vector;
 using std::make_tuple;
+using std::runtime_error;
 
 namespace dreal {
 box::box(std::vector<Enode *> const & vars)

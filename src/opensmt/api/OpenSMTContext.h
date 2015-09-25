@@ -20,6 +20,12 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef OPENSMT_CONTEXT_H
 #define OPENSMT_CONTEXT_H
 
+#include <vector>
+#include <utility>
+#include <string>
+#include <iostream>
+#include <list>
+
 #include "egraph/Egraph.h"
 #include "smtsolvers/SimpSMTSolver.h"
 #include "cnfizers/Tseitin.h"
@@ -101,13 +107,13 @@ public:
   void          DeclareSort          ( const char *, int );          // Declares a new sort
   void          DeclareFun           ( const char *, Snode * );      // Declares a new function symbol
   void          DeclareFun           ( const char *, Snode * , const char * p);  // Declares a new function symbol
-  void          DefineODE            ( char const *, vector<pair<string, Enode *>> const & odes );      // Define an ODE
+  void          DefineODE            ( char const *, std::vector<std::pair<std::string, Enode *>> const & odes );      // Define an ODE
 
   void          Push                 ( );
   void          Pop                  ( );
   void          Reset                ( );
 #ifndef SMTCOMP
-  inline void   PrintModel           ( ostream & os ) { solver.printModel( os ); egraph.printModel( os ); }
+  inline void   PrintModel           ( std::ostream & os ) { solver.printModel( os ); egraph.printModel( os ); }
 #endif
 
   void          GetProof             ( );
@@ -200,11 +206,11 @@ public:
       assert(flowname);
       return egraph.mkIntegral(time_0, time_t, vec_0, vec_t, flowname);
   }
-  inline Enode * mkForall ( vector<pair<string, Snode *>> const & sorted_var_list, Enode * e) {
+  inline Enode * mkForall ( std::vector<std::pair<std::string, Snode *>> const & sorted_var_list, Enode * e) {
       assert(e);
       return egraph.mkForall(sorted_var_list, e);
   }
-  inline Enode * mkExists ( vector<pair<string, Snode *>> const & sorted_var_list, Enode * e) {
+  inline Enode * mkExists ( std::vector<std::pair<std::string, Snode *>> const & sorted_var_list, Enode * e) {
       assert(e);
       return egraph.mkExists(sorted_var_list, e);
   }
@@ -235,8 +241,8 @@ public:
     return cdr == NULL ? egraph.cons( car ) : egraph.cons( car, cdr );
   }
 
-  inline Enode * mkCons   ( list< Enode * > & l )            { return egraph.cons( l ); }
-  inline Snode * mkCons   ( list< Snode * > & l )            { return sstore.cons( l ); }
+  inline Enode * mkCons   ( std::list< Enode * > & l )            { return egraph.cons( l ); }
+  inline Snode * mkCons   ( std::list< Snode * > & l )            { return sstore.cons( l ); }
 
   inline void    mkBind   ( const char * v, Enode * t )      { assert( v ); assert( t ); egraph.mkDefine( v, t ); }
 
@@ -361,7 +367,7 @@ private:
   void    loadCustomSettings ( );                                // Loads custom settings for SMTCOMP
 
   lbool              state;                                      // Current state of the solver
-  vector< Command >  command_list;                               // Store commands to execute
+  std::vector< Command >  command_list;                               // Store commands to execute
   unsigned           nof_checksat;                               // Counter for CheckSAT commands
 //  unsigned           counter;                                    // Counter for creating new terms
   bool               init;                                       // Initialize

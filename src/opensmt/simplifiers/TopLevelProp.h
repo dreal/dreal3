@@ -20,6 +20,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TOP_LEVEL_PROP_H
 #define TOP_LEVEL_PROP_H
 
+#include <map>
+#include <vector>
 #include "common/Global.h"
 #include "common/Otl.h"
 #include "egraph/Egraph.h"
@@ -42,18 +44,18 @@ private:
 
   Enode * learnEqTransitivity             ( Enode * );
 
-  bool    retrieveSubstitutions           ( Enode *, map< enodeid_t, Enode * > & );
-  bool    arithmeticElimination           ( vector< Enode * > &, map< enodeid_t, Enode * > & );
+  bool    retrieveSubstitutions           ( Enode *, std::map< enodeid_t, Enode * > & );
+  bool    arithmeticElimination           ( std::vector< Enode * > &, std::map< enodeid_t, Enode * > & );
   bool    contains                        ( Enode *, Enode * );
-  Enode * substitute                      ( Enode *, map< enodeid_t, Enode * > &, bool & );
+  Enode * substitute                      ( Enode *, std::map< enodeid_t, Enode * > &, bool & );
   Enode * canonize                        ( Enode * );
 #if NEW_SPLIT
 #else
   Enode * splitEqs                        ( Enode * );
 #endif
   Enode * propagateUnconstrainedVariables ( Enode *, bool & );
-  Enode * replaceUnconstrainedTerms       ( Enode *, vector< int > & , bool & );
-  void    computeIncomingEdges            ( Enode *, vector< int > & );
+  Enode * replaceUnconstrainedTerms       ( Enode *, std::vector< int > & , bool & );
+  void    computeIncomingEdges            ( Enode *, std::vector< int > & );
 
   Egraph &    egraph; // Reference to Egraph
   SMTConfig & config; // Reference to Config
