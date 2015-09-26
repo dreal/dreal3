@@ -70,6 +70,8 @@ using std::tuple;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
+using std::unique_ptr;
+using std::move;
 
 namespace dreal {
 
@@ -331,7 +333,7 @@ box refine_CE_with_nlopt(box const & b, vector<Enode*> const & vec) {
     }
 }
 
-contractor make_contractor(Enode * e, lbool const polarity, box const & b, vector<nonlinear_constraint *> & ctrs) {
+contractor make_contractor(Enode * e, lbool const polarity, box const & b, vector<unique_ptr<nonlinear_constraint>> & ctrs) {
     if (e->isNot()) {
         return make_contractor(e->get1st(), !polarity, b, ctrs);
     }
@@ -351,9 +353,10 @@ contractor make_contractor(Enode * e, lbool const polarity, box const & b, vecto
         }
         return mk_contractor_seq(ctcs);
     } else {
-        nonlinear_constraint * ctr = new nonlinear_constraint(e, polarity);
-        ctrs.push_back(ctr);
-        return mk_contractor_ibex_fwdbwd(b, ctr);
+        unique_ptr<nonlinear_constraint> ctr(new nonlinear_constraint(e, polarity));
+        auto ctc = mk_contractor_ibex_fwdbwd(b, ctr.get());
+        ctrs.push_back(move(ctr));
+        return ctc;
     }
 }
 
@@ -423,7 +426,7 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
 }
 
 box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) {
-    vector<nonlinear_constraint *> ctrs;
+    vector<unique_ptr<nonlinear_constraint>> ctrs;
     vector<contractor> ctcs;
     box counterexample(b, forall_vars);
     if (config.nra_shrink_for_dop) {
@@ -443,9 +446,6 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_v
     double const prec = config.nra_precision;
     // cerr << "find CE, prec = " << prec << endl;
     counterexample = random_icp::solve(counterexample, fp, config, prec);
-    for (auto ctr : ctrs) {
-        delete ctr;
-    }
     return counterexample;
 }
 
