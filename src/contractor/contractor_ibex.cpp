@@ -53,6 +53,8 @@ using std::vector;
 using std::queue;
 using std::ostream;
 using std::ostringstream;
+using std::move;
+using std::unique_ptr;
 
 namespace dreal {
 ibex::SystemFactory* contractor_ibex_polytope::build_system_factory(vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
@@ -143,7 +145,7 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, nonlinear_constr
     : contractor_cell(contractor_kind::IBEX_FWDBWD, box.size()), m_ctr(ctr),
       m_numctr(ctr->get_numctr()), m_var_array(ctr->get_var_array()) {
     if (m_numctr) {
-        m_ctc = new ibex::CtcFwdBwd(*m_numctr);
+        m_ctc.reset(new ibex::CtcFwdBwd(*m_numctr));
         // Set up input
         ibex::BitSet const * const input = m_ctc->input;
         for (unsigned i = 0; i <  input->size(); i++) {
@@ -154,9 +156,7 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, nonlinear_constr
         m_used_constraints.insert(m_ctr);
     }
 }
-contractor_ibex_fwdbwd::~contractor_ibex_fwdbwd() {
-    delete m_ctc;
-}
+
 box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_ibex_fwdbwd::prune";
     if (m_ctc == nullptr) { return b; }
@@ -232,34 +232,34 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
     : contractor_cell(contractor_kind::IBEX_POLYTOPE), m_ctrs(ctrs), m_prec(prec) {
     // Trivial Case
     if (m_ctrs.size() == 0) { return; }
-    m_sf = build_system_factory(vars, m_ctrs);
-    m_sys = new ibex::System(*m_sf);
+    m_sf.reset(build_system_factory(vars, m_ctrs));
+    m_sys.reset(new ibex::System(*m_sf));
 
     unsigned index = 0;
 
     ibex::Array<ibex::Ctc> ctc_list(2);
 
-    m_sys_eqs = square_eq_sys(*m_sys);
+    m_sys_eqs.reset(square_eq_sys(*m_sys));
     if (m_sys_eqs) {
         DREAL_LOG_INFO << "contractor_ibex_polytope: SQUARE SYSTEM";
-        ibex::CtcNewton * ctc_newton = new ibex::CtcNewton(m_sys_eqs->f, 5e8, m_prec, 1.e-4);
+        unique_ptr<ibex::CtcNewton> ctc_newton(new ibex::CtcNewton(m_sys_eqs->f, 5e8, m_prec, 1.e-4));
         ctc_list.set_ref(index++, *ctc_newton);
-        m_sub_ctcs.push_back(ctc_newton);
+        m_sub_ctcs.push_back(move(ctc_newton));
     }
 
-    m_lrc = new ibex::LinearRelaxCombo(*m_sys, ibex::LinearRelaxCombo::XNEWTON);
-    ibex::CtcPolytopeHull * ctc_ph = new ibex::CtcPolytopeHull(*m_lrc, ibex::CtcPolytopeHull::ALL_BOX);
-    ibex::CtcHC4 * ctc_hc4 = new ibex::CtcHC4(m_sys->ctrs, m_prec);
-    ibex::CtcCompo * ctc_combo = new ibex::CtcCompo(*ctc_ph, *ctc_hc4);
-    m_sub_ctcs.push_back(ctc_ph);
-    m_sub_ctcs.push_back(ctc_hc4);
-    m_sub_ctcs.push_back(ctc_combo);
-    ibex::CtcFixPoint * ctc_fp = new ibex::CtcFixPoint(*ctc_combo);
-    m_sub_ctcs.push_back(ctc_fp);
+    m_lrc.reset(new ibex::LinearRelaxCombo(*m_sys, ibex::LinearRelaxCombo::XNEWTON));
+    unique_ptr<ibex::CtcPolytopeHull> ctc_ph(new ibex::CtcPolytopeHull(*m_lrc, ibex::CtcPolytopeHull::ALL_BOX));
+    unique_ptr<ibex::CtcHC4> ctc_hc4(new ibex::CtcHC4(m_sys->ctrs, m_prec));
+    unique_ptr<ibex::CtcCompo> ctc_combo(new ibex::CtcCompo(*ctc_ph, *ctc_hc4));
+    unique_ptr<ibex::CtcFixPoint> ctc_fp(new ibex::CtcFixPoint(*ctc_combo));
     ctc_list.set_ref(index++, *ctc_fp);
+    m_sub_ctcs.push_back(move(ctc_ph));
+    m_sub_ctcs.push_back(move(ctc_hc4));
+    m_sub_ctcs.push_back(move(ctc_combo));
+    m_sub_ctcs.push_back(move(ctc_fp));
 
     ctc_list.resize(index);
-    m_ctc = new ibex::CtcCompo (ctc_list);
+    m_ctc.reset(new ibex::CtcCompo(ctc_list));
 
     // Setup Input
     // TODO(soonhok): this is a rough approximation, which needs to be refined.
@@ -274,14 +274,6 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
 }
 
 contractor_ibex_polytope::~contractor_ibex_polytope() {
-    delete m_lrc;
-    for (ibex::Ctc * sub_ctc : m_sub_ctcs) {
-        delete sub_ctc;
-    }
-    delete m_ctc;
-    if (m_sys_eqs && m_sys_eqs != m_sys) { delete m_sys_eqs; }
-    delete m_sys;
-    delete m_sf;
     for (auto p : m_exprctr_cache_pos) {
         ibex::cleanup(p.second->e, false);
         delete p.second;

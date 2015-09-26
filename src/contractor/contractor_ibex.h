@@ -40,11 +40,10 @@ private:
     nonlinear_constraint const * m_ctr;
     ibex::NumConstraint const * m_numctr;
     ibex::Array<ibex::ExprSymbol const> const & m_var_array;
-    ibex::CtcFwdBwd * m_ctc = nullptr;
+    std::unique_ptr<ibex::CtcFwdBwd> m_ctc;
 
 public:
     contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
-    ~contractor_ibex_fwdbwd();
     box prune(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -54,18 +53,18 @@ class contractor_ibex_polytope : public contractor_cell {
 private:
     std::unordered_set<Enode *>               m_vars_in_ctrs;
     std::vector<nonlinear_constraint const *> m_ctrs;
-    double const                         m_prec;
+    double const                              m_prec;
     std::unordered_map<Enode *, ibex::Variable const *> m_var_cache;
     std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_pos;
     std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_neg;
 
     // TODO(soonhok): this is a hack to avoid const problem, we need to fix them
-    mutable ibex::SystemFactory *            m_sf  = nullptr;
-    mutable ibex::System *                   m_sys = nullptr;
-    mutable ibex::System *                   m_sys_eqs = nullptr;
-    mutable ibex::LinearRelaxCombo *         m_lrc = nullptr;
-    mutable std::vector<ibex::Ctc *>         m_sub_ctcs;
-    mutable ibex::Ctc *                      m_ctc = nullptr;
+    mutable std::unique_ptr<ibex::SystemFactory>    m_sf;
+    mutable std::unique_ptr<ibex::System>           m_sys;
+    mutable std::unique_ptr<ibex::System>           m_sys_eqs;
+    mutable std::unique_ptr<ibex::LinearRelaxCombo> m_lrc;
+    mutable std::vector<std::unique_ptr<ibex::Ctc>> m_sub_ctcs;
+    mutable std::unique_ptr<ibex::Ctc>              m_ctc;
     ibex::SystemFactory* build_system_factory(std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
 
 public:
