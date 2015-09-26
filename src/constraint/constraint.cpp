@@ -118,7 +118,7 @@ nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p, std::unorde
     bool is_ineq = (p == l_False && e->isEq());
     p = is_ineq ? true : p;
 
-    m_exprctr = translate_enode_to_exprctr(var_map, e, p, m_subst);
+    m_exprctr.reset(translate_enode_to_exprctr(var_map, e, p, m_subst));
     assert(m_exprctr);
 
     m_var_array.resize(var_map.size());
@@ -129,18 +129,13 @@ nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p, std::unorde
     }
 
     if (is_ineq) {
-        m_numctr_ineq = new ibex::NumConstraint(m_var_array, *m_exprctr);
+        m_numctr_ineq.reset(new ibex::NumConstraint(m_var_array, *m_exprctr));
     } else {
-        m_numctr = new ibex::NumConstraint(m_var_array, *m_exprctr);
+        m_numctr.reset(new ibex::NumConstraint(m_var_array, *m_exprctr));
     }
     DREAL_LOG_INFO << "nonlinear_constraint: "<< *this;
 }
 
-nonlinear_constraint::~nonlinear_constraint() noexcept {
-    delete m_numctr;
-    delete m_numctr_ineq;
-    delete m_exprctr;
-}
 ostream & nonlinear_constraint::display(ostream & out) const {
     out << "nonlinear_constraint ";
     if (m_numctr) {
