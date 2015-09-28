@@ -144,7 +144,7 @@ ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_se
 contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr)
     : contractor_cell(contractor_kind::IBEX_FWDBWD, box.size()), m_ctr(ctr),
       m_numctr(ctr->get_numctr()), m_var_array(ctr->get_var_array()) {
-    if (m_numctr) {
+    if (!ctr->is_neq()) {
         m_ctc.reset(new ibex::CtcFwdBwd(*m_numctr));
         // Set up input
         ibex::BitSet const * const input = m_ctc->input;

@@ -389,11 +389,11 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
             break;
         }
         nonlinear_constraint ctr(e, polarity);
-        auto numctr = ctr.get_numctr();
-        if (!numctr) {
+        if (ctr.is_neq()) {
             return_empty = false;
             break;
         }
+        auto numctr = ctr.get_numctr();
 
         // Construct iv from box b
         auto & var_array = ctr.get_var_array();
