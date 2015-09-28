@@ -21,14 +21,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <algorithm>
-#include <unordered_map>
-#include <vector>
 #include <initializer_list>
 #include <iostream>
+#include <map>
+#include <memory>
 #include <stdexcept>
 #include <string>
-#include <memory>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/flow.h"
@@ -63,18 +64,22 @@ std::ostream & operator<<(std::ostream & out, constraint const & c);
 class nonlinear_constraint : public constraint {
 private:
     bool const                               m_is_neq;
+    bool const                               m_is_aligned;
     std::unique_ptr<ibex::NumConstraint>     m_numctr;
     ibex::Array<ibex::ExprSymbol const>      m_var_array;
     std::pair<lbool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
 
 public:
-    explicit nonlinear_constraint(Enode * const e, lbool p = l_Undef, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
+    explicit nonlinear_constraint(Enode * const e, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
+    nonlinear_constraint(Enode * const e, std::map<std::string, ibex::Variable const> & var_map,  // TODO(soonhok): need to change it to const
+                         ibex::Array<ibex::ExprSymbol const> const & var_array, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
     virtual std::ostream & display(std::ostream & out) const;
     std::pair<lbool, ibex::Interval> eval(box const & b) const;
     inline ibex::NumConstraint * get_numctr() const { return m_numctr.get(); }
     ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
     inline Enode * get_enode() const { return get_enodes()[0]; }
     bool is_neq() const { return m_is_neq; }
+    bool is_aligned() const { return m_is_aligned; }
 };
 
 class integral_constraint : public constraint {

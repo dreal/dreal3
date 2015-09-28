@@ -19,19 +19,21 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <vector>
-#include <string>
 #include <algorithm>
-#include <iterator>
-#include <unordered_map>
-#include <unordered_set>
 #include <initializer_list>
 #include <iostream>
+#include <iterator>
+#include <map>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <utility>
+#include <vector>
 #include "opensmt/egraph/Enode.h"
 #include "constraint/constraint.h"
 #include "util/flow.h"
 #include "util/ibex_enode.h"
+#include "ibex/ibex_ExprCopy.h"
 #include "util/logging.h"
 
 using std::back_inserter;
@@ -39,14 +41,15 @@ using std::cerr;
 using std::copy;
 using std::endl;
 using std::initializer_list;
+using std::make_pair;
+using std::map;
 using std::ostream;
+using std::pair;
 using std::string;
+using std::to_string;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
-using std::to_string;
-using std::pair;
-using std::make_pair;
 
 namespace dreal {
 
@@ -112,9 +115,10 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // ====================================================
 // Nonlinear constraint
 // ====================================================
-nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p, std::unordered_map<Enode*, ibex::Interval> const & subst)
-    : constraint(constraint_type::Nonlinear, e), m_is_neq(p == l_False && e->isEq()), m_numctr(nullptr) {
-    unordered_map<string, ibex::Variable const> var_map;
+nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst)
+    : constraint(constraint_type::Nonlinear, e), m_is_neq(p == l_False && e->isEq()),
+      m_is_aligned(false), m_numctr(nullptr) {
+    map<string, ibex::Variable const> var_map;
     std::unique_ptr<ibex::ExprCtr const> exprctr(translate_enode_to_exprctr(var_map, e, p, subst));
     m_var_array.resize(var_map.size());
     unsigned i = 0;
@@ -122,6 +126,20 @@ nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p, std::unorde
         m_var_array.set_ref(i++, item.second);
     }
     m_numctr.reset(new ibex::NumConstraint(m_var_array, *exprctr));
+    DREAL_LOG_INFO << "nonlinear_constraint: "<< *this;
+}
+
+nonlinear_constraint::nonlinear_constraint(Enode * const e, map<string, ibex::Variable const> & var_map,
+                                           ibex::Array<ibex::ExprSymbol const> const & var_array, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst)
+    : constraint(constraint_type::Nonlinear, e), m_is_neq(p == l_False && e->isEq()),
+      m_is_aligned(true), m_numctr(nullptr), m_var_array(var_map.size()) {
+    std::unique_ptr<ibex::ExprCtr const> exprctr(translate_enode_to_exprctr(var_map, e, p, subst));
+
+    // Need to pass a fresh copy of var_array to build NumConstraint!!
+    ibex::varcopy(var_array, m_var_array);
+    // Need to replace old vars with new vars to build NumConstraint!!
+    const ibex::ExprNode& ctr_node = ibex::ExprCopy().copy(var_array, m_var_array, exprctr->e);
+    m_numctr.reset(new ibex::NumConstraint(*new ibex::Function(m_var_array, ctr_node), exprctr->op, true));
     DREAL_LOG_INFO << "nonlinear_constraint: "<< *this;
 }
 
