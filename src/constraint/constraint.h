@@ -65,7 +65,6 @@ private:
     bool const                               m_is_neq;
     std::unique_ptr<ibex::NumConstraint>     m_numctr;
     ibex::Array<ibex::ExprSymbol const>      m_var_array;
-    std::unordered_map<Enode*, ibex::Interval> const m_subst;
     std::pair<lbool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
 
 public:
