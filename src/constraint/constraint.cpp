@@ -114,12 +114,11 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // ====================================================
 nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p, std::unordered_map<Enode*, ibex::Interval> const & subst)
     : constraint(constraint_type::Nonlinear, e), m_is_neq(p == l_False && e->isEq()),
-      m_exprctr(nullptr), m_numctr(nullptr), m_subst(subst) {
+      m_numctr(nullptr), m_subst(subst) {
     unordered_map<string, ibex::Variable const> var_map;
     p = m_is_neq ? true : p;
 
-    m_exprctr.reset(translate_enode_to_exprctr(var_map, e, p, m_subst));
-    assert(m_exprctr);
+    std::unique_ptr<ibex::ExprCtr const> exprctr(translate_enode_to_exprctr(var_map, e, p, m_subst));
 
     m_var_array.resize(var_map.size());
     unsigned i = 0;
@@ -127,7 +126,7 @@ nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p, std::unorde
         m_var_array.set_ref(i, item.second);
         i++;
     }
-    m_numctr.reset(new ibex::NumConstraint(m_var_array, *m_exprctr));
+    m_numctr.reset(new ibex::NumConstraint(m_var_array, *exprctr));
     DREAL_LOG_INFO << "nonlinear_constraint: "<< *this;
 }
 
