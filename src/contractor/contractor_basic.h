@@ -65,7 +65,7 @@ public:
     inline ibex::BitSet input()  const { return m_input; }
     inline ibex::BitSet output() const { return m_output; }
     inline std::unordered_set<constraint const *> used_constraints() const { return m_used_constraints; }
-    virtual box prune(box b, SMTConfig & config) const = 0;
+    virtual void prune(box & b, SMTConfig & config) const = 0;
     virtual std::ostream & display(std::ostream & out) const = 0;
 };
 
@@ -100,9 +100,10 @@ public:
     inline ibex::BitSet input() const { return m_ptr->input(); }
     inline ibex::BitSet output() const { return m_ptr->output(); }
     inline std::unordered_set<constraint const *> used_constraints() const { return m_ptr->used_constraints(); }
-    inline box prune(box const & b, SMTConfig & config) const {
+    inline void prune(box & b, SMTConfig & config) const {
         assert(m_ptr != nullptr);
-        return m_ptr->prune(b, config).shrink_bounds();
+        m_ptr->prune(b, config);
+        b.shrink_bounds();
     }
     inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
     inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
@@ -145,7 +146,7 @@ public:
     explicit contractor_seq(std::vector<contractor> const & v);
     contractor_seq(contractor const & c, std::vector<contractor> const & v);
     contractor_seq(contractor const & c1, std::vector<contractor> const & v, contractor const & c2);
-    box prune(box b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -155,7 +156,7 @@ private:
     contractor const m_c;
 public:
     explicit contractor_try(contractor const & c);
-    box prune(box b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -166,7 +167,7 @@ private:
     contractor const m_c2;
 public:
     contractor_try_or(contractor const & c1, contractor const & c2);
-    box prune(box b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -177,7 +178,7 @@ private:
     contractor const m_c2;
 public:
     contractor_join(contractor const & c1, contractor const & c2);
-    box prune(box b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -189,7 +190,7 @@ private:
     contractor const m_c_else;
 public:
     contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
-    box prune(box b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -201,9 +202,9 @@ private:
     std::vector<contractor> m_clist;
 
     // Naive fixedpoint algorithm
-    box naive_fixpoint_alg(box old_b, SMTConfig & config) const;
+    void naive_fixpoint_alg(box & b, SMTConfig & config) const;
     // Worklist fixedpoint algorithm
-    box worklist_fixpoint_alg(box old_b, SMTConfig & config) const;
+    void worklist_fixpoint_alg(box & b, SMTConfig & config) const;
 
 public:
     contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, contractor const & c);
@@ -217,7 +218,7 @@ public:
                         std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2,
                         std::vector<contractor> const & cvec3, std::vector<contractor> const & cvec4);
     contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::initializer_list<std::vector<contractor>> const & cvec_list);
-    box prune(box b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -225,7 +226,7 @@ class contractor_int : public contractor_cell {
 private:
 public:
     contractor_int();
-    box prune(box b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -234,7 +235,7 @@ private:
     nonlinear_constraint const * const m_nl_ctr;
 public:
     contractor_eval(box const & box, nonlinear_constraint const * const ctr);
-    box prune(box b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -243,7 +244,7 @@ private:
     contractor const m_ctc;
 public:
     explicit contractor_cache(contractor const & ctc);
-    box prune(box b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -253,7 +254,7 @@ private:
     std::vector<constraint *> m_ctrs;
 public:
     contractor_sample(unsigned const n, std::vector<constraint *> const & ctrs);
-    box prune(box b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -263,7 +264,7 @@ private:
     std::vector<constraint *> m_ctrs;
 public:
     contractor_aggressive(unsigned const n, std::vector<constraint *> const & ctrs);
-    box prune(box b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 

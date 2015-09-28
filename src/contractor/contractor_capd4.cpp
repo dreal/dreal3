@@ -317,9 +317,9 @@ contractor_capd_fwd_simple::contractor_capd_fwd_simple(box const & /* box */, od
     : contractor_cell(contractor_kind::CAPD_FWD), m_ctr(ctr) {
 }
 
-box contractor_capd_fwd_simple::prune(box b, SMTConfig &) const {
+void contractor_capd_fwd_simple::prune(box &, SMTConfig &) const {
     // TODO(soonhok): implement this
-    return b;
+    return;
 }
 // ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t, interval const & T,
 //                                                       IVector const & inv, vector<IFunction> & funcs) {
@@ -484,7 +484,7 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
     }
 }
 
-box contractor_capd_fwd_full::prune(box b, SMTConfig & config) const {
+void contractor_capd_fwd_full::prune(box & b, SMTConfig & config) const {
     static box old_box(b);
     old_box = b;
     DREAL_LOG_DEBUG << "contractor_capd_fwd_full::prune";
@@ -492,12 +492,12 @@ box contractor_capd_fwd_full::prune(box b, SMTConfig & config) const {
     b = intersect_params(b, ic);
     if (b.is_empty()) {
         m_output  = ibex::BitSet::all(b.size());
-        return b;
+        return;
     }
     m_output  = ibex::BitSet::empty(b.size());
     if (!m_solver) {
         // Trivial Case where there are only params and no real ODE vars.
-        return b;
+        return;
     }
     set_params(*m_vectorField, b, ic);
 
@@ -564,7 +564,7 @@ box contractor_capd_fwd_full::prune(box b, SMTConfig & config) const {
             m_output.add(i);
         }
     }
-    return b;
+    return;
 }
 
 unsigned int extract_step(string const & name) {
@@ -675,9 +675,9 @@ contractor_capd_bwd_simple::contractor_capd_bwd_simple(box const & /* box */, od
     : contractor_cell(contractor_kind::CAPD_FWD), m_ctr(ctr) {
 }
 
-box contractor_capd_bwd_simple::prune(box b, SMTConfig &) const {
+void contractor_capd_bwd_simple::prune(box &, SMTConfig &) const {
     // TODO(soonhok): implement this
-    return b;
+    return;
 }
 ostream & contractor_capd_bwd_simple::display(ostream & out) const {
     // TODO(soonhok): implement this
@@ -708,7 +708,7 @@ contractor_capd_bwd_full::contractor_capd_bwd_full(box const & box, ode_constrai
     m_used_constraints.insert(m_ctr);
 }
 
-box contractor_capd_bwd_full::prune(box b, SMTConfig & config) const {
+void contractor_capd_bwd_full::prune(box & b, SMTConfig & config) const {
     static box old_box(b);
     old_box = b;
     DREAL_LOG_DEBUG << "contractor_capd_bwd_full::prune";
@@ -716,12 +716,12 @@ box contractor_capd_bwd_full::prune(box b, SMTConfig & config) const {
     b = intersect_params(b, ic);
     if (b.is_empty()) {
         m_output  = ibex::BitSet::all(b.size());
-        return b;
+        return;
     }
     m_output  = ibex::BitSet::empty(b.size());
     if (!m_solver) {
         // Trivial Case where there are only params and no real ODE vars.
-        return b;
+        return;
     }
     set_params(*m_vectorField, b, ic);
 
@@ -786,7 +786,7 @@ box contractor_capd_bwd_full::prune(box b, SMTConfig & config) const {
             m_output.add(i);
         }
     }
-    return b;
+    return;
 }
 ostream & contractor_capd_bwd_full::display(ostream & out) const {
     out << "contractor_capd_bwd(" << *m_ctr << ")";

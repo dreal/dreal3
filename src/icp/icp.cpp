@@ -60,7 +60,7 @@ box naive_icp::solve(box b, contractor const & ctc, SMTConfig & config) {
         b = box_stack.back();
         box_stack.pop_back();
         try {
-            b = ctc.prune(b, config);
+            ctc.prune(b, config);
             if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
@@ -121,7 +121,7 @@ box ncbt_icp::solve(box b, contractor const & ctc, SMTConfig & config) {
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.back();
         try {
-            b = ctc.prune(b, config);
+            ctc.prune(b, config);
             if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
@@ -186,7 +186,7 @@ box random_icp::solve(box b, contractor const & ctc, SMTConfig & config, double 
         b = box_stack.back();
         box_stack.pop_back();
         try {
-            b = ctc.prune(b, config);
+            ctc.prune(b, config);
         } catch (contractor_exception & e) {
             // Do nothing
         }

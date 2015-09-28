@@ -59,7 +59,7 @@ TEST_CASE("ibex_fwdbwd_01") {
     auto output_before = c.output();
     cerr << "Input  (BEFORE) : ";  input_before.display(cerr) << endl;
     cerr << "Output (BEFORE) : "; output_before.display(cerr) << endl;
-    b = c.prune(b, opensmt_ctx->getConfig());
+    c.prune(b, opensmt_ctx->getConfig());
     cerr << b << endl;
     auto input_after = c.input();
     auto output_after = c.output();
@@ -103,7 +103,7 @@ TEST_CASE("ibex_fwdbwd_02") {
     auto output_before = c.output();
     cerr << "Input  (BEFORE) : "; input_before.display(cerr)  << endl;
     cerr << "Output (BEFORE) : "; output_before.display(cerr) << endl;
-    b = c.prune(b, opensmt_ctx->getConfig());
+    c.prune(b, opensmt_ctx->getConfig());
     cerr << b << endl;
     auto input_after = c.input();
     auto output_after = c.output();
@@ -154,7 +154,7 @@ TEST_CASE("ibex_polytope") {
     auto output_before = c.output();
     cerr << "IBEX_polytope Input  (BEFORE) : ";  input_before.display(cerr) << endl;
     cerr << "IBEX_polytope Output (BEFORE) : "; output_before.display(cerr) << endl;
-    b = c.prune(b, opensmt_ctx->getConfig());
+    c.prune(b, opensmt_ctx->getConfig());
     cerr << b << endl;
     auto input_after = c.input();
     auto output_after = c.output();

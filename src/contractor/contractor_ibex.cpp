@@ -41,26 +41,27 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/proof.h"
 
-using std::make_shared;
 using std::back_inserter;
+using std::endl;
 using std::function;
 using std::initializer_list;
-using std::unordered_set;
-using std::unordered_map;
-using std::string;
-using std::endl;
-using std::vector;
-using std::queue;
+using std::make_shared;
+using std::map;
+using std::move;
 using std::ostream;
 using std::ostringstream;
-using std::move;
+using std::queue;
+using std::string;
 using std::unique_ptr;
+using std::unordered_map;
+using std::unordered_set;
+using std::vector;
 
 namespace dreal {
 ibex::SystemFactory* contractor_ibex_polytope::build_system_factory(vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
     DREAL_LOG_DEBUG << "build_system_factory:";
     ibex::SystemFactory * sf = new ibex::SystemFactory();
-    unordered_map<string, ibex::Variable const> var_map;  // Needed for translateEnodeToExprCtr
+    map<string, ibex::Variable const> var_map;  // Needed for translateEnodeToExprCtr
 
     // Construct System: add Variables
     for (Enode * e : vars) {
@@ -157,9 +158,9 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, nonlinear_constr
     }
 }
 
-box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
+void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_ibex_fwdbwd::prune";
-    if (m_ctc == nullptr) { return b; }
+    if (m_ctc == nullptr) { return; }
 
     // ======= Proof =======
     static box old_box(b);
@@ -171,9 +172,9 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
         auto eval_result = m_ctr->eval(b);
         if (eval_result.first == l_False) {
             b.set_empty();
-            return b;
+            return;
         } else {
-            return b;
+            return;
         }
     }
 
@@ -194,6 +195,7 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
         iv[i] = b[m_var_array[i].name];
         DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
     }
+
     // Prune on iv
     DREAL_LOG_DEBUG << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << b;
@@ -228,7 +230,7 @@ box contractor_ibex_fwdbwd::prune(box b, SMTConfig & config) const {
         ss << (e->getPolarity() == l_False ? "!" : "") << e;
         output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
     }
-    return b;
+    return;
 }
 ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
     out << "contractor_ibex_fwdbwd(";
@@ -301,9 +303,9 @@ contractor_ibex_polytope::~contractor_ibex_polytope() {
     }
 }
 
-box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
+void contractor_ibex_polytope::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_ibex_polytope::prune";
-    if (!m_ctc) { return b; }
+    if (!m_ctc) { return; }
     for (Enode * var : m_vars_in_ctrs) {
         m_input.add(b.get_index(var));
     }
@@ -327,7 +329,7 @@ box contractor_ibex_polytope::prune(box b, SMTConfig & config) const {
         }
         output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
     }
-    return b;
+    return;
 }
 ostream & contractor_ibex_polytope::display(ostream & out) const {
     out << "contractor_ibex_polytope(";
