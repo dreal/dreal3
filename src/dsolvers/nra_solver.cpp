@@ -19,9 +19,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "dsolvers/nra_solver.h"
 #include <algorithm>
+#include <exception>
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <memory>
 #include <set>
 #include <sstream>
@@ -49,12 +51,16 @@ using std::endl;
 using std::get;
 using std::logic_error;
 using std::make_pair;
+using std::map;
 using std::numeric_limits;
 using std::ofstream;
 using std::pair;
+using std::runtime_error;
 using std::sort;
-using std::unordered_set;
+using std::string;
 using std::unique_ptr;
+using std::unordered_map;
+using std::unordered_set;
 using std::vector;
 
 namespace dreal {
@@ -127,11 +133,76 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
     return true;
 }
 
+// Update ctr_map by adding new nonlinear_constraints
+void initialize_nonlinear_constraints(map<pair<Enode*, bool>, unique_ptr<constraint>> & ctr_map,
+                                      vector<Enode *> const & lits) {
+    // 1. Collect all variables (Enode *) in literals
+    unordered_set<Enode *> var_set;
+    for (Enode * const l : lits) {
+        unordered_set<Enode *> const & vars = l->get_vars();
+        var_set.insert(vars.begin(), vars.end());
+    }
+
+    // 2. Build var_map and var_array
+    map<string, ibex::Variable const> var_map = build_var_map(var_set);
+    ibex::Array<ibex::ExprSymbol const> var_array(var_map.size());
+    unsigned i = 0;
+    for (auto const item : var_map) {
+        var_array.set_ref(i++, item.second);
+    }
+
+    // 3. Create Nonlinear constraints.
+    for (Enode * const l : lits) {
+        auto it_nc_pos = ctr_map.find(make_pair(l, true));
+        auto it_nc_neg = ctr_map.find(make_pair(l, false));
+        if (it_nc_pos == ctr_map.end()) {
+            unique_ptr<constraint> nc_pos(new nonlinear_constraint(l, var_map, var_array, l_True));
+            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (+): " << *nc_pos;
+            ctr_map.emplace(make_pair(l, true),  move(nc_pos));
+        }
+        if (it_nc_neg == ctr_map.end()) {
+            unique_ptr<constraint> nc_neg(new nonlinear_constraint(l, var_map, var_array, l_False));
+            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (-): " << *nc_neg;
+            ctr_map.emplace(make_pair(l, false), move(nc_neg));
+        }
+    }
+}
+
+// Update ctr_map by adding new ode constraints, from the information collected in ints and invs
+void initialize_ode_constraints(map<pair<Enode*, bool>, unique_ptr<constraint>> & ctr_map,
+                                vector<integral_constraint> const & ints,
+                                vector<forallt_constraint> const & invs) {
+    // Attach the corresponding forallT literals to integrals
+    for (integral_constraint ic : ints) {
+        vector<forallt_constraint> local_invs;
+        for (forallt_constraint fc : invs) {
+            // Link ForallTConstraint fc with IntegralConstraint ic, if
+            //    fc.flow == ic.flow
+            //    vars(fc.inv) \subseteq ic.vars_t
+            if (fc.get_flow_id() == ic.get_flow_id()) {
+                unordered_set<Enode *> vars_in_fc = fc.get_inv()->get_vars();
+                bool const included = all_of(vars_in_fc.begin(), vars_in_fc.end(),
+                                             [&ic](Enode const * var_in_fc) {
+                                                 vector<Enode *> const & vars_t_in_ic = ic.get_vars_t();
+                                                 return find(vars_t_in_ic.begin(), vars_t_in_ic.end(), var_in_fc) != vars_t_in_ic.end();
+                                             });
+                if (included) {
+                    local_invs.push_back(fc);
+                }
+            }
+        }
+        unique_ptr<constraint> oc(new ode_constraint(ic, local_invs));
+        DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ODEConstraint: " << *oc;
+        ctr_map.emplace(make_pair(ic.get_enode(), true), move(oc));
+    }
+}
+
 // Given a list of theory literals (vector<Enode *>)
 // build a mapping from Enode to constraint (m_ctr_map)
 void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
     vector<integral_constraint> ints;
     vector<forallt_constraint> invs;
+    vector<Enode *> nonlinear_lits;
     for (Enode * l : lits) {
         // Partition ODE-related constraint into integrals and forallTs
         if (l->isIntegral()) {
@@ -155,47 +226,14 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
             forallt_constraint fc = mk_forallt_constraint(l);
             invs.push_back(fc);
         } else if (l->get_forall_vars().empty()) {
-            // Collect Nonlinear constraints.
-            auto it_nc_pos = m_ctr_map.find(make_pair(l, true));
-            auto it_nc_neg = m_ctr_map.find(make_pair(l, false));
-            if (it_nc_pos == m_ctr_map.end()) {
-                unique_ptr<constraint> nc_pos(new nonlinear_constraint(l, l_True));
-                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (+): " << *nc_pos;
-                m_ctr_map.emplace(make_pair(l, true),  move(nc_pos));
-            }
-            if (it_nc_neg == m_ctr_map.end()) {
-                unique_ptr<constraint> nc_neg(new nonlinear_constraint(l, l_False));
-                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (-): " << *nc_neg;
-                m_ctr_map.emplace(make_pair(l, false), move(nc_neg));
-            }
+            nonlinear_lits.push_back(l);
         } else {
             DREAL_LOG_FATAL << "nra_solver::initialize_constraints: No Patten";
-            exit(1);
+            throw runtime_error("nra_solver::initialize_constraints: No Patten");
         }
     }
-    // Attach the corresponding forallT literals to integrals
-    for (integral_constraint ic : ints) {
-        vector<forallt_constraint> local_invs;
-        for (forallt_constraint fc : invs) {
-            // Link ForallTConstraint fc with IntegralConstraint ic, if
-            //    fc.flow == ic.flow
-            //    vars(fc.inv) \subseteq ic.vars_t
-            if (fc.get_flow_id() == ic.get_flow_id()) {
-                unordered_set<Enode *> vars_in_fc = fc.get_inv()->get_vars();
-                bool const included = all_of(vars_in_fc.begin(), vars_in_fc.end(),
-                                             [&ic](Enode const * var_in_fc) {
-                                                 vector<Enode *> const & vars_t_in_ic = ic.get_vars_t();
-                                                 return find(vars_t_in_ic.begin(), vars_t_in_ic.end(), var_in_fc) != vars_t_in_ic.end();
-                                             });
-                if (included) {
-                    local_invs.push_back(fc);
-                }
-            }
-        }
-        unique_ptr<constraint> oc(new ode_constraint(ic, local_invs));
-        DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ODEConstraint: " << *oc;
-        m_ctr_map.emplace(make_pair(ic.get_enode(), true), move(oc));
-    }
+    initialize_ode_constraints(m_ctr_map, ints, invs);
+    initialize_nonlinear_constraints(m_ctr_map, nonlinear_lits);
 }
 
 contractor build_contractor(box const & box, scoped_vec<constraint *> const &ctrs, bool const complete, SMTConfig & config) {
@@ -407,7 +445,7 @@ bool nra_solver::check(bool complete) {
     } else {
         // Incomplete Check ==> Prune Only
         try {
-            m_box = m_ctc.prune(m_box, config);
+            m_ctc.prune(m_box, config);
             if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
