@@ -113,35 +113,30 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // Nonlinear constraint
 // ====================================================
 nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool p, std::unordered_map<Enode*, ibex::Interval> const & subst)
-    : constraint(constraint_type::Nonlinear, e), m_exprctr(nullptr), m_numctr(nullptr), m_numctr_ineq(nullptr), m_subst(subst) {
+    : constraint(constraint_type::Nonlinear, e), m_is_neq(p == l_False && e->isEq()),
+      m_exprctr(nullptr), m_numctr(nullptr), m_subst(subst) {
     unordered_map<string, ibex::Variable const> var_map;
-    bool is_ineq = (p == l_False && e->isEq());
-    p = is_ineq ? true : p;
+    p = m_is_neq ? true : p;
 
     m_exprctr.reset(translate_enode_to_exprctr(var_map, e, p, m_subst));
     assert(m_exprctr);
 
     m_var_array.resize(var_map.size());
     unsigned i = 0;
-    for (auto const p : var_map) {
-        m_var_array.set_ref(i, p.second);
+    for (auto const item : var_map) {
+        m_var_array.set_ref(i, item.second);
         i++;
     }
-
-    if (is_ineq) {
-        m_numctr_ineq.reset(new ibex::NumConstraint(m_var_array, *m_exprctr));
-    } else {
-        m_numctr.reset(new ibex::NumConstraint(m_var_array, *m_exprctr));
-    }
+    m_numctr.reset(new ibex::NumConstraint(m_var_array, *m_exprctr));
     DREAL_LOG_INFO << "nonlinear_constraint: "<< *this;
 }
 
 ostream & nonlinear_constraint::display(ostream & out) const {
     out << "nonlinear_constraint ";
-    if (m_numctr) {
-        out << *m_numctr;
+    if (m_is_neq) {
+        out << "!(" << *m_numctr << ")";
     } else {
-        out << "!(" << *m_numctr_ineq << ")";
+        out << *m_numctr;
     }
     return out;
 }
@@ -149,7 +144,7 @@ ostream & nonlinear_constraint::display(ostream & out) const {
 pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector const & iv) const {
     lbool sat = l_Undef;
     ibex::Interval result;
-    if (m_numctr) {
+    if (!m_is_neq) {
         result = m_numctr->f.eval(iv);
         switch (m_numctr->op) {
             case ibex::LT:
@@ -209,9 +204,8 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector cons
                 break;
         }
     } else {
-        // Ineq case: lhs - rhs != 0
-        assert(m_numctr_ineq);
-        result = m_numctr_ineq->f.eval(iv);
+        // NEQ case: lhs - rhs != 0
+        result = m_numctr->f.eval(iv);
         if ((result.lb() == 0) && (result.ub() == 0)) {
             //     [      lhs      ]
             //     [      rhs      ]
