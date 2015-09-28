@@ -37,25 +37,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 #include "util/stat.h"
-
-namespace std {
-template<>
-struct hash<ibex::Variable> {
-    size_t operator () (const ibex::Variable & v) const {
-        int h = 0;
-        char const * str = v.symbol->name;
-        while (*str)
-            h = h << 1 ^ *str++;
-        return h;
-    }
-};
-template<>
-struct equal_to<ibex::Variable> {
-    bool operator() (const ibex::Variable & v1, const ibex::Variable & v2) const {
-        return strcmp(v1.symbol->name, v2.symbol->name) == 0;
-    }
-};
-}  // namespace std
+#include "util/ibex_variable_hash.h"
 
 namespace dreal {
 class nra_solver : public OrdinaryTSolver {
