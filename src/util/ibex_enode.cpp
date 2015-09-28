@@ -41,6 +41,9 @@ using ibex::ExprCtr;
 using ibex::ExprNode;
 using std::logic_error;
 
+// Translate an Enode e into ibex::ExprNode.
+// Note: As a side-effect, update var_map : string -> ibex::Variable
+// Note: Use subst map (Enode ->ibex::Interval)
 ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable const> & var_map, Enode * const e, unordered_map<Enode*, ibex::Interval> const & subst) {
     // TODO(soonhok): for the simple case such as 0 <= x or x <= 10.
     // Handle it as a domain specification instead of constraints.
@@ -237,6 +240,9 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
     throw logic_error("Not implemented yet: translateEnodeExprNode");
 }
 
+// Translate an Enode e into ibex::ExprCtr.
+// Note: As a side-effect, update var_map : string -> ibex::Variable
+// Note: Use subst map (Enode ->ibex::Interval)
 ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const> & var_map, Enode * const e, lbool p, unordered_map<Enode*, ibex::Interval> const & subst) {
     assert(e->isTerm() && (e->isEq() || e->isLeq() || e->isGeq() || e->isLt() || e->isGt()));
 
