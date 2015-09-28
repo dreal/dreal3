@@ -260,14 +260,12 @@ ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const>
     auto const polarity = p == l_Undef ? e->getPolarity() : p;
     switch (e->getCar()->getId()) {
     case ENODE_ID_EQ: {
-        // TODO(soonhok): remove != case
-        if (polarity == l_True) {
-            left = translate_enode_to_exprnode(var_map, first_op, subst);
-            if (!is_right_zero) {
-                right = translate_enode_to_exprnode(var_map, second_op, subst);
-            }
-            ret = &(*left = *right);
+        // Create "left = right" for both of equality(==) and non-equality cases(!=)
+        left = translate_enode_to_exprnode(var_map, first_op, subst);
+        if (!is_right_zero) {
+            right = translate_enode_to_exprnode(var_map, second_op, subst);
         }
+        ret = &(*left = *right);
         break;
     }
     case ENODE_ID_LEQ:
