@@ -20,31 +20,35 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <algorithm>
-#include <string>
 #include <cmath>
 #include <limits>
+#include <string>
+#include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include "ibex/ibex.h"
 #include "util/logging.h"
 #include "util/ibex_enode.h"
 
 namespace dreal {
 
-using std::modf;
-using std::unordered_map;
-using std::string;
-using std::numeric_limits;
-using ibex::ExprNode;
-using ibex::Variable;
 using ibex::ExprConstant;
 using ibex::ExprCtr;
 using ibex::ExprNode;
+using ibex::ExprNode;
+using ibex::Variable;
 using std::logic_error;
+using std::map;
+using std::modf;
+using std::numeric_limits;
+using std::string;
+using std::unordered_map;
+using std::unordered_set;
 
 // Translate an Enode e into ibex::ExprNode.
 // Note: As a side-effect, update var_map : string -> ibex::Variable
 // Note: Use subst map (Enode ->ibex::Interval)
-ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable const> & var_map, Enode * const e, unordered_map<Enode*, ibex::Interval> const & subst) {
+ExprNode const * translate_enode_to_exprnode(map<string, Variable const> & var_map, Enode * const e, unordered_map<Enode*, ibex::Interval> const & subst) {
     // TODO(soonhok): for the simple case such as 0 <= x or x <= 10.
     // Handle it as a domain specification instead of constraints.
     if (e->isVar()) {
@@ -243,7 +247,7 @@ ExprNode const * translate_enode_to_exprnode(unordered_map<string, Variable cons
 // Translate an Enode e into ibex::ExprCtr.
 // Note: As a side-effect, update var_map : string -> ibex::Variable
 // Note: Use subst map (Enode ->ibex::Interval)
-ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const> & var_map, Enode * const e, lbool p, unordered_map<Enode*, ibex::Interval> const & subst) {
+ExprCtr const * translate_enode_to_exprctr(map<string, Variable const> & var_map, Enode * const e, lbool p, unordered_map<Enode*, ibex::Interval> const & subst) {
     assert(e->isTerm() && (e->isEq() || e->isLeq() || e->isGeq() || e->isLt() || e->isGt()));
 
     Enode * const first_op = e->get1st();
@@ -304,4 +308,15 @@ ExprCtr const * translate_enode_to_exprctr(unordered_map<string, Variable const>
     }
     return ret;
 }
+
+map<string, Variable const> build_var_map(unordered_set<Enode *> const & vars) {
+    map<string, Variable const> var_map;
+    for (Enode * const e : vars) {
+        string const & var_name = e->getCar()->getName();
+        Variable v(var_name.c_str());
+        var_map.emplace(var_name, v);
+    }
+    return var_map;
+}
+
 }  // namespace dreal
