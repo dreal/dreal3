@@ -46,6 +46,7 @@ using ibex::IntervalVector;
 using nlohmann::json;
 using std::all_of;
 using std::boolalpha;
+using std::cerr;
 using std::cout;
 using std::endl;
 using std::get;
@@ -143,25 +144,17 @@ void initialize_nonlinear_constraints(map<pair<Enode*, bool>, unique_ptr<constra
         var_set.insert(vars.begin(), vars.end());
     }
 
-    // 2. Build var_map and var_array
-    map<string, ibex::Variable const> var_map = build_var_map(var_set);
-    ibex::Array<ibex::ExprSymbol const> var_array(var_map.size());
-    unsigned i = 0;
-    for (auto const item : var_map) {
-        var_array.set_ref(i++, item.second);
-    }
-
-    // 3. Create Nonlinear constraints.
+    // 2. Create Nonlinear constraints.
     for (Enode * const l : lits) {
         auto it_nc_pos = ctr_map.find(make_pair(l, true));
         auto it_nc_neg = ctr_map.find(make_pair(l, false));
         if (it_nc_pos == ctr_map.end()) {
-            unique_ptr<constraint> nc_pos(new nonlinear_constraint(l, var_map, var_array, l_True));
+            unique_ptr<constraint> nc_pos(new nonlinear_constraint(l, var_set, l_True));
             DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (+): " << *nc_pos;
             ctr_map.emplace(make_pair(l, true),  move(nc_pos));
         }
         if (it_nc_neg == ctr_map.end()) {
-            unique_ptr<constraint> nc_neg(new nonlinear_constraint(l, var_map, var_array, l_False));
+            unique_ptr<constraint> nc_neg(new nonlinear_constraint(l, var_set, l_False));
             DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (-): " << *nc_neg;
             ctr_map.emplace(make_pair(l, false), move(nc_neg));
         }

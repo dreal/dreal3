@@ -71,8 +71,7 @@ private:
 
 public:
     explicit nonlinear_constraint(Enode * const e, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
-    nonlinear_constraint(Enode * const e, std::map<std::string, ibex::Variable const> & var_map,  // TODO(soonhok): need to change it to const
-                         ibex::Array<ibex::ExprSymbol const> const & var_array, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
+    nonlinear_constraint(Enode * const e, std::unordered_set<Enode*> const & var_set, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
     virtual std::ostream & display(std::ostream & out) const;
     std::pair<lbool, ibex::Interval> eval(box const & b) const;
     inline ibex::NumConstraint * get_numctr() const { return m_numctr.get(); }
