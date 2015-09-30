@@ -69,9 +69,10 @@ int main() {
 
     // x^2 + x + 2 < y^2 + y + 2
     opensmt_expr ctr2 = opensmt_mk_lt(ctx, cost, value2);
+    opensmt_expr forall_ctr2 = opensmt_mk_forall(ctx, &y, 1, ctr2);
 
     opensmt_assert(ctx, ctr1);
-    opensmt_assert(ctx, ctr2);
+    opensmt_assert(ctx, forall_ctr2);
     opensmt_result res = opensmt_check(ctx);
     fprintf(stderr, "%s\n\n", res == l_false ? "unsat" : "sat");
     if (res == l_true) {
