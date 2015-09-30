@@ -322,7 +322,7 @@ void contractor_int::prune(box & b, SMTConfig & config) const {
     ibex::IntervalVector & iv = b.get_values();
     for (Enode * e : b.get_vars()) {
         if (e->hasSortInt()) {
-            auto old_iv = iv[i];
+            auto const old_iv = iv[i];
             iv[i] = ibex::integer(iv[i]);
             if (old_iv != iv[i]) {
                 m_input.add(i);

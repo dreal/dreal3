@@ -181,8 +181,7 @@ void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) const {
     if (m_ctr->is_aligned() && m_var_array.size() - b.size() == 0) {
         // This nonlinear_constraint is built aligned so that we can
         // directly pass its IntervalVector
-        ibex::IntervalVector & iv_of_b = b.get_values();
-        m_ctc->contract(iv_of_b);
+        m_ctc->contract(b.get_values());
         m_output = *(m_ctc->output);
         return;
 
