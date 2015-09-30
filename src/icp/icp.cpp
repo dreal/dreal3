@@ -101,9 +101,6 @@ box naive_icp::solve(box b, contractor const & ctc, SMTConfig & config) {
         return solns.back();
     } else {
         assert(!b.is_empty() || box_stack.size() == 0);
-        // cerr << "BEFORE ADJUST_BOUND\n==================\n" << b << "=========================\n\n\n";
-        b.adjust_bound(box_stack);
-        // cerr << "AFTER  ADJUST_BOUND\n==================\n" << b << "=========================\n\n\n";
         return b;
     }
 }
@@ -166,7 +163,6 @@ box ncbt_icp::solve(box b, contractor const & ctc, SMTConfig & config) {
         }
     } while (box_stack.size() > 0);
     DREAL_LOG_DEBUG << "prune count = " << prune_count;
-    b.adjust_bound(box_stack);
     return b;
 }
 
@@ -225,9 +221,6 @@ box random_icp::solve(box b, contractor const & ctc, SMTConfig & config, double 
         return solns.back();
     } else {
         assert(!b.is_empty() || box_stack.size() == 0);
-        // cerr << "BEFORE ADJUST_BOUND\n==================\n" << b << "=========================\n\n\n";
-        b.adjust_bound(box_stack);
-        // cerr << "AFTER  ADJUST_BOUND\n==================\n" << b << "=========================\n\n\n";
         return b;
     }
 }
