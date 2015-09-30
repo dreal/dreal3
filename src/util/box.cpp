@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <chrono>
 #include <limits>
+#include <memory>
 #include <random>
 #include <set>
 #include <sstream>
@@ -40,6 +41,7 @@ using std::copy;
 using std::endl;
 using std::initializer_list;
 using std::numeric_limits;
+using std::make_shared;
 using std::ostream;
 using std::ostringstream;
 using std::pair;
@@ -47,77 +49,71 @@ using std::set;
 using std::sort;
 using std::string;
 using std::tuple;
+using std::unordered_map;
 using std::unordered_set;
 using std::vector;
 using std::make_tuple;
 using std::runtime_error;
 
 namespace dreal {
-box::box(std::vector<Enode *> const & vars)
-    : m_vars(vars), m_values(m_vars.size() == 0 ? 1 : m_vars.size()),
-      m_bounds(m_values.size()), m_domains(m_values.size()), m_precisions(m_values.size(), 0.0) {
-    if (m_vars.size() > 0) {
-        constructFromVariables(m_vars);
+box::box(vector<Enode *> const & vars)
+    : m_vars(nullptr), m_values(vars.size() == 0 ? 1 : vars.size()) {
+    if (vars.size() > 0) {
+        m_vars = make_shared<vector<Enode *>>(vars);
+        m_name_index_map = make_shared<unordered_map<string, int>>();
+        constructFromVariables(*m_vars);
     }
 }
-
-box::box(std::vector<Enode *> const & vars, ibex::IntervalVector values)
-    : m_vars(vars), m_values(values), m_bounds(values), m_domains(values), m_precisions(values.size(), 0.0) { }
 
 void box::constructFromVariables(vector<Enode *> const & vars) {
     DREAL_LOG_DEBUG << "box::constructFromVariables";
-    m_vars = vars;
-    // Construct ibex::IntervalVector
-    m_values.resize(m_vars.size());
-    m_bounds.resize(m_vars.size());
-    m_domains.resize(m_vars.size());
-    m_precisions.resize(m_vars.size());
-    unsigned num_var = m_vars.size();
+    // m_vars should be alreday allocated and filled.
+    assert(m_vars);
+    // m_name_index_map should be alreday allocated.
+    assert(m_name_index_map);
+    unsigned const num_var = m_vars->size();
+    m_values.resize(num_var);
+    // Fill m_values, and m_name_index_map
     for (unsigned i = 0; i < num_var; i++) {
-        Enode const * const e = m_vars[i];
+        Enode const * const e = vars[i];
         double const lb = e->getDomainLowerBound();
         double const ub = e->getDomainUpperBound();
-        if (e->hasPrecision()) {
-            m_precisions[i] = e->getPrecision();
-        }
         m_values[i] = ibex::Interval(lb, ub);
-        m_bounds[i] = ibex::Interval(lb, ub);
-        m_domains[i] = ibex::Interval(lb, ub);
-        m_name_index_map.emplace(e->getCar()->getName(), i);
+        m_name_index_map->emplace(e->getCar()->getName(), i);
     }
-    return;
 }
+
+struct enode_lex_cmp {
+    bool operator() (Enode const * e1, Enode const * e2) {
+        return e1->getCar()->getName() < e2->getCar()->getName();
+    }
+};
 
 void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
     DREAL_LOG_DEBUG << "box::constructFromLiterals";
     // Construct a list of variables
-    unordered_set<Enode *> var_set;
+    set<Enode *, enode_lex_cmp> var_set;
     for (auto const & lit : lit_vec) {
         unordered_set<Enode *> const & temp_vars = lit->get_exist_vars();
         var_set.insert(temp_vars.begin(), temp_vars.end());
     }
-    m_vars.clear();
-    std::copy(var_set.begin(), var_set.end(), std::back_inserter(m_vars));
-    std::sort(m_vars.begin(), m_vars.end(),
-              [](Enode const * e1, Enode const * e2) {
-                  return e1->getCar()->getName() < e2->getCar()->getName();
-              });
-    constructFromVariables(m_vars);
+    m_vars = make_shared<vector<Enode*>>(var_set.size());
+    m_name_index_map = make_shared<unordered_map<string, int>>();
+    copy(var_set.begin(), var_set.end(), m_vars->begin());
+    constructFromVariables(*m_vars);
     return;
 }
 
-box::box(box const & b, std::unordered_set<Enode *> const & extra_vars)
-    : m_vars(b.m_vars), m_values(m_vars.size() + extra_vars.size()),
-      m_bounds(m_values.size()), m_domains(m_values.size()), m_precisions(m_values.size(), 0.0) {
-    copy(extra_vars.begin(), extra_vars.end(), back_inserter(m_vars));
-    std::sort(m_vars.begin(), m_vars.end(),
-              [](Enode const * e1, Enode const * e2) {
-                  return e1->getCar()->getName() < e2->getCar()->getName();
-              });
-    if (m_vars.size() > 0) {
-        constructFromVariables(m_vars);
-        for (unsigned i = 0; i < b.m_vars.size(); i++) {
-            m_values[get_index(b.m_vars[i])] = b.m_values[i];
+box::box(box const & b, unordered_set<Enode *> const & extra_vars)
+    : m_vars(make_shared<vector<Enode* > >(*b.m_vars)),
+      m_values(m_vars->size() + extra_vars.size()),
+      m_name_index_map(make_shared<unordered_map<string, int>>()) {
+    copy(extra_vars.begin(), extra_vars.end(), back_inserter(*m_vars));
+    if (m_vars->size() > 0) {
+        sort(m_vars->begin(), m_vars->end(), enode_lex_cmp());
+        constructFromVariables(*m_vars);
+        for (unsigned i = 0; i < b.m_vars->size(); i++) {
+            m_values[get_index((*b.m_vars)[i])] = b.m_values[i];
         }
     }
 }
@@ -141,13 +137,13 @@ ostream& display_diff(ostream& out, box const & b1, box const & b2) {
     assert(b1.size() == b2.size());
     unsigned const s = b1.size();
     for (unsigned i = 0; i < s; i++) {
-        Enode * e1 = b1.m_vars[i];
-        assert(e1 == b2.m_vars[i]);
+        Enode * e1 = (*b1.m_vars)[i];
+        assert(e1 == (*b2.m_vars)[i]);
         ibex::Interval const & v1 = b1.m_values[i];
         ibex::Interval const & v2 = b2.m_values[i];
 #ifdef DEBUG
-        ibex::Interval const & d1 = b1.m_domains[i];
-        ibex::Interval const & d2 = b2.m_domains[i];
+        ibex::Interval const & d1 = b1.get_domain(i);
+        ibex::Interval const & d2 = b2.get_domain(i);
         assert(d1 == d2);
 #endif
         if (v1 != v2) {
@@ -173,7 +169,7 @@ ostream& display(ostream& out, box const & b, bool const exact, bool const old_s
             if (i != 0) {
                 out << endl;
             }
-            Enode * e = b.m_vars[i];
+            Enode * e = (*b.m_vars)[i];
             string const & name = e->getCar()->getName();
             ibex::Interval const & v = b.m_values[i];
             out << "\t" << name << " : " << v;
@@ -187,9 +183,9 @@ ostream& display(ostream& out, box const & b, bool const exact, bool const old_s
             if (i != 0) {
                 out << endl;
             }
-            Enode * e = b.m_vars[i];
+            Enode * e = (*b.m_vars)[i];
             ibex::Interval const & v = b.m_values[i];
-            ibex::Interval const & d = b.m_domains[i];
+            ibex::Interval const & d = b.get_domain(i);
             out << e->getCar()->getName()
                 << " : ";
             display(out, d, exact);
@@ -209,16 +205,14 @@ tuple<int, box, box> box::bisect(double precision) const {
     // TODO(soonhok): implement other bisect policy
     int index = -1;
     double max_diam = numeric_limits<double>::min();
-
     for (int i = 0; i < m_values.size(); i++) {
         double current_diam = m_values[i].diam();
-        double ith_precision = m_precisions[i] == 0 ? precision : m_precisions[i];
+        double ith_precision = (*m_vars)[i]->hasPrecision() ? (*m_vars)[i]->getPrecision() : precision;
         if (current_diam > max_diam && current_diam > ith_precision && m_values[i].is_bisectable()) {
             index = i;
             max_diam = current_diam;
         }
     }
-
     if (index == -1) {
         // Fail to find a dimension to bisect
         return make_tuple(-1, *this, *this);
@@ -240,7 +234,7 @@ tuple<int, box, box> box::bisect_int_at(int i) const {
     pair<ibex::Interval, ibex::Interval> new_intervals = iv.bisect();
     b1.m_values[i] = ibex::Interval(lb, mid_floor);
     b2.m_values[i] = ibex::Interval(mid_ceil, ub);
-    DREAL_LOG_DEBUG << "box::bisect on " << m_vars[i] << " : int = " << m_values[i]
+    DREAL_LOG_DEBUG << "box::bisect on " << (*m_vars)[i] << " : int = " << m_values[i]
                     << " into " << b1.m_values[i] << " and " << b2.m_values[i];
     return make_tuple(i, b1, b2);
 }
@@ -254,14 +248,14 @@ tuple<int, box, box> box::bisect_real_at(int i) const {
     pair<ibex::Interval, ibex::Interval> new_intervals = iv.bisect();
     b1.m_values[i] = new_intervals.first;
     b2.m_values[i] = new_intervals.second;
-    DREAL_LOG_DEBUG << "box::bisect on " << m_vars[i] << " : real = " << m_values[i]
+    DREAL_LOG_DEBUG << "box::bisect on " << (*m_vars)[i] << " : real = " << m_values[i]
                     << " into " << b1.m_values[i] << " and " << b2.m_values[i];
     return make_tuple(i, b1, b2);
 }
 
 // Bisect a box into two boxes by bisecting i-th interval.
 tuple<int, box, box> box::bisect_at(int i) const {
-    Enode * const e = m_vars[i];
+    Enode * const e = (*m_vars)[i];
     if (e->hasSortInt()) {
         return bisect_int_at(i);
     } else if (e->hasSortReal()) {
@@ -377,11 +371,9 @@ bool operator>=(ibex::Interval const & a, ibex::Interval const & b) {
 }
 
 void box::assign_to_enode() const {
-    for (unsigned i = 0; i < m_vars.size(); i++) {
-        m_vars[i]->setValueLowerBound(m_values[i].lb());
-        m_vars[i]->setValueUpperBound(m_values[i].ub());
-        m_vars[i]->setBoundLowerBound(m_values[i].lb());
-        m_vars[i]->setBoundUpperBound(m_values[i].ub());
+    for (unsigned i = 0; i < m_vars->size(); i++) {
+        (*m_vars)[i]->setValueLowerBound(m_values[i].lb());
+        (*m_vars)[i]->setValueUpperBound(m_values[i].ub());
     }
 }
 
@@ -425,11 +417,23 @@ box hull(vector<box> const & vec) {
     return b;
 }
 
-void box::adjust_bound(vector<box> const & box_stack) {
-    if (!is_empty() && box_stack.size() > 0) {
-        box bound(*this);
-        bound.hull(box_stack);
-        set_bounds(bound.get_values());
-    }
+ibex::Interval box::get_domain(int i) const {
+    Enode const * const e = (*m_vars)[i];
+    double const lb = e->getDomainLowerBound();
+    double const ub = e->getDomainUpperBound();
+    return ibex::Interval(lb, ub);
 }
+
+ibex::IntervalVector box::get_domains() const {
+    ibex::IntervalVector dom(m_vars->size());
+    for (unsigned i = 0; i < m_vars->size(); i++) {
+        Enode const * const e = (*m_vars)[i];
+        double const lb = e->getDomainLowerBound();
+        double const ub = e->getDomainUpperBound();
+        dom[i] = ibex::Interval(lb, ub);
+    }
+    return dom;
+}
+
+
 }  // namespace dreal

@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #include <iostream>
 #include <initializer_list>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 #include <set>
@@ -38,11 +39,11 @@ class box {
 private:
     // m_vars.size() == m_ivec.size()
     // Invariant: m_vars[i] ~ m_ivec[i]
-    std::vector<Enode *> m_vars;
+    std::shared_ptr<std::vector<Enode *>> m_vars;
     ibex::IntervalVector m_values;
-    ibex::IntervalVector m_domains;
-    std::vector<double>  m_precisions;
-    std::unordered_map<std::string, int> m_name_index_map;
+    std::shared_ptr<std::unordered_map<std::string, int>> m_name_index_map;
+
+    // Methods
     std::tuple<int, box, box> bisect_int_at(int i) const;
     std::tuple<int, box, box> bisect_real_at(int i) const;
     std::tuple<int, box, box> bisect_at(int i) const;
@@ -51,7 +52,6 @@ private:
 public:
     explicit box(std::vector<Enode *> const & vars);
     box(box const & b, std::unordered_set<Enode *> const & extra_vars);
-    box(std::vector<Enode *> const & vars, ibex::IntervalVector ivec);
     void constructFromLiterals(std::vector<Enode *> const & lit_vec);
 
     std::tuple<int, box, box> bisect(double precision) const;
@@ -61,16 +61,16 @@ public:
     inline bool is_empty() const { return size() == 0 || m_values.is_empty(); }
     inline ibex::IntervalVector & get_values() { return m_values; }
     inline ibex::IntervalVector const & get_values() const { return m_values; }
-    inline ibex::IntervalVector const & get_domains() const { return m_domains; }
-    inline std::vector<Enode *> const & get_vars() const { return m_vars; }
+    ibex::IntervalVector get_domains() const;
+    inline std::vector<Enode *> const & get_vars() const { return *m_vars; }
     inline unsigned size() const { return m_values.size(); }
     inline void set_empty() { m_values.set_empty(); }
     inline unsigned get_index(Enode * e) const {
         return get_index(e->getCar()->getName());
     }
     inline unsigned get_index(std::string const & s) const {
-        auto const it = m_name_index_map.find(s);
-        if (m_name_index_map.find(s) != m_name_index_map.end()) {
+        auto const it = m_name_index_map->find(s);
+        if (it != m_name_index_map->end()) {
             return it->second;
         } else {
             throw std::logic_error("box::get_index(" + s + "): doesn not have the key " + s);
@@ -80,21 +80,9 @@ public:
     // get_value
     inline ibex::Interval & get_value(int i) { return m_values[i]; }
     inline ibex::Interval const & get_value(int i) const { return m_values[i]; }
-    inline ibex::Interval & get_value(std::string const & s) {
-        auto const it = m_name_index_map.find(s);
-        if (m_name_index_map.find(s) != m_name_index_map.end()) {
-            return m_values[it->second];
-        } else {
-            throw std::logic_error("get_value : Box does not have a key " + s);
-        }
-    }
+    inline ibex::Interval & get_value(std::string const & s) { return m_values[get_index(s)]; }
     inline ibex::Interval const & get_value(std::string const & s) const {
-        auto const it = m_name_index_map.find(s);
-        if (m_name_index_map.find(s) != m_name_index_map.end()) {
-            return m_values[it->second];
-        } else {
-            throw std::logic_error("get_value : Box does not have a key " + s);
-        }
+        return m_values[get_index(s)];
     }
     inline const ibex::Interval& get_value(Enode * const e) const {
         return get_value(e->getCar()->getName());
@@ -104,43 +92,12 @@ public:
     }
 
     // get_domain
-    inline ibex::Interval & get_domain(int i) { return m_domains[i]; }
-    inline ibex::Interval const & get_domain(int i) const { return m_domains[i]; }
-    inline ibex::Interval & get_domain(std::string const & s) {
-        auto const it = m_name_index_map.find(s);
-        if (m_name_index_map.find(s) != m_name_index_map.end()) {
-            return m_domains[it->second];
-        } else {
-            throw std::logic_error("get_domain : Box does not have a key " + s);
-        }
+    ibex::Interval get_domain(int i) const;
+    inline ibex::Interval get_domain(std::string const & s) const {
+        return get_domain(get_index(s));
     }
-    inline ibex::Interval const & get_domain(std::string const & s) const {
-        auto const it = m_name_index_map.find(s);
-        if (m_name_index_map.find(s) != m_name_index_map.end()) {
-            return m_domains[it->second];
-        } else {
-            throw std::logic_error("get_domain : Box does not have a key " + s);
-        }
-    }
-    inline const ibex::Interval& get_domain(Enode * const e) const {
+    inline ibex::Interval get_domain(Enode * const e) const {
         return get_domain(e->getCar()->getName());
-    }
-    inline ibex::Interval& get_domain(Enode * const e) {
-        return get_domain(e->getCar()->getName());
-    }
-
-    // get_precision
-    inline double get_precision(int i) const { return m_precisions[i]; }
-    inline double get_precision(std::string const & s) const {
-        auto const it = m_name_index_map.find(s);
-        if (m_name_index_map.find(s) != m_name_index_map.end()) {
-            return m_precisions[it->second];
-        } else {
-            throw std::logic_error("get_precision : Box does not have a key " + s);
-        }
-    }
-    inline double get_precision(Enode * const e) {
-        return get_precision(e->getCar()->getName());
     }
 
     // operator[]
@@ -166,7 +123,7 @@ public:
     inline bool operator!=(box const & b) const { return !(*this == b); }
 
     inline std::string get_name(unsigned i) const {
-        return m_vars[i]->getCar()->getName();
+        return (*m_vars)[i]->getCar()->getName();
     }
 
     double max_diam() const;
