@@ -59,12 +59,12 @@ private:
     std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_neg;
 
     // TODO(soonhok): this is a hack to avoid const problem, we need to fix them
-    mutable std::unique_ptr<ibex::SystemFactory>    m_sf;
-    mutable std::unique_ptr<ibex::System>           m_sys;
-    mutable std::unique_ptr<ibex::System>           m_sys_eqs;
-    mutable std::unique_ptr<ibex::LinearRelaxCombo> m_lrc;
+    mutable std::unique_ptr<ibex::SystemFactory>    m_sf = nullptr;
+    mutable std::unique_ptr<ibex::System>           m_sys = nullptr;
+    mutable ibex::System *                          m_sys_eqs = nullptr;
+    mutable std::unique_ptr<ibex::LinearRelaxCombo> m_lrc = nullptr;
     mutable std::vector<std::unique_ptr<ibex::Ctc>> m_sub_ctcs;
-    mutable std::unique_ptr<ibex::Ctc>              m_ctc;
+    mutable std::unique_ptr<ibex::Ctc>              m_ctc = nullptr;;
     ibex::SystemFactory* build_system_factory(std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
 
 public:

@@ -252,7 +252,7 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
 
     ibex::Array<ibex::Ctc> ctc_list(2);
 
-    m_sys_eqs.reset(square_eq_sys(*m_sys));
+    m_sys_eqs = square_eq_sys(*m_sys);
     if (m_sys_eqs) {
         DREAL_LOG_INFO << "contractor_ibex_polytope: SQUARE SYSTEM";
         unique_ptr<ibex::CtcNewton> ctc_newton(new ibex::CtcNewton(m_sys_eqs->f, 5e8, m_prec, 1.e-4));
@@ -287,6 +287,7 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
 }
 
 contractor_ibex_polytope::~contractor_ibex_polytope() {
+    if (m_sys_eqs && m_sys_eqs != m_sys.get()) { delete m_sys_eqs; }
     for (auto p : m_exprctr_cache_pos) {
         ibex::cleanup(p.second->e, false);
         delete p.second;
