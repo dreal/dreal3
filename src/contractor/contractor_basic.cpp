@@ -258,7 +258,7 @@ void contractor_fixpoint::naive_fixpoint_alg(box & b, SMTConfig & config) const 
                 return;
             }
         }
-    } while (!m_term_cond(old_box, b));
+    } while (b.max_diam() > config.nra_precision && !m_term_cond(old_box, b));
     return;
 }
 
@@ -309,7 +309,7 @@ void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) con
                 }
             }
         }
-    } while (q.size() > 0 && ((count < num_initial_ctcs) || !m_term_cond(old_box, b)));
+    } while (b.max_diam() > config.nra_precision && q.size() > 0 && ((count < num_initial_ctcs) || !m_term_cond(old_box, b)));
     return;
 }
 
