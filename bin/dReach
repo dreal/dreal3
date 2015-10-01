@@ -44,8 +44,8 @@ OPTIONS:
 
 EXAMPLE:
 
-   dReach -k 10      bouncing_ball.drh --verbose --precision=0.001 --visualize
-   dReach -l 3 -u 10 bouncing_ball.drh --verbose --precision=0.001 --visualize
+   dReach -k 10      bouncing_ball.drh --verbose --precision 0.001 --visualize
+   dReach -l 3 -u 10 bouncing_ball.drh --verbose --precision 0.001 --visualize
 
 EOF
 }
