@@ -112,6 +112,7 @@ contractor_try::contractor_try(contractor const & c)
 void contractor_try::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_try::prune: ";
     static box old_box(b);
+    old_box = b;
     try {
         m_c.prune(b, config);
     } catch (contractor_exception & e) {
