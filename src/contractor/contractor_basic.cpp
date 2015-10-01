@@ -45,6 +45,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/proof.h"
 
 using std::back_inserter;
+using std::cerr;
+using std::cout;
+using std::endl;
 using std::function;
 using std::initializer_list;
 using std::make_shared;
@@ -557,4 +560,23 @@ ostream & operator<<(ostream & out, contractor const & c) {
     return out;
 }
 
+void contractor::prune_with_assert(box & b, SMTConfig & config) const {
+    assert(m_ptr != nullptr);
+    static box old_box(b);
+    old_box = b;
+    m_ptr->prune(b, config);
+    if (!b.is_subset(old_box)) {
+        cerr << "Pruning Violation: " << (*m_ptr) << endl;
+        cerr << "Old Box" << endl
+             << "==============" << endl
+             << old_box << endl;
+        cerr << "New Box" << endl
+             << "==============" << endl
+             << b << endl;
+        cerr << "==============" << endl;
+        display_diff(cerr, old_box, b);
+        cerr << "==============" << endl;
+        exit(1);
+    }
+}
 }  // namespace dreal

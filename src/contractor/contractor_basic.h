@@ -104,6 +104,7 @@ public:
         assert(m_ptr != nullptr);
         m_ptr->prune(b, config);
     }
+    void prune_with_assert(box & b, SMTConfig & config) const;
     inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
     inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
 
