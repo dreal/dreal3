@@ -112,7 +112,7 @@ public:
 
     friend contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
     friend contractor mk_contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr);
-    friend contractor mk_contractor_ibex_hc4(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
+    friend contractor mk_contractor_ibex_hc4(std::vector<nonlinear_constraint const *> const & ctrs);
     friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
     friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
     friend contractor mk_contractor_seq(std::vector<contractor> const & v);

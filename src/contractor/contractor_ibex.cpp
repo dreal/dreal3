@@ -342,8 +342,8 @@ ostream & contractor_ibex_newton::display(ostream & out) const {
     return out;
 }
 
-contractor_ibex_hc4::contractor_ibex_hc4(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs)
-    : contractor_cell(contractor_kind::IBEX_HC4), m_ctrs(ctrs), m_prec(prec) {
+contractor_ibex_hc4::contractor_ibex_hc4(vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs)
+    : contractor_cell(contractor_kind::IBEX_HC4), m_ctrs(ctrs) {
     // Trivial Case
     if (m_ctrs.size() == 0) { return; }
     unsigned index = 0;
@@ -506,8 +506,8 @@ contractor mk_contractor_ibex_newton(box const & box, nonlinear_constraint const
     contractor ctc(make_shared<contractor_ibex_newton>(box, ctr));
     return ctc;
 }
-contractor mk_contractor_ibex_hc4(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
-    return contractor(make_shared<contractor_ibex_hc4>(prec, vars, ctrs));
+contractor mk_contractor_ibex_hc4(vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
+    return contractor(make_shared<contractor_ibex_hc4>(vars, ctrs));
 }
 contractor mk_contractor_ibex_polytope(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
     return contractor(make_shared<contractor_ibex_polytope>(prec, vars, ctrs));

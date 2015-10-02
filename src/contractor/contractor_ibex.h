@@ -66,11 +66,10 @@ class contractor_ibex_hc4 : public contractor_cell {
 private:
     std::unordered_set<Enode *>               m_vars_in_ctrs;
     std::vector<nonlinear_constraint const *> m_ctrs;
-    double const                              m_prec;
-    std::unique_ptr<ibex::Ctc>              m_ctc = nullptr;;
+    std::unique_ptr<ibex::Ctc>                m_ctc = nullptr;;
 
 public:
-    contractor_ibex_hc4(double const prec, std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
+    contractor_ibex_hc4(std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -103,7 +102,7 @@ public:
 
 contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
 contractor mk_contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr);
-contractor mk_contractor_ibex_hc4(double const prec, std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
+contractor mk_contractor_ibex_hc4(std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
 contractor mk_contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
 
 }  // namespace dreal
