@@ -63,7 +63,7 @@ bool default_strategy::term_cond(box const & old_box, box const & new_box) {
     // significant improvement. So return true to stop fixedpoint
     // computation
     return true;
-};
+}
 
 contractor default_strategy::build_contractor(box const & box,
                                               scoped_vec<constraint *> const &ctrs,

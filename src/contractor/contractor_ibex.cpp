@@ -246,7 +246,7 @@ contractor_ibex_newton::contractor_ibex_newton(box const & box, nonlinear_constr
       m_numctr(ctr->get_numctr()), m_var_array(ctr->get_var_array()) {
     if (!ctr->is_neq()) {
         auto & f = m_numctr->f;
-        if (f.nb_var()!=f.image_dim()) {
+        if (f.nb_var() != f.image_dim()) {
             return;
         }
         m_ctc.reset(new ibex::CtcNewton(m_numctr->f));
