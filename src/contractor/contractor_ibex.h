@@ -48,6 +48,19 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
+class contractor_ibex_newton : public contractor_cell {
+private:
+    nonlinear_constraint const * m_ctr;
+    ibex::NumConstraint const * m_numctr;
+    ibex::Array<ibex::ExprSymbol const> const & m_var_array;
+    std::unique_ptr<ibex::CtcNewton> m_ctc;
+
+public:
+    contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr);
+    void prune(box & b, SMTConfig & config) const;
+    std::ostream & display(std::ostream & out) const;
+};
+
 // contractor_ibex_hc4 : contractor using IBEX HC4
 class contractor_ibex_hc4 : public contractor_cell {
 private:
@@ -89,6 +102,7 @@ public:
 };
 
 contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
+contractor mk_contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr);
 contractor mk_contractor_ibex_hc4(double const prec, std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
 contractor mk_contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
 

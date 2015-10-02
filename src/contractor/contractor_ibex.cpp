@@ -42,6 +42,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/proof.h"
 
 using std::back_inserter;
+using std::cerr;
 using std::endl;
 using std::function;
 using std::initializer_list;
@@ -240,6 +241,107 @@ ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
     return out;
 }
 
+contractor_ibex_newton::contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr)
+    : contractor_cell(contractor_kind::IBEX_NEWTON, box.size()), m_ctr(ctr),
+      m_numctr(ctr->get_numctr()), m_var_array(ctr->get_var_array()) {
+    if (!ctr->is_neq()) {
+        auto & f = m_numctr->f;
+        if (f.nb_var()!=f.image_dim()) {
+            return;
+        }
+        m_ctc.reset(new ibex::CtcNewton(m_numctr->f));
+        // Set up input
+        ibex::BitSet const * const input = m_ctc->input;
+        for (unsigned i = 0; i <  input->size(); i++) {
+            if ((*input)[i]) {
+                m_input.add(box.get_index(m_var_array[i].name));
+            }
+        }
+        m_used_constraints.insert(m_ctr);
+    }
+}
+
+void contractor_ibex_newton::prune(box & b, SMTConfig & config) const {
+    DREAL_LOG_DEBUG << "contractor_ibex_newton::prune";
+    if (m_ctc == nullptr) { return; }
+
+    // ======= Proof =======
+    static box old_box(b);
+    if (config.nra_proof) { old_box = b; }
+
+    DREAL_LOG_DEBUG << "==================================================";
+
+    if (m_var_array.size() == 0) {
+        auto eval_result = m_ctr->eval(b);
+        if (eval_result.first == l_False) {
+            b.set_empty();
+            return;
+        } else {
+            return;
+        }
+    }
+
+    if (m_ctr->is_aligned() && m_var_array.size() - b.size() == 0) {
+        // This nonlinear_constraint is built aligned so that we can
+        // directly pass its IntervalVector
+        m_ctc->contract(b.get_values());
+        m_output = *(m_ctc->output);
+        return;
+
+        // TODO(soonhok): add proof
+    }
+
+    // Construct iv from box b
+    ibex::IntervalVector iv(m_var_array.size());
+    for (int i = 0; i < m_var_array.size(); i++) {
+        iv[i] = b[m_var_array[i].name];
+        DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
+    }
+
+    // Prune on iv
+    DREAL_LOG_DEBUG << "Before pruning using ibex_newton(" << *m_numctr << ")";
+    DREAL_LOG_DEBUG << b;
+    DREAL_LOG_DEBUG << "ibex interval = " << iv << " (before)";
+    DREAL_LOG_DEBUG << "function = " << m_ctc->f;
+    m_ctc->contract(iv);
+    DREAL_LOG_DEBUG << "ibex interval = " << iv << " (after)";
+    if (iv.is_empty()) {
+        b.set_empty();
+    } else {
+        // Reconstruct box b from pruned result iv.
+        for (int i = 0; i < m_var_array.size(); i++) {
+            b[m_var_array[i].name] = iv[i];
+        }
+    }
+    ibex::BitSet const * const output = m_ctc->output;
+    m_output.clear();
+    for (unsigned i = 0; i <  output->size(); i++) {
+        if ((*output)[i]) {
+            m_output.add(b.get_index(m_var_array[i].name));
+        }
+    }
+
+    DREAL_LOG_DEBUG << "After pruning using ibex_newton(" << *m_numctr << ")";
+    DREAL_LOG_DEBUG << b;
+
+    // ======= Proof =======
+    if (config.nra_proof) {
+        ostringstream ss;
+        Enode const * const e = m_ctr->get_enode();
+        ss << (e->getPolarity() == l_False ? "!" : "") << e;
+        output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+    }
+    return;
+}
+ostream & contractor_ibex_newton::display(ostream & out) const {
+    out << "contractor_ibex_newton(";
+    if (m_ctc != nullptr) {
+        out << *m_numctr;
+    }
+    out << ")";
+    return out;
+}
+
 contractor_ibex_hc4::contractor_ibex_hc4(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs)
     : contractor_cell(contractor_kind::IBEX_HC4), m_ctrs(ctrs), m_prec(prec) {
     // Trivial Case
@@ -398,6 +500,10 @@ ostream & contractor_ibex_polytope::display(ostream & out) const {
 
 contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr) {
     contractor ctc(make_shared<contractor_ibex_fwdbwd>(box, ctr));
+    return ctc;
+}
+contractor mk_contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr) {
+    contractor ctc(make_shared<contractor_ibex_newton>(box, ctr));
     return ctc;
 }
 contractor mk_contractor_ibex_hc4(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {

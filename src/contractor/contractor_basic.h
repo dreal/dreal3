@@ -38,9 +38,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 
 enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
-        PARALLEL_ALL, TIMEOUT, REALPAVER,
-        TRY, TRY_OR, JOIN, IBEX_HC4, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE,
-        SAMPLE, AGGRESSIVE, FORALL,
+        PARALLEL_ALL, TIMEOUT, REALPAVER, TRY, TRY_OR, JOIN,
+        IBEX_FWDBWD, IBEX_NEWTON, IBEX_HC4, IBEX_POLYTOPE,
+        INT, EVAL, CACHE, SAMPLE, AGGRESSIVE, FORALL,
 #ifdef SUPPORT_ODE
         CAPD_FWD, CAPD_BWD,
 #endif
@@ -111,6 +111,7 @@ public:
     inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
 
     friend contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
+    friend contractor mk_contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr);
     friend contractor mk_contractor_ibex_hc4(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
     friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
     friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
