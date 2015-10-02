@@ -36,8 +36,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dreal {
 
-enum class constraint_type { Nonlinear, ODE, Integral, ForallT,
-Forall, Exists, GenericForall };
+enum class constraint_type { Nonlinear, ODE, Integral, ForallT, Exists, GenericForall };
 std::ostream & operator<<(std::ostream & out, constraint_type const & ty);
 
 class constraint {
@@ -143,31 +142,6 @@ public:
     inline integral_constraint const & get_ic() const { return m_int; }
     inline std::vector<forallt_constraint> const & get_invs() const { return m_invs; }
     virtual std::ostream & display(std::ostream & out) const;
-};
-
-// This class is used to implement ad-hoc support for exist-forall
-// cases. During variable declarations, we define existentially
-// quantified variables X1 ... Xn and universally quantified variable
-// Y1 ... Ym. Then the reset of SMT2 file is assuming that we have a
-// prefix:
-//
-//     \exist X1 ... Xn \forall Y1 ... Ym
-//
-// and define the quantifier-free block of formula.
-//
-// forall_constraint is used to represent a theory literal which
-// includes universally quantified variables (it's picked up at
-// nra_solver::initialize_constraints method).
-class forall_constraint : public constraint {
-private:
-    std::unordered_set<Enode *> const m_forall_vars;
-    lbool const                       m_polarity;
-public:
-    forall_constraint(Enode * const e, lbool const p);
-    virtual std::ostream & display(std::ostream & out) const;
-    std::unordered_set<Enode *> get_forall_vars() const;
-    inline Enode * get_enode() const { return get_enodes()[0]; }
-    inline lbool get_polarity() const { return m_polarity; }
 };
 
 // This class is to support forall quantifier without a hack.

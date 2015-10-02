@@ -67,9 +67,6 @@ ostream & operator<<(ostream & out, constraint_type const & ty) {
     case constraint_type::ForallT:
         out << "ForallT";
         break;
-    case constraint_type::Forall:
-        out << "Forall";
-        break;
     case constraint_type::Exists:
         out << "Exists";
         break;
@@ -375,25 +372,6 @@ ostream & forallt_constraint::display(ostream & out) const {
     out << "\t" << "flow_id = " << m_flow_id << endl;
     out << "\t" << "time = [" << m_time_0 << "," << m_time_t << "]" << endl;
     out << "\t" << "inv : " << m_inv << endl;
-    return out;
-}
-
-// ====================================================
-// Forall constraint
-// ====================================================
-forall_constraint::forall_constraint(Enode * const e, lbool const p)
-    : constraint(constraint_type::Forall, e), m_forall_vars(e->get_forall_vars()), m_polarity(p) {
-}
-unordered_set<Enode *> forall_constraint::get_forall_vars() const {
-    return m_forall_vars;
-}
-ostream & forall_constraint::display(ostream & out) const {
-    out << "forall_constraint = "
-        << (m_polarity == l_True ? "" : "!")
-        << m_enodes[0] << endl;
-    for (Enode * const var : m_forall_vars) {
-        out << "quantified var = " << var << endl;
-    }
     return out;
 }
 
