@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
+#include <cassert>
 #include <initializer_list>
 #include <stdexcept>
 #include <string>
@@ -33,11 +34,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "constraint/constraint.h"
 
+
 namespace dreal {
 
 enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
         PARALLEL_ALL, TIMEOUT, REALPAVER,
-        TRY, TRY_OR, JOIN, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE,
+        TRY, TRY_OR, JOIN, IBEX_HC4, IBEX_POLYTOPE, IBEX_FWDBWD, INT, EVAL, CACHE,
         SAMPLE, AGGRESSIVE, FORALL,
 #ifdef SUPPORT_ODE
         CAPD_FWD, CAPD_BWD,
@@ -79,7 +81,7 @@ private:
 public:
     contractor() : m_ptr(nullptr) { }
     explicit contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) {
-            assert(m_ptr != nullptr);
+        assert(m_ptr != nullptr);
     }
     contractor(contractor const & c) : m_ptr(c.m_ptr) {
         assert(m_ptr);
@@ -108,8 +110,9 @@ public:
     inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
     inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
 
-    friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
     friend contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
+    friend contractor mk_contractor_ibex_hc4(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
+    friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
     friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
     friend contractor mk_contractor_seq(std::vector<contractor> const & v);
     friend contractor mk_contractor_seq(contractor const & c, std::vector<contractor> const & v);

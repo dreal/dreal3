@@ -240,6 +240,62 @@ ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
     return out;
 }
 
+contractor_ibex_hc4::contractor_ibex_hc4(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs)
+    : contractor_cell(contractor_kind::IBEX_HC4), m_ctrs(ctrs), m_prec(prec) {
+    // Trivial Case
+    if (m_ctrs.size() == 0) { return; }
+    unsigned index = 0;
+    ibex::Array<ibex::NumConstraint> cps(ctrs.size());
+    for (nonlinear_constraint const * numctr : ctrs) {
+        cps.set_ref(index++, *(numctr->get_numctr()));
+    }
+    m_ctc.reset(new ibex::CtcHC4(cps));
+    m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
+    for (nonlinear_constraint const * ctr : ctrs) {
+        unordered_set<Enode*> const & vars_in_ctr = ctr->get_enode()->get_vars();
+        m_vars_in_ctrs.insert(vars_in_ctr.begin(), vars_in_ctr.end());
+    }
+    m_input = ibex::BitSet::empty(vars.size());
+    DREAL_LOG_INFO << "contractor_ibex_hc4: DONE" << endl;
+}
+
+void contractor_ibex_hc4::prune(box & b, SMTConfig & config) const {
+    DREAL_LOG_DEBUG << "contractor_ibex_hc4::prune";
+    if (!m_ctc) { return; }
+    for (Enode * var : m_vars_in_ctrs) {
+        m_input.add(b.get_index(var));
+    }
+    static box old_box(b);
+    old_box = b;
+    m_ctc->contract(b.get_values());
+    // setup output
+    vector<bool> diff_dims = b.diff_dims(old_box);
+    m_output = ibex::BitSet::empty(old_box.size());
+    for (unsigned i = 0; i < diff_dims.size(); i++) {
+        if (diff_dims[i]) {
+            m_output.add(i);
+        }
+    }
+    // ======= Proof =======
+    if (config.nra_proof) {
+        ostringstream ss;
+        for (auto const & ctr : m_ctrs) {
+            Enode const * const e = ctr->get_enode();
+            ss << (e->getPolarity() == l_False ? "!" : "") << e << ";";
+        }
+        output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+    }
+    return;
+}
+ostream & contractor_ibex_hc4::display(ostream & out) const {
+    out << "contractor_ibex_hc4(";
+    for (unsigned i = 0; i < m_ctrs.size(); i++) {
+        out << *m_ctrs[i] << ", ";
+    }
+    out << ")";
+    return out;
+}
+
 contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs)
     : contractor_cell(contractor_kind::IBEX_POLYTOPE), m_ctrs(ctrs), m_prec(prec) {
     // Trivial Case
@@ -340,12 +396,14 @@ ostream & contractor_ibex_polytope::display(ostream & out) const {
     return out;
 }
 
-contractor mk_contractor_ibex_polytope(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
-    return contractor(make_shared<contractor_ibex_polytope>(prec, vars, ctrs));
-}
-
 contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr) {
     contractor ctc(make_shared<contractor_ibex_fwdbwd>(box, ctr));
     return ctc;
+}
+contractor mk_contractor_ibex_hc4(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
+    return contractor(make_shared<contractor_ibex_hc4>(prec, vars, ctrs));
+}
+contractor mk_contractor_ibex_polytope(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
+    return contractor(make_shared<contractor_ibex_polytope>(prec, vars, ctrs));
 }
 }  // namespace dreal
