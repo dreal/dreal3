@@ -63,13 +63,11 @@ std::ostream & operator<<(std::ostream & out, constraint const & c);
 class nonlinear_constraint : public constraint {
 private:
     bool const                               m_is_neq;
-    bool const                               m_is_aligned;
     std::unique_ptr<ibex::NumConstraint>     m_numctr;
     ibex::Array<ibex::ExprSymbol const>      m_var_array;
     std::pair<lbool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
 
 public:
-    explicit nonlinear_constraint(Enode * const e, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
     nonlinear_constraint(Enode * const e, std::unordered_set<Enode*> const & var_set, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
     virtual std::ostream & display(std::ostream & out) const;
     std::pair<lbool, ibex::Interval> eval(box const & b) const;
@@ -77,7 +75,6 @@ public:
     ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
     inline Enode * get_enode() const { return get_enodes()[0]; }
     bool is_neq() const { return m_is_neq; }
-    bool is_aligned() const { return m_is_aligned; }
 };
 
 class integral_constraint : public constraint {

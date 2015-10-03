@@ -112,25 +112,11 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // ====================================================
 // Nonlinear constraint
 // ====================================================
-nonlinear_constraint::nonlinear_constraint(Enode * const e, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst)
-    : constraint(constraint_type::Nonlinear, e), m_is_neq(p == l_False && e->isEq()),
-      m_is_aligned(false), m_numctr(nullptr) {
-    map<string, ibex::Variable const> var_map;
-    std::unique_ptr<ibex::ExprCtr const> exprctr(translate_enode_to_exprctr(var_map, e, p, subst));
-    m_var_array.resize(var_map.size());
-    unsigned i = 0;
-    for (auto const item : var_map) {
-        m_var_array.set_ref(i++, item.second);
-    }
-    m_numctr.reset(new ibex::NumConstraint(m_var_array, *exprctr));
-    DREAL_LOG_INFO << "nonlinear_constraint: "<< *this;
-}
-
 nonlinear_constraint::nonlinear_constraint(Enode * const e,
                                            unordered_set<Enode*> const & var_set,
                                            lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst)
     : constraint(constraint_type::Nonlinear, e), m_is_neq(p == l_False && e->isEq()),
-      m_is_aligned(true), m_numctr(nullptr), m_var_array(var_set.size()) {
+      m_numctr(nullptr), m_var_array(var_set.size()) {
     // Build var_map and var_array
     // Need to pass a fresh copy of var_array everytime it builds NumConstraint
     auto var_map = build_var_map(var_set);
