@@ -86,6 +86,9 @@ ibex::SystemFactory* contractor_ibex_polytope::build_system_factory(vector<Enode
 
     // Construct System: add constraints
     for (nonlinear_constraint const * ctr : ctrs) {
+        if (ctr->is_neq()) {
+            continue;
+        }
         DREAL_LOG_INFO << "build_system_factory: Add Constraint: " << *ctr;
         Enode * e = ctr->get_enode();
         auto p = e->getPolarity();
