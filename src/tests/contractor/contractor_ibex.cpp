@@ -19,6 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 #include <iostream>
+#include <unordered_set>
 #include "opensmt/api/opensmt_c.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "util/box.h"
@@ -29,6 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using std::cerr;
 using std::endl;
+using std::unordered_set;
 
 namespace dreal {
 
@@ -50,8 +52,9 @@ TEST_CASE("ibex_fwdbwd_01") {
     opensmt_expr eq   = opensmt_mk_eq(ctx, exp4, exp3);
     Enode * node_eq   = static_cast<Enode *>(eq);
 
-    nonlinear_constraint nc(node_eq, true);
     box b({var_x, var_y, var_z});
+    unordered_set<Enode*> var_set({var_x, var_y, var_z});
+    nonlinear_constraint nc(node_eq, var_set, true);
     contractor c = mk_contractor_ibex_fwdbwd(b, &nc);
     cerr << nc << endl;
     cerr << b << endl;
@@ -94,8 +97,9 @@ TEST_CASE("ibex_fwdbwd_02") {
     opensmt_expr eq   = opensmt_mk_eq(ctx, exp4, exp3);   // sin(x) == abs(x) / cos(y)
     Enode * node_eq   = static_cast<Enode *>(eq);
 
-    nonlinear_constraint nc(node_eq, true);
     box b({var_x, var_y, var_z});
+    unordered_set<Enode*> var_set({var_x, var_y, var_z});
+    nonlinear_constraint nc(node_eq, var_set, true);
     contractor c = mk_contractor_ibex_fwdbwd(b, &nc);
     cerr << nc << endl;
     cerr << b << endl;
@@ -143,9 +147,10 @@ TEST_CASE("ibex_polytope") {
     node_eq1->setPolarity(l_True);
     node_eq2->setPolarity(l_True);
 
-    nonlinear_constraint nc1(node_eq1, true);
-    nonlinear_constraint nc2(node_eq2, true);
     box b({var_x, var_y, var_z});
+    unordered_set<Enode*> var_set({var_x, var_y, var_z});
+    nonlinear_constraint nc1(node_eq1, var_set, true);
+    nonlinear_constraint nc2(node_eq2, var_set, true);
     contractor c = mk_contractor_ibex_polytope(0.001, {var_x, var_y, var_z}, {&nc1, &nc2});
     cerr << nc1 << endl;
     cerr << nc2 << endl;
