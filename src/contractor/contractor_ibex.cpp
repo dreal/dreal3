@@ -162,13 +162,8 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, nonlinear_constr
 void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_ibex_fwdbwd::prune";
     if (m_ctc == nullptr) { return; }
-
-    // ======= Proof =======
     static box old_box(b);
     if (config.nra_proof) { old_box = b; }
-
-    DREAL_LOG_DEBUG << "==================================================";
-
     if (m_var_array.size() == 0) {
         auto eval_result = m_ctr->eval(b);
         if (eval_result.first == l_False) {
@@ -178,53 +173,19 @@ void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) const {
             return;
         }
     }
-
-    if (m_ctr->is_aligned() && m_var_array.size() - b.size() == 0) {
-        // This nonlinear_constraint is built aligned so that we can
-        // directly pass its IntervalVector
-        m_ctc->contract(b.get_values());
-        m_output = *(m_ctc->output);
-        return;
-
-        // TODO(soonhok): add proof
-    }
-
-    // Construct iv from box b
-    ibex::IntervalVector iv(m_var_array.size());
-    for (int i = 0; i < m_var_array.size(); i++) {
-        iv[i] = b[m_var_array[i].name];
-        DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
-    }
-
-    // Prune on iv
+    assert(m_var_array.size() - b.size() == 0);
     DREAL_LOG_DEBUG << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << b;
-    DREAL_LOG_DEBUG << "ibex interval = " << iv << " (before)";
+    DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (before)";
     DREAL_LOG_DEBUG << "function = " << m_ctc->f;
     DREAL_LOG_DEBUG << "domain   = " << m_ctc->d;
-    m_ctc->contract(iv);
-    DREAL_LOG_DEBUG << "ibex interval = " << iv << " (after)";
-    if (iv.is_empty()) {
-        b.set_empty();
-    } else {
-        // Reconstruct box b from pruned result iv.
-        for (int i = 0; i < m_var_array.size(); i++) {
-            b[m_var_array[i].name] = iv[i];
-        }
-    }
-    ibex::BitSet const * const output = m_ctc->output;
-    m_output.clear();
-    for (unsigned i = 0; i <  output->size(); i++) {
-        if ((*output)[i]) {
-            m_output.add(b.get_index(m_var_array[i].name));
-        }
-    }
-
+    m_ctc->contract(b.get_values());
+    DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (after)";
+    m_output = *(m_ctc->output);
     DREAL_LOG_DEBUG << "After pruning using ibex_fwdbwd(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << b;
-
-    // ======= Proof =======
     if (config.nra_proof) {
+        // ======= Proof =======
         ostringstream ss;
         Enode const * const e = m_ctr->get_enode();
         ss << (e->getPolarity() == l_False ? "!" : "") << e;
@@ -268,9 +229,6 @@ void contractor_ibex_newton::prune(box & b, SMTConfig & config) const {
     // ======= Proof =======
     static box old_box(b);
     if (config.nra_proof) { old_box = b; }
-
-    DREAL_LOG_DEBUG << "==================================================";
-
     if (m_var_array.size() == 0) {
         auto eval_result = m_ctr->eval(b);
         if (eval_result.first == l_False) {
@@ -280,47 +238,14 @@ void contractor_ibex_newton::prune(box & b, SMTConfig & config) const {
             return;
         }
     }
-
-    if (m_ctr->is_aligned() && m_var_array.size() - b.size() == 0) {
-        // This nonlinear_constraint is built aligned so that we can
-        // directly pass its IntervalVector
-        m_ctc->contract(b.get_values());
-        m_output = *(m_ctc->output);
-        return;
-
-        // TODO(soonhok): add proof
-    }
-
-    // Construct iv from box b
-    ibex::IntervalVector iv(m_var_array.size());
-    for (int i = 0; i < m_var_array.size(); i++) {
-        iv[i] = b[m_var_array[i].name];
-        DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
-    }
-
-    // Prune on iv
+    assert(m_var_array.size() - b.size() == 0);
     DREAL_LOG_DEBUG << "Before pruning using ibex_newton(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << b;
-    DREAL_LOG_DEBUG << "ibex interval = " << iv << " (before)";
+    DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (before)";
     DREAL_LOG_DEBUG << "function = " << m_ctc->f;
-    m_ctc->contract(iv);
-    DREAL_LOG_DEBUG << "ibex interval = " << iv << " (after)";
-    if (iv.is_empty()) {
-        b.set_empty();
-    } else {
-        // Reconstruct box b from pruned result iv.
-        for (int i = 0; i < m_var_array.size(); i++) {
-            b[m_var_array[i].name] = iv[i];
-        }
-    }
-    ibex::BitSet const * const output = m_ctc->output;
-    m_output.clear();
-    for (unsigned i = 0; i <  output->size(); i++) {
-        if ((*output)[i]) {
-            m_output.add(b.get_index(m_var_array[i].name));
-        }
-    }
-
+    m_ctc->contract(b.get_values());
+    DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (after)";
+    m_output = *(m_ctc->output);
     DREAL_LOG_DEBUG << "After pruning using ibex_newton(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << b;
 
