@@ -236,63 +236,6 @@ command: '(' TK_SETLOGIC symbol ')'
          { parser_ctx->addPush( atoi( $3 ) ); free( $3 ); }
        | '(' TK_POP numeral ')'
          { parser_ctx->addPop( atoi( $3 ) ); free( $3 );}
-
-       /* added for dReal2 */
-       | '(' TK_ASSERT '(' TK_LT identifier spec_const precision ')' ')'
-         {
-            Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-            parser_ctx->addIntvCtr( "<", e, $6, ( $7 ? $7 : nullptr)  );
-            free($6);
-         }
-       | '(' TK_ASSERT '(' TK_GT identifier spec_const precision ')' ')'
-         {
-            Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-            parser_ctx->addIntvCtr( ">", e, $6, ( $7 ? $7 : nullptr) );
-            free($6);
-         }
-
-       | '(' TK_ASSERT '(' TK_LEQ identifier spec_const precision ')' ')'
-         {
-            Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-            parser_ctx->addIntvCtr( "<=", e, $6, ( $7 ? $7 : nullptr) );
-            free($6);
-         }
-
-       | '(' TK_ASSERT '(' TK_GEQ identifier spec_const precision ')' ')'
-         {
-            Enode * e = parser_ctx->mkVar( $5 ); free( $5 );
-            parser_ctx->addIntvCtr( ">=", e, $6, ( $7 ? $7 : nullptr) );
-            free($6);
-         }
-
-       | '(' TK_ASSERT '(' TK_LT spec_const identifier precision ')' ')'
-         {
-            Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
-            parser_ctx->addIntvCtrR( "<", $5, e, ( $7 ? $7 : nullptr) );
-            free($5);
-         }
-
-       | '(' TK_ASSERT '(' TK_GT spec_const identifier precision ')' ')'
-         {
-            Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
-            parser_ctx->addIntvCtrR( ">", $5, e, ( $7 ? $7 : nullptr) );
-            free($5);
-          }
-
-       | '(' TK_ASSERT '(' TK_LEQ spec_const identifier precision ')' ')'
-         {
-            Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
-            parser_ctx->addIntvCtrR( "<=", $5, e, ( $7 ? $7 : nullptr) );
-            free($5);
-          }
-
-       | '(' TK_ASSERT '(' TK_GEQ spec_const identifier precision ')' ')'
-         {
-            Enode * e = parser_ctx->mkVar( $6 ); free( $6 );
-            parser_ctx->addIntvCtrR( ">=", $5, e, ( $7 ? $7 : nullptr) );
-            free($5);
-          }
-
        | '(' TK_ASSERT term ')'
          { parser_ctx->addAssert( $3 ); }
        | '(' TK_CHECKSAT ')'
