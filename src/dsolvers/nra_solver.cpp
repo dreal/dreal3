@@ -88,6 +88,78 @@ lbool nra_solver::inform(Enode * e) {
     return l_Undef;
 }
 
+// Simplify box b using a constraint e.
+// Return l_True   if a constriant is used and not needed after this.
+// Return l_False  if a constriant is used and but still needed after this.
+// Otherwise, return l_Undef
+lbool simplify(Enode * e, lbool p, box & b) {
+    if (e->isNot()) {
+        return simplify(e, !p, b);
+    }
+    if (e->getArity() != 2) {
+        return l_Undef;
+    }
+    Enode * const first = e->get1st();
+    Enode * const second = e->get2nd();
+    if ((p == l_True && (e->isGt() || e->isGeq())) ||
+        (p == l_False && (e->isLt() || e->isLeq()))) {
+        if (first->isVar() && second->isConstant()) {
+            // v >= c
+            auto & iv = b[first];
+            iv &= ibex::Interval(second->getValue(), iv.ub());
+            if (iv.is_empty()) { b.set_empty(); }
+            return l_True;
+        } else if (first->isConstant() && second->isVar()) {
+            // c >= v
+            auto & iv = b[second];
+            iv &= ibex::Interval(iv.lb(), first->getValue());
+            if (iv.is_empty()) { b.set_empty(); }
+            return l_True;
+        }
+    } else if ((p == l_True && (e->isLt() || e->isLeq())) ||
+               (p == l_False && (e->isGt() || e->isGeq()))) {
+        if (first->isVar() && second->isConstant()) {
+            // v <= c
+            auto & iv = b[first];
+            iv &= ibex::Interval(iv.lb(), second->getValue());
+            if (iv.is_empty()) { b.set_empty(); }
+            return l_True;
+        } else if (first->isConstant() && second->isVar()) {
+            // c <= v
+            auto & iv = b[second];
+            iv &= ibex::Interval(first->getValue(), iv.ub());
+            if (iv.is_empty()) { b.set_empty(); }
+            return l_True;
+        }
+    } else if (p == l_True && e->isEq()) {
+        if (first->isVar() && second->isConstant()) {
+            // v == c
+            auto & iv = b[first];
+            iv &= ibex::Interval(second->getValue(), second->getValue());
+            if (iv.is_empty()) { b.set_empty(); }
+            return l_True;
+        } else if (first->isConstant() && second->isVar()) {
+            // c == v
+            auto & iv = b[second];
+            iv &= ibex::Interval(first->getValue(), first->getValue());
+            if (iv.is_empty()) { b.set_empty(); }
+            return l_True;
+        } else if (first->isVar() && second->isVar()) {
+            // v1 == v2
+            auto & iv_1 = b[first];
+            auto & iv_2 = b[second];
+            iv_1 &= iv_2;
+            iv_2 = iv_1;
+            if (iv_1.is_empty()) {
+                b.set_empty();
+                return l_True;
+            }
+            return l_False;
+        }
+    }
+    return l_Undef;
+}
+
 // Asserts a literal into the solver. If by chance you are able to
 // discover inconsistency you may return false. The real consistency
 // state will be checked with "check" assertLit adds a literal(e) to
@@ -120,7 +192,23 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
     }
     auto it = m_ctr_map.find(make_pair(e, e->getPolarity() == l_True));
     if (it != m_ctr_map.end()) {
-        m_stack.push_back(it->second.get());
+        constraint * const ctr = it->second.get();
+        // Try to prune box using the constraint via callign simplify
+        lbool const simplify_result = simplify(e, e->getPolarity(), m_box);
+        if (simplify_result == l_True) {
+            // Box was pruned by it, and we don't need to add the constraint to the stack
+            m_used_constraint_vec.push_back(ctr);
+            if (m_box.is_empty()) {
+                explanation = generate_explanation(m_used_constraint_vec);
+                return false;
+            } else {
+                return true;
+            }
+        } else if (simplify_result == l_False) {
+            // Box was pruned by it, but we do need to add add the constraint to the stack
+            m_used_constraint_vec.push_back(ctr);
+        }
+        m_stack.push_back(ctr);
     } else if (e->isForallT()) {
         // TODO(soonhok): implement this
         return true;
