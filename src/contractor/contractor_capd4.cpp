@@ -20,10 +20,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <algorithm>
+#include <chrono>
 #include <exception>
 #include <functional>
 #include <initializer_list>
 #include <memory>
+#include <ratio>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -40,23 +42,28 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
 
+using nlohmann::json;
+using std::chrono::duration;
+using std::chrono::steady_clock;
 using std::exception;
+using std::fixed;
 using std::function;
 using std::initializer_list;
 using std::list;
 using std::logic_error;
 using std::make_shared;
+using std::milli;
 using std::min;
+using std::ostream;
 using std::ostringstream;
 using std::pair;
+using std::setprecision;
+using std::size_t;
 using std::string;
+using std::unique_ptr;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
-using std::setprecision;
-using std::ostream;
-using std::unique_ptr;
-using nlohmann::json;
 
 namespace dreal {
 
@@ -117,11 +124,11 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
         }
     } else if (e->isNumb()) {
         string name = e->getName();
-        if (name.find('e') != std::string::npos || name.find('E') != std::string::npos) {
+        if (name.find('e') != string::npos || name.find('E') != string::npos) {
             // Scientific Notation
             ostringstream ss;
             double const r = stod(name);
-            ss << setprecision(16) << std::fixed << r;
+            ss << setprecision(16) << fixed << r;
             name = ss.str();
         }
         if (starts_with(name, "-")) {
@@ -564,11 +571,11 @@ unsigned int extract_step(string const & name) {
     //     <VAR_NAME>_<STEP>_{0,t}
     //
     // This function returns <STEP> part as an integer.
-    std::size_t last_pos_of_underscore = name.rfind("_");
+    size_t last_pos_of_underscore = name.rfind("_");
     assert(last_pos_of_underscore != string::npos);
-    std::size_t second_to_last_pos_of_underscore = name.rfind("_", last_pos_of_underscore - 1);
+    size_t second_to_last_pos_of_underscore = name.rfind("_", last_pos_of_underscore - 1);
     assert(second_to_last_pos_of_underscore != string::npos);
-    std::size_t l = last_pos_of_underscore - second_to_last_pos_of_underscore - 1;
+    size_t l = last_pos_of_underscore - second_to_last_pos_of_underscore - 1;
     string step_part = name.substr(second_to_last_pos_of_underscore + 1, l);
     return stoi(step_part, nullptr);
 }
