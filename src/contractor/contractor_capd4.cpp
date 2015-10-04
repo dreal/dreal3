@@ -411,44 +411,39 @@ bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTi
 
 bool filter(vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVector & X_t, capd::interval & T) {
     // 1) Intersect each v in enclosure with X_t.
-    // 2) If there is no intersection in 1), set dt an empty interval [0, 0]
     DREAL_LOG_DEBUG << "filter : enclosure.size = " << enclosures.size();
-    for (pair<capd::interval, capd::IVector> & item : enclosures) {
-        capd::interval & dt = item.first;
-        capd::IVector &  v  = item.second;
-        // v = v union X_t
-        DREAL_LOG_DEBUG << "before filter: " << v << "\t" << X_t;
-        if (!intersection(v, X_t, v)) {
-            dt.setLeftBound(0.0);
-            dt.setRightBound(0.0);
-        }
-        DREAL_LOG_DEBUG << "after filter: " << v;
-    }
     enclosures.erase(remove_if(enclosures.begin(), enclosures.end(),
-                               [](pair<capd::interval, capd::IVector> const & item) {
-                                   capd::interval const & dt = item.first;
-                                   return dt.leftBound() == 0.0 && dt.rightBound() == 0.0;
+                               [&X_t](pair<capd::interval, capd::IVector> & item) {
+                                   capd::interval & dt = item.first;
+                                   capd::IVector &  v  = item.second;
+                                   // v = v union X_t
+                                   DREAL_LOG_DEBUG << "before filter: " << v << "\t" << X_t;
+                                   if (!intersection(v, X_t, v)) {
+                                       return true;
+                                   }
+                                   DREAL_LOG_DEBUG << "after filter: " << v;
+                                   return false;
                                }),
                      enclosures.end());
     if (enclosures.empty()) {
         return false;
-    } else {
-        capd::interval all_T = enclosures.begin()->first;
-        capd::IVector all_X_t = enclosures.begin()->second;
-        for (pair<capd::interval, capd::IVector> & item : enclosures) {
-            capd::interval & dt = item.first;
-            capd::IVector &  v  = item.second;
-            all_X_t = intervalHull(all_X_t,  v);
-            all_T = intervalHull(all_T, dt);
-        }
-        if (!intersection(T, all_T, T)) {
-            return false;
-        }
-        if (!intersection(X_t, all_X_t, X_t)) {
-            return false;
-        }
-        return true;
     }
+    // 2) If there is no intersection in 1), set dt an empty interval [0, 0]
+    capd::interval all_T = enclosures.begin()->first;
+    capd::IVector all_X_t = enclosures.begin()->second;
+    for (pair<capd::interval, capd::IVector> & item : enclosures) {
+        capd::interval & dt = item.first;
+        capd::IVector &  v  = item.second;
+        all_X_t = intervalHull(all_X_t,  v);
+        all_T = intervalHull(all_T, dt);
+    }
+    if (!intersection(T, all_T, T)) {
+        return false;
+    }
+    if (!intersection(X_t, all_X_t, X_t)) {
+        return false;
+    }
+    return true;
 }
 
 box intersect_params(box & b, integral_constraint const & ic) {
