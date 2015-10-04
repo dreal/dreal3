@@ -384,13 +384,9 @@ bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTi
 
     vector<capd::interval> intvs;
     if (!add_all && (prevTime.rightBound() < T.leftBound())) {
-        capd::interval const pre_T(0, T.leftBound() - prevTime.rightBound());
         domain.setLeftBound(T.leftBound() - prevTime.rightBound());
-        intvs.push_back(pre_T);
-        split(domain, grid_size, intvs);
-    } else {
-        split(domain, grid_size, intvs);
     }
+    split(domain, grid_size, intvs);
     enclosures.reserve(enclosures.size() + intvs.size());
     for (capd::interval const & subsetOfDomain : intvs) {
         DREAL_LOG_INFO << "compute_enclosures: subsetOfDomain = " << subsetOfDomain;
