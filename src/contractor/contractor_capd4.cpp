@@ -391,12 +391,11 @@ bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTi
     for (capd::interval const & subsetOfDomain : intvs) {
         DREAL_LOG_INFO << "compute_enclosures: subsetOfDomain = " << subsetOfDomain;
         capd::interval const dt = prevTime + subsetOfDomain;
-        capd::IVector  const  v = curve(subsetOfDomain);
         // TODO(soonhok): check invariant
         // if (!check_invariant(v, m_inv)) {
-        DREAL_LOG_INFO << "compute_enclosures:" << dt << "\t" << v;
-        if (add_all || (T.leftBound() <= prevTime + subsetOfDomain.leftBound())
-            || (T.leftBound() < prevTime + subsetOfDomain.rightBound())) {
+        if (add_all || (T.leftBound() <= dt.leftBound()) || (T.leftBound() <= dt.rightBound())) {
+            capd::IVector const v = curve(subsetOfDomain);
+            DREAL_LOG_INFO << "compute_enclosures:" << dt << "\t" << v;
             //           [       T         ]
             // --------------------------------
             // 1.  [  O   ]
