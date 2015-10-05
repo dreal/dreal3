@@ -194,7 +194,8 @@ struct SMTConfig
   std::string   nra_json_out_name;             // filename for json (visualization)
   unsigned long nra_ODE_taylor_order;          // --ode-order option
   unsigned long nra_ODE_grid_size;             // --ode-grid option
-  unsigned long nra_ODE_timeout;               // --ode-timeout option
+  double       nra_ODE_fwd_timeout;           // --ode-fwd-timeout option (unit: msec) (default 0.0, no timeout)
+  double       nra_ODE_bwd_timeout;           // --ode-bwd-timeout option (unit: msec) (default 0.0, no timeout)
   double       nra_ODE_step;                  // step control
   bool         nra_ODE_contain;               // contain ODE or not
   bool         nra_ODE_cache;                 // use cache for ODE computation
@@ -210,6 +211,9 @@ struct SMTConfig
   bool         nra_local_opt;                 // use local optimization to refine counter example (for exist-forall problems)
   bool         nra_worklist_fp;               // use worklist fixpoint algorithm
   bool         nra_shrink_for_dop;            // shrink forall domain for dOp optimization
+
+  void setODEFwdTimeout(double const ode_fwd_timeout);
+  void setODEBwdTimeout(double const ode_bwd_timeout);
 
 private:
 
