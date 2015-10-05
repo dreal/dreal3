@@ -331,7 +331,12 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
     // Trivial Case
     if (m_ctrs.size() == 0) { return; }
     m_sf.reset(build_system_factory(vars, m_ctrs));
-    m_sys.reset(new ibex::System(*m_sf));
+    try {
+        m_sys.reset(new ibex::System(*m_sf));
+    } catch (ibex::EmptySystemException & e) {
+        DREAL_LOG_INFO << "contractor_ibex_polytope::contractor_ibex_polytope: empty ibex::system";
+        return;
+    }
 
     unsigned index = 0;
 
