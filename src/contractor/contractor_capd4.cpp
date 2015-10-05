@@ -1,7 +1,5 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-        Sicun Gao <sicung@cs.cmu.edu>
-        Edmund Clarke <emc@cs.cmu.edu>
 
 dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
 
@@ -43,7 +41,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor.h"
 
 using nlohmann::json;
-using std::chrono::duration;
 using std::chrono::steady_clock;
 using std::exception;
 using std::fixed;
@@ -360,8 +357,8 @@ ostream & contractor_capd_fwd_simple::display(ostream & out) const {
     return out;
 }
 
-contractor_capd_fwd_full::contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size)
-    : contractor_cell(contractor_kind::CAPD_FWD, box.size()), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size) {
+contractor_capd_fwd_full::contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size, double const timeout)
+    : contractor_cell(contractor_kind::CAPD_FWD, box.size()), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size), m_timeout(timeout) {
     DREAL_LOG_INFO << "contractor_capd_fwd_full::contractor_capd_fwd_full()";
     integral_constraint const & ic = m_ctr->get_ic();
     string const capd_str = build_capd_string(ic);
@@ -421,8 +418,7 @@ bool filter(vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVec
     DREAL_LOG_DEBUG << "filter : enclosure.size = " << enclosures.size();
     enclosures.erase(remove_if(enclosures.begin(), enclosures.end(),
                                [&X_t](pair<capd::interval, capd::IVector> & item) {
-                                   capd::interval & dt = item.first;
-                                   capd::IVector &  v  = item.second;
+                                   capd::IVector & v = item.second;
                                    // v = v union X_t
                                    DREAL_LOG_DEBUG << "before filter: " << v << "\t" << X_t;
                                    if (!intersection(v, X_t, v)) {
@@ -482,6 +478,7 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
 }
 
 void contractor_capd_fwd_full::prune(box & b, SMTConfig & config) const {
+    auto const start_time = steady_clock::now();
     static box old_box(b);
     old_box = b;
     DREAL_LOG_DEBUG << "contractor_capd_fwd_full::prune";
@@ -512,11 +509,25 @@ void contractor_capd_fwd_full::prune(box & b, SMTConfig & config) const {
         DREAL_LOG_INFO << "T   : " << m_T;
 
         capd::C0Rect2Set s(m_X_0);
+        // Rewind to 0.0
+        (*m_timeMap)(0.0, s);
         m_timeMap->stopAfterStep(true);
         capd::interval prevTime(0.);
 
         vector<pair<capd::interval, capd::IVector>> enclosures;
         do {
+            if (m_timeout > 0.0 && b.max_diam() > config.nra_precision) {
+                auto const end_time = steady_clock::now();
+                auto const time_diff_in_msec = std::chrono::duration<double, milli>(end_time - start_time).count();
+                DREAL_LOG_INFO << "ODE FWD TIME: " << time_diff_in_msec << " / " << m_timeout;
+                if (time_diff_in_msec > m_timeout) {
+                    DREAL_LOG_FATAL << "FWD TIMEOUT!" << "\t"
+                                    << time_diff_in_msec << "msec / "
+                                    << m_timeout << "msec";
+                    throw contractor_exception("FWD TIMEOUT");
+                }
+            }
+
             // Move s toward m_T.rightBound()
             (*m_timeMap)(m_T.rightBound(), s);
             if (contain_nan(s)) {
@@ -681,8 +692,8 @@ ostream & contractor_capd_bwd_simple::display(ostream & out) const {
     return out;
 }
 
-contractor_capd_bwd_full::contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size)
-    : contractor_cell(contractor_kind::CAPD_BWD), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size) {
+contractor_capd_bwd_full::contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size, double const timeout)
+    : contractor_cell(contractor_kind::CAPD_BWD), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size), m_timeout(timeout) {
     DREAL_LOG_INFO << "contractor_capd_bwd_full::contractor_capd_bwd_full()";
     integral_constraint const & ic = m_ctr->get_ic();
     string const & capd_str = build_capd_string(ic, false);
@@ -706,6 +717,7 @@ contractor_capd_bwd_full::contractor_capd_bwd_full(box const & box, ode_constrai
 }
 
 void contractor_capd_bwd_full::prune(box & b, SMTConfig & config) const {
+    auto const start_time = steady_clock::now();
     static box old_box(b);
     old_box = b;
     DREAL_LOG_DEBUG << "contractor_capd_bwd_full::prune";
@@ -736,11 +748,25 @@ void contractor_capd_bwd_full::prune(box & b, SMTConfig & config) const {
         DREAL_LOG_INFO << "T   : " << m_T;
 
         capd::C0Rect2Set s(m_X_t);
+        // Rewind to 0.0
+        (*m_timeMap)(0.0, s);
         m_timeMap->stopAfterStep(true);
         capd::interval prevTime(0.);
 
         vector<pair<capd::interval, capd::IVector>> enclosures;
         do {
+            if (m_timeout > 0.0 && b.max_diam() > config.nra_precision) {
+                auto const end_time = steady_clock::now();
+                auto const time_diff_in_msec = std::chrono::duration<double, milli>(end_time - start_time).count();
+                DREAL_LOG_INFO << "BWD ODE TIME: " << time_diff_in_msec << "msec / " << m_timeout << "msec";
+                if (time_diff_in_msec > m_timeout) {
+                    DREAL_LOG_FATAL << "BWD TIMEOUT!" << "\t"
+                                    << time_diff_in_msec << "msec / "
+                                    << m_timeout << "msec";
+                    throw contractor_exception("BWD TIMEOUT");
+                }
+            }
+
             // Move s toward m_T.rightBound()
             (*m_timeMap)(m_T.rightBound(), s);
             if (contain_nan(s)) {
@@ -793,13 +819,13 @@ ostream & contractor_capd_bwd_full::display(ostream & out) const {
 contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr) {
     return contractor(make_shared<contractor_capd_fwd_simple>(box, ctr));
 }
-contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size) {
-    return contractor(make_shared<contractor_capd_fwd_full>(box, ctr, taylor_order, grid_size));
+contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size, double const timeout) {
+    return contractor(make_shared<contractor_capd_fwd_full>(box, ctr, taylor_order, grid_size, timeout));
 }
 contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr) {
     return contractor(make_shared<contractor_capd_bwd_simple>(box, ctr));
 }
-contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size) {
-    return contractor(make_shared<contractor_capd_bwd_full>(box, ctr, taylor_order, grid_size));
+contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size, double const timeout) {
+    return contractor(make_shared<contractor_capd_bwd_full>(box, ctr, taylor_order, grid_size, timeout));
 }
 }  // namespace dreal
