@@ -116,8 +116,7 @@ public:
     friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
     friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
     friend contractor mk_contractor_seq(std::vector<contractor> const & v);
-    friend contractor mk_contractor_seq(contractor const & c, std::vector<contractor> const & v);
-    friend contractor mk_contractor_seq(contractor const & c1, std::vector<contractor> const & v, contractor const & c2);
+    friend contractor mk_contractor_seq(contractor const & c1, contractor const & c2);
     friend contractor mk_contractor_try(contractor const & c);
     friend contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
     friend contractor mk_contractor_join(contractor const & c1, contractor const & c2);
@@ -133,9 +132,9 @@ public:
     friend contractor mk_contractor_aggressive(unsigned const n, std::vector<constraint *> const & ctrs);
 #ifdef SUPPORT_ODE
     friend contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
-    friend contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    friend contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size, double const timeout);
     friend contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
-    friend contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
+    friend contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size, double const timeout);
 #endif
     std::size_t hash() const { return (std::size_t) m_ptr.get(); }
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
@@ -148,8 +147,7 @@ private:
 public:
     explicit contractor_seq(std::initializer_list<contractor> const & l);
     explicit contractor_seq(std::vector<contractor> const & v);
-    contractor_seq(contractor const & c, std::vector<contractor> const & v);
-    contractor_seq(contractor const & c1, std::vector<contractor> const & v, contractor const & c2);
+    contractor_seq(contractor const & c1, contractor const & c2);
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -274,8 +272,7 @@ public:
 
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
 contractor mk_contractor_seq(std::vector<contractor> const & v);
-contractor mk_contractor_seq(contractor const & c, std::vector<contractor> const & v);
-contractor mk_contractor_seq(contractor const & c1, std::vector<contractor> const & v, contractor const & c2);
+contractor mk_contractor_seq(contractor const & c1, contractor const & c2);
 contractor mk_contractor_try(contractor const & c);
 contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
 contractor mk_contractor_join(contractor const & c1, contractor const & c2);
