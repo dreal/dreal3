@@ -387,8 +387,12 @@ bool compute_enclosures(capd::IOdeSolver & solver, capd::interval const & prevTi
     capd::interval domain = capd::interval(0, 1) * stepMade;
 
     vector<capd::interval> intvs;
-    if (!add_all && (prevTime.rightBound() < T.leftBound())) {
-        domain.setLeftBound(T.leftBound() - prevTime.rightBound());
+    if (!add_all) {
+        double const new_domain_left = T.leftBound() - prevTime.rightBound();
+        double const domain_right = domain.rightBound();
+        if (new_domain_left > 0.0 && new_domain_left <= domain_right) {
+            domain.setLeftBound(T.leftBound() - prevTime.rightBound());
+        }
     }
     split(domain, grid_size, intvs);
     enclosures.reserve(enclosures.size() + intvs.size());
