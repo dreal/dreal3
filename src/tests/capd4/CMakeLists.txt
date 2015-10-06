@@ -13,3 +13,7 @@ add_test(capd4_example_03 ${CMAKE_CURRENT_BINARY_DIR}/capd4_example_03)
 add_executable(capd4_example_04 example_04.cpp)
 target_link_libraries(capd4_example_04 dreal ${EXTRA_LIBS})
 add_test(capd4_example_04 ${CMAKE_CURRENT_BINARY_DIR}/capd4_example_04)
+
+add_executable(capd4_example_05 example_05.cpp)
+target_link_libraries(capd4_example_05 dreal ${EXTRA_LIBS})
+add_test(capd4_example_05 ${CMAKE_CURRENT_BINARY_DIR}/capd4_example_05)
