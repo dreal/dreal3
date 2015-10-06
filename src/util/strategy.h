@@ -31,7 +31,7 @@ public:
     virtual contractor build_contractor(box const & box,
                                         scoped_vec<constraint *> const &ctrs,
                                         bool const complete,
-                                        SMTConfig & config) const = 0;
+                                        SMTConfig const & config) const = 0;
 };
 
 class default_strategy : public strategy {
@@ -40,7 +40,6 @@ public:
     virtual contractor build_contractor(box const & box,
                                         scoped_vec<constraint *> const &ctrs,
                                         bool const complete,
-                                        SMTConfig & config) const;
+                                        SMTConfig const & config) const;
 };
-
 }  // namespace dreal

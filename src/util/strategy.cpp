@@ -68,7 +68,7 @@ bool default_strategy::term_cond(box const & old_box, box const & new_box) {
 contractor default_strategy::build_contractor(box const & box,
                                               scoped_vec<constraint *> const &ctrs,
                                               bool const complete,
-                                              SMTConfig & config) const {
+                                              SMTConfig const & config) const {
     // 1. Categorize constraints
     vector<nonlinear_constraint const *> nl_ctrs;
     vector<ode_constraint const *> ode_ctrs;
