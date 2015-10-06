@@ -134,7 +134,7 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
         return name;
     } else if (e->isTerm()) {
         // output "("
-        if (!e->getCdr()->isEnil() && (e->isPlus() || e->isMinus() || e->isTimes() || e->isPow())) {
+        if (!e->getCdr()->isEnil() && (e->isPlus() || e->isMinus() || e->isTimes() || e->isDiv() || e->isPow())) {
             ret = "(";
         }
         // !(X = Y) ==> (0 = 0)
@@ -159,7 +159,7 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
             Enode * const op = e->getCar();
             Enode * p = e->getCdr();
             // Print 1st argument
-            ret += subst(p->getCar(), subst_map);
+            ret += "(" + subst(p->getCar(), subst_map) + ")";
             p = p->getCdr();
             while (!p->isEnil()) {
                 // output operator
@@ -209,7 +209,7 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
             }
         }
         // output ")"
-        if (!e->getCdr()->isEnil() && (e->isPlus() || e->isMinus() || e->isTimes() || e->isPow())) {
+        if (!e->getCdr()->isEnil() && (e->isPlus() || e->isMinus() || e->isTimes() || e->isDiv() || e->isPow())) {
             ret += ")";
         }
     } else if (e->isList()) {
