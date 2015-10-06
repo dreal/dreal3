@@ -100,13 +100,17 @@ contractor default_strategy::build_contractor(box const & box,
         ctcs.push_back(mk_contractor_sample(config.nra_sample, ctrs.get_vec()));
     }
     // 2.1 Build nonlinear contractors
+    vector<contractor> nl_ctcs;
     for (auto nl_ctr : nl_ctrs) {
         if (!nl_ctr->is_neq()) {
-            ctcs.push_back(mk_contractor_ibex_fwdbwd(box, nl_ctr));
+            nl_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, nl_ctr));
         } else {
             // Case: != (not equal), do nothing
         }
     }
+    contractor nl_ctc = mk_contractor_seq(nl_ctcs);
+    ctcs.push_back(nl_ctc);
+
     // 2.2. Build Polytope Contractor
     if (config.nra_polytope) {
         ctcs.push_back(mk_contractor_ibex_polytope(config.nra_precision, box.get_vars(), nl_ctrs));
@@ -123,11 +127,15 @@ contractor default_strategy::build_contractor(box const & box,
             // For now, it always tries forward-ode-pruning first, and then backward-ode pruning later.
             ctcs.emplace_back(
                 mk_contractor_try(
-                    mk_contractor_capd_fwd_full(box, ode_ctr, config.nra_ODE_taylor_order, config.nra_ODE_grid_size)));
+                    mk_contractor_seq(
+                        mk_contractor_capd_fwd_full(box, ode_ctr, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_fwd_timeout),
+                        nl_ctc)));
             if (!config.nra_ODE_forward_only) {
                 ctcs.emplace_back(
                     mk_contractor_try(
-                        mk_contractor_capd_bwd_full(box, ode_ctr, config.nra_ODE_taylor_order, config.nra_ODE_grid_size)));
+                        mk_contractor_seq(
+                            mk_contractor_capd_bwd_full(box, ode_ctr, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_bwd_timeout),
+                            nl_ctc)));
             }
         }
     }
