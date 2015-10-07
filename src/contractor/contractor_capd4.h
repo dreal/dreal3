@@ -34,18 +34,20 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor_basic.h"
 
 namespace dreal {
-class contractor_capd_fwd_simple : public contractor_cell {
+class contractor_capd_simple : public contractor_cell {
 private:
+    bool const m_forward;
     ode_constraint const * const m_ctr;
 
 public:
-    contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr);
+    contractor_capd_simple(box const & box, ode_constraint const * const ctr, bool const forward);
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
-class contractor_capd_fwd_full : public contractor_cell {
+class contractor_capd_full : public contractor_cell {
 private:
+    bool const m_forward;
     ode_constraint const * const m_ctr;
     unsigned const m_taylor_order;
     unsigned const m_grid_size;
@@ -57,40 +59,12 @@ private:
     bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, std::vector<std::pair<capd::interval, capd::IVector>> & enclosures) const;
 
 public:
-    contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size, double const timeout = 0.0);
+    contractor_capd_full(box const & box, ode_constraint const * const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout = 0.0);
     void prune(box & b, SMTConfig & config) const;
     nlohmann::json generate_trace(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
-class contractor_capd_bwd_simple : public contractor_cell {
-private:
-    ode_constraint const * const m_ctr;
-
-public:
-    contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr);
-    void prune(box & b, SMTConfig & config) const;
-    std::ostream & display(std::ostream & out) const;
-};
-
-class contractor_capd_bwd_full : public contractor_cell {
-private:
-    ode_constraint const * const m_ctr;
-    unsigned const m_taylor_order;
-    unsigned const m_grid_size;
-    double const m_timeout;  // unit: msec
-
-    std::unique_ptr<capd::IMap> m_vectorField;
-    std::unique_ptr<capd::IOdeSolver> m_solver;
-    std::unique_ptr<capd::ITimeMap> m_timeMap;
-
-public:
-    contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size, double const timeout = 0.0);
-    void prune(box & b, SMTConfig & config) const;
-    std::ostream & display(std::ostream & out) const;
-};
-contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
-contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16, double const timeout = 0.0);
-contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16);
-contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order = 20, unsigned const grid_size = 16, double const timeout = 0.0);
+contractor mk_contractor_capd_simple(box const & box, ode_constraint const * const ctr, bool const forward);
+contractor mk_contractor_capd_full(box const & box, ode_constraint const * const ctr, bool const forward, unsigned const taylor_order = 20, unsigned const grid_size = 16, double const timeout = 0.0);
 }  // namespace dreal

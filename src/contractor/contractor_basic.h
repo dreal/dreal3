@@ -42,7 +42,7 @@ enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
         IBEX_FWDBWD, IBEX_NEWTON, IBEX_HC4, IBEX_POLYTOPE,
         INT, EVAL, CACHE, SAMPLE, AGGRESSIVE, FORALL,
 #ifdef SUPPORT_ODE
-        CAPD_FWD, CAPD_BWD,
+        CAPD_FULL, CAPD_SIMPLE
 #endif
         };
 
@@ -131,10 +131,8 @@ public:
     friend contractor mk_contractor_sample(unsigned const n, std::vector<constraint *> const & ctrs);
     friend contractor mk_contractor_aggressive(unsigned const n, std::vector<constraint *> const & ctrs);
 #ifdef SUPPORT_ODE
-    friend contractor mk_contractor_capd_fwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
-    friend contractor mk_contractor_capd_fwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size, double const timeout);
-    friend contractor mk_contractor_capd_bwd_simple(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size);
-    friend contractor mk_contractor_capd_bwd_full(box const & box, ode_constraint const * const ctr, unsigned const taylor_order, unsigned const grid_size, double const timeout);
+    friend contractor mk_contractor_capd_simple(box const & box, ode_constraint const * const ctr, bool const forward);
+    friend contractor mk_contractor_capd_full(box const & box, ode_constraint const * const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout);
 #endif
     std::size_t hash() const { return (std::size_t) m_ptr.get(); }
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);

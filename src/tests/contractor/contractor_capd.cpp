@@ -102,7 +102,7 @@ TEST_CASE("capd_fwd") {
                             make_pair("p", static_cast<Enode*>(rhs_p))});
     ode_constraint oc(ic, {});
 
-    contractor c = mk_contractor_capd_fwd_full(b, &oc);
+    contractor c = mk_contractor_capd_full(b, &oc, true);
 
     cerr << oc << endl;
     cerr << b << endl;
@@ -211,7 +211,7 @@ TEST_CASE("capd_bwd") {
                             make_pair("p", static_cast<Enode*>(rhs_p))});
     ode_constraint oc(ic, {});
 
-    contractor c = mk_contractor_capd_bwd_full(b, &oc);
+    contractor c = mk_contractor_capd_full(b, &oc, false);
 
     cerr << oc << endl;
     cerr << b << endl;

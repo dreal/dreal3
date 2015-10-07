@@ -128,13 +128,13 @@ contractor default_strategy::build_contractor(box const & box,
             ctcs.emplace_back(
                 mk_contractor_try(
                     mk_contractor_seq(
-                        mk_contractor_capd_fwd_full(box, ode_ctr, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_fwd_timeout),
+                        mk_contractor_capd_full(box, ode_ctr, true, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_fwd_timeout),
                         nl_ctc)));
             if (!config.nra_ODE_forward_only) {
                 ctcs.emplace_back(
                     mk_contractor_try(
                         mk_contractor_seq(
-                            mk_contractor_capd_bwd_full(box, ode_ctr, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_bwd_timeout),
+                            mk_contractor_capd_full(box, ode_ctr, false, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_bwd_timeout),
                             nl_ctc)));
             }
         }

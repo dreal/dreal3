@@ -224,16 +224,11 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
 }
 
 // Update ctr_map by adding new nonlinear_constraints
-void initialize_nonlinear_constraints(map<pair<Enode*, bool>, unique_ptr<constraint>> & ctr_map,
-                                      vector<Enode *> const & lits) {
-    // 1. Collect all variables (Enode *) in literals
-    unordered_set<Enode *> var_set;
-    for (Enode * const l : lits) {
-        unordered_set<Enode *> const & vars = l->get_vars();
-        var_set.insert(vars.begin(), vars.end());
-    }
-
-    // 2. Create Nonlinear constraints.
+void initialize_nonlinear_constraints(map<pair<Enode*, bool>,
+                                      unique_ptr<constraint>> & ctr_map,
+                                      vector<Enode *> const & lits,
+                                      unordered_set<Enode *> const & var_set) {
+    // Create Nonlinear constraints.
     for (Enode * const l : lits) {
         auto it_nc_pos = ctr_map.find(make_pair(l, true));
         auto it_nc_neg = ctr_map.find(make_pair(l, false));
@@ -253,7 +248,8 @@ void initialize_nonlinear_constraints(map<pair<Enode*, bool>, unique_ptr<constra
 // Update ctr_map by adding new ode constraints, from the information collected in ints and invs
 void initialize_ode_constraints(map<pair<Enode*, bool>, unique_ptr<constraint>> & ctr_map,
                                 vector<integral_constraint> const & ints,
-                                vector<forallt_constraint> const & invs) {
+                                vector<forallt_constraint> const & invs,
+                                unordered_set<Enode *> const & var_set) {
     // Attach the corresponding forallT literals to integrals
     for (integral_constraint ic : ints) {
         vector<forallt_constraint> local_invs;
@@ -285,7 +281,12 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
     vector<integral_constraint> ints;
     vector<forallt_constraint> invs;
     vector<Enode *> nonlinear_lits;
+    unordered_set<Enode *> var_set;
     for (Enode * l : lits) {
+        // collect var_set
+        unordered_set<Enode *> const & vars = l->get_vars();
+        var_set.insert(vars.begin(), vars.end());
+
         // Partition ODE-related constraint into integrals and forallTs
         if (l->isIntegral()) {
             integral_constraint ic = mk_integral_constraint(l, egraph.flow_maps);
@@ -314,8 +315,8 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
             throw runtime_error("nra_solver::initialize_constraints: No Patten");
         }
     }
-    initialize_ode_constraints(m_ctr_map, ints, invs);
-    initialize_nonlinear_constraints(m_ctr_map, nonlinear_lits);
+    initialize_ode_constraints(m_ctr_map, ints, invs, var_set);
+    initialize_nonlinear_constraints(m_ctr_map, nonlinear_lits, var_set);
 }
 
 void nra_solver::initialize(vector<Enode *> const & lits) {
@@ -374,7 +375,7 @@ void nra_solver::handle_sat_case(box const & b) const {
         // Need to run ODE pruning operator once again to generate a trace
         for (constraint * const ctr : m_stack) {
             if (ctr->get_type() == constraint_type::ODE) {
-                contractor_capd_fwd_full fwd_full(b, dynamic_cast<ode_constraint *>(ctr), config.nra_ODE_taylor_order, config.nra_ODE_grid_size);
+                contractor_capd_full fwd_full(b, dynamic_cast<ode_constraint *>(ctr), true, config.nra_ODE_taylor_order, config.nra_ODE_grid_size);
                 json trace = fwd_full.generate_trace(b, config);
                 traces.push_back(trace);
             }
