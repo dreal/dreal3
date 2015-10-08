@@ -51,6 +51,13 @@ using std::unordered_map;
 using std::unordered_set;
 using std::vector;
 
+namespace std {
+// Hash for nonlinear_constraint
+size_t hash<dreal::nonlinear_constraint>::operator()(dreal::nonlinear_constraint const & ctr) const {
+    return hash<uintptr_t>()(reinterpret_cast<uintptr_t>(ctr.get_numctr().get()));
+}
+}  // namespace std
+
 namespace dreal {
 
 ostream & operator<<(ostream & out, constraint_type const & ty) {

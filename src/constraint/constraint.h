@@ -35,7 +35,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/flow.h"
 
 namespace dreal {
-
 enum class constraint_type { Nonlinear, ODE, Integral, ForallT, Exists, GenericForall };
 std::ostream & operator<<(std::ostream & out, constraint_type const & ty);
 
@@ -57,13 +56,12 @@ public:
     virtual ~constraint() noexcept { }
     friend std::ostream & operator<<(std::ostream & out, constraint const & c);
 };
-
 std::ostream & operator<<(std::ostream & out, constraint const & c);
 
 class nonlinear_constraint : public constraint {
 private:
     bool const                               m_is_neq;
-    std::unique_ptr<ibex::NumConstraint>     m_numctr;
+    std::shared_ptr<ibex::NumConstraint>     m_numctr;
     ibex::Array<ibex::ExprSymbol const>      m_var_array;
     std::pair<lbool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
 
@@ -71,10 +69,13 @@ public:
     nonlinear_constraint(Enode * const e, std::unordered_set<Enode*> const & var_set, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
     virtual std::ostream & display(std::ostream & out) const;
     std::pair<lbool, ibex::Interval> eval(box const & b) const;
-    inline ibex::NumConstraint * get_numctr() const { return m_numctr.get(); }
+    inline std::shared_ptr<ibex::NumConstraint> get_numctr() const { return m_numctr; }
     ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
     inline Enode * get_enode() const { return get_enodes()[0]; }
     bool is_neq() const { return m_is_neq; }
+    bool operator==(nonlinear_constraint const & nc) const {
+        return m_numctr == nc.m_numctr;
+    }
 };
 
 class integral_constraint : public constraint {
@@ -135,7 +136,7 @@ private:
     std::vector<forallt_constraint> const m_invs;
 
 public:
-    ode_constraint(integral_constraint const & integral, std::vector<forallt_constraint> const & invs);
+    explicit ode_constraint(integral_constraint const & integral, std::vector<forallt_constraint> const & invs = std::vector<forallt_constraint>());
     inline integral_constraint const & get_ic() const { return m_int; }
     inline std::vector<forallt_constraint> const & get_invs() const { return m_invs; }
     virtual std::ostream & display(std::ostream & out) const;
@@ -158,5 +159,12 @@ public:
     inline Enode * get_enode() const { return get_enodes()[0]; }
     inline lbool get_polarity() const { return m_polarity; }
 };
-
 }  // namespace dreal
+
+namespace std {
+template<>
+struct hash<::dreal::nonlinear_constraint> {
+public:
+    size_t operator()(dreal::nonlinear_constraint const & ctr) const;
+};
+}  // namespace std
