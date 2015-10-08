@@ -154,8 +154,6 @@ ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_se
 contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> const ctr)
     : contractor_cell(contractor_kind::IBEX_FWDBWD, ctr->get_var_array().size()), m_ctr(ctr),
       m_numctr(ctr->get_numctr()), m_var_array(ctr->get_var_array()) {
-    // DREAL_LOG_FATAL << "contractor_ibex_fwdbwd::contractor_ibex_fwdbwd - "
-    //                 << m_var_array.size();
     if (!ctr->is_neq()) {
         m_ctc.reset(new ibex::CtcFwdBwd(*m_numctr));
         // Set up input

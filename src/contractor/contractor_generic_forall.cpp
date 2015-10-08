@@ -320,31 +320,27 @@ contractor make_contractor(Enode * e,
                            lbool const
                            polarity,
                            box const & b,
-                           unordered_set<Enode *> const & var_set,
-                           vector<shared_ptr<nonlinear_constraint>> & ctrs) {
+                           unordered_set<Enode *> const & var_set) {
     if (e->isNot()) {
-        return make_contractor(e->get1st(), !polarity, b, var_set, ctrs);
+        return make_contractor(e->get1st(), !polarity, b, var_set);
     }
     if (e->isOr()) {
         // TODO(soonhok): arbitrary number of args
         assert(e->getArity() == 2);
-        contractor c1 = make_contractor(e->get1st(), polarity, b, var_set, ctrs);
-        contractor c2 = make_contractor(e->get2nd(), polarity, b, var_set, ctrs);
+        contractor c1 = make_contractor(e->get1st(), polarity, b, var_set);
+        contractor c2 = make_contractor(e->get2nd(), polarity, b, var_set);
         return mk_contractor_join(c1, c2);
     }
     if (e->isAnd()) {
         vector<contractor> ctcs;
         e = e->getCdr();
         while (!e->isEnil()) {
-            ctcs.push_back(make_contractor(e->getCar(), polarity, b, var_set, ctrs));
+            ctcs.push_back(make_contractor(e->getCar(), polarity, b, var_set));
             e = e->getCdr();
         }
         return mk_contractor_seq(ctcs);
     } else {
-        auto ctr = make_shared<nonlinear_constraint>(e, var_set, polarity);
-        auto ctc = mk_contractor_ibex_fwdbwd(ctr);
-        ctrs.push_back(ctr);
-        return ctc;
+        return mk_contractor_ibex_fwdbwd(make_shared<nonlinear_constraint>(e, var_set, polarity));
     }
 }
 
@@ -402,7 +398,6 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
 }
 
 box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) {
-    vector<shared_ptr<nonlinear_constraint>> ctrs;
     vector<contractor> ctcs;
     box counterexample(b, forall_vars);
     if (config.nra_shrink_for_dop) {
@@ -416,7 +411,7 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_v
             polarity = !polarity;
             e = e->get1st();
         }
-        contractor ctc = make_contractor(e, polarity, counterexample, var_set, ctrs);
+        contractor ctc = make_contractor(e, polarity, counterexample, var_set);
         ctcs.push_back(ctc);
     }
     contractor fp = mk_contractor_fixpoint(default_strategy::term_cond, ctcs);
