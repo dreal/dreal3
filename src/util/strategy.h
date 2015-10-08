@@ -29,7 +29,7 @@ class strategy {
 public:
     // Takes a stack of constraint and a box, return a contractor
     virtual contractor build_contractor(box const & box,
-                                        scoped_vec<constraint *> const &ctrs,
+                                        scoped_vec<std::shared_ptr<constraint>> const &ctrs,
                                         bool const complete,
                                         SMTConfig const & config) const = 0;
 };
@@ -38,7 +38,7 @@ class default_strategy : public strategy {
 public:
     static bool term_cond(box const & old_box, box const & new_box);
     virtual contractor build_contractor(box const & box,
-                                        scoped_vec<constraint *> const &ctrs,
+                                        scoped_vec<std::shared_ptr<constraint>> const &ctrs,
                                         bool const complete,
                                         SMTConfig const & config) const;
 };

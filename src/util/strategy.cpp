@@ -18,6 +18,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <limits>
+#include <memory>
 #include <vector>
 #include "util/strategy.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
@@ -26,10 +27,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 
-using std::vector;
 using std::cerr;
+using std::dynamic_pointer_cast;
 using std::endl;
+using std::make_shared;
 using std::numeric_limits;
+using std::shared_ptr;
+using std::vector;
 
 namespace dreal {
 
@@ -66,26 +70,26 @@ bool default_strategy::term_cond(box const & old_box, box const & new_box) {
 }
 
 contractor default_strategy::build_contractor(box const & box,
-                                              scoped_vec<constraint *> const &ctrs,
+                                              scoped_vec<shared_ptr<constraint>> const & ctrs,
                                               bool const complete,
                                               SMTConfig const & config) const {
     // 1. Categorize constraints
-    vector<nonlinear_constraint const *> nl_ctrs;
-    vector<ode_constraint const *> ode_ctrs;
-    vector<generic_forall_constraint const *> generic_forall_ctrs;
-    for (constraint * const ctr : ctrs.get_reverse()) {
+    vector<shared_ptr<nonlinear_constraint>> nl_ctrs;
+    vector<shared_ptr<ode_constraint>> ode_ctrs;
+    vector<shared_ptr<generic_forall_constraint>> generic_forall_ctrs;
+    for (shared_ptr<constraint> const ctr : ctrs.get_reverse()) {
         switch (ctr->get_type()) {
         case constraint_type::Nonlinear: {
-            nonlinear_constraint const * const nl_ctr = dynamic_cast<nonlinear_constraint *>(ctr);
+            auto nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
             nl_ctrs.push_back(nl_ctr);
             break;
         }
         case constraint_type::ODE: {
-            ode_constraint const * const ode_ctr = dynamic_cast<ode_constraint *>(ctr);
+            auto ode_ctr = dynamic_pointer_cast<ode_constraint>(ctr);
             ode_ctrs.push_back(ode_ctr); break;
         }
         case constraint_type::GenericForall: {
-            generic_forall_constraint const * const gf_ctr = dynamic_cast<generic_forall_constraint *>(ctr);
+            auto gf_ctr = dynamic_pointer_cast<generic_forall_constraint>(ctr);
             generic_forall_ctrs.push_back(gf_ctr); break;
         }
         default:
@@ -101,9 +105,9 @@ contractor default_strategy::build_contractor(box const & box,
     }
     // 2.1 Build nonlinear contractors
     vector<contractor> nl_ctcs;
-    for (auto nl_ctr : nl_ctrs) {
+    for (auto const & nl_ctr : nl_ctrs) {
         if (!nl_ctr->is_neq()) {
-            nl_ctcs.push_back(mk_contractor_ibex_fwdbwd(box, nl_ctr));
+            nl_ctcs.push_back(mk_contractor_ibex_fwdbwd(nl_ctr));
         } else {
             // Case: != (not equal), do nothing
         }
@@ -118,12 +122,12 @@ contractor default_strategy::build_contractor(box const & box,
     // 2.3. Int Contractor
     ctcs.push_back(mk_contractor_int());
     // 2.4. Build generic forall contractors
-    for (auto generic_forall_ctr : generic_forall_ctrs) {
+    for (auto const & generic_forall_ctr : generic_forall_ctrs) {
         ctcs.push_back(mk_contractor_generic_forall(box, generic_forall_ctr));
     }
     // 2.5. Build ODE constractors
     if (complete) {
-        for (auto ode_ctr : ode_ctrs) {
+        for (auto const & ode_ctr : ode_ctrs) {
             // For now, it always tries forward-ode-pruning first, and then backward-ode pruning later.
             ctcs.emplace_back(
                 mk_contractor_try(
@@ -140,8 +144,8 @@ contractor default_strategy::build_contractor(box const & box,
         }
     }
     // 2.6 Build Eval contractors
-    for (auto nl_ctr : nl_ctrs) {
-        ctcs.push_back(mk_contractor_eval(box, nl_ctr));
+    for (auto const & nl_ctr : nl_ctrs) {
+        ctcs.push_back(mk_contractor_eval(nl_ctr));
     }
     return mk_contractor_fixpoint(default_strategy::term_cond, ctcs);
 }
