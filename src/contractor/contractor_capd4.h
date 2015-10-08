@@ -37,10 +37,10 @@ namespace dreal {
 class contractor_capd_simple : public contractor_cell {
 private:
     bool const m_forward;
-    ode_constraint const * const m_ctr;
+    std::shared_ptr<ode_constraint> const m_ctr;
 
 public:
-    contractor_capd_simple(box const & box, ode_constraint const * const ctr, bool const forward);
+    contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward);
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -48,7 +48,7 @@ public:
 class contractor_capd_full : public contractor_cell {
 private:
     bool const m_forward;
-    ode_constraint const * const m_ctr;
+    std::shared_ptr<ode_constraint> const m_ctr;
     unsigned const m_taylor_order;
     unsigned const m_grid_size;
     double const m_timeout;  // unit: msec
@@ -59,12 +59,12 @@ private:
     bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, std::vector<std::pair<capd::interval, capd::IVector>> & enclosures) const;
 
 public:
-    contractor_capd_full(box const & box, ode_constraint const * const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout = 0.0);
+    contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout = 0.0);
     void prune(box & b, SMTConfig & config) const;
     nlohmann::json generate_trace(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
-contractor mk_contractor_capd_simple(box const & box, ode_constraint const * const ctr, bool const forward);
-contractor mk_contractor_capd_full(box const & box, ode_constraint const * const ctr, bool const forward, unsigned const taylor_order = 20, unsigned const grid_size = 16, double const timeout = 0.0);
+contractor mk_contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward);
+contractor mk_contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order = 20, unsigned const grid_size = 16, double const timeout = 0.0);
 }  // namespace dreal

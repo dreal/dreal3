@@ -59,6 +59,7 @@ using std::function;
 using std::get;
 using std::initializer_list;
 using std::make_shared;
+using std::move;
 using std::numeric_limits;
 using std::ostream;
 using std::ostringstream;
@@ -66,13 +67,13 @@ using std::pair;
 using std::queue;
 using std::runtime_error;
 using std::set;
+using std::shared_ptr;
 using std::string;
 using std::tuple;
+using std::unique_ptr;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
-using std::unique_ptr;
-using std::move;
 
 namespace dreal {
 
@@ -85,7 +86,7 @@ static unordered_map<Enode*, ibex::Interval> make_subst_from_value(box const & b
     return subst;
 }
 
-contractor_generic_forall::contractor_generic_forall(box const & , generic_forall_constraint const * const ctr)
+contractor_generic_forall::contractor_generic_forall(box const & , shared_ptr<generic_forall_constraint> const ctr)
     : contractor_cell(contractor_kind::FORALL), m_ctr(ctr) {
 }
 
@@ -320,7 +321,7 @@ contractor make_contractor(Enode * e,
                            polarity,
                            box const & b,
                            unordered_set<Enode *> const & var_set,
-                           vector<unique_ptr<nonlinear_constraint>> & ctrs) {
+                           vector<shared_ptr<nonlinear_constraint>> & ctrs) {
     if (e->isNot()) {
         return make_contractor(e->get1st(), !polarity, b, var_set, ctrs);
     }
@@ -340,10 +341,9 @@ contractor make_contractor(Enode * e,
         }
         return mk_contractor_seq(ctcs);
     } else {
-        // unique_ptr<nonlinear_constraint> ctr(new nonlinear_constraint(e, polarity));
-        unique_ptr<nonlinear_constraint> ctr(new nonlinear_constraint(e, var_set, polarity));
-        auto ctc = mk_contractor_ibex_fwdbwd(b, ctr.get());
-        ctrs.push_back(move(ctr));
+        auto ctr = make_shared<nonlinear_constraint>(e, var_set, polarity);
+        auto ctc = mk_contractor_ibex_fwdbwd(ctr);
+        ctrs.push_back(ctr);
         return ctc;
     }
 }
@@ -402,7 +402,7 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
 }
 
 box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) {
-    vector<unique_ptr<nonlinear_constraint>> ctrs;
+    vector<shared_ptr<nonlinear_constraint>> ctrs;
     vector<contractor> ctcs;
     box counterexample(b, forall_vars);
     if (config.nra_shrink_for_dop) {
@@ -494,14 +494,14 @@ void contractor_generic_forall::handle_disjunction(box & b, vector<Enode *> cons
                 polarity = !polarity;
                 e = e->get1st();
             }
-            nonlinear_constraint ctr(e, var_set, polarity, subst);
-            if (ctr.get_var_array().size() == 0) {
-                auto result = ctr.eval(b);
+            auto ctr = make_shared<nonlinear_constraint>(e, var_set, polarity, subst);
+            if (ctr->get_var_array().size() == 0) {
+                auto result = ctr->eval(b);
                 if (result.first != false) {
                     boxes.emplace_back(b);
                 }
             } else {
-                contractor ctc = mk_contractor_ibex_fwdbwd(b, &ctr);
+                contractor ctc = mk_contractor_ibex_fwdbwd(ctr);
                 box bt(b);
                 ctc.prune(bt, config);
                 boxes.emplace_back(bt);
@@ -543,7 +543,7 @@ ostream & contractor_generic_forall::display(ostream & out) const {
     return out;
 }
 
-contractor mk_contractor_generic_forall(box const & b, generic_forall_constraint const * const ctr) {
+contractor mk_contractor_generic_forall(box const & b, shared_ptr<generic_forall_constraint> const ctr) {
     return contractor(make_shared<contractor_generic_forall>(b, ctr));
 }
 

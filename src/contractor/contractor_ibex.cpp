@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <queue>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -46,20 +47,24 @@ using std::cerr;
 using std::endl;
 using std::function;
 using std::initializer_list;
+using std::make_pair;
 using std::make_shared;
 using std::map;
 using std::move;
 using std::ostream;
 using std::ostringstream;
+using std::pair;
 using std::queue;
+using std::shared_ptr;
 using std::string;
+using std::tuple;
 using std::unique_ptr;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
 
 namespace dreal {
-ibex::SystemFactory* contractor_ibex_polytope::build_system_factory(vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
+ibex::SystemFactory* contractor_ibex_polytope::build_system_factory(vector<Enode *> const & vars, vector<shared_ptr<nonlinear_constraint>> const & ctrs) {
     DREAL_LOG_DEBUG << "build_system_factory:";
     ibex::SystemFactory * sf = new ibex::SystemFactory();
     map<string, ibex::Variable const> var_map;  // Needed for translateEnodeToExprCtr
@@ -85,7 +90,7 @@ ibex::SystemFactory* contractor_ibex_polytope::build_system_factory(vector<Enode
     DREAL_LOG_DEBUG << "build_system_factory: Add Variable: DONE";
 
     // Construct System: add constraints
-    for (nonlinear_constraint const * ctr : ctrs) {
+    for (shared_ptr<nonlinear_constraint> const ctr : ctrs) {
         if (ctr->is_neq()) {
             continue;
         }
@@ -146,18 +151,15 @@ ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_se
     return ret;
 }
 
-contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr)
-    : contractor_cell(contractor_kind::IBEX_FWDBWD, box.size()), m_ctr(ctr),
+contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> const ctr)
+    : contractor_cell(contractor_kind::IBEX_FWDBWD, ctr->get_var_array().size()), m_ctr(ctr),
       m_numctr(ctr->get_numctr()), m_var_array(ctr->get_var_array()) {
+    // DREAL_LOG_FATAL << "contractor_ibex_fwdbwd::contractor_ibex_fwdbwd - "
+    //                 << m_var_array.size();
     if (!ctr->is_neq()) {
         m_ctc.reset(new ibex::CtcFwdBwd(*m_numctr));
         // Set up input
-        ibex::BitSet const * const input = m_ctc->input;
-        for (unsigned i = 0; i <  input->size(); i++) {
-            if ((*input)[i]) {
-                m_input.add(box.get_index(m_var_array[i].name));
-            }
-        }
+        m_input = *(m_ctc->input);
         m_used_constraints.insert(m_ctr);
     }
 }
@@ -205,7 +207,7 @@ ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
     return out;
 }
 
-contractor_ibex_newton::contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr)
+contractor_ibex_newton::contractor_ibex_newton(box const & box, shared_ptr<nonlinear_constraint> const ctr)
     : contractor_cell(contractor_kind::IBEX_NEWTON, box.size()), m_ctr(ctr),
       m_numctr(ctr->get_numctr()), m_var_array(ctr->get_var_array()) {
     if (!ctr->is_neq()) {
@@ -270,18 +272,18 @@ ostream & contractor_ibex_newton::display(ostream & out) const {
     return out;
 }
 
-contractor_ibex_hc4::contractor_ibex_hc4(vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs)
+contractor_ibex_hc4::contractor_ibex_hc4(vector<Enode *> const & vars, vector<shared_ptr<nonlinear_constraint>> const & ctrs)
     : contractor_cell(contractor_kind::IBEX_HC4), m_ctrs(ctrs) {
     // Trivial Case
     if (m_ctrs.size() == 0) { return; }
     unsigned index = 0;
     ibex::Array<ibex::NumConstraint> cps(ctrs.size());
-    for (nonlinear_constraint const * numctr : ctrs) {
+    for (shared_ptr<nonlinear_constraint> numctr : ctrs) {
         cps.set_ref(index++, *(numctr->get_numctr()));
     }
     m_ctc.reset(new ibex::CtcHC4(cps));
     m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
-    for (nonlinear_constraint const * ctr : ctrs) {
+    for (shared_ptr<nonlinear_constraint> ctr : ctrs) {
         unordered_set<Enode*> const & vars_in_ctr = ctr->get_enode()->get_vars();
         m_vars_in_ctrs.insert(vars_in_ctr.begin(), vars_in_ctr.end());
     }
@@ -326,7 +328,7 @@ ostream & contractor_ibex_hc4::display(ostream & out) const {
     return out;
 }
 
-contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs)
+contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Enode *> const & vars, vector<shared_ptr<nonlinear_constraint>> const & ctrs)
     : contractor_cell(contractor_kind::IBEX_POLYTOPE), m_ctrs(ctrs), m_prec(prec) {
     // Trivial Case
     if (m_ctrs.size() == 0) { return; }
@@ -369,7 +371,7 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
     m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
     m_input  = ibex::BitSet::empty(vars.size());
 
-    for (nonlinear_constraint const * ctr : ctrs) {
+    for (shared_ptr<nonlinear_constraint> ctr : ctrs) {
         unordered_set<Enode*> const & vars_in_ctr = ctr->get_enode()->get_vars();
         m_vars_in_ctrs.insert(vars_in_ctr.begin(), vars_in_ctr.end());
     }
@@ -431,18 +433,25 @@ ostream & contractor_ibex_polytope::display(ostream & out) const {
     return out;
 }
 
-contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr) {
-    contractor ctc(make_shared<contractor_ibex_fwdbwd>(box, ctr));
-    return ctc;
+contractor mk_contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> const ctr) {
+    static unordered_map<shared_ptr<nonlinear_constraint>, contractor> ibex_fwdbwd_ctc_cache;
+    auto const it = ibex_fwdbwd_ctc_cache.find(ctr);
+    if (it == ibex_fwdbwd_ctc_cache.end()) {
+        contractor ctc(make_shared<contractor_ibex_fwdbwd>(ctr));
+        ibex_fwdbwd_ctc_cache.emplace(ctr, ctc);
+        return ctc;
+    } else {
+        return it->second;
+    }
 }
-contractor mk_contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr) {
-    contractor ctc(make_shared<contractor_ibex_newton>(box, ctr));
-    return ctc;
+
+contractor mk_contractor_ibex_newton(box const & box, shared_ptr<nonlinear_constraint> const ctr) {
+    return contractor(make_shared<contractor_ibex_newton>(box, ctr));
 }
-contractor mk_contractor_ibex_hc4(vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
+contractor mk_contractor_ibex_hc4(vector<Enode *> const & vars, vector<shared_ptr<nonlinear_constraint>> const & ctrs) {
     return contractor(make_shared<contractor_ibex_hc4>(vars, ctrs));
 }
-contractor mk_contractor_ibex_polytope(double const prec, vector<Enode *> const & vars, vector<nonlinear_constraint const *> const & ctrs) {
+contractor mk_contractor_ibex_polytope(double const prec, vector<Enode *> const & vars, vector<shared_ptr<nonlinear_constraint>> const & ctrs) {
     return contractor(make_shared<contractor_ibex_polytope>(prec, vars, ctrs));
 }
 }  // namespace dreal

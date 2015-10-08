@@ -42,8 +42,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using nlohmann::json;
 using std::chrono::steady_clock;
-using std::cout;
 using std::cerr;
+using std::cout;
 using std::endl;
 using std::exception;
 using std::fixed;
@@ -58,6 +58,7 @@ using std::ostream;
 using std::ostringstream;
 using std::pair;
 using std::setprecision;
+using std::shared_ptr;
 using std::size_t;
 using std::string;
 using std::unique_ptr;
@@ -322,6 +323,15 @@ void update_box_with_ivector(box & b, vector<Enode *> const & vars, capd::IVecto
 }
 
 bool check_invariant(capd::IVector const & v, vector<forallt_constraint> const & invs) {
+    // DREAL_LOG_FATAL << "======================================";
+    // DREAL_LOG_FATAL << "check_invariant";
+    // DREAL_LOG_FATAL << "======================================";
+    // DREAL_LOG_FATAL << "Current V = " <<  v;
+    // DREAL_LOG_FATAL << "----------------------------------";
+    // for (forallt_constraint const & inv : invs) {
+        // DREAL_LOG_FATAL << inv;
+        // DREAL_LOG_FATAL << "-----------------------------";
+    // }
     // TODO(soonhok): implement this
     return true;
 }
@@ -450,7 +460,7 @@ unsigned int extract_step(string const & name) {
     return stoi(step_part, nullptr);
 }
 
-contractor_capd_simple::contractor_capd_simple(box const & /* box */, ode_constraint const * const ctr, bool const forward)
+contractor_capd_simple::contractor_capd_simple(box const & /* box */, shared_ptr<ode_constraint> const ctr, bool const forward)
     : contractor_cell(contractor_kind::CAPD_SIMPLE), m_forward(forward), m_ctr(ctr) {
     assert(m_ctr);
 }
@@ -497,7 +507,7 @@ ostream & contractor_capd_simple::display(ostream & out) const {
     return out;
 }
 
-contractor_capd_full::contractor_capd_full(box const & box, ode_constraint const * const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout)
+contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout)
     : contractor_cell(contractor_kind::CAPD_FULL, box.size()), m_forward(forward), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size), m_timeout(timeout) {
     DREAL_LOG_INFO << "contractor_capd_full::contractor_capd_full()";
     integral_constraint const & ic = m_ctr->get_ic();
@@ -710,10 +720,31 @@ ostream & contractor_capd_full::display(ostream & out) const {
     return out;
 }
 
-contractor mk_contractor_capd_simple(box const & box, ode_constraint const * const ctr, bool const forward) {
+contractor mk_contractor_capd_simple(box const & box, shared_ptr<ode_constraint> const ctr, bool const forward) {
     return contractor(make_shared<contractor_capd_simple>(box, ctr, forward));
 }
-contractor mk_contractor_capd_full(box const & box, ode_constraint const * const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout) {
-    return contractor(make_shared<contractor_capd_full>(box, ctr, forward, taylor_order, grid_size, timeout));
+
+contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout) {
+    if (forward) {
+        static unordered_map<shared_ptr<ode_constraint>, contractor> capd_full_fwd_ctc_cache;
+        auto it = capd_full_fwd_ctc_cache.find(ctr);
+        if (it == capd_full_fwd_ctc_cache.end()) {
+            contractor ctc(make_shared<contractor_capd_full>(box, ctr, forward, taylor_order, grid_size, timeout));
+            capd_full_fwd_ctc_cache.emplace(ctr, ctc);
+            return ctc;
+        } else {
+            return it->second;
+        }
+    } else {
+        static unordered_map<shared_ptr<ode_constraint>, contractor> capd_full_bwd_ctc_cache;
+        auto it = capd_full_bwd_ctc_cache.find(ctr);
+        if (it == capd_full_bwd_ctc_cache.end()) {
+            contractor ctc(make_shared<contractor_capd_full>(box, ctr, forward, taylor_order, grid_size, timeout));
+            capd_full_bwd_ctc_cache.emplace(ctr, ctc);
+            return ctc;
+        } else {
+            return it->second;
+        }
+    }
 }
 }  // namespace dreal

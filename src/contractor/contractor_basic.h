@@ -58,7 +58,7 @@ protected:
     contractor_kind m_kind;
     mutable ibex::BitSet m_input;
     mutable ibex::BitSet m_output;
-    mutable std::unordered_set<constraint const *> m_used_constraints;
+    mutable std::unordered_set<std::shared_ptr<constraint>> m_used_constraints;
 public:
     explicit contractor_cell(contractor_kind kind) : m_kind(kind) { }
     contractor_cell(contractor_kind kind, unsigned n)
@@ -66,7 +66,7 @@ public:
     virtual ~contractor_cell() noexcept { }
     inline ibex::BitSet input()  const { return m_input; }
     inline ibex::BitSet output() const { return m_output; }
-    inline std::unordered_set<constraint const *> used_constraints() const { return m_used_constraints; }
+    inline std::unordered_set<std::shared_ptr<constraint>> used_constraints() const { return m_used_constraints; }
     virtual void prune(box & b, SMTConfig & config) const = 0;
     virtual std::ostream & display(std::ostream & out) const = 0;
 };
@@ -101,7 +101,7 @@ public:
 
     inline ibex::BitSet input() const { return m_ptr->input(); }
     inline ibex::BitSet output() const { return m_ptr->output(); }
-    inline std::unordered_set<constraint const *> used_constraints() const { return m_ptr->used_constraints(); }
+    inline std::unordered_set<std::shared_ptr<constraint>> used_constraints() const { return m_ptr->used_constraints(); }
     inline void prune(box & b, SMTConfig & config) const {
         assert(m_ptr != nullptr);
         m_ptr->prune(b, config);
@@ -110,10 +110,10 @@ public:
     inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
     inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
 
-    friend contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
-    friend contractor mk_contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr);
-    friend contractor mk_contractor_ibex_hc4(std::vector<nonlinear_constraint const *> const & ctrs);
-    friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<nonlinear_constraint const *> const & ctrs);
+    friend contractor mk_contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr);
+    friend contractor mk_contractor_ibex_newton(box const & box, std::shared_ptr<nonlinear_constraint> const ctr);
+    friend contractor mk_contractor_ibex_hc4(std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
+    friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
     friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
     friend contractor mk_contractor_seq(std::vector<contractor> const & v);
     friend contractor mk_contractor_seq(contractor const & c1, contractor const & c2);
@@ -126,13 +126,13 @@ public:
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
     friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<std::vector<contractor>> const & cvec_list);
     friend contractor mk_contractor_int();
-    friend contractor mk_contractor_eval(box const & box, nonlinear_constraint const * const ctr);
+    friend contractor mk_contractor_eval(std::shared_ptr<nonlinear_constraint> const ctr);
     friend contractor mk_contractor_cache(contractor const & ctc);
-    friend contractor mk_contractor_sample(unsigned const n, std::vector<constraint *> const & ctrs);
-    friend contractor mk_contractor_aggressive(unsigned const n, std::vector<constraint *> const & ctrs);
+    friend contractor mk_contractor_sample(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
+    friend contractor mk_contractor_aggressive(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
 #ifdef SUPPORT_ODE
-    friend contractor mk_contractor_capd_simple(box const & box, ode_constraint const * const ctr, bool const forward);
-    friend contractor mk_contractor_capd_full(box const & box, ode_constraint const * const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout);
+    friend contractor mk_contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward);
+    friend contractor mk_contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout);
 #endif
     std::size_t hash() const { return (std::size_t) m_ptr.get(); }
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
@@ -232,9 +232,9 @@ public:
 
 class contractor_eval : public contractor_cell {
 private:
-    nonlinear_constraint const * const m_nl_ctr;
+    std::shared_ptr<nonlinear_constraint> const m_nl_ctr;
 public:
-    contractor_eval(box const & box, nonlinear_constraint const * const ctr);
+    explicit contractor_eval(std::shared_ptr<nonlinear_constraint> const ctr);
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -251,9 +251,9 @@ public:
 class contractor_sample : public contractor_cell {
 private:
     unsigned const m_num_samples;
-    std::vector<constraint *> m_ctrs;
+    std::vector<std::shared_ptr<constraint>> m_ctrs;
 public:
-    contractor_sample(unsigned const n, std::vector<constraint *> const & ctrs);
+    contractor_sample(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -261,9 +261,9 @@ public:
 class contractor_aggressive : public contractor_cell {
 private:
     unsigned const m_num_samples;
-    std::vector<constraint *> m_ctrs;
+    std::vector<std::shared_ptr<constraint>> m_ctrs;
 public:
-    contractor_aggressive(unsigned const n, std::vector<constraint *> const & ctrs);
+    contractor_aggressive(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -280,10 +280,10 @@ contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> 
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::vector<contractor> const & cvec);
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::initializer_list<std::vector<contractor>> const & cvec_list);
 contractor mk_contractor_int();
-contractor mk_contractor_eval(box const & box, nonlinear_constraint const * const ctr);
+contractor mk_contractor_eval(std::shared_ptr<nonlinear_constraint> const ctr);
 contractor mk_contractor_cache(contractor const & ctc);
-contractor mk_contractor_sample(unsigned const n, std::vector<constraint *> const & ctrs);
-contractor mk_contractor_aggressive(unsigned const n, std::vector<constraint *> const & ctrs);
+contractor mk_contractor_sample(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
+contractor mk_contractor_aggressive(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
 std::ostream & operator<<(std::ostream & out, contractor const & c);
 
 }  // namespace dreal

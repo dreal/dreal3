@@ -37,26 +37,27 @@ namespace dreal {
 
 class contractor_ibex_fwdbwd : public contractor_cell {
 private:
-    nonlinear_constraint const * m_ctr;
-    ibex::NumConstraint const * m_numctr;
+    std::shared_ptr<nonlinear_constraint> m_ctr;
+    std::shared_ptr<ibex::NumConstraint const> m_numctr;
     ibex::Array<ibex::ExprSymbol const> const & m_var_array;
-    std::unique_ptr<ibex::CtcFwdBwd> m_ctc;
+    std::shared_ptr<ibex::CtcFwdBwd> m_ctc;
 
 public:
-    contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
+    explicit contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr);
     void prune(box & b, SMTConfig & config) const;
+    ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
     std::ostream & display(std::ostream & out) const;
 };
 
 class contractor_ibex_newton : public contractor_cell {
 private:
-    nonlinear_constraint const * m_ctr;
-    ibex::NumConstraint const * m_numctr;
+    std::shared_ptr<nonlinear_constraint> m_ctr;
+    std::shared_ptr<ibex::NumConstraint> m_numctr;
     ibex::Array<ibex::ExprSymbol const> const & m_var_array;
-    std::unique_ptr<ibex::CtcNewton> m_ctc;
+    std::shared_ptr<ibex::CtcNewton> m_ctc;
 
 public:
-    contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr);
+    contractor_ibex_newton(box const & box, std::shared_ptr<nonlinear_constraint> const ctr);
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -65,11 +66,11 @@ public:
 class contractor_ibex_hc4 : public contractor_cell {
 private:
     std::unordered_set<Enode *>               m_vars_in_ctrs;
-    std::vector<nonlinear_constraint const *> m_ctrs;
+    std::vector<std::shared_ptr<nonlinear_constraint>> m_ctrs;
     std::unique_ptr<ibex::Ctc>                m_ctc = nullptr;;
 
 public:
-    contractor_ibex_hc4(std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
+    contractor_ibex_hc4(std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
@@ -78,7 +79,7 @@ public:
 class contractor_ibex_polytope : public contractor_cell {
 private:
     std::unordered_set<Enode *>               m_vars_in_ctrs;
-    std::vector<nonlinear_constraint const *> m_ctrs;
+    std::vector<std::shared_ptr<nonlinear_constraint>> m_ctrs;
     double const                              m_prec;
     std::unordered_map<Enode *, ibex::Variable const *> m_var_cache;
     std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_pos;
@@ -91,18 +92,18 @@ private:
     mutable std::unique_ptr<ibex::LinearRelaxCombo> m_lrc = nullptr;
     mutable std::vector<std::unique_ptr<ibex::Ctc>> m_sub_ctcs;
     mutable std::unique_ptr<ibex::Ctc>              m_ctc = nullptr;;
-    ibex::SystemFactory* build_system_factory(std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
+    ibex::SystemFactory* build_system_factory(std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
 
 public:
-    contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
+    contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
     ~contractor_ibex_polytope();
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
-contractor mk_contractor_ibex_fwdbwd(box const & box, nonlinear_constraint const * const ctr);
-contractor mk_contractor_ibex_newton(box const & box, nonlinear_constraint const * const ctr);
-contractor mk_contractor_ibex_hc4(std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
-contractor mk_contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<nonlinear_constraint const *> const & ctrs);
+contractor mk_contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr);
+contractor mk_contractor_ibex_newton(box const & box, std::shared_ptr<nonlinear_constraint> const ctr);
+contractor mk_contractor_ibex_hc4(std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
+contractor mk_contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
 
 }  // namespace dreal
