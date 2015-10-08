@@ -55,17 +55,17 @@ public:
 private:
     bool m_need_init = true;
     std::vector<Enode *> m_lits;
-    scoped_vec<constraint *>  m_stack;
-    scoped_vec<constraint const *>  m_used_constraint_vec;
+    scoped_vec<std::shared_ptr<constraint>>  m_stack;
+    scoped_vec<std::shared_ptr<constraint>>  m_used_constraint_vec;
     scoped_vec<box> m_boxes;
-    std::map<std::pair<Enode*, bool>, std::unique_ptr<constraint>> m_ctr_map;
+    std::map<std::pair<Enode*, bool>, std::shared_ptr<constraint>> m_ctr_map;
     contractor m_ctc;
     box m_box;
     mutable stat m_stat;
 
     void initialize(std::vector<Enode *> const & lits);
     void initialize_constraints(std::vector<Enode *> const & lits);
-    std::vector<Enode *> generate_explanation(scoped_vec<constraint const *> const & ctr_vec);
+    std::vector<Enode *> generate_explanation(scoped_vec<std::shared_ptr<constraint>> const & ctr_vec);
     void handle_sat_case(box const & b) const;
     void handle_deduction();
 };

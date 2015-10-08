@@ -49,15 +49,18 @@ using std::all_of;
 using std::boolalpha;
 using std::cerr;
 using std::cout;
+using std::dynamic_pointer_cast;
 using std::endl;
 using std::get;
 using std::logic_error;
 using std::make_pair;
+using std::make_shared;
 using std::map;
 using std::numeric_limits;
 using std::ofstream;
 using std::pair;
 using std::runtime_error;
+using std::shared_ptr;
 using std::sort;
 using std::string;
 using std::unique_ptr;
@@ -192,7 +195,7 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
     }
     auto it = m_ctr_map.find(make_pair(e, e->getPolarity() == l_True));
     if (it != m_ctr_map.end()) {
-        constraint * const ctr = it->second.get();
+        shared_ptr<constraint> const ctr = it->second;
         // Try to prune box using the constraint via callign simplify
         lbool const simplify_result = simplify(e, e->getPolarity(), m_box);
         if (simplify_result == l_True) {
@@ -224,8 +227,7 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
 }
 
 // Update ctr_map by adding new nonlinear_constraints
-void initialize_nonlinear_constraints(map<pair<Enode*, bool>,
-                                      unique_ptr<constraint>> & ctr_map,
+void initialize_nonlinear_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
                                       vector<Enode *> const & lits,
                                       unordered_set<Enode *> const & var_set) {
     // Create Nonlinear constraints.
@@ -233,20 +235,20 @@ void initialize_nonlinear_constraints(map<pair<Enode*, bool>,
         auto it_nc_pos = ctr_map.find(make_pair(l, true));
         auto it_nc_neg = ctr_map.find(make_pair(l, false));
         if (it_nc_pos == ctr_map.end()) {
-            unique_ptr<constraint> nc_pos(new nonlinear_constraint(l, var_set, l_True));
+            auto nc_pos = make_shared<nonlinear_constraint>(l, var_set, l_True);
             DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (+): " << *nc_pos;
-            ctr_map.emplace(make_pair(l, true),  move(nc_pos));
+            ctr_map.emplace(make_pair(l, true), nc_pos);
         }
         if (it_nc_neg == ctr_map.end()) {
-            unique_ptr<constraint> nc_neg(new nonlinear_constraint(l, var_set, l_False));
+            auto nc_neg = make_shared<nonlinear_constraint>(l, var_set, l_False);
             DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (-): " << *nc_neg;
-            ctr_map.emplace(make_pair(l, false), move(nc_neg));
+            ctr_map.emplace(make_pair(l, false), nc_neg);
         }
     }
 }
 
 // Update ctr_map by adding new ode constraints, from the information collected in ints and invs
-void initialize_ode_constraints(map<pair<Enode*, bool>, unique_ptr<constraint>> & ctr_map,
+void initialize_ode_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
                                 vector<integral_constraint> const & ints,
                                 vector<forallt_constraint> const & invs,
                                 unordered_set<Enode *> const & var_set) {
@@ -269,9 +271,9 @@ void initialize_ode_constraints(map<pair<Enode*, bool>, unique_ptr<constraint>> 
                 }
             }
         }
-        unique_ptr<constraint> oc(new ode_constraint(ic, local_invs));
+        shared_ptr<constraint> oc(new ode_constraint(ic, local_invs));
         DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ODEConstraint: " << *oc;
-        ctr_map.emplace(make_pair(ic.get_enode(), true), move(oc));
+        ctr_map.emplace(make_pair(ic.get_enode(), true), oc);
     }
 }
 
@@ -284,7 +286,7 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
     unordered_set<Enode *> var_set;
     for (Enode * l : lits) {
         // collect var_set
-        unordered_set<Enode *> const & vars = l->get_vars();
+        unordered_set<Enode *> const & vars = l->get_exist_vars();
         var_set.insert(vars.begin(), vars.end());
 
         // Partition ODE-related constraint into integrals and forallTs
@@ -296,14 +298,14 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
             auto it_fc_pos = m_ctr_map.find(make_pair(l, true));
             auto it_fc_neg = m_ctr_map.find(make_pair(l, false));
             if (it_fc_pos == m_ctr_map.end()) {
-                unique_ptr<constraint> fc_pos(new generic_forall_constraint(l, l_True));
+                shared_ptr<constraint> fc_pos(new generic_forall_constraint(l, l_True));
                 DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect GenericForallConstraint (+): " << *fc_pos;
-                m_ctr_map.emplace(make_pair(l, true), move(fc_pos));
+                m_ctr_map.emplace(make_pair(l, true), fc_pos);
             }
             if (it_fc_neg == m_ctr_map.end()) {
-                unique_ptr<constraint> fc_neg (new generic_forall_constraint(l, l_False));
+                shared_ptr<constraint> fc_neg (new generic_forall_constraint(l, l_False));
                 DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect GenericForallConstraint (-): " << *fc_neg;
-                m_ctr_map.emplace(make_pair(l, false), move(fc_neg));
+                m_ctr_map.emplace(make_pair(l, false), fc_neg);
             }
         } else if (l->isForallT()) {
             forallt_constraint fc = mk_forallt_constraint(l);
@@ -373,9 +375,9 @@ void nra_solver::handle_sat_case(box const & b) const {
     if (config.nra_json) {
         json traces = {};
         // Need to run ODE pruning operator once again to generate a trace
-        for (constraint * const ctr : m_stack) {
+        for (shared_ptr<constraint> const ctr : m_stack) {
             if (ctr->get_type() == constraint_type::ODE) {
-                contractor_capd_full fwd_full(b, dynamic_cast<ode_constraint *>(ctr), true, config.nra_ODE_taylor_order, config.nra_ODE_grid_size);
+                contractor_capd_full fwd_full(b, dynamic_pointer_cast<ode_constraint>(ctr), true, config.nra_ODE_taylor_order, config.nra_ODE_grid_size);
                 json trace = fwd_full.generate_trace(b, config);
                 traces.push_back(trace);
             }
@@ -395,8 +397,8 @@ void nra_solver::handle_deduction() {
         if (l->getPolarity() == l_Undef && !l->isDeduced()) {
             auto it = m_ctr_map.find(make_pair(l, true));
             if (it != m_ctr_map.end()) {
-                constraint * ctr = it->second.get();
-                nonlinear_constraint const * const nl_ctr = dynamic_cast<nonlinear_constraint *>(ctr);
+                shared_ptr<constraint> ctr = it->second;
+                shared_ptr<nonlinear_constraint> const nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
                 if (nl_ctr) {
                     pair<lbool, ibex::Interval> p = nl_ctr->eval(m_box);
                     if (p.first == l_False) {
@@ -443,7 +445,7 @@ bool nra_solver::check(bool complete) {
     }
     bool result = !m_box.is_empty();
     DREAL_LOG_INFO << "nra_solver::check: result = " << boolalpha << result;
-    for (constraint const * ctr : m_ctc.used_constraints()) {
+    for (shared_ptr<constraint> const ctr : m_ctc.used_constraints()) {
         m_used_constraint_vec.push_back(ctr);
     }
     if (!result) {
@@ -460,9 +462,9 @@ bool nra_solver::check(bool complete) {
     return result;
 }
 
-vector<Enode *> nra_solver::generate_explanation(scoped_vec<constraint const *> const & ctr_vec) {
+vector<Enode *> nra_solver::generate_explanation(scoped_vec<shared_ptr<constraint>> const & ctr_vec) {
     unordered_set<Enode *> bag;
-    for (constraint const * ctr : ctr_vec) {
+    for (shared_ptr<constraint> ctr : ctr_vec) {
         vector<Enode *> const & enodes_in_ctr = ctr->get_enodes();
         for (Enode * const e : enodes_in_ctr) {
             if (e->hasPolarity()) {
