@@ -19,6 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 #include <iostream>
+#include <memory>
 #include <unordered_set>
 #include "opensmt/api/opensmt_c.h"
 #include "opensmt/api/OpenSMTContext.h"
@@ -31,6 +32,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 using std::cerr;
 using std::endl;
 using std::unordered_set;
+using std::shared_ptr;
+using std::make_shared;
 
 namespace dreal {
 
@@ -54,9 +57,9 @@ TEST_CASE("ibex_fwdbwd_01") {
 
     box b({var_x, var_y, var_z});
     unordered_set<Enode*> var_set({var_x, var_y, var_z});
-    nonlinear_constraint nc(node_eq, var_set, true);
-    contractor c = mk_contractor_ibex_fwdbwd(b, &nc);
-    cerr << nc << endl;
+    auto nc = make_shared<nonlinear_constraint>(node_eq, var_set, true);
+    contractor c = mk_contractor_ibex_fwdbwd(nc);
+    cerr << *nc << endl;
     cerr << b << endl;
     auto input_before = c.input();
     auto output_before = c.output();
@@ -75,7 +78,7 @@ TEST_CASE("ibex_fwdbwd_01") {
     REQUIRE((output_after[0] && !output_after[1] && !output_after[2]));
     auto used_ctcs = c.used_constraints();
     REQUIRE(used_ctcs.size() == 1);
-    REQUIRE(used_ctcs.find(&nc) != used_ctcs.end());
+    REQUIRE(used_ctcs.find(nc) != used_ctcs.end());
     opensmt_del_context(ctx);
 }
 
@@ -99,9 +102,9 @@ TEST_CASE("ibex_fwdbwd_02") {
 
     box b({var_x, var_y, var_z});
     unordered_set<Enode*> var_set({var_x, var_y, var_z});
-    nonlinear_constraint nc(node_eq, var_set, true);
-    contractor c = mk_contractor_ibex_fwdbwd(b, &nc);
-    cerr << nc << endl;
+    auto nc = make_shared<nonlinear_constraint>(node_eq, var_set, true);
+    contractor c = mk_contractor_ibex_fwdbwd(nc);
+    cerr << *nc << endl;
     cerr << b << endl;
     auto input_before = c.input();
     auto output_before = c.output();
@@ -120,7 +123,7 @@ TEST_CASE("ibex_fwdbwd_02") {
     REQUIRE((output_after[0] && output_after[1] && !output_after[2]));
     auto used_ctcs = c.used_constraints();
     REQUIRE(used_ctcs.size() == 1);
-    REQUIRE(used_ctcs.find(&nc) != used_ctcs.end());
+    REQUIRE(used_ctcs.find(nc) != used_ctcs.end());
     opensmt_del_context(ctx);
 }
 
@@ -149,11 +152,11 @@ TEST_CASE("ibex_polytope") {
 
     box b({var_x, var_y, var_z});
     unordered_set<Enode*> var_set({var_x, var_y, var_z});
-    nonlinear_constraint nc1(node_eq1, var_set, true);
-    nonlinear_constraint nc2(node_eq2, var_set, true);
-    contractor c = mk_contractor_ibex_polytope(0.001, {var_x, var_y, var_z}, {&nc1, &nc2});
-    cerr << nc1 << endl;
-    cerr << nc2 << endl;
+    auto nc1 = make_shared<nonlinear_constraint>(node_eq1, var_set, true);
+    auto nc2 = make_shared<nonlinear_constraint>(node_eq2, var_set, true);
+    contractor c = mk_contractor_ibex_polytope(0.001, {var_x, var_y, var_z}, {nc1, nc2});
+    cerr << *nc1 << endl;
+    cerr << *nc2 << endl;
     cerr << b << endl;
     auto input_before = c.input();
     auto output_before = c.output();
@@ -174,8 +177,8 @@ TEST_CASE("ibex_polytope") {
         cerr << "Used constraint : " << *ctc << endl;
     }
     REQUIRE(used_ctcs.size() == 2);
-    REQUIRE(used_ctcs.find(&nc1) != used_ctcs.end());
-    REQUIRE(used_ctcs.find(&nc2) != used_ctcs.end());
+    REQUIRE(used_ctcs.find(nc1) != used_ctcs.end());
+    REQUIRE(used_ctcs.find(nc2) != used_ctcs.end());
     opensmt_del_context(ctx);
 }
 }  // namespace dreal
