@@ -49,6 +49,7 @@ using std::exception;
 using std::fixed;
 using std::function;
 using std::initializer_list;
+using std::left;
 using std::list;
 using std::logic_error;
 using std::make_shared;
@@ -57,7 +58,9 @@ using std::min;
 using std::ostream;
 using std::ostringstream;
 using std::pair;
+using std::right;
 using std::setprecision;
+using std::setw;
 using std::shared_ptr;
 using std::size_t;
 using std::string;
@@ -596,7 +599,23 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) const {
                 }
             }
             prevTime = m_timeMap->getCurrentTime();
+            if (config.nra_ODE_show_progress) {
+                std::cout << "\r"
+                          << "                                               "
+                          << "                                               ";
+                cout << "\r"
+                          << "ODE Progress "
+                          << (m_forward ? "[FWD]" : "[BWD]")
+                          << ":  Time = " << setw(10) << fixed << setprecision(5) << right << prevTime.rightBound() << " / "
+                          << setw(7) << fixed << setprecision(2) << left << T.rightBound() << " "
+                          << setw(4) << right << int(prevTime.rightBound() / T.rightBound() * 100.0) << "%" << "  "
+                          << "Box Width = " << setw(10) << fixed << setprecision(5) << b.max_diam() << "\t";
+                std::cout.flush();
+            }
         } while (!m_timeMap->completed());
+        if (config.nra_ODE_show_progress) {
+            std::cout << " [Done] " << std::endl;
+        }
         if (filter(enclosures, X_t, T)) {
             // SAT
             update_box_with_ivector(b, vars_t, X_t);
@@ -609,8 +628,14 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) const {
             b.set_empty();
         }
     } catch (capd::intervals::IntervalError<double> & e) {
+        if (config.nra_ODE_show_progress) {
+            std::cout << " [IntervalError]" << std::endl;
+        }
         throw contractor_exception(e.what());
     } catch (capd::ISolverException & e) {
+        if (config.nra_ODE_show_progress) {
+            std::cout << " [ISolverException]" << std::endl;
+        }
         throw contractor_exception(e.what());
     }
     vector<bool> diff_dims = b.diff_dims(old_box);

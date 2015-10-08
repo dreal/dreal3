@@ -185,15 +185,15 @@ struct SMTConfig
   bool         nra_proof;                     // --proof option
   bool         nra_readable_proof;            // --readable_proof option
   bool         nra_model;                     // --model option
-  std::ofstream nra_model_out;                 // file stream for model
+  std::ofstream nra_model_out;                // file stream for model
   std::string  nra_model_out_name;            // filename for model
   std::ofstream nra_proof_out;                 // file stream for proof
   std::string  nra_proof_out_name;            // filename for proof
   bool         nra_json;                      // --proof option
-  std::ofstream nra_json_out;                  // file stream for json (visualization)
-  std::string   nra_json_out_name;             // filename for json (visualization)
-  unsigned long nra_ODE_taylor_order;          // --ode-order option
-  unsigned long nra_ODE_grid_size;             // --ode-grid option
+  std::ofstream nra_json_out;                 // file stream for json (visualization)
+  std::string   nra_json_out_name;            // filename for json (visualization)
+  unsigned long nra_ODE_taylor_order;         // --ode-order option
+  unsigned long nra_ODE_grid_size;            // --ode-grid option
   double       nra_ODE_fwd_timeout;           // --ode-fwd-timeout option (unit: msec) (default 0.0, no timeout)
   double       nra_ODE_bwd_timeout;           // --ode-bwd-timeout option (unit: msec) (default 0.0, no timeout)
   double       nra_ODE_step;                  // step control
@@ -201,10 +201,11 @@ struct SMTConfig
   bool         nra_ODE_cache;                 // use cache for ODE computation
   bool         nra_ODE_forward_only;          // only use ODE forward pruning (not use ODE backward)
   bool         nra_ODE_parallel;              // solve ODE in parallel or not
-  unsigned long nra_aggressive;                // number of samples to use for aggressive sampling
-  unsigned long nra_sample;                    // number of samples to use for sound sampling
-  unsigned long nra_multiple_soln;             // maximum number of solutions to find
-  unsigned long nra_found_soln;                // number of solutions found so far
+  bool         nra_ODE_show_progress;         // show the progress of ODE solving
+  unsigned long nra_aggressive;               // number of samples to use for aggressive sampling
+  unsigned long nra_sample;                   // number of samples to use for sound sampling
+  unsigned long nra_multiple_soln;            // maximum number of solutions to find
+  unsigned long nra_found_soln;               // number of solutions found so far
   bool         nra_polytope;                  // use polytope contractor in IBEX
   bool         nra_simp;                      // use simplification in preprocessing
   bool         nra_ncbt;                      // use nonchronological backtracking in icp
