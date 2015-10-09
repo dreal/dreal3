@@ -292,7 +292,7 @@ if(SUPPORT_ODE)
       BUILD_IN_SOURCE 1
       INSTALL_COMMAND make -j install)
   endif()
-  set(EXTRA_LIBS "gsl" ${EXTRA_LIBS})
+  set(EXTRA_LIBS "gsl" "gslcblas" ${EXTRA_LIBS})
 endif()
 
 ################################################################
