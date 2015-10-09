@@ -25,6 +25,7 @@ addons:
     - pkg-config
     - python-software-properties
     - wget
+    - tex-info
 env:
   global:
     # BB_TOKEN - encrypt "bitbucket key" with travis-ci key
