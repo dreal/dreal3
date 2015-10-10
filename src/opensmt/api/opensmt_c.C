@@ -278,11 +278,11 @@ void opensmt_define_ode( opensmt_context c, const char * flowname, opensmt_expr 
   assert( c );
   OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
   OpenSMTContext & context = *c_;
-  vector<pair<string, Enode *>> odes;
+  vector<pair<Enode *, Enode *>> odes;
   for (unsigned i = 0; i < n; i++) {
       Enode * var = static_cast<Enode *>(vars[i]);
       Enode * rhs = static_cast<Enode *>(rhses[i]);
-      odes.push_back(make_pair(var->getCar()->getName(), rhs));
+      odes.push_back(make_pair(var, rhs));
   }
   context.DefineODE(flowname, odes);
 }

@@ -36,10 +36,10 @@ using std::ostream;
 using std::endl;
 
 flow::flow() { }
-flow::flow(string const v, Enode * e) {
+flow::flow(Enode * const v, Enode * const e) {
     add(v, e);
 }
-void flow::add(string const & v, Enode * const e) {
+void flow::add(Enode * const v, Enode * const e) {
     assert(m_vars.size() == m_odes.size());
     m_vars.push_back(v);
     m_odes.push_back(e);

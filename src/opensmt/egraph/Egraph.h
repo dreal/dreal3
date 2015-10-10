@@ -359,7 +359,7 @@ public:
 
   /* added for dReal */
   std::unordered_map<std::string, dreal::flow> flow_maps;
-  bool                                    stepped_flows; //Does flow name have step index?
+  bool                                         stepped_flows; //Does flow name have step index?
 
 private:
 

@@ -1,7 +1,5 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-        Sicun Gao <sicung@cs.cmu.edu>
-        Edmund Clarke <emc@cs.cmu.edu>
 
 dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
 
@@ -32,15 +30,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 class flow {
 private:
-    std::vector<std::string>  m_vars;
+    std::vector<Enode *> m_vars;
     std::vector<Enode *> m_odes;
 
 public:
     flow();
-    flow(std::string const v, Enode * e);
-    void add(std::string const & v, Enode * const e);
-    inline std::vector<std::string> const &  get_vars() const { return m_vars; }
-    inline std::vector<std::string>          get_vars()       { return m_vars; }
+    flow(Enode * const v, Enode * const e);
+    void add(Enode * const v, Enode * const e);
+    inline std::vector<Enode *> const & get_vars() const { return m_vars; }
+    inline std::vector<Enode *>         get_vars()       { return m_vars; }
     inline std::vector<Enode *> const & get_odes() const { return m_odes; }
     inline std::vector<Enode *>         get_odes()       { return m_odes; }
     friend std::ostream & operator<<(std::ostream & out, flow const & _flow);

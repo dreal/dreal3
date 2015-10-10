@@ -1,7 +1,5 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-        Sicun Gao <sicung@cs.cmu.edu>
-        Edmund Clarke <emc@cs.cmu.edu>
 
 dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
 
@@ -87,8 +85,8 @@ private:
     std::vector<Enode *> const m_pars_0;
     std::vector<Enode *> const m_vars_t;
     std::vector<Enode *> const m_pars_t;
-    std::vector<std::string>  const m_par_lhs_names;
-    std::vector<std::pair<std::string, Enode *>> const m_odes;
+    std::vector<Enode *> const m_par_lhs_names;
+    std::vector<std::pair<Enode *, Enode *>> const m_odes;
 
 public:
     inline unsigned get_flow_id()                    const { return m_flow_id; }
@@ -98,14 +96,14 @@ public:
     inline std::vector<Enode *> const & get_vars_t() const { return m_vars_t; }
     inline std::vector<Enode *> const & get_pars_0() const { return m_pars_0; }
     inline std::vector<Enode *> const & get_pars_t() const { return m_pars_t; }
-    inline std::vector<std::string>  const & get_par_lhs_names() const { return m_par_lhs_names; }
-    inline std::vector<std::pair<std::string, Enode *>> const & get_odes() const { return m_odes; }
+    inline std::vector<Enode *>  const & get_par_lhs_names() const { return m_par_lhs_names; }
+    inline std::vector<std::pair<Enode *, Enode *>> const & get_odes() const { return m_odes; }
     inline Enode * get_enode() const { return get_enodes()[0]; }
     integral_constraint(Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t,
                         std::vector<Enode *> const & vars_0, std::vector<Enode *> const & pars_0,
                         std::vector<Enode *> const & vars_t, std::vector<Enode *> const & pars_t,
-                        std::vector<std::string>  const & par_lhs_names,
-                        std::vector<std::pair<std::string, Enode *>> const & odes);
+                        std::vector<Enode *> const & par_lhs_names,
+                        std::vector<std::pair<Enode *, Enode *>> const & odes);
     virtual std::ostream & display(std::ostream & out) const;
 };
 

@@ -623,7 +623,7 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s, const char * p )
   egraph.newSymbol( name, s, true, vval );
 }
 
-void OpenSMTContext::DefineODE( char const * name, vector<pair<string, Enode *>> const & odes)
+void OpenSMTContext::DefineODE( char const * name, vector<pair<Enode *, Enode *>> const & odes)
 {
     dreal::flow _flow;
     for(auto const & name_odes : odes) {

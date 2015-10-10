@@ -99,8 +99,8 @@ TEST_CASE("capd_fwd") {
                            {static_cast<Enode*>(x_0), static_cast<Enode*>(p_0)}, {},
                            {static_cast<Enode*>(x_t), static_cast<Enode*>(p_t)}, {},
                            {},
-                           {make_pair("x", static_cast<Enode*>(rhs_x)),
-                            make_pair("p", static_cast<Enode*>(rhs_p))});
+                           {make_pair(static_cast<Enode*>(vars[0]), static_cast<Enode*>(rhs_x)),
+                            make_pair(static_cast<Enode*>(vars[1]), static_cast<Enode*>(rhs_p))});
     auto oc = make_shared<ode_constraint>(ic);
 
     contractor c = mk_contractor_capd_full(b, oc, true);
@@ -208,8 +208,8 @@ TEST_CASE("capd_bwd") {
                            {static_cast<Enode*>(x_0), static_cast<Enode*>(p_0)}, {},
                            {static_cast<Enode*>(x_t), static_cast<Enode*>(p_t)}, {},
                            {},
-                           {make_pair("x", static_cast<Enode*>(rhs_x)),
-                            make_pair("p", static_cast<Enode*>(rhs_p))});
+                           {make_pair(static_cast<Enode*>(vars[0]), static_cast<Enode*>(rhs_x)),
+                            make_pair(static_cast<Enode*>(vars[1]), static_cast<Enode*>(rhs_p))});
     auto oc = make_shared<ode_constraint>(ic);
 
     contractor c = mk_contractor_capd_full(b, oc, false);

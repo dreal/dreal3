@@ -1,7 +1,5 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-        Sicun Gao <sicung@cs.cmu.edu>
-        Edmund Clarke <emc@cs.cmu.edu>
 
 dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
 
@@ -283,19 +281,19 @@ integral_constraint mk_integral_constraint(Enode * const e, unordered_map<string
         throw std::logic_error(key + " is not in flow_map. Failed to create integral constraint");
     }
     flow const & _flow = it->second;
-    vector<string> const & flow_vars = _flow.get_vars();
+    vector<Enode *> const & flow_vars = _flow.get_vars();
     vector<Enode *> const & flow_odes = _flow.get_odes();
     vector<Enode *> vars_0, vars_t, pars_0, pars_t;
-    vector<string> par_lhs_names;
-    vector<pair<string, Enode *>> odes;
+    vector<Enode *> par_lhs_names;
+    vector<pair<Enode *, Enode *>> odes;
 
     for (unsigned i = 0; i < flow_vars.size(); i++) {
         Enode * const var_0 = tmp->getCar();
         tmp = tmp->getCdr();
         Enode * const var_t = tmp->getCar();
         tmp = tmp->getCdr();
-        string const & ode_var = flow_vars[i];
-        Enode * const ode_rhs  = flow_odes[i];
+        Enode * const ode_var = flow_vars[i];
+        Enode * const ode_rhs = flow_odes[i];
 
         if (ode_rhs->isConstant() && ode_rhs->getValue() == 0.0) {
             // Parameter
@@ -317,8 +315,8 @@ integral_constraint mk_integral_constraint(Enode * const e, unordered_map<string
 integral_constraint::integral_constraint(Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t,
                                          vector<Enode *> const & vars_0, vector<Enode *> const & pars_0,
                                          vector<Enode *> const & vars_t, vector<Enode *> const & pars_t,
-                                         vector<string> const & par_lhs_names,
-                                         vector<pair<string, Enode *>> const & odes)
+                                         vector<Enode *> const & par_lhs_names,
+                                         vector<pair<Enode *, Enode *>> const & odes)
     : constraint(constraint_type::Integral, e),
       m_flow_id(flow_id), m_time_0(time_0), m_time_t(time_t),
       m_vars_0(vars_0), m_pars_0(pars_0), m_vars_t(vars_t), m_pars_t(pars_t),

@@ -249,19 +249,19 @@ string build_capd_string(integral_constraint const & ic, bool const forward = tr
     // Collect _0 variables
     vector<Enode *> const & vars_0 = ic.get_vars_0();
     vector<Enode *> const & pars_0 = ic.get_pars_0();
-    vector<string>  const & par_lhs_names = ic.get_par_lhs_names();
-    vector<pair<string, Enode *>> const & odes = ic.get_odes();
+    vector<Enode *> const & par_lhs_names = ic.get_par_lhs_names();
+    vector<pair<Enode *, Enode *>> const & odes = ic.get_odes();
 
     // Build Map
     unordered_map<string, string> subst_map;
     for (unsigned i = 0; i < vars_0.size(); i++) {
-        string const & from = odes[i].first;
+        string const & from = odes[i].first->getCar()->getName();
         string const & to   = vars_0[i]->getCar()->getName();
         subst_map.emplace(from, to);
         DREAL_LOG_INFO << "Subst Map (Var): " << from << " -> " << to;
     }
     for (unsigned i = 0; i < pars_0.size(); i++) {
-        string const & from = par_lhs_names[i];
+        string const & from = par_lhs_names[i]->getCar()->getName();
         string const & to   = pars_0[i]->getCar()->getName();
         subst_map.emplace(from, to);
         DREAL_LOG_INFO << "Subst Map (Par): " << from << " -> " << to;
@@ -739,7 +739,7 @@ json contractor_capd_full::generate_trace(box b, SMTConfig & config) const {
 }
 
 ostream & contractor_capd_full::display(ostream & out) const {
-    out << "contractor_capd("
+    out << "contractor_capd_full("
         << (m_forward ? "fwd" : "bwd") << ", "
         << *m_ctr << ")";
     return out;

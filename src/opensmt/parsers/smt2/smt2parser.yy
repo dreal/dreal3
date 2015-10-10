@@ -1,5 +1,6 @@
 /*********************************************************************
 Author: Roberto Bruttomesso <roberto.bruttomesso@gmail.com>
+        Soonho Kong <soonhok@cs.cmu.edu>
 
 OpenSMT -- Copyright (C) 2010, Roberto Bruttomesso
 
@@ -62,17 +63,17 @@ void smt2error( const char * s )
 
 %union
 {
-  char  *                            str;
-  std::vector< std::string > *                 str_list;
-  std::pair<std::string, Enode *> *            ode;
-  std::vector<std::pair<std::string, Enode *> > *   ode_list;
-  Enode *                            enode;
-  Snode *                            snode;
-  std::string *                      string_ptr;
-  std::list< Snode * > *                  snode_list;
-  std::map< Enode *, Enode * > *          binding_list;
-  std::pair< std::string, Snode *> *            sorted_var;
-  std::vector< std::pair< std::string, Snode *> > *  sorted_var_list;
+  char  *                                         str;
+  std::vector<std::string> *                      str_list;
+  std::pair<Enode *, Enode *> *                   ode;
+  std::vector<std::pair<Enode *, Enode *>> *      ode_list;
+  Enode *                                         enode;
+  Snode *                                         snode;
+  std::string *                                   string_ptr;
+  std::list<Snode *> *                            snode_list;
+  std::map<Enode *, Enode *> *                    binding_list;
+  std::pair<std::string, Snode *> *               sorted_var;
+  std::vector<std::pair< std::string, Snode *>> * sorted_var_list;
 }
 
 %error-verbose
@@ -131,16 +132,15 @@ ode_list: ode_list ode
             delete $2;
           }
         | ode
-          { $$ = new vector<pair<string, Enode*>>;
+          { $$ = new vector<pair<Enode*, Enode*>>;
             $$->push_back( *($1) );
             delete $1;
           }
 ;
-ode: '(' TK_EQ TK_DDT TK_LB identifier TK_RB term ')'  {
-        $$ = new pair<string, Enode*>;
+ode: '(' TK_EQ TK_DDT TK_LB term TK_RB term ')'  {
+        $$ = new pair<Enode *, Enode*>;
         $$->first = $5;
         $$->second = $7;
-        free($5);
 }
 
 command_list: command_list command | command ;
