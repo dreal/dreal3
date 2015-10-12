@@ -122,6 +122,7 @@ SMTConfig::initializeConfig( )
   nra_ODE_fwd_timeout          = 0.0;
   nra_ODE_bwd_timeout          = 0.0;
   nra_ODE_show_progress        = false;
+  nra_ODE_sampling             = false;
   nra_json                     = false;
   nra_delta_test               = false;
   nra_use_delta_heuristic      = false;
@@ -422,6 +423,9 @@ SMTConfig::parseCMDLine( int argc
             "show the progress of ODE computation",
             "--ode-show-progress", "--ode_show_progress");
     opt.add("", false, 0, 0,
+            "use sampling method for ODE (using GNU GSL)",
+            "--ode-sampling", "--ode_sampling");
+    opt.add("", false, 0, 0,
             "produce an addition file \"filename.proof\" which contains a proof for UNSAT",
             "--proof");
     opt.add("", false, 0, 0,
@@ -508,6 +512,7 @@ SMTConfig::parseCMDLine( int argc
     nra_ODE_forward_only    = opt.isSet("--ode-forward-only");
     nra_ODE_parallel        = opt.isSet("--ode-parallel");
     nra_ODE_show_progress   = opt.isSet("--ode-show-progress");
+    nra_ODE_sampling        = opt.isSet("--ode-sampling");
     nra_readable_proof      = opt.isSet("--readable-proof");
     sat_theory_propagation  = opt.isSet("--theory-propagation");
     nra_proof               = nra_readable_proof || opt.isSet("--proof");

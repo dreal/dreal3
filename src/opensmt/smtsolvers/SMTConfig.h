@@ -202,6 +202,7 @@ struct SMTConfig
   bool         nra_ODE_forward_only;          // only use ODE forward pruning (not use ODE backward)
   bool         nra_ODE_parallel;              // solve ODE in parallel or not
   bool         nra_ODE_show_progress;         // show the progress of ODE solving
+  bool         nra_ODE_sampling;              // use sampling method (via GSL)
   unsigned long nra_aggressive;               // number of samples to use for aggressive sampling
   unsigned long nra_sample;                   // number of samples to use for sound sampling
   unsigned long nra_multiple_soln;            // maximum number of solutions to find
