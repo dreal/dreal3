@@ -132,6 +132,8 @@ contractor_try_or::contractor_try_or(contractor const & c1, contractor const & c
     : contractor_cell(contractor_kind::TRY_OR), m_c1(c1), m_c2(c2) { }
 void contractor_try_or::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_try_or::prune";
+    static box old_box(b);
+    old_box = b;
     try {
         m_c1.prune(b, config);
         m_input  = m_c1.input();
@@ -139,6 +141,7 @@ void contractor_try_or::prune(box & b, SMTConfig & config) const {
         unordered_set<shared_ptr<constraint>> const & used_ctrs = m_c1.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
     } catch (contractor_exception & e) {
+        b = old_box;
         m_c2.prune(b, config);
         m_input  = m_c2.input();
         m_output = m_c2.output();
