@@ -42,7 +42,7 @@ enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL_FIRST,
         IBEX_FWDBWD, IBEX_NEWTON, IBEX_HC4, IBEX_POLYTOPE,
         INT, EVAL, CACHE, SAMPLE, AGGRESSIVE, FORALL,
 #ifdef SUPPORT_ODE
-        CAPD_FULL, CAPD_SIMPLE
+        CAPD_FULL, CAPD_SIMPLE, GSL
 #endif
         };
 
@@ -133,6 +133,7 @@ public:
 #ifdef SUPPORT_ODE
     friend contractor mk_contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward);
     friend contractor mk_contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout);
+    friend contractor mk_contractor_gsl(box const & box, std::shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, bool const forward, double const timeout);
 #endif
     std::size_t hash() const { return (std::size_t) m_ptr.get(); }
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
