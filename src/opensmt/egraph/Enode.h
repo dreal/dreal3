@@ -254,6 +254,7 @@ public:
   inline dist_t   getDistClasses         ( ) const { assert( isTerm( ) || isList( ) ); assert( cong_data ); return cong_data->dist_classes; }
 
   double          getValue               ( ) const;
+  double          getNumb                ( ) const;
   std::unordered_set<Enode *> get_vars   ( );
   std::unordered_set<Enode *> get_exist_vars ( );
   std::unordered_set<Enode *> get_forall_vars ( );
@@ -433,6 +434,13 @@ inline double       Enode::getValue ( ) const
   assert( hasValue( ) );
   return *value;
 }
+
+inline double       Enode::getNumb ( ) const
+{
+  assert( isNumb() );
+  return *(symb_data->value);
+}
+
 
 inline double Enode::getDomainLowerBound ( ) const
 {
