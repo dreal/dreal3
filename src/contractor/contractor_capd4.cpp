@@ -332,8 +332,8 @@ bool check_invariant(capd::IVector const & v, vector<forallt_constraint> const &
     // DREAL_LOG_FATAL << "Current V = " <<  v;
     // DREAL_LOG_FATAL << "----------------------------------";
     // for (forallt_constraint const & inv : invs) {
-        // DREAL_LOG_FATAL << inv;
-        // DREAL_LOG_FATAL << "-----------------------------";
+    // DREAL_LOG_FATAL << inv;
+    // DREAL_LOG_FATAL << "-----------------------------";
     // }
     // TODO(soonhok): implement this
     return true;
@@ -538,7 +538,8 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) const {
     auto const start_time = steady_clock::now();
     static box old_box(b);
     old_box = b;
-    DREAL_LOG_DEBUG << "contractor_capd_full::prune";
+    DREAL_LOG_DEBUG << "contractor_capd_full::prune "
+                    << (m_forward ? "FWD" : "BWD");
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
     if (b.is_empty()) {
@@ -600,17 +601,17 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) const {
             }
             prevTime = m_timeMap->getCurrentTime();
             if (config.nra_ODE_show_progress) {
-                std::cout << "\r"
-                          << "                                               "
-                          << "                                               ";
                 cout << "\r"
-                          << "ODE Progress "
-                          << (m_forward ? "[FWD]" : "[BWD]")
-                          << ":  Time = " << setw(10) << fixed << setprecision(5) << right << prevTime.rightBound() << " / "
-                          << setw(7) << fixed << setprecision(2) << left << T.rightBound() << " "
-                          << setw(4) << right << int(prevTime.rightBound() / T.rightBound() * 100.0) << "%" << "  "
-                          << "Box Width = " << setw(10) << fixed << setprecision(5) << b.max_diam() << "\t";
-                std::cout.flush();
+                     << "                                               "
+                     << "                                               ";
+                cout << "\r"
+                     << "ODE Progress "
+                     << (m_forward ? "[FWD]" : "[BWD]")
+                     << ":  Time = " << setw(10) << fixed << setprecision(5) << right << prevTime.rightBound() << " / "
+                     << setw(7) << fixed << setprecision(2) << left << T.rightBound() << " "
+                     << setw(4) << right << int(prevTime.rightBound() / T.rightBound() * 100.0) << "%" << "  "
+                     << "Box Width = " << setw(10) << fixed << setprecision(5) << b.max_diam() << "\t";
+                cout.flush();
             }
         } while (!m_timeMap->completed());
         if (config.nra_ODE_show_progress) {
