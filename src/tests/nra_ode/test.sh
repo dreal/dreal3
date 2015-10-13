@@ -2,11 +2,12 @@
 DREAL=$1
 INSTANCE=$2
 BASENAME=`basename ${INSTANCE}`
-EXPECTED_OUT=$2.expected
-OPTION=
-if [[ -e $2.option ]]
+EXPECTED_OUT=${INSTANCE}.expected
+shift 2
+OPTION=$@
+if [[ -e ${INSTANCE}.option ]]
 then
-    OPTION=`cat $2.option`
+    OPTION="${OPTION} `cat ${INSTANCE}.option`"
 fi
 TMP=`mktemp /tmp/${BASENAME}.out.XXXX`
 
