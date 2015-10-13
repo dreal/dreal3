@@ -211,7 +211,7 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, initializer_list<vector<contractor>> const & cvec_list)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist() {
     for (auto const & cvec : cvec_list) {
-        copy(cvec.begin(), cvec.end(), back_inserter(m_clist));
+        m_clist.insert(m_clist.end(), cvec.begin(), cvec.end());
     }
 }
 

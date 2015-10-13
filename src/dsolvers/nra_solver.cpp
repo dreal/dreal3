@@ -472,8 +472,7 @@ vector<Enode *> nra_solver::generate_explanation(scoped_vec<shared_ptr<constrain
             }
         }
     }
-    vector<Enode *> exps;
-    copy(bag.begin(), bag.end(), back_inserter(exps));
+    vector<Enode *> exps(bag.begin(), bag.end());
     sort(exps.begin(), exps.end(), [](Enode const * const e1, Enode const * const e2) {
             return e1->getId() < e2->getId();
         });

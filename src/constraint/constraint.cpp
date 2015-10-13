@@ -108,7 +108,7 @@ constraint::constraint(constraint_type ty, vector<Enode *> const & enodes)
 }
 constraint::constraint(constraint_type ty, vector<Enode *> const & enodes_1, vector<Enode *> const & enodes_2)
     : m_type(ty), m_enodes(enodes_1), m_vars(build_vars_from_enodes({enodes_1, enodes_2})) {
-    copy(enodes_2.begin(), enodes_2.end(), back_inserter(m_enodes));
+    m_enodes.insert(m_enodes.end(), enodes_2.begin(), enodes_2.end());
 }
 ostream & operator<<(ostream & out, constraint const & c) {
     return c.display(out);
@@ -248,7 +248,7 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
 ode_constraint::ode_constraint(integral_constraint const & integral, vector<forallt_constraint> const & invs)
     : constraint(constraint_type::ODE, integral.get_enodes()), m_int(integral), m_invs(invs) {
     for (auto const & inv : invs) {
-        copy(inv.get_enodes().begin(), inv.get_enodes().end(), back_inserter(m_enodes));
+        m_enodes.insert(m_enodes.end(), inv.get_enodes().begin(), inv.get_enodes().end());
     }
 }
 ostream & ode_constraint::display(ostream & out) const {

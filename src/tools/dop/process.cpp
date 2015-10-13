@@ -168,7 +168,7 @@ ostream & display(ostream & out, string const & name, Enode * const e) {
 
 void print_result(unordered_map<string, Enode*> const & map) {
     vector<pair<string, Enode*>> vec;
-    copy(map.begin(), map.end(), back_inserter(vec));
+    vec.insert(vec.end(), map.begin(), map.end());
     sort(vec.begin(), vec.end(), [](pair<string, Enode *> const & p1, pair<string, Enode *> const & p2) {
             bool const p1_starts_with_min = dreal::starts_with(p1.first, g_minimum_name);
             bool const p2_starts_with_min = dreal::starts_with(p2.first, g_minimum_name);

@@ -596,9 +596,9 @@ SMTConfig::parseCMDLine( int argc
     filename = "";
     bool stdin_is_on = opt.isSet("--in");
     vector<string*> args;
-    copy(opt.firstArgs.begin() + 1, opt.firstArgs.end(),   back_inserter(args));
-    copy(opt.unknownArgs.begin(),   opt.unknownArgs.end(), back_inserter(args));
-    copy(opt.lastArgs.begin(),      opt.lastArgs.end(),    back_inserter(args));
+    args.insert(args.end(), opt.firstArgs.begin() + 1, opt.firstArgs.end());
+    args.insert(args.end(), opt.unknownArgs.begin(),   opt.unknownArgs.end());
+    args.insert(args.end(), opt.lastArgs.begin(),      opt.lastArgs.end());
 
     if (stdin_is_on && args.size() > 0) {
         printUsage(opt);

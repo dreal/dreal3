@@ -109,9 +109,9 @@ config::config(int const argc, const char * argv[]) {
     // Set up filename
     string filename;
     vector<string*> args;
-    copy(opt.firstArgs.begin() + 1, opt.firstArgs.end(),   back_inserter(args));
-    copy(opt.unknownArgs.begin(),   opt.unknownArgs.end(), back_inserter(args));
-    copy(opt.lastArgs.begin(),      opt.lastArgs.end(),    back_inserter(args));
+    args.insert(args.end(), opt.firstArgs.begin() + 1, opt.firstArgs.end());
+    args.insert(args.end(), opt.unknownArgs.begin(),   opt.unknownArgs.end());
+    args.insert(args.end(), opt.lastArgs.begin(),      opt.lastArgs.end());
     if (args.size() != 1) {
         printUsage(opt);
     }

@@ -97,9 +97,8 @@ void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
         unordered_set<Enode *> const & temp_vars = lit->get_exist_vars();
         var_set.insert(temp_vars.begin(), temp_vars.end());
     }
-    m_vars = make_shared<vector<Enode*>>(var_set.size());
+    m_vars = make_shared<vector<Enode*>>(var_set.begin(), var_set.end());
     m_name_index_map = make_shared<unordered_map<string, int>>();
-    copy(var_set.begin(), var_set.end(), m_vars->begin());
     constructFromVariables(*m_vars);
     return;
 }
@@ -108,7 +107,7 @@ box::box(box const & b, unordered_set<Enode *> const & extra_vars)
     : m_vars(make_shared<vector<Enode* > >(*b.m_vars)),
       m_values(m_vars->size() + extra_vars.size()),
       m_name_index_map(make_shared<unordered_map<string, int>>()) {
-    copy(extra_vars.begin(), extra_vars.end(), back_inserter(*m_vars));
+    m_vars->insert(m_vars->end(), extra_vars.begin(), extra_vars.end());
     if (m_vars->size() > 0) {
         sort(m_vars->begin(), m_vars->end(), enode_lex_cmp());
         constructFromVariables(*m_vars);
