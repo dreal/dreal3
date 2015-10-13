@@ -68,6 +68,11 @@
 (declare-fun gamma_refuel_gen_tank1_3_0 () Real)
 (declare-fun gamma_refuel_gen_tank1_3_t () Real)
 (declare-fun gamma_refuel_gen_tank1 () Real)
+(declare-fun happening () Real)
+(declare-fun fuellevel_gen () Real)
+(declare-fun capacity_gen () Real)
+(declare-fun gamma_generate_gen () Real)
+(declare-fun gamma_refuel_gen_tank1 () Real)
 (define-ode flow_0 (
                     (= d/dt[happening] 1)
                     (= d/dt[fuellevel_gen] (+ (* gamma_generate_gen (* -1.0 1)) (* gamma_refuel_gen_tank1 2) ))

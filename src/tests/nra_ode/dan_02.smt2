@@ -1,4 +1,5 @@
 (set-logic QF_NRA_ODE)
+(declare-fun x () Real)
 (declare-fun x_0 () Real)
 (declare-fun x_t () Real)
 (declare-fun time_0 () Real)
