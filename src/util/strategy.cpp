@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <algorithm>
 #include <limits>
 #include <memory>
 #include <vector>
@@ -32,6 +33,7 @@ using std::dynamic_pointer_cast;
 using std::endl;
 using std::make_shared;
 using std::numeric_limits;
+using std::reverse;
 using std::shared_ptr;
 using std::vector;
 
@@ -75,7 +77,7 @@ contractor default_strategy::build_contractor(box const & box,
                                               SMTConfig const & config) const {
     // 1. Categorize constraints
     vector<shared_ptr<nonlinear_constraint>> nl_ctrs;
-    vector<shared_ptr<ode_constraint>> ode_ctrs;
+    vector<shared_ptr<ode_constraint>> ode_ctrs_rev;
     vector<shared_ptr<generic_forall_constraint>> generic_forall_ctrs;
     for (shared_ptr<constraint> const ctr : ctrs.get_reverse()) {
         switch (ctr->get_type()) {
@@ -86,7 +88,7 @@ contractor default_strategy::build_contractor(box const & box,
         }
         case constraint_type::ODE: {
             auto ode_ctr = dynamic_pointer_cast<ode_constraint>(ctr);
-            ode_ctrs.push_back(ode_ctr); break;
+            ode_ctrs_rev.push_back(ode_ctr); break;
         }
         case constraint_type::GenericForall: {
             auto gf_ctr = dynamic_pointer_cast<generic_forall_constraint>(ctr);
@@ -96,6 +98,8 @@ contractor default_strategy::build_contractor(box const & box,
             DREAL_LOG_FATAL << "Unknown Constraint Type: " << ctr->get_type() << " " <<  *ctr << endl;
         }
     }
+    vector<shared_ptr<ode_constraint>> ode_ctrs(ode_ctrs_rev);
+    reverse(ode_ctrs.begin(), ode_ctrs.end());
 
     vector<contractor> ctcs;
     ctcs.reserve(ctrs.size());
@@ -125,25 +129,58 @@ contractor default_strategy::build_contractor(box const & box,
     for (auto const & generic_forall_ctr : generic_forall_ctrs) {
         ctcs.push_back(mk_contractor_generic_forall(box, generic_forall_ctr));
     }
-    // 2.5. Build ODE constractors
+
     if (complete) {
+        // Add ODE Contractors only for complete check
+
+        // 2.5. Build GSL Contractors (using CAPD4)
+        vector<contractor> ode_gsl_ctcs;
+        if (config.nra_ODE_sampling) {
+            // 2.5.1 Build Eval contractors
+            vector<contractor> eval_ctcs;
+            for (auto const & nl_ctr : nl_ctrs) {
+                eval_ctcs.push_back(mk_contractor_eval(nl_ctr));
+            }
+            contractor eval_ctc = mk_contractor_seq(eval_ctcs);
+            for (auto const & ode_ctr : ode_ctrs) {
+                // Add Forward ODE Pruning (Underapproximation, using GNU GSL)
+                ode_gsl_ctcs.push_back(mk_contractor_gsl(box, ode_ctr, eval_ctc, true, config.nra_ODE_fwd_timeout));
+                ode_gsl_ctcs.push_back(nl_ctc);
+            }
+        }
+
+        // 2.6. Build ODE Contractors (using CAPD4)
+        vector<contractor> ode_capd4_ctcs;
         for (auto const & ode_ctr : ode_ctrs) {
-            // For now, it always tries forward-ode-pruning first, and then backward-ode pruning later.
-            ctcs.emplace_back(
+            // 2.6.1. Add Forward ODE Pruning (Overapproximation, using CAPD4)
+            ode_capd4_ctcs.emplace_back(
                 mk_contractor_try(
                     mk_contractor_seq(
                         mk_contractor_capd_full(box, ode_ctr, true, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_fwd_timeout),
                         nl_ctc)));
-            if (!config.nra_ODE_forward_only) {
-                ctcs.emplace_back(
+        }
+        if (!config.nra_ODE_forward_only) {
+            // 2.6.2. Add Backward ODE Pruning (Overapproximation, using CAPD4)
+            for (auto const & ode_ctr : ode_ctrs_rev) {
+                ode_capd4_ctcs.emplace_back(
                     mk_contractor_try(
                         mk_contractor_seq(
                             mk_contractor_capd_full(box, ode_ctr, false, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_bwd_timeout),
                             nl_ctc)));
             }
         }
+
+        if (config.nra_ODE_sampling) {
+            ctcs.push_back(
+                mk_contractor_try_or(
+                    mk_contractor_seq(ode_gsl_ctcs),
+                    mk_contractor_seq(ode_capd4_ctcs)));
+        } else {
+            ctcs.insert(ctcs.end(), ode_capd4_ctcs.begin(), ode_capd4_ctcs.end());
+        }
     }
-    // 2.6 Build Eval contractors
+
+    // 2.7 Build Eval contractors
     for (auto const & nl_ctr : nl_ctrs) {
         ctcs.push_back(mk_contractor_eval(nl_ctr));
     }
