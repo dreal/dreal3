@@ -38,7 +38,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/ibex_enode.h"
 #include "constraint/constraint.h"
-#include "contractor/contractor.h"
+#include "contractor/contractor_capd4.h"
 
 using nlohmann::json;
 using std::chrono::steady_clock;
@@ -536,7 +536,7 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
 
 void contractor_capd_full::prune(box & b, SMTConfig & config) const {
     auto const start_time = steady_clock::now();
-    static box old_box(b);
+    thread_local static box old_box(b);
     old_box = b;
     DREAL_LOG_DEBUG << "contractor_capd_full::prune "
                     << (m_forward ? "FWD" : "BWD");

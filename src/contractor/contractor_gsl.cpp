@@ -389,7 +389,7 @@ void contractor_gsl::prune(box & b, SMTConfig & config) const {
             i++;
         }
         if (values_good) {
-            static box old_box(b);
+            thread_local static box old_box(b);
             old_box = b;
             // Update X_t with m_values
             i = 0;

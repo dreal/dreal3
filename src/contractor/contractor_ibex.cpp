@@ -163,7 +163,7 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> 
 void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_ibex_fwdbwd::prune";
     if (m_ctc == nullptr) { return; }
-    static box old_box(b);
+    thread_local static box old_box(b);
     if (config.nra_proof) { old_box = b; }
     if (m_var_array.size() == 0) {
         auto eval_result = m_ctr->eval(b);
@@ -228,7 +228,7 @@ void contractor_ibex_newton::prune(box & b, SMTConfig & config) const {
     if (m_ctc == nullptr) { return; }
 
     // ======= Proof =======
-    static box old_box(b);
+    thread_local static box old_box(b);
     if (config.nra_proof) { old_box = b; }
     if (m_var_array.size() == 0) {
         auto eval_result = m_ctr->eval(b);
@@ -293,7 +293,7 @@ void contractor_ibex_hc4::prune(box & b, SMTConfig & config) const {
     for (Enode * var : m_vars_in_ctrs) {
         m_input.add(b.get_index(var));
     }
-    static box old_box(b);
+    thread_local static box old_box(b);
     old_box = b;
     m_ctc->contract(b.get_values());
     // setup output
@@ -398,7 +398,7 @@ void contractor_ibex_polytope::prune(box & b, SMTConfig & config) const {
     for (Enode * var : m_vars_in_ctrs) {
         m_input.add(b.get_index(var));
     }
-    static box old_box(b);
+    thread_local static box old_box(b);
     old_box = b;
     m_ctc->contract(b.get_values());
     // setup output

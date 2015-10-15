@@ -82,6 +82,7 @@ void contractor_seq::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_seq::prune";
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
+    m_used_constraints.clear();
     for (contractor const & c : m_vec) {
         c.prune(b, config);
         m_input.union_with(c.input());
@@ -107,7 +108,7 @@ contractor_try::contractor_try(contractor const & c)
     : contractor_cell(contractor_kind::TRY), m_c(c) { }
 void contractor_try::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_try::prune: ";
-    static box old_box(b);
+    thread_local static box old_box(b);
     old_box = b;
     try {
         m_c.prune(b, config);
@@ -132,7 +133,7 @@ contractor_try_or::contractor_try_or(contractor const & c1, contractor const & c
     : contractor_cell(contractor_kind::TRY_OR), m_c1(c1), m_c2(c2) { }
 void contractor_try_or::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_try_or::prune";
-    static box old_box(b);
+    thread_local static box old_box(b);
     old_box = b;
     try {
         m_c1.prune(b, config);
@@ -338,7 +339,7 @@ contractor_int::contractor_int() : contractor_cell(contractor_kind::INT) { }
 void contractor_int::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_int::prune";
     // ======= Proof =======
-    static box old_box(b);
+    thread_local static box old_box(b);
     if (config.nra_proof) { old_box = b; }
 
     m_input  = ibex::BitSet::empty(b.size());
@@ -594,7 +595,7 @@ ostream & operator<<(ostream & out, contractor const & c) {
 
 void contractor::prune_with_assert(box & b, SMTConfig & config) const {
     assert(m_ptr != nullptr);
-    static box old_box(b);
+    thread_local static box old_box(b);
     old_box = b;
     m_ptr->prune(b, config);
     if (!b.is_subset(old_box)) {
