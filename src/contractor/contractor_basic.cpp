@@ -156,6 +156,28 @@ ostream & contractor_try_or::display(ostream & out) const {
     return out;
 }
 
+contractor_throw_if_empty::contractor_throw_if_empty(contractor const & c)
+    : contractor_cell(contractor_kind::THROW_IF_EMPTY), m_c(c) { }
+void contractor_throw_if_empty::prune(box & b, SMTConfig & config) const {
+    DREAL_LOG_DEBUG << "contractor_throw_if_empty::prune";
+    thread_local static box old_box(b);
+    old_box = b;
+    m_c.prune(b, config);
+    if (b.is_empty()) {
+        b = old_box;
+        m_input  = m_c.input();
+        m_output = m_c.output();
+        throw contractor_exception("throw if empty");
+    } else {
+        // TODO(soonhok): set m_input and m_output
+        return;
+    }
+}
+ostream & contractor_throw_if_empty::display(ostream & out) const {
+    out << "contractor_throw_if_empty(" << m_c << ")";
+    return out;
+}
+
 contractor_join::contractor_join(contractor const & c1, contractor const & c2)
     : contractor_cell(contractor_kind::JOIN), m_c1(c1), m_c2(c2) { }
 void contractor_join::prune(box & b, SMTConfig & config) const {
@@ -517,6 +539,12 @@ contractor mk_contractor_try(contractor const & c) {
 }
 contractor mk_contractor_try_or(contractor const & c1, contractor const & c2) {
     return contractor(make_shared<contractor_try_or>(c1, c2));
+}
+contractor mk_contractor_throw() {
+    return contractor(make_shared<contractor_throw>());
+}
+contractor mk_contractor_throw_if_empty(contractor const & c) {
+    return contractor(make_shared<contractor_throw_if_empty>(c));
 }
 contractor mk_contractor_join(contractor const & c1, contractor const & c2) {
     return contractor(make_shared<contractor_join>(c1, c2));

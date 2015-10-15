@@ -69,6 +69,29 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
+// contractor_throw : throw an exception, always
+class contractor_throw : public contractor_cell {
+public:
+    contractor_throw() : contractor_cell(contractor_kind::THROW) { }
+    void prune(box &, SMTConfig &) const {
+        throw contractor_exception("contractor_throw");
+    }
+    std::ostream & display(std::ostream & out) const {
+        out << "contractor_throw()";
+        return out;
+    }
+};
+
+// contractor_throw : throw an exception, always
+class contractor_throw_if_empty : public contractor_cell {
+private:
+    contractor const m_c;
+public:
+    contractor_throw_if_empty(contractor const & c);
+    void prune(box & b, SMTConfig & config) const;
+    std::ostream & display(std::ostream & out) const;
+};
+
 // contractor_join : Run C1 and C2, join the result (take a hull of the two results)
 class contractor_join : public contractor_cell {
 private:
@@ -171,6 +194,8 @@ contractor mk_contractor_seq(std::vector<contractor> const & v);
 contractor mk_contractor_seq(contractor const & c1, contractor const & c2);
 contractor mk_contractor_try(contractor const & c);
 contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
+contractor mk_contractor_throw();
+contractor mk_contractor_throw_if_empty(contractor const & c);
 contractor mk_contractor_join(contractor const & c1, contractor const & c2);
 contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, contractor const & c);
