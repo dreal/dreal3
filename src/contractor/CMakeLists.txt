@@ -5,6 +5,7 @@ if(SUPPORT_ODE)
     ${CMAKE_CURRENT_LIST_DIR}/contractor_generic_forall.cpp
     ${CMAKE_CURRENT_LIST_DIR}/contractor_capd4.cpp
     ${CMAKE_CURRENT_LIST_DIR}/contractor_gsl.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/contractor_parallel.cpp
     PARENT_SCOPE)
 else()
   SET(DREAL_SRCS ${DREAL_SRCS}
