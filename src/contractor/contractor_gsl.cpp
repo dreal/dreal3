@@ -31,7 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "constraint/constraint.h"
-#include "contractor/contractor.h"
+#include "contractor/contractor_gsl.h"
 #include "gsl/gsl_errno.h"
 #include "gsl/gsl_matrix.h"
 #include "gsl/gsl_odeiv2.h"

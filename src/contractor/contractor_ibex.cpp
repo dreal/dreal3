@@ -31,7 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include "contractor/contractor.h"
+#include "contractor/contractor_ibex.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"

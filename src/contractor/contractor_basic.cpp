@@ -37,7 +37,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "constraint/constraint.h"
-#include "contractor/contractor.h"
+#include "contractor/contractor_basic.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"

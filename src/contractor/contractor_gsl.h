@@ -25,7 +25,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include "contractor/contractor_basic.h"
+#include "contractor/contractor_common.h"
 #include "gsl/gsl_errno.h"
 #include "gsl/gsl_matrix.h"
 #include "gsl/gsl_odeiv2.h"

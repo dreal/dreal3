@@ -38,7 +38,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "nlopt.hpp"
-#include "contractor/contractor.h"
+#include "contractor/contractor_generic_forall.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
 #include "opensmt/egraph/Enode.h"
