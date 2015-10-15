@@ -116,6 +116,7 @@ contractor default_strategy::build_contractor(box const & box,
             // Case: != (not equal), do nothing
         }
     }
+    // contractor nl_ctc = config.nra_parallel ? mk_contractor_pseq(nl_ctcs) : mk_contractor_seq(nl_ctcs);
     contractor nl_ctc = mk_contractor_seq(nl_ctcs);
     ctcs.push_back(nl_ctc);
 
@@ -130,7 +131,7 @@ contractor default_strategy::build_contractor(box const & box,
         ctcs.push_back(mk_contractor_generic_forall(box, generic_forall_ctr));
     }
 
-    if (complete) {
+    if (complete && ode_ctrs.size() > 0) {
         // Add ODE Contractors only for complete check
 
         // 2.5. Build GSL Contractors (using CAPD4)
@@ -150,10 +151,11 @@ contractor default_strategy::build_contractor(box const & box,
         }
 
         // 2.6. Build ODE Contractors (using CAPD4)
-        vector<contractor> ode_capd4_ctcs;
+        vector<contractor> ode_capd4_fwd_ctcs;
+        vector<contractor> ode_capd4_bwd_ctcs;
         for (auto const & ode_ctr : ode_ctrs) {
             // 2.6.1. Add Forward ODE Pruning (Overapproximation, using CAPD4)
-            ode_capd4_ctcs.emplace_back(
+            ode_capd4_fwd_ctcs.emplace_back(
                 mk_contractor_try(
                     mk_contractor_seq(
                         mk_contractor_capd_full(box, ode_ctr, true, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_fwd_timeout),
@@ -162,7 +164,7 @@ contractor default_strategy::build_contractor(box const & box,
         if (!config.nra_ODE_forward_only) {
             // 2.6.2. Add Backward ODE Pruning (Overapproximation, using CAPD4)
             for (auto const & ode_ctr : ode_ctrs_rev) {
-                ode_capd4_ctcs.emplace_back(
+                ode_capd4_bwd_ctcs.emplace_back(
                     mk_contractor_try(
                         mk_contractor_seq(
                             mk_contractor_capd_full(box, ode_ctr, false, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_bwd_timeout),
@@ -174,9 +176,16 @@ contractor default_strategy::build_contractor(box const & box,
             ctcs.push_back(
                 mk_contractor_try_or(
                     mk_contractor_seq(ode_gsl_ctcs),
-                    mk_contractor_seq(ode_capd4_ctcs)));
+                    mk_contractor_seq(mk_contractor_seq(ode_capd4_fwd_ctcs),
+                                      mk_contractor_seq(ode_capd4_bwd_ctcs))));
         } else {
-            ctcs.insert(ctcs.end(), ode_capd4_ctcs.begin(), ode_capd4_ctcs.end());
+            if (config.nra_parallel) {
+                ctcs.push_back(mk_contractor_pseq(ode_capd4_fwd_ctcs));
+                ctcs.push_back(mk_contractor_pseq(ode_capd4_bwd_ctcs));
+            } else {
+                ctcs.insert(ctcs.end(), ode_capd4_fwd_ctcs.begin(), ode_capd4_fwd_ctcs.end());
+                ctcs.insert(ctcs.end(), ode_capd4_bwd_ctcs.begin(), ode_capd4_bwd_ctcs.end());
+            }
         }
     }
 
