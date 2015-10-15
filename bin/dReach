@@ -204,7 +204,7 @@ do
         #Solve
         ${SOLVER} ${SOLVER_OPT} --short_sat --delta_heuristic --delta --time_split_heuristic $SMT 2>&1 | tee $OUT
         RESULT=`tail -n 1 $OUT`
-        if [[ $RESULT == "sat" ]]
+        if [[ $RESULT == delta-sat* ]]
         then
             echo "For k = $K, $P -- SAT"
             if [ $Z_OPT == TRUE ];      # (edited: FS)
@@ -249,7 +249,7 @@ do
                     ${SOLVER} ${SOLVER_OPT} --short_sat ${SMT} 2>&1 | tee $OUT
                 fi
                 RESULT=`tail -n 1 $OUT`
-                if [[ $RESULT == "sat" ]]
+                if [[ $RESULT == delta-sat* ]]
                 then
                     echo "For k = $K, $P -- SAT"
                     if [ $Z_OPT == TRUE ];      # (edited: FS)
