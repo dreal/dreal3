@@ -124,6 +124,7 @@ SMTConfig::initializeConfig( )
   nra_ODE_show_progress        = false;
   nra_ODE_sampling             = false;
   nra_json                     = false;
+  nra_parallel                 = false;
   nra_delta_test               = false;
   nra_use_delta_heuristic      = false;
   nra_short_sat                = false;
@@ -440,6 +441,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "output visualization file (.json)",
             "--visualize", "--vis");
+    opt.add("", false, 0, 0,
+            "enable parallelization",
+            "--parallel");
 #ifdef LOGGING
     opt.add("", false, 0, 0,
             "output debugging messages",
@@ -519,6 +523,7 @@ SMTConfig::parseCMDLine( int argc
     nra_model               = opt.isSet("--model");
     if (nra_model) { produce_models = true; }
     nra_json                = opt.isSet("--visualize");
+    nra_parallel            = opt.isSet("--parallel");
 #ifdef LOGGING
     nra_verbose             = opt.isSet("--verbose") || opt.isSet("--debug");
     nra_debug               = opt.isSet("--debug");
