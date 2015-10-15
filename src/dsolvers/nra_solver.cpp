@@ -365,11 +365,6 @@ void nra_solver::handle_sat_case(box const & b) const {
         config.nra_proof_out.open(config.nra_proof_out_name.c_str(), ofstream::out | ofstream::trunc);
         display(config.nra_proof_out, b, !config.nra_readable_proof, true);
     }
-    // --model option
-    if (config.nra_model && config.nra_multiple_soln == 1) {
-        // Only output here when --multiple_soln is not used
-        output_solution(b, config);
-    }
 #ifdef SUPPORT_ODE
     // --visualize option
     if (config.nra_json) {
@@ -490,5 +485,10 @@ bool nra_solver::belongsToT(Enode * e) {
 // Copy the model into enode's data
 void nra_solver::computeModel() {
     DREAL_LOG_DEBUG << "nra_solver::computeModel" << endl;
+    // --model option
+    if (config.nra_model && config.nra_multiple_soln == 1) {
+        // Only output here when --multiple_soln is not used
+        output_solution(m_box, config);
+    }
 }
 }  // namespace dreal
