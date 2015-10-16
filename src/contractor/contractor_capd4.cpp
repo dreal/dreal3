@@ -29,20 +29,21 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include "opensmt/egraph/Enode.h"
-#include "ibex/ibex.h"
 #include "capd/capdlib.h"
-#include "util/box.h"
-#include "util/string.h"
-#include "util/flow.h"
-#include "util/logging.h"
-#include "util/ibex_enode.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor_capd4.h"
+#include "ibex/ibex.h"
+#include "opensmt/egraph/Enode.h"
+#include "util/box.h"
+#include "util/flow.h"
+#include "util/ibex_enode.h"
+#include "util/interruptible_thread.h"
+#include "util/logging.h"
+#include "util/string.h"
 
 using nlohmann::json;
-using std::chrono::steady_clock;
 using std::cerr;
+using std::chrono::steady_clock;
 using std::cout;
 using std::endl;
 using std::exception;
@@ -584,6 +585,7 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) const {
                 }
             }
             // Move s toward m_T.rightBound()
+            interruption_point();
             (*m_timeMap)(T.rightBound(), s);
             if (contain_nan(s)) {
                 DREAL_LOG_INFO << "contractor_capd_full::prune - contains NaN";

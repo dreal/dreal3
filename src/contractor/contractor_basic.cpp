@@ -43,6 +43,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "util/logging.h"
 #include "util/proof.h"
+#include "util/interruptible_thread.h"
 
 using std::back_inserter;
 using std::cerr;
@@ -84,6 +85,7 @@ void contractor_seq::prune(box & b, SMTConfig & config) const {
     m_output = ibex::BitSet::empty(b.size());
     m_used_constraints.clear();
     for (contractor const & c : m_vec) {
+        interruption_point();
         c.prune(b, config);
         m_input.union_with(c.input());
         m_output.union_with(c.output());
@@ -269,6 +271,7 @@ void contractor_fixpoint::naive_fixpoint_alg(box & b, SMTConfig & config) const 
     m_output = ibex::BitSet::empty(b.size());
     // Fixed Point Loop
     do {
+        interruption_point();
         old_box = b;
         for (contractor const & c : m_clist) {
             c.prune(b, config);
@@ -303,6 +306,7 @@ void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) con
 
     // Fixed Point Loop
     do {
+        interruption_point();
         old_box = b;
         contractor const & c = q.front();
         c.prune(b, config);
@@ -458,6 +462,7 @@ void contractor_sample::prune(box & b, SMTConfig &) const {
     // If ∃p. ∀c. eval(c, p) = true, return 'SAT'
     unsigned count = 0;
     for (box const & p : points) {
+        interruption_point();
         DREAL_LOG_DEBUG << "contractor_sample::prune -- sample " << ++count << "th point = " << p;
         bool check = true;
         for (shared_ptr<constraint> const ctr : m_ctrs) {
@@ -498,6 +503,7 @@ void contractor_aggressive::prune(box & b, SMTConfig &) const {
     set<box> points = b.sample_points(m_num_samples);
     // ∃c. ∀p. eval(c, p) = false   ===>  UNSAT
     for (shared_ptr<constraint> const ctr : m_ctrs) {
+        interruption_point();
         if (ctr->get_type() == constraint_type::Nonlinear) {
             auto const nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
             bool check = false;

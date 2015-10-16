@@ -40,6 +40,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "util/flow.h"
 #include "util/ibex_enode.h"
+#include "util/interruptible_thread.h"
 #include "util/logging.h"
 #include "util/string.h"
 
@@ -339,6 +340,7 @@ void contractor_gsl::prune(box & b, SMTConfig & config) const {
 
     // First move to T_lb without checking m_values
     while (t < T_lb) {
+        interruption_point();
         T_next = T_lb;
         // T_next = min(t + config.nra_precision, T_lb);
         int status = gsl_odeiv2_evolve_apply(m_evolve, m_control, m_step,
@@ -353,6 +355,7 @@ void contractor_gsl::prune(box & b, SMTConfig & config) const {
 
     // Now we're in the range in [T_lb, T_ub], need to check m_values.
     while (t < T_ub) {
+        interruption_point();
         T_next = min(t + config.nra_precision, T_ub);
         // T_next = T_ub;
 
@@ -361,7 +364,6 @@ void contractor_gsl::prune(box & b, SMTConfig & config) const {
             m_old_values[i] = m_values[i];
         }
         old_t = t;
-
         int status = gsl_odeiv2_evolve_apply(m_evolve, m_control, m_step,
                                              &m_system,
                                              &t, T_next,
