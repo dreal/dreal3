@@ -1177,6 +1177,8 @@ opensmt_expr opensmt_get_value( opensmt_context c, opensmt_expr v )
   return static_cast< void * >( res );
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 double opensmt_get_lb( opensmt_context c, opensmt_expr v )
 {
   assert( c );
@@ -1187,7 +1189,10 @@ double opensmt_get_lb( opensmt_context c, opensmt_expr v )
   Enode * var = static_cast< Enode * >( v );
   return var->getValueLowerBound();
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 double opensmt_get_ub( opensmt_context c, opensmt_expr v )
 {
   assert( c );
@@ -1198,7 +1203,10 @@ double opensmt_get_ub( opensmt_context c, opensmt_expr v )
   Enode * var = static_cast< Enode * >( v );
   return var->getValueUpperBound();
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 double opensmt_get_domain_lb( opensmt_context c, opensmt_expr v )
 {
   assert( c );
@@ -1209,7 +1217,10 @@ double opensmt_get_domain_lb( opensmt_context c, opensmt_expr v )
   Enode * var = static_cast< Enode * >( v );
   return var->getDomainLowerBound();
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 double opensmt_get_domain_ub( opensmt_context c, opensmt_expr v )
 {
   assert( c );
@@ -1220,7 +1231,10 @@ double opensmt_get_domain_ub( opensmt_context c, opensmt_expr v )
   Enode * var = static_cast< Enode * >( v );
   return var->getDomainUpperBound();
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 void opensmt_set_domain_lb( opensmt_context c, opensmt_expr v, double n )
 {
   assert( c );
@@ -1231,7 +1245,10 @@ void opensmt_set_domain_lb( opensmt_context c, opensmt_expr v, double n )
   Enode * var = static_cast< Enode * >( v );
   var->setDomainLowerBound(n);
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 void opensmt_set_domain_ub( opensmt_context c, opensmt_expr v, double n )
 {
   assert( c );
@@ -1242,6 +1259,7 @@ void opensmt_set_domain_ub( opensmt_context c, opensmt_expr v, double n )
   Enode * var = static_cast< Enode * >( v );
   var->setDomainUpperBound(n);
 }
+#pragma GCC diagnostic pop
 
 /*
 void opensmt_get_num( opensmt_expr n, mpz_t val )
