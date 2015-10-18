@@ -87,7 +87,7 @@ class contractor_throw_if_empty : public contractor_cell {
 private:
     contractor const m_c;
 public:
-    contractor_throw_if_empty(contractor const & c);
+    explicit contractor_throw_if_empty(contractor const & c);
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
