@@ -250,8 +250,7 @@ void initialize_nonlinear_constraints(map<pair<Enode*, bool>, shared_ptr<constra
 // Update ctr_map by adding new ode constraints, from the information collected in ints and invs
 void initialize_ode_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
                                 vector<integral_constraint> const & ints,
-                                vector<forallt_constraint> const & invs,
-                                unordered_set<Enode *> const & var_set) {
+                                vector<forallt_constraint> const & invs) {
     // Attach the corresponding forallT literals to integrals
     for (integral_constraint ic : ints) {
         vector<forallt_constraint> local_invs;
@@ -288,7 +287,8 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
         // collect var_set
         unordered_set<Enode *> const & vars = l->get_exist_vars();
         var_set.insert(vars.begin(), vars.end());
-
+    }
+    for (Enode * l : lits) {
         // Partition ODE-related constraint into integrals and forallTs
         if (l->isIntegral()) {
             integral_constraint ic = mk_integral_constraint(l, egraph.flow_maps);
@@ -308,7 +308,7 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
                 m_ctr_map.emplace(make_pair(l, false), fc_neg);
             }
         } else if (l->isForallT()) {
-            forallt_constraint fc = mk_forallt_constraint(l);
+            forallt_constraint fc = mk_forallt_constraint(l, var_set);
             invs.push_back(fc);
         } else if (l->get_forall_vars().empty()) {
             nonlinear_lits.push_back(l);
@@ -317,7 +317,7 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
             throw runtime_error("nra_solver::initialize_constraints: No Patten");
         }
     }
-    initialize_ode_constraints(m_ctr_map, ints, invs, var_set);
+    initialize_ode_constraints(m_ctr_map, ints, invs);
     initialize_nonlinear_constraints(m_ctr_map, nonlinear_lits, var_set);
 }
 
