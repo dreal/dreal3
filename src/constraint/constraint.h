@@ -111,22 +111,23 @@ integral_constraint mk_integral_constraint(Enode * const e, std::unordered_map<s
 
 class forallt_constraint : public constraint {
 private:
+    std::shared_ptr<nonlinear_constraint> m_nl_ctr;
     unsigned const m_flow_id;
     Enode * const m_time_0;
     Enode * const m_time_t;
     Enode * const m_inv;
 
 public:
+    std::shared_ptr<nonlinear_constraint> get_nl_ctr() const { return m_nl_ctr; }
     inline unsigned get_flow_id()  const { return m_flow_id; }
     inline Enode * get_time_0() const { return m_time_0; }
     inline Enode * get_time_t() const { return m_time_t; }
     inline Enode * get_inv()    const { return m_inv; }
-    explicit forallt_constraint(Enode * e);
-    forallt_constraint(Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t, Enode * const inv);
+    forallt_constraint(Enode * const e, std::unordered_set<Enode*> const & var_set, unsigned const flow_id, Enode * const time_0, Enode * const time_t, Enode * const inv);
     virtual std::ostream & display(std::ostream & out) const;
 };
 
-forallt_constraint mk_forallt_constraint(Enode * const e);
+forallt_constraint mk_forallt_constraint(Enode * const e, std::unordered_set<Enode*> const & var_set);
 
 class ode_constraint : public constraint {
 private:

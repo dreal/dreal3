@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <iterator>
 #include <map>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -34,17 +35,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "ibex/ibex_ExprCopy.h"
 #include "util/logging.h"
 
-using std::back_inserter;
 using std::cerr;
 using std::copy;
 using std::endl;
 using std::initializer_list;
+using std::logic_error;
 using std::make_pair;
+using std::make_shared;
 using std::map;
 using std::ostream;
 using std::pair;
 using std::string;
 using std::to_string;
+using std::unique_ptr;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
@@ -119,7 +122,7 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // ====================================================
 nonlinear_constraint::nonlinear_constraint(Enode * const e,
                                            unordered_set<Enode*> const & var_set,
-                                           lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst)
+                                           lbool const p, unordered_map<Enode*, ibex::Interval> const & subst)
     : constraint(constraint_type::Nonlinear, e), m_is_neq(p == l_False && e->isEq()),
       m_numctr(nullptr), m_var_array(var_set.size()) {
     // Build var_map and var_array
@@ -130,7 +133,7 @@ nonlinear_constraint::nonlinear_constraint(Enode * const e,
     for (auto const item : var_map) {
         m_var_array.set_ref(i++, item.second);
     }
-    std::unique_ptr<ibex::ExprCtr const> exprctr(translate_enode_to_exprctr(var_map, e, p, subst));
+    unique_ptr<ibex::ExprCtr const> exprctr(translate_enode_to_exprctr(var_map, e, p, subst));
     m_numctr.reset(new ibex::NumConstraint(m_var_array, *exprctr));
     DREAL_LOG_INFO << "nonlinear_constraint: "<< *this;
 }
@@ -278,7 +281,7 @@ integral_constraint mk_integral_constraint(Enode * const e, unordered_map<string
     string key = string("flow_") + to_string(flow_id);
     auto const it = flow_map.find(key);
     if (it == flow_map.end()) {
-        throw std::logic_error(key + " is not in flow_map. Failed to create integral constraint");
+        throw logic_error(key + " is not in flow_map. Failed to create integral constraint");
     }
     flow const & _flow = it->second;
     vector<Enode *> const & flow_vars = _flow.get_vars();
@@ -335,8 +338,21 @@ ostream & integral_constraint::display(ostream & out) const {
     return out;
 }
 
+// ====================================================
+// ForallT constraint
+// ====================================================
+forallt_constraint::forallt_constraint(Enode * const e, unordered_set<Enode*> const & var_set, unsigned const flow_id, Enode * const time_0, Enode * const time_t, Enode * const inv)
+    : constraint(constraint_type::ForallT, e), m_nl_ctr(make_shared<nonlinear_constraint>(inv, var_set, l_True)), m_flow_id(flow_id), m_time_0(time_0), m_time_t(time_t), m_inv(inv) {
+}
+ostream & forallt_constraint::display(ostream & out) const {
+    out << "forallt_constraint = " << m_enodes[0] << endl;
+    out << "\t" << "flow_id = " << m_flow_id << endl;
+    out << "\t" << "time = [" << m_time_0 << "," << m_time_t << "]" << endl;
+    out << "\t" << "inv : " << m_inv << endl;
+    return out;
+}
 
-forallt_constraint mk_forallt_constraint(Enode * const e) {
+forallt_constraint mk_forallt_constraint(Enode * const e, unordered_set<Enode*> const & var_set) {
     // nra_solver::inform: (forallt 2 0 time_9 (<= 0 v_9_t))
     Enode const * tmp = e->getCdr();
     unsigned const flow_id = tmp->getCar()->getValue();
@@ -349,22 +365,9 @@ forallt_constraint mk_forallt_constraint(Enode * const e) {
     tmp = tmp->getCdr();
 
     Enode * const inv = tmp->getCar();
-    return forallt_constraint(e, flow_id, time_0, time_t, inv);
+    return forallt_constraint(e, var_set, flow_id, time_0, time_t, inv);
 }
 
-// ====================================================
-// ForallT constraint
-// ====================================================
-forallt_constraint::forallt_constraint(Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t, Enode * const inv)
-    : constraint(constraint_type::ForallT, e), m_flow_id(flow_id), m_time_0(time_0), m_time_t(time_t), m_inv(inv) {
-}
-ostream & forallt_constraint::display(ostream & out) const {
-    out << "forallt_constraint = " << m_enodes[0] << endl;
-    out << "\t" << "flow_id = " << m_flow_id << endl;
-    out << "\t" << "time = [" << m_time_0 << "," << m_time_t << "]" << endl;
-    out << "\t" << "inv : " << m_inv << endl;
-    return out;
-}
 
 // ====================================================
 // Generic Forall constraint
