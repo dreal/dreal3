@@ -116,7 +116,6 @@ contractor default_strategy::build_contractor(box const & box,
             // Case: != (not equal), do nothing
         }
     }
-    // contractor nl_ctc = config.nra_parallel ? mk_contractor_pseq(nl_ctcs) : mk_contractor_seq(nl_ctcs);
     contractor nl_ctc = mk_contractor_seq(nl_ctcs);
     ctcs.push_back(nl_ctc);
 
@@ -133,7 +132,6 @@ contractor default_strategy::build_contractor(box const & box,
 
     if (complete && ode_ctrs.size() > 0) {
         // Add ODE Contractors only for complete check
-
         // 2.5. Build GSL Contractors (using CAPD4)
         vector<contractor> ode_gsl_ctcs;
         if (config.nra_ODE_sampling) {
@@ -149,7 +147,6 @@ contractor default_strategy::build_contractor(box const & box,
                 ode_gsl_ctcs.push_back(nl_ctc);
             }
         }
-
         // 2.6. Build ODE Contractors (using CAPD4)
         vector<contractor> ode_capd4_fwd_ctcs;
         vector<contractor> ode_capd4_bwd_ctcs;
@@ -175,17 +172,13 @@ contractor default_strategy::build_contractor(box const & box,
         if (config.nra_ODE_sampling) {
             ctcs.push_back(
                 mk_contractor_try_or(
+                    // Try Underapproximation(GSL) if it fails try Overapproximation(CAPD4)
                     mk_contractor_seq(ode_gsl_ctcs),
                     mk_contractor_seq(mk_contractor_seq(ode_capd4_fwd_ctcs),
                                       mk_contractor_seq(ode_capd4_bwd_ctcs))));
         } else {
-            if (config.nra_parallel) {
-                ctcs.push_back(mk_contractor_pseq(ode_capd4_fwd_ctcs));
-                ctcs.push_back(mk_contractor_pseq(ode_capd4_bwd_ctcs));
-            } else {
-                ctcs.insert(ctcs.end(), ode_capd4_fwd_ctcs.begin(), ode_capd4_fwd_ctcs.end());
-                ctcs.insert(ctcs.end(), ode_capd4_bwd_ctcs.begin(), ode_capd4_bwd_ctcs.end());
-            }
+            ctcs.insert(ctcs.end(), ode_capd4_fwd_ctcs.begin(), ode_capd4_fwd_ctcs.end());
+            ctcs.insert(ctcs.end(), ode_capd4_bwd_ctcs.begin(), ode_capd4_bwd_ctcs.end());
         }
     }
 
