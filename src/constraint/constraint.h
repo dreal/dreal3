@@ -111,14 +111,14 @@ integral_constraint mk_integral_constraint(Enode * const e, std::unordered_map<s
 
 class forallt_constraint : public constraint {
 private:
-    std::shared_ptr<nonlinear_constraint> m_nl_ctr;
+    std::vector<std::shared_ptr<nonlinear_constraint>> m_nl_ctrs;
     unsigned const m_flow_id;
     Enode * const m_time_0;
     Enode * const m_time_t;
     Enode * const m_inv;
 
 public:
-    std::shared_ptr<nonlinear_constraint> get_nl_ctr() const { return m_nl_ctr; }
+    std::vector<std::shared_ptr<nonlinear_constraint>> get_nl_ctrs() const { return m_nl_ctrs; }
     inline unsigned get_flow_id()  const { return m_flow_id; }
     inline Enode * get_time_0() const { return m_time_0; }
     inline Enode * get_time_t() const { return m_time_t; }

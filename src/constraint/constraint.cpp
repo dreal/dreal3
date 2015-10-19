@@ -48,6 +48,7 @@ using std::pair;
 using std::string;
 using std::to_string;
 using std::unique_ptr;
+using std::shared_ptr;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
@@ -84,7 +85,6 @@ ostream & operator<<(ostream & out, constraint_type const & ty) {
     }
     return out;
 }
-
 
 // ====================================================
 // constraint
@@ -341,8 +341,40 @@ ostream & integral_constraint::display(ostream & out) const {
 // ====================================================
 // ForallT constraint
 // ====================================================
+
+vector<shared_ptr<nonlinear_constraint>> make_nlctrs(Enode * const e,
+unordered_set<Enode*> const & var_set, lbool const p) {
+    vector<shared_ptr<nonlinear_constraint>> ret;
+    if (e->isTrue()) {
+        return ret;
+    }
+    if (e->isFalse()) {
+        DREAL_LOG_FATAL << "false is not a valid invariant (forall_t constraint)";
+        throw logic_error("false is not a valid invariant (forall_t constraint)");
+    }
+    if (e->isNot()) {
+        return make_nlctrs(e->get1st(), var_set, !p);
+    }
+    if (e->isAnd()) {
+        Enode * tmp = e->getCdr();
+        while (!tmp->isEnil()) {
+            auto const nlctrs = make_nlctrs(e->get1st(), var_set, !p);
+            ret.insert(ret.end(), nlctrs.begin(), nlctrs.end());
+            tmp = tmp->getCdr();
+        }
+        return ret;
+    }
+    if (e->isOr()) {
+        DREAL_LOG_FATAL << "or is not a valid invariant for now, (forall_t constraint)";
+        throw logic_error("false is not a valid invariant for now, (forall_t constraint)");
+    }
+    ret.push_back(make_shared<nonlinear_constraint>(e, var_set, p));
+    return ret;
+}
+
 forallt_constraint::forallt_constraint(Enode * const e, unordered_set<Enode*> const & var_set, unsigned const flow_id, Enode * const time_0, Enode * const time_t, Enode * const inv)
-    : constraint(constraint_type::ForallT, e), m_nl_ctr(make_shared<nonlinear_constraint>(inv, var_set, l_True)), m_flow_id(flow_id), m_time_0(time_0), m_time_t(time_t), m_inv(inv) {
+    : constraint(constraint_type::ForallT, e), m_flow_id(flow_id), m_time_0(time_0), m_time_t(time_t), m_inv(inv) {
+    m_nl_ctrs = make_nlctrs(inv, var_set, l_True);
 }
 ostream & forallt_constraint::display(ostream & out) const {
     out << "forallt_constraint = " << m_enodes[0] << endl;
