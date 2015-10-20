@@ -108,37 +108,6 @@ public:
     void prune_with_assert(box & b, SMTConfig & config) const;
     inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
     inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
-
-    friend contractor mk_contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr);
-    friend contractor mk_contractor_ibex_newton(box const & box, std::shared_ptr<nonlinear_constraint> const ctr);
-    friend contractor mk_contractor_ibex_hc4(std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
-    friend contractor mk_contractor_ibex_polytope(double const prec, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
-    friend contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
-    friend contractor mk_contractor_seq(std::vector<contractor> const & v);
-    friend contractor mk_contractor_seq(contractor const & c1, contractor const & c2);
-    friend contractor mk_contractor_parallel(std::initializer_list<contractor> const & l);
-    friend contractor mk_contractor_parallel(std::vector<contractor> const & v);
-    friend contractor mk_contractor_parallel(contractor const & c1, contractor const & c2);
-    friend contractor mk_contractor_try(contractor const & c);
-    friend contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
-    friend contractor mk_contractor_throw();
-    friend contractor mk_contractor_throw_if_empty(contractor const & c);
-    friend contractor mk_contractor_join(contractor const & c1, contractor const & c2);
-    friend contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
-    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, contractor const & c);
-    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<contractor> const & clist);
-    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::vector<contractor> const & cvec);
-    friend contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> guard, std::initializer_list<std::vector<contractor>> const & cvec_list);
-    friend contractor mk_contractor_int();
-    friend contractor mk_contractor_eval(std::shared_ptr<nonlinear_constraint> const ctr);
-    friend contractor mk_contractor_cache(contractor const & ctc);
-    friend contractor mk_contractor_sample(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
-    friend contractor mk_contractor_aggressive(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
-#ifdef SUPPORT_ODE
-    friend contractor mk_contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward);
-    friend contractor mk_contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout);
-    friend contractor mk_contractor_gsl(box const & box, std::shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, bool const forward, double const timeout);
-#endif
     std::size_t hash() const { return (std::size_t) m_ptr.get(); }
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
 };
