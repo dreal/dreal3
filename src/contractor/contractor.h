@@ -23,7 +23,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor_basic.h"
 #include "contractor/contractor_ibex.h"
 #include "contractor/contractor_generic_forall.h"
-#include "contractor/contractor_parallel.h"
+#include "contractor/contractor_parallel_all.h"
+#include "contractor/contractor_parallel_any.h"
+#include "contractor/contractor_pseq.h"
 #ifdef SUPPORT_ODE
 #include "contractor/contractor_capd4.h"
 #include "contractor/contractor_gsl.h"

@@ -35,7 +35,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dreal {
 enum class contractor_kind { SEQ, OR, ITE, FP,
-        PARALLEL_ALL, PARALLEL_ANY,
+        PARALLEL_ALL, PARALLEL_ANY, PSEQ,
         TIMEOUT, TRY, TRY_OR, JOIN,
         IBEX_FWDBWD, IBEX_NEWTON, IBEX_HC4, IBEX_POLYTOPE,
         INT, EVAL, CACHE, SAMPLE, AGGRESSIVE, FORALL,
