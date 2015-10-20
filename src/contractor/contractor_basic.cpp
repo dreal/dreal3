@@ -65,9 +65,6 @@ using std::unordered_set;
 using std::vector;
 
 namespace dreal {
-ostream & operator<<(ostream & out, contractor_cell const & c) {
-    return c.display(out);
-}
 
 contractor_seq::contractor_seq(initializer_list<contractor> const & l)
     : contractor_cell(contractor_kind::SEQ), m_vec(l) { }

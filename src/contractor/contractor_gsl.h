@@ -36,7 +36,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 class contractor_gsl : public contractor_cell {
 private:
-    bool const m_forward;
+    ode_direction const m_dir;
     std::shared_ptr<ode_constraint> const m_ctr;
     contractor m_eval_ctc;
     double const m_timeout;  // unit: msec
@@ -68,7 +68,7 @@ private:
     // static int jacobian (double t, const double y[], double *dfdy, double dfdt[], void *params_ptr);
 
 public:
-    contractor_gsl(box const & box, std::shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, bool const forward, double const timeout = 0.0);
+    contractor_gsl(box const & box, std::shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, ode_direction const dir, double const timeout = 0.0);
     ~contractor_gsl() {
         delete[] m_old_values;
         delete[] m_values;
@@ -81,5 +81,5 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
-contractor mk_contractor_gsl(box const & box, std::shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, bool const forward, double const timeout = 0.0);
+contractor mk_contractor_gsl(box const & box, std::shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, ode_direction const dir, bool const use_cache = false, double const timeout = 0.0);
 }  // namespace dreal

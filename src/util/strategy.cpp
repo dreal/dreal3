@@ -143,7 +143,7 @@ contractor default_strategy::build_contractor(box const & box,
             contractor eval_ctc = mk_contractor_seq(eval_ctcs);
             for (auto const & ode_ctr : ode_ctrs) {
                 // Add Forward ODE Pruning (Underapproximation, using GNU GSL)
-                ode_gsl_ctcs.push_back(mk_contractor_gsl(box, ode_ctr, eval_ctc, true, config.nra_ODE_fwd_timeout));
+                ode_gsl_ctcs.push_back(mk_contractor_gsl(box, ode_ctr, eval_ctc, ode_direction::FWD, true, config.nra_ODE_fwd_timeout));
                 ode_gsl_ctcs.push_back(nl_ctc);
             }
         }
@@ -155,7 +155,7 @@ contractor default_strategy::build_contractor(box const & box,
             ode_capd4_fwd_ctcs.emplace_back(
                 mk_contractor_try(
                     mk_contractor_seq(
-                        mk_contractor_capd_full(box, ode_ctr, true, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_fwd_timeout),
+                        mk_contractor_capd_full(box, ode_ctr, ode_direction::FWD, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, true, config.nra_ODE_fwd_timeout),
                         nl_ctc)));
         }
         if (!config.nra_ODE_forward_only) {
@@ -164,7 +164,7 @@ contractor default_strategy::build_contractor(box const & box,
                 ode_capd4_bwd_ctcs.emplace_back(
                     mk_contractor_try(
                         mk_contractor_seq(
-                            mk_contractor_capd_full(box, ode_ctr, false, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, config.nra_ODE_bwd_timeout),
+                            mk_contractor_capd_full(box, ode_ctr, ode_direction::BWD, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, true, config.nra_ODE_bwd_timeout),
                             nl_ctc)));
             }
         }

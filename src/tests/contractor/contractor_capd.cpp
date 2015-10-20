@@ -103,7 +103,7 @@ TEST_CASE("capd_fwd") {
                             make_pair(static_cast<Enode*>(vars[1]), static_cast<Enode*>(rhs_p))});
     auto oc = make_shared<ode_constraint>(ic);
 
-    contractor c = mk_contractor_capd_full(b, oc, true);
+    contractor c = mk_contractor_capd_full(b, oc, ode_direction::FWD);
 
     cerr << *oc << endl;
     cerr << b << endl;
@@ -212,7 +212,7 @@ TEST_CASE("capd_bwd") {
                             make_pair(static_cast<Enode*>(vars[1]), static_cast<Enode*>(rhs_p))});
     auto oc = make_shared<ode_constraint>(ic);
 
-    contractor c = mk_contractor_capd_full(b, oc, false);
+    contractor c = mk_contractor_capd_full(b, oc, ode_direction::BWD);
 
     cerr << *oc << endl;
     cerr << b << endl;

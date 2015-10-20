@@ -258,8 +258,8 @@ int contractor_gsl::rhs(double , const double[], double f[], void *params_ptr) {
     return GSL_SUCCESS;        /* GSL_SUCCESS defined in gsl/errno.h as 0 */
 }
 
-contractor_gsl::contractor_gsl(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, bool const forward, double const timeout)
-    : contractor_cell(contractor_kind::GSL, box.size()), m_forward(forward),
+contractor_gsl::contractor_gsl(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, ode_direction const dir, double const timeout)
+    : contractor_cell(contractor_kind::GSL, box.size()), m_dir(dir),
       m_ctr(ctr), m_eval_ctc(eval_ctc), m_timeout(timeout),
       m_ic(m_ctr->get_ic()), m_vars_0(m_ic.get_vars_0()), m_pars_0(m_ic.get_pars_0()),
       m_vars_t(m_ic.get_vars_t()), m_time_t(m_ic.get_time_t()),
@@ -425,18 +425,19 @@ void contractor_gsl::prune(box & b, SMTConfig & config) const {
 }
 
 ostream & contractor_gsl::display(ostream & out) const {
-    out << "contractor_gsl("
-        << (m_forward ? "fwd" : "bwd") << ", "
-        << *m_ctr << ")";
+    out << "contractor_gsl(" << m_dir << ", " << *m_ctr << ")";
     return out;
 }
 
-contractor mk_contractor_gsl(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, bool const forward, double const timeout) {
-    if (forward) {
+contractor mk_contractor_gsl(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, ode_direction const dir, bool const use_cache, double const timeout) {
+    if (!use_cache) {
+        return contractor(make_shared<contractor_gsl>(box, ctr, eval_ctc, dir, timeout));
+    }
+    if (dir == ode_direction::FWD) {
         static unordered_map<shared_ptr<ode_constraint>, contractor> gsl_fwd_ctc_cache;
         auto it = gsl_fwd_ctc_cache.find(ctr);
         if (it == gsl_fwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_gsl>(box, ctr, eval_ctc, forward, timeout));
+            contractor ctc(make_shared<contractor_gsl>(box, ctr, eval_ctc, dir, timeout));
             gsl_fwd_ctc_cache.emplace(ctr, ctc);
             return ctc;
         } else {
@@ -446,7 +447,7 @@ contractor mk_contractor_gsl(box const & box, shared_ptr<ode_constraint> const c
         static unordered_map<shared_ptr<ode_constraint>, contractor> gsl_bwd_ctc_cache;
         auto it = gsl_bwd_ctc_cache.find(ctr);
         if (it == gsl_bwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_gsl>(box, ctr, eval_ctc, forward, timeout));
+            contractor ctc(make_shared<contractor_gsl>(box, ctr, eval_ctc, dir, timeout));
             gsl_bwd_ctc_cache.emplace(ctr, ctc);
             return ctc;
         } else {

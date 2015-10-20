@@ -44,6 +44,10 @@ enum class contractor_kind { SEQ, OR, ITE, FP, PARALLEL,
 #endif
         };
 
+enum class ode_direction { FWD, BWD };
+
+std::ostream & operator<<(std::ostream & out, ode_direction const & d);
+
 class contractor_exception : public std::runtime_error {
 public:
     explicit contractor_exception(const std::string& what_arg) : runtime_error(what_arg) { }

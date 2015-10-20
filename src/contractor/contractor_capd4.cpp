@@ -250,7 +250,7 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
 
 // Build CAPD string from integral constraint
 // example : "var:v_2_0, x_2_0;fun:(-9.8000000000000007+(-0.450000*v_2_0)), v_2_0;"
-string contractor_capd_full::build_capd_string(integral_constraint const & ic, bool const forward) const {
+string contractor_capd_full::build_capd_string(integral_constraint const & ic, ode_direction const dir) const {
     // Collect _0 variables
     vector<Enode *> const & pars_0 = ic.get_pars_0();
     vector<Enode *> const & par_lhs_names = ic.get_par_lhs_names();
@@ -277,7 +277,7 @@ string contractor_capd_full::build_capd_string(integral_constraint const & ic, b
     for (unsigned i = 0; i < m_vars_0.size(); i++) {
         Enode * const ode = odes[i].second;
         string ode_str = subst(ode, subst_map);
-        if (!forward) {
+        if (dir == ode_direction::BWD) {
             ode_str = "-" + ode_str;
         }
         ode_strs.emplace_back(ode_str);
@@ -476,13 +476,13 @@ unsigned int extract_step(string const & name) {
     return stoi(step_part, nullptr);
 }
 
-contractor_capd_simple::contractor_capd_simple(box const & /* box */, shared_ptr<ode_constraint> const ctr, bool const forward)
-    : contractor_cell(contractor_kind::CAPD_SIMPLE), m_forward(forward), m_ctr(ctr) {
+contractor_capd_simple::contractor_capd_simple(box const & /* box */, shared_ptr<ode_constraint> const ctr, ode_direction const dir)
+    : contractor_cell(contractor_kind::CAPD_SIMPLE), m_dir(dir), m_ctr(ctr) {
     assert(m_ctr);
 }
 
 void contractor_capd_simple::prune(box &, SMTConfig &) const {
-    if (m_forward) {
+    if (m_dir == ode_direction::FWD) {
         // TODO(soonhok): implement this
     } else {
         // TODO(soonhok): implement this
@@ -518,18 +518,18 @@ void contractor_capd_simple::prune(box &, SMTConfig &) const {
 // }
 ostream & contractor_capd_simple::display(ostream & out) const {
     out << "contractor_simple("
-        << (m_forward ? "fwd" : "bwd") << ", "
+        << m_dir << ", "
         << *m_ctr << ")";
     return out;
 }
 
-contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout)
-    : contractor_cell(contractor_kind::CAPD_FULL, box.size()), m_forward(forward), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size), m_timeout(timeout) {
+contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr, ode_direction const dir, unsigned const taylor_order, unsigned const grid_size, double const timeout)
+    : contractor_cell(contractor_kind::CAPD_FULL, box.size()), m_dir(dir), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size), m_timeout(timeout) {
     DREAL_LOG_INFO << "contractor_capd_full::contractor_capd_full()";
     integral_constraint const & ic = m_ctr->get_ic();
-    m_vars_0 = m_forward ? ic.get_vars_0() : ic.get_vars_t();
-    m_vars_t = m_forward ? ic.get_vars_t() : ic.get_vars_0();
-    string const capd_str = build_capd_string(ic, m_forward);
+    m_vars_0 = (m_dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
+    m_vars_t = (m_dir == ode_direction::FWD) ? ic.get_vars_t() : ic.get_vars_0();
+    string const capd_str = build_capd_string(ic, m_dir);
 
     if (capd_str.find("var:") != string::npos) {
         DREAL_LOG_INFO << "contractor_capd_full: diff sys = " << capd_str;
@@ -577,7 +577,7 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) const {
     thread_local static box old_box(b);
     old_box = b;
     DREAL_LOG_DEBUG << "contractor_capd_full::prune "
-                    << (m_forward ? "FWD" : "BWD");
+                    << m_dir;
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
     if (b.is_empty()) {
@@ -645,7 +645,7 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) const {
                      << "                                               ";
                 cout << "\r"
                      << "ODE Progress "
-                     << (m_forward ? "[FWD]" : "[BWD]")
+                     << "[" << m_dir << "]"
                      << ":  Time = " << setw(10) << fixed << setprecision(5) << right << prevTime.rightBound() << " / "
                      << setw(7) << fixed << setprecision(2) << left << T.rightBound() << " "
                      << setw(4) << right << int(prevTime.rightBound() / T.rightBound() * 100.0) << "%" << "  "
@@ -742,9 +742,9 @@ json contractor_capd_full::generate_trace(box b, SMTConfig & config) const {
         if (config.nra_ODE_step > 0) {
             m_solver->setStep(config.nra_ODE_step);
         }
-        vector<Enode *> const & vars_0 = m_forward ? ic.get_vars_0() : ic.get_vars_t();
-        vector<Enode *> const & vars_t = m_forward ? ic.get_vars_t() : ic.get_vars_0();
-        vector<Enode *> const & pars_0 = m_forward ? ic.get_pars_0() : ic.get_pars_t();
+        vector<Enode *> const & vars_0 = (m_dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
+        vector<Enode *> const & vars_t = (m_dir == ode_direction::FWD) ? ic.get_vars_t() : ic.get_vars_0();
+        vector<Enode *> const & pars_0 = (m_dir == ode_direction::FWD) ? ic.get_pars_0() : ic.get_pars_t();
         capd::IVector X_0 = extract_ivector(b, vars_0);
         capd::IVector X_t = extract_ivector(b, vars_t);
         ibex::Interval const & ibex_T = b[ic.get_time_t()];
@@ -780,13 +780,13 @@ json contractor_capd_full::generate_trace(box b, SMTConfig & config) const {
 
 ostream & contractor_capd_full::display(ostream & out) const {
     out << "contractor_capd_full("
-        << (m_forward ? "fwd" : "bwd") << ", "
+        << m_dir << ", "
         << *m_ctr << ")";
     return out;
 }
 
-contractor mk_contractor_capd_simple(box const & box, shared_ptr<ode_constraint> const ctr, bool const forward) {
-    return contractor(make_shared<contractor_capd_simple>(box, ctr, forward));
+contractor mk_contractor_capd_simple(box const & box, shared_ptr<ode_constraint> const ctr, ode_direction const dir) {
+    return contractor(make_shared<contractor_capd_simple>(box, ctr, dir));
 }
 
 contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout) {

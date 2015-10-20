@@ -29,23 +29,24 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "json/json.hpp"
 #include "capd/capdlib.h"
+#include "contractor/contractor_common.h"
 #include "contractor/contractor_basic.h"
 
 namespace dreal {
 class contractor_capd_simple : public contractor_cell {
 private:
-    bool const m_forward;
+    ode_direction const m_dir;
     std::shared_ptr<ode_constraint> const m_ctr;
 
 public:
-    contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward);
+    contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir);
     void prune(box & b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
 };
 
 class contractor_capd_full : public contractor_cell {
 private:
-    bool const m_forward;
+    ode_direction const m_dir;
     std::shared_ptr<ode_constraint> const m_ctr;
     unsigned const m_taylor_order;
     unsigned const m_grid_size;
@@ -58,7 +59,7 @@ private:
     std::unique_ptr<capd::IOdeSolver> m_solver;
     std::unique_ptr<capd::ITimeMap> m_timeMap;
 
-    std::string build_capd_string(integral_constraint const & ic, bool const forward = true) const;
+    std::string build_capd_string(integral_constraint const & ic, ode_direction const dir = ode_direction::FWD) const;
     bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, std::vector<std::pair<capd::interval, capd::IVector>> & enclosures) const;
     bool check_invariant(capd::IVector & v, box b, SMTConfig & config) const;
     template<typename Rect2Set>
@@ -78,7 +79,7 @@ private:
 
 
 public:
-    contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout = 0.0);
+    contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir, unsigned const taylor_order, unsigned const grid_size, double const timeout = 0.0);
     void prune(box & b, SMTConfig & config) const;
     nlohmann::json generate_trace(box b, SMTConfig & config) const;
     std::ostream & display(std::ostream & out) const;
