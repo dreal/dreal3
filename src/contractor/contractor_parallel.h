@@ -39,41 +39,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dreal {
 
-// contractor_parallel : Run C1, C2, ... , Cn in parallel.
-class contractor_parallel : public contractor_cell {
-private:
-    std::vector<contractor> m_vec;
-    mutable std::mutex m_mutex;
-    mutable std::condition_variable m_cv;
-    mutable int m_index;
+enum class pruning_thread_status {
+    READY, RUNNING, SAT, UNSAT, EXCEPTION, KILLED
+        };
 
-public:
-    explicit contractor_parallel(std::initializer_list<contractor> const & l);
-    explicit contractor_parallel(std::vector<contractor> const & v);
-    contractor_parallel(contractor const & c1, contractor const & c2);
-    void prune(box & b, SMTConfig & config) const;
-    std::ostream & display(std::ostream & out) const;
-};
+std::ostream & operator<<(std::ostream & out, pruning_thread_status const & s);
 
-class contractor_pseq : public contractor_cell {
-private:
-    contractor m_ctc;
-    std::vector<contractor> m_vec;
-    bool m_use_threads;
-    void init();
-
-public:
-    explicit contractor_pseq(std::initializer_list<contractor> const & l);
-    explicit contractor_pseq(std::vector<contractor> const & v);
-    void prune(box & b, SMTConfig & config) const;
-    std::ostream & display(std::ostream & out) const;
-};
-
-contractor mk_contractor_parallel(std::initializer_list<contractor> const & l);
-contractor mk_contractor_parallel(std::vector<contractor> const & v);
-contractor mk_contractor_parallel(contractor const & c1, contractor const & c2);
-
-contractor mk_contractor_pseq(std::initializer_list<contractor> const & l);
-contractor mk_contractor_pseq(std::vector<contractor> const & v);
-
+void parallel_helper_fn(unsigned const id, contractor const & c, box & b, SMTConfig & config, pruning_thread_status & s,
+                        std::mutex & m, std::condition_variable & cv, int & index, std::atomic_int & tasks_to_run);
 }  // namespace dreal

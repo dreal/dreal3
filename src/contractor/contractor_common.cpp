@@ -76,6 +76,7 @@ std::ostream & operator<<(std::ostream & out, ode_direction const & d) {
     }
     return out;
 }
+
 ostream & operator<<(ostream & out, contractor_cell const & c) {
     return c.display(out);
 }
