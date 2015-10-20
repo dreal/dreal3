@@ -789,12 +789,15 @@ contractor mk_contractor_capd_simple(box const & box, shared_ptr<ode_constraint>
     return contractor(make_shared<contractor_capd_simple>(box, ctr, dir));
 }
 
-contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order, unsigned const grid_size, double const timeout) {
-    if (forward) {
+contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr, ode_direction const dir, unsigned const taylor_order, unsigned const grid_size, bool const use_cache, double const timeout) {
+    if (!use_cache) {
+        return contractor(make_shared<contractor_capd_full>(box, ctr, dir, taylor_order, grid_size, timeout));
+    }
+    if (dir == ode_direction::FWD) {
         static unordered_map<shared_ptr<ode_constraint>, contractor> capd_full_fwd_ctc_cache;
         auto it = capd_full_fwd_ctc_cache.find(ctr);
         if (it == capd_full_fwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_capd_full>(box, ctr, forward, taylor_order, grid_size, timeout));
+            contractor ctc(make_shared<contractor_capd_full>(box, ctr, dir, taylor_order, grid_size, timeout));
             capd_full_fwd_ctc_cache.emplace(ctr, ctc);
             return ctc;
         } else {
@@ -804,7 +807,7 @@ contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> c
         static unordered_map<shared_ptr<ode_constraint>, contractor> capd_full_bwd_ctc_cache;
         auto it = capd_full_bwd_ctc_cache.find(ctr);
         if (it == capd_full_bwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_capd_full>(box, ctr, forward, taylor_order, grid_size, timeout));
+            contractor ctc(make_shared<contractor_capd_full>(box, ctr, dir, taylor_order, grid_size, timeout));
             capd_full_bwd_ctc_cache.emplace(ctr, ctc);
             return ctc;
         } else {

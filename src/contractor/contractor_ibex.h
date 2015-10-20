@@ -99,7 +99,7 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
-contractor mk_contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr);
+contractor mk_contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr, bool const use_cache = false);
 contractor mk_contractor_ibex_newton(box const & box, std::shared_ptr<nonlinear_constraint> const ctr);
 contractor mk_contractor_ibex_hc4(std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
 contractor mk_contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);

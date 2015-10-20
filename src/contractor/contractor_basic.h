@@ -203,7 +203,7 @@ contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> 
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::vector<contractor> const & cvec);
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::initializer_list<std::vector<contractor>> const & cvec_list);
 contractor mk_contractor_int();
-contractor mk_contractor_eval(std::shared_ptr<nonlinear_constraint> const ctr);
+contractor mk_contractor_eval(std::shared_ptr<nonlinear_constraint> const ctr, bool const use_cache = false);
 contractor mk_contractor_cache(contractor const & ctc);
 contractor mk_contractor_sample(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
 contractor mk_contractor_aggressive(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);

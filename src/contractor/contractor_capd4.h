@@ -85,6 +85,6 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
-contractor mk_contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward);
-contractor mk_contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, bool const forward, unsigned const taylor_order = 20, unsigned const grid_size = 16, double const timeout = 0.0);
+contractor mk_contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir);
+contractor mk_contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir, unsigned const taylor_order = 20, unsigned const grid_size = 16, bool const use_cache = false, double const timeout = 0.0);
 }  // namespace dreal

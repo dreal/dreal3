@@ -577,7 +577,10 @@ contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard
 contractor mk_contractor_int() {
     return contractor(make_shared<contractor_int>());
 }
-contractor mk_contractor_eval(shared_ptr<nonlinear_constraint> const ctr) {
+contractor mk_contractor_eval(shared_ptr<nonlinear_constraint> const ctr, bool const use_cache) {
+    if (!use_cache) {
+        return contractor(make_shared<contractor_eval>(ctr));
+    }
     static unordered_map<shared_ptr<nonlinear_constraint>, contractor> eval_ctc_cache;
     auto const it = eval_ctc_cache.find(ctr);
     if (it == eval_ctc_cache.end()) {
