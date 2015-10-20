@@ -82,6 +82,19 @@ public:
     }
 };
 
+// contractor_empty : always prune to an empty box
+class contractor_empty : public contractor_cell {
+public:
+    contractor_empty() : contractor_cell(contractor_kind::EMPTY) { }
+    void prune(box & b, SMTConfig &) const {
+        b.set_empty();
+    }
+    std::ostream & display(std::ostream & out) const {
+        out << "contractor_empty()";
+        return out;
+    }
+};
+
 // contractor_throw : throw an exception, always
 class contractor_throw_if_empty : public contractor_cell {
 private:
