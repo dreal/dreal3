@@ -84,7 +84,24 @@ let process_flow ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) : Basic.formu
       (* TODO add flow constraint here *)
       Basic.make_and invt_conds
   in
-  Basic.make_and ([mode_formula; flow_formula; inv_formula])
+  let const_ode_ctrs =
+    let const_odes = List.filter_map
+                       (fun (var_name, rhs) ->
+                         try
+                           Some (var_name, Basic.real_eval Map.empty rhs)
+                         with _ -> None)
+                       (Mode.flows m)
+    in
+    List.map
+      (fun (var_name, v) ->
+        let tau_k_0 = Basic.Var (make_variable k "_0" var_name) in
+        let tau_k_t = Basic.Var (make_variable k "_t" var_name) in
+        Basic.Eq (tau_k_t, Basic.Add [tau_k_0;
+                                      Basic.Mul [Basic.Num v;
+                                                 Basic.Var time_var]]))
+      const_odes
+  in
+  Basic.make_and ([mode_formula; flow_formula; inv_formula]@const_ode_ctrs)
 
 (** source mode & flow & mode invariant **)
 let process_flow_pruned ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) (relevant : Relevantvariables.t list option) : Basic.formula =
