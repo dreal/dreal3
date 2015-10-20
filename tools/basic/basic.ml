@@ -847,3 +847,54 @@ and print_infix_formula (out : 'a IO.output) : formula -> unit =
   | LetE _ -> failwith "print_infix_formula: not support LetE yet"
   | LetF _ -> failwith "print_infix_formula: not support LetE yet"
   | ForallT (m, lb, ub, f)-> failwith "print_infix_formula: not support ForallT yet"
+
+let rec real_eval (e : (string, float) Map.t) (f : exp) : float
+  = match f with
+    Var x -> Map.find x e
+  | Num n -> n
+  | Neg f' -> -. (real_eval e f')
+  | Add fl ->
+     List.fold_left (+.) 0.0 (List.map (real_eval e) fl)
+  | Sub (f1::rest) ->
+     (real_eval e f1) -. (real_eval e (Add rest))
+  | Sub [] -> raise TODO
+  | Mul fl ->
+     List.fold_left ( *. ) 1.0 (List.map (real_eval e) fl)
+  | Div (f1, f2) -> (real_eval e f1) /. (real_eval e f2)
+  | Ite _ -> raise TODO
+  | Pow (f', Num n) -> (real_eval e f') ** n
+  | Pow (f1, f2) -> (real_eval e f1) ** (real_eval e f2)
+  | Sqrt f' -> sqrt (real_eval e f')
+  | Safesqrt f' ->
+     let v = (real_eval e f') in
+     if v <= 0.0 then 0.0
+     else sqrt v
+  | Abs f' -> abs_float (real_eval e f')
+  | Log f' -> log (real_eval e f')
+  | Exp f' -> exp (real_eval e f')
+  | Sin f' -> sin (real_eval e f')
+  | Cos f' -> cos (real_eval e f')
+  | Tan f' -> tan (real_eval e f')
+  | Asin f' -> asin (real_eval e f')
+  | Acos f' -> acos (real_eval e f')
+  | Atan f' -> atan (real_eval e f')
+  | Asinh f' -> raise TODO
+  | Acosh f' -> raise TODO
+  | Atanh f' -> raise TODO
+  | Atan2 (f1, f2) -> atan2 (real_eval e f1) (real_eval e f2)
+  | Matan f' ->
+     let v = real_eval e f' in
+     if v = 0.0 then 1.0
+     else if v > 0.0 then
+       let sqrt_v = sqrt v in
+       (atan sqrt_v) /. (sqrt_v)
+     else
+       let sqrt_minus_v = sqrt (~-. v) in
+       log ((1.0 +. sqrt_minus_v) /. (1.0 -. sqrt_minus_v)) /. (2.0 *. sqrt_minus_v)
+  | Sinh f' -> sinh (real_eval e f')
+  | Cosh f' -> cosh (real_eval e f')
+  | Tanh f' -> tanh (real_eval e f')
+  | Min (f1, f2) -> min (real_eval e f1) (real_eval e f2)
+  | Max (f1, f2) -> max (real_eval e f1) (real_eval e f2)
+  | Vec _  -> raise TODO
+  | Integral _ -> raise TODO
