@@ -173,7 +173,7 @@ contractor default_strategy::build_contractor(box const & box,
             ctcs.push_back(
                 mk_contractor_try_or(
                     // Try Underapproximation(GSL) if it fails try Overapproximation(CAPD4)
-                    mk_contractor_seq(ode_gsl_ctcs),
+                    mk_contractor_throw_if_empty(mk_contractor_seq(ode_gsl_ctcs)),
                     mk_contractor_seq(mk_contractor_seq(ode_capd4_fwd_ctcs),
                                       mk_contractor_seq(ode_capd4_bwd_ctcs))));
         } else {
