@@ -499,6 +499,10 @@ void contractor_generic_forall::handle_disjunction(box & b, vector<Enode *> cons
                 contractor ctc = mk_contractor_ibex_fwdbwd(ctr);
                 box bt(b);
                 ctc.prune(bt, config);
+                m_input.union_with(ctc.input());
+                m_output.union_with(ctc.output());
+                unordered_set<shared_ptr<constraint>> const & used_ctrs = ctc.used_constraints();
+                m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
                 boxes.emplace_back(bt);
             }
         }
@@ -527,6 +531,9 @@ void contractor_generic_forall::handle_atomic(box & b, Enode * body, bool const 
 
 void contractor_generic_forall::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_generic_forall prune: " << *m_ctr << endl;
+    m_input  = ibex::BitSet::empty(b.size());
+    m_output = ibex::BitSet::empty(b.size());
+    m_used_constraints.clear();
     Enode * body = m_ctr->get_body();
     DREAL_LOG_DEBUG << "body = " << body << endl;
     handle(b, body, true, config);
