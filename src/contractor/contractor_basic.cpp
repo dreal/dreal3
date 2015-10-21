@@ -266,7 +266,7 @@ ostream & contractor_fixpoint::display(ostream & out) const {
 }
 
 void contractor_fixpoint::naive_fixpoint_alg(box & b, SMTConfig & config) const {
-    thread_local box old_box(b);
+    box old_box(b);
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
     m_used_constraints.clear();
@@ -289,7 +289,7 @@ void contractor_fixpoint::naive_fixpoint_alg(box & b, SMTConfig & config) const 
 }
 
 void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) const {
-    thread_local box old_box(b);
+    box old_box(b);
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
     m_used_constraints.clear();
