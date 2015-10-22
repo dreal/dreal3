@@ -11,7 +11,7 @@ you're using homebrew to install packages.
 Install Packages
 ================
 
-gcc-4.8/automake/autoconf/libtool/git/cmake
+gcc-5/automake/autoconf/libtool/git/cmake
 -------------------------------------------
 
     brew update
@@ -25,7 +25,7 @@ Build dReal
     cd dreal
     mkdir -p build/release
     cd build/release
-    cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 ../../src
+    cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-5 -DCMAKE_C_COMPILER=gcc-5 ../../src
     make
 
 Test Your Build
@@ -81,5 +81,5 @@ Undefined symbols for architecture x86_64:
 ld: symbol(s) not found for architecture x86_64
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you have the above error, it is due to a problem in OS X 10.9 + g++-4.8/g++-4.9.
+If you have the above error, it is due to a problem in OS X 10.9 + g++.
 Please read http://stackoverflow.com/a/19706989/2654527 to fix the problem.

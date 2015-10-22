@@ -6,7 +6,7 @@ Install Packages
 
     sudo apt-get install -qq autoconf automake bison flex git libtool make pkg-config python-software-properties tex-info
 
-1. g++-4.8
+1. g++-4.9
 ----------
 
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
@@ -14,7 +14,7 @@ Install Packages
     sudo update-alternatives --remove-all gcc
     sudo update-alternatives --remove-all g++
     sudo apt-get update
-    sudo apt-get install -qq g++-4.8
+    sudo apt-get install -qq g++-4.9
     sudo apt-get upgrade
     sudo apt-get dist-upgrade -y
 
@@ -32,14 +32,14 @@ Build dReal
     cd dreal
     mkdir -p build/release
     cd build/release
-    cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8 ../../src
+    cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.9 -DCMAKE_C_COMPILER=gcc-4.9 ../../src
     make
 
 If you want to link dReal with a self-compiled eglibc, use ``-DGLIBCPATH=<absolute_path>``:
 
 ~~~~~~~~~
-cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.8 \
-      -DCMAKE_C_COMPILER=gcc-4.8 -DGLIBCPATH=/home/<user>/glibc ../src
+cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_CXX_COMPILER=g++-4.9 \
+      -DCMAKE_C_COMPILER=gcc-4.9 -DGLIBCPATH=/home/<user>/glibc ../src
 ~~~~~~~~~
 
 Test Your Build
