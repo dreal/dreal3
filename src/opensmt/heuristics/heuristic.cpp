@@ -141,7 +141,7 @@ namespace dreal{
   }
 
 
-  void heuristic::displayStack(){
+  void heuristic::displayStack(int bt_point){
    int indx_low = 0;
     int indx_high = 0;
     //DREAL_LOG_INFO << "Trail size = " << trail->size() << " " << trail_lim->size();
@@ -154,7 +154,7 @@ namespace dreal{
 
       DREAL_LOG_INFO << " -- LEVEL " << level << " (" << indx_low << ", " << indx_high << ") -- ";
       for (int i = indx_low; i < indx_high; i++){
-        DREAL_LOG_INFO << i << ":\t"<<  m_stack[i]->first << " = " << m_stack[i]->second;
+        DREAL_LOG_INFO << (bt_point <= i ? "*" : "") << i << ":\t"<<  m_stack[i]->first << " = " << m_stack[i]->second;
       }
     }
    DREAL_LOG_INFO << " -- End Stack --";

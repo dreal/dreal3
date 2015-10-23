@@ -209,7 +209,7 @@ int get_mode(Enode * lit) {
 	}
       }
     }
-    //DREAL_LOG_DEBUG << network_to_string();
+    //    DREAL_LOG_DEBUG << network_to_string();
 }
 
 
@@ -313,7 +313,7 @@ void hybrid_heuristic::inform(Enode * e){
     backtracked = true;
 
 
-     displayTrail();
+    //displayTrail();
     // displayStack();
 
 
@@ -323,6 +323,8 @@ void hybrid_heuristic::inform(Enode * e){
 		     m_stack_lim[trail_lim->size()] :
 		     m_stack.size());
 
+     displayStack(bt_point);
+     
      //      (m_stack_lim->size() ==  0 ? m_stack.size() : (m_stack_lim.size() == (unsigned long)trail_lim->size() ? m_stack.size() : m_stack_lim[m_stack_lim.size()-1]));
     DREAL_LOG_DEBUG << "stack size = " << m_stack_lim.size() << " level = " << trail_lim->size() << " pt = " << bt_point;
 
@@ -336,7 +338,7 @@ void hybrid_heuristic::inform(Enode * e){
       //lastTrailEnd--;
     }
     
-     displayStack();
+     
      
   }
 
@@ -417,29 +419,39 @@ void hybrid_heuristic::inform(Enode * e){
     toRemove.clear();
 
     //remove choices that do not synchronize
+    //remove noop if other transitions are noops too (must sync each time step)
+      
     if(time >= 0 && time < m_depth && autom > 0 && !dec->empty()){
       vector<pair<int, labeled_transition*>*> parallel_transitions;
+      bool parallel_are_noops = true;
       for(int k = 0; k < autom; k++){
 	DREAL_LOG_DEBUG << "checking sync with a" << (k+1);
 	DREAL_LOG_DEBUG << "index = " << (m_decision_stack.size()-(autom-k))
 			<< " " << m_decision_stack.size()
 			<< " " << autom
 	  		<< " " << k;
-	  
-	parallel_transitions.push_back(
-	 new pair<int, labeled_transition*>(
-	  k,
-	  m_decision_stack[m_decision_stack.size()-(autom-k)]->second->back()));
-      }
-
-      for (auto c : *dec) {
-	pair<int, labeled_transition*> pr (autom, c);
-	if (!can_synchronize(parallel_transitions, pr)) {
-	  DREAL_LOG_INFO << "Removing non-synchronous " << (c->second) << endl;
-	  toRemove.insert(c);
+	pair<int, labeled_transition*>* parallel_trans =
+	  new pair<int, labeled_transition*>(k,
+					     m_decision_stack[m_decision_stack.size()-(autom-k)]->second->back());
+	parallel_transitions.push_back(parallel_trans);
+	if(parallel_trans->second && !is_noop(parallel_trans->second)){
+	  parallel_are_noops = false;
 	}
       }
+      DREAL_LOG_DEBUG << "parallel_are_noops? " << parallel_are_noops;
+      for (auto c : *dec) {
+	pair<int, labeled_transition*> pr (autom, c);
+	if (is_noop(c) && parallel_are_noops && autom == num_autom-1){
+	  DREAL_LOG_INFO << "Removing last noop" << (c->second) << endl;
+	  toRemove.insert(c);
+	} else if (!can_synchronize(parallel_transitions, pr)) {
+	  DREAL_LOG_INFO << "Removing non-synchronous " << (c->second) << endl;
+	  toRemove.insert(c);
+	} 
+      }
     }
+
+
     
     for(auto tr : toRemove){
       for(vector<labeled_transition*>::iterator tri = dec->begin();
@@ -558,6 +570,7 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
 	
 	//dec->insert(dec->begin(), m_goal_modes[autom]->begin(), m_goal_modes[autom]->end());
 	sort (dec->begin(), dec->end(), SubgoalCompare(autom, *this));
+	 //	 std::random_shuffle(dec->begin(), dec->end());
 	pair<int, vector<labeled_transition*>*>* astack = new pair<int, vector<labeled_transition*>*>();
 	m_decision_stack.push_back(astack);
 	
@@ -651,7 +664,8 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
             return false;
         }
 
-        sort (current_decision->begin(), current_decision->end(), SubgoalCompare(autom, *this));
+        //sort (current_decision->begin(), current_decision->end(), SubgoalCompare(autom, *this));
+	random_shuffle(current_decision->begin(), current_decision->end());
 
         m_decision_stack.push_back(new pair<int, vector<labeled_transition*>*>(autom, current_decision));
 
@@ -665,6 +679,10 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
 	  DREAL_LOG_INFO << "dec = " << d->second << " [" << labels.str() << "]";
         }
       }
+
+      DREAL_LOG_DEBUG << "After Expand, stack size = " << m_decision_stack.size();
+      DREAL_LOG_DEBUG << pathStackToString();
+
     }
     DREAL_LOG_DEBUG << "Done expand_path()";
     return static_cast<int>(m_decision_stack.size()) == num_autom*(m_depth + 1); // successfully found a full path
@@ -1092,32 +1110,65 @@ bool hybrid_heuristic::unwind_path() {
       }
     }
 
-    DREAL_LOG_DEBUG << "After BT stack: size = " << m_decision_stack.size();
-    //    int i = 0;
-    for (unsigned int i = 0; i < m_decision_stack.size(); i++){
+        DREAL_LOG_DEBUG << "After BT stack: size = " << m_decision_stack.size();
+        DREAL_LOG_DEBUG << pathStackToString();
+ //    //    int i = 0;
+//     for (unsigned int i = 0; i < m_decision_stack.size(); i++){
 
-// std::size_t time = (m_depth+1)*num_autom ;
-//       time > (m_depth+1)-m_decision_stack.size(); time--) {
-      stringstream labels;
-      if(m_decision_stack[i]->second->back()->first){
-	for(auto lab : *(m_decision_stack[i]->second->back()->first)) {
-	  labels << lab;
-	}
-      }
-      DREAL_LOG_DEBUG << "Stack[" << i << "] ="
-		      << m_decision_stack[i]->second->back()->second
-		      << " [" << labels.str() << "]";
-    }
+// // std::size_t time = (m_depth+1)*num_autom ;
+// //       time > (m_depth+1)-m_decision_stack.size(); time--) {
+//       stringstream labels;
+//       if(m_decision_stack[i]->second->back()->first){
+// 	for(auto lab : *(m_decision_stack[i]->second->back()->first)) {
+// 	  labels << lab;
+// 	}
+//       }
+//       DREAL_LOG_DEBUG << "Stack[" << i << "] ="
+// 		      << m_decision_stack[i]->second->back()->second
+// 		      << " [" << labels.str() << "]";
+//     }
     return m_decision_stack.size() > lastDecisionStackEnd;
   }
 
 
+  string hybrid_heuristic::pathStackToString(){
+    stringstream ss;
+    cout << "HI" << endl;
+    ss << "Path Stack:\n";
+    for (int time = 0; time < m_depth+1; time++){
+      stringstream label;
+      set<int> labelset;
+      for (int i = 0; i < num_autom; i++){
+	int index = (time*num_autom)+i;
+
+	if(index < m_decision_stack.size()){
+	if(m_decision_stack[index]->second->back()->first){
+	  for( auto lab : *(m_decision_stack[index]->second->back()->first)){
+	    labelset.insert(lab);
+	  }
+	}
+	ss <<  m_decision_stack[index]->second->back()->second << " ";
+	} else {
+	  ss <<  "- ";
+	}
+      }
+
+      for(auto lab : labelset){
+	label << label_from_indices[lab] << ",";
+      }
+      ss << " [" << label.str() << "]"  << endl;
+      
+    }
+    return ss.str();
+     
+  }
+  
   void hybrid_heuristic::pushTrailOnStack(){
     DREAL_LOG_INFO << "hybrid_heuristic::pushTrailOnStack() lastTrailEnd = "
                    << lastTrailEnd << " trail->size() = " << trail->size();
     //    DREAL_LOG_INFO << network_to_string();
-    //    displayTrail();
-    displayStack();
+        displayTrail();
+    //displayStack();
 
     if((unsigned int) trail_lim->size() >  m_stack_lim.size() &&
        m_stack.size() > 0) { //track start of levels after the first level
@@ -1138,7 +1189,7 @@ bool hybrid_heuristic::unwind_path() {
       }
     }
     lastTrailEnd = trail->size();
-    displayTrail();
+    //displayTrail();
     displayStack();
     DREAL_LOG_INFO << "Pushed trail";
   }
@@ -1480,7 +1531,7 @@ bool hybrid_heuristic::getSuggestions() {
       }
     }
     DREAL_LOG_INFO << "Suggesting the Path: [" << endl << ss.str() << endl << "]";
-    //    cout << "Suggesting the Path: [" << ss.str() << "]" << endl;
+    cout << "Suggesting the Path: [" << ss.str() << "]" << endl;
     return true;
 }
 

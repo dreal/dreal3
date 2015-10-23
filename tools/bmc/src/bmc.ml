@@ -1734,7 +1734,12 @@ let mk_frame_axiom (n: Network.t) (i: int) k (heuristic : Costmap.t list option)
 	(*let axiom = List.map (fun (v, f) -> Basic.make_or [Basic.make_and [Basic.Not v; f]; Basic.make_and [v; Basic.Not f]]) list_vars_formulas_boxed_rep in*)
 	let ax_boxed = Basic.make_and axiom in
 	Basic.make_and [ax_boxed; list_vars_unchanged_boxed]
-	
+
+(* make constraint that at least one label sync variable is true in step i *)
+let mk_label_must_happen (n: Network.t) (i: int) k (heuristic : Costmap.t list option) =
+  let labels = (Network.all_label_names_unique (Network.automata n)) in (* List.sort_unique compare (List.flatten (List.map (fun a -> Network.all_label_names_unique a) (Network.automata n))) in *)
+  Basic.make_or( List.map (fun x -> (Basic.FVar (mk_sync i x))) labels )
+		       
 let mk_mode_pair_mutex (aut: Hybrid.t) (m: Mode.t) (m1: Mode.t) (i: int) = 
   let nId = Mode.mode_numId m in
   let nId1 = Mode.mode_numId m1 in
@@ -1796,7 +1801,8 @@ let compile_logic_formula (h : Network.t)
 										(mk_active h x k heuristic);
 										(mk_maintain h x k heuristic);
 										(trans_network h x k heuristic is_synchronous);
-										(mk_frame_axiom h x k heuristic)]) list_of_steps);
+										(mk_frame_axiom h x k heuristic);
+										(mk_label_must_happen h x k heuristic)]) list_of_steps);
 		end
 	| Some p -> Basic.make_and (List.map2 (fun q x -> Basic.make_and [(mk_mode_mutex h x k heuristic);(mk_active h x k heuristic);(mk_step h (Some q) x k heuristic)])
 					      (List.take k p)

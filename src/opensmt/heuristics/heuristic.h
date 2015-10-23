@@ -46,7 +46,7 @@ namespace dreal {
 
     bool isStackConsistentWithSuggestion();
     void displayTrail();
-    void displayStack();
+    void displayStack(int bt_point = INT_MAX);
 
     THandler *theory_handler;
     bool m_is_initialized;

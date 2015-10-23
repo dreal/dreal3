@@ -1071,6 +1071,8 @@ Enode * Egraph::mkPlus( Enode * args )
       return nullptr;
   }
 
+  DREAL_LOG_DEBUG << "mkPlus: " << args;
+  
   if ( args->getArity( ) == 1 )
     return args->getCar( );
 
@@ -1085,7 +1087,7 @@ Enode * Egraph::mkPlus( Enode * args )
     const double xval = x->getValue( );
     const double yval = y->getValue( );
     double sum = xval + yval;
-    res = mkNum( sum );
+    res = mkPlus( cons(mkNum( sum ), args->getCdr( )->getCdr()));
   }
   else
   {

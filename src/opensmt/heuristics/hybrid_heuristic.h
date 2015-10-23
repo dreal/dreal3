@@ -123,14 +123,15 @@ public:
     bool expand_path(bool first_expansion);
     bool unwind_path();
     bool pbacktrack();
-    void removeImpossibleTransitions(std::vector<labeled_transition*>* dec, int time, int autom);
-    bool can_synchronize(std::vector<std::pair<int, labeled_transition*>*>& parallel_transitions,
-                                         std::pair<int, labeled_transition*> &trans);
-    std::string network_to_string();
+    string pathStackToString();
+    void removeImpossibleTransitions(vector<labeled_transition*>* dec, int time, int autom);
+    bool can_synchronize(vector<pair<int, labeled_transition*>*>& parallel_transitions,
+                                         pair<int, labeled_transition*> &trans);
+    string network_to_string();
     int lastDecisionStackEnd;
 public:
     struct SubgoalCompare {
-    SubgoalCompare(int a, hybrid_heuristic& c) : myHeuristic(c), autom(a) {}
+    SubgoalCompare(int a, hybrid_heuristic& c) : myHeuristic(c), autom(a) { srand(time(NULL));}
         bool operator () (const labeled_transition  *i, const labeled_transition *j) {
 	  bool noopi = myHeuristic.noops.find(i) != myHeuristic.noops.end();
 	  bool noopj = myHeuristic.noops.find(j) != myHeuristic.noops.end();

@@ -375,6 +375,18 @@ bool CoreSMTSolver::addClause( vec<Lit>& ps
 
 
 void CoreSMTSolver::attachClause(Clause& c) {
+  DREAL_LOG_DEBUG << "CoreSMTSolver::attachClause() ";
+
+  DREAL_LOG_DEBUG << "(";
+  for (int i = 0; i < c.size(); i++){
+    DREAL_LOG_DEBUG << theory_handler->varToEnode(var(c[i])) << " = " << toInt(lbool(!sign(c[i])));
+    if(i < c.size()-1)
+      DREAL_LOG_DEBUG << " ";
+  }
+  DREAL_LOG_DEBUG << ")";
+	 
+	
+  
   assert(c.size() > 1);
   watches[toInt(~c[0])].push(&c);
   watches[toInt(~c[1])].push(&c);
@@ -428,6 +440,7 @@ bool CoreSMTSolver::satisfied(const Clause& c) const
 //
 void CoreSMTSolver::cancelUntil(int level)
 {
+  DREAL_LOG_DEBUG << "CoreSMTSolver::cancelUntil(" << level << "), decisionLevel() = " << decisionLevel();
   if (decisionLevel() > level)
   {
     int trail_lim_level = level == -1 ? 0 : trail_lim[ level ];
@@ -1762,7 +1775,10 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
       if(justBacktracked && config.nra_show_search_progress){
 	std::cout << endl;
 	for(int bt = 0; bt < decisionLevel(); bt++){
-	  std::cout << " " << std::flush;
+	  if(bt == decisionLevel()-1)
+	    std::cout << "\\" << std::flush;
+	  else
+	    std::cout << "|" << std::flush;
 	}
 	justBacktracked = false;
       }

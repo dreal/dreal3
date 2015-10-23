@@ -32,10 +32,10 @@ int CoreSMTSolver::checkTheory( bool complete )
     return 1;
   }
 
-  if(DREAL_LOG_DEBUG_IS_ON){
-    DREAL_LOG_DEBUG << "CoreSMTSolver::checkTheory() Current Model is:";
-    printCurrentAssignment(std::cout);
-  }
+  // if(DREAL_LOG_DEBUG_IS_ON){
+  //   DREAL_LOG_DEBUG << "CoreSMTSolver::checkTheory() Current Model is:";
+  //   printCurrentAssignment(std::cout);
+  // }
 
   skipped_calls = 0;
 
