@@ -16,6 +16,8 @@ gcc-5/automake/autoconf/libtool/git/cmake
 
     brew update
     brew install gcc automake autoconf libtool git cmake pkg-config
+    
+Note: Please make sure that you have `gcc-5` in your machine after following the above instructions. It is possible that you have installed a previous version of `gcc` such as `gcc-4.8` and homebrew doesn't upgrade it to the latest version `gcc-5`, yet. If that is the case, please do `brew remove gcc && brew install gcc` to force the upgrade and check you have `gcc-5` on your machine.
 
 
 Build dReal
