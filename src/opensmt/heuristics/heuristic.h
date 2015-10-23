@@ -51,15 +51,15 @@ namespace dreal {
     THandler *theory_handler;
     bool m_is_initialized;
     bool backtracked;
-    vector<std::pair<Enode*, bool>*> m_suggestions;
-    vector < std::pair<Enode*, bool>* > m_stack;
-    vector<int> m_stack_lim;
+    std::vector<std::pair<Enode*, bool>*> m_suggestions;
+    std::vector < std::pair<Enode*, bool>* > m_stack;
+    std::vector<int> m_stack_lim;
     vec<Lit> *trail;
     vec<int> *trail_lim;
     int lastTrailEnd;
     int m_depth;
     Egraph * m_egraph;
-    set<Enode*> stack_literals;
+    std::set<Enode*> stack_literals;
     SMTConfig *m_config;
   };
 }

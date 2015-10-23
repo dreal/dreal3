@@ -250,7 +250,7 @@ public:
   void          initializeStore   ( );
 #ifndef SMTCOMP
   inline void   addSubstitution   ( Enode * s, Enode * t ) { top_level_substs.push_back( std::make_pair( s, t ) ); }
-  inline vector< Pair( Enode * ) >&  getSubstitutions  ( ) { return top_level_substs; }
+  inline std::vector< Pair( Enode * ) >&  getSubstitutions  ( ) { return top_level_substs; }
 #endif
   inline void   setTopEnode       ( Enode * e )            { assert( e ); top = e; }
   inline size_t nofEnodes         ( )                      { return id_to_enode.size( ); }

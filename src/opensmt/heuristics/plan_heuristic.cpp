@@ -30,11 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/tsolvers/TSolver.h"
 #include "util/logging.h"
 
-using std::string;
-using std::ifstream;
-using std::unordered_set;
-using std::ios;
-using std::sort;
+using namespace std;
 using nlohmann::json;
 
 namespace dreal {

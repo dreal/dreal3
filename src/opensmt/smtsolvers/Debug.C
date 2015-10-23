@@ -192,7 +192,7 @@ void CoreSMTSolver::printCurrentAssignment( ostream & out, bool  )
 	}
       }
  
-  const vector< Pair (Enode *) > substitutions = egraph.getSubstitutions();
+    const std::vector< Pair (Enode *) > substitutions = egraph.getSubstitutions();
   for(auto p : substitutions){
     if (p.second->isTrue()) {
       out  << std::setw(40) << p.first << " : T";

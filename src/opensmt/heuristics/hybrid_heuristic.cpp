@@ -31,11 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 
-using std::string;
-using std::ifstream;
-using std::unordered_set;
-using std::ios;
-using std::sort;
+using namespace std;
 using nlohmann::json;
 
 namespace dreal{

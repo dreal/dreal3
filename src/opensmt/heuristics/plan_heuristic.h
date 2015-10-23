@@ -60,31 +60,31 @@ private:
     bool unwind_path();
     bool pbacktrack();
 
-    vector<string> m_actions;
-    vector<string> m_events;
-    vector<string> m_processes;
-    vector<string> m_durative_actions;
-    // vector< std::pair<Enode*, bool>* > m_suggestions;
-    vector<pair<Enode*, vector<bool>*>*> m_decision_stack;
+    std::vector<std::string> m_actions;
+    std::vector<std::string> m_events;
+    std::vector<std::string> m_processes;
+    std::vector<std::string> m_durative_actions;
+    // std::vector< std::std::pair<Enode*, bool>* > m_suggestions;
+    std::vector<std::pair<Enode*, std::vector<bool>*>*> m_decision_stack;
 
-    set< Enode * > m_atoms;
+    std::set< Enode * > m_atoms;
     int num_choices_per_happening;
     int choice_index;
     bool first_path;
 
-    //     map< Enode *, pair<int, int>* > process_literals;
-    vector< map<string, Enode* >* > time_process_enodes;
-    vector< map<string, Enode* >* > time_event_enodes;
-    vector< map<string, Enode* >* > time_act_enodes;
-    vector< map<string, Enode* >* > time_duract_enodes;
-    vector<Enode*> choices;
-    map<Enode*, int> choice_indices;
-    map<string, int> schoice_indices;
-    set<Enode*> process_enodes;
-    set<Enode*> act_enodes;
-    set<Enode*> duract_enodes;
-    set<Enode*> event_enodes;
-    vector< Enode* > time_enodes;
+    //     std::map< Enode *, std::pair<int, int>* > process_literals;
+    std::vector< std::map<std::string, Enode* >* > time_process_enodes;
+    std::vector< std::map<std::string, Enode* >* > time_event_enodes;
+    std::vector< std::map<std::string, Enode* >* > time_act_enodes;
+    std::vector< std::map<std::string, Enode* >* > time_duract_enodes;
+    std::vector<Enode*> choices;
+    std::map<Enode*, int> choice_indices;
+    std::map<std::string, int> schoice_indices;
+    std::set<Enode*> process_enodes;
+    std::set<Enode*> act_enodes;
+    std::set<Enode*> duract_enodes;
+    std::set<Enode*> event_enodes;
+    std::vector< Enode* > time_enodes;
 
 
 };

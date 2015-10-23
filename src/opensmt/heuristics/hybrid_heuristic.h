@@ -30,7 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dreal {
 
-  typedef pair<set<int>*, int> labeled_transition;
+  typedef std::pair<std::set<int>*, int> labeled_transition;
   
 class hybrid_heuristic : public heuristic {
 public:
@@ -76,7 +76,7 @@ public:
 
     // Is mode1 a predecessor of mode2
     bool predecessor(int autom, int mode1, int mode2) {
-      vector<labeled_transition*>* i = (*predecessors[autom])[mode2-1];
+      std::vector<labeled_transition*>* i = (*predecessors[autom])[mode2-1];
       for(auto lt : (*i)){
         if(lt->second == mode1)
           return true;
@@ -94,36 +94,36 @@ public:
  private:
     int num_autom;
     int num_labels;
-    map<string, int> label_to_indices;
-    map<int, string> label_from_indices;
-    vector<vector<vector<labeled_transition*>*>*> predecessors;
-    vector<vector< double >*>  m_cost;
-    vector<int> m_init_mode;
-    vector<vector<labeled_transition*>*> m_goal_modes;
-    vector<pair<int, vector<labeled_transition*>*>*> m_decision_stack;
+    std::map<std::string, int> label_to_indices;
+    std::map<int, std::string> label_from_indices;
+    std::vector<std::vector<std::vector<labeled_transition*>*>*> predecessors;
+    std::vector<std::vector< double >*>  m_cost;
+    std::vector<int> m_init_mode;
+    std::vector<std::vector<labeled_transition*>*> m_goal_modes;
+    std::vector<std::pair<int, std::vector<labeled_transition*>*>*> m_decision_stack;
     int m_depth;
-    vector<Enode*> default_false_suggestions;
-    vector<Enode*> default_true_suggestions;
-    vector<map< Enode *, pair<int, int>* >*> mode_literals;
-    vector<vector< vector< Enode* >* >*> time_mode_enodes;
-    vector<vector< vector< Enode* >* >*> time_mode_integral_enodes;
-    vector<vector<Enode*>* > time_label_enodes;
-    map<Enode*, int> label_enode_indices;
-    vector<set<int>*> m_aut_labels;
+    std::vector<Enode*> default_false_suggestions;
+    std::vector<Enode*> default_true_suggestions;
+    std::vector<std::map< Enode *, std::pair<int, int>* >*> mode_literals;
+    std::vector<std::vector< std::vector< Enode* >* >*> time_mode_enodes;
+    std::vector<std::vector< std::vector< Enode* >* >*> time_mode_integral_enodes;
+    std::vector<std::vector<Enode*>* > time_label_enodes;
+    std::map<Enode*, int> label_enode_indices;
+    std::vector<std::set<int>*> m_aut_labels;
 
-    set<Enode*> mode_enodes;
-    set<Enode*> label_enodes;
-    set<const labeled_transition*> noops;
+    std::set<Enode*> mode_enodes;
+    std::set<Enode*> label_enodes;
+    std::set<const labeled_transition*> noops;
     Egraph * m_egraph;
-    // vector<int> * last_decision;
+    // std::vector<int> * last_decision;
     nlohmann::json hinfo;
     bool expand_path(bool first_expansion);
     bool unwind_path();
     bool pbacktrack();
-    void removeImpossibleTransitions(vector<labeled_transition*>* dec, int time, int autom);
-    bool can_synchronize(vector<pair<int, labeled_transition*>*>& parallel_transitions,
-                                         pair<int, labeled_transition*> &trans);
-    string network_to_string();
+    void removeImpossibleTransitions(std::vector<labeled_transition*>* dec, int time, int autom);
+    bool can_synchronize(std::vector<std::pair<int, labeled_transition*>*>& parallel_transitions,
+                                         std::pair<int, labeled_transition*> &trans);
+    std::string network_to_string();
     int lastDecisionStackEnd;
 public:
     struct SubgoalCompare {

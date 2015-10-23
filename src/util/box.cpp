@@ -262,16 +262,6 @@ tuple<int, box, box> box::bisect_int_at(int i) const {
     return make_tuple(i, b1, b2);
 }
 
-  //select bisection ratio for interval
-double box::get_bisection_ratio(int i) const {
-  if (is_time_variable(i) && m_values[i].contains(0.0)) {
-    DREAL_LOG_DEBUG << "Splitting time variable";
-    return 0.0001;
-  } else {
-    return 0.5;
-  }
-}
-  
 // Bisect a box into two boxes by bisecting i-th interval.
 tuple<int, box, box> box::bisect_real_at(int i) const {
     assert(0 <= i && i < m_values.size());
