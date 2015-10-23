@@ -4,7 +4,7 @@ Install Packages
 0. Install Required Packages
 --------------------
 
-    sudo apt-get install -qq autoconf automake bison flex git libtool make pkg-config python-software-properties tex-info
+    sudo apt-get install -qq autoconf automake bison flex git libtool make pkg-config python-software-properties texinfo
 
 1. g++-4.9
 ----------
