@@ -28,7 +28,7 @@ Install Packages
 Build dReal
 ===========
 
-    git clone https://github.com/dreal/dreal.git dreal
+    git clone https://github.com/dreal/dreal3.git dreal
     cd dreal
     mkdir -p build/release
     cd build/release
