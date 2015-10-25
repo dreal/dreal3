@@ -118,7 +118,6 @@ ibex::SystemFactory* contractor_ibex_polytope::build_system_factory(vector<Enode
     return sf;
 }
 
-// TODO(soonhok): this is copied from ibex_DefaultSolver.cpp
 ibex::System* square_eq_sys(ibex::System& sys) {
     int nb_eq = 0;
     // count the number of equalities
@@ -137,7 +136,6 @@ ibex::System* square_eq_sys(ibex::System& sys) {
 }
 
 ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_set<Enode *> const & s) {
-    // TODO(soonhok): the caller has to delete the symbols
     unsigned const size = s.size();
     unsigned i = 0;
     ibex::Array<ibex::ExprSymbol const> ret(size);
@@ -154,9 +152,8 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> 
       m_numctr(ctr->get_numctr()), m_var_array(ctr->get_var_array()) {
     if (!ctr->is_neq()) {
         m_ctc.reset(new ibex::CtcFwdBwd(*m_numctr));
-        // Set up input
         m_input = *(m_ctc->input);
-        m_used_constraints.insert(m_ctr);
+        // m_output will be copied from m_ctc->output, so no need to init here
     }
 }
 
@@ -183,6 +180,10 @@ void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) {
     m_ctc->contract(b.get_values());
     DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (after)";
     m_output = *(m_ctc->output);
+    if (!m_output.empty()) {
+        // only add used_constraints if there is any change
+        m_used_constraints.insert(m_ctr);
+    }
     DREAL_LOG_DEBUG << "After pruning using ibex_fwdbwd(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << b;
     if (config.nra_proof) {
@@ -219,7 +220,6 @@ contractor_ibex_newton::contractor_ibex_newton(box const & box, shared_ptr<nonli
                 m_input.add(box.get_index(m_var_array[i].name));
             }
         }
-        m_used_constraints.insert(m_ctr);
     }
 }
 
@@ -246,7 +246,17 @@ void contractor_ibex_newton::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "function = " << m_ctc->f;
     m_ctc->contract(b.get_values());
     DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (after)";
-    m_output = *(m_ctc->output);
+    // Set up output
+    ibex::BitSet const * const output = m_ctc->output;
+    for (unsigned i = 0; i <  output->size(); i++) {
+        if ((*output)[i]) {
+            m_output.add(b.get_index(m_var_array[i].name));
+        }
+    }
+    if (!m_output.empty()) {
+        // only add used_constraints if there is any change
+        m_used_constraints.insert(m_ctr);
+    }
     DREAL_LOG_DEBUG << "After pruning using ibex_newton(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << b;
 
@@ -362,10 +372,8 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
     ctc_list.resize(index);
     m_ctc.reset(new ibex::CtcCompo(ctc_list));
 
-    // Setup Input
     // TODO(soonhok): this is a rough approximation, which needs to be refined.
-    m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
-    m_input  = ibex::BitSet::empty(vars.size());
+    m_input = ibex::BitSet::all(vars.size());
 
     for (shared_ptr<nonlinear_constraint> ctr : ctrs) {
         unordered_set<Enode*> const & vars_in_ctr = ctr->get_enode()->get_vars();
@@ -409,6 +417,10 @@ void contractor_ibex_polytope::prune(box & b, SMTConfig & config) {
             m_output.add(i);
         }
     }
+    if (!m_output.empty()) {
+        m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
+    }
+
     // ======= Proof =======
     if (config.nra_proof) {
         ostringstream ss;
