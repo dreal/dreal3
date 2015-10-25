@@ -38,6 +38,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dreal {
 
+// contractor_id : identity
+class contractor_id : public contractor_cell {
+private:
+public:
+    contractor_id();
+    void prune(box & b, SMTConfig & config);
+    std::ostream & display(std::ostream & out) const;
+};
+
 // contractor_seq : Run C1, C2, ... , Cn sequentially.
 class contractor_seq : public contractor_cell {
 private:

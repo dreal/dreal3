@@ -54,6 +54,7 @@ using std::function;
 using std::initializer_list;
 using std::make_pair;
 using std::make_shared;
+using std::numeric_limits;
 using std::ostream;
 using std::ostringstream;
 using std::pair;
@@ -63,8 +64,21 @@ using std::shared_ptr;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
+using std::tuple;
+using std::get;
 
 namespace dreal {
+
+contractor_id::contractor_id()
+    : contractor_cell(contractor_kind::ID) {
+}
+void contractor_id::prune(box &, SMTConfig &) {
+    return;
+}
+ostream & contractor_id::display(ostream & out) const {
+    out << "contractor_id()";
+    return out;
+}
 
 contractor_seq::contractor_seq(initializer_list<contractor> const & l)
     : contractor_cell(contractor_kind::SEQ), m_vec(l) { }
@@ -587,6 +601,9 @@ ostream & contractor_aggressive::display(ostream & out) const {
     return out;
 }
 
+contractor mk_contractor_id() {
+    return contractor(make_shared<contractor_id>());
+}
 contractor mk_contractor_seq(initializer_list<contractor> const & l) {
     return contractor(make_shared<contractor_seq>(l));
 }
