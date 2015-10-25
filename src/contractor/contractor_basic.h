@@ -51,6 +51,7 @@ public:
 class contractor_seq : public contractor_cell {
 private:
     std::vector<contractor> m_vec;
+    void init();
 public:
     explicit contractor_seq(std::initializer_list<contractor> const & l);
     explicit contractor_seq(std::vector<contractor> const & v);
@@ -146,6 +147,7 @@ class contractor_fixpoint : public contractor_cell {
 private:
     std::function<bool(box const &, box const &)> m_term_cond;
     std::vector<contractor> m_clist;
+    void init();
 
     // Naive fixedpoint algorithm
     void naive_fixpoint_alg(box & b, SMTConfig & config);
@@ -213,6 +215,7 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
+contractor mk_contractor_id();
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
 contractor mk_contractor_seq(std::vector<contractor> const & v);
 contractor mk_contractor_seq(contractor const & c1, contractor const & c2);
