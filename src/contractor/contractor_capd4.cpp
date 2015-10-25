@@ -569,7 +569,6 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
     }
     // Output: Empty
     m_output = ibex::BitSet::empty(box.size());
-    m_used_constraints.insert(m_ctr);
 }
 
 void contractor_capd_full::prune(box & b, SMTConfig & config) {
@@ -581,10 +580,15 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
     if (b.is_empty()) {
-        m_output  = ibex::BitSet::all(b.size());
+        for (Enode * e : ic.get_pars_0()) {
+            m_output.add(b.get_index(e));
+        }
+        for (Enode * e : ic.get_pars_t()) {
+            m_output.add(b.get_index(e));
+        }
+        m_used_constraints.insert(m_ctr);
         return;
     }
-    m_output  = ibex::BitSet::empty(b.size());
     if (!m_solver) {
         // Trivial Case where there are only params and no real ODE vars.
         return;
@@ -683,6 +687,9 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
         if (diff_dims[i]) {
             m_output.add(i);
         }
+    }
+    if (!m_output.empty()) {
+        m_used_constraints.insert(m_ctr);
     }
     return;
 }
