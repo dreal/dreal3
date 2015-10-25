@@ -548,34 +548,62 @@ ostream & contractor_eval::display(ostream & out) const {
 }
 
 contractor_cache::contractor_cache(contractor const & ctc)
-    : contractor_cell(contractor_kind::CACHE), m_ctc(ctc) {
-    // TODO(soonhok): implement this
-    //
-    // Need to set up:
-    //
-    // - ibex::BitSet m_input;
-    // - ibex::BitSet m_output;
-    // - std::unordered_set<constraint const *> m_used_constraints;
+    : contractor_cell(contractor_kind::CACHE), m_ctc(ctc), m_num_hit(0), m_num_nohit(0) {
+    m_input = m_ctc.input();
 }
 
-void contractor_cache::prune(box &, SMTConfig &) const {
-    // TODO(soonhok): implement this
-    throw std::runtime_error("contractor_cache: not implemented yet");
-    //
-    // DREAL_LOG_DEBUG << "contractor_cache::prune";
-    // m_input  = ibex::BitSet::empty(b.size());
-    // m_output = ibex::BitSet::empty(b.size());
-    // static unordered_map<box, box> cache;
-    // auto const it = cache.find(b);
-    // if (it == cache.cend()) {
-    //     // Not Found
-    //     m_ctc.prune(b, config);
-    //     return;
-    // } else {
-    //     // Found
-    //     b = it->second;
-    //     return;
-    // }
+contractor_cache::~contractor_cache() {
+    DREAL_LOG_FATAL << m_num_hit << " / " << (m_num_hit + m_num_nohit) << "\t" << m_cache.size();
+}
+
+vector<ibex::Interval> extract_from_box_using_bitset(box const & b, ibex::BitSet const & s) {
+    vector<ibex::Interval> v;
+    if (s.empty()) { return v; }
+    for (int i = s.min(); i <= s.max(); ++i) {
+        if (s.contain(i)) {
+            v.push_back(b[i]);
+        }
+    }
+    return v;
+}
+
+void update_box_using_bitset(box & b, vector<ibex::Interval> const & v, ibex::BitSet const & s) {
+    if (s.empty()) { return; }
+    unsigned v_idx = 0;
+    for (int i = s.min(); i <= s.max(); ++i) {
+        if (s.contain(i)) {
+            b[i] = v[v_idx++];
+        }
+    }
+}
+
+void contractor_cache::prune(box & b, SMTConfig & config) {
+    // extract i-th interval where `m_input[i] == 1`
+    vector<ibex::Interval> in = extract_from_box_using_bitset(b, m_input);
+    auto it = m_cache.find(in);
+    if (it == m_cache.end()) {
+        // not found in cache, run m_ctc
+        ++m_num_nohit;
+        m_ctc.prune(b, config);
+        m_output = m_ctc.output();
+        m_used_constraints = m_ctc.used_constraints();
+
+        // extract out from box.
+        vector<ibex::Interval> out = extract_from_box_using_bitset(b, m_output);
+
+        // save to the cache
+        m_cache.emplace(in, make_tuple(out, m_output, m_used_constraints));
+    } else {
+        ++m_num_hit;
+        // found in cache, use it
+        auto const & m_cached_content = it->second;
+        vector<ibex::Interval> out = get<0>(m_cached_content);
+        m_output = get<1>(m_cached_content);
+        m_used_constraints = get<2>(m_cached_content);
+
+        // project out to box;
+        update_box_using_bitset(b, out, m_output);
+    }
 }
 
 ostream & contractor_cache::display(ostream & out) const {
