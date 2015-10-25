@@ -42,7 +42,7 @@ private:
 
 public:
     explicit contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
     std::ostream & display(std::ostream & out) const;
 };
@@ -56,7 +56,7 @@ private:
 
 public:
     contractor_ibex_newton(box const & box, std::shared_ptr<nonlinear_constraint> const ctr);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -69,7 +69,7 @@ private:
 
 public:
     contractor_ibex_hc4(std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -84,18 +84,18 @@ private:
     std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_neg;
 
     // TODO(soonhok): this is a hack to avoid const problem, we need to fix them
-    mutable std::unique_ptr<ibex::SystemFactory>    m_sf = nullptr;
-    mutable std::unique_ptr<ibex::System>           m_sys = nullptr;
-    mutable ibex::System *                          m_sys_eqs = nullptr;
-    mutable std::unique_ptr<ibex::LinearRelaxCombo> m_lrc = nullptr;
-    mutable std::vector<std::unique_ptr<ibex::Ctc>> m_sub_ctcs;
-    mutable std::unique_ptr<ibex::Ctc>              m_ctc = nullptr;;
+    std::unique_ptr<ibex::SystemFactory>    m_sf = nullptr;
+    std::unique_ptr<ibex::System>           m_sys = nullptr;
+    ibex::System *                          m_sys_eqs = nullptr;
+    std::unique_ptr<ibex::LinearRelaxCombo> m_lrc = nullptr;
+    std::vector<std::unique_ptr<ibex::Ctc>> m_sub_ctcs;
+    std::unique_ptr<ibex::Ctc>              m_ctc = nullptr;;
     ibex::SystemFactory* build_system_factory(std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
 
 public:
     contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
     ~contractor_ibex_polytope();
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 

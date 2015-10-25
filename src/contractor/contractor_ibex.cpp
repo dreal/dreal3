@@ -160,7 +160,7 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> 
     }
 }
 
-void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) const {
+void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_ibex_fwdbwd::prune";
     if (m_ctc == nullptr) { return; }
     thread_local static box old_box(b);
@@ -223,7 +223,7 @@ contractor_ibex_newton::contractor_ibex_newton(box const & box, shared_ptr<nonli
     }
 }
 
-void contractor_ibex_newton::prune(box & b, SMTConfig & config) const {
+void contractor_ibex_newton::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_ibex_newton::prune";
     if (m_ctc == nullptr) { return; }
 
@@ -287,7 +287,7 @@ contractor_ibex_hc4::contractor_ibex_hc4(vector<Enode *> const & vars, vector<sh
     DREAL_LOG_INFO << "contractor_ibex_hc4: DONE" << endl;
 }
 
-void contractor_ibex_hc4::prune(box & b, SMTConfig & config) const {
+void contractor_ibex_hc4::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_ibex_hc4::prune";
     if (!m_ctc) { return; }
     for (Enode * var : m_vars_in_ctrs) {
@@ -392,7 +392,7 @@ contractor_ibex_polytope::~contractor_ibex_polytope() {
     }
 }
 
-void contractor_ibex_polytope::prune(box & b, SMTConfig & config) const {
+void contractor_ibex_polytope::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_ibex_polytope::prune";
     if (!m_ctc) { return; }
     for (Enode * var : m_vars_in_ctrs) {

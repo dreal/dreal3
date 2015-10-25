@@ -117,7 +117,7 @@ void contractor_pseq::init() {
     m_use_threads = true;
 }
 
-void contractor_pseq::prune(box & b, SMTConfig & config) const {
+void contractor_pseq::prune(box & b, SMTConfig & config) {
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
     m_used_constraints.clear();

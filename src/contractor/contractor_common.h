@@ -59,18 +59,30 @@ public:
 class contractor_cell {
 protected:
     contractor_kind m_kind;
-    mutable ibex::BitSet m_input;
-    mutable ibex::BitSet m_output;
-    mutable std::unordered_set<std::shared_ptr<constraint>> m_used_constraints;
+    // Static overapproximation of the input vector, which should be
+    // computed in construction time.
+    //
+    // "m_input[i] == 1" means that the i-th varialbe is an input to
+    // the contractor. It implies that any changes on i-th variable
+    // should trigger another run of the contractor in the fixpoint
+    // computation.
+    ibex::BitSet m_input;
+    // "m_output[i] == 1" means that the value of the i-th variable is
+    // changed after running the contractor.
+    ibex::BitSet m_output;
+    std::unordered_set<std::shared_ptr<constraint>> m_used_constraints;
+
 public:
     explicit contractor_cell(contractor_kind kind) : m_kind(kind) { }
     contractor_cell(contractor_kind kind, unsigned n)
-        : m_kind(kind), m_input(ibex::BitSet::empty(n)), m_output(ibex::BitSet::all(n)) { }
+        : m_kind(kind), m_input(ibex::BitSet::empty(n)), m_output(ibex::BitSet::empty(n)) { }
     virtual ~contractor_cell() noexcept { }
     inline ibex::BitSet input()  const { return m_input; }
     inline ibex::BitSet output() const { return m_output; }
+    inline void clear_output() { m_output.clear(); }
+    inline void clear_used_constraints() { m_output.clear(); }
     inline std::unordered_set<std::shared_ptr<constraint>> used_constraints() const { return m_used_constraints; }
-    virtual void prune(box & b, SMTConfig & config) const = 0;
+    virtual void prune(box & b, SMTConfig & config) = 0;
     virtual std::ostream & display(std::ostream & out) const = 0;
 };
 
@@ -79,7 +91,7 @@ std::ostream & operator<<(std::ostream & out, contractor_cell const & c);
 // Wrapper on contractor_cell and its derived classes
 class contractor {
 private:
-    std::shared_ptr<contractor_cell const> m_ptr;
+    std::shared_ptr<contractor_cell> m_ptr;
 
 public:
     contractor() : m_ptr(nullptr) { }
@@ -105,12 +117,15 @@ public:
     inline ibex::BitSet input() const { return m_ptr->input(); }
     inline ibex::BitSet output() const { return m_ptr->output(); }
     inline std::unordered_set<std::shared_ptr<constraint>> used_constraints() const { return m_ptr->used_constraints(); }
-    inline void prune(box & b, SMTConfig & config) const {
+    inline void prune(box & b, SMTConfig & config) {
         if (m_ptr) {
+            // by default, clear output vector and used constraints.
+            m_ptr->clear_output();
+            m_ptr->clear_used_constraints();
             m_ptr->prune(b, config);
         }
     }
-    void prune_with_assert(box & b, SMTConfig & config) const;
+    void prune_with_assert(box & b, SMTConfig & config);
     inline bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
     inline bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
     std::size_t hash() const { return (std::size_t) m_ptr.get(); }

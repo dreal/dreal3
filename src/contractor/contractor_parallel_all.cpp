@@ -91,7 +91,7 @@ contractor_parallel_all::contractor_parallel_all(vector<contractor> const & v)
 contractor_parallel_all::contractor_parallel_all(contractor const & c1, contractor const & c2)
     : contractor_cell(contractor_kind::PARALLEL_ALL), m_vec(1, c1) { m_vec.push_back(c2); }
 
-void contractor_parallel_all::prune(box & b, SMTConfig & config) const {
+void contractor_parallel_all::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_parallel_all::prune";
     DREAL_LOG_FATAL << "-------------------------------------------------------------";
     // TODO(soonhok): implement this

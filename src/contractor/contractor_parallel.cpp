@@ -107,7 +107,7 @@ ostream & operator<<(ostream & out, pruning_thread_status const & s) {
     return out;
 }
 
-void parallel_helper_fn(unsigned const id, contractor const & c, box & b, SMTConfig & config,
+void parallel_helper_fn(unsigned const id, contractor & c, box & b, SMTConfig & config,
                         pruning_thread_status & s, mutex & m, condition_variable & cv, int & index,
                         atomic_int & tasks_to_run) {
     s = pruning_thread_status::RUNNING;
@@ -152,5 +152,4 @@ void parallel_helper_fn(unsigned const id, contractor const & c, box & b, SMTCon
     DREAL_LOG_FATAL << "parallel_helper: thread " << id << " notifies CV";
     return;
 }
-
 }  // namespace dreal

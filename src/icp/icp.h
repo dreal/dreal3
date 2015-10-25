@@ -29,12 +29,12 @@ void output_solution(box const & b, SMTConfig & config, unsigned i = 0);
 
 class naive_icp {
 public:
-    static box solve(box b, contractor const & ctc, SMTConfig & config);
+    static box solve(box b, contractor & ctc, SMTConfig & config);
 };
 
 class ncbt_icp {
 public:
-    static box solve(box b, contractor const & ctc, SMTConfig & config);
+    static box solve(box b, contractor & ctc, SMTConfig & config);
 };
 
 class random_icp {
@@ -42,7 +42,7 @@ private:
     static bool random_bool();
 
 public:
-    static box solve(box b, contractor const & ctc, SMTConfig & config, double const precision);
+    static box solve(box b, contractor & ctc, SMTConfig & config, double const precision);
 };
 
 }  // namespace dreal

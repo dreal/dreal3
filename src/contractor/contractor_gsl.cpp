@@ -297,7 +297,7 @@ contractor_gsl::contractor_gsl(box const & box, shared_ptr<ode_constraint> const
     m_used_constraints.insert(m_ctr);
 }
 
-void contractor_gsl::prune(box & b, SMTConfig & config) const {
+void contractor_gsl::prune(box & b, SMTConfig & config) {
     // TODO(soonhok): add timeout
     fesetround(FE_TONEAREST);  // Without this, GSL might cause a segmentation fault due to problems in floating point lib
     gsl_odeiv2_step_reset(m_step);

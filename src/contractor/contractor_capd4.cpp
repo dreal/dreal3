@@ -339,7 +339,7 @@ void update_box_with_ivector(box & b, vector<Enode *> const & vars, capd::IVecto
 
 // Prune v using inv_ctc. box b is needed to use inv_ctc.
 // Retrun false if invariant is violated.
-bool contractor_capd_full::check_invariant(capd::IVector & v, box b, SMTConfig & config) const {
+bool contractor_capd_full::check_invariant(capd::IVector & v, box b, SMTConfig & config) {
     // 1. convert v into a box using b.
     update_box_with_ivector(b, m_vars_t, v);
     // 2. check the converted box b, with inv_ctc contractor
@@ -358,7 +358,7 @@ bool contractor_capd_full::compute_enclosures(capd::interval const & prevTime,
                                               box const & b,
                                               vector<pair<capd::interval, capd::IVector>> & enclosures,
                                               SMTConfig & config,
-                                              bool const add_all) const {
+                                              bool const add_all) {
     auto const stepMade = m_solver->getStep();
     auto const & curve = m_solver->getCurve();
     auto domain = capd::interval(0, 1) * stepMade;
@@ -481,7 +481,7 @@ contractor_capd_simple::contractor_capd_simple(box const & /* box */, shared_ptr
     assert(m_ctr);
 }
 
-void contractor_capd_simple::prune(box &, SMTConfig &) const {
+void contractor_capd_simple::prune(box &, SMTConfig &) {
     if (m_dir == ode_direction::FWD) {
         // TODO(soonhok): implement this
     } else {
@@ -572,7 +572,7 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
     m_used_constraints.insert(m_ctr);
 }
 
-void contractor_capd_full::prune(box & b, SMTConfig & config) const {
+void contractor_capd_full::prune(box & b, SMTConfig & config) {
     auto const start_time = steady_clock::now();
     thread_local static box old_box(b);
     old_box = b;
@@ -730,7 +730,7 @@ json generate_trace_core(integral_constraint const & ic,
     return ret;
 }
 
-json contractor_capd_full::generate_trace(box b, SMTConfig & config) const {
+json contractor_capd_full::generate_trace(box b, SMTConfig & config) {
     integral_constraint const & ic = m_ctr->get_ic();
     b = intersect_params(b, ic);
     if (!m_solver) {

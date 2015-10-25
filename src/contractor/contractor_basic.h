@@ -19,20 +19,22 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <algorithm>
-#include <unordered_map>
-#include <vector>
 #include <cassert>
 #include <initializer_list>
+#include <memory>
 #include <stdexcept>
 #include <string>
-#include <memory>
+#include <tuple>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 #include "./config.h"
+#include "constraint/constraint.h"
 #include "contractor/contractor_common.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
-#include "constraint/constraint.h"
+#include "util/ibex_interval_hash.h"
 
 namespace dreal {
 
@@ -44,36 +46,37 @@ public:
     explicit contractor_seq(std::initializer_list<contractor> const & l);
     explicit contractor_seq(std::vector<contractor> const & v);
     contractor_seq(contractor const & c1, contractor const & c2);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
+    void prune_naive(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
 // contractor_try : Try C1 if it fails, return id.
 class contractor_try : public contractor_cell {
 private:
-    contractor const m_c;
+    contractor m_c;
 public:
     explicit contractor_try(contractor const & c);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
 // contractor_try_or : Try C1 if it fails, do C2.
 class contractor_try_or : public contractor_cell {
 private:
-    contractor const m_c1;
-    contractor const m_c2;
+    contractor m_c1;
+    contractor m_c2;
 public:
     contractor_try_or(contractor const & c1, contractor const & c2);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
 // contractor_throw : throw an exception, always
 class contractor_throw : public contractor_cell {
 public:
-    contractor_throw() : contractor_cell(contractor_kind::THROW) { }
-    void prune(box &, SMTConfig &) const {
+    contractor_throw() : contractor_cell(contractor_kind::THROW, 1) { }
+    void prune(box &, SMTConfig &) {
         throw contractor_exception("contractor_throw");
     }
     std::ostream & display(std::ostream & out) const {
@@ -86,7 +89,7 @@ public:
 class contractor_empty : public contractor_cell {
 public:
     contractor_empty() : contractor_cell(contractor_kind::EMPTY) { }
-    void prune(box & b, SMTConfig &) const {
+    void prune(box & b, SMTConfig &) {
         b.set_empty();
     }
     std::ostream & display(std::ostream & out) const {
@@ -98,21 +101,21 @@ public:
 // contractor_throw : throw an exception, always
 class contractor_throw_if_empty : public contractor_cell {
 private:
-    contractor const m_c;
+    contractor m_c;
 public:
     explicit contractor_throw_if_empty(contractor const & c);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
 // contractor_join : Run C1 and C2, join the result (take a hull of the two results)
 class contractor_join : public contractor_cell {
 private:
-    contractor const m_c1;
-    contractor const m_c2;
+    contractor m_c1;
+    contractor m_c2;
 public:
     contractor_join(contractor const & c1, contractor const & c2);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -120,11 +123,11 @@ public:
 class contractor_ite : public contractor_cell {
 private:
     std::function<bool(box)> m_guard;
-    contractor const m_c_then;
-    contractor const m_c_else;
+    contractor m_c_then;
+    contractor m_c_else;
 public:
     contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -136,9 +139,9 @@ private:
     std::vector<contractor> m_clist;
 
     // Naive fixedpoint algorithm
-    void naive_fixpoint_alg(box & b, SMTConfig & config) const;
+    void naive_fixpoint_alg(box & b, SMTConfig & config);
     // Worklist fixedpoint algorithm
-    void worklist_fixpoint_alg(box & b, SMTConfig & config) const;
+    void worklist_fixpoint_alg(box & b, SMTConfig & config);
 
 public:
     contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, contractor const & c);
@@ -152,15 +155,14 @@ public:
                         std::vector<contractor> const & cvec1, std::vector<contractor> const & cvec2,
                         std::vector<contractor> const & cvec3, std::vector<contractor> const & cvec4);
     contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::initializer_list<std::vector<contractor>> const & cvec_list);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
 class contractor_int : public contractor_cell {
-private:
 public:
-    contractor_int();
-    void prune(box & b, SMTConfig & config) const;
+    explicit contractor_int(box const & b);
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -169,16 +171,16 @@ private:
     std::shared_ptr<nonlinear_constraint> const m_nl_ctr;
 public:
     explicit contractor_eval(std::shared_ptr<nonlinear_constraint> const ctr);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
 class contractor_cache : public contractor_cell {
 private:
-    contractor const m_ctc;
+    contractor m_ctc;
 public:
     explicit contractor_cache(contractor const & ctc);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -187,8 +189,8 @@ private:
     unsigned const m_num_samples;
     std::vector<std::shared_ptr<constraint>> m_ctrs;
 public:
-    contractor_sample(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
-    void prune(box & b, SMTConfig & config) const;
+    contractor_sample(box const & b, unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -198,7 +200,7 @@ private:
     std::vector<std::shared_ptr<constraint>> m_ctrs;
 public:
     contractor_aggressive(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -215,10 +217,10 @@ contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> 
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::initializer_list<contractor> const & clist);
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::vector<contractor> const & cvec);
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, std::initializer_list<std::vector<contractor>> const & cvec_list);
-contractor mk_contractor_int();
+contractor mk_contractor_int(box const & b);
 contractor mk_contractor_eval(std::shared_ptr<nonlinear_constraint> const ctr, bool const use_cache = false);
 contractor mk_contractor_cache(contractor const & ctc);
-contractor mk_contractor_sample(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
+contractor mk_contractor_sample(box const & b, unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
 contractor mk_contractor_aggressive(unsigned const n, std::vector<std::shared_ptr<constraint>> const & ctrs);
 std::ostream & operator<<(std::ostream & out, contractor const & c);
 

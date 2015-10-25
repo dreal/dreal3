@@ -76,7 +76,6 @@ contractor_seq::contractor_seq(contractor const & c1, contractor const & c2)
     m_vec.push_back(c2);
 }
 
-void contractor_seq::prune(box & b, SMTConfig & config) const {
     DREAL_LOG_DEBUG << "contractor_seq::prune";
     m_input  = ibex::BitSet::empty(b.size());
     m_output = ibex::BitSet::empty(b.size());
@@ -94,6 +93,56 @@ void contractor_seq::prune(box & b, SMTConfig & config) const {
     }
     return;
 }
+
+double compute_cost(contractor & c, box const & b) {
+    double cost = 0.0;
+    unsigned num_of_non_zero = 0;
+    auto in = c.input();
+    if (in.empty()) {
+        return numeric_limits<double>::lowest();
+    } else {
+        for (int i = in.min(); i <= in.max(); ++i) {
+            if (in.contain(i)) {
+                num_of_non_zero++;
+                cost += log(b[i].diam());
+            }
+        }
+        return cost / num_of_non_zero;
+    }
+}
+
+void contractor_seq::prune_smart(box & b, SMTConfig & config) {
+    vector<contractor> v(m_vec);
+    while (v.size() > 0) {
+        interruption_point();
+        unsigned min_idx = 0;
+        double min_cost = compute_cost(v[min_idx], b);
+        for (unsigned i = 1; i < v.size(); ++i) {
+            double cost_i = compute_cost(v[i], b);
+            if (min_cost > cost_i) {
+                min_idx = i;
+                min_cost = cost_i;
+            }
+        }
+        v[min_idx].prune(b, config);
+        m_output.union_with(v[min_idx].output());
+        unordered_set<shared_ptr<constraint>> const & used_ctrs = v[min_idx].used_constraints();
+        m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
+        if (b.is_empty()) {
+            return;
+        }
+        v.erase(v.begin() + min_idx);
+    }
+    return;
+}
+
+void contractor_seq::prune(box & b, SMTConfig & config) {
+    if (m_vec.size() == 0) {
+        return;
+    }
+    return prune_naive(b, config);
+}
+
 ostream & contractor_seq::display(ostream & out) const {
     out << "contractor_seq(";
     for (contractor const & c : m_vec) {
@@ -104,22 +153,25 @@ ostream & contractor_seq::display(ostream & out) const {
 }
 
 contractor_try::contractor_try(contractor const & c)
-    : contractor_cell(contractor_kind::TRY), m_c(c) { }
-void contractor_try::prune(box & b, SMTConfig & config) const {
+    : contractor_cell(contractor_kind::TRY), m_c(c) {
+    m_input = m_c.input();
+    m_output = m_input;
+    m_output.clear();
+}
+void contractor_try::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_try::prune: ";
     thread_local static box old_box(b);
     old_box = b;
     try {
         m_c.prune(b, config);
+        m_output = m_c.output();
+        m_used_constraints = m_c.used_constraints();
     } catch (contractor_exception & e) {
         DREAL_LOG_INFO << "contractor_try: exception caught, \""
                        << e.what() << "\n";
         b = old_box;
         return;
     }
-    m_input  = m_c.input();
-    m_output = m_c.output();
-    m_used_constraints = m_c.used_constraints();
 }
 ostream & contractor_try::display(ostream & out) const {
     out << "contractor_try("
@@ -605,7 +657,7 @@ ostream & operator<<(ostream & out, contractor const & c) {
     return out;
 }
 
-void contractor::prune_with_assert(box & b, SMTConfig & config) const {
+void contractor::prune_with_assert(box & b, SMTConfig & config) {
     assert(m_ptr != nullptr);
     thread_local static box old_box(b);
     old_box = b;

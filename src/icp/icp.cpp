@@ -50,7 +50,7 @@ void output_solution(box const & b, SMTConfig & config, unsigned i) {
     display(config.nra_model_out, b, false, true);
 }
 
-box naive_icp::solve(box b, contractor const & ctc, SMTConfig & config) {
+box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
     vector<box> solns;
     vector<box> box_stack;
     box_stack.push_back(b);
@@ -105,7 +105,7 @@ box naive_icp::solve(box b, contractor const & ctc, SMTConfig & config) {
     }
 }
 
-box ncbt_icp::solve(box b, contractor const & ctc, SMTConfig & config) {
+box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
     static unsigned prune_count = 0;
     vector<box> box_stack;
     vector<int> bisect_var_stack;
@@ -153,7 +153,7 @@ box ncbt_icp::solve(box b, contractor const & ctc, SMTConfig & config) {
                 int bisect_var = bisect_var_stack.back();
                 ibex::BitSet const & input = ctc.input();
                 DREAL_LOG_DEBUG << ctc;
-                if (!input[bisect_var]) {
+                if (!input.contain(bisect_var)) {
                     box_stack.pop_back();
                     bisect_var_stack.pop_back();
                 } else {
@@ -172,7 +172,7 @@ bool random_icp::random_bool() {
     return m_dist(rg) >= 0.5;
 }
 
-box random_icp::solve(box b, contractor const & ctc, SMTConfig & config, double const precision ) {
+box random_icp::solve(box b, contractor & ctc, SMTConfig & config, double const precision ) {
     vector<box> solns;
     vector<box> box_stack;
     box_stack.push_back(b);

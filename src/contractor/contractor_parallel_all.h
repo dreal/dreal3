@@ -54,7 +54,7 @@ public:
     explicit contractor_parallel_all(std::initializer_list<contractor> const & l);
     explicit contractor_parallel_all(std::vector<contractor> const & v);
     contractor_parallel_all(contractor const & c1, contractor const & c2);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 

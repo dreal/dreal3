@@ -39,15 +39,15 @@ class contractor_generic_forall : public contractor_cell {
 private:
     std::shared_ptr<generic_forall_constraint> const m_ctr;
     box find_CE(box const & b, std::unordered_set<Enode*> const & forall_vars, std::vector<Enode*> const & vec, bool const p, SMTConfig & config) const;
-    void handle(box & b, Enode * body, bool const p, SMTConfig & config) const;
+    void handle(box & b, Enode * body, bool const p, SMTConfig & config);
     std::vector<Enode *> elist_to_vector(Enode * e) const;
-    void handle_disjunction(box & b, std::vector<Enode *> const & vec, bool const p, SMTConfig & config) const;
-    void handle_conjunction(box & b, std::vector<Enode *> const & vec, bool const p, SMTConfig & config) const;
-    void handle_atomic(box & b, Enode * body, bool const p, SMTConfig & config) const;
+    void handle_disjunction(box & b, std::vector<Enode *> const & vec, bool const p, SMTConfig & config);
+    void handle_conjunction(box & b, std::vector<Enode *> const & vec, bool const p, SMTConfig & config);
+    void handle_atomic(box & b, Enode * body, bool const p, SMTConfig & config);
 
 public:
     contractor_generic_forall(box const & b, std::shared_ptr<generic_forall_constraint> const ctr);
-    void prune(box & b, SMTConfig & config) const;
+    void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 contractor mk_contractor_generic_forall(box const & box, std::shared_ptr<generic_forall_constraint> const ctr);
