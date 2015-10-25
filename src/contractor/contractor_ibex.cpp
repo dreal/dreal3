@@ -372,8 +372,18 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
     ctc_list.resize(index);
     m_ctc.reset(new ibex::CtcCompo(ctc_list));
 
-    // TODO(soonhok): this is a rough approximation, which needs to be refined.
-    m_input = ibex::BitSet::all(vars.size());
+    // Setup m_input
+    m_input = ibex::BitSet::empty(vars.size());
+    m_output = ibex::BitSet::empty(vars.size());
+    unordered_map<Enode*, unsigned> enode_to_id;
+    for (unsigned i = 0; i < vars.size(); ++i) {
+        enode_to_id.emplace(vars[i], i);
+    }
+    for (auto const ctr : ctrs) {
+        for (auto const var : ctr->get_vars()) {
+            m_input.add(enode_to_id[var]);
+        }
+    }
 
     for (shared_ptr<nonlinear_constraint> ctr : ctrs) {
         unordered_set<Enode*> const & vars_in_ctr = ctr->get_enode()->get_vars();
@@ -409,14 +419,15 @@ void contractor_ibex_polytope::prune(box & b, SMTConfig & config) {
     thread_local static box old_box(b);
     old_box = b;
     m_ctc->contract(b.get_values());
+
     // setup output
     vector<bool> diff_dims = b.diff_dims(old_box);
-    m_output = ibex::BitSet::empty(old_box.size());
     for (unsigned i = 0; i < diff_dims.size(); i++) {
         if (diff_dims[i]) {
             m_output.add(i);
         }
     }
+
     if (!m_output.empty()) {
         m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
     }
