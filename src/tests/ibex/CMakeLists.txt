@@ -14,6 +14,10 @@ add_executable(ibex_example_04 example_04.cpp)
 target_link_libraries(ibex_example_04 dreal ${EXTRA_LIBS})
 add_test(ibex_example_04 ${CMAKE_CURRENT_BINARY_DIR}/ibex_example_04)
 
+add_executable(ibex_example_05 example_05.cpp)
+target_link_libraries(ibex_example_05 dreal ${EXTRA_LIBS})
+add_test(ibex_example_05 ${CMAKE_CURRENT_BINARY_DIR}/ibex_example_05)
+
 add_executable(ibex_defaultoptimizer defaultoptimizer.cpp)
 target_link_libraries(ibex_defaultoptimizer dreal ${EXTRA_LIBS})
 add_test(ibex_defaultoptimizer ${CMAKE_CURRENT_BINARY_DIR}/ibex_defaultoptimizer)
