@@ -204,7 +204,7 @@ do
         then
             #Construct pruned encoding and heuristic
             $BMC -k $K --bmc_heuristic_prune $HEURISTIC $PDRH  > ${SMT}
-            MY_SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
+            MY_SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC} --heuristic_forward"
             #exit
         elif [ $BMCH -eq 4 ]
         then

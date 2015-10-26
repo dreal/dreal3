@@ -509,6 +509,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "Activate satelite on booleans (default: off)",
             "--sat-prep-bool", "--sat-preprocess-booleans", "--sat_preprocess_booleans");
+    opt.add("", false, 0, 0,
+	    "use heuristic forward search",
+	    "--heuristic_forward");
 
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
