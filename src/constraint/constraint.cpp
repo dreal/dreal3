@@ -342,8 +342,7 @@ ostream & integral_constraint::display(ostream & out) const {
 // ForallT constraint
 // ====================================================
 
-vector<shared_ptr<nonlinear_constraint>> make_nlctrs(Enode * const e,
-unordered_set<Enode*> const & var_set, lbool const p) {
+vector<shared_ptr<nonlinear_constraint>> make_nlctrs(Enode * const e, unordered_set<Enode*> const & var_set, lbool const p) {
     vector<shared_ptr<nonlinear_constraint>> ret;
     if (e->isTrue()) {
         return ret;
@@ -358,7 +357,7 @@ unordered_set<Enode*> const & var_set, lbool const p) {
     if (e->isAnd()) {
         Enode * tmp = e->getCdr();
         while (!tmp->isEnil()) {
-            auto const nlctrs = make_nlctrs(e->get1st(), var_set, !p);
+            auto const nlctrs = make_nlctrs(e->get1st(), var_set, p);
             ret.insert(ret.end(), nlctrs.begin(), nlctrs.end());
             tmp = tmp->getCdr();
         }
