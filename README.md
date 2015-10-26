@@ -7,7 +7,7 @@
     <th>Coverity Scan</th>
   </tr>
   <tr>
-    <td><a href="https://travis-ci.org/dreal/dreal"><img src="https://travis-ci.org/dreal/dreal3.svg?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.9 | clang++-3.8"/></a></td>
+    <td><a href="https://travis-ci.org/dreal/dreal3"><img src="https://travis-ci.org/dreal/dreal3.svg?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.9 | clang++-3.8"/></a></td>
     <td><a href="https://travis-ci.org/soonhokong/dReal-osx"><img src="https://travis-ci.org/soonhokong/dReal-osx.svg?branch=master" title="Mac OS X 10.8.2, g++-4.9"/></a></td>
     <td><a href='https://coveralls.io/r/dreal/dreal3'><img src='https://coveralls.io/repos/dreal/dreal3/badge.svg?branch=master%0A' alt='Coverage Status' /></a></td>
     <td><a href="http://borel.modck.cs.cmu.edu/CDash/index.php?project=dReal"><img src="https://dreal.github.io/images/cdash.svg"/></a></td>
@@ -18,16 +18,16 @@
 
 dReal: An SMT Solver for Nonlinear Theories of the Reals
 
-Please visit [http://dreal.cs.cmu.edu][dReal] for more information.
+Please visit [http://dreal.github.io][dReal] for more information.
 
-[dReal]: http://dreal.cs.cmu.edu
+[dReal]: http://dreal.github.io
 
 
 Download
 ========
 Please check out our [releases page][release] to download latest static binaries.
 
-[release]: https://github.com/dreal/dreal/releases
+[release]: https://github.com/dreal/dreal3/releases
 
 
 How to Build
@@ -42,7 +42,6 @@ In most cases, running ``./build.sh`` in the top dReal directory should suffice.
 [ubuntu-gcc]: doc/ubuntu-gcc.md
 [ubuntu-clang]: doc/ubuntu-clang.md
 [osx-gcc]: doc/osx-gcc.md
-
 
 
 Required Packages
@@ -69,6 +68,7 @@ Required Packages
 [ocaml-findlib]: http://projects.camlcity.org/projects/findlib.html
 [ocaml-batteries]: http://batteries.forge.ocamlcore.org
 [pkg-config]: http://www.freedesktop.org/wiki/Software/pkg-config
+
 
 Documentations
 ==============
