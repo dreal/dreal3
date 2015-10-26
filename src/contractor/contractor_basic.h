@@ -229,6 +229,7 @@ contractor mk_contractor_seq(std::vector<contractor> const & v);
 contractor mk_contractor_seq(contractor const & c1, contractor const & c2);
 contractor mk_contractor_try(contractor const & c);
 contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
+contractor mk_contractor_empty();
 contractor mk_contractor_throw();
 contractor mk_contractor_throw_if_empty(contractor const & c);
 contractor mk_contractor_join(contractor const & c1, contractor const & c2);

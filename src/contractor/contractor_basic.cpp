@@ -719,6 +719,9 @@ contractor mk_contractor_try(contractor const & c) {
 contractor mk_contractor_try_or(contractor const & c1, contractor const & c2) {
     return contractor(make_shared<contractor_try_or>(c1, c2));
 }
+contractor mk_contractor_empty() {
+    return contractor(make_shared<contractor_empty>());
+}
 contractor mk_contractor_throw() {
     return contractor(make_shared<contractor_throw>());
 }
