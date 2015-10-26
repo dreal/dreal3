@@ -91,9 +91,11 @@ contractor_parallel_any::contractor_parallel_any(vector<contractor> const & v)
 contractor_parallel_any::contractor_parallel_any(contractor const & c1, contractor const & c2)
     : contractor_cell(contractor_kind::PARALLEL_ANY), m_vec(1, c1) { m_vec.push_back(c2); }
 
+#define PARALLEL_LOG DREAL_LOG_DEBUG
+
 void contractor_parallel_any::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_parallel_any::prune";
-    DREAL_LOG_FATAL << "-------------------------------------------------------------";
+    PARALLEL_LOG << "-------------------------------------------------------------";
     // TODO(soonhok): implement this
     if (m_vec.size() == 0) {
         // Do nothing for empty vec
@@ -105,14 +107,14 @@ void contractor_parallel_any::prune(box & b, SMTConfig & config) {
     vector<pruning_thread_status> statuses(m_vec.size(), pruning_thread_status::READY);
     m_index = -1;
 
-    // DREAL_LOG_FATAL << "parallel: Boxes are copied";
+    // PARALLEL_LOG << "parallel_any: Boxes are copied";
 
     // 2. Trigger execution with each contractor and a copied box
     vector<interruptible_thread> threads;
     atomic_int tasks_to_run(m_vec.size());
-    // DREAL_LOG_FATAL << "parallel: tasks to run = " << tasks_to_run.load();
+    // PARALLEL_LOG << "parallel_any: tasks to run = " << tasks_to_run.load();
     for (unsigned i = 0; i < m_vec.size(); ++i) {
-        DREAL_LOG_FATAL << "parallel : thread " << i << " / " << (tasks_to_run.load() - 1)
+        PARALLEL_LOG << "parallel_any: thread " << i << " / " << (tasks_to_run.load() - 1)
                         << " spawning...";
         threads.emplace_back(parallel_helper_fn,
                              i,
@@ -124,25 +126,25 @@ void contractor_parallel_any::prune(box & b, SMTConfig & config) {
                              m_cv,
                              m_index,
                              tasks_to_run);
-        DREAL_LOG_FATAL << "parallel : thread " << i << " / " << (tasks_to_run.load() - 1)
+        PARALLEL_LOG << "parallel_any: thread " << i << " / " << (tasks_to_run.load() - 1)
                         << " spawned...";
     }
-    DREAL_LOG_FATAL << "parallel : " << m_vec.size() << " thread(s) got created";
+    PARALLEL_LOG << "parallel_any: " << m_vec.size() << " thread(s) got created";
 
     while (true) {
-        DREAL_LOG_FATAL << "parallel: waiting for the lock";
+        PARALLEL_LOG << "parallel_any: waiting for the lock";
         unique_lock<mutex> lk(m_mutex);
-        DREAL_LOG_FATAL << "parallel: get a lock. " << tasks_to_run.load() << " tasks to go";
+        PARALLEL_LOG << "parallel_any: get a lock. " << tasks_to_run.load() << " tasks to go";
         if (tasks_to_run.load() == 0) {
             break;
         }
-        DREAL_LOG_FATAL << "parallel: WAIT for CV." << tasks_to_run.load() << " tasks to go";;
+        PARALLEL_LOG << "parallel_any: WAIT for CV." << tasks_to_run.load() << " tasks to go";;
         m_index = -1;
         m_cv.wait(lk, [&]() { return m_index != -1; });
-        DREAL_LOG_FATAL << "parallel: wake up" << tasks_to_run.load();
+        PARALLEL_LOG << "parallel_any: wake up" << tasks_to_run.load();
         pruning_thread_status const & s = statuses[m_index];
-        // DREAL_LOG_FATAL << "parallel: thread " << m_index << " " << s;
-        if (s == pruning_thread_status::UNSAT || s == pruning_thread_status::EXCEPTION) {
+        // PARALLEL_LOG << "parallel_any: thread " << m_index << " " << s;
+        if (s == pruning_thread_status::SAT || s == pruning_thread_status::EXCEPTION) {
             // Interrupt all the rest threads
             for (unsigned i = 0; i < statuses.size(); i++) {
                 if (i - m_index != 0 && (statuses[i] == pruning_thread_status::READY || statuses[i] == pruning_thread_status::RUNNING)) {
@@ -150,9 +152,9 @@ void contractor_parallel_any::prune(box & b, SMTConfig & config) {
                 }
             }
 
-            if (s == pruning_thread_status::UNSAT) {
-                DREAL_LOG_FATAL << "parallel: " << m_index << " got UNSAT";
-                b.set_empty();
+            if (s == pruning_thread_status::SAT) {
+                PARALLEL_LOG << "parallel_any: " << m_index << " got SAT";
+                b = boxes[m_index];
                 m_input.union_with(m_vec[m_index].input());
                 m_output.union_with(m_vec[m_index].output());
                 unordered_set<shared_ptr<constraint>> const & used_ctrs = m_vec[m_index].used_constraints();
@@ -161,72 +163,52 @@ void contractor_parallel_any::prune(box & b, SMTConfig & config) {
                 for (unsigned i = 0; i < m_vec.size(); i++) {
                     threads[i].join();
                 }
-                DREAL_LOG_FATAL << "parallel: return UNSAT";
+                PARALLEL_LOG << "parallel_any: return SAT";
                 return;
             }
             if (s == pruning_thread_status::EXCEPTION) {
-                DREAL_LOG_FATAL << "parallel: " << m_index << " got EXCEPTION";
+                PARALLEL_LOG << "parallel_any: " << m_index << " got EXCEPTION";
                 lk.unlock();
                 for (unsigned i = 0; i < m_vec.size(); i++) {
                     threads[i].join();
                 }
-                DREAL_LOG_FATAL << "parallel: throw exception";
+                PARALLEL_LOG << "parallel_any: throw exception";
                 throw contractor_exception("exception during parallel contraction");
             }
 
         } else {
-            // if (s != pruning_thread_status::SAT) {
-            //     // DREAL_LOG_FATAL << "parallel: " << m_index << " got " << s;
-            //     // DREAL_LOG_FATAL << "parallel: " << m_index << " got " << statuses[m_index];
-            assert(s == pruning_thread_status::SAT);
-            // }
-            // if (threads[m_index].joinable()) {
-            // threads[m_index].join();
-            // }
-            // DREAL_LOG_FATAL << "parallel: " << m_index << " got SAT";
+            assert(s == pruning_thread_status::UNSAT);
             // Why?
             //  - Not READY/RUNNING: It's a job already done.
-            //  - Not UNSAT/EXCEPTION: already handled above.
+            //  - Not SAT/EXCEPTION: already handled above.
             //  - Not KILLED: There must be one which kill the killed
             //                job, and this loop stops after handling
             //                the first one
         }
     }
 
-    // Assertion: All of them got SAT
+    // Assertion: All of them got UNSAT
     // for (pruning_thread_status const & s : statuses) {
-    //     assert(s == pruning_thread_status::SAT);
+    //     assert(s == pruning_thread_status::UNSAT);
     // }
+    // PARALLEL_LOG << "All of them are UNSAT";
+    b.set_empty();
 
-    // DREAL_LOG_FATAL << "All of them are SAT";
-    b = boxes[0];
+    // TODO(soonhok): the following could be simplified. When all of
+    // contractors return UNSATs, we can simply pick up a contractor
+    // and only propagate information from that contractor while
+    // ignoring the rest of contractors.
     for (unsigned i = 0; i < m_vec.size(); i++) {
         contractor const & c = m_vec[i];
-        b.intersect(boxes[i]);
         m_input.union_with(c.input());
         m_output.union_with(c.output());
         unordered_set<shared_ptr<constraint>> const & used_ctrs = c.used_constraints();
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
-        if (b.is_empty()) {
-            // DREAL_LOG_FATAL << "Found an empty while intersecting...";
-            for (unsigned i = 0; i < m_vec.size(); i++) {
-                // if (threads[i].joinable()) {
-                // DREAL_LOG_FATAL << "Try to join " << i << "...";
-                threads[i].join();
-                // DREAL_LOG_FATAL << "Try to join " << i << "... done";
-                // }
-            }
-            // DREAL_LOG_FATAL << "parallel: return UNSAT";
-            return;
-        }
     }
-    // DREAL_LOG_FATAL << "Intersection is nonempty exiting...";
     for (unsigned i = 0; i < m_vec.size(); i++) {
-        // if (threads[i].joinable()) {
         threads[i].join();
-        // }
     }
-    // DREAL_LOG_FATAL << "parallel: return SAT";
+    PARALLEL_LOG << "parallel_any: return UNSAT";
     return;
 }
 ostream & contractor_parallel_any::display(ostream & out) const {

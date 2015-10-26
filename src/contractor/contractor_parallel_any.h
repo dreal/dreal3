@@ -46,9 +46,9 @@ namespace dreal {
 class contractor_parallel_any : public contractor_cell {
 private:
     std::vector<contractor> m_vec;
-    mutable std::mutex m_mutex;
-    mutable std::condition_variable m_cv;
-    mutable int m_index;
+    std::mutex m_mutex;
+    std::condition_variable m_cv;
+    int m_index;
 
 public:
     explicit contractor_parallel_any(std::initializer_list<contractor> const & l);

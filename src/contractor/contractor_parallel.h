@@ -45,6 +45,6 @@ enum class pruning_thread_status {
 
 std::ostream & operator<<(std::ostream & out, pruning_thread_status const & s);
 
-void parallel_helper_fn(unsigned const id, contractor const & c, box & b, SMTConfig & config, pruning_thread_status & s,
+void parallel_helper_fn(unsigned const id, contractor & c, box & b, SMTConfig & config, pruning_thread_status & s,
                         std::mutex & m, std::condition_variable & cv, int & index, std::atomic_int & tasks_to_run);
 }  // namespace dreal

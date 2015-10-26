@@ -107,49 +107,51 @@ ostream & operator<<(ostream & out, pruning_thread_status const & s) {
     return out;
 }
 
+#define PARALLEL_LOG DREAL_LOG_DEBUG
+
 void parallel_helper_fn(unsigned const id, contractor & c, box & b, SMTConfig & config,
                         pruning_thread_status & s, mutex & m, condition_variable & cv, int & index,
                         atomic_int & tasks_to_run) {
     s = pruning_thread_status::RUNNING;
-    DREAL_LOG_FATAL << "parallel_helper: thread " << id << " is running. "
+    PARALLEL_LOG << "parallel_helper: thread " << id << " is running. "
                     << tasks_to_run << "tasks to run";
-    DREAL_LOG_FATAL << "parallel_helper: thread " << id << " ctc = " << c;
+    // PARALLEL_LOG << "parallel_helper: thread " << id << " ctc = " << c;
     try {
         c.prune(b, config);
         if (b.is_empty()) {
             // do something for UNSAT
             s = pruning_thread_status::UNSAT;
-            DREAL_LOG_FATAL << "parallel_helper: thread " << id << " is UNSAT.";
+            PARALLEL_LOG << "parallel_helper: thread " << id << " is UNSAT.";
         } else {
             s = pruning_thread_status::SAT;
-            DREAL_LOG_FATAL << "parallel_helper: thread " << id << " is SAT.";
+            PARALLEL_LOG << "parallel_helper: thread " << id << " is SAT.";
             // do something for SAT
         }
     } catch (contractor_exception & e) {
         // handle for exception
         s = pruning_thread_status::EXCEPTION;
-        DREAL_LOG_FATAL << "parallel_helper: thread " << id << " throws an contractor_exception: " << e.what();
+        PARALLEL_LOG << "parallel_helper: thread " << id << " throws an contractor_exception: " << e.what();
     } catch (thread_interrupted & e) {
         // just killed
         s = pruning_thread_status::KILLED;
         tasks_to_run--;
-        DREAL_LOG_FATAL << "parallel_helper: thread " << id << " is KILLED.";
+        PARALLEL_LOG << "parallel_helper: thread " << id << " is KILLED.";
         return;
     } catch (exception & e) {
         tasks_to_run--;
-        DREAL_LOG_FATAL << "parallel_helper: thread " << id << " throws an unexpected exception: "
+        PARALLEL_LOG << "parallel_helper: thread " << id << " throws an unexpected exception: "
                         << e.what();
         return;
     }
-    DREAL_LOG_FATAL << "parallel_helper: thread " << id << " is waiting for a mutex lock";
+    PARALLEL_LOG << "parallel_helper: thread " << id << " is waiting for a mutex lock";
     unique_lock<mutex> lk(m);
-    DREAL_LOG_FATAL << "parallel_helper: thread " << id << " get a lock";
+    PARALLEL_LOG << "parallel_helper: thread " << id << " get a lock";
     index = id;
     tasks_to_run--;
-    DREAL_LOG_FATAL << "parallel_helper: thread " << id << " unlocks";
+    PARALLEL_LOG << "parallel_helper: thread " << id << " unlocks";
     lk.unlock();
     cv.notify_one();
-    DREAL_LOG_FATAL << "parallel_helper: thread " << id << " notifies CV";
+    PARALLEL_LOG << "parallel_helper: thread " << id << " notifies CV";
     return;
 }
 }  // namespace dreal
