@@ -350,30 +350,35 @@ void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) {
     q = queue<unsigned>();  // empty queue
     thread_local static ibex::BitSet ctc_bitset = ibex::BitSet::empty(m_clist.size());
     ctc_bitset.clear();
+
+    int const idx_last_branched = b.get_idx_last_branched();
+
     // Add all contractors to the queue.
     for (unsigned i = 0; i < m_clist.size(); ++i) {
         contractor & c_i = m_clist[i];
-        q.push(i);
-        c_i.prune(b, config);
-        m_output.union_with(c_i.output());
-        unordered_set<shared_ptr<constraint>> const & used_constraints = c_i.used_constraints();
-        m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
-        if (b.is_empty()) { return; }
-        ibex::BitSet const & output_i = c_i.output();
-        if (output_i.empty()) {
-            continue;
-        }
-        for (int j = output_i.min(); j <= output_i.max(); ++j) {
-            if (output_i.contain(j)) {
-                // The applied constraint changes var_j
-                for (unsigned k = 0; k < m_clist.size(); ++k) {
-                    if (!ctc_bitset.contain(k)) {
-                        // Need to find c_k whose input depends on var_j
-                        contractor const & c_k = m_clist[k];
-                        if (c_k.input().contain(j)) {
-                            q.push(k);
-                            ctc_bitset.add(k);
-                            break;
+        if (idx_last_branched < 0 || c_i.input().contain(idx_last_branched)) {
+            q.push(i);
+            c_i.prune(b, config);
+            m_output.union_with(c_i.output());
+            unordered_set<shared_ptr<constraint>> const & used_constraints = c_i.used_constraints();
+            m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
+            if (b.is_empty()) { return; }
+            ibex::BitSet const & output_i = c_i.output();
+            if (output_i.empty()) {
+                continue;
+            }
+            for (int j = output_i.min(); j <= output_i.max(); ++j) {
+                if (output_i.contain(j)) {
+                    // The applied constraint changes var_j
+                    for (unsigned k = 0; k < m_clist.size(); ++k) {
+                        if (!ctc_bitset.contain(k)) {
+                            // Need to find c_k whose input depends on var_j
+                            contractor const & c_k = m_clist[k];
+                            if (c_k.input().contain(j)) {
+                                q.push(k);
+                                ctc_bitset.add(k);
+                                break;
+                            }
                         }
                     }
                 }
@@ -505,7 +510,7 @@ contractor_cache::contractor_cache(contractor const & ctc)
 }
 
 contractor_cache::~contractor_cache() {
-    DREAL_LOG_FATAL << m_num_hit << " / " << (m_num_hit + m_num_nohit) << "\t" << m_cache.size();
+    DREAL_LOG_DEBUG << m_num_hit << " / " << (m_num_hit + m_num_nohit) << "\t" << m_cache.size();
 }
 
 vector<ibex::Interval> extract_from_box_using_bitset(box const & b, ibex::BitSet const & s) {
