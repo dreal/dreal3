@@ -294,10 +294,6 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
             ints.push_back(ic);
         } else if (l->isForall()) {
             // Collect Generic Forall constraints.
-            if (l->get4th()->isTrue()) {
-                // Skip a trivial mode-invariant "true"
-                continue;
-            }
             auto it_fc_pos = m_ctr_map.find(make_pair(l, true));
             auto it_fc_neg = m_ctr_map.find(make_pair(l, false));
             if (it_fc_pos == m_ctr_map.end()) {
