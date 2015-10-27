@@ -360,6 +360,7 @@ public:
   inline Enode * get1st                 ( ) const;     // Get first argument in constant time
   inline Enode * get2nd                 ( ) const;     // Get second argument in constant time
   inline Enode * get3rd                 ( ) const;     // Get third argument in constant time
+  inline Enode * get4th                 ( ) const;     // Get fourth argument in constant time
 
   bool           addToCongruence        ( ) const;
   unsigned       sizeInMem              ( ) const;
@@ -685,6 +686,13 @@ inline Enode * Enode::get3rd ( ) const
   assert( isTerm( ) );
   assert( getArity( ) > 2 );
   return getCdr( )->getCdr( )->getCdr( )->getCar( );
+}
+
+inline Enode * Enode::get4th ( ) const
+{
+  assert( isTerm( ) );
+  assert( getArity( ) > 2 );
+  return getCdr( )->getCdr( )->getCdr( )->getCdr( )->getCar( );
 }
 
 inline unsigned Enode::sizeInMem( ) const
