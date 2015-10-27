@@ -118,48 +118,6 @@ void contractor_seq::prune_naive(box & b, SMTConfig & config) {
     return;
 }
 
-double compute_cost(contractor & c, box const & b) {
-    double cost = 0.0;
-    unsigned num_of_non_zero = 0;
-    auto in = c.input();
-    if (in.empty()) {
-        return numeric_limits<double>::lowest();
-    } else {
-        for (int i = in.min(); i <= in.max(); ++i) {
-            if (in.contain(i)) {
-                num_of_non_zero++;
-                cost += log(b[i].diam());
-            }
-        }
-        return cost / num_of_non_zero;
-    }
-}
-
-void contractor_seq::prune_smart(box & b, SMTConfig & config) {
-    vector<contractor> v(m_vec);
-    while (v.size() > 0) {
-        interruption_point();
-        unsigned min_idx = 0;
-        double min_cost = compute_cost(v[min_idx], b);
-        for (unsigned i = 1; i < v.size(); ++i) {
-            double cost_i = compute_cost(v[i], b);
-            if (min_cost > cost_i) {
-                min_idx = i;
-                min_cost = cost_i;
-            }
-        }
-        v[min_idx].prune(b, config);
-        m_output.union_with(v[min_idx].output());
-        unordered_set<shared_ptr<constraint>> const & used_ctrs = v[min_idx].used_constraints();
-        m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
-        if (b.is_empty()) {
-            return;
-        }
-        v.erase(v.begin() + min_idx);
-    }
-    return;
-}
-
 void contractor_seq::prune(box & b, SMTConfig & config) {
     if (m_vec.size() == 0) {
         return;
@@ -387,17 +345,11 @@ void contractor_fixpoint::naive_fixpoint_alg(box & b, SMTConfig & config) {
     return;
 }
 
-void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) const {
-    box old_box(b);
-    m_input  = ibex::BitSet::empty(b.size());
-    m_output = ibex::BitSet::empty(b.size());
-    m_used_constraints.clear();
 void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) {
     thread_local static queue<unsigned> q;
-    queue<unsigned>().swap(q);  // empty queue
+    q = queue<unsigned>();  // empty queue
     thread_local static ibex::BitSet ctc_bitset = ibex::BitSet::empty(m_clist.size());
     ctc_bitset.clear();
-
     // Add all contractors to the queue.
     for (unsigned i = 0; i < m_clist.size(); ++i) {
         contractor & c_i = m_clist[i];
