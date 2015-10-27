@@ -194,7 +194,8 @@ private:
     std::unordered_map<std::vector<ibex::Interval>,
                        std::tuple<std::vector<ibex::Interval>,
                                   ibex::BitSet,
-                                  std::unordered_set<std::shared_ptr<constraint>>>> m_cache;
+                                  std::unordered_set<std::shared_ptr<constraint>>,
+                                  bool>> m_cache;
 
 public:
     explicit contractor_cache(contractor const & ctc);

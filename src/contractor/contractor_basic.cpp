@@ -19,6 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <chrono>
+#include <exception>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -45,12 +46,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/proof.h"
 #include "util/interruptible_thread.h"
 
-using std::back_inserter;
 using std::cerr;
 using std::cout;
 using std::dynamic_pointer_cast;
 using std::endl;
+using std::exception;
 using std::function;
+using std::get;
 using std::initializer_list;
 using std::make_pair;
 using std::make_shared;
@@ -61,11 +63,10 @@ using std::pair;
 using std::queue;
 using std::set;
 using std::shared_ptr;
+using std::tuple;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
-using std::tuple;
-using std::get;
 
 namespace dreal {
 
@@ -536,20 +537,26 @@ void update_box_using_bitset(box & b, vector<ibex::Interval> const & v, ibex::Bi
 
 void contractor_cache::prune(box & b, SMTConfig & config) {
     // extract i-th interval where `m_input[i] == 1`
+
     vector<ibex::Interval> in = extract_from_box_using_bitset(b, m_input);
     auto it = m_cache.find(in);
     if (it == m_cache.end()) {
         // not found in cache, run m_ctc
         ++m_num_nohit;
-        m_ctc.prune(b, config);
-        m_output = m_ctc.output();
-        m_used_constraints = m_ctc.used_constraints();
+        try {
+            m_ctc.prune(b, config);
+            m_output = m_ctc.output();
+            m_used_constraints = m_ctc.used_constraints();
 
-        // extract out from box.
-        vector<ibex::Interval> out = extract_from_box_using_bitset(b, m_output);
+            // extract out from box.
+            vector<ibex::Interval> out = extract_from_box_using_bitset(b, m_output);
 
-        // save to the cache
-        m_cache.emplace(in, make_tuple(out, m_output, m_used_constraints));
+            // save to the cache
+            m_cache.emplace(in, make_tuple(out, m_output, m_used_constraints, false));
+        } catch (exception & e) {
+            m_cache.emplace(in, make_tuple(vector<ibex::Interval>(), m_output, m_used_constraints, true));
+            throw contractor_exception(e.what());
+        }
     } else {
         ++m_num_hit;
         // found in cache, use it
@@ -557,9 +564,13 @@ void contractor_cache::prune(box & b, SMTConfig & config) {
         vector<ibex::Interval> out = get<0>(m_cached_content);
         m_output = get<1>(m_cached_content);
         m_used_constraints = get<2>(m_cached_content);
-
-        // project out to box;
-        update_box_using_bitset(b, out, m_output);
+        bool const was_exception_thrown = get<3>(m_cached_content);
+        if (was_exception_thrown) {
+            throw contractor_exception("previously there was an exception in the cached computation");
+        } else {
+            // project out to box;
+            update_box_using_bitset(b, out, m_output);
+        }
     }
 }
 
