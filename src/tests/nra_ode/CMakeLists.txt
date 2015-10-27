@@ -29,3 +29,10 @@ FOREACH(instance ${NRA_ODE_INSTANCES})
            COMMAND "${DREAL_SOURCE_DIR}/tests/nra_ode/test.sh" ${DREAL_BINARY} ${instance} "--worklist-fp")
   set_tests_properties("regression_nra_ode_worklist_fp_${instance_name}" PROPERTIES LABELS "nra_ode_worklist_fp")
 ENDFOREACH(instance)
+
+FOREACH(instance ${NRA_ODE_INSTANCES})
+  GET_FILENAME_COMPONENT(instance_name ${instance} NAME)
+  add_test(NAME "regression_nra_ode_cache_${instance_name}"
+           COMMAND "${DREAL_SOURCE_DIR}/tests/nra_ode/test.sh" ${DREAL_BINARY} ${instance} "--ode-cache")
+  set_tests_properties("regression_nra_ode_cache_${instance_name}" PROPERTIES LABELS "nra_ode_cache")
+ENDFOREACH(instance)
