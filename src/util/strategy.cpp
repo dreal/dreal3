@@ -90,11 +90,17 @@ contractor default_strategy::build_contractor(box const & box,
         }
         case constraint_type::ODE: {
             auto ode_ctr = dynamic_pointer_cast<ode_constraint>(ctr);
-            ode_ctrs_rev.push_back(ode_ctr); break;
+            ode_ctrs_rev.push_back(ode_ctr);
+            break;
         }
         case constraint_type::GenericForall: {
             auto gf_ctr = dynamic_pointer_cast<generic_forall_constraint>(ctr);
-            generic_forall_ctrs.push_back(gf_ctr); break;
+            generic_forall_ctrs.push_back(gf_ctr);
+            break;
+        }
+        case constraint_type::ForallT: {
+            // Do nothing
+            break;
         }
         default:
             DREAL_LOG_FATAL << "Unknown Constraint Type: " << ctr->get_type() << " " <<  *ctr << endl;
