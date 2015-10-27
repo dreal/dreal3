@@ -551,13 +551,20 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
     if (m_ctr->get_invs().size() > 0) {
         vector<contractor> inv_ctcs;
         for (forallt_constraint const & inv : m_ctr->get_invs()) {
-            auto const & nl_ctrs = inv.get_nl_ctrs();
-            for (auto const & nl_ctr : nl_ctrs) {
-                inv_ctcs.push_back(mk_contractor_ibex_fwdbwd(nl_ctr));
+            Enode * inv_e = inv.get_enodes()[0];
+            if (inv_e->hasPolarity() && inv_e->getPolarity() == l_True) {
+                auto const & nl_ctrs = inv.get_nl_ctrs();
+                for (auto const & nl_ctr : nl_ctrs) {
+                    inv_ctcs.push_back(mk_contractor_ibex_fwdbwd(nl_ctr));
+                }
             }
         }
-        m_inv_ctc = mk_contractor_seq(inv_ctcs);
-        m_need_to_check_inv = true;
+        if (inv_ctcs.size() > 0) {
+            m_inv_ctc = mk_contractor_seq(inv_ctcs);
+            m_need_to_check_inv = true;
+        } else {
+            m_need_to_check_inv = false;
+        }
     } else {
         m_need_to_check_inv = false;
     }
