@@ -1,7 +1,5 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-        Sicun Gao <sicung@cs.cmu.edu>
-        Edmund Clarke <emc@cs.cmu.edu>
 
 dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
 
@@ -57,7 +55,7 @@ using std::runtime_error;
 
 namespace dreal {
 box::box(vector<Enode *> const & vars)
-    : m_vars(nullptr), m_values(vars.size() == 0 ? 1 : vars.size()) {
+    : m_vars(nullptr), m_values(vars.size() == 0 ? 1 : vars.size()), m_idx_last_branched(-1) {
     if (vars.size() > 0) {
         m_vars = make_shared<vector<Enode *>>(vars);
         m_name_index_map = make_shared<unordered_map<string, int>>();
@@ -106,7 +104,8 @@ void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
 box::box(box const & b, unordered_set<Enode *> const & extra_vars)
     : m_vars(make_shared<vector<Enode* > >(*b.m_vars)),
       m_values(m_vars->size() + extra_vars.size()),
-      m_name_index_map(make_shared<unordered_map<string, int>>()) {
+      m_name_index_map(make_shared<unordered_map<string, int>>()),
+      m_idx_last_branched(-1) {
     m_vars->insert(m_vars->end(), extra_vars.begin(), extra_vars.end());
     if (m_vars->size() > 0) {
         sort(m_vars->begin(), m_vars->end(), enode_lex_cmp());
@@ -233,6 +232,8 @@ tuple<int, box, box> box::bisect_int_at(int i) const {
     pair<ibex::Interval, ibex::Interval> new_intervals = iv.bisect();
     b1.m_values[i] = ibex::Interval(lb, mid_floor);
     b2.m_values[i] = ibex::Interval(mid_ceil, ub);
+    b1.m_idx_last_branched = i;
+    b2.m_idx_last_branched = i;
     DREAL_LOG_DEBUG << "box::bisect on " << (*m_vars)[i] << " : int = " << m_values[i]
                     << " into " << b1.m_values[i] << " and " << b2.m_values[i];
     return make_tuple(i, b1, b2);
@@ -247,6 +248,8 @@ tuple<int, box, box> box::bisect_real_at(int i) const {
     pair<ibex::Interval, ibex::Interval> new_intervals = iv.bisect();
     b1.m_values[i] = new_intervals.first;
     b2.m_values[i] = new_intervals.second;
+    b1.m_idx_last_branched = i;
+    b2.m_idx_last_branched = i;
     DREAL_LOG_DEBUG << "box::bisect on " << (*m_vars)[i] << " : real = " << m_values[i]
                     << " into " << b1.m_values[i] << " and " << b2.m_values[i];
     return make_tuple(i, b1, b2);

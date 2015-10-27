@@ -1,7 +1,5 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-        Sicun Gao <sicung@cs.cmu.edu>
-        Edmund Clarke <emc@cs.cmu.edu>
 
 dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
 
@@ -42,6 +40,7 @@ private:
     std::shared_ptr<std::vector<Enode *>> m_vars;
     ibex::IntervalVector m_values;
     std::shared_ptr<std::unordered_map<std::string, int>> m_name_index_map;
+    int m_idx_last_branched;
 
     // Methods
     std::tuple<int, box, box> bisect_int_at(int i) const;
@@ -99,6 +98,8 @@ public:
     inline ibex::Interval get_domain(Enode * const e) const {
         return get_domain(e->getCar()->getName());
     }
+
+    int get_idx_last_branched() const { return m_idx_last_branched; }
 
     // operator[]
     inline const ibex::Interval& operator[](int i) const { return get_value(i); }
