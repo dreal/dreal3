@@ -311,8 +311,18 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
                 m_ctr_map.emplace(make_pair(l, false), fc_neg);
             }
         } else if (l->isForallT()) {
-            forallt_constraint fc = mk_forallt_constraint(l, var_set);
-            invs.push_back(fc);
+            auto fc_ptr = new forallt_constraint(l, var_set);
+            shared_ptr<constraint> fc(fc_ptr);
+            if (!l->get4th()->isTrue()) {
+                invs.push_back(*fc_ptr);
+            }
+            m_ctr_map.emplace(make_pair(l, true), fc);
+            // TODO(soonhok): for now, a negation of forallt
+            // constraint is the same forallt constraint, but it will
+            // be ignored by contractor_capd4.
+            //
+            // Later, we will implement existt constraint and ODE contractors will support it
+            m_ctr_map.emplace(make_pair(l, false), fc);
         } else if (l->get_forall_vars().empty()) {
             nonlinear_lits.push_back(l);
         } else {
