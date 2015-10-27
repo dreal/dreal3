@@ -2,9 +2,11 @@
 # Author: Soonho Kong (soonhok@cs.cmu.edu)
 
 OS=`uname`
-echo OS:  $OS
 
-function check_pkg {
+########################################################################
+# Check Required Packages
+########################################################################
+function check_pkg_debian {
     dpkg -s $1 > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo "Required package $1 is not installed."
@@ -12,14 +14,27 @@ function check_pkg {
         exit 1
     fi
 }
-
-########################################################################
-# Check Required Packages
-########################################################################
-for pkg in autoconf automake bison cmake flex git libtool make pkg-config texinfo
-do
-    check_pkg $pkg
-done
+function check_pkg_osx {
+    hash $1
+    if [ $? -ne 0 ]; then
+        echo "Required package $1 is not installed."
+        echo "Check https://github.com/dreal/dreal3 for more information"
+        exit 1
+    fi
+}
+if [ $OS == "Linux" ]; then
+    for pkg in autoconf automake bison cmake flex git libtool make pkg-config texinfo
+    do
+        check_pkg_debian $pkg
+    done
+fi
+if [ $OS == "Darwin" ]; then
+    for pkg in autoconf automake cmake libtool pkg-config
+    do
+        check_pkg_osx $pkg
+    done
+fi
+exit 1
 
 ########################################################################
 # Find C++11 Compiler and C Compiler
