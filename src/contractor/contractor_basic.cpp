@@ -387,14 +387,16 @@ void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) {
         }
     }
 
+    if (q.size() == 0) { return; }
     // Fixed Point Loop
     thread_local static box old_box(b);
     do {
         interruption_point();
         old_box = b;
-        int const idx = q.front();
+        unsigned const idx = q.front();
         q.pop();
         ctc_bitset.remove(idx);
+        assert(idx < m_clist.size());
         contractor & c = m_clist[idx];
         c.prune(b, config);
         m_output.union_with(c.output());
@@ -402,24 +404,23 @@ void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) {
         m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
         if (b.is_empty()) { return; }
         auto const & c_output = c.output();
-        if (c_output.empty()) {
-            continue;
-        }
-        for (int j = c_output.min(); j <= c_output.max(); ++j) {
-            if (c_output.contain(j)) {
-                for (unsigned k = 0; k < m_clist.size(); ++k) {
-                    if (!ctc_bitset.contain(k)) {
-                        contractor const & c_k = m_clist[k];
-                        if (c_k.input().contain(j)) {
-                            q.push(k);
-                            ctc_bitset.add(k);
-                            break;
+        if (!c_output.empty()) {
+            for (int j = c_output.min(); j <= c_output.max(); ++j) {
+                if (c_output.contain(j)) {
+                    for (unsigned k = 0; k < m_clist.size(); ++k) {
+                        if (!ctc_bitset.contain(k)) {
+                            contractor const & c_k = m_clist[k];
+                            if (c_k.input().contain(j)) {
+                                q.push(k);
+                                ctc_bitset.add(k);
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
-    } while (q.size() != 0 && b.max_diam() >= config.nra_precision && !m_term_cond(old_box, b));
+    } while (q.size() > 0 && b.max_diam() >= config.nra_precision && !m_term_cond(old_box, b));
     return;
 }
 
