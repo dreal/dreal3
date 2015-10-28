@@ -225,6 +225,10 @@ public:
       config.nra_local_opt = b;
   }
 
+  inline void setWorklistFP (const bool b ) {
+      config.nra_worklist_fp = b;
+  }
+
   inline void setMaxPrecision ( const double d )
   {
       if(d > config.nra_precision) {
