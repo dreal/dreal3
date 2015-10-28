@@ -558,8 +558,14 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
         vector<contractor> inv_ctcs;
         for (shared_ptr<forallt_constraint> inv : m_ctr->get_invs()) {
             auto const & nl_ctrs = inv->get_nl_ctrs();
-            for (auto const & nl_ctr : nl_ctrs) {
-                m_inv_ctcs.push_back(mk_contractor_ibex_fwdbwd(nl_ctr));
+            if (nl_ctrs.size() == 1) {
+                m_inv_ctcs.push_back(mk_contractor_ibex_fwdbwd(nl_ctrs[0]));
+            } else {
+                vector<contractor> ctcs;
+                for (auto const & nl_ctr : nl_ctrs) {
+                    ctcs.push_back(mk_contractor_ibex_fwdbwd(nl_ctr));
+                }
+                m_inv_ctcs.push_back(mk_contractor_seq(ctcs));
             }
         }
         m_need_to_check_inv = true;
