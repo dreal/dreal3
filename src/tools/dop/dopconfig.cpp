@@ -73,6 +73,9 @@ config::config(int const argc, const char * argv[]) {
             "NO sync the domains of forall variables using corresponding existential variables",
             "--no-sync");
     opt.add("", false, 0, 0,
+            "Use worklist fixed-point algorithm in solving",
+            "--worklist-fp");
+    opt.add("", false, 0, 0,
             "print out statistics",
             "--stat");
     opt.parse(argc, argv);
@@ -105,6 +108,7 @@ config::config(int const argc, const char * argv[]) {
     if (opt.isSet("--polytope")) { set_polytope(true); }
     if (opt.isSet("--no-sync")) { set_sync(false); }
     if (opt.isSet("--stat")) { set_stat(true); }
+    if (opt.isSet("--worklist-fp")) { set_worklist_fp(true); }
 
     // Set up filename
     string filename;

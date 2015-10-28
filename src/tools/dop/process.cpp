@@ -212,6 +212,7 @@ int process_baron(config const & config) {
     ctx.setDebug(config.get_debug());
     ctx.setPolytope(config.get_polytope());
     ctx.setShrinkForDop(config.get_sync());
+    ctx.setWorklistFP(config.get_worklist_fp());
     unordered_map<string, Enode *> var_map = baron_var_map;
     Enode * const cost_fn = baron_cost_fn;
     vector<Enode *> & ctrs_X = baron_ctrs;
@@ -243,6 +244,7 @@ int process_dop(config const & config) {
     ctx.setDebug(config.get_debug());
     ctx.setPolytope(config.get_polytope());
     ctx.setShrinkForDop(config.get_sync());
+    ctx.setWorklistFP(config.get_worklist_fp());
     unordered_map<string, Enode *> var_map = dop_var_map;
     vector<Enode *> & costs = dop_costs;
     vector<Enode *> & ctrs_X = dop_ctrs;
@@ -271,6 +273,7 @@ int process_bch(config const & config) {
     ctx.setDebug(config.get_debug());
     ctx.setPolytope(config.get_polytope());
     ctx.setShrinkForDop(config.get_sync());
+    ctx.setWorklistFP(config.get_worklist_fp());
     unordered_map<string, Enode *> var_map = bch_var_map;
     vector<Enode *> & costs = bch_costs;
     vector<Enode *> & ctrs_X = bch_ctrs;

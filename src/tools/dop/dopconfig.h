@@ -43,6 +43,7 @@ private:
     double m_prec = 0.0;
     bool m_sync = true;
     bool m_stat = false;
+    bool m_worklist_fp = false;
 
     void printUsage(ez::ezOptionParser & opt);
     void set_type(type const ty) { m_type = ty; }
@@ -56,6 +57,7 @@ private:
     void set_polytope(bool const b) { m_polytope = b; }
     void set_sync(bool const b) { m_sync = b; }
     void set_stat(bool const b) { m_stat = b; }
+    void set_worklist_fp(bool const b) { m_worklist_fp = b; }
 
 public:
     config(int const argc, const char * argv[]);
@@ -72,6 +74,7 @@ public:
     bool get_polytope() const { return m_polytope; }
     bool get_sync() const { return m_sync; }
     bool get_stat() const { return m_stat; }
+    bool get_worklist_fp() const { return m_worklist_fp; }
     friend std::ostream & operator<<(std::ostream & out, config const & c);
 };
 
