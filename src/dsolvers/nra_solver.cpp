@@ -249,16 +249,16 @@ void initialize_nonlinear_constraints(map<pair<Enode*, bool>, shared_ptr<constra
 // Update ctr_map by adding new ode constraints, from the information collected in ints and invs
 void initialize_ode_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
                                 vector<integral_constraint> const & ints,
-                                vector<forallt_constraint> const & invs) {
+                                vector<shared_ptr<forallt_constraint>> const & invs) {
     // Attach the corresponding forallT literals to integrals
     for (integral_constraint ic : ints) {
-        vector<forallt_constraint> local_invs;
-        for (forallt_constraint fc : invs) {
+        vector<shared_ptr<forallt_constraint>> local_invs;
+        for (shared_ptr<forallt_constraint> fc : invs) {
             // Link ForallTConstraint fc with IntegralConstraint ic, if
             //    fc.flow == ic.flow
             //    vars(fc.inv) \subseteq ic.vars_t
-            if (fc.get_flow_id() == ic.get_flow_id()) {
-                unordered_set<Enode *> vars_in_fc = fc.get_inv()->get_vars();
+            if (fc->get_flow_id() == ic.get_flow_id()) {
+                unordered_set<Enode *> vars_in_fc = fc->get_inv()->get_vars();
                 bool const included = all_of(vars_in_fc.begin(), vars_in_fc.end(),
                                              [&ic](Enode const * var_in_fc) {
                                                  vector<Enode *> const & vars_t_in_ic = ic.get_vars_t();
@@ -279,7 +279,7 @@ void initialize_ode_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> 
 // build a mapping from Enode to constraint (m_ctr_map)
 void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
     vector<integral_constraint> ints;
-    vector<forallt_constraint> invs;
+    vector<shared_ptr<forallt_constraint>> invs;
     vector<Enode *> nonlinear_lits;
     unordered_set<Enode *> var_set;
     for (Enode * l : lits) {
@@ -307,10 +307,9 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
                 m_ctr_map.emplace(make_pair(l, false), fc_neg);
             }
         } else if (l->isForallT()) {
-            auto fc_ptr = new forallt_constraint(l, var_set);
-            shared_ptr<constraint> fc(fc_ptr);
+            shared_ptr<forallt_constraint> fc(new forallt_constraint(l, var_set));
             if (!l->get4th()->isTrue()) {
-                invs.push_back(*fc_ptr);
+                invs.push_back(fc);
             }
             m_ctr_map.emplace(make_pair(l, true), fc);
             // TODO(soonhok): for now, a negation of forallt

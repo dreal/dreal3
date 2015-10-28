@@ -248,15 +248,15 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
 // ====================================================
 // ODE constraint
 // ====================================================
-ode_constraint::ode_constraint(integral_constraint const & integral, vector<forallt_constraint> const & invs)
+ode_constraint::ode_constraint(integral_constraint const & integral, vector<shared_ptr<forallt_constraint>> const & invs)
     : constraint(constraint_type::ODE, integral.get_enodes()), m_int(integral), m_invs(invs) {
 }
 ostream & ode_constraint::display(ostream & out) const {
     out << "ode_constraint(" << m_int << ")" << endl;
-    for (forallt_constraint const & inv : m_invs) {
-        Enode * e = inv.get_enodes()[0];
+    for (shared_ptr<forallt_constraint> const & inv : m_invs) {
+        Enode * e = inv->get_enodes()[0];
         if (e->hasPolarity() && e->getPolarity() == l_True) {
-            out << inv << endl;
+            out << *inv << endl;
         }
     }
     return out;

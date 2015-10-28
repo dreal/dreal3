@@ -136,12 +136,12 @@ public:
 class ode_constraint : public constraint {
 private:
     integral_constraint const m_int;
-    std::vector<forallt_constraint> const m_invs;
+    std::vector<std::shared_ptr<forallt_constraint>> const m_invs;
 
 public:
-    explicit ode_constraint(integral_constraint const & integral, std::vector<forallt_constraint> const & invs = std::vector<forallt_constraint>());
+    explicit ode_constraint(integral_constraint const & integral, std::vector<std::shared_ptr<forallt_constraint>> const & invs = std::vector<std::shared_ptr<forallt_constraint>>());
     inline integral_constraint const & get_ic() const { return m_int; }
-    inline std::vector<forallt_constraint> const & get_invs() const { return m_invs; }
+    inline std::vector<std::shared_ptr<forallt_constraint>> const & get_invs() const { return m_invs; }
     virtual std::ostream & display(std::ostream & out) const;
 };
 
