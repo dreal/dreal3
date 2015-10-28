@@ -603,8 +603,38 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
         // Trivial Case where there are only params and no real ODE vars.
         return;
     }
-    set_params(*m_vectorField, b, ic);
 
+    // Special Case: Time = [0, 0]
+    // Intersect X_0 and X_t and return
+    if (b[ic.get_time_t()].ub() == 0.0) {
+        for (unsigned i = 0; i < m_vars_0.size(); ++i) {
+            auto & iv_0_i = b[m_vars_0[i]];
+            auto & iv_t_i = b[m_vars_t[i]];
+            iv_0_i &= iv_t_i;
+            if (iv_0_i.is_empty()) {
+                b.set_empty();
+                m_used_constraints.insert(m_ctr);
+                m_output = m_input;
+                return;
+            } else {
+                iv_t_i = iv_0_i;
+            }
+        }
+        // Setup m_output and m_used_constraints for SAT case
+        vector<bool> diff_dims = b.diff_dims(old_box);
+        for (unsigned i = 0; i < diff_dims.size(); i++) {
+            if (diff_dims[i]) {
+                m_output.add(i);
+            }
+        }
+        if (!m_output.empty()) {
+            m_used_constraints.insert(m_ctr);
+        }
+        return;
+    }
+
+    // General case: Time = [lb, ub] where ub > 0
+    set_params(*m_vectorField, b, ic);
     try {
         if (config.nra_ODE_step > 0) {
             m_solver->setStep(config.nra_ODE_step);
