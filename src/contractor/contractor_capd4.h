@@ -54,7 +54,7 @@ private:
     std::vector<Enode *> m_vars_0;
     std::vector<Enode *> m_vars_t;
     bool m_need_to_check_inv;
-    contractor m_inv_ctc;
+    std::vector<contractor> m_inv_ctcs;
     std::unique_ptr<capd::IMap> m_vectorField;
     std::unique_ptr<capd::IOdeSolver> m_solver;
     std::unique_ptr<capd::ITimeMap> m_timeMap;

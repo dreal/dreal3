@@ -343,12 +343,19 @@ bool contractor_capd_full::check_invariant(capd::IVector & v, box b, SMTConfig &
     // 1. convert v into a box using b.
     update_box_with_ivector(b, m_vars_t, v);
     // 2. check the converted box b, with inv_ctc contractor
-    m_inv_ctc.prune(b, config);
+    auto const & invs = m_ctr->get_invs();
+    for (unsigned i = 0; i < invs.size(); ++i) {
+        shared_ptr<forallt_constraint> inv = invs[i];
+        Enode * inv_e = inv->get_enodes()[0];
+        if (inv_e->hasPolarity() && inv_e->getPolarity() == l_True) {
+            m_inv_ctcs[i].prune(b, config);
+            if (b.is_empty()) {
+                return false;
+            }
+        }
+    }
     // 3. extract v' from the pruned box b'
     //    if b' is empty, then it means invariant violation
-    if (b.is_empty()) {
-        return false;
-    }
     extract_ivector(b, m_vars_t, v);
     return true;
 }
@@ -546,29 +553,19 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
     } else {
         // Trivial Case with all params and no ODE variables
     }
-
-    // Set up m_inv_ctc for invariant checking
+    // Set up m_inv_ctcs for invariant checking
     if (m_ctr->get_invs().size() > 0) {
         vector<contractor> inv_ctcs;
-        for (forallt_constraint const & inv : m_ctr->get_invs()) {
-            Enode * inv_e = inv.get_enodes()[0];
-            if (inv_e->hasPolarity() && inv_e->getPolarity() == l_True) {
-                auto const & nl_ctrs = inv.get_nl_ctrs();
-                for (auto const & nl_ctr : nl_ctrs) {
-                    inv_ctcs.push_back(mk_contractor_ibex_fwdbwd(nl_ctr));
-                }
+        for (shared_ptr<forallt_constraint> inv : m_ctr->get_invs()) {
+            auto const & nl_ctrs = inv->get_nl_ctrs();
+            for (auto const & nl_ctr : nl_ctrs) {
+                m_inv_ctcs.push_back(mk_contractor_ibex_fwdbwd(nl_ctr));
             }
         }
-        if (inv_ctcs.size() > 0) {
-            m_inv_ctc = mk_contractor_seq(inv_ctcs);
-            m_need_to_check_inv = true;
-        } else {
-            m_need_to_check_inv = false;
-        }
+        m_need_to_check_inv = true;
     } else {
         m_need_to_check_inv = false;
     }
-
     // Input: X_0, X_T, and Time
     m_input  = ibex::BitSet::empty(box.size());
     for (Enode * e : ctr->get_ic().get_enode()->get_vars()) {
@@ -696,7 +693,17 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
         }
     }
     if (!m_output.empty()) {
+        // Add integral constraint
         m_used_constraints.insert(m_ctr);
+        // Add forallt constraint (but only the asserted ones)
+        auto const & invs = m_ctr->get_invs();
+        for (unsigned i = 0; i < invs.size(); ++i) {
+            shared_ptr<forallt_constraint> inv = invs[i];
+            Enode * inv_e = inv->get_enodes()[0];
+            if (inv_e->hasPolarity() && inv_e->getPolarity() == l_True) {
+                m_used_constraints.insert(inv);
+            }
+        }
     }
     return;
 }
