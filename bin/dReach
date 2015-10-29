@@ -230,7 +230,7 @@ do
                 OUT=${BASE}_${K}_${PATH_NUM}.output
                 ERR=${BASE}.err
                 $BMC -k $K --path "$P" $PDRH > ${SMT}
-                echo SMT: ${SMT}, PATH : $P
+                echo SMT: ${SMT}, PATH : "$P"
                 if [ $Z_OPT == TRUE ];                                          # (edited: FS)
                 then                                                            #
                     ${SOLVER} ${SOLVER_OPT} --short_sat ${SMT} 2>$ERR 1>$OUT    #
