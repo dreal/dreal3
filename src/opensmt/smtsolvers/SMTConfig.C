@@ -471,7 +471,7 @@ SMTConfig::parseCMDLine( int argc
             "use polytope contractor in IBEX",
             "--polytope");
     opt.add("", false, 0, 0,
-            "use simplification in preprocessing",
+            "use simplification in preprocessing (default: on)",
             "--simp");
     opt.add("", false, 0, 0,
             "do not use simplification in preprocessing",
@@ -494,6 +494,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 1, 0,
             "specify the random seed (default: non-deterministic random number from std::random_device())",
             "--random-seed", "--random_seed");
+    opt.add("", false, 0, 0,
+            "Activate satelite on booleans (default: off)",
+            "--sat-prep-bool", "--sat-preprocess-booleans", "--sat_preprocess_booleans");
 
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
@@ -536,11 +539,12 @@ SMTConfig::parseCMDLine( int argc
 #endif
     nra_use_stat            = opt.isSet("--stat");
     nra_polytope            = opt.isSet("--polytope");
-    nra_simp                = !opt.isSet("--no-simp");
+    nra_simp                =!opt.isSet("--no-simp");
     nra_ncbt                = opt.isSet("--ncbt");
     nra_local_opt           = opt.isSet("--local-opt");
     nra_worklist_fp         = opt.isSet("--worklist-fp");
     nra_shrink_for_dop      = opt.isSet("--shrink-for-opt");
+    sat_preprocess_booleans = opt.isSet("--sat-prep-bool");
 
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }
