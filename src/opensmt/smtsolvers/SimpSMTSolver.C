@@ -346,7 +346,7 @@ skip_theory_preproc:
       //
       vec<Lit> blocking_clause;
       uint64_t num_models = 0;
-      while ((CoreSMTSolver::solve(assumps) != l_False) && (config.nra_found_soln <= config.nra_multiple_soln)){
+      while ((CoreSMTSolver::solve(assumps) != l_False) && (config.nra_found_soln < config.nra_multiple_soln)){
         // Create a blocking clause from the current model to rule out this solution
         blocking_clause.clear();
         for (int v = 2; v < CoreSMTSolver::nVars(); v++) {
@@ -361,9 +361,8 @@ skip_theory_preproc:
         }
         num_models++;
       }
-      lresult = l_False;
+      lresult = config.nra_found_soln > 0 ? l_True : l_False;
     }
-
   } else {
     lresult = l_False;
   }

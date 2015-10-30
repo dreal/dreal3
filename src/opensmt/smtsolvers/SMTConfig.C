@@ -597,7 +597,7 @@ SMTConfig::parseCMDLine( int argc
     if (opt.isSet("--ode-grid")) { opt.get("--ode-grid")->getULong(nra_ODE_grid_size); }
     if (opt.isSet("--aggressive")) { opt.get("--aggressive")->getULong(nra_aggressive); }
     if (opt.isSet("--sample")) { opt.get("--sample")->getULong(nra_sample); }
-    if (opt.isSet("--multiple")) { opt.get("--multiple-soln")->getULong(nra_multiple_soln); }
+    if (opt.isSet("--multiple-soln")) { opt.get("--multiple-soln")->getULong(nra_multiple_soln); }
     if (opt.isSet("--random-seed")) {
         // Hack: ezOptionParser doesn't have an API to read 'unsigned
         // int' ( it only supports 'int' and 'unsigned long'). We

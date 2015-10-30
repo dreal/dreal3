@@ -87,12 +87,12 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
                 }
             } else {
                 config.nra_found_soln++;
-                if (config.nra_found_soln >= config.nra_multiple_soln) {
-                    break;
-                }
                 if (config.nra_multiple_soln > 1) {
                     // If --multiple_soln is used
                     output_solution(b, config, config.nra_found_soln);
+                }
+                if (config.nra_found_soln >= config.nra_multiple_soln) {
+                    break;
                 }
                 solns.push_back(b);
             }
