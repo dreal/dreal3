@@ -19,6 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <random>
 #include "util/box.h"
 #include "util/stat.h"
 #include "contractor/contractor.h"
@@ -39,10 +40,17 @@ public:
 
 class random_icp {
 private:
-    static bool random_bool();
+    contractor & m_ctc;
+    SMTConfig & m_config;
+    std::mt19937_64 m_rg;
+    std::uniform_real_distribution<double> m_dist;
+    inline bool random_bool() {
+        return m_dist(m_rg) >= 0.5;
+    }
 
 public:
-    static box solve(box b, contractor & ctc, SMTConfig & config, double const precision);
+    random_icp(contractor & ctc, SMTConfig & config);
+    box solve(box b, double const precision);
 };
 
 }  // namespace dreal

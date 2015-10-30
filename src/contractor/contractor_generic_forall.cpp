@@ -415,7 +415,8 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_v
         ctcs.push_back(ctc);
     }
     contractor fp = mk_contractor_fixpoint(default_strategy::term_cond, ctcs);
-    counterexample = random_icp::solve(counterexample, fp, config, config.nra_precision);
+    random_icp icp(fp, config);
+    counterexample = icp.solve(counterexample, config.nra_precision);
     return counterexample;
 }
 
@@ -479,7 +480,8 @@ void contractor_generic_forall::handle_disjunction(box & b, vector<Enode *> cons
     // Step 3. Compute B_i = prune(B, l_i)
     //         Update B with ∨ B_i
     //                       i
-    vector<box> boxes;
+    thread_local static vector<box> boxes;
+    boxes.clear();
     auto vars = b.get_vars();
     unordered_set<Enode*> const var_set(vars.begin(), vars.end());
     for (Enode * e : vec) {

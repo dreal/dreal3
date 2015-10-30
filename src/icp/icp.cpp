@@ -20,17 +20,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <random>
 #include <vector>
-
 #include "icp/icp.h"
 #include "util/logging.h"
 #include "util/stat.h"
 
+using std::cerr;
 using std::cout;
-using std::vector;
 using std::endl;
-using std::tuple;
 using std::get;
-
+using std::tuple;
+using std::vector;
 
 namespace dreal {
 
@@ -51,8 +50,10 @@ void output_solution(box const & b, SMTConfig & config, unsigned i) {
 }
 
 box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
-    vector<box> solns;
-    vector<box> box_stack;
+    thread_local static vector<box> solns;
+    thread_local static vector<box> box_stack;
+    solns.clear();
+    box_stack.clear();
     box_stack.push_back(b);
     do {
         DREAL_LOG_INFO << "icp_loop()"
@@ -107,8 +108,10 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
 
 box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
     static unsigned prune_count = 0;
-    vector<box> box_stack;
-    vector<int> bisect_var_stack;
+    thread_local static vector<box> box_stack;
+    thread_local static vector<int> bisect_var_stack;
+    box_stack.clear();
+    bisect_var_stack.clear();
     box_stack.push_back(b);
     bisect_var_stack.push_back(-1);  // Dummy var
     do {
@@ -166,15 +169,15 @@ box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
     return b;
 }
 
-bool random_icp::random_bool() {
-    thread_local static std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
-    std::uniform_real_distribution<double> m_dist(0, 1);
-    return m_dist(rg) >= 0.5;
+random_icp::random_icp(contractor & ctc, SMTConfig & config)
+    : m_ctc(ctc), m_config(config), m_rg(m_config.nra_random_seed), m_dist(0, 1) {
 }
 
-box random_icp::solve(box b, contractor & ctc, SMTConfig & config, double const precision ) {
-    vector<box> solns;
-    vector<box> box_stack;
+box random_icp::solve(box b, double const precision ) {
+    thread_local static vector<box> solns;
+    thread_local static vector<box> box_stack;
+    solns.clear();
+    box_stack.clear();
     box_stack.push_back(b);
     do {
         DREAL_LOG_INFO << "icp_loop()"
@@ -182,7 +185,7 @@ box random_icp::solve(box b, contractor & ctc, SMTConfig & config, double const 
         b = box_stack.back();
         box_stack.pop_back();
         try {
-            ctc.prune(b, config);
+            m_ctc.prune(b, m_config);
         } catch (contractor_exception & e) {
             // Do nothing
         }
@@ -199,25 +202,25 @@ box random_icp::solve(box b, contractor & ctc, SMTConfig & config, double const 
                     box_stack.push_back(first);
                     box_stack.push_back(second);
                 }
-                if (config.nra_proof) {
-                    config.nra_proof_out << "[branched on "
+                if (m_config.nra_proof) {
+                    m_config.nra_proof_out << "[branched on "
                                          << b.get_name(i)
                                          << "]" << endl;
                 }
             } else {
-                config.nra_found_soln++;
-                if (config.nra_found_soln >= config.nra_multiple_soln) {
+                m_config.nra_found_soln++;
+                if (m_config.nra_found_soln >= m_config.nra_multiple_soln) {
                     break;
                 }
-                if (config.nra_multiple_soln > 1) {
+                if (m_config.nra_multiple_soln > 1) {
                     // If --multiple_soln is used
-                    output_solution(b, config, config.nra_found_soln);
+                    output_solution(b, m_config, m_config.nra_found_soln);
                 }
                 solns.push_back(b);
             }
         }
     } while (box_stack.size() > 0);
-    if (config.nra_multiple_soln > 1 && solns.size() > 0) {
+    if (m_config.nra_multiple_soln > 1 && solns.size() > 0) {
         return solns.back();
     } else {
         assert(!b.is_empty() || box_stack.size() == 0);
