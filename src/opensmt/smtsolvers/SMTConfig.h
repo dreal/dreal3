@@ -214,6 +214,7 @@ struct SMTConfig
   bool         nra_local_opt;                 // use local optimization to refine counter example (for exist-forall problems)
   bool         nra_worklist_fp;               // use worklist fixpoint algorithm
   bool         nra_shrink_for_dop;            // shrink forall domain for dOp optimization
+  unsigned     nra_random_seed;               // seed to random generators (default = std::random_device())
 
   void setODEFwdTimeout(double const ode_fwd_timeout);
   void setODEBwdTimeout(double const ode_bwd_timeout);

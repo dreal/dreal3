@@ -18,6 +18,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <limits>
+#include <random>
 #include <sstream>
 #include <string>
 #include <exception>
@@ -43,6 +44,7 @@ using std::ostringstream;
 using std::string;
 using std::vector;
 using std::logic_error;
+using std::random_device;
 
 void
 SMTConfig::initializeConfig( )
@@ -138,7 +140,8 @@ SMTConfig::initializeConfig( )
   nra_ncbt                     = false;
   nra_local_opt                = false;
   nra_worklist_fp              = false;
-  nra_shrink_for_dop            = false;
+  nra_shrink_for_dop           = false;
+  nra_random_seed              = random_device{}();
   initLogging();
 }
 
@@ -488,6 +491,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "read formula from standard input",
             "--in");
+    opt.add("", false, 1, 0,
+            "specify the random seed (default: non-deterministic random number from std::random_device())",
+            "--random-seed", "--random_seed");
 
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
@@ -588,6 +594,16 @@ SMTConfig::parseCMDLine( int argc
     if (opt.isSet("--aggressive")) { opt.get("--aggressive")->getULong(nra_aggressive); }
     if (opt.isSet("--sample")) { opt.get("--sample")->getULong(nra_sample); }
     if (opt.isSet("--multiple")) { opt.get("--multiple-soln")->getULong(nra_multiple_soln); }
+    if (opt.isSet("--random-seed")) {
+        // Hack: ezOptionParser doesn't have an API to read 'unsigned
+        // int' ( it only supports 'int' and 'unsigned long'). We
+        // first read a 'int' random and cast it to unsigned
+        // int. Since it's for random seed, it's not really important
+        // to keep the exact number.
+        int tmp = 0;
+        opt.get("--random-seed")->getInt(tmp);
+        nra_random_seed = static_cast<unsigned>(tmp);
+    }
 
     vector<string> badOptions;
     if(!opt.gotRequired(badOptions)) {
