@@ -326,23 +326,34 @@ ostream & contractor_fixpoint::display(ostream & out) const {
 }
 
 void contractor_fixpoint::naive_fixpoint_alg(box & b, SMTConfig & config) {
-    // DREAL_LOG_FATAL << "===================";
-    box old_box(b);
-    // Fixed Point Loop
-    do {
+    // First Iteration (run always)
+    for (contractor & c : m_clist) {
+        interruption_point();
+        c.prune(b, config);
+        m_output.union_with(c.output());
+        unordered_set<shared_ptr<constraint>> const & used_constraints = c.used_constraints();
+        m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
+        if (b.is_empty()) {
+            return;
+        }
+    }
+    thread_local static box old_box(b);
+    old_box = b;
+    unsigned i = 0;
+    // Next Iterations (stop when 1) a box is smaller enough or 2) termination condition holds
+    while (b.max_diam() > config.nra_precision && !m_term_cond(old_box, b)) {
         interruption_point();
         old_box = b;
-        for (contractor & c : m_clist) {
-            // DREAL_LOG_FATAL << "naive: prune " << c;
-            c.prune(b, config);
-            m_output.union_with(c.output());
-            unordered_set<shared_ptr<constraint>> const & used_constraints = c.used_constraints();
-            m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
-            if (b.is_empty()) {
-                return;
-            }
+        contractor & c = m_clist[i];
+        c.prune(b, config);
+        m_output.union_with(c.output());
+        unordered_set<shared_ptr<constraint>> const & used_constraints = c.used_constraints();
+        m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
+        if (b.is_empty()) {
+            return;
         }
-    } while (b.max_diam() > config.nra_precision && !m_term_cond(old_box, b));
+        i = (i + 1) % m_clist.size();
+    }
     return;
 }
 
