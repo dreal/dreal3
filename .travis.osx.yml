@@ -1,12 +1,13 @@
+osx_image: xcode7
 language: objective-c
 
 env:
   matrix:
-    - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
+    - CMAKE_CXX_COMPILER=g++-5 CMAKE_C_COMPILER=gcc-5
       CMAKE_BUILD_TYPE=Release
       CTEST=TRUE
       CPACK=TRUE
-    - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_C_COMPILER=gcc-4.8
+    - CMAKE_CXX_COMPILER=g++-5 CMAKE_C_COMPILER=gcc-5
       CMAKE_BUILD_TYPE=Debug
       CTEST=TRUE
     - CMAKE_CXX_COMPILER=clang++ CMAKE_C_COMPILER=clang
@@ -20,10 +21,10 @@ install:
  - brew update
  - brew --config
  - brew --env
- - if [[ ${CMAKE_CXX_COMPILER} == g++-4.8 ]]; then
+ - brew install cmake
+ - if [[ ${CMAKE_CXX_COMPILER} == g++-5 ]]; then
       brew install gcc;
-      brew link gcc;
-      COMPILER=g++-4.8.3;
+      COMPILER=g++-5.2.0;
    fi
  - if [[ ${CMAKE_CXX_COMPILER} == clang++ ]]; then
       wget https://dl.dropboxusercontent.com/u/203889738/gcc/clang+llvm-3.4.1-x86_64-apple-darwin10.9.tar.xz;
@@ -32,22 +33,24 @@ install:
       export LIBRARY_PATH=/usr/lib:/usr/local/lib;
       COMPILER=clang++-3.4.1;
    fi
- # autoconf automake cmake libtool pkg-config
- - brew install autoconf automake cmake ninja libtool pkg-config
- # X11 - Xquartz
+ - brew install ninja
  # ocaml, opam, ocamlfind, ocaml-batteries
  - if [[ ${CPACK} == TRUE ]]; then
-      wget https://dl.dropboxusercontent.com/u/203889738/gcc/XQuartz.pkg;
-      sudo installer -pkg ./XQuartz.pkg -target /;
-      brew install ocaml opam;
-      yes | opam init;
+      export OPAMYES=1;
+      export OPAMVERBOSE=1;
+      brew update;
+      brew reinstall ocaml;
+      brew install libffi opam;
+      opam init;
+      opam switch $OCAML_VERSION;
       eval `opam config env`;
       opam update;
-      yes | opam install ocamlfind batteries oasis;
+      opam install ocamlfind batteries oasis;
+      eval `opam config env`;
    fi
 
 before_script:
-  - SITE=OSX10.9.2@Travis
+  - SITE=OSX10.10.5@Travis
   - BUILD_NAME=${TRAVIS_BRANCH}_${COMPILER}_${CMAKE_BUILD_TYPE}
   - GIT_SUBJECT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 2-`
   - GIT_SUBJECT=${GIT_SUBJECT//\"/\\\"}
