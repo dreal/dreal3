@@ -198,9 +198,9 @@ if(USE_LOCAL_THIRD_PARTY)
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     URL ${CMAKE_SOURCE_DIR}/third_party/filibxx.zip
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
-    BUILD_COMMAND make -j
+    BUILD_COMMAND make
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make -j install)
+    INSTALL_COMMAND make install)
 else()
   ExternalProject_Add(FILIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
@@ -209,9 +209,9 @@ else()
     UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
     COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
-    BUILD_COMMAND make -j
+    BUILD_COMMAND make
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make -j install)
+    INSTALL_COMMAND make install)
 endif()
 set(EXTRA_LIBS "prim" ${EXTRA_LIBS})
 
@@ -223,9 +223,9 @@ if(USE_LOCAL_THIRD_PARTY)
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     URL ${CMAKE_SOURCE_DIR}/third_party/nlopt.zip
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
-    BUILD_COMMAND make -j
+    BUILD_COMMAND make
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make -j install)
+    INSTALL_COMMAND make install)
 else()
   ExternalProject_Add(NLOPT
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
@@ -234,9 +234,9 @@ else()
     UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
     COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
-    BUILD_COMMAND make -j
+    BUILD_COMMAND make
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make -j install)
+    INSTALL_COMMAND make install)
 endif()
 set(EXTRA_LIBS "nlopt" ${EXTRA_LIBS})
 
@@ -250,9 +250,9 @@ if(SUPPORT_ODE)
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     URL ${CMAKE_SOURCE_DIR}/third_party/capdDynSys-4.0.zip
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=no ${SHARED_LIB_CONFIG_COMMAND}
-    BUILD_COMMAND make -j
+    BUILD_COMMAND make
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make -j install)
+    INSTALL_COMMAND make install)
   else()
     ExternalProject_Add(CAPD4
       DEPENDS FILIB
@@ -262,9 +262,9 @@ if(SUPPORT_ODE)
       UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
       COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
       CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=no ${SHARED_LIB_CONFIG_COMMAND}
-      BUILD_COMMAND make -j
+      BUILD_COMMAND make
       BUILD_IN_SOURCE 1
-      INSTALL_COMMAND make -j install)
+      INSTALL_COMMAND make install)
   endif()
   set(EXTRA_LIBS "capd" ${EXTRA_LIBS})
   ################################################################
@@ -276,9 +276,9 @@ if(SUPPORT_ODE)
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     URL ${CMAKE_SOURCE_DIR}/third_party/gsl-1.16.zip
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
-    BUILD_COMMAND make -j
+    BUILD_COMMAND make
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make -j install)
+    INSTALL_COMMAND make install)
   else()
     ExternalProject_Add(GSL
       DEPENDS FILIB
@@ -288,9 +288,9 @@ if(SUPPORT_ODE)
       UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
       COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
       CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
-      BUILD_COMMAND make -j
+      BUILD_COMMAND make
       BUILD_IN_SOURCE 1
-      INSTALL_COMMAND make -j install)
+      INSTALL_COMMAND make install)
   endif()
   set(EXTRA_LIBS "gsl" "gslcblas" ${EXTRA_LIBS})
 endif()
@@ -306,7 +306,7 @@ if(MINGW)
     UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
            COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
     CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --build=x86_64-w64-mingw32 --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
-    BUILD_COMMAND make -j
+    BUILD_COMMAND make
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/coin && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/share/coin/doc/CoinUtils && make install)
 else(MINGW)
@@ -315,7 +315,7 @@ else(MINGW)
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
       URL ${CMAKE_SOURCE_DIR}/third_party/clp-1.16.zip
       CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
-      BUILD_COMMAND make -j
+      BUILD_COMMAND make
       BUILD_IN_SOURCE 1
       INSTALL_COMMAND make install)
   else(USE_LOCAL_THIRD_PARTY)
@@ -326,7 +326,7 @@ else(MINGW)
       UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
       COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
       CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
-      BUILD_COMMAND make -j
+      BUILD_COMMAND make
       BUILD_IN_SOURCE 1
       INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/coin && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/share/coin/doc/CoinUtils && make install)
   endif()
@@ -745,11 +745,11 @@ add_custom_target(update_pkgs
   DEPENDS update_clp update_filib update_ibex update_nlopt update_capd update_catch update_easyloggingpp update_ezoptionparser update_json update_gsl)
 
 add_custom_target(update_clp
-  COMMAND git fetch --all && git reset --hard origin/master && make install -j
+  COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CLP)
 
 add_custom_target(update_filib
-  COMMAND git fetch --all && git reset --hard origin/master && make install -j
+  COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/FILIB)
 
 add_custom_target(update_ibex
@@ -758,15 +758,15 @@ add_custom_target(update_ibex
   DEPENDS update_filib update_clp)
 
 add_custom_target(update_nlopt
-  COMMAND git fetch --all && git reset --hard origin/master && make install -j
+  COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/NLOPT)
 
 add_custom_target(update_capd
-  COMMAND git fetch --all && git reset --hard origin/master && make install -j
+  COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CAPD4)
 
 add_custom_target(update_gsl
-  COMMAND git fetch --all && git reset --hard origin/master && make install -j
+  COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/GSL)
 
 add_custom_target(update_catch
