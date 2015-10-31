@@ -55,6 +55,7 @@ rule start =
     | "\r\n"  { incr_ln (); start lexbuf}
     | '\n'    { incr_ln (); start lexbuf}
     | "//[A-Za-z0-9 ]+" { start lexbuf }                        (* Comment *)
+    | "#define" { verbose (Lexing.lexeme lexbuf); HASH_DEFINE }
     | "["     { verbose (Lexing.lexeme lexbuf); LB }
     | "]"     { verbose (Lexing.lexeme lexbuf); RB }
     | "{"     { verbose (Lexing.lexeme lexbuf); LC }

@@ -6,6 +6,12 @@
 open Batteries
 open Type
 
+(* Maps to handle macros *)
+(* const_macro_map : string -> Basic.exp *)
+(* fun_macro_map : string -> string list * Basic.exp *)
+let const_macro_map = ref (BatMap.empty)
+let fun_macro_map = ref (BatMap.empty)
+
 let main_routine vardecl_list mode_list init goal ginv =
   let (float_list, intv_list) =
     List.partition
@@ -20,6 +26,7 @@ let main_routine vardecl_list mode_list init goal ginv =
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
+%token HASH_DEFINE
 %token AT LT LTE GT GTE IMPLY DDT CARET NOT
 %token SIN COS TAN
 %token ASIN ACOS ATAN ATAN2 MIN MAX
@@ -43,8 +50,21 @@ let main_routine vardecl_list mode_list init goal ginv =
 
 %%
 
-main: varDecl_list mode_list init goal ind { main_routine $1 $2 $3 $4 $5 }
-| varDecl_list mode_list init goal { main_routine $1 $2 $3 $4 [] }
+main: macro_list varDecl_list mode_list init goal ind { main_routine $2 $3 $4 $5 $6 }
+| macro_list varDecl_list mode_list init goal { main_routine $2 $3 $4 $5 [] }
+;
+
+macro_list: /* */ { }
+  | macro macro_list { }
+;
+
+param_list: ID { [$1] }
+  | ID COMMA param_list { $1::$3 }
+;
+
+macro:
+    HASH_DEFINE ID LP param_list RP exp { fun_macro_map := BatMap.add $2 ($4, $6) !fun_macro_map }
+  | HASH_DEFINE ID exp { const_macro_map := BatMap.add $2 $3 !const_macro_map }
 ;
 
 varDecl_list: /* */ { [] }
@@ -116,8 +136,17 @@ formula:
   | exp LTE precision exp         { Basic.Lep ($1, $4, $3) }
 ;
 
+exp_list: exp { [$1] }
+| exp COMMA exp_list { $1::$3 }
+;
+
 exp:
-   ID                     { Basic.Var $1 }
+   ID {
+       if (Map.mem $1 !const_macro_map) then
+         (Map.find $1 !const_macro_map)
+       else
+         Basic.Var $1
+     }
  | FNUM                   { Basic.Num $1 }
  | LP exp RP              { $2 }
  | exp PLUS exp           { Basic.Add [$1; $3] }
@@ -147,7 +176,17 @@ exp:
  | SINH LP exp RP         { Basic.Sinh $3 }
  | COSH LP exp RP         { Basic.Cosh $3 }
  | TANH LP exp RP         { Basic.Tanh $3 }
-;
+ | ID LP exp_list RP      {
+        let id = $1 in
+        let arg_list = $3 in
+        if (Map.mem id !fun_macro_map) then
+          let (param_list, body) = Map.find id !fun_macro_map in
+          let replaced_body = Basic.replace_fun param_list arg_list body in
+          replaced_body
+        else
+          raise (Failure ($1 ^ " is not defined in function-style macro."))
+      }
+ ;
 
 precision:
  | LB FNUM RB { $2 }
@@ -169,8 +208,6 @@ jump:
     formula IMPLY AT FNUM formula SEMICOLON { Jump.make ($1, int_of_float $4, $5) }
   | formula IMPLY precision AT FNUM formula SEMICOLON { Jump.makep ($1, $3, int_of_float $5, $6) }
 ;
-
-
 
 init: INIT COLON mode_formula { $3 }
 ;

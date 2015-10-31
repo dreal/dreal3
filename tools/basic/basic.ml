@@ -898,3 +898,21 @@ let rec real_eval (e : (string, float) Map.t) (f : exp) : float
   | Max (f1, f2) -> max (real_eval e f1) (real_eval e f2)
   | Vec _  -> raise TODO
   | Integral _ -> raise TODO
+
+let replace_fun (param_list : string list) (arg_list : exp list) : (exp -> exp) =
+  let param_arg_pair_list = List.cartesian_product param_list arg_list in
+  let subst_fn : exp -> exp = function
+      Var s ->
+      begin
+        try
+          let (param, arg) = List.find
+                               (fun (param, arg) -> s = param)
+                               param_arg_pair_list
+          in
+          arg
+        with
+          Not_found -> Var s
+      end
+      | e -> e
+  in
+  map_exp identity subst_fn
