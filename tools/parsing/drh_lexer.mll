@@ -54,7 +54,7 @@ rule start =
   parse blank { start lexbuf }
     | "\r\n"  { incr_ln (); start lexbuf}
     | '\n'    { incr_ln (); start lexbuf}
-    | "//[A-Za-z0-9 ]+" { start lexbuf }                        (* Comment *)
+    | "//"    { verbose (Lexing.lexeme lexbuf); comment lexbuf }
     | "#define" { verbose (Lexing.lexeme lexbuf); HASH_DEFINE }
     | "["     { verbose (Lexing.lexeme lexbuf); LB }
     | "]"     { verbose (Lexing.lexeme lexbuf); RB }
@@ -85,3 +85,6 @@ rule start =
     | float_number { verbose (Lexing.lexeme lexbuf); FNUM (float_of_string(Lexing.lexeme lexbuf)) } (* float *)
     | eof { verbose "eof"; EOF}
     | _ { raise (Error.Lex_err (Lexing.lexeme lexbuf, !linenum)) }
+and comment = parse
+    | ['\n'] { start lexbuf }
+    | _ { comment lexbuf }
