@@ -222,7 +222,7 @@ if(USE_LOCAL_THIRD_PARTY)
   ExternalProject_Add(NLOPT
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     URL ${CMAKE_SOURCE_DIR}/third_party/nlopt.zip
-    CONFIGURE_COMMAND touch swig/nlopt.scm.in && autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-maintainer-mode --without-guile --without-python --without-octave --without-matlab
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND make install)
@@ -233,7 +233,7 @@ else()
     GIT_TAG master
     UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
     COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-    CONFIGURE_COMMAND touch swig/nlopt.scm.in && autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-maintainer-mode --without-guile --without-python --without-octave --without-matlab
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND make install)
