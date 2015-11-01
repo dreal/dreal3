@@ -150,16 +150,12 @@ fi
 
 BASE=${1%.drh}
 DRH=$BASE.drh
-PDRH=$BASE.preprocessed.drh
 PATH_FILE=$BASE.paths
 
 # Extract dReal Options
 shift 1
 SOLVER_OPT=$*
 echo dReal Options: $SOLVER_OPT
-
-# Preprocessing
-sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
 
 UNROLLS=`seq $L $U`
 for K in $UNROLLS
@@ -174,14 +170,14 @@ do
         if [ $BMCH -eq 1 ]
         then
             # Construct Heuristic function
-            $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH
+            $BMC -k $K --bmc_heuristic ${HEURISTIC} $DRH
             SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
         fi
 
         if [ $BMCH -lt 3 ]
         then
             #Generate Disjunctive Encoding w/o pruning
-            $BMC -k $K $PDRH > ${SMT}
+            $BMC -k $K $DRH > ${SMT}
         fi
 
 
@@ -189,13 +185,13 @@ do
         if [ $BMCH -eq 3 ]
         then
             #Construct pruned encoding and heuristic
-            $BMC -k $K --bmc_heuristic_prune $HEURISTIC $PDRH  > ${SMT}
+            $BMC -k $K --bmc_heuristic_prune $HEURISTIC $DRH  > ${SMT}
             SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
             #exit
         elif [ $BMCH -eq 4 ]
         then
             #Construct pruned encoding and heuristic
-            $BMC -k $K --bmc_heuristic_prune_deep $HEURISTIC $PDRH > ${SMT}
+            $BMC -k $K --bmc_heuristic_prune_deep $HEURISTIC $DRH > ${SMT}
             SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
         fi
 
@@ -210,7 +206,6 @@ do
             if [ $Z_OPT == TRUE ];      # (edited: FS)
             then                        #
                 rm $OUT                 #
-                rm $PDRH                #
                 exit 51                 #
             else                        #
                 exit 0
@@ -219,7 +214,7 @@ do
     else
         # Enumerate all paths and call dReal with options
         PATH_NUM=0
-        $BMC -k $K --pathgen $PDRH > ${PATH_FILE}
+        $BMC -k $K --pathgen $DRH > ${PATH_FILE}
         if [[ -s ${PATH_FILE} ]] ; then
             while read P
             do
@@ -229,7 +224,7 @@ do
                 SMT=${BASE}_${K}_${PATH_NUM}.smt2
                 OUT=${BASE}_${K}_${PATH_NUM}.output
                 ERR=${BASE}.err
-                $BMC -k $K --path "$P" $PDRH > ${SMT}
+                $BMC -k $K --path "$P" $DRH > ${SMT}
                 echo SMT: ${SMT}, PATH : "$P"
                 if [ $Z_OPT == TRUE ];                                          # (edited: FS)
                 then                                                            #
@@ -242,7 +237,6 @@ do
                         echo "dReal terminated abnormally. ERROR LOG is written to" $ERR #
                         rm $SMT                                                 #
                         rm $OUT                                                 #
-                        rm $PDRH                                                #
                         exit 1                                                  #
                     fi                                                          #
                 else
@@ -255,7 +249,6 @@ do
                     if [ $Z_OPT == TRUE ];      # (edited: FS)
                     then                        #
                         rm $OUT                 #
-                        rm $PDRH                #
                         exit 51                 #
                     else                        #
                         exit 0
@@ -275,6 +268,5 @@ do
 done
 if [ $Z_OPT == TRUE ];  # (edited: FS)
 then                    #
-    rm $PDRH            #
     exit 52             #
 fi                      #
