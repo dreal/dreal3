@@ -268,13 +268,13 @@ if(SUPPORT_ODE)
   endif()
   set(EXTRA_LIBS "capd" ${EXTRA_LIBS})
   ################################################################
-  # External: GSL-1.16
+  # External: GSL-2.0
   ################################################################
   if(USE_LOCAL_THIRD_PARTY)
   ExternalProject_Add(GSL
     DEPENDS FILIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-    URL ${CMAKE_SOURCE_DIR}/third_party/gsl-1.16.zip
+    URL ${CMAKE_SOURCE_DIR}/third_party/gsl.zip
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
@@ -283,7 +283,7 @@ if(SUPPORT_ODE)
     ExternalProject_Add(GSL
       DEPENDS FILIB
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-      GIT_REPOSITORY https://github.com/dreal-deps/gsl-1.16.git
+      GIT_REPOSITORY https://github.com/dreal-deps/gsl.git
       GIT_TAG master
       UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
       COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
