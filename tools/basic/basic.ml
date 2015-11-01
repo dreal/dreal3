@@ -899,6 +899,8 @@ let rec real_eval (e : (string, float) Map.t) (f : exp) : float
   | Vec _  -> raise TODO
   | Integral _ -> raise TODO
 
+let real_eval_noenv (f : exp) : float = real_eval BatMap.empty f
+
 let replace_fun (param_list : string list) (arg_list : exp list) : (exp -> exp) =
   let param_arg_pair_list = List.cartesian_product param_list arg_list in
   let subst_fn : exp -> exp = function

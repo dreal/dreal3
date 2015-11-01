@@ -76,8 +76,11 @@ FFNUM: FNUM { $1 }
 ;
 
 varDecl:
-    LB FFNUM RB ID SEMICOLON { ($4, Value.Num $2) }
-  | LB FFNUM COMMA FFNUM RB ID SEMICOLON { ($6, Value.Intv ($2, $4)) }
+    LB exp RB ID SEMICOLON { ($4, Value.Num (Basic.real_eval_noenv $2)) }
+  | LB exp COMMA exp RB ID SEMICOLON {
+         ($6, Value.Intv (Basic.real_eval_noenv $2,
+                          Basic.real_eval_noenv $4))
+       }
 ;
 
 mode_list: /* */ { [] }
