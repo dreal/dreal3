@@ -11,7 +11,6 @@
 #define c4          1.642E-6
 #define c8          -0.7336
 #define c9          1.587E-5
-#define tan(x)      (sin(x) / cos(x))
 
 [-1.5,1.5]    beta;
 [-1.5,1.5]    p;

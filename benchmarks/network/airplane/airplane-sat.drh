@@ -1,7 +1,6 @@
 
 #define g           9.80555
 #define pi          3.1415926535897931
-#define tan(x)      (sin(x) / cos(x))
 
 #define vT          92.827721
 #define yBTA        -0.099593
