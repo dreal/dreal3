@@ -218,10 +218,6 @@ goal: GOAL COLON mode_formula_list { $3 }
 ind: IND COLON formula_list { $3 }
 ;
 
-formula_list:
-  | /**/ { [] }
-  | formula SEMICOLON formula_list { $1 :: $3 }
-
 mode_formula_list: /* */ { [] }
   | mode_formula mode_formula_list { $1::$2 }
 ;
