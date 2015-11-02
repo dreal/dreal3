@@ -82,6 +82,11 @@ public:
     inline void clear_output() { m_output.clear(); }
     inline void clear_used_constraints() { m_used_constraints.clear(); }
     inline std::unordered_set<std::shared_ptr<constraint>> used_constraints() const { return m_used_constraints; }
+
+    inline void set_used_constraints(std::unordered_set<std::shared_ptr<constraint>> const & ctrs) {
+        m_used_constraints = ctrs;
+    }
+
     virtual void prune(box & b, SMTConfig & config) = 0;
     virtual std::ostream & display(std::ostream & out) const = 0;
 };
@@ -117,6 +122,10 @@ public:
     inline ibex::BitSet input() const { return m_ptr->input(); }
     inline ibex::BitSet output() const { return m_ptr->output(); }
     inline std::unordered_set<std::shared_ptr<constraint>> used_constraints() const { return m_ptr->used_constraints(); }
+    inline void set_used_constraints(std::unordered_set<std::shared_ptr<constraint>> const & ctrs) {
+        return m_ptr->set_used_constraints(ctrs);
+    }
+
     inline void prune(box & b, SMTConfig & config) {
         if (m_ptr) {
             // by default, clear output vector and used constraints.
