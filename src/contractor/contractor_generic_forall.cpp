@@ -86,8 +86,12 @@ static unordered_map<Enode*, ibex::Interval> make_subst_from_value(box const & b
     return subst;
 }
 
-contractor_generic_forall::contractor_generic_forall(box const & , shared_ptr<generic_forall_constraint> const ctr)
+contractor_generic_forall::contractor_generic_forall(box const & b, shared_ptr<generic_forall_constraint> const ctr)
     : contractor_cell(contractor_kind::FORALL), m_ctr(ctr) {
+    m_input = ibex::BitSet::empty(b.size());
+    for (Enode * var : m_ctr->get_body()->get_exist_vars()) {
+        m_input.add(b.get_index(var));
+    }
 }
 
 void contractor_generic_forall::handle(box & b, Enode * body, bool const p,  SMTConfig & config) {
@@ -532,9 +536,6 @@ void contractor_generic_forall::handle_atomic(box & b, Enode * body, bool const 
 
 void contractor_generic_forall::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_generic_forall prune: " << *m_ctr << endl;
-    m_input  = ibex::BitSet::empty(b.size());
-    m_output = ibex::BitSet::empty(b.size());
-    m_used_constraints.clear();
     Enode * body = m_ctr->get_body();
     DREAL_LOG_DEBUG << "body = " << body << endl;
     handle(b, body, true, config);
