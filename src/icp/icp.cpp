@@ -109,14 +109,10 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
 box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
     static unsigned prune_count = 0;
     thread_local static vector<box> box_stack;
-    thread_local static vector<int> bisect_var_stack;
     box_stack.clear();
-    bisect_var_stack.clear();
     box_stack.push_back(b);
-    bisect_var_stack.push_back(-1);  // Dummy var
     do {
         // Loop Invariant
-        assert(box_stack.size() == bisect_var_stack.size());
         DREAL_LOG_INFO << "ncbt_icp::solve - loop"
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.back();
@@ -128,7 +124,6 @@ box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
         }
         prune_count++;
         box_stack.pop_back();
-        bisect_var_stack.pop_back();
         if (!b.is_empty()) {
             // SAT
             tuple<int, box, box> splits = b.bisect(config.nra_precision);
@@ -144,21 +139,17 @@ box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
                     box_stack.push_back(first);
                     box_stack.push_back(second);
                 }
-                bisect_var_stack.push_back(index);
-                bisect_var_stack.push_back(index);
             } else {
                 break;
             }
         } else {
             // UNSAT
             while (box_stack.size() > 0) {
-                assert(box_stack.size() == bisect_var_stack.size());
-                int bisect_var = bisect_var_stack.back();
+                int bisect_var = box_stack.back().get_idx_last_branched();
                 ibex::BitSet const & input = ctc.input();
                 DREAL_LOG_DEBUG << ctc;
                 if (!input.contain(bisect_var)) {
                     box_stack.pop_back();
-                    bisect_var_stack.pop_back();
                 } else {
                     break;
                 }
