@@ -569,9 +569,9 @@ bool SimpSMTSolver::addClause(vec<Lit>& ps, uint64_t in)
 {
 //=================================================================================================
 // Added code
-
-    if ( !use_simplification )
-      return CoreSMTSolver::addClause(ps,in);
+   if ( !use_simplification ) {
+    return CoreSMTSolver::addClause(ps,in);
+  }
 
 // Added code
 //=================================================================================================
@@ -977,10 +977,17 @@ bool SimpSMTSolver::asymmVar(Var v)
 void SimpSMTSolver::filterUnassigned()
 {
   if (config.nra_short_sat) {
+    // DREAL_LOG_DEBUG << "filterUnassigned()";
     // order_heap.filter(ShortSatVarFilter(*this));
     for (int i = 2; i < nVars(); i++)
       {
+	// DREAL_LOG_DEBUG << "filterUnassigned(): check " << i << " "
+	// 		<< "in heap? " << order_heap.inHeap(i)
+	// 		<< " undef? " << (toLbool(assigns[i]) == l_Undef)
+	// 		<< " occurs? " << (i < occurs.size())
+	// 		<< " |occurs| = " << occurs.size();
         if (order_heap.inHeap(i) && toLbool(assigns[i]) == l_Undef && i < occurs.size()){
+	  //DREAL_LOG_DEBUG << "filterUnassigned(): checking " << i;
           const vec<Clause*>& clauses = occurs[i];
           bool isInUnsat = false;
           for (int c = 0; c < clauses.size(); c++) {

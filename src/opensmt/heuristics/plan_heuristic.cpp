@@ -379,6 +379,9 @@ void plan_heuristic::inform(Enode * e) {
     for(unsigned int i = 0; i < m_decision_stack.size(); i++) {
       pair<Enode*, vector<bool>*>* decision = m_decision_stack[i];
       if(decision->first != NULL) {
+	if(decision->second->back()){
+	  DREAL_LOG_DEBUG << "Suggesting: " << decision->first;
+	}
         m_suggestions.push_back(new std::pair<Enode *, bool>(decision->first, decision->second->back()));
       }
     }

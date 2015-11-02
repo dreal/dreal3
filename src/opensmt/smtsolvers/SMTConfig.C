@@ -402,6 +402,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("" , false, 1, 0,
             "BMC heuristic",
             "--bmc-heuristic", "--bmc_heuristic");
+    opt.add("" , false, 1, 0,
+            "PDDL+ heuristic",
+            "--plan-heuristic", "--plan_heuristic");
     opt.add("", false, 0, 0,
             "short cut SAT solver assignments if SAT",
             "--short-sat", "--short_sat");
@@ -512,6 +515,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
 	    "use heuristic forward search",
 	    "--heuristic_forward");
+    opt.add("", false, 0, 0,
+	    "use heuristic forward search",
+	    "--show-search");
 
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
@@ -610,6 +616,7 @@ SMTConfig::parseCMDLine( int argc
 
     // Extract String Args
     if (opt.isSet("--bmc-heuristic")) { opt.get("--bmc-heuristic")->getString(nra_bmc_heuristic); }
+    if (opt.isSet("--plan-heuristic")) { opt.get("--plan-heuristic")->getString(nra_plan_heuristic); }
 
     // Extract ULong Args
     if (opt.isSet("--ode-order")) { opt.get("--ode-order")->getULong(nra_ODE_taylor_order); }

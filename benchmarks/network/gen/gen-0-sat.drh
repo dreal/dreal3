@@ -36,7 +36,7 @@ label did_stop_gen;
 label do_start_gen;
 
 (mode running_generate_gen_automaton;
-invt:
+invt: 
 (T_generate_gen_automaton <= 1000);
 (fuellevel_gen >= 0);
 flow:
@@ -106,27 +106,26 @@ jump:
 
 analyze: 
 
-lock_automaton0 = lock_automaton[[],@unlocked (true)];
-generate_gen_automaton0 = generate_gen_automaton[[T_generate_gen_automaton/time_generate_gen_automaton], @non_active_generate_gen_automaton
-(and  (fuellevel_gen = 1100) (T_generate_gen_automaton = 0))];
+lock_automaton0 = lock_automaton[[],
+//@locked
+@unlocked
+(true)];
+generate_gen_automaton0 = generate_gen_automaton[[T_generate_gen_automaton/time_generate_gen_automaton],
+//@running_generate_gen_automaton
+@non_active_generate_gen_automaton
+//@interm_to_running_generate_gen_automaton
+(and  (fuellevel_gen = 1000) (T_generate_gen_automaton = 0))];
 
-//generator_ran0 = generator_ran[[], @ran_false true];
+generator_ran0 = generator_ran[[], @ran_false true];
 
 (lock_automaton0 || generate_gen_automaton0
-//|| generator_ran0
+|| generator_ran0
 );
 
 
 
 goal: 
 (
-//@available_tank1.available_false
-// @generator_ran0.ran_true
-//@generate_gen_automaton0.running_generate_gen_automaton
-//@generate_gen_automaton0.interm_to_running_generate_gen_automaton
-// @generate_gen_automaton0.running_to_non_active_generate_gen_automaton,
- //@refuel_gen_tank1_automaton1.non_active_refuel_gen_tank1_automaton,
- //@refuel_gen_tank1_automaton2.non_active_refuel_gen_tank1_automaton,
- //@lock_automaton0.locked
+@generator_ran0.ran_true
 ): true;
 

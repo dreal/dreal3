@@ -211,6 +211,8 @@ ostream& operator<<(ostream& out, box const & b) {
     return display(out, b);
 }
 
+
+  
 tuple<int, box, box> box::bisect(double precision) const {
     // TODO(soonhok): implement other bisect policy
     int index = -1;
@@ -236,6 +238,7 @@ tuple<int, box, box> box::bisect(double precision) const {
 double box::get_bisection_ratio(int i) const {
   if (is_time_variable(i) && m_values[i].contains(0.0)) {
     DREAL_LOG_DEBUG << "Splitting time variable";
+    // std::cout << "Splitting time variable" << i;
     return 0.0001;
   } else {
     return 0.5;

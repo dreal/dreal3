@@ -569,8 +569,8 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
 
 	
 	//dec->insert(dec->begin(), m_goal_modes[autom]->begin(), m_goal_modes[autom]->end());
-	sort (dec->begin(), dec->end(), SubgoalCompare(autom, *this));
-	 //	 std::random_shuffle(dec->begin(), dec->end());
+	//sort (dec->begin(), dec->end(), SubgoalCompare(autom, *this));
+	std::random_shuffle(dec->begin(), dec->end());
 	pair<int, vector<labeled_transition*>*>* astack = new pair<int, vector<labeled_transition*>*>();
 	m_decision_stack.push_back(astack);
 	

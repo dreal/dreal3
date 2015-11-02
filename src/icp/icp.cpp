@@ -230,6 +230,9 @@ box random_icp::solve(box b, double const precision ) {
                                          << b.get_name(i)
                                          << "]" << endl;
                 }
+		DREAL_LOG_INFO << "[branched on "
+                                         << b.get_name(i)
+                                         << "]" << endl;
             } else {
                 m_config.nra_found_soln++;
                 if (m_config.nra_found_soln >= m_config.nra_multiple_soln) {
