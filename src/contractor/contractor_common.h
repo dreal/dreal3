@@ -80,7 +80,7 @@ public:
     inline ibex::BitSet input()  const { return m_input; }
     inline ibex::BitSet output() const { return m_output; }
     inline void clear_output() { m_output.clear(); }
-    inline void clear_used_constraints() { m_output.clear(); }
+    inline void clear_used_constraints() { m_used_constraints.clear(); }
     inline std::unordered_set<std::shared_ptr<constraint>> used_constraints() const { return m_used_constraints; }
     virtual void prune(box & b, SMTConfig & config) = 0;
     virtual std::ostream & display(std::ostream & out) const = 0;
