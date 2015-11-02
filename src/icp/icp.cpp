@@ -56,7 +56,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
     box_stack.clear();
     box_stack.push_back(b);
     do {
-        DREAL_LOG_INFO << "icp_loop()"
+        DREAL_LOG_INFO << "naive_icp::solve - loop"
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.back();
         box_stack.pop_back();
@@ -117,7 +117,7 @@ box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
     do {
         // Loop Invariant
         assert(box_stack.size() == bisect_var_stack.size());
-        DREAL_LOG_INFO << "new_icp_loop()"
+        DREAL_LOG_INFO << "ncbt_icp::solve - loop"
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.back();
         try {
@@ -180,7 +180,7 @@ box random_icp::solve(box b, double const precision ) {
     box_stack.clear();
     box_stack.push_back(b);
     do {
-        DREAL_LOG_INFO << "icp_loop()"
+        DREAL_LOG_INFO << "random_icp::solve - loop"
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.back();
         box_stack.pop_back();
