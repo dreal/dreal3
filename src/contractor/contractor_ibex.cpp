@@ -288,7 +288,6 @@ contractor_ibex_hc4::contractor_ibex_hc4(vector<Enode *> const & vars, vector<sh
         cps.set_ref(index++, *(numctr->get_numctr()));
     }
     m_ctc.reset(new ibex::CtcHC4(cps));
-    m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
     for (shared_ptr<nonlinear_constraint> ctr : ctrs) {
         unordered_set<Enode*> const & vars_in_ctr = ctr->get_enode()->get_vars();
         m_vars_in_ctrs.insert(vars_in_ctr.begin(), vars_in_ctr.end());
@@ -299,6 +298,7 @@ contractor_ibex_hc4::contractor_ibex_hc4(vector<Enode *> const & vars, vector<sh
 
 void contractor_ibex_hc4::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_ibex_hc4::prune";
+    m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
     if (!m_ctc) { return; }
     for (Enode * var : m_vars_in_ctrs) {
         m_input.add(b.get_index(var));
