@@ -1,0 +1,2757 @@
+// ©2015, PRECISE Center, University of Pennsylvania. All rights
+// reserved.
+//
+// This work may be reproduced and redistributed, in whole or in part,
+// without alteration and without prior written permission, solely by
+// educational institutions for non-profit administrative or educational
+// purposes provided all copies contain this statement. No other use is
+// permitted without the express prior written permission of the
+// University of Pennsylvania. For permission, contact the PRECISE
+// Center: 3330 Walnut Street, Levine Hall Room 315, Philadelphia, PA
+// 19104, (215) 898-8543, precise@seas.upenn.edu
+//
+// The technical details of this model can be found in the following
+// publications:
+// 1. Sanjian Chen, Matthew O’Kelly, James Weimer, Oleg
+// Sokolsky, and Insup Lee. "An intraoperative glucose control benchmark
+// for formal verification."" 5th IFAC Conference on Analysis and Design
+// of Hybrid Systems (ADHS), Atlanta, Georgia, October 2015 (Available at
+// http://repository.upenn.edu/cis_papers/807/)
+//
+// 2. Sanjian Chen, James Weimer, Michael R. Rickels, Amy Peleckis, and
+// Insup Lee. "Towards a Model-Based Meal Detector for Type I Diabetics."
+// Medical Cyber-Physical Systems Workshop, hosted at CPSWeek'15 in Seattle,
+// 2015. (Available at http://repository.upenn.edu/cis_papers/782/)
+//
+// 3. Benjamin Kohl, Sanjian Chen, Margaret Mullen-Fortino, and Insup Lee.
+// "Evaluation and Enhancement of an Intraoperative Insulin Infusion Protocol
+//  via In-Silico Simulation." In Healthcare Informatics (ICHI), 2013 IEEE
+// International Conference on, pp. 307-316. IEEE, 2013. (Available at
+// http://repository.upenn.edu/cis_papers/752/)
+//
+// DISCLAIMER: USE OF THIS SOFTWARE IN ANY WAY AND RELIANCE ON THE
+// CONTENTS IS DONE AT THE USER'S DISCRETION AND RISK. YOU HEREBY AGREE
+// THAT YOU WILL BE SOLELY RESPONSIBLE FOR ANY DAMAGE OR HARM THAT
+// RESULTS FROM SUCH USE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+// HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+// BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+// OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+// IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// Constants
+#define ke1 0.0005
+#define ke2 339.0000
+#define Fsnc 1.0
+
+//scaled parameters
+#define m1s (m1/1000)
+#define m2s (m2/1000)
+#define m3s (m3/1000)
+#define m4s (m4/1000)
+#define kis (ki/10000)
+#define P2us (P2u/10000)
+#define Vis (Vi/1000)
+#define Ibs (Ib/1)
+#define BWs (BW/1)
+#define k1s (k1/1000)
+#define k2s (k2/1000)
+#define kp1s (kp1/10)
+#define kp2s (kp2/10000)
+#define kp3s (kp3/10000)
+#define Vm0s (Vm0/10)
+#define Vmxs (Vmx/1000)
+#define Km0s (Km0/1)
+#define Vgs (Vg/1000)
+
+#define aclow 70
+#define achigh 130
+#define safelow 60
+#define safehigh 180
+#define prd 30
+#define perr 1
+
+// Invariants
+#define inv1 (kp1s-kp2s*Gp-kp3s*Id)
+#define inv2 (ke1*(Gp-ke2))
+
+#define totaltime 300
+
+[0,50] tau; // dummy variable for time
+[0,totaltime] time; // time minutes
+[0,totaltime] simtime; // time in minutes for a sim trace
+
+// Bounds on parameters
+[200,200] m1; //[*1000]
+[300,300] m2; //[*1000]
+[300,300] m3; //[*1000]
+[100,100] m4; //[*1000]
+[100,100] ki; //[*10000]
+[300,300] P2u; //[*10000]
+[60,60] Vi; //[*1000]
+[100,100] Ib; //[*1]
+[90,90] BW; //[*1]
+[50,50] k1; //[*1000]
+[100,100] k2; //[*1000]
+[50,50] kp1; //[*10]
+[40,40] kp2; //[*10000]
+[100,100] kp3; //[*10000]
+[50,50] Vm0; //[*10]
+[50,50] Vmx; //[*1000]
+[200,200] Km0; //[*1]
+[2000,2000] Vg; //[*1000]
+
+// Bounds on states
+[0,40] Ip;
+[-150,300] X;
+[20,200] I1;
+[20,200] Id;
+[0,20] Il;
+[50,370] Gp;
+[20,300] Gt;
+[-10,300] prevBg;
+
+
+[0,1500] u;    // insulin input
+[-5,20000] m;  // meal input
+
+// Dynamics
+{
+    mode 1;
+    //initial state
+
+    invt:
+    (tau <= 0);
+
+    flow:
+    d/dt[Ip] = 0;
+    d/dt[X] = 0;
+    d/dt[I1] = 0;
+    d/dt[Id] = 0;
+    d/dt[Il] = 0;
+    d/dt[Gp] = 0;
+    d/dt[Gt] = 0;
+    d/dt[prevBg] = 0;
+
+    //parameters
+    d/dt[m1]=0;
+    d/dt[m2]=0;
+    d/dt[m3]=0;
+    d/dt[m4]=0;
+    d/dt[ki]=0;
+    d/dt[P2u]=0;
+    d/dt[Vi]=0;
+    d/dt[Ib]=0;
+    d/dt[BW]=0;
+    d/dt[k1]=0;
+    d/dt[k2]=0;
+    d/dt[kp1]=0;
+    d/dt[kp2]=0;
+    d/dt[kp3]=0;
+    d/dt[Vm0]=0;
+    d/dt[Vmx]=0;
+    d/dt[Km0]=0;
+    d/dt[Vg]=0;
+
+    //input
+    d/dt[u] = 0;
+    d/dt[m] = 0;
+
+    d/dt[tau]=1;
+    d/dt[simtime]=1;
+
+    jump:
+        (and (tau >= 0) (inv1 <= 0) (inv2 <= 0)) ==> @4 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+        (and (tau >= 0) (inv1 > 0) (inv2 <= 0)) ==> @5 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+        (and (tau >= 0) (inv1 > 0) (inv2 > 0)) ==> @6 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+        (and (tau >= 0) (inv1 <= 0) (inv2 > 0)) ==> @7 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+}
+
+{
+    mode 2;
+
+    //DONT CARE state
+
+    invt:
+
+    flow:
+    d/dt[Ip] = 0;
+    d/dt[X] = 0;
+    d/dt[I1] = 0;
+    d/dt[Id] = 0;
+    d/dt[Il] = 0;
+    d/dt[Gp] = 0;
+    d/dt[Gt] = 0;
+    d/dt[prevBg] = 0;
+
+    //parameters
+    d/dt[m1]=0;
+    d/dt[m2]=0;
+    d/dt[m3]=0;
+    d/dt[m4]=0;
+    d/dt[ki]=0;
+    d/dt[P2u]=0;
+    d/dt[Vi]=0;
+    d/dt[Ib]=0;
+    d/dt[BW]=0;
+    d/dt[k1]=0;
+    d/dt[k2]=0;
+    d/dt[kp1]=0;
+    d/dt[kp2]=0;
+    d/dt[kp3]=0;
+    d/dt[Vm0]=0;
+    d/dt[Vmx]=0;
+    d/dt[Km0]=0;
+    d/dt[Vg]=0;
+
+    //input
+    d/dt[u] = 0;
+    d/dt[m] = 0;
+
+    d/dt[tau]=0;
+    d/dt[simtime]=1;
+
+
+    jump:
+}
+
+
+
+{
+    mode 3;
+
+    //UNSAFE state
+
+    invt:
+
+    flow:
+    d/dt[Ip] = 0;
+    d/dt[X] = 0;
+    d/dt[I1] = 0;
+    d/dt[Id] = 0;
+    d/dt[Il] = 0;
+    d/dt[Gp] = 0;
+    d/dt[Gt] = 0;
+    d/dt[prevBg] = 0;
+
+    //parameters
+    d/dt[m1]=0;
+    d/dt[m2]=0;
+    d/dt[m3]=0;
+    d/dt[m4]=0;
+    d/dt[ki]=0;
+    d/dt[P2u]=0;
+    d/dt[Vi]=0;
+    d/dt[Ib]=0;
+    d/dt[BW]=0;
+    d/dt[k1]=0;
+    d/dt[k2]=0;
+    d/dt[kp1]=0;
+    d/dt[kp2]=0;
+    d/dt[kp3]=0;
+    d/dt[Vm0]=0;
+    d/dt[Vmx]=0;
+    d/dt[Km0]=0;
+    d/dt[Vg]=0;
+
+    //input
+    d/dt[u] = 0;
+    d/dt[m] = 0;
+
+    d/dt[tau] = 0;
+    d/dt[simtime]=1;
+
+    jump:
+}
+
+
+
+{
+    // inv1 <= 0 and inv2 <= 0
+    mode 4;
+
+    invt:
+    ((Gp/Vgs) >= aclow);
+    ((Gp/Vgs) <= achigh);
+    (inv1 <= 0);
+    (inv2 <= 0);
+    (tau <= prd - perr);
+
+    flow:
+    //state variables
+    d/dt[Ip]= -((m2s+m4s)*Ip) + (m1s*Il) + u/BWs;
+    d/dt[X]=  (P2us*Ip/Vis) - (P2us*X) - (P2us*Ibs);
+    d/dt[I1]= (kis*Ip/Vis) - (kis*I1);
+    d/dt[Id]= (kis*I1) - (kis*Id);
+    d/dt[Il]= (m2s*Ip) - ((m1s+m3s)*Il);
+    d/dt[Gp]= -k1s*Gp + k2s*Gt - Fsnc + m/BWs;
+    d/dt[Gt]= -((Vm0s + Vmxs*X)*Gt)/(Km0s + Gt) + k1s*Gp - k2s*Gt;
+    d/dt[prevBg] = 0;
+
+    //parameters
+    d/dt[m1]=0;
+    d/dt[m2]=0;
+    d/dt[m3]=0;
+    d/dt[m4]=0;
+    d/dt[ki]=0;
+    d/dt[P2u]=0;
+    d/dt[Vi]=0;
+    d/dt[Ib]=0;
+    d/dt[BW]=0;
+    d/dt[k1]=0;
+    d/dt[k2]=0;
+    d/dt[kp1]=0;
+    d/dt[kp2]=0;
+    d/dt[kp3]=0;
+    d/dt[Vm0]=0;
+    d/dt[Vmx]=0;
+    d/dt[Km0]=0;
+    d/dt[Vg]=0;
+
+    //inputs
+    d/dt[u] = 0;
+    d/dt[m] = 0;
+
+    d/dt[tau]=1;
+    d/dt[simtime]=1;
+
+    jump:
+    //go to DONT CARE state during the admission control period
+        (or ((Gp/Vgs) <= aclow ) ((Gp/Vgs) >= achigh)) ==> @2 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 <= 0)) ==> @5 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 > 0)) ==> @6 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 <= 0) (inv2 > 0)) ==> @7 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+        (and (tau >= (prd-perr)) (inv1 <= 0) (inv2 <= 0)) ==> @8 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+        (and (tau >= (prd-perr)) (inv1 > 0) (inv2 <= 0)) ==> @9 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (inv1 > 0) (inv2 > 0)) ==> @10 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (inv1 <= 0) (inv2 > 0)) ==> @11 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+}
+
+
+
+
+{
+    // inv1 > 0 and inv2 <= 0
+    mode 5;
+
+    invt:
+    ((Gp/Vgs) >= aclow);
+    ((Gp/Vgs) <= achigh);
+    (inv1 > 0);
+    (inv2 <= 0);
+    (tau <= prd - perr);
+
+    flow:
+    //state variables
+    d/dt[Ip]= -((m2s+m4s)*Ip) + (m1s*Il) + u/BWs;
+    d/dt[X]=  (P2us*Ip/Vis) - (P2us*X) - (P2us*Ibs);
+    d/dt[I1]= (kis*Ip/Vis) - (kis*I1);
+    d/dt[Id]= (kis*I1) - (kis*Id);
+    d/dt[Il]= (m2s*Ip) - ((m1s+m3s)*Il);
+    d/dt[Gp]= -k1s*Gp + k2s*Gt - Fsnc + m/BWs + inv1;
+    d/dt[Gt]= -((Vm0s + Vmxs*X)*Gt)/(Km0s + Gt) + k1s*Gp - k2s*Gt;
+    d/dt[prevBg] = 0;
+
+    //parameters
+    d/dt[m1]=0;
+    d/dt[m2]=0;
+    d/dt[m3]=0;
+    d/dt[m4]=0;
+    d/dt[ki]=0;
+    d/dt[P2u]=0;
+    d/dt[Vi]=0;
+    d/dt[Ib]=0;
+    d/dt[BW]=0;
+    d/dt[k1]=0;
+    d/dt[k2]=0;
+    d/dt[kp1]=0;
+    d/dt[kp2]=0;
+    d/dt[kp3]=0;
+    d/dt[Vm0]=0;
+    d/dt[Vmx]=0;
+    d/dt[Km0]=0;
+    d/dt[Vg]=0;
+
+    //inputs
+    d/dt[u] = 0;
+    d/dt[m] = 0;
+
+    d/dt[tau]=1;
+    d/dt[simtime]=1;
+
+    jump:
+    //go to DONT CARE state during the admission control period
+        (or ((Gp/Vgs) <= aclow ) ((Gp/Vgs) >= achigh)) ==> @2 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 <= 0) (inv2 <= 0)) ==> @4 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 > 0)) ==> @6 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 <= 0) (inv2 > 0)) ==> @7 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+        (and (tau >= (prd-perr)) (inv1 <= 0) (inv2 <= 0)) ==> @8 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+        (and (tau >= (prd-perr)) (inv1 > 0) (inv2 <= 0)) ==> @9 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (inv1 > 0) (inv2 > 0)) ==> @10 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (inv1 <= 0) (inv2 > 0)) ==> @11 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+}
+
+
+
+
+
+{
+    // inv1 > 0 and inv2 > 0
+    mode 6;
+
+    invt:
+    ((Gp/Vgs) >= aclow);
+    ((Gp/Vgs) <= achigh);
+    (inv1 > 0);
+    (inv2 > 0);
+    (tau <= prd - perr);
+
+    flow:
+    //state variables
+    d/dt[Ip]= -((m2s+m4s)*Ip) + (m1s*Il) + u/BWs;
+    d/dt[X]=  (P2us*Ip/Vis) - (P2us*X) - (P2us*Ibs);
+    d/dt[I1]= (kis*Ip/Vis) - (kis*I1);
+    d/dt[Id]= (kis*I1) - (kis*Id);
+    d/dt[Il]= (m2s*Ip) - ((m1s+m3s)*Il);
+    d/dt[Gp]= -k1s*Gp + k2s*Gt - Fsnc + m/BWs + inv1 + inv2;
+    d/dt[Gt]= -((Vm0s + Vmxs*X)*Gt)/(Km0s + Gt) + k1s*Gp - k2s*Gt;
+    d/dt[prevBg] = 0;
+
+    //parameters
+    d/dt[m1]=0;
+    d/dt[m2]=0;
+    d/dt[m3]=0;
+    d/dt[m4]=0;
+    d/dt[ki]=0;
+    d/dt[P2u]=0;
+    d/dt[Vi]=0;
+    d/dt[Ib]=0;
+    d/dt[BW]=0;
+    d/dt[k1]=0;
+    d/dt[k2]=0;
+    d/dt[kp1]=0;
+    d/dt[kp2]=0;
+    d/dt[kp3]=0;
+    d/dt[Vm0]=0;
+    d/dt[Vmx]=0;
+    d/dt[Km0]=0;
+    d/dt[Vg]=0;
+
+    //inputs
+    d/dt[u] = 0;
+    d/dt[m] = 0;
+
+    d/dt[tau]=1;
+    d/dt[simtime]=1;
+
+    jump:
+    //go to DONT CARE state during the admission control period
+        (or ((Gp/Vgs) <= aclow ) ((Gp/Vgs) >= achigh)) ==> @2 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 <= 0) (inv2 <= 0)) ==> @4 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 <= 0)) ==> @5 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 <= 0) (inv2 > 0)) ==> @7 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+        (and (tau >= (prd-perr)) (inv1 <= 0) (inv2 <= 0)) ==> @8 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+        (and (tau >= (prd-perr)) (inv1 > 0) (inv2 <= 0)) ==> @9 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (inv1 > 0) (inv2 > 0)) ==> @10 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (inv1 <= 0) (inv2 > 0)) ==> @11 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+}
+
+
+
+
+
+
+{
+    // inv1 <= 0 and inv2 > 0
+    mode 7;
+
+    invt:
+    ((Gp/Vgs) >= aclow);
+    ((Gp/Vgs) <= achigh);
+    (inv1 <= 0);
+    (inv2 > 0);
+    (tau <= prd - perr);
+
+    flow:
+    //state variables
+    d/dt[Ip]= -((m2s+m4s)*Ip) + (m1s*Il) + u/BWs;
+    d/dt[X]=  (P2us*Ip/Vis) - (P2us*X) - (P2us*Ibs);
+    d/dt[I1]= (kis*Ip/Vis) - (kis*I1);
+    d/dt[Id]= (kis*I1) - (kis*Id);
+    d/dt[Il]= (m2s*Ip) - ((m1s+m3s)*Il);
+    d/dt[Gp]= -k1s*Gp + k2s*Gt - Fsnc + m/BWs + inv2;
+    d/dt[Gt]= -((Vm0s + Vmxs*X)*Gt)/(Km0s + Gt) + k1s*Gp - k2s*Gt;
+    d/dt[prevBg] = 0;
+
+    //parameters
+    d/dt[m1]=0;
+    d/dt[m2]=0;
+    d/dt[m3]=0;
+    d/dt[m4]=0;
+    d/dt[ki]=0;
+    d/dt[P2u]=0;
+    d/dt[Vi]=0;
+    d/dt[Ib]=0;
+    d/dt[BW]=0;
+    d/dt[k1]=0;
+    d/dt[k2]=0;
+    d/dt[kp1]=0;
+    d/dt[kp2]=0;
+    d/dt[kp3]=0;
+    d/dt[Vm0]=0;
+    d/dt[Vmx]=0;
+    d/dt[Km0]=0;
+    d/dt[Vg]=0;
+
+    //inputs
+    d/dt[u] = 0;
+    d/dt[m] = 0;
+
+    d/dt[tau]=1;
+    d/dt[simtime]=1;
+
+    jump:
+    //go to DONT CARE state during the admission control period
+        (or ((Gp/Vgs) <= aclow ) ((Gp/Vgs) >= achigh)) ==> @2 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 <= 0) (inv2 <= 0)) ==> @4 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 <= 0)) ==> @5 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 > 0)) ==> @6 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+        (and (tau >= (prd-perr)) (inv1 <= 0) (inv2 <= 0)) ==> @8 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+        (and (tau >= (prd-perr)) (inv1 > 0) (inv2 <= 0)) ==> @9 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (inv1 > 0) (inv2 > 0)) ==> @10 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (inv1 <= 0) (inv2 > 0)) ==> @11 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+}
+
+
+
+{
+    // inv1 <= 0 and inv2 <= 0 (control mode)
+    mode 8;
+
+
+    invt:
+    ((Gp/Vgs) >= safelow);
+    ((Gp/Vgs) <= safehigh);
+    (inv1 <= 0);
+    (inv2 <= 0);
+    (tau <= prd + perr);
+
+    flow:
+    //state variables
+    d/dt[Ip]= -((m2s+m4s)*Ip) + (m1s*Il) + u/BWs;
+    d/dt[X]=  (P2us*Ip/Vis) - (P2us*X) - (P2us*Ibs);
+    d/dt[I1]= (kis*Ip/Vis) - (kis*I1);
+    d/dt[Id]= (kis*I1) - (kis*Id);
+    d/dt[Il]= (m2s*Ip) - ((m1s+m3s)*Il);
+    d/dt[Gp]= -k1s*Gp + k2s*Gt - Fsnc + m/BWs;
+    d/dt[Gt]= -((Vm0s + Vmxs*X)*Gt)/(Km0s + Gt) + k1s*Gp - k2s*Gt;
+    d/dt[prevBg] = 0;
+
+    //parameters
+    d/dt[m1]=0;
+    d/dt[m2]=0;
+    d/dt[m3]=0;
+    d/dt[m4]=0;
+    d/dt[ki]=0;
+    d/dt[P2u]=0;
+    d/dt[Vi]=0;
+    d/dt[Ib]=0;
+    d/dt[BW]=0;
+    d/dt[k1]=0;
+    d/dt[k2]=0;
+    d/dt[kp1]=0;
+    d/dt[kp2]=0;
+    d/dt[kp3]=0;
+    d/dt[Vm0]=0;
+    d/dt[Vmx]=0;
+    d/dt[Km0]=0;
+    d/dt[Vg]=0;
+
+    //inputs
+    d/dt[u] = 0;
+    d/dt[m] = 0;
+
+    d/dt[tau]=1;
+    d/dt[simtime]=1;
+
+    jump:
+    //go to UNSAFE state during the admission control period
+        (or ((Gp/Vgs) <= safelow ) ((Gp/Vgs) >= safehigh)) ==> @3 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 <= 0)) ==> @9 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 > 0)) ==> @10 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 <= 0) (inv2 > 0)) ==> @11 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+
+        (and (tau >= (prd-perr)) ((Gp/Vgs) < 100) (prevBg - (Gp/Vgs) > 30)) ==> @8 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 1000*0.1*(prevBg - (Gp/(Vg/1000))))
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (or (Gp/Vgs >= 100) (prevBg - (Gp/Vgs) <= 30)) ((0.05*((Gp/Vgs) - 100) + 0.06*((Gp/Vgs) - prevBg) + 1.0) > 0)) ==> @8 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 100*(0.05*(Gp/(Vg/1000) - 100) + 0.06*(Gp/(Vg/1000) - prevBg) + 1))
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (or (Gp/Vgs >= 100) (prevBg - (Gp/Vgs) <= 30)) ((0.05*((Gp/Vgs) - 100) + 0.06*((Gp/Vgs) - prevBg) + 1.0) <= 0)) ==> @8 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+}
+
+
+
+{
+    // inv1 > 0 and inv2 <= 0 (control mode)
+    mode 9;
+
+
+    invt:
+    ((Gp/Vgs) >= safelow);
+    ((Gp/Vgs) <= safehigh);
+    (inv1 > 0);
+    (inv2 <= 0);
+    (tau <= prd + perr);
+
+    flow:
+    //state variables
+    d/dt[Ip]= -((m2s+m4s)*Ip) + (m1s*Il) + u/BWs;
+    d/dt[X]=  (P2us*Ip/Vis) - (P2us*X) - (P2us*Ibs);
+    d/dt[I1]= (kis*Ip/Vis) - (kis*I1);
+    d/dt[Id]= (kis*I1) - (kis*Id);
+    d/dt[Il]= (m2s*Ip) - ((m1s+m3s)*Il);
+    d/dt[Gp]= -k1s*Gp + k2s*Gt - Fsnc + m/BWs + inv1;
+    d/dt[Gt]= -((Vm0s + Vmxs*X)*Gt)/(Km0s + Gt) + k1s*Gp - k2s*Gt;
+    d/dt[prevBg] = 0;
+
+    //parameters
+    d/dt[m1]=0;
+    d/dt[m2]=0;
+    d/dt[m3]=0;
+    d/dt[m4]=0;
+    d/dt[ki]=0;
+    d/dt[P2u]=0;
+    d/dt[Vi]=0;
+    d/dt[Ib]=0;
+    d/dt[BW]=0;
+    d/dt[k1]=0;
+    d/dt[k2]=0;
+    d/dt[kp1]=0;
+    d/dt[kp2]=0;
+    d/dt[kp3]=0;
+    d/dt[Vm0]=0;
+    d/dt[Vmx]=0;
+    d/dt[Km0]=0;
+    d/dt[Vg]=0;
+
+    //inputs
+    d/dt[u] = 0;
+    d/dt[m] = 0;
+
+    d/dt[tau]=1;
+    d/dt[simtime]=1;
+
+    jump:
+    //go to UNSAFE state during the admission control period
+        (or ((Gp/Vgs) <= safelow ) ((Gp/Vgs) >= safehigh)) ==> @3 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 <= 0) (inv2 <= 0)) ==> @8 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 > 0)) ==> @10 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 <= 0) (inv2 > 0)) ==> @11 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+
+        (and (tau >= (prd-perr)) ((Gp/Vgs) < 100) (prevBg - (Gp/Vgs) > 30)) ==> @9 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 1000*0.1*(prevBg - (Gp/(Vg/1000))))
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (or (Gp/Vgs >= 100) (prevBg - (Gp/Vgs) <= 30)) ((0.05*((Gp/Vgs) - 100) + 0.06*((Gp/Vgs) - prevBg) + 1.0) > 0)) ==> @9 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 100*(0.05*(Gp/(Vg/1000) - 100) + 0.06*(Gp/(Vg/1000) - prevBg) + 1))
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (or (Gp/Vgs >= 100) (prevBg - (Gp/Vgs) <= 30)) ((0.05*((Gp/Vgs) - 100) + 0.06*((Gp/Vgs) - prevBg) + 1.0) <= 0)) ==> @9 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+}
+
+
+{
+    // inv1 > 0 and inv2 > 0 (control mode)
+    mode 10;
+
+
+    invt:
+    ((Gp/Vgs) >= safelow);
+    ((Gp/Vgs) <= safehigh);
+    (inv1 > 0);
+    (inv2 > 0);
+    (tau <= prd + perr);
+
+    flow:
+    //state variables
+    d/dt[Ip]= -((m2s+m4s)*Ip) + (m1s*Il) + u/BWs;
+    d/dt[X]=  (P2us*Ip/Vis) - (P2us*X) - (P2us*Ibs);
+    d/dt[I1]= (kis*Ip/Vis) - (kis*I1);
+    d/dt[Id]= (kis*I1) - (kis*Id);
+    d/dt[Il]= (m2s*Ip) - ((m1s+m3s)*Il);
+    d/dt[Gp]= -k1s*Gp + k2s*Gt - Fsnc + m/BWs + inv1 + inv2;
+    d/dt[Gt]= -((Vm0s + Vmxs*X)*Gt)/(Km0s + Gt) + k1s*Gp - k2s*Gt;
+    d/dt[prevBg] = 0;
+
+    //parameters
+    d/dt[m1]=0;
+    d/dt[m2]=0;
+    d/dt[m3]=0;
+    d/dt[m4]=0;
+    d/dt[ki]=0;
+    d/dt[P2u]=0;
+    d/dt[Vi]=0;
+    d/dt[Ib]=0;
+    d/dt[BW]=0;
+    d/dt[k1]=0;
+    d/dt[k2]=0;
+    d/dt[kp1]=0;
+    d/dt[kp2]=0;
+    d/dt[kp3]=0;
+    d/dt[Vm0]=0;
+    d/dt[Vmx]=0;
+    d/dt[Km0]=0;
+    d/dt[Vg]=0;
+
+    //inputs
+    d/dt[u] = 0;
+    d/dt[m] = 0;
+
+    d/dt[tau]=1;
+    d/dt[simtime]=1;
+
+    jump:
+    //go to UNSAFE state during the admission control period
+        (or ((Gp/Vgs) <= safelow ) ((Gp/Vgs) >= safehigh)) ==> @3 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 <= 0) (inv2 <= 0)) ==> @8 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 <= 0)) ==> @9 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 <= 0) (inv2 > 0)) ==> @11 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+
+        (and (tau >= (prd-perr)) ((Gp/Vgs) < 100) (prevBg - (Gp/Vgs) > 30)) ==> @10 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 1000*0.1*(prevBg - (Gp/(Vg/1000))))
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+
+        (and (tau >= (prd-perr)) (or (Gp/Vgs >= 100) (prevBg - (Gp/Vgs) <= 30)) ((0.05*((Gp/Vgs) - 100) + 0.06*((Gp/Vgs) - prevBg) + 1.0) > 0)) ==> @10 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 100*(0.05*(Gp/(Vg/1000) - 100) + 0.06*(Gp/(Vg/1000) - prevBg) + 1))
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+
+        (and (tau >= (prd-perr)) (or (Gp/Vgs >= 100) (prevBg - (Gp/Vgs) <= 30)) ((0.05*((Gp/Vgs) - 100) + 0.06*((Gp/Vgs) - prevBg) + 1.0) <= 0)) ==> @10 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+}
+
+
+
+
+{
+    // inv1 <= 0 and inv2 > 0 (control mode)
+    mode 11;
+
+
+    invt:
+    ((Gp/Vgs) >= safelow);
+    ((Gp/Vgs) <= safehigh);
+    (inv1 <= 0);
+    (inv2 > 0);
+    (tau <= prd + perr);
+
+    flow:
+    //state variables
+    d/dt[Ip]= -((m2s+m4s)*Ip) + (m1s*Il) + u/BWs;
+    d/dt[X]=  (P2us*Ip/Vis) - (P2us*X) - (P2us*Ibs);
+    d/dt[I1]= (kis*Ip/Vis) - (kis*I1);
+    d/dt[Id]= (kis*I1) - (kis*Id);
+    d/dt[Il]= (m2s*Ip) - ((m1s+m3s)*Il);
+    d/dt[Gp]= -k1s*Gp + k2s*Gt - Fsnc + m/BWs + inv2;
+    d/dt[Gt]= -((Vm0s + Vmxs*X)*Gt)/(Km0s + Gt) + k1s*Gp - k2s*Gt;
+    d/dt[prevBg] = 0;
+
+    //parameters
+    d/dt[m1]=0;
+    d/dt[m2]=0;
+    d/dt[m3]=0;
+    d/dt[m4]=0;
+    d/dt[ki]=0;
+    d/dt[P2u]=0;
+    d/dt[Vi]=0;
+    d/dt[Ib]=0;
+    d/dt[BW]=0;
+    d/dt[k1]=0;
+    d/dt[k2]=0;
+    d/dt[kp1]=0;
+    d/dt[kp2]=0;
+    d/dt[kp3]=0;
+    d/dt[Vm0]=0;
+    d/dt[Vmx]=0;
+    d/dt[Km0]=0;
+    d/dt[Vg]=0;
+
+    //inputs
+    d/dt[u] = 0;
+    d/dt[m] = 0;
+
+    d/dt[tau]=1;
+    d/dt[simtime]=1;
+
+    jump:
+    //go to UNSAFE state during the admission control period
+        (or ((Gp/Vgs) <= safelow ) ((Gp/Vgs) >= safehigh)) ==> @3 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+        (and (inv1 <= 0) (inv2 <= 0)) ==> @8 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 <= 0)) ==> @9 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+        (and (inv1 > 0) (inv2 > 0)) ==> @10 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = prevBg)
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = u)
+                            (m' = m)
+                            (tau' = tau)
+                            (simtime' = simtime));
+
+
+
+        (and (tau >= (prd-perr)) ((Gp/Vgs) < 100) (prevBg - (Gp/Vgs) > 30)) ==> @11 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 1000*0.1*(prevBg - (Gp/(Vg/1000))))
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (or (Gp/Vgs >= 100) (prevBg - (Gp/Vgs) <= 30)) ((0.05*((Gp/Vgs) - 100) + 0.06*((Gp/Vgs) - prevBg) + 1.0) > 0)) ==> @11 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 100*(0.05*(Gp/(Vg/1000) - 100) + 0.06*(Gp/(Vg/1000) - prevBg) + 1))
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+        (and (tau >= (prd-perr)) (or (Gp/Vgs >= 100) (prevBg - (Gp/Vgs) <= 30)) ((0.05*((Gp/Vgs) - 100) + 0.06*((Gp/Vgs) - prevBg) + 1.0) <= 0)) ==> @11 (and (Ip' = Ip)
+                            (X' = X)
+                            (I1' = I1)
+                            (Id' = Id)
+                            (Il' = Il)
+                            (Gp' = Gp)
+                            (Gt' = Gt)
+                            (prevBg' = Gp/(Vg/1000))
+                            (m1' = m1)
+                            (m2' = m2)
+                            (m3' = m3)
+                            (m4' = m4)
+                            (ki' = ki)
+                            (P2u' = P2u)
+                            (Vi' = Vi)
+                            (Ib' = Ib)
+                            (BW' = BW)
+                            (k1' = k1)
+                            (k2' = k2)
+                            (kp1' = kp1)
+                            (kp2' = kp2)
+                            (kp3' = kp3)
+                            (Vm0' = Vm0)
+                            (Vmx' = Vmx)
+                            (Km0' = Km0)
+                            (Vg' = Vg)
+                            (u' = 0)
+                            (m' = 0)
+                            (tau' = 0)
+                            (simtime' = simtime));
+
+}
+
+init:
+@1 (
+        and (m1 = 200)
+            (m2 = 300)
+            (m3 = 300)
+            (m4 = 100)
+            (ki = 100)
+            (P2u = 300)
+            (Vi = 60)
+            (Ib = 100)
+            (BW = 90)
+            (k1 = 50)
+            (k2 = 100)
+            (kp1 = 50)
+            (kp2 = 40)
+            (kp3 = 100)
+            (Vm0 = 50)
+            (Vmx = 50)
+            (Km0 = 200)
+            (Vg = 2000)
+            (Ip>=0) (Ip <= 8)
+            (X>=-38) (X <= 29)
+            (I1>=109) (I1 <= 129)
+            (Id>=120) (Id <= 129)
+            (Il>=0) (Il <= 5)
+            (Gp>=191) (Gp <= 213)
+            (Gt>=113) (Gt <= 128)
+            (tau= 0)
+            (simtime = 0)
+            (prevBg = 100)
+            (u = 0)
+            (m = 0)
+    );
+
+goal:
+@3 (1>0); // should be unsat
+//@9 (1>0); // should be sat uncomment to generate a trace
