@@ -1,0 +1,16 @@
+(set-logic QF_NRA_ODE)
+(declare-fun d () Real)
+(declare-fun d_0_0 ()  Real [0, 10])
+(declare-fun d_0_t ()  Real [0, 10])
+(declare-fun time_0 () Real [0, 10])
+(define-ode flow_1 ((= d/dt[d] 1)))
+(assert (and
+         (= time_0 10)
+         (= d_0_0 0)
+         (= [d_0_t] (integral 0. time_0 [d_0_0] flow_1))
+         (or
+          (forall_t 1 [0 time_0] (>= d_0_t 0))
+          (forall_t 1 [0 time_0] (< d_0_t 0)))
+         ))
+(check-sat)
+(exit)
