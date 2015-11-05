@@ -120,10 +120,56 @@ TEST_CASE("ibex_fwdbwd_02") {
         cerr << "Used constraint : " << *ctc << endl;
     }
     REQUIRE((input_after[0]  && input_after[1]  && !input_after[2]));
-    REQUIRE((output_after[0] && output_after[1] && !output_after[2]));
+    REQUIRE((output_after[0] && !output_after[1] && !output_after[2]));
     auto used_ctcs = c.used_constraints();
     REQUIRE(used_ctcs.size() == 1);
     REQUIRE(used_ctcs.find(nc) != used_ctcs.end());
+    opensmt_del_context(ctx);
+}
+
+TEST_CASE("ibex_fwdbwd_03") {
+    cerr << "===================================================\n";
+    opensmt_context ctx = opensmt_mk_context(qf_nra);
+    OpenSMTContext * opensmt_ctx = static_cast<OpenSMTContext *>(ctx);
+    opensmt_set_precision(ctx, 0.001);
+    opensmt_expr x = opensmt_mk_real_var(ctx, "x" , -3, 3);
+    opensmt_expr y = opensmt_mk_real_var(ctx, "y" , -3, 3);
+    opensmt_expr z = opensmt_mk_real_var(ctx, "z" , -3, 3);
+    Enode * var_x = static_cast<Enode *>(x);
+    Enode * var_y = static_cast<Enode *>(y);
+    Enode * var_z = static_cast<Enode *>(z);
+    opensmt_expr eq = opensmt_mk_gt(ctx, x, opensmt_mk_num(ctx, 0.0));  // x > 0.0
+    Enode * node_eq = static_cast<Enode *>(eq);
+    box b({var_x, var_y, var_z});
+    unordered_set<Enode*> var_set({var_x, var_y, var_z});
+    auto nc = make_shared<nonlinear_constraint>(node_eq, var_set, true);
+    contractor c = mk_contractor_ibex_fwdbwd(nc);
+    cerr << *nc << endl;
+    cerr << b << endl;
+    auto input_before = c.input();
+    auto output_before = c.output();
+    cerr << "Input  (BEFORE) : "; input_before.display(cerr)  << endl;
+    cerr << "Output (BEFORE) : "; output_before.display(cerr) << endl;
+    auto old_box = b;
+    do {
+        old_box = b;
+        c.prune(b, opensmt_ctx->getConfig());
+    } while (old_box != b);
+    c.prune(b, opensmt_ctx->getConfig());
+    cerr << "================" << endl;
+    cerr << b << endl;
+    auto input_after = c.input();
+    auto output_after = c.output();
+    cerr << "Input  (AFTER)  : "; input_after.display(cerr)  << endl;
+    cerr << "Output (AFTER)  : "; output_after.display(cerr) << endl;
+    for (auto ctc : c.used_constraints()) {
+        cerr << "Used constraint : " << *ctc << endl;
+    }
+    REQUIRE((input_after[0]  && !input_after[1]  && !input_after[2]));
+    REQUIRE((!output_after[0] && !output_after[1] && !output_after[2]));
+    auto used_ctcs = c.used_constraints();
+    REQUIRE(used_ctcs.size() == 0);
+    REQUIRE(used_ctcs.find(nc) == used_ctcs.end());
     opensmt_del_context(ctx);
 }
 
