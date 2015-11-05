@@ -71,10 +71,6 @@ varDecl_list: /* */ { [] }
   | varDecl varDecl_list { $1::$2 }
 ;
 
-FFNUM: FNUM { $1 }
-  | MINUS FNUM { 0.0 -. $2 }
-;
-
 varDecl:
     LB exp RB ID SEMICOLON { ($4, Value.Num (Basic.real_eval_noenv $2)) }
   | LB exp COMMA exp RB ID SEMICOLON {
