@@ -248,6 +248,9 @@ ExprNode const * translate_enode_to_exprnode(map<string, Variable const> & var_m
 // Note: As a side-effect, update var_map : string -> ibex::Variable
 // Note: Use subst map (Enode ->ibex::Interval)
 ExprCtr const * translate_enode_to_exprctr(map<string, Variable const> & var_map, Enode * const e, lbool p, unordered_map<Enode*, ibex::Interval> const & subst) {
+    if (e->isNot()) {
+        return translate_enode_to_exprctr(var_map, e->get1st(), !p, subst);
+    }
     assert(e->isTerm() && (e->isEq() || e->isLeq() || e->isGeq() || e->isLt() || e->isGt()));
 
     Enode * const first_op = e->get1st();
