@@ -171,6 +171,8 @@ void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) {
             return;
         }
     }
+    thread_local static ibex::IntervalVector old_iv(b.get_values());
+    old_iv = b.get_values();
     assert(m_var_array.size() - b.size() == 0);
     DREAL_LOG_DEBUG << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << b;
@@ -179,8 +181,14 @@ void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "domain   = " << m_ctc->d;
     m_ctc->contract(b.get_values());
     DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (after)";
-    m_output = *(m_ctc->output);
-    if (!m_output.empty()) {
+    // cerr << m_output.empty() << m_used_constraints.empty() << " ";
+    auto & new_iv = b.get_values();
+    for (unsigned i = 0; i < b.size(); ++i) {
+        if (m_input.contain(i) && old_iv[i] != new_iv[i]) {
+            m_output.add(i);
+        }
+    }
+    if (b.is_empty() || !m_output.empty()) {
         // only add used_constraints if there is any change
         m_used_constraints.insert(m_ctr);
     }
