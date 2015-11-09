@@ -306,7 +306,6 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
 void contractor_fixpoint::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_fix::prune -- begin";
     if (config.nra_worklist_fp) {
-        // TODO(soonhok): worklist_fixpoint still has a problem
         worklist_fixpoint_alg(b, config);
         DREAL_LOG_DEBUG << "contractor_fix::prune -- end";
         return;
@@ -369,7 +368,6 @@ void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) {
     for (unsigned i = 0; i < m_clist.size(); ++i) {
         contractor & c_i = m_clist[i];
         if (idx_last_branched < 0 || c_i.input().contain(idx_last_branched)) {
-            q.push(i);
             c_i.prune(b, config);
             m_output.union_with(c_i.output());
             unordered_set<shared_ptr<constraint>> const & used_constraints = c_i.used_constraints();
@@ -380,17 +378,17 @@ void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) {
                 continue;
             }
             for (int j = output_i.min(); j <= output_i.max(); ++j) {
-                if (output_i.contain(j)) {
-                    // The applied constraint changes var_j
-                    for (unsigned k = 0; k < m_clist.size(); ++k) {
-                        if (!ctc_bitset.contain(k)) {
-                            // Need to find c_k whose input depends on var_j
-                            contractor const & c_k = m_clist[k];
-                            if (c_k.input().contain(j)) {
-                                q.push(k);
-                                ctc_bitset.add(k);
-                                break;
-                            }
+                if (!output_i.contain(j)) {
+                    continue;
+                }
+                // The applied constraint changes var_j
+                for (unsigned k = 0; k < m_clist.size(); ++k) {
+                    if (!ctc_bitset.contain(k)) {
+                        // Need to find c_k whose input depends on var_j
+                        contractor const & c_k = m_clist[k];
+                        if (c_k.input().contain(j)) {
+                            q.push(k);
+                            ctc_bitset.add(k);
                         }
                     }
                 }
@@ -416,16 +414,19 @@ void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) {
         if (b.is_empty()) { return; }
         auto const & c_output = c.output();
         if (!c_output.empty()) {
+            // j-th dimension is changed as a result of pruning
+            // need to add a contractor which takes j-th dim as an input
             for (int j = c_output.min(); j <= c_output.max(); ++j) {
-                if (c_output.contain(j)) {
-                    for (unsigned k = 0; k < m_clist.size(); ++k) {
-                        if (!ctc_bitset.contain(k)) {
-                            contractor const & c_k = m_clist[k];
-                            if (c_k.input().contain(j)) {
-                                q.push(k);
-                                ctc_bitset.add(k);
-                                break;
-                            }
+                if (!c_output.contain(j)) {
+                    continue;
+                }
+                for (unsigned k = 0; k < m_clist.size(); ++k) {
+                    // Only add if it's not in the current queue
+                    if (!ctc_bitset.contain(k)) {
+                        contractor const & c_k = m_clist[k];
+                        if (c_k.input().contain(j)) {
+                            q.push(k);
+                            ctc_bitset.add(k);
                         }
                     }
                 }
@@ -450,6 +451,9 @@ contractor_int::contractor_int(box const & b) : contractor_cell(contractor_kind:
 
 void contractor_int::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_int::prune";
+    if (m_input.empty()) {
+        return;
+    }
     // ======= Proof =======
     thread_local static box old_box(b);
     if (config.nra_proof) { old_box = b; }
