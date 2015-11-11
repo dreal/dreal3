@@ -230,12 +230,16 @@ contractor default_strategy::build_contractor(box const & box,
             ctcs.insert(ctcs.end(), ode_capd4_bwd_ctcs.begin(), ode_capd4_bwd_ctcs.end());
         }
     }
-    // 2.7 Build Eval contractors
-    vector<contractor> eval_ctcs;
-    for (auto const & nl_ctr : nl_ctrs) {
-        eval_ctcs.push_back(mk_contractor_eval(nl_ctr, use_cache));
+    if (complete) {
+        // 2.7 Build Eval contractors
+        vector<contractor> eval_ctcs;
+        for (auto const & nl_ctr : nl_ctrs) {
+            eval_ctcs.push_back(mk_contractor_eval(nl_ctr, use_cache));
+        }
+        return mk_contractor_seq(mk_contractor_fixpoint(default_strategy::term_cond, ctcs),
+                                 mk_contractor_seq(eval_ctcs));
+    } else {
+        return mk_contractor_fixpoint(default_strategy::term_cond, ctcs);
     }
-    return mk_contractor_seq(mk_contractor_fixpoint(default_strategy::term_cond, ctcs),
-                             mk_contractor_seq(eval_ctcs));
 }
 }  // namespace dreal
