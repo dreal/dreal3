@@ -61,14 +61,15 @@ private:
 
     std::string build_capd_string(integral_constraint const & ic, ode_direction const dir = ode_direction::FWD) const;
     bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, std::vector<std::pair<capd::interval, capd::IVector>> & enclosures) const;
-    bool check_invariant(capd::IVector & v, box b, SMTConfig & config);
+    bool check_invariant(capd::IVector const & v, box b, SMTConfig & config);
     template<typename Rect2Set>
-    bool check_invariant(Rect2Set & s, box const & b, SMTConfig & config) {
+    bool check_invariant(Rect2Set const & s, box const & b, SMTConfig & config) {
         thread_local static capd::IVector v;
         v = s;
-        bool r = check_invariant(v, b, config);
-        s = Rect2Set(v);
-        return r;
+        // bool r = check_invariant(v, b, config);
+        // s = Rect2Set(v);
+        // return r;
+        return check_invariant(v, b, config);
     }
     bool compute_enclosures(capd::interval const & prevTime,
                             capd::interval const T,

@@ -339,7 +339,7 @@ void update_box_with_ivector(box & b, vector<Enode *> const & vars, capd::IVecto
 
 // Prune v using inv_ctc. box b is needed to use inv_ctc.
 // Retrun false if invariant is violated.
-bool contractor_capd_full::check_invariant(capd::IVector & v, box b, SMTConfig & config) {
+bool contractor_capd_full::check_invariant(capd::IVector const & v, box b, SMTConfig & config) {
     // 1. convert v into a box using b.
     update_box_with_ivector(b, m_vars_t, v);
     // 2. check the converted box b, with inv_ctc contractor
@@ -354,9 +354,9 @@ bool contractor_capd_full::check_invariant(capd::IVector & v, box b, SMTConfig &
             }
         }
     }
-    // 3. extract v' from the pruned box b'
-    //    if b' is empty, then it means invariant violation
-    extract_ivector(b, m_vars_t, v);
+    // // 3. extract v' from the pruned box b'
+    // //    if b' is empty, then it means invariant violation
+    // extract_ivector(b, m_vars_t, v);
     return true;
 }
 
