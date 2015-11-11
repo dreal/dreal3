@@ -83,6 +83,9 @@ public:
     inline void clear_used_constraints() { m_used_constraints.clear(); }
     inline std::unordered_set<std::shared_ptr<constraint>> used_constraints() const { return m_used_constraints; }
 
+    inline void set_output(ibex::BitSet const & output) {
+        m_output = output;
+    }
     inline void set_used_constraints(std::unordered_set<std::shared_ptr<constraint>> const & ctrs) {
         m_used_constraints = ctrs;
     }
@@ -122,6 +125,9 @@ public:
     inline ibex::BitSet input() const { return m_ptr->input(); }
     inline ibex::BitSet output() const { return m_ptr->output(); }
     inline std::unordered_set<std::shared_ptr<constraint>> used_constraints() const { return m_ptr->used_constraints(); }
+    inline void set_output(ibex::BitSet const & output) {
+        return m_ptr->set_output(output);
+    }
     inline void set_used_constraints(std::unordered_set<std::shared_ptr<constraint>> const & ctrs) {
         return m_ptr->set_used_constraints(ctrs);
     }

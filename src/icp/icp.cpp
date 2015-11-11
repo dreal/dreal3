@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <random>
 #include <vector>
+#include <unordered_set>
 #include "icp/icp.h"
 #include "util/logging.h"
 #include "util/stat.h"
@@ -30,6 +31,7 @@ using std::endl;
 using std::get;
 using std::tuple;
 using std::vector;
+using std::unordered_set;
 
 namespace dreal {
 
@@ -50,6 +52,8 @@ void output_solution(box const & b, SMTConfig & config, unsigned i) {
 }
 
 box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
+    thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+    used_constraints.clear();
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;
     solns.clear();
@@ -62,6 +66,8 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
         box_stack.pop_back();
         try {
             ctc.prune(b, config);
+            auto this_used_constraints = ctc.used_constraints();
+            used_constraints.insert(this_used_constraints.begin(), this_used_constraints.end());
             if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
@@ -73,6 +79,8 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
             if (i >= 0) {
                 box const & first  = get<1>(splits);
                 box const & second = get<2>(splits);
+                assert(first.get_idx_last_branched() == i);
+                assert(second.get_idx_last_branched() == i);
                 if (second.is_bisectable()) {
                     box_stack.push_back(second);
                     box_stack.push_back(first);
@@ -98,6 +106,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
             }
         }
     } while (box_stack.size() > 0);
+    ctc.set_used_constraints(used_constraints);
     if (config.nra_multiple_soln > 1 && solns.size() > 0) {
         return solns.back();
     } else {
@@ -107,6 +116,8 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
 }
 
 box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
+    thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+    used_constraints.clear();
     static unsigned prune_count = 0;
     thread_local static vector<box> box_stack;
     box_stack.clear();
@@ -118,6 +129,8 @@ box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
         b = box_stack.back();
         try {
             ctc.prune(b, config);
+            auto const this_used_constraints = ctc.used_constraints();
+            used_constraints.insert(this_used_constraints.begin(), this_used_constraints.end());
             if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
@@ -132,6 +145,8 @@ box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
             if (index >= 0) {
                 box const & first    = get<1>(splits);
                 box const & second   = get<2>(splits);
+                assert(first.get_idx_last_branched() == index);
+                assert(second.get_idx_last_branched() == index);
                 if (second.is_bisectable()) {
                     box_stack.push_back(second);
                     box_stack.push_back(first);
@@ -143,20 +158,33 @@ box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
                 break;
             }
         } else {
-            // UNSAT
+            // UNSAT (b is emptified by pruning operators)
+            // If this bisect_var is not used in all used
+            // constraints, this box is safe to be popped.
+            thread_local static unordered_set<Enode *> used_vars;
+            used_vars.clear();
+            for (auto used_ctr : used_constraints) {
+                auto this_used_vars = used_ctr->get_vars();
+                used_vars.insert(this_used_vars.begin(), this_used_vars.end());
+            }
             while (box_stack.size() > 0) {
-                int bisect_var = box_stack.back().get_idx_last_branched();
-                ibex::BitSet const & input = ctc.input();
-                DREAL_LOG_DEBUG << ctc;
-                if (!input.contain(bisect_var)) {
-                    box_stack.pop_back();
-                } else {
+                int const bisect_var = box_stack.back().get_idx_last_branched();
+                assert(bisect_var >= 0);
+                // If this bisect_var is not used in all used
+                // constraints, this box is safe to be popped.
+                if (used_vars.find(b.get_vars()[bisect_var]) != used_vars.end()) {
+                    // DREAL_LOG_FATAL << b.get_vars()[bisect_var] << " is used in "
+                    //                 << *used_ctr << " and it's not safe to skip";
                     break;
                 }
+                // DREAL_LOG_FATAL << b.get_vars()[bisect_var] << " is not used and it's safe to skip this box"
+                //                 << " (" << box_stack.size() << ")";
+                box_stack.pop_back();
             }
         }
     } while (box_stack.size() > 0);
     DREAL_LOG_DEBUG << "prune count = " << prune_count;
+    ctc.set_used_constraints(used_constraints);
     return b;
 }
 
@@ -165,6 +193,8 @@ random_icp::random_icp(contractor & ctc, SMTConfig & config)
 }
 
 box random_icp::solve(box b, double const precision ) {
+    thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+    used_constraints.clear();
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;
     solns.clear();
@@ -177,6 +207,8 @@ box random_icp::solve(box b, double const precision ) {
         box_stack.pop_back();
         try {
             m_ctc.prune(b, m_config);
+            auto this_used_constraints = m_ctc.used_constraints();
+            used_constraints.insert(this_used_constraints.begin(), this_used_constraints.end());
         } catch (contractor_exception & e) {
             // Do nothing
         }
@@ -211,6 +243,7 @@ box random_icp::solve(box b, double const precision ) {
             }
         }
     } while (box_stack.size() > 0);
+    m_ctc.set_used_constraints(used_constraints);
     if (m_config.nra_multiple_soln > 1 && solns.size() > 0) {
         return solns.back();
     } else {
