@@ -65,7 +65,7 @@ public:
     inline unsigned size() const { return m_values.size(); }
     inline void set_empty() { m_values.set_empty(); }
     inline unsigned get_index(Enode * e) const {
-        return get_index(e->getCar()->getName());
+        return get_index(e->getCar()->getNameFull());
     }
     inline unsigned get_index(std::string const & s) const {
         auto const it = m_name_index_map->find(s);
@@ -84,10 +84,10 @@ public:
         return m_values[get_index(s)];
     }
     inline const ibex::Interval& get_value(Enode * const e) const {
-        return get_value(e->getCar()->getName());
+        return get_value(e->getCar()->getNameFull());
     }
     inline ibex::Interval& get_value(Enode * const e) {
-        return get_value(e->getCar()->getName());
+        return get_value(e->getCar()->getNameFull());
     }
 
     // get_domain
@@ -96,7 +96,7 @@ public:
         return get_domain(get_index(s));
     }
     inline ibex::Interval get_domain(Enode * const e) const {
-        return get_domain(e->getCar()->getName());
+        return get_domain(e->getCar()->getNameFull());
     }
 
     int get_idx_last_branched() const { return m_idx_last_branched; }
@@ -124,7 +124,7 @@ public:
     inline bool operator!=(box const & b) const { return !(*this == b); }
 
     inline std::string get_name(unsigned i) const {
-        return (*m_vars)[i]->getCar()->getName();
+        return (*m_vars)[i]->getCar()->getNameFull();
     }
 
     double max_diam() const;

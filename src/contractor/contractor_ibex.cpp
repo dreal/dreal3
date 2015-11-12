@@ -69,7 +69,7 @@ ibex::SystemFactory* contractor_ibex_polytope::build_system_factory(vector<Enode
 
     // Construct System: add Variables
     for (Enode * e : vars) {
-        string const & name = e->getCar()->getName();
+        string const & name = e->getCar()->getNameFull();
         DREAL_LOG_INFO << "build_system_factory: Add Variable " << name;
         auto var_it = m_var_cache.find(e);
         ibex::Variable const * var = nullptr;
@@ -140,7 +140,7 @@ ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_se
     unsigned i = 0;
     ibex::Array<ibex::ExprSymbol const> ret(size);
     for (auto const e : s) {
-        string const & name = e->getCar()->getName();
+        string const & name = e->getCar()->getNameFull();
         ibex::Variable var(name.c_str());
         ret[i++] = (*var.symbol);
     }

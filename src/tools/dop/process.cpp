@@ -322,7 +322,7 @@ int process_main(OpenSMTContext & ctx,
     Enode * or_term = ctx.mkOr(make_vec_to_list(ctx, or_ctrs));
     vector<pair<string, Snode *>> sorted_var_list;
     for (Enode * e : or_term->get_forall_vars()) {
-        pair<string, Snode *> p = make_pair(e->getCar()->getName(), e->getSort());
+        pair<string, Snode *> p = make_pair(e->getCar()->getNameFull(), e->getSort());
         sorted_var_list.push_back(p);
     }
     Enode * quantified = ctx.mkForall(sorted_var_list, or_term);

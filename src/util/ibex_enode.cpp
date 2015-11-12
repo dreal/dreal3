@@ -57,7 +57,7 @@ ExprNode const * translate_enode_to_exprnode(map<string, Variable const> & var_m
             auto const i = subst_it->second;
             return &ExprConstant::new_scalar(i);
         }
-        string const & var_name = e->getCar()->getName();
+        string const & var_name = e->getCar()->getNameFull();
         auto const it = var_map.find(var_name);
         if (it == var_map.cend()) {
             // The variable is new, we need to make one.
@@ -315,7 +315,7 @@ ExprCtr const * translate_enode_to_exprctr(map<string, Variable const> & var_map
 map<string, Variable const> build_var_map(unordered_set<Enode *> const & vars) {
     map<string, Variable const> var_map;
     for (Enode * const e : vars) {
-        string const & var_name = e->getCar()->getName();
+        string const & var_name = e->getCar()->getNameFull();
         Variable v(var_name.c_str());
         var_map.emplace(var_name, v);
     }

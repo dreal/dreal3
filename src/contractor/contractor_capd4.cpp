@@ -132,7 +132,7 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
             return it->second;
         }
     } else if (e->isNumb()) {
-        string name = e->getName();
+        string name = e->getNameFull();
         if (name.find('e') != string::npos || name.find('E') != string::npos) {
             // Scientific Notation
             ostringstream ss;
@@ -259,14 +259,14 @@ string contractor_capd_full::build_capd_string(integral_constraint const & ic, o
     // Build Map
     unordered_map<string, string> subst_map;
     for (unsigned i = 0; i < m_vars_0.size(); i++) {
-        string const & from = odes[i].first->getCar()->getName();
-        string const & to   = m_vars_0[i]->getCar()->getName();
+        string const & from = odes[i].first->getCar()->getNameFull();
+        string const & to   = m_vars_0[i]->getCar()->getNameFull();
         subst_map.emplace(from, to);
         DREAL_LOG_INFO << "Subst Map (Var): " << from << " -> " << to;
     }
     for (unsigned i = 0; i < pars_0.size(); i++) {
-        string const & from = par_lhs_names[i]->getCar()->getName();
-        string const & to   = pars_0[i]->getCar()->getName();
+        string const & from = par_lhs_names[i]->getCar()->getNameFull();
+        string const & to   = pars_0[i]->getCar()->getNameFull();
         subst_map.emplace(from, to);
         DREAL_LOG_INFO << "Subst Map (Par): " << from << " -> " << to;
     }
@@ -290,7 +290,7 @@ string contractor_capd_full::build_capd_string(integral_constraint const & ic, o
         vector<string> vars_0_strs;
         vars_0_strs.reserve(m_vars_0.size());
         for (auto const & var : m_vars_0) {
-            vars_0_strs.emplace_back(var->getCar()->getName());
+            vars_0_strs.emplace_back(var->getCar()->getNameFull());
         }
         diff_var = "var:" + join(vars_0_strs, ", ") + ";";
     }
@@ -298,7 +298,7 @@ string contractor_capd_full::build_capd_string(integral_constraint const & ic, o
         vector<string> pars_0_strs;
         pars_0_strs.reserve(pars_0.size());
         for (auto const & par : pars_0) {
-            pars_0_strs.emplace_back(par->getCar()->getName());
+            pars_0_strs.emplace_back(par->getCar()->getNameFull());
         }
         diff_par = "par:" + join(pars_0_strs, ", ") + ";";
     }
@@ -461,7 +461,7 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
     vector<Enode*> const & pars_0 = ic.get_pars_0();
     capd::IVector X_0 = extract_ivector(b, pars_0);
     for (unsigned i = 0; i < pars_0.size(); i++) {
-        string const & name = pars_0[i]->getCar()->getName();
+        string const & name = pars_0[i]->getCar()->getNameFull();
         f.setParameter(name, X_0[i]);
         DREAL_LOG_DEBUG << "set_param: " << name << " ==> " << X_0[i];
     }
@@ -754,7 +754,7 @@ json generate_trace_core(integral_constraint const & ic,
     json ret = {};
     for (auto const & var : vars_0) {
         json entry;
-        string const name = var->getCar()->getName();
+        string const name = var->getCar()->getNameFull();
         entry["key"] = name;
         entry["mode"] = ic.get_flow_id();
         entry["step"] = extract_step(name);
@@ -770,7 +770,7 @@ json generate_trace_core(integral_constraint const & ic,
     }
     for (auto const & var : pars_0) {
         json entry;
-        string const name = var->getCar()->getName();
+        string const name = var->getCar()->getNameFull();
         entry["key"] = name;
         entry["mode"] = ic.get_flow_id();
         entry["step"] = extract_step(name);

@@ -350,7 +350,7 @@ contractor make_contractor(Enode * e,
 
 box shrink_for_dop(box b) {
     for (Enode * e : b.get_vars()) {
-        string const name = e->getCar()->getName();
+        string const name = e->getCar()->getNameFull();
         if (starts_with(name, "forall_")) {
             string const exist_var_name = name.substr(7);
             auto exist_var_intv = b[exist_var_name];

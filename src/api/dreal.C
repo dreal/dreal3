@@ -362,7 +362,7 @@ dreal_expr dreal_mk_forall( dreal_context c, dreal_expr * varlist, unsigned n, d
       dreal_expr var = varlist[i];
       Enode * e = static_cast<Enode*>(var);
       Snode * sort = e->getSort();
-      string name = e->getCar()->getName();
+      string name = e->getCar()->getNameFull();
       sorted_var_list.push_back(make_pair(name, sort));
   }
   Enode * e_body = static_cast<Enode*>(body);

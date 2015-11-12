@@ -77,13 +77,13 @@ void box::constructFromVariables(vector<Enode *> const & vars) {
         double const lb = e->getDomainLowerBound();
         double const ub = e->getDomainUpperBound();
         m_values[i] = ibex::Interval(lb, ub);
-        m_name_index_map->emplace(e->getCar()->getName(), i);
+        m_name_index_map->emplace(e->getCar()->getNameFull(), i);
     }
 }
 
 struct enode_lex_cmp {
     bool operator() (Enode const * e1, Enode const * e2) {
-        return e1->getCar()->getName() < e2->getCar()->getName();
+        return e1->getCar()->getNameFull() < e2->getCar()->getNameFull();
     }
 };
 
@@ -145,7 +145,7 @@ ostream& display_diff(ostream& out, box const & b1, box const & b2) {
         assert(d1 == d2);
 #endif
         if (v1 != v2) {
-            out << e1->getCar()->getName()
+            out << e1->getCar()->getNameFull()
                 << " : ";
             display(out, v1, false);
             out << " => ";
@@ -168,7 +168,7 @@ ostream& display(ostream& out, box const & b, bool const exact, bool const old_s
                 out << endl;
             }
             Enode * e = (*b.m_vars)[i];
-            string const & name = e->getCar()->getName();
+            string const & name = e->getCar()->getNameFull();
             ibex::Interval const & v = b.m_values[i];
             out << "\t" << name << " : " << v;
             if (i != (s - 1)) {
@@ -184,7 +184,7 @@ ostream& display(ostream& out, box const & b, bool const exact, bool const old_s
             Enode * e = (*b.m_vars)[i];
             ibex::Interval const & v = b.m_values[i];
             ibex::Interval const & d = b.get_domain(i);
-            out << e->getCar()->getName()
+            out << e->getCar()->getNameFull()
                 << " : ";
             display(out, d, exact);
             out << " = ";
