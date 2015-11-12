@@ -62,6 +62,7 @@ using std::ostream;
 using std::ostringstream;
 using std::pair;
 using std::right;
+using std::runtime_error;
 using std::setprecision;
 using std::setw;
 using std::shared_ptr;
@@ -468,19 +469,20 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
 }
 
 unsigned int extract_step(string const & name) {
-    // We assume that the following convention holds for naming a ODE
-    // variable.
-    //
-    //     <VAR_NAME>_<STEP>_{0,t}
-    //
-    // This function returns <STEP> part as an integer.
     size_t last_pos_of_underscore = name.rfind("_");
-    assert(last_pos_of_underscore != string::npos);
-    size_t second_to_last_pos_of_underscore = name.rfind("_", last_pos_of_underscore - 1);
-    assert(second_to_last_pos_of_underscore != string::npos);
-    size_t l = last_pos_of_underscore - second_to_last_pos_of_underscore - 1;
-    string step_part = name.substr(second_to_last_pos_of_underscore + 1, l);
-    return stoi(step_part, nullptr);
+    if (last_pos_of_underscore != string::npos) {
+        size_t second_to_last_pos_of_underscore = name.rfind("_", last_pos_of_underscore - 1);
+        if (second_to_last_pos_of_underscore != string::npos) {
+            size_t l = last_pos_of_underscore - second_to_last_pos_of_underscore - 1;
+            string step_part = name.substr(second_to_last_pos_of_underscore + 1, l);
+            return stoi(step_part, nullptr);
+        }
+    }
+    DREAL_LOG_FATAL << "We found an error while generating a visualization for the ODE variable '" << name << "'";
+    DREAL_LOG_FATAL << "This variable '" << name << "' does not follow our convention for the visualization";
+    DREAL_LOG_FATAL << "We assume that an ODE varialbe is in a form of '<VAR_NAME>_<STEP>_{0,t}'";
+    DREAL_LOG_FATAL << "where <STEP> part should be an integer. An example is 'height_3_t'.";
+    throw runtime_error("extract_step: Variable name convention");
 }
 
 contractor_capd_simple::contractor_capd_simple(box const & /* box */, shared_ptr<ode_constraint> const ctr, ode_direction const dir)
