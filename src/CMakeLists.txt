@@ -17,6 +17,7 @@ option(LOGGING          "Enable Logging" ON)
 option(BUILD_STATIC_BIN "Build static binary"  OFF)
 option(BUILD_SHARED_LIB "Build shared library" OFF)
 option(USE_LOCAL_THIRD_PARTY "Use local third party libraries" OFF)
+option(TCMALLOC         "TCMALLOC" ON)
 
 # Added for CTest
 include(CTest)
@@ -165,6 +166,24 @@ SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
   ${CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES}
   /usr/lib64 /usr/lib32 /usr/lib /lib
   )
+
+################################################################
+# tcmalloc
+################################################################
+if(NOT "${JEMALLOC_FOUND}")
+  if(TCMALLOC)
+    find_package(Tcmalloc)
+    if(${TCMALLOC_FOUND})
+      set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARIES})
+      message(STATUS "Using tcmalloc.")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D HAS_TCMALLOC")
+    else()
+      message(STATUS "Failed to find tcmalloc, using standard malloc.")
+    endif()
+  else()
+    message(STATUS "Using standard malloc.")
+  endif()
+endif()
 
 ################################################################
 # Packages
