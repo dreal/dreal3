@@ -150,8 +150,8 @@ ostream& display_diff(ostream& out, box const & b1, box const & b2) {
             display(out, v1, false);
             out << " => ";
             display(out, v2, false);
+            out << endl;
         }
-        out << endl;
     }
     out.precision(ss);
     return out;
