@@ -1,0 +1,171 @@
+
+#define c1	0.41328
+#define c2	-0.366
+#define c3	0.08979
+#define c4	-0.0337
+#define c5	0.0001
+#define c6	2.821
+#define c7	-0.05231
+#define c8	0.10299
+#define c9	-0.00063
+#define c10	1.0
+#define c11	14.7
+#define c11P	12.5
+#define c12	0.9
+#define c13	0.04
+#define c14	0.14
+#define c15	13.893
+#define c16	-35.2518
+#define c17	20.7364
+#define c18	2.6287
+#define c19	-1.592
+#define c20	-2.3421
+#define c21     2.7799
+#define c22	-0.3273
+#define c23	1.0
+#define c24	1.0
+#define c25	1.0
+#define c26	4.0
+
+#define tauI	10
+#define h	1
+
+#define thetaHat   (c6 + c7*theta + c8*theta*theta + c9*theta*theta*theta)
+#define dmAf       (2 * thetaHat * (c20*p*p+c21*p+c22))
+#define mCf(x)     (c2 + c3*w*x + c4*w*x*x + c5*w*w*x)
+#define dmC        (c12 * mCf(p))
+
+#define fcO        (mCf(pe) / c11)
+#define fcP        (mCf(pe) / c11P)
+#define fcC        ((1 + i + c13 * (c24 * lambda - c11)) * mCf(pe) / c11)
+
+[0,180] theta;
+[0,10]   p;
+[0,100] lambda;
+
+[0,10]   pe;
+[0,100] i;
+[0,100] tau;
+
+[0,180] thetaI;
+[0,150] w;
+
+[0,100] time;
+
+
+// startup
+{mode 1;
+  invt:
+    (tau <= tauI);
+  flow:
+    d/dt[theta]  = 10 * (thetaI - theta);
+    d/dt[p]      = c1 * (dmAf - dmC);
+    d/dt[lambda] = c26 * (c15 + c16*c25*fcO + c17*c25*c25*fcO*fcO + c18*dmC + c19*dmC*c25*fcO - lambda);
+    d/dt[pe]     = 0;
+    d/dt[i]      = 0;
+    d/dt[tau]    = 1;
+    d/dt[thetaI] = 0;
+    d/dt[w]      = 0;
+  jump:
+    // go to the normal mode
+    (tau = tauI) ==> 
+    @2 (and (theta' = theta) 
+            (p' = p) 
+            (lambda' = lambda) 
+            (thetaI' = thetaI) 
+            (w' = w) 
+            (pe' = pe) 
+            (i' = i) 
+            (tau' = tau));
+}
+
+
+// normal
+{mode 2;
+  invt:
+    (theta <= 70);
+  flow:
+    d/dt[theta]  = 10 * (thetaI - theta);
+    d/dt[p]      = c1 * (dmAf - dmC);
+    d/dt[lambda] = c26 * (c15 + c16*c25*fcC + c17*c25*c25*fcC*fcC + c18*dmC + c19*dmC*c25*fcC - lambda);
+    d/dt[pe]     = c1 * (c23 * dmAf - mCf(pe));
+    d/dt[i]      = c14 * (c24 * lambda - c11);
+    d/dt[tau]    = 1;
+    d/dt[thetaI] = 0;
+    d/dt[w]      = 0;
+  jump:
+    // goes to the power mode
+    (theta = 70) ==> 
+    @3 (and (theta' = theta) 
+            (p' = p) 
+            (lambda' = lambda) 
+            (thetaI' = thetaI) 
+            (w' = w)
+            (pe' = pe) 
+            (i' = i) 
+            (tau' = tau));
+
+    // goes to the sensor_fail mode (at any time)
+    true ==> 
+    @4 (and (theta' = theta) 
+            (p' = p) 
+            (lambda' = lambda) 
+            (thetaI' = thetaI) 
+            (w' = w) 
+            (pe' = pe) 
+            (i' = i) 
+            (tau' = tau));
+}
+
+// power
+{mode 3;
+  invt:
+    (theta >= 50);
+  flow:
+    d/dt[theta]  = 10 * (thetaI - theta);
+    d/dt[p]      = c1 * (dmAf - dmC);
+    d/dt[lambda] = c26 * (c15 + c16*c25*fcP + c17*c25*c25*fcP*fcP + c18*dmC + c19*dmC*c25*fcP - lambda);
+    d/dt[pe]     = 0;
+    d/dt[i]      = 0;
+    d/dt[tau]    = 1;
+    d/dt[thetaI] = 0;
+    d/dt[w]      = 0;
+  jump:
+    // goes to the normal mode 
+    (theta = 50) ==> 
+    @2 (and (theta' = theta) 
+            (p' = p) 
+            (lambda' = lambda) 
+            (thetaI' = thetaI) 
+            (w' = w) 
+            (pe' = pe) 
+            (i' = i) 
+            (tau' = tau));
+}
+
+// sensor_fail mode
+{mode 4;
+  invt:
+  flow:
+    d/dt[theta]  = 10 * (thetaI - theta);
+    d/dt[p]      = c1 * (dmAf - dmC);
+    d/dt[lambda] = c26 * (c15 + c16*c25*fcO + c17*c25*c25*fcO*fcO + c18*dmC + c19*dmC*c25*fcO - lambda);
+    d/dt[pe]     = 0;
+    d/dt[i]      = 0;
+    d/dt[tau]    = 1;
+    d/dt[thetaI] = 0;
+    d/dt[w]      = 0;
+  jump:
+}
+
+init: @1 (and (theta = 8.8) 
+              (p = 0.9833) 
+              (lambda = 14.7)
+              (pe = 0.9)  // if pe = 0, then fc becomes negative
+              (i = 0) 
+              (tau = 0) 
+              (w = 95) 
+              (thetaI = 70));
+
+goal: @2 true; //(theta >= 70);
+
