@@ -171,13 +171,10 @@ SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
 # tcmalloc
 ################################################################
 if(NOT "${JEMALLOC_FOUND}")
-  if(TCMALLOC)
+  if(NOT BUILD_STATIC_BIN AND TCMALLOC)
     find_package(Tcmalloc)
     if(${TCMALLOC_FOUND})
       set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARIES})
-      if(BUILD_STATIC_BIN)
-        set(EXTRA_LIBS ${EXTRA_LIBS} "unwind")
-      endif()
       message(STATUS "Using tcmalloc.")
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D HAS_TCMALLOC")
     else()
