@@ -327,10 +327,12 @@ ostream & integral_constraint::display(ostream & out) const {
     out << "integral_constraint = " << m_enodes[0] << endl;
     out << "\t" << "flow_id = " << m_flow_id << endl;
     out << "\t" << "time = [" << m_time_0 << "," << m_time_t << "]" << endl;
-    for (Enode * par_0 : m_pars_0) { out << "\t" << "par_0 : " << par_0 << endl; }
-    for (Enode * par_t : m_pars_t) { out << "\t" << "par_t : " << par_t << endl; }
-    for (Enode * var_0 : m_vars_0) { out << "\t" << "var_0 : " << var_0 << endl; }
-    for (Enode * var_t : m_vars_t) { out << "\t" << "var_t : " << var_t << endl; }
+    for (unsigned i = 0; i < m_pars_0.size(); ++i) {
+        out << "\t" << "par: " << m_pars_0[i] << " " << m_pars_t[i] << endl;
+    }
+    for (unsigned i = 0; i < m_vars_0.size(); ++i) {
+        out << "\t" << "var: " << m_vars_0[i] << " " << m_vars_t[i] << endl;
+    }
     for (auto const & ode : m_odes) {
         out << "\t" << "d/dt[" << ode.first << "] = " << ode.second << endl;
     }
