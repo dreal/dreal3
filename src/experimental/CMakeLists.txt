@@ -1,0 +1,4 @@
+SET(DREAL_SRCS ${DREAL_SRCS}
+  ${CMAKE_CURRENT_LIST_DIR}/ep_nra_solver.cpp
+  PARENT_SCOPE)
+
