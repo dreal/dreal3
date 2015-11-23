@@ -42,7 +42,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/stat.h"
 #include "util/strategy.h"
-#include "z3++.h"
+// #include "z3++.h"
 
 using ibex::IntervalVector;
 using nlohmann::json;
