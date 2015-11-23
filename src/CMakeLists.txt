@@ -195,6 +195,7 @@ find_package(FLEX REQUIRED)
 
 # FindPythonLibs
 set(Python_ADDITIONAL_VERSIONS 2.7)
+find_package(PythonInterp REQUIRED)
 find_package(PythonLibs 2.7)
 if(PYTHONLIBS_FOUND)
   include_directories("${PYTHON_INCLUDE_DIR}")
@@ -258,6 +259,52 @@ else()
     INSTALL_COMMAND make install)
 endif()
 set(EXTRA_LIBS "nlopt" ${EXTRA_LIBS})
+
+################################################################
+# External: Z3
+################################################################
+set(Z3_STATIC_OPTION "--staticlib")
+
+if(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(Z3
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    URL ${CMAKE_SOURCE_DIR}/third_party/Z3.zip
+    CONFIGURE_COMMAND env CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER}
+    ${PYTHON_EXECUTABLE} scripts/mk_make.py  --prefix=${CMAKE_CURRENT_BINARY_DIR} ${Z3_STATIC_OPTION} --noomp
+    BUILD_COMMAND cd build && make
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND cd build && make install)
+else()
+  if(APPLE)
+    ExternalProject_Add(Z3
+      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+      GIT_REPOSITORY https://github.com/dreal-deps/Z3.git
+      GIT_TAG z3-4.4.1
+      UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+      COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+      CONFIGURE_COMMAND env CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER}
+      ${PYTHON_EXECUTABLE} scripts/mk_make.py  --prefix=${CMAKE_CURRENT_BINARY_DIR} ${Z3_STATIC_OPTION} --noomp
+      BUILD_COMMAND cd build && make
+      BUILD_IN_SOURCE 1
+      INSTALL_COMMAND cd build && make install && rm -f ${CMAKE_CURRENT_BINARY_DIR}/lib/libz3.dylib)
+  else()
+    ExternalProject_Add(Z3
+      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+      GIT_REPOSITORY https://github.com/dreal-deps/Z3.git
+      GIT_TAG z3-4.4.1
+      UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+      COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+      CONFIGURE_COMMAND env CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER}
+      ${PYTHON_EXECUTABLE} scripts/mk_make.py  --prefix=${CMAKE_CURRENT_BINARY_DIR} ${Z3_STATIC_OPTION} --noomp
+      BUILD_COMMAND cd build && make
+      BUILD_IN_SOURCE 1
+      INSTALL_COMMAND cd build && make install)
+  endif()
+endif()
+if(NOT APPLE)
+  set(EXTRA_LIBS "rt" ${EXTRA_LIBS})
+endif()
+set(EXTRA_LIBS "z3" ${EXTRA_LIBS})
 
 if(SUPPORT_ODE)
   ################################################################
@@ -642,11 +689,13 @@ add_dependencies(dop NLOPT)
 add_dependencies(dop EASYLOGGINGPP)
 add_dependencies(dop EZOPTIONPARSER)
 add_dependencies(dop JSON)
+add_dependencies(dop Z3)
 add_dependencies(dreal IBEX)
 add_dependencies(dreal NLOPT)
 add_dependencies(dreal EASYLOGGINGPP)
 add_dependencies(dreal EZOPTIONPARSER)
 add_dependencies(dreal JSON)
+add_dependencies(dreal Z3)
 if(SUPPORT_ODE)
   add_dependencies(dreal CAPD4)
   add_dependencies(dreal GSL)
@@ -679,6 +728,7 @@ add_subdirectory(tests/c_api)
 add_subdirectory(tests/ibex)
 add_subdirectory(tests/nlopt)
 add_subdirectory(tests/contractor)
+add_subdirectory(tests/z3)
 if(SUPPORT_ODE)
   add_subdirectory(tests/capd4)
   add_subdirectory(tests/gsl)
@@ -763,7 +813,7 @@ endif()
 add_custom_target(update_pkgs
   COMMAND echo "Update External Packages"
   COMMAND ${CMAKE_BUILD_TOOL}
-  DEPENDS update_clp update_filib update_ibex update_nlopt update_capd update_catch update_easyloggingpp update_ezoptionparser update_json update_gsl)
+  DEPENDS update_clp update_filib update_ibex update_nlopt update_capd update_catch update_easyloggingpp update_ezoptionparser update_json update_gsl update_z3)
 
 add_custom_target(update_clp
   COMMAND git fetch --all && git reset --hard origin/master && make install
@@ -789,6 +839,16 @@ add_custom_target(update_capd
 add_custom_target(update_gsl
   COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/GSL)
+
+if(APPLE)
+  add_custom_target(update_z3
+    COMMAND git fetch --all && git reset --hard origin/master && cd build && make install && rm -f ${DREAL_BINARY_DIR}/lib/libz3.dylib
+    WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/Z3)
+else()
+  add_custom_target(update_z3
+    COMMAND git fetch --all && git reset --hard origin/master && cd build && make install
+    WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/Z3)
+endif()
 
 add_custom_target(update_catch
   COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/
