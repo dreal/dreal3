@@ -42,7 +42,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/stat.h"
 #include "util/strategy.h"
-// #include "z3++.h"
+#include "z3++.h"
 
 using ibex::IntervalVector;
 using nlohmann::json;
@@ -65,7 +65,7 @@ using std::shared_ptr;
 using std::sort;
 using std::string;
 using std::unique_ptr;
-using std::unordered_map; 
+using std::unordered_map;
 using std::unordered_set;
 using std::vector;
 
@@ -96,7 +96,7 @@ lbool ep_nra_solver::inform(Enode * e) {
 // Return l_True   if a constriant is used and not needed after this.
 // Return l_False  if a constriant is used and but still needed after this.
 // Otherwise, return l_Undef
-lbool simplify(Enode * e, lbool p, box & b) {
+static lbool simplify(Enode * e, lbool p, box & b) {
     if (e->isNot()) {
         return simplify(e, !p, b);
     }
@@ -227,7 +227,7 @@ bool ep_nra_solver::assertLit(Enode * e, bool reason) {
 }
 
 // Update ctr_map by adding new nonlinear_constraints
-void initialize_nonlinear_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
+static void initialize_nonlinear_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
                                       vector<Enode *> const & lits,
                                       unordered_set<Enode *> const & var_set) {
     // Create Nonlinear constraints.
@@ -248,7 +248,7 @@ void initialize_nonlinear_constraints(map<pair<Enode*, bool>, shared_ptr<constra
 }
 
 // Update ctr_map by adding new ode constraints, from the information collected in ints and invs
-void initialize_ode_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
+static void initialize_ode_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
                                 vector<integral_constraint> const & ints,
                                 vector<shared_ptr<forallt_constraint>> const & invs) {
     // Attach the corresponding forallT literals to integrals
