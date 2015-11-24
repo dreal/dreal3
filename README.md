@@ -16,21 +16,19 @@
 </table>
 
 
-dReal: An SMT Solver for Nonlinear Theories of the Reals
-
-Please visit [http://dreal.github.io][dReal] for more information.
+dReal is an automated reasoning tool. Please visit [http://dreal.github.io][dReal] for more information.
 
 [dReal]: http://dreal.github.io
 
 
-Download
+Install
 ========
-Please check out our [releases page][release] to download latest static binaries.
+Please check the [releases page][release] to download latest static binaries.
 
 [release]: https://github.com/dreal/dreal3/releases
 
 
-How to Build
+Build from Source
 ==================
 
  - [Ubuntu 12.04 LTS (using g++-4.9)][ubuntu-gcc]
