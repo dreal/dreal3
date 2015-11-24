@@ -141,6 +141,7 @@ SMTConfig::initializeConfig( )
   nra_local_opt                = false;
   nra_worklist_fp              = false;
   nra_shrink_for_dop           = false;
+  nra_precision_output         = true;
   nra_random_seed              = random_device{}();
   initLogging();
 }
@@ -385,6 +386,9 @@ SMTConfig::parseCMDLine( int argc
             "this overrides the value specified in input files",
             "--precision");
     opt.add("", false, 0, 0,
+            "do not print precision in case of delta-sat",
+            "--no-precision-output");
+    opt.add("", false, 0, 0,
             "interpret precision as delta instead of epsilon",
             "--delta");
     opt.add("", false, 0, 0,
@@ -544,6 +548,7 @@ SMTConfig::parseCMDLine( int argc
     nra_local_opt           = opt.isSet("--local-opt");
     nra_worklist_fp         = opt.isSet("--worklist-fp");
     nra_shrink_for_dop      = opt.isSet("--shrink-for-opt");
+    nra_precision_output    =!opt.isSet("--no-precision-output");
     sat_preprocess_booleans = opt.isSet("--sat-prep-bool");
 
     // Extract Double Args

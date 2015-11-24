@@ -748,7 +748,11 @@ lbool OpenSMTContext::CheckSAT( )
       fesetround(FE_TONEAREST);
       std::streamsize ss = out.precision();
       out.precision(17);
-      out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      if ( config.nra_precision_output ) {
+          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      } else {
+          out << "delta-sat" << endl;
+      }
       out.precision(ss);
     }
   }
@@ -783,7 +787,11 @@ lbool OpenSMTContext::CheckSAT( vec< Enode * > & assumptions )
       fesetround(FE_TONEAREST);
       std::streamsize ss = out.precision();
       out.precision(17);
-      out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      if ( config.nra_precision_output ) {
+          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      } else {
+          out << "delta-sat" << endl;
+      }
       out.precision(ss);
     }
   }
@@ -818,7 +826,11 @@ lbool OpenSMTContext::CheckSAT( vec< Enode * > & assumptions, unsigned limit )
       fesetround(FE_TONEAREST);
       std::streamsize ss = out.precision();
       out.precision(17);
-      out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      if ( config.nra_precision_output ) {
+          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      } else {
+          out << "delta-sat" << endl;
+      }
       out.precision(ss);
     }
   }
@@ -861,7 +873,11 @@ void OpenSMTContext::PrintResult( const lbool & result, const lbool & config_sta
       fesetround(FE_TONEAREST);
       std::streamsize ss = out.precision();
       out.precision(17);
-      out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      if ( config.nra_precision_output ) {
+          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      } else {
+          out << "delta-sat" << endl;
+      }
       out.precision(ss);
   } else if ( result == l_False )
     out << "unsat" << endl;
