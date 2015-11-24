@@ -33,8 +33,6 @@ Please check out our [releases page][release] to download latest static binaries
 How to Build
 ==================
 
-In most cases, running ``./build.sh`` in the top dReal directory should suffice. If not, see below.
-
  - [Ubuntu 12.04 LTS (using g++-4.9)][ubuntu-gcc]
  - [Ubuntu 12.04 LTS (using clang++-3.8)][ubuntu-clang]
  - [OS X 10.9/10.8 (using g++-4.9)][osx-gcc]
