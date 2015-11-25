@@ -375,7 +375,7 @@ void nra_solver::handle_sat_case(box const & b) const {
     }
 #ifdef SUPPORT_ODE
     // --visualize option
-    if (config.nra_json) {
+    if (config.logic == QF_NRA_ODE && config.nra_json) {
         json traces = {};
         // Need to run ODE pruning operator once again to generate a trace
         for (shared_ptr<constraint> const ctr : m_stack) {
