@@ -126,6 +126,16 @@ ostream& display(ostream& out, ibex::Interval const & iv, bool const exact) {
     return out;
 }
 
+nlohmann::json box::to_JSON() const {
+    nlohmann::json entry;
+    for (unsigned i = 0; i < size(); ++i) {
+        string const & name = get_name(i);
+        auto const & iv = get_value(i);
+        entry[name] = { iv.lb(), iv.ub() };
+    }
+    return entry;
+}
+
 ostream& display_diff(ostream& out, box const & b1, box const & b2) {
     if (b1 == b2) {
         return out;

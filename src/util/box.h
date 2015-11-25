@@ -30,6 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include "opensmt/egraph/Enode.h"
 #include "ibex/ibex.h"
+#include "json/json.hpp"
 
 namespace dreal {
 
@@ -147,6 +148,7 @@ public:
     friend box intersect(box b1, box const & b2);
     friend box hull(std::vector<box> const & s);
     friend box hull(box b1, box const & b2);
+    nlohmann::json to_JSON() const;
 
     void assign_to_enode() const;
 };
