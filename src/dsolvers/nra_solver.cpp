@@ -97,7 +97,7 @@ lbool nra_solver::inform(Enode * e) {
 // Otherwise, return l_Undef
 static lbool simplify(Enode * e, lbool p, box & b) {
     if (e->isNot()) {
-        return simplify(e, !p, b);
+        return simplify(e->get1st(), !p, b);
     }
     if (e->getArity() != 2) {
         return l_Undef;
