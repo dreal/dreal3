@@ -17,3 +17,11 @@ add_test(capd4_example_04 ${CMAKE_CURRENT_BINARY_DIR}/capd4_example_04)
 add_executable(capd4_example_05 example_05.cpp)
 target_link_libraries(capd4_example_05 dreal ${EXTRA_LIBS})
 add_test(capd4_example_05 ${CMAKE_CURRENT_BINARY_DIR}/capd4_example_05)
+
+add_executable(capd4_sol sol.cpp)
+target_link_libraries(capd4_sol dreal ${EXTRA_LIBS})
+add_test(capd4_sol ${CMAKE_CURRENT_BINARY_DIR}/capd4_sol)
+
+add_executable(capd4_nonrigor_sol nonrigor_sol.cpp)
+target_link_libraries(capd4_nonrigor_sol dreal ${EXTRA_LIBS})
+add_test(capd4_nonrigor_sol ${CMAKE_CURRENT_BINARY_DIR}/capd4_nonrigor_sol)
