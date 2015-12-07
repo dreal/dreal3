@@ -1,39 +1,47 @@
+// Xiaoqing Jin, Jyotirmoy V. Deshmukh, James Kapinski, Koichi Ueda, and
+// Ken Butts. 2014. Powertrain control verification benchmark. In
+// Proceedings of the 17th international conference on Hybrid systems:
+// computation and control (HSCC '14). ACM, New York, NY, USA,
+// 253-262. DOI=http://dx.doi.org/10.1145/2562059.2562140
 
-#define c1	0.41328
-#define c2	-0.366
-#define c3	0.08979
-#define c4	-0.0337
-#define c5	0.0001
-#define c6	2.821
-#define c7	-0.05231
-#define c8	0.10299
-#define c9	-0.00063
-#define c10	1.0
-#define c11	14.7
-#define c11P	12.5
-#define c12	0.9
-#define c13	0.04
-#define c14	0.14
-#define c15	13.893
-#define c16	-35.2518
-#define c17	20.7364
-#define c18	2.6287
-#define c19	-1.592
-#define c20	-2.3421
-#define c21     2.7799
-#define c22	-0.3273
-#define c23	1.0
-#define c24	1.0
-#define c25	1.0
-#define c26	4.0
+#define c1	0.41328   // page 262 (table 3)
+#define c2	-0.366    // page 262 (table 3)
+#define c3	0.08979   // page 262 (table 3)
+#define c4	-0.0337   // page 262 (table 3)
+#define c5	0.0001    // page 262 (table 3)
+#define c6	2.821     // page 262 (table 3)
+#define c7	-0.05231  // page 262 (table 3)
+#define c8	0.10299   // page 262 (table 3)
+#define c9	-0.00063  // page 262 (table 3)
+#define c10	1.0       // page 262 (table 3)
+#define c11	14.7      // page 262 (table 3)  //??
+#define c11P	12.5      // page 262 (table 3)  //??
+#define c12	0.9       // page 262 (table 5)
+#define c13	0.04      // page 262 (table 3)
+#define c14	0.14      // page 262 (table 3)
+#define c15	13.893    // page 262 (table 5)
+#define c16	-35.2518  // page 262 (table 5)
+#define c17	20.7364   // page 262 (table 5)
+#define c18	2.6287    // page 262 (table 5)
+#define c19	-1.592    // page 262 (table 5)
+#define c20	-2.3421   // page 262 (table 5)
+#define c21     2.7799    // page 262 (table 5)
+#define c22	-0.3273   // page 262 (table 5)
+#define c23	1.0       // page 262 (table 5)
+#define c24	1.0       // page 262 (table 5)
+#define c25	1.0       // page 262 (table 5)
+#define c26	4.0       // page 262 (table 5)
 
-#define tauI	10
-#define h	1
+#define tauI	10  //
+#define h	10
 
-#define thetaHat   (c6 + c7*theta + c8*theta*theta + c9*theta*theta*theta)
-#define dmAf       (2 * thetaHat * sqrt(p/c10 - (p/c10)*(p/c10)))
+#define thetaHat   (c6 + c7*theta + c8*theta*theta + c9*theta*theta*theta) // page 256 (throttle air dynamics)
+#define dmAf       (2 * thetaHat * sqrt(p/c10 - (p/c10)^2))  // page 256, (2)
 #define mCf(x)     (c2 + c3*w*x + c4*w*x*x + c5*w*w*x)
-#define dmC        (c12 * mCf(p))
+#define dmC        (c12 * mCf(p))  // page 256, (3)
+
+#define thetaI_init 80
+#define thetaI_amp 10
 
 [0,180] theta;
 [0,10]   p;
@@ -53,187 +61,178 @@
 
 // startup
 {mode 1;
-  invt:
-    (t >= 0);
   flow:
-    d/dt[theta]  = 10 * (thetaI - theta);
-    d/dt[p]      = c1 * (dmAf - dmC);
-    d/dt[lambda] = c26 * (dmC / (c25 * fc) - lambda);
+    d/dt[theta]  = 10 * (thetaI - theta); // page 255, (1)
+    d/dt[p]      = c1 * (dmAf - dmC);     // page 256, (4)
+    d/dt[lambda] = c26 * (dmC / (c25 * fc) - lambda);  // page 257, (10, 11)
     d/dt[pe]     = 0;
     d/dt[i]      = 0;
     d/dt[tau]    = 0;
     d/dt[fc]     = 0;
-    d/dt[t]      = -1;
-    d/dt[thetaI] = 0;
-    d/dt[w]      = 0;
+    d/dt[t]      = 1;
+    d/dt[thetaI] = thetaI_amp * 10 * cos(10 * t);
+    d/dt[w]      = 5 * 10 * cos(10 * t);
   jump:
     // stay in the startup mode
-    (and (t = 0) (tau + h < tauI)) ==>
-    @1 (and (theta' = theta) 
-            (p' = p) 
-            (lambda' = lambda) 
-            (thetaI' = thetaI) 
+    (t = h) ==>
+    @1 (and (theta' = theta)
+            (p' = p)
+            (lambda' = lambda)
+            (thetaI' = thetaI)
             (w' = w)
-            (pe' = pe + h * c1 * (c23 * dmAf - mCf(pe)))
-            (i' = 0) 
-            (tau' = tau + h)
-	    (fc' = mCf(pe) / c11)
+            (pe' = pe)
+            (i' = 0)                                      // gi, page 258, (16)
+            (tau' = tau + h)                              // gi, page 258, (16)
+            (fc' = mCf(pe) / c11)                         // gi, page 258, (16)
             (t' = h));
 
     // go to the normal mode
-    (and (t = 0) (tau + h >= tauI)) ==>
-    @2 (and (theta' = theta) 
-            (p' = p) 
-            (lambda' = lambda) 
-            (thetaI' = thetaI) 
-            (w' = w) 
-            (pe' = pe) 
-            (i' = i) 
-            (tau' = tau) 
-            (fc' = fc) 
+    (tau >= tauI) ==>
+    @2 (and (theta' = theta)
+            (p' = p)
+            (lambda' = lambda)
+            (thetaI' = thetaI)
+            (w' = w)
+            (pe' = pe)
+            (i' = i)
+            (tau' = tau)
+            (fc' = fc)
             (t' = h));
 }
 
 
 // normal
 {mode 2;
-  invt:
-    (t >= 0);
   flow:
-    d/dt[theta]  = 10 * (thetaI - theta);
-    d/dt[p]      = c1 * (dmAf - dmC);
-    d/dt[lambda] = c26 * (dmC / (c25 * fc) - lambda);
+    d/dt[theta]  = 10 * (thetaI - theta);  // page 255, (1)
+    d/dt[p]      = c1 * (dmAf - dmC);      // page 256, (4)
+    d/dt[lambda] = c26 * (dmC / (c25 * fc) - lambda);  // page 257, (10, 11)
     d/dt[pe]     = 0;
     d/dt[i]      = 0;
     d/dt[tau]    = 0;
     d/dt[fc]     = 0;
-    d/dt[t]      = -1;
-    d/dt[thetaI] = 0;
-    d/dt[w]      = 0;
+    d/dt[t]      = 1;
+    d/dt[thetaI] = thetaI_amp * 10 * cos(10 * t);
+    d/dt[w]      = 5 * 10 * cos(10 * t);
   jump:
     // stay in the normal mode
-    (and (t = 0) (theta < 70)) ==>
-    @2 (and (theta' = theta) 
-            (p' = p) 
+    (t = h) ==>
+    @2 (and (theta' = theta)
+            (p' = p)
             (lambda' = lambda)
-            (thetaI' = thetaI) 
+            (thetaI' = thetaI)
             (w' = w)
             (pe' = pe + h * c1 * (c23 * dmAf - mCf(pe)))
-            (i' = i + h * c14 * (c24 * lambda - c11))
-            (tau' = 0)
-	    (fc' = (1 + i + c13 * (c24 * lambda - c11)) * mCf(pe) / c11)
-	    (t' = h));
+            (i' = i + h * c14 * (c24 * lambda - c11))                    // gc, page 258, (13)
+            (tau' = 0)                                                   // gc, page 258, (15)
+            (fc' = (1 + i + c13 * (c24 * lambda - c11)) * mCf(pe) / c11) // gc, page 258, (14)
+            (t' = 0));
 
     // goes to the power mode
-    (and (t = 0) (theta >= 70)) ==>
-    @3 (and (theta' = theta) 
-            (p' = p) 
-            (lambda' = lambda) 
-            (thetaI' = thetaI) 
-            (w' = w) 
-            (pe' = pe) 
-            (i' = i) 
-            (tau' = tau) 
-            (fc' = fc) 
-            (t' = h));
+    (theta >= 70) ==>
+    @3 (and (theta' = theta)
+            (p' = p)
+            (lambda' = lambda)
+            (thetaI' = thetaI)
+            (w' = w)
+            (pe' = pe)
+            (i' = i)
+            (tau' = tau)
+            (fc' = fc)
+            (t' = 0));
 
-    // goes to the sensor_fail mode (at any time)
-    (and (t = 0)) ==>
-    @4 (and (theta' = theta) 
-            (p' = p) 
-            (lambda' = lambda) 
-            (thetaI' = thetaI) 
-            (w' = w) 
-            (pe' = pe) 
-            (i' = i) 
-            (tau' = tau) 
-            (fc' = fc) 
-            (t' = h));
+    // // goes to the sensor_fail mode (at any time)
+    // (and (t = 0)) ==>  // soonhok: how to model fail_event??
+    // @4 (and (theta' = theta)
+    //         (p' = p)
+    //         (lambda' = lambda)
+    //         (thetaI' = thetaI)
+    //         (w' = w)
+    //         (pe' = pe)
+    //         (i' = i)
+    //         (tau' = tau)
+    //         (fc' = fc)
+    //         (t' = 0));
 }
 
 // power
 {mode 3;
-  invt:
-    (t >= 0);
   flow:
-    d/dt[theta]  = 10 * (thetaI - theta);
-    d/dt[p]      = c1 * (dmAf - dmC);
-    d/dt[lambda] = c26 * (dmC / (c25 * fc) - lambda);
+    d/dt[theta]  = 10 * (thetaI - theta);  // page 255, (1)
+    d/dt[p]      = c1 * (dmAf - dmC);      // page 255, (1)
+    d/dt[lambda] = c26 * (dmC / (c25 * fc) - lambda);  // page 257, (10, 11)
     d/dt[pe]     = 0;
     d/dt[i]      = 0;
     d/dt[tau]    = 0;
     d/dt[fc]     = 0;
-    d/dt[t]      = -1;
-    d/dt[thetaI] = 0;
-    d/dt[w]      = 0;
+    d/dt[t]      = 1;
+    d/dt[thetaI] = thetaI_amp * 10 * cos(10 * t);
+    d/dt[w]      = 5 * 10 * cos(10 * t);
   jump:
     // stay in the power mode
-    (and (t = 0) (theta > 50)) ==>
-    @3 (and (theta' = theta) 
-            (p' = p) 
+    (t = h) ==>
+    @3 (and (theta' = theta)
+            (p' = p)
             (lambda' = lambda)
-            (thetaI' = thetaI) 
+            (thetaI' = thetaI)
             (w' = w)
-            (pe' = pe + h * c1 * (c23 * dmAf - mCf(pe)))
-            (i' = 0) 
-            (tau' = 0)
-	    (fc' = mCf(pe) / c11P)
-            (t' = h));
+            (pe' = pe + h * c1 * (c23 * dmAf - mCf(pe)))  // g0, page 258, (12)
+            (i' = 0)                                      // g0, page 258, (16)
+            (tau' = 0)                                    // g0, page 258, (16)
+            (fc' = mCf(pe) / c11P)                        // g0, page 258, (16)
+            (t' = 0));
 
-    // goes to the normal mode 
-    (and (t = 0) (theta <= 50)) ==>
-    @2 (and (theta' = theta) 
-            (p' = p) 
-            (lambda' = lambda) 
-            (thetaI' = thetaI) 
-            (w' = w) 
-            (pe' = pe) 
-            (i' = i) 
-            (tau' = tau) 
-            (fc' = fc) 
-            (t' = h));
+    // goes to the normal mode
+    (theta <= 50) ==>
+    @2 (and (theta' = theta)
+            (p' = p)
+            (lambda' = lambda)
+            (thetaI' = thetaI)
+            (w' = w)
+            (pe' = pe)
+            (i' = i)
+            (tau' = tau)
+            (fc' = fc)
+            (t' = 0));
 }
 
-// sensor_fail mode
-{mode 4;
-  invt:
-    (t >= 0);
-  flow:
-    d/dt[theta]  = 10 * (thetaI - theta);
-    d/dt[p]      = c1 * (dmAf - dmC);
-    d/dt[lambda] = c26 * (dmC / (c25 * fc) - lambda);
-    d/dt[pe]     = 0;
-    d/dt[i]      = 0;
-    d/dt[tau]    = 0;
-    d/dt[fc]     = 0;
-    d/dt[t]      = -1;
-    d/dt[thetaI] = 0;
-    d/dt[w]      = 0;
-  jump:
-    // stay in the sensor_fail mode
-    (t = 0) ==>
-    @3 (and (theta' = theta) 
-            (p' = p) 
-            (lambda' = lambda)
-            (thetaI' = thetaI) 
-            (w' = w)
-            (pe' = pe + h * c1 * (c23 * dmAf - mCf(pe)))
-            (i' = 0) 
-            (tau' = 0)
-	    (fc' = mCf(pe) / c11)
-            (t' = h));
-}
+// // sensor_fail mode
+// {mode 4;
+//   flow:
+//     d/dt[theta]  = 10 * (thetaI - theta);  // page 255, (1)
+//     d/dt[p]      = c1 * (dmAf - dmC);      // page 255, (1)
+//     d/dt[lambda] = c26 * (dmC / (c25 * fc) - lambda);  // page 257, (10, 11)
+//     d/dt[pe]     = 0;
+//     d/dt[i]      = 0;
+//     d/dt[tau]    = 0;
+//     d/dt[fc]     = 0;
+//     d/dt[t]      = 1;
+//     d/dt[thetaI] = thetaI_amp * 10 * cos(10 * t);
+//     d/dt[w]      = 5 * 10 * cos(10 * t);
+//   jump:
+//     // stay in the sensor_fail mode
+//     (t = h) ==>
+//     @3 (and (theta' = theta)
+//             (p' = p)
+//             (lambda' = lambda)
+//             (thetaI' = thetaI)
+//             (w' = w)
+//             (pe' = pe + h * c1 * (c23 * dmAf - mCf(pe)))  // g0, page 258, (16)
+//             (i' = 0)                                      // g0, page 258, (16)
+//             (tau' = 0)                                    // g0, page 258, (16)
+//             (fc' = mCf(pe) / c11)                         // g0, page 258, (16)
+//             (t' = 0));
+// }
 
-init: @1 (and (theta = 8.8) 
-              (p = 0.9833) 
-              (lambda = 14.7)
-              (pe = 0.9)  // if pe = 0, then fc becomes negative
-              (i = 0) 
-              (tau = 0) 
-              (fc = 0.6537) 
-              (t = h)
-              (w = 95) 
-              (thetaI = 10));
+init: @2 (and (theta = 8.8)    // page 257, 3.2 (plant HIOA)
+              (p = 0.9833)     // page 257, 3.2 (plant HIOA)
+              (lambda = 14.7)  // page 257, 3.2 (plant HIOA)
+              (pe = 0)         // page 258. 3.2 (controller HIOA)
+              (i = 0)          // page 258, 3.2 (controller HIOA)
+              (tau = 0)        // page 258, 3.2 (controller HIOA)
+              (fc = 0.6537)    // page 258, 3.2 (controller HIOA)
+              (t = 0)
+              (w = 110)
+              (thetaI = thetaI_init));
 
-goal: @1 (t = 0);
-
+goal: @2 (t = 1);
