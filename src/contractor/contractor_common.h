@@ -41,7 +41,7 @@ enum class contractor_kind { ID, SEQ, OR, ITE, FP,
         INT, EVAL, CACHE, SAMPLE, AGGRESSIVE, FORALL,
         THROW, THROW_IF_EMPTY, EMPTY,
 #ifdef SUPPORT_ODE
-        CAPD_FULL, CAPD_SIMPLE, GSL, CAPD_POINT,
+        CAPD_FULL, CAPD_SIMPLE, CAPD_POINT,
 #endif
         };
 

@@ -28,5 +28,4 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor_pseq.h"
 #ifdef SUPPORT_ODE
 #include "contractor/contractor_capd4.h"
-#include "contractor/contractor_gsl.h"
 #endif

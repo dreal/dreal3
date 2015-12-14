@@ -337,32 +337,6 @@ if(SUPPORT_ODE)
       INSTALL_COMMAND make install)
   endif()
   set(EXTRA_LIBS "capd" ${EXTRA_LIBS})
-  ################################################################
-  # External: GSL-2.0
-  ################################################################
-  if(USE_LOCAL_THIRD_PARTY)
-  ExternalProject_Add(GSL
-    DEPENDS FILIB
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-    URL ${CMAKE_SOURCE_DIR}/third_party/gsl.zip
-    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
-    BUILD_COMMAND make
-    BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make install)
-  else()
-    ExternalProject_Add(GSL
-      DEPENDS FILIB
-      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-      GIT_REPOSITORY https://github.com/dreal-deps/gsl.git
-      GIT_TAG master
-      UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-      COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-      CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
-      BUILD_COMMAND make
-      BUILD_IN_SOURCE 1
-      INSTALL_COMMAND make install)
-  endif()
-  set(EXTRA_LIBS "gsl" "gslcblas" ${EXTRA_LIBS})
 endif()
 
 ################################################################
@@ -699,9 +673,7 @@ add_dependencies(dreal EZOPTIONPARSER)
 add_dependencies(dreal JSON)
 if(SUPPORT_ODE)
   add_dependencies(dreal CAPD4)
-  add_dependencies(dreal GSL)
   add_dependencies(dop CAPD4)
-  add_dependencies(dop GSL)
 endif()
 if(Z3)
   add_dependencies(dop Z3)
@@ -736,7 +708,6 @@ if(BUILD_TEST)
   add_subdirectory(tests/contractor)
   if(SUPPORT_ODE)
     add_subdirectory(tests/capd4)
-    add_subdirectory(tests/gsl)
     add_subdirectory(tests/nra_ode)
     add_subdirectory(tests/drh)
   endif()
@@ -815,8 +786,8 @@ endif()
 if(APPLE AND BUILD_SHARED_LIB)
   add_custom_target(shared_lib
     COMMAND echo "Building Shared Library..."
-    COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libgsl.a libgslcblas.a libibex.a libnlopt.a libprim.a libClp.a libClpSolver.a libCoinUtils.a -o libdreal.dylib
-    DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT GSL)
+    COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libibex.a libnlopt.a libprim.a libClp.a libClpSolver.a libCoinUtils.a -o libdreal.dylib
+    DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT)
 endif()
 
 if(Z3)
@@ -852,9 +823,6 @@ add_custom_target(update_capd
   COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CAPD4)
 
-add_custom_target(update_gsl
-  COMMAND git fetch --all && git reset --hard origin/master && make install
-  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/GSL)
 
 if(Z3)
   if(APPLE)
