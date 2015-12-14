@@ -18,7 +18,6 @@ option(BUILD_STATIC_BIN "Build static binary"  OFF)
 option(BUILD_SHARED_LIB "Build shared library" OFF)
 option(USE_LOCAL_THIRD_PARTY "Use local third party libraries" OFF)
 option(TCMALLOC         "Use tcmalloc (a.k.a. gperftools)" ON)
-option(Z3               "Use Z3" OFF)
 option(BUILD_TEST       "Build test binaries" ON)
 
 # Added for CTest
@@ -261,54 +260,6 @@ else()
     INSTALL_COMMAND make install)
 endif()
 set(EXTRA_LIBS "nlopt" ${EXTRA_LIBS})
-
-
-################################################################
-# External: Z3
-################################################################
-if(Z3)
-  set(Z3_STATIC_OPTION "--staticlib")
-  if(USE_LOCAL_THIRD_PARTY)
-    ExternalProject_Add(Z3
-      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-      URL ${CMAKE_SOURCE_DIR}/third_party/Z3.zip
-      CONFIGURE_COMMAND env CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER}
-      ${PYTHON_EXECUTABLE} scripts/mk_make.py  --prefix=${CMAKE_CURRENT_BINARY_DIR} ${Z3_STATIC_OPTION} --noomp
-      BUILD_COMMAND cd build && make
-      BUILD_IN_SOURCE 1
-      INSTALL_COMMAND cd build && make install)
-  else()
-    if(APPLE)
-      ExternalProject_Add(Z3
-        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-        GIT_REPOSITORY https://github.com/dreal-deps/Z3.git
-        GIT_TAG z3-4.4.1
-        UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-        COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-        CONFIGURE_COMMAND env CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER}
-        ${PYTHON_EXECUTABLE} scripts/mk_make.py  --prefix=${CMAKE_CURRENT_BINARY_DIR} ${Z3_STATIC_OPTION} --noomp
-        BUILD_COMMAND cd build && make
-        BUILD_IN_SOURCE 1
-        INSTALL_COMMAND cd build && make install && rm -f ${CMAKE_CURRENT_BINARY_DIR}/lib/libz3.dylib)
-    else()
-      ExternalProject_Add(Z3
-        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-        GIT_REPOSITORY https://github.com/dreal-deps/Z3.git
-        GIT_TAG z3-4.4.1
-        UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-        COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-        CONFIGURE_COMMAND env CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER}
-        ${PYTHON_EXECUTABLE} scripts/mk_make.py  --prefix=${CMAKE_CURRENT_BINARY_DIR} ${Z3_STATIC_OPTION} --noomp
-        BUILD_COMMAND cd build && make
-        BUILD_IN_SOURCE 1
-        INSTALL_COMMAND cd build && make install)
-    endif()
-  endif()
-  if(NOT APPLE)
-    set(EXTRA_LIBS "rt" ${EXTRA_LIBS})
-  endif()
-  set(EXTRA_LIBS "z3" ${EXTRA_LIBS})
-endif()
 
 if(SUPPORT_ODE)
   ################################################################
@@ -675,10 +626,6 @@ if(SUPPORT_ODE)
   add_dependencies(dreal CAPD4)
   add_dependencies(dop CAPD4)
 endif()
-if(Z3)
-  add_dependencies(dop Z3)
-  add_dependencies(dreal Z3)
-endif()
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
@@ -710,9 +657,6 @@ if(BUILD_TEST)
     add_subdirectory(tests/capd4)
     add_subdirectory(tests/nra_ode)
     add_subdirectory(tests/drh)
-  endif()
-  if(Z3)
-    add_subdirectory(tests/z3)
   endif()
 endif()
 
@@ -790,17 +734,10 @@ if(APPLE AND BUILD_SHARED_LIB)
     DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT)
 endif()
 
-if(Z3)
-  add_custom_target(update_pkgs
-    COMMAND echo "Update External Packages"
-    COMMAND ${CMAKE_BUILD_TOOL}
-    DEPENDS update_clp update_filib update_ibex update_nlopt update_capd update_catch update_easyloggingpp update_ezoptionparser update_json update_gsl update_z3)
-else()
-  add_custom_target(update_pkgs
-    COMMAND echo "Update External Packages"
-    COMMAND ${CMAKE_BUILD_TOOL}
-    DEPENDS update_clp update_filib update_ibex update_nlopt update_capd update_catch update_easyloggingpp update_ezoptionparser update_json update_gsl)
-endif()
+add_custom_target(update_pkgs
+  COMMAND echo "Update External Packages"
+  COMMAND ${CMAKE_BUILD_TOOL}
+  DEPENDS update_clp update_filib update_ibex update_nlopt update_capd update_catch update_easyloggingpp update_ezoptionparser update_json)
 
 add_custom_target(update_clp
   COMMAND git fetch --all && git reset --hard origin/master && make install
@@ -822,19 +759,6 @@ add_custom_target(update_nlopt
 add_custom_target(update_capd
   COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CAPD4)
-
-
-if(Z3)
-  if(APPLE)
-    add_custom_target(update_z3
-      COMMAND git fetch --all && git reset --hard origin/master && cd build && make install && rm -f ${DREAL_BINARY_DIR}/lib/libz3.dylib
-      WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/Z3)
-  else()
-    add_custom_target(update_z3
-      COMMAND git fetch --all && git reset --hard origin/master && cd build && make install
-      WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/Z3)
-  endif()
-endif()
 
 add_custom_target(update_catch
   COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/
