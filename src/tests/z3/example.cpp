@@ -1,6 +1,10 @@
+/*++
+  Copyright (c) 2015 Microsoft Corporation
+  --*/
+
 #include <vector>
-#include "z3++.h"
-using namespace z3;
+#include "./z3++.h"
+using namespace z3;  // NOLINT
 
 /**
    Demonstration of how Z3 can be used to prove validity of
@@ -79,15 +83,14 @@ void prove_example1() {
     else
         std::cout << "failed to prove" << "\n";
 
-    s.reset(); // remove all assertions from solver s
+    s.reset();  // remove all assertions from solver s
 
     expr conjecture2 = implies(x == y, g(g(x)) == g(y));
     std::cout << "conjecture 2\n" << conjecture2 << "\n";
     s.add(!conjecture2);
     if (s.check() == unsat) {
         std::cout << "proved" << "\n";
-    }
-    else {
+    } else {
         std::cout << "failed to prove" << "\n";
         model m = s.get_model();
         std::cout << "counterexample:\n" << m << "\n";
@@ -130,8 +133,7 @@ void prove_example2() {
     std::cout << "conjecture 2:\n" << conjecture2 << "\n";
     if (s.check() == unsat) {
         std::cout << "proved" << "\n";
-    }
-    else {
+    } else {
         std::cout << "failed to prove" << "\n";
         std::cout << "counterexample:\n" << s.get_model() << "\n";
     }
@@ -158,10 +160,10 @@ void nonlinear_example1() {
     std::cout << s.check() << "\n";
     model m = s.get_model();
     std::cout << m << "\n";
-    c.set(":pp-decimal", true); // set decimal notation
+    c.set(":pp-decimal", true);  // set decimal notation
     std::cout << "model in decimal notation\n";
     std::cout << m << "\n";
-    c.set(":pp-decimal-precision", 50); // increase number of decimal places to 50.
+    c.set(":pp-decimal-precision", 50);  // increase number of decimal places to 50.
     std::cout << "model using 50 decimal places\n";
     std::cout << m << "\n";
 }
@@ -179,8 +181,7 @@ void prove(expr conjecture) {
     std::cout << "conjecture:\n" << conjecture << "\n";
     if (s.check() == unsat) {
         std::cout << "proved" << "\n";
-    }
-    else {
+    } else {
         std::cout << "failed to prove" << "\n";
         std::cout << "counterexample:\n" << s.get_model() << "\n";
     }
@@ -428,8 +429,8 @@ void unsat_core_example2() {
     // Now, we use the following piece of code to break this conjunction
     // into individual subformulas. First, we flat the conjunctions by
     // using the method simplify.
-    std::vector<expr> qs; // auxiliary vector used to store new answer literals.
-    assert(F.is_app()); // I'm assuming F is an application.
+    std::vector<expr> qs;  // auxiliary vector used to store new answer literals.
+    assert(F.is_app());    // I'm assuming F is an application.
     if (F.decl().decl_kind() == Z3_OP_AND) {
         // F is a conjunction
         std::cout << "F num. args (before simplify): " << F.num_args() << "\n";
@@ -438,7 +439,7 @@ void unsat_core_example2() {
         for (unsigned i = 0; i < F.num_args(); i++) {
             std::cout << "Creating answer literal q" << i << " for " << F.arg(i) << "\n";
             std::stringstream qname; qname << "q" << i;
-            expr qi = c.bool_const(qname.str().c_str()); // create a new answer literal
+            expr qi = c.bool_const(qname.str().c_str());  // create a new answer literal
             s.add(implies(qi, F.arg(i)));
             qs.push_back(qi);
         }
@@ -629,7 +630,7 @@ void tactic_example6() {
     context c;
     params p(c);
     p.set(":arith-lhs", true);
-    p.set(":som", true); // sum-of-monomials normal form
+    p.set(":som", true);  // sum-of-monomials normal form
     solver s =
         (with(tactic(c, "simplify"), p) &
          tactic(c, "normalize-bounds") &
@@ -788,12 +789,10 @@ void visit(expr const & e) {
         // Example: print the visited expression
         func_decl f = e.decl();
         std::cout << "application of " << f.name() << ": " << e << "\n";
-    }
-    else if (e.is_quantifier()) {
+    } else if (e.is_quantifier()) {
         visit(e.body());
         // do something
-    }
-    else {
+    } else {
         assert(e.is_var());
         // do something
     }
