@@ -141,7 +141,7 @@ contractor default_strategy::build_contractor(box const & box,
     if (complete && ode_ctrs.size() > 0) {
         // Add ODE Contractors only for complete check
         // 2.5. Build GSL Contractors (using CAPD4)
-        vector<contractor> ode_gsl_ctcs;
+        vector<contractor> ode_sampling_ctcs;
         if (config.nra_ODE_sampling) {
             // 2.5.1 Build Eval contractors
             vector<contractor> eval_ctcs;
@@ -160,15 +160,15 @@ contractor default_strategy::build_contractor(box const & box,
                 }
                 contractor nl_ctc2 = mk_contractor_seq(nl_ctcs2);
                 for (auto const & ode_ctr : ode_ctrs) {
-                    // Add Forward ODE Pruning (Underapproximation, using GNU GSL)
-                    ode_gsl_ctcs.push_back(mk_contractor_gsl(box, ode_ctr, eval_ctc, ode_direction::FWD, false, config.nra_ODE_fwd_timeout));
-                    ode_gsl_ctcs.push_back(nl_ctc2);
+                    // Add Forward ODE Pruning (Underapproximation, using CAPD non-rigorous)
+                    ode_sampling_ctcs.push_back(mk_contractor_capd_point(box, ode_ctr, eval_ctc, ode_direction::FWD, config.nra_ODE_taylor_order, use_cache, config.nra_ODE_fwd_timeout));
+                    ode_sampling_ctcs.push_back(nl_ctc2);
                 }
             } else {
                 for (auto const & ode_ctr : ode_ctrs) {
-                    // Add Forward ODE Pruning (Underapproximation, using GNU GSL)
-                    ode_gsl_ctcs.push_back(mk_contractor_gsl(box, ode_ctr, eval_ctc, ode_direction::FWD, use_cache, config.nra_ODE_fwd_timeout));
-                    ode_gsl_ctcs.push_back(nl_ctc);
+                    // Add Forward ODE Pruning (Underapproximation, using CAPD non-rigorous)
+                    ode_sampling_ctcs.push_back(mk_contractor_capd_point(box, ode_ctr, eval_ctc, ode_direction::FWD, config.nra_ODE_taylor_order, use_cache, config.nra_ODE_fwd_timeout));
+                    ode_sampling_ctcs.push_back(nl_ctc);
                 }
             }
         }
@@ -213,7 +213,7 @@ contractor default_strategy::build_contractor(box const & box,
         if (config.nra_ODE_sampling) {
             if (config.nra_parallel) {
                 ctcs.push_back(mk_contractor_parallel_any(
-                                   mk_contractor_try_or(mk_contractor_throw_if_empty(mk_contractor_seq(ode_gsl_ctcs)),
+                                   mk_contractor_try_or(mk_contractor_throw_if_empty(mk_contractor_seq(ode_sampling_ctcs)),
                                                         mk_contractor_empty()),
                                    mk_contractor_seq(mk_contractor_seq(ode_capd4_fwd_ctcs),
                                                      mk_contractor_seq(ode_capd4_bwd_ctcs))));
@@ -221,7 +221,7 @@ contractor default_strategy::build_contractor(box const & box,
                 ctcs.push_back(
                     mk_contractor_try_or(
                         // Try Underapproximation(GSL) if it fails try Overapproximation(CAPD4)
-                        mk_contractor_throw_if_empty(mk_contractor_seq(ode_gsl_ctcs)),
+                        mk_contractor_throw_if_empty(mk_contractor_seq(ode_sampling_ctcs)),
                         mk_contractor_seq(mk_contractor_seq(ode_capd4_fwd_ctcs),
                                           mk_contractor_seq(ode_capd4_bwd_ctcs))));
             }

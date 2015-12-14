@@ -251,7 +251,7 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
 
 // Build CAPD string from integral constraint
 // example : "var:v_2_0, x_2_0;fun:(-9.8000000000000007+(-0.450000*v_2_0)), v_2_0;"
-string contractor_capd_full::build_capd_string(integral_constraint const & ic, ode_direction const dir) const {
+string build_capd_string(integral_constraint const & ic, ode_direction const dir)  {
     // Collect _0 variables
     vector<Enode *> const & pars_0 = ic.get_pars_0();
     vector<Enode *> const & par_lhs_names = ic.get_par_lhs_names();
@@ -259,9 +259,10 @@ string contractor_capd_full::build_capd_string(integral_constraint const & ic, o
 
     // Build Map
     unordered_map<string, string> subst_map;
-    for (unsigned i = 0; i < m_vars_0.size(); i++) {
+    auto vars_0 = (dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
+    for (unsigned i = 0; i < vars_0.size(); i++) {
         string const & from = odes[i].first->getCar()->getNameFull();
-        string const & to   = m_vars_0[i]->getCar()->getNameFull();
+        string const & to   = vars_0[i]->getCar()->getNameFull();
         subst_map.emplace(from, to);
         DREAL_LOG_INFO << "Subst Map (Var): " << from << " -> " << to;
     }
@@ -274,8 +275,8 @@ string contractor_capd_full::build_capd_string(integral_constraint const & ic, o
 
     // Call Subst, and collect strings
     vector<string> ode_strs;
-    ode_strs.reserve(m_vars_0.size());
-    for (unsigned i = 0; i < m_vars_0.size(); i++) {
+    ode_strs.reserve(vars_0.size());
+    for (unsigned i = 0; i < vars_0.size(); i++) {
         Enode * const ode = odes[i].second;
         string ode_str = subst(ode, subst_map);
         if (dir == ode_direction::BWD) {
@@ -287,10 +288,10 @@ string contractor_capd_full::build_capd_string(integral_constraint const & ic, o
     string diff_var   = "";
     string diff_par = "";
     string diff_fun   = "";
-    if (m_vars_0.size() > 0) {
+    if (vars_0.size() > 0) {
         vector<string> vars_0_strs;
-        vars_0_strs.reserve(m_vars_0.size());
-        for (auto const & var : m_vars_0) {
+        vars_0_strs.reserve(vars_0.size());
+        for (auto const & var : vars_0) {
             vars_0_strs.emplace_back(var->getCar()->getNameFull());
         }
         diff_var = "var:" + join(vars_0_strs, ", ") + ";";
@@ -334,6 +335,33 @@ void update_box_with_ivector(box & b, vector<Enode *> const & vars, capd::IVecto
     capd::IVector intvs(vars.size());
     for (unsigned i = 0; i < vars.size(); i++) {
         b[vars[i]] = ibex::Interval(iv[i].leftBound(), iv[i].rightBound());
+    }
+    return;
+}
+
+capd::DVector extract_dvector(box const & b, vector<Enode *> const & vars) {
+    // Extract the b.mid() and return a capd::DVector
+    capd::DVector intvs(vars.size());
+    for (unsigned i = 0; i < vars.size(); i++) {
+        Enode * const var = vars[i];
+        ibex::Interval const & intv = b[var];
+        intvs[i] = intv.mid();
+    }
+    return intvs;
+}
+
+void extract_dvector(box const & b, vector<Enode *> const & vars, capd::DVector & intvs) {
+    for (unsigned i = 0; i < vars.size(); i++) {
+        Enode * const var = vars[i];
+        ibex::Interval const & intv = b[var];
+        intvs[i] = intv.mid();
+    }
+}
+
+void update_box_with_dvector(box & b, vector<Enode *> const & vars, capd::DVector iv) {
+    capd::DVector intvs(vars.size());
+    for (unsigned i = 0; i < vars.size(); i++) {
+        b[vars[i]] = iv[i];
     }
     return;
 }
@@ -440,6 +468,52 @@ bool filter(vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVec
     return true;
 }
 
+capd::IVector DV2IV(capd::DVector const & dv) {
+    capd::IVector iv(dv.dimension());
+    for (unsigned i = 0; i < iv.dimension(); ++i) {
+        iv[i] = dv[i];
+    }
+    return iv;
+}
+
+bool filter_point(vector<pair<double, capd::DVector>> & trace, capd::IVector & X_t, capd::interval & T) {
+    // 1) Intersect each v in enclosure with X_t.
+    DREAL_LOG_DEBUG << "filter : enclosure.size = " << trace.size();
+    trace.erase(remove_if(trace.begin(), trace.end(),
+                               [&X_t](pair<double, capd::DVector> & item) {
+                                   capd::DVector & v = item.second;
+                                   // v = v union X_t
+                                   DREAL_LOG_DEBUG << "before filter: " << v << "\t" << X_t;
+                                   for (unsigned i = 0; i < X_t.dimension(); ++i) {
+                                       if (!X_t[i].contains(v[i])) {
+                                           return true;
+                                       }
+                                   }
+                                   DREAL_LOG_DEBUG << "after filter: " << v;
+                                   return false;
+                               }),
+                     trace.end());
+    if (trace.empty()) {
+        return false;
+    }
+    // 2) If there is no intersection in 1), set dt an empty interval [0, 0]
+    capd::interval all_T = trace.begin()->first;
+    capd::IVector all_X_t = DV2IV(trace.begin()->second);
+    for (pair<double, capd::DVector> & item : trace) {
+        double dt = item.first;
+        capd::DVector const & v  = item.second;
+        all_X_t = intervalHull(all_X_t,  DV2IV(v));
+        all_T = intervalHull(all_T, capd::interval(dt));
+    }
+    if (!intersection(T, all_T, T)) {
+        return false;
+    }
+    if (!intersection(X_t, all_X_t, X_t)) {
+        return false;
+    }
+    return true;
+}
+
 box intersect_params(box & b, integral_constraint const & ic) {
     vector<Enode*> const & pars_0 = ic.get_pars_0();
     vector<Enode*> const & pars_t = ic.get_pars_t();
@@ -465,6 +539,18 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
         string const & name = pars_0[i]->getCar()->getNameFull();
         f.setParameter(name, X_0[i]);
         DREAL_LOG_DEBUG << "set_param: " << name << " ==> " << X_0[i];
+    }
+}
+
+template<typename T>
+void set_params_point(T & f, box const & b, integral_constraint const & ic) {
+    vector<Enode*> const & pars_0 = ic.get_pars_0();
+    capd::IVector X_0 = extract_ivector(b, pars_0);
+    for (unsigned i = 0; i < pars_0.size(); i++) {
+        string const & name = pars_0[i]->getCar()->getNameFull();
+        double const mid = X_0[i].leftBound() / 2.0 + X_0[i].rightBound() / 2.0;
+        f.setParameter(name, mid);
+        DREAL_LOG_DEBUG << "set_param_point: " << name << " ==> " << mid;
     }
 }
 
@@ -844,6 +930,215 @@ ostream & contractor_capd_full::display(ostream & out) const {
     return out;
 }
 
+contractor_capd_point::contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, ode_direction const dir, unsigned const taylor_order, double const timeout)
+    : contractor_cell(contractor_kind::CAPD_POINT, box.size()), m_dir(dir), m_ctr(ctr), m_eval_ctc(eval_ctc), m_taylor_order(taylor_order), m_timeout(timeout) {
+    DREAL_LOG_INFO << "contractor_capd_point::contractor_capd_point()";
+    integral_constraint const & ic = m_ctr->get_ic();
+    m_vars_0 = (m_dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
+    m_vars_t = (m_dir == ode_direction::FWD) ? ic.get_vars_t() : ic.get_vars_0();
+    string const capd_str = build_capd_string(ic, m_dir);
+
+    if (capd_str.find("var:") != string::npos) {
+        DREAL_LOG_INFO << "contractor_capd_point: diff sys = " << capd_str;
+        m_vectorField.reset(new capd::DMap(capd_str));
+        m_solver.reset(new capd::DOdeSolver(*m_vectorField, m_taylor_order));
+        m_timeMap.reset(new capd::DTimeMap(*m_solver));
+        // Turn on - Stop after step
+        m_timeMap->stopAfterStep(true);
+    } else {
+        // Trivial Case with all params and no ODE variables
+    }
+    // Set up m_inv_ctcs for invariant checking
+    if (m_ctr->get_invs().size() > 0) {
+        vector<contractor> inv_ctcs;
+        for (shared_ptr<forallt_constraint> inv : m_ctr->get_invs()) {
+            auto const & nl_ctrs = inv->get_nl_ctrs();
+            if (nl_ctrs.size() == 1) {
+                m_inv_ctcs.push_back(mk_contractor_ibex_fwdbwd(nl_ctrs[0]));
+            } else {
+                vector<contractor> ctcs;
+                for (auto const & nl_ctr : nl_ctrs) {
+                    ctcs.push_back(mk_contractor_ibex_fwdbwd(nl_ctr));
+                }
+                m_inv_ctcs.push_back(mk_contractor_seq(ctcs));
+            }
+        }
+        m_need_to_check_inv = true;
+    } else {
+        m_need_to_check_inv = false;
+    }
+    // Input: X_0, X_T, and Time
+    m_input  = ibex::BitSet::empty(box.size());
+    for (Enode * e : ctr->get_ic().get_enode()->get_vars()) {
+        m_input.add(box.get_index(e));
+    }
+    // Output: Empty
+    m_output = ibex::BitSet::empty(box.size());
+}
+void contractor_capd_point::prune(box & b, SMTConfig & config) {
+    auto const start_time = steady_clock::now();
+    thread_local static box old_box(b);
+    old_box = b;
+    DREAL_LOG_DEBUG << "contractor_capd_point::prune " << m_dir;
+    integral_constraint const & ic = m_ctr->get_ic();
+    b = intersect_params(b, ic);
+    if (b.is_empty()) {
+        for (Enode * e : ic.get_pars_0()) {
+            m_output.add(b.get_index(e));
+        }
+        for (Enode * e : ic.get_pars_t()) {
+            m_output.add(b.get_index(e));
+        }
+        m_used_constraints.insert(m_ctr);
+        return;
+    }
+    if (!m_solver) {
+        // Trivial Case where there are only params and no real ODE vars.
+        return;
+    }
+
+    // Special Case: Time = [0, 0]
+    // Intersect X_0 and X_t and return
+    if (b[ic.get_time_t()].ub() == 0.0) {
+        for (unsigned i = 0; i < m_vars_0.size(); ++i) {
+            auto & iv_0_i = b[m_vars_0[i]];
+            auto & iv_t_i = b[m_vars_t[i]];
+            iv_0_i &= iv_t_i;
+            if (iv_0_i.is_empty()) {
+                b.set_empty();
+                m_used_constraints.insert(m_ctr);
+                m_output = m_input;
+                return;
+            } else {
+                iv_t_i = iv_0_i;
+            }
+        }
+        // Setup m_output and m_used_constraints for SAT case
+        vector<bool> diff_dims = b.diff_dims(old_box);
+        for (unsigned i = 0; i < diff_dims.size(); i++) {
+            if (diff_dims[i]) {
+                m_output.add(i);
+            }
+        }
+        if (!m_output.empty()) {
+            m_used_constraints.insert(m_ctr);
+        }
+        return;
+    }
+
+    // General case: Time = [lb, ub] where ub > 0
+    set_params_point(*m_vectorField, b, ic);
+    try {
+        if (config.nra_ODE_step > 0) {
+            m_solver->setStep(config.nra_ODE_step);
+        }
+
+        // TODO(soonhok): for now, it always sample the midpoint of X_0
+        capd::DVector const X_0 = extract_dvector(b, m_vars_0);
+
+        // Here we update the current box b with the sampled X_0
+        update_box_with_dvector(b, m_vars_0, X_0);
+
+        capd::IVector X_t = extract_ivector(b, m_vars_t);
+        ibex::Interval const & ibex_T = b[ic.get_time_t()];
+        double T_lb = ibex_T.lb();
+        double const T_ub = ibex_T.ub();
+        capd::interval T(T_lb, T_ub);
+        DREAL_LOG_INFO << "X_0 : " << X_0;
+        DREAL_LOG_INFO << "X_t : " << X_t;
+        DREAL_LOG_INFO << "T   : " << T;
+        capd::DVector X = X_0;
+        double current_time = 0.0;
+        while (current_time < T_lb) {
+            (*m_timeMap)(T_lb, X, current_time);
+        }
+        do {
+            // Handle Timeout
+            if (m_timeout > 0.0 && b.max_diam() > config.nra_precision) {
+                auto const end_time = steady_clock::now();
+                auto const time_diff_in_msec = std::chrono::duration<double, milli>(end_time - start_time).count();
+                DREAL_LOG_INFO << "ODE TIME: " << time_diff_in_msec << " / " << m_timeout;
+                if (time_diff_in_msec > m_timeout) {
+                    DREAL_LOG_FATAL << "ODE TIMEOUT!" << "\t"
+                                    << time_diff_in_msec << "msec / "
+                                    << m_timeout << "msec";
+                    throw contractor_exception("ODE TIMEOUT");
+                }
+            }
+            // TODO(soonhok): implement this later
+            // // Invariant Check
+            // if (m_need_to_check_inv && !check_invariant(s, b, config)) {
+            //     break;
+            // }
+            // Move s toward m_T.rightBound()
+            interruption_point();
+
+            (*m_timeMap)(T_ub, X, current_time);
+            // DREAL_LOG_FATAL << current_time << " : "
+            //                 << "[" << T_lb << " / " << T_ub << "]\t" << X;
+            if (T_lb <= current_time) {
+                //                     [     T      ]
+                // [     current Time     ]
+                // TODO(soonhok): need to check the invariant
+
+                // included = true if X is in X_t
+                bool included = true;
+                for (unsigned i = 0; i < X.dimension(); ++i) {
+                    if (!X_t[i].contains(X[i])) {
+                        included = false;
+                        // DREAL_LOG_FATAL << "X_t[" << i << "] = " << X_t[i] << "\t"
+                        //                 << "X[" << i << "] = " << X[i];
+                        break;
+                    }
+                }
+                if (included) {
+                    // Need to check whether (X_0, current_time, X) satisfies other constraints (i.e. guard)
+                    // To do so, we update the current box with (X_0, current_time, X),
+                    // and check this updated box with eval_ctc.
+                    update_box_with_dvector(b, m_vars_t, X);
+                    b[ic.get_time_t()] = current_time;
+
+                    m_eval_ctc.prune(b, config);
+                    if (!b.is_empty()) {
+                        DREAL_LOG_INFO << "This box satisfies other non-linear constraints";
+                        return;
+                    } else {
+                        DREAL_LOG_INFO << "This box failed to satisfy other non-linear constraints";
+                    }
+                }
+            }
+        } while (current_time < T_ub);
+    } catch (capd::intervals::IntervalError<double> & e) {
+        if (config.nra_ODE_show_progress) {
+            cout << " [IntervalError]" << endl;
+        }
+        b = old_box;
+        throw contractor_exception(e.what());
+    } catch (capd::ISolverException & e) {
+        if (config.nra_ODE_show_progress) {
+            cout << " [ISolverException]" << endl;
+        }
+        b = old_box;
+        throw contractor_exception(e.what());
+    }
+
+    // TODO(soonhok): need to update m_output vector, and used constraint here?
+    DREAL_LOG_INFO << "CAPD_POINT failed to find a trace in the end";
+    // The sampling attempt failed. We need to restore the value of box using the saved old-box.
+    b = old_box;
+
+    // auto const end_time = steady_clock::now();
+    // auto const time_diff_in_msec = std::chrono::duration<double, milli>(end_time - start_time).count();
+    // DREAL_LOG_FATAL << "SAMPLING TIME: " << time_diff_in_msec;
+    throw contractor_exception("CAPD_POINT failed");
+}
+ostream & contractor_capd_point::display(ostream & out) const {
+    out << "contractor_capd_point("
+        << m_dir << ", "
+        << *m_ctr << ")";
+    return out;
+}
+
 contractor mk_contractor_capd_simple(box const & box, shared_ptr<ode_constraint> const ctr, ode_direction const dir) {
     return contractor(make_shared<contractor_capd_simple>(box, ctr, dir));
 }
@@ -874,4 +1169,31 @@ contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> c
         }
     }
 }
+contractor mk_contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, ode_direction const dir, unsigned const taylor_order, bool const use_cache, double const timeout) {
+    if (!use_cache) {
+        return contractor(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, taylor_order, timeout));
+    }
+    if (dir == ode_direction::FWD) {
+        static unordered_map<shared_ptr<ode_constraint>, contractor> capd_point_fwd_ctc_cache;
+        auto it = capd_point_fwd_ctc_cache.find(ctr);
+        if (it == capd_point_fwd_ctc_cache.end()) {
+            contractor ctc(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, taylor_order, timeout));
+            capd_point_fwd_ctc_cache.emplace(ctr, ctc);
+            return ctc;
+        } else {
+            return it->second;
+        }
+    } else {
+        static unordered_map<shared_ptr<ode_constraint>, contractor> capd_point_bwd_ctc_cache;
+        auto it = capd_point_bwd_ctc_cache.find(ctr);
+        if (it == capd_point_bwd_ctc_cache.end()) {
+            contractor ctc(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, taylor_order, timeout));
+            capd_point_bwd_ctc_cache.emplace(ctr, ctc);
+            return ctc;
+        } else {
+            return it->second;
+        }
+    }
+}
+
 }  // namespace dreal
