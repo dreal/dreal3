@@ -32,6 +32,47 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor_common.h"
 #include "contractor/contractor_basic.h"
 
+namespace std {
+template<>
+struct hash<capd::Interval> {
+    size_t operator () (const capd::Interval & v) const {
+        return std::hash<double>()(v.leftBound()) ^ std::hash<double>()(v.rightBound());
+    }
+};
+template<>
+struct equal_to<capd::Interval> {
+    bool operator() (const capd::Interval & v1, const capd::Interval & v2) const {
+        return v1.leftBound() == v2.leftBound() && v1.rightBound() == v2.rightBound();
+    }
+};
+
+template<>
+struct hash<capd::IVector> {
+    size_t operator () (const capd::IVector & v) const {
+        size_t h = 23;
+        for (capd::Interval const & iv : v) {
+            h ^= std::hash<capd::Interval>()(iv);
+        }
+        return h;
+    }
+};
+
+template<>
+struct equal_to<capd::IVector> {
+    bool operator() (const capd::IVector & v1, const capd::IVector & v2) const {
+        if (v1.dimension() != v2.dimension()) {
+            return false;
+        }
+        for (unsigned i = 0; i < v1.dimension(); i++) {
+            if (v1[i] != v2[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+}
+
 namespace dreal {
 class contractor_capd_simple : public contractor_cell {
 private:
