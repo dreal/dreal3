@@ -90,6 +90,6 @@
 (assert (<= time_0 10000 [0.000000]))
 (assert (<= 1 mode_0))
 (assert (<= mode_0 1))
-(assert (and (and (= CC_d_0_0 0) (= SP_d_0_0 0) (= GA_d_0_0 0) (= TA_d_0_0 0) (= SC_d_0_0 200) (= CC_0_0 0) (= GC_0_0 0) (= SP_0_0 0) (= GA_0_0 0) (= TA_0_0 0) (= SC_0_0 20) (= tau_0_0 0)) (= mode_0 1) (= [CC_0_t CC_d_0_t GA_0_t GA_d_0_t GC_0_t SC_0_t SC_d_0_t SP_0_t SP_d_0_t TA_0_t TA_d_0_t tau_0_t] (integral 0. time_0 [CC_0_0 CC_d_0_0 GA_0_0 GA_d_0_0 GC_0_0 SC_0_0 SC_d_0_0 SP_0_0 SP_d_0_0 TA_0_0 TA_d_0_0 tau_0_0] flow_1)) (= mode_0 1) (= mode_0 1) (= tau_0_t 2000)))
+(assert (and (and (= time_0 2000) (= CC_d_0_0 0) (= SP_d_0_0 0) (= GA_d_0_0 0) (= TA_d_0_0 0) (= SC_d_0_0 200) (= CC_0_0 0) (= GC_0_0 0) (= SP_0_0 0) (= GA_0_0 0) (= TA_0_0 0) (= SC_0_0 20) (= tau_0_0 0)) (= mode_0 1) (= [CC_0_t CC_d_0_t GA_0_t GA_d_0_t GC_0_t SC_0_t SC_d_0_t SP_0_t SP_d_0_t TA_0_t TA_d_0_t tau_0_t] (integral 0. time_0 [CC_0_0 CC_d_0_0 GA_0_0 GA_d_0_0 GC_0_0 SC_0_0 SC_d_0_0 SP_0_0 SP_d_0_0 TA_0_0 TA_d_0_0 tau_0_0] flow_1)) (= mode_0 1) (= mode_0 1) (= tau_0_t 2000)))
 (check-sat)
 (exit)
