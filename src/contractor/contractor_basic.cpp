@@ -63,6 +63,7 @@ using std::pair;
 using std::queue;
 using std::set;
 using std::shared_ptr;
+using std::string;
 using std::tuple;
 using std::unordered_map;
 using std::unordered_set;
@@ -78,6 +79,17 @@ void contractor_id::prune(box &, SMTConfig &) {
 }
 ostream & contractor_id::display(ostream & out) const {
     out << "contractor_id()";
+    return out;
+}
+
+contractor_debug::contractor_debug(string const & s)
+    : contractor_cell(contractor_kind::DEBUG), m_msg(s) {
+}
+void contractor_debug::prune(box & b, SMTConfig &) {
+    DREAL_LOG_FATAL << "contractor_debug: " << m_msg;
+}
+ostream & contractor_debug::display(ostream & out) const {
+    out << "contractor_debug(" << m_msg << ")";
     return out;
 }
 
@@ -681,6 +693,9 @@ ostream & contractor_aggressive::display(ostream & out) const {
 }
 contractor mk_contractor_id() {
     return contractor(make_shared<contractor_id>());
+}
+contractor mk_contractor_debug(string const & s) {
+    return contractor(make_shared<contractor_debug>(s));
 }
 contractor mk_contractor_seq(initializer_list<contractor> const & l) {
     if (l.size() == 0) {

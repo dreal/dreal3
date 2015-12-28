@@ -47,6 +47,16 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
+// contractor_debug : debug
+class contractor_debug : public contractor_cell {
+private:
+    std::string m_msg;
+public:
+    contractor_debug(std::string const & s);
+    void prune(box & b, SMTConfig & config);
+    std::ostream & display(std::ostream & out) const;
+};
+
 // contractor_seq : Run C1, C2, ... , Cn sequentially.
 class contractor_seq : public contractor_cell {
 private:
@@ -225,6 +235,7 @@ public:
 };
 
 contractor mk_contractor_id();
+contractor mk_contractor_debug(std::string const & s);
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
 contractor mk_contractor_seq(std::vector<contractor> const & v);
 contractor mk_contractor_seq(contractor const & c1, contractor const & c2);

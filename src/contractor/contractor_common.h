@@ -40,6 +40,7 @@ enum class contractor_kind { ID, SEQ, OR, ITE, FP,
         IBEX_FWDBWD, IBEX_NEWTON, IBEX_HC4, IBEX_POLYTOPE,
         INT, EVAL, CACHE, SAMPLE, AGGRESSIVE, FORALL,
         THROW, THROW_IF_EMPTY, EMPTY,
+        DEBUG,
 #ifdef SUPPORT_ODE
         CAPD_FULL, CAPD_SIMPLE, CAPD_POINT,
 #endif
