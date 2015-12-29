@@ -18,13 +18,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <unordered_map>
-#include <vector>
+#include <functional>
 #include <initializer_list>
+#include <memory>
 #include <stdexcept>
 #include <string>
-#include <memory>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "json/json.hpp"
@@ -71,7 +72,7 @@ struct equal_to<capd::IVector> {
         return true;
     }
 };
-}
+}  // namespace std
 
 namespace dreal {
 class contractor_capd_simple : public contractor_cell {

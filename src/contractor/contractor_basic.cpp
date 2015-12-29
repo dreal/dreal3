@@ -85,7 +85,7 @@ ostream & contractor_id::display(ostream & out) const {
 contractor_debug::contractor_debug(string const & s)
     : contractor_cell(contractor_kind::DEBUG), m_msg(s) {
 }
-void contractor_debug::prune(box & b, SMTConfig &) {
+void contractor_debug::prune(box &, SMTConfig &) {
     DREAL_LOG_FATAL << "contractor_debug: " << m_msg;
 }
 ostream & contractor_debug::display(ostream & out) const {

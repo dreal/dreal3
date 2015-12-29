@@ -52,7 +52,7 @@ class contractor_debug : public contractor_cell {
 private:
     std::string m_msg;
 public:
-    contractor_debug(std::string const & s);
+    explicit contractor_debug(std::string const & s);
     void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
