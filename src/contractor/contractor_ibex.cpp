@@ -173,7 +173,7 @@ void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) {
     }
     thread_local static ibex::IntervalVector old_iv(b.get_values());
     old_iv = b.get_values();
-    assert(m_var_array.size() - b.size() == 0);
+    assert(m_var_array.size() >= 0 && static_cast<unsigned>(m_var_array.size()) <= b.size());
     DREAL_LOG_DEBUG << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << b;
     DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (before)";
