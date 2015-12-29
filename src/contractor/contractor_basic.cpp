@@ -772,7 +772,9 @@ contractor mk_contractor_aggressive(unsigned const n, vector<shared_ptr<constrai
     return contractor(make_shared<contractor_aggressive>(n, ctrs));
 }
 ostream & operator<<(ostream & out, contractor const & c) {
-    out << *(c.m_ptr);
+    if (c.m_ptr) {
+        out << *(c.m_ptr);
+    }
     return out;
 }
 
