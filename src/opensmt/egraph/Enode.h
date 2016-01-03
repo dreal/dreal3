@@ -367,7 +367,7 @@ public:
 
   void           print_infix( std::ostream & os, lbool polarity, std::string const & variable_postfix = "") const;
   void           print                  ( std::ostream & ) const; // Prints the
-
+  void           display                () const;
   std::string    stripName              ( std::string ) const;
   void           printSig               ( std::ostream & ); // Prints the enode signature
 
