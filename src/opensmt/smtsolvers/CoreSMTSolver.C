@@ -1335,6 +1335,12 @@ CoreSMTSolver::pushBacktrackPoint( )
   // Save undo stack size
   //
   assert( undo_stack_oper.size( ) == undo_stack_elem.size( ) );
+
+  // Added by Soonho Kong
+  // Need to save the current unchecked assertions, and restore it when popBacktrackPoint() is called.
+  // It uses egraph.getUncheckedAssertions(false) not to clear the current assetions in the egraph.
+  // Note that if we don't pass 'false', it will clear the current assertions after returning them.
+  undo_unchecked_assertions.push_back(egraph.getUncheckedAssertions(false));
   undo_stack_size.push_back( undo_stack_oper.size( ) );
   undo_trail_size.push_back( trail.size( ) );
 #ifdef PRODUCE_PROOF
@@ -1459,6 +1465,14 @@ CoreSMTSolver::popBacktrackPoint ( )
 #endif
   // Backtrack theory solvers
   theory_handler->backtrack( );
+
+  // Added by Soonho Kong
+  auto last_unchecked_assertion = undo_unchecked_assertions.back();
+  undo_unchecked_assertions.pop_back();
+  if (last_unchecked_assertion && !last_unchecked_assertion->isTrue()) {
+      egraph.addAssertion(last_unchecked_assertion);
+  }
+
   // Restore OK
   restoreOK( );
   assert( isOK( ) );

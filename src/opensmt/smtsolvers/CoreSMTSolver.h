@@ -402,6 +402,9 @@ protected:
         //
         // Automatic push and pop, for enable undo
         //
+
+        // Added by Soonho Kong, dReal
+        std::vector< Enode *>   undo_unchecked_assertions;
         std::vector< size_t >   undo_stack_size;            // Keep track of stack_oper size
         std::vector< oper_t >   undo_stack_oper;            // Keep track of operations
         std::vector< void * >   undo_stack_elem;            // Keep track of aux info
