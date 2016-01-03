@@ -96,6 +96,7 @@ opensmt_expr     opensmt_mk_forall                 ( opensmt_context, opensmt_ex
 opensmt_expr     opensmt_mk_or                     ( opensmt_context, opensmt_expr *, unsigned );
 opensmt_expr     opensmt_mk_or_2                   ( opensmt_context, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_or_3                   ( opensmt_context, opensmt_expr, opensmt_expr, opensmt_expr );
+opensmt_expr     opensmt_mk_imply                  ( opensmt_context, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_and                    ( opensmt_context, opensmt_expr *, unsigned );
 opensmt_expr     opensmt_mk_and_2                  ( opensmt_context, opensmt_expr, opensmt_expr );
 opensmt_expr     opensmt_mk_and_3                  ( opensmt_context, opensmt_expr, opensmt_expr, opensmt_expr );

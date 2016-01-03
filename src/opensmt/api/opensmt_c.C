@@ -471,6 +471,12 @@ opensmt_expr opensmt_mk_or_3( opensmt_context c, opensmt_expr expr1, opensmt_exp
   return opensmt_mk_or(c, list, 3);
 }
 
+opensmt_expr opensmt_mk_imply( opensmt_context c, opensmt_expr expr1, opensmt_expr expr2)
+{
+  opensmt_expr list[2] = {opensmt_mk_not(c, expr1), expr2};
+  return opensmt_mk_or(c, list, 2);
+}
+
 opensmt_expr opensmt_mk_and( opensmt_context c, opensmt_expr * expr_list, unsigned n )
 {
   assert( c );
