@@ -2423,7 +2423,7 @@ Enode * Egraph::mkZeroExtend( int i, Enode * x )
 //
 // Packs assertions and formula and return it into a single enode
 //
-Enode * Egraph::getUncheckedAssertions( )
+Enode * Egraph::getUncheckedAssertions( bool const clear )
 {
   if ( assertions.empty( ) )
     return mkTrue( );
@@ -2436,7 +2436,9 @@ Enode * Egraph::getUncheckedAssertions( )
   Enode * args = cons( assertions );
 
   // Clear assertions for incremental solving
-  assertions.clear( );
+  if (clear) {
+      assertions.clear( );
+  }
 
   return mkAnd( args );
 }

@@ -262,7 +262,7 @@ public:
 
   //Enode * makeNumberFromGmp  ( mpz_class &, const int );
 
-  Enode * getUncheckedAssertions  ( );
+  Enode * getUncheckedAssertions  ( bool const clear = true );
 #ifdef PRODUCE_PROOF
   Enode * getNextAssertion        ( );
 #endif
