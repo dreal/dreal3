@@ -26,6 +26,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 int main() {
     opensmt_init();
     opensmt_context ctx = opensmt_mk_context(qf_nra_ode);
+    opensmt_set_verbosity(ctx, 10);
     opensmt_expr a = opensmt_mk_bool_var(ctx, "a");
     opensmt_expr not_a = opensmt_mk_not(ctx, a);
     opensmt_assert(ctx, a);
