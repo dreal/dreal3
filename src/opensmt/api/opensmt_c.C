@@ -68,6 +68,7 @@ void opensmt_set_verbosity( opensmt_context c, int v )
   assert( c );
   OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
   OpenSMTContext & context = *c_;
+  context.getConfig().verbosity = v;
   if (v > 3) {
       context.setDebug(true);
   } else if (v > 2) {
