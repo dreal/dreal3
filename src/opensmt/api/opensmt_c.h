@@ -35,7 +35,7 @@ typedef enum { l_false=-1, l_undef, l_true } opensmt_result;
 typedef enum
 {
   qf_nra,        // Non-Linear Real Arithmetic
-  qf_nra_ode    // Non-Linear Real Arithmetic
+  qf_nra_ode     // Non-Linear Real Arithmetic (+ODE Support)
 } opensmt_logic;
 
 //
