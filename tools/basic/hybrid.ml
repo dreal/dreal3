@@ -44,7 +44,7 @@ let preprocess (vm, cm, mm, iid, iformula, gs, ginvs) : t =
     | true ->
        begin
          match Vardeclmap.find s cm with
-           Value.Num n -> Basic.Num n
+           (Value.Num n, _) -> Basic.Num n
          | _ -> raise Not_found
        end
     | false -> Basic.Var s
@@ -65,7 +65,7 @@ let preprocess (vm, cm, mm, iid, iformula, gs, ginvs) : t =
             (fun j ->
              Jump.makep
                (Basic.preprocess_formula subst (Jump.guard j),
-		Jump.precision j,
+                Jump.precision j,
                 Jump.target j,
                 Basic.preprocess_formula subst (Jump.change j)))
             (Mode.jumps m),
@@ -73,7 +73,7 @@ let preprocess (vm, cm, mm, iid, iformula, gs, ginvs) : t =
             (fun j ->
              Jump.makep
                (Basic.preprocess_formula subst (Jump.guard j),
-		Jump.precision j,
+                Jump.precision j,
                 Jump.target j,
                 Basic.preprocess_formula subst (Jump.change j)))
             (Mode.jumpmap m)

@@ -480,7 +480,7 @@ let compile_vardecl (h : Hybrid.t) (k : int) (path : (int list) option) =
   let mode_vardecls =
     List.map
       (fun n ->
-          ("mode_" ^ (Int.to_string n), Value.Intv (1.0, float_of_int num_of_modes))
+          ("mode_" ^ (Int.to_string n), (Value.Intv (1.0, float_of_int num_of_modes), Value.Num 0.0))
       )
       (List.of_enum (0 -- k))
   in
@@ -489,7 +489,7 @@ let compile_vardecl (h : Hybrid.t) (k : int) (path : (int list) option) =
     List.split
       (List.map
          (function
-           | (name, Value.Intv (lb, ub)) ->
+           | (name, (Value.Intv (lb, ub), Value.Num p)) ->
               begin
                 match path with
                   Some(my_path) ->
@@ -503,22 +503,25 @@ let compile_vardecl (h : Hybrid.t) (k : int) (path : (int list) option) =
                       let mode_id = List.at my_path time in
                       let mode = Modemap.find mode_id h.modemap in
                       let tprecision = mode.time_precision in
-                      (DeclareFun name,
+                      (DeclareFun (name, p),
                        [make_lbp name lb tprecision;
                         make_ubp name ub tprecision])
                     |  _ ->
-                      (DeclareFun name,
+                      (DeclareFun (name, p),
                        [make_lb name lb;
                         make_ub name ub])
                   end
                 | None ->
-                  (DeclareFun name,
-                   [make_lb name lb;
-                    make_ub name ub])
+                   (DeclareFun (name, p),
+                    [make_lb name lb;
+                     make_ub name ub])
               end
            | _ -> raise (SMTException "We should only have interval here."))
          new_vardecls) in
-  let org_vardecl_cmds = List.map (fun (var, _) -> DeclareFun var) vardecls' in
+  let org_vardecl_cmds = List.map
+                           (function (var, (_, Value.Num p)) -> DeclareFun (var, p)
+                                   | _ -> raise (Failure "Variable declaration includes interval precision"))
+                           vardecls' in
   let assert_cmds = List.flatten assert_cmds_list in
   (org_vardecl_cmds@vardecl_cmds, assert_cmds)
 
@@ -567,8 +570,7 @@ let compile_vardecl_pruned (h : Hybrid.t) (k : int) (path : (int list) option) (
   let mode_vardecls =
     List.map
       (fun n ->
-          ("mode_" ^ (Int.to_string n), Value.Intv (1.0, float_of_int num_of_modes))
-      )
+          ("mode_" ^ (Int.to_string n), (Value.Intv (1.0, float_of_int num_of_modes), Value.Num 0.0)))
       (List.of_enum (0 -- k))
   in
   let new_vardecls = List.flatten [vardecls''; time_vardecls; mode_vardecls] in
@@ -576,36 +578,38 @@ let compile_vardecl_pruned (h : Hybrid.t) (k : int) (path : (int list) option) (
     List.split
       (List.map
          (function
-           | (name, Value.Intv (lb, ub)) ->
-              begin
-                match path with
-                  Some(my_path) ->
-                  begin
-                    match (String.starts_with name "time_",
-                           (String.sub name
-                              ((String.index name '_') + 1)
-                              (String.length name - ((String.index name '_') + 1)))) with
-                      (true, time_id) ->
-                      let time =  int_of_string time_id in
-                      let mode_id = List.at my_path time in
-                      let mode = Modemap.find mode_id h.modemap in
-                      let tprecision = mode.time_precision in
-                      (DeclareFun name,
-                       [make_lbp name lb tprecision;
-                        make_ubp name ub tprecision])
-                    |  _ ->
-                      (DeclareFun name,
-                       [make_lb name lb;
-                        make_ub name ub])
-                  end
-                | None ->
-                  (DeclareFun name,
+          | (name, (Value.Intv (lb, ub), Value.Num p)) ->
+             begin
+               match path with
+                 Some(my_path) ->
+                 begin
+                   match (String.starts_with name "time_",
+                          (String.sub name
+                                      ((String.index name '_') + 1)
+                                      (String.length name - ((String.index name '_') + 1)))) with
+                     (true, time_id) ->
+                     let time =  int_of_string time_id in
+                     let mode_id = List.at my_path time in
+                     let mode = Modemap.find mode_id h.modemap in
+                     let tprecision = mode.time_precision in
+                     (DeclareFun (name, p),
+                      [make_lbp name lb tprecision;
+                       make_ubp name ub tprecision])
+                   |  _ ->
+                       (DeclareFun (name, p),
+                        [make_lb name lb;
+                         make_ub name ub])
+                 end
+               | None ->
+                  (DeclareFun (name, p),
                    [make_lb name lb;
                     make_ub name ub])
-              end
-           | _ -> raise (SMTException "We should only have interval here."))
+             end
+          | _ -> raise (SMTException "We should only have interval here."))
          new_vardecls) in
-  let org_vardecl_cmds = List.map (fun (var, _) -> DeclareFun var) vardecls' in
+  let org_vardecl_cmds = List.map (function (var, (_, Value.Num p)) -> DeclareFun (var, p)
+                                          | _ -> raise (Failure "Variable declaration include an interval precision"))
+                                  vardecls' in
   let assert_cmds = List.flatten assert_cmds_list in
   (org_vardecl_cmds@vardecl_cmds, assert_cmds)
 

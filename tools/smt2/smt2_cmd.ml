@@ -9,7 +9,7 @@ type formula = Basic.formula
 
 type t = | SetLogic of logic
          | SetInfo of string * string
-         | DeclareFun of string
+         | DeclareFun of string * float
          | DeclareConst of string
 
          (** ode group X LHS X RHS **)
@@ -45,8 +45,11 @@ let print out =
     Printf.fprintf out "(set-logic %s)" (IO.to_string print_logic l)
   | SetInfo (key, value) ->
     Printf.fprintf out "(set-info %s %s)" key value
-  | DeclareFun v ->
-    Printf.fprintf out "(declare-fun %s () Real)" v
+  | DeclareFun (v, prec) ->
+     if prec > 0.0 then
+       Printf.fprintf out "(declare-fun %s () Real [%f])" v prec
+     else
+       Printf.fprintf out "(declare-fun %s () Real)" v
   | DeclareConst v ->
     Printf.fprintf out "(declare-const %s Real)" v
   | DefineODE (g, eqs) ->
