@@ -145,34 +145,17 @@ public:
   inline Enode * mkLt          ( Enode * args ) { return mkNot( cons( mkLeq( swapList( args ) ) ) ); }
   inline Enode * mkGeq         ( Enode * args ) { return              mkLeq( swapList( args ) ); }
   inline Enode * mkGt          ( Enode * args ) { return mkNot( cons( mkLeq(           args ) ) ); }
-
   inline Enode * mkTrue        ( )              { return etrue; }
   inline Enode * mkFalse       ( )              { return efalse; }
-
-  /*
-  inline Enode * mkBvslt       ( Enode * args, bool simp = true ) { return simp ? mkNot( cons( mkBvsle( swapList( args ) ) ) ) : cons( id_to_enode[ ENODE_ID_BVSLT ], args ); }
-  inline Enode * mkBvsge       ( Enode * args )                   { return              mkBvsle( swapList( args ) ); }
-  inline Enode * mkBvsgt       ( Enode * args )                   { return mkNot( cons( mkBvsle( args ) ) ); }
-
-  inline Enode * mkBvult       ( Enode * args, bool simp = true ) { return simp ? mkNot( cons( mkBvule( swapList( args ) ) ) ) : cons( id_to_enode[ ENODE_ID_BVULT ], args ); }
-  inline Enode * mkBvuge       ( Enode * args )                   { return              mkBvule( swapList( args ) ); }
-  inline Enode * mkBvugt       ( Enode * args )                   { return mkNot( cons( mkBvule( args ) ) ); }
-
-  inline Enode * mkBvurem      ( Enode * args ) { return cons( id_to_enode[ ENODE_ID_BVUREM ], args ); }
-  inline Enode * mkBvudiv      ( Enode * args ) { return cons( id_to_enode[ ENODE_ID_BVUDIV ], args ); }
-  */
-
-  //
-  // Implemented in EgraphStore.C
-  // Semantic of mk* functions: they use
-  // the concrete cons, and they store the
-  // node permanently inside the term bank
-  //
   Enode * mkPlus             ( Enode * );
   Enode * mkMinus            ( Enode * );
   Enode * mkTimes            ( Enode * );
   Enode * mkDiv              ( Enode * );
   Enode * mkUminus           ( Enode * );
+  inline Enode * mkPlus (Enode * e1, Enode * e2) { return mkPlus(cons(e1,cons(e2))); }
+  inline Enode * mkMinus (Enode * e1, Enode * e2) { return mkMinus(cons(e1,cons(e2))); }
+  inline Enode * mkTimes (Enode * e1, Enode * e2) { return mkTimes(cons(e1,cons(e2))); }
+  inline Enode * mkDiv (Enode * e1, Enode * e2) { return mkDiv(cons(e1,cons(e2))); }
   Enode * mkDistinct         ( Enode * );
   Enode * mkNot              ( Enode * );
   Enode * mkAnd              ( Enode * );
@@ -183,7 +166,6 @@ public:
   Enode * mkEq               ( Enode * );
   Enode * mkImplies          ( Enode * );
   Enode * mkXor              ( Enode * );
-
   /* added for dReal2 */
   Enode * mkAbs              ( Enode * );
   Enode * mkSin              ( Enode * );
@@ -209,17 +191,9 @@ public:
   Enode * mkForall ( std::vector<std::pair<std::string, Snode *>> const & sorted_var_list, Enode * e);
   Enode * mkExists ( std::vector<std::pair<std::string, Snode *>> const & sorted_var_list, Enode * e);
 
-  /* ----------------- */
-
   Enode * mkSelect           ( Enode *, Enode * );
   Enode * mkStore            ( Enode *, Enode *, Enode * );
-
-  /* commented out for dReal2 */
-//  Enode * mkCostIncur        ( Enode * );
-//  Enode * mkCostBound        ( Enode * );
-
   Enode * mkLeq              ( Enode * );
-
   Enode * mkBvand            ( Enode * );
   Enode * mkBvor             ( Enode * );
   Enode * mkBvnot            ( Enode * );
@@ -259,9 +233,7 @@ public:
   void    mkDefine           ( const char *, Enode * );
   Enode * mkLet              ( Enode * );
   Enode * getDefine          ( const char * );
-
-  //Enode * makeNumberFromGmp  ( mpz_class &, const int );
-
+  Enode * mkDeriv	     (Enode *, Enode *); //returns symbolic derivative
   Enode * getUncheckedAssertions  ( bool const clear = true );
 #ifdef PRODUCE_PROOF
   Enode * getNextAssertion        ( );

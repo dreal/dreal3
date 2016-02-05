@@ -213,6 +213,8 @@ public:
       return egraph.mkExists(sorted_var_list, e);
   }
 
+  inline Enode * mkDeriv     ( Enode * e1 , Enode * e2)       { assert(e1); assert(e2); return egraph.mkDeriv(e1,e2);}
+
   inline double getPrecision() {
       return config.nra_precision;
   }
