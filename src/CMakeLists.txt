@@ -220,6 +220,31 @@ JOIN("${CMAKE_CXX_FLAGS}" "," EXTERNAL_CXX_FLAGS)
 JOIN("${DREAL_EXTRA_LINKER_FLAGS}" "," EXTERNAL_LD_FLAGS)
 
 ################################################################
+# External: PICOSAT
+################################################################
+if(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(PICOSAT
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    URL ${CMAKE_SOURCE_DIR}/third_party/picosat.zip
+    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} ./configure.sh # ${SHARED_LIB_CONFIG_COMMAND} # --prefix=${CMAKE_CURRENT_BINARY_DIR}
+    BUILD_COMMAND make
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp picosat.h ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp libpicosat.a ${CMAKE_CURRENT_BINARY_DIR}/lib)
+else()
+  ExternalProject_Add(PICOSAT
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/picosat.git
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} ./configure.sh # --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+    BUILD_COMMAND CC=${CMAKE_C_COMPILER} make VERBOSE=1
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp picosat.h ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp libpicosat.a ${CMAKE_CURRENT_BINARY_DIR}/lib )
+endif()
+set(EXTRA_LIBS "picosat" ${EXTRA_LIBS})
+
+################################################################
 # External: FILIB
 ################################################################
 if(USE_LOCAL_THIRD_PARTY)
@@ -683,11 +708,13 @@ else()
   add_library(dop ${DOP_SRCS})
 endif()
 
+add_dependencies(dop PICOSAT)
 add_dependencies(dop IBEX)
 add_dependencies(dop NLOPT)
 add_dependencies(dop EASYLOGGINGPP)
 add_dependencies(dop EZOPTIONPARSER)
 add_dependencies(dop JSON)
+add_dependencies(dreal PICOSAT)
 add_dependencies(dreal IBEX)
 add_dependencies(dreal NLOPT)
 add_dependencies(dreal EASYLOGGINGPP)
@@ -843,19 +870,19 @@ if(APPLE AND BUILD_SHARED_LIB)
     add_custom_target(shared_lib
       COMMAND echo "Building Shared Library..."
       COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libibex.a libnlopt.a libprim.a libClp.a libClpSolver.a libCoinUtils.a libglpk.a -o libdreal.dylib
-      DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT GLPK)
+      DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT GLPK PICOSAT)
   else()
     add_custom_target(shared_lib
       COMMAND echo "Building Shared Library..."
       COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libibex.a libnlopt.a libprim.a libClp.a libClpSolver.a libCoinUtils.a -o libdreal.dylib
-      DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT)
+      DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT PICOSAT)
   endif()
 endif()
 
 add_custom_target(update_pkgs
   COMMAND echo "Update External Packages"
   COMMAND ${CMAKE_BUILD_TOOL}
-  DEPENDS update_clp update_filib update_ibex update_nlopt update_capd update_catch update_easyloggingpp update_ezoptionparser update_json)
+  DEPENDS update_clp update_filib update_ibex update_nlopt update_capd update_catch update_easyloggingpp update_ezoptionparser update_json update_picosat)
 
 add_custom_target(update_clp
   COMMAND git fetch --all && git reset --hard origin/master && make install
@@ -864,6 +891,10 @@ add_custom_target(update_clp
 add_custom_target(update_filib
   COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/FILIB)
+
+add_custom_target(update_picosat
+  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp picosat.h ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp libpicosat.a ${CMAKE_CURRENT_BINARY_DIR}/lib
+  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/PICOSAT)
 
 add_custom_target(update_ibex
   COMMAND git fetch --all && git reset --hard origin/master && ./waf install
