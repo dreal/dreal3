@@ -26,18 +26,22 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include "capd/capdlib.h"
+#include "contractor/contractor_basic.h"
+#include "contractor/contractor_common.h"
+#include "json/json.hpp"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include "json/json.hpp"
-#include "capd/capdlib.h"
-#include "contractor/contractor_common.h"
-#include "contractor/contractor_basic.h"
+#include "util/hash_combine.h"
 
 namespace std {
 template<>
 struct hash<capd::Interval> {
     size_t operator () (const capd::Interval & v) const {
-        return std::hash<double>()(v.leftBound()) ^ std::hash<double>()(v.rightBound());
+        size_t seed = 23;
+        dreal::hash_combine<double>(seed, v.leftBound());
+        dreal::hash_combine<double>(seed, v.rightBound());
+        return seed;
     }
 };
 template<>
@@ -50,11 +54,11 @@ struct equal_to<capd::Interval> {
 template<>
 struct hash<capd::IVector> {
     size_t operator () (const capd::IVector & v) const {
-        size_t h = 23;
+        size_t seed = 23;
         for (capd::Interval const & iv : v) {
-            h ^= std::hash<capd::Interval>()(iv);
+            dreal::hash_combine<capd::Interval>(seed, iv);
         }
-        return h;
+        return seed;
     }
 };
 
