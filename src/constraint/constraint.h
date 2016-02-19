@@ -54,6 +54,7 @@ public:
     virtual ~constraint() noexcept { }
     friend std::ostream & operator<<(std::ostream & out, constraint const & c);
 };
+
 std::ostream & operator<<(std::ostream & out, constraint const & c);
 
 class nonlinear_constraint : public constraint {
