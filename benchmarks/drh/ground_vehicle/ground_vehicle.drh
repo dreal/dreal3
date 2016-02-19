@@ -1,0 +1,32 @@
+#define u 10
+
+[-10, 10] x;
+[-10, 10] y;
+[-1000, 1000] psi;
+[-100, 100] psidot;
+[-500, 500] rho;
+
+[0, 50] tau;
+[0, 50] time;
+
+{mode 1;
+
+flow:
+	d/dt[x] = -sin(psi); 
+	d/dt[y] =  cos(psi);
+	d/dt[psi] = psidot;
+	d/dt[psidot] = u;
+	d/dt[rho] = -2*x*sin(psi) + 2*y*cos(psi); 
+	d/dt[tau] = 1;
+jump:
+	true ==> @1 true;
+}
+
+init:
+
+@1 (and (rho = 1) (psi = 10) (psidot = 0) (tau = 0));
+
+goal:
+
+@1 (tau = 5);
+

@@ -48,21 +48,13 @@ extern bool stop;
 
 } // namespace opensmt
 
-// extern int  smtset_in          ( FILE * );
-// extern int  smtparse           ( );
-// extern int  cnfset_in          ( FILE * );
-// extern int  cnfparse           ( );
 extern int  smt2set_in         ( FILE * );
 extern int  smt2parse          ( );
 extern int  smt2lex_destroy    ( );
-
+extern int drset_in (FILE *);
+extern int drparse ();
+extern int drlex_destroy ();
 extern OpenSMTContext * parser_ctx;
-
-/*****************************************************************************\
- *                                                                           *
- *                                  MAIN                                     *
- *                                                                           *
-\*****************************************************************************/
 
 int main( int argc, const char * argv[] )
 {
@@ -103,71 +95,34 @@ int main( int argc, const char * argv[] )
   else
   {
     const char * extension = strrchr( filename, '.' );
-    // if ( strcmp( extension, ".smt" ) == 0 )
-    // {
-    //   opensmt_error( "SMTLIB 1.2 format is not supported in this version, sorry" );
-    //   smtset_in( fin );
-    //   smtparse( );
-    // }
-    // else if ( strcmp( extension, ".cnf" ) == 0 )
-    // {
-    //   context.SetLogic( QF_BOOL );
-    //   cnfset_in( fin );
-    //   cnfparse( );
-    // }
-    //else
     if ( strcmp( extension, ".smt2" ) == 0 )
     {
       smt2set_in( fin );
       smt2parse( );
     }
+    else if (strcmp(extension,".dr")==0)
+    {
+      drset_in(fin);
+      drparse();
+    }
     else
     {
-      opensmt_error2( extension, " extension not recognized. Please use one in { smt2, cnf } or stdin (smtlib2 is assumed)" );
+      opensmt_error2( extension, " extension not recognized." );
     }
   }
   smt2lex_destroy();
+  drlex_destroy();
   fclose( fin );
-
-#ifndef SMTCOMP
-  if ( context.getConfig( ).verbosity > 0 )
-  {
-    const int len_pack = strlen( PACKAGE_STRING );
-    const char * site = "https://dreal.github.io";
-    const int len_site = strlen( site );
-
-    cerr << "#" << endl
-         << "# -------------------------------------------------------------------------" << endl
-         << "# " << PACKAGE_STRING;
-
-    for ( int i = 0 ; i < 73 - len_site - len_pack ; i ++ )
-      cerr << " ";
-
-    cerr << site << endl
-         << "# Compiled with gcc " << __VERSION__ << " on " << __DATE__ << endl
-         << "# -------------------------------------------------------------------------" << endl
-         << "#" << endl;
-  }
-#endif
-
-  //
   // This trick (copied from Main.C of MiniSAT) is to allow
   // the repeatability of experiments that might be compromised
   // by the floating point unit approximations on doubles
-  //
 #if defined(__linux__) && !defined( SMTCOMP )
   fpu_control_t oldcw, newcw;
   _FPU_GETCW(oldcw); newcw = (oldcw & ~_FPU_EXTENDED) | _FPU_DOUBLE; _FPU_SETCW(newcw);
 #endif
-
 #ifdef PEDANTIC_DEBUG
   opensmt_warning("pedantic assertion checking enabled (very slow)");
 #endif
-
-#ifndef OPTIMIZE
-//  opensmt_warning( "this binary is compiled with optimizations disabled (slow)" );
-#endif
-  //
   // Execute accumulated commands
   // function defined in OpenSMTContext.C
   //
@@ -175,7 +130,6 @@ int main( int argc, const char * argv[] )
 }
 
 namespace opensmt {
-
 void catcher( int sig )
 {
   switch (sig)
@@ -191,5 +145,4 @@ void catcher( int sig )
       break;
   }
 }
-
 } // namespace opensmt
