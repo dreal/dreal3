@@ -425,6 +425,9 @@ bool contractor_capd_full::compute_enclosures(capd::interval const & prevTime,
             if (!m_need_to_check_inv || check_invariant(v, b, config)) {
                 enclosures.emplace_back(dt, v);
             } else {
+                if (config.nra_ODE_show_progress) {
+                    cout << " [INVARIANT VIOLATED] ";
+                }
                 return false;
             }
         }
@@ -753,6 +756,9 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
             }
             // Invariant Check
             if (m_need_to_check_inv && !check_invariant(s, b, config)) {
+                if (config.nra_ODE_show_progress) {
+                    cout << " [INVARIANT VIOLATED] ";
+                }
                 break;
             }
             // Move s toward m_T.rightBound()

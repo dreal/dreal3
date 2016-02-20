@@ -37,6 +37,7 @@ using std::string;
 using std::list;
 using std::ostream;
 using std::ofstream;
+using std::runtime_error;
 
 void Egraph::initializeStore( )
 {
@@ -1459,967 +1460,6 @@ Enode * Egraph::mkDistinct( Enode * args )
   assert( res );
   return res;
 }
-
-//=================================================================================================
-// Bit-Vector routines FIXME: to be fixed w.r.t. SMTLIB2
-
-/*
-Enode * Egraph::mkRepeat( int n, Enode * x )
-{
-  assert( x );
-  Enode * res = x;
-  for ( int i = 1 ; i < n ; i ++ )
-    res = mkConcat( cons( x, cons( res ) ) );
-  assert( res->getWidth( ) == n * x->getWidth( ) );
-  return res;
-}
-
-Enode * Egraph::mkBvnum( char * str )
-{
-  Enode * new_enode = NULL;
-
-  if ( str[ 0 ] == 'b'
-    && str[ 1 ] == 'v'
-    && str[ 2 ] != 'b' )
-  {
-    char * end_value = strchr( str, '[' );
-    char * p = &(str[2]);
-
-    int width = 0;
-    sscanf( end_value, "[%d]", &width );
-    assert( width > 0 );
-    //
-    // Copy relevant part of the string
-    //
-    char dec_value_str[ width ];
-    char * q = dec_value_str;
-    while ( p != end_value ) *q ++ = *p ++;
-    *q = '\0';
-    //
-    // Allocate a mp number
-    //
-    mpz_class dec_value( dec_value_str );
-    //
-    // Compute value with leading zeros
-    //
-
-    string value;
-    value.insert( 0, width - dec_value.get_str( 2 ).size( ), '0' );
-    value = value + dec_value.get_str( 2 );
-
-    assert( (int)strlen( value.c_str( ) ) == width );
-
-    new_enode = new Enode( id_to_enode.size( )
-                         , value.c_str( )
-                         , ETYPE_NUMB
-                         , DTYPE_BITVEC | width );
-  }
-  else if ( str[ 0 ] == 'b'
-         && str[ 1 ] == 'v'
-         && str[ 2 ] == 'b'
-         && str[ 3 ] == 'i'
-         && str[ 4 ] == 'n' )
-  {
-    int width = strlen( str ) - 5;
-
-    new_enode = new Enode( id_to_enode.size( )
-                         , &(str[ 5 ])
-                         , ETYPE_NUMB
-                         , DTYPE_BITVEC | width );
-  }
-  else
-  {
-    int width = strlen( str );
-
-    new_enode = new Enode( id_to_enode.size( )
-                         , str
-                         , ETYPE_NUMB
-                         , DTYPE_BITVEC | width );
-  }
-
-  assert( new_enode );
-  Enode * res = insertNumber( new_enode );
-
-  return cons( res );
-}
-
-Enode * Egraph::mkExtract( int msb, int lsb, Enode * arg )
-{
-  assert( arg );
-  assert( msb >= 0 );
-  assert( 0 <= lsb );
-  assert( lsb <= msb );
-  assert( msb <= arg->getWidth( ) - 1 );
-
-  Enode * res = NULL;
-
-  const int i = msb, j = lsb;
-  int arg_msb, arg_lsb;
-  //
-  // Apply rewrite rules. We assume x to have width n, y to have width m
-  //
-  // Rule 1:
-  // x[n-1:0] --> x
-  //
-  if ( arg->getWidth( ) == i - j + 1 )
-    res = arg;
-  //
-  // Rewrite rule for extraction
-  //
-  // x[msb:lsb][i:j] --> x[i+lsb:j+lsb]
-  //
-  else if ( arg->isExtract( &arg_msb, &arg_lsb ) )
-  {
-    Enode * arg_arg = arg->getCdr( )->getCar( );
-    assert( !arg_arg->isExtract( ) );
-    res = mkExtract( i + arg_lsb, j + arg_lsb, arg_arg );
-  }
-  //
-  // Rewrite rules for concatenation
-  //
-  else if ( arg->isConcat( )
-         || arg->isCbe   ( ) )
-  {
-    list< Enode * > new_args;
-    int width_left = arg->getWidth( );
-
-    for ( Enode * list = arg->getCdr( )
-        ; !list->isEnil( )
-        ; list = list->getCdr( ) )
-    {
-      Enode * conc = list->getCar( );
-      const int conc_width = conc->getWidth( );
-      const int rem_width = width_left - conc_width;
-      width_left = rem_width;
-      // Compute current extraction indexes
-      int real_msb = i - rem_width;
-      int real_lsb = j - rem_width;
-      // Continue if this slice is out of msb:lsb
-      if ( real_msb < 0 || real_lsb >= conc_width )
-        continue;
-      // Fix indexes if out of bounds
-      if ( real_msb >= conc_width ) real_msb = conc_width - 1;
-      if ( real_lsb <  0 )          real_lsb = 0;
-      // Add slice to list
-      new_args.push_front( mkExtract( real_msb, real_lsb, conc ) );
-    }
-    if ( arg->isConcat( ) )
-      res = mkConcat( cons( new_args ) );
-    else
-      res = mkCbe   ( cons( new_args ) );
-  }
-  //
-  // Rewrite a selected number as the equivalent number
-  //
-  else if ( arg->isConstant( ) )
-  {
-    const char * value = arg->getCar( )->getName( );
-    int width = arg->getWidth( );
-
-    char new_value[ i - j + 2 ];
-    const int bit_i = width - 1 - i;
-    const int bit_j = width - 1 - j;
-
-    for ( int h = bit_i ; h <= bit_j ; h ++ )
-      new_value[ h - bit_i ] = value[ h ];
-
-    new_value[ i - j + 1 ] = '\0';
-
-    assert( (int)strlen( new_value ) == i - j + 1 );
-
-    res = mkBvnum( new_value );
-  }
-  else
-  {
-    const Pair( int ) sig = make_pair( msb, lsb );
-    MapPairEnode::iterator it = ext_store.find( sig );
-    Enode * e = NULL;
-    if ( it == ext_store.end( ) )
-    {
-      char name[ 256 ];
-      sprintf( name, "extract[%d:%d]", msb, lsb );
-      assert( lookupSymbol( name ) == NULL );
-      e = newSymbol( name, DTYPE_BITVEC | (msb - lsb + 1) );
-      e->setExtract( lsb );
-      ext_store[ sig ] = e;
-    }
-    else
-    {
-      e = it->second;
-    }
-    assert( e );
-    res = cons( e, cons( arg ) );
-  }
-
-  assert( res );
-  return res;
-}
-
-Enode * Egraph::mkConcat( Enode * args )
-{
-  assert( args );
-
-  Enode * res = NULL;
-
-  if ( args->getArity( ) == 1 )
-  {
-     res = args->getCar( );
-  }
-  else
-  {
-    assert( args->getArity( ) >= 2 );
-
-    Enode * a = args->getCar( );
-    Enode * b = args->getCdr( )->getCar( );
-
-    if ( args->getArity( ) == 2
-      && a->isConstant ( )
-      && b->isConstant ( ) )
-    {
-      char str[ strlen( a->getCar( )->getName( ) ) + strlen( b->getCar( )->getName( ) ) + 1 ];
-      strcpy( str, a->getCar( )->getName( ) );
-      strcat( str, b->getCar( )->getName( ) );
-      res = mkBvnum( str );
-    }
-    else
-    {
-      list< Enode * > new_args;
-      for ( Enode * list = args ; !list->isEnil( ) ; list = list->getCdr( ) )
-      {
-        Enode * e = list->getCar( );
-        assert( e->isDTypeBitVec( ) );
-
-        // Add arguments instead
-        if ( e->isConcat( ) )
-          for ( Enode * l = e->getCdr( ) ; !l->isEnil( ) ; l = l->getCdr( ) )
-            new_args.push_front( l->getCar( ) );
-        else
-          new_args.push_front( e );
-      }
-
-      res = cons( id_to_enode[ ENODE_ID_CONCAT ], cons( new_args ) );
-    }
-  }
-
-  assert( res );
-  return res;
-}
-
-Enode * Egraph::mkCbe( Enode * args )
-{
-  assert( args );
-  assert( args->getArity( ) >= 1 );
-
-  if ( args->getArity( ) == 1 )
-    return args->getCar( );
-
-  return cons( id_to_enode[ ENODE_ID_CBE ], args );
-}
-
-Enode * Egraph::mkBvadd ( Enode * args )
-{
-  assert( args );
-
-  if ( args->getArity( ) == 1 )
-    return args->getCar( );
-
-  assert( args->getArity( ) == 2 );
-  Enode * a = args->getCar( );
-  Enode * b = args->getCdr( )->getCar( );
-
-  assert( a->isDTypeBitVec( ) );
-  assert( b->isDTypeBitVec( ) );
-  assert( a->getWidth( ) == b->getWidth( ) );
-
-  const int width = a->getWidth( );
-  string zero_str;
-  zero_str.insert( 0, width, '0' );
-  Enode * zero = mkBvnum( const_cast< char * >( zero_str.c_str( ) ) );
-  //
-  // a + 0 = a, b + 0 = b
-  //
-  if ( a == zero ) return b;
-  if ( b == zero ) return a;
-
-  Enode * res = NULL;
-  //
-  // Both numbers are constants, simplify
-  //
-  if ( a->isConstant( ) && b->isConstant( ) )
-  {
-    mpz_class aval( a->getCar( )->getName( ), 2 );
-    mpz_class bval( b->getCar( )->getName( ), 2 );
-    aval = aval + bval;
-    Enode * res = makeNumberFromGmp( aval, width );
-    return res;
-  }
-  else
-    res = cons( id_to_enode[ ENODE_ID_BVADD ], args );
-
-  assert( res );
-  return res;
-}
-
-Enode * Egraph::mkBvmul ( Enode * args )
-{
-  assert( args );
-  assert( args->getArity( ) == 2 );
-  Enode * a = args->getCar( );
-  Enode * b = args->getCdr( )->getCar( );
-
-  assert( a->getWidth( ) == b->getWidth( ) );
-
-  const int width = a->getWidth( );
-
-  if ( a->isConstant( ) && b->isConstant( ) )
-  {
-    mpz_class aval( a->getCar( )->getName( ), 2 );
-    mpz_class bval( b->getCar( )->getName( ), 2 );
-    aval = aval * bval;
-    return makeNumberFromGmp( aval, width );
-  }
-
-  if ( a->isConstant( ) && !b->isConstant( ) )
-  {
-    Enode * tmp = a;
-    a = b;
-    b = tmp;
-  }
-
-  string zero_str;
-  zero_str.insert( 0, width, '0' );
-  Enode * zero = mkBvnum( const_cast< char * >( zero_str.c_str( ) ) );
-  string one_str;
-  one_str.insert( 0, width - 1, '0' );
-  one_str.push_back( '1' );
-  Enode * one = mkBvnum( const_cast< char * >( one_str.c_str( ) ) );
-
-  Enode * res = NULL;
-  if ( a == zero || b == zero ) res = zero;
-  else if ( a == one ) res = b;
-  else if ( b == one ) res = a;
-  else res = cons( id_to_enode[ ENODE_ID_BVMUL ], args );
-
-  assert( res );
-  return res;
-}
-
-//
-// Translate signed division into unsigned one
-//
-Enode * Egraph::mkBvsdiv ( Enode * args )
-{
-  assert( args );
-  assert( args->getArity( ) == 2 );
-  Enode * s = args->getCar( );
-  Enode * t = args->getCdr( )->getCar( );
-  assert( s->getWidth( ) == t->getWidth( ) );
-  const int width = s->getWidth( );
-
-  Enode * msb_s = mkExtract( width - 1, width - 1, s );
-  Enode * msb_t = mkExtract( width - 1, width - 1, t );
-  Enode * bit0  = mkBvnum( const_cast< char * >( "0" ) );
-  Enode * bit1  = mkBvnum( const_cast< char * >( "1" ) );
-
-  Enode * cond1 = mkAnd( cons( mkEq( cons( msb_s, cons( bit0 ) ) )
-                       , cons( mkEq( cons( msb_t, cons( bit0 ) ) )
-                       ) ) );
-
-  Enode * case1 = mkBvudiv( cons( s, cons( t ) ) );
-
-  Enode * cond2 = mkAnd( cons( mkEq( cons( msb_s, cons( bit1 ) ) )
-                       , cons( mkEq( cons( msb_t, cons( bit0 ) ) )
-                       ) ) );
-
-  Enode * case2 = mkBvneg( cons( mkBvudiv( cons( mkBvneg( cons( s ) ), cons( t ) ) ) ) );
-
-  Enode * cond3 = mkAnd( cons( mkEq( cons( msb_s, cons( bit0 ) ) )
-                       , cons( mkEq( cons( msb_t, cons( bit1 ) ) )
-                       ) ) );
-
-  Enode * case3 = mkBvneg( cons( mkBvudiv( cons( s, cons( mkBvneg( cons( t ) ) ) ) ) ) );
-
-  Enode * case4 = mkBvudiv( cons( mkBvneg( cons( s ) ), cons( mkBvneg( cons( t ) ) ) ) );
-
-  Enode * res = mkIte( cond1
-                     , case1
-                     , mkIte( cond2
-                            , case2
-                            , mkIte( cond3
-                                   , case3
-                                   , case4 ) ) );
-
-  return res;
-}
-
-//
-// Translate signed division into unsigned one
-//
-Enode * Egraph::mkBvsrem ( Enode * args )
-{
-  assert( args );
-  assert( args->getArity( ) == 2 );
-  Enode * s = args->getCar( );
-  Enode * t = args->getCdr( )->getCar( );
-  assert( s->getWidth( ) == t->getWidth( ) );
-  const int width = s->getWidth( );
-
-  Enode * msb_s = mkExtract( width - 1, width - 1, s );
-  Enode * msb_t = mkExtract( width - 1, width - 1, t );
-  Enode * bit0  = mkBvnum( const_cast< char * >( "0" ) );
-  Enode * bit1  = mkBvnum( const_cast< char * >( "1" ) );
-
-  Enode * cond1 = mkAnd( cons( mkEq( cons( msb_s, cons( bit0 ) ) )
-                       , cons( mkEq( cons( msb_t, cons( bit0 ) ) )
-                       ) ) );
-
-  Enode * case1 = mkBvurem( cons( s, cons( t ) ) );
-
-  Enode * cond2 = mkAnd( cons( mkEq( cons( msb_s, cons( bit1 ) ) )
-                       , cons( mkEq( cons( msb_t, cons( bit0 ) ) )
-                       ) ) );
-
-  Enode * case2 = mkBvneg( cons( mkBvurem( cons( mkBvneg( cons( s ) ), cons( t ) ) ) ) );
-
-  Enode * cond3 = mkAnd( cons( mkEq( cons( msb_s, cons( bit0 ) ) )
-                       , cons( mkEq( cons( msb_t, cons( bit1 ) ) )
-                       ) ) );
-
-  Enode * case3 = mkBvurem( cons( s, cons( mkBvneg( cons( t ) ) ) ) );
-
-  Enode * case4 = mkBvneg( cons( mkBvurem( cons( mkBvneg( cons( s ) ), cons( mkBvneg( cons( t ) ) ) ) ) ) );
-
-  Enode * res = mkIte( cond1
-                     , case1
-                     , mkIte( cond2
-                            , case2
-                            , mkIte( cond3
-                                   , case3
-                                   , case4 ) ) );
-
-  return res;
-}
-//
-// Logical shift right
-//
-Enode * Egraph::mkBvlshr ( Enode * args )
-{
-  assert( args );
-  Enode * t1 = args->getCar( );
-  Enode * t2  = args->getCdr( )->getCar( );
-
-  if ( t2->isConstant( ) )
-  {
-    Enode * num = t2;
-    Enode * term = t1;
-    //
-    // Convert number into decimal
-    //
-    const int num_width = num->getWidth( );
-    const char * str = num->getCar( )->getName( );
-
-    assert( num_width == (int)strlen( str ) );
-    //
-    // Skip leading zeros
-    //
-    int i;
-    for ( i = 0 ; i < num_width && str[ i ] == '0' ; i ++ )
-      ;
-    //
-    // Return term if shift by zero
-    //
-    if ( i == num_width )
-      return term;
-
-    i ++;
-    unsigned dec_value = 1;
-    for ( ; i < num_width ; i ++ )
-    {
-      dec_value = dec_value << 1;
-      if ( str[ i ] == '1' )
-        dec_value ++;
-    }
-
-    const int term_width = term->getWidth( );
-
-    if( (int)dec_value >= term->getWidth( ) )
-    {
-      string zero;
-      zero.insert( 0, term->getWidth( ), '0' );
-      Enode * res = mkBvnum ( const_cast< char * >( zero.c_str( ) ) );
-      assert( res->getWidth( ) == term->getWidth( ) );
-      return res;
-    }
-
-    assert( (int)dec_value < term->getWidth( ) );
-    //
-    // Translate shift into concatenation and extraction
-    //
-    Enode * ext = mkExtract( term_width - 1, dec_value, term );
-    assert( ext->getWidth( ) == term_width - (int)dec_value );
-
-    string leading_zeros;
-    leading_zeros.insert( 0, dec_value, '0' );
-
-    Enode * lea = mkBvnum ( const_cast< char * >( leading_zeros.c_str( ) ) );
-    Enode * con = mkConcat( cons( lea, cons( ext ) ) );
-
-    assert( con->getWidth( ) == term->getWidth( ) );
-    return con;
-  }
-  //
-  // Aumount of shifting is unknown
-  //
-  else
-  {
-    Enode * res = t1;
-    Enode * one = mkBvnum( const_cast< char * >( "1" ) );
-    for ( int i = 0 ; i < t2->getWidth( ) ; i ++ )
-    {
-      Enode * ite_i = mkEq( cons( mkExtract( i, i, t2 ), cons( one ) ) );
-      string l_zeros;
-      string t_zeros;
-      l_zeros.insert( 0, t2->getWidth( ) - i - 1, '0' );
-      t_zeros.insert( 0, i, '0' );
-      string num_str_1 = l_zeros + "1" + t_zeros;
-      Enode * ite_t = mkBvlshr( cons( res, cons( mkBvnum( const_cast< char * >( num_str_1.c_str( ) ) ) ) ) );
-      res = mkIte( ite_i, ite_t, res );
-    }
-
-    return res;
-  }
-
-  assert( false );
-  return NULL;
-}
-
-//
-// Arithmetic shift right
-//
-Enode * Egraph::mkBvashr ( Enode * args )
-{
-  assert( args );
-  Enode * t1 = args->getCar( );
-  Enode * t2 = args->getCdr( )->getCar( );
-  Enode * ext  = mkExtract( t1->getWidth( ) - 1, t1->getWidth( ) - 1, t1 );
-  Enode * zero = mkBvnum( const_cast< char * >( "0" ) );
-  Enode * i = mkEq( cons( ext, cons( zero ) ) );
-  Enode * t = mkBvlshr( cons( t1, cons( t2 ) ) );
-  Enode * e = mkBvnot( cons( mkBvlshr( cons( mkBvnot( cons( t1 ) ), cons( t2 ) ) ) ) );
-  return mkIte( i, t, e );
-}
-
-//
-// Rotate left
-// Rewrite as x[width-i-1:0]::x[width-1:width-i]
-//              x[j_h:i_h]::x[j_l:i_l]
-//
-Enode * Egraph::mkRotateLeft( int i, Enode * x )
-{
-  assert( x );
-  assert( x->isTerm( ) );
-  const int width = x->getWidth( );
-
-  i = i % width;
-  if ( i == 0 )
-    return x;
-
-  const int j_h = width - i - 1;
-  const int i_h = 0;
-  const int j_l = width - 1;
-  const int i_l = width - i;
-  assert( j_h - i_h + 1 + j_l - i_l + 1 == width );
-  Enode * h = mkExtract( j_h, i_h, x );
-  Enode * l = mkExtract( j_l, i_l, x );
-  return mkConcat( cons( h, cons( l ) ) );
-}
-
-//
-// Rotate right
-// Rewrite as x[i-1:0]::x[width-1:i]
-//          x[j_h:i_h]::x[j_l:i_l]
-//
-Enode * Egraph::mkRotateRight( int i, Enode * x )
-{
-  assert( x );
-  assert( x->isTerm( ) );
-  const int width = x->getWidth( );
-
-  i = i % width;
-  if ( i == 0 )
-    return x;
-
-  const int j_h = i - 1;
-  const int i_h = 0;
-  const int j_l = width - 1;
-  const int i_l = i;
-  assert( j_h - i_h + 1 + j_l - i_l + 1 == width );
-  Enode * h = mkExtract( j_h, i_h, x );
-  Enode * l = mkExtract( j_l, i_l, x );
-  return mkConcat( cons( h, cons( l ) ) );
-}
-
-//
-// Shift left
-//
-Enode * Egraph::mkBvshl ( Enode * args )
-{
-  assert( args );
-  Enode * term = args->getCar( );
-  Enode * num  = args->getCdr( )->getCar( );
-
-  if ( term->isConstant( )
-    && !num->isConstant( ) )
-  {
-    //
-    // Special case for spear benchmarks
-    //
-    string one;
-    one.insert( 0, term->getWidth( ) - 1, '0' );
-    one += '1';
-    string zero;
-    zero.insert( 0, term->getWidth( ), '0' );
-    Enode * bv_one  = mkBvnum( const_cast< char * >( one .c_str( ) ) );
-    Enode * bv_zero = mkBvnum( const_cast< char * >( zero.c_str( ) ) );
-    if ( term == bv_one )
-      return mkIte( mkEq( cons( num, cons( bv_zero ) ) ), term, bv_zero );
-  }
-
-  if ( num->isConstant( ) )
-  {
-    //
-    // Convert number into decimal
-    //
-    const int num_width = num->getWidth( );
-    const char * str = num->getCar( )->getName( );
-
-    assert( num_width == (int)strlen( str ) );
-    //
-    // Skip leading zeros
-    //
-    int i;
-    for ( i = 0 ; i < num_width && str[ i ] == '0' ; i ++ )
-      ; // Do nothing
-    //
-    // Return term if shift by zero
-    //
-    assert( i <= num_width );
-    assert( i != num_width || str[ i - 1 ] == '0' );
-    if ( i == num_width )
-      return term;
-
-    i ++;
-    mpz_class dec_value_gmp = 1;
-    for ( ; i < num_width ; i ++ )
-    {
-      dec_value_gmp = dec_value_gmp << 1;
-      if ( str[ i ] == '1' )
-        dec_value_gmp ++;
-    }
-
-    mpz_class term_width_gmp = mpz_class( term->getWidth( ) );
-    if( dec_value_gmp >= term_width_gmp )
-    {
-      string zero;
-      zero.insert( 0, term->getWidth( ), '0' );
-      Enode * res = mkBvnum ( const_cast< char * >( zero.c_str( ) ) );
-      assert( res->getWidth( ) == term->getWidth( ) );
-      return res;
-    }
-
-    assert( dec_value_gmp.fits_sint_p( ) );
-    const int dec_value = dec_value_gmp.get_si( );
-    const int term_width = term->getWidth( );
-
-    assert( dec_value < term->getWidth( ) );
-    //
-    // Translate shift into concatenation and extraction
-    //
-    Enode * ext = mkExtract( term_width - dec_value - 1, 0, term );
-
-    string trailing_zeros;
-    trailing_zeros.insert( 0, dec_value, '0' );
-
-    Enode * tra = mkBvnum ( const_cast< char * >( trailing_zeros.c_str( ) ) );
-    Enode * con = mkConcat( cons( ext, cons( tra ) ) );
-
-    assert( con->getWidth( ) == term->getWidth( ) );
-
-    return con;
-  }
-  //
-  // Aumount of shifting is unknown
-  //
-  else
-  {
-    Enode * res = term;
-    Enode * t2 = num;
-    Enode * one = mkBvnum( const_cast< char * >( "1" ) );
-    for ( int i = 0 ; i < t2->getWidth( ) ; i ++ )
-    {
-      Enode * ite_i = mkEq( cons( mkExtract( i, i, t2 ), cons( one ) ) );
-      string l_zeros;
-      string t_zeros;
-      l_zeros.insert( 0, t2->getWidth( ) - i - 1, '0' );
-      t_zeros.insert( 0, i, '0' );
-      string num_str_1 = l_zeros + "1" + t_zeros;
-      Enode * ite_t = mkBvshl( cons( res, cons( mkBvnum( const_cast< char * >( num_str_1.c_str( ) ) ) ) ) );
-      res = mkIte( ite_i, ite_t, res );
-    }
-
-    return res;
-  }
-}
-
-//
-// Translate it into (bvadd (bvnot x) 1)
-//
-Enode * Egraph::mkBvneg( Enode * args )
-{
-  assert( args->getArity( ) == 1 );
-  Enode * bvnot = mkBvnot( args );
-  Enode * e = args->getCar( );
-  string num_str;
-  num_str.insert( 0, e->getWidth( ) - 1, '0' );
-  num_str.push_back( '1' );
-  Enode * bvnum = mkBvnum( const_cast< char * >( num_str.c_str( ) ) );
-  return mkBvadd( cons( bvnot, cons( bvnum ) ) );
-}
-
-Enode * Egraph::mkBvsub( Enode * args )
-{
-  Enode * a = args->getCar( );
-  Enode * b = args->getCdr( )->getCar( );
-  char buf[ 32 ];
-  sprintf( buf, "bv1[%d]", a->getWidth( ) );
-  Enode * neg_b = mkBvneg( cons( b ) );
-  Enode * res   = mkBvadd( cons( a, cons( neg_b ) ) );
-  return res;
-}
-
-Enode * Egraph::mkBvand( Enode * args )
-{
-  assert( args );
-  assert( args->isList( ) );
-  Enode * res = NULL;
-
-  Enode * bv0 = mkBvnum( const_cast< char * >( "0" ) );
-  Enode * bv1 = mkBvnum( const_cast< char * >( "1" ) );
-
-  initDup1( );
-
-  list< Enode * > new_args;
-  for ( Enode * list = args ; !list->isEnil( ) ; list = list->getCdr( ) )
-  {
-    Enode * e = list->getCar( );
-    assert( e->isDTypeBitVec( ) );
-
-    if ( isDup1( e ) ) continue;
-
-    if ( e == bv1 )
-      continue;
-
-    if ( e == bv0 )
-    {
-      doneDup1( );
-      return bv0;
-    }
-
-    new_args.push_front( e );
-    storeDup1( e );
-
-    assert( (*new_args.begin( ))->getWidth( ) == new_args.back( )->getWidth( ) );
-  }
-
-  doneDup1( );
-
-  if ( new_args.size( ) == 0 )
-    res = bv1;
-  else if ( new_args.size( ) == 1 )
-    res = new_args.back( );
-  else
-    res = cons( id_to_enode[ ENODE_ID_BVAND ], cons( new_args ) );
-
-  assert( res );
-  return res;
-}
-
-Enode * Egraph::mkBvor( Enode * args )
-{
-  assert( args );
-
-  Enode * res = NULL;
-  Enode * bv0 = mkBvnum( const_cast< char * >( "0" ) );
-  Enode * bv1 = mkBvnum( const_cast< char * >( "1" ) );
-
-  initDup1( );
-  list< Enode * > new_args;
-  for ( Enode * list = args ; !list->isEnil( ) ; list = list->getCdr( ) )
-  {
-    Enode * e = list->getCar( );
-    assert( e->isDTypeBitVec( ) );
-
-    // Redundant argument
-    if ( e == bv0 )
-      continue;
-    // Return 1 if 1 is an argument
-    if ( e == bv1 ) { doneDup1( ); return bv1; }
-
-    if ( isDup1( e ) )
-      continue;
-
-    new_args.push_front( e );
-    storeDup1( e );
-
-    assert( (*new_args.begin( ))->getWidth( ) == new_args.back( )->getWidth( ) );
-  }
-  doneDup1( );
-
-  if ( new_args.size( ) == 0 )
-    res = bv0;
-  else if ( new_args.size( ) == 1 )
-    res = new_args.back( );
-  else
-    res = cons( id_to_enode[ ENODE_ID_BVOR ], cons( new_args ) );
-
-  assert( res );
-  return res;
-}
-
-Enode * Egraph::mkBvnot( Enode * args )
-{
-  assert( args );
-  assert( args->getArity( ) == 1 );
-  Enode * arg = args->getCar( );
-  assert( arg->isDTypeBitVec( ) );
-
-  Enode * res = NULL;
-
-  if ( arg->isConstant( ) )
-  {
-    const char * bin_value = arg->getCar( )->getName( );
-    char new_bin_value[ strlen( bin_value ) + 1 ];
-    unsigned i;
-    for ( i = 0 ; i < strlen( bin_value ) ; i ++ )
-      new_bin_value[ i ] = ( bin_value[ i ] == '0' ? '1' : '0' );
-    new_bin_value[ i ] = '\0';
-
-    assert( strlen( new_bin_value ) == strlen( bin_value ) );
-    res = mkBvnum( new_bin_value );
-  }
-  //
-  // (bvnot (bvnot x)) --> x
-  //
-  else if ( arg->isBvnot( ) )
-    res = arg->get1st( );
-  else
-    res = cons( id_to_enode[ ENODE_ID_BVNOT ], args );
-
-  assert( res );
-  return res;
-}
-
-Enode * Egraph::mkBvxor( Enode * args )
-{
-  assert( args );
-  assert( args->getArity( ) == 2 );
-  Enode * a = args->getCar( );
-  Enode * b = args->getCdr( )->getCar( );
-  Enode * res = NULL;
-
-  if( a->isConstant( ) && b->isConstant( ) )
-  {
-    const char * a_value = a->getCar( )->getName( );
-    const char * b_value = b->getCar( )->getName( );
-    char new_value[ strlen( a_value ) + 1 ];
-
-    assert( strlen( b_value ) == strlen( a_value ) );
-
-    unsigned i;
-    for ( i = 0 ; i < strlen( a_value ) ; i ++ )
-      new_value[ i ] = ( a_value[ i ] == b_value[ i ] ? '0' : '1' );
-    new_value[ i ] = '\0';
-
-    assert( strlen( new_value ) == strlen( a_value ) );
-    res = mkBvnum( new_value );
-  }
-  else
-    res = cons( id_to_enode[ ENODE_ID_BVXOR ], args );
-
-  return res;
-}
-
-//
-// Sign extend a variable x_n
-//
-Enode * Egraph::mkSignExtend( int i, Enode * x )
-{
-  assert( x );
-  assert( x->isTerm( ) );
-
-  Enode * res = NULL;
-
-  if ( x->isConstant( ) )
-  {
-    // Retrieve msb
-    const char msb_chr = *(x->getCar( )->getName( ));
-    // Generate trailing ones or zeros
-    string leading;
-    leading.insert( 0, i, msb_chr );
-    Enode * extension = mkBvnum( const_cast< char * >( leading.c_str( ) ) );
-    res = mkConcat( cons( extension, cons( x ) ) );
-  }
-  else
-  {
-    // If already there
-    Enode * e = NULL;
-    if ( i < static_cast< int >( se_store.size( ) )
-      && se_store[ i ] != NULL )
-      e = se_store[ i ];
-    else
-    {
-      if ( i >= static_cast< int >( se_store.size( ) ) )
-        se_store.resize( i + 1, NULL );
-      assert( i < static_cast< int >( se_store.size( ) ) );
-      assert( se_store[ i ] == NULL );
-      char name[ 32 ];
-      sprintf( name, "sign_extend[%d]", i );
-      assert( lookupSymbol( name ) == NULL );
-      e = newSymbol( name, DTYPE_BITVEC | (i + x->getWidth( )) );
-      se_store[ i ] = e;
-    }
-
-    assert( e );
-    res = cons( e, cons( x ) );
-    res->setWidth( i + x->getWidth( ) );
-  }
-
-  assert( res );
-  assert( res->getWidth( ) == i + x->getWidth( ) );
-  return res;
-}
-
-//
-// Zero extend a variable x_n
-// Rewritten as (0..0 :: x)
-//
-Enode * Egraph::mkZeroExtend( int i, Enode * x )
-{
-  assert( x );
-  assert( x->isTerm( ) );
-  // Create padding 0s
-  string num_str;
-  num_str.insert( 0, i, '0' );
-  Enode * extend_zero = mkBvnum( const_cast< char * >( num_str.c_str( ) ) );
-  // Create extension 0
-  Enode * res = mkConcat( cons( extend_zero, cons( x ) ) );
-  return res;
-}
-*/
-
-//=================================================================================================
-// Other APIs
-
 //
 // Packs assertions and formula and return it into a single enode
 //
@@ -3277,3 +2317,236 @@ Enode * Egraph::mkExists ( vector<pair<string, Snode *>> const & sorted_var_list
     assert (res);
     return res;
 }
+
+
+Enode * Egraph::mkDeriv(Enode * e, Enode * v) {
+    assert(v->isVar());
+    Enode * zero = mkNum("0");
+    Enode * one = mkNum("1");
+    if (e == v) {
+        return one;
+    }
+    if (e->isVar()) {
+        if (e == v) {
+	    return one;
+        } else {
+            // Variable is found in var_map
+            return zero;
+        }
+    } else if (e->isConstant()) {
+        return zero;
+    } else if (e->isSymb()) {
+        throw runtime_error("mkDeriv: Symb");
+    } else if (e->isNumb()) {
+   	   return zero; 
+    } else if (e->isTerm()) {
+        assert(e->getArity() >= 1);
+        enodeid_t id = e->getCar()->getId();
+        //double ret = 0.0;
+	Enode * ret;
+        Enode * tmp = e;
+        switch (id) {
+        case ENODE_ID_PLUS:
+            ret = mkDeriv(tmp->get1st(), v);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = mkPlus(ret, mkDeriv(tmp->getCar(), v));
+                tmp = tmp->getCdr();
+            }
+            return ret;
+        case ENODE_ID_MINUS:
+            ret = mkDeriv(tmp->get1st(), v);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = mkMinus(ret, mkDeriv(tmp->getCar(), v));
+                tmp = tmp->getCdr();
+            }
+            return ret;
+        case ENODE_ID_UMINUS:
+            ret = mkDeriv(tmp->get1st(), v);
+            assert(tmp->getArity() == 1);
+            return mkUminus(cons(ret));
+        case ENODE_ID_TIMES: {
+            // (f * g)' = f' * g + f * g'
+	    Enode * f = tmp->get1st();
+            Enode * f_p = mkDeriv(f, v);
+	    if (tmp->getArity() == 2){
+    		Enode * g = tmp->get2nd();
+	    	Enode * g_p = mkDeriv(g, v);
+	    	return mkPlus(mkTimes(f,g_p),mkTimes(g,f_p));
+	    }
+	    else if (tmp->getArity() > 2){
+		//reduce the rest of the list to a standalone product
+		Enode * g = mkTimes(tmp->getCdr()->getCdr()->getCar(),tmp->getCdr()->getCdr()->getCdr());
+		Enode * g_p = mkDeriv(g, v);
+	    	return mkPlus(mkTimes(f,g_p),mkTimes(g,f_p));
+	    }
+       }
+        case ENODE_ID_DIV: {
+            // (f / g)' = (f' * g - f * g') / g^2
+	    Enode * f = tmp->get1st();
+            Enode * f_p = mkDeriv(f, v);
+	    if (tmp->getArity() == 2){
+    		Enode * g = tmp->get2nd();
+	    	Enode * g_p = mkDeriv(g, v);
+	   	assert(g!=zero);
+	    	return mkDiv(mkMinus(mkTimes(f,g_p),mkTimes(g,f_p)),mkTimes(g, g));
+  	    }
+	    else if (tmp->getArity() > 2){
+		//reduce the rest of the list to a standalone product
+		Enode * g = mkDiv(tmp->getCdr()->getCdr()->getCar(),tmp->getCdr()->getCdr()->getCdr());
+		Enode * g_p = mkDeriv(g, v);
+		assert(g!=zero);
+	    	return mkDiv(mkMinus(mkTimes(f,g_p),mkTimes(g,f_p)),mkTimes(g, g));
+            }
+        }
+        case ENODE_ID_ACOS: {
+            // (acos f)' = -(1 / sqrt(1 - f^2)) f'
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+	    return mkTimes(mkUminus(cons(mkDiv(one,mkSqrt(cons(mkMinus(one, mkTimes(f,f))))))),f_p);
+        }
+        case ENODE_ID_ASIN: {
+            // (asin f)' = (1 / sqrt(1 - f^2)) f'
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);           
+	    return mkTimes(mkDiv(one,mkSqrt(cons(mkMinus(one, mkTimes(f,f))))),f_p);
+        }
+        case ENODE_ID_ATAN: {
+            // (atan f)' = (1 / (1 + f^2)) * f'
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);           
+	    return mkTimes(mkDiv(one, mkPlus(one, mkTimes(f,f))),f_p);
+        }
+        case ENODE_ID_ATAN2: {
+            // atan2(x,y)' = -y / (x^2 + y^2) dx + x / (x^2 + y^2) dy
+            //             = (-y dx + x dy) / (x^2 + y^2)
+            assert(e->getArity() == 2);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+            Enode * g = e->get2nd();
+            Enode * g_p = mkDeriv(g,v);
+            return mkDiv(mkPlus(mkTimes(mkUminus(cons(g)), f_p),mkTimes(f, g_p)), 
+							mkPlus(mkTimes(f,f),mkTimes(g,g)));
+        }
+        case ENODE_ID_MIN:
+            assert(e->getArity() == 2);
+            throw runtime_error("mkDeriv: no support for min");
+        case ENODE_ID_MAX:
+            assert(e->getArity() == 2);
+            throw runtime_error("mkDeriv: no support for max");
+        case ENODE_ID_MATAN:
+            assert(e->getArity() == 1);
+            throw runtime_error("mkDeriv: no support for matan");
+        case ENODE_ID_SAFESQRT:
+            assert(e->getArity() == 1);
+            throw runtime_error("mkDeriv: no support for safesqrt");
+        case ENODE_ID_SQRT: {
+            // (sqrt(f))' = 1/2 * 1/(sqrt(f)) * f'
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+            return mkTimes(mkDiv(one,mkTimes(mkNum("2"),mkSqrt(cons(f)))), f_p);
+        }
+        case ENODE_ID_EXP: {
+            // (exp f)' = (exp f) * f'
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+ 	    return mkTimes(mkExp(cons(f)),f_p);
+ 	
+        }
+        case ENODE_ID_LOG: {
+            // (log f)' = f' / f
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+	    return mkDiv(f_p,f);
+        }
+        case ENODE_ID_POW: {
+            // (f^g)' = f^g (f' * g / f + g' * ln g)
+            assert(e->getArity() == 2);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+            Enode * g = e->get2nd();
+	    if (g->isConstant()) {
+	//	cout<<"numb!";
+		return mkTimes(mkTimes(g,mkPow(cons(f,cons(mkMinus(g,one))))),f_p);
+	    }
+	    else {
+	//	cout<<"not a number: " << g << std::endl;
+            	Enode * g_p = mkDeriv(g,v);
+            	return mkTimes(mkPow(cons(f, cons(g))),mkDiv(mkTimes(f_p,g),mkPlus(f,mkTimes(g_p, mkLog(cons(g))))));
+	    }
+        }
+        case ENODE_ID_ABS: {
+            assert(e->getArity() == 1);
+            throw runtime_error("mkDeriv: no support for safesqrt");
+        }
+        case ENODE_ID_SIN: {
+            // (sin f)' = (cos f) * f'
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+            return mkTimes(mkCos(f), f_p);
+        }
+        case ENODE_ID_COS: {
+            // (cos f)' = - (sin f) * f'
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+            return mkUminus(mkTimes(mkSin(f), f_p));
+        }
+        case ENODE_ID_TAN: {
+            // (tan f)' = (1 + tan^2 f) * f'
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+            return mkTimes(mkPlus(one, mkTimes(mkTan(f), mkTan(f))),f_p);
+        }
+        case ENODE_ID_SINH: {
+            // (sinh f)' = (e^f + e^(-f))/2 * f'
+            //           = cosh(f) * f'
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+            return mkTimes(mkCosh(f), f_p);
+        }
+        case ENODE_ID_COSH: {
+            // (cosh f)' = (e^f - e^(-f))/2 * f'
+            //           = sinh(f) * f'
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+            return mkTimes(mkSinh(f),f_p);
+        }
+        case ENODE_ID_TANH: {
+            // (tanh f)' = (sech^2 f) * f'
+            //           = (1 - tanh(f) ^ 2) * f'
+
+            assert(e->getArity() == 1);
+            Enode * f = e->get1st();
+            Enode * f_p = mkDeriv(f, v);
+            return mkTimes(mkMinus(one,mkTimes(mkTanh(f),mkTanh(f))), f_p);
+        }
+        default:
+            throw runtime_error("mkDeriv: Unknown Term");
+        }
+    } else if (e->isList()) {
+        throw runtime_error("mkDeriv: List");
+    } else if (e->isDef()) {
+        throw runtime_error("mkDeriv: Def");
+    } else if (e->isEnil()) {
+        throw runtime_error("mkDeriv: Nil");
+    } else {
+        throw runtime_error("mkDeriv: unknown case");
+    }
+    throw runtime_error("Not implemented yet: mkDeriv");
+}
+
+
+
+
