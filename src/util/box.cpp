@@ -209,6 +209,19 @@ ostream& operator<<(ostream& out, box const & b) {
     return display(out, b);
 }
 
+std::vector<int> box::bisectable_dims(double precision) const {
+    std::vector<int> dims;
+    for (int i = 0; i < m_values.size(); i++) {
+        double current_diam = m_values[i].diam();
+        double ith_precision = (*m_vars)[i]->hasPrecision() ? (*m_vars)[i]->getPrecision() : precision;
+        if (current_diam > ith_precision && m_values[i].is_bisectable()) {
+            dims.push_back(i);
+        }
+    }
+
+    return dims;
+}
+
 tuple<int, box, box> box::bisect(double precision) const {
     // TODO(soonhok): implement other bisect policy
     int index = -1;

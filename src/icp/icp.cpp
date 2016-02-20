@@ -56,6 +56,8 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
     used_constraints.clear();
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;
+    thread_local static ibex::IntervalVector gradout(b.size());
+    thread_local static vector<float> axis_scores(b.size());
     solns.clear();
     box_stack.clear();
     box_stack.push_back(b);
@@ -73,6 +75,26 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
             // Do nothing
         }
         if (!b.is_empty()) {
+            //TODO get bisectable dimensions
+            std::vector<int> bisectable_dims = b.bisectable_dims(config.nra_precision);
+            ibex::IntervalVector &values = b.get_values();
+            ibex::Vector radii = values.rad();
+            ibex::Vector midpt = values.mid();
+
+            std::fill(axis_scores.begin(), axis_scores.end(), 0.0);
+
+            for (auto cptr : used_constraints) {
+                if (cptr->get_type() == constraint_type::Nonlinear) {
+                    auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
+                    //ibex::Function f = ncptr->get_numctr()->f;
+                    (&ncptr->get_numctr()->f)->gradient(midpt, gradout);
+                    ibex::Vector g = gradout.lb();
+                    for (int i = 0; i < b.size(); i++) {
+                        axis_scores[i] += fabs(g[i] * radii[i]);
+                    }
+                }
+            }
+
             tuple<int, box, box> splits = b.bisect(config.nra_precision);
             if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
             int const i = get<0>(splits);

@@ -46,7 +46,6 @@ private:
     // Methods
     std::tuple<int, box, box> bisect_int_at(int i) const;
     std::tuple<int, box, box> bisect_real_at(int i) const;
-    std::tuple<int, box, box> bisect_at(int i) const;
     void constructFromVariables(std::vector<Enode *> const & vars);
 
 public:
@@ -55,6 +54,8 @@ public:
     void constructFromLiterals(std::vector<Enode *> const & lit_vec);
 
     std::tuple<int, box, box> bisect(double precision) const;
+    std::vector<int> bisectable_dims(double precision) const;
+    std::tuple<int, box, box> bisect_at(int i) const;
     std::vector<bool> diff_dims(box const & b) const;
     std::set<box> sample_points(unsigned const n) const;
     inline bool is_bisectable() const { return m_values.is_bisectable(); }
