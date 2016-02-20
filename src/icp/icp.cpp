@@ -89,16 +89,26 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
                     //ibex::Function f = ncptr->get_numctr()->f;
                     (&ncptr->get_numctr()->f)->gradient(midpt, gradout);
                     ibex::Vector g = gradout.lb();
-                    for (int i = 0; i < b.size(); i++) {
+                    for (unsigned i = 0; i < b.size(); i++) {
                         axis_scores[i] += fabs(g[i] * radii[i]);
                     }
                 }
             }
 
-            tuple<int, box, box> splits = b.bisect(config.nra_precision);
+            int bisectdim = -1;
+            double score = -0.1;
+
+            for (int dim : bisectable_dims) {
+                if (axis_scores[dim] > score) {
+                    bisectdim = dim;
+                    score = axis_scores[dim];
+                }
+            }
+
             if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
-            int const i = get<0>(splits);
+            int const i = bisectdim;
             if (i >= 0) {
+                tuple<int, box, box> splits = b.bisect_at(bisectdim);
                 box const & first  = get<1>(splits);
                 box const & second = get<2>(splits);
                 assert(first.get_idx_last_branched() == i);
