@@ -807,12 +807,12 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
         }
     } catch (capd::intervals::IntervalError<double> & e) {
         if (config.nra_ODE_show_progress) {
-            cout << " [IntervalError]" << endl;
+            cout << " [Done]" << endl;
         }
         throw contractor_exception(e.what());
     } catch (capd::ISolverException & e) {
         if (config.nra_ODE_show_progress) {
-            cout << " [ISolverException]" << endl;
+            cout << " [Done]" << endl;
         }
         throw contractor_exception(e.what());
     }
