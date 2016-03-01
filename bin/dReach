@@ -38,8 +38,8 @@ OPTIONS:
    -d               disjunctive path encoding (default: do not use)
 
    -z               apply exit codes (default: do not use):
-                                51 if SAT,
-                                52 if UNSAT,
+                                51 if DELTA-UNSAFE,
+                                52 if SAFE,
                                 1 abnormal termination
 
 EXAMPLE:
@@ -202,7 +202,7 @@ do
         RESULT=`tail -n 1 $OUT`
         if [[ $RESULT == delta-sat* ]]
         then
-            echo "For k = $K, $P -- SAT"
+            echo "For k = $K, $P -- DELTA-UNSAFE"
             if [ $Z_OPT == TRUE ];      # (edited: FS)
             then                        #
                 rm $OUT                 #
@@ -245,7 +245,7 @@ do
                 RESULT=`tail -n 1 $OUT`
                 if [[ $RESULT == delta-sat* ]]
                 then
-                    echo "For k = $K, $P -- SAT"
+                    echo "For k = $K, $P -- DELTA-UNSAFE"
                     if [ $Z_OPT == TRUE ];      # (edited: FS)
                     then                        #
                         rm $OUT                 #
@@ -260,7 +260,7 @@ do
                 fi                          #
                 PATH_NUM=$((${PATH_NUM} + 1))
             done < ${PATH_FILE}
-            echo "For k = $K, dReach tried ${PATH_NUM} feasible paths, all of them are unsat."
+            echo "For k = $K, dReach tried ${PATH_NUM} feasible paths, all of them are SAFE."
         else
             echo "For k = $K, there is no feasible path to check."
         fi
