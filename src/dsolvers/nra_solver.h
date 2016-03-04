@@ -68,5 +68,13 @@ private:
     std::vector<Enode *> generate_explanation(scoped_vec<std::shared_ptr<constraint>> const & ctr_vec);
     void handle_sat_case(box const & b) const;
     void handle_deduction();
+
+    std::vector<Enode *> slack_vars;
+    std::vector<Enode *> slack_ctrs;
+    std::vector<Enode *> slack_ctrs_tmp;
+    Enode * new_slack_var();
+    Enode * slack_term(Enode *);
+    Enode * slack_constraint(Enode *);
+
 };
 }  // namespace dreal
