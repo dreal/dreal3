@@ -86,13 +86,13 @@ nra_solver::~nra_solver() {
 lbool nra_solver::inform(Enode * e) {
     DREAL_LOG_INFO << "nra_solver::inform: " << e;
     // Collect Literal
-    //TODO: polarity!
+    m_lits.push_back(e);
+    m_need_init = true;
+    return l_Undef;
+/*
     if (!e->isIntegral() && !e->isForall() && !e->isForallT() ) {
 	cout << "Before slacking: "<< e << endl;
-	//auto pol = e -> getPolarity();	
 	e = slack_constraint(e);
-	//e -> resetPolarity(); 
-	//e -> setPolarity(pol);
 	cout << "After slacking: "<< e << endl;
     }
     m_lits.push_back(e);
@@ -104,6 +104,7 @@ lbool nra_solver::inform(Enode * e) {
     slack_ctrs_tmp.clear(); //sorry for the temporary hack. slack_ctrs_tmp keeps the slack equalities for this constraint. 
     m_need_init = true;
     return l_Undef;
+*/
 }
 
 // Simplify box b using a constraint e.
@@ -570,7 +571,7 @@ Enode * nra_solver::slack_term(Enode * e) {
 	    Enode * svar = new_slack_var(); 
 	    Enode * sctr = egraph.mkEq(egraph.cons(svar,egraph.cons(e)));
 	    slack_ctrs.push_back(sctr);
-	    slack_ctrs_tmp.push_back(sctr);
+	    //slack_ctrs_tmp.push_back(sctr);
 	    return svar;
         }
     } else {

@@ -71,7 +71,7 @@ private:
 
     std::vector<Enode *> slack_vars;
     std::vector<Enode *> slack_ctrs;
-    std::vector<Enode *> slack_ctrs_tmp;
+//    std::vector<Enode *> slack_ctrs_tmp;
     Enode * new_slack_var();
     Enode * slack_term(Enode *);
     Enode * slack_constraint(Enode *);
