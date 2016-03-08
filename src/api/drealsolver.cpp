@@ -2,7 +2,12 @@
 #include <algorithm>
 #include <csignal>
 #include <unordered_map>
+
 #include "api/drealsolver.h"
+#include "opensmt/api/OpenSMTContext.h"
+#include "egraph/Egraph.h"
+#include "smtsolvers/SimpSMTSolver.h"
+#include "cnfizers/Tseitin.h"
 #include "simplifiers/ExpandITEs.h"
 #include "simplifiers/ArraySimplify.h"
 #include "simplifiers/BVBooleanize.h"
@@ -20,917 +25,685 @@ using std::vector;
 using std::ostream;
 using std::string;
 using std::pair;
+using std::numeric_limits;
+using std::list;
 
-namespace opensmt {
-    bool stop;
-} 
+namespace dreal {
 
-drealsolver::drealsolver()
-    :config_p(new SMTConfig()),config(*config_p),
-	sstore_p(new SStore(config)),sstore(*sstore_p),
-	egraph_p(new Egraph(config,sstore)),egraph(*egraph_p),
-	solver_p(new SimpSMTSolver(egraph,config)),solver(*solver_p),
-	cnfizer_p(new Tseitin(egraph,solver,config,sstore)),cnfizer(*cnfizer_p),
-	state(l_Undef),nof_checksat(0),init(false) {
+drealsolver::drealsolver() {
+    OpenSMTContext * context = new OpenSMTContext();
+    SMTConfig & config = context -> getConfig();
     config.incremental = 1;
+    context -> SetLogic( QF_NRA );
+    m_context = static_cast<env>(context);
 }
 
 drealsolver::~drealsolver() {
-    assert(config_p);
-    assert(sstore_p);
-    assert(egraph_p);
-    assert(solver_p);
-    assert(cnfizer_p);
-    delete cnfizer_p;
-    delete solver_p;
-    delete egraph_p;
-    delete sstore_p;
-    delete config_p;
+    assert( m_context );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    delete context;
 }
 
-void drealsolver::SetLogic( logic_t l )  {
-    config.logic = l;
-    egraph.initializeStore( );
-    solver.initialize( );
-    egraph.initializeTheorySolvers( &solver );
-    init = true;
+expr drealsolver::mk_true() {
+    assert( m_context );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * res = context -> mkTrue( );
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
 }
 
-void drealsolver::SetLogic( const char * str ) {
-    if (strcmp(str,"QF_NRA_ODE")==0) 
-	SetLogic(QF_NRA_ODE);
-    else 
-	SetLogic(QF_NRA);
+expr drealsolver::mk_false() {
+    assert( m_context );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * res = context -> mkFalse( );
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
 }
 
-void drealsolver::SetInfo( const char * key )
-{
-  dreal_error2( "command not supported (yet)", key );
+expr drealsolver::mk_bool_var ( char const * s ) {
+    assert( m_context );  
+    assert( s );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Snode * sort = context -> mkSortBool( );
+    context -> DeclareFun( s, sort );
+    Enode * res = context -> mkVar( s, true );
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
 }
 
-void
-drealsolver::SetInfo( const char * key, const char * attr )
-{
-  assert( key );
-  assert( attr );
-
-  if ( strcmp( key, ":status" ) == 0 )
-  {
-    if ( strcmp( attr, "sat" ) == 0 )
-      config.status = l_True;
-    else if ( strcmp( attr, "unsat" ) == 0 )
-      config.status = l_False;
-    else if ( strcmp( attr, "unknown" ) == 0 )
-      config.status = l_Undef;
-    else
-      dreal_error2( "unrecognized attribute", attr );
-  }
-  else if ( strcmp( key, ":smt-lib-version" ) == 0 )
-    ; // Do nothing
-  else if ( strcmp( key, ":category" ) == 0 )
-    ; // Do nothing
-  else if ( strcmp( key, ":source" ) == 0 )
-    ; // Do nothing
-  else if ( strcmp( key, ":precision" ) == 0) {
-      egraph.setPrecision(atof(attr));
-      if (config.nra_precision == 0) {
-          config.nra_precision = strtod(attr, nullptr);
-      }
-  }
-  else
-    dreal_error2( "unrecognized key", key );
+expr drealsolver::mk_int_var ( char const * s , long lb, long ub) {
+    assert( m_context );
+    assert( s );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Snode * sort = context -> mkSortInt();
+    context -> DeclareFun( s, sort );
+    Enode * res = context -> mkVar( s, true );
+    res->setDomainLowerBound(lb);
+    res->setDomainUpperBound(ub);
+    res->setValueLowerBound(lb);
+    res->setValueUpperBound(ub);
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
 }
 
-void
-drealsolver::SetOption( const char * key )
-{
-  dreal_error2( "command not supported (yet)", key );
+expr drealsolver::mk_int_var( char const * s) {
+    return mk_int_var( s, numeric_limits<long>::lowest(), numeric_limits<long>::max());
 }
 
-void
-drealsolver::SetOption( const char * key, const char * attr )
-{
-  assert( key );
-  assert( attr );
+expr drealsolver::mk_real_var( char const * s , double lb, double ub) {
+    assert( m_context );
+    assert( s );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Snode * sort = context -> mkSortReal();
+    context -> DeclareFun( s, sort );
+    Enode * res = context -> mkVar( s, true );
+    res->setDomainLowerBound(lb);
+    res->setDomainUpperBound(ub);
+    res->setValueLowerBound(lb);
+    res->setValueUpperBound(ub);
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
+}
 
-  if ( strcmp( key, ":print-success" ) == 0 )
-  {
-    if ( strcmp( attr, "true" ) == 0 )
-      config.print_success = true;
-  }
-  else if ( strcmp( key, ":expand-definitions" ) == 0 )
-    dreal_warning2( key, " not yet supported, skipping.")
-  else if ( strcmp( key, ":interactive-mode" ) == 0 )
-    dreal_warning2( key, " not yet supported, skipping.")
-  else if ( strcmp( key, ":produce-proofs" ) == 0 )
-  {
-    if ( strcmp( attr, "true" ) == 0 )
-    {
-#ifndef PRODUCE_PROOF
-      dreal_error( "You must configure code with --enable-proof to produce proofs" );
-#endif
-      config.setProduceProofs( );
+expr drealsolver::mk_real_var( char const * s) {
+    return mk_real_var( s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity() );
+}
+
+expr drealsolver::mk_forall( expr * varlist, unsigned n, expr body ) {
+    assert( m_context );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    vector<pair<string, Snode *>> sorted_var_list;
+    for (unsigned i = 0; i < n; ++i) {
+	expr var = varlist[i];
+	Enode * e = static_cast<Enode*>(var);
+	Snode * sort = e->getSort();
+	string name = e->getCar()->getNameFull();
+	sorted_var_list.push_back(make_pair(name, sort));
     }
-  }
-  else if ( strcmp( key, ":produce-unsat-cores" ) == 0 )
-    dreal_warning2( key, " not yet supported, skipping.")
-  else if ( strcmp( key, ":produce-models" ) == 0 )
-  {
-    if ( strcmp( attr, "true" ) == 0 )
-      config.setProduceModels( );
-  }
-  else if ( strcmp( key, ":produce-assignments" ) == 0 )
-    dreal_warning2( key, " not yet supported, skipping.")
-  else if ( strcmp( key, ":regular-output-channel" ) == 0 )
-    config.setRegularOutputChannel( attr );
-  else if ( strcmp( key, ":diagnostic-output-channel" ) == 0 )
-    config.setDiagnosticOutputChannel( attr );
-  else if ( strcmp( key, ":random-seed" ) == 0 )
-    dreal_warning2( key, " not yet supported, skipping.")
-  else if ( strcmp( key, ":verbosity" ) == 0 )
-    config.verbosity = atoi( attr );
-  else if ( strcmp( key, ":precision" ) == 0 ) {
-      // Give precedence to the command line option "--precision"
-      if (config.nra_precision == 0) {
-          config.nra_precision = strtod(attr, nullptr);
-      }
-  }
-  else
-    dreal_warning2( "skipping option ", key );
+    Enode * e_body = static_cast<Enode*>(body);
+    Enode * res = context -> mkForall(sorted_var_list, e_body);
+    expr temp = static_cast<expr>(e_body);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
 }
 
-int
-drealsolver::executeCommands( )
-{
-  assert( init );
-
-  int ret_val = 0;
-
-  // Weird situation
-  if ( nof_checksat <= 0 )
-    return 2;
-
-  // Trick for efficiency
-  if ( config.incremental == 0 && nof_checksat == 1 )
-    ret_val = executeStatic( );
-  // Normal incremental solving
-  else
-  {
-    config.incremental = 1;
-    ret_val = executeIncremental( );
-  }
-
-  return ret_val;
-}
-
-//
-// Execute a generic SMTLIB2 script
-//
-int drealsolver::executeIncremental( )
-{
-  assert( init );
-  assert( config.incremental == 1 );
-
-  // Initialize theory solvers
-  egraph.initializeTheorySolvers( &solver );
-
-  lbool status = l_Undef;
-
-  for ( size_t i = 0 ; i < command_list.size( ) ;  ++ i )
-  {
-    Command & c = command_list[ i ];
-
-    // Commands blocked with assert( falase ) are issued from parser directly
-    switch( c.command )
-    {
-      case SET_LOGIC:
-        assert( false );
-        break;
-      case SET_OPTION:
-        assert( false );
-        break;
-      case SET_INFO:
-        assert( false );
-        break;
-      case DECLARE_SORT:
-        DeclareSort( c.str, c.num );
-        break;
-      case DEFINE_SORT:
-        dreal_error( "construct define-sort not yet supported" );
-        break;
-      case DECLARE_FUN:
-        DeclareFun( c.str, c.snode );
-        break;
-      case DEFINE_FUN:
-        dreal_error( "construct define-fun not yet supported" );
-        break;
-      case DEFINE_ODE:
-        dreal_error( "construct define-ode not yet supported" ); /* added for dReal2 */
-        break;
-      case PUSH:
-        Push( );
-        break;
-      case POP:
-        Pop( );
-        break;
-      case ASSERT:
-        Assert( c.enode );
-        break;
-      case CHECK_SAT:
-        status = CheckSAT( );
-        break;
-      case GET_ASSERTIONS:
-        dreal_error( "construct get-assertions not yet supported" );
-        break;
-      case GET_PROOF:
-        GetProof( );
-        break;
-      case GET_INTERPOLANTS:
-        GetInterpolants( );
-        break;
-      case GET_UNSAT_CORE:
-        dreal_error( "construct get-unsat-core not yet supported" );
-        break;
-      case GET_VALUE:
-        dreal_error( "construct get-value not yet supported" );
-        break;
-      case GET_ASSIGNMENT:
-        dreal_error( "construct get-assignment not yet supported" );
-        break;
-      case GET_OPTION:
-        dreal_error( "construct get-option not yet supported" );
-        break;
-      case GET_INFO:
-        dreal_error( "construct get-info not yet supported" );
-        break;
-      case EXIT:
-        Exit( );
-        break;
-      default:
-        dreal_error( "case not handled" );
+expr drealsolver::mk_or( expr * expr_list, unsigned n ) {
+    assert( m_context );
+    assert( expr_list );
+    list< Enode * > args;
+    for ( unsigned i = 0 ; i < n ; i ++ ) {
+	Enode * arg = static_cast< Enode * >( expr_list[ i ] );
+	args.push_back( arg );
     }
-  }
-
-  return 0;
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( args );
+    Enode * res = context -> mkOr( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
 }
 
-//
-// Execute a script in which there is only
-// one check-sat. We can use specialized
-// functions, such as preprocessing, to
-// improve performance
-//
-int drealsolver::executeStatic( )
+expr drealsolver::mk_or( expr e1, expr e2) {
+    expr elist[2] = { e1, e2 };
+    return mk_or( elist, 2 );
+}
+
+expr drealsolver::mk_or( expr e1, expr e2, expr e3)
 {
-  assert( init );
-  assert( config.incremental == 0 );
-  //
-  // Hack for SMT-COMP 2010 for retrieving formula
-  //
-  for ( size_t i = 0 ; i < command_list.size( ) ; i ++ )
-  {
-    Command & c = command_list[ i ];
-    if ( c.command == ASSERT )
-      Assert( c.enode );
-    else if ( c.command == CHECK_SAT )
-    {
-#ifdef PRODUCE_PROOF
-      if ( config.produce_inter > 0 )
-        staticCheckSATIterp( );
-      else
-#endif
-        staticCheckSAT( );
+    expr elist[3] = { e1, e2, e3 };
+    return mk_or( elist, 3);
+}
+
+expr drealsolver::mk_and( expr * expr_list, unsigned n ) {
+    assert( m_context );
+    assert( expr_list );
+    list< Enode * > args;
+    for ( unsigned i = 0 ; i < n ; i ++ ) {
+	Enode * arg = static_cast< Enode * >( expr_list[ i ] );
+	args.push_back( arg );
     }
-    else if ( c.command == EXIT )
-      Exit( );
-    else if ( c.command == GET_PROOF )
-      GetProof( );
-    else if ( c.command == GET_INTERPOLANTS )
-      GetInterpolants( );
-    else
-      dreal_error( "command not supported (yet)" );
-  }
-
-  return 0;
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( args );
+    Enode * res = context -> mkAnd( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
 }
 
-void drealsolver::staticCheckSAT( )
-{
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Statically Checking" << endl;
+expr drealsolver::mk_and( expr e1, expr e2) {
+    expr elist[2] = {e1, e2};
+    return mk_and(elist, 2);
+}
 
-  // Retrieve the formula
-  Enode * formula = egraph.getUncheckedAssertions( );
+expr drealsolver::mk_and( expr e1, expr e2, expr e3 ) {
+    expr elist[3] = {e1, e2, e3};
+    return mk_and(elist, 3);
+}
 
-  if ( config.dump_formula != 0 )
-    egraph.dumpToFile( "original.smt2", formula );
+expr drealsolver::mk_eq ( expr x, expr y ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons(  static_cast< Enode * >( x ), 
+					    context -> mkCons(static_cast<Enode*>(y)));
+    Enode * res = context -> mkEq(args_list);
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
+}
 
-  if ( formula == NULL )
-    dreal_error( "formula undefined" );
+expr drealsolver::mk_ite( expr i, expr t, expr e ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * i_ = static_cast< Enode * >( i );
+    Enode * t_ = static_cast< Enode * >( t );
+    Enode * e_ = static_cast< Enode * >( e );
+    Enode * args = context -> mkCons(i_,context -> mkCons(t_,context -> mkCons(e_)));
+    Enode * res = context -> mkIte(args);
+    expr temp = static_cast<expr>(args);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
+}
 
-  if ( config.logic == UNDEF )
-    dreal_error( "unable to determine logic" );
+expr drealsolver::mk_not( expr x ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( x ));
+    Enode * res = context -> mkNot( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
+}
 
-  // Removes ITEs if there is any
-  if ( egraph.hasItes( ) )
-  {
-#ifdef PRODUCE_PROOF
-    if ( config.produce_inter > 0 )
-      dreal_error( "Interpolation not supported for ite construct" );
-#endif
-    ExpandITEs expander( egraph, config );
-    formula = expander.doit( formula );
+expr drealsolver::mk_num( const char * s ) {
+    assert( s );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * res = context -> mkNum( s );
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
+}
 
-    if ( config.dump_formula != 0 )
-      egraph.dumpToFile( "ite_expanded.smt2", formula );
-  }
+expr drealsolver::mk_num( double const v ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * res = context -> mkNum( v );
+    expr result = static_cast<expr>( res );
+    expr_table.push_back(result);
+    return result;
+}
 
-  // Gather interface terms for DTC
-  if ( ( config.logic == QF_UFIDL
-      || config.logic == QF_UFLRA )
-    // Don't use with DTC of course
-    && config.sat_lazy_dtc == 1
-    // Don't use when dumping interpolants
-    && config.sat_dump_rnd_inter == 0 )
-  {
-    Purify purifier( egraph, config );
-    formula = purifier.doit( formula );
-
-    if ( config.dump_formula != 0 )
-      egraph.dumpToFile( "purified.smt2", formula );
-  }
-
-  // Ackermanize away functional symbols
-  if ( ( config.logic == QF_UFIDL
-      || config.logic == QF_UFLRA )
-    // Don't use with DTC of course
-    && config.sat_lazy_dtc == 0
-    // Don't use when dumping interpolants
-    && config.sat_dump_rnd_inter == 0 )
-  {
-    Ackermanize ackermanizer( egraph, config );
-    formula = ackermanizer.doit( formula );
-
-    if ( config.dump_formula != 0 )
-      egraph.dumpToFile( "ackermanized.smt2", formula );
-  }
-
-  // Artificially create a boolean
-  // abstraction, if necessary
-  if ( config.logic == QF_BV )
-  {
-    BVBooleanize booleanizer( egraph, config );
-    formula = booleanizer.doit( formula );
-  }
-
-  // Top-Level Propagator. It also canonize atoms
-  TopLevelProp propagator( egraph, config );
-  formula = propagator.doit( formula );
-
-  // Applies array axioms where possible
-  if( config.logic == QF_AX )
-  {
-    ArraySimplify simplifier( egraph, config );
-    formula = simplifier.doit( formula );
-  }
-
-  // Convert RDL into IDL, also compute if GMP is needed
-  if ( config.logic == QF_RDL )
-  {
-    DLRescale rescaler( egraph, config );
-    rescaler.doit( formula );
-  }
-
-  // For static checking, make sure that if DTC is used
-  // then incrementality is enabled
-  if ( ( config.logic == QF_UFIDL
-      || config.logic == QF_UFLRA )
-      && config.sat_lazy_dtc != 0 )
-  {
-    config.incremental = 1;
-  }
-
-  if ( config.dump_formula != 0 )
-    egraph.dumpToFile( "presolve.smt2", formula );
-
-  // Solve only if not simplified already
-  if ( formula->isTrue( ) )
-  {
-    state = l_True;
-  }
-  else if ( formula->isFalse( ) )
-  {
-    state = l_False;
-  }
-  else
-  {
-    // Initialize theory solvers
-    egraph.initializeTheorySolvers( &solver );
-
-    // Compute polarities
-    egraph.computePolarities( formula );
-
-    // CNFize the input formula and feed clauses to the solver
-    state = cnfizer.cnfizeAndGiveToSolver( formula );
-
-    // Solve
-    if ( state == l_Undef )
-    {
-      state = solver.smtSolve( config.sat_preprocess_booleans != 0
-                            || config.sat_preprocess_theory   != 0 );
+expr drealsolver::mk_plus( expr * expr_list, unsigned n ) {
+    list< Enode * > args;
+    for ( unsigned i = 0 ; i < n ; i ++ ) {
+	Enode * arg = static_cast< Enode * >( expr_list[ i ] );
+	args.push_back( arg );
     }
-
-    // If computation has been stopped, return undef
-    if ( opensmt::stop ) state = l_Undef;
-  }
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( args );
+    Enode * res = context -> mkPlus( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-#ifdef PRODUCE_PROOF
-void drealsolver::staticCheckSATIterp( )
-{
-  assert( config.produce_inter > 0 );
-
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Statically Checking" << endl;
-
-  if ( config.logic == UNDEF )
-    dreal_error( "unable to determine logic" );
-
-  if ( egraph.hasItes( ) )
-    dreal_error( "Interpolation not supported for ite construct" );
-
-  if ( config.logic == QF_UFIDL
-    || config.logic == QF_UFLRA )
-    dreal_error( "Interpolation not supported (yet) for theory combination" );
-
-  // Top-Level Propagator. It also canonize atoms
-  TopLevelProp propagator( egraph, config );
-
-  // Initialize theory solvers
-  egraph.initializeTheorySolvers( &solver );
-
-  for ( int in = 1 ; ; in ++ )
-  {
-    const uint64_t partition = SETBIT( in );
-    // Get partition
-    Enode * formula = egraph.getNextAssertion( );
-    assert( in != 1 || formula != NULL );
-    if ( formula == NULL ) break;
-    // Canonize atoms
-    formula = propagator.doit( formula );
-    // CNFize the input formula and feed clauses to the solver
-    state = cnfizer.cnfizeAndGiveToSolver( formula, partition );
-  }
-
-  // Solve
-  if ( state == l_Undef )
-  {
-    if ( config.sat_preprocess_booleans != 0
-      || config.sat_preprocess_theory != 0 )
-      dreal_warning( "not using SMT-preprocessing with interpolation" );
-    state = solver.smtSolve( false );
-  }
-
-  // If computation has been stopped, return undef
-  if ( opensmt::stop ) state = l_Undef;
-}
-#endif
-
-//
-// Here set the right parameter values for SMTCOMP
-//
-void drealsolver::loadCustomSettings( )
-{
-  if ( config.logic == QF_IDL )
-  {
-    config.sat_polarity_mode = 5;
-    config.sat_learn_up_to_size = 5;
-    config.sat_minimize_conflicts = 1;
-    config.sat_restart_first = 70;
-    config.dl_theory_propagation = 1;
-    config.sat_preprocess_booleans = 1;
-
-  }
-  else if ( config.logic == QF_UFIDL )
-  {
-    config.sat_polarity_mode = 1;
-    config.sat_learn_up_to_size = 5;
-    config.sat_minimize_conflicts = 1;
-    config.sat_restart_first = 100;
-    config.dl_theory_propagation = 1;
-    config.sat_preprocess_booleans = 0;
-  }
-  else if ( config.logic == QF_RDL )
-  {
-    config.sat_polarity_mode = 0;
-    config.sat_learn_up_to_size = 5;
-    config.sat_minimize_conflicts = 1;
-    config.sat_preprocess_booleans = 1;
-    config.sat_restart_first = 70;
-    config.dl_theory_propagation = 1;
-    config.sat_restart_inc = 1.2;
-  }
-  else if ( config.logic == QF_UF )
-  {
-    config.sat_polarity_mode = 0;
-    config.sat_learn_up_to_size = 8;
-    config.sat_minimize_conflicts = 1;
-    config.sat_preprocess_booleans = 1;
-    config.sat_restart_first = 50;
-    config.uf_theory_propagation = 1;
-  }
-  else if ( config.logic == QF_LRA )
-  {
-    config.sat_polarity_mode = 0;
-    config.sat_learn_up_to_size = 12;
-    config.sat_minimize_conflicts = 0;
-    config.sat_restart_first = 70;
-    config.lra_theory_propagation = 1;
-    config.sat_preprocess_booleans = 0;
-  }
+expr drealsolver::mk_plus( expr expr1, expr expr2 ) {
+    expr elist[2] = {expr1, expr2};
+    return mk_plus(elist, 2);
 }
 
-// =======================================================================
-// Functions that actually execute actions
-
-void drealsolver::DeclareSort( const char * name, int arity )
-{
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Declaring sort "
-         << name
-         << " of arity "
-         << arity
-         << endl;
-
-  sstore.newSymbol( name );
+expr drealsolver::mk_minus( expr x, expr y ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( x )
+					, context->mkCons( static_cast< Enode * >( y ) ) );
+    Enode * res = context -> mkMinus( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::DeclareFun( const char * name, Snode * s )
-{
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Declaring function "
-         << name
-         << " of sort "
-         << s
-         << endl;
-
-  egraph.newSymbol( name, s, true );
+expr drealsolver::mk_uminus( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkUminus( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::DeclareFun( const char * name, Snode * s, const char * p )
-{
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Declaring function "
-         << name
-         << " of sort "
-         << s
-         << " with precision = "
-         << p
-         << endl;
-  double const vval = strtod(p, nullptr);
-  egraph.newSymbol( name, s, true, vval );
-}
-
-void drealsolver::DefineODE( char const * name, vector<pair<Enode *, Enode *>> const & odes)
-{
-    dreal::flow _flow;
-    for(auto const & name_odes : odes) {
-        _flow.add(name_odes.first, name_odes.second);
+expr drealsolver::mk_times( expr * expr_list, unsigned n ) {
+    list< Enode * > args;
+    for ( unsigned i = 0 ; i < n ; i ++ ) {
+	Enode * arg = static_cast< Enode * >( expr_list[ i ] );
+	args.push_back( arg );
     }
-    string const sname (name);
-    egraph.stepped_flows = (sname.find_first_of("_") != sname.find_last_of("_"));
-    egraph.flow_maps[name] = _flow;
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( args );
+    Enode * res = context -> mkTimes( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::Push( )
-{
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Pushing backtrack point" << endl;
-
-  solver.pushBacktrackPoint( );
+expr drealsolver::mk_times( expr expr1, expr expr2) {
+    expr elist[2] = {expr1, expr2};
+    return mk_times(elist, 2);
 }
 
-void drealsolver::Pop( )
-{
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Popping backtrack point" << endl;
-
-  solver.popBacktrackPoint( );
+expr drealsolver::mk_div( expr x, expr y ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons(  static_cast< Enode * >( x )
+					    , context->mkCons( static_cast< Enode * >( y ) ) );
+    Enode * res = context -> mkDiv( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::Reset( )
-{
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Resetting" << endl;
-
-  solver.reset( );
+expr drealsolver::mk_leq( expr lhs, expr rhs ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons(  static_cast< Enode * >( lhs )
+					    , context->mkCons( static_cast< Enode * >( rhs ) ) );
+    Enode * res = context->mkLeq( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::Assert( Enode * e )
-{
-  if ( config.verbosity > 1 )
-  {
-    if ( e->isBooleanOperator( ) )
-        cerr << "# drealsolver::Asserting formula " << e
-             << " with id " << e->getId( ) << endl;
-    else
-      cerr << "# drealsolver::Asserting formula " << e << endl;
-  }
-
-  // Move an assertion into the Egraph
-  // They are stored and might be preprocessed
-  // before entering the actual solver
-  egraph.addAssertion( e );
+expr drealsolver::mk_lt( expr lhs, expr rhs ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons(  static_cast< Enode * >( lhs )
+					    , context->mkCons( static_cast< Enode * >( rhs ) ) );
+    Enode * res = context -> mkLt( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::GetProof( )
-{
-#ifdef PRODUCE_PROOF
-  if ( state == l_False )
-    solver.printProof( config.getRegularOut( ) );
-  else
-    dreal_warning( "Skipping command (get-proof) as formula is not unsat" );
-#else
-  dreal_warning( "Skipping command (get-proof): you need a version of opensmt compiled with --enable-proof" );
-#endif
+expr drealsolver::mk_gt( expr lhs, expr rhs ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons(  static_cast< Enode * >( lhs )
+					    , context -> mkCons( static_cast< Enode * >( rhs ) ) );
+    Enode * res = context -> mkGt( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::GetInterpolants( )
-{
-#ifdef PRODUCE_PROOF
-  if ( config.produce_inter == 0 )
-  {
-    dreal_warning( "Skipping command (get-interpolants) as (produce-interpolants) is not set" );
-  }
-  else if ( state == l_False )
-  {
-    solver.printInter( config.getRegularOut( ) );
-  }
-  else
-  {
-    dreal_warning( "Skipping command (get-interpolants) as formula is not unsat" );
-  }
-#else
-  dreal_warning( "Skipping command (get-interpolants): you need a version of opensmt compiled with --enable-proof" );
-#endif
+expr drealsolver::mk_geq( expr lhs, expr rhs ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons(  static_cast< Enode * >( lhs )
+					    , context -> mkCons( static_cast< Enode * >( rhs ) ) );
+    Enode * res = context -> mkGeq( args_list );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-lbool drealsolver::CheckSAT( )
-{
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Checking satisfiability" << endl;
-
-  // Retrieve the conjunction of the
-  // yet unchecked assertions
-  Enode * formula = egraph.getUncheckedAssertions( );
-
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Processing: " << formula << endl;
-
-  // Removes ITEs if there is any
-  if ( egraph.hasItes( ) )
-  {
-#ifdef PRODUCE_PROOF
-    if ( config.produce_inter > 0 )
-      dreal_error( "Interpolation not supported for ite construct" );
-#endif
-    ExpandITEs expander( egraph, config );
-    formula = expander.doit( formula );
-
-    if ( config.dump_formula != 0 )
-      egraph.dumpToFile( "ite_expanded.smt2", formula );
-  }
-
-  state = cnfizer.cnfizeAndGiveToSolver( formula );
-  if ( state == l_Undef )
-    state = solver.solve( );
-
-  if ( config.print_success )
-  {
-    ostream & out = config.getRegularOut( );
-    if ( state == l_Undef )
-      out << "unknown" << endl;
-    else if ( state == l_False )
-      out << "unsat" << endl;
-    else {
-      fesetround(FE_TONEAREST);
-      std::streamsize ss = out.precision();
-      out.precision(17);
-      if ( config.nra_precision_output ) {
-          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
-      } else {
-          out << "delta-sat" << endl;
-      }
-      out.precision(ss);
-    }
-  }
-  return state;
+expr drealsolver::mk_abs( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkAbs( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-lbool drealsolver::CheckSAT( vec< Enode * > & assumptions )
-{
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Checking satisfiability" << endl;
-
-  // Retrieve the conjunction of the
-  // yet unchecked assertions
-  Enode * formula = egraph.getUncheckedAssertions( );
-
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Processing: " << formula << endl;
-
-  state = cnfizer.cnfizeAndGiveToSolver( formula );
-
-  if ( state == l_Undef )
-    state = solver.solve( assumptions, false );
-
-  if ( config.print_success )
-  {
-    ostream & out = config.getRegularOut( );
-    if ( state == l_Undef )
-      out << "unknown" << endl;
-    else if ( state == l_False )
-      out << "unsat" << endl;
-    else {
-      fesetround(FE_TONEAREST);
-      std::streamsize ss = out.precision();
-      out.precision(17);
-      if ( config.nra_precision_output ) {
-          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
-      } else {
-          out << "delta-sat" << endl;
-      }
-      out.precision(ss);
-    }
-  }
-  return state;
+expr drealsolver::mk_exp( expr arg) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkExp( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-lbool drealsolver::CheckSAT( vec< Enode * > & assumptions, unsigned limit )
-{
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Checking satisfiability" << endl;
-
-  // Retrieve the conjunction of the
-  // yet unchecked assertions
-  Enode * formula = egraph.getUncheckedAssertions( );
-
-  if ( config.verbosity > 1 )
-    cerr << "# drealsolver::Processing: " << formula << endl;
-
-  state = cnfizer.cnfizeAndGiveToSolver( formula );
-
-  if ( state == l_Undef )
-    state = solver.solve( assumptions, limit, false );
-
-  if ( config.print_success )
-  {
-    ostream & out = config.getRegularOut( );
-    if ( state == l_Undef )
-      out << "unknown" << endl;
-    else if ( state == l_False )
-      out << "unsat" << endl;
-    else {
-      fesetround(FE_TONEAREST);
-      std::streamsize ss = out.precision();
-      out.precision(17);
-      if ( config.nra_precision_output ) {
-          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
-      } else {
-          out << "delta-sat" << endl;
-      }
-      out.precision(ss);
-    }
-  }
-  return state;
+expr drealsolver::mk_log( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkLog( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::Exit( )
-{
-  PrintResult( state, config.status );
+expr drealsolver::mk_sqrt( expr arg) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkSqrt( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::PrintResult( const lbool & result, const lbool & config_status )
-{
-  ostream & out = config.getRegularOut( );
-#ifdef SMTCOMP
-  (void)config_status;
-#else
-  fflush( stderr );
-  (void)config_status;
-  //
-  // For testing purposes we return error if bug is found
-  //
-  if ( config_status != l_Undef
-    && result != l_Undef
-    && result != config_status )
-    out << "error" << endl;
-  else
-#endif
-    if (config.produce_stats){
-      for( auto t : getEgraphP()->getTSolvers()){
-        dreal::nra_solver* nra = dynamic_cast<dreal::nra_solver*>(t);
-        if(nra){
-          //out << "nodes: " << solver.decisions << " " << nra->decisions() << endl;
-          break;
-        }
-      }
-    }
-
-  if ( result == l_True ) {
-      fesetround(FE_TONEAREST);
-      std::streamsize ss = out.precision();
-      out.precision(17);
-      if ( config.nra_precision_output ) {
-          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
-      } else {
-          out << "delta-sat" << endl;
-      }
-      out.precision(ss);
-  } else if ( result == l_False )
-    out << "unsat" << endl;
-  else if ( result == l_Undef )
-    out << "unknown" << endl;
-  else
-    dreal_error( "unexpected result" );
-
-  fflush( stdout );
-
-#ifndef SMTCOMP
-  if ( config.verbosity )
-  {
-    //
-    // Statistics
-    //
-    double   cpu_time = cpuTime();
-    reportf( "#\n" );
-    reportf( "# CPU Time used: %g s\n", cpu_time == 0 ? 0 : cpu_time );
-    uint64_t mem_used = memUsed();
-    reportf( "# Memory used: %.3f MB\n",  mem_used == 0 ? 0 : mem_used / 1048576.0 );
-    reportf( "#\n" );
-  }
-#endif
+expr drealsolver::mk_pow( expr arg1, expr arg2) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons(  static_cast< Enode * >( arg1 )
+					    , context->mkCons( static_cast< Enode * >( arg2 ) ) );
+    Enode * res = context->mkPow( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-// =======================================================================
-// Functions that add commands to the list
-
-void drealsolver::addAssert( Enode * t )
-{
-  Command c;
-  c.command = ASSERT;
-  c.enode = t;
-  command_list.push_back( c );
+expr drealsolver::mk_sin( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkSin( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::addCheckSAT( )
-{
-  Command c;
-  c.command = CHECK_SAT;
-  command_list.push_back( c );
-  nof_checksat ++;
+expr drealsolver::mk_cos( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkCos( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::addPush( int n )
-{
-  assert( n > 0 );
-  for ( int i = 0 ; i < n ; ++ i )
-  {
-    Command c;
-    c.command = PUSH;
-    command_list.push_back( c );
-  }
+expr drealsolver::mk_tan( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkTan( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::addPop( int n )
-{
-  assert( n > 0 );
-  for ( int i = 0 ; i < n ; ++ i )
-  {
-    Command c;
-    c.command = POP;
-    command_list.push_back( c );
-  }
+expr drealsolver::mk_asin( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkAsin( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
 }
 
-void drealsolver::addExit( )
-{
-  Command c;
-  c.command = EXIT;
-  command_list.push_back( c );
+expr drealsolver::mk_acos( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkAcos( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
+}
+
+expr drealsolver::mk_atan( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkAtan( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
+}
+
+expr drealsolver::mk_sinh( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkSinh( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
+}
+
+expr drealsolver::mk_cosh( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkCosh( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
+}
+
+expr drealsolver::mk_tanh( expr arg ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons( static_cast< Enode * >( arg ) );
+    Enode * res = context -> mkTanh( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
+}
+
+expr drealsolver::mk_atan2( expr arg1, expr arg2 ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context -> mkCons(  static_cast< Enode * >( arg1 )
+					    , context->mkCons( static_cast< Enode * >( arg2 ) ) );
+    Enode * res = context->mkAtan2( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
+}
+
+expr drealsolver::mk_min( expr arg1, expr arg2 ) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context->mkCons(static_cast< Enode * >( arg1 )
+					,context->mkCons( static_cast< Enode * >( arg2 ) ) );
+    Enode * res = context->mkMin( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
+}
+
+expr drealsolver::mk_max( expr arg1, expr arg2) {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * args_list = context->mkCons(static_cast< Enode * >( arg1 )
+					,context->mkCons( static_cast< Enode * >( arg2 ) ) );
+    Enode * res = context -> mkMax( static_cast< Enode * >( args_list ) );
+    expr temp = static_cast<expr>(args_list);
+    expr_table.push_back(temp);
+    expr result = static_cast<expr>(res);
+    expr_table.push_back(result);  
+    return result;
+}
+
+result drealsolver::get_bool_value ( expr p ) {
+    assert( p );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * atom = static_cast< Enode * >( p );
+    assert( atom -> isAtom() ); 
+    lbool value = context->getModel( atom );
+    if ( value == l_True )    
+	return dr_true;
+    else if ( value == l_False ) 
+	return dr_false;
+    return dr_undef;
+}
+
+void drealsolver::reset() {
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    context -> Reset();
+}
+
+void drealsolver::print( expr e ) {
+    Enode * enode = static_cast< Enode * >( e );
+    cerr << enode;
+}
+
+void drealsolver::push() {
+    assert( m_context );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    context -> Push();
+}
+
+void drealsolver::pop() {
+    assert( m_context );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    context -> Pop();
+}
+
+void drealsolver::declare( expr e ) {
+    assert( m_context );
+    assert( e );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * enode = static_cast< Enode * >( e );
+    context -> Assert( enode );
+}
+
+result drealsolver::check() {
+    assert( m_context );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    lbool result = context -> CheckSAT( );
+    if ( result == l_Undef ) return dr_undef;
+    if ( result == l_False ) return dr_false;
+    return dr_true;
+}
+
+result drealsolver::check_assump( expr l ) {
+    assert( m_context );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * unit = static_cast< Enode * >( l );
+    assert( unit );
+    vec< Enode * > assumptions;
+    assumptions.push( unit );
+    lbool result = context->CheckSAT( assumptions );
+    if ( result == l_Undef ) return dr_undef;
+    if ( result == l_False ) return dr_false;
+    assert( result == l_True );
+    return dr_true;
+}
+
+result drealsolver::check_lim_assump( expr l, unsigned limit ) {
+    assert( m_context );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    Enode * unit = static_cast< Enode * >( l );
+    assert( unit );
+    vec< Enode * > assumptions;
+    assumptions.push( unit );
+    lbool result = context -> CheckSAT( assumptions, limit );
+    if ( result == l_Undef ) return dr_undef;
+    if ( result == l_False ) return dr_false;
+    return dr_true;
 }
 
 
-void drealsolver::addGetProof( )
-{
-  Command c;
-  c.command = GET_PROOF;
-  command_list.push_back( c );
+expr drealsolver::get_value( expr v ) {
+    assert( v );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    assert( context -> getStatus( ) == l_True );
+    Enode * var = static_cast< Enode * >( v );
+    const Real & value = var->getValue();
+    Enode * res = context -> mkNum( value );
+    return static_cast< void * >( res );
 }
 
-void drealsolver::addGetInterpolants( )
-{
-  Command c;
-  c.command = GET_INTERPOLANTS;
-  command_list.push_back( c );
+double drealsolver::get_lb( expr v ) {
+    assert( v );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    assert( context -> getStatus( ) == l_True );
+    Enode * var = static_cast< Enode * >( v );
+    return var->getValueLowerBound();
 }
+
+double drealsolver::get_ub( expr v ) {
+    assert( v );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    assert( context -> getStatus( ) == l_True );
+    Enode * var = static_cast< Enode * >( v );
+    return var->getValueUpperBound();
+}
+
+double drealsolver::get_domain_lb( expr v ) {
+    assert( v );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    assert( context -> getStatus( ) == l_True );
+    Enode * var = static_cast< Enode * >( v );
+    return var->getDomainLowerBound();
+}
+
+double drealsolver::get_domain_ub( expr v ) {
+    assert( v );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    assert( context -> getStatus( ) == l_True );
+    Enode * var = static_cast< Enode * >( v );
+    return var->getDomainUpperBound();
+}
+
+void drealsolver::set_domain_lb( expr v, double n ) {
+    assert( v );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    assert( context -> getStatus( ) == l_True );
+    Enode * var = static_cast< Enode * >( v );
+    var->setDomainLowerBound(n);
+}
+
+void drealsolver::set_domain_ub( expr v, double n ) {
+    assert( v );
+    OpenSMTContext * context = static_cast< OpenSMTContext * >( m_context );
+    assert( context -> getStatus( ) == l_True );
+    Enode * var = static_cast< Enode * >( v );
+    var->setDomainUpperBound(n);
+}
+
+
+
+
+
+
+
+}
+

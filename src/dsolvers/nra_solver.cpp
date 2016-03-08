@@ -536,7 +536,6 @@ Enode * nra_solver::new_slack_var() {
 }
 
 Enode * nra_solver::slack_term(Enode * e) {
-
     if ( e->isConstant() || e->isNumb() || e->isVar() ) {
         return e;
     } 
@@ -577,7 +576,6 @@ Enode * nra_solver::slack_term(Enode * e) {
     } else {
 	throw runtime_error("Slack operation error.");
     }
-
 }
 
 Enode * nra_solver::slack_constraint(Enode * e) {
