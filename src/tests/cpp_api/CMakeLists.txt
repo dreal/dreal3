@@ -1,0 +1,11 @@
+file(GLOB_RECURSE CPP_API_INSTANCES ${CMAKE_CURRENT_SOURCE_DIR} "*.c" "*.cpp")
+list(SORT CPP_API_INSTANCES)
+
+FOREACH(instance ${CPP_API_INSTANCES})
+  GET_FILENAME_COMPONENT(TEST_FILENAME ${instance} NAME)
+  GET_FILENAME_COMPONENT(TEST_NAME ${instance} NAME_WE)
+  add_executable(cpp_api_${TEST_NAME} ${TEST_FILENAME})
+  target_link_libraries(cpp_api_${TEST_NAME} dreal ${EXTRA_LIBS} stdc++)
+  add_test(cpp_api_${TEST_NAME} ${CMAKE_CURRENT_BINARY_DIR}/cpp_api_${TEST_NAME})
+  set_tests_properties("cpp_api_${TEST_NAME}" PROPERTIES LABELS "cpp_api")
+ENDFOREACH(instance)
