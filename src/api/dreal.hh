@@ -41,18 +41,22 @@ class solver;
 class expr {
 
 public:
-
-    expr( solver* s, cexpr e );
-    inline env	get_ctx() { return cctx; }
-    inline cexpr   get_cexpr() { return ep; }
-    inline solver * get_solver() { return s; }
+    expr(solver* s, cexpr e);
+    env const &    get_ctx() const    { return cctx; }
+    env            get_ctx()          { return cctx; }
+    cexpr const &  get_cexpr() const  { return ep; }
+    cexpr          get_cexpr()        { return ep; }
+    solver const * get_solver() const { return s; }
+    solver *       get_solver()       { return s; }
 
 private:
     solver * s;
-    env	    cctx;
-    cexpr   ep;
-
+    env      cctx;
+    cexpr    ep;
+friend std::ostream & operator<<(std::ostream & out, expr const & e);
 };
+
+std::ostream & operator<<(std::ostream & out, expr const & e);
 
 //All passing by value to make chained compositions easy. Delegating RVO to compilers.
 expr operator==(expr, expr);
@@ -109,9 +113,7 @@ expr implies(expr, expr);
 expr ite(expr, expr, expr);
 
 class solver {
-
 public:
-
     solver();
     ~solver();
 
@@ -124,7 +126,6 @@ public:
     expr    num(const char *);
     expr    get_value (expr&);
 
-    void    print   ( expr& );
     void    set_verbosity   (int);
     void    set_precision   (const double);
     void    reset   ();
