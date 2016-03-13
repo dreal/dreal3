@@ -689,6 +689,8 @@ endif()
 # Include style check
 include(StyleCheck)
 file(GLOB_RECURSE DREAL_SOURCES
+  ${DREAL_SOURCE_DIR}/api/*.h          ${DREAL_SOURCE_DIR}/api/*.hh
+  ${DREAL_SOURCE_DIR}/api/*.C          ${DREAL_SOURCE_DIR}/api/*.cpp
   ${DREAL_SOURCE_DIR}/contractor/*.cpp ${DREAL_SOURCE_DIR}/contractor/*.h
   ${DREAL_SOURCE_DIR}/constraint/*.cpp ${DREAL_SOURCE_DIR}/constraint/*.h
   ${DREAL_SOURCE_DIR}/util/*.cpp       ${DREAL_SOURCE_DIR}/util/*.h
