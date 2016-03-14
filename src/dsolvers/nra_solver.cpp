@@ -91,17 +91,17 @@ lbool nra_solver::inform(Enode * e) {
     return l_Undef;
 /*
     if (!e->isIntegral() && !e->isForall() && !e->isForallT() ) {
-	cout << "Before slacking: "<< e << endl;
-	e = slack_constraint(e);
-	cout << "After slacking: "<< e << endl;
+        cout << "Before slacking: "<< e << endl;
+        e = slack_constraint(e);
+        cout << "After slacking: "<< e << endl;
     }
     m_lits.push_back(e);
     for (auto l : slack_ctrs_tmp) {
-	l -> setPolarity(l_True);
-	m_lits.push_back(l);
-	cout << "Collected slack equality: "<< l << endl;
+        l -> setPolarity(l_True);
+        m_lits.push_back(l);
+        cout << "Collected slack equality: "<< l << endl;
     }
-    slack_ctrs_tmp.clear(); //sorry for the temporary hack. slack_ctrs_tmp keeps the slack equalities for this constraint. 
+    slack_ctrs_tmp.clear(); //sorry for the temporary hack. slack_ctrs_tmp keeps the slack equalities for this constraint.
     m_need_init = true;
     return l_Undef;
 */
@@ -515,10 +515,9 @@ void nra_solver::computeModel() {
 }
 
 Enode * nra_solver::new_slack_var() {
-
     Snode * s = sstore.mkReal();
     int num = slack_vars.size();
-    //cout << "slack var number: "<< num << endl;
+    //  cout << "slack var number: "<< num << endl;
     string name("slack_var_");
     name += std::to_string(num);
     egraph.newSymbol(name.c_str(), s, true);
@@ -532,32 +531,30 @@ Enode * nra_solver::new_slack_var() {
     var->setValueUpperBound(ub);
 */
     return var;
-
 }
 
 Enode * nra_solver::slack_term(Enode * e) {
-    if ( e->isConstant() || e->isNumb() || e->isVar() ) {
+    if (e->isConstant() || e->isNumb() || e->isVar()) {
         return e;
-    } 
-    else if ( e->isTerm() ) {
+    } else if (e->isTerm()) {
         assert(e->getArity() >= 1);
         enodeid_t id = e->getCar()->getId();
-	Enode * ret;
+        Enode * ret;
         Enode * tmp = e;
         switch (id) {
         case ENODE_ID_PLUS:
             ret = slack_term(tmp->get1st());
             tmp = tmp->getCdr()->getCdr();
             while (!tmp->isEnil()) {
-                ret = egraph.mkPlus( ret, slack_term(tmp->getCar()) );
+                ret = egraph.mkPlus(ret, slack_term(tmp->getCar()));
                 tmp = tmp->getCdr();
             }
             return ret;
         case ENODE_ID_MINUS:
             ret = slack_term(tmp->get1st());
-            tmp = tmp->getCdr()->getCdr(); 
+            tmp = tmp->getCdr()->getCdr();
             while (!tmp->isEnil()) {
-                ret = egraph.mkMinus( ret, slack_term(tmp->getCar()) );
+                ret = egraph.mkMinus(ret, slack_term(tmp->getCar()));
                 tmp = tmp->getCdr();
             }
             return ret;
@@ -565,22 +562,21 @@ Enode * nra_solver::slack_term(Enode * e) {
             ret = slack_term(tmp->get1st());
             assert(tmp->getArity() == 1);
             return egraph.mkUminus(egraph.cons(ret));
-        default: 
-	    //not descending to subtrees for now
-	    Enode * svar = new_slack_var(); 
-	    Enode * sctr = egraph.mkEq(egraph.cons(svar,egraph.cons(e)));
-	    slack_ctrs.push_back(sctr);
-	    //slack_ctrs_tmp.push_back(sctr);
-	    return svar;
+        default:
+            // not descending to subtrees for now
+            Enode * svar = new_slack_var();
+            Enode * sctr = egraph.mkEq(egraph.cons(svar, egraph.cons(e)));
+            slack_ctrs.push_back(sctr);
+            // slack_ctrs_tmp.push_back(sctr);
+            return svar;
         }
     } else {
-	throw runtime_error("Slack operation error.");
+        throw runtime_error("Slack operation error.");
     }
 }
 
 Enode * nra_solver::slack_constraint(Enode * e) {
-
-    assert(e->getArity()==2);
+    assert(e->getArity() == 2);
 
     Enode * left = e -> get1st();
     Enode * right = e -> get2nd();
@@ -589,10 +585,9 @@ Enode * nra_solver::slack_constraint(Enode * e) {
     Enode * linear_left = slack_term(left);
     Enode * linear_right = slack_term(right);
 
-    Enode * ret = egraph.cons(head,egraph.cons(linear_left,egraph.cons(linear_right)));
+    Enode * ret = egraph.cons(head, egraph.cons(linear_left, egraph.cons(linear_right)));
 
     return ret;
-
 }
 
 

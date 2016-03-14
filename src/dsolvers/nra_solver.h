@@ -73,8 +73,7 @@ private:
     std::vector<Enode *> slack_ctrs;
 //    std::vector<Enode *> slack_ctrs_tmp;
     Enode * new_slack_var();
-    Enode * slack_term(Enode *);
-    Enode * slack_constraint(Enode *);
-
+    Enode * slack_term(Enode * e);
+    Enode * slack_constraint(Enode * e);
 };
 }  // namespace dreal
