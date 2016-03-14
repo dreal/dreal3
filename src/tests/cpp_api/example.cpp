@@ -29,11 +29,11 @@ using std::endl;
 using std::stringstream;
 using dreal::solver;
 using dreal::expr;
-using dreal::Real;
+using dreal::vtype;
 
 TEST_CASE("basic1") {
     solver s;
-    expr const x = s.var("x", Real);
+    expr const x = s.var("x", vtype::Real);
     expr const zero = s.num(0.0);
     expr const sn = sin(x);
     expr const phi = (sn == zero);
@@ -51,7 +51,7 @@ TEST_CASE("basic2") {
     expr const phi = x > sin(y);
     expr const psi = y < pow(x, 2);
     expr const psi2 = (x ^ y) > y;
-    expr const phi2 = (phi && psi || psi2);
+    expr const phi2 = ((phi && psi) || psi2);
     s.add(phi);
     s.add(phi2);
     s.add(psi2);

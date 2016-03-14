@@ -71,9 +71,9 @@ expr solver::var(char const * s , int lb, int ub) {
 }
 
 expr solver::var(char const * s, vtype t) {
-    if (t == Int) {
+    if (t == vtype::Int) {
         return var(s, numeric_limits<int>::lowest(), numeric_limits<int>::max());
-    } else if (t == Real) {
+    } else if (t == vtype::Real) {
         return var(s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
     } else {
         OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
@@ -85,7 +85,7 @@ expr solver::var(char const * s, vtype t) {
 }
 
 expr solver::var(char const * s) {
-    return var(s, Real);
+    return var(s, vtype::Real);
 }
 
 expr solver::num(char const * const s) {
@@ -152,11 +152,11 @@ result solver::check_assump(expr const & e) {
     assert(unit);
     vec<Enode *> assumptions;
     assumptions.push(unit);
-    lbool result = context->CheckSAT(assumptions);
-    if (result == l_Undef) return Undef;
-    if (result == l_False) return False;
-    assert(result == l_True);
-    return True;
+    lbool res = context->CheckSAT(assumptions);
+    if (res == l_Undef) return result::Undef;
+    if (res == l_False) return result::False;
+    assert(res == l_True);
+    return result::True;
 }
 
 result solver::check_lim_assump(expr const & e, unsigned const limit) {
@@ -167,10 +167,11 @@ result solver::check_lim_assump(expr const & e, unsigned const limit) {
     assert(unit);
     vec<Enode *> assumptions;
     assumptions.push(unit);
-    lbool result = context->CheckSAT(assumptions, limit);
-    if (result == l_Undef) return Undef;
-    if (result == l_False) return False;
-    return True;
+    lbool res = context->CheckSAT(assumptions, limit);
+    if (res == l_Undef) return result::Undef;
+    if (res == l_False) return result::False;
+    assert(res == l_True);
+    return result::True;
 }
 
 expr solver::get_value(expr const & e) {
