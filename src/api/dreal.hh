@@ -22,15 +22,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <vector>
-#include <utility>
-#include <string>
-#include <list>
-#include <assert.h>
 
 namespace dreal {
 
-enum class result { False=-1, Undef, True };
-enum class logic { qf_nra, qf_nra_ode };
+enum class Bool { False=-1, Undef, True };
+enum class Logic { qf_nra, qf_nra_ode };
 enum class vtype { Int, Real, Bool };
 using cexpr = void *;
 using env = void *;
@@ -40,13 +36,12 @@ class solver;
 class expr {
 public:
     expr(solver * const s, cexpr const e);
+    void    set_ub(double);
+    void    set_lb(double);
+    void    set_bounds(double, double);
     env const &    get_ctx() const    { return cctx; }
-    env            get_ctx()          { return cctx; }
     cexpr const &  get_cexpr() const  { return ep; }
-    cexpr          get_cexpr()        { return ep; }
     solver *       get_solver() const { return s; }
-    // solver *       get_solver()       { return s; }
-
 private:
     solver * const s;
     env const      cctx;
@@ -55,8 +50,6 @@ friend std::ostream & operator<<(std::ostream & out, expr const & e);
 };
 
 std::ostream & operator<<(std::ostream & out, expr const & e);
-
-//All passing by value to make chained compositions easy. Delegating RVO to compilers.
 expr operator==(expr const & e1, expr const & e2);
 expr operator==(expr const & e1, double const a);
 expr operator==(double const a, expr const & e1);
@@ -89,7 +82,6 @@ expr abs(expr const & arg);
 expr pow(expr const & e1, expr const & e2);
 expr pow(expr const & e1, double const a);
 expr pow(double const a, expr const & e1);
-expr operator^(expr const & e1, expr const & e2);
 expr operator^(expr const & e1, double const a);
 expr operator^(double const a, expr const & e1);
 expr sqrt(expr const & arg);
@@ -114,7 +106,6 @@ class solver {
 public:
     solver();
     ~solver();
-
     expr    var(char const *);
     expr    var(char const *, vtype);
     expr    var(char const *, double, double);
@@ -123,7 +114,6 @@ public:
     expr    num(int const);
     expr    num(char const * const);
     expr    get_value(expr const &);
-
     void    set_verbosity(int const);
     void    set_precision(double const);
     void    reset();
@@ -132,30 +122,29 @@ public:
     void    add(expr const &);
     void    set_domain_lb(expr &, double const);
     void    set_domain_ub(expr &, double const);
-
+    void    print_model();
+    void    print_problem();
     double  get_precision() const;
-    double  get_domain_lb(expr const & e) const;
-    double  get_domain_ub(expr const & e) const;
-    double  get_lb(expr const & e) const;
-    double  get_ub(expr const & e) const;
-
+    double  get_domain_lb(expr const &) const;
+    double  get_domain_ub(expr const &) const;
+    double  get_lb(expr const &) const;
+    double  get_ub(expr const &) const;
+    double  get_value(expr const &) const; 
     bool    check();
-
-    result  check_assump(expr const &);
-    result  check_lim_assump(expr const & , unsigned const);
-    result  get_bool_value(expr const &);
-
+    bool    solve();
+    Bool  check_assump(expr const &);
+    Bool  check_lim_assump(expr const & , unsigned const);
+    Bool  get_bool_value(expr const &);
     unsigned get_conflicts();
     unsigned get_decisions();
-
-    env     get_ctx() { return cctx; };
-
-    //todo
-    void    print_proof(char const *);
-    void    print_interpolant(char const *);
-
+    env     get_ctx() { return cctx; }
+    std::vector<expr const *>	const &	get_vtab() { return vtab; }
+    std::vector<double> const &	get_stab() { return stab; }
+    std::vector<expr const *>	const & get_etab() { return etab; }
 private:
     env cctx;
-    std::vector<expr>    expr_table;
+    std::vector<expr const *>	vtab;
+    std::vector<double>	stab;
+    std::vector<expr const *>	etab;
 };
 }
