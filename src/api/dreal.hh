@@ -29,12 +29,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dreal {
 
-typedef enum { False=-1, Undef, True } result;
-typedef enum { qf_nra, qf_nra_ode } logic;
-typedef enum { Int, Real, Bool } vtype;
-
-typedef void * cexpr;
-typedef void * env;
+using result = enum { False=-1, Undef, True };
+using logic = enum { qf_nra, qf_nra_ode };
+using vtype = enum { Int, Real, Bool };
+using cexpr =  void *;
+using env = void *;
 
 class solver;
 
