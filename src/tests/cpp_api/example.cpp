@@ -25,7 +25,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using std::cout;
 using std::endl;
-using namespace dreal;
+using dreal::solver;
+using dreal::expr;
+using dreal::Real;
 
 TEST_CASE("basic1") {
     solver s;
