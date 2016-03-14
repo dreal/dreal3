@@ -33,7 +33,11 @@ using std::list;
 
 namespace dreal {
 
-void check_ctx(expr const & a, expr const & b) { assert(a.get_ctx() == b.get_ctx()); }
+void check_ctx(expr const & a, expr const & b) {
+    (void)(a);  // suppress unused variable warnings
+    (void)(b);  // suppress unused variable warnings
+    assert(a.get_ctx() == b.get_ctx());
+}
 
 expr::expr(solver * const sol, cexpr const e) : s(sol), cctx(sol->get_ctx()), ep(e) {
     assert(s);
