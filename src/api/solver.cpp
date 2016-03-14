@@ -185,48 +185,60 @@ expr solver::get_value(expr const & e) {
 
 double solver::get_lb(expr const & e) const {
     cexpr v = e.get_cexpr();
+#ifndef NDEBUG
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
+#endif
     Enode * var = static_cast<Enode *>(v);
     return var->getValueLowerBound();
 }
 
 double solver::get_ub(expr const & e) const {
     cexpr v = e.get_cexpr();
+#ifndef NDEBUG
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
+#endif
     Enode * var = static_cast<Enode *>(v);
     return var->getValueUpperBound();
 }
 
 double solver::get_domain_lb(expr const & e) const {
     cexpr v = e.get_cexpr();
+#ifndef NDEBUG
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
+#endif
     Enode * var = static_cast<Enode *>(v);
     return var->getDomainLowerBound();
 }
 
 double solver::get_domain_ub(expr const & e) const {
     cexpr v = e.get_cexpr();
+#ifndef NDEBUG
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
+#endif
     Enode * var = static_cast<Enode *>(v);
     return var->getDomainUpperBound();
 }
 
 void solver::set_domain_lb(expr & e, double const n) {
     cexpr v = e.get_cexpr();
+#ifndef NDEBUG
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
+#endif
     Enode * var = static_cast<Enode *>(v);
     var->setDomainLowerBound(n);
 }
 
 void solver::set_domain_ub(expr & e, double const n) {
     cexpr v = e.get_cexpr();
+#ifndef NDEBUG
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
+#endif
     Enode * var = static_cast<Enode *>(v);
     var->setDomainUpperBound(n);
 }
