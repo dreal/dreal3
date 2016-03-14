@@ -31,12 +31,12 @@ using dreal::Real;
 
 TEST_CASE("basic1") {
     solver s;
-    expr x = s.var("x", Real);
-    expr zero = s.num(0.0);
-    expr sn = sin(x);
-    expr phi = (sn == zero);
-    expr f = x + x * x + sin(x * sin(x));
-    expr phi2 = (-f == 0);
+    expr const x = s.var("x", Real);
+    expr const zero = s.num(0.0);
+    expr const sn = sin(x);
+    expr const phi = (sn == zero);
+    expr const f = x + x * x + sin(x * sin(x));
+    expr const phi2 = (-f == 0);
     s.add(phi);
     s.add(phi2);
     REQUIRE(s.check());
@@ -44,15 +44,35 @@ TEST_CASE("basic1") {
 
 TEST_CASE("basic2") {
     solver s;
-    expr    x = s.var("x");
-    expr    y = s.var("y");
-    expr    phi = x > sin(y);
-    expr    psi = y < pow(x, 2);
-    expr    psi2 = (x ^ y) > y;
-    expr    phi2 = (phi && psi || psi2);
+    expr const x = s.var("x");
+    expr const y = s.var("y");
+    expr const phi = x > sin(y);
+    expr const psi = y < pow(x, 2);
+    expr const psi2 = (x ^ y) > y;
+    expr const phi2 = (phi && psi || psi2);
     s.add(phi);
     s.add(phi2);
     s.add(psi2);
     cout << phi2 << endl;
+    REQUIRE(s.check());
+}
+
+TEST_CASE("basic3") {
+    solver s;
+    expr const x = s.var("x");
+    expr const phi = (x + x + x) == 0;
+    s.add(phi);
+    cout << phi << endl;
+    REQUIRE(s.check());
+}
+
+TEST_CASE("basic4") {
+    solver s;
+    expr const x = s.var("x");
+    expr const y = s.var("y");
+    expr const z = s.var("z");
+    expr const phi = (x + y + z) == 0;
+    s.add(phi);
+    cout << phi << endl;
     REQUIRE(s.check());
 }
