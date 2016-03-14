@@ -88,7 +88,7 @@ expr solver::var(char const * s) {
     return var(s, Real);
 }
 
-expr solver::num(const char * s) {
+expr solver::num(char const * const s) {
     assert(s);
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Enode * res = ctx->mkNum(s);
@@ -125,11 +125,11 @@ void solver::pop() {
     context->Pop();
 }
 
-void solver::add(expr& e) {
+void solver::add(expr const & e) {
     assert(cctx);
     cexpr l = e.get_cexpr();
-    OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
-    Enode * enode = static_cast<Enode *>(l);
+    OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
+    Enode * const enode = static_cast<Enode *>(l);
     context->Assert(enode);
 }
 
@@ -144,7 +144,7 @@ bool solver::check() {
         return false;
 }
 
-result solver::check_assump(expr& e) {
+result solver::check_assump(expr const & e) {
     assert(cctx);
     cexpr l = e.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -159,7 +159,7 @@ result solver::check_assump(expr& e) {
     return True;
 }
 
-result solver::check_lim_assump(expr& e, unsigned limit) {
+result solver::check_lim_assump(expr const & e, unsigned const limit) {
     assert(cctx);
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     cexpr l = e.get_cexpr();
@@ -173,7 +173,7 @@ result solver::check_lim_assump(expr& e, unsigned limit) {
     return True;
 }
 
-expr solver::get_value(expr& e) {
+expr solver::get_value(expr const & e) {
     cexpr v = e.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
@@ -183,7 +183,7 @@ expr solver::get_value(expr& e) {
     return expr(this, static_cast<void *>(res));
 }
 
-double solver::get_lb(expr& e) {
+double solver::get_lb(expr const & e) const {
     cexpr v = e.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
@@ -191,7 +191,7 @@ double solver::get_lb(expr& e) {
     return var->getValueLowerBound();
 }
 
-double solver::get_ub(expr& e) {
+double solver::get_ub(expr const & e) const {
     cexpr v = e.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
@@ -199,7 +199,7 @@ double solver::get_ub(expr& e) {
     return var->getValueUpperBound();
 }
 
-double solver::get_domain_lb(expr& e) {
+double solver::get_domain_lb(expr const & e) const {
     cexpr v = e.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
@@ -207,7 +207,7 @@ double solver::get_domain_lb(expr& e) {
     return var->getDomainLowerBound();
 }
 
-double solver::get_domain_ub(expr& e) {
+double solver::get_domain_ub(expr const & e) const {
     cexpr v = e.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
@@ -215,7 +215,7 @@ double solver::get_domain_ub(expr& e) {
     return var->getDomainUpperBound();
 }
 
-void solver::set_domain_lb(expr& e, double n) {
+void solver::set_domain_lb(expr & e, double const n) {
     cexpr v = e.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);
@@ -223,7 +223,7 @@ void solver::set_domain_lb(expr& e, double n) {
     var->setDomainLowerBound(n);
 }
 
-void solver::set_domain_ub(expr& e, double n) {
+void solver::set_domain_ub(expr & e, double const n) {
     cexpr v = e.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     assert(context->getStatus() == l_True);

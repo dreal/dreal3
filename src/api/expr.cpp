@@ -33,42 +33,42 @@ using std::list;
 
 namespace dreal {
 
-void check_ctx(expr & a, expr & b) { assert(a.get_ctx() == b.get_ctx()); }
+void check_ctx(expr const & a, expr const & b) { assert(a.get_ctx() == b.get_ctx()); }
 
-expr::expr(solver * sol, cexpr e) : s(sol), cctx(sol->get_ctx()), ep(e) {
+expr::expr(solver * const sol, cexpr const e) : s(sol), cctx(sol->get_ctx()), ep(e) {
     assert(s);
     assert(cctx);
     assert(ep);
 }
 
-expr operator==(expr e1, expr e2) {
+expr operator==(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
-    cexpr ce2 = e2.get_cexpr();
+    cexpr const ce2 = e2.get_cexpr();
     list<Enode *> args;
     Enode * arg = static_cast<Enode *>(e1.get_cexpr());
     args.push_back(arg);
     arg = static_cast<Enode *>(ce2);
     args.push_back(arg);
     OpenSMTContext * context = static_cast<OpenSMTContext *>(e1.get_ctx());
-    Enode * args_list = context->mkCons(args);
-    Enode * res = context->mkEq(args_list);
+    Enode * const args_list = context->mkCons(args);
+    Enode * const res = context->mkEq(args_list);
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-expr operator==(expr e1, double a) {
-    solver* s = e1.get_solver();
-    expr t = s->num(a);
+expr operator==(expr const & e1, double const a) {
+    solver * const s = e1.get_solver();
+    expr const t = s->num(a);
     return e1 == t;
 }
 
 
-expr operator==(double a, expr e1) {
-    solver* s = e1.get_solver();
+expr operator==(double const a, expr const & e1) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return t == e1;
 }
 
-expr operator>=(expr e1, expr e2) {
+expr operator>=(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce2 = e2.get_cexpr();
     list<Enode *> args;
@@ -83,21 +83,21 @@ expr operator>=(expr e1, expr e2) {
 }
 
 
-expr operator>=(expr e1, double a) {
-    solver* s = e1.get_solver();
+expr operator>=(expr const & e1, double const a) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return e1 >= t;
 }
 
 
-expr operator>=(double a, expr e1) {
-    solver* s = e1.get_solver();
+expr operator>=(double const a, expr const & e1) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return t >= e1;
 }
 
 
-expr operator<=(expr e1, expr e2) {
+expr operator<=(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce2 = e2.get_cexpr();
     list<Enode *> args;
@@ -111,22 +111,19 @@ expr operator<=(expr e1, expr e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-
-expr operator<=(expr e1, double a) {
-    solver* s = e1.get_solver();
+expr operator<=(expr const & e1, double const a) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return e1 <= t;
 }
 
-expr operator<=(double a, expr e1) {
-    solver* s = e1.get_solver();
+expr operator<=(double const a, expr const & e1) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return t <= e1;
 }
 
-
-
-expr operator<(expr e1, expr e2) {
+expr operator<(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce2 = e2.get_cexpr();
     list<Enode *> args;
@@ -140,19 +137,19 @@ expr operator<(expr e1, expr e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-expr operator<(expr e1, double a) {
-    solver* s = e1.get_solver();
+expr operator<(expr const & e1, double const a) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return e1 < t;
 }
 
-expr operator<(double a, expr e1) {
-    solver* s = e1.get_solver();
+expr operator<(double const a, expr const & e1) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return t < e1;
 }
 
-expr operator>(expr e1, expr e2) {
+expr operator>(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce2 = e2.get_cexpr();
     list<Enode *> args;
@@ -166,20 +163,19 @@ expr operator>(expr e1, expr e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-expr operator>(expr e1, double a) {
-    solver* s = e1.get_solver();
+expr operator>(expr const & e1, double const a) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return e1 < t;
 }
 
-expr operator>(double a, expr e1) {
-    solver* s = e1.get_solver();
+expr operator>(double const a, expr const & e1) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return t < e1;
 }
 
-
-expr operator+(expr e1, expr e2) {
+expr operator+(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce1 = e1.get_cexpr();
     cexpr ce2 = e2.get_cexpr();
@@ -195,20 +191,20 @@ expr operator+(expr e1, expr e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-expr operator+(expr e1, double a) {
-    solver* s = e1.get_solver();
+expr operator+(expr const & e1, double const a) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return e1 + t;
 }
 
-expr operator+(double a, expr e1) {
-    solver* s = e1.get_solver();
+expr operator+(double const a, expr const & e1) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return t + e1;
 }
 
 
-expr operator-(expr e1, expr e2) {
+expr operator-(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce1 = e1.get_cexpr();
     cexpr ce2 = e2.get_cexpr();
@@ -224,19 +220,19 @@ expr operator-(expr e1, expr e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-expr operator-(expr e1, double a) {
-    solver* s = e1.get_solver();
+expr operator-(expr const & e1, double const a) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return e1 - t;
 }
 
-expr operator-(double a, expr e1) {
-    solver* s = e1.get_solver();
+expr operator-(double const a, expr const & e1) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return t - e1;
 }
 
-expr operator-(expr e) {
+expr operator-(expr const & e) {
     OpenSMTContext * context = static_cast<OpenSMTContext *>(e.get_ctx());
     Enode * args_list = context->mkCons(static_cast<Enode *>(e.get_cexpr()));
     Enode * res = context->mkUminus(args_list);
@@ -244,7 +240,7 @@ expr operator-(expr e) {
 }
 
 
-expr operator*(expr e1, expr e2) {
+expr operator*(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce1 = e1.get_cexpr();
     cexpr ce2 = e2.get_cexpr();
@@ -260,19 +256,19 @@ expr operator*(expr e1, expr e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-expr operator*(expr e1, double a) {
-    solver* s = e1.get_solver();
+expr operator*(expr const & e1, double const a) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return e1 * t;
 }
 
-expr operator*(double a, expr e1) {
-    solver* s = e1.get_solver();
+expr operator*(double const a, expr const & e1) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return t * e1;
 }
 
-expr operator/(expr e1, expr e2) {
+expr operator/(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce1 = e1.get_cexpr();
     cexpr ce2 = e2.get_cexpr();
@@ -288,20 +284,20 @@ expr operator/(expr e1, expr e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-expr operator/(expr e1, double a) {
+expr operator/(expr const & e1, double const a) {
     assert(a!= 0);
-    solver* s = e1.get_solver();
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return e1 / t;
 }
 
-expr operator/(double a, expr e1) {
-    solver* s = e1.get_solver();
+expr operator/(double const a, expr const & e1) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return t / e1;
 }
 
-expr abs(expr arg) {
+expr abs(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -310,7 +306,7 @@ expr abs(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr pow(expr e1, expr e2) {
+expr pow(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce1 = e1.get_cexpr();
     cexpr ce2 = e2.get_cexpr();
@@ -326,32 +322,32 @@ expr pow(expr e1, expr e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-expr pow(expr e1, double a) {
+expr pow(expr const & e1, double const a) {
     assert(a!= 0);
-    solver* s = e1.get_solver();
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return pow(e1, t);
 }
 
-expr pow(double a, expr e1) {
-    solver* s = e1.get_solver();
+expr pow(double const a, expr const & e1) {
+    solver * s = e1.get_solver();
     expr t = s->num(a);
     return pow(t, e1);
 }
 
-expr operator^(expr e1, expr e2) {
+expr operator^(expr const & e1, expr const & e2) {
     return pow(e1, e2);
 }
 
-expr operator^(expr e, double a) {
+expr operator^(expr const & e, double const a) {
     return pow(e, a);
 }
 
-expr operator^(double a, expr e) {
+expr operator^(double const a, expr const & e) {
     return pow(a, e);
 }
 
-expr pow(expr arg) {
+expr pow(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -360,7 +356,7 @@ expr pow(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr sqrt(expr arg) {
+expr sqrt(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -369,7 +365,7 @@ expr sqrt(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr log(expr arg) {
+expr log(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -378,7 +374,7 @@ expr log(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr sin(expr arg) {
+expr sin(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -387,7 +383,7 @@ expr sin(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr cos(expr arg) {
+expr cos(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -396,7 +392,7 @@ expr cos(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr tan(expr arg) {
+expr tan(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -405,7 +401,7 @@ expr tan(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr asin(expr arg) {
+expr asin(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -414,7 +410,7 @@ expr asin(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr acos(expr arg) {
+expr acos(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -423,7 +419,7 @@ expr acos(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr atan(expr arg) {
+expr atan(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -432,7 +428,7 @@ expr atan(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr sinh(expr arg) {
+expr sinh(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -441,7 +437,7 @@ expr sinh(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr cosh(expr arg) {
+expr cosh(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -450,7 +446,7 @@ expr cosh(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr tanh(expr arg) {
+expr tanh(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -459,7 +455,7 @@ expr tanh(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr operator&&(expr e1, expr e2) {
+expr operator&&(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce1 = e1.get_cexpr();
     cexpr ce2 = e2.get_cexpr();
@@ -475,7 +471,7 @@ expr operator&&(expr e1, expr e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-expr operator||(expr e1, expr e2) {
+expr operator||(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce1 = e1.get_cexpr();
     cexpr ce2 = e2.get_cexpr();
@@ -491,7 +487,7 @@ expr operator||(expr e1, expr e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-expr operator!(expr arg) {
+expr operator!(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -500,7 +496,7 @@ expr operator!(expr arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
-expr implies(expr e1, expr e2) {
+expr implies(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr ce1 = e1.get_cexpr();
     cexpr ce2 = e2.get_cexpr();
