@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <limits>
+#include <string>
 #include "dreal.hh"
 #include "opensmt/api/OpenSMTContext.h"
 
@@ -69,11 +71,11 @@ expr solver::var(char const * s , int lb, int ub) {
 }
 
 expr solver::var(char const * s, vtype t) {
-    if (t == Int)
+    if (t == Int) {
         return var(s, numeric_limits<int>::lowest(), numeric_limits<int>::max());
-    else if (t == Real)
+    } else if (t == Real) {
         return var(s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
-    else {
+    } else {
         OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
         Snode * sort = ctx->mkSortBool();
         ctx->DeclareFun(s, sort);
@@ -83,7 +85,7 @@ expr solver::var(char const * s, vtype t) {
 }
 
 expr solver::var(char const * s) {
-    return var(s,Real);
+    return var(s, Real);
 }
 
 expr solver::num(const char * s) {
@@ -178,7 +180,7 @@ expr solver::get_value(expr& e) {
     Enode * var = static_cast<Enode *>(v);
     const double & value = var->getValue();
     Enode * res = context->mkNum(value);
-    return expr(this ,static_cast<void *>(res));
+    return expr(this, static_cast<void *>(res));
 }
 
 double solver::get_lb(expr& e) {
@@ -228,4 +230,4 @@ void solver::set_domain_ub(expr& e, double n) {
     Enode * var = static_cast<Enode *>(v);
     var->setDomainUpperBound(n);
 }
-}
+}  // namespace dreal

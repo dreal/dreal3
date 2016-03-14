@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <string>
+#include <list>
 #include "dreal.hh"
 #include "opensmt/api/OpenSMTContext.h"
 
@@ -56,14 +58,14 @@ expr operator==(expr e1, expr e2) {
 expr operator==(expr e1, double a) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return e1 == t ;
+    return e1 == t;
 }
 
 
 expr operator==(double a, expr e1) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return t == e1 ;
+    return t == e1;
 }
 
 expr operator>=(expr e1, expr e2) {
@@ -84,14 +86,14 @@ expr operator>=(expr e1, expr e2) {
 expr operator>=(expr e1, double a) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return e1>= t ;
+    return e1 >= t;
 }
 
 
 expr operator>=(double a, expr e1) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return t>= e1 ;
+    return t >= e1;
 }
 
 
@@ -113,13 +115,13 @@ expr operator<=(expr e1, expr e2) {
 expr operator<=(expr e1, double a) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return e1 <= t ;
+    return e1 <= t;
 }
 
 expr operator<=(double a, expr e1) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return t <= e1 ;
+    return t <= e1;
 }
 
 
@@ -141,13 +143,13 @@ expr operator<(expr e1, expr e2) {
 expr operator<(expr e1, double a) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return e1 <t ;
+    return e1 < t;
 }
 
 expr operator<(double a, expr e1) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return t <e1 ;
+    return t < e1;
 }
 
 expr operator>(expr e1, expr e2) {
@@ -167,13 +169,13 @@ expr operator>(expr e1, expr e2) {
 expr operator>(expr e1, double a) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return e1 <t ;
+    return e1 < t;
 }
 
 expr operator>(double a, expr e1) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return t <e1 ;
+    return t < e1;
 }
 
 
@@ -196,13 +198,13 @@ expr operator+(expr e1, expr e2) {
 expr operator+(expr e1, double a) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return e1 + t ;
+    return e1 + t;
 }
 
 expr operator+(double a, expr e1) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return t + e1 ;
+    return t + e1;
 }
 
 
@@ -225,13 +227,13 @@ expr operator-(expr e1, expr e2) {
 expr operator-(expr e1, double a) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return e1 - t ;
+    return e1 - t;
 }
 
 expr operator-(double a, expr e1) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return t - e1 ;
+    return t - e1;
 }
 
 expr operator-(expr e) {
@@ -261,13 +263,13 @@ expr operator*(expr e1, expr e2) {
 expr operator*(expr e1, double a) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return e1 * t ;
+    return e1 * t;
 }
 
 expr operator*(double a, expr e1) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return t * e1 ;
+    return t * e1;
 }
 
 expr operator/(expr e1, expr e2) {
@@ -290,13 +292,13 @@ expr operator/(expr e1, double a) {
     assert(a!= 0);
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return e1 / t ;
+    return e1 / t;
 }
 
 expr operator/(double a, expr e1) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return t / e1 ;
+    return t / e1;
 }
 
 expr abs(expr arg) {
@@ -328,25 +330,25 @@ expr pow(expr e1, double a) {
     assert(a!= 0);
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return pow(e1,t) ;
+    return pow(e1, t);
 }
 
 expr pow(double a, expr e1) {
     solver* s = e1.get_solver();
     expr t = s->num(a);
-    return pow(t,e1) ;
+    return pow(t, e1);
 }
 
 expr operator^(expr e1, expr e2) {
-    return pow(e1,e2);
+    return pow(e1, e2);
 }
 
 expr operator^(expr e, double a) {
-    return pow(e,a);
+    return pow(e, a);
 }
 
 expr operator^(double a, expr e) {
-    return pow(a,e);
+    return pow(a, e);
 }
 
 expr pow(expr arg) {
@@ -530,4 +532,4 @@ expr Or (expr, expr, expr);
 expr Ite (expr, expr, expr);
 */
 
-}
+}  // namespace dreal
