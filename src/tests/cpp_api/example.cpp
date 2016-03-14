@@ -19,12 +19,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <iostream>
+#include <sstream>
 #include "api/dreal.hh"
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"
 
 using std::cout;
 using std::endl;
+using std::stringstream;
 using dreal::solver;
 using dreal::expr;
 using dreal::Real;
@@ -53,7 +55,9 @@ TEST_CASE("basic2") {
     s.add(phi);
     s.add(phi2);
     s.add(psi2);
-    cout << phi2 << endl;
+    stringstream ss;
+    ss << phi2;
+    REQUIRE(ss.str() == "(or (and (not (<= x (sin y))) (not (<= (^ x 2) y))) (not (<= (^ x y) y)))");
     REQUIRE(s.check());
 }
 
@@ -66,13 +70,86 @@ TEST_CASE("basic3") {
     REQUIRE(s.check());
 }
 
-TEST_CASE("basic4") {
+TEST_CASE("operator+") {
     solver s;
     expr const x = s.var("x");
     expr const y = s.var("y");
     expr const z = s.var("z");
-    expr const phi = (x + y + z) == 0;
-    s.add(phi);
-    cout << phi << endl;
-    REQUIRE(s.check());
+    expr const phi = (x + y + z);
+    stringstream ss;
+    ss << phi;
+    REQUIRE(ss.str() == "(+ (+ x y) z)");
+}
+
+TEST_CASE("operator-") {
+    solver s;
+    expr const x = s.var("x");
+    expr const y = s.var("y");
+    expr const z = s.var("z");
+    expr const phi = (x - y - z);
+    stringstream ss;
+    ss << phi;
+    REQUIRE(ss.str() == "(+ (+ x (* -1 y)) (* -1 z))");  // (x + (-y)) + (-z)
+}
+
+TEST_CASE("operator*") {
+    solver s;
+    expr const x = s.var("x");
+    expr const y = s.var("y");
+    expr const z = s.var("z");
+    expr const phi = (x * y * z);
+    stringstream ss;
+    ss << phi;
+    REQUIRE(ss.str() == "(* (* x y) z)");
+}
+
+TEST_CASE("operator/") {
+    solver s;
+    expr const x = s.var("x");
+    expr const y = s.var("y");
+    expr const z = s.var("z");
+    expr const phi = (x / y / z);
+    stringstream ss;
+    ss << phi;
+    REQUIRE(ss.str() == "(/ (/ x y) z)");
+}
+
+TEST_CASE("operator>") {
+    solver s;
+    expr const x = s.var("x");
+    expr const y = s.var("y");
+    expr const phi = x > y;
+    stringstream ss;
+    ss << phi;
+    REQUIRE(ss.str() == "(not (<= x y))");
+}
+
+TEST_CASE("operator>=") {
+    solver s;
+    expr const x = s.var("x");
+    expr const y = s.var("y");
+    expr const phi = x >= y;
+    stringstream ss;
+    ss << phi;
+    REQUIRE(ss.str() == "(<= y x)");
+}
+
+TEST_CASE("operator<") {
+    solver s;
+    expr const x = s.var("x");
+    expr const y = s.var("y");
+    expr const phi = x < y;
+    stringstream ss;
+    ss << phi;
+    REQUIRE(ss.str() == "(not (<= y x))");  // that is, y > x
+}
+
+TEST_CASE("operator<=") {
+    solver s;
+    expr const x = s.var("x");
+    expr const y = s.var("y");
+    expr const phi = x <= y;
+    stringstream ss;
+    ss << phi;
+    REQUIRE(ss.str() == "(<= x y)");
 }
