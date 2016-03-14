@@ -45,6 +45,23 @@ expr::expr(solver * const sol, cexpr const e) : s(sol), cctx(sol->get_ctx()), ep
     assert(ep);
 }
 
+void expr::set_ub(double a) {
+    Enode * tmp = static_cast<Enode *>(ep);    
+    tmp->setDomainUpperBound(a);
+    tmp->setValueUpperBound(a);
+}
+
+void expr::set_lb(double a) {
+    Enode * tmp = static_cast<Enode *>(ep);    
+    tmp->setDomainLowerBound(a);
+    tmp->setValueLowerBound(a);
+}
+
+void expr::set_bounds(double l, double u) {
+    set_lb(l);
+    set_ub(u);
+}
+
 expr operator==(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();

@@ -55,7 +55,9 @@ expr solver::var(char const * s , double lb, double ub) {
     res->setDomainUpperBound(ub);
     res->setValueLowerBound(lb);
     res->setValueUpperBound(ub);
-    return expr(this, static_cast<cexpr>(res));
+    expr v = expr(this, static_cast<cexpr>(res));
+    vtab.push_back(&v);
+    return v;
 }
 
 expr solver::var(char const * s , int lb, int ub) {
@@ -67,7 +69,9 @@ expr solver::var(char const * s , int lb, int ub) {
     res->setDomainUpperBound(ub);
     res->setValueLowerBound(lb);
     res->setValueUpperBound(ub);
-    return expr(this, static_cast<cexpr>(res));
+    expr v = expr(this, static_cast<cexpr>(res));
+    vtab.push_back(&v);
+    return v;
 }
 
 expr solver::var(char const * s, vtype t) {
@@ -138,13 +142,18 @@ bool solver::check() {
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     lbool result = context->CheckSAT();
     assert(result != l_Undef);
-    if (result == l_True)
+    stab.clear();
+    if (result == l_True) {
+	for (auto v : vtab) {
+	    stab.push_back((get_lb(*v) + get_ub(*v))/2);
+	}
         return true;
+    }
     else
         return false;
 }
 
-result solver::check_assump(expr const & e) {
+Bool solver::check_assump(expr const & e) {
     assert(cctx);
     cexpr l = e.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
@@ -153,13 +162,13 @@ result solver::check_assump(expr const & e) {
     vec<Enode *> assumptions;
     assumptions.push(unit);
     lbool res = context->CheckSAT(assumptions);
-    if (res == l_Undef) return result::Undef;
-    if (res == l_False) return result::False;
+    if (res == l_Undef) return Bool::Undef;
+    if (res == l_False) return Bool::False;
     assert(res == l_True);
-    return result::True;
+    return Bool::True;
 }
 
-result solver::check_lim_assump(expr const & e, unsigned const limit) {
+Bool solver::check_lim_assump(expr const & e, unsigned const limit) {
     assert(cctx);
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     cexpr l = e.get_cexpr();
@@ -168,10 +177,10 @@ result solver::check_lim_assump(expr const & e, unsigned const limit) {
     vec<Enode *> assumptions;
     assumptions.push(unit);
     lbool res = context->CheckSAT(assumptions, limit);
-    if (res == l_Undef) return result::Undef;
-    if (res == l_False) return result::False;
+    if (res == l_Undef) return Bool::Undef;
+    if (res == l_False) return Bool::False;
     assert(res == l_True);
-    return result::True;
+    return Bool::True;
 }
 
 expr solver::get_value(expr const & e) {
@@ -243,4 +252,13 @@ void solver::set_domain_ub(expr & e, double const n) {
     Enode * var = static_cast<Enode *>(v);
     var->setDomainUpperBound(n);
 }
+
+void solver::print_model() {
+    //todo: when unsat, return empty
+    cerr << "The input formula is delta-satisfied by the following model: "<<endl;
+    for (auto v: vtab) {
+	cerr << "\t"<< *v << "=" << (get_lb(*v) + get_ub(*v))/2 << endl;
+    }
+}
+
 }  // namespace dreal
