@@ -23,8 +23,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "dreal.hh"
 #include "opensmt/api/OpenSMTContext.h"
 
-using std::cerr;
-using std::cout;
 using std::endl;
 using std::vector;
 using std::ostream;
@@ -262,29 +260,29 @@ double solver::get_value(expr const & e) const {
     return (get_lb(e)+get_ub(e))/2;
 }
 
-void solver::print_model() {
+void solver::print_model(std::ostream & out) {
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     if (context->getStatus() == l_True) {
-        cerr << "The input formula is delta-satisfied by the following model: "<< endl;
-        for (auto v : vtab) {
-            cerr << "\t" << *v << "=" << (get_lb(*v) + get_ub(*v))/2 << endl;
-            cerr << *v << "=" << (get_lb(*v) + get_ub(*v))/2 << endl;
+        out << "The input formula is delta-satisfied by the following model: "<< endl;
+        for (auto const v : vtab) {
+            out << "\t" << *v << "=" << (get_lb(*v) + get_ub(*v))/2 << endl;
+            out << *v << "=" << (get_lb(*v) + get_ub(*v))/2 << endl;
         }
     } else {
-        cerr << "No model satisfies the formula." << endl;
+        out << "No model satisfies the formula." << endl;
     }
 }
 
-void solver::print_problem() {
-    cerr << "The problem has the following variables:" << endl;
-    for (auto v : vtab) {
+void solver::print_problem(std::ostream & out) {
+    out << "The problem has the following variables:" << endl;
+    for (auto const v : vtab) {
         Enode * ev = static_cast<Enode *>(v->get_cexpr());
-        cerr << "\t" << *v  << ":[" << ev->getDomainLowerBound() << ","
-             << ev->getDomainUpperBound() <<"];" << endl;
+        out << "\t" << *v  << ":[" << ev->getDomainLowerBound() << ","
+            << ev->getDomainUpperBound() <<"];" << endl;
     }
-    cerr << "and the following constraints:" << endl;
-    for (auto e : etab) {
-        cerr << "\t" << *e << ";" << endl;
+    out << "and the following constraints:" << endl;
+    for (auto const e : etab) {
+        out << "\t" << *e << ";" << endl;
     }
 }
 
@@ -293,5 +291,4 @@ bool solver::solve() {
     print_model();
     return res;
 }
-
 }  // namespace dreal

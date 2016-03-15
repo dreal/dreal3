@@ -122,8 +122,8 @@ public:
     void    add(expr const &);
     void    set_domain_lb(expr &, double const);
     void    set_domain_ub(expr &, double const);
-    void    print_model();
-    void    print_problem();
+    void    print_model(std::ostream & out = std::cerr);
+    void    print_problem(std::ostream & out = std::cerr);
     double  get_precision() const;
     double  get_domain_lb(expr const &) const;
     double  get_domain_ub(expr const &) const;
