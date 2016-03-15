@@ -50,14 +50,14 @@ TEST_CASE("basic2") {
     expr const y = s.var("y");
     expr const phi = x > sin(y);
     expr const psi = y < pow(x, 2);
-    expr const psi2 = (x ^ y) > y;
+    expr const psi2 = (x ^ 2) > y;
     expr const phi2 = ((phi && psi) || psi2);
     s.add(phi);
     s.add(phi2);
     s.add(psi2);
     stringstream ss;
     ss << phi2;
-    REQUIRE(ss.str() == "(or (and (not (<= x (sin y))) (not (<= (^ x 2) y))) (not (<= (^ x y) y)))");
+    REQUIRE(ss.str() == "(or (and (not (<= x (sin y))) (not (<= (^ x 2) y))) (not (<= (^ x 2) y)))");
     REQUIRE(s.check());
 }
 
