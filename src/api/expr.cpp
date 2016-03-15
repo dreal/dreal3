@@ -495,15 +495,4 @@ ostream & operator<<(ostream & out, expr const & e) {
     return out;
 }
 
-/*
-expr Not (expr);
-expr And (expr *, unsigned);
-expr And (expr, expr);
-expr And (expr, expr, expr);
-expr Or	(expr *, unsigned);
-expr Or (expr, expr);
-expr Or (expr, expr, expr);
-expr Ite (expr, expr, expr);
-*/
-
 }  // namespace dreal

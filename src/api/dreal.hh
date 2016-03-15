@@ -22,10 +22,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <vector>
-#include <utility>
-#include <string>
-#include <list>
-#include <assert.h>
 
 namespace dreal {
 
@@ -144,9 +140,6 @@ public:
     std::vector<expr const *>	const &	get_vtab() { return vtab; }
     std::vector<double> const &	get_stab() { return stab; }
     std::vector<expr const *>	const & get_etab() { return etab; }
-    //todo
-    void    print_proof(char const *);
-    void    print_interpolant(char const *);
 private:
     env cctx;
     std::vector<expr const *>	vtab;
