@@ -24,6 +24,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/api/OpenSMTContext.h"
 
 using std::cerr;
+using std::cout;
 using std::endl;
 using std::vector;
 using std::ostream;

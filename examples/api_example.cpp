@@ -8,9 +8,6 @@ using namespace dreal;
 int basic1() {
     solver s;
     expr x = s.var("x");
-    //cout << "x: [" <<s.get_lb(x)<<", "<<s.get_ub(x)<<"]"<<endl;
-    //s.set_domain_lb(x,1.0);
-    //s.set_domain_ub(x,2.0);
     expr zero = s.num(0.0);
     x.set_lb(2);
     x.set_ub(3);
@@ -19,13 +16,12 @@ int basic1() {
     expr f = x + x * x + sin(x*sin(x)) ;
     expr phi2 = (-f == 0) ;
     s.add(phi);
-    s.add(phi);
+    s.add(!phi);
     s.print_problem();
     if (s.check()) 
 	s.print_model();
     else
 	cout<<"false"<<endl;
-    //cout << "x: [" <<s.get_lb(x)<<", "<<s.get_ub(x)<<"]"<<endl;
     s.print_model();
     return 0;
 }
