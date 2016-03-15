@@ -325,10 +325,6 @@ expr pow(double const a, expr const & e1) {
     return pow(t, e1);
 }
 
-expr operator^(expr const & e1, expr const & e2) {
-    return pow(e1, e2);
-}
-
 expr operator^(expr const & e, double const a) {
     return pow(e, a);
 }

@@ -92,6 +92,16 @@ expr solver::var(char const * s) {
     return var(s, vtype::Real);
 }
 
+vector<expr> solver::var_vec(char const * s, unsigned n) {
+    vector<expr> v;
+    for(unsigned i=0;i<n;i++) {
+	string name(s);
+	name += std::to_string(i);
+	v.push_back(var(name.c_str()));
+    }
+    return v;
+}
+
 expr solver::num(char const * const s) {
     assert(s);
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
@@ -114,6 +124,9 @@ expr solver::num(int const v) {
 
 void solver::reset() {
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
+    vtab.clear();
+    stab.clear();
+    etab.clear();
     context->Reset();
 }
 
@@ -129,11 +142,12 @@ void solver::pop() {
     context->Pop();
 }
 
-void solver::add(expr const & e) {
+void solver::add(expr & e) {
     assert(cctx);
     cexpr l = e.get_cexpr();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     Enode * const enode = static_cast<Enode *>(l);
+    etab.push_back(&e);
     context->Assert(enode);
 }
 
@@ -253,11 +267,31 @@ void solver::set_domain_ub(expr & e, double const n) {
     var->setDomainUpperBound(n);
 }
 
+double solver::get_value(expr const & e) const {
+    return (get_lb(e)+get_ub(e))/2;
+}
+
 void solver::print_model() {
-    //todo: when unsat, return empty
-    cerr << "The input formula is delta-satisfied by the following model: "<<endl;
+    OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
+    if (context->getStatus() == l_True) {
+	cerr << "The input formula is delta-satisfied by the following model: "<<endl;
+	for (auto v: vtab) {
+	    cerr << *v << "=" << (get_lb(*v) + get_ub(*v))/2 << endl;
+	}
+    } else
+	cerr << "No model satisfies the formula." << endl;
+}
+
+void solver::print_problem() {
+    cerr<<"The problem has the following variables:"<<endl;
     for (auto v: vtab) {
-	cerr << "\t"<< *v << "=" << (get_lb(*v) + get_ub(*v))/2 << endl;
+	Enode * ev = static_cast<Enode *>(v->get_cexpr());
+	cerr << *v  << ":[" << ev->getDomainLowerBound() << "," 
+		    << ev->getDomainUpperBound() <<"];" << endl;
+    }
+    cerr<<"and the following constraints:"<<endl;
+    for (auto e: etab) {
+	cerr << *e << ";" << endl;
     }
 }
 

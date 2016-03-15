@@ -22,23 +22,26 @@ int basic1() {
     expr phi2 = (-f == 0) ;
     s.add(phi);
     //s.add(!phi);
+    s.print_problem();
     cout << phi2 << endl;
     if (s.check()) 
 	s.print_model();
     else
 	cout<<"false"<<endl;
     //cout << "x: [" <<s.get_lb(x)<<", "<<s.get_ub(x)<<"]"<<endl;
+    s.print_model();
     return 0;
 }
 
 int basic2() {
-    solver s;
+    solver  s;
     expr    x = s.var("x");
     expr    y = s.var("y");
-    expr    phi = (x>sin(y));
+    expr    n = s.var("3.14");
+    expr    phi = (x>sin(n));
     expr    psi = (y<pow(x,2));
-    expr    psi2 = (pow(x,y) > y);
-    //this isn't working? expr    psi2 = (x^y > y);
+    expr    psi2 = ((x^2) > y);
+    cerr<<psi2;
     expr    phi2 = (phi && psi || psi2);
     s.add(phi);
     s.add(phi2);
