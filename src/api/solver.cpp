@@ -268,6 +268,7 @@ void solver::print_model() {
 	cerr << "The input formula is delta-satisfied by the following model: "<<endl;
 	for (auto v: vtab) {
 	    cerr << "\t" << *v << "=" << (get_lb(*v) + get_ub(*v))/2 << endl;
+	    cerr << *v << "=" << (get_lb(*v) + get_ub(*v))/2 << endl;
 	}
     } else
 	cerr << "No model satisfies the formula." << endl;
@@ -278,7 +279,7 @@ void solver::print_problem() {
     for (auto v: vtab) {
 	Enode * ev = static_cast<Enode *>(v->get_cexpr());
 	cerr << "\t" << *v  << ":[" << ev->getDomainLowerBound() << "," 
-		    << ev->getDomainUpperBound() <<"];" << endl;
+		<< ev->getDomainUpperBound() <<"];" << endl;
     }
     cerr<<"and the following constraints:"<<endl;
     for (auto e: etab) {
@@ -291,7 +292,5 @@ bool solver::solve() {
     print_model();
     return res;
 }
-
-
 
 }  // namespace dreal
