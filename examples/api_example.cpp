@@ -11,19 +11,16 @@ int basic1() {
     //cout << "x: [" <<s.get_lb(x)<<", "<<s.get_ub(x)<<"]"<<endl;
     //s.set_domain_lb(x,1.0);
     //s.set_domain_ub(x,2.0);
-    //vector<expr> z = s.var_vec("z",10);
-    //cout<<z[9];  
     expr zero = s.num(0.0);
     x.set_lb(2);
     x.set_ub(3);
     expr sn = sin(x);
-    expr phi = (sin(x) > zero);
+    expr phi = (sin(x) > 0.9);
     expr f = x + x * x + sin(x*sin(x)) ;
     expr phi2 = (-f == 0) ;
     s.add(phi);
-    //s.add(!phi);
+    s.add(phi);
     s.print_problem();
-    cout << phi2 << endl;
     if (s.check()) 
 	s.print_model();
     else

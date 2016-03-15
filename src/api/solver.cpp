@@ -46,7 +46,7 @@ solver::~solver() {
     delete ctx;
 }
 
-expr solver::var(char const * s , double lb, double ub) {
+expr solver::var(char const * s, double lb, double ub) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Snode * sort = ctx->mkSortReal();
     ctx->DeclareFun(s, sort);
@@ -60,7 +60,7 @@ expr solver::var(char const * s , double lb, double ub) {
     return v;
 }
 
-expr solver::var(char const * s , int lb, int ub) {
+expr solver::var(char const * s, int lb, int ub) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Snode * sort = ctx->mkSortInt();
     ctx->DeclareFun(s, sort);
@@ -90,16 +90,6 @@ expr solver::var(char const * s, vtype t) {
 
 expr solver::var(char const * s) {
     return var(s, vtype::Real);
-}
-
-vector<expr> solver::var_vec(char const * s, unsigned n) {
-    vector<expr> v;
-    for(unsigned i=0;i<n;i++) {
-	string name(s);
-	name += std::to_string(i);
-	v.push_back(var(name.c_str()));
-    }
-    return v;
 }
 
 expr solver::num(char const * const s) {
@@ -142,7 +132,7 @@ void solver::pop() {
     context->Pop();
 }
 
-void solver::add(expr & e) {
+void solver::add(expr const & e) {
     assert(cctx);
     cexpr l = e.get_cexpr();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);

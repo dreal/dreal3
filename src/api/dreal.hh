@@ -118,13 +118,12 @@ public:
     expr    num(int const);
     expr    num(char const * const);
     expr    get_value(expr const &);
-    std::vector<expr>    var_vec(char const *, unsigned);
     void    set_verbosity(int const);
     void    set_precision(double const);
     void    reset();
     void    push();
     void    pop();
-    void    add(expr &);
+    void    add(expr const &);
     void    set_domain_lb(expr &, double const);
     void    set_domain_ub(expr &, double const);
     void    print_model();
@@ -142,16 +141,16 @@ public:
     unsigned get_conflicts();
     unsigned get_decisions();
     env     get_ctx() { return cctx; }
-    std::vector<expr*>	const &	get_vtab() { return vtab; }
+    std::vector<expr const *>	const &	get_vtab() { return vtab; }
     std::vector<double> const &	get_stab() { return stab; }
-    std::vector<expr*>	const & get_etab() { return etab; }
+    std::vector<expr const *>	const & get_etab() { return etab; }
     //todo
     void    print_proof(char const *);
     void    print_interpolant(char const *);
 private:
     env cctx;
-    std::vector<expr*>	vtab;
+    std::vector<expr const *>	vtab;
     std::vector<double>	stab;
-    std::vector<expr*>	etab;
+    std::vector<expr const *>	etab;
 };
 }
