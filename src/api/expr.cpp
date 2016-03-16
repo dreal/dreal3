@@ -39,11 +39,13 @@ void check_ctx(expr const & a, expr const & b) {
     assert(a.get_ctx() == b.get_ctx());
 }
 
-expr::expr(solver * const sol, cexpr const e) : s(sol), cctx(sol->get_ctx()), ep(e) {
-    assert(s);
+expr::expr(solver * const sol, cexpr const e) : m_solver(sol), cctx(sol->get_ctx()), ep(e) {
+    assert(m_solver);
     assert(cctx);
     assert(ep);
 }
+
+expr::expr(solver& sol, char const * name) : m_solver(&sol), cctx(sol.get_ctx()), ep((sol.var(name)).get_cexpr()) {}
 
 void expr::set_ub(double const a) {
     Enode * tmp = static_cast<Enode *>(ep);
@@ -351,6 +353,15 @@ expr sqrt(expr const & arg) {
     return expr(arg.get_solver(), static_cast<cexpr>(res));
 }
 
+expr exp(expr const & arg) {
+    env cctx = arg.get_ctx();
+    cexpr c_arg = arg.get_cexpr();
+    OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
+    Enode * args_list = context->mkCons(static_cast<Enode *>(c_arg));
+    Enode * res = context->mkExp(static_cast<Enode *>(args_list));
+    return expr(arg.get_solver(), static_cast<cexpr>(res));
+}
+
 expr log(expr const & arg) {
     env cctx = arg.get_ctx();
     cexpr c_arg = arg.get_cexpr();
@@ -490,9 +501,36 @@ expr implies(expr const & e1, expr const & e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
+expr der(expr const & e, expr const & v) {
+    check_ctx(e,v);
+    cexpr ce = e.get_cexpr();
+    cexpr cv = v.get_cexpr();
+    OpenSMTContext * context = static_cast<OpenSMTContext *>(e.get_ctx());
+    Enode * e_ce = static_cast<Enode *>(ce);
+    Enode * e_cv = static_cast<Enode *>(cv);
+    Enode * res = context->mkDeriv(e_ce, e_cv);
+    return expr(e.get_solver(), static_cast<cexpr>(res));
+}
+
+expr upoly(expr const & x, char const * a, unsigned d) {
+    solver * sol = x.get_solver();
+    string s(a);
+    s += std::to_string(0);
+    expr * c_0 = sol->new_var(s.c_str());
+    expr result = *c_0;
+    for (unsigned i=1; i<d; i++) {
+	string s(a);
+	s += std::to_string(i);
+	expr * c_i = sol->new_var(s.c_str());
+	result = result + (*c_i) * pow(x,i);
+    }
+    return result;
+}
+
+
+
 ostream & operator<<(ostream & out, expr const & e) {
     out << static_cast<Enode *>(e.get_cexpr());
     return out;
 }
-
 }  // namespace dreal

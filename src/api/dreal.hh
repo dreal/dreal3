@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <vector>
+#include <set>
 
 namespace dreal {
 
@@ -35,72 +36,90 @@ class solver;
 
 class expr {
 public:
-    expr(solver * const s, cexpr const e);
-    void           set_ub(double const a);
-    void           set_lb(double const a);
-    void           set_bounds(double const l, double const u);
+    expr();
+    expr(solver &, char const *); //so far it only works for declaring variables
+    expr(solver * const, cexpr const);
+    void           set_ub(double const);
+    void           set_lb(double const);
+    void           set_bounds(double const, double const);
     env const &    get_ctx() const    { return cctx; }
     cexpr const &  get_cexpr() const  { return ep; }
-    solver *       get_solver() const { return s; }
+    solver *       get_solver() const { return m_solver; }
 private:
-    solver * const s;
-    env const      cctx;
-    cexpr const    ep;
-friend std::ostream & operator<<(std::ostream & out, expr const & e);
+    solver *	m_solver;
+    env		cctx;
+    cexpr	ep;
 };
 
-std::ostream & operator<<(std::ostream & out, expr const & e);
-expr operator==(expr const & e1, expr const & e2);
-expr operator==(expr const & e1, double const a);
-expr operator==(double const a, expr const & e1);
-expr operator>(expr const & e1, expr const & e2);
-expr operator>(expr const & e1, double const a);
-expr operator>(double const a, expr const & e1);
-expr operator<(expr const & e1, expr const & e2);
-expr operator<(expr const & e1, double const a);
-expr operator<(double const a, expr const & e1);
-expr operator<=(expr const & e1, expr const & e2);
-expr operator<=(expr const & e1, double const a);
-expr operator<=(double const a, expr const & e1);
-expr operator>=(expr const & e1, expr const & e2);
-expr operator>=(expr const & e1, double const a);
-expr operator>=(double const a, expr const & e1);
-expr operator+(expr const & e1, expr const & e2);
-expr operator+(expr const & e1, double const a);
-expr operator+(double const a, expr const & e1);
-expr operator-(expr const & e1, expr const & e2);
-expr operator-(double const a, expr const & e1);
-expr operator-(expr const & e1, double const a);
-expr operator-(expr const & arg);
-expr operator*(expr const & e1, expr const & e2);
-expr operator*(expr const & e1, double const a);
-expr operator*(double const a, expr const & e1);
-expr operator/(expr const & e1, expr const & e2);
-expr operator/(expr const & e1, double const a);
-expr operator/(double const a, expr const & e1);
-expr abs(expr const & arg);
-expr pow(expr const & e1, expr const & e2);
-expr pow(expr const & e1, double const a);
-expr pow(double const a, expr const & e1);
-expr operator^(expr const & e1, double const a);
-expr operator^(double const a, expr const & e1);
-expr sqrt(expr const & arg);
-expr exp(expr const & arg);
-expr log(expr const & arg);
-expr sin(expr const & arg);
-expr cos(expr const & arg);
-expr tan(expr const & arg);
-expr asin(expr const & arg);
-expr acos(expr const & arg);
-expr atan(expr const & arg);
-expr sinh(expr const & arg);
-expr cosh(expr const & arg);
-expr tanh(expr const & arg);
-expr operator&&(expr const & e1, expr const & e2);
-expr operator||(expr const & e1, expr const & e2);
-expr operator!(expr const & arg);
-expr implies(expr const & e1, expr const & e2);
-expr ite(expr const & e1, expr const & e2, expr const & e3);
+std::ostream & operator<<(std::ostream &, expr const &);
+expr operator==(expr const &, expr const &);
+expr operator==(expr const &, double const);
+expr operator==(double const, expr const &);
+expr operator>(expr const &, expr const &);
+expr operator>(expr const &, double const);
+expr operator>(double const, expr const &);
+expr operator<(expr const &, expr const &);
+expr operator<(expr const &, double const);
+expr operator<(double const, expr const &);
+expr operator<=(expr const &, expr const &);
+expr operator<=(expr const &, double const);
+expr operator<=(double const, expr const &);
+expr operator>=(expr const &, expr const &);
+expr operator>=(expr const &, double const);
+expr operator>=(double const, expr const &);
+expr operator+(expr const &, expr const &);
+expr operator+(expr const &, double const);
+expr operator+(double const, expr const &);
+expr operator-(expr const &, expr const &);
+expr operator-(double const, expr const &);
+expr operator-(expr const &, double const);
+expr operator-(expr const &);
+expr operator*(expr const &, expr const &);
+expr operator*(expr const &, double const);
+expr operator*(double const, expr const &);
+expr operator/(expr const &, expr const &);
+expr operator/(expr const &, double const);
+expr operator/(double const, expr const &);
+expr abs(expr const &);
+expr pow(expr const &, expr const &);
+expr pow(expr const &, double const);
+expr pow(double const, expr const &);
+expr operator^(expr const &, double const);
+expr operator^(double const, expr const &);
+expr sqrt(expr const &);
+expr exp(expr const &);
+expr log(expr const &);
+expr sin(expr const &);
+expr cos(expr const &);
+expr tan(expr const &);
+expr asin(expr const &);
+expr acos(expr const &);
+expr atan(expr const &);
+expr sinh(expr const &);
+expr cosh(expr const &);
+expr tanh(expr const &);
+expr operator&&(expr const &, expr const &);
+expr operator||(expr const &, expr const &);
+expr operator!(expr const &);
+expr implies(expr const &, expr const &);
+expr ite(expr const &, expr const &, expr const &);
+expr der(expr const &, expr const &);
+expr upoly(expr const &, char const *, unsigned);
+
+class poly {
+public:
+    poly(solver const &);
+    poly(expr const &, char const *, unsigned);
+    poly(expr const *, char const *, unsigned);
+    poly(std::vector<expr> const &, char const *, unsigned);
+    expr& get_expr() { return *m_expr; }; 
+private:
+    solver * m_solver;
+    expr * m_expr;
+    std::vector<expr*> c_vec; //coefficient vector
+    std::vector<expr*> mn_vec; //monomial vector
+};
+
 
 class solver {
 public:
@@ -114,6 +133,10 @@ public:
     expr    num(int const);
     expr    num(char const * const);
     expr    get_value(expr const &);
+    expr *  new_var(char const *, double, double);
+    expr *  new_var(char const *, int, int);
+    expr *  new_var(char const *, vtype);
+    expr *  new_var(char const *);
     void    set_verbosity(int const);
     void    set_precision(double const);
     void    reset();
@@ -147,5 +170,6 @@ private:
     std::vector<expr const *> vtab;
     std::vector<double> stab;
     std::vector<expr const *> etab;
+    std::set<expr const *> estore;
 };
 }  // namespace dreal
