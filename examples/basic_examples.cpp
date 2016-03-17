@@ -1,12 +1,13 @@
 #include<iostream>
 #include<vector>
 #include<assert.h>
+
 #include "dreal.hh"
 
 using namespace std;
 using namespace dreal;
 
-int basic1() {
+int basics1() {
     solver s;
     expr x = s.var("x");
     expr zero = s.num(0.0);
@@ -26,8 +27,6 @@ int basic1() {
     cerr << "f: " << f << endl;
     cerr << "derivative of f: "<< der(f,x)<<endl;
     expr phi2 = (-f == 0) ;
-    //s.add(phi);
-    s.add(p==0);
     s.add(der(p,x)==0);
     s.add(der(der(p,x),x)>0);
     s.print_problem();
@@ -39,7 +38,7 @@ int basic1() {
     return 0;
 }
 
-int basic2() {
+int basics2() {
     solver  s;
     expr    x = s.var("x");
     expr    y = s.var("y");
@@ -60,37 +59,21 @@ int basic2() {
     return 0;
 }
 
-void barrier_check(vector<expr>& x, vector<expr>& f, expr& B, double eps) {
-    assert(x.size()==f.size());
-    unsigned n = x.size();
-    solver * s = x[0].get_solver();
-    expr condition = (B == -eps);
-    expr LB = s -> num("0");
-    for (unsigned i=0;i<n;i++) {
-	LB = LB + f[i]*der(B,x[i]);
-    }
-    expr spec = (LB < -eps);
-    //s -> add(condition && !spec);
-    s -> add(condition);
-    s -> print_problem();
-    s -> solve();    
-}
-
-int test3() {
+int open() {
     solver s;
-    expr x1 = s.var("x1", -2, 2);
-    expr x2 = s.var("x2", -2, 2);
-    vector<expr> x = {x1,x2};
-    expr f1 = (x1^2);
-    expr f2 = x2;
-    vector<expr> f = {f1,f2};
-    expr B = (x1^2) + (x2^2) - 1;
-    barrier_check(x,f,B,0.01);
+    expr k = s.var("k");
+    k.set_lb(7);
+    k.set_ub(10000000);
+    expr left = pow(3, k) - pow(2,k)*pow((3/2),k);
+    expr right = pow(2,k) - pow(3/2,k) - 2;
+    s.add(left>right);
+    s.solve();
     return 0;
 }
 
 int main(int argc, char* argv[]) {
-    //cout<<basic1()<<endl;
-    //cout<<basic2()<<endl;
-    cout<<test3()<<endl;
+    cout<<basics1()<<endl;
+    cout<<basics2()<<endl;
+    cout<<open()<<endl;
+    return 0;
 }

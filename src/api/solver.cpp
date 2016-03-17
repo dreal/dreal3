@@ -75,7 +75,7 @@ expr * solver::new_var(char const * s, double lb, double ub) {
     return v;
 }
 
-expr solver::var(char const * s, int lb, int ub) {
+expr solver::ivar(char const * s, int lb, int ub) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Snode * sort = ctx->mkSortInt();
     ctx->DeclareFun(s, sort);
@@ -89,7 +89,7 @@ expr solver::var(char const * s, int lb, int ub) {
     return v;
 }
 
-expr * solver::new_var(char const * s, int lb, int ub) {
+expr * solver::new_ivar(char const * s, int lb, int ub) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Snode * sort = ctx->mkSortInt();
     ctx->DeclareFun(s, sort);
@@ -108,7 +108,7 @@ expr solver::var(char const * s, vtype t) {
     if (t == vtype::Int) {
         return var(s, numeric_limits<int>::lowest(), numeric_limits<int>::max());
     } else if (t == vtype::Real) {
-        return var(s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
+        return ivar(s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
     } else {
         OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
         Snode * sort = ctx->mkSortBool();
@@ -122,7 +122,7 @@ expr * solver::new_var(char const * s, vtype t) {
     if (t == vtype::Int) {
         return new_var(s, numeric_limits<int>::lowest(), numeric_limits<int>::max());
     } else if (t == vtype::Real) {
-        return new_var(s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
+        return new_ivar(s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
     } else {
         OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
         Snode * sort = ctx->mkSortBool();
@@ -335,6 +335,19 @@ void solver::print_problem(std::ostream & out) {
         out << "\t" << *e << endl;
     }
 }
+
+void solver::set_verbose(bool b) {
+    OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
+    context->getConfig().setVerbosityInfoLevel();
+    context->getConfig().nra_verbose = b;
+}
+
+
+void solver::set_delta(double d) {
+    OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
+    context->setPrecision(d);
+}
+
 
 bool solver::solve() {
     bool res = check();
