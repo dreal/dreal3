@@ -46,7 +46,7 @@ solver::~solver() {
     delete ctx;
 }
 
-expr solver::var(char const * s, double lb, double ub) {
+expr solver::var(char const * s, double const lb, double const ub) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Snode * sort = ctx->mkSortReal();
     ctx->DeclareFun(s, sort);
@@ -60,7 +60,7 @@ expr solver::var(char const * s, double lb, double ub) {
     return v;
 }
 
-expr * solver::new_var(char const * s, double lb, double ub) {
+expr * solver::new_var(char const * s, double const lb, double const ub) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Snode * sort = ctx->mkSortReal();
     ctx->DeclareFun(s, sort);
@@ -75,7 +75,7 @@ expr * solver::new_var(char const * s, double lb, double ub) {
     return v;
 }
 
-expr solver::ivar(char const * s, int lb, int ub) {
+expr solver::ivar(char const * s, int const lb, int const ub) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Snode * sort = ctx->mkSortInt();
     ctx->DeclareFun(s, sort);
@@ -89,7 +89,7 @@ expr solver::ivar(char const * s, int lb, int ub) {
     return v;
 }
 
-expr * solver::new_ivar(char const * s, int lb, int ub) {
+expr * solver::new_ivar(char const * s, int const lb, int const ub) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Snode * sort = ctx->mkSortInt();
     ctx->DeclareFun(s, sort);
@@ -104,7 +104,7 @@ expr * solver::new_ivar(char const * s, int lb, int ub) {
     return v;
 }
 
-expr solver::var(char const * s, vtype t) {
+expr solver::var(char const * s, vtype const t) {
     if (t == vtype::Int) {
         return var(s, numeric_limits<int>::lowest(), numeric_limits<int>::max());
     } else if (t == vtype::Real) {
@@ -118,7 +118,7 @@ expr solver::var(char const * s, vtype t) {
     }
 }
 
-expr * solver::new_var(char const * s, vtype t) {
+expr * solver::new_var(char const * s, vtype const t) {
     if (t == vtype::Int) {
         return new_var(s, numeric_limits<int>::lowest(), numeric_limits<int>::max());
     } else if (t == vtype::Real) {
@@ -336,14 +336,14 @@ void solver::print_problem(std::ostream & out) {
     }
 }
 
-void solver::set_verbose(bool b) {
+void solver::set_verbose(bool const b) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     context->getConfig().setVerbosityInfoLevel();
     context->getConfig().nra_verbose = b;
 }
 
 
-void solver::set_delta(double d) {
+void solver::set_delta(double const d) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     context->setPrecision(d);
 }

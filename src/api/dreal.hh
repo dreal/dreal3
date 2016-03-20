@@ -121,10 +121,11 @@ expr upoly(expr const &, char const *, unsigned);
 class poly {
 public:
     explicit poly(solver const &);
-    poly(expr const &, char const *, unsigned);
-    poly(expr const *, char const *, unsigned);
-    poly(std::vector<expr> const &, char const *, unsigned);
+    poly(expr const &, char const *, unsigned const);
+    poly(expr const *, char const *, unsigned const);
+    poly(std::vector<expr> const &, char const *, unsigned const);
     expr & get_expr() { return *m_expr; }
+
 private:
     solver * m_solver;
     expr * m_expr;
@@ -132,25 +133,24 @@ private:
     std::vector<expr*> mn_vec;  // monomial vector
 };
 
-
 class solver {
 public:
     solver();
     ~solver();
     expr    var(char const *);
-    expr    var(char const *, vtype);
-    expr    var(char const *, double, double);
-    expr    ivar(char const *, int, int);
+    expr    var(char const *, vtype const);
+    expr    var(char const *, double const, double const);
+    expr    ivar(char const *, int const, int const);
     expr    num(double const);
     expr    num(int const);
     expr    num(char const * const);
     expr    get_value(expr const &);
-    expr *  new_var(char const *, double, double);
-    expr *  new_ivar(char const *, int, int);
-    expr *  new_var(char const *, vtype);
+    expr *  new_var(char const *, double const, double const);
+    expr *  new_ivar(char const *, int const, int const);
+    expr *  new_var(char const *, vtype const);
     expr *  new_var(char const *);
-    void    set_verbose(bool b);
-    void    set_delta(double d);
+    void    set_verbose(bool const b);
+    void    set_delta(double const d);
     void    reset();
     void    push();
     void    pop();
