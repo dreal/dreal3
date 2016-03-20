@@ -27,7 +27,7 @@ int basics1() {
     cerr << "f: " << f << endl;
     cerr << "derivative of f: "<< der(f,x)<<endl;
     expr phi2 = (-f == 0) ;
-    s.add(der(p,x)==0);
+    s.add(der(p,x)>0);
     s.add(der(der(p,x),x)>0);
     s.print_problem();
     if (s.check())
