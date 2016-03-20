@@ -45,16 +45,6 @@ public:
     env const &    get_ctx() const    { return cctx; }
     cexpr const &  get_cexpr() const  { return ep; }
     solver *       get_solver() const { return m_solver; }
-    size_t hash() const {
-        size_t seed = 23;
-        seed ^= (size_t)(m_solver) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (size_t)(cctx) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (size_t)(ep) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        return seed;
-    }
-    bool equal_to(expr const e) const {
-        return m_solver == e.m_solver && cctx == e.cctx && ep == e.ep;
-    }
 private:
     solver *    m_solver;
     env         cctx;
@@ -182,18 +172,3 @@ private:
     std::vector<expr const *> etab;
 };
 }  // namespace dreal
-
-namespace std {
-template<>
-struct hash<dreal::expr> {
-    size_t operator () (dreal::expr const & e) const {
-        return e.hash();
-    }
-};
-template<>
-struct equal_to<dreal::expr> {
-    bool operator() (dreal::expr const & e1, dreal::expr const & e2) const {
-        return e1.equal_to(e2);
-    }
-};
-}  // namespace std
