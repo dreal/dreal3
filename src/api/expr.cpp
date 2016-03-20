@@ -502,7 +502,7 @@ expr implies(expr const & e1, expr const & e2) {
 }
 
 expr der(expr const & e, expr const & v) {
-    check_ctx(e,v);
+    check_ctx(e, v);
     cexpr ce = e.get_cexpr();
     cexpr cv = v.get_cexpr();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(e.get_ctx());
@@ -518,16 +518,14 @@ expr upoly(expr const & x, char const * a, unsigned d) {
     s += std::to_string(0);
     expr * c_0 = sol->new_var(s.c_str());
     expr result = *c_0;
-    for (unsigned i=1; i<d; i++) {
-	string s(a);
-	s += std::to_string(i);
-	expr * c_i = sol->new_var(s.c_str());
-	result = result + (*c_i) * pow(x,i);
+    for (unsigned i = 1; i < d; ++i) {
+        string s(a);
+        s += std::to_string(i);
+        expr * c_i = sol->new_var(s.c_str());
+        result = result + (*c_i) * pow(x, i);
     }
     return result;
 }
-
-
 
 ostream & operator<<(ostream & out, expr const & e) {
     out << static_cast<Enode *>(e.get_cexpr());

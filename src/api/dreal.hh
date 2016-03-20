@@ -38,7 +38,7 @@ class solver;
 class expr {
 public:
     expr();
-    expr(solver &, char const *); //so far it only works for declaring variables
+    expr(solver &, char const *);  // so far it only works for declaring variables
     expr(solver * const, cexpr const);
     void           set_ub(double const);
     void           set_lb(double const);
@@ -58,9 +58,9 @@ public:
     }
 
 private:
-    solver *	m_solver;
-    env		cctx;
-    cexpr	ep;
+    solver *    m_solver;
+    env         cctx;
+    cexpr       ep;
 };
 
 std::ostream & operator<<(std::ostream &, expr const &);
@@ -120,16 +120,16 @@ expr upoly(expr const &, char const *, unsigned);
 
 class poly {
 public:
-    poly(solver const &);
+    explicit poly(solver const &);
     poly(expr const &, char const *, unsigned);
     poly(expr const *, char const *, unsigned);
     poly(std::vector<expr> const &, char const *, unsigned);
-    expr& get_expr() { return *m_expr; };
+    expr & get_expr() { return *m_expr; }
 private:
     solver * m_solver;
     expr * m_expr;
-    std::vector<expr*> c_vec; //coefficient vector
-    std::vector<expr*> mn_vec; //monomial vector
+    std::vector<expr*> c_vec;   // coefficient vector
+    std::vector<expr*> mn_vec;  // monomial vector
 };
 
 
@@ -149,8 +149,8 @@ public:
     expr *  new_ivar(char const *, int, int);
     expr *  new_var(char const *, vtype);
     expr *  new_var(char const *);
-    void    set_verbose(bool);
-    void    set_delta(double);
+    void    set_verbose(bool b);
+    void    set_delta(double d);
     void    reset();
     void    push();
     void    pop();

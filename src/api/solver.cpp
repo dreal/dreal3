@@ -128,9 +128,9 @@ expr * solver::new_var(char const * s, vtype t) {
         Snode * sort = ctx->mkSortBool();
         ctx->DeclareFun(s, sort);
         Enode * res = ctx->mkVar(s, true);
-        expr * v= new expr(this, static_cast<cexpr>(res));
-	estore.insert(v);
-	return v;
+        expr * v = new expr(this, static_cast<cexpr>(res));
+        estore.insert(v);
+        return v;
     }
 }
 
