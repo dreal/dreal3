@@ -22,7 +22,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <vector>
-#include <set>
+#include <unordered_set>
+#include <functional>
 
 namespace dreal {
 
@@ -37,7 +38,7 @@ class solver;
 class expr {
 public:
     expr();
-    expr(solver &, char const *); //so far it only works for declaring variables
+    expr(solver &, char const *);  // so far it only works for declaring variables
     expr(solver * const, cexpr const);
     void           set_ub(double const);
     void           set_lb(double const);
@@ -45,10 +46,21 @@ public:
     env const &    get_ctx() const    { return cctx; }
     cexpr const &  get_cexpr() const  { return ep; }
     solver *       get_solver() const { return m_solver; }
+    size_t hash() const {
+        size_t seed = 23;
+        seed ^= (size_t)(m_solver) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= (size_t)(cctx) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= (size_t)(ep) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        return seed;
+    }
+    bool equal_to(expr const e) const {
+        return m_solver == e.m_solver && cctx == e.cctx && ep == e.ep;
+    }
+
 private:
-    solver *	m_solver;
-    env		cctx;
-    cexpr	ep;
+    solver *    m_solver;
+    env         cctx;
+    cexpr       ep;
 };
 
 std::ostream & operator<<(std::ostream &, expr const &);
@@ -108,37 +120,37 @@ expr upoly(expr const &, char const *, unsigned);
 
 class poly {
 public:
-    poly(solver const &);
-    poly(expr const &, char const *, unsigned);
-    poly(expr const *, char const *, unsigned);
-    poly(std::vector<expr> const &, char const *, unsigned);
-    expr& get_expr() { return *m_expr; }; 
+    explicit poly(solver const &);
+    poly(expr const &, char const *, unsigned const);
+    poly(expr const *, char const *, unsigned const);
+    poly(std::vector<expr> const &, char const *, unsigned const);
+    expr & get_expr() { return *m_expr; }
+
 private:
     solver * m_solver;
     expr * m_expr;
-    std::vector<expr*> c_vec; //coefficient vector
-    std::vector<expr*> mn_vec; //monomial vector
+    std::vector<expr*> c_vec;   // coefficient vector
+    std::vector<expr*> mn_vec;  // monomial vector
 };
-
 
 class solver {
 public:
     solver();
     ~solver();
     expr    var(char const *);
-    expr    var(char const *, vtype);
-    expr    var(char const *, double, double);
-    expr    ivar(char const *, int, int);
+    expr    var(char const *, vtype const);
+    expr    var(char const *, double const, double const);
+    expr    ivar(char const *, int const, int const);
     expr    num(double const);
     expr    num(int const);
     expr    num(char const * const);
     expr    get_value(expr const &);
-    expr *  new_var(char const *, double, double);
-    expr *  new_ivar(char const *, int, int);
-    expr *  new_var(char const *, vtype);
+    expr *  new_var(char const *, double const, double const);
+    expr *  new_ivar(char const *, int const, int const);
+    expr *  new_var(char const *, vtype const);
     expr *  new_var(char const *);
-    void    set_verbose(bool);
-    void    set_delta(double);
+    void    set_verbose(bool const b);
+    void    set_delta(double const d);
     void    reset();
     void    push();
     void    pop();
@@ -170,6 +182,21 @@ private:
     std::vector<expr const *> vtab;
     std::vector<double> stab;
     std::vector<expr const *> etab;
-    std::set<expr const *> estore;
+    std::unordered_set<expr const *> estore;
 };
 }  // namespace dreal
+
+namespace std {
+template<>
+struct hash<dreal::expr> {
+    size_t operator () (dreal::expr const & e) const {
+        return e.hash();
+    }
+};
+template<>
+struct equal_to<dreal::expr> {
+    bool operator() (dreal::expr const & e1, dreal::expr const & e2) const {
+        return e1.equal_to(e2);
+    }
+};
+}  // namespace std
