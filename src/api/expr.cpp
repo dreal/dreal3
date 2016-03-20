@@ -34,8 +34,6 @@ using std::list;
 namespace dreal {
 
 void check_ctx(expr const & a, expr const & b) {
-    (void)(a);  // suppress unused variable warnings
-    (void)(b);  // suppress unused variable warnings
     assert(a.get_ctx() == b.get_ctx());
 }
 
@@ -82,7 +80,6 @@ expr operator==(expr const & e1, double const a) {
     return e1 == t;
 }
 
-
 expr operator==(double const a, expr const & e1) {
     solver * const s = e1.get_solver();
     expr const t = s->num(a);
@@ -101,13 +98,11 @@ expr operator>=(expr const & e1, expr const & e2) {
     return expr(e1.get_solver(), static_cast<cexpr>(res));
 }
 
-
 expr operator>=(expr const & e1, double const a) {
     solver * const s = e1.get_solver();
     expr const t = s->num(a);
     return e1 >= t;
 }
-
 
 expr operator>=(double const a, expr const & e1) {
     solver * const s = e1.get_solver();
@@ -211,7 +206,6 @@ expr operator+(double const a, expr const & e1) {
     return t + e1;
 }
 
-
 expr operator-(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
@@ -242,7 +236,6 @@ expr operator-(expr const & e) {
     Enode * const res = context->mkUminus(args_list);
     return expr(e.get_solver(), static_cast<cexpr>(res));
 }
-
 
 expr operator*(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);

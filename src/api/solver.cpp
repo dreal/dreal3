@@ -41,23 +41,9 @@ solver::solver() {
 
 solver::~solver() {
     assert(cctx);
-    for (auto e : estore) delete e;
+    for (auto v : vtab) delete v;
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     delete ctx;
-}
-
-expr solver::var(char const * s, double const lb, double const ub) {
-    OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
-    Snode * sort = ctx->mkSortReal();
-    ctx->DeclareFun(s, sort);
-    Enode * res = ctx->mkVar(s, true);
-    res->setDomainLowerBound(lb);
-    res->setDomainUpperBound(ub);
-    res->setValueLowerBound(lb);
-    res->setValueUpperBound(ub);
-    expr v = expr(this, static_cast<cexpr>(res));
-    vtab.push_back(&v);
-    return v;
 }
 
 expr * solver::new_var(char const * s, double const lb, double const ub) {
@@ -71,22 +57,11 @@ expr * solver::new_var(char const * s, double const lb, double const ub) {
     res->setValueUpperBound(ub);
     expr * v = new expr(this, static_cast<cexpr>(res));
     vtab.push_back(v);
-    estore.insert(v);
     return v;
 }
 
-expr solver::ivar(char const * s, int const lb, int const ub) {
-    OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
-    Snode * sort = ctx->mkSortInt();
-    ctx->DeclareFun(s, sort);
-    Enode * res = ctx->mkVar(s, true);
-    res->setDomainLowerBound(lb);
-    res->setDomainUpperBound(ub);
-    res->setValueLowerBound(lb);
-    res->setValueUpperBound(ub);
-    expr v = expr(this, static_cast<cexpr>(res));
-    vtab.push_back(&v);
-    return v;
+expr solver::var(char const * s, double const lb, double const ub) {
+    return *new_var(s, lb, ub); 
 }
 
 expr * solver::new_ivar(char const * s, int const lb, int const ub) {
@@ -100,15 +75,18 @@ expr * solver::new_ivar(char const * s, int const lb, int const ub) {
     res->setValueUpperBound(ub);
     expr * v = new expr(this, static_cast<cexpr>(res));
     vtab.push_back(v);
-    estore.insert(v);
     return v;
+}
+
+expr solver::ivar(char const * s, int const lb, int const ub) {
+    return *new_ivar(s, lb, ub);
 }
 
 expr solver::var(char const * s, vtype const t) {
     if (t == vtype::Int) {
-        return var(s, numeric_limits<int>::lowest(), numeric_limits<int>::max());
+        return ivar(s, numeric_limits<int>::lowest(), numeric_limits<int>::max());
     } else if (t == vtype::Real) {
-        return ivar(s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
+        return var(s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
     } else {
         OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
         Snode * sort = ctx->mkSortBool();
@@ -119,19 +97,12 @@ expr solver::var(char const * s, vtype const t) {
 }
 
 expr * solver::new_var(char const * s, vtype const t) {
+    assert(t != vtype::Boolean);
     if (t == vtype::Int) {
-        return new_var(s, numeric_limits<int>::lowest(), numeric_limits<int>::max());
-    } else if (t == vtype::Real) {
-        return new_ivar(s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
+        return new_ivar(s, numeric_limits<int>::lowest(), numeric_limits<int>::max());
     } else {
-        OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
-        Snode * sort = ctx->mkSortBool();
-        ctx->DeclareFun(s, sort);
-        Enode * res = ctx->mkVar(s, true);
-        expr * v = new expr(this, static_cast<cexpr>(res));
-        estore.insert(v);
-        return v;
-    }
+        return new_var(s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
+    };
 }
 
 expr solver::var(char const * s) {
@@ -342,12 +313,10 @@ void solver::set_verbose(bool const b) {
     context->getConfig().nra_verbose = b;
 }
 
-
 void solver::set_delta(double const d) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     context->setPrecision(d);
 }
-
 
 bool solver::solve() {
     bool res = check();

@@ -22,14 +22,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <vector>
-#include <unordered_set>
 #include <functional>
 
 namespace dreal {
 
 enum class Bool { False = -1, Undef, True };
 enum class Logic { qf_nra, qf_nra_ode };
-enum class vtype { Int, Real, Bool };
+enum class vtype { Int, Real, Boolean };
 using cexpr = void *;
 using env = void *;
 
@@ -56,7 +55,6 @@ public:
     bool equal_to(expr const e) const {
         return m_solver == e.m_solver && cctx == e.cctx && ep == e.ep;
     }
-
 private:
     solver *    m_solver;
     env         cctx;
@@ -182,7 +180,6 @@ private:
     std::vector<expr const *> vtab;
     std::vector<double> stab;
     std::vector<expr const *> etab;
-    std::unordered_set<expr const *> estore;
 };
 }  // namespace dreal
 
