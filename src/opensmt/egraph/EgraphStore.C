@@ -2491,21 +2491,21 @@ Enode * Egraph::mkDeriv(Enode * e, Enode * v) {
             assert(e->getArity() == 1);
             Enode * f = e->get1st();
             Enode * f_p = mkDeriv(f, v);
-            return mkTimes(mkCos(f), f_p);
+            return mkTimes(mkCos(cons(f)), f_p);
         }
         case ENODE_ID_COS: {
             // (cos f)' = - (sin f) * f'
             assert(e->getArity() == 1);
             Enode * f = e->get1st();
             Enode * f_p = mkDeriv(f, v);
-            return mkUminus(mkTimes(mkSin(f), f_p));
+            return mkUminus(cons(mkTimes(mkSin(cons(f)), f_p)));
         }
         case ENODE_ID_TAN: {
             // (tan f)' = (1 + tan^2 f) * f'
             assert(e->getArity() == 1);
             Enode * f = e->get1st();
             Enode * f_p = mkDeriv(f, v);
-            return mkTimes(mkPlus(one, mkTimes(mkTan(f), mkTan(f))),f_p);
+            return mkTimes(mkPlus(one, mkTimes(mkTan(cons(f)), mkTan(cons(f)))),f_p);
         }
         case ENODE_ID_SINH: {
             // (sinh f)' = (e^f + e^(-f))/2 * f'
@@ -2513,7 +2513,7 @@ Enode * Egraph::mkDeriv(Enode * e, Enode * v) {
             assert(e->getArity() == 1);
             Enode * f = e->get1st();
             Enode * f_p = mkDeriv(f, v);
-            return mkTimes(mkCosh(f), f_p);
+            return mkTimes(mkCosh(cons(f)), f_p);
         }
         case ENODE_ID_COSH: {
             // (cosh f)' = (e^f - e^(-f))/2 * f'
@@ -2521,7 +2521,7 @@ Enode * Egraph::mkDeriv(Enode * e, Enode * v) {
             assert(e->getArity() == 1);
             Enode * f = e->get1st();
             Enode * f_p = mkDeriv(f, v);
-            return mkTimes(mkSinh(f),f_p);
+            return mkTimes(mkSinh(cons(f)),f_p);
         }
         case ENODE_ID_TANH: {
             // (tanh f)' = (sech^2 f) * f'
@@ -2530,7 +2530,7 @@ Enode * Egraph::mkDeriv(Enode * e, Enode * v) {
             assert(e->getArity() == 1);
             Enode * f = e->get1st();
             Enode * f_p = mkDeriv(f, v);
-            return mkTimes(mkMinus(one,mkTimes(mkTanh(f),mkTanh(f))), f_p);
+            return mkTimes(mkMinus(one,mkTimes(mkTanh(cons(f)),mkTanh(cons(f)))), f_p);
         }
         default:
             throw runtime_error("mkDeriv: Unknown Term");
