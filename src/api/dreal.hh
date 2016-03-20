@@ -22,7 +22,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <vector>
-#include <set>
+#include <unordered_set>
+#include <functional>
 
 namespace dreal {
 
@@ -45,6 +46,17 @@ public:
     env const &    get_ctx() const    { return cctx; }
     cexpr const &  get_cexpr() const  { return ep; }
     solver *       get_solver() const { return m_solver; }
+    size_t hash() const {
+        size_t seed = 23;
+        seed ^= (size_t)(m_solver) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= (size_t)(cctx) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= (size_t)(ep) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        return seed;
+    }
+    bool equal_to(expr const e) const {
+        return m_solver == e.m_solver && cctx == e.cctx && ep == e.ep;
+    }
+
 private:
     solver *	m_solver;
     env		cctx;
@@ -112,7 +124,7 @@ public:
     poly(expr const &, char const *, unsigned);
     poly(expr const *, char const *, unsigned);
     poly(std::vector<expr> const &, char const *, unsigned);
-    expr& get_expr() { return *m_expr; }; 
+    expr& get_expr() { return *m_expr; };
 private:
     solver * m_solver;
     expr * m_expr;
@@ -170,6 +182,21 @@ private:
     std::vector<expr const *> vtab;
     std::vector<double> stab;
     std::vector<expr const *> etab;
-    std::set<expr const *> estore;
+    std::unordered_set<expr const *> estore;
 };
 }  // namespace dreal
+
+namespace std {
+template<>
+struct hash<dreal::expr> {
+    size_t operator () (dreal::expr const & e) const {
+        return e.hash();
+    }
+};
+template<>
+struct equal_to<dreal::expr> {
+    bool operator() (dreal::expr const & e1, dreal::expr const & e2) const {
+        return e1.equal_to(e2);
+    }
+};
+}  // namespace std
