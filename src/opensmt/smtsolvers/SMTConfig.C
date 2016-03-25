@@ -141,6 +141,7 @@ SMTConfig::initializeConfig( )
   nra_local_opt                = false;
   nra_worklist_fp              = false;
   nra_shrink_for_dop           = false;
+  nra_simulation_thread        = false;
   nra_precision_output         = true;
   nra_random_seed              = random_device{}();
   initLogging();
@@ -493,6 +494,9 @@ SMTConfig::parseCMDLine( int argc
             "shrink forall domain for dOp optimization",
             "--shrink-for-dop");
     opt.add("", false, 0, 0,
+            "use a separate simulation thread in ICP",
+            "--simulation");
+    opt.add("", false, 0, 0,
             "read formula from standard input",
             "--in");
     opt.add("", false, 1, 0,
@@ -548,6 +552,7 @@ SMTConfig::parseCMDLine( int argc
     nra_local_opt           = opt.isSet("--local-opt");
     nra_worklist_fp         = opt.isSet("--worklist-fp");
     nra_shrink_for_dop      = opt.isSet("--shrink-for-opt");
+    nra_simulation_thread   = opt.isSet("--simulation");
     nra_precision_output    =!opt.isSet("--no-precision-output");
     sat_preprocess_booleans = opt.isSet("--sat-prep-bool");
 
