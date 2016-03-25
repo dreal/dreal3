@@ -225,6 +225,7 @@ public:
   Enode * allocFalse         ( );
 
   Enode * mkVar              ( const char *, bool = false );
+  Enode * mkNumCore          ( const char * );
   Enode * mkNum              ( const char * );
   Enode * mkNum              ( const char *, const char * );
   Enode * mkNum              ( const double );

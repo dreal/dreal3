@@ -582,24 +582,40 @@ Enode * Egraph::mkVar( const char * name, bool model_var )
   return res;
 }
 
-Enode * Egraph::mkNum( const char * value )
-{
-  assert( value );
+Enode * Egraph::mkNumCore( const char * value ) {
   Enode * new_enode = new Enode( id_to_enode.size( )
-                               , value
-                               , ETYPE_NUMB
-                               , sarith0 );
+                                 , value
+                                 , ETYPE_NUMB
+                                 , sarith0 );
 
   assert( new_enode );
   Enode * res = insertNumber( new_enode );
   return cons( res );
 }
 
+Enode * Egraph::mkNum( const char * value )
+{
+  // Soonho: we first convert the char* value into a value in double
+  // to normalize representation. Otherwise, OpenSMT will assign
+  // different Enodes for the same floating-point values (for
+  // example, "0.0" and "0.00".)
+  //
+  // If the conversion via strtod fails, we use the old method
+  // `mkNumCore`. Otherwise, we call Egrap::mkNum(const double) with
+  // the converted double value.
+  double const d = strtod(value, nullptr);
+  if (errno == ERANGE) {
+      return mkNumCore(value);
+  } else {
+      return mkNum(d);
+  }
+}
+
 Enode * Egraph::mkNum(const double v)
 {
   char buf[ 256 ];
   sprintf( buf, "%.30lf", v );
-  return mkNum( buf );
+  return mkNumCore(buf);
 }
 
 // Enode * Egraph::mkNum( const Real & real_value )
