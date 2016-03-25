@@ -57,6 +57,7 @@ public:
 
     std::tuple<int, box, box> bisect(double precision) const;
     std::vector<bool> diff_dims(box const & b) const;
+    box sample_point() const;
     std::set<box> sample_points(unsigned const n) const;
     inline bool is_bisectable() const { return m_values.is_bisectable(); }
     inline bool is_empty() const { return size() == 0 || m_values.is_empty(); }

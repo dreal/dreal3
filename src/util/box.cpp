@@ -301,17 +301,18 @@ vector<bool> box::diff_dims(box const & b) const {
     return ret;
 }
 
-box sample_point(box b) {
+box box::sample_point() const {
     static std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
-    unsigned const n = b.size();
-    ibex::IntervalVector & values = b.get_values();
+    unsigned const n = size();
+    box b(*this);
+    ibex::IntervalVector const & values = get_values();
     for (unsigned i = 0; i < n; i++) {
-        ibex::Interval & iv = values[i];
+        ibex::Interval const & iv = values[i];
         double const lb = iv.lb();
         double const ub = iv.ub();
         if (lb != ub) {
             std::uniform_real_distribution<double> m_dist(lb, ub);
-            iv = ibex::Interval(m_dist(rg));
+            b[i] = ibex::Interval(m_dist(rg));
         }
     }
     return b;
@@ -320,7 +321,7 @@ box sample_point(box b) {
 set<box> box::sample_points(unsigned const n) const {
     set<box> points;
     for (unsigned i = 0; i < n; i++) {
-        points.insert(sample_point(*this));
+        points.insert(sample_point());
     }
     return points;
 }
