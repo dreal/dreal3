@@ -61,7 +61,7 @@ expr * solver::new_var(char const * s, double const lb, double const ub) {
 }
 
 expr solver::var(char const * s, double const lb, double const ub) {
-    return *new_var(s, lb, ub); 
+    return *new_var(s, lb, ub);
 }
 
 expr * solver::new_ivar(char const * s, int const lb, int const ub) {
@@ -102,7 +102,7 @@ expr * solver::new_var(char const * s, vtype const t) {
         return new_ivar(s, numeric_limits<int>::lowest(), numeric_limits<int>::max());
     } else {
         return new_var(s, -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
-    };
+    }
 }
 
 expr solver::var(char const * s) {
