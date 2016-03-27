@@ -195,10 +195,7 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
 
     if (config.nra_use_stat) { config.nra_stat.increase_assert(); }
 
-    if (m_need_init) {
-        initialize(m_lits);
-        m_need_init = false;
-    }
+    if (m_need_init) { initialize(m_lits); }
 
     (void)reason;
     assert(e);
@@ -346,6 +343,7 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
 void nra_solver::initialize(vector<Enode *> const & lits) {
     m_box.constructFromLiterals(lits);
     initialize_constraints(lits);
+    m_need_init = false;
 }
 
 
@@ -354,10 +352,7 @@ void nra_solver::initialize(vector<Enode *> const & lits) {
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint() {
     DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
-    if (m_need_init) {
-        initialize(m_lits);
-        m_need_init = false;
-    }
+    if (m_need_init) { initialize(m_lits); }
     if (config.nra_use_stat) { config.nra_stat.increase_push(); }
     m_stack.push();
     m_used_constraint_vec.push();
