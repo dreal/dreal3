@@ -70,14 +70,16 @@ void box::constructFromVariables(vector<Enode *> const & vars) {
     // m_name_index_map should be alreday allocated.
     assert(m_name_index_map);
     unsigned const num_var = m_vars->size();
-    m_values.resize(num_var);
-    // Fill m_values, and m_name_index_map
-    for (unsigned i = 0; i < num_var; i++) {
-        Enode const * const e = vars[i];
-        double const lb = e->getDomainLowerBound();
-        double const ub = e->getDomainUpperBound();
-        m_values[i] = ibex::Interval(lb, ub);
-        m_name_index_map->emplace(e->getCar()->getNameFull(), i);
+    if (num_var > 0) {
+        m_values.resize(num_var);
+        // Fill m_values, and m_name_index_map
+        for (unsigned i = 0; i < num_var; i++) {
+            Enode const * const e = vars[i];
+            double const lb = e->getDomainLowerBound();
+            double const ub = e->getDomainUpperBound();
+            m_values[i] = ibex::Interval(lb, ub);
+            m_name_index_map->emplace(e->getCar()->getNameFull(), i);
+        }
     }
 }
 
