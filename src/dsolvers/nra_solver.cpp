@@ -502,6 +502,9 @@ bool nra_solver::belongsToT(Enode * e) {
 // Copy the model into enode's data
 void nra_solver::computeModel() {
     DREAL_LOG_DEBUG << "nra_solver::computeModel" << endl;
+    if (m_need_init) {
+        initialize(m_lits);
+    }
     // --model option
     if (config.nra_model && config.nra_multiple_soln == 1) {
         // Only output here when --multiple_soln is not used
