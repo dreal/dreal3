@@ -64,7 +64,7 @@ public:
     inline ibex::IntervalVector const & get_values() const { return m_values; }
     ibex::IntervalVector get_domains() const;
     inline std::vector<Enode *> const & get_vars() const { return *m_vars; }
-    inline unsigned size() const { return m_values.size(); }
+    inline unsigned size() const { return m_vars ? (m_vars->size()) : 0; }
     inline void set_empty() { m_values.set_empty(); }
     inline unsigned get_index(Enode * e) const {
         return get_index(e->getCar()->getNameFull());
