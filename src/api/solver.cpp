@@ -20,7 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <limits>
 #include <string>
-#include "dreal.hh"
+#include "api/dreal.hh"
 #include "opensmt/api/OpenSMTContext.h"
 
 using std::endl;

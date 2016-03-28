@@ -20,7 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <list>
-#include "dreal.hh"
+#include "api/dreal.hh"
 #include "opensmt/api/OpenSMTContext.h"
 
 using std::cerr;
@@ -34,6 +34,8 @@ using std::list;
 namespace dreal {
 
 void check_ctx(expr const & a, expr const & b) {
+    (void)(a);
+    (void)(b);
     assert(a.get_ctx() == b.get_ctx());
 }
 
