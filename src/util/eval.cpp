@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <exception>
 #include <iostream>
 #include "./nlopt.hpp"
+#include "util/logging.h"
 
 using std::cerr;
 using std::cout;
@@ -164,6 +165,159 @@ double eval_enode(Enode * const e, unordered_map<Enode*, double> const & var_map
         throw runtime_error("eval_enode: unknown case");
     }
     throw runtime_error("Not implemented yet: eval_enode");
+}
+
+double eval_enode_term(Enode * const e, box const & b) {
+    if (e->isVar()) {
+        return b.get_value(e).lb();
+    } else if (e->isConstant()) {
+        double const v = e->getValue();
+        return v;
+    } else if (e->isSymb()) {
+        throw runtime_error("eval_enode: Symb");
+    } else if (e->isNumb()) {
+        throw runtime_error("eval_enode: Numb");
+    } else if (e->isTerm()) {
+        assert(e->getArity() >= 1);
+        enodeid_t id = e->getCar()->getId();
+        double ret = 0.0;
+        Enode * tmp = e;
+        switch (id) {
+        case ENODE_ID_PLUS:
+            ret = eval_enode_term(tmp->get1st(), b);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = ret + eval_enode_term(tmp->getCar(), b);
+                tmp = tmp->getCdr();
+            }
+            return ret;
+        case ENODE_ID_MINUS:
+            ret = eval_enode_term(tmp->get1st(), b);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = ret - eval_enode_term(tmp->getCar(), b);
+                tmp = tmp->getCdr();
+            }
+            return ret;
+        case ENODE_ID_UMINUS:
+            ret = eval_enode_term(tmp->get1st(), b);
+            assert(tmp->getArity() == 1);
+            return (- ret);
+        case ENODE_ID_TIMES:
+            ret = eval_enode_term(tmp->get1st(), b);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = ret * eval_enode_term(tmp->getCar(), b);
+                tmp = tmp->getCdr();
+            }
+            return ret;
+        case ENODE_ID_DIV:
+            ret = eval_enode_term(tmp->get1st(), b);
+            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+            while (!tmp->isEnil()) {
+                ret = ret / eval_enode_term(tmp->getCar(), b);
+                tmp = tmp->getCdr();
+            }
+            return ret;
+        case ENODE_ID_ACOS:
+            assert(e->getArity() == 1);
+            return acos(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_ASIN:
+            assert(e->getArity() == 1);
+            return asin(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_ATAN:
+            assert(e->getArity() == 1);
+            return atan(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_ATAN2:
+            assert(e->getArity() == 2);
+            return atan2(eval_enode_term(e->get1st(), b),
+                         eval_enode_term(e->get2nd(), b));
+        case ENODE_ID_MIN:
+            assert(e->getArity() == 2);
+            return fmin(eval_enode_term(e->get1st(), b),
+                        eval_enode_term(e->get2nd(), b));
+        case ENODE_ID_MAX:
+            assert(e->getArity() == 2);
+            return fmax(eval_enode_term(e->get1st(), b),
+                        eval_enode_term(e->get2nd(), b));
+        case ENODE_ID_MATAN:
+            assert(e->getArity() == 1);
+            throw runtime_error("eval_enode: MATAN");
+        case ENODE_ID_SAFESQRT:
+            assert(e->getArity() == 1);
+            throw runtime_error("eval_enode: SAFESQRT");
+        case ENODE_ID_SQRT:
+            assert(e->getArity() == 1);
+            return sqrt(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_EXP:
+            assert(e->getArity() == 1);
+            return exp(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_LOG:
+            assert(e->getArity() == 1);
+            return log(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_POW:
+            assert(e->getArity() == 2);
+            return pow(eval_enode_term(e->get1st(), b),
+                       eval_enode_term(e->get2nd(), b));
+        case ENODE_ID_ABS:
+            assert(e->getArity() == 1);
+            return fabs(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_SIN:
+            assert(e->getArity() == 1);
+            return sin(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_COS:
+            assert(e->getArity() == 1);
+            return cos(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_TAN:
+            assert(e->getArity() == 1);
+            return tan(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_SINH:
+            assert(e->getArity() == 1);
+            return sinh(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_COSH:
+            assert(e->getArity() == 1);
+            return cosh(eval_enode_term(e->get1st(), b));
+        case ENODE_ID_TANH:
+            assert(e->getArity() == 1);
+            return tanh(eval_enode_term(e->get1st(), b));
+        default:
+            throw runtime_error("eval_enode: Unknown Term");
+        }
+    } else if (e->isList()) {
+        throw runtime_error("eval_enode: List");
+    } else if (e->isDef()) {
+        throw runtime_error("eval_enode: Def");
+    } else if (e->isEnil()) {
+        throw runtime_error("eval_enode: Nil");
+    } else {
+        throw runtime_error("eval_enode: unknown case");
+    }
+    throw runtime_error("Not implemented yet: eval_enode");
+}
+
+bool eval_enode_formula(Enode * const e, box const & b, bool const polarity) {
+    if (e->isNot()) {
+        return eval_enode_formula(e->get1st(), b, !polarity);
+    }
+    double const eval_res1 = eval_enode_term(e->get1st(), b);
+    double const eval_res2 = eval_enode_term(e->get2nd(), b);
+    DREAL_LOG_DEBUG << "e = " << (polarity ? "" : "!") <<  e;
+    DREAL_LOG_DEBUG << "res1 = " << eval_res1;
+    DREAL_LOG_DEBUG << "res2 = " << eval_res2;
+    if (polarity && e->isEq()) {
+        return eval_res1 == eval_res2;
+    } else if (!polarity && e->isEq()) {
+        return eval_res1 != eval_res2;
+    } else if ((polarity && e->isLt()) || (!polarity && e->isGeq())) {
+        return eval_res1 < eval_res2;
+    } else if ((polarity && e->isLeq()) || (!polarity && e->isGt())) {
+        return eval_res1 <= eval_res2;
+    } else if ((polarity && e->isGt()) || (!polarity && e->isLeq())) {
+        return eval_res1 > eval_res2;
+    } else if ((polarity && e->isGeq()) || (!polarity && e->isLt())) {
+        return eval_res1 >= eval_res2;
+    }
+    throw std::logic_error("eval_node_formula: pattern match failed");
 }
 
 double deriv_enode(Enode * const e, Enode * const v, unordered_map<Enode*, double> const & var_map) {
