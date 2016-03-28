@@ -36,6 +36,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
+#include "icp/icp_simulation.h"
 #include "json/json.hpp"
 #include "util/box.h"
 #include "util/ibex_enode.h"
@@ -441,7 +442,9 @@ bool nra_solver::check(bool complete) {
     m_ctc = stg.build_contractor(m_box, m_stack, complete, config);
     if (complete) {
         // Complete Check ==> Run ICP
-        if (config.nra_ncbt) {
+        if (config.nra_simulation_thread) {
+            m_box = simulation_icp::solve(m_box, m_ctc, m_lits, config);
+        } else if (config.nra_ncbt) {
             m_box = ncbt_icp::solve(m_box, m_ctc, config);
         } else {
             m_box = naive_icp::solve(m_box, m_ctc, config);

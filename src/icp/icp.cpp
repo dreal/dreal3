@@ -17,10 +17,10 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <tuple>
 #include <random>
-#include <vector>
+#include <tuple>
 #include <unordered_set>
+#include <vector>
 #include "icp/icp.h"
 #include "util/logging.h"
 #include "util/stat.h"
@@ -30,8 +30,8 @@ using std::cout;
 using std::endl;
 using std::get;
 using std::tuple;
-using std::vector;
 using std::unordered_set;
+using std::vector;
 
 namespace dreal {
 
