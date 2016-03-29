@@ -289,8 +289,9 @@ struct SymbData
     //
     if ( etype_ == ETYPE_SYMB )
     {
-      name = new char[ strlen( name_ ) + 1 ];
-      strcpy( name, name_ );
+      size_t const l = strlen( name_ ) + 1;
+      name = new char[ l ];
+      strncpy( name, name_, l );
     }
     //
     // Number
@@ -306,8 +307,9 @@ struct SymbData
 /*       assert( strlen( name ) == strlen( value->get_str( ).c_str( ) ) ); */
 /* #else */
       *value = atof( name_ );       /* modified for dReal2 */
-      name = new char[ strlen(name_) + 1 ];
-      strcpy( name, name_ );
+      size_t const l = strlen( name_ ) + 1;
+      name = new char[ l ];
+      strncpy( name, name_, l );
 #endif
     }
   }
