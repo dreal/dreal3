@@ -81,7 +81,9 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
             ibex::Vector radii = values.rad();
             ibex::Vector midpt = values.mid();
 
-            std::fill(axis_scores.begin(), axis_scores.end(), 0.0);
+            for (unsigned i = 0; i < b.size(); i++) {
+                axis_scores[i] = radii[i];
+            }
 
             for (auto cptr : used_constraints) {
                 if (cptr->get_type() == constraint_type::Nonlinear) {
