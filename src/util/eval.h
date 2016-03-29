@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
+dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,8 +21,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <unordered_map>
 #include "opensmt/egraph/Enode.h"
+#include "util/box.h"
 
 namespace dreal {
 double eval_enode(Enode * const e, std::unordered_map<Enode*, double> const & var_map);
+double eval_enode_term(Enode * const e, box const & b);
+bool eval_enode_formula(Enode * const e, box const & b, bool const polarity);
 double deriv_enode(Enode * const e, Enode * const v, std::unordered_map<Enode*, double> const & var_map);
 }  // namespace dreal

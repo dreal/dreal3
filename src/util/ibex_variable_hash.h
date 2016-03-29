@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
+dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,16 +21,17 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <functional>
 #include "ibex/ibex.h"
+#include "util/hash_combine.h"
 
 namespace std {
 template<>
 struct hash<ibex::Variable> {
     size_t operator () (const ibex::Variable & v) const {
-        int h = 0;
+        size_t seed = 23;
         char const * str = v.symbol->name;
         while (*str)
-            h = h << 1 ^ *str++;
-        return h;
+            dreal::hash_combine<char>(seed, *str++);
+        return seed;
     }
 };
 template<>

@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
+dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,12 +22,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <functional>
 #include <vector>
 #include "ibex/ibex.h"
+#include "util/hash_combine.h"
 
 namespace std {
 template<>
 struct hash<ibex::Interval> {
     size_t operator () (const ibex::Interval & v) const {
-        return std::hash<double>()(v.lb()) ^ std::hash<double>()(v.ub());
+        size_t seed = 23;
+        dreal::hash_combine<double>(seed, v.lb());
+        dreal::hash_combine<double>(seed, v.ub());
+        return seed;
     }
 };
 template<>
@@ -40,11 +44,11 @@ struct equal_to<ibex::Interval> {
 template<>
 struct hash<std::vector<ibex::Interval>> {
     size_t operator () (const std::vector<ibex::Interval> & v) const {
-        size_t h = 23;
+        size_t seed = 23;
         for (ibex::Interval const & iv : v) {
-            h ^= std::hash<ibex::Interval>()(iv);
+            dreal::hash_combine<ibex::Interval>(seed, iv);
         }
-        return h;
+        return seed;
     }
 };
 template<>

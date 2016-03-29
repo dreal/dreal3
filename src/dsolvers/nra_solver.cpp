@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
+dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
+#include "icp/icp_simulation.h"
 #include "json/json.hpp"
 #include "util/box.h"
 #include "util/ibex_enode.h"
@@ -89,6 +90,22 @@ lbool nra_solver::inform(Enode * e) {
     m_lits.push_back(e);
     m_need_init = true;
     return l_Undef;
+/*
+    if (!e->isIntegral() && !e->isForall() && !e->isForallT() ) {
+        cout << "Before slacking: "<< e << endl;
+        e = slack_constraint(e);
+        cout << "After slacking: "<< e << endl;
+    }
+    m_lits.push_back(e);
+    for (auto l : slack_ctrs_tmp) {
+        l -> setPolarity(l_True);
+        m_lits.push_back(l);
+        cout << "Collected slack equality: "<< l << endl;
+    }
+    slack_ctrs_tmp.clear(); //sorry for the temporary hack. slack_ctrs_tmp keeps the slack equalities for this constraint.
+    m_need_init = true;
+    return l_Undef;
+*/
 }
 
 // Simplify box b using a constraint e.
@@ -179,10 +196,7 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
 
     if (config.nra_use_stat) { config.nra_stat.increase_assert(); }
 
-    if (m_need_init) {
-        initialize(m_lits);
-        m_need_init = false;
-    }
+    if (m_need_init) { initialize(m_lits); }
 
     (void)reason;
     assert(e);
@@ -330,6 +344,7 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
 void nra_solver::initialize(vector<Enode *> const & lits) {
     m_box.constructFromLiterals(lits);
     initialize_constraints(lits);
+    m_need_init = false;
 }
 
 
@@ -338,10 +353,7 @@ void nra_solver::initialize(vector<Enode *> const & lits) {
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint() {
     DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
-    if (m_need_init) {
-        initialize(m_lits);
-        m_need_init = false;
-    }
+    if (m_need_init) { initialize(m_lits); }
     if (config.nra_use_stat) { config.nra_stat.increase_push(); }
     m_stack.push();
     m_used_constraint_vec.push();
@@ -430,7 +442,9 @@ bool nra_solver::check(bool complete) {
     m_ctc = stg.build_contractor(m_box, m_stack, complete, config);
     if (complete) {
         // Complete Check ==> Run ICP
-        if (config.nra_ncbt) {
+        if (config.nra_simulation_thread) {
+            m_box = simulation_icp::solve(m_box, m_ctc, m_lits, config);
+        } else if (config.nra_ncbt) {
             m_box = ncbt_icp::solve(m_box, m_ctc, config);
         } else {
             m_box = naive_icp::solve(m_box, m_ctc, config);
@@ -491,10 +505,95 @@ bool nra_solver::belongsToT(Enode * e) {
 // Copy the model into enode's data
 void nra_solver::computeModel() {
     DREAL_LOG_DEBUG << "nra_solver::computeModel" << endl;
+    if (m_need_init) {
+        initialize(m_lits);
+    }
     // --model option
     if (config.nra_model && config.nra_multiple_soln == 1) {
         // Only output here when --multiple_soln is not used
         output_solution(m_box, config);
     }
 }
+
+Enode * nra_solver::new_slack_var() {
+    Snode * s = sstore.mkReal();
+    int num = slack_vars.size();
+    //  cout << "slack var number: "<< num << endl;
+    string name("slack_var_");
+    name += std::to_string(num);
+    egraph.newSymbol(name.c_str(), s, true);
+
+    Enode * var = egraph.mkVar(name.c_str());
+    slack_vars.push_back(var);
+/*
+    var->setDomainLowerBound(lb);
+    var->setDomainUpperBound(ub);
+    var->setValueLowerBound(lb);
+    var->setValueUpperBound(ub);
+*/
+    return var;
+}
+
+Enode * nra_solver::slack_term(Enode * e) {
+    if (e->isConstant() || e->isNumb() || e->isVar()) {
+        return e;
+    } else if (e->isTerm()) {
+        assert(e->getArity() >= 1);
+        enodeid_t id = e->getCar()->getId();
+        Enode * ret;
+        Enode * tmp = e;
+        switch (id) {
+        case ENODE_ID_PLUS:
+            ret = slack_term(tmp->get1st());
+            tmp = tmp->getCdr()->getCdr();
+            while (!tmp->isEnil()) {
+                ret = egraph.mkPlus(ret, slack_term(tmp->getCar()));
+                tmp = tmp->getCdr();
+            }
+            return ret;
+        case ENODE_ID_MINUS:
+            ret = slack_term(tmp->get1st());
+            tmp = tmp->getCdr()->getCdr();
+            while (!tmp->isEnil()) {
+                ret = egraph.mkMinus(ret, slack_term(tmp->getCar()));
+                tmp = tmp->getCdr();
+            }
+            return ret;
+        case ENODE_ID_UMINUS:
+            ret = slack_term(tmp->get1st());
+            assert(tmp->getArity() == 1);
+            return egraph.mkUminus(egraph.cons(ret));
+        default:
+            // not descending to subtrees for now
+            Enode * svar = new_slack_var();
+            Enode * sctr = egraph.mkEq(egraph.cons(svar, egraph.cons(e)));
+            slack_ctrs.push_back(sctr);
+            // slack_ctrs_tmp.push_back(sctr);
+            return svar;
+        }
+    } else {
+        throw runtime_error("Slack operation error.");
+    }
+}
+
+Enode * nra_solver::slack_constraint(Enode * e) {
+    assert(e->getArity() == 2);
+
+    Enode * left = e -> get1st();
+    Enode * right = e -> get2nd();
+    Enode * head = e -> getCar();
+
+    Enode * linear_left = slack_term(left);
+    Enode * linear_right = slack_term(right);
+
+    Enode * ret = egraph.cons(head, egraph.cons(linear_left, egraph.cons(linear_right)));
+
+    return ret;
+}
+
+
+
+
+
+
 }  // namespace dreal

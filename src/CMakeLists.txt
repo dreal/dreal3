@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.7)
 project(DREAL C CXX)
 set(DREAL_VERSION_MAJOR 3)
 set(DREAL_VERSION_MINOR 16)
-set(DREAL_VERSION_PATCH 02)
+set(DREAL_VERSION_PATCH 03)
 set(PACKAGE_NAME dReal)
 set(PACKAGE_VERSION "${DREAL_VERSION_MAJOR}.${DREAL_VERSION_MINOR}.${DREAL_VERSION_PATCH}")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
@@ -237,6 +237,31 @@ endif()
 set(EXTRA_LIBS "prim" ${EXTRA_LIBS})
 
 ################################################################
+# External: GLPK
+################################################################
+if(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(GLPK
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    URL ${CMAKE_SOURCE_DIR}/third_party/glpk.zip
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+    BUILD_COMMAND make
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND make install)
+else()
+  ExternalProject_Add(GLPK
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/glpk.git
+    GIT_TAG master
+    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+    BUILD_COMMAND make
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND make install)
+endif()
+set(EXTRA_LIBS "glpk" ${EXTRA_LIBS})
+
+################################################################
 # External: NLOPT
 ################################################################
 if(USE_LOCAL_THIRD_PARTY)
@@ -340,7 +365,7 @@ if(USE_LOCAL_THIRD_PARTY)
     DEPENDS CLP FILIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     URL ${CMAKE_SOURCE_DIR}/third_party/ibex-lib.zip
-    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --with-c++11 --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE} ${SHARED_LIB_IBEX_COMMAND}
+    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=--std=c++11 CC=${CMAKE_C_COMPILER} ./waf configure --with-optim --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE} ${SHARED_LIB_IBEX_COMMAND}
     BUILD_COMMAND ./waf build
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND ./waf install)
@@ -352,7 +377,7 @@ else()
     GIT_TAG master
     UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
     COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./waf configure --with-c++11 --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE} ${SHARED_LIB_IBEX_COMMAND}
+    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=--std=c++11 CC=${CMAKE_C_COMPILER} ./waf configure --with-optim --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE} ${SHARED_LIB_IBEX_COMMAND}
     BUILD_COMMAND ./waf build
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND ./waf install)
@@ -675,8 +700,10 @@ if(BUILD_TEST)
   add_subdirectory(tests/util)
   add_subdirectory(tests/nra)
   add_subdirectory(tests/c_api)
+  add_subdirectory(tests/cpp_api)
   add_subdirectory(tests/ibex)
   add_subdirectory(tests/nlopt)
+  add_subdirectory(tests/glpk)
   add_subdirectory(tests/contractor)
   if(SUPPORT_ODE)
     add_subdirectory(tests/capd4)
@@ -688,6 +715,8 @@ endif()
 # Include style check
 include(StyleCheck)
 file(GLOB_RECURSE DREAL_SOURCES
+  ${DREAL_SOURCE_DIR}/api/*.h          ${DREAL_SOURCE_DIR}/api/*.hh
+  ${DREAL_SOURCE_DIR}/api/*.C          ${DREAL_SOURCE_DIR}/api/*.cpp
   ${DREAL_SOURCE_DIR}/contractor/*.cpp ${DREAL_SOURCE_DIR}/contractor/*.h
   ${DREAL_SOURCE_DIR}/constraint/*.cpp ${DREAL_SOURCE_DIR}/constraint/*.h
   ${DREAL_SOURCE_DIR}/util/*.cpp       ${DREAL_SOURCE_DIR}/util/*.h

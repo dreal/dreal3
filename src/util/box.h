@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
+dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,19 +18,20 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <iostream>
 #include <initializer_list>
+#include <iostream>
 #include <memory>
-#include <unordered_map>
-#include <unordered_set>
 #include <set>
-#include <vector>
-#include <utility>
 #include <string>
 #include <tuple>
-#include "opensmt/egraph/Enode.h"
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 #include "ibex/ibex.h"
 #include "json/json.hpp"
+#include "opensmt/egraph/Enode.h"
+#include "util/hash_combine.h"
 
 namespace dreal {
 
@@ -57,6 +58,7 @@ public:
     std::vector<int> bisectable_dims(double precision) const;
     std::tuple<int, box, box> bisect_at(int i) const;
     std::vector<bool> diff_dims(box const & b) const;
+    box sample_point() const;
     std::set<box> sample_points(unsigned const n) const;
     inline bool is_bisectable() const { return m_values.is_bisectable(); }
     inline bool is_empty() const { return size() == 0 || m_values.is_empty(); }
@@ -64,7 +66,7 @@ public:
     inline ibex::IntervalVector const & get_values() const { return m_values; }
     ibex::IntervalVector get_domains() const;
     inline std::vector<Enode *> const & get_vars() const { return *m_vars; }
-    inline unsigned size() const { return m_values.size(); }
+    inline unsigned size() const { return m_vars ? (m_vars->size()) : 0; }
     inline void set_empty() { m_values.set_empty(); }
     inline unsigned get_index(Enode * e) const {
         return get_index(e->getCar()->getNameFull());
@@ -135,10 +137,10 @@ public:
     friend std::ostream& display_diff(std::ostream& out, box const & b1, box const & b2);
     friend std::ostream& display(std::ostream& out, box const & b, bool const exact, bool const old_style);
     inline std::size_t hash() const {
-        std::size_t seed = 0;
+        std::size_t seed = 23;
         for (int i = 0; i < m_values.size(); i++) {
-            seed ^= (size_t)(m_values[i].lb()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-            seed ^= (size_t)(m_values[i].ub()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            hash_combine<double>(seed, m_values[i].lb());
+            hash_combine<double>(seed, m_values[i].ub());
         }
         return seed;
     }

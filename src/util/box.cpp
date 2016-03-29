@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, Soonho Kong, Sicun Gao, and Edmund Clarke
+dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -70,14 +70,16 @@ void box::constructFromVariables(vector<Enode *> const & vars) {
     // m_name_index_map should be alreday allocated.
     assert(m_name_index_map);
     unsigned const num_var = m_vars->size();
-    m_values.resize(num_var);
-    // Fill m_values, and m_name_index_map
-    for (unsigned i = 0; i < num_var; i++) {
-        Enode const * const e = vars[i];
-        double const lb = e->getDomainLowerBound();
-        double const ub = e->getDomainUpperBound();
-        m_values[i] = ibex::Interval(lb, ub);
-        m_name_index_map->emplace(e->getCar()->getNameFull(), i);
+    if (num_var > 0) {
+        m_values.resize(num_var);
+        // Fill m_values, and m_name_index_map
+        for (unsigned i = 0; i < num_var; i++) {
+            Enode const * const e = vars[i];
+            double const lb = e->getDomainLowerBound();
+            double const ub = e->getDomainUpperBound();
+            m_values[i] = ibex::Interval(lb, ub);
+            m_name_index_map->emplace(e->getCar()->getNameFull(), i);
+        }
     }
 }
 
@@ -312,17 +314,18 @@ vector<bool> box::diff_dims(box const & b) const {
     return ret;
 }
 
-box sample_point(box b) {
+box box::sample_point() const {
     static std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
-    unsigned const n = b.size();
-    ibex::IntervalVector & values = b.get_values();
+    unsigned const n = size();
+    box b(*this);
+    ibex::IntervalVector const & values = get_values();
     for (unsigned i = 0; i < n; i++) {
-        ibex::Interval & iv = values[i];
+        ibex::Interval const & iv = values[i];
         double const lb = iv.lb();
         double const ub = iv.ub();
         if (lb != ub) {
             std::uniform_real_distribution<double> m_dist(lb, ub);
-            iv = ibex::Interval(m_dist(rg));
+            b[i] = ibex::Interval(m_dist(rg));
         }
     }
     return b;
@@ -331,7 +334,7 @@ box sample_point(box b) {
 set<box> box::sample_points(unsigned const n) const {
     set<box> points;
     for (unsigned i = 0; i < n; i++) {
-        points.insert(sample_point(*this));
+        points.insert(sample_point());
     }
     return points;
 }

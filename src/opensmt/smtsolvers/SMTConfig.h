@@ -214,6 +214,7 @@ struct SMTConfig
   bool         nra_local_opt;                 // use local optimization to refine counter example (for exist-forall problems)
   bool         nra_worklist_fp;               // use worklist fixpoint algorithm
   bool         nra_shrink_for_dop;            // shrink forall domain for dOp optimization
+  bool         nra_simulation_thread;         // use a separate thread for simulation in ICP
   bool         nra_precision_output;          // print precision info in case of delta-sat
   unsigned     nra_random_seed;               // seed to random generators (default = std::random_device())
 

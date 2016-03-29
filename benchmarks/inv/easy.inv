@@ -1,0 +1,14 @@
+var:
+
+[-2,2] x;
+[-2,2] y;
+
+plant:
+
+d/dt[x] = -x;
+d/dt[y] = -y;
+
+barrier:
+
+x^2 + y^2 - 3;
+
