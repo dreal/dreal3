@@ -82,7 +82,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
             ibex::Vector midpt = values.mid();
 
             for (unsigned i = 0; i < b.size(); i++) {
-                axis_scores[i] = log(radii[i]);
+                axis_scores[i] = asinh(radii[i]*1000)* 0.2;
             }
 
             for (auto cptr : used_constraints) {
@@ -92,7 +92,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
                     (&ncptr->get_numctr()->f)->gradient(midpt, gradout);
                     ibex::Vector g = gradout.lb();
                     for (unsigned i = 0; i < b.size(); i++) {
-                        axis_scores[i] += asinh(fabs(g[i] * radii[i]));
+                        axis_scores[i] += asinh(fabs(g[i] * radii[i])*1000) / b.size();
                     }
                 }
             }
