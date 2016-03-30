@@ -82,7 +82,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
             ibex::Vector midpt = values.mid();
 
             for (unsigned i = 0; i < b.size(); i++) {
-                axis_scores[i] = radii[i];
+                axis_scores[i] = log(radii[i]);
             }
 
             for (auto cptr : used_constraints) {
@@ -92,16 +92,16 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
                     (&ncptr->get_numctr()->f)->gradient(midpt, gradout);
                     ibex::Vector g = gradout.lb();
                     for (unsigned i = 0; i < b.size(); i++) {
-                        axis_scores[i] += fabs(g[i] * radii[i]);
+                        axis_scores[i] += asinh(fabs(g[i] * radii[i]));
                     }
                 }
             }
 
             int bisectdim = -1;
-            double score = -0.1;
+            double score = -INFINITY;
 
             for (int dim : bisectable_dims) {
-                if (axis_scores[dim] > score) {
+                if ((axis_scores[dim] > score) || bisectdim == -1) {
                     bisectdim = dim;
                     score = axis_scores[dim];
                 }
