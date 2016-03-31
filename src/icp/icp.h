@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <random>
 #include "util/box.h"
+#include "util/scoped_vec.h"
 #include "util/stat.h"
 #include "contractor/contractor.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
@@ -30,7 +31,7 @@ void output_solution(box const & b, SMTConfig & config, unsigned i = 0);
 
 class naive_icp {
 public:
-    static box solve(box b, contractor & ctc, SMTConfig & config);
+    static box solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std::shared_ptr<constraint>> stack);
 };
 
 class ncbt_icp {

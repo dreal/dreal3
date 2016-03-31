@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "icp/icp.h"
 #include "util/logging.h"
+#include "util/scoped_vec.h"
 #include "util/stat.h"
 
 using std::cerr;
@@ -51,7 +52,7 @@ void output_solution(box const & b, SMTConfig & config, unsigned i) {
     display(config.nra_model_out, b, false, true);
 }
 
-box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
+box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std::shared_ptr<constraint>> stack) {
     thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
     used_constraints.clear();
     thread_local static vector<box> solns;
@@ -82,17 +83,17 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config) {
             ibex::Vector midpt = values.mid();
 
             for (unsigned i = 0; i < b.size(); i++) {
-                axis_scores[i] = asinh(radii[i]*1000)* 0.2;
+                axis_scores[i] = asinh(radii[i]*1000)*0.01;
             }
 
-            for (auto cptr : used_constraints) {
+            for (auto cptr : stack) {
                 if (cptr->get_type() == constraint_type::Nonlinear) {
                     auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
                     //ibex::Function f = ncptr->get_numctr()->f;
                     (&ncptr->get_numctr()->f)->gradient(midpt, gradout);
                     ibex::Vector g = gradout.lb();
                     for (unsigned i = 0; i < b.size(); i++) {
-                        axis_scores[i] += asinh(fabs(g[i] * radii[i])*1000) / b.size();
+                        axis_scores[i] += asinh(fabs(g[i] * radii[i])*1000) / stack.size();
                     }
                 }
             }
