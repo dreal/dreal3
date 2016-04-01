@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <algorithm>
 #include <random>
 #include <tuple>
 #include <unordered_set>
@@ -52,13 +53,26 @@ void output_solution(box const & b, SMTConfig & config, unsigned i) {
     display(config.nra_model_out, b, false, true);
 }
 
+void prune(box & b, contractor & ctc, SMTConfig & config, std::unordered_set<std::shared_ptr<constraint>> & used_constraints) {
+    try {
+        ctc.prune(b, config);
+        auto this_used_constraints = ctc.used_constraints();
+        used_constraints.insert(this_used_constraints.begin(), this_used_constraints.end());
+        if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
+    } catch (contractor_exception & e) {
+        // Do nothing
+    }
+}
+
 box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std::shared_ptr<constraint>> stack) {
+#define prunebox(x) prune((x), ctc, config, used_constraints)
     thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
     used_constraints.clear();
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;
     thread_local static ibex::IntervalVector gradout(b.size());
     thread_local static vector<float> axis_scores(b.size());
+    thread_local static vector<tuple<float, int>> bisectable_axis_scores(0);
     solns.clear();
     box_stack.clear();
     box_stack.push_back(b);
@@ -67,14 +81,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.back();
         box_stack.pop_back();
-        try {
-            ctc.prune(b, config);
-            auto this_used_constraints = ctc.used_constraints();
-            used_constraints.insert(this_used_constraints.begin(), this_used_constraints.end());
-            if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
-        } catch (contractor_exception & e) {
-            // Do nothing
-        }
+        prunebox(b);
         if (!b.is_empty()) {
             //TODO get bisectable dimensions
             std::vector<int> bisectable_dims = b.bisectable_dims(config.nra_precision);
@@ -98,24 +105,27 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
                 }
             }
 
-            int bisectdim = -1;
-            double score = -INFINITY;
+            bisectable_axis_scores.clear();
 
             for (int dim : bisectable_dims) {
-                if ((axis_scores[dim] > score) || bisectdim == -1) {
-                    bisectdim = dim;
-                    score = axis_scores[dim];
-                }
+                bisectable_axis_scores.push_back(tuple<float, int>(-axis_scores[dim], dim));
+            }
+#define NUM_TRY 1
+            int bisectdim = -1;
+            if (bisectable_axis_scores.size() >= NUM_TRY) {
+                std::nth_element(bisectable_axis_scores.begin(), bisectable_axis_scores.begin()+NUM_TRY,
+                        bisectable_axis_scores.end());
+                bisectable_axis_scores = vector<tuple<float, int>>(bisectable_axis_scores.begin(), bisectable_axis_scores.begin()+NUM_TRY);
+                bisectdim = get<1>(bisectable_axis_scores[0]);
             }
 
             if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
-            int const i = bisectdim;
-            if (i >= 0) {
+            if (bisectable_axis_scores.size() > 0) {
                 tuple<int, box, box> splits = b.bisect_at(bisectdim);
                 box const & first  = get<1>(splits);
                 box const & second = get<2>(splits);
-                assert(first.get_idx_last_branched() == i);
-                assert(second.get_idx_last_branched() == i);
+                assert(first.get_idx_last_branched() == bisectdim);
+                assert(second.get_idx_last_branched() == bisectdim);
                 if (second.is_bisectable()) {
                     box_stack.push_back(second);
                     box_stack.push_back(first);
@@ -125,7 +135,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
                 }
                 if (config.nra_proof) {
                     config.nra_proof_out << "[branched on "
-                                         << b.get_name(i)
+                                         << b.get_name(bisectdim)
                                          << "]" << endl;
                 }
             } else {
@@ -148,6 +158,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
         assert(!b.is_empty() || box_stack.size() == 0);
         return b;
     }
+#undef prunebox
 }
 
 box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
