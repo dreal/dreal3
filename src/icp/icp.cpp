@@ -110,7 +110,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
             for (int dim : bisectable_dims) {
                 bisectable_axis_scores.push_back(tuple<double, int>(-axis_scores[dim], dim));
             }
-#define NUM_TRY 1
+#define NUM_TRY 3
             if (bisectable_axis_scores.size() > NUM_TRY) {
                 std::nth_element(bisectable_axis_scores.begin(), bisectable_axis_scores.begin()+NUM_TRY,
                         bisectable_axis_scores.end());
@@ -119,7 +119,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
 
             if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
             if (bisectable_axis_scores.size() > 0) {
-                int bisectdim;
+                int bisectdim = -1;
                 box first = b;
                 box second = b;
                 double score = -INFINITY;
@@ -131,13 +131,14 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
                     prunebox(a1);
                     prunebox(a2);
                     double cscore = -a1.volume() * a2.volume();
-                    if (cscore > score) {
+                    if (cscore > score || bisectdim == -1) {
                         first = a1;
                         second = a2;
                         bisectdim = dim;
                         score = cscore;
                     }
                 }
+                assert(bisectdim != -1);
                 assert(first.get_idx_last_branched() == bisectdim);
                 assert(second.get_idx_last_branched() == bisectdim);
                 if (second.is_bisectable()) {
