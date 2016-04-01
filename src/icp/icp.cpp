@@ -71,17 +71,17 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;
     thread_local static ibex::IntervalVector gradout(b.size());
-    thread_local static vector<float> axis_scores(b.size());
-    thread_local static vector<tuple<float, int>> bisectable_axis_scores(0);
+    thread_local static vector<double> axis_scores(b.size());
+    thread_local static vector<tuple<double, int>> bisectable_axis_scores(0);
     solns.clear();
     box_stack.clear();
+    prunebox(b);
     box_stack.push_back(b);
     do {
         DREAL_LOG_INFO << "naive_icp::solve - loop"
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.back();
         box_stack.pop_back();
-        prunebox(b);
         if (!b.is_empty()) {
             //TODO get bisectable dimensions
             std::vector<int> bisectable_dims = b.bisectable_dims(config.nra_precision);
@@ -108,22 +108,36 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
             bisectable_axis_scores.clear();
 
             for (int dim : bisectable_dims) {
-                bisectable_axis_scores.push_back(tuple<float, int>(-axis_scores[dim], dim));
+                bisectable_axis_scores.push_back(tuple<double, int>(-axis_scores[dim], dim));
             }
 #define NUM_TRY 1
-            int bisectdim = -1;
-            if (bisectable_axis_scores.size() >= NUM_TRY) {
+            if (bisectable_axis_scores.size() > NUM_TRY) {
                 std::nth_element(bisectable_axis_scores.begin(), bisectable_axis_scores.begin()+NUM_TRY,
                         bisectable_axis_scores.end());
-                bisectable_axis_scores = vector<tuple<float, int>>(bisectable_axis_scores.begin(), bisectable_axis_scores.begin()+NUM_TRY);
-                bisectdim = get<1>(bisectable_axis_scores[0]);
+                bisectable_axis_scores = vector<tuple<double, int>>(bisectable_axis_scores.begin(), bisectable_axis_scores.begin()+NUM_TRY);
             }
 
             if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
             if (bisectable_axis_scores.size() > 0) {
-                tuple<int, box, box> splits = b.bisect_at(bisectdim);
-                box const & first  = get<1>(splits);
-                box const & second = get<2>(splits);
+                int bisectdim;
+                box first = b;
+                box second = b;
+                double score = -INFINITY;
+                for (tuple<double, int> tup : bisectable_axis_scores) {
+                    int dim = get<1>(tup);
+                    tuple<int, box, box> splits = b.bisect_at(dim);
+                    box a1 = get<1>(splits);
+                    box a2 = get<2>(splits);
+                    prunebox(a1);
+                    prunebox(a2);
+                    double cscore = -a1.volume() * a2.volume();
+                    if (cscore > score) {
+                        first = a1;
+                        second = a2;
+                        bisectdim = dim;
+                        score = cscore;
+                    }
+                }
                 assert(first.get_idx_last_branched() == bisectdim);
                 assert(second.get_idx_last_branched() == bisectdim);
                 if (second.is_bisectable()) {
