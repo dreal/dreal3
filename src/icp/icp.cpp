@@ -132,10 +132,17 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
                     prunebox(a2);
                     double cscore = -a1.volume() * a2.volume();
                     if (cscore > score || bisectdim == -1) {
+                        first.hull(second);
+                        a1.intersect(first);
+                        a2.intersect(first);
                         first = a1;
                         second = a2;
                         bisectdim = dim;
                         score = cscore;
+                    } else {
+                        a1.hull(a2);
+                        first.intersect(a1);
+                        second.intersect(a1);
                     }
                 }
                 assert(bisectdim != -1);
