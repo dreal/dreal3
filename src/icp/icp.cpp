@@ -154,9 +154,46 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
 #undef PRUNEBOX
 }
 
-void multiheuristic_icp::dothread(box& b, BranchHeuristic& heuristic, scoped_vec<std::shared_ptr<constraint>> constraints) {
-    vector<int> sorted_dims = heuristic.sort_branches(b, constraints, this->m_config.nra_precision);
-    cout << sorted_dims[0];
+void multiheuristic_icp::dothread(box& chull, BranchHeuristic& heuristic, scoped_vec<std::shared_ptr<constraint>> constraints) {
+    //chull is a shared box, that's used by all dothreads,
+    //contains the intersection of the unions of the possible regions for each heuristic.
+    //Therefore, any solution must be in chull.
+
+#define PRUNEBOX(x) prune((x), this->m_ctc, this->m_config, used_constraints)
+    thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+    thread_local static vector<box> box_stack;
+    thread_local static vector<box> hull_stack; //nth box in hull_stack contains hull of first n boxes in box_stack
+    box_stack.clear();
+    hull_stack.clear();
+    used_constraints.clear();
+
+    auto pushbox = [=](box b) {
+        hulllock.lock();
+        box_stack.push_back(b); //copies hull into vector
+        if (hull_stack.size() > 0) b.hull(hull_stack.back()); //maintain hull_stack invariant
+        hull_stack.push_back(b);
+        hulllock.unlock();
+    };
+
+    auto popbox = [=] {
+        hulllock.lock();
+        box b = box_stack.back();
+        box_stack.pop_back();
+        hull_stack.pop_back();
+        hulllock.unlock();
+        return b;
+    };
+
+    box b = chull;
+    pushbox(b);
+
+    do {
+        b = popbox();
+        prune(b, this->m_ctc, this->m_config, used_constraints);
+
+    } while (box_stack.size() > 0);
+
+#undef PRUNEBOX
 
 }
 
@@ -164,6 +201,8 @@ box multiheuristic_icp::solve(box b, scoped_vec<std::shared_ptr<constraint>> con
     this->solns.clear();
     box hull = b;
     this->solved = false;
+    std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+    prune(hull, this->m_ctc, this->m_config, used_constraints);
     vector<std::thread> threads;
     for (auto& heuristic : this->m_heuristics) {
         //threads.push_back(std::thread(&multiheuristic_icp::dothread, this, std::ref(hull), std::ref(heuristic), constraints));

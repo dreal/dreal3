@@ -43,7 +43,7 @@ public:
     box solve(box b, scoped_vec<std::shared_ptr<constraint>> stack);
 private:
     void dothread(box & b, BranchHeuristic & heuristic, scoped_vec<std::shared_ptr<constraint>> constraints);
-    const contractor & m_ctc;
+    contractor & m_ctc;
     SMTConfig & m_config;
     const std::vector<std::reference_wrapper<BranchHeuristic>> m_heuristics;
 
