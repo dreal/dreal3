@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <vector>
 #include "icp/icp.h"
+#include "icp/brancher.h"
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 #include "util/stat.h"
@@ -70,9 +71,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
     used_constraints.clear();
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;
-    thread_local static ibex::IntervalVector gradout(b.size());
-    thread_local static vector<double> axis_scores(b.size());
-    thread_local static vector<tuple<double, int>> bisectable_axis_scores(0);
+    static SizeGradAsinhBrancher brancher(b.size());
     solns.clear();
     box_stack.clear();
     prunebox(b);
@@ -83,48 +82,19 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
         b = box_stack.back();
         box_stack.pop_back();
         if (!b.is_empty()) {
-            //TODO get bisectable dimensions
-            std::vector<int> bisectable_dims = b.bisectable_dims(config.nra_precision);
-            ibex::IntervalVector &values = b.get_values();
-            ibex::Vector radii = values.rad();
-            ibex::Vector midpt = values.mid();
-
-            for (unsigned i = 0; i < b.size(); i++) {
-                axis_scores[i] = asinh(radii[i]*1000)*0.01;
-            }
-
-            for (auto cptr : stack) {
-                if (cptr->get_type() == constraint_type::Nonlinear) {
-                    auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
-                    //ibex::Function f = ncptr->get_numctr()->f;
-                    (&ncptr->get_numctr()->f)->gradient(midpt, gradout);
-                    ibex::Vector g = gradout.lb();
-                    for (unsigned i = 0; i < b.size(); i++) {
-                        axis_scores[i] += asinh(fabs(g[i] * radii[i])*1000) / stack.size();
-                    }
-                }
-            }
-
-            bisectable_axis_scores.clear();
-
-            for (int dim : bisectable_dims) {
-                bisectable_axis_scores.push_back(tuple<double, int>(-axis_scores[dim], dim));
-            }
 #define NUM_TRY 3
-            if (bisectable_axis_scores.size() > NUM_TRY) {
-                std::nth_element(bisectable_axis_scores.begin(), bisectable_axis_scores.begin()+NUM_TRY,
-                        bisectable_axis_scores.end());
-                bisectable_axis_scores = vector<tuple<double, int>>(bisectable_axis_scores.begin(), bisectable_axis_scores.begin()+NUM_TRY);
+            vector<int> sorted_dims = brancher.sort_branches(b, stack, config.nra_precision);
+            if (sorted_dims.size() > NUM_TRY) {
+                sorted_dims = vector<int>(sorted_dims.begin(), sorted_dims.begin()+3);
             }
 
             if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
-            if (bisectable_axis_scores.size() > 0) {
+            if (sorted_dims.size() > 0) {
                 int bisectdim = -1;
                 box first = b;
                 box second = b;
                 double score = -INFINITY;
-                for (tuple<double, int> tup : bisectable_axis_scores) {
-                    int dim = get<1>(tup);
+                for (int dim : sorted_dims) {
                     tuple<int, box, box> splits = b.bisect_at(dim);
                     box a1 = get<1>(splits);
                     box a2 = get<2>(splits);
