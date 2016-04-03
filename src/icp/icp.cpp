@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <mutex>
 #include <unordered_set>
 #include <vector>
+#include <atomic>
 #include "icp/icp.h"
 #include "icp/brancher.h"
 #include "util/logging.h"
@@ -159,13 +160,12 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
         scoped_vec<std::shared_ptr<constraint>> constraints) {
     static vector<box> solns;
     solns.clear();
-    std::mutex hulllock;
-    std::mutex solutionlock;
+    std::mutex mu;
     box hull = bx;
     //hull is a shared box, that's used by all dothreads,
     //contains the intersection of the unions of the possible regions for each heuristic.
     //Therefore, any solution must be in hull.
-    bool solved = false;
+    std::atomic_bool solved;
     std::unordered_set<std::shared_ptr<constraint>> all_used_constraints;
     prune(hull, ctc, config, all_used_constraints);
     vector<std::thread> threads;
@@ -193,16 +193,16 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
             return b;
         };
 
-        hulllock.lock();
+        mu.lock();
         box b = hull;
-        hulllock.unlock();
+        mu.unlock();
         pushbox(b);
 
         do {
             b = popbox();
-            hulllock.lock();
+            mu.lock();
             b.intersect(hull);
-            hulllock.unlock();
+            mu.unlock();
             PRUNEBOX(b);
             if (!b.is_empty()) {
                 vector<int> sorted_dims = heuristic.sort_branches(b, constraints, config.nra_precision);
@@ -228,7 +228,7 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
                             << "]" << endl;
                     }
                 } else {
-                    solutionlock.lock();
+                    mu.lock();
                     config.nra_found_soln++;
                     solns.push_back(b);
                     if (config.nra_multiple_soln > 1) {
@@ -239,16 +239,16 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
                         solved = true;
                         break;
                     }
-                    solutionlock.unlock();
+                    mu.unlock();
                 }
             }
             //hull_stack, hopefully shrunk
-            hulllock.lock();
+            mu.lock();
             hull.intersect(hull_stack.back());
-            hulllock.unlock();
+            mu.unlock();
         } while (box_stack.size() > 0 && !solved);
 
-        solutionlock.lock();
+        mu.lock();
         if (config.nra_found_soln == 0) {
             solved = true; //needed if unsat
             solns.push_back(b);
@@ -257,7 +257,7 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
         for (auto x : used_constraints) {
             all_used_constraints.insert(x);
         }
-        solutionlock.unlock();
+        mu.unlock();
 
 #undef PRUNEBOX
     };
