@@ -53,8 +53,8 @@ namespace dreal {
         for (auto cptr : constraints) {
             if (cptr->get_type() == constraint_type::Nonlinear) {
                 auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
-                (&ncptr->get_numctr()->f)->gradient(midpt, this->gradout);
-                ibex::Vector g = this->gradout.lb();
+                auto gradout = (&ncptr->get_numctr()->f)->gradient(midpt);
+                ibex::Vector g = gradout.lb();
                 for (unsigned i = 0; i < b.size(); i++) {
                     scores[i] += asinh(fabs(g[i] * radii[i])*this->c2) / constraints.size();
                 }

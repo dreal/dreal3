@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <random>
 #include <tuple>
+#include <mutex>
 #include <unordered_set>
 #include <vector>
 #include "icp/icp.h"
@@ -66,15 +67,15 @@ void prune(box & b, contractor & ctc, SMTConfig & config, std::unordered_set<std
 }
 
 box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std::shared_ptr<constraint>> stack) {
-#define prunebox(x) prune((x), ctc, config, used_constraints)
+#define PRUNEBOX(x) prune((x), ctc, config, used_constraints)
     thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
     used_constraints.clear();
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;
-    static SizeGradAsinhBrancher brancher(b.size());
+    SizeGradAsinhBrancher brancher;
     solns.clear();
     box_stack.clear();
-    prunebox(b);
+    PRUNEBOX(b);
     box_stack.push_back(b);
     do {
         DREAL_LOG_INFO << "naive_icp::solve - loop"
@@ -98,8 +99,8 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
                     tuple<int, box, box> splits = b.bisect_at(dim);
                     box a1 = get<1>(splits);
                     box a2 = get<2>(splits);
-                    prunebox(a1);
-                    prunebox(a2);
+                    PRUNEBOX(a1);
+                    PRUNEBOX(a2);
                     double cscore = -a1.volume() * a2.volume();
                     if (cscore > score || bisectdim == -1) {
                         first.hull(second);
@@ -150,7 +151,33 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
         assert(!b.is_empty() || box_stack.size() == 0);
         return b;
     }
-#undef prunebox
+#undef PRUNEBOX
+}
+
+void multiheuristic_icp::dothread(box& b, BranchHeuristic& heuristic, scoped_vec<std::shared_ptr<constraint>> constraints) {
+    vector<int> sorted_dims = heuristic.sort_branches(b, constraints, this->m_config.nra_precision);
+    cout << sorted_dims[0];
+
+}
+
+box multiheuristic_icp::solve(box b, scoped_vec<std::shared_ptr<constraint>> constraints) {
+    this->solns.clear();
+    box hull = b;
+    this->solved = false;
+    vector<std::thread> threads;
+    for (auto& heuristic : this->m_heuristics) {
+        //threads.push_back(std::thread(&multiheuristic_icp::dothread, this, std::ref(hull), std::ref(heuristic), constraints));
+        threads.push_back(std::thread([=, &hull, &heuristic, &constraints] { dothread(hull, heuristic, constraints); }));
+    }
+
+    for (auto& t : threads) {
+        t.join();
+    }
+
+    if (solns.size() > 0) { 
+        return solns.back();
+    }
+    return b;
 }
 
 box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {

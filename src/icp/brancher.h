@@ -22,14 +22,13 @@ namespace dreal {
 
     class SizeGradAsinhBrancher: public BranchHeuristic {
         public:
-            SizeGradAsinhBrancher(int ndims, double c1 = 1000, double c2 = 1000, double c3 = 0.01) :
-                c1(c1), c2(c2), c3(c3),gradout(ibex::IntervalVector(ndims)) {};
+            SizeGradAsinhBrancher(double c1 = 1000, double c2 = 1000, double c3 = 0.01) :
+                c1(c1), c2(c2), c3(c3) {};
             vector<double> score_axes(box const & b, scoped_vec<shared_ptr<constraint>>&) const;
         private:
             const double c1;
             const double c2;
             const double c3;
-            mutable ibex::IntervalVector gradout;
     };
 }
 #endif //_BRANCHER_H

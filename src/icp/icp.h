@@ -20,6 +20,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <random>
+#include <vector>
+#include "icp/brancher.h"
 #include "util/box.h"
 #include "util/scoped_vec.h"
 #include "util/stat.h"
@@ -32,6 +34,23 @@ void output_solution(box const & b, SMTConfig & config, unsigned i = 0);
 class naive_icp {
 public:
     static box solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std::shared_ptr<constraint>> stack);
+};
+
+class multiheuristic_icp {
+public:
+    multiheuristic_icp(contractor & ctc, SMTConfig & config, std::vector<std::reference_wrapper<BranchHeuristic>> heuristics) :
+        m_ctc(ctc), m_config(config), m_heuristics(heuristics) {};
+    box solve(box b, scoped_vec<std::shared_ptr<constraint>> stack);
+private:
+    void dothread(box & b, BranchHeuristic & heuristic, scoped_vec<std::shared_ptr<constraint>> constraints);
+    const contractor & m_ctc;
+    SMTConfig & m_config;
+    const std::vector<std::reference_wrapper<BranchHeuristic>> m_heuristics;
+
+    std::vector<box> solns;
+    std::mutex hulllock;
+    std::mutex solutionlock;
+    bool solved;
 };
 
 class ncbt_icp {
