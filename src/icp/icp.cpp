@@ -154,111 +154,125 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
 #undef PRUNEBOX
 }
 
-void multiheuristic_icp::dothread(box& chull, BranchHeuristic& heuristic, scoped_vec<std::shared_ptr<constraint>> constraints) {
-    //chull is a shared box, that's used by all dothreads,
+box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
+        vector<std::reference_wrapper<BranchHeuristic>> heuristics,
+        scoped_vec<std::shared_ptr<constraint>> constraints) {
+    static vector<box> solns;
+    solns.clear();
+    std::mutex hulllock;
+    std::mutex solutionlock;
+    box hull = bx;
+    //hull is a shared box, that's used by all dothreads,
     //contains the intersection of the unions of the possible regions for each heuristic.
-    //Therefore, any solution must be in chull.
+    //Therefore, any solution must be in hull.
+    bool solved = false;
+    std::unordered_set<std::shared_ptr<constraint>> all_used_constraints;
+    prune(hull, ctc, config, all_used_constraints);
+    vector<std::thread> threads;
 
-#define PRUNEBOX(x) prune((x), this->m_ctc, this->m_config, used_constraints)
-    thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
-    thread_local static vector<box> box_stack;
-    thread_local static vector<box> hull_stack; //nth box in hull_stack contains hull of first n boxes in box_stack
-    box_stack.clear();
-    hull_stack.clear();
-    used_constraints.clear();
+    auto dothread = [&](BranchHeuristic & heuristic) {
 
-    auto pushbox = [=](box b) {
-        box_stack.push_back(b); //copies hull into vector
-        if (hull_stack.size() > 0) b.hull(hull_stack.back()); //maintain hull_stack invariant
-        hull_stack.push_back(b);
-    };
+#define PRUNEBOX(x) prune((x), ctc, config, used_constraints)
+        thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+        thread_local static vector<box> box_stack;
+        thread_local static vector<box> hull_stack; //nth box in hull_stack contains hull of first n boxes in box_stack
+        box_stack.clear();
+        hull_stack.clear();
+        used_constraints.clear();
 
-    auto popbox = [=] {
-        box b = box_stack.back();
-        box_stack.pop_back();
-        hull_stack.pop_back();
+        auto pushbox = [&](box b) {
+            box_stack.push_back(b); //copies hull into vector
+            if (hull_stack.size() > 0) b.hull(hull_stack.back()); //maintain hull_stack invariant
+            hull_stack.push_back(b);
+        };
+
+        auto popbox = [&] {
+            box b = box_stack.back();
+            box_stack.pop_back();
+            hull_stack.pop_back();
+            return b;
+        };
+
         hulllock.lock();
-        b.intersect(chull);
+        box b = hull;
         hulllock.unlock();
-        return b;
-    };
+        pushbox(b);
 
-    this->hulllock.lock();
-    box b = chull;
-    this->hulllock.unlock();
-    pushbox(b);
-
-    do {
-        b = popbox();
-        if (!b.is_empty()) {
-            vector<int> sorted_dims = heuristic.sort_branches(b, constraints, this->m_config.nra_precision);
-            if (this->m_config.nra_use_stat) { this->m_config.nra_stat.increase_branch(); }
-            if (sorted_dims.size() > 0) {
-                auto splits = b.bisect_at(sorted_dims[0]);
-                int bisectdim = -1;
-                box first = get<1>(splits);
-                box second = get<2>(splits);
-                PRUNEBOX(first);
-                PRUNEBOX(second);
-                assert(bisectdim != -1);
-                assert(first.get_idx_last_branched() == bisectdim);
-                assert(second.get_idx_last_branched() == bisectdim);
-                if (second.is_bisectable()) {
-                    pushbox(second);
-                    pushbox(first);
+        do {
+            b = popbox();
+            hulllock.lock();
+            b.intersect(hull);
+            hulllock.unlock();
+            PRUNEBOX(b);
+            if (!b.is_empty()) {
+                vector<int> sorted_dims = heuristic.sort_branches(b, constraints, config.nra_precision);
+                if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
+                if (sorted_dims.size() > 0) {
+                    auto splits = b.bisect_at(sorted_dims[0]);
+                    int bisectdim = -1;
+                    box first = get<1>(splits);
+                    box second = get<2>(splits);
+                    assert(bisectdim != -1);
+                    assert(first.get_idx_last_branched() == bisectdim);
+                    assert(second.get_idx_last_branched() == bisectdim);
+                    if (second.is_bisectable()) {
+                        pushbox(second);
+                        pushbox(first);
+                    } else {
+                        pushbox(first);
+                        pushbox(second);
+                    }
+                    if (config.nra_proof) {
+                        config.nra_proof_out << "[branched on "
+                            << b.get_name(bisectdim)
+                            << "]" << endl;
+                    }
                 } else {
-                    pushbox(first);
-                    pushbox(second);
+                    solutionlock.lock();
+                    config.nra_found_soln++;
+                    solns.push_back(b);
+                    if (config.nra_multiple_soln > 1) {
+                        // If --multiple_soln is used
+                        output_solution(b, config, config.nra_found_soln);
+                    }
+                    if (config.nra_found_soln >= config.nra_multiple_soln) {
+                        solved = true;
+                        break;
+                    }
+                    solutionlock.unlock();
                 }
-                this->hulllock.lock();
-                chull.intersect(hull_stack.back());
-                this->hulllock.unlock();
-                if (this->m_config.nra_proof) {
-                    this->m_config.nra_proof_out << "[branched on "
-                                         << b.get_name(bisectdim)
-                                         << "]" << endl;
-                }
-            } else {
-                this->solutionlock.lock();
-                this->m_config.nra_found_soln++;
-                if (this->m_config.nra_multiple_soln > 1) {
-                    // If --multiple_soln is used
-                    output_solution(b, this->m_config, this->m_config.nra_found_soln);
-                }
-                if (this->m_config.nra_found_soln >= this->m_config.nra_multiple_soln) {
-                    this->solved = true;
-                    break;
-                }
-                this->solns.push_back(b);
-                this->solutionlock.unlock();
             }
+            //hull_stack, hopefully shrunk
+            hulllock.lock();
+            hull.intersect(hull_stack.back());
+            hulllock.unlock();
+        } while (box_stack.size() > 0 && !solved);
+
+        solutionlock.lock();
+        if (config.nra_found_soln == 0) {
+            solved = true; //needed if unsat
+            solns.push_back(b);
         }
-    } while (box_stack.size() > 0 && !this->solved);
+        //update all_used_constraints
+        for (auto x : used_constraints) {
+            all_used_constraints.insert(x);
+        }
+        solutionlock.unlock();
 
 #undef PRUNEBOX
+    };
 
-}
-
-box multiheuristic_icp::solve(box b, scoped_vec<std::shared_ptr<constraint>> constraints) {
-    this->solns.clear();
-    box hull = b;
-    this->solved = false;
-    std::unordered_set<std::shared_ptr<constraint>> used_constraints;
-    prune(hull, this->m_ctc, this->m_config, used_constraints);
-    vector<std::thread> threads;
-    for (auto& heuristic : this->m_heuristics) {
+    for (auto& heuristic : heuristics) {
         //threads.push_back(std::thread(&multiheuristic_icp::dothread, this, std::ref(hull), std::ref(heuristic), constraints));
-        threads.push_back(std::thread([=, &hull, &heuristic, &constraints] { dothread(hull, heuristic, constraints); }));
+        threads.push_back(std::thread(dothread, heuristic));
     }
 
     for (auto& t : threads) {
         t.join();
     }
+    ctc.set_used_constraints(all_used_constraints);
 
-    if (solns.size() > 0) { 
-        return solns.back();
-    }
-    return b;
+    return solns.back();
 }
 
 box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {

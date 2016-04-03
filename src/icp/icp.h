@@ -38,19 +38,8 @@ public:
 
 class multiheuristic_icp {
 public:
-    multiheuristic_icp(contractor & ctc, SMTConfig & config, std::vector<std::reference_wrapper<BranchHeuristic>> heuristics) :
-        m_ctc(ctc), m_config(config), m_heuristics(heuristics) {};
-    box solve(box b, scoped_vec<std::shared_ptr<constraint>> stack);
-private:
-    void dothread(box & b, BranchHeuristic & heuristic, scoped_vec<std::shared_ptr<constraint>> constraints);
-    contractor & m_ctc;
-    SMTConfig & m_config;
-    const std::vector<std::reference_wrapper<BranchHeuristic>> m_heuristics;
-
-    std::vector<box> solns;
-    std::mutex hulllock;
-    std::mutex solutionlock;
-    bool solved;
+    static box solve(box b, contractor & ctc, SMTConfig & config, std::vector<std::reference_wrapper<BranchHeuristic>> heuristics,
+            scoped_vec<std::shared_ptr<constraint>> stack);
 };
 
 class ncbt_icp {
