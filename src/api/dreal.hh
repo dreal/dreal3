@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <vector>
 #include <functional>
+#include <unordered_map>
 
 namespace dreal {
 
@@ -39,14 +40,16 @@ public:
     expr();
     expr(solver &, char const *);  // so far it only works for declaring variables
     expr(solver * const, cexpr const);
-    void           set_ub(double const);
-    void           set_lb(double const);
-    void           set_bounds(double const, double const);
-    env const &    get_ctx() const    { return cctx; }
-    cexpr const &  get_cexpr() const  { return ep; }
-    solver *       get_solver() const { return m_solver; }
+    expr(solver * const, expr *);
+    void	    set_ub(double const);
+    void	    set_lb(double const);
+    void	    set_bounds(double const, double const);
+    std::string	    get_name();
+    env const &	    get_ctx() const    { return cctx; }
+    cexpr const &   get_cexpr() const  { return ep; }
+    solver *	    get_solver() const { return m_solver; }
 private:
-    solver *    m_solver;
+    solver *	m_solver;
     env         cctx;
     cexpr       ep;
 };
@@ -105,6 +108,8 @@ expr implies(expr const &, expr const &);
 expr ite(expr const &, expr const &, expr const &);
 expr der(expr const &, expr const &);
 expr upoly(expr const &, char const *, unsigned);
+expr substitute(expr const &, std::unordered_map<expr*, expr*> const &);
+expr substitute(expr const &, std::vector<expr*> const &, std::vector<expr*> const &);
 
 class poly {
 public:
@@ -137,6 +142,7 @@ public:
     expr *  new_ivar(char const *, int const, int const);
     expr *  new_var(char const *, vtype const);
     expr *  new_var(char const *);
+    expr *  new_num(double const);
     void    set_verbose(bool const b);
     void    set_delta(double const d);
     void    reset();
@@ -167,8 +173,9 @@ public:
 
 private:
     env cctx;
-    std::vector<expr const *> vtab;
-    std::vector<double> stab;
-    std::vector<expr const *> etab;
+    std::vector<expr const *> vtab; //variable table
+    std::vector<double> stab; //solution table
+    std::vector<expr const *> etab; //added enode table
+    std::vector<expr const *> ntab; //constant table
 };
 }  // namespace dreal

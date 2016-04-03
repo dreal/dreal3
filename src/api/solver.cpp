@@ -42,6 +42,7 @@ solver::solver() {
 solver::~solver() {
     assert(cctx);
     for (auto v : vtab) delete v;
+    for (auto n : ntab) delete n;
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     delete ctx;
 }
@@ -126,6 +127,13 @@ expr solver::num(double const v) {
     return expr(this, static_cast<cexpr>(res));
 }
 
+expr * solver::new_num(double const v) {
+    OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
+    Enode * c = ctx->mkNum(v);
+    expr * res = new expr(this, static_cast<cexpr>(c));
+    ntab.push_back(res);
+    return res;
+}
 
 expr solver::num(int const v) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
@@ -143,6 +151,7 @@ void solver::reset() {
 
 void solver::push() {
     assert(cctx);
+    //todo: take care of etab
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     context->Push();
 }
@@ -323,4 +332,6 @@ bool solver::solve() {
     print_model();
     return res;
 }
+
+
 }  // namespace dreal
