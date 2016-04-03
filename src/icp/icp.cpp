@@ -168,30 +168,72 @@ void multiheuristic_icp::dothread(box& chull, BranchHeuristic& heuristic, scoped
     used_constraints.clear();
 
     auto pushbox = [=](box b) {
-        hulllock.lock();
         box_stack.push_back(b); //copies hull into vector
         if (hull_stack.size() > 0) b.hull(hull_stack.back()); //maintain hull_stack invariant
         hull_stack.push_back(b);
-        hulllock.unlock();
     };
 
     auto popbox = [=] {
-        hulllock.lock();
         box b = box_stack.back();
         box_stack.pop_back();
         hull_stack.pop_back();
+        hulllock.lock();
+        b.intersect(chull);
         hulllock.unlock();
         return b;
     };
 
+    this->hulllock.lock();
     box b = chull;
+    this->hulllock.unlock();
     pushbox(b);
 
     do {
         b = popbox();
-        prune(b, this->m_ctc, this->m_config, used_constraints);
-
-    } while (box_stack.size() > 0);
+        if (!b.is_empty()) {
+            vector<int> sorted_dims = heuristic.sort_branches(b, constraints, this->m_config.nra_precision);
+            if (this->m_config.nra_use_stat) { this->m_config.nra_stat.increase_branch(); }
+            if (sorted_dims.size() > 0) {
+                auto splits = b.bisect_at(sorted_dims[0]);
+                int bisectdim = -1;
+                box first = get<1>(splits);
+                box second = get<2>(splits);
+                PRUNEBOX(first);
+                PRUNEBOX(second);
+                assert(bisectdim != -1);
+                assert(first.get_idx_last_branched() == bisectdim);
+                assert(second.get_idx_last_branched() == bisectdim);
+                if (second.is_bisectable()) {
+                    pushbox(second);
+                    pushbox(first);
+                } else {
+                    pushbox(first);
+                    pushbox(second);
+                }
+                this->hulllock.lock();
+                chull.intersect(hull_stack.back());
+                this->hulllock.unlock();
+                if (this->m_config.nra_proof) {
+                    this->m_config.nra_proof_out << "[branched on "
+                                         << b.get_name(bisectdim)
+                                         << "]" << endl;
+                }
+            } else {
+                this->solutionlock.lock();
+                this->m_config.nra_found_soln++;
+                if (this->m_config.nra_multiple_soln > 1) {
+                    // If --multiple_soln is used
+                    output_solution(b, this->m_config, this->m_config.nra_found_soln);
+                }
+                if (this->m_config.nra_found_soln >= this->m_config.nra_multiple_soln) {
+                    this->solved = true;
+                    break;
+                }
+                this->solns.push_back(b);
+                this->solutionlock.unlock();
+            }
+        }
+    } while (box_stack.size() > 0 && !this->solved);
 
 #undef PRUNEBOX
 
