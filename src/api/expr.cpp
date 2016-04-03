@@ -546,8 +546,8 @@ expr substitute(expr const & e, unordered_map<expr *, expr *> const & m) {
     OpenSMTContext * context = static_cast<OpenSMTContext *>(e.get_ctx());
     unordered_map<Enode *, Enode *> enode_map;
     for ( auto item : m ) {
-    enode_map.emplace(static_cast<Enode*>((item.first)->get_cexpr()),
-                static_cast<Enode*>((item.second)->get_cexpr()));
+        enode_map.emplace(static_cast<Enode*>((item.first)->get_cexpr()),
+                          static_cast<Enode*>((item.second)->get_cexpr()));
     }
     Enode * res = subst(*context, e_ce, enode_map);
     return expr(e.get_solver(), static_cast<cexpr>(res));
@@ -556,8 +556,8 @@ expr substitute(expr const & e, unordered_map<expr *, expr *> const & m) {
 expr substitute(expr const & e, vector<expr*> const & pre, vector<expr *> const & post) {
     assert(pre.size() == post.size());
     unordered_map<expr *, expr *> m;
-    for (unsigned i=0; i < pre.size(); i++) {
-    m.emplace(pre[i], post[i]);
+    for (unsigned i = 0; i < pre.size(); i++) {
+        m.emplace(pre[i], post[i]);
     }
     return substitute(e, m);
 }
