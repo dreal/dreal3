@@ -17,6 +17,7 @@ option(LOGGING          "Enable Logging" ON)
 option(BUILD_STATIC_BIN "Build static binary"  OFF)
 option(BUILD_SHARED_LIB "Build shared library" OFF)
 option(USE_LOCAL_THIRD_PARTY "Use local third party libraries" OFF)
+option(USE_GLPK         "Use local third party libraries" OFF)
 option(TCMALLOC         "Use tcmalloc (a.k.a. gperftools)" ON)
 option(BUILD_TEST       "Build test binaries" ON)
 
@@ -239,27 +240,29 @@ set(EXTRA_LIBS "prim" ${EXTRA_LIBS})
 ################################################################
 # External: GLPK
 ################################################################
-if(USE_LOCAL_THIRD_PARTY)
-  ExternalProject_Add(GLPK
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-    URL ${CMAKE_SOURCE_DIR}/third_party/glpk.zip
-    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
-    BUILD_COMMAND make
-    BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make install)
-else()
-  ExternalProject_Add(GLPK
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-    GIT_REPOSITORY https://github.com/dreal-deps/glpk.git
-    GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
-    BUILD_COMMAND make
-    BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make install)
+if(USE_GLPK)
+  if(USE_LOCAL_THIRD_PARTY)
+    ExternalProject_Add(GLPK
+      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+      URL ${CMAKE_SOURCE_DIR}/third_party/glpk.zip
+      CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+      BUILD_COMMAND make
+      BUILD_IN_SOURCE 1
+      INSTALL_COMMAND make install)
+  else()
+    ExternalProject_Add(GLPK
+      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+      GIT_REPOSITORY https://github.com/dreal-deps/glpk.git
+      GIT_TAG master
+      UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
+      COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+      CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+      BUILD_COMMAND make
+      BUILD_IN_SOURCE 1
+      INSTALL_COMMAND make install)
+  endif()
+  set(EXTRA_LIBS "glpk" ${EXTRA_LIBS})
 endif()
-set(EXTRA_LIBS "glpk" ${EXTRA_LIBS})
 
 ################################################################
 # External: NLOPT
@@ -703,7 +706,9 @@ if(BUILD_TEST)
   add_subdirectory(tests/cpp_api)
   add_subdirectory(tests/ibex)
   add_subdirectory(tests/nlopt)
-  add_subdirectory(tests/glpk)
+  if(USE_GLPK)
+    add_subdirectory(tests/glpk)
+  endif()
   add_subdirectory(tests/contractor)
   if(SUPPORT_ODE)
     add_subdirectory(tests/capd4)
