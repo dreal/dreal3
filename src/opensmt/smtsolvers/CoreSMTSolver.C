@@ -654,8 +654,16 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
       }
       
       if(var(sugg) != var_Undef){
+	      bool sign = false;
+      switch (polarity_mode){
+        case polarity_true:  sign = false; break;
+        case polarity_false: sign = true;  break;
+        case polarity_user:  sign = polarity[next]; break;
+        case polarity_rnd:   sign = irand(random_seed, 2); break;
+        default: assert(false); }
+ 
         DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Heuristic Suggested Decision: "
-                        << sign(sugg) << " " << theory_handler->varToEnode(var(sugg))
+                        << sign << " " << theory_handler->varToEnode(var(sugg))
                         << " activity = " << activity[var(sugg)]
                         << endl;
       }
@@ -1890,8 +1898,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             next = lit_Undef;
             DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
           }
-
-	  if ( next == lit_Error)
+	    if ( next == lit_Error )
 	    {
 	      //	      return l_False;
 	      Clause* confl = heuristic->getConflict( );
@@ -1947,6 +1954,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 	      }
 	      continue;
 	    }
+	   
 	  
           // Complete Call
           if ( next == lit_Undef )

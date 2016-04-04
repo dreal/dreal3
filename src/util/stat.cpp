@@ -85,6 +85,7 @@ ostream & operator<<(ostream & out, stat const & stat) {
     std::chrono::duration<double> diff = end_time - stat.m_start_time;
     out << "Running time               = " << diff.count() << " s" << endl;
     out << "Heuristic Running time     = " << stat.m_heuristic_time.count() << " s" << endl;
+    out << "Number of Heuristic Paths  = " << stat.m_num_heuristic_paths <<  endl;
     return out;
 }
 }  // namespace dreal

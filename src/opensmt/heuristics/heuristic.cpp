@@ -77,6 +77,7 @@ namespace dreal{
       }
 
       if (//false &&
+	  !m_config->nra_hybrid_notlearn_clause &&
 	  unsat){
 	rvalue = lit_Error;
       } else {

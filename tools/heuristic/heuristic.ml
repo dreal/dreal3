@@ -446,46 +446,112 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
 	let () = List.print ~first:"[" ~last:"]" ~sep:","
 			    (fun out g -> Int.print hout (Mode.mode_numId g))
 			    hout
-			    (List.map (fun x -> (Modemap.find x.init_id x.modemap)) (Network.automata hm)) in
+			    (List.map (fun x -> (Modemap.find x.init_id x.modemap)) (Network.automata hm))
+	in
 	let () = Printf.fprintf hout "," in
+	let (top_goal_locs, _) = (Network.goals hm) in
+	let indexed_aut = List.mapi (fun i aut -> (i, aut)) (Network.automata hm) in
+	let automata_goals =
+	  (List.mapi
+	     (fun i x -> 
+	      let len = (List.length (Hybrid.goal_ids x)) in
+	      match len with
+	      | 0 ->					 
+		 List.map 
+		   (fun y ->
+		    (string_of_int (Mode.mode_numId (Modemap.find y x.modemap)))
+		   )
+		   (*(List.filter
+		      (fun y ->
+		       let cost = Map.find y (List.nth heuristic i ) in
+		       cost < infinity)*)
+		      ( List.of_enum (Map.keys x.modemap) )
+	      | _ ->
+		 List.map 
+		   (fun y -> 
+		    (string_of_int (Mode.mode_numId (Modemap.find y x.modemap)))) 
+		  (* (List.filter
+		      (fun y ->
+		       let cost = Map.find y (List.nth heuristic i ) in
+		       cost < infinity)*)
+		      (Hybrid.goal_ids x)
+	     )
+	     (Network.automata hm))
+	in
+	let reachable_top_locs =
+	  (List.filter
+	       (fun (a, m) ->
+		let (aut_index, _) =
+		  List.find
+		    (fun (i, aut) -> aut.name = a)
+		    indexed_aut
+		in
+		let cost = Map.find m (List.nth heuristic aut_index) in
+		cost < infinity)
+	       top_goal_locs)
+	in
+(*	let network_top_goals =
+	  (* let loc_modes = List.map (fun (a, m) -> m) top_goal_locs in *)
+	  List.map 
+	    (fun (a, m) ->
+	     let autm =  List.find  (fun aut -> aut.name = a)  (Network.automata hm) in
+	     (string_of_int (Mode.mode_numId (Modemap.find m autm.modemap)))
+	    )
+	    reachable_top_locs
+	in *)
+	let network_goals =
+	  List.map
+	    (fun aut ->
+	     let locs_for_aut = List.filter (fun (a, m) -> a = aut.name) reachable_top_locs in     
+	     let locs_only =
+	       match List.length locs_for_aut with
+	       | 0 -> List.map (fun m ->
+				(string_of_int (Mode.mode_numId (Modemap.find m aut.modemap))))
+			       (List.of_enum (Map.keys aut.modemap))
+	       | _ -> List.map
+			       (fun (a, m) ->
+				(string_of_int (Mode.mode_numId (Modemap.find m aut.modemap))))
+			       locs_for_aut in
+	     locs_only
+	     
+	    )
+	    (Network.automata hm)	   
+in
+	let goal_locs =  match (List.length top_goal_locs) with
+			     | 0 -> automata_goals
+			     | _ -> network_goals
+	in
 	let () = List.print ~first:"[" ~last:"]" ~sep:","
 			    (fun hout goals -> 
 			     (List.print ~first:"[" ~last:"]" ~sep:"," String.print hout goals))
 			    hout
-			    (List.map (fun x -> 
-				       let len = (List.length (Hybrid.goal_ids x)) in
-				       match len with
-					 0 ->
-					 List.map 
-					   (fun y -> 
-					    (string_of_int (Mode.mode_numId (Modemap.find y x.modemap))))
-					   ( List.of_enum (Map.keys x.modemap) )
-				       | _ ->
-				       	  List.map 
-					    (fun y -> 
-					     (string_of_int (Mode.mode_numId (Modemap.find y x.modemap)))) 
-					    (Hybrid.goal_ids x)
-				      )
-				      (Network.automata hm)) in
+			    goal_locs
+	in
 	let () = Printf.fprintf hout ", %d" k in
 	Printf.fprintf hout "], " 
 
 
-  let writeJump aut source out jump =
+  let writeJump aut source i heuristic out jump  =
     (* let jump = Jumpmap.find dest source.jumpmap in *)
     let dest = jump.target in
     let () = Printf.fprintf out "[" in
     let () = List.print 
-	       ~first:"[" ~last:"]" ~sep:"," 
-	       (fun out lab ->  Printf.fprintf out "\"%s\"" lab)
-	       out jump.label 
-    in
-    Printf.fprintf out ",%d, 0]"  (Mode.mode_numId (Modemap.find dest aut.modemap))
-  
-  let writeLabeledModeTransitions  aut is_synchronous out mode   =
+		  ~first:"[" ~last:"]" ~sep:"," 
+		  (fun out lab ->  Printf.fprintf out "\"%s\"" lab)
+		  out jump.label 
+       in
+       Printf.fprintf out ",%d, 0]"  (Mode.mode_numId (Modemap.find dest aut.modemap))
+    
+  let writeLabeledModeTransitions  aut is_synchronous i heuristic out mode    =
     (* let successors = List.of_enum (Map.keys mode.jumpmap) in *)
     let () = Printf.fprintf out "[" in
-    let () = List.print ~first:"" ~last:"" ~sep:"," (writeJump aut mode) out mode.jumps in
+    let jumps =  List.filter (fun j ->
+			     let dest = j.target in
+			     let cost = Map.find dest (List.nth heuristic i ) in
+			     cost < infinity
+			    )
+			    mode.jumps in
+    let () = List.print ~first:"" ~last:"" ~sep:"," (writeJump aut mode i heuristic) out mode.jumps in
     let () = if not is_synchronous then
 	       if List.length mode.jumps > 0 then Printf.fprintf out "," in
     let () = if not is_synchronous then
@@ -493,11 +559,14 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
     Printf.fprintf out "]" 
      
 
-  let writeAutomatonAdjacency aut out is_synchronous=
+  let writeAutomatonAdjacency (i, aut) out is_synchronous heuristic =
    (* let mode_adjacency = (get_mode_adjacency aut) in *)
-    let modes = List.map (fun x -> (Modemap.find x aut.modemap)) (List.of_enum (Map.keys aut.modemap)) in
+    let modes = (List.map
+		   (fun x -> (Modemap.find x aut.modemap))
+		   
+		      (List.of_enum (Map.keys aut.modemap))) in
     List.print ~first:"[" ~last:"]" ~sep:","
-	       (writeLabeledModeTransitions aut is_synchronous)
+	       (writeLabeledModeTransitions aut is_synchronous i heuristic)
 	       out
 	       modes
   
@@ -513,9 +582,9 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
 						((List.length heuristic) - 1)))) in
 	let () = Printf.fprintf hout "," in
 	let () = List.print ~first:"[" ~last:"]" ~sep:","
-			    (fun hout h -> writeAutomatonAdjacency h hout  is_synchronous)
+			    (fun hout (i, h) -> writeAutomatonAdjacency (i, h) hout  is_synchronous heuristic)
 			    hout
-			    (Network.automata hm) in
+			    (List.mapi (fun i h -> (i, h)) (Network.automata hm)) in
 	Printf.fprintf hout "]"
 				    
 

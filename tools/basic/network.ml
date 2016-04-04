@@ -15,15 +15,16 @@ type modeIds = modeId list
 type modeIdsMap = (Hybrid.name, modeIds) Map.t
 type hybGoals = Hybrid.goals
 type time = Vardecl.t
-
+	      
 type modemapping = Modemapping.t
-
+     
 type t = { modemapping: modemapping;
            time: time;
            automata: automata;
            mapping: mapping;
            globalvars: globalvars; 
-           goals: goals }
+           goals: goals
+	 }
            
 let modemapping {modemapping = mo; time = t; automata = aut; mapping = lm; globalvars = gv; goals = g} = mo
            
@@ -358,9 +359,13 @@ let postprocess_aut a m (mcnt: int ref) (acnt: int ref) =
 		match Map.mem name remapping with
 			| false -> vardecls_t
 			| true -> map_replace_vardecls vardecls_t (Map.find name remapping)
-	in
+	in	
 	let modemap = Hybrid.modemap a in
-	let dists = calc_distances_to_init a in
+	(*let () = print_endline "Composed Network" in     *)
+	let dists = (*calc_distances_to_init a*)
+	   (List.map (fun (m, _) -> (m, 0)) (Map.bindings modemap))
+	in
+
 	let nmm = Map.map (
 		fun x -> begin
 			mcnt := !mcnt + 1;
@@ -479,7 +484,8 @@ let postprocess_network n analyze =
 			end
 	)
 	[]
-	instances in
+	instances
+	in
 	let t = time n in
 	check_time_variable t;
 	let instance_maps = List.map (fun (inst, temp, sub, init) -> (inst, sub)) instances in
@@ -587,7 +593,157 @@ let check_path (nw : t) (path : comppath option) (k : int) : unit =
 					| (_, _, false) -> raise (Arg.Bad "Path is longer than the unrolling constrain k.")
 			end
 		| None -> ()
-		
+
+
+let compose_goals gs1 gs2 =
+  List.fold_left
+    (fun gs (m2, f2) ->
+     List.fold_left
+       (fun result (m1, f1) ->
+	List.append result [(Id.compose m1 m2, Basic.And [f1;f2])]
+       )
+       gs
+       []
+    )
+    gs1
+    gs2
+
+let compose_net_goals (net : t) (name : string) =
+  let goals = net.goals in
+  let formula = (match goals with | (x, y) -> y) in
+  let aut_modes = (match goals with | (x, y) -> x) in
+  let goal_automata = List.map (fun (a, m) -> a) aut_modes in
+  (*
+  let () =  Basic.print_formula IO.stdout formula in
+  let () =  List.print ~sep:"," (fun out (aut, mode) -> Printf.fprintf out "@%s.%s" aut mode) IO.stdout aut_modes  in
+  let () = print_endline "" in
+ *)
+  let mode_lists = List.map
+		     (fun a ->
+		      match List.mem (Hybrid.name a) goal_automata with
+		      | true -> [match (List.find (fun (aname, m) -> (String.compare aname a.name) == 0) aut_modes) with (aut, m) -> m]
+		      | false -> List.map (fun (k, v) -> k) (Map.bindings a.modemap)
+		     )
+		     net.automata in
+  (*
+let () =  List.print ~sep:"," (fun out modes -> (List.print ~sep:"," String.print IO.stdout modes)) IO.stdout mode_lists  in
+   *)
+  let rec mode_cross modes rest =
+    (*
+    let () = Printf.fprintf IO.stdout "mode_cross %d \n" (List.length rest) in
+    let () =  List.print ~sep:"," String.print IO.stdout modes  in
+    let () = print_endline "" in	    
+     *)
+    let crossed_modes =
+      match List.length rest with
+      | 0 -> modes
+      | _ ->
+       let rec_modes : string list = mode_cross (List.hd rest) (List.tl rest) in
+       List.fold_left
+	 (fun (result : string list) (my_mode : string)  ->
+	  List.fold_left
+	    (fun (res : string list) (my_rec_mode : string)  ->
+	     let my_res = List.concat [res; [String.concat "_" [my_mode;my_rec_mode]]] in
+	     (*
+	     let () = Printf.fprintf IO.stdout "Cross: %s %s\n" my_mode my_rec_mode in
+	     let () =  List.print ~sep:"," String.print IO.stdout my_res  in
+	     let () = print_endline "" in
+	      *)
+	     my_res
+	    )	    
+	    result
+	    rec_modes
+	 )
+	 []
+	 modes
+    in
+    (*
+    let () = Printf.fprintf IO.stdout "Crossed_modes:\n" in
+    let () =  List.print ~sep:"," String.print IO.stdout crossed_modes  in
+    let () = print_endline "" in
+     *)
+    crossed_modes
+  in
+  let goal_modes = match List.length mode_lists with
+    | 1 -> List.hd mode_lists
+    | _ -> mode_cross (List.hd mode_lists) (List.tl mode_lists)
+  in
+  (*
+  let () = print_endline "Goal modes:" in
+  let () =  List.print ~sep:"," String.print IO.stdout goal_modes  in
+  let () = print_endline "" in
+   *)
+  let goal_aut_and_modes = List.map (fun x -> (name, x)) goal_modes in
+  (goal_aut_and_modes, formula)
+
+(**
+Compute the parallel composition of two hybrid automata
+ **)
+
+let compose_pair (hm1 : Hybrid.t) (hm2 : Hybrid.t)  =
+  
+  (*  let () = print_endline "Composing Pair" in *)
+  
+  let vm = Vardeclmap.compose (Hybrid.vardeclmap hm1) (Hybrid.vardeclmap hm2) in
+  let mm = Modemap.compose (Hybrid.modemap hm1) (Hybrid.labellist hm1)
+			   (Hybrid.modemap hm2) (Hybrid.labellist hm2) in
+  let iid = Id.compose (Hybrid.init_id hm1) (Hybrid.init_id hm2) in
+  let iformula = Basic.And [(Hybrid.init_formula hm1);(Hybrid.init_formula hm2) ] in
+  let gs  = compose_goals (Hybrid.goals hm1) (Hybrid.goals hm2) in
+  let ginvs = List.append (Hybrid.ginvs hm1) (Hybrid.ginvs hm2) in
+  let n = String.concat "_" [(Hybrid.name hm1); (Hybrid.name hm2)] in
+  let nid = 1 in
+  let ll =  List.sort_uniq String.compare (List.append (Hybrid.labellist hm1) (Hybrid.labellist hm2))  in
+  (*
+let () = print_endline "Composed Pair" in
+   *)
+  (* let () = Printf.fprintf IO.stdout "Init: %s\n" iid in *)
+  Hybrid.make (vm, mm, iid, iformula, gs, ginvs, n, nid, ll)
+  
+let compose_initial (net : t) =
+  let initial_mode_name = String.concat "_" (List.map (fun (x : Hybrid.t) -> x.init_id) net.automata)
+   
+  in
+  let initial_formula = Basic.And (List.map (fun (x : Hybrid.t) -> x.init_formula) net.automata) in
+  (initial_mode_name, initial_formula)
+
+let compose (net : t) =
+  (* 
+let () = print_endline "Composing Network" in
+   *)
+  match List.length net.automata with
+  | 0 -> raise (Arg.Bad "Cannot compose an empty network.")
+  | 1 -> net
+  | _ ->
+     let time = net.time in
+     let aut = [List.fold_left
+		  (fun a1 a2 ->
+		   let product = compose_pair a1 a2 in
+(*
+		   let () = print_endline "<==================" in
+		   let () = Hybrid.print IO.stdout product in
+		   let () = print_endline "==================>" in
+ *)
+		   product
+		  )
+		 (List.hd net.automata)
+		 (List.tl net.automata)]
+     in
+     let gv = net.globalvars in
+     let network_name = Hybrid.name (List.hd aut) in
+
+     let g = compose_net_goals net network_name in (* fixme *)
+     (* let () = List.iter (Hybrid.print IO.stdout) aut in *)
+     (*     let () = print_endline "Composed Network" in     *)
+     let initial = compose_initial net in 
+     let analyze = ([(network_name, network_name,  [], initial)], [network_name]) in
+     postprocess_network (makep (time, aut, gv, g)) analyze
+     
+
+		 
+
+  
+			    
 let print out (nw : t) =
   let id_formula_print out (id, f) =
     Printf.fprintf out "(%s, %s)" (IO.to_string Id.print id) (IO.to_string Basic.print_formula f)

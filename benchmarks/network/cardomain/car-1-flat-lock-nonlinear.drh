@@ -1,0 +1,111 @@
+#define epsilon 0.00001
+[-100, 100] a;
+[0, 100] v;
+[0, 300] d;
+[0, 1] c;
+[0, 300] time;
+{ mode 1;
+  flow:
+	d/dt[a] = 0;
+        d/dt[v] = 0;
+        d/dt[d] = 0;
+        d/dt[c] = 0;
+  jump: 
+        true  ==> @2 true;
+}
+{ mode 2; //lock start
+  invt:
+   (c <= 0);
+  flow:
+	d/dt[a] = 0;
+        d/dt[v] = 0;
+        d/dt[d] = 0;
+	d/dt[c] = 1;
+  jump: 
+        (c >= 0)  ==> @3 true;
+}
+
+{ mode 3; //on
+  invt:
+    (v <= 50);
+  flow:
+  	d/dt[a] = 0;
+        d/dt[v] = a;
+        d/dt[d] = v;
+	d/dt[c] = 0;
+  jump: 
+        true ==> @4 (a' = a + 1);
+        true ==> @4 (a' = a - 1);
+	(v = 50) ==> @6 true;
+        (and (a = 0) (v = 0)) ==> @5 true;
+}
+
+{ mode 4; //lock accel
+  invt:
+   (c <= 0);
+  flow:
+	d/dt[a] = 0;
+        d/dt[v] = 0;
+        d/dt[d] = 0;
+	d/dt[c] = 1;
+  jump: 
+        (c >= 0)  ==> @3 true;
+}
+
+{ mode 5; //lock stop
+  invt:
+   (c <= 0);
+  flow:
+	d/dt[a] = 0;
+        d/dt[v] = 0;
+        d/dt[d] = 0;
+	d/dt[c] = 1;
+  jump: 
+        (c >= 0)  ==> @1 true;
+}
+
+{ mode 6; //lock resist
+  invt:
+   (c <= 0);
+  flow:
+	d/dt[a] = 0;
+        d/dt[v] = 0;
+        d/dt[d] = 0;
+	d/dt[c] = 1;
+  jump: 
+        (c >= 0)  ==> @7 true;
+}
+
+{ mode 7; //on resist
+  invt:
+    (v >= 50);
+  flow:
+  	d/dt[a] = 0;
+        d/dt[v] = a -(0.100000) * (((v) - (50)) * ((v) - (50)));
+        d/dt[d] = v;
+	d/dt[c] = 0;
+  jump: 
+        true ==> @4 (a' = a + 1);
+        true ==> @4 (a' = a - 1);
+	(v = 50) ==> @3 true;
+        (and (a = 0) (v = 0)) ==> @5 true;
+}
+
+{ mode 8; //lock resist accel
+  invt:
+   (c <= 0);
+  flow:
+	d/dt[a] = 0;
+        d/dt[v] = 0;
+        d/dt[d] = 0;
+	d/dt[c] = 1;
+  jump: 
+        (c >= 0)  ==> @7 true;
+}
+
+init:
+@1 (and (a = 0) (d = 0)
+	      (v = 0) 
+   );
+goal:
+ @1 (and (d = 30) );

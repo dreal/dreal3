@@ -30,6 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/tsolvers/TSolver.h"
 #include "util/logging.h"
 #include "util/scoped_vec.h"
+#include "util/stat.h"
 
 using namespace std;
 using nlohmann::json;
@@ -569,8 +570,8 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
 
 	
 	//dec->insert(dec->begin(), m_goal_modes[autom]->begin(), m_goal_modes[autom]->end());
-	//sort (dec->begin(), dec->end(), SubgoalCompare(autom, *this));
-	std::random_shuffle(dec->begin(), dec->end());
+	sort (dec->begin(), dec->end(), SubgoalCompare(autom, *this));
+	//std::random_shuffle(dec->begin(), dec->end());
 	pair<int, vector<labeled_transition*>*>* astack = new pair<int, vector<labeled_transition*>*>();
 	m_decision_stack.push_back(astack);
 	
@@ -664,8 +665,8 @@ bool hybrid_heuristic::expand_path(bool first_expansion){
             return false;
         }
 
-        //sort (current_decision->begin(), current_decision->end(), SubgoalCompare(autom, *this));
-	random_shuffle(current_decision->begin(), current_decision->end());
+        sort (current_decision->begin(), current_decision->end(), SubgoalCompare(autom, *this));
+	//	random_shuffle(current_decision->begin(), current_decision->end());
 
         m_decision_stack.push_back(new pair<int, vector<labeled_transition*>*>(autom, current_decision));
 
@@ -1239,6 +1240,8 @@ bool hybrid_heuristic::getSuggestions() {
       path_possible = pbacktrack();
     }
   }
+  if (m_config->nra_use_stat) { m_config->nra_stat.increase_heuristic_paths(); }
+
 
   // if couldn't expand path and not already at end of path
   if (m_decision_stack.size() <= lastDecisionStackEnd && m_decision_stack.size() < (m_depth+1)*num_autom){
@@ -1531,7 +1534,7 @@ bool hybrid_heuristic::getSuggestions() {
       }
     }
     DREAL_LOG_INFO << "Suggesting the Path: [" << endl << ss.str() << endl << "]";
-    cout << "Suggesting the Path: [" << ss.str() << "]" << endl;
+    // cout << "Suggesting the Path: [" << ss.str() << "]" << endl;
     return true;
 }
 

@@ -119,4 +119,4 @@ analyze:
 	(main0 || aileron0 || rudder0);
 	
 goal:
-	(): (abs(beta) > 0.2);
+	(): (abs(beta) > 0.0);

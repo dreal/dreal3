@@ -148,6 +148,7 @@ SMTConfig::initializeConfig( )
   nra_icp_decisions            = 0;
   nra_show_search_progress     = false;
   nra_heuristic_forward        = false;
+  nra_hybrid_notlearn_clause   = false;
   initLogging();
 }
 
@@ -518,7 +519,10 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
 	    "use heuristic forward search",
 	    "--show-search");
-
+    opt.add("", false, 0, 0,
+	    "use hybrid solver clause learning",
+	    "--no-hybrid-clause-learning");
+    
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
     opt.overview += "v" + string(PACKAGE_VERSION);
@@ -570,7 +574,8 @@ SMTConfig::parseCMDLine( int argc
     sat_preprocess_booleans = opt.isSet("--sat-prep-bool");
     nra_show_search_progress= opt.isSet("--show-search");
     nra_heuristic_forward   = opt.isSet("--heuristic_forward");
-
+    nra_hybrid_notlearn_clause = opt.isSet("--no-hybrid-clause-learning");
+    
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }
     if (opt.isSet("--ode-step")) { opt.get("--ode-step")->getDouble(nra_ODE_step); }

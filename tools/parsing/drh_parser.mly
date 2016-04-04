@@ -61,8 +61,6 @@ let get_network (singleton: Hybrid.t) =
 %token EOF
 %token <float> FNUM
 %token <string> ID
-/* unused*/
-%token COMPONENT LABEL ANALYZE PIPE DOT
 
 %left PLUS MINUS
 %left AST SLASH
@@ -76,18 +74,8 @@ let get_network (singleton: Hybrid.t) =
 
 %%
 
-main: time_decl hybrid_list analyze goal_aut { get_network $1 $2 $3 $4 }
-;
-
-time_decl: varDecl { $1 }
-
-hybrid_list : { [] } 
-          | hybrid hybrid_list { $1::$2 }
-;
-
-hybrid: LP COMPONENT ID SEMICOLON varDecl_list label_list mode_list /*init goal ind*/ RP { get_hybrid $5 $7 ("", Basic.True)(*$8*) [] [] (*$9 $10*) $3 $6 }
-/* | varDecl_list mode_list init goal ind { get_network (main_routine $1 $2 $3 $4 $5) }
-| varDecl_list mode_list init goal { get_network (main_routine $1 $2 $3 $4 []) } */
+main: macro_list varDecl_list mode_list init goal ind { get_network (main_routine $2 $3 $4 $5 $6) }
+| macro_list varDecl_list mode_list init goal { get_network (main_routine $2 $3 $4 $5 []) }
 ;
 
 macro_list: /* */ { }
@@ -101,17 +89,6 @@ param_list: ID { [$1] }
 macro:
     HASH_DEFINE ID LP param_list RP exp { fun_macro_map := BatMap.add $2 ($4, $6) !fun_macro_map }
   | HASH_DEFINE ID exp { const_macro_map := BatMap.add $2 $3 !const_macro_map }
-
-label_list: { [] } 
-          | labelDecl label_list { $1@$2 }
-;
-
-labelDecl: LABEL label_list_ids SEMICOLON { $2 }
-;
-
-label_list_ids: { [] }
-              | ID label_list_ids { $1::$2 }
-              | COMMA label_list_ids { $2 }
 ;
 
 varDecl_list: /* */ { [] }
@@ -213,7 +190,7 @@ exp:
  | exp SLASH exp          { Basic.Div ($1, $3) }
  | exp CARET exp          { Basic.Pow ($1, $3) }
  | SQRT LP exp RP         { Basic.Sqrt $3 }
- | ABS LP exp RP         { Basic.Abs $3 }
+ | ABS LP exp RP          { Basic.Abs $3 }
  | LOG  LP exp RP         { Basic.Log  $3 }
  | EXP  LP exp RP         { Basic.Exp  $3 }
  | SIN  LP exp RP         { Basic.Sin  $3 }
@@ -268,17 +245,6 @@ goal: GOAL COLON mode_formula_list { $3 }
 ;
 
 ind: IND COLON formula_list { $3 }
-;
-
-formula_list:
-  | /**/ { [] }
-  | formula SEMICOLON formula_list { $1 :: $3 }
-
-mode_formula_list: { [] }
-  | mode_formula SEMICOLON mode_formula_list { $1::$3 }
-;
-
-mode_formula: AT ID formula { ($2, $3) }
 ;
 
 mode_formula_list: /* */ { [] }

@@ -451,6 +451,8 @@ bool plan_heuristic::expand_path() {
     int steps_to_add = (num_choices_per_happening*m_depth)-
       static_cast<int>(m_decision_stack.size());
     DREAL_LOG_INFO << "Adding #steps: " << steps_to_add << endl;
+    bool existing_act_at_time = false;
+    int last_time = m_depth+1;
     for (int i = 0; i < steps_to_add; i++) {
       int time = m_depth - ((static_cast<int>(m_decision_stack.size()))/
                             num_choices_per_happening);
@@ -458,6 +460,13 @@ bool plan_heuristic::expand_path() {
 
       vector<bool> * current_decision = new vector<bool>();
 
+      DREAL_LOG_DEBUG << "time = " << time << " last_time = " << last_time;
+      if(time < last_time){
+	last_time = time;
+	existing_act_at_time = false;
+      }
+
+      
       //      int parent_index = (static_cast<int>(m_decision_stack.size()))-num_autom;
 
       // if (parent_index < 0) {
@@ -481,9 +490,9 @@ bool plan_heuristic::expand_path() {
       Enode* current_enode = choices[num_choices_per_happening*time+choice];
       bool found_existing_value = false;
 
-      if (current_enode != NULL) { //already has a preprocessed value
-        DREAL_LOG_INFO << "Adding decision at happening " << time << " " << current_enode;
-      }
+      // if (current_enode != NULL) { //already has a preprocessed value
+      //   DREAL_LOG_INFO << "Adding decision at happening " << time << " " << current_enode;
+      // }
 
       vector<bool> current_decision_copy (current_decision->begin(), current_decision->end());
         // prune out choices that are negated in m_stack
@@ -510,9 +519,17 @@ bool plan_heuristic::expand_path() {
           //   }
         }
         if(!found_existing_value) {
-          current_decision->push_back(false);
-          current_decision->push_back(true);
 
+	  //prefer to try one action at a time
+	  if(existing_act_at_time){
+	    current_decision->push_back(true);
+	    current_decision->push_back(false);
+	  } else {
+        DREAL_LOG_INFO << "Adding decision at happening " << time << " " << current_enode;
+	    existing_act_at_time = true;
+	    current_decision->push_back(false);
+	    current_decision->push_back(true);
+	  }
         }
 
         // // remove choices that are too costly for time

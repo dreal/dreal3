@@ -65,7 +65,7 @@ Z_OPT=FALSE #(edited: FS)
 NEW=""
 FILTER=""
 
-while getopts "zohbdk:l:u:ep:irns" OPTION
+while getopts "zohbdk:l:u:ep:irnsc" OPTION
 do
     case $OPTION in
         h)
@@ -101,6 +101,9 @@ do
             ;;
         s)
             NEW=" --new_format_synchronous"
+            ;;
+        c)
+            NEW=" --new_format_composed"
             ;;
         \?)
             usage
@@ -162,6 +165,7 @@ fi
 
 BASE=${1%.drh}
 DRH=$BASE.drh
+PDRH=$BASE.preprocessed.drh
 PATH_FILE=$BASE.paths
 
 # Extract dReal Options
@@ -216,8 +220,9 @@ do
         #echo SMT: ${SMT}
 
         #Solve
-        echo "${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta 2>&1 | tee $OUT"
-        ${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta 2>&1 | tee $OUT
+        echo "${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta --sat-prep-bool 2>&1 | tee $OUT"
+	${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta --sat-prep-bool 2>&1 | tee $OUT
+	#        ${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta  2>&1 | tee $OUT
         RESULT=`tail -n 1 $OUT`
         if [[ $RESULT == delta-sat* ]]
         then

@@ -127,7 +127,7 @@ invt:
 flow:
 jump:
 (do_accel): true ==> @on_accelerate_automaton (and (a' = a + 1));
-//(do_accel): true ==> @on_accelerate_automaton (and (a' = a + 2));
+(do_accel): true ==> @on_accelerate_automaton (and (a' = a + 2));
 )
 )
 
@@ -146,7 +146,7 @@ invt:
 flow:
 jump:
 (do_decel): true ==> @on_decelerate_automaton (and (a' = a - 1));
-//(do_decel): true ==> @on_decelerate_automaton (and (a' = a - 2));
+(do_decel): true ==> @on_decelerate_automaton (and (a' = a - 2));
 )
 )
 
@@ -184,11 +184,11 @@ label do_decel;
 invt:
 flow:
 jump:
-//(do_explode): true ==> @running_false true;
+(do_explode): true ==> @running_false true;
 (do_stop): true ==> @running_false true;
 (do_accel): true ==> @running_true true;
 (do_decel): true ==> @running_true true;
-//(to_resistance): true ==> @running_true true;
+(to_resistance): true ==> @running_true true;
 )
 (mode running_false;
 invt:
@@ -242,11 +242,11 @@ d/dt[lock_timer] = 1;
 jump:
 (did_accel): (lock_timer >= 0) ==> @lock_released (true);
 (did_decel): (lock_timer >= 0) ==> @lock_released (true);
-//(did_explode): (lock_timer >= 0) ==> @lock_released (true);
+(did_explode): (lock_timer >= 0) ==> @lock_released (true);
 (did_start): (lock_timer >= 0) ==> @lock_released (true);
 (did_stop): (lock_timer >= 0) ==> @lock_released (true);
-//(resistance): (lock_timer >= 0) ==> @lock_released (true);
-//(no_resistance): (lock_timer >= 0) ==> @lock_released (true);
+(resistance): (lock_timer >= 0) ==> @lock_released (true);
+(no_resistance): (lock_timer >= 0) ==> @lock_released (true);
 )
 (mode lock_released;
 invt:
@@ -255,11 +255,11 @@ d/dt[lock_timer] = 0;
 jump:
 (do_accel): (true) ==> @lock_enabled (lock_timer' = 0);
 (do_decel): (true) ==> @lock_enabled (lock_timer' = 0);
-//(do_explode): (true) ==> @lock_enabled (lock_timer' = 0);
+(do_explode): (true) ==> @lock_enabled (lock_timer' = 0);
 (do_start): (true) ==> @lock_enabled (lock_timer' = 0);
 (do_stop): (true) ==> @lock_enabled (lock_timer' = 0);
-//(to_resistance): (true) ==> @lock_enabled (lock_timer' = 0);
-//(to_no_resistance): (true) ==> @lock_enabled (lock_timer' = 0);
+(to_resistance): (true) ==> @lock_enabled (lock_timer' = 0);
+(to_no_resistance): (true) ==> @lock_enabled (lock_timer' = 0);
 )
 )
 
@@ -279,20 +279,19 @@ lock_automaton0 = lock_automaton[[lock_timer/time_lock], @lock_released (lock_ti
 
 (
 moving_automaton0 ||
-//windresistance_automaton0 ||
+windresistance_automaton0 ||
 accelerate_automaton0 ||
 decelerate_automaton0 ||
 start_automaton0 ||
 stop_automaton0 ||
-//engineexplode_automaton0 ||
+engineexplode_automaton0 ||
 lock_automaton0 ||
 running_automaton0
-//||
-//blown_automaton0
+|| blown_automaton0
 );
 
 goal:
-(//@blown_automaton0.blown_false,
+(@blown_automaton0.blown_false,
 @running_automaton0.running_false) : (and (d =30) );
 
 

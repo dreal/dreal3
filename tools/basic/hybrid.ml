@@ -162,8 +162,8 @@ let print out (hm : t) =
     print_header out "Init";
     List.print ~first:"" ~sep:"\n" ~last:"\n" id_formula_print out [(hm.init_id, hm.init_formula)];
     (* print goal *)
-    (*print_header out "Goal";
-    List.print ~first:"" ~sep:"\n" ~last:"\n" id_formula_print out hm.goals;*)
+    print_header out "Goal";
+    List.print ~first:"" ~sep:"\n" ~last:"\n" id_formula_print out hm.goals;
   end
 
 let goal_ids (hm : t) : modeId list
@@ -208,3 +208,7 @@ let check_path (hm : t) (path : (string list) option) (k : int) : unit =
          raise (Arg.Bad msg)
     end
   | None -> ()
+
+
+
+	 
