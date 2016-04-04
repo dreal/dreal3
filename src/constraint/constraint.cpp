@@ -309,8 +309,21 @@ integral_constraint mk_integral_constraint(Enode * const e, unordered_map<string
             odes.emplace_back(ode_var, ode_rhs);
         }
     }
-    assert(tmp->isEnil());
-
+    if (!tmp->isEnil()) {
+        DREAL_LOG_FATAL << "We found a problem in handling: " << e;
+        DREAL_LOG_FATAL << "You provided " << flow_vars.size() << " differential equation(s) in the system:";
+        for (unsigned i = 0; i < flow_vars.size(); i++) {
+            DREAL_LOG_FATAL << "\t" << "d/dt[" << flow_vars[i] << "] = " << flow_odes[i];
+        }
+        DREAL_LOG_FATAL << "However, there are " << (flow_vars.size() + tmp->getSize()) << " pairs of variables shown:";
+        tmp = e->getCdr()->getCdr()->getCdr()->getCdr();
+        while (!tmp->isEnil()) {
+            DREAL_LOG_FATAL << "\t" << tmp->getCar() << ", "
+                            << tmp->getCdr()->getCar();
+            tmp = tmp->getCdr()->getCdr();
+        }
+        abort();
+    }
     return integral_constraint(e, flow_id, time_0, time_t, vars_0, pars_0, vars_t, pars_t, par_lhs_names, odes);
 }
 
