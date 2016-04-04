@@ -184,32 +184,45 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
                 // move p
                 p = p->getCdr();
             }
+        } else if (e->isAbs()) {
+            // CAPD does not support abs. Use abs(x) = sqrt(x^2)
+            assert(e->getArity() == 1);
+            string const x = subst(e->get1st(), subst_map);
+            ret = "(sqrt(sqr(" + x + ")))";
         } else if (e->isAtan2()) {
+            // CAPD does not support atan2. Use atan2(y, x) = 2atan([sqrt(x^2 + y^2) - x] / y)
             assert(e->getArity() == 2);
-            // output operator
-            ret += subst(e->getCar(), subst_map);
-            ret += "(";
-            // output 1st argument
-            ret += subst(e->getCdr()->getCar(), subst_map);
-            ret += ", ";
-            // output 1st argument
-            ret += subst(e->getCdr()->getCdr()->getCar(), subst_map);
-            ret += ")";
+            string const y = subst(e->get1st(), subst_map);
+            string const x = subst(e->get2nd(), subst_map);
+            ret = "(2 * atan((sqrt(sqr(" + x + ") + sqr(" + y + ")) - " + x + ") / " + y + "))";
         } else if (e->isTan()) {
-            // CAPD does not support tan.
-            // We use an identity -- tan(x) = sin(x) / cos(x)
+            // CAPD does not support tan. Use tan(x) = sin(x) / cos(x)
             assert(e->getArity() == 1);
-            string arg = subst(e->getCdr()->getCar(), subst_map);
-            ret = "(sin(" + arg + ")/cos(" + arg + "))";
+            string const x = subst(e->get1st(), subst_map);
+            ret = "(sin(" + x + ")/cos(" + x + "))";
+        } else if (e->isSinh()) {
+            // CAPD does not support sinh. Use sinh(x) = (exp(x) - exp(-x)) / 2
+            assert(e->getArity() == 1);
+            string const x = subst(e->get1st(), subst_map);
+            ret = "((exp(" + x + ") - exp(-(" + x + "))) / 2)";
+        } else if (e->isCosh()) {
+            // CAPD does not support cosh. Use cosh(x) = (exp(x) + exp(-x)) / 2
+            assert(e->getArity() == 1);
+            string const x = subst(e->get1st(), subst_map);
+            ret = "((exp(" + x + ") + exp(-(" + x + "))) / 2)";
+        } else if (e->isTanh()) {
+            // CAPD does not support tanh. Use tanh(x) = (exp(x) - exp(-x)) / (exp(x) + exp(-x))
+            assert(e->getArity() == 1);
+            string const x = subst(e->get1st(), subst_map);
+            ret = "((exp(" + x + ") - exp(-(" + x + "))) / (exp(" + x + ") + exp(-(" + x + "))))";
         } else if (e->isAcos() || e->isAsin() || e->isAtan() || e->isMatan() || e->isSafeSqrt() ||
-                   e->isSin() || e->isCos() || e->isLog() || e->isExp() || e->isSqrt() ||
-                   e->isSinh() || e->isCosh() || e->isTanh() || e->isAbs()) {
+                   e->isSin() || e->isCos() || e->isLog() || e->isExp() || e->isSqrt()) {
             assert(e->getArity() == 1);
             // output operator
             ret += subst(e->getCar(), subst_map);
             ret += "(";
             // output 1st argument
-            ret += subst(e->getCdr()->getCar(), subst_map);
+            ret += subst(e->get1st(), subst_map);
             ret += ")";
         } else {
             ret += subst(e->getCar(), subst_map);
