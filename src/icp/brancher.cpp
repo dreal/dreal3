@@ -12,12 +12,12 @@ using std::tuple;
 
 namespace dreal {
 
-    vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<constraint>> & constraints, double branch_precision) const {
+    vector<int> BranchHeuristic::sort_branches(box const & b, double branch_precision) const {
         vector<int> bisectable_dims = b.bisectable_dims(branch_precision);
         vector<int> sorted_dims;
         vector<tuple<double, int>> bisectable_axis_scores;
 
-        vector<double> axis_scores = this->score_axes(b, constraints);
+        vector<double> axis_scores = this->score_axes(b);
         for (int dim : bisectable_dims) {
             bisectable_axis_scores.push_back(tuple<double, int>(-axis_scores[dim], dim));
         }
@@ -29,7 +29,7 @@ namespace dreal {
         return sorted_dims;
     }
 
-    vector<double> SizeBrancher::score_axes(box const & b, scoped_vec<shared_ptr<constraint>> &) const {
+    vector<double> SizeBrancher::score_axes(box const & b) const {
         const ibex::IntervalVector &values = b.get_values();
         ibex::Vector radii = values.rad();
         ibex::Vector midpt = values.mid();
@@ -40,7 +40,7 @@ namespace dreal {
         return scores;
     }
 
-    vector<double> SizeGradAsinhBrancher::score_axes(box const & b, scoped_vec<shared_ptr<constraint>> & constraints) const {
+    vector<double> SizeGradAsinhBrancher::score_axes(box const & b) const {
         const ibex::IntervalVector &values = b.get_values();
         ibex::Vector radii = values.rad();
         ibex::Vector midpt = values.mid();
@@ -50,13 +50,13 @@ namespace dreal {
             scores[i] = asinh(radii[i]*this->c1)*this->c3;
         }
 
-        for (auto cptr : constraints) {
+        for (auto cptr : this->constraints) {
             if (cptr->get_type() == constraint_type::Nonlinear) {
                 auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
                 auto gradout = (&ncptr->get_numctr()->f)->gradient(midpt);
                 ibex::Vector g = gradout.lb();
                 for (unsigned i = 0; i < b.size(); i++) {
-                    scores[i] += asinh(fabs(g[i] * radii[i])*this->c2) / constraints.size();
+                    scores[i] += asinh(fabs(g[i] * radii[i])*this->c2) / this->constraints.size();
                 }
             }
         }

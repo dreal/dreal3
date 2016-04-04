@@ -67,27 +67,84 @@ void prune(box & b, contractor & ctc, SMTConfig & config, std::unordered_set<std
     }
 }
 
-box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std::shared_ptr<constraint>> stack) {
-#define PRUNEBOX(x) prune((x), ctc, config, used_constraints)
+box naive_icp::solve(box b, contractor & ctc, SMTConfig & config,
+        BranchHeuristic& brancher) {
     thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
     used_constraints.clear();
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;
-    SizeGradAsinhBrancher brancher;
     solns.clear();
     box_stack.clear();
-    PRUNEBOX(b);
     box_stack.push_back(b);
     do {
         DREAL_LOG_INFO << "naive_icp::solve - loop"
                        << "\t" << "box stack Size = " << box_stack.size();
         b = box_stack.back();
         box_stack.pop_back();
+        prune(b, ctc, config, used_constraints);
         if (!b.is_empty()) {
-#define NUM_TRY 3
-            vector<int> sorted_dims = brancher.sort_branches(b, stack, config.nra_precision);
-            if (sorted_dims.size() > NUM_TRY) {
-                sorted_dims = vector<int>(sorted_dims.begin(), sorted_dims.begin()+3);
+            if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
+            vector<int> sorted_dims = brancher.sort_branches(b, config.nra_precision);
+            if (sorted_dims.size() > 0) {
+                int const i = sorted_dims[0];
+                tuple<int, box, box> splits = b.bisect_at(sorted_dims[0]);
+                box const & first  = get<1>(splits);
+                box const & second = get<2>(splits);
+                assert(first.get_idx_last_branched() == i);
+                assert(second.get_idx_last_branched() == i);
+                if (second.is_bisectable()) {
+                    box_stack.push_back(second);
+                    box_stack.push_back(first);
+                } else {
+                    box_stack.push_back(first);
+                    box_stack.push_back(second);
+                }
+                if (config.nra_proof) {
+                    config.nra_proof_out << "[branched on "
+                                         << b.get_name(i)
+                                         << "]" << endl;
+                }
+            } else {
+                config.nra_found_soln++;
+                if (config.nra_multiple_soln > 1) {
+                    // If --multiple_soln is used
+                    output_solution(b, config, config.nra_found_soln);
+                }
+                if (config.nra_found_soln >= config.nra_multiple_soln) {
+                    break;
+                }
+                solns.push_back(b);
+            }
+        }
+    } while (box_stack.size() > 0);
+    ctc.set_used_constraints(used_constraints);
+    if (config.nra_multiple_soln > 1 && solns.size() > 0) {
+        return solns.back();
+    } else {
+        assert(!b.is_empty() || box_stack.size() == 0);
+        return b;
+    }
+}
+
+box multiprune_icp::solve(box b, contractor & ctc, SMTConfig & config, BranchHeuristic& brancher, int num_try) {
+#define PRUNEBOX(x) prune((x), ctc, config, used_constraints)
+    thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+    used_constraints.clear();
+    thread_local static vector<box> solns;
+    thread_local static vector<box> box_stack;
+    solns.clear();
+    box_stack.clear();
+    PRUNEBOX(b);
+    box_stack.push_back(b);
+    do {
+        DREAL_LOG_INFO << "multiprune_icp::solve - loop"
+                       << "\t" << "box stack Size = " << box_stack.size();
+        b = box_stack.back();
+        box_stack.pop_back();
+        if (!b.is_empty()) {
+            vector<int> sorted_dims = brancher.sort_branches(b, config.nra_precision);
+            if (sorted_dims.size() > num_try) {
+                sorted_dims = vector<int>(sorted_dims.begin(), sorted_dims.begin()+num_try);
             }
 
             if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
@@ -156,8 +213,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
 }
 
 box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
-        vector<std::reference_wrapper<BranchHeuristic>> heuristics,
-        scoped_vec<std::shared_ptr<constraint>> constraints) {
+        vector<std::reference_wrapper<BranchHeuristic>> heuristics) {
     //don't use yet, since contractor is not yet threadsafe
     static vector<box> solns;
     solns.clear();
@@ -206,7 +262,7 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
             PRUNEBOX(b);
             mu.unlock();
             if (!b.is_empty()) {
-                vector<int> sorted_dims = heuristic.sort_branches(b, constraints, config.nra_precision);
+                vector<int> sorted_dims = heuristic.sort_branches(b, config.nra_precision);
                 if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
                 if (sorted_dims.size() > 0) {
                     int bisectdim = sorted_dims[0];
@@ -267,7 +323,6 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
     };
 
     for (auto& heuristic : heuristics) {
-        //threads.push_back(std::thread(&multiheuristic_icp::dothread, this, std::ref(hull), std::ref(heuristic), constraints));
         threads.push_back(std::thread(dothread, heuristic));
     }
 

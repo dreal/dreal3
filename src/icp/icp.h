@@ -32,14 +32,21 @@ namespace dreal {
 void output_solution(box const & b, SMTConfig & config, unsigned i = 0);
 
 class naive_icp {
+private:
+    static SizeBrancher sb;
 public:
-    static box solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std::shared_ptr<constraint>> stack);
+    static box solve(box b, contractor & ctc, SMTConfig & config,
+            BranchHeuristic & heuristic = sb);
+};
+
+class multiprune_icp {
+public:
+    static box solve(box b, contractor & ctc, SMTConfig & config, BranchHeuristic& heuristic, int num_try = 3);
 };
 
 class multiheuristic_icp {
 public:
-    static box solve(box b, contractor & ctc, SMTConfig & config, std::vector<std::reference_wrapper<BranchHeuristic>> heuristics,
-            scoped_vec<std::shared_ptr<constraint>> stack);
+    static box solve(box b, contractor & ctc, SMTConfig & config, std::vector<std::reference_wrapper<BranchHeuristic>> heuristics);
 };
 
 class ncbt_icp {
