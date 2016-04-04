@@ -158,6 +158,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config, scoped_vec<std
 box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
         vector<std::reference_wrapper<BranchHeuristic>> heuristics,
         scoped_vec<std::shared_ptr<constraint>> constraints) {
+    //don't use yet, since contractor is not yet threadsafe
     static vector<box> solns;
     solns.clear();
     std::mutex mu;
@@ -171,7 +172,6 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
     vector<std::thread> threads;
 
     auto dothread = [&](BranchHeuristic & heuristic) {
-
 #define PRUNEBOX(x) prune((x), ctc, config, used_constraints)
         thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
         thread_local static vector<box> box_stack;
@@ -202,14 +202,15 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
             b = popbox();
             mu.lock();
             b.intersect(hull);
-            mu.unlock();
+            //TODO is contractor threadsafe???
             PRUNEBOX(b);
+            mu.unlock();
             if (!b.is_empty()) {
                 vector<int> sorted_dims = heuristic.sort_branches(b, constraints, config.nra_precision);
                 if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
                 if (sorted_dims.size() > 0) {
-                    auto splits = b.bisect_at(sorted_dims[0]);
-                    int bisectdim = -1;
+                    int bisectdim = sorted_dims[0];
+                    auto splits = b.bisect_at(bisectdim);
                     box first = get<1>(splits);
                     box second = get<2>(splits);
                     assert(bisectdim != -1);
@@ -237,21 +238,24 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
                     }
                     if (config.nra_found_soln >= config.nra_multiple_soln) {
                         solved = true;
+                        mu.unlock();
                         break;
                     }
                     mu.unlock();
                 }
             }
             //hull_stack, hopefully shrunk
-            mu.lock();
-            hull.intersect(hull_stack.back());
-            mu.unlock();
+            if (!hull_stack.empty()) {
+                mu.lock();
+                hull.intersect(hull_stack.back());
+                mu.unlock();
+            }
         } while (box_stack.size() > 0 && !solved);
 
         mu.lock();
         if (config.nra_found_soln == 0) {
             solved = true; //needed if unsat
-            solns.push_back(b);
+            solns.push_back(b); //would be empty
         }
         //update all_used_constraints
         for (auto x : used_constraints) {

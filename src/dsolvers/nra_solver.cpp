@@ -447,7 +447,12 @@ bool nra_solver::check(bool complete) {
         } else if (config.nra_ncbt) {
             m_box = ncbt_icp::solve(m_box, m_ctc, config);
         } else {
-            m_box = naive_icp::solve(m_box, m_ctc, config, m_stack);
+            //m_box = naive_icp::solve(m_box, m_ctc, config, m_stack);
+            SizeBrancher sb;
+            SizeGradAsinhBrancher sb1;
+            vector<std::reference_wrapper<BranchHeuristic>> heuristics = {sb, sb1};
+            //heuristics.push_back(std::reference_wrapper<BranchHeuristic>(new SizeBrancher()));
+            m_box = multiheuristic_icp::solve(m_box, m_ctc, config, heuristics, m_stack);
         }
     } else {
         // Incomplete Check ==> Prune Only
