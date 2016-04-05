@@ -33,15 +33,15 @@ void output_solution(box const & b, SMTConfig & config, unsigned i = 0);
 
 class naive_icp {
 private:
-    static SizeBrancher sb;
+    static BranchHeuristic & defaultHeuristic;
 public:
     static box solve(box b, contractor & ctc, SMTConfig & config,
-            BranchHeuristic & heuristic = sb);
+            BranchHeuristic & heuristic = defaultHeuristic);
 };
 
 class multiprune_icp {
 public:
-    static box solve(box b, contractor & ctc, SMTConfig & config, BranchHeuristic& heuristic, int num_try = 3);
+    static box solve(box b, contractor & ctc, SMTConfig & config, BranchHeuristic& heuristic, unsigned num_try = 3);
 };
 
 class multiheuristic_icp {

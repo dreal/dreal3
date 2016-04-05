@@ -67,6 +67,9 @@ void prune(box & b, contractor & ctc, SMTConfig & config, std::unordered_set<std
     }
 }
 
+SizeBrancher sb;
+BranchHeuristic & naive_icp::defaultHeuristic = sb;
+
 box naive_icp::solve(box b, contractor & ctc, SMTConfig & config,
         BranchHeuristic& brancher) {
     thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
@@ -126,7 +129,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config,
     }
 }
 
-box multiprune_icp::solve(box b, contractor & ctc, SMTConfig & config, BranchHeuristic& brancher, int num_try) {
+box multiprune_icp::solve(box b, contractor & ctc, SMTConfig & config, BranchHeuristic& brancher, unsigned num_try) {
 #define PRUNEBOX(x) prune((x), ctc, config, used_constraints)
     thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
     used_constraints.clear();
