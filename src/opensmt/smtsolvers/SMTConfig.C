@@ -142,6 +142,8 @@ SMTConfig::initializeConfig( )
   nra_worklist_fp              = false;
   nra_shrink_for_dop           = false;
   nra_simulation_thread        = false;
+  nra_multiprune               = false;
+  nra_multiheuristic           = false;
   nra_precision_output         = true;
   nra_random_seed              = random_device{}();
   initLogging();
@@ -497,6 +499,12 @@ SMTConfig::parseCMDLine( int argc
             "use a separate simulation thread in ICP",
             "--simulation");
     opt.add("", false, 0, 0,
+            "more smartly select dimension to branch on based on contraction after split",
+            "--multiprune");
+    opt.add("", false, 0, 0,
+            "run two heuristics simultaneously, finish when the first finishes",
+            "--multiheuristic");
+    opt.add("", false, 0, 0,
             "read formula from standard input",
             "--in");
     opt.add("", false, 1, 0,
@@ -553,6 +561,8 @@ SMTConfig::parseCMDLine( int argc
     nra_worklist_fp         = opt.isSet("--worklist-fp");
     nra_shrink_for_dop      = opt.isSet("--shrink-for-opt");
     nra_simulation_thread   = opt.isSet("--simulation");
+    nra_multiprune          = opt.isSet("--multiprune");
+    nra_multiheuristic      = opt.isSet("--multiheuristic");
     nra_precision_output    =!opt.isSet("--no-precision-output");
     sat_preprocess_booleans = opt.isSet("--sat-prep-bool");
 
