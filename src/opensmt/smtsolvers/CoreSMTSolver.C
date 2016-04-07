@@ -1550,7 +1550,7 @@ CoreSMTSolver::popBacktrackPoint ( )
   }
 
   if(config.nra_plan_heuristic.compare("") != 0){
-    heuristic.backtrack();
+    heuristic->backtrack();
   }
 
   // Restore OK

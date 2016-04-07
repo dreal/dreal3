@@ -9,7 +9,7 @@ open Type
 let get_hybrid vardecl_list mode_list init goal ginv n label_list =
   let (float_list, intv_list) =
     List.partition
-      (function (_, Value.Num _) -> true | _ -> false)
+      (function (_, Value.Num _, _) -> true | _ -> false)
       vardecl_list
   in
   let vardeclmap = Vardeclmap.of_list intv_list in
@@ -85,8 +85,17 @@ FFNUM: FNUM { $1 }
 ;
 
 varDecl:
-    LB FFNUM RB ID SEMICOLON { ($4, Value.Num $2) }
-  | LB FFNUM COMMA FFNUM RB ID SEMICOLON { ($6, Value.Intv ($2, $4)) }
+  LB exp RB ID SEMICOLON { ($4, Value.Num (Basic.real_eval_noenv $2), Value.Num 0.0) }
+  | LB exp COMMA exp RB ID SEMICOLON {
+         ($6, Value.Intv (Basic.real_eval_noenv $2,
+                          Basic.real_eval_noenv $4),
+          Value.Num 0.0)
+       }
+  | LB exp COMMA exp RB ID LB exp RB SEMICOLON {
+         ($6, Value.Intv (Basic.real_eval_noenv $2,
+                          Basic.real_eval_noenv $4),
+          Value.Num (Basic.real_eval_noenv $8))
+       }
 ;
 
 analyze: ANALYZE COLON hybrid_instance_list LP hybrid_analyze_composition RP SEMICOLON { ($3, $5) } 

@@ -55,10 +55,10 @@ let rec get_all_vardecls (auta: automata):Vardeclmap.t list =
 let get_vardeclmap_intersection a b = 
 	let alist = Map.bindings a in
 	List.fold_left
-		(fun (x: Vardeclmap.t) ((var, value): Vardecl.t) ->
+		(fun (x: Vardeclmap.t) (var, (value, prec)) ->
 			match Map.mem var b with
 				| false -> x
-				| true -> Map.add var value x
+				| true -> Map.add var (value, prec) x
 		)
 		Map.empty
 		alist
@@ -86,10 +86,10 @@ let map_replace_labels l m =
 
 let map_replace_vardecls v m = 
 	List.fold_left 
-		(fun (map : Vardeclmap.t) ((var, value) : Vardecl.t) ->
+		(fun (map : Vardeclmap.t) (var, (value, prec)) ->
 			match Map.mem var m with 
-				| true -> Map.add (Map.find var m) value map
-				| false -> Map.add var value map
+				| true -> Map.add (Map.find var m) (value, prec) map
+				| false -> Map.add var (value, prec) map
 		)
 	Map.empty
 	(Map.bindings v)
@@ -103,8 +103,8 @@ let rec vardecls_auta_list alist =
 		| None -> []
 
 let same_variable_different_domain c vardecl = 
-	let (var, value) = c in
-	let (var', value') = vardecl in
+	let (var, (value, _)) = c in
+	let (var', (value', _)) = vardecl in
 	let fcomp a b = (int_of_float a) != (int_of_float b) in
 	match var = var' with
 		| false -> (var, false)
@@ -245,8 +245,9 @@ let rec all_vars auta =
 	with
 		| Some x -> 
 			begin
-				let l = (Map.bindings (Hybrid.vardeclmap x)) in
-				List.append l (all_vars (List.tl auta))
+			  let l = (Map.bindings (Hybrid.vardeclmap x)) in
+			  let l1 = List.map (fun (k, (v, p)) -> (k, v, p)) l in
+				List.append l1 (all_vars (List.tl auta))
 			end
 		| None -> []
 		
@@ -443,7 +444,7 @@ let postprocess_automata a m =
 	List.map (fun x -> postprocess_aut x m mcnt acnt) a
 	
 let check_time_variable t = 
-	let (var, value) = t in
+	let (var, value, _) = t in
 	match var = "time" with
 		true -> ()
 		| false -> raise (Error.Lex_err ("Global variable declaration is supposed to be of the time.", 0))

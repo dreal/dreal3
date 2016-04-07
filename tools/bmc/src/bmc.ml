@@ -1089,25 +1089,37 @@ let mk_flow (n: Network.t) i k (heuristic : Costmap.t list option) =
 	Basic.Eq (vecEnd, Basic.Integral (0.0, timevar, varBegin, fvar))
 	
 let mk_inv_q mode i = 
-	let invs = mode.invs_op in
-	let time_var = mk_variable i "" "time" in
-	match invs with
-		None -> Basic.True
-		| Some fl -> begin
-			let invs_mapped = List.map (fun f -> Basic.subst_formula (mk_variable i "_t") f) fl in
-			let conj_invs = Basic.make_and invs_mapped in
-			Basic.ForallT (Basic.Num (float_of_int i),
-											Basic.Num 0.0,
-											Basic.Var time_var,
-											conj_invs)
-			end
+  let invs = mode.invs_op in
+  let time_var = mk_variable i "" "time" in
+  match invs with
+    None -> Basic.True
+  | Some fl -> begin
+	       let invs_mapped = List.map (fun f -> Basic.subst_formula (mk_variable i "_t") f) fl in
+	       let conj_invs = Basic.make_and invs_mapped in
+	       match conj_invs with
+		 Basic.True -> Basic.True
+	       | _ ->
+		  Basic.ForallT (Basic.Num (float_of_int i),
+				 Basic.Num 0.0,
+				 Basic.Var time_var,
+				 conj_invs)
+	     end
 			
 let mk_inv (n: Network.t) i k (heuristic : Costmap.t list option) = 
 	let auta = Network.automata n in
-	let enf_mode_inv = List.mapi (fun ia a -> begin
-		let modes = filter_aut_mode_distance a i heuristic ia in
-		List.map (fun m -> Basic.Imply (mk_cnd (mk_enforce i a) (Mode.mode_numId m), mk_inv_q m i)) modes
-	end) auta in
+	let enf_mode_inv =
+	  List.mapi
+	    (fun ia a ->
+	     begin
+	       let modes = filter_aut_mode_distance a i heuristic ia in
+	       List.map (fun m ->
+			 let inv_q = mk_inv_q m i in
+			 match inv_q  with
+			   Basic.True -> Basic.True
+			 | _ -> Basic.Imply (mk_cnd (mk_enforce i a) (Mode.mode_numId m), inv_q))
+			modes
+	     end) auta
+	in
 	Basic.make_and (List.flatten enf_mode_inv)
 	
 let mk_maintain (n: Network.t) i k (heuristic : Costmap.t list option) = 
@@ -1168,15 +1180,15 @@ let split_decls_assertions lst path =
 	List.split
       (List.map
          (function
-           | (name, Value.Intv (lb, ub)) ->
+           | (name, Value.Intv (lb, ub), Value.Num p) ->
               begin
                 match path with
                   Some (my_path) ->
-                      (DeclareFun name,
+                      (DeclareFun (name, p),
                        [make_lb name lb;
                         make_ub name ub])
                 | None ->
-                  (DeclareFun name,
+                  (DeclareFun (name, p),
                    [make_lb name lb;
                     make_ub name ub])
               end
@@ -1187,27 +1199,27 @@ let compile_vardecl (h : Network.t) (k : int) (path : (string list) option) (pre
   let automatalist = List.map (fun x -> Hybrid.name x) (Network.automata h) in
   let vardecls = Network.all_vars_unique (Network.automata h) in (*global vars, basically*)
   let time_var_l = Network.time h in
-  let time_intv =
+  let (time_intv, time_p) =
     match time_var_l with
-      | (_, intv) -> intv
+      | (_, intv, p) -> (intv, p)
       | _ -> raise (SMTException "time should be defined once and only once.")
   in
   let time_vardecls =
     List.map
       (fun n ->
-        ("time_" ^ (Int.to_string n), time_intv))
+        ("time_" ^ (Int.to_string n), time_intv, time_p))
       (List.of_enum (0 -- k))
   in
   let vardecls' = 
 	List.flatten
       (List.flatten
          (List.map
-            (function (var, v) ->
+            (function (var, v, p) ->
               List.map
                 (fun k' ->
                   [
-                    (var ^ "_" ^ (Int.to_string k') ^ "_0", v);
-                    (var ^ "_" ^ (Int.to_string k') ^ "_t", v)
+                    (var ^ "_" ^ (Int.to_string k') ^ "_0", v, p);
+                    (var ^ "_" ^ (Int.to_string k') ^ "_t", v, p)
                   ]
                 )
                 (List.of_enum ( 0 -- k))
@@ -1221,7 +1233,7 @@ let compile_vardecl (h : Network.t) (k : int) (path : (string list) option) (pre
       List.map (
         fun x -> begin
           let modes = List.map (fun (_, x) -> x) (Map.bindings (Hybrid.modemap y)) (*filter_aut_mode_distance y k filter*) in
-		  (mk_enforce x y, Value.Intv (1.0, float_of_int (List.length modes)))
+	  (mk_enforce x y, Value.Intv (1.0, float_of_int (List.length modes)), Value.Num 0.0)
         end
       )
       (List.of_enum (0 -- k))
@@ -1250,7 +1262,7 @@ let compile_vardecl (h : Network.t) (k : int) (path : (string list) option) (pre
 						non_empty_flows) in
 
 		   List.map (
-     fun y -> (mk_gamma z x y, Value.Intv (0.0, 1.0))
+     fun y -> (mk_gamma z x y, Value.Intv (0.0, 1.0), Value.Num 0.0)
 	     )
 		      (List.filter (fun x -> List.mem x used_gamma_modes) (filter_aut_mode_distance x z heuristic ia))
 		      
@@ -1271,7 +1283,7 @@ let compile_vardecl (h : Network.t) (k : int) (path : (string list) option) (pre
 						non_empty_flows) in
 
 		    List.map (
-        fun y -> (mk_gamma_t z x y, Value.Intv (0.0, 1.0))
+        fun y -> (mk_gamma_t z x y, Value.Intv (0.0, 1.0), Value.Num 0.0)
       )
     (List.filter (fun x -> List.mem x used_gamma_modes) (filter_aut_mode_distance x z heuristic ia))
 		  )
@@ -1290,7 +1302,7 @@ let compile_vardecl (h : Network.t) (k : int) (path : (string list) option) (pre
 
     List.flatten (List.mapi (
     fun ia x -> List.map (
-      fun y -> DeclareFun (mk_gamma_nt x y)
+      fun y -> DeclareFun ((mk_gamma_nt x y), 0.0)
     )
     (List.filter (fun x -> List.mem x used_gamma_modes) (filter_aut_mode_distance x k heuristic ia))
   )
@@ -1300,7 +1312,7 @@ let compile_vardecl (h : Network.t) (k : int) (path : (string list) option) (pre
   let (enfdecl_cmds, assert_enf_list) = split_decls_assertions enforcement path in
   let (gamdecl_cmds, assert_gam_list) = split_decls_assertions gamma path in
   let (gamdecl_cmds_t, assert_gam_list_t) = split_decls_assertions gamma_t path in
-  let org_vardecl_cmds = List.map (fun (var, _) -> DeclareFun var) vardecls in
+  let org_vardecl_cmds = List.map (fun (var, _, Value.Num p) -> (DeclareFun (var, p))) vardecls in
   let assert_cmds = List.flatten assert_cmds_list in
   let assert_enf = List.flatten assert_enf_list in
   let assert_gam = List.flatten assert_gam_list in

@@ -44,7 +44,8 @@ let get_network (singleton: Hybrid.t) =
   let init = (Hybrid.init_id singleton, Hybrid.init_formula singleton) in
   let anal = ([(inst, base, subs, init)], ["singleton0"]) in
   let vars = Hybrid.vardeclmap singleton in
-  let time = ("time", Map.find "time" vars) in
+  let (timev, timep) =  Map.find "time" vars in
+  let time = ("time", timev, timep) in
   let (mid, mfo) = List.hd (Hybrid.goals singleton) in (* [(modeid, formula)] *)
   Network.postprocess_network (Network.makep (time, [remove_time singleton], Vardeclmap.of_list [], ([(inst, mid)], mfo))) anal
 %}
