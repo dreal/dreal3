@@ -313,6 +313,11 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
     begin
       while (BatHeap.size (Ref.get openqr) > 0) do
 	let min_mode = BatHeap.find_min (Ref.get openqr) in
+	match Set.mem min_mode (Ref.get closedr) with
+	  true -> begin
+		 openqr :=  BatHeap.del_min (Ref.get openqr);
+	       end
+	| false ->
 	let adjacent = get_new_adjacent min_mode (Ref.get closedr) fwd h in
 	let min_open_cost = SearchNode.cost min_mode in	  
 	let open_elts = BatHeap.enum (Ref.get openqr) in
