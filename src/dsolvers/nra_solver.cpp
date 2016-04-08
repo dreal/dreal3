@@ -476,7 +476,7 @@ bool nra_solver::check(bool complete) {
     if (complete) {
         // Complete Check ==> Run ICP
         if (config.nra_simulation_thread) {
-            m_box = simulation_icp::solve(m_box, m_ctc, m_lits, config);
+            m_box = simulation_icp::solve(m_box, m_ctc, m_lits, config, egraph);
         } else if (config.nra_ncbt) {
             m_box = ncbt_icp::solve(m_box, m_ctc, config);
         } else if (config.nra_multiprune) {
