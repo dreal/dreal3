@@ -655,6 +655,7 @@ add_subdirectory(constraint)
 add_subdirectory(contractor)
 add_subdirectory(tools/dop)
 add_subdirectory(api)
+add_subdirectory(optimizer)
 
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${DREAL_BINARY_DIR}/lib")
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${DREAL_BINARY_DIR}/lib")
@@ -732,6 +733,7 @@ file(GLOB_RECURSE DREAL_SOURCES
   ${DREAL_SOURCE_DIR}/util/*.cpp       ${DREAL_SOURCE_DIR}/util/*.h
   ${DREAL_SOURCE_DIR}/icp/*.cpp        ${DREAL_SOURCE_DIR}/icp/*.h
   ${DREAL_SOURCE_DIR}/dsolvers/*.cpp   ${DREAL_SOURCE_DIR}/dsolvers/*.h
+  ${DREAL_SOURCE_DIR}/optimizer/*.cpp   ${DREAL_SOURCE_DIR}/optimizer/*.h
   ${DREAL_SOURCE_DIR}/tests/*.cpp      ${DREAL_SOURCE_DIR}/tests/*.h
   ${DREAL_SOURCE_DIR}/tools/dop/*.cpp  ${DREAL_SOURCE_DIR}/tools/dop/*.h)
 add_style_check_target(style "${DREAL_SOURCES}")
