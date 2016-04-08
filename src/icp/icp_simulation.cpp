@@ -26,6 +26,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "icp/icp_simulation.h"
 #include "util/logging.h"
 #include "util/eval.h"
+#include "optimizer/optimizer.h"
 
 namespace dreal {
 
@@ -119,8 +120,9 @@ void naive_icp_worker(contractor_status & cs, box & ret, contractor & ctc, icp_s
     return;
 }
 
-void simulation_worker(box & ret, vector<Enode *> const & lits, icp_shared_status & status) {
+void simulation_worker(box & ret, vector<Enode *> const & lits, icp_shared_status & status, Egraph & e) {
     box sample(ret);
+    optimizer opt(ret, lits, e);
     while (!status.m_is_icp_over) {
         // 1. Sample a point from front(top) box in the shared box stack
         sample = status.m_sample_domain.sample_point();
@@ -143,11 +145,11 @@ void simulation_worker(box & ret, vector<Enode *> const & lits, icp_shared_statu
     return;
 }
 
-void simulation_icp::solve(contractor & ctc, contractor_status & cs, vector<Enode *> const & lits) {
+void simulation_icp::solve(contractor & ctc, contractor_status & cs, vector<Enode *> const & lits, Egraph & e) {
     box ret(cs.m_box);
     icp_shared_status status(cs.m_box);
     thread icp_thread(naive_icp_worker, ref(cs), ref(ret), ref(ctc), ref(status));
-    thread simulation_thread(simulation_worker, ref(ret), ref(lits), ref(status));
+    thread simulation_thread(simulation_worker, ref(ret), ref(lits), ref(status), ref(e));
     simulation_thread.join();
     icp_thread.join();
     cs.m_box = ret;

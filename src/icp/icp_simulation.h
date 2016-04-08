@@ -22,10 +22,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "contractor/contractor.h"
 #include "icp/icp.h"
+#include "opensmt/egraph/Egraph.h"
 
 namespace dreal {
 class simulation_icp {
 public:
-    static void solve(contractor & ctc, contractor_status & cs, std::vector<Enode *> const & lits);
+    static void solve(contractor & ctc, contractor_status & cs, std::vector<Enode *> const & lit, Egraph & e);
 };
 }  // namespace dreal
