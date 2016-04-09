@@ -20,6 +20,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <mutex>
 #include <thread>
+#include <tuple>
+#include <vector>
 #include "icp/icp_simulation.h"
 #include "util/logging.h"
 #include "util/eval.h"
@@ -43,7 +45,7 @@ public:
     bool m_is_simulation_over;
 
 public:
-    icp_shared_status(box sample_domain)
+    explicit icp_shared_status(box sample_domain)
         : m_sample_domain(sample_domain), m_is_icp_over(false), m_is_simulation_over(false) {
     }
 };
