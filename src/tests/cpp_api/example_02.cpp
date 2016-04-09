@@ -18,14 +18,14 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include<iostream>
-#include<vector>
-#include<assert.h>
-
+#include <cassert>
+#include <iostream>
+#include <vector>
 #include "api/dreal.hh"
 
-using namespace dreal;
-using namespace std;
+using dreal::solver;
+using dreal::expr;
+using std::vector;
 
 void test() {
     solver s;
@@ -36,25 +36,25 @@ void test() {
     expr p4 = s.var("p4", -5, 5);
     expr p5 = s.var("p5", -5, 5);
     vector<expr> x = {x1};
-    vector<expr> p = {p1,p2,p3,p4,p5};
+    vector<expr> p = {p1, p2, p3, p4, p5};
     expr f1 = p1*x1 + p2;
     vector<expr> f = {f1};
     expr V = p3*(x1^2) + p4*x1 + p5;
 
     double eps = 0.01;
 
-    assert(x.size()==f.size());
-    assert(eps>0);
+    assert(x.size() == f.size());
+    assert(eps > 0);
 
     expr ball = s.num("0");
     expr LV = s.num("0");
 
-    for (unsigned i=0;i<x.size();i++) {
+    for (unsigned i=0; i < x.size(); i++) {
         ball = ball + (x[i]^2);
-        LV = LV + f[i]*der(V,x[i]);
+        LV = LV + f[i] * der(V, x[i]);
     }
 
-    expr search_condition = implies(ball>eps, V>0) && implies(ball>eps, LV<0);
+    expr search_condition = implies(ball > eps, V > 0) && implies(ball > eps, LV < 0);
 
     s.add(search_condition);
 
@@ -62,7 +62,6 @@ void test() {
     s.solve();
 
     return;
-
 }
 
 int main() {
