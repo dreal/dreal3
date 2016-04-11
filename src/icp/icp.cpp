@@ -218,14 +218,14 @@ box multiprune_icp::solve(box b, contractor & ctc, SMTConfig & config, BranchHeu
 
 box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
         vector<std::reference_wrapper<BranchHeuristic>> heuristics) {
-    //don't use yet, since contractor is not yet threadsafe
+    // don't use yet, since contractor is not yet threadsafe
     static vector<box> solns;
     solns.clear();
     std::mutex mu;
     box hull = bx;
-    //hull is a shared box, that's used by all dothreads,
-    //contains the intersection of the unions of the possible regions for each heuristic.
-    //Therefore, any solution must be in hull.
+    // hull is a shared box, that's used by all dothreads,
+    // contains the intersection of the unions of the possible regions for each heuristic.
+    // Therefore, any solution must be in hull.
     std::atomic_bool solved;
     std::unordered_set<std::shared_ptr<constraint>> all_used_constraints;
     prune(hull, ctc, config, all_used_constraints);
@@ -235,14 +235,14 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
 #define PRUNEBOX(x) prune((x), ctc, config, used_constraints)
         thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
         thread_local static vector<box> box_stack;
-        thread_local static vector<box> hull_stack; //nth box in hull_stack contains hull of first n boxes in box_stack
+        thread_local static vector<box> hull_stack;  // nth box in hull_stack contains hull of first n boxes in box_stack
         box_stack.clear();
         hull_stack.clear();
         used_constraints.clear();
 
         auto pushbox = [&](box b) {
-            box_stack.push_back(b); //copies hull into vector
-            if (hull_stack.size() > 0) b.hull(hull_stack.back()); //maintain hull_stack invariant
+            box_stack.push_back(b);  // copies hull into vector
+            if (hull_stack.size() > 0) { b.hull(hull_stack.back()); }  // maintain hull_stack invariant
             hull_stack.push_back(b);
         };
 
@@ -262,7 +262,7 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
             b = popbox();
             mu.lock();
             b.intersect(hull);
-            //TODO is contractor threadsafe???
+            // TODO(clhuang): is contractor threadsafe???
             PRUNEBOX(b);
             mu.unlock();
             if (!b.is_empty()) {
@@ -304,7 +304,7 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
                     mu.unlock();
                 }
             }
-            //hull_stack, hopefully shrunk
+            // hull_stack, hopefully shrunk
             if (!hull_stack.empty()) {
                 mu.lock();
                 hull.intersect(hull_stack.back());
@@ -314,10 +314,10 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
 
         mu.lock();
         if (config.nra_found_soln == 0) {
-            solved = true; //needed if unsat
-            solns.push_back(b); //would be empty
+            solved = true;  // needed if unsat
+            solns.push_back(b);  // would be empty
         }
-        //update all_used_constraints
+        // update all_used_constraints
         for (auto x : used_constraints) {
             all_used_constraints.insert(x);
         }
