@@ -20,7 +20,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <random>
+#include <vector>
+#include "icp/brancher.h"
 #include "util/box.h"
+#include "util/scoped_vec.h"
 #include "util/stat.h"
 #include "contractor/contractor.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
@@ -29,8 +32,21 @@ namespace dreal {
 void output_solution(box const & b, SMTConfig & config, unsigned i = 0);
 
 class naive_icp {
+private:
+    static BranchHeuristic & defaultHeuristic;
 public:
-    static box solve(box b, contractor & ctc, SMTConfig & config);
+    static box solve(box b, contractor & ctc, SMTConfig & config,
+            BranchHeuristic & heuristic = defaultHeuristic);
+};
+
+class multiprune_icp {
+public:
+    static box solve(box b, contractor & ctc, SMTConfig & config, BranchHeuristic& heuristic, unsigned num_try = 3);
+};
+
+class multiheuristic_icp {
+public:
+    static box solve(box b, contractor & ctc, SMTConfig & config, std::vector<std::reference_wrapper<BranchHeuristic>> heuristics);
 };
 
 class ncbt_icp {
