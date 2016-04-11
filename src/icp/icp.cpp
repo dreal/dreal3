@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <random>
 #include <tuple>
+#include <thread>
 #include <mutex>
 #include <unordered_set>
 #include <vector>
