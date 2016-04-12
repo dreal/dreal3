@@ -97,6 +97,11 @@ public:
         return get_value(e->getCar()->getNameFull());
     }
 
+    // set_value
+    inline void set_value (Enode * e, double lb, double ub) {
+        m_values[get_index(e)] = ibex::Interval(lb,ub);
+    }
+
     // get_domain
     ibex::Interval get_domain(int const i) const;
     ibex::Interval get_domain(std::string const & s) const {
