@@ -386,18 +386,25 @@ void nra_solver::handle_sat_case(box const & b) const {
 #ifdef SUPPORT_ODE
     // --visualize option
     if (config.logic == QF_NRA_ODE && config.nra_json) {
-        json traces = {};
-        // Need to run ODE pruning operator once again to generate a trace
-        for (shared_ptr<constraint> const ctr : m_stack) {
-            if (ctr->get_type() == constraint_type::ODE) {
-                contractor_capd_full fwd_full(b, dynamic_pointer_cast<ode_constraint>(ctr), ode_direction::FWD, config.nra_ODE_taylor_order, config.nra_ODE_grid_size);
-                json trace = fwd_full.generate_trace(b, config);
-                traces.push_back(trace);
+        try {
+            json traces = {};
+            // Need to run ODE pruning operator once again to generate a trace
+            for (shared_ptr<constraint> const ctr : m_stack) {
+                if (ctr->get_type() == constraint_type::ODE) {
+                    contractor_capd_full fwd_full(b, dynamic_pointer_cast<ode_constraint>(ctr), ode_direction::FWD, config.nra_ODE_taylor_order, config.nra_ODE_grid_size);
+                    json trace = fwd_full.generate_trace(b, config);
+                    traces.push_back(trace);
+                }
             }
+            json vis_json;
+            vis_json["traces"] = traces;
+            config.nra_json_out << vis_json.dump() << endl;;
+        } catch (contractor_exception const & e) {
+            DREAL_LOG_FATAL << "The following exception is generated while computing a trace (visualization)." << endl;
+            DREAL_LOG_FATAL << e.what();
+            DREAL_LOG_FATAL << "This indicates that this delta-sat result is not properly checked by ODE pruning operators.";
+            DREAL_LOG_FATAL << "Please re-run the tool with a smaller precision (current precision = " << config.nra_precision << ")." << endl;
         }
-        json vis_json;
-        vis_json["traces"] = traces;
-        config.nra_json_out << vis_json.dump() << endl;;
     }
 #endif
     // For API call
