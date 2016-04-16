@@ -107,13 +107,6 @@ let process_flow ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) : Basic.formu
 let process_flow_pruned ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) (relevant : Relevantvariables.t list option) : Basic.formula =
   let m = Map.find q modemap in
   let mode_formula = make_mode_cond ~k ~q in
-  let not_mode_formula = Basic.make_and(
-                             List.map (fun nm -> if nm = q then
-                                               Basic.True
-                                             else
-                                               Basic.Not (make_mode_cond k nm)
-                                  )
-                                  (List.of_enum (Map.keys modemap))) in
   let time_var = (make_variable k "" "time") in
   let flow_formula =
     let vardecls = varmap_to_list varmap in
@@ -166,7 +159,6 @@ let process_flow_pruned ~k ~q (varmap : Vardeclmap.t) (modemap:Modemap.t) (relev
 (** transition change **)
 let process_jump (modemap : Modemap.t) (q : Mode.id) (jump : Jump.t) k : Basic.formula =
   let next_q = jump.Jump.target in
-  let mode = Map.find q modemap in
   let mode_formula = make_mode_cond ~k:(k+1) ~q:next_q in
   let gurad' = Basic.subst_formula (make_variable k "_t") jump.guard in
   let precision = Jump.precision jump in
@@ -212,13 +204,6 @@ let process_jump_pruned (modemap : Modemap.t) (q : Mode.id) (next_q : Mode.id) (
   let jumpmap = mode.jumpmap in
   let jump = Map.find next_q jumpmap in
   let mode_formula = make_mode_cond ~k:(k+1) ~q:next_q in
-  let not_mode_formula = Basic.make_and(
-                             List.map (fun nm -> if nm = next_q then
-                                               Basic.True
-                                             else
-                                               Basic.Not (make_mode_cond (k+1) nm)
-                                  )
-                                  (List.of_enum (Map.keys modemap))) in
   let gurad' = Basic.subst_formula (make_variable k "_t") jump.guard in
   let precision = Jump.precision jump in
   let used =
@@ -490,6 +475,8 @@ let compile_vardecl (h : Hybrid.t) (k : int) (path : (int list) option) =
       (List.map
          (function
            | (name, (Value.Intv (lb, ub), Value.Num p)) ->
+              let prec_opt = if p > 0.0 then Some p else None in
+              let bound_opt = Some (lb, ub) in
               begin
                 match path with
                   Some(my_path) ->
@@ -503,23 +490,25 @@ let compile_vardecl (h : Hybrid.t) (k : int) (path : (int list) option) =
                       let mode_id = List.at my_path time in
                       let mode = Modemap.find mode_id h.modemap in
                       let tprecision = mode.time_precision in
-                      (DeclareFun (name, p),
-                       [make_lbp name lb tprecision;
-                        make_ubp name ub tprecision])
+                      if tprecision > 0.0 then
+                        (DeclareFun (name, REAL, prec_opt, None),
+                         [make_lbp name lb tprecision;
+                          make_ubp name ub tprecision])
+                      else
+                        (DeclareFun (name, REAL, prec_opt, bound_opt), [])
                     |  _ ->
-                      (DeclareFun (name, p),
-                       [make_lb name lb;
-                        make_ub name ub])
+                      (DeclareFun (name, REAL, prec_opt, bound_opt), [])
                   end
                 | None ->
-                   (DeclareFun (name, p),
-                    [make_lb name lb;
-                     make_ub name ub])
+                   (DeclareFun (name, REAL, prec_opt, bound_opt), [])
               end
            | _ -> raise (SMTException "We should only have interval here."))
          new_vardecls) in
   let org_vardecl_cmds = List.map
-                           (function (var, (_, Value.Num p)) -> DeclareFun (var, p)
+                           (function (var, (Value.Intv (lb, ub), Value.Num p)) ->
+                                     let prec_opt = if p > 0.0 then Some p else None in
+                                     let bound_opt = Some (lb, ub) in
+                                     DeclareFun (var, REAL, prec_opt, bound_opt)
                                    | _ -> raise (Failure "Variable declaration includes interval precision"))
                            vardecls' in
   let assert_cmds = List.flatten assert_cmds_list in
@@ -579,6 +568,8 @@ let compile_vardecl_pruned (h : Hybrid.t) (k : int) (path : (int list) option) (
       (List.map
          (function
           | (name, (Value.Intv (lb, ub), Value.Num p)) ->
+             let prec_opt = if p > 0.0 then Some p else None in
+             let bound_opt = Some (lb, ub) in
              begin
                match path with
                  Some(my_path) ->
@@ -592,22 +583,24 @@ let compile_vardecl_pruned (h : Hybrid.t) (k : int) (path : (int list) option) (
                      let mode_id = List.at my_path time in
                      let mode = Modemap.find mode_id h.modemap in
                      let tprecision = mode.time_precision in
-                     (DeclareFun (name, p),
-                      [make_lbp name lb tprecision;
-                       make_ubp name ub tprecision])
+                     if tprecision > 0.0 then
+                       (DeclareFun (name, REAL, prec_opt, None),
+                        [make_lbp name lb tprecision;
+                         make_ubp name ub tprecision])
+                     else
+                       (DeclareFun (name, REAL, prec_opt, bound_opt), [])
                    |  _ ->
-                       (DeclareFun (name, p),
-                        [make_lb name lb;
-                         make_ub name ub])
+                       (DeclareFun (name, REAL, prec_opt, bound_opt), [])
                  end
                | None ->
-                  (DeclareFun (name, p),
-                   [make_lb name lb;
-                    make_ub name ub])
+                  (DeclareFun (name, REAL, prec_opt, bound_opt), [])
              end
           | _ -> raise (SMTException "We should only have interval here."))
          new_vardecls) in
-  let org_vardecl_cmds = List.map (function (var, (_, Value.Num p)) -> DeclareFun (var, p)
+  let org_vardecl_cmds = List.map (function (var, (Value.Intv (lb, ub), Value.Num p)) ->
+                                            let prec_opt = if p > 0.0 then Some p else None in
+                                            let bound_opt = Some (lb, ub) in
+                                            DeclareFun (var, REAL, prec_opt, bound_opt)
                                           | _ -> raise (Failure "Variable declaration include an interval precision"))
                                   vardecls' in
   let assert_cmds = List.flatten assert_cmds_list in
