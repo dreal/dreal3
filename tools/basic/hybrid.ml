@@ -87,7 +87,7 @@ let preprocess (vm, cm, mm, iid, iformula, gs, ginvs) : t =
 
 let adjacent mode_id1 mode_id2 h  : bool =
   let mode1 = Map.find mode_id1 h.modemap in
-  Map.mem mode_id2 mode1.jumpmap
+  Map.mem mode_id2 mode1.Mode.jumpmap
 
 let print out (hm : t) =
   let id_formula_print out (id, f) =
