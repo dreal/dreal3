@@ -41,8 +41,15 @@ cmd: LP SETLOGIC QF_NRA RP        { Smt2_cmd.SetLogic Smt2_cmd.QF_NRA }
  | LP SETINFO COLON SMTLIBVERSION FNUM RP { Smt2_cmd.SetInfo (":" ^ "smt-lib-version", string_of_float $5) }
  | LP SETINFO COLON ID FNUM RP    { Smt2_cmd.SetInfo (":" ^ $4, string_of_float $5) }
  | LP SETINFO COLON ID ID RP      { Smt2_cmd.SetInfo (":" ^ $4, $5) }
- | LP DECLAREFUN ID LP RP REAL RP { Smt2_cmd.DeclareFun ($3, 0.0) }
- | LP DECLAREFUN ID LP RP REAL LB FNUM RB RP { Smt2_cmd.DeclareFun ($3, $8) }
+ | LP DECLAREFUN ID LP RP REAL RP { Smt2_cmd.DeclareFun ($3, Smt2_cmd.REAL, None, None) }
+ | LP DECLAREFUN ID LP RP REAL LB FNUM RB RP {
+        let prec_opt = if $8 > 0.0 then Some $8 else None in
+        Smt2_cmd.DeclareFun ($3, Smt2_cmd.REAL, prec_opt, None)
+      }
+ | LP DECLAREFUN ID LP RP REAL LB FNUM COMMA FNUM RB RP {
+        let bound_opt = Some ($8, $10) in
+        Smt2_cmd.DeclareFun ($3, Smt2_cmd.REAL, None, bound_opt)
+      }
  | LP DECLARECONST ID REAL RP     { Smt2_cmd.DeclareConst $3 }
  | LP ASSERT formula RP           { Smt2_cmd.Assert $3 }
  | LP CHECKSAT RP                 { Smt2_cmd.CheckSAT }
