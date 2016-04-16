@@ -157,15 +157,23 @@ let compile_vardecl h epi =
     List.split
       (List.map
          (function
-           | (name, (Value.Intv (lb, ub), Value.Num p)) ->
-              (DeclareFun (name, p),
-               [make_lb name lb;
-                make_ub name ub])
+          | (name, (Value.Intv (lb, ub), Value.Num p)) ->
+             begin
+               let prec_opt = if p > 0.0 then Some p else None in
+               let bound_opt = Some (lb, ub) in
+               (DeclareFun (name, REAL, prec_opt, bound_opt),
+                [])
+             end
            | _ -> raise (SMTException "We should only have interval here."))
          new_vardecls) in
   let assert_cmds = List.flatten assert_cmds_list in
   let org_vardecl_cmds = List.map
-                           (function (var, (_, Value.Num p)) -> DeclareFun (var, p)
+                           (function (var, (Value.Intv (lb, ub), Value.Num p)) ->
+                                     begin
+                                       let prec_opt = if p > 0.0 then Some p else None in
+                                       let bound_opt = Some (lb, ub) in
+                                       DeclareFun (var, REAL, prec_opt, bound_opt)
+                                     end
                            | _ -> raise (Failure "Variable Declaration contains interval precision."))
                            vardecls' in
   (org_vardecl_cmds@vardecl_cmds, assert_cmds)
