@@ -106,7 +106,7 @@ public:
   void          SetInfo              ( const char *, const char * ); // Set info
   void          DeclareSort          ( const char *, int );          // Declares a new sort
   void          DeclareFun           ( const char *, Snode * );      // Declares a new function symbol
-  void          DeclareFun           ( const char *, Snode * , const char * p);  // Declares a new function symbol
+  void          DeclareFun           ( const char *, Snode *, double const p );  // + precision
   void          DefineODE            ( char const *, std::vector<std::pair<Enode *, Enode *>> const & odes );      // Define an ODE
 
   void          Push                 ( );

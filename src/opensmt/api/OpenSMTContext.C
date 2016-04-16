@@ -609,7 +609,7 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s )
   egraph.newSymbol( name, s, true );
 }
 
-void OpenSMTContext::DeclareFun( const char * name, Snode * s, const char * p )
+void OpenSMTContext::DeclareFun( const char * name, Snode * s, double const p )
 {
   if ( config.verbosity > 1 )
     cerr << "# OpenSMTContext::Declaring function "
@@ -619,8 +619,7 @@ void OpenSMTContext::DeclareFun( const char * name, Snode * s, const char * p )
          << " with precision = "
          << p
          << endl;
-  double const vval = strtod(p, nullptr);
-  egraph.newSymbol( name, s, true, vval );
+  egraph.newSymbol( name, s, true, p );
 }
 
 void OpenSMTContext::DefineODE( char const * name, vector<pair<Enode *, Enode *>> const & odes)
