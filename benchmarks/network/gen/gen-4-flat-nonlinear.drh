@@ -5599,3 +5599,163 @@
         (and (tank4_refuel_time = TANK_DURATION)) ==> @486 true;
         (and (generator_time = GENERATOR_DURATION)) ==> @501 true;
 }
+{ mode 503;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2)) + (0.1 * (tank2_refuel_time ^ 2)) + (0.1 * (tank4_refuel_time ^ 2));
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 1;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @501 true;
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @499 true;
+        (and (tank4_refuel_time = TANK_DURATION)) ==> @487 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @504 true;
+}
+{ mode 504;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2)) + (0.1 * (tank2_refuel_time ^ 2)) + (0.1 * (tank4_refuel_time ^ 2)) - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 1;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @502 true;
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @500 true;
+        (and (tank4_refuel_time = TANK_DURATION)) ==> @488 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @503 true;
+}
+{ mode 505;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank3_refuel_time ^ 2)) + (0.1 * (tank4_refuel_time ^ 2));
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 1;
+        d/dt[tank4_refuel_time] = 1;
+  jump: 
+        (and (tank3_refuel_time = TANK_DURATION)) ==> @497 true;
+        (and (tank4_refuel_time = TANK_DURATION)) ==> @489 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @506 true;
+}
+{ mode 506;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank3_refuel_time ^ 2)) + (0.1 * (tank4_refuel_time ^ 2)) - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 1;
+        d/dt[tank4_refuel_time] = 1;
+  jump: 
+        (and (tank3_refuel_time = TANK_DURATION)) ==> @498 true;
+        (and (tank4_refuel_time = TANK_DURATION)) ==> @490 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @505 true;
+}
+{ mode 507;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2)) + (0.1 * (tank3_refuel_time ^ 2)) + (0.1 * (tank4_refuel_time ^ 2));
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 1;
+        d/dt[tank4_refuel_time] = 1;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @505 true;
+        (and (tank3_refuel_time = TANK_DURATION)) ==> @499 true;
+        (and (tank4_refuel_time = TANK_DURATION)) ==> @491 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @508 true;
+}
+{ mode 508;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2)) + (0.1 * (tank3_refuel_time ^ 2)) + (0.1 * (tank4_refuel_time ^ 2)) - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 1;
+        d/dt[tank4_refuel_time] = 1;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @506 true;
+        (and (tank3_refuel_time = TANK_DURATION)) ==> @500 true;
+        (and (tank4_refuel_time = TANK_DURATION)) ==> @492 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @507 true;
+}
+{ mode 509;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank2_refuel_time ^ 2)) + (0.1 * (tank3_refuel_time ^ 2)) + (0.1 * (tank4_refuel_time ^ 2));
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 1;
+        d/dt[tank4_refuel_time] = 1;
+  jump: 
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @505 true;
+        (and (tank3_refuel_time = TANK_DURATION)) ==> @501 true;
+        (and (tank4_refuel_time = TANK_DURATION)) ==> @493 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @510 true;
+}
+{ mode 510;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank2_refuel_time ^ 2)) + (0.1 * (tank3_refuel_time ^ 2)) + (0.1 * (tank4_refuel_time ^ 2)) - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 1;
+        d/dt[tank4_refuel_time] = 1;
+  jump: 
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @506 true;
+        (and (tank3_refuel_time = TANK_DURATION)) ==> @502 true;
+        (and (tank4_refuel_time = TANK_DURATION)) ==> @494 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @509 true;
+}
+{ mode 511;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2)) + (0.1 * (tank2_refuel_time ^ 2)) + (0.1 * (tank3_refuel_time ^ 2)) + (0.1 * (tank4_refuel_time ^ 2));
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 1;
+        d/dt[tank4_refuel_time] = 1;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @509 true;
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @507 true;
+        (and (tank3_refuel_time = TANK_DURATION)) ==> @503 true;
+        (and (tank4_refuel_time = TANK_DURATION)) ==> @495 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @512 true;
+}
+{ mode 512;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2)) + (0.1 * (tank2_refuel_time ^ 2)) + (0.1 * (tank3_refuel_time ^ 2)) + (0.1 * (tank4_refuel_time ^ 2)) - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 1;
+        d/dt[tank4_refuel_time] = 1;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @510 true;
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @508 true;
+        (and (tank3_refuel_time = TANK_DURATION)) ==> @504 true;
+        (and (tank4_refuel_time = TANK_DURATION)) ==> @496 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @511 true;
+}
+{ mode 513;
+  flow: 
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+  jump: 
+}
+init:
+@1 (and (fuel_level          = STARTING_FUEL)
+	      (generator_time      = 0) 
+	      (tank1_refuel_time   = 0)
+	      (tank2_refuel_time   = 0)
+	      (tank3_refuel_time   = 0)
+	      (tank4_refuel_time   = 0)
+   );
+goal:
+ @513 (and (generator_time = GENERATOR_DURATION));
