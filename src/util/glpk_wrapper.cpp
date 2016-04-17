@@ -59,11 +59,16 @@ void glpk_wrapper::set_constraint(int index, Enode * const e) {
             i += 1;
         } else {
             if (e->isEq()) {
+                assert(!e->hasPolarity() || e->getPolarity() != l_False);
                 //std::cerr << "== " << c << std::endl;
                 glp_set_row_bnds(lp, index, GLP_FX, -c, -c);
             } else {
                 //std::cerr << "<= " << c << std::endl;
-                glp_set_row_bnds(lp, index, GLP_UP, 0, -c);
+                if (!e->hasPolarity() || e->getPolarity() != l_False) {
+                    glp_set_row_bnds(lp, index, GLP_UP, 0, -c);
+                } else {
+                    glp_set_row_bnds(lp, index, GLP_LO, 0, -c);
+                }
             }
         }
     }
