@@ -99,6 +99,54 @@ TEST_CASE("glpk_interior_sat") {
     opensmt_expr c1 = opensmt_mk_leq(ctx, make_linear(ctx, 1,x, 1,y, 1,z), opensmt_mk_num(ctx, 100));
     opensmt_expr c2 = opensmt_mk_leq(ctx, make_linear(ctx,10,x, 4,y, 5,z), opensmt_mk_num(ctx, 600));
     opensmt_expr c3 = opensmt_mk_leq(ctx, make_linear(ctx, 2,x, 2,y, 6,z), opensmt_mk_num(ctx, 300));
+    Enode * e1 = static_cast<Enode *>(c1);
+    Enode * e2 = static_cast<Enode *>(c2);
+    Enode * e3 = static_cast<Enode *>(c3);
+    unordered_set<Enode*> es({e1, e2, e3});
+    Enode * var_x = static_cast<Enode *>(x);
+    Enode * var_y = static_cast<Enode *>(y);
+    Enode * var_z = static_cast<Enode *>(z);
+    box b({var_x, var_y, var_z});
+    glpk_wrapper solver(b, es);
+    solver.set_maximize();
+    solver.use_interior_point();
+    //solver.print_to_file("/dev/stdout");
+    assert(solver.is_sat());
+}
+
+TEST_CASE("glpk_no_obj") {
+    opensmt_context ctx = opensmt_mk_context(qf_nra);
+    OpenSMTContext * opensmt_ctx = static_cast<OpenSMTContext *>(ctx);
+    opensmt_expr x = opensmt_mk_real_var(ctx, "x", 0, 100);
+    opensmt_expr y = opensmt_mk_real_var(ctx, "y", 0, 100);
+    opensmt_expr z = opensmt_mk_real_var(ctx, "z", 0, 100);
+    opensmt_expr c1 = opensmt_mk_leq(ctx, make_linear(ctx, 1,x, 1,y, 1,z), opensmt_mk_num(ctx, 100));
+    opensmt_expr c2 = opensmt_mk_leq(ctx, make_linear(ctx,10,x, 4,y, 5,z), opensmt_mk_num(ctx, 600));
+    opensmt_expr c3 = opensmt_mk_leq(ctx, make_linear(ctx, 2,x, 2,y, 6,z), opensmt_mk_num(ctx, 300));
+    opensmt_expr cObj = make_linear(ctx, 10,x, 6,y, 4,z);
+    Enode * e1 = static_cast<Enode *>(c1);
+    Enode * e2 = static_cast<Enode *>(c2);
+    Enode * e3 = static_cast<Enode *>(c3);
+    Enode * eObj = static_cast<Enode *>(cObj);
+    unordered_set<Enode*> es({e1, e2, e3});
+    Enode * var_x = static_cast<Enode *>(x);
+    Enode * var_y = static_cast<Enode *>(y);
+    Enode * var_z = static_cast<Enode *>(z);
+    box b({var_x, var_y, var_z});
+    glpk_wrapper solver(b, es);
+    //solver.print_to_file("/dev/stdout");
+    assert(solver.is_sat());
+}
+
+TEST_CASE("glpk_min") {
+    opensmt_context ctx = opensmt_mk_context(qf_nra);
+    OpenSMTContext * opensmt_ctx = static_cast<OpenSMTContext *>(ctx);
+    opensmt_expr x = opensmt_mk_real_var(ctx, "x", 0, 100);
+    opensmt_expr y = opensmt_mk_real_var(ctx, "y", 0, 100);
+    opensmt_expr z = opensmt_mk_real_var(ctx, "z", 0, 100);
+    opensmt_expr c1 = opensmt_mk_leq(ctx, make_linear(ctx, 1,x, 1,y, 1,z), opensmt_mk_num(ctx, 100));
+    opensmt_expr c2 = opensmt_mk_leq(ctx, make_linear(ctx,10,x, 4,y, 5,z), opensmt_mk_num(ctx, 600));
+    opensmt_expr c3 = opensmt_mk_leq(ctx, make_linear(ctx, 2,x, 2,y, 6,z), opensmt_mk_num(ctx, 300));
     opensmt_expr cObj = make_linear(ctx, 10,x, 6,y, 4,z);
     Enode * e1 = static_cast<Enode *>(c1);
     Enode * e2 = static_cast<Enode *>(c2);
@@ -111,31 +159,41 @@ TEST_CASE("glpk_interior_sat") {
     box b({var_x, var_y, var_z});
     glpk_wrapper solver(b, es);
     solver.set_objective(eObj);
-    solver.set_maximize();
-    solver.use_interior_point();
+    solver.set_minimize();
     //solver.print_to_file("/dev/stdout");
     assert(solver.is_sat());
     solver.get_solution(b);
     //std::cerr << solver.get_objective() << std::endl;
-    assert(solver.get_objective() >= -1e-3 + 733.333);
-    assert(solver.get_objective() <=  1e-3 + 733.333);
-    assert(b[var_x].lb() >= -1e-4 + 33.3333);
-    assert(b[var_x].ub() <=  1e-4 + 33.3333);
-    assert(b[var_y].lb() >= -1e-4 + 66.6667);
-    assert(b[var_y].ub() <=  1e-4 + 66.6667);
-    assert(b[var_z].lb() >= -1e-4 + 0);
-    assert(b[var_z].ub() <=  1e-4 + 0);
-}
-
-/*
-TEST_CASE("glpk_min") {
+    assert(solver.get_objective() >= -1e-3);
+    assert(solver.get_objective() <=  1e-3);
+    assert(b[var_x].lb() >= -1e-4);
+    assert(b[var_x].ub() <=  1e-4);
+    assert(b[var_y].lb() >= -1e-4);
+    assert(b[var_y].ub() <=  1e-4);
+    assert(b[var_z].lb() >= -1e-4);
+    assert(b[var_z].ub() <=  1e-4);
 }
 
 TEST_CASE("glpk_unsat") {
+    opensmt_context ctx = opensmt_mk_context(qf_nra);
+    OpenSMTContext * opensmt_ctx = static_cast<OpenSMTContext *>(ctx);
+    opensmt_expr x = opensmt_mk_real_var(ctx, "x", 0, 100);
+    opensmt_expr y = opensmt_mk_real_var(ctx, "y", 0, 100);
+    opensmt_expr z = opensmt_mk_real_var(ctx, "z", 0, 100);
+    opensmt_expr c1 = opensmt_mk_leq(ctx, make_linear(ctx, 1,x, 1,y, 0,z), opensmt_mk_num(ctx,-100));
+    opensmt_expr c2 = opensmt_mk_leq(ctx, make_linear(ctx,10,x, 4,y, 0,z), opensmt_mk_num(ctx, 600));
+    Enode * e1 = static_cast<Enode *>(c1);
+    Enode * e2 = static_cast<Enode *>(c2);
+    unordered_set<Enode*> es({e1, e2});
+    Enode * var_x = static_cast<Enode *>(x);
+    Enode * var_y = static_cast<Enode *>(y);
+    Enode * var_z = static_cast<Enode *>(z);
+    box b({var_x, var_y, var_z});
+    glpk_wrapper solver(b, es);
+    //solver.print_to_file("/dev/stdout");
+    assert(!solver.is_sat());
+    solver.use_interior_point();
+    assert(!solver.is_sat());
 }
-
-TEST_CASE("glpk_interior_unsat") {
-}
-*/
 
 }  // namespace dreal
