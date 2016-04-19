@@ -68,7 +68,8 @@ Required Packages
 
 Documentations
 ==============
-
+ - [How to contribute to dReal](CONTRIBUTING.md)
+ - [Git commit message convention](doc/commit_convention.md)
  - [How to use ODE visualization][ode-vis]
 
 [ode-vis]: doc/ode-visualization.md
