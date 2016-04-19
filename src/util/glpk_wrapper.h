@@ -21,7 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include "./version.h"
+#include "./config.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/logging.h"
