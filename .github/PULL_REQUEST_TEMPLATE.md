@@ -1,10 +1,8 @@
 Thanks for making contributions to dReal! Before opening a
 pull-request, please check the following things:
 
- - [ ] [Rebase your commits based on master branch][git-rebase] of dreal/dreal3 repository.
- - [ ] Make sure following our [Git commit message convention][git-commit-msg-convention].
- - [ ] Run `make` and check the code compiles.
- - [ ] Run `make style` and check there is no style error.
-
-[git-rebase]: https://robots.thoughtbot.com/git-interactive-rebase-squash-amend-rewriting-history
-[git-commit-msg-convention]: https://github.com/dreal/dreal3/blob/master/doc/commit_convention.md
+ - [ ] Rebase your commits based on master branch of dreal/dreal3 repository.
+ - [ ] Follow our Git commit message convention.
+ - [ ] Follow Google C++ Style Guide. Run `make style` and check there is no style error.
+ - [ ] Run `make` and check the code compiles. Please try both of gcc and clang.
+ - [ ] Ensure the PR description clearly describes the problem and solution. Include the relevant issue number if applicable.
