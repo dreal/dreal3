@@ -32,18 +32,23 @@ using std::make_pair;
 //
 void LAExpression::initialize( Enode * e )
 {
-  assert( e->isEq( ) || e->isLeq( ) );
+  // assert( e->isEq( ) || e->isLeq( ) );
   integers = false;
 
   vector< Enode * > curr_term;
   vector< Real >    curr_const;
 
-  Enode * lhs = e->get1st( );
-  Enode * rhs = e->get2nd( );
-  curr_term .push_back( lhs );
-  curr_const.push_back( 1 );
-  curr_term .push_back( rhs );
-  curr_const.push_back( -1 );
+  if ( e->isEq() || e->isLeq() ) {
+    Enode * lhs = e->get1st( );
+    Enode * rhs = e->get2nd( );
+    curr_term .push_back( lhs );
+    curr_const.push_back( 1 );
+    curr_term .push_back( rhs );
+    curr_const.push_back( -1 );
+  } else {
+    curr_term .push_back( e );
+    curr_const.push_back( 1 );
+  }
 
   while ( !curr_term.empty( ) )
   {
@@ -123,7 +128,7 @@ void LAExpression::initialize( Enode * e )
   //
   // Canonize
   //
-  canonize( );
+  //canonize( );
 }
 
 Enode * LAExpression::toEnode( Egraph & egraph )
