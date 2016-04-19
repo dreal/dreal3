@@ -19,9 +19,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "./config.h"
 #include "./version.h"
-#ifdef PYTHONLIBS_FOUND
-#include "Python.h"
-#endif
 #include <unordered_map>
 #include <exception>
 #include <string>
@@ -30,6 +27,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/egraph/Enode.h"
 #include "tools/dop/print_py.h"
 #include "tools/dop/print_latex.h"
+#ifdef PYTHONLIBS_FOUND
+#include "Python.h"
+#endif
 
 namespace dop {
 using std::cerr;
