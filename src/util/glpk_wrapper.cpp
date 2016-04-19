@@ -17,11 +17,13 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "util/glpk_wrapper.h"
-#include <stdio.h>
-#include <assert.h>
+#include <cstdio>
+#include <cassert>
 #include <exception>
 #include "opensmt/common/LA.h"
+#include "util/glpk_wrapper.h"
+
+#ifdef USE_GLPK
 
 namespace dreal {
 
@@ -216,3 +218,4 @@ bool glpk_wrapper::is_linear(Enode * const e) {
 }
 
 }  // namespace dreal
+#endif
