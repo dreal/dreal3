@@ -57,3 +57,19 @@ FOREACH(instance ${NRA_INSTANCES})
            ${DREAL_BINARY} ${instance} "--simulation")
   set_tests_properties("regression_nra_simul_${instance_name}" PROPERTIES LABELS "nra_simul")
 ENDFOREACH(instance)
+
+FOREACH(instance ${NRA_INSTANCES})
+  GET_FILENAME_COMPONENT(instance_name ${instance} NAME)
+  add_test(NAME "regression_nra_multiheuristic_${instance_name}"
+           COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test.sh"
+           ${DREAL_BINARY} ${instance} "--multiheuristic")
+  set_tests_properties("regression_nra_multiheuristic_${instance_name}" PROPERTIES LABELS "nra_multiheuristic")
+ENDFOREACH(instance)
+
+FOREACH(instance ${NRA_INSTANCES})
+  GET_FILENAME_COMPONENT(instance_name ${instance} NAME)
+  add_test(NAME "regression_nra_multiprune_${instance_name}"
+           COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test.sh"
+           ${DREAL_BINARY} ${instance} "--multiprune")
+  set_tests_properties("regression_nra_multiprune_${instance_name}" PROPERTIES LABELS "nra_multiprune")
+ENDFOREACH(instance)
