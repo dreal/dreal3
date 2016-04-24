@@ -68,6 +68,19 @@ void prune(box & b, contractor & ctc, SMTConfig & config, std::unordered_set<std
     }
 }
 
+// Prune a given box b using ctc, but keep the old state of ctc
+void test_prune(box & b, contractor & ctc, SMTConfig & config) {
+    try {
+        auto const old_output = ctc.output();
+        auto const old_used_constraints = ctc.used_constraints();
+        ctc.prune(b, config);
+        ctc.set_output(old_output);
+        ctc.set_used_constraints(old_used_constraints);
+    } catch (contractor_exception & e) {
+        // Do nothing
+    }
+}
+
 SizeBrancher sb;
 BranchHeuristic & naive_icp::defaultHeuristic = sb;
 
