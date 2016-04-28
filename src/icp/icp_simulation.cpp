@@ -171,10 +171,10 @@ void simulation_icp::solve(contractor & ctc, contractor_status & cs, vector<Enod
     box ret(cs.m_box);
     icp_shared_status status(cs.m_box);
     thread icp_thread(naive_icp_worker, ref(cs), ref(ret), ref(ctc), ref(status));
-    thread optimization_thread(optimization_worker, ref(ret), ref(lits), ref(status), ref(e), ref(cs.m_config));
+    // thread optimization_thread(optimization_worker, ref(ret), ref(lits), ref(status), ref(e), ref(cs.m_config));
     thread simulation_thread(simulation_worker, ref(ret), ref(lits), ref(status));
     simulation_thread.join();
-    optimization_thread.join();
+    //optimization_thread.join();
     icp_thread.join();
     cs.m_box = ret;
     // TODO(soonhok): need to setup output and used_constraints?
