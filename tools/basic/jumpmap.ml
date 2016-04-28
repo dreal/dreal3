@@ -1,12 +1,12 @@
 open Batteries
-type id = int
+type id = string
 type jump = Jump.t
 type t = (id, jump) Map.t
 
 let of_list (jumps : jump list) : t
   =
   List.fold_left
-    (fun (map : t) ({Jump.guard = g; Jump.target = t; Jump.change= c} as j) ->
+    (fun (map : t) ({Jump.guard = g; Jump.target = t; Jump.change = c; Jump.label = l} as j) ->
      Map.add t j map
     )
     Map.empty
