@@ -145,6 +145,8 @@ public:
     expr *  new_num(double const);
     void    set_verbose(bool const b);
     void    set_delta(double const d);
+    void    set_polytope();
+    void    set_simulation();
     void    reset();
     void    push();
     void    pop();
@@ -153,6 +155,7 @@ public:
     void    set_domain_ub(expr &, double const);
     void    print_model(std::ostream & out = std::cerr);
     void    print_problem(std::ostream & out = std::cerr);
+    void    print_infix(std::ostream & out = std::cerr);
     double  get_precision() const;
     double  get_domain_lb(expr const &) const;
     double  get_domain_ub(expr const &) const;

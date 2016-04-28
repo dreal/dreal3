@@ -84,7 +84,7 @@ bool optimizer::improve_naive(box& p) { //note that p is a point not a nontrivia
 	//take a newton step on the dimention
 	cerr<<"exploring the domain:\n"<<domain<<endl;
 	double length = domain.get_value(v).ub() - domain.get_value(v).lb();
-	double step = ((p_v-domain.get_value(v).lb())/length)*(domain.get_value(v).ub()-p_v);
+	double step = ((p_v-domain.get_value(v).lb())/(length+delta))*(domain.get_value(v).ub()-p_v);
 	cerr<<"taking a step of size: "<<step<<endl;
 	cerr<<"at gradient "<<grad<<endl;
 	double newv = p_v - step*grad;
@@ -103,4 +103,10 @@ bool optimizer::improve_naive(box& p) { //note that p is a point not a nontrivia
     cerr<<"the new point is:\n"<<p<<endl;
     return true;
 }
+
+//bool optimizer::improve_downhill_simplex(box& p) {
+//
+//}
+
+
 }

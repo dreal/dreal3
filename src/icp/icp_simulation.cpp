@@ -174,10 +174,10 @@ box simulation_icp::solve(box b, contractor & ctc, vector<Enode *> const & lits,
     box ret(b);
     icp_shared_status status(b);
     thread icp_thread(naive_icp_worker, b, ref(ret), ref(config), ref(ctc), ref(status));
-    thread optimization_thread(optimization_worker, ref(ret), ref(lits), ref(status), ref(e), ref(config));
+    //thread optimization_thread(optimization_worker, ref(ret), ref(lits), ref(status), ref(e), ref(config));
     thread simulation_thread(simulation_worker, ref(ret), ref(lits), ref(status));    
     simulation_thread.join();
-    optimization_thread.join();
+    //optimization_thread.join();
     icp_thread.join();
     return ret;
 }
