@@ -12,6 +12,7 @@ type sort = REAL | INT
 type t = | SetLogic of logic
          | SetInfo of string * string
          | DeclareFun of string * sort * float option (** precision **) * (float * float) option (** bounds **)
+	 | DeclareBool of string
          | DeclareConst of string
          (** ode group X LHS X RHS **)
          (** [x1_k_t ... xn_k_t] = (integral 0.0 time_k [x1_k_0 ... xn_k_0] flow_i) *)
@@ -51,6 +52,8 @@ let print out =
      Printf.fprintf out "(set-logic %s)" (IO.to_string print_logic l)
   | SetInfo (key, value) ->
      Printf.fprintf out "(set-info %s %s)" key value
+  | DeclareBool (v) ->
+     Printf.fprintf out "(declare-fun %s () Bool)" v;
   | DeclareFun (v, s, prec_opt, bound_opt) ->
      Printf.fprintf out "(declare-fun %s () " v;
      print_sort out s;
