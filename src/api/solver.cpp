@@ -327,6 +327,16 @@ void solver::set_delta(double const d) {
     context->setPrecision(d);
 }
 
+void solver::set_polytope() {
+    OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
+    context->getConfig().nra_polytope = true;
+}
+
+void solver::set_simulation() {
+    OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
+    context->getConfig().nra_simulation_thread = true;
+}
+
 bool solver::solve() {
     bool res = check();
     print_model();
