@@ -25,8 +25,8 @@ let run () =
   try
     let out = IO.stdout in
     let lexbuf = Lexing.from_channel (if !src = "" then stdin else open_in !src) in
-    let hm = Drh_parser.main Drh_lexer.start lexbuf in
-    let smt = Inv_check.compile hm 0.01 in
+    let hm = Drh_parser_networks.main Drh_lexer_networks.start lexbuf in
+    let smt = Inv_check.compile (List.hd (Network.automata hm)) 0.01 in (*TODO*)
     begin
       Smt2.print out smt
     end

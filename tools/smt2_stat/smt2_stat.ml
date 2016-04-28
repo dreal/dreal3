@@ -7,6 +7,7 @@ let count_cmd f = function
   | SetInfo _ -> 0
   | DeclareConst _ -> 0
   | DeclareFun _ -> 0
+  | DeclareBool _ -> 0
   | DefineODE _ -> 0
   | Assert formula -> f formula
   | CheckSAT -> 0
@@ -17,6 +18,7 @@ let cmd_count_var = function
   | SetInfo _ -> 0
   | DeclareConst _ -> 0
   | DeclareFun _ -> 1
+  | DeclareBool _ -> 1
   | DefineODE _ -> 0
   | Assert _ -> 0
   | CheckSAT -> 0
@@ -115,6 +117,7 @@ let rec extract_nonlinear_func (smt2 : Smt2.t) : string Set.t =
     | SetInfo _ -> Set.empty
     | DeclareConst _ -> Set.empty
     | DeclareFun _ -> Set.empty
+    | DeclareBool _ -> Set.empty
     | DefineODE _ -> Set.empty
     | Assert f -> extract_nonlinear_func_from_f f
     | CheckSAT -> Set.empty
