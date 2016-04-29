@@ -1,0 +1,3171 @@
+#define STARTING_FUEL 800
+#define GENERATOR_CAPACITY 1600
+#define TANK_DURATION 11
+#define GENERATOR_DURATION 1000
+[0, GENERATOR_CAPACITY] fuel_level;
+[0, 1000] tank1_refuel_time;
+[0, 1000] tank2_refuel_time;
+[0, 1000] tank3_refuel_time;
+[0, 1000] tank4_refuel_time;
+[0, 1000] tank5_refuel_time;
+[0, 1000] generator_time;
+[0, 1000] time;
+{ mode 1;
+  flow: 
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time <= TANK_DURATION)) ==> @67 true;
+        (and (tank2_refuel_time <= TANK_DURATION)) ==> @133 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @265 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @529 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1057 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @2049 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @2 true;
+}
+{ mode 2;
+  flow: 
+        d/dt[fuel_level] = 0 - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time <= TANK_DURATION)) ==> @68 true;
+        (and (tank2_refuel_time <= TANK_DURATION)) ==> @134 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @266 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @530 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1058 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @1 true;
+}
+{ mode 3;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 4;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 5;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 6;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 7;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 8;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 9;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 10;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 11;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 12;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 13;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 14;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 15;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 16;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 17;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 18;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 19;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 20;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 21;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 22;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 23;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 24;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 25;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 26;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 27;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 28;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 29;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 30;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 31;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 32;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 33;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 34;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 35;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 36;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 37;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 38;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 39;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 40;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 41;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 42;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 43;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 44;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 45;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 46;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 47;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 48;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 49;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 50;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 51;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 52;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 53;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 54;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 55;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 56;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 57;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 58;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 59;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 60;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 61;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 62;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 63;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 64;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 65;
+  flow: 
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank2_refuel_time <= TANK_DURATION)) ==> @197 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @329 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @593 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1121 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @2049 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @66 true;
+}
+{ mode 66;
+  flow: 
+        d/dt[fuel_level] = 0 - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank2_refuel_time <= TANK_DURATION)) ==> @198 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @330 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @594 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1122 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @65 true;
+}
+{ mode 67;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2));
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @65 true;
+        (and (tank2_refuel_time <= TANK_DURATION)) ==> @199 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @331 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @595 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1123 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @68 true;
+}
+{ mode 68;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2)) - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @66 true;
+        (and (tank2_refuel_time <= TANK_DURATION)) ==> @200 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @332 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @596 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1124 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @67 true;
+}
+{ mode 69;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 70;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 71;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 72;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 73;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 74;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 75;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 76;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 77;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 78;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 79;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 80;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 81;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 82;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 83;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 84;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 85;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 86;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 87;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 88;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 89;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 90;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 91;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 92;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 93;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 94;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 95;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 96;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 97;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 98;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 99;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 100;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 101;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 102;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 103;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 104;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 105;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 106;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 107;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 108;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 109;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 110;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 111;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 112;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 113;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 114;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 115;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 116;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 117;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 118;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 119;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 120;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 121;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 122;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 123;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 124;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 125;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 126;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 127;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 128;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 129;
+  flow: 
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time <= TANK_DURATION)) ==> @195 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @393 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @657 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1185 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @2049 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @130 true;
+}
+{ mode 130;
+  flow: 
+        d/dt[fuel_level] = 0 - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time <= TANK_DURATION)) ==> @196 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @394 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @658 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1186 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @129 true;
+}
+{ mode 131;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 132;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 133;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank2_refuel_time ^ 2));
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time <= TANK_DURATION)) ==> @199 true;
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @129 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @397 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @661 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1189 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @134 true;
+}
+{ mode 134;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank2_refuel_time ^ 2)) - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time <= TANK_DURATION)) ==> @200 true;
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @130 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @398 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @662 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1190 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @133 true;
+}
+{ mode 135;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 136;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 137;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 138;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 139;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 140;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 141;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 142;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 143;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 144;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 145;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 146;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 147;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 148;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 149;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 150;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 151;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 152;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 153;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 154;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 155;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 156;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 157;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 158;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 159;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 160;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 161;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 162;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 163;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 164;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 165;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 166;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 167;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 168;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 169;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 170;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 171;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 172;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 173;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 174;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 175;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 176;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 177;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 178;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 179;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 180;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 181;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 182;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 183;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 184;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 185;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 186;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 187;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 188;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 189;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 190;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 191;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 192;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 193;
+  flow: 
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @457 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @721 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1249 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @2049 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @194 true;
+}
+{ mode 194;
+  flow: 
+        d/dt[fuel_level] = 0 - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @458 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @722 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1250 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @193 true;
+}
+{ mode 195;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2));
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @193 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @459 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @723 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1251 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @196 true;
+}
+{ mode 196;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2)) - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @194 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @460 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @724 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1252 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @195 true;
+}
+{ mode 197;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank2_refuel_time ^ 2));
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @193 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @461 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @725 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1253 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @198 true;
+}
+{ mode 198;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank2_refuel_time ^ 2)) - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @194 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @462 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @726 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1254 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @197 true;
+}
+{ mode 199;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2)) + (0.1 * (tank2_refuel_time ^ 2));
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @197 true;
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @195 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @463 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @727 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1255 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @200 true;
+}
+{ mode 200;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank1_refuel_time ^ 2)) + (0.1 * (tank2_refuel_time ^ 2)) - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 1;
+        d/dt[tank2_refuel_time] = 1;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time = TANK_DURATION)) ==> @198 true;
+        (and (tank2_refuel_time = TANK_DURATION)) ==> @196 true;
+        (and (tank3_refuel_time <= TANK_DURATION)) ==> @464 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @728 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1256 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @199 true;
+}
+{ mode 201;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 202;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 203;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 204;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 205;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 206;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 207;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 208;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 209;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 210;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 211;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 212;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 213;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 214;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 215;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 216;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 217;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 218;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 219;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 220;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 221;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 222;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 223;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 224;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 225;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 226;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 227;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 228;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 229;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 230;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 231;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 232;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 233;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 234;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 235;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 236;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 237;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 238;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 239;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 240;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 241;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 242;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 243;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 244;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 245;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 246;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 247;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 248;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 249;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 250;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 251;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 252;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 253;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 254;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 255;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 256;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 257;
+  flow: 
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time <= TANK_DURATION)) ==> @323 true;
+        (and (tank2_refuel_time <= TANK_DURATION)) ==> @389 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @785 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1313 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @2049 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @258 true;
+}
+{ mode 258;
+  flow: 
+        d/dt[fuel_level] = 0 - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time <= TANK_DURATION)) ==> @324 true;
+        (and (tank2_refuel_time <= TANK_DURATION)) ==> @390 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @786 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1314 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @257 true;
+}
+{ mode 259;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 260;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 261;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 262;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 263;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 264;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 265;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank3_refuel_time ^ 2));
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 1;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time <= TANK_DURATION)) ==> @331 true;
+        (and (tank2_refuel_time <= TANK_DURATION)) ==> @397 true;
+        (and (tank3_refuel_time = TANK_DURATION)) ==> @257 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @793 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1321 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @266 true;
+}
+{ mode 266;
+  flow: 
+        d/dt[fuel_level] = (0.1 * (tank3_refuel_time ^ 2)) - 1;
+        d/dt[generator_time] = 1;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 1;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump: 
+        (and (tank1_refuel_time <= TANK_DURATION)) ==> @332 true;
+        (and (tank2_refuel_time <= TANK_DURATION)) ==> @398 true;
+        (and (tank3_refuel_time = TANK_DURATION)) ==> @258 true;
+        (and (tank4_refuel_time <= TANK_DURATION)) ==> @794 true;
+        (and (tank5_refuel_time <= TANK_DURATION)) ==> @1322 true;
+        (and (generator_time = GENERATOR_DURATION)) ==> @265 true;
+}
+{ mode 267;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 268;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 269;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 270;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 271;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 272;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 273;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 274;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 275;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}
+{ mode 276;
+  flow:
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+        d/dt[tank1_refuel_time] = 0;
+        d/dt[tank2_refuel_time] = 0;
+        d/dt[tank3_refuel_time] = 0;
+        d/dt[tank4_refuel_time] = 0;
+        d/dt[tank5_refuel_time] = 0;
+  jump:
+}

@@ -1,0 +1,90 @@
+#define g 9.80665
+#define a 0.5
+#define gH 5
+
+[0, 1] time;
+
+(component origin_tank;
+ [0, 5] q;
+ [0, 4] A;
+ [0, 10] x;
+ [0, 1]  tau;
+
+ label go;
+
+ (mode on;
+  invt:
+    (tau >= 0);
+    (tau <= 1);
+  flow:
+    d/dt[q]   = 0;
+    d/dt[A]   = 0;
+    d/dt[x]   = (q - a * sqrt(2*g) * sqrt(x)) / A;
+    d/dt[tau] = 0.5;
+  jump:
+    (go) : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
+ )
+
+ (mode off;
+  invt:
+    (tau >= 0);
+    (tau <= 1);
+  flow:
+    d/dt[q]   = 0;
+    d/dt[A]   = 0;
+    d/dt[x]   =  (- a * sqrt(2*g) * sqrt(x)) / A; 
+    d/dt[tau] = 0.5;
+  jump:
+    (go) : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
+ )
+)
+
+(component tank;
+ [0, 5] q;
+ [0, 4] A;
+ [0, 10] x;
+ [0, 10] xprev;
+ [0, 1]  tau;
+
+ label go;
+
+ (mode on;
+  invt:
+    (tau >= 0);
+    (tau <= 1);
+  flow:
+    d/dt[q]   = 0;
+    d/dt[A]   = 0;
+    d/dt[x]   = (q + a * sqrt(2*g) * (sqrt(xprev) - sqrt(x))) / A;
+    d/dt[xprev] = 0;
+    d/dt[tau] = 0.5;
+  jump:
+    (go) : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
+ )
+
+ (mode off;
+  invt:
+    (tau >= 0);
+    (tau <= 1);
+  flow:
+    d/dt[q]   = 0;
+    d/dt[A]   = 0;
+    d/dt[x]   =  (a * sqrt(2*g) * (sqrt(xprev) - sqrt(x))) / A;
+    d/dt[xprev] = 0;
+    d/dt[tau] = 0.5;
+  jump:
+    (go) : (and (tau = 1) (x >= gH) ) ==> @off (tau' = 0);
+    (go) : (and (tau = 1) (x < gH) )  ==> @on  (tau' = 0);
+ )
+)
+
+analyze:
+	tank0 = origin_tank[[x/x1,q/q1,A/A1],   @on (and (abs(x1 - gH) <=  0.1)  (q1 = 5.0) (A1 = 2.0) (tau = 0))];
+	tank1 = tank[[x/x2,q/q2,A/A2,xprev/x1], @on (and (abs(x2 - gH) <=  0.1) (x2 <= gH + 0.05) (q2 = 3.0) (A2 = 4.0) (tau = 0))];
+	(tank0 || tank1);
+	
+goal:
+	(): (and (abs(x1 - gH) > 2) (abs(x2 - gH) > 2));

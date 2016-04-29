@@ -1,0 +1,270 @@
+[0, 1000] time;
+(component moving_automaton;
+[-1000, 1000] a;
+[-1000, 1000] d;
+[-1000, 1000] v;
+label do_stop;
+label do_start;
+(mode on_moving_automaton;
+invt:
+flow:
+d/dt[d] = v;
+d/dt[v] = a;
+d/dt[a] = 0;
+jump:
+(do_stop) : true ==> @off_moving_automaton true;
+)
+
+(mode off_moving_automaton;
+invt:
+flow:
+d/dt[d] = 0;
+d/dt[v] = 0;
+d/dt[a] = 0;
+jump:
+(do_start) : true ==> @on_moving_automaton true;
+)
+
+)
+(component start_automaton;
+
+label did_start;
+label do_start;
+(mode on_start_automaton;
+invt:
+flow:
+jump:
+(did_start): true ==> @off_start_automaton true;
+)
+(mode off_start_automaton;
+invt:
+flow:
+jump:
+(do_start): true ==> @on_start_automaton true;
+
+)
+)
+(component stop_automaton;
+
+label did_stop;
+label do_stop;
+(mode on_stop_automaton;
+invt:
+flow:
+jump:
+(did_stop): true ==> @off_stop_automaton true;
+)
+(mode off_stop_automaton;
+invt:
+flow:
+jump:
+(do_stop): (and (v = 0) (a = 0)) ==> @on_stop_automaton true;
+
+)
+)
+(component accelerate_automaton1;
+label did_accel1;
+label do_accel1;
+(mode on_accelerate_automaton;
+invt:
+flow:
+jump:
+(did_accel1): true ==> @off_accelerate_automaton true;
+)
+(mode off_accelerate_automaton;
+invt:
+flow:
+jump:
+(do_accel1): true ==> @on_accelerate_automaton (and (a' = a + 1));
+
+)
+)
+(component decelerate_automaton1;
+label did_decel1;
+label do_decel1;
+(mode on_decelerate_automaton;
+invt:
+flow:
+jump:
+(did_decel1): true ==> @off_decelerate_automaton true;
+)
+(mode off_decelerate_automaton;
+invt:
+flow:
+jump:
+(do_decel1): true ==> @on_decelerate_automaton (and (a' = a - 1));
+)
+)
+(component accelerate_automaton2;
+label did_accel2;
+label do_accel2;
+(mode on_accelerate_automaton;
+invt:
+flow:
+jump:
+(did_accel2): true ==> @off_accelerate_automaton true;
+)
+(mode off_accelerate_automaton;
+invt:
+flow:
+jump:
+(do_accel2): true ==> @on_accelerate_automaton (and (a' = a + 2));
+
+)
+)
+(component decelerate_automaton2;
+label did_decel2;
+label do_decel2;
+(mode on_decelerate_automaton;
+invt:
+flow:
+jump:
+(did_decel2): true ==> @off_decelerate_automaton true;
+)
+(mode off_decelerate_automaton;
+invt:
+flow:
+jump:
+(do_decel2): true ==> @on_decelerate_automaton (and (a' = a - 2));
+)
+)
+(component accelerate_automaton3;
+label did_accel3;
+label do_accel3;
+(mode on_accelerate_automaton;
+invt:
+flow:
+jump:
+(did_accel3): true ==> @off_accelerate_automaton true;
+)
+(mode off_accelerate_automaton;
+invt:
+flow:
+jump:
+(do_accel3): true ==> @on_accelerate_automaton (and (a' = a + 3));
+
+)
+)
+(component decelerate_automaton3;
+label did_decel3;
+label do_decel3;
+(mode on_decelerate_automaton;
+invt:
+flow:
+jump:
+(did_decel3): true ==> @off_decelerate_automaton true;
+)
+(mode off_decelerate_automaton;
+invt:
+flow:
+jump:
+(do_decel3): true ==> @on_decelerate_automaton (and (a' = a - 3));
+)
+)
+(component running;
+label do_stop;
+label do_start;
+label do_accel1;
+label do_decel1;
+label do_accel2;
+label do_decel2;
+label do_accel3;
+label do_decel3;
+(mode running_true;
+invt:
+flow:
+jump:
+(do_stop): true ==> @running_false true;
+(do_accel1): true ==> @running_true true;
+(do_decel1): true ==> @running_true true;
+(do_accel2): true ==> @running_true true;
+(do_decel2): true ==> @running_true true;
+(do_accel3): true ==> @running_true true;
+(do_decel3): true ==> @running_true true;
+)
+(mode running_false;
+invt:
+flow:
+jump:
+(do_start): true ==> @running_true true;
+)
+)
+(component lock_automaton;
+[0,1] lock_timer;
+label did_accel1;
+label do_accel1;
+label did_decel1;
+label do_decel1;
+label did_accel2;
+label do_accel2;
+label did_decel2;
+label do_decel2;
+label did_accel3;
+label do_accel3;
+label did_decel3;
+label do_decel3;
+label do_start;
+label did_start;
+label do_stop;
+label did_stop;
+
+(mode lock_enabled;
+invt:
+(lock_timer <= 0);
+flow:
+d/dt[lock_timer] = 1;
+jump:
+(did_accel1): (lock_timer >= 0) ==> @lock_released (true);
+(did_decel1): (lock_timer >= 0) ==> @lock_released (true);
+(did_accel2): (lock_timer >= 0) ==> @lock_released (true);
+(did_decel2): (lock_timer >= 0) ==> @lock_released (true);
+(did_accel3): (lock_timer >= 0) ==> @lock_released (true);
+(did_decel3): (lock_timer >= 0) ==> @lock_released (true);
+(did_start): (lock_timer >= 0) ==> @lock_released (true);
+(did_stop): (lock_timer >= 0) ==> @lock_released (true);
+)
+(mode lock_released;
+invt:
+flow:
+d/dt[lock_timer] = 0;
+jump:
+(do_accel1): (true) ==> @lock_enabled (lock_timer' = 0);
+(do_decel1): (true) ==> @lock_enabled (lock_timer' = 0);
+(do_accel2): (true) ==> @lock_enabled (lock_timer' = 0);
+(do_decel2): (true) ==> @lock_enabled (lock_timer' = 0);
+(do_accel3): (true) ==> @lock_enabled (lock_timer' = 0);
+(do_decel3): (true) ==> @lock_enabled (lock_timer' = 0);
+(do_start): (true) ==> @lock_enabled (lock_timer' = 0);
+(do_stop): (true) ==> @lock_enabled (lock_timer' = 0);
+)
+)
+analyze: 
+moving_automaton0 = moving_automaton[[], @off_moving_automaton (and (a = 0) (d = 0) (v = 0))];
+
+accelerate_automaton1 = accelerate_automaton1[[], @off_accelerate_automaton true];
+decelerate_automaton1 = decelerate_automaton1[[], @off_decelerate_automaton true];
+accelerate_automaton2 = accelerate_automaton2[[], @off_accelerate_automaton true];
+decelerate_automaton2 = decelerate_automaton2[[], @off_decelerate_automaton true];
+accelerate_automaton3 = accelerate_automaton3[[], @off_accelerate_automaton true];
+decelerate_automaton3 = decelerate_automaton3[[], @off_decelerate_automaton true];
+running_automaton0 = running[[], @running_false true];
+start_automaton0 = start_automaton[[], @off_start_automaton true];
+stop_automaton0 = stop_automaton[[], @off_stop_automaton true];
+lock_automaton0 = lock_automaton[[lock_timer/time_lock], @lock_released (lock_timer=0)];
+
+(
+moving_automaton0 ||
+accelerate_automaton1 ||
+decelerate_automaton1 ||
+accelerate_automaton2 ||
+decelerate_automaton2 ||
+accelerate_automaton3 ||
+decelerate_automaton3 ||
+start_automaton0 ||
+stop_automaton0 ||
+lock_automaton0 ||
+running_automaton0
+);
+
+goal:
+(@running_automaton0.running_false) : (and (d =30) );

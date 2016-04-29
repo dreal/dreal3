@@ -1,0 +1,72 @@
+//property is <>_[a, b] x <  5
+//is sat if   []_[a, b] x >= 5 is unsat
+//need at least 20 units time to check and 2 jumps
+
+
+
+#define a 10
+#define b 20
+
+[0, 30] time;
+
+(component safety;
+ [0, 10] x; //value tested by property
+ [0, 30] t; //clock for property
+ 
+ (mode pending;
+  invt:
+  flow:
+	d/dt[x] = 0; //x not changed here, but need to state flow contribution
+	d/dt[t] = 1;
+  jump:
+	() : (t = a) ==> @active true;
+ )
+ 
+ (mode active;
+  invt:
+	(t >= a);
+	(t <= b);
+	(x >= 5); // The negated property 
+  flow:
+  	d/dt[x] = 0; //x not changed here, but need to state flow contribution
+	d/dt[t] = 1;
+  jump:
+	() : (x < 5) ==> @fail true;
+	() : (t > b) ==> @success true;
+ )
+
+ (mode success;
+  invt:
+  flow:
+  	d/dt[x] = 0; //x not changed here, but need to state flow contribution
+	d/dt[t] = 1;
+  jump:
+ )
+
+ (mode fail;
+  invt:
+  flow:
+  	d/dt[x] = 0; //x not changed here, but need to state flow contribution
+	d/dt[t] = 1;
+  jump:
+ )
+)
+
+(component system;
+ [0, 10] x;
+
+ (mode noop;
+  invt:
+  flow:
+	d/dt[x] = 0.2;
+  jump:
+ )
+ )
+
+analyze:
+ prop = safety[[], @pending (t = 0)];
+ sys = system[[], @noop (x = 0)];
+ (prop || sys);
+
+goal:
+ (@prop.success) : (t = 30);

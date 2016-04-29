@@ -1,0 +1,131 @@
+#define capacity_gen 1600
+#define eps 0.001
+
+[0, 1000] time;
+
+(component generator_ran;
+
+label do_stop_gen;
+
+(mode ran_false;
+ invt:
+ flow:
+ jump:
+ (do_stop_gen) : true ==> @ran_true true;
+)
+
+(mode ran_true;
+ invt:
+ flow:
+ jump:
+
+)
+)
+
+
+
+
+
+(component generate_gen_automaton;
+[0, capacity_gen] fuellevel_gen;
+[0, 1000] T_generate_gen_automaton;
+
+label do_stop_gen;
+label did_start_gen;
+label did_stop_gen;
+label do_start_gen;
+
+(mode running_generate_gen_automaton;
+invt: 
+(T_generate_gen_automaton <= 1000);
+(fuellevel_gen >= 0);
+flow:
+d/dt[T_generate_gen_automaton] = 1;
+d/dt[fuellevel_gen] = -1;
+jump:
+(do_stop_gen): (and (T_generate_gen_automaton = 1000)) ==> @running_to_non_active_generate_gen_automaton (and (T_generate_gen_automaton' = 0) );
+)
+
+(mode non_active_generate_gen_automaton;
+invt:
+flow:
+d/dt[T_generate_gen_automaton] = 0;
+d/dt[fuellevel_gen] = 0;
+
+jump:
+(do_start_gen): (true) ==> @interm_to_running_generate_gen_automaton (and (T_generate_gen_automaton' = 0));
+)
+(mode interm_to_running_generate_gen_automaton;
+invt:
+(T_generate_gen_automaton <= 0);
+flow:
+d/dt[T_generate_gen_automaton] = 1;
+d/dt[fuellevel_gen] = 0;
+
+jump:
+(did_start_gen): true ==> @running_generate_gen_automaton (and (T_generate_gen_automaton' = 0));
+)
+(mode running_to_non_active_generate_gen_automaton;
+invt:
+(T_generate_gen_automaton <= 0);
+flow:
+d/dt[T_generate_gen_automaton] = 1;
+d/dt[fuellevel_gen] = 0;
+
+jump:
+(did_stop_gen): (and (T_generate_gen_automaton = 0)) ==> @non_active_generate_gen_automaton (and (T_generate_gen_automaton' = 0));
+)
+)
+
+
+
+(component lock_automaton;
+
+
+	label do_stop_gen;
+	label did_start_gen;
+	label do_start_gen;
+	label did_stop_gen;
+	
+	(mode locked;
+	invt:
+	flow:
+	jump:
+	(did_start_gen): (true) ==> @unlocked (true);
+	(did_stop_gen): (true) ==> @unlocked (true);
+	)
+	
+	(mode unlocked;
+	invt:
+	flow:
+	jump:
+	(do_stop_gen): (true) ==> @locked (true);
+	(do_start_gen): (true) ==> @locked (true);
+	)
+)
+
+analyze: 
+
+lock_automaton0 = lock_automaton[[],
+//@locked
+@unlocked
+(true)];
+generate_gen_automaton0 = generate_gen_automaton[[T_generate_gen_automaton/time_generate_gen_automaton],
+//@running_generate_gen_automaton
+@non_active_generate_gen_automaton
+//@interm_to_running_generate_gen_automaton
+(and  (fuellevel_gen = 1000) (T_generate_gen_automaton = 0))];
+
+generator_ran0 = generator_ran[[], @ran_false true];
+
+(lock_automaton0 || generate_gen_automaton0
+|| generator_ran0
+);
+
+
+
+goal: 
+(
+@generator_ran0.ran_true
+): true;
+

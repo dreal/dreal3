@@ -1,0 +1,235 @@
+[0, 10] v;
+[0, 30] d;
+[0, 30] time;
+{ mode 1;
+  flow: 
+        d/dt[v] = 0;
+        d/dt[d] = 0;
+  jump: 
+        true  ==> @2 true;
+}
+{ mode 2;
+  invt:
+  flow: 
+        d/dt[v] = 0 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @3 true;
+        true ==> @8 true;
+        true ==> @24 true;
+}
+{ mode 13;
+  invt:
+        (v >= 50);
+  flow: 
+        d/dt[v] = 0 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @14 true;
+        true ==> @19 true;
+}
+{ mode 3;
+  invt:
+  flow: 
+        d/dt[v] = 1 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @4 true;
+        true ==> @2 true;
+        true ==> @24 true;
+}
+{ mode 14;
+  invt:
+        (v >= 50);
+  flow: 
+        d/dt[v] = 1 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @15 true;
+        true ==> @13 true;
+}
+{ mode 4;
+  invt:
+  flow: 
+        d/dt[v] = 2 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @5 true;
+        true ==> @3 true;
+        true ==> @24 true;
+}
+{ mode 15;
+  invt:
+        (v >= 50);
+  flow: 
+        d/dt[v] = 2 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @16 true;
+        true ==> @14 true;
+}
+{ mode 5;
+  invt:
+  flow: 
+        d/dt[v] = 3 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @6 true;
+        true ==> @4 true;
+        true ==> @24 true;
+}
+{ mode 16;
+  invt:
+        (v >= 50);
+  flow: 
+        d/dt[v] = 3 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @17 true;
+        true ==> @15 true;
+}
+{ mode 6;
+  invt:
+  flow: 
+        d/dt[v] = 4 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @7 true;
+        true ==> @5 true;
+        true ==> @24 true;
+}
+{ mode 17;
+  invt:
+        (v >= 50);
+  flow: 
+        d/dt[v] = 4 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @18 true;
+        true ==> @16 true;
+}
+{ mode 7;
+  invt:
+  flow: 
+        d/dt[v] = 5 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @6 true;
+        true ==> @24 true;
+}
+{ mode 18;
+  invt:
+        (v >= 50);
+  flow: 
+        d/dt[v] = 5 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @17 true;
+}
+{ mode 8;
+  invt:
+  flow: 
+        d/dt[v] =-1 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @2 true;
+        true ==> @24 true;
+}
+{ mode 19;
+  invt:
+        (v >= 50);
+  flow: 
+        d/dt[v] =-1 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @13 true;
+        (and (v <= 50)) ==> @8 true;
+}
+{ mode 9;
+  invt:
+  flow: 
+        d/dt[v] =-2 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @8 true;
+        true ==> @24 true;
+}
+{ mode 20;
+  invt:
+        (v >= 50);
+  flow: 
+        d/dt[v] =-2 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @19 true;
+        (and (v <= 50)) ==> @9 true;
+}
+{ mode 10;
+  invt:
+  flow: 
+        d/dt[v] =-3 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @9 true;
+        true ==> @24 true;
+}
+{ mode 21;
+  invt:
+        (v >= 50);
+  flow: 
+        d/dt[v] =-3 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @20 true;
+        (and (v <= 50)) ==> @10 true;
+}
+{ mode 11;
+  invt:
+  flow: 
+        d/dt[v] =-4 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @10 true;
+        true ==> @24 true;
+}
+{ mode 22;
+  invt:
+        (v >= 50);
+  flow: 
+        d/dt[v] =-4 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @21 true;
+        (and (v <= 50)) ==> @11 true;
+}
+{ mode 12;
+  invt:
+  flow: 
+        d/dt[v] =-5 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @11 true;
+        true ==> @24 true;
+}
+{ mode 23;
+  invt:
+        (v >= 50);
+  flow: 
+        d/dt[v] =-5 - (0.1 * (v ^2));
+        d/dt[d] = v;
+  jump: 
+        true ==> @22 true;
+        (and (v <= 50)) ==> @12 true;
+}
+{ mode 24;
+  flow: 
+        d/dt[v] = 0;
+        d/dt[d] = 0;
+  jump: 
+}
+init:
+@1 (and (d = 0)
+	      (v = 0) 
+   );
+goal:
+ @24 (and (d = 30) (v = 0));

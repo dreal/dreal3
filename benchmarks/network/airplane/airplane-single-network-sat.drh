@@ -1,0 +1,117 @@
+#define g           9.80555
+#define pi          3.1415926535897931
+#define tan(x)      (sin(x) / cos(x))
+
+#define vT          92.827721
+#define yBTA        -0.099593
+#define lBTA        -1.700982
+#define lP          -1.184647
+#define lR           0.223908
+#define nBTA         0.407420
+#define nP          -0.056276
+#define nR          -0.188010
+#define yRDR         0.740361
+#define lAIL         0.531304
+#define lRDR         0.049766
+#define nAIL         0.005685
+#define nRDR        -0.106592
+
+
+[0, 0.5] time;
+
+(component main;
+[-pi,pi]    beta;
+[-pi,pi]    p;
+[-pi,pi]    r;
+[-pi,pi]    phi;
+[-pi,pi]    psi;
+
+[-pi,pi]    gAIL;
+[-pi,pi]    gRDR;
+[0,0.5]  tau;
+
+label go;
+
+ (mode on;
+  invt:
+    (tau >= 0);
+    (tau <= 0.5);
+  flow:
+         d/dt[beta]    = yBTA * beta - r + (g / vT) * phi + yRDR * xRDR;
+	d/dt[p]       = lBTA * beta + lP * p + lR * r + lAIL * xAIL + lRDR * xRDR;
+	d/dt[r]       = nBTA * beta + nP * p + nR * r + nAIL * xAIL + nRDR * xRDR;
+	d/dt[phi]     = p;
+	d/dt[psi]     = (g / vT) * tan(phi);
+	d/dt[gAIL]    = 0;
+	d/dt[gRDR]    = 0;
+        d/dt[tau]     = 1;
+  jump:
+    (go) : (and (tau = 0.5))  ==> @on  (and (tau' = 0) );
+ )
+)
+
+(component aileron;
+ [-pi,pi]    xAIL;
+ [-pi,pi]    gAIL;
+
+
+label go;
+
+ (mode up;
+  invt:
+  flow:
+    d/dt[xAIL]= 0.25;
+    d/dt[gAIL]= 0;
+    d/dt[tau] = 0;
+  jump:
+    (go) : (and (gAIL >= xAIL))  ==> @up   true;
+    (go) : (and (gAIL < xAIL))   ==> @down true;
+ )
+ (mode down;
+  invt:
+  flow:
+    d/dt[xAIL]= -0.25;
+    d/dt[gAIL]= 0;
+  jump:
+    (go) : (and (gAIL >= xAIL))  ==> @up   true;
+    (go) : (and (gAIL < xAIL))   ==> @down true;
+ )
+)
+
+(component rudder;
+ [-pi,pi]    xRDR;
+ [-pi,pi]    gRDR;
+
+
+label go;
+
+ (mode up;
+  invt:
+  flow:
+    d/dt[xRDR]= 0.5;
+    d/dt[gRDR]= 0;
+  jump:
+    (go) : (and (gRDR >= xRDR))  ==> @up   true;
+    (go) : (and (gRDR < xRDR))   ==> @down true;
+ )
+ (mode down;
+  invt:
+  flow:
+    d/dt[xRDR]= -0.5;
+    d/dt[gRDR]= 0;
+  jump:
+    (go) : (and (gRDR >= xRDR))  ==> @up   true;
+    (go) : (and (gRDR < xRDR))   ==> @down true;
+ )
+)
+
+analyze:
+	main0 = main[[],
+	             @on (and (beta = 0) (p = 0) (r = 0) (phi = 0) (psi = 0)  
+                                (gAIL = 0) (gRDR = 0) (tau = 0))];
+	aileron0 = aileron[[], @up (xAIL = 0)];
+	rudder0 = rudder[[], @up (xRDR = 0)];
+	(main0 || aileron0 || rudder0);
+	
+goal:
+	():  (abs(beta) < 0.1);
