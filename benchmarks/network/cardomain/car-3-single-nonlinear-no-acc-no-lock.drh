@@ -1,0 +1,108 @@
+[0, 1000] time;
+(component distance;
+ [-1000, 1000] d;
+ [-1000, 1000] v;	
+label do_start;
+label do_stop;
+(mode d_zero;
+invt:
+flow:
+d/dt[d] = 0;
+jump:
+(do_start) : true ==> @d_v true;
+)
+
+(mode d_v;
+invt:
+flow:
+d/dt[d] = v;
+jump:
+(do_stop) : true ==> @d_zero true;
+)
+
+)
+(component velocity;
+ [-1000, 1000] v;
+label do_stop;
+label resistance;
+label no_resistance;
+label do_accel1;
+label do_decel1;
+label do_accel2;
+label do_decel2;
+label do_accel3;
+label do_decel3;
+(mode v_neg_3;
+invt:
+flow:
+d/dt[v] = -3;
+jump:
+(do_accel1) : true ==> @v_neg_2 true;
+(do_accel2) : true ==> @v_neg_1 true;
+(do_accel3) : true ==> @v_0 true;
+(resistance) : true ==> @v_drag_neg_3 true;
+)
+(mode v_drag_neg_3;
+invt:
+flow:
+d/dt[v] = -3 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_accel1) : true ==> @v_drag_neg_2 true;
+(do_accel2) : true ==> @v_drag_neg_1 true;
+(do_accel3) : true ==> @v_drag_0 true;
+(no_resistance) : true ==> @v_neg_3 true;
+)
+(mode v_neg_2;
+invt:
+flow:
+d/dt[v] = -2;
+jump:
+(do_accel1) : true ==> @v_neg_1 true;
+(do_decel1) : true ==> @v_neg_3 true;
+(do_accel2) : true ==> @v_0 true;
+(do_accel3) : true ==> @v_1 true;
+(resistance) : true ==> @v_drag_neg_2 true;
+)
+(mode v_drag_neg_2;
+invt:
+flow:
+d/dt[v] = -2 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_accel1) : true ==> @v_drag_neg_1 true;
+(do_decel1) : true ==> @v_drag_neg_3 true;
+(do_accel2) : true ==> @v_drag_0 true;
+(do_accel3) : true ==> @v_drag_1 true;
+(no_resistance) : true ==> @v_neg_2 true;
+)
+(mode v_neg_1;
+invt:
+flow:
+d/dt[v] = -1;
+jump:
+(do_accel1) : true ==> @v_0 true;
+(do_decel1) : true ==> @v_neg_2 true;
+(do_accel2) : true ==> @v_1 true;
+(do_decel2) : true ==> @v_neg_3 true;
+(do_accel3) : true ==> @v_2 true;
+(resistance) : true ==> @v_drag_neg_1 true;
+)
+(mode v_drag_neg_1;
+invt:
+flow:
+d/dt[v] = -1 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_accel1) : true ==> @v_drag_0 true;
+(do_decel1) : true ==> @v_drag_neg_2 true;
+(do_accel2) : true ==> @v_drag_1 true;
+(do_decel2) : true ==> @v_drag_neg_3 true;
+(do_accel3) : true ==> @v_drag_2 true;
+(no_resistance) : true ==> @v_neg_1 true;
+)
+(mode v_0;
+invt:
+flow:
+d/dt[v] = 0;
+jump:
+(do_accel1) : true ==> @v_1 true;
+(do_decel1) : true ==> @v_neg_1 true;
+(do_accel2) : true ==> @v_2 true;

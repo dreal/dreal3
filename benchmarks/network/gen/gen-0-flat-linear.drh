@@ -1,0 +1,40 @@
+#define STARTING_FUEL 1000
+#define GENERATOR_CAPACITY 1600
+#define TANK_DURATION 20
+#define GENERATOR_DURATION 1000
+[0, GENERATOR_CAPACITY] fuel_level;
+[0, GENERATOR_DURATION] generator_time;
+[0, 1000] time;
+{ mode 1;
+  invt: 
+        (generator_time <= GENERATOR_DURATION);
+        (fuel_level >= 0);
+  flow: 
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+  jump: 
+        (and  (generator_time = GENERATOR_DURATION)) ==> @3 true;
+        (and (generator_time <= GENERATOR_DURATION)) ==> @2 true;
+}
+{ mode 2;
+  invt: 
+        (generator_time <= GENERATOR_DURATION);
+        (fuel_level >= 0);
+  flow: 
+        d/dt[fuel_level] = -1;
+        d/dt[generator_time] = 1;
+  jump: 
+        (and (generator_time = GENERATOR_DURATION)) ==> @1 true;
+}
+{ mode 3;
+  flow: 
+        d/dt[fuel_level] = 0;
+        d/dt[generator_time] = 0;
+  jump: 
+}
+init:
+@1 (and (fuel_level          = STARTING_FUEL)
+	      (generator_time      = 0) 
+   );
+goal:
+ @3 (and (generator_time = GENERATOR_DURATION));

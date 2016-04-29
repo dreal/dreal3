@@ -51,7 +51,7 @@ flow_dec[1] = """
 """
 
 state_dec[1] = """
-(declare-fun mode1_{0} () Bool) 
+(declare-fun mode_1_{0} () Int) 
 (declare-fun x1_{0}_0 () Real)  
 (declare-fun x1_{0}_t () Real)  
 """
@@ -62,14 +62,14 @@ state_val[1] = """
 """
 
 cont_cond[1] = ["""
-(assert (or (and (= mode1_{0} true) (connect holder_{1} flow_2))
-            (and (= mode1_{0} false) (connect holder_{1} flow_3))))
+(assert (or (and (= mode_1_{0} true) (connect holder_{1} flow_2))
+            (and (= mode_1_{0} 1) (connect holder_{1} flow_3))))
 (assert (not (and (connect holder_{1} flow_2) (connect holder_{1} flow_3))))"""]
 
 jump_cond[1] = ["""
 (assert (and (= x1_{1}_0 x1_{0}_t)))
-(assert (or (and (< x1_{0}_t 5) (= mode1_{1} true))
-            (and (>= x1_{0}_t 5) (= mode1_{1} false))))"""]
+(assert (or (and (< x1_{0}_t 5) (= mode_1_{1} true))
+            (and (>= x1_{0}_t 5) (= mode_1_{1} 1))))"""]
 
 ################
 # water tank 2 #
@@ -85,7 +85,7 @@ flow_dec[2] = """
 """
 
 state_dec[2] = """
-(declare-fun mode2_{0} () Bool)
+(declare-fun mode_2_{0} () Int)
 (declare-fun x2_{0}_0 () Real)  
 (declare-fun x2_{0}_t () Real)  
 """
@@ -96,14 +96,14 @@ state_val[2] = """
 """
 
 cont_cond[2] = ["""
-(assert (or (and (= mode2_{0} true)  (connect holder_{2} flow_4))
-            (and (= mode2_{0} false) (connect holder_{2} flow_5))))
+(assert (or (and (= mode_2_{0} 2)  (connect holder_{2} flow_4))
+            (and (= mode_2_{0} 1) (connect holder_{2} flow_5))))
 (assert (not (and (connect holder_{2} flow_4) (connect holder_{2} flow_5))))"""]
 
 jump_cond[2] = ["""
 (assert (and (= x2_{1}_0 x2_{0}_t)))
-(assert (or (and (< x2_{0}_t 5) (= mode2_{1} true))
-            (and (>= x2_{0}_t 5) (= mode2_{1} false))))"""]
+(assert (or (and (< x2_{0}_t 5) (= mode_2_{1} 2))
+            (and (>= x2_{0}_t 5) (= mode_2_{1} 1))))"""]
 
 ################
 # water tank 3 #
@@ -119,7 +119,7 @@ flow_dec[3] = """
 """
 
 state_dec[3] = """
-(declare-fun mode3_{0} () Bool)
+(declare-fun mode_3_{0} () Int)
 (declare-fun x3_{0}_0 () Real)  
 (declare-fun x3_{0}_t () Real)  
 """
@@ -130,14 +130,18 @@ state_val[3] = """
 """
 
 cont_cond[3] = ["""
-(assert (or (and (= mode3_{0} true) (connect holder_{3} flow_6))
-            (and (= mode3_{0} false) (connect holder_{3} flow_7))))
+(assert (or (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2))))
+(assert (or (not (= mode_2_{0} 2)) (not (= mode_2_{0} 1))))
+(assert (or (not (= mode_3_{0} 2)) (not (= mode_3_{0} 1))))
+
+(assert (or (and (= mode_3_{0} 2) (connect holder_{3} flow_6))
+            (and (= mode_3_{0} 1) (connect holder_{3} flow_7))))
 (assert (not (and (connect holder_{3} flow_6) (connect holder_{3} flow_7))))"""]
 
 jump_cond[3] = ["""
 (assert (and (= x3_{1}_0 x3_{0}_t)))
-(assert (or (and (< x3_{0}_t 5) (= mode3_{1} true))
-            (and (>= x3_{0}_t 5) (= mode3_{1} false))))"""]
+(assert (or (and (< x3_{0}_t 5) (= mode_3_{1} 2))
+            (and (>= x3_{0}_t 5) (= mode_3_{1} 1))))"""]
 
 
 #############
@@ -146,11 +150,11 @@ jump_cond[3] = ["""
 
 init_cond = """
 (assert (= tau_{0}_0 0))
-(assert (= mode1_{0} true))
+(assert (= mode_1_{0} 2))
 (assert (and (>= x1_{0}_0 (- 5 0.1)) (<= x1_{0}_0 (+ 5 0.1))))
-(assert (= mode2_{0} true))
+(assert (= mode_2_{0} 2))
 (assert (and (>= x2_{0}_0 (- 5 0.1)) (<= x2_{0}_0 (+ 5 0.1))))
-(assert (= mode3_{0} true))
+(assert (= mode_3_{0} 2))
 (assert (and (>= x3_{0}_0 (- 5 0.1)) (<= x3_{0}_0 (+ 5 0.1))))
 """
 

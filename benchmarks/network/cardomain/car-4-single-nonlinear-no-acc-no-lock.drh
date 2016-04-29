@@ -1,0 +1,526 @@
+[0, 1000] time;
+(component distance;
+ [-1000, 1000] d;
+ [-1000, 1000] v;	
+label do_start;
+label do_stop;
+(mode d_zero;
+invt:
+flow:
+d/dt[d] = 0;
+jump:
+(do_start) : true ==> @d_v true;
+)
+
+(mode d_v;
+invt:
+flow:
+d/dt[d] = v;
+jump:
+(do_stop) : true ==> @d_zero true;
+)
+
+)
+(component velocity;
+ [-1000, 1000] v;
+label do_stop;
+label resistance;
+label no_resistance;
+label do_accel1;
+label do_decel1;
+label do_accel2;
+label do_decel2;
+label do_accel3;
+label do_decel3;
+label do_accel4;
+label do_decel4;
+(mode v_neg_4;
+invt:
+flow:
+d/dt[v] = -4;
+jump:
+(do_accel1) : true ==> @v_neg_3 true;
+(do_accel2) : true ==> @v_neg_2 true;
+(do_accel3) : true ==> @v_neg_1 true;
+(do_accel4) : true ==> @v_0 true;
+(resistance) : true ==> @v_drag_neg_4 true;
+)
+(mode v_drag_neg_4;
+invt:
+flow:
+d/dt[v] = -4 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_accel1) : true ==> @v_drag_neg_3 true;
+(do_accel2) : true ==> @v_drag_neg_2 true;
+(do_accel3) : true ==> @v_drag_neg_1 true;
+(do_accel4) : true ==> @v_drag_0 true;
+(no_resistance) : true ==> @v_neg_4 true;
+)
+(mode v_neg_3;
+invt:
+flow:
+d/dt[v] = -3;
+jump:
+(do_accel1) : true ==> @v_neg_2 true;
+(do_decel1) : true ==> @v_neg_4 true;
+(do_accel2) : true ==> @v_neg_1 true;
+(do_accel3) : true ==> @v_0 true;
+(do_accel4) : true ==> @v_1 true;
+(resistance) : true ==> @v_drag_neg_3 true;
+)
+(mode v_drag_neg_3;
+invt:
+flow:
+d/dt[v] = -3 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_accel1) : true ==> @v_drag_neg_2 true;
+(do_decel1) : true ==> @v_drag_neg_4 true;
+(do_accel2) : true ==> @v_drag_neg_1 true;
+(do_accel3) : true ==> @v_drag_0 true;
+(do_accel4) : true ==> @v_drag_1 true;
+(no_resistance) : true ==> @v_neg_3 true;
+)
+(mode v_neg_2;
+invt:
+flow:
+d/dt[v] = -2;
+jump:
+(do_accel1) : true ==> @v_neg_1 true;
+(do_decel1) : true ==> @v_neg_3 true;
+(do_accel2) : true ==> @v_0 true;
+(do_decel2) : true ==> @v_neg_4 true;
+(do_accel3) : true ==> @v_1 true;
+(do_accel4) : true ==> @v_2 true;
+(resistance) : true ==> @v_drag_neg_2 true;
+)
+(mode v_drag_neg_2;
+invt:
+flow:
+d/dt[v] = -2 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_accel1) : true ==> @v_drag_neg_1 true;
+(do_decel1) : true ==> @v_drag_neg_3 true;
+(do_accel2) : true ==> @v_drag_0 true;
+(do_decel2) : true ==> @v_drag_neg_4 true;
+(do_accel3) : true ==> @v_drag_1 true;
+(do_accel4) : true ==> @v_drag_2 true;
+(no_resistance) : true ==> @v_neg_2 true;
+)
+(mode v_neg_1;
+invt:
+flow:
+d/dt[v] = -1;
+jump:
+(do_accel1) : true ==> @v_0 true;
+(do_decel1) : true ==> @v_neg_2 true;
+(do_accel2) : true ==> @v_1 true;
+(do_decel2) : true ==> @v_neg_3 true;
+(do_accel3) : true ==> @v_2 true;
+(do_decel3) : true ==> @v_neg_4 true;
+(do_accel4) : true ==> @v_3 true;
+(resistance) : true ==> @v_drag_neg_1 true;
+)
+(mode v_drag_neg_1;
+invt:
+flow:
+d/dt[v] = -1 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_accel1) : true ==> @v_drag_0 true;
+(do_decel1) : true ==> @v_drag_neg_2 true;
+(do_accel2) : true ==> @v_drag_1 true;
+(do_decel2) : true ==> @v_drag_neg_3 true;
+(do_accel3) : true ==> @v_drag_2 true;
+(do_decel3) : true ==> @v_drag_neg_4 true;
+(do_accel4) : true ==> @v_drag_3 true;
+(no_resistance) : true ==> @v_neg_1 true;
+)
+(mode v_0;
+invt:
+flow:
+d/dt[v] = 0;
+jump:
+(do_accel1) : true ==> @v_1 true;
+(do_decel1) : true ==> @v_neg_1 true;
+(do_accel2) : true ==> @v_2 true;
+(do_decel2) : true ==> @v_neg_2 true;
+(do_accel3) : true ==> @v_3 true;
+(do_decel3) : true ==> @v_neg_3 true;
+(do_accel4) : true ==> @v_4 true;
+(do_decel4) : true ==> @v_neg_4 true;
+(do_stop) : true ==> @v_0 true;
+(resistance) : true ==> @v_drag_0 true;
+)
+(mode v_drag_0;
+invt:
+flow:
+d/dt[v] = 0 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_accel1) : true ==> @v_drag_1 true;
+(do_decel1) : true ==> @v_drag_neg_1 true;
+(do_accel2) : true ==> @v_drag_2 true;
+(do_decel2) : true ==> @v_drag_neg_2 true;
+(do_accel3) : true ==> @v_drag_3 true;
+(do_decel3) : true ==> @v_drag_neg_3 true;
+(do_accel4) : true ==> @v_drag_4 true;
+(do_decel4) : true ==> @v_drag_neg_4 true;
+(do_stop) : true ==> @v_0 true;
+(no_resistance) : true ==> @v_0 true;
+)
+(mode v_1;
+invt:
+flow:
+d/dt[v] = 1;
+jump:
+(do_accel1) : true ==> @v_2 true;
+(do_decel1) : true ==> @v_0 true;
+(do_accel2) : true ==> @v_3 true;
+(do_decel2) : true ==> @v_neg_1 true;
+(do_accel3) : true ==> @v_4 true;
+(do_decel3) : true ==> @v_neg_2 true;
+(do_decel4) : true ==> @v_neg_3 true;
+(resistance) : true ==> @v_drag_1 true;
+)
+(mode v_drag_1;
+invt:
+flow:
+d/dt[v] = 1 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_accel1) : true ==> @v_drag_2 true;
+(do_decel1) : true ==> @v_drag_0 true;
+(do_accel2) : true ==> @v_drag_3 true;
+(do_decel2) : true ==> @v_drag_neg_1 true;
+(do_accel3) : true ==> @v_drag_4 true;
+(do_decel3) : true ==> @v_drag_neg_2 true;
+(do_decel4) : true ==> @v_drag_neg_3 true;
+(no_resistance) : true ==> @v_1 true;
+)
+(mode v_2;
+invt:
+flow:
+d/dt[v] = 2;
+jump:
+(do_accel1) : true ==> @v_3 true;
+(do_decel1) : true ==> @v_1 true;
+(do_accel2) : true ==> @v_4 true;
+(do_decel2) : true ==> @v_0 true;
+(do_decel3) : true ==> @v_neg_1 true;
+(do_decel4) : true ==> @v_neg_2 true;
+(resistance) : true ==> @v_drag_2 true;
+)
+(mode v_drag_2;
+invt:
+flow:
+d/dt[v] = 2 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_accel1) : true ==> @v_drag_3 true;
+(do_decel1) : true ==> @v_drag_1 true;
+(do_accel2) : true ==> @v_drag_4 true;
+(do_decel2) : true ==> @v_drag_0 true;
+(do_decel3) : true ==> @v_drag_neg_1 true;
+(do_decel4) : true ==> @v_drag_neg_2 true;
+(no_resistance) : true ==> @v_2 true;
+)
+(mode v_3;
+invt:
+flow:
+d/dt[v] = 3;
+jump:
+(do_accel1) : true ==> @v_4 true;
+(do_decel1) : true ==> @v_2 true;
+(do_decel2) : true ==> @v_1 true;
+(do_decel3) : true ==> @v_0 true;
+(do_decel4) : true ==> @v_neg_1 true;
+(resistance) : true ==> @v_drag_3 true;
+)
+(mode v_drag_3;
+invt:
+flow:
+d/dt[v] = 3 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_accel1) : true ==> @v_drag_4 true;
+(do_decel1) : true ==> @v_drag_2 true;
+(do_decel2) : true ==> @v_drag_1 true;
+(do_decel3) : true ==> @v_drag_0 true;
+(do_decel4) : true ==> @v_drag_neg_1 true;
+(no_resistance) : true ==> @v_3 true;
+)
+(mode v_4;
+invt:
+flow:
+d/dt[v] = 4;
+jump:
+(do_decel1) : true ==> @v_3 true;
+(do_decel2) : true ==> @v_2 true;
+(do_decel3) : true ==> @v_1 true;
+(do_decel4) : true ==> @v_0 true;
+(resistance) : true ==> @v_drag_4 true;
+)
+(mode v_drag_4;
+invt:
+flow:
+d/dt[v] = 4 -(0.100000) * (((v) - (50)) * ((v) - (50)));
+jump:
+(do_decel1) : true ==> @v_drag_3 true;
+(do_decel2) : true ==> @v_drag_2 true;
+(do_decel3) : true ==> @v_drag_1 true;
+(do_decel4) : true ==> @v_drag_0 true;
+(no_resistance) : true ==> @v_4 true;
+)
+)
+(component moving_automaton;
+label do_stop;
+label do_start;
+(mode on_moving_automaton;
+invt:
+flow:
+jump:
+(do_stop) : true ==> @off_moving_automaton true;
+)
+
+(mode off_moving_automaton;
+invt:
+flow:
+jump:
+(do_start) : true ==> @on_moving_automaton true;
+)
+
+)
+(component start_automaton;
+ [-1000, 1000] v;
+label do_start;
+
+(mode off_start_automaton;
+invt:
+flow:
+jump:
+(do_start): true ==> @off_start_automaton true;
+
+)
+)
+(component stop_automaton;
+ [-1000, 1000] v;
+
+label do_stop;
+
+(mode off_stop_automaton;
+invt:
+flow:
+jump:
+(do_stop): (and (v = 0) ) ==> @off_stop_automaton true;
+
+)
+)
+(component accelerate_automaton1;
+label do_accel1;
+
+(mode off_accelerate_automaton;
+invt:
+flow:
+jump:
+(do_accel1): true ==> @off_accelerate_automaton true;
+
+)
+)
+(component decelerate_automaton1;
+label do_decel1;
+
+(mode off_decelerate_automaton;
+invt:
+flow:
+jump:
+(do_decel1): true ==> @off_decelerate_automaton true;
+)
+)
+(component accelerate_automaton2;
+label do_accel2;
+
+(mode off_accelerate_automaton;
+invt:
+flow:
+jump:
+(do_accel2): true ==> @off_accelerate_automaton true;
+
+)
+)
+(component decelerate_automaton2;
+label do_decel2;
+
+(mode off_decelerate_automaton;
+invt:
+flow:
+jump:
+(do_decel2): true ==> @off_decelerate_automaton true;
+)
+)
+(component accelerate_automaton3;
+label do_accel3;
+
+(mode off_accelerate_automaton;
+invt:
+flow:
+jump:
+(do_accel3): true ==> @off_accelerate_automaton true;
+
+)
+)
+(component decelerate_automaton3;
+label do_decel3;
+
+(mode off_decelerate_automaton;
+invt:
+flow:
+jump:
+(do_decel3): true ==> @off_decelerate_automaton true;
+)
+)
+(component accelerate_automaton4;
+label do_accel4;
+
+(mode off_accelerate_automaton;
+invt:
+flow:
+jump:
+(do_accel4): true ==> @off_accelerate_automaton true;
+
+)
+)
+(component decelerate_automaton4;
+label do_decel4;
+
+(mode off_decelerate_automaton;
+invt:
+flow:
+jump:
+(do_decel4): true ==> @off_decelerate_automaton true;
+)
+)
+(component running;
+label do_stop;
+label do_start;
+label do_accel1;
+label do_decel1;
+label do_accel2;
+label do_decel2;
+label do_accel3;
+label do_decel3;
+label do_accel4;
+label do_decel4;
+(mode running_true;
+invt:
+flow:
+jump:
+(do_stop): true ==> @running_false true;
+(do_accel1): true ==> @running_true true;
+(do_decel1): true ==> @running_true true;
+(do_accel2): true ==> @running_true true;
+(do_decel2): true ==> @running_true true;
+(do_accel3): true ==> @running_true true;
+(do_decel3): true ==> @running_true true;
+(do_accel4): true ==> @running_true true;
+(do_decel4): true ==> @running_true true;
+)
+(mode running_false;
+invt:
+flow:
+jump:
+(do_start): true ==> @running_true true;
+)
+)
+(component windresistance_automaton;
+label resistance;
+label no_resistance;
+
+(mode on_windresistance_automaton;
+invt:
+(v >= 50);
+flow:
+jump:
+(no_resistance): (v <= 50) ==> @off_windresistance_automaton (true);
+)
+
+
+
+(mode off_windresistance_automaton;
+invt:
+(v < 50);
+flow:
+jump:
+(resistance): (v >= 50) ==> @on_windresistance_automaton (true);
+)
+
+
+)
+(component lock_automaton;
+[0,1] lock_timer;
+label do_accel1;
+label do_decel1;
+label do_accel2;
+label do_decel2;
+label do_accel3;
+label do_decel3;
+label do_accel4;
+label do_decel4;
+label do_start;
+label do_stop;
+label resistance;
+label no_resistance;
+
+(mode lock_released;
+invt:
+flow:
+
+jump:
+(do_accel1): (true) ==> @lock_released true;
+(do_decel1): (true) ==> @lock_released true;
+(do_accel2): (true) ==> @lock_released true;
+(do_decel2): (true) ==> @lock_released true;
+(do_accel3): (true) ==> @lock_released true;
+(do_decel3): (true) ==> @lock_released true;
+(do_accel4): (true) ==> @lock_released true;
+(do_decel4): (true) ==> @lock_released true;
+(do_start): (true) ==> @lock_released true;
+(do_stop): (true) ==> @lock_released true;
+(resistance): true ==> @lock_released (true);
+(no_resistance): true ==> @lock_released (true);
+
+)
+)
+analyze: 
+moving_automaton0 = moving_automaton[[], @off_moving_automaton true];
+windresistance_automaton0 = windresistance_automaton[[], @off_windresistance_automaton true];
+accelerate_automaton1 = accelerate_automaton1[[], @off_accelerate_automaton true];
+decelerate_automaton1 = decelerate_automaton1[[], @off_decelerate_automaton true];
+accelerate_automaton2 = accelerate_automaton2[[], @off_accelerate_automaton true];
+decelerate_automaton2 = decelerate_automaton2[[], @off_decelerate_automaton true];
+accelerate_automaton3 = accelerate_automaton3[[], @off_accelerate_automaton true];
+decelerate_automaton3 = decelerate_automaton3[[], @off_decelerate_automaton true];
+accelerate_automaton4 = accelerate_automaton4[[], @off_accelerate_automaton true];
+decelerate_automaton4 = decelerate_automaton4[[], @off_decelerate_automaton true];
+running_automaton0 = running[[], @running_false true];
+start_automaton0 = start_automaton[[], @off_start_automaton true];
+stop_automaton0 = stop_automaton[[], @off_stop_automaton true];
+lock_automaton0 = lock_automaton[[], @lock_released true];
+velocity0 = velocity[[], @v_0 (v = 0)];
+distance0 = distance[[], @d_zero (d = 0)];
+
+(
+velocity0 ||
+distance0 ||
+moving_automaton0 ||
+windresistance_automaton0 || 
+accelerate_automaton1 ||
+decelerate_automaton1 ||
+accelerate_automaton2 ||
+decelerate_automaton2 ||
+accelerate_automaton3 ||
+decelerate_automaton3 ||
+accelerate_automaton4 ||
+decelerate_automaton4 ||
+start_automaton0 ||
+stop_automaton0 ||
+lock_automaton0 ||
+running_automaton0
+);
+
+goal:
+(@running_automaton0.running_false) : (and (d =30) );

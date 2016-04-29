@@ -1,0 +1,213 @@
+
+
+[0, 10] time;
+
+
+(component dynamics;
+[0, 10] x;
+[-18, 18] v;
+
+label do_bounce;
+label do_dribble0;
+label do_dribble1;
+label do_dribble2;
+label do_dribble4;
+
+(mode is_falling;
+  invt:
+  flow:
+        d/dt[x] = v;
+        d/dt[v] = -9.8 + (- 0.1 * (v ^ 2));
+  jump:
+  (do_bounce) : true ==> @is_rising true;
+  )
+
+(mode is_rising;
+  invt:
+  flow:
+        d/dt[x] = v;
+        d/dt[v] = -9.8 + (- 0.1 * (v ^ 2));
+  jump:
+  (do_dribble0) : true ==> @is_falling true;
+  (do_dribble1) : true ==> @is_falling true;
+  (do_dribble2) : true ==> @is_falling true;
+  (do_dribble4) : true ==> @is_falling true;
+  )
+
+)
+
+(component bounce;
+[0, 10] x;
+[-18, 18] v;
+label do_bounce;
+label did_bounce;
+
+ (mode bouncing;
+   invt:
+   flow:
+   jump:
+	(did_bounce) : true ==> @not_bouncing true;
+ )
+
+ (mode not_bouncing;
+   invt:
+    (v <= 0);
+    (x >= 0);
+   flow:
+   jump:
+	(do_bounce) : (x = 0) ==> @bouncing (v' = - 0.9 * v);
+ )
+)
+
+(component dribble0;
+[-18, 18] v;
+label do_dribble0;
+label did_dribble0;
+ (mode dribbling;
+   invt:
+   flow:
+   jump:
+	(did_dribble0) : true ==> @not_dribbling true;
+ )
+
+ (mode not_dribbling;
+   invt:
+   flow:
+   jump:
+	(do_dribble0) : (v = 0) ==> @dribbling (v' = 0);
+ )
+)
+
+(component dribble1;
+[-18, 18] v;
+label do_dribble1;
+label did_dribble1;
+
+ (mode dribbling;
+   invt:
+   flow:
+   jump:
+	(did_dribble1) : true ==> @not_dribbling true;
+ )
+
+ (mode not_dribbling;
+   invt:
+   flow:
+   jump:
+	(do_dribble1) : (v = 0) ==> @dribbling (v' = -1);
+ )
+)
+
+(component dribble2;
+[-18, 18] v;
+label do_dribble2;
+label did_dribble2;
+
+ (mode dribbling;
+   invt:
+   flow:
+   jump:
+	(did_dribble2) : true ==> @not_dribbling true;
+ )
+
+ (mode not_dribbling;
+   invt:
+   flow:
+   jump:
+	(do_dribble2) : (v = 0) ==> @dribbling (v' = -2);
+ )
+)
+
+(component dribble4;
+[-18, 18] v;
+label do_dribble4;
+label did_dribble4;
+
+ (mode dribbling;
+   invt:
+   flow:
+   jump:
+	(did_dribble4) : true ==> @not_dribbling true;
+ )
+
+ (mode not_dribbling;
+   invt:
+   flow:
+   jump:
+	(do_dribble4) : (v = 0) ==> @dribbling (v' = -4);
+ )
+)
+
+(component lock_automaton;
+ [0, 1] time_lock;
+	label do_dribble0;
+	label did_dribble0;
+	label do_dribble1;
+	label did_dribble1;
+	label do_dribble2;
+	label did_dribble2;
+	label do_dribble4;
+	label did_dribble4;
+	label do_bounce;
+	label did_bounce;
+
+
+	(mode locked;
+	invt:
+		(time_lock <= 0);
+	flow:
+		d/dt[time_lock] = 1;
+	jump:
+ 	(did_dribble0): (time_lock >= 0) ==> @unlocked (true);
+ 	(did_dribble1): (time_lock >= 0) ==> @unlocked (true);
+ 	(did_dribble2): (time_lock >= 0) ==> @unlocked (true);
+ 	(did_dribble4): (time_lock >= 0) ==> @unlocked (true);
+ 	(did_bounce): (time_lock >= 0) ==> @unlocked (true);
+
+	)
+	
+	(mode unlocked;
+	invt:
+	flow:
+		d/dt[lock_timer] = 0;
+	jump:
+ 	(do_dribble0): (true) ==> @locked (time_lock' = 0);
+ 	(do_dribble1): (true) ==> @locked (time_lock' = 0);
+ 	(do_dribble2): (true) ==> @locked (time_lock' = 0);
+ 	(do_dribble4): (true) ==> @locked (time_lock' = 0);
+ 	(do_bounce): (true) ==> @locked (time_lock' = 0);
+	)
+)
+
+analyze:
+
+lock = lock_automaton[[], @unlocked (time_lock = 0)];
+dynamics = dynamics[[], @is_rising (and (v = 0) (x = 1))];
+bounce = bounce[[], @not_bouncing true];
+dribble0 = dribble0[[], @not_dribbling true];
+dribble1 = dribble1[[], @not_dribbling true];
+dribble2 = dribble2[[], @not_dribbling true];
+dribble4 = dribble4[[], @not_dribbling true];
+
+(
+lock ||
+dynamics ||
+bounce ||
+dribble0 ||
+dribble1  ||
+dribble2 ||
+dribble4 
+);
+
+goal:
+
+(
+@dynamics.is_rising,
+@lock.unlocked,
+@bounce.not_bouncing,
+@dribble0.not_dribbling,
+@dribble1.not_dribbling,
+@dribble2.not_dribbling,
+@dribble4.not_dribbling
+) :
+(and (x >= 1.5) (x <= 3.0));

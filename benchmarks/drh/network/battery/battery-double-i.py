@@ -65,6 +65,14 @@ state_val[0] = """
   (and (= mode_1_{0} 1) (= mode_2_{0} 1))))
 """
 
+## (assert (or 
+##   (and (= mode_1_{0} 4) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 3)) (= mode_2_{0} 4) (not (= mode_2_{0} 1)) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 3)))
+##   (and (= mode_1_{0} 3) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 4)) (= mode_2_{0} 2) (not (= mode_2_{0} 1)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 3)))
+##   (and (= mode_1_{0} 3) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 4)) (= mode_2_{0} 1) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 3)))
+##   (and (= mode_1_{0} 2) (not (= mode_1_{0} 1)) (not (= mode_1_{0} 3)) (not (= mode_1_{0} 4)) (= mode_2_{0} 3) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 1)))
+##   (and (= mode_1_{0} 1) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 3)) (not (= mode_1_{0} 4)) (= mode_2_{0} 3) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 1)))
+##   (and (= mode_1_{0} 1) (not (= mode_1_{0} 2)) (not (= mode_1_{0} 3)) (not (= mode_1_{0} 4)) (= mode_2_{0} 1) (not (= mode_2_{0} 2)) (not (= mode_2_{0} 4)) (not (= mode_2_{0} 3)))))
+
 cont_cond[0] = ["""
 (assert (or
   (and (= mode_1_{0} 4) (= mode_2_{0} 4) 

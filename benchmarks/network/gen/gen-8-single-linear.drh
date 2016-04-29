@@ -1,0 +1,935 @@
+#define capacity_gen 1600
+#define eps 0.001
+[0, 1000] time;
+(component fuellevel_gen;
+[0, 1600] fuellevel_gen;
+label do_start_refuel0;
+	label do_stop_refuel0;
+label do_start_refuel1;
+	label do_stop_refuel1;
+label do_start_refuel2;
+	label do_stop_refuel2;
+label do_start_refuel3;
+	label do_stop_refuel3;
+label do_start_refuel4;
+	label do_stop_refuel4;
+label do_start_refuel5;
+	label do_stop_refuel5;
+label do_start_refuel6;
+	label do_stop_refuel6;
+label do_start_refuel7;
+	label do_stop_refuel7;
+label do_stop_gen;
+	label do_start_gen;
+(mode fuellevel_nogen_t0;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = 0;
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_nogen_t1 true;
+(do_start_refuel1) : true ==> @fuellevel_nogen_t1 true;
+(do_start_refuel2) : true ==> @fuellevel_nogen_t1 true;
+(do_start_refuel3) : true ==> @fuellevel_nogen_t1 true;
+(do_start_refuel4) : true ==> @fuellevel_nogen_t1 true;
+(do_start_refuel5) : true ==> @fuellevel_nogen_t1 true;
+(do_start_refuel6) : true ==> @fuellevel_nogen_t1 true;
+(do_start_refuel7) : true ==> @fuellevel_nogen_t1 true;
+ (do_start_gen) : true ==> @fuellevel_gen_t0 true;
+)
+(mode fuellevel_nogen_t1;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = 2;
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_nogen_t2 true;
+(do_start_refuel1) : true ==> @fuellevel_nogen_t2 true;
+(do_start_refuel2) : true ==> @fuellevel_nogen_t2 true;
+(do_start_refuel3) : true ==> @fuellevel_nogen_t2 true;
+(do_start_refuel4) : true ==> @fuellevel_nogen_t2 true;
+(do_start_refuel5) : true ==> @fuellevel_nogen_t2 true;
+(do_start_refuel6) : true ==> @fuellevel_nogen_t2 true;
+(do_start_refuel7) : true ==> @fuellevel_nogen_t2 true;
+(do_stop_refuel0) : true ==> @fuellevel_nogen_t0 true;
+(do_stop_refuel1) : true ==> @fuellevel_nogen_t0 true;
+(do_stop_refuel2) : true ==> @fuellevel_nogen_t0 true;
+(do_stop_refuel3) : true ==> @fuellevel_nogen_t0 true;
+(do_stop_refuel4) : true ==> @fuellevel_nogen_t0 true;
+(do_stop_refuel5) : true ==> @fuellevel_nogen_t0 true;
+(do_stop_refuel6) : true ==> @fuellevel_nogen_t0 true;
+(do_stop_refuel7) : true ==> @fuellevel_nogen_t0 true;
+ (do_start_gen) : true ==> @fuellevel_gen_t1 true;
+)
+(mode fuellevel_nogen_t2;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = 4;
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_nogen_t3 true;
+(do_start_refuel1) : true ==> @fuellevel_nogen_t3 true;
+(do_start_refuel2) : true ==> @fuellevel_nogen_t3 true;
+(do_start_refuel3) : true ==> @fuellevel_nogen_t3 true;
+(do_start_refuel4) : true ==> @fuellevel_nogen_t3 true;
+(do_start_refuel5) : true ==> @fuellevel_nogen_t3 true;
+(do_start_refuel6) : true ==> @fuellevel_nogen_t3 true;
+(do_start_refuel7) : true ==> @fuellevel_nogen_t3 true;
+(do_stop_refuel0) : true ==> @fuellevel_nogen_t1 true;
+(do_stop_refuel1) : true ==> @fuellevel_nogen_t1 true;
+(do_stop_refuel2) : true ==> @fuellevel_nogen_t1 true;
+(do_stop_refuel3) : true ==> @fuellevel_nogen_t1 true;
+(do_stop_refuel4) : true ==> @fuellevel_nogen_t1 true;
+(do_stop_refuel5) : true ==> @fuellevel_nogen_t1 true;
+(do_stop_refuel6) : true ==> @fuellevel_nogen_t1 true;
+(do_stop_refuel7) : true ==> @fuellevel_nogen_t1 true;
+ (do_start_gen) : true ==> @fuellevel_gen_t2 true;
+)
+(mode fuellevel_nogen_t3;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = 6;
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_nogen_t4 true;
+(do_start_refuel1) : true ==> @fuellevel_nogen_t4 true;
+(do_start_refuel2) : true ==> @fuellevel_nogen_t4 true;
+(do_start_refuel3) : true ==> @fuellevel_nogen_t4 true;
+(do_start_refuel4) : true ==> @fuellevel_nogen_t4 true;
+(do_start_refuel5) : true ==> @fuellevel_nogen_t4 true;
+(do_start_refuel6) : true ==> @fuellevel_nogen_t4 true;
+(do_start_refuel7) : true ==> @fuellevel_nogen_t4 true;
+(do_stop_refuel0) : true ==> @fuellevel_nogen_t2 true;
+(do_stop_refuel1) : true ==> @fuellevel_nogen_t2 true;
+(do_stop_refuel2) : true ==> @fuellevel_nogen_t2 true;
+(do_stop_refuel3) : true ==> @fuellevel_nogen_t2 true;
+(do_stop_refuel4) : true ==> @fuellevel_nogen_t2 true;
+(do_stop_refuel5) : true ==> @fuellevel_nogen_t2 true;
+(do_stop_refuel6) : true ==> @fuellevel_nogen_t2 true;
+(do_stop_refuel7) : true ==> @fuellevel_nogen_t2 true;
+ (do_start_gen) : true ==> @fuellevel_gen_t3 true;
+)
+(mode fuellevel_nogen_t4;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = 8;
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_nogen_t5 true;
+(do_start_refuel1) : true ==> @fuellevel_nogen_t5 true;
+(do_start_refuel2) : true ==> @fuellevel_nogen_t5 true;
+(do_start_refuel3) : true ==> @fuellevel_nogen_t5 true;
+(do_start_refuel4) : true ==> @fuellevel_nogen_t5 true;
+(do_start_refuel5) : true ==> @fuellevel_nogen_t5 true;
+(do_start_refuel6) : true ==> @fuellevel_nogen_t5 true;
+(do_start_refuel7) : true ==> @fuellevel_nogen_t5 true;
+(do_stop_refuel0) : true ==> @fuellevel_nogen_t3 true;
+(do_stop_refuel1) : true ==> @fuellevel_nogen_t3 true;
+(do_stop_refuel2) : true ==> @fuellevel_nogen_t3 true;
+(do_stop_refuel3) : true ==> @fuellevel_nogen_t3 true;
+(do_stop_refuel4) : true ==> @fuellevel_nogen_t3 true;
+(do_stop_refuel5) : true ==> @fuellevel_nogen_t3 true;
+(do_stop_refuel6) : true ==> @fuellevel_nogen_t3 true;
+(do_stop_refuel7) : true ==> @fuellevel_nogen_t3 true;
+ (do_start_gen) : true ==> @fuellevel_gen_t4 true;
+)
+(mode fuellevel_nogen_t5;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = 10;
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_nogen_t6 true;
+(do_start_refuel1) : true ==> @fuellevel_nogen_t6 true;
+(do_start_refuel2) : true ==> @fuellevel_nogen_t6 true;
+(do_start_refuel3) : true ==> @fuellevel_nogen_t6 true;
+(do_start_refuel4) : true ==> @fuellevel_nogen_t6 true;
+(do_start_refuel5) : true ==> @fuellevel_nogen_t6 true;
+(do_start_refuel6) : true ==> @fuellevel_nogen_t6 true;
+(do_start_refuel7) : true ==> @fuellevel_nogen_t6 true;
+(do_stop_refuel0) : true ==> @fuellevel_nogen_t4 true;
+(do_stop_refuel1) : true ==> @fuellevel_nogen_t4 true;
+(do_stop_refuel2) : true ==> @fuellevel_nogen_t4 true;
+(do_stop_refuel3) : true ==> @fuellevel_nogen_t4 true;
+(do_stop_refuel4) : true ==> @fuellevel_nogen_t4 true;
+(do_stop_refuel5) : true ==> @fuellevel_nogen_t4 true;
+(do_stop_refuel6) : true ==> @fuellevel_nogen_t4 true;
+(do_stop_refuel7) : true ==> @fuellevel_nogen_t4 true;
+ (do_start_gen) : true ==> @fuellevel_gen_t5 true;
+)
+(mode fuellevel_nogen_t6;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = 12;
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_nogen_t7 true;
+(do_start_refuel1) : true ==> @fuellevel_nogen_t7 true;
+(do_start_refuel2) : true ==> @fuellevel_nogen_t7 true;
+(do_start_refuel3) : true ==> @fuellevel_nogen_t7 true;
+(do_start_refuel4) : true ==> @fuellevel_nogen_t7 true;
+(do_start_refuel5) : true ==> @fuellevel_nogen_t7 true;
+(do_start_refuel6) : true ==> @fuellevel_nogen_t7 true;
+(do_start_refuel7) : true ==> @fuellevel_nogen_t7 true;
+(do_stop_refuel0) : true ==> @fuellevel_nogen_t5 true;
+(do_stop_refuel1) : true ==> @fuellevel_nogen_t5 true;
+(do_stop_refuel2) : true ==> @fuellevel_nogen_t5 true;
+(do_stop_refuel3) : true ==> @fuellevel_nogen_t5 true;
+(do_stop_refuel4) : true ==> @fuellevel_nogen_t5 true;
+(do_stop_refuel5) : true ==> @fuellevel_nogen_t5 true;
+(do_stop_refuel6) : true ==> @fuellevel_nogen_t5 true;
+(do_stop_refuel7) : true ==> @fuellevel_nogen_t5 true;
+ (do_start_gen) : true ==> @fuellevel_gen_t6 true;
+)
+(mode fuellevel_nogen_t7;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = 14;
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_nogen_t8 true;
+(do_start_refuel1) : true ==> @fuellevel_nogen_t8 true;
+(do_start_refuel2) : true ==> @fuellevel_nogen_t8 true;
+(do_start_refuel3) : true ==> @fuellevel_nogen_t8 true;
+(do_start_refuel4) : true ==> @fuellevel_nogen_t8 true;
+(do_start_refuel5) : true ==> @fuellevel_nogen_t8 true;
+(do_start_refuel6) : true ==> @fuellevel_nogen_t8 true;
+(do_start_refuel7) : true ==> @fuellevel_nogen_t8 true;
+(do_stop_refuel0) : true ==> @fuellevel_nogen_t6 true;
+(do_stop_refuel1) : true ==> @fuellevel_nogen_t6 true;
+(do_stop_refuel2) : true ==> @fuellevel_nogen_t6 true;
+(do_stop_refuel3) : true ==> @fuellevel_nogen_t6 true;
+(do_stop_refuel4) : true ==> @fuellevel_nogen_t6 true;
+(do_stop_refuel5) : true ==> @fuellevel_nogen_t6 true;
+(do_stop_refuel6) : true ==> @fuellevel_nogen_t6 true;
+(do_stop_refuel7) : true ==> @fuellevel_nogen_t6 true;
+ (do_start_gen) : true ==> @fuellevel_gen_t7 true;
+)
+(mode fuellevel_nogen_t8;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = 16;
+ jump:
+(do_stop_refuel0) : true ==> @fuellevel_nogen_t7 true;
+(do_stop_refuel1) : true ==> @fuellevel_nogen_t7 true;
+(do_stop_refuel2) : true ==> @fuellevel_nogen_t7 true;
+(do_stop_refuel3) : true ==> @fuellevel_nogen_t7 true;
+(do_stop_refuel4) : true ==> @fuellevel_nogen_t7 true;
+(do_stop_refuel5) : true ==> @fuellevel_nogen_t7 true;
+(do_stop_refuel6) : true ==> @fuellevel_nogen_t7 true;
+(do_stop_refuel7) : true ==> @fuellevel_nogen_t7 true;
+ (do_start_gen) : true ==> @fuellevel_gen_t8 true;
+)
+(mode fuellevel_gen_t0;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = (0 - 1);
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_gen_t1 true;
+(do_start_refuel1) : true ==> @fuellevel_gen_t1 true;
+(do_start_refuel2) : true ==> @fuellevel_gen_t1 true;
+(do_start_refuel3) : true ==> @fuellevel_gen_t1 true;
+(do_start_refuel4) : true ==> @fuellevel_gen_t1 true;
+(do_start_refuel5) : true ==> @fuellevel_gen_t1 true;
+(do_start_refuel6) : true ==> @fuellevel_gen_t1 true;
+(do_start_refuel7) : true ==> @fuellevel_gen_t1 true;
+ (do_stop_gen) : true ==> @fuellevel_nogen_t0 true;
+)
+(mode fuellevel_gen_t1;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = (2 - 1);
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_gen_t2 true;
+(do_start_refuel1) : true ==> @fuellevel_gen_t2 true;
+(do_start_refuel2) : true ==> @fuellevel_gen_t2 true;
+(do_start_refuel3) : true ==> @fuellevel_gen_t2 true;
+(do_start_refuel4) : true ==> @fuellevel_gen_t2 true;
+(do_start_refuel5) : true ==> @fuellevel_gen_t2 true;
+(do_start_refuel6) : true ==> @fuellevel_gen_t2 true;
+(do_start_refuel7) : true ==> @fuellevel_gen_t2 true;
+(do_stop_refuel0) : true ==> @fuellevel_gen_t0 true;
+(do_stop_refuel1) : true ==> @fuellevel_gen_t0 true;
+(do_stop_refuel2) : true ==> @fuellevel_gen_t0 true;
+(do_stop_refuel3) : true ==> @fuellevel_gen_t0 true;
+(do_stop_refuel4) : true ==> @fuellevel_gen_t0 true;
+(do_stop_refuel5) : true ==> @fuellevel_gen_t0 true;
+(do_stop_refuel6) : true ==> @fuellevel_gen_t0 true;
+(do_stop_refuel7) : true ==> @fuellevel_gen_t0 true;
+ (do_stop_gen) : true ==> @fuellevel_nogen_t1 true;
+)
+(mode fuellevel_gen_t2;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = (4 - 1);
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_gen_t3 true;
+(do_start_refuel1) : true ==> @fuellevel_gen_t3 true;
+(do_start_refuel2) : true ==> @fuellevel_gen_t3 true;
+(do_start_refuel3) : true ==> @fuellevel_gen_t3 true;
+(do_start_refuel4) : true ==> @fuellevel_gen_t3 true;
+(do_start_refuel5) : true ==> @fuellevel_gen_t3 true;
+(do_start_refuel6) : true ==> @fuellevel_gen_t3 true;
+(do_start_refuel7) : true ==> @fuellevel_gen_t3 true;
+(do_stop_refuel0) : true ==> @fuellevel_gen_t1 true;
+(do_stop_refuel1) : true ==> @fuellevel_gen_t1 true;
+(do_stop_refuel2) : true ==> @fuellevel_gen_t1 true;
+(do_stop_refuel3) : true ==> @fuellevel_gen_t1 true;
+(do_stop_refuel4) : true ==> @fuellevel_gen_t1 true;
+(do_stop_refuel5) : true ==> @fuellevel_gen_t1 true;
+(do_stop_refuel6) : true ==> @fuellevel_gen_t1 true;
+(do_stop_refuel7) : true ==> @fuellevel_gen_t1 true;
+ (do_stop_gen) : true ==> @fuellevel_nogen_t2 true;
+)
+(mode fuellevel_gen_t3;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = (6 - 1);
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_gen_t4 true;
+(do_start_refuel1) : true ==> @fuellevel_gen_t4 true;
+(do_start_refuel2) : true ==> @fuellevel_gen_t4 true;
+(do_start_refuel3) : true ==> @fuellevel_gen_t4 true;
+(do_start_refuel4) : true ==> @fuellevel_gen_t4 true;
+(do_start_refuel5) : true ==> @fuellevel_gen_t4 true;
+(do_start_refuel6) : true ==> @fuellevel_gen_t4 true;
+(do_start_refuel7) : true ==> @fuellevel_gen_t4 true;
+(do_stop_refuel0) : true ==> @fuellevel_gen_t2 true;
+(do_stop_refuel1) : true ==> @fuellevel_gen_t2 true;
+(do_stop_refuel2) : true ==> @fuellevel_gen_t2 true;
+(do_stop_refuel3) : true ==> @fuellevel_gen_t2 true;
+(do_stop_refuel4) : true ==> @fuellevel_gen_t2 true;
+(do_stop_refuel5) : true ==> @fuellevel_gen_t2 true;
+(do_stop_refuel6) : true ==> @fuellevel_gen_t2 true;
+(do_stop_refuel7) : true ==> @fuellevel_gen_t2 true;
+ (do_stop_gen) : true ==> @fuellevel_nogen_t3 true;
+)
+(mode fuellevel_gen_t4;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = (8 - 1);
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_gen_t5 true;
+(do_start_refuel1) : true ==> @fuellevel_gen_t5 true;
+(do_start_refuel2) : true ==> @fuellevel_gen_t5 true;
+(do_start_refuel3) : true ==> @fuellevel_gen_t5 true;
+(do_start_refuel4) : true ==> @fuellevel_gen_t5 true;
+(do_start_refuel5) : true ==> @fuellevel_gen_t5 true;
+(do_start_refuel6) : true ==> @fuellevel_gen_t5 true;
+(do_start_refuel7) : true ==> @fuellevel_gen_t5 true;
+(do_stop_refuel0) : true ==> @fuellevel_gen_t3 true;
+(do_stop_refuel1) : true ==> @fuellevel_gen_t3 true;
+(do_stop_refuel2) : true ==> @fuellevel_gen_t3 true;
+(do_stop_refuel3) : true ==> @fuellevel_gen_t3 true;
+(do_stop_refuel4) : true ==> @fuellevel_gen_t3 true;
+(do_stop_refuel5) : true ==> @fuellevel_gen_t3 true;
+(do_stop_refuel6) : true ==> @fuellevel_gen_t3 true;
+(do_stop_refuel7) : true ==> @fuellevel_gen_t3 true;
+ (do_stop_gen) : true ==> @fuellevel_nogen_t4 true;
+)
+(mode fuellevel_gen_t5;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = (10 - 1);
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_gen_t6 true;
+(do_start_refuel1) : true ==> @fuellevel_gen_t6 true;
+(do_start_refuel2) : true ==> @fuellevel_gen_t6 true;
+(do_start_refuel3) : true ==> @fuellevel_gen_t6 true;
+(do_start_refuel4) : true ==> @fuellevel_gen_t6 true;
+(do_start_refuel5) : true ==> @fuellevel_gen_t6 true;
+(do_start_refuel6) : true ==> @fuellevel_gen_t6 true;
+(do_start_refuel7) : true ==> @fuellevel_gen_t6 true;
+(do_stop_refuel0) : true ==> @fuellevel_gen_t4 true;
+(do_stop_refuel1) : true ==> @fuellevel_gen_t4 true;
+(do_stop_refuel2) : true ==> @fuellevel_gen_t4 true;
+(do_stop_refuel3) : true ==> @fuellevel_gen_t4 true;
+(do_stop_refuel4) : true ==> @fuellevel_gen_t4 true;
+(do_stop_refuel5) : true ==> @fuellevel_gen_t4 true;
+(do_stop_refuel6) : true ==> @fuellevel_gen_t4 true;
+(do_stop_refuel7) : true ==> @fuellevel_gen_t4 true;
+ (do_stop_gen) : true ==> @fuellevel_nogen_t5 true;
+)
+(mode fuellevel_gen_t6;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = (12 - 1);
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_gen_t7 true;
+(do_start_refuel1) : true ==> @fuellevel_gen_t7 true;
+(do_start_refuel2) : true ==> @fuellevel_gen_t7 true;
+(do_start_refuel3) : true ==> @fuellevel_gen_t7 true;
+(do_start_refuel4) : true ==> @fuellevel_gen_t7 true;
+(do_start_refuel5) : true ==> @fuellevel_gen_t7 true;
+(do_start_refuel6) : true ==> @fuellevel_gen_t7 true;
+(do_start_refuel7) : true ==> @fuellevel_gen_t7 true;
+(do_stop_refuel0) : true ==> @fuellevel_gen_t5 true;
+(do_stop_refuel1) : true ==> @fuellevel_gen_t5 true;
+(do_stop_refuel2) : true ==> @fuellevel_gen_t5 true;
+(do_stop_refuel3) : true ==> @fuellevel_gen_t5 true;
+(do_stop_refuel4) : true ==> @fuellevel_gen_t5 true;
+(do_stop_refuel5) : true ==> @fuellevel_gen_t5 true;
+(do_stop_refuel6) : true ==> @fuellevel_gen_t5 true;
+(do_stop_refuel7) : true ==> @fuellevel_gen_t5 true;
+ (do_stop_gen) : true ==> @fuellevel_nogen_t6 true;
+)
+(mode fuellevel_gen_t7;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = (14 - 1);
+ jump:
+(do_start_refuel0) : true ==> @fuellevel_gen_t8 true;
+(do_start_refuel1) : true ==> @fuellevel_gen_t8 true;
+(do_start_refuel2) : true ==> @fuellevel_gen_t8 true;
+(do_start_refuel3) : true ==> @fuellevel_gen_t8 true;
+(do_start_refuel4) : true ==> @fuellevel_gen_t8 true;
+(do_start_refuel5) : true ==> @fuellevel_gen_t8 true;
+(do_start_refuel6) : true ==> @fuellevel_gen_t8 true;
+(do_start_refuel7) : true ==> @fuellevel_gen_t8 true;
+(do_stop_refuel0) : true ==> @fuellevel_gen_t6 true;
+(do_stop_refuel1) : true ==> @fuellevel_gen_t6 true;
+(do_stop_refuel2) : true ==> @fuellevel_gen_t6 true;
+(do_stop_refuel3) : true ==> @fuellevel_gen_t6 true;
+(do_stop_refuel4) : true ==> @fuellevel_gen_t6 true;
+(do_stop_refuel5) : true ==> @fuellevel_gen_t6 true;
+(do_stop_refuel6) : true ==> @fuellevel_gen_t6 true;
+(do_stop_refuel7) : true ==> @fuellevel_gen_t6 true;
+ (do_stop_gen) : true ==> @fuellevel_nogen_t7 true;
+)
+(mode fuellevel_gen_t8;
+ invt:
+ flow:
+   d/dt[fuellevel_gen] = (16 - 1);
+ jump:
+(do_stop_refuel0) : true ==> @fuellevel_gen_t7 true;
+(do_stop_refuel1) : true ==> @fuellevel_gen_t7 true;
+(do_stop_refuel2) : true ==> @fuellevel_gen_t7 true;
+(do_stop_refuel3) : true ==> @fuellevel_gen_t7 true;
+(do_stop_refuel4) : true ==> @fuellevel_gen_t7 true;
+(do_stop_refuel5) : true ==> @fuellevel_gen_t7 true;
+(do_stop_refuel6) : true ==> @fuellevel_gen_t7 true;
+(do_stop_refuel7) : true ==> @fuellevel_gen_t7 true;
+ (do_stop_gen) : true ==> @fuellevel_nogen_t8 true;
+)
+)
+(component generator_ran;
+label do_stop_gen;
+(mode ran_false;
+ invt:
+ flow:
+ jump:
+ (do_stop_gen) : true ==> @ran_true true;
+)
+(mode ran_true;
+ invt:
+ flow:
+ jump:
+
+)
+)
+(component available_tank;
+label used_tank;
+(mode available_false;
+ invt:
+ flow:
+ jump:
+)
+(mode available_true;
+ invt:
+ flow:
+ jump:
+ (used_tank) : true ==> @available_false true;
+)
+)
+ (component refueling_gen;
+label start;
+label stop;
+(mode refueling_false;
+ invt:
+ flow:
+ jump:
+ (start) : true ==> @refueling_true true;
+)
+(mode refueling_true;
+ invt:
+ flow:
+ jump:
+ (stop) : true ==> @refueling_false true;
+)
+)
+ (component generate_gen_automaton;
+[0, 1000] T_generate_gen_automaton; 
+label do_stop_gen; 
+label did_start_gen; 
+label did_stop_gen; 
+label do_start_gen; 
+(mode running_generate_gen_automaton; 
+invt:
+(T_generate_gen_automaton <= 1000); 
+flow:
+d/dt[T_generate_gen_automaton] = 1; 
+jump:
+(do_stop_gen): (and (T_generate_gen_automaton = 1000)) ==> @running_to_non_active_generate_gen_automaton (and (T_generate_gen_automaton' = 0) ); 
+)
+(mode non_active_generate_gen_automaton; 
+invt:
+flow:
+d/dt[T_generate_gen_automaton] = 0; 
+jump:
+(do_start_gen): (true) ==> @interm_to_running_generate_gen_automaton (and (T_generate_gen_automaton' = 0)); 
+)
+(mode interm_to_running_generate_gen_automaton; 
+invt:
+(T_generate_gen_automaton <= 0); 
+flow:
+d/dt[T_generate_gen_automaton] = 1; 
+jump:
+(did_start_gen): true ==> @running_generate_gen_automaton (and (T_generate_gen_automaton' = 0)); 
+)
+(mode running_to_non_active_generate_gen_automaton; 
+invt:
+(T_generate_gen_automaton <= 0); 
+flow:
+d/dt[T_generate_gen_automaton] = 1; 
+jump: 
+(did_stop_gen): (and (T_generate_gen_automaton = 0)) ==> @non_active_generate_gen_automaton (and (T_generate_gen_automaton' = 0)); 
+)
+)
+ (component refuel_gen_tank1_automaton;
+[0, 20] T_refuel_gen_tank1_automaton;
+[0, capacity_gen] fuellevel_gen;
+
+label do_stop_refuel;
+label did_start_refuel;
+label did_stop_refuel;
+label do_start_refuel;
+(mode running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 20);
+(fuellevel_gen<capacity_gen);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(do_stop_refuel): (and (T_refuel_gen_tank1_automaton = 20)) ==> @running_to_non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode non_active_refuel_gen_tank1_automaton;
+invt:
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 0;
+jump:
+(do_start_refuel): true ==> @interm_to_running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0) );
+)
+(mode interm_to_running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_start_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode running_to_non_active_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_stop_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+)
+ (component refuel_gen_tank1_automaton;
+[0, 20] T_refuel_gen_tank1_automaton;
+[0, capacity_gen] fuellevel_gen;
+
+label do_stop_refuel;
+label did_start_refuel;
+label did_stop_refuel;
+label do_start_refuel;
+(mode running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 20);
+(fuellevel_gen<capacity_gen);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(do_stop_refuel): (and (T_refuel_gen_tank1_automaton = 20)) ==> @running_to_non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode non_active_refuel_gen_tank1_automaton;
+invt:
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 0;
+jump:
+(do_start_refuel): true ==> @interm_to_running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0) );
+)
+(mode interm_to_running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_start_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode running_to_non_active_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_stop_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+)
+ (component refuel_gen_tank1_automaton;
+[0, 20] T_refuel_gen_tank1_automaton;
+[0, capacity_gen] fuellevel_gen;
+
+label do_stop_refuel;
+label did_start_refuel;
+label did_stop_refuel;
+label do_start_refuel;
+(mode running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 20);
+(fuellevel_gen<capacity_gen);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(do_stop_refuel): (and (T_refuel_gen_tank1_automaton = 20)) ==> @running_to_non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode non_active_refuel_gen_tank1_automaton;
+invt:
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 0;
+jump:
+(do_start_refuel): true ==> @interm_to_running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0) );
+)
+(mode interm_to_running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_start_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode running_to_non_active_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_stop_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+)
+ (component refuel_gen_tank1_automaton;
+[0, 20] T_refuel_gen_tank1_automaton;
+[0, capacity_gen] fuellevel_gen;
+
+label do_stop_refuel;
+label did_start_refuel;
+label did_stop_refuel;
+label do_start_refuel;
+(mode running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 20);
+(fuellevel_gen<capacity_gen);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(do_stop_refuel): (and (T_refuel_gen_tank1_automaton = 20)) ==> @running_to_non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode non_active_refuel_gen_tank1_automaton;
+invt:
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 0;
+jump:
+(do_start_refuel): true ==> @interm_to_running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0) );
+)
+(mode interm_to_running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_start_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode running_to_non_active_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_stop_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+)
+ (component refuel_gen_tank1_automaton;
+[0, 20] T_refuel_gen_tank1_automaton;
+[0, capacity_gen] fuellevel_gen;
+
+label do_stop_refuel;
+label did_start_refuel;
+label did_stop_refuel;
+label do_start_refuel;
+(mode running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 20);
+(fuellevel_gen<capacity_gen);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(do_stop_refuel): (and (T_refuel_gen_tank1_automaton = 20)) ==> @running_to_non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode non_active_refuel_gen_tank1_automaton;
+invt:
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 0;
+jump:
+(do_start_refuel): true ==> @interm_to_running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0) );
+)
+(mode interm_to_running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_start_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode running_to_non_active_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_stop_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+)
+ (component refuel_gen_tank1_automaton;
+[0, 20] T_refuel_gen_tank1_automaton;
+[0, capacity_gen] fuellevel_gen;
+
+label do_stop_refuel;
+label did_start_refuel;
+label did_stop_refuel;
+label do_start_refuel;
+(mode running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 20);
+(fuellevel_gen<capacity_gen);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(do_stop_refuel): (and (T_refuel_gen_tank1_automaton = 20)) ==> @running_to_non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode non_active_refuel_gen_tank1_automaton;
+invt:
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 0;
+jump:
+(do_start_refuel): true ==> @interm_to_running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0) );
+)
+(mode interm_to_running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_start_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode running_to_non_active_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_stop_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+)
+ (component refuel_gen_tank1_automaton;
+[0, 20] T_refuel_gen_tank1_automaton;
+[0, capacity_gen] fuellevel_gen;
+
+label do_stop_refuel;
+label did_start_refuel;
+label did_stop_refuel;
+label do_start_refuel;
+(mode running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 20);
+(fuellevel_gen<capacity_gen);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(do_stop_refuel): (and (T_refuel_gen_tank1_automaton = 20)) ==> @running_to_non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode non_active_refuel_gen_tank1_automaton;
+invt:
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 0;
+jump:
+(do_start_refuel): true ==> @interm_to_running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0) );
+)
+(mode interm_to_running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_start_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode running_to_non_active_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_stop_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+)
+ (component refuel_gen_tank1_automaton;
+[0, 20] T_refuel_gen_tank1_automaton;
+[0, capacity_gen] fuellevel_gen;
+
+label do_stop_refuel;
+label did_start_refuel;
+label did_stop_refuel;
+label do_start_refuel;
+(mode running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 20);
+(fuellevel_gen<capacity_gen);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(do_stop_refuel): (and (T_refuel_gen_tank1_automaton = 20)) ==> @running_to_non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode non_active_refuel_gen_tank1_automaton;
+invt:
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 0;
+jump:
+(do_start_refuel): true ==> @interm_to_running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0) );
+)
+(mode interm_to_running_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_start_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @running_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+(mode running_to_non_active_refuel_gen_tank1_automaton;
+invt:
+(T_refuel_gen_tank1_automaton <= 0);
+flow:
+d/dt[T_refuel_gen_tank1_automaton] = 1;
+jump:
+(did_stop_refuel): (and (T_refuel_gen_tank1_automaton = 0)) ==> @non_active_refuel_gen_tank1_automaton (and (T_refuel_gen_tank1_automaton' = 0));
+)
+)
+ (component lock_automaton;
+	label do_start_refuel0;
+	label did_start_refuel0;
+	label do_stop_refuel0;
+        label did_stop_refuel0;
+ 	label do_start_refuel1;
+	label did_start_refuel1;
+	label do_stop_refuel1;
+        label did_stop_refuel1;
+ 	label do_start_refuel2;
+	label did_start_refuel2;
+	label do_stop_refuel2;
+        label did_stop_refuel2;
+ 	label do_start_refuel3;
+	label did_start_refuel3;
+	label do_stop_refuel3;
+        label did_stop_refuel3;
+ 	label do_start_refuel4;
+	label did_start_refuel4;
+	label do_stop_refuel4;
+        label did_stop_refuel4;
+ 	label do_start_refuel5;
+	label did_start_refuel5;
+	label do_stop_refuel5;
+        label did_stop_refuel5;
+ 	label do_start_refuel6;
+	label did_start_refuel6;
+	label do_stop_refuel6;
+        label did_stop_refuel6;
+ 	label do_start_refuel7;
+	label did_start_refuel7;
+	label do_stop_refuel7;
+        label did_stop_refuel7;
+ label do_stop_gen;
+	label did_start_gen;
+	label do_start_gen;
+	label did_stop_gen;
+	
+	(mode locked;
+	invt:
+	flow:
+	jump:
+ 	(did_start_refuel0): (true) ==> @unlocked (true);
+	(did_stop_refuel0): (true) ==> @unlocked (true);
+ 	(did_start_refuel1): (true) ==> @unlocked (true);
+	(did_stop_refuel1): (true) ==> @unlocked (true);
+ 	(did_start_refuel2): (true) ==> @unlocked (true);
+	(did_stop_refuel2): (true) ==> @unlocked (true);
+ 	(did_start_refuel3): (true) ==> @unlocked (true);
+	(did_stop_refuel3): (true) ==> @unlocked (true);
+ 	(did_start_refuel4): (true) ==> @unlocked (true);
+	(did_stop_refuel4): (true) ==> @unlocked (true);
+ 	(did_start_refuel5): (true) ==> @unlocked (true);
+	(did_stop_refuel5): (true) ==> @unlocked (true);
+ 	(did_start_refuel6): (true) ==> @unlocked (true);
+	(did_stop_refuel6): (true) ==> @unlocked (true);
+ 	(did_start_refuel7): (true) ==> @unlocked (true);
+	(did_stop_refuel7): (true) ==> @unlocked (true);
+ (did_start_gen): (true) ==> @unlocked (true);
+	(did_stop_gen): (true) ==> @unlocked (true);
+	)
+	
+	(mode unlocked;
+	invt:
+	flow:
+	jump:
+ (do_start_refuel0): (true) ==> @locked (true);
+	(do_stop_refuel0): (true) ==> @locked (true);
+ (do_start_refuel1): (true) ==> @locked (true);
+	(do_stop_refuel1): (true) ==> @locked (true);
+ (do_start_refuel2): (true) ==> @locked (true);
+	(do_stop_refuel2): (true) ==> @locked (true);
+ (do_start_refuel3): (true) ==> @locked (true);
+	(do_stop_refuel3): (true) ==> @locked (true);
+ (do_start_refuel4): (true) ==> @locked (true);
+	(do_stop_refuel4): (true) ==> @locked (true);
+ (do_start_refuel5): (true) ==> @locked (true);
+	(do_stop_refuel5): (true) ==> @locked (true);
+ (do_start_refuel6): (true) ==> @locked (true);
+	(do_stop_refuel6): (true) ==> @locked (true);
+ (do_start_refuel7): (true) ==> @locked (true);
+	(do_stop_refuel7): (true) ==> @locked (true);
+ (do_stop_gen): (true) ==> @locked (true);
+	(do_start_gen): (true) ==> @locked (true);
+	)
+)
+ analyze: 
+ 
+fuellevel_gen = fuellevel_gen[[], @fuellevel_nogen_t0 (fuellevel_gen = 680)];
+lock_automaton0 = lock_automaton[[], @unlocked (true)];
+generate_gen_automaton0 = generate_gen_automaton[[T_generate_gen_automaton/time_generate_gen_automaton], @non_active_generate_gen_automaton (and  (fuellevel_gen = 680) (T_generate_gen_automaton = 0))];
+refuel_gen_tank1_automaton0 = refuel_gen_tank1_automaton[[T_refuel_gen_tank1_automaton/time_rt0,do_stop_refuel/do_stop_refuel0,did_start_refuel/did_start_refuel0,did_stop_refuel/did_stop_refuel0,do_start_refuel/do_start_refuel0], @non_active_refuel_gen_tank1_automaton (T_refuel_gen_tank1_automaton = 0)];
+refuel_gen_tank1_automaton1 = refuel_gen_tank1_automaton[[T_refuel_gen_tank1_automaton/time_rt1,do_stop_refuel/do_stop_refuel1,did_start_refuel/did_start_refuel1,did_stop_refuel/did_stop_refuel1,do_start_refuel/do_start_refuel1], @non_active_refuel_gen_tank1_automaton (T_refuel_gen_tank1_automaton = 0)];
+refuel_gen_tank1_automaton2 = refuel_gen_tank1_automaton[[T_refuel_gen_tank1_automaton/time_rt2,do_stop_refuel/do_stop_refuel2,did_start_refuel/did_start_refuel2,did_stop_refuel/did_stop_refuel2,do_start_refuel/do_start_refuel2], @non_active_refuel_gen_tank1_automaton (T_refuel_gen_tank1_automaton = 0)];
+refuel_gen_tank1_automaton3 = refuel_gen_tank1_automaton[[T_refuel_gen_tank1_automaton/time_rt3,do_stop_refuel/do_stop_refuel3,did_start_refuel/did_start_refuel3,did_stop_refuel/did_stop_refuel3,do_start_refuel/do_start_refuel3], @non_active_refuel_gen_tank1_automaton (T_refuel_gen_tank1_automaton = 0)];
+refuel_gen_tank1_automaton4 = refuel_gen_tank1_automaton[[T_refuel_gen_tank1_automaton/time_rt4,do_stop_refuel/do_stop_refuel4,did_start_refuel/did_start_refuel4,did_stop_refuel/did_stop_refuel4,do_start_refuel/do_start_refuel4], @non_active_refuel_gen_tank1_automaton (T_refuel_gen_tank1_automaton = 0)];
+refuel_gen_tank1_automaton5 = refuel_gen_tank1_automaton[[T_refuel_gen_tank1_automaton/time_rt5,do_stop_refuel/do_stop_refuel5,did_start_refuel/did_start_refuel5,did_stop_refuel/did_stop_refuel5,do_start_refuel/do_start_refuel5], @non_active_refuel_gen_tank1_automaton (T_refuel_gen_tank1_automaton = 0)];
+refuel_gen_tank1_automaton6 = refuel_gen_tank1_automaton[[T_refuel_gen_tank1_automaton/time_rt6,do_stop_refuel/do_stop_refuel6,did_start_refuel/did_start_refuel6,did_stop_refuel/did_stop_refuel6,do_start_refuel/do_start_refuel6], @non_active_refuel_gen_tank1_automaton (T_refuel_gen_tank1_automaton = 0)];
+refuel_gen_tank1_automaton7 = refuel_gen_tank1_automaton[[T_refuel_gen_tank1_automaton/time_rt7,do_stop_refuel/do_stop_refuel7,did_start_refuel/did_start_refuel7,did_stop_refuel/did_stop_refuel7,do_start_refuel/do_start_refuel7], @non_active_refuel_gen_tank1_automaton (T_refuel_gen_tank1_automaton = 0)];
+generator_ran0 = generator_ran[[], @ran_false true];
+available_tank0 = available_tank[[used_tank/do_start_refuel0], @available_true true];
+refueling_gen0 = refueling_gen[[stop/do_stop_refuel0, start/do_start_refuel0], @refueling_false true];
+available_tank1 = available_tank[[used_tank/do_start_refuel1], @available_true true];
+refueling_gen1 = refueling_gen[[stop/do_stop_refuel1, start/do_start_refuel1], @refueling_false true];
+available_tank2 = available_tank[[used_tank/do_start_refuel2], @available_true true];
+refueling_gen2 = refueling_gen[[stop/do_stop_refuel2, start/do_start_refuel2], @refueling_false true];
+available_tank3 = available_tank[[used_tank/do_start_refuel3], @available_true true];
+refueling_gen3 = refueling_gen[[stop/do_stop_refuel3, start/do_start_refuel3], @refueling_false true];
+available_tank4 = available_tank[[used_tank/do_start_refuel4], @available_true true];
+refueling_gen4 = refueling_gen[[stop/do_stop_refuel4, start/do_start_refuel4], @refueling_false true];
+available_tank5 = available_tank[[used_tank/do_start_refuel5], @available_true true];
+refueling_gen5 = refueling_gen[[stop/do_stop_refuel5, start/do_start_refuel5], @refueling_false true];
+available_tank6 = available_tank[[used_tank/do_start_refuel6], @available_true true];
+refueling_gen6 = refueling_gen[[stop/do_stop_refuel6, start/do_start_refuel6], @refueling_false true];
+available_tank7 = available_tank[[used_tank/do_start_refuel7], @available_true true];
+refueling_gen7 = refueling_gen[[stop/do_stop_refuel7, start/do_start_refuel7], @refueling_false true];
+( refuel_gen_tank1_automaton0 || available_tank0  || refueling_gen0 || refuel_gen_tank1_automaton1 || available_tank1  || refueling_gen1 || refuel_gen_tank1_automaton2 || available_tank2  || refueling_gen2 || refuel_gen_tank1_automaton3 || available_tank3  || refueling_gen3 || refuel_gen_tank1_automaton4 || available_tank4  || refueling_gen4 || refuel_gen_tank1_automaton5 || available_tank5  || refueling_gen5 || refuel_gen_tank1_automaton6 || available_tank6  || refueling_gen6 || refuel_gen_tank1_automaton7 || available_tank7  || refueling_gen7 || lock_automaton0 || generate_gen_automaton0 || generator_ran0 || fuellevel_gen);
+goal: (@generator_ran0.ran_true): (true);
