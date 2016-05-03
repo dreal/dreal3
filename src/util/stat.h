@@ -33,6 +33,8 @@ public:
     unsigned m_num_of_branch;
     unsigned m_num_of_prune;
     std::chrono::time_point<std::chrono::high_resolution_clock> m_start_time;
+    std::chrono::duration<double> m_heuristic_time;
+    unsigned m_num_heuristic_paths;
     stat();
     void reset();
     void increase_check(bool complete);
@@ -41,6 +43,9 @@ public:
     void increase_pop();
     void increase_branch();
     void increase_prune();
+    void increase_heuristic_time(std::chrono::duration<double> span) { m_heuristic_time += span; }
+    void increase_heuristic_paths() { m_num_heuristic_paths++; }
+
     friend std::ostream & operator<<(std::ostream & out, stat const & stat);
 };
 

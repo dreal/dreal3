@@ -147,6 +147,11 @@ SMTConfig::initializeConfig( )
   nra_multiheuristic           = false;
   nra_precision_output         = true;
   nra_random_seed              = random_device{}();
+  nra_output_num_nodes         = false;
+  nra_icp_decisions            = 0;
+  nra_show_search_progress     = false;
+  nra_heuristic_forward        = false;
+  nra_hybrid_notlearn_clause   = false;
   initLogging();
 }
 
@@ -401,6 +406,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("" , false, 1, 0,
             "BMC heuristic",
             "--bmc-heuristic", "--bmc_heuristic");
+    opt.add("" , false, 1, 0,
+            "PDDL+ heuristic",
+            "--plan-heuristic", "--plan_heuristic");
     opt.add("", false, 0, 0,
             "short cut SAT solver assignments if SAT",
             "--short-sat", "--short_sat");
@@ -514,7 +522,16 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "Activate satelite on booleans (default: off)",
             "--sat-prep-bool", "--sat-preprocess-booleans", "--sat_preprocess_booleans");
-
+    opt.add("", false, 0, 0,
+	    "use heuristic forward search",
+	    "--heuristic_forward");
+    opt.add("", false, 0, 0,
+	    "use heuristic forward search",
+	    "--show-search");
+    opt.add("", false, 0, 0,
+	    "use hybrid solver clause learning",
+	    "--no-hybrid-clause-learning");
+    
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
     opt.overview += "v" + string(PACKAGE_VERSION);
@@ -566,7 +583,10 @@ SMTConfig::parseCMDLine( int argc
     nra_multiheuristic      = opt.isSet("--multiheuristic");
     nra_precision_output    =!opt.isSet("--no-precision-output");
     sat_preprocess_booleans = opt.isSet("--sat-prep-bool");
-
+    nra_show_search_progress= opt.isSet("--show-search");
+    nra_heuristic_forward   = opt.isSet("--heuristic_forward");
+    nra_hybrid_notlearn_clause = opt.isSet("--no-hybrid-clause-learning");
+    
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }
     if (opt.isSet("--ode-step")) { opt.get("--ode-step")->getDouble(nra_ODE_step); }
@@ -612,6 +632,7 @@ SMTConfig::parseCMDLine( int argc
 
     // Extract String Args
     if (opt.isSet("--bmc-heuristic")) { opt.get("--bmc-heuristic")->getString(nra_bmc_heuristic); }
+    if (opt.isSet("--plan-heuristic")) { opt.get("--plan-heuristic")->getString(nra_plan_heuristic); }
 
     // Extract ULong Args
     if (opt.isSet("--ode-order")) { opt.get("--ode-order")->getULong(nra_ODE_taylor_order); }

@@ -22,6 +22,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
 #include <iostream>
+#include <chrono>
 #include <sys/stat.h>
 #include "common/Global.h"
 #include "util/stat.h"
@@ -220,6 +221,17 @@ struct SMTConfig
   bool         nra_simulation_thread;         // use a separate thread for simulation in ICP
   bool         nra_precision_output;          // print precision info in case of delta-sat
   unsigned     nra_random_seed;               // seed to random generators (default = std::random_device())
+  bool         nra_output_num_nodes;          // print num sat and icp nodes
+  std::string  nra_plan_heuristic;
+  std::string  nra_plan_domain;               // planning domain
+  std::string  nra_plan_problem;              // planning instance
+  int          nra_icp_decisions;             // number of icp branch nodes
+  bool         nra_show_search_progress;      // print search progress to console
+  bool         nra_heuristic_forward;         // use forward search in the heuristic solution
+  bool         nra_hybrid_notlearn_clause;       // use clause learning in hybrid heuristic
+  
+  void inc_icp_decisions() { nra_icp_decisions++; }
+  int  icp_decisions() { return nra_icp_decisions; }
 
   void setODEFwdTimeout(double const ode_fwd_timeout);
   void setODEBwdTimeout(double const ode_bwd_timeout);

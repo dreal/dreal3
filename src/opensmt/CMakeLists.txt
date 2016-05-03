@@ -6,6 +6,7 @@ add_subdirectory(parsers/smt2)
 add_subdirectory(parsers/dr)
 add_subdirectory(simplifiers)
 add_subdirectory(smtsolvers)
+add_subdirectory(heuristics)
 add_subdirectory(sorts)
 add_subdirectory(tsolvers)
 
