@@ -244,6 +244,18 @@ tuple<int, box, box> box::bisect(double precision) const {
     }
 }
 
+
+  // select bisection ratio for interval
+double box::get_bisection_ratio(int i) const {
+  if (is_time_variable(i) && m_values[i].contains(0.0)) {
+    // DREAL_LOG_DEBUG << "Splitting time variable";
+    // std::cout << "Splitting time variable" << i;
+    return 0.00001;
+  } else {
+    return 0.5;
+  }
+}
+
 tuple<int, box, box> box::bisect_int_at(int i) const {
     assert(0 <= i && i < m_values.size());
     box b1(*this);
@@ -264,13 +276,14 @@ tuple<int, box, box> box::bisect_int_at(int i) const {
     return make_tuple(i, b1, b2);
 }
 
+// Bisect a box into two boxes by bisecting i-th interval.
 tuple<int, box, box> box::bisect_real_at(int i) const {
     assert(0 <= i && i < m_values.size());
     box b1(*this);
     box b2(*this);
     ibex::Interval iv = b1.m_values[i];
     assert(iv.is_bisectable());
-    pair<ibex::Interval, ibex::Interval> new_intervals = iv.bisect();
+    pair<ibex::Interval, ibex::Interval> new_intervals = iv.bisect(get_bisection_ratio(i));
     b1.m_values[i] = new_intervals.first;
     b2.m_values[i] = new_intervals.second;
     b1.m_idx_last_branched = i;

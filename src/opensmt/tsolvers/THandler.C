@@ -95,8 +95,10 @@ Var THandler::enodeToVar( Enode * atm )
         solver.setFrozen( v, true );
         tatoms ++;
       }
-      else
+      else {
+        solver.setFrozen( v, true );
         batoms ++;
+      }
 
       enode_id_to_var[ atm->getId( ) ] = v;
 

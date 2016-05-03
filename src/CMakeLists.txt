@@ -718,6 +718,11 @@ if(BUILD_TEST)
   endif()
 endif()
 
+if(WITH_COLIN)
+add_dependencies(dReal colin_copy)
+add_dependencies(dReal val_copy)
+endif(WITH_COLIN)
+
 # Include style check
 include(StyleCheck)
 file(GLOB_RECURSE DREAL_SOURCES
