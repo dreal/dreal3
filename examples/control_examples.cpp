@@ -96,7 +96,6 @@ void syn_lyp(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, expr& V, doub
 
     int i=0;
     while (s->check()) {
-	cout<<"Search condition: "<<search_condition<<endl;
 	cout<<"Trying these parameters:"<<endl;
 	cerr<<"Round "<<i<<endl;
 	s->print_model();
@@ -128,9 +127,13 @@ void syn_lyp(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, expr& V, doub
 	    full_post.insert(full_post.end(),p.begin(),p.end());
 	    search_condition = substitute(search_condition,full_pre,full_post);
 	    search_condition = search_condition && substitute(scondition,full_pre,full_post);
+	    for (auto param : p) {
+		search_condition = search_condition && (!((*param) == ((s->get_lb(*param)+s->get_ub(*param))/2)));
+	    }
 	    s->pop();
 	    s->push();
    	    s->add(search_condition);
+	    cout<<"Search condition: "<<search_condition<<endl;
 	}
 	cerr<<"Round "<<i<<endl;
 	i++;
@@ -191,29 +194,38 @@ int test_lyp_syn() {
 
 int inv_pend_syn() {
     solver s;
-    expr x1 = s.var("x",-1,1);
-    expr x2 = s.var("xdot",-5,5);
-    expr x3 = s.var("theta",-1,1);
-    expr x4 = s.var("thetadot",-5,5);
+    expr x1 = s.var("x",-0.3,0.3);
+    expr x2 = s.var("xdot",-3,3);
+    expr x3 = s.var("theta",-0.3,0.3);
+    expr x4 = s.var("thetadot",-3,3);
     vector<expr*> x = {&x1,&x2,&x3,&x4};
-    expr u = 0.0490286*x1 + 0.26262*x2 - 8.85081*x3 - 1.14305*x4; 
+    expr p1 = s.var("p1",-10,10);
+    expr p2 = s.var("p2",-10,10);
+    expr p3 = s.var("p3",-10,10);
+    expr p4 = s.var("p4",-10,10);
+    expr p5 = s.var("p5",-10,10);
+    expr p6 = s.var("p6",-10,10);
+    expr p7 = s.var("p7",-10,10);
+    expr p8 = s.var("p8",-10,10);
+    expr p9 = s.var("p9",-10,10);
+    expr p10 = s.var("p10",-10,10);
+    expr p11 = s.var("p11",-10,10);
+    expr p12 = s.var("p12",-10,10);
+    expr p13 = s.var("p13",-10,10);
+
+    vector<expr*> p = {&p1,&p2,&p3,&p4,&p5,&p6,&p7,&p8,&p9,&p10,&p11,&p12,&p13};
+
+    expr u = p10*x1 + p11*x2 - p12*x3 - p13*x4; 
     expr f1 = x2;
     expr f2 = -(-6*sin(x3)*(x4^2) + 100*u - 10*x2 + 147*cos(x3)*sin(x3))/(5*(3*cos(x3)^2 - 14));
     expr f3 = x4;
     expr f4 = -(- 3*cos(x3)*sin(x3)*(x4^2) + 343*sin(x3) + 50*u*cos(x3) - 5*x2*cos(x3))/(3*(cos(x3)^2) - 14);   
     vector<expr*> f = {&f1,&f2,&f3,&f4};
-    expr p1 = s.var("p1",-5,5);
-    expr p2 = s.var("p2",-5,5);
-    expr p3 = s.var("p3",-5,5);
-    expr p4 = s.var("p4",-5,5);
-    expr p5 = s.var("p5",-5,5);
-    expr p6 = s.var("p6",-5,5);
-    expr p7 = s.var("p7",-5,5);
-    expr p8 = s.var("p8",-5,5);
-    expr p9 = s.var("p9",-5,5);
-    vector<expr*> p = {&p1,&p2,&p3,&p4,&p5,&p6,&p7,&p8,&p9};
+
     expr V = x2*(p1*x1 + p2*x2 - p3*x3 - p4*x4) + x1*(p5*x1 + x2 - p7*x3 - p8*x4) - x3*(2.63237*x1 + 3.77814*x2 - p9*x3 - 2.12247*x4) - 1.0*x4*(0.499053*x1 + 0.697897*x2 - 2.12247*x3 - p6*x4);
+
     syn_lyp(x,p,f,V,0.001);
+
     return 0; 
 }
 
@@ -234,8 +246,8 @@ int test2_lyp() {
 int main(int argc, char* argv[]) {
     //cout<<test1()<<endl;
     //cout<<vdp()<<endl;
-    //cout<<inv_pend_syn()<<endl;
+    cerr<<inv_pend_syn()<<endl;
     //cout<<test2_lyp()<<endl;
-    cerr<<test_lyp_syn()<<endl;
+    //cerr<<test_lyp_syn()<<endl;
     return 0;
 }
