@@ -171,7 +171,7 @@ int get_mode(Enode * lit) {
 	    (*aut_predecessors)[dest-1]->push_back(back_trans);
 	    (*aut_successors)[src]->push_back(fwd_trans);
 
-	    if(adj_trans[2] == 1){
+	    if(adj_trans[2] == (long)1){
 	      noops.insert(back_trans);
 	      noops.insert(fwd_trans);
 	    }
