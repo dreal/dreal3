@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/common/LA.h"
 #include "util/glpk_wrapper.h"
 #include "ibex/ibex.h"
+#include "util/logging.h"
 
 #ifdef USE_GLPK
 
@@ -44,6 +45,7 @@ glpk_wrapper::~glpk_wrapper() {
 }
 
 void glpk_wrapper::set_constraint(int index, Enode * const e) {
+    DREAL_LOG_INFO << "glpk_wrapper::set_constraint  " << e << " with " << e->getPolarity();
     assert(is_linear(e));
     LAExpression la(e);
     auto vars = e->get_vars();
@@ -55,18 +57,22 @@ void glpk_wrapper::set_constraint(int index, Enode * const e) {
         auto v = it->first;
         double c = it->second;
         if (v != nullptr && c != 0.0) {
+            DREAL_LOG_INFO << "glpk_wrapper::set_constraint " << c << " * " << v;
             indices[i] = get_index(v) + 1;
             values[i] = c;
             i += 1;
         } else {
             if (e->isEq()) {
                 assert(!e->hasPolarity() || e->getPolarity() != l_False);
+                DREAL_LOG_INFO << "glpk_wrapper::set_constraint == " << c;
                 glp_set_row_bnds(lp, index, GLP_FX, -c, -c);
             } else {
                 if (!e->hasPolarity() || e->getPolarity() != l_False) {
+                    DREAL_LOG_INFO << "glpk_wrapper::set_constraint <= " << (-c);
                     glp_set_row_bnds(lp, index, GLP_UP, 0, -c);
                 } else {
-                    glp_set_row_bnds(lp, index, GLP_LO, 0, -c);
+                    DREAL_LOG_INFO << "glpk_wrapper::set_constraint >= " << (-c);
+                    glp_set_row_bnds(lp, index, GLP_LO, -c, 0);
                 }
             }
         }
