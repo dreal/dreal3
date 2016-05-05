@@ -59,6 +59,8 @@ public:
     double get_objective();
 
     void set_domain(box const & b);
+    const box& get_domain() const;
+
     void add(Enode * const e);
     void add(std::unordered_set<Enode *> const & es);
 
