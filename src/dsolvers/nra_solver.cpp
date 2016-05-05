@@ -514,7 +514,7 @@ bool nra_solver::check(bool complete) {
 #ifdef USE_GLPK
             m_box = lp_icp::solve(m_box, m_ctc, m_stack, config);
 #else
-            throw runtime_error("Compile dReal with USE_GLPK to use the LP+ICP solver.");
+            throw runtime_error("Compile dReal GLPK (cmake `-DUSE_GLPK=true`) to use the LP+ICP solver.");
 #endif
         } else {
             m_box = naive_icp::solve(m_box, m_ctc, m_stack, config);
