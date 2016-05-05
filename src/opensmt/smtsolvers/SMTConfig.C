@@ -146,6 +146,7 @@ SMTConfig::initializeConfig( )
   nra_multiheuristic           = false;
   nra_precision_output         = true;
   nra_random_seed              = random_device{}();
+  nra_linear_only              = false;
   initLogging();
 }
 
@@ -513,6 +514,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "Activate satelite on booleans (default: off)",
             "--sat-prep-bool", "--sat-preprocess-booleans", "--sat_preprocess_booleans");
+    opt.add("", false, 0, 0, 
+            "only invoke linear solvers on a purely linear problem",
+            "--linear-only");
 
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
@@ -565,6 +569,7 @@ SMTConfig::parseCMDLine( int argc
     nra_multiheuristic      = opt.isSet("--multiheuristic");
     nra_precision_output    =!opt.isSet("--no-precision-output");
     sat_preprocess_booleans = opt.isSet("--sat-prep-bool");
+    nra_linear_only         = opt.isSet("--linear-only");
 
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }
