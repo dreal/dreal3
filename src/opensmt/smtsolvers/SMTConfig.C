@@ -156,6 +156,7 @@ SMTConfig::initializeConfig( )
   nra_show_search_progress     = false;
   nra_heuristic_forward        = false;
   nra_hybrid_notlearn_clause   = false;
+  nra_linear_only              = false;
   initLogging();
 }
 
@@ -539,15 +540,17 @@ SMTConfig::parseCMDLine( int argc
             "Activate satelite on booleans (default: off)",
             "--sat-prep-bool", "--sat-preprocess-booleans", "--sat_preprocess_booleans");
     opt.add("", false, 0, 0,
-      "use heuristic forward search",
-      "--heuristic_forward");
+            "use heuristic forward search",
+            "--heuristic_forward");
     opt.add("", false, 0, 0,
-      "use heuristic forward search",
-      "--show-search");
+            "use heuristic forward search",
+            "--show-search");
     opt.add("", false, 0, 0,
-      "use hybrid solver clause learning",
-      "--no-hybrid-clause-learning");
-
+            "use hybrid solver clause learning",
+            "--no-hybrid-clause-learning");
+    opt.add("", false, 0, 0,
+            "only invoke linear solvers on a purely linear problem",
+            "--linear-only");
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
     opt.overview += "v" + string(PACKAGE_VERSION);
@@ -604,6 +607,7 @@ SMTConfig::parseCMDLine( int argc
     nra_show_search_progress= opt.isSet("--show-search");
     nra_heuristic_forward   = opt.isSet("--heuristic_forward");
     nra_hybrid_notlearn_clause = opt.isSet("--no-hybrid-clause-learning");
+    nra_linear_only         = opt.isSet("--linear-only");
 
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }
