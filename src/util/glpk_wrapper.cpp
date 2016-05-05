@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <exception>
 #include "opensmt/common/LA.h"
 #include "util/glpk_wrapper.h"
+#include "ibex/ibex.h"
 
 #ifdef USE_GLPK
 
@@ -85,11 +86,34 @@ void glpk_wrapper::init_problem() {
 }
 
 void glpk_wrapper::set_domain(box const & b) {
+    assert(!b.is_empty());
     domain = b;
     for (unsigned int i = 0; i < b.size(); i++) {
         auto interval = b[i];
-        glp_set_col_bnds(lp, i+1, GLP_DB, interval.lb(), interval.ub());
+        double lb = interval.lb();
+        double ub = interval.ub();
+        if (lb == NEG_INFINITY) {
+            if (ub == POS_INFINITY) {
+                glp_set_col_bnds(lp, i+1, GLP_FR, lb, ub);
+            } else {
+                glp_set_col_bnds(lp, i+1, GLP_UP, lb, ub);
+            }
+        } else {
+            if (ub == POS_INFINITY) {
+                glp_set_col_bnds(lp, i+1, GLP_LO, lb, ub);
+            } else {
+                if (lb == ub) {
+                    glp_set_col_bnds(lp, i+1, GLP_FX, lb, ub);
+                } else {
+                    glp_set_col_bnds(lp, i+1, GLP_DB, lb, ub);
+                }
+            }
+        }
     }
+}
+
+const box& glpk_wrapper::get_domain() const {
+    return domain;
 }
 
 void glpk_wrapper::add(Enode * const e) {

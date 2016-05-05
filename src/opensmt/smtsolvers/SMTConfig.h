@@ -221,6 +221,7 @@ struct SMTConfig
   bool         nra_worklist_fp;               // use worklist fixpoint algorithm
   bool         nra_multiprune;                // try the top k dimensions to branch on, and see which contract the most before selecting a branch
   bool         nra_multiheuristic;            // run two heuristics simultaneously, return when only one of them completes
+  bool         nra_lp;                        // use a combination of ICP and LP
   bool         nra_shrink_for_dop;            // shrink forall domain for dOp optimization
   bool         nra_simulation_thread;         // use a separate thread for simulation in ICP
   bool         nra_precision_output;          // print precision info in case of delta-sat
