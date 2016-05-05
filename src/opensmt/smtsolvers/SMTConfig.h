@@ -238,6 +238,7 @@ struct SMTConfig
 
   void inc_icp_decisions() { nra_icp_decisions++; }
   int  icp_decisions() { return nra_icp_decisions; }
+  bool         nra_linear_only;               // use glpk on linear only problems
 
   void setODEFwdTimeout(double const ode_fwd_timeout);
   void setODEBwdTimeout(double const ode_bwd_timeout);

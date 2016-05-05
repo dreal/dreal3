@@ -44,6 +44,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/stat.h"
 #include "util/strategy.h"
+#include "util/glpk_wrapper.h"
 
 using ibex::IntervalVector;
 using nlohmann::json;
@@ -468,6 +469,21 @@ bool nra_solver::check(bool complete) {
             SizeGradAsinhBrancher sb1(m_stack);
             vector<reference_wrapper<BranchHeuristic>> heuristics = {sb, sb1};
             multiheuristic_icp::solve(m_ctc, m_cs, m_stack, heuristics);
+        } else if (config.nra_linear_only) {
+            unordered_set<Enode *> linear_stack;
+            for (auto c : m_stack) {
+                assert(c->get_enodes().size() == 1);
+                linear_stack.emplace(c->get_enodes()[0]);
+                m_cs.m_used_constraints.insert(c);
+            }
+            glpk_wrapper solver(m_cs.m_box, linear_stack);
+            bool const result = solver.is_sat();
+            if (!result) {
+                explanation = generate_explanation(m_cs.m_used_constraints);
+            } else {
+                handle_sat_case(m_cs.m_box);
+            }
+            return result;
         } else {
             naive_icp::solve(m_ctc, m_cs, m_stack);
         }
