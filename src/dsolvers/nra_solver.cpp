@@ -43,7 +43,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/stat.h"
 #include "util/strategy.h"
+#ifdef USE_GLPK
 #include "util/glpk_wrapper.h"
+#include "icp/lp_icp.h"
+#endif
 
 using ibex::IntervalVector;
 using nlohmann::json;
@@ -463,6 +466,7 @@ bool nra_solver::check(bool complete) {
             vector<std::reference_wrapper<BranchHeuristic>> heuristics = {sb, sb1};
             m_box = multiheuristic_icp::solve(m_box, m_ctc, config, heuristics);
         } else if (config.nra_linear_only) {
+#ifdef USE_GLPK
             unordered_set<Enode *> linear_stack;
             for (auto c : m_stack) {
                 assert(c->get_enodes().size() == 1);
@@ -477,6 +481,15 @@ bool nra_solver::check(bool complete) {
                 handle_sat_case(m_box);
             }
             return result;
+#else
+            throw runtime_error("Compile dReal with USE_GLPK to use the LP+ICP solver.");
+#endif
+        } else if (config.nra_lp){
+#ifdef USE_GLPK
+            m_box = lp_icp::solve(m_box, m_ctc, m_stack, config);
+#else
+            throw runtime_error("Compile dReal with USE_GLPK to use the LP+ICP solver.");
+#endif
         } else {
             m_box = naive_icp::solve(m_box, m_ctc, config);
         }
