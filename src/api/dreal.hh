@@ -41,17 +41,17 @@ public:
     expr(solver &, char const *);  // so far it only works for declaring variables
     expr(solver * const, cexpr const);
     expr(solver * const, expr *);
-    void	    set_ub(double const);
-    void	    set_lb(double const);
-    void	    set_bounds(double const, double const);
-    std::string	    get_name();
-    env const &	    get_ctx() const    { return cctx; }
+    void    set_ub(double const);
+    void    set_lb(double const);
+    void    set_bounds(double const, double const);
+    std::string get_name();
+    env const & get_ctx() const    { return cctx; }
     cexpr const &   get_cexpr() const  { return ep; }
-    solver *	    get_solver() const { return m_solver; }
+    solver *    get_solver() const { return m_solver; }
 private:
-    solver *	m_solver;
-    env         cctx;
-    cexpr       ep;
+    solver *    m_solver;
+    env cctx;
+    cexpr   ep;
 };
 
 std::ostream & operator<<(std::ostream &, expr const &);
@@ -177,7 +177,7 @@ public:
 private:
     env cctx;
     std::vector<expr const *> vtab; //variable table
-    std::vector<double> stab; //solution table
+    std::vector<double> stab;   //solution table
     std::vector<expr const *> etab; //added enode table
     std::vector<expr const *> ntab; //constant table
 };
