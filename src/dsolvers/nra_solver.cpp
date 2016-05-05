@@ -508,7 +508,7 @@ bool nra_solver::check(bool complete) {
             }
             return result;
 #else
-            throw runtime_error("Compile dReal with USE_GLPK to use the LP+ICP solver.");
+            throw runtime_error("Compile dReal GLPK (cmake `-DUSE_GLPK=true`) to use the LP+ICP solver.");
 #endif
         } else if (config.nra_lp){
 #ifdef USE_GLPK
