@@ -64,7 +64,7 @@ void glpk_wrapper::set_constraint(int index, Enode * const e) {
         } else {
             if (e->isEq()) {
                 assert(!e->hasPolarity() || e->getPolarity() != l_False);
-                DREAL_LOG_INFO << "glpk_wrapper::set_constraint == " << c;
+                DREAL_LOG_INFO << "glpk_wrapper::set_constraint == " << (-c);
                 glp_set_row_bnds(lp, index, GLP_FX, -c, -c);
             } else {
                 if (!e->hasPolarity() || e->getPolarity() != l_False) {
