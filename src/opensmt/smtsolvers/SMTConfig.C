@@ -149,6 +149,7 @@ SMTConfig::initializeConfig( )
   nra_simulation_thread        = false;
   nra_multiprune               = false;
   nra_multiheuristic           = false;
+  nra_lp                       = false;
   nra_precision_output         = true;
   nra_random_seed              = random_device{}();
   nra_output_num_nodes         = false;
@@ -537,6 +538,9 @@ SMTConfig::parseCMDLine( int argc
             "run two heuristics simultaneously, finish when the first finishes",
             "--multiheuristic");
     opt.add("", false, 0, 0,
+            "use a combination of ICP and LP",
+            "--lp-icp");
+    opt.add("", false, 0, 0,
             "read formula from standard input",
             "--in");
     opt.add("", false, 1, 0,
@@ -608,6 +612,7 @@ SMTConfig::parseCMDLine( int argc
     nra_simulation_thread   = opt.isSet("--simulation");
     nra_multiprune          = opt.isSet("--multiprune");
     nra_multiheuristic      = opt.isSet("--multiheuristic");
+    nra_lp                  = opt.isSet("--lp-icp");
     nra_precision_output    =!opt.isSet("--no-precision-output");
     sat_preprocess_booleans = opt.isSet("--sat-prep-bool");
     nra_show_search_progress= opt.isSet("--show-search");
