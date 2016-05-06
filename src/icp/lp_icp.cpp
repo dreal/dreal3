@@ -54,8 +54,6 @@ box lp_icp::solve(box b, contractor & ctc,
         scoped_vec<shared_ptr<constraint>>& constraints,
         SMTConfig & config,
         BranchHeuristic& brancher) {
-
-    
     thread_local static vector<box> solns;
     /* The stack now contains both the LP and ICP domain.
      * For the ICP, the stack is the usual DFS worklist.
@@ -64,7 +62,7 @@ box lp_icp::solve(box b, contractor & ctc,
      * Invariant: all the boxes on the stack have been pruned
      * Invariant: the LP boxes contains all the ICP boxes above them
      */
-    thread_local static stack<tuple<bool,box>> box_stack;
+    thread_local static stack<tuple<bool, box>> box_stack;
     // a "box" for the point solution of the lp_solver
     thread_local static box lp_point(b);
 
@@ -72,8 +70,8 @@ box lp_icp::solve(box b, contractor & ctc,
     while (!box_stack.empty()) {
         box_stack.pop();
     }
-    
-    //all the box on the stack must be pruned
+
+    // all the box on the stack must be pruned
     ctc.prune(b, config);
     if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
     if (!b.is_empty()) {
@@ -84,7 +82,7 @@ box lp_icp::solve(box b, contractor & ctc,
 
     // create the LP with the linear constraints
     unordered_set<Enode*> es;
-    for (auto cptr: constraints) {
+    for (auto cptr : constraints) {
         if (cptr->get_type() == constraint_type::Nonlinear) {
             auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
             auto e = ncptr->get_enode();
@@ -110,7 +108,7 @@ box lp_icp::solve(box b, contractor & ctc,
         if (kind == LP) {
             lp_solver.set_domain(b);
         } else if (!lp_solver.is_sat()) {
-            //TODO if !lp_solver.is_sat() we should check the precision!!
+            // TODO(sean): if !lp_solver.is_sat() we should check the precision!!
             DREAL_LOG_INFO << "lp_icp: LP say unsat";
             assert(b.is_subset(lp_solver.get_domain()));
             b.set_empty();
@@ -184,7 +182,6 @@ box lp_icp::solve(box b, contractor & ctc,
         assert(!b.is_empty() || box_stack.size() == 0);
         return b;
     }
-
 }
 
 }  // namespace dreal

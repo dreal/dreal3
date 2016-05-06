@@ -22,7 +22,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include <set>
 
 namespace dreal {
 double eval_enode(Enode * const e, std::unordered_map<Enode*, double> const & var_map);

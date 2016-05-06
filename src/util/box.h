@@ -98,8 +98,8 @@ public:
     }
 
     // set_value
-    inline void set_value (Enode * e, double lb, double ub) {
-        m_values[get_index(e)] = ibex::Interval(lb,ub);
+    inline void set_value(Enode * e, double lb, double ub) {
+        m_values[get_index(e)] = ibex::Interval(lb, ub);
     }
 
     // get_domain
