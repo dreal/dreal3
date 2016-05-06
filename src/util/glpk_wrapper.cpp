@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <cassert>
 #include <exception>
+#include "./config.h"
 #include "opensmt/common/LA.h"
 #include "util/glpk_wrapper.h"
 #include "ibex/ibex.h"

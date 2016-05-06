@@ -491,8 +491,8 @@ bool nra_solver::check(bool complete) {
             SizeGradAsinhBrancher sb1(m_stack);
             vector<reference_wrapper<BranchHeuristic>> heuristics = {sb, sb1};
             m_box = multiheuristic_icp::solve(m_box, m_ctc, m_stack, config, heuristics);
-        } else if (config.nra_linear_only) {
 #ifdef USE_GLPK
+        } else if (config.nra_linear_only) {
             unordered_set<Enode *> linear_stack;
             for (auto c : m_stack) {
                 assert(c->get_enodes().size() == 1);
@@ -507,14 +507,8 @@ bool nra_solver::check(bool complete) {
                 handle_sat_case(m_box);
             }
             return result;
-#else
-            throw runtime_error("Compile dReal GLPK (cmake `-DUSE_GLPK=true`) to use the LP+ICP solver.");
-#endif
         } else if (config.nra_lp) {
-#ifdef USE_GLPK
             m_box = lp_icp::solve(m_box, m_ctc, m_stack, config);
-#else
-            throw runtime_error("Compile dReal GLPK (cmake `-DUSE_GLPK=true`) to use the LP+ICP solver.");
 #endif
         } else {
             m_box = naive_icp::solve(m_box, m_ctc, m_stack, config);

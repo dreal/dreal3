@@ -24,6 +24,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <chrono>
 #include <sys/stat.h>
+#include "./config.h"
 #include "common/Global.h"
 #include "util/stat.h"
 #include "minisat/core/SolverTypes.h"
@@ -221,7 +222,6 @@ struct SMTConfig
   bool         nra_worklist_fp;               // use worklist fixpoint algorithm
   bool         nra_multiprune;                // try the top k dimensions to branch on, and see which contract the most before selecting a branch
   bool         nra_multiheuristic;            // run two heuristics simultaneously, return when only one of them completes
-  bool         nra_lp;                        // use a combination of ICP and LP
   bool         nra_shrink_for_dop;            // shrink forall domain for dOp optimization
   bool         nra_simulation_thread;         // use a separate thread for simulation in ICP
   bool         nra_precision_output;          // print precision info in case of delta-sat
@@ -237,7 +237,10 @@ struct SMTConfig
 
   void inc_icp_decisions() { nra_icp_decisions++; }
   int  icp_decisions() { return nra_icp_decisions; }
+#ifdef USE_GLPK
+  bool         nra_lp;                        // use a combination of ICP and LP
   bool         nra_linear_only;               // use glpk on linear only problems
+#endif
 
   void setODEFwdTimeout(double const ode_fwd_timeout);
   void setODEBwdTimeout(double const ode_bwd_timeout);

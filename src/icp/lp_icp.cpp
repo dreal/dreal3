@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <vector>
 #include <stack>
+#include "./config.h"
 #include "icp/icp.h"
 #include "icp/lp_icp.h"
 #include "icp/brancher.h"
