@@ -25,7 +25,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <ezOptionParser/ezOptionParser.hpp>
 #include "SMTConfig.h"
-#include "config.h"
+#include "./config.h"
 #include "util/logging.h"
 #include "util/git_sha1.h"
 #include "version.h"
@@ -149,7 +149,6 @@ SMTConfig::initializeConfig( )
   nra_simulation_thread        = false;
   nra_multiprune               = false;
   nra_multiheuristic           = false;
-  nra_lp                       = false;
   nra_precision_output         = true;
   nra_random_seed              = random_device{}();
   nra_output_num_nodes         = false;
@@ -158,7 +157,10 @@ SMTConfig::initializeConfig( )
   nra_heuristic_forward        = false;
   nra_hybrid_notlearn_clause   = false;
   nra_slack_level              = 0;
+#ifdef USE_GLPK
+  nra_lp                       = false;
   nra_linear_only              = false;
+#endif
   initLogging();
 }
 
@@ -612,13 +614,15 @@ SMTConfig::parseCMDLine( int argc
     nra_simulation_thread   = opt.isSet("--simulation");
     nra_multiprune          = opt.isSet("--multiprune");
     nra_multiheuristic      = opt.isSet("--multiheuristic");
-    nra_lp                  = opt.isSet("--lp-icp");
     nra_precision_output    =!opt.isSet("--no-precision-output");
     sat_preprocess_booleans = opt.isSet("--sat-prep-bool");
     nra_show_search_progress= opt.isSet("--show-search");
     nra_heuristic_forward   = opt.isSet("--heuristic_forward");
     nra_hybrid_notlearn_clause = opt.isSet("--no-hybrid-clause-learning");
+#ifdef USE_GLPK
+    nra_lp                  = opt.isSet("--lp-icp");
     nra_linear_only         = opt.isSet("--linear-only");
+#endif
 
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }
