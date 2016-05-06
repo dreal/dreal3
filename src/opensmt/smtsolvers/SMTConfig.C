@@ -107,6 +107,7 @@ SMTConfig::initializeConfig( )
   proof_use_sym_inter          = 1;
   proof_certify_inter          = 0;
   // NRA-Solver Default configuration
+  nra_theory_propagation       = 0;
   nra_precision                = 0.0;
   nra_verbose                  = false;
   nra_debug                    = false;
@@ -543,7 +544,7 @@ SMTConfig::parseCMDLine( int argc
     nra_ODE_show_progress   = opt.isSet("--ode-show-progress");
     nra_ODE_sampling        = opt.isSet("--ode-sampling");
     nra_readable_proof      = opt.isSet("--readable-proof");
-    sat_theory_propagation  = opt.isSet("--theory-propagation");
+    nra_theory_propagation  = opt.isSet("--theory-propagation");
     nra_proof               = nra_readable_proof || opt.isSet("--proof");
     nra_model               = opt.isSet("--model");
     if (nra_model) { produce_models = true; }

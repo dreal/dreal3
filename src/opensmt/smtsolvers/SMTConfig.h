@@ -174,6 +174,7 @@ struct SMTConfig
   std::string  nra_bmc_heuristic;             // Use BMC variable selection heuristic in Minisat from file
 
   // NRA-Solver related parameters (added for dReal2)
+  int          nra_theory_propagation;        // enables theory propagation
   bool         nra_delta_test;                // precision=(nra_delta_test ? delta : epsilon)
   bool         nra_use_delta_heuristic;       // Split variable in constraint with max residual delta?
   bool         nra_short_sat;                 // Test theory if CNF is SAT, before have full model.

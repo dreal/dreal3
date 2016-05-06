@@ -481,7 +481,7 @@ bool nra_solver::check(bool complete) {
     if (!result) {
         explanation = generate_explanation(m_used_constraint_vec);
     } else {
-        if (!complete && config.sat_theory_propagation) {
+        if (!complete && config.nra_theory_propagation) {
             handle_deduction();
         }
         if (complete) {
