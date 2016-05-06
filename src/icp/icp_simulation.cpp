@@ -1,6 +1,6 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-	Sicun Gao <sicung@mit.edu>
+    Sicun Gao <sicung@mit.edu>
 
 dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
@@ -130,17 +130,17 @@ void optimization_worker(box & ret, vector<Enode *> const & lits, icp_shared_sta
     box local_domain(status.m_sample_domain);
     box sample = local_domain.sample_point();
     optimizer opt(local_domain, lits, e, c);
-    cerr<<"before improving, the domain is\n"<<local_domain<<endl;
-    cerr<<"before improving, the sample point is:\n"<<sample<<endl;
-    //loop continues if the sample point can be improved
+    cerr << "before improving, the domain is\n" << local_domain << endl;
+    cerr << "before improving, the sample point is:\n" << sample << endl;
+    // loop continues if the sample point can be improved
     while (!status.m_is_icp_over) {
-	if (!opt.improve(sample)) {
-	    ret = sample;
-	    status.m_is_simulation_over = true;
-	    return;
-	}
-	cerr<<"a better point:\n"<<sample<<endl;
-	//will add learned boxes etc.
+        if (!opt.improve(sample)) {
+            ret = sample;
+            status.m_is_simulation_over = true;
+            return;
+        }
+        cerr << "a better point:\n" << sample << endl;
+        // will add learned boxes etc.
     }
     status.m_is_simulation_over = true;
     return;
@@ -170,14 +170,14 @@ void simulation_worker(box & ret, vector<Enode *> const & lits, icp_shared_statu
     return;
 }
 
-box simulation_icp::solve(box b, contractor & ctc, vector<Enode *> const & lits, SMTConfig & config, Egraph & e) {
+box simulation_icp::solve(box b, contractor & ctc, vector<Enode *> const & lits, SMTConfig & config, Egraph &) {
     box ret(b);
     icp_shared_status status(b);
     thread icp_thread(naive_icp_worker, b, ref(ret), ref(config), ref(ctc), ref(status));
-    //thread optimization_thread(optimization_worker, ref(ret), ref(lits), ref(status), ref(e), ref(config));
-    thread simulation_thread(simulation_worker, ref(ret), ref(lits), ref(status));    
+    // thread optimization_thread(optimization_worker, ref(ret), ref(lits), ref(status), ref(e), ref(config));
+    thread simulation_thread(simulation_worker, ref(ret), ref(lits), ref(status));
     simulation_thread.join();
-    //optimization_thread.join();
+    // optimization_thread.join();
     icp_thread.join();
     return ret;
 }

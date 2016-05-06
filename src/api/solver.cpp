@@ -151,7 +151,7 @@ void solver::reset() {
 
 void solver::push() {
     assert(cctx);
-    //todo: take care of etab
+    // TODO(sean): take care of etab
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     context->Push();
 }

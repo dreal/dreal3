@@ -32,7 +32,7 @@ class lp_icp {
 private:
     static BranchHeuristic & defaultHeuristic;
 public:
-    //TODO the contractor contains both the linear and nonlinear constraints but it only needs the nonlinear ...
+    // TODO(damien): the contractor contains both the linear and nonlinear constraints but it only needs the nonlinear ...
     static box solve(box b, contractor & ctc,
             scoped_vec<shared_ptr<constraint>>& constraints,
             SMTConfig & config,

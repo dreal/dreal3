@@ -32,7 +32,6 @@ using std::endl;
 using std::ostringstream;
 using std::runtime_error;
 using std::unordered_map;
-using std::set;
 
 namespace dreal {
 

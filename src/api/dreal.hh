@@ -20,10 +20,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <iostream>
-#include <vector>
 #include <functional>
+#include <iostream>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace dreal {
 
@@ -176,9 +177,9 @@ public:
 
 private:
     env cctx;
-    std::vector<expr const *> vtab; //variable table
-    std::vector<double> stab;   //solution table
-    std::vector<expr const *> etab; //added enode table
-    std::vector<expr const *> ntab; //constant table
+    std::vector<expr const *> vtab;  // variable table
+    std::vector<double> stab;        // solution table
+    std::vector<expr const *> etab;  // added enode table
+    std::vector<expr const *> ntab;  // constant table
 };
 }  // namespace dreal
