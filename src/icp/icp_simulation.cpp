@@ -18,6 +18,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <algorithm>
+#include <exception>
 #include <mutex>
 #include <thread>
 #include <tuple>
@@ -30,6 +31,7 @@ namespace dreal {
 
 using std::all_of;
 using std::endl;
+using std::exception;
 using std::get;
 using std::lock_guard;
 using std::mutex;
@@ -128,7 +130,11 @@ void simulation_worker(box & ret, vector<Enode *> const & lits, icp_shared_statu
         // 2. Check consistency by evaluating the sample point
         bool const is_consistent =
             all_of(lits.begin(), lits.end(), [&sample](Enode * const lit) {
-                    return eval_enode_formula(lit, sample, lit->getPolarity() == l_True) == true;
+                    try {
+                        return eval_enode_formula(lit, sample, lit->getPolarity() == l_True) == true;
+                    } catch (exception & e) {
+                        return false;
+                    }
                 });
         if (is_consistent) {
             ret = sample;
