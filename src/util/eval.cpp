@@ -22,12 +22,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <exception>
 #include <iostream>
+#include <sstream>
 #include "./nlopt.hpp"
 #include "util/logging.h"
 
 using std::cerr;
 using std::cout;
 using std::endl;
+using std::ostringstream;
 using std::runtime_error;
 using std::unordered_map;
 
@@ -299,6 +301,30 @@ bool eval_enode_formula(Enode * const e, box const & b, bool const polarity) {
     if (e->isNot()) {
         return eval_enode_formula(e->get1st(), b, !polarity);
     }
+    if (e->isAnd()) {
+        Enode * args = e->getCdr();
+        while (!args->isEnil()) {
+            if (!eval_enode_formula(args->getCar(), b, polarity)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    if (e->isOr()) {
+        Enode * args = e->getCdr();
+        while (!args->isEnil()) {
+            if (eval_enode_formula(args->getCar(), b, polarity)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    if (e->isForall() || e->isExists() || e->isForallT()) {
+        ostringstream ss;
+        ss << "eval_enode_formula does not support " << e;
+        throw runtime_error(ss.str());
+    }
+    assert(e->isEq() || e->isLeq() || e->isLt() || e->isGeq() || e->isGt());
     double const eval_res1 = eval_enode_term(e->get1st(), b);
     double const eval_res2 = eval_enode_term(e->get2nd(), b);
     DREAL_LOG_DEBUG << "e = " << (polarity ? "" : "!") <<  e;
