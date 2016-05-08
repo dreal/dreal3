@@ -13,6 +13,7 @@
 #include "ibex/ibex.h"
 
 using std::stringstream;
+using std::cerr;
 using std::cout;
 using std::endl;
 
@@ -31,7 +32,8 @@ int main(int argc, char** argv) {
     try {
         // check the number of arguments
         if (argc < 5) {
-            ibex::ibex_error("usage: defaultoptimizer filename prec goal_prec timelimit");
+            cerr << "usage: defaultoptimizer filename prec goal_prec timelimit" << endl;
+            return 0;
         }
 
         // Load a system of equations
@@ -69,5 +71,6 @@ int main(int argc, char** argv) {
     }
     catch(ibex::SyntaxError& e) {
         cout << e << endl;
+        return 0;
     }
 }
