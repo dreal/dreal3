@@ -1,5 +1,5 @@
 dReal Options:
 For k = 0, dReach tried 0 feasible paths, all of them are unsat.
-SMT: ../../src/tests/drh/bouncing_ball_1_0.smt2, PATH : [1,2]
+SMT: bouncing_ball_1_0.smt2, PATH : [1,2]
 delta-sat with delta = 0.00100000000000000
 For k = 1, [1,2] -- SAT
