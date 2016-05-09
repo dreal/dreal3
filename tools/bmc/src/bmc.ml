@@ -1308,7 +1308,7 @@ let compile_vardecl (h : Network.t) (k : int) (path : (string list) option) (pre
   let assert_enf = List.flatten assert_enf_list in
   let assert_gam = List.flatten assert_gam_list in
   let assert_gam_t = List.flatten assert_gam_list_t in
-  (org_vardecl_cmds@vardecl_cmds@syncs@enfdecl_cmds@gamma_plain@gamdecl_cmds(*@gamdecl_cmds_t*), assert_cmds@assert_enf@assert_gam(*@assert_gam_t*))
+  (org_vardecl_cmds@vardecl_cmds@syncs@enfdecl_cmds@gamma_plain@gamdecl_cmds(*@gamdecl_cmds_t*), [] (*@assert_gam_t*))
 
 let rec lst_intersection' slst1 slst2 inter =
 	match
