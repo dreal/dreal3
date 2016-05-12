@@ -184,7 +184,7 @@ void Egraph::initializeStore( )
  //
   // Set top node to empty
   //
-  top = NULL;
+  top = nullptr;
   //
   // Allocate true and false
   //
@@ -295,7 +295,7 @@ void Egraph::removeSymbol( Enode * s )
   assert( it != name_to_symbol.end( ) );
   assert( it->second == s );
   name_to_symbol.erase( it );
-  id_to_enode[ s->getId( ) ] = NULL;
+  id_to_enode[ s->getId( ) ] = nullptr;
   delete s;
 }
 
@@ -322,7 +322,7 @@ Enode * Egraph::lookupSymbol( const char * name )
 {
   assert( name );
   map< string, Enode * >::iterator it = name_to_symbol.find( name );
-  if ( it == name_to_symbol.end( ) ) return NULL;
+  if ( it == name_to_symbol.end( ) ) return nullptr;
   return it->second;
 }
 
@@ -333,7 +333,7 @@ Enode * Egraph::lookupDefine( const char * name )
 {
   assert( name );
   map< string, Enode * >::iterator it = name_to_define.find( name );
-  if ( it == name_to_define.end( ) ) return NULL;
+  if ( it == name_to_define.end( ) ) return nullptr;
   return it->second;
 }
 
@@ -366,7 +366,7 @@ Enode * Egraph::insertSigTab ( const enodeid_t id, Enode * car, Enode * cdr )
 #endif
   Enode * res = sig_tab.lookup( sig );
 
-  if ( res == NULL )
+  if ( res == nullptr )
   {
     Enode * e = new Enode( id, car, cdr );
     sig_tab.insert( e );
@@ -523,7 +523,7 @@ Enode * Egraph::cons( Enode * car, Enode * cdr )
   assert( cdr );
   assert( car->isTerm( ) || car->isSymb( ) || car->isNumb( ) );
   assert( cdr->isList( ) );
-  Enode * e = NULL;
+  Enode * e = nullptr;
   // Create and insert a new enode if necessary
   e = insertStore( id_to_enode.size( ), car, cdr );
   assert( e );
@@ -565,11 +565,11 @@ Enode * Egraph::mkVar( const char * name, bool model_var )
 {
   Enode * e = lookupSymbol( name );
   // Not a variable, is it a define ?
-  if ( e == NULL )
+  if ( e == nullptr )
   {
     e = lookupDefine( name );
     // Not a define, abort
-    if ( e == NULL )
+    if ( e == nullptr )
       opensmt_error2( "undeclared identifier ", name );
     assert( e->isDef( ) );
     // It's a define, return itss definition
@@ -660,7 +660,7 @@ Enode * Egraph::mkFun( const char * name, Enode * args )
   }
 
   Enode * e = lookupSymbol( ss.str( ).c_str( ) );
-  if ( e == NULL ) opensmt_error2( "undeclared function symbol ", ss.str( ).c_str( ) );
+  if ( e == nullptr ) opensmt_error2( "undeclared function symbol ", ss.str( ).c_str( ) );
 
   Enode * ret = cons( e, args );
 
@@ -681,7 +681,7 @@ Enode * Egraph::newSymbol( const char * name, Snode * s , bool isModelVar, doubl
   if ( args != "" ) ss << " " << args;
 
   Enode * e = lookupSymbol( ss.str( ).c_str( ) );
-  if ( e != NULL ) {
+  if ( e != nullptr ) {
       if ( e->getSort() != s ) {
           opensmt_error2( "symbol already declared ", ss.str( ).c_str( ) );
       } else {
@@ -711,14 +711,14 @@ Enode * Egraph::getDefine( const char * name )
 {
   Enode * e = lookupDefine( name );
   assert( e );
-  assert( e->getCar( ) != NULL );
+  assert( e->getCar( ) != nullptr );
   return e->getCar( );
 }
 
 void Egraph::mkDefine( const char * name, Enode * def )
 {
   Enode * e = lookupDefine( name );
-  if( e == NULL )
+  if( e == nullptr )
   {
     Enode * new_enode = new Enode( id_to_enode.size( ), def );
     insertDefine( name, new_enode );
@@ -841,6 +841,12 @@ Enode * Egraph::mkAbs (Enode * args)
   if ( !args || args->getArity() != 1) {
       return nullptr;
   }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(abs(arg->getValue()));
+    }
+  }
   Enode * res = cons( id_to_enode[ ENODE_ID_ABS], args );
   assert( res );
   return res;
@@ -852,6 +858,17 @@ Enode * Egraph::mkPow (Enode * args)
   assert( args->getArity( ) == 2 );
   if ( !args || args->getArity() != 2) {
       return nullptr;
+  }
+  if (config.nra_simp) {
+    Enode * const arg1 = args->getCar();
+    Enode * const arg2 = args->getCdr()->getCar();
+    if (arg1->isConstant() && arg2->isConstant()) {
+      return mkNum(pow(arg1->getValue(), arg2->getValue()));
+    }
+    if (arg2->isConstant() && arg2->getValue() == 1) {
+      // x ^ 1 = x
+      return arg1;
+    }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_POW], args );
   assert( res );
@@ -865,6 +882,12 @@ Enode * Egraph::mkSin              ( Enode * args)
   if ( !args || args->getArity() != 1) {
       return nullptr;
   }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(sin(arg->getValue()));
+    }
+  }
   Enode * res = cons( id_to_enode[ ENODE_ID_SIN], args );
   assert( res );
   return res;
@@ -876,6 +899,12 @@ Enode * Egraph::mkCos              ( Enode * args)
   assert( args->getArity( ) == 1 );
   if ( !args || args->getArity() != 1) {
       return nullptr;
+  }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(cos(arg->getValue()));
+    }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_COS], args );
   assert( res );
@@ -889,6 +918,12 @@ Enode * Egraph::mkTan              ( Enode * args)
   if ( !args || args->getArity() != 1) {
       return nullptr;
   }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(tan(arg->getValue()));
+    }
+  }
   Enode * res = cons( id_to_enode[ ENODE_ID_TAN], args );
   assert( res );
   return res;
@@ -900,6 +935,12 @@ Enode * Egraph::mkAsin              ( Enode * args)
   assert( args->getArity( ) == 1 );
   if ( !args || args->getArity() != 1) {
       return nullptr;
+  }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(asin(arg->getValue()));
+    }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_ASIN], args );
   assert( res );
@@ -913,6 +954,12 @@ Enode * Egraph::mkAcos              ( Enode * args)
   if ( !args || args->getArity() != 1) {
       return nullptr;
   }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(acos(arg->getValue()));
+    }
+  }
   Enode * res = cons( id_to_enode[ ENODE_ID_ACOS], args );
   assert( res );
   return res;
@@ -924,6 +971,12 @@ Enode * Egraph::mkAtan              ( Enode * args)
   assert( args->getArity( ) == 1 );
   if ( !args || args->getArity() != 1) {
       return nullptr;
+  }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(atan(arg->getValue()));
+    }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_ATAN], args );
   assert( res );
@@ -937,6 +990,12 @@ Enode * Egraph::mkSinh             ( Enode * args)
   if ( !args || args->getArity() != 1) {
       return nullptr;
   }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(sinh(arg->getValue()));
+    }
+  }
   Enode * res = cons( id_to_enode[ ENODE_ID_SINH ], args );
   assert( res );
   return res;
@@ -948,6 +1007,12 @@ Enode * Egraph::mkCosh             ( Enode * args)
   assert( args->getArity( ) == 1 );
   if ( !args || args->getArity() != 1) {
       return nullptr;
+  }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(cosh(arg->getValue()));
+    }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_COSH ], args );
   assert( res );
@@ -961,6 +1026,12 @@ Enode * Egraph::mkTanh             ( Enode * args)
   if ( !args || args->getArity() != 1) {
       return nullptr;
   }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(tanh(arg->getValue()));
+    }
+  }
   Enode * res = cons( id_to_enode[ ENODE_ID_TANH ], args );
   assert( res );
   return res;
@@ -972,6 +1043,13 @@ Enode * Egraph::mkAtan2             ( Enode * args)
   assert( args->getArity( ) == 2 );
   if ( !args || args->getArity() != 2) {
       return nullptr;
+  }
+  if (config.nra_simp) {
+    Enode * const arg1 = args->getCar();
+    Enode * const arg2 = args->getCdr()->getCar();
+    if (arg1->isConstant() && arg2->isConstant()) {
+      return mkNum(atan2(arg1->getValue(), arg2->getValue()));
+    }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_ATAN2], args );
   assert( res );
@@ -985,6 +1063,13 @@ Enode * Egraph::mkMin             ( Enode * args)
   if ( !args || args->getArity() != 2) {
       return nullptr;
   }
+  if (config.nra_simp) {
+    Enode * const arg1 = args->getCar();
+    Enode * const arg2 = args->getCdr()->getCar();
+    if (arg1->isConstant() && arg2->isConstant()) {
+      return mkNum(fmin(arg1->getValue(), arg2->getValue()));
+    }
+  }
   Enode * res = cons( id_to_enode[ ENODE_ID_MIN], args );
   assert( res );
   return res;
@@ -996,6 +1081,13 @@ Enode * Egraph::mkMax             ( Enode * args)
   assert( args->getArity( ) == 2 );
   if ( !args || args->getArity() != 2) {
       return nullptr;
+  }
+  if (config.nra_simp) {
+    Enode * const arg1 = args->getCar();
+    Enode * const arg2 = args->getCdr()->getCar();
+    if (arg1->isConstant() && arg2->isConstant()) {
+      return mkNum(fmax(arg1->getValue(), arg2->getValue()));
+    }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_MAX], args );
   assert( res );
@@ -1009,6 +1101,19 @@ Enode * Egraph::mkMatan             ( Enode * args)
   if ( !args || args->getArity() != 1) {
       return nullptr;
   }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      double const v = arg->getValue();
+      if (v == 0) {
+        return mkNum(1);
+      } else if (v > 0) {
+        return mkNum(atan(sqrt(v) / sqrt(v)));
+      } else {
+        return mkNum((log((1 + sqrt(-v)) / (1 - sqrt(-v)))) / (2 * sqrt(-v)));
+      }
+    }
+  }
   Enode * res = cons( id_to_enode[ ENODE_ID_MATAN], args );
   assert( res );
   return res;
@@ -1020,6 +1125,20 @@ Enode * Egraph::mkSafeSqrt            ( Enode * args)
   assert( args->getArity( ) == 1 );
   if ( !args || args->getArity() != 1) {
       return nullptr;
+  }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      double const v = arg->getValue();
+      if (v >= 0.0) {
+        return mkNum(v);
+      } else {
+        ostringstream ss;
+        ss << "Failed to build an expression: safesqrt(" << v << ") "
+           << "because " << v << " is negative.";
+        throw runtime_error(ss.str());
+      }
+    }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_SAFESQRT], args );
   assert( res );
@@ -1033,6 +1152,12 @@ Enode * Egraph::mkSqrt                ( Enode * args)
   if ( !args || args->getArity() != 1) {
       return nullptr;
   }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(sqrt(arg->getValue()));
+    }
+  }
   Enode * res = cons( id_to_enode[ ENODE_ID_SQRT], args );
   assert( res );
   return res;
@@ -1045,6 +1170,12 @@ Enode * Egraph::mkExp              ( Enode * args)
   if ( !args || args->getArity() != 1) {
       return nullptr;
   }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(exp(arg->getValue()));
+    }
+  }
   Enode * res = cons( id_to_enode[ ENODE_ID_EXP], args );
   assert( res );
   return res;
@@ -1056,6 +1187,12 @@ Enode * Egraph::mkLog              ( Enode * args)
   assert( args->getArity( ) == 1 );
   if ( !args || args->getArity() != 1) {
       return nullptr;
+  }
+  if (config.nra_simp) {
+    Enode * const arg = args->getCar();
+    if (arg->isConstant()) {
+      return mkNum(log(arg->getValue()));
+    }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_LOG], args );
   assert( res );
@@ -1074,7 +1211,7 @@ Enode * Egraph::mkPlus( Enode * args )
   if ( args->getArity( ) == 1 )
     return args->getCar( );
 
-  Enode * res = NULL;
+  Enode * res = nullptr;
   Enode * x = args->getCar( );
   Enode * y = args->getCdr( )->getCar( );
   //
@@ -1109,14 +1246,18 @@ Enode * Egraph::mkMinus( Enode * args )
 
   assert( args->getArity( ) == 2 );
 
-  Enode * res = NULL;
+  Enode * res = nullptr;
 
-  Enode * x = args->getCar( );
-  Enode * y = args->getCdr( )->getCar( );
-  Enode * mo = mkNum( "-1" );
+  Enode * const x = args->getCar( );
+  Enode * const y = args->getCdr( )->getCar( );
 
-  res = mkPlus( cons( x, cons( mkTimes( cons( mo, cons( y ) ) ) ) ) );
-
+  if (config.nra_simp && x->isConstant() && y->isConstant())
+  {
+    res = mkNum(x->getValue() - y->getValue());
+  } else {
+    Enode * mo = mkNum( "-1" );
+    res = mkPlus( cons( x, cons( mkTimes( cons( mo, cons( y ) ) ) ) ) );
+  }
   return res;
 }
 
@@ -1127,10 +1268,11 @@ Enode * Egraph::mkUminus( Enode * args )
   if ( !args || args->getArity() != 1) {
       return nullptr;
   }
-
-  Enode * x = args->getCar( );
-  Enode * mo = mkNum( "-1" );
-
+  Enode * const x = args->getCar( );
+  if (config.nra_simp && x->isConstant()) {
+    return mkNum(- x->getValue());
+  }
+  Enode * const mo = mkNum( "-1" );
   return mkTimes( cons( mo, cons( x ) ) );
 }
 
@@ -1142,7 +1284,7 @@ Enode * Egraph::mkTimes( Enode * args )
       return nullptr;
   }
 
-  Enode * res = NULL;
+  Enode * res = nullptr;
   if (config.nra_simp) {
       double const zero_ = 0;
       Enode * zero = mkNum( zero_ );
@@ -1188,7 +1330,7 @@ Enode * Egraph::mkDiv( Enode * args )
       return nullptr;
   }
 
-  Enode * res = NULL;
+  Enode * res = nullptr;
   Enode * x = args->getCar( );
   Enode * y = args->getCdr( )->getCar( );
 
@@ -1285,7 +1427,7 @@ Enode * Egraph::mkAnd( Enode * args )
 
   doneDup1( );
 
-  Enode * res = NULL;
+  Enode * res = nullptr;
 
   if ( new_args.size( ) == 0 )
     res = mkTrue( );
@@ -1440,7 +1582,7 @@ Enode * Egraph::mkDistinct( Enode * args )
   if (!args) {
       return nullptr;
   }
-  Enode * res = NULL;
+  Enode * res = nullptr;
   //
   // Replace distinction with negated equality when it has only 2 args
   //
@@ -1486,7 +1628,7 @@ Enode * Egraph::getUncheckedAssertions( bool const clear )
 
   // Pack the formula and the assertions
   // into an AND statement, and return it
-  if ( top != NULL )
+  if ( top != nullptr )
     assertions.push_back( top );
 
   Enode * args = cons( assertions );
@@ -1503,7 +1645,7 @@ Enode * Egraph::getUncheckedAssertions( bool const clear )
 Enode * Egraph::getNextAssertion( )
 {
   if ( assertions.empty( ) )
-    return NULL;
+    return nullptr;
 
   Enode * ret = assertions.front( );
   assertions.pop_front( );
@@ -1694,7 +1836,7 @@ Enode * Egraph::canonize( Enode * formula, bool split_eqs )
     //
     // Skip if the node has already been processed before
     //
-    if ( valDupMap1( enode ) != NULL )
+    if ( valDupMap1( enode ) != nullptr )
     {
       unprocessed_enodes.pop_back( );
       continue;
@@ -1711,7 +1853,7 @@ Enode * Egraph::canonize( Enode * formula, bool split_eqs )
       //
       // Push only if it is unprocessed
       //
-      if ( valDupMap1( arg ) == NULL )
+      if ( valDupMap1( arg ) == nullptr )
       {
         unprocessed_enodes.push_back( arg );
         unprocessed_children = true;
@@ -1724,7 +1866,7 @@ Enode * Egraph::canonize( Enode * formula, bool split_eqs )
       continue;
 
     unprocessed_enodes.pop_back( );
-    Enode * result = NULL;
+    Enode * result = nullptr;
     //
     // Replace arithmetic atoms with canonized version
     //
@@ -1773,10 +1915,10 @@ Enode * Egraph::canonize( Enode * formula, bool split_eqs )
     //
     // If nothing have been done copy and simplify
     //
-    if ( result == NULL )
+    if ( result == nullptr )
       result = copyEnodeEtypeTermWithCache( enode );
 
-    assert( valDupMap1( enode ) == NULL );
+    assert( valDupMap1( enode ) == nullptr );
     storeDupMap1( enode, result );
 #ifdef PRODUCE_PROOF
     if ( config.produce_inter > 0 )
@@ -1968,7 +2110,7 @@ Enode * Egraph::mkLet( Enode * t )
     //
     // Skip if the node has already been processed before
     //
-    if ( valDupMap1( enode ) != NULL )
+    if ( valDupMap1( enode ) != nullptr )
     {
       unprocessed_enodes.pop_back( );
       continue;
@@ -1985,7 +2127,7 @@ Enode * Egraph::mkLet( Enode * t )
       //
       // Push only if it is unprocessed
       //
-      if ( valDupMap1( arg ) == NULL )
+      if ( valDupMap1( arg ) == nullptr )
       {
         unprocessed_enodes.push_back( arg );
         unprocessed_children = true;
@@ -1998,7 +2140,7 @@ Enode * Egraph::mkLet( Enode * t )
       continue;
 
     unprocessed_enodes.pop_back( );
-    Enode * result = NULL;
+    Enode * result = nullptr;
     //
     // Replace with corresponding definition
     //
@@ -2007,7 +2149,7 @@ Enode * Egraph::mkLet( Enode * t )
     else
       result = copyEnodeEtypeTermWithCache( enode );
 
-    assert( valDupMap1( enode ) == NULL );
+    assert( valDupMap1( enode ) == nullptr );
     storeDupMap1( enode, result );
   }
 
@@ -2029,7 +2171,7 @@ void Egraph::printMemStats( ostream & os )
   for ( unsigned i = 0 ; i < id_to_enode.size( ) ; i ++ )
   {
     Enode * e = id_to_enode[ i ];
-    assert( e != NULL );
+    assert( e != nullptr );
     total += e->sizeInMem( );
   }
 
@@ -2334,235 +2476,230 @@ Enode * Egraph::mkExists ( vector<pair<string, Snode *>> const & sorted_var_list
     return res;
 }
 
-
 Enode * Egraph::mkDeriv(Enode * e, Enode * v) {
-    assert(v->isVar());
-    Enode * zero = mkNum("0");
-    Enode * one = mkNum("1");
+  assert(v->isVar());
+  Enode * zero = mkNum("0");
+  Enode * one = mkNum("1");
+  if (e == v) {
+    return one;
+  }
+  if (e->isVar()) {
     if (e == v) {
-        return one;
-    }
-    if (e->isVar()) {
-        if (e == v) {
-	    return one;
-        } else {
-            // Variable is found in var_map
-            return zero;
-        }
-    } else if (e->isConstant()) {
-        return zero;
-    } else if (e->isSymb()) {
-        throw runtime_error("mkDeriv: Symb");
-    } else if (e->isNumb()) {
-   	   return zero; 
-    } else if (e->isTerm()) {
-        assert(e->getArity() >= 1);
-        enodeid_t id = e->getCar()->getId();
-        //double ret = 0.0;
-	Enode * ret;
-        Enode * tmp = e;
-        switch (id) {
-        case ENODE_ID_PLUS:
-            ret = mkDeriv(tmp->get1st(), v);
-            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
-            while (!tmp->isEnil()) {
-                ret = mkPlus(ret, mkDeriv(tmp->getCar(), v));
-                tmp = tmp->getCdr();
-            }
-            return ret;
-        case ENODE_ID_MINUS:
-            ret = mkDeriv(tmp->get1st(), v);
-            tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
-            while (!tmp->isEnil()) {
-                ret = mkMinus(ret, mkDeriv(tmp->getCar(), v));
-                tmp = tmp->getCdr();
-            }
-            return ret;
-        case ENODE_ID_UMINUS:
-            ret = mkDeriv(tmp->get1st(), v);
-            assert(tmp->getArity() == 1);
-            return mkUminus(cons(ret));
-        case ENODE_ID_TIMES: {
-            // (f * g)' = f' * g + f * g'
-	    Enode * f = tmp->get1st();
-            Enode * f_p = mkDeriv(f, v);
-	    if (tmp->getArity() == 2){
-    		Enode * g = tmp->get2nd();
-	    	Enode * g_p = mkDeriv(g, v);
-	    	return mkPlus(mkTimes(f,g_p),mkTimes(g,f_p));
-	    }
-	    else if (tmp->getArity() > 2){
-		//reduce the rest of the list to a standalone product
-		Enode * g = mkTimes(tmp->getCdr()->getCdr()->getCar(),tmp->getCdr()->getCdr()->getCdr());
-		Enode * g_p = mkDeriv(g, v);
-	    	return mkPlus(mkTimes(f,g_p),mkTimes(g,f_p));
-	    }
-       }
-        case ENODE_ID_DIV: {
-            // (f / g)' = (f' * g - f * g') / g^2
-	    Enode * f = tmp->get1st();
-            Enode * f_p = mkDeriv(f, v);
-	    if (tmp->getArity() == 2){
-    		Enode * g = tmp->get2nd();
-	    	Enode * g_p = mkDeriv(g, v);
-	   	assert(g!=zero);
-	    	return mkDiv(mkMinus(mkTimes(f,g_p),mkTimes(g,f_p)),mkTimes(g, g));
-  	    }
-	    else if (tmp->getArity() > 2){
-		//reduce the rest of the list to a standalone product
-		Enode * g = mkDiv(tmp->getCdr()->getCdr()->getCar(),tmp->getCdr()->getCdr()->getCdr());
-		Enode * g_p = mkDeriv(g, v);
-		assert(g!=zero);
-	    	return mkDiv(mkMinus(mkTimes(f,g_p),mkTimes(g,f_p)),mkTimes(g, g));
-            }
-        }
-        case ENODE_ID_ACOS: {
-            // (acos f)' = -(1 / sqrt(1 - f^2)) f'
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
-	    return mkTimes(mkUminus(cons(mkDiv(one,mkSqrt(cons(mkMinus(one, mkTimes(f,f))))))),f_p);
-        }
-        case ENODE_ID_ASIN: {
-            // (asin f)' = (1 / sqrt(1 - f^2)) f'
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);           
-	    return mkTimes(mkDiv(one,mkSqrt(cons(mkMinus(one, mkTimes(f,f))))),f_p);
-        }
-        case ENODE_ID_ATAN: {
-            // (atan f)' = (1 / (1 + f^2)) * f'
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);           
-	    return mkTimes(mkDiv(one, mkPlus(one, mkTimes(f,f))),f_p);
-        }
-        case ENODE_ID_ATAN2: {
-            // atan2(x,y)' = -y / (x^2 + y^2) dx + x / (x^2 + y^2) dy
-            //             = (-y dx + x dy) / (x^2 + y^2)
-            assert(e->getArity() == 2);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
-            Enode * g = e->get2nd();
-            Enode * g_p = mkDeriv(g,v);
-            return mkDiv(mkPlus(mkTimes(mkUminus(cons(g)), f_p),mkTimes(f, g_p)), 
-							mkPlus(mkTimes(f,f),mkTimes(g,g)));
-        }
-        case ENODE_ID_MIN:
-            assert(e->getArity() == 2);
-            throw runtime_error("mkDeriv: no support for min");
-        case ENODE_ID_MAX:
-            assert(e->getArity() == 2);
-            throw runtime_error("mkDeriv: no support for max");
-        case ENODE_ID_MATAN:
-            assert(e->getArity() == 1);
-            throw runtime_error("mkDeriv: no support for matan");
-        case ENODE_ID_SAFESQRT:
-            assert(e->getArity() == 1);
-            throw runtime_error("mkDeriv: no support for safesqrt");
-        case ENODE_ID_SQRT: {
-            // (sqrt(f))' = 1/2 * 1/(sqrt(f)) * f'
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
-            return mkTimes(mkDiv(one,mkTimes(mkNum("2"),mkSqrt(cons(f)))), f_p);
-        }
-        case ENODE_ID_EXP: {
-            // (exp f)' = (exp f) * f'
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
- 	    return mkTimes(mkExp(cons(f)),f_p);
- 	
-        }
-        case ENODE_ID_LOG: {
-            // (log f)' = f' / f
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
-	    return mkDiv(f_p,f);
-        }
-        case ENODE_ID_POW: {
-            // (f^g)' = f^g (f' * g / f + g' * ln g)
-            assert(e->getArity() == 2);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
-            Enode * g = e->get2nd();
-	    if (g->isConstant()) {
-	//	cout<<"numb!";
-		return mkTimes(mkTimes(g,mkPow(cons(f,cons(mkMinus(g,one))))),f_p);
-	    }
-	    else {
-	//	cout<<"not a number: " << g << std::endl;
-            	Enode * g_p = mkDeriv(g,v);
-            	return mkTimes(mkPow(cons(f, cons(g))),mkDiv(mkTimes(f_p,g),mkPlus(f,mkTimes(g_p, mkLog(cons(g))))));
-	    }
-        }
-        case ENODE_ID_ABS: {
-            assert(e->getArity() == 1);
-            throw runtime_error("mkDeriv: no support for safesqrt");
-        }
-        case ENODE_ID_SIN: {
-            // (sin f)' = (cos f) * f'
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
-            return mkTimes(mkCos(cons(f)), f_p);
-        }
-        case ENODE_ID_COS: {
-            // (cos f)' = - (sin f) * f'
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
-            return mkUminus(cons(mkTimes(mkSin(cons(f)), f_p)));
-        }
-        case ENODE_ID_TAN: {
-            // (tan f)' = (1 + tan^2 f) * f'
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
-            return mkTimes(mkPlus(one, mkTimes(mkTan(cons(f)), mkTan(cons(f)))),f_p);
-        }
-        case ENODE_ID_SINH: {
-            // (sinh f)' = (e^f + e^(-f))/2 * f'
-            //           = cosh(f) * f'
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
-            return mkTimes(mkCosh(cons(f)), f_p);
-        }
-        case ENODE_ID_COSH: {
-            // (cosh f)' = (e^f - e^(-f))/2 * f'
-            //           = sinh(f) * f'
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
-            return mkTimes(mkSinh(cons(f)),f_p);
-        }
-        case ENODE_ID_TANH: {
-            // (tanh f)' = (sech^2 f) * f'
-            //           = (1 - tanh(f) ^ 2) * f'
-
-            assert(e->getArity() == 1);
-            Enode * f = e->get1st();
-            Enode * f_p = mkDeriv(f, v);
-            return mkTimes(mkMinus(one,mkTimes(mkTanh(cons(f)),mkTanh(cons(f)))), f_p);
-        }
-        default:
-            throw runtime_error("mkDeriv: Unknown Term");
-        }
-    } else if (e->isList()) {
-        throw runtime_error("mkDeriv: List");
-    } else if (e->isDef()) {
-        throw runtime_error("mkDeriv: Def");
-    } else if (e->isEnil()) {
-        throw runtime_error("mkDeriv: Nil");
+      return one;
     } else {
-        throw runtime_error("mkDeriv: unknown case");
+      // Variable is found in var_map
+      return zero;
     }
-    throw runtime_error("Not implemented yet: mkDeriv");
+  } else if (e->isConstant()) {
+    return zero;
+  } else if (e->isSymb()) {
+    throw runtime_error("mkDeriv: Symb");
+  } else if (e->isNumb()) {
+    return zero;
+  } else if (e->isTerm()) {
+    assert(e->getArity() >= 1);
+    enodeid_t id = e->getCar()->getId();
+    //double ret = 0.0;
+    Enode * ret;
+    Enode * tmp = e;
+    switch (id) {
+    case ENODE_ID_PLUS:
+      ret = mkDeriv(tmp->get1st(), v);
+      tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+      while (!tmp->isEnil()) {
+        ret = mkPlus(ret, mkDeriv(tmp->getCar(), v));
+        tmp = tmp->getCdr();
+      }
+      return ret;
+    case ENODE_ID_MINUS:
+      ret = mkDeriv(tmp->get1st(), v);
+      tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
+      while (!tmp->isEnil()) {
+        ret = mkMinus(ret, mkDeriv(tmp->getCar(), v));
+        tmp = tmp->getCdr();
+      }
+      return ret;
+    case ENODE_ID_UMINUS:
+      ret = mkDeriv(tmp->get1st(), v);
+      assert(tmp->getArity() == 1);
+      return mkUminus(cons(ret));
+    case ENODE_ID_TIMES: {
+      // (f * g)' = f' * g + f * g'
+      Enode * f = tmp->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      if (tmp->getArity() == 2){
+        Enode * g = tmp->get2nd();
+        Enode * g_p = mkDeriv(g, v);
+        return mkPlus(mkTimes(f,g_p),mkTimes(g,f_p));
+      }
+      else if (tmp->getArity() > 2){
+        //reduce the rest of the list to a standalone product
+        Enode * g = mkTimes(tmp->getCdr()->getCdr()->getCar(),tmp->getCdr()->getCdr()->getCdr());
+        Enode * g_p = mkDeriv(g, v);
+        return mkPlus(mkTimes(f,g_p),mkTimes(g,f_p));
+      }
+    }
+    case ENODE_ID_DIV: {
+      // (f / g)' = (f' * g - f * g') / g^2
+      Enode * f = tmp->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      if (tmp->getArity() == 2){
+        Enode * g = tmp->get2nd();
+        Enode * g_p = mkDeriv(g, v);
+        assert(g!=zero);
+        return mkDiv(mkMinus(mkTimes(f,g_p),mkTimes(g,f_p)),mkTimes(g, g));
+      }
+      else if (tmp->getArity() > 2){
+        //reduce the rest of the list to a standalone product
+        Enode * g = mkDiv(tmp->getCdr()->getCdr()->getCar(),tmp->getCdr()->getCdr()->getCdr());
+        Enode * g_p = mkDeriv(g, v);
+        assert(g!=zero);
+        return mkDiv(mkMinus(mkTimes(f,g_p),mkTimes(g,f_p)),mkTimes(g, g));
+      }
+    }
+    case ENODE_ID_ACOS: {
+      // (acos f)' = -(1 / sqrt(1 - f^2)) f'
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkTimes(mkUminus(cons(mkDiv(one,mkSqrt(cons(mkMinus(one, mkTimes(f,f))))))),f_p);
+    }
+    case ENODE_ID_ASIN: {
+      // (asin f)' = (1 / sqrt(1 - f^2)) f'
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkTimes(mkDiv(one,mkSqrt(cons(mkMinus(one, mkTimes(f,f))))),f_p);
+    }
+    case ENODE_ID_ATAN: {
+      // (atan f)' = (1 / (1 + f^2)) * f'
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkTimes(mkDiv(one, mkPlus(one, mkTimes(f,f))),f_p);
+    }
+    case ENODE_ID_ATAN2: {
+      // atan2(x,y)' = -y / (x^2 + y^2) dx + x / (x^2 + y^2) dy
+      //             = (-y dx + x dy) / (x^2 + y^2)
+      assert(e->getArity() == 2);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      Enode * g = e->get2nd();
+      Enode * g_p = mkDeriv(g,v);
+      return mkDiv(mkPlus(mkTimes(mkUminus(cons(g)), f_p),mkTimes(f, g_p)),
+                   mkPlus(mkTimes(f,f),mkTimes(g,g)));
+    }
+    case ENODE_ID_MIN:
+      assert(e->getArity() == 2);
+      throw runtime_error("mkDeriv: no support for min");
+    case ENODE_ID_MAX:
+      assert(e->getArity() == 2);
+      throw runtime_error("mkDeriv: no support for max");
+    case ENODE_ID_MATAN:
+      assert(e->getArity() == 1);
+      throw runtime_error("mkDeriv: no support for matan");
+    case ENODE_ID_SAFESQRT:
+      assert(e->getArity() == 1);
+      throw runtime_error("mkDeriv: no support for safesqrt");
+    case ENODE_ID_SQRT: {
+      // (sqrt(f))' = 1/2 * 1/(sqrt(f)) * f'
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkTimes(mkDiv(one,mkTimes(mkNum("2"),mkSqrt(cons(f)))), f_p);
+    }
+    case ENODE_ID_EXP: {
+      // (exp f)' = (exp f) * f'
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkTimes(mkExp(cons(f)),f_p);
+
+    }
+    case ENODE_ID_LOG: {
+      // (log f)' = f' / f
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkDiv(f_p,f);
+    }
+    case ENODE_ID_POW: {
+      // (f^g)' = f^g (f' * g / f + g' * ln g)
+      assert(e->getArity() == 2);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      Enode * g = e->get2nd();
+      if (g->isConstant()) {
+        //	cout<<"numb!";
+        return mkTimes(mkTimes(g,mkPow(cons(f,cons(mkMinus(g,one))))),f_p);
+      }
+      else {
+        //	cout<<"not a number: " << g << std::endl;
+        Enode * g_p = mkDeriv(g,v);
+        return mkTimes(mkPow(cons(f, cons(g))),mkDiv(mkTimes(f_p,g),mkPlus(f,mkTimes(g_p, mkLog(cons(g))))));
+      }
+    }
+    case ENODE_ID_ABS: {
+      assert(e->getArity() == 1);
+      throw runtime_error("mkDeriv: no support for safesqrt");
+    }
+    case ENODE_ID_SIN: {
+      // (sin f)' = (cos f) * f'
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkTimes(mkCos(cons(f)), f_p);
+    }
+    case ENODE_ID_COS: {
+      // (cos f)' = - (sin f) * f'
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkUminus(cons(mkTimes(mkSin(cons(f)), f_p)));
+    }
+    case ENODE_ID_TAN: {
+      // (tan f)' = (1 + tan^2 f) * f'
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkTimes(mkPlus(one, mkTimes(mkTan(cons(f)), mkTan(cons(f)))),f_p);
+    }
+    case ENODE_ID_SINH: {
+      // (sinh f)' = (e^f + e^(-f))/2 * f'
+      //           = cosh(f) * f'
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkTimes(mkCosh(cons(f)), f_p);
+    }
+    case ENODE_ID_COSH: {
+      // (cosh f)' = (e^f - e^(-f))/2 * f'
+      //           = sinh(f) * f'
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkTimes(mkSinh(cons(f)),f_p);
+    }
+    case ENODE_ID_TANH: {
+      // (tanh f)' = (sech^2 f) * f'
+      //           = (1 - tanh(f) ^ 2) * f'
+
+      assert(e->getArity() == 1);
+      Enode * f = e->get1st();
+      Enode * f_p = mkDeriv(f, v);
+      return mkTimes(mkMinus(one,mkTimes(mkTanh(cons(f)),mkTanh(cons(f)))), f_p);
+    }
+    default:
+      throw runtime_error("mkDeriv: Unknown Term");
+    }
+  } else if (e->isList()) {
+    throw runtime_error("mkDeriv: List");
+  } else if (e->isDef()) {
+    throw runtime_error("mkDeriv: Def");
+  } else if (e->isEnil()) {
+    throw runtime_error("mkDeriv: Nil");
+  } else {
+    throw runtime_error("mkDeriv: unknown case");
+  }
+  throw runtime_error("Not implemented yet: mkDeriv");
 }
-
-
-
-
