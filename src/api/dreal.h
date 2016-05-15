@@ -34,6 +34,7 @@ void             dreal_init();
 void             dreal_set_verbosity(dreal_context, int);
 void             dreal_set_precision(dreal_context c, const double p);
 double           dreal_get_precision(dreal_context c);
+void 			 dreal_use_polytope(dreal_context);
 char *           dreal_version();
 void             dreal_print_expr(dreal_expr);
 dreal_context    dreal_mk_context(dreal_logic);

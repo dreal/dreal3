@@ -73,6 +73,12 @@ void dreal_set_verbosity(dreal_context c, int v) {
       context.setVerbose(true);
   }
 }
+
+void dreal_use_polytope(dreal_context c) {
+    OpenSMTContext * c_ = static_cast<OpenSMTContext *>(c);
+    c_->getConfig().nra_polytope = true;
+}
+
 void dreal_set_precision(dreal_context c, const double p) {
   assert(c);
   OpenSMTContext * c_ = static_cast<OpenSMTContext *>(c);

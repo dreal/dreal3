@@ -19,6 +19,7 @@ int main(int argc, char * argv[]) {
     dreal_expr gt = dreal_mk_gt(ctx, dreal_mk_sin(ctx, x), zero);
     dreal_push(ctx);
     dreal_assert(ctx, gt);
+    dreal_use_polytope(ctx);
     dreal_result res = dreal_check( ctx );
     printf( "%s\n\n", res == l_false ? "unsat" : "sat" );
     dreal_del_context(ctx);
