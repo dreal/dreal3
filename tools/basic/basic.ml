@@ -712,7 +712,6 @@ and print_formula out =
   function
   | True -> String.print out "true"
   | False -> String.print out "false"
-  (*| FVar x -> String.print out "x"*)
   | FVar x -> String.print out x
   | Not f -> print_formulas "not" [f]
   | And fs -> print_formulas "and" fs
@@ -872,7 +871,6 @@ and print_infix_formula (out : 'a IO.output) : formula -> unit =
   function
   | True -> String.print out "true"
   | False -> String.print out "false"
-  (*| FVar x -> String.print out "x"*)
   | FVar x -> String.print out x
   | Not f -> print_infix_formulas "not" [f]
   | And fs -> print_infix_formulas "and" fs
