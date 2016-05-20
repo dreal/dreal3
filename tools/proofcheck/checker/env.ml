@@ -51,7 +51,7 @@ let equals (e1 : t) (e2 : t) : bool =
        (List.map
           (fun ((_, i1), (_, i2)) ->
             Intv.equals i1 i2)
-          (List.combine (to_list e1) (to_list e1))))
+          (List.combine (to_list e1) (to_list e2))))
 
 let is_empty (e : t) : bool =
   List.mem true
@@ -85,7 +85,7 @@ let minus (e1 : t) (e2 : t) : (t list) =
              (elem1, elem2)
            else
              ((key1, {Intv.low = l1; Intv.high = l2}),
-              (key2, {Intv.low = h1; Intv.high = h2}))
+              (key2, {Intv.low = h2; Intv.high = h1}))
          )
          (List.combine l1 l2)
       )

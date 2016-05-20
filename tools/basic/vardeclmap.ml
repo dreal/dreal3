@@ -33,3 +33,13 @@ let find key map =
       Printexc.print_backtrace IO.stdout;
       raise e
     end
+
+let compose (vm1 ) (vm2 ) =
+   let vardeclmerge k a b =
+    match a, b with
+    | Some (v1, p1), Some (v2, p2) -> Some ((Value.intersect v1 v2), (min p1 p2))
+    | Some (v1, p1), None -> Some (v1, p1)
+    | None, Some (v2, p2) -> Some (v2, p2)
+    | None, None -> raise (Arg.Bad "Merging two emtpy keys")
+    in
+  Map.merge vardeclmerge vm1 vm2
