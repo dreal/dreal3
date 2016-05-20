@@ -844,7 +844,7 @@ Enode * Egraph::mkAbs (Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(abs(arg->getValue()));
+      return mkNum(fabs(arg->getValue()));
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_ABS], args );
