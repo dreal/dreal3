@@ -21,3 +21,7 @@ add_test(ibex_example_05 ${CMAKE_CURRENT_BINARY_DIR}/ibex_example_05)
 add_executable(ibex_defaultoptimizer defaultoptimizer.cpp)
 target_link_libraries(ibex_defaultoptimizer dreal ${EXTRA_LIBS})
 add_test(ibex_defaultoptimizer ${CMAKE_CURRENT_BINARY_DIR}/ibex_defaultoptimizer)
+
+add_executable(ibex_polytope_01 polytope_01.cpp)
+target_link_libraries(ibex_polytope_01 dreal ${EXTRA_LIBS})
+add_test(ibex_polytope_01 ${CMAKE_CURRENT_BINARY_DIR}/ibex_polytope_01)
