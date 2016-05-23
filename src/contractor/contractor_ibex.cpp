@@ -361,7 +361,7 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
     m_sys_eqs = square_eq_sys(*m_sys);
     if (m_sys_eqs) {
         DREAL_LOG_INFO << "contractor_ibex_polytope: SQUARE SYSTEM";
-        unique_ptr<ibex::CtcNewton> ctc_newton(new ibex::CtcNewton(m_sys_eqs->f, 5e8, m_prec, 1.e-4));
+        unique_ptr<ibex::CtcNewton> ctc_newton(new ibex::CtcNewton(m_sys_eqs->f));
         ctc_list.set_ref(index++, *ctc_newton);
         m_sub_ctcs.push_back(move(ctc_newton));
     }

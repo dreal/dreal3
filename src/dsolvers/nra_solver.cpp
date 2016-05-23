@@ -391,7 +391,7 @@ void nra_solver::handle_sat_case(box const & b) const {
             // Need to run ODE pruning operator once again to generate a trace
             for (shared_ptr<constraint> const ctr : m_stack) {
                 if (ctr->get_type() == constraint_type::ODE) {
-                    contractor_capd_full fwd_full(b, dynamic_pointer_cast<ode_constraint>(ctr), ode_direction::FWD, config.nra_ODE_taylor_order, config.nra_ODE_grid_size);
+                    contractor_capd_full fwd_full(b, dynamic_pointer_cast<ode_constraint>(ctr), ode_direction::FWD, config);
                     json trace = fwd_full.generate_trace(b, config);
                     traces.push_back(trace);
                 }

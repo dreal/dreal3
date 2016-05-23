@@ -206,6 +206,8 @@ struct SMTConfig
   bool         nra_ODE_parallel;              // solve ODE in parallel or not
   bool         nra_ODE_show_progress;         // show the progress of ODE solving
   bool         nra_ODE_sampling;              // use sampling method (via GSL)
+  double       nra_ODE_absolute_tolerance;    // specify the absolute tolerance which will be used by ODE solvers to determine a time-step
+  double       nra_ODE_relative_tolerance;    // specify the relative tolerance which will be used by ODE solvers to determine a time-step
   unsigned long nra_aggressive;               // number of samples to use for aggressive sampling
   unsigned long nra_sample;                   // number of samples to use for sound sampling
   unsigned long nra_multiple_soln;            // maximum number of solutions to find
@@ -229,7 +231,7 @@ struct SMTConfig
   bool         nra_show_search_progress;      // print search progress to console
   bool         nra_heuristic_forward;         // use forward search in the heuristic solution
   bool         nra_hybrid_notlearn_clause;       // use clause learning in hybrid heuristic
-  
+
   void inc_icp_decisions() { nra_icp_decisions++; }
   int  icp_decisions() { return nra_icp_decisions; }
 

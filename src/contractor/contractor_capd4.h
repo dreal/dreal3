@@ -106,7 +106,8 @@ private:
     std::unique_ptr<capd::DTimeMap> m_timeMap;
 
 public:
-    contractor_capd_point(box const & box, std::shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, ode_direction const dir, unsigned const taylor_order, double const timeout = 0.0);
+    contractor_capd_point(box const & box, std::shared_ptr<ode_constraint> const ctr,
+                          contractor const & eval_ctc, ode_direction const dir, SMTConfig const & config, double const timeout = 0.0);
     void prune(box & b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
@@ -126,7 +127,8 @@ private:
     std::unique_ptr<capd::IOdeSolver> m_solver;
     std::unique_ptr<capd::ITimeMap> m_timeMap;
 
-    bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T, std::vector<std::pair<capd::interval, capd::IVector>> & enclosures) const;
+    bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T,
+                    std::vector<std::pair<capd::interval, capd::IVector>> & enclosures) const;
     bool check_invariant(capd::IVector const & v, box b, SMTConfig & config);
     template<typename Rect2Set>
     bool check_invariant(Rect2Set const & s, box const & b, SMTConfig & config) {
@@ -143,13 +145,16 @@ private:
 
 
 public:
-    contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir, unsigned const taylor_order, unsigned const grid_size, double const timeout = 0.0);
+    contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr,
+                         ode_direction const dir, SMTConfig const & config, double const timeout = 0.0);
     void prune(box & b, SMTConfig & config);
     nlohmann::json generate_trace(box b, SMTConfig & config);
     std::ostream & display(std::ostream & out) const;
 };
 
 contractor mk_contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir);
-contractor mk_contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir, unsigned const taylor_order = 20, unsigned const grid_size = 16, bool const use_cache = false, double const timeout = 0.0);
-contractor mk_contractor_capd_point(box const & box, std::shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, ode_direction const dir, unsigned const taylor_order = 20, bool const use_cache = false, double const timeout = 0.0);
+contractor mk_contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir,
+                                   SMTConfig const & config, bool const use_cache = false, double const timeout = 0.0);
+contractor mk_contractor_capd_point(box const & box, std::shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc,
+                                    ode_direction const dir, SMTConfig const & config, bool const use_cache = false, double const timeout = 0.0);
 }  // namespace dreal

@@ -161,13 +161,13 @@ contractor default_strategy::build_contractor(box const & box,
                 contractor nl_ctc2 = mk_contractor_seq(nl_ctcs2);
                 for (auto const & ode_ctr : ode_ctrs) {
                     // Add Forward ODE Pruning (Underapproximation, using CAPD non-rigorous)
-                    ode_sampling_ctcs.push_back(mk_contractor_capd_point(box, ode_ctr, eval_ctc, ode_direction::FWD, config.nra_ODE_taylor_order, use_cache, config.nra_ODE_fwd_timeout));
+                    ode_sampling_ctcs.push_back(mk_contractor_capd_point(box, ode_ctr, eval_ctc, ode_direction::FWD, config, use_cache, config.nra_ODE_fwd_timeout));
                     ode_sampling_ctcs.push_back(nl_ctc2);
                 }
             } else {
                 for (auto const & ode_ctr : ode_ctrs) {
                     // Add Forward ODE Pruning (Underapproximation, using CAPD non-rigorous)
-                    ode_sampling_ctcs.push_back(mk_contractor_capd_point(box, ode_ctr, eval_ctc, ode_direction::FWD, config.nra_ODE_taylor_order, use_cache, config.nra_ODE_fwd_timeout));
+                    ode_sampling_ctcs.push_back(mk_contractor_capd_point(box, ode_ctr, eval_ctc, ode_direction::FWD, config, use_cache, config.nra_ODE_fwd_timeout));
                     ode_sampling_ctcs.push_back(nl_ctc);
                 }
             }
@@ -181,13 +181,13 @@ contractor default_strategy::build_contractor(box const & box,
                 ode_capd4_fwd_ctcs.emplace_back(
                     mk_contractor_cache(
                         mk_contractor_try(
-                            mk_contractor_seq(mk_contractor_capd_full(box, ode_ctr, ode_direction::FWD, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, use_cache, config.nra_ODE_fwd_timeout),
+                            mk_contractor_seq(mk_contractor_capd_full(box, ode_ctr, ode_direction::FWD, config, use_cache, config.nra_ODE_fwd_timeout),
                                               nl_ctc))));
             } else {
                 ode_capd4_fwd_ctcs.emplace_back(
                     mk_contractor_try(
                         mk_contractor_seq(
-                            mk_contractor_capd_full(box, ode_ctr, ode_direction::FWD, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, use_cache, config.nra_ODE_fwd_timeout),
+                            mk_contractor_capd_full(box, ode_ctr, ode_direction::FWD, config, use_cache, config.nra_ODE_fwd_timeout),
                             nl_ctc)));
             }
         }
@@ -199,13 +199,13 @@ contractor default_strategy::build_contractor(box const & box,
                         mk_contractor_cache(
                             mk_contractor_try(
                                 mk_contractor_seq(
-                                    mk_contractor_capd_full(box, ode_ctr, ode_direction::BWD, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, use_cache, config.nra_ODE_bwd_timeout),
+                                    mk_contractor_capd_full(box, ode_ctr, ode_direction::BWD, config, use_cache, config.nra_ODE_bwd_timeout),
                                     nl_ctc))));
                 } else {
                     ode_capd4_bwd_ctcs.emplace_back(
                         mk_contractor_try(
                             mk_contractor_seq(
-                                mk_contractor_capd_full(box, ode_ctr, ode_direction::BWD, config.nra_ODE_taylor_order, config.nra_ODE_grid_size, use_cache, config.nra_ODE_bwd_timeout),
+                                mk_contractor_capd_full(box, ode_ctr, ode_direction::BWD, config, use_cache, config.nra_ODE_bwd_timeout),
                                 nl_ctc)));
                 }
             }

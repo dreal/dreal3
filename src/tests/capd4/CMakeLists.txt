@@ -22,6 +22,10 @@ add_executable(capd4_example_06 example_06.cpp)
 target_link_libraries(capd4_example_06 dreal ${EXTRA_LIBS})
 add_test(capd4_example_06 ${CMAKE_CURRENT_BINARY_DIR}/capd4_example_06)
 
+add_executable(capd4_example_07 example_07.cpp)
+target_link_libraries(capd4_example_07 dreal ${EXTRA_LIBS})
+add_test(capd4_example_07 ${CMAKE_CURRENT_BINARY_DIR}/capd4_example_07)
+
 add_executable(capd4_sol sol.cpp)
 target_link_libraries(capd4_sol dreal ${EXTRA_LIBS})
 add_test(capd4_sol ${CMAKE_CURRENT_BINARY_DIR}/capd4_sol)

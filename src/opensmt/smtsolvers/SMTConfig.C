@@ -126,6 +126,8 @@ SMTConfig::initializeConfig( )
   nra_ODE_bwd_timeout          = 0.0;
   nra_ODE_show_progress        = false;
   nra_ODE_sampling             = false;
+  nra_ODE_absolute_tolerance   = 1e-20;
+  nra_ODE_relative_tolerance   = 1e-20;
   nra_json                     = false;
   nra_parallel                 = false;
   nra_delta_test               = false;
@@ -416,6 +418,12 @@ SMTConfig::parseCMDLine( int argc
             "manually specify the step size (positive double) in ODE solving (default: automatic control)",
             "--ode-step", "--ode_step");
     opt.add("", false, 1, 0,
+            "specify the absolute tolerance which is used by ODE solvers to determine a time-step (default: 1e-20)",
+            "--ode-absolute-tolerance", "--ode-abs-tol");
+    opt.add("", false, 1, 0,
+            "specify the relative tolerance which is used by ODE solvers to determine a time-step (default: 1e-20)",
+            "--ode-relative-tolerance", "--ode-rel-tol");
+    opt.add("", false, 1, 0,
             "specify the maximum order that will be used in Taylor method ODE solving (Default: 20)",
             "--ode-order", "--ode_order");
     opt.add("", false, 1, 0,
@@ -523,15 +531,15 @@ SMTConfig::parseCMDLine( int argc
             "Activate satelite on booleans (default: off)",
             "--sat-prep-bool", "--sat-preprocess-booleans", "--sat_preprocess_booleans");
     opt.add("", false, 0, 0,
-	    "use heuristic forward search",
-	    "--heuristic_forward");
+      "use heuristic forward search",
+      "--heuristic_forward");
     opt.add("", false, 0, 0,
-	    "use heuristic forward search",
-	    "--show-search");
+      "use heuristic forward search",
+      "--show-search");
     opt.add("", false, 0, 0,
-	    "use hybrid solver clause learning",
-	    "--no-hybrid-clause-learning");
-    
+      "use hybrid solver clause learning",
+      "--no-hybrid-clause-learning");
+
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
     opt.overview += "v" + string(PACKAGE_VERSION);
@@ -586,9 +594,12 @@ SMTConfig::parseCMDLine( int argc
     nra_show_search_progress= opt.isSet("--show-search");
     nra_heuristic_forward   = opt.isSet("--heuristic_forward");
     nra_hybrid_notlearn_clause = opt.isSet("--no-hybrid-clause-learning");
-    
+
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }
+    if (opt.isSet("--ode-step")) { opt.get("--ode-step")->getDouble(nra_ODE_step); }
+    if (opt.isSet("--ode-absolute-tolerance")) { opt.get("--ode-absolute-tolerance")->getDouble(nra_ODE_absolute_tolerance); }
+    if (opt.isSet("--ode-relative-tolerance")) { opt.get("--ode-relative-tolerance")->getDouble(nra_ODE_relative_tolerance); }
     if (opt.isSet("--ode-step")) { opt.get("--ode-step")->getDouble(nra_ODE_step); }
     if (opt.isSet("--ode-fwd-timeout")) {
         try {

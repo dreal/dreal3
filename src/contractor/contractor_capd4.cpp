@@ -634,8 +634,10 @@ ostream & contractor_capd_simple::display(ostream & out) const {
     return out;
 }
 
-contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr, ode_direction const dir, unsigned const taylor_order, unsigned const grid_size, double const timeout)
-    : contractor_cell(contractor_kind::CAPD_FULL, box.size()), m_dir(dir), m_ctr(ctr), m_taylor_order(taylor_order), m_grid_size(grid_size), m_timeout(timeout) {
+contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr,
+                                           ode_direction const dir, SMTConfig const & config, double const timeout)
+    : contractor_cell(contractor_kind::CAPD_FULL, box.size()), m_dir(dir), m_ctr(ctr),
+      m_taylor_order(config.nra_ODE_taylor_order), m_grid_size(config.nra_ODE_grid_size), m_timeout(timeout) {
     DREAL_LOG_INFO << "contractor_capd_full::contractor_capd_full()";
     integral_constraint const & ic = m_ctr->get_ic();
     m_vars_0 = (m_dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
@@ -652,8 +654,10 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
         m_timeMap->stopAfterStep(true);
 
         // Precision
-        m_solver->setAbsoluteTolerance(1e-10);
-        m_solver->setRelativeTolerance(1e-10);
+        m_solver->setAbsoluteTolerance(config.nra_ODE_absolute_tolerance);
+        m_solver->setRelativeTolerance(config.nra_ODE_relative_tolerance);
+        DREAL_LOG_INFO << "contractor_capd_full: absolute tolerance = " << m_solver->getAbsoluteTolerance();
+        DREAL_LOG_INFO << "contractor_capd_full: relative tolerance = " << m_solver->getRelativeTolerance();
     } else {
         // Trivial Case with all params and no ODE variables
     }
@@ -949,8 +953,10 @@ ostream & contractor_capd_full::display(ostream & out) const {
     return out;
 }
 
-contractor_capd_point::contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, ode_direction const dir, unsigned const taylor_order, double const timeout)
-    : contractor_cell(contractor_kind::CAPD_POINT, box.size()), m_dir(dir), m_ctr(ctr), m_eval_ctc(eval_ctc), m_taylor_order(taylor_order), m_timeout(timeout) {
+contractor_capd_point::contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc,
+                                             ode_direction const dir, SMTConfig const & config, double const timeout)
+    : contractor_cell(contractor_kind::CAPD_POINT, box.size()), m_dir(dir), m_ctr(ctr),
+      m_eval_ctc(eval_ctc), m_taylor_order(config.nra_ODE_taylor_order), m_timeout(timeout) {
     DREAL_LOG_INFO << "contractor_capd_point::contractor_capd_point()";
     integral_constraint const & ic = m_ctr->get_ic();
     m_vars_0 = (m_dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
@@ -1162,15 +1168,16 @@ contractor mk_contractor_capd_simple(box const & box, shared_ptr<ode_constraint>
     return contractor(make_shared<contractor_capd_simple>(box, ctr, dir));
 }
 
-contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr, ode_direction const dir, unsigned const taylor_order, unsigned const grid_size, bool const use_cache, double const timeout) {
+contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr, ode_direction const dir,
+                                   SMTConfig const & config, bool const use_cache, double const timeout) {
     if (!use_cache) {
-        return contractor(make_shared<contractor_capd_full>(box, ctr, dir, taylor_order, grid_size, timeout));
+        return contractor(make_shared<contractor_capd_full>(box, ctr, dir, config, timeout));
     }
     if (dir == ode_direction::FWD) {
         static unordered_map<shared_ptr<ode_constraint>, contractor> capd_full_fwd_ctc_cache;
         auto it = capd_full_fwd_ctc_cache.find(ctr);
         if (it == capd_full_fwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_capd_full>(box, ctr, dir, taylor_order, grid_size, timeout));
+            contractor ctc(make_shared<contractor_capd_full>(box, ctr, dir, config, timeout));
             capd_full_fwd_ctc_cache.emplace(ctr, ctc);
             return ctc;
         } else {
@@ -1180,7 +1187,7 @@ contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> c
         static unordered_map<shared_ptr<ode_constraint>, contractor> capd_full_bwd_ctc_cache;
         auto it = capd_full_bwd_ctc_cache.find(ctr);
         if (it == capd_full_bwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_capd_full>(box, ctr, dir, taylor_order, grid_size, timeout));
+            contractor ctc(make_shared<contractor_capd_full>(box, ctr, dir, config, timeout));
             capd_full_bwd_ctc_cache.emplace(ctr, ctc);
             return ctc;
         } else {
@@ -1188,15 +1195,16 @@ contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> c
         }
     }
 }
-contractor mk_contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc, ode_direction const dir, unsigned const taylor_order, bool const use_cache, double const timeout) {
+contractor mk_contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc,
+                                    ode_direction const dir, SMTConfig const & config, bool const use_cache, double const timeout) {
     if (!use_cache) {
-        return contractor(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, taylor_order, timeout));
+        return contractor(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
     }
     if (dir == ode_direction::FWD) {
         static unordered_map<shared_ptr<ode_constraint>, contractor> capd_point_fwd_ctc_cache;
         auto it = capd_point_fwd_ctc_cache.find(ctr);
         if (it == capd_point_fwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, taylor_order, timeout));
+            contractor ctc(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
             capd_point_fwd_ctc_cache.emplace(ctr, ctc);
             return ctc;
         } else {
@@ -1206,7 +1214,7 @@ contractor mk_contractor_capd_point(box const & box, shared_ptr<ode_constraint> 
         static unordered_map<shared_ptr<ode_constraint>, contractor> capd_point_bwd_ctc_cache;
         auto it = capd_point_bwd_ctc_cache.find(ctr);
         if (it == capd_point_bwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, taylor_order, timeout));
+            contractor ctc(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
             capd_point_bwd_ctc_cache.emplace(ctr, ctc);
             return ctc;
         } else {
