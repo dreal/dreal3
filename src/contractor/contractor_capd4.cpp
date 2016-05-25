@@ -77,6 +77,21 @@ namespace dreal {
 
 using Rect2Set = capd::C0Rect2Set;
 
+ostream & output_trace(ostream & out, capd::interval const dt, capd::IVector const & v, vector<Enode *> const & vars) {
+    thread_local static ostringstream ss;
+    out << "T = ";
+    ss << dt;
+    out << left << setw(20) << ss.str();
+    ss.str(string());
+    for (capd::IVector::size_type i = 0; i < v.dimension(); ++i) {
+        out << " " << vars[i] << " : ";
+        ss << v[i];
+        out << left << setw(27) << ss.str();
+        ss.str(string());
+    }
+    return out;
+}
+
 void split(capd::interval const & i, unsigned n, vector<capd::interval> & ret) {
     assert(i.leftBound() <= i.rightBound());
     ret.reserve(ret.size() + n);
@@ -136,10 +151,11 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
         string name = e->getNameFull();
         if (name.find('e') != string::npos || name.find('E') != string::npos) {
             // Scientific Notation
-            ostringstream ss;
+            thread_local static ostringstream ss;
             double const r = stod(name);
             ss << setprecision(16) << fixed << r;
             name = ss.str();
+            ss.str(string());
         }
         if (starts_with(name, "-")) {
             name = "(" + name + ")";
@@ -434,7 +450,9 @@ bool contractor_capd_full::compute_enclosures(capd::interval const & prevTime,
             // 4.  [  O  ]
             // 5. [  X ]
             capd::IVector v = curve(subsetOfDomain);
-            DREAL_LOG_INFO << "compute_enclosures:" << dt << "\t" << v;
+            if (config.nra_ODE_trace || DREAL_LOG_INFO_IS_ON) {
+                output_trace(cerr, dt, v, m_ctr->get_ic().get_vars_0()) << endl;
+            }
             if (!m_need_to_check_inv || check_invariant(v, b, config)) {
                 enclosures.emplace_back(dt, v);
             } else {
@@ -792,20 +810,27 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
                     DREAL_LOG_INFO << "contractor_capd_full::prune - invariant violated";
                     break;
                 }
+            } else if (config.nra_ODE_trace || DREAL_LOG_INFO_IS_ON) {
+                output_trace(cerr, prevTime, s, m_ctr->get_ic().get_vars_0()) << endl;
             }
             prevTime = m_timeMap->getCurrentTime();
             if (config.nra_ODE_show_progress) {
-                cout << "\r"
-                     << "                                               "
-                     << "                                               ";
-                cout << "\r"
-                     << "ODE Progress "
+                if (!config.nra_ODE_trace) {
+                    cout << "\r"
+                         << "                                               "
+                         << "                                               "
+                         << "\r";
+                }
+                cout << "ODE Progress "
                      << "[" << m_dir << "]"
                      << ":  Time = " << setw(10) << fixed << setprecision(5) << right << prevTime.rightBound() << " / "
                      << setw(7) << fixed << setprecision(2) << left << T.rightBound() << " "
                      << setw(4) << right << int(prevTime.rightBound() / T.rightBound() * 100.0) << "%" << "  "
                      << "Box Width = " << setw(10) << fixed << setprecision(5) << b.max_diam() << "\t";
                 cout.flush();
+                if (config.nra_ODE_trace) {
+                    cerr << endl;
+                }
             }
         } while (!m_timeMap->completed());
         if (config.nra_ODE_show_progress) {
