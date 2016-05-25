@@ -8,18 +8,18 @@ addons:
     sources:
     - kalakris-cmake
     - ubuntu-toolchain-r-test
-    - llvm-toolchain-precise-3.7
+    - llvm-toolchain-precise-3.8
     packages:
     - autoconf
     - automake
     - bison
-    - clang-3.7
+    - clang-3.8
     - cmake
     - flex
-    - g++-4.9
+    - g++-5
     - git
     - lcov
-    - libstdc++-4.9-dev
+    - libstdc++-5-dev
     - libtool
     - make
     - pkg-config
@@ -39,19 +39,19 @@ env:
   matrix:
     - TRIGGER_OSX=ON
       TRIGGER_BB=ON
-      CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
+      CMAKE_CXX_COMPILER=g++-5 CMAKE_C_COMPILER=gcc-5
       CMAKE_BUILD_TYPE=Release
       CTEST=ON TESTCOV=OFF STATIC=OFF
-    - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
+    - CMAKE_CXX_COMPILER=g++-5 CMAKE_C_COMPILER=gcc-5
       CMAKE_BUILD_TYPE=Debug
       CTEST=ON TESTCOV=ON  STATIC=OFF
-    - CMAKE_CXX_COMPILER=clang++-3.7 CMAKE_C_COMPILER=clang-3.7
+    - CMAKE_CXX_COMPILER=clang++-3.8 CMAKE_C_COMPILER=clang-3.8
       CMAKE_BUILD_TYPE=Release
       CTEST=ON TESTCOV=OFF STATIC=OFF
-    - CMAKE_CXX_COMPILER=clang++-3.7 CMAKE_C_COMPILER=clang-3.7
+    - CMAKE_CXX_COMPILER=clang++-3.8 CMAKE_C_COMPILER=clang-3.8
       CMAKE_BUILD_TYPE=Debug
       CTEST=ON TESTCOV=OFF STATIC=OFF
-    - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_C_COMPILER=gcc-4.9
+    - CMAKE_CXX_COMPILER=g++-5 CMAKE_C_COMPILER=gcc-5
       CMAKE_BUILD_TYPE=Release
       STATIC=ON
 
