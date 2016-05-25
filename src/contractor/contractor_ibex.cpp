@@ -196,10 +196,11 @@ void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << b;
     if (config.nra_proof) {
         // ======= Proof =======
-        ostringstream ss;
+        thread_local static ostringstream ss;
         Enode const * const e = m_ctr->get_enode();
         ss << (e->getPolarity() == l_False ? "!" : "") << e;
         output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+        ss.str(string());
     }
     return;
 }
@@ -270,10 +271,11 @@ void contractor_ibex_newton::prune(box & b, SMTConfig & config) {
 
     // ======= Proof =======
     if (config.nra_proof) {
-        ostringstream ss;
+        thread_local static ostringstream ss;
         Enode const * const e = m_ctr->get_enode();
         ss << (e->getPolarity() == l_False ? "!" : "") << e;
         output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+        ss.str(string());
     }
     return;
 }
@@ -324,12 +326,13 @@ void contractor_ibex_hc4::prune(box & b, SMTConfig & config) {
     }
     // ======= Proof =======
     if (config.nra_proof) {
-        ostringstream ss;
+        thread_local static ostringstream ss;
         for (auto const & ctr : m_ctrs) {
             Enode const * const e = ctr->get_enode();
             ss << (e->getPolarity() == l_False ? "!" : "") << e << ";";
         }
         output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+        ss.str(string());
     }
     return;
 }
@@ -442,12 +445,13 @@ void contractor_ibex_polytope::prune(box & b, SMTConfig & config) {
 
     // ======= Proof =======
     if (config.nra_proof) {
-        ostringstream ss;
+        thread_local static ostringstream ss;
         for (auto const & ctr : m_ctrs) {
             Enode const * const e = ctr->get_enode();
             ss << (e->getPolarity() == l_False ? "!" : "") << e << ";";
         }
         output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+        ss.str(string());
     }
     return;
 }
