@@ -693,6 +693,11 @@ SET_TARGET_PROPERTIES(dReal-bin
   PROPERTIES OUTPUT_NAME dReal)
 target_link_libraries(dReal-bin dreal ${EXTRA_LIBS})
 
+# Compatibility Checks using https://github.com/foonathan/compatibility
+include(CompBase)
+comp_target_features(dReal-bin PUBLIC CPP11)
+configure_file("${DREAL_SOURCE_DIR}/compatibility.h.in" "${DREAL_BINARY_DIR}/compatibility.h")
+
 if(NOT BUILD_STATIC_BIN)
   add_executable(dOp-bin tools/dop/main.cpp)
   SET_TARGET_PROPERTIES(dOp-bin PROPERTIES OUTPUT_NAME dOp)
