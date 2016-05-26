@@ -847,6 +847,11 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
             DREAL_LOG_DEBUG << "contractor_capd_full::prune: get empty set after filtering";
             b.set_empty();
         }
+    } catch (std::range_error & e) {
+        if (config.nra_ODE_show_progress) {
+            cout << " [RangeError]" << endl;
+        }
+        throw contractor_exception(e.what());
     } catch (capd::intervals::IntervalError<double> & e) {
         if (config.nra_ODE_show_progress) {
             cout << " [IntervalError]" << endl;
