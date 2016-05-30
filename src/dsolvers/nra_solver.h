@@ -67,6 +67,7 @@ private:
     void initialize_constraints(std::vector<Enode *> const & lits);
     std::vector<Enode *> generate_explanation(scoped_vec<std::shared_ptr<constraint>> const & ctr_vec);
     void handle_sat_case(box const & b) const;
+    void eval_sat_result(box const & b) const;
     void handle_deduction();
 
     std::vector<Enode *> slack_vars;

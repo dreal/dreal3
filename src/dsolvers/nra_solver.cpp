@@ -59,11 +59,16 @@ using std::make_shared;
 using std::map;
 using std::numeric_limits;
 using std::ofstream;
+using std::ostringstream;
 using std::pair;
+using std::reference_wrapper;
 using std::runtime_error;
+using std::setw;
 using std::shared_ptr;
 using std::sort;
 using std::string;
+using std::to_string;
+using std::tuple;
 using std::unique_ptr;
 using std::unordered_map;
 using std::unordered_set;
@@ -375,6 +380,36 @@ void nra_solver::popBacktrackPoint() {
     m_stack.pop();
 }
 
+void nra_solver::eval_sat_result(box const & b) const {
+    vector<tuple<string const, lbool, ibex::Interval>> store;
+    string::size_type max_len = 0;
+    ostringstream ss;
+    for (Enode * const lit : m_lits) {
+        auto const it = m_ctr_map.find(make_pair(lit, lit->getPolarity() == l_True));
+        if (it != m_ctr_map.end()) {
+            shared_ptr<constraint> const ctr = it->second;
+            if (ctr->get_type() == dreal::constraint_type::Nonlinear) {
+                auto const nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
+                pair<lbool, ibex::Interval> const eval_result = nl_ctr->eval(b);
+                ss.str(string());
+                lit->print_infix(ss, lit->getPolarity(), true);
+                string const & ctr_str = ss.str();
+                string::size_type const ctr_str_len = ctr_str.length();
+                if (ctr_str_len > max_len) {
+                    max_len = ctr_str_len;
+                }
+                store.emplace_back(ctr_str, eval_result.first, eval_result.second);
+            }
+        }
+    }
+    DREAL_LOG_FATAL << "Constraints:";
+    for (auto const & t : store) {
+        DREAL_LOG_FATAL << std::left << setw(max_len) << get<0>(t) << " : "
+                        << setw(9) << std::right << (get<1>(t) == l_True ? "SAT" : "delta-SAT") << " "
+                        << "(LHS - RHS) = " << get<2>(t);
+    }
+}
+
 void nra_solver::handle_sat_case(box const & b) const {
     // SAT
     // --proof option
@@ -459,7 +494,7 @@ bool nra_solver::check(bool complete) {
         } else if (config.nra_multiheuristic) {
             SizeBrancher sb;
             SizeGradAsinhBrancher sb1(m_stack);
-            vector<std::reference_wrapper<BranchHeuristic>> heuristics = {sb, sb1};
+            vector<reference_wrapper<BranchHeuristic>> heuristics = {sb, sb1};
             m_box = multiheuristic_icp::solve(m_box, m_ctc, config, heuristics);
         } else {
             m_box = naive_icp::solve(m_box, m_ctc, config);
@@ -528,6 +563,10 @@ void nra_solver::computeModel() {
         // Only output here when --multiple_soln is not used
         output_solution(m_box, config);
     }
+    // --check-sat option
+    if (config.nra_check_sat && config.nra_multiple_soln == 1) {
+        eval_sat_result(m_box);
+    }
 }
 
 Enode * nra_solver::new_slack_var() {
@@ -535,7 +574,7 @@ Enode * nra_solver::new_slack_var() {
     int num = slack_vars.size();
     //  cout << "slack var number: "<< num << endl;
     string name("slack_var_");
-    name += std::to_string(num);
+    name += to_string(num);
     egraph.newSymbol(name.c_str(), s, true);
 
     Enode * var = egraph.mkVar(name.c_str());
