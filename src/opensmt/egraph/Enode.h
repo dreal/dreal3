@@ -365,7 +365,7 @@ public:
   bool           addToCongruence        ( ) const;
   unsigned       sizeInMem              ( ) const;
 
-  void           print_infix( std::ostream & os, lbool polarity, std::string const & variable_postfix = "") const;
+  void           print_infix( std::ostream & os, lbool polarity, bool const use_string_rep_for_num = false, std::string const & variable_postfix = "") const;
   void           print                  ( std::ostream & ) const; // Prints the
   void           display                () const;
   std::string    stripName              ( std::string ) const;

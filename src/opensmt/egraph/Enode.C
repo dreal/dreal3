@@ -293,7 +293,7 @@ void Enode::removeParent ( Enode * p )
   }
 }
 
-void Enode::print_infix(ostream & os, lbool polarity, string const & variable_postfix) const {
+void Enode::print_infix(ostream & os, lbool polarity, bool const use_string_rep_for_num, string const & variable_postfix) const {
     Enode *p = NULL;
     if(isSymb()) {
         if (polarity == l_False) {
@@ -324,18 +324,22 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
             }
         }
     } else if (isNumb()) {
+      if (use_string_rep_for_num) {
+        os << "(" << this << ")";
+      } else {
         int old_rnd = fegetround();
         fesetround(FE_TONEAREST);
         string name = getName();
         if (name.find('e') != std::string::npos || name.find('E') != std::string::npos) {
-            // Scientific Notation
-            double r = *(symb_data->value);
-            os << "(" << r << ")";
+          // Scientific Notation
+          double r = *(symb_data->value);
+          os << "(" << r << ")";
         } else {
-            // Fixed Notation
+          // Fixed Notation
           os << "(" << name << ")";
         }
         fesetround(old_rnd);
+      }
     } else if (isTerm()) {
         // output "("
         if (!getCdr()->isEnil() && (isPlus() || isMinus() || isTimes() || isPow())) {
@@ -351,13 +355,13 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
             Enode* op = getCar();
             p = getCdr();
             // Print 1st argument
-            p->getCar()->print_infix(os, polarity, variable_postfix);
+            p->getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
             p = p->getCdr();
             while (!p->isEnil()) {
                 // output operator
-                op->print_infix(os, polarity, variable_postfix);
+                op->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
                 // output argument
-                p->getCar()->print_infix(os, polarity, variable_postfix);
+                p->getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
                 // move p
                 p = p->getCdr();
             }
@@ -365,14 +369,14 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
             Enode* op = getCar();
             p = getCdr();
             // Print 1st argument
-            p->getCar()->print_infix(os, polarity, variable_postfix);
+            p->getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
             p = p->getCdr();
             while (!p->isEnil()) {
                 // output operator
-                op->print_infix(os, polarity, variable_postfix);
+                op->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
                 // output argument
                 os << "(";
-                p->getCar()->print_infix(os, polarity, variable_postfix);
+                p->getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
                 os << ")";
                 // move p
                 p = p->getCdr();
@@ -380,30 +384,30 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
         } else if (isAtan2()) {
             assert(getArity() == 2);
             // output operator
-            getCar()->print_infix(os, polarity, variable_postfix);
+            getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
             os << "(";
             // output 1st argument
-            getCdr()->getCar()->print_infix(os, polarity, variable_postfix);
+            getCdr()->getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
             os << ", ";
             // output 1st argument
-            getCdr()->getCdr()->getCar()->print_infix(os, polarity, variable_postfix);
+            getCdr()->getCdr()->getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
             os << ")";
         } else if (isAcos() || isAsin() || isAtan() || isMatan() || isSafeSqrt() ||
                    isSin() || isCos() || isTan() || isLog() || isExp() || isSinh() || isCosh() || isTanh() || isAbs()) {
             assert(getArity() == 1);
             // output operator
-            getCar()->print_infix(os, polarity, variable_postfix);
+            getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
             os << "(";
             // output 1st argument
-            getCdr()->getCar()->print_infix(os, polarity, variable_postfix);
+            getCdr()->getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
             os << ")";
         } else {
-            getCar()->print_infix(os, polarity, variable_postfix);
+            getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
             p = getCdr();
             while (!p->isEnil()) {
                 os << " ";
                 // print Car
-                p->getCar()->print_infix(os, polarity, variable_postfix);
+                p->getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
                 p = p->getCdr();
             }
         }
@@ -416,11 +420,11 @@ void Enode::print_infix(ostream & os, lbool polarity, string const & variable_po
             os << "-";
         } else {
             os << "[";
-            getCar()->print_infix(os, polarity, variable_postfix);
+            getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
             p = getCdr();
             while (!p->isEnil()) {
                     os << ", ";
-                    p->getCar()->print_infix(os, polarity, variable_postfix);
+                    p->getCar()->print_infix(os, polarity, use_string_rep_for_num, variable_postfix);
                     p = p->getCdr();
             }
             os << "]";
