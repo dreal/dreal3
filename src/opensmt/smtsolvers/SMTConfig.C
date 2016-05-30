@@ -131,6 +131,7 @@ SMTConfig::initializeConfig( )
   nra_ODE_relative_tolerance   = 1e-20;
   nra_json                     = false;
   nra_parallel                 = false;
+  nra_check_sat                = false;
   nra_delta_test               = false;
   nra_use_delta_heuristic      = false;
   nra_short_sat                = false;
@@ -475,6 +476,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "enable parallelization",
             "--parallel");
+    opt.add("", false, 0, 0,
+            "check constraints when delta-sat",
+            "--check-sat");
 #ifdef LOGGING
     opt.add("", false, 0, 0,
             "output debugging messages",
@@ -576,7 +580,8 @@ SMTConfig::parseCMDLine( int argc
     nra_readable_proof      = opt.isSet("--readable-proof");
     nra_theory_propagation  = opt.isSet("--theory-propagation");
     nra_proof               = nra_readable_proof || opt.isSet("--proof");
-    nra_model               = opt.isSet("--model");
+    nra_check_sat           = opt.isSet("--check-sat");
+    nra_model               = nra_check_sat || opt.isSet("--model");
     if (nra_model) { produce_models = true; }
     nra_json                = opt.isSet("--visualize");
     nra_parallel            = opt.isSet("--parallel");

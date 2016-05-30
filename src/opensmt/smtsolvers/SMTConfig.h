@@ -195,6 +195,7 @@ struct SMTConfig
   std::ofstream nra_json_out;                 // file stream for json (visualization)
   std::string   nra_json_out_name;            // filename for json (visualization)
   bool         nra_parallel;                  // use parallel contractor instead of seq
+  bool         nra_check_sat;                 // check constraints when delta-sat
   unsigned long nra_ODE_taylor_order;         // --ode-order option
   unsigned long nra_ODE_grid_size;            // --ode-grid option
   double       nra_ODE_fwd_timeout;           // --ode-fwd-timeout option (unit: msec) (default 0.0, no timeout)
