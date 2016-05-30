@@ -510,11 +510,11 @@ contractor_eval::contractor_eval(shared_ptr<nonlinear_constraint> const ctr)
 
 void contractor_eval::prune(box & b, SMTConfig & config) {
     DREAL_LOG_DEBUG << "contractor_eval::prune";
-    pair<lbool, ibex::Interval> eval_result = m_nl_ctr->eval(b);
+    pair<lbool, ibex::Interval> const eval_result = m_nl_ctr->eval(b);
     if (eval_result.first == l_False) {
         // ======= Proof =======
         if (config.nra_proof) {
-            box old_box = b;
+            box const old_box = b;
             b.set_empty();
             ostringstream ss;
             Enode const * const e = m_nl_ctr->get_enode();
