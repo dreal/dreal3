@@ -847,11 +847,6 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
             DREAL_LOG_DEBUG << "contractor_capd_full::prune: get empty set after filtering";
             b.set_empty();
         }
-    } catch (std::runtime_error & e) {
-        if (config.nra_ODE_show_progress) {
-            cout << " [RuntimeError]" << endl;
-        }
-        throw contractor_exception(e.what());
     } catch (std::range_error & e) {
         if (config.nra_ODE_show_progress) {
             cout << " [RangeError]" << endl;
@@ -865,6 +860,11 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
     } catch (capd::ISolverException & e) {
         if (config.nra_ODE_show_progress) {
             cout << " [ISolverException]" << endl;
+        }
+        throw contractor_exception(e.what());
+    } catch (std::runtime_error & e) {
+        if (config.nra_ODE_show_progress) {
+            cout << " [RuntimeError]" << endl;
         }
         throw contractor_exception(e.what());
     }
