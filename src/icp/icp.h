@@ -35,18 +35,20 @@ class naive_icp {
 private:
     static BranchHeuristic & defaultHeuristic;
 public:
-    static box solve(box b, contractor & ctc, SMTConfig & config,
-            BranchHeuristic & heuristic = defaultHeuristic);
+    static box solve(box b, contractor & ctc, scoped_vec<std::shared_ptr<constraint>> const & ctrs,
+                     SMTConfig & config, BranchHeuristic & heuristic = defaultHeuristic);
 };
 
 class multiprune_icp {
 public:
-    static box solve(box b, contractor & ctc, SMTConfig & config, BranchHeuristic& heuristic, unsigned num_try = 3);
+    static box solve(box b, contractor & ctc, scoped_vec<std::shared_ptr<constraint>> const & ctrs,
+                     SMTConfig & config, BranchHeuristic& heuristic, unsigned num_try = 3);
 };
 
 class multiheuristic_icp {
 public:
-    static box solve(box b, contractor & ctc, SMTConfig & config, std::vector<std::reference_wrapper<BranchHeuristic>> heuristics);
+    static box solve(box b, contractor & ctc, scoped_vec<std::shared_ptr<constraint>> const & ctrs,
+                     SMTConfig & config, std::vector<std::reference_wrapper<BranchHeuristic>> heuristics);
 };
 
 class ncbt_icp {

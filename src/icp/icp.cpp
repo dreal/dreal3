@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <thread>
 #include <mutex>
+#include <memory>
 #include <unordered_set>
 #include <vector>
 #include <atomic>
@@ -31,10 +32,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_vec.h"
 #include "util/stat.h"
 
+using std::atomic_bool;
 using std::cerr;
 using std::cout;
 using std::endl;
 using std::get;
+using std::mutex;
+using std::ofstream;
+using std::reference_wrapper;
+using std::shared_ptr;
+using std::thread;
 using std::tuple;
 using std::unordered_set;
 using std::vector;
@@ -48,7 +55,7 @@ void output_solution(box const & b, SMTConfig & config, unsigned i) {
     cout << "Solution:" << endl;
     cout << b << endl;
     if (config.nra_model && !config.nra_model_out.is_open()) {
-        config.nra_model_out.open(config.nra_model_out_name.c_str(), std::ofstream::out | std::ofstream::trunc);
+        config.nra_model_out.open(config.nra_model_out_name.c_str(), ofstream::out | ofstream::trunc);
         if (config.nra_model_out.fail()) {
             cout << "Cannot create a file: " << config.nra_model_out_name << endl;
             exit(1);
@@ -57,7 +64,7 @@ void output_solution(box const & b, SMTConfig & config, unsigned i) {
     display(config.nra_model_out, b, false, true);
 }
 
-void prune(box & b, contractor & ctc, SMTConfig & config, std::unordered_set<std::shared_ptr<constraint>> & used_constraints) {
+void prune(box & b, contractor & ctc, SMTConfig & config, unordered_set<shared_ptr<constraint>> & used_constraints) {
     try {
         ctc.prune(b, config);
         auto this_used_constraints = ctc.used_constraints();
@@ -84,9 +91,10 @@ void test_prune(box & b, contractor & ctc, SMTConfig & config) {
 SizeBrancher sb;
 BranchHeuristic & naive_icp::defaultHeuristic = sb;
 
-box naive_icp::solve(box b, contractor & ctc, SMTConfig & config,
-        BranchHeuristic& brancher) {
-    thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+box naive_icp::solve(box b, contractor & ctc,
+                     scoped_vec<shared_ptr<constraint>> const & ctrs,
+                     SMTConfig & config, BranchHeuristic& brancher) {
+    thread_local static unordered_set<shared_ptr<constraint>> used_constraints;
     used_constraints.clear();
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;
@@ -101,7 +109,7 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config,
         prune(b, ctc, config, used_constraints);
         if (!b.is_empty()) {
             if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
-            vector<int> sorted_dims = brancher.sort_branches(b, config.nra_precision);
+            vector<int> sorted_dims = brancher.sort_branches(b, ctrs, config);
             if (sorted_dims.size() > 0) {
                 int const i = sorted_dims[0];
                 tuple<int, box, box> splits = b.bisect_at(sorted_dims[0]);
@@ -143,9 +151,11 @@ box naive_icp::solve(box b, contractor & ctc, SMTConfig & config,
     }
 }
 
-box multiprune_icp::solve(box b, contractor & ctc, SMTConfig & config, BranchHeuristic& brancher, unsigned num_try) {
+box multiprune_icp::solve(box b, contractor & ctc,
+                          scoped_vec<shared_ptr<constraint>> const & ctrs,
+                          SMTConfig & config, BranchHeuristic& brancher, unsigned num_try) {
 #define PRUNEBOX(x) prune((x), ctc, config, used_constraints)
-    thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+    thread_local static unordered_set<shared_ptr<constraint>> used_constraints;
     used_constraints.clear();
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;
@@ -159,7 +169,7 @@ box multiprune_icp::solve(box b, contractor & ctc, SMTConfig & config, BranchHeu
         b = box_stack.back();
         box_stack.pop_back();
         if (!b.is_empty()) {
-            vector<int> sorted_dims = brancher.sort_branches(b, config.nra_precision);
+            vector<int> sorted_dims = brancher.sort_branches(b, ctrs, config);
             if (sorted_dims.size() > num_try) {
                 sorted_dims = vector<int>(sorted_dims.begin(), sorted_dims.begin()+num_try);
             }
@@ -229,24 +239,25 @@ box multiprune_icp::solve(box b, contractor & ctc, SMTConfig & config, BranchHeu
 #undef PRUNEBOX
 }
 
-box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
-        vector<std::reference_wrapper<BranchHeuristic>> heuristics) {
+box multiheuristic_icp::solve(box bx, contractor & ctc,
+                              scoped_vec<shared_ptr<constraint>> const & ctrs,
+                              SMTConfig & config, vector<reference_wrapper<BranchHeuristic>> heuristics) {
     // don't use yet, since contractor is not yet threadsafe
     static vector<box> solns;
     solns.clear();
-    std::mutex mu;
+    mutex mu;
     box hull = bx;
     // hull is a shared box, that's used by all dothreads,
     // contains the intersection of the unions of the possible regions for each heuristic.
     // Therefore, any solution must be in hull.
-    std::atomic_bool solved;
-    std::unordered_set<std::shared_ptr<constraint>> all_used_constraints;
+    atomic_bool solved;
+    unordered_set<shared_ptr<constraint>> all_used_constraints;
     prune(hull, ctc, config, all_used_constraints);
-    vector<std::thread> threads;
+    vector<thread> threads;
 
     auto dothread = [&](BranchHeuristic & heuristic) {
 #define PRUNEBOX(x) prune((x), ctc, config, used_constraints)
-        thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+        thread_local static unordered_set<shared_ptr<constraint>> used_constraints;
         thread_local static vector<box> box_stack;
         thread_local static vector<box> hull_stack;  // nth box in hull_stack contains hull of first n boxes in box_stack
         box_stack.clear();
@@ -279,7 +290,7 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
             PRUNEBOX(b);
             mu.unlock();
             if (!b.is_empty()) {
-                vector<int> sorted_dims = heuristic.sort_branches(b, config.nra_precision);
+                vector<int> sorted_dims = heuristic.sort_branches(b, ctrs, config);
                 if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
                 if (sorted_dims.size() > 0) {
                     int bisectdim = sorted_dims[0];
@@ -340,7 +351,7 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
     };
 
     for (auto& heuristic : heuristics) {
-        threads.push_back(std::thread(dothread, heuristic));
+        threads.push_back(thread(dothread, heuristic));
     }
 
     for (auto& t : threads) {
@@ -352,7 +363,7 @@ box multiheuristic_icp::solve(box bx, contractor & ctc, SMTConfig & config,
 }
 
 box ncbt_icp::solve(box b, contractor & ctc, SMTConfig & config) {
-    thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+    thread_local static unordered_set<shared_ptr<constraint>> used_constraints;
     used_constraints.clear();
     static unsigned prune_count = 0;
     thread_local static vector<box> box_stack;
@@ -429,7 +440,7 @@ random_icp::random_icp(contractor & ctc, SMTConfig & config)
 }
 
 box random_icp::solve(box b, double const precision ) {
-    thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+    thread_local static unordered_set<shared_ptr<constraint>> used_constraints;
     used_constraints.clear();
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;

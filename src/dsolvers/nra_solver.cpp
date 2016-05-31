@@ -481,14 +481,14 @@ bool nra_solver::check(bool complete) {
             m_box = ncbt_icp::solve(m_box, m_ctc, config);
         } else if (config.nra_multiprune) {
             SizeGradAsinhBrancher sb1(m_stack);
-            m_box = multiprune_icp::solve(m_box, m_ctc, config, sb1);
+            m_box = multiprune_icp::solve(m_box, m_ctc, m_stack, config, sb1);
         } else if (config.nra_multiheuristic) {
             SizeBrancher sb;
             SizeGradAsinhBrancher sb1(m_stack);
             vector<reference_wrapper<BranchHeuristic>> heuristics = {sb, sb1};
-            m_box = multiheuristic_icp::solve(m_box, m_ctc, config, heuristics);
+            m_box = multiheuristic_icp::solve(m_box, m_ctc, m_stack, config, heuristics);
         } else {
-            m_box = naive_icp::solve(m_box, m_ctc, config);
+            m_box = naive_icp::solve(m_box, m_ctc, m_stack, config);
         }
     } else {
         // Incomplete Check ==> Prune Only

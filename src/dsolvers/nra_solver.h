@@ -55,8 +55,8 @@ public:
 private:
     bool m_need_init = true;
     std::vector<Enode *> m_lits;
-    scoped_vec<std::shared_ptr<constraint>>  m_stack;
-    scoped_vec<std::shared_ptr<constraint>>  m_used_constraint_vec;
+    scoped_vec<std::shared_ptr<constraint>> m_stack;
+    scoped_vec<std::shared_ptr<constraint>> m_used_constraint_vec;
     scoped_vec<box> m_boxes;
     std::map<std::pair<Enode*, bool>, std::shared_ptr<constraint>> m_ctr_map;
     contractor m_ctc;
