@@ -1,0 +1,41 @@
+#define v 1
+#define dt 0.01
+#define eps 0.1
+
+[-5, 5] x;
+[-5, 5] y;
+[-3, 3] theta;
+
+[0, 20] time;
+[0, 20] tau;
+
+{ mode 1;
+  invt:
+  flow:
+        d/dt[x] = v*sin(theta);
+        d/dt[y] = v*cos(theta);
+        d/dt[theta] = -1;
+        d/dt[tau] = 1;
+  jump:
+        (and (x = -0.5) (y = sqrt(3)/2)) ==> @2 (and (x'= x) (y'=y));  
+}
+
+{ mode 2;
+  invt:
+  flow:
+        d/dt[x] = v*sin(theta);
+        d/dt[y] = v*cos(theta);
+        d/dt[theta] = 1;
+        d/dt[tau] = 1;
+  jump:
+}
+
+init:
+@1	(and (x=0) (y=0) (tau = 0) (theta = 0));
+
+goal:
+
+@2  (and (tau >= 0.01*dt) //ratio of x and y can be a problem for tiny tau
+         (not (and  ( x > -y/sqrt(2)-eps ) ( x < y/sqrt(2)+eps ) 
+                    ( sqrt(x^2 + y^2) < 1+sqrt(3) + eps))
+    ));
