@@ -381,8 +381,7 @@ void nra_solver::popBacktrackPoint() {
 }
 
 void nra_solver::eval_sat_result(box const & b) const {
-    vector<tuple<string const, lbool, ibex::Interval>> store;
-    string::size_type max_len = 0;
+    DREAL_LOG_FATAL << "Constraints:";
     ostringstream ss;
     for (Enode * const lit : m_lits) {
         auto const it = m_ctr_map.find(make_pair(lit, lit->getPolarity() == l_True));
@@ -394,19 +393,11 @@ void nra_solver::eval_sat_result(box const & b) const {
                 ss.str(string());
                 lit->print_infix(ss, lit->getPolarity(), true);
                 string const & ctr_str = ss.str();
-                string::size_type const ctr_str_len = ctr_str.length();
-                if (ctr_str_len > max_len) {
-                    max_len = ctr_str_len;
-                }
-                store.emplace_back(ctr_str, eval_result.first, eval_result.second);
+                DREAL_LOG_FATAL << ctr_str << " : "
+                                << (eval_result.first == l_True ? "SAT" : "delta-SAT") << " "
+                                << "(LHS - RHS) = " << eval_result.second << endl;
             }
         }
-    }
-    DREAL_LOG_FATAL << "Constraints:";
-    for (auto const & t : store) {
-        DREAL_LOG_FATAL << std::left << setw(max_len) << get<0>(t) << " : "
-                        << setw(9) << std::right << (get<1>(t) == l_True ? "SAT" : "delta-SAT") << " "
-                        << "(LHS - RHS) = " << get<2>(t);
     }
 }
 
