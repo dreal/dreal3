@@ -34,7 +34,7 @@ private:
 public:
     // TODO(damien): the contractor contains both the linear and nonlinear constraints but it only needs the nonlinear ...
     static box solve(box b, contractor & ctc,
-            scoped_vec<shared_ptr<constraint>>& constraints,
+            scoped_vec<std::shared_ptr<constraint>>& constraints,
             SMTConfig & config,
             BranchHeuristic & heuristic = defaultHeuristic);
 };
