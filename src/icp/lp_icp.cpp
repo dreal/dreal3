@@ -118,7 +118,7 @@ box lp_icp::solve(box b, contractor & ctc,
 
             if (lp_point.is_subset(b)) {
                 if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
-                vector<int> sorted_dims = brancher.sort_branches(b, config.nra_precision);
+                vector<int> sorted_dims = brancher.sort_branches(b, constraints, config);
                 if (sorted_dims.size() > 0) {
                     // branch ...
                     int const i = sorted_dims[0];
