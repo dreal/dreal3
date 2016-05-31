@@ -355,7 +355,7 @@ else(MINGW)
       INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/coin && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/share/coin/doc/CoinUtils && make install)
   endif()
 endif()
-set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" "m" ${EXTRA_LIBS})
+set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" ${EXTRA_LIBS})
 
 ################################################################
 # External: ibex
@@ -485,6 +485,11 @@ endif()
 ################################################################
 find_package (Threads REQUIRED)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+
+################################################################
+# LIBM - math
+################################################################
+set(EXTRA_LIBS ${EXTRA_LIBS} "m")
 
 ################################################################
 # External: set up include dir and libpath
