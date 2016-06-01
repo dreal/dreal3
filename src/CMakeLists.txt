@@ -552,6 +552,7 @@ ADD_CUSTOM_COMMAND(
 # it as generated
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2parser.cc GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/smt2/smt2lexer.cc PROPERTIES COMPILE_FLAGS -Wno-sign-compare)
 ################################################################
 # PARSER: DR
 ################################################################
@@ -577,6 +578,7 @@ ADD_CUSTOM_COMMAND(
 # it as generated
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/dr/drparser.cc GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/dr/drlexer.cc GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/dr/drlexer.cc PROPERTIES COMPILE_FLAGS -Wno-sign-compare)
 ################################################################
 # PARSER: DOP
 ################################################################
@@ -602,6 +604,7 @@ ADD_CUSTOM_COMMAND(
 # it as generated
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/dop/dopparser.cc GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/dop/doplexer.cc GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/dop/doplexer.cc PROPERTIES COMPILE_FLAGS -Wno-sign-compare)
 ################################################################
 # PARSER: BARON
 ################################################################
@@ -627,6 +630,7 @@ ADD_CUSTOM_COMMAND(
 # it as generated
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronparser.cc GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronlexer.cc GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/baron/baronlexer.cc PROPERTIES COMPILE_FLAGS -Wno-sign-compare)
 ################################################################
 # PARSER: BCH
 ################################################################
@@ -652,6 +656,7 @@ ADD_CUSTOM_COMMAND(
 # it as generated
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchparser.cc GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchlexer.cc GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/tools/dop/parsers/bch/bchlexer.cc PROPERTIES COMPILE_FLAGS -Wno-sign-compare)
 ################################################################
 add_subdirectory(icp)
 add_subdirectory(dsolvers)
