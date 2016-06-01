@@ -682,18 +682,18 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
 
     // Activity based decision:
     while (next == var_Undef || toLbool(assigns[next]) != l_Undef || !decision_var[next])
-      if (order_heap.empty()){
-        next = var_Undef;
-        break;
-      }else
-        next = order_heap.removeMin();
-
-      if ( next == var_Undef
-          && ( config.logic == QF_UFIDL || config.logic == QF_UFLRA )
-          && config.sat_lazy_dtc != 0 )
+        if (order_heap.empty()){
+            next = var_Undef;
+            break;
+        }else
+            next = order_heap.removeMin();
+    
+    if ( next == var_Undef
+         && ( config.logic == QF_UFIDL || config.logic == QF_UFLRA )
+         && config.sat_lazy_dtc != 0 )
         next = generateMoreEij( );
 
-      if ( next == var_Undef )
+    if ( next == var_Undef )
         return lit_Undef;
 
 #if CACHE_POLARITY
