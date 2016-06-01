@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <stdexcept>
 #include "contractor/contractor.h"
 #include "icp/brancher.h"
 #include "util/box.h"
@@ -33,32 +34,56 @@ using std::dynamic_pointer_cast;
 using std::get;
 using std::pair;
 using std::shared_ptr;
+using std::sort;
 using std::tuple;
 using std::unordered_set;
+using std::runtime_error;
 using std::vector;
 
 namespace dreal {
 
-vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<std::shared_ptr<constraint>> const & ctrs, SMTConfig const & config) const {
+vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<constraint>> const & ctrs, SMTConfig const & config) const {
     double branch_precision = config.nra_precision;
     vector<int> sorted_dims;
     if (config.nra_delta_test) {
         // If nra_delta_test is used, either return {} or adjust branch_precision to be zero.
         bool delta_test_passed = true;
         for (shared_ptr<constraint> const & ctr : ctrs) {
-            if (ctr->get_type() == constraint_type::Nonlinear) {
-                auto nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
+            switch (ctr->get_type()) {
+            case constraint_type::Nonlinear: {
+                auto const nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
                 pair<lbool, ibex::Interval> const eval_result = nl_ctr->eval(b);
-
                 if (eval_result.first == l_True) {
                     continue;
                 }
                 if (eval_result.second.diam() > branch_precision) {
                     delta_test_passed = false;
-                    break;
                 }
-            } else if (ctr->get_type() == constraint_type::ODE) {
-                // TODO(soonhok): implement this for ODE constraints
+                break;
+            }
+            case constraint_type::ODE: {
+                // |X_0|, |X_t|, and |par| has to be < delta
+                auto const ode_ctr = dynamic_pointer_cast<ode_constraint>(ctr);
+                for (auto const & var : ode_ctr->get_vars()) {
+                    if (b[var].diam() > branch_precision) {
+                        delta_test_passed = false;
+                        break;
+                    }
+                }
+                break;
+            }
+            case constraint_type::Integral:
+                throw runtime_error("BranchHeuristic::sort_branches: found Integral constraint");
+            case constraint_type::ForallT:
+                break;
+            case constraint_type::Exists:
+                throw runtime_error("BranchHeuristic::sort_branches: found Exists constraint");
+            case constraint_type::GenericForall:
+                // TODO(soonhok): set delta_test_passed to be false if a counterexample is found.
+                throw runtime_error("BranchHeuristic::sort_branches: found GenericForall constraint");
+            }
+            if (!delta_test_passed) {
+                break;
             }
         }
         if (delta_test_passed) {
@@ -76,7 +101,7 @@ vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<std::shared
         bisectable_axis_scores.push_back(tuple<double, int>(-axis_scores[dim], dim));
     }
 
-    std::sort(bisectable_axis_scores.begin(), bisectable_axis_scores.end());
+    sort(bisectable_axis_scores.begin(), bisectable_axis_scores.end());
     for (auto tup : bisectable_axis_scores) {
         sorted_dims.push_back(get<1>(tup));
     }
