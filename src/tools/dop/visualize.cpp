@@ -17,19 +17,23 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "./config.h"
+#ifdef PYTHONLIBS_FOUND
+#ifdef __clang__
+#include <iostream>
+#endif
+#include "Python.h"
+#endif
+
 #include <unordered_map>
 #include <exception>
 #include <string>
 #include <sstream>
-#include "./config.h"
 #include "./version.h"
 #include "tools/dop/visualize.h"
 #include "opensmt/egraph/Enode.h"
 #include "tools/dop/print_py.h"
 #include "tools/dop/print_latex.h"
-#ifdef PYTHONLIBS_FOUND
-#include "Python.h"
-#endif
 
 namespace dop {
 using std::cerr;
