@@ -18,8 +18,6 @@ var:
 
 ctr:
 vq2*b12 - vd2*vq3*b23 + vd3*vd2*b23 - vd2*vq4*b24 + vd4*vq2*b24 = 0;
-vq3*b13 + vd2*vq3*b23 - vd3*vq2*b23 - vd3*vq4*b34 + vd4*vq3*b34 = 0;
-vq4*b14 + vd2*vq4*b24 - vd4*vq2*b24 + vd3*vq4*b34 - vd4*vq3*b34 = 0;
 vd2^2 + vq2^2 - vi2 = 0;
 vd3^2 + vq3^2 - vi3 = 0;
 vd4^2 + vq4^2 - vi4 = 0;
