@@ -403,7 +403,7 @@ SMTConfig::parseCMDLine( int argc
             "--no-precision-output");
     opt.add("", false, 0, 0,
             "interpret precision as delta instead of epsilon",
-            "--delta");
+            "--delta", "--range-delta");
     opt.add("", false, 0, 0,
             "use residual delta to select variables to split",
             "--delta-heuristic", "--delta_heuristic");
