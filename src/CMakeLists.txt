@@ -831,10 +831,17 @@ if(BUILD_SHARED_LIB)
 endif()
 
 if(APPLE AND BUILD_SHARED_LIB)
-  add_custom_target(shared_lib
-    COMMAND echo "Building Shared Library..."
-    COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libibex.a libnlopt.a libprim.a libClp.a libClpSolver.a libCoinUtils.a -o libdreal.dylib
-    DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT)
+  if (USE_GLPK)
+    add_custom_target(shared_lib
+      COMMAND echo "Building Shared Library..."
+      COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libibex.a libnlopt.a libprim.a libClp.a libClpSolver.a libCoinUtils.a libglpk.a -o libdreal.dylib
+      DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT GLPK)
+  else()
+    add_custom_target(shared_lib
+      COMMAND echo "Building Shared Library..."
+      COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libibex.a libnlopt.a libprim.a libClp.a libClpSolver.a libCoinUtils.a -o libdreal.dylib
+      DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT)
+  endif()
 endif()
 
 add_custom_target(update_pkgs
