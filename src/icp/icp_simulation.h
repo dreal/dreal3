@@ -20,11 +20,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <vector>
+#include "contractor/contractor.h"
 #include "icp/icp.h"
 
 namespace dreal {
 class simulation_icp {
 public:
-    static box solve(box b, contractor & ctc, std::vector<Enode *> const & lits, SMTConfig & config);
+    static void solve(contractor & ctc, contractor_status & cs, std::vector<Enode *> const & lits);
 };
 }  // namespace dreal

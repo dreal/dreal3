@@ -30,10 +30,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <utility>
 #include <vector>
-#include "dsolvers/nra_solver.h"
 #include "./config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
+#include "dsolvers/nra_solver.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
 #include "icp/icp_simulation.h"
@@ -77,7 +77,7 @@ using std::vector;
 namespace dreal {
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
-    : OrdinaryTSolver(i, n, c, e, t, x, d, s), m_box(vector<Enode*>({})) {
+    : OrdinaryTSolver(i, n, c, e, t, x, d, s), m_cs(c) {
     if (c.nra_precision == 0.0) c.nra_precision = 0.001;
 }
 
@@ -218,17 +218,17 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
         m_stack.push_back(ctr);
         if (ctr->get_type() == constraint_type::Nonlinear) {
             // Try to prune box using the constraint via callign simplify
-            lbool const simplify_result = simplify(e, e->getPolarity(), m_box);
+            lbool const simplify_result = simplify(e, e->getPolarity(), m_cs.m_box);
             if (simplify_result == l_True) {
-                m_used_constraint_vec.push_back(ctr);
-                if (m_box.is_empty()) {
-                    explanation = generate_explanation(m_used_constraint_vec);
+                m_cs.m_used_constraints.insert(ctr);
+                if (m_cs.m_box.is_empty()) {
+                    explanation = generate_explanation(m_cs.m_used_constraints);
                     return false;
                 } else {
                     return true;
                 }
             } else if (simplify_result == l_False) {
-                m_used_constraint_vec.push_back(ctr);
+                m_cs.m_used_constraints.insert(ctr);
             }
         }
     } else if (e->isIntegral() && e->getPolarity() == l_False) {
@@ -347,7 +347,7 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
 }
 
 void nra_solver::initialize(vector<Enode *> const & lits) {
-    m_box.constructFromLiterals(lits);
+    m_cs.m_box.constructFromLiterals(lits);
     initialize_constraints(lits);
     m_need_init = false;
 }
@@ -361,9 +361,8 @@ void nra_solver::pushBacktrackPoint() {
     if (m_need_init) { initialize(m_lits); }
     if (config.nra_use_stat) { config.nra_stat.increase_push(); }
     m_stack.push();
-    m_used_constraint_vec.push();
-    m_boxes.push_back(m_box);
-    m_boxes.push();
+    m_cses.push_back(m_cs);
+    m_cses.push();
 }
 
 // Restore a previous state. You can now retrieve the size of the
@@ -374,9 +373,8 @@ void nra_solver::pushBacktrackPoint() {
 void nra_solver::popBacktrackPoint() {
     if (config.nra_use_stat) { config.nra_stat.increase_pop(); }
     DREAL_LOG_INFO << "nra_solver::popBacktrackPoint\t m_stack.size()      = " << m_stack.size();
-    m_boxes.pop();
-    m_box = m_boxes.last();
-    m_used_constraint_vec.pop();
+    m_cses.pop();
+    m_cs.reset(m_cses.last());
     m_stack.pop();
 }
 
@@ -418,7 +416,7 @@ void nra_solver::handle_sat_case(box const & b) const {
             for (shared_ptr<constraint> const ctr : m_stack) {
                 if (ctr->get_type() == constraint_type::ODE) {
                     contractor_capd_full fwd_full(b, dynamic_pointer_cast<ode_constraint>(ctr), ode_direction::FWD, config);
-                    json trace = fwd_full.generate_trace(b, config);
+                    json trace = fwd_full.generate_trace(contractor_status(b, config));
                     traces.push_back(trace);
                 }
             }
@@ -446,7 +444,7 @@ void nra_solver::handle_deduction() {
                 shared_ptr<constraint> ctr = it->second;
                 shared_ptr<nonlinear_constraint> const nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
                 if (nl_ctr) {
-                    pair<lbool, ibex::Interval> p = nl_ctr->eval(m_box);
+                    pair<lbool, ibex::Interval> p = nl_ctr->eval(m_cs.m_box);
                     if (p.first == l_False) {
                         // We know that this literal has to be false;
                         l->setDeduced(l_False, id);
@@ -472,55 +470,52 @@ bool nra_solver::check(bool complete) {
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")"
                    << "stack size = " << m_stack.size();
     default_strategy stg;
-    m_ctc = stg.build_contractor(m_box, m_stack, complete, config);
+    m_ctc = stg.build_contractor(m_cs.m_box, m_stack, complete, config);
     if (complete) {
         // Complete Check ==> Run ICP
         if (config.nra_simulation_thread) {
-            m_box = simulation_icp::solve(m_box, m_ctc, m_lits, config);
+            simulation_icp::solve(m_ctc, m_cs, m_lits);
         } else if (config.nra_ncbt) {
-            m_box = ncbt_icp::solve(m_box, m_ctc, config);
+            ncbt_icp::solve(m_ctc, m_cs);
         } else if (config.nra_multiprune) {
             SizeGradAsinhBrancher sb1(m_stack);
-            m_box = multiprune_icp::solve(m_box, m_ctc, m_stack, config, sb1);
+            multiprune_icp::solve(m_ctc, m_cs, m_stack, sb1);
         } else if (config.nra_multiheuristic) {
             SizeBrancher sb;
             SizeGradAsinhBrancher sb1(m_stack);
             vector<reference_wrapper<BranchHeuristic>> heuristics = {sb, sb1};
-            m_box = multiheuristic_icp::solve(m_box, m_ctc, m_stack, config, heuristics);
+            multiheuristic_icp::solve(m_ctc, m_cs, m_stack, heuristics);
         } else {
-            m_box = naive_icp::solve(m_box, m_ctc, m_stack, config);
+            naive_icp::solve(m_ctc, m_cs, m_stack);
         }
     } else {
         // Incomplete Check ==> Prune Only
         try {
-            m_ctc.prune(m_box, config);
+            m_ctc.prune(m_cs);
             if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
         }
     }
-    bool result = !m_box.is_empty();
+    bool result = !m_cs.m_box.is_empty();
     DREAL_LOG_INFO << "nra_solver::check: result = " << boolalpha << result;
-    for (shared_ptr<constraint> const ctr : m_ctc.used_constraints()) {
-        m_used_constraint_vec.push_back(ctr);
-    }
     if (!result) {
-        explanation = generate_explanation(m_used_constraint_vec);
+        explanation = generate_explanation(m_cs.m_used_constraints);
     } else {
         if (!complete && config.nra_theory_propagation) {
             handle_deduction();
         }
         if (complete) {
-            handle_sat_case(m_box);
+            handle_sat_case(m_cs.m_box);
         }
     }
     DREAL_LOG_DEBUG << "nra_solver::check(" << (complete ? "complete" : "incomplete") << ") = " << result;
     return result;
 }
 
-vector<Enode *> nra_solver::generate_explanation(scoped_vec<shared_ptr<constraint>> const & ctr_vec) {
+vector<Enode *> nra_solver::generate_explanation(unordered_set<shared_ptr<constraint>> const & ctr_set) {
     unordered_set<Enode *> bag;
-    for (shared_ptr<constraint> ctr : ctr_vec) {
+    for (shared_ptr<constraint> ctr : ctr_set) {
         vector<Enode *> const & enodes_in_ctr = ctr->get_enodes();
         for (Enode * const e : enodes_in_ctr) {
             if (e->hasPolarity()) {
@@ -552,11 +547,11 @@ void nra_solver::computeModel() {
     // --model option
     if (config.nra_model && config.nra_multiple_soln == 1) {
         // Only output here when --multiple_soln is not used
-        output_solution(m_box, config);
+        output_solution(m_cs.m_box, config);
     }
     // --check-sat option
     if (config.nra_check_sat && config.nra_multiple_soln == 1) {
-        eval_sat_result(m_box);
+        eval_sat_result(m_cs.m_box);
     }
 }
 
@@ -635,10 +630,4 @@ Enode * nra_solver::slack_constraint(Enode * e) {
 
     return ret;
 }
-
-
-
-
-
-
 }  // namespace dreal

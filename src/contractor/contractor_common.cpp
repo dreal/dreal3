@@ -80,4 +80,25 @@ std::ostream & operator<<(std::ostream & out, ode_direction const & d) {
 ostream & operator<<(ostream & out, contractor_cell const & c) {
     return c.display(out);
 }
+
+void contractor::prune_with_assert(contractor_status & cs) {
+    assert(m_ptr != nullptr);
+    thread_local static box old_box(cs.m_box);
+    old_box = cs.m_box;
+    m_ptr->prune(cs);
+    if (!cs.m_box.is_subset(old_box)) {
+        cerr << "Pruning Violation: " << (*m_ptr) << endl;
+        cerr << "Old Box" << endl
+             << "==============" << endl
+             << old_box << endl;
+        cerr << "New Box" << endl
+             << "==============" << endl
+             << cs.m_box << endl;
+        cerr << "==============" << endl;
+        display_diff(cerr, old_box, cs.m_box);
+        cerr << "==============" << endl;
+        exit(1);
+    }
+}
+
 }  // namespace dreal

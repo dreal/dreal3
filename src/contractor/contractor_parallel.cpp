@@ -109,31 +109,31 @@ ostream & operator<<(ostream & out, pruning_thread_status const & s) {
 
 #define PARALLEL_LOG DREAL_LOG_DEBUG
 
-void parallel_helper_fn(unsigned const id, contractor & c, box & b, SMTConfig & config,
-                        pruning_thread_status & s, mutex & m, condition_variable & cv, int & index,
+void parallel_helper_fn(unsigned const id, contractor & c, contractor_status & cs,
+                        pruning_thread_status & ps, mutex & m, condition_variable & cv, int & index,
                         atomic_int & tasks_to_run) {
-    s = pruning_thread_status::RUNNING;
+    ps = pruning_thread_status::RUNNING;
     PARALLEL_LOG << "parallel_helper: thread " << id << " is running. "
                     << tasks_to_run << "tasks to run";
     // PARALLEL_LOG << "parallel_helper: thread " << id << " ctc = " << c;
     try {
-        c.prune(b, config);
-        if (b.is_empty()) {
+        c.prune(cs);
+        if (cs.m_box.is_empty()) {
             // do something for UNSAT
-            s = pruning_thread_status::UNSAT;
+            ps = pruning_thread_status::UNSAT;
             PARALLEL_LOG << "parallel_helper: thread " << id << " is UNSAT.";
         } else {
-            s = pruning_thread_status::SAT;
+            ps = pruning_thread_status::SAT;
             PARALLEL_LOG << "parallel_helper: thread " << id << " is SAT.";
             // do something for SAT
         }
     } catch (contractor_exception & e) {
         // handle for exception
-        s = pruning_thread_status::EXCEPTION;
+        ps = pruning_thread_status::EXCEPTION;
         PARALLEL_LOG << "parallel_helper: thread " << id << " throws an contractor_exception: " << e.what();
     } catch (thread_interrupted & e) {
         // just killed
-        s = pruning_thread_status::KILLED;
+        ps = pruning_thread_status::KILLED;
         tasks_to_run--;
         PARALLEL_LOG << "parallel_helper: thread " << id << " is KILLED.";
         return;

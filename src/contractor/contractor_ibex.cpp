@@ -157,49 +157,52 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> 
     }
 }
 
-void contractor_ibex_fwdbwd::prune(box & b, SMTConfig & config) {
+void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_ibex_fwdbwd::prune";
     if (m_ctc == nullptr) { return; }
-    thread_local static box old_box(b);
-    if (config.nra_proof) { old_box = b; }
+
+    thread_local static box old_box(cs.m_box);
+    if (cs.m_config.nra_proof) { old_box = cs.m_box; }
     if (m_var_array.size() == 0) {
-        auto eval_result = m_ctr->eval(b);
+        auto eval_result = m_ctr->eval(cs.m_box);
         if (eval_result.first == l_False) {
-            b.set_empty();
+            cs.m_box.set_empty();
             return;
         } else {
             return;
         }
     }
-    thread_local static ibex::IntervalVector old_iv(b.get_values());
-    old_iv = b.get_values();
-    assert(m_var_array.size() >= 0 && static_cast<unsigned>(m_var_array.size()) <= b.size());
+    thread_local static ibex::IntervalVector old_iv(cs.m_box.get_values());
+    old_iv = cs.m_box.get_values();
+    assert(m_var_array.size() >= 0 && static_cast<unsigned>(m_var_array.size()) <= cs.m_box.size());
     DREAL_LOG_DEBUG << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
-    DREAL_LOG_DEBUG << b;
-    DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (before)";
+    DREAL_LOG_DEBUG << cs.m_box;
+    DREAL_LOG_DEBUG << "ibex interval = " << cs.m_box.get_values() << " (before)";
     DREAL_LOG_DEBUG << "function = " << m_ctc->f;
     DREAL_LOG_DEBUG << "domain   = " << m_ctc->d;
-    m_ctc->contract(b.get_values());
-    DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (after)";
-    // cerr << m_output.empty() << m_used_constraints.empty() << " ";
-    auto & new_iv = b.get_values();
-    for (unsigned i = 0; i < b.size(); ++i) {
+    m_ctc->contract(cs.m_box.get_values());
+    DREAL_LOG_DEBUG << "ibex interval = " << cs.m_box.get_values() << " (after)";
+    // cerr << output.empty() << used_constraints.empty() << " ";
+    auto & new_iv = cs.m_box.get_values();
+    bool changed = false;
+    for (unsigned i = 0; i < cs.m_box.size(); ++i) {
         if (m_input.contain(i) && old_iv[i] != new_iv[i]) {
-            m_output.add(i);
+            cs.m_output.add(i);
+            changed = true;
         }
     }
-    if (b.is_empty() || !m_output.empty()) {
+    if (changed || cs.m_box.is_empty()) {
         // only add used_constraints if there is any change
-        m_used_constraints.insert(m_ctr);
+        cs.m_used_constraints.insert(m_ctr);
     }
     DREAL_LOG_DEBUG << "After pruning using ibex_fwdbwd(" << *m_numctr << ")";
-    DREAL_LOG_DEBUG << b;
-    if (config.nra_proof) {
+    DREAL_LOG_DEBUG << cs.m_box;
+    if (cs.m_config.nra_proof) {
         // ======= Proof =======
         thread_local static ostringstream ss;
         Enode const * const e = m_ctr->get_enode();
         ss << (e->getPolarity() == l_False ? "!" : "") << e;
-        output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+        output_pruning_step(old_box, cs, ss.str());
         ss.str(string());
     }
     return;
@@ -232,49 +235,51 @@ contractor_ibex_newton::contractor_ibex_newton(box const & box, shared_ptr<nonli
     }
 }
 
-void contractor_ibex_newton::prune(box & b, SMTConfig & config) {
+void contractor_ibex_newton::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_ibex_newton::prune";
     if (m_ctc == nullptr) { return; }
 
     // ======= Proof =======
-    thread_local static box old_box(b);
-    if (config.nra_proof) { old_box = b; }
+    thread_local static box old_box(cs.m_box);
+    if (cs.m_config.nra_proof) { old_box = cs.m_box; }
     if (m_var_array.size() == 0) {
-        auto eval_result = m_ctr->eval(b);
+        auto eval_result = m_ctr->eval(cs.m_box);
         if (eval_result.first == l_False) {
-            b.set_empty();
+            cs.m_box.set_empty();
             return;
         } else {
             return;
         }
     }
-    assert(m_var_array.size() - b.size() == 0);
+    assert(m_var_array.size() - cs.m_box.size() == 0);
     DREAL_LOG_DEBUG << "Before pruning using ibex_newton(" << *m_numctr << ")";
-    DREAL_LOG_DEBUG << b;
-    DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (before)";
+    DREAL_LOG_DEBUG << cs.m_box;
+    DREAL_LOG_DEBUG << "ibex interval = " << cs.m_box.get_values() << " (before)";
     DREAL_LOG_DEBUG << "function = " << m_ctc->f;
-    m_ctc->contract(b.get_values());
-    DREAL_LOG_DEBUG << "ibex interval = " << b.get_values() << " (after)";
+    m_ctc->contract(cs.m_box.get_values());
+    DREAL_LOG_DEBUG << "ibex interval = " << cs.m_box.get_values() << " (after)";
     // Set up output
-    ibex::BitSet const * const output = m_ctc->output;
-    for (unsigned i = 0; i <  output->size(); i++) {
-        if ((*output)[i]) {
-            m_output.add(b.get_index(m_var_array[i].name));
+    ibex::BitSet const * const ctc_output = m_ctc->output;
+    bool changed = false;
+    for (unsigned i = 0; i <  ctc_output->size(); i++) {
+        if ((*ctc_output)[i]) {
+            cs.m_output.add(cs.m_box.get_index(m_var_array[i].name));
+            changed = true;
         }
     }
-    if (!m_output.empty()) {
+    if (changed) {
         // only add used_constraints if there is any change
-        m_used_constraints.insert(m_ctr);
+        cs.m_used_constraints.insert(m_ctr);
     }
     DREAL_LOG_DEBUG << "After pruning using ibex_newton(" << *m_numctr << ")";
-    DREAL_LOG_DEBUG << b;
+    DREAL_LOG_DEBUG << cs.m_box;
 
     // ======= Proof =======
-    if (config.nra_proof) {
+    if (cs.m_config.nra_proof) {
         thread_local static ostringstream ss;
         Enode const * const e = m_ctr->get_enode();
         ss << (e->getPolarity() == l_False ? "!" : "") << e;
-        output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+        output_pruning_step(old_box, cs, ss.str());
         ss.str(string());
     }
     return;
@@ -298,40 +303,62 @@ contractor_ibex_hc4::contractor_ibex_hc4(vector<Enode *> const & vars, vector<sh
         cps.set_ref(index++, *(numctr->get_numctr()));
     }
     m_ctc.reset(new ibex::CtcHC4(cps));
+
+    // Setup m_input
+    m_input = ibex::BitSet::empty(vars.size());
+    unordered_map<Enode*, unsigned> enode_to_id;
+    for (unsigned i = 0; i < vars.size(); ++i) {
+        enode_to_id.emplace(vars[i], i);
+    }
+    for (auto const ctr : ctrs) {
+        for (auto const var : ctr->get_vars()) {
+            m_input.add(enode_to_id[var]);
+        }
+    }
+
     for (shared_ptr<nonlinear_constraint> ctr : ctrs) {
         unordered_set<Enode*> const & vars_in_ctr = ctr->get_enode()->get_vars();
         m_vars_in_ctrs.insert(vars_in_ctr.begin(), vars_in_ctr.end());
     }
-    m_input = ibex::BitSet::empty(vars.size());
+
     DREAL_LOG_INFO << "contractor_ibex_hc4: DONE" << endl;
 }
 
-void contractor_ibex_hc4::prune(box & b, SMTConfig & config) {
+void contractor_ibex_hc4::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_ibex_hc4::prune";
-    m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
+
     if (!m_ctc) { return; }
+
+    // TODO(soonhok): need to remove the following
+    // setup input
     for (Enode * var : m_vars_in_ctrs) {
-        m_input.add(b.get_index(var));
+        m_input.add(cs.m_box.get_index(var));
     }
-    thread_local static box old_box(b);
-    old_box = b;
-    m_ctc->contract(b.get_values());
+
+    thread_local static box old_box(cs.m_box);
+    old_box = cs.m_box;
+    m_ctc->contract(cs.m_box.get_values());
     // setup output
-    vector<bool> diff_dims = b.diff_dims(old_box);
-    m_output = ibex::BitSet::empty(old_box.size());
+    vector<bool> diff_dims = cs.m_box.diff_dims(old_box);
+    bool changed = false;
     for (unsigned i = 0; i < diff_dims.size(); i++) {
         if (diff_dims[i]) {
-            m_output.add(i);
+            cs.m_output.add(i);
+            changed = true;
         }
     }
+    if (changed) {
+        cs.m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
+    }
+
     // ======= Proof =======
-    if (config.nra_proof) {
+    if (cs.m_config.nra_proof) {
         thread_local static ostringstream ss;
         for (auto const & ctr : m_ctrs) {
             Enode const * const e = ctr->get_enode();
             ss << (e->getPolarity() == l_False ? "!" : "") << e << ";";
         }
-        output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+        output_pruning_step(old_box, cs, ss.str());
         ss.str(string());
     }
     return;
@@ -385,7 +412,6 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
 
     // Setup m_input
     m_input = ibex::BitSet::empty(vars.size());
-    m_output = ibex::BitSet::empty(vars.size());
     unordered_map<Enode*, unsigned> enode_to_id;
     for (unsigned i = 0; i < vars.size(); ++i) {
         enode_to_id.emplace(vars[i], i);
@@ -400,6 +426,7 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
         unordered_set<Enode*> const & vars_in_ctr = ctr->get_enode()->get_vars();
         m_vars_in_ctrs.insert(vars_in_ctr.begin(), vars_in_ctr.end());
     }
+
     DREAL_LOG_INFO << "contractor_ibex_polytope: DONE" << endl;
 }
 
@@ -421,36 +448,39 @@ contractor_ibex_polytope::~contractor_ibex_polytope() {
     }
 }
 
-void contractor_ibex_polytope::prune(box & b, SMTConfig & config) {
+void contractor_ibex_polytope::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_ibex_polytope::prune";
     if (!m_ctc) { return; }
+
+    // TODO(soonhok): need to remove the following
+    // setup input
     for (Enode * var : m_vars_in_ctrs) {
-        m_input.add(b.get_index(var));
+        m_input.add(cs.m_box.get_index(var));
     }
-    thread_local static box old_box(b);
-    old_box = b;
-    m_ctc->contract(b.get_values());
+    thread_local static box old_box(cs.m_box);
+    old_box = cs.m_box;
+    m_ctc->contract(cs.m_box.get_values());
 
     // setup output
-    vector<bool> diff_dims = b.diff_dims(old_box);
+    vector<bool> diff_dims = cs.m_box.diff_dims(old_box);
     for (unsigned i = 0; i < diff_dims.size(); i++) {
         if (diff_dims[i]) {
-            m_output.add(i);
+            cs.m_output.add(i);
         }
     }
 
-    if (!m_output.empty()) {
-        m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
+    if (!diff_dims.empty()) {
+        cs.m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
     }
 
     // ======= Proof =======
-    if (config.nra_proof) {
+    if (cs.m_config.nra_proof) {
         thread_local static ostringstream ss;
         for (auto const & ctr : m_ctrs) {
             Enode const * const e = ctr->get_enode();
             ss << (e->getPolarity() == l_False ? "!" : "") << e << ";";
         }
-        output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+        output_pruning_step(old_box, cs, ss.str());
         ss.str(string());
     }
     return;

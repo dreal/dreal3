@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ private:
 public:
     explicit contractor_pseq(std::initializer_list<contractor> const & l);
     explicit contractor_pseq(std::vector<contractor> const & v);
-    void prune(box & b, SMTConfig & config);
+    void prune(contractor_status & cs);
     std::ostream & display(std::ostream & out) const;
 };
 contractor mk_contractor_pseq(std::initializer_list<contractor> const & l);

@@ -397,17 +397,17 @@ void update_box_with_dvector(box & b, vector<Enode *> const & vars, capd::DVecto
 
 // Prune v using inv_ctc. box b is needed to use inv_ctc.
 // Retrun false if invariant is violated.
-bool contractor_capd_full::check_invariant(capd::IVector const & v, box b, SMTConfig & config) {
+bool contractor_capd_full::check_invariant(capd::IVector const & v, contractor_status cs) {
     // 1. convert v into a box using b.
-    update_box_with_ivector(b, m_vars_t, v);
+    update_box_with_ivector(cs.m_box, m_vars_t, v);
     // 2. check the converted box b, with inv_ctc contractor
     auto const & invs = m_ctr->get_invs();
     for (unsigned i = 0; i < invs.size(); ++i) {
         shared_ptr<forallt_constraint> inv = invs[i];
         Enode * inv_e = inv->get_enodes()[0];
         if (inv_e->hasPolarity() && inv_e->getPolarity() == l_True) {
-            m_inv_ctcs[i].prune(b, config);
-            if (b.is_empty()) {
+            m_inv_ctcs[i].prune(cs);
+            if (cs.m_box.is_empty()) {
                 return false;
             }
         }
@@ -420,9 +420,8 @@ bool contractor_capd_full::check_invariant(capd::IVector const & v, box b, SMTCo
 
 bool contractor_capd_full::compute_enclosures(capd::interval const & prevTime,
                                               capd::interval const T,
-                                              box const & b,
+                                              contractor_status const & cs,
                                               vector<pair<capd::interval, capd::IVector>> & enclosures,
-                                              SMTConfig & config,
                                               bool const add_all) {
     auto const stepMade = m_solver->getStep();
     auto const & curve = m_solver->getCurve();
@@ -450,13 +449,14 @@ bool contractor_capd_full::compute_enclosures(capd::interval const & prevTime,
             // 4.  [  O  ]
             // 5. [  X ]
             capd::IVector v = curve(subsetOfDomain);
-            if (config.nra_ODE_trace || DREAL_LOG_INFO_IS_ON) {
+            DREAL_LOG_INFO << "compute_enclosures:" << dt << "\t" << v;
+            if (cs.m_config.nra_ODE_trace || DREAL_LOG_INFO_IS_ON) {
                 output_trace(cerr, dt, v, m_ctr->get_ic().get_vars_0()) << endl;
             }
-            if (!m_need_to_check_inv || check_invariant(v, b, config)) {
+            if (!m_need_to_check_inv || check_invariant(v, cs)) {
                 enclosures.emplace_back(dt, v);
             } else {
-                if (config.nra_ODE_show_progress) {
+                if (cs.m_config.nra_ODE_show_progress) {
                     cout << " [INVARIANT VIOLATED] ";
                 }
                 return false;
@@ -610,7 +610,7 @@ contractor_capd_simple::contractor_capd_simple(box const & /* box */, shared_ptr
     assert(m_ctr);
 }
 
-void contractor_capd_simple::prune(box &, SMTConfig &) {
+void contractor_capd_simple::prune(contractor_status &) {
     if (m_dir == ode_direction::FWD) {
         // TODO(soonhok): implement this
     } else {
@@ -703,26 +703,25 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
     for (Enode * e : ctr->get_ic().get_enode()->get_vars()) {
         m_input.add(box.get_index(e));
     }
-    // Output: Empty
-    m_output = ibex::BitSet::empty(box.size());
 }
 
-void contractor_capd_full::prune(box & b, SMTConfig & config) {
+void contractor_capd_full::prune(contractor_status & cs) {
     auto const start_time = steady_clock::now();
-    thread_local static box old_box(b);
-    old_box = b;
+
+    thread_local static box old_box(cs.m_box);
+    old_box = cs.m_box;
     DREAL_LOG_DEBUG << "contractor_capd_full::prune "
                     << m_dir;
     integral_constraint const & ic = m_ctr->get_ic();
-    b = intersect_params(b, ic);
-    if (b.is_empty()) {
+    cs.m_box = intersect_params(cs.m_box, ic);
+    if (cs.m_box.is_empty()) {
         for (Enode * e : ic.get_pars_0()) {
-            m_output.add(b.get_index(e));
+            cs.m_output.add(cs.m_box.get_index(e));
         }
         for (Enode * e : ic.get_pars_t()) {
-            m_output.add(b.get_index(e));
+            cs.m_output.add(cs.m_box.get_index(e));
         }
-        m_used_constraints.insert(m_ctr);
+        cs.m_used_constraints.insert(m_ctr);
         return;
     }
     if (!m_solver) {
@@ -732,53 +731,53 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
 
     // Special Case: Time = [0, 0]
     // Intersect X_0 and X_t and return
-    if (b[ic.get_time_t()].ub() == 0.0) {
+    if (cs.m_box[ic.get_time_t()].ub() == 0.0) {
         for (unsigned i = 0; i < m_vars_0.size(); ++i) {
-            auto & iv_0_i = b[m_vars_0[i]];
-            auto & iv_t_i = b[m_vars_t[i]];
+            auto & iv_0_i = cs.m_box[m_vars_0[i]];
+            auto & iv_t_i = cs.m_box[m_vars_t[i]];
             iv_0_i &= iv_t_i;
             if (iv_0_i.is_empty()) {
-                b.set_empty();
-                m_used_constraints.insert(m_ctr);
-                m_output = m_input;
+                cs.m_box.set_empty();
+                cs.m_used_constraints.insert(m_ctr);
+                cs.m_output.union_with(m_input);
                 return;
             } else {
                 iv_t_i = iv_0_i;
             }
         }
         // Setup m_output and m_used_constraints for SAT case
-        vector<bool> diff_dims = b.diff_dims(old_box);
+        vector<bool> diff_dims = cs.m_box.diff_dims(old_box);
         for (unsigned i = 0; i < diff_dims.size(); i++) {
             if (diff_dims[i]) {
-                m_output.add(i);
+                cs.m_output.add(i);
             }
         }
-        if (!m_output.empty()) {
-            m_used_constraints.insert(m_ctr);
+        if (!diff_dims.empty()) {
+            cs.m_used_constraints.insert(m_ctr);
         }
         return;
     }
 
     // General case: Time = [lb, ub] where ub > 0
-    set_params(*m_vectorField, b, ic);
+    set_params(*m_vectorField, cs.m_box, ic);
     try {
-        if (config.nra_ODE_step > 0) {
-            m_solver->setStep(config.nra_ODE_step);
+        if (cs.m_config.nra_ODE_step > 0) {
+            m_solver->setStep(cs.m_config.nra_ODE_step);
         }
-        capd::IVector X_0 = extract_ivector(b, m_vars_0);
-        capd::IVector X_t = extract_ivector(b, m_vars_t);
-        ibex::Interval const & ibex_T = b[ic.get_time_t()];
+        capd::IVector X_0 = extract_ivector(cs.m_box, m_vars_0);
+        capd::IVector X_t = extract_ivector(cs.m_box, m_vars_t);
+        ibex::Interval const & ibex_T = cs.m_box[ic.get_time_t()];
         capd::interval T(ibex_T.lb(), ibex_T.ub());
         DREAL_LOG_INFO << "X_0 : " << X_0;
         DREAL_LOG_INFO << "X_t : " << X_t;
         DREAL_LOG_INFO << "T   : " << T;
-        Rect2Set s(X_0);
-        (*m_timeMap)(0.0, s);  // Rewind to 0.0
+        Rect2Set rs(X_0);
+        (*m_timeMap)(0.0, rs);  // Rewind to 0.0
         capd::interval prevTime(0.);
         vector<pair<capd::interval, capd::IVector>> enclosures;
         do {
             // Handle Timeout
-            if (m_timeout > 0.0 && b.max_diam() > config.nra_precision) {
+            if (m_timeout > 0.0 && cs.m_box.max_diam() > cs.m_config.nra_precision) {
                 auto const end_time = steady_clock::now();
                 auto const time_diff_in_msec = std::chrono::duration<double, milli>(end_time - start_time).count();
                 DREAL_LOG_INFO << "ODE TIME: " << time_diff_in_msec << " / " << m_timeout;
@@ -790,32 +789,32 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
                 }
             }
             // Invariant Check
-            if (m_need_to_check_inv && !check_invariant(s, b, config)) {
-                if (config.nra_ODE_show_progress) {
+            if (m_need_to_check_inv && !check_invariant(rs, cs)) {
+                if (cs.m_config.nra_ODE_show_progress) {
                     cout << " [INVARIANT VIOLATED] ";
                 }
                 break;
             }
             // Move s toward m_T.rightBound()
             interruption_point();
-            (*m_timeMap)(T.rightBound(), s);
-            if (contain_nan(s)) {
+            (*m_timeMap)(T.rightBound(), rs);
+            if (contain_nan(rs)) {
                 DREAL_LOG_FATAL << "contractor_capd_full::prune - contains NaN";
             }
             if (T.leftBound() <= m_timeMap->getCurrentTime().rightBound()) {
                 //                     [     T      ]
                 // [     current Time     ]
-                bool invariantSatisfied = compute_enclosures(prevTime, T,  b, enclosures, config);
+                bool invariantSatisfied = compute_enclosures(prevTime, T, cs, enclosures);
                 if (!invariantSatisfied) {
                     DREAL_LOG_INFO << "contractor_capd_full::prune - invariant violated";
                     break;
                 }
-            } else if (config.nra_ODE_trace || DREAL_LOG_INFO_IS_ON) {
-                output_trace(cerr, prevTime, s, m_ctr->get_ic().get_vars_0()) << endl;
+            } else if (cs.m_config.nra_ODE_trace || DREAL_LOG_INFO_IS_ON) {
+                output_trace(cerr, prevTime, rs, m_ctr->get_ic().get_vars_0()) << endl;
             }
             prevTime = m_timeMap->getCurrentTime();
-            if (config.nra_ODE_show_progress) {
-                if (!config.nra_ODE_trace) {
+            if (cs.m_config.nra_ODE_show_progress) {
+                if (!cs.m_config.nra_ODE_trace) {
                     cout << "\r"
                          << "                                               "
                          << "                                               "
@@ -826,64 +825,64 @@ void contractor_capd_full::prune(box & b, SMTConfig & config) {
                      << ":  Time = " << setw(10) << fixed << setprecision(5) << right << prevTime.rightBound() << " / "
                      << setw(7) << fixed << setprecision(2) << left << T.rightBound() << " "
                      << setw(4) << right << int(prevTime.rightBound() / T.rightBound() * 100.0) << "%" << "  "
-                     << "Box Width = " << setw(10) << fixed << setprecision(5) << b.max_diam() << "\t";
+                     << "Box Width = " << setw(10) << fixed << setprecision(5) << cs.m_box.max_diam() << "\t";
                 cout.flush();
-                if (config.nra_ODE_trace) {
+                if (cs.m_config.nra_ODE_trace) {
                     cerr << endl;
                 }
             }
         } while (!m_timeMap->completed());
-        if (config.nra_ODE_show_progress) {
+        if (cs.m_config.nra_ODE_show_progress) {
             cout << " [Done] " << endl;
         }
         if (enclosures.size() > 0 && filter(enclosures, X_t, T)) {
             // SAT
-            update_box_with_ivector(b, m_vars_t, X_t);
+            update_box_with_ivector(cs.m_box, m_vars_t, X_t);
             // TODO(soonhok): Here we still assume that time_0 = zero.
-            b[ic.get_time_t()] = ibex::Interval(T.leftBound(), T.rightBound());
+            cs.m_box[ic.get_time_t()] = ibex::Interval(T.leftBound(), T.rightBound());
             DREAL_LOG_DEBUG << "contractor_capd_full::prune: get non-empty set after filtering";
         } else {
             // UNSAT
             DREAL_LOG_DEBUG << "contractor_capd_full::prune: get empty set after filtering";
-            b.set_empty();
+            cs.m_box.set_empty();
         }
     } catch (std::range_error & e) {
-        if (config.nra_ODE_show_progress) {
+        if (cs.m_config.nra_ODE_show_progress) {
             cout << " [RangeError]" << endl;
         }
         throw contractor_exception(e.what());
     } catch (capd::intervals::IntervalError<double> & e) {
-        if (config.nra_ODE_show_progress) {
+        if (cs.m_config.nra_ODE_show_progress) {
             cout << " [IntervalError]" << endl;
         }
         throw contractor_exception(e.what());
     } catch (capd::ISolverException & e) {
-        if (config.nra_ODE_show_progress) {
+        if (cs.m_config.nra_ODE_show_progress) {
             cout << " [ISolverException]" << endl;
         }
         throw contractor_exception(e.what());
     } catch (std::runtime_error & e) {
-        if (config.nra_ODE_show_progress) {
+        if (cs.m_config.nra_ODE_show_progress) {
             cout << " [RuntimeError]" << endl;
         }
         throw contractor_exception(e.what());
     }
-    vector<bool> diff_dims = b.diff_dims(old_box);
+    vector<bool> diff_dims = cs.m_box.diff_dims(old_box);
     for (unsigned i = 0; i < diff_dims.size(); i++) {
         if (diff_dims[i]) {
-            m_output.add(i);
+            cs.m_output.add(i);
         }
     }
-    if (!m_output.empty()) {
+    if (!diff_dims.empty()) {
         // Add integral constraint
-        m_used_constraints.insert(m_ctr);
+        cs.m_used_constraints.insert(m_ctr);
         // Add forallt constraint (but only the asserted ones)
         auto const & invs = m_ctr->get_invs();
         for (unsigned i = 0; i < invs.size(); ++i) {
             shared_ptr<forallt_constraint> inv = invs[i];
             Enode * inv_e = inv->get_enodes()[0];
             if (inv_e->hasPolarity() && inv_e->getPolarity() == l_True) {
-                m_used_constraints.insert(inv);
+                cs.m_used_constraints.insert(inv);
             }
         }
     }
@@ -933,8 +932,13 @@ json generate_trace_core(integral_constraint const & ic,
     return ret;
 }
 
-json contractor_capd_full::generate_trace(box b, SMTConfig & config) {
+json contractor_capd_full::generate_trace(contractor_status cs) {
     integral_constraint const & ic = m_ctr->get_ic();
+
+    // aliases
+    box & b = cs.m_box;
+    SMTConfig & config = cs.m_config;
+
     b = intersect_params(b, ic);
     if (!m_solver) {
         // Trivial Case where there are only params and no real ODE vars.
@@ -952,26 +956,26 @@ json contractor_capd_full::generate_trace(box b, SMTConfig & config) {
         capd::IVector X_t = extract_ivector(b, vars_t);
         ibex::Interval const & ibex_T = b[ic.get_time_t()];
         capd::interval T(ibex_T.lb(), ibex_T.ub());
-        Rect2Set s(X_0);
-        (*m_timeMap)(0.0, s);  // Rewind to 0.0
+        Rect2Set rs(X_0);
+        (*m_timeMap)(0.0, rs);  // Rewind to 0.0
         m_timeMap->stopAfterStep(true);
         capd::interval prevTime(0.0);
         // Convert enclosures to json
         vector<pair<capd::interval, capd::IVector>> enclosures;
         do {
             // Move s toward m_T.rightBound()
-            (*m_timeMap)(T.rightBound(), s);
-            if (contain_nan(s)) {
+            (*m_timeMap)(T.rightBound(), rs);
+            if (contain_nan(rs)) {
                 DREAL_LOG_INFO << "contractor_capd_full::generate_trace - contain NaN";
             }
-            bool invariantSatisfied = compute_enclosures(prevTime, T, b, enclosures, config, true);
+            bool invariantSatisfied = compute_enclosures(prevTime, T, cs, enclosures, true);
             if (!invariantSatisfied) {
                 DREAL_LOG_INFO << "contractor_capd_full::generate_trace - invariant violated";
                 break;
             }
             prevTime = m_timeMap->getCurrentTime();
         } while (!m_timeMap->completed());
-        return generate_trace_core(ic, vars_0, pars_0, b, T, enclosures);
+        return generate_trace_core(ic, vars_0, pars_0, cs.m_box, T, enclosures);
     } catch (capd::intervals::IntervalError<double> & e) {
         throw contractor_exception(e.what());
     } catch (capd::ISolverException & e) {
@@ -1032,11 +1036,17 @@ contractor_capd_point::contractor_capd_point(box const & box, shared_ptr<ode_con
     for (Enode * e : ctr->get_ic().get_enode()->get_vars()) {
         m_input.add(box.get_index(e));
     }
-    // Output: Empty
-    m_output = ibex::BitSet::empty(box.size());
 }
-void contractor_capd_point::prune(box & b, SMTConfig & config) {
+
+void contractor_capd_point::prune(contractor_status & cs) {
     auto const start_time = steady_clock::now();
+
+    // aliases
+    box & b = cs.m_box;
+    ibex::BitSet & output = cs.m_output;
+    auto & used_constraints = cs.m_used_constraints;
+    SMTConfig & config = cs.m_config;
+
     thread_local static box old_box(b);
     old_box = b;
     DREAL_LOG_DEBUG << "contractor_capd_point::prune " << m_dir;
@@ -1044,12 +1054,12 @@ void contractor_capd_point::prune(box & b, SMTConfig & config) {
     b = intersect_params(b, ic);
     if (b.is_empty()) {
         for (Enode * e : ic.get_pars_0()) {
-            m_output.add(b.get_index(e));
+            output.add(b.get_index(e));
         }
         for (Enode * e : ic.get_pars_t()) {
-            m_output.add(b.get_index(e));
+            output.add(b.get_index(e));
         }
-        m_used_constraints.insert(m_ctr);
+        used_constraints.insert(m_ctr);
         return;
     }
     if (!m_solver) {
@@ -1066,8 +1076,8 @@ void contractor_capd_point::prune(box & b, SMTConfig & config) {
             iv_0_i &= iv_t_i;
             if (iv_0_i.is_empty()) {
                 b.set_empty();
-                m_used_constraints.insert(m_ctr);
-                m_output = m_input;
+                used_constraints.insert(m_ctr);
+                output = m_input;
                 return;
             } else {
                 iv_t_i = iv_0_i;
@@ -1077,11 +1087,11 @@ void contractor_capd_point::prune(box & b, SMTConfig & config) {
         vector<bool> diff_dims = b.diff_dims(old_box);
         for (unsigned i = 0; i < diff_dims.size(); i++) {
             if (diff_dims[i]) {
-                m_output.add(i);
+                output.add(i);
             }
         }
-        if (!m_output.empty()) {
-            m_used_constraints.insert(m_ctr);
+        if (!diff_dims.empty()) {
+            used_constraints.insert(m_ctr);
         }
         return;
     }
@@ -1158,7 +1168,7 @@ void contractor_capd_point::prune(box & b, SMTConfig & config) {
                     update_box_with_dvector(b, m_vars_t, X);
                     b[ic.get_time_t()] = current_time;
 
-                    m_eval_ctc.prune(b, config);
+                    m_eval_ctc.prune(cs);
                     if (!b.is_empty()) {
                         DREAL_LOG_INFO << "This box satisfies other non-linear constraints";
                         return;

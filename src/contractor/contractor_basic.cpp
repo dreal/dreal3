@@ -38,13 +38,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "constraint/constraint.h"
+#include "contractor/contractor_common.h"
 #include "contractor/contractor_basic.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "util/interruptible_thread.h"
 #include "util/logging.h"
 #include "util/proof.h"
-#include "util/interruptible_thread.h"
 
 using std::cerr;
 using std::cout;
@@ -74,7 +75,7 @@ namespace dreal {
 contractor_id::contractor_id()
     : contractor_cell(contractor_kind::ID) {
 }
-void contractor_id::prune(box &, SMTConfig &) {
+void contractor_id::prune(contractor_status &) {
     return;
 }
 ostream & contractor_id::display(ostream & out) const {
@@ -85,7 +86,7 @@ ostream & contractor_id::display(ostream & out) const {
 contractor_debug::contractor_debug(string const & s)
     : contractor_cell(contractor_kind::DEBUG), m_msg(s) {
 }
-void contractor_debug::prune(box &, SMTConfig &) {
+void contractor_debug::prune(contractor_status &) {
     DREAL_LOG_FATAL << "contractor_debug: " << m_msg;
 }
 ostream & contractor_debug::display(ostream & out) const {
@@ -94,12 +95,10 @@ ostream & contractor_debug::display(ostream & out) const {
 }
 
 void contractor_seq::init() {
-    m_input = m_vec[0].input();
+    m_input = m_vec[0].get_input();
     for (unsigned i = 1; i < m_vec.size(); ++i) {
-        m_input.union_with(m_vec[i].input());
+        m_input.union_with(m_vec[i].get_input());
     }
-    m_output = m_input;
-    m_output.clear();
 }
 contractor_seq::contractor_seq(initializer_list<contractor> const & l)
     : contractor_cell(contractor_kind::SEQ), m_vec(l) {
@@ -116,26 +115,21 @@ contractor_seq::contractor_seq(contractor const & c1, contractor const & c2)
     m_vec.push_back(c2);
     init();
 }
-void contractor_seq::prune_naive(box & b, SMTConfig & config) {
+void contractor_seq::prune_naive(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_seq::prune";
     for (contractor & c : m_vec) {
         interruption_point();
-        c.prune(b, config);
-        m_output.union_with(c.output());
-        unordered_set<shared_ptr<constraint>> const & used_ctrs = c.used_constraints();
-        m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
-        if (b.is_empty()) {
+        c.prune(cs);
+        if (cs.m_box.is_empty()) {
             return;
         }
     }
     return;
 }
 
-void contractor_seq::prune(box & b, SMTConfig & config) {
-    if (m_vec.size() == 0) {
-        return;
-    }
-    return prune_naive(b, config);
+void contractor_seq::prune(contractor_status & cs) {
+    if (m_vec.size() == 0) { return; }
+    prune_naive(cs);
 }
 
 ostream & contractor_seq::display(ostream & out) const {
@@ -149,22 +143,17 @@ ostream & contractor_seq::display(ostream & out) const {
 
 contractor_try::contractor_try(contractor const & c)
     : contractor_cell(contractor_kind::TRY), m_c(c) {
-    m_input = m_c.input();
-    m_output = m_input;
-    m_output.clear();
+    m_input = m_c.get_input();
 }
-void contractor_try::prune(box & b, SMTConfig & config) {
+void contractor_try::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_try::prune: ";
-    thread_local static box old_box(b);
-    old_box = b;
+    contractor_status old_cs(cs);
     try {
-        m_c.prune(b, config);
-        m_output = m_c.output();
-        m_used_constraints = m_c.used_constraints();
+        m_c.prune(cs);
     } catch (contractor_exception & e) {
         DREAL_LOG_INFO << "contractor_try: exception caught, \""
                        << e.what() << "\n";
-        b = old_box;
+        cs.reset(old_cs);
         return;
     }
 }
@@ -176,24 +165,17 @@ ostream & contractor_try::display(ostream & out) const {
 
 contractor_try_or::contractor_try_or(contractor const & c1, contractor const & c2)
     : contractor_cell(contractor_kind::TRY_OR), m_c1(c1), m_c2(c2) {
-    m_input = m_c1.input();
-    m_input.union_with(m_c2.input());
-    m_output = m_input;
-    m_output.clear();
+    m_input = m_c1.get_input();
+    m_input.union_with(m_c2.get_input());
 }
-void contractor_try_or::prune(box & b, SMTConfig & config) {
+void contractor_try_or::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_try_or::prune";
-    thread_local static box old_box(b);
-    old_box = b;
+    contractor_status old_cs(cs);
     try {
-        m_c1.prune(b, config);
-        m_output = m_c1.output();
-        m_used_constraints = m_c1.used_constraints();
+        m_c1.prune(cs);
     } catch (contractor_exception & e) {
-        b = old_box;
-        m_c2.prune(b, config);
-        m_output = m_c2.output();
-        m_used_constraints = m_c2.used_constraints();
+        cs.reset(old_cs);
+        m_c2.prune(cs);
     }
 }
 ostream & contractor_try_or::display(ostream & out) const {
@@ -205,16 +187,12 @@ ostream & contractor_try_or::display(ostream & out) const {
 
 contractor_throw_if_empty::contractor_throw_if_empty(contractor const & c)
     : contractor_cell(contractor_kind::THROW_IF_EMPTY), m_c(c) {
-    m_input = m_c.input();
-    m_output = m_input;
-    m_output.clear();
+    m_input = m_c.get_input();
 }
-void contractor_throw_if_empty::prune(box & b, SMTConfig & config) {
+void contractor_throw_if_empty::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_throw_if_empty::prune";
-    m_c.prune(b, config);
-    m_output = m_c.output();
-    m_used_constraints = m_c.used_constraints();
-    if (b.is_empty()) {
+    m_c.prune(cs);
+    if (cs.m_box.is_empty()) {
         throw contractor_exception("throw if empty");
     }
 }
@@ -225,32 +203,18 @@ ostream & contractor_throw_if_empty::display(ostream & out) const {
 
 contractor_join::contractor_join(contractor const & c1, contractor const & c2)
     : contractor_cell(contractor_kind::JOIN), m_c1(c1), m_c2(c2) {
-    m_input = m_c1.input();
-    m_input.union_with(m_c2.input());
-    m_output = m_input;
-    m_output.clear();
+    m_input = m_c1.get_input();
+    m_input.union_with(m_c2.get_input());
 }
-void contractor_join::prune(box & b, SMTConfig & config) {
+void contractor_join::prune(contractor_status & cs1) {
     DREAL_LOG_DEBUG << "contractor_join::prune";
-    m_output = ibex::BitSet::empty(b.size());
-
-    // save b
-    thread_local box tmp_b(b);
-    tmp_b = b;
-
+    // duplicate cs1
+    contractor_status cs2(cs1);
     // run m_c1
-    m_c1.prune(b, config);
-    m_output = m_c1.output();
-    m_used_constraints = m_c1.used_constraints();
-
+    m_c1.prune(cs1);
     // run m_c2 on b1
-    m_c2.prune(tmp_b, config);
-    m_output.union_with(m_c2.output());
-    unordered_set<shared_ptr<constraint>> const & used_ctrs2 = m_c2.used_constraints();
-    m_used_constraints.insert(used_ctrs2.begin(), used_ctrs2.end());
-
-    // join(hull) b and tmp_b
-    b.hull(tmp_b);
+    m_c2.prune(cs2);
+    cs1.join(cs2);
 }
 ostream & contractor_join::display(ostream & out) const {
     out << "contractor_join(" << m_c1 << ", " << m_c2 << ")";
@@ -259,37 +223,28 @@ ostream & contractor_join::display(ostream & out) const {
 
 contractor_ite::contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else)
     : contractor_cell(contractor_kind::ITE), m_guard(guard), m_c_then(c_then), m_c_else(c_else) {
-    m_input = m_c_then.input();
-    m_input.union_with(m_c_else.input());
-    m_output = m_input;
-    m_output.clear();
+    m_input = m_c_then.get_input();
+    m_input.union_with(m_c_else.get_input());
 }
-void contractor_ite::prune(box & b, SMTConfig & config) {
+void contractor_ite::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_ite::prune";
-    if (m_guard(b)) {
-        m_c_then.prune(b, config);
-        m_output = m_c_then.output();
-        m_used_constraints = m_c_then.used_constraints();
-        return;
+    if (m_guard(cs.m_box)) {
+        m_c_then.prune(cs);
     } else {
-        m_c_else.prune(b, config);
-        m_output = m_c_else.output();
-        m_used_constraints = m_c_else.used_constraints();
-        return;
+        m_c_else.prune(cs);
     }
 }
+
 ostream & contractor_ite::display(ostream & out) const {
     out << "contractor_ite(" << m_c_then << ", " << m_c_else << ")";
     return out;
 }
 
 void contractor_fixpoint::init() {
-    m_input = m_clist[0].input();
+    m_input = m_clist[0].get_input();
     for (unsigned i = 1; i < m_clist.size(); ++i) {
-        m_input.union_with(m_clist[i].input());
+        m_input.union_with(m_clist[i].get_input());
     }
-    m_output = m_input;
-    m_output.clear();
 }
 
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, contractor const & c)
@@ -315,14 +270,14 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
     init();
 }
 
-void contractor_fixpoint::prune(box & b, SMTConfig & config) {
+void contractor_fixpoint::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_fix::prune -- begin";
-    if (config.nra_worklist_fp) {
-        worklist_fixpoint_alg(b, config);
+    if (cs.m_config.nra_worklist_fp) {
+        worklist_fixpoint_alg(cs);
         DREAL_LOG_DEBUG << "contractor_fix::prune -- end";
         return;
     } else {
-        naive_fixpoint_alg(b, config);
+        naive_fixpoint_alg(cs);
         DREAL_LOG_DEBUG << "contractor_fix::prune -- end";
         return;
     }
@@ -336,95 +291,68 @@ ostream & contractor_fixpoint::display(ostream & out) const {
     return out;
 }
 
-void contractor_fixpoint::naive_fixpoint_alg(box & b, SMTConfig & config) {
+void contractor_fixpoint::naive_fixpoint_alg(contractor_status & cs) {
     // First Iteration (run always)
     for (contractor & c : m_clist) {
         interruption_point();
-        c.prune(b, config);
-        m_output.union_with(c.output());
-        unordered_set<shared_ptr<constraint>> const & used_constraints = c.used_constraints();
-        m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
-        if (b.is_empty()) {
+        c.prune(cs);
+        if (cs.m_box.is_empty()) {
             return;
         }
     }
-    thread_local static box old_box(b);
-    old_box = b;
+    box old_box = cs.m_box;
     unsigned i = 0;
     // Next Iterations (stop when 1) a box is smaller enough or 2) termination condition holds
-    while (b.max_diam() > config.nra_precision && !m_term_cond(old_box, b)) {
+    do {
         interruption_point();
-        old_box = b;
+        old_box = cs.m_box;
         contractor & c = m_clist[i];
-        c.prune(b, config);
-        m_output.union_with(c.output());
-        unordered_set<shared_ptr<constraint>> const & used_constraints = c.used_constraints();
-        m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
-        if (b.is_empty()) {
+        c.prune(cs);
+        if (cs.m_box.is_empty()) {
             return;
         }
         i = (i + 1) % m_clist.size();
-    }
+    } while (cs.m_box.max_diam() > cs.m_config.nra_precision && !m_term_cond(old_box, cs.m_box));
     return;
 }
 
-void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) {
+void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
     thread_local static queue<unsigned> q;
     q = queue<unsigned>();  // empty queue
     thread_local static ibex::BitSet ctc_bitset = ibex::BitSet::empty(m_clist.size());
     ctc_bitset.clear();
 
-    int const idx_last_branched = b.get_idx_last_branched();
-
     // Add all contractors to the queue.
-    for (unsigned i = 0; i < m_clist.size(); ++i) {
+    for (int i = m_clist.size() - 1; i >= 0; --i) {
         contractor & c_i = m_clist[i];
-        if (idx_last_branched < 0 || c_i.input().contain(idx_last_branched)) {
-            c_i.prune(b, config);
-            m_output.union_with(c_i.output());
-            unordered_set<shared_ptr<constraint>> const & used_constraints = c_i.used_constraints();
-            m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
-            if (b.is_empty()) { return; }
-            ibex::BitSet const & output_i = c_i.output();
-            if (output_i.empty()) {
-                continue;
-            }
-            for (int j = output_i.min(); j <= output_i.max(); ++j) {
-                if (!output_i.contain(j)) {
-                    continue;
-                }
-                // The applied constraint changes var_j
-                for (unsigned k = 0; k < m_clist.size(); ++k) {
-                    if (!ctc_bitset.contain(k)) {
-                        // Need to find c_k whose input depends on var_j
-                        contractor const & c_k = m_clist[k];
-                        if (c_k.input().contain(j)) {
-                            q.push(k);
-                            ctc_bitset.add(k);
-                        }
-                    }
-                }
-            }
+        contractor_status_guard csg(cs);
+        c_i.prune(cs);
+        if (cs.m_box.is_empty()) { return; }
+        ibex::BitSet const & output_i = cs.m_output;
+        if (output_i.empty()) {
+            continue;
         }
+        q.push(i);
+        ctc_bitset.add(i);
     }
 
     if (q.size() == 0) { return; }
     // Fixed Point Loop
-    thread_local static box old_box(b);
+    thread_local static box old_box(cs.m_box);
     do {
         interruption_point();
-        old_box = b;
+        old_box = cs.m_box;
         unsigned const idx = q.front();
         q.pop();
         ctc_bitset.remove(idx);
         assert(idx < m_clist.size());
         contractor & c = m_clist[idx];
-        c.prune(b, config);
-        m_output.union_with(c.output());
-        unordered_set<shared_ptr<constraint>> const & used_constraints = c.used_constraints();
-        m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
-        if (b.is_empty()) { return; }
-        auto const & c_output = c.output();
+        contractor_status_guard csg(cs);
+        c.prune(cs);
+        if (cs.m_box.is_empty()) {
+            return;
+        }
+        auto const & c_output = cs.m_output;
         if (!c_output.empty()) {
             // j-th dimension is changed as a result of pruning
             // need to add a contractor which takes j-th dim as an input
@@ -436,7 +364,7 @@ void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) {
                     // Only add if it's not in the current queue
                     if (!ctc_bitset.contain(k)) {
                         contractor const & c_k = m_clist[k];
-                        if (c_k.input().contain(j)) {
+                        if (c_k.get_input().contain(j)) {
                             q.push(k);
                             ctc_bitset.add(k);
                         }
@@ -444,7 +372,7 @@ void contractor_fixpoint::worklist_fixpoint_alg(box & b, SMTConfig & config) {
                 }
             }
         }
-    } while (q.size() > 0 && b.max_diam() >= config.nra_precision && !m_term_cond(old_box, b));
+    } while (q.size() > 0 && cs.m_box.max_diam() >= cs.m_config.nra_precision && !m_term_cond(old_box, cs.m_box));
     return;
 }
 
@@ -457,38 +385,36 @@ contractor_int::contractor_int(box const & b) : contractor_cell(contractor_kind:
             m_input.add(i);
         }
     }
-    m_output = m_input;
-    m_output.clear();
 }
 
-void contractor_int::prune(box & b, SMTConfig & config) {
+void contractor_int::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_int::prune";
     if (m_input.empty()) {
         return;
     }
     // ======= Proof =======
-    thread_local static box old_box(b);
-    if (config.nra_proof) { old_box = b; }
+    thread_local static box old_box(cs.m_box);
+    if (cs.m_config.nra_proof) { old_box = cs.m_box; }
     unsigned i = 0;
-    ibex::IntervalVector & iv = b.get_values();
-    for (Enode * e : b.get_vars()) {
+    ibex::IntervalVector & iv = cs.m_box.get_values();
+    for (Enode * e : cs.m_box.get_vars()) {
         if (e->hasSortInt()) {
             thread_local static ibex::Interval old_iv(iv[i]);
             old_iv = iv[i];
             iv[i] = ibex::integer(iv[i]);
             if (old_iv != iv[i]) {
-                m_output.add(i);
+                cs.m_output.add(i);
             }
             if (iv[i].is_empty()) {
-                b.set_empty();
+                cs.m_box.set_empty();
                 break;
             }
         }
         i++;
     }
     // ======= Proof =======
-    if (config.nra_proof) {
-        output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, "integer pruning");
+    if (cs.m_config.nra_proof) {
+        output_pruning_step(old_box, cs, "integer pruning");
     }
     return;
 }
@@ -504,27 +430,25 @@ contractor_eval::contractor_eval(shared_ptr<nonlinear_constraint> const ctr)
     for (int i = 0; i < var_array.size(); i++) {
         m_input.add(i);
     }
-    m_output = m_input;
-    m_output.clear();
 }
 
-void contractor_eval::prune(box & b, SMTConfig & config) {
+void contractor_eval::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_eval::prune";
-    pair<lbool, ibex::Interval> const eval_result = m_nl_ctr->eval(b);
+    pair<lbool, ibex::Interval> eval_result = m_nl_ctr->eval(cs.m_box);
     if (eval_result.first == l_False) {
         // ======= Proof =======
-        if (config.nra_proof) {
-            box const old_box = b;
-            b.set_empty();
+        if (cs.m_config.nra_proof) {
+            box const old_box = cs.m_box;
+            cs.m_box.set_empty();
             ostringstream ss;
             Enode const * const e = m_nl_ctr->get_enode();
             ss << (e->getPolarity() == l_False ? "!" : "") << e;
-            output_pruning_step(config.nra_proof_out, old_box, b, config.nra_readable_proof, ss.str());
+            output_pruning_step(old_box, cs, ss.str());
         } else {
-            b.set_empty();
-            m_output.flip();  // empty -> all
+            cs.m_box.set_empty();
+            cs.m_output.fill();
         }
-        m_used_constraints.insert(m_nl_ctr);
+        cs.m_used_constraints.insert(m_nl_ctr);
     }
     return;
 }
@@ -535,7 +459,7 @@ ostream & contractor_eval::display(ostream & out) const {
 
 contractor_cache::contractor_cache(contractor const & ctc)
     : contractor_cell(contractor_kind::CACHE), m_ctc(ctc), m_num_hit(0), m_num_nohit(0) {
-    m_input = m_ctc.input();
+    m_input = m_ctc.get_input();
 }
 
 contractor_cache::~contractor_cache() {
@@ -563,41 +487,45 @@ void update_box_using_bitset(box & b, vector<ibex::Interval> const & v, ibex::Bi
     }
 }
 
-void contractor_cache::prune(box & b, SMTConfig & config) {
+void contractor_cache::prune(contractor_status & cs) {
     // extract i-th interval where `m_input[i] == 1`
-
-    vector<ibex::Interval> in = extract_from_box_using_bitset(b, m_input);
-    auto it = m_cache.find(in);
+    vector<ibex::Interval> const in = extract_from_box_using_bitset(cs.m_box, m_input);
+    auto const it = m_cache.find(in);
     if (it == m_cache.end()) {
         // not found in cache, run m_ctc
         ++m_num_nohit;
-        try {
-            m_ctc.prune(b, config);
-            m_output = m_ctc.output();
-            m_used_constraints = m_ctc.used_constraints();
-
-            // extract out from box.
-            vector<ibex::Interval> out = extract_from_box_using_bitset(b, m_output);
-
-            // save to the cache
-            m_cache.emplace(in, make_tuple(out, m_output, m_used_constraints, false));
-        } catch (exception & e) {
-            m_cache.emplace(in, make_tuple(vector<ibex::Interval>(), m_output, m_used_constraints, true));
-            throw contractor_exception(e.what());
+        {
+            contractor_status_guard csg(cs);
+            assert(cs.m_output.empty());
+            assert(cs.m_used_constraints.empty());
+            try {
+                // run contractor
+                m_ctc.prune(cs);
+                // extract out from box.
+                vector<ibex::Interval> const out = extract_from_box_using_bitset(cs.m_box, cs.m_output);
+                // save the result to the cache
+                m_cache.emplace(in, make_tuple(out, cs.m_output, cs.m_used_constraints, false));
+            } catch (exception & e) {
+                m_cache.emplace(in, make_tuple(vector<ibex::Interval>(), cs.m_output, cs.m_used_constraints, true));
+                throw contractor_exception(e.what());
+            }
         }
     } else {
         ++m_num_hit;
         // found in cache, use it
         auto const & m_cached_content = it->second;
-        vector<ibex::Interval> out = get<0>(m_cached_content);
-        m_output = get<1>(m_cached_content);
-        m_used_constraints = get<2>(m_cached_content);
+        vector<ibex::Interval> const & out = get<0>(m_cached_content);
+        auto const & output_bitset = get<1>(m_cached_content);
+        auto const & used_constraints = get<2>(m_cached_content);
         bool const was_exception_thrown = get<3>(m_cached_content);
+        cs.m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
         if (was_exception_thrown) {
+            cs.m_output.union_with(output_bitset);
             throw contractor_exception("previously there was an exception in the cached computation");
         } else {
             // project out to box;
-            update_box_using_bitset(b, out, m_output);
+            update_box_using_bitset(cs.m_box, out, output_bitset);
+            cs.m_output.union_with(output_bitset);
         }
     }
 }
@@ -610,13 +538,12 @@ ostream & contractor_cache::display(ostream & out) const {
 contractor_sample::contractor_sample(box const & b, unsigned const n, vector<shared_ptr<constraint>> const & ctrs)
     : contractor_cell(contractor_kind::SAMPLE), m_num_samples(n), m_ctrs(ctrs) {
     m_input = ibex::BitSet::all(b.size());
-    m_output = ibex::BitSet::empty(b.size());
 }
 
-void contractor_sample::prune(box & b, SMTConfig &) {
+void contractor_sample::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_sample::prune";
     // Sample n points
-    set<box> points = b.sample_points(m_num_samples);
+    set<box> points = cs.m_box.sample_points(m_num_samples);
     // If ∃p. ∀c. eval(c, p) = true, return 'SAT'
     unsigned count = 0;
     for (box const & p : points) {
@@ -636,9 +563,9 @@ void contractor_sample::prune(box & b, SMTConfig &) {
         }
         if (check) {
             DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " satisfies all constraints";
-            b = p;
-            m_output = ibex::BitSet::all(b.size());
-            m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
+            cs.m_box = p;
+            cs.m_output = ibex::BitSet::all(cs.m_box.size());
+            cs.m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
             return;
         }
     }
@@ -656,11 +583,11 @@ contractor_aggressive::contractor_aggressive(unsigned const n, vector<shared_ptr
     // m_input = ibex::BitSet::all(b.size());
 }
 
-void contractor_aggressive::prune(box & b, SMTConfig &) {
+void contractor_aggressive::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_eval::aggressive";
     // TODO(soonhok): set input & output
     // Sample n points
-    set<box> points = b.sample_points(m_num_samples);
+    set<box> points = cs.m_box.sample_points(m_num_samples);
     // ∃c. ∀p. eval(c, p) = false   ===>  UNSAT
     for (shared_ptr<constraint> const ctr : m_ctrs) {
         interruption_point();
@@ -675,11 +602,11 @@ void contractor_aggressive::prune(box & b, SMTConfig &) {
                 }
             }
             if (!check) {
-                m_used_constraints.insert(ctr);
-                pair<lbool, ibex::Interval> eval_result = nl_ctr->eval(b);
+                cs.m_used_constraints.insert(ctr);
+                pair<lbool, ibex::Interval> eval_result = nl_ctr->eval(cs.m_box);
                 DREAL_LOG_DEBUG << "Constraint: " << *nl_ctr << " is violated by all " << points.size() << " points";
                 DREAL_LOG_DEBUG << "FYI, the interval evaluation gives us : " << eval_result.second;
-                b.set_empty();
+                cs.m_box.set_empty();
                 return;
             }
         }
@@ -776,25 +703,5 @@ ostream & operator<<(ostream & out, contractor const & c) {
         out << *(c.m_ptr);
     }
     return out;
-}
-
-void contractor::prune_with_assert(box & b, SMTConfig & config) {
-    assert(m_ptr != nullptr);
-    thread_local static box old_box(b);
-    old_box = b;
-    m_ptr->prune(b, config);
-    if (!b.is_subset(old_box)) {
-        cerr << "Pruning Violation: " << (*m_ptr) << endl;
-        cerr << "Old Box" << endl
-             << "==============" << endl
-             << old_box << endl;
-        cerr << "New Box" << endl
-             << "==============" << endl
-             << b << endl;
-        cerr << "==============" << endl;
-        display_diff(cerr, old_box, b);
-        cerr << "==============" << endl;
-        exit(1);
-    }
 }
 }  // namespace dreal

@@ -1,9 +1,8 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
-        
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,7 +23,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <string>
 #include "util/box.h"
+#include "contractor/contractor.h"
 
 namespace dreal {
-void output_pruning_step(std::ostream & out, box const & old_box, box const & new_box, bool const readable_proof, std::string const & constraint);
+void output_pruning_step(box const & old_box, contractor_status & cs, std::string const & constraint);
 }  // namespace dreal

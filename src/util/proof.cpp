@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
-        
+
 
 dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
@@ -28,7 +28,10 @@ using std::endl;
 
 namespace dreal {
 using std::string;
-void output_pruning_step(std::ostream & out, box const & old_box, box const & new_box, bool const readable_proof, std::string const & constraint) {
+void output_pruning_step(box const & old_box, contractor_status & cs, std::string const & constraint) {
+    std::ostream & out = cs.m_config.nra_proof_out;
+    box const & new_box = cs.m_box;
+    bool const readable_proof = cs.m_config.nra_readable_proof;
     if (old_box != new_box) {
         out << "[before pruning]" << endl;
         dreal::display(out, old_box, !readable_proof);

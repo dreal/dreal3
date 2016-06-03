@@ -90,6 +90,7 @@ contractor_pseq::contractor_pseq(vector<contractor> const & v)
     : contractor_cell(contractor_kind::PSEQ), m_vec(v) { init(); }
 
 void contractor_pseq::init() {
+    m_input = m_vec[0].get_input();
     DREAL_LOG_DEBUG << "contractor_pseq::prune";
 
     auto const num_thread = min(thread::hardware_concurrency(), static_cast<unsigned>(m_vec.size()));
@@ -107,6 +108,7 @@ void contractor_pseq::init() {
     vector<contractor> v(num_thread);
     for (unsigned i = 0; i < m_vec.size(); i++) {
         vv[i % num_thread].push_back(m_vec[i]);
+        m_input.union_with(m_vec[i].get_input());
     }
     for (unsigned i = 0; i < num_thread; i++) {
         cerr << "vv[" << i << "].size() = "
@@ -117,29 +119,22 @@ void contractor_pseq::init() {
     m_use_threads = true;
 }
 
-void contractor_pseq::prune(box & b, SMTConfig & config) {
-    m_input  = ibex::BitSet::empty(b.size());
-    m_output = ibex::BitSet::empty(b.size());
-    m_used_constraints.clear();
+void contractor_pseq::prune(contractor_status & cs) {
     if (m_use_threads) {
         unsigned num_iter = m_vec.size() / thread::hardware_concurrency();
         if (num_iter == 0) {
             num_iter = 1;
         }
-        thread_local static box old_box(b);
+        thread_local static box old_box(cs.m_box);
         for (unsigned i = 0; i < num_iter; i++) {
             // interruption_point();
-            old_box = b;
-            m_ctc.prune(b, config);
-            m_input.union_with(m_ctc.input());
-            m_output.union_with(m_ctc.output());
-            unordered_set<shared_ptr<constraint>> const & used_ctrs = m_ctc.used_constraints();
-            m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
-            if (b.is_empty()) {
+            old_box = cs.m_box;
+            m_ctc.prune(cs);
+            if (cs.m_box.is_empty()) {
                 cerr << "pseq::prune - empty detected\t" << i << "/" << num_iter << endl;
                 return;
             }
-            if (old_box == b) {
+            if (old_box == cs.m_box) {
                 // reach the fixpoint
                 cerr << "pseq::prune - fixpoint detected\t" << i << "/" << num_iter << endl;
                 return;
@@ -148,11 +143,7 @@ void contractor_pseq::prune(box & b, SMTConfig & config) {
         return;
     } else {
         // use single thread
-        m_ctc.prune(b, config);
-        m_input.union_with(m_ctc.input());
-        m_output.union_with(m_ctc.output());
-        unordered_set<shared_ptr<constraint>> const & used_ctrs = m_ctc.used_constraints();
-        m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
+        m_ctc.prune(cs);
         return;
     }
 }

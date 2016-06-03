@@ -35,31 +35,28 @@ class naive_icp {
 private:
     static BranchHeuristic & defaultHeuristic;
 public:
-    static box solve(box b, contractor & ctc, scoped_vec<std::shared_ptr<constraint>> const & ctrs,
-                     SMTConfig & config, BranchHeuristic & heuristic = defaultHeuristic);
+    static void solve(contractor & ctc, contractor_status & cs, scoped_vec<std::shared_ptr<constraint>> const & ctrs,
+                      BranchHeuristic & heuristic = defaultHeuristic);
 };
 
 class multiprune_icp {
 public:
-    static box solve(box b, contractor & ctc, scoped_vec<std::shared_ptr<constraint>> const & ctrs,
-                     SMTConfig & config, BranchHeuristic& heuristic, unsigned num_try = 3);
+    static void solve(contractor & ctc, contractor_status & cs, scoped_vec<std::shared_ptr<constraint>> const & ctrs, BranchHeuristic& heuristic, unsigned num_try = 3);
 };
 
 class multiheuristic_icp {
 public:
-    static box solve(box b, contractor & ctc, scoped_vec<std::shared_ptr<constraint>> const & ctrs,
-                     SMTConfig & config, std::vector<std::reference_wrapper<BranchHeuristic>> heuristics);
+    static void solve(contractor & ctc, contractor_status & cs, scoped_vec<std::shared_ptr<constraint>> const & ctrs, std::vector<std::reference_wrapper<BranchHeuristic>> heuristics);
 };
 
 class ncbt_icp {
 public:
-    static box solve(box b, contractor & ctc, SMTConfig & config);
+    static void solve(contractor & ctc, contractor_status & cs);
 };
 
 class random_icp {
 private:
     contractor & m_ctc;
-    SMTConfig & m_config;
     std::mt19937_64 m_rg;
     std::uniform_real_distribution<double> m_dist;
     inline bool random_bool() {
@@ -67,8 +64,8 @@ private:
     }
 
 public:
-    random_icp(contractor & ctc, SMTConfig & config);
-    box solve(box b, double const precision);
+    random_icp(contractor & ctc, std::mt19937_64::result_type const random_seed);
+    void solve(contractor_status & cs, double const precision);
 };
 
 }  // namespace dreal

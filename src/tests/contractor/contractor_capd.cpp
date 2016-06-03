@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,11 +20,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <iostream>
 #include <utility>
-#include "opensmt/api/opensmt_c.h"
-#include "opensmt/api/OpenSMTContext.h"
-#include "util/box.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
+#include "opensmt/api/OpenSMTContext.h"
+#include "opensmt/api/opensmt_c.h"
+#include "util/box.h"
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"
 
@@ -50,16 +50,17 @@ TEST_CASE("capd_fwd") {
     opensmt_expr p_t = opensmt_mk_real_var(ctx, "p_0_t", 0.0, 1.0);
     opensmt_expr time_0 = opensmt_mk_real_var(ctx, "time_0", 0.0, 40.0);
 
-    box b({static_cast<Enode*>(x),
+    box b1({static_cast<Enode*>(x),
            static_cast<Enode*>(x_0),
            static_cast<Enode*>(x_t),
            static_cast<Enode*>(p),
            static_cast<Enode*>(p_0),
            static_cast<Enode*>(p_t),
            static_cast<Enode*>(time_0)});
-    b[1] = -10.0;  // x_0 = -10;
-    b[2] = 10.0;   // x_t = 10.0;
-    b[4] = 0.0;    // p_0 = 0.0;
+    b1[1] = -10.0;  // x_0 = -10;
+    b1[2] = 10.0;   // x_t = 10.0;
+    b1[4] = 0.0;    // p_0 = 0.0;
+    contractor_status cs(b1, opensmt_ctx->getConfig());
 
     opensmt_expr zero  = opensmt_mk_num(ctx, 0.0);
     opensmt_expr half  = opensmt_mk_num(ctx, 0.5);
@@ -100,24 +101,24 @@ TEST_CASE("capd_fwd") {
                            {static_cast<Enode*>(x_t), static_cast<Enode*>(p_t)}, {},
                            {},
                            {make_pair(static_cast<Enode*>(vars[0]), static_cast<Enode*>(rhs_x)),
-                            make_pair(static_cast<Enode*>(vars[1]), static_cast<Enode*>(rhs_p))});
+                                   make_pair(static_cast<Enode*>(vars[1]), static_cast<Enode*>(rhs_p))});
     auto oc = make_shared<ode_constraint>(ic);
 
-    contractor c = mk_contractor_capd_full(b, oc, ode_direction::FWD, opensmt_ctx->getConfig());
+    contractor c = mk_contractor_capd_full(cs.m_box, oc, ode_direction::FWD, opensmt_ctx->getConfig());
 
     cerr << *oc << endl;
-    cerr << b << endl;
-    auto input_before = c.input();
-    auto output_before = c.output();
+    cerr << cs.m_box<< endl;
+    auto input_before = c.get_input();
+    auto output_before = cs.m_output;
     cerr << "Input  (BEFORE) : ";  input_before.display(cerr) << endl;
     cerr << "Output (BEFORE) : "; output_before.display(cerr) << endl;
-    c.prune(b, opensmt_ctx->getConfig());
-    cerr << b << endl;
-    auto input_after = c.input();
-    auto output_after = c.output();
+    c.prune(cs);
+    cerr << cs.m_box<< endl;
+    auto input_after = c.get_input();
+    auto output_after = cs.m_output;
     cerr << "Input  (AFTER)  : ";  input_after.display(cerr) << endl;
     cerr << "Output (AFTER)  : "; output_after.display(cerr) << endl;
-    for (auto ctc : c.used_constraints()) {
+    for (auto ctc : cs.m_used_constraints) {
         cerr << "Used constraint : " << *ctc << endl;
     }
 
@@ -137,7 +138,7 @@ TEST_CASE("capd_fwd") {
     REQUIRE(output_after[5]);
     REQUIRE(output_after[6]);
 
-    auto used_ctcs = c.used_constraints();
+    auto used_ctcs = cs.m_used_constraints;
     REQUIRE(used_ctcs.size() == 1);
     REQUIRE(used_ctcs.find(oc) != used_ctcs.end());
 
@@ -159,16 +160,17 @@ TEST_CASE("capd_bwd") {
     opensmt_expr p_t = opensmt_mk_real_var(ctx, "p_0_t", 0.0, 1.0);
     opensmt_expr time_0 = opensmt_mk_real_var(ctx, "time_0", 0.0, 40.0);
 
-    box b({static_cast<Enode*>(x),
-           static_cast<Enode*>(x_0),
-           static_cast<Enode*>(x_t),
-           static_cast<Enode*>(p),
-           static_cast<Enode*>(p_0),
-           static_cast<Enode*>(p_t),
-           static_cast<Enode*>(time_0)});
-    b[1] = -10.0;  // x_0 = -10;
-    b[2] = 10.0;   // x_t = 10.0;
-    b[5] = 1.0;    // p_t = 1.0;
+    box b1({static_cast<Enode*>(x),
+                static_cast<Enode*>(x_0),
+                static_cast<Enode*>(x_t),
+                static_cast<Enode*>(p),
+                static_cast<Enode*>(p_0),
+                static_cast<Enode*>(p_t),
+                static_cast<Enode*>(time_0)});
+    b1[1] = -10.0;  // x_0 = -10;
+    b1[2] = 10.0;   // x_t = 10.0;
+    b1[5] = 1.0;    // p_t = 1.0;
+    contractor_status cs(b1, opensmt_ctx->getConfig());
 
     opensmt_expr zero  = opensmt_mk_num(ctx, 0.0);
     opensmt_expr half  = opensmt_mk_num(ctx, 0.5);
@@ -209,24 +211,24 @@ TEST_CASE("capd_bwd") {
                            {static_cast<Enode*>(x_t), static_cast<Enode*>(p_t)}, {},
                            {},
                            {make_pair(static_cast<Enode*>(vars[0]), static_cast<Enode*>(rhs_x)),
-                            make_pair(static_cast<Enode*>(vars[1]), static_cast<Enode*>(rhs_p))});
+                                   make_pair(static_cast<Enode*>(vars[1]), static_cast<Enode*>(rhs_p))});
     auto oc = make_shared<ode_constraint>(ic);
 
-    contractor c = mk_contractor_capd_full(b, oc, ode_direction::BWD, opensmt_ctx->getConfig());
+    contractor c = mk_contractor_capd_full(cs.m_box, oc, ode_direction::BWD, opensmt_ctx->getConfig());
 
     cerr << *oc << endl;
-    cerr << b << endl;
-    auto input_before = c.input();
-    auto output_before = c.output();
+    cerr << cs.m_box<< endl;
+    auto input_before = c.get_input();
+    auto output_before = cs.m_output;
     cerr << "Input  (BEFORE) : ";  input_before.display(cerr) << endl;
     cerr << "Output (BEFORE) : "; output_before.display(cerr) << endl;
-    c.prune(b, opensmt_ctx->getConfig());
-    cerr << b << endl;
-    auto input_after = c.input();
-    auto output_after = c.output();
+    c.prune(cs);
+    cerr << cs.m_box<< endl;
+    auto input_after = c.get_input();
+    auto output_after = cs.m_output;
     cerr << "Input  (AFTER)  : ";  input_after.display(cerr) << endl;
     cerr << "Output (AFTER)  : "; output_after.display(cerr) << endl;
-    for (auto ctc : c.used_constraints()) {
+    for (auto ctc : cs.m_used_constraints) {
         cerr << "Used constraint : " << *ctc << endl;
     }
 
@@ -246,7 +248,7 @@ TEST_CASE("capd_bwd") {
     REQUIRE(!output_after[5]);
     REQUIRE(output_after[6]);
 
-    auto used_ctcs = c.used_constraints();
+    auto used_ctcs = cs.m_used_constraints;
     REQUIRE(used_ctcs.size() == 1);
     REQUIRE(used_ctcs.find(oc) != used_ctcs.end());
 

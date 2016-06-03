@@ -17,14 +17,14 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <atomic>
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <exception>
 #include <functional>
+#include <future>
 #include <initializer_list>
 #include <iterator>
-#include <future>
 #include <limits>
 #include <map>
 #include <memory>
@@ -40,32 +40,35 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "constraint/constraint.h"
-#include "contractor/contractor_common.h"
 #include "contractor/contractor_basic.h"
+#include "contractor/contractor_common.h"
 #include "contractor/contractor_parallel.h"
 #include "contractor/contractor_parallel_any.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "util/interruptible_thread.h"
 #include "util/logging.h"
 #include "util/proof.h"
-#include "util/interruptible_thread.h"
 
 using std::async;
+using std::atomic_int;
 using std::back_inserter;
 using std::cerr;
 using std::condition_variable;
 using std::cout;
 using std::dynamic_pointer_cast;
 using std::endl;
+using std::exception;
 using std::function;
 using std::future;
 using std::initializer_list;
+using std::lock_guard;
 using std::make_pair;
 using std::make_shared;
-using std::mutex;
-using std::min;
 using std::max;
+using std::min;
+using std::mutex;
 using std::ostream;
 using std::ostringstream;
 using std::pair;
@@ -73,38 +76,47 @@ using std::queue;
 using std::ref;
 using std::set;
 using std::shared_ptr;
+using std::thread;
 using std::unique_lock;
-using std::lock_guard;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
-using std::atomic_int;
-using std::thread;
-using std::exception;
 
 namespace dreal {
 
 contractor_parallel_any::contractor_parallel_any(initializer_list<contractor> const & l)
-    : contractor_cell(contractor_kind::PARALLEL_ANY), m_vec(l) { }
+    : contractor_cell(contractor_kind::PARALLEL_ANY), m_vec(l) {
+    setup_input();
+}
 contractor_parallel_any::contractor_parallel_any(vector<contractor> const & v)
-    : contractor_cell(contractor_kind::PARALLEL_ANY), m_vec(v) { }
+    : contractor_cell(contractor_kind::PARALLEL_ANY), m_vec(v) {
+    setup_input();
+}
 contractor_parallel_any::contractor_parallel_any(contractor const & c1, contractor const & c2)
-    : contractor_cell(contractor_kind::PARALLEL_ANY), m_vec(1, c1) { m_vec.push_back(c2); }
+    : contractor_cell(contractor_kind::PARALLEL_ANY), m_vec(1, c1) {
+    m_vec.push_back(c2);
+    setup_input();
+}
+
+void contractor_parallel_any::setup_input() {
+    for (contractor & ctc : m_vec) {
+        m_input.union_with(ctc.get_input());
+    }
+}
 
 #define PARALLEL_LOG DREAL_LOG_DEBUG
 
-void contractor_parallel_any::prune(box & b, SMTConfig & config) {
+void contractor_parallel_any::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_parallel_any::prune";
     PARALLEL_LOG << "-------------------------------------------------------------";
-    // TODO(soonhok): implement this
     if (m_vec.size() == 0) {
         // Do nothing for empty vec
         return;
     }
 
-    // 1. Make n copies of box b
-    vector<box> boxes(m_vec.size(), b);
-    vector<pruning_thread_status> statuses(m_vec.size(), pruning_thread_status::READY);
+    // 1. Make n copies of contractor_status
+    vector<contractor_status> ctc_statuses(m_vec.size(), cs);
+    vector<pruning_thread_status> thread_statuses(m_vec.size(), pruning_thread_status::READY);
     m_index = -1;
 
     // PARALLEL_LOG << "parallel_any: Boxes are copied";
@@ -119,9 +131,8 @@ void contractor_parallel_any::prune(box & b, SMTConfig & config) {
         threads.emplace_back(parallel_helper_fn,
                              i,
                              m_vec[i],
-                             boxes[i],
-                             config,
-                             statuses[i],
+                             ctc_statuses[i],
+                             thread_statuses[i],
                              m_mutex,
                              m_cv,
                              m_index,
@@ -142,23 +153,19 @@ void contractor_parallel_any::prune(box & b, SMTConfig & config) {
         m_index = -1;
         m_cv.wait(lk, [&]() { return m_index != -1; });
         PARALLEL_LOG << "parallel_any: wake up" << tasks_to_run.load();
-        pruning_thread_status const & s = statuses[m_index];
+        pruning_thread_status const & s = thread_statuses[m_index];
         // PARALLEL_LOG << "parallel_any: thread " << m_index << " " << s;
         if (s == pruning_thread_status::SAT || s == pruning_thread_status::EXCEPTION) {
             // Interrupt all the rest threads
-            for (unsigned i = 0; i < statuses.size(); i++) {
-                if (i - m_index != 0 && (statuses[i] == pruning_thread_status::READY || statuses[i] == pruning_thread_status::RUNNING)) {
+            for (unsigned i = 0; i < thread_statuses.size(); i++) {
+                if (i - m_index != 0 && (thread_statuses[i] == pruning_thread_status::READY || thread_statuses[i] == pruning_thread_status::RUNNING)) {
                     threads[i].interrupt();
                 }
             }
 
             if (s == pruning_thread_status::SAT) {
                 PARALLEL_LOG << "parallel_any: " << m_index << " got SAT";
-                b = boxes[m_index];
-                m_input.union_with(m_vec[m_index].input());
-                m_output.union_with(m_vec[m_index].output());
-                unordered_set<shared_ptr<constraint>> const & used_ctrs = m_vec[m_index].used_constraints();
-                m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
+                cs.reset(ctc_statuses[m_index]);
                 lk.unlock();
                 for (unsigned i = 0; i < m_vec.size(); i++) {
                     threads[i].join();
@@ -188,22 +195,20 @@ void contractor_parallel_any::prune(box & b, SMTConfig & config) {
     }
 
     // Assertion: All of them got UNSAT
-    // for (pruning_thread_status const & s : statuses) {
+    // for (pruning_thread_status const & s : thread_statuses) {
     //     assert(s == pruning_thread_status::UNSAT);
     // }
     // PARALLEL_LOG << "All of them are UNSAT";
-    b.set_empty();
+    cs.m_box.set_empty();
 
     // TODO(soonhok): the following could be simplified. When all of
     // contractors return UNSATs, we can simply pick up a contractor
     // and only propagate information from that contractor while
     // ignoring the rest of contractors.
     for (unsigned i = 0; i < m_vec.size(); i++) {
-        contractor const & c = m_vec[i];
-        m_input.union_with(c.input());
-        m_output.union_with(c.output());
-        unordered_set<shared_ptr<constraint>> const & used_ctrs = c.used_constraints();
-        m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
+        cs.m_output.union_with(ctc_statuses[i].m_output);
+        unordered_set<shared_ptr<constraint>> const & used_ctrs = ctc_statuses[i].m_used_constraints;
+        cs.m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
     }
     for (unsigned i = 0; i < m_vec.size(); i++) {
         threads[i].join();

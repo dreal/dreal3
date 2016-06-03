@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -55,28 +55,28 @@ TEST_CASE("ibex_fwdbwd_01") {
     opensmt_expr eq   = opensmt_mk_eq(ctx, exp4, exp3);
     Enode * node_eq   = static_cast<Enode *>(eq);
 
-    box b({var_x, var_y, var_z});
+    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig());
     unordered_set<Enode*> var_set({var_x, var_y, var_z});
     auto nc = make_shared<nonlinear_constraint>(node_eq, var_set, true);
     contractor c = mk_contractor_ibex_fwdbwd(nc);
     cerr << *nc << endl;
-    cerr << b << endl;
-    auto input_before = c.input();
-    auto output_before = c.output();
+    cerr << cs.m_box << endl;
+    auto input_before = c.get_input();
+    auto output_before = cs.m_output;
     cerr << "Input  (BEFORE) : ";  input_before.display(cerr) << endl;
     cerr << "Output (BEFORE) : "; output_before.display(cerr) << endl;
-    c.prune(b, opensmt_ctx->getConfig());
-    cerr << b << endl;
-    auto input_after = c.input();
-    auto output_after = c.output();
+    c.prune(cs);
+    cerr << cs.m_box << endl;
+    auto input_after = c.get_input();
+    auto output_after = cs.m_output;
     cerr << "Input  (AFTER)  : ";  input_after.display(cerr) << endl;
     cerr << "Output (AFTER)  : "; output_after.display(cerr) << endl;
-    for (auto ctc : c.used_constraints()) {
+    for (auto ctc : cs.m_used_constraints) {
         cerr << "Used constraint : " << *ctc << endl;
     }
     REQUIRE((input_after[0]  && !input_after[1]  && !input_after[2]));
     REQUIRE((output_after[0] && !output_after[1] && !output_after[2]));
-    auto used_ctcs = c.used_constraints();
+    auto used_ctcs = cs.m_used_constraints;
     REQUIRE(used_ctcs.size() == 1);
     REQUIRE(used_ctcs.find(nc) != used_ctcs.end());
     opensmt_del_context(ctx);
@@ -100,35 +100,35 @@ TEST_CASE("ibex_fwdbwd_02") {
     opensmt_expr eq   = opensmt_mk_eq(ctx, exp4, exp3);   // sin(x) == abs(x) / cos(y)
     Enode * node_eq   = static_cast<Enode *>(eq);
 
-    box b({var_x, var_y, var_z});
+    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig());
     unordered_set<Enode*> var_set({var_x, var_y, var_z});
     auto nc = make_shared<nonlinear_constraint>(node_eq, var_set, true);
     contractor c = mk_contractor_ibex_fwdbwd(nc);
     cerr << *nc << endl;
-    cerr << b << endl;
-    auto input_before = c.input();
-    auto output_before = c.output();
+    cerr << cs.m_box << endl;
+    auto input_before = c.get_input();
+    auto output_before = cs.m_output;
     cerr << "Input  (BEFORE) : "; input_before.display(cerr)  << endl;
     cerr << "Output (BEFORE) : "; output_before.display(cerr) << endl;
-    c.prune(b, opensmt_ctx->getConfig());
-    cerr << b << endl;
-    auto input_after = c.input();
-    auto output_after = c.output();
+    c.prune(cs);
+    cerr << cs.m_box << endl;
+    auto input_after = c.get_input();
+    auto output_after = cs.m_output;
     cerr << "Input  (AFTER)  : "; input_after.display(cerr)  << endl;
     cerr << "Output (AFTER)  : "; output_after.display(cerr) << endl;
-    for (auto ctc : c.used_constraints()) {
+    for (auto ctc : cs.m_used_constraints) {
         cerr << "Used constraint : " << *ctc << endl;
     }
     REQUIRE((input_after[0]  && input_after[1]  && !input_after[2]));
     REQUIRE((output_after[0] && !output_after[1] && !output_after[2]));
-    auto used_ctcs = c.used_constraints();
+    auto used_ctcs = cs.m_used_constraints;
     REQUIRE(used_ctcs.size() == 1);
     REQUIRE(used_ctcs.find(nc) != used_ctcs.end());
     opensmt_del_context(ctx);
 }
 
 TEST_CASE("ibex_fwdbwd_03") {
-    cerr << "===================================================\n";
+    cerr << "==== ibex_fwdbwd_03 ====================================\n";
     opensmt_context ctx = opensmt_mk_context(qf_nra);
     OpenSMTContext * opensmt_ctx = static_cast<OpenSMTContext *>(ctx);
     opensmt_set_precision(ctx, 0.001);
@@ -140,36 +140,36 @@ TEST_CASE("ibex_fwdbwd_03") {
     Enode * var_z = static_cast<Enode *>(z);
     opensmt_expr eq = opensmt_mk_gt(ctx, x, opensmt_mk_num(ctx, 0.0));  // x > 0.0
     Enode * node_eq = static_cast<Enode *>(eq);
-    box b({var_x, var_y, var_z});
+    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig());
     unordered_set<Enode*> var_set({var_x, var_y, var_z});
     auto nc = make_shared<nonlinear_constraint>(node_eq, var_set, true);
     contractor c = mk_contractor_ibex_fwdbwd(nc);
     cerr << *nc << endl;
-    cerr << b << endl;
-    auto input_before = c.input();
-    auto output_before = c.output();
+    cerr << cs.m_box << endl;
+    auto input_before = c.get_input();
+    auto output_before = cs.m_output;
     cerr << "Input  (BEFORE) : "; input_before.display(cerr)  << endl;
     cerr << "Output (BEFORE) : "; output_before.display(cerr) << endl;
-    auto old_box = b;
+    auto old_box = cs.m_box;
     do {
-        old_box = b;
-        c.prune(b, opensmt_ctx->getConfig());
-    } while (old_box != b);
-    c.prune(b, opensmt_ctx->getConfig());
+        old_box = cs.m_box;
+        c.prune(cs);
+    } while (old_box != cs.m_box);
+    c.prune(cs);
     cerr << "================" << endl;
-    cerr << b << endl;
-    auto input_after = c.input();
-    auto output_after = c.output();
+    cerr << cs.m_box << endl;
+    auto input_after = c.get_input();
+    auto output_after = cs.m_output;
     cerr << "Input  (AFTER)  : "; input_after.display(cerr)  << endl;
     cerr << "Output (AFTER)  : "; output_after.display(cerr) << endl;
-    for (auto ctc : c.used_constraints()) {
+    for (auto ctc : cs.m_used_constraints) {
         cerr << "Used constraint : " << *ctc << endl;
     }
     REQUIRE((input_after[0]  && !input_after[1]  && !input_after[2]));
-    REQUIRE((!output_after[0] && !output_after[1] && !output_after[2]));
-    auto used_ctcs = c.used_constraints();
-    REQUIRE(used_ctcs.size() == 0);
-    REQUIRE(used_ctcs.find(nc) == used_ctcs.end());
+    REQUIRE((output_after[0] && !output_after[1] && !output_after[2]));
+    auto used_ctcs = cs.m_used_constraints;
+    REQUIRE(used_ctcs.size() == 1);
+    REQUIRE(used_ctcs.find(nc) != used_ctcs.end());
     opensmt_del_context(ctx);
 }
 
@@ -196,29 +196,29 @@ TEST_CASE("ibex_polytope") {
     node_eq1->setPolarity(l_True);
     node_eq2->setPolarity(l_True);
 
-    box b({var_x, var_y, var_z});
+    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig());
     unordered_set<Enode*> var_set({var_x, var_y, var_z});
     auto nc1 = make_shared<nonlinear_constraint>(node_eq1, var_set, true);
     auto nc2 = make_shared<nonlinear_constraint>(node_eq2, var_set, true);
     contractor c = mk_contractor_ibex_polytope(0.001, {var_x, var_y, var_z}, {nc1, nc2});
     cerr << *nc1 << endl;
     cerr << *nc2 << endl;
-    cerr << b << endl;
-    auto input_before = c.input();
-    auto output_before = c.output();
+    cerr << cs.m_box << endl;
+    auto input_before = c.get_input();
+    auto output_before = cs.m_output;
     cerr << "IBEX_polytope Input  (BEFORE) : ";  input_before.display(cerr) << endl;
     cerr << "IBEX_polytope Output (BEFORE) : "; output_before.display(cerr) << endl;
-    c.prune(b, opensmt_ctx->getConfig());
-    cerr << b << endl;
-    auto input_after = c.input();
-    auto output_after = c.output();
+    c.prune(cs);
+    cerr << cs.m_box << endl;
+    auto input_after = c.get_input();
+    auto output_after = cs.m_output;
     cerr << "IBEX_polytope Input  (AFTER)  : ";  input_after.display(cerr) << endl;
     cerr << "IBEX_polytope Output (AFTER)  : "; output_after.display(cerr) << endl;
 
     REQUIRE((input_after[0]  && input_after[1]  && !input_after[2]));
     REQUIRE((output_after[0] && output_after[1] && !output_after[2]));
 
-    auto used_ctcs = c.used_constraints();
+    auto used_ctcs = cs.m_used_constraints;
     for (auto ctc : used_ctcs) {
         cerr << "Used constraint : " << *ctc << endl;
     }

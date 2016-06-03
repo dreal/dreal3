@@ -85,13 +85,26 @@ using std::exception;
 namespace dreal {
 
 contractor_parallel_all::contractor_parallel_all(initializer_list<contractor> const & l)
-    : contractor_cell(contractor_kind::PARALLEL_ALL), m_vec(l) { }
+    : contractor_cell(contractor_kind::PARALLEL_ALL), m_vec(l) {
+    setup_input();
+}
 contractor_parallel_all::contractor_parallel_all(vector<contractor> const & v)
-    : contractor_cell(contractor_kind::PARALLEL_ALL), m_vec(v) { }
+    : contractor_cell(contractor_kind::PARALLEL_ALL), m_vec(v) {
+    setup_input();
+}
 contractor_parallel_all::contractor_parallel_all(contractor const & c1, contractor const & c2)
-    : contractor_cell(contractor_kind::PARALLEL_ALL), m_vec(1, c1) { m_vec.push_back(c2); }
+    : contractor_cell(contractor_kind::PARALLEL_ALL), m_vec(1, c1) {
+    m_vec.push_back(c2);
+    setup_input();
+}
 
-void contractor_parallel_all::prune(box & b, SMTConfig & config) {
+void contractor_parallel_all::setup_input() {
+    for (contractor & ctc : m_vec) {
+        m_input.union_with(ctc.get_input());
+    }
+}
+
+void contractor_parallel_all::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_parallel_all::prune";
     DREAL_LOG_FATAL << "-------------------------------------------------------------";
     // TODO(soonhok): implement this
@@ -100,9 +113,9 @@ void contractor_parallel_all::prune(box & b, SMTConfig & config) {
         return;
     }
 
-    // 1. Make n copies of box b
-    vector<box> boxes(m_vec.size(), b);
-    vector<pruning_thread_status> statuses(m_vec.size(), pruning_thread_status::READY);
+    // 1. Make n copies of contractor_status
+    vector<contractor_status> ctc_statuses(m_vec.size(), cs);
+    vector<pruning_thread_status> thread_statuses(m_vec.size(), pruning_thread_status::READY);
     m_index = -1;
 
     // DREAL_LOG_FATAL << "parallel: Boxes are copied";
@@ -114,12 +127,12 @@ void contractor_parallel_all::prune(box & b, SMTConfig & config) {
     for (unsigned i = 0; i < m_vec.size(); ++i) {
         DREAL_LOG_FATAL << "parallel : thread " << i << " / " << (tasks_to_run.load() - 1)
                         << " spawning...";
+
         threads.emplace_back(parallel_helper_fn,
                              i,
                              m_vec[i],
-                             boxes[i],
-                             config,
-                             statuses[i],
+                             ctc_statuses[i],
+                             thread_statuses[i],
                              m_mutex,
                              m_cv,
                              m_index,
@@ -140,23 +153,22 @@ void contractor_parallel_all::prune(box & b, SMTConfig & config) {
         m_index = -1;
         m_cv.wait(lk, [&]() { return m_index != -1; });
         DREAL_LOG_FATAL << "parallel: wake up" << tasks_to_run.load();
-        pruning_thread_status const & s = statuses[m_index];
+        pruning_thread_status const & s = thread_statuses[m_index];
         // DREAL_LOG_FATAL << "parallel: thread " << m_index << " " << s;
         if (s == pruning_thread_status::UNSAT || s == pruning_thread_status::EXCEPTION) {
             // Interrupt all the rest threads
-            for (unsigned i = 0; i < statuses.size(); i++) {
-                if (i - m_index != 0 && (statuses[i] == pruning_thread_status::READY || statuses[i] == pruning_thread_status::RUNNING)) {
+            for (unsigned i = 0; i < thread_statuses.size(); i++) {
+                if (i - m_index != 0 && (thread_statuses[i] == pruning_thread_status::READY || thread_statuses[i] == pruning_thread_status::RUNNING)) {
                     threads[i].interrupt();
                 }
             }
 
             if (s == pruning_thread_status::UNSAT) {
                 DREAL_LOG_FATAL << "parallel: " << m_index << " got UNSAT";
-                b.set_empty();
-                m_input.union_with(m_vec[m_index].input());
-                m_output.union_with(m_vec[m_index].output());
-                unordered_set<shared_ptr<constraint>> const & used_ctrs = m_vec[m_index].used_constraints();
-                m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
+                cs.m_box.set_empty();
+                cs.m_output.union_with(ctc_statuses[m_index].m_output);
+                unordered_set<shared_ptr<constraint>> const & used_ctrs = ctc_statuses[m_index].m_used_constraints;
+                cs.m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
                 lk.unlock();
                 for (unsigned i = 0; i < m_vec.size(); i++) {
                     threads[i].join();
@@ -177,7 +189,7 @@ void contractor_parallel_all::prune(box & b, SMTConfig & config) {
         } else {
             // if (s != pruning_thread_status::SAT) {
             //     // DREAL_LOG_FATAL << "parallel: " << m_index << " got " << s;
-            //     // DREAL_LOG_FATAL << "parallel: " << m_index << " got " << statuses[m_index];
+            //     // DREAL_LOG_FATAL << "parallel: " << m_index << " got " << thread_statuses[m_index];
             assert(s == pruning_thread_status::SAT);
             // }
             // if (threads[m_index].joinable()) {
@@ -194,20 +206,18 @@ void contractor_parallel_all::prune(box & b, SMTConfig & config) {
     }
 
     // Assertion: All of them got SAT
-    // for (pruning_thread_status const & s : statuses) {
+    // for (pruning_thread_status const & s : thread_statuses) {
     //     assert(s == pruning_thread_status::SAT);
     // }
 
     // DREAL_LOG_FATAL << "All of them are SAT";
-    b = boxes[0];
+    cs.m_box = ctc_statuses[0].m_box;
     for (unsigned i = 0; i < m_vec.size(); i++) {
-        contractor const & c = m_vec[i];
-        b.intersect(boxes[i]);
-        m_input.union_with(c.input());
-        m_output.union_with(c.output());
-        unordered_set<shared_ptr<constraint>> const & used_ctrs = c.used_constraints();
-        m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
-        if (b.is_empty()) {
+        cs.m_output.union_with(ctc_statuses[i].m_output);
+        unordered_set<shared_ptr<constraint>> const & used_ctrs = ctc_statuses[i].m_used_constraints;
+        cs.m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
+        cs.m_box.intersect(ctc_statuses[i].m_box);
+        if (cs.m_box.is_empty()) {
             // DREAL_LOG_FATAL << "Found an empty while intersecting...";
             for (unsigned i = 0; i < m_vec.size(); i++) {
                 // if (threads[i].joinable()) {

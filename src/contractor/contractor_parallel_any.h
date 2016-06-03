@@ -31,11 +31,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "./config.h"
+#include "constraint/constraint.h"
 #include "contractor/contractor_common.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
-#include "constraint/constraint.h"
 
 namespace dreal {
 
@@ -49,12 +49,13 @@ private:
     std::mutex m_mutex;
     std::condition_variable m_cv;
     int m_index;
+    void setup_input();
 
 public:
     explicit contractor_parallel_any(std::initializer_list<contractor> const & l);
     explicit contractor_parallel_any(std::vector<contractor> const & v);
     contractor_parallel_any(contractor const & c1, contractor const & c2);
-    void prune(box & b, SMTConfig & config);
+    void prune(contractor_status & s);
     std::ostream & display(std::ostream & out) const;
 };
 

@@ -86,7 +86,7 @@ private:
 
 public:
     contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir);
-    void prune(box & b, SMTConfig & config);
+    void prune(contractor_status & s);
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -108,7 +108,7 @@ private:
 public:
     contractor_capd_point(box const & box, std::shared_ptr<ode_constraint> const ctr,
                           contractor const & eval_ctc, ode_direction const dir, SMTConfig const & config, double const timeout = 0.0);
-    void prune(box & b, SMTConfig & config);
+    void prune(contractor_status & s);
     std::ostream & display(std::ostream & out) const;
 };
 
@@ -129,26 +129,25 @@ private:
 
     bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T,
                     std::vector<std::pair<capd::interval, capd::IVector>> & enclosures) const;
-    bool check_invariant(capd::IVector const & v, box b, SMTConfig & config);
+    bool check_invariant(capd::IVector const & v, contractor_status cs);
     template<typename Rect2Set>
-    bool check_invariant(Rect2Set const & s, box const & b, SMTConfig & config) {
+    bool check_invariant(Rect2Set const & rs, contractor_status const & s) {
         thread_local static capd::IVector v;
-        v = s;
-        return check_invariant(v, b, config);
+        v = rs;
+        return check_invariant(v, s);
     }
     bool compute_enclosures(capd::interval const & prevTime,
                             capd::interval const T,
-                            box const & b,
+                            contractor_status const & s,
                             std::vector<std::pair<capd::interval, capd::IVector>> & enclosures,
-                            SMTConfig & config,
                             bool const add_all = false);
 
 
 public:
     contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr,
                          ode_direction const dir, SMTConfig const & config, double const timeout = 0.0);
-    void prune(box & b, SMTConfig & config);
-    nlohmann::json generate_trace(box b, SMTConfig & config);
+    void prune(contractor_status & s);
+    nlohmann::json generate_trace(contractor_status s);
     std::ostream & display(std::ostream & out) const;
 };
 

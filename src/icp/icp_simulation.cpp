@@ -52,7 +52,7 @@ public:
     }
 };
 
-void naive_icp_worker(box b, box & ret, SMTConfig & config, contractor & ctc, icp_shared_status & status) {
+void naive_icp_worker(contractor_status & cs, box & ret, contractor & ctc, icp_shared_status & status) {
     vector<box> box_stack;
     bool const & simulation_over = status.m_is_simulation_over;
     thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
@@ -60,24 +60,22 @@ void naive_icp_worker(box b, box & ret, SMTConfig & config, contractor & ctc, ic
     thread_local static vector<box> solns;
     solns.clear();
     box_stack.clear();
-    box_stack.push_back(b);
+    box_stack.push_back(cs.m_box);
     do {
         DREAL_LOG_INFO << "naive_icp::solve - loop"
                        << "\t" << "box stack Size = " << box_stack.size();
-        b = box_stack.back();
-        status.m_sample_domain = b;
+        cs.m_box = box_stack.back();
+        status.m_sample_domain = cs.m_box;
         box_stack.pop_back();
         try {
-            ctc.prune(b, config);
-            auto this_used_constraints = ctc.used_constraints();
-            used_constraints.insert(this_used_constraints.begin(), this_used_constraints.end());
-            if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
+            ctc.prune(cs);
+            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
         }
-        if (!b.is_empty()) {
-            tuple<int, box, box> splits = b.bisect(config.nra_precision);
-            if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
+        if (!cs.m_box.is_empty()) {
+            tuple<int, box, box> splits = cs.m_box.bisect(cs.m_config.nra_precision);
+            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
             int const i = get<0>(splits);
             if (i >= 0) {
                 box const & first  = get<1>(splits);
@@ -91,31 +89,30 @@ void naive_icp_worker(box b, box & ret, SMTConfig & config, contractor & ctc, ic
                     box_stack.push_back(first);
                     box_stack.push_back(second);
                 }
-                if (config.nra_proof) {
-                    config.nra_proof_out << "[branched on "
-                                         << b.get_name(i)
+                if (cs.m_config.nra_proof) {
+                    cs.m_config.nra_proof_out << "[branched on "
+                                         << cs.m_box.get_name(i)
                                          << "]" << endl;
                 }
             } else {
-                config.nra_found_soln++;
-                if (config.nra_multiple_soln > 1) {
+                cs.m_config.nra_found_soln++;
+                if (cs.m_config.nra_multiple_soln > 1) {
                     // If --multiple_soln is used
-                    output_solution(b, config, config.nra_found_soln);
+                    output_solution(cs.m_box, cs.m_config, cs.m_config.nra_found_soln);
                 }
-                if (config.nra_found_soln >= config.nra_multiple_soln) {
+                if (cs.m_config.nra_found_soln >= cs.m_config.nra_multiple_soln) {
                     break;
                 }
-                solns.push_back(b);
+                solns.push_back(cs.m_box);
             }
         }
     } while (!simulation_over && box_stack.size() > 0);
     if (!simulation_over) {
-        ctc.set_used_constraints(used_constraints);
-        if (config.nra_multiple_soln > 1 && solns.size() > 0) {
+        if (cs.m_config.nra_multiple_soln > 1 && solns.size() > 0) {
             ret = solns.back();
         } else {
-            assert(!b.is_empty() || box_stack.size() == 0);
-            ret = b;
+            assert(!cs.m_box.is_empty() || box_stack.size() == 0);
+            ret = cs.m_box;
         }
     }
     status.m_is_icp_over = true;
@@ -146,13 +143,14 @@ void simulation_worker(box & ret, vector<Enode *> const & lits, icp_shared_statu
     return;
 }
 
-box simulation_icp::solve(box b, contractor & ctc, vector<Enode *> const & lits, SMTConfig & config) {
-    box ret(b);
-    icp_shared_status status(b);
-    thread icp_thread(naive_icp_worker, b, ref(ret), ref(config), ref(ctc), ref(status));
+void simulation_icp::solve(contractor & ctc, contractor_status & cs, vector<Enode *> const & lits) {
+    box ret(cs.m_box);
+    icp_shared_status status(cs.m_box);
+    thread icp_thread(naive_icp_worker, ref(cs), ref(ret), ref(ctc), ref(status));
     thread simulation_thread(simulation_worker, ref(ret), ref(lits), ref(status));
     simulation_thread.join();
     icp_thread.join();
-    return ret;
+    cs.m_box = ret;
+    // TODO(soonhok): need to setup output and used_constraints?
 }
 }  // namespace dreal
