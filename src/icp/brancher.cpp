@@ -126,16 +126,16 @@ vector<double> SizeGradAsinhBrancher::score_axes(box const & b) const {
     vector<double> scores(b.size());
 
     for (unsigned i = 0; i < b.size(); i++) {
-        scores[i] = asinh(radii[i]*this->c1)*this->c3;
+        scores[i] = asinh(radii[i] * c1) * c3;
     }
 
-    for (auto cptr : this->constraints) {
+    for (auto cptr : constraints) {
         if (cptr->get_type() == constraint_type::Nonlinear) {
             auto ncptr = dynamic_pointer_cast<nonlinear_constraint>(cptr);
-            auto gradout = (&ncptr->get_numctr()->f)->gradient(midpt);
+            auto gradout = (ncptr->get_numctr()->f).gradient(midpt);
             ibex::Vector g = gradout.lb();
             for (unsigned i = 0; i < b.size(); i++) {
-                scores[i] += asinh(fabs(g[i] * radii[i])*this->c2) / this->constraints.size();
+                scores[i] += asinh(fabs(g[i] * radii[i]) * c2) / constraints.size();
             }
         }
     }
