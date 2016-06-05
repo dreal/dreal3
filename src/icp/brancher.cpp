@@ -133,9 +133,13 @@ vector<double> SizeGradAsinhBrancher::score_axes(box const & b) const {
         if (cptr->get_type() == constraint_type::Nonlinear) {
             auto ncptr = dynamic_pointer_cast<nonlinear_constraint>(cptr);
             auto gradout = (ncptr->get_numctr()->f).gradient(midpt);
-            ibex::Vector g = gradout.lb();
-            for (unsigned i = 0; i < b.size(); i++) {
-                scores[i] += asinh(fabs(g[i] * radii[i]) * c2) / constraints.size();
+            // TODO(soonhok): when gradout is an empty interval, the
+            // following line fails.
+            if (!gradout.is_empty()) {
+                ibex::Vector g = gradout.lb();
+                for (unsigned i = 0; i < b.size(); i++) {
+                    scores[i] += asinh(fabs(g[i] * radii[i]) * c2) / constraints.size();
+                }
             }
         }
     }
