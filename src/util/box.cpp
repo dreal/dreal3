@@ -219,13 +219,18 @@ vector<int> box::bisectable_dims(double precision) const {
     thread_local static vector<int> dims;
     dims.clear();
     for (int i = 0; i < m_values.size(); i++) {
-        double current_diam = m_values[i].diam();
-        double ith_precision = (*m_vars)[i]->hasPrecision() ? (*m_vars)[i]->getPrecision() : precision;
-        if (current_diam > ith_precision && m_values[i].is_bisectable()) {
-            dims.push_back(i);
+        Enode * const var = (*m_vars)[i];
+        ibex::Interval const & iv = m_values[i];
+        double const current_diam = iv.diam();
+        if (var->hasSortInt() && current_diam < 2.0) {
+            continue;
+        } else {
+            double const ith_precision = var->hasPrecision() ? var->getPrecision() : precision;
+            if (current_diam > ith_precision && iv.is_bisectable()) {
+                dims.push_back(i);
+            }
         }
     }
-
     return dims;
 }
 
