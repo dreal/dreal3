@@ -215,33 +215,49 @@ ostream& operator<<(ostream& out, box const & b) {
     return display(out, b);
 }
 
-vector<int> box::bisectable_dims(double precision) const {
+vector<int> box::bisectable_dims(double const precision) const {
     thread_local static vector<int> dims;
     dims.clear();
     for (int i = 0; i < m_values.size(); i++) {
-        Enode * const var = (*m_vars)[i];
-        ibex::Interval const & iv = m_values[i];
-        double const current_diam = iv.diam();
-        if (var->hasSortInt() && current_diam < 2.0) {
-            continue;
-        } else {
-            double const ith_precision = var->hasPrecision() ? var->getPrecision() : precision;
-            if (current_diam > ith_precision && iv.is_bisectable()) {
-                dims.push_back(i);
-            }
+        if (is_bisectable_at(i, precision)) {
+            dims.push_back(i);
         }
     }
     return dims;
 }
 
-tuple<int, box, box> box::bisect(double precision) const {
+bool box::is_bisectable_at(int const idx, double const precision) const {
+    assert(idx >= 0);
+    assert(idx < m_values.size());
+    assert(precision >= 0.0);
+    Enode * const var = (*m_vars)[idx];
+    ibex::Interval const & iv = m_values[idx];
+    if (!iv.is_bisectable()) { return false; }
+    double const current_diam = iv.diam();
+    double const ith_precision = var->hasPrecision() ? var->getPrecision() : precision;
+    if (var->hasSortInt() && current_diam < 2.0) {
+        return false;
+    }
+    return current_diam > ith_precision;
+}
+
+bool box::is_bisectable(double const precision) const {
+    assert(precision >= 0.0);
+    for (int i = 0; i < m_values.size(); ++i) {
+        if (is_bisectable_at(i, precision)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+tuple<int, box, box> box::bisect(double const precision) const {
     // TODO(soonhok): implement other bisect policy
     int index = -1;
-    double max_diam = numeric_limits<double>::min();
+    double max_diam = 0.0;
     for (int i = 0; i < m_values.size(); i++) {
-        double current_diam = m_values[i].diam();
-        double ith_precision = (*m_vars)[i]->hasPrecision() ? (*m_vars)[i]->getPrecision() : precision;
-        if (current_diam > max_diam && current_diam > ith_precision && m_values[i].is_bisectable()) {
+        double const current_diam = m_values[i].diam();
+        if (is_bisectable_at(i, precision) && current_diam > max_diam) {
             index = i;
             max_diam = current_diam;
         }
@@ -254,9 +270,8 @@ tuple<int, box, box> box::bisect(double precision) const {
     }
 }
 
-
   // select bisection ratio for interval
-double box::get_bisection_ratio(int i) const {
+double box::get_bisection_ratio(int const i) const {
   if (is_time_variable(i) && m_values[i].contains(0.0)) {
     // DREAL_LOG_DEBUG << "Splitting time variable";
     // cout << "Splitting time variable" << i;
@@ -266,18 +281,21 @@ double box::get_bisection_ratio(int i) const {
   }
 }
 
-tuple<int, box, box> box::bisect_int_at(int i) const {
+tuple<int, box, box> box::bisect_int_at(int const i) const {
     assert(0 <= i && i < m_values.size());
     assert(!m_values[i].is_empty());
     assert(m_values[i].is_bisectable());
     box b1(*this);
     box b2(*this);
-    ibex::Interval iv = ibex::integer(b1.m_values[i]);
+    ibex::Interval const iv = ibex::integer(b1.m_values[i]);
     double const lb = iv.lb();
     double const ub = iv.ub();
     double const mid = iv.mid();
     double const mid_floor = floor(mid);
     double const mid_ceil  = ceil(mid);
+    if (!iv.is_bisectable()) {
+        DREAL_LOG_FATAL << "NOT BISECTABLE = " << iv;
+    }
     pair<ibex::Interval, ibex::Interval> new_intervals = iv.bisect();
     b1.m_values[i] = ibex::Interval(lb, mid_floor);
     b2.m_values[i] = ibex::Interval(mid_ceil, ub);
@@ -289,7 +307,7 @@ tuple<int, box, box> box::bisect_int_at(int i) const {
 }
 
 // Bisect a box into two boxes by bisecting i-th interval.
-tuple<int, box, box> box::bisect_real_at(int i) const {
+tuple<int, box, box> box::bisect_real_at(int const i) const {
     assert(0 <= i && i < m_values.size());
     box b1(*this);
     box b2(*this);
@@ -306,7 +324,7 @@ tuple<int, box, box> box::bisect_real_at(int i) const {
 }
 
 // Bisect a box into two boxes by bisecting i-th interval.
-tuple<int, box, box> box::bisect_at(int i) const {
+tuple<int, box, box> box::bisect_at(int const i) const {
     Enode * const e = (*m_vars)[i];
     if (e->hasSortInt()) {
         return bisect_int_at(i);
@@ -470,7 +488,7 @@ box hull(vector<box> const & vec) {
     return b;
 }
 
-ibex::Interval box::get_domain(int i) const {
+ibex::Interval box::get_domain(int const i) const {
     Enode const * const e = (*m_vars)[i];
     double const lb = e->getDomainLowerBound();
     double const ub = e->getDomainUpperBound();
@@ -487,6 +505,4 @@ ibex::IntervalVector box::get_domains() const {
     }
     return dom;
 }
-
-
 }  // namespace dreal

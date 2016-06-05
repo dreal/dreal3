@@ -45,8 +45,8 @@ private:
     int m_idx_last_branched;
 
     // Methods
-    std::tuple<int, box, box> bisect_int_at(int i) const;
-    std::tuple<int, box, box> bisect_real_at(int i) const;
+    std::tuple<int, box, box> bisect_int_at(int const i) const;
+    std::tuple<int, box, box> bisect_real_at(int const i) const;
     void constructFromVariables(std::vector<Enode *> const & vars);
 
 public:
@@ -54,26 +54,27 @@ public:
     box(box const & b, std::unordered_set<Enode *> const & extra_vars);
     void constructFromLiterals(std::vector<Enode *> const & lit_vec);
 
-    std::tuple<int, box, box> bisect(double precision) const;
-    std::vector<int> bisectable_dims(double precision) const;
-    std::tuple<int, box, box> bisect_at(int i) const;
+    std::tuple<int, box, box> bisect(double const precision) const;
+    std::vector<int> bisectable_dims(double const precision) const;
+    std::tuple<int, box, box> bisect_at(int const i) const;
     std::vector<bool> diff_dims(box const & b) const;
     box sample_point() const;
     std::set<box> sample_points(unsigned const n) const;
-    double get_bisection_ratio(int i) const;
-    inline bool is_time_variable(int i) const { return get_name(i).find("time_") == 0; }
-    inline bool is_bisectable() const { return m_values.is_bisectable(); }
-    inline bool is_empty() const { return size() == 0 || m_values.is_empty(); }
-    inline ibex::IntervalVector & get_values() { return m_values; }
-    inline ibex::IntervalVector const & get_values() const { return m_values; }
+    double get_bisection_ratio(int const i) const;
+    bool is_time_variable(int const i) const { return get_name(i).find("time_") == 0; }
+    bool is_bisectable_at(int const idx, double const precision) const;
+    bool is_bisectable(double const precision = 0.0) const;
+    bool is_empty() const { return size() == 0 || m_values.is_empty(); }
+    ibex::IntervalVector & get_values() { return m_values; }
+    ibex::IntervalVector const & get_values() const { return m_values; }
     ibex::IntervalVector get_domains() const;
-    inline std::vector<Enode *> const & get_vars() const { return *m_vars; }
-    inline unsigned size() const { return m_vars ? (m_vars->size()) : 0; }
-    inline void set_empty() { m_values.set_empty(); }
-    inline unsigned get_index(Enode * e) const {
+    std::vector<Enode *> const & get_vars() const { return *m_vars; }
+    unsigned size() const { return m_vars ? (m_vars->size()) : 0; }
+    void set_empty() { m_values.set_empty(); }
+    unsigned get_index(Enode * const e) const {
         return get_index(e->getCar()->getNameFull());
     }
-    inline unsigned get_index(std::string const & s) const {
+    unsigned get_index(std::string const & s) const {
         auto const it = m_name_index_map->find(s);
         if (it != m_name_index_map->end()) {
             return it->second;
@@ -83,42 +84,42 @@ public:
     }
 
     // get_value
-    inline ibex::Interval & get_value(int i) { return m_values[i]; }
-    inline ibex::Interval const & get_value(int i) const { return m_values[i]; }
-    inline ibex::Interval & get_value(std::string const & s) { return m_values[get_index(s)]; }
-    inline ibex::Interval const & get_value(std::string const & s) const {
+    ibex::Interval & get_value(int const i) { return m_values[i]; }
+    ibex::Interval const & get_value(int const i) const { return m_values[i]; }
+    ibex::Interval & get_value(std::string const & s) { return m_values[get_index(s)]; }
+    ibex::Interval const & get_value(std::string const & s) const {
         return m_values[get_index(s)];
     }
-    inline const ibex::Interval& get_value(Enode * const e) const {
+    const ibex::Interval& get_value(Enode * const e) const {
         return get_value(e->getCar()->getNameFull());
     }
-    inline ibex::Interval& get_value(Enode * const e) {
+    ibex::Interval& get_value(Enode * const e) {
         return get_value(e->getCar()->getNameFull());
     }
 
     // get_domain
-    ibex::Interval get_domain(int i) const;
-    inline ibex::Interval get_domain(std::string const & s) const {
+    ibex::Interval get_domain(int const i) const;
+    ibex::Interval get_domain(std::string const & s) const {
         return get_domain(get_index(s));
     }
-    inline ibex::Interval get_domain(Enode * const e) const {
+    ibex::Interval get_domain(Enode * const e) const {
         return get_domain(e->getCar()->getNameFull());
     }
 
     int get_idx_last_branched() const { return m_idx_last_branched; }
 
     // operator[]
-    inline const ibex::Interval& operator[](int i) const { return get_value(i); }
-    inline ibex::Interval& operator[](int i) { return get_value(i); }
-    inline const ibex::Interval& operator[](std::string const & s) const { return get_value(s); }
-    inline ibex::Interval& operator[](std::string const & s) { return get_value(s); }
-    inline const ibex::Interval& operator[](Enode * const e) const { return get_value(e); }
-    inline ibex::Interval& operator[](Enode * const e) { return get_value(e); }
+    const ibex::Interval& operator[](int const i) const { return get_value(i); }
+    ibex::Interval& operator[](int i) { return get_value(i); }
+    const ibex::Interval& operator[](std::string const & s) const { return get_value(s); }
+    ibex::Interval& operator[](std::string const & s) { return get_value(s); }
+    const ibex::Interval& operator[](Enode * const e) const { return get_value(e); }
+    ibex::Interval& operator[](Enode * const e) { return get_value(e); }
 
-    inline bool is_subset(box const & b) const {
+    bool is_subset(box const & b) const {
         return m_values.is_subset(b.m_values);
     }
-    inline bool is_superset(box const & b) const {
+    bool is_superset(box const & b) const {
         return m_values.is_superset(b.m_values);
     }
 
@@ -127,18 +128,18 @@ public:
     bool operator<=(box const & b) const;
     bool operator>(box const & b) const;
     bool operator>=(box const & b) const;
-    inline bool operator!=(box const & b) const { return !(*this == b); }
+    bool operator!=(box const & b) const { return !(*this == b); }
 
-    inline std::string get_name(unsigned i) const {
+    std::string get_name(unsigned const i) const {
         return (*m_vars)[i]->getCar()->getNameFull();
     }
 
     double max_diam() const;
-    inline double volume() const { return m_values.volume(); }
+    double volume() const { return m_values.volume(); }
 
     friend std::ostream& display_diff(std::ostream& out, box const & b1, box const & b2);
     friend std::ostream& display(std::ostream& out, box const & b, bool const exact, bool const old_style);
-    inline std::size_t hash() const {
+    std::size_t hash() const {
         std::size_t seed = 23;
         for (int i = 0; i < m_values.size(); i++) {
             hash_combine<double>(seed, m_values[i].lb());
