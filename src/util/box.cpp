@@ -52,6 +52,10 @@ using std::unordered_set;
 using std::vector;
 using std::make_tuple;
 using std::runtime_error;
+using std::streamsize;
+using std::mt19937_64;
+using std::chrono::system_clock;
+using std::uniform_real_distribution;
 
 namespace dreal {
 box::box(vector<Enode *> const & vars)
@@ -142,7 +146,7 @@ ostream& display_diff(ostream& out, box const & b1, box const & b2) {
     if (b1 == b2) {
         return out;
     }
-    std::streamsize ss = out.precision();
+    streamsize ss = out.precision();
     out.precision(16);
     assert(b1.size() == b2.size());
     unsigned const s = b1.size();
@@ -170,7 +174,7 @@ ostream& display_diff(ostream& out, box const & b1, box const & b2) {
 }
 
 ostream& display(ostream& out, box const & b, bool const exact, bool const old_style) {
-    std::streamsize ss = out.precision();
+    streamsize ss = out.precision();
     out.precision(16);
     if (old_style) {
         out << "delta-sat with the following box:" << endl;
@@ -211,8 +215,9 @@ ostream& operator<<(ostream& out, box const & b) {
     return display(out, b);
 }
 
-std::vector<int> box::bisectable_dims(double precision) const {
-    std::vector<int> dims;
+vector<int> box::bisectable_dims(double precision) const {
+    thread_local static vector<int> dims;
+    dims.clear();
     for (int i = 0; i < m_values.size(); i++) {
         double current_diam = m_values[i].diam();
         double ith_precision = (*m_vars)[i]->hasPrecision() ? (*m_vars)[i]->getPrecision() : precision;
@@ -249,7 +254,7 @@ tuple<int, box, box> box::bisect(double precision) const {
 double box::get_bisection_ratio(int i) const {
   if (is_time_variable(i) && m_values[i].contains(0.0)) {
     // DREAL_LOG_DEBUG << "Splitting time variable";
-    // std::cout << "Splitting time variable" << i;
+    // cout << "Splitting time variable" << i;
     return 0.00001;
   } else {
     return 0.5;
@@ -328,7 +333,7 @@ vector<bool> box::diff_dims(box const & b) const {
 }
 
 box box::sample_point() const {
-    static std::mt19937_64 rg(std::chrono::system_clock::now().time_since_epoch().count());
+    static mt19937_64 rg(system_clock::now().time_since_epoch().count());
     unsigned const n = size();
     box b(*this);
     ibex::IntervalVector const & values = get_values();
@@ -337,7 +342,7 @@ box box::sample_point() const {
         double const lb = iv.lb();
         double const ub = iv.ub();
         if (lb != ub) {
-            std::uniform_real_distribution<double> m_dist(lb, ub);
+            uniform_real_distribution<double> m_dist(lb, ub);
             b[i] = ibex::Interval(m_dist(rg));
         }
     }
