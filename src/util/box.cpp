@@ -268,6 +268,8 @@ double box::get_bisection_ratio(int i) const {
 
 tuple<int, box, box> box::bisect_int_at(int i) const {
     assert(0 <= i && i < m_values.size());
+    assert(!m_values[i].is_empty());
+    assert(m_values[i].is_bisectable());
     box b1(*this);
     box b2(*this);
     ibex::Interval iv = ibex::integer(b1.m_values[i]);
