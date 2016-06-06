@@ -18,10 +18,12 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <string>
 #include <list>
+#include <string>
+#include <vector>
 #include "api/dreal.hh"
 #include "opensmt/api/OpenSMTContext.h"
+#include "util/subst_enode.h"
 
 using std::cerr;
 using std::endl;
@@ -30,6 +32,7 @@ using std::ostream;
 using std::string;
 using std::pair;
 using std::list;
+using std::unordered_map;
 
 namespace dreal {
 
@@ -46,6 +49,13 @@ expr::expr(solver * const sol, cexpr const e) : m_solver(sol), cctx(sol->get_ctx
 }
 
 expr::expr(solver& sol, char const * name) : m_solver(&sol), cctx(sol.get_ctx()), ep((sol.var(name)).get_cexpr()) {}
+
+expr::expr(solver * const s, expr * e) : m_solver(s), cctx(s->get_ctx()), ep(e->get_cexpr()) {}
+
+string expr::get_name() {
+    Enode * e = static_cast<Enode *>(ep);
+    return e->getCar()->getName();
+}
 
 void expr::set_ub(double const a) {
     Enode * tmp = static_cast<Enode *>(ep);
@@ -522,8 +532,34 @@ expr upoly(expr const & x, char const * a, unsigned d) {
     return result;
 }
 
+expr substitute(expr const & e, unordered_map<expr *, expr *> const & m) {
+    cexpr ce = e.get_cexpr();
+    Enode * e_ce = static_cast<Enode *>(ce);
+    OpenSMTContext * context = static_cast<OpenSMTContext *>(e.get_ctx());
+    unordered_map<Enode *, Enode *> enode_map;
+    for ( auto item : m ) {
+    enode_map.emplace(static_cast<Enode*>((item.first)->get_cexpr()),
+                static_cast<Enode*>((item.second)->get_cexpr()));
+    }
+    Enode * res = subst(*context, e_ce, enode_map);
+    return expr(e.get_solver(), static_cast<cexpr>(res));
+}
+
+expr substitute(expr const & e, vector<expr*> const & pre, vector<expr *> const & post) {
+    assert(pre.size() == post.size());
+    unordered_map<expr *, expr *> m;
+    for (unsigned i=0; i < pre.size(); i++) {
+    m.emplace(pre[i], post[i]);
+    }
+    return substitute(e, m);
+}
+
 ostream & operator<<(ostream & out, expr const & e) {
     out << static_cast<Enode *>(e.get_cexpr());
     return out;
 }
+
+
+
+
 }  // namespace dreal

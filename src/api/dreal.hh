@@ -20,9 +20,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <iostream>
-#include <vector>
 #include <functional>
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace dreal {
 
@@ -39,16 +41,18 @@ public:
     expr();
     expr(solver &, char const *);  // so far it only works for declaring variables
     expr(solver * const, cexpr const);
-    void           set_ub(double const);
-    void           set_lb(double const);
-    void           set_bounds(double const, double const);
-    env const &    get_ctx() const    { return cctx; }
-    cexpr const &  get_cexpr() const  { return ep; }
-    solver *       get_solver() const { return m_solver; }
+    expr(solver * const, expr *);
+    void    set_ub(double const);
+    void    set_lb(double const);
+    void    set_bounds(double const, double const);
+    std::string get_name();
+    env const & get_ctx() const    { return cctx; }
+    cexpr const &   get_cexpr() const  { return ep; }
+    solver *    get_solver() const { return m_solver; }
 private:
     solver *    m_solver;
-    env         cctx;
-    cexpr       ep;
+    env cctx;
+    cexpr   ep;
 };
 
 std::ostream & operator<<(std::ostream &, expr const &);
@@ -105,21 +109,8 @@ expr implies(expr const &, expr const &);
 expr ite(expr const &, expr const &, expr const &);
 expr der(expr const &, expr const &);
 expr upoly(expr const &, char const *, unsigned);
-
-class poly {
-public:
-    explicit poly(solver const &);
-    poly(expr const &, char const *, unsigned const);
-    poly(expr const *, char const *, unsigned const);
-    poly(std::vector<expr> const &, char const *, unsigned const);
-    expr & get_expr() { return *m_expr; }
-
-private:
-    solver * m_solver;
-    expr * m_expr;
-    std::vector<expr*> c_vec;   // coefficient vector
-    std::vector<expr*> mn_vec;  // monomial vector
-};
+expr substitute(expr const &, std::unordered_map<expr*, expr*> const &);
+expr substitute(expr const &, std::vector<expr*> const &, std::vector<expr*> const &);
 
 class solver {
 public:
@@ -137,8 +128,11 @@ public:
     expr *  new_ivar(char const *, int const, int const);
     expr *  new_var(char const *, vtype const);
     expr *  new_var(char const *);
+    expr *  new_num(double const);
     void    set_verbose(bool const b);
     void    set_delta(double const d);
+    void    set_polytope();
+    void    set_simulation();
     void    reset();
     void    push();
     void    pop();
@@ -147,6 +141,7 @@ public:
     void    set_domain_ub(expr &, double const);
     void    print_model(std::ostream & out = std::cerr);
     void    print_problem(std::ostream & out = std::cerr);
+    void    print_infix(std::ostream & out = std::cerr);
     double  get_precision() const;
     double  get_domain_lb(expr const &) const;
     double  get_domain_ub(expr const &) const;
@@ -167,8 +162,9 @@ public:
 
 private:
     env cctx;
-    std::vector<expr const *> vtab;
-    std::vector<double> stab;
-    std::vector<expr const *> etab;
+    std::vector<expr const *> vtab;  // variable table
+    std::vector<double> stab;        // solution table
+    std::vector<expr const *> etab;  // added enode table
+    std::vector<expr const *> ntab;  // constant table
 };
 }  // namespace dreal
