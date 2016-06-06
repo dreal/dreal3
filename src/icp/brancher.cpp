@@ -42,7 +42,8 @@ using std::vector;
 
 namespace dreal {
 
-vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<constraint>> const & ctrs, SMTConfig const & config) const {
+vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<constraint>> const & ctrs,
+                                           SMTConfig const & config, int num_try) const {
     double branch_precision = config.nra_precision;
     vector<int> sorted_dims;
     if (config.nra_delta_test) {
@@ -93,17 +94,16 @@ vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<
             branch_precision = 0.0;
         }
     }
-    vector<int> bisectable_dims = b.bisectable_dims(branch_precision);
+    vector<int> const bisectable_dims = b.bisectable_dims(branch_precision);
+    vector<double> const axis_scores = score_axes(b);
     vector<tuple<double, int>> bisectable_axis_scores;
-
-    vector<double> axis_scores = this->score_axes(b);
-    for (int dim : bisectable_dims) {
+    for (int const dim : bisectable_dims) {
         bisectable_axis_scores.push_back(tuple<double, int>(-axis_scores[dim], dim));
     }
-
     sort(bisectable_axis_scores.begin(), bisectable_axis_scores.end());
-    for (auto tup : bisectable_axis_scores) {
+    for (auto const & tup : bisectable_axis_scores) {
         sorted_dims.push_back(get<1>(tup));
+        if (--num_try <= 0) { break; }
     }
     return sorted_dims;
 }
