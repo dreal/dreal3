@@ -223,7 +223,9 @@ void multiprune_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<
     }
 }
 
-void multiheuristic_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<shared_ptr<constraint>> const & ctrs, vector<reference_wrapper<BranchHeuristic>> heuristics) {
+void multiheuristic_icp::solve(contractor & /* ctc */, contractor_status & /* cs */,
+                               scoped_vec<shared_ptr<constraint>> const & /* ctrs */,
+                               vector<reference_wrapper<BranchHeuristic>> /* heuristics */) {
 //     // don't use yet, since contractor is not yet threadsafe
 //     static vector<box> solns;
 //     solns.clear();
