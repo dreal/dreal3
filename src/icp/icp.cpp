@@ -92,7 +92,7 @@ void naive_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<share
         prune(ctc, cs);
         if (!cs.m_box.is_empty()) {
             if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
-            vector<int> sorted_dims = brancher.sort_branches(cs.m_box, ctrs, cs.m_config);
+            vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, ctrs, cs.m_config, 1);
             if (sorted_dims.size() > 0) {
                 int const i = sorted_dims[0];
                 tuple<int, box, box> splits = cs.m_box.bisect_at(sorted_dims[0]);
@@ -135,83 +135,83 @@ void naive_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<share
 }
 
 void multiprune_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<shared_ptr<constraint>> const & ctrs, BranchHeuristic& brancher, unsigned num_try) {
+    prune(ctc, cs);
+    if (cs.m_box.is_empty()) { return; }
     thread_local static vector<box> solns;
     thread_local static vector<box> box_stack;
     solns.clear();
     box_stack.clear();
-    prune(ctc, cs);
     box_stack.push_back(cs.m_box);
     do {
         DREAL_LOG_INFO << "multiprune_icp::solve - loop"
                        << "\t" << "box stack Size = " << box_stack.size();
         cs.m_box = box_stack.back();
         box_stack.pop_back();
-        if (!cs.m_box.is_empty()) {
-            vector<int> sorted_dims = brancher.sort_branches(cs.m_box, ctrs, cs.m_config);
-            if (sorted_dims.size() > num_try) {
-                sorted_dims.resize(num_try);
-            }
-            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
-            if (sorted_dims.size() > 0) {
-                int bisectdim = -1;
-                box first = cs.m_box;
-                box second = cs.m_box;
-                box original = cs.m_box;
-                double score = -std::numeric_limits<double>::lowest();
-                for (int const dim : sorted_dims) {
-                    tuple<int, box, box> const splits = original.bisect_at(dim);
-                    // Prune Left Box
-                    cs.m_box = get<1>(splits);
-                    prune(ctc, cs);
-                    box a1 = cs.m_box;
-                    double cscore = - a1.volume();
-                    // Prune Right Box
-                    cs.m_box = get<2>(splits);
-                    prune(ctc, cs);
-                    box a2 = cs.m_box;
-                    cscore -= cscore * a2.volume();
-                    // TODO(soonhok): I think we still need to handle
-                    // the special case where a1 or a2 are empty.
-                    if (cscore > score || bisectdim == -1) {
-                        first.hull(second);
-                        a1.intersect(first);
-                        a2.intersect(first);
-                        first = a1;
-                        second = a2;
-                        bisectdim = dim;
-                        score = cscore;
-                    } else {
-                        a1.hull(a2);
-                        first.intersect(a1);
-                        second.intersect(a1);
-                    }
+        assert(!cs.m_box.is_empty());
+        vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, ctrs, cs.m_config, num_try);
+        if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
+        if (sorted_dims.size() > 0) {
+            int bisectdim = -1;
+            box first(cs.m_box);
+            box second(cs.m_box);
+            box original(cs.m_box);
+            double score = -std::numeric_limits<double>::lowest();
+            for (int const dim : sorted_dims) {
+                original = hull(first, second);
+                assert(!original.is_empty());
+                if (!original.is_bisectable_at(dim, cs.m_config.nra_precision)) {
+                    continue;
                 }
-                assert(bisectdim != -1);
-                assert(first.get_idx_last_branched() == bisectdim);
-                assert(second.get_idx_last_branched() == bisectdim);
-                // TODO(soonhok): I just added if conditions to check
-                // whether first/second is empty or not.
-                if (!second.is_empty() && second.is_bisectable()) {
-                    box_stack.push_back(second);
-                    if (!first.is_empty()) { box_stack.push_back(first); }
+                tuple<int, box, box> const splits = original.bisect_at(dim);
+                assert(get<0>(splits) >= 0);
+                // Prune Left Box
+                cs.m_box = get<1>(splits);
+                prune(ctc, cs);
+                box a1 = cs.m_box;
+                // Prune Right Box
+                cs.m_box = get<2>(splits);
+                prune(ctc, cs);
+                box a2 = cs.m_box;
+                double const cscore = -a1.volume() - a2.volume();
+                if (cscore > score || bisectdim == -1) {
+                    first = a1;
+                    second = a2;
+                    bisectdim = dim;
+                    score = cscore;
                 } else {
-                    if (!first.is_empty()) { box_stack.push_back(first); }
-                    if (!second.is_empty()) { box_stack.push_back(second); }
+                    a1.hull(a2);
+                    first.intersect(a1);
+                    second.intersect(a1);
                 }
-                if (cs.m_config.nra_proof) {
-                    cs.m_config.nra_proof_out << "[branched on "
-                                         << cs.m_box.get_name(bisectdim)
-                                         << "]" << endl;
-                }
-            } else {
-                cs.m_config.nra_found_soln++;
-                if (cs.m_config.nra_multiple_soln > 1) {
-                    // If --multiple_soln is used
-                    output_solution(cs.m_box, cs.m_config, cs.m_config.nra_found_soln);
-                }
-                if (cs.m_config.nra_found_soln >= cs.m_config.nra_multiple_soln) {
+                if (first.is_empty() && second.is_empty()) {
+                    cs.m_box.set_empty();
                     break;
                 }
+            }
+            assert(bisectdim != -1);
+            assert(first.get_idx_last_branched() == bisectdim);
+            assert(second.get_idx_last_branched() == bisectdim);
+            if (!second.is_empty() && second.is_bisectable()) {
+                box_stack.push_back(second);
+                if (!first.is_empty()) { box_stack.push_back(first); }
+            } else {
+                if (!first.is_empty()) { box_stack.push_back(first); }
+                if (!second.is_empty()) { box_stack.push_back(second); }
+            }
+            if (cs.m_config.nra_proof) {
+                cs.m_config.nra_proof_out << "[branched on "
+                                          << cs.m_box.get_name(bisectdim)
+                                          << "]" << endl;
+            }
+        } else {
+            cs.m_config.nra_found_soln++;
+            if (cs.m_config.nra_multiple_soln > 1) {
+                // If --multiple_soln is used
+                output_solution(cs.m_box, cs.m_config, cs.m_config.nra_found_soln);
+            }
+            if (cs.m_config.nra_found_soln >= cs.m_config.nra_multiple_soln) {
+                break;
+            } else {
                 solns.push_back(cs.m_box);
             }
         }
