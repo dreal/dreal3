@@ -19,6 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <limits>
 #include <memory>
 #include <random>
@@ -35,27 +36,29 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/hexfloat.h"
 #include "util/logging.h"
 
+using std::ceil;
+using std::chrono::system_clock;
 using std::copy;
 using std::endl;
+using std::floor;
 using std::initializer_list;
-using std::numeric_limits;
 using std::make_shared;
+using std::make_tuple;
+using std::mt19937_64;
+using std::numeric_limits;
 using std::ostream;
 using std::ostringstream;
 using std::pair;
+using std::runtime_error;
 using std::set;
 using std::sort;
+using std::streamsize;
 using std::string;
 using std::tuple;
+using std::uniform_real_distribution;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
-using std::make_tuple;
-using std::runtime_error;
-using std::streamsize;
-using std::mt19937_64;
-using std::chrono::system_clock;
-using std::uniform_real_distribution;
 
 namespace dreal {
 box::box(vector<Enode *> const & vars)
@@ -235,8 +238,13 @@ bool box::is_bisectable_at(int const idx, double const precision) const {
     if (!iv.is_bisectable()) { return false; }
     double const current_diam = iv.diam();
     double const ith_precision = var->hasPrecision() ? var->getPrecision() : precision;
-    if (var->hasSortInt() && current_diam < 2.0) {
-        return false;
+    if (var->hasSortInt()) {
+        //     [       iv        ]
+        //         [         ]
+        //   ceil(lb)    floor(ub)
+        if (ceil(iv.lb()) == floor(iv.ub())) {
+            return false;
+        }
     }
     return current_diam > ith_precision;
 }
