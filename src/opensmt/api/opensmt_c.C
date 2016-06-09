@@ -128,11 +128,18 @@ void opensmt_del_context( opensmt_context c )
 
 void opensmt_reset( opensmt_context c )
 {
-  // assert( c );
-  // OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
-  // OpenSMTContext & context = *c_;
-  CAST( c, context );
-  context.Reset( );
+  assert( c );
+  OpenSMTContext * c_ = static_cast< OpenSMTContext * >( c );
+  // Save Logic
+  auto const old_l = c_->getConfig().logic;
+  // Delete the current context
+  delete c_;
+  // Create a new OpenSMTContext
+  c_ = new OpenSMTContext();
+  SMTConfig & config = c_->getConfig( );
+  config.incremental = 1;
+  // Set the logic using the saved one
+  c_->SetLogic(old_l);
 }
 
 void opensmt_print_expr( opensmt_expr e )
