@@ -33,7 +33,9 @@ int main() {
     opensmt_assert(ctx, not_a);
     assert(opensmt_check(ctx) == l_false);
     opensmt_reset(ctx);
+    a = opensmt_mk_bool_var(ctx, "a");
     opensmt_assert(ctx, a);
-    assert(opensmt_check(ctx) == l_true);
-    return 0;
+    opensmt_result res = opensmt_check(ctx);
+    assert(res == l_true);
+return 0;
 }
