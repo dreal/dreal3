@@ -1,0 +1,11 @@
+# Beales
+# https://github.com/dreal/dreal3/issues/255
+
+var:
+    [-5.12, 5.12] x;
+    [-5.12, 5.12] y;
+
+cost:
+    (1.5 - x + x * y) ^ 2 +
+    (2.25 - x + x * y^2) ^2 +
+    (2.625 - x + x*y^3)^2;
