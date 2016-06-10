@@ -87,6 +87,7 @@ void naive_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<share
     do {
         DREAL_LOG_INFO << "naive_icp::solve - loop"
                        << "\t" << "box stack Size = " << box_stack.size();
+        double const prec = cs.m_config.nra_delta_test ? 0.0 : cs.m_config.nra_precision;
         cs.m_box = box_stack.back();
         box_stack.pop_back();
         prune(ctc, cs);
@@ -100,7 +101,7 @@ void naive_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<share
                 box const & second = get<2>(splits);
                 assert(first.get_idx_last_branched() == i);
                 assert(second.get_idx_last_branched() == i);
-                if (second.is_bisectable()) {
+                if (second.is_bisectable(prec)) {
                     box_stack.push_back(second);
                     box_stack.push_back(first);
                 } else {
