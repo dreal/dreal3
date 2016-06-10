@@ -20,6 +20,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <climits>
+#include <iomanip>
 #include <limits>
 #include <memory>
 #include <random>
@@ -48,6 +50,7 @@ using std::mt19937_64;
 using std::numeric_limits;
 using std::ostream;
 using std::ostringstream;
+using std::setprecision;
 using std::pair;
 using std::runtime_error;
 using std::set;
@@ -235,7 +238,24 @@ bool box::is_bisectable_at(int const idx, double const precision) const {
     assert(precision >= 0.0);
     Enode * const var = (*m_vars)[idx];
     ibex::Interval const & iv = m_values[idx];
-    if (!iv.is_bisectable()) { return false; }
+    if (!iv.is_bisectable()) {
+        if (!iv.is_unbounded() && !iv.is_degenerated() && iv.diam() > precision) {
+            ostringstream ss;
+            string const var_name = get_name(idx);
+            ss << setprecision(20);
+            ss << "Warning: The width of interval "
+               << var_name << " = " << iv
+               << " is larger than the required precision";
+            if (precision > 0.0) {
+                ss << setprecision(6);
+                ss << " (" << precision << ")";
+            }
+            ss << " but is no longer bisectable in the platform-native floating-point representation";
+            ss << " (" << (CHAR_BIT * sizeof(double)) << "-bit).";
+            DREAL_LOG_WARNING << ss.str();
+        }
+        return false;
+    }
     double const current_diam = iv.diam();
     double const ith_precision = var->hasPrecision() ? var->getPrecision() : precision;
     if (var->hasSortInt()) {
