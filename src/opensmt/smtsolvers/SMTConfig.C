@@ -760,7 +760,7 @@ SMTConfig::parseCMDLine( int argc
     } else if (nra_verbose) {
         setVerbosityInfoLevel();
     } else {
-        setVerbosityErrorLevel();
+        setVerbosityWarningLevel();
     }
     #endif
 }
@@ -780,6 +780,10 @@ void SMTConfig::setVerbosityDebugLevel() {
 
 void SMTConfig::setVerbosityInfoLevel() {
     el::Loggers::setVerboseLevel(DREAL_INFO_LEVEL);
+}
+
+void SMTConfig::setVerbosityWarningLevel() {
+    el::Loggers::setVerboseLevel(DREAL_WARNING_LEVEL);
 }
 
 void SMTConfig::setVerbosityErrorLevel() {

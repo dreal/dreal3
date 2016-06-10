@@ -102,7 +102,8 @@ struct SMTConfig
   void initLogging();
   void setVerbosityDebugLevel();
   void setVerbosityInfoLevel();
-  void setVerbosityErrorLevel();  // Default
+  void setVerbosityWarningLevel();  // Default
+  void setVerbosityErrorLevel();
 
   std::string  filename;                     // Holds the name of the input filename
   logic_t      logic;                        // SMT-Logic under consideration
