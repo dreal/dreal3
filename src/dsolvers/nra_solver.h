@@ -1,6 +1,6 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-	Sicun Gao <sicung@mit.edu>
+        Sicun Gao <sicung@mit.edu>
 
 dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
@@ -73,11 +73,11 @@ private:
 
     std::vector<Enode *> originals;
     std::vector<Enode *> svars;
-    std::map<Enode *, std::vector<Enode *> *> enode_to_sctrs; //each enode will be replaced by a vector of new enodes 
+    std::unordered_map<Enode *, std::vector<Enode *> *> enode_to_sctrs;  // each enode will be replaced by a vector of new enodes
 
-    unsigned newSlackVar(); //introduce a new var and return its index in the svar vector
-    Enode * mkSlack(Enode *, std::vector<unsigned> *); //return svar
+    unsigned newSlackVar();  // introduce a new var and return its index in the svar vectogr
+    Enode * mkSlack(Enode *, std::vector<unsigned> *);  // return svar
     Enode * slackTerm(Enode *, unsigned, std::vector<unsigned> *);
-    void slackAtom(Enode *, unsigned, std::vector<Enode *>&); //the third argument is the literal list; will directly add things there
+    void slackAtom(Enode *, unsigned, std::vector<Enode *>&);  // the third argument is the literal list; will directly add things there
 };
 }  // namespace dreal

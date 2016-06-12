@@ -1,6 +1,6 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-	Sicun Gao <sicung@mit.edu>
+    Sicun Gao <sicung@mit.edu>
 
 dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
@@ -88,19 +88,19 @@ nra_solver::~nra_solver() {
         cout << config.nra_stat << endl;
     }
     for (auto l : enode_to_sctrs) {
-	//clean up slack result table
-	delete l.second;
+        // clean up slack result table
+        delete l.second;
     }
 }
 
 // `inform` sets up env (mapping from variables(enode) in literals to their [lb, ub])
 lbool nra_solver::inform(Enode * e) {
     DREAL_LOG_INFO << "nra_solver::inform: " << e;
-    if (config.nra_slack_level!=0) {
-	//build slacks
-	slackAtom(e,config.nra_slack_level,m_lits);
+    if (config.nra_slack_level != 0) {
+        // build slacks
+        slackAtom(e, config.nra_slack_level, m_lits);
     } else {
-	m_lits.push_back(e);
+        m_lits.push_back(e);
     }
     m_need_init = true;
     return l_Undef;
@@ -178,38 +178,37 @@ static lbool simplify(Enode * e, lbool p, box & b) {
     return l_Undef;
 }
 
-//First pass on assertion. Pick up all the slacked constraints and send to single asserts. 
+// First pass on assertion. Pick up all the slacked constraints and send to single asserts.
 bool nra_solver::assertLit(Enode * e, bool reason) {
-    if (e->isIntegral() || e->isForall() || e->isForallT()) { //no slacking for fancy atoms
-	return assertSingleLit(e,reason);
-    }
-    else {
-	if (config.nra_slack_level==0) {
-	    return assertSingleLit(e,reason);
-	} else {
-	    //get the slack constraint vector from e
-	    vector<Enode *> * sctr_vec = enode_to_sctrs[e];
-	    lbool polarity = e->getPolarity();
-	    bool main_ctr_flag = true;
-	    for (auto l : *sctr_vec) {
-		//cout << "working on:" << l <<endl;
-		//the first l in sctr_vec is the slacked result of the original. it inherits polarity of e. 
-		if (main_ctr_flag) {
-		    if (!l->hasPolarity()) {
-			l -> setPolarity(polarity);
-		    }
-		} else {
-		    if (!l->hasPolarity()) {
-			l -> setPolarity(l_True);
-		    }
-		}
-		if (!assertSingleLit(l,reason)) {
-		    return false;
-		}
-		main_ctr_flag = false;
-	    }
-	    return true;
-	}
+    if (e->isIntegral() || e->isForall() || e->isForallT()) {
+        // no slacking for fancy atoms
+        return assertSingleLit(e, reason);
+    } else if (config.nra_slack_level == 0) {
+        return assertSingleLit(e, reason);
+    } else {
+        // get the slack constraint vector from e
+        vector<Enode *> * sctr_vec = enode_to_sctrs[e];
+        lbool polarity = e->getPolarity();
+        bool main_ctr_flag = true;
+        for (auto l : *sctr_vec) {
+            // cout << "working on:" << l <<endl;
+            // the first l in sctr_vec is the slacked result of the
+            // original. it inherits polarity of e.
+            if (main_ctr_flag) {
+                if (!l->hasPolarity()) {
+                    l -> setPolarity(polarity);
+                }
+            } else {
+                if (!l->hasPolarity()) {
+                    l -> setPolarity(l_True);
+                }
+            }
+            if (!assertSingleLit(l, reason)) {
+                return false;
+            }
+            main_ctr_flag = false;
+        }
+        return true;
     }
 }
 
@@ -272,8 +271,8 @@ bool nra_solver::assertSingleLit(Enode * e, bool reason) {
 
 // Update ctr_map by adding new nonlinear_constraints
 static void initialize_nonlinear_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
-                                      vector<Enode *> const & lits,
-                                      unordered_set<Enode *> const & var_set) {
+                                             vector<Enode *> const & lits,
+                                             unordered_set<Enode *> const & var_set) {
     // Create Nonlinear constraints.
     for (Enode * const l : lits) {
         auto it_nc_pos = ctr_map.find(make_pair(l, true));
@@ -293,8 +292,8 @@ static void initialize_nonlinear_constraints(map<pair<Enode*, bool>, shared_ptr<
 
 // Update ctr_map by adding new ode constraints, from the information collected in ints and invs
 static void initialize_ode_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
-                                vector<integral_constraint> const & ints,
-                                vector<shared_ptr<forallt_constraint>> const & invs) {
+                                       vector<integral_constraint> const & ints,
+                                       vector<shared_ptr<forallt_constraint>> const & invs) {
     // Attach the corresponding forallT literals to integrals
     for (integral_constraint ic : ints) {
         vector<shared_ptr<forallt_constraint>> local_invs;
@@ -593,18 +592,19 @@ unsigned nra_solver::newSlackVar() {
 }
 
 Enode * nra_solver::mkSlack(Enode * e, vector<unsigned> * vs) {
-    //find if already stored. if not, introduce a new var and push them to the tables
+    // find if already stored. if not, introduce a new var and push
+    // them to the tables
     auto it = find(originals.begin(), originals.end(), e);
-    unsigned ind; //index of the slack var
-    if (it!=originals.end()) {
-	ind = it - originals.begin();
+    unsigned ind;  // index of the slack var
+    if (it != originals.end()) {
+        ind = it - originals.begin();
     } else {
-	originals.push_back(e);
-	ind = newSlackVar();//Enode of the new var is pushed inside the function
+        originals.push_back(e);
+        ind = newSlackVar();  // Enode of the new var is pushed inside the function
     }
-    //push index to the current vector of slack vars
+    // push index to the current vector of slack vars
     vs->push_back(ind);
-    //return the slack var only
+    // return the slack var only
     return svars[ind];
 }
 
@@ -618,35 +618,35 @@ Enode * nra_solver::slackTerm(Enode * e, unsigned level, vector<unsigned> * vs) 
         Enode * tmp = e;
         switch (id) {
         case ENODE_ID_PLUS:
-            ret = slackTerm(tmp->get1st(),level,vs);
+            ret = slackTerm(tmp->get1st(), level, vs);
             tmp = tmp->getCdr()->getCdr();
             while (!tmp->isEnil()) {
-                ret = egraph.cons(ret, egraph.cons(slackTerm(tmp->getCar(),level,vs)));
+                ret = egraph.cons(ret, egraph.cons(slackTerm(tmp->getCar(), level, vs)));
                 tmp = tmp->getCdr();
             }
             return egraph.mkPlus(ret);
         case ENODE_ID_MINUS:
-            ret = slackTerm(tmp->get1st(),level,vs);
+            ret = slackTerm(tmp->get1st(), level, vs);
             tmp = tmp->getCdr()->getCdr();
             while (!tmp->isEnil()) {
-                ret = egraph.cons(ret, egraph.cons(slackTerm(tmp->getCar(),level,vs)));
+                ret = egraph.cons(ret, egraph.cons(slackTerm(tmp->getCar(), level, vs)));
                 tmp = tmp->getCdr();
             }
             return egraph.mkMinus(ret);
         case ENODE_ID_UMINUS:
-            assert(tmp->getArity()==1);
-            ret = slackTerm(tmp->get1st(),level,vs);
+            assert(tmp->getArity() == 1);
+            ret = slackTerm(tmp->get1st(), level, vs);
             return egraph.mkUminus(egraph.cons(ret));
         default:
-	    if (level>=2) {//level 1 only handles top layer
-		slackTerm(tmp->get1st(),level,vs);
-		tmp = tmp->getCdr()->getCdr();
-		while (!tmp->isEnil()) {
-		    slackTerm(tmp->getCar(),level,vs);
-		    tmp = tmp->getCdr();
-		}
-	    }
-	    return mkSlack(e,vs);
+            if (level >= 2) {  // level 1 only handles top layer
+                slackTerm(tmp->get1st(), level, vs);
+                tmp = tmp->getCdr()->getCdr();
+                while (!tmp->isEnil()) {
+                    slackTerm(tmp->getCar(), level, vs);
+                    tmp = tmp->getCdr();
+                }
+            }
+            return mkSlack(e, vs);
         }
     } else {
         throw runtime_error("Slack operation error.");
@@ -654,51 +654,53 @@ Enode * nra_solver::slackTerm(Enode * e, unsigned level, vector<unsigned> * vs) 
 }
 
 void nra_solver::slackAtom(Enode * e, unsigned level, vector<Enode *> & lits) {
-    if (e->isIntegral() || e->isForall() || e->isForallT()) { //no slacking for fancy atoms
-	lits.push_back(e);
-	return;
+    if (e->isIntegral() || e->isForall() || e->isForallT()) {
+        // no slacking for fancy atoms
+        lits.push_back(e);
+        return;
     }
     assert(e->getArity() == 2);
-    //lbool polarity = e->getPolarity();
-    //prepare a vector that'll hold indices of all slack variables involved
+    // lbool polarity = e->getPolarity();
+    // prepare a vector that'll hold indices of all slack variables involved
     vector<unsigned> * current_svars = new vector<unsigned>;
-    //break into three parts. 
+    // break into three parts.
     Enode * left = e -> get1st();
     Enode * right = e -> get2nd();
     Enode * head = e -> getCar();
-    //do slacking on both sides
-    Enode * linear_left = slackTerm(left,level,current_svars);
-    Enode * linear_right = slackTerm(right,level,current_svars);
-    //prepare the vector of enode that'll have all the constraints corresponding to e
+    // do slacking on both sides
+    Enode * linear_left = slackTerm(left, level, current_svars);
+    Enode * linear_right = slackTerm(right, level, current_svars);
+    // prepare the vector of enode that'll have all the constraints corresponding to e
     vector<Enode *> * slack_result = new vector<Enode *>;
-    //link the current e with its replacements
+    // link the current e with its replacements
     if (!current_svars->empty()) {
-	//first, add the slacked constraint to the list
-	Enode * ret = egraph.cons(head,egraph.cons(linear_left,egraph.cons(linear_right)));
-	assert(!ret->hasPolarity());
-	slack_result->push_back(ret);  
-	//next, add all constraints
-	for (auto sv : *current_svars) {
-	    Enode * sctr = egraph.mkEq(egraph.cons(svars[sv],egraph.cons(originals[sv])));
-	    //remember to set the right polarity
-	    //sctr -> setPolarity(l_True);
-	    slack_result->push_back(sctr);
-	    assert(!sctr->hasPolarity());
-	}
+        // first, add the slacked constraint to the list
+        Enode * ret = egraph.cons(head, egraph.cons(linear_left, egraph.cons(linear_right)));
+        assert(!ret->hasPolarity());
+        slack_result->push_back(ret);
+        // next, add all constraints
+        for (auto sv : *current_svars) {
+            Enode * sctr = egraph.mkEq(egraph.cons(svars[sv], egraph.cons(originals[sv])));
+            // remember to set the right polarity
+            // sctr -> setPolarity(l_True);
+            slack_result->push_back(sctr);
+            assert(!sctr->hasPolarity());
+        }
     } else {
-	assert(!e->hasPolarity());
-	slack_result->push_back(e);
+        assert(!e->hasPolarity());
+        slack_result->push_back(e);
     }
-    //if we still want the original term -- usually you don't, unless you set level to 3. 
-    if (!current_svars->empty() && level >= 3) 
-	slack_result->push_back(e);
-    //add the mapping from e to the assembled vector 
-    enode_to_sctrs.emplace(e,slack_result);
-    //then add all the new constraints for the slack variables to lits
-    for (auto l : *slack_result) { 
-	lits.push_back(l);
+    // if we still want the original term -- usually you don't, unless
+    // you set level to 3.
+    if (!current_svars->empty() && level >= 3)
+        slack_result->push_back(e);
+    // add the mapping from e to the assembled vector
+    enode_to_sctrs.emplace(e, slack_result);
+    // then add all the new constraints for the slack variables to lits
+    for (auto l : *slack_result) {
+        lits.push_back(l);
     }
-    //no longer need the indices
+    // no longer need the indices
     delete current_svars;
     return;
 }
