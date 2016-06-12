@@ -1,7 +1,8 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
+	Sicun Gao <sicung@mit.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -46,6 +47,7 @@ public:
     ~nra_solver();
     lbool inform(Enode * e);
     bool  assertLit(Enode * e, bool = false);
+    bool  assertSingleLit(Enode *, bool = false);
     void  pushBacktrackPoint();
     void  popBacktrackPoint();
     bool  check(bool c);
@@ -69,11 +71,13 @@ private:
     void eval_sat_result(box const & b) const;
     void handle_deduction();
 
-    std::vector<Enode *> slack_vars;
-    std::vector<Enode *> slack_ctrs;
-//    std::vector<Enode *> slack_ctrs_tmp;
-    Enode * new_slack_var();
-    Enode * slack_term(Enode * e);
-    Enode * slack_constraint(Enode * e);
+    std::vector<Enode *> originals;
+    std::vector<Enode *> svars;
+    std::map<Enode *, std::vector<Enode *> *> enode_to_sctrs; //each enode will be replaced by a vector of new enodes 
+
+    unsigned newSlackVar(); //introduce a new var and return its index in the svar vector
+    Enode * mkSlack(Enode *, std::vector<unsigned> *); //return svar
+    Enode * slackTerm(Enode *, unsigned, std::vector<unsigned> *);
+    void slackAtom(Enode *, unsigned, std::vector<Enode *>&); //the third argument is the literal list; will directly add things there
 };
 }  // namespace dreal

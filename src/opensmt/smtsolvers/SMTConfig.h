@@ -234,6 +234,7 @@ struct SMTConfig
   bool         nra_show_search_progress;      // print search progress to console
   bool         nra_heuristic_forward;         // use forward search in the heuristic solution
   bool         nra_hybrid_notlearn_clause;       // use clause learning in hybrid heuristic
+  unsigned     nra_slack_level;		    //determine slack level		
 
   void inc_icp_decisions() { nra_icp_decisions++; }
   int  icp_decisions() { return nra_icp_decisions; }

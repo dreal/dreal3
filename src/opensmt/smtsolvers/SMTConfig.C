@@ -156,6 +156,7 @@ SMTConfig::initializeConfig( )
   nra_show_search_progress     = false;
   nra_heuristic_forward        = false;
   nra_hybrid_notlearn_clause   = false;
+  nra_slack_level	       = 0;
   initLogging();
 }
 
@@ -479,6 +480,11 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "check constraints when delta-sat",
             "--check-sat");
+
+    opt.add("", false, 1, 0,
+	    "perform slacking up to a level",
+	    "--slack-level");
+
 #ifdef LOGGING
     opt.add("", false, 0, 0,
             "output debugging messages",
@@ -670,6 +676,12 @@ SMTConfig::parseCMDLine( int argc
         int tmp = 0;
         opt.get("--random-seed")->getInt(tmp);
         nra_random_seed = static_cast<unsigned>(tmp);
+    }
+
+    if (opt.isSet("--slack-level")) {
+	int tmp = 0;
+	opt.get("--slack-level")->getInt(tmp);
+	nra_slack_level = static_cast<unsigned>(tmp);
     }
 
     vector<string> badOptions;

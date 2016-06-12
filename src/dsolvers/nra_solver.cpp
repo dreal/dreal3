@@ -1,7 +1,8 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
+	Sicun Gao <sicung@mit.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -86,31 +87,23 @@ nra_solver::~nra_solver() {
     if (config.nra_use_stat) {
         cout << config.nra_stat << endl;
     }
+    for (auto l : enode_to_sctrs) {
+	//clean up slack result table
+	delete l.second;
+    }
 }
 
 // `inform` sets up env (mapping from variables(enode) in literals to their [lb, ub])
 lbool nra_solver::inform(Enode * e) {
     DREAL_LOG_INFO << "nra_solver::inform: " << e;
-    // Collect Literal
-    m_lits.push_back(e);
+    if (config.nra_slack_level!=0) {
+	//build slacks
+	slackAtom(e,config.nra_slack_level,m_lits);
+    } else {
+	m_lits.push_back(e);
+    }
     m_need_init = true;
     return l_Undef;
-/*
-    if (!e->isIntegral() && !e->isForall() && !e->isForallT() ) {
-        cout << "Before slacking: "<< e << endl;
-        e = slack_constraint(e);
-        cout << "After slacking: "<< e << endl;
-    }
-    m_lits.push_back(e);
-    for (auto l : slack_ctrs_tmp) {
-        l -> setPolarity(l_True);
-        m_lits.push_back(l);
-        cout << "Collected slack equality: "<< l << endl;
-    }
-    slack_ctrs_tmp.clear(); //sorry for the temporary hack. slack_ctrs_tmp keeps the slack equalities for this constraint.
-    m_need_init = true;
-    return l_Undef;
-*/
 }
 
 // Simplify box b using a constraint e.
@@ -185,11 +178,46 @@ static lbool simplify(Enode * e, lbool p, box & b) {
     return l_Undef;
 }
 
+//First pass on assertion. Pick up all the slacked constraints and send to single asserts. 
+bool nra_solver::assertLit(Enode * e, bool reason) {
+    if (e->isIntegral() || e->isForall() || e->isForallT()) { //no slacking for fancy atoms
+	return assertSingleLit(e,reason);
+    }
+    else {
+	if (config.nra_slack_level==0) {
+	    return assertSingleLit(e,reason);
+	} else {
+	    //get the slack constraint vector from e
+	    vector<Enode *> * sctr_vec = enode_to_sctrs[e];
+	    lbool polarity = e->getPolarity();
+	    bool main_ctr_flag = true;
+	    for (auto l : *sctr_vec) {
+		//cout << "working on:" << l <<endl;
+		//the first l in sctr_vec is the slacked result of the original. it inherits polarity of e. 
+		if (main_ctr_flag) {
+		    if (!l->hasPolarity()) {
+			l -> setPolarity(polarity);
+		    }
+		} else {
+		    if (!l->hasPolarity()) {
+			l -> setPolarity(l_True);
+		    }
+		}
+		if (!assertSingleLit(l,reason)) {
+		    return false;
+		}
+		main_ctr_flag = false;
+	    }
+	    return true;
+	}
+    }
+}
+
 // Asserts a literal into the solver. If by chance you are able to
 // discover inconsistency you may return false. The real consistency
 // state will be checked with "check" assertLit adds a literal(e) to
 // stack of asserted literals.
-bool nra_solver::assertLit(Enode * e, bool reason) {
+bool nra_solver::assertSingleLit(Enode * e, bool reason) {
     DREAL_LOG_INFO << "nra_solver::assertLit: " << e
                    << ", reason: " << boolalpha << reason
                    << ", polarity: " << e->getPolarity().toInt()
@@ -427,7 +455,7 @@ void nra_solver::handle_sat_case(box const & b) const {
             DREAL_LOG_FATAL << "The following exception is generated while computing a trace (visualization)." << endl;
             DREAL_LOG_FATAL << e.what();
             DREAL_LOG_FATAL << "This indicates that this delta-sat result is not properly checked by ODE pruning operators.";
-            DREAL_LOG_FATAL << "Please re-run the tool with a smaller precision (current precision = " << config.nra_precision << ")." << endl;
+            DREAL_LOG_FATAL << "Please try with a smaller precision using the --precision option (current precision = " << config.nra_precision << ")." << endl;
         }
     }
 #endif
@@ -530,8 +558,6 @@ vector<Enode *> nra_solver::generate_explanation(unordered_set<shared_ptr<constr
     return exps;
 }
 
-// Return true if the enode belongs to this theory. You should examine
-// the structure of the node to see if it matches the theory operators
 bool nra_solver::belongsToT(Enode * e) {
     (void)e;
     assert(e);
@@ -555,26 +581,34 @@ void nra_solver::computeModel() {
     }
 }
 
-Enode * nra_solver::new_slack_var() {
+unsigned nra_solver::newSlackVar() {
     Snode * s = sstore.mkReal();
-    int num = slack_vars.size();
-    //  cout << "slack var number: "<< num << endl;
+    unsigned index = svars.size();
     string name("slack_var_");
-    name += to_string(num);
+    name += to_string(index);
     egraph.newSymbol(name.c_str(), s, true);
-
     Enode * var = egraph.mkVar(name.c_str());
-    slack_vars.push_back(var);
-/*
-    var->setDomainLowerBound(lb);
-    var->setDomainUpperBound(ub);
-    var->setValueLowerBound(lb);
-    var->setValueUpperBound(ub);
-*/
-    return var;
+    svars.push_back(var);
+    return index;
 }
 
-Enode * nra_solver::slack_term(Enode * e) {
+Enode * nra_solver::mkSlack(Enode * e, vector<unsigned> * vs) {
+    //find if already stored. if not, introduce a new var and push them to the tables
+    auto it = find(originals.begin(), originals.end(), e);
+    unsigned ind; //index of the slack var
+    if (it!=originals.end()) {
+	ind = it - originals.begin();
+    } else {
+	originals.push_back(e);
+	ind = newSlackVar();//Enode of the new var is pushed inside the function
+    }
+    //push index to the current vector of slack vars
+    vs->push_back(ind);
+    //return the slack var only
+    return svars[ind];
+}
+
+Enode * nra_solver::slackTerm(Enode * e, unsigned level, vector<unsigned> * vs) {
     if (e->isConstant() || e->isNumb() || e->isVar()) {
         return e;
     } else if (e->isTerm()) {
@@ -584,50 +618,89 @@ Enode * nra_solver::slack_term(Enode * e) {
         Enode * tmp = e;
         switch (id) {
         case ENODE_ID_PLUS:
-            ret = slack_term(tmp->get1st());
+            ret = slackTerm(tmp->get1st(),level,vs);
             tmp = tmp->getCdr()->getCdr();
             while (!tmp->isEnil()) {
-                ret = egraph.mkPlus(ret, slack_term(tmp->getCar()));
+                ret = egraph.cons(ret, egraph.cons(slackTerm(tmp->getCar(),level,vs)));
                 tmp = tmp->getCdr();
             }
-            return ret;
+            return egraph.mkPlus(ret);
         case ENODE_ID_MINUS:
-            ret = slack_term(tmp->get1st());
+            ret = slackTerm(tmp->get1st(),level,vs);
             tmp = tmp->getCdr()->getCdr();
             while (!tmp->isEnil()) {
-                ret = egraph.mkMinus(ret, slack_term(tmp->getCar()));
+                ret = egraph.cons(ret, egraph.cons(slackTerm(tmp->getCar(),level,vs)));
                 tmp = tmp->getCdr();
             }
-            return ret;
+            return egraph.mkMinus(ret);
         case ENODE_ID_UMINUS:
-            ret = slack_term(tmp->get1st());
-            assert(tmp->getArity() == 1);
+            assert(tmp->getArity()==1);
+            ret = slackTerm(tmp->get1st(),level,vs);
             return egraph.mkUminus(egraph.cons(ret));
         default:
-            // not descending to subtrees for now
-            Enode * svar = new_slack_var();
-            Enode * sctr = egraph.mkEq(egraph.cons(svar, egraph.cons(e)));
-            slack_ctrs.push_back(sctr);
-            // slack_ctrs_tmp.push_back(sctr);
-            return svar;
+	    if (level>=2) {//level 1 only handles top layer
+		slackTerm(tmp->get1st(),level,vs);
+		tmp = tmp->getCdr()->getCdr();
+		while (!tmp->isEnil()) {
+		    slackTerm(tmp->getCar(),level,vs);
+		    tmp = tmp->getCdr();
+		}
+	    }
+	    return mkSlack(e,vs);
         }
     } else {
         throw runtime_error("Slack operation error.");
     }
 }
 
-Enode * nra_solver::slack_constraint(Enode * e) {
+void nra_solver::slackAtom(Enode * e, unsigned level, vector<Enode *> & lits) {
+    if (e->isIntegral() || e->isForall() || e->isForallT()) { //no slacking for fancy atoms
+	lits.push_back(e);
+	return;
+    }
     assert(e->getArity() == 2);
-
+    //lbool polarity = e->getPolarity();
+    //prepare a vector that'll hold indices of all slack variables involved
+    vector<unsigned> * current_svars = new vector<unsigned>;
+    //break into three parts. 
     Enode * left = e -> get1st();
     Enode * right = e -> get2nd();
     Enode * head = e -> getCar();
-
-    Enode * linear_left = slack_term(left);
-    Enode * linear_right = slack_term(right);
-
-    Enode * ret = egraph.cons(head, egraph.cons(linear_left, egraph.cons(linear_right)));
-
-    return ret;
+    //do slacking on both sides
+    Enode * linear_left = slackTerm(left,level,current_svars);
+    Enode * linear_right = slackTerm(right,level,current_svars);
+    //prepare the vector of enode that'll have all the constraints corresponding to e
+    vector<Enode *> * slack_result = new vector<Enode *>;
+    //link the current e with its replacements
+    if (!current_svars->empty()) {
+	//first, add the slacked constraint to the list
+	Enode * ret = egraph.cons(head,egraph.cons(linear_left,egraph.cons(linear_right)));
+	assert(!ret->hasPolarity());
+	slack_result->push_back(ret);  
+	//next, add all constraints
+	for (auto sv : *current_svars) {
+	    Enode * sctr = egraph.mkEq(egraph.cons(svars[sv],egraph.cons(originals[sv])));
+	    //remember to set the right polarity
+	    //sctr -> setPolarity(l_True);
+	    slack_result->push_back(sctr);
+	    assert(!sctr->hasPolarity());
+	}
+    } else {
+	assert(!e->hasPolarity());
+	slack_result->push_back(e);
+    }
+    //if we still want the original term -- usually you don't, unless you set level to 3. 
+    if (!current_svars->empty() && level >= 3) 
+	slack_result->push_back(e);
+    //add the mapping from e to the assembled vector 
+    enode_to_sctrs.emplace(e,slack_result);
+    //then add all the new constraints for the slack variables to lits
+    for (auto l : *slack_result) { 
+	lits.push_back(l);
+    }
+    //no longer need the indices
+    delete current_svars;
+    return;
 }
+
 }  // namespace dreal
