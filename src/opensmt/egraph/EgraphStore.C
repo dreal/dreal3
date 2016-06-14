@@ -1804,7 +1804,18 @@ void Egraph::addAssertion( Enode * e )
     }
   }
 
-  assertions.push_back( e );
+  //slacking operations
+  if ( (config.logic==QF_NRA||config.logic==QF_NRA_ODE) && config.nra_slack_level != 0) {
+    // build slacks
+    //cerr<<"working on:"<<e<<endl;
+    vector<Enode *> tmp;
+    assertions.push_back(slackFormula(e, config.nra_slack_level, tmp));
+    for (auto l : tmp) {
+      assertions.push_back(l);
+    }
+  } else {
+    assertions.push_back( e );
+  }
 
 #ifdef PRODUCE_PROOF
   // Tag formula for interpolation
@@ -1816,6 +1827,171 @@ void Egraph::addAssertion( Enode * e )
 #endif
 
   assert( !assertions.empty( ) );
+}
+
+unsigned Egraph::newSlackVar() {
+    Snode * s = sort_store.mkReal();
+    unsigned index = svars.size();
+    string name("slack_var_");
+    name += std::to_string(index);
+    newSymbol(name.c_str(), s, true);
+    Enode * var = mkVar(name.c_str());
+    svars.push_back(var);
+    return index;
+}
+
+Enode * Egraph::mkSlack(Enode * e, vector<unsigned> * vs) {
+    // find if already stored. if not, introduce a new var and push
+    // them to the tables
+    auto it = find(originals.begin(), originals.end(), e);
+    unsigned ind;  // index of the slack var
+    if (it != originals.end()) {
+        ind = it - originals.begin();
+    } else {
+        originals.push_back(e);
+        ind = newSlackVar();  // Enode of the new var is pushed inside the function
+    }
+    // push index to the current vector of slack vars
+    vs->push_back(ind);
+    // return the slack var only
+    return svars[ind];
+}
+
+Enode * Egraph::slackTerm(Enode * e, unsigned level, vector<unsigned> * vs) {
+    if (e->isConstant() || e->isNumb() || e->isVar()) {
+      return e;
+    } else if (e->isTerm()) {
+      assert(e->getArity() >= 1);
+      enodeid_t id = e->getCar()->getId();
+      Enode * ret;
+      Enode * tmp = e;
+      switch (id) {
+        case ENODE_ID_PLUS:
+          ret = slackTerm(tmp->get1st(), level, vs);
+          tmp = tmp->getCdr()->getCdr();
+          while (!tmp->isEnil()) {
+            ret = mkPlus(ret,slackTerm(tmp->getCar(), level, vs));
+            tmp = tmp->getCdr();
+          }
+          return ret;
+        case ENODE_ID_MINUS:
+          //only binary minus is allowed in opensmt
+          return mkMinus(slackTerm(tmp->get1st(),level,vs),slackTerm(tmp->get2nd(),level,vs));
+        case ENODE_ID_UMINUS:
+          assert(tmp->getArity() == 1);
+          ret = slackTerm(tmp->get1st(), level, vs);
+          return mkUminus(cons(ret));
+        default:
+          if (level >= 2) {  // level 1 only handles top layer
+            slackTerm(tmp->get1st(), level, vs);
+            tmp = tmp->getCdr()->getCdr();
+            while (!tmp->isEnil()) {
+              slackTerm(tmp->getCar(), level, vs);
+              tmp = tmp->getCdr();
+            }
+          }
+          return mkSlack(e, vs);
+      }
+    } else {
+        throw runtime_error("Slack operation error.");
+    }
+}
+
+Enode * Egraph::slackAtom(Enode * e, unsigned level, vector<Enode *> & lits) {
+  if (e->isIntegral()||e->isForall()||e->isForallT()||e->isTrue()||e->isFalse()) {
+    // no slacking for fancy atoms
+    return e;
+  }
+  if (e->getArity() != 2) {
+    assert(e->getArity()==0);
+    return e;
+  }
+  // prepare a vector that'll hold indices of all slack variables involved
+  vector<unsigned> * current_svars = new vector<unsigned>;
+  // break into three parts.
+  Enode * left = e -> get1st();
+  Enode * right = e -> get2nd();
+  Enode * head = e -> getCar();
+  // do slacking on both sides
+  Enode * linear_left = slackTerm(left, level, current_svars);
+  Enode * linear_right = slackTerm(right, level, current_svars);
+  // prepare the vector of enode that'll have all the constraints corresponding to e
+  vector<Enode *> * slack_result = new vector<Enode *>;
+  //after-slack result
+  Enode * ret;
+  // link the current e with its replacements
+  if (!current_svars->empty()) {
+    //assemble the result
+    ret = cons(head, cons(linear_left, cons(linear_right)));
+    // next, prepare all the additional constraints
+    for (auto sv : *current_svars) {
+      Enode * sctr = mkEq(cons(svars[sv], cons(originals[sv])));
+      slack_result->push_back(sctr);
+    }
+  } else {
+    ret = e;
+  }
+  // if we still want the original term -- usually you don't, unless
+  // you set level to 3.
+  if (!current_svars->empty() && level >= 3)
+    slack_result->push_back(e);
+  // add the mapping from e to the assembled vector
+  enode_to_sctrs.emplace(e, slack_result);
+  // then add all the new constraints for the slack variables to lits
+  for (auto l : *slack_result) {
+    lits.push_back(l);
+  }
+  // no longer need the indices
+  delete current_svars;
+  return ret;
+}
+
+Enode * Egraph::slackFormula(Enode * e, unsigned level, vector<Enode *> & lits) {
+  if (e->isAtom()) {
+    return slackAtom(e,level,lits);
+  } else if (e->isBooleanOperator()){
+    assert(e->getArity()>=1);
+    enodeid_t id = e->getCar()->getId();
+    Enode * tmp = e;
+    Enode * ret;
+    switch (id) {
+      case ENODE_ID_NOT:
+        return mkNot(cons(slackFormula(e->getCdr()->getCar(),level,lits)));
+      case ENODE_ID_AND:
+        ret = slackFormula(e->get1st(),level,lits);
+        tmp = tmp -> getCdr()->getCdr();
+        while (!tmp->isEnil()) {
+          ret = mkAnd(cons(ret,cons(slackFormula(tmp->getCar(),level,lits))));
+          tmp = tmp->getCdr();
+        }
+        return ret;
+      case ENODE_ID_OR:
+        ret = slackFormula(e->get1st(),level,lits);
+        tmp = tmp->getCdr()->getCdr();
+        while (!tmp->isEnil()) {
+          ret = mkOr(cons(ret,cons(slackFormula(tmp->getCar(),level,lits))));
+          tmp = tmp->getCdr();
+        }
+        return ret;
+      case ENODE_ID_IMPLIES:
+        ret = slackFormula(e->get1st(),level,lits);
+        tmp = tmp->getCdr()->getCdr();
+        while (!tmp->isEnil()) {
+          ret = mkImplies(cons(ret,cons(slackFormula(tmp->getCar(),level,lits))));
+          tmp = tmp->getCdr();
+        }
+        return ret;
+      case ENODE_ID_EQ:
+        return mkIff(cons(slackFormula(e->get1st(),level,lits),
+                      cons(slackFormula(e->get2nd(),level,lits))));
+      default:
+        cerr<<"Can't handle: "<<e<<endl;
+        throw runtime_error("Slack operation not supported for ITE or XOR.");
+    }
+  } else {
+    cerr<<"Can't handle: "<<e<<endl;
+    throw runtime_error("Error at slackFormula");
+  }
 }
 
 Enode * Egraph::canonize( Enode * formula, bool split_eqs )
@@ -2630,11 +2806,9 @@ Enode * Egraph::mkDeriv(Enode * e, Enode * v) {
       Enode * f_p = mkDeriv(f, v);
       Enode * g = e->get2nd();
       if (g->isConstant()) {
-        //	cout<<"numb!";
         return mkTimes(mkTimes(g,mkPow(cons(f,cons(mkMinus(g,one))))),f_p);
       }
       else {
-        //	cout<<"not a number: " << g << std::endl;
         Enode * g_p = mkDeriv(g,v);
         return mkTimes(mkPow(cons(f, cons(g))),mkDiv(mkTimes(f_p,g),mkPlus(f,mkTimes(g_p, mkLog(cons(g))))));
       }

@@ -47,7 +47,6 @@ public:
     ~nra_solver();
     lbool inform(Enode * e);
     bool  assertLit(Enode * e, bool = false);
-    bool  assertSingleLit(Enode *, bool = false);
     void  pushBacktrackPoint();
     void  popBacktrackPoint();
     bool  check(bool c);
@@ -70,14 +69,5 @@ private:
     void handle_sat_case(box const & b) const;
     void eval_sat_result(box const & b) const;
     void handle_deduction();
-
-    std::vector<Enode *> originals;
-    std::vector<Enode *> svars;
-    std::unordered_map<Enode *, std::vector<Enode *> *> enode_to_sctrs;  // each enode will be replaced by a vector of new enodes
-
-    unsigned newSlackVar();  // introduce a new var and return its index in the svar vectogr
-    Enode * mkSlack(Enode *, std::vector<unsigned> *);  // return svar
-    Enode * slackTerm(Enode *, unsigned, std::vector<unsigned> *);
-    void slackAtom(Enode *, unsigned, std::vector<Enode *>&);  // the third argument is the literal list; will directly add things there
 };
 }  // namespace dreal

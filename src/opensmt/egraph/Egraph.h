@@ -121,6 +121,11 @@ public:
     assert( cgraph_ );
     delete cgraph_;
 #endif
+
+    for (auto l : enode_to_sctrs) {
+        // clean up slack result table
+        delete l.second;
+    }
   }
 
   //
@@ -376,7 +381,17 @@ public:
   void                setPrecision            ( double );
   double              getPrecision            ( ) const;
   const std::vector<OrdinaryTSolver*>     getTSolvers             ( ) const { return tsolvers; }
+
 private:
+  //slacking operations and storage
+  std::vector<Enode *> originals;
+  std::vector<Enode *> svars;
+  std::unordered_map<Enode *, std::vector<Enode *> *> enode_to_sctrs;  // each enode will be replaced by a vector of new enodes
+  unsigned newSlackVar();  // introduce a new var and return its index in the svar vectogr
+  Enode * mkSlack(Enode *, std::vector<unsigned> *);  // return svar
+  Enode * slackTerm(Enode *, unsigned, std::vector<unsigned> *);
+  Enode * slackAtom(Enode *, unsigned, std::vector<Enode *>&);  // the third argument is the literal list; will directly add things there
+  Enode * slackFormula(Enode *, unsigned, std::vector<Enode *>&);  // the third argument is the literal list; will directly add things there
 
   //===========================================================================
   // Private Routines for enode construction/destruction
@@ -554,9 +569,6 @@ private:
   int                         time_stamp;                       // Need for finding NCA
   int                         conf_index;                       // Index of theory solver that caused conflict
 
-  /* commented out for dReal2 */
-  /* Real                        rescale_factor;                   // Rescale factor for DL */
-  /* long                        rescale_factor_l;                 // Rescale factor for DL */
   bool                        use_gmp;                          // Do we have to use gmp?
 
   void    initializeCongInc ( Enode * );                        // Initialize a node in the congruence at runtime
