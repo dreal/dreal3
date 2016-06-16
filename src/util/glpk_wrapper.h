@@ -34,12 +34,14 @@ namespace dreal {
 
 class glpk_wrapper {
 private:
+    // solver type
+    enum solver_type_t {SIMPLEX, INTERIOR, EXACT};
     // for indexing variables
     box domain;
     // the lp
     glp_prob *lp;
     // whether to use simplex or interior point
-    bool simplex;
+    solver_type_t solver_type;
 
     unsigned get_index(Enode * e) const {
         return domain.get_index(e);
@@ -48,6 +50,10 @@ private:
     void set_constraint(int index, Enode * const e);
 
     void init_problem();
+
+    double get_row_value(int row);
+
+    bool check_unsat_error_kkt(double precision);
 
 public:
     explicit glpk_wrapper(box const & b);
@@ -68,18 +74,18 @@ public:
     void set_minimize();
     void set_maximize();
 
+    void get_error_bounds(double * errors);
+    bool certify_unsat(double precision);
+
     void use_simplex();
     void use_interior_point();
+    void use_exact();
 
     int print_to_file(const char *fname);
 
     static bool is_linear(Enode * const e);
     static bool is_expr_linear(Enode * const e);
 };
-/*
-    push: () → ()
-    pop: () → ()
-*/
 
 }  // namespace dreal
 #endif

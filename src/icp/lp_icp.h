@@ -25,12 +25,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_vec.h"
 #include "contractor/contractor.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
+#include "util/glpk_wrapper.h"
 
 namespace dreal {
 
 class lp_icp {
 private:
     static BranchHeuristic & defaultHeuristic;
+    static bool is_lp_sat(glpk_wrapper & lp, box & solution, SMTConfig const & config);
 public:
     // TODO(damien): the contractor contains both the linear and nonlinear constraints but it only needs the nonlinear ...
     static box solve(box b, contractor & ctc,
