@@ -51,6 +51,29 @@ namespace dreal {
 SizeBrancher lp_sb;
 BranchHeuristic & lp_icp::defaultHeuristic = lp_sb;
 
+bool lp_icp::is_lp_sat(glpk_wrapper & lp_solver, box & solution, SMTConfig const & config) {
+  if (!lp_solver.is_sat()) {
+    if (lp_solver.certify_unsat(config.nra_precision)) {
+      DREAL_LOG_INFO << "lp_icp: LP say unsat";
+      return false;
+    } else {
+      lp_solver.use_exact();
+      if (!lp_solver.is_sat()) {
+        DREAL_LOG_INFO << "lp_icp: LP say unsat (using exact solver)";
+        lp_solver.use_simplex();
+        return false;
+      } else {
+        lp_solver.get_solution(solution);
+        lp_solver.use_simplex();
+        return true;
+      }
+    }
+  } else {
+    lp_solver.get_solution(solution);
+    return true;
+  }
+}
+
 box lp_icp::solve(box b, contractor & ctc,
         scoped_vec<shared_ptr<constraint>>& constraints,
         SMTConfig & config,
@@ -108,13 +131,10 @@ box lp_icp::solve(box b, contractor & ctc,
 
         if (kind == LP) {
             lp_solver.set_domain(b);
-        } else if (!lp_solver.is_sat()) {
-            // TODO(sean): if !lp_solver.is_sat() we should check the precision!!
-            DREAL_LOG_INFO << "lp_icp: LP say unsat";
+        } else if (!is_lp_sat(lp_solver, lp_point, config)) {
             assert(b.is_subset(lp_solver.get_domain()));
             b.set_empty();
         } else {
-            lp_solver.get_solution(lp_point);
 
             if (lp_point.is_subset(b)) {
                 if (config.nra_use_stat) { config.nra_stat.increase_branch(); }
