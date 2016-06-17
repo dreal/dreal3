@@ -11,12 +11,9 @@ open Heuristic
 
 let k = ref 3 (* default unrolling value is 3 *)
 let pathgen = ref false
-let bmc_heuristic = ref None
 let bmc_heuristic_prune = ref None
-let bmc_heuristic_prune_deep = ref None
 let path = ref None
 let new_format = ref false
-let new_format_synchronous = ref false
 let new_format_composed = ref false
 let len_filter = ref false
 
@@ -107,7 +104,7 @@ let run () =
       let () = Heuristic.writeHeuristic heuristic my_hm !k hout in
       let () = close_out hout in      
       (*	let smt = Bmc.compile_pruned my_hm !k heuristic heuristic_back None in *)
-      let smt = Bmc.compile_pruned my_hm !k !path (Some heuristic) in
+      let smt = Bmc.compile my_hm !k !path (Some heuristic) in
       Smt2.print out smt
     else 
       let smt = Bmc.compile my_hm !k !path None in
