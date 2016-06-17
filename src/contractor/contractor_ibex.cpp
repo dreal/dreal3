@@ -103,7 +103,7 @@ ibex::SystemFactory* contractor_ibex_polytope::build_system_factory(vector<Enode
             // Not found
             exprctr = translate_enode_to_exprctr(var_map, e);
             m_exprctr_cache.emplace(e, exprctr);
-            DREAL_LOG_INFO << "Added: exprctr " << p << " " << exprctr << endl;
+            DREAL_LOG_INFO << "Added: exprctr " << p << " " << *exprctr << endl;
         } else {
             // Found
             exprctr = exprctr_it->second;
