@@ -329,7 +329,7 @@ if(MINGW)
     GIT_TAG master
     UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
            COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --build=x86_64-w64-mingw32 --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
+    CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=--std=c++11 CC=${CMAKE_C_COMPILER} ./configure --build=x86_64-w64-mingw32 --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/coin && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/share/coin/doc/CoinUtils && make install)
@@ -338,7 +338,7 @@ else(MINGW)
     ExternalProject_Add(CLP
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
       URL ${CMAKE_SOURCE_DIR}/third_party/clp-1.16.zip
-      CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
+      CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=--std=c++11 CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
       BUILD_COMMAND make
       BUILD_IN_SOURCE 1
       INSTALL_COMMAND make install)
@@ -349,7 +349,7 @@ else(MINGW)
       GIT_TAG master
       UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
       COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
-      CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
+      CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=--std=c++11 CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
       BUILD_COMMAND make
       BUILD_IN_SOURCE 1
       INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/coin && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/share/coin/doc/CoinUtils && make install)
