@@ -554,7 +554,7 @@ in
 	       out
 	       modes
   
-  let writeHeuristic heuristic hm k hout is_synchronous =
+  let writeHeuristic heuristic hm k hout =
 	let () = Printf.fprintf hout "[" in
 	let () = writeHeuristicHeader heuristic hm k hout in
 	let () = List.print ~first:"[" ~last:"]" ~sep:","
@@ -566,7 +566,7 @@ in
 						((List.length heuristic) - 1)))) in
 	let () = Printf.fprintf hout "," in
 	let () = List.print ~first:"[" ~last:"]" ~sep:","
-			    (fun hout (i, h) -> writeAutomatonAdjacency (i, h) hout  is_synchronous heuristic)
+			    (fun hout (i, h) -> writeAutomatonAdjacency (i, h) hout  false heuristic)
 			    hout
 			    (List.mapi (fun i h -> (i, h)) (Network.automata hm)) in
 	Printf.fprintf hout "]"

@@ -20,10 +20,5 @@ exception SMTException of string
 type flows_annot = (string * ode list)  (** step, mode, ode **)
 
 (** compile a Hybrid automata into SMT formula **)
-(*val compile : Hybrid.t -> int -> string list option -> Smt2.t
-val compile_pruned : Hybrid.t -> int -> Costmap.t -> Costmap.t -> Relevantvariables.t list option -> Smt2.t
-val pathgen : Hybrid.t -> int -> (string list) list*)
-val compile : Network.t -> int -> (string list) option -> bool -> (Costmap.t list option) -> bool -> Smt2.t
+val compile : Network.t -> int -> (string list) option -> (Costmap.t list option) -> Smt2_cmd.t list
 val pathgen : Network.t -> int -> (string list) list
-(*val compile_pruned : Network.t -> int -> Costmap.t -> Costmap.t -> Relevantvariables.t list option -> Smt2.t
-val pathgen : Network.t -> int -> Network.comppath list*)

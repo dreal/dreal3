@@ -65,7 +65,7 @@ Z_OPT=FALSE #(edited: FS)
 NEW=""
 FILTER=""
 
-while getopts "zohbdk:l:u:ep:irnsc" OPTION
+while getopts "zohdk:l:u:p:irnc" OPTION
 do
     case $OPTION in
         h)
@@ -81,26 +81,17 @@ do
         u)
             U=$OPTARG
             ;;
-        b)
-            BMCH=1
-            ;;
         d)
             BMCH=2
             ;;
         r)
             BMCH=3
             ;;
-        e)
-            BMCH=4
-            ;;
         z)                  #(edited: FS)
             Z_OPT=TRUE      #
             ;;              #
         n)
             NEW=" --new_format"
-            ;;
-        s)
-            NEW=" --new_format_synchronous"
             ;;
         c)
             NEW=" --new_format_composed"
@@ -189,13 +180,7 @@ do
         OUT=${BASE}_${K}.output
         HEURISTIC=${BASE}_${K}.bh
 
-        if [ $BMCH -eq 1 ]
-        then
-            # Construct Heuristic function
-            #echo $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH 
-            $BMC -k $K --bmc_heuristic ${HEURISTIC} $PDRH > ${SMT}
-            MY_SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
-        elif [ $BMCH -lt 3 ]
+       if [ $BMCH -lt 3 ]
         then
             #Generate Disjunctive Encoding w/o pruning
             $BMC -k $K $PDRH > ${SMT}
@@ -210,11 +195,6 @@ do
             $BMC -k $K --bmc_heuristic_prune $HEURISTIC $PDRH  > ${SMT}
             MY_SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC} --heuristic_forward"
             #exit
-        elif [ $BMCH -eq 4 ]
-        then
-            #Construct pruned encoding and heuristic
-            $BMC -k $K --bmc_heuristic_prune_deep $HEURISTIC $PDRH > ${SMT}
-            MY_SOLVER_OPT="${SOLVER_OPT} --bmc_heuristic ${HEURISTIC}"
         fi
 
         #echo SMT: ${SMT}

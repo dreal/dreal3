@@ -30,11 +30,11 @@ let handle_exn v =
     | Domain_Mismatch s ->
       Printf.eprintf ">> domain mismatch: %s\n" s
     | Variable_Label_Match s ->
-	  Printf.eprintf ">> variable and name share same identifier: %s\n" s
-	| Automaton_Not_Found s ->
-	  Printf.eprintf ">> automaton not found: %s\n" s
-	| Instance_Error (temp, inst) ->
-	  Printf.eprintf ">> unable to instanciate %s: %s not defined.\n" inst temp
-	| Composition_Error s ->
-	  Printf.eprintf ">> undefined automaton: %s\n" s
+       Printf.eprintf ">> variable and name share same identifier: %s\n" s
+    | Automaton_Not_Found s ->
+       Printf.eprintf ">> automaton not found: %s\n" s
+    | Instance_Error (temp, inst) ->
+       Printf.eprintf ">> unable to instanciate %s: %s not defined.\n" inst temp
+    | Composition_Error s ->
+       Printf.eprintf ">> undefined automaton: %s\n" s
     |  _ -> raise v
