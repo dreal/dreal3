@@ -97,11 +97,3 @@ FOREACH(instance ${NRA_INSTANCES})
            ${DREAL_BINARY} ${instance} "--slack-level 2")
   set_tests_properties("regression_nra_slack_level_2_${instance_name}" PROPERTIES LABELS "nra_slack_level_2")
 ENDFOREACH(instance)
-
-FOREACH(instance ${NRA_INSTANCES})
-  GET_FILENAME_COMPONENT(instance_name ${instance} NAME)
-  add_test(NAME "regression_nra_slack_level_3_${instance_name}"
-           COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test.sh"
-           ${DREAL_BINARY} ${instance} "--slack-level 3")
-  set_tests_properties("regression_nra_slack_level_3_${instance_name}" PROPERTIES LABELS "nra_slack_level_3")
-ENDFOREACH(instance)
