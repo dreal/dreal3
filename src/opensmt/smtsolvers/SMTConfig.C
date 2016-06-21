@@ -156,7 +156,7 @@ SMTConfig::initializeConfig( )
   nra_show_search_progress     = false;
   nra_heuristic_forward        = false;
   nra_hybrid_notlearn_clause   = false;
-  nra_slack_level	       = 0;
+  nra_slack_level              = 0;
   initLogging();
 }
 
@@ -482,8 +482,8 @@ SMTConfig::parseCMDLine( int argc
             "--check-sat");
 
     opt.add("", false, 1, 0,
-	    "perform slacking up to a level",
-	    "--slack-level");
+            "perform slacking up to a level {0(default), 1, 2}",
+            "--slack-level");
 
 #ifdef LOGGING
     opt.add("", false, 0, 0,
@@ -667,6 +667,13 @@ SMTConfig::parseCMDLine( int argc
     if (opt.isSet("--aggressive")) { opt.get("--aggressive")->getULong(nra_aggressive); }
     if (opt.isSet("--sample")) { opt.get("--sample")->getULong(nra_sample); }
     if (opt.isSet("--multiple-soln")) { opt.get("--multiple-soln")->getULong(nra_multiple_soln); }
+    if (opt.isSet("--slack-level")) {
+      opt.get("--slack-level")->getULong(nra_slack_level);
+      if (nra_slack_level > 2) {
+        cerr << "ERROR: --slack-level <N> should take one of {0, 1, 2}.\n\n";
+        printUsage(opt);
+      }
+    }
     if (opt.isSet("--random-seed")) {
         // Hack: ezOptionParser doesn't have an API to read 'unsigned
         // int' ( it only supports 'int' and 'unsigned long'). We
@@ -676,12 +683,6 @@ SMTConfig::parseCMDLine( int argc
         int tmp = 0;
         opt.get("--random-seed")->getInt(tmp);
         nra_random_seed = static_cast<unsigned>(tmp);
-    }
-
-    if (opt.isSet("--slack-level")) {
-	int tmp = 0;
-	opt.get("--slack-level")->getInt(tmp);
-	nra_slack_level = static_cast<unsigned>(tmp);
     }
 
     vector<string> badOptions;
