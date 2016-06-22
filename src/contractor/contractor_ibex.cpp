@@ -151,14 +151,15 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> 
     : contractor_cell(contractor_kind::IBEX_FWDBWD, ctr->get_var_array().size()), m_ctr(ctr),
       m_numctr(ctr->get_numctr()) {
     if (!ctr->is_neq()) {
-        m_ctc.reset(new ibex::CtcFwdBwd(*m_numctr));
-        m_input = *(m_ctc->input);
+        auto ctc = get_ctc(std::this_thread::get_id(), false);
+        m_input = *(ctc->input);
         // m_output will be copied from m_ctc->output, so no need to init here
     }
 }
 
 void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_ibex_fwdbwd::prune";
+    auto ctc = get_ctc(std::this_thread::get_id(), true);
     if (!ctc) { return; }
 
     thread_local static box old_box(cs.m_box);
@@ -178,9 +179,9 @@ void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << cs.m_box;
     DREAL_LOG_DEBUG << "ibex interval = " << cs.m_box.get_values() << " (before)";
-    DREAL_LOG_DEBUG << "function = " << m_ctc->f;
-    DREAL_LOG_DEBUG << "domain   = " << m_ctc->d;
-    m_ctc->contract(cs.m_box.get_values());
+    DREAL_LOG_DEBUG << "function = " << ctc->f;
+    DREAL_LOG_DEBUG << "domain   = " << ctc->d;
+    ctc->contract(cs.m_box.get_values());
     DREAL_LOG_DEBUG << "ibex interval = " << cs.m_box.get_values() << " (after)";
     // cerr << output.empty() << used_constraints.empty() << " ";
     auto & new_iv = cs.m_box.get_values();
@@ -209,6 +210,7 @@ void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
 }
 ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
     out << "contractor_ibex_fwdbwd(";
+    auto const ctc = get_ctc(std::this_thread::get_id());
     if (ctc) { out << *m_numctr; }
     out << ")";
     return out;
