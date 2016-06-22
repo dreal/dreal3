@@ -37,13 +37,11 @@ class contractor_ibex_fwdbwd : public contractor_cell {
 private:
     std::shared_ptr<nonlinear_constraint> m_ctr;
     std::shared_ptr<ibex::NumConstraint const> m_numctr;
-    ibex::Array<ibex::ExprSymbol const> const & m_var_array;
     std::shared_ptr<ibex::CtcFwdBwd> m_ctc;
 
 public:
     explicit contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr);
     void prune(contractor_status & cs);
-    ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
     std::ostream & display(std::ostream & out) const;
 };
 

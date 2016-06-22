@@ -149,7 +149,7 @@ ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(unordered_se
 
 contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> const ctr)
     : contractor_cell(contractor_kind::IBEX_FWDBWD, ctr->get_var_array().size()), m_ctr(ctr),
-      m_numctr(ctr->get_numctr()), m_var_array(ctr->get_var_array()) {
+      m_numctr(ctr->get_numctr()) {
     if (!ctr->is_neq()) {
         m_ctc.reset(new ibex::CtcFwdBwd(*m_numctr));
         m_input = *(m_ctc->input);
@@ -163,7 +163,7 @@ void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
 
     thread_local static box old_box(cs.m_box);
     if (cs.m_config.nra_proof) { old_box = cs.m_box; }
-    if (m_var_array.size() == 0) {
+    if (m_numctr->f.nb_arg() == 0) {
         auto eval_result = m_ctr->eval(cs.m_box);
         if (eval_result.first == l_False) {
             cs.m_box.set_empty();
@@ -174,7 +174,7 @@ void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
     }
     thread_local static ibex::IntervalVector old_iv(cs.m_box.get_values());
     old_iv = cs.m_box.get_values();
-    assert(m_var_array.size() >= 0 && static_cast<unsigned>(m_var_array.size()) <= cs.m_box.size());
+    assert(m_numctr->f.nb_arg() >= 0 && static_cast<unsigned>(m_numctr->f.nb_arg()) <= cs.m_box.size());
     DREAL_LOG_DEBUG << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
     DREAL_LOG_DEBUG << cs.m_box;
     DREAL_LOG_DEBUG << "ibex interval = " << cs.m_box.get_values() << " (before)";
