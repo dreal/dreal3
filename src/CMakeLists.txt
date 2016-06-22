@@ -20,6 +20,7 @@ option(USE_LOCAL_THIRD_PARTY "Use local third party libraries" OFF)
 option(USE_GLPK         "Use local third party libraries" OFF)
 option(TCMALLOC         "Use tcmalloc (a.k.a. gperftools)" ON)
 option(BUILD_TEST       "Build test binaries" ON)
+option(USE_ASAN         "Use address sanitizer (-fsanitize=address)" OFF)
 
 # Added for CTest
 include(CTest)
@@ -50,6 +51,11 @@ set(CMAKE_CXX_FLAGS_DEBUG          "-g -DDREAL_DEBUG -DDREAL_TRACE -fno-inline")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+
+if(USE_ASAN)
+  message(STATUS "Using address sanitizer (-fsanitizer=address)")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+endif(USE_ASAN)
 
 ################################################################
 # Set Module Path
