@@ -159,7 +159,7 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> 
 
 void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_ibex_fwdbwd::prune";
-    if (m_ctc == nullptr) { return; }
+    if (!ctc) { return; }
 
     thread_local static box old_box(cs.m_box);
     if (cs.m_config.nra_proof) { old_box = cs.m_box; }
@@ -209,9 +209,7 @@ void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
 }
 ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
     out << "contractor_ibex_fwdbwd(";
-    if (m_ctc != nullptr) {
-        out << *m_numctr;
-    }
+    if (ctc) { out << *m_numctr; }
     out << ")";
     return out;
 }
@@ -237,7 +235,7 @@ contractor_ibex_newton::contractor_ibex_newton(box const & box, shared_ptr<nonli
 
 void contractor_ibex_newton::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_ibex_newton::prune";
-    if (m_ctc == nullptr) { return; }
+    if (!m_ctc) { return; }
 
     // ======= Proof =======
     thread_local static box old_box(cs.m_box);
@@ -286,9 +284,7 @@ void contractor_ibex_newton::prune(contractor_status & cs) {
 }
 ostream & contractor_ibex_newton::display(ostream & out) const {
     out << "contractor_ibex_newton(";
-    if (m_ctc != nullptr) {
-        out << *m_numctr;
-    }
+    if (m_ctc) { out << *m_numctr; }
     out << ")";
     return out;
 }
