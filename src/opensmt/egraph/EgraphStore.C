@@ -18,6 +18,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <sstream>
+#include "util/fp.h"
 #include "egraph/Egraph.h"
 #include "common/LA.h"
 #include "simplifiers/BVNormalize.h"
@@ -583,14 +584,18 @@ Enode * Egraph::mkVar( const char * name, bool model_var )
 }
 
 Enode * Egraph::mkNumCore( const char * value ) {
-  Enode * new_enode = new Enode( id_to_enode.size( )
-                                 , value
-                                 , ETYPE_NUMB
-                                 , sarith0 );
-
+  Enode * const new_enode = new Enode( id_to_enode.size( )
+                                       , value
+                                       , ETYPE_NUMB
+                                       , sarith0 );
   assert( new_enode );
-  Enode * res = insertNumber( new_enode );
-  return cons( res );
+  Enode * const res = insertNumber( new_enode );
+  Enode * const ret = cons ( res );
+  double const lb = dreal::stod_downward(res->getName());
+  double const ub = dreal::stod_upward(res->getName());
+  ret->setValueLowerBound(lb);
+  ret->setValueUpperBound(ub);
+  return ret;
 }
 
 Enode * Egraph::mkNum( const char * value )
