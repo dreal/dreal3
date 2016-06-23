@@ -115,13 +115,13 @@ static lbool simplify(Enode * e, lbool p, box & b) {
         if (first->isVar() && second->isConstant()) {
             // v >= c
             auto & iv = b[first];
-            iv &= ibex::Interval(second->getValue(), iv.ub());
+            iv &= ibex::Interval(second->getValueLowerBound(), iv.ub());
             if (iv.is_empty()) { b.set_empty(); }
             return l_True;
         } else if (first->isConstant() && second->isVar()) {
             // c >= v
             auto & iv = b[second];
-            iv &= ibex::Interval(iv.lb(), first->getValue());
+            iv &= ibex::Interval(iv.lb(), first->getValueUpperBound());
             if (iv.is_empty()) { b.set_empty(); }
             return l_True;
         }
@@ -130,13 +130,13 @@ static lbool simplify(Enode * e, lbool p, box & b) {
         if (first->isVar() && second->isConstant()) {
             // v <= c
             auto & iv = b[first];
-            iv &= ibex::Interval(iv.lb(), second->getValue());
+            iv &= ibex::Interval(iv.lb(), second->getValueUpperBound());
             if (iv.is_empty()) { b.set_empty(); }
             return l_True;
         } else if (first->isConstant() && second->isVar()) {
             // c <= v
             auto & iv = b[second];
-            iv &= ibex::Interval(first->getValue(), iv.ub());
+            iv &= ibex::Interval(first->getValueLowerBound(), iv.ub());
             if (iv.is_empty()) { b.set_empty(); }
             return l_True;
         }
@@ -144,13 +144,13 @@ static lbool simplify(Enode * e, lbool p, box & b) {
         if (first->isVar() && second->isConstant()) {
             // v == c
             auto & iv = b[first];
-            iv &= ibex::Interval(second->getValue(), second->getValue());
+            iv &= ibex::Interval(second->getValueLowerBound(), second->getValueUpperBound());
             if (iv.is_empty()) { b.set_empty(); }
             return l_True;
         } else if (first->isConstant() && second->isVar()) {
             // c == v
             auto & iv = b[second];
-            iv &= ibex::Interval(first->getValue(), first->getValue());
+            iv &= ibex::Interval(first->getValueLowerBound(), first->getValueUpperBound());
             if (iv.is_empty()) { b.set_empty(); }
             return l_True;
         } else if (first->isVar() && second->isVar()) {
