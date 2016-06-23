@@ -8,6 +8,7 @@ configure_file("${DREAL_SOURCE_DIR}/util/git_sha1.cpp.in" "${DREAL_BINARY_DIR}/g
 SET(DREAL_SRCS ${DREAL_SRCS}
   ${CMAKE_CURRENT_LIST_DIR}/box.cpp
   ${CMAKE_CURRENT_LIST_DIR}/cxx11_check.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/dtoa.c
   ${CMAKE_CURRENT_LIST_DIR}/eval.cpp
   ${CMAKE_CURRENT_LIST_DIR}/flow.cpp
   ${CMAKE_CURRENT_LIST_DIR}/fp.cpp
