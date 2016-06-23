@@ -27,6 +27,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <utility>
 #include <vector>
+#include "util/fp.h"
 #include "common/Global.h"
 #include "egraph/Egraph.h"
 #include "sorts/SStore.h"
@@ -175,8 +176,8 @@ command: '(' TK_SETLOGIC symbol ')'
          {
              // (declare-fun vname () Real [-3, 3]) : domain for vname = [-3, 3]
              parser_ctx->DeclareFun( $3, $6 );
-             double const lb = strtod($8, nullptr); free($8);
-             double const ub = strtod($10, nullptr); free($10);
+             double const lb = dreal::stod_downward($8); free($8);
+             double const ub = dreal::stod_upward($10); free($10);
              Enode * e = parser_ctx->mkVar($3); free( $3 );
              e->setDomainLowerBound(lb);
              e->setDomainUpperBound(ub);
@@ -186,14 +187,14 @@ command: '(' TK_SETLOGIC symbol ')'
        | '(' TK_DECLAREFUN symbol '(' ')' sort TK_LB spec_const TK_RB ')'
          {
              // (declare-fun vname () Real [0.001]) : precision for vname = 0.001
-             double const prec = strtod($8, nullptr); free($8);
+             double const prec = dreal::stod_tonearest($8); free($8);
              parser_ctx->DeclareFun( $3, $6, prec ); free( $3 );
          }
        | '(' TK_DECLAREFUN TK_EXISTS symbol '(' ')' sort TK_LB spec_const TK_COMMA spec_const TK_RB ')'
          {
            parser_ctx->DeclareFun( $4, $7 );
-           double const lb = strtod($9, nullptr); free($9);
-           double const ub = strtod($11, nullptr); free($11);
+           double const lb = dreal::stod_downward($9); free($9);
+           double const ub = dreal::stod_upward($11); free($11);
            Enode * e = parser_ctx->mkVar($4); free( $4 );
            e->setDomainLowerBound(lb);
            e->setDomainUpperBound(ub);
@@ -203,8 +204,8 @@ command: '(' TK_SETLOGIC symbol ')'
        | '(' TK_DECLAREFUN TK_FORALL symbol '(' ')' sort TK_LB spec_const TK_COMMA spec_const TK_RB ')'
          {
            parser_ctx->DeclareFun( $4, $7 );
-           double const lb = strtod($9, nullptr); free($9);
-           double const ub = strtod($11, nullptr); free($11);
+           double const lb = dreal::stod_downward($9); free($9);
+           double const ub = dreal::stod_upward($11); free($11);
            Enode * e = parser_ctx->mkVar($4); free( $4 );
            e->setDomainLowerBound(lb);
            e->setDomainUpperBound(ub);
