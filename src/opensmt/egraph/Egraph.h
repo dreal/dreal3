@@ -230,7 +230,6 @@ public:
   Enode * allocFalse         ( );
 
   Enode * mkVar              ( const char *, bool = false );
-  Enode * mkNumCore          ( const char * );
   Enode * mkNum              ( const char * );
   Enode * mkNum              ( const char *, const char * );
   Enode * mkNum              ( const double );
@@ -239,7 +238,7 @@ public:
   void    mkDefine           ( const char *, Enode * );
   Enode * mkLet              ( Enode * );
   Enode * getDefine          ( const char * );
-  Enode * mkDeriv	     (Enode *, Enode *); //returns symbolic derivative
+  Enode * mkDeriv      (Enode *, Enode *); //returns symbolic derivative
   Enode * getUncheckedAssertions  ( bool const clear = true );
 #ifdef PRODUCE_PROOF
   Enode * getNextAssertion        ( );

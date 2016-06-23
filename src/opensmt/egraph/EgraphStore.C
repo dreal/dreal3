@@ -583,7 +583,8 @@ Enode * Egraph::mkVar( const char * name, bool model_var )
   return res;
 }
 
-Enode * Egraph::mkNumCore( const char * value ) {
+Enode * Egraph::mkNum( const char * value )
+{
   Enode * const new_enode = new Enode( id_to_enode.size( )
                                        , value
                                        , ETYPE_NUMB
@@ -598,29 +599,11 @@ Enode * Egraph::mkNumCore( const char * value ) {
   return ret;
 }
 
-Enode * Egraph::mkNum( const char * value )
-{
-  // Soonho: we first convert the char* value into a value in double
-  // to normalize representation. Otherwise, OpenSMT will assign
-  // different Enodes for the same floating-point values (for
-  // example, "0.0" and "0.00".)
-  //
-  // If the conversion via strtod fails, we use the old method
-  // `mkNumCore`. Otherwise, we call Egrap::mkNum(const double) with
-  // the converted double value.
-  double const d = strtod(value, nullptr);
-  if (errno == ERANGE) {
-      return mkNumCore(value);
-  } else {
-      return mkNum(d);
-  }
-}
-
 Enode * Egraph::mkNum(const double v)
 {
   char buf[ 256 ];
   sprintf( buf, "%.30lf", v );
-  return mkNumCore(buf);
+  return mkNum(buf);
 }
 
 // Enode * Egraph::mkNum( const Real & real_value )
@@ -796,10 +779,22 @@ Enode * Egraph::mkEq( Enode * args )
   if ( x == y )
     return mkTrue( );
 
-  // Two different constants
-  // 1 = 0 => false
-  if ( x->isConstant( ) && y->isConstant( ) )
-    return mkFalse( );
+  // Constants
+  //
+  // Soonho: Previously, we return False if both of x and y are
+  // constants but their pointers are not the same. However, it's
+  // possible that two different Enodes are equal. For example,
+  // consider Enode("0.00") and Enode("0.0"). When constructed, they
+  // are two different Enodes (because it only checks string value)
+  // but we should have "0.0 == 0".
+  if ( x->isConstant( ) && y->isConstant( ) ) {
+    if (x->getValueLowerBound() == y->getValueLowerBound() &&
+        x->getValueUpperBound() == y->getValueUpperBound()) {
+      return mkTrue( );
+    } else {
+      return mkFalse( );
+    }
+  }
 
   if ( x->getId( ) > y->getId( ) )
     args = cons( y, cons( x ) );
