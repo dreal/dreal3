@@ -1,9 +1,8 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
-        
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -73,15 +72,9 @@ ExprNode const * translate_enode_to_exprnode(map<string, Variable const> & var_m
         }
 
     } else if (e->isConstant()) {
-        // TODO(soonhok): handle number c as an interval [lb(c), ub(c)]
-        double const v = e->getValue();
-        if (v == +numeric_limits<double>::infinity()) {
-            return &ExprConstant::new_scalar(ibex::Interval(numeric_limits<double>::max(), v));
-        } else if (v == -numeric_limits<double>::infinity()) {
-            return &ExprConstant::new_scalar(ibex::Interval(v, numeric_limits<double>::lowest()));
-        } else {
-            return &ExprConstant::new_scalar(v);
-        }
+        double const lb = e->getValueLowerBound();
+        double const ub = e->getValueUpperBound();
+        return &ExprConstant::new_scalar(ibex::Interval(lb, ub));
     } else if (e->isSymb()) {
         throw logic_error("translateEnodeExprNode: Symb");
     } else if (e->isNumb()) {
