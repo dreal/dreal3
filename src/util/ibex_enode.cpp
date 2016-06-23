@@ -26,6 +26,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <unordered_set>
 #include "ibex/ibex.h"
+#include "util/fp.h"
 #include "util/logging.h"
 #include "util/ibex_enode.h"
 
@@ -43,6 +44,12 @@ using std::numeric_limits;
 using std::string;
 using std::unordered_map;
 using std::unordered_set;
+
+ibex::Interval str_to_ibex_interval(std::string const & s) {
+    double const lb = stod_downward(s);
+    double const ub = stod_upward(s);
+    return ibex::Interval(lb, ub);
+}
 
 // Translate an Enode e into ibex::ExprNode.
 // Note: As a side-effect, update var_map : string -> ibex::Variable
