@@ -10,6 +10,7 @@ SET(DREAL_SRCS ${DREAL_SRCS}
   ${CMAKE_CURRENT_LIST_DIR}/cxx11_check.cpp
   ${CMAKE_CURRENT_LIST_DIR}/eval.cpp
   ${CMAKE_CURRENT_LIST_DIR}/flow.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/fp.cpp
   ${CMAKE_CURRENT_LIST_DIR}/hexfloat.cpp
   ${CMAKE_CURRENT_LIST_DIR}/ibex_enode.cpp
   ${CMAKE_CURRENT_LIST_DIR}/proof.cpp
