@@ -52,6 +52,14 @@ expr::expr(solver& sol, char const * name) : m_solver(&sol), cctx(sol.get_ctx())
 
 expr::expr(solver * const s, expr * e) : m_solver(s), cctx(s->get_ctx()), ep(e->get_cexpr()) {}
 
+expr::expr(solver * const s) : m_solver(s), cctx(s->get_ctx()) {}
+
+void expr::setContent(solver * s, cexpr c) {
+    m_solver = s;
+    cctx = s->get_ctx();
+    ep = c;
+}
+
 string expr::get_name() {
     Enode * e = static_cast<Enode *>(ep);
     return e->getCar()->getName();
@@ -559,7 +567,71 @@ ostream & operator<<(ostream & out, expr const & e) {
     return out;
 }
 
+poly::poly(vector<expr*> & x, char const * c_name, unsigned d) : expr(x[0]->get_solver()), m_x(x) {
+    cctx = m_solver->get_ctx();
+    degree = d;
+    ep = buildExpr(c_name,d);
+    m_e = new expr();
+    m_e -> setContent(m_solver,ep);
+}
 
+cexpr poly::buildExpr(char const * c_name, unsigned d) {
+    OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
+    //monomials hold all monomials in the polynomial, starting from the constant term
+    vector<Enode *> monomials;
+    Enode * one = ctx->mkNum("1.0");
+    monomials.push_back(one);
+    //tmp will hold monomials that are added for each new variable
+    vector<Enode *> tmp;
+    for (auto xi : m_x) { //extend existing with new variables
+        double power=0;
+        //iterate up to the degree bound
+        for (unsigned j=1; j<=d; j++) {
+            power = power + 1;
+            for (auto m : monomials) {
+                //iterate through every existing monomial m, and push (xi^power)*m as a new monomial
+                tmp.push_back(ctx->mkTimes(ctx->mkCons(
+                                                ctx->mkPow(ctx->mkCons(static_cast<Enode*>(xi->get_cexpr()),
+                                                    ctx->mkCons(ctx->mkNum(power)))),ctx->mkCons(m))));
+            }
+        }
+        //then add the newly constructed monomials to the monomial list
+        for (auto tm : tmp) {
+              monomials.push_back(tm);
+        }
+        tmp.clear();
+    }
+    //ret will hold the full expression
+    Enode * ret = ctx->mkNum("0.0");
+    unsigned i=0;
+    for (auto m : monomials) {
+        //for each monomial, construct a coefficient that will go with it
+        string cn(c_name);
+        cn += std::to_string(i);
+        expr * ci_expr = m_solver->new_var(cn.c_str());
+        m_c.push_back(ci_expr);
+        //add a new term to ret
+        ret = ctx->mkPlus(ctx->mkCons(ret,ctx->mkCons(ctx->mkTimes
+                    (ctx->mkCons(m,ctx->mkCons(static_cast<Enode*>(ci_expr->get_cexpr())))))));
+        //increment the cofficient count
+        i++;
+    }
+    //put result in the internal cexpr
+    return static_cast<cexpr>(ret);
+}
 
+poly::~poly() {
+    delete m_e;
+}
+
+expr * poly::getExpr() {
+    return m_e;
+}
+
+void poly::setCofBounds(double lb, double ub) {
+    for (auto e : m_c) {
+        e->set_bounds(lb,ub);
+    }
+}
 
 }  // namespace dreal

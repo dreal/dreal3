@@ -68,81 +68,102 @@ void lyapunov_check(vector<expr>& x, vector<expr>& f, expr& V, double eps) {
 }
 
 void syn_lyp(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, expr& V, double eps) {
-
+    //number of ODEs should be same as number of state vars
     assert(x.size()==f.size());
     assert(eps>0);
-
-    unsigned n = x.size();
+    //everything happening in the solver. to be extra safe, should check all vars share the same solver. 
     solver * s = x[0]->get_solver();
+    //turn on polytope in solver
     s -> set_polytope();
-    s -> set_simulation();
-
+    //s -> set_simulation();  //the simulation option gives seg fault as of Jun 23, 2016
+    //ball is the epsilon-ball that will be excluded from the checking
     expr ball = s -> num("0");
+    //LV is the Lie derivative of V
     expr LV = s -> num("0");
-
-    for (unsigned i=0;i<n;i++) {
+    //assemble ball and LV
+    for (unsigned i=0;i<x.size();i++) {
 	ball = ball + ((*x[i])^2); 
 	LV = LV + (*f[i]) * der(V,(*x[i]));
     }
-
+    //scondition will be part of the search condition
     expr scondition = V>=0 && LV<=0;
+    //condition is an auxilary formula
     expr condition = implies(ball>eps, V>0) && implies(ball>eps, LV<0);
-//    expr condition = V>=0 && LV<=0 && implies(ball==0,V<eps)&& implies(ball==0,LV<eps);
-//    expr condition = V>=0 && LV<=0; 
+    //search condition will be used for finding parameters
     expr search_condition = scondition;
-
+    //prepare a push point. will first add the formula for searching, then pop, then add formula for verifying
     s->push();
     s->add(search_condition);
-
-    int i=0;
+    unsigned round=0;
+    //the check() solves the search problem and suggest candidate values for parameters
     while (s->check()) {
 	cout<<"Trying these parameters:"<<endl;
-	cerr<<"Round "<<i<<endl;
+	cerr<<"Round "<<round<<endl;
 	s->print_model();
+	//will try to find counterexample, thus the negation
 	expr verify_condition = !condition;
+	//set the parameter variables to the chosen values
 	for (auto param : p) {
 	    verify_condition = verify_condition && ( (*param) == ((s->get_lb(*param)+s->get_ub(*param))/2));
 	}
+	//pop the search formula and add the verification formula
 	s->pop();
 	s->push();
 	s->add(verify_condition); 
 	cout<<"Verifying: "<<verify_condition<<endl;
 	if (!s->check()) {
-	    cout<<"Lyapunov function synthesized:"<<endl;
+	    cout<<"Lyapunov function synthesized."<<endl;
+	    //todo: print the L function and system with solved parameters. 
 	    return;
 	} else {
 	    cout<<"Counterexample found:"<<endl;
 	    s->print_model();
+	    //sol will store the counterexample
 	    vector<expr*> sol; 
 	    for (auto state: x) { 
 		sol.push_back(s->new_num((s->get_lb(*state)+s->get_ub(*state))/2));
 	    }
+	    //sub in the values of the counterexample, and update the search formula
 	    vector<expr*> full_pre;
 	    vector<expr*> full_post;
 	    full_pre.reserve(x.size()+p.size());
 	    full_post.reserve(sol.size()+p.size());
+	    //full_pre holds the list of variables
 	    full_pre.insert(full_pre.end(),x.begin(),x.end());
 	    full_pre.insert(full_pre.end(),p.begin(),p.end());
+	    //full_post holds the list of assignments
 	    full_post.insert(full_post.end(),sol.begin(),sol.end());
 	    full_post.insert(full_post.end(),p.begin(),p.end());
+	    //substitution needs both vectors
 	    search_condition = substitute(search_condition,full_pre,full_post);
 	    search_condition = search_condition && substitute(scondition,full_pre,full_post);
-	    for (auto param : p) {
-		search_condition = search_condition && (!((*param) == ((s->get_lb(*param)+s->get_ub(*param))/2)));
-	    }
+	    //optionally we can exclude some parameters that have been tried before. but negating equalities is not useful.
+	    //for (auto param : p) {
+	    //	search_condition = search_condition && (!((*param) == ((s->get_lb(*param)+s->get_ub(*param))/2)));
+	    //}
+	    //clean up the verification formula and add the search formula
 	    s->pop();
 	    s->push();
    	    s->add(search_condition);
 	    cout<<"Search condition: "<<search_condition<<endl;
 	}
-	cerr<<"Round "<<i<<endl;
-	i++;
+	cerr<<"Round "<<round<<endl;
+	round++;
     } 
-    
     cout<<"No Lypaunov function found."<<endl;
     return;
 }
 
+void syn_ctr_lyp(vector<expr*>& x, vector<expr*>& p_f, vector<expr*>& p_v, vector<expr*>& f, expr& V, double eps) {
+    vector<expr*> p;
+    for (auto e : p_f) {
+	p.push_back(e);
+    }
+    for (auto e : p_v) {
+	p.push_back(e);
+    }
+    syn_lyp(x,p,f,V,eps);
+}
 
 int test1() {
     solver s;
@@ -192,6 +213,21 @@ int test_lyp_syn() {
     return 0;
 }
 
+int testLypSyn2() {
+    solver s;
+    expr x1 = s.var("x1",-1,1);
+    expr p1 = s.var("p1", -5, 5);
+    expr p2 = s.var("p2", -5, 5);
+    vector<expr*> x = {&x1};
+    vector<expr*> p_f = {&p1,&p2};
+    poly V = poly(x,"q",4);
+    V.setCofBounds(-5,5);
+    expr f1 = p1*x1 + p2*(x1^3);
+    vector<expr*> f = {&f1};
+    syn_ctr_lyp(x,p_f,V.getCofs(),f,V,0.0001);
+    return 0;
+}
+
 int inv_pend_syn() {
     solver s;
     expr x1 = s.var("x",-0.3,0.3);
@@ -212,23 +248,17 @@ int inv_pend_syn() {
     expr p11 = s.var("p11",-10,10);
     expr p12 = s.var("p12",-10,10);
     expr p13 = s.var("p13",-10,10);
-
     vector<expr*> p = {&p1,&p2,&p3,&p4,&p5,&p6,&p7,&p8,&p9,&p10,&p11,&p12,&p13};
-
     expr u = p10*x1 + p11*x2 - p12*x3 - p13*x4; 
     expr f1 = x2;
-    expr f2 = -(-6*sin(x3)*(x4^2) + 100*u - 10*x2 + 147*cos(x3)*sin(x3))/(5*(3*cos(x3)^2 - 14));
+    expr f2 = -(-6*sin(x3)*(x4^2) + 100*u - 10*x2 + 147*cos(x3)*sin(x3))/(5*(3*(cos(x3)^2) - 14));
     expr f3 = x4;
     expr f4 = -(- 3*cos(x3)*sin(x3)*(x4^2) + 343*sin(x3) + 50*u*cos(x3) - 5*x2*cos(x3))/(3*(cos(x3)^2) - 14);   
     vector<expr*> f = {&f1,&f2,&f3,&f4};
-
     expr V = x2*(p1*x1 + p2*x2 - p3*x3 - p4*x4) + x1*(p5*x1 + x2 - p7*x3 - p8*x4) - x3*(2.63237*x1 + 3.77814*x2 - p9*x3 - 2.12247*x4) - 1.0*x4*(0.499053*x1 + 0.697897*x2 - 2.12247*x3 - p6*x4);
-
     syn_lyp(x,p,f,V,0.001);
-
     return 0; 
 }
-
 
 int test2_lyp() {
     solver s;
@@ -246,8 +276,9 @@ int test2_lyp() {
 int main(int argc, char* argv[]) {
     //cout<<test1()<<endl;
     //cerr<<inv_pend_syn()<<endl;
-    cerr<<test2_lyp()<<endl;
-    cerr<<test_lyp_syn()<<endl;
-    cerr<<vdp()<<endl;
+    //cerr<<test2_lyp()<<endl;
+    //cerr<<test_lyp_syn()<<endl;
+    //cerr<<vdp()<<endl;
+    testLypSyn2();
     return 0;
 }

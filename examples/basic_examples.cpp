@@ -13,6 +13,10 @@ int basics1() {
     expr zero = s.num(0.0);
     x.set_lb(-10);
     x.set_ub(10);
+    expr xx = s.var("xx");
+    vector<expr*> xxv = {&x,&xx};
+    poly ppp(xxv,"a",2);
+    cerr<<*ppp.getExpr()<<endl;
     expr p = upoly(x,"c",5);
     cerr << p << endl;
     expr * zz = s.new_var("zz");
@@ -73,7 +77,7 @@ int open() {
 
 int main(int argc, char* argv[]) {
     cout<<basics1()<<endl;
-    cout<<basics2()<<endl;
+    //cout<<basics2()<<endl;
     cout<<open()<<endl;
     return 0;
 }
