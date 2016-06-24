@@ -188,6 +188,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                 } else {
                     // the point solution of the LP is not is the current box.
                     // set the LP domain to the current box.
+                    DREAL_LOG_DEBUG << "lp_icp::solve - asking for a new point solution";
                     box_stack.emplace(lp_icp_kind::LP, lp_solver.get_domain());
                     lp_solver.set_domain(cs.m_box);
                     box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
@@ -195,6 +196,8 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
             }
             break;  // end of case LP:
         }  // end of switch
+        // make b empty in case the stack is empty
+        b.set_empty();
     }  // end of while
 
     if (cs.m_config.nra_multiple_soln > 1 && solns.size() > 0) {
