@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <unordered_set>
 #include "icp/icp.h"
 #include "icp/brancher.h"
 #include "util/box.h"
@@ -33,6 +34,10 @@ namespace dreal {
 class lp_icp {
 private:
     static BranchHeuristic & defaultHeuristic;
+    static void mark_basic(glpk_wrapper & lp,
+                           std::unordered_set<Enode*> es,
+                           scoped_vec<std::shared_ptr<constraint>>& constraints,
+                           std::unordered_set<std::shared_ptr<constraint>>& used_constraints);
     static bool is_lp_sat(glpk_wrapper & lp, box & solution, SMTConfig const & config);
 public:
     // TODO(damien): the contractor contains both the linear and nonlinear constraints but it only needs the nonlinear ...

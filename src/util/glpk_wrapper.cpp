@@ -101,9 +101,9 @@ void glpk_wrapper::init_problem() {
     glp_add_cols(lp, domain.size());
     // name the variables (helps debugging)
     if (DREAL_LOG_INFO_IS_ON) {
-      for (unsigned int i = 0; i < domain.size(); i++) {
-          glp_set_col_name(lp, i+1, domain.get_name(i).c_str());
-      }
+        for (unsigned int i = 0; i < domain.size(); i++) {
+            glp_set_col_name(lp, i+1, domain.get_name(i).c_str());
+        }
     }
     //
     set_domain(domain);
@@ -148,7 +148,7 @@ void glpk_wrapper::add(Enode * const e) {
 
 void glpk_wrapper::add(std::unordered_set<Enode *> const & es) {
     int idx = glp_add_rows(lp, es.size());
-    for (auto it = es.begin(); it != es.end(); ++it) {
+    for (auto it = es.cbegin(); it != es.cend(); ++it) {
         set_constraint(idx, *it);
         idx += 1;
     }
@@ -168,7 +168,32 @@ bool glpk_wrapper::is_sat() {
                 solved = glp_exact(lp, &parm);
             }
             if (solved != 0) {
-                throw std::runtime_error("GLPK simplex failed");
+                switch (solved) {
+                    case GLP_EBADB:
+                        throw std::runtime_error("GLPK simplex failed: GLP_EBADB");
+                    case GLP_ESING:
+                        throw std::runtime_error("GLPK simplex failed: GLP_ESING");
+                    case GLP_ECOND:
+                        throw std::runtime_error("GLPK simplex failed: GLP_ECOND");
+                    case GLP_EBOUND:
+                        throw std::runtime_error("GLPK simplex failed: GLP_EBOUND");
+                    case GLP_EFAIL:
+                        throw std::runtime_error("GLPK simplex failed: GLP_EFAIL");
+                    case GLP_EOBJLL:
+                        throw std::runtime_error("GLPK simplex failed: GLP_EOBJLL");
+                    case GLP_EOBJUL:
+                        throw std::runtime_error("GLPK simplex failed: GLP_EOBJUL");
+                    case GLP_EITLIM:
+                        throw std::runtime_error("GLPK simplex failed: GLP_EITLIM");
+                    case GLP_ETMLIM:
+                        throw std::runtime_error("GLPK simplex failed: GLP_ETMLIM");
+                    case GLP_ENOPFS:
+                        throw std::runtime_error("GLPK simplex failed: GLP_ENOPFS");
+                    case GLP_ENODFS:
+                        throw std::runtime_error("GLPK simplex failed: GLP_ENODFS");
+                    default:
+                        throw std::runtime_error("GLPK simplex failed");
+                }
             }
             status = glp_get_status(lp);
             changed = false;
@@ -183,7 +208,20 @@ bool glpk_wrapper::is_sat() {
             parm.msg_lev = GLP_MSG_OFF;
             int solved = glp_interior(lp, &parm);
             if (solved != 0) {
-                throw std::runtime_error("GLPK interior-point failed");
+                switch (solved) {
+                    case GLP_EFAIL:
+                        throw std::runtime_error("GLPK interior-point failed: GLP_EFAIL");
+                    case GLP_ENOCVG:
+                        throw std::runtime_error("GLPK interior-point failed: GLP_ENOCVG");
+                    case GLP_EOBJUL:
+                        throw std::runtime_error("GLPK interior-point failed: GLP_EOBJUL");
+                    case GLP_EITLIM:
+                        throw std::runtime_error("GLPK interior-point failed: GLP_EITLIM");
+                    case GLP_EINSTAB:
+                        throw std::runtime_error("GLPK interior-point failed: GLP_EINSTAB");
+                    default:
+                        throw std::runtime_error("GLPK interior-point failed");
+                }
             }
             status = glp_ipt_status(lp);
             changed = false;
@@ -346,14 +384,25 @@ bool glpk_wrapper::certify_unsat(double precision) {
 
 void glpk_wrapper::use_simplex() {
     solver_type = SIMPLEX;
+    changed = true;
 }
 
 void glpk_wrapper::use_interior_point() {
     solver_type = INTERIOR;
+    changed = true;
 }
 
 void glpk_wrapper::use_exact() {
     solver_type = EXACT;
+    changed = true;
+}
+
+bool glpk_wrapper::is_constraint_used(int index) {
+    if (solver_type ==  SIMPLEX || solver_type == EXACT) {
+        return glp_get_row_stat(lp, index + 1) == GLP_BS;
+    } else {
+        return true;
+    }
 }
 
 int glpk_wrapper::print_to_file(const char *fname) {

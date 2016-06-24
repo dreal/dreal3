@@ -18,32 +18,31 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <stack>
 #include <tuple>
 #include <unordered_set>
 #include <vector>
-#include <stack>
 #include "./config.h"
+#include "constraint/constraint.h"
+#include "icp/brancher.h"
 #include "icp/icp.h"
 #include "icp/lp_icp.h"
-#include "icp/brancher.h"
-#include "constraint/constraint.h"
+#include "util/glpk_wrapper.h"
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 #include "util/stat.h"
-#include "util/glpk_wrapper.h"
 
 using std::cerr;
 using std::cout;
 using std::endl;
 using std::get;
+using std::shared_ptr;
+using std::stack;
 using std::tuple;
 using std::unordered_set;
-using std::shared_ptr;
 using std::vector;
-using std::stack;
 
 #ifdef USE_GLPK
-
 namespace dreal {
 
 enum class lp_icp_kind { LP, ICP };
@@ -51,32 +50,61 @@ enum class lp_icp_kind { LP, ICP };
 SizeBrancher lp_sb;
 BranchHeuristic & lp_icp::defaultHeuristic = lp_sb;
 
-bool lp_icp::is_lp_sat(glpk_wrapper & lp_solver, box & solution, SMTConfig const & config) {
-  if (!lp_solver.is_sat()) {
-    if (lp_solver.certify_unsat(config.nra_precision)) {
-      DREAL_LOG_FATAL << "lp_icp: LP say unsat";
-      return false;
-    } else {
-      lp_solver.use_exact();
-      if (!lp_solver.is_sat()) {
-        DREAL_LOG_FATAL << "lp_icp: LP say unsat (using exact solver)";
-        lp_solver.use_simplex();
-        return false;
-      } else {
-        lp_solver.get_solution(solution);
-        lp_solver.use_simplex();
-        return true;
-      }
+void lp_icp::mark_basic(glpk_wrapper & lp,
+                        std::unordered_set<Enode*> es,
+                        scoped_vec<std::shared_ptr<constraint>>& constraints,
+                        std::unordered_set<std::shared_ptr<constraint>> & used_constraints) {
+    // TODO(dzufferey) something not n²
+    int idx = 0;
+    for (auto it = es.cbegin(); it != es.cend(); ++it) {
+        if (lp.is_constraint_used(idx)) {
+            bool found = false;
+            for (auto cptr : constraints) {
+                if (cptr->get_type() == constraint_type::Nonlinear) {
+                    auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
+                    auto e = ncptr->get_enode();
+                    if (*it == e) {
+                        DREAL_LOG_INFO << "lp_icp: marking " << e;
+                        used_constraints.insert(cptr);
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            assert(found);
+        }
+        idx += 1;
     }
-  } else {
-    lp_solver.get_solution(solution);
-    return true;
-  }
+}
+
+bool lp_icp::is_lp_sat(glpk_wrapper & lp_solver, box & solution, SMTConfig const & config) {
+    if (!lp_solver.is_sat()) {
+        if (lp_solver.certify_unsat(config.nra_precision)) {
+            DREAL_LOG_INFO << "lp_icp: LP say unsat";
+            return false;
+        } else {
+            lp_solver.use_exact();
+            if (!lp_solver.is_sat()) {
+                DREAL_LOG_INFO << "lp_icp: LP say unsat (using exact solver)";
+                lp_solver.use_simplex();
+                return false;
+            } else {
+                lp_solver.get_solution(solution);
+                lp_solver.use_simplex();
+                return true;
+            }
+        }
+    } else {
+        lp_solver.get_solution(solution);
+        return true;
+    }
 }
 
 void lp_icp::solve(contractor & ctc, contractor_status & cs,
-                  scoped_vec<shared_ptr<constraint>>& constraints,
-                  BranchHeuristic& brancher) {
+                   scoped_vec<shared_ptr<constraint>>& constraints,
+                   BranchHeuristic& brancher) {
+    thread_local static unordered_set<shared_ptr<constraint>> used_constraints;
+    used_constraints.clear();
     thread_local static vector<box> solns;
     /* The stack now contains both the LP and ICP domain.
      * For the ICP, the stack is the usual DFS worklist.
@@ -114,8 +142,11 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
             }
         }
     }
+    if (es.empty()) {
+        DREAL_LOG_INFO << "lp_icp: no linear constraints using the naive_icp";
+        return naive_icp::solve(ctc, cs, constraints, brancher);
+    }
     glpk_wrapper lp_solver(cs.m_box, es);
-
 
     while (!box_stack.empty()) {
         DREAL_LOG_FATAL << "lp_icp::solve - loop"
@@ -133,6 +164,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
             if (!is_lp_sat(lp_solver, lp_point, cs.m_config)) {
                 assert(cs.m_box.is_subset(lp_solver.get_domain()));
                 cs.m_box.set_empty();
+                mark_basic(lp_solver, es, constraints, used_constraints);
             } else {
                 if (lp_point.is_subset(cs.m_box)) {
                     if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
@@ -150,9 +182,12 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                         contractor_status cs1(get<1>(splits), cs.m_config);
                         ctc.prune(cs1);
                         if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
+                        cs.m_used_constraints.insert(cs1.m_used_constraints.begin(), cs1.m_used_constraints.end());
+
                         contractor_status cs2(get<2>(splits), cs.m_config);
                         ctc.prune(cs2);
                         if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
+                        cs.m_used_constraints.insert(cs2.m_used_constraints.begin(), cs2.m_used_constraints.end());
 
                         // push the non-empty boxes on the stack
                         if (!cs1.m_box.is_empty()) {
@@ -197,7 +232,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
             break;  // end of case LP:
         }  // end of switch
         // make b empty in case the stack is empty
-        b.set_empty();
+        cs.m_box.set_empty();
     }  // end of while
 
     if (cs.m_config.nra_multiple_soln > 1 && solns.size() > 0) {
@@ -208,6 +243,5 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
         return;
     }
 }
-
 }  // namespace dreal
-#endif
+#endif  // #ifdef USE_GLPK
