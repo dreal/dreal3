@@ -489,7 +489,7 @@ bool nra_solver::check(bool complete) {
             }
             return result;
         } else if (config.nra_lp) {
-            m_box = lp_icp::solve(m_box, m_ctc, m_stack, config);
+            lp_icp::solve(m_ctc, m_cs, m_stack);
 #endif
         } else {
             naive_icp::solve(m_ctc, m_cs, m_stack);

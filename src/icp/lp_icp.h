@@ -1,5 +1,6 @@
 /*********************************************************************
 Author: Damien Zufferey <zufferey@csail.mit.edu>
+        Soonho Kong <soonhok@cs.cmu.edu>
 
 dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
@@ -35,10 +36,9 @@ private:
     static bool is_lp_sat(glpk_wrapper & lp, box & solution, SMTConfig const & config);
 public:
     // TODO(damien): the contractor contains both the linear and nonlinear constraints but it only needs the nonlinear ...
-    static box solve(box b, contractor & ctc,
-            scoped_vec<std::shared_ptr<constraint>>& constraints,
-            SMTConfig & config,
-            BranchHeuristic & heuristic = defaultHeuristic);
+    static void solve(contractor & ctc, contractor_status & cs,
+                      scoped_vec<std::shared_ptr<constraint>>& constraints,
+                      BranchHeuristic & heuristic = defaultHeuristic);
 };
 
 }  // namespace dreal
