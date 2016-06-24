@@ -39,80 +39,80 @@ class solver;
 class expr {
 public:
     expr() {}
-    expr(solver &, char const *);  // so far it only works for declaring variables
-    expr(solver *);
-    expr(solver * const, cexpr const);
-    expr(solver * const, expr *);
-    void    set_ub(double const);
-    void    set_lb(double const);
-    void    set_bounds(double const, double const);
-    void    setContent(solver *, cexpr);
+    expr(solver & s, char const *);  // so far it only works for declaring variables
+    explicit expr(solver * s);
+    expr(solver * const s, cexpr const);
+    expr(solver * const s, expr * e);
+    void set_ub(double const ub);
+    void set_lb(double const lb);
+    void set_bounds(double const lb, double const ub);
+    void setContent(solver * s, cexpr c);
     std::string get_name();
     env const & get_ctx() const    { return cctx; }
     cexpr const &   get_cexpr() const  { return ep; }
-    solver *    get_solver() const { return m_solver; }
+    solver * get_solver() const { return m_solver; }
 protected:
-    solver *    m_solver;
+    solver * m_solver;
     env cctx;
-    cexpr   ep;
+    cexpr ep;
 };
 
 std::ostream & operator<<(std::ostream &, expr const &);
-expr operator==(expr const &, expr const &);
+expr operator==(expr const & e1, expr const & e2);
 expr operator==(expr const &, double const);
 expr operator==(double const, expr const &);
-expr operator>(expr const &, expr const &);
+expr operator>(expr const & e1, expr const & e2);
 expr operator>(expr const &, double const);
 expr operator>(double const, expr const &);
-expr operator<(expr const &, expr const &);
+expr operator<(expr const & e1, expr const & e2);
 expr operator<(expr const &, double const);
 expr operator<(double const, expr const &);
-expr operator<=(expr const &, expr const &);
+expr operator<=(expr const & e1, expr const & e2);
 expr operator<=(expr const &, double const);
 expr operator<=(double const, expr const &);
-expr operator>=(expr const &, expr const &);
+expr operator>=(expr const & e1, expr const & e2);
 expr operator>=(expr const &, double const);
 expr operator>=(double const, expr const &);
-expr operator+(expr const &, expr const &);
+expr operator+(expr const & e1, expr const & e2);
 expr operator+(expr const &, double const);
 expr operator+(double const, expr const &);
-expr operator-(expr const &, expr const &);
+expr operator-(expr const & e1, expr const & e2);
 expr operator-(double const, expr const &);
 expr operator-(expr const &, double const);
-expr operator-(expr const &);
-expr operator*(expr const &, expr const &);
+expr operator-(expr const & e);
+expr operator*(expr const & e1, expr const & e2);
 expr operator*(expr const &, double const);
 expr operator*(double const, expr const &);
-expr operator/(expr const &, expr const &);
+expr operator/(expr const & e1, expr const & e2);
 expr operator/(expr const &, double const);
 expr operator/(double const, expr const &);
-expr abs(expr const &);
-expr pow(expr const &, expr const &);
+expr abs(expr const & e);
+expr pow(expr const & e1, expr const & e2);
 expr pow(expr const &, double const);
 expr pow(double const, expr const &);
 expr operator^(expr const &, double const);
 expr operator^(double const, expr const &);
-expr sqrt(expr const &);
-expr exp(expr const &);
-expr log(expr const &);
-expr sin(expr const &);
-expr cos(expr const &);
-expr tan(expr const &);
-expr asin(expr const &);
-expr acos(expr const &);
-expr atan(expr const &);
-expr sinh(expr const &);
-expr cosh(expr const &);
-expr tanh(expr const &);
-expr operator&&(expr const &, expr const &);
-expr operator||(expr const &, expr const &);
-expr operator!(expr const &);
-expr implies(expr const &, expr const &);
+expr sqrt(expr const & e);
+expr exp(expr const & e);
+expr log(expr const & e);
+expr sin(expr const & e);
+expr cos(expr const & e);
+expr tan(expr const & e);
+expr asin(expr const & e);
+expr acos(expr const & e);
+expr atan(expr const & e);
+expr sinh(expr const & e);
+expr cosh(expr const & e);
+expr tanh(expr const & e);
+expr operator&&(expr const & e1, expr const & e2);
+expr operator||(expr const & e1, expr const & e2);
+expr operator!(expr const & e);
+expr implies(expr const & e1, expr const & e2);
 expr ite(expr const &, expr const &, expr const &);
-expr der(expr const &, expr const &);
-expr upoly(expr const &, char const *, unsigned); //generates a univariate polynomial in the first argument; second argument sets the name of coefficients to be generated (will be indexed)
-expr substitute(expr const &, std::unordered_map<expr*, expr*> const &);
-expr substitute(expr const &, std::vector<expr*> const &, std::vector<expr*> const &);
+expr der(expr const & e1, expr const & e2);
+expr upoly(expr const & x, char const * a, unsigned const d);  // generates a univariate polynomial in the first argument; second argument sets the name of coefficients to be generated (will be indexed)
+expr substitute(expr const & e, std::unordered_map<expr*, expr*> const & m);
+expr substitute(expr const & e, std::vector<expr*> const & pre, std::vector<expr*> const & post);
 
 class poly : public expr {
 public:
@@ -128,9 +128,9 @@ public:
 private:
     unsigned    degree;
     expr *  m_e;
-    std::vector<expr*> & m_x;  //variables
-    std::vector<expr*>   m_c;  //coefficients
-    std::vector<expr*>   m_m;  //monomials, not used as of Jun 23, 2016
+    std::vector<expr*> & m_x;  // variables
+    std::vector<expr*>   m_c;  // coefficients
+    std::vector<expr*>   m_m;  // monomials, not used as of Jun 23, 2016
 };
 
 class solver {
@@ -144,7 +144,7 @@ public:
     expr    num(double const);
     expr    num(int const);
     expr    num(char const * const);
-    expr    get_value(expr const &);
+    expr    get_value(expr const & e);
     expr *  new_var(char const *, double const, double const);
     expr *  new_ivar(char const *, int const, int const);
     expr *  new_var(char const *, vtype const);
@@ -157,23 +157,23 @@ public:
     void    reset();
     void    push();
     void    pop();
-    void    add(expr const &);
+    void    add(expr const & e);
     void    set_domain_lb(expr &, double const);
     void    set_domain_ub(expr &, double const);
     void    print_model(std::ostream & out = std::cerr);
     void    print_problem(std::ostream & out = std::cerr);
     void    print_infix(std::ostream & out = std::cerr);
     double  get_precision() const;
-    double  get_domain_lb(expr const &) const;
-    double  get_domain_ub(expr const &) const;
-    double  get_lb(expr const &) const;
-    double  get_ub(expr const &) const;
-    double  get_value(expr const &) const;
+    double  get_domain_lb(expr const & e) const;
+    double  get_domain_ub(expr const & e) const;
+    double  get_lb(expr const & e) const;
+    double  get_ub(expr const & e) const;
+    double  get_value(expr const & e) const;
     bool    check();
     bool    solve();
-    Bool  check_assump(expr const &);
+    Bool  check_assump(expr const & e);
     Bool  check_lim_assump(expr const & , unsigned const);
-    Bool  get_bool_value(expr const &);
+    Bool  get_bool_value(expr const & e);
     unsigned get_conflicts();
     unsigned get_decisions();
     env     get_ctx() { return cctx; }
