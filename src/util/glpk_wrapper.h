@@ -83,6 +83,8 @@ public:
     void use_interior_point();
     void use_exact();
 
+    bool is_constraint_used(int index);
+
     int print_to_file(const char *fname);
 
     static bool is_linear(Enode * const e);

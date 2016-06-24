@@ -51,33 +51,69 @@ namespace dreal {
 SizeBrancher lp_sb;
 BranchHeuristic & lp_icp::defaultHeuristic = lp_sb;
 
-bool lp_icp::is_lp_sat(glpk_wrapper & lp_solver, box & solution, SMTConfig const & config) {
-  if (!lp_solver.is_sat()) {
-    if (lp_solver.certify_unsat(config.nra_precision)) {
-      DREAL_LOG_INFO << "lp_icp: LP say unsat";
-      return false;
-    } else {
-      lp_solver.use_exact();
-      if (!lp_solver.is_sat()) {
-        DREAL_LOG_INFO << "lp_icp: LP say unsat (using exact solver)";
-        lp_solver.use_simplex();
-        return false;
-      } else {
-        lp_solver.get_solution(solution);
-        lp_solver.use_simplex();
-        return true;
-      }
+void lp_icp::mark_basic(glpk_wrapper & lp,
+                        std::unordered_set<Enode*> es,
+                        scoped_vec<std::shared_ptr<constraint>>& constraints,
+                        std::unordered_set<std::shared_ptr<constraint>> & used_constraints) {
+    // TODO(dzufferey) something not n²
+    int idx = 0;
+    for (auto it = es.cbegin(); it != es.cend(); ++it) {
+        if (lp.is_constraint_used(idx)) {
+            bool found = false;
+            for (auto cptr : constraints) {
+                if (cptr->get_type() == constraint_type::Nonlinear) {
+                    auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
+                    auto e = ncptr->get_enode();
+                    if (*it == e) {
+                        DREAL_LOG_INFO << "lp_icp: marking " << e;
+                        used_constraints.insert(cptr);
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            assert(found);
+        }
+        idx += 1;
     }
-  } else {
-    lp_solver.get_solution(solution);
-    return true;
-  }
+}
+
+bool lp_icp::is_lp_sat(glpk_wrapper & lp_solver, box & solution, SMTConfig const & config) {
+    if (!lp_solver.is_sat()) {
+        if (lp_solver.certify_unsat(config.nra_precision)) {
+            DREAL_LOG_INFO << "lp_icp: LP say unsat";
+            return false;
+        } else {
+            lp_solver.use_exact();
+            if (!lp_solver.is_sat()) {
+                DREAL_LOG_INFO << "lp_icp: LP say unsat (using exact solver)";
+                lp_solver.use_simplex();
+                return false;
+            } else {
+                lp_solver.get_solution(solution);
+                lp_solver.use_simplex();
+                return true;
+            }
+        }
+    } else {
+        lp_solver.get_solution(solution);
+        return true;
+    }
+}
+
+inline void prune(box & b, contractor & ctc, SMTConfig & config, unordered_set<shared_ptr<constraint>> & used_constraints) {
+    ctc.prune(b, config);
+    auto this_used_constraints = ctc.used_constraints();
+    used_constraints.insert(this_used_constraints.begin(), this_used_constraints.end());
+    if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
 }
 
 box lp_icp::solve(box b, contractor & ctc,
         scoped_vec<shared_ptr<constraint>>& constraints,
         SMTConfig & config,
         BranchHeuristic& brancher) {
+    thread_local static unordered_set<shared_ptr<constraint>> used_constraints;
+    used_constraints.clear();
     thread_local static vector<box> solns;
     /* The stack now contains both the LP and ICP domain.
      * For the ICP, the stack is the usual DFS worklist.
@@ -96,8 +132,7 @@ box lp_icp::solve(box b, contractor & ctc,
     }
 
     // all the box on the stack must be pruned
-    ctc.prune(b, config);
-    if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
+    prune(b, ctc, config, used_constraints);
     if (!b.is_empty()) {
         box_stack.emplace(ICP, b);
     } else {
@@ -118,6 +153,10 @@ box lp_icp::solve(box b, contractor & ctc,
             }
         }
     }
+    if (es.empty()) {
+      DREAL_LOG_INFO << "lp_icp: no linear constraints using the naive_icp";
+      return naive_icp::solve(b, ctc, constraints, config, brancher);
+    }
     glpk_wrapper lp_solver(b, es);
 
 
@@ -134,6 +173,7 @@ box lp_icp::solve(box b, contractor & ctc,
         } else if (!is_lp_sat(lp_solver, lp_point, config)) {
             assert(b.is_subset(lp_solver.get_domain()));
             b.set_empty();
+            mark_basic(lp_solver, es, constraints, used_constraints);
         } else {
 
             if (lp_point.is_subset(b)) {
@@ -151,10 +191,8 @@ box lp_icp::solve(box b, contractor & ctc,
                     // ... and prune
                     box & first  = get<1>(splits);
                     box & second = get<2>(splits);
-                    ctc.prune(first, config);
-                    if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
-                    ctc.prune(second, config);
-                    if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
+                    prune(first, ctc, config, used_constraints);
+                    prune(second, ctc, config, used_constraints);
                     // push the non-empty boxes on the stack
                     if (!first.is_empty()) {
                         if (!second.is_empty()) {
@@ -200,6 +238,7 @@ box lp_icp::solve(box b, contractor & ctc,
         b.set_empty();
     }
 
+    ctc.set_used_constraints(used_constraints);
     if (config.nra_multiple_soln > 1 && solns.size() > 0) {
         return solns.back();
     } else {

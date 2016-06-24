@@ -78,21 +78,29 @@ void LAExpression::initialize( Enode * e )
     //
     else if ( t->isTimes( ) )
     {
-      assert( t->getArity( ) == 2 );
-      Enode * x = t->get1st( );
-      Enode * y = t->get2nd( );
-      assert( x->isConstant( ) || y->isConstant( ) );
-      if ( y->isConstant( ) )
+      Real new_c = c;
+      bool var_found = false;
+      Enode * var = nullptr;
+      for ( Enode * arg_list = t->getCdr( )
+          ; !arg_list->isEnil( )
+          ; arg_list = arg_list->getCdr( ) )
       {
-        Enode * tmp = y;
-        y = x;
-        x = tmp;
+        Enode * arg = arg_list->getCar( );
+        if (arg->isConstant()){
+          new_c *= arg->getValue();
+        } else {
+          assert(!var_found);
+          var_found = true;
+          var = arg;
+        }
       }
 
-      Real new_c = x->getValue( );
-      new_c = new_c * c;
-      curr_term .push_back( y );
-      curr_const.push_back( new_c );
+      if ( var_found ) {
+        curr_term .push_back( var );
+        curr_const.push_back( new_c );
+      } else {
+        polynome[ 0 ] += new_c;
+      }
     }
     //
     // Otherwise it is a variable or UF or constant
