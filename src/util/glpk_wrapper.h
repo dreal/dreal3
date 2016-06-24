@@ -42,6 +42,8 @@ private:
     glp_prob *lp;
     // whether to use simplex or interior point
     solver_type_t solver_type;
+    // has the problem been changed since it was solved
+    bool changed;
 
     unsigned get_index(Enode * e) const {
         return domain.get_index(e);

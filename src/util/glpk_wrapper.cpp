@@ -32,12 +32,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 
 glpk_wrapper::glpk_wrapper(box const & b)
-    : domain(b), lp(glp_create_prob()), solver_type(SIMPLEX) {
+    : domain(b), lp(glp_create_prob()), solver_type(SIMPLEX), changed(true) {
     init_problem();
 }
 
 glpk_wrapper::glpk_wrapper(box const & b, std::unordered_set<Enode *> const & es)
-    : domain(b), lp(glp_create_prob()), solver_type(SIMPLEX) {
+    : domain(b), lp(glp_create_prob()), solver_type(SIMPLEX), changed(true) {
     init_problem();
     add(es);
 }
@@ -49,6 +49,7 @@ glpk_wrapper::~glpk_wrapper() {
 void glpk_wrapper::set_constraint(int index, Enode * const e) {
     DREAL_LOG_INFO << "glpk_wrapper::set_constraint  " << e << " with " << e->getPolarity();
     assert(is_linear(e));
+    changed = true;
     LAExpression la(e);
     auto vars = e->get_vars();
     auto s = vars.size();
@@ -84,9 +85,12 @@ void glpk_wrapper::set_constraint(int index, Enode * const e) {
     delete[] values;
     // name the constraints (helps debugging)
     if (DREAL_LOG_INFO_IS_ON) {
-      std::ostringstream stream;
-      stream << e;
-      glp_set_row_name(lp, index, stream.str().c_str());
+        std::ostringstream stream;
+        if (e->getPolarity() == l_False) {
+            stream << "¬";
+        }
+        stream << e;
+        glp_set_row_name(lp, index, stream.str().c_str());
     }
 }
 
@@ -107,6 +111,7 @@ void glpk_wrapper::init_problem() {
 
 void glpk_wrapper::set_domain(box const & b) {
     assert(!b.is_empty());
+    changed = true;
     domain = b;
     for (unsigned int i = 0; i < b.size(); i++) {
         auto interval = b[i];
@@ -152,7 +157,7 @@ void glpk_wrapper::add(std::unordered_set<Enode *> const & es) {
 bool glpk_wrapper::is_sat() {
     if (solver_type == SIMPLEX || solver_type == EXACT) {
         int status = glp_get_status(lp);
-        if (status == GLP_UNDEF) {
+        if (status == GLP_UNDEF || changed) {
             glp_smcp parm;
             glp_init_smcp(&parm);
             parm.msg_lev = GLP_MSG_OFF;
@@ -166,12 +171,13 @@ bool glpk_wrapper::is_sat() {
                 throw std::runtime_error("GLPK simplex failed");
             }
             status = glp_get_status(lp);
+            changed = false;
         }
         return (status == GLP_OPT || status == GLP_FEAS || status == GLP_UNBND);
     } else {
         assert(solver_type == INTERIOR);
         int status = glp_ipt_status(lp);
-        if (status == GLP_UNDEF) {
+        if (status == GLP_UNDEF || changed) {
             glp_iptcp parm;
             glp_init_iptcp(&parm);
             parm.msg_lev = GLP_MSG_OFF;
@@ -180,6 +186,7 @@ bool glpk_wrapper::is_sat() {
                 throw std::runtime_error("GLPK interior-point failed");
             }
             status = glp_ipt_status(lp);
+            changed = false;
         }
         return status == GLP_OPT;
     }
@@ -377,8 +384,9 @@ bool glpk_wrapper::is_expr_linear(Enode * const t) {
 }
 
 bool glpk_wrapper::is_linear(Enode * const e) {
+    bool is_eq = e->isEq() && (!e->hasPolarity() || e->getPolarity() != l_False);
     return
-        (e->isEq() || e->isLeq()) &&
+        (is_eq || e->isLeq()) &&
         is_expr_linear(e->get1st()) &&
         is_expr_linear(e->get2nd());
 }
