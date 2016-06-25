@@ -17,14 +17,15 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <cstdio>
+#include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <cstdio>
 #include <exception>
-#include <math.h>
 #include "./config.h"
+#include "ibex/ibex.h"
 #include "opensmt/common/LA.h"
 #include "util/glpk_wrapper.h"
-#include "ibex/ibex.h"
 #include "util/logging.h"
 
 #ifdef USE_GLPK
@@ -276,16 +277,16 @@ double glpk_wrapper::get_row_value(int i) {
     double cstr_value = 0;
     if (solver_type ==  SIMPLEX || solver_type == EXACT) {
         int cstr_status = glp_get_row_stat(lp, i);
-        if (cstr_status == GLP_BS) { // basic variable;
-            cstr_status = glp_get_row_prim(lp, i); // or glp_get_row_dual
-        } else if (cstr_status == GLP_NL || cstr_status == GLP_NS) { // non-basic variable on its lower bound, non-basic fixed variable.
+        if (cstr_status == GLP_BS) {  // basic variable;
+            cstr_status = glp_get_row_prim(lp, i);  // or glp_get_row_dual
+        } else if (cstr_status == GLP_NL || cstr_status == GLP_NS) {  // non-basic variable on its lower bound, non-basic fixed variable.
             cstr_value = glp_get_row_lb(lp, i);
-        } else if (cstr_status == GLP_NU) { //  non-basic variable on its upper bound
+        } else if (cstr_status == GLP_NU) {  //  non-basic variable on its upper bound
             cstr_value = glp_get_row_ub(lp, i);
         }
-        // TODO(dzufferey) should we do something for GLP_NF — non-basic free (unbounded) variable;
+        // TODO(dzufferey): should we do something for GLP_NF — non-basic free (unbounded) variable;
     } else {
-        cstr_value = glp_ipt_row_prim(lp, i); // or glp_ipt_row_dual
+        cstr_value = glp_ipt_row_prim(lp, i);  // or glp_ipt_row_dual
     }
     return cstr_value;
 }
@@ -318,7 +319,6 @@ bool glpk_wrapper::check_unsat_error_kkt(double precision) {
 }
 
 void glpk_wrapper::get_error_bounds(double * errors) {
-
     int n = domain.size();
     int * nbr_non_zero = new int[n];
     for (int i = 0; i < n; i++) {
@@ -354,7 +354,7 @@ void glpk_wrapper::get_error_bounds(double * errors) {
         // get the coeffs for that constraint
         row_size = glp_get_mat_row(lp, i, row_idx, row_coeff);
         for (int j = 1; j <= row_size; j++) {
-            int v = row_idx[j] - 1; // GLPK indexing
+            int v = row_idx[j] - 1;  // GLPK indexing
             nbr_non_zero[v] += 1;
             int c = row_coeff[j];
             // relative error

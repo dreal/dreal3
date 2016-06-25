@@ -115,7 +115,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
     // a "box" for the point solution of the lp_solver
     thread_local static box lp_point(cs.m_box);
     solns.clear();
-    stack<tuple<lp_icp_kind, box>>().swap(box_stack); // clear up box_stack
+    stack<tuple<lp_icp_kind, box>>().swap(box_stack);  // clear up box_stack
 
     // all the box on the stack must be pruned
     ctc.prune(cs);
