@@ -167,7 +167,7 @@ void simulation_worker(box & ret, vector<Enode *> const & lits, icp_shared_statu
     return;
 }
 
-void simulation_icp::solve(contractor & ctc, contractor_status & cs, vector<Enode *> const & lits, Egraph & e) {
+void simulation_icp::solve(contractor & ctc, contractor_status & cs, vector<Enode *> const & lits, Egraph &) {
     box ret(cs.m_box);
     icp_shared_status status(cs.m_box);
     thread icp_thread(naive_icp_worker, ref(cs), ref(ret), ref(ctc), ref(status));
