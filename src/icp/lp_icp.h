@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <unordered_set>
+#include "./config.h"
 #include "icp/icp.h"
 #include "icp/brancher.h"
 #include "util/box.h"
@@ -29,8 +30,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/glpk_wrapper.h"
 
+#ifdef USE_GLPK
 namespace dreal {
-
 class lp_icp {
 private:
     static BranchHeuristic & defaultHeuristic;
@@ -45,5 +46,5 @@ public:
                       scoped_vec<std::shared_ptr<constraint>>& constraints,
                       BranchHeuristic & heuristic = defaultHeuristic);
 };
-
 }  // namespace dreal
+#endif  // #ifdef USE_GLPK
