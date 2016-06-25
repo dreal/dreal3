@@ -103,8 +103,6 @@ bool lp_icp::is_lp_sat(glpk_wrapper & lp_solver, box & solution, SMTConfig const
 void lp_icp::solve(contractor & ctc, contractor_status & cs,
                    scoped_vec<shared_ptr<constraint>>& constraints,
                    BranchHeuristic& brancher) {
-    thread_local static unordered_set<shared_ptr<constraint>> used_constraints;
-    used_constraints.clear();
     thread_local static vector<box> solns;
     /* The stack now contains both the LP and ICP domain.
      * For the ICP, the stack is the usual DFS worklist.
@@ -135,10 +133,10 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
             auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
             auto e = ncptr->get_enode();
             if (glpk_wrapper::is_linear(e)) {
-                DREAL_LOG_FATAL << "lp_icp:     linear: " << e;
+                DREAL_LOG_INFO << "lp_icp:     linear: " << e;
                 es.insert(e);
             } else {
-                DREAL_LOG_FATAL << "lp_icp: not linear: " << e;
+                DREAL_LOG_INFO << "lp_icp: not linear: " << e;
             }
         }
     }
@@ -149,11 +147,11 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
     glpk_wrapper lp_solver(cs.m_box, es);
 
     while (!box_stack.empty()) {
-        DREAL_LOG_FATAL << "lp_icp::solve - loop"
-                        << "\t" << "box stack Size = " << box_stack.size();
-        tuple<lp_icp_kind, box> branch = box_stack.top();
+        DREAL_LOG_INFO << "lp_icp::solve - loop"
+                       << "\t" << "box stack Size = " << box_stack.size();
+        tuple<lp_icp_kind, box> const branch = box_stack.top();
         box_stack.pop();
-        lp_icp_kind kind = get<0>(branch);
+        lp_icp_kind const kind = get<0>(branch);
         cs.m_box = get<1>(branch);
 
         switch (kind) {
@@ -164,7 +162,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
             if (!is_lp_sat(lp_solver, lp_point, cs.m_config)) {
                 assert(cs.m_box.is_subset(lp_solver.get_domain()));
                 cs.m_box.set_empty();
-                mark_basic(lp_solver, es, constraints, used_constraints);
+                mark_basic(lp_solver, es, constraints, cs.m_used_constraints);
             } else {
                 if (lp_point.is_subset(cs.m_box)) {
                     if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
@@ -172,7 +170,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                     if (sorted_dims.size() > 0) {
                         // branch ...
                         int const i = sorted_dims[0];
-                        tuple<int, box, box> const splits = cs.m_box.bisect_at(sorted_dims[0]);
+                        tuple<int, box, box> const splits = cs.m_box.bisect_at(i);
                         if (cs.m_config.nra_proof) {
                             cs.m_config.nra_proof_out << "[branched on "
                                                       << cs.m_box.get_name(i)
@@ -231,6 +229,9 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
             }
             break;  // end of case LP:
         }  // end of switch
+        if (cs.m_config.nra_found_soln >= cs.m_config.nra_multiple_soln) {
+            break;
+        }
         // make b empty in case the stack is empty
         cs.m_box.set_empty();
     }  // end of while
