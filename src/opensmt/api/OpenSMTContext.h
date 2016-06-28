@@ -307,6 +307,7 @@ public:
       config.nra_shrink_for_dop = b;
   }
   inline void       setStat(bool b) { config.nra_use_stat = b; }
+  std::ostream & dumpFormulas(std::ostream & out) const;
 
 private:
 

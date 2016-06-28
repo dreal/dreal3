@@ -52,6 +52,7 @@ public:
     bool  check(bool c);
     bool  belongsToT(Enode * e);
     void  computeModel();
+    std::ostream & dumpFormulas(std::ostream & out) const;
 
 private:
     bool m_need_init = true;

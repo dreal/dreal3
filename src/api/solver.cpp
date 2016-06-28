@@ -343,5 +343,8 @@ bool solver::solve() {
     return res;
 }
 
-
+ostream & solver::dump_formulas(ostream & out) const {
+    OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
+    return context->dumpFormulas(out);
+}
 }  // namespace dreal

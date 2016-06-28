@@ -169,6 +169,7 @@ public:
 
   virtual bool belongsToT   ( Enode * ) = 0; // Atom belongs to this theory
   virtual void computeModel ( )         = 0; // Compute model for variables
+  virtual std::ostream & dumpFormulas(std::ostream & out) const = 0 ; // Dump formulas
 
 protected:
 

@@ -180,6 +180,7 @@ public:
     std::vector<expr const *> const & get_vtab() { return vtab; }
     std::vector<double> const & get_stab() { return stab; }
     std::vector<expr const *> const & get_etab() { return etab; }
+    std::ostream & dump_formulas(std::ostream & out) const;
 
 private:
     env cctx;

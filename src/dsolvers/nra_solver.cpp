@@ -64,6 +64,7 @@ using std::make_shared;
 using std::map;
 using std::numeric_limits;
 using std::ofstream;
+using std::ostream;
 using std::ostringstream;
 using std::pair;
 using std::reference_wrapper;
@@ -558,6 +559,14 @@ void nra_solver::computeModel() {
     if (config.nra_check_sat && config.nra_multiple_soln == 1) {
         eval_sat_result(m_cs.m_box);
     }
+}
+
+// dump all asserted formulas
+ostream & nra_solver::dumpFormulas(ostream & out) const {
+    for (auto const ctr_ptr : m_stack) {
+        out << *ctr_ptr << endl;
+    }
+    return out;
 }
 
 }  // namespace dreal
