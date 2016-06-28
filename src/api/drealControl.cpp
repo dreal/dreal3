@@ -140,11 +140,11 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
             vector<expr*> full_post;
             full_pre.reserve(x.size()+p.size()+2);
             full_post.reserve(sol.size()+p.size()+2);
-            std::default_random_engine re;
             while (sample<50) {
                 //full_pre holds the list of variables
                 full_pre.insert(full_pre.end(),x.begin(),x.end());
                 full_pre.insert(full_pre.end(),p.begin(),p.end());
+            std::default_random_engine re(std::random_device {}());
                 full_pre.push_back(&v);
                 full_pre.push_back(&lv);
                 //full_post holds the list of assignments
