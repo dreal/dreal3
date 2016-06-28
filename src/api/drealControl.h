@@ -21,7 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <iostream>
 #include <vector>
-#include "api/dreal.hh"
+#include "dreal.hh"
 
 namespace dreal {
 void checkBarrier(std::vector<expr>& x, std::vector<expr>& f, expr& B, double const eps);

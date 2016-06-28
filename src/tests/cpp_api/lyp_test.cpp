@@ -67,12 +67,11 @@ void test3() {
     expr f2 = -x2;
     vector<expr*> f = {&f1, &f2};
     // poly V = poly(x, "p", 2);
-    expr p1 = s.var("p1", 0, 100);
-    expr p2 = s.var("p2", 0, 100);
-    expr p3 = s.var("p3", -100, 100);
+    expr p1 = s.var("p1", -100, 100);
+    expr p2 = s.var("p2", -100, 100);
     // V.setCofBounds(-5, 5);
-    vector<expr*> p = {&p1, &p2, &p3};
-    expr V = p1*pow(x1, 2) + p2*pow(x2, 2) + p3*x1*x2;
+    vector<expr*> p = {&p1, &p2};
+    expr V = p1*pow(x1, 2) + p2*pow(x2, 2);
     synthesizeLyapunov(x, p, f, V, 0.005);
 }
 

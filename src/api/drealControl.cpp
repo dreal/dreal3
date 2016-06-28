@@ -110,6 +110,8 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
         ball = ball + ((*x[i]) ^ 2);
         LV = LV + (*f[i]) * der(V, (*x[i]));
     }
+    cerr<<"Candidate V: "<<V<<endl;
+    cerr<<"Lie Derivative of V: "<<LV<<endl;
     // scondition will be part of the search condition
     expr scondition = (V >= 0) && (LV <= 0);
     // condition is an auxilary formula
@@ -119,16 +121,16 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
     // prepare a push point. will first add the formula for searching, then pop, then add formula for verifying
     s->push();
     s->add(search_condition);
-    // start with the trivial solution
-    for (auto param : p) {
-        s->add(*param == zero);
+    // start with the trivial point
+    for (auto state : x) {
+        s->add(*state == zero);
     }
     // cerr << "Initial Search Condition: " << search_condition << endl;
     unsigned round = 0;
     expr tmp;
     // the check() solves the search problem and suggest candidate values for parameters
-    while (s->check()) {
-        cerr << "=== CHECKED FORMULA ===" << endl;
+    while (s->check() && round < 3) {
+        cerr << "=== Search Formula ===" << endl;
         s->dump_formulas(cerr);
         // cout << "Trying these parameters:" << endl;
         // cerr << "Round " << round << endl;
@@ -144,12 +146,13 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
         s->push();
         s->add(verify_condition);
         s->add(v == V && lv == LV);
-        cout << "Verifying: " << verify_condition << endl;
         if (!s->check()) {
             cout << "Lyapunov function synthesized: " << V << endl;
             // todo: print the L function and system with solved parameters.
             return;
         } else {
+            cerr << "=== Falsification Formula ===" << endl;
+            s->dump_formulas(cerr);
             cout << "Counterexample found:" << endl;
             s->print_model();
             // sol will store the counterexample
@@ -163,8 +166,8 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
             vector<expr*> full_post;
             full_pre.reserve(x.size()+p.size()+2);
             full_post.reserve(sol.size()+p.size()+2);
-            std::default_random_engine re(std::random_device {}());
-            while (sample < 50) {
+//            std::default_random_engine re(std::random_device {}());
+//            while (sample < 50) {
                 // full_pre holds the list of variables
                 full_pre.insert(full_pre.end(), x.begin(), x.end());
                 full_pre.insert(full_pre.end(), p.begin(), p.end());
@@ -180,11 +183,11 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
                 search_condition = search_condition && substitute(scondition, full_pre, full_post);
                 // cout << "loop at: " << sample << " with search condition: " << search_condition << endl;
                 // clean up
-                sol.clear();
-                full_pre.clear();
-                full_post.clear();
+//                sol.clear();
+//                full_pre.clear();
+//                full_post.clear();
                 // add a new sample point on x
-                for (auto state : x) {
+/*                for (auto state : x) {
                     // cout << "lower: " << s->get_domain_lb(*state) << " ";
                     // cout << "upper: " << s->get_domain_ub(*state) << endl;
                     std::uniform_real_distribution<double> unif(s->get_domain_lb(*state), s->get_domain_ub(*state));
@@ -194,13 +197,15 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
                 }
                 sample++;
             }
-            // exclude parameters we have tried
-            // tmp = zero;
-            // for (auto param : p) {
-            //  tmp = tmp + pow((*param - (s->get_lb(*param)+s->get_ub(*param))/2),2);
-            // }
-            // search_condition = search_condition && (tmp > 0.0001);
-            // delete the verification formula and add the search formula
+*/
+            // optional: exclude parameters we have tried
+/*              tmp = zero;
+                for (auto param : p) {
+                    tmp = tmp + pow((*param - (s->get_lb(*param)+s->get_ub(*param))/2),2);
+                }
+                search_condition = search_condition && (tmp > 0.0001);
+                delete the verification formula and add the search formula
+*/
             s->pop();
             s->push();
             s->add(search_condition);
