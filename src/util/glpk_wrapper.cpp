@@ -164,8 +164,8 @@ bool glpk_wrapper::is_sat() {
             parm.msg_lev = GLP_MSG_OFF;
             // always try first the normal simple (get close to an optimal solution in double precision)
             int solved = glp_simplex(lp, &parm);
-            // TODO(dzufferey) should we start if the normal simplex failed ?
-            if (solver_type == EXACT) {
+            // TODO(dzufferey) should we always fall back on exact when the normal simplex failed ?
+            if (solver_type == EXACT || solved != 0) {
                 solved = glp_exact(lp, &parm);
             }
             if (solved != 0) {
@@ -315,7 +315,7 @@ bool glpk_wrapper::check_unsat_error_kkt(double precision) {
     // check primal bound constraints
     glp_check_kkt(lp, sol, GLP_KKT_PB, &ae_max_2, &ae_ind_2, &re_max_2, &re_ind_2);
 
-    return ae_max_1 < precision && ae_max_1 < ae_max_2 - precision;
+    return ae_max_1 < precision && ae_max_1 < ae_max_2;
 }
 
 void glpk_wrapper::get_error_bounds(double * errors) {
@@ -410,7 +410,7 @@ int glpk_wrapper::print_to_file(const char *fname) {
 }
 
 bool glpk_wrapper::is_expr_linear(Enode * const t) {
-    if ( t->isPlus() ) {
+    if ( t->isPlus() || t->isMinus() ) {
         for (Enode * arg_list = t->getCdr(); !arg_list->isEnil(); arg_list = arg_list->getCdr()) {
             if (!is_expr_linear(arg_list->getCar())) {
                 return false;
@@ -427,6 +427,8 @@ bool glpk_wrapper::is_expr_linear(Enode * const t) {
         } else {
             return false;
         }
+    } else if ( t->isUminus() ) {
+        return is_expr_linear(t->get1st());
     } else {
         return t->isVar() || t->isConstant();
     }
@@ -438,6 +440,38 @@ bool glpk_wrapper::is_linear(Enode * const e) {
         (is_eq || e->isLeq()) &&
         is_expr_linear(e->get1st()) &&
         is_expr_linear(e->get2nd());
+}
+
+bool only_one_var(Enode * const t, Enode const * * seen) {
+    if ( t->isConstant() ) {
+        return true;
+    } else if ( t->isVar() ) {
+        if (*seen == nullptr) {
+            *seen = t;
+            return true;
+        } else {
+            return t == *seen;
+        }
+    } else if ( t->isPlus() || t->isTimes() || t->isMinus() ) {
+        for (Enode * arg_list = t->getCdr(); !arg_list->isEnil(); arg_list = arg_list->getCdr()) {
+            if (!only_one_var(arg_list->getCar(), seen)) {
+                return false;
+            }
+        }
+        return true;
+    } else if ( t->isUminus() ) {
+        return only_one_var(t->get1st(), seen);
+    } else if ( t->isEq() || t->isLeq() || t->isLt() ) {
+        return only_one_var(t->get1st(), seen) && only_one_var(t->get2nd(), seen);
+    } else {
+        return false;
+    }
+}
+
+
+bool glpk_wrapper::is_simple_bound(Enode * const e) {
+    Enode const * seen = nullptr;
+    return is_linear(e) && only_one_var(e, &seen);
 }
 
 }  // namespace dreal

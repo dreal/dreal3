@@ -89,6 +89,7 @@ public:
 
     static bool is_linear(Enode * const e);
     static bool is_expr_linear(Enode * const e);
+    static bool is_simple_bound(Enode * const e);
 };
 
 }  // namespace dreal

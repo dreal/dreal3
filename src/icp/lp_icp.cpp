@@ -133,8 +133,12 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
             auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
             auto e = ncptr->get_enode();
             if (glpk_wrapper::is_linear(e)) {
-                DREAL_LOG_INFO << "lp_icp:     linear: " << e;
-                es.insert(e);
+                if (glpk_wrapper::is_simple_bound(e)) {
+                    DREAL_LOG_INFO << "lp_icp:      bound: " << e;
+                } else {
+                    DREAL_LOG_INFO << "lp_icp:     linear: " << e;
+                    es.insert(e);
+                }
             } else {
                 DREAL_LOG_INFO << "lp_icp: not linear: " << e;
             }
@@ -221,10 +225,32 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                 } else {
                     // the point solution of the LP is not is the current box.
                     // set the LP domain to the current box.
-                    DREAL_LOG_DEBUG << "lp_icp::solve - asking for a new point solution";
-                    box_stack.emplace(lp_icp_kind::LP, lp_solver.get_domain());
-                    lp_solver.set_domain(cs.m_box);
-                    box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
+                    if (lp_solver.get_domain().is_subset(cs.m_box)) {
+                        DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
+                        for (unsigned int i = 0; i < lp_point.size(); i++) {
+                            double p = lp_point[i].lb();
+                            if (p < cs.m_box[i].lb()) {
+                                double delta = cs.m_box[i].lb() - p;
+                                if (delta > cs.m_config.nra_precision) {
+                                    DREAL_LOG_WARNING << "lp_icp::solve - tweaking GLPK tolerance by more than the precision.";
+                                }
+                                lp_point[i] = cs.m_box[i].lb();
+                            } else if (p > cs.m_box[i].ub()) {
+                                double delta = p - cs.m_box[i].ub();
+                                if (delta > cs.m_config.nra_precision) {
+                                    DREAL_LOG_WARNING << "lp_icp::solve - tweaking GLPK tolerance by more than the precision.";
+                                }
+                                lp_point[i] = cs.m_box[i].ub();
+                            }
+                        }
+                        assert(lp_point.is_subset(cs.m_box));
+                    } else {
+                        //
+                        DREAL_LOG_DEBUG << "lp_icp::solve - asking for a new point solution";
+                        box_stack.emplace(lp_icp_kind::LP, lp_solver.get_domain());
+                        lp_solver.set_domain(cs.m_box);
+                        box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
+                    }
                 }
             }
             break;  // end of case LP:
