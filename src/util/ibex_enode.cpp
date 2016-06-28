@@ -96,7 +96,11 @@ ExprNode const * translate_enode_to_exprnode(map<string, Variable const> & var_m
             ret = translate_enode_to_exprnode(var_map, tmp->get1st(), subst);
             tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
             while (!tmp->isEnil()) {
-                ret = &(*ret + *translate_enode_to_exprnode(var_map, tmp->getCar(), subst));
+                if (!ret->is_zero()) {
+                    ret = translate_enode_to_exprnode(var_map, tmp->getCar(), subst);
+                } else {
+                    ret = &(*ret + *translate_enode_to_exprnode(var_map, tmp->getCar(), subst));
+                }
                 tmp = tmp->getCdr();
             }
             return ret;
