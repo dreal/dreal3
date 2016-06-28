@@ -513,7 +513,11 @@ void contractor_generic_forall::handle_disjunction(contractor_status & cs, vecto
             }
         }
     }
-    cs.m_box = hull(boxes);
+    if (boxes.size() > 0) {
+        cs.m_box = hull(boxes);
+    } else {
+        cs.m_box.set_empty();
+    }
     return;
 }
 
