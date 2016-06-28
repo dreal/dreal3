@@ -128,6 +128,8 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
     expr tmp;
     // the check() solves the search problem and suggest candidate values for parameters
     while (s->check()) {
+        cerr << "=== CHECKED FORMULA ===" << endl;
+        s->dump_formulas(cerr);
         // cout << "Trying these parameters:" << endl;
         // cerr << "Round " << round << endl;
         // s->print_model();
