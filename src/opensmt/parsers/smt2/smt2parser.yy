@@ -230,8 +230,12 @@ command: '(' TK_SETLOGIC symbol ')'
            free( $3 );
            delete $5;
          }
+       | '(' TK_PUSH ')'
+         { parser_ctx->addPush( 1 ); }
        | '(' TK_PUSH numeral ')'
          { parser_ctx->addPush( atoi( $3 ) ); free( $3 ); }
+       | '(' TK_POP ')'
+         { parser_ctx->addPop( 1 ); }
        | '(' TK_POP numeral ')'
          { parser_ctx->addPop( atoi( $3 ) ); free( $3 );}
        | '(' TK_ASSERT term ')'
