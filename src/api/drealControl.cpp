@@ -149,7 +149,7 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
     unsigned round = 0;
     expr tmp;
     // the check() solves the search problem and suggest candidate values for parameters
-    while (s->check() && round < 5) {
+    while (s->check() && round<3) {
         cerr << "=== Search Formula ==="<<endl;
         s->dump_formulas(cerr);
         cout << "Search suggested these parameters:" << endl;
@@ -178,13 +178,32 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
             s->print_model();
             // clean up previous solution
             sol.clear();
+            //add the counterexample
             for (auto state : x) {
                 sol.push_back(s->new_num((s->get_lb(*state)+s->get_ub(*state))/2));
             }
             search_condition = search_condition && plugSolutionsIn(base_scondition,x,sol,p);
+            //add a bunch of randomly sampled points on x
+            unsigned sample = 0;
+            std::default_random_engine re(std::random_device {}());
+            while (sample < 5) {
+                //clear previous solution
+                sol.clear();
+                cerr<<"new sample state: ";
+                for (auto state : x) {
+                    std::uniform_real_distribution<double> unif(s->get_domain_lb(*state), s->get_domain_ub(*state));
+                    double p = unif(re);
+                    cerr << *state << " :" << p << " ";
+                    sol.push_back(s->new_num(p));
+                }
+                cerr<<endl;
+                //search_condition = search_condition && plugSolutionsIn(base_scondition,x,sol,p);
+                sample++;
+            }
             //TODO: (optional) exclude parameters we have tried
             s->pop();
             s->push();
+            cerr<< "Search condition becomes: "<<search_condition<<endl;
             s->add(search_condition);
         }
         cerr << "Round " << round << endl;
