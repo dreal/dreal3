@@ -26,6 +26,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 void checkBarrier(std::vector<expr>& x, std::vector<expr>& f, expr& B, double const eps);
 void checkLyapunov(std::vector<expr>& x, std::vector<expr>& f, expr& V, double const eps);
+expr plugSolutionsIn(expr & formula, std::vector<expr*>& x, std::vector<expr*> & sol, std::vector<expr*> & p);
 void synthesizeLyapunov(std::vector<expr*>& x, std::vector<expr*>& p, std::vector<expr*>& f, expr& V, double const eps);
 void synthesizeControlAndLyapunov(std::vector<expr*>& x, std::vector<expr*>& p_f, std::vector<expr*>& p_v, std::vector<expr*>& f, expr& V, double const eps);
 }

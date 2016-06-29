@@ -26,6 +26,8 @@ using dreal::expr;
 using dreal::poly;
 using dreal::solver;
 using std::vector;
+using std::cerr;
+using std::endl;
 
 void test1() {
     solver s;
@@ -75,6 +77,39 @@ void test3() {
     synthesizeLyapunov(x, p, f, V, 0.005);
 }
 
+void test3a() {
+    solver s;
+    // s.set_delta(0.00001);
+    expr x1 = s.var("x1", -0.5, 0.5);
+    vector<expr*> x = {&x1};
+    expr f1 = -x1;
+    vector<expr*> f = {&f1};
+    expr p1 = s.var("p1", -100, 100);
+    expr p2 = s.var("p2", -100, 100);
+    vector<expr*> p = {&p1, &p2};
+    expr V = p1*pow(x1, 2) + p2*x1;
+    synthesizeLyapunov(x, p, f, V, 0.005);
+}
+
+void test3b() {
+    solver s;
+    expr x = s.var("x");
+    expr f1 = x^2;
+    expr f2 = sin(x);
+    expr f3 = cos(x);
+    s.add(f1 >0);
+    s.add(f2>0);
+    s.push();
+    s.add(f3>0);
+    cerr<<"first dump"<<endl;
+    s.check();
+    s.dump_formulas(cerr);
+    s.pop();
+    cerr<<"second dump"<<endl;
+    s.check();
+    s.dump_formulas(cerr);
+}
+
 void test4() {
     solver s;
     s.set_delta(0.0000001);
@@ -88,6 +123,6 @@ void test4() {
 }
 
 int main() {
-    test3();
+    test3a();
     return 0;
 }
