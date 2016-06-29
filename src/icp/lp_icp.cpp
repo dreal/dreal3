@@ -114,6 +114,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
     thread_local static stack<tuple<lp_icp_kind, box>> box_stack;
     // a "box" for the point solution of the lp_solver
     thread_local static box lp_point(cs.m_box);
+    lp_point = cs.m_box;
     solns.clear();
     stack<tuple<lp_icp_kind, box>>().swap(box_stack);  // clear up box_stack
 
