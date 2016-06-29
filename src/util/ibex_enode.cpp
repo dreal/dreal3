@@ -96,11 +96,7 @@ ExprNode const * translate_enode_to_exprnode(map<string, Variable const> & var_m
             ret = translate_enode_to_exprnode(var_map, tmp->get1st(), subst);
             tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
             while (!tmp->isEnil()) {
-                if (!ret->is_zero()) {
-                    ret = translate_enode_to_exprnode(var_map, tmp->getCar(), subst);
-                } else {
-                    ret = &(*ret + *translate_enode_to_exprnode(var_map, tmp->getCar(), subst));
-                }
+                ret = &(*ret + *translate_enode_to_exprnode(var_map, tmp->getCar(), subst));
                 tmp = tmp->getCdr();
             }
             return ret;
@@ -120,17 +116,9 @@ ExprNode const * translate_enode_to_exprnode(map<string, Variable const> & var_m
             ret = translate_enode_to_exprnode(var_map, tmp->get1st(), subst);
             tmp = tmp->getCdr()->getCdr();  // e is pointing to the 2nd arg
             while (!tmp->isEnil()) {
-                if (ret->is_zero()) {
-                    return ret;
-                }
                 ExprNode const * right = translate_enode_to_exprnode(var_map, tmp->getCar(), subst);
-                if (right->is_zero()) {
-                    ret = right;
-                    return ret;
-                } else {
-                    ret = &(*ret * *right);
-                    tmp = tmp->getCdr();
-                }
+                ret = &(*ret * *right);
+                tmp = tmp->getCdr();
             }
             return ret;
         case ENODE_ID_DIV:
