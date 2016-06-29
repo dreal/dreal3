@@ -126,13 +126,13 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
         ball = ball + ((*x[i]) ^ 2);
         LV = LV + (*f[i]) * der(V, (*x[i]));
     }
-    cerr<<"ball: "<<ball<<endl;
-    cerr<<"Candidate V: "<<V<<endl;
-    cerr<<"Lie Derivative of V: "<<LV<<endl;
+//    cerr<<"ball: "<<ball<<endl;
+//    cerr<<"Candidate V: "<<V<<endl;
+//    cerr<<"Lie Derivative of V: "<<LV<<endl;
     // base_scondition for search step
     expr base_scondition = (V >= 0) && (LV <= 0);
     // base_vcondition for verification step
-    expr base_vcondition = ((bl > eps) && (v < 0.0000001)) || ((bl > eps) && (lv > (-0.000000000001)));
+    expr base_vcondition = ((bl > eps) && (v < 0.0001)) || ((bl > eps) && (lv > (-0.0001)));
     // start with the trivial solution
     vector<expr*> sol;
     for (auto state : x) {
@@ -145,14 +145,15 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
     s->push();
     //first round of search for parameters
     s->add(search_condition);
-    cerr << "Initial Search Condition: " << search_condition << endl;
+//    cerr << "Initial Search Condition: " << search_condition << endl;
     //keep round number
     unsigned round = 0;
     expr tmp;
+    s->set_lp(true);
     // the check() solves the search problem and suggest candidate values for parameters
-    while (s->check() && round < 2) {
-        cerr << "=== Search Formula ==="<<endl;
-        s->dump_formulas(cerr);
+    while (s->check()) {
+//        cerr << "=== Search Formula ==="<<endl;
+//        s->dump_formulas(cerr);
         //cout << "Search suggested these parameters:" << endl;
         // cerr << "Round " << round << endl;
         //s->print_model();
@@ -167,6 +168,7 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
         s->push();
         s->add(verify_condition);
         s->add(v == V && lv == LV && bl == ball);
+        //s->set_lp(false);
         //cerr<< "added verify_condition: "<<verify_condition<<endl;
         //cerr<< "added constraint V = "<<V<<endl;
         //cerr<< "added constraint LV = "<<LV<<endl;
@@ -174,8 +176,8 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
             cout << "Lyapunov function synthesized: " << V << endl; //TODO: sub in solutions
             return;
         } else {
-            cerr << "=== Falsification Formula ===" << endl;
-            s->dump_formulas(cerr);
+//            cerr << "=== Falsification Formula ===" << endl;
+//            s->dump_formulas(cerr);
             cerr << "Counterexample found:" << endl;
             s->print_model();
             // clean up previous solution
@@ -188,17 +190,17 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
             //add a bunch of randomly sampled points on x
             unsigned sample = 0;
             std::default_random_engine re(std::random_device {}());
-            while (sample < 2) {
+            while (sample < 50) {
                 //clear previous solution
                 sol.clear();
-                cerr<<"new sample state: ";
+//                cerr<<"new sample state: ";
                 for (auto state : x) {
                     std::uniform_real_distribution<double> unif(s->get_domain_lb(*state), s->get_domain_ub(*state));
                     double p = unif(re);
-                    cerr << *state << " :" << p << " ";
+//                    cerr << *state << " :" << p << " ";
                     sol.push_back(s->new_num(p));
                 }
-                cerr<<endl;
+//                cerr<<endl;
                 search_condition = search_condition && plugSolutionsIn(base_scondition,x,sol,p);
                 sample++;
             }
@@ -210,6 +212,7 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
         }
         cerr << "========================== Finished Round " << round << " ========================="<< endl;
         round++;
+        //s->set_lp(true);
     }
     cout << "No Lypaunov function found." << endl;
     return;
