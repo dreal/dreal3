@@ -193,13 +193,13 @@ expr operator>(expr const & e1, expr const & e2) {
 expr operator>(expr const & e1, double const a) {
     solver * const s = e1.get_solver();
     expr const t = s->num(a);
-    return e1 < t;
+    return e1 > t;
 }
 
 expr operator>(double const a, expr const & e1) {
     solver * const s = e1.get_solver();
     expr const t = s->num(a);
-    return t < e1;
+    return t > e1;
 }
 
 expr operator+(expr const & e1, expr const & e2) {
