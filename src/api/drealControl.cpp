@@ -113,6 +113,7 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
     expr zero = s->num("0");
     expr v = s->var("V");
     expr lv = s->var("LV");
+    expr bl = s->var("ball_radius");
     // turn on polytope in solver
     s -> set_polytope();
     // s -> set_simulation();  // the simulation option gives seg fault as of Jun 23, 2016
@@ -131,7 +132,7 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
     // base_scondition for search step
     expr base_scondition = (V >= 0) && (LV <= 0);
     // base_vcondition for verification step
-    expr base_vcondition = (ball > eps && v < 0.000001 * eps) || (ball > eps && lv > (-0.00001 * eps));
+    expr base_vcondition = ((bl > eps) && (v < 0.0000001)) || ((bl > eps) && (lv > (-0.000000000001)));
     // start with the trivial solution
     vector<expr*> sol;
     for (auto state : x) {
@@ -149,12 +150,12 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
     unsigned round = 0;
     expr tmp;
     // the check() solves the search problem and suggest candidate values for parameters
-    while (s->check() && round<3) {
+    while (s->check() && round < 2) {
         cerr << "=== Search Formula ==="<<endl;
         s->dump_formulas(cerr);
-        cout << "Search suggested these parameters:" << endl;
+        //cout << "Search suggested these parameters:" << endl;
         // cerr << "Round " << round << endl;
-        s->print_model();
+        //s->print_model();
         // will try to find counterexample, thus the negation
         expr verify_condition = base_vcondition;
         // set the parameter variables to the chosen values and assemble the verification condition
@@ -165,9 +166,10 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
         s->pop();
         s->push();
         s->add(verify_condition);
-        s->add(v == V && lv == LV);
-        cerr<< "added constraint V = "<<V<<endl;
-        cerr<< "added constraint LV = "<<LV<<endl;
+        s->add(v == V && lv == LV && bl == ball);
+        //cerr<< "added verify_condition: "<<verify_condition<<endl;
+        //cerr<< "added constraint V = "<<V<<endl;
+        //cerr<< "added constraint LV = "<<LV<<endl;
         if (!s->check()) {
             cout << "Lyapunov function synthesized: " << V << endl; //TODO: sub in solutions
             return;
@@ -186,7 +188,7 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
             //add a bunch of randomly sampled points on x
             unsigned sample = 0;
             std::default_random_engine re(std::random_device {}());
-            while (sample < 5) {
+            while (sample < 2) {
                 //clear previous solution
                 sol.clear();
                 cerr<<"new sample state: ";
@@ -197,16 +199,16 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
                     sol.push_back(s->new_num(p));
                 }
                 cerr<<endl;
-                //search_condition = search_condition && plugSolutionsIn(base_scondition,x,sol,p);
+                search_condition = search_condition && plugSolutionsIn(base_scondition,x,sol,p);
                 sample++;
             }
             //TODO: (optional) exclude parameters we have tried
             s->pop();
             s->push();
-            cerr<< "Search condition becomes: "<<search_condition<<endl;
+            //cerr<< "Search condition becomes: "<<search_condition<<endl;
             s->add(search_condition);
         }
-        cerr << "Round " << round << endl;
+        cerr << "========================== Finished Round " << round << " ========================="<< endl;
         round++;
     }
     cout << "No Lypaunov function found." << endl;

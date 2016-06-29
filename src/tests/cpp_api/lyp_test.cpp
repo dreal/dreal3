@@ -79,16 +79,16 @@ void test3() {
 
 void test3a() {
     solver s;
-    // s.set_delta(0.00001);
+    s.set_delta(0.00000001);
     expr x1 = s.var("x1", -0.5, 0.5);
     vector<expr*> x = {&x1};
     expr f1 = -x1;
     vector<expr*> f = {&f1};
-    expr p1 = s.var("p1", -100, 100);
-    expr p2 = s.var("p2", -100, 100);
-    vector<expr*> p = {&p1, &p2};
-    expr V = p1*pow(x1, 2) + p2*x1;
-    synthesizeLyapunov(x, p, f, V, 0.005);
+    expr p1 = s.var("p1", 1, 5);
+    //expr p2 = s.var("p2", -1, 1);
+    vector<expr*> p = {&p1};
+    expr V = p1*pow(x1, 2);
+    synthesizeLyapunov(x, p, f, V, 0.1);
 }
 
 void test3b() {
