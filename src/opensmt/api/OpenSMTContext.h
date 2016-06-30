@@ -306,6 +306,9 @@ public:
   inline void       setLP(bool const b) {
       config.nra_lp = b;
   }
+  inline void       setLPOnly(bool const b) {
+      config.nra_linear_only = b;
+  }
   inline void       setShrinkForDop(bool const b) {
       config.nra_shrink_for_dop = b;
   }

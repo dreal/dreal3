@@ -154,6 +154,7 @@ public:
     void    set_delta(double const d);
     void    set_polytope(bool const b = true);
     void    set_lp(bool const b = true);
+    void    set_lp_only(bool const b = true);
     void    set_simulation(bool const b = true);
     void    reset();
     void    push();
