@@ -336,6 +336,7 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
 
 void nra_solver::initialize(vector<Enode *> const & lits) {
     m_cs.m_box.constructFromLiterals(lits);
+    m_cs.m_output = ibex::BitSet::empty(m_cs.m_box.size());
     initialize_constraints(lits);
     m_need_init = false;
 }
