@@ -152,8 +152,11 @@ contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> 
       m_numctr(ctr->get_numctr()) {
     if (!ctr->is_neq()) {
         auto ctc = get_ctc(std::this_thread::get_id(), false);
-        m_input = *(ctc->input);
         // m_output will be copied from m_ctc->output, so no need to init here
+        int const * ptr_used_var = ctc->f.used_vars();
+        for (int i = 0 ; i < ctc->f.nb_used_vars(); ++i) {
+            m_input.add(*ptr_used_var++);
+        }
     }
 }
 
