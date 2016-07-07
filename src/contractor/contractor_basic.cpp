@@ -300,9 +300,9 @@ void contractor_fixpoint::naive_fixpoint_alg(contractor_status & cs) {
             return;
         }
     }
-    box old_box = cs.m_box;
     unsigned i = 0;
-    // Next Iterations (stop when 1) a box is smaller enough or 2) termination condition holds
+    // Next Iterations: stop when 1) a box is smaller enough or 2) termination condition holds
+    thread_local static box old_box(cs.m_box);
     do {
         interruption_point();
         old_box = cs.m_box;
@@ -320,10 +320,9 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
     thread_local static queue<unsigned> q;
     q = queue<unsigned>();  // empty queue
     thread_local static ibex::BitSet ctc_bitset = ibex::BitSet::empty(m_clist.size());
-    ctc_bitset.clear();
-
+    ctc_bitset = ibex::BitSet::empty(m_clist.size());
     // Add all contractors to the queue.
-    for (int i = m_clist.size() - 1; i >= 0; --i) {
+    for (unsigned i = 0; i < m_clist.size(); ++i) {
         contractor & c_i = m_clist[i];
         contractor_status_guard csg(cs);
         c_i.prune(cs);
@@ -332,6 +331,7 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
         if (output_i.empty()) {
             continue;
         }
+        assert(!ctc_bitset.contain(i));
         q.push(i);
         ctc_bitset.add(i);
     }
@@ -345,10 +345,14 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
         unsigned const idx = q.front();
         q.pop();
         ctc_bitset.remove(idx);
+        assert(!ctc_bitset.contain(idx));
         assert(idx < m_clist.size());
         contractor & c = m_clist[idx];
         contractor_status_guard csg(cs);
         c.prune(cs);
+
+        // (old_box == new_box -> output == empty)
+        assert(!(old_box == cs.m_box) || cs.m_output.empty());
         if (cs.m_box.is_empty()) {
             return;
         }
@@ -364,7 +368,9 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
                     // Only add if it's not in the current queue
                     if (!ctc_bitset.contain(k)) {
                         contractor const & c_k = m_clist[k];
-                        if (c_k.get_input().contain(j)) {
+                        auto const & c_k_input = c_k.get_input();
+                        if (c_k_input.contain(j)) {
+                            assert(!ctc_bitset.contain(k));
                             q.push(k);
                             ctc_bitset.add(k);
                         }
