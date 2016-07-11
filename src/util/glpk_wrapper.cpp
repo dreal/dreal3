@@ -254,22 +254,30 @@ double glpk_wrapper::get_objective() {
 }
 
 void glpk_wrapper::set_objective(Enode * const e) {
-    assert(is_expr_linear(e));
-    LAExpression la(e);
-    for (auto it = la.begin(); it != la.end(); ++it) {
-        auto v = it->first;
-        auto c = it->second;
-        if (v != nullptr) {
-            glp_set_obj_coef(lp, get_index(v) + 1, c);
+    changed = true;
+    for (unsigned int i = 1; i <= domain.size(); i++) {
+        glp_set_obj_coef(lp, i, 0);
+    }
+    if (e != nullptr) {
+        assert(is_expr_linear(e));
+        LAExpression la(e);
+        for (auto it = la.begin(); it != la.end(); ++it) {
+            auto v = it->first;
+            auto c = it->second;
+            if (v != nullptr) {
+                glp_set_obj_coef(lp, get_index(v) + 1, c);
+            }
         }
     }
 }
 
 void glpk_wrapper::set_minimize() {
+    changed = true;
     glp_set_obj_dir(lp, GLP_MIN);
 }
 
 void glpk_wrapper::set_maximize() {
+    changed = true;
     glp_set_obj_dir(lp, GLP_MAX);
 }
 
@@ -409,29 +417,48 @@ int glpk_wrapper::print_to_file(const char *fname) {
     return glp_write_lp(lp, nullptr, fname);
 }
 
-bool glpk_wrapper::is_expr_linear(Enode * const t) {
-    if ( t->isPlus() || t->isMinus() ) {
+bool is_expr_linear_product(Enode * const t, bool * saw_variable) {
+    if (t->isConstant()) {
+        return true;
+    } else if (t->isVar()) {
+        if (*saw_variable) {
+            return false;
+        } else {
+            *saw_variable = true;
+            return true;
+        }
+    } else if ( t->isPlus() || t->isMinus() || t->isUminus()) {
+        bool old_saw = *saw_variable;
+        bool new_saw = false;
         for (Enode * arg_list = t->getCdr(); !arg_list->isEnil(); arg_list = arg_list->getCdr()) {
-            if (!is_expr_linear(arg_list->getCar())) {
+            bool child_linear = is_expr_linear_product(arg_list->getCar(), saw_variable);
+            if (!child_linear) {
+                return false;
+            }
+            new_saw = *saw_variable;
+            *saw_variable = old_saw;
+        }
+        *saw_variable = new_saw;
+        return true;
+    } else if ( t->isTimes() ) {
+        for ( Enode * arg_list = t->getCdr( )
+            ; !arg_list->isEnil( )
+            ; arg_list = arg_list->getCdr( ) )
+        {
+            Enode * arg = arg_list->getCar( );
+            if (!is_expr_linear_product(arg, saw_variable)) {
                 return false;
             }
         }
         return true;
-    } else if ( t->isTimes() ) {
-        Enode * x = t->get1st();
-        Enode * y = t->get2nd();
-        if ( x->isConstant() ) {
-            return is_expr_linear(y);
-        } else if ( y->isConstant() ) {
-            return is_expr_linear(x);
-        } else {
-            return false;
-        }
-    } else if ( t->isUminus() ) {
-        return is_expr_linear(t->get1st());
     } else {
-        return t->isVar() || t->isConstant();
+        return false;
     }
+}
+
+bool glpk_wrapper::is_expr_linear(Enode * const t) {
+    bool saw = false;
+    return is_expr_linear_product(t, &saw);
 }
 
 bool glpk_wrapper::is_linear(Enode * const e) {
