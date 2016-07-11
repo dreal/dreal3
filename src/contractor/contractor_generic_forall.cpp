@@ -394,6 +394,10 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
             ss << "find_CE_via_underapprox: unknown constraint type, " << *numctr;
             throw runtime_error(ss.str());
         }
+        if (iv.is_empty()) {
+            // stop when counterexample is already empty;
+            return counterexample;
+        }
     }
     if (!iv.is_empty()) {
         iv = iv.mid();
