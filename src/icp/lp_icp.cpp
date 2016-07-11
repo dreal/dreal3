@@ -96,8 +96,63 @@ bool lp_icp::is_lp_sat(glpk_wrapper & lp_solver, box & solution, SMTConfig const
         }
     } else {
         lp_solver.get_solution(solution);
+        if (!solution.is_subset(lp_solver.get_domain())) {
+            DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
+            for (unsigned int i = 0; i < solution.size(); i++) {
+                double p = solution[i].lb();
+                if (p < lp_solver.get_domain()[i].lb()) {
+                    double delta = lp_solver.get_domain()[i].lb() - p;
+                    if (delta > config.nra_precision) {
+                        DREAL_LOG_WARNING << "lp_icp::solve - tweaking GLPK result by more than the precision.";
+                    }
+                    solution[i] = lp_solver.get_domain()[i].lb();
+                } else if (p > lp_solver.get_domain()[i].ub()) {
+                    double delta = p - lp_solver.get_domain()[i].ub();
+                    if (delta > config.nra_precision) {
+                        DREAL_LOG_WARNING << "lp_icp::solve - tweaking GLPK result by more than the precision.";
+                    }
+                    solution[i] = lp_solver.get_domain()[i].ub();
+                }
+            }
+        }
         return true;
     }
+}
+
+void lp_icp::prune(glpk_wrapper & lp, int i, box & solution, SMTConfig const & config) {
+    DREAL_LOG_INFO << "lp_icp::prune" << " old interval " << solution.get_name(i) << " " << solution[i];
+    thread_local static box old_domain(lp.get_domain());
+    old_domain = lp.get_domain();
+    lp.set_domain(solution);
+    auto var = solution.get_vars()[i];
+    lp.set_objective(var);
+    lp.set_maximize();
+    assert(is_lp_sat(lp, solution, config));
+    double max = solution[i].ub();
+    double delta = max - lp.get_domain()[i].ub();
+    if (delta > 0) {
+        DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
+        max = lp.get_domain()[i].ub();
+        if (delta > config.nra_precision) {
+            DREAL_LOG_WARNING << "lp_icp::prune - tweaking GLPK result by more than the precision.";
+        }
+    }
+    lp.set_minimize();
+    assert(is_lp_sat(lp, solution, config));
+    double min = solution[i].lb();
+    delta = lp.get_domain()[i].lb() - min;
+    if (delta > 0) {
+        DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
+        min = lp.get_domain()[i].lb();
+        if (delta > config.nra_precision) {
+            DREAL_LOG_WARNING << "lp_icp::prune - tweaking GLPK result by more than the precision.";
+        }
+    }
+    solution = lp.get_domain();
+    solution[i] = ibex::Interval(min, max);
+    DREAL_LOG_INFO << "lp_icp::prune" << " new interval " << solution.get_name(i) << " " << solution[i];
+    lp.set_domain(old_domain);
+    lp.set_objective(nullptr);
 }
 
 void lp_icp::solve(contractor & ctc, contractor_status & cs,
@@ -114,7 +169,6 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
     thread_local static stack<tuple<lp_icp_kind, box>> box_stack;
     // a "box" for the point solution of the lp_solver
     thread_local static box lp_point(cs.m_box);
-    lp_point = cs.m_box;
     solns.clear();
     stack<tuple<lp_icp_kind, box>>().swap(box_stack);  // clear up box_stack
 
@@ -175,40 +229,48 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                     if (sorted_dims.size() > 0) {
                         // branch ...
                         int const i = sorted_dims[0];
-                        tuple<int, box, box> const splits = cs.m_box.bisect_at(i);
-                        if (cs.m_config.nra_proof) {
-                            cs.m_config.nra_proof_out << "[branched on "
-                                                      << cs.m_box.get_name(i)
-                                                      << "]" << endl;
+                        if (cs.m_config.nra_lp_prune) {
+                            // use the LP for pruning the dimension on which we branch
+                            prune(lp_solver, i, cs.m_box, cs.m_config);
                         }
-                        // ... and prune
-                        contractor_status cs1(get<1>(splits), cs.m_config);
-                        ctc.prune(cs1);
-                        if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
-                        cs.m_used_constraints.insert(cs1.m_used_constraints.begin(), cs1.m_used_constraints.end());
+                        if (!cs.m_box.is_bisectable_at(i,cs.m_config.nra_precision)) {
+                            box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
+                        } else {
+                            tuple<int, box, box> const splits = cs.m_box.bisect_at(i);
+                            if (cs.m_config.nra_proof) {
+                                cs.m_config.nra_proof_out << "[branched on "
+                                                          << cs.m_box.get_name(i)
+                                                          << "]" << endl;
+                            }
+                            // ... and prune
+                            contractor_status cs1(get<1>(splits), cs.m_config);
+                            ctc.prune(cs1);
+                            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
+                            cs.m_used_constraints.insert(cs1.m_used_constraints.begin(), cs1.m_used_constraints.end());
 
-                        contractor_status cs2(get<2>(splits), cs.m_config);
-                        ctc.prune(cs2);
-                        if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
-                        cs.m_used_constraints.insert(cs2.m_used_constraints.begin(), cs2.m_used_constraints.end());
+                            contractor_status cs2(get<2>(splits), cs.m_config);
+                            ctc.prune(cs2);
+                            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
+                            cs.m_used_constraints.insert(cs2.m_used_constraints.begin(), cs2.m_used_constraints.end());
 
-                        // push the non-empty boxes on the stack
-                        if (!cs1.m_box.is_empty()) {
-                            if (!cs2.m_box.is_empty()) {
-                                // try to go where the LP says there is a solution
-                                if (lp_point.is_subset(cs1.m_box)) {
-                                    box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
-                                    box_stack.emplace(lp_icp_kind::ICP, cs1.m_box);
+                            // push the non-empty boxes on the stack
+                            if (!cs1.m_box.is_empty()) {
+                                if (!cs2.m_box.is_empty()) {
+                                    // try to go where the LP says there is a solution
+                                    if (lp_point.is_subset(cs1.m_box)) {
+                                        box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
+                                        box_stack.emplace(lp_icp_kind::ICP, cs1.m_box);
+                                    } else {
+                                        box_stack.emplace(lp_icp_kind::ICP, cs1.m_box);
+                                        box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
+                                    }
                                 } else {
                                     box_stack.emplace(lp_icp_kind::ICP, cs1.m_box);
-                                    box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
                                 }
                             } else {
-                                box_stack.emplace(lp_icp_kind::ICP, cs1.m_box);
-                            }
-                        } else {
-                            if (!cs2.m_box.is_empty()) {
-                                box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
+                                if (!cs2.m_box.is_empty()) {
+                                    box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
+                                }
                             }
                         }
                     } else {
@@ -226,32 +288,10 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                 } else {
                     // the point solution of the LP is not is the current box.
                     // set the LP domain to the current box.
-                    if (lp_solver.get_domain().is_subset(cs.m_box)) {
-                        DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
-                        for (unsigned int i = 0; i < lp_point.size(); i++) {
-                            double p = lp_point[i].lb();
-                            if (p < cs.m_box[i].lb()) {
-                                double delta = cs.m_box[i].lb() - p;
-                                if (delta > cs.m_config.nra_precision) {
-                                    DREAL_LOG_WARNING << "lp_icp::solve - tweaking GLPK tolerance by more than the precision.";
-                                }
-                                lp_point[i] = cs.m_box[i].lb();
-                            } else if (p > cs.m_box[i].ub()) {
-                                double delta = p - cs.m_box[i].ub();
-                                if (delta > cs.m_config.nra_precision) {
-                                    DREAL_LOG_WARNING << "lp_icp::solve - tweaking GLPK tolerance by more than the precision.";
-                                }
-                                lp_point[i] = cs.m_box[i].ub();
-                            }
-                        }
-                        assert(lp_point.is_subset(cs.m_box));
-                    } else {
-                        //
-                        DREAL_LOG_DEBUG << "lp_icp::solve - asking for a new point solution";
-                        box_stack.emplace(lp_icp_kind::LP, lp_solver.get_domain());
-                        lp_solver.set_domain(cs.m_box);
-                        box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
-                    }
+                    DREAL_LOG_DEBUG << "lp_icp::solve - asking for a new point solution";
+                    box_stack.emplace(lp_icp_kind::LP, lp_solver.get_domain());
+                    lp_solver.set_domain(cs.m_box);
+                    box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
                 }
             }
             break;  // end of case LP:
