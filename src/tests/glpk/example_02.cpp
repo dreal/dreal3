@@ -88,6 +88,7 @@ TEST_CASE("glpk_sat") {
     assert(b[var_y].ub() <=  1e-4 + 66.6667);
     assert(b[var_z].lb() >= -1e-4 + 0);
     assert(b[var_z].ub() <=  1e-4 + 0);
+    opensmt_del_context(ctx);
 }
 
 TEST_CASE("glpk_interior_sat") {
@@ -112,6 +113,7 @@ TEST_CASE("glpk_interior_sat") {
     solver.use_interior_point();
     // solver.print_to_file("/dev/stdout");
     assert(solver.is_sat());
+    opensmt_del_context(ctx);
 }
 
 TEST_CASE("glpk_no_obj") {
@@ -136,6 +138,7 @@ TEST_CASE("glpk_no_obj") {
     glpk_wrapper solver(b, es);
     // solver.print_to_file("/dev/stdout");
     assert(solver.is_sat());
+    opensmt_del_context(ctx);
 }
 
 TEST_CASE("glpk_min") {
@@ -172,6 +175,7 @@ TEST_CASE("glpk_min") {
     assert(b[var_y].ub() <=  1e-4);
     assert(b[var_z].lb() >= -1e-4);
     assert(b[var_z].ub() <=  1e-4);
+    opensmt_del_context(ctx);
 }
 
 TEST_CASE("glpk_unsat") {
@@ -194,6 +198,7 @@ TEST_CASE("glpk_unsat") {
     assert(!solver.is_sat());
     solver.use_interior_point();
     assert(!solver.is_sat());
+    opensmt_del_context(ctx);
 }
 
 }  // namespace dreal
