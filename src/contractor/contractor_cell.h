@@ -19,48 +19,45 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <algorithm>
-#include <atomic>
+#include <unordered_map>
+#include <vector>
 #include <cassert>
-#include <condition_variable>
 #include <initializer_list>
-#include <memory>
-#include <mutex>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
+#include <memory>
 #include <utility>
-#include <vector>
 #include "./config.h"
-#include "contractor/contractor.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
 #include "constraint/constraint.h"
+#include "contractor/contractor_common.h"
+#include "contractor/contractor_status.h"
 
 namespace dreal {
-
-// contractor_parallel_all
-// - Run C1, C2, ... , Cn in parallel
-// - If Ci returns UNSAT/Exception, then cancel the rest threads and propagate the result from Ci
-// - Otherwise, take the intersection of Cis and return it.
-class contractor_parallel_all : public contractor_cell {
-private:
-    std::vector<contractor> m_vec;
-    std::mutex m_mutex;
-    std::condition_variable m_cv;
-    int m_index;
-    void setup_input();
+// Base Cell
+class contractor_cell {
+protected:
+    contractor_kind m_kind;
+    // Static overapproximation of the input vector, which should be
+    // computed in construction time.
+    //
+    // "m_input[i] == 1" means that the i-th varialbe is an input to
+    // the contractor. It implies that any changes on i-th variable
+    // should trigger another run of the contractor in the fixpoint
+    // computation.
+    ibex::BitSet m_input;
 
 public:
-    explicit contractor_parallel_all(std::initializer_list<contractor> const & l);
-    explicit contractor_parallel_all(std::vector<contractor> const & v);
-    contractor_parallel_all(contractor const & c1, contractor const & c2);
-    void prune(contractor_status & cs);
-    std::ostream & display(std::ostream & out) const;
+    explicit contractor_cell(contractor_kind kind) : m_kind(kind) { }
+    contractor_cell(contractor_kind kind, unsigned n)
+        : m_kind(kind), m_input(ibex::BitSet::empty(n)) { }
+    virtual ~contractor_cell() noexcept { }
+    ibex::BitSet get_input() const { return m_input; }
+    virtual void prune(contractor_status & cs) = 0;
+    virtual std::ostream & display(std::ostream & out) const = 0;
 };
 
-contractor mk_contractor_parallel_all(std::initializer_list<contractor> const & l);
-contractor mk_contractor_parallel_all(std::vector<contractor> const & v);
-contractor mk_contractor_parallel_all(contractor const & c1, contractor const & c2);
-
+std::ostream & operator<<(std::ostream & out, contractor_cell const & c);
 }  // namespace dreal

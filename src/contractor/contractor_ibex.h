@@ -27,10 +27,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include <utility>
 #include <thread>
+#include "constraint/constraint.h"
+#include "contractor/contractor.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include "constraint/constraint.h"
-#include "contractor/contractor_common.h"
 
 namespace dreal {
 
