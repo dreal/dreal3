@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 
+using std::any_of;
 using std::cerr;
 using std::dynamic_pointer_cast;
 using std::endl;
@@ -131,8 +132,10 @@ contractor default_strategy::build_contractor(box const & box,
     if (config.nra_polytope) {
         ctcs.push_back(mk_contractor_ibex_polytope(config.nra_precision, box.get_vars(), nl_ctrs));
     }
-    // 2.3. Int Contractor
-    ctcs.push_back(mk_contractor_int(box));
+    // 2.3. Int Contractor (only if there is a var of Int sort)
+    if (any_of(box.get_vars().cbegin(), box.get_vars().cend(), [](Enode * const v){ return v->hasSortInt(); })) {
+        ctcs.push_back(mk_contractor_int(box));
+    }
     // 2.4. Build generic forall contractors
     for (auto const & generic_forall_ctr : generic_forall_ctrs) {
         ctcs.push_back(mk_contractor_generic_forall(box, generic_forall_ctr));
