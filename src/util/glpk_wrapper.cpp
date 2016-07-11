@@ -231,6 +231,16 @@ bool glpk_wrapper::is_sat() {
     }
 }
 
+bool glpk_wrapper::is_solution_unbounded() {
+    assert(is_sat());
+    if (solver_type == SIMPLEX || solver_type == EXACT) {
+        int status = glp_get_status(lp);
+        return status == GLP_UNBND;
+    } else {
+        return false;
+    }
+}
+
 void glpk_wrapper::get_solution(box & b) {
     assert(is_sat());
     for (unsigned int i = 0; i < b.size(); i++) {

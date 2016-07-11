@@ -128,24 +128,30 @@ void lp_icp::prune(glpk_wrapper & lp, int i, box & solution, SMTConfig const & c
     lp.set_objective(var);
     lp.set_maximize();
     assert(is_lp_sat(lp, solution, config));
-    double max = solution[i].ub();
-    double delta = max - lp.get_domain()[i].ub();
-    if (delta > 0) {
-        DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
-        max = lp.get_domain()[i].ub();
-        if (delta > config.nra_precision) {
-            DREAL_LOG_WARNING << "lp_icp::prune - tweaking GLPK result by more than the precision.";
+    double max = POS_INFINITY;
+    if (!lp.is_solution_unbounded()) {
+        max = solution[i].ub();
+        double delta = max - lp.get_domain()[i].ub();
+        if (delta > 0) {
+            DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
+            max = lp.get_domain()[i].ub();
+            if (delta > config.nra_precision) {
+                DREAL_LOG_WARNING << "lp_icp::prune - tweaking GLPK result by more than the precision.";
+            }
         }
     }
     lp.set_minimize();
     assert(is_lp_sat(lp, solution, config));
-    double min = solution[i].lb();
-    delta = lp.get_domain()[i].lb() - min;
-    if (delta > 0) {
-        DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
-        min = lp.get_domain()[i].lb();
-        if (delta > config.nra_precision) {
-            DREAL_LOG_WARNING << "lp_icp::prune - tweaking GLPK result by more than the precision.";
+    double min = NEG_INFINITY;
+    if (!lp.is_solution_unbounded()) {
+        min = solution[i].lb();
+        double delta = lp.get_domain()[i].lb() - min;
+        if (delta > 0) {
+            DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
+            min = lp.get_domain()[i].lb();
+            if (delta > config.nra_precision) {
+                DREAL_LOG_WARNING << "lp_icp::prune - tweaking GLPK result by more than the precision.";
+            }
         }
     }
     solution = lp.get_domain();
