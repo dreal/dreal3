@@ -159,6 +159,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                    scoped_vec<shared_ptr<constraint>>& constraints,
                    BranchHeuristic& brancher) {
     thread_local static vector<box> solns;
+    solns.clear();
     /* The stack now contains both the LP and ICP domain.
      * For the ICP, the stack is the usual DFS worklist.
      * For the LP, the stack is keeping track of the state of the previous domain.
@@ -167,10 +168,10 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
      * Invariant: the LP boxes contains all the ICP boxes above them
      */
     thread_local static stack<tuple<lp_icp_kind, box>> box_stack;
+    stack<tuple<lp_icp_kind, box>>().swap(box_stack);  // clear up box_stack
     // a "box" for the point solution of the lp_solver
     thread_local static box lp_point(cs.m_box);
-    solns.clear();
-    stack<tuple<lp_icp_kind, box>>().swap(box_stack);  // clear up box_stack
+    lp_point = cs.m_box;
 
     // all the box on the stack must be pruned
     ctc.prune(cs);
