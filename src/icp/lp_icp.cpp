@@ -233,7 +233,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                             // use the LP for pruning the dimension on which we branch
                             prune(lp_solver, i, cs.m_box, cs.m_config);
                         }
-                        if (!cs.m_box.is_bisectable_at(i,cs.m_config.nra_precision)) {
+                        if (!cs.m_box.is_bisectable_at(i, cs.m_config.nra_precision)) {
                             box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
                         } else {
                             tuple<int, box, box> const splits = cs.m_box.bisect_at(i);

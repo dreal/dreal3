@@ -427,7 +427,7 @@ bool is_expr_linear_product(Enode * const t, bool * saw_variable) {
             *saw_variable = true;
             return true;
         }
-    } else if ( t->isPlus() || t->isMinus() || t->isUminus()) {
+    } else if (t->isPlus() || t->isMinus() || t->isUminus()) {
         bool old_saw = *saw_variable;
         bool new_saw = false;
         for (Enode * arg_list = t->getCdr(); !arg_list->isEnil(); arg_list = arg_list->getCdr()) {
@@ -440,12 +440,9 @@ bool is_expr_linear_product(Enode * const t, bool * saw_variable) {
         }
         *saw_variable = new_saw;
         return true;
-    } else if ( t->isTimes() ) {
-        for ( Enode * arg_list = t->getCdr( )
-            ; !arg_list->isEnil( )
-            ; arg_list = arg_list->getCdr( ) )
-        {
-            Enode * arg = arg_list->getCar( );
+    } else if (t->isTimes()) {
+        for (Enode * arg_list = t->getCdr(); !arg_list->isEnil(); arg_list = arg_list->getCdr()) {
+            Enode * arg = arg_list->getCar();
             if (!is_expr_linear_product(arg, saw_variable)) {
                 return false;
             }
