@@ -133,9 +133,8 @@ void opensmt_reset( opensmt_context c )
   // Save Logic
   auto const old_l = c_->getConfig().logic;
   // Delete the current context
-  delete c_;
-  // Create a new OpenSMTContext
-  c_ = new OpenSMTContext();
+  c_->~OpenSMTContext(); // destruct OpenSMTContext without calling delete
+  new(c_) OpenSMTContext(); // use placement-new to construct a new one
   SMTConfig & config = c_->getConfig( );
   config.incremental = 1;
   // Set the logic using the saved one
