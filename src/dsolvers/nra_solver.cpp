@@ -204,7 +204,6 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
     auto it = m_ctr_map.find(make_pair(e, e->getPolarity() == l_True));
     if (it != m_ctr_map.end()) {
         shared_ptr<constraint> const ctr = it->second;
-        m_stack.push_back(ctr);
         if (ctr->get_type() == constraint_type::Nonlinear) {
             // Try to prune box using the constraint via callign simplify
             lbool const simplify_result = simplify(e, e->getPolarity(), m_cs.m_box);
@@ -220,6 +219,7 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
                 m_cs.m_used_constraints.insert(ctr);
             }
         }
+        m_stack.push_back(ctr);
     } else if (e->isIntegral() && e->getPolarity() == l_False) {
         return true;
     } else {
