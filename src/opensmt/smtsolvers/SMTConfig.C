@@ -159,6 +159,7 @@ SMTConfig::initializeConfig( )
   nra_slack_level              = 0;
 #ifdef USE_GLPK
   nra_lp                       = false;
+  nra_lp_prune                 = false;
   nra_linear_only              = false;
 #endif
   initLogging();
@@ -543,6 +544,9 @@ SMTConfig::parseCMDLine( int argc
             "use a combination of ICP and LP",
             "--lp-icp");
     opt.add("", false, 0, 0,
+            "use a combination of ICP and LP and also use the LP for pruning",
+            "--lp-icp-prune");
+    opt.add("", false, 0, 0,
             "read formula from standard input",
             "--in");
     opt.add("", false, 1, 0,
@@ -620,7 +624,8 @@ SMTConfig::parseCMDLine( int argc
     nra_heuristic_forward   = opt.isSet("--heuristic_forward");
     nra_hybrid_notlearn_clause = opt.isSet("--no-hybrid-clause-learning");
 #ifdef USE_GLPK
-    nra_lp                  = opt.isSet("--lp-icp");
+    nra_lp                  = opt.isSet("--lp-icp") || opt.isSet("--lp-icp-prune");
+    nra_lp_prune            = opt.isSet("--lp-icp-prune");
     nra_linear_only         = opt.isSet("--linear-only");
 #endif
 

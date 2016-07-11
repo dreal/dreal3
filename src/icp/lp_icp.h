@@ -40,6 +40,7 @@ private:
                            scoped_vec<std::shared_ptr<constraint>>& constraints,
                            std::unordered_set<std::shared_ptr<constraint>>& used_constraints);
     static bool is_lp_sat(glpk_wrapper & lp, box & solution, SMTConfig const & config);
+    static void prune(glpk_wrapper & lp, int i, box & solution, SMTConfig const & config);
 public:
     // TODO(damien): the contractor contains both the linear and nonlinear constraints but it only needs the nonlinear ...
     static void solve(contractor & ctc, contractor_status & cs,
