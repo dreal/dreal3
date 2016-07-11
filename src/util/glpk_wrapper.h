@@ -63,6 +63,7 @@ public:
     ~glpk_wrapper();
 
     bool is_sat();
+    bool is_solution_unbounded();
     void get_solution(box & b);
     double get_objective();
 
