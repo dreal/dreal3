@@ -149,7 +149,9 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
     //keep round number
     unsigned round = 0;
     expr tmp;
+#ifdef USE_GLPK
     s->set_lp(true);
+#endif
     // the check() solves the search problem and suggest candidate values for parameters
     while (s->check()) {
 //        cerr << "=== Search Formula ==="<<endl;

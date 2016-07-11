@@ -29,6 +29,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "egraph/Egraph.h"
 #include "smtsolvers/SimpSMTSolver.h"
 #include "cnfizers/Tseitin.h"
+#include "./config.h"
 
 class OpenSMTContext
 {
@@ -303,12 +304,14 @@ public:
   inline void       setPolytope(bool const b) {
       config.nra_polytope = b;
   }
+#ifdef USE_GLPK
   inline void       setLP(bool const b) {
       config.nra_lp = b;
   }
   inline void       setLPOnly(bool const b) {
       config.nra_linear_only = b;
   }
+#endif
   inline void       setShrinkForDop(bool const b) {
       config.nra_shrink_for_dop = b;
   }

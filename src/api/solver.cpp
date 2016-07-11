@@ -332,6 +332,7 @@ void solver::set_polytope(bool const b) {
     context->getConfig().nra_polytope = b;
 }
 
+#ifdef USE_GLPK
 void solver::set_lp(bool const b) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     context->getConfig().nra_lp = b;
@@ -341,6 +342,7 @@ void solver::set_lp_only(bool const b) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     context->getConfig().nra_linear_only = b;
 }
+#endif
 
 void solver::set_simulation(bool const b) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
