@@ -670,12 +670,15 @@ contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard
     return contractor(make_shared<contractor_fixpoint>(guard, c));
 }
 contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, initializer_list<contractor> const & clist) {
+    if (clist.size() == 0) { return mk_contractor_id(); }
     return contractor(make_shared<contractor_fixpoint>(guard, clist));
 }
 contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, vector<contractor> const & cvec) {
+    if (cvec.size() == 0) { return mk_contractor_id(); }
     return contractor(make_shared<contractor_fixpoint>(guard, cvec));
 }
 contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, initializer_list<vector<contractor>> const & cvec_list) {
+    if (cvec_list.size() == 0) { return mk_contractor_id(); }
     return contractor(make_shared<contractor_fixpoint>(guard, cvec_list));
 }
 contractor mk_contractor_int(box const & b) {
