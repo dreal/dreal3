@@ -157,6 +157,7 @@ class contractor_fixpoint : public contractor_cell {
 private:
     std::function<bool(box const &, box const &)> m_term_cond;
     std::vector<contractor> m_clist;
+    box m_old_box;
     void init();
 
     // Naive fixedpoint algorithm

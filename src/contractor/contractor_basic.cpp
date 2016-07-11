@@ -248,21 +248,21 @@ void contractor_fixpoint::init() {
 }
 
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, contractor const & c)
-    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(1, c) {
+    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(1, c), m_old_box({}) {
     init();
 }
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, initializer_list<contractor> const & clist)
-    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(clist) {
+    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(clist), m_old_box({}) {
     assert(m_clist.size() > 0);
     init();
 }
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, vector<contractor> const & cvec)
-    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec) {
+    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec), m_old_box({}) {
     assert(m_clist.size() > 0);
     init();
 }
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, initializer_list<vector<contractor>> const & cvec_list)
-    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist() {
+    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(), m_old_box({}) {
     for (auto const & cvec : cvec_list) {
         m_clist.insert(m_clist.end(), cvec.begin(), cvec.end());
     }
@@ -302,17 +302,16 @@ void contractor_fixpoint::naive_fixpoint_alg(contractor_status & cs) {
     }
     unsigned i = 0;
     // Next Iterations: stop when 1) a box is smaller enough or 2) termination condition holds
-    thread_local static box old_box(cs.m_box);
     do {
         interruption_point();
-        old_box = cs.m_box;
+        m_old_box = cs.m_box;
         contractor & c = m_clist[i];
         c.prune(cs);
         if (cs.m_box.is_empty()) {
             return;
         }
         i = (i + 1) % m_clist.size();
-    } while (cs.m_box.max_diam() > cs.m_config.nra_precision && !m_term_cond(old_box, cs.m_box));
+    } while (cs.m_box.max_diam() > cs.m_config.nra_precision && !m_term_cond(m_old_box, cs.m_box));
     return;
 }
 
@@ -338,10 +337,9 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
 
     if (q.size() == 0) { return; }
     // Fixed Point Loop
-    thread_local static box old_box(cs.m_box);
     do {
         interruption_point();
-        old_box = cs.m_box;
+        m_old_box = cs.m_box;
         unsigned const idx = q.front();
         q.pop();
         ctc_bitset.remove(idx);
@@ -351,8 +349,8 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
         contractor_status_guard csg(cs);
         c.prune(cs);
 
-        // (old_box == new_box -> output == empty)
-        assert(!(old_box == cs.m_box) || cs.m_output.empty());
+        // (m_old_box == new_box -> output == empty)
+        assert(!(m_old_box == cs.m_box) || cs.m_output.empty());
         if (cs.m_box.is_empty()) {
             return;
         }
@@ -378,7 +376,7 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
                 }
             }
         }
-    } while (q.size() > 0 && cs.m_box.max_diam() >= cs.m_config.nra_precision && !m_term_cond(old_box, cs.m_box));
+    } while (q.size() > 0 && cs.m_box.max_diam() >= cs.m_config.nra_precision && !m_term_cond(m_old_box, cs.m_box));
     return;
 }
 
