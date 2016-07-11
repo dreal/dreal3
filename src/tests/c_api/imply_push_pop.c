@@ -64,5 +64,6 @@ int main() {
     opensmt_assert(ctx, opensmt_mk_not(ctx,i3));
     print_r(opensmt_check(ctx));// a /\ not a  is unsat while the result is sat.
     opensmt_pop(ctx);
+    opensmt_del_context(ctx);
     return 0;
 }

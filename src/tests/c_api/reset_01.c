@@ -37,5 +37,7 @@ int main() {
     opensmt_assert(ctx, a);
     opensmt_result res = opensmt_check(ctx);
     assert(res == l_true);
+    fprintf(stderr, "Deleting context\n");
+    opensmt_del_context(ctx);
 return 0;
 }
