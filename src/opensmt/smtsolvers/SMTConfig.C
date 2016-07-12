@@ -162,6 +162,7 @@ SMTConfig::initializeConfig( )
   nra_lp_prune                 = false;
   nra_linear_only              = false;
 #endif
+  nra_suppress_warning         = false;
   initLogging();
 }
 
@@ -497,6 +498,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "output info messages",
             "--verbose");
+    opt.add("", false, 0, 0,
+            "suppress warning messages",
+            "--suppress-warning");
 #endif
     opt.add("", false, 0, 0,
             "output solving stats",
@@ -610,6 +614,7 @@ SMTConfig::parseCMDLine( int argc
 #ifdef LOGGING
     nra_verbose             = opt.isSet("--verbose") || opt.isSet("--debug");
     nra_debug               = opt.isSet("--debug");
+    nra_suppress_warning    = opt.isSet("--suppress-warning");
 #endif
     nra_use_stat            = opt.isSet("--stat");
     nra_polytope            = opt.isSet("--polytope");
@@ -793,10 +798,12 @@ SMTConfig::parseCMDLine( int argc
         setVerbosityDebugLevel();
     } else if (nra_verbose) {
         setVerbosityInfoLevel();
+    } else if (nra_suppress_warning) {
+      void setVerbosityErrorLevel();
     } else {
         setVerbosityWarningLevel();
     }
-    #endif
+#endif
 }
 
 void SMTConfig::initLogging() {

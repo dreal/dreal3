@@ -182,8 +182,11 @@ struct SMTConfig
   bool         nra_use_delta_heuristic;       // Split variable in constraint with max residual delta?
   bool         nra_short_sat;                 // Test theory if CNF is SAT, before have full model.
   double       nra_precision;                 // the value of delta
+#ifdef LOGGING
   bool         nra_verbose;                   // --verbose option
   bool         nra_debug;                     // --debug option
+  bool         nra_suppress_warning;          // suppress warnings (default: false)
+#endif
   bool         nra_use_stat;                  // --stat option
   dreal::stat  nra_stat;
   bool         nra_proof;                     // --proof option
@@ -234,8 +237,8 @@ struct SMTConfig
   int          nra_icp_decisions;             // number of icp branch nodes
   bool         nra_show_search_progress;      // print search progress to console
   bool         nra_heuristic_forward;         // use forward search in the heuristic solution
-  bool         nra_hybrid_notlearn_clause;       // use clause learning in hybrid heuristic
-  unsigned long nra_slack_level;        //determine slack level
+  bool         nra_hybrid_notlearn_clause;    // use clause learning in hybrid heuristic
+  unsigned long nra_slack_level;              // determine slack level
 
   void inc_icp_decisions() { nra_icp_decisions++; }
   int  icp_decisions() { return nra_icp_decisions; }
