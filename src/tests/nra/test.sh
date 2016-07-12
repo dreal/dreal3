@@ -12,7 +12,7 @@ then
     OPTION=`cat "${INSTANCE}.option"`
 fi
 echo ${DREAL} ${OPTIONS} ${OPTION} "${INSTANCE}" "==>" "${TMP}"
-"${DREAL}" ${OPTIONS} ${OPTION} "${INSTANCE}" | tee "${TMP}"
+"${DREAL}" --suppress-warning ${OPTIONS} ${OPTION} "${INSTANCE}" | tee "${TMP}"
 diff "${TMP}" "${EXPECTED_OUT}"
 RESULT=$?
 rm -- "${TMP}"

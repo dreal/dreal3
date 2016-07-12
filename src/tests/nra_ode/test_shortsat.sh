@@ -10,8 +10,8 @@ then
 fi
 TMP=$2.out
 
-echo $DREAL $OPTION $INSTANCE
-$DREAL $OPTION --short_sat $INSTANCE | tee $TMP
+echo $DREAL --suppress-warning --short-sat $OPTION $INSTANCE
+$DREAL $OPTION --suppress-warning --short-sat $INSTANCE | tee $TMP
 diff $TMP $EXPECTED_OUT
 RESULT=$?
 rm $TMP

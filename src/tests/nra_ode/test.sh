@@ -11,8 +11,8 @@ then
 fi
 TMP=`mktemp /tmp/${BASENAME}.out.XXXX`
 
-echo "${DREAL} ${OPTION} ${INSTANCE} ==> ${TMP}"
-"${DREAL}" ${OPTION} "${INSTANCE}" | tee "${TMP}"
+echo "${DREAL} --suppress-warning ${OPTION} ${INSTANCE} ==> ${TMP}"
+"${DREAL}" --suppress-warning ${OPTION} "${INSTANCE}" | tee "${TMP}"
 diff "$TMP" "$EXPECTED_OUT"
 RESULT=$?
 rm -- "${TMP}"
