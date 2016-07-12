@@ -541,12 +541,6 @@ SMTConfig::parseCMDLine( int argc
             "run two heuristics simultaneously, finish when the first finishes",
             "--multiheuristic");
     opt.add("", false, 0, 0,
-            "use a combination of ICP and LP",
-            "--lp-icp");
-    opt.add("", false, 0, 0,
-            "use a combination of ICP and LP and also use the LP for pruning",
-            "--lp-icp-prune");
-    opt.add("", false, 0, 0,
             "read formula from standard input",
             "--in");
     opt.add("", false, 1, 0,
@@ -564,9 +558,18 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "use hybrid solver clause learning",
             "--no-hybrid-clause-learning");
+#ifdef USE_GLPK
     opt.add("", false, 0, 0,
             "only invoke linear solvers on a purely linear problem",
             "--linear-only");
+    opt.add("", false, 0, 0,
+            "use a combination of ICP and LP",
+            "--lp-icp");
+    opt.add("", false, 0, 0,
+            "use a combination of ICP and LP and also use the LP for pruning",
+            "--lp-icp-prune");
+#endif
+
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
     opt.overview += "v" + string(PACKAGE_VERSION);
