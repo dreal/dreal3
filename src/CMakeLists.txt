@@ -885,49 +885,67 @@ endif()
 
 add_custom_target(update_pkgs
   COMMAND echo "Update External Packages"
-  COMMAND ${CMAKE_BUILD_TOOL}
-  DEPENDS update_clp update_filib update_ibex update_nlopt update_capd update_catch update_easyloggingpp update_ezoptionparser update_json update_picosat)
+  COMMAND ${CMAKE_BUILD_TOOL})
+
+if(USE_GLPK)
+  add_custom_target(update_glpk
+    COMMAND git fetch --all && git reset --hard origin/master && make install
+    WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/GLPK)
+  add_dependencies(update_pkgs update_glpk)
+endif()
 
 add_custom_target(update_clp
   COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CLP)
+add_dependencies(update_pkgs update_clp)
 
 add_custom_target(update_filib
   COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/FILIB)
+add_dependencies(update_pkgs update_filib)
 
 add_custom_target(update_picosat
   COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp picosat.h ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp libpicosat.a ${CMAKE_CURRENT_BINARY_DIR}/lib
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/PICOSAT)
+add_dependencies(update_pkgs update_picosat)
 
 add_custom_target(update_ibex
   COMMAND git fetch --all && git reset --hard origin/master && ./waf install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/IBEX
   DEPENDS update_filib update_clp)
+add_dependencies(update_pkgs update_ibex)
 
 add_custom_target(update_nlopt
   COMMAND git fetch --all && git reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/NLOPT)
+add_dependencies(update_pkgs update_nlopt)
 
-add_custom_target(update_capd
-  COMMAND git fetch --all && git reset --hard origin/master && make install
-  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CAPD4)
+if(SUPPORT_ODE)
+  add_custom_target(update_capd
+    COMMAND git fetch --all && git reset --hard origin/master && make install
+    WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CAPD4)
+  add_dependencies(update_pkgs update_capd)
+endif()
 
 add_custom_target(update_catch
   COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CATCH)
+add_dependencies(update_pkgs update_catch)
 
 add_custom_target(update_easyloggingpp
   COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/EASYLOGGINGPP)
+add_dependencies(update_pkgs update_easyloggingpp)
 
 add_custom_target(update_ezoptionparser
   COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/EZOPTIONPARSER)
+add_dependencies(update_pkgs update_ezoptionparser)
 
 add_custom_target(update_json
   COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/JSON)
+add_dependencies(update_pkgs update_json)
 
 # Add a distclean target to the Makefile
 ADD_CUSTOM_TARGET(distclean
