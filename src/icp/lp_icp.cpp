@@ -230,7 +230,6 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                 mark_basic(lp_solver, es, constraints, cs.m_used_constraints);
             } else {
                 if (lp_point.is_subset(cs.m_box)) {
-                    if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
                     vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, constraints, cs.m_config, 1);
                     if (sorted_dims.size() > 0) {
                         // branch ...
@@ -243,6 +242,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                             box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
                         } else {
                             tuple<int, box, box> const splits = cs.m_box.bisect_at(i);
+                            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
                             if (cs.m_config.nra_proof) {
                                 cs.m_config.nra_proof_out << "[branched on "
                                                           << cs.m_box.get_name(i)

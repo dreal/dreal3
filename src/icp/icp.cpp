@@ -91,11 +91,11 @@ void naive_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<share
         box_stack.pop_back();
         prune(ctc, cs);
         if (!cs.m_box.is_empty()) {
-            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
             vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, ctrs, cs.m_config, 1);
             if (sorted_dims.size() > 0) {
                 int const i = sorted_dims[0];
                 tuple<int, box, box> splits = cs.m_box.bisect_at(sorted_dims[0]);
+                if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
                 box const & first  = get<1>(splits);
                 box const & second = get<2>(splits);
                 assert(first.get_idx_last_branched() == i);
@@ -149,7 +149,6 @@ void multiprune_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<
         box_stack.pop_back();
         assert(!cs.m_box.is_empty());
         vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, ctrs, cs.m_config, num_try);
-        if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
         if (sorted_dims.size() > 0) {
             int bisectdim = -1;
             box first(cs.m_box);
@@ -191,6 +190,9 @@ void multiprune_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<
             assert(bisectdim != -1);
             assert(first.get_idx_last_branched() == bisectdim);
             assert(second.get_idx_last_branched() == bisectdim);
+            if (cs.m_config.nra_use_stat && !first.is_empty() && !second.is_empty()) {
+                cs.m_config.nra_stat.increase_branch();
+            }
             if (!second.is_empty() && second.is_bisectable()) {
                 box_stack.push_back(second);
                 if (!first.is_empty()) { box_stack.push_back(first); }
@@ -363,13 +365,13 @@ void ncbt_icp::solve(contractor & ctc, contractor_status & cs) {
         if (!cs.m_box.is_empty()) {
             // SAT
             tuple<int, box, box> splits = cs.m_box.bisect(cs.m_config.nra_precision);
-            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
             int const index = get<0>(splits);
             if (index >= 0) {
                 box const & first    = get<1>(splits);
                 box const & second   = get<2>(splits);
                 assert(first.get_idx_last_branched() == index);
                 assert(second.get_idx_last_branched() == index);
+                if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
                 if (second.is_bisectable()) {
                     box_stack.push_back(second);
                     box_stack.push_back(first);
