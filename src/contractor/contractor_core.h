@@ -67,6 +67,7 @@ public:
         if (m_ptr) {
             // by default, clear output vector and used constraints.
             m_ptr->prune(cs);
+            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
         }
     }
     void prune_with_assert(contractor_status & cs);

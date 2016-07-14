@@ -181,7 +181,6 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
 
     // all the box on the stack must be pruned
     ctc.prune(cs);
-    if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
     if (!cs.m_box.is_empty()) {
         box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
     } else {
@@ -252,12 +251,10 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                             // ... and prune
                             contractor_status cs1(get<1>(splits), cs.m_config);
                             ctc.prune(cs1);
-                            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
                             cs.m_used_constraints.insert(cs1.m_used_constraints.begin(), cs1.m_used_constraints.end());
 
                             contractor_status cs2(get<2>(splits), cs.m_config);
                             ctc.prune(cs2);
-                            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
                             cs.m_used_constraints.insert(cs2.m_used_constraints.begin(), cs2.m_used_constraints.end());
 
                             // push the non-empty boxes on the stack

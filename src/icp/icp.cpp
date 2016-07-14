@@ -69,7 +69,6 @@ void output_solution(box const & b, SMTConfig & config, unsigned i) {
 void prune(contractor & ctc, contractor_status & s) {
     try {
         ctc.prune(s);
-        if (s.m_config.nra_use_stat) { s.m_config.nra_stat.increase_prune(); }
     } catch (contractor_exception & e) {
         // Do nothing
     }
@@ -356,7 +355,6 @@ void ncbt_icp::solve(contractor & ctc, contractor_status & cs) {
         cs.m_box = box_stack.back();
         try {
             ctc.prune(cs);
-            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
         }

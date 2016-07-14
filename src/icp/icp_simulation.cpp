@@ -73,7 +73,6 @@ void naive_icp_worker(contractor_status & cs, box & ret, contractor & ctc, icp_s
         box_stack.pop_back();
         try {
             ctc.prune(cs);
-            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
         }

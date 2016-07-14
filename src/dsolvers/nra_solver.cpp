@@ -500,7 +500,6 @@ bool nra_solver::check(bool complete) {
         // Incomplete Check ==> Prune Only
         try {
             m_ctc.prune(m_cs);
-            if (config.nra_use_stat) { config.nra_stat.increase_prune(); }
         } catch (contractor_exception & e) {
             // Do nothing
         }
