@@ -71,5 +71,6 @@ Documentations
  - [How to contribute to dReal](CONTRIBUTING.md)
  - [Git commit message convention](doc/commit_convention.md)
  - [How to use ODE visualization][ode-vis]
+ - [How to use dReal in Windows using Docker](doc/windows-docker.md)
 
 [ode-vis]: doc/ode-visualization.md
