@@ -455,9 +455,12 @@ void nra_solver::handle_deduction() {
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
     if (config.nra_use_stat) { config.nra_stat.increase_check(complete); }
-    if (m_stack.size() == 0) { return true; }
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")"
                    << "stack size = " << m_stack.size();
+    if (m_stack.size() == 0) {
+        handle_sat_case(m_cs.m_box);
+        return true;
+    }
     default_strategy stg;
     m_ctc = stg.build_contractor(m_cs.m_box, m_stack, complete, config);
     if (complete) {
