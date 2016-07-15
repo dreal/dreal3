@@ -975,7 +975,6 @@ std::ostream & OpenSMTContext::dumpFormulas(std::ostream & out) const {
   for (auto tsolver : egraph.getTSolvers()) {
     if (tsolver != nullptr) {
       tsolver->dumpFormulas(out);
-      out << endl;
     }
   }
   return out;

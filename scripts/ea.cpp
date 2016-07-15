@@ -19,11 +19,16 @@ expr plug_in_solutions(expr & formula, vector<expr*>& x, vector<expr*> & sol, ve
     return substitute(formula, full_pre, full_post);
 }
 
-void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars, expr & phi) {
+void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars, 
+	vector<expr*> & free_uvars, vector<expr*> & derived_uvars, expr & phi) {
     solver * s = phi.get_solver();
     expr * zero = s->new_num(0);
+    vector<expr*> rest_vars = derived_uvars;
+    rest_vars.insert(rest_vars.end(), exists_vars.begin(), exists_vars.end());
     s -> push();
     expr verify = !phi;
+    unsigned round = 0;
+    cerr<<"---- Round #"<<round++<<" ----"<<endl;
     cerr<<"search starts with all existential variables set to zero..."<<endl;
     vector<expr*> sol;
     for (auto e : exists_vars) {
@@ -31,14 +36,15 @@ void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars, exp
 	verify = verify && ( *e == *zero );
     }
     s -> add(verify);
-    expr search = (*zero <= *zero); //search start with true
-    unsigned round = 0;
+    cerr<<"added the following formula for verification step: "<<verify<<endl;
+    expr search = (*zero <= *zero); //search start with true (sorry should be cleaner)
     cerr<<"verifying the zero solution..."<<endl;
-    while (s->check()) {
-	cerr<<"---- Round #"<<round++<<" ----"<<endl;
+    while (s->check() && round<4) {
 	cerr<<"universal constraints falsified... "<<endl;
-	cerr<<"the constraints are:"<<endl;
-	s->print_problem();
+	cerr<<"printing the verification constraints solved:"<<endl<<"[";
+	s->dump_formulas(cerr);
+	cerr<<"]"<<endl;
+	cerr<<"---- Round #"<<round++<<" ----"<<endl;
 	sol.clear();
 	for (auto u : forall_vars) {
 	    sol.push_back(s->new_num((s->get_lb(*u)+s->get_ub(*u))/2));
@@ -48,48 +54,48 @@ void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars, exp
 	for (unsigned i=0; i<sol.size(); i++) {
 	    cerr<<*forall_vars[i]<<":="<<*sol[i]<<" ";
 	}
-	cerr<<endl;
         //add a bunch of randomly sampled points on x
         unsigned sample = 0;
         std::default_random_engine re(std::random_device {}());
 	cerr<<"also some new samples: ";
-        while (sample < 5) {
+        while (sample < 3) {
             //clear previous solution
             sol.clear();
-            for (auto u : forall_vars) {
+            for (auto u : free_uvars) {
 		std::uniform_real_distribution<double> unif(s->get_domain_lb(*u), s->get_domain_ub(*u));
                 double p = unif(re);
                 cerr << *u << ":=" << p << " ";
 		sol.push_back(s->new_num(p));
             }
-            search = search && plug_in_solutions(phi,forall_vars,sol,exists_vars);
+            search = search && plug_in_solutions(phi,free_uvars,sol,rest_vars);
             sample++;
         }
 	cerr<<endl;
 	s -> pop();
 	s -> push();
 	s -> add(search);
-	cerr<<"search formula: "<<search<<endl;
+	cerr<<"added the following formula for search step:"<<endl<<"["<<search<<"]"<<endl;
 	cerr << "searching for existential..."<<endl;
 	if (!s->check()) {
 	    cerr<<"---- Result: unsat ----"<<endl;
 	    cerr<<"the constraints are:"<<endl;
-	    s->print_problem();
+	    s->dump_formulas(cerr);
 	    return;
-	} 
+	}
+	cerr << "printing the search problem solved:"<<endl<<"[";
+	s -> dump_formulas(cerr); 
+	cerr << "]"<<endl;
 	verify = !phi;
 	sol.clear();
 	for (auto e : exists_vars) {
 	    expr * a = s->new_num((s->get_lb(*e)+s->get_ub(*e))/2);
 	    sol.push_back(a);
-	    verify = verify && ((*e)==(*a));
 	}
+	verify = plug_in_solutions(phi,exists_vars,sol,forall_vars);
 	s -> pop();
 	s -> push();
 	s -> add(verify);
-	cerr<<"verify formula: "<<verify<<endl;
-	cerr<<"should be the same as: "<<endl;
-	s -> print_problem();
+	cerr<<"added the following formula for verification step:"<<endl<<"["<<verify<<"]"<<endl;
 	cerr << "verifying the following assignment to the existential variables..."<<endl;
 	for (unsigned i=0; i< sol.size(); i++) {
 	    cerr<<*exists_vars[i]<<":="<<*sol[i]<<endl;
@@ -97,6 +103,11 @@ void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars, exp
     }
     cerr<<"--- Result: sat (by the witness above this line) ----"<<endl;
     return;
+}
+
+void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars, expr & phi) {
+    vector<expr*> tmp;
+    exists_forall(exists_vars,forall_vars,forall_vars,tmp,phi);
 }
 
 void test1() {
@@ -110,27 +121,33 @@ void test1() {
     exists_forall(xv,yv,phi);
 }
 
+
 void test2(double eps) {
     solver s;
+    s.set_delta(eps*0.1);
     s.set_polytope(true);
-    expr x_in = s.var("x_in",-10,10);
-    expr x_out = s.var("x_out",-0.5,0.5);
-    expr p1 = s.var("p1",-1,1);
-    expr p2 = s.var("p2",-1,1);
-    expr p3 = s.var("p3",-1,1);
-    expr p4 = s.var("p4",-1,1);
+    expr x_in = s.var("x_in",-1,1);
+    expr x_out = s.var("x_out",-1,1);
+    expr x_out_real = s.var("x_out_real",-1,1);
+    expr p1 = s.var("p1",0,0.1);
+    expr p2 = s.var("p2",-0.1,0.1);
+    expr p3 = s.var("p3",0,0.1);
+    expr p4 = s.var("p4",-0.1,0.1);
     //parameters are existentially quantified
     vector<expr*> ev = {&p1,&p2,&p3,&p4};
     //x is universally quantified
-    vector<expr*> uv = {&x_in,&x_out};
-    expr program = ( x_in>p1 && x_out == sin(x_in)+p2 )|| ( x_in<p3 && x_out == sin(-x_in)+p4);
-    expr x_out_real = sin(pow(pow(x_in,2),0.5));
-    expr spec = implies(program, pow((x_out- x_out_real),2)< eps);
-    exists_forall(ev,uv,spec);
+    vector<expr*> uv = {&x_in,&x_out,&x_out_real};
+    vector<expr*> fuv = {&x_in};
+    vector<expr*> duv = {&x_out,&x_out_real};
+    expr program = ( (!(x_in>-p1)) || x_out == sin(x_in)+p2 ) && ( (!(x_in<p3)) || x_out == sin(-x_in)+p4);
+    expr func = (x_out_real == sin(abs(x_in)));
+    expr spec = (p1 > 0.0000001) && (p1 < 0.001) && (abs(p2) < 0.0001) && p2>0.000001 && (p3<0.000001) && (p1<p3) && p4>0.1 && ( (! (program && func) )|| pow((x_out- x_out_real),2)< (s.num(eps)));
+    exists_forall(ev,uv,fuv,duv,spec);
 }
 
 int main() {
-    test2(0.1); 
+    test1();
+//    test2(0.0001); 
 }
 
 
