@@ -36,10 +36,10 @@ void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars,
 	verify = verify && ( *e == *zero );
     }
     s -> add(verify);
-    cerr<<"added the following formula for verification step: "<<verify<<endl;
+    //cerr<<"added the following formula for verification step: "<<verify<<endl;
     expr search = (*zero <= *zero); //search start with true (sorry should be cleaner)
     cerr<<"verifying the zero solution..."<<endl;
-    while (s->check() && round<4) {
+    while (s->check()) {
 	cerr<<"universal constraints falsified... "<<endl;
 	cerr<<"printing the verification constraints solved:"<<endl<<"[";
 	s->dump_formulas(cerr);
@@ -58,7 +58,7 @@ void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars,
         unsigned sample = 0;
         std::default_random_engine re(std::random_device {}());
 	cerr<<"also some new samples: ";
-        while (sample < 3) {
+        while (sample < 1) {
             //clear previous solution
             sol.clear();
             for (auto u : free_uvars) {
@@ -74,7 +74,7 @@ void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars,
 	s -> pop();
 	s -> push();
 	s -> add(search);
-	cerr<<"added the following formula for search step:"<<endl<<"["<<search<<"]"<<endl;
+	//cerr<<"added the following formula for search step:"<<endl<<"["<<search<<"]"<<endl;
 	cerr << "searching for existential..."<<endl;
 	if (!s->check()) {
 	    cerr<<"---- Result: unsat ----"<<endl;
@@ -91,15 +91,16 @@ void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars,
 	    expr * a = s->new_num((s->get_lb(*e)+s->get_ub(*e))/2);
 	    sol.push_back(a);
 	}
-	verify = plug_in_solutions(phi,exists_vars,sol,forall_vars);
+	verify = plug_in_solutions(verify,exists_vars,sol,forall_vars);
 	s -> pop();
 	s -> push();
-	s -> add(verify);
-	cerr<<"added the following formula for verification step:"<<endl<<"["<<verify<<"]"<<endl;
-	cerr << "verifying the following assignment to the existential variables..."<<endl;
+	cerr << "need to verify the following assignment to the existential variables..."<<endl;
 	for (unsigned i=0; i< sol.size(); i++) {
 	    cerr<<*exists_vars[i]<<":="<<*sol[i]<<endl;
 	}
+	s -> add(verify);
+	cerr<<"added the following formula for verification step:"<<endl<<"["<<verify<<"]"<<endl;
+	cerr<<"running verification..."<<endl;
     }
     cerr<<"--- Result: sat (by the witness above this line) ----"<<endl;
     return;
@@ -112,7 +113,7 @@ void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars, exp
 
 void test1() {
     solver s;
-    expr x = s.var("x", -10, 10);
+    expr x = s.var("x", -10, 6);
     vector<expr*> xv = {&x};
     expr y = s.var("y", -10, 5);
     vector<expr*> yv = {&y};
@@ -121,11 +122,11 @@ void test1() {
     exists_forall(xv,yv,phi);
 }
 
-
 void test2(double eps) {
     solver s;
     s.set_delta(eps*0.1);
-    s.set_polytope(true);
+    //s.set_verbose(true);
+    //s.set_polytope(true);
     expr x_in = s.var("x_in",-1,1);
     expr x_out = s.var("x_out",-1,1);
     expr x_out_real = s.var("x_out_real",-1,1);
@@ -139,15 +140,18 @@ void test2(double eps) {
     vector<expr*> uv = {&x_in,&x_out,&x_out_real};
     vector<expr*> fuv = {&x_in};
     vector<expr*> duv = {&x_out,&x_out_real};
-    expr program = ( (!(x_in>-p1)) || x_out == sin(x_in)+p2 ) && ( (!(x_in<p3)) || x_out == sin(-x_in)+p4);
-    expr func = (x_out_real == sin(abs(x_in)));
-    expr spec = (p1 > 0.0000001) && (p1 < 0.001) && (abs(p2) < 0.0001) && p2>0.000001 && (p3<0.000001) && (p1<p3) && p4>0.1 && ( (! (program && func) )|| pow((x_out- x_out_real),2)< (s.num(eps)));
+    expr prog = ( x_in > -p1 && x_out == x_in )||( x_in < p3 && x_out == -x_in);
+    expr func = (x_out_real == abs(x_in));
+    expr spec = (p1>0.000001) && (!(prog && func)|| abs(x_out-x_out_real)<s.num(eps));
+//    expr program = ( (!(x_in>-p1)) || x_out == sin(x_in)+p2 ) && ( (!(x_in<p3)) || x_out == sin(-x_in)+p4);
+//    expr func = (x_out_real == sin(abs(x_in)));
+//    expr spec = (p1 > 0.0000001) && (p1 < 0.001) && (abs(p2) < 0.0001) && p2>0.000001 && (p3<0.000001) && (p1<p3) && p4>0.1 && ( (! (program && func) )|| pow((x_out- x_out_real),2)< (s.num(eps)));
     exists_forall(ev,uv,fuv,duv,spec);
 }
 
 int main() {
-    test1();
-//    test2(0.0001); 
+    //test1();
+    test2(0.001); 
 }
 
 
