@@ -24,6 +24,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "api/dreal.hh"
 #include "opensmt/api/OpenSMTContext.h"
 #include "util/subst_enode.h"
+#include "util/logging.h"
 
 using std::cerr;
 using std::endl;
@@ -546,8 +547,11 @@ expr substitute(expr const & e, unordered_map<expr *, expr *> const & m) {
     OpenSMTContext * context = static_cast<OpenSMTContext *>(e.get_ctx());
     unordered_map<Enode *, Enode *> enode_map;
     for ( auto item : m ) {
-    enode_map.emplace(static_cast<Enode*>((item.first)->get_cexpr()),
-                static_cast<Enode*>((item.second)->get_cexpr()));
+        Enode * const e1 = static_cast<Enode*>((item.first)->get_cexpr());
+        Enode * const e2 = static_cast<Enode*>((item.second)->get_cexpr());
+        if (e1 != e2) {
+            enode_map.emplace(e1, e2);
+        }
     }
     Enode * res = subst(*context, e_ce, enode_map);
     return expr(e.get_solver(), static_cast<cexpr>(res));
