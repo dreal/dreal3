@@ -41,9 +41,7 @@ Enode * subst(OpenSMTContext & ctx, Enode * e, unordered_map<Enode *, Enode *> c
         if (it != m.end()) {
             return it->second;
         } else {
-            ostringstream ss;
-            ss << e;
-            throw std::runtime_error("Variable " + ss.str() + " doesn't have a mapping in subst_map");
+            return e;
         }
     } else if (e->isTerm() && e->getCar()->isNumb()) {
         return e;
