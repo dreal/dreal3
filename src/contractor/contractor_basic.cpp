@@ -289,10 +289,11 @@ ostream & contractor_int::display(ostream & out) const {
 
 contractor_eval::contractor_eval(shared_ptr<nonlinear_constraint> const ctr)
     : contractor_cell(contractor_kind::EVAL), m_nl_ctr(ctr) {
-    auto const & var_array = m_nl_ctr->get_var_array();
-    m_input = ibex::BitSet::empty(m_nl_ctr->get_var_array().size());
-    for (int i = 0; i < var_array.size(); i++) {
-        m_input.add(i);
+    auto const sz = m_nl_ctr->get_var_array().size();
+    m_input = ibex::BitSet::empty(sz);
+    int const * ptr_used_var = m_nl_ctr->get_numctr()->f.used_vars();
+    for (int i = 0 ; i < m_nl_ctr->get_numctr()->f.nb_used_vars(); ++i) {
+        m_input.add(*ptr_used_var++);
     }
 }
 
