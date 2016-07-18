@@ -18,10 +18,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <functional>
-
+#include <queue>
+#include <string>
+#include <vector>
 #include "constraint/constraint.h"
-#include "contractor/contractor_common.h"
 #include "contractor/contractor_basic.h"
+#include "contractor/contractor_common.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
