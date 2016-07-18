@@ -43,7 +43,7 @@ using std::vector;
 namespace dreal {
 
 vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<constraint>> const & ctrs,
-                                           SMTConfig const & config, int num_try) const {
+                                           ibex::BitSet const & input, SMTConfig const & config, int num_try) const {
     double branch_precision = config.nra_precision;
     vector<int> sorted_dims;
     if (config.nra_delta_test) {
@@ -94,7 +94,7 @@ vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<
             branch_precision = 0.0;
         }
     }
-    vector<int> const bisectable_dims = b.bisectable_dims(branch_precision);
+    vector<int> const bisectable_dims = b.bisectable_dims(branch_precision, input);
     vector<double> const axis_scores = score_axes(b);
     vector<tuple<double, int>> bisectable_axis_scores;
     for (int const dim : bisectable_dims) {
