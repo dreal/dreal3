@@ -221,11 +221,11 @@ ostream& operator<<(ostream& out, box const & b) {
     return display(out, b);
 }
 
-vector<int> box::bisectable_dims(double const precision) const {
+vector<int> box::bisectable_dims(double const precision, ibex::BitSet const & input) const {
     thread_local static vector<int> dims;
     dims.clear();
     for (int i = 0; i < m_values.size(); i++) {
-        if (is_bisectable_at(i, precision)) {
+        if (input.contain(i) && is_bisectable_at(i, precision)) {
             dims.push_back(i);
         }
     }
