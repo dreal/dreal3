@@ -57,8 +57,8 @@ if(USE_ASAN)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
   if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=gold")
+    set(EXTRA_LIBS "asan" ${EXTRA_LIBS})
   endif()
-  set(EXTRA_LIBS "asan" ${EXTRA_LIBS})
 endif(USE_ASAN)
 
 ################################################################
