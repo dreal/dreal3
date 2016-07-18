@@ -230,7 +230,7 @@ contractor_ibex_newton::contractor_ibex_newton(box const & box, shared_ptr<nonli
         m_ctc.reset(new ibex::CtcNewton(m_numctr->f));
         // Set up input
         ibex::BitSet const * const input = m_ctc->input;
-        for (unsigned i = 0; i <  input->size(); i++) {
+        for (int i = input->min(); i <= input->max(); i++) {
             if ((*input)[i]) {
                 m_input.add(box.get_index(m_var_array[i].name));
             }
@@ -264,7 +264,7 @@ void contractor_ibex_newton::prune(contractor_status & cs) {
     // Set up output
     ibex::BitSet const * const ctc_output = m_ctc->output;
     bool changed = false;
-    for (unsigned i = 0; i <  ctc_output->size(); i++) {
+    for (int i = ctc_output->min(); i <= ctc_output->max(); i++) {
         if ((*ctc_output)[i]) {
             cs.m_output.add(cs.m_box.get_index(m_var_array[i].name));
             changed = true;
