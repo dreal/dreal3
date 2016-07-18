@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -91,7 +91,7 @@ void naive_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<share
         box_stack.pop_back();
         prune(ctc, cs);
         if (!cs.m_box.is_empty()) {
-            vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, ctrs, cs.m_config, 1);
+            vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, ctrs, ctc.get_input(), cs.m_config, 1);
             if (sorted_dims.size() > 0) {
                 int const i = sorted_dims[0];
                 tuple<int, box, box> splits = cs.m_box.bisect_at(sorted_dims[0]);
@@ -148,7 +148,7 @@ void multiprune_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<
         cs.m_box = box_stack.back();
         box_stack.pop_back();
         assert(!cs.m_box.is_empty());
-        vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, ctrs, cs.m_config, num_try);
+        vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, ctrs, ctc.get_input(), cs.m_config, num_try);
         if (sorted_dims.size() > 0) {
             int bisectdim = -1;
             box first(cs.m_box);

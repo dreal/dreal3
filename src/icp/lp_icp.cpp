@@ -230,7 +230,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                 mark_basic(lp_solver, es, constraints, cs.m_used_constraints);
             } else {
                 if (lp_point.is_subset(cs.m_box)) {
-                    vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, constraints, cs.m_config, 1);
+                    vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, constraints, ctc.get_input(), cs.m_config, 1);
                     if (sorted_dims.size() > 0) {
                         // branch ...
                         int const i = sorted_dims[0];
