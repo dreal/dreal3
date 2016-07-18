@@ -470,9 +470,12 @@ bool operator>=(ibex::Interval const & a, ibex::Interval const & b) {
 }
 
 void box::assign_to_enode() const {
-    for (unsigned i = 0; i < m_vars->size(); i++) {
-        (*m_vars)[i]->setValueLowerBound(m_values[i].lb());
-        (*m_vars)[i]->setValueUpperBound(m_values[i].ub());
+    if (m_vars) {
+        for (unsigned i = 0; i < m_vars->size(); i++) {
+            std::cerr << i << "\t" << (*m_vars)[i] << std::endl;
+            (*m_vars)[i]->setValueLowerBound(m_values[i].lb());
+            (*m_vars)[i]->setValueUpperBound(m_values[i].ub());
+        }
     }
 }
 
