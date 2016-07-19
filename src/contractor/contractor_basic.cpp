@@ -332,24 +332,24 @@ contractor_cache::~contractor_cache() {
 }
 
 vector<ibex::Interval> extract_from_box_using_bitset(box const & b, ibex::BitSet const & s) {
+    if (s.empty()) { return {}; }
     vector<ibex::Interval> v;
-    if (s.empty()) { return v; }
-    for (int i = s.min(); i <= s.max(); ++i) {
-        if (s.contain(i)) {
-            v.push_back(b[i]);
-        }
-    }
+    int i = s.min();
+    do {
+        if (s.contain(i)) { v.push_back(b[i]); }
+        i = s.next(i);
+    } while (i < s.max());
     return v;
 }
 
 void update_box_using_bitset(box & b, vector<ibex::Interval> const & v, ibex::BitSet const & s) {
     if (s.empty()) { return; }
     unsigned v_idx = 0;
-    for (int i = s.min(); i <= s.max(); ++i) {
-        if (s.contain(i)) {
-            b[i] = v[v_idx++];
-        }
-    }
+    int i = s.min();
+    do {
+        if (s.contain(i)) { b[i] = v[v_idx++]; }
+        i = s.next(i);
+    } while (i < s.max());
 }
 
 void contractor_cache::prune(contractor_status & cs) {
