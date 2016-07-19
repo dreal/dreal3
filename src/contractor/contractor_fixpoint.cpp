@@ -63,6 +63,25 @@ void contractor_fixpoint::init() {
     }
 }
 
+void contractor_fixpoint::build_deps_map() {
+    // set up m_dep_map: m_dep_map[var] includes all contractors which
+    // depend on a variable 'var' as an input
+    int max_var = -1;
+    for (unsigned i = 0; i < m_clist.size(); ++i) {
+        int const this_max = m_clist[i].get_input().max();
+        if (max_var < this_max) {
+            max_var = this_max;
+        }
+    }
+    for (int v = 0; v <= max_var; ++v) {
+        for (unsigned i = 0; i < m_clist.size(); ++i) {
+            if (m_clist[i].get_input().contain(v)) {
+                m_dep_map[v].insert(i);
+            }
+        }
+    }
+}
+
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, contractor const & c)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(1, c), m_old_box({}) {
     init();
@@ -89,6 +108,7 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
 void contractor_fixpoint::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_fix::prune -- begin";
     if (cs.m_config.nra_worklist_fp) {
+        if (m_dep_map.size() == 0) { build_deps_map(); }
         worklist_fixpoint_alg(cs);
         DREAL_LOG_DEBUG << "contractor_fix::prune -- end";
         return;
@@ -132,8 +152,8 @@ void contractor_fixpoint::naive_fixpoint_alg(contractor_status & cs) {
 }
 
 void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
-    thread_local static queue<unsigned> q;
-    q = queue<unsigned>();  // empty queue
+    thread_local static queue<int> q;
+    queue<int>().swap(q);  // empty queue
     thread_local static ibex::BitSet ctc_bitset = ibex::BitSet::empty(m_clist.size());
     ctc_bitset = ibex::BitSet::empty(m_clist.size());
     // Add all contractors to the queue.
@@ -143,54 +163,42 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
         c_i.prune(cs);
         if (cs.m_box.is_empty()) { return; }
         ibex::BitSet const & output_i = cs.m_output;
-        if (output_i.empty()) {
-            continue;
+        if (!output_i.empty()) {
+            assert(!ctc_bitset.contain(i));
+            q.push(i);
+            ctc_bitset.add(i);
         }
-        assert(!ctc_bitset.contain(i));
-        q.push(i);
-        ctc_bitset.add(i);
     }
 
     if (q.size() == 0) { return; }
     // Fixed Point Loop
     do {
         interruption_point();
-        m_old_box = cs.m_box;
         unsigned const idx = q.front();
         q.pop();
         ctc_bitset.remove(idx);
         assert(!ctc_bitset.contain(idx));
         assert(idx < m_clist.size());
         contractor & c = m_clist[idx];
+        m_old_box = cs.m_box;
         contractor_status_guard csg(cs);
         c.prune(cs);
-
-        // (m_old_box == new_box -> output == empty)
-        assert(!(m_old_box == cs.m_box) || cs.m_output.empty());
-        if (cs.m_box.is_empty()) {
-            return;
-        }
+        if (cs.m_box.is_empty()) { return; }
         auto const & c_output = cs.m_output;
         if (!c_output.empty()) {
             // j-th dimension is changed as a result of pruning
             // need to add a contractor which takes j-th dim as an input
-            for (int j = c_output.min(); j <= c_output.max(); ++j) {
-                if (!c_output.contain(j)) {
-                    continue;
-                }
-                for (unsigned k = 0; k < m_clist.size(); ++k) {
-                    // Only add if it's not in the current queue
-                    if (!ctc_bitset.contain(k)) {
-                        contractor const & c_k = m_clist[k];
-                        auto const & c_k_input = c_k.get_input();
-                        if (c_k_input.contain(j)) {
-                            assert(!ctc_bitset.contain(k));
-                            q.push(k);
-                            ctc_bitset.add(k);
-                        }
+            int j = c_output.min();
+            do {
+                if (!c_output.contain(j)) { continue; }
+                for (int const dependent_ctc_id : m_dep_map[j]) {
+                    if (!ctc_bitset.contain(dependent_ctc_id)) {
+                        q.push(dependent_ctc_id);
+                        ctc_bitset.add(dependent_ctc_id);
                     }
                 }
-            }
+                j = c_output.next(j);
+            } while (j < c_output.max());
         }
     } while (q.size() > 0 && (m_old_box != cs.m_box) && cs.m_box.is_bisectable(cs.m_config.nra_precision) && !m_term_cond(m_old_box, cs.m_box));
     return;

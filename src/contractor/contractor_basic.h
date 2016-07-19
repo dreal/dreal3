@@ -158,12 +158,14 @@ private:
     std::function<bool(box const &, box const &)> m_term_cond;
     std::vector<contractor> m_clist;
     box m_old_box;
-    void init();
+    std::unordered_map<int, std::unordered_set<int>> m_dep_map;  // m_dep_map[v] = set of contractors depending on v (input)
 
+    void init();
     // Naive fixedpoint algorithm
     void naive_fixpoint_alg(contractor_status & cs);
     // Worklist fixedpoint algorithm
     void worklist_fixpoint_alg(contractor_status & cs);
+    void build_deps_map();
 
 public:
     contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond, contractor const & c);
