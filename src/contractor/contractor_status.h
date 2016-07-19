@@ -68,14 +68,18 @@ private:
 public:
     // Save output and used_constraints, and clear them
     explicit contractor_status_guard(contractor_status & cs)
-        : m_cs_ref(cs), m_old_output(cs.m_output), m_old_used_constraints(cs.m_used_constraints) {
+        : m_cs_ref(cs), m_old_output(cs.m_output), m_old_used_constraints() {
         cs.m_output.clear();
-        cs.m_used_constraints.clear();
+        cs.m_used_constraints.swap(m_old_used_constraints);
     }
     ~contractor_status_guard() {
         // Add saved output and used_constraints back to the m_cs_ref
-        m_cs_ref.m_output.union_with(m_old_output);
-        m_cs_ref.m_used_constraints.insert(m_old_used_constraints.begin(), m_old_used_constraints.end());
+        m_cs_ref.m_output.swap(m_old_output);
+        m_cs_ref.m_used_constraints.swap(m_old_used_constraints);
+        if (!m_old_output.empty()) {
+            m_cs_ref.m_output.union_with(m_old_output);
+            m_cs_ref.m_used_constraints.insert(m_old_used_constraints.begin(), m_old_used_constraints.end());
+        }
     }
 };
 
