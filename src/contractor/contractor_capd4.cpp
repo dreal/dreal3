@@ -777,7 +777,7 @@ void contractor_capd_full::prune(contractor_status & cs) {
         vector<pair<capd::interval, capd::IVector>> enclosures;
         do {
             // Handle Timeout
-            if (m_timeout > 0.0 && cs.m_box.max_diam() > cs.m_config.nra_precision) {
+            if (m_timeout > 0.0 && cs.m_box.is_bisectable(cs.m_config.nra_precision)) {
                 auto const end_time = steady_clock::now();
                 auto const time_diff_in_msec = std::chrono::duration<double, milli>(end_time - start_time).count();
                 DREAL_LOG_INFO << "ODE TIME: " << time_diff_in_msec << " / " << m_timeout;
@@ -1124,7 +1124,7 @@ void contractor_capd_point::prune(contractor_status & cs) {
         }
         do {
             // Handle Timeout
-            if (m_timeout > 0.0 && b.max_diam() > config.nra_precision) {
+            if (m_timeout > 0.0 && b.is_bisectable(config.nra_precision)) {
                 auto const end_time = steady_clock::now();
                 auto const time_diff_in_msec = std::chrono::duration<double, milli>(end_time - start_time).count();
                 DREAL_LOG_INFO << "ODE TIME: " << time_diff_in_msec << " / " << m_timeout;

@@ -127,7 +127,7 @@ void contractor_fixpoint::naive_fixpoint_alg(contractor_status & cs) {
             return;
         }
         i = (i + 1) % m_clist.size();
-    } while (cs.m_box.max_diam() > cs.m_config.nra_precision && !m_term_cond(m_old_box, cs.m_box));
+    } while (m_old_box != cs.m_box && cs.m_box.is_bisectable(cs.m_config.nra_precision) && !m_term_cond(m_old_box, cs.m_box));
     return;
 }
 
@@ -192,7 +192,7 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
                 }
             }
         }
-    } while (q.size() > 0 && cs.m_box.max_diam() >= cs.m_config.nra_precision && !m_term_cond(m_old_box, cs.m_box));
+    } while (q.size() > 0 && (m_old_box != cs.m_box) && cs.m_box.is_bisectable(cs.m_config.nra_precision) && !m_term_cond(m_old_box, cs.m_box));
     return;
 }
 }  // namespace dreal

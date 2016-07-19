@@ -57,7 +57,8 @@ vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<
                 if (eval_result.first == l_True) {
                     continue;
                 }
-                if (eval_result.second.diam() > branch_precision) {
+                if (eval_result.second.is_bisectable() &&
+                    eval_result.second.diam() > branch_precision) {
                     delta_test_passed = false;
                 }
                 break;
@@ -66,7 +67,7 @@ vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<
                 // |X_0|, |X_t|, and |par| has to be < delta
                 auto const ode_ctr = dynamic_pointer_cast<ode_constraint>(ctr);
                 for (auto const & var : ode_ctr->get_vars()) {
-                    if (b[var].diam() > branch_precision) {
+                    if (b[var].is_bisectable() && b[var].diam() > branch_precision) {
                         delta_test_passed = false;
                         break;
                     }
