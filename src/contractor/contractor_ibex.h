@@ -31,6 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "util/logging.h"
 
 namespace dreal {
 
@@ -39,6 +40,7 @@ private:
     std::shared_ptr<nonlinear_constraint> m_ctr;
     std::shared_ptr<ibex::NumConstraint const> m_numctr;
     std::unordered_map<std::thread::id, std::shared_ptr<ibex::CtcFwdBwd>> m_ctc_map;
+    std::vector<ibex::Function> m_func_store;
     std::shared_ptr<ibex::CtcFwdBwd> get_ctc(std::thread::id const tid, bool const need_to_clone) {
         // non-const version: look up m_ctc_map
         // if found, return one in the map
@@ -51,15 +53,19 @@ private:
                 m_ctc_map.emplace(tid, nullptr);
             } else {
                 if (need_to_clone) {
-                    ibex::Function new_f(m_numctr->f, ibex::Function::COPY);
+                    // Since ibex::CtcFwdBwd takes a reference of a
+                    // ibex::Function. If we don't store a function
+                    // inside of a vector(store), it will be destroyed
+                    // after this scope and m_ctc will point to that
+                    // destroyed function.
+                    m_func_store.emplace_back(m_numctr->f, ibex::Function::COPY);
                     ibex::CmpOp const op = m_numctr->op;
-                    m_ctc_map.emplace(tid, std::make_shared<ibex::CtcFwdBwd>(new_f, op));
+                    m_ctc_map.emplace(tid, std::make_shared<ibex::CtcFwdBwd>(m_func_store.back(), op));
                 } else {
                     m_ctc_map.emplace(tid, std::make_shared<ibex::CtcFwdBwd>(*m_numctr));
                 }
             }
             return m_ctc_map[tid];
-
         } else {
             // found
             return it->second;
