@@ -152,10 +152,8 @@ void contractor_fixpoint::naive_fixpoint_alg(contractor_status & cs) {
 }
 
 void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
-    thread_local static queue<int> q;
-    queue<int>().swap(q);  // empty queue
-    thread_local static ibex::BitSet ctc_bitset = ibex::BitSet::empty(m_clist.size());
-    ctc_bitset = ibex::BitSet::empty(m_clist.size());
+    queue<int> q;
+    ibex::BitSet ctc_bitset(m_clist.size());
     // Add all contractors to the queue.
     for (unsigned i = 0; i < m_clist.size(); ++i) {
         contractor & c_i = m_clist[i];
