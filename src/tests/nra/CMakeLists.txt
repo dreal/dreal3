@@ -101,14 +101,6 @@ ENDFOREACH(instance)
 IF(USE_GLPK)
     FOREACH(instance ${NRA_INSTANCES})
         GET_FILENAME_COMPONENT(instance_name ${instance} NAME)
-        add_test(NAME "regression_nra_linear_only_${instance_name}"
-            COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test.sh"
-            ${DREAL_BINARY} ${instance} "--linear-only")
-        set_tests_properties("regression_nra_linear_only_${instance_name}" PROPERTIES LABELS "nra_linear_only")
-    ENDFOREACH(instance)
-
-    FOREACH(instance ${NRA_INSTANCES})
-        GET_FILENAME_COMPONENT(instance_name ${instance} NAME)
         add_test(NAME "regression_nra_lp_icp_${instance_name}"
             COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test.sh"
             ${DREAL_BINARY} ${instance} "--lp-icp")
