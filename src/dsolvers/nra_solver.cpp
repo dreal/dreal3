@@ -48,6 +48,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/glpk_wrapper.h"
 #include "icp/lp_icp.h"
 #endif
+#include "icp/scoring_icp.h"
 
 using ibex::IntervalVector;
 using nlohmann::json;
@@ -496,6 +497,8 @@ bool nra_solver::check(bool complete) {
         } else if (config.nra_lp) {
             lp_icp::solve(m_ctc, m_cs, m_stack);
 #endif
+        } else if (config.nra_scoring) {
+            scoring_icp::solve(m_ctc, m_cs, m_stack);
         } else {
             naive_icp::solve(m_ctc, m_cs, m_stack);
         }
