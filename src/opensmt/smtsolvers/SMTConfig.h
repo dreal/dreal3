@@ -247,6 +247,7 @@ struct SMTConfig
   bool         nra_lp_prune;                  // use the LP solver for pruning
   bool         nra_linear_only;               // use glpk on linear only problems
 #endif
+  bool         nra_scoring;                   // use ICP that use scoring to branch
 
   void setODEFwdTimeout(double const ode_fwd_timeout);
   void setODEBwdTimeout(double const ode_bwd_timeout);

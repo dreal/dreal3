@@ -162,6 +162,7 @@ SMTConfig::initializeConfig( )
   nra_lp_prune                 = false;
   nra_linear_only              = false;
 #endif
+  nra_scoring                  = false;
   nra_suppress_warning         = false;
   initLogging();
 }
@@ -573,6 +574,9 @@ SMTConfig::parseCMDLine( int argc
             "use a combination of ICP and LP and also use the LP for pruning",
             "--lp-icp-prune");
 #endif
+    opt.add("", false, 0, 0,
+            "use modified ICP that use scoring for branching",
+            "--scoring-icp");
 
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
@@ -636,6 +640,7 @@ SMTConfig::parseCMDLine( int argc
     nra_lp_prune            = opt.isSet("--lp-icp-prune");
     nra_linear_only         = opt.isSet("--linear-only");
 #endif
+    nra_scoring             = opt.isSet("--scoring-icp");
 
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }

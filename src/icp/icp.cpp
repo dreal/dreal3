@@ -171,7 +171,7 @@ void multiprune_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<
                 cs.m_box = get<2>(splits);
                 prune(ctc, cs);
                 box a2 = cs.m_box;
-                double const cscore = -a1.volume() - a2.volume();  // TODO(dzufferey): not a good way is some intervales are points
+                double const cscore = -a1.volume() - a2.volume();  // TODO(dzufferey): not a good way as some intervals are points (volume = 0)
                 if (cscore > score || bisectdim == -1) {
                     first = a1;
                     second = a2;
