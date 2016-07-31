@@ -18,16 +18,17 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-
+#include <stack>
+#include <tuple>
 #include <unordered_set>
 #include <vector>
 #include "./config.h"
-#include "icp/icp.h"
+#include "contractor/contractor.h"
 #include "icp/brancher.h"
+#include "icp/icp.h"
+#include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
 #include "util/scoped_vec.h"
-#include "contractor/contractor.h"
-#include "opensmt/smtsolvers/SMTConfig.h"
 
 // can we make that fit into the BranchHeuristic
 namespace dreal {
@@ -41,13 +42,13 @@ private:
     scoped_vec<std::shared_ptr<constraint>> const & ctrs;
 
     std::vector<box> solns;
-    std::stack<std::tuple<int,box>> box_stack;
+    std::stack<std::tuple<int, box>> box_stack;
 
     unsigned int size;
     double * scores;
     double * prune_results;
     unsigned int * nbr_prune;
-    
+
     void reset_scores();
     void compute_scores();
     int highest_score();
@@ -70,7 +71,6 @@ private:
     void solve();
 
 public:
-
     scoring_icp(contractor & ctc, contractor_status & cs,
            scoped_vec<std::shared_ptr<constraint>> const & ctrs,
            BranchHeuristic & heuristic);
@@ -81,4 +81,3 @@ public:
                       BranchHeuristic & heuristic = defaultHeuristic);
 };
 }  // namespace dreal
-

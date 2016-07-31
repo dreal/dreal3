@@ -146,7 +146,7 @@ void scoring_icp::prune_split_fixed_point() {
 void scoring_icp::solve() {
     box_stack.emplace(0, cs.m_box);
     int last_scoring = -score_update_start;
-    int scoring_depth; // the last depth at which we did compute the score
+    int scoring_depth;  // the last depth at which we did compute the score
     do {
         DREAL_LOG_INFO << "scoring_icp::solve - loop"
                        << "\t" << "box stack Size = " << box_stack.size();
@@ -181,7 +181,6 @@ void scoring_icp::solve() {
                     split = sorted_dims[0];
                 }
             }
-            
             if (split >= 0) {
                 tuple<int, box, box> splits = cs.m_box.bisect_at(split);
                 if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
@@ -239,8 +238,7 @@ scoring_icp::scoring_icp(contractor & _ctc, contractor_status & _cs, scoped_vec<
     size(_cs.m_box.size()),
     scores(new double[_cs.m_box.size()]),
     prune_results(new double[_cs.m_box.size()]),
-    nbr_prune(new unsigned int[_cs.m_box.size()])
-{
+    nbr_prune(new unsigned int[_cs.m_box.size()]) {
     reset_scores();
 }
 
@@ -256,4 +254,3 @@ void scoring_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<sha
 }
 
 }  // namespace dreal
-
