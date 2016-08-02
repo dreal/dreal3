@@ -239,8 +239,7 @@ else()
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/picosat.git
     GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} ./configure.sh # --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
     BUILD_COMMAND CC=${CMAKE_C_COMPILER} make VERBOSE=1
     BUILD_IN_SOURCE 1
@@ -264,8 +263,7 @@ else()
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/filibxx.git
     GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
@@ -290,8 +288,7 @@ if(USE_GLPK)
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
       GIT_REPOSITORY https://github.com/dreal-deps/glpk.git
       GIT_TAG master
-      UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-      COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+      UPDATE_COMMAND ""
       CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
       BUILD_COMMAND make
       BUILD_IN_SOURCE 1
@@ -316,8 +313,7 @@ else()
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/nlopt.git
     GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -Wno-deprecated-declarations -w" CFLAGS=-Wno-deprecated-declarations "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
@@ -344,8 +340,7 @@ if(SUPPORT_ODE)
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
       GIT_REPOSITORY https://github.com/dreal-deps/capdDynSys-4.0.git
       GIT_TAG master
-      UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-      COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+      UPDATE_COMMAND ""
       CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} --without-gui --without-boost --with-mpfr=no --with-filib=no ${SHARED_LIB_CONFIG_COMMAND}
       BUILD_COMMAND make
       BUILD_IN_SOURCE 1
@@ -362,8 +357,7 @@ if(MINGW)
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
     GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-           COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=--std=c++11 CC=${CMAKE_C_COMPILER} ./configure --build=x86_64-w64-mingw32 --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
@@ -382,8 +376,7 @@ else(MINGW)
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
       GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
       GIT_TAG master
-      UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-      COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+      UPDATE_COMMAND ""
       CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=--std=c++11 CC=${CMAKE_C_COMPILER} ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --enable-static --with-blas=BUILD --with-lapack=BUILD --disable-bzlib --disable-zlib
       BUILD_COMMAND make
       BUILD_IN_SOURCE 1
@@ -414,8 +407,7 @@ else()
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/ibex-lib.git
     GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=--std=c++11 CC=${CMAKE_C_COMPILER} ./waf configure --with-optim --prefix=${CMAKE_CURRENT_BINARY_DIR} --with-clp=${CMAKE_CURRENT_BINARY_DIR} --with-filib=${CMAKE_CURRENT_BINARY_DIR} ${IBEX_DEBUG_MODE} ${SHARED_LIB_IBEX_COMMAND}
     BUILD_COMMAND ./waf build
     BUILD_IN_SOURCE 1
@@ -439,8 +431,7 @@ else(USE_LOCAL_THIRD_PARTY)
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/Catch.git
     GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND echo "nothing to configure"
     BUILD_COMMAND echo "nothing to build"
     BUILD_IN_SOURCE 1
@@ -462,8 +453,7 @@ else()
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/easyloggingpp.git
     GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND echo "nothing to configure"
     BUILD_COMMAND echo "nothing to build"
     BUILD_IN_SOURCE 1
@@ -485,8 +475,7 @@ else()
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/ezoptionparser.git
     GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND echo "nothing to configure"
     BUILD_COMMAND echo "nothing to build"
     BUILD_IN_SOURCE 1
@@ -508,8 +497,7 @@ else()
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/json.git
     GIT_TAG master
-    UPDATE_COMMAND ${GIT_EXECUTABLE} fetch --all
-    COMMAND ${GIT_EXECUTABLE} reset --hard origin/master
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND echo "nothing to configure"
     BUILD_COMMAND echo "nothing to build"
     BUILD_IN_SOURCE 1
@@ -889,61 +877,61 @@ add_custom_target(update_pkgs
 
 if(USE_GLPK)
   add_custom_target(update_glpk
-    COMMAND git fetch --all && git reset --hard origin/master && make install
+    COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && make install
     WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/GLPK)
   add_dependencies(update_pkgs update_glpk)
 endif()
 
 add_custom_target(update_clp
-  COMMAND git fetch --all && git reset --hard origin/master && make install
+  COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CLP)
 add_dependencies(update_pkgs update_clp)
 
 add_custom_target(update_filib
-  COMMAND git fetch --all && git reset --hard origin/master && make install
+  COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/FILIB)
 add_dependencies(update_pkgs update_filib)
 
 add_custom_target(update_picosat
-  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp picosat.h ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp libpicosat.a ${CMAKE_CURRENT_BINARY_DIR}/lib
+  COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp picosat.h ${CMAKE_CURRENT_BINARY_DIR}/include/picosat && cp libpicosat.a ${CMAKE_CURRENT_BINARY_DIR}/lib
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/PICOSAT)
 add_dependencies(update_pkgs update_picosat)
 
 add_custom_target(update_ibex
-  COMMAND git fetch --all && git reset --hard origin/master && ./waf install
+  COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && ./waf install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/IBEX
   DEPENDS update_filib update_clp)
 add_dependencies(update_pkgs update_ibex)
 
 add_custom_target(update_nlopt
-  COMMAND git fetch --all && git reset --hard origin/master && make install
+  COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/NLOPT)
 add_dependencies(update_pkgs update_nlopt)
 
 if(SUPPORT_ODE)
   add_custom_target(update_capd
-    COMMAND git fetch --all && git reset --hard origin/master && make install
+    COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && make install
     WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CAPD4)
   add_dependencies(update_pkgs update_capd)
 endif()
 
 add_custom_target(update_catch
-  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/
+  COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/catch && cp -v single_include/catch.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/catch/
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/CATCH)
 add_dependencies(update_pkgs update_catch)
 
 add_custom_target(update_easyloggingpp
-  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/
+  COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp && cp -v src/easylogging++.h ${CMAKE_CURRENT_BINARY_DIR}/include/easylogingpp/
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/EASYLOGGINGPP)
 add_dependencies(update_pkgs update_easyloggingpp)
 
 add_custom_target(update_ezoptionparser
-  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install
+  COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/ezOptionParser/ && make PREFIX=${CMAKE_CURRENT_BINARY_DIR} install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/EZOPTIONPARSER)
 add_dependencies(update_pkgs update_ezoptionparser)
 
 add_custom_target(update_json
-  COMMAND git fetch --all && git reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/
+  COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/json && cp -v src/json.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/json/
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/JSON)
 add_dependencies(update_pkgs update_json)
 
