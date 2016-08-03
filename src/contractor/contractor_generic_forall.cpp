@@ -383,6 +383,7 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
         }
         auto numctr = ctr.get_numctr();
         // Construct iv from box b
+        ibex::IntervalVector const iv_copy = iv;
         if (numctr->op == ibex::CmpOp::GT || numctr->op == ibex::CmpOp::GEQ) {
             numctr->f.ibwd(ibex::Interval(0.0, POS_INFINITY), iv);
         } else if (numctr->op == ibex::CmpOp::LT || numctr->op == ibex::CmpOp::LEQ) {
@@ -394,6 +395,7 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
             ss << "find_CE_via_underapprox: unknown constraint type, " << *numctr;
             throw runtime_error(ss.str());
         }
+        iv &= iv_copy;
         if (iv.is_empty()) {
             // stop when counterexample is already empty;
             return counterexample;
