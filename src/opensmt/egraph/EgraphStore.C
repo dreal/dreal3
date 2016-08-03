@@ -1,5 +1,6 @@
 /*********************************************************************
 Author: Roberto Bruttomesso <roberto.bruttomesso@gmail.com>
+        Soonho Kong <soonhok@cs.cmu.edu>, <soonho.kong@tri.global>
 
 OpenSMT -- Copyright (C) 2008-2010, Roberto Bruttomesso
 
@@ -1397,34 +1398,51 @@ Enode * Egraph::mkNot( Enode * args )
   return cons( id_to_enode[ ENODE_ID_NOT ], args );
 }
 
+// recursively traverse Enodes inside of args and add them to new_args
+// by flattening them out
+//
+// precondition:
+//  - initDup1() is called before this function is called.
+//  - doneDup1() will be called after this one
+//
+// return value:
+//  - false  : if any subterm is false.
+//  - true : otherwise
+bool Egraph::flattenAnd(Enode * const args, list<Enode *> & new_args) {
+  for (Enode * list = args; !list->isEnil(); list = list->getCdr()) {
+    Enode * e = list->getCar();
+    assert(e->hasSortBool());
+    if (!e->hasSortBool()) {
+      ostringstream os;
+      os << "Egraph::flattenAnd found a non-Boolean Enode: " << e;
+      throw runtime_error(os.str());
+    }
+    if (isDup1(e)) continue;
+    if (e->isFalse()) { return false; }
+    if (e->isTrue()) { continue; }
+    if (e->isAnd()) {
+      bool const ret = flattenAnd(e->getCdr(), new_args);
+      if (!ret) { return ret; }
+    } else {
+      new_args.push_front(e);
+    }
+    storeDup1(e);
+  }
+  return true;
+}
+
+
 Enode * Egraph::mkAnd( Enode * args )
 {
   assert( args );
   assert( args->isList( ) );
-
   if (!args || !args->isList()) {
       return nullptr;
   }
-
   initDup1( );
-
   list< Enode * > new_args;
-  for ( Enode * alist = args ; !alist->isEnil( ) ; alist = alist->getCdr( ) )
-  {
-    Enode * e = alist->getCar( );
-    assert( e->hasSortBool( ) );
-    if (!e->hasSortBool()) {
-        return nullptr;
-    }
-
-    if ( isDup1( e ) ) continue;
-    if ( e->isTrue( ) ) continue;
-    if ( e->isFalse( ) ) { doneDup1( ); return mkFalse( ); }
-
-    new_args.push_front( e );
-    storeDup1( e );
-  }
-
+  bool const ret = flattenAnd(args, new_args);
+  if (!ret) { doneDup1( ); return mkFalse(); }
   doneDup1( );
 
   Enode * res = nullptr;
@@ -1440,6 +1458,39 @@ Enode * Egraph::mkAnd( Enode * args )
   return res;
 }
 
+// recursively traverse Enodes inside of args and add them to new_args
+// by flattening them out
+//
+// precondition:
+//  - initDup1() is called before this function is called.
+//  - doneDup1() will be called after this one
+//
+// return value:
+//  - true  : if any subterm is true.
+//  - false : otherwise
+bool Egraph::flattenOr(Enode * const args, list<Enode *> & new_args) {
+  for (Enode * list = args; !list->isEnil(); list = list->getCdr()) {
+    Enode * e = list->getCar();
+    assert(e->hasSortBool());
+    if (!e->hasSortBool()) {
+      ostringstream os;
+      os << "Egraph::flattenOr found a non-Boolean Enode: " << e;
+      throw runtime_error(os.str());
+    }
+    if (isDup1(e)) continue;
+    if (e->isFalse()) continue;
+    if (e->isTrue()) { return true; }
+    if (e->isOr()) {
+      bool const ret = flattenOr(e->getCdr(), new_args);
+      if (ret) { return ret; }
+    } else {
+      new_args.push_front(e);
+    }
+    storeDup1(e);
+  }
+  return false;
+}
+
 Enode * Egraph::mkOr( Enode * args )
 {
   assert( args );
@@ -1447,27 +1498,10 @@ Enode * Egraph::mkOr( Enode * args )
   if (!args || !args->isList()) {
       return nullptr;
   }
-
   initDup1( );
-
   list< Enode * > new_args;
-  for ( Enode * list = args ; !list->isEnil( ) ; list = list->getCdr( ) )
-  {
-    Enode * e = list->getCar( );
-
-    assert( e->hasSortBool( ) );
-    if (!e->hasSortBool()) {
-        return nullptr;
-    }
-
-    if ( isDup1( e ) ) continue;
-    if ( e->isFalse( ) ) continue;
-    if ( e->isTrue( ) ) { doneDup1( ); return mkTrue( ); }
-
-    new_args.push_front( e );
-    storeDup1( e );
-  }
-
+  bool const ret = flattenOr(args, new_args);
+  if (ret) { doneDup1( ); return mkTrue(); }
   doneDup1( );
 
   if ( new_args.size( ) == 0 )
@@ -1475,7 +1509,6 @@ Enode * Egraph::mkOr( Enode * args )
 
   if ( new_args.size( ) == 1 )
     return new_args.back( );
-
   return cons( id_to_enode[ ENODE_ID_OR ], cons( new_args ) );
 }
 

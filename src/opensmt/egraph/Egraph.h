@@ -163,9 +163,11 @@ public:
   inline Enode * mkDiv (Enode * e1, Enode * e2) { return mkDiv(cons(e1,cons(e2))); }
   Enode * mkDistinct         ( Enode * );
   Enode * mkNot              ( Enode * );
+  bool    flattenAnd(Enode * const args, std::list<Enode *> & new_args);
   Enode * mkAnd              ( Enode * );
   Enode * mkIff              ( Enode * );
   Enode * mkOr               ( Enode * );
+  bool    flattenOr(Enode * const args, std::list<Enode *> & new_args);
   Enode * mkIte              ( Enode * );
   Enode * mkIte              ( Enode *, Enode *, Enode * );
   Enode * mkEq               ( Enode * );
