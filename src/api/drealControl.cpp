@@ -134,11 +134,12 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
     // base_vcondition for verification step
     expr base_vcondition = ((bl > eps) && (v < 0.0001)) || ((bl > eps) && (lv > (-0.0001)));
     // start with the trivial solution
-    vector<expr*> sol;
+    vector<expr*> sol(x.size(), &zero);
+#ifndef NDEBUG
     for (auto state : x) {
         assert(state);
-        sol.push_back(&zero);
     }
+#endif
     // search condition will be used for finding parameters
     expr search_condition = plugSolutionsIn(base_scondition, x, sol, p);
     // prepare a push point. will first add the formula for searching, then pop, then add formula for verifying
