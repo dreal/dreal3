@@ -146,7 +146,7 @@ void scoring_icp::prune_split_fixed_point() {
 void scoring_icp::solve() {
     box_stack.emplace(0, cs.m_box);
     int last_scoring = -score_update_start;
-    int scoring_depth;  // the last depth at which we did compute the score
+    int scoring_depth = 0;  // the last depth at which we did compute the score
     do {
         DREAL_LOG_INFO << "scoring_icp::solve - loop"
                        << "\t" << "box stack Size = " << box_stack.size();
