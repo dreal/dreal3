@@ -80,6 +80,8 @@ let run () =
       | true -> Network.compose hm
       | false -> hm
     in
+    (* If --path option is used, set k with using the length of the path *)
+    let _ = if Option.is_some !path then k := (List.length (Option.get !path)) - 1 in
     (*    Network.print out my_hm; *)
     (*   begin
                 (*Network.print out hm;*)
