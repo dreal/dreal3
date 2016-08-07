@@ -45,7 +45,7 @@ OPTIONS:
    -n               parse new .drh file format (default: do not use)
 
    -s               parse new .drh file format and use synchronous encoding (default: do not use)
-   
+
 EXAMPLE:
 
    dReach -k 10      bouncing_ball.drh --verbose --precision 0.001 --visualize
@@ -180,11 +180,11 @@ do
         OUT=${BASE}_${K}.output
         HEURISTIC=${BASE}_${K}.bh
 
-       if [ $BMCH -lt 3 ]
+        if [ $BMCH -lt 3 ]
         then
             #Generate Disjunctive Encoding w/o pruning
             $BMC -k $K $PDRH > ${SMT}
-	    MY_SOLVER_OPT="${SOLVER_OPT}"
+            MY_SOLVER_OPT="${SOLVER_OPT}"
         fi
 
 
@@ -201,8 +201,8 @@ do
 
         #Solve
         echo "${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta --sat-prep-bool 2>&1 | tee $OUT"
-	${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta --sat-prep-bool 2>&1 | tee $OUT
-	#        ${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta  2>&1 | tee $OUT
+        ${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta --sat-prep-bool 2>&1 | tee $OUT
+        #        ${SOLVER} ${MY_SOLVER_OPT} ${SMT} --short_sat --delta_heuristic --delta  2>&1 | tee $OUT
         RESULT=`tail -n 1 $OUT`
         if [[ $RESULT == delta-sat* ]]
         then
