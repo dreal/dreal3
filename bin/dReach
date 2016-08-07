@@ -29,6 +29,8 @@ OPTIONS:
 
    -l <N>           specify the lowerbound of unrolling steps (default: 0)
 
+   -p <PATH>        only consider the specified path
+
    -b               use BMC heuristic with disjunctive path encoding (default: do not use)
 
    -r               -b and filter unreachable modes from SMT encoding (default: do not use)
@@ -60,6 +62,7 @@ EOF
 K=NONE
 L=0
 U=NONE
+P=NONE
 DEFAULT_U=3
 Z_OPT=FALSE #(edited: FS)
 NEW=""
@@ -95,6 +98,9 @@ do
             ;;
         c)
             NEW=" --new_format_composed"
+            ;;
+        p)
+            P=$OPTARG
             ;;
         \?)
             usage
@@ -169,6 +175,47 @@ sed "s/\/\/.*//g" $DRH | cpp -P -w > $PDRH
 
 # Append option to parse new file format and filter mode encodings
 BMC=$BMC$NEW
+
+if [[ ! $P == "NONE" ]] ; then
+    SMT=${BASE}.smt2
+    OUT=${BASE}.output
+    $BMC --path $P $PDRH > ${SMT}
+    echo SMT: ${SMT}, PATH : "$P"
+    if [ $Z_OPT == TRUE ];                                          # (edited: FS)
+    then                                                            #
+        ${SOLVER} ${SOLVER_OPT} --short_sat ${SMT} 2>$ERR 1>$OUT    #
+        if [ $? == 0 ];                                             #
+        then                                                        #
+            rm $ERR                                                 #
+            rm $SMT                                                 #
+        else                                                        #
+            echo "dReal terminated abnormally. ERROR LOG is written to" $ERR #
+            rm $SMT                                                 #
+            rm $OUT                                                 #
+            exit 1                                                  #
+        fi                                                          #
+    else
+        ${SOLVER} ${SOLVER_OPT} --short_sat ${SMT} 2>&1 | tee $OUT
+    fi
+    RESULT=`tail -n 1 $OUT`
+    if [[ $RESULT == delta-sat* ]]
+    then
+        echo "$P -- SAT"
+        if [ $Z_OPT == TRUE ];      # (edited: FS)
+        then                        #
+            rm $OUT                 #
+            exit 51                 #
+        else                        #
+            exit 0
+        fi
+    fi
+    if [ $Z_OPT == TRUE ];      # (edited: FS)
+    then                        #
+        rm $OUT                 #
+    fi                          #
+
+    exit 1
+fi
 
 UNROLLS=`seq $L $U`
 for K in $UNROLLS
