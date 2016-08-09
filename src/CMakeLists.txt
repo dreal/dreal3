@@ -321,6 +321,30 @@ else()
 endif()
 set(EXTRA_LIBS "nlopt" ${EXTRA_LIBS})
 
+################################################################
+# External: ADEPT
+################################################################
+if(USE_LOCAL_THIRD_PARTY)
+  ExternalProject_Add(ADEPT
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    URL ${CMAKE_SOURCE_DIR}/third_party/adept.zip
+    CONFIGURE_COMMAND autoreconf -fi > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -Wno-deprecated-declarations -w" CFLAGS=-Wno-deprecated-declarations "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+    BUILD_COMMAND make
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND make install)
+else()
+  ExternalProject_Add(ADEPT
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+    GIT_REPOSITORY https://github.com/dreal-deps/adept.git
+    GIT_TAG master
+    UPDATE_COMMAND ""
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -Wno-deprecated-declarations -w" CFLAGS=-Wno-deprecated-declarations "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+    BUILD_COMMAND make
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND make install)
+endif()
+set(EXTRA_LIBS "adept" ${EXTRA_LIBS})
+
 if(SUPPORT_ODE)
   ################################################################
   # External: CAPD-DynSys-4.0
@@ -752,6 +776,7 @@ if(BUILD_TEST)
   add_subdirectory(tests/cpp_api)
   add_subdirectory(tests/ibex)
   add_subdirectory(tests/nlopt)
+  add_subdirectory(tests/adept)
   if(USE_GLPK)
     add_subdirectory(tests/glpk)
   endif()
@@ -907,6 +932,11 @@ add_custom_target(update_nlopt
   COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && make install
   WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/NLOPT)
 add_dependencies(update_pkgs update_nlopt)
+
+add_custom_target(update_adept
+  COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && make install
+  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/ADEPT)
+add_dependencies(update_pkgs update_adept)
 
 if(SUPPORT_ODE)
   add_custom_target(update_capd
