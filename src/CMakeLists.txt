@@ -843,19 +843,34 @@ endif()
 include(CPack)
 
 ########################################
+# PKG CONFIG
+########################################
+SET(PKG_CONFIG_LIBDIR "\${prefix}/lib/dreal")
+SET(PKG_CONFIG_INCLUDEDIR "\${prefix}/include/dreal")
+SET(PROJECT_DESCRIPTION "nonlinear SMT Solver")
+SET(PKG_CONFIG_LIBS "-L\${libdir} -ldreal -libex -lClpSolver -lClp -lCoinUtils -lcapd -ladept -lnlopt -lglpk -lprim -lpicosat -lm")
+SET(PKG_CONFIG_CFLAGS "-I\${includedir}")
+
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/pkg-config.pc.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/dreal.pc")
+
+########################################
 # INSTALL
 ########################################
-install(DIRECTORY "${DREAL_BINARY_DIR}/lib/" DESTINATION "lib/dreal"
-  FILES_MATCHING
-  PATTERN "*.a"
-  PATTERN "*.la"
-  PATTERN "*.so"
-  PATTERN "*.dylib")
+install(DIRECTORY "${DREAL_BINARY_DIR}/lib/" DESTINATION lib/dreal
+    FILES_MATCHING
+    PATTERN "*.a"
+    PATTERN "*.la"
+    PATTERN "*.so"
+    PATTERN "*.dylib")
 
-install(DIRECTORY "${DREAL_SOURCE_DIR}/api/" DESTINATION "include/dreal"
-  FILES_MATCHING
-  PATTERN "*.h"
-  PATTERN "*.hh")
+INSTALL(FILES "${CMAKE_BINARY_DIR}/dreal.pc"
+    DESTINATION lib/pkgconfig)
+
+install(DIRECTORY "${DREAL_SOURCE_DIR}/api/" DESTINATION include/dreal
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.hh")
 
 install(TARGETS dReal-bin DESTINATION bin)
 if(NOT BUILD_STATIC_BIN)
