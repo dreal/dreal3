@@ -845,21 +845,17 @@ include(CPack)
 ########################################
 # INSTALL
 ########################################
-install(DIRECTORY "${DREAL_BINARY_DIR}/lib" DESTINATION "./"
+install(DIRECTORY "${DREAL_BINARY_DIR}/lib/" DESTINATION "lib/dreal"
   FILES_MATCHING
   PATTERN "*.a"
   PATTERN "*.la"
   PATTERN "*.so"
   PATTERN "*.dylib")
 
-install(DIRECTORY "${DREAL_BINARY_DIR}/include" DESTINATION "./"
+install(DIRECTORY "${DREAL_SOURCE_DIR}/api/" DESTINATION "include/dreal"
   FILES_MATCHING
-  PATTERN "*.cpp"
-  PATTERN "*.f"
   PATTERN "*.h"
-  PATTERN "*.h_"
-  PATTERN "*.hpp"
-  PATTERN "*.icc")
+  PATTERN "*.hh")
 
 install(TARGETS dReal-bin DESTINATION bin)
 if(NOT BUILD_STATIC_BIN)
