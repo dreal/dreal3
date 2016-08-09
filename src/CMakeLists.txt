@@ -328,7 +328,7 @@ if(USE_LOCAL_THIRD_PARTY)
   ExternalProject_Add(ADEPT
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     URL ${CMAKE_SOURCE_DIR}/third_party/adept.zip
-    CONFIGURE_COMMAND autoreconf -fi > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -Wno-deprecated-declarations -w" CFLAGS=-Wno-deprecated-declarations "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+    CONFIGURE_COMMAND autoreconf -fi > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -Wno-deprecated-declarations -w" CFLAGS=-Wno-deprecated-declarations "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --disable-openmp
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND make install)
@@ -338,7 +338,7 @@ else()
     GIT_REPOSITORY https://github.com/dreal-deps/adept.git
     GIT_TAG master
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -Wno-deprecated-declarations -w" CFLAGS=-Wno-deprecated-declarations "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -Wno-deprecated-declarations -w" CFLAGS=-Wno-deprecated-declarations "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --disable-openmp
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND make install)
@@ -727,12 +727,14 @@ endif()
 add_dependencies(dop PICOSAT)
 add_dependencies(dop IBEX)
 add_dependencies(dop NLOPT)
+add_dependencies(dop ADEPT)
 add_dependencies(dop EASYLOGGINGPP)
 add_dependencies(dop EZOPTIONPARSER)
 add_dependencies(dop JSON)
 add_dependencies(dreal PICOSAT)
 add_dependencies(dreal IBEX)
 add_dependencies(dreal NLOPT)
+add_dependencies(dreal ADEPT)
 add_dependencies(dreal EASYLOGGINGPP)
 add_dependencies(dreal EZOPTIONPARSER)
 add_dependencies(dreal JSON)
