@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "adept.h"
+#include "./adept.h"
 
 // A simple demonstration algorithm used in the Adept paper. Note that
 // this algorithm can be compiled with
@@ -20,7 +20,7 @@ using adept::adouble;
 adouble algorithm(const adouble x[2]) {
   adouble y = 4.0;
   adouble s = 2.0*x[0] + 3.0*x[1]*x[1];
-  double b=3.0;
+  double b = 3.0;
   y = s + b;
   y *= sin(s);
   return y;
@@ -34,8 +34,8 @@ int main() {
     // constructed
     adept::Stack s;
 
-    adouble x[2]; // Our independent variables
-    adouble y;    // Our dependent variable
+    adouble x[2];  // Our independent variables
+    adouble y;     // Our dependent variable
 
     // Set the values of x
     x[0] = 2.0;
@@ -48,7 +48,7 @@ int main() {
     // We will provide an estimate of the adjoints by perturbing the
     // inputs by a small amount
 
-    adouble x_perturbed[2]; // Perturbed independent variables
+    adouble x_perturbed[2];  // Perturbed independent variables
 
     // This version of the code uses the same algorithm function that
     // takes adouble arguments for doing the numerical adjoint, even
@@ -143,10 +143,10 @@ int main() {
     // Here we use the same recording to compute the Jacobian matrix
     std::cout << "*** Computing Jacobian matrix ***\n\n";
 
-    s.independent(x, 2); // Declare independents
-    s.dependent(y);      // Declare dependents
-    double jac[2];       // Where the Jacobian will be stored
-    s.jacobian(jac);     // Compute Jacobian
+    s.independent(x, 2);  // Declare independents
+    s.dependent(y);       // Declare dependents
+    double jac[2];        // Where the Jacobian will be stored
+    s.jacobian(jac);      // Compute Jacobian
 
 
     // PART 4: PRINT OUT RESULTS
@@ -172,5 +172,4 @@ int main() {
               << "a finite difference and are also succeptible to round-off error.\n";
 
     return 0;
-
 }
