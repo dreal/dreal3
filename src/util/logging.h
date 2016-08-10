@@ -1,7 +1,6 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
-        
 
 dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
@@ -20,7 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include "./config.h"
+#include "./dreal_config.h"
 
 #define DREAL_FATAL_LEVEL   0
 #define DREAL_ERROR_LEVEL   1

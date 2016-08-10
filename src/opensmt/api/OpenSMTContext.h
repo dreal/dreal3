@@ -29,7 +29,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "egraph/Egraph.h"
 #include "smtsolvers/SimpSMTSolver.h"
 #include "cnfizers/Tseitin.h"
-#include "./config.h"
+#include "./dreal_config.h"
 
 class OpenSMTContext
 {

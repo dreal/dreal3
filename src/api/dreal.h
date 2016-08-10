@@ -25,7 +25,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "./config.h"
+#include "./dreal_config.h"
 
 namespace dreal {
 

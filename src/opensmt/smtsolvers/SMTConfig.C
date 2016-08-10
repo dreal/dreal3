@@ -25,7 +25,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <ezOptionParser/ezOptionParser.hpp>
 #include "SMTConfig.h"
-#include "./config.h"
+#include "./dreal_config.h"
 #include "util/logging.h"
 #include "util/git_sha1.h"
 #include "version.h"

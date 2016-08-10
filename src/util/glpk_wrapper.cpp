@@ -22,7 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <cstdio>
 #include <exception>
-#include "./config.h"
+#include "./dreal_config.h"
 #include "ibex/ibex.h"
 #include "opensmt/common/LA.h"
 #include "util/glpk_wrapper.h"

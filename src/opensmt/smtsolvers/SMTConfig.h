@@ -24,7 +24,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <chrono>
 #include <sys/stat.h>
-#include "./config.h"
+#include "./dreal_config.h"
 #include "common/Global.h"
 #include "util/stat.h"
 #include "minisat/core/SolverTypes.h"

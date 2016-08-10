@@ -571,7 +571,7 @@ endif()
 include_directories(${DREAL_SOURCE_DIR})
 include_directories(${DREAL_SOURCE_DIR}/opensmt)
 configure_file("${DREAL_SOURCE_DIR}/version.h.in" "${DREAL_BINARY_DIR}/version.h")
-configure_file("${DREAL_SOURCE_DIR}/config.h.in" "${DREAL_BINARY_DIR}/config.h")
+configure_file("${DREAL_SOURCE_DIR}/config.h.in" "${DREAL_BINARY_DIR}/dreal_config.h")
 include_directories("${DREAL_BINARY_DIR}")
 add_subdirectory(opensmt)
 ################################################################
@@ -863,15 +863,12 @@ install(DIRECTORY "${DREAL_BINARY_DIR}/lib/" DESTINATION lib/dreal
     PATTERN "*.la"
     PATTERN "*.so"
     PATTERN "*.dylib")
-
-INSTALL(FILES "${CMAKE_BINARY_DIR}/dreal.pc"
-    DESTINATION lib/pkgconfig)
-
 install(DIRECTORY "${DREAL_SOURCE_DIR}/api/" DESTINATION include/dreal
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hh")
-
+install(FILES "${DREAL_BINARY_DIR}/dreal.pc" DESTINATION lib/pkgconfig)
+install(FILES "${DREAL_BINARY_DIR}/dreal_config.h" DESTINATION include/dreal)
 install(TARGETS dReal-bin DESTINATION bin)
 if(NOT BUILD_STATIC_BIN)
   install(TARGETS dOp-bin DESTINATION bin)

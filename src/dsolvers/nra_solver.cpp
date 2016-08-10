@@ -31,7 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <utility>
 #include <vector>
-#include "./config.h"
+#include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
 #include "dsolvers/nra_solver.h"

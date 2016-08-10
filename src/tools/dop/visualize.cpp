@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "./config.h"
+#include "./dreal_config.h"
 #ifdef PYTHONLIBS_FOUND
 #ifdef __clang__
 #include <iostream>

@@ -18,7 +18,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include "./config.h"
+#include "./dreal_config.h"
 #include "contractor/contractor_common.h"
 #include "contractor/contractor_cell.h"
 #include "contractor/contractor_core.h"

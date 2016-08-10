@@ -27,7 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <memory>
 #include <utility>
-#include "./config.h"
+#include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor_cell.h"
 #include "contractor/contractor_status.h"

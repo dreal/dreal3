@@ -22,7 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <unordered_set>
 #include <vector>
-#include "./config.h"
+#include "./dreal_config.h"
 #include "contractor/contractor.h"
 #include "icp/brancher.h"
 #include "icp/icp.h"

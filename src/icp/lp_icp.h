@@ -21,7 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <unordered_set>
-#include "./config.h"
+#include "./dreal_config.h"
 #include "icp/icp.h"
 #include "icp/brancher.h"
 #include "util/box.h"
