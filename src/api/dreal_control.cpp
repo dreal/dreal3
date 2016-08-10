@@ -22,7 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <random>
 #include <vector>
-#include "api/drealControl.h"
+#include "api/dreal_control.h"
 
 namespace dreal {
 
