@@ -20,7 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <vector>
-#include "api/drealControl.h"
+#include "api/dreal_control.h"
 
 using dreal::expr;
 using dreal::poly;
