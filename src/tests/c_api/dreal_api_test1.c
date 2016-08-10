@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "api/dreal.h"
+#include "api/dreal_c.h"
 
 // Related Issue: https://github.com/dreal/dreal3/issues/143
 

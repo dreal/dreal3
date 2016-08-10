@@ -1,4 +1,4 @@
-#include "dreal.hh"
+#include "dreal.h"
 #include <random>
 
 using namespace std;
@@ -19,8 +19,8 @@ expr plug_in_solutions(expr & formula, vector<expr*>& x, vector<expr*> & sol, ve
     return substitute(formula, full_pre, full_post);
 }
 
-void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars, 
-	vector<expr*> & free_uvars, vector<expr*> & derived_uvars, expr & phi) {
+void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars,
+        vector<expr*> & free_uvars, vector<expr*> & derived_uvars, expr & phi) {
     solver * s = phi.get_solver();
     expr * zero = s->new_num(0);
     vector<expr*> rest_vars = derived_uvars;
@@ -32,78 +32,78 @@ void exists_forall(vector<expr*> & exists_vars, vector<expr*> & forall_vars,
     cerr<<"search starts with all existential variables set to zero..."<<endl;
     vector<expr*> sol;
     for (auto e : exists_vars) {
-	sol.push_back(zero);
-	verify = verify && ( *e == *zero );
+        sol.push_back(zero);
+        verify = verify && ( *e == *zero );
     }
     s -> add(verify);
     //cerr<<"added the following formula for verification step: "<<verify<<endl;
     expr search = (*zero <= *zero); //search start with true (sorry should be cleaner)
     cerr<<"verifying the zero solution..."<<endl;
     while (s->check()) {
-	cerr<<"universal constraints falsified... "<<endl;
-	//cerr<<"printing the verification constraints solved:"<<endl<<"[";
-	//s->dump_formulas(cerr);
-	//cerr<<"]"<<endl;
-	cerr<<"---- Round #"<<round++<<" ----"<<endl;
-	sol.clear();
-	for (auto u : forall_vars) {
-	    sol.push_back(s->new_num((s->get_lb(*u)+s->get_ub(*u))/2));
-	}
-	search = search && plug_in_solutions(phi,forall_vars,sol,exists_vars);
-	cerr<<"with counterexample:"<<endl<<"\t";
-	for (unsigned i=0; i<sol.size(); i++) {
-	    cerr<<*forall_vars[i]<<":="<<*sol[i]<<" ";
-	}
-	cerr<<endl;
+        cerr<<"universal constraints falsified... "<<endl;
+        //cerr<<"printing the verification constraints solved:"<<endl<<"[";
+        //s->dump_formulas(cerr);
+        //cerr<<"]"<<endl;
+        cerr<<"---- Round #"<<round++<<" ----"<<endl;
+        sol.clear();
+        for (auto u : forall_vars) {
+            sol.push_back(s->new_num((s->get_lb(*u)+s->get_ub(*u))/2));
+        }
+        search = search && plug_in_solutions(phi,forall_vars,sol,exists_vars);
+        cerr<<"with counterexample:"<<endl<<"\t";
+        for (unsigned i=0; i<sol.size(); i++) {
+            cerr<<*forall_vars[i]<<":="<<*sol[i]<<" ";
+        }
+        cerr<<endl;
         //add a bunch of randomly sampled points on x
         unsigned sample = 0;
         std::default_random_engine re(std::random_device {}());
-	cerr<<"also some new samples: "<<endl;
+        cerr<<"also some new samples: "<<endl;
         while (sample < 4) {
-	    cerr<<"\t";
+            cerr<<"\t";
             //clear previous solution
             sol.clear();
             for (auto u : free_uvars) {
-		std::uniform_real_distribution<double> unif(s->get_domain_lb(*u), s->get_domain_ub(*u));
+                std::uniform_real_distribution<double> unif(s->get_domain_lb(*u), s->get_domain_ub(*u));
                 double p = unif(re);
                 cerr << *u << ":=" << p << " ";
-		sol.push_back(s->new_num(p));
+                sol.push_back(s->new_num(p));
             }
             search = search && plug_in_solutions(phi,free_uvars,sol,rest_vars);
             sample++;
-	    cerr<<endl;
+            cerr<<endl;
         }
-	s -> pop();
-	s -> push();
-	s -> add(search);
-	//cerr<<"added the following formula for search step:"<<endl<<"["<<search<<"]"<<endl;
-	cerr << "searching for existential..."<<endl;
-	if (!s->check()) {
-	    cerr<<"---- Result: unsat ----"<<endl;
-	    cerr<<"the constraints are:"<<endl;
-	    s->dump_formulas(cerr);
-	    return;
-	}
-	//cerr << "printing the search problem solved:"<<endl<<"[";
-	//s -> dump_formulas(cerr); 
-	//cerr << "]"<<endl;
-	verify = !phi;
-	sol.clear();
-	for (auto e : exists_vars) {
-	    expr * a = s->new_num((s->get_lb(*e)+s->get_ub(*e))/2);
-	    sol.push_back(a);
-	    verify = verify && (*e == *a);
-	}
-	//verify = plug_in_solutions(verify,exists_vars,sol,forall_vars);
-	s -> pop();
-	s -> push();
-	cerr << "found the following candidate solution to the existential variables: "<<endl;
-	for (unsigned i=0; i< sol.size(); i++) {
-	    cerr<<"\t"<<*exists_vars[i]<<":="<<*sol[i]<<endl;
-	}
-	s -> add(verify);
-	//cerr<<"added the following formula for verification step:"<<endl<<"["<<verify<<"]"<<endl;
-	cerr<<"running verification..."<<endl;
+        s -> pop();
+        s -> push();
+        s -> add(search);
+        //cerr<<"added the following formula for search step:"<<endl<<"["<<search<<"]"<<endl;
+        cerr << "searching for existential..."<<endl;
+        if (!s->check()) {
+            cerr<<"---- Result: unsat ----"<<endl;
+            cerr<<"the constraints are:"<<endl;
+            s->dump_formulas(cerr);
+            return;
+        }
+        //cerr << "printing the search problem solved:"<<endl<<"[";
+        //s -> dump_formulas(cerr);
+        //cerr << "]"<<endl;
+        verify = !phi;
+        sol.clear();
+        for (auto e : exists_vars) {
+            expr * a = s->new_num((s->get_lb(*e)+s->get_ub(*e))/2);
+            sol.push_back(a);
+            verify = verify && (*e == *a);
+        }
+        //verify = plug_in_solutions(verify,exists_vars,sol,forall_vars);
+        s -> pop();
+        s -> push();
+        cerr << "found the following candidate solution to the existential variables: "<<endl;
+        for (unsigned i=0; i< sol.size(); i++) {
+            cerr<<"\t"<<*exists_vars[i]<<":="<<*sol[i]<<endl;
+        }
+        s -> add(verify);
+        //cerr<<"added the following formula for verification step:"<<endl<<"["<<verify<<"]"<<endl;
+        cerr<<"running verification..."<<endl;
     }
     cerr<<"--- Result: sat (by the witness above this line) ----"<<endl;
     return;
@@ -184,7 +184,5 @@ void test4() {
 }
 
 int main() {
-    test3(0.01); 
+    test3(0.01);
 }
-
-

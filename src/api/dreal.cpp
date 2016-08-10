@@ -24,7 +24,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "./version.h"
-#include "api/dreal.h"
+#include "api/dreal_c.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/cnfizers/Tseitin.h"
 #include "opensmt/egraph/Egraph.h"

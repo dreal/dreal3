@@ -21,7 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <list>
 #include <string>
 #include <vector>
-#include "api/dreal.hh"
+#include "api/dreal.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "util/subst_enode.h"
 #include "util/logging.h"

@@ -2,7 +2,7 @@
 #include<vector>
 #include<assert.h>
 
-#include "dreal.hh"
+#include "dreal.h"
 
 using namespace std;
 using namespace dreal;
