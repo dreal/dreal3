@@ -1,7 +1,8 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
+        Sicun Gao <sicung@mit.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -63,13 +64,13 @@ private:
     std::shared_ptr<ibex::NumConstraint>     m_numctr;
     ibex::Array<ibex::ExprSymbol const>      m_var_array;
     std::pair<lbool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
-    double eval_error(ibex::IntervalVector const & iv) const; //evaluate error function
+    double eval_error(ibex::IntervalVector const & iv) const;  // gevaluate error function
 
 public:
     nonlinear_constraint(Enode * const e, std::unordered_set<Enode*> const & var_set, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
     virtual std::ostream & display(std::ostream & out) const;
     std::pair<lbool, ibex::Interval> eval(box const & b) const;
-    double eval_error(box const &) const; //evaluate error function
+    double eval_error(box const &) const;  // evaluate error function
     inline std::shared_ptr<ibex::NumConstraint> get_numctr() const { return m_numctr; }
     ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
     inline Enode * get_enode() const { return get_enodes()[0]; }

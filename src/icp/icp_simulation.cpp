@@ -32,17 +32,20 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 
 using std::all_of;
+using std::cerr;
+using std::dynamic_pointer_cast;
+using std::endl;
 using std::endl;
 using std::exception;
 using std::get;
 using std::lock_guard;
 using std::mutex;
 using std::ref;
+using std::shared_ptr;
 using std::thread;
 using std::tuple;
+using std::unordered_set;
 using std::vector;
-using std::cerr;
-using std::endl;
 
 class icp_shared_status {
 public:
@@ -59,7 +62,7 @@ public:
 void naive_icp_worker(contractor_status & cs, box & ret, contractor & ctc, icp_shared_status & status) {
     vector<box> box_stack;
     bool const & simulation_over = status.m_is_simulation_over;
-    thread_local static std::unordered_set<std::shared_ptr<constraint>> used_constraints;
+    thread_local static unordered_set<shared_ptr<constraint>> used_constraints;
     used_constraints.clear();
     thread_local static vector<box> solns;
     solns.clear();
@@ -94,8 +97,8 @@ void naive_icp_worker(contractor_status & cs, box & ret, contractor & ctc, icp_s
                 }
                 if (cs.m_config.nra_proof) {
                     cs.m_config.nra_proof_out << "[branched on "
-                                         << cs.m_box.get_name(i)
-                                         << "]" << endl;
+                                              << cs.m_box.get_name(i)
+                                              << "]" << endl;
                 }
             } else {
                 cs.m_config.nra_found_soln++;
@@ -122,78 +125,74 @@ void naive_icp_worker(contractor_status & cs, box & ret, contractor & ctc, icp_s
     return;
 }
 
-/*
-void optimization_worker(box & ret, scoped_vec<std::shared_ptr<constraint>> const & ctrs, icp_shared_status & status, Egraph & e, SMTConfig & c) {
-    box local_domain(status.m_sample_domain);
-    box sample = local_domain.sample_point();
-    optimizer opt(local_domain, lits, e, c);
-    cerr << "before improving, the domain is\n" << local_domain << endl;
-    cerr << "before improving, the sample point is:\n" << sample << endl;
-    // loop continues if the sample point can be improved
-    while (!status.m_is_icp_over) {
-        if (!opt.improve(sample)) {
-            ret = sample;
-            status.m_is_simulation_over = true;
-            return;
-        }
-        cerr << "a better point:\n" << sample << endl;
-        // will add learned boxes etc.
-    }
-    status.m_is_simulation_over = true;
-    return;
-}
-*/
+// void optimization_worker(box & ret, scoped_vec<std::shared_ptr<constraint>> const & ctrs, icp_shared_status & status, Egraph & e, SMTConfig & c) {
+//     box local_domain(status.m_sample_domain);
+//     box sample = local_domain.sample_point();
+//     optimizer opt(local_domain, lits, e, c);
+//     cerr << "before improving, the domain is\n" << local_domain << endl;
+//     cerr << "before improving, the sample point is:\n" << sample << endl;
+//     // loop continues if the sample point can be improved
+//     while (!status.m_is_icp_over) {
+//         if (!opt.improve(sample)) {
+//             ret = sample;
+//             status.m_is_simulation_over = true;
+//             return;
+//         }
+//         cerr << "a better point:\n" << sample << endl;
+//         // will add learned boxes etc.
+//     }
+//     status.m_is_simulation_over = true;
+//     return;
+// }
 
-void simulation_worker(box & ret, scoped_vec<std::shared_ptr<constraint>> const & ctrs, icp_shared_status & status, double prec) {
+void simulation_worker(box & ret, scoped_vec<shared_ptr<constraint>> const & ctrs, icp_shared_status & status, double prec) {
     box sample(ret);
     if (status.m_is_icp_over) {
-        DREAL_LOG_INFO<<"ICP has terminated before simulation.\n";
-    }
-    else {
-        DREAL_LOG_INFO<<"Sampling...\n";
+        DREAL_LOG_INFO << "ICP has terminated before simulation.\n";
+    } else {
+        DREAL_LOG_INFO << "Sampling...\n";
     }
     while (!status.m_is_icp_over) {
         // 1. Sample a point from front(top) box in the shared box stack
         sample = status.m_sample_domain.sample_point();
-        DREAL_LOG_INFO<<">>>Sampler working on domain:\n"<<status.m_sample_domain<<"\n<<<\n";
-        DREAL_LOG_INFO<<"Current sample point:\n"<<sample<<endl;
+        DREAL_LOG_INFO << ">>>Sampler working on domain:\n" << status.m_sample_domain << "\n<<<\n";
+        DREAL_LOG_INFO << "Current sample point:\n" << sample << endl;
         // 2. Check consistency by evaluating the sample point
         bool const is_consistent =
-            all_of(ctrs.begin(), ctrs.end(), [&sample,prec](std::shared_ptr<constraint> const ctr) {
-                try {
-                    //if not regular nonlinear constraint, return false for now
-                    if (!ctr->is_simple_nonlinear())
+            all_of(ctrs.begin(), ctrs.end(), [&sample, prec](shared_ptr<constraint> const ctr) {
+                    try {
+                        // if not regular nonlinear constraint, return false for now
+                        if (!ctr->is_simple_nonlinear())
+                            return false;
+                        // return eval_enode_formula(lit, sample, lit->getPolarity() == l_True) == true;
+                        double const err = dynamic_pointer_cast<nonlinear_constraint>(ctr)->eval_error(sample);
+                        bool const ans = err < prec;
+                        if (!ans) {
+                            DREAL_LOG_FATAL << *ctr << " has this error: " << err << " [current delta: " << prec << ", ";
+                            if (ans) {
+                                DREAL_LOG_INFO << "satisfied]\n";
+                            } else {
+                                DREAL_LOG_INFO << "violated]\n";
+                            }
+                        }
+                        return ans;
+                    } catch (exception & e) {
                         return false;
-                    //return eval_enode_formula(lit, sample, lit->getPolarity() == l_True) == true;
-                    double err = std::dynamic_pointer_cast<nonlinear_constraint>(ctr)->eval_error(sample);
-                    bool ans = err<prec;
-                    if (!ans) {
-                        DREAL_LOG_INFO<<*ctr<<" has this error: "<<err<<" [current delta: "<<prec<<", ";
-                        if (ans) {
-                            DREAL_LOG_INFO<<"satisfied]\n";
-                        }
-                        else {
-                            DREAL_LOG_INFO<<"violated]\n";
-                        }
                     }
-                    return ans;
-                } catch (exception & e) {
-                    return false;
-                }
-            });
+                });
         if (is_consistent) {
-            DREAL_LOG_INFO<<"Delta-sat has been witnessed by the last sample.\n";
+            DREAL_LOG_INFO << "Delta-sat has been witnessed by the last sample.\n";
             ret = sample;
             status.m_is_simulation_over = true;
             return;
         }
     }
-    DREAL_LOG_INFO<<"Sampling has terminated because ICP has stopped.\n";
+    DREAL_LOG_INFO << "Sampling has terminated because ICP has stopped.\n";
     status.m_is_simulation_over = true;
     return;
 }
 
-void simulation_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<std::shared_ptr<constraint>> const & ctrs, double prec) {
+void simulation_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<shared_ptr<constraint>> const & ctrs, double prec) {
     box ret(cs.m_box);
     icp_shared_status status(cs.m_box);
     thread icp_thread(naive_icp_worker, ref(cs), ref(ret), ref(ctc), ref(status));

@@ -1,7 +1,8 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
+        Sicun Gao <sicung@mit.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,9 +19,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <algorithm>
+#include <cmath>
 #include <initializer_list>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -28,32 +31,33 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include <math.h>
-#include "opensmt/egraph/Enode.h"
+
 #include "constraint/constraint.h"
+#include "ibex/ibex_ExprCopy.h"
+#include "opensmt/egraph/Enode.h"
 #include "util/flow.h"
 #include "util/ibex_enode.h"
-#include "ibex/ibex_ExprCopy.h"
 #include "util/logging.h"
 
 using std::cerr;
 using std::copy;
 using std::endl;
 using std::initializer_list;
+using std::isfinite;
 using std::logic_error;
 using std::make_pair;
 using std::make_shared;
 using std::map;
+using std::numeric_limits;
 using std::ostream;
 using std::pair;
+using std::shared_ptr;
 using std::string;
 using std::to_string;
 using std::unique_ptr;
-using std::shared_ptr;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
-using std::isfinite;
 
 namespace std {
 // Hash for nonlinear_constraint
@@ -156,61 +160,61 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector cons
     if (!m_is_neq) {
         result = m_numctr->f.eval(iv);
         switch (m_numctr->op) {
-            case ibex::LT:
-                if (result.ub() < 0) {
-                    //    [         ]
-                    // --------------- 0 --------------
-                    sat = l_True;
-                } else if (0 <= result.lb()) {
-                    //                 [         ]
-                    // --------------- 0 --------------
-                    sat = l_False;
-                }
-                break;
-            case ibex::LEQ:
-                if (result.ub() <= 0) {
-                    //       [         ]
-                    // --------------- 0 --------------
-                    sat = l_True;
-                } else if (0 < result.lb()) {
-                    //                   [         ]
-                    // --------------- 0 --------------
-                    sat = l_False;
-                }
-                break;
-            case ibex::GT:
-                if (0 < result.lb()) {
-                    //                   [         ]
-                    // --------------- 0 --------------
-                    sat = l_True;
-                } else if (result.ub() <= 0) {
-                    //       [         ]
-                    // --------------- 0 --------------
-                    sat = l_False;
-                }
-                break;
-            case ibex::GEQ:
-                if (0 <= result.lb()) {
-                    //                 [         ]
-                    // --------------- 0 --------------
-                    sat = l_True;
-                } else if (result.ub() < 0) {
-                    //     [         ]
-                    // --------------- 0 --------------
-                    sat = l_False;
-                }
-                break;
-            case ibex::EQ:
-                if (result.lb() == 0 && result.ub() == 0) {
-                    //                 x
-                    // --------------- 0 --------------
-                    sat = l_True;
-                } else if ((result.ub() < 0) || (0 < result.lb())) {
-                    //  [            ] | [            ]
-                    // --------------- 0 --------------
-                    sat = l_False;
-                }
-                break;
+        case ibex::LT:
+            if (result.ub() < 0) {
+                //    [         ]
+                // --------------- 0 --------------
+                sat = l_True;
+            } else if (0 <= result.lb()) {
+                //                 [         ]
+                // --------------- 0 --------------
+                sat = l_False;
+            }
+            break;
+        case ibex::LEQ:
+            if (result.ub() <= 0) {
+                //       [         ]
+                // --------------- 0 --------------
+                sat = l_True;
+            } else if (0 < result.lb()) {
+                //                   [         ]
+                // --------------- 0 --------------
+                sat = l_False;
+            }
+            break;
+        case ibex::GT:
+            if (0 < result.lb()) {
+                //                   [         ]
+                // --------------- 0 --------------
+                sat = l_True;
+            } else if (result.ub() <= 0) {
+                //       [         ]
+                // --------------- 0 --------------
+                sat = l_False;
+            }
+            break;
+        case ibex::GEQ:
+            if (0 <= result.lb()) {
+                //                 [         ]
+                // --------------- 0 --------------
+                sat = l_True;
+            } else if (result.ub() < 0) {
+                //     [         ]
+                // --------------- 0 --------------
+                sat = l_False;
+            }
+            break;
+        case ibex::EQ:
+            if (result.lb() == 0 && result.ub() == 0) {
+                //                 x
+                // --------------- 0 --------------
+                sat = l_True;
+            } else if ((result.ub() < 0) || (0 < result.lb())) {
+                //  [            ] | [            ]
+                // --------------- 0 --------------
+                sat = l_False;
+            }
+            break;
         }
     } else {
         // NEQ case: lhs - rhs != 0
@@ -235,31 +239,31 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector cons
 double nonlinear_constraint::eval_error(ibex::IntervalVector const & iv) const {
     ibex::Interval tmp;
     double result = 0.0;
-    double magic_num = std::numeric_limits<double>::max()/1.5;
+    double const magic_num = numeric_limits<double>::max()/1.5;
     if (!m_is_neq) {
         tmp = m_numctr->f.eval(iv);
         switch (m_numctr->op) {
-            case ibex::LT:
-                result = tmp.ub()<0.0?0.0:fabs(tmp.ub());
-                break;
-            case ibex::LEQ:
-                result = tmp.ub()<=0.0?0.0:fabs(tmp.ub());
-                break;
-            case ibex::GT:
-                result = tmp.lb()>0.0?0.0:fabs(tmp.lb());
-                break;
-            case ibex::GEQ:
-                result = tmp.lb()>=0.0?0.0:fabs(tmp.lb());
-                break;
-            case ibex::EQ:
-                result = fabs(tmp.ub());
-                break;
+        case ibex::LT:
+            result = tmp.ub() < 0.0 ? 0.0 : fabs(tmp.ub());
+            break;
+        case ibex::LEQ:
+            result = tmp.ub() <= 0.0 ? 0.0 : fabs(tmp.ub());
+            break;
+        case ibex::GT:
+            result = tmp.lb() > 0.0 ? 0.0 : fabs(tmp.lb());
+            break;
+        case ibex::GEQ:
+            result = tmp.lb() >= 0.0 ? 0.0 : fabs(tmp.lb());
+            break;
+        case ibex::EQ:
+            result = fabs(tmp.ub());
+            break;
         }
-        //if result is not finite then return the magic number
+        // if result is not finite then return the magic number
         if (!isfinite(result))
             result = magic_num;
     } else {
-        cerr<<"nonlinear_constraint::eval_error: Something is wrong. NEQ occurred.\n";
+        DREAL_LOG_FATAL << "nonlinear_constraint::eval_error: Something is wrong. NEQ occurred.\n";
         tmp = m_numctr->f.eval(iv);
         if ((tmp.lb() == 0) && (tmp.ub() == 0)) {
             result = magic_num;
@@ -292,7 +296,7 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
 }
 
 double nonlinear_constraint::eval_error(box const & b) const {
-    if (m_type!=constraint_type::Nonlinear)
+    if (m_type != constraint_type::Nonlinear)
         return 100000000;
     // Construct iv from box b
     if (m_var_array.size() > 0) {

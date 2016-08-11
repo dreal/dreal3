@@ -1,6 +1,6 @@
 /*********************************************************************
 Author: Roberto Bruttomesso <roberto.bruttomesso@gmail.com>
-        Soonho Kong <soonhok@cs.cmu.edu>, <soonho.kong@tri.global>
+        Soonho Kong <soonhok@cs.cmu.edu>
 
 OpenSMT -- Copyright (C) 2008-2010, Roberto Bruttomesso
 
