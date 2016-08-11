@@ -48,6 +48,7 @@ public:
     constraint(constraint_type ty, std::vector<Enode *> const & enodes);
     constraint(constraint_type ty, std::vector<Enode *> const & enodes_1, std::vector<Enode *> const & enodes_2);
     inline constraint_type const & get_type() const { return m_type; }
+    inline bool is_simple_nonlinear() { return m_type == constraint_type::Nonlinear; }
     inline std::vector<Enode *> const & get_enodes() const { return m_enodes; }
     inline std::unordered_set<Enode *> const & get_vars() const { return m_vars; }
     virtual std::ostream & display(std::ostream & out) const = 0;
@@ -62,11 +63,13 @@ private:
     std::shared_ptr<ibex::NumConstraint>     m_numctr;
     ibex::Array<ibex::ExprSymbol const>      m_var_array;
     std::pair<lbool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
+    double eval_error(ibex::IntervalVector const & iv) const; //evaluate error function
 
 public:
     nonlinear_constraint(Enode * const e, std::unordered_set<Enode*> const & var_set, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
     virtual std::ostream & display(std::ostream & out) const;
     std::pair<lbool, ibex::Interval> eval(box const & b) const;
+    double eval_error(box const &) const; //evaluate error function
     inline std::shared_ptr<ibex::NumConstraint> get_numctr() const { return m_numctr; }
     ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
     inline Enode * get_enode() const { return get_enodes()[0]; }

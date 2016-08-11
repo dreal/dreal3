@@ -1,6 +1,6 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
-    Sicun Gao <sicung@mit.edu>
+        Sicun Gao <sicung@mit.edu>
 
 dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
@@ -122,7 +122,8 @@ void naive_icp_worker(contractor_status & cs, box & ret, contractor & ctc, icp_s
     return;
 }
 
-void optimization_worker(box & ret, vector<Enode *> const & lits, icp_shared_status & status, Egraph & e, SMTConfig & c) {
+/*
+void optimization_worker(box & ret, scoped_vec<std::shared_ptr<constraint>> const & ctrs, icp_shared_status & status, Egraph & e, SMTConfig & c) {
     box local_domain(status.m_sample_domain);
     box sample = local_domain.sample_point();
     optimizer opt(local_domain, lits, e, c);
@@ -141,39 +142,65 @@ void optimization_worker(box & ret, vector<Enode *> const & lits, icp_shared_sta
     status.m_is_simulation_over = true;
     return;
 }
+*/
 
-void simulation_worker(box & ret, vector<Enode *> const & lits, icp_shared_status & status) {
+void simulation_worker(box & ret, scoped_vec<std::shared_ptr<constraint>> const & ctrs, icp_shared_status & status, double prec) {
     box sample(ret);
+    if (status.m_is_icp_over) {
+        DREAL_LOG_INFO<<"ICP has terminated before simulation.\n";
+    }
+    else {
+        DREAL_LOG_INFO<<"Sampling...\n";
+    }
     while (!status.m_is_icp_over) {
         // 1. Sample a point from front(top) box in the shared box stack
         sample = status.m_sample_domain.sample_point();
+        DREAL_LOG_INFO<<">>>Sampler working on domain:\n"<<status.m_sample_domain<<"\n<<<\n";
+        DREAL_LOG_INFO<<"Current sample point:\n"<<sample<<endl;
         // 2. Check consistency by evaluating the sample point
         bool const is_consistent =
-            all_of(lits.begin(), lits.end(), [&sample](Enode * const lit) {
-                    try {
-                        return eval_enode_formula(lit, sample, lit->getPolarity() == l_True) == true;
-                    } catch (exception & e) {
+            all_of(ctrs.begin(), ctrs.end(), [&sample,prec](std::shared_ptr<constraint> const ctr) {
+                try {
+                    //if not regular nonlinear constraint, return false for now
+                    if (!ctr->is_simple_nonlinear())
                         return false;
+                    //return eval_enode_formula(lit, sample, lit->getPolarity() == l_True) == true;
+                    double err = std::dynamic_pointer_cast<nonlinear_constraint>(ctr)->eval_error(sample);
+                    bool ans = err<prec;
+                    if (!ans) {
+                        DREAL_LOG_INFO<<*ctr<<" has this error: "<<err<<" [current delta: "<<prec<<", ";
+                        if (ans) {
+                            DREAL_LOG_INFO<<"satisfied]\n";
+                        }
+                        else {
+                            DREAL_LOG_INFO<<"violated]\n";
+                        }
                     }
-                });
+                    return ans;
+                } catch (exception & e) {
+                    return false;
+                }
+            });
         if (is_consistent) {
+            DREAL_LOG_INFO<<"Delta-sat has been witnessed by the last sample.\n";
             ret = sample;
             status.m_is_simulation_over = true;
             return;
         }
     }
+    DREAL_LOG_INFO<<"Sampling has terminated because ICP has stopped.\n";
     status.m_is_simulation_over = true;
     return;
 }
 
-void simulation_icp::solve(contractor & ctc, contractor_status & cs, vector<Enode *> const & lits, Egraph &) {
+void simulation_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<std::shared_ptr<constraint>> const & ctrs, double prec) {
     box ret(cs.m_box);
     icp_shared_status status(cs.m_box);
     thread icp_thread(naive_icp_worker, ref(cs), ref(ret), ref(ctc), ref(status));
-    // thread optimization_thread(optimization_worker, ref(ret), ref(lits), ref(status), ref(e), ref(cs.m_config));
-    thread simulation_thread(simulation_worker, ref(ret), ref(lits), ref(status));
+//    thread optimization_thread(optimization_worker, ref(ret), ref(ctrs), ref(status), ref(e), ref(cs.m_config));
+    thread simulation_thread(simulation_worker, ref(ret), ref(ctrs), ref(status), ref(prec));
     simulation_thread.join();
-    // optimization_thread.join();
+//    optimization_thread.join();
     icp_thread.join();
     cs.m_box = ret;
     // TODO(soonhok): need to setup output and used_constraints?

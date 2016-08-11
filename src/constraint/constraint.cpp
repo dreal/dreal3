@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <math.h>
 #include "opensmt/egraph/Enode.h"
 #include "constraint/constraint.h"
 #include "util/flow.h"
@@ -52,6 +53,7 @@ using std::shared_ptr;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
+using std::isfinite;
 
 namespace std {
 // Hash for nonlinear_constraint
@@ -230,6 +232,50 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector cons
     return make_pair(sat, result);
 }
 
+double nonlinear_constraint::eval_error(ibex::IntervalVector const & iv) const {
+    ibex::Interval tmp;
+    double result = 0.0;
+    double magic_num = std::numeric_limits<double>::max()/1.5;
+    if (!m_is_neq) {
+        tmp = m_numctr->f.eval(iv);
+        switch (m_numctr->op) {
+            case ibex::LT:
+                result = tmp.ub()<0.0?0.0:fabs(tmp.ub());
+                break;
+            case ibex::LEQ:
+                result = tmp.ub()<=0.0?0.0:fabs(tmp.ub());
+                break;
+            case ibex::GT:
+                result = tmp.lb()>0.0?0.0:fabs(tmp.lb());
+                break;
+            case ibex::GEQ:
+                result = tmp.lb()>=0.0?0.0:fabs(tmp.lb());
+                break;
+            case ibex::EQ:
+                result = fabs(tmp.ub());
+                break;
+        }
+        //if result is not finite then return the magic number
+        if (!isfinite(result))
+            result = magic_num;
+    } else {
+        cerr<<"nonlinear_constraint::eval_error: Something is wrong. NEQ occurred.\n";
+        tmp = m_numctr->f.eval(iv);
+        if ((tmp.lb() == 0) && (tmp.ub() == 0)) {
+            result = magic_num;
+        } else {
+            result = 0.0;
+        }
+    }
+    if (DREAL_LOG_DEBUG_IS_ON) {
+        DREAL_LOG_DEBUG << "nonlinear_constraint::eval_error:";
+        DREAL_LOG_DEBUG << "\t" << *this;
+        DREAL_LOG_DEBUG << "input: " << iv;
+        DREAL_LOG_DEBUG << "output:" << result;
+    }
+    return result;
+}
+
 pair<lbool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
     // Construct iv from box b
     if (m_var_array.size() > 0) {
@@ -242,6 +288,23 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
     } else {
         ibex::IntervalVector iv(1);
         return eval(iv);
+    }
+}
+
+double nonlinear_constraint::eval_error(box const & b) const {
+    if (m_type!=constraint_type::Nonlinear)
+        return 100000000;
+    // Construct iv from box b
+    if (m_var_array.size() > 0) {
+        ibex::IntervalVector iv(m_var_array.size());
+        for (int i = 0; i < m_var_array.size(); i++) {
+            iv[i] = b[m_var_array[i].name];
+            DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
+        }
+        return eval_error(iv);
+    } else {
+        ibex::IntervalVector iv(1);
+        return eval_error(iv);
     }
 }
 

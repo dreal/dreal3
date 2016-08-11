@@ -27,6 +27,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 class simulation_icp {
 public:
-    static void solve(contractor & ctc, contractor_status & cs, std::vector<Enode *> const & lit, Egraph & e);
+    static void solve(contractor &, contractor_status &, scoped_vec<std::shared_ptr<constraint>> const &, double);
 };
 }  // namespace dreal
