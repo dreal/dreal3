@@ -30,12 +30,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using std::any_of;
 using std::cerr;
-using std::static_pointer_cast;
 using std::endl;
 using std::make_shared;
 using std::numeric_limits;
 using std::reverse;
 using std::shared_ptr;
+using std::static_pointer_cast;
 using std::vector;
 
 namespace dreal {
@@ -81,7 +81,7 @@ contractor default_strategy::build_contractor(box const & box,
     // 1. Categorize constraints
     vector<shared_ptr<nonlinear_constraint>> nl_ctrs;
     vector<shared_ptr<ode_constraint>> ode_ctrs_rev;
-    vector<shared_ptr<generic_forall_constraint>> generic_forall_ctrs;
+    vector<shared_ptr<forall_constraint>> forall_ctrs;
     for (shared_ptr<constraint> const ctr : ctrs.get_reverse()) {
         switch (ctr->get_type()) {
         case constraint_type::Nonlinear: {
@@ -94,9 +94,9 @@ contractor default_strategy::build_contractor(box const & box,
             ode_ctrs_rev.push_back(ode_ctr);
             break;
         }
-        case constraint_type::GenericForall: {
-            auto gf_ctr = static_pointer_cast<generic_forall_constraint>(ctr);
-            generic_forall_ctrs.push_back(gf_ctr);
+        case constraint_type::Forall: {
+            auto gf_ctr = static_pointer_cast<forall_constraint>(ctr);
+            forall_ctrs.push_back(gf_ctr);
             break;
         }
         case constraint_type::ForallT: {
@@ -136,9 +136,9 @@ contractor default_strategy::build_contractor(box const & box,
     if (any_of(box.get_vars().cbegin(), box.get_vars().cend(), [](Enode * const v){ return v->hasSortInt(); })) {
         ctcs.push_back(mk_contractor_int(box));
     }
-    // 2.4. Build generic forall contractors
-    for (auto const & generic_forall_ctr : generic_forall_ctrs) {
-        ctcs.push_back(mk_contractor_generic_forall(box, generic_forall_ctr));
+    // 2.4. Build forall contractors
+    for (auto const & forall_ctr : forall_ctrs) {
+        ctcs.push_back(mk_contractor_forall(box, forall_ctr));
     }
 
     if (complete && ode_ctrs.size() > 0) {

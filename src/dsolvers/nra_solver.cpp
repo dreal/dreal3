@@ -300,17 +300,17 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
             integral_constraint ic = mk_integral_constraint(l, egraph.flow_maps);
             ints.push_back(ic);
         } else if (l->isForall()) {
-            // Collect Generic Forall constraints.
+            // Collect Forall constraints.
             auto it_fc_pos = m_ctr_map.find(make_pair(l, true));
             auto it_fc_neg = m_ctr_map.find(make_pair(l, false));
             if (it_fc_pos == m_ctr_map.end()) {
-                shared_ptr<constraint> fc_pos(new generic_forall_constraint(l, l_True));
-                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect GenericForallConstraint (+): " << *fc_pos;
+                shared_ptr<constraint> fc_pos(new forall_constraint(l, l_True));
+                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ForallConstraint (+): " << *fc_pos;
                 m_ctr_map.emplace(make_pair(l, true), fc_pos);
             }
             if (it_fc_neg == m_ctr_map.end()) {
-                shared_ptr<constraint> fc_neg (new generic_forall_constraint(l, l_False));
-                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect GenericForallConstraint (-): " << *fc_neg;
+                shared_ptr<constraint> fc_neg (new forall_constraint(l, l_False));
+                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ForallConstraint (-): " << *fc_neg;
                 m_ctr_map.emplace(make_pair(l, false), fc_neg);
             }
         } else if (l->isForallT()) {

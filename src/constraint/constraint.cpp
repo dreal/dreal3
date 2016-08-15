@@ -85,8 +85,8 @@ ostream & operator<<(ostream & out, constraint_type const & ty) {
     case constraint_type::Exists:
         out << "Exists";
         break;
-    case constraint_type::GenericForall:
-        out << "GenericForall";
+    case constraint_type::Forall:
+        out << "Forall";
         break;
     }
     return out;
@@ -475,9 +475,9 @@ forallt_constraint mk_forallt_constraint(Enode * const e, unordered_set<Enode*> 
 
 
 // ====================================================
-// Generic Forall constraint
+// Forall constraint
 // ====================================================
-unordered_set<Enode *> generic_forall_constraint::extract_forall_vars(Enode const * elist) {
+unordered_set<Enode *> forall_constraint::extract_forall_vars(Enode const * elist) {
     unordered_set<Enode *> ret;
     while (!elist->isEnil()) {
         ret.insert(elist->getCar());
@@ -486,20 +486,20 @@ unordered_set<Enode *> generic_forall_constraint::extract_forall_vars(Enode cons
     return ret;
 }
 
-generic_forall_constraint::generic_forall_constraint(Enode * const e, lbool const p)
-    : constraint(constraint_type::GenericForall, e),
+forall_constraint::forall_constraint(Enode * const e, lbool const p)
+    : constraint(constraint_type::Forall, e),
       m_forall_vars(extract_forall_vars(e->getCdr()->getCdr())),
       m_body(e->getCdr()->getCar()),
       m_polarity(p) {
 }
-unordered_set<Enode *> generic_forall_constraint::get_forall_vars() const {
+unordered_set<Enode *> forall_constraint::get_forall_vars() const {
     return m_forall_vars;
 }
-Enode * generic_forall_constraint::get_body() const {
+Enode * forall_constraint::get_body() const {
     return m_body;
 }
-ostream & generic_forall_constraint::display(ostream & out) const {
-    out << "generic_forall([ ";
+ostream & forall_constraint::display(ostream & out) const {
+    out << "forall([ ";
     for (Enode * const var : m_forall_vars) {
         out << var << " ";
     }

@@ -34,7 +34,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/flow.h"
 
 namespace dreal {
-enum class constraint_type { Nonlinear, ODE, Integral, ForallT, Exists, GenericForall };
+enum class constraint_type { Nonlinear, ODE, Integral, ForallT, Exists, Forall };
 std::ostream & operator<<(std::ostream & out, constraint_type const & ty);
 
 
@@ -191,7 +191,7 @@ public:
 };
 
 /// This class is to support forall quantifier without a hack.
-class generic_forall_constraint : public constraint {
+class forall_constraint : public constraint {
 private:
     std::unordered_set<Enode *> const m_forall_vars;
     Enode * const                     m_body;
@@ -200,7 +200,7 @@ private:
     std::unordered_set<Enode *> extract_forall_vars(Enode const * elist);
 
 public:
-    generic_forall_constraint(Enode * const e, lbool const p);
+    forall_constraint(Enode * const e, lbool const p);
     std::ostream & display(std::ostream & out) const override;
     std::unordered_set<Enode *> get_forall_vars() const;
     Enode * get_body() const;

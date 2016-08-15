@@ -34,9 +34,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor.h"
 
 namespace dreal {
-class contractor_generic_forall : public contractor_cell {
+class contractor_forall : public contractor_cell {
 private:
-    std::shared_ptr<generic_forall_constraint> const m_ctr;
+    std::shared_ptr<forall_constraint> const m_ctr;
     box find_CE(box const & b, std::unordered_set<Enode*> const & forall_vars, std::vector<Enode*> const & vec, bool const p, SMTConfig & config) const;
     void handle(contractor_status & cs, Enode * body, bool const p);
     std::vector<Enode *> elist_to_vector(Enode * e) const;
@@ -45,9 +45,9 @@ private:
     void handle_atomic(contractor_status & cs, Enode * body, bool const p);
 
 public:
-    contractor_generic_forall(box const & b, std::shared_ptr<generic_forall_constraint> const ctr);
+    contractor_forall(box const & b, std::shared_ptr<forall_constraint> const ctr);
     void prune(contractor_status & s);
     std::ostream & display(std::ostream & out) const;
 };
-contractor mk_contractor_generic_forall(box const & box, std::shared_ptr<generic_forall_constraint> const ctr);
+contractor mk_contractor_forall(box const & box, std::shared_ptr<forall_constraint> const ctr);
 }  // namespace dreal

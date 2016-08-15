@@ -38,7 +38,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "constraint/constraint.h"
-#include "contractor/contractor_generic_forall.h"
+#include "contractor/contractor_forall.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
 #include "nlopt.hpp"
@@ -86,7 +86,7 @@ static unordered_map<Enode*, ibex::Interval> make_subst_from_value(box const & b
     return subst;
 }
 
-contractor_generic_forall::contractor_generic_forall(box const & b, shared_ptr<generic_forall_constraint> const ctr)
+contractor_forall::contractor_forall(box const & b, shared_ptr<forall_constraint> const ctr)
     : contractor_cell(contractor_kind::FORALL), m_ctr(ctr) {
     m_input = ibex::BitSet::empty(b.size());
     for (Enode * var : m_ctr->get_body()->get_exist_vars()) {
@@ -94,7 +94,7 @@ contractor_generic_forall::contractor_generic_forall(box const & b, shared_ptr<g
     }
 }
 
-void contractor_generic_forall::handle(contractor_status & cs, Enode * body, bool const p) {
+void contractor_forall::handle(contractor_status & cs, Enode * body, bool const p) {
     if (body->isOr()) {
         vector<Enode *> vec = elist_to_vector(body->getCdr());
         handle_disjunction(cs, vec, p);
@@ -112,7 +112,7 @@ void contractor_generic_forall::handle(contractor_status & cs, Enode * body, boo
     }
 }
 
-vector<Enode *> contractor_generic_forall::elist_to_vector(Enode * e) const {
+vector<Enode *> contractor_forall::elist_to_vector(Enode * e) const {
     vector<Enode *> vec;
     while (!e->isEnil()) {
         vec.push_back(e->getCar());
@@ -431,7 +431,7 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_v
     return cs.m_box;
 }
 
-box contractor_generic_forall::find_CE(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) const {
+box contractor_forall::find_CE(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) const {
     // static unsigned under_approx = 0;
     // static unsigned over_approx = 0;
     box counterexample = find_CE_via_underapprox(b, forall_vars, vec, p, config);
@@ -452,8 +452,8 @@ box contractor_generic_forall::find_CE(box const & b, unordered_set<Enode*> cons
     return counterexample;
 }
 
-void contractor_generic_forall::handle_disjunction(contractor_status & cs, vector<Enode *> const &vec, bool const p) {
-    DREAL_LOG_DEBUG << "contractor_generic_forall::handle_disjunction" << endl;
+void contractor_forall::handle_disjunction(contractor_status & cs, vector<Enode *> const &vec, bool const p) {
+    DREAL_LOG_DEBUG << "contractor_forall::handle_disjunction" << endl;
     unordered_set<Enode *> forall_vars;
     for (Enode * e : vec) {
         std::unordered_set<Enode *> const & vars = e->get_forall_vars();
@@ -527,8 +527,8 @@ void contractor_generic_forall::handle_disjunction(contractor_status & cs, vecto
     return;
 }
 
-void contractor_generic_forall::handle_conjunction(contractor_status & cs, vector<Enode *> const & vec, bool const p) {
-    DREAL_LOG_DEBUG << "contractor_generic_forall::handle_conjunction" << endl;
+void contractor_forall::handle_conjunction(contractor_status & cs, vector<Enode *> const & vec, bool const p) {
+    DREAL_LOG_DEBUG << "contractor_forall::handle_conjunction" << endl;
     for (Enode * e : vec) {
         DREAL_LOG_DEBUG << "process conjunction element : " << e << endl;
         handle(cs, e, p);
@@ -538,28 +538,28 @@ void contractor_generic_forall::handle_conjunction(contractor_status & cs, vecto
     }
     return;
 }
-void contractor_generic_forall::handle_atomic(contractor_status & cs, Enode * body, bool const p) {
+void contractor_forall::handle_atomic(contractor_status & cs, Enode * body, bool const p) {
     vector<Enode*> vec;
     vec.push_back(body);
     handle_disjunction(cs, vec, p);
     return;
 }
 
-void contractor_generic_forall::prune(contractor_status & cs) {
-    DREAL_LOG_DEBUG << "contractor_generic_forall prune: " << *m_ctr << endl;
+void contractor_forall::prune(contractor_status & cs) {
+    DREAL_LOG_DEBUG << "contractor_forall prune: " << *m_ctr << endl;
     Enode * body = m_ctr->get_body();
     DREAL_LOG_DEBUG << "body = " << body << endl;
     handle(cs, body, true);
     return;
 }
 
-ostream & contractor_generic_forall::display(ostream & out) const {
-    out << "contractor_generic_forall(" << *m_ctr << ")";
+ostream & contractor_forall::display(ostream & out) const {
+    out << "contractor_forall(" << *m_ctr << ")";
     return out;
 }
 
-contractor mk_contractor_generic_forall(box const & b, shared_ptr<generic_forall_constraint> const ctr) {
-    return contractor(make_shared<contractor_generic_forall>(b, ctr));
+contractor mk_contractor_forall(box const & b, shared_ptr<forall_constraint> const ctr) {
+    return contractor(make_shared<contractor_forall>(b, ctr));
 }
 
 }  // namespace dreal

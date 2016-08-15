@@ -77,9 +77,9 @@ vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<
                 break;
             case constraint_type::Exists:
                 throw runtime_error("BranchHeuristic::sort_branches: found Exists constraint");
-            case constraint_type::GenericForall:
+            case constraint_type::Forall:
                 // TODO(soonhok): set delta_test_passed to be false if a counterexample is found.
-                throw runtime_error("BranchHeuristic::sort_branches: found GenericForall constraint");
+                throw runtime_error("BranchHeuristic::sort_branches: found Forall constraint");
             }
             if (!delta_test_passed) {
                 break;
