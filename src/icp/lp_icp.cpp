@@ -61,8 +61,7 @@ void lp_icp::mark_basic(glpk_wrapper & lp,
             bool found = false;
             for (auto cptr : constraints) {
                 if (cptr->get_type() == constraint_type::Nonlinear) {
-                    auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
-                    auto e = ncptr->get_enode();
+                    auto e = cptr->get_enodes()[0];
                     if (*it == e) {
                         DREAL_LOG_INFO << "lp_icp: marking " << e;
                         used_constraints.insert(cptr);
@@ -191,8 +190,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
     unordered_set<Enode*> es;
     for (auto cptr : constraints) {
         if (cptr->get_type() == constraint_type::Nonlinear) {
-            auto ncptr = std::dynamic_pointer_cast<nonlinear_constraint>(cptr);
-            auto e = ncptr->get_enode();
+            auto e = cptr->get_enodes()[0];
             if (glpk_wrapper::is_linear(e)) {
                 if (glpk_wrapper::is_simple_bound(e)) {
                     DREAL_LOG_INFO << "lp_icp:      bound: " << e;

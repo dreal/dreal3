@@ -49,7 +49,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using std::cerr;
 using std::cout;
-using std::dynamic_pointer_cast;
 using std::endl;
 using std::exception;
 using std::function;
@@ -417,8 +416,7 @@ void contractor_sample::prune(contractor_status & cs) {
         bool check = true;
         for (shared_ptr<constraint> const ctr : m_ctrs) {
             if (ctr->get_type() == constraint_type::Nonlinear) {
-                auto const nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
-                pair<lbool, ibex::Interval> eval_result = nl_ctr->eval(p);
+                pair<lbool, ibex::Interval> eval_result = ctr->eval(p);
                 if (eval_result.first == l_False) {
                     check = false;
                     DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " does not satisfy " << *ctr;
@@ -457,10 +455,9 @@ void contractor_aggressive::prune(contractor_status & cs) {
     for (shared_ptr<constraint> const ctr : m_ctrs) {
         interruption_point();
         if (ctr->get_type() == constraint_type::Nonlinear) {
-            auto const nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
             bool check = false;
             for (box const & p : points) {
-                pair<lbool, ibex::Interval> eval_result = nl_ctr->eval(p);
+                pair<lbool, ibex::Interval> eval_result = ctr->eval(p);
                 if (eval_result.first != l_False) {
                     check = true;
                     break;
@@ -468,8 +465,8 @@ void contractor_aggressive::prune(contractor_status & cs) {
             }
             if (!check) {
                 cs.m_used_constraints.insert(ctr);
-                pair<lbool, ibex::Interval> eval_result = nl_ctr->eval(cs.m_box);
-                DREAL_LOG_DEBUG << "Constraint: " << *nl_ctr << " is violated by all " << points.size() << " points";
+                pair<lbool, ibex::Interval> eval_result = ctr->eval(cs.m_box);
+                DREAL_LOG_DEBUG << "Constraint: " << *ctr << " is violated by all " << points.size() << " points";
                 DREAL_LOG_DEBUG << "FYI, the interval evaluation gives us : " << eval_result.second;
                 cs.m_box.set_empty();
                 return;

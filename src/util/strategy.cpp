@@ -30,7 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 using std::any_of;
 using std::cerr;
-using std::dynamic_pointer_cast;
+using std::static_pointer_cast;
 using std::endl;
 using std::make_shared;
 using std::numeric_limits;
@@ -85,17 +85,17 @@ contractor default_strategy::build_contractor(box const & box,
     for (shared_ptr<constraint> const ctr : ctrs.get_reverse()) {
         switch (ctr->get_type()) {
         case constraint_type::Nonlinear: {
-            auto nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
+            auto nl_ctr = static_pointer_cast<nonlinear_constraint>(ctr);
             nl_ctrs.push_back(nl_ctr);
             break;
         }
         case constraint_type::ODE: {
-            auto ode_ctr = dynamic_pointer_cast<ode_constraint>(ctr);
+            auto ode_ctr = static_pointer_cast<ode_constraint>(ctr);
             ode_ctrs_rev.push_back(ode_ctr);
             break;
         }
         case constraint_type::GenericForall: {
-            auto gf_ctr = dynamic_pointer_cast<generic_forall_constraint>(ctr);
+            auto gf_ctr = static_pointer_cast<generic_forall_constraint>(ctr);
             generic_forall_ctrs.push_back(gf_ctr);
             break;
         }

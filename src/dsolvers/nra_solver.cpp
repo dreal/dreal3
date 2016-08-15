@@ -56,7 +56,7 @@ using std::all_of;
 using std::boolalpha;
 using std::cerr;
 using std::cout;
-using std::dynamic_pointer_cast;
+using std::static_pointer_cast;
 using std::endl;
 using std::get;
 using std::logic_error;
@@ -376,8 +376,7 @@ void nra_solver::eval_sat_result(box const & b) const {
         if (it != m_ctr_map.end()) {
             shared_ptr<constraint> const ctr = it->second;
             if (ctr->get_type() == dreal::constraint_type::Nonlinear) {
-                auto const nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
-                pair<lbool, ibex::Interval> const eval_result = nl_ctr->eval(b);
+                pair<lbool, ibex::Interval> const eval_result = ctr->eval(b);
                 ss.str(string());
                 lit->print_infix(ss, lit->getPolarity(), true);
                 string const & ctr_str = ss.str();
@@ -405,7 +404,7 @@ void nra_solver::handle_sat_case(box const & b) const {
             // Need to run ODE pruning operator once again to generate a trace
             for (shared_ptr<constraint> const ctr : m_stack) {
                 if (ctr->get_type() == constraint_type::ODE) {
-                    contractor_capd_full fwd_full(b, dynamic_pointer_cast<ode_constraint>(ctr), ode_direction::FWD, config);
+                    contractor_capd_full fwd_full(b, static_pointer_cast<ode_constraint>(ctr), ode_direction::FWD, config);
                     json trace = fwd_full.generate_trace(contractor_status(b, config));
                     traces.push_back(trace);
                 }
@@ -432,19 +431,18 @@ void nra_solver::handle_deduction() {
             auto it = m_ctr_map.find(make_pair(l, true));
             if (it != m_ctr_map.end()) {
                 shared_ptr<constraint> ctr = it->second;
-                shared_ptr<nonlinear_constraint> const nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
-                if (nl_ctr) {
-                    pair<lbool, ibex::Interval> p = nl_ctr->eval(m_cs.m_box);
+                if (ctr->get_type() == constraint_type::Nonlinear) {
+                    pair<lbool, ibex::Interval> p = ctr->eval(m_cs.m_box);
                     if (p.first == l_False) {
                         // We know that this literal has to be false;
                         l->setDeduced(l_False, id);
                         deductions.push_back(l);
-                        DREAL_LOG_INFO << "Deduced: " << *nl_ctr << "\t" << p.first << "\t" << p.second;
+                        DREAL_LOG_INFO << "Deduced: " << *ctr << "\t" << p.first << "\t" << p.second;
                     } else if (p.first == l_True) {
                         // We know that this literal has to be true;
                         l->setDeduced(l_True, id);
                         deductions.push_back(l);
-                        DREAL_LOG_INFO << "Deduced: " << *nl_ctr << "\t" << p.first << "\t" << p.second;
+                        DREAL_LOG_INFO << "Deduced: " << *ctr << "\t" << p.first << "\t" << p.second;
                     }
                 }
             }

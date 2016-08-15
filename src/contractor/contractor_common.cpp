@@ -48,7 +48,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 using std::back_inserter;
 using std::cerr;
 using std::cout;
-using std::dynamic_pointer_cast;
 using std::endl;
 using std::function;
 using std::initializer_list;

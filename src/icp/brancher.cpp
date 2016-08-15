@@ -30,7 +30,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 
-using std::dynamic_pointer_cast;
 using std::get;
 using std::pair;
 using std::shared_ptr;
@@ -52,8 +51,7 @@ vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<
         for (shared_ptr<constraint> const & ctr : ctrs) {
             switch (ctr->get_type()) {
             case constraint_type::Nonlinear: {
-                auto const nl_ctr = dynamic_pointer_cast<nonlinear_constraint>(ctr);
-                pair<lbool, ibex::Interval> const eval_result = nl_ctr->eval(b);
+                pair<lbool, ibex::Interval> const eval_result = ctr->eval(b);
                 if (eval_result.first == l_True) {
                     continue;
                 }
@@ -65,8 +63,7 @@ vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<
             }
             case constraint_type::ODE: {
                 // |X_0|, |X_t|, and |par| has to be < delta
-                auto const ode_ctr = dynamic_pointer_cast<ode_constraint>(ctr);
-                for (auto const & var : ode_ctr->get_vars()) {
+                for (auto const & var : ctr->get_vars()) {
                     if (b[var].is_bisectable() && b[var].diam() > branch_precision) {
                         delta_test_passed = false;
                         break;
@@ -132,8 +129,7 @@ vector<double> SizeGradAsinhBrancher::score_axes(box const & b) const {
 
     for (auto cptr : constraints) {
         if (cptr->get_type() == constraint_type::Nonlinear) {
-            auto ncptr = dynamic_pointer_cast<nonlinear_constraint>(cptr);
-            auto gradout = (ncptr->get_numctr()->f).gradient(midpt);
+            auto gradout = cptr->grad(midpt);
             // TODO(soonhok): when gradout is an empty interval, the
             // following line fails.
             if (!gradout.is_empty()) {

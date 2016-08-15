@@ -57,7 +57,6 @@ using std::back_inserter;
 using std::cerr;
 using std::condition_variable;
 using std::cout;
-using std::dynamic_pointer_cast;
 using std::endl;
 using std::exception;
 using std::function;

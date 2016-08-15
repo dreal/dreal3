@@ -33,7 +33,7 @@ namespace dreal {
 
 using std::all_of;
 using std::cerr;
-using std::dynamic_pointer_cast;
+using std::static_pointer_cast;
 using std::endl;
 using std::endl;
 using std::exception;
@@ -165,7 +165,7 @@ void simulation_worker(box & ret, scoped_vec<shared_ptr<constraint>> const & ctr
                         if (!ctr->is_simple_nonlinear())
                             return false;
                         // return eval_enode_formula(lit, sample, lit->getPolarity() == l_True) == true;
-                        double const err = dynamic_pointer_cast<nonlinear_constraint>(ctr)->eval_error(sample);
+                        double const err = ctr->eval_error(sample);
                         bool const ans = err < prec;
                         if (!ans) {
                             DREAL_LOG_FATAL << *ctr << " has this error: " << err << " [current delta: " << prec << ", ";
