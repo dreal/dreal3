@@ -256,8 +256,7 @@ double nonlinear_constraint::eval_error(ibex::IntervalVector const & iv) const {
             break;
         }
         // if result is not finite then return the magic number
-        if (!isfinite(result))
-            result = magic_num;
+        if (!isfinite(result)) { result = magic_num; }
     } else {
         DREAL_LOG_FATAL << "nonlinear_constraint::eval_error: Something is wrong. NEQ occurred.\n";
         eval_result = m_numctr->f.eval(iv);
