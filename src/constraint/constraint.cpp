@@ -233,26 +233,26 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector cons
 }
 
 double nonlinear_constraint::eval_error(ibex::IntervalVector const & iv) const {
-    ibex::Interval tmp;
+    ibex::Interval eval_result;
     double result = 0.0;
     double const magic_num = numeric_limits<double>::max()/1.5;
     if (!m_is_neq) {
-        tmp = m_numctr->f.eval(iv);
+        eval_result = m_numctr->f.eval(iv);
         switch (m_numctr->op) {
         case ibex::LT:
-            result = tmp.ub() < 0.0 ? 0.0 : fabs(tmp.ub());
+            result = eval_result.ub() < 0.0 ? 0.0 : fabs(eval_result.ub());
             break;
         case ibex::LEQ:
-            result = tmp.ub() <= 0.0 ? 0.0 : fabs(tmp.ub());
+            result = eval_result.ub() <= 0.0 ? 0.0 : fabs(eval_result.ub());
             break;
         case ibex::GT:
-            result = tmp.lb() > 0.0 ? 0.0 : fabs(tmp.lb());
+            result = eval_result.lb() > 0.0 ? 0.0 : fabs(eval_result.lb());
             break;
         case ibex::GEQ:
-            result = tmp.lb() >= 0.0 ? 0.0 : fabs(tmp.lb());
+            result = eval_result.lb() >= 0.0 ? 0.0 : fabs(eval_result.lb());
             break;
         case ibex::EQ:
-            result = fabs(tmp.ub());
+            result = fabs(eval_result.ub());
             break;
         }
         // if result is not finite then return the magic number
@@ -260,8 +260,8 @@ double nonlinear_constraint::eval_error(ibex::IntervalVector const & iv) const {
             result = magic_num;
     } else {
         DREAL_LOG_FATAL << "nonlinear_constraint::eval_error: Something is wrong. NEQ occurred.\n";
-        tmp = m_numctr->f.eval(iv);
-        if ((tmp.lb() == 0) && (tmp.ub() == 0)) {
+        eval_result = m_numctr->f.eval(iv);
+        if ((eval_result.lb() == 0) && (eval_result.ub() == 0)) {
             result = magic_num;
         } else {
             result = 0.0;
