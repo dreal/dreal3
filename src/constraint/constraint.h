@@ -47,7 +47,6 @@ public:
     explicit constraint(constraint_type ty);
     constraint(constraint_type ty, Enode * const e);
     constraint(constraint_type ty, std::vector<Enode *> const & enodes);
-    constraint(constraint_type ty, std::vector<Enode *> const & enodes_1, std::vector<Enode *> const & enodes_2);
     inline constraint_type const & get_type() const { return m_type; }
     inline bool is_simple_nonlinear() { return m_type == constraint_type::Nonlinear; }
     inline std::vector<Enode *> const & get_enodes() const { return m_enodes; }

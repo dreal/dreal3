@@ -115,10 +115,6 @@ unordered_set<Enode *> build_vars_from_enodes(initializer_list<vector<Enode *>> 
 constraint::constraint(constraint_type ty, vector<Enode *> const & enodes)
     : m_type(ty), m_enodes(enodes), m_vars(build_vars_from_enodes({enodes})) {
 }
-constraint::constraint(constraint_type ty, vector<Enode *> const & enodes_1, vector<Enode *> const & enodes_2)
-    : m_type(ty), m_enodes(enodes_1), m_vars(build_vars_from_enodes({enodes_1, enodes_2})) {
-    m_enodes.insert(m_enodes.end(), enodes_2.begin(), enodes_2.end());
-}
 ostream & operator<<(ostream & out, constraint const & c) {
     return c.display(out);
 }
