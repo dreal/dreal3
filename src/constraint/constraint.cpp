@@ -292,8 +292,6 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
 }
 
 double nonlinear_constraint::eval_error(box const & b) const {
-    if (m_type != constraint_type::Nonlinear)
-        return 100000000;
     // Construct iv from box b
     if (m_var_array.size() > 0) {
         ibex::IntervalVector iv(m_var_array.size());
