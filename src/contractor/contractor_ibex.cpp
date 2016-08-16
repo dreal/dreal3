@@ -312,7 +312,7 @@ contractor_ibex_hc4::contractor_ibex_hc4(vector<Enode *> const & vars, vector<sh
         enode_to_id.emplace(vars[i], i);
     }
     for (auto const ctr : ctrs) {
-        for (auto const var : ctr->get_vars()) {
+        for (auto const var : ctr->get_occured_vars()) {
             m_input.add(enode_to_id[var]);
         }
     }
@@ -418,7 +418,7 @@ contractor_ibex_polytope::contractor_ibex_polytope(double const prec, vector<Eno
         enode_to_id.emplace(vars[i], i);
     }
     for (auto const ctr : ctrs) {
-        for (auto const var : ctr->get_vars()) {
+        for (auto const var : ctr->get_occured_vars()) {
             m_input.add(enode_to_id[var]);
         }
     }

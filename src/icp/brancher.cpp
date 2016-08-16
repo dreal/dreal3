@@ -63,7 +63,7 @@ vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<
             }
             case constraint_type::ODE: {
                 // |X_0|, |X_t|, and |par| has to be < delta
-                for (auto const & var : ctr->get_vars()) {
+                for (auto const & var : ctr->get_occured_vars()) {
                     if (b[var].is_bisectable() && b[var].diam() > branch_precision) {
                         delta_test_passed = false;
                         break;

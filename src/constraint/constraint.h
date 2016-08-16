@@ -43,7 +43,7 @@ class constraint {
 protected:
     constraint_type const m_type;
     std::vector<Enode *> m_enodes;
-    std::unordered_set<Enode *> m_vars;
+    std::unordered_set<Enode *> m_occured_vars;
 
 public:
     /// Constructr a constraint class whose type is @ty
@@ -59,7 +59,7 @@ public:
     /// Return associated Enodes (constraints)
     inline std::vector<Enode *> const & get_enodes() const { return m_enodes; }
     /// Return associated variables (in a form of Enodes)
-    inline std::unordered_set<Enode *> const & get_vars() const { return m_vars; }
+    std::unordered_set<Enode *> const & get_occured_vars() const { return m_occured_vars; }
     virtual std::pair<lbool, ibex::Interval> eval(box const & b) const = 0;
     virtual double eval_error(box const & b) const = 0;
     virtual ibex::IntervalVector grad(ibex::IntervalVector const & iv) const = 0;

@@ -389,7 +389,7 @@ void ncbt_icp::solve(contractor & ctc, contractor_status & cs) {
             thread_local static unordered_set<Enode *> used_vars;
             used_vars.clear();
             for (auto used_ctr : cs.m_used_constraints) {
-                auto this_used_vars = used_ctr->get_vars();
+                auto this_used_vars = used_ctr->get_occured_vars();
                 used_vars.insert(this_used_vars.begin(), this_used_vars.end());
             }
             while (box_stack.size() > 0) {

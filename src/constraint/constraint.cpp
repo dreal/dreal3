@@ -98,7 +98,7 @@ ostream & operator<<(ostream & out, constraint_type const & ty) {
 constraint::constraint(constraint_type ty) : m_type(ty) {
 }
 constraint::constraint(constraint_type ty, Enode * const e)
-    : m_type(ty), m_enodes(1, e), m_vars(e->get_vars()) {
+    : m_type(ty), m_enodes(1, e), m_occured_vars(e->get_vars()) {
 }
 
 unordered_set<Enode *> build_vars_from_enodes(initializer_list<vector<Enode *>> const & enodes_list) {
@@ -113,7 +113,7 @@ unordered_set<Enode *> build_vars_from_enodes(initializer_list<vector<Enode *>> 
 }
 
 constraint::constraint(constraint_type ty, vector<Enode *> const & enodes)
-    : m_type(ty), m_enodes(enodes), m_vars(build_vars_from_enodes({enodes})) {
+    : m_type(ty), m_enodes(enodes), m_occured_vars(build_vars_from_enodes({enodes})) {
 }
 ostream & operator<<(ostream & out, constraint const & c) {
     return c.display(out);
