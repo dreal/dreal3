@@ -107,9 +107,7 @@ vector<int> BranchHeuristic::sort_branches(box const & b, scoped_vec<shared_ptr<
 }
 
 vector<double> SizeBrancher::score_axes(box const & b) const {
-    const ibex::IntervalVector &values = b.get_values();
-    ibex::Vector radii = values.rad();
-    ibex::Vector midpt = values.mid();
+    ibex::Vector const radii = b.get_values().rad();
     vector<double> scores(b.size());
     for (unsigned i = 0; i < b.size(); i++) {
         scores[i] = radii[i];
