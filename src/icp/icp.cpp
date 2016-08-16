@@ -398,12 +398,8 @@ void ncbt_icp::solve(contractor & ctc, contractor_status & cs) {
                 // If this bisect_var is not used in all used
                 // constraints, this box is safe to be popped.
                 if (used_vars.find(cs.m_box.get_vars()[bisect_var]) != used_vars.end()) {
-                    // DREAL_LOG_FATAL << b.get_vars()[bisect_var] << " is used in "
-                    //                 << *used_ctr << " and it's not safe to skip";
                     break;
                 }
-                // DREAL_LOG_FATAL << b.get_vars()[bisect_var] << " is not used and it's safe to skip this box"
-                //                 << " (" << box_stack.size() << ")";
                 box_stack.pop_back();
             }
         }
