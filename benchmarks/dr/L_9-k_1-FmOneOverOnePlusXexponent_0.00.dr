@@ -1,0 +1,29 @@
+var:
+	 [0.5, 1] p0complement;
+	 [0.5, 1] p1complement;
+	 [0.5, 1] p2complement;
+	 [0.5, 1] p3complement;
+	 [0.5, 1] p4complement;
+	 [0.5, 1] p5complement;
+	 [0.5, 1] p6complement;
+	 [0.5, 1] p7complement;
+	 [0.5, 1] p8complement;
+ctr:
+	-((-1 + p0complement)*p1complement*p2complement*p3complement*p4complement*p5complement*p6complement*p7complement*p8complement) <= 1;
+	-(p0complement*(-1 + p1complement)*p2complement*p3complement*p4complement*p5complement*p6complement*p7complement*p8complement) <= 1;
+	-(p0complement*p1complement*(-1 + p2complement)*p3complement*p4complement*p5complement*p6complement*p7complement*p8complement) <= 1;
+	-(p0complement*p1complement*p2complement*(-1 + p3complement)*p4complement*p5complement*p6complement*p7complement*p8complement) <= 1;
+	-(p0complement*p1complement*p2complement*p3complement*(-1 + p4complement)*p5complement*p6complement*p7complement*p8complement) <= 1;
+	-(p0complement*p1complement*p2complement*p3complement*p4complement*(-1 + p5complement)*p6complement*p7complement*p8complement) <= 1;
+	-(p0complement*p1complement*p2complement*p3complement*p4complement*p5complement*(-1 + p6complement)*p7complement*p8complement) <= 1;
+	-(p0complement*p1complement*p2complement*p3complement*p4complement*p5complement*p6complement*(-1 + p7complement)*p8complement) <= 1;
+	-(p0complement*p1complement*p2complement*p3complement*p4complement*p5complement*p6complement*p7complement*(-1 + p8complement)) <= 1;
+	p0complement > 0.5;
+	p1complement > 0.5;
+	p2complement > 0.5;
+	p3complement > 0.5;
+	p4complement > 0.5;
+	p5complement > 0.5;
+	p6complement > 0.5;
+	p7complement > 0.5;
+	p8complement > 0.5;

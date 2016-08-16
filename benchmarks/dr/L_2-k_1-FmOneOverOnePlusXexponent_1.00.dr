@@ -1,0 +1,8 @@
+var:
+	 [0.5, 1] p0complement;
+	 [0.5, 1] p1complement;
+ctr:
+	p1complement - p0complement*p1complement <= 1/2;
+	p0complement - p0complement*p1complement <= 1/3;
+	p0complement > 0.5;
+	p1complement > 0.5;

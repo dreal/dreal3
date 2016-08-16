@@ -1,0 +1,14 @@
+var:
+	 [0.5, 1] p0complement;
+	 [0.5, 1] p1complement;
+	 [0.5, 1] p2complement;
+	 [0.5, 1] p3complement;
+ctr:
+	-((-1 + p0complement)*p1complement*p2complement*p3complement) <= 1/4;
+	-(p0complement*(-1 + p1complement)*p2complement*p3complement) <= 1/9;
+	-(p0complement*p1complement*(-1 + p2complement)*p3complement) <= 1/25;
+	-(p0complement*p1complement*p2complement*(-1 + p3complement)) <= 1/81;
+	p0complement > 0.5;
+	p1complement > 0.5;
+	p2complement > 0.5;
+	p3complement > 0.5;
