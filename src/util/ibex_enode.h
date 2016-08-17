@@ -28,7 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 namespace dreal {
 ibex::Interval str_to_ibex_interval(std::string const & s);
-ibex::ExprNode const * translate_enode_to_exprnode(std::map<std::string, ibex::Variable const> & var_map, Enode * const e, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode*, ibex::Interval>());
-ibex::ExprCtr  const * translate_enode_to_exprctr(std::map<std::string, ibex::Variable const> & var_map, Enode * const e, lbool p = l_Undef, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode*, ibex::Interval>());
-std::map<std::string, ibex::Variable const> build_var_map(std::unordered_set<Enode *> const & vars);
+ibex::ExprNode const * translate_enode_to_exprnode(std::map<std::string, ibex::ExprSymbol const *> & var_map, Enode * const e, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode*, ibex::Interval>());
+ibex::ExprCtr  const * translate_enode_to_exprctr(std::map<std::string, ibex::ExprSymbol const *> & var_map, Enode * const e, lbool p = l_Undef, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode*, ibex::Interval>());
+std::map<std::string, ibex::ExprSymbol const *> build_var_map(std::unordered_set<Enode *> const & vars);
 }

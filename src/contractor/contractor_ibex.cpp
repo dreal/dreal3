@@ -65,24 +65,24 @@ namespace dreal {
 ibex::SystemFactory* contractor_ibex_polytope::build_system_factory(vector<Enode *> const & vars, vector<shared_ptr<nonlinear_constraint>> const & ctrs) {
     DREAL_LOG_DEBUG << "build_system_factory:";
     ibex::SystemFactory * sf = new ibex::SystemFactory();
-    map<string, ibex::Variable const> var_map;  // Needed for translateEnodeToExprCtr
+    map<string, ibex::ExprSymbol const *> var_map;  // Needed for translateEnodeToExprCtr
 
     // Construct System: add Variables
     for (Enode * e : vars) {
         string const & name = e->getCar()->getNameFull();
         DREAL_LOG_INFO << "build_system_factory: Add Variable " << name;
         auto var_it = m_var_cache.find(e);
-        ibex::Variable const * var = nullptr;
+        ibex::ExprSymbol const * var = nullptr;
         if (var_it == m_var_cache.end()) {
             // Not found
-            var = new ibex::Variable(name.c_str());
+            var = &ibex::ExprSymbol::new_(name.c_str(), ibex::Dim::scalar());
             DREAL_LOG_INFO << "Added: var " << var << endl;
             m_var_cache.emplace(e, var);
         } else {
             // Found
             var = var_it->second;
         }
-        var_map.emplace(name, *var);
+        var_map.emplace(name, var);
         sf->add_var(*var);
     }
     DREAL_LOG_DEBUG << "build_system_factory: Add Variable: DONE";
@@ -442,9 +442,7 @@ contractor_ibex_polytope::~contractor_ibex_polytope() {
         delete p.second;
     }
     for (auto p : m_var_cache) {
-        ibex::Variable const * var = p.second;
-        ibex::ExprSymbol* symbol = var->symbol;
-        delete var;
+        ibex::ExprSymbol const * symbol = p.second;
         delete symbol;
     }
 }

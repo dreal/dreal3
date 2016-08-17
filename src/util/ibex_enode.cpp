@@ -21,8 +21,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include <string>
 #include <map>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include "ibex/ibex.h"
@@ -36,7 +36,7 @@ using ibex::ExprConstant;
 using ibex::ExprCtr;
 using ibex::ExprNode;
 using ibex::ExprNode;
-using ibex::Variable;
+using ibex::ExprSymbol;
 using std::logic_error;
 using std::map;
 using std::modf;
@@ -51,10 +51,11 @@ ibex::Interval str_to_ibex_interval(std::string const & s) {
     return ibex::Interval(lb, ub);
 }
 
-// Translate an Enode e into ibex::ExprNode.
-// Note: As a side-effect, update var_map : string -> ibex::Variable
-// Note: Use subst map (Enode ->ibex::Interval)
-ExprNode const * translate_enode_to_exprnode(map<string, Variable const> & var_map, Enode * const e, unordered_map<Enode*, ibex::Interval> const & subst) {
+/// Translate an Enode e into ibex::ExprNode.
+///
+/// @note As a side-effect, update var_map : string -> ibex::ExprSymbol const *
+/// @note Use subst map (Enode ->ibex::Interval)
+ExprNode const * translate_enode_to_exprnode(map<string, ibex::ExprSymbol const *> & var_map, Enode * const e, unordered_map<Enode*, ibex::Interval> const & subst) {
     // TODO(soonhok): for the simple case such as 0 <= x or x <= 10.
     // Handle it as a domain specification instead of constraints.
     if (e->isVar()) {
@@ -67,15 +68,14 @@ ExprNode const * translate_enode_to_exprnode(map<string, Variable const> & var_m
         auto const it = var_map.find(var_name);
         if (it == var_map.cend()) {
             // The variable is new, we need to make one.
-            Variable v(var_name.c_str());
+            ExprSymbol const * v = &ibex::ExprSymbol::new_(var_name.c_str(), ibex::Dim::scalar());
             // double const lb = e->getLowerBound();
             // double const ub = e->getUpperBound();
             var_map.emplace(var_name, v);
-            return v.symbol;
+            return v;
         } else {
             // Variable is found in var_map
-            Variable const & v = it->second;
-            return v.symbol;
+            return it->second;
         }
 
     } else if (e->isConstant()) {
@@ -245,10 +245,11 @@ ExprNode const * translate_enode_to_exprnode(map<string, Variable const> & var_m
     throw logic_error("Not implemented yet: translateEnodeExprNode");
 }
 
-// Translate an Enode e into ibex::ExprCtr.
-// Note: As a side-effect, update var_map : string -> ibex::Variable
-// Note: Use subst map (Enode ->ibex::Interval)
-ExprCtr const * translate_enode_to_exprctr(map<string, Variable const> & var_map, Enode * const e, lbool p, unordered_map<Enode*, ibex::Interval> const & subst) {
+/// Translate an Enode e into ibex::ExprCtr.
+///
+/// @note As a side-effect, update var_map : string -> ibex::ExprSymbol const *
+/// @note Use subst map (Enode ->ibex::Interval)
+ExprCtr const * translate_enode_to_exprctr(map<string, ibex::ExprSymbol const *> & var_map, Enode * const e, lbool p, unordered_map<Enode*, ibex::Interval> const & subst) {
     if (e->isNot()) {
         return translate_enode_to_exprctr(var_map, e->get1st(), !p, subst);
     }
@@ -313,12 +314,11 @@ ExprCtr const * translate_enode_to_exprctr(map<string, Variable const> & var_map
     return ret;
 }
 
-map<string, Variable const> build_var_map(unordered_set<Enode *> const & vars) {
-    map<string, Variable const> var_map;
+map<string, ExprSymbol const *> build_var_map(unordered_set<Enode *> const & vars) {
+    map<string, ExprSymbol const *> var_map;
     for (Enode * const e : vars) {
         string const & var_name = e->getCar()->getNameFull();
-        Variable v(var_name.c_str());
-        var_map.emplace(var_name, v);
+        var_map.emplace(var_name, &ibex::ExprSymbol::new_(var_name.c_str(), ibex::Dim::scalar()));
     }
     return var_map;
 }

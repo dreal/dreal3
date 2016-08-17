@@ -114,7 +114,7 @@ private:
     std::unordered_set<Enode *>               m_vars_in_ctrs;
     std::vector<std::shared_ptr<nonlinear_constraint>> m_ctrs;
     double const                              m_prec;
-    std::unordered_map<Enode *, ibex::Variable const *> m_var_cache;
+    std::unordered_map<Enode *, ibex::ExprSymbol const *> m_var_cache;
     std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_pos;
     std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_neg;
 
