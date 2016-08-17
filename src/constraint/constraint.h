@@ -24,11 +24,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <thread>
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/flow.h"
@@ -37,61 +39,82 @@ namespace dreal {
 enum class constraint_type { Nonlinear, ODE, Integral, ForallT, Exists, Forall };
 std::ostream & operator<<(std::ostream & out, constraint_type const & ty);
 
-
 /// Base constraint class.
 class constraint {
 protected:
+    /// Type of constraint
     constraint_type const m_type;
+    /// Associated constraints (in the form of Enode *)
     std::vector<Enode *> m_enodes;
+    /// Occured Variables
     std::unordered_set<Enode *> m_occured_vars;
 
 public:
-    /// Constructr a constraint class whose type is @ty
+    /// Constructr a constraint class whose type is @p ty
     explicit constraint(constraint_type ty);
     /// Constructr a constraint class of type @p ty from an Enode * @p e
     constraint(constraint_type ty, Enode * const e);
     /// Constructr a constraint class of type @p ty from a vector of Enodes @p enodes
     constraint(constraint_type ty, std::vector<Enode *> const & enodes);
     /// Return constraint_type
-    inline constraint_type const & get_type() const { return m_type; }
+    constraint_type const & get_type() const { return m_type; }
     /// Return whether it's simple nonlinear constraint or not
-    inline bool is_simple_nonlinear() { return m_type == constraint_type::Nonlinear; }
+    bool is_simple_nonlinear() { return m_type == constraint_type::Nonlinear; }
     /// Return associated Enodes (constraints)
-    inline std::vector<Enode *> const & get_enodes() const { return m_enodes; }
-    /// Return associated variables (in a form of Enodes)
+    std::vector<Enode *> const & get_enodes() const { return m_enodes; }
+    /// Return occured variables in constraints (in a form of Enodes)
     std::unordered_set<Enode *> const & get_occured_vars() const { return m_occured_vars; }
+    /// Evaluate the current constraint over a given box @p b.
+    ///
+    /// @returns First part of a return value is to indicate whether
+    /// the constraint is satisfied (true), rejected (false), or
+    /// unknown (undef) due to interval approximation.
     virtual std::pair<lbool, ibex::Interval> eval(box const & b) const = 0;
+    /// Return a max error of the function given an interval assignment, @p b.
+    /// @note eval_error(b) >= 0.0
     virtual double eval_error(box const & b) const = 0;
+    /// Return a gradient vector of the function at @p iv.
     virtual ibex::IntervalVector grad(ibex::IntervalVector const & iv) const = 0;
     virtual std::ostream & display(std::ostream & out) const = 0;
     virtual ~constraint() noexcept { }
     friend std::ostream & operator<<(std::ostream & out, constraint const & c);
 };
-
 std::ostream & operator<<(std::ostream & out, constraint const & c);
 
+/// Nonlinear constraint class. It wraps ibex::NumConstraint class.
 class nonlinear_constraint : public constraint {
 private:
     bool const                               m_is_neq;
-    std::shared_ptr<ibex::NumConstraint>     m_numctr;
-    ibex::Array<ibex::ExprSymbol const>      m_var_array;
+    lbool const                              m_polarity;
+    std::unordered_set<Enode*> const         m_domain_vars;
+    std::unordered_map<Enode*, ibex::Interval> const m_subst;
+
+    mutable std::mutex m_map_lock;
+    mutable std::unordered_map<std::thread::id, std::shared_ptr<ibex::NumConstraint>> m_numctr_map;
+    mutable std::unordered_map<std::thread::id, ibex::Array<ibex::ExprSymbol const>>  m_var_array_map;
+
     std::pair<lbool, ibex::Interval> eval(ibex::IntervalVector const & iv) const;
     double eval_error(ibex::IntervalVector const & iv) const;  // gevaluate error function
+    void build_maps() const;
 
 public:
-    nonlinear_constraint(Enode * const e, std::unordered_set<Enode*> const & var_set, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode *, ibex::Interval>());
+    /// Construct a nonlinear_constraint based on a given constraint
+    /// @p e. A set of domain variables, @p domain_vars, is
+    /// provided. An optional substitution map from a variable (Enode
+    /// *) to an interval is also provided.
+    nonlinear_constraint(Enode * const e, std::unordered_set<Enode*> const & domain_vars, lbool const p, std::unordered_map<Enode*, ibex::Interval> const & subst = std::unordered_map<Enode*, ibex::Interval>());
     std::ostream & display(std::ostream & out) const override;
     std::pair<lbool, ibex::Interval> eval(box const & b) const override;
     ibex::IntervalVector grad(ibex::IntervalVector const & iv) const override {
-        return m_numctr->f.gradient(iv);
+        return get_numctr()->f.gradient(iv);
     }
-    double eval_error(box const & b) const override;  // evaluate error function
-    inline std::shared_ptr<ibex::NumConstraint> get_numctr() const { return m_numctr; }
-    ibex::Array<ibex::ExprSymbol const> const & get_var_array() const { return m_var_array; }
-    inline Enode * get_enode() const { return get_enodes()[0]; }
+    double eval_error(box const & b) const override;
+    std::shared_ptr<ibex::NumConstraint> const & get_numctr() const;
+    ibex::Array<ibex::ExprSymbol const> const & get_var_array() const;
+    Enode * get_enode() const { return get_enodes()[0]; }
     bool is_neq() const { return m_is_neq; }
     bool operator==(nonlinear_constraint const & nc) const {
-        return m_numctr == nc.m_numctr;
+        return get_numctr() == nc.get_numctr();
     }
 };
 
@@ -113,16 +136,16 @@ public:
                         std::vector<Enode *> const & vars_t, std::vector<Enode *> const & pars_t,
                         std::vector<Enode *> const & par_lhs_names,
                         std::vector<std::pair<Enode *, Enode *>> const & odes);
-    inline unsigned get_flow_id()                    const { return m_flow_id; }
-    inline Enode * get_time_0()                      const { return m_time_0; }
-    inline Enode * get_time_t()                      const { return m_time_t; }
-    inline std::vector<Enode *> const & get_vars_0() const { return m_vars_0; }
-    inline std::vector<Enode *> const & get_vars_t() const { return m_vars_t; }
-    inline std::vector<Enode *> const & get_pars_0() const { return m_pars_0; }
-    inline std::vector<Enode *> const & get_pars_t() const { return m_pars_t; }
-    inline std::vector<Enode *>  const & get_par_lhs_names() const { return m_par_lhs_names; }
-    inline std::vector<std::pair<Enode *, Enode *>> const & get_odes() const { return m_odes; }
-    inline Enode * get_enode() const { return get_enodes()[0]; }
+    unsigned get_flow_id()                    const { return m_flow_id; }
+    Enode * get_time_0()                      const { return m_time_0; }
+    Enode * get_time_t()                      const { return m_time_t; }
+    std::vector<Enode *> const & get_vars_0() const { return m_vars_0; }
+    std::vector<Enode *> const & get_vars_t() const { return m_vars_t; }
+    std::vector<Enode *> const & get_pars_0() const { return m_pars_0; }
+    std::vector<Enode *> const & get_pars_t() const { return m_pars_t; }
+    std::vector<Enode *>  const & get_par_lhs_names() const { return m_par_lhs_names; }
+    std::vector<std::pair<Enode *, Enode *>> const & get_odes() const { return m_odes; }
+    Enode * get_enode() const { return get_enodes()[0]; }
     std::pair<lbool, ibex::Interval> eval(box const & /* b */) const override {
         throw std::runtime_error("not implemented yet.");
     }
@@ -152,10 +175,10 @@ public:
     forallt_constraint(Enode * const e, std::unordered_set<Enode*> const & var_set, unsigned const flow_id, Enode * const time_0, Enode * const time_t, Enode * const inv);
     forallt_constraint(Enode * const e, std::unordered_set<Enode*> const & var_set) : forallt_constraint(mk_forallt_constraint(e, var_set)) { }
     std::vector<std::shared_ptr<nonlinear_constraint>> get_nl_ctrs() const { return m_nl_ctrs; }
-    inline unsigned get_flow_id()  const { return m_flow_id; }
-    inline Enode * get_time_0() const { return m_time_0; }
-    inline Enode * get_time_t() const { return m_time_t; }
-    inline Enode * get_inv()    const { return m_inv; }
+    unsigned get_flow_id()  const { return m_flow_id; }
+    Enode * get_time_0() const { return m_time_0; }
+    Enode * get_time_t() const { return m_time_t; }
+    Enode * get_inv()    const { return m_inv; }
     std::pair<lbool, ibex::Interval> eval(box const & /* b */) const override {
         throw std::runtime_error("not implemented yet.");
     }
@@ -176,8 +199,8 @@ private:
 
 public:
     explicit ode_constraint(integral_constraint const & integral, std::vector<std::shared_ptr<forallt_constraint>> const & invs = std::vector<std::shared_ptr<forallt_constraint>>());
-    inline integral_constraint const & get_ic() const { return m_int; }
-    inline std::vector<std::shared_ptr<forallt_constraint>> const & get_invs() const { return m_invs; }
+    integral_constraint const & get_ic() const { return m_int; }
+    std::vector<std::shared_ptr<forallt_constraint>> const & get_invs() const { return m_invs; }
     std::pair<lbool, ibex::Interval> eval(box const & /* b */) const override {
         throw std::runtime_error("not implemented yet.");
     }
@@ -204,8 +227,8 @@ public:
     std::ostream & display(std::ostream & out) const override;
     std::unordered_set<Enode *> get_forall_vars() const;
     Enode * get_body() const;
-    inline Enode * get_enode() const { return get_enodes()[0]; }
-    inline lbool get_polarity() const { return m_polarity; }
+    Enode * get_enode() const { return get_enodes()[0]; }
+    lbool get_polarity() const { return m_polarity; }
     std::pair<lbool, ibex::Interval> eval(box const & /* b */) const override {
         throw std::runtime_error("not implemented yet.");
     }

@@ -27,6 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <memory>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -53,6 +54,7 @@ using std::ostream;
 using std::pair;
 using std::shared_ptr;
 using std::string;
+using std::thread;
 using std::to_string;
 using std::unique_ptr;
 using std::unordered_map;
@@ -122,30 +124,61 @@ ostream & operator<<(ostream & out, constraint const & c) {
 // ====================================================
 // Nonlinear constraint
 // ====================================================
-nonlinear_constraint::nonlinear_constraint(Enode * const e,
-                                           unordered_set<Enode*> const & var_set,
-                                           lbool const p, unordered_map<Enode*, ibex::Interval> const & subst)
-    : constraint(constraint_type::Nonlinear, e), m_is_neq(p == l_False && e->isEq()),
-      m_numctr(nullptr), m_var_array(var_set.size()) {
-    // Build var_map and var_array
-    // Need to pass a fresh copy of var_array everytime it builds NumConstraint
-    auto var_map = build_var_map(var_set);
-    m_var_array.resize(var_map.size());
-    unsigned i = 0;
+
+void nonlinear_constraint::build_maps() const {
+    std::thread::id const tid = std::this_thread::get_id();
+    assert(m_numctr_map.find(tid) == m_numctr_map.cend());
+    assert(m_var_array_map.find(tid) == m_var_array_map.cend());
+    // Build var_array_map
+    map<string, ibex::ExprSymbol const *> var_map = build_var_map(m_domain_vars);
+    ibex::Array<ibex::ExprSymbol const> & var_array = m_var_array_map[tid];
+    var_array.resize(var_map.size());
+    int i = 0;
     for (auto const item : var_map) {
-        m_var_array.set_ref(i++, item.second);
+        var_array.set_ref(i++, *(item.second));
     }
-    unique_ptr<ibex::ExprCtr const> exprctr(translate_enode_to_exprctr(var_map, e, p, subst));
-    m_numctr.reset(new ibex::NumConstraint(m_var_array, *exprctr));
-    DREAL_LOG_INFO << "nonlinear_constraint: "<< *this;
+    // The use of unique_ptr is to free the returned exprctr* from translate_enode_to_exprctr
+    unique_ptr<ibex::ExprCtr const> exprctr(translate_enode_to_exprctr(var_map, m_enodes[0], m_polarity, m_subst));
+    m_numctr_map[tid].reset(new ibex::NumConstraint(var_array, *exprctr));
+}
+
+shared_ptr<ibex::NumConstraint> const & nonlinear_constraint::get_numctr() const {
+    std::thread::id const tid = std::this_thread::get_id();
+    std::lock_guard<std::mutex> lock(m_map_lock);
+    unordered_map<thread::id, shared_ptr<ibex::NumConstraint>>::const_iterator const it = m_numctr_map.find(tid);
+    if (it != m_numctr_map.cend()) {
+        return it->second;
+    } else {
+        build_maps();
+        return m_numctr_map[tid];
+    }
+}
+ibex::Array<ibex::ExprSymbol const> const & nonlinear_constraint::get_var_array() const {
+    std::thread::id const tid = std::this_thread::get_id();
+    std::lock_guard<std::mutex> lock(m_map_lock);
+    unordered_map<thread::id, ibex::Array<ibex::ExprSymbol const>>::const_iterator const it = m_var_array_map.find(tid);
+    if (it != m_var_array_map.cend()) {
+        return it->second;
+    } else {
+        build_maps();
+        return m_var_array_map[tid];
+    }
+}
+
+nonlinear_constraint::nonlinear_constraint(Enode * const e,
+                                           unordered_set<Enode*> const & domain_vars,
+                                           lbool const p, unordered_map<Enode*, ibex::Interval> const & subst)
+    : constraint(constraint_type::Nonlinear, e), m_is_neq(p == l_False && e->isEq()), m_polarity(p),
+      m_domain_vars(domain_vars), m_subst(subst) {
+    build_maps();
 }
 
 ostream & nonlinear_constraint::display(ostream & out) const {
     out << "nonlinear_constraint ";
     if (m_is_neq) {
-        out << "!(" << *m_numctr << ")";
+        out << "!(" << *get_numctr() << ")";
     } else {
-        out << *m_numctr;
+        out << *get_numctr();
     }
     return out;
 }
@@ -154,8 +187,8 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector cons
     lbool sat = l_Undef;
     ibex::Interval result;
     if (!m_is_neq) {
-        result = m_numctr->f.eval(iv);
-        switch (m_numctr->op) {
+        result = get_numctr()->f.eval(iv);
+        switch (get_numctr()->op) {
         case ibex::LT:
             if (result.ub() < 0) {
                 //    [         ]
@@ -214,7 +247,7 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector cons
         }
     } else {
         // NEQ case: lhs - rhs != 0
-        result = m_numctr->f.eval(iv);
+        result = get_numctr()->f.eval(iv);
         if ((result.lb() == 0) && (result.ub() == 0)) {
             //     [      lhs      ]
             //     [      rhs      ]
@@ -237,8 +270,8 @@ double nonlinear_constraint::eval_error(ibex::IntervalVector const & iv) const {
     double result = 0.0;
     double const magic_num = numeric_limits<double>::max()/1.5;
     if (!m_is_neq) {
-        eval_result = m_numctr->f.eval(iv);
-        switch (m_numctr->op) {
+        eval_result = get_numctr()->f.eval(iv);
+        switch (get_numctr()->op) {
         case ibex::LT:
             result = eval_result.ub() < 0.0 ? 0.0 : fabs(eval_result.ub());
             break;
@@ -259,7 +292,7 @@ double nonlinear_constraint::eval_error(ibex::IntervalVector const & iv) const {
         if (!isfinite(result)) { result = magic_num; }
     } else {
         DREAL_LOG_FATAL << "nonlinear_constraint::eval_error: Something is wrong. NEQ occurred.\n";
-        eval_result = m_numctr->f.eval(iv);
+        eval_result = get_numctr()->f.eval(iv);
         if ((eval_result.lb() == 0) && (eval_result.ub() == 0)) {
             result = magic_num;
         } else {
@@ -272,16 +305,17 @@ double nonlinear_constraint::eval_error(ibex::IntervalVector const & iv) const {
         DREAL_LOG_DEBUG << "input: " << iv;
         DREAL_LOG_DEBUG << "output:" << result;
     }
+    assert(result >= 0.0);
     return result;
 }
 
 pair<lbool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
     // Construct iv from box b
-    if (m_var_array.size() > 0) {
-        ibex::IntervalVector iv(m_var_array.size());
-        for (int i = 0; i < m_var_array.size(); i++) {
-            iv[i] = b[m_var_array[i].name];
-            DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
+    if (get_var_array().size() > 0) {
+        ibex::IntervalVector iv(get_var_array().size());
+        for (int i = 0; i < get_var_array().size(); i++) {
+            iv[i] = b[get_var_array()[i].name];
+            DREAL_LOG_DEBUG << get_var_array()[i].name << " = " << iv[i];
         }
         return eval(iv);
     } else {
@@ -292,11 +326,11 @@ pair<lbool, ibex::Interval> nonlinear_constraint::eval(box const & b) const {
 
 double nonlinear_constraint::eval_error(box const & b) const {
     // Construct iv from box b
-    if (m_var_array.size() > 0) {
-        ibex::IntervalVector iv(m_var_array.size());
-        for (int i = 0; i < m_var_array.size(); i++) {
-            iv[i] = b[m_var_array[i].name];
-            DREAL_LOG_DEBUG << m_var_array[i].name << " = " << iv[i];
+    if (get_var_array().size() > 0) {
+        ibex::IntervalVector iv(get_var_array().size());
+        for (int i = 0; i < get_var_array().size(); i++) {
+            iv[i] = b[get_var_array()[i].name];
+            DREAL_LOG_DEBUG << get_var_array()[i].name << " = " << iv[i];
         }
         return eval_error(iv);
     } else {
