@@ -168,7 +168,7 @@ void simulation_worker(box & ret, scoped_vec<shared_ptr<constraint>> const & ctr
                         double const err = ctr->eval_error(sample);
                         bool const ans = err < prec;
                         if (!ans) {
-                            DREAL_LOG_FATAL << *ctr << " has this error: " << err << " [current delta: " << prec << ", ";
+                            DREAL_LOG_INFO << *ctr << " has this error: " << err << " [current delta: " << prec << ", ";
                             if (ans) {
                                 DREAL_LOG_INFO << "satisfied]\n";
                             } else {
