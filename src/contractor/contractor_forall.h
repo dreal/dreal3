@@ -34,15 +34,23 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor.h"
 
 namespace dreal {
+/// Contractor for handling forall constraint
 class contractor_forall : public contractor_cell {
 private:
     std::shared_ptr<forall_constraint> const m_ctr;
     box find_CE(box const & b, std::unordered_set<Enode*> const & forall_vars, std::vector<Enode*> const & vec, bool const p, SMTConfig & config) const;
-    void handle(contractor_status & cs, Enode * body, bool const p);
+    /// Given a list Enode, return a vector<Enode *>
     std::vector<Enode *> elist_to_vector(Enode * e) const;
-    void handle_disjunction(contractor_status & cs, std::vector<Enode *> const & vec, bool const p);
-    void handle_conjunction(contractor_status & cs, std::vector<Enode *> const & vec, bool const p);
-    void handle_atomic(contractor_status & cs, Enode * body, bool const p);
+    /// Pruning function. @p body can be and (conjunction), or
+    /// (disjunction), not (negation), or a leaf (a constraint). For
+    /// each type, it calls corresponding 'prune_' function.
+    void prune_tree(contractor_status & cs, Enode * body, bool const p);
+    /// Pruning function. It handles \/ {t_1, ..., t_n} where @p vec includes t_i
+    void prune_disjunction(contractor_status & cs, std::vector<Enode *> const & vec, bool const p);
+    /// Pruning function. It handles /\ {t_1, ..., t_n} where @p vec includes t_i
+    void prune_conjunction(contractor_status & cs, std::vector<Enode *> const & vec, bool const p);
+    /// Pruning function. It handles a leaf node (a constraint without boolean structure)
+    void prune_leaf(contractor_status & cs, Enode * body, bool const p);
 
 public:
     contractor_forall(box const & b, std::shared_ptr<forall_constraint> const ctr);

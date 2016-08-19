@@ -94,20 +94,20 @@ contractor_forall::contractor_forall(box const & b, shared_ptr<forall_constraint
     }
 }
 
-void contractor_forall::handle(contractor_status & cs, Enode * body, bool const p) {
+void contractor_forall::prune_tree(contractor_status & cs, Enode * body, bool const p) {
     if (body->isOr()) {
         vector<Enode *> vec = elist_to_vector(body->getCdr());
-        handle_disjunction(cs, vec, p);
+        prune_disjunction(cs, vec, p);
         return;
     } else if (body->isAnd()) {
         vector<Enode *> vec = elist_to_vector(body->getCdr());
-        handle_conjunction(cs, vec, p);
+        prune_conjunction(cs, vec, p);
         return;
     } else if (body->isNot()) {
-        handle(cs, body->get1st(), !p);
+        prune_tree(cs, body->get1st(), !p);
         return;
     } else {
-        handle_atomic(cs, body, p);
+        prune_leaf(cs, body, p);
         return;
     }
 }
@@ -452,8 +452,8 @@ box contractor_forall::find_CE(box const & b, unordered_set<Enode*> const & fora
     return counterexample;
 }
 
-void contractor_forall::handle_disjunction(contractor_status & cs, vector<Enode *> const &vec, bool const p) {
-    DREAL_LOG_DEBUG << "contractor_forall::handle_disjunction" << endl;
+void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *> const &vec, bool const p) {
+    DREAL_LOG_DEBUG << "contractor_forall::prune_disjunction" << endl;
     unordered_set<Enode *> forall_vars;
     for (Enode * e : vec) {
         std::unordered_set<Enode *> const & vars = e->get_forall_vars();
@@ -473,7 +473,7 @@ void contractor_forall::handle_disjunction(contractor_status & cs, vector<Enode 
         if (counterexample.is_empty()) {
             // Step 2.1. (NO Counterexample)
             //           Return B.
-            DREAL_LOG_DEBUG << "handle_disjunction: no counterexample found." << endl
+            DREAL_LOG_DEBUG << "prune_disjunction: no counterexample found." << endl
                             << "current box = " << endl
                             << cs.m_box << endl;
             return;
@@ -527,29 +527,29 @@ void contractor_forall::handle_disjunction(contractor_status & cs, vector<Enode 
     return;
 }
 
-void contractor_forall::handle_conjunction(contractor_status & cs, vector<Enode *> const & vec, bool const p) {
-    DREAL_LOG_DEBUG << "contractor_forall::handle_conjunction" << endl;
+void contractor_forall::prune_conjunction(contractor_status & cs, vector<Enode *> const & vec, bool const p) {
+    DREAL_LOG_DEBUG << "contractor_forall::prune_conjunction" << endl;
     for (Enode * e : vec) {
         DREAL_LOG_DEBUG << "process conjunction element : " << e << endl;
-        handle(cs, e, p);
+        prune_tree(cs, e, p);
         if (cs.m_box.is_empty()) {
             return;
         }
     }
     return;
 }
-void contractor_forall::handle_atomic(contractor_status & cs, Enode * body, bool const p) {
+void contractor_forall::prune_leaf(contractor_status & cs, Enode * body, bool const p) {
     vector<Enode*> vec;
     vec.push_back(body);
-    handle_disjunction(cs, vec, p);
+    prune_disjunction(cs, vec, p);
     return;
 }
 
 void contractor_forall::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_forall prune: " << *m_ctr << endl;
-    Enode * body = m_ctr->get_body();
+    Enode * const body = m_ctr->get_body();
     DREAL_LOG_DEBUG << "body = " << body << endl;
-    handle(cs, body, true);
+    prune_tree(cs, body, true);
     return;
 }
 
