@@ -21,6 +21,7 @@ option(USE_GLPK         "Use local third party libraries" ON)
 option(TCMALLOC         "Use tcmalloc (a.k.a. gperftools)" ON)
 option(BUILD_TEST       "Build test binaries" ON)
 option(USE_ASAN         "Use address sanitizer (-fsanitize=address)" OFF)
+option(USE_SYSTEM_LIBS  "Use the external libraries installed in a system if exists" OFF)
 
 # Added for CTest
 include(CTest)
@@ -275,26 +276,33 @@ set(EXTRA_LIBS "prim" ${EXTRA_LIBS})
 # External: GLPK
 ################################################################
 if(USE_GLPK)
-  if(USE_LOCAL_THIRD_PARTY)
-    ExternalProject_Add(GLPK
-      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-      URL ${CMAKE_SOURCE_DIR}/third_party/glpk.zip
-      CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
-      BUILD_COMMAND make
-      BUILD_IN_SOURCE 1
-      INSTALL_COMMAND make install)
-  else()
-    ExternalProject_Add(GLPK
-      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-      GIT_REPOSITORY https://github.com/dreal-deps/glpk.git
-      GIT_TAG master
-      UPDATE_COMMAND ""
-      CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
-      BUILD_COMMAND make
-      BUILD_IN_SOURCE 1
-      INSTALL_COMMAND make install)
-  endif()
-  set(EXTRA_LIBS "glpk" ${EXTRA_LIBS})
+    find_package(GLPK QUIET)
+    if (USE_SYSTEM_LIBS AND GLPK_FOUND)
+        message(STATUS "Found GLPK ${GLPK_VERSION_STRING} in system")
+        include_directories(GLPK_INCLUDE_DIR)
+        set(EXTRA_LIBS ${GLPK_LIBRARIES} ${EXTRA_LIBS})
+    else()
+        if(USE_LOCAL_THIRD_PARTY)
+            ExternalProject_Add(GLPK
+                PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+                URL ${CMAKE_SOURCE_DIR}/third_party/glpk.zip
+                CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+                BUILD_COMMAND make
+                BUILD_IN_SOURCE 1
+                INSTALL_COMMAND make install)
+        else()
+            ExternalProject_Add(GLPK
+                PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+                GIT_REPOSITORY https://github.com/dreal-deps/glpk.git
+                GIT_TAG master
+                UPDATE_COMMAND ""
+                CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -w" "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND}
+                BUILD_COMMAND make
+                BUILD_IN_SOURCE 1
+                INSTALL_COMMAND make install)
+        endif()
+        set(EXTRA_LIBS "glpk" ${EXTRA_LIBS})
+    endif()
 endif()
 
 ################################################################
@@ -738,13 +746,14 @@ add_dependencies(dreal ADEPT)
 add_dependencies(dreal EASYLOGGINGPP)
 add_dependencies(dreal EZOPTIONPARSER)
 add_dependencies(dreal JSON)
-if(USE_GLPK)
-  add_dependencies(dreal GLPK)
-  add_dependencies(dop GLPK)
+
+if(USE_GLPK AND (NOT (USE_SYSTEM_LIBS AND GLPK_FOUND)))
+    add_dependencies(dreal GLPK)
+    add_dependencies(dop GLPK)
 endif()
 if(SUPPORT_ODE)
-  add_dependencies(dreal CAPD4)
-  add_dependencies(dop CAPD4)
+    add_dependencies(dreal CAPD4)
+    add_dependencies(dop CAPD4)
 endif()
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
