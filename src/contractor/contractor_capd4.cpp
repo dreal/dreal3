@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <exception>
 #include <functional>
 #include <initializer_list>
+#include <limits>
 #include <memory>
 #include <ratio>
 #include <string>
@@ -29,6 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
 #include "capd/capdlib.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor_ibex.h"
@@ -705,6 +707,28 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
     }
 }
 
+double max_width(capd::IVector const & iv) {
+    double ret = 0.0;
+    for (capd::interval const & i : iv) {
+        double const current_width = i.rightBound() - i.leftBound();
+        if (current_width > ret) {
+            ret = current_width;
+        }
+    }
+    return ret;
+}
+
+double min_width(capd::IVector const & iv) {
+    double ret = std::numeric_limits<double>::max();
+    for (capd::interval const & i : iv) {
+        double const current_width = i.rightBound() - i.leftBound();
+        if (current_width < ret) {
+            ret = current_width;
+        }
+    }
+    return ret;
+}
+
 void contractor_capd_full::prune(contractor_status & cs) {
     auto const start_time = steady_clock::now();
 
@@ -815,17 +839,21 @@ void contractor_capd_full::prune(contractor_status & cs) {
             prevTime = m_timeMap->getCurrentTime();
             if (cs.m_config.nra_ODE_show_progress) {
                 if (!cs.m_config.nra_ODE_trace) {
-                    cout << "\r"
-                         << "                                               "
-                         << "                                               "
-                         << "\r";
+                    cout << "\33[2K\r";
                 }
                 cout << "ODE Progress "
                      << "[" << m_dir << "]"
                      << ":  Time = " << setw(10) << fixed << setprecision(5) << right << prevTime.rightBound() << " / "
                      << setw(7) << fixed << setprecision(2) << left << T.rightBound() << " "
-                     << setw(4) << right << int(prevTime.rightBound() / T.rightBound() * 100.0) << "%" << "  "
-                     << "Box Width = " << setw(10) << fixed << setprecision(5) << cs.m_box.max_diam() << "\t";
+                     << setw(4) << right << int(prevTime.rightBound() / T.rightBound() * 100.0) << "%" << "  ";
+                if (enclosures.size() > 0) {
+                    auto const & last_iv = enclosures.back().second;
+                    cout << "|T| = ["
+                         << setprecision(16) << min_width(last_iv) << ", "
+                         << setprecision(5) << max_width(last_iv)
+                         << "]" << "\t ";
+                }
+                cout << "Box Width = " << setw(10) << fixed << setprecision(5) << cs.m_box.max_diam() << "\t";
                 cout.flush();
                 if (cs.m_config.nra_ODE_trace) {
                     cerr << endl;
