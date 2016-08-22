@@ -875,7 +875,7 @@ endif()
 if(USE_GLPK)
     SET(PKG_CONFIG_LIBS "${PKG_CONFIG_LIBS} -lglpk")
 endif()
-SET(PKG_CONFIG_LIBS "${PKG_CONFIG_LIBS} -lprim -lpicosat -lm")
+SET(PKG_CONFIG_LIBS "${PKG_CONFIG_LIBS} -lprim -lpicosat ${CMAKE_THREAD_LIBS_INIT} -lm")
 SET(PKG_CONFIG_CFLAGS "-I\${includedir}")
 
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/pkg-config.pc.cmake"
