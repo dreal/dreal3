@@ -1,26 +1,39 @@
-if (TCMALLOC_INCLUDE_DIR AND TCMALLOC_LIBRARIES)
-  # Already in cache, be silent
-  set(TCMALLOC_FIND_QUIETLY TRUE)
-endif (TCMALLOC_INCLUDE_DIR AND TCMALLOC_LIBRARIES)
+# - Find Tcmalloc
+# Find the native Tcmalloc includes and library
+#
+#  Tcmalloc_INCLUDE_DIR - where to find Tcmalloc.h, etc.
+#  Tcmalloc_LIBRARIES   - List of libraries when using Tcmalloc.
+#  Tcmalloc_FOUND       - True if Tcmalloc found.
 
-find_path(TCMALLOC_INCLUDE_DIR NAMES google/tcmalloc.h)
-find_library(TCMALLOC_LIBRARIES NAMES tcmalloc)
+find_path(Tcmalloc_INCLUDE_DIR google/tcmalloc.h)
 
-include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(TCMALLOC DEFAULT_MSG TCMALLOC_INCLUDE_DIR TCMALLOC_LIBRARIES)
-
-# Print out version number
-if (TCMALLOC_FOUND)
-  try_run(TC_CHECK TC_CHECK_BUILD
-    ${DREAL_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp
-    ${DREAL_SOURCE_DIR}/cmake/Modules/CheckTcmalloc.cc
-    CMAKE_FLAGS -DINCLUDE_DIRECTORIES=${TCMALLOC_INCLUDE_DIR}
-    -DLINK_LIBRARIES=${TCMALLOC_LIBRARIES}
-    RUN_OUTPUT_VARIABLE TC_TRY_OUT)
-  message("-- Found TCMALLOC: version ${TC_TRY_OUT}")
+if (USE_TCMALLOC)
+  set(Tcmalloc_NAMES tcmalloc)
 else ()
-  message("*** WARNING: failed to find tcmalloc")
-  message("*** The (optional) tcmalloc library is available at: https://code.google.com/p/gperftools")
+  set(Tcmalloc_NAMES tcmalloc_minimal tcmalloc)
 endif ()
 
-mark_as_advanced(TCMALLOC_INCLUDE_DIR TCMALLOC_LIBRARIES)
+find_library(Tcmalloc_LIBRARY NAMES ${Tcmalloc_NAMES})
+
+if (Tcmalloc_INCLUDE_DIR AND Tcmalloc_LIBRARY)
+  set(Tcmalloc_FOUND TRUE)
+  set( Tcmalloc_LIBRARIES ${Tcmalloc_LIBRARY} )
+else ()
+  set(Tcmalloc_FOUND FALSE)
+  set( Tcmalloc_LIBRARIES )
+endif ()
+
+if (Tcmalloc_FOUND)
+  message(STATUS "Found Tcmalloc: ${Tcmalloc_LIBRARY}")
+else ()
+  message(STATUS "Not Found Tcmalloc")
+  if (Tcmalloc_FIND_REQUIRED)
+    message(STATUS "Looked for Tcmalloc libraries named ${Tcmalloc_NAMES}.")
+    message(FATAL_ERROR "Could NOT find Tcmalloc library")
+  endif ()
+endif ()
+
+mark_as_advanced(
+  Tcmalloc_LIBRARY
+  Tcmalloc_INCLUDE_DIR
+  )
