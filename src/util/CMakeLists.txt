@@ -21,6 +21,8 @@ SET(DREAL_SRCS ${DREAL_SRCS}
   ${CMAKE_CURRENT_LIST_DIR}/strategy.cpp
   ${CMAKE_CURRENT_LIST_DIR}/subst_enode.cpp
   ${CMAKE_CURRENT_LIST_DIR}/glpk_wrapper.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/mcts_node.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/mcts_expander.cpp  
   "${DREAL_BINARY_DIR}/git_sha1.cpp"
   ${CMAKE_CURRENT_LIST_DIR}/git_sha1.h
   PARENT_SCOPE
