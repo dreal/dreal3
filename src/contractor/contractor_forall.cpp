@@ -37,11 +37,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 
+#include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor_forall.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
+
+#ifdef USE_NLOPT
 #include "nlopt.hpp"
+#endif
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/eval.h"
@@ -121,6 +125,7 @@ vector<Enode *> contractor_forall::elist_to_vector(Enode * e) const {
     return vec;
 }
 
+#ifdef USE_NLOPT
 double nlopt_eval_enode(const double* x, void * extra) {
     auto extra_info = static_cast<tuple<Enode *, box const &, bool> *>(extra);
     Enode * e = get<0>(*extra_info);
@@ -319,6 +324,7 @@ box refine_CE_with_nlopt(box const & b, vector<Enode*> const & vec) {
         return refined_counterexample;
     }
 }
+#endif
 
 contractor make_contractor(Enode * e,
                            lbool const
@@ -446,9 +452,11 @@ box contractor_forall::find_CE(box const & b, unordered_set<Enode*> const & fora
         //      << " " << counterexample.is_empty() << endl
         //      << counterexample << endl;
     }
+#ifdef USE_NLOPT
     if (!counterexample.is_empty() && config.nra_local_opt) {
         return refine_CE_with_nlopt(counterexample, vec);
     }
+#endif
     return counterexample;
 }
 

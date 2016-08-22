@@ -143,7 +143,9 @@ SMTConfig::initializeConfig( )
   nra_polytope                 = false;
   nra_simp                     = true;
   nra_ncbt                     = false;
+#ifdef NLOPT
   nra_local_opt                = false;
+#endif
   nra_worklist_fp              = false;
   nra_shrink_for_dop           = false;
   nra_simulation_thread        = false;
@@ -624,7 +626,9 @@ SMTConfig::parseCMDLine( int argc
     nra_polytope            = opt.isSet("--polytope");
     nra_simp                =!opt.isSet("--no-simp");
     nra_ncbt                = opt.isSet("--ncbt");
+#ifdef USE_NLOPT
     nra_local_opt           = opt.isSet("--local-opt");
+#endif
     nra_worklist_fp         = opt.isSet("--worklist-fp");
     nra_shrink_for_dop      = opt.isSet("--shrink-for-opt");
     nra_simulation_thread   = opt.isSet("--simulation");

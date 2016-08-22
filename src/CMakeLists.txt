@@ -17,7 +17,8 @@ option(LOGGING          "Enable Logging" ON)
 option(BUILD_STATIC_BIN "Build static binary"  OFF)
 option(BUILD_SHARED_LIB "Build shared library" OFF)
 option(USE_LOCAL_THIRD_PARTY "Use local third party libraries" OFF)
-option(USE_GLPK         "Use local third party libraries" ON)
+option(USE_GLPK         "Use GLPK" ON)
+option(USE_NLOPT        "Use NLOPT" ON)
 option(TCMALLOC         "Use tcmalloc (a.k.a. gperftools)" ON)
 option(BUILD_TEST       "Build test binaries" ON)
 option(USE_ASAN         "Use address sanitizer (-fsanitize=address)" OFF)
@@ -308,26 +309,28 @@ endif()
 ################################################################
 # External: NLOPT
 ################################################################
-if(USE_LOCAL_THIRD_PARTY)
-  ExternalProject_Add(NLOPT
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-    URL ${CMAKE_SOURCE_DIR}/third_party/nlopt.zip
-    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -Wno-deprecated-declarations -w" CFLAGS=-Wno-deprecated-declarations "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
-    BUILD_COMMAND make
-    BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make install)
-else()
-  ExternalProject_Add(NLOPT
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-    GIT_REPOSITORY https://github.com/dreal-deps/nlopt.git
-    GIT_TAG master
-    UPDATE_COMMAND ""
-    CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -Wno-deprecated-declarations -w" CFLAGS=-Wno-deprecated-declarations "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
-    BUILD_COMMAND make
-    BUILD_IN_SOURCE 1
-    INSTALL_COMMAND make install)
+if(USE_NLOPT)
+    if(USE_LOCAL_THIRD_PARTY)
+        ExternalProject_Add(NLOPT
+            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+            URL ${CMAKE_SOURCE_DIR}/third_party/nlopt.zip
+            CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -Wno-deprecated-declarations -w" CFLAGS=-Wno-deprecated-declarations "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
+            BUILD_COMMAND make
+            BUILD_IN_SOURCE 1
+            INSTALL_COMMAND make install)
+    else()
+        ExternalProject_Add(NLOPT
+            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+            GIT_REPOSITORY https://github.com/dreal-deps/nlopt.git
+            GIT_TAG master
+            UPDATE_COMMAND ""
+            CONFIGURE_COMMAND autoreconf --install > /dev/null 2>&1 || autoreconf && ./configure CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} "CXXFLAGS=${EXTERNAL_CXX_FLAGS} -Wno-deprecated-declarations -w" CFLAGS=-Wno-deprecated-declarations "LDFLAGS=${EXTERNAL_LD_FLAGS}" --prefix=${CMAKE_CURRENT_BINARY_DIR} ${SHARED_LIB_CONFIG_COMMAND} --without-guile --without-python --without-octave --without-matlab
+            BUILD_COMMAND make
+            BUILD_IN_SOURCE 1
+            INSTALL_COMMAND make install)
+    endif()
+    set(EXTRA_LIBS "nlopt" ${EXTRA_LIBS})
 endif()
-set(EXTRA_LIBS "nlopt" ${EXTRA_LIBS})
 
 ################################################################
 # External: ADEPT
@@ -734,14 +737,18 @@ endif()
 
 add_dependencies(dop PICOSAT)
 add_dependencies(dop IBEX)
-add_dependencies(dop NLOPT)
+if(USE_NLOPT)
+    add_dependencies(dop NLOPT)
+endif()
 add_dependencies(dop ADEPT)
 add_dependencies(dop EASYLOGGINGPP)
 add_dependencies(dop EZOPTIONPARSER)
 add_dependencies(dop JSON)
 add_dependencies(dreal PICOSAT)
 add_dependencies(dreal IBEX)
-add_dependencies(dreal NLOPT)
+if(USE_NLOPT)
+    add_dependencies(dreal NLOPT)
+endif()
 add_dependencies(dreal ADEPT)
 add_dependencies(dreal EASYLOGGINGPP)
 add_dependencies(dreal EZOPTIONPARSER)
@@ -786,7 +793,9 @@ if(BUILD_TEST)
   add_subdirectory(tests/c_api)
   add_subdirectory(tests/cpp_api)
   add_subdirectory(tests/ibex)
-  add_subdirectory(tests/nlopt)
+  if(USE_NLOPT)
+    add_subdirectory(tests/nlopt)
+  endif()
   add_subdirectory(tests/adept)
   if(USE_GLPK)
     add_subdirectory(tests/glpk)
@@ -857,7 +866,14 @@ include(CPack)
 SET(PKG_CONFIG_LIBDIR "\${prefix}/lib/dreal")
 SET(PKG_CONFIG_INCLUDEDIR "\${prefix}/include/dreal")
 SET(PROJECT_DESCRIPTION "nonlinear SMT Solver")
-SET(PKG_CONFIG_LIBS "-L\${libdir} -ldreal -libex -lClpSolver -lClp -lCoinUtils -lcapd -ladept -lnlopt -lglpk -lprim -lpicosat -lm")
+SET(PKG_CONFIG_LIBS "-L\${libdir} -ldreal -libex -lClpSolver -lClp -lCoinUtils -lcapd -ladept")
+if(USE_NLOPT)
+    SET(PKG_CONFIG_LIBS "-lnlopt")
+endif()
+if(USE_GLPK)
+    SET(PKG_CONFIG_LIBS "-lglpk")
+endif()
+SET(PKG_CONFIG_LIBS "${PKG_CONFIG_LIBS} -lprim -lpicosat -lm")
 SET(PKG_CONFIG_CFLAGS "-I\${includedir}")
 
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/pkg-config.pc.cmake"
@@ -902,17 +918,22 @@ if(BUILD_SHARED_LIB)
 endif()
 
 if(APPLE AND BUILD_SHARED_LIB)
-  if (USE_GLPK)
+    if(USE_GLPK)
+        set(GLPK_LIB_NAME "libglpk.a")
+    endif()
+    if(USE_NLOPT)
+        set(NLOPT_LIB_NAME "libnlopt.a")
+    endif()
     add_custom_target(shared_lib
-      COMMAND echo "Building Shared Library..."
-      COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libibex.a libnlopt.a libprim.a libClp.a libClpSolver.a libCoinUtils.a libglpk.a -o libdreal.dylib
-      DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT GLPK PICOSAT)
-  else()
-    add_custom_target(shared_lib
-      COMMAND echo "Building Shared Library..."
-      COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libibex.a libnlopt.a libprim.a libClp.a libClpSolver.a libCoinUtils.a -o libdreal.dylib
-      DEPENDS dreal CAPD4 IBEX FILIB CLP NLOPT PICOSAT)
-  endif()
+        COMMAND echo "Building Shared Library..."
+        COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libibex.a ${NLOPT_LIB_NAME} libprim.a libClp.a libClpSolver.a libCoinUtils.a ${GLPK_LIB_NAME} -o libdreal.dylib
+        DEPENDS dreal CAPD4 IBEX FILIB CLP PICOSAT)
+    if(USE_GLPK)
+        add_dependencies(shared_lib GLPK)
+    endif()
+    if(USE_NLOPT)
+        add_dependencies(shared_lib NLOPT)
+    endif()
 endif()
 
 add_custom_target(update_pkgs
@@ -947,10 +968,12 @@ add_custom_target(update_ibex
   DEPENDS update_filib update_clp)
 add_dependencies(update_pkgs update_ibex)
 
-add_custom_target(update_nlopt
-  COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && make install
-  WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/NLOPT)
-add_dependencies(update_pkgs update_nlopt)
+if(USE_NLOPT)
+    add_custom_target(update_nlopt
+        COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && make install
+        WORKING_DIRECTORY ${DREAL_BINARY_DIR}/external/src/NLOPT)
+    add_dependencies(update_pkgs update_nlopt)
+endif()
 
 add_custom_target(update_adept
   COMMAND ${GIT_EXECUTABLE} fetch --all && ${GIT_EXECUTABLE} reset --hard origin/master && make install

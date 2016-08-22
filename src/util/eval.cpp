@@ -23,7 +23,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <exception>
 #include <iostream>
 #include <sstream>
-#include "./nlopt.hpp"
 #include "util/logging.h"
 
 using std::cerr;

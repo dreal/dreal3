@@ -223,11 +223,16 @@ public:
   inline void setPrecision (const double d ) {
       config.nra_precision = d;
   }
-
+#ifdef USE_NLOPT
   inline void setLocalOpt (const bool b ) {
       config.nra_local_opt = b;
   }
-
+#else
+  inline void setLocalOpt (const bool /* b */) {
+      std::cerr << "NLOPT, a library for local optimization is not enabled in configuration." << std::endl;
+      std::cerr << "Please use -DUSE_NLOPT=ON." << std::endl;
+  }
+#endif
   inline void setWorklistFP (const bool b ) {
       config.nra_worklist_fp = b;
   }
