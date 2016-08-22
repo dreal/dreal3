@@ -29,6 +29,11 @@ include(CTest)
 # Added for External Projects
 include(ExternalProject)
 
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 ################################################################
 # CXX Flags
 ################################################################
@@ -923,7 +928,7 @@ if(APPLE AND BUILD_SHARED_LIB)
     endif()
     add_custom_target(shared_lib
         COMMAND echo "Building Shared Library..."
-        COMMAND cd lib && ${CMAKE_CXX_COMPILER} -fpic -shared -Wl,-all_load libdreal.a libcapd.a libibex.a ${NLOPT_LIB_NAME} libprim.a libClp.a libClpSolver.a libCoinUtils.a ${GLPK_LIB_NAME} -o libdreal.dylib
+        COMMAND cd lib && ${CMAKE_CXX_COMPILER} -shared -Wl,-all_load libdreal.a libcapd.a libibex.a ${NLOPT_LIB_NAME} libprim.a libClp.a libClpSolver.a libCoinUtils.a ${GLPK_LIB_NAME} -o libdreal.dylib
         DEPENDS dreal CAPD4 IBEX FILIB CLP PICOSAT)
     if(USE_GLPK)
         add_dependencies(shared_lib GLPK)
