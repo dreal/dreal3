@@ -38,14 +38,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "constraint/constraint.h"
-#include "contractor/contractor_common.h"
 #include "contractor/contractor_basic.h"
+#include "contractor/contractor_common.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/interruptible_thread.h"
 #include "util/logging.h"
 #include "util/proof.h"
+#include "util/thread_local.h"
 
 using std::cerr;
 using std::cout;
@@ -256,13 +257,13 @@ void contractor_int::prune(contractor_status & cs) {
         return;
     }
     // ======= Proof =======
-    thread_local static box old_box(cs.m_box);
+    DREAL_THREAD_LOCAL static box old_box(cs.m_box);
     if (cs.m_config.nra_proof) { old_box = cs.m_box; }
     unsigned i = 0;
     ibex::IntervalVector & iv = cs.m_box.get_values();
     for (Enode * e : cs.m_box.get_vars()) {
         if (e->hasSortInt()) {
-            thread_local static ibex::Interval old_iv(iv[i]);
+            DREAL_THREAD_LOCAL static ibex::Interval old_iv(iv[i]);
             old_iv = iv[i];
             iv[i] = ibex::integer(iv[i]);
             if (old_iv != iv[i]) {

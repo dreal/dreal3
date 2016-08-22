@@ -50,6 +50,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/proof.h"
 #include "util/interruptible_thread.h"
+#include "util/thread_local.h"
 
 using std::async;
 using std::back_inserter;
@@ -124,7 +125,7 @@ void contractor_pseq::prune(contractor_status & cs) {
         if (num_iter == 0) {
             num_iter = 1;
         }
-        thread_local static box old_box(cs.m_box);
+        DREAL_THREAD_LOCAL static box old_box(cs.m_box);
         for (unsigned i = 0; i < num_iter; i++) {
             // interruption_point();
             old_box = cs.m_box;

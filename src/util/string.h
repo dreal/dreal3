@@ -2,7 +2,6 @@
 Author: Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
 
-
 dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
@@ -27,6 +26,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <string>
 
+#include "util/thread_local.h"
+
 namespace dreal {
 bool starts_with(std::string const & s, std::string const & prefix);
 bool ends_with(std::string const & s, std::string const & ending);
@@ -34,7 +35,7 @@ template<typename T>
 std::string join(T const & container, std::string const & sep) {
     auto it = begin(container);
     auto end_it = end(container);
-    thread_local static std::ostringstream ss;
+    DREAL_THREAD_LOCAL static std::ostringstream ss;
     ss.str(std::string());
     ss << *(it++);
     for (; it != end_it; it++) {

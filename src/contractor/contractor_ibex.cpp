@@ -39,6 +39,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/ibex_enode.h"
 #include "util/logging.h"
 #include "util/proof.h"
+#include "util/thread_local.h"
 
 using std::back_inserter;
 using std::cerr;
@@ -165,7 +166,7 @@ void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
     auto ctc = get_ctc(std::this_thread::get_id(), true);
     if (!ctc) { return; }
 
-    thread_local static box old_box(cs.m_box);
+    DREAL_THREAD_LOCAL static box old_box(cs.m_box);
     if (cs.m_config.nra_proof) { old_box = cs.m_box; }
     if (m_numctr->f.nb_arg() == 0) {
         auto eval_result = m_ctr->eval(cs.m_box);
@@ -176,7 +177,7 @@ void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
             return;
         }
     }
-    thread_local static ibex::IntervalVector old_iv(cs.m_box.get_values());
+    DREAL_THREAD_LOCAL static ibex::IntervalVector old_iv(cs.m_box.get_values());
     old_iv = cs.m_box.get_values();
     assert(m_numctr->f.nb_arg() >= 0 && static_cast<unsigned>(m_numctr->f.nb_arg()) <= cs.m_box.size());
     DREAL_LOG_DEBUG << "Before pruning using ibex_fwdbwd(" << *m_numctr << ")";
@@ -203,7 +204,7 @@ void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << cs.m_box;
     if (cs.m_config.nra_proof) {
         // ======= Proof =======
-        thread_local static ostringstream ss;
+        DREAL_THREAD_LOCAL static ostringstream ss;
         Enode const * const e = m_ctr->get_enode();
         ss << (e->getPolarity() == l_False ? "!" : "") << e;
         output_pruning_step(old_box, cs, ss.str());
@@ -243,7 +244,7 @@ void contractor_ibex_newton::prune(contractor_status & cs) {
     if (!m_ctc) { return; }
 
     // ======= Proof =======
-    thread_local static box old_box(cs.m_box);
+    DREAL_THREAD_LOCAL static box old_box(cs.m_box);
     if (cs.m_config.nra_proof) { old_box = cs.m_box; }
     if (m_var_array.size() == 0) {
         auto eval_result = m_ctr->eval(cs.m_box);
@@ -279,7 +280,7 @@ void contractor_ibex_newton::prune(contractor_status & cs) {
 
     // ======= Proof =======
     if (cs.m_config.nra_proof) {
-        thread_local static ostringstream ss;
+        DREAL_THREAD_LOCAL static ostringstream ss;
         Enode const * const e = m_ctr->get_enode();
         ss << (e->getPolarity() == l_False ? "!" : "") << e;
         output_pruning_step(old_box, cs, ss.str());
@@ -336,7 +337,7 @@ void contractor_ibex_hc4::prune(contractor_status & cs) {
         m_input.add(cs.m_box.get_index(var));
     }
 
-    thread_local static box old_box(cs.m_box);
+    DREAL_THREAD_LOCAL static box old_box(cs.m_box);
     old_box = cs.m_box;
     m_ctc->contract(cs.m_box.get_values());
     // setup output
@@ -354,7 +355,7 @@ void contractor_ibex_hc4::prune(contractor_status & cs) {
 
     // ======= Proof =======
     if (cs.m_config.nra_proof) {
-        thread_local static ostringstream ss;
+        DREAL_THREAD_LOCAL static ostringstream ss;
         for (auto const & ctr : m_ctrs) {
             Enode const * const e = ctr->get_enode();
             ss << (e->getPolarity() == l_False ? "!" : "") << e << ";";
@@ -456,7 +457,7 @@ void contractor_ibex_polytope::prune(contractor_status & cs) {
     for (Enode * var : m_vars_in_ctrs) {
         m_input.add(cs.m_box.get_index(var));
     }
-    thread_local static box old_box(cs.m_box);
+    DREAL_THREAD_LOCAL static box old_box(cs.m_box);
     old_box = cs.m_box;
     m_ctc->contract(cs.m_box.get_values());
 
@@ -474,7 +475,7 @@ void contractor_ibex_polytope::prune(contractor_status & cs) {
 
     // ======= Proof =======
     if (cs.m_config.nra_proof) {
-        thread_local static ostringstream ss;
+        DREAL_THREAD_LOCAL static ostringstream ss;
         for (auto const & ctr : m_ctrs) {
             Enode const * const e = ctr->get_enode();
             ss << (e->getPolarity() == l_False ? "!" : "") << e << ";";

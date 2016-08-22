@@ -24,14 +24,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/egraph/Egraph.h"
 #include "util/box.h"
 #include "ibex/ibex.h"
+#include "util/thread_local.h"
 
 using std::cerr;
 using std::endl;
 using std::vector;
 
 void tls_fun(dreal::box & b) {
-    thread_local static dreal::box old_box(b);
-    thread_local static ibex::Interval old_iv(b[0]);
+    DREAL_THREAD_LOCAL static dreal::box old_box(b);
+    DREAL_THREAD_LOCAL static ibex::Interval old_iv(b[0]);
     old_box = b;
     old_iv = b[0];
     // cerr << old_box << endl;

@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,9 +33,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "capd/capdlib.h"
 #include "constraint/constraint.h"
-#include "contractor/contractor_ibex.h"
 #include "contractor/contractor_basic.h"
 #include "contractor/contractor_capd4.h"
+#include "contractor/contractor_ibex.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
@@ -44,6 +44,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/interruptible_thread.h"
 #include "util/logging.h"
 #include "util/string.h"
+#include "util/thread_local.h"
 
 using nlohmann::json;
 using std::cerr;
@@ -80,7 +81,7 @@ namespace dreal {
 using Rect2Set = capd::C0Rect2Set;
 
 ostream & output_trace(ostream & out, capd::interval const dt, capd::IVector const & v, vector<Enode *> const & vars) {
-    thread_local static ostringstream ss;
+    DREAL_THREAD_LOCAL static ostringstream ss;
     out << "T = ";
     ss << dt;
     out << left << setw(20) << ss.str();
@@ -153,7 +154,7 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
         string name = e->getNameFull();
         if (name.find('e') != string::npos || name.find('E') != string::npos) {
             // Scientific Notation
-            thread_local static ostringstream ss;
+            DREAL_THREAD_LOCAL static ostringstream ss;
             double const r = stod(name);
             ss << setprecision(16) << fixed << r;
             name = ss.str();
@@ -732,7 +733,7 @@ double min_width(capd::IVector const & iv) {
 void contractor_capd_full::prune(contractor_status & cs) {
     auto const start_time = steady_clock::now();
 
-    thread_local static box old_box(cs.m_box);
+    DREAL_THREAD_LOCAL static box old_box(cs.m_box);
     old_box = cs.m_box;
     DREAL_LOG_DEBUG << "contractor_capd_full::prune "
                     << m_dir;
@@ -1075,7 +1076,7 @@ void contractor_capd_point::prune(contractor_status & cs) {
     auto & used_constraints = cs.m_used_constraints;
     SMTConfig & config = cs.m_config;
 
-    thread_local static box old_box(b);
+    DREAL_THREAD_LOCAL static box old_box(b);
     old_box = b;
     DREAL_LOG_DEBUG << "contractor_capd_point::prune " << m_dir;
     integral_constraint const & ic = m_ctr->get_ic();

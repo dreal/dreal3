@@ -33,6 +33,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 #include "util/stat.h"
+#include "util/thread_local.h"
 
 using std::atomic_bool;
 using std::cerr;
@@ -78,8 +79,8 @@ SizeBrancher sb;
 BranchHeuristic & naive_icp::defaultHeuristic = sb;
 
 void naive_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<shared_ptr<constraint>> const & ctrs, BranchHeuristic & brancher) {
-    thread_local static vector<box> solns;
-    thread_local static vector<box> box_stack;
+    DREAL_THREAD_LOCAL static vector<box> solns;
+    DREAL_THREAD_LOCAL static vector<box> box_stack;
     solns.clear();
     box_stack.clear();
     box_stack.push_back(cs.m_box);
@@ -137,8 +138,8 @@ void naive_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<share
 void multiprune_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<shared_ptr<constraint>> const & ctrs, BranchHeuristic& brancher, unsigned num_try) {
     prune(ctc, cs);
     if (cs.m_box.is_empty()) { return; }
-    thread_local static vector<box> solns;
-    thread_local static vector<box> box_stack;
+    DREAL_THREAD_LOCAL static vector<box> solns;
+    DREAL_THREAD_LOCAL static vector<box> box_stack;
     solns.clear();
     box_stack.clear();
     box_stack.push_back(cs.m_box);
@@ -243,9 +244,9 @@ void multiheuristic_icp::solve(contractor & /* ctc */, contractor_status & /* cs
 
 //     auto dothread = [&](BranchHeuristic & heuristic) {
 // #define PRUNEBOX(x) prune((x), ctc, config, used_constraints)
-//         thread_local static unordered_set<shared_ptr<constraint>> used_constraints;
-//         thread_local static vector<box> box_stack;
-//         thread_local static vector<box> hull_stack;  // nth box in hull_stack contains hull of first n boxes in box_stack
+//         DREAL_THREAD_LOCAL static unordered_set<shared_ptr<constraint>> used_constraints;
+//         DREAL_THREAD_LOCAL static vector<box> box_stack;
+//         DREAL_THREAD_LOCAL static vector<box> hull_stack;  // nth box in hull_stack contains hull of first n boxes in box_stack
 //         box_stack.clear();
 //         hull_stack.clear();
 //         used_constraints.clear();
@@ -347,7 +348,7 @@ void multiheuristic_icp::solve(contractor & /* ctc */, contractor_status & /* cs
 
 void ncbt_icp::solve(contractor & ctc, contractor_status & cs) {
     static unsigned prune_count = 0;
-    thread_local static vector<box> box_stack;
+    DREAL_THREAD_LOCAL static vector<box> box_stack;
     box_stack.clear();
     box_stack.push_back(cs.m_box);
     do {
@@ -386,7 +387,7 @@ void ncbt_icp::solve(contractor & ctc, contractor_status & cs) {
             // UNSAT (b is emptified by pruning operators)
             // If this bisect_var is not used in all used
             // constraints, this box is safe to be popped.
-            thread_local static unordered_set<Enode *> used_vars;
+            DREAL_THREAD_LOCAL static unordered_set<Enode *> used_vars;
             used_vars.clear();
             for (auto used_ctr : cs.m_used_constraints) {
                 auto this_used_vars = used_ctr->get_occured_vars();
@@ -412,8 +413,8 @@ random_icp::random_icp(contractor & ctc, std::mt19937_64::result_type const rand
 }
 
 void random_icp::solve(contractor_status & cs, double const precision) {
-    thread_local static vector<box> solns;
-    thread_local static vector<box> box_stack;
+    DREAL_THREAD_LOCAL static vector<box> solns;
+    DREAL_THREAD_LOCAL static vector<box> box_stack;
     solns.clear();
     box_stack.clear();
     box_stack.push_back(cs.m_box);

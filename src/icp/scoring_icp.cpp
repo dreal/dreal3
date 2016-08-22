@@ -32,6 +32,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 #include "util/stat.h"
+#include "util/thread_local.h"
 
 using std::get;
 using std::endl;
@@ -104,7 +105,7 @@ double scoring_icp::measure(box const & o, box const & n) {
 
 void scoring_icp::safe_prune(int idx) {
     try {
-        thread_local static box old_box = cs.m_box;
+        DREAL_THREAD_LOCAL static box old_box = cs.m_box;
         ctc.prune(cs);
         if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
         if (idx >= 0) {
@@ -117,8 +118,8 @@ void scoring_icp::safe_prune(int idx) {
 }
 
 void scoring_icp::prune_split_fixed_point() {
-    thread_local static box tmp = cs.m_box;
-    thread_local static box progress = tmp;
+    DREAL_THREAD_LOCAL static box tmp = cs.m_box;
+    DREAL_THREAD_LOCAL static box progress = tmp;
     unsigned int s = cs.m_box.size();
     int n = 0;
     do {

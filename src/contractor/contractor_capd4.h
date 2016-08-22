@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,12 +26,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 #include "capd/capdlib.h"
 #include "contractor/contractor.h"
 #include "json/json.hpp"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/hash_combine.h"
+#include "util/thread_local.h"
 
 namespace std {
 template<>
@@ -131,7 +133,7 @@ private:
     bool check_invariant(capd::IVector const & v, contractor_status cs);
     template<typename Rect2Set>
     bool check_invariant(Rect2Set const & rs, contractor_status const & s) {
-        thread_local static capd::IVector v;
+        DREAL_THREAD_LOCAL static capd::IVector v;
         v = rs;
         return check_invariant(v, s);
     }

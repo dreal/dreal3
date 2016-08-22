@@ -35,6 +35,7 @@ DEALINGS IN THE SOFTWARE.
 #include <future>
 #include <mutex>
 #include <thread>
+#include "util/thread_local.h"
 
 namespace dreal {
 
@@ -106,7 +107,7 @@ public:
     }
 };
 
-extern thread_local interrupt_flag this_thread_interrupt_flag;
+extern DREAL_THREAD_LOCAL interrupt_flag this_thread_interrupt_flag;
 
 template<typename Lockable>
 void interruptible_wait(std::condition_variable_any& cv, Lockable& lk) {

@@ -31,6 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 #include "util/stat.h"
+#include "util/thread_local.h"
 
 using std::cerr;
 using std::cout;
@@ -120,7 +121,7 @@ bool lp_icp::is_lp_sat(glpk_wrapper & lp_solver, box & solution, SMTConfig const
 
 void lp_icp::prune(glpk_wrapper & lp, int i, box & solution, SMTConfig const & config) {
     DREAL_LOG_INFO << "lp_icp::prune" << " old interval " << solution.get_name(i) << " " << solution[i];
-    thread_local static box old_domain(lp.get_domain());
+    DREAL_THREAD_LOCAL static box old_domain(lp.get_domain());
     old_domain = lp.get_domain();
     lp.set_domain(solution);
     auto var = solution.get_vars()[i];
@@ -163,7 +164,7 @@ void lp_icp::prune(glpk_wrapper & lp, int i, box & solution, SMTConfig const & c
 void lp_icp::solve(contractor & ctc, contractor_status & cs,
                    scoped_vec<shared_ptr<constraint>>& constraints,
                    BranchHeuristic& brancher) {
-    thread_local static vector<box> solns;
+    DREAL_THREAD_LOCAL static vector<box> solns;
     solns.clear();
     /* The stack now contains both the LP and ICP domain.
      * For the ICP, the stack is the usual DFS worklist.
@@ -172,10 +173,10 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
      * Invariant: all the boxes on the stack have been pruned
      * Invariant: the LP boxes contains all the ICP boxes above them
      */
-    thread_local static stack<tuple<lp_icp_kind, box>> box_stack;
+    DREAL_THREAD_LOCAL static stack<tuple<lp_icp_kind, box>> box_stack;
     stack<tuple<lp_icp_kind, box>>().swap(box_stack);  // clear up box_stack
     // a "box" for the point solution of the lp_solver
-    thread_local static box lp_point(cs.m_box);
+    DREAL_THREAD_LOCAL static box lp_point(cs.m_box);
     lp_point = cs.m_box;
 
     // all the box on the stack must be pruned

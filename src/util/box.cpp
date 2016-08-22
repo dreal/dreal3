@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "util/hexfloat.h"
 #include "util/logging.h"
+#include "util/thread_local.h"
 
 using std::ceil;
 using std::chrono::system_clock;
@@ -222,7 +223,7 @@ ostream& operator<<(ostream& out, box const & b) {
 }
 
 vector<int> box::bisectable_dims(double const precision, ibex::BitSet const & input) const {
-    thread_local static vector<int> dims;
+    DREAL_THREAD_LOCAL static vector<int> dims;
     dims.clear();
     for (int i = 0; i < m_values.size(); i++) {
         if (input.contain(i) && is_bisectable_at(i, precision)) {

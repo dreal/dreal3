@@ -25,9 +25,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <vector>
 #include "icp/icp_simulation.h"
-#include "util/logging.h"
-#include "util/eval.h"
 #include "optimizer/optimizer.h"
+#include "util/eval.h"
+#include "util/logging.h"
+#include "util/thread_local.h"
 
 namespace dreal {
 
@@ -62,9 +63,9 @@ public:
 void naive_icp_worker(contractor_status & cs, box & ret, contractor & ctc, icp_shared_status & status) {
     vector<box> box_stack;
     bool const & simulation_over = status.m_is_simulation_over;
-    thread_local static unordered_set<shared_ptr<constraint>> used_constraints;
+    DREAL_THREAD_LOCAL static unordered_set<shared_ptr<constraint>> used_constraints;
     used_constraints.clear();
-    thread_local static vector<box> solns;
+    DREAL_THREAD_LOCAL static vector<box> solns;
     solns.clear();
     box_stack.clear();
     box_stack.push_back(cs.m_box);

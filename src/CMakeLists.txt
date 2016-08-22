@@ -770,7 +770,7 @@ target_link_libraries(dReal-bin dreal ${EXTRA_LIBS})
 
 # Compatibility Checks using https://github.com/foonathan/compatibility
 include(CompBase)
-comp_target_features(dReal-bin PUBLIC CPP11)
+comp_target_features(dReal-bin PUBLIC cpp11_lang/thread_local)
 configure_file("${DREAL_SOURCE_DIR}/compatibility.h.in" "${DREAL_BINARY_DIR}/compatibility.h")
 
 if(NOT BUILD_STATIC_BIN)

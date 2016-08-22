@@ -53,6 +53,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/proof.h"
 #include "util/strategy.h"
 #include "util/string.h"
+#include "util/thread_local.h"
 
 using std::back_inserter;
 using std::boolalpha;
@@ -499,7 +500,7 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
     // Step 3. Compute B_i = prune(B, l_i)
     //         Update B with ∨ B_i
     //                       i
-    thread_local static vector<box> boxes;
+    DREAL_THREAD_LOCAL static vector<box> boxes;
     boxes.clear();
     auto vars = cs.m_box.get_vars();
     unordered_set<Enode*> const var_set(vars.begin(), vars.end());

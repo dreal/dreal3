@@ -28,10 +28,11 @@ DEALINGS IN THE SOFTWARE.
 *********************************************************************/
 
 #include "util/interruptible_thread.h"
+#include "util/thread_local.h"
 
 namespace dreal {
 
-thread_local interrupt_flag this_thread_interrupt_flag;
+DREAL_THREAD_LOCAL interrupt_flag this_thread_interrupt_flag;
 
 void interruption_point() {
     if (this_thread_interrupt_flag.is_set()) {

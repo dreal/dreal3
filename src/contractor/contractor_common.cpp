@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/proof.h"
 #include "util/interruptible_thread.h"
+#include "util/thread_local.h"
 
 using std::back_inserter;
 using std::cerr;
@@ -82,22 +83,23 @@ ostream & operator<<(ostream & out, contractor_cell const & c) {
 
 void contractor::prune_with_assert(contractor_status & cs) {
     assert(m_ptr != nullptr);
-    thread_local static box old_box(cs.m_box);
+    DREAL_THREAD_LOCAL static box old_box(cs.m_box);
     old_box = cs.m_box;
     m_ptr->prune(cs);
     if (!cs.m_box.is_subset(old_box)) {
-        cerr << "Pruning Violation: " << (*m_ptr) << endl;
-        cerr << "Old Box" << endl
-             << "==============" << endl
-             << old_box << endl;
-        cerr << "New Box" << endl
-             << "==============" << endl
-             << cs.m_box << endl;
-        cerr << "==============" << endl;
-        display_diff(cerr, old_box, cs.m_box);
-        cerr << "==============" << endl;
+        ostringstream ss;
+        ss << "Pruning Violation: " << (*m_ptr) << endl
+           << "Old Box" << endl
+           << "==============" << endl
+           << old_box << endl
+           << "New Box" << endl
+           << "==============" << endl
+           << cs.m_box << endl
+           << "==============" << endl;
+        display_diff(ss, old_box, cs.m_box);
+        ss << "==============" << endl;
+        DREAL_LOG_FATAL << ss.str();
         exit(1);
     }
 }
-
 }  // namespace dreal
