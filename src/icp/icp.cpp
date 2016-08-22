@@ -34,6 +34,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_vec.h"
 #include "util/stat.h"
 #include "util/thread_local.h"
+#include "util/mcts_node.h"
 
 using std::atomic_bool;
 using std::cerr;
@@ -486,5 +487,69 @@ void random_icp::solve(contractor_status & cs, double const precision) {
     } else {
         assert(!cs.m_box.is_empty() || box_stack.size() == 0);
     }
+}
+
+BranchHeuristic & mcts_icp::defaultHeuristic = sb;
+
+void mcts_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<shared_ptr<constraint>> const & ctrs, BranchHeuristic & brancher) {
+  thread_local static vector<box> solns;
+  solns.clear();
+
+  icp_mcts_expander expander(ctc, cs, ctrs, brancher);
+  icp_mcts_node *root = new icp_mcts_node(cs.m_box, &expander);
+
+    do {
+        DREAL_LOG_INFO << "mcts_icp::solve - loop"
+                       << "\t" << "graph Size = " << root->size();
+
+        mcts_node* current = root;
+        mcts_node* last = current;
+
+        // Get leaf node
+        while (!current->children()->empty()) {  // the node is an interior node
+          last = current;
+          current = current->select();
+          // DREAL_LOG_INFO << "mcts_icp::solve() selected node " << current->id();
+        }
+
+        // DREAL_LOG_INFO << "mcts_icp::solve() expand";
+
+        // generate leaf nodes and pick one
+        last = current->expand();
+
+        if (last != NULL) {
+          // DREAL_LOG_INFO << "mcts_icp::solve() check solution";
+
+          if (last->is_solution()) {
+            cs.m_config.nra_found_soln++;
+            if (cs.m_config.nra_multiple_soln > 1) {
+              // If --multiple_soln is used
+              output_solution(cs.m_box, cs.m_config, cs.m_config.nra_found_soln);
+            }
+            if (cs.m_config.nra_found_soln >= cs.m_config.nra_multiple_soln) {
+              break;
+            }
+            solns.push_back(cs.m_box);
+          }
+        } else {
+          DREAL_LOG_INFO << "mcts_icp::solve() end state";
+          last = current;
+        }
+
+        // DREAL_LOG_INFO << "mcts_icp::solve() simulate";
+        // simulate to end: sat or unsat
+        double value = last->simulate();
+
+        // DREAL_LOG_INFO << "mcts_icp::solve() backpropagate";
+
+        // backpropagate value
+        current = last;
+        while (current != NULL) {  // the node is in the graph
+          current->backpropagate(value);
+          current = current->parent();
+        }
+    } while (true);
+
+    delete root;
 }
 }  // namespace dreal
