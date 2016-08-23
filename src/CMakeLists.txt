@@ -830,19 +830,16 @@ file(GLOB_RECURSE DREAL_SOURCES
   ${DREAL_SOURCE_DIR}/tools/dop/*.cpp   ${DREAL_SOURCE_DIR}/tools/dop/*.h
   ${DREAL_SOURCE_DIR}/util/*.cpp        ${DREAL_SOURCE_DIR}/util/*.h)
 add_style_check_target(style "${DREAL_SOURCES}")
-add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py "--filter=-readability/casting,-whitespace/line_length,-build/header_guard,-whitespace/indent,-runtime/references,-build/c++11,-runtime/int" ${DREAL_SOURCES})
-
+add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py ${DREAL_SOURCES})
 ADD_CUSTOM_COMMAND(TARGET dReal-bin
           POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
-          COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dReal ${DREAL_SOURCE_DIR}/../bin/
-)
+          COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dReal ${DREAL_SOURCE_DIR}/../bin/)
 if(NOT BUILD_STATIC_BIN)
   ADD_CUSTOM_COMMAND(TARGET dOp-bin
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
-            COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dOp ${DREAL_SOURCE_DIR}/../bin/
-  )
+            COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dOp ${DREAL_SOURCE_DIR}/../bin/)
 endif()
 
 # Add target 'format' which uses clang-format
