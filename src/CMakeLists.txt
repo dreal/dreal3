@@ -774,6 +774,7 @@ SET_TARGET_PROPERTIES(dReal-bin
 target_link_libraries(dReal-bin dreal ${EXTRA_LIBS})
 
 # Compatibility Checks using https://github.com/foonathan/compatibility
+set(COMP_CMAKE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules" CACHE INTERNAL "")
 include(CompBase)
 comp_target_features(dReal-bin PUBLIC cpp11_lang/thread_local)
 configure_file("${DREAL_SOURCE_DIR}/compatibility.h.in" "${DREAL_BINARY_DIR}/compatibility.h")
