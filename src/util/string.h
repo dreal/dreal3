@@ -31,7 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 bool starts_with(std::string const & s, std::string const & prefix);
 bool ends_with(std::string const & s, std::string const & ending);
-template<typename T>
+template <typename T>
 std::string join(T const & container, std::string const & sep) {
     auto it = begin(container);
     auto end_it = end(container);
@@ -44,17 +44,18 @@ std::string join(T const & container, std::string const & sep) {
     return ss.str();
 }
 
-static inline std::string & ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+static inline std::string & ltrim(std::string & s) {
+    s.erase(s.begin(),
+            std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
     return s;
 }
 
-static inline std::string & rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+static inline std::string & rtrim(std::string & s) {
+    s.erase(
+        std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(),
+        s.end());
     return s;
 }
 
-static inline std::string & trim(std::string &s) {
-    return ltrim(rtrim(s));
-}
+static inline std::string & trim(std::string & s) { return ltrim(rtrim(s)); }
 }  // namespace dreal

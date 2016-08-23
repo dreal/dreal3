@@ -12,8 +12,8 @@
 // distributed under the terms of the GNU General Public License.
 // Consult  http://capd.ii.uj.edu.pl/ for details.
 
-#include <string>
 #include <iostream>
+#include <string>
 #include "capd/capdlib.h"
 
 using namespace capd;
@@ -23,12 +23,23 @@ int main() {
     try {
         cout.precision(12);
 
-        string capd_str = "var:t_0_0, v_0_0, x_0_0, y_0_0, z_0_0;"
+        string capd_str =
+            "var:t_0_0, v_0_0, x_0_0, y_0_0, z_0_0;"
             "par:alphay_0_0, betax_0_0;"
             "fun:1.0,"
-            "(((((0.0197/(1.0+exp(((10.0+((-1)*z_0_0))*1.0)))+((-1)*betax_0_0/(1.0+exp(((z_0_0+(-10.000000000000000000000000000000))*2.0)))))+((-1)*(0.0000500000000000*(1.0+((-1)*z_0_0/12.0)))))+(-0.010000000000000000208166817117))*x_0_0)+(0.02+((0.0000500000000000*((1.0+((-1)*z_0_0/12.0))*x_0_0))+(((alphay_0_0*(1.0+((-1)*(1.0*z_0_0/12.0))))+(-0.016799999999999998961941471975))*y_0_0)))),"
-            "(((((0.0197/(1.0+exp(((10.0+((-1)*z_0_0))*1.0)))+((-1)*betax_0_0/(1.0+exp(((z_0_0+(-10.000000000000000000000000000000))*2.0)))))+((-1)*(0.0000500000000000*(1.0+((-1)*z_0_0/12.0)))))+(-0.010000000000000000208166817117))*x_0_0)+0.02),"
-            "((0.0000500000000000*((1.0+((-1)*z_0_0/12.0))*x_0_0))+(((alphay_0_0*(1.0+((-1)*(1.0*z_0_0/12.0))))+(-0.016799999999999998961941471975))*y_0_0)),"
+            "(((((0.0197/(1.0+exp(((10.0+((-1)*z_0_0))*1.0)))+((-1)*betax_0_0/"
+            "(1.0+exp(((z_0_0+(-10.000000000000000000000000000000))*2.0)))))+((-1)*(0."
+            "0000500000000000*(1.0+((-1)*z_0_0/"
+            "12.0)))))+(-0.010000000000000000208166817117))*x_0_0)+(0.02+((0.0000500000000000*((1."
+            "0+((-1)*z_0_0/12.0))*x_0_0))+(((alphay_0_0*(1.0+((-1)*(1.0*z_0_0/"
+            "12.0))))+(-0.016799999999999998961941471975))*y_0_0)))),"
+            "(((((0.0197/(1.0+exp(((10.0+((-1)*z_0_0))*1.0)))+((-1)*betax_0_0/"
+            "(1.0+exp(((z_0_0+(-10.000000000000000000000000000000))*2.0)))))+((-1)*(0."
+            "0000500000000000*(1.0+((-1)*z_0_0/"
+            "12.0)))))+(-0.010000000000000000208166817117))*x_0_0)+0.02),"
+            "((0.0000500000000000*((1.0+((-1)*z_0_0/"
+            "12.0))*x_0_0))+(((alphay_0_0*(1.0+((-1)*(1.0*z_0_0/"
+            "12.0))))+(-0.016799999999999998961941471975))*y_0_0)),"
             "(((0.0+((-1)*z_0_0))*0.08)+0.03);";
 
         IMap vectorField(capd_str);
@@ -70,7 +81,7 @@ int main() {
             // It can be evaluated at a point (or interval).
             // The curve can be also differentiated wrt to time.
             // We can also extract from it the 1-st order derivatives wrt.
-            const IOdeSolver::SolutionCurve& curve = solver.getCurve();
+            const IOdeSolver::SolutionCurve & curve = solver.getCurve();
             interval domain = interval(0, 1) * stepMade;
 
             // Here we use a uniform grid of last time step made
@@ -94,7 +105,7 @@ int main() {
             prevTime = timeMap.getCurrentTime();
             cout << "\ncurrent time: " << prevTime << endl << endl;
         } while (!timeMap.completed());
-    } catch(exception& e) {
+    } catch (exception & e) {
         cout << "\n\nException caught!\n" << e.what() << endl << endl;
     }
 }  // END

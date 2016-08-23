@@ -17,10 +17,10 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "tools/dop/print_py.h"
+#include <exception>
 #include <sstream>
 #include <string>
-#include <exception>
-#include "tools/dop/print_py.h"
 #include "tools/dop/print.h"
 
 namespace dop {
@@ -89,7 +89,8 @@ ostream & print_py_infix(ostream & out, Enode * const e) {
     } else {
         ostringstream ss;
         ss << e;
-        throw std::runtime_error("Unknown enode " + ss.str() + " doesn't have a mapping in print_py_infix");
+        throw std::runtime_error("Unknown enode " + ss.str() +
+                                 " doesn't have a mapping in print_py_infix");
     }
     return out;
 }

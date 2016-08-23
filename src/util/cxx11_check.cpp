@@ -17,9 +17,9 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "util/cxx11_check.h"
 #include "contractor/contractor.h"
 #include "util/box.h"
-#include "util/cxx11_check.h"
 #include "util/static_warning.h"
 
 namespace dreal {

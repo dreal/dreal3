@@ -19,9 +19,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <memory>
 #include <unordered_set>
-#include "opensmt/smtsolvers/SMTConfig.h"
 #include "constraint/constraint.h"
+#include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
 
 namespace dreal {
@@ -35,15 +36,13 @@ public:
     SMTConfig & m_config;
 
 public:
-    explicit contractor_status(SMTConfig & config)
-        : m_box({}), m_config(config) { }
+    explicit contractor_status(SMTConfig & config) : m_box({}), m_config(config) {}
     contractor_status(box const & b, SMTConfig & config)
-        : m_box(b), m_output(ibex::BitSet::empty(b.size())), m_config(config) { }
-    contractor_status(box const & b,
-                      ibex::BitSet const & output,
+        : m_box(b), m_output(ibex::BitSet::empty(b.size())), m_config(config) {}
+    contractor_status(box const & b, ibex::BitSet const & output,
                       std::unordered_set<std::shared_ptr<constraint>> const & used_constraints,
                       SMTConfig & config)
-        : m_box(b), m_output(output), m_used_constraints(used_constraints), m_config(config) { }
+        : m_box(b), m_output(output), m_used_constraints(used_constraints), m_config(config) {}
 
     // reset
     void reset(contractor_status & cs) {
@@ -78,7 +77,8 @@ public:
         m_cs_ref.m_used_constraints.swap(m_old_used_constraints);
         if (!m_old_output.empty()) {
             m_cs_ref.m_output.union_with(m_old_output);
-            m_cs_ref.m_used_constraints.insert(m_old_used_constraints.begin(), m_old_used_constraints.end());
+            m_cs_ref.m_used_constraints.insert(m_old_used_constraints.begin(),
+                                               m_old_used_constraints.end());
         }
     }
 };

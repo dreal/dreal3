@@ -36,7 +36,7 @@ using std::endl;
 int main() {
     Variable x1, x2;
     Function f(x1, x2, ibex::Return(x1 - 1, ibex::asin(x2) - x1));
-    double init_box[][2]={{1, 1}, {1.570796326794893, 1.570796326794901}};
+    double init_box[][2] = {{1, 1}, {1.570796326794893, 1.570796326794901}};
     IntervalVector box(2, init_box);
     ibex::CtcNewton newton(f);
     cout << "Before: " << box << endl;

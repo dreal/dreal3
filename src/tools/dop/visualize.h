@@ -18,12 +18,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <unordered_map>
-#include <string>
 #include <iostream>
+#include <string>
+#include <unordered_map>
 #include "opensmt/egraph/Enode.h"
 
 namespace dop {
-void run_visualization(Enode * const f, std::unordered_map<std::string, Enode *> const & var_map, unsigned const num_of_cells, std::string const & minimum_name);
-std::ostream & save_visualization_code(std::ostream & out, Enode * const f, std::unordered_map<std::string, Enode *> const & var_map, unsigned const num_of_cells, std::string const & minimum_name);
+void run_visualization(Enode * const f, std::unordered_map<std::string, Enode *> const & var_map,
+                       unsigned const num_of_cells, std::string const & minimum_name);
+std::ostream & save_visualization_code(std::ostream & out, Enode * const f,
+                                       std::unordered_map<std::string, Enode *> const & var_map,
+                                       unsigned const num_of_cells,
+                                       std::string const & minimum_name);
 }  // namespace dop

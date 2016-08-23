@@ -17,13 +17,13 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <cstdio>
 #include <cassert>
+#include <cstdio>
 #include <unordered_set>
-#include "util/glpk_wrapper.h"
-#include "opensmt/api/opensmt_c.h"
 #include "opensmt/api/OpenSMTContext.h"
+#include "opensmt/api/opensmt_c.h"
 #include "util/box.h"
+#include "util/glpk_wrapper.h"
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"
 
@@ -44,10 +44,8 @@ namespace dreal {
 // y = 66.6667
 // z = 0
 
-opensmt_expr make_linear(opensmt_context ctx,
-                      double cx, opensmt_expr x,
-                      double cy, opensmt_expr y,
-                      double cz, opensmt_expr z) {
+opensmt_expr make_linear(opensmt_context ctx, double cx, opensmt_expr x, double cy, opensmt_expr y,
+                         double cz, opensmt_expr z) {
     opensmt_expr ex = opensmt_mk_times_2(ctx, opensmt_mk_num(ctx, cx), x);
     opensmt_expr ey = opensmt_mk_times_2(ctx, opensmt_mk_num(ctx, cy), y);
     opensmt_expr ez = opensmt_mk_times_2(ctx, opensmt_mk_num(ctx, cz), z);
@@ -60,15 +58,18 @@ TEST_CASE("glpk_sat") {
     opensmt_expr x = opensmt_mk_real_var(ctx, "x", 0, 100);
     opensmt_expr y = opensmt_mk_real_var(ctx, "y", 0, 100);
     opensmt_expr z = opensmt_mk_real_var(ctx, "z", 0, 100);
-    opensmt_expr c1 = opensmt_mk_leq(ctx, make_linear(ctx, 1, x, 1, y, 1, z), opensmt_mk_num(ctx, 100));
-    opensmt_expr c2 = opensmt_mk_leq(ctx, make_linear(ctx, 10, x, 4, y, 5, z), opensmt_mk_num(ctx, 600));
-    opensmt_expr c3 = opensmt_mk_leq(ctx, make_linear(ctx, 2, x, 2, y, 6, z), opensmt_mk_num(ctx, 300));
+    opensmt_expr c1 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 1, x, 1, y, 1, z), opensmt_mk_num(ctx, 100));
+    opensmt_expr c2 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 10, x, 4, y, 5, z), opensmt_mk_num(ctx, 600));
+    opensmt_expr c3 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 2, x, 2, y, 6, z), opensmt_mk_num(ctx, 300));
     opensmt_expr cObj = make_linear(ctx, 10, x, 6, y, 4, z);
     Enode * e1 = static_cast<Enode *>(c1);
     Enode * e2 = static_cast<Enode *>(c2);
     Enode * e3 = static_cast<Enode *>(c3);
     Enode * eObj = static_cast<Enode *>(cObj);
-    unordered_set<Enode*> es({e1, e2, e3});
+    unordered_set<Enode *> es({e1, e2, e3});
     Enode * var_x = static_cast<Enode *>(x);
     Enode * var_y = static_cast<Enode *>(y);
     Enode * var_z = static_cast<Enode *>(z);
@@ -81,13 +82,13 @@ TEST_CASE("glpk_sat") {
     solver.get_solution(b);
     // std::cerr << solver.get_objective() << std::endl;
     assert(solver.get_objective() >= -1e-3 + 733.333);
-    assert(solver.get_objective() <=  1e-3 + 733.333);
+    assert(solver.get_objective() <= 1e-3 + 733.333);
     assert(b[var_x].lb() >= -1e-4 + 33.3333);
-    assert(b[var_x].ub() <=  1e-4 + 33.3333);
+    assert(b[var_x].ub() <= 1e-4 + 33.3333);
     assert(b[var_y].lb() >= -1e-4 + 66.6667);
-    assert(b[var_y].ub() <=  1e-4 + 66.6667);
+    assert(b[var_y].ub() <= 1e-4 + 66.6667);
     assert(b[var_z].lb() >= -1e-4 + 0);
-    assert(b[var_z].ub() <=  1e-4 + 0);
+    assert(b[var_z].ub() <= 1e-4 + 0);
     opensmt_del_context(ctx);
 }
 
@@ -97,13 +98,16 @@ TEST_CASE("glpk_interior_sat") {
     opensmt_expr x = opensmt_mk_real_var(ctx, "x", 0, 100);
     opensmt_expr y = opensmt_mk_real_var(ctx, "y", 0, 100);
     opensmt_expr z = opensmt_mk_real_var(ctx, "z", 0, 100);
-    opensmt_expr c1 = opensmt_mk_leq(ctx, make_linear(ctx, 1, x, 1, y, 1, z), opensmt_mk_num(ctx, 100));
-    opensmt_expr c2 = opensmt_mk_leq(ctx, make_linear(ctx, 10, x, 4, y, 5, z), opensmt_mk_num(ctx, 600));
-    opensmt_expr c3 = opensmt_mk_leq(ctx, make_linear(ctx, 2, x, 2, y, 6, z), opensmt_mk_num(ctx, 300));
+    opensmt_expr c1 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 1, x, 1, y, 1, z), opensmt_mk_num(ctx, 100));
+    opensmt_expr c2 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 10, x, 4, y, 5, z), opensmt_mk_num(ctx, 600));
+    opensmt_expr c3 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 2, x, 2, y, 6, z), opensmt_mk_num(ctx, 300));
     Enode * e1 = static_cast<Enode *>(c1);
     Enode * e2 = static_cast<Enode *>(c2);
     Enode * e3 = static_cast<Enode *>(c3);
-    unordered_set<Enode*> es({e1, e2, e3});
+    unordered_set<Enode *> es({e1, e2, e3});
     Enode * var_x = static_cast<Enode *>(x);
     Enode * var_y = static_cast<Enode *>(y);
     Enode * var_z = static_cast<Enode *>(z);
@@ -122,15 +126,18 @@ TEST_CASE("glpk_no_obj") {
     opensmt_expr x = opensmt_mk_real_var(ctx, "x", 0, 100);
     opensmt_expr y = opensmt_mk_real_var(ctx, "y", 0, 100);
     opensmt_expr z = opensmt_mk_real_var(ctx, "z", 0, 100);
-    opensmt_expr c1 = opensmt_mk_leq(ctx, make_linear(ctx, 1, x, 1, y, 1, z), opensmt_mk_num(ctx, 100));
-    opensmt_expr c2 = opensmt_mk_leq(ctx, make_linear(ctx, 10, x, 4, y, 5, z), opensmt_mk_num(ctx, 600));
-    opensmt_expr c3 = opensmt_mk_leq(ctx, make_linear(ctx, 2, x, 2, y, 6, z), opensmt_mk_num(ctx, 300));
+    opensmt_expr c1 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 1, x, 1, y, 1, z), opensmt_mk_num(ctx, 100));
+    opensmt_expr c2 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 10, x, 4, y, 5, z), opensmt_mk_num(ctx, 600));
+    opensmt_expr c3 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 2, x, 2, y, 6, z), opensmt_mk_num(ctx, 300));
     opensmt_expr cObj = make_linear(ctx, 10, x, 6, y, 4, z);
     Enode * e1 = static_cast<Enode *>(c1);
     Enode * e2 = static_cast<Enode *>(c2);
     Enode * e3 = static_cast<Enode *>(c3);
     Enode * eObj = static_cast<Enode *>(cObj);
-    unordered_set<Enode*> es({e1, e2, e3});
+    unordered_set<Enode *> es({e1, e2, e3});
     Enode * var_x = static_cast<Enode *>(x);
     Enode * var_y = static_cast<Enode *>(y);
     Enode * var_z = static_cast<Enode *>(z);
@@ -147,15 +154,18 @@ TEST_CASE("glpk_min") {
     opensmt_expr x = opensmt_mk_real_var(ctx, "x", 0, 100);
     opensmt_expr y = opensmt_mk_real_var(ctx, "y", 0, 100);
     opensmt_expr z = opensmt_mk_real_var(ctx, "z", 0, 100);
-    opensmt_expr c1 = opensmt_mk_leq(ctx, make_linear(ctx, 1, x, 1, y, 1, z), opensmt_mk_num(ctx, 100));
-    opensmt_expr c2 = opensmt_mk_leq(ctx, make_linear(ctx, 10, x, 4, y, 5, z), opensmt_mk_num(ctx, 600));
-    opensmt_expr c3 = opensmt_mk_leq(ctx, make_linear(ctx, 2, x, 2, y, 6, z), opensmt_mk_num(ctx, 300));
+    opensmt_expr c1 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 1, x, 1, y, 1, z), opensmt_mk_num(ctx, 100));
+    opensmt_expr c2 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 10, x, 4, y, 5, z), opensmt_mk_num(ctx, 600));
+    opensmt_expr c3 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 2, x, 2, y, 6, z), opensmt_mk_num(ctx, 300));
     opensmt_expr cObj = make_linear(ctx, 10, x, 6, y, 4, z);
     Enode * e1 = static_cast<Enode *>(c1);
     Enode * e2 = static_cast<Enode *>(c2);
     Enode * e3 = static_cast<Enode *>(c3);
     Enode * eObj = static_cast<Enode *>(cObj);
-    unordered_set<Enode*> es({e1, e2, e3});
+    unordered_set<Enode *> es({e1, e2, e3});
     Enode * var_x = static_cast<Enode *>(x);
     Enode * var_y = static_cast<Enode *>(y);
     Enode * var_z = static_cast<Enode *>(z);
@@ -168,13 +178,13 @@ TEST_CASE("glpk_min") {
     solver.get_solution(b);
     // std::cerr << solver.get_objective() << std::endl;
     assert(solver.get_objective() >= -1e-3);
-    assert(solver.get_objective() <=  1e-3);
+    assert(solver.get_objective() <= 1e-3);
     assert(b[var_x].lb() >= -1e-4);
-    assert(b[var_x].ub() <=  1e-4);
+    assert(b[var_x].ub() <= 1e-4);
     assert(b[var_y].lb() >= -1e-4);
-    assert(b[var_y].ub() <=  1e-4);
+    assert(b[var_y].ub() <= 1e-4);
     assert(b[var_z].lb() >= -1e-4);
-    assert(b[var_z].ub() <=  1e-4);
+    assert(b[var_z].ub() <= 1e-4);
     opensmt_del_context(ctx);
 }
 
@@ -184,11 +194,13 @@ TEST_CASE("glpk_unsat") {
     opensmt_expr x = opensmt_mk_real_var(ctx, "x", 0, 100);
     opensmt_expr y = opensmt_mk_real_var(ctx, "y", 0, 100);
     opensmt_expr z = opensmt_mk_real_var(ctx, "z", 0, 100);
-    opensmt_expr c1 = opensmt_mk_leq(ctx, make_linear(ctx, 1, x, 1, y, 0, z), opensmt_mk_num(ctx, -100));
-    opensmt_expr c2 = opensmt_mk_leq(ctx, make_linear(ctx, 10, x, 4, y, 0, z), opensmt_mk_num(ctx, 600));
+    opensmt_expr c1 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 1, x, 1, y, 0, z), opensmt_mk_num(ctx, -100));
+    opensmt_expr c2 =
+        opensmt_mk_leq(ctx, make_linear(ctx, 10, x, 4, y, 0, z), opensmt_mk_num(ctx, 600));
     Enode * e1 = static_cast<Enode *>(c1);
     Enode * e2 = static_cast<Enode *>(c2);
-    unordered_set<Enode*> es({e1, e2});
+    unordered_set<Enode *> es({e1, e2});
     Enode * var_x = static_cast<Enode *>(x);
     Enode * var_y = static_cast<Enode *>(y);
     Enode * var_z = static_cast<Enode *>(z);

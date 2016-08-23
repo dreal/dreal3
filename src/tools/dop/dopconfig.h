@@ -21,10 +21,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <unordered_map>
-#include "opensmt/egraph/Enode.h"
+#include <vector>
 #include "ezOptionParser/ezOptionParser.hpp"
+#include "opensmt/egraph/Enode.h"
 
 namespace dop {
 
@@ -66,9 +66,7 @@ public:
     unsigned long get_vis_cell() const { return m_vis_cell; }
     bool get_run_visualization() const { return m_run_visualization; }
     bool get_save_visualization() const { return m_save_visualization; }
-    double get_precision() const {
-        return m_prec;
-    }
+    double get_precision() const { return m_prec; }
     bool get_local_opt() const { return m_local_opt; }
     bool get_debug() const { return m_debug; }
     bool get_polytope() const { return m_polytope; }

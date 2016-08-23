@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
-        
+
 
 dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
@@ -19,9 +19,10 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "util/hexfloat.h"
 #include <string>
-#include "util/string.h"
 #include "util/logging.h"
+#include "util/string.h"
 
 using std::string;
 
@@ -31,8 +32,8 @@ string to_hexfloat(double x) {
     char buf[BUF_SIZE];
     int len = snprintf(buf, sizeof(buf), "%a", x);
     if (len >= BUF_SIZE) {
-        DREAL_LOG_WARNING << "to_hexfloat: printing " << x
-                          << " requires more than " << BUF_SIZE << " bytes of buffer.";
+        DREAL_LOG_WARNING << "to_hexfloat: printing " << x << " requires more than " << BUF_SIZE
+                          << " bytes of buffer.";
     }
     return buf;
 }

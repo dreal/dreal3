@@ -17,14 +17,15 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <atomic>
+#include "contractor/contractor_parallel.h"
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <exception>
 #include <functional>
+#include <future>
 #include <initializer_list>
 #include <iterator>
-#include <future>
 #include <limits>
 #include <map>
 #include <memory>
@@ -40,15 +41,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "constraint/constraint.h"
-#include "contractor/contractor_common.h"
 #include "contractor/contractor_basic.h"
-#include "contractor/contractor_parallel.h"
+#include "contractor/contractor_common.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "util/interruptible_thread.h"
 #include "util/logging.h"
 #include "util/proof.h"
-#include "util/interruptible_thread.h"
 
 using std::async;
 using std::back_inserter;
@@ -84,24 +84,24 @@ namespace dreal {
 
 ostream & operator<<(ostream & out, pruning_thread_status const & s) {
     switch (s) {
-    case pruning_thread_status::READY:
-        out << "READY";
-        break;
-    case pruning_thread_status::RUNNING:
-        out << "RUNNING";
-        break;
-    case pruning_thread_status::SAT:
-        out << "SAT";
-        break;
-    case pruning_thread_status::UNSAT:
-        out << "UNSAT";
-        break;
-    case pruning_thread_status::EXCEPTION:
-        out << "EXCEPTION";
-        break;
-    case pruning_thread_status::KILLED:
-        out << "KILLED";
-        break;
+        case pruning_thread_status::READY:
+            out << "READY";
+            break;
+        case pruning_thread_status::RUNNING:
+            out << "RUNNING";
+            break;
+        case pruning_thread_status::SAT:
+            out << "SAT";
+            break;
+        case pruning_thread_status::UNSAT:
+            out << "UNSAT";
+            break;
+        case pruning_thread_status::EXCEPTION:
+            out << "EXCEPTION";
+            break;
+        case pruning_thread_status::KILLED:
+            out << "KILLED";
+            break;
     }
     return out;
 }
@@ -112,8 +112,8 @@ void parallel_helper_fn(unsigned const id, contractor & c, contractor_status & c
                         pruning_thread_status & ps, mutex & m, condition_variable & cv, int & index,
                         atomic_int & tasks_to_run) {
     ps = pruning_thread_status::RUNNING;
-    PARALLEL_LOG << "parallel_helper: thread " << id << " is running. "
-                    << tasks_to_run << "tasks to run";
+    PARALLEL_LOG << "parallel_helper: thread " << id << " is running. " << tasks_to_run
+                 << "tasks to run";
     // PARALLEL_LOG << "parallel_helper: thread " << id << " ctc = " << c;
     try {
         c.prune(cs);
@@ -129,7 +129,8 @@ void parallel_helper_fn(unsigned const id, contractor & c, contractor_status & c
     } catch (contractor_exception & e) {
         // handle for exception
         ps = pruning_thread_status::EXCEPTION;
-        PARALLEL_LOG << "parallel_helper: thread " << id << " throws an contractor_exception: " << e.what();
+        PARALLEL_LOG << "parallel_helper: thread " << id
+                     << " throws an contractor_exception: " << e.what();
     } catch (thread_interrupted & e) {
         // just killed
         ps = pruning_thread_status::KILLED;
@@ -138,8 +139,8 @@ void parallel_helper_fn(unsigned const id, contractor & c, contractor_status & c
         return;
     } catch (exception & e) {
         tasks_to_run--;
-        PARALLEL_LOG << "parallel_helper: thread " << id << " throws an unexpected exception: "
-                        << e.what();
+        PARALLEL_LOG << "parallel_helper: thread " << id
+                     << " throws an unexpected exception: " << e.what();
         return;
     }
     PARALLEL_LOG << "parallel_helper: thread " << id << " is waiting for a mutex lock";

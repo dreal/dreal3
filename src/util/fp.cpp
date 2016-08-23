@@ -17,10 +17,10 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "util/fp.h"
 #include <cfenv>
 #include <cstdlib>
 #include <string>
-#include "util/fp.h"
 
 namespace dreal {
 using std::string;
@@ -48,9 +48,7 @@ double stod_downward(char const * str) {
     }
 }
 
-double stod_downward(string const & str) {
-    return stod_downward(str.c_str());
-}
+double stod_downward(string const & str) { return stod_downward(str.c_str()); }
 
 double stod_upward(char const * str) {
     int const saved_rounding_mode = fegetround();
@@ -65,9 +63,7 @@ double stod_upward(char const * str) {
     }
 }
 
-double stod_upward(string const & str) {
-    return stod_upward(str.c_str());
-}
+double stod_upward(string const & str) { return stod_upward(str.c_str()); }
 
 double stod_tonearest(char const * str) {
     int const saved_rounding_mode = fegetround();
@@ -82,7 +78,5 @@ double stod_tonearest(char const * str) {
     }
 }
 
-double stod_tonearest(string const & str) {
-    return stod_tonearest(str.c_str());
-}
+double stod_tonearest(string const & str) { return stod_tonearest(str.c_str()); }
 }  // namespace dreal

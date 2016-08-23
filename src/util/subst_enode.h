@@ -19,8 +19,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <unordered_map>
-#include "opensmt/egraph/Enode.h"
 #include "opensmt/api/OpenSMTContext.h"
+#include "opensmt/egraph/Enode.h"
 
 namespace dreal {
 Enode * subst(OpenSMTContext & ctx, Enode * e, std::unordered_map<Enode *, Enode *> const & m);

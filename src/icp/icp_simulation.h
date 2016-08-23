@@ -18,7 +18,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-
+#include <memory>
 #include <vector>
 #include "contractor/contractor.h"
 #include "icp/icp.h"
@@ -27,6 +27,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 class simulation_icp {
 public:
-    static void solve(contractor &, contractor_status &, scoped_vec<std::shared_ptr<constraint>> const &, double);
+    static void solve(contractor &, contractor_status &,
+                      scoped_vec<std::shared_ptr<constraint>> const &, double);
 };
 }  // namespace dreal

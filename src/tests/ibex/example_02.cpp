@@ -35,8 +35,8 @@ using std::endl;
 
 int main() {
     Variable x1, x2, y;
-    NumConstraint c1(x1, x2, y,  y >= ibex::min(x1, x2));
-    NumConstraint c2(x1, x2, y,  y <= ibex::max(x1, x2));
+    NumConstraint c1(x1, x2, y, y >= ibex::min(x1, x2));
+    NumConstraint c2(x1, x2, y, y <= ibex::max(x1, x2));
     ibex::SystemFactory factory;
     factory.add_var(x1);
     factory.add_var(x2);

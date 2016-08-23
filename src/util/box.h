@@ -71,9 +71,7 @@ public:
     std::vector<Enode *> const & get_vars() const { return *m_vars; }
     unsigned size() const { return m_vars ? (m_vars->size()) : 0; }
     void set_empty() { m_values.set_empty(); }
-    unsigned get_index(Enode * const e) const {
-        return get_index(e->getCar()->getNameFull());
-    }
+    unsigned get_index(Enode * const e) const { return get_index(e->getCar()->getNameFull()); }
     unsigned get_index(std::string const & s) const {
         auto const it = m_name_index_map->find(s);
         if (it != m_name_index_map->end()) {
@@ -87,15 +85,11 @@ public:
     ibex::Interval & get_value(int const i) { return m_values[i]; }
     ibex::Interval const & get_value(int const i) const { return m_values[i]; }
     ibex::Interval & get_value(std::string const & s) { return m_values[get_index(s)]; }
-    ibex::Interval const & get_value(std::string const & s) const {
-        return m_values[get_index(s)];
-    }
-    const ibex::Interval& get_value(Enode * const e) const {
+    ibex::Interval const & get_value(std::string const & s) const { return m_values[get_index(s)]; }
+    const ibex::Interval & get_value(Enode * const e) const {
         return get_value(e->getCar()->getNameFull());
     }
-    ibex::Interval& get_value(Enode * const e) {
-        return get_value(e->getCar()->getNameFull());
-    }
+    ibex::Interval & get_value(Enode * const e) { return get_value(e->getCar()->getNameFull()); }
 
     // set_value
     inline void set_value(Enode * e, double lb, double ub) {
@@ -104,9 +98,7 @@ public:
 
     // get_domain
     ibex::Interval get_domain(int const i) const;
-    ibex::Interval get_domain(std::string const & s) const {
-        return get_domain(get_index(s));
-    }
+    ibex::Interval get_domain(std::string const & s) const { return get_domain(get_index(s)); }
     ibex::Interval get_domain(Enode * const e) const {
         return get_domain(e->getCar()->getNameFull());
     }
@@ -114,19 +106,15 @@ public:
     int get_idx_last_branched() const { return m_idx_last_branched; }
 
     // operator[]
-    const ibex::Interval& operator[](int const i) const { return get_value(i); }
-    ibex::Interval& operator[](int i) { return get_value(i); }
-    const ibex::Interval& operator[](std::string const & s) const { return get_value(s); }
-    ibex::Interval& operator[](std::string const & s) { return get_value(s); }
-    const ibex::Interval& operator[](Enode * const e) const { return get_value(e); }
-    ibex::Interval& operator[](Enode * const e) { return get_value(e); }
+    const ibex::Interval & operator[](int const i) const { return get_value(i); }
+    ibex::Interval & operator[](int i) { return get_value(i); }
+    const ibex::Interval & operator[](std::string const & s) const { return get_value(s); }
+    ibex::Interval & operator[](std::string const & s) { return get_value(s); }
+    const ibex::Interval & operator[](Enode * const e) const { return get_value(e); }
+    ibex::Interval & operator[](Enode * const e) { return get_value(e); }
 
-    bool is_subset(box const & b) const {
-        return m_values.is_subset(b.m_values);
-    }
-    bool is_superset(box const & b) const {
-        return m_values.is_superset(b.m_values);
-    }
+    bool is_subset(box const & b) const { return m_values.is_subset(b.m_values); }
+    bool is_superset(box const & b) const { return m_values.is_superset(b.m_values); }
 
     bool operator==(box const & b) const;
     bool operator<(box const & b) const;
@@ -135,15 +123,14 @@ public:
     bool operator>=(box const & b) const;
     bool operator!=(box const & b) const { return !(*this == b); }
 
-    std::string get_name(unsigned const i) const {
-        return (*m_vars)[i]->getCar()->getNameFull();
-    }
+    std::string get_name(unsigned const i) const { return (*m_vars)[i]->getCar()->getNameFull(); }
 
     double max_diam() const;
     double volume() const { return m_values.volume(); }
 
-    friend std::ostream& display_diff(std::ostream& out, box const & b1, box const & b2);
-    friend std::ostream& display(std::ostream& out, box const & b, bool const exact, bool const old_style);
+    friend std::ostream & display_diff(std::ostream & out, box const & b1, box const & b2);
+    friend std::ostream & display(std::ostream & out, box const & b, bool const exact,
+                                  bool const old_style);
     std::size_t hash() const {
         std::size_t seed = 23;
         for (int i = 0; i < m_values.size(); i++) {
@@ -174,9 +161,10 @@ box intersect(std::vector<box> const & vec);
 box hull(box b1, box const & b2);
 box hull(std::vector<box> const & vec);
 
-std::ostream& display_diff(std::ostream& out, box const & b1, box const & b2);
-std::ostream& display(std::ostream& out, box const & b, bool const exact = false, bool const old_style = false);
-std::ostream& operator<<(std::ostream& out, box const & b);
+std::ostream & display_diff(std::ostream & out, box const & b1, box const & b2);
+std::ostream & display(std::ostream & out, box const & b, bool const exact = false,
+                       bool const old_style = false);
+std::ostream & operator<<(std::ostream & out, box const & b);
 }  // namespace dreal
 
 namespace std {

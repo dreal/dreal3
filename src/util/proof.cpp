@@ -19,16 +19,17 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "util/proof.h"
 #include <ostream>
 #include <string>
-#include "util/proof.h"
 #include "util/box.h"
 
 using std::endl;
 
 namespace dreal {
 using std::string;
-void output_pruning_step(box const & old_box, contractor_status & cs, std::string const & constraint) {
+void output_pruning_step(box const & old_box, contractor_status & cs,
+                         std::string const & constraint) {
     std::ostream & out = cs.m_config.nra_proof_out;
     box const & new_box = cs.m_box;
     bool const readable_proof = cs.m_config.nra_readable_proof;

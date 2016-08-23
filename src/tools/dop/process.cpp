@@ -17,14 +17,15 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "tools/dop/process.h"
 #include <sys/stat.h>
-#include <ezOptionParser/ezOptionParser.hpp>
 #include <algorithm>
 #include <cassert>
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <exception>
+#include <ezOptionParser/ezOptionParser.hpp>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -39,13 +40,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/egraph/Enode.h"
 #include "tools/dop/dopconfig.h"
-#include "util/subst_enode.h"
 #include "tools/dop/print_latex.h"
 #include "tools/dop/print_py.h"
-#include "tools/dop/process.h"
 #include "tools/dop/visualize.h"
 #include "util/logging.h"
 #include "util/string.h"
+#include "util/subst_enode.h"
 
 using std::back_inserter;
 using std::cerr;
@@ -64,7 +64,6 @@ using std::vector;
 using std::stringstream;
 using std::ostream;
 
-
 // Dop Parser
 extern int dopset_in(FILE * fin);
 extern int dopparse();
@@ -76,7 +75,7 @@ extern bool dop_minimize;
 extern double dop_prec;
 extern vector<Enode *> dop_ctrs;
 extern vector<Enode *> dop_costs;
-extern unordered_map<string, Enode*> dop_var_map;
+extern unordered_map<string, Enode *> dop_var_map;
 
 // Baron Parser
 extern int baronset_in(FILE * fin);
@@ -86,9 +85,9 @@ extern void baron_init_parser();
 extern void baron_cleanup_parser();
 extern OpenSMTContext * baron_ctx;
 extern bool baron_minimize;
-extern vector<Enode*> baron_ctrs;
+extern vector<Enode *> baron_ctrs;
 extern Enode * baron_cost_fn;
-extern unordered_map<string, Enode*> baron_var_map;
+extern unordered_map<string, Enode *> baron_var_map;
 
 // BCH Parser
 extern int bchset_in(FILE * fin);
@@ -98,15 +97,17 @@ extern void bch_init_parser();
 extern void bch_cleanup_parser();
 extern OpenSMTContext * bch_ctx;
 extern bool bch_minimize;
-extern vector<Enode*> bch_ctrs;
+extern vector<Enode *> bch_ctrs;
 extern vector<Enode *> bch_costs;
-extern unordered_map<string, Enode*> bch_var_map;
+extern unordered_map<string, Enode *> bch_var_map;
 
 namespace dop {
 
 static const char g_minimum_name[] = "min";
 
-Enode * subst_exist_vars_to_univerally_quantified(OpenSMTContext & ctx, unordered_map<string, Enode *> const & m, Enode * f) {
+Enode * subst_exist_vars_to_univerally_quantified(OpenSMTContext & ctx,
+                                                  unordered_map<string, Enode *> const & m,
+                                                  Enode * f) {
     // Input:  f(x1, ..., xn) where xi is existentially quantified var.
     // Output: f(y1, ..., yn) where yi is universally quantified var.
     unordered_map<Enode *, Enode *> subst_map;
@@ -132,7 +133,8 @@ Enode * subst_exist_vars_to_univerally_quantified(OpenSMTContext & ctx, unordere
     return forall_f;
 }
 
-Enode * make_leq_cost(OpenSMTContext & ctx, unordered_map<string, Enode *> const & m, Enode * f, Enode * min_var) {
+Enode * make_leq_cost(OpenSMTContext & ctx, unordered_map<string, Enode *> const & m, Enode * f,
+                      Enode * min_var) {
     // Input:  f(x1, ..., xn)        where xi is existentially quantified var.
     // Output: min <= f(y1, ..., yn) where yi is universally quantified var.
     Enode * forall_f = subst_exist_vars_to_univerally_quantified(ctx, m, f);
@@ -161,38 +163,40 @@ Enode * make_eq_cost(OpenSMTContext & ctx, Enode * e1, Enode * e2) {
 
 ostream & display(ostream & out, string const & name, Enode * const e) {
     out << name << " = "
-        << "[" << e->getValueLowerBound() << ", "
-        << e->getValueUpperBound() << "]";
+        << "[" << e->getValueLowerBound() << ", " << e->getValueUpperBound() << "]";
     return out;
 }
 
-void print_result(unordered_map<string, Enode*> const & map) {
-    vector<pair<string, Enode*>> vec;
+void print_result(unordered_map<string, Enode *> const & map) {
+    vector<pair<string, Enode *>> vec;
     vec.insert(vec.end(), map.begin(), map.end());
-    sort(vec.begin(), vec.end(), [](pair<string, Enode *> const & p1, pair<string, Enode *> const & p2) {
-            bool const p1_starts_with_min = dreal::starts_with(p1.first, g_minimum_name);
-            bool const p2_starts_with_min = dreal::starts_with(p2.first, g_minimum_name);
-            if (p1_starts_with_min && !p2_starts_with_min) {
-                return false;
-            }
-            if (!p1_starts_with_min && p2_starts_with_min) {
-                return true;
-            }
-            return p1.first < p2.first;
-        });
+    sort(vec.begin(), vec.end(),
+         [](pair<string, Enode *> const & p1, pair<string, Enode *> const & p2) {
+             bool const p1_starts_with_min = dreal::starts_with(p1.first, g_minimum_name);
+             bool const p2_starts_with_min = dreal::starts_with(p2.first, g_minimum_name);
+             if (p1_starts_with_min && !p2_starts_with_min) {
+                 return false;
+             }
+             if (!p1_starts_with_min && p2_starts_with_min) {
+                 return true;
+             }
+             return p1.first < p2.first;
+         });
     for (auto const item : vec) {
         string name = item.first;
         Enode * e = item.second;
-        cout << "\t"; dop::display(cout, name, e) << endl;
+        cout << "\t";
+        dop::display(cout, name, e) << endl;
     }
 }
 
 Enode * make_vec_to_list(OpenSMTContext & ctx, vector<Enode *> v) {
-    list<Enode*> args(v.begin(), v.end());
+    list<Enode *> args(v.begin(), v.end());
     return ctx.mkCons(args);
 }
 
-int process_main(OpenSMTContext & ctx, config const & config, vector<Enode *> const & costs, unordered_map<string, Enode*> var_map, vector<Enode *> const & ctrs_X);
+int process_main(OpenSMTContext & ctx, config const & config, vector<Enode *> const & costs,
+                 unordered_map<string, Enode *> var_map, vector<Enode *> const & ctrs_X);
 
 int process_baron(config const & config) {
     FILE * fin = nullptr;
@@ -284,11 +288,8 @@ int process_bch(config const & config) {
     return ret;
 }
 
-int process_main(OpenSMTContext & ctx,
-                 config const & config,
-                 vector<Enode *> const & costs,
-                 unordered_map<string, Enode*> var_map,
-                 vector<Enode *> const & ctrs_X) {
+int process_main(OpenSMTContext & ctx, config const & config, vector<Enode *> const & costs,
+                 unordered_map<string, Enode *> var_map, vector<Enode *> const & ctrs_X) {
     // minimize cost_i(x)
     // satisfying ctr_j(x)
     //
@@ -305,15 +306,16 @@ int process_main(OpenSMTContext & ctx,
     //                             j            i
     vector<Enode *> or_ctrs;
     for (Enode * ctr_X : ctrs_X) {
-        Enode * ctr_not_Y = ctx.mkNot(ctx.mkCons(subst_exist_vars_to_univerally_quantified(ctx, var_map, ctr_X)));  // ctr(y)
+        Enode * ctr_not_Y = ctx.mkNot(
+            ctx.mkCons(subst_exist_vars_to_univerally_quantified(ctx, var_map, ctr_X)));  // ctr(y)
         or_ctrs.push_back(ctr_not_Y);
     }
 
-    vector<Enode*> eq_costs;
+    vector<Enode *> eq_costs;
     for (unsigned i = 0; i < costs.size(); ++i) {
-        Enode * min_var_i = make_min_var(ctx, var_map, i);                      // min
-        Enode * eq_cost  = make_eq_cost(ctx, costs[i], min_var_i);              // cost_i(x) = min_i
-        Enode * leq_cost = make_leq_cost(ctx, var_map, costs[i], min_var_i);    // min <= costs[0](y)
+        Enode * min_var_i = make_min_var(ctx, var_map, i);                    // min
+        Enode * eq_cost = make_eq_cost(ctx, costs[i], min_var_i);             // cost_i(x) = min_i
+        Enode * leq_cost = make_leq_cost(ctx, var_map, costs[i], min_var_i);  // min <= costs[0](y)
         eq_costs.push_back(eq_cost);
         or_ctrs.push_back(leq_cost);
     }
@@ -328,8 +330,7 @@ int process_main(OpenSMTContext & ctx,
     Enode * quantified = ctx.mkForall(sorted_var_list, or_term);
     cout << "Precision  : " << ctx.getPrecision() << endl;
     for (auto var : var_map) {
-        cout << "Variable   : " << var.first
-             << " in [" << var.second->getDomainLowerBound() << ", "
+        cout << "Variable   : " << var.first << " in [" << var.second->getDomainLowerBound() << ", "
              << var.second->getDomainUpperBound() << "]" << endl;
     }
     for (Enode * cost : costs) {

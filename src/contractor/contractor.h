@@ -19,16 +19,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include "./dreal_config.h"
-#include "contractor/contractor_common.h"
-#include "contractor/contractor_cell.h"
-#include "contractor/contractor_core.h"
-#include "contractor/contractor_status.h"
 #include "contractor/contractor_basic.h"
-#include "contractor/contractor_ibex.h"
+#include "contractor/contractor_cell.h"
+#include "contractor/contractor_common.h"
+#include "contractor/contractor_core.h"
 #include "contractor/contractor_forall.h"
+#include "contractor/contractor_ibex.h"
 #include "contractor/contractor_parallel_all.h"
 #include "contractor/contractor_parallel_any.h"
 #include "contractor/contractor_pseq.h"
+#include "contractor/contractor_status.h"
 #ifdef SUPPORT_ODE
 #include "contractor/contractor_capd4.h"
 #endif

@@ -22,21 +22,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/type_name.h"
 
 namespace dreal {
-template<typename T>
+template <typename T>
 bool check_nothrow_move_constructible() {
     bool ret = std::is_nothrow_move_constructible<T>::value;
     std::cerr << type_name<T>() << ":\t"
-              << "is_nothrow_move_constructible = "
-              << ret << std::endl;;
+              << "is_nothrow_move_constructible = " << ret << std::endl;
     return ret;
 }
 
-template<typename T>
+template <typename T>
 bool check_move_constructible() {
     bool ret = std::is_move_constructible<T>::value;
     std::cerr << type_name<T>() << ":\t"
-              << "is_move_constructible = "
-              << ret << std::endl;;
+              << "is_move_constructible = " << ret << std::endl;
     return ret;
 }
 }  // namespace dreal

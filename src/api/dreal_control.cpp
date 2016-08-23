@@ -18,11 +18,11 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "api/dreal_control.h"
 #include <cassert>
 #include <iostream>
 #include <random>
 #include <vector>
-#include "api/dreal_control.h"
 
 namespace dreal {
 
@@ -31,69 +31,69 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-void checkBarrier(vector<expr>& x, vector<expr>& f, expr& B, double const eps) {
+void checkBarrier(vector<expr> & x, vector<expr> & f, expr & B, double const eps) {
     assert(x.size() == f.size());
     unsigned n = x.size();
     solver * s = x[0].get_solver();
     expr condition = (B == -eps);
-    expr LB = s -> num("0");
+    expr LB = s->num("0");
     for (unsigned i = 0; i < n; i++) {
         LB = LB + f[i] * der(B, x[i]);
     }
     expr spec = (LB < -eps);
-    s -> add(condition && !spec);
+    s->add(condition && !spec);
     if (!s->check()) {
-        cout << "The barrier function\n\tB = " << B << "\nis valid for the system defined by" << endl;
+        cout << "The barrier function\n\tB = " << B << "\nis valid for the system defined by"
+             << endl;
         cout << "\tf = [";
-        for (auto e : f)
-            cout << e << ";";
+        for (auto e : f) cout << e << ";";
         cout << "]" << endl;
     } else {
-        cout << "The function\n\tB = " << B << "\nis not a barrier certificate for the system defined by" << endl;
+        cout << "The function\n\tB = " << B
+             << "\nis not a barrier certificate for the system defined by" << endl;
         cout << "\tf = [";
-        for (auto e : f)
-            cout << e << ";";
+        for (auto e : f) cout << e << ";";
         cout << "]" << endl;
         cout << "because a counterexample has been found. ";
         s->print_model();
     }
 }
 
-void checkLyapunov(vector<expr>& x, vector<expr>& f, expr& V, double const eps) {
+void checkLyapunov(vector<expr> & x, vector<expr> & f, expr & V, double const eps) {
     assert(x.size() == f.size());
     assert(eps > 0);
     unsigned n = x.size();
     solver * s = x[0].get_solver();
-    expr ball = s -> num("0");
-    expr LV = s -> num("0");
+    expr ball = s->num("0");
+    expr LV = s->num("0");
     for (unsigned i = 0; i < n; i++) {
-        ball = ball + (x[i]^2);
+        ball = ball + (x[i] ^ 2);
         LV = LV + f[i] * der(V, x[i]);
     }
     expr condition = implies(ball > eps, V > 0) && implies(ball > eps, LV < 0);
-    s -> add(!condition);
+    s->add(!condition);
     if (!s->check()) {
-        cout << "The Lyapunov function\n\tV = " << V << "\nis valid for the system defined by" << endl;
+        cout << "The Lyapunov function\n\tV = " << V << "\nis valid for the system defined by"
+             << endl;
         cout << "\tf = [";
-        for (auto e : f)
-            cout << e << ";";
+        for (auto e : f) cout << e << ";";
         cout << "]" << endl;
     } else {
-        cout << "The function\n\tV = " << V << "\nis not a Lyapunov function for the system defined by" << endl;
+        cout << "The function\n\tV = " << V
+             << "\nis not a Lyapunov function for the system defined by" << endl;
         cout << "\tf = [";
-        for (auto e : f)
-            cout << e << ";";
+        for (auto e : f) cout << e << ";";
         cout << "]" << endl;
         cout << "because a counterexample has been found. ";
         s->print_model();
     }
 }
 
-expr plugSolutionsIn(expr & formula, vector<expr*>& x, vector<expr*> & sol, vector<expr*> & p) {
-    vector<expr*> full_pre;
-    vector<expr*> full_post;
-    full_pre.reserve(x.size()+p.size()+2);
-    full_post.reserve(sol.size()+p.size()+2);
+expr plugSolutionsIn(expr & formula, vector<expr *> & x, vector<expr *> & sol, vector<expr *> & p) {
+    vector<expr *> full_pre;
+    vector<expr *> full_post;
+    full_pre.reserve(x.size() + p.size() + 2);
+    full_post.reserve(sol.size() + p.size() + 2);
     // full_pre holds the list of variables
     full_pre.insert(full_pre.end(), x.begin(), x.end());
     full_pre.insert(full_pre.end(), p.begin(), p.end());
@@ -104,18 +104,20 @@ expr plugSolutionsIn(expr & formula, vector<expr*>& x, vector<expr*> & sol, vect
     return substitute(formula, full_pre, full_post);
 }
 
-void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, expr& V, double const eps) {
+void synthesizeLyapunov(vector<expr *> & x, vector<expr *> & p, vector<expr *> & f, expr & V,
+                        double const eps) {
     // number of ODEs should be same as number of state vars
     assert(x.size() == f.size());
     assert(eps > 0);
-    // everything happening in the solver. to be extra safe, should check all vars share the same solver.
+    // everything happening in the solver. to be extra safe, should check all vars share the same
+    // solver.
     solver * s = x[0]->get_solver();
     expr zero = s->num("0");
     expr v = s->var("V");
     expr lv = s->var("LV");
     expr bl = s->var("ball_radius");
     // turn on polytope in solver
-    s -> set_polytope();
+    s->set_polytope();
     // s -> set_simulation();  // the simulation option gives seg fault as of Jun 23, 2016
     // ball is the epsilon-ball that will be excluded from the checking
     expr ball = zero;
@@ -126,15 +128,15 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
         ball = ball + ((*x[i]) ^ 2);
         LV = LV + (*f[i]) * der(V, (*x[i]));
     }
-//    cerr<<"ball: "<<ball<<endl;
-//    cerr<<"Candidate V: "<<V<<endl;
-//    cerr<<"Lie Derivative of V: "<<LV<<endl;
+    //    cerr<<"ball: "<<ball<<endl;
+    //    cerr<<"Candidate V: "<<V<<endl;
+    //    cerr<<"Lie Derivative of V: "<<LV<<endl;
     // base_scondition for search step
     expr base_scondition = (V >= 0) && (LV <= 0);
     // base_vcondition for verification step
     expr base_vcondition = ((bl > eps) && (v < 0.0001)) || ((bl > eps) && (lv > (-0.0001)));
     // start with the trivial solution
-    vector<expr*> sol(x.size(), &zero);
+    vector<expr *> sol(x.size(), &zero);
 #ifndef NDEBUG
     for (auto state : x) {
         assert(state);
@@ -142,7 +144,8 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
 #endif
     // search condition will be used for finding parameters
     expr search_condition = plugSolutionsIn(base_scondition, x, sol, p);
-    // prepare a push point. will first add the formula for searching, then pop, then add formula for verifying
+    // prepare a push point. will first add the formula for searching, then pop, then add formula
+    // for verifying
     s->push();
     // first round of search for parameters
     s->add(search_condition);
@@ -164,7 +167,8 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
         expr verify_condition = base_vcondition;
         // set the parameter variables to the chosen values and assemble the verification condition
         for (auto param : p) {
-            verify_condition = verify_condition && ( (*param) == ((s->get_lb(*param)+s->get_ub(*param))/2));
+            verify_condition =
+                verify_condition && ((*param) == ((s->get_lb(*param) + s->get_ub(*param)) / 2));
         }
         // pop the search formula and add the verification formula
         s->pop();
@@ -187,23 +191,24 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
             sol.clear();
             // add the counterexample
             for (auto state : x) {
-                sol.push_back(s->new_num((s->get_lb(*state)+s->get_ub(*state))/2));
+                sol.push_back(s->new_num((s->get_lb(*state) + s->get_ub(*state)) / 2));
             }
             search_condition = search_condition && plugSolutionsIn(base_scondition, x, sol, p);
             // add a bunch of randomly sampled points on x
             unsigned sample = 0;
-            std::default_random_engine re(std::random_device {}());
+            std::default_random_engine re(std::random_device{}());
             while (sample < 50) {
                 // clear previous solution
                 sol.clear();
-               // cerr<<"new sample state: ";
+                // cerr<<"new sample state: ";
                 for (auto state : x) {
-                    std::uniform_real_distribution<double> unif(s->get_domain_lb(*state), s->get_domain_ub(*state));
+                    std::uniform_real_distribution<double> unif(s->get_domain_lb(*state),
+                                                                s->get_domain_ub(*state));
                     double p = unif(re);
-                   // cerr << *state << " :" << p << " ";
+                    // cerr << *state << " :" << p << " ";
                     sol.push_back(s->new_num(p));
                 }
-               // cerr<<endl;
+                // cerr<<endl;
                 search_condition = search_condition && plugSolutionsIn(base_scondition, x, sol, p);
                 sample++;
             }
@@ -213,7 +218,8 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
             // cerr<< "Search condition becomes: "<<search_condition<<endl;
             s->add(search_condition);
         }
-        cerr << "========================== Finished Round " << round << " ========================="<< endl;
+        cerr << "========================== Finished Round " << round
+             << " =========================" << endl;
         round++;
         // s->set_lp(true);
     }
@@ -222,11 +228,13 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
 }
 
 /*
-void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, expr& V, double const eps) {
+void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, expr& V, double const
+eps) {
     // number of ODEs should be same as number of state vars
     assert(x.size() == f.size());
     assert(eps > 0);
-    // everything happening in the solver. to be extra safe, should check all vars share the same solver.
+    // everything happening in the solver. to be extra safe, should check all vars share the same
+solver.
     solver * s = x[0]->get_solver();
     expr zero = s->num("0");
     expr v = s->var("V");
@@ -251,7 +259,8 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
     expr condition = (ball > eps && v < 0.000001 * eps) || (ball > eps && lv > (-0.00001 * eps));
     // search condition will be used for finding parameters
     expr search_condition = scondition;
-    // prepare a push point. will first add the formula for searching, then pop, then add formula for verifying
+    // prepare a push point. will first add the formula for searching, then pop, then add formula
+for verifying
     s->push();
     // start with the trivial solution
     for (auto param : p) {
@@ -269,7 +278,8 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
         expr verify_condition = condition;
         // set the parameter variables to the chosen values
         for (auto param : p) {
-            verify_condition = verify_condition && ( (*param) == ((s->get_lb(*param)+s->get_ub(*param))/2));
+            verify_condition = verify_condition && ( (*param) ==
+((s->get_lb(*param)+s->get_ub(*param))/2));
         }
         // pop the search formula and add the verification formula
         s->pop();
@@ -311,7 +321,8 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
                 // substitution needs both vectors
                 search_condition = substitute(search_condition, full_pre, full_post);
                 search_condition = search_condition && substitute(scondition, full_pre, full_post);
-                // cout << "loop at: " << sample << " with search condition: " << search_condition << endl;
+                // cout << "loop at: " << sample << " with search condition: " << search_condition
+<< endl;
                 // clean up
 //                sol.clear();
 //                full_pre.clear();
@@ -320,7 +331,8 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
                 for (auto state : x) {
                     // cout << "lower: " << s->get_domain_lb(*state) << " ";
                     // cout << "upper: " << s->get_domain_ub(*state) << endl;
-                    std::uniform_real_distribution<double> unif(s->get_domain_lb(*state), s->get_domain_ub(*state));
+                    std::uniform_real_distribution<double> unif(s->get_domain_lb(*state),
+s->get_domain_ub(*state));
                     double p = unif(re);
                     // cout << *state << " :" << p << " ";
                     sol.push_back(s->new_num(p));
@@ -353,14 +365,15 @@ void synthesizeLyapunov(vector<expr*>& x, vector<expr*>& p, vector<expr*>& f, ex
 }
 */
 
-void synthesizeControlAndLyapunov(vector<expr*>& x, vector<expr*>& p_f, vector<expr*>& p_v, vector<expr*>& f, expr& V, double const eps) {
-    vector<expr*> p;
+void synthesizeControlAndLyapunov(vector<expr *> & x, vector<expr *> & p_f, vector<expr *> & p_v,
+                                  vector<expr *> & f, expr & V, double const eps) {
+    vector<expr *> p;
     for (auto e : p_f) {
         p.push_back(e);
     }
     for (auto e : p_v) {
         p.push_back(e);
     }
-    synthesizeLyapunov(x, p , f , V, eps);
+    synthesizeLyapunov(x, p, f, V, eps);
 }
 }  // namespace dreal

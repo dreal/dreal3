@@ -17,12 +17,12 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "util/subst_enode.h"
 #include <exception>
-#include <unordered_map>
 #include <iostream>
 #include <sstream>
+#include <unordered_map>
 #include "opensmt/egraph/Enode.h"
-#include "util/subst_enode.h"
 
 namespace dreal {
 using std::unordered_map;

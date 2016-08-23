@@ -57,7 +57,8 @@ TEST_CASE("basic2") {
     s.add(psi2);
     stringstream ss;
     ss << phi2;
-    REQUIRE(ss.str() == "(or (and (not (<= x (sin y))) (not (<= (^ x 2) y))) (not (<= (^ x 2) y)))");
+    REQUIRE(ss.str() ==
+            "(or (and (not (<= x (sin y))) (not (<= (^ x 2) y))) (not (<= (^ x 2) y)))");
     REQUIRE(s.check());
 }
 

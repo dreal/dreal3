@@ -24,8 +24,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "./dreal_config.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
-#include "util/logging.h"
 #include "util/box.h"
+#include "util/logging.h"
 
 #ifdef USE_GLPK
 #include "./glpk.h"
@@ -35,19 +35,17 @@ namespace dreal {
 class glpk_wrapper {
 private:
     // solver type
-    enum solver_type_t {SIMPLEX, INTERIOR, EXACT};
+    enum solver_type_t { SIMPLEX, INTERIOR, EXACT };
     // for indexing variables
     box domain;
     // the lp
-    glp_prob *lp;
+    glp_prob * lp;
     // whether to use simplex or interior point
     solver_type_t solver_type;
     // has the problem been changed since it was solved
     bool changed;
 
-    unsigned get_index(Enode * e) const {
-        return domain.get_index(e);
-    }
+    unsigned get_index(Enode * e) const { return domain.get_index(e); }
 
     void set_constraint(int index, Enode * const e);
 
@@ -68,7 +66,7 @@ public:
     double get_objective();
 
     void set_domain(box const & b);
-    const box& get_domain() const;
+    const box & get_domain() const;
 
     void add(Enode * const e);
     void add(std::unordered_set<Enode *> const & es);
@@ -86,7 +84,7 @@ public:
 
     bool is_constraint_used(int index);
 
-    int print_to_file(const char *fname);
+    int print_to_file(const char * fname);
 
     static bool is_linear(Enode * const e);
     static bool is_expr_linear(Enode * const e);

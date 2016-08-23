@@ -25,11 +25,11 @@ int main(int argc, const char * argv[]) {
 #endif
     dop::config config(argc, argv);
     switch (config.get_type()) {
-    case dop::type::DOP:
-        return dop::process_dop(config);
-    case dop::type::BARON:
-        return dop::process_baron(config);
-    case dop::type::BCH:
-        return dop::process_bch(config);
+        case dop::type::DOP:
+            return dop::process_dop(config);
+        case dop::type::BARON:
+            return dop::process_baron(config);
+        case dop::type::BCH:
+            return dop::process_bch(config);
     }
 }

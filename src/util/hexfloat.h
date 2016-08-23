@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
-        
+
 
 dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
@@ -21,7 +21,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include "util/string.h"
-
 
 namespace dreal {
 std::string to_hexfloat(double x);

@@ -31,20 +31,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "./dreal_config.h"
+#include "constraint/constraint.h"
 #include "contractor/contractor.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
-#include "constraint/constraint.h"
 
 namespace dreal {
 
-enum class pruning_thread_status {
-    READY, RUNNING, SAT, UNSAT, EXCEPTION, KILLED
-        };
+enum class pruning_thread_status { READY, RUNNING, SAT, UNSAT, EXCEPTION, KILLED };
 
 std::ostream & operator<<(std::ostream & out, pruning_thread_status const & s);
 
-void parallel_helper_fn(unsigned const id, contractor & c, contractor_status & cs, pruning_thread_status & ts,
-                        std::mutex & m, std::condition_variable & cv, int & index, std::atomic_int & tasks_to_run);
+void parallel_helper_fn(unsigned const id, contractor & c, contractor_status & cs,
+                        pruning_thread_status & ts, std::mutex & m, std::condition_variable & cv,
+                        int & index, std::atomic_int & tasks_to_run);
 }  // namespace dreal

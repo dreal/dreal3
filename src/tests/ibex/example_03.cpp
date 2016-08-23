@@ -35,10 +35,10 @@ using std::endl;
 
 int main() {
     // z = atan2(y, x)
-    const ExprSymbol& x = ExprSymbol::new_();
+    const ExprSymbol & x = ExprSymbol::new_();
 
-//  Function f(x, pow(3, x) - 1);
-//  NumConstraint c(x, pow(3, x) = 1);
+    //  Function f(x, pow(3, x) - 1);
+    //  NumConstraint c(x, pow(3, x) = 1);
     ExprNode const & n0 = ExprConstant::new_scalar(3.0);
     ExprNode const & n1 = ibex::pow(n0, x);
     ExprNode const & n2 = x;

@@ -18,15 +18,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
 #include <initializer_list>
+#include <memory>
 #include <stdexcept>
 #include <string>
-#include <memory>
-#include <utility>
 #include <thread>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
 #include "opensmt/egraph/Enode.h"
@@ -60,7 +60,8 @@ private:
                     // destroyed function.
                     m_func_store.emplace_back(m_numctr->f, ibex::Function::COPY);
                     ibex::CmpOp const op = m_numctr->op;
-                    m_ctc_map.emplace(tid, std::make_shared<ibex::CtcFwdBwd>(m_func_store.back(), op));
+                    m_ctc_map.emplace(tid,
+                                      std::make_shared<ibex::CtcFwdBwd>(m_func_store.back(), op));
                 } else {
                     m_ctc_map.emplace(tid, std::make_shared<ibex::CtcFwdBwd>(*m_numctr));
                 }
@@ -98,12 +99,13 @@ public:
 // contractor_ibex_hc4 : contractor using IBEX HC4
 class contractor_ibex_hc4 : public contractor_cell {
 private:
-    std::unordered_set<Enode *>               m_vars_in_ctrs;
+    std::unordered_set<Enode *> m_vars_in_ctrs;
     std::vector<std::shared_ptr<nonlinear_constraint>> m_ctrs;
-    std::unique_ptr<ibex::Ctc>                m_ctc = nullptr;;
+    std::unique_ptr<ibex::Ctc> m_ctc = nullptr;
 
 public:
-    contractor_ibex_hc4(std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
+    contractor_ibex_hc4(std::vector<Enode *> const & vars,
+                        std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
     void prune(contractor_status & cs);
     std::ostream & display(std::ostream & out) const;
 };
@@ -111,32 +113,40 @@ public:
 // contractor_ibex_polytope : contractor using IBEX POLYTOPE
 class contractor_ibex_polytope : public contractor_cell {
 private:
-    std::unordered_set<Enode *>               m_vars_in_ctrs;
+    std::unordered_set<Enode *> m_vars_in_ctrs;
     std::vector<std::shared_ptr<nonlinear_constraint>> m_ctrs;
-    double const                              m_prec;
+    double const m_prec;
     std::unordered_map<Enode *, ibex::ExprSymbol const *> m_var_cache;
     std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_pos;
     std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_neg;
 
     // TODO(soonhok): this is a hack to avoid const problem, we need to fix them
-    std::unique_ptr<ibex::SystemFactory>    m_sf = nullptr;
-    std::unique_ptr<ibex::System>           m_sys = nullptr;
-    ibex::System *                          m_sys_eqs = nullptr;
+    std::unique_ptr<ibex::SystemFactory> m_sf = nullptr;
+    std::unique_ptr<ibex::System> m_sys = nullptr;
+    ibex::System * m_sys_eqs = nullptr;
     std::unique_ptr<ibex::LinearRelaxCombo> m_lrc = nullptr;
     std::vector<std::unique_ptr<ibex::Ctc>> m_sub_ctcs;
-    std::unique_ptr<ibex::Ctc>              m_ctc = nullptr;;
-    ibex::SystemFactory* build_system_factory(std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
+    std::unique_ptr<ibex::Ctc> m_ctc = nullptr;
+    ibex::SystemFactory * build_system_factory(
+        std::vector<Enode *> const & vars,
+        std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
 
 public:
-    contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
+    contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars,
+                             std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
     ~contractor_ibex_polytope();
     void prune(contractor_status & cs);
     std::ostream & display(std::ostream & out) const;
 };
 
-contractor mk_contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr, bool const use_cache = false);
-contractor mk_contractor_ibex_newton(box const & box, std::shared_ptr<nonlinear_constraint> const ctr);
-contractor mk_contractor_ibex_hc4(std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
-contractor mk_contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars, std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
+contractor mk_contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr,
+                                     bool const use_cache = false);
+contractor mk_contractor_ibex_newton(box const & box,
+                                     std::shared_ptr<nonlinear_constraint> const ctr);
+contractor mk_contractor_ibex_hc4(std::vector<Enode *> const & vars,
+                                  std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
+contractor mk_contractor_ibex_polytope(
+    double const prec, std::vector<Enode *> const & vars,
+    std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
 
 }  // namespace dreal

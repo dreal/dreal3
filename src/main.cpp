@@ -18,18 +18,18 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "egraph/Egraph.h"
-#include "api/OpenSMTContext.h"
-#include "smtsolvers/SimpSMTSolver.h"
-#include "version.h"
-#include <cstdlib>
-#include <string>
-#include <cstdio>
 #include <csignal>
-#include <iostream>
+#include <cstdio>
+#include <cstdlib>
 #include <ezOptionParser/ezOptionParser.hpp>
+#include <iostream>
+#include <string>
+#include "api/OpenSMTContext.h"
+#include "egraph/Egraph.h"
+#include "smtsolvers/SimpSMTSolver.h"
 #include "util/git_sha1.h"
 #include "util/logging.h"
+#include "version.h"
 
 #if defined(__linux__)
 #include <fpu_control.h>
@@ -42,74 +42,74 @@ using std::endl;
 
 namespace opensmt {
 
-void        catcher            ( int );
+void catcher(int);
 extern bool stop;
 
-} // namespace opensmt
+}  // namespace opensmt
 
-extern int  smt2set_in         ( FILE * );
-extern int  smt2parse          ( );
-extern int  smt2lex_destroy    ( );
-extern int drset_in (FILE *);
-extern int drparse ();
-extern int drlex_destroy ();
+extern int smt2set_in(FILE *);
+extern int smt2parse();
+extern int smt2lex_destroy();
+extern int drset_in(FILE *);
+extern int drparse();
+extern int drlex_destroy();
 extern OpenSMTContext * parser_ctx;
 
-int main( int argc, const char * argv[] )
-{
+int main(int argc, const char * argv[]) {
 #ifdef LOGGING
     START_EASYLOGGINGPP(argc, argv);
 #endif
     // Set up version, usage message
     ostringstream ss;
-    ss << PACKAGE_VERSION
-       << " (commit " << string(dreal::getGitSHA1()).substr(0, 12) << ")";
+    ss << PACKAGE_VERSION << " (commit " << string(dreal::getGitSHA1()).substr(0, 12) << ")";
 
     opensmt::stop = false;
     // Allocates Command Handler (since SMT-LIB 2.0)
-    OpenSMTContext context( argc, argv );
+    OpenSMTContext context(argc, argv);
     // Catch SigTerm, so that it answers even on ctrl-c
-    signal( SIGTERM, opensmt::catcher );
-    signal( SIGINT , opensmt::catcher );
+    signal(SIGTERM, opensmt::catcher);
+    signal(SIGINT, opensmt::catcher);
     // Initialize pointer to context for parsing
-    parser_ctx    = &context;
+    parser_ctx = &context;
     const char * filename = context.getConfig().filename.c_str();
-    assert( filename );
+    assert(filename);
     // Accepts file from stdin if nothing specified
     FILE * fin = NULL;
     // Make sure file exists
-    if ( context.getConfig().filename == "output" ) {
+    if (context.getConfig().filename == "output") {
         fin = stdin;
-    } else if ( (fin = fopen( filename, "rt" )) == NULL ) {
-        opensmt_error2( "can't open file", filename );
+    } else if ((fin = fopen(filename, "rt")) == NULL) {
+        opensmt_error2("can't open file", filename);
     }
 
     // Parse
     // Parse according to filetype
-    if ( fin == stdin ) {
-        smt2set_in( fin );
-        smt2parse( );
+    if (fin == stdin) {
+        smt2set_in(fin);
+        smt2parse();
     } else {
-        const char * extension = strrchr( filename, '.' );
-        if ( strcmp( extension, ".smt2" ) == 0 ) {
-            smt2set_in( fin );
-            smt2parse( );
-        } else if (strcmp(extension,".dr")==0) {
+        const char * extension = strrchr(filename, '.');
+        if (strcmp(extension, ".smt2") == 0) {
+            smt2set_in(fin);
+            smt2parse();
+        } else if (strcmp(extension, ".dr") == 0) {
             drset_in(fin);
             drparse();
         } else {
-            opensmt_error2( extension, " extension not recognized." );
+            opensmt_error2(extension, " extension not recognized.");
         }
     }
     smt2lex_destroy();
     drlex_destroy();
-    fclose( fin );
-    // This trick (copied from Main.C of MiniSAT) is to allow
-    // the repeatability of experiments that might be compromised
-    // by the floating point unit approximations on doubles
-#if defined(__linux__) && !defined( SMTCOMP )
+    fclose(fin);
+// This trick (copied from Main.C of MiniSAT) is to allow
+// the repeatability of experiments that might be compromised
+// by the floating point unit approximations on doubles
+#if defined(__linux__) && !defined(SMTCOMP)
     fpu_control_t oldcw, newcw;
-    _FPU_GETCW(oldcw); newcw = (oldcw & ~_FPU_EXTENDED) | _FPU_DOUBLE; _FPU_SETCW(newcw);
+    _FPU_GETCW(oldcw);
+    newcw = (oldcw & ~_FPU_EXTENDED) | _FPU_DOUBLE;
+    _FPU_SETCW(newcw);
 #endif
 #ifdef PEDANTIC_DEBUG
     opensmt_warning("pedantic assertion checking enabled (very slow)");
@@ -117,22 +117,20 @@ int main( int argc, const char * argv[] )
     // Execute accumulated commands
     // function defined in OpenSMTContext.C
     //
-    return context.executeCommands( );
+    return context.executeCommands();
 }
 
 namespace opensmt {
-void catcher( int sig )
-{
+void catcher(int sig) {
     switch (sig) {
-    case SIGINT:
-    case SIGTERM:
-        if ( opensmt::stop )
-            {
-                ::parser_ctx->PrintResult( l_Undef );
-                exit( 1 );
+        case SIGINT:
+        case SIGTERM:
+            if (opensmt::stop) {
+                ::parser_ctx->PrintResult(l_Undef);
+                exit(1);
             }
-        opensmt::stop = true;
-        break;
+            opensmt::stop = true;
+            break;
     }
 }
-} // namespace opensmt
+}  // namespace opensmt

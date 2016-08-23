@@ -12,8 +12,8 @@
 // distributed under the terms of the GNU General Public License.
 // Consult  http://capd.ii.uj.edu.pl/ for details.
 
-#include <string>
 #include <iostream>
+#include <string>
 #include "capd/capdlib.h"
 
 using namespace capd;
@@ -23,9 +23,11 @@ int main() {
     try {
         cout.precision(12);
 
-        string capd_str = "var:x1_2_0, x2_2_0, tau_2_0;"
+        string capd_str =
+            "var:x1_2_0, x2_2_0, tau_2_0;"
             "fun:-(5+((-1)*((0.5*(19.613299999999998846078597125597^(0.5)))*(x1_2_0^(0.5)))))/2,"
-            "-((0.5*(19.613299999999998846078597125597^(0.5)))*((x1_2_0^(0.5))+((-1)*(x2_2_0^(0.5)))))/4,"
+            "-((0.5*(19.613299999999998846078597125597^(0.5)))*((x1_2_0^(0.5))+((-1)*(x2_2_0^(0.5))"
+            ")))/4,"
             "-1;";
 
         IMap vectorField(capd_str);
@@ -64,7 +66,7 @@ int main() {
             // It can be evaluated at a point (or interval).
             // The curve can be also differentiated wrt to time.
             // We can also extract from it the 1-st order derivatives wrt.
-            const IOdeSolver::SolutionCurve& curve = solver.getCurve();
+            const IOdeSolver::SolutionCurve & curve = solver.getCurve();
             interval domain = interval(0, 1) * stepMade;
 
             // Here we use a uniform grid of last time step made
@@ -83,15 +85,15 @@ int main() {
 
                 // Here we evaluated curve at the interval subsetOfDomain.
                 // v will contain rigorous bound for the trajectory for this time interval.
-                IVector v = curve(Interval(subsetOfDomain.rightBound(), subsetOfDomain.rightBound()));
-                cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;;
+                IVector v =
+                    curve(Interval(subsetOfDomain.rightBound(), subsetOfDomain.rightBound()));
+                cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
                 cout << "diam(enclosure): " << diam(v) << endl;
             }
             prevTime = timeMap.getCurrentTime();
-            cout << "current time: " << prevTime << endl
-                 << "==============" << endl << endl;
+            cout << "current time: " << prevTime << endl << "==============" << endl << endl;
         } while (!timeMap.completed());
-    } catch(exception& e) {
+    } catch (exception & e) {
         cout << "Exception caught! - " << e.what() << endl;
     }
 }  // END

@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "dsolvers/nra_solver.h"
 #include <algorithm>
 #include <exception>
 #include <iomanip>
@@ -34,7 +35,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
-#include "dsolvers/nra_solver.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
 #include "icp/icp_simulation.h"
@@ -45,8 +45,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/stat.h"
 #include "util/strategy.h"
 #ifdef USE_GLPK
-#include "util/glpk_wrapper.h"
 #include "icp/lp_icp.h"
+#include "util/glpk_wrapper.h"
 #endif
 #include "icp/scoring_icp.h"
 
@@ -95,7 +95,8 @@ nra_solver::~nra_solver() {
     }
 }
 
-// `inform` sets up env (mapping from variables(enode) in literals to their [lb, ub])
+// `inform` sets up env (mapping from variables(enode) in literals to their [lb,
+// ub])
 lbool nra_solver::inform(Enode * e) {
     DREAL_LOG_INFO << "nra_solver::inform: " << e;
     m_lits.push_back(e);
@@ -116,19 +117,22 @@ static lbool simplify(Enode * e, lbool p, box & b) {
     }
     Enode * const first = e->get1st();
     Enode * const second = e->get2nd();
-    if ((p == l_True && (e->isGt() || e->isGeq())) ||
-        (p == l_False && (e->isLt() || e->isLeq()))) {
+    if ((p == l_True && (e->isGt() || e->isGeq())) || (p == l_False && (e->isLt() || e->isLeq()))) {
         if (first->isVar() && second->isConstant()) {
             // v >= c
             auto & iv = b[first];
             iv &= ibex::Interval(second->getValueLowerBound(), iv.ub());
-            if (iv.is_empty()) { b.set_empty(); }
+            if (iv.is_empty()) {
+                b.set_empty();
+            }
             return l_True;
         } else if (first->isConstant() && second->isVar()) {
             // c >= v
             auto & iv = b[second];
             iv &= ibex::Interval(iv.lb(), first->getValueUpperBound());
-            if (iv.is_empty()) { b.set_empty(); }
+            if (iv.is_empty()) {
+                b.set_empty();
+            }
             return l_True;
         }
     } else if ((p == l_True && (e->isLt() || e->isLeq())) ||
@@ -137,13 +141,17 @@ static lbool simplify(Enode * e, lbool p, box & b) {
             // v <= c
             auto & iv = b[first];
             iv &= ibex::Interval(iv.lb(), second->getValueUpperBound());
-            if (iv.is_empty()) { b.set_empty(); }
+            if (iv.is_empty()) {
+                b.set_empty();
+            }
             return l_True;
         } else if (first->isConstant() && second->isVar()) {
             // c <= v
             auto & iv = b[second];
             iv &= ibex::Interval(first->getValueLowerBound(), iv.ub());
-            if (iv.is_empty()) { b.set_empty(); }
+            if (iv.is_empty()) {
+                b.set_empty();
+            }
             return l_True;
         }
     } else if (p == l_True && e->isEq()) {
@@ -151,13 +159,17 @@ static lbool simplify(Enode * e, lbool p, box & b) {
             // v == c
             auto & iv = b[first];
             iv &= ibex::Interval(second->getValueLowerBound(), second->getValueUpperBound());
-            if (iv.is_empty()) { b.set_empty(); }
+            if (iv.is_empty()) {
+                b.set_empty();
+            }
             return l_True;
         } else if (first->isConstant() && second->isVar()) {
             // c == v
             auto & iv = b[second];
             iv &= ibex::Interval(first->getValueLowerBound(), first->getValueUpperBound());
-            if (iv.is_empty()) { b.set_empty(); }
+            if (iv.is_empty()) {
+                b.set_empty();
+            }
             return l_True;
         } else if (first->isVar() && second->isVar()) {
             // v1 == v2
@@ -180,18 +192,19 @@ static lbool simplify(Enode * e, lbool p, box & b) {
 // state will be checked with "check" assertLit adds a literal(e) to
 // stack of asserted literals.
 bool nra_solver::assertLit(Enode * e, bool reason) {
-    DREAL_LOG_INFO << "nra_solver::assertLit: " << e
-                   << ", reason: " << boolalpha << reason
-                   << ", polarity: " << e->getPolarity().toInt()
-                   << ", deduced: " << e->isDeduced()
+    DREAL_LOG_INFO << "nra_solver::assertLit: " << e << ", reason: " << boolalpha << reason
+                   << ", polarity: " << e->getPolarity().toInt() << ", deduced: " << e->isDeduced()
                    << ", getDeduced: " << e->getDeduced().toInt()
-                   << ", getIndex: " << e->getDedIndex()
-                   << ", level: " << m_stack.size()
+                   << ", getIndex: " << e->getDedIndex() << ", level: " << m_stack.size()
                    << ", ded.size = " << deductions.size();
 
-    if (config.nra_use_stat) { config.nra_stat.increase_assert(); }
+    if (config.nra_use_stat) {
+        config.nra_stat.increase_assert();
+    }
 
-    if (m_need_init) { initialize(m_lits); }
+    if (m_need_init) {
+        initialize(m_lits);
+    }
 
     (void)reason;
     assert(e);
@@ -224,37 +237,41 @@ bool nra_solver::assertLit(Enode * e, bool reason) {
     } else if (e->isIntegral() && e->getPolarity() == l_False) {
         return true;
     } else {
-        DREAL_LOG_FATAL << "Unknown literal "
-                        << (e->getPolarity() == l_False ? "!" : "")
-                        << e << " is asserted";
+        DREAL_LOG_FATAL << "Unknown literal " << (e->getPolarity() == l_False ? "!" : "") << e
+                        << " is asserted";
         throw logic_error("unknown literal is asserted");
     }
     return true;
 }
 
 // Update ctr_map by adding new nonlinear_constraints
-static void initialize_nonlinear_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
-                                             vector<Enode *> const & lits,
-                                             unordered_set<Enode *> const & var_set) {
+static void initialize_nonlinear_constraints(
+    map<pair<Enode *, bool>, shared_ptr<constraint>> & ctr_map, vector<Enode *> const & lits,
+    unordered_set<Enode *> const & var_set) {
     // Create Nonlinear constraints.
     for (Enode * const l : lits) {
         auto it_nc_pos = ctr_map.find(make_pair(l, true));
         auto it_nc_neg = ctr_map.find(make_pair(l, false));
         if (it_nc_pos == ctr_map.end()) {
             auto nc_pos = make_shared<nonlinear_constraint>(l, var_set, l_True);
-            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (+): " << *nc_pos;
+            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect "
+                              "NonlinearConstraint (+): "
+                           << *nc_pos;
             ctr_map.emplace(make_pair(l, true), nc_pos);
         }
         if (it_nc_neg == ctr_map.end()) {
             auto nc_neg = make_shared<nonlinear_constraint>(l, var_set, l_False);
-            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect NonlinearConstraint (-): " << *nc_neg;
+            DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect "
+                              "NonlinearConstraint (-): "
+                           << *nc_neg;
             ctr_map.emplace(make_pair(l, false), nc_neg);
         }
     }
 }
 
-// Update ctr_map by adding new ode constraints, from the information collected in ints and invs
-static void initialize_ode_constraints(map<pair<Enode*, bool>, shared_ptr<constraint>> & ctr_map,
+// Update ctr_map by adding new ode constraints, from the information collected
+// in ints and invs
+static void initialize_ode_constraints(map<pair<Enode *, bool>, shared_ptr<constraint>> & ctr_map,
                                        vector<integral_constraint> const & ints,
                                        vector<shared_ptr<forallt_constraint>> const & invs) {
     // Attach the corresponding forallT literals to integrals
@@ -266,11 +283,12 @@ static void initialize_ode_constraints(map<pair<Enode*, bool>, shared_ptr<constr
             //    vars(fc.inv) \subseteq ic.vars_t
             if (fc->get_flow_id() == ic.get_flow_id()) {
                 unordered_set<Enode *> vars_in_fc = fc->get_inv()->get_vars();
-                bool const included = all_of(vars_in_fc.begin(), vars_in_fc.end(),
-                                             [&ic](Enode const * var_in_fc) {
-                                                 vector<Enode *> const & vars_t_in_ic = ic.get_vars_t();
-                                                 return find(vars_t_in_ic.begin(), vars_t_in_ic.end(), var_in_fc) != vars_t_in_ic.end();
-                                             });
+                bool const included =
+                    all_of(vars_in_fc.begin(), vars_in_fc.end(), [&ic](Enode const * var_in_fc) {
+                        vector<Enode *> const & vars_t_in_ic = ic.get_vars_t();
+                        return find(vars_t_in_ic.begin(), vars_t_in_ic.end(), var_in_fc) !=
+                               vars_t_in_ic.end();
+                    });
                 if (included) {
                     local_invs.push_back(fc);
                 }
@@ -305,12 +323,16 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
             auto it_fc_neg = m_ctr_map.find(make_pair(l, false));
             if (it_fc_pos == m_ctr_map.end()) {
                 shared_ptr<constraint> fc_pos(new forall_constraint(l, l_True));
-                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ForallConstraint (+): " << *fc_pos;
+                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect "
+                                  "ForallConstraint (+): "
+                               << *fc_pos;
                 m_ctr_map.emplace(make_pair(l, true), fc_pos);
             }
             if (it_fc_neg == m_ctr_map.end()) {
-                shared_ptr<constraint> fc_neg (new forall_constraint(l, l_False));
-                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect ForallConstraint (-): " << *fc_neg;
+                shared_ptr<constraint> fc_neg(new forall_constraint(l, l_False));
+                DREAL_LOG_INFO << "nra_solver::initialize_constraints: collect "
+                                  "ForallConstraint (-): "
+                               << *fc_neg;
                 m_ctr_map.emplace(make_pair(l, false), fc_neg);
             }
         } else if (l->isForallT()) {
@@ -323,7 +345,9 @@ void nra_solver::initialize_constraints(vector<Enode *> const & lits) {
             // constraint is the same forallt constraint, but it will
             // be ignored by contractor_capd4.
             //
-            // Later, we will implement existt constraint and ODE contractors will support it
+            // Later, we will implement existt constraint and ODE contractors
+            // will
+            // support it
             m_ctr_map.emplace(make_pair(l, false), fc);
         } else if (l->get_forall_vars().empty()) {
             nonlinear_lits.push_back(l);
@@ -348,8 +372,12 @@ void nra_solver::initialize(vector<Enode *> const & lits) {
 // happens in EgraphSolver
 void nra_solver::pushBacktrackPoint() {
     DREAL_LOG_INFO << "nra_solver::pushBacktrackPoint " << m_stack.size();
-    if (m_need_init) { initialize(m_lits); }
-    if (config.nra_use_stat) { config.nra_stat.increase_push(); }
+    if (m_need_init) {
+        initialize(m_lits);
+    }
+    if (config.nra_use_stat) {
+        config.nra_stat.increase_push();
+    }
     m_stack.push();
     m_cses.push_back(m_cs);
     m_cses.push();
@@ -361,7 +389,9 @@ void nra_solver::pushBacktrackPoint() {
 // backtrackToStackSize() in EgraphSolver) Also make sure you clean
 // the deductions you did not communicate
 void nra_solver::popBacktrackPoint() {
-    if (config.nra_use_stat) { config.nra_stat.increase_pop(); }
+    if (config.nra_use_stat) {
+        config.nra_stat.increase_pop();
+    }
     DREAL_LOG_INFO << "nra_solver::popBacktrackPoint\t m_stack.size()      = " << m_stack.size();
     m_cses.pop();
     m_cs.reset(m_cses.last());
@@ -393,7 +423,8 @@ void nra_solver::handle_sat_case(box const & b) const {
     // --proof option
     if (config.nra_proof) {
         config.nra_proof_out.close();
-        config.nra_proof_out.open(config.nra_proof_out_name.c_str(), ofstream::out | ofstream::trunc);
+        config.nra_proof_out.open(config.nra_proof_out_name.c_str(),
+                                  ofstream::out | ofstream::trunc);
         display(config.nra_proof_out, b, !config.nra_readable_proof, true);
     }
 #ifdef SUPPORT_ODE
@@ -404,19 +435,25 @@ void nra_solver::handle_sat_case(box const & b) const {
             // Need to run ODE pruning operator once again to generate a trace
             for (shared_ptr<constraint> const ctr : m_stack) {
                 if (ctr->get_type() == constraint_type::ODE) {
-                    contractor_capd_full fwd_full(b, static_pointer_cast<ode_constraint>(ctr), ode_direction::FWD, config);
+                    contractor_capd_full fwd_full(b, static_pointer_cast<ode_constraint>(ctr),
+                                                  ode_direction::FWD, config);
                     json trace = fwd_full.generate_trace(contractor_status(b, config));
                     traces.push_back(trace);
                 }
             }
             json vis_json;
             vis_json["traces"] = traces;
-            config.nra_json_out << vis_json.dump() << endl;;
+            config.nra_json_out << vis_json.dump() << endl;
         } catch (contractor_exception const & e) {
-            DREAL_LOG_FATAL << "The following exception is generated while computing a trace (visualization)." << endl;
+            DREAL_LOG_FATAL << "The following exception is generated while computing "
+                               "a trace (visualization)."
+                            << endl;
             DREAL_LOG_FATAL << e.what();
-            DREAL_LOG_FATAL << "This indicates that this delta-sat result is not properly checked by ODE pruning operators.";
-            DREAL_LOG_FATAL << "Please try with a smaller precision using the --precision option (current precision = " << config.nra_precision << ")." << endl;
+            DREAL_LOG_FATAL << "This indicates that this delta-sat result is not "
+                               "properly checked by ODE pruning operators.";
+            DREAL_LOG_FATAL << "Please try with a smaller precision using the "
+                               "--precision option (current precision = "
+                            << config.nra_precision << ")." << endl;
         }
     }
 #endif
@@ -437,12 +474,14 @@ void nra_solver::handle_deduction() {
                         // We know that this literal has to be false;
                         l->setDeduced(l_False, id);
                         deductions.push_back(l);
-                        DREAL_LOG_INFO << "Deduced: " << *ctr << "\t" << p.first << "\t" << p.second;
+                        DREAL_LOG_INFO << "Deduced: " << *ctr << "\t" << p.first << "\t"
+                                       << p.second;
                     } else if (p.first == l_True) {
                         // We know that this literal has to be true;
                         l->setDeduced(l_True, id);
                         deductions.push_back(l);
-                        DREAL_LOG_INFO << "Deduced: " << *ctr << "\t" << p.first << "\t" << p.second;
+                        DREAL_LOG_INFO << "Deduced: " << *ctr << "\t" << p.first << "\t"
+                                       << p.second;
                     }
                 }
             }
@@ -453,7 +492,9 @@ void nra_solver::handle_deduction() {
 // Check for consistency.
 // If flag is set make sure you run a complete check
 bool nra_solver::check(bool complete) {
-    if (config.nra_use_stat) { config.nra_stat.increase_check(complete); }
+    if (config.nra_use_stat) {
+        config.nra_stat.increase_check(complete);
+    }
     DREAL_LOG_INFO << "nra_solver::check(complete = " << boolalpha << complete << ")"
                    << "stack size = " << m_stack.size();
     if (m_stack.size() == 0) {
@@ -520,11 +561,13 @@ bool nra_solver::check(bool complete) {
             handle_sat_case(m_cs.m_box);
         }
     }
-    DREAL_LOG_DEBUG << "nra_solver::check(" << (complete ? "complete" : "incomplete") << ") = " << result;
+    DREAL_LOG_DEBUG << "nra_solver::check(" << (complete ? "complete" : "incomplete")
+                    << ") = " << result;
     return result;
 }
 
-vector<Enode *> nra_solver::generate_explanation(unordered_set<shared_ptr<constraint>> const & ctr_set) {
+vector<Enode *> nra_solver::generate_explanation(
+    unordered_set<shared_ptr<constraint>> const & ctr_set) {
     unordered_set<Enode *> bag;
     for (shared_ptr<constraint> ctr : ctr_set) {
         vector<Enode *> const & enodes_in_ctr = ctr->get_enodes();
@@ -535,9 +578,8 @@ vector<Enode *> nra_solver::generate_explanation(unordered_set<shared_ptr<constr
         }
     }
     vector<Enode *> exps(bag.begin(), bag.end());
-    sort(exps.begin(), exps.end(), [](Enode const * const e1, Enode const * const e2) {
-            return e1->getId() < e2->getId();
-        });
+    sort(exps.begin(), exps.end(),
+         [](Enode const * const e1, Enode const * const e2) { return e1->getId() < e2->getId(); });
     return exps;
 }
 

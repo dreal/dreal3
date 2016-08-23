@@ -35,6 +35,7 @@ DEALINGS IN THE SOFTWARE.
 #include <future>
 #include <mutex>
 #include <thread>
+#include <utility>
 #include "util/thread_local.h"
 
 namespace dreal {
@@ -48,12 +49,12 @@ void interruption_point();
 
 class interrupt_flag {
     std::atomic<bool> flag;
-    std::condition_variable* thread_cond;
-    std::condition_variable_any* thread_cond_any;
+    std::condition_variable * thread_cond;
+    std::condition_variable_any * thread_cond_any;
     std::mutex set_clear_mutex;
 
 public:
-    interrupt_flag() : thread_cond(nullptr), thread_cond_any(nullptr) { }
+    interrupt_flag() : thread_cond(nullptr), thread_cond_any(nullptr) {}
     void set() {
         flag.store(true, std::memory_order_relaxed);
         std::lock_guard<std::mutex> lk(set_clear_mutex);
@@ -64,15 +65,13 @@ public:
         }
     }
 
-    template<typename Lockable>
-    void wait(std::condition_variable_any& cv, Lockable& lk) {
+    template <typename Lockable>
+    void wait(std::condition_variable_any & cv, Lockable & lk) {
         struct custom_lock {
-            interrupt_flag* self;
-            Lockable& lk;
-            custom_lock(interrupt_flag* self_,
-                        std::condition_variable_any& cond,
-                        Lockable& lk_):
-                self(self_), lk(lk_) {
+            interrupt_flag * self;
+            Lockable & lk;
+            custom_lock(interrupt_flag * self_, std::condition_variable_any & cond, Lockable & lk_)
+                : self(self_), lk(lk_) {
                 self->set_clear_mutex.lock();
                 self->thread_cond_any = &cond;
             }
@@ -80,9 +79,7 @@ public:
                 lk.unlock();
                 self->set_clear_mutex.unlock();
             }
-            void lock() {
-                std::lock(self->set_clear_mutex, lk);
-            }
+            void lock() { std::lock(self->set_clear_mutex, lk); }
             ~custom_lock() {
                 self->thread_cond_any = nullptr;
                 self->set_clear_mutex.unlock();
@@ -94,10 +91,8 @@ public:
         cv.wait(cl);
         interruption_point();
     }
-    bool is_set() const {
-        return flag.load(std::memory_order_relaxed);
-    }
-    void set_condition_variable(std::condition_variable& cv) {
+    bool is_set() const { return flag.load(std::memory_order_relaxed); }
+    void set_condition_variable(std::condition_variable & cv) {
         std::lock_guard<std::mutex> lk(set_clear_mutex);
         thread_cond = &cv;
     }
@@ -109,27 +104,27 @@ public:
 
 extern DREAL_THREAD_LOCAL interrupt_flag this_thread_interrupt_flag;
 
-template<typename Lockable>
-void interruptible_wait(std::condition_variable_any& cv, Lockable& lk) {
+template <typename Lockable>
+void interruptible_wait(std::condition_variable_any & cv, Lockable & lk) {
     this_thread_interrupt_flag.wait(cv, lk);
 }
 
 class interruptible_thread {
 private:
     std::thread internal_thread;
-    interrupt_flag* flag;
+    interrupt_flag * flag;
 
 public:
-    template<typename Function, typename... Args>
+    template <typename Function, typename... Args>
     interruptible_thread(Function && fun, unsigned const id, Args &&... args) {
-        std::promise<interrupt_flag*> p;
+        std::promise<interrupt_flag *> p;
         internal_thread = std::thread([&p, &fun, id, &args...]() {
-                p.set_value(&this_thread_interrupt_flag);
-                try {
-                    std::forward<Function>(fun)(id, std::forward<Args>(args)...);
-                } catch (thread_interrupted const&) {
-                }
-            });
+            p.set_value(&this_thread_interrupt_flag);
+            try {
+                std::forward<Function>(fun)(id, std::forward<Args>(args)...);
+            } catch (thread_interrupted const &) {
+            }
+        });
         flag = p.get_future().get();
     }
     void interrupt() {
@@ -137,15 +132,9 @@ public:
             flag->set();
         }
     }
-    void join() {
-        internal_thread.join();
-    }
-    void detach() {
-        internal_thread.detach();
-    }
-    bool joinable() const {
-        return internal_thread.joinable();
-    }
+    void join() { internal_thread.join(); }
+    void detach() { internal_thread.detach(); }
+    bool joinable() const { return internal_thread.joinable(); }
 };
 
 }  // namespace dreal

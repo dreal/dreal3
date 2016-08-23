@@ -21,8 +21,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "opensmt/egraph/Enode.h"
 #include "opensmt/api/OpenSMTContext.h"
+#include "opensmt/egraph/Enode.h"
 
 namespace dop {
 
@@ -32,10 +32,10 @@ private:
     std::string m_str;
     std::vector<double> m_double_vec;
     std::vector<std::string> m_vec_str;
-    std::unordered_map<std::string, Enode*> m_map;
+    std::unordered_map<std::string, Enode *> m_map;
 
 public:
-    explicit var_map(OpenSMTContext & ctx) : m_ctx(ctx) { }
+    explicit var_map(OpenSMTContext & ctx) : m_ctx(ctx) {}
     double pop_num();
     void push_num(double const n);
     void push_id(std::string const & name);
@@ -43,7 +43,7 @@ public:
     void set_ub();
     void push_var_decl();
     Enode * find(std::string const & name) const;
-    std::unordered_map<std::string, Enode*> get_var_map() const { return m_map; }
+    std::unordered_map<std::string, Enode *> get_var_map() const { return m_map; }
 };
 
 }  // namespace dop

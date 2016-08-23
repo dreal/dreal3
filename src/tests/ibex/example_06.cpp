@@ -93,11 +93,11 @@ TEST_CASE("rounding_5") {
     NumConstraint c1("p_0", "p_t", "t_0", "t_t", "time", "p_t - (p_0 + time) = 0");
     NumConstraint c2("p_0", "p_t", "t_0", "t_t", "time", "t_t - (t_0 + time) = 0");
     IntervalVector box(5);
-    box[0] = str_to_ibex_interval("0.6353");     // p_0
-    box[1] = str_to_ibex_interval("0.7");        // p_t
-    box[2] = str_to_ibex_interval("0");          // t_0
-    box[3] = str_to_ibex_interval("0.0647");     // t_t
-    box[4] = ibex::Interval(0, 10);              // time
+    box[0] = str_to_ibex_interval("0.6353");  // p_0
+    box[1] = str_to_ibex_interval("0.7");     // p_t
+    box[2] = str_to_ibex_interval("0");       // t_0
+    box[3] = str_to_ibex_interval("0.0647");  // t_t
+    box[4] = ibex::Interval(0, 10);           // time
     cerr.precision(16);
     cerr << "init box:\n" << box << endl;
     CtcFwdBwd(c1).contract(box);

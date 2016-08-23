@@ -17,14 +17,15 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <atomic>
+#include "contractor/contractor_pseq.h"
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <exception>
 #include <functional>
+#include <future>
 #include <initializer_list>
 #include <iterator>
-#include <future>
 #include <limits>
 #include <map>
 #include <memory>
@@ -40,16 +41,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "constraint/constraint.h"
-#include "contractor/contractor_common.h"
 #include "contractor/contractor_basic.h"
+#include "contractor/contractor_common.h"
 #include "contractor/contractor_parallel_all.h"
-#include "contractor/contractor_pseq.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "util/interruptible_thread.h"
 #include "util/logging.h"
 #include "util/proof.h"
-#include "util/interruptible_thread.h"
 #include "util/thread_local.h"
 
 using std::async;
@@ -85,18 +85,22 @@ using std::exception;
 namespace dreal {
 
 contractor_pseq::contractor_pseq(initializer_list<contractor> const & l)
-    : contractor_cell(contractor_kind::PSEQ), m_vec(l) { init(); }
+    : contractor_cell(contractor_kind::PSEQ), m_vec(l) {
+    init();
+}
 contractor_pseq::contractor_pseq(vector<contractor> const & v)
-    : contractor_cell(contractor_kind::PSEQ), m_vec(v) { init(); }
+    : contractor_cell(contractor_kind::PSEQ), m_vec(v) {
+    init();
+}
 
 void contractor_pseq::init() {
     m_input = m_vec[0].get_input();
     DREAL_LOG_DEBUG << "contractor_pseq::prune";
 
-    auto const num_thread = min(thread::hardware_concurrency(), static_cast<unsigned>(m_vec.size()));
+    auto const num_thread =
+        min(thread::hardware_concurrency(), static_cast<unsigned>(m_vec.size()));
 
-    cerr << m_vec.size() << " constraints\t"
-         << num_thread << " threads" << endl;
+    cerr << m_vec.size() << " constraints\t" << num_thread << " threads" << endl;
 
     if (m_vec.size() < num_thread) {
         m_ctc = mk_contractor_seq(m_vec);
@@ -111,8 +115,7 @@ void contractor_pseq::init() {
         m_input.union_with(m_vec[i].get_input());
     }
     for (unsigned i = 0; i < num_thread; i++) {
-        cerr << "vv[" << i << "].size() = "
-             << vv[i].size() << endl;
+        cerr << "vv[" << i << "].size() = " << vv[i].size() << endl;
         v[i] = mk_contractor_seq(vv[i]);
     }
     m_ctc = mk_contractor_parallel_all(v);

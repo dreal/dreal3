@@ -25,15 +25,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "Python.h"
 #endif
 
-#include <unordered_map>
 #include <exception>
-#include <string>
 #include <sstream>
+#include <string>
+#include <unordered_map>
 #include "./version.h"
-#include "tools/dop/visualize.h"
 #include "opensmt/egraph/Enode.h"
-#include "tools/dop/print_py.h"
 #include "tools/dop/print_latex.h"
+#include "tools/dop/print_py.h"
+#include "tools/dop/visualize.h"
 
 namespace dop {
 using std::cerr;
@@ -45,7 +45,9 @@ using std::to_string;
 using std::unordered_map;
 using std::ostream;
 
-string generate_py_visualization_string_3d(Enode * const f, unordered_map<string, Enode *> var_map, unsigned const num_of_cells, string const & minimum_name) {
+string generate_py_visualization_string_3d(Enode * const f, unordered_map<string, Enode *> var_map,
+                                           unsigned const num_of_cells,
+                                           string const & minimum_name) {
     Enode * minimum = var_map[minimum_name];
     var_map.erase(minimum_name);
     ostringstream ss;
@@ -108,7 +110,8 @@ plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
         ss << p.first << ", ";
     }
     ss << "):" << endl
-       << "    " << "return ";
+       << "    "
+       << "return ";
     print_py_infix(ss, f);
     ss << endl;
 
@@ -116,8 +119,8 @@ plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
     unsigned i = 1;
     for (auto const & p : var_map) {
         ss << "domain_" << to_string(i++) << " = "
-           << "[" << p.second->getDomainLowerBound() << ", " << p.second->getDomainUpperBound() << "]"
-           << endl;
+           << "[" << p.second->getDomainLowerBound() << ", " << p.second->getDomainUpperBound()
+           << "]" << endl;
     }
 
     // print value
@@ -129,7 +132,8 @@ plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
     }
 
     // print min
-    ss << "minimum = " << "[" << minimum->getValueLowerBound() << ", " << minimum->getValueUpperBound() << "]"
+    ss << "minimum = "
+       << "[" << minimum->getValueLowerBound() << ", " << minimum->getValueUpperBound() << "]"
        << endl;
 
     // print title
@@ -139,12 +143,8 @@ plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
 
     // set axis label
     auto it = var_map.cbegin();
-    ss << "g_ax.set_xlabel(\""
-       << (it++)->first
-       << "\")" << endl;
-    ss << "g_ax.set_ylabel(\""
-       << it->first
-       << "\")" << endl;
+    ss << "g_ax.set_xlabel(\"" << (it++)->first << "\")" << endl;
+    ss << "g_ax.set_ylabel(\"" << it->first << "\")" << endl;
     ss << "g_ax.set_zlabel(\"z\")" << endl;
 
     ss << "cell_per_dim = " << num_of_cells << endl;
@@ -154,7 +154,9 @@ plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
     return python_code;
 }
 
-string generate_py_visualization_string_2d(Enode * const f, unordered_map<string, Enode *> var_map, unsigned const num_of_cells, string const & minimum_name) {
+string generate_py_visualization_string_2d(Enode * const f, unordered_map<string, Enode *> var_map,
+                                           unsigned const num_of_cells,
+                                           string const & minimum_name) {
     assert(var_map.size() == 2);
 
     string python_code = R"(
@@ -192,14 +194,21 @@ ax = fig.add_subplot(111)
     double const box_y = min;
 
     ostringstream ss;
-    ss << var << " = " << "numpy.linspace("
-       << dom_lb << ", " << dom_ub << ", " << num_of_cells << ")" << endl;
-    ss << "result = "; print_py_infix(ss, f); ss << endl;
-    ss << "ax.plot(" << var << ", " << "result" << ", 'k')" << endl;
-    ss << "plt.title(r'$"; print_latex_infix(ss, f); ss << "$', fontdict=font)" << endl;
+    ss << var << " = "
+       << "numpy.linspace(" << dom_lb << ", " << dom_ub << ", " << num_of_cells << ")" << endl;
+    ss << "result = ";
+    print_py_infix(ss, f);
+    ss << endl;
+    ss << "ax.plot(" << var << ", "
+       << "result"
+       << ", 'k')" << endl;
+    ss << "plt.title(r'$";
+    print_latex_infix(ss, f);
+    ss << "$', fontdict=font)" << endl;
 
-    ss << "ax.annotate('" << "f(" << val << ") = " << min << "', "
-       << "xy=(" << val  << ", " << min << "), "
+    ss << "ax.annotate('"
+       << "f(" << val << ") = " << min << "', "
+       << "xy=(" << val << ", " << min << "), "
        << "xytext=(" << box_x << ", " << box_y << "), "
        << "arrowprops=dict(facecolor='black', shrink=0.05))" << endl;
 
@@ -220,39 +229,50 @@ void eval_python_string(string const & s) {
     Py_Exit(0);
 }
 
-void visualize_result_via_python_3d(Enode * const f, unordered_map<string, Enode *> const & var_map, unsigned const num_of_cells, string const & minimum_name) {
-    string python_code = generate_py_visualization_string_3d(f, var_map, num_of_cells, minimum_name);
+void visualize_result_via_python_3d(Enode * const f, unordered_map<string, Enode *> const & var_map,
+                                    unsigned const num_of_cells, string const & minimum_name) {
+    string python_code =
+        generate_py_visualization_string_3d(f, var_map, num_of_cells, minimum_name);
     eval_python_string(python_code);
 }
 
-void visualize_result_via_python_2d(Enode * const f, unordered_map<string, Enode *> var_map, unsigned const num_of_cells, string const & minimum_name) {
-    string python_code = generate_py_visualization_string_2d(f, var_map, num_of_cells, minimum_name);
+void visualize_result_via_python_2d(Enode * const f, unordered_map<string, Enode *> var_map,
+                                    unsigned const num_of_cells, string const & minimum_name) {
+    string python_code =
+        generate_py_visualization_string_2d(f, var_map, num_of_cells, minimum_name);
     eval_python_string(python_code);
 }
 
-void run_visualization(Enode * const f, unordered_map<string, Enode *> const & var_map, unsigned const num_of_cells, string const & minimum_name) {
+void run_visualization(Enode * const f, unordered_map<string, Enode *> const & var_map,
+                       unsigned const num_of_cells, string const & minimum_name) {
     unsigned const var_map_size = var_map.size();
     if (var_map_size == 3) {
         visualize_result_via_python_3d(f, var_map, num_of_cells, minimum_name);
     } else if (var_map_size == 2) {
         visualize_result_via_python_2d(f, var_map, num_of_cells * num_of_cells, minimum_name);
     } else {
-        cerr << "Sorry: We only provide visualization for one- and two-dimensional problems." << endl;
+        cerr << "Sorry: We only provide visualization for one- and two-dimensional problems."
+             << endl;
     }
 }
 #else
-void run_visualization(Enode * const, unordered_map<string, Enode *> const &, unsigned const, string const &) {
-    cerr << "Sorry: No python was deteced during compilation and visualization is disabled." << endl;
+void run_visualization(Enode * const, unordered_map<string, Enode *> const &, unsigned const,
+                       string const &) {
+    cerr << "Sorry: No python was deteced during compilation and visualization is disabled."
+         << endl;
 }
 #endif
-ostream & save_visualization_code(ostream & out, Enode * const f, std::unordered_map<std::string, Enode *> const & var_map, unsigned const num_of_cells, std::string const & minimum_name) {
+ostream & save_visualization_code(ostream & out, Enode * const f,
+                                  std::unordered_map<std::string, Enode *> const & var_map,
+                                  unsigned const num_of_cells, std::string const & minimum_name) {
     unsigned const var_map_size = var_map.size();
     if (var_map_size == 3) {
         out << generate_py_visualization_string_3d(f, var_map, num_of_cells, minimum_name) << endl;
     } else if (var_map_size == 2) {
         out << generate_py_visualization_string_2d(f, var_map, num_of_cells, minimum_name) << endl;
     } else {
-        cerr << "Sorry: We only provide visualization for one- and two-dimensional problems." << endl;
+        cerr << "Sorry: We only provide visualization for one- and two-dimensional problems."
+             << endl;
     }
     return out;
 }

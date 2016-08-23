@@ -37,9 +37,9 @@ void test() {
     expr p5 = s.var("p5", -5, 5);
     vector<expr> x = {x1};
     vector<expr> p = {p1, p2, p3, p4, p5};
-    expr f1 = p1*x1 + p2;
+    expr f1 = p1 * x1 + p2;
     vector<expr> f = {f1};
-    expr V = p3*(x1^2) + p4*x1 + p5;
+    expr V = p3 * (x1 ^ 2) + p4 * x1 + p5;
 
     double eps = 0.01;
 
@@ -49,8 +49,8 @@ void test() {
     expr ball = s.num("0");
     expr LV = s.num("0");
 
-    for (unsigned i=0; i < x.size(); i++) {
-        ball = ball + (x[i]^2);
+    for (unsigned i = 0; i < x.size(); i++) {
+        ball = ball + (x[i] ^ 2);
         LV = LV + f[i] * der(V, x[i]);
     }
 

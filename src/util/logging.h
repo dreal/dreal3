@@ -21,11 +21,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #include "./dreal_config.h"
 
-#define DREAL_FATAL_LEVEL   0
-#define DREAL_ERROR_LEVEL   1
+#define DREAL_FATAL_LEVEL 0
+#define DREAL_ERROR_LEVEL 1
 #define DREAL_WARNING_LEVEL 2
-#define DREAL_INFO_LEVEL    3
-#define DREAL_DEBUG_LEVEL   4
+#define DREAL_INFO_LEVEL 3
+#define DREAL_DEBUG_LEVEL 4
 
 #ifdef LOGGING
 
@@ -36,32 +36,37 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <easylogingpp/easylogging++.h>
 #include <iosfwd>
 
-#define DREAL_LOG_FATAL   VLOG(DREAL_FATAL_LEVEL)
-#define DREAL_LOG_ERROR   VLOG(DREAL_ERROR_LEVEL)
+#define DREAL_LOG_FATAL VLOG(DREAL_FATAL_LEVEL)
+#define DREAL_LOG_ERROR VLOG(DREAL_ERROR_LEVEL)
 #define DREAL_LOG_WARNING VLOG(DREAL_WARNING_LEVEL)
-#define DREAL_LOG_INFO    VLOG(DREAL_INFO_LEVEL)
-#define DREAL_LOG_DEBUG   VLOG(DREAL_DEBUG_LEVEL)
+#define DREAL_LOG_INFO VLOG(DREAL_INFO_LEVEL)
+#define DREAL_LOG_DEBUG VLOG(DREAL_DEBUG_LEVEL)
 
-#define DREAL_LOG_FATAL_IS_ON   VLOG_IS_ON(DREAL_FATAL_LEVEL)
-#define DREAL_LOG_ERROR_IS_ON   VLOG_IS_ON(DREAL_ERROR_LEVEL)
+#define DREAL_LOG_FATAL_IS_ON VLOG_IS_ON(DREAL_FATAL_LEVEL)
+#define DREAL_LOG_ERROR_IS_ON VLOG_IS_ON(DREAL_ERROR_LEVEL)
 #define DREAL_LOG_WARNING_IS_ON VLOG_IS_ON(DREAL_WARNING_LEVEL)
-#define DREAL_LOG_INFO_IS_ON    VLOG_IS_ON(DREAL_INFO_LEVEL)
-#define DREAL_LOG_DEBUG_IS_ON   VLOG_IS_ON(DREAL_DEBUG_LEVEL)
+#define DREAL_LOG_INFO_IS_ON VLOG_IS_ON(DREAL_INFO_LEVEL)
+#define DREAL_LOG_DEBUG_IS_ON VLOG_IS_ON(DREAL_DEBUG_LEVEL)
 
 #else
 
-#include <iostream>
 #include <iosfwd>
-#define DREAL_LOG_FATAL   if (false) std::cerr
-#define DREAL_LOG_ERROR   if (false) std::cerr
-#define DREAL_LOG_WARNING if (false) std::cerr
-#define DREAL_LOG_INFO    if (false) std::cerr
-#define DREAL_LOG_DEBUG   if (false) std::cerr
+#include <iostream>
+#define DREAL_LOG_FATAL \
+    if (false) std::cerr
+#define DREAL_LOG_ERROR \
+    if (false) std::cerr
+#define DREAL_LOG_WARNING \
+    if (false) std::cerr
+#define DREAL_LOG_INFO \
+    if (false) std::cerr
+#define DREAL_LOG_DEBUG \
+    if (false) std::cerr
 
-#define DREAL_LOG_FATAL_IS_ON   false
-#define DREAL_LOG_ERROR_IS_ON   false
+#define DREAL_LOG_FATAL_IS_ON false
+#define DREAL_LOG_ERROR_IS_ON false
 #define DREAL_LOG_WARNING_IS_ON false
-#define DREAL_LOG_INFO_IS_ON    false
-#define DREAL_LOG_DEBUG_IS_ON   false
+#define DREAL_LOG_INFO_IS_ON false
+#define DREAL_LOG_DEBUG_IS_ON false
 
 #endif

@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
-        
+
 
 dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
@@ -19,8 +19,8 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <string>
 #include "util/string.h"
+#include <string>
 
 namespace dreal {
 bool starts_with(std::string const & s, std::string const & prefix) {
@@ -32,7 +32,7 @@ bool starts_with(std::string const & s, std::string const & prefix) {
 
 bool ends_with(std::string const & s, std::string const & ending) {
     if (s.length() >= ending.length()) {
-        return (0 == s.compare (s.length() - ending.length(), ending.length(), ending));
+        return (0 == s.compare(s.length() - ending.length(), ending.length(), ending));
     } else {
         return false;
     }

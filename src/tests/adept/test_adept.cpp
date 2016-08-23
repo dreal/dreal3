@@ -8,8 +8,8 @@
    without any warranty.
 */
 
-#include <iostream>
 #include <cmath>
+#include <iostream>
 #include "./adept.h"
 
 // A simple demonstration algorithm used in the Adept paper. Note that
@@ -18,12 +18,12 @@
 // double arguments and returns a double result.
 using adept::adouble;
 adouble algorithm(const adouble x[2]) {
-  adouble y = 4.0;
-  adouble s = 2.0*x[0] + 3.0*x[1]*x[1];
-  double b = 3.0;
-  y = s + b;
-  y *= sin(s);
-  return y;
+    adouble y = 4.0;
+    adouble s = 2.0 * x[0] + 3.0 * x[1] * x[1];
+    double b = 3.0;
+    y = s + b;
+    y *= sin(s);
+    return y;
 }
 adept::adouble algorithm(const adept::adouble x[2]);
 
@@ -40,7 +40,6 @@ int main() {
     // Set the values of x
     x[0] = 2.0;
     x[1] = 3.0;
-
 
     // PART 1: NUMERICAL ADJOINT
     std::cout << "*** Computing numerical adjoint ***\n\n";
@@ -73,12 +72,12 @@ int main() {
 
     // Now perturb x[0] and x[1] in turn and get a numerical estimate of
     // the gradient
-    x_perturbed[0] = x[0]+dx;
+    x_perturbed[0] = x[0] + dx;
     x_perturbed[1] = x[1];
-    double dy_dx0 = adept::value((algorithm(x_perturbed)-y)/dx);
+    double dy_dx0 = adept::value((algorithm(x_perturbed) - y) / dx);
     x_perturbed[0] = x[0];
-    x_perturbed[1] = x[1]+dx;
-    double dy_dx1 = adept::value((algorithm(x_perturbed)-y)/dx);
+    x_perturbed[1] = x[1] + dx;
+    double dy_dx1 = adept::value((algorithm(x_perturbed) - y) / dx);
 
     // Turn the recording of deriviative information back on
     s.continue_recording();
@@ -104,8 +103,7 @@ int main() {
     y = algorithm(x);
 
     // Print information about the data held in the stack
-    std::cout << "Stack status after algorithm run but adjoint not yet computed:\n"
-              << s;
+    std::cout << "Stack status after algorithm run but adjoint not yet computed:\n" << s;
     // Print memory information
     std::cout << "Memory usage: " << s.memory() << " bytes\n\n";
 
@@ -137,7 +135,6 @@ int main() {
     x[0].get_gradient(x0_ad);
     x[1].get_gradient(x1_ad);
 
-
     // PART 3: JACOBIAN COMPUTATION
 
     // Here we use the same recording to compute the Jacobian matrix
@@ -148,12 +145,10 @@ int main() {
     double jac[2];        // Where the Jacobian will be stored
     s.jacobian(jac);      // Compute Jacobian
 
-
     // PART 4: PRINT OUT RESULTS
 
     // Print information about the data held in the stack
-    std::cout << "Stack status after adjoint and Jacobian computed:\n"
-              << s;
+    std::cout << "Stack status after adjoint and Jacobian computed:\n" << s;
     // Print memory information
     std::cout << "Memory usage: " << s.memory() << " bytes\n\n";
 
@@ -162,10 +157,10 @@ int main() {
 
     std::cout << "Comparison of gradients:\n";
     std::cout << "  dy_dx0[numerical] = " << dy_dx0 << "\n";
-    std::cout << "  dy_dx0[adjoint]   = " << x0_ad  << "\n";
+    std::cout << "  dy_dx0[adjoint]   = " << x0_ad << "\n";
     std::cout << "  dy_dx0[jacobian]  = " << jac[0] << "\n";
     std::cout << "  dy_dx1[numerical] = " << dy_dx1 << "\n";
-    std::cout << "  dy_dx1[adjoint]   = " << x1_ad  << "\n";
+    std::cout << "  dy_dx1[adjoint]   = " << x1_ad << "\n";
     std::cout << "  dy_dx1[jacobian]  = " << jac[1] << "\n";
 
     std::cout << "\nNote that the numerical gradients are less accurate since they use\n"

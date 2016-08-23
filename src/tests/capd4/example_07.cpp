@@ -12,8 +12,8 @@
 // distributed under the terms of the GNU General Public License.
 // Consult  http://capd.ii.uj.edu.pl/ for details.
 
-#include <string>
 #include <iostream>
+#include <string>
 #include "capd/capdlib.h"
 
 using namespace capd;
@@ -23,17 +23,18 @@ int main() {
     try {
         cout.precision(12);
 
-        string capd_str = "var:b, x, y;"
+        string capd_str =
+            "var:b, x, y;"
             "par:k1, k2, k3, k4;"
             "fun: k1*x*y + k2*x*y - k3*x*b - k4*b*y,"
             "- k2*x*y + k3*x*b,"
             "- k1*x*y +k4*b*y;";
 
-// set_param: k1 ==> [0,1]
-// set_param: k2 ==> [0,1]
-// set_param: k3 ==> [0,1]
-// set_param: k4 ==> [0,1]
-// X_0 : {[0,0],[0,0],[0.3,0.3],[0.7,0.7]}
+        // set_param: k1 ==> [0,1]
+        // set_param: k2 ==> [0,1]
+        // set_param: k3 ==> [0,1]
+        // set_param: k4 ==> [0,1]
+        // X_0 : {[0,0],[0,0],[0.3,0.3],[0.7,0.7]}
 
         IMap vectorField(capd_str);
         IOdeSolver solver(vectorField, 60);
@@ -60,7 +61,7 @@ int main() {
             timeMap(T, s);
             interval stepMade = solver.getStep();
             cout << "step made: " << stepMade << endl;
-            const IOdeSolver::SolutionCurve& curve = solver.getCurve();
+            const IOdeSolver::SolutionCurve & curve = solver.getCurve();
             interval domain = interval(0, 1) * stepMade;
             int grid = 16;
             for (int i = 0; i < grid; ++i) {
@@ -68,15 +69,15 @@ int main() {
                 cerr << "before subsetOfDomain : " << subsetOfDomain << endl;
                 intersection(domain, subsetOfDomain, subsetOfDomain);
                 cerr << "after subsetOfDomain  : " << subsetOfDomain << endl;
-                IVector v = curve(Interval(subsetOfDomain.rightBound(), subsetOfDomain.rightBound()));
-                cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;;
+                IVector v =
+                    curve(Interval(subsetOfDomain.rightBound(), subsetOfDomain.rightBound()));
+                cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
                 cout << "diam(enclosure): " << diam(v) << endl;
             }
             prevTime = timeMap.getCurrentTime();
-            cout << "current time: " << prevTime << endl
-                 << "==============" << endl << endl;
+            cout << "current time: " << prevTime << endl << "==============" << endl << endl;
         } while (!timeMap.completed());
-    } catch(exception& e) {
+    } catch (exception & e) {
         cout << "Exception caught! - " << e.what() << endl;
     }
 }

@@ -17,10 +17,11 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "util/box.h"
 #include <algorithm>
 #include <chrono>
-#include <cmath>
 #include <climits>
+#include <cmath>
 #include <iomanip>
 #include <limits>
 #include <memory>
@@ -34,7 +35,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "opensmt/egraph/Enode.h"
-#include "util/box.h"
 #include "util/hexfloat.h"
 #include "util/logging.h"
 #include "util/thread_local.h"
@@ -95,7 +95,7 @@ void box::constructFromVariables(vector<Enode *> const & vars) {
 }
 
 struct enode_lex_cmp {
-    bool operator() (Enode const * e1, Enode const * e2) {
+    bool operator()(Enode const * e1, Enode const * e2) {
         return e1->getCar()->getNameFull() < e2->getCar()->getNameFull();
     }
 };
@@ -108,14 +108,14 @@ void box::constructFromLiterals(vector<Enode *> const & lit_vec) {
         unordered_set<Enode *> const & temp_vars = lit->get_exist_vars();
         var_set.insert(temp_vars.begin(), temp_vars.end());
     }
-    m_vars = make_shared<vector<Enode*>>(var_set.begin(), var_set.end());
+    m_vars = make_shared<vector<Enode *>>(var_set.begin(), var_set.end());
     m_name_index_map = make_shared<unordered_map<string, int>>();
     constructFromVariables(*m_vars);
     return;
 }
 
 box::box(box const & b, unordered_set<Enode *> const & extra_vars)
-    : m_vars(make_shared<vector<Enode* > >(*b.m_vars)),
+    : m_vars(make_shared<vector<Enode *>>(*b.m_vars)),
       m_values(m_vars->size() + extra_vars.size()),
       m_name_index_map(make_shared<unordered_map<string, int>>()),
       m_idx_last_branched(-1) {
@@ -129,10 +129,9 @@ box::box(box const & b, unordered_set<Enode *> const & extra_vars)
     }
 }
 
-ostream& display(ostream& out, ibex::Interval const & iv, bool const exact) {
+ostream & display(ostream & out, ibex::Interval const & iv, bool const exact) {
     if (exact) {
-        out << "[" << to_hexfloat(iv.lb()) << ","
-            << to_hexfloat(iv.ub()) << "]";
+        out << "[" << to_hexfloat(iv.lb()) << "," << to_hexfloat(iv.ub()) << "]";
     } else {
         out << iv;
     }
@@ -144,12 +143,12 @@ nlohmann::json box::to_JSON() const {
     for (unsigned i = 0; i < size(); ++i) {
         string const & name = get_name(i);
         auto const & iv = get_value(i);
-        entry[name] = { iv.lb(), iv.ub() };
+        entry[name] = {iv.lb(), iv.ub()};
     }
     return entry;
 }
 
-ostream& display_diff(ostream& out, box const & b1, box const & b2) {
+ostream & display_diff(ostream & out, box const & b1, box const & b2) {
     if (b1 == b2) {
         return out;
     }
@@ -168,8 +167,7 @@ ostream& display_diff(ostream& out, box const & b1, box const & b2) {
         assert(d1 == d2);
 #endif
         if (v1 != v2) {
-            out << e1->getCar()->getNameFull()
-                << " : ";
+            out << e1->getCar()->getNameFull() << " : ";
             display(out, v1, false);
             out << " => ";
             display(out, v2, false);
@@ -180,7 +178,7 @@ ostream& display_diff(ostream& out, box const & b1, box const & b2) {
     return out;
 }
 
-ostream& display(ostream& out, box const & b, bool const exact, bool const old_style) {
+ostream & display(ostream & out, box const & b, bool const exact, bool const old_style) {
     streamsize ss = out.precision();
     out.precision(16);
     if (old_style) {
@@ -207,8 +205,7 @@ ostream& display(ostream& out, box const & b, bool const exact, bool const old_s
             Enode * e = (*b.m_vars)[i];
             ibex::Interval const & v = b.m_values[i];
             ibex::Interval const & d = b.get_domain(i);
-            out << e->getCar()->getNameFull()
-                << " : ";
+            out << e->getCar()->getNameFull() << " : ";
             display(out, d, exact);
             out << " = ";
             display(out, v, exact);
@@ -218,9 +215,7 @@ ostream& display(ostream& out, box const & b, bool const exact, bool const old_s
     return out;
 }
 
-ostream& operator<<(ostream& out, box const & b) {
-    return display(out, b);
-}
+ostream & operator<<(ostream & out, box const & b) { return display(out, b); }
 
 vector<int> box::bisectable_dims(double const precision, ibex::BitSet const & input) const {
     DREAL_THREAD_LOCAL static vector<int> dims;
@@ -244,14 +239,14 @@ bool box::is_bisectable_at(int const idx, double const precision) const {
             ostringstream ss;
             string const var_name = get_name(idx);
             ss << setprecision(20);
-            ss << "Warning: The width of interval "
-               << var_name << " = " << iv
+            ss << "Warning: The width of interval " << var_name << " = " << iv
                << " is larger than the required precision";
             if (precision > 0.0) {
                 ss << setprecision(6);
                 ss << " (" << precision << ")";
             }
-            ss << " but is no longer bisectable in the platform-native floating-point representation";
+            ss << " but is no longer bisectable in the platform-native floating-point "
+                  "representation";
             ss << " (" << (CHAR_BIT * sizeof(double)) << "-bit).";
             DREAL_LOG_WARNING << ss.str();
         }
@@ -299,15 +294,15 @@ tuple<int, box, box> box::bisect(double const precision) const {
     }
 }
 
-  // select bisection ratio for interval
+// select bisection ratio for interval
 double box::get_bisection_ratio(int const i) const {
-  if (is_time_variable(i) && m_values[i].contains(0.0)) {
-    // DREAL_LOG_DEBUG << "Splitting time variable";
-    // cout << "Splitting time variable" << i;
-    return 0.00001;
-  } else {
-    return 0.5;
-  }
+    if (is_time_variable(i) && m_values[i].contains(0.0)) {
+        // DREAL_LOG_DEBUG << "Splitting time variable";
+        // cout << "Splitting time variable" << i;
+        return 0.00001;
+    } else {
+        return 0.5;
+    }
 }
 
 tuple<int, box, box> box::bisect_int_at(int const i) const {
@@ -321,7 +316,7 @@ tuple<int, box, box> box::bisect_int_at(int const i) const {
     double const ub = iv.ub();
     double const mid = iv.mid();
     double const mid_floor = floor(mid);
-    double const mid_ceil  = ceil(mid);
+    double const mid_ceil = ceil(mid);
     if (!iv.is_bisectable()) {
         DREAL_LOG_FATAL << "NOT BISECTABLE = " << iv;
     }
@@ -330,8 +325,8 @@ tuple<int, box, box> box::bisect_int_at(int const i) const {
     b2.m_values[i] = ibex::Interval(mid_ceil, ub);
     b1.m_idx_last_branched = i;
     b2.m_idx_last_branched = i;
-    DREAL_LOG_DEBUG << "box::bisect on " << (*m_vars)[i] << " : int = " << m_values[i]
-                    << " into " << b1.m_values[i] << " and " << b2.m_values[i];
+    DREAL_LOG_DEBUG << "box::bisect on " << (*m_vars)[i] << " : int = " << m_values[i] << " into "
+                    << b1.m_values[i] << " and " << b2.m_values[i];
     return make_tuple(i, b1, b2);
 }
 
@@ -347,8 +342,8 @@ tuple<int, box, box> box::bisect_real_at(int const i) const {
     b2.m_values[i] = new_intervals.second;
     b1.m_idx_last_branched = i;
     b2.m_idx_last_branched = i;
-    DREAL_LOG_DEBUG << "box::bisect on " << (*m_vars)[i] << " : real = " << m_values[i]
-                    << " into " << b1.m_values[i] << " and " << b2.m_values[i];
+    DREAL_LOG_DEBUG << "box::bisect on " << (*m_vars)[i] << " : real = " << m_values[i] << " into "
+                    << b1.m_values[i] << " and " << b2.m_values[i];
     return make_tuple(i, b1, b2);
 }
 
@@ -381,7 +376,9 @@ vector<bool> box::diff_dims(box const & b) const {
     assert(size() == b.size());
     vector<bool> ret(size(), false);
     for (unsigned i = 0; i < b.size(); i++) {
-        if (m_values[i] != b.m_values[i]) { ret[i] = true; }
+        if (m_values[i] != b.m_values[i]) {
+            ret[i] = true;
+        }
     }
     return ret;
 }
@@ -441,9 +438,7 @@ bool box::operator>(box const & b) const {
     return false;
 }
 
-bool box::operator<=(box const & b) const {
-    return *this == b || *this < b;
-}
+bool box::operator<=(box const & b) const { return *this == b || *this < b; }
 
 bool box::operator>=(box const & b) const {
     return *this == b || *this > b;
@@ -463,12 +458,8 @@ bool operator>(ibex::Interval const & a, ibex::Interval const & b) {
     }
     return a.lb() > b.ub();
 }
-bool operator<=(ibex::Interval const & a, ibex::Interval const & b) {
-    return a == b || a < b;
-}
-bool operator>=(ibex::Interval const & a, ibex::Interval const & b) {
-    return a == b || a > b;
-}
+bool operator<=(ibex::Interval const & a, ibex::Interval const & b) { return a == b || a < b; }
+bool operator>=(ibex::Interval const & a, ibex::Interval const & b) { return a == b || a > b; }
 
 void box::assign_to_enode() const {
     if (m_vars) {
@@ -479,9 +470,7 @@ void box::assign_to_enode() const {
     }
 }
 
-void box::intersect(box const & b) {
-    m_values &= b.m_values;
-}
+void box::intersect(box const & b) { m_values &= b.m_values; }
 void box::intersect(vector<box> const & vec) {
     assert(vec.size() > 0);
     for (box const & b : vec) {
@@ -499,9 +488,7 @@ box intersect(vector<box> const & vec) {
     return b;
 }
 
-void box::hull(box const & b) {
-    m_values |= b.m_values;
-}
+void box::hull(box const & b) { m_values |= b.m_values; }
 void box::hull(vector<box> const & vec) {
     assert(vec.size() > 0);
     for (box const & b : vec) {

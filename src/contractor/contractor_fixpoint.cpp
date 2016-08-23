@@ -81,21 +81,25 @@ void contractor_fixpoint::build_deps_map() {
     }
 }
 
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, contractor const & c)
+contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
+                                         contractor const & c)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(1, c), m_old_box({}) {
     init();
 }
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, initializer_list<contractor> const & clist)
+contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
+                                         initializer_list<contractor> const & clist)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(clist), m_old_box({}) {
     assert(m_clist.size() > 0);
     init();
 }
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, vector<contractor> const & cvec)
+contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
+                                         vector<contractor> const & cvec)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec), m_old_box({}) {
     assert(m_clist.size() > 0);
     init();
 }
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond, initializer_list<vector<contractor>> const & cvec_list)
+contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
+                                         initializer_list<vector<contractor>> const & cvec_list)
     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(), m_old_box({}) {
     for (auto const & cvec : cvec_list) {
         m_clist.insert(m_clist.end(), cvec.begin(), cvec.end());
@@ -107,7 +111,9 @@ contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)
 void contractor_fixpoint::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_fix::prune -- begin";
     if (cs.m_config.nra_worklist_fp) {
-        if (m_dep_map.size() == 0) { build_deps_map(); }
+        if (m_dep_map.size() == 0) {
+            build_deps_map();
+        }
         worklist_fixpoint_alg(cs);
         DREAL_LOG_DEBUG << "contractor_fix::prune -- end";
         return;
@@ -146,7 +152,8 @@ void contractor_fixpoint::naive_fixpoint_alg(contractor_status & cs) {
             return;
         }
         i = (i + 1) % m_clist.size();
-    } while (m_old_box != cs.m_box && cs.m_box.is_bisectable(cs.m_config.nra_precision) && !m_term_cond(m_old_box, cs.m_box));
+    } while (m_old_box != cs.m_box && cs.m_box.is_bisectable(cs.m_config.nra_precision) &&
+             !m_term_cond(m_old_box, cs.m_box));
     return;
 }
 
@@ -158,7 +165,9 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
         contractor & c_i = m_clist[i];
         contractor_status_guard csg(cs);
         c_i.prune(cs);
-        if (cs.m_box.is_empty()) { return; }
+        if (cs.m_box.is_empty()) {
+            return;
+        }
         ibex::BitSet const & output_i = cs.m_output;
         if (!output_i.empty()) {
             assert(!ctc_bitset.contain(i));
@@ -167,7 +176,9 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
         }
     }
 
-    if (q.size() == 0) { return; }
+    if (q.size() == 0) {
+        return;
+    }
     // Fixed Point Loop
     do {
         interruption_point();
@@ -180,14 +191,18 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
         m_old_box = cs.m_box;
         contractor_status_guard csg(cs);
         c.prune(cs);
-        if (cs.m_box.is_empty()) { return; }
+        if (cs.m_box.is_empty()) {
+            return;
+        }
         auto const & c_output = cs.m_output;
         if (!c_output.empty()) {
             // j-th dimension is changed as a result of pruning
             // need to add a contractor which takes j-th dim as an input
             int j = c_output.min();
             do {
-                if (!c_output.contain(j)) { continue; }
+                if (!c_output.contain(j)) {
+                    continue;
+                }
                 for (int const dependent_ctc_id : m_dep_map[j]) {
                     if (!ctc_bitset.contain(dependent_ctc_id)) {
                         q.push(dependent_ctc_id);
@@ -197,7 +212,9 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
                 j = c_output.next(j);
             } while (j < c_output.max());
         }
-    } while (q.size() > 0 && (m_old_box != cs.m_box) && cs.m_box.is_bisectable(cs.m_config.nra_precision) && !m_term_cond(m_old_box, cs.m_box));
+    } while (q.size() > 0 && (m_old_box != cs.m_box) &&
+             cs.m_box.is_bisectable(cs.m_config.nra_precision) &&
+             !m_term_cond(m_old_box, cs.m_box));
     return;
 }
 }  // namespace dreal

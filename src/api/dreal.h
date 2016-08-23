@@ -49,9 +49,10 @@ public:
     void set_bounds(double const lb, double const ub);
     void setContent(solver * s, cexpr c);
     std::string get_name();
-    env const & get_ctx() const    { return cctx; }
-    cexpr const &   get_cexpr() const  { return ep; }
+    env const & get_ctx() const { return cctx; }
+    cexpr const & get_cexpr() const { return ep; }
     solver * get_solver() const { return m_solver; }
+
 protected:
     solver * m_solver;
     env cctx;
@@ -111,77 +112,80 @@ expr operator!(expr const & e);
 expr implies(expr const & e1, expr const & e2);
 expr ite(expr const &, expr const &, expr const &);
 expr der(expr const & e1, expr const & e2);
-expr upoly(expr const & x, char const * a, unsigned const d);  // generates a univariate polynomial in the first argument; second argument sets the name of coefficients to be generated (will be indexed)
-expr substitute(expr const & e, std::unordered_map<expr*, expr*> const & m);
-expr substitute(expr const & e, std::vector<expr*> const & pre, std::vector<expr*> const & post);
+/// generates a univariate polynomial in the first argument; second argument sets the name of
+/// coefficients to be generated (will be indexed)
+expr upoly(expr const & x, char const * a, unsigned const d);
+expr substitute(expr const & e, std::unordered_map<expr *, expr *> const & m);
+expr substitute(expr const & e, std::vector<expr *> const & pre, std::vector<expr *> const & post);
 
 class poly : public expr {
 public:
     ~poly();
-    poly(std::vector<expr*> &, char const *, unsigned);
-    std::vector<expr*> &  getCofs() { return m_c; }
-    void    resizeToDegree(unsigned);
-    unsigned    getNumVar() { return m_x.size(); }
-    unsigned    getNumCof() { return m_c.size(); }
-    cexpr   buildExpr(char const *, unsigned);
-    expr *  getExpr();
-    void    setCofBounds(double, double);
+    poly(std::vector<expr *> &, char const *, unsigned);
+    std::vector<expr *> & getCofs() { return m_c; }
+    void resizeToDegree(unsigned);
+    unsigned getNumVar() { return m_x.size(); }
+    unsigned getNumCof() { return m_c.size(); }
+    cexpr buildExpr(char const *, unsigned);
+    expr * getExpr();
+    void setCofBounds(double, double);
+
 private:
-    unsigned    degree;
-    expr *  m_e;
-    std::vector<expr*> & m_x;  // variables
-    std::vector<expr*>   m_c;  // coefficients
-    std::vector<expr*>   m_m;  // monomials, not used as of Jun 23, 2016
+    unsigned degree;
+    expr * m_e;
+    std::vector<expr *> & m_x;  // variables
+    std::vector<expr *> m_c;    // coefficients
+    std::vector<expr *> m_m;    // monomials, not used as of Jun 23, 2016
 };
 
 class solver {
 public:
     solver();
     ~solver();
-    expr    var(char const *);
-    expr    var(char const *, vtype const);
-    expr    var(char const *, double const, double const);
-    expr    ivar(char const *, int const, int const);
-    expr    num(double const);
-    expr    num(int const);
-    expr    num(char const * const);
-    expr    get_value(expr const & e);
-    expr *  new_var(char const *, double const, double const);
-    expr *  new_ivar(char const *, int const, int const);
-    expr *  new_var(char const *, vtype const);
-    expr *  new_var(char const *);
-    expr *  new_num(double const);
-    void    set_verbose(bool const b);
-    void    set_delta(double const d);
-    void    set_polytope(bool const b = true);
+    expr var(char const *);
+    expr var(char const *, vtype const);
+    expr var(char const *, double const, double const);
+    expr ivar(char const *, int const, int const);
+    expr num(double const);
+    expr num(int const);
+    expr num(char const * const);
+    expr get_value(expr const & e);
+    expr * new_var(char const *, double const, double const);
+    expr * new_ivar(char const *, int const, int const);
+    expr * new_var(char const *, vtype const);
+    expr * new_var(char const *);
+    expr * new_num(double const);
+    void set_verbose(bool const b);
+    void set_delta(double const d);
+    void set_polytope(bool const b = true);
 #ifdef USE_GLPK
-    void    set_lp(bool const b = true);
-    void    set_lp_only(bool const b = true);
+    void set_lp(bool const b = true);
+    void set_lp_only(bool const b = true);
 #endif
-    void    set_simulation(bool const b = true);
-    void    reset();
-    void    push();
-    void    pop();
-    void    add(expr const & e);
-    void    set_domain_lb(expr &, double const);
-    void    set_domain_ub(expr &, double const);
-    void    print_model(std::ostream & out = std::cerr);
-    void    print_problem(std::ostream & out = std::cerr);
-    void    print_infix(std::ostream & out = std::cerr);
-    double  get_precision() const;
-    double  get_domain_lb(expr const & e) const;
-    double  get_domain_ub(expr const & e) const;
-    double  get_lb(expr const & e) const;
-    double  get_ub(expr const & e) const;
-    double  get_value(expr const & e) const;
-    bool    check();
-    bool    solve();
-    Bool  check_assump(expr const & e);
-    Bool  check_lim_assump(expr const & , unsigned const);
-    Bool  get_bool_value(expr const & e);
+    void set_simulation(bool const b = true);
+    void reset();
+    void push();
+    void pop();
+    void add(expr const & e);
+    void set_domain_lb(expr &, double const);
+    void set_domain_ub(expr &, double const);
+    void print_model(std::ostream & out = std::cerr);
+    void print_problem(std::ostream & out = std::cerr);
+    void print_infix(std::ostream & out = std::cerr);
+    double get_precision() const;
+    double get_domain_lb(expr const & e) const;
+    double get_domain_ub(expr const & e) const;
+    double get_lb(expr const & e) const;
+    double get_ub(expr const & e) const;
+    double get_value(expr const & e) const;
+    bool check();
+    bool solve();
+    Bool check_assump(expr const & e);
+    Bool check_lim_assump(expr const &, unsigned const);
+    Bool get_bool_value(expr const & e);
     unsigned get_conflicts();
     unsigned get_decisions();
-    env     get_ctx() { return cctx; }
+    env get_ctx() { return cctx; }
     std::vector<expr const *> const & get_vtab() { return vtab; }
     std::vector<double> const & get_stab() { return stab; }
     std::vector<expr const *> const & get_etab() { return etab; }

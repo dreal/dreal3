@@ -36,25 +36,25 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/thread_local.h"
 
 namespace std {
-template<>
+template <>
 struct hash<capd::Interval> {
-    size_t operator () (const capd::Interval & v) const {
+    size_t operator()(const capd::Interval & v) const {
         size_t seed = 23;
         dreal::hash_combine<double>(seed, v.leftBound());
         dreal::hash_combine<double>(seed, v.rightBound());
         return seed;
     }
 };
-template<>
+template <>
 struct equal_to<capd::Interval> {
-    bool operator() (const capd::Interval & v1, const capd::Interval & v2) const {
+    bool operator()(const capd::Interval & v1, const capd::Interval & v2) const {
         return v1.leftBound() == v2.leftBound() && v1.rightBound() == v2.rightBound();
     }
 };
 
-template<>
+template <>
 struct hash<capd::IVector> {
-    size_t operator () (const capd::IVector & v) const {
+    size_t operator()(const capd::IVector & v) const {
         size_t seed = 23;
         for (capd::Interval const & iv : v) {
             dreal::hash_combine<capd::Interval>(seed, iv);
@@ -63,9 +63,9 @@ struct hash<capd::IVector> {
     }
 };
 
-template<>
+template <>
 struct equal_to<capd::IVector> {
-    bool operator() (const capd::IVector & v1, const capd::IVector & v2) const {
+    bool operator()(const capd::IVector & v1, const capd::IVector & v2) const {
         if (v1.dimension() != v2.dimension()) {
             return false;
         }
@@ -86,7 +86,8 @@ private:
     std::shared_ptr<ode_constraint> const m_ctr;
 
 public:
-    contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir);
+    contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr,
+                           ode_direction const dir);
     void prune(contractor_status & s);
     std::ostream & display(std::ostream & out) const;
 };
@@ -108,7 +109,8 @@ private:
 
 public:
     contractor_capd_point(box const & box, std::shared_ptr<ode_constraint> const ctr,
-                          contractor const & eval_ctc, ode_direction const dir, SMTConfig const & config, double const timeout = 0.0);
+                          contractor const & eval_ctc, ode_direction const dir,
+                          SMTConfig const & config, double const timeout = 0.0);
     void prune(contractor_status & s);
     std::ostream & display(std::ostream & out) const;
 };
@@ -128,33 +130,37 @@ private:
     std::unique_ptr<capd::IOdeSolver> m_solver;
     std::unique_ptr<capd::ITimeMap> m_timeMap;
 
-    bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime, capd::interval const T,
+    bool inner_loop(capd::IOdeSolver & solver, capd::interval const & prevTime,
+                    capd::interval const T,
                     std::vector<std::pair<capd::interval, capd::IVector>> & enclosures) const;
     bool check_invariant(capd::IVector const & v, contractor_status cs);
-    template<typename Rect2Set>
+    template <typename Rect2Set>
     bool check_invariant(Rect2Set const & rs, contractor_status const & s) {
         DREAL_THREAD_LOCAL static capd::IVector v;
         v = rs;
         return check_invariant(v, s);
     }
-    bool compute_enclosures(capd::interval const & prevTime,
-                            capd::interval const T,
+    bool compute_enclosures(capd::interval const & prevTime, capd::interval const T,
                             contractor_status const & s,
                             std::vector<std::pair<capd::interval, capd::IVector>> & enclosures,
                             bool const add_all = false);
 
-
 public:
     contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr,
-                         ode_direction const dir, SMTConfig const & config, double const timeout = 0.0);
+                         ode_direction const dir, SMTConfig const & config,
+                         double const timeout = 0.0);
     void prune(contractor_status & s);
     nlohmann::json generate_trace(contractor_status s);
     std::ostream & display(std::ostream & out) const;
 };
 
-contractor mk_contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir);
-contractor mk_contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr, ode_direction const dir,
-                                   SMTConfig const & config, bool const use_cache = false, double const timeout = 0.0);
-contractor mk_contractor_capd_point(box const & box, std::shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc,
-                                    ode_direction const dir, SMTConfig const & config, bool const use_cache = false, double const timeout = 0.0);
+contractor mk_contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr,
+                                     ode_direction const dir);
+contractor mk_contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr,
+                                   ode_direction const dir, SMTConfig const & config,
+                                   bool const use_cache = false, double const timeout = 0.0);
+contractor mk_contractor_capd_point(box const & box, std::shared_ptr<ode_constraint> const ctr,
+                                    contractor const & eval_ctc, ode_direction const dir,
+                                    SMTConfig const & config, bool const use_cache = false,
+                                    double const timeout = 0.0);
 }  // namespace dreal

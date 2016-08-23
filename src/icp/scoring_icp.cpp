@@ -17,8 +17,10 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "icp/scoring_icp.h"
 #include <algorithm>
 #include <atomic>
+#include <cmath>
 #include <functional>
 #include <limits>
 #include <memory>
@@ -26,9 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <unordered_set>
 #include <vector>
-#include <cmath>
 #include "icp/brancher.h"
-#include "icp/scoring_icp.h"
 #include "util/logging.h"
 #include "util/scoped_vec.h"
 #include "util/stat.h"
@@ -62,8 +62,7 @@ void scoring_icp::compute_scores() {
             nbr_prune[i] = 0;
             prune_results[i] = 0;
         }
-        scores[i] = score_update_old_weight * scores[i] +
-            (1 - score_update_old_weight) * new_score;
+        scores[i] = score_update_old_weight * scores[i] + (1 - score_update_old_weight) * new_score;
         DREAL_LOG_INFO << "score of " << cs.m_box.get_name(i) << " is\t" << scores[i];
     }
 }
@@ -107,7 +106,9 @@ void scoring_icp::safe_prune(int idx) {
     try {
         DREAL_THREAD_LOCAL static box old_box = cs.m_box;
         ctc.prune(cs);
-        if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_prune(); }
+        if (cs.m_config.nra_use_stat) {
+            cs.m_config.nra_stat.increase_prune();
+        }
         if (idx >= 0) {
             prune_results[idx] += measure(old_box, cs.m_box);
             nbr_prune[idx] += 1;
@@ -124,7 +125,7 @@ void scoring_icp::prune_split_fixed_point() {
     int n = 0;
     do {
         if (cs.m_box.is_empty()) {
-          break;
+            break;
         }
         n++;
         progress = cs.m_box;
@@ -150,7 +151,8 @@ void scoring_icp::solve() {
     int scoring_depth = 0;  // the last depth at which we did compute the score
     do {
         DREAL_LOG_INFO << "scoring_icp::solve - loop"
-                       << "\t" << "box stack Size = " << box_stack.size();
+                       << "\t"
+                       << "box stack Size = " << box_stack.size();
         double const prec = cs.m_config.nra_delta_test ? 0.0 : cs.m_config.nra_precision;
         tuple<int, box> const branch = box_stack.top();
         box_stack.pop();
@@ -159,9 +161,9 @@ void scoring_icp::solve() {
         safe_prune(-1);
         last_scoring++;
         if (!cs.m_box.is_empty()) {
-            if ( last_scoring < 0  // at the start
-              || last_scoring >= score_update_period  // periodically recompute
-              || depth <= scoring_depth - backtrack_threshold ) {  // recompute after backtrack
+            if (last_scoring < 0                                    // at the start
+                || last_scoring >= score_update_period              // periodically recompute
+                || depth <= scoring_depth - backtrack_threshold) {  // recompute after backtrack
                 prune_split_fixed_point();
                 compute_scores();
                 last_scoring = std::min(last_scoring, 0);
@@ -177,18 +179,19 @@ void scoring_icp::solve() {
             }
 
             if (split < 0) {
-                vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, ctrs, ctc.get_input(), cs.m_config, 1);
+                vector<int> const sorted_dims =
+                    brancher.sort_branches(cs.m_box, ctrs, ctc.get_input(), cs.m_config, 1);
                 if (sorted_dims.size() > 0) {
                     split = sorted_dims[0];
                 }
             }
             if (split >= 0) {
                 tuple<int, box, box> splits = cs.m_box.bisect_at(split);
-                if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
-                DREAL_LOG_INFO << "[branched on "
-                               << cs.m_box.get_name(split)
-                               << "]" << endl;
-                box const & first  = get<1>(splits);
+                if (cs.m_config.nra_use_stat) {
+                    cs.m_config.nra_stat.increase_branch();
+                }
+                DREAL_LOG_INFO << "[branched on " << cs.m_box.get_name(split) << "]" << endl;
+                box const & first = get<1>(splits);
                 box const & second = get<2>(splits);
                 int d1 = depth + 1;
                 if (second.is_bisectable(prec)) {
@@ -199,9 +202,8 @@ void scoring_icp::solve() {
                     box_stack.emplace(d1, second);
                 }
                 if (cs.m_config.nra_proof) {
-                    cs.m_config.nra_proof_out << "[branched on "
-                                              << cs.m_box.get_name(split)
-                                              << "]" << endl;
+                    cs.m_config.nra_proof_out << "[branched on " << cs.m_box.get_name(split) << "]"
+                                              << endl;
                 }
             } else {
                 for (unsigned i = 0; i < size; i++) {
@@ -229,17 +231,19 @@ void scoring_icp::solve() {
     }
 }
 
-scoring_icp::scoring_icp(contractor & _ctc, contractor_status & _cs, scoped_vec<shared_ptr<constraint>> const & _ctrs, BranchHeuristic & _brancher):
-    ctc(_ctc),
-    cs(_cs),
-    brancher(_brancher),
-    ctrs(_ctrs),
-    solns(),
-    box_stack(),
-    size(_cs.m_box.size()),
-    scores(new double[_cs.m_box.size()]),
-    prune_results(new double[_cs.m_box.size()]),
-    nbr_prune(new unsigned int[_cs.m_box.size()]) {
+scoring_icp::scoring_icp(contractor & _ctc, contractor_status & _cs,
+                         scoped_vec<shared_ptr<constraint>> const & _ctrs,
+                         BranchHeuristic & _brancher)
+    : ctc(_ctc),
+      cs(_cs),
+      brancher(_brancher),
+      ctrs(_ctrs),
+      solns(),
+      box_stack(),
+      size(_cs.m_box.size()),
+      scores(new double[_cs.m_box.size()]),
+      prune_results(new double[_cs.m_box.size()]),
+      nbr_prune(new unsigned int[_cs.m_box.size()]) {
     reset_scores();
 }
 
@@ -249,7 +253,9 @@ scoring_icp::~scoring_icp() {
     delete[] nbr_prune;
 }
 
-void scoring_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<shared_ptr<constraint>> const & ctrs, BranchHeuristic & brancher) {
+void scoring_icp::solve(contractor & ctc, contractor_status & cs,
+                        scoped_vec<shared_ptr<constraint>> const & ctrs,
+                        BranchHeuristic & brancher) {
     scoring_icp icp(ctc, cs, ctrs, brancher);
     icp.solve();
 }

@@ -31,21 +31,26 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 class BranchHeuristic {
 public:
-    std::vector<int> sort_branches(box const &, scoped_vec<std::shared_ptr<constraint>> const & ctrs,
-                                   ibex::BitSet const & intput, SMTConfig const & config, int num_try) const;
+    std::vector<int> sort_branches(box const &,
+                                   scoped_vec<std::shared_ptr<constraint>> const & ctrs,
+                                   ibex::BitSet const & intput, SMTConfig const & config,
+                                   int num_try) const;
     virtual std::vector<double> score_axes(box const & b) const = 0;
 };
 
-class SizeBrancher: public BranchHeuristic {
+class SizeBrancher : public BranchHeuristic {
 public:
     std::vector<double> score_axes(box const & b) const;
 };
 
-class SizeGradAsinhBrancher: public BranchHeuristic {
+class SizeGradAsinhBrancher : public BranchHeuristic {
 public:
-    explicit SizeGradAsinhBrancher(scoped_vec<std::shared_ptr<constraint>> const & constraints, double const c1 = 1000, double const c2 = 1000, double const c3 = 0.01)
+    explicit SizeGradAsinhBrancher(scoped_vec<std::shared_ptr<constraint>> const & constraints,
+                                   double const c1 = 1000, double const c2 = 1000,
+                                   double const c3 = 0.01)
         : constraints(constraints), c1(c1), c2(c2), c3(c3) {}
     std::vector<double> score_axes(box const & b) const;
+
 private:
     scoped_vec<std::shared_ptr<constraint>> const & constraints;
     const double c1;

@@ -17,13 +17,13 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "util/strategy.h"
 #include <algorithm>
 #include <limits>
 #include <memory>
 #include <vector>
-#include "util/strategy.h"
-#include "opensmt/smtsolvers/SMTConfig.h"
 #include "contractor/contractor.h"
+#include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
 #include "util/logging.h"
 #include "util/scoped_vec.h"
@@ -74,8 +74,7 @@ bool default_strategy::term_cond(box const & old_box, box const & new_box) {
 
 contractor default_strategy::build_contractor(box const & box,
                                               scoped_vec<shared_ptr<constraint>> const & ctrs,
-                                              bool const complete,
-                                              SMTConfig const & config) const {
+                                              bool const complete, SMTConfig const & config) const {
     bool const use_cache = true;
 
     // 1. Categorize constraints
@@ -84,27 +83,28 @@ contractor default_strategy::build_contractor(box const & box,
     vector<shared_ptr<forall_constraint>> forall_ctrs;
     for (shared_ptr<constraint> const ctr : ctrs.get_reverse()) {
         switch (ctr->get_type()) {
-        case constraint_type::Nonlinear: {
-            auto nl_ctr = static_pointer_cast<nonlinear_constraint>(ctr);
-            nl_ctrs.push_back(nl_ctr);
-            break;
-        }
-        case constraint_type::ODE: {
-            auto ode_ctr = static_pointer_cast<ode_constraint>(ctr);
-            ode_ctrs_rev.push_back(ode_ctr);
-            break;
-        }
-        case constraint_type::Forall: {
-            auto gf_ctr = static_pointer_cast<forall_constraint>(ctr);
-            forall_ctrs.push_back(gf_ctr);
-            break;
-        }
-        case constraint_type::ForallT: {
-            // Do nothing
-            break;
-        }
-        default:
-            DREAL_LOG_FATAL << "Unknown Constraint Type: " << ctr->get_type() << " " <<  *ctr << endl;
+            case constraint_type::Nonlinear: {
+                auto nl_ctr = static_pointer_cast<nonlinear_constraint>(ctr);
+                nl_ctrs.push_back(nl_ctr);
+                break;
+            }
+            case constraint_type::ODE: {
+                auto ode_ctr = static_pointer_cast<ode_constraint>(ctr);
+                ode_ctrs_rev.push_back(ode_ctr);
+                break;
+            }
+            case constraint_type::Forall: {
+                auto gf_ctr = static_pointer_cast<forall_constraint>(ctr);
+                forall_ctrs.push_back(gf_ctr);
+                break;
+            }
+            case constraint_type::ForallT: {
+                // Do nothing
+                break;
+            }
+            default:
+                DREAL_LOG_FATAL << "Unknown Constraint Type: " << ctr->get_type() << " " << *ctr
+                                << endl;
         }
     }
     vector<shared_ptr<ode_constraint>> ode_ctrs(ode_ctrs_rev);
@@ -133,7 +133,8 @@ contractor default_strategy::build_contractor(box const & box,
         ctcs.push_back(mk_contractor_ibex_polytope(config.nra_precision, box.get_vars(), nl_ctrs));
     }
     // 2.3. Int Contractor (only if there is a var of Int sort)
-    if (any_of(box.get_vars().cbegin(), box.get_vars().cend(), [](Enode * const v){ return v->hasSortInt(); })) {
+    if (any_of(box.get_vars().cbegin(), box.get_vars().cend(),
+               [](Enode * const v) { return v->hasSortInt(); })) {
         ctcs.push_back(mk_contractor_int(box));
     }
     // 2.4. Build forall contractors
@@ -164,13 +165,17 @@ contractor default_strategy::build_contractor(box const & box,
                 contractor nl_ctc2 = mk_contractor_seq(nl_ctcs2);
                 for (auto const & ode_ctr : ode_ctrs) {
                     // Add Forward ODE Pruning (Underapproximation, using CAPD non-rigorous)
-                    ode_sampling_ctcs.push_back(mk_contractor_capd_point(box, ode_ctr, eval_ctc, ode_direction::FWD, config, use_cache, config.nra_ODE_fwd_timeout));
+                    ode_sampling_ctcs.push_back(
+                        mk_contractor_capd_point(box, ode_ctr, eval_ctc, ode_direction::FWD, config,
+                                                 use_cache, config.nra_ODE_fwd_timeout));
                     ode_sampling_ctcs.push_back(nl_ctc2);
                 }
             } else {
                 for (auto const & ode_ctr : ode_ctrs) {
                     // Add Forward ODE Pruning (Underapproximation, using CAPD non-rigorous)
-                    ode_sampling_ctcs.push_back(mk_contractor_capd_point(box, ode_ctr, eval_ctc, ode_direction::FWD, config, use_cache, config.nra_ODE_fwd_timeout));
+                    ode_sampling_ctcs.push_back(
+                        mk_contractor_capd_point(box, ode_ctr, eval_ctc, ode_direction::FWD, config,
+                                                 use_cache, config.nra_ODE_fwd_timeout));
                     ode_sampling_ctcs.push_back(nl_ctc);
                 }
             }
@@ -181,39 +186,43 @@ contractor default_strategy::build_contractor(box const & box,
         for (auto const & ode_ctr : ode_ctrs) {
             // 2.6.1. Add Forward ODE Pruning (Overapproximation, using CAPD4)
             if (config.nra_ODE_cache) {
-                ode_capd4_fwd_ctcs.emplace_back(
-                    mk_contractor_try(mk_contractor_cache(mk_contractor_capd_full(box, ode_ctr, ode_direction::FWD, config, use_cache, config.nra_ODE_fwd_timeout))));
+                ode_capd4_fwd_ctcs.emplace_back(mk_contractor_try(mk_contractor_cache(
+                    mk_contractor_capd_full(box, ode_ctr, ode_direction::FWD, config, use_cache,
+                                            config.nra_ODE_fwd_timeout))));
             } else {
-                ode_capd4_fwd_ctcs.emplace_back(
-                    mk_contractor_try(mk_contractor_capd_full(box, ode_ctr, ode_direction::FWD, config, use_cache, config.nra_ODE_fwd_timeout)));
+                ode_capd4_fwd_ctcs.emplace_back(mk_contractor_try(
+                    mk_contractor_capd_full(box, ode_ctr, ode_direction::FWD, config, use_cache,
+                                            config.nra_ODE_fwd_timeout)));
             }
         }
         if (!config.nra_ODE_forward_only) {
             // 2.6.2. Add Backward ODE Pruning (Overapproximation, using CAPD4)
             for (auto const & ode_ctr : ode_ctrs_rev) {
                 if (config.nra_ODE_cache) {
-                    ode_capd4_bwd_ctcs.emplace_back(
-                        mk_contractor_try(mk_contractor_cache(mk_contractor_capd_full(box, ode_ctr, ode_direction::BWD, config, use_cache, config.nra_ODE_bwd_timeout))));
+                    ode_capd4_bwd_ctcs.emplace_back(mk_contractor_try(mk_contractor_cache(
+                        mk_contractor_capd_full(box, ode_ctr, ode_direction::BWD, config, use_cache,
+                                                config.nra_ODE_bwd_timeout))));
                 } else {
-                    ode_capd4_bwd_ctcs.emplace_back(
-                        mk_contractor_try(mk_contractor_capd_full(box, ode_ctr, ode_direction::BWD, config, use_cache, config.nra_ODE_bwd_timeout)));
+                    ode_capd4_bwd_ctcs.emplace_back(mk_contractor_try(
+                        mk_contractor_capd_full(box, ode_ctr, ode_direction::BWD, config, use_cache,
+                                                config.nra_ODE_bwd_timeout)));
                 }
             }
         }
         if (config.nra_ODE_sampling) {
             if (config.nra_parallel) {
                 ctcs.push_back(mk_contractor_parallel_any(
-                                   mk_contractor_try_or(mk_contractor_throw_if_empty(mk_contractor_seq(ode_sampling_ctcs)),
-                                                        mk_contractor_empty()),
-                                   mk_contractor_seq(mk_contractor_seq(ode_capd4_fwd_ctcs),
-                                                     mk_contractor_seq(ode_capd4_bwd_ctcs))));
-            } else {
-                ctcs.push_back(
                     mk_contractor_try_or(
-                        // Try Underapproximation(GSL) if it fails try Overapproximation(CAPD4)
                         mk_contractor_throw_if_empty(mk_contractor_seq(ode_sampling_ctcs)),
-                        mk_contractor_seq(mk_contractor_seq(ode_capd4_fwd_ctcs),
-                                          mk_contractor_seq(ode_capd4_bwd_ctcs))));
+                        mk_contractor_empty()),
+                    mk_contractor_seq(mk_contractor_seq(ode_capd4_fwd_ctcs),
+                                      mk_contractor_seq(ode_capd4_bwd_ctcs))));
+            } else {
+                ctcs.push_back(mk_contractor_try_or(
+                    // Try Underapproximation(GSL) if it fails try Overapproximation(CAPD4)
+                    mk_contractor_throw_if_empty(mk_contractor_seq(ode_sampling_ctcs)),
+                    mk_contractor_seq(mk_contractor_seq(ode_capd4_fwd_ctcs),
+                                      mk_contractor_seq(ode_capd4_bwd_ctcs))));
             }
         } else {
             for (auto const & ode_ctc : ode_capd4_fwd_ctcs) {

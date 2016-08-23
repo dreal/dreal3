@@ -80,7 +80,8 @@ namespace dreal {
 
 using Rect2Set = capd::C0Rect2Set;
 
-ostream & output_trace(ostream & out, capd::interval const dt, capd::IVector const & v, vector<Enode *> const & vars) {
+ostream & output_trace(ostream & out, capd::interval const dt, capd::IVector const & v,
+                       vector<Enode *> const & vars) {
     DREAL_THREAD_LOCAL static ostringstream ss;
     out << "T = ";
     ss << dt;
@@ -132,14 +133,14 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
     if (e->isSymb()) {
         if (e->isTerm() && e->getPolarity() == l_False) {
             switch (e->getId()) {
-            case ENODE_ID_LEQ:
-                return ">";
-            case ENODE_ID_LT:
-                return ">=";
-            case ENODE_ID_GEQ:
-                return "<";
-            case ENODE_ID_GT:
-                return "<=";
+                case ENODE_ID_LEQ:
+                    return ">";
+                case ENODE_ID_LT:
+                    return ">=";
+                case ENODE_ID_GEQ:
+                    return "<";
+                case ENODE_ID_GT:
+                    return "<=";
             }
         }
         string const & name = e->getName();
@@ -166,13 +167,15 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
         return name;
     } else if (e->isTerm()) {
         // output "("
-        if (!e->getCdr()->isEnil() && (e->isPlus() || e->isMinus() || e->isTimes() || e->isDiv() || e->isPow())) {
+        if (!e->getCdr()->isEnil() &&
+            (e->isPlus() || e->isMinus() || e->isTimes() || e->isDiv() || e->isPow())) {
             ret = "(";
         }
         // !(X = Y) ==> (0 = 0)
-        if (e->isEq() && e->getPolarity()  == l_False) {
+        if (e->isEq() && e->getPolarity() == l_False) {
             ret += "0 = 0";
-        } else if (e->isPlus() || e->isMinus() || e->isTimes() || e->isDiv() || e->isEq() || e->isLeq() || e->isGeq() || e->isLt() || e->isGt()) {
+        } else if (e->isPlus() || e->isMinus() || e->isTimes() || e->isDiv() || e->isEq() ||
+                   e->isLeq() || e->isGeq() || e->isLt() || e->isGt()) {
             // assert(getArity() == 2);
             Enode * const op = e->getCar();
             Enode * p = e->getCdr();
@@ -254,7 +257,8 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
             }
         }
         // output ")"
-        if (!e->getCdr()->isEnil() && (e->isPlus() || e->isMinus() || e->isTimes() || e->isDiv() || e->isPow())) {
+        if (!e->getCdr()->isEnil() &&
+            (e->isPlus() || e->isMinus() || e->isTimes() || e->isDiv() || e->isPow())) {
             ret += ")";
         }
     } else if (e->isList()) {
@@ -283,7 +287,7 @@ string subst(Enode const * const e, unordered_map<string, string> subst_map) {
 
 // Build CAPD string from integral constraint
 // example : "var:v_2_0, x_2_0;fun:(-9.8000000000000007+(-0.450000*v_2_0)), v_2_0;"
-string build_capd_string(integral_constraint const & ic, ode_direction const dir)  {
+string build_capd_string(integral_constraint const & ic, ode_direction const dir) {
     // Collect _0 variables
     vector<Enode *> const & pars_0 = ic.get_pars_0();
     vector<Enode *> const & par_lhs_names = ic.get_par_lhs_names();
@@ -294,13 +298,13 @@ string build_capd_string(integral_constraint const & ic, ode_direction const dir
     auto vars_0 = (dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
     for (unsigned i = 0; i < vars_0.size(); i++) {
         string const & from = odes[i].first->getCar()->getNameFull();
-        string const & to   = vars_0[i]->getCar()->getNameFull();
+        string const & to = vars_0[i]->getCar()->getNameFull();
         subst_map.emplace(from, to);
         DREAL_LOG_INFO << "Subst Map (Var): " << from << " -> " << to;
     }
     for (unsigned i = 0; i < pars_0.size(); i++) {
         string const & from = par_lhs_names[i]->getCar()->getNameFull();
-        string const & to   = pars_0[i]->getCar()->getNameFull();
+        string const & to = pars_0[i]->getCar()->getNameFull();
         subst_map.emplace(from, to);
         DREAL_LOG_INFO << "Subst Map (Par): " << from << " -> " << to;
     }
@@ -317,9 +321,9 @@ string build_capd_string(integral_constraint const & ic, ode_direction const dir
         ode_strs.emplace_back(ode_str);
     }
 
-    string diff_var   = "";
+    string diff_var = "";
     string diff_par = "";
-    string diff_fun   = "";
+    string diff_fun = "";
     if (vars_0.size() > 0) {
         vector<string> vars_0_strs;
         vars_0_strs.reserve(vars_0.size());
@@ -421,11 +425,9 @@ bool contractor_capd_full::check_invariant(capd::IVector const & v, contractor_s
     return true;
 }
 
-bool contractor_capd_full::compute_enclosures(capd::interval const & prevTime,
-                                              capd::interval const T,
-                                              contractor_status const & cs,
-                                              vector<pair<capd::interval, capd::IVector>> & enclosures,
-                                              bool const add_all) {
+bool contractor_capd_full::compute_enclosures(
+    capd::interval const & prevTime, capd::interval const T, contractor_status const & cs,
+    vector<pair<capd::interval, capd::IVector>> & enclosures, bool const add_all) {
     auto const stepMade = m_solver->getStep();
     auto const & curve = m_solver->getCurve();
     auto domain = capd::interval(0, 1) * stepMade;
@@ -469,7 +471,8 @@ bool contractor_capd_full::compute_enclosures(capd::interval const & prevTime,
     return true;
 }
 
-bool filter(vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVector & X_t, capd::interval & T) {
+bool filter(vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVector & X_t,
+            capd::interval & T) {
     // 1) Intersect each v in enclosure with X_t.
     DREAL_LOG_DEBUG << "filter : enclosure.size = " << enclosures.size();
     enclosures.erase(remove_if(enclosures.begin(), enclosures.end(),
@@ -492,8 +495,8 @@ bool filter(vector<pair<capd::interval, capd::IVector>> & enclosures, capd::IVec
     capd::IVector all_X_t = enclosures.begin()->second;
     for (pair<capd::interval, capd::IVector> & item : enclosures) {
         capd::interval & dt = item.first;
-        capd::IVector &  v  = item.second;
-        all_X_t = intervalHull(all_X_t,  v);
+        capd::IVector & v = item.second;
+        all_X_t = intervalHull(all_X_t, v);
         all_T = intervalHull(all_T, dt);
     }
     if (!intersection(T, all_T, T)) {
@@ -513,23 +516,24 @@ capd::IVector DV2IV(capd::DVector const & dv) {
     return iv;
 }
 
-bool filter_point(vector<pair<double, capd::DVector>> & trace, capd::IVector & X_t, capd::interval & T) {
+bool filter_point(vector<pair<double, capd::DVector>> & trace, capd::IVector & X_t,
+                  capd::interval & T) {
     // 1) Intersect each v in enclosure with X_t.
     DREAL_LOG_DEBUG << "filter : enclosure.size = " << trace.size();
     trace.erase(remove_if(trace.begin(), trace.end(),
-                               [&X_t](pair<double, capd::DVector> & item) {
-                                   capd::DVector & v = item.second;
-                                   // v = v union X_t
-                                   DREAL_LOG_DEBUG << "before filter: " << v << "\t" << X_t;
-                                   for (unsigned i = 0; i < X_t.dimension(); ++i) {
-                                       if (!X_t[i].contains(v[i])) {
-                                           return true;
-                                       }
-                                   }
-                                   DREAL_LOG_DEBUG << "after filter: " << v;
-                                   return false;
-                               }),
-                     trace.end());
+                          [&X_t](pair<double, capd::DVector> & item) {
+                              capd::DVector & v = item.second;
+                              // v = v union X_t
+                              DREAL_LOG_DEBUG << "before filter: " << v << "\t" << X_t;
+                              for (unsigned i = 0; i < X_t.dimension(); ++i) {
+                                  if (!X_t[i].contains(v[i])) {
+                                      return true;
+                                  }
+                              }
+                              DREAL_LOG_DEBUG << "after filter: " << v;
+                              return false;
+                          }),
+                trace.end());
     if (trace.empty()) {
         return false;
     }
@@ -538,8 +542,8 @@ bool filter_point(vector<pair<double, capd::DVector>> & trace, capd::IVector & X
     capd::IVector all_X_t = DV2IV(trace.begin()->second);
     for (pair<double, capd::DVector> & item : trace) {
         double dt = item.first;
-        capd::DVector const & v  = item.second;
-        all_X_t = intervalHull(all_X_t,  DV2IV(v));
+        capd::DVector const & v = item.second;
+        all_X_t = intervalHull(all_X_t, DV2IV(v));
         all_T = intervalHull(all_T, capd::interval(dt));
     }
     if (!intersection(T, all_T, T)) {
@@ -552,8 +556,8 @@ bool filter_point(vector<pair<double, capd::DVector>> & trace, capd::IVector & X
 }
 
 box intersect_params(box & b, integral_constraint const & ic) {
-    vector<Enode*> const & pars_0 = ic.get_pars_0();
-    vector<Enode*> const & pars_t = ic.get_pars_t();
+    vector<Enode *> const & pars_0 = ic.get_pars_0();
+    vector<Enode *> const & pars_t = ic.get_pars_t();
     capd::IVector X_0 = extract_ivector(b, pars_0);
     capd::IVector const & X_t = extract_ivector(b, pars_t);
     if (!intersection(X_0, X_t, X_0)) {
@@ -568,9 +572,9 @@ box intersect_params(box & b, integral_constraint const & ic) {
     return b;
 }
 
-template<typename T>
+template <typename T>
 void set_params(T & f, box const & b, integral_constraint const & ic) {
-    vector<Enode*> const & pars_0 = ic.get_pars_0();
+    vector<Enode *> const & pars_0 = ic.get_pars_0();
     capd::IVector X_0 = extract_ivector(b, pars_0);
     for (unsigned i = 0; i < pars_0.size(); i++) {
         string const & name = pars_0[i]->getCar()->getNameFull();
@@ -579,9 +583,9 @@ void set_params(T & f, box const & b, integral_constraint const & ic) {
     }
 }
 
-template<typename T>
+template <typename T>
 void set_params_point(T & f, box const & b, integral_constraint const & ic) {
-    vector<Enode*> const & pars_0 = ic.get_pars_0();
+    vector<Enode *> const & pars_0 = ic.get_pars_0();
     capd::IVector X_0 = extract_ivector(b, pars_0);
     for (unsigned i = 0; i < pars_0.size(); i++) {
         string const & name = pars_0[i]->getCar()->getNameFull();
@@ -601,14 +605,18 @@ unsigned int extract_step(string const & name) {
             return stoi(step_part, nullptr);
         }
     }
-    DREAL_LOG_FATAL << "We found an error while generating a visualization for the ODE variable '" << name << "'";
-    DREAL_LOG_FATAL << "This variable '" << name << "' does not follow our convention for the visualization";
+    DREAL_LOG_FATAL << "We found an error while generating a visualization for the ODE variable '"
+                    << name << "'";
+    DREAL_LOG_FATAL << "This variable '" << name
+                    << "' does not follow our convention for the visualization";
     DREAL_LOG_FATAL << "We assume that an ODE varialbe is in a form of '<VAR_NAME>_<STEP>_{0,t}'";
     DREAL_LOG_FATAL << "where <STEP> part should be an integer. An example is 'height_3_t'.";
     throw runtime_error("extract_step: Variable name convention");
 }
 
-contractor_capd_simple::contractor_capd_simple(box const & /* box */, shared_ptr<ode_constraint> const ctr, ode_direction const dir)
+contractor_capd_simple::contractor_capd_simple(box const & /* box */,
+                                               shared_ptr<ode_constraint> const ctr,
+                                               ode_direction const dir)
     : contractor_cell(contractor_kind::CAPD_SIMPLE), m_dir(dir), m_ctr(ctr) {
     assert(m_ctr);
 }
@@ -621,8 +629,10 @@ void contractor_capd_simple::prune(contractor_status &) {
     }
     return;
 }
-// ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t, interval const & T,
-//                                                       IVector const & inv, vector<IFunction> & funcs) {
+// ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t,
+// interval const & T,
+//                                                       IVector const & inv, vector<IFunction> &
+//                                                       funcs) {
 //     bool prune_params_result = prune_params();
 //     if (!prune_params_result) {
 //         return ODE_result::UNSAT;
@@ -637,11 +647,13 @@ void contractor_capd_simple::prune(contractor_status &) {
 //         try {
 //             interval new_x_t = x_0 + dxdt(inv) * T;
 //             if (!intersection(new_x_t, x_t, x_t)) {
-//                 DREAL_LOG_INFO << "ode_solver::simple_ODE_forward: no intersection for X_T => UNSAT";
+//                 DREAL_LOG_INFO << "ode_solver::simple_ODE_forward: no intersection for X_T =>
+//                 UNSAT";
 //                 return ODE_result::UNSAT;
 //             }
 //         } catch (exception& e) {
-//             DREAL_LOG_FATAL << "ode_solver::simple_ODE_forward: Exception in Simple_ODE: " << e.what();
+//             DREAL_LOG_FATAL << "ode_solver::simple_ODE_forward: Exception in Simple_ODE: " <<
+//             e.what();
 //         }
 //     }
 //     // update
@@ -649,16 +661,19 @@ void contractor_capd_simple::prune(contractor_status &) {
 //     return ODE_result::SAT;
 // }
 ostream & contractor_capd_simple::display(ostream & out) const {
-    out << "contractor_simple("
-        << m_dir << ", "
-        << *m_ctr << ")";
+    out << "contractor_simple(" << m_dir << ", " << *m_ctr << ")";
     return out;
 }
 
 contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr,
-                                           ode_direction const dir, SMTConfig const & config, double const timeout)
-    : contractor_cell(contractor_kind::CAPD_FULL, box.size()), m_dir(dir), m_ctr(ctr),
-      m_taylor_order(config.nra_ODE_taylor_order), m_grid_size(config.nra_ODE_grid_size), m_timeout(timeout) {
+                                           ode_direction const dir, SMTConfig const & config,
+                                           double const timeout)
+    : contractor_cell(contractor_kind::CAPD_FULL, box.size()),
+      m_dir(dir),
+      m_ctr(ctr),
+      m_taylor_order(config.nra_ODE_taylor_order),
+      m_grid_size(config.nra_ODE_grid_size),
+      m_timeout(timeout) {
     DREAL_LOG_INFO << "contractor_capd_full::contractor_capd_full()";
     integral_constraint const & ic = m_ctr->get_ic();
     m_vars_0 = (m_dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
@@ -677,8 +692,10 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
         // Precision
         m_solver->setAbsoluteTolerance(config.nra_ODE_absolute_tolerance);
         m_solver->setRelativeTolerance(config.nra_ODE_relative_tolerance);
-        DREAL_LOG_INFO << "contractor_capd_full: absolute tolerance = " << m_solver->getAbsoluteTolerance();
-        DREAL_LOG_INFO << "contractor_capd_full: relative tolerance = " << m_solver->getRelativeTolerance();
+        DREAL_LOG_INFO << "contractor_capd_full: absolute tolerance = "
+                       << m_solver->getAbsoluteTolerance();
+        DREAL_LOG_INFO << "contractor_capd_full: relative tolerance = "
+                       << m_solver->getRelativeTolerance();
     } else {
         // Trivial Case with all params and no ODE variables
     }
@@ -702,7 +719,7 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
         m_need_to_check_inv = false;
     }
     // Input: X_0, X_T, and Time
-    m_input  = ibex::BitSet::empty(box.size());
+    m_input = ibex::BitSet::empty(box.size());
     for (Enode * e : ctr->get_ic().get_enode()->get_vars()) {
         m_input.add(box.get_index(e));
     }
@@ -735,8 +752,7 @@ void contractor_capd_full::prune(contractor_status & cs) {
 
     DREAL_THREAD_LOCAL static box old_box(cs.m_box);
     old_box = cs.m_box;
-    DREAL_LOG_DEBUG << "contractor_capd_full::prune "
-                    << m_dir;
+    DREAL_LOG_DEBUG << "contractor_capd_full::prune " << m_dir;
     integral_constraint const & ic = m_ctr->get_ic();
     cs.m_box = intersect_params(cs.m_box, ic);
     if (cs.m_box.is_empty()) {
@@ -804,12 +820,13 @@ void contractor_capd_full::prune(contractor_status & cs) {
             // Handle Timeout
             if (m_timeout > 0.0 && cs.m_box.is_bisectable(cs.m_config.nra_precision)) {
                 auto const end_time = steady_clock::now();
-                auto const time_diff_in_msec = std::chrono::duration<double, milli>(end_time - start_time).count();
+                auto const time_diff_in_msec =
+                    std::chrono::duration<double, milli>(end_time - start_time).count();
                 DREAL_LOG_INFO << "ODE TIME: " << time_diff_in_msec << " / " << m_timeout;
                 if (time_diff_in_msec > m_timeout) {
-                    DREAL_LOG_FATAL << "ODE TIMEOUT!" << "\t"
-                                    << time_diff_in_msec << "msec / "
-                                    << m_timeout << "msec";
+                    DREAL_LOG_FATAL << "ODE TIMEOUT!"
+                                    << "\t" << time_diff_in_msec << "msec / " << m_timeout
+                                    << "msec";
                     throw contractor_exception("ODE TIMEOUT");
                 }
             }
@@ -844,17 +861,19 @@ void contractor_capd_full::prune(contractor_status & cs) {
                 }
                 cout << "ODE Progress "
                      << "[" << m_dir << "]"
-                     << ":  Time = " << setw(10) << fixed << setprecision(5) << right << prevTime.rightBound() << " / "
-                     << setw(7) << fixed << setprecision(2) << left << T.rightBound() << " "
-                     << setw(4) << right << int(prevTime.rightBound() / T.rightBound() * 100.0) << "%" << "  ";
+                     << ":  Time = " << setw(10) << fixed << setprecision(5) << right
+                     << prevTime.rightBound() << " / " << setw(7) << fixed << setprecision(2)
+                     << left << T.rightBound() << " " << setw(4) << right
+                     << int(prevTime.rightBound() / T.rightBound() * 100.0) << "%"
+                     << "  ";
                 if (enclosures.size() > 0) {
                     auto const & last_iv = enclosures.back().second;
-                    cout << "|T| = ["
-                         << setprecision(16) << min_width(last_iv) << ", "
-                         << setprecision(5) << max_width(last_iv)
-                         << "]" << "\t ";
+                    cout << "|T| = [" << setprecision(16) << min_width(last_iv) << ", "
+                         << setprecision(5) << max_width(last_iv) << "]"
+                         << "\t ";
                 }
-                cout << "Box Width = " << setw(10) << fixed << setprecision(5) << cs.m_box.max_diam() << "\t";
+                cout << "Box Width = " << setw(10) << fixed << setprecision(5)
+                     << cs.m_box.max_diam() << "\t";
                 cout.flush();
                 if (cs.m_config.nra_ODE_trace) {
                     cerr << endl;
@@ -918,11 +937,8 @@ void contractor_capd_full::prune(contractor_status & cs) {
     return;
 }
 
-json generate_trace_core(integral_constraint const & ic,
-                         vector<Enode *> const & vars_0,
-                         vector<Enode *> const & pars_0,
-                         box const & b,
-                         capd::interval const & T,
+json generate_trace_core(integral_constraint const & ic, vector<Enode *> const & vars_0,
+                         vector<Enode *> const & pars_0, box const & b, capd::interval const & T,
                          vector<pair<capd::interval, capd::IVector>> const & enclosures) {
     unsigned i = 0;
     json ret = {};
@@ -978,9 +994,12 @@ json contractor_capd_full::generate_trace(contractor_status cs) {
         if (config.nra_ODE_step > 0) {
             m_solver->setStep(config.nra_ODE_step);
         }
-        vector<Enode *> const & vars_0 = (m_dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
-        vector<Enode *> const & vars_t = (m_dir == ode_direction::FWD) ? ic.get_vars_t() : ic.get_vars_0();
-        vector<Enode *> const & pars_0 = (m_dir == ode_direction::FWD) ? ic.get_pars_0() : ic.get_pars_t();
+        vector<Enode *> const & vars_0 =
+            (m_dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
+        vector<Enode *> const & vars_t =
+            (m_dir == ode_direction::FWD) ? ic.get_vars_t() : ic.get_vars_0();
+        vector<Enode *> const & pars_0 =
+            (m_dir == ode_direction::FWD) ? ic.get_pars_0() : ic.get_pars_t();
         capd::IVector X_0 = extract_ivector(b, vars_0);
         capd::IVector X_t = extract_ivector(b, vars_t);
         ibex::Interval const & ibex_T = b[ic.get_time_t()];
@@ -1015,16 +1034,19 @@ json contractor_capd_full::generate_trace(contractor_status cs) {
 }
 
 ostream & contractor_capd_full::display(ostream & out) const {
-    out << "contractor_capd_full("
-        << m_dir << ", "
-        << *m_ctr << ")";
+    out << "contractor_capd_full(" << m_dir << ", " << *m_ctr << ")";
     return out;
 }
 
-contractor_capd_point::contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc,
-                                             ode_direction const dir, SMTConfig const & config, double const timeout)
-    : contractor_cell(contractor_kind::CAPD_POINT, box.size()), m_dir(dir), m_ctr(ctr),
-      m_eval_ctc(eval_ctc), m_taylor_order(config.nra_ODE_taylor_order), m_timeout(timeout) {
+contractor_capd_point::contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr,
+                                             contractor const & eval_ctc, ode_direction const dir,
+                                             SMTConfig const & config, double const timeout)
+    : contractor_cell(contractor_kind::CAPD_POINT, box.size()),
+      m_dir(dir),
+      m_ctr(ctr),
+      m_eval_ctc(eval_ctc),
+      m_taylor_order(config.nra_ODE_taylor_order),
+      m_timeout(timeout) {
     DREAL_LOG_INFO << "contractor_capd_point::contractor_capd_point()";
     integral_constraint const & ic = m_ctr->get_ic();
     m_vars_0 = (m_dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
@@ -1061,7 +1083,7 @@ contractor_capd_point::contractor_capd_point(box const & box, shared_ptr<ode_con
         m_need_to_check_inv = false;
     }
     // Input: X_0, X_T, and Time
-    m_input  = ibex::BitSet::empty(box.size());
+    m_input = ibex::BitSet::empty(box.size());
     for (Enode * e : ctr->get_ic().get_enode()->get_vars()) {
         m_input.add(box.get_index(e));
     }
@@ -1155,12 +1177,13 @@ void contractor_capd_point::prune(contractor_status & cs) {
             // Handle Timeout
             if (m_timeout > 0.0 && b.is_bisectable(config.nra_precision)) {
                 auto const end_time = steady_clock::now();
-                auto const time_diff_in_msec = std::chrono::duration<double, milli>(end_time - start_time).count();
+                auto const time_diff_in_msec =
+                    std::chrono::duration<double, milli>(end_time - start_time).count();
                 DREAL_LOG_INFO << "ODE TIME: " << time_diff_in_msec << " / " << m_timeout;
                 if (time_diff_in_msec > m_timeout) {
-                    DREAL_LOG_FATAL << "ODE TIMEOUT!" << "\t"
-                                    << time_diff_in_msec << "msec / "
-                                    << m_timeout << "msec";
+                    DREAL_LOG_FATAL << "ODE TIMEOUT!"
+                                    << "\t" << time_diff_in_msec << "msec / " << m_timeout
+                                    << "msec";
                     throw contractor_exception("ODE TIMEOUT");
                 }
             }
@@ -1191,7 +1214,8 @@ void contractor_capd_point::prune(contractor_status & cs) {
                     }
                 }
                 if (included) {
-                    // Need to check whether (X_0, current_time, X) satisfies other constraints (i.e. guard)
+                    // Need to check whether (X_0, current_time, X) satisfies other constraints
+                    // (i.e. guard)
                     // To do so, we update the current box with (X_0, current_time, X),
                     // and check this updated box with eval_ctc.
                     update_box_with_dvector(b, m_vars_t, X);
@@ -1227,23 +1251,24 @@ void contractor_capd_point::prune(contractor_status & cs) {
     b = old_box;
 
     // auto const end_time = steady_clock::now();
-    // auto const time_diff_in_msec = std::chrono::duration<double, milli>(end_time - start_time).count();
+    // auto const time_diff_in_msec = std::chrono::duration<double, milli>(end_time -
+    // start_time).count();
     // DREAL_LOG_FATAL << "SAMPLING TIME: " << time_diff_in_msec;
     throw contractor_exception("CAPD_POINT failed");
 }
 ostream & contractor_capd_point::display(ostream & out) const {
-    out << "contractor_capd_point("
-        << m_dir << ", "
-        << *m_ctr << ")";
+    out << "contractor_capd_point(" << m_dir << ", " << *m_ctr << ")";
     return out;
 }
 
-contractor mk_contractor_capd_simple(box const & box, shared_ptr<ode_constraint> const ctr, ode_direction const dir) {
+contractor mk_contractor_capd_simple(box const & box, shared_ptr<ode_constraint> const ctr,
+                                     ode_direction const dir) {
     return contractor(make_shared<contractor_capd_simple>(box, ctr, dir));
 }
 
-contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr, ode_direction const dir,
-                                   SMTConfig const & config, bool const use_cache, double const timeout) {
+contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr,
+                                   ode_direction const dir, SMTConfig const & config,
+                                   bool const use_cache, double const timeout) {
     if (!use_cache) {
         return contractor(make_shared<contractor_capd_full>(box, ctr, dir, config, timeout));
     }
@@ -1269,16 +1294,20 @@ contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> c
         }
     }
 }
-contractor mk_contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr, contractor const & eval_ctc,
-                                    ode_direction const dir, SMTConfig const & config, bool const use_cache, double const timeout) {
+contractor mk_contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr,
+                                    contractor const & eval_ctc, ode_direction const dir,
+                                    SMTConfig const & config, bool const use_cache,
+                                    double const timeout) {
     if (!use_cache) {
-        return contractor(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
+        return contractor(
+            make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
     }
     if (dir == ode_direction::FWD) {
         static unordered_map<shared_ptr<ode_constraint>, contractor> capd_point_fwd_ctc_cache;
         auto it = capd_point_fwd_ctc_cache.find(ctr);
         if (it == capd_point_fwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
+            contractor ctc(
+                make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
             capd_point_fwd_ctc_cache.emplace(ctr, ctc);
             return ctc;
         } else {
@@ -1288,7 +1317,8 @@ contractor mk_contractor_capd_point(box const & box, shared_ptr<ode_constraint> 
         static unordered_map<shared_ptr<ode_constraint>, contractor> capd_point_bwd_ctc_cache;
         auto it = capd_point_bwd_ctc_cache.find(ctr);
         if (it == capd_point_bwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
+            contractor ctc(
+                make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
             capd_point_bwd_ctc_cache.emplace(ctr, ctc);
             return ctc;
         } else {

@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "contractor/contractor_common.h"
 #include <algorithm>
 #include <chrono>
 #include <functional>
@@ -41,9 +42,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "util/interruptible_thread.h"
 #include "util/logging.h"
 #include "util/proof.h"
-#include "util/interruptible_thread.h"
 #include "util/thread_local.h"
 
 using std::back_inserter;
@@ -67,19 +68,17 @@ using std::vector;
 namespace dreal {
 std::ostream & operator<<(std::ostream & out, ode_direction const & d) {
     switch (d) {
-    case ode_direction::FWD:
-        out << "FWD";
-        break;
-    case ode_direction::BWD:
-        out << "BWD";
-        break;
+        case ode_direction::FWD:
+            out << "FWD";
+            break;
+        case ode_direction::BWD:
+            out << "BWD";
+            break;
     }
     return out;
 }
 
-ostream & operator<<(ostream & out, contractor_cell const & c) {
-    return c.display(out);
-}
+ostream & operator<<(ostream & out, contractor_cell const & c) { return c.display(out); }
 
 void contractor::prune_with_assert(contractor_status & cs) {
     assert(m_ptr != nullptr);

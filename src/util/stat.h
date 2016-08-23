@@ -19,8 +19,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <iostream>
 #include <chrono>
+#include <iostream>
 namespace dreal {
 class stat {
 public:

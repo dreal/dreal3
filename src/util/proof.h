@@ -22,9 +22,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <string>
-#include "util/box.h"
 #include "contractor/contractor.h"
+#include "util/box.h"
 
 namespace dreal {
-void output_pruning_step(box const & old_box, contractor_status & cs, std::string const & constraint);
+void output_pruning_step(box const & old_box, contractor_status & cs,
+                         std::string const & constraint);
 }  // namespace dreal

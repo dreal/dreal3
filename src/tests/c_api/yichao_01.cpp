@@ -18,8 +18,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <stdio.h>
-#include <vector>
 #include <string>
+#include <vector>
 #include "opensmt/api/opensmt_c.h"
 
 using std::string;
@@ -43,7 +43,7 @@ int main() {
 
     vector<opensmt_expr> x;
     for (unsigned i = 0; i <= 75; i++) {
-        x.push_back(opensmt_mk_unbounded_real_var(ctx, ("x_"+int2string(i)).c_str()));
+        x.push_back(opensmt_mk_unbounded_real_var(ctx, ("x_" + int2string(i)).c_str()));
     }
     // Creating constraints
 
@@ -71,13 +71,14 @@ int main() {
     opensmt_assert(ctx, e4);
     fprintf(stderr, "\n");
 
-    opensmt_expr e5 = opensmt_mk_eq(ctx, x[14],  opensmt_mk_pow(ctx, x[1], opensmt_mk_num(ctx, 0.5)));
+    opensmt_expr e5 =
+        opensmt_mk_eq(ctx, x[14], opensmt_mk_pow(ctx, x[1], opensmt_mk_num(ctx, 0.5)));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e5);
     opensmt_assert(ctx, e5);
     fprintf(stderr, "\n");
 
-    opensmt_expr e6 = opensmt_mk_eq(ctx, x[17],  opensmt_mk_div(ctx, x[3], x[2]));
+    opensmt_expr e6 = opensmt_mk_eq(ctx, x[17], opensmt_mk_div(ctx, x[3], x[2]));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e6);
     opensmt_assert(ctx, e6);
@@ -89,31 +90,31 @@ int main() {
     opensmt_assert(ctx, e7);
     fprintf(stderr, "\n");
 
-    opensmt_expr e8 = opensmt_mk_eq(ctx, x[21],  opensmt_mk_times_2(ctx, x[1], x[2]));
+    opensmt_expr e8 = opensmt_mk_eq(ctx, x[21], opensmt_mk_times_2(ctx, x[1], x[2]));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e8);
     opensmt_assert(ctx, e8);
     fprintf(stderr, "\n");
 
-    opensmt_expr e9 = opensmt_mk_eq(ctx, x[22],  opensmt_mk_log(ctx, x[21]));
+    opensmt_expr e9 = opensmt_mk_eq(ctx, x[22], opensmt_mk_log(ctx, x[21]));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e9);
     opensmt_assert(ctx, e9);
     fprintf(stderr, "\n");
 
-    opensmt_expr e10 = opensmt_mk_eq(ctx, x[25],  opensmt_mk_plus_2(ctx, x[4], x[5]));
+    opensmt_expr e10 = opensmt_mk_eq(ctx, x[25], opensmt_mk_plus_2(ctx, x[4], x[5]));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e10);
     opensmt_assert(ctx, e10);
     fprintf(stderr, "\n");
 
-    opensmt_expr e11 = opensmt_mk_eq(ctx, x[27],  opensmt_mk_plus_2(ctx, x[3], x[25]));
+    opensmt_expr e11 = opensmt_mk_eq(ctx, x[27], opensmt_mk_plus_2(ctx, x[3], x[25]));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e11);
     opensmt_assert(ctx, e11);
     fprintf(stderr, "\n");
 
-    opensmt_expr e12 = opensmt_mk_eq(ctx, x[28],  opensmt_mk_log(ctx, x[27]));
+    opensmt_expr e12 = opensmt_mk_eq(ctx, x[28], opensmt_mk_log(ctx, x[27]));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e12);
     opensmt_assert(ctx, e12);
@@ -125,37 +126,40 @@ int main() {
     opensmt_assert(ctx, e13);
     fprintf(stderr, "\n");
 
-    opensmt_expr e14 = opensmt_mk_eq(ctx, x[31],  opensmt_mk_times_2(ctx, x[3], opensmt_mk_num(ctx, 2)));
+    opensmt_expr e14 =
+        opensmt_mk_eq(ctx, x[31], opensmt_mk_times_2(ctx, x[3], opensmt_mk_num(ctx, 2)));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e14);
     opensmt_assert(ctx, e14);
     fprintf(stderr, "\n");
 
-    opensmt_expr e15 = opensmt_mk_eq(ctx, x[33],  opensmt_mk_times_2(ctx, x[4], opensmt_mk_num(ctx, 3)));
+    opensmt_expr e15 =
+        opensmt_mk_eq(ctx, x[33], opensmt_mk_times_2(ctx, x[4], opensmt_mk_num(ctx, 3)));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e15);
     opensmt_assert(ctx, e15);
     fprintf(stderr, "\n");
 
-    opensmt_expr e16 = opensmt_mk_eq(ctx, x[34],  opensmt_mk_plus_2(ctx, x[31], x[33]));
+    opensmt_expr e16 = opensmt_mk_eq(ctx, x[34], opensmt_mk_plus_2(ctx, x[31], x[33]));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e16);
     opensmt_assert(ctx, e16);
     fprintf(stderr, "\n");
 
-    opensmt_expr e17 = opensmt_mk_eq(ctx, x[36],  opensmt_mk_times_2(ctx, x[1], opensmt_mk_num(ctx, 7)));
+    opensmt_expr e17 =
+        opensmt_mk_eq(ctx, x[36], opensmt_mk_times_2(ctx, x[1], opensmt_mk_num(ctx, 7)));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e17);
     opensmt_assert(ctx, e17);
     fprintf(stderr, "\n");
 
-    opensmt_expr e18 = opensmt_mk_eq(ctx, x[37],  opensmt_mk_plus_2(ctx, x[36], x[34]));
+    opensmt_expr e18 = opensmt_mk_eq(ctx, x[37], opensmt_mk_plus_2(ctx, x[36], x[34]));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e18);
     opensmt_assert(ctx, e18);
     fprintf(stderr, "\n");
 
-    opensmt_expr e19 = opensmt_mk_eq(ctx, x[39],  opensmt_mk_pow(ctx, x[2], opensmt_mk_num(ctx, 6)));
+    opensmt_expr e19 = opensmt_mk_eq(ctx, x[39], opensmt_mk_pow(ctx, x[2], opensmt_mk_num(ctx, 6)));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e19);
     opensmt_assert(ctx, e19);
@@ -167,13 +171,13 @@ int main() {
     opensmt_assert(ctx, e20);
     fprintf(stderr, "\n");
 
-    opensmt_expr e21 = opensmt_mk_eq(ctx, x[43],  opensmt_mk_plus_2(ctx, x[3], x[4]));
+    opensmt_expr e21 = opensmt_mk_eq(ctx, x[43], opensmt_mk_plus_2(ctx, x[3], x[4]));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e21);
     opensmt_assert(ctx, e21);
     fprintf(stderr, "\n");
 
-    opensmt_expr e22 = opensmt_mk_eq(ctx, x[46],  opensmt_mk_plus_2(ctx, x[1], x[2]));
+    opensmt_expr e22 = opensmt_mk_eq(ctx, x[46], opensmt_mk_plus_2(ctx, x[1], x[2]));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e22);
     opensmt_assert(ctx, e22);
@@ -185,12 +189,11 @@ int main() {
     opensmt_assert(ctx, e23);
     fprintf(stderr, "\n");
 
-    opensmt_expr e24 = opensmt_mk_eq(ctx, x[51],  opensmt_mk_div(ctx, x[1], x[2]));
+    opensmt_expr e24 = opensmt_mk_eq(ctx, x[51], opensmt_mk_div(ctx, x[1], x[2]));
     fprintf(stderr, "  Expression created: ");
     opensmt_print_expr(e24);
     opensmt_assert(ctx, e24);
     fprintf(stderr, "\n");
-
 
     // Checking for consistency
     fprintf(stderr, "\nChecking for consistency: ");

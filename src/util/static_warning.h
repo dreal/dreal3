@@ -17,7 +17,8 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-// The following code is from http://stackoverflow.com/questions/8936063/does-there-exist-a-static-warning
+// The following code is from
+// http://stackoverflow.com/questions/8936063/does-there-exist-a-static-warning
 // which is written by Michael Ekstrand (http://stackoverflow.com/users/1385039/michael-ekstrand)
 // The code is cc-by-sa licensed (http://creativecommons.org/licenses/by-sa/3.0/).
 
@@ -35,15 +36,17 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace detail {
 struct true_type {};
 struct false_type {};
-template <int test> struct converter : public true_type {};
-template <> struct converter<0> : public false_type {};
+template <int test>
+struct converter : public true_type {};
+template <>
+struct converter<0> : public false_type {};
 }  // namespace detail
 
-#define STATIC_WARNING(cond, msg)                                       \
-    struct PP_CAT(static_warning, __LINE__) {                           \
-        DEPRECATE(void _(::detail::false_type const&), msg) {};         \
-        void _(::detail::true_type const& ) {};                         \
-        PP_CAT(static_warning, __LINE__)() {_(::detail::converter<(cond)>());} \
+#define STATIC_WARNING(cond, msg)                                                \
+    struct PP_CAT(static_warning, __LINE__) {                                    \
+        DEPRECATE(void _(::detail::false_type const &), msg){};                  \
+        void _(::detail::true_type const &){};                                   \
+        PP_CAT(static_warning, __LINE__)() { _(::detail::converter<(cond)>()); } \
     }
 
 // Note: using STATIC_WARNING_TEMPLATE changes the meaning of a program in a small way.
@@ -51,5 +54,5 @@ template <> struct converter<0> : public false_type {};
 // in each structure/class instantiation.  STATIC_WARNING should be preferred in any
 // non-template situation.
 //  'token' must be a program-wide unique identifier.
-#define STATIC_WARNING_TEMPLATE(token, cond, msg)                       \
+#define STATIC_WARNING_TEMPLATE(token, cond, msg) \
     STATIC_WARNING(cond, msg) PP_CAT(PP_CAT(_localvar_, token), __LINE__)

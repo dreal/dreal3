@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
-        
+
 
 dReal -- Copyright (C) 2013 - 2015, the dReal Team
 
@@ -22,5 +22,5 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 namespace dreal {
 extern const char g_GIT_SHA1[];
-const char *getGitSHA1();
+const char * getGitSHA1();
 }

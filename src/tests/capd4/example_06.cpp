@@ -12,8 +12,8 @@
 // distributed under the terms of the GNU General Public License.
 // Consult  http://capd.ii.uj.edu.pl/ for details.
 
-#include <string>
 #include <iostream>
+#include <string>
 #include "capd/capdlib.h"
 
 using namespace capd;
@@ -22,7 +22,8 @@ using namespace std;
 int main() {
     try {
         cout.precision(12);
-        string capd_str = "var:x, v;"
+        string capd_str =
+            "var:x, v;"
             "fun:v,"
             "-9.8 + (- 0.45 * v ^ 1);";
         IMap vectorField(capd_str);
@@ -41,7 +42,7 @@ int main() {
             timeMap(T, s);
             interval stepMade = solver.getStep();
             cout << "step made: " << stepMade << endl;
-            const IOdeSolver::SolutionCurve& curve = solver.getCurve();
+            const IOdeSolver::SolutionCurve & curve = solver.getCurve();
             interval domain = interval(0, 1) * stepMade;
             int grid = 16;
             for (int i = 0; i < grid; ++i) {
@@ -49,15 +50,15 @@ int main() {
                 cerr << "before subsetOfDomain : " << subsetOfDomain << endl;
                 intersection(domain, subsetOfDomain, subsetOfDomain);
                 cerr << "after subsetOfDomain  : " << subsetOfDomain << endl;
-                IVector v = curve(Interval(subsetOfDomain.rightBound(), subsetOfDomain.rightBound()));
-                cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;;
+                IVector v =
+                    curve(Interval(subsetOfDomain.rightBound(), subsetOfDomain.rightBound()));
+                cout << "enclosure for t=" << prevTime + subsetOfDomain << ":  " << v << endl;
                 cout << "diam(enclosure): " << diam(v) << endl;
             }
             prevTime = timeMap.getCurrentTime();
-            cout << "current time: " << prevTime << endl
-                 << "==============" << endl << endl;
+            cout << "current time: " << prevTime << endl << "==============" << endl << endl;
         } while (!timeMap.completed());
-    } catch(exception& e) {
+    } catch (exception & e) {
         cout << "Exception caught! - " << e.what() << endl;
     }
 }

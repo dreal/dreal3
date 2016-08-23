@@ -25,25 +25,25 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/hash_combine.h"
 
 namespace std {
-template<>
+template <>
 struct hash<ibex::Interval> {
-    size_t operator () (const ibex::Interval & v) const {
+    size_t operator()(const ibex::Interval & v) const {
         size_t seed = 23;
         dreal::hash_combine<double>(seed, v.lb());
         dreal::hash_combine<double>(seed, v.ub());
         return seed;
     }
 };
-template<>
+template <>
 struct equal_to<ibex::Interval> {
-    bool operator() (const ibex::Interval & v1, const ibex::Interval & v2) const {
+    bool operator()(const ibex::Interval & v1, const ibex::Interval & v2) const {
         return v1.lb() == v2.lb() && v1.ub() == v2.ub();
     }
 };
 
-template<>
+template <>
 struct hash<std::vector<ibex::Interval>> {
-    size_t operator () (const std::vector<ibex::Interval> & v) const {
+    size_t operator()(const std::vector<ibex::Interval> & v) const {
         size_t seed = 23;
         for (ibex::Interval const & iv : v) {
             dreal::hash_combine<ibex::Interval>(seed, iv);
@@ -51,9 +51,10 @@ struct hash<std::vector<ibex::Interval>> {
         return seed;
     }
 };
-template<>
+template <>
 struct equal_to<std::vector<ibex::Interval>> {
-    bool operator() (const std::vector<ibex::Interval> & v1, const std::vector<ibex::Interval> & v2) const {
+    bool operator()(const std::vector<ibex::Interval> & v1,
+                    const std::vector<ibex::Interval> & v2) const {
         if (v1.size() != v2.size()) {
             return false;
         }

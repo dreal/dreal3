@@ -17,12 +17,12 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "util/box.h"
 #include <iostream>
 #include <vector>
 #include "opensmt/api/OpenSMTContext.h"
-#include "opensmt/egraph/Enode.h"
 #include "opensmt/egraph/Egraph.h"
-#include "util/box.h"
+#include "opensmt/egraph/Enode.h"
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"
 
@@ -44,7 +44,7 @@ TEST_CASE("Create a box") {
     auto z = context.mkVar("z");
     x->setDomainLowerBound(3);
     x->setDomainUpperBound(5);
-    vector<Enode *> vars {x, y, z};
+    vector<Enode *> vars{x, y, z};
     box b1(vars);
     cerr << b1 << endl;
     REQUIRE(b1[x].lb() == 3);

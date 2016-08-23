@@ -18,14 +18,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <string>
-#include <iostream>
 #include <initializer_list>
+#include <iostream>
+#include <string>
 #include <unordered_map>
-#include <vector>
 #include <utility>
-#include "opensmt/egraph/Enode.h"
+#include <vector>
 #include "ibex/ibex.h"
+#include "opensmt/egraph/Enode.h"
 
 namespace dreal {
 class flow {
@@ -38,9 +38,9 @@ public:
     flow(Enode * const v, Enode * const e);
     void add(Enode * const v, Enode * const e);
     inline std::vector<Enode *> const & get_vars() const { return m_vars; }
-    inline std::vector<Enode *>         get_vars()       { return m_vars; }
+    inline std::vector<Enode *> get_vars() { return m_vars; }
     inline std::vector<Enode *> const & get_odes() const { return m_odes; }
-    inline std::vector<Enode *>         get_odes()       { return m_odes; }
+    inline std::vector<Enode *> get_odes() { return m_odes; }
     friend std::ostream & operator<<(std::ostream & out, flow const & _flow);
 };
 std::ostream & operator<<(std::ostream & out, flow const & _flow);

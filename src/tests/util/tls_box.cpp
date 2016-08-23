@@ -19,11 +19,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <vector>
-#include "opensmt/api/OpenSMTContext.h"
-#include "opensmt/egraph/Enode.h"
-#include "opensmt/egraph/Egraph.h"
-#include "util/box.h"
 #include "ibex/ibex.h"
+#include "opensmt/api/OpenSMTContext.h"
+#include "opensmt/egraph/Egraph.h"
+#include "opensmt/egraph/Enode.h"
+#include "util/box.h"
 #include "util/thread_local.h"
 
 using std::cerr;
@@ -51,7 +51,7 @@ int main() {
     auto z = context.mkVar("z");
     x->setDomainLowerBound(3);
     x->setDomainUpperBound(5);
-    vector<Enode *> vars {x, y, z};
+    vector<Enode *> vars{x, y, z};
     dreal::box b1(vars);
 
     tls_fun(b1);

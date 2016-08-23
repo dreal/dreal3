@@ -12,8 +12,8 @@
 // distributed under the terms of the GNU General Public License.
 // Consult  http://capd.ii.uj.edu.pl/ for details.
 
-#include <string>
 #include <iostream>
+#include <string>
 #include "capd/capdlib.h"
 
 using namespace capd;
@@ -23,7 +23,8 @@ int main() {
     try {
         cout.precision(12);
 
-        string capd_str = "var:x_0, P_0;"
+        string capd_str =
+            "var:x_0, P_0;"
             "fun:1.0,"
             "(1.0/(6.283185307180000123139507195447^(0.5))*exp(((-1)*(x_0^2))/2));";
 
@@ -61,7 +62,7 @@ int main() {
             // It can be evaluated at a point (or interval).
             // The curve can be also differentiated wrt to time.
             // We can also extract from it the 1-st order derivatives wrt.
-            const IOdeSolver::SolutionCurve& curve = solver.getCurve();
+            const IOdeSolver::SolutionCurve & curve = solver.getCurve();
             interval domain = interval(0, 1) * stepMade;
 
             // Here we use a uniform grid of last time step made
@@ -85,7 +86,7 @@ int main() {
             prevTime = timeMap.getCurrentTime();
             cout << "\ncurrent time: " << prevTime << endl << endl;
         } while (!timeMap.completed());
-    } catch(exception& e) {
+    } catch (exception & e) {
         cout << "\n\nException caught!\n" << e.what() << endl << endl;
     }
 }  // END

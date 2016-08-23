@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <nlopt.hpp>
 #include <iostream>
+#include <nlopt.hpp>
 #include <vector>
 
 using std::vector;
@@ -26,11 +26,11 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-double obj(unsigned, const double* x, double*, void*) {
+double obj(unsigned, const double * x, double *, void *) {
     double const ret = sin(x[0]) * cos(x[1]);
-    cerr << "sin(" << x[0] << ")" << " * "
-         << "cos(" << x[1] << ") = "
-         << ret << endl;
+    cerr << "sin(" << x[0] << ")"
+         << " * "
+         << "cos(" << x[1] << ") = " << ret << endl;
     return ret;
 }
 
@@ -41,14 +41,16 @@ int main() {
     //    0 <= x[0]
     //    0 <= x[1]
     vector<double> lb(2);
-    lb[0] = 0; lb[1] = 0;
+    lb[0] = 0;
+    lb[1] = 0;
     opt.set_lower_bounds(lb);
 
     // upper bound
     //    x[0] <= 10
     //    x[1] <= 10
     vector<double> ub(2);
-    ub[0] = 10; ub[1] = 10;
+    ub[0] = 10;
+    ub[1] = 10;
     opt.set_upper_bounds(ub);
 
     // set objective function

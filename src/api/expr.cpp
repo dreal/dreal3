@@ -20,11 +20,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <list>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "api/dreal.h"
 #include "opensmt/api/OpenSMTContext.h"
-#include "util/subst_enode.h"
 #include "util/logging.h"
+#include "util/subst_enode.h"
 
 using std::cerr;
 using std::endl;
@@ -49,7 +50,8 @@ expr::expr(solver * const sol, cexpr const e) : m_solver(sol), cctx(sol->get_ctx
     assert(ep);
 }
 
-expr::expr(solver& sol, char const * name) : m_solver(&sol), cctx(sol.get_ctx()), ep((sol.var(name)).get_cexpr()) {}
+expr::expr(solver & sol, char const * name)
+    : m_solver(&sol), cctx(sol.get_ctx()), ep((sol.var(name)).get_cexpr()) {}
 
 expr::expr(solver * const s, expr * e) : m_solver(s), cctx(s->get_ctx()), ep(e->get_cexpr()) {}
 
@@ -87,7 +89,7 @@ expr operator==(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -111,7 +113,7 @@ expr operator>=(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -135,7 +137,7 @@ expr operator<=(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -159,7 +161,7 @@ expr operator<(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -183,7 +185,7 @@ expr operator>(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -207,7 +209,7 @@ expr operator+(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -231,7 +233,7 @@ expr operator-(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -262,7 +264,7 @@ expr operator*(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -286,7 +288,7 @@ expr operator/(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -295,7 +297,7 @@ expr operator/(expr const & e1, expr const & e2) {
 }
 
 expr operator/(expr const & e1, double const a) {
-    assert(a!= 0);
+    assert(a != 0);
     solver * const s = e1.get_solver();
     expr const t = s->num(a);
     return e1 / t;
@@ -320,7 +322,7 @@ expr pow(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -329,7 +331,7 @@ expr pow(expr const & e1, expr const & e2) {
 }
 
 expr pow(expr const & e1, double const a) {
-    assert(a!= 0);
+    assert(a != 0);
     solver * const s = e1.get_solver();
     expr const t = s->num(a);
     return pow(e1, t);
@@ -341,13 +343,9 @@ expr pow(double const a, expr const & e1) {
     return pow(t, e1);
 }
 
-expr operator^(expr const & e, double const a) {
-    return pow(e, a);
-}
+expr operator^(expr const & e, double const a) { return pow(e, a); }
 
-expr operator^(double const a, expr const & e) {
-    return pow(a, e);
-}
+expr operator^(double const a, expr const & e) { return pow(a, e); }
 
 expr pow(expr const & arg) {
     env cctx = arg.get_ctx();
@@ -470,7 +468,7 @@ expr operator&&(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -482,7 +480,7 @@ expr operator||(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
     cexpr const ce2 = e2.get_cexpr();
-    list<Enode *> args { static_cast<Enode *>(ce2), static_cast<Enode *>(ce1) };
+    list<Enode *> args{static_cast<Enode *>(ce2), static_cast<Enode *>(ce1)};
     env cctx = e1.get_ctx();
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     Enode * const args_list = context->mkCons(args);
@@ -546,9 +544,9 @@ expr substitute(expr const & e, unordered_map<expr *, expr *> const & m) {
     Enode * e_ce = static_cast<Enode *>(ce);
     OpenSMTContext * context = static_cast<OpenSMTContext *>(e.get_ctx());
     unordered_map<Enode *, Enode *> enode_map;
-    for ( auto item : m ) {
-        Enode * const e1 = static_cast<Enode*>((item.first)->get_cexpr());
-        Enode * const e2 = static_cast<Enode*>((item.second)->get_cexpr());
+    for (auto item : m) {
+        Enode * const e1 = static_cast<Enode *>((item.first)->get_cexpr());
+        Enode * const e2 = static_cast<Enode *>((item.second)->get_cexpr());
         if (e1 != e2) {
             enode_map.emplace(e1, e2);
         }
@@ -557,11 +555,11 @@ expr substitute(expr const & e, unordered_map<expr *, expr *> const & m) {
     return expr(e.get_solver(), static_cast<cexpr>(res));
 }
 
-expr substitute(expr const & e, vector<expr*> const & pre, vector<expr *> const & post) {
+expr substitute(expr const & e, vector<expr *> const & pre, vector<expr *> const & post) {
     assert(pre.size() == post.size());
     unordered_map<expr *, expr *> m;
-    for (unsigned i=0; i < pre.size(); i++) {
-    m.emplace(pre[i], post[i]);
+    for (unsigned i = 0; i < pre.size(); i++) {
+        m.emplace(pre[i], post[i]);
     }
     return substitute(e, m);
 }
@@ -571,7 +569,7 @@ ostream & operator<<(ostream & out, expr const & e) {
     return out;
 }
 
-poly::poly(vector<expr*> & x, char const * c_name, unsigned d) : expr(x[0]->get_solver()), m_x(x) {
+poly::poly(vector<expr *> & x, char const * c_name, unsigned d) : expr(x[0]->get_solver()), m_x(x) {
     cctx = m_solver->get_ctx();
     degree = d;
     ep = buildExpr(c_name, d);
@@ -593,15 +591,17 @@ cexpr poly::buildExpr(char const * c_name, unsigned d) {
         for (unsigned j = 1; j <= d; j++) {
             power = power + 1;
             for (auto m : monomials) {
-                // iterate through every existing monomial m, and push (xi^power)*m as a new monomial
-                tmp.push_back(ctx->mkTimes(ctx->mkCons(
-                                                ctx->mkPow(ctx->mkCons(static_cast<Enode*>(xi->get_cexpr()),
-                                                    ctx->mkCons(ctx->mkNum(power)))), ctx->mkCons(m))));
+                // iterate through every existing monomial m, and push (xi^power)*m as a new
+                // monomial
+                tmp.push_back(ctx->mkTimes(
+                    ctx->mkCons(ctx->mkPow(ctx->mkCons(static_cast<Enode *>(xi->get_cexpr()),
+                                                       ctx->mkCons(ctx->mkNum(power)))),
+                                ctx->mkCons(m))));
             }
         }
         // then add the newly constructed monomials to the monomial list
         for (auto tm : tmp) {
-              monomials.push_back(tm);
+            monomials.push_back(tm);
         }
         tmp.clear();
     }
@@ -615,8 +615,9 @@ cexpr poly::buildExpr(char const * c_name, unsigned d) {
         expr * ci_expr = m_solver->new_var(cn.c_str());
         m_c.push_back(ci_expr);
         // add a new term to ret
-        ret = ctx->mkPlus(ctx->mkCons(ret, ctx->mkCons(ctx->mkTimes
-                    (ctx->mkCons(m, ctx->mkCons(static_cast<Enode*>(ci_expr->get_cexpr())))))));
+        ret = ctx->mkPlus(
+            ctx->mkCons(ret, ctx->mkCons(ctx->mkTimes(ctx->mkCons(
+                                 m, ctx->mkCons(static_cast<Enode *>(ci_expr->get_cexpr())))))));
         // increment the cofficient count
         i++;
     }
@@ -624,13 +625,9 @@ cexpr poly::buildExpr(char const * c_name, unsigned d) {
     return static_cast<cexpr>(ret);
 }
 
-poly::~poly() {
-    delete m_e;
-}
+poly::~poly() { delete m_e; }
 
-expr * poly::getExpr() {
-    return m_e;
-}
+expr * poly::getExpr() { return m_e; }
 
 void poly::setCofBounds(double lb, double ub) {
     for (auto e : m_c) {

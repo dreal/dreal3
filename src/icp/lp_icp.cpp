@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "icp/lp_icp.h"
+#include <memory>
 #include <stack>
 #include <tuple>
 #include <unordered_set>
@@ -26,7 +28,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "constraint/constraint.h"
 #include "icp/brancher.h"
 #include "icp/icp.h"
-#include "icp/lp_icp.h"
 #include "util/glpk_wrapper.h"
 #include "util/logging.h"
 #include "util/scoped_vec.h"
@@ -51,9 +52,8 @@ enum class lp_icp_kind { LP, ICP };
 SizeBrancher lp_sb;
 BranchHeuristic & lp_icp::defaultHeuristic = lp_sb;
 
-void lp_icp::mark_basic(glpk_wrapper & lp,
-                        std::unordered_set<Enode*> es,
-                        scoped_vec<std::shared_ptr<constraint>>& constraints,
+void lp_icp::mark_basic(glpk_wrapper & lp, std::unordered_set<Enode *> es,
+                        scoped_vec<std::shared_ptr<constraint>> & constraints,
                         std::unordered_set<std::shared_ptr<constraint>> & used_constraints) {
     // TODO(dzufferey) something not n²
     int idx = 0;
@@ -97,19 +97,22 @@ bool lp_icp::is_lp_sat(glpk_wrapper & lp_solver, box & solution, SMTConfig const
     } else {
         lp_solver.get_solution(solution);
         if (!solution.is_subset(lp_solver.get_domain())) {
-            DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
+            DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking "
+                               "the point solution";
             for (unsigned int i = 0; i < solution.size(); i++) {
                 double p = solution[i].lb();
                 if (p < lp_solver.get_domain()[i].lb()) {
                     double delta = lp_solver.get_domain()[i].lb() - p;
                     if (delta > config.nra_precision) {
-                        DREAL_LOG_WARNING << "lp_icp::solve - tweaking GLPK result by more than the precision.";
+                        DREAL_LOG_WARNING
+                            << "lp_icp::solve - tweaking GLPK result by more than the precision.";
                     }
                     solution[i] = lp_solver.get_domain()[i].lb();
                 } else if (p > lp_solver.get_domain()[i].ub()) {
                     double delta = p - lp_solver.get_domain()[i].ub();
                     if (delta > config.nra_precision) {
-                        DREAL_LOG_WARNING << "lp_icp::solve - tweaking GLPK result by more than the precision.";
+                        DREAL_LOG_WARNING
+                            << "lp_icp::solve - tweaking GLPK result by more than the precision.";
                     }
                     solution[i] = lp_solver.get_domain()[i].ub();
                 }
@@ -120,7 +123,8 @@ bool lp_icp::is_lp_sat(glpk_wrapper & lp_solver, box & solution, SMTConfig const
 }
 
 void lp_icp::prune(glpk_wrapper & lp, int i, box & solution, SMTConfig const & config) {
-    DREAL_LOG_INFO << "lp_icp::prune" << " old interval " << solution.get_name(i) << " " << solution[i];
+    DREAL_LOG_INFO << "lp_icp::prune"
+                   << " old interval " << solution.get_name(i) << " " << solution[i];
     DREAL_THREAD_LOCAL static box old_domain(lp.get_domain());
     old_domain = lp.get_domain();
     lp.set_domain(solution);
@@ -133,10 +137,12 @@ void lp_icp::prune(glpk_wrapper & lp, int i, box & solution, SMTConfig const & c
         max = solution[i].ub();
         double delta = max - lp.get_domain()[i].ub();
         if (delta > 0) {
-            DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
+            DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking "
+                               "the point solution";
             max = lp.get_domain()[i].ub();
             if (delta > config.nra_precision) {
-                DREAL_LOG_WARNING << "lp_icp::prune - tweaking GLPK result by more than the precision.";
+                DREAL_LOG_WARNING
+                    << "lp_icp::prune - tweaking GLPK result by more than the precision.";
             }
         }
     }
@@ -147,23 +153,25 @@ void lp_icp::prune(glpk_wrapper & lp, int i, box & solution, SMTConfig const & c
         min = solution[i].lb();
         double delta = lp.get_domain()[i].lb() - min;
         if (delta > 0) {
-            DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking the point solution";
+            DREAL_LOG_DEBUG << "lp_icp::solve - GLPK tolerance interfere with the bounds, tweaking "
+                               "the point solution";
             min = lp.get_domain()[i].lb();
             if (delta > config.nra_precision) {
-                DREAL_LOG_WARNING << "lp_icp::prune - tweaking GLPK result by more than the precision.";
+                DREAL_LOG_WARNING
+                    << "lp_icp::prune - tweaking GLPK result by more than the precision.";
             }
         }
     }
     solution = lp.get_domain();
     solution[i] = ibex::Interval(min, max);
-    DREAL_LOG_INFO << "lp_icp::prune" << " new interval " << solution.get_name(i) << " " << solution[i];
+    DREAL_LOG_INFO << "lp_icp::prune"
+                   << " new interval " << solution.get_name(i) << " " << solution[i];
     lp.set_domain(old_domain);
     lp.set_objective(nullptr);
 }
 
 void lp_icp::solve(contractor & ctc, contractor_status & cs,
-                   scoped_vec<shared_ptr<constraint>>& constraints,
-                   BranchHeuristic& brancher) {
+                   scoped_vec<shared_ptr<constraint>> & constraints, BranchHeuristic & brancher) {
     DREAL_THREAD_LOCAL static vector<box> solns;
     solns.clear();
     /* The stack now contains both the LP and ICP domain.
@@ -188,7 +196,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
     }
 
     // create the LP with the linear constraints
-    unordered_set<Enode*> es;
+    unordered_set<Enode *> es;
     for (auto cptr : constraints) {
         if (cptr->get_type() == constraint_type::Nonlinear) {
             auto e = cptr->get_enodes()[0];
@@ -212,93 +220,98 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
 
     while (!box_stack.empty()) {
         DREAL_LOG_INFO << "lp_icp::solve - loop"
-                       << "\t" << "box stack Size = " << box_stack.size();
+                       << "\t"
+                       << "box stack Size = " << box_stack.size();
         tuple<lp_icp_kind, box> const branch = box_stack.top();
         box_stack.pop();
         lp_icp_kind const kind = get<0>(branch);
         cs.m_box = get<1>(branch);
 
         switch (kind) {
-        case lp_icp_kind::LP:
-            lp_solver.set_domain(cs.m_box);
-            break;
-        case lp_icp_kind::ICP:
-            if (!is_lp_sat(lp_solver, lp_point, cs.m_config)) {
-                assert(cs.m_box.is_subset(lp_solver.get_domain()));
-                cs.m_box.set_empty();
-                mark_basic(lp_solver, es, constraints, cs.m_used_constraints);
-            } else {
-                if (lp_point.is_subset(cs.m_box)) {
-                    vector<int> const sorted_dims = brancher.sort_branches(cs.m_box, constraints, ctc.get_input(), cs.m_config, 1);
-                    if (sorted_dims.size() > 0) {
-                        // branch ...
-                        int const i = sorted_dims[0];
-                        if (cs.m_config.nra_lp_prune) {
-                            // use the LP for pruning the dimension on which we branch
-                            prune(lp_solver, i, cs.m_box, cs.m_config);
-                        }
-                        if (!cs.m_box.is_bisectable_at(i, cs.m_config.nra_precision)) {
-                            box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
-                        } else {
-                            tuple<int, box, box> const splits = cs.m_box.bisect_at(i);
-                            if (cs.m_config.nra_use_stat) { cs.m_config.nra_stat.increase_branch(); }
-                            if (cs.m_config.nra_proof) {
-                                cs.m_config.nra_proof_out << "[branched on "
-                                                          << cs.m_box.get_name(i)
-                                                          << "]" << endl;
+            case lp_icp_kind::LP:
+                lp_solver.set_domain(cs.m_box);
+                break;
+            case lp_icp_kind::ICP:
+                if (!is_lp_sat(lp_solver, lp_point, cs.m_config)) {
+                    assert(cs.m_box.is_subset(lp_solver.get_domain()));
+                    cs.m_box.set_empty();
+                    mark_basic(lp_solver, es, constraints, cs.m_used_constraints);
+                } else {
+                    if (lp_point.is_subset(cs.m_box)) {
+                        vector<int> const sorted_dims = brancher.sort_branches(
+                            cs.m_box, constraints, ctc.get_input(), cs.m_config, 1);
+                        if (sorted_dims.size() > 0) {
+                            // branch ...
+                            int const i = sorted_dims[0];
+                            if (cs.m_config.nra_lp_prune) {
+                                // use the LP for pruning the dimension on which we branch
+                                prune(lp_solver, i, cs.m_box, cs.m_config);
                             }
-                            // ... and prune
-                            contractor_status cs1(get<1>(splits), cs.m_config);
-                            ctc.prune(cs1);
-                            cs.m_used_constraints.insert(cs1.m_used_constraints.begin(), cs1.m_used_constraints.end());
+                            if (!cs.m_box.is_bisectable_at(i, cs.m_config.nra_precision)) {
+                                box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
+                            } else {
+                                tuple<int, box, box> const splits = cs.m_box.bisect_at(i);
+                                if (cs.m_config.nra_use_stat) {
+                                    cs.m_config.nra_stat.increase_branch();
+                                }
+                                if (cs.m_config.nra_proof) {
+                                    cs.m_config.nra_proof_out
+                                        << "[branched on " << cs.m_box.get_name(i) << "]" << endl;
+                                }
+                                // ... and prune
+                                contractor_status cs1(get<1>(splits), cs.m_config);
+                                ctc.prune(cs1);
+                                cs.m_used_constraints.insert(cs1.m_used_constraints.begin(),
+                                                             cs1.m_used_constraints.end());
 
-                            contractor_status cs2(get<2>(splits), cs.m_config);
-                            ctc.prune(cs2);
-                            cs.m_used_constraints.insert(cs2.m_used_constraints.begin(), cs2.m_used_constraints.end());
+                                contractor_status cs2(get<2>(splits), cs.m_config);
+                                ctc.prune(cs2);
+                                cs.m_used_constraints.insert(cs2.m_used_constraints.begin(),
+                                                             cs2.m_used_constraints.end());
 
-                            // push the non-empty boxes on the stack
-                            if (!cs1.m_box.is_empty()) {
-                                if (!cs2.m_box.is_empty()) {
-                                    // try to go where the LP says there is a solution
-                                    if (lp_point.is_subset(cs1.m_box)) {
-                                        box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
-                                        box_stack.emplace(lp_icp_kind::ICP, cs1.m_box);
+                                // push the non-empty boxes on the stack
+                                if (!cs1.m_box.is_empty()) {
+                                    if (!cs2.m_box.is_empty()) {
+                                        // try to go where the LP says there is a solution
+                                        if (lp_point.is_subset(cs1.m_box)) {
+                                            box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
+                                            box_stack.emplace(lp_icp_kind::ICP, cs1.m_box);
+                                        } else {
+                                            box_stack.emplace(lp_icp_kind::ICP, cs1.m_box);
+                                            box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
+                                        }
                                     } else {
                                         box_stack.emplace(lp_icp_kind::ICP, cs1.m_box);
-                                        box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
                                     }
                                 } else {
-                                    box_stack.emplace(lp_icp_kind::ICP, cs1.m_box);
-                                }
-                            } else {
-                                if (!cs2.m_box.is_empty()) {
-                                    box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
+                                    if (!cs2.m_box.is_empty()) {
+                                        box_stack.emplace(lp_icp_kind::ICP, cs2.m_box);
+                                    }
                                 }
                             }
+                        } else {
+                            // box is not bisectable, we have a solution
+                            cs.m_config.nra_found_soln++;
+                            if (cs.m_config.nra_multiple_soln > 1) {
+                                // If --multiple_soln is used
+                                output_solution(cs.m_box, cs.m_config, cs.m_config.nra_found_soln);
+                            }
+                            if (cs.m_config.nra_found_soln >= cs.m_config.nra_multiple_soln) {
+                                break;
+                            }
+                            solns.push_back(cs.m_box);
                         }
                     } else {
-                        // box is not bisectable, we have a solution
-                        cs.m_config.nra_found_soln++;
-                        if (cs.m_config.nra_multiple_soln > 1) {
-                            // If --multiple_soln is used
-                            output_solution(cs.m_box, cs.m_config, cs.m_config.nra_found_soln);
-                        }
-                        if (cs.m_config.nra_found_soln >= cs.m_config.nra_multiple_soln) {
-                            break;
-                        }
-                        solns.push_back(cs.m_box);
+                        // the point solution of the LP is not is the current box.
+                        // set the LP domain to the current box.
+                        DREAL_LOG_DEBUG << "lp_icp::solve - asking for a new point solution";
+                        box_stack.emplace(lp_icp_kind::LP, lp_solver.get_domain());
+                        lp_solver.set_domain(cs.m_box);
+                        box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
                     }
-                } else {
-                    // the point solution of the LP is not is the current box.
-                    // set the LP domain to the current box.
-                    DREAL_LOG_DEBUG << "lp_icp::solve - asking for a new point solution";
-                    box_stack.emplace(lp_icp_kind::LP, lp_solver.get_domain());
-                    lp_solver.set_domain(cs.m_box);
-                    box_stack.emplace(lp_icp_kind::ICP, cs.m_box);
                 }
-            }
-            break;  // end of case LP:
-        }  // end of switch
+                break;  // end of case LP:
+        }               // end of switch
         if (cs.m_config.nra_found_soln >= cs.m_config.nra_multiple_soln) {
             break;
         }

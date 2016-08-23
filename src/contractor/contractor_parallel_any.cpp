@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "contractor/contractor_parallel_any.h"
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -43,7 +44,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor_basic.h"
 #include "contractor/contractor_common.h"
 #include "contractor/contractor_parallel.h"
-#include "contractor/contractor_parallel_any.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
@@ -126,18 +126,11 @@ void contractor_parallel_any::prune(contractor_status & cs) {
     // PARALLEL_LOG << "parallel_any: tasks to run = " << tasks_to_run.load();
     for (unsigned i = 0; i < m_vec.size(); ++i) {
         PARALLEL_LOG << "parallel_any: thread " << i << " / " << (tasks_to_run.load() - 1)
-                        << " spawning...";
-        threads.emplace_back(parallel_helper_fn,
-                             i,
-                             m_vec[i],
-                             ctc_statuses[i],
-                             thread_statuses[i],
-                             m_mutex,
-                             m_cv,
-                             m_index,
-                             tasks_to_run);
+                     << " spawning...";
+        threads.emplace_back(parallel_helper_fn, i, m_vec[i], ctc_statuses[i], thread_statuses[i],
+                             m_mutex, m_cv, m_index, tasks_to_run);
         PARALLEL_LOG << "parallel_any: thread " << i << " / " << (tasks_to_run.load() - 1)
-                        << " spawned...";
+                     << " spawned...";
     }
     PARALLEL_LOG << "parallel_any: " << m_vec.size() << " thread(s) got created";
 
@@ -148,7 +141,7 @@ void contractor_parallel_any::prune(contractor_status & cs) {
         if (tasks_to_run.load() == 0) {
             break;
         }
-        PARALLEL_LOG << "parallel_any: WAIT for CV." << tasks_to_run.load() << " tasks to go";;
+        PARALLEL_LOG << "parallel_any: WAIT for CV." << tasks_to_run.load() << " tasks to go";
         m_index = -1;
         m_cv.wait(lk, [&]() { return m_index != -1; });
         PARALLEL_LOG << "parallel_any: wake up" << tasks_to_run.load();
@@ -157,7 +150,8 @@ void contractor_parallel_any::prune(contractor_status & cs) {
         if (s == pruning_thread_status::SAT || s == pruning_thread_status::EXCEPTION) {
             // Interrupt all the rest threads
             for (unsigned i = 0; i < thread_statuses.size(); i++) {
-                if (i - m_index != 0 && (thread_statuses[i] == pruning_thread_status::READY || thread_statuses[i] == pruning_thread_status::RUNNING)) {
+                if (i - m_index != 0 && (thread_statuses[i] == pruning_thread_status::READY ||
+                                         thread_statuses[i] == pruning_thread_status::RUNNING)) {
                     threads[i].interrupt();
                 }
             }
@@ -206,7 +200,8 @@ void contractor_parallel_any::prune(contractor_status & cs) {
     // ignoring the rest of contractors.
     for (unsigned i = 0; i < m_vec.size(); i++) {
         cs.m_output.union_with(ctc_statuses[i].m_output);
-        unordered_set<shared_ptr<constraint>> const & used_ctrs = ctc_statuses[i].m_used_constraints;
+        unordered_set<shared_ptr<constraint>> const & used_ctrs =
+            ctc_statuses[i].m_used_constraints;
         cs.m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
     }
     for (unsigned i = 0; i < m_vec.size(); i++) {

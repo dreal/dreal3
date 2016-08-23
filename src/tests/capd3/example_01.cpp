@@ -10,7 +10,10 @@ int main() {
     try {
         cout.precision(12);
         // This is the vector field for the Planar Restricted Circular 3 Body Problem
-        IMap vectorField("par:mu,mj;var:x,y,dx,dy;fun:dx,dy,x-mj*(x+mu)*sqrt((x+mu)^2+y^2)^(-3)-mu*(x-mj)*sqrt((x-mj)^2+y^2)^(-3)+2*dy,y*(1-mj*sqrt((x+mu)^2+y^2)^(-3)-mu*sqrt((x-mj)^2+y^2)^(-3))-2*dx;");
+        IMap vectorField(
+            "par:mu,mj;var:x,y,dx,dy;fun:dx,dy,x-mj*(x+mu)*sqrt((x+mu)^2+y^2)^(-3)-mu*(x-mj)*sqrt(("
+            "x-mj)^2+y^2)^(-3)+2*dy,y*(1-mj*sqrt((x+mu)^2+y^2)^(-3)-mu*sqrt((x-mj)^2+y^2)^(-3))-2*"
+            "dx;");
         // mass ratio
         interval mu = interval(123.0) / interval(10000.0);
         interval mj = 1.0 - mu;
@@ -47,8 +50,8 @@ int main() {
             // It can be evaluated at a point (or interval).
             // The curve can be also differentiated wrt to time.
             // We can also extract from it the 1-st order derivatives wrt.
-            const ITaylor::CurveType& curve = solver.getCurve();
-            interval domain = interval(0, 1)*stepMade;
+            const ITaylor::CurveType & curve = solver.getCurve();
+            interval domain = interval(0, 1) * stepMade;
 
             // Here we use a uniform grid of last time step made
             // to enclose the trajectory between time steps.
@@ -70,7 +73,7 @@ int main() {
             prevTime = timeMap.getCurrentTime();
             cout << "\ncurrent time: " << prevTime << endl << endl;
         } while (!timeMap.completed());
-    } catch(exception& e) {
+    } catch (exception & e) {
         cout << "\n\nException caught!\n" << e.what() << endl << endl;
     }
 }  // END

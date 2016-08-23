@@ -24,19 +24,18 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/hash_combine.h"
 
 namespace std {
-template<>
+template <>
 struct hash<ibex::Variable> {
-    size_t operator () (const ibex::Variable & v) const {
+    size_t operator()(const ibex::Variable & v) const {
         size_t seed = 23;
         char const * str = v.symbol->name;
-        while (*str)
-            dreal::hash_combine<char>(seed, *str++);
+        while (*str) dreal::hash_combine<char>(seed, *str++);
         return seed;
     }
 };
-template<>
+template <>
 struct equal_to<ibex::Variable> {
-    bool operator() (const ibex::Variable & v1, const ibex::Variable & v2) const {
+    bool operator()(const ibex::Variable & v1, const ibex::Variable & v2) const {
         return strcmp(v1.symbol->name, v2.symbol->name) == 0;
     }
 };

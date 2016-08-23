@@ -19,14 +19,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <algorithm>
-#include <unordered_map>
-#include <vector>
 #include <cassert>
 #include <initializer_list>
+#include <memory>
 #include <stdexcept>
 #include <string>
-#include <memory>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor_cell.h"
@@ -41,22 +41,20 @@ private:
     std::shared_ptr<contractor_cell> m_ptr;
 
 public:
-    contractor() : m_ptr(nullptr) { }
+    contractor() : m_ptr(nullptr) {}
     explicit contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) {
         assert(m_ptr != nullptr);
     }
-    contractor(contractor const & c) : m_ptr(c.m_ptr) {
-        assert(m_ptr);
-    }
+    contractor(contractor const & c) : m_ptr(c.m_ptr) { assert(m_ptr); }
     contractor(contractor && c) noexcept : m_ptr(std::move(c.m_ptr)) {}
-    ~contractor() noexcept { }
+    ~contractor() noexcept {}
 
     friend void swap(contractor & c1, contractor & c2) {
         using std::swap;
         swap(c1.m_ptr, c2.m_ptr);
     }
 
-    contractor& operator=(contractor c) {
+    contractor & operator=(contractor c) {
         swap(*this, c);
         return *this;
     }
@@ -78,7 +76,7 @@ public:
     void prune_with_assert(contractor_status & cs);
     bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
     bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
-    std::size_t hash() const { return (std::size_t) m_ptr.get(); }
+    std::size_t hash() const { return (std::size_t)m_ptr.get(); }
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
 };
 

@@ -18,6 +18,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include <memory>
 #include <stack>
 #include <tuple>
 #include <unordered_set>
@@ -72,8 +73,7 @@ private:
 
 public:
     scoring_icp(contractor & ctc, contractor_status & cs,
-           scoped_vec<std::shared_ptr<constraint>> const & ctrs,
-           BranchHeuristic & heuristic);
+                scoped_vec<std::shared_ptr<constraint>> const & ctrs, BranchHeuristic & heuristic);
     ~scoring_icp();
 
     static void solve(contractor & ctc, contractor_status & cs,

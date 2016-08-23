@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "util/glpk_wrapper.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -25,7 +26,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "./dreal_config.h"
 #include "ibex/ibex.h"
 #include "opensmt/common/LA.h"
-#include "util/glpk_wrapper.h"
 #include "util/logging.h"
 
 #ifdef USE_GLPK
@@ -43,9 +43,7 @@ glpk_wrapper::glpk_wrapper(box const & b, std::unordered_set<Enode *> const & es
     add(es);
 }
 
-glpk_wrapper::~glpk_wrapper() {
-    glp_delete_prob(lp);
-}
+glpk_wrapper::~glpk_wrapper() { glp_delete_prob(lp); }
 
 void glpk_wrapper::set_constraint(int index, Enode * const e) {
     DREAL_LOG_INFO << "glpk_wrapper::set_constraint  " << e << " with " << e->getPolarity();
@@ -81,7 +79,7 @@ void glpk_wrapper::set_constraint(int index, Enode * const e) {
             }
         }
     }
-    glp_set_mat_row(lp, index, i-1, indices, values);
+    glp_set_mat_row(lp, index, i - 1, indices, values);
     delete[] indices;
     delete[] values;
     // name the constraints (helps debugging)
@@ -103,7 +101,7 @@ void glpk_wrapper::init_problem() {
     // name the variables (helps debugging)
     if (DREAL_LOG_INFO_IS_ON) {
         for (unsigned int i = 0; i < domain.size(); i++) {
-            glp_set_col_name(lp, i+1, domain.get_name(i).c_str());
+            glp_set_col_name(lp, i + 1, domain.get_name(i).c_str());
         }
     }
     //
@@ -120,27 +118,25 @@ void glpk_wrapper::set_domain(box const & b) {
         double ub = interval.ub();
         if (lb == NEG_INFINITY) {
             if (ub == POS_INFINITY) {
-                glp_set_col_bnds(lp, i+1, GLP_FR, lb, ub);
+                glp_set_col_bnds(lp, i + 1, GLP_FR, lb, ub);
             } else {
-                glp_set_col_bnds(lp, i+1, GLP_UP, lb, ub);
+                glp_set_col_bnds(lp, i + 1, GLP_UP, lb, ub);
             }
         } else {
             if (ub == POS_INFINITY) {
-                glp_set_col_bnds(lp, i+1, GLP_LO, lb, ub);
+                glp_set_col_bnds(lp, i + 1, GLP_LO, lb, ub);
             } else {
                 if (lb == ub) {
-                    glp_set_col_bnds(lp, i+1, GLP_FX, lb, ub);
+                    glp_set_col_bnds(lp, i + 1, GLP_FX, lb, ub);
                 } else {
-                    glp_set_col_bnds(lp, i+1, GLP_DB, lb, ub);
+                    glp_set_col_bnds(lp, i + 1, GLP_DB, lb, ub);
                 }
             }
         }
     }
 }
 
-const box& glpk_wrapper::get_domain() const {
-    return domain;
-}
+const box & glpk_wrapper::get_domain() const { return domain; }
 
 void glpk_wrapper::add(Enode * const e) {
     int idx = glp_add_rows(lp, 1);
@@ -162,7 +158,8 @@ bool glpk_wrapper::is_sat() {
             glp_smcp parm;
             glp_init_smcp(&parm);
             parm.msg_lev = GLP_MSG_OFF;
-            // always try first the normal simple (get close to an optimal solution in double precision)
+            // always try first the normal simple (get close to an optimal solution in double
+            // precision)
             int solved = glp_simplex(lp, &parm);
             // TODO(dzufferey) should we always fall back on exact when the normal simplex failed ?
             if (solver_type == EXACT || solved != 0) {
@@ -245,10 +242,10 @@ void glpk_wrapper::get_solution(box & b) {
     assert(is_sat());
     for (unsigned int i = 0; i < b.size(); i++) {
         if (solver_type == SIMPLEX || solver_type == EXACT) {
-            b[i] = glp_get_col_prim(lp, i+1);
+            b[i] = glp_get_col_prim(lp, i + 1);
         } else {
             assert(solver_type == INTERIOR);
-            b[i] = glp_ipt_col_prim(lp, i+1);
+            b[i] = glp_ipt_col_prim(lp, i + 1);
         }
     }
 }
@@ -293,11 +290,13 @@ void glpk_wrapper::set_maximize() {
 
 double glpk_wrapper::get_row_value(int i) {
     double cstr_value = 0;
-    if (solver_type ==  SIMPLEX || solver_type == EXACT) {
+    if (solver_type == SIMPLEX || solver_type == EXACT) {
         int cstr_status = glp_get_row_stat(lp, i);
-        if (cstr_status == GLP_BS) {  // basic variable;
-            cstr_status = glp_get_row_prim(lp, i);  // or glp_get_row_dual
-        } else if (cstr_status == GLP_NL || cstr_status == GLP_NS) {  // non-basic variable on its lower bound, non-basic fixed variable.
+        if (cstr_status == GLP_BS) {                                  // basic variable;
+            cstr_status = glp_get_row_prim(lp, i);                    // or glp_get_row_dual
+        } else if (cstr_status == GLP_NL || cstr_status == GLP_NS) {  // non-basic variable on its
+                                                                      // lower bound, non-basic
+                                                                      // fixed variable.
             cstr_value = glp_get_row_lb(lp, i);
         } else if (cstr_status == GLP_NU) {  //  non-basic variable on its upper bound
             cstr_value = glp_get_row_ub(lp, i);
@@ -353,9 +352,11 @@ void glpk_wrapper::get_error_bounds(double * errors) {
     }
 
     double ae_max;  // largest absolute error
-    int ae_ind;     // number of row (PE), column (DE), or variable (PB, DB) with the largest absolute error
+    int ae_ind;  // number of row (PE), column (DE), or variable (PB, DB) with the largest absolute
+                 // error
     double re_max;  // largest relative error
-    int re_ind;     // number of row (PE), column (DE), or variable (PB, DB) with the largest relative error
+    int re_ind;  // number of row (PE), column (DE), or variable (PB, DB) with the largest relative
+                 // error
 
     // GLP_KKT_PE — check primal equality constraints
     glp_check_kkt(lp, sol, GLP_KKT_PE, &ae_max, &ae_ind, &re_max, &re_ind);
@@ -368,7 +369,7 @@ void glpk_wrapper::get_error_bounds(double * errors) {
     // PE
     //  gives the distance between the auxiliary var and A * strucutral variable
     int m = glp_get_num_rows(lp);
-    for (int i = 1; i <= m ; ++i) {
+    for (int i = 1; i <= m; ++i) {
         // get the coeffs for that constraint
         row_size = glp_get_mat_row(lp, i, row_idx, row_coeff);
         for (int j = 1; j <= row_size; j++) {
@@ -387,7 +388,8 @@ void glpk_wrapper::get_error_bounds(double * errors) {
         if (nbr_non_zero[i] == 0) {
             errors[i] = 0;
         }
-        DREAL_LOG_INFO << "glpk_wrapper::get_error_bounds: error for " << domain.get_name(i) << " is " << errors[i];
+        DREAL_LOG_INFO << "glpk_wrapper::get_error_bounds: error for " << domain.get_name(i)
+                       << " is " << errors[i];
     }
 
     delete[] nbr_non_zero;
@@ -416,16 +418,14 @@ void glpk_wrapper::use_exact() {
 }
 
 bool glpk_wrapper::is_constraint_used(int index) {
-    if (solver_type ==  SIMPLEX || solver_type == EXACT) {
+    if (solver_type == SIMPLEX || solver_type == EXACT) {
         return glp_get_row_stat(lp, index + 1) == GLP_BS;
     } else {
         return true;
     }
 }
 
-int glpk_wrapper::print_to_file(const char *fname) {
-    return glp_write_lp(lp, nullptr, fname);
-}
+int glpk_wrapper::print_to_file(const char * fname) { return glp_write_lp(lp, nullptr, fname); }
 
 bool is_expr_linear_product(Enode * const t, bool * saw_variable) {
     if (t->isConstant()) {
@@ -470,38 +470,34 @@ bool glpk_wrapper::is_expr_linear(Enode * const t) {
 
 bool glpk_wrapper::is_linear(Enode * const e) {
     bool is_eq = e->isEq() && (!e->hasPolarity() || e->getPolarity() != l_False);
-    return
-        (is_eq || e->isLeq()) &&
-        is_expr_linear(e->get1st()) &&
-        is_expr_linear(e->get2nd());
+    return (is_eq || e->isLeq()) && is_expr_linear(e->get1st()) && is_expr_linear(e->get2nd());
 }
 
-bool only_one_var(Enode * const t, Enode const * * seen) {
-    if ( t->isConstant() ) {
+bool only_one_var(Enode * const t, Enode const ** seen) {
+    if (t->isConstant()) {
         return true;
-    } else if ( t->isVar() ) {
+    } else if (t->isVar()) {
         if (*seen == nullptr) {
             *seen = t;
             return true;
         } else {
             return t == *seen;
         }
-    } else if ( t->isPlus() || t->isTimes() || t->isMinus() ) {
+    } else if (t->isPlus() || t->isTimes() || t->isMinus()) {
         for (Enode * arg_list = t->getCdr(); !arg_list->isEnil(); arg_list = arg_list->getCdr()) {
             if (!only_one_var(arg_list->getCar(), seen)) {
                 return false;
             }
         }
         return true;
-    } else if ( t->isUminus() ) {
+    } else if (t->isUminus()) {
         return only_one_var(t->get1st(), seen);
-    } else if ( t->isEq() || t->isLeq() || t->isLt() ) {
+    } else if (t->isEq() || t->isLeq() || t->isLt()) {
         return only_one_var(t->get1st(), seen) && only_one_var(t->get2nd(), seen);
     } else {
         return false;
     }
 }
-
 
 bool glpk_wrapper::is_simple_bound(Enode * const e) {
     Enode const * seen = nullptr;

@@ -17,9 +17,9 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <string>
-#include <exception>
 #include "tools/dop/var_map.h"
+#include <exception>
+#include <string>
 
 namespace dop {
 

@@ -25,20 +25,22 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 #include "./dreal_config.h"
+#include "contractor/contractor.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
-#include "contractor/contractor.h"
 
 namespace dreal {
 /// Contractor for handling forall constraint
 class contractor_forall : public contractor_cell {
 private:
     std::shared_ptr<forall_constraint> const m_ctr;
-    box find_CE(box const & b, std::unordered_set<Enode*> const & forall_vars, std::vector<Enode*> const & vec, bool const p, SMTConfig & config) const;
+    box find_CE(box const & b, std::unordered_set<Enode *> const & forall_vars,
+                std::vector<Enode *> const & vec, bool const p, SMTConfig & config) const;
     /// Given a list Enode, return a vector<Enode *>
     std::vector<Enode *> elist_to_vector(Enode * e) const;
     /// Pruning function. @p body can be and (conjunction), or

@@ -19,6 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 #include <iostream>
+#include <memory>
 #include <utility>
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
@@ -42,45 +43,35 @@ TEST_CASE("capd_fwd") {
     OpenSMTContext * opensmt_ctx = static_cast<OpenSMTContext *>(ctx);
     opensmt_set_precision(ctx, 0.0000001);
 
-    opensmt_expr x   = opensmt_mk_real_var(ctx, "x", -100, 100);
+    opensmt_expr x = opensmt_mk_real_var(ctx, "x", -100, 100);
     opensmt_expr x_0 = opensmt_mk_real_var(ctx, "x_0_0", -100, 100);
     opensmt_expr x_t = opensmt_mk_real_var(ctx, "x_0_t", -100, 100);
-    opensmt_expr p   = opensmt_mk_real_var(ctx, "p", 0.0, 1.0);
+    opensmt_expr p = opensmt_mk_real_var(ctx, "p", 0.0, 1.0);
     opensmt_expr p_0 = opensmt_mk_real_var(ctx, "p_0_0", 0.0, 1.0);
     opensmt_expr p_t = opensmt_mk_real_var(ctx, "p_0_t", 0.0, 1.0);
     opensmt_expr time_0 = opensmt_mk_real_var(ctx, "time_0", 0.0, 40.0);
 
-    box b1({static_cast<Enode*>(x),
-           static_cast<Enode*>(x_0),
-           static_cast<Enode*>(x_t),
-           static_cast<Enode*>(p),
-           static_cast<Enode*>(p_0),
-           static_cast<Enode*>(p_t),
-           static_cast<Enode*>(time_0)});
+    box b1({static_cast<Enode *>(x), static_cast<Enode *>(x_0), static_cast<Enode *>(x_t),
+            static_cast<Enode *>(p), static_cast<Enode *>(p_0), static_cast<Enode *>(p_t),
+            static_cast<Enode *>(time_0)});
     b1[1] = -10.0;  // x_0 = -10;
     b1[2] = 10.0;   // x_t = 10.0;
     b1[4] = 0.0;    // p_0 = 0.0;
     contractor_status cs(b1, opensmt_ctx->getConfig());
 
-    opensmt_expr zero  = opensmt_mk_num(ctx, 0.0);
-    opensmt_expr half  = opensmt_mk_num(ctx, 0.5);
-    opensmt_expr one   = opensmt_mk_num(ctx, 1.0);
-    opensmt_expr two   = opensmt_mk_num(ctx, 2.0);
-    opensmt_expr pi    = opensmt_mk_num(ctx, 3.14159265359);
-    opensmt_expr ten   = opensmt_mk_num(ctx, 10.0);
+    opensmt_expr zero = opensmt_mk_num(ctx, 0.0);
+    opensmt_expr half = opensmt_mk_num(ctx, 0.5);
+    opensmt_expr one = opensmt_mk_num(ctx, 1.0);
+    opensmt_expr two = opensmt_mk_num(ctx, 2.0);
+    opensmt_expr pi = opensmt_mk_num(ctx, 3.14159265359);
+    opensmt_expr ten = opensmt_mk_num(ctx, 10.0);
     opensmt_expr m_ten = opensmt_mk_num(ctx, -10.0);
 
     opensmt_expr rhs_x = one;
-    opensmt_expr rhs_p = opensmt_mk_times_2(ctx,
-                                            opensmt_mk_div(ctx, one,
-                                                           opensmt_mk_pow(ctx,
-                                                                          opensmt_mk_times_2(ctx, two, pi),
-                                                                          half)),
-                                            opensmt_mk_exp(ctx,
-                                                           opensmt_mk_div(ctx,
-                                                                          opensmt_mk_uminus(ctx,
-                                                                                            opensmt_mk_pow(ctx, x, two)),
-                                                                          two)));
+    opensmt_expr rhs_p = opensmt_mk_times_2(
+        ctx, opensmt_mk_div(ctx, one, opensmt_mk_pow(ctx, opensmt_mk_times_2(ctx, two, pi), half)),
+        opensmt_mk_exp(
+            ctx, opensmt_mk_div(ctx, opensmt_mk_uminus(ctx, opensmt_mk_pow(ctx, x, two)), two)));
     opensmt_expr vars[2] = {x, p};
     opensmt_expr rhses[2] = {rhs_x, rhs_p};
     opensmt_define_ode(ctx, "flow_1", vars, rhses, 2);
@@ -94,30 +85,33 @@ TEST_CASE("capd_fwd") {
 
     opensmt_expr assert5 = opensmt_mk_integral(ctx, vars_t, zero, time_0, vars_0, 2, "flow_1");
 
-    integral_constraint ic(static_cast<Enode*>(assert5), 1,
-                           static_cast<Enode*>(zero),
-                           static_cast<Enode*>(time_0),
-                           {static_cast<Enode*>(x_0), static_cast<Enode*>(p_0)}, {},
-                           {static_cast<Enode*>(x_t), static_cast<Enode*>(p_t)}, {},
-                           {},
-                           {make_pair(static_cast<Enode*>(vars[0]), static_cast<Enode*>(rhs_x)),
-                                   make_pair(static_cast<Enode*>(vars[1]), static_cast<Enode*>(rhs_p))});
+    integral_constraint ic(static_cast<Enode *>(assert5), 1, static_cast<Enode *>(zero),
+                           static_cast<Enode *>(time_0),
+                           {static_cast<Enode *>(x_0), static_cast<Enode *>(p_0)}, {},
+                           {static_cast<Enode *>(x_t), static_cast<Enode *>(p_t)}, {}, {},
+                           {make_pair(static_cast<Enode *>(vars[0]), static_cast<Enode *>(rhs_x)),
+                            make_pair(static_cast<Enode *>(vars[1]), static_cast<Enode *>(rhs_p))});
     auto oc = make_shared<ode_constraint>(ic);
 
-    contractor c = mk_contractor_capd_full(cs.m_box, oc, ode_direction::FWD, opensmt_ctx->getConfig());
+    contractor c =
+        mk_contractor_capd_full(cs.m_box, oc, ode_direction::FWD, opensmt_ctx->getConfig());
 
     cerr << *oc << endl;
-    cerr << cs.m_box<< endl;
+    cerr << cs.m_box << endl;
     auto input_before = c.get_input();
     auto output_before = cs.m_output;
-    cerr << "Input  (BEFORE) : ";  input_before.display(cerr) << endl;
-    cerr << "Output (BEFORE) : "; output_before.display(cerr) << endl;
+    cerr << "Input  (BEFORE) : ";
+    input_before.display(cerr) << endl;
+    cerr << "Output (BEFORE) : ";
+    output_before.display(cerr) << endl;
     c.prune(cs);
-    cerr << cs.m_box<< endl;
+    cerr << cs.m_box << endl;
     auto input_after = c.get_input();
     auto output_after = cs.m_output;
-    cerr << "Input  (AFTER)  : ";  input_after.display(cerr) << endl;
-    cerr << "Output (AFTER)  : "; output_after.display(cerr) << endl;
+    cerr << "Input  (AFTER)  : ";
+    input_after.display(cerr) << endl;
+    cerr << "Output (AFTER)  : ";
+    output_after.display(cerr) << endl;
     for (auto ctc : cs.m_used_constraints) {
         cerr << "Used constraint : " << *ctc << endl;
     }
@@ -152,45 +146,35 @@ TEST_CASE("capd_bwd") {
     OpenSMTContext * opensmt_ctx = static_cast<OpenSMTContext *>(ctx);
     opensmt_set_precision(ctx, 0.0000001);
 
-    opensmt_expr x   = opensmt_mk_real_var(ctx, "x", -100, 100);
+    opensmt_expr x = opensmt_mk_real_var(ctx, "x", -100, 100);
     opensmt_expr x_0 = opensmt_mk_real_var(ctx, "x_0_0", -100, 100);
     opensmt_expr x_t = opensmt_mk_real_var(ctx, "x_0_t", -100, 100);
-    opensmt_expr p   = opensmt_mk_real_var(ctx, "p", 0.0, 1.0);
+    opensmt_expr p = opensmt_mk_real_var(ctx, "p", 0.0, 1.0);
     opensmt_expr p_0 = opensmt_mk_real_var(ctx, "p_0_0", 0.0, 1.0);
     opensmt_expr p_t = opensmt_mk_real_var(ctx, "p_0_t", 0.0, 1.0);
     opensmt_expr time_0 = opensmt_mk_real_var(ctx, "time_0", 0.0, 40.0);
 
-    box b1({static_cast<Enode*>(x),
-                static_cast<Enode*>(x_0),
-                static_cast<Enode*>(x_t),
-                static_cast<Enode*>(p),
-                static_cast<Enode*>(p_0),
-                static_cast<Enode*>(p_t),
-                static_cast<Enode*>(time_0)});
+    box b1({static_cast<Enode *>(x), static_cast<Enode *>(x_0), static_cast<Enode *>(x_t),
+            static_cast<Enode *>(p), static_cast<Enode *>(p_0), static_cast<Enode *>(p_t),
+            static_cast<Enode *>(time_0)});
     b1[1] = -10.0;  // x_0 = -10;
     b1[2] = 10.0;   // x_t = 10.0;
     b1[5] = 1.0;    // p_t = 1.0;
     contractor_status cs(b1, opensmt_ctx->getConfig());
 
-    opensmt_expr zero  = opensmt_mk_num(ctx, 0.0);
-    opensmt_expr half  = opensmt_mk_num(ctx, 0.5);
-    opensmt_expr one   = opensmt_mk_num(ctx, 1.0);
-    opensmt_expr two   = opensmt_mk_num(ctx, 2.0);
-    opensmt_expr pi    = opensmt_mk_num(ctx, 3.14159265359);
-    opensmt_expr ten   = opensmt_mk_num(ctx, 10.0);
+    opensmt_expr zero = opensmt_mk_num(ctx, 0.0);
+    opensmt_expr half = opensmt_mk_num(ctx, 0.5);
+    opensmt_expr one = opensmt_mk_num(ctx, 1.0);
+    opensmt_expr two = opensmt_mk_num(ctx, 2.0);
+    opensmt_expr pi = opensmt_mk_num(ctx, 3.14159265359);
+    opensmt_expr ten = opensmt_mk_num(ctx, 10.0);
     opensmt_expr m_ten = opensmt_mk_num(ctx, -10.0);
 
     opensmt_expr rhs_x = one;
-    opensmt_expr rhs_p = opensmt_mk_times_2(ctx,
-                                            opensmt_mk_div(ctx, one,
-                                                           opensmt_mk_pow(ctx,
-                                                                          opensmt_mk_times_2(ctx, two, pi),
-                                                                          half)),
-                                            opensmt_mk_exp(ctx,
-                                                           opensmt_mk_div(ctx,
-                                                                          opensmt_mk_uminus(ctx,
-                                                                                            opensmt_mk_pow(ctx, x, two)),
-                                                                          two)));
+    opensmt_expr rhs_p = opensmt_mk_times_2(
+        ctx, opensmt_mk_div(ctx, one, opensmt_mk_pow(ctx, opensmt_mk_times_2(ctx, two, pi), half)),
+        opensmt_mk_exp(
+            ctx, opensmt_mk_div(ctx, opensmt_mk_uminus(ctx, opensmt_mk_pow(ctx, x, two)), two)));
     opensmt_expr vars[2] = {x, p};
     opensmt_expr rhses[2] = {rhs_x, rhs_p};
     opensmt_define_ode(ctx, "flow_1", vars, rhses, 2);
@@ -204,30 +188,33 @@ TEST_CASE("capd_bwd") {
 
     opensmt_expr assert5 = opensmt_mk_integral(ctx, vars_t, zero, time_0, vars_0, 2, "flow_1");
 
-    integral_constraint ic(static_cast<Enode*>(assert5), 1,
-                           static_cast<Enode*>(zero),
-                           static_cast<Enode*>(time_0),
-                           {static_cast<Enode*>(x_0), static_cast<Enode*>(p_0)}, {},
-                           {static_cast<Enode*>(x_t), static_cast<Enode*>(p_t)}, {},
-                           {},
-                           {make_pair(static_cast<Enode*>(vars[0]), static_cast<Enode*>(rhs_x)),
-                                   make_pair(static_cast<Enode*>(vars[1]), static_cast<Enode*>(rhs_p))});
+    integral_constraint ic(static_cast<Enode *>(assert5), 1, static_cast<Enode *>(zero),
+                           static_cast<Enode *>(time_0),
+                           {static_cast<Enode *>(x_0), static_cast<Enode *>(p_0)}, {},
+                           {static_cast<Enode *>(x_t), static_cast<Enode *>(p_t)}, {}, {},
+                           {make_pair(static_cast<Enode *>(vars[0]), static_cast<Enode *>(rhs_x)),
+                            make_pair(static_cast<Enode *>(vars[1]), static_cast<Enode *>(rhs_p))});
     auto oc = make_shared<ode_constraint>(ic);
 
-    contractor c = mk_contractor_capd_full(cs.m_box, oc, ode_direction::BWD, opensmt_ctx->getConfig());
+    contractor c =
+        mk_contractor_capd_full(cs.m_box, oc, ode_direction::BWD, opensmt_ctx->getConfig());
 
     cerr << *oc << endl;
-    cerr << cs.m_box<< endl;
+    cerr << cs.m_box << endl;
     auto input_before = c.get_input();
     auto output_before = cs.m_output;
-    cerr << "Input  (BEFORE) : ";  input_before.display(cerr) << endl;
-    cerr << "Output (BEFORE) : "; output_before.display(cerr) << endl;
+    cerr << "Input  (BEFORE) : ";
+    input_before.display(cerr) << endl;
+    cerr << "Output (BEFORE) : ";
+    output_before.display(cerr) << endl;
     c.prune(cs);
-    cerr << cs.m_box<< endl;
+    cerr << cs.m_box << endl;
     auto input_after = c.get_input();
     auto output_after = cs.m_output;
-    cerr << "Input  (AFTER)  : ";  input_after.display(cerr) << endl;
-    cerr << "Output (AFTER)  : "; output_after.display(cerr) << endl;
+    cerr << "Input  (AFTER)  : ";
+    input_after.display(cerr) << endl;
+    cerr << "Output (AFTER)  : ";
+    output_after.display(cerr) << endl;
     for (auto ctc : cs.m_used_constraints) {
         cerr << "Used constraint : " << *ctc << endl;
     }

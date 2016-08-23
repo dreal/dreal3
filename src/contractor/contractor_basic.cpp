@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "contractor/contractor_basic.h"
 #include <algorithm>
 #include <chrono>
 #include <exception>
@@ -38,7 +39,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "constraint/constraint.h"
-#include "contractor/contractor_basic.h"
 #include "contractor/contractor_common.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
@@ -72,20 +72,15 @@ using std::vector;
 
 namespace dreal {
 
-contractor_id::contractor_id()
-    : contractor_cell(contractor_kind::ID) {
-}
-void contractor_id::prune(contractor_status &) {
-    return;
-}
+contractor_id::contractor_id() : contractor_cell(contractor_kind::ID) {}
+void contractor_id::prune(contractor_status &) { return; }
 ostream & contractor_id::display(ostream & out) const {
     out << "contractor_id()";
     return out;
 }
 
 contractor_debug::contractor_debug(string const & s)
-    : contractor_cell(contractor_kind::DEBUG), m_msg(s) {
-}
+    : contractor_cell(contractor_kind::DEBUG), m_msg(s) {}
 void contractor_debug::prune(contractor_status &) {
     DREAL_LOG_FATAL << "contractor_debug: " << m_msg;
 }
@@ -128,7 +123,9 @@ void contractor_seq::prune_naive(contractor_status & cs) {
 }
 
 void contractor_seq::prune(contractor_status & cs) {
-    if (m_vec.size() == 0) { return; }
+    if (m_vec.size() == 0) {
+        return;
+    }
     prune_naive(cs);
 }
 
@@ -151,15 +148,13 @@ void contractor_try::prune(contractor_status & cs) {
     try {
         m_c.prune(cs);
     } catch (contractor_exception & e) {
-        DREAL_LOG_INFO << "contractor_try: exception caught, \""
-                       << e.what() << "\n";
+        DREAL_LOG_INFO << "contractor_try: exception caught, \"" << e.what() << "\n";
         cs.reset(old_cs);
         return;
     }
 }
 ostream & contractor_try::display(ostream & out) const {
-    out << "contractor_try("
-        << m_c << ")";
+    out << "contractor_try(" << m_c << ")";
     return out;
 }
 
@@ -179,9 +174,7 @@ void contractor_try_or::prune(contractor_status & cs) {
     }
 }
 ostream & contractor_try_or::display(ostream & out) const {
-    out << "contractor_try_or("
-        << m_c1 << ", "
-        << m_c2 << ")";
+    out << "contractor_try_or(" << m_c1 << ", " << m_c2 << ")";
     return out;
 }
 
@@ -221,7 +214,8 @@ ostream & contractor_join::display(ostream & out) const {
     return out;
 }
 
-contractor_ite::contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else)
+contractor_ite::contractor_ite(function<bool(box const &)> guard, contractor const & c_then,
+                               contractor const & c_else)
     : contractor_cell(contractor_kind::ITE), m_guard(guard), m_c_then(c_then), m_c_else(c_else) {
     m_input = m_c_then.get_input();
     m_input.union_with(m_c_else.get_input());
@@ -258,7 +252,9 @@ void contractor_int::prune(contractor_status & cs) {
     }
     // ======= Proof =======
     DREAL_THREAD_LOCAL static box old_box(cs.m_box);
-    if (cs.m_config.nra_proof) { old_box = cs.m_box; }
+    if (cs.m_config.nra_proof) {
+        old_box = cs.m_box;
+    }
     unsigned i = 0;
     ibex::IntervalVector & iv = cs.m_box.get_values();
     for (Enode * e : cs.m_box.get_vars()) {
@@ -292,7 +288,7 @@ contractor_eval::contractor_eval(shared_ptr<nonlinear_constraint> const ctr)
     auto const sz = m_nl_ctr->get_var_array().size();
     m_input = ibex::BitSet::empty(sz);
     int const * ptr_used_var = m_nl_ctr->get_numctr()->f.used_vars();
-    for (int i = 0 ; i < m_nl_ctr->get_numctr()->f.nb_used_vars(); ++i) {
+    for (int i = 0; i < m_nl_ctr->get_numctr()->f.nb_used_vars(); ++i) {
         m_input.add(*ptr_used_var++);
     }
 }
@@ -332,22 +328,30 @@ contractor_cache::~contractor_cache() {
 }
 
 vector<ibex::Interval> extract_from_box_using_bitset(box const & b, ibex::BitSet const & s) {
-    if (s.empty()) { return {}; }
+    if (s.empty()) {
+        return {};
+    }
     vector<ibex::Interval> v;
     int i = s.min();
     do {
-        if (s.contain(i)) { v.push_back(b[i]); }
+        if (s.contain(i)) {
+            v.push_back(b[i]);
+        }
         i = s.next(i);
     } while (i < s.max());
     return v;
 }
 
 void update_box_using_bitset(box & b, vector<ibex::Interval> const & v, ibex::BitSet const & s) {
-    if (s.empty()) { return; }
+    if (s.empty()) {
+        return;
+    }
     unsigned v_idx = 0;
     int i = s.min();
     do {
-        if (s.contain(i)) { b[i] = v[v_idx++]; }
+        if (s.contain(i)) {
+            b[i] = v[v_idx++];
+        }
         i = s.next(i);
     } while (i < s.max());
 }
@@ -367,11 +371,13 @@ void contractor_cache::prune(contractor_status & cs) {
                 // run contractor
                 m_ctc.prune(cs);
                 // extract out from box.
-                vector<ibex::Interval> const out = extract_from_box_using_bitset(cs.m_box, cs.m_output);
+                vector<ibex::Interval> const out =
+                    extract_from_box_using_bitset(cs.m_box, cs.m_output);
                 // save the result to the cache
                 m_cache.emplace(in, make_tuple(out, cs.m_output, cs.m_used_constraints, false));
             } catch (exception & e) {
-                m_cache.emplace(in, make_tuple(vector<ibex::Interval>(), cs.m_output, cs.m_used_constraints, true));
+                m_cache.emplace(in, make_tuple(vector<ibex::Interval>(), cs.m_output,
+                                               cs.m_used_constraints, true));
                 throw contractor_exception(e.what());
             }
         }
@@ -386,7 +392,8 @@ void contractor_cache::prune(contractor_status & cs) {
         cs.m_used_constraints.insert(used_constraints.begin(), used_constraints.end());
         if (was_exception_thrown) {
             cs.m_output.union_with(output_bitset);
-            throw contractor_exception("previously there was an exception in the cached computation");
+            throw contractor_exception(
+                "previously there was an exception in the cached computation");
         } else {
             // project out to box;
             update_box_using_bitset(cs.m_box, out, output_bitset);
@@ -400,7 +407,8 @@ ostream & contractor_cache::display(ostream & out) const {
     return out;
 }
 
-contractor_sample::contractor_sample(box const & b, unsigned const n, vector<shared_ptr<constraint>> const & ctrs)
+contractor_sample::contractor_sample(box const & b, unsigned const n,
+                                     vector<shared_ptr<constraint>> const & ctrs)
     : contractor_cell(contractor_kind::SAMPLE), m_num_samples(n), m_ctrs(ctrs) {
     m_input = ibex::BitSet::all(b.size());
 }
@@ -420,13 +428,15 @@ void contractor_sample::prune(contractor_status & cs) {
                 pair<lbool, ibex::Interval> eval_result = ctr->eval(p);
                 if (eval_result.first == l_False) {
                     check = false;
-                    DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " does not satisfy " << *ctr;
+                    DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p
+                                    << " does not satisfy " << *ctr;
                     break;
                 }
             }
         }
         if (check) {
-            DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p << " satisfies all constraints";
+            DREAL_LOG_DEBUG << "contractor_sample::prune -- sampled point = " << p
+                            << " satisfies all constraints";
             cs.m_box = p;
             cs.m_output = ibex::BitSet::all(cs.m_box.size());
             cs.m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
@@ -441,7 +451,8 @@ ostream & contractor_sample::display(ostream & out) const {
     return out;
 }
 
-contractor_aggressive::contractor_aggressive(unsigned const n, vector<shared_ptr<constraint>> const & ctrs)
+contractor_aggressive::contractor_aggressive(unsigned const n,
+                                             vector<shared_ptr<constraint>> const & ctrs)
     : contractor_cell(contractor_kind::SAMPLE), m_num_samples(n), m_ctrs(ctrs) {
     // TODO(soonhok): set up input
     // m_input = ibex::BitSet::all(b.size());
@@ -467,7 +478,8 @@ void contractor_aggressive::prune(contractor_status & cs) {
             if (!check) {
                 cs.m_used_constraints.insert(ctr);
                 pair<lbool, ibex::Interval> eval_result = ctr->eval(cs.m_box);
-                DREAL_LOG_DEBUG << "Constraint: " << *ctr << " is violated by all " << points.size() << " points";
+                DREAL_LOG_DEBUG << "Constraint: " << *ctr << " is violated by all " << points.size()
+                                << " points";
                 DREAL_LOG_DEBUG << "FYI, the interval evaluation gives us : " << eval_result.second;
                 cs.m_box.set_empty();
                 return;
@@ -481,9 +493,7 @@ ostream & contractor_aggressive::display(ostream & out) const {
     out << "contractor_aggressive(" << m_num_samples << ")";
     return out;
 }
-contractor mk_contractor_id() {
-    return contractor(make_shared<contractor_id>());
-}
+contractor mk_contractor_id() { return contractor(make_shared<contractor_id>()); }
 contractor mk_contractor_debug(string const & s) {
     return contractor(make_shared<contractor_debug>(s));
 }
@@ -508,39 +518,44 @@ contractor mk_contractor_try(contractor const & c) {
 contractor mk_contractor_try_or(contractor const & c1, contractor const & c2) {
     return contractor(make_shared<contractor_try_or>(c1, c2));
 }
-contractor mk_contractor_empty() {
-    return contractor(make_shared<contractor_empty>());
-}
-contractor mk_contractor_throw() {
-    return contractor(make_shared<contractor_throw>());
-}
+contractor mk_contractor_empty() { return contractor(make_shared<contractor_empty>()); }
+contractor mk_contractor_throw() { return contractor(make_shared<contractor_throw>()); }
 contractor mk_contractor_throw_if_empty(contractor const & c) {
     return contractor(make_shared<contractor_throw_if_empty>(c));
 }
 contractor mk_contractor_join(contractor const & c1, contractor const & c2) {
     return contractor(make_shared<contractor_join>(c1, c2));
 }
-contractor mk_contractor_ite(function<bool(box const &)> guard, contractor const & c_then, contractor const & c_else) {
+contractor mk_contractor_ite(function<bool(box const &)> guard, contractor const & c_then,
+                             contractor const & c_else) {
     return contractor(make_shared<contractor_ite>(guard, c_then, c_else));
 }
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, contractor const & c) {
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
+                                  contractor const & c) {
     return contractor(make_shared<contractor_fixpoint>(guard, c));
 }
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, initializer_list<contractor> const & clist) {
-    if (clist.size() == 0) { return mk_contractor_id(); }
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
+                                  initializer_list<contractor> const & clist) {
+    if (clist.size() == 0) {
+        return mk_contractor_id();
+    }
     return contractor(make_shared<contractor_fixpoint>(guard, clist));
 }
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, vector<contractor> const & cvec) {
-    if (cvec.size() == 0) { return mk_contractor_id(); }
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
+                                  vector<contractor> const & cvec) {
+    if (cvec.size() == 0) {
+        return mk_contractor_id();
+    }
     return contractor(make_shared<contractor_fixpoint>(guard, cvec));
 }
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard, initializer_list<vector<contractor>> const & cvec_list) {
-    if (cvec_list.size() == 0) { return mk_contractor_id(); }
+contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
+                                  initializer_list<vector<contractor>> const & cvec_list) {
+    if (cvec_list.size() == 0) {
+        return mk_contractor_id();
+    }
     return contractor(make_shared<contractor_fixpoint>(guard, cvec_list));
 }
-contractor mk_contractor_int(box const & b) {
-    return contractor(make_shared<contractor_int>(b));
-}
+contractor mk_contractor_int(box const & b) { return contractor(make_shared<contractor_int>(b)); }
 contractor mk_contractor_eval(shared_ptr<nonlinear_constraint> const ctr, bool const use_cache) {
     if (!use_cache) {
         return contractor(make_shared<contractor_eval>(ctr));
@@ -558,7 +573,8 @@ contractor mk_contractor_eval(shared_ptr<nonlinear_constraint> const ctr, bool c
 contractor mk_contractor_cache(contractor const & ctc) {
     return contractor(make_shared<contractor_cache>(ctc));
 }
-contractor mk_contractor_sample(box const & b, unsigned const n, vector<shared_ptr<constraint>> const & ctrs) {
+contractor mk_contractor_sample(box const & b, unsigned const n,
+                                vector<shared_ptr<constraint>> const & ctrs) {
     return contractor(make_shared<contractor_sample>(b, n, ctrs));
 }
 contractor mk_contractor_aggressive(unsigned const n, vector<shared_ptr<constraint>> const & ctrs) {

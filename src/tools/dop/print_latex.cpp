@@ -17,10 +17,10 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "tools/dop/print_latex.h"
+#include <exception>
 #include <sstream>
 #include <string>
-#include <exception>
-#include "tools/dop/print_latex.h"
 #include "tools/dop/print.h"
 
 namespace dop {
@@ -31,7 +31,8 @@ using std::unordered_map;
 using std::ostringstream;
 using std::runtime_error;
 
-ostream & print_latex_infix_op(ostream & out, Enode * const e, string const & op, std::function<ostream & (ostream &, Enode * const)> const & f) {
+ostream & print_latex_infix_op(ostream & out, Enode * const e, string const & op,
+                               std::function<ostream &(ostream &, Enode * const)> const & f) {
     assert(e->getArity() >= 2);
     out << "{";
     f(out, e->get1st());
@@ -83,7 +84,7 @@ ostream & print_latex_infix(ostream & out, Enode * const e) {
             print_call_brace(out, e, "e^", print_latex_infix);
         } else if (e->isSqrt()) {
             print_call_brace(out, e, "\\sqrt", print_latex_infix);
-        }  else if (e->isAtan2()) {
+        } else if (e->isAtan2()) {
             print_call_paren(out, e, "\\arctan2", print_latex_infix);
         } else {
             out << e;
@@ -91,19 +92,23 @@ ostream & print_latex_infix(ostream & out, Enode * const e) {
     } else if (e->isList()) {
         ostringstream ss;
         ss << e;
-        throw std::runtime_error("List " + ss.str() + " doesn't have a mapping in print_latex_infix");
+        throw std::runtime_error("List " + ss.str() +
+                                 " doesn't have a mapping in print_latex_infix");
     } else if (e->isDef()) {
         ostringstream ss;
         ss << e;
-        throw std::runtime_error("Def " + ss.str() + " doesn't have a mapping in print_latex_infix");
+        throw std::runtime_error("Def " + ss.str() +
+                                 " doesn't have a mapping in print_latex_infix");
     } else if (e->isEnil()) {
         ostringstream ss;
         ss << e;
-        throw std::runtime_error("Enil " + ss.str() + " doesn't have a mapping in print_latex_infix");
+        throw std::runtime_error("Enil " + ss.str() +
+                                 " doesn't have a mapping in print_latex_infix");
     } else {
         ostringstream ss;
         ss << e;
-        throw std::runtime_error("Unknown enode " + ss.str() + " doesn't have a mapping in print_latex_infix");
+        throw std::runtime_error("Unknown enode " + ss.str() +
+                                 " doesn't have a mapping in print_latex_infix");
     }
     return out;
 }

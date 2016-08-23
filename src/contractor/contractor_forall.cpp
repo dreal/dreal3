@@ -82,8 +82,9 @@ using std::vector;
 
 namespace dreal {
 
-static unordered_map<Enode*, ibex::Interval> make_subst_from_value(box const & b, unordered_set<Enode *> const & vars) {
-    unordered_map<Enode*, ibex::Interval> subst;
+static unordered_map<Enode *, ibex::Interval> make_subst_from_value(
+    box const & b, unordered_set<Enode *> const & vars) {
+    unordered_map<Enode *, ibex::Interval> subst;
     for (Enode * const var : vars) {
         auto value = b[var];
         subst.emplace(var, value);
@@ -127,7 +128,7 @@ vector<Enode *> contractor_forall::elist_to_vector(Enode * e) const {
 }
 
 #ifdef USE_NLOPT
-double nlopt_eval_enode(const double* x, void * extra) {
+double nlopt_eval_enode(const double * x, void * extra) {
     auto extra_info = static_cast<tuple<Enode *, box const &, bool> *>(extra);
     Enode * e = get<0>(*extra_info);
     box const & b = get<1>(*extra_info);
@@ -154,7 +155,7 @@ double nlopt_eval_enode(const double* x, void * extra) {
             throw runtime_error("nlopt_obj: something is wrong.");
         }
         if (!polarity) {
-            ret = - ret;
+            ret = -ret;
         }
         return ret;
     } catch (exception & e) {
@@ -170,7 +171,7 @@ void nlopt_fill_gradient(const double * x, double * grad, void * extra) {
     bool const polarity = get<2>(*extra_info);
     unordered_map<Enode *, double> var_map;
     unsigned i = 0;
-    vector<Enode*> forall_var_vec;
+    vector<Enode *> forall_var_vec;
     for (Enode * e : b.get_vars()) {
         if (e->isForallVar()) {
             var_map.emplace(e, x[i]);
@@ -182,12 +183,13 @@ void nlopt_fill_gradient(const double * x, double * grad, void * extra) {
     }
     i = 0;
     for (Enode * var : forall_var_vec) {
-        double deriv_i = deriv_enode(e->get1st(), var, var_map) - deriv_enode(e->get2nd(), var, var_map);
+        double deriv_i =
+            deriv_enode(e->get1st(), var, var_map) - deriv_enode(e->get2nd(), var, var_map);
         if (e->isGt() || e->isGeq()) {
-            deriv_i = - deriv_i;
+            deriv_i = -deriv_i;
         }
         if (!polarity) {
-            deriv_i = - deriv_i;
+            deriv_i = -deriv_i;
         }
         grad[i] = deriv_i;
         i++;
@@ -210,7 +212,8 @@ double nlopt_side_condition(unsigned, const double * x, double * grad, void * ex
     return ret;
 }
 
-box refine_CE_with_nlopt_core(box counterexample, vector<Enode*> const & opt_ctrs, vector<Enode*> const & side_ctrs) {
+box refine_CE_with_nlopt_core(box counterexample, vector<Enode *> const & opt_ctrs,
+                              vector<Enode *> const & side_ctrs) {
     // Plug-in `a` into the constraint and optimize `b` in the counterexample `M` by solving:
     //
     //    ∃ y_opt ∈ I_y. ∀ y ∈ I_y. f(a, y_opt) >= f(a, y) — (2)
@@ -275,7 +278,8 @@ box refine_CE_with_nlopt_core(box counterexample, vector<Enode*> const & opt_ctr
         }
         auto extra = new tuple<Enode *, box const &, bool>(e, counterexample, polarity);
         extra_vec.push_back(extra);
-        DREAL_LOG_DEBUG << "refine_counterexample_with_nlopt: Side condition is added: " << e << endl;
+        DREAL_LOG_DEBUG << "refine_counterexample_with_nlopt: Side condition is added: " << e
+                        << endl;
         if (e->isEq()) {
             opt.add_equality_constraint(nlopt_side_condition, extra);
         } else if (e->isLt() || e->isLeq() || e->isGt() || e->isGeq()) {
@@ -307,7 +311,7 @@ box refine_CE_with_nlopt_core(box counterexample, vector<Enode*> const & opt_ctr
     return counterexample;
 }
 
-box refine_CE_with_nlopt(box const & b, vector<Enode*> const & vec) {
+box refine_CE_with_nlopt(box const & b, vector<Enode *> const & vec) {
     vector<Enode *> opt_ctrs;
     vector<Enode *> side_ctrs;
     for (Enode * e : vec) {
@@ -317,7 +321,9 @@ box refine_CE_with_nlopt(box const & b, vector<Enode*> const & vec) {
             side_ctrs.push_back(e);
         }
     }
-    if (opt_ctrs.size() != 1) { return b; }
+    if (opt_ctrs.size() != 1) {
+        return b;
+    }
     box refined_counterexample = refine_CE_with_nlopt_core(b, opt_ctrs, side_ctrs);
     if (refined_counterexample.is_subset(b)) {
         return b;
@@ -327,10 +333,7 @@ box refine_CE_with_nlopt(box const & b, vector<Enode*> const & vec) {
 }
 #endif
 
-contractor make_contractor(Enode * e,
-                           lbool const
-                           polarity,
-                           box const & b,
+contractor make_contractor(Enode * e, lbool const polarity, box const & b,
                            unordered_set<Enode *> const & var_set) {
     if (e->isNot()) {
         return make_contractor(e->get1st(), !polarity, b, var_set);
@@ -367,13 +370,14 @@ box shrink_for_dop(box b) {
     return b;
 }
 
-box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) {
+box find_CE_via_underapprox(box const & b, unordered_set<Enode *> const & forall_vars,
+                            vector<Enode *> const & vec, bool const p, SMTConfig & config) {
     box counterexample(b, forall_vars);
     if (config.nra_shrink_for_dop) {
         counterexample = shrink_for_dop(counterexample);
     }
     auto vars = counterexample.get_vars();
-    unordered_set<Enode*> const var_set(vars.begin(), vars.end());
+    unordered_set<Enode *> const var_set(vars.begin(), vars.end());
     ibex::IntervalVector & iv = counterexample.get_values();
     for (Enode * e : vec) {
         lbool polarity = p ? l_False : l_True;
@@ -414,7 +418,8 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
     return counterexample;
 }
 
-box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) {
+box find_CE_via_overapprox(box const & b, unordered_set<Enode *> const & forall_vars,
+                           vector<Enode *> const & vec, bool const p, SMTConfig & config) {
     vector<contractor> ctcs;
     box counterexample(b, forall_vars);
     if (config.nra_shrink_for_dop) {
@@ -438,18 +443,22 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_v
     return cs.m_box;
 }
 
-box contractor_forall::find_CE(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) const {
+box contractor_forall::find_CE(box const & b, unordered_set<Enode *> const & forall_vars,
+                               vector<Enode *> const & vec, bool const p,
+                               SMTConfig & config) const {
     // static unsigned under_approx = 0;
     // static unsigned over_approx = 0;
     box counterexample = find_CE_via_underapprox(b, forall_vars, vec, p, config);
     if (!counterexample.is_empty()) {
         // ++under_approx;
-        // cerr << "WE USE UNDERAPPROX: " << under_approx << "/" << over_approx<< "/" << (under_approx + over_approx) << endl;
+        // cerr << "WE USE UNDERAPPROX: " << under_approx << "/" << over_approx<< "/" <<
+        // (under_approx + over_approx) << endl;
         // cerr << counterexample << endl;
     } else {
         counterexample = find_CE_via_overapprox(b, forall_vars, vec, p, config);
         // ++over_approx;
-        // cerr << "WE USE FULL       : " << under_approx << "/" << over_approx << "/" << (under_approx + over_approx)
+        // cerr << "WE USE FULL       : " << under_approx << "/" << over_approx << "/" <<
+        // (under_approx + over_approx)
         //      << " " << counterexample.is_empty() << endl
         //      << counterexample << endl;
     }
@@ -461,7 +470,8 @@ box contractor_forall::find_CE(box const & b, unordered_set<Enode*> const & fora
     return counterexample;
 }
 
-void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *> const &vec, bool const p) {
+void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *> const & vec,
+                                          bool const p) {
     DREAL_LOG_DEBUG << "contractor_forall::prune_disjunction" << endl;
     unordered_set<Enode *> forall_vars;
     for (Enode * e : vec) {
@@ -469,7 +479,7 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
         forall_vars.insert(vars.begin(), vars.end());
     }
 
-    unordered_map<Enode*, ibex::Interval> subst;
+    unordered_map<Enode *, ibex::Interval> subst;
     if (!forall_vars.empty()) {
         // Step 2. Find a counter-example
         //         Solve(¬ l_1 ∧ ¬ l_2 ∧ ... ∧ ¬ l_n)
@@ -503,7 +513,7 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
     DREAL_THREAD_LOCAL static vector<box> boxes;
     boxes.clear();
     auto vars = cs.m_box.get_vars();
-    unordered_set<Enode*> const var_set(vars.begin(), vars.end());
+    unordered_set<Enode *> const var_set(vars.begin(), vars.end());
     for (Enode * e : vec) {
         if (!e->get_exist_vars().empty()) {
             lbool polarity = p ? l_True : l_False;
@@ -536,7 +546,8 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
     return;
 }
 
-void contractor_forall::prune_conjunction(contractor_status & cs, vector<Enode *> const & vec, bool const p) {
+void contractor_forall::prune_conjunction(contractor_status & cs, vector<Enode *> const & vec,
+                                          bool const p) {
     DREAL_LOG_DEBUG << "contractor_forall::prune_conjunction" << endl;
     for (Enode * e : vec) {
         DREAL_LOG_DEBUG << "process conjunction element : " << e << endl;
@@ -548,7 +559,7 @@ void contractor_forall::prune_conjunction(contractor_status & cs, vector<Enode *
     return;
 }
 void contractor_forall::prune_leaf(contractor_status & cs, Enode * body, bool const p) {
-    vector<Enode*> vec;
+    vector<Enode *> vec;
     vec.push_back(body);
     prune_disjunction(cs, vec, p);
     return;

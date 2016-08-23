@@ -61,9 +61,7 @@ expr * solver::new_var(char const * s, double const lb, double const ub) {
     return v;
 }
 
-expr solver::var(char const * s, double const lb, double const ub) {
-    return *new_var(s, lb, ub);
-}
+expr solver::var(char const * s, double const lb, double const ub) { return *new_var(s, lb, ub); }
 
 expr * solver::new_ivar(char const * s, int const lb, int const ub) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
@@ -79,9 +77,7 @@ expr * solver::new_ivar(char const * s, int const lb, int const ub) {
     return v;
 }
 
-expr solver::ivar(char const * s, int const lb, int const ub) {
-    return *new_ivar(s, lb, ub);
-}
+expr solver::ivar(char const * s, int const lb, int const ub) { return *new_ivar(s, lb, ub); }
 
 expr solver::var(char const * s, vtype const t) {
     if (t == vtype::Int) {
@@ -106,13 +102,9 @@ expr * solver::new_var(char const * s, vtype const t) {
     }
 }
 
-expr solver::var(char const * s) {
-    return var(s, vtype::Real);
-}
+expr solver::var(char const * s) { return var(s, vtype::Real); }
 
-expr * solver::new_var(char const * s) {
-    return new_var(s, vtype::Real);
-}
+expr * solver::new_var(char const * s) { return new_var(s, vtype::Real); }
 
 expr solver::num(char const * const s) {
     assert(s);
@@ -179,7 +171,7 @@ bool solver::check() {
     stab.clear();
     if (result == l_True) {
         for (auto v : vtab) {
-            stab.push_back((get_lb(*v) + get_ub(*v))/2);
+            stab.push_back((get_lb(*v) + get_ub(*v)) / 2);
         }
         return true;
     } else {
@@ -287,16 +279,14 @@ void solver::set_domain_ub(expr & e, double const n) {
     var->setDomainUpperBound(n);
 }
 
-double solver::get_value(expr const & e) const {
-    return (get_lb(e)+get_ub(e))/2;
-}
+double solver::get_value(expr const & e) const { return (get_lb(e) + get_ub(e)) / 2; }
 
 void solver::print_model(std::ostream & out) {
     OpenSMTContext * context = static_cast<OpenSMTContext *>(cctx);
     if (context->getStatus() == l_True) {
-        out << "The input formula is delta-satisfied by the following model: "<< endl;
+        out << "The input formula is delta-satisfied by the following model: " << endl;
         for (auto const v : vtab) {
-            out << "\t" << *v << " = " << (get_lb(*v) + get_ub(*v))/2 << endl;
+            out << "\t" << *v << " = " << (get_lb(*v) + get_ub(*v)) / 2 << endl;
         }
     } else {
         out << "No model satisfies the formula." << endl;
@@ -307,8 +297,8 @@ void solver::print_problem(std::ostream & out) {
     out << "The problem has the following variables:" << endl;
     for (auto const v : vtab) {
         Enode * ev = static_cast<Enode *>(v->get_cexpr());
-        out << "\t" << *v  << ": [" << ev->getDomainLowerBound() << ","
-            << ev->getDomainUpperBound() <<"]" << endl;
+        out << "\t" << *v << ": [" << ev->getDomainLowerBound() << "," << ev->getDomainUpperBound()
+            << "]" << endl;
     }
     out << "and the following constraints:" << endl;
     for (auto const e : etab) {
