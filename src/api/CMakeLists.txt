@@ -1,5 +1,5 @@
 SET(DREAL_SRCS ${DREAL_SRCS}
-  ${CMAKE_CURRENT_LIST_DIR}/dreal.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/dreal_c.cpp
   ${CMAKE_CURRENT_LIST_DIR}/expr.cpp
   ${CMAKE_CURRENT_LIST_DIR}/solver.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dreal_control.cpp
