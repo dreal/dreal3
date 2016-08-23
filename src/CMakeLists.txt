@@ -819,16 +819,16 @@ endif(WITH_COLIN)
 # Include style check
 include(StyleCheck)
 file(GLOB_RECURSE DREAL_SOURCES
-  ${DREAL_SOURCE_DIR}/api/*.h          ${DREAL_SOURCE_DIR}/api/*.hh
-  ${DREAL_SOURCE_DIR}/api/*.C          ${DREAL_SOURCE_DIR}/api/*.cpp
-  ${DREAL_SOURCE_DIR}/contractor/*.cpp ${DREAL_SOURCE_DIR}/contractor/*.h
-  ${DREAL_SOURCE_DIR}/constraint/*.cpp ${DREAL_SOURCE_DIR}/constraint/*.h
-  ${DREAL_SOURCE_DIR}/util/*.cpp       ${DREAL_SOURCE_DIR}/util/*.h
-  ${DREAL_SOURCE_DIR}/icp/*.cpp        ${DREAL_SOURCE_DIR}/icp/*.h
-  ${DREAL_SOURCE_DIR}/dsolvers/*.cpp   ${DREAL_SOURCE_DIR}/dsolvers/*.h
+  ${DREAL_SOURCE_DIR}/api/*.C           ${DREAL_SOURCE_DIR}/api/*.cpp
+  ${DREAL_SOURCE_DIR}/api/*.h           ${DREAL_SOURCE_DIR}/api/*.hh
+  ${DREAL_SOURCE_DIR}/constraint/*.cpp  ${DREAL_SOURCE_DIR}/constraint/*.h
+  ${DREAL_SOURCE_DIR}/contractor/*.cpp  ${DREAL_SOURCE_DIR}/contractor/*.h
+  ${DREAL_SOURCE_DIR}/dsolvers/*.cpp    ${DREAL_SOURCE_DIR}/dsolvers/*.h
+  ${DREAL_SOURCE_DIR}/icp/*.cpp         ${DREAL_SOURCE_DIR}/icp/*.h
   ${DREAL_SOURCE_DIR}/optimizer/*.cpp   ${DREAL_SOURCE_DIR}/optimizer/*.h
-  ${DREAL_SOURCE_DIR}/tests/*.cpp      ${DREAL_SOURCE_DIR}/tests/*.h
-  ${DREAL_SOURCE_DIR}/tools/dop/*.cpp  ${DREAL_SOURCE_DIR}/tools/dop/*.h)
+  ${DREAL_SOURCE_DIR}/tests/*.cpp       ${DREAL_SOURCE_DIR}/tests/*.h
+  ${DREAL_SOURCE_DIR}/tools/dop/*.cpp   ${DREAL_SOURCE_DIR}/tools/dop/*.h
+  ${DREAL_SOURCE_DIR}/util/*.cpp        ${DREAL_SOURCE_DIR}/util/*.h)
 add_style_check_target(style "${DREAL_SOURCES}")
 add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py "--filter=-readability/casting,-whitespace/line_length,-build/header_guard,-whitespace/indent,-runtime/references,-build/c++11,-runtime/int" ${DREAL_SOURCES})
 
@@ -843,6 +843,19 @@ if(NOT BUILD_STATIC_BIN)
             COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
             COMMAND ${CMAKE_COMMAND} -E copy ${DREAL_BINARY_DIR}/dOp ${DREAL_SOURCE_DIR}/../bin/
   )
+endif()
+
+# Add target 'format' which uses clang-format
+find_program(CLANG_FORMAT "clang-format"
+    NAMES clang-format clang-format-4.0 clang-format-3.9 clang-format-3.8 clang-format-3.7 clang-format-3.6 clang-format-3.5 clang-format-3.4 clang-format-3.3)
+if(CLANG_FORMAT)
+    add_custom_target(format
+        COMMAND ${CLANG_FORMAT}
+        -i
+        -style=file
+        ${DREAL_SOURCES})
+else()
+    message(WARNING "clang-format is not found. No build target is created for 'format'.")
 endif()
 
 #########################################
