@@ -30,22 +30,20 @@ namespace dreal {
 class mcts_node;
 
 class mcts_expander {
-  public:
-    virtual void expand(mcts_node* node) = 0;
-    virtual double simulate(mcts_node* node) = 0;
+public:
+    virtual void expand(mcts_node * node) = 0;
+    virtual double simulate(mcts_node * node) = 0;
 };
 
-class icp_mcts_expander : public mcts_expander{
-  public:
-    icp_mcts_expander(contractor & ctc,
-                      contractor_status & cs,
-                      scoped_vec<shared_ptr<constraint>> const & ctrs,
-                      BranchHeuristic & brancher) :
-  m_ctc(ctc), m_cs(cs), m_ctrs(ctrs), m_brancher(brancher) {}
-    virtual void expand(mcts_node* node);
-    virtual double simulate(mcts_node* node);
+class icp_mcts_expander : public mcts_expander {
+public:
+    icp_mcts_expander(contractor & ctc, contractor_status & cs,
+                      scoped_vec<shared_ptr<constraint>> const & ctrs, BranchHeuristic & brancher)
+        : m_ctc(ctc), m_cs(cs), m_ctrs(ctrs), m_brancher(brancher) {}
+    virtual void expand(mcts_node * node);
+    virtual double simulate(mcts_node * node);
 
-  private:
+private:
     contractor & m_ctc;
     contractor_status & m_cs;
     scoped_vec<shared_ptr<constraint>> const & m_ctrs;

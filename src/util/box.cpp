@@ -275,6 +275,25 @@ bool box::is_bisectable(double const precision) const {
     return false;
 }
 
+bool box::is_point() const {
+  for (int i = 0; i < m_values.size(); ++i) {
+    if (m_values[i].lb() != m_values[i].ub()) {
+      return false;
+    }
+  }
+  return true;
+}
+
+const vector<int> box::non_point_dimensions() const {
+  vector<int> dims;
+  for (int i = 0; i < m_values.size(); ++i) {
+    if (m_values[i].lb() != m_values[i].ub()) {
+      dims.push_back(i);
+    }
+  }
+  return dims;
+}
+
 tuple<int, box, box> box::bisect(double const precision) const {
     // TODO(soonhok): implement other bisect policy
     int index = -1;
@@ -391,9 +410,27 @@ box box::sample_dimension(int dim) const {
     double const lb = iv.lb();
     double const ub = iv.ub();
     if (lb != ub) {
-      uniform_real_distribution<double> m_dist(lb, ub);
-      b[dim] = ibex::Interval(m_dist(rg));
+        uniform_real_distribution<double> m_dist(lb, ub);
+        b[dim] = ibex::Interval(m_dist(rg));
     }
+    return b;
+}
+
+box box::set_dimension_lb(int dim) const {
+    box b(*this);
+    ibex::IntervalVector const & values = get_values();
+    ibex::Interval const & iv = values[dim];
+    double const lb = iv.lb();
+    b[dim] = ibex::Interval(lb);
+    return b;
+}
+
+box box::set_dimension_ub(int dim) const {
+    box b(*this);
+    ibex::IntervalVector const & values = get_values();
+    ibex::Interval const & iv = values[dim];
+    double const ub = iv.ub();
+    b[dim] = ibex::Interval(ub);
     return b;
 }
 
