@@ -58,6 +58,7 @@ public:
     std::vector<int> bisectable_dims(double const precision, ibex::BitSet const & input) const;
     std::tuple<int, box, box> bisect_at(int const i) const;
     std::vector<bool> diff_dims(box const & b) const;
+    box sample_dimension(int dim) const;
     box sample_point() const;
     std::set<box> sample_points(unsigned const n) const;
     double get_bisection_ratio(int const i) const;

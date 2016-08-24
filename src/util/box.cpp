@@ -383,6 +383,20 @@ vector<bool> box::diff_dims(box const & b) const {
     return ret;
 }
 
+box box::sample_dimension(int dim) const {
+    static mt19937_64 rg(system_clock::now().time_since_epoch().count());
+    box b(*this);
+    ibex::IntervalVector const & values = get_values();
+    ibex::Interval const & iv = values[dim];
+    double const lb = iv.lb();
+    double const ub = iv.ub();
+    if (lb != ub) {
+      uniform_real_distribution<double> m_dist(lb, ub);
+      b[dim] = ibex::Interval(m_dist(rg));
+    }
+    return b;
+}
+
 box box::sample_point() const {
     static mt19937_64 rg(system_clock::now().time_since_epoch().count());
     unsigned const n = size();

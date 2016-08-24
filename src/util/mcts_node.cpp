@@ -43,7 +43,6 @@ mcts_node* mcts_node::select() {
     }
   }
 
-
   DREAL_LOG_INFO << "mcts_node::select(" << m_id << ") = " << selected->id();
   m_visits++;
   return selected;
@@ -53,7 +52,6 @@ mcts_node* icp_mcts_node::expand() {
   DREAL_LOG_INFO << "mcts_node::expand(" << m_id << ")";
   assert(m_children_list.empty());
 
-
   m_visits++;
 
   if (!m_terminal) {
@@ -61,7 +59,8 @@ mcts_node* icp_mcts_node::expand() {
     m_size = m_children_list.size();
 
 
-    DREAL_LOG_INFO << "mcts_node::expand(" << m_id << ") Got num children: " << m_children_list.size();
+    DREAL_LOG_INFO << "mcts_node::expand(" << m_id << ")"
+                   << " Got num children: " << m_children_list.size();
 
     for (auto child : m_children_list) {
       // DREAL_LOG_INFO << "child: " << child->id();
@@ -83,12 +82,12 @@ double mcts_node::simulate() {
       m_value = (m_is_solution ? 1.0 : -1.0);
   } else {
     // TODO(dan)
-    m_value = 0.0;
+    m_value = m_expander->simulate(this);
   }
   return m_value;
 }
 
-void mcts_node::backpropagate(double value) {
+void mcts_node::backpropagate() {
   // DREAL_LOG_INFO << "mcts_node::backpropagate(" << m_id << ") size = " << m_size;
 
   if (!m_children_list.empty()) {

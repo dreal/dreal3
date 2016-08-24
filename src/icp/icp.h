@@ -78,7 +78,9 @@ class mcts_icp  {
 private:
     static BranchHeuristic & defaultHeuristic;
 public:
-    static void solve(contractor & ctc, contractor_status & cs, scoped_vec<std::shared_ptr<constraint>> const & ctrs,
+    static void solve(contractor & ctc,
+                      contractor_status & cs,
+                      scoped_vec<std::shared_ptr<constraint>> const & ctrs,
                       BranchHeuristic & heuristic = defaultHeuristic);
 };
 }  // namespace dreal
