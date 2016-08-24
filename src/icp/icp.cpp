@@ -491,7 +491,10 @@ void random_icp::solve(contractor_status & cs, double const precision) {
 
 BranchHeuristic & mcts_icp::defaultHeuristic = sb;
 
-void mcts_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<shared_ptr<constraint>> const & ctrs, BranchHeuristic & brancher) {
+void mcts_icp::solve(contractor & ctc,
+                     contractor_status & cs,
+                     scoped_vec<shared_ptr<constraint>> const & ctrs,
+                     BranchHeuristic & brancher) {
   thread_local static vector<box> solns;
   solns.clear();
 
@@ -517,11 +520,15 @@ void mcts_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<shared
         // generate leaf nodes and pick one
         last = current->expand();
 
-        if (last != NULL) {
-          // DREAL_LOG_INFO << "mcts_icp::solve() check solution";
 
-          if (last->is_solution()) {
+        if (last != NULL) {
+          // DREAL_LOG_INFO << "mcts_icp::solve() simulate";
+          // simulate to end: sat or unsat
+          last->simulate();
+
+        if (last->is_solution()) {
             cs.m_config.nra_found_soln++;
+            DREAL_LOG_INFO << "mcts_icp::solve() found solution";
             if (cs.m_config.nra_multiple_soln > 1) {
               // If --multiple_soln is used
               output_solution(cs.m_box, cs.m_config, cs.m_config.nra_found_soln);
@@ -536,16 +543,13 @@ void mcts_icp::solve(contractor & ctc, contractor_status & cs, scoped_vec<shared
           last = current;
         }
 
-        // DREAL_LOG_INFO << "mcts_icp::solve() simulate";
-        // simulate to end: sat or unsat
-        double value = last->simulate();
 
         // DREAL_LOG_INFO << "mcts_icp::solve() backpropagate";
 
         // backpropagate value
         current = last;
         while (current != NULL) {  // the node is in the graph
-          current->backpropagate(value);
+          current->backpropagate();
           current = current->parent();
         }
     } while (true);

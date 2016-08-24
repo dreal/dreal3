@@ -79,7 +79,7 @@ class mcts_node {
     mcts_node* select();               // Select a child node
     virtual mcts_node* expand() = 0;   // Expand a leaf node
     double simulate();                 // Simulate to end of game
-    void backpropagate(double value);  // Backpropagate end game value
+    void backpropagate();  // Backpropagate end game value
 
     int size() const { return m_size; }
     mcts_node* parent() const { return m_parent; }
@@ -99,15 +99,19 @@ class mcts_node {
 class icp_mcts_node : public mcts_node {
   private:
     box m_box;
+    vector<box> sat_simulation_boxes;
 
   public:
-  icp_mcts_node(box b, mcts_expander *expander) : mcts_node(expander), m_box(b) {   }
-  icp_mcts_node(box b, mcts_node* parent, mcts_expander *expander) :
+ icp_mcts_node(box b, mcts_expander *expander) :
+    mcts_node(expander), m_box(b) {   }
+ icp_mcts_node(box b, mcts_node* parent, mcts_expander *expander) :
     mcts_node(parent, expander), m_box(b) {   }
     ~icp_mcts_node() {}
     virtual mcts_node* expand();               // Expand a leaf node
 
     const box get_box() const { return m_box; }
+    vector<box> get_sat_simulation_boxes() const { return sat_simulation_boxes; }
+    void add_sat_simulation_box(box b) { sat_simulation_boxes.push_back(b); }
 };
 
 bool operator==(icp_mcts_node const & n1, icp_mcts_node const & n2);
