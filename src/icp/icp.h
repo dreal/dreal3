@@ -73,13 +73,12 @@ public:
     void solve(contractor_status & cs, double const precision);
 };
 
-
-class mcts_icp  {
+class mcts_icp {
 private:
     static BranchHeuristic & defaultHeuristic;
+
 public:
-    static void solve(contractor & ctc,
-                      contractor_status & cs,
+    static void solve(contractor & ctc, contractor_status & cs,
                       scoped_vec<std::shared_ptr<constraint>> const & ctrs,
                       BranchHeuristic & heuristic = defaultHeuristic);
 };

@@ -26,78 +26,78 @@ using dreal::mcts_node;
 using dreal::icp_mcts_node;
 using std::numeric_limits;
 
-mcts_node* mcts_node::select() {
-  mcts_node* selected = NULL;
-  double max_score = numeric_limits<double>::lowest();
+mcts_node * mcts_node::select() {
+    mcts_node * selected = NULL;
+    double max_score = numeric_limits<double>::lowest();
 
-  // UCT score
-  for (auto child : m_children_list) {
-    // DREAL_LOG_INFO << m_value << " " << m_visits << " " << child->visits() << " " << max_score;
-    double score = m_value + UCT_COEFFICIENT * sqrt(log(m_visits)/child->visits());
-    child->set_score(score);
-    // DREAL_LOG_INFO << "mcts_node::select(" << m_id
-    //             << ") set score(" << child->id() << ") = " << score;
-    if (score > max_score) {
-      selected = child;
-      max_score = score;
+    // UCT score
+    for (auto child : m_children_list) {
+        // DREAL_LOG_INFO << m_value << " " << m_visits << " " << child->visits() << " " <<
+        // max_score;
+        double score = m_value + UCT_COEFFICIENT * sqrt(log(m_visits) / child->visits());
+        child->set_score(score);
+        // DREAL_LOG_INFO << "mcts_node::select(" << m_id
+        //             << ") set score(" << child->id() << ") = " << score;
+        if (score > max_score) {
+            selected = child;
+            max_score = score;
+        }
     }
-  }
 
-  DREAL_LOG_INFO << "mcts_node::select(" << m_id << ") = " << selected->id();
-  m_visits++;
-  return selected;
+    DREAL_LOG_INFO << "mcts_node::select(" << m_id << ") = " << selected->id();
+    m_visits++;
+    return selected;
 }
 
-mcts_node* icp_mcts_node::expand() {
-  DREAL_LOG_INFO << "mcts_node::expand(" << m_id << ")";
-  assert(m_children_list.empty());
+mcts_node * icp_mcts_node::expand() {
+    DREAL_LOG_INFO << "mcts_node::expand(" << m_id << ")";
+    assert(m_children_list.empty());
 
-  m_visits++;
+    m_visits++;
 
-  if (!m_terminal) {
-    m_expander->expand(this);
-    m_size = m_children_list.size();
+    if (!m_terminal) {
+        m_expander->expand(this);
+        m_size = m_children_list.size();
 
+        DREAL_LOG_INFO << "mcts_node::expand(" << m_id << ")"
+                       << " Got num children: " << m_children_list.size();
 
-    DREAL_LOG_INFO << "mcts_node::expand(" << m_id << ")"
-                   << " Got num children: " << m_children_list.size();
+        for (auto child : m_children_list) {
+            // DREAL_LOG_INFO << "child: " << child->id();
+            child->inc_visits();
+        }
 
-    for (auto child : m_children_list) {
-      // DREAL_LOG_INFO << "child: " << child->id();
-      child->inc_visits();
+        if (m_children_list.empty()) {
+            m_terminal = true;
+        }
     }
 
-    if (m_children_list.empty()) {
-      m_terminal = true;
-    }
-  }
-
-  return (m_terminal ? NULL : m_children_list[0]);
+    return (m_terminal ? NULL : m_children_list[0]);
 }
 
 double mcts_node::simulate() {
-  DREAL_LOG_INFO << "mcts_node::simulate(" << m_id << ")";
+    DREAL_LOG_INFO << "mcts_node::simulate(" << m_id << ")";
 
-  if (m_terminal) {
-      m_value = (m_is_solution ? 1.0 : -1.0);
-  } else {
-    // TODO(dan)
-    m_value = m_expander->simulate(this);
-  }
-  return m_value;
+    if (m_terminal) {
+        m_value = (m_is_solution ? 1.0 : -1.0);
+    } else {
+        // TODO(dan)
+        m_value = m_expander->simulate(this);
+    }
+    return m_value;
 }
 
 void mcts_node::backpropagate() {
-  // DREAL_LOG_INFO << "mcts_node::backpropagate(" << m_id << ") size = " << m_size;
+    // DREAL_LOG_INFO << "mcts_node::backpropagate(" << m_id << ") size = " << m_size;
 
-  if (!m_children_list.empty()) {
-    m_size = 0;
-    m_value = 0;
-    for (auto child : m_children_list) {
-      m_size += child->size() + 1;
-      m_value += child->value();
+    if (!m_children_list.empty()) {
+        m_size = 0;
+        m_value = 0;
+        for (auto child : m_children_list) {
+            m_size += child->size() + 1;
+            m_value += child->value();
+        }
+        m_value /= m_children_list.size();  // average value backprop
     }
-    m_value /= m_children_list.size();  // average value backprop
-  }
-  //  DREAL_LOG_INFO << "mcts_node::backpropagate(" << m_id << ") size = " << m_size;
+    //  DREAL_LOG_INFO << "mcts_node::backpropagate(" << m_id << ") size = " << m_size;
 }
