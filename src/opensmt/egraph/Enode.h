@@ -264,8 +264,6 @@ public:
   double          getDomainUpperBound    ( ) const; //added for dReal2
   double          getValueLowerBound     ( ) const; //added for dReal2
   double          getValueUpperBound     ( ) const; //added for dReal2
-  double          getBoundLowerBound     ( ) const; //added for dReal2
-  double          getBoundUpperBound     ( ) const; //added for dReal2
   double          getPrecision           ( ) const; //added for dReal2
   bool            hasPrecision           ( ) const; //added for dReal2
   double          getComplexValue        ( ) const;
