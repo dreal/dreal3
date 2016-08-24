@@ -53,11 +53,7 @@ double dreal_get_domain_ub(dreal_context, dreal_expr);
 void dreal_set_domain_lb(dreal_context, dreal_expr, double);
 void dreal_set_domain_ub(dreal_context, dreal_expr, double);
 dreal_result dreal_get_bool(dreal_context c, dreal_expr p);
-void dreal_prefer(dreal_expr a);
-void dreal_polarity(dreal_context c, dreal_expr a, int pos);
 void dreal_print_model(dreal_context, const char *);
-void dreal_print_proof(dreal_context, const char *);
-void dreal_print_interpolant(dreal_context, const char *);
 void dreal_define_ode(dreal_context, const char *, dreal_expr *, dreal_expr *, unsigned);
 dreal_expr dreal_mk_integral(dreal_context, dreal_expr *, dreal_expr, dreal_expr, dreal_expr *,
                              unsigned, const char *);
@@ -67,7 +63,7 @@ dreal_expr dreal_mk_bool_var(dreal_context, char const *);
 dreal_expr dreal_mk_int_var(dreal_context, char const *, long, long);
 dreal_expr dreal_mk_unbounded_int_var(dreal_context, char const *);
 dreal_expr dreal_mk_forall_int_var(dreal_context, char const *, long, long);
-dreal_expr dreal_mk_forall_unbounded_int_var(dreal_context, char const *, long, long);
+dreal_expr dreal_mk_forall_unbounded_int_var(dreal_context, char const *);
 dreal_expr dreal_mk_real_var(dreal_context, char const *, double, double);
 dreal_expr dreal_mk_unbounded_real_var(dreal_context, char const *);
 dreal_expr dreal_mk_forall_real_var(dreal_context, char const *, double, double);
@@ -114,6 +110,11 @@ dreal_expr dreal_mk_tanh(dreal_context, dreal_expr);
 dreal_expr dreal_mk_atan2(dreal_context, dreal_expr, dreal_expr);
 dreal_expr dreal_mk_min(dreal_context, dreal_expr, dreal_expr);
 dreal_expr dreal_mk_max(dreal_context, dreal_expr, dreal_expr);
+
+// void dreal_polarity(dreal_context c, dreal_expr a, int pos);
+// void dreal_prefer(dreal_expr a);
+// void dreal_print_proof(dreal_context, const char *);
+// void dreal_print_interpolant(dreal_context, const char *);
 #ifdef __cplusplus
 }
 #endif

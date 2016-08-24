@@ -832,7 +832,4 @@ dreal_result dreal_get_bool(dreal_context c, dreal_expr p) {
     }
     return l_undef;
 }
-
-void dreal_polarity(dreal_context, dreal_expr, int) {}
-
 #endif
