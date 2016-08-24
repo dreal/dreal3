@@ -109,7 +109,7 @@ double icp_mcts_expander::simulate(mcts_node* node){
         } else {
           DREAL_LOG_INFO << "icp_mcts_simulator::simulate() found sat " << m_cs.m_box.is_empty();
           icp_mcts_node* icp_node = NULL;
-          if (icp_node = dynamic_cast<icp_mcts_node*>(node)) {
+          if ((icp_node = dynamic_cast<icp_mcts_node*>(node))) {
             icp_node->add_sat_simulation_box(m_cs.m_box);
           }
           node->set_solution(true);
