@@ -29,6 +29,8 @@ Did you write code adding a new feature or fixing a bug?
   [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html). Run
   `make style` and check there is no style error.
 
+* Run `make format` before you commit. It calls [clang-format][clang-format] and uses our configuration file [.clang-format](https://github.com/dreal/dreal3/blob/master/src/.clang-format).
+ 
 * [Rebase your commits based on master branch][git-rebase] of
   dreal/dreal3 repository.
 
@@ -48,3 +50,4 @@ Did you write code adding a new feature or fixing a bug?
 [git-rebase]: https://robots.thoughtbot.com/git-interactive-rebase-squash-amend-rewriting-history
 [git-commit-msg-convention]: https://github.com/dreal/dreal3/blob/master/doc/commit_convention.md
 [editorconfig-plugin]: http://editorconfig.org/#download
+[clang-format]: https://clang.llvm.org/docs/ClangFormat.html
