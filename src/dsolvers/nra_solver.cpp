@@ -509,6 +509,8 @@ bool nra_solver::check(bool complete) {
             simulation_icp::solve(m_ctc, m_cs, m_stack, config.nra_precision);
         } else if (config.nra_ncbt) {
             ncbt_icp::solve(m_ctc, m_cs);
+        } else if (config.nra_mcts) {
+            mcts_icp::solve(m_ctc, m_cs, m_stack);
         } else if (config.nra_multiprune) {
             SizeGradAsinhBrancher sb1(m_stack);
             multiprune_icp::solve(m_ctc, m_cs, m_stack, sb1);

@@ -58,12 +58,17 @@ public:
     std::vector<int> bisectable_dims(double const precision, ibex::BitSet const & input) const;
     std::tuple<int, box, box> bisect_at(int const i) const;
     std::vector<bool> diff_dims(box const & b) const;
+    box sample_dimension(int dim) const;
     box sample_point() const;
     std::set<box> sample_points(unsigned const n) const;
     double get_bisection_ratio(int const i) const;
     bool is_time_variable(int const i) const { return get_name(i).find("time_") == 0; }
     bool is_bisectable_at(int const idx, double const precision) const;
     bool is_bisectable(double const precision = 0.0) const;
+    bool is_point() const;
+    const std::vector<int> non_point_dimensions() const;
+    box set_dimension_lb(int dim) const;
+    box set_dimension_ub(int dim) const;
     bool is_empty() const { return size() == 0 || m_values.is_empty(); }
     ibex::IntervalVector & get_values() { return m_values; }
     ibex::IntervalVector const & get_values() const { return m_values; }
