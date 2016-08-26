@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.1.3)
 project(DREAL C CXX)
 set(DREAL_VERSION_MAJOR 3)
 set(DREAL_VERSION_MINOR 16)
