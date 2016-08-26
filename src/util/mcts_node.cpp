@@ -19,8 +19,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <limits>
 
-#include "util/mcts_node.h"
 #include "util/logging.h"
+#include "util/mcts_node.h"
 
 using dreal::mcts_node;
 using dreal::icp_mcts_node;

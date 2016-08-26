@@ -31,10 +31,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "icp/brancher.h"
 #include "util/logging.h"
+#include "util/mcts_node.h"
 #include "util/scoped_vec.h"
 #include "util/stat.h"
 #include "util/thread_local.h"
-#include "util/mcts_node.h"
 
 using std::atomic_bool;
 using std::cerr;

@@ -276,22 +276,22 @@ bool box::is_bisectable(double const precision) const {
 }
 
 bool box::is_point() const {
-  for (int i = 0; i < m_values.size(); ++i) {
-    if (m_values[i].lb() != m_values[i].ub()) {
-      return false;
+    for (int i = 0; i < m_values.size(); ++i) {
+        if (m_values[i].lb() != m_values[i].ub()) {
+            return false;
+        }
     }
-  }
-  return true;
+    return true;
 }
 
 const vector<int> box::non_point_dimensions() const {
-  vector<int> dims;
-  for (int i = 0; i < m_values.size(); ++i) {
-    if (m_values[i].lb() != m_values[i].ub()) {
-      dims.push_back(i);
+    vector<int> dims;
+    for (int i = 0; i < m_values.size(); ++i) {
+        if (m_values[i].lb() != m_values[i].ub()) {
+            dims.push_back(i);
+        }
     }
-  }
-  return dims;
+    return dims;
 }
 
 tuple<int, box, box> box::bisect(double const precision) const {

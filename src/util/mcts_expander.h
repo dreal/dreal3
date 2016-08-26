@@ -19,10 +19,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <vector>
 #include <memory>
-#include "util/mcts_node.h"
+#include <vector>
 #include "icp/brancher.h"
+#include "util/mcts_node.h"
 
 using std::shared_ptr;
 
