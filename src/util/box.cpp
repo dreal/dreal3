@@ -284,7 +284,7 @@ bool box::is_point() const {
     return true;
 }
 
-const vector<int> box::non_point_dimensions() const {
+vector<int> box::non_point_dimensions() const {
     vector<int> dims;
     for (int i = 0; i < m_values.size(); ++i) {
         if (m_values[i].lb() != m_values[i].ub()) {

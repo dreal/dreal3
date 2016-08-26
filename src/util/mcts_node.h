@@ -103,7 +103,7 @@ public:
     ~icp_mcts_node() {}
     virtual mcts_node * expand();  // Expand a leaf node
 
-    const box get_box() const { return m_box; }
+    box get_box() const { return m_box; }
     vector<box> get_sat_simulation_boxes() const { return sat_simulation_boxes; }
     void add_sat_simulation_box(box b) { sat_simulation_boxes.push_back(b); }
 };

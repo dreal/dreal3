@@ -66,7 +66,7 @@ public:
     bool is_bisectable_at(int const idx, double const precision) const;
     bool is_bisectable(double const precision = 0.0) const;
     bool is_point() const;
-    const std::vector<int> non_point_dimensions() const;
+    std::vector<int> non_point_dimensions() const;
     box set_dimension_lb(int dim) const;
     box set_dimension_ub(int dim) const;
     bool is_empty() const { return size() == 0 || m_values.is_empty(); }
