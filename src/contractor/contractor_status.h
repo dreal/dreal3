@@ -26,9 +26,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 
 namespace dreal {
+/// contractor_status class is passed to a contractor::prune method as
+/// a reference. A contractor updates a given contractor status during
+/// a pruning step.
 class contractor_status {
 public:
+    /// The current box to prune. Most of contractors are updating
+    /// this member.
     box m_box;
+    /// Some of contractors return a set of boxes in their pruning
+    /// processes. The first one is saved in m_box, the rest will be
+    /// saved in m_box_stack. When a contractor_status is returned to
+    /// an ICP layer, its m_box_stack will be passed to the ICP stack.
+    std::vector<box> m_box_stack;
     // "m_output[i] == 1" means that the value of the i-th variable is
     // changed after running the contractor.
     ibex::BitSet m_output;
@@ -39,25 +49,46 @@ public:
     explicit contractor_status(SMTConfig & config) : m_box({}), m_config(config) {}
     contractor_status(box const & b, SMTConfig & config)
         : m_box(b), m_output(ibex::BitSet::empty(b.size())), m_config(config) {}
-    contractor_status(box const & b, ibex::BitSet const & output,
+    contractor_status(box const & b, std::vector<box> const & box_stack,
+                      ibex::BitSet const & output,
                       std::unordered_set<std::shared_ptr<constraint>> const & used_constraints,
                       SMTConfig & config)
-        : m_box(b), m_output(output), m_used_constraints(used_constraints), m_config(config) {}
+        : m_box(b),
+          m_box_stack(box_stack),
+          m_output(output),
+          m_used_constraints(used_constraints),
+          m_config(config) {}
 
     // reset
     void reset(contractor_status & cs) {
         m_box = cs.m_box;
+        m_box_stack = cs.m_box_stack;
         m_output = cs.m_output;
         m_used_constraints = cs.m_used_constraints;
     }
     void join(contractor_status const & cs) {
+        m_box.hull(cs.m_box);
+        m_box_stack.insert(std::end(m_box_stack), std::begin(cs.m_box_stack),
+                           std::end(cs.m_box_stack));
         m_output.union_with(cs.m_output);
         std::unordered_set<std::shared_ptr<constraint>> const & used_ctrs = cs.m_used_constraints;
         m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
-        m_box.hull(cs.m_box);
     }
 };
 
+/// contractor_status_guard provide a way to 'temporarily' clear out a
+/// contractor_status' output and used_constraints members. It works as follows:
+
+/// {
+///     contractor_status_guard csg(cs);  // save cs' m_output and m_used_constraints;
+///
+///     assert(cs.m_output.empty());
+///     assert(cs.m_used_constraints.empty());
+///     ...
+///     ctr.prune(cs);  // pruning update cs' m_output and m_used_constraints
+///     ...
+/// }  // csg is destroyed and its destruction joins old and new values of m_output and
+///    // m_used_constraints
 class contractor_status_guard {
 private:
     contractor_status & m_cs_ref;
