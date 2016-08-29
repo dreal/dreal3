@@ -45,7 +45,7 @@ Required Packages
 
  - C++11-compatible compiler ([g++(>=4.8)][gcc], [clang++(>=3.3)][clang])
  - [autoconf][autoconf], [automake][automake], [bison][bison],
-   [cmake(>=2.8.12)][cmake], [flex][flex], [git][git], [libtool][libtool], [make][make],
+   [cmake(>=3.1.3)][cmake], [flex][flex], [git][git], [libtool][libtool], [make][make],
    [pkg-config][pkg-config]
  - [ocaml (>=4.01.0)][ocaml], [opam][opam], [ocaml-findlib][ocaml-findlib], [ocaml-batteries (>=2.0)][ocaml-batteries]
 
