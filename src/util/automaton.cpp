@@ -45,7 +45,7 @@ void automaton::add_mode(double ind, vector<Enode *> & invts,
                          unordered_map<double, Enode *> & guards,
                          unordered_map<double, Enode *> & resets) {
     mode * m = find_mode(ind);
-    //need to copy the Enodes because the maps are temporary holders
+    // need to copy the Enodes because the maps are temporary holders
     for (auto inv : invts) {
         m->add_invt(inv);
     }

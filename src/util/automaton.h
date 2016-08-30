@@ -39,25 +39,24 @@ public:
     inline void add_guard(mode * m, Enode * e) { m_guards.emplace(m, e); }
     inline void add_reset(mode * m, Enode * e) { m_resets.emplace(m, e); }
     bool check_def();
+
 private:
     const double m_index;
-    std::vector<Enode *> m_invts;  // one formula
-    std::unordered_map<Enode *, Enode *> m_flows;
-    std::unordered_map<mode *, Enode *> m_guards;
-    std::unordered_map<mode *, Enode *> m_resets;
-    std::vector<Enode *> m_x0;  // initial states
-    std::vector<Enode *> m_xt;  // states after flow
-    std::vector<Enode *> m_xp;  // states after jump
+    std::vector<Enode *> m_invts;                  // mode invariants
+    std::unordered_map<Enode *, Enode *> m_flows;  // flows as mapping for variables to ODEs
+    std::unordered_map<mode *, Enode *> m_guards;  // guard conditions
+    std::unordered_map<mode *, Enode *> m_resets;  // reset conditions
+    std::vector<Enode *> m_x0;                     // initial states
+    std::vector<Enode *> m_xt;                     // states after flow
+    std::vector<Enode *> m_xp;                     // states after jump
 };
 
 class automaton {
 public:
     explicit automaton(OpenSMTContext &);
     inline ~automaton() {}
-    mode * new_mode(double);
     void add_mode(double, std::vector<Enode *> &, std::unordered_map<Enode *, Enode *> &,
                   std::unordered_map<double, Enode *> &, std::unordered_map<double, Enode *> &);
-    mode * find_mode(double);
     void add_init(double, Enode *);
     void add_goal(double, Enode *);
     bool check_def();  // light type checking
@@ -66,6 +65,7 @@ private:
     std::vector<mode *> m_modes;
     std::unordered_map<mode *, Enode *> m_inits;  // assuming each mode only has one formula here
     std::unordered_map<mode *, Enode *> m_goals;
+    mode * new_mode(double);
+    mode * find_mode(double);  // returns mode of the index; create a new mode if not in table
 };
-
 }
