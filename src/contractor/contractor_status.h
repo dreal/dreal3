@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 #include <unordered_set>
+#include <vector>
 #include "constraint/constraint.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"

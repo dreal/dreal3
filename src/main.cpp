@@ -30,6 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/git_sha1.h"
 #include "util/logging.h"
 #include "version.h"
+#include "util/automaton.h"
 
 #if defined(__linux__)
 #include <fpu_control.h>
@@ -53,7 +54,11 @@ extern int smt2lex_destroy();
 extern int drset_in(FILE *);
 extern int drparse();
 extern int drlex_destroy();
+extern int drhset_in(FILE *);
+extern int drhparse();
+extern int drhlex_destroy();
 extern OpenSMTContext * parser_ctx;
+extern dreal::automaton * atmp;
 
 int main(int argc, const char * argv[]) {
 #ifdef LOGGING
@@ -82,7 +87,6 @@ int main(int argc, const char * argv[]) {
         opensmt_error2("can't open file", filename);
     }
 
-    // Parse
     // Parse according to filetype
     if (fin == stdin) {
         smt2set_in(fin);
@@ -95,6 +99,15 @@ int main(int argc, const char * argv[]) {
         } else if (strcmp(extension, ".dr") == 0) {
             drset_in(fin);
             drparse();
+        } else if (strcmp(extension, ".drh") == 0) {
+            dreal::automaton atm(context);
+            atmp = &atm;
+            parser_ctx->SetLogic("QF_NRA_ODE"); //seg fault if this is not set
+            drhset_in(fin);
+            drhparse();
+            drhlex_destroy();
+            fclose(fin);
+            return 0;
         } else {
             opensmt_error2(extension, " extension not recognized.");
         }

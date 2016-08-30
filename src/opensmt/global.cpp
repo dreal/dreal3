@@ -20,5 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "api/OpenSMTContext.h"
+#include "util/automaton.h"
 
 OpenSMTContext * parser_ctx;
+dreal::automaton * atmp;

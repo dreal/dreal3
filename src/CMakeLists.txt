@@ -784,6 +784,32 @@ SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/dr/drparser.cc G
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/dr/drlexer.cc GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/dr/drlexer.cc PROPERTIES COMPILE_FLAGS -Wno-sign-compare)
 ################################################################
+# PARSER: DRH
+################################################################
+# Create custom command for flex/lex (note the outputs)
+ADD_CUSTOM_COMMAND(
+  COMMAND ${FLEX_EXECUTABLE}
+  ARGS -o ${DREAL_BINARY_DIR}/opensmt/parsers/drh/drhlexer.cc -Pdrh
+  ${DREAL_SOURCE_DIR}/opensmt/parsers/drh/drhlexer.ll
+  DEPENDS ${DREAL_SOURCE_DIR}/opensmt/parsers/drh/drhlexer.ll
+  OUTPUT  ${DREAL_BINARY_DIR}/opensmt/parsers/drh/drhlexer.cc
+  )
+
+# Create custom command for bison/yacc (note the DEPENDS)
+ADD_CUSTOM_COMMAND(
+  COMMAND ${BISON_EXECUTABLE}
+  ARGS -d --name-prefix=drh -y ${DREAL_SOURCE_DIR}/opensmt/parsers/drh/drhparser.yy
+  -o ${DREAL_BINARY_DIR}/opensmt/parsers/drh/drhparser.cc
+  DEPENDS ${DREAL_BINARY_DIR}/opensmt/parsers/drh/drhlexer.cc
+  DEPENDS ${DREAL_SOURCE_DIR}/opensmt/parsers/drh/drhparser.yy
+  OUTPUT  ${DREAL_BINARY_DIR}/opensmt/parsers/drh/drhparser.cc
+  )
+# Since parser.c does not exists yet when cmake is run, mark
+# it as generated
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/drh/drhparser.cc GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/drh/drhlexer.cc GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${DREAL_BINARY_DIR}/opensmt/parsers/drh/drhlexer.cc PROPERTIES COMPILE_FLAGS -Wno-sign-compare)
+################################################################
 # PARSER: DOP
 ################################################################
 # Create custom command for flex/lex (note the outputs)
