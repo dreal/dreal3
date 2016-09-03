@@ -77,6 +77,7 @@ public:
     /// Return a gradient vector of the function at @p iv.
     virtual ibex::IntervalVector grad(ibex::IntervalVector const & iv) const = 0;
     virtual std::ostream & display(std::ostream & out) const = 0;
+    virtual std::ostream & display_dr(std::ostream & out) const = 0;
     virtual ~constraint() noexcept {}
     friend std::ostream & operator<<(std::ostream & out, constraint const & c);
 };
@@ -108,6 +109,7 @@ public:
                          lbool const p, std::unordered_map<Enode *, ibex::Interval> const & subst =
                                             std::unordered_map<Enode *, ibex::Interval>());
     std::ostream & display(std::ostream & out) const override;
+    std::ostream & display_dr(std::ostream &) const override;
     std::pair<lbool, ibex::Interval> eval(box const & b) const override;
     ibex::IntervalVector grad(ibex::IntervalVector const & iv) const override {
         return get_numctr()->f.gradient(iv);
@@ -161,6 +163,9 @@ public:
         throw std::runtime_error("not implemented yet.");
     }
     std::ostream & display(std::ostream & out) const override;
+    std::ostream & display_dr(std::ostream &) const override {
+        throw std::runtime_error("not implemented yet.");
+    }
 };
 
 integral_constraint mk_integral_constraint(Enode * const e,
@@ -199,6 +204,9 @@ public:
         throw std::runtime_error("not implemented yet.");
     }
     std::ostream & display(std::ostream & out) const override;
+    std::ostream & display_dr(std::ostream &) const override {
+        throw std::runtime_error("not implemented yet.");
+    }
 };
 
 class ode_constraint : public constraint {
@@ -222,6 +230,9 @@ public:
         throw std::runtime_error("not implemented yet.");
     }
     std::ostream & display(std::ostream & out) const override;
+    std::ostream & display_dr(std::ostream &) const override {
+        throw std::runtime_error("not implemented yet.");
+    }
 };
 
 /// This class is to support forall quantifier without a hack.
@@ -236,6 +247,9 @@ private:
 public:
     forall_constraint(Enode * const e, lbool const p);
     std::ostream & display(std::ostream & out) const override;
+    std::ostream & display_dr(std::ostream &) const override {
+        throw std::runtime_error("not implemented yet.");
+    }
     std::unordered_set<Enode *> get_forall_vars() const;
     Enode * get_body() const;
     Enode * get_enode() const { return get_enodes()[0]; }

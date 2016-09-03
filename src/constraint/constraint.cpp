@@ -187,6 +187,15 @@ ostream & nonlinear_constraint::display(ostream & out) const {
     return out;
 }
 
+ostream & nonlinear_constraint::display_dr(ostream & out) const {
+    if (m_is_neq) {
+        out << "(not " << *get_numctr() << ")";
+    } else {
+        out << *get_numctr();
+    }
+    return out;
+}
+
 pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector const & iv) const {
     lbool sat = l_Undef;
     ibex::Interval result;

@@ -67,7 +67,7 @@ void drerror( const char * s )
 %token TK_COMMA TK_COLON TK_SEMICOLON TK_PLUS TK_MINUS TK_TIMES TK_DIV TK_EQ TK_NEQ TK_LEQ TK_GEQ
 %token TK_LT TK_GT TK_SIN TK_COS TK_TAN TK_EXP TK_LOG TK_ABS TK_ASIN TK_ACOS TK_ATAN TK_SINH TK_COSH TK_TANH TK_MIN
 %token TK_MAX TK_ATAN2 TK_MATAN TK_SQRT TK_SAFESQRT TK_POW
-%token TK_LC TK_RC TK_LP TK_RP TK_LB TK_RB TK_OR TK_AND TK_IMPLIES
+%token TK_LC TK_RC TK_LP TK_RP TK_LB TK_RB TK_OR TK_AND TK_IMPLIES TK_NOT
 %token TK_NUM TK_STR TK_ID
 
 %type   <str>           TK_NUM TK_ID TK_STR
@@ -344,7 +344,7 @@ formula:        TK_LP formula TK_RP { $$ = $2; }
                         yyerror("Parse Error: and");
                     }
         }
-	|       formula TK_IMPLIES formula {
+	    |       formula TK_IMPLIES formula {
                     $$ = parser_ctx->mkImplies(parser_ctx->mkCons($1, parser_ctx->mkCons($3)));
                     if ($$ == nullptr) {
                         yyerror("Parse Error: and");

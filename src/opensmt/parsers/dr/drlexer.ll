@@ -64,6 +64,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 "}"                          { return TK_RC; }
 "["                          { return TK_LB; }
 "]"                          { return TK_RB; }
+"not"						 { return TK_NOT; }
 "or"                         { return TK_OR; }
 "and"                        { return TK_AND; }
 "implies"		     { return TK_IMPLIES; }

@@ -80,6 +80,7 @@ using std::unique_ptr;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
+using std::ofstream;
 
 namespace dreal {
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
@@ -614,6 +615,35 @@ ostream & nra_solver::dumpFormulas(ostream & out) const {
         out << *ctr_ptr << endl;
     }
     return out;
+}
+
+void nra_solver::dump_smt_file() {
+    string fn = egraph.get_filename() + "dumped.smt2";
+    ofstream dump_out(fn.c_str());
+    egraph.dumpHeaderToFile(dump_out);
+    for (auto l : m_lits) {
+        egraph.dumpFormulaToFile(dump_out, l);
+    }
+    dump_out << "(check-sat)" << endl;
+    dump_out << "(exit)" << endl;
+    dump_out.close();
+}
+
+void nra_solver::dump_dr_file() {
+    string fn = egraph.get_filename() + "dumped.dr";
+    ofstream dump_out(fn.c_str());
+    dump_out << "var:" << endl;
+    display_dr(dump_out, m_cs.m_box);
+    dump_out << "ctr:" << endl;
+    for (auto const c : m_stack) {
+        // only works for nonlinear constraints so far
+        if (c->get_type() == constraint_type::Nonlinear) {
+            c->get_enodes()[0]->print_infix(dump_out, l_True);
+            dump_out << ";\n";
+        }
+    }
+    dump_out << "1>0;\n";  // in case no constraints got dumped
+    dump_out.close();
 }
 
 }  // namespace dreal

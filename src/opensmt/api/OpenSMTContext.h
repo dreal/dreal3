@@ -322,6 +322,8 @@ public:
   }
   inline void       setStat(bool b) { config.nra_use_stat = b; }
   std::ostream & dumpFormulas(std::ostream & out) const;
+  inline void dumpHeaderToFile( std::ostream & dump_out ) { egraph.dumpHeaderToFile(dump_out); }
+  inline void set_filename ( const char * f ) { egraph.set_filename(f); }
 
 private:
 

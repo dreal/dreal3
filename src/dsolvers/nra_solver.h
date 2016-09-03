@@ -53,6 +53,8 @@ public:
     bool belongsToT(Enode * e);
     void computeModel();
     std::ostream & dumpFormulas(std::ostream & out) const;
+    void dump_smt_file();
+    void dump_dr_file();
 
 private:
     bool m_need_init = true;

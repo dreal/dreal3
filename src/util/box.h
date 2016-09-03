@@ -136,6 +136,7 @@ public:
     friend std::ostream & display_diff(std::ostream & out, box const & b1, box const & b2);
     friend std::ostream & display(std::ostream & out, box const & b, bool const exact,
                                   bool const old_style);
+    friend std::ostream & display_dr(std::ostream &, box const &);
     std::size_t hash() const {
         std::size_t seed = 23;
         for (int i = 0; i < m_values.size(); i++) {
@@ -170,6 +171,8 @@ std::ostream & display_diff(std::ostream & out, box const & b1, box const & b2);
 std::ostream & display(std::ostream & out, box const & b, bool const exact = false,
                        bool const old_style = false);
 std::ostream & operator<<(std::ostream & out, box const & b);
+std::ostream & display_dr(std::ostream &, box const & b);
+
 }  // namespace dreal
 
 namespace std {

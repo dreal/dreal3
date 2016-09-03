@@ -350,6 +350,11 @@ private:
   std::set< Enode * > it_uf, it_la;
   static constexpr double      default_precision = 0.001;
   double            precision;     /* added for dReal */
+  std::string       filename;
+
+public:
+  inline void set_filename ( const char * f ) { filename.assign(f); }
+  inline std::string & get_filename () { return filename; }
 
 public:
 

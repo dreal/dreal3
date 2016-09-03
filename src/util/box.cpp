@@ -215,6 +215,27 @@ ostream & display(ostream & out, box const & b, bool const exact, bool const old
     return out;
 }
 
+ostream & display_dr(ostream & out, box const & b) {
+    unsigned const s = b.size();
+    double const max = 0.5 * std::numeric_limits<double>::max();
+    for (unsigned i = 0; i < s; i++) {
+        Enode * v = (*b.m_vars)[i];
+        ibex::Interval const & d = b.m_values[i];
+        out << "[";
+        if (d.lb() < -max)
+            out << -max;
+        else
+            out << d.lb();
+        out << ",";
+        if (d.ub() > max)
+            out << max;
+        else
+            out << d.ub();
+        out << "] " << v->getCar()->getNameFull() << ";\n";
+    }
+    return out;
+}
+
 ostream & operator<<(ostream & out, box const & b) { return display(out, b); }
 
 vector<int> box::bisectable_dims(double const precision, ibex::BitSet const & input) const {

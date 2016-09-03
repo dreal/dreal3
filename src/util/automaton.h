@@ -59,7 +59,8 @@ public:
                   std::unordered_map<double, Enode *> &, std::unordered_map<double, Enode *> &);
     void add_init(double, Enode *);
     void add_goal(double, Enode *);
-    bool check_def();  // light type checking
+    bool check_def();     // light type checking
+    box sample(Enode *);  // Return a point that satisfies the argument Enode
 private:
     OpenSMTContext * m_ctx;
     std::vector<mode *> m_modes;

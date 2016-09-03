@@ -78,6 +78,7 @@ int main(int argc, const char * argv[]) {
     parser_ctx = &context;
     const char * filename = context.getConfig().filename.c_str();
     assert(filename);
+    context.set_filename(filename);
     // Accepts file from stdin if nothing specified
     FILE * fin = NULL;
     // Make sure file exists
@@ -86,7 +87,6 @@ int main(int argc, const char * argv[]) {
     } else if ((fin = fopen(filename, "rt")) == NULL) {
         opensmt_error2("can't open file", filename);
     }
-
     // Parse according to filetype
     if (fin == stdin) {
         smt2set_in(fin);
@@ -115,6 +115,7 @@ int main(int argc, const char * argv[]) {
     smt2lex_destroy();
     drlex_destroy();
     fclose(fin);
+
 // This trick (copied from Main.C of MiniSAT) is to allow
 // the repeatability of experiments that might be compromised
 // by the floating point unit approximations on doubles
