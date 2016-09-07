@@ -90,7 +90,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 ((([0-9]+)|([0-9]*\.?[0-9]+))([eE][-+]?[0-9]+)?)   { drlval.str = strdup(yytext); return TK_NUM; }
 ((([0-9]+)|([0-9]+\.)))                            { drlval.str = strdup(yytext); return TK_NUM; }
-[a-zA-Z]([a-zA-Z0-9_])*                            { drlval.str = strdup(yytext); return TK_ID; }
+[a-zA-Z]([a-zA-Z0-9_\.])*                            { drlval.str = strdup(yytext); return TK_ID; }
 
 \".*\"          { drlval.str = strdup( yytext ); return TK_STR; }
 .               { printf( "Syntax error at line %d near %s\n", yylineno, yytext ); exit( 1 ); }

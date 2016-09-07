@@ -167,6 +167,7 @@ SMTConfig::initializeConfig( )
 #endif
   nra_scoring                  = false;
   nra_suppress_warning         = false;
+  nra_dump_dr                  = false;
   initLogging();
 }
 
@@ -583,6 +584,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "use modified ICP that use scoring for branching",
             "--scoring-icp");
+    opt.add("", false, 0, 0,
+            "Dump dr file without solving",
+            "--dump-dr");
 
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
@@ -650,6 +654,7 @@ SMTConfig::parseCMDLine( int argc
     nra_linear_only         = opt.isSet("--linear-only");
 #endif
     nra_scoring             = opt.isSet("--scoring-icp");
+    nra_dump_dr             = opt.isSet("--dump-dr");
 
     // Extract Double Args
     if (opt.isSet("--precision")) { opt.get("--precision")->getDouble(nra_precision); }

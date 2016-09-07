@@ -505,6 +505,13 @@ bool nra_solver::check(bool complete) {
     default_strategy stg;
     m_ctc = stg.build_contractor(m_cs.m_box, m_stack, complete, config);
     if (complete) {
+        if (config.nra_dump_dr) {
+            dump_dr_file();
+            cerr << "Dumped dr file. Only minimal preprocessing, no substantial solving, has been "
+                    "done."
+                 << endl;
+            return true;
+        }
         // Complete Check ==> Run ICP
         if (config.nra_simulation_thread) {
             simulation_icp::solve(m_ctc, m_cs, m_stack, config.nra_precision);

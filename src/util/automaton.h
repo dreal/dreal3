@@ -31,19 +31,19 @@ namespace dreal {
 
 class mode {
 public:
-    inline explicit mode(double d) : m_index(d) {}
-    inline ~mode() {}
+    inline explicit mode(double d) : m_index(d) { m_flow = new flow; }
+    inline ~mode() { delete m_flow; }
     inline double get_index() const { return m_index; }
     inline void add_invt(Enode * e) { m_invts.push_back(e); }
-    inline void add_flow(Enode * x, Enode * f) { m_flows.emplace(x, f); }
+    inline void add_flow(Enode * x, Enode * f) { m_flow->add(x, f); }
     inline void add_guard(mode * m, Enode * e) { m_guards.emplace(m, e); }
     inline void add_reset(mode * m, Enode * e) { m_resets.emplace(m, e); }
     bool check_def();
 
 private:
     const double m_index;
-    std::vector<Enode *> m_invts;                  // mode invariants
-    std::unordered_map<Enode *, Enode *> m_flows;  // flows as mapping for variables to ODEs
+    std::vector<Enode *> m_invts;  // mode invariants
+    flow * m_flow;
     std::unordered_map<mode *, Enode *> m_guards;  // guard conditions
     std::unordered_map<mode *, Enode *> m_resets;  // reset conditions
     std::vector<Enode *> m_x0;                     // initial states
@@ -60,7 +60,7 @@ public:
     void add_init(double, Enode *);
     void add_goal(double, Enode *);
     bool check_def();     // light type checking
-    box sample(Enode *);  // Return a point that satisfies the argument Enode
+    box sample(Enode *);  // Return a random point that satisfies the Enode
 private:
     OpenSMTContext * m_ctx;
     std::vector<mode *> m_modes;

@@ -30,8 +30,6 @@ using std::ostream;
 
 namespace dreal {
 
-bool mode::check_def() { return m_flows.empty(); }
-
 automaton::automaton(OpenSMTContext & c) : m_ctx(&c) { assert(m_ctx); }
 
 mode * automaton::new_mode(double ind) {
@@ -45,6 +43,7 @@ void automaton::add_mode(double ind, vector<Enode *> & invts,
                          unordered_map<double, Enode *> & guards,
                          unordered_map<double, Enode *> & resets) {
     mode * m = find_mode(ind);
+
     // need to copy the Enodes because the maps are temporary holders
     for (auto inv : invts) {
         m->add_invt(inv);
@@ -70,11 +69,4 @@ mode * automaton::find_mode(double ind) {
 void automaton::add_init(double ind, Enode * e) { m_inits.emplace(find_mode(ind), e); }
 
 void automaton::add_goal(double ind, Enode * e) { m_goals.emplace(find_mode(ind), e); }
-
-bool automaton::check_def() {
-    for (auto m : m_modes) {
-        if (!m->check_def()) return false;
-    }
-    return true;
-}
 }
