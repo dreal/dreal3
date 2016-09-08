@@ -1,5 +1,6 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
+        Sicun Gao <sicung@mit.edu>
 
 dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
@@ -29,6 +30,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <unordered_set>
 #include <vector>
+#include "constraint/constraint.h"
 #include "icp/brancher.h"
 #include "util/logging.h"
 #include "util/mcts_node.h"
@@ -76,6 +78,71 @@ void prune(contractor & ctc, contractor_status & s) {
         // Do nothing
     }
 }
+
+stacker::stacker(std::vector<box> & boxes, scoped_vec<std::shared_ptr<constraint>> const & ctrs,
+                 double prec)
+    : m_stack(boxes), m_ctrs(ctrs), m_prec(prec), m_sol(boxes[0]) {}
+
+bool stacker::playout() {
+    // clear the score vector
+    // run samples on each box, of numbers based on current scores
+    // update the scores on each box and put them in the score set
+    m_score_board.clear();
+    m_pos_score_map.clear();
+    for (unsigned i = 0; i < m_stack.size(); i++) {
+        double score = std::numeric_limits<double>::max();
+        for (unsigned j = 0; j < m_sample_budgets[i]; j++) {
+            box sample = m_stack[i].sample_point();
+            double total_err = 0;
+            for (auto ctr : m_ctrs) {
+                assert(ctr->get_type() == constraint_type::Nonlinear);
+                double err = ctr->eval_error(sample);
+                if (err >= m_prec) {
+                    total_err += err;
+                }
+            }
+            if (total_err <= m_prec) {  // solution found
+                update_solution(sample);
+                return true;
+            } else if (score > total_err) {
+                score = total_err;
+            } else {
+                DREAL_LOG_INFO << "skipped a useless sample ";
+            }
+        }
+        assert(score > m_prec);
+        m_score_board.push_back(score);
+        m_pos_score_map.emplace(i, score);
+    }
+    return false;
+}
+
+void stacker::update_budgets() {
+    // assuming score board has been sorted
+    m_sample_budgets.clear();
+    assert(m_stack.size() == m_score_board.size());  // pop operations shouldn't mess with this
+    unsigned total = m_stack.size();                 // total num of boxes
+    double range = m_score_board[total - 1] - m_score_board[0];
+    unsigned total_budget = 10 * total;  // 10 votes from each box, to be reassigned;
+    for (unsigned i = 0; i < total; i++) {
+        m_sample_budgets.emplace(i, total_budget * std::ceil(range / m_score_board[i]));
+    }
+}
+
+box stacker::pop_best() {
+    sort(m_score_board.begin(), m_score_board.end());
+    update_budgets();
+    unsigned index_of_best = 0;
+    for (auto ps : m_pos_score_map) {
+        if (ps.second <= m_score_board[0]) index_of_best = ps.first;
+    }
+    box result = m_stack[index_of_best];
+    // remove this box from stack
+    m_stack.erase(m_stack.begin() + index_of_best);
+    return result;
+}
+
+void stacker::push(box const & b) { m_stack.push_back(b); }
 
 SizeBrancher sb;
 BranchHeuristic & naive_icp::defaultHeuristic = sb;
@@ -553,4 +620,81 @@ void mcts_icp::solve(contractor & ctc, contractor_status & cs,
 
     delete root;
 }
+
+BranchHeuristic & mcss_icp::defaultHeuristic = sb;
+
+void mcss_icp::solve(contractor & ctc, contractor_status & cs,
+                     scoped_vec<shared_ptr<constraint>> const & ctrs, BranchHeuristic & brancher) {
+    DREAL_THREAD_LOCAL static vector<box> solns;
+    DREAL_THREAD_LOCAL static vector<box> box_stack;
+    solns.clear();
+    box_stack.clear();
+    box_stack.push_back(cs.m_box);
+    double const prec = cs.m_config.nra_delta_test ? 0.0 : cs.m_config.nra_precision;
+    stacker stack(box_stack, ctrs, prec);
+    do {
+        DREAL_LOG_INFO << "mcss_icp::solve - loop"
+                       << "\t"
+                       << "box stack Size = " << box_stack.size();
+        if (!stack.playout()) {
+            cs.m_box = stack.pop_best();
+        } else {
+            cs.m_config.nra_found_soln++;
+            if (cs.m_config.nra_multiple_soln > 1) {
+                // If --multiple_soln is used
+                output_solution(cs.m_box, cs.m_config, cs.m_config.nra_found_soln);
+            }
+            if (cs.m_config.nra_found_soln >= cs.m_config.nra_multiple_soln) {
+                break;
+            }
+            cs.m_box = stack.get_solution();
+            solns.push_back(cs.m_box);
+        }
+        prune(ctc, cs);
+        if (!cs.m_box.is_empty()) {
+            vector<int> const sorted_dims =
+                brancher.sort_branches(cs.m_box, ctrs, ctc.get_input(), cs.m_config, 1);
+            if (sorted_dims.size() > 0) {
+                int const i = sorted_dims[0];
+                tuple<int, box, box> splits = cs.m_box.bisect_at(sorted_dims[0]);
+                if (cs.m_config.nra_use_stat) {
+                    cs.m_config.nra_stat.increase_branch();
+                }
+                box const & first = get<1>(splits);
+                box const & second = get<2>(splits);
+                assert(first.get_idx_last_branched() == i);
+                assert(second.get_idx_last_branched() == i);
+                if (second.is_bisectable(prec)) {
+                    stack.push(second);
+                    stack.push(first);
+                } else {
+                    stack.push(second);
+                    stack.push(first);
+                }
+                if (cs.m_config.nra_proof) {
+                    cs.m_config.nra_proof_out << "[branched on " << cs.m_box.get_name(i) << "]"
+                                              << endl;
+                }
+            } else {
+                cs.m_config.nra_found_soln++;
+                if (cs.m_config.nra_multiple_soln > 1) {
+                    // If --multiple_soln is used
+                    output_solution(cs.m_box, cs.m_config, cs.m_config.nra_found_soln);
+                }
+                if (cs.m_config.nra_found_soln >= cs.m_config.nra_multiple_soln) {
+                    break;
+                }
+                solns.push_back(cs.m_box);
+            }
+        }
+    } while (stack.get_size() > 0);
+    if (cs.m_config.nra_multiple_soln > 1 && solns.size() > 0) {
+        cs.m_box = solns.back();
+        return;
+    } else {
+        assert(!cs.m_box.is_empty() || box_stack.size() == 0);
+        return;
+    }
+}
+
 }  // namespace dreal

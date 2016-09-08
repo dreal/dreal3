@@ -144,6 +144,7 @@ SMTConfig::initializeConfig( )
   nra_simp                     = true;
   nra_ncbt                     = false;
   nra_mcts                     = false;
+  nra_mcss                     = false;
 #ifdef NLOPT
   nra_local_opt                = false;
 #endif
@@ -535,6 +536,9 @@ SMTConfig::parseCMDLine( int argc
             "use Monte Carlo tree search in ICP loop",
             "--mcts");
     opt.add("", false, 0, 0,
+            "use Monte Carlo Stack search in ICP loop",
+            "--mcss");    
+    opt.add("", false, 0, 0,
             "use local optimization to refine counter example (for exist-forall problems)",
             "--local-opt");
     opt.add("", false, 0, 0,
@@ -635,6 +639,7 @@ SMTConfig::parseCMDLine( int argc
     nra_simp                =!opt.isSet("--no-simp");
     nra_ncbt                = opt.isSet("--ncbt");
     nra_mcts                = opt.isSet("--mcts");
+    nra_mcss                = opt.isSet("--mcss");
 #ifdef USE_NLOPT
     nra_local_opt           = opt.isSet("--local-opt");
 #endif

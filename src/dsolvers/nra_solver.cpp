@@ -548,6 +548,8 @@ bool nra_solver::check(bool complete) {
 #endif
         } else if (config.nra_scoring) {
             scoring_icp::solve(m_ctc, m_cs, m_stack);
+        } else if (config.nra_mcss) {
+            mcss_icp::solve(m_ctc, m_cs, m_stack);
         } else {
             naive_icp::solve(m_ctc, m_cs, m_stack);
         }
