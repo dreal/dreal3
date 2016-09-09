@@ -72,6 +72,7 @@ box::box(vector<Enode *> const & vars)
         m_name_index_map = make_shared<unordered_map<string, int>>();
         constructFromVariables(*m_vars);
     }
+    m_score = std::numeric_limits<double>::max();
 }
 
 void box::constructFromVariables(vector<Enode *> const & vars) {
@@ -127,6 +128,7 @@ box::box(box const & b, unordered_set<Enode *> const & extra_vars)
             m_values[get_index((*b.m_vars)[i])] = b.m_values[i];
         }
     }
+    m_score = std::numeric_limits<double>::max();
 }
 
 ostream & display(ostream & out, ibex::Interval const & iv, bool const exact) {
@@ -595,4 +597,14 @@ ibex::IntervalVector box::get_domains() const {
     }
     return dom;
 }
+
+double box::test_score(double s) {
+    if (s < m_score) {
+        m_score = s;
+        return s;
+    } else {
+        return m_score;
+    }
+}
+
 }  // namespace dreal

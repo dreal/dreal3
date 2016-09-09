@@ -49,7 +49,6 @@ private:
     std::vector<box> & m_stack;
     scoped_vec<std::shared_ptr<constraint>> const & m_ctrs;
     std::vector<double> m_score_board;
-    std::unordered_map<unsigned, double> m_pos_score_map;  // box position to score
     double m_prec;
     box m_sol;
     std::unordered_map<unsigned, unsigned> m_sample_budgets;  // decides how many samples on box

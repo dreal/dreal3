@@ -48,6 +48,7 @@ private:
     std::tuple<int, box, box> bisect_int_at(int const i) const;
     std::tuple<int, box, box> bisect_real_at(int const i) const;
     void constructFromVariables(std::vector<Enode *> const & vars);
+    double m_score;
 
 public:
     explicit box(std::vector<Enode *> const & vars);
@@ -95,6 +96,8 @@ public:
         return get_value(e->getCar()->getNameFull());
     }
     ibex::Interval & get_value(Enode * const e) { return get_value(e->getCar()->getNameFull()); }
+    double test_score(double);
+    inline double get_score() { return m_score; }
 
     // set_value
     inline void set_value(Enode * e, double lb, double ub) {

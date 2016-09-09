@@ -88,7 +88,6 @@ bool stacker::playout() {
     // run samples on each box, of numbers based on current scores
     // update the scores on each box and put them in the score set
     m_score_board.clear();
-    m_pos_score_map.clear();
     for (unsigned i = 0; i < m_stack.size(); i++) {
         double score = std::numeric_limits<double>::max();
         for (unsigned j = 0; j < m_sample_budgets[i]; j++) {
@@ -111,8 +110,8 @@ bool stacker::playout() {
             }
         }
         assert(score > m_prec);
+        score = m_stack[i].test_score(score);
         m_score_board.push_back(score);
-        m_pos_score_map.emplace(i, score);
     }
     return false;
 }
@@ -133,11 +132,13 @@ box stacker::pop_best() {
     sort(m_score_board.begin(), m_score_board.end());
     update_budgets();
     unsigned index_of_best = 0;
-    for (auto ps : m_pos_score_map) {
-        if (ps.second <= m_score_board[0]) index_of_best = ps.first;
+    for (unsigned i = 0; i < m_stack.size(); i++) {
+        if (m_stack[i].get_score() <= m_score_board[0]) {
+            index_of_best = i;
+            break;
+        }
     }
     box result = m_stack[index_of_best];
-    // remove this box from stack
     m_stack.erase(m_stack.begin() + index_of_best);
     return result;
 }
