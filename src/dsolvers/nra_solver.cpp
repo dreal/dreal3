@@ -555,13 +555,11 @@ bool nra_solver::check(bool complete) {
             scoring_icp::solve(m_ctc, m_cs, m_stack);
         } else if (config.nra_mcss) {
             mcss_icp::solve(m_ctc, m_cs, m_stack);
+        } else if (config.nra_sizegrad_brancher) {
+            SizeGradAsinhBrancher sb(m_stack);
+            naive_icp::solve(m_ctc, m_cs, m_stack, sb);
         } else {
-            if (config.nra_sizegrad_brancher) {
-                SizeGradAsinhBrancher sb(m_stack);
-                naive_icp::solve(m_ctc, m_cs, m_stack, sb);
-            } else {
-                naive_icp::solve(m_ctc, m_cs, m_stack);
-            }
+            naive_icp::solve(m_ctc, m_cs, m_stack);
         }
     } else {
         // Incomplete Check ==> Prune Only
