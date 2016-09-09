@@ -153,6 +153,7 @@ SMTConfig::initializeConfig( )
   nra_simulation_thread        = false;
   nra_multiprune               = false;
   nra_multiheuristic           = false;
+  nra_sizegrad_brancher        = false;
   nra_precision_output         = true;
   nra_random_seed              = random_device{}();
   nra_output_num_nodes         = false;
@@ -557,6 +558,9 @@ SMTConfig::parseCMDLine( int argc
             "run two heuristics simultaneously, finish when the first finishes",
             "--multiheuristic");
     opt.add("", false, 0, 0,
+            "use gradient-based branching heuristics",
+            "--gradbranch");
+    opt.add("", false, 0, 0,
             "read formula from standard input",
             "--in");
     opt.add("", false, 1, 0,
@@ -648,6 +652,7 @@ SMTConfig::parseCMDLine( int argc
     nra_simulation_thread   = opt.isSet("--simulation");
     nra_multiprune          = opt.isSet("--multiprune");
     nra_multiheuristic      = opt.isSet("--multiheuristic");
+    nra_sizegrad_brancher   = opt.isSet("--gradbranch");
     nra_precision_output    =!opt.isSet("--no-precision-output");
     sat_preprocess_booleans = opt.isSet("--sat-prep-bool");
     nra_show_search_progress= opt.isSet("--show-search");
