@@ -123,3 +123,19 @@ FOREACH(instance ${NRA_INSTANCES})
            ${DREAL_BINARY} ${instance} "--scoring-icp")
   set_tests_properties("regression_nra_scoring_icp_${instance_name}" PROPERTIES LABELS "nra_scoring_icp")
 ENDFOREACH(instance)
+
+FOREACH(instance ${NRA_INSTANCES})
+  GET_FILENAME_COMPONENT(instance_name ${instance} NAME)
+  add_test(NAME "regression_nra_mcts_${instance_name}"
+           COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test.sh"
+           ${DREAL_BINARY} ${instance} "--mcts")
+  set_tests_properties("regression_nra_mcts_${instance_name}" PROPERTIES LABELS "nra_mcts")
+ENDFOREACH(instance)
+
+FOREACH(instance ${NRA_INSTANCES})
+  GET_FILENAME_COMPONENT(instance_name ${instance} NAME)
+  add_test(NAME "regression_nra_mcss_${instance_name}"
+           COMMAND "${DREAL_SOURCE_DIR}/tests/nra/test.sh"
+           ${DREAL_BINARY} ${instance} "--mcss")
+  set_tests_properties("regression_nra_mcss_${instance_name}" PROPERTIES LABELS "nra_mcss")
+ENDFOREACH(instance)
