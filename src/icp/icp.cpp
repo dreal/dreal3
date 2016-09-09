@@ -122,7 +122,7 @@ void stacker::update_budgets() {
     assert(m_stack.size() == m_score_board.size());  // pop operations shouldn't mess with this
     unsigned total = m_stack.size();                 // total num of boxes
     double range = m_score_board[total - 1] - m_score_board[0];
-    unsigned total_budget = 10 * total;  // 10 votes from each box, to be reassigned;
+    unsigned total_budget = 5 * total;  // 10 votes from each box, to be reassigned;
     for (unsigned i = 0; i < total; i++) {
         m_sample_budgets.emplace(i, total_budget * std::ceil(range / m_score_board[i]));
     }
@@ -140,6 +140,7 @@ box stacker::pop_best() {
     }
     box result = m_stack[index_of_best];
     m_stack.erase(m_stack.begin() + index_of_best);
+    m_best_score = m_score_board[0];
     return result;
 }
 
@@ -633,12 +634,14 @@ void mcss_icp::solve(contractor & ctc, contractor_status & cs,
     box_stack.push_back(cs.m_box);
     double const prec = cs.m_config.nra_delta_test ? 0.0 : cs.m_config.nra_precision;
     stacker stack(box_stack, ctrs, prec);
+    double tmp_score;
     do {
         DREAL_LOG_INFO << "mcss_icp::solve - loop"
                        << "\t"
                        << "box stack Size = " << box_stack.size();
         if (!stack.playout()) {
             cs.m_box = stack.pop_best();
+            tmp_score = stack.get_best_score();
         } else {
             cs.m_config.nra_found_soln++;
             if (cs.m_config.nra_multiple_soln > 1) {
@@ -661,16 +664,20 @@ void mcss_icp::solve(contractor & ctc, contractor_status & cs,
                 if (cs.m_config.nra_use_stat) {
                     cs.m_config.nra_stat.increase_branch();
                 }
-                box const & first = get<1>(splits);
-                box const & second = get<2>(splits);
+                box & first = get<1>(splits);
+                box & second = get<2>(splits);
                 assert(first.get_idx_last_branched() == i);
                 assert(second.get_idx_last_branched() == i);
                 if (second.is_bisectable(prec)) {
+                    second.test_score(tmp_score);
                     stack.push(second);
+                    first.test_score(tmp_score);
                     stack.push(first);
                 } else {
-                    stack.push(second);
+                    first.test_score(tmp_score);
                     stack.push(first);
+                    second.test_score(tmp_score);
+                    stack.push(second);
                 }
                 if (cs.m_config.nra_proof) {
                     cs.m_config.nra_proof_out << "[branched on " << cs.m_box.get_name(i) << "]"

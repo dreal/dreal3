@@ -44,12 +44,14 @@ public:
     inline unsigned get_size() { return m_stack.size(); }
     inline void update_solution(box & b) { m_sol = b; }
     inline box & get_solution() { return m_sol; }
+    inline double get_best_score() { return m_best_score; }
 
 private:
     std::vector<box> & m_stack;
     scoped_vec<std::shared_ptr<constraint>> const & m_ctrs;
     std::vector<double> m_score_board;
     double m_prec;
+    double m_best_score;
     box m_sol;
     std::unordered_map<unsigned, unsigned> m_sample_budgets;  // decides how many samples on box
     void update_budgets();
