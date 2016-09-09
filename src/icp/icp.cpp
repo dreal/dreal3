@@ -81,7 +81,9 @@ void prune(contractor & ctc, contractor_status & s) {
 
 stacker::stacker(std::vector<box> & boxes, scoped_vec<std::shared_ptr<constraint>> const & ctrs,
                  double prec)
-    : m_stack(boxes), m_ctrs(ctrs), m_prec(prec), m_sol(boxes[0]) {}
+    : m_stack(boxes), m_ctrs(ctrs), m_prec(prec), m_sol(boxes[0]) {
+    m_best_score = std::numeric_limits<double>::max();
+}
 
 bool stacker::playout() {
     // clear the score vector
@@ -90,23 +92,28 @@ bool stacker::playout() {
     m_score_board.clear();
     for (unsigned i = 0; i < m_stack.size(); i++) {
         double score = std::numeric_limits<double>::max();
-        for (unsigned j = 0; j < m_sample_budgets[i]; j++) {
+        for (unsigned j = 0; j < 5; j++) {
             box sample = m_stack[i].sample_point();
+            // DREAL_LOG_INFO<<"testing sample: "<<sample;
             double total_err = 0;
             for (auto ctr : m_ctrs) {
                 assert(ctr->get_type() == constraint_type::Nonlinear);
                 double err = ctr->eval_error(sample);
+                DREAL_LOG_INFO << "playout current err: " << err << " obtained on ctr " << *ctr;
                 if (err >= m_prec) {
                     total_err += err;
                 }
             }
+            // DREAL_LOG_INFO<<"finished evaluation on box "<<m_stack[i];
             if (total_err <= m_prec) {  // solution found
                 update_solution(sample);
+                DREAL_LOG_INFO << "best score right now " << total_err << "\t";
                 return true;
             } else if (score > total_err) {
                 score = total_err;
             } else {
-                DREAL_LOG_INFO << "skipped a useless sample ";
+                DREAL_LOG_INFO << "skipped a useless sample -- current error " << total_err << ">"
+                               << " best score on board " << score;
             }
         }
         assert(score > m_prec);
@@ -133,6 +140,8 @@ box stacker::pop_best() {
     update_budgets();
     unsigned index_of_best = 0;
     for (unsigned i = 0; i < m_stack.size(); i++) {
+        DREAL_LOG_INFO << "score board 0: " << m_score_board[0];
+        DREAL_LOG_INFO << "current score of box " << i << ": " << m_stack[i].get_score();
         if (m_stack[i].get_score() <= m_score_board[0]) {
             index_of_best = i;
             break;
@@ -140,7 +149,10 @@ box stacker::pop_best() {
     }
     box result = m_stack[index_of_best];
     m_stack.erase(m_stack.begin() + index_of_best);
-    m_best_score = m_score_board[0];
+    if (m_best_score > m_score_board[0]) {
+        m_best_score = m_score_board[0];
+    }
+    DREAL_LOG_INFO << "m_best_score: " << m_score_board[0];
     return result;
 }
 
@@ -635,6 +647,7 @@ void mcss_icp::solve(contractor & ctc, contractor_status & cs,
     double const prec = cs.m_config.nra_delta_test ? 0.0 : cs.m_config.nra_precision;
     stacker stack(box_stack, ctrs, prec);
     double tmp_score;
+    DREAL_LOG_INFO << "----new mcss instance----";
     do {
         DREAL_LOG_INFO << "mcss_icp::solve - loop"
                        << "\t"
@@ -642,16 +655,18 @@ void mcss_icp::solve(contractor & ctc, contractor_status & cs,
         if (!stack.playout()) {
             cs.m_box = stack.pop_best();
             tmp_score = stack.get_best_score();
+            DREAL_LOG_INFO << "best score right now: " << tmp_score << "\t";
         } else {
             cs.m_config.nra_found_soln++;
             if (cs.m_config.nra_multiple_soln > 1) {
                 // If --multiple_soln is used
                 output_solution(cs.m_box, cs.m_config, cs.m_config.nra_found_soln);
             }
+            cs.m_box = stack.get_solution();
+            DREAL_LOG_INFO << "mcss found solution\n" << cs.m_box;
             if (cs.m_config.nra_found_soln >= cs.m_config.nra_multiple_soln) {
                 break;
             }
-            cs.m_box = stack.get_solution();
             solns.push_back(cs.m_box);
         }
         prune(ctc, cs);

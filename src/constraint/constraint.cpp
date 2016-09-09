@@ -306,13 +306,8 @@ double nonlinear_constraint::eval_error(ibex::IntervalVector const & iv) const {
             result = magic_num;
         }
     } else {
-        DREAL_LOG_FATAL << "nonlinear_constraint::eval_error: Something is wrong. NEQ occurred.\n";
-        eval_result = get_numctr()->f.eval(iv);
-        if ((eval_result.lb() == 0) && (eval_result.ub() == 0)) {
-            result = magic_num;
-        } else {
-            result = 0.0;
-        }
+        // trivialize neq
+        result = 0.0;
     }
     if (DREAL_LOG_DEBUG_IS_ON) {
         DREAL_LOG_DEBUG << "nonlinear_constraint::eval_error:";
