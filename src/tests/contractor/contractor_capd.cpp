@@ -17,12 +17,12 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "contractor/contractor.h"
 #include <stdio.h>
 #include <iostream>
 #include <memory>
 #include <utility>
 #include "constraint/constraint.h"
+#include "contractor/contractor.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/api/opensmt_c.h"
 #include "util/box.h"
