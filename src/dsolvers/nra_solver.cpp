@@ -559,7 +559,12 @@ bool nra_solver::check(bool complete) {
             SizeGradAsinhBrancher sb(m_stack);
             naive_icp::solve(m_ctc, m_cs, m_stack, sb);
         } else {
-            naive_icp::solve(m_ctc, m_cs, m_stack);
+            if (config.nra_sizegrad_brancher) {
+                SizeGradAsinhBrancher sb(m_stack);
+                naive_icp::solve(m_ctc, m_cs, m_stack, sb);
+            } else {
+                naive_icp::solve(m_ctc, m_cs, m_stack);
+            }
         }
     } else {
         // Incomplete Check ==> Prune Only
