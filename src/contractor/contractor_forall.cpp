@@ -505,8 +505,6 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
     // Step 3. Compute B_i = prune(B, l_i)
     //         Update B with ∨ B_i
     //                       i
-    DREAL_THREAD_LOCAL static vector<box> boxes;
-    boxes.clear();
     auto vars = cs.m_box.get_vars();
     unordered_set<Enode *> const var_set(vars.begin(), vars.end());
     for (Enode * e : vec) {
@@ -520,21 +518,26 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
             if (ctr->get_var_array().size() == 0) {
                 auto result = ctr->eval(cs.m_box);
                 if (result.first != false) {
-                    boxes.emplace_back(cs.m_box);
+                    cs.m_box_stack.emplace_back(cs.m_box);
                 }
             } else {
                 contractor ctc = mk_contractor_ibex_fwdbwd(ctr);
-                contractor_status bt(cs.m_box, cs.m_config);
+                contractor_status bt(cs, cs.m_box);
                 ctc.prune(bt);
                 cs.m_output.union_with(bt.m_output);
                 unordered_set<shared_ptr<constraint>> const & used_ctrs = bt.m_used_constraints;
                 cs.m_used_constraints.insert(used_ctrs.begin(), used_ctrs.end());
-                boxes.emplace_back(bt.m_box);
+                if (!bt.m_box.is_empty()) {
+                    cs.m_box_stack.emplace_back(bt.m_box);
+                }
             }
+        } else {
+            cs.m_box_stack.emplace_back(cs.m_box);
         }
     }
-    if (boxes.size() > 0) {
-        cs.m_box = hull(boxes);
+    if (cs.m_box_stack.size() > 0) {
+        cs.m_box = cs.m_box_stack.back();
+        cs.m_box_stack.pop_back();
     } else {
         cs.m_box.set_empty();
     }
