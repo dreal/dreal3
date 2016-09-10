@@ -40,7 +40,8 @@ class contractor_forall : public contractor_cell {
 private:
     std::shared_ptr<forall_constraint> const m_ctr;
     box find_CE(box const & b, std::unordered_set<Enode *> const & forall_vars,
-                std::vector<Enode *> const & vec, bool const p, SMTConfig & config) const;
+                std::vector<Enode *> const & vec, bool const p, SMTConfig & config,
+                Egraph & eg) const;
     /// Given a list Enode, return a vector<Enode *>
     std::vector<Enode *> elist_to_vector(Enode * e) const;
     /// Pruning function. @p body can be and (conjunction), or

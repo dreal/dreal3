@@ -46,6 +46,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #ifdef USE_NLOPT
 #include "nlopt.hpp"
 #endif
+#include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/eval.h"
@@ -371,7 +372,8 @@ box shrink_for_dop(box b) {
 }
 
 box find_CE_via_underapprox(box const & b, unordered_set<Enode *> const & forall_vars,
-                            vector<Enode *> const & vec, bool const p, SMTConfig & config) {
+                            vector<Enode *> const & vec, bool const p, SMTConfig & config,
+                            Egraph & eg) {
     box counterexample(b, forall_vars);
     if (config.nra_shrink_for_dop) {
         counterexample = shrink_for_dop(counterexample);
@@ -419,7 +421,8 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode *> const & forall
 }
 
 box find_CE_via_overapprox(box const & b, unordered_set<Enode *> const & forall_vars,
-                           vector<Enode *> const & vec, bool const p, SMTConfig & config) {
+                           vector<Enode *> const & vec, bool const p, SMTConfig & config,
+                           Egraph & eg) {
     vector<contractor> ctcs;
     box counterexample(b, forall_vars);
     if (config.nra_shrink_for_dop) {
@@ -438,31 +441,22 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode *> const & forall_
     }
     contractor fp = mk_contractor_fixpoint(default_strategy::term_cond, ctcs);
     random_icp icp(fp, config.nra_random_seed);
-    contractor_status cs(counterexample, config);
+    contractor_status cs(counterexample, config, eg);
     icp.solve(cs, config.nra_precision);
     return cs.m_box;
 }
 
 box contractor_forall::find_CE(box const & b, unordered_set<Enode *> const & forall_vars,
-                               vector<Enode *> const & vec, bool const p,
-                               SMTConfig & config) const {
-    // static unsigned under_approx = 0;
-    // static unsigned over_approx = 0;
-    box counterexample = find_CE_via_underapprox(b, forall_vars, vec, p, config);
-    if (!counterexample.is_empty()) {
-        // ++under_approx;
-        // cerr << "WE USE UNDERAPPROX: " << under_approx << "/" << over_approx<< "/" <<
-        // (under_approx + over_approx) << endl;
-        // cerr << counterexample << endl;
-    } else {
-        counterexample = find_CE_via_overapprox(b, forall_vars, vec, p, config);
-        // ++over_approx;
-        // cerr << "WE USE FULL       : " << under_approx << "/" << over_approx << "/" <<
-        // (under_approx + over_approx)
-        //      << " " << counterexample.is_empty() << endl
-        //      << counterexample << endl;
+                               vector<Enode *> const & vec, bool const p, SMTConfig & config,
+                               Egraph & eg) const {
+    // First try to find a counterexample using under-approximation
+    box counterexample = find_CE_via_underapprox(b, forall_vars, vec, p, config, eg);
+    if (counterexample.is_empty()) {
+        // If it fails, try over-approximation method
+        counterexample = find_CE_via_overapprox(b, forall_vars, vec, p, config, eg);
     }
 #ifdef USE_NLOPT
+    // Use local-optimization to improve the quality of CE it fails, try over-approximation method
     if (!counterexample.is_empty() && config.nra_local_opt) {
         return refine_CE_with_nlopt(counterexample, vec);
     }
@@ -488,7 +482,7 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
         //         Make a fixed_point contractor with ctc_is.
         //         Pass it to icp::solve
 
-        box counterexample = find_CE(cs.m_box, forall_vars, vec, p, cs.m_config);
+        box counterexample = find_CE(cs.m_box, forall_vars, vec, p, cs.m_config, cs.m_egraph);
         if (counterexample.is_empty()) {
             // Step 2.1. (NO Counterexample)
             //           Return B.
@@ -503,6 +497,7 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
             //
             // We've found a counterexample (c1, c2) where ¬ f(c1, c2) holds
             // Prune X using a point 'y = c2'. (technically, a point in c2, which is an interval)
+            DREAL_LOG_DEBUG << "prune_disjunction: counterexample found." << endl;
             subst = make_subst_from_value(counterexample, forall_vars);
         }
     }
