@@ -85,7 +85,7 @@ using std::ofstream;
 namespace dreal {
 nra_solver::nra_solver(const int i, const char * n, SMTConfig & c, Egraph & e, SStore & t,
                        vector<Enode *> & x, vector<Enode *> & d, vector<Enode *> & s)
-    : OrdinaryTSolver(i, n, c, e, t, x, d, s), m_cs(c) {
+    : OrdinaryTSolver(i, n, c, e, t, x, d, s), m_cs(c, e) {
     if (c.nra_precision == 0.0) c.nra_precision = 0.001;
 }
 
@@ -438,7 +438,7 @@ void nra_solver::handle_sat_case(box const & b) const {
                 if (ctr->get_type() == constraint_type::ODE) {
                     contractor_capd_full fwd_full(b, static_pointer_cast<ode_constraint>(ctr),
                                                   ode_direction::FWD, config);
-                    json trace = fwd_full.generate_trace(contractor_status(b, config));
+                    json trace = fwd_full.generate_trace(contractor_status(m_cs, b));
                     traces.push_back(trace);
                 }
             }

@@ -259,12 +259,12 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
                                         << "[branched on " << cs.m_box.get_name(i) << "]" << endl;
                                 }
                                 // ... and prune
-                                contractor_status cs1(get<1>(splits), cs.m_config);
+                                contractor_status cs1(cs, get<1>(splits));
                                 ctc.prune(cs1);
                                 cs.m_used_constraints.insert(cs1.m_used_constraints.begin(),
                                                              cs1.m_used_constraints.end());
 
-                                contractor_status cs2(get<2>(splits), cs.m_config);
+                                contractor_status cs2(cs, get<2>(splits));
                                 ctc.prune(cs2);
                                 cs.m_used_constraints.insert(cs2.m_used_constraints.begin(),
                                                              cs2.m_used_constraints.end());

@@ -17,12 +17,12 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "contractor/contractor.h"
 #include <stdio.h>
 #include <iostream>
 #include <memory>
 #include <unordered_set>
 #include "constraint/constraint.h"
+#include "contractor/contractor.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/api/opensmt_c.h"
 #include "util/box.h"
@@ -55,7 +55,8 @@ TEST_CASE("ibex_fwdbwd_01") {
     opensmt_expr eq = opensmt_mk_eq(ctx, exp4, exp3);
     Enode * node_eq = static_cast<Enode *>(eq);
 
-    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig());
+    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig(),
+                         *opensmt_ctx->getEgraphP());
     unordered_set<Enode *> var_set({var_x, var_y, var_z});
     auto nc = make_shared<nonlinear_constraint>(node_eq, var_set, true);
     contractor c = mk_contractor_ibex_fwdbwd(nc);
@@ -104,7 +105,8 @@ TEST_CASE("ibex_fwdbwd_02") {
     opensmt_expr eq = opensmt_mk_eq(ctx, exp4, exp3);     // sin(x) == abs(x) / cos(y)
     Enode * node_eq = static_cast<Enode *>(eq);
 
-    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig());
+    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig(),
+                         *opensmt_ctx->getEgraphP());
     unordered_set<Enode *> var_set({var_x, var_y, var_z});
     auto nc = make_shared<nonlinear_constraint>(node_eq, var_set, true);
     contractor c = mk_contractor_ibex_fwdbwd(nc);
@@ -148,7 +150,8 @@ TEST_CASE("ibex_fwdbwd_03") {
     Enode * var_z = static_cast<Enode *>(z);
     opensmt_expr eq = opensmt_mk_gt(ctx, x, opensmt_mk_num(ctx, 0.0));  // x > 0.0
     Enode * node_eq = static_cast<Enode *>(eq);
-    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig());
+    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig(),
+                         *opensmt_ctx->getEgraphP());
     unordered_set<Enode *> var_set({var_x, var_y, var_z});
     auto nc = make_shared<nonlinear_constraint>(node_eq, var_set, true);
     contractor c = mk_contractor_ibex_fwdbwd(nc);
@@ -206,7 +209,8 @@ TEST_CASE("ibex_polytope") {
     node_eq1->setPolarity(l_True);
     node_eq2->setPolarity(l_True);
 
-    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig());
+    contractor_status cs(box({var_x, var_y, var_z}), opensmt_ctx->getConfig(),
+                         *opensmt_ctx->getEgraphP());
     unordered_set<Enode *> var_set({var_x, var_y, var_z});
     auto nc1 = make_shared<nonlinear_constraint>(node_eq1, var_set, true);
     auto nc2 = make_shared<nonlinear_constraint>(node_eq2, var_set, true);

@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <vector>
 #include "constraint/constraint.h"
+#include "opensmt/egraph/Egraph.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
 
@@ -45,20 +46,28 @@ public:
     ibex::BitSet m_output;
     std::unordered_set<std::shared_ptr<constraint>> m_used_constraints;
     SMTConfig & m_config;
+    Egraph & m_egraph;
 
 public:
-    explicit contractor_status(SMTConfig & config) : m_box({}), m_config(config) {}
-    contractor_status(box const & b, SMTConfig & config)
-        : m_box(b), m_output(ibex::BitSet::empty(b.size())), m_config(config) {}
     contractor_status(box const & b, std::vector<box> const & box_stack,
                       ibex::BitSet const & output,
                       std::unordered_set<std::shared_ptr<constraint>> const & used_constraints,
-                      SMTConfig & config)
+                      SMTConfig & config, Egraph & eg)
         : m_box(b),
           m_box_stack(box_stack),
           m_output(output),
           m_used_constraints(used_constraints),
-          m_config(config) {}
+          m_config(config),
+          m_egraph(eg) {}
+    contractor_status(SMTConfig & config, Egraph & eg)
+        : m_box({}), m_config(config), m_egraph(eg) {}
+    contractor_status(contractor_status const & cs, box const & b)
+        : m_box(b),
+          m_output(ibex::BitSet::empty(b.size())),
+          m_config(cs.m_config),
+          m_egraph(cs.m_egraph) {}
+    contractor_status(box const & b, SMTConfig & config, Egraph & eg)
+        : m_box(b), m_output(ibex::BitSet::empty(b.size())), m_config(config), m_egraph(eg) {}
 
     // reset
     void reset(contractor_status & cs) {

@@ -17,12 +17,12 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "contractor/contractor.h"
 #include <stdio.h>
 #include <iostream>
 #include <memory>
 #include <utility>
 #include "constraint/constraint.h"
+#include "contractor/contractor.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/api/opensmt_c.h"
 #include "util/box.h"
@@ -57,7 +57,7 @@ TEST_CASE("capd_fwd") {
     b1[1] = -10.0;  // x_0 = -10;
     b1[2] = 10.0;   // x_t = 10.0;
     b1[4] = 0.0;    // p_0 = 0.0;
-    contractor_status cs(b1, opensmt_ctx->getConfig());
+    contractor_status cs(b1, opensmt_ctx->getConfig(), *opensmt_ctx->getEgraphP());
 
     opensmt_expr zero = opensmt_mk_num(ctx, 0.0);
     opensmt_expr half = opensmt_mk_num(ctx, 0.5);
@@ -160,7 +160,7 @@ TEST_CASE("capd_bwd") {
     b1[1] = -10.0;  // x_0 = -10;
     b1[2] = 10.0;   // x_t = 10.0;
     b1[5] = 1.0;    // p_t = 1.0;
-    contractor_status cs(b1, opensmt_ctx->getConfig());
+    contractor_status cs(b1, opensmt_ctx->getConfig(), *opensmt_ctx->getEgraphP());
 
     opensmt_expr zero = opensmt_mk_num(ctx, 0.0);
     opensmt_expr half = opensmt_mk_num(ctx, 0.5);
