@@ -176,6 +176,13 @@ void naive_icp::solve(contractor & ctc, contractor_status & cs,
         cs.m_box = box_stack.back();
         box_stack.pop_back();
         prune(ctc, cs);
+        if (!cs.m_box_stack.empty()) {
+            // If box stack in contractor_status is non-empty, dump
+            // boxes in that stack into ICP stack, and clear box stack
+            // in contractor_status.
+            box_stack.insert(box_stack.end(), cs.m_box_stack.begin(), cs.m_box_stack.end());
+            cs.m_box_stack.clear();
+        }
         if (!cs.m_box.is_empty()) {
             vector<int> const sorted_dims =
                 brancher.sort_branches(cs.m_box, ctrs, ctc.get_input(), cs.m_config, 1);
