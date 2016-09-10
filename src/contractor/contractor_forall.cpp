@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
+#include "contractor/contractor_basic.h"
 #include "contractor/contractor_forall.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
@@ -53,6 +54,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/logging.h"
 #include "util/proof.h"
 #include "util/strategy.h"
+#include "util/strengthen_enode.h"
 #include "util/string.h"
 #include "util/thread_local.h"
 
@@ -390,7 +392,9 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode *> const & forall
         if (e->isOr() || e->isAnd()) {
             break;
         }
-        nonlinear_constraint ctr(e, var_set, polarity);
+        Enode * const strengthened_node =
+            strengthen_enode(eg, e, config.nra_precision, polarity == l_True);
+        nonlinear_constraint ctr(strengthened_node, var_set, l_True);
         if (ctr.is_neq()) {
             break;
         }
@@ -436,7 +440,9 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode *> const & forall_
             polarity = !polarity;
             e = e->get1st();
         }
-        contractor ctc = make_contractor(e, polarity, counterexample, var_set);
+        Enode * const strengthened_node =
+            strengthen_enode(eg, e, config.nra_precision, polarity == l_True);
+        contractor ctc = make_contractor(strengthened_node, l_True, counterexample, var_set);
         ctcs.push_back(ctc);
     }
     contractor fp = mk_contractor_fixpoint(default_strategy::term_cond, ctcs);
