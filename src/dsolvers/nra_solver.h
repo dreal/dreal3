@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <memory>
 #include <set>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -54,7 +55,7 @@ public:
     void computeModel();
     std::ostream & dumpFormulas(std::ostream & out) const;
     void dump_smt_file();
-    void dump_dr_file();
+    void dump_dr_file(std::string &);
 
 private:
     bool m_need_init = true;

@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "api/dreal.h"
 #include "opensmt/api/OpenSMTContext.h"
 
+using std::cerr;
 using std::endl;
 using std::vector;
 using std::ostream;
@@ -306,6 +307,14 @@ void solver::print_problem(std::ostream & out) {
     }
 }
 
+void solver::dump_dr_file(string s) {
+    OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
+    context->set_filename(s.c_str());
+    set_dump_dr(true);
+    check();
+    set_dump_dr(false);
+}
+
 void solver::set_verbose(bool const b) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     context->getConfig().setVerbosityInfoLevel();
@@ -337,6 +346,11 @@ void solver::set_lp_only(bool const b) {
 void solver::set_simulation(bool const b) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
     context->getConfig().nra_simulation_thread = b;
+}
+
+void solver::set_dump_dr(bool const b) {
+    OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
+    context->getConfig().nra_dump_dr = b;
 }
 
 bool solver::solve() {

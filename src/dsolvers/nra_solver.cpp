@@ -506,7 +506,7 @@ bool nra_solver::check(bool complete) {
     m_ctc = stg.build_contractor(m_cs.m_box, m_stack, complete, config);
     if (complete) {
         if (config.nra_dump_dr) {
-            dump_dr_file();
+            dump_dr_file(egraph.get_filename());
             cerr << "Dumped dr file. Only minimal preprocessing, no substantial solving, has been "
                     "done."
                  << endl;
@@ -564,7 +564,9 @@ bool nra_solver::check(bool complete) {
     } else {
         // Incomplete Check ==> Prune Only
         try {
-            m_ctc.prune(m_cs);
+            if (!config.nra_dump_dr) {
+                m_ctc.prune(m_cs);
+            }
         } catch (contractor_exception & e) {
             // Do nothing
         }
@@ -646,8 +648,8 @@ void nra_solver::dump_smt_file() {
     dump_out.close();
 }
 
-void nra_solver::dump_dr_file() {
-    string fn = egraph.get_filename() + "dumped.dr";
+void nra_solver::dump_dr_file(string & s) {
+    string fn = s + "dumped.dr";
     ofstream dump_out(fn.c_str());
     dump_out << "var:" << endl;
     display_dr(dump_out, m_cs.m_box);
