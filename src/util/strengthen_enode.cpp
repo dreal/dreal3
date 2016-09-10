@@ -40,11 +40,15 @@ Enode * strengthen_enode(Egraph & eg, Enode * const e, double const eps, bool co
     }
     Enode * const e1 = e->get1st();
     Enode * const e2 = e->get2nd();
-    Enode * const eps_node = eg.mkNum(eps);
     if (!polarity && e->isEq()) {
-        // |e1 - e2| >= eps
-        return eg.mkGeq(eg.cons(eg.mkAbs(eg.cons(eg.mkMinus(e1, e2))), eg.cons(eps_node)));
+        // Note: |e1 - e2| >= eps encoding is not working well. It
+        // doesn't provide enough pruning power.
+        // We're using (e1 - e2)^2 >= eps^2 encoding.
+        Enode * const eps_node_sq = eg.mkNum(eps * eps);
+        return eg.mkGeq(eg.cons(eg.mkPow(eg.cons(eg.mkMinus(e1, e2), eg.cons(eg.mkNum(2.0)))),
+                                eg.cons(eps_node_sq)));
     }
+    Enode * const eps_node = eg.mkNum(eps);
     if ((polarity && e->isLt()) || (!polarity && e->isGeq())) {
         // e1 <  e2  ==>  e1 < e2 - eps
         return eg.mkLt(eg.cons(e1, eg.cons(eg.mkMinus(e2, eps_node))));
