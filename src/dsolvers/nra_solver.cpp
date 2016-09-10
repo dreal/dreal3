@@ -563,12 +563,12 @@ bool nra_solver::check(bool complete) {
         }
     } else {
         // Incomplete Check ==> Prune Only
-        try {
-            if (!config.nra_dump_dr) {
+        if (!config.nra_dump_dr) {
+            try {
                 m_ctc.prune(m_cs);
+            } catch (contractor_exception & e) {
+                // Do nothing
             }
-        } catch (contractor_exception & e) {
-            // Do nothing
         }
     }
     bool result = !m_cs.m_box.is_empty();
