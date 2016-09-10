@@ -581,7 +581,7 @@ BranchHeuristic & mcts_icp::defaultHeuristic = sb;
 
 void mcts_icp::solve(contractor & ctc, contractor_status & cs,
                      scoped_vec<shared_ptr<constraint>> const & ctrs, BranchHeuristic & brancher) {
-    thread_local static vector<box> solns;
+    DREAL_THREAD_LOCAL static vector<box> solns;
     solns.clear();
 
     icp_mcts_expander expander(ctc, cs, ctrs, brancher);
