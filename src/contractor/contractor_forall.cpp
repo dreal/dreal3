@@ -53,6 +53,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/eval.h"
 #include "util/logging.h"
 #include "util/proof.h"
+#include "util/scoped_vec.h"
 #include "util/strategy.h"
 #include "util/strengthen_enode.h"
 #include "util/string.h"
@@ -337,27 +338,31 @@ box refine_CE_with_nlopt(box const & b, vector<Enode *> const & vec) {
 #endif
 
 contractor make_contractor(Enode * e, lbool const polarity, box const & b,
-                           unordered_set<Enode *> const & var_set) {
+                           unordered_set<Enode *> const & var_set,
+                           scoped_vec<shared_ptr<constraint>> & ctrs) {
     if (e->isNot()) {
-        return make_contractor(e->get1st(), !polarity, b, var_set);
+        return make_contractor(e->get1st(), !polarity, b, var_set, ctrs);
     }
     if (e->isOr()) {
         // TODO(soonhok): arbitrary number of args
         assert(e->getArity() == 2);
-        contractor c1 = make_contractor(e->get1st(), polarity, b, var_set);
-        contractor c2 = make_contractor(e->get2nd(), polarity, b, var_set);
+        contractor c1 = make_contractor(e->get1st(), polarity, b, var_set, ctrs);
+        contractor c2 = make_contractor(e->get2nd(), polarity, b, var_set, ctrs);
         return mk_contractor_join(c1, c2);
     }
     if (e->isAnd()) {
         vector<contractor> ctcs;
         e = e->getCdr();
         while (!e->isEnil()) {
-            ctcs.push_back(make_contractor(e->getCar(), polarity, b, var_set));
+            ctcs.push_back(make_contractor(e->getCar(), polarity, b, var_set, ctrs));
             e = e->getCdr();
         }
         return mk_contractor_seq(ctcs);
     } else {
-        return mk_contractor_ibex_fwdbwd(make_shared<nonlinear_constraint>(e, var_set, polarity));
+        shared_ptr<nonlinear_constraint> nc_ptr =
+            make_shared<nonlinear_constraint>(e, var_set, polarity);
+        ctrs.push_back(nc_ptr);
+        return mk_contractor_ibex_fwdbwd(nc_ptr);
     }
 }
 
@@ -434,6 +439,7 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode *> const & forall_
     }
     auto vars = counterexample.get_vars();
     unordered_set<Enode *> var_set(vars.begin(), vars.end());
+    scoped_vec<shared_ptr<constraint>> ctrs;
     for (Enode * e : vec) {
         lbool polarity = p ? l_False : l_True;
         if (e->isNot()) {
@@ -442,13 +448,13 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode *> const & forall_
         }
         Enode * const strengthened_node =
             strengthen_enode(eg, e, config.nra_precision, polarity == l_True);
-        contractor ctc = make_contractor(strengthened_node, l_True, counterexample, var_set);
+        contractor ctc = make_contractor(strengthened_node, l_True, counterexample, var_set, ctrs);
         ctcs.push_back(ctc);
     }
     contractor fp = mk_contractor_fixpoint(default_strategy::term_cond, ctcs);
-    random_icp icp(fp, config.nra_random_seed);
+    mcss_icp icp;
     contractor_status cs(counterexample, config, eg);
-    icp.solve(cs, config.nra_precision);
+    icp.solve(fp, cs, ctrs);
     return cs.m_box;
 }
 
