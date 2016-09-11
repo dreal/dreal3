@@ -654,14 +654,19 @@ void nra_solver::dump_dr_file(string & s) {
     dump_out << "var:" << endl;
     display_dr(dump_out, m_cs.m_box);
     dump_out << "ctr:" << endl;
+    bool dumped_any = false;
     for (auto const c : m_stack) {
         // only works for nonlinear constraints so far
         if (c->get_type() == constraint_type::Nonlinear) {
-            c->get_enodes()[0]->print_infix(dump_out, l_True);
-            dump_out << ";\n";
+            Enode * const e = c->get_enodes()[0];
+            e->print_infix(dump_out, e->getPolarity());
+            dump_out << ";" << endl;
+            dumped_any = true;
         }
     }
-    dump_out << "1>0;\n";  // in case no constraints got dumped
+    if (!dumped_any) {
+        dump_out << "1>0;" << endl;  // in case no constraints got dumped
+    }
     dump_out.close();
 }
 
