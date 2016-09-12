@@ -894,6 +894,11 @@ void contractor_capd_full::prune(contractor_status & cs) {
             DREAL_LOG_DEBUG << "contractor_capd_full::prune: get empty set after filtering";
             cs.m_box.set_empty();
         }
+    } catch (std::logic_error & e) {
+        if (cs.m_config.nra_ODE_show_progress) {
+            cout << " [LogicError]" << endl;
+        }
+        throw contractor_exception(e.what());
     } catch (std::range_error & e) {
         if (cs.m_config.nra_ODE_show_progress) {
             cout << " [RangeError]" << endl;
