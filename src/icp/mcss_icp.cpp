@@ -81,18 +81,20 @@ void mcss_icp::solve(contractor & ctc, contractor_status & cs,
                 if (cs.m_config.nra_use_stat) {
                     cs.m_config.nra_stat.increase_branch();
                 }
-                box & first = get<1>(splits);
-                box & second = get<2>(splits);
+                // After branching, we prune each box and put into stack.
+                contractor_status cs1(cs, get<1>(splits));
+                contractor_status cs2(cs, get<2>(splits));
+                prune(ctc, cs1);
+                prune(ctc, cs2);
+                box & first = cs1.m_box;
+                box & second = cs2.m_box;
                 assert(first.get_idx_last_branched() == i);
                 assert(second.get_idx_last_branched() == i);
-                if (second.is_bisectable(prec)) {
-                    second.test_score(tmp_score);
-                    stack.push(second);
+                if (!first.is_empty()) {
                     first.test_score(tmp_score);
                     stack.push(first);
-                } else {
-                    first.test_score(tmp_score);
-                    stack.push(first);
+                }
+                if (!second.is_empty()) {
                     second.test_score(tmp_score);
                     stack.push(second);
                 }
