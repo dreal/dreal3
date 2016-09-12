@@ -398,7 +398,7 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode *> const & forall
             break;
         }
         Enode * const strengthened_node =
-            strengthen_enode(eg, e, config.nra_precision, polarity == l_True);
+            strengthen_enode(eg, e, config.nra_precision * 2, polarity == l_True);
         nonlinear_constraint ctr(strengthened_node, var_set, l_True);
         if (ctr.is_neq()) {
             break;
@@ -447,7 +447,7 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode *> const & forall_
             e = e->get1st();
         }
         Enode * const strengthened_node =
-            strengthen_enode(eg, e, config.nra_precision, polarity == l_True);
+            strengthen_enode(eg, e, config.nra_precision * 2, polarity == l_True);
         contractor ctc = make_contractor(strengthened_node, l_True, counterexample, var_set, ctrs);
         ctcs.push_back(ctc);
     }
