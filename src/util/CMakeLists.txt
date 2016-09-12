@@ -22,6 +22,7 @@ SET(DREAL_SRCS ${DREAL_SRCS}
   ${CMAKE_CURRENT_LIST_DIR}/mcts_expander.cpp
   ${CMAKE_CURRENT_LIST_DIR}/mcts_node.cpp
   ${CMAKE_CURRENT_LIST_DIR}/proof.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/stacker.cpp
   ${CMAKE_CURRENT_LIST_DIR}/stat.cpp
   ${CMAKE_CURRENT_LIST_DIR}/strategy.cpp
   ${CMAKE_CURRENT_LIST_DIR}/strengthen_enode.cpp

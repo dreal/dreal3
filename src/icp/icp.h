@@ -35,28 +35,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 void output_solution(box const & b, SMTConfig & config, unsigned i = 0);
 
-class stacker {
-public:
-    stacker(std::vector<box> &, scoped_vec<std::shared_ptr<constraint>> const &, double);
-    box pop_best();  // pop the best box
-    void push(box const &);
-    bool playout();  // return true if sat solution is found
-    inline unsigned get_size() { return m_stack.size(); }
-    inline void update_solution(box & b) { m_sol = b; }
-    inline box & get_solution() { return m_sol; }
-    inline double get_best_score() { return m_best_score; }
-
-private:
-    std::vector<box> & m_stack;
-    scoped_vec<std::shared_ptr<constraint>> const & m_ctrs;
-    std::vector<double> m_score_board;
-    double m_prec;
-    double m_best_score;
-    box m_sol;
-    std::unordered_map<unsigned, unsigned> m_sample_budgets;  // decides how many samples on box
-    void update_budgets();
-};
-
 class naive_icp {
 private:
     static BranchHeuristic & defaultHeuristic;
@@ -107,15 +85,4 @@ public:
                       scoped_vec<std::shared_ptr<constraint>> const & ctrs,
                       BranchHeuristic & heuristic = defaultHeuristic);
 };
-
-class mcss_icp {
-private:
-    static BranchHeuristic & defaultHeuristic;
-
-public:
-    static void solve(contractor & ctc, contractor_status & cs,
-                      scoped_vec<std::shared_ptr<constraint>> const & ctrs,
-                      BranchHeuristic & heuristic = defaultHeuristic);
-};
-
 }  // namespace dreal

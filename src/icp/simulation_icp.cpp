@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "icp/icp_simulation.h"
+#include "icp/simulation_icp.h"
 #include <algorithm>
 #include <exception>
 #include <memory>

@@ -43,6 +43,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor_forall.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
+#include "icp/mcss_icp.h"
 
 #ifdef USE_NLOPT
 #include "nlopt.hpp"
