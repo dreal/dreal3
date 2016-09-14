@@ -43,9 +43,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "tools/dop/print_latex.h"
 #include "tools/dop/print_py.h"
 #include "tools/dop/visualize.h"
+#include "util/enode_utils.h"
 #include "util/logging.h"
 #include "util/string.h"
-#include "util/subst_enode.h"
 
 using std::back_inserter;
 using std::cerr;

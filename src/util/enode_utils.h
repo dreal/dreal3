@@ -18,6 +18,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include <unordered_map>
+#include "api/OpenSMTContext.h"
+#include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
 
@@ -25,4 +28,8 @@ namespace dreal {
 
 /// strengthening a constraint (Enode) by eps (positive constant)
 Enode * strengthen_enode(Egraph & eg, Enode * const e, double const eps, bool const polarity);
+/// Add forall quantifier if Enode e includes universally quantified variables
+Enode * wrap_enode_including_forall_vars(OpenSMTContext * ctx, Enode * const e);
+/// Susbtitute e with a map (Enode -> Enode)
+Enode * subst(OpenSMTContext & ctx, Enode * e, std::unordered_map<Enode *, Enode *> const & m);
 }  // namespace dreal

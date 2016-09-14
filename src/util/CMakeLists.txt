@@ -25,8 +25,7 @@ SET(DREAL_SRCS ${DREAL_SRCS}
   ${CMAKE_CURRENT_LIST_DIR}/stacker.cpp
   ${CMAKE_CURRENT_LIST_DIR}/stat.cpp
   ${CMAKE_CURRENT_LIST_DIR}/strategy.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/strengthen_enode.cpp
   ${CMAKE_CURRENT_LIST_DIR}/string.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/subst_enode.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/enode_utils.cpp
   PARENT_SCOPE
   )

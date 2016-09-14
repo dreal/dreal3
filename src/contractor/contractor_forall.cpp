@@ -51,12 +51,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
+#include "util/enode_utils.h"
 #include "util/eval.h"
 #include "util/logging.h"
 #include "util/proof.h"
 #include "util/scoped_vec.h"
 #include "util/strategy.h"
-#include "util/strengthen_enode.h"
 #include "util/string.h"
 #include "util/thread_local.h"
 
