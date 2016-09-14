@@ -31,6 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "egraph/Egraph.h"
 #include "sorts/SStore.h"
 #include "api/OpenSMTContext.h"
+#include "util/enode_utils.h"
 
 using std::vector;
 using std::unordered_map;
@@ -67,7 +68,7 @@ void drerror( const char * s )
 %token TK_COMMA TK_COLON TK_SEMICOLON TK_PLUS TK_MINUS TK_TIMES TK_DIV TK_EQ TK_NEQ TK_LEQ TK_GEQ
 %token TK_LT TK_GT TK_SIN TK_COS TK_TAN TK_EXP TK_LOG TK_ABS TK_ASIN TK_ACOS TK_ATAN TK_SINH TK_COSH TK_TANH TK_MIN
 %token TK_MAX TK_ATAN2 TK_MATAN TK_SQRT TK_SAFESQRT TK_POW
-%token TK_LC TK_RC TK_LP TK_RP TK_LB TK_RB TK_OR TK_AND TK_IMPLIES TK_NOT
+%token TK_LC TK_RC TK_LP TK_RP TK_LB TK_RB TK_OR TK_AND TK_IMPLIES TK_NOT TK_FORALL
 %token TK_NUM TK_STR TK_ID
 
 %type   <str>           TK_NUM TK_ID TK_STR
@@ -124,6 +125,16 @@ var_decl:       TK_LB numeral TK_COMMA numeral TK_RB TK_ID TK_SEMICOLON {
                     e->setDomainUpperBound(ub);
                     free($6);
         }
+        | TK_FORALL TK_LB numeral TK_COMMA numeral TK_RB TK_ID TK_SEMICOLON {
+                    double const lb = $3;
+                    double const ub = $5;
+                    parser_ctx->DeclareFun($7, parser_ctx->mkSortReal());
+                    Enode * e = parser_ctx->mkVar($7, true);
+                    e->setForallVar();
+                    e->setDomainLowerBound(lb);
+                    e->setDomainUpperBound(ub);
+                    free($7);
+        }
         |       numeral TK_ID TK_SEMICOLON {
                     double const c = $1;
                     parser_ctx->DeclareFun($2, parser_ctx->mkSortReal());
@@ -153,10 +164,12 @@ ctr_decl:        formula TK_SEMICOLON {
         ;
 
 ctr_decl_list:   ctr_decl {
-                    parser_ctx->addAssert($1);
+                    Enode * const e = dreal::wrap_enode_including_forall_vars(parser_ctx, $1);
+                    parser_ctx->addAssert(e);
         }
         |       ctr_decl ctr_decl_list {
-                    parser_ctx->addAssert($1);
+                    Enode * const e = dreal::wrap_enode_including_forall_vars(parser_ctx, $1);
+                    parser_ctx->addAssert(e);
         }
         ;
 
@@ -167,9 +180,9 @@ opt_ctr_decl_sec:
 
 ctr_decl_sec:
                 TK_CTR TK_COLON ctr_decl_list {
-		parser_ctx->addCheckSAT();
-      		parser_ctx->addExit();
-	}
+          parser_ctx->addCheckSAT();
+          parser_ctx->addExit();
+  }
         ;
 
 // =============================
@@ -344,7 +357,7 @@ formula:        TK_LP formula TK_RP { $$ = $2; }
                         yyerror("Parse Error: and");
                     }
         }
-	    |       formula TK_IMPLIES formula {
+      |       formula TK_IMPLIES formula {
                     $$ = parser_ctx->mkImplies(parser_ctx->mkCons($1, parser_ctx->mkCons($3)));
                     if ($$ == nullptr) {
                         yyerror("Parse Error: and");

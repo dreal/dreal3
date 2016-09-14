@@ -1,5 +1,6 @@
 /*********************************************************************
 Author: Sicun Gao <sicung@mit.edu>
+        Soonho Kong
 
 dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
@@ -44,7 +45,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 "var"                        { return TK_VAR; }
 "cost"                       { return TK_COST; }
 "prec"                       { return TK_PREC; }
-"ctr"	                     { return TK_CTR; }
+"ctr"                        { return TK_CTR; }
 ","                          { return TK_COMMA; }
 ":"                          { return TK_COLON; }
 ";"                          { return TK_SEMICOLON; }
@@ -64,10 +65,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 "}"                          { return TK_RC; }
 "["                          { return TK_LB; }
 "]"                          { return TK_RB; }
-"not"						 { return TK_NOT; }
+"not"                        { return TK_NOT; }
 "or"                         { return TK_OR; }
 "and"                        { return TK_AND; }
-"implies"		     { return TK_IMPLIES; }
+"implies"                    { return TK_IMPLIES; }
 "sin"                        { return TK_SIN; }
 "cos"                        { return TK_COS; }
 "tan"                        { return TK_TAN; }
@@ -87,10 +88,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 "sqrt"                       { return TK_SQRT; }
 "safesqrt"                   { return TK_SAFESQRT; }
 "^"|"pow"                    { return TK_POW; }
+"forall"                     { return TK_FORALL; }
 
 ((([0-9]+)|([0-9]*\.?[0-9]+))([eE][-+]?[0-9]+)?)   { drlval.str = strdup(yytext); return TK_NUM; }
 ((([0-9]+)|([0-9]+\.)))                            { drlval.str = strdup(yytext); return TK_NUM; }
-[a-zA-Z]([a-zA-Z0-9_\.])*                            { drlval.str = strdup(yytext); return TK_ID; }
+[a-zA-Z]([a-zA-Z0-9_\.])*                          { drlval.str = strdup(yytext); return TK_ID; }
 
 \".*\"          { drlval.str = strdup( yytext ); return TK_STR; }
 .               { printf( "Syntax error at line %d near %s\n", yylineno, yytext ); exit( 1 ); }
