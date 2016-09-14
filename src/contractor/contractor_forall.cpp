@@ -511,7 +511,8 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
             //
             // We've found a counterexample (c1, c2) where ¬ f(c1, c2) holds
             // Prune X using a point 'y = c2'. (technically, a point in c2, which is an interval)
-            DREAL_LOG_DEBUG << "prune_disjunction: counterexample found." << endl;
+            DREAL_LOG_DEBUG << "prune_disjunction: counterexample found.";
+            DREAL_LOG_DEBUG << counterexample;
             subst = make_subst_from_value(counterexample, forall_vars);
         }
     }
@@ -546,7 +547,7 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
                 }
             }
         } else {
-            cs.m_box_stack.emplace_back(cs.m_box);
+            DREAL_LOG_DEBUG << "no exist variable: " << e;
         }
     }
     if (cs.m_box_stack.size() > 0) {
@@ -554,8 +555,8 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
         cs.m_box_stack.pop_back();
     } else {
         cs.m_box.set_empty();
+        return;
     }
-    return;
 }
 
 void contractor_forall::prune_conjunction(contractor_status & cs, vector<Enode *> const & vec,
