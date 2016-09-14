@@ -41,6 +41,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "constraint/constraint.h"
 #include "contractor/contractor_basic.h"
 #include "contractor/contractor_forall.h"
+#include "util/strategy.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
 #include "icp/mcss_icp.h"
@@ -452,10 +453,10 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode *> const & forall_
         contractor ctc = make_contractor(strengthened_node, l_True, counterexample, var_set, ctrs);
         ctcs.push_back(ctc);
     }
-    contractor fp = mk_contractor_fixpoint(default_strategy::term_cond, ctcs);
-    mcss_icp icp;
+    DREAL_THREAD_LOCAL static default_strategy stg;
+    contractor ctc = stg.build_contractor(counterexample, ctrs, true, config);
     contractor_status cs(counterexample, config, eg);
-    icp.solve(fp, cs, ctrs);
+    mcss_icp::solve(ctc, cs, ctrs);
     return cs.m_box;
 }
 
