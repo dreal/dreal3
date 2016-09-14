@@ -19,6 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/stacker.h"
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <memory>

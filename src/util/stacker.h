@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 #include <vector>
 #include "constraint/constraint.h"
 #include "util/box.h"
