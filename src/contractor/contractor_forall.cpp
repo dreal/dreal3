@@ -492,6 +492,7 @@ void contractor_forall::prune_disjunction(contractor_status & cs, vector<Enode *
             DREAL_LOG_DEBUG << "prune_disjunction: no counterexample found." << endl
                             << "current box = " << endl
                             << cs.m_box << endl;
+            cs.m_config.nra_stat.increase_CE();
             return;
         } else {
             // Step 2.2. (There IS a counterexample C)

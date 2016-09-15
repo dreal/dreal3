@@ -48,6 +48,8 @@ void stat::increase_branch() { m_num_of_branch++; }
 
 void stat::increase_prune() { m_num_of_prune++; }
 
+void stat::increase_CE() { m_num_of_CE++; }
+
 void stat::increase_non_trivial_prune() { m_num_of_non_trivial_prune++; }
 
 void stat::reset() {
@@ -58,6 +60,7 @@ void stat::reset() {
     m_num_of_pop = 0;
     m_num_of_branch = 0;
     m_num_of_prune = 0;
+    m_num_of_CE = 0;
     m_num_of_non_trivial_prune = 0;
     m_heuristic_time = std::chrono::duration<double>::zero();
 }
@@ -72,6 +75,7 @@ ostream & operator<<(ostream & out, stat const & stat) {
     out << "Number of Non-trivial Prune = " << stat.m_num_of_non_trivial_prune << " ("
         << (100.0 * stat.m_num_of_non_trivial_prune / stat.m_num_of_prune) << "%)" << endl;
     out << "Number of Total Prune       = " << stat.m_num_of_prune << endl;
+    out << "Number of Counterexamples   = " << stat.m_num_of_CE << endl;
     auto end_time = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> diff = end_time - stat.m_start_time;
     out << "Running time                = " << diff.count() << " s" << endl;

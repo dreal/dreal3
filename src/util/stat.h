@@ -31,6 +31,7 @@ public:
     unsigned m_num_of_pop;
     unsigned m_num_of_branch;
     unsigned m_num_of_prune;
+    unsigned m_num_of_CE;
     unsigned m_num_of_non_trivial_prune;
     std::chrono::time_point<std::chrono::high_resolution_clock> m_start_time;
     std::chrono::duration<double> m_heuristic_time;
@@ -43,6 +44,7 @@ public:
     void increase_pop();
     void increase_branch();
     void increase_prune();
+    void increase_CE();
     void increase_non_trivial_prune();
     void increase_heuristic_time(std::chrono::duration<double> span) { m_heuristic_time += span; }
     void increase_heuristic_paths() { m_num_heuristic_paths++; }
