@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <chrono>
 #include <functional>
 #include <initializer_list>
+#include <iostream>
 #include <iterator>
 #include <limits>
 #include <map>
@@ -41,14 +42,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "constraint/constraint.h"
 #include "contractor/contractor_basic.h"
 #include "contractor/contractor_forall.h"
-#include "util/strategy.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
 #include "icp/mcss_icp.h"
-
-#ifdef USE_NLOPT
-#include "nlopt.hpp"
-#endif
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
@@ -60,6 +56,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/strategy.h"
 #include "util/string.h"
 #include "util/thread_local.h"
+#ifdef USE_NLOPT
+#include "nlopt.hpp"
+#endif
 
 using std::back_inserter;
 using std::boolalpha;
@@ -368,10 +367,10 @@ contractor make_contractor(Enode * e, lbool const polarity, box const & b,
     }
 }
 
-
-box find_CE_via_underapprox(box const & b, unordered_set<Enode *> const & forall_vars,
-                            vector<Enode *> const & vec, bool const p, SMTConfig & config,
-                            Egraph & eg) {
+box contractor_forall::find_CE_via_underapprox(box const & b,
+                                               unordered_set<Enode *> const & forall_vars,
+                                               vector<Enode *> const & vec, bool const p,
+                                               SMTConfig & config, Egraph & eg) {
     box counterexample(b, forall_vars);
     auto vars = counterexample.get_vars();
     unordered_set<Enode *> const var_set(vars.begin(), vars.end());
@@ -386,7 +385,7 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode *> const & forall
             break;
         }
         Enode * const strengthened_node =
-            strengthen_enode(eg, e, config.nra_precision * 2, polarity == l_True);
+            strengthen_enode(eg, e, config.nra_precision, polarity == l_True);
         nonlinear_constraint ctr(strengthened_node, var_set, l_True);
         if (ctr.is_neq()) {
             break;
@@ -417,9 +416,10 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode *> const & forall
     return counterexample;
 }
 
-box find_CE_via_overapprox(box const & b, unordered_set<Enode *> const & forall_vars,
-                           vector<Enode *> const & vec, bool const p, SMTConfig & config,
-                           Egraph & eg) {
+box contractor_forall::find_CE_via_overapprox(box const & b,
+                                              unordered_set<Enode *> const & forall_vars,
+                                              vector<Enode *> const & vec, bool const p,
+                                              SMTConfig & config, Egraph & eg) {
     vector<contractor> ctcs;
     box counterexample(b, forall_vars);
     auto vars = counterexample.get_vars();
@@ -432,20 +432,26 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode *> const & forall_
             e = e->get1st();
         }
         Enode * const strengthened_node =
-            strengthen_enode(eg, e, config.nra_precision * 2, polarity == l_True);
+            strengthen_enode(eg, e, config.nra_precision, polarity == l_True);
         contractor ctc = make_contractor(strengthened_node, l_True, counterexample, var_set, ctrs);
         ctcs.push_back(ctc);
     }
     DREAL_THREAD_LOCAL static default_strategy stg;
     contractor ctc = stg.build_contractor(counterexample, ctrs, true, config);
     contractor_status cs(counterexample, config, eg);
+    bool const old_delta_test = cs.m_config.nra_delta_test;
+    double const old_prec = cs.m_config.nra_precision;
+    cs.m_config.nra_delta_test = true;
+    cs.m_config.nra_precision = old_prec / 2;
     mcss_icp::solve(ctc, cs, ctrs);
+    cs.m_config.nra_delta_test = old_delta_test;
+    cs.m_config.nra_precision = old_prec;
     return cs.m_box;
 }
 
 box contractor_forall::find_CE(box const & b, unordered_set<Enode *> const & forall_vars,
                                vector<Enode *> const & vec, bool const p, SMTConfig & config,
-                               Egraph & eg) const {
+                               Egraph & eg) {
     // First try to find a counterexample using under-approximation
     box counterexample = find_CE_via_underapprox(b, forall_vars, vec, p, config, eg);
     if (counterexample.is_empty()) {

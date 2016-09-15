@@ -39,9 +39,17 @@ namespace dreal {
 class contractor_forall : public contractor_cell {
 private:
     std::shared_ptr<forall_constraint> const m_ctr;
+    std::unordered_map<Enode *, Enode *> m_strengthen_map;
+
     box find_CE(box const & b, std::unordered_set<Enode *> const & forall_vars,
-                std::vector<Enode *> const & vec, bool const p, SMTConfig & config,
-                Egraph & eg) const;
+                std::vector<Enode *> const & vec, bool const p, SMTConfig & config, Egraph & eg);
+    box find_CE_via_underapprox(box const & b, std::unordered_set<Enode *> const & forall_vars,
+                                std::vector<Enode *> const & vec, bool const p, SMTConfig & config,
+                                Egraph & eg);
+    box find_CE_via_overapprox(box const & b, std::unordered_set<Enode *> const & forall_vars,
+                               std::vector<Enode *> const & vec, bool const p, SMTConfig & config,
+                               Egraph & eg);
+
     /// Given a list Enode, return a vector<Enode *>
     std::vector<Enode *> elist_to_vector(Enode * e) const;
     /// Pruning function. @p body can be and (conjunction), or
