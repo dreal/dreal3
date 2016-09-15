@@ -149,7 +149,6 @@ SMTConfig::initializeConfig( )
   nra_local_opt                = false;
 #endif
   nra_worklist_fp              = false;
-  nra_shrink_for_dop           = false;
   nra_simulation_thread        = false;
   nra_multiprune               = false;
   nra_multiheuristic           = false;
@@ -538,16 +537,13 @@ SMTConfig::parseCMDLine( int argc
             "--mcts");
     opt.add("", false, 0, 0,
             "use Monte Carlo Stack search in ICP loop",
-            "--mcss");    
+            "--mcss");
     opt.add("", false, 0, 0,
             "use local optimization to refine counter example (for exist-forall problems)",
             "--local-opt");
     opt.add("", false, 0, 0,
             "use worklist fixpoint algorithm",
             "--worklist-fp");
-    opt.add("", false, 0, 0,
-            "shrink forall domain for dOp optimization",
-            "--shrink-for-dop");
     opt.add("", false, 0, 0,
             "use a separate simulation thread in ICP",
             "--simulation");
@@ -648,7 +644,6 @@ SMTConfig::parseCMDLine( int argc
     nra_local_opt           = opt.isSet("--local-opt");
 #endif
     nra_worklist_fp         = opt.isSet("--worklist-fp");
-    nra_shrink_for_dop      = opt.isSet("--shrink-for-opt");
     nra_simulation_thread   = opt.isSet("--simulation");
     nra_multiprune          = opt.isSet("--multiprune");
     nra_multiheuristic      = opt.isSet("--multiheuristic");

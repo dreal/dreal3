@@ -56,9 +56,6 @@ config::config(int const argc, const char * argv[]) {
     opt.add("", false, 0, 0, "use local optimization to refine counterexamples", "--local-opt");
     opt.add("", false, 0, 0, "show debug information", "--debug");
     opt.add("", false, 0, 0, "use polytope contractor", "--polytope");
-    opt.add("", false, 0, 0,
-            "NO sync the domains of forall variables using corresponding existential variables",
-            "--no-sync");
     opt.add("", false, 0, 0, "Use worklist fixed-point algorithm in solving", "--worklist-fp");
     opt.add("", false, 0, 0, "print out statistics", "--stat");
     opt.parse(argc, argv);
@@ -98,9 +95,6 @@ config::config(int const argc, const char * argv[]) {
     }
     if (opt.isSet("--polytope")) {
         set_polytope(true);
-    }
-    if (opt.isSet("--no-sync")) {
-        set_sync(false);
     }
     if (opt.isSet("--stat")) {
         set_stat(true);

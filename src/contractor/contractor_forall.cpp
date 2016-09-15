@@ -368,25 +368,11 @@ contractor make_contractor(Enode * e, lbool const polarity, box const & b,
     }
 }
 
-box shrink_for_dop(box b) {
-    for (Enode * e : b.get_vars()) {
-        string const name = e->getCar()->getNameFull();
-        if (starts_with(name, "forall_")) {
-            string const exist_var_name = name.substr(7);
-            auto exist_var_intv = b[exist_var_name];
-            b[name] = exist_var_intv;
-        }
-    }
-    return b;
-}
 
 box find_CE_via_underapprox(box const & b, unordered_set<Enode *> const & forall_vars,
                             vector<Enode *> const & vec, bool const p, SMTConfig & config,
                             Egraph & eg) {
     box counterexample(b, forall_vars);
-    if (config.nra_shrink_for_dop) {
-        counterexample = shrink_for_dop(counterexample);
-    }
     auto vars = counterexample.get_vars();
     unordered_set<Enode *> const var_set(vars.begin(), vars.end());
     ibex::IntervalVector & iv = counterexample.get_values();
@@ -436,9 +422,6 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode *> const & forall_
                            Egraph & eg) {
     vector<contractor> ctcs;
     box counterexample(b, forall_vars);
-    if (config.nra_shrink_for_dop) {
-        counterexample = shrink_for_dop(counterexample);
-    }
     auto vars = counterexample.get_vars();
     unordered_set<Enode *> var_set(vars.begin(), vars.end());
     scoped_vec<shared_ptr<constraint>> ctrs;

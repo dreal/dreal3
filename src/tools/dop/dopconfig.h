@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,7 +41,6 @@ private:
     bool m_debug = false;
     bool m_polytope = false;
     double m_prec = 0.0;
-    bool m_sync = true;
     bool m_stat = false;
     bool m_worklist_fp = false;
 
@@ -55,7 +54,6 @@ private:
     void set_local_opt(bool const b) { m_local_opt = b; }
     void set_debug(bool const b) { m_debug = b; }
     void set_polytope(bool const b) { m_polytope = b; }
-    void set_sync(bool const b) { m_sync = b; }
     void set_stat(bool const b) { m_stat = b; }
     void set_worklist_fp(bool const b) { m_worklist_fp = b; }
 
@@ -70,7 +68,6 @@ public:
     bool get_local_opt() const { return m_local_opt; }
     bool get_debug() const { return m_debug; }
     bool get_polytope() const { return m_polytope; }
-    bool get_sync() const { return m_sync; }
     bool get_stat() const { return m_stat; }
     bool get_worklist_fp() const { return m_worklist_fp; }
     friend std::ostream & operator<<(std::ostream & out, config const & c);
