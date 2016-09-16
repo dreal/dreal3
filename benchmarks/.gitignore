@@ -1,5 +1,0 @@
-*.smt2.json
-*.preprocessed.drh
-*.output
-*.proof
-*.paths
