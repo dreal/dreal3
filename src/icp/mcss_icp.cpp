@@ -29,12 +29,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_vec.h"
 #include "util/stacker.h"
 
-using std::shared_ptr;
-using std::vector;
-using std::get;
-using std::endl;
-using std::tuple;
 
+using std::endl;
+using std::get;
+using std::shared_ptr;
+using std::tuple;
+using std::vector;
 namespace dreal {
 static SizeBrancher sb;
 BranchHeuristic & mcss_icp::defaultHeuristic = sb;
@@ -48,7 +48,7 @@ void mcss_icp::solve(contractor & ctc, contractor_status & cs,
     box_stack.push_back(cs.m_box);
     double const prec = cs.m_config.nra_delta_test ? 0.0 : cs.m_config.nra_precision;
     stacker stack(box_stack, ctrs, prec);
-    double tmp_score;
+    double tmp_score = 0.0;
     DREAL_LOG_INFO << "----new mcss instance----";
     do {
         DREAL_LOG_INFO << "mcss_icp::solve - loop"
