@@ -45,6 +45,15 @@ using std::unordered_set;
 using std::vector;
 
 #ifdef USE_GLPK
+
+#if defined(__GNUC__)
+#  define UNUSED __attribute__ ((unused))
+#elif defined(_MSC_VER)
+#  define UNUSED __pragma(warning(suppress:4100))
+#else
+#  define UNUSED
+#endif
+
 namespace dreal {
 
 enum class lp_icp_kind { LP, ICP };
@@ -59,7 +68,7 @@ void lp_icp::mark_basic(glpk_wrapper & lp, std::unordered_set<Enode *> es,
     int idx = 0;
     for (auto it = es.cbegin(); it != es.cend(); ++it) {
         if (lp.is_constraint_used(idx)) {
-            bool found = false;
+            bool found UNUSED = false;
             for (auto cptr : constraints) {
                 if (cptr->get_type() == constraint_type::Nonlinear) {
                     auto e = cptr->get_enodes()[0];
