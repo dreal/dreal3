@@ -239,7 +239,7 @@ else()
   ExternalProject_Add(PICOSAT
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/picosat.git
-    GIT_TAG master
+    GIT_TAG 8ea4bd467e9dcb3b37e212293f541a2be18f6406
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CC=${CMAKE_C_COMPILER} sh ./configure.sh
     BUILD_COMMAND make
@@ -274,7 +274,7 @@ else()
     ExternalProject_Add(FILIB
         PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
         GIT_REPOSITORY https://github.com/dreal-deps/filibxx.git
-        GIT_TAG master
+        GIT_TAG d898fe000e157f44e4a84b8f79b4e7556a5d6fb5
         PATCH_COMMAND autoreconf -if
         UPDATE_COMMAND ""
         CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/FILIB/configure
@@ -323,7 +323,7 @@ if(USE_GLPK)
             ExternalProject_Add(GLPK
                 PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
                 GIT_REPOSITORY https://github.com/dreal-deps/glpk.git
-                GIT_TAG master
+                GIT_TAG f67c65c337b71a83d70b5c80a51ec892e2269da1
                 PATCH_COMMAND autoreconf -if
                 UPDATE_COMMAND ""
                 CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/GLPK/configure
@@ -372,7 +372,7 @@ if(USE_NLOPT)
         ExternalProject_Add(NLOPT
             PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
             GIT_REPOSITORY https://github.com/dreal-deps/nlopt.git
-            GIT_TAG master
+            GIT_TAG dbf99e4bcea03c68063299ae77657a71151aa23a
             PATCH_COMMAND autoreconf -if
             UPDATE_COMMAND ""
             CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/NLOPT/configure
@@ -421,7 +421,7 @@ else()
   ExternalProject_Add(ADEPT
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/adept.git
-    GIT_TAG master
+    GIT_TAG 266ffc0282fcc49716915574647c06be9333e2dc
     PATCH_COMMAND autoreconf -if
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/ADEPT/configure
@@ -474,7 +474,7 @@ if(SUPPORT_ODE)
       DEPENDS FILIB
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
       GIT_REPOSITORY https://github.com/dreal-deps/capdDynSys-4.0.git
-      GIT_TAG master
+      GIT_TAG f56751ab46849af5b9d21233bd4847db5d01e9d5
       PATCH_COMMAND autoreconf -if
       UPDATE_COMMAND ""
       CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/CAPD4/configure
@@ -524,7 +524,7 @@ else(USE_LOCAL_THIRD_PARTY)
     ExternalProject_Add(CLP
         PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
         GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
-        GIT_TAG master
+        GIT_TAG ebf1abf25d337df1e4ba52b70a25f006c7e8b7f0
         UPDATE_COMMAND ""
         CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/CLP/configure
             CXX=${CMAKE_CXX_COMPILER}
@@ -575,7 +575,7 @@ else()
     DEPENDS CLP FILIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/ibex-lib.git
-    GIT_TAG master
+    GIT_TAG ff03acd7b1f4d7c2f20665786376b1ccfe9296f5
     UPDATE_COMMAND ""
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=--std=c++11 CC=${CMAKE_C_COMPILER}
@@ -611,7 +611,7 @@ else(USE_LOCAL_THIRD_PARTY)
   ExternalProject_Add(CATCH
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/Catch.git
-    GIT_TAG master
+    GIT_TAG 5aa2b82b17aeeb935919b1d0bbb93bd0adc86ddb
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND echo "nothing to configure"
     BUILD_COMMAND echo "nothing to build"
@@ -633,7 +633,7 @@ else()
   ExternalProject_Add(EASYLOGGINGPP
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/easyloggingpp.git
-    GIT_TAG master
+    GIT_TAG 479fad227f74c9ff69047b86298eab2d3e733167
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND echo "nothing to configure"
     BUILD_COMMAND echo "nothing to build"
@@ -655,7 +655,7 @@ else()
   ExternalProject_Add(EZOPTIONPARSER
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/ezoptionparser.git
-    GIT_TAG master
+    GIT_TAG 2bdb6b0b75dfdc8614b05f0a1945b8b623bd040b
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND echo "nothing to configure"
     BUILD_COMMAND echo "nothing to build"
@@ -677,7 +677,7 @@ else()
   ExternalProject_Add(JSON
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/json.git
-    GIT_TAG master
+    GIT_TAG 9f9d293bad3792cb7120901b0d5ea7e93fc09b66
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND echo "nothing to configure"
     BUILD_COMMAND echo "nothing to build"
