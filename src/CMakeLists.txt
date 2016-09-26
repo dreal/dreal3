@@ -1064,20 +1064,48 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/pkg-config.pc.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/dreal.pc")
 
 ########################################
+# CMAKE CONFIG FILES
+########################################
+set(DREAL_INCLUDE_DIR include/dreal)
+set(DREAL_LIBRARY_DIR lib/dreal)
+set(DREAL_LIBRARIES dreal ibex ClpSolver Clp CoinUtils capd adept)
+if(USE_NLOPT)
+    list(APPEND DREAL_LIBRARIES nlopt)
+endif()
+if(USE_GLPK)
+    list(APPEND DREAL_LIBRARIES glpk)
+endif()
+list(APPEND DREAL_LIBRARIES prim picosat ${CMAKE_THREAD_LIBS_INIT} m)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(dreal-config.cmake.in dreal-config.cmake
+    INSTALL_DESTINATION "${DREAL_LIBRARY_DIR}"
+    PATH_VARS DREAL_INCLUDE_DIR DREAL_LIBRARY_DIR
+    NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+write_basic_package_version_file(dreal-config-version.cmake
+  VERSION ${PACKAGE_VERSION} COMPATIBILITY AnyNewerVersion)
+
+########################################
 # INSTALL
 ########################################
-install(DIRECTORY "${DREAL_BINARY_DIR}/lib/" DESTINATION lib/dreal
+install(DIRECTORY "${DREAL_BINARY_DIR}/lib/"
+    DESTINATION "${DREAL_LIBRARY_DIR}"
     FILES_MATCHING
     PATTERN "*.a"
     PATTERN "*.la"
     PATTERN "*.so"
     PATTERN "*.dylib")
-install(DIRECTORY "${DREAL_SOURCE_DIR}/api/" DESTINATION include/dreal
+install(DIRECTORY "${DREAL_SOURCE_DIR}/api/"
+    DESTINATION "${DREAL_INCLUDE_DIR}"
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hh")
 install(FILES "${DREAL_BINARY_DIR}/dreal.pc" DESTINATION lib/pkgconfig)
-install(FILES "${DREAL_BINARY_DIR}/dreal_config.h" DESTINATION include/dreal)
+install(FILES "${DREAL_BINARY_DIR}/dreal_config.h"
+    DESTINATION "${DREAL_INCLUDE_DIR}")
+install(FILES
+  "${DREAL_BINARY_DIR}/dreal-config.cmake"
+  "${DREAL_BINARY_DIR}/dreal-config-version.cmake"
+  DESTINATION "${DREAL_LIBRARY_DIR}")
 install(TARGETS dReal-bin DESTINATION bin)
 if(NOT BUILD_STATIC_BIN)
   install(TARGETS dOp-bin DESTINATION bin)
