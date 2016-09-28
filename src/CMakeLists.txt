@@ -274,6 +274,7 @@ if(USE_GLPK)
                     --prefix=${CMAKE_CURRENT_BINARY_DIR}
                     ${SHARED_LIB_CONFIG_COMMAND}
                 BUILD_COMMAND make
+                BUILD_IN_SOURCE 1
                 LOG_DOWNLOAD 1
                 LOG_UPDATE 1
                 LOG_CONFIGURE 1
@@ -327,6 +328,7 @@ if(USE_NLOPT)
                 --without-octave
                 --without-matlab
             BUILD_COMMAND make
+            BUILD_IN_SOURCE 1
             LOG_DOWNLOAD 1
             LOG_UPDATE 1
             LOG_CONFIGURE 1
@@ -500,6 +502,7 @@ else()
         ${IBEX_DEBUG_MODE}
         ${SHARED_LIB_IBEX_COMMAND}
     BUILD_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/IBEX/waf build
+    BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1
     LOG_UPDATE 1
     LOG_CONFIGURE 1
