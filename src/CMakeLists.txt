@@ -10,7 +10,6 @@ set(PACKAGE_BUGREPORT "http://github.com/dreal/dreal3/issues")
 set(BUG_REPORT_URL "${PACKAGE_BUGREPORT}" CACHE STRING "Default URL where bug reports are to be submitted.")
 
 set(CMAKE_COLOR_MAKEFILE ON)
-enable_testing()
 
 option(SUPPORT_ODE      "Support ODE" ON)
 option(LOGGING          "Enable Logging" ON)
@@ -20,7 +19,6 @@ option(USE_LOCAL_THIRD_PARTY "Use local third party libraries" OFF)
 option(USE_GLPK         "Use GLPK" ON)
 option(USE_NLOPT        "Use NLOPT" ON)
 option(TCMALLOC         "Use tcmalloc (a.k.a. gperftools)" OFF)
-option(BUILD_TEST       "Build test binaries" ON)
 option(USE_ASAN         "Use address sanitizer (-fsanitize=address)" OFF)
 
 include(CTest)
@@ -856,7 +854,7 @@ if(NOT BUILD_STATIC_BIN)
 endif()
 
 #add tests
-if(BUILD_TEST)
+if(BUILD_TESTING)
   add_subdirectory(tests/adept)
   add_subdirectory(tests/c_api)
   add_subdirectory(tests/contractor)
@@ -883,21 +881,23 @@ add_dependencies(dReal colin_copy)
 add_dependencies(dReal val_copy)
 endif(WITH_COLIN)
 
-# Include style check
-include(StyleCheck)
-file(GLOB_RECURSE DREAL_SOURCES
-  ${DREAL_SOURCE_DIR}/api/*.C           ${DREAL_SOURCE_DIR}/api/*.cpp
-  ${DREAL_SOURCE_DIR}/api/*.h           ${DREAL_SOURCE_DIR}/api/*.hh
-  ${DREAL_SOURCE_DIR}/constraint/*.cpp  ${DREAL_SOURCE_DIR}/constraint/*.h
-  ${DREAL_SOURCE_DIR}/contractor/*.cpp  ${DREAL_SOURCE_DIR}/contractor/*.h
-  ${DREAL_SOURCE_DIR}/dsolvers/*.cpp    ${DREAL_SOURCE_DIR}/dsolvers/*.h
-  ${DREAL_SOURCE_DIR}/icp/*.cpp         ${DREAL_SOURCE_DIR}/icp/*.h
-  ${DREAL_SOURCE_DIR}/optimizer/*.cpp   ${DREAL_SOURCE_DIR}/optimizer/*.h
-  ${DREAL_SOURCE_DIR}/tests/*.cpp       ${DREAL_SOURCE_DIR}/tests/*.h
-  ${DREAL_SOURCE_DIR}/tools/dop/*.cpp   ${DREAL_SOURCE_DIR}/tools/dop/*.h
-  ${DREAL_SOURCE_DIR}/util/*.cpp        ${DREAL_SOURCE_DIR}/util/*.h)
-add_style_check_target(style "${DREAL_SOURCES}")
-add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py ${DREAL_SOURCES})
+if(BUILD_TESTING)
+  # Include style check
+  include(StyleCheck)
+  file(GLOB_RECURSE DREAL_SOURCES
+    ${DREAL_SOURCE_DIR}/api/*.C           ${DREAL_SOURCE_DIR}/api/*.cpp
+    ${DREAL_SOURCE_DIR}/api/*.h           ${DREAL_SOURCE_DIR}/api/*.hh
+    ${DREAL_SOURCE_DIR}/constraint/*.cpp  ${DREAL_SOURCE_DIR}/constraint/*.h
+    ${DREAL_SOURCE_DIR}/contractor/*.cpp  ${DREAL_SOURCE_DIR}/contractor/*.h
+    ${DREAL_SOURCE_DIR}/dsolvers/*.cpp    ${DREAL_SOURCE_DIR}/dsolvers/*.h
+    ${DREAL_SOURCE_DIR}/icp/*.cpp         ${DREAL_SOURCE_DIR}/icp/*.h
+    ${DREAL_SOURCE_DIR}/optimizer/*.cpp   ${DREAL_SOURCE_DIR}/optimizer/*.h
+    ${DREAL_SOURCE_DIR}/tests/*.cpp       ${DREAL_SOURCE_DIR}/tests/*.h
+    ${DREAL_SOURCE_DIR}/tools/dop/*.cpp   ${DREAL_SOURCE_DIR}/tools/dop/*.h
+    ${DREAL_SOURCE_DIR}/util/*.cpp        ${DREAL_SOURCE_DIR}/util/*.h)
+  add_style_check_target(style "${DREAL_SOURCES}")
+  add_test(NAME style_check COMMAND ${DREAL_SOURCE_DIR}/cmake/Modules/cpplint.py ${DREAL_SOURCES})
+endif()
 ADD_CUSTOM_COMMAND(TARGET dReal-bin
           POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E make_directory ${DREAL_SOURCE_DIR}/../bin
