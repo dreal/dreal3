@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "./dreal_config.h"
 #include "ezOptionParser/ezOptionParser.hpp"
 #include "opensmt/egraph/Enode.h"
 
@@ -51,9 +52,30 @@ private:
     void set_save_visualization(bool const b) { m_save_visualization = b; }
     void set_vis_cell(unsigned long const vis_cell) { m_vis_cell = vis_cell; }
     void set_precision(double const prec) { m_prec = prec; }
-    void set_local_opt(bool const b) { m_local_opt = b; }
+    void set_local_opt(bool const b) {
+        m_local_opt = b;
+#ifndef USE_NLOPT
+        if (m_local_opt) {
+            cerr << "--local-opt option is used, but this option is not available in this build. "
+                 << endl
+                 << "To use it, please configure dReal with -DUSE_NLOPT=ON cmake option." << endl;
+            m_local_opt = false;
+        }
+#endif
+    }
     void set_debug(bool const b) { m_debug = b; }
-    void set_polytope(bool const b) { m_polytope = b; }
+    void set_polytope(bool const b) {
+        m_polytope = b;
+#ifndef USE_CLP
+        if (m_polytope) {
+            std::cerr
+                << "--polytope option is used, but this option is not available in this build. "
+                << std::endl
+                << "To use it, please install CLP and re-build dReal." << std::endl;
+            m_polytope = false;
+        }
+#endif
+    }
     void set_stat(bool const b) { m_stat = b; }
     void set_worklist_fp(bool const b) { m_worklist_fp = b; }
 

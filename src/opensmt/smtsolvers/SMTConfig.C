@@ -145,9 +145,7 @@ SMTConfig::initializeConfig( )
   nra_ncbt                     = false;
   nra_mcts                     = false;
   nra_mcss                     = false;
-#ifdef NLOPT
   nra_local_opt                = false;
-#endif
   nra_worklist_fp              = false;
   nra_simulation_thread        = false;
   nra_multiprune               = false;
@@ -161,11 +159,9 @@ SMTConfig::initializeConfig( )
   nra_heuristic_forward        = false;
   nra_hybrid_notlearn_clause   = false;
   nra_slack_level              = 0;
-#ifdef USE_GLPK
   nra_lp                       = false;
   nra_lp_prune                 = false;
   nra_linear_only              = false;
-#endif
   nra_scoring                  = false;
   nra_suppress_warning         = false;
   nra_dump_dr                  = false;
@@ -217,8 +213,8 @@ void SMTConfig::parseConfig ( char * f )
         setDiagnosticOutputChannel( tmpbuf );
       else if ( sscanf( buf, "dump_formula %d\n"             , &dump_formula )                  == 1 );
       else if ( sscanf( buf, "verbosity %d\n"                , &verbosity )                     == 1 );
-      else if ( sscanf( buf, "certification_level %d\n"      , &certification_level )                     == 1 );
-      else if ( sscanf( buf, "certifying_solver %s\n"        , certifying_solver )                     == 1 );
+      else if ( sscanf( buf, "certification_level %d\n"      , &certification_level )           == 1 );
+      else if ( sscanf( buf, "certifying_solver %s\n"        , certifying_solver )              == 1 );
       // SAT SOLVER CONFIGURATION
       else if ( sscanf( buf, "sat_theory_propagation %d\n"   , &(sat_theory_propagation))       == 1 );
       else if ( sscanf( buf, "sat_polarity_mode %d\n"        , &(sat_polarity_mode))            == 1 );
@@ -521,8 +517,11 @@ SMTConfig::parseCMDLine( int argc
             "maximum number of solutions to find",
             "--multiple-soln", "--multiple_soln", "--multiple-solution");
     opt.add("", false, 0, 0,
-            "use polytope contractor in IBEX",
-            "--polytope");
+            "use polytope contractor in IBEX"
+#ifndef USE_CLP
+            " (not available in this build, need CLP)"
+#endif
+            , "--polytope");
     opt.add("", false, 0, 0,
             "use simplification in preprocessing (default: on)",
             "--simp");
@@ -539,8 +538,11 @@ SMTConfig::parseCMDLine( int argc
             "use Monte Carlo Stack search in ICP loop",
             "--mcss");
     opt.add("", false, 0, 0,
-            "use local optimization to refine counter example (for exist-forall problems)",
-            "--local-opt");
+            "use local optimization to refine counter example (for exist-forall problems)"
+#ifndef USE_NLOPT
+            " (not available in this build, need NLOPT)"
+#endif
+            , "--local-opt");
     opt.add("", false, 0, 0,
             "use worklist fixpoint algorithm",
             "--worklist-fp");
@@ -574,23 +576,30 @@ SMTConfig::parseCMDLine( int argc
     opt.add("", false, 0, 0,
             "use hybrid solver clause learning",
             "--no-hybrid-clause-learning");
-#ifdef USE_GLPK
     opt.add("", false, 0, 0,
-            "only invoke linear solvers on a purely linear problem",
-            "--linear-only");
-    opt.add("", false, 0, 0,
-            "use a combination of ICP and LP",
-            "--lp-icp");
-    opt.add("", false, 0, 0,
-            "use a combination of ICP and LP and also use the LP for pruning",
-            "--lp-icp-prune");
+            "only invoke linear solvers on a purely linear problem"
+#ifndef USE_GLPK
+            " (not available in this build, need GLPK)"
 #endif
+            , "--linear-only");
+    opt.add("", false, 0, 0,
+            "use a combination of ICP and LP"
+#ifndef USE_GLPK
+            " (not available in this build, need GLPK)"
+#endif
+            , "--lp-icp");
+    opt.add("", false, 0, 0,
+            "use a combination of ICP and LP and also use the LP for pruning"
+#ifndef USE_GLPK
+            " (not available in this build, need GLPK)"
+#endif
+            , "--lp-icp-prune");
     opt.add("", false, 0, 0,
             "use modified ICP that use scoring for branching",
             "--scoring-icp");
     opt.add("", false, 0, 0,
             "Dump dr file without solving",
-            "--dump-dr");
+             "--dump-dr");
 
     opt.parse(argc, argv);
     opt.overview  = "dReal ";
@@ -636,12 +645,24 @@ SMTConfig::parseCMDLine( int argc
 #endif
     nra_use_stat            = opt.isSet("--stat");
     nra_polytope            = opt.isSet("--polytope");
+#ifndef USE_CLP
+    if (nra_polytope) {
+      cerr << "--polytope option is used, but this option is not available in this build. " << endl
+           << "To use it, please install CLP and re-build dReal." << endl;
+      nra_polytope = false;
+    }
+#endif
     nra_simp                =!opt.isSet("--no-simp");
     nra_ncbt                = opt.isSet("--ncbt");
     nra_mcts                = opt.isSet("--mcts");
     nra_mcss                = opt.isSet("--mcss");
-#ifdef USE_NLOPT
     nra_local_opt           = opt.isSet("--local-opt");
+#ifndef USE_NLOPT
+    if (nra_local_opt) {
+      cerr << "--local-opt option is used, but this option is not available in this build. " << endl
+           << "To use it, please configure dReal with -DUSE_NLOPT=ON cmake option." << endl;
+      nra_local_opt = false;
+    }
 #endif
     nra_worklist_fp         = opt.isSet("--worklist-fp");
     nra_simulation_thread   = opt.isSet("--simulation");
@@ -653,10 +674,26 @@ SMTConfig::parseCMDLine( int argc
     nra_show_search_progress= opt.isSet("--show-search");
     nra_heuristic_forward   = opt.isSet("--heuristic_forward");
     nra_hybrid_notlearn_clause = opt.isSet("--no-hybrid-clause-learning");
-#ifdef USE_GLPK
+
     nra_lp                  = opt.isSet("--lp-icp") || opt.isSet("--lp-icp-prune");
     nra_lp_prune            = opt.isSet("--lp-icp-prune");
     nra_linear_only         = opt.isSet("--linear-only");
+#ifndef USE_GLPK
+    if (nra_lp) {
+      cerr << "--lp-icp option (or --lp-icp-prune) is used, but this option is not available in this build. " << endl
+           << "To use it, please configure dReal with -DUSE_GLPK=ON cmake option." << endl;
+      nra_lp = false;
+    }
+    if (nra_lp_prune) {
+      cerr << "--lp-icp-prune option is used, but this option is not available in this build. " << endl
+           << "To use it, please configure dReal with -DUSE_GLPK=ON cmake option." << endl;
+      nra_lp = false;
+    }
+    if (nra_linear_only) {
+      cerr << "--linear-only option is used, but this option is not available in this build. " << endl
+           << "To use it, please configure dReal with -DUSE_GLPK=ON cmake option." << endl;
+      nra_lp = false;
+    }
 #endif
     nra_scoring             = opt.isSet("--scoring-icp");
     nra_dump_dr             = opt.isSet("--dump-dr");

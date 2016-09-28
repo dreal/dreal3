@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <limits>
 #include <string>
+#include "./dreal_config.h"
 #include "api/dreal.h"
 #include "opensmt/api/OpenSMTContext.h"
 
@@ -328,20 +329,18 @@ void solver::set_delta(double const d) {
 
 void solver::set_polytope(bool const b) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
-    context->getConfig().nra_polytope = b;
+    context->setPolytope(b);
 }
 
-#ifdef USE_GLPK
 void solver::set_lp(bool const b) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
-    context->getConfig().nra_lp = b;
+    context->setLP(b);
 }
 
 void solver::set_lp_only(bool const b) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);
-    context->getConfig().nra_linear_only = b;
+    context->setLPOnly(b);
 }
-#endif
 
 void solver::set_simulation(bool const b) {
     OpenSMTContext * const context = static_cast<OpenSMTContext *>(cctx);

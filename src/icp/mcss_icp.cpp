@@ -29,7 +29,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_vec.h"
 #include "util/stacker.h"
 
-
 using std::endl;
 using std::get;
 using std::shared_ptr;

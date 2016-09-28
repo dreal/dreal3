@@ -25,7 +25,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "./dreal_config.h"
 
 namespace dreal {
 
@@ -159,10 +158,8 @@ public:
     void set_delta(double const d);
     void set_polytope(bool const b = true);
     void set_dump_dr(bool const b);
-#ifdef USE_GLPK
     void set_lp(bool const b = true);
     void set_lp_only(bool const b = true);
-#endif
     void set_simulation(bool const b = true);
     void reset();
     void push();

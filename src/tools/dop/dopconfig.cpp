@@ -25,6 +25,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "./dreal_config.h"
 
 namespace dop {
 
@@ -53,9 +54,21 @@ config::config(int const argc, const char * argv[]) {
             "set precision (default 0.001)\n"
             "this overrides the value specified in input files",
             "--precision");
-    opt.add("", false, 0, 0, "use local optimization to refine counterexamples", "--local-opt");
+    opt.add("", false, 0, 0,
+            "use local optimization to refine counterexamples"
+#ifndef USE_NLOPT
+            " (not available in this build, need NLOPT)"
+#endif
+            ,
+            "--local-opt");
     opt.add("", false, 0, 0, "show debug information", "--debug");
-    opt.add("", false, 0, 0, "use polytope contractor", "--polytope");
+    opt.add("", false, 0, 0,
+            "use polytope contractor"
+#ifndef USE_CLP
+            " (not available in this build, need CLP)"
+#endif
+            ,
+            "--polytope");
     opt.add("", false, 0, 0, "Use worklist fixed-point algorithm in solving", "--worklist-fp");
     opt.add("", false, 0, 0, "print out statistics", "--stat");
     opt.parse(argc, argv);
@@ -93,9 +106,11 @@ config::config(int const argc, const char * argv[]) {
     if (opt.isSet("--debug")) {
         set_debug(true);
     }
+#ifdef USE_CLP
     if (opt.isSet("--polytope")) {
         set_polytope(true);
     }
+#endif
     if (opt.isSet("--stat")) {
         set_stat(true);
     }

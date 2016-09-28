@@ -26,9 +26,11 @@ add_executable(ibex_defaultoptimizer defaultoptimizer.cpp)
 target_link_libraries(ibex_defaultoptimizer dreal ${EXTRA_LIBS})
 add_test(ibex_defaultoptimizer ${CMAKE_CURRENT_BINARY_DIR}/ibex_defaultoptimizer)
 
+if(CLP_FOUND)
 add_executable(ibex_polytope_01 polytope_01.cpp)
 target_link_libraries(ibex_polytope_01 dreal ${EXTRA_LIBS})
 add_test(ibex_polytope_01 ${CMAKE_CURRENT_BINARY_DIR}/ibex_polytope_01)
+endif(CLP_FOUND)
 
 add_executable(ibex_newton_01 newton_01.cpp)
 target_link_libraries(ibex_newton_01 dreal ${EXTRA_LIBS})

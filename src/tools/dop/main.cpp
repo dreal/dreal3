@@ -17,7 +17,9 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "./dreal_config.h"
 #include "tools/dop/process.h"
+#include "util/logging.h"
 
 int main(int argc, const char * argv[]) {
 #ifdef LOGGING

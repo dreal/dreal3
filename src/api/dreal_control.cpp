@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <random>
 #include <vector>
+#include "./dreal_config.h"
 
 namespace dreal {
 
@@ -116,8 +117,10 @@ void synthesizeLyapunov(vector<expr *> & x, vector<expr *> & p, vector<expr *> &
     expr v = s->var("V");
     expr lv = s->var("LV");
     expr bl = s->var("ball_radius");
-    // turn on polytope in solver
+// turn on polytope in solver
+#ifdef USE_CLP
     s->set_polytope();
+#endif
     // s -> set_simulation();  // the simulation option gives seg fault as of Jun 23, 2016
     // ball is the epsilon-ball that will be excluded from the checking
     expr ball = zero;
@@ -239,7 +242,9 @@ solver.
     expr zero = s->num("0");
     expr v = s->var("V");
     expr lv = s->var("LV");
+#ifdef USE_CLP
     // turn on polytope in solver
+#endif
     s -> set_polytope();
     // s -> set_simulation();  // the simulation option gives seg fault as of Jun 23, 2016
     // ball is the epsilon-ball that will be excluded from the checking

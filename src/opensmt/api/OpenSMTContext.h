@@ -223,16 +223,16 @@ public:
   inline void setPrecision (const double d ) {
       config.nra_precision = d;
   }
-#ifdef USE_NLOPT
   inline void setLocalOpt (const bool b ) {
-      config.nra_local_opt = b;
-  }
-#else
-  inline void setLocalOpt (const bool /* b */) {
-      std::cerr << "NLOPT, a library for local optimization is not enabled in configuration." << std::endl;
-      std::cerr << "Please use -DUSE_NLOPT=ON." << std::endl;
-  }
+#ifndef USE_NLOPT
+    if (b) {
+      std::cerr << "--local-opt option is not available in this build. " << std::endl
+                << "To use it, please configure dReal with -DUSE_NLOPT=ON cmake option." << std::endl;
+      b = false;
+    }
 #endif
+    config.nra_local_opt = b;
+  }
   inline void setWorklistFP (const bool b ) {
       config.nra_worklist_fp = b;
   }
@@ -306,17 +306,36 @@ public:
       }
       config.nra_debug = b;
   }
-  inline void       setPolytope(bool const b) {
-      config.nra_polytope = b;
-  }
-#ifdef USE_GLPK
-  inline void       setLP(bool const b) {
-      config.nra_lp = b;
-  }
-  inline void       setLPOnly(bool const b) {
-      config.nra_linear_only = b;
-  }
+  inline void       setPolytope(bool b) {
+#ifndef USE_CLP
+    if (b) {
+      std::cerr << "--polytope option is not available in this build. " << std::endl
+                << "To use it, please install CLP and re-build dReal." << std::endl;
+      b = false;
+    }
 #endif
+    config.nra_polytope = b;
+  }
+  inline void       setLP(bool b) {
+#ifndef USE_GLPK
+    if(b) {
+      std::cerr << "--lp-icp option is not available in this build. " << std::endl
+                << "To use it, please configure dReal with -DUSE_GLPK=ON cmake option." << std::endl;
+      b = false;
+    }
+#endif
+    config.nra_lp = b;
+  }
+  inline void       setLPOnly(bool b) {
+#ifndef USE_GLPK
+    if(b) {
+      std::cerr << "--linear-only option is not available in this build. " << std::endl
+                << "To use it, please configure dReal with -DUSE_GLPK=ON cmake option." << std::endl;
+      b = false;
+    }
+#endif
+    config.nra_linear_only = b;
+  }
   inline void       setStat(bool b) { config.nra_use_stat = b; }
   std::ostream & dumpFormulas(std::ostream & out) const;
   inline void dumpHeaderToFile( std::ostream & dump_out ) { egraph.dumpHeaderToFile(dump_out); }

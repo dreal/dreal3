@@ -128,10 +128,12 @@ contractor default_strategy::build_contractor(box const & box,
     contractor nl_ctc = mk_contractor_seq(nl_ctcs);
     ctcs.insert(ctcs.end(), nl_ctcs.begin(), nl_ctcs.end());
 
-    // 2.2. Build Polytope Contractor
+// 2.2. Build Polytope Contractor
+#ifdef USE_CLP
     if (config.nra_polytope) {
         ctcs.push_back(mk_contractor_ibex_polytope(config.nra_precision, box.get_vars(), nl_ctrs));
     }
+#endif
     // 2.3. Int Contractor (only if there is a var of Int sort)
     if (any_of(box.get_vars().cbegin(), box.get_vars().cend(),
                [](Enode * const v) { return v->hasSortInt(); })) {

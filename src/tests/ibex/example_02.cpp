@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <iostream>
+#include "./dreal_config.h"
 #include "ibex/ibex.h"
 
 using ibex::Variable;
@@ -34,6 +35,7 @@ using std::cout;
 using std::endl;
 
 int main() {
+#ifdef USE_CLP
     Variable x1, x2, y;
     NumConstraint c1(x1, x2, y, y >= ibex::min(x1, x2));
     NumConstraint c2(x1, x2, y, y <= ibex::max(x1, x2));
@@ -59,5 +61,6 @@ int main() {
 
     cout << "After contract: " << box << endl;
     cout << box << endl;
+#endif
     return 0;
 }

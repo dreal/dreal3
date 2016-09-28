@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <memory>
 #include <unordered_set>
+#include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
 #include "opensmt/api/OpenSMTContext.h"
@@ -188,6 +189,7 @@ TEST_CASE("ibex_fwdbwd_03") {
     opensmt_del_context(ctx);
 }
 
+#ifdef USE_CLP
 TEST_CASE("ibex_polytope") {
     cerr << "===================================================\n";
     opensmt_context ctx = opensmt_mk_context(qf_nra);
@@ -245,4 +247,5 @@ TEST_CASE("ibex_polytope") {
     REQUIRE(used_ctcs.find(nc2) != used_ctcs.end());
     opensmt_del_context(ctx);
 }
+#endif
 }  // namespace dreal

@@ -19,6 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include "./dreal_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +32,9 @@ void dreal_init();
 void dreal_set_verbosity(dreal_context, int);
 void dreal_set_precision(dreal_context c, const double p);
 double dreal_get_precision(dreal_context c);
+#ifdef USE_CLP
 void dreal_use_polytope(dreal_context);
+#endif
 char * dreal_version();
 void dreal_print_expr(dreal_expr);
 dreal_context dreal_mk_context(dreal_logic);

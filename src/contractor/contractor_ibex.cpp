@@ -32,6 +32,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
@@ -63,6 +64,7 @@ using std::unordered_set;
 using std::vector;
 
 namespace dreal {
+#ifdef USE_CLP
 ibex::SystemFactory * contractor_ibex_polytope::build_system_factory(
     vector<Enode *> const & vars, vector<shared_ptr<nonlinear_constraint>> const & ctrs) {
     DREAL_LOG_DEBUG << "build_system_factory:";
@@ -137,6 +139,7 @@ ibex::System * square_eq_sys(ibex::System & sys) {
         return nullptr;  // not square
     }
 }
+#endif
 
 ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(
     unordered_set<Enode *> const & s) {
@@ -399,6 +402,7 @@ ostream & contractor_ibex_hc4::display(ostream & out) const {
     return out;
 }
 
+#ifdef USE_CLP
 contractor_ibex_polytope::contractor_ibex_polytope(
     double const prec, vector<Enode *> const & vars,
     vector<shared_ptr<nonlinear_constraint>> const & ctrs)
@@ -527,6 +531,7 @@ ostream & contractor_ibex_polytope::display(ostream & out) const {
     out << ")";
     return out;
 }
+#endif
 
 contractor mk_contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> const ctr,
                                      bool const use_cache) {
@@ -551,8 +556,10 @@ contractor mk_contractor_ibex_hc4(vector<Enode *> const & vars,
                                   vector<shared_ptr<nonlinear_constraint>> const & ctrs) {
     return contractor(make_shared<contractor_ibex_hc4>(vars, ctrs));
 }
+#ifdef USE_CLP
 contractor mk_contractor_ibex_polytope(double const prec, vector<Enode *> const & vars,
                                        vector<shared_ptr<nonlinear_constraint>> const & ctrs) {
     return contractor(make_shared<contractor_ibex_polytope>(prec, vars, ctrs));
 }
+#endif
 }  // namespace dreal

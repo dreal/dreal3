@@ -1,6 +1,7 @@
 #pragma once
 #cmakedefine USE_GLPK
 #cmakedefine USE_NLOPT
+#cmakedefine USE_CLP
 #cmakedefine SUPPORT_ODE
 #cmakedefine LOGGING
 #cmakedefine PYTHONLIBS_FOUND

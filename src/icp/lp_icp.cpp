@@ -47,11 +47,11 @@ using std::vector;
 #ifdef USE_GLPK
 
 #if defined(__GNUC__)
-#  define UNUSED __attribute__ ((unused))
+#define UNUSED __attribute__((unused))
 #elif defined(_MSC_VER)
-#  define UNUSED __pragma(warning(suppress:4100))
+#define UNUSED __pragma(warning(suppress : 4100))
 #else
-#  define UNUSED
+#define UNUSED
 #endif
 
 namespace dreal {

@@ -50,7 +50,9 @@ enum class contractor_kind {
     IBEX_FWDBWD,
     IBEX_NEWTON,
     IBEX_HC4,
+#ifdef USE_CLP
     IBEX_POLYTOPE,
+#endif
     INT,
     EVAL,
     CACHE,

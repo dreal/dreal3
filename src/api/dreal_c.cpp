@@ -24,6 +24,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <utility>
 #include <vector>
+#include "./dreal_config.h"
 #include "./version.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/cnfizers/Tseitin.h"
@@ -74,10 +75,12 @@ void dreal_set_verbosity(dreal_context c, int v) {
     }
 }
 
+#ifdef USE_CLP
 void dreal_use_polytope(dreal_context c) {
     OpenSMTContext * c_ = static_cast<OpenSMTContext *>(c);
     c_->getConfig().nra_polytope = true;
 }
+#endif
 
 void dreal_set_precision(dreal_context c, const double p) {
     assert(c);

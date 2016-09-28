@@ -224,9 +224,7 @@ struct SMTConfig
   bool         nra_ncbt;                      // use nonchronological backtracking in icp
   bool         nra_mcts;                      // use monte carlo tree search in icp
   bool         nra_mcss;                      // use monte carlo stack search in icp
-#ifdef USE_NLOPT
   bool         nra_local_opt;                 // use local optimization to refine counter example (for exist-forall problems)
-#endif
   bool         nra_worklist_fp;               // use worklist fixpoint algorithm
   bool         nra_multiprune;                // try the top k dimensions to branch on, and see which contract the most before selecting a branch
   bool         nra_multiheuristic;            // run two heuristics simultaneously, return when only one of them completes
@@ -247,11 +245,9 @@ struct SMTConfig
 
   void inc_icp_decisions() { nra_icp_decisions++; }
   int  icp_decisions() { return nra_icp_decisions; }
-#ifdef USE_GLPK
   bool         nra_lp;                        // use a combination of ICP and LP
   bool         nra_lp_prune;                  // use the LP solver for pruning
   bool         nra_linear_only;               // use glpk on linear only problems
-#endif
   bool         nra_scoring;                   // use ICP that use scoring to branch
 
   void setODEFwdTimeout(double const ode_fwd_timeout);
