@@ -34,7 +34,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 ################################################################
 # CXX Flags
 ################################################################
-set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -mfpmath=sse -msse -msse2")
+set(DREAL_EXTRA_CXX_FLAGS "-mfpmath=sse -msse -msse2")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(DREAL_EXTRA_CXX_FLAGS "${DREAL_EXTRA_CXX_FLAGS} -ffloat-store -frounding-math")
 elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -50,7 +50,7 @@ endif()
 ################################################################
 # Initialize CXXFLAGS.
 ################################################################
-set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++11 ${DREAL_EXTRA_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS                "-Wall -Wextra -Wno-deprecated-register ${DREAL_EXTRA_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG          "-g -DDREAL_DEBUG -DDREAL_TRACE -fno-inline")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
@@ -91,20 +91,6 @@ if(BUILD_STATIC_BIN)
   endif()
 endif()
 
-if(APPLE)
-  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-  set(CMAKE_MACOSX_RPATH ON)
-  set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
-  set(CMAKE_SKIP_BUILD_RPATH FALSE)
-  set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-  if("${isSystemDir}" STREQUAL "-1")
-    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  endif()
-endif()
-
 ################################################################
 # Shared Lib
 ################################################################
@@ -135,53 +121,6 @@ if(TESTCOV)
   set(CMAKE_CXX_FLAGS_DEBUG        "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fprofile-arcs -ftest-coverage --coverage")
   setup_target_for_coverage(cov ${DREAL_SOURCE_DIR}/script/run_tests.sh coverage)
 endif()
-
-################################################################
-# Compiler-specific C++11 activation.
-################################################################
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-  execute_process(
-    COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-  if (NOT (GCC_VERSION VERSION_GREATER 4.8 OR GCC_VERSION VERSION_EQUAL 4.8))
-    message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.8 or greater.")
-  endif ()
-elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    MESSAGE(STATUS "In OSX, clang requires -stdlib=libc++ to support C++11")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    set(DREAL_EXTRA_LINKER_FLAGS "${DREAL_EXTRA_LINKER_FLAGS} -stdlib=libc++")
-  endif ()
-else ()
-  message(FATAL_ERROR "Your C++ compiler does not support C++11.")
-endif ()
-
-################################################################
-# Fix Paths
-################################################################
-SET(CMAKE_SYSTEM_INCLUDE_PATH ${CMAKE_SYSTEM_INCLUDE_PATH}
-  /usr/local/include /opt/local/include
-  /usr/include/w32api
-  /usr/X11R6/include /usr/include/X11
-  /usr/pkg/include
-  /opt/csw/include /opt/include
-  /usr/include /include
-  )
-SET(CMAKE_SYSTEM_LIBRARY_PATH ${CMAKE_SYSTEM_LIBRARY_PATH}
-  $ENV{LD_LIBRARY_PATH}
-  /usr/local/lib /opt/local/lib
-  /usr/lib/w32api
-  /usr/X11R6/lib /usr/lib/X11
-  /usr/pkg/lib
-  /opt/csw/lib /opt/lib
-  /usr/lib /lib
-  )
-SET(CMAKE_SYSTEM_PROGRAM_PATH ${CMAKE_SYSTEM_PROGRAM_PATH}
-  /usr/local/bin /usr/pkg/bin /usr/bin /sbin /bin
-  )
-SET(CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
-  ${CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES}
-  /usr/lib64 /usr/lib32 /usr/lib /lib
-  )
 
 ################################################################
 # tcmalloc
@@ -222,6 +161,7 @@ function(JOIN VALUES GLUE OUTPUT)
 endfunction()
 
 JOIN("${CMAKE_CXX_FLAGS}" "," EXTERNAL_CXX_FLAGS)
+SET(EXTERNAL_CXX_FLAGS "${EXTERNAL_CXX_FLAGS} -std=c++11")
 JOIN("${DREAL_EXTRA_LINKER_FLAGS}" "," EXTERNAL_LD_FLAGS)
 
 ################################################################
@@ -676,26 +616,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/ibex)
 set(EXTERNAL_LD_FLAGS "-L${CMAKE_CURRENT_BINARY_DIR}/lib")
 
 ################################################################
-# EGLIBC (Optional)
-################################################################
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  if("${EGLIBCPATH}" MATCHES ".+")
-    message(STATUS "Use EGLIBC Installed at ${EGLIBCPATH}")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--rpath=${EGLIBCPATH}:/usr/lib/gcc/x86_64-linux-gnu/4.8:/usr/lib:/usr/lib/x86_64-linux-gnu/")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--dynamic-linker=${EGLIBCPATH}/lib/ld-linux-x86-64.so.2")
-  else()
-    message(STATUS "Use built-in EGLIBC.")
-  endif()
-endif()
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--rpath=${DREAL_BINARY_DIR}/lib -Wl,--no-as-needed")
-endif()
-if(APPLE)
-  list(APPEND CMAKE_SHARED_LINKER_FLAGS "-L ${DREAL_BINARY_DIR}/lib -Xlinker -rpath -Xlinker `pwd`")
-endif()
-
-################################################################
 # Include Directories
 ################################################################
 include_directories(${DREAL_SOURCE_DIR})
@@ -704,6 +624,7 @@ configure_file("${DREAL_SOURCE_DIR}/version.h.in" "${DREAL_BINARY_DIR}/version.h
 configure_file("${DREAL_SOURCE_DIR}/config.h.in" "${DREAL_BINARY_DIR}/dreal_config.h")
 include_directories("${DREAL_BINARY_DIR}")
 add_subdirectory(opensmt)
+
 ################################################################
 # PARSER: SMT2
 ################################################################
@@ -1044,7 +965,11 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/pkg-config.pc.cmake"
 ########################################
 set(DREAL_INCLUDE_DIR include/dreal)
 set(DREAL_LIBRARY_DIR lib/dreal)
-set(DREAL_LIBRARIES dreal ibex ClpSolver Clp CoinUtils capd adept)
+set(DREAL_LIBRARIES dreal ibex Clp CoinUtils capd adept)
+if(FOUND_CLP)
+    list(APPEND DREAL_LIBRARIES Clp)
+    list(APPEND DREAL_LIBRARIES CoinUtils)
+endif()
 if(USE_NLOPT)
     list(APPEND DREAL_LIBRARIES nlopt)
 endif()
@@ -1127,5 +1052,4 @@ endif()
 # Add a distclean target to the Makefile
 ADD_CUSTOM_TARGET(distclean
   COMMAND ${CMAKE_BUILD_TOOL} "clean"
-  COMMAND ${CMAKE_COMMAND} -P "${CMAKE_MODULE_PATH}/distclean.cmake"
-)
+  COMMAND ${CMAKE_COMMAND} -P "${CMAKE_MODULE_PATH}/distclean.cmake")
