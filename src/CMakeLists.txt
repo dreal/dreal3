@@ -505,58 +505,31 @@ endif()
 ################################################################
 # External: CLP
 ################################################################
-if(USE_LOCAL_THIRD_PARTY)
-    ExternalProject_Add(CLP
-        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-        URL ${CMAKE_SOURCE_DIR}/third_party/clp-1.16.zip
-        CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/CLP/configure
-            CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=--std=c++11 CC=${CMAKE_C_COMPILER}
-            --prefix=${CMAKE_CURRENT_BINARY_DIR}
-            ${SHARED_LIB_CONFIG_COMMAND}
-            --enable-static
-            --with-blas=BUILD
-            --with-lapack=BUILD
-            --disable-bzlib
-            --disable-zlib
-        BUILD_COMMAND make
-        INSTALL_COMMAND make install)
-else(USE_LOCAL_THIRD_PARTY)
-    ExternalProject_Add(CLP
-        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-        GIT_REPOSITORY https://github.com/dreal-deps/clp-1.16.git
-        GIT_TAG ebf1abf25d337df1e4ba52b70a25f006c7e8b7f0
-        UPDATE_COMMAND ""
-        CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/CLP/configure
-            CXX=${CMAKE_CXX_COMPILER}
-            CXXFLAGS=--std=c++11
-            CC=${CMAKE_C_COMPILER}
-            --prefix=${CMAKE_CURRENT_BINARY_DIR}
-            ${SHARED_LIB_CONFIG_COMMAND}
-            --enable-static
-            --with-blas=BUILD
-            --with-lapack=BUILD
-            --disable-bzlib
-            --disable-zlib
-        BUILD_COMMAND make
-        LOG_DOWNLOAD 1
-        LOG_UPDATE 1
-        LOG_CONFIGURE 1
-        LOG_BUILD 1
-        LOG_TEST 1
-        INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/coin && mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/share/coin/doc/CoinUtils && make install)
+find_package(CLP)
+if(CLP_FOUND)
+    set(USE_CLP ON)
+    set(EXTRA_LIBS ${CLP_LIBRARIES} ${EXTRA_LIBS})
+    include_directories(${CLP_INCLUDE_DIRS})
+else()
+    unset(CLP_LIBRARIES)
 endif()
-set(EXTRA_LIBS "ClpSolver" "Clp" "CoinUtils" ${EXTRA_LIBS})
 
 ################################################################
 # External: ibex
 ################################################################
 if(CMAKE_BUILD_TYPE MATCHES "DEBUG")
-  set(IBEX_DEBUG_MODE "--with-debug")
+    set(IBEX_DEBUG_MODE "--with-debug")
+    message(STATUS "Use IBEX option ${IBEX_DEBUG_MODE}")
+endif()
+
+if(NOT CLP_FOUND)
+    set(IBEX_USE_CLP "--without-lp")
+    message(STATUS "Use IBEX option ${IBEX_USE_CLP}")
 endif()
 
 if(USE_LOCAL_THIRD_PARTY)
   ExternalProject_Add(IBEX
-    DEPENDS CLP FILIB
+    DEPENDS FILIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     URL ${CMAKE_SOURCE_DIR}/third_party/ibex-lib.zip
     BUILD_IN_SOURCE 1
@@ -564,26 +537,26 @@ if(USE_LOCAL_THIRD_PARTY)
         ${CMAKE_CURRENT_BINARY_DIR}/external/src/IBEX/waf configure
         --with-optim
         --prefix=${CMAKE_CURRENT_BINARY_DIR}
-        --with-clp=${CMAKE_CURRENT_BINARY_DIR}
         --with-filib=${CMAKE_CURRENT_BINARY_DIR}
+        ${IBEX_USE_CLP}
         ${IBEX_DEBUG_MODE}
         ${SHARED_LIB_IBEX_COMMAND}
     BUILD_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/IBEX/waf build
     INSTALL_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/IBEX/waf install)
 else()
   ExternalProject_Add(IBEX
-    DEPENDS CLP FILIB
+    DEPENDS FILIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/ibex-lib.git
-    GIT_TAG ff03acd7b1f4d7c2f20665786376b1ccfe9296f5
+    GIT_TAG eeb6d39d077c9fddb7a9e543798e53a573828f41
     UPDATE_COMMAND ""
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=--std=c++11 CC=${CMAKE_C_COMPILER}
         ${CMAKE_CURRENT_BINARY_DIR}/external/src/IBEX/waf configure
         --with-optim
         --prefix=${CMAKE_CURRENT_BINARY_DIR}
-        --with-clp=${CMAKE_CURRENT_BINARY_DIR}
         --with-filib=${CMAKE_CURRENT_BINARY_DIR}
+        ${IBEX_USE_CLP}
         ${IBEX_DEBUG_MODE}
         ${SHARED_LIB_IBEX_COMMAND}
     BUILD_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/IBEX/waf build
@@ -1050,7 +1023,10 @@ include(CPack)
 SET(PKG_CONFIG_LIBDIR "\${prefix}/lib/dreal")
 SET(PKG_CONFIG_INCLUDEDIR "\${prefix}/include/dreal")
 SET(PROJECT_DESCRIPTION "nonlinear SMT Solver")
-SET(PKG_CONFIG_LIBS "-L\${libdir} -ldreal -libex -lClpSolver -lClp -lCoinUtils -lcapd -ladept")
+SET(PKG_CONFIG_LIBS "-L\${libdir} -ldreal -libex -lcapd -ladept")
+if(FOUND_CLP)
+    SET(PKG_CONFIG_LIBS "${PKG_CONFIG_LIBS} -lClp -lCoinUtils")
+endif()
 if(USE_NLOPT)
     SET(PKG_CONFIG_LIBS "${PKG_CONFIG_LIBS} -lnlopt")
 endif()
@@ -1138,8 +1114,8 @@ if(APPLE AND BUILD_SHARED_LIB)
     endif()
     add_custom_target(shared_lib
         COMMAND echo "Building Shared Library..."
-        COMMAND cd lib && ${CMAKE_CXX_COMPILER} -shared -Wl,-all_load libdreal.a libcapd.a libibex.a ${NLOPT_LIB_NAME} libprim.a libClp.a libClpSolver.a libCoinUtils.a ${GLPK_LIB_NAME} -o libdreal.dylib
-        DEPENDS dreal CAPD4 IBEX FILIB CLP PICOSAT)
+        COMMAND cd lib && ${CMAKE_CXX_COMPILER} -shared -Wl,-all_load libdreal.a libcapd.a libibex.a ${NLOPT_LIB_NAME} libprim.a ${CLP_LIBRARIES} ${GLPK_LIB_NAME} -o libdreal.dylib
+        DEPENDS dreal CAPD4 IBEX FILIB PICOSAT)
     if(USE_GLPK)
         add_dependencies(shared_lib GLPK)
     endif()
