@@ -260,7 +260,7 @@ if(USE_GLPK)
             ExternalProject_Add(GLPK
                 PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
                 GIT_REPOSITORY https://github.com/dreal-deps/glpk.git
-                GIT_TAG f67c65c337b71a83d70b5c80a51ec892e2269da1
+                GIT_TAG 44ea53eed46d26e1c0ee815ee3e862ba181b1327
                 PATCH_COMMAND autoreconf -if
                 UPDATE_COMMAND ""
                 CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/GLPK/configure
