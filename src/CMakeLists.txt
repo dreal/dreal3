@@ -288,32 +288,18 @@ endif()
 # External: NLOPT
 ################################################################
 if(USE_NLOPT)
-    if(USE_LOCAL_THIRD_PARTY)
-        ExternalProject_Add(NLOPT
-            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-            URL ${CMAKE_SOURCE_DIR}/third_party/nlopt.zip
-            PATCH_COMMAND autoreconf -if
-            CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/NLOPT/configure
-                CC=${CMAKE_C_COMPILER}
-                CXX=${CMAKE_CXX_COMPILER}
-                "CXXFLAGS=${EXTERNAL_CXX_FLAGS}"
-                "LDFLAGS=${EXTERNAL_LD_FLAGS}"
-                --prefix=${CMAKE_CURRENT_BINARY_DIR}
-                ${SHARED_LIB_CONFIG_COMMAND}
-                --without-guile
-                --without-python
-                --without-octave
-                --without-matlab
-            BUILD_COMMAND make
-            INSTALL_COMMAND make install)
+    find_package(NLOPT QUIET)
+    if (NLOPT_FOUND)
+        message(STATUS "Found NLOPT ${NLOPT_VERSION_STRING} in system")
+        include_directories(NLOPT_INCLUDE_DIR)
+        set(EXTRA_LIBS ${NLOPT_LIBRARIES} ${EXTRA_LIBS})
     else()
-        ExternalProject_Add(NLOPT
-            PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
-            GIT_REPOSITORY https://github.com/dreal-deps/nlopt.git
-            GIT_TAG dbf99e4bcea03c68063299ae77657a71151aa23a
-            PATCH_COMMAND autoreconf -if
-            UPDATE_COMMAND ""
-            CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/NLOPT/configure
+        if(USE_LOCAL_THIRD_PARTY)
+            ExternalProject_Add(NLOPT
+                PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+                URL ${CMAKE_SOURCE_DIR}/third_party/nlopt.zip
+                PATCH_COMMAND autoreconf -if
+                CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/NLOPT/configure
                 CC=${CMAKE_C_COMPILER}
                 CXX=${CMAKE_CXX_COMPILER}
                 "CXXFLAGS=${EXTERNAL_CXX_FLAGS}"
@@ -324,17 +310,38 @@ if(USE_NLOPT)
                 --without-python
                 --without-octave
                 --without-matlab
-            BUILD_COMMAND make
-            BUILD_IN_SOURCE 1
-            LOG_DOWNLOAD 1
-            LOG_UPDATE 1
-            LOG_CONFIGURE 1
-            LOG_BUILD 1
-            LOG_TEST 1
-            LOG_INSTALL 1
-            INSTALL_COMMAND make install)
+                BUILD_COMMAND make
+                INSTALL_COMMAND make install)
+        else()
+            ExternalProject_Add(NLOPT
+                PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
+                GIT_REPOSITORY https://github.com/dreal-deps/nlopt.git
+                GIT_TAG dbf99e4bcea03c68063299ae77657a71151aa23a
+                PATCH_COMMAND autoreconf -if
+                UPDATE_COMMAND ""
+                CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/NLOPT/configure
+                CC=${CMAKE_C_COMPILER}
+                CXX=${CMAKE_CXX_COMPILER}
+                "CXXFLAGS=${EXTERNAL_CXX_FLAGS}"
+                "LDFLAGS=${EXTERNAL_LD_FLAGS}"
+                --prefix=${CMAKE_CURRENT_BINARY_DIR}
+                ${SHARED_LIB_CONFIG_COMMAND}
+                --without-guile
+                --without-python
+                --without-octave
+                --without-matlab
+                BUILD_COMMAND make
+                BUILD_IN_SOURCE 1
+                LOG_DOWNLOAD 1
+                LOG_UPDATE 1
+                LOG_CONFIGURE 1
+                LOG_BUILD 1
+                LOG_TEST 1
+                LOG_INSTALL 1
+                INSTALL_COMMAND make install)
+        endif()
+        set(EXTRA_LIBS "nlopt" ${EXTRA_LIBS})
     endif()
-    set(EXTRA_LIBS "nlopt" ${EXTRA_LIBS})
 endif()
 
 ################################################################
@@ -803,23 +810,21 @@ endif()
 
 add_dependencies(dop PICOSAT)
 add_dependencies(dop IBEX)
-if(USE_NLOPT)
-    add_dependencies(dop NLOPT)
-endif()
 add_dependencies(dop ADEPT)
 add_dependencies(dop EASYLOGGINGPP)
 add_dependencies(dop EZOPTIONPARSER)
 add_dependencies(dop JSON)
 add_dependencies(dreal PICOSAT)
 add_dependencies(dreal IBEX)
-if(USE_NLOPT)
-    add_dependencies(dreal NLOPT)
-endif()
 add_dependencies(dreal ADEPT)
 add_dependencies(dreal EASYLOGGINGPP)
 add_dependencies(dreal EZOPTIONPARSER)
 add_dependencies(dreal JSON)
 
+if(USE_NLOPT AND (NOT NLOPT_FOUND))
+    add_dependencies(dreal NLOPT)
+    add_dependencies(dop NLOPT)
+endif()
 if(USE_GLPK AND (NOT GLPK_FOUND))
     add_dependencies(dreal GLPK)
     add_dependencies(dop GLPK)
