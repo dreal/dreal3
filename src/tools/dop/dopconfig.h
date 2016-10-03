@@ -56,9 +56,11 @@ private:
         m_local_opt = b;
 #ifndef USE_NLOPT
         if (m_local_opt) {
-            cerr << "--local-opt option is used, but this option is not available in this build. "
-                 << endl
-                 << "To use it, please configure dReal with -DUSE_NLOPT=ON cmake option." << endl;
+            std::cerr
+                << "--local-opt option is used, but this option is not available in this build. "
+                << std::endl
+                << "To use it, please configure dReal with -DUSE_NLOPT=ON cmake option."
+                << std::endl;
             m_local_opt = false;
         }
 #endif
