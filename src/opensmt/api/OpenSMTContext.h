@@ -223,7 +223,7 @@ public:
   inline void setPrecision (const double d ) {
       config.nra_precision = d;
   }
-  inline void setLocalOpt (const bool b ) {
+  inline void setLocalOpt (bool b ) {
 #ifndef USE_NLOPT
     if (b) {
       std::cerr << "--local-opt option is not available in this build. " << std::endl
