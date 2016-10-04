@@ -255,8 +255,7 @@ Enode * wrap_enode_including_forall_vars(OpenSMTContext * ctx, Enode * const e) 
     // Case 1)
     //    !e  -->  ! wrap_enode_including_forall_vars(e)
     if (e->isNot()) {
-        DREAL_LOG_FATAL << "wrap_enode_including_forall_vars: case 1 -- not";
-        return ctx->mkNot(wrap_enode_including_forall_vars(ctx, e));
+        return ctx->mkNot(ctx->mkCons(wrap_enode_including_forall_vars(ctx, e->get1st())));
     }
     // Case 2)
     //    e_1 /\ ... /\ e_n
