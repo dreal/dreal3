@@ -420,7 +420,7 @@ if(SUPPORT_ODE)
       DEPENDS FILIB
       PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
       GIT_REPOSITORY https://github.com/dreal-deps/capdDynSys-4.0.git
-      GIT_TAG f56751ab46849af5b9d21233bd4847db5d01e9d5
+      GIT_TAG f39f3942dd1bd4899821316efc0ca55483ab5071
       PATCH_COMMAND autoreconf -if
       UPDATE_COMMAND ""
       CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/external/src/CAPD4/configure
