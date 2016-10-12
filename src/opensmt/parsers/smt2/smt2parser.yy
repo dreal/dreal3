@@ -190,6 +190,20 @@ command: '(' TK_SETLOGIC symbol ')'
              double const prec = dreal::stod_tonearest($8); free($8);
              parser_ctx->DeclareFun( $3, $6, prec ); free( $3 );
          }
+       | '(' TK_DECLAREFUN symbol '(' ')' sort TK_LB spec_const TK_RB TK_LB spec_const TK_COMMA spec_const TK_RB ')'
+         {
+             // (declare-fun vname () Real [0.001] [lb, ub]) : precision for vname = 0.001
+             double const prec = dreal::stod_tonearest($8); free($8);
+             parser_ctx->DeclareFun( $3, $6, prec );
+             Enode * e = parser_ctx->mkVar($3);
+             free( $3 );
+             double const lb = dreal::stod_downward($11); free($11);
+             double const ub = dreal::stod_upward($13); free($13);
+             e->setDomainLowerBound(lb);
+             e->setDomainUpperBound(ub);
+             e->setValueLowerBound(lb);
+             e->setValueUpperBound(ub);
+         }
        | '(' TK_DECLAREFUN TK_EXISTS symbol '(' ')' sort TK_LB spec_const TK_COMMA spec_const TK_RB ')'
          {
            parser_ctx->DeclareFun( $4, $7 );
