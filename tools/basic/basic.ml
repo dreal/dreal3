@@ -59,7 +59,7 @@ type exp =
    | LetF of ((string * formula) list * formula)
    | LetE of ((string * exp) list * formula)
    | ForallT of exp * exp * exp * formula
-   
+
 let rec collect_update_assignments_in_formula (f : formula) : (var * formula) Set.t =
   match f with
     True -> Set.empty
@@ -67,7 +67,7 @@ let rec collect_update_assignments_in_formula (f : formula) : (var * formula) Se
   | Not f' -> collect_update_assignments_in_formula f'
   | And fs -> collect_update_assignments_in_formulas fs
   | Or  fs -> collect_update_assignments_in_formulas fs
-  | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) | Gtp (e1, e2, _) | Ltp (e1, e2, _) | Gep (e1, e2, _) | Lep (e1, e2, _) | Eqp (e1, e2, _) -> 
+  | Gt (e1, e2) | Lt (e1, e2) | Ge (e1, e2) | Le (e1, e2) | Eq (e1, e2) | Gtp (e1, e2, _) | Ltp (e1, e2, _) | Gep (e1, e2, _) | Lep (e1, e2, _) | Eqp (e1, e2, _) ->
     begin
       let vars = contains_update_vars_list [e1;e2] in
       match Set.is_empty (contains_update_vars_list [e1;e2]) with
@@ -84,7 +84,7 @@ and contains_update_vars_list (es : exp list) =
 and collect_update_assignments_in_formulas (fs : formula list) =
   List.reduce Set.union (List.map collect_update_assignments_in_formula fs)
 and contains_update_vars (e : exp) : var Set.t = match e with
-    Var x -> 
+    Var x ->
       begin
         match String.ends_with x "'" with
           | true -> Set.singleton x
@@ -138,7 +138,7 @@ and collect_vars_in_exp (e : exp) : var Set.t = match e with
   | Sinh e' | Cosh e' | Tanh e' | Safesqrt e' -> collect_vars_in_exp e'
   | Integral (n, t, x0s, flow) ->
      Set.add t (Set.of_list x0s)
-     
+
 let make_or (fs : formula list) =
   let reduced_fs_opt = List.fold_left
                          (fun fs f -> match (fs, f) with
@@ -611,14 +611,9 @@ let rec print_exp out =
                          out
                          xs
   | Num n ->
-     let str_n = Printf.sprintf "%g" n in
-     let str_n' =
-       if String.ends_with str_n "." then
-         str_n ^ "0"
-       else
-         str_n
-     in
-     String.print out str_n'
+     let max_digits10_IEE754_double = 17 in
+     let res = Printf.sprintf "%0.*g" max_digits10_IEE754_double n in
+     String.print out res
   | Neg e' -> print_exps "-" [Num 0.0; e']
   | Add el -> print_exps "+" el
   | Sub el -> print_exps "-" el
