@@ -23,8 +23,8 @@ let main_routine vardecl_list mode_list init goal ginv =
   let modemap = Modemap.of_list mode_list in
   let (init_mode, init_formula) = init in
   Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv, "singleton", 0, [])
-  
-let remove_time (singleton: Hybrid.t) = 
+
+let remove_time (singleton: Hybrid.t) =
   let vm = Map.remove "time" (Hybrid.vardeclmap singleton) in
   let mm = Hybrid.modemap singleton in
   let init_id = Hybrid.init_id singleton in
@@ -35,8 +35,8 @@ let remove_time (singleton: Hybrid.t) =
   let num_id = Hybrid.numid singleton in
   let labellist = Hybrid.labellist singleton in
   Hybrid.make (vm, mm, init_id, init_formula, goals, ginvs, name, num_id, labellist)
-  
-let get_network (singleton: Hybrid.t) = 
+
+let get_network (singleton: Hybrid.t) =
   (* analyze :: [string, [(string, string)]]*)
   let base = "singleton" in
   let inst = "singleton0" in
@@ -179,33 +179,118 @@ exp:
      }
  | FNUM                   { Basic.Num $1 }
  | LP exp RP              { $2 }
- | exp PLUS exp           { Basic.Add [$1; $3] }
- | exp MINUS exp          { Basic.Sub [$1; $3] }
+ | exp PLUS exp           {
+         match ($1, $3) with
+           (Basic.Num n1, Basic.Num n2) -> Basic.Num (n1 +. n2)
+         | _ -> Basic.Add [$1; $3]
+       }
+ | exp MINUS exp {
+         match ($1, $3) with
+           (Basic.Num n1, Basic.Num n2) -> Basic.Num (n1 -. n2)
+         | _ -> Basic.Sub [$1; $3]
+       }
  | PLUS exp %prec UNARY   { $2 }
  | MINUS exp %prec UNARY  {
    match $2 with
    | Basic.Num n -> Basic.Num (0.0 -. n)
+   | Basic.Neg e' -> e'
    | _ -> Basic.Neg $2
  }
- | exp AST exp            { Basic.Mul [$1; $3] }
- | exp SLASH exp          { Basic.Div ($1, $3) }
- | exp CARET exp          { Basic.Pow ($1, $3) }
- | SQRT LP exp RP         { Basic.Sqrt $3 }
- | ABS LP exp RP          { Basic.Abs $3 }
- | LOG  LP exp RP         { Basic.Log  $3 }
- | EXP  LP exp RP         { Basic.Exp  $3 }
- | SIN  LP exp RP         { Basic.Sin  $3 }
- | COS  LP exp RP         { Basic.Cos  $3 }
- | TAN  LP exp RP         { Basic.Tan  $3 }
- | ASIN LP exp RP         { Basic.Asin $3 }
- | ACOS LP exp RP         { Basic.Acos $3 }
- | ATAN LP exp RP         { Basic.Atan $3 }
- | ATAN2 LP exp COMMA exp RP { Basic.Atan2 ($3, $5) }
- | MIN  LP exp COMMA exp RP  { Basic.Min ($3, $5) }
- | MAX  LP exp COMMA exp RP  { Basic.Max ($3, $5) }
- | SINH LP exp RP         { Basic.Sinh $3 }
- | COSH LP exp RP         { Basic.Cosh $3 }
- | TANH LP exp RP         { Basic.Tanh $3 }
+ | exp AST exp {
+         match ($1, $3) with
+           (Basic.Num n1, Basic.Num n2) -> Basic.Num (n1 *. n2)
+         | _ -> Basic.Mul [$1; $3]
+       }
+ | exp SLASH exp          {
+         match ($1, $3) with
+           (Basic.Num n1, Basic.Num n2) -> Basic.Num (n1 /. n2)
+         | _ -> Basic.Div ($1, $3)
+       }
+ | exp CARET exp          {
+         match ($1, $3) with
+           (Basic.Num n1, Basic.Num n2) -> Basic.Num (n1 ** n2)
+         | _ -> Basic.Pow ($1, $3)
+       }
+ | SQRT LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (sqrt n)
+          | _ -> Basic.Sqrt $3
+        }
+ | ABS LP exp RP          {
+          match $3 with
+            Basic.Num n -> Basic.Num (abs_float n)
+          | _ -> Basic.Abs $3
+       }
+ | LOG  LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (log n)
+          | _ -> Basic.Log  $3
+        }
+ | EXP  LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (exp n)
+          | _ -> Basic.Exp $3
+        }
+ | SIN  LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (sin n)
+          | _ -> Basic.Sin $3
+        }
+ | COS  LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (cos n)
+          | _ -> Basic.Cos $3
+        }
+ | TAN  LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (tan n)
+          | _ -> Basic.Tan $3
+        }
+ | ASIN LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (asin n)
+          | _ -> Basic.Asin $3
+        }
+ | ACOS LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (acos n)
+          | _ -> Basic.Acos $3
+        }
+ | ATAN LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (atan n)
+          | _ -> Basic.Atan $3
+        }
+ | ATAN2 LP exp COMMA exp RP {
+           match ($3, $5) with
+            (Basic.Num n1, Basic.Num n2) -> Basic.Num (atan2 n1 n2)
+           | _ -> Basic.Atan2 ($3, $5)
+         }
+ | MIN  LP exp COMMA exp RP  {
+          match ($3, $5) with
+            (Basic.Num n1, Basic.Num n2) -> Basic.Num (min n1 n2)
+          | _ -> Basic.Min ($3, $5)
+        }
+ | MAX  LP exp COMMA exp RP  {
+          match ($3, $5) with
+            (Basic.Num n1, Basic.Num n2) -> Basic.Num (max n1 n2)
+          | _ -> Basic.Max ($3, $5)
+        }
+ | SINH LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (sinh n)
+          | _ -> Basic.Sinh $3
+        }
+ | COSH LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (cosh n)
+          | _ -> Basic.Cosh $3
+        }
+ | TANH LP exp RP         {
+          match $3 with
+            Basic.Num n -> Basic.Num (tanh n)
+          | _ -> Basic.Tanh $3
+        }
  | ID LP exp_list RP      {
         let id = $1 in
         let arg_list = $3 in
