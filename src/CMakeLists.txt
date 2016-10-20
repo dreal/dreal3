@@ -801,6 +801,7 @@ add_subdirectory(contractor)
 add_subdirectory(tools/dop)
 add_subdirectory(api)
 add_subdirectory(optimizer)
+add_subdirectory(hybrid)
 
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${DREAL_BINARY_DIR}/lib")
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${DREAL_BINARY_DIR}/lib")
