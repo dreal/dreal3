@@ -100,9 +100,6 @@ endif()
 if(BUILD_STATIC_BIN AND BUILD_SHARED_LIBS)
   message(FATAL_ERROR "Can't handle both of BUILD_STATIC_BIN and BUILD_SHARED_LIBS options." )
 endif()
-if(APPLE AND BUILD_SHARED_LIBS)
-  message(STATUS "OSX + BUILD_SHARED_LIB: Run target 'shared_lib' to generate lib/libdreal.dylib")
-endif()
 if((NOT APPLE) AND BUILD_SHARED_LIBS)
   set(SHARED_LIB_CONFIG_COMMAND "--enable-shared")
   set(SHARED_LIB_IBEX_COMMAND   "--enable-shared")
@@ -1051,7 +1048,7 @@ if(APPLE AND BUILD_SHARED_LIBS)
     if(USE_NLOPT)
         set(NLOPT_LIB_NAME "libnlopt.a")
     endif()
-    add_custom_target(shared_lib
+    add_custom_target(shared_lib ALL
         COMMAND echo "Building Shared Library..."
         COMMAND cd lib && ${CMAKE_CXX_COMPILER} -shared -Wl,-all_load libdreal.a libcapd.a libibex.a ${NLOPT_LIB_NAME} libprim.a ${CLP_LIBRARIES} ${GLPK_LIB_NAME} -o libdreal.dylib
         DEPENDS dreal CAPD4 IBEX FILIB PICOSAT)
