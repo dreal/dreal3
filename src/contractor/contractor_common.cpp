@@ -18,6 +18,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "contractor/contractor_common.h"
+
 #include <algorithm>
 #include <chrono>
 #include <functional>
@@ -37,6 +38,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
+#include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor_basic.h"
 #include "ibex/ibex.h"
@@ -66,6 +69,8 @@ using std::unordered_set;
 using std::vector;
 
 namespace dreal {
+
+#ifdef SUPPORT_ODE
 std::ostream & operator<<(std::ostream & out, ode_direction const & d) {
     switch (d) {
         case ode_direction::FWD:
@@ -77,6 +82,7 @@ std::ostream & operator<<(std::ostream & out, ode_direction const & d) {
     }
     return out;
 }
+#endif
 
 ostream & operator<<(ostream & out, contractor_cell const & c) { return c.display(out); }
 

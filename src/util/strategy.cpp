@@ -144,6 +144,7 @@ contractor default_strategy::build_contractor(box const & box,
         ctcs.push_back(mk_contractor_forall(box, forall_ctr));
     }
 
+#ifdef SUPPORT_ODE
     if (complete && ode_ctrs.size() > 0) {
         // Add ODE Contractors only for complete check
         // 2.5. Build GSL Contractors (using CAPD4)
@@ -237,6 +238,7 @@ contractor default_strategy::build_contractor(box const & box,
             }
         }
     }
+#endif
     if (complete) {
         // 2.7 Build Eval contractors
         vector<contractor> eval_ctcs;

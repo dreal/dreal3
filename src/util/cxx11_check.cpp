@@ -18,6 +18,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/cxx11_check.h"
+#include "./dreal_config.h"
 #include "contractor/contractor.h"
 #include "util/box.h"
 #include "util/static_warning.h"
@@ -34,11 +35,13 @@ void check_nothrow_move_constructible() {
                    "class dreal::box is not nothrow-move-constructible.");
     STATIC_WARNING(std::is_nothrow_move_constructible<contractor>::value,
                    "class dreal::contractor is not nothrow-move-constructible.");
+#ifdef SUPPORT_ODE
     STATIC_WARNING(std::is_nothrow_move_constructible<capd::interval>::value,
                    "class capd::Interval is not nothrow-move-constructible.");
     STATIC_WARNING(std::is_nothrow_move_constructible<capd::IVector>::value,
                    "class capd::IVector is not nothrow-move-constructible.");
     STATIC_WARNING(std::is_nothrow_move_constructible<capd::DVector>::value,
                    "class capd::DVector is not nothrow-move-constructible.");
+#endif
 }
 }  // namespace dreal

@@ -28,6 +28,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "constraint/constraint.h"
 #include "util/scoped_vec.h"
 #include "util/stacker.h"
+#include "util/thread_local.h"
 
 using std::endl;
 using std::get;

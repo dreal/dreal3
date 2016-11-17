@@ -72,9 +72,9 @@ enum class contractor_kind {
 
 #ifdef SUPPORT_ODE
 enum class ode_direction { FWD, BWD };
-#endif
 
 std::ostream & operator<<(std::ostream & out, ode_direction const & d);
+#endif
 
 class contractor_exception : public std::runtime_error {
 public:
