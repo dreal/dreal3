@@ -18,7 +18,9 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <cmath>
 #include <sstream>
+
 #include "util/fp.h"
 #include "egraph/Egraph.h"
 #include "common/LA.h"
@@ -845,7 +847,7 @@ Enode * Egraph::mkAbs (Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(fabs(arg->getValue()));
+      return mkNum(std::fabs(arg->getValue()));
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_ABS], args );
@@ -864,7 +866,10 @@ Enode * Egraph::mkPow (Enode * args)
     Enode * const arg1 = args->getCar();
     Enode * const arg2 = args->getCdr()->getCar();
     if (arg1->isConstant() && arg2->isConstant()) {
-      return mkNum(pow(arg1->getValue(), arg2->getValue()));
+      double const eval_result = std::pow(arg1->getValue(), arg2->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
     if (arg2->isConstant() && arg2->getValue() == 1) {
       // x ^ 1 = x
@@ -886,7 +891,10 @@ Enode * Egraph::mkSin              ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(sin(arg->getValue()));
+      double const eval_result = std::sin(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_SIN], args );
@@ -904,7 +912,10 @@ Enode * Egraph::mkCos              ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(cos(arg->getValue()));
+      double const eval_result = std::cos(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_COS], args );
@@ -922,7 +933,10 @@ Enode * Egraph::mkTan              ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(tan(arg->getValue()));
+      double const eval_result = std::tan(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_TAN], args );
@@ -940,7 +954,10 @@ Enode * Egraph::mkAsin              ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(asin(arg->getValue()));
+      double const eval_result = std::asin(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_ASIN], args );
@@ -958,7 +975,10 @@ Enode * Egraph::mkAcos              ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(acos(arg->getValue()));
+      double const eval_result = acos(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_ACOS], args );
@@ -976,7 +996,10 @@ Enode * Egraph::mkAtan              ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(atan(arg->getValue()));
+      double const eval_result = std::atan(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_ATAN], args );
@@ -994,7 +1017,10 @@ Enode * Egraph::mkSinh             ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(sinh(arg->getValue()));
+      double const eval_result = std::sinh(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_SINH ], args );
@@ -1012,7 +1038,10 @@ Enode * Egraph::mkCosh             ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(cosh(arg->getValue()));
+      double const eval_result = std::cosh(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_COSH ], args );
@@ -1030,7 +1059,10 @@ Enode * Egraph::mkTanh             ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(tanh(arg->getValue()));
+      double const eval_result = std::tanh(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_TANH ], args );
@@ -1049,7 +1081,10 @@ Enode * Egraph::mkAtan2             ( Enode * args)
     Enode * const arg1 = args->getCar();
     Enode * const arg2 = args->getCdr()->getCar();
     if (arg1->isConstant() && arg2->isConstant()) {
-      return mkNum(atan2(arg1->getValue(), arg2->getValue()));
+      double const eval_result = std::atan2(arg1->getValue(), arg2->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_ATAN2], args );
@@ -1068,7 +1103,7 @@ Enode * Egraph::mkMin             ( Enode * args)
     Enode * const arg1 = args->getCar();
     Enode * const arg2 = args->getCdr()->getCar();
     if (arg1->isConstant() && arg2->isConstant()) {
-      return mkNum(fmin(arg1->getValue(), arg2->getValue()));
+      return mkNum(std::fmin(arg1->getValue(), arg2->getValue()));
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_MIN], args );
@@ -1087,7 +1122,7 @@ Enode * Egraph::mkMax             ( Enode * args)
     Enode * const arg1 = args->getCar();
     Enode * const arg2 = args->getCdr()->getCar();
     if (arg1->isConstant() && arg2->isConstant()) {
-      return mkNum(fmax(arg1->getValue(), arg2->getValue()));
+      return mkNum(std::fmax(arg1->getValue(), arg2->getValue()));
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_MAX], args );
@@ -1109,9 +1144,15 @@ Enode * Egraph::mkMatan             ( Enode * args)
       if (v == 0) {
         return mkNum(1);
       } else if (v > 0) {
-        return mkNum(atan(sqrt(v) / sqrt(v)));
+        double const eval_result = std::atan(std::sqrt(v)) / std::sqrt(v);
+        if (!std::isnan(eval_result)) {
+          return mkNum(eval_result);
+        }
       } else {
-        return mkNum((log((1 + sqrt(-v)) / (1 - sqrt(-v)))) / (2 * sqrt(-v)));
+        double const eval_result = (std::log((1 + std::sqrt(-v)) / (1 - std::sqrt(-v)))) / (2 * std::sqrt(-v));
+        if (!std::isnan(eval_result)) {
+          return mkNum(eval_result);
+        }
       }
     }
   }
@@ -1132,7 +1173,10 @@ Enode * Egraph::mkSafeSqrt            ( Enode * args)
     if (arg->isConstant()) {
       double const v = arg->getValue();
       if (v >= 0.0) {
-        return mkNum(v);
+        double const eval_result = std::sqrt(v);
+        if (!std::isnan(eval_result)) {
+          return mkNum(eval_result);
+        }
       } else {
         ostringstream ss;
         ss << "Failed to build an expression: safesqrt(" << v << ") "
@@ -1156,7 +1200,10 @@ Enode * Egraph::mkSqrt                ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(sqrt(arg->getValue()));
+      double const eval_result = std::sqrt(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_SQRT], args );
@@ -1174,7 +1221,10 @@ Enode * Egraph::mkExp              ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(exp(arg->getValue()));
+      double const eval_result = std::exp(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_EXP], args );
@@ -1192,7 +1242,10 @@ Enode * Egraph::mkLog              ( Enode * args)
   if (config.nra_simp) {
     Enode * const arg = args->getCar();
     if (arg->isConstant()) {
-      return mkNum(log(arg->getValue()));
+      double const eval_result = std::log(arg->getValue());
+      if (!std::isnan(eval_result)) {
+        return mkNum(eval_result);
+      }
     }
   }
   Enode * res = cons( id_to_enode[ ENODE_ID_LOG], args );
@@ -1220,16 +1273,16 @@ Enode * Egraph::mkPlus( Enode * args )
   //
   if ( config.nra_simp && x->isConstant( ) && y->isConstant( ) && args->getArity( ) == 2 )
   {
-    const double xval = x->getValue( );
-    const double yval = y->getValue( );
-    double sum = xval + yval;
-    res = mkPlus( cons(mkNum( sum ), args->getCdr( )->getCdr()));
+    double const xval = x->getValue( );
+    double const yval = y->getValue( );
+    double const sum = xval + yval;
+    if (!std::isnan(sum)) {
+      res = mkPlus( cons(mkNum( sum ), args->getCdr( )->getCdr()));
+      assert( res );
+      return res;
+    }
   }
-  else
-  {
-    res = cons( id_to_enode[ ENODE_ID_PLUS ], args );
-  }
-
+  res = cons( id_to_enode[ ENODE_ID_PLUS ], args );
   assert( res );
   return res;
 }
@@ -1254,7 +1307,11 @@ Enode * Egraph::mkMinus( Enode * args )
 
   if (config.nra_simp && x->isConstant() && y->isConstant())
   {
-    res = mkNum(x->getValue() - y->getValue());
+    double const eval_result = x->getValue() - y->getValue();
+    if (!std::isnan(eval_result)) {
+      res = mkNum(eval_result);
+      return res;
+    }
   } else {
     Enode * mo = mkNum( "-1" );
     res = mkPlus( cons( x, cons( mkTimes( cons( mo, cons( y ) ) ) ) ) );
@@ -1305,11 +1362,13 @@ Enode * Egraph::mkTimes( Enode * args )
           Enode * x = args->getCar( );
           Enode * y = args->getCdr( )->getCar( );
           if ( x->isConstant( ) && y->isConstant( ) ) {
-              // Simplify constants
-              const double xval = x->getValue( );
-              const double yval = y->getValue( );
-              double times = xval * yval;
-              res = mkNum( times );
+            // Simplify constants
+            double const xval = x->getValue( );
+            double const yval = y->getValue( );
+            double const eval_result = xval * yval;
+            if (!std::isnan(eval_result)) {
+              res = mkNum(eval_result);
+            }
           }
           else if ( x == y ) {
               return mkPow( cons(x, cons(mkNum(2.0)) ) );
@@ -1353,10 +1412,12 @@ Enode * Egraph::mkDiv( Enode * args )
       // Simplify constants
       //
       else if ( x->isConstant( ) && y->isConstant( ) ) {
-          const double xval = x->getValue( );
-          const double yval = y->getValue( );
-          double div = xval / yval;
-          res = mkNum( div );
+        double const xval = x->getValue( );
+        double const yval = y->getValue( );
+        double const eval_result = xval / yval;
+        if (!std::isnan(eval_result)) {
+          res = mkNum(eval_result);
+        }
       }
   }
   if (!res) {
