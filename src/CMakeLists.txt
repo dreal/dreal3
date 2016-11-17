@@ -11,10 +11,16 @@ set(BUG_REPORT_URL "${PACKAGE_BUGREPORT}" CACHE STRING "Default URL where bug re
 
 set(CMAKE_COLOR_MAKEFILE ON)
 
+if(DEFINED BUILD_SHARED_LIB)
+  message(WARNING "The BUILD_SHARED_LIB option is deprecated. Use BUILD_SHARED_LIBS instead.")
+else()
+  set(BUILD_SHARED_LIB OFF)
+endif()
+
 option(SUPPORT_ODE      "Support ODE" ON)
 option(LOGGING          "Enable Logging" ON)
 option(BUILD_STATIC_BIN "Build static binary"  OFF)
-option(BUILD_SHARED_LIB "Build shared library" OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries" ${BUILD_SHARED_LIB})
 option(USE_LOCAL_THIRD_PARTY "Use local third party libraries" OFF)
 option(USE_GLPK         "Use GLPK" ON)
 option(USE_NLOPT        "Use NLOPT" ON)
@@ -91,13 +97,10 @@ endif()
 ################################################################
 # Shared Lib
 ################################################################
-if(BUILD_STATIC_BIN AND BUILD_SHARED_LIB)
-  message(FATAL_ERROR "Can't handle both of BUILD_STATIC_BIN and BUILD_SHARED_LIB options." )
+if(BUILD_STATIC_BIN AND BUILD_SHARED_LIBS)
+  message(FATAL_ERROR "Can't handle both of BUILD_STATIC_BIN and BUILD_SHARED_LIBS options." )
 endif()
-if(APPLE AND BUILD_SHARED_LIB)
-  message(STATUS "OSX + BUILD_SHARED_LIB: Run target 'shared_lib' to generate lib/libdreal.dylib")
-endif()
-if((NOT APPLE) AND BUILD_SHARED_LIB)
+if((NOT APPLE) AND BUILD_SHARED_LIBS)
   set(SHARED_LIB_CONFIG_COMMAND "--enable-shared")
   set(SHARED_LIB_IBEX_COMMAND   "--enable-shared")
   set(SHARED_LIB_CMAKE_COMMAND  "-DBUILD_SHARED_LIBS=ON")
@@ -800,12 +803,12 @@ add_subdirectory(optimizer)
 
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${DREAL_BINARY_DIR}/lib")
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${DREAL_BINARY_DIR}/lib")
-if((NOT APPLE) AND BUILD_SHARED_LIB)
+if((NOT APPLE) AND BUILD_SHARED_LIBS)
   add_library(dreal SHARED ${DREAL_SRCS})
   add_library(dop SHARED ${DOP_SRCS})
 else()
-  add_library(dreal ${DREAL_SRCS})
-  add_library(dop ${DOP_SRCS})
+  add_library(dreal STATIC ${DREAL_SRCS})
+  add_library(dop STATIC ${DOP_SRCS})
 endif()
 
 add_dependencies(dop PICOSAT)
@@ -932,7 +935,7 @@ endif()
 #########################################
 set(CPACK_PACKAGE_NAME dReal)
 string(TOLOWER ${CMAKE_SYSTEM_NAME} LOWER_SYSTEM_NAME)
-if(BUILD_SHARED_LIB)
+if(BUILD_SHARED_LIBS)
   set(CPACK_PACKAGE_FILE_NAME "dReal-${DREAL_VERSION_MAJOR}.${DREAL_VERSION_MINOR}.${DREAL_VERSION_PATCH}-${LOWER_SYSTEM_NAME}-shared-libs")
 else()
   set(CPACK_PACKAGE_FILE_NAME "dReal-${DREAL_VERSION_MAJOR}.${DREAL_VERSION_MINOR}.${DREAL_VERSION_PATCH}-${LOWER_SYSTEM_NAME}")
@@ -1031,21 +1034,21 @@ if(EXISTS ${BMC_PATH})
                 GROUP_READ GROUP_WRITE GROUP_EXECUTE
                 WORLD_READ WORLD_EXECUTE)
 endif()
-if(BUILD_SHARED_LIB)
+if(BUILD_SHARED_LIBS)
   install(DIRECTORY "${DREAL_BINARY_DIR}/lib"
           DESTINATION ".")
   install(FILES "${DREAL_SOURCE_DIR}/opensmt/api/opensmt_c.h"
           DESTINATION "include")
 endif()
 
-if(APPLE AND BUILD_SHARED_LIB)
+if(APPLE AND BUILD_SHARED_LIBS)
     if(USE_GLPK)
         set(GLPK_LIB_NAME "libglpk.a")
     endif()
     if(USE_NLOPT)
         set(NLOPT_LIB_NAME "libnlopt.a")
     endif()
-    add_custom_target(shared_lib
+    add_custom_target(shared_lib ALL
         COMMAND echo "Building Shared Library..."
         COMMAND cd lib && ${CMAKE_CXX_COMPILER} -shared -Wl,-all_load libdreal.a libcapd.a libibex.a ${NLOPT_LIB_NAME} libprim.a ${CLP_LIBRARIES} ${GLPK_LIB_NAME} -o libdreal.dylib
         DEPENDS dreal CAPD4 IBEX FILIB PICOSAT)
