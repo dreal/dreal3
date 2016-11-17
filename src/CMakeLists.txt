@@ -1053,22 +1053,13 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 if(APPLE AND BUILD_SHARED_LIBS)
-    if(USE_GLPK)
-        set(GLPK_LIB_NAME "libglpk.a")
-    endif()
-    if(USE_NLOPT)
-        set(NLOPT_LIB_NAME "libnlopt.a")
-    endif()
-    add_custom_target(shared_lib ALL
-        COMMAND echo "Building Shared Library..."
-        COMMAND cd lib && ${CMAKE_CXX_COMPILER} -shared -Wl,-all_load libdreal.a libcapd.a libibex.a ${NLOPT_LIB_NAME} libprim.a ${CLP_LIBRARIES} ${GLPK_LIB_NAME} -o libdreal.dylib
-        DEPENDS dreal CAPD4 IBEX FILIB PICOSAT)
-    if(USE_GLPK AND (NOT GLPK_FOUND))
-        add_dependencies(shared_lib GLPK)
-    endif()
-    if(USE_NLOPT AND (NOT NLOPT_FOUND))
-        add_dependencies(shared_lib NLOPT)
-    endif()
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-all_load ${EXTERNAL_LD_FLAGS}")
+
+    add_library(dreal-shared SHARED /dev/null)
+    set_target_properties(dreal-shared PROPERTIES
+      LINKER_LANGUAGE CXX
+      OUTPUT_NAME dreal)
+    target_link_libraries(dreal-shared dreal ${EXTRA_LIBS})
 endif()
 
 # Add a distclean target to the Makefile
