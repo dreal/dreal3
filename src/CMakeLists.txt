@@ -1052,10 +1052,10 @@ if(APPLE AND BUILD_SHARED_LIBS)
         COMMAND echo "Building Shared Library..."
         COMMAND cd lib && ${CMAKE_CXX_COMPILER} -shared -Wl,-all_load libdreal.a libcapd.a libibex.a ${NLOPT_LIB_NAME} libprim.a ${CLP_LIBRARIES} ${GLPK_LIB_NAME} -o libdreal.dylib
         DEPENDS dreal CAPD4 IBEX FILIB PICOSAT)
-    if(USE_GLPK)
+    if(USE_GLPK AND (NOT GLPK_FOUND))
         add_dependencies(shared_lib GLPK)
     endif()
-    if(USE_NLOPT)
+    if(USE_NLOPT AND (NOT NLOPT_FOUND))
         add_dependencies(shared_lib NLOPT)
     endif()
 endif()
