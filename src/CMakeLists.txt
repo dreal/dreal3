@@ -811,6 +811,17 @@ else()
   add_library(dop STATIC ${DOP_SRCS})
 endif()
 
+if(BUILD_SHARED_LIBS)
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${DREAL_EXTRA_LINKER_FLAGS} ${EXTERNAL_LD_FLAGS}")
+
+  target_link_libraries(dreal ${EXTRA_LIBS})
+  if(${PYTHONLIBS_FOUND})
+    target_link_libraries(dop dreal ${PYTHON_LIBRARIES} ${EXTRA_LIBS})
+  else()
+    target_link_libraries(dop dreal ${EXTRA_LIBS})
+  endif()
+endif()
+
 add_dependencies(dop PICOSAT)
 add_dependencies(dop IBEX)
 add_dependencies(dop ADEPT)
