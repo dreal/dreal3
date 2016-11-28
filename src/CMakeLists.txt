@@ -556,7 +556,7 @@ else()
   ExternalProject_Add(EASYLOGGINGPP
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dreal-deps/easyloggingpp.git
-    GIT_TAG 479fad227f74c9ff69047b86298eab2d3e733167
+    GIT_TAG aff245262e393926ec8785fc4872933982bad222
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND echo "nothing to configure"
     BUILD_COMMAND echo "nothing to build"
