@@ -68,5 +68,4 @@ public:
     void prune(contractor_status & s);
     std::ostream & display(std::ostream & out) const;
 };
-contractor mk_contractor_forall(box const & box, std::shared_ptr<forall_constraint> const ctr);
 }  // namespace dreal

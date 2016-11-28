@@ -23,6 +23,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "util/static_warning.h"
 
+#ifdef SUPPORT_ODE
+#include "capd/capdlib.h"
+#endif
+
 namespace dreal {
 
 void check_nothrow_move_constructible() {

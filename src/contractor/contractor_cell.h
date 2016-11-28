@@ -29,7 +29,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
-#include "contractor/contractor_common.h"
+#include "contractor/contractor_kind.h"
 #include "contractor/contractor_status.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"

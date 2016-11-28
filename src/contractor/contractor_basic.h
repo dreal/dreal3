@@ -29,10 +29,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
-#include "contractor/contractor_cell.h"
-#include "contractor/contractor_core.h"
+#include "contractor/contractor.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
@@ -255,36 +255,4 @@ public:
     void prune(contractor_status & cs);
     std::ostream & display(std::ostream & out) const;
 };
-
-contractor mk_contractor_id();
-contractor mk_contractor_debug(std::string const & s);
-contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
-contractor mk_contractor_seq(std::vector<contractor> const & v);
-contractor mk_contractor_seq(contractor const & c1, contractor const & c2);
-contractor mk_contractor_try(contractor const & c);
-contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
-contractor mk_contractor_empty();
-contractor mk_contractor_throw();
-contractor mk_contractor_throw_if_empty(contractor const & c);
-contractor mk_contractor_join(contractor const & c1, contractor const & c2);
-contractor mk_contractor_ite(std::function<bool(box const &)> guard, contractor const & c_then,
-                             contractor const & c_else);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                                  contractor const & c);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                                  std::initializer_list<contractor> const & clist);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                                  std::vector<contractor> const & cvec);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                                  std::initializer_list<std::vector<contractor>> const & cvec_list);
-contractor mk_contractor_int(box const & b);
-contractor mk_contractor_eval(std::shared_ptr<nonlinear_constraint> const ctr,
-                              bool const use_cache = false);
-contractor mk_contractor_cache(contractor const & ctc);
-contractor mk_contractor_sample(box const & b, unsigned const n,
-                                std::vector<std::shared_ptr<constraint>> const & ctrs);
-contractor mk_contractor_aggressive(unsigned const n,
-                                    std::vector<std::shared_ptr<constraint>> const & ctrs);
-std::ostream & operator<<(std::ostream & out, contractor const & c);
-
 }  // namespace dreal

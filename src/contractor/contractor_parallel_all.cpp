@@ -41,8 +41,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 #include "constraint/constraint.h"
-#include "contractor/contractor_basic.h"
-#include "contractor/contractor_common.h"
+#include "contractor/contractor.h"
 #include "contractor/contractor_parallel.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
@@ -242,16 +241,6 @@ ostream & contractor_parallel_all::display(ostream & out) const {
     }
     out << ")";
     return out;
-}
-
-contractor mk_contractor_parallel_all(initializer_list<contractor> const & l) {
-    return contractor(make_shared<contractor_parallel_all>(l));
-}
-contractor mk_contractor_parallel_all(vector<contractor> const & v) {
-    return contractor(make_shared<contractor_parallel_all>(v));
-}
-contractor mk_contractor_parallel_all(contractor const & c1, contractor const & c2) {
-    return contractor(make_shared<contractor_parallel_all>(c1, c2));
 }
 
 }  // namespace dreal

@@ -33,6 +33,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "capd/capdlib.h"
 #include "constraint/constraint.h"
+#include "contractor/contractor.h"
 #include "contractor/contractor_basic.h"
 #include "contractor/contractor_capd4.h"
 #include "contractor/contractor_ibex.h"
@@ -1265,71 +1266,4 @@ ostream & contractor_capd_point::display(ostream & out) const {
     out << "contractor_capd_point(" << m_dir << ", " << *m_ctr << ")";
     return out;
 }
-
-contractor mk_contractor_capd_simple(box const & box, shared_ptr<ode_constraint> const ctr,
-                                     ode_direction const dir) {
-    return contractor(make_shared<contractor_capd_simple>(box, ctr, dir));
-}
-
-contractor mk_contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr,
-                                   ode_direction const dir, SMTConfig const & config,
-                                   bool const use_cache, double const timeout) {
-    if (!use_cache) {
-        return contractor(make_shared<contractor_capd_full>(box, ctr, dir, config, timeout));
-    }
-    if (dir == ode_direction::FWD) {
-        static unordered_map<shared_ptr<ode_constraint>, contractor> capd_full_fwd_ctc_cache;
-        auto it = capd_full_fwd_ctc_cache.find(ctr);
-        if (it == capd_full_fwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_capd_full>(box, ctr, dir, config, timeout));
-            capd_full_fwd_ctc_cache.emplace(ctr, ctc);
-            return ctc;
-        } else {
-            return it->second;
-        }
-    } else {
-        static unordered_map<shared_ptr<ode_constraint>, contractor> capd_full_bwd_ctc_cache;
-        auto it = capd_full_bwd_ctc_cache.find(ctr);
-        if (it == capd_full_bwd_ctc_cache.end()) {
-            contractor ctc(make_shared<contractor_capd_full>(box, ctr, dir, config, timeout));
-            capd_full_bwd_ctc_cache.emplace(ctr, ctc);
-            return ctc;
-        } else {
-            return it->second;
-        }
-    }
-}
-contractor mk_contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr,
-                                    contractor const & eval_ctc, ode_direction const dir,
-                                    SMTConfig const & config, bool const use_cache,
-                                    double const timeout) {
-    if (!use_cache) {
-        return contractor(
-            make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
-    }
-    if (dir == ode_direction::FWD) {
-        static unordered_map<shared_ptr<ode_constraint>, contractor> capd_point_fwd_ctc_cache;
-        auto it = capd_point_fwd_ctc_cache.find(ctr);
-        if (it == capd_point_fwd_ctc_cache.end()) {
-            contractor ctc(
-                make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
-            capd_point_fwd_ctc_cache.emplace(ctr, ctc);
-            return ctc;
-        } else {
-            return it->second;
-        }
-    } else {
-        static unordered_map<shared_ptr<ode_constraint>, contractor> capd_point_bwd_ctc_cache;
-        auto it = capd_point_bwd_ctc_cache.find(ctr);
-        if (it == capd_point_bwd_ctc_cache.end()) {
-            contractor ctc(
-                make_shared<contractor_capd_point>(box, ctr, eval_ctc, dir, config, timeout));
-            capd_point_bwd_ctc_cache.emplace(ctr, ctc);
-            return ctc;
-        } else {
-            return it->second;
-        }
-    }
-}
-
 }  // namespace dreal

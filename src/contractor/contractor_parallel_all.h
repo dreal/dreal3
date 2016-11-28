@@ -58,9 +58,4 @@ public:
     void prune(contractor_status & cs);
     std::ostream & display(std::ostream & out) const;
 };
-
-contractor mk_contractor_parallel_all(std::initializer_list<contractor> const & l);
-contractor mk_contractor_parallel_all(std::vector<contractor> const & v);
-contractor mk_contractor_parallel_all(contractor const & c1, contractor const & c2);
-
 }  // namespace dreal

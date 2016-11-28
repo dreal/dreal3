@@ -35,6 +35,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
+#include "contractor/contractor_capd4.h"
 #include "ibex/ibex.h"
 #include "icp/icp.h"
 #include "icp/mcss_icp.h"

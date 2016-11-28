@@ -19,13 +19,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "icp/mcss_icp.h"
-#include "icp/brancher.h"
-#include "icp/icp_util.h"
 
 #include <memory>
 #include <tuple>
 #include <vector>
+
 #include "constraint/constraint.h"
+#include "icp/brancher.h"
+#include "icp/icp_util.h"
+#include "util/logging.h"
 #include "util/scoped_vec.h"
 #include "util/stacker.h"
 #include "util/thread_local.h"

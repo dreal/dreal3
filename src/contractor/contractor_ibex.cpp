@@ -533,33 +533,4 @@ ostream & contractor_ibex_polytope::display(ostream & out) const {
 }
 #endif
 
-contractor mk_contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> const ctr,
-                                     bool const use_cache) {
-    if (!use_cache) {
-        return contractor(make_shared<contractor_ibex_fwdbwd>(ctr));
-    }
-    static unordered_map<shared_ptr<nonlinear_constraint>, contractor> ibex_fwdbwd_ctc_cache;
-    auto const it = ibex_fwdbwd_ctc_cache.find(ctr);
-    if (it == ibex_fwdbwd_ctc_cache.end()) {
-        contractor ctc(make_shared<contractor_ibex_fwdbwd>(ctr));
-        ibex_fwdbwd_ctc_cache.emplace(ctr, ctc);
-        return ctc;
-    } else {
-        return it->second;
-    }
-}
-
-contractor mk_contractor_ibex_newton(box const & box, shared_ptr<nonlinear_constraint> const ctr) {
-    return contractor(make_shared<contractor_ibex_newton>(box, ctr));
-}
-contractor mk_contractor_ibex_hc4(vector<Enode *> const & vars,
-                                  vector<shared_ptr<nonlinear_constraint>> const & ctrs) {
-    return contractor(make_shared<contractor_ibex_hc4>(vars, ctrs));
-}
-#ifdef USE_CLP
-contractor mk_contractor_ibex_polytope(double const prec, vector<Enode *> const & vars,
-                                       vector<shared_ptr<nonlinear_constraint>> const & ctrs) {
-    return contractor(make_shared<contractor_ibex_polytope>(prec, vars, ctrs));
-}
-#endif
 }  // namespace dreal

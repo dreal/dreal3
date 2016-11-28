@@ -18,6 +18,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "contractor/contractor_basic.h"
+
 #include <algorithm>
 #include <chrono>
 #include <exception>
@@ -38,8 +39,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
 #include "constraint/constraint.h"
-#include "contractor/contractor_common.h"
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
@@ -491,99 +492,6 @@ void contractor_aggressive::prune(contractor_status & cs) {
 
 ostream & contractor_aggressive::display(ostream & out) const {
     out << "contractor_aggressive(" << m_num_samples << ")";
-    return out;
-}
-contractor mk_contractor_id() { return contractor(make_shared<contractor_id>()); }
-contractor mk_contractor_debug(string const & s) {
-    return contractor(make_shared<contractor_debug>(s));
-}
-contractor mk_contractor_seq(initializer_list<contractor> const & l) {
-    if (l.size() == 0) {
-        return mk_contractor_id();
-    }
-    return contractor(make_shared<contractor_seq>(l));
-}
-contractor mk_contractor_seq(vector<contractor> const & v) {
-    if (v.size() == 0) {
-        return mk_contractor_id();
-    }
-    return contractor(make_shared<contractor_seq>(v));
-}
-contractor mk_contractor_seq(contractor const & c1, contractor const & c2) {
-    return contractor(make_shared<contractor_seq>(c1, c2));
-}
-contractor mk_contractor_try(contractor const & c) {
-    return contractor(make_shared<contractor_try>(c));
-}
-contractor mk_contractor_try_or(contractor const & c1, contractor const & c2) {
-    return contractor(make_shared<contractor_try_or>(c1, c2));
-}
-contractor mk_contractor_empty() { return contractor(make_shared<contractor_empty>()); }
-contractor mk_contractor_throw() { return contractor(make_shared<contractor_throw>()); }
-contractor mk_contractor_throw_if_empty(contractor const & c) {
-    return contractor(make_shared<contractor_throw_if_empty>(c));
-}
-contractor mk_contractor_join(contractor const & c1, contractor const & c2) {
-    return contractor(make_shared<contractor_join>(c1, c2));
-}
-contractor mk_contractor_ite(function<bool(box const &)> guard, contractor const & c_then,
-                             contractor const & c_else) {
-    return contractor(make_shared<contractor_ite>(guard, c_then, c_else));
-}
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
-                                  contractor const & c) {
-    return contractor(make_shared<contractor_fixpoint>(guard, c));
-}
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
-                                  initializer_list<contractor> const & clist) {
-    if (clist.size() == 0) {
-        return mk_contractor_id();
-    }
-    return contractor(make_shared<contractor_fixpoint>(guard, clist));
-}
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
-                                  vector<contractor> const & cvec) {
-    if (cvec.size() == 0) {
-        return mk_contractor_id();
-    }
-    return contractor(make_shared<contractor_fixpoint>(guard, cvec));
-}
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
-                                  initializer_list<vector<contractor>> const & cvec_list) {
-    if (cvec_list.size() == 0) {
-        return mk_contractor_id();
-    }
-    return contractor(make_shared<contractor_fixpoint>(guard, cvec_list));
-}
-contractor mk_contractor_int(box const & b) { return contractor(make_shared<contractor_int>(b)); }
-contractor mk_contractor_eval(shared_ptr<nonlinear_constraint> const ctr, bool const use_cache) {
-    if (!use_cache) {
-        return contractor(make_shared<contractor_eval>(ctr));
-    }
-    static unordered_map<shared_ptr<nonlinear_constraint>, contractor> eval_ctc_cache;
-    auto const it = eval_ctc_cache.find(ctr);
-    if (it == eval_ctc_cache.end()) {
-        contractor ctc(make_shared<contractor_eval>(ctr));
-        eval_ctc_cache.emplace(ctr, ctc);
-        return ctc;
-    } else {
-        return it->second;
-    }
-}
-contractor mk_contractor_cache(contractor const & ctc) {
-    return contractor(make_shared<contractor_cache>(ctc));
-}
-contractor mk_contractor_sample(box const & b, unsigned const n,
-                                vector<shared_ptr<constraint>> const & ctrs) {
-    return contractor(make_shared<contractor_sample>(b, n, ctrs));
-}
-contractor mk_contractor_aggressive(unsigned const n, vector<shared_ptr<constraint>> const & ctrs) {
-    return contractor(make_shared<contractor_aggressive>(n, ctrs));
-}
-ostream & operator<<(ostream & out, contractor const & c) {
-    if (c.m_ptr) {
-        out << *(c.m_ptr);
-    }
     return out;
 }
 }  // namespace dreal

@@ -18,6 +18,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#ifdef SUPPORT_ODE
 #include <functional>
 #include <initializer_list>
 #include <memory>
@@ -154,13 +155,5 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
-contractor mk_contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr,
-                                     ode_direction const dir);
-contractor mk_contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr,
-                                   ode_direction const dir, SMTConfig const & config,
-                                   bool const use_cache = false, double const timeout = 0.0);
-contractor mk_contractor_capd_point(box const & box, std::shared_ptr<ode_constraint> const ctr,
-                                    contractor const & eval_ctc, ode_direction const dir,
-                                    SMTConfig const & config, bool const use_cache = false,
-                                    double const timeout = 0.0);
 }  // namespace dreal
+#endif
