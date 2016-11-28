@@ -20,23 +20,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/cxx11_check.h"
 
 #include "./dreal_config.h"
-#include "capd/intervals/lib.h"
-#include "capd/vectalg/lib.h"
 #include "contractor/contractor.h"
 #include "ibex/ibex.h"
 #include "util/box.h"
 #include "util/static_warning.h"
 
-namespace ibex {
-class Interval;
-class IntervalVector;
-}  // namespace ibex
+#ifdef SUPPORT_ODE
+#include "capd/capdlib.h"
+#endif
 
 namespace dreal {
-
-class box;
-class contractor;
-
 void check_nothrow_move_constructible() {
     // reference: http://stackoverflow.com/questions/8936063/does-there-exist-a-static-warning
     STATIC_WARNING(std::is_nothrow_move_constructible<ibex::IntervalVector>::value,
