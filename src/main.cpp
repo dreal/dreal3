@@ -18,19 +18,22 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <csignal>
-#include <cstdio>
-#include <cstdlib>
-#include <ezOptionParser/ezOptionParser.hpp>
-#include <iostream>
-#include <string>
-#include "api/OpenSMTContext.h"
-#include "egraph/Egraph.h"
-#include "smtsolvers/SimpSMTSolver.h"
-#include "util/git_sha1.h"
-#include "util/logging.h"
-#include "version.h"
-#include "util/automaton.h"
+#include <assert.h>                    // for assert
+#include <string.h>                    // for strcmp, strrchr
+#include <sys/signal.h>                // for signal, SIGINT, SIGTERM
+#include <cstdio>                      // for FILE, fclose, NULL, fopen, stdin
+#include <cstdlib>                     // for exit
+#include <iostream>                    // for operator<<, basic_ostream, string
+#include <string>                      // for allocator, char_traits, operat...
+#include "./dreal_config.h"            // for LOGGING
+#include "./version.h"                 // for PACKAGE_VERSION
+#include "api/OpenSMTContext.h"        // for OpenSMTContext
+#include "common/Global.h"             // for opensmt_error2
+#include "minisat/core/SolverTypes.h"  // for l_Undef
+#include "smtsolvers/SMTConfig.h"      // for SMTConfig
+#include "util/automaton.h"            // for automaton
+#include "util/git_sha1.h"             // for getGitSHA1
+#include "util/logging.h"              // for Helpers, START_EASYLOGGINGPP
 
 #if defined(__linux__)
 #include <fpu_control.h>
@@ -102,7 +105,7 @@ int main(int argc, const char * argv[]) {
         } else if (strcmp(extension, ".drh") == 0) {
             dreal::automaton atm(context);
             atmp = &atm;
-            parser_ctx->SetLogic("QF_NRA_ODE"); //seg fault if this is not set
+            parser_ctx->SetLogic("QF_NRA_ODE");  // seg fault if this is not set
             drhset_in(fin);
             drhparse();
             drhlex_destroy();

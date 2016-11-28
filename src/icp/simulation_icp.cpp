@@ -19,17 +19,28 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "icp/simulation_icp.h"
+
+#include <assert.h>
+
 #include <algorithm>
 #include <exception>
+#include <iostream>
 #include <memory>
-#include <mutex>
 #include <thread>
 #include <tuple>
 #include <unordered_set>
 #include <vector>
-#include "optimizer/optimizer.h"
-#include "util/eval.h"
+
+#include "constraint/constraint.h"
+#include "contractor/contractor.h"
+#include "contractor/contractor_exception.h"
+#include "contractor/contractor_status.h"
+#include "icp/icp.h"
+#include "smtsolvers/SMTConfig.h"
+#include "util/box.h"
 #include "util/logging.h"
+#include "util/scoped_vec.h"
+#include "util/stat.h"
 #include "util/thread_local.h"
 
 namespace dreal {

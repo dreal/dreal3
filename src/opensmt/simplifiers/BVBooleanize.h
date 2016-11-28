@@ -21,9 +21,14 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define BV_BOOLEANIZE_HH
 
 #include <map>
+
 #include "common/Global.h"
 #include "common/Otl.h"
 #include "egraph/Egraph.h"
+
+class Egraph;
+class Enode;
+struct SMTConfig;
 
 class BVBooleanize
 {

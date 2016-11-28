@@ -21,15 +21,24 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "heuristic.h"
+
+#include <stddef.h>
+#include <algorithm>
 #include <chrono>
+#include <map>
+#include <ratio>
 #include <sstream>
-#include <string>
 #include <unordered_set>
 #include <utility>
-#include "opensmt/egraph/Egraph.h"
-#include "opensmt/tsolvers/TSolver.h"
+
+#include "egraph/Enode.h"
+#include "minisat/mtl/Vec.h"
+#include "smtsolvers/SMTConfig.h"
+#include "tsolvers/THandler.h"
 #include "util/logging.h"
 #include "util/stat.h"
+
+class Egraph;
 
 using std::string;
 using std::ifstream;

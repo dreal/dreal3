@@ -18,13 +18,20 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <algorithm>
+#include <cassert>
 #include <chrono>
+#include <cmath>
+#include <cstddef>
 #include <exception>
 #include <functional>
 #include <initializer_list>
+#include <iomanip>
+#include <iostream>
 #include <limits>
+#include <list>
 #include <memory>
 #include <ratio>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -34,14 +41,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "capd/capdlib.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
-#include "contractor/contractor_basic.h"
 #include "contractor/contractor_capd4.h"
-#include "contractor/contractor_ibex.h"
+#include "contractor/contractor_exception.h"
+#include "contractor/contractor_kind.h"
+#include "contractor/contractor_status.h"
+#include "egraph/EnodeTypes.h"
 #include "ibex/ibex.h"
+#include "minisat/core/SolverTypes.h"
 #include "opensmt/egraph/Enode.h"
+#include "smtsolvers/SMTConfig.h"
 #include "util/box.h"
-#include "util/flow.h"
-#include "util/ibex_enode.h"
 #include "util/interruptible_thread.h"
 #include "util/logging.h"
 #include "util/string.h"

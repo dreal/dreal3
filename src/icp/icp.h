@@ -25,6 +25,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 #include <unordered_map>
 #include <vector>
+
 #include "contractor/contractor.h"
 #include "icp/brancher.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
@@ -32,7 +33,17 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_vec.h"
 #include "util/stat.h"
 
+struct SMTConfig;
+
 namespace dreal {
+class BranchHeuristic;
+class box;
+class constraint;
+class contractor;
+class contractor_status;
+template <typename T>
+class scoped_vec;
+
 void output_solution(box const & b, SMTConfig & config, unsigned i = 0);
 
 class naive_icp {

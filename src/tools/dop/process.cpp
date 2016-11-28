@@ -18,34 +18,30 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "tools/dop/process.h"
-#include <sys/stat.h>
+
 #include <algorithm>
-#include <cassert>
-#include <csignal>
 #include <cstdio>
-#include <cstdlib>
-#include <exception>
-#include <ezOptionParser/ezOptionParser.hpp>
-#include <fstream>
+#include <deque>
 #include <iostream>
+#include <iterator>
 #include <limits>
 #include <list>
-#include <sstream>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include "./dreal_config.h"
-#include "./version.h"
+
+#include "common/Global.h"
+#include "minisat/core/SolverTypes.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/egraph/Enode.h"
 #include "tools/dop/dopconfig.h"
-#include "tools/dop/print_latex.h"
-#include "tools/dop/print_py.h"
 #include "tools/dop/visualize.h"
 #include "util/enode_utils.h"
-#include "util/logging.h"
 #include "util/string.h"
+
+class Snode;
 
 using std::back_inserter;
 using std::cerr;

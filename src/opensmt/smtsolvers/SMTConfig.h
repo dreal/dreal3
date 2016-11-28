@@ -20,14 +20,17 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SMTCONFIG_H
 #define SMTCONFIG_H
 
+#include <assert.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <chrono>
 #include <fstream>
 #include <iostream>
-#include <chrono>
-#include <sys/stat.h>
+
 #include "./dreal_config.h"
 #include "common/Global.h"
-#include "util/stat.h"
 #include "minisat/core/SolverTypes.h"
+#include "util/stat.h"
 
 //
 // Holds informations about the configuration of the solver

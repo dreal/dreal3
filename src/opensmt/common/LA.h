@@ -20,10 +20,18 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef LA_H
 #define LA_H
 
+#include <assert.h>
+
+#include <iosfwd>
 #include <map>
-#include <vector>
 #include <utility>
+#include <vector>
+
+#include "common/Global.h"
 #include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+
+class Egraph;
 
 class LAExpression
 {

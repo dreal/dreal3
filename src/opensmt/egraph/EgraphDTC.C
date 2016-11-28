@@ -17,8 +17,20 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "egraph/Egraph.h"
+#include <assert.h>
+#include <stddef.h>
+
+#include <iostream>
+#include <list>
+#include <set>
+#include <utility>
+#include <vector>
+
+#include "common/Global.h"
 #include "common/LA.h"
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "smtsolvers/SMTConfig.h"
 
 using std::vector;
 using std::list;

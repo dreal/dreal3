@@ -17,11 +17,26 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <math.h>
 #include <iostream>
-#include "ibex/ibex.h"
+
+#include "ibex_CtcFwdBwd.h"
+#include "ibex_Interval.h"
+#include "ibex_IntervalVector.h"
+#include "ibex_NumConstraint.h"
 #include "util/ibex_enode.h"
+
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"
+
+namespace ibex {
+class ExprConstant;
+class ExprCtr;
+class ExprNode;
+class ExprSymbol;
+class Function;
+class Variable;
+}  // namespace ibex
 
 using ibex::Variable;
 using ibex::Function;

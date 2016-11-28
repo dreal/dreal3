@@ -18,11 +18,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include <iosfwd>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 #include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/egraph/Enode.h"
+
+class Enode;
+class OpenSMTContext;
 
 namespace dop {
 

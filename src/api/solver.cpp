@@ -18,11 +18,22 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <assert.h>
+#include <iostream>
 #include <limits>
+#include <list>
 #include <string>
-#include "./dreal_config.h"
+#include <vector>
+
 #include "api/dreal.h"
+#include "common/Global.h"
+#include "egraph/Enode.h"
+#include "minisat/core/SolverTypes.h"
+#include "minisat/mtl/Vec.h"
 #include "opensmt/api/OpenSMTContext.h"
+#include "smtsolvers/SMTConfig.h"
+
+class Snode;
 
 using std::cerr;
 using std::endl;

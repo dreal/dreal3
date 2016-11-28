@@ -20,8 +20,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/proof.h"
-#include <ostream>
-#include <string>
+
+#include "contractor/contractor_status.h"
+#include "smtsolvers/SMTConfig.h"
 #include "util/box.h"
 
 using std::endl;

@@ -21,13 +21,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 #include <vector>
+
+#include "contractor/contractor.h"
 #include "icp/brancher.h"
 #include "util/mcts_node.h"
 
-using std::shared_ptr;
-
 namespace dreal {
 class mcts_node;
+class BranchHeuristic;
+class constraint;
+class contractor;
+class contractor_status;
+template <typename T>
+class scoped_vec;
 
 class mcts_expander {
 public:
@@ -38,7 +44,8 @@ public:
 class icp_mcts_expander : public mcts_expander {
 public:
     icp_mcts_expander(contractor & ctc, contractor_status & cs,
-                      scoped_vec<shared_ptr<constraint>> const & ctrs, BranchHeuristic & brancher)
+                      scoped_vec<std::shared_ptr<constraint>> const & ctrs,
+                      BranchHeuristic & brancher)
         : m_ctc(ctc), m_cs(cs), m_ctrs(ctrs), m_brancher(brancher) {}
     virtual void expand(mcts_node * node);
     virtual double simulate(mcts_node * node);
@@ -46,7 +53,7 @@ public:
 private:
     contractor & m_ctc;
     contractor_status & m_cs;
-    scoped_vec<shared_ptr<constraint>> const & m_ctrs;
+    scoped_vec<std::shared_ptr<constraint>> const & m_ctrs;
     BranchHeuristic & m_brancher;
 };
 }  // namespace dreal

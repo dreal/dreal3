@@ -18,11 +18,21 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/strategy.h"
+
+#include <assert.h>
 #include <algorithm>
+#include <cmath>
+#include <functional>
+#include <iostream>
 #include <limits>
 #include <memory>
 #include <vector>
+
+#include "./dreal_config.h"
+#include "constraint/constraint.h"
 #include "contractor/contractor.h"
+#include "egraph/Enode.h"
+#include "ibex_Interval.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
 #include "util/logging.h"

@@ -39,11 +39,23 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef SIMP_SMT_SOLVER_H
 #define SIMP_SMT_SOLVER_H
 
-#include <set>
+
+#include <assert.h>
+#include <stdio.h>
 #include <map>
+#include <set>
 #include <vector>
+
+#include "common/Global.h"
+#include "minisat/core/SolverTypes.h"
+#include "minisat/mtl/Heap.h"
 #include "minisat/mtl/Queue.h"
+#include "minisat/mtl/Vec.h"
 #include "smtsolvers/CoreSMTSolver.h"
+
+class Egraph;
+class Enode;
+struct SMTConfig;
 
 
 class SimpSMTSolver : public CoreSMTSolver

@@ -19,10 +19,17 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/eval.h"
 
+#include <assert.h>
 #include <cmath>
-#include <exception>
 #include <iostream>
-#include <sstream>
+#include <stdexcept>
+#include <utility>
+
+#include "common/Global.h"
+#include "egraph/Enode.h"
+#include "egraph/EnodeTypes.h"
+#include "ibex_Interval.h"
+#include "util/box.h"
 #include "util/logging.h"
 
 using std::cerr;

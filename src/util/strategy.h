@@ -20,12 +20,20 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <memory>
+
 #include "contractor/contractor.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
 #include "util/scoped_vec.h"
 
+struct SMTConfig;
+
 namespace dreal {
+class box;
+class constraint;
+template <typename T>
+class scoped_vec;
+
 class strategy {
 public:
     // Takes a stack of constraint and a box, return a contractor

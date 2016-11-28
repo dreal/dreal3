@@ -12,6 +12,9 @@
 // distributed under the terms of the GNU General Public License.
 // Consult  http://capd.ii.uj.edu.pl/ for details.
 
+#include <exception>
+#include <iostream>
+
 #include "capd/capdlib.h"
 
 using namespace capd;

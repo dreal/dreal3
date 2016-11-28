@@ -8,9 +8,16 @@
  * Copyright 2015 IBEX Team
  * ---------------------------------------------------------------------------- */
 
+#include <stdlib.h>
+#include <string.h>
 #include <iostream>
 #include <sstream>
-#include "ibex/ibex.h"
+#include <string>
+
+#include "ibex_DefaultOptimizer.h"
+#include "ibex_Exception.h"
+#include "ibex_SyntaxError.h"
+#include "ibex_System.h"
 
 using std::stringstream;
 using std::cerr;

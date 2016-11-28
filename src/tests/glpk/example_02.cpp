@@ -18,14 +18,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <cassert>
-#include <cstdio>
+#include <memory>
 #include <unordered_set>
-#include "opensmt/api/OpenSMTContext.h"
+
+#include "ibex_Interval.h"
 #include "opensmt/api/opensmt_c.h"
 #include "util/box.h"
 #include "util/glpk_wrapper.h"
+
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"
+
+class Enode;
+class OpenSMTContext;
 
 using std::unordered_set;
 

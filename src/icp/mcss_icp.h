@@ -20,12 +20,20 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <memory>
+
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
 #include "icp/brancher.h"
 #include "util/scoped_vec.h"
 
 namespace dreal {
+class BranchHeuristic;
+class constraint;
+class contractor;
+class contractor_status;
+template <typename T>
+class scoped_vec;
+
 class mcss_icp {
 private:
     static BranchHeuristic & defaultHeuristic;

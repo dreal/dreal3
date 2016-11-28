@@ -20,7 +20,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/string.h"
-#include <string>
 
 namespace dreal {
 bool starts_with(std::string const & s, std::string const & prefix) {

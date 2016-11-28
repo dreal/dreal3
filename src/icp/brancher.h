@@ -23,12 +23,21 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <limits>
 #include <memory>
 #include <vector>
+
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
+#include "ibex_BitSet.h"
 #include "util/box.h"
 #include "util/scoped_vec.h"
 
+struct SMTConfig;
+
 namespace dreal {
+class box;
+class constraint;
+template <typename T>
+class scoped_vec;
+
 class BranchHeuristic {
 public:
     std::vector<int> sort_branches(box const &,

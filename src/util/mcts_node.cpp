@@ -17,9 +17,12 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <assert.h>
+#include <math.h>
 #include <limits>
 
 #include "util/logging.h"
+#include "util/mcts_expander.h"
 #include "util/mcts_node.h"
 
 using dreal::mcts_node;

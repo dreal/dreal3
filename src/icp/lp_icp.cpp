@@ -19,20 +19,36 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "icp/lp_icp.h"
+
+#include <assert.h>
+
+#include <iostream>
 #include <memory>
 #include <stack>
+#include <string>
 #include <tuple>
 #include <unordered_set>
 #include <vector>
+
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
+#include "contractor/contractor.h"
+#include "contractor/contractor_status.h"
+#include "egraph/Enode.h"
+#include "ibex_Interval.h"
 #include "icp/brancher.h"
 #include "icp/icp.h"
+#include "smtsolvers/SMTConfig.h"
+#include "util/box.h"
 #include "util/glpk_wrapper.h"
 #include "util/logging.h"
-#include "util/scoped_vec.h"
 #include "util/stat.h"
 #include "util/thread_local.h"
+
+namespace dreal {
+template <typename T>
+class scoped_vec;
+}  // namespace dreal
 
 using std::cerr;
 using std::cout;

@@ -18,15 +18,36 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <cmath>
-#include <sstream>
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include "util/fp.h"
-#include "egraph/Egraph.h"
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <list>
+#include <map>
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "common/Global.h"
 #include "common/LA.h"
-#include "simplifiers/BVNormalize.h"
+#include "common/SplayTree.h"
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "egraph/EnodeTypes.h"
+#include "egraph/SigTab.h"
+#include "minisat/core/SolverTypes.h"
 #include "simplifiers/BVBooleanize.h"
-#include "smtsolvers/SimpSMTSolver.h"
+#include "simplifiers/BVNormalize.h"
+#include "smtsolvers/SMTConfig.h"
+#include "sorts/SStore.h"
+#include "sorts/Snode.h"
+#include "util/fp.h"
 #include "version.h"
 
 using std::ostringstream;

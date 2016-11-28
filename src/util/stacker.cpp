@@ -19,15 +19,20 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/stacker.h"
 
+#include <assert.h>
 #include <algorithm>
 #include <cmath>
 #include <limits>
 #include <memory>
 #include <vector>
 
+#include "constraint/constraint.h"
 #include "util/logging.h"
 
 namespace dreal {
+
+template <typename T>
+class scoped_vec;
 
 using std::vector;
 using std::shared_ptr;

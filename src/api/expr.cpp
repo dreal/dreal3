@@ -18,14 +18,18 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <assert.h>
+#include <iostream>
 #include <list>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
+
 #include "api/dreal.h"
+#include "egraph/Enode.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "util/enode_utils.h"
-#include "util/logging.h"
 
 using std::cerr;
 using std::endl;

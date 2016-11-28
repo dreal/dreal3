@@ -28,9 +28,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <limits>
 #include "common/Global.h"
 #include "egraph/Egraph.h"
+#include "egraph/Enode.h"
 #include "sorts/SStore.h"
 #include "api/OpenSMTContext.h"
-#include "../util/automaton.h"
+#include "util/automaton.h"
 
 using std::vector;
 using std::unordered_map;

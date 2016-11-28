@@ -19,9 +19,18 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 // Related issue: https://github.com/ibex-team/ibex-lib/issues/145
 
-#include <algorithm>
 #include <iostream>
-#include "ibex/ibex.h"
+
+#include "ibex_CtcNewton.h"
+#include "ibex_Expr.h"
+#include "ibex_Function.h"
+#include "ibex_IntervalVector.h"
+
+namespace ibex {
+class CtcFwdBwd;
+class Interval;
+class NumConstraint;
+}  // namespace ibex
 
 using ibex::Variable;
 using ibex::Function;

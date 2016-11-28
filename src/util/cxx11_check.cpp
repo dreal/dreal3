@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,16 +18,24 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/cxx11_check.h"
+
 #include "./dreal_config.h"
+#include "capd/intervals/lib.h"
+#include "capd/vectalg/lib.h"
 #include "contractor/contractor.h"
+#include "ibex/ibex.h"
 #include "util/box.h"
 #include "util/static_warning.h"
 
-#ifdef SUPPORT_ODE
-#include "capd/capdlib.h"
-#endif
+namespace ibex {
+class Interval;
+class IntervalVector;
+}  // namespace ibex
 
 namespace dreal {
+
+class box;
+class contractor;
 
 void check_nothrow_move_constructible() {
     // reference: http://stackoverflow.com/questions/8936063/does-there-exist-a-static-warning

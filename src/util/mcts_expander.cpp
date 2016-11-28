@@ -18,10 +18,22 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/mcts_expander.h"
+
+#include <assert.h>
+#include <stddef.h>
+#include <iostream>
 #include <tuple>
 #include <vector>
+
+#include "contractor/contractor.h"
+#include "contractor/contractor_exception.h"
+#include "contractor/contractor_status.h"
+#include "icp/brancher.h"
+#include "smtsolvers/SMTConfig.h"
+#include "util/box.h"
 #include "util/logging.h"
 #include "util/mcts_node.h"
+#include "util/stat.h"
 
 using std::vector;
 using std::tuple;

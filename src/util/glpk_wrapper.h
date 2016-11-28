@@ -21,11 +21,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
 #include "./dreal_config.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/logging.h"
+
+class Enode;
 
 #ifdef USE_GLPK
 #include "./glpk.h"

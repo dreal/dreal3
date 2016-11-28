@@ -18,8 +18,20 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "tsolvers/THandler.h"
-#include "smtsolvers/CoreSMTSolver.h"
+
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/wait.h>
+#include <unistd.h>
+
+#include <iostream>
+
+#include "common/Global.h"
+#include "egraph/Enode.h"
+#include "minisat/mtl/Vec.h"
+#include "smtsolvers/SMTConfig.h"
+#include "smtsolvers/SMTSolver.h"
 #include "util/logging.h"
 
 using std::vector;

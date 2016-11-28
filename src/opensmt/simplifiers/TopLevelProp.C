@@ -18,8 +18,19 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
  *********************************************************************/
 
 #include "TopLevelProp.h"
-#include "common/LA.h"
+
+#include <assert.h>
+#include <stddef.h>
+
+
+#include <list>
+#include <utility>
+
 #include "BVNormalize.h"
+#include "common/LA.h"
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "smtsolvers/SMTConfig.h"
 
 #define INLINE_CONSTANTS         0
 #define SIMPLIFY_TWIN_EQUALITIES 1

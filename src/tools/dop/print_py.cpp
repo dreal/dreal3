@@ -18,9 +18,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "tools/dop/print_py.h"
-#include <exception>
-#include <sstream>
+
+#include <functional>
+#include <stdexcept>
 #include <string>
+#include <unordered_map>
+
+#include "opensmt/egraph/Enode.h"
 #include "tools/dop/print.h"
 
 namespace dop {

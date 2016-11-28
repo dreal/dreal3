@@ -20,17 +20,28 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "icp/mcss_icp.h"
 
+#include <assert.h>
 #include <memory>
+#include <ostream>
 #include <tuple>
 #include <vector>
 
-#include "constraint/constraint.h"
+#include "contractor/contractor.h"
+#include "contractor/contractor_status.h"
 #include "icp/brancher.h"
 #include "icp/icp_util.h"
+#include "smtsolvers/SMTConfig.h"
+#include "util/box.h"
 #include "util/logging.h"
-#include "util/scoped_vec.h"
 #include "util/stacker.h"
+#include "util/stat.h"
 #include "util/thread_local.h"
+
+namespace dreal {
+class constraint;
+template <typename T>
+class scoped_vec;
+}  // namespace dreal
 
 using std::endl;
 using std::get;

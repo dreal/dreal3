@@ -18,16 +18,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include <cstddef>
 #include <initializer_list>
 #include <iostream>
 #include <memory>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
 #include "ibex/ibex.h"
 #include "json/json.hpp"
 #include "opensmt/egraph/Enode.h"

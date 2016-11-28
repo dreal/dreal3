@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>
+
 #include "opensmt/api/opensmt_c.h"
 
 // Related Issue: https://github.com/dreal/dreal3/issues/149

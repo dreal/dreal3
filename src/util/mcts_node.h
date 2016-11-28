@@ -19,8 +19,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <stddef.h>
 #include <queue>
 #include <vector>
+
 #include "util/box.h"
 #include "util/logging.h"
 #include "util/mcts_expander.h"
@@ -28,8 +30,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 using std::vector;
 
 namespace dreal {
-class mcts_node;
 class mcts_expander;
+class mcts_node;
 
 struct mcts_node_compare {
     bool operator()(const mcts_node * a, const mcts_node * b) { return &a < &b; }

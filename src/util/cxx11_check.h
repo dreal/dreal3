@@ -19,6 +19,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <iostream>
+#include <type_traits>
+
 #include "util/type_name.h"
 
 namespace dreal {

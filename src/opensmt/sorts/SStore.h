@@ -20,9 +20,20 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SSTORE_H
 #define SSTORE_H
 
-#include "sorts/Snode.h"
-#include "smtsolvers/SMTConfig.h"
+
+#include <assert.h>
+#include <stddef.h>
+#include <iosfwd>
+#include <list>
+#include <map>
+#include <vector>
+
+#include "common/Global.h"
 #include "common/SplayTree.h"
+#include "smtsolvers/SMTConfig.h"
+#include "sorts/Snode.h"
+
+struct SMTConfig;
 
 class SStore
 {

@@ -18,8 +18,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <stdio.h>
+#include <iosfwd>
 #include <string>
 #include <vector>
+
 #include "opensmt/api/opensmt_c.h"
 
 using std::string;

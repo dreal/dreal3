@@ -19,7 +19,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "icp/icp_util.h"
+
+#include <stdlib.h>
 #include <iostream>
+#include <memory>
+
+#include "contractor/contractor.h"
+#include "contractor/contractor_exception.h"
+#include "smtsolvers/SMTConfig.h"
+#include "util/box.h"
+
+namespace dreal {
+class contractor_status;
+}  // namespace dreal
 
 using std::cout;
 using std::endl;

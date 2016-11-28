@@ -20,9 +20,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/hexfloat.h"
-#include <string>
+
+#include <stdio.h>
+
 #include "util/logging.h"
-#include "util/string.h"
 
 using std::string;
 

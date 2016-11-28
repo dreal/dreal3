@@ -19,13 +19,24 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+#include <iosfwd>
 #include <map>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+
 #include "ibex/ibex.h"
+#include "ibex_Interval.h"
+#include "minisat/core/SolverTypes.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
+
+class Enode;
+namespace ibex {
+class ExprCtr;
+class ExprNode;
+class ExprSymbol;
+}  // namespace ibex
 
 namespace dreal {
 ibex::Interval str_to_ibex_interval(std::string const & s);

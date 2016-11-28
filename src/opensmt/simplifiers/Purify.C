@@ -19,6 +19,14 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Purify.h"
 
+#include <assert.h>
+
+#include "common/Global.h"
+#include "egraph/Egraph.h"
+#include "smtsolvers/SMTConfig.h"
+
+class Enode;
+
 Enode *
 Purify::doit( Enode * formula )
 {

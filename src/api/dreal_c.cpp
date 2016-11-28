@@ -19,18 +19,27 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "api/dreal_c.h"
+
+#include <assert.h>
+#include <iostream>
 #include <limits>
 #include <list>
+#include <map>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
-#include "./dreal_config.h"
+
 #include "./version.h"
+#include "common/Global.h"
+#include "egraph/Enode.h"
+#include "minisat/core/SolverTypes.h"
+#include "minisat/mtl/Vec.h"
 #include "opensmt/api/OpenSMTContext.h"
-#include "opensmt/cnfizers/Tseitin.h"
-#include "opensmt/egraph/Egraph.h"
-#include "opensmt/smtsolvers/SimpSMTSolver.h"
+#include "smtsolvers/SMTConfig.h"
 #include "util/logging.h"
+
+class Snode;
 
 using std::string;
 using std::numeric_limits;

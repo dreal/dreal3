@@ -18,11 +18,14 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <algorithm>
+#include <cassert>
 #include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <deque>
+#include <functional>
 #include <initializer_list>
 #include <iostream>
-#include <iterator>
 #include <limits>
 #include <map>
 #include <memory>
@@ -34,8 +37,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "constraint/constraint.h"
-#include "ibex/ibex_ExprCopy.h"
+#include "ibex/ibex.h"
+#include "interval/interval.icc"
 #include "opensmt/egraph/Enode.h"
+#include "util/box.h"
 #include "util/flow.h"
 #include "util/ibex_enode.h"
 #include "util/logging.h"

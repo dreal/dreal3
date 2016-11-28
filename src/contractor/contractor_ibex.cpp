@@ -18,24 +18,31 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "contractor/contractor_ibex.h"
-#include <algorithm>
+
+#include <assert.h>
+
+#include <deque>
 #include <functional>
 #include <initializer_list>
+#include <iostream>
 #include <iterator>
 #include <map>
 #include <memory>
 #include <queue>
-#include <sstream>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include "./dreal_config.h"
+
 #include "constraint/constraint.h"
+#include "contractor/contractor_kind.h"
+#include "contractor/contractor_status.h"
 #include "ibex/ibex.h"
+#include "minisat/core/SolverTypes.h"
 #include "opensmt/egraph/Enode.h"
+#include "smtsolvers/SMTConfig.h"
 #include "util/box.h"
 #include "util/ibex_enode.h"
 #include "util/logging.h"

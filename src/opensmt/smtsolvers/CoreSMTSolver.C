@@ -37,20 +37,26 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 **************************************************************************************************/
 
 #include "smtsolvers/CoreSMTSolver.h"
-#include "tsolvers/THandler.h"
-#include "minisat/mtl/Sort.h"
+
+#include <stdlib.h>
+
 #include <cmath>
-#include <chrono>
-#include "util/logging.h"
+#include <cstddef>
+#include <list>
+
+#include "egraph/Egraph.h"
 #include "heuristics/heuristic.h"
-#include "heuristics/plan_heuristic.h"
 #include "heuristics/hybrid_heuristic.h"
- 
+#include "heuristics/plan_heuristic.h"
+#include "minisat/mtl/Alg.h"
+#include "minisat/mtl/Sort.h"
+#include "smtsolvers/SMTConfig.h"
+#include "tsolvers/THandler.h"
+#include "util/logging.h"
+
 
 #ifndef OPTIMIZE
 #include <iostream>
-#include <fstream>
-#include <sys/wait.h>
 #endif
 
 using std::vector;
@@ -126,7 +132,7 @@ CoreSMTSolver::CoreSMTSolver( Egraph & e, SMTConfig & c )
     heuristic = new dreal::hybrid_heuristic();
   } else {
     heuristic = new dreal::heuristic();
-  } 
+  }
 
 }
 
@@ -384,9 +390,9 @@ void CoreSMTSolver::attachClause(Clause& c) {
       DREAL_LOG_DEBUG << " ";
   }
   DREAL_LOG_DEBUG << ")";
-	 
-	
-  
+
+
+
   assert(c.size() > 1);
   watches[toInt(~c[0])].push(&c);
   watches[toInt(~c[1])].push(&c);
@@ -649,19 +655,19 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
     {
       Lit sugg = heuristic->getSuggestion( );
       if(sugg == lit_Error){
-	DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Heuristic determined UNSAT!" << endl;
-	return sugg;
+  DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Heuristic determined UNSAT!" << endl;
+  return sugg;
       }
-      
+
       if(var(sugg) != var_Undef){
-	      bool sign = false;
+        bool sign = false;
       switch (polarity_mode){
         case polarity_true:  sign = false; break;
         case polarity_false: sign = true;  break;
         case polarity_user:  sign = polarity[next]; break;
         case polarity_rnd:   sign = irand(random_seed, 2); break;
         default: assert(false); }
- 
+
         DREAL_LOG_DEBUG << "CoreSMTSolver::pickBranchLit() Heuristic Suggested Decision: "
                         << sign << " " << theory_handler->varToEnode(var(sugg))
                         << " activity = " << activity[var(sugg)]
@@ -687,7 +693,7 @@ Lit CoreSMTSolver::pickBranchLit(int polarity_mode, double random_var_freq)
             break;
         }else
             next = order_heap.removeMin();
-    
+
     if ( next == var_Undef
          && ( config.logic == QF_UFIDL || config.logic == QF_UFLRA )
          && config.sat_lazy_dtc != 0 )
@@ -1703,7 +1709,7 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
   starts++;
 
 //  bool first = true;
- 
+
 #ifdef STATISTICS
   const double start = cpuTime( );
 #endif
@@ -1722,15 +1728,15 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
   //
   boolVarDecActivity( );
   bool justBacktracked = false;
-  
+
   for (;;)
-  {   
+  {
     // Added line
     if ( opensmt::stop ) return l_Undef;
 
     Clause* confl = propagate();
     if (confl != NULL){
-      
+
       DREAL_LOG_DEBUG << "Found conflict";
       // CONFLICT
       conflicts++; conflictC++;
@@ -1780,18 +1786,18 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 
     }else{
       if(justBacktracked && config.nra_show_search_progress){
-	std::cout << endl;
-	for(int bt = 0; bt < decisionLevel(); bt++){
-	  if(bt == decisionLevel()-1)
-	    std::cout << "\\" << std::flush;
-	  else
-	    std::cout << "|" << std::flush;
-	}
-	justBacktracked = false;
+  std::cout << endl;
+  for(int bt = 0; bt < decisionLevel(); bt++){
+    if(bt == decisionLevel()-1)
+      std::cout << "\\" << std::flush;
+    else
+      std::cout << "|" << std::flush;
+  }
+  justBacktracked = false;
       }
 
       if (config.nra_show_search_progress){
-	std::cout << "+" << std::flush;
+  std::cout << "+" << std::flush;
       }
       // NO CONFLICT
 
@@ -1821,11 +1827,11 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 #ifdef STATISTICS
           tsolvers_time += cpuTime( ) - start;
 #endif
-	   if (res < 1){
-	     justBacktracked = true;
-	   }
+     if (res < 1){
+       justBacktracked = true;
+     }
 
-	  
+
           switch( res )
           {
             case -1: return l_False;        // Top-Level conflict: unsat
@@ -1896,64 +1902,64 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
             next = lit_Undef;
             DREAL_LOG_INFO << "Found Model after # decisions " << decisions << endl;
           }
-	    if ( next == lit_Error )
-	    {
-	      //	      return l_False;
-	      Clause* confl = heuristic->getConflict( );
-	      if (confl != NULL){
+      if ( next == lit_Error )
+      {
+        //        return l_False;
+        Clause* confl = heuristic->getConflict( );
+        if (confl != NULL){
 
-		justBacktracked=true;
-		
-		DREAL_LOG_DEBUG << "Analyze Conflict";
-		// CONFLICT
-		conflicts++; conflictC++;
-		if (decisionLevel() == 0 || confl->size() == 0)
-		  return l_False;
-		
-		//      first = false;
-		learnt_clause.clear();
-		analyze(confl, learnt_clause, backtrack_level);
-		cancelUntil(backtrack_level);
+    justBacktracked=true;
 
-		assert(value(learnt_clause[0]) == l_Undef);
+    DREAL_LOG_DEBUG << "Analyze Conflict";
+    // CONFLICT
+    conflicts++; conflictC++;
+    if (decisionLevel() == 0 || confl->size() == 0)
+      return l_False;
 
-		if (learnt_clause.size() == 1){
-		  uncheckedEnqueue(learnt_clause[0]);
+    //      first = false;
+    learnt_clause.clear();
+    analyze(confl, learnt_clause, backtrack_level);
+    cancelUntil(backtrack_level);
+
+    assert(value(learnt_clause[0]) == l_Undef);
+
+    if (learnt_clause.size() == 1){
+      uncheckedEnqueue(learnt_clause[0]);
 #ifdef PRODUCE_PROOF
-		  Clause * c = Clause_new( learnt_clause, false );
-		  proof.endChain( c );
-		  assert( units[ var(learnt_clause[0]) ] == NULL );
-		  units[ var(learnt_clause[0]) ] = proof.last( );
+      Clause * c = Clause_new( learnt_clause, false );
+      proof.endChain( c );
+      assert( units[ var(learnt_clause[0]) ] == NULL );
+      units[ var(learnt_clause[0]) ] = proof.last( );
 #endif
-		}else{
-		  Clause * c = Clause_new( learnt_clause, true );
+    }else{
+      Clause * c = Clause_new( learnt_clause, true );
 #ifdef PRODUCE_PROOF
-		  proof.endChain( c );
-		  if ( config.incremental )
-		    {
-		      undo_stack_oper.push_back( NEWPROOF );
-		      undo_stack_elem.push_back( (void *)c );
-		    }
+      proof.endChain( c );
+      if ( config.incremental )
+        {
+          undo_stack_oper.push_back( NEWPROOF );
+          undo_stack_elem.push_back( (void *)c );
+        }
 #endif
-		  learnts.push(c);
+      learnts.push(c);
 #ifndef SMTCOMP
-		  undo_stack_oper.push_back( NEWLEARNT );
-		  undo_stack_elem.push_back( (void *)c );
+      undo_stack_oper.push_back( NEWLEARNT );
+      undo_stack_elem.push_back( (void *)c );
 #endif
-		  attachClause(*c);
-		  claBumpActivity(*c);
-		  uncheckedEnqueue(learnt_clause[0], c);
-		}
-		
-		varDecayActivity();
-		claDecayActivity();
-		DREAL_LOG_DEBUG << "Done Analyze Conflict";
-		
-	      }
-	      continue;
-	    }
-	   
-	  
+      attachClause(*c);
+      claBumpActivity(*c);
+      uncheckedEnqueue(learnt_clause[0], c);
+    }
+
+    varDecayActivity();
+    claDecayActivity();
+    DREAL_LOG_DEBUG << "Done Analyze Conflict";
+
+        }
+        continue;
+      }
+
+
           // Complete Call
           if ( next == lit_Undef )
           {
@@ -1963,9 +1969,9 @@ lbool CoreSMTSolver::search(int nof_conflicts, int nof_learnts)
 #endif
             int res = checkTheory( true );
 
-	    if (res < 1){
-	      justBacktracked=true;
-	    }
+      if (res < 1){
+        justBacktracked=true;
+      }
 
 #ifdef STATISTICS
             tsolvers_time += cpuTime( ) - start;
@@ -2122,9 +2128,9 @@ lbool CoreSMTSolver::solve( const vec<Lit> & assumps
         next_printout *= restart_inc;
     }
 #endif
- 
+
     status = search((int)nof_conflicts, (int)nof_learnts);
- 
+
     nof_conflicts = restartNextLimit( nof_conflicts );
     cstop = cstop || ( max_conflicts != 0
                     && nLearnts() > (int)max_conflicts + (int)old_conflicts );

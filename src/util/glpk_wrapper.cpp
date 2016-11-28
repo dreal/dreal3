@@ -18,13 +18,21 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/glpk_wrapper.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <cstdio>
-#include <exception>
+#include <map>
+#include <ostream>
+#include <stdexcept>
+#include <string>
+#include <utility>
+
 #include "./dreal_config.h"
-#include "ibex/ibex.h"
+#include "./glpk.h"
+#include "egraph/Enode.h"
+#include "ibex_Interval.h"
+#include "minisat/core/SolverTypes.h"
 #include "opensmt/common/LA.h"
 #include "util/logging.h"
 

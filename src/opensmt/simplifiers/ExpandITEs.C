@@ -19,6 +19,17 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ExpandITEs.h"
 
+#include <assert.h>
+#include <stdio.h>
+#include <list>
+#include <vector>
+
+#include "common/Global.h"
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+
+class Snode;
+
 using std::list;
 using std::vector;
 

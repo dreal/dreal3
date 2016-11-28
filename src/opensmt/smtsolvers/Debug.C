@@ -17,8 +17,23 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "smtsolvers/CoreSMTSolver.h"
+#include <assert.h>
+#include <stdio.h>
+
 #include <iomanip>
+#include <iostream>
+#include <map>
+#include <utility>
+#include <vector>
+
+#include "common/Global.h"
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "minisat/core/SolverTypes.h"
+#include "minisat/mtl/Vec.h"
+#include "smtsolvers/CoreSMTSolver.h"
+#include "smtsolvers/SMTConfig.h"
+#include "tsolvers/THandler.h"
 
 using std::map;
 using std::endl;
@@ -183,15 +198,15 @@ void CoreSMTSolver::printCurrentAssignment( ostream & out, bool  )
 {
     for (Var v = 2; v < nVars(); v++)
       {
-	Enode * e = theory_handler->varToEnode( v );
-	if(e && !e->isTLit() && //model != NULL && model.size() >= v &&
-	   !e->isSymb()
-	   ){
-	  
-	  out << std::setw(40) << e << " : " << (assigns[v] == toInt(l_True) ? "T" : (assigns[v] == toInt(l_False) ? "F" : "U"))  << endl;      
-	}
+  Enode * e = theory_handler->varToEnode( v );
+  if(e && !e->isTLit() && //model != NULL && model.size() >= v &&
+     !e->isSymb()
+     ){
+
+    out << std::setw(40) << e << " : " << (assigns[v] == toInt(l_True) ? "T" : (assigns[v] == toInt(l_False) ? "F" : "U"))  << endl;
+  }
       }
- 
+
     const std::vector< Pair (Enode *) > substitutions = egraph.getSubstitutions();
   for(auto p : substitutions){
     if (p.second->isTrue()) {
@@ -201,6 +216,6 @@ void CoreSMTSolver::printCurrentAssignment( ostream & out, bool  )
     }
     out << endl;
   }
-  
+
 }
 #endif

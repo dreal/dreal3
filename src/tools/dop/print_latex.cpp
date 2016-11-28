@@ -18,10 +18,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "tools/dop/print_latex.h"
-#include <exception>
-#include <sstream>
-#include <string>
-#include "tools/dop/print.h"
+
+#include <assert.h>       // for assert
+#include <functional>     // for __base, function
+#include <stdexcept>      // for runtime_error
+#include <string>         // for allocator, operator+, basic_string
+#include <unordered_map>  // for unordered_map
+
+#include "egraph/Enode.h"     // for Enode, operator<<
+#include "tools/dop/print.h"  // for print_call_paren, print_call_brace
 
 namespace dop {
 

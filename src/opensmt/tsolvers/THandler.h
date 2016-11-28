@@ -20,12 +20,18 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef THANDLER_H
 #define THANDLER_H
 
+#include <stddef.h>
 #include <vector>
-#include "smtsolvers/SMTConfig.h"
+
 #include "egraph/Egraph.h"
+#include "minisat/core/SolverTypes.h"
+#include "smtsolvers/SMTConfig.h"
 #include "tsolvers/TSolver.h"
 
+class Enode;
 class SMTSolver; // Forward declaration
+struct SMTConfig;
+template <class T> class vec;
 
 class THandler
 {

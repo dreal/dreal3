@@ -20,10 +20,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <unordered_map>
+
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 
+class Enode;
+
 namespace dreal {
+class box;
+
 double eval_enode(Enode * const e, std::unordered_map<Enode *, double> const & var_map);
 double eval_enode_term(Enode * const e, box const & b);
 bool eval_enode_formula(Enode * const e, box const & b, bool const polarity);

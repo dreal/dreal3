@@ -19,6 +19,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "simplifiers/BVNormalize.h"
 
+class Enode;
+
 Enode *
 BVNormalize::doit( Enode * formula )
 {

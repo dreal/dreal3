@@ -18,9 +18,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/automaton.h"
+
+#include <assert.h>
 #include <iostream>
 #include <unordered_map>
+#include <utility>
 #include <vector>
+
+class Enode;
+class OpenSMTContext;
 
 using std::cerr;
 using std::endl;

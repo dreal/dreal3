@@ -24,8 +24,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 #include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
+
+class Enode;
 
 namespace dreal {
 class flow {

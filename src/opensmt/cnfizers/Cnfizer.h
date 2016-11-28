@@ -23,10 +23,18 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <set>
 #include <vector>
+
 #include "common/Global.h"
 #include "common/Otl.h"
-#include "smtsolvers/SMTSolver.h"
 #include "egraph/Egraph.h"
+#include "minisat/core/SolverTypes.h"
+#include "smtsolvers/SMTSolver.h"
+
+class Egraph;
+class Enode;
+class SMTSolver;
+class SStore;
+struct SMTConfig;
 
 //
 // Generic class for conversion into CNF

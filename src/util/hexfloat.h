@@ -19,7 +19,9 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <iosfwd>
 #include <string>
+
 #include "util/string.h"
 
 namespace dreal {

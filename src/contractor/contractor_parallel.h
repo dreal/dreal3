@@ -23,6 +23,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <condition_variable>
 #include <initializer_list>
+#include <iosfwd>
 #include <memory>
 #include <mutex>
 #include <stdexcept>
@@ -30,6 +31,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
@@ -38,6 +40,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 
 namespace dreal {
+
+class contractor;
+class contractor_status;
 
 enum class pruning_thread_status { READY, RUNNING, SAT, UNSAT, EXCEPTION, KILLED };
 

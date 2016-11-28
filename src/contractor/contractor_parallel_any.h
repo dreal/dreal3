@@ -18,11 +18,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
+
 #include <algorithm>
 #include <atomic>
 #include <cassert>
 #include <condition_variable>
 #include <initializer_list>
+#include <iosfwd>
 #include <memory>
 #include <mutex>
 #include <stdexcept>
@@ -30,9 +32,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
+#include "contractor/contractor_cell.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
@@ -43,6 +47,8 @@ namespace dreal {
 // - Run C1, C2, ... , Cn in parallel
 // - If Ci returns SAT/Exception, then cancel the rest threads and propagate the result from Ci
 // - Otherwise, return UNSAT.
+class contractor_status;
+
 class contractor_parallel_any : public contractor_cell {
 private:
     std::vector<contractor> m_vec;

@@ -18,6 +18,17 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "cnfizers/Cnfizer.h"
+
+#include <assert.h>
+#include <stddef.h>
+
+
+#include <utility>
+
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "smtsolvers/SMTSolver.h"
+
 using std::vector;
 using std::map;
 using std::set;

@@ -21,6 +21,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <initializer_list>
+#include <iosfwd>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -28,14 +29,23 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
 #include "./dreal_config.h"
 #include "contractor/contractor.h"
+#include "contractor/contractor_cell.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
 
+class Egraph;
+class Enode;
+struct SMTConfig;
+
 namespace dreal {
 /// Contractor for handling forall constraint
+class contractor_status;
+class forall_constraint;
+
 class contractor_forall : public contractor_cell {
 private:
     std::shared_ptr<forall_constraint> const m_ctr;

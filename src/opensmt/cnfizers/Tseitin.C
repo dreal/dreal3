@@ -17,8 +17,16 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "cnfizers/Cnfizer.h"
+#include <assert.h>
+#include <stdio.h>
+#include <vector>
+
 #include "Tseitin.h"
+#include "common/Global.h"
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "smtsolvers/SMTSolver.h"
+#include "sorts/SStore.h"
 
 using std::vector;
 using std::map;

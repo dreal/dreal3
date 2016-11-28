@@ -19,8 +19,10 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "api/OpenSMTContext.h"
-#include "util/automaton.h"
+class OpenSMTContext;
+namespace dreal {
+class automaton;
+}  // namespace dreal
 
 OpenSMTContext * parser_ctx;
 dreal::automaton * atmp;

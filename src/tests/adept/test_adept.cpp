@@ -8,8 +8,8 @@
    without any warranty.
 */
 
-#include <cmath>
 #include <iostream>
+
 #include "./adept.h"
 
 // A simple demonstration algorithm used in the Adept paper. Note that

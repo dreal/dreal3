@@ -18,8 +18,12 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <fenv.h>
+#include <stddef.h>
+
+#include <iostream>
+#include <memory>
+
 #include "Enode.h"
-#include "util/string.h"
 
 using std::unordered_set;
 using std::cerr;

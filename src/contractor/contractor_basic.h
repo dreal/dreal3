@@ -20,8 +20,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <initializer_list>
 #include <memory>
+#include <ostream>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -33,6 +35,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
+#include "contractor/contractor_cell.h"
+#include "contractor/contractor_exception.h"
+#include "contractor/contractor_kind.h"
+#include "contractor/contractor_status.h"
+#include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
@@ -41,6 +48,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 
 // contractor_id : identity
+class constraint;
+class nonlinear_constraint;
+
 class contractor_id : public contractor_cell {
 private:
 public:

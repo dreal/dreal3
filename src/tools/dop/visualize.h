@@ -21,7 +21,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <string>
 #include <unordered_map>
+
 #include "opensmt/egraph/Enode.h"
+
+class Enode;
 
 namespace dop {
 void run_visualization(Enode * const f, std::unordered_map<std::string, Enode *> const & var_map,

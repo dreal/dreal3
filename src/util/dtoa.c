@@ -218,6 +218,7 @@ typedef unsigned Long ULong;
 #ifdef DEBUG
 #include <assert.h>
 #include <stdio.h>
+
 #define Bug(x) {fprintf(stderr, "%s\n", x); exit(1);}
 #define Debug(x) x
 int dtoa_stats[7]; /* strtod_{64,96,bigcomp},dtoa_{exact,64,96,bigcomp} */
@@ -228,6 +229,9 @@ int dtoa_stats[7]; /* strtod_{64,96,bigcomp},dtoa_{exact,64,96,bigcomp} */
 
 #include <stdlib.h>
 #include <string.h>
+#include <sys/errno.h>
+
+struct BCinfo;
 
 #ifdef USE_LOCALE
 #include <locale.h>
@@ -282,8 +286,6 @@ static double private_mem[PRIVATE_mem], *pmem_next = private_mem;
 #define NO_STRTOD_BIGCOMP
 #endif
 
-#include <errno.h>
-
 #ifdef Bad_float_h
 
 #ifdef IEEE_Arith
@@ -316,10 +318,6 @@ static double private_mem[PRIVATE_mem], *pmem_next = private_mem;
 #else /* ifndef Bad_float_h */
 #include <float.h>
 #endif /* Bad_float_h */
-
-#ifndef __MATH_H__
-#include <math.h>
-#endif
 
 #ifdef __cplusplus
 extern "C" {

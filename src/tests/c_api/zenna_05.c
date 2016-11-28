@@ -1,6 +1,5 @@
 #include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
+
 #include "opensmt/api/opensmt_c.h"
 
 // Related PR : https://github.com/dreal/DReal.jl/pull/23

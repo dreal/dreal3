@@ -18,13 +18,17 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/box.h"
+
 #include <iostream>
 #include <vector>
+
 #include "opensmt/api/OpenSMTContext.h"
-#include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
+
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"
+
+class Snode;
 
 using std::cerr;
 using std::endl;

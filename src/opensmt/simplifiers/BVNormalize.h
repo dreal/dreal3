@@ -21,9 +21,14 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define BV_NORMALIZE_HH
 
 #include <vector>
+
 #include "common/Global.h"
 #include "common/Otl.h"
 #include "egraph/Egraph.h"
+
+class Egraph;
+class Enode;
+struct SMTConfig;
 
 class BVNormalize
 {

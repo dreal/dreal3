@@ -19,12 +19,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <vector>
-#include "ibex/ibex.h"
+
+#include "ibex_Interval.h"
 #include "opensmt/api/OpenSMTContext.h"
-#include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/thread_local.h"
+
+class Snode;
 
 using std::cerr;
 using std::endl;

@@ -18,19 +18,28 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <fenv.h>
-#include <algorithm>
-#include <csignal>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <string>
 #include <unordered_map>
+
 #include "api/OpenSMTContext.h"
-#include "simplifiers/ExpandITEs.h"
+#include "dsolvers/nra_solver.h"
+#include "egraph/Enode.h"
+#include "simplifiers/Ackermanize.h"
 #include "simplifiers/ArraySimplify.h"
 #include "simplifiers/BVBooleanize.h"
-#include "simplifiers/TopLevelProp.h"
 #include "simplifiers/DLRescale.h"
-#include "simplifiers/Ackermanize.h"
+#include "simplifiers/ExpandITEs.h"
 #include "simplifiers/Purify.h"
-#include "util/string.h"
-#include "dsolvers/nra_solver.h"
+#include "simplifiers/TopLevelProp.h"
+#include "smtsolvers/CoreSMTSolver.h"
+#include "sorts/Snode.h"
+#include "tsolvers/TSolver.h"
+#include "util/flow.h"
+
+template <class T> class vec;
 
 using std::unordered_map;
 using std::cerr;
@@ -863,7 +872,7 @@ void OpenSMTContext::PrintResult( const lbool & result, const lbool & config_sta
         dreal::nra_solver* nra = dynamic_cast<dreal::nra_solver*>(t);
         if(nra && config.nra_output_num_nodes){
           out << solver.decisions
-	      << " " << config.icp_decisions()
+        << " " << config.icp_decisions()
               << endl;
         }
         if(nra && config.nra_model){

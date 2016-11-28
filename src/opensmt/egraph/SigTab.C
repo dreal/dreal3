@@ -19,6 +19,14 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SigTab.h"
 
+#include <assert.h>
+#include <stddef.h>
+
+#include <ostream>
+#include <utility>
+
+#include "egraph/Enode.h"
+
 using std::pair;
 using std::make_pair;
 using std::ostream;

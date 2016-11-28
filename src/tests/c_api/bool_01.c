@@ -18,8 +18,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <stdio.h>
-#include <assert.h>
+
 #include "opensmt/api/opensmt_c.h"
+
 #undef NDEBUG
 
 int main() {

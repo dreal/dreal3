@@ -22,11 +22,16 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include <unordered_map>
 #include <vector>
+
 #include "constraint/constraint.h"
 #include "util/box.h"
 #include "util/scoped_vec.h"
 
 namespace dreal {
+
+class constraint;
+template <typename T>
+class scoped_vec;
 
 class stacker {
 public:

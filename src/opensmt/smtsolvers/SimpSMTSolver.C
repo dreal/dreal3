@@ -36,10 +36,21 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **************************************************************************************************/
 
-#include "minisat/mtl/Sort.h"
-#include "smtsolvers/SimpSMTSolver.h"
-#include "util/logging.h"
+#include <stdlib.h>
+
 #include <vector>
+
+#include "egraph/Enode.h"
+#include "heuristics/heuristic.h"
+#include "minisat/mtl/Alg.h"
+#include "minisat/mtl/Sort.h"
+#include "smtsolvers/SMTConfig.h"
+#include "smtsolvers/SimpSMTSolver.h"
+#include "tsolvers/THandler.h"
+#include "util/logging.h"
+
+class Egraph;
+
 using std::vector;
 
 //=================================================================================================
@@ -334,7 +345,7 @@ skip_theory_preproc:
 #ifdef STATISTICS
   CoreSMTSolver::preproc_time = cpuTime( );
 #endif
-  
+
   lbool lresult = l_Undef;
   if (result) {
     if (!(config.nra_multiple_soln > 1)) {
@@ -543,7 +554,7 @@ bool SimpSMTSolver::addSMTClause( vector< Enode * > & smt_clause, uint64_t in )
     // Just add the literal
     //
     Lit l = theory_handler->enodeToLit( e );
-    heuristic->inform(e);    
+    heuristic->inform(e);
 #if NEW_SIMPLIFICATIONS
     if ( e->isTAtom( ) )
     {
@@ -981,13 +992,13 @@ void SimpSMTSolver::filterUnassigned()
     // order_heap.filter(ShortSatVarFilter(*this));
     for (int i = 2; i < nVars(); i++)
       {
-	// DREAL_LOG_DEBUG << "filterUnassigned(): check " << i << " "
-	// 		<< "in heap? " << order_heap.inHeap(i)
-	// 		<< " undef? " << (toLbool(assigns[i]) == l_Undef)
-	// 		<< " occurs? " << (i < occurs.size())
-	// 		<< " |occurs| = " << occurs.size();
+  // DREAL_LOG_DEBUG << "filterUnassigned(): check " << i << " "
+  //    << "in heap? " << order_heap.inHeap(i)
+  //    << " undef? " << (toLbool(assigns[i]) == l_Undef)
+  //    << " occurs? " << (i < occurs.size())
+  //    << " |occurs| = " << occurs.size();
         if (order_heap.inHeap(i) && toLbool(assigns[i]) == l_Undef && i < occurs.size()){
-	  //DREAL_LOG_DEBUG << "filterUnassigned(): checking " << i;
+    //DREAL_LOG_DEBUG << "filterUnassigned(): checking " << i;
           const vec<Clause*>& clauses = occurs[i];
           bool isInUnsat = false;
           for (int c = 0; c < clauses.size(); c++) {

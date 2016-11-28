@@ -18,36 +18,30 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "contractor/contractor_pseq.h"
+
 #include <algorithm>
 #include <atomic>
-#include <chrono>
 #include <exception>
 #include <functional>
 #include <future>
 #include <initializer_list>
+#include <iostream>
 #include <iterator>
-#include <limits>
-#include <map>
 #include <memory>
 #include <queue>
-#include <random>
 #include <set>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <tuple>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include "constraint/constraint.h"
+
 #include "contractor/contractor.h"
+#include "contractor/contractor_kind.h"
+#include "contractor/contractor_status.h"
 #include "ibex/ibex.h"
-#include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include "util/interruptible_thread.h"
 #include "util/logging.h"
-#include "util/proof.h"
 #include "util/thread_local.h"
 
 using std::async;

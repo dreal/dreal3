@@ -21,14 +21,26 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "plan_heuristic.h"
+
+#include <assert.h>
+#include <stdlib.h>
+
+
+
 #include <sstream>
 #include <string>
 #include <unordered_set>
 #include <utility>
+
+#include "egraph/Enode.h"
 #include "json/json.hpp"
-#include "opensmt/egraph/Egraph.h"
-#include "opensmt/tsolvers/TSolver.h"
+#include "minisat/core/SolverTypes.h"
+#include "minisat/mtl/Vec.h"
+#include "smtsolvers/SMTConfig.h"
+#include "tsolvers/THandler.h"
 #include "util/logging.h"
+
+class Egraph;
 
 using namespace std;
 using nlohmann::json;

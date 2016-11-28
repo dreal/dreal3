@@ -19,20 +19,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "contractor/contractor_basic.h"
 
-#include <algorithm>
-#include <chrono>
+#include <cassert>
 #include <exception>
 #include <functional>
 #include <initializer_list>
-#include <iterator>
+#include <iostream>
 #include <limits>
-#include <map>
 #include <memory>
 #include <queue>
-#include <random>
 #include <set>
-#include <sstream>
-#include <stack>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -41,9 +36,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "constraint/constraint.h"
+#include "contractor/contractor_exception.h"
 #include "ibex/ibex.h"
+#include "interval/interval.icc"
+#include "minisat/core/SolverTypes.h"
 #include "opensmt/egraph/Enode.h"
+#include "smtsolvers/SMTConfig.h"
 #include "util/box.h"
+#include "util/ibex_interval_hash.h"
 #include "util/interruptible_thread.h"
 #include "util/logging.h"
 #include "util/proof.h"

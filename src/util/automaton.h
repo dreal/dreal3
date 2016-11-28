@@ -22,10 +22,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+
 #include "api/OpenSMTContext.h"
 #include "egraph/Enode.h"
 #include "util/box.h"
 #include "util/flow.h"
+
+class Enode;
+class OpenSMTContext;
 
 namespace dreal {
 

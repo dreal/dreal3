@@ -22,6 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 #include <unordered_set>
+
 #include "./dreal_config.h"
 #include "contractor/contractor.h"
 #include "icp/brancher.h"
@@ -30,6 +31,19 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "util/glpk_wrapper.h"
 #include "util/scoped_vec.h"
+
+class Enode;
+namespace dreal {
+class BranchHeuristic;
+class box;
+class constraint;
+class contractor;
+class contractor_status;
+class glpk_wrapper;
+template <typename T>
+class scoped_vec;
+}  // namespace dreal
+struct SMTConfig;
 
 #ifdef USE_GLPK
 namespace dreal {

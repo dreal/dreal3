@@ -20,11 +20,18 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #include <memory>
 #include <vector>
+
 #include "contractor/contractor.h"
 #include "icp/icp.h"
 #include "opensmt/egraph/Egraph.h"
 
 namespace dreal {
+class constraint;
+class contractor;
+class contractor_status;
+template <typename T>
+class scoped_vec;
+
 class simulation_icp {
 public:
     static void solve(contractor &, contractor_status &,

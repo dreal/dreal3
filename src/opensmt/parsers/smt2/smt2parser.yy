@@ -30,6 +30,7 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #include "util/fp.h"
 #include "common/Global.h"
 #include "egraph/Egraph.h"
+#include "egraph/Enode.h"
 #include "sorts/SStore.h"
 #include "api/OpenSMTContext.h"
 

@@ -20,16 +20,26 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef OPENSMT_CONTEXT_H
 #define OPENSMT_CONTEXT_H
 
-#include <vector>
-#include <utility>
-#include <string>
+#include <assert.h>
+#include <stddef.h>
 #include <iostream>
 #include <list>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "egraph/Egraph.h"
-#include "smtsolvers/SimpSMTSolver.h"
-#include "cnfizers/Tseitin.h"
 #include "./dreal_config.h"
+#include "cnfizers/Tseitin.h"
+#include "common/Global.h"
+#include "egraph/Egraph.h"
+#include "minisat/core/SolverTypes.h"
+#include "smtsolvers/SMTConfig.h"
+#include "smtsolvers/SimpSMTSolver.h"
+#include "sorts/SStore.h"
+
+class Enode;
+class Snode;
+template <class T> class vec;
 
 class OpenSMTContext
 {

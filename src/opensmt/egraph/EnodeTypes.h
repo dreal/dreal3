@@ -310,7 +310,7 @@ struct SymbData
       size_t const l = strlen( name_ ) + 1;
       name = new char[ l ];
       strncpy( name, name_, l );
-#endif
+// #endif
     }
   }
 
@@ -329,4 +329,4 @@ struct SymbData
   Snode *            sort;
 };
 
-/* #endif */
+#endif

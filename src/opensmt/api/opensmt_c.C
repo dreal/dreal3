@@ -19,16 +19,27 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <string>
+#include <assert.h>
+#include <iostream>
 #include <limits>
+#include <list>
+#include <map>
+#include <new>
+#include <set>
 #include <utility>
-#include "api/opensmt_c.h"
+#include <vector>
+
 #include "api/OpenSMTContext.h"
-#include "egraph/Egraph.h"
-#include "cnfizers/Tseitin.h"
-#include "smtsolvers/SimpSMTSolver.h"
-#include "version.h"
+#include "api/opensmt_c.h"
+#include "common/Global.h"
+#include "egraph/Enode.h"
+#include "minisat/core/SolverTypes.h"
+#include "minisat/mtl/Vec.h"
+#include "smtsolvers/SMTConfig.h"
 #include "util/logging.h"
+#include "version.h"
+
+class Snode;
 
 using std::string;
 using std::numeric_limits;

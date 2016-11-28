@@ -19,30 +19,43 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "dsolvers/nra_solver.h"
+
+#include <assert.h>
+
 #include <algorithm>
-#include <exception>
+#include <array>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <map>
 #include <memory>
-#include <set>
-#include <sstream>
+#include <stdexcept>
 #include <string>
 #include <tuple>
+#include <type_traits>
+#include <unordered_map>
 #include <utility>
 #include <vector>
+
 #include "./dreal_config.h"
+#include "common/Global.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
 #include "contractor/contractor_capd4.h"
-#include "ibex/ibex.h"
+#include "contractor/contractor_exception.h"
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "ibex_BitSet.h"
+#include "ibex_Interval.h"
+#include "icp/brancher.h"
 #include "icp/icp.h"
 #include "icp/mcss_icp.h"
 #include "icp/simulation_icp.h"
+#include "interval/interval.icc"
 #include "json/json.hpp"
+#include "smtsolvers/SMTConfig.h"
+#include "tsolvers/TSolver.h"
 #include "util/box.h"
-#include "util/ibex_enode.h"
 #include "util/logging.h"
 #include "util/stat.h"
 #include "util/strategy.h"
@@ -51,6 +64,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/glpk_wrapper.h"
 #endif
 #include "icp/scoring_icp.h"
+
+class SStore;
+namespace ibex {
+class IntervalVector;
+}  // namespace ibex
 
 using ibex::IntervalVector;
 using nlohmann::json;

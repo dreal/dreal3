@@ -19,16 +19,25 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/ibex_enode.h"
+
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <limits>
 #include <map>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include "ibex/ibex.h"
+#include <utility>
+
+#include "common/Global.h"
+#include "egraph/Enode.h"
+#include "egraph/EnodeTypes.h"
+#include "ibex_Dim.h"
+#include "ibex_Expr.h"
+#include "ibex_ExprCtr.h"
 #include "util/fp.h"
-#include "util/logging.h"
 
 namespace dreal {
 

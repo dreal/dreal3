@@ -17,18 +17,24 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <stdio.h>
+#include <stdbool.h>
+
 #include <iostream>
 #include <memory>
 #include <unordered_set>
-#include "./dreal_config.h"
+
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
+#include "contractor/contractor_status.h"
+#include "ibex_BitSet.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/api/opensmt_c.h"
 #include "util/box.h"
+
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"
+
+class Enode;
 
 using std::cerr;
 using std::endl;

@@ -21,11 +21,18 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #define TSEITIN_H
 
 #include <map>
+
+#include "cnfizers/Cnfizer.h"
 #include "common/Global.h"
 #include "common/Otl.h"
-#include "smtsolvers/SMTSolver.h"
 #include "egraph/Egraph.h"
-#include "cnfizers/Cnfizer.h"
+#include "smtsolvers/SMTSolver.h"
+
+class Egraph;
+class Enode;
+class SMTSolver;
+class SStore;
+struct SMTConfig;
 
 class Tseitin : public Cnfizer
 {

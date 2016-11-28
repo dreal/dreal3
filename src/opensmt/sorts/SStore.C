@@ -19,6 +19,11 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "sorts/SStore.h"
 
+
+#include <ostream>
+#include <string>
+#include <utility>
+
 using std::map;
 using std::string;
 using std::list;

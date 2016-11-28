@@ -19,8 +19,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <cassert>
-#include <iostream>
 #include <vector>
+
 #include "api/dreal.h"
 
 using dreal::solver;

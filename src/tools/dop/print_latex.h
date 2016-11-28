@@ -18,9 +18,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <iostream>
-#include <string>
-#include "opensmt/egraph/Enode.h"
+#include <iostream>  // for ostream
+class Enode;
 
 namespace dop {
 std::ostream & print_latex_infix(std::ostream & out, Enode * const e);

@@ -17,20 +17,19 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <algorithm>
-#include <chrono>
+#include <assert.h>
+
+#include <deque>
+#include <exception>
 #include <functional>
 #include <initializer_list>
 #include <iostream>
 #include <iterator>
 #include <limits>
-#include <map>
 #include <memory>
 #include <queue>
-#include <random>
 #include <set>
-#include <sstream>
-#include <stack>
+#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -40,22 +39,26 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
-#include "contractor/contractor_basic.h"
+#include "contractor/contractor.h"
 #include "contractor/contractor_forall.h"
+#include "contractor/contractor_kind.h"
+#include "contractor/contractor_status.h"
 #include "ibex/ibex.h"
-#include "icp/icp.h"
 #include "icp/mcss_icp.h"
-#include "opensmt/egraph/Egraph.h"
+#include "interval/interval.icc"
+#include "minisat/core/SolverTypes.h"
 #include "opensmt/egraph/Enode.h"
+#include "smtsolvers/SMTConfig.h"
 #include "util/box.h"
 #include "util/enode_utils.h"
 #include "util/eval.h"
 #include "util/logging.h"
-#include "util/proof.h"
 #include "util/scoped_vec.h"
+#include "util/stat.h"
 #include "util/strategy.h"
-#include "util/string.h"
 #include "util/thread_local.h"
+
+class Egraph;
 #ifdef USE_NLOPT
 #include "nlopt.hpp"
 #endif

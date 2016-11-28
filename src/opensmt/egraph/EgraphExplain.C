@@ -17,7 +17,12 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <assert.h>
+#include <stddef.h>
+#include <vector>
+
 #include "egraph/Egraph.h"
+#include "egraph/Enode.h"
 
 //=============================================================================
 // Explanation Routines: details about these routines are in paper

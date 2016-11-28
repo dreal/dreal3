@@ -19,40 +19,37 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "contractor/contractor.h"
 
-#include <algorithm>
-#include <chrono>
+#include <stdlib.h>
 #include <functional>
 #include <initializer_list>
+#include <iostream>
 #include <iterator>
-#include <limits>
-#include <map>
 #include <memory>
 #include <queue>
-#include <random>
 #include <set>
-#include <sstream>
-#include <stack>
 #include <string>
-#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
 
 #include "./dreal_config.h"
-#include "constraint/constraint.h"
 #include "contractor/contractor_basic.h"
 #include "contractor/contractor_capd4.h"
 #include "contractor/contractor_ibex.h"
 #include "contractor/contractor_parallel_all.h"
 #include "contractor/contractor_parallel_any.h"
-#include "ibex/ibex.h"
-#include "opensmt/egraph/Enode.h"
 #include "util/box.h"
-#include "util/interruptible_thread.h"
 #include "util/logging.h"
-#include "util/proof.h"
 #include "util/thread_local.h"
+
+class Enode;
+namespace dreal {
+class constraint;
+class nonlinear_constraint;
+class ode_constraint;
+}  // namespace dreal
+struct SMTConfig;
 
 using std::back_inserter;
 using std::cerr;

@@ -19,10 +19,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <unordered_map>
+
 #include "api/OpenSMTContext.h"
 #include "opensmt/api/OpenSMTContext.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
+
+class Egraph;
+class Enode;
+class OpenSMTContext;
 
 namespace dreal {
 

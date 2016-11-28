@@ -18,22 +18,28 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/box.h"
+
+#include <assert.h>
+
 #include <algorithm>
 #include <chrono>
 #include <climits>
 #include <cmath>
+#include <deque>
+#include <initializer_list>
 #include <iomanip>
 #include <limits>
 #include <memory>
 #include <random>
 #include <set>
-#include <sstream>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
+#include "interval/interval.icc"
 #include "opensmt/egraph/Enode.h"
 #include "util/hexfloat.h"
 #include "util/logging.h"

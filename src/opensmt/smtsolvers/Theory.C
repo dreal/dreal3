@@ -17,7 +17,15 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
  *********************************************************************/
 
+#include <assert.h>
+#include <stdlib.h>
+#include <vector>
+
+#include "common/Global.h"
+#include "minisat/core/SolverTypes.h"
+#include "minisat/mtl/Vec.h"
 #include "smtsolvers/CoreSMTSolver.h"
+#include "smtsolvers/SMTConfig.h"
 #include "tsolvers/THandler.h"
 
 int CoreSMTSolver::checkTheory( bool complete )

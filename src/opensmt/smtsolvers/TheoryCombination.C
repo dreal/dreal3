@@ -17,9 +17,21 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <vector>
+#include <assert.h>
 #include <iostream>
-#include "smtsolvers/SimpSMTSolver.h"
+#include <set>
+#include <utility>
+#include <vector>
+
+#include "common/Global.h"
+#include "common/LA.h"
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "minisat/core/SolverTypes.h"
+#include "minisat/mtl/Vec.h"
+#include "smtsolvers/CoreSMTSolver.h"
+#include "smtsolvers/SMTConfig.h"
+#include "tsolvers/THandler.h"
 
 using std::cerr;
 using std::endl;

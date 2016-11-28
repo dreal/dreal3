@@ -17,9 +17,18 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "egraph/Egraph.h"
-#include "egraph/Enode.h"
-#include "common/LA.h"
+#include <assert.h>
+
+
+#include <cstddef>
+#include <iostream>
+#include <map>
+#include <set>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
+#include "common/Global.h"
 // DO NOT REMOVE THIS COMMENT !!
 // IT IS USED BY CREATE_THEORY.SH SCRIPT !!
 // NEW_THEORY_HEADER
@@ -31,11 +40,17 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 // Added to support compiling templates
 //#include "DLSolver.C"
 #include "dsolvers/nra_solver.h"
-#include "util/logging.h"
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "egraph/EnodeTypes.h"
+#include "egraph/SigTab.h"
+#include "minisat/core/SolverTypes.h"
+#include "smtsolvers/SMTConfig.h"
 //#include "nra_ode_solver.h"
 #include "smtsolvers/SimpSMTSolver.h"
-#include <map>
-#include <sstream>
+#include "tsolvers/TSolver.h"
+#include "util/logging.h"
+
 using std::map;
 using std::ostringstream;
 using std::ostream;

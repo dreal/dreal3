@@ -19,6 +19,8 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Snode.h"
 
+#include <string.h>
+
 using std::ostream;
 using std::string;
 

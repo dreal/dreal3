@@ -13,7 +13,9 @@
 // Consult  http://capd.ii.uj.edu.pl/ for details.
 
 #include <iostream>
+
 #include "capd/capdlib.h"
+
 using namespace capd;
 using namespace std;
 

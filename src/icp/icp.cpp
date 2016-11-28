@@ -19,25 +19,39 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "icp/icp.h"
-#include <algorithm>
+
+#include <assert.h>
+#include <stddef.h>
+
 #include <atomic>
-#include <functional>
+#include <iostream>
 #include <limits>
 #include <memory>
-#include <mutex>
 #include <random>
 #include <thread>
 #include <tuple>
 #include <unordered_set>
 #include <vector>
+
 #include "constraint/constraint.h"
+#include "contractor/contractor.h"
+#include "contractor/contractor_exception.h"
+#include "contractor/contractor_status.h"
 #include "icp/brancher.h"
 #include "icp/icp_util.h"
+#include "smtsolvers/SMTConfig.h"
+#include "util/box.h"
 #include "util/logging.h"
+#include "util/mcts_expander.h"
 #include "util/mcts_node.h"
-#include "util/scoped_vec.h"
 #include "util/stat.h"
 #include "util/thread_local.h"
+
+class Enode;
+namespace dreal {
+template <typename T>
+class scoped_vec;
+}  // namespace dreal
 
 using std::atomic_bool;
 using std::cerr;

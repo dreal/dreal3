@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "opensmt/api/opensmt_c.h"
 
 // Test Memory Leaks

@@ -20,10 +20,18 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ENODE_H
 #define ENODE_H
 
-#include "egraph/EnodeTypes.h"
-#include "common/Otl.h"
+
+#include <assert.h>
+#include <string.h>
+#include <iosfwd>
 #include <limits>
 #include <unordered_set>
+
+#include "common/Global.h"
+#include "common/Otl.h"
+#include "egraph/EnodeTypes.h"
+#include "minisat/core/SolverTypes.h"
+#include "sorts/Snode.h"
 
 class Enode
 {

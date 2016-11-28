@@ -20,13 +20,12 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/flow.h"
-#include <initializer_list>
+
+#include <assert.h>
 #include <iostream>
 #include <string>
-#include <unordered_map>
-#include <utility>
 #include <vector>
-#include "ibex/ibex.h"
+
 #include "opensmt/egraph/Enode.h"
 
 namespace dreal {

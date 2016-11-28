@@ -23,7 +23,14 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SIG_TAB_H
 #define SIG_TAB_H
 
+#include <iosfwd>
+#include <unordered_map>
+#include <vector>
+
 #include "Enode.h"
+#include "common/Global.h"
+
+class Enode;
 
 #define SIG_TAB_INITIAL_SIZE 1024
 #define CACHE_SIZE           3

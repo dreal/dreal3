@@ -18,6 +18,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "./dreal_config.h"
+#include "tools/dop/dopconfig.h"
 #include "tools/dop/process.h"
 #include "util/logging.h"
 

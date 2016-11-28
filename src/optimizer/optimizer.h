@@ -20,10 +20,17 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #include <unordered_map>
 #include <vector>
+
 #include "opensmt/egraph/Egraph.h"
 #include "util/box.h"
 
+class Egraph;
+class Enode;
+struct SMTConfig;
+
 namespace dreal {
+class box;
+
 class optimizer {
 public:
     optimizer(box &, std::vector<Enode *> const &, Egraph &, SMTConfig &);

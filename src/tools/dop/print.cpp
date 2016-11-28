@@ -18,11 +18,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "tools/dop/print.h"
-#include <functional>
-#include <iostream>
-#include <memory>
+
+#include <assert.h>    // for assert
+#include <functional>  // for function
+#include <iostream>    // for ostream, operator<<, string, basic...
 #include <string>
-#include "opensmt/egraph/Enode.h"
+
+#include "opensmt/egraph/Enode.h"  // for Enode
 
 namespace dop {
 

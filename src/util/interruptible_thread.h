@@ -35,7 +35,9 @@ DEALINGS IN THE SOFTWARE.
 #include <future>
 #include <mutex>
 #include <thread>
+#include <type_traits>
 #include <utility>
+
 #include "util/thread_local.h"
 
 namespace dreal {

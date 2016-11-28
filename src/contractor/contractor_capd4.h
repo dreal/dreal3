@@ -19,8 +19,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #ifdef SUPPORT_ODE
+#include <cstddef>
 #include <functional>
 #include <initializer_list>
+#include <iosfwd>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -28,13 +30,31 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 
+#include "./dreal_config.h"
 #include "capd/capdlib.h"
+#include "capd/dynsys/lib.h"
+#include "capd/intervals/Interval_Base.h"
+#include "capd/intervals/Interval_Friend.h"
+#include "capd/intervals/lib.h"
+#include "capd/map/lib.h"
+#include "capd/poincare/lib.h"
+#include "capd/vectalg/Container.h"
+#include "capd/vectalg/lib.h"
 #include "contractor/contractor.h"
+#include "contractor/contractor_cell.h"
 #include "json/json.hpp"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/hash_combine.h"
 #include "util/thread_local.h"
+
+class Enode;
+namespace dreal {
+class box;
+class contractor_status;
+class ode_constraint;
+}  // namespace dreal
+struct SMTConfig;
 
 namespace std {
 template <>

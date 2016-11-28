@@ -20,26 +20,29 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+
+#include <limits.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <cstring>
-#include <vector>
-#include <map>
-#include <set>
-#include <list>
-#include <sstream>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <list>
+#include <map>
 #include <queue>
+#include <queue>
+#include <set>
+#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
-#include <queue>
-#include <algorithm>
 #include <utility>
-#include <sys/time.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <limits.h>
+#include <vector>
 
 #define NEW_SPLIT           0
 #define NEW_SIMPLIFICATIONS 0

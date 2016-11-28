@@ -19,6 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <initializer_list>
+#include <iosfwd>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -27,14 +28,28 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
+#include "contractor/contractor_cell.h"
+#include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/logging.h"
 
+class Enode;
+namespace ibex {
+class CtcNewton;
+class ExprSymbol;
+template <class T>
+class Array;
+}  // namespace ibex
+
 namespace dreal {
+
+class box;
+class contractor_status;
 
 class contractor_ibex_fwdbwd : public contractor_cell {
 private:

@@ -21,15 +21,23 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "hybrid_heuristic.h"
+
+#include <sys/errno.h>
+
+#include <algorithm>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <unordered_set>
 #include <utility>
 
+#include "egraph/Enode.h"
+#include "minisat/core/SolverTypes.h"
+#include "minisat/mtl/Vec.h"
 #include "opensmt/egraph/Egraph.h"
-#include "opensmt/tsolvers/TSolver.h"
+#include "smtsolvers/SMTConfig.h"
+#include "tsolvers/THandler.h"
 #include "util/logging.h"
-#include "util/scoped_vec.h"
 #include "util/stat.h"
 
 using namespace std;
@@ -392,11 +400,11 @@ void hybrid_heuristic::removeImpossibleTransitions(vector<labeled_transition *> 
 
     // for(auto tr : toRemove){
     //   for(vector<labeled_transition*>::iterator tri = dec->begin();
-    // 	  tri != dec->end(); tri++){
-    // 	if(*tri == tr){
-    // 	  dec->erase(tri);
-    // 	  break;
-    // 	}
+    //    tri != dec->end(); tri++){
+    //  if(*tri == tr){
+    //    dec->erase(tri);
+    //    break;
+    //  }
     //   }
     // }
 
@@ -599,7 +607,7 @@ bool hybrid_heuristic::expand_path(bool first_expansion) {
                 if (transition->first) {
                     for (int lab : *(transition->first)) {
                         // DREAL_LOG_DEBUG << lab;
-                        labels  //<< 	label_from_indices[lab]<< ":"
+                        labels  //<<  label_from_indices[lab]<< ":"
                             << lab << " ";
                     }
                 }
@@ -624,7 +632,7 @@ bool hybrid_heuristic::expand_path(bool first_expansion) {
                             if (transition->first) {
                                 for (int lab : *(transition->first)) {
                                     // DREAL_LOG_DEBUG << lab;
-                                    labels  //<< 	label_from_indices[lab]<< ":"
+                                    labels  //<<  label_from_indices[lab]<< ":"
                                         << lab << " ";
                                 }
                             }
@@ -997,7 +1005,7 @@ bool hybrid_heuristic::unwind_path() {
             //     m_decision_stack.back()->second->push_back(new labeled_transition( new
             //     set<int>(), path[path_index_for_stack_pos]));
             //   } else{
-            // 	  DREAL_LOG_DEBUG << "Choose sibling";
+            //    DREAL_LOG_DEBUG << "Choose sibling";
             //     m_decision_stack.back()->second->pop_back();
             //     if( m_decision_stack.back()->second->empty()){
             //       delete m_decision_stack.back()->second;
@@ -1108,13 +1116,13 @@ bool hybrid_heuristic::pbacktrack() {
     // //       time > (m_depth+1)-m_decision_stack.size(); time--) {
     //       stringstream labels;
     //       if(m_decision_stack[i]->second->back()->first){
-    // 	for(auto lab : *(m_decision_stack[i]->second->back()->first)) {
-    // 	  labels << lab;
-    // 	}
+    //  for(auto lab : *(m_decision_stack[i]->second->back()->first)) {
+    //    labels << lab;
+    //  }
     //       }
     //       DREAL_LOG_DEBUG << "Stack[" << i << "] ="
-    // 		      << m_decision_stack[i]->second->back()->second
-    // 		      << " [" << labels.str() << "]";
+    //          << m_decision_stack[i]->second->back()->second
+    //          << " [" << labels.str() << "]";
     //     }
     return m_decision_stack.size() > (unsigned long)lastDecisionStackEnd;
 }

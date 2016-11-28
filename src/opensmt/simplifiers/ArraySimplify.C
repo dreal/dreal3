@@ -18,10 +18,12 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
  *********************************************************************/
 
+#include <assert.h>
 #include <vector>
-#include "simplifiers/ArraySimplify.h"
+
 #include "egraph/Egraph.h"
-#include "common/Global.h"
+#include "egraph/Enode.h"
+#include "simplifiers/ArraySimplify.h"
 
 using std::list;
 using std::vector;

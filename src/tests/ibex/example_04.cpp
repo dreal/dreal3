@@ -18,7 +18,20 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include <iostream>
-#include "ibex/ibex.h"
+
+#include "ibex_CtcFwdBwd.h"
+#include "ibex_Interval.h"
+#include "ibex_IntervalVector.h"
+#include "ibex_NumConstraint.h"
+
+namespace ibex {
+class ExprConstant;
+class ExprCtr;
+class ExprNode;
+class ExprSymbol;
+class Function;
+class Variable;
+}  // namespace ibex
 
 using ibex::Variable;
 using ibex::Function;

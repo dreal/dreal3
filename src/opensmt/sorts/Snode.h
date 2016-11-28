@@ -20,6 +20,11 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SNODE_H
 #define SNODE_H
 
+
+#include <assert.h>
+#include <memory>
+#include <ostream>
+
 #include "common/Global.h"
 #include "common/Otl.h"
 

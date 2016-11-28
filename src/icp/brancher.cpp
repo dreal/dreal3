@@ -19,15 +19,25 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "icp/brancher.h"
+
+#include <assert.h>
+#include <math.h>
 #include <algorithm>
 #include <memory>
 #include <stdexcept>
 #include <tuple>
+#include <unordered_set>
 #include <utility>
 #include <vector>
-#include "contractor/contractor.h"
+
+#include "constraint/constraint.h"
+#include "ibex_Interval.h"
+#include "ibex_IntervalVector.h"
+#include "ibex_Vector.h"
+#include "interval/interval.icc"
+#include "minisat/core/SolverTypes.h"
+#include "smtsolvers/SMTConfig.h"
 #include "util/box.h"
-#include "util/logging.h"
 #include "util/scoped_vec.h"
 
 using std::get;

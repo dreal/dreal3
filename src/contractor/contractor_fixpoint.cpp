@@ -17,18 +17,33 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <assert.h>
+#include <array>
+#include <exception>
 #include <functional>
+#include <initializer_list>
+#include <iostream>
+#include <limits>
+#include <memory>
 #include <queue>
+#include <set>
 #include <string>
+#include <tuple>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
 #include <vector>
-#include "constraint/constraint.h"
+
+#include "contractor/contractor.h"
 #include "contractor/contractor_basic.h"
+#include "contractor/contractor_cell.h"
+#include "contractor/contractor_kind.h"
+#include "contractor/contractor_status.h"
 #include "ibex/ibex.h"
-#include "opensmt/egraph/Enode.h"
+#include "smtsolvers/SMTConfig.h"
 #include "util/box.h"
 #include "util/interruptible_thread.h"
 #include "util/logging.h"
-#include "util/proof.h"
 
 using std::cerr;
 using std::cout;

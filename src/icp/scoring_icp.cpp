@@ -18,21 +18,32 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "icp/scoring_icp.h"
+
+#include <assert.h>
 #include <algorithm>
-#include <atomic>
-#include <cmath>
-#include <functional>
-#include <limits>
 #include <memory>
-#include <random>
+#include <ostream>
+#include <string>
 #include <tuple>
 #include <unordered_set>
 #include <vector>
+
+#include "contractor/contractor.h"
+#include "contractor/contractor_exception.h"
+#include "contractor/contractor_status.h"
+#include "ibex_Interval.h"
 #include "icp/brancher.h"
+#include "icp/icp.h"
+#include "smtsolvers/SMTConfig.h"
 #include "util/logging.h"
-#include "util/scoped_vec.h"
 #include "util/stat.h"
 #include "util/thread_local.h"
+
+namespace dreal {
+class constraint;
+template <typename T>
+class scoped_vec;
+}  // namespace dreal
 
 using std::get;
 using std::endl;

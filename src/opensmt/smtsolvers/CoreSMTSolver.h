@@ -41,27 +41,37 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #define CACHE_POLARITY     0
 
-#include "smtsolvers/SMTSolver.h"
 
+
+#include <assert.h>
 #include <cstdio>
+#include <iostream>
+#include <map>
+#include <set>
 #include <sstream>
 #include <vector>
-#include <set>
-#include <map>
-#include <iostream>
 
-#include "minisat/mtl/Vec.h"
-#include "minisat/mtl/Heap.h"
-#include "minisat/mtl/Alg.h"
-
-#include "minisat/core/SolverTypes.h"
+#include "common/Global.h"
 #include "common/LA.h"
-
+#include "egraph/Enode.h"
 #include "heuristics/heuristic.h"
+#include "minisat/core/SolverTypes.h"
+#include "minisat/mtl/Alg.h"
+#include "minisat/mtl/Heap.h"
+#include "minisat/mtl/Vec.h"
+#include "smtsolvers/SMTSolver.h"
+#include "tsolvers/THandler.h"
+
+class Egraph;
+namespace dreal {
+class heuristic;
+}  // namespace dreal
+struct SMTConfig;
 
 #ifdef PRODUCE_PROOF
-#include "proof/ProofGraph.h"
 #include "proof/Proof.h"
+#include "proof/ProofGraph.h"
+
 class Proof;
 #endif
 
@@ -143,8 +153,8 @@ public:
         // Added Code
         //=================================================================================================
 
-	// Heuristics
-	dreal::heuristic *heuristic;
+  // Heuristics
+  dreal::heuristic *heuristic;
 
         // Extra results: (read-only member variable)
         //

@@ -20,11 +20,16 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACKERMANIZE_H
 #define ACKERMANIZE_H
 
-#include <vector>
 #include <map>
+#include <vector>
+
 #include "common/Global.h"
 #include "common/Otl.h"
 #include "egraph/Egraph.h"
+
+class Egraph;
+class Enode;
+struct SMTConfig;
 
 class Ackermanize
 {

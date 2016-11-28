@@ -22,10 +22,15 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include <map>
 #include <vector>
+
 #include "common/Global.h"
+#include "common/LA.h"
 #include "common/Otl.h"
 #include "egraph/Egraph.h"
-#include "common/LA.h"
+
+class Egraph;
+class Enode;
+struct SMTConfig;
 
 class TopLevelProp
 {

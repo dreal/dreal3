@@ -17,17 +17,21 @@ You should have received a copy of the GNU General Public License
 along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include <ezOptionParser/ezOptionParser.hpp>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <fstream>
 #include <limits>
 #include <random>
-#include <sstream>
+#include <stdexcept>
 #include <string>
-#include <exception>
 #include <vector>
-#include <ezOptionParser/ezOptionParser.hpp>
-#include "SMTConfig.h"
+
 #include "./dreal_config.h"
-#include "util/logging.h"
+#include "SMTConfig.h"
 #include "util/git_sha1.h"
+#include "util/logging.h"
 #include "version.h"
 
 #ifdef LOGGING

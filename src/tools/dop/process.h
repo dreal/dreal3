@@ -22,6 +22,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "tools/dop/dopconfig.h"
 
 namespace dop {
+class config;
+
 int process_baron(config const & config);
 int process_dop(config const & config);
 int process_bch(config const & config);

@@ -18,8 +18,17 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "tools/dop/var_map.h"
-#include <exception>
+
+#include <assert.h>
+#include <iostream>
+#include <stdexcept>
 #include <string>
+#include <utility>
+
+#include "api/OpenSMTContext.h"
+#include "egraph/Enode.h"
+
+class Snode;
 
 namespace dop {
 

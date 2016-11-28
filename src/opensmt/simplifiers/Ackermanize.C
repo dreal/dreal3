@@ -19,6 +19,20 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #include "simplifiers/Ackermanize.h"
 
+#include <assert.h>
+#include <stdio.h>
+
+#include <iosfwd>
+#include <list>
+#include <utility>
+
+#include "common/Global.h"
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "smtsolvers/SMTConfig.h"
+
+class Snode;
+
 using std::vector;
 using std::map;
 using std::list;

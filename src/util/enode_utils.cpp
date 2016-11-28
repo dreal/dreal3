@@ -18,20 +18,22 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "util/enode_utils.h"
-#include <exception>
+
+#include <assert.h>
 #include <iostream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
 #include "api/OpenSMTContext.h"
+#include "common/Global.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/egraph/Enode.h"
-#include "opensmt/sorts/Snode.h"
-#include "util/logging.h"
+
+class Snode;
 
 using std::cerr;
 using std::cout;

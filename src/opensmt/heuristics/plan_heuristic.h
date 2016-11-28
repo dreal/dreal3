@@ -21,15 +21,27 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include "opensmt/smtsolvers/SMTConfig.h"
-#include "opensmt/tsolvers/THandler.h"
-#include "opensmt/egraph/Egraph.h"
-#include "util/scoped_vec.h"
-#include "heuristic.h"
+#include <stddef.h>
+#include <iosfwd>
 #include <map>
 #include <set>
 #include <string>
 #include <utility>
+#include <vector>
+
+#include "heuristic.h"
+#include "opensmt/egraph/Egraph.h"
+#include "opensmt/smtsolvers/SMTConfig.h"
+#include "opensmt/tsolvers/THandler.h"
+#include "util/scoped_vec.h"
+
+class Clause;
+class Egraph;
+class Enode;
+class Lit;
+class THandler;
+struct SMTConfig;
+template <class T> class vec;
 
 namespace dreal {
 class plan_heuristic : public heuristic {

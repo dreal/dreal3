@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,9 +21,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
+#include <functional>
 #include <initializer_list>
+#include <iosfwd>
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -34,51 +36,34 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor_cell.h"
 #include "contractor/contractor_kind.h"
 #include "contractor/contractor_status.h"
-#include "opensmt/egraph/Egraph.h"
+#include "ibex/ibex.h"
 #include "opensmt/egraph/Enode.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
 #include "util/box.h"
+#include "util/stat.h"
+
+class Enode;
 
 namespace dreal {
 
+class box;
+class constraint;
+class forall_constraint;
+class nonlinear_constraint;
+class ode_constraint;
 #ifdef SUPPORT_ODE
-// TOOD(soonhok): should be here?
 enum class ode_direction { FWD, BWD };
 std::ostream & operator<<(std::ostream & out, ode_direction const & d);
 #endif
 
-class contractor_exception : public std::runtime_error {
-public:
-    explicit contractor_exception(const std::string & what_arg) : runtime_error(what_arg) {}
-    explicit contractor_exception(const char * what_arg) : runtime_error(what_arg) {}
-};
-
 /// Wrapper on contractor_cell and its derived classes
 class contractor {
-private:
-    std::shared_ptr<contractor_cell> m_ptr;
-
 public:
-    contractor() : m_ptr(nullptr) {}
+    contractor() = default;
     explicit contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) {
         assert(m_ptr != nullptr);
     }
-    contractor(contractor const & c) : m_ptr(c.m_ptr) { assert(m_ptr); }
-    contractor(contractor && c) noexcept : m_ptr(std::move(c.m_ptr)) {}
-    ~contractor() noexcept {}
-
-    friend void swap(contractor & c1, contractor & c2) {
-        using std::swap;
-        swap(c1.m_ptr, c2.m_ptr);
-    }
-
-    contractor & operator=(contractor c) {
-        swap(*this, c);
-        return *this;
-    }
-
     ibex::BitSet get_input() const { return m_ptr->get_input(); }
-
     void prune(contractor_status & cs) {
         if (m_ptr) {
             // by default, clear output vector and used constraints.
@@ -96,6 +81,9 @@ public:
     bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
     std::size_t hash() const { return (std::size_t)m_ptr.get(); }
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
+
+private:
+    std::shared_ptr<contractor_cell> m_ptr{nullptr};
 };
 
 contractor mk_contractor_id();

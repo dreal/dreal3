@@ -18,14 +18,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "tools/dop/dopconfig.h"
-#include <sys/stat.h>
-#include <algorithm>
-#include <cassert>
-#include <iostream>
-#include <string>
-#include <unordered_map>
-#include <vector>
-#include "./dreal_config.h"
+
+#include <stdlib.h>    // for exit, size_t
+#include <sys/stat.h>  // for stat
+#include <iostream>    // for string, operator<<, bas...
+#include <string>      // for basic_string, allocator
+#include <vector>      // for vector
+
+#include "./dreal_config.h"                   // for USE_NLOPT
+#include "ezOptionParser/ezOptionParser.hpp"  // for ezOptionParser, OptionG...
 
 namespace dop {
 

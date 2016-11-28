@@ -19,11 +19,21 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef SMTCOMP
 
+#include <stdlib.h>
+#include <iostream>
+
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "minisat/core/SolverTypes.h"
+#include "minisat/mtl/Vec.h"
 #include "smtsolvers/CoreSMTSolver.h"
+#include "smtsolvers/SMTConfig.h"
+#include "tsolvers/THandler.h"
 
 #ifdef PRODUCE_PROOF
-#include "Proof.h"
 #include <sys/wait.h>
+
+#include "Proof.h"
 #endif
 
 using std::cerr;

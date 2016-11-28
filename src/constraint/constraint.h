@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <algorithm>
+#include <cstddef>
 #include <initializer_list>
 #include <iostream>
 #include <map>
@@ -32,11 +33,24 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
+#include "ibex/ibex.h"
+#include "minisat/core/SolverTypes.h"
 #include "opensmt/egraph/Enode.h"
 #include "util/box.h"
 #include "util/flow.h"
 
+class Enode;
+namespace ibex {
+class ExprSymbol;
+template <class T>
+class Array;
+}  // namespace ibex
+
 namespace dreal {
+class box;
+class flow;
+
 enum class constraint_type { Nonlinear, ODE, Integral, ForallT, Exists, Forall };
 std::ostream & operator<<(std::ostream & out, constraint_type const & ty);
 
@@ -172,6 +186,7 @@ integral_constraint mk_integral_constraint(Enode * const e,
                                            std::unordered_map<std::string, flow> const & flow_map);
 
 class forallt_constraint;
+
 forallt_constraint mk_forallt_constraint(Enode * const e,
                                          std::unordered_set<Enode *> const & var_set);
 

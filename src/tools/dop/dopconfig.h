@@ -18,14 +18,14 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <cassert>
-#include <iostream>
+
+#include <iostream>  // for ostream, operator<<, string, basic_ostream
 #include <string>
-#include <unordered_map>
-#include <vector>
-#include "./dreal_config.h"
-#include "ezOptionParser/ezOptionParser.hpp"
-#include "opensmt/egraph/Enode.h"
+#include "./dreal_config.h"  // for USE_NLOPT
+
+namespace ez {
+class ezOptionParser;
+}
 
 namespace dop {
 

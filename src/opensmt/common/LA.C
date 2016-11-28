@@ -18,6 +18,14 @@ along with OpenSMT. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "common/LA.h"
+
+#include <stddef.h>
+#include <list>
+#include <ostream>
+#include <stdexcept>
+
+#include "egraph/Egraph.h"
+
 using std::vector;
 using std::map;
 using std::list;

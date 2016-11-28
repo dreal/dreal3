@@ -20,7 +20,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <vector>
-#include "./dreal_config.h"
+
+#include "api/dreal.h"
 #include "api/dreal_control.h"
 
 using dreal::expr;
@@ -125,9 +126,6 @@ void test4() {
 
 int inv_pend() {
     solver s;
-#ifdef USE_CLP
-// s.set_polytope();
-#endif
     expr x1 = s.var("x", -0.1, 0.1);
     expr x2 = s.var("xdot", -1, 1);
     expr x3 = s.var("theta", -0.1, 0.1);

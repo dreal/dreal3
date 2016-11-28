@@ -18,18 +18,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "./dreal_config.h"
-#ifdef PYTHONLIBS_FOUND
-#ifdef __clang__
-#include <iostream>
-#endif
-#include "Python.h"
-#endif
 
-#include <exception>
-#include <sstream>
+#include "Python.h"
+
+#include <cassert>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include "./version.h"
+#include <utility>
+
 #include "opensmt/egraph/Enode.h"
 #include "tools/dop/print_latex.h"
 #include "tools/dop/print_py.h"

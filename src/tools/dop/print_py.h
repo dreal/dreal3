@@ -18,9 +18,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #pragma once
-#include <iostream>
+#include <iostream>  // for ostream, string
 #include <string>
-#include "opensmt/egraph/Enode.h"
+
+class Enode;
 
 namespace dop {
 std::ostream & print_py_infix_op(std::ostream & out, Enode * const e, std::string const & op);

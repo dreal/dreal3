@@ -20,6 +20,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 #include <functional>
+#include <iosfwd>
 #include <map>
 #include <memory>
 #include <set>
@@ -28,10 +29,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
+#include "contractor/contractor_status.h"
 #include "ibex/ibex.h"
+#include "minisat/core/SolverTypes.h"
 #include "opensmt/egraph/Egraph.h"
 #include "opensmt/tsolvers/TSolver.h"
 #include "util/box.h"
@@ -40,7 +44,15 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/scoped_vec.h"
 #include "util/stat.h"
 
+class Egraph;
+class Enode;
+class SStore;
+struct SMTConfig;
+
 namespace dreal {
+class box;
+class constraint;
+
 class nra_solver : public OrdinaryTSolver {
 public:
     nra_solver(const int, const char *, SMTConfig &, Egraph &, SStore &, std::vector<Enode *> &,

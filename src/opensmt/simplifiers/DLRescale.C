@@ -21,6 +21,8 @@
 
 #include "DLRescale.h"
 
+#include "egraph/Enode.h"
+
 void DLRescale::doit( Enode * formula )
 {
   if ( formula->isTrue( ) || formula->isFalse( ) )

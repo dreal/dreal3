@@ -23,8 +23,10 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <unordered_set>
 #include <vector>
+
 #include "./dreal_config.h"
 #include "contractor/contractor.h"
+#include "contractor/contractor_exception.h"
 #include "icp/brancher.h"
 #include "icp/icp.h"
 #include "opensmt/smtsolvers/SMTConfig.h"
@@ -33,6 +35,13 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 // can we make that fit into the BranchHeuristic
 namespace dreal {
+class BranchHeuristic;
+class constraint;
+class contractor;
+class contractor_status;
+template <typename T>
+class scoped_vec;
+
 class scoring_icp {
 private:
     static BranchHeuristic & defaultHeuristic;

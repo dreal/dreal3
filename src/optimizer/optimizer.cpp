@@ -18,10 +18,21 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
 #include "optimizer/optimizer.h"
+
+#include <assert.h>
+
 #include <cmath>
+#include <iostream>
 #include <map>
 #include <unordered_set>
 #include <vector>
+
+#include "egraph/Egraph.h"
+#include "egraph/Enode.h"
+#include "ibex_Interval.h"
+#include "minisat/core/SolverTypes.h"
+#include "smtsolvers/SMTConfig.h"
+#include "util/box.h"
 #include "util/eval.h"
 
 using std::vector;

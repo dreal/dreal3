@@ -22,7 +22,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <cstdlib>
 /* Keep the following headers in their original order */
-#include "egraph/Egraph.h"
+#include "opensmt/egraph/Egraph.h"
 #include "baronparser.hh"
 
 #ifdef __clang__
