@@ -288,8 +288,11 @@ static void initialize_ode_constraints(map<pair<Enode *, bool>, shared_ptr<const
                 bool const included =
                     all_of(vars_in_fc.begin(), vars_in_fc.end(), [&ic](Enode const * var_in_fc) {
                         vector<Enode *> const & vars_t_in_ic = ic.get_vars_t();
+                        vector<Enode *> const & pars_t_in_ic = ic.get_pars_t();
                         return find(vars_t_in_ic.begin(), vars_t_in_ic.end(), var_in_fc) !=
-                               vars_t_in_ic.end();
+                                   vars_t_in_ic.end() ||
+                               find(pars_t_in_ic.begin(), pars_t_in_ic.end(), var_in_fc) !=
+                                   pars_t_in_ic.end();
                     });
                 if (included) {
                     local_invs.push_back(fc);
