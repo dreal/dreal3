@@ -2,9 +2,8 @@
 Author: Daniel Bryce <dbryce@sift.net>
         Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
-        Edmund Clarke <emc@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2014, Soonho Kong, Sicun Gao, and Edmund Clarke
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,7 +39,7 @@ struct SMTConfig;
 template <class T> class vec;
 
 namespace dreal {
-  class heuristic {
+class heuristic {
   public:
   heuristic() : m_is_initialized(false), backtracked(false), lastTrailEnd(2) {}
     virtual ~heuristic();
@@ -50,7 +49,7 @@ namespace dreal {
     virtual void backtrack();
     virtual Lit getSuggestion();
     virtual Clause* getConflict();
-    
+
   protected:
     virtual bool getSuggestions();
     virtual void pushTrailOnStack();

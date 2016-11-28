@@ -2,9 +2,8 @@
 Author: Daniel Bryce <dbryce@sift.net>
         Soonho Kong <soonhok@cs.cmu.edu>
         Sicun Gao <sicung@cs.cmu.edu>
-        Edmund Clarke <emc@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2014, Soonho Kong, Sicun Gao, and Edmund Clarke
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +19,7 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "heuristic.h"
+#include "opensmt/heuristics/heuristic.h"
 
 #include <stddef.h>
 #include <algorithm>
@@ -30,6 +29,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <unordered_set>
 #include <utility>
+#include <string>
 
 #include "egraph/Enode.h"
 #include "minisat/mtl/Vec.h"

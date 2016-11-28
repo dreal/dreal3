@@ -1,7 +1,7 @@
 /*********************************************************************
 Author: Soonho Kong <soonhok@cs.cmu.edu>
 
-dReal -- Copyright (C) 2013 - 2015, the dReal Team
+dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
 dReal is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ int main(int argc, char * argv[]) {
 
     // t1 = x > 2
     opensmt_expr t1 = opensmt_mk_gt(ctx, x, num2);
-    
+
     // t2 = y < 10
     opensmt_expr t2 = opensmt_mk_lt(ctx, y, num10);
 

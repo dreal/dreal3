@@ -3,7 +3,7 @@ Author: Roberto Bruttomesso <roberto.bruttomesso@gmail.com>
         Soonho  Kong        <soonhok@cs.cmu.edu>
 
 OpenSMT -- Copyright (C) 2010, Roberto Bruttomesso
-dReal   -- Copyright (C) 2013 - 2015, Soonho Kong
+dReal   -- Copyright (C) 2013 - 2016, the dReal Team
 
 OpenSMT is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
