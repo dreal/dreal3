@@ -167,48 +167,6 @@ public:
     std::ostream & display(std::ostream & out) const;
 };
 
-// contractor_fixpoint
-// Repeatedly applying the contractor while the condition is met
-class contractor_fixpoint : public contractor_cell {
-private:
-    std::function<bool(box const &, box const &)> m_term_cond;
-    std::vector<contractor> m_clist;
-    box m_old_box;
-    std::unordered_map<int, std::unordered_set<int>>
-        m_dep_map;  // m_dep_map[v] = set of contractors depending on v (input)
-
-    void init();
-    // Naive fixedpoint algorithm
-    void naive_fixpoint_alg(contractor_status & cs);
-    // Worklist fixedpoint algorithm
-    void worklist_fixpoint_alg(contractor_status & cs);
-    void build_deps_map();
-
-public:
-    contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                        contractor const & c);
-    contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                        std::initializer_list<contractor> const & clist);
-    contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                        std::vector<contractor> const & cvec);
-    contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                        std::vector<contractor> const & cvec1,
-                        std::vector<contractor> const & cvec2);
-    contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                        std::vector<contractor> const & cvec1,
-                        std::vector<contractor> const & cvec2,
-                        std::vector<contractor> const & cvec3);
-    contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                        std::vector<contractor> const & cvec1,
-                        std::vector<contractor> const & cvec2,
-                        std::vector<contractor> const & cvec3,
-                        std::vector<contractor> const & cvec4);
-    contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                        std::initializer_list<std::vector<contractor>> const & cvec_list);
-    void prune(contractor_status & cs);
-    std::ostream & display(std::ostream & out) const;
-};
-
 class contractor_int : public contractor_cell {
 public:
     explicit contractor_int(box const & b);
@@ -238,7 +196,6 @@ private:
 
 public:
     explicit contractor_cache(contractor const & ctc);
-    ~contractor_cache();
     void prune(contractor_status & cs);
     std::ostream & display(std::ostream & out) const;
 };

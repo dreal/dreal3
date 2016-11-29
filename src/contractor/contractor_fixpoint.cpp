@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
+#include "contractor/contractor_fixpoint.h"
+
 #include <assert.h>
 #include <array>
 #include <exception>
@@ -35,7 +37,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "contractor/contractor.h"
-#include "contractor/contractor_basic.h"
 #include "contractor/contractor_cell.h"
 #include "contractor/contractor_kind.h"
 #include "contractor/contractor_status.h"
