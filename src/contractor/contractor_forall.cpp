@@ -17,8 +17,10 @@ You should have received a copy of the GNU General Public License
 along with dReal. If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include <assert.h>
+#include "contractor/contractor_forall.h"
 
+#include <cassert>
+#include <cstddef>
 #include <deque>
 #include <exception>
 #include <functional>
@@ -40,9 +42,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "./dreal_config.h"
 #include "constraint/constraint.h"
 #include "contractor/contractor.h"
-#include "contractor/contractor_forall.h"
-#include "contractor/contractor_kind.h"
-#include "contractor/contractor_status.h"
 #include "ibex/ibex.h"
 #include "icp/mcss_icp.h"
 #include "interval/interval.icc"
@@ -142,7 +141,7 @@ double nlopt_eval_enode(const double * x, void * extra) {
     box const & b = get<1>(*extra_info);
     bool const polarity = get<2>(*extra_info);
     unordered_map<Enode *, double> var_map;
-    unsigned i = 0;
+    int i = 0;
     for (Enode * e : b.get_vars()) {
         if (e->isForallVar()) {
             var_map.emplace(e, x[i]);
@@ -178,7 +177,7 @@ void nlopt_fill_gradient(const double * x, double * grad, void * extra) {
     box const & b = get<1>(*extra_info);
     bool const polarity = get<2>(*extra_info);
     unordered_map<Enode *, double> var_map;
-    unsigned i = 0;
+    int i = 0;
     vector<Enode *> forall_var_vec;
     for (Enode * e : b.get_vars()) {
         if (e->isForallVar()) {
@@ -247,7 +246,7 @@ box refine_CE_with_nlopt_core(box counterexample, vector<Enode *> const & opt_ct
             DREAL_LOG_DEBUG << lb.back() << " <= " << init.back() << " <= " << ub.back() << endl;
         }
     }
-    auto const n = init.size();
+    size_t const n = init.size();
     static nlopt::opt opt(nlopt::LD_SLSQP, n);
     if (!initialized) {
         opt.set_lower_bounds(lb);
@@ -296,7 +295,7 @@ box refine_CE_with_nlopt_core(box counterexample, vector<Enode *> const & opt_ct
     }
     try {
         vector<double> output = opt.optimize(init);
-        unsigned i = 0;
+        int i = 0;
         for (Enode * e : counterexample.get_vars()) {
             if (e->isForallVar()) {
                 counterexample[e] = output[i];
