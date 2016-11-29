@@ -42,13 +42,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "util/glpk_wrapper.h"
 #include "util/logging.h"
+#include "util/scoped_vec.h"
 #include "util/stat.h"
 #include "util/thread_local.h"
-
-namespace dreal {
-template <typename T>
-class scoped_vec;
-}  // namespace dreal
 
 using std::cerr;
 using std::cout;
@@ -56,6 +52,7 @@ using std::endl;
 using std::get;
 using std::shared_ptr;
 using std::stack;
+using std::static_pointer_cast;
 using std::tuple;
 using std::unordered_set;
 using std::vector;
@@ -87,7 +84,7 @@ void lp_icp::mark_basic(glpk_wrapper & lp, std::unordered_set<Enode *> es,
             bool found UNUSED = false;
             for (auto cptr : constraints) {
                 if (cptr->get_type() == constraint_type::Nonlinear) {
-                    auto e = cptr->get_enodes()[0];
+                    Enode * const e = static_pointer_cast<nonlinear_constraint>(cptr)->get_enode();
                     if (*it == e) {
                         DREAL_LOG_INFO << "lp_icp: marking " << e;
                         used_constraints.insert(cptr);
@@ -224,7 +221,7 @@ void lp_icp::solve(contractor & ctc, contractor_status & cs,
     unordered_set<Enode *> es;
     for (auto cptr : constraints) {
         if (cptr->get_type() == constraint_type::Nonlinear) {
-            auto e = cptr->get_enodes()[0];
+            Enode * const e = static_pointer_cast<nonlinear_constraint>(cptr)->get_enode();
             if (glpk_wrapper::is_linear(e)) {
                 if (glpk_wrapper::is_simple_bound(e)) {
                     DREAL_LOG_INFO << "lp_icp:      bound: " << e;

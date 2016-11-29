@@ -561,8 +561,8 @@ bool nra_solver::check(bool complete) {
         } else if (config.nra_linear_only) {
             unordered_set<Enode *> linear_stack;
             for (auto c : m_stack) {
-                assert(c->get_enodes().size() == 1);
-                linear_stack.emplace(c->get_enodes()[0]);
+                assert(c->get_type() == constraint_type::Nonlinear);
+                linear_stack.emplace(static_pointer_cast<nonlinear_constraint>(c)->get_enode());
                 m_cs.m_used_constraints.insert(c);
             }
             glpk_wrapper solver(m_cs.m_box, linear_stack);

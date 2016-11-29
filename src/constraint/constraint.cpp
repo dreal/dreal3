@@ -44,6 +44,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/flow.h"
 #include "util/ibex_enode.h"
 #include "util/logging.h"
+#include "util/profiler.h"
 
 using std::cerr;
 using std::copy;
@@ -65,14 +66,6 @@ using std::unique_ptr;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
-
-namespace std {
-// Hash for nonlinear_constraint
-size_t hash<dreal::nonlinear_constraint>::operator()(
-    dreal::nonlinear_constraint const & ctr) const {
-    return hash<uintptr_t>()(reinterpret_cast<uintptr_t>(ctr.get_numctr().get()));
-}
-}  // namespace std
 
 namespace dreal {
 
@@ -104,23 +97,6 @@ ostream & operator<<(ostream & out, constraint_type const & ty) {
 // constraint
 // ====================================================
 constraint::constraint(constraint_type ty) : m_type(ty) {}
-constraint::constraint(constraint_type ty, Enode * const e)
-    : m_type(ty), m_enodes(1, e), m_occured_vars(e->get_vars()) {}
-
-unordered_set<Enode *> build_vars_from_enodes(
-    initializer_list<vector<Enode *>> const & enodes_list) {
-    unordered_set<Enode *> ret;
-    for (auto const & enodes : enodes_list) {
-        for (auto const e : enodes) {
-            unordered_set<Enode *> const & s = e->get_vars();
-            ret.insert(s.begin(), s.end());
-        }
-    }
-    return ret;
-}
-
-constraint::constraint(constraint_type ty, vector<Enode *> const & enodes)
-    : m_type(ty), m_enodes(enodes), m_occured_vars(build_vars_from_enodes({enodes})) {}
 ostream & operator<<(ostream & out, constraint const & c) { return c.display(out); }
 
 // ====================================================
@@ -141,7 +117,7 @@ void nonlinear_constraint::build_maps() const {
     }
     // The use of unique_ptr is to free the returned exprctr* from translate_enode_to_exprctr
     unique_ptr<ibex::ExprCtr const> exprctr(
-        translate_enode_to_exprctr(var_map, m_enodes[0], m_polarity, m_subst));
+        translate_enode_to_exprctr(var_map, get_enode(), m_polarity, m_subst));
     m_numctr_map[tid].reset(new ibex::NumConstraint(var_array, *exprctr));
 }
 
@@ -157,6 +133,7 @@ shared_ptr<ibex::NumConstraint> const & nonlinear_constraint::get_numctr() const
         return m_numctr_map[tid];
     }
 }
+
 ibex::Array<ibex::ExprSymbol const> const & nonlinear_constraint::get_var_array() const {
     std::thread::id const tid = std::this_thread::get_id();
     std::lock_guard<std::mutex> lock(m_map_lock);
@@ -174,8 +151,8 @@ nonlinear_constraint::nonlinear_constraint(Enode * const e,
                                            unordered_set<Enode *> const & domain_vars,
                                            lbool const p,
                                            unordered_map<Enode *, ibex::Interval> const & subst)
-    : constraint(constraint_type::Nonlinear, e),
-      m_is_neq(p == l_False && e->isEq()),
+    : constraint(constraint_type::Nonlinear),
+      m_enode(e),
       m_polarity(p),
       m_domain_vars(domain_vars),
       m_subst(subst) {
@@ -184,7 +161,7 @@ nonlinear_constraint::nonlinear_constraint(Enode * const e,
 
 ostream & nonlinear_constraint::display(ostream & out) const {
     out << "nonlinear_constraint ";
-    if (m_is_neq) {
+    if (is_neq()) {
         out << "!(" << *get_numctr() << ")";
     } else {
         out << *get_numctr();
@@ -193,7 +170,7 @@ ostream & nonlinear_constraint::display(ostream & out) const {
 }
 
 ostream & nonlinear_constraint::display_dr(ostream & out) const {
-    if (m_is_neq) {
+    if (is_neq()) {
         out << "(not " << *get_numctr() << ")";
     } else {
         out << *get_numctr();
@@ -204,7 +181,7 @@ ostream & nonlinear_constraint::display_dr(ostream & out) const {
 pair<lbool, ibex::Interval> nonlinear_constraint::eval(ibex::IntervalVector const & iv) const {
     lbool sat = l_Undef;
     ibex::Interval result;
-    if (!m_is_neq) {
+    if (!is_neq()) {
         result = get_numctr()->f.eval(iv);
         switch (get_numctr()->op) {
             case ibex::LT:
@@ -287,7 +264,7 @@ double nonlinear_constraint::eval_error(ibex::IntervalVector const & iv) const {
     ibex::Interval eval_result;
     double result = 0.0;
     double const magic_num = numeric_limits<double>::max() / 1.5;
-    if (!m_is_neq) {
+    if (!is_neq()) {
         eval_result = get_numctr()->f.eval(iv);
         switch (get_numctr()->op) {
             case ibex::LT:
@@ -359,11 +336,37 @@ double nonlinear_constraint::eval_error(box const & b) const {
 // ====================================================
 ode_constraint::ode_constraint(integral_constraint const & integral,
                                vector<shared_ptr<forallt_constraint>> const & invs)
-    : constraint(constraint_type::ODE, integral.get_enodes()), m_int(integral), m_invs(invs) {}
+    : constraint(constraint_type::ODE), m_int(integral), m_invs(invs) {}
+
+vector<Enode *> ode_constraint::get_enodes() const {
+    if (m_invs.empty()) {
+        return {m_int.get_enode()};
+    } else {
+        vector<Enode *> ret{m_int.get_enode()};
+        for (shared_ptr<forallt_constraint> const inv : m_invs) {
+            ret.push_back(inv->get_enode());
+        }
+        return ret;
+    }
+}
+
+std::unordered_set<Enode *> ode_constraint::get_occured_vars() const {
+    if (m_invs.empty()) {
+        return m_int.get_occured_vars();
+    } else {
+        unordered_set<Enode *> ret{m_int.get_occured_vars()};
+        for (shared_ptr<forallt_constraint> const inv : m_invs) {
+            auto const occured_vars_in_inv = inv->get_occured_vars();
+            ret.insert(occured_vars_in_inv.begin(), occured_vars_in_inv.end());
+        }
+        return ret;
+    }
+}
+
 ostream & ode_constraint::display(ostream & out) const {
     out << "ode_constraint(" << m_int << ")" << endl;
     for (shared_ptr<forallt_constraint> const & inv : m_invs) {
-        Enode * e = inv->get_enodes()[0];
+        Enode * const e = inv->get_enode();
         if (e->hasPolarity() && e->getPolarity() == l_True) {
             out << *inv << endl;
         }
@@ -440,12 +443,15 @@ integral_constraint mk_integral_constraint(Enode * const e,
                                par_lhs_names, odes);
 }
 
-integral_constraint::integral_constraint(
-    Enode * const e, unsigned const flow_id, Enode * const time_0, Enode * const time_t,
-    vector<Enode *> const & vars_0, vector<Enode *> const & pars_0, vector<Enode *> const & vars_t,
-    vector<Enode *> const & pars_t, vector<Enode *> const & par_lhs_names,
-    vector<pair<Enode *, Enode *>> const & odes)
-    : constraint(constraint_type::Integral, e),
+integral_constraint::integral_constraint(Enode * const e, int const flow_id, Enode * const time_0,
+                                         Enode * const time_t, vector<Enode *> const & vars_0,
+                                         vector<Enode *> const & pars_0,
+                                         vector<Enode *> const & vars_t,
+                                         vector<Enode *> const & pars_t,
+                                         vector<Enode *> const & par_lhs_names,
+                                         vector<pair<Enode *, Enode *>> const & odes)
+    : constraint(constraint_type::Integral),
+      m_enode(e),
       m_flow_id(flow_id),
       m_time_0(time_0),
       m_time_t(time_t),
@@ -456,7 +462,7 @@ integral_constraint::integral_constraint(
       m_par_lhs_names(par_lhs_names),
       m_odes(odes) {}
 ostream & integral_constraint::display(ostream & out) const {
-    out << "integral_constraint = " << m_enodes[0] << endl;
+    out << "integral_constraint = " << get_enode() << endl;
     out << "\t"
         << "flow_id = " << m_flow_id << endl;
     out << "\t"
@@ -512,9 +518,10 @@ vector<shared_ptr<nonlinear_constraint>> make_nlctrs(Enode * const e,
 }
 
 forallt_constraint::forallt_constraint(Enode * const e, unordered_set<Enode *> const & var_set,
-                                       unsigned const flow_id, Enode * const time_0,
+                                       int const flow_id, Enode * const time_0,
                                        Enode * const time_t, Enode * const inv)
-    : constraint(constraint_type::ForallT, e),
+    : constraint(constraint_type::ForallT),
+      m_enode(e),
       m_flow_id(flow_id),
       m_time_0(time_0),
       m_time_t(time_t),
@@ -522,7 +529,7 @@ forallt_constraint::forallt_constraint(Enode * const e, unordered_set<Enode *> c
     m_nl_ctrs = make_nlctrs(inv, var_set, l_True);
 }
 ostream & forallt_constraint::display(ostream & out) const {
-    out << "forallt_constraint = " << m_enodes[0] << endl;
+    out << "forallt_constraint = " << get_enode() << endl;
     out << "\t"
         << "flow_id = " << m_flow_id << endl;
     out << "\t"
@@ -561,12 +568,16 @@ unordered_set<Enode *> forall_constraint::extract_forall_vars(Enode const * elis
 }
 
 forall_constraint::forall_constraint(Enode * const e, lbool const p)
-    : constraint(constraint_type::Forall, e),
+    : constraint(constraint_type::Forall),
+      m_enode(e),
       m_forall_vars(extract_forall_vars(e->getCdr()->getCdr())),
       m_body(e->getCdr()->getCar()),
       m_polarity(p) {}
+
 unordered_set<Enode *> forall_constraint::get_forall_vars() const { return m_forall_vars; }
+
 Enode * forall_constraint::get_body() const { return m_body; }
+
 ostream & forall_constraint::display(ostream & out) const {
     out << "forall([ ";
     for (Enode * const var : m_forall_vars) {
