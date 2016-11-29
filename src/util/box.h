@@ -39,20 +39,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 
 class box {
-private:
-    // m_vars.size() == m_ivec.size()
-    // Invariant: m_vars[i] ~ m_ivec[i]
-    std::shared_ptr<std::vector<Enode *>> m_vars;
-    ibex::IntervalVector m_values;
-    std::shared_ptr<std::unordered_map<std::string, int>> m_name_index_map;
-    int m_idx_last_branched;
-
-    // Methods
-    std::tuple<int, box, box> bisect_int_at(int const i) const;
-    std::tuple<int, box, box> bisect_real_at(int const i) const;
-    void constructFromVariables(std::vector<Enode *> const & vars);
-    double m_score;
-
 public:
     explicit box(std::vector<Enode *> const & vars);
     box(box const & b, std::unordered_set<Enode *> const & extra_vars);
@@ -86,7 +72,7 @@ public:
         if (it != m_name_index_map->end()) {
             return it->second;
         } else {
-            throw std::logic_error("box::get_index(" + s + "): doesn not have the key " + s);
+            throw std::logic_error("box::get_index(" + s + "): does not have the key " + s);
         }
     }
 
@@ -161,6 +147,20 @@ public:
     nlohmann::json to_JSON() const;
 
     void assign_to_enode() const;
+
+private:
+    // m_vars.size() == m_ivec.size()
+    // Invariant: m_vars[i] ~ m_ivec[i]
+    std::shared_ptr<std::vector<Enode *>> m_vars;
+    ibex::IntervalVector m_values;
+    std::shared_ptr<std::unordered_map<std::string, int>> m_name_index_map;
+    int m_idx_last_branched;
+
+    // Methods
+    std::tuple<int, box, box> bisect_int_at(int const i) const;
+    std::tuple<int, box, box> bisect_real_at(int const i) const;
+    void constructFromVariables(std::vector<Enode *> const & vars);
+    double m_score;
 };
 
 bool operator<(ibex::Interval const & a, ibex::Interval const & b);
