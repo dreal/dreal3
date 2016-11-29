@@ -53,6 +53,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "util/interruptible_thread.h"
 #include "util/logging.h"
+#include "util/profiler.h"
 #include "util/string.h"
 #include "util/thread_local.h"
 
@@ -106,15 +107,17 @@ ostream & output_trace(ostream & out, capd::interval const dt, capd::IVector con
     return out;
 }
 
-void split(capd::interval const & i, unsigned n, vector<capd::interval> & ret) {
-    assert(i.leftBound() <= i.rightBound());
-    ret.reserve(ret.size() + n);
-    double lb = i.leftBound();
-    double const rb = i.rightBound();
+/// Divide interval @p iv into n pieces and put them into @p ret if the
+/// width of @p iv is non-zero. Otherwise, put @p iv into @p ret.
+void split(capd::interval const & iv, int const n, vector<capd::interval> & ret) {
+    assert(iv.leftBound() <= iv.rightBound());
+    double lb = iv.leftBound();
+    double const rb = iv.rightBound();
     if (lb < rb) {
+        ret.reserve(n);
         double const width = rb - lb;
         double const step = width / n;
-        for (unsigned i = 0; (lb <= rb) && (i < n - 1); i++) {
+        for (int i = 0; (lb <= rb) && (i < n - 1); ++i) {
             ret.emplace_back(lb, min(lb + step, rb));
             assert(lb <= min(lb + step, rb));
             lb += step;
@@ -124,7 +127,7 @@ void split(capd::interval const & i, unsigned n, vector<capd::interval> & ret) {
         }
     } else {
         // lb == rb
-        ret.push_back(i);
+        ret.push_back(iv);
     }
 }
 
@@ -306,13 +309,13 @@ string build_capd_string(integral_constraint const & ic, ode_direction const dir
     // Build Map
     unordered_map<string, string> subst_map;
     auto vars_0 = (dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
-    for (unsigned i = 0; i < vars_0.size(); i++) {
+    for (size_t i = 0; i < vars_0.size(); ++i) {
         string const & from = odes[i].first->getCar()->getNameFull();
         string const & to = vars_0[i]->getCar()->getNameFull();
         subst_map.emplace(from, to);
         DREAL_LOG_INFO << "Subst Map (Var): " << from << " -> " << to;
     }
-    for (unsigned i = 0; i < pars_0.size(); i++) {
+    for (size_t i = 0; i < pars_0.size(); ++i) {
         string const & from = par_lhs_names[i]->getCar()->getNameFull();
         string const & to = pars_0[i]->getCar()->getNameFull();
         subst_map.emplace(from, to);
@@ -331,9 +334,7 @@ string build_capd_string(integral_constraint const & ic, ode_direction const dir
         ode_strs.emplace_back(ode_str);
     }
 
-    string diff_var = "";
-    string diff_par = "";
-    string diff_fun = "";
+    string diff_var, diff_par, diff_fun;
     if (vars_0.size() > 0) {
         vector<string> vars_0_strs;
         vars_0_strs.reserve(vars_0.size());
@@ -420,8 +421,7 @@ bool contractor_capd_full::check_invariant(capd::IVector const & v, contractor_s
     // 2. check the converted box b, with inv_ctc contractor
     auto const & invs = m_ctr->get_invs();
     for (unsigned i = 0; i < invs.size(); ++i) {
-        shared_ptr<forallt_constraint> inv = invs[i];
-        Enode * inv_e = inv->get_enodes()[0];
+        Enode * const inv_e = invs[i]->get_enode();
         if (inv_e->hasPolarity() && inv_e->getPolarity() == l_True) {
             m_inv_ctcs[i].prune(cs);
             if (cs.m_box.is_empty()) {
@@ -442,12 +442,13 @@ bool contractor_capd_full::compute_enclosures(
     auto const & curve = m_solver->getCurve();
     auto domain = capd::interval(0, 1) * stepMade;
 
-    vector<capd::interval> intvs;
+    DREAL_THREAD_LOCAL static vector<capd::interval> intvs;
+    intvs.clear();
     if (!add_all) {
         double const new_domain_left = T.leftBound() - prevTime.rightBound();
         double const domain_right = domain.rightBound();
         if (new_domain_left > 0.0 && new_domain_left <= domain_right) {
-            domain.setLeftBound(T.leftBound() - prevTime.rightBound());
+            domain.setLeftBound(new_domain_left);
         }
     }
     split(domain, m_grid_size, intvs);
@@ -639,37 +640,41 @@ void contractor_capd_simple::prune(contractor_status &) {
     }
     return;
 }
-// ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t,
-// interval const & T,
-//                                                       IVector const & inv, vector<IFunction> &
-//                                                       funcs) {
-//     bool prune_params_result = prune_params();
-//     if (!prune_params_result) {
-//         return ODE_result::UNSAT;
-//     }
 
-//     // X_t = X_t \cup (X_0 + (d/dt Inv) * T)
-//     for (unsigned i = 0; i < X_0.dimension(); i++) {
-//         interval const & x_0 = X_0[i];
-//         interval & x_t = X_t[i];
-//         IFunction & dxdt = funcs[i];
-//         set_params(dxdt);
-//         try {
-//             interval new_x_t = x_0 + dxdt(inv) * T;
-//             if (!intersection(new_x_t, x_t, x_t)) {
-//                 DREAL_LOG_INFO << "ode_solver::simple_ODE_forward: no intersection for X_T =>
-//                 UNSAT";
-//                 return ODE_result::UNSAT;
-//             }
-//         } catch (exception& e) {
-//             DREAL_LOG_FATAL << "ode_solver::simple_ODE_forward: Exception in Simple_ODE: " <<
-//             e.what();
-//         }
-//     }
-//     // update
-//     IVector_to_varlist(X_t, m_t_vars);
-//     return ODE_result::SAT;
-// }
+#if 0
+ode_solver::ODE_result ode_solver::simple_ODE_forward(IVector const & X_0, IVector & X_t,
+                                                      interval const & T,
+                                                      IVector const & inv, vector<IFunction> &
+                                                      funcs) {
+    bool prune_params_result = prune_params();
+    if (!prune_params_result) {
+        return ODE_result::UNSAT;
+    }
+
+    // X_t = X_t \cup (X_0 + (d/dt Inv) * T)
+    for (unsigned i = 0; i < X_0.dimension(); i++) {
+        interval const & x_0 = X_0[i];
+        interval & x_t = X_t[i];
+        IFunction & dxdt = funcs[i];
+        set_params(dxdt);
+        try {
+            interval new_x_t = x_0 + dxdt(inv) * T;
+            if (!intersection(new_x_t, x_t, x_t)) {
+                DREAL_LOG_INFO << "ode_solver::simple_ODE_forward:"
+                               << "no intersection for X_T => UNSAT";
+                return ODE_result::UNSAT;
+            }
+        } catch (exception& e) {
+            DREAL_LOG_FATAL << "ode_solver::simple_ODE_forward: Exception in Simple_ODE: " <<
+                e.what();
+        }
+    }
+    // update
+    IVector_to_varlist(X_t, m_t_vars);
+    return ODE_result::SAT;
+}
+#endif
+
 ostream & contractor_capd_simple::display(ostream & out) const {
     out << "contractor_simple(" << m_dir << ", " << *m_ctr << ")";
     return out;
@@ -706,8 +711,6 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
                        << m_solver->getAbsoluteTolerance();
         DREAL_LOG_INFO << "contractor_capd_full: relative tolerance = "
                        << m_solver->getRelativeTolerance();
-    } else {
-        // Trivial Case with all params and no ODE variables
     }
     // Set up m_inv_ctcs for invariant checking
     if (m_ctr->get_invs().size() > 0) {
@@ -942,10 +945,9 @@ void contractor_capd_full::prune(contractor_status & cs) {
         // Add forallt constraint (but only the asserted ones)
         auto const & invs = m_ctr->get_invs();
         for (unsigned i = 0; i < invs.size(); ++i) {
-            shared_ptr<forallt_constraint> inv = invs[i];
-            Enode * inv_e = inv->get_enodes()[0];
+            Enode const * inv_e = invs[i]->get_enode();
             if (inv_e->hasPolarity() && inv_e->getPolarity() == l_True) {
-                cs.m_used_constraints.insert(inv);
+                cs.m_used_constraints.insert(invs[i]);
             }
         }
     }
