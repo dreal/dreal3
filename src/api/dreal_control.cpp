@@ -155,7 +155,7 @@ void synthesizeLyapunov(vector<expr *> & x, vector<expr *> & p, vector<expr *> &
     // cerr << "Initial Search Condition: " << search_condition << endl;
     // keep round number
     unsigned round = 0;
-    expr tmp;
+    // expr tmp;
 #ifdef USE_GLPK
     s->set_lp(true);
 #endif

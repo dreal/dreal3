@@ -38,7 +38,7 @@ class solver;
 
 class expr {
 public:
-    expr() {}
+    expr() = default;
     expr(solver & s, char const *);  // so far it only works for declaring variables
     explicit expr(solver * s);
     expr(solver * const s, cexpr const);
