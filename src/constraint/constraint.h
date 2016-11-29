@@ -92,7 +92,6 @@ public:
     virtual ibex::IntervalVector grad(ibex::IntervalVector const & iv) const = 0;
     virtual std::ostream & display(std::ostream & out) const = 0;
     virtual std::ostream & display_dr(std::ostream & out) const = 0;
-    virtual ~constraint() noexcept {}
     friend std::ostream & operator<<(std::ostream & out, constraint const & c);
 };
 std::ostream & operator<<(std::ostream & out, constraint const & c);

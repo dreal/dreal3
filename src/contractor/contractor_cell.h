@@ -53,7 +53,6 @@ public:
     explicit contractor_cell(contractor_kind kind) : m_kind(kind) {}
     contractor_cell(contractor_kind kind, unsigned n)
         : m_kind(kind), m_input(ibex::BitSet::empty(n)) {}
-    virtual ~contractor_cell() noexcept {}
     ibex::BitSet get_input() const { return m_input; }
     virtual void prune(contractor_status & cs) = 0;
     virtual std::ostream & display(std::ostream & out) const = 0;

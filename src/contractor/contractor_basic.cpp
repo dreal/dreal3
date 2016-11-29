@@ -324,10 +324,6 @@ contractor_cache::contractor_cache(contractor const & ctc)
     m_input = m_ctc.get_input();
 }
 
-contractor_cache::~contractor_cache() {
-    DREAL_LOG_DEBUG << m_num_hit << " / " << (m_num_hit + m_num_nohit) << "\t" << m_cache.size();
-}
-
 vector<ibex::Interval> extract_from_box_using_bitset(box const & b, ibex::BitSet const & s) {
     if (s.empty()) {
         return {};
