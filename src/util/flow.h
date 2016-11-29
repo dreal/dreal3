@@ -32,19 +32,19 @@ class Enode;
 
 namespace dreal {
 class flow {
+public:
+    flow() = default;
+    flow(Enode * const v, Enode * const e);
+    void add(Enode * const v, Enode * const e);
+    std::vector<Enode *> const & get_vars() const { return m_vars; }
+    std::vector<Enode *> get_vars() { return m_vars; }
+    std::vector<Enode *> const & get_odes() const { return m_odes; }
+    std::vector<Enode *> get_odes() { return m_odes; }
+    friend std::ostream & operator<<(std::ostream & out, flow const & _flow);
+
 private:
     std::vector<Enode *> m_vars;
     std::vector<Enode *> m_odes;
-
-public:
-    flow();
-    flow(Enode * const v, Enode * const e);
-    void add(Enode * const v, Enode * const e);
-    inline std::vector<Enode *> const & get_vars() const { return m_vars; }
-    inline std::vector<Enode *> get_vars() { return m_vars; }
-    inline std::vector<Enode *> const & get_odes() const { return m_odes; }
-    inline std::vector<Enode *> get_odes() { return m_odes; }
-    friend std::ostream & operator<<(std::ostream & out, flow const & _flow);
 };
 std::ostream & operator<<(std::ostream & out, flow const & _flow);
 }  // namespace dreal

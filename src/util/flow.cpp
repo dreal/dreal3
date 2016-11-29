@@ -22,7 +22,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/flow.h"
 
 #include <assert.h>
-#include <iostream>
+#include <cstddef>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -34,7 +35,6 @@ using std::string;
 using std::ostream;
 using std::endl;
 
-flow::flow() {}
 flow::flow(Enode * const v, Enode * const e) { add(v, e); }
 void flow::add(Enode * const v, Enode * const e) {
     assert(m_vars.size() == m_odes.size());
@@ -43,7 +43,7 @@ void flow::add(Enode * const v, Enode * const e) {
 }
 
 ostream & operator<<(ostream & out, flow const & _flow) {
-    for (unsigned i = 0; i < _flow.m_vars.size(); i++) {
+    for (size_t i = 0; i < _flow.m_vars.size(); i++) {
         out << "d/dt[" << _flow.m_vars[i] << "] = " << _flow.m_odes[i] << endl;
     }
     return out;
