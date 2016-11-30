@@ -53,7 +53,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "util/interruptible_thread.h"
 #include "util/logging.h"
-#include "util/profiler.h"
 #include "util/string.h"
 #include "util/thread_local.h"
 
@@ -683,12 +682,12 @@ ostream & contractor_capd_simple::display(ostream & out) const {
 contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_constraint> const ctr,
                                            ode_direction const dir, SMTConfig const & config,
                                            double const timeout)
-    : contractor_cell(contractor_kind::CAPD_FULL, box.size()),
-      m_dir(dir),
-      m_ctr(ctr),
-      m_taylor_order(config.nra_ODE_taylor_order),
-      m_grid_size(config.nra_ODE_grid_size),
-      m_timeout(timeout) {
+    : contractor_cell{contractor_kind::CAPD_FULL, extract_bitset(box, ctr)},
+      m_dir{dir},
+      m_ctr{ctr},
+      m_taylor_order{config.nra_ODE_taylor_order},
+      m_grid_size{config.nra_ODE_grid_size},
+      m_timeout{timeout} {
     DREAL_LOG_INFO << "contractor_capd_full::contractor_capd_full()";
     integral_constraint const & ic = m_ctr->get_ic();
     m_vars_0 = (m_dir == ode_direction::FWD) ? ic.get_vars_0() : ic.get_vars_t();
@@ -731,11 +730,15 @@ contractor_capd_full::contractor_capd_full(box const & box, shared_ptr<ode_const
     } else {
         m_need_to_check_inv = false;
     }
-    // Input: X_0, X_T, and Time
-    m_input = ibex::BitSet::empty(box.size());
+}
+
+ibex::BitSet contractor_capd_full::extract_bitset(box const & box,
+                                                  shared_ptr<ode_constraint> const ctr) {
+    ibex::BitSet ret{ibex::BitSet::empty(box.size())};
     for (Enode * e : ctr->get_ic().get_enode()->get_vars()) {
-        m_input.add(box.get_index(e));
+        ret.add(box.get_index(e));
     }
+    return ret;
 }
 
 double max_width(capd::IVector const & iv) {
@@ -793,7 +796,7 @@ void contractor_capd_full::prune(contractor_status & cs) {
             if (iv_0_i.is_empty()) {
                 cs.m_box.set_empty();
                 cs.m_used_constraints.insert(m_ctr);
-                cs.m_output.union_with(m_input);
+                cs.m_output.union_with(get_input());
                 return;
             } else {
                 iv_t_i = iv_0_i;
@@ -1058,7 +1061,7 @@ ostream & contractor_capd_full::display(ostream & out) const {
 contractor_capd_point::contractor_capd_point(box const & box, shared_ptr<ode_constraint> const ctr,
                                              contractor const & eval_ctc, ode_direction const dir,
                                              SMTConfig const & config, double const timeout)
-    : contractor_cell(contractor_kind::CAPD_POINT, box.size()),
+    : contractor_cell(contractor_kind::CAPD_POINT, extract_bitset(box, ctr)),
       m_dir(dir),
       m_ctr(ctr),
       m_eval_ctc(eval_ctc),
@@ -1099,11 +1102,15 @@ contractor_capd_point::contractor_capd_point(box const & box, shared_ptr<ode_con
     } else {
         m_need_to_check_inv = false;
     }
-    // Input: X_0, X_T, and Time
-    m_input = ibex::BitSet::empty(box.size());
+}
+
+ibex::BitSet contractor_capd_point::extract_bitset(box const & box,
+                                                   shared_ptr<ode_constraint> const ctr) {
+    ibex::BitSet ret{ibex::BitSet::empty(box.size())};
     for (Enode * e : ctr->get_ic().get_enode()->get_vars()) {
-        m_input.add(box.get_index(e));
+        ret.add(box.get_index(e));
     }
+    return ret;
 }
 
 void contractor_capd_point::prune(contractor_status & cs) {
@@ -1145,7 +1152,7 @@ void contractor_capd_point::prune(contractor_status & cs) {
             if (iv_0_i.is_empty()) {
                 b.set_empty();
                 used_constraints.insert(m_ctr);
-                output = m_input;
+                output = get_input();
                 return;
             } else {
                 iv_t_i = iv_0_i;

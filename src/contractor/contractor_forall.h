@@ -47,6 +47,11 @@ class contractor_status;
 class forall_constraint;
 
 class contractor_forall : public contractor_cell {
+public:
+    contractor_forall(box const & b, std::shared_ptr<forall_constraint> const ctr);
+    void prune(contractor_status & s);
+    std::ostream & display(std::ostream & out) const;
+
 private:
     std::shared_ptr<forall_constraint> const m_ctr;
     std::unordered_map<Enode *, Enode *> m_strengthen_map;
@@ -70,12 +75,9 @@ private:
     void prune_disjunction(contractor_status & cs, std::vector<Enode *> const & vec, bool const p);
     /// Pruning function. It handles /\ {t_1, ..., t_n} where @p vec includes t_i
     void prune_conjunction(contractor_status & cs, std::vector<Enode *> const & vec, bool const p);
-    /// Pruning function. It handles a leaf node (a constraint without boolean structure)
+    /// Pruning function. It handles a leaf node (a constraint without Boolean structure)
     void prune_leaf(contractor_status & cs, Enode * body, bool const p);
 
-public:
-    contractor_forall(box const & b, std::shared_ptr<forall_constraint> const ctr);
-    void prune(contractor_status & s);
-    std::ostream & display(std::ostream & out) const;
+    static ibex::BitSet extract_bitset(box const & b, std::shared_ptr<forall_constraint> const ctr);
 };
 }  // namespace dreal

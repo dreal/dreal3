@@ -100,11 +100,15 @@ static unordered_map<Enode *, ibex::Interval> make_subst_from_value(
 }
 
 contractor_forall::contractor_forall(box const & b, shared_ptr<forall_constraint> const ctr)
-    : contractor_cell(contractor_kind::FORALL), m_ctr(ctr) {
-    m_input = ibex::BitSet::empty(b.size());
-    for (Enode * var : m_ctr->get_body()->get_exist_vars()) {
-        m_input.add(b.get_index(var));
+    : contractor_cell(contractor_kind::FORALL, extract_bitset(b, ctr)), m_ctr(ctr) {}
+
+ibex::BitSet contractor_forall::extract_bitset(box const & b,
+                                               std::shared_ptr<forall_constraint> const ctr) {
+    ibex::BitSet ret{ibex::BitSet::empty(b.size())};
+    for (Enode * var : ctr->get_body()->get_exist_vars()) {
+        ret.add(b.get_index(var));
     }
+    return ret;
 }
 
 void contractor_forall::prune_tree(contractor_status & cs, Enode * body, bool const p) {

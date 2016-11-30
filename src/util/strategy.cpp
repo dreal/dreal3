@@ -228,14 +228,14 @@ contractor default_strategy::build_contractor(box const & box,
                     mk_contractor_try_or(
                         mk_contractor_throw_if_empty(mk_contractor_seq(ode_sampling_ctcs)),
                         mk_contractor_empty()),
-                    mk_contractor_seq(mk_contractor_seq(ode_capd4_fwd_ctcs),
-                                      mk_contractor_seq(ode_capd4_bwd_ctcs))));
+                    mk_contractor_seq({mk_contractor_seq(ode_capd4_fwd_ctcs),
+                                       mk_contractor_seq(ode_capd4_bwd_ctcs)})));
             } else {
                 ctcs.push_back(mk_contractor_try_or(
                     // Try Underapproximation(GSL) if it fails try Overapproximation(CAPD4)
                     mk_contractor_throw_if_empty(mk_contractor_seq(ode_sampling_ctcs)),
-                    mk_contractor_seq(mk_contractor_seq(ode_capd4_fwd_ctcs),
-                                      mk_contractor_seq(ode_capd4_bwd_ctcs))));
+                    mk_contractor_seq({mk_contractor_seq(ode_capd4_fwd_ctcs),
+                                       mk_contractor_seq(ode_capd4_bwd_ctcs)})));
             }
         } else {
             for (auto const & ode_ctc : ode_capd4_fwd_ctcs) {
@@ -255,8 +255,8 @@ contractor default_strategy::build_contractor(box const & box,
         for (auto const & nl_ctr : nl_ctrs) {
             eval_ctcs.push_back(mk_contractor_eval(nl_ctr, use_cache));
         }
-        return mk_contractor_seq(mk_contractor_fixpoint(default_strategy::term_cond, ctcs),
-                                 mk_contractor_seq(eval_ctcs));
+        return mk_contractor_seq({mk_contractor_fixpoint(default_strategy::term_cond, ctcs),
+                                  mk_contractor_seq(eval_ctcs)});
     } else {
         return mk_contractor_fixpoint(default_strategy::term_cond, ctcs);
     }

@@ -186,11 +186,10 @@ private:
     std::vector<Enode *> const m_pars_0;
     std::vector<Enode *> const m_vars_t;
     std::vector<Enode *> const m_pars_t;
-    std::vector<Enode *> const m_par_lhs_names;  // TODO(soonhok): what's this?
+    std::vector<Enode *> const m_par_lhs_names;
     std::vector<std::pair<Enode *, Enode *>> const m_odes;
 };
 
-// TODO(soonhok): remove this?
 class forallt_constraint;
 forallt_constraint mk_forallt_constraint(Enode * const e,
                                          std::unordered_set<Enode *> const & var_set);

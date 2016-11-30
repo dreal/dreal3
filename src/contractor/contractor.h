@@ -42,15 +42,8 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/box.h"
 #include "util/stat.h"
 
-class Enode;
-
 namespace dreal {
 
-class box;
-class constraint;
-class forall_constraint;
-class nonlinear_constraint;
-class ode_constraint;
 #ifdef SUPPORT_ODE
 enum class ode_direction { FWD, BWD };
 std::ostream & operator<<(std::ostream & out, ode_direction const & d);
@@ -63,7 +56,8 @@ public:
     explicit contractor(std::shared_ptr<contractor_cell> const c) : m_ptr(c) {
         assert(m_ptr != nullptr);
     }
-    ibex::BitSet get_input() const { return m_ptr->get_input(); }
+    ibex::BitSet const & get_input() const { return m_ptr->get_input(); }
+    ibex::BitSet get_input() { return m_ptr->get_input(); }
     void prune(contractor_status & cs) {
         if (m_ptr) {
             // by default, clear output vector and used constraints.
@@ -79,7 +73,7 @@ public:
     void prune_with_assert(contractor_status & cs);
     bool operator==(contractor const & c) const { return m_ptr == c.m_ptr; }
     bool operator<(contractor const & c) const { return m_ptr < c.m_ptr; }
-    std::size_t hash() const { return (std::size_t)m_ptr.get(); }
+    size_t hash() const { return reinterpret_cast<uintptr_t>(m_ptr.get()); }
     friend std::ostream & operator<<(std::ostream & out, contractor const & c);
 
 private:
@@ -90,7 +84,6 @@ contractor mk_contractor_id();
 contractor mk_contractor_debug(std::string const & s);
 contractor mk_contractor_seq(std::initializer_list<contractor> const & l);
 contractor mk_contractor_seq(std::vector<contractor> const & v);
-contractor mk_contractor_seq(contractor const & c1, contractor const & c2);
 contractor mk_contractor_try(contractor const & c);
 contractor mk_contractor_try_or(contractor const & c1, contractor const & c2);
 contractor mk_contractor_empty();
@@ -105,8 +98,6 @@ contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> 
                                   std::initializer_list<contractor> const & clist);
 contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
                                   std::vector<contractor> const & cvec);
-contractor mk_contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                                  std::initializer_list<std::vector<contractor>> const & cvec_list);
 contractor mk_contractor_int(box const & b);
 contractor mk_contractor_eval(std::shared_ptr<nonlinear_constraint> const ctr,
                               bool const use_cache = false);

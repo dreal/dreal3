@@ -1,26 +1,15 @@
+list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/contractor.cpp)
+list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/contractor_basic.cpp)
+list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/contractor_cell.cpp)
+list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/contractor_fixpoint.cpp)
+list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/contractor_forall.cpp)
+list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/contractor_ibex.cpp)
+list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/contractor_parallel.cpp)
+list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/contractor_parallel_all.cpp)
+list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/contractor_parallel_any.cpp)
+list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/contractor_pseq.cpp)
+list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/extract_bitset.cpp)
 if(SUPPORT_ODE)
-  SET(DREAL_SRCS ${DREAL_SRCS}
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_basic.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_capd4.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_fixpoint.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_forall.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_ibex.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_parallel.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_parallel_all.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_parallel_any.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_pseq.cpp
-    PARENT_SCOPE)
-else()
-  SET(DREAL_SRCS ${DREAL_SRCS}
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_basic.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_fixpoint.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_forall.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_ibex.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_parallel.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_parallel_all.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_parallel_any.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/contractor_pseq.cpp
-    PARENT_SCOPE)
-endif()
+  list(APPEND CONTRACTOR_FILES ${CMAKE_CURRENT_LIST_DIR}/contractor_capd4.cpp)
+endif(SUPPORT_ODE)
+SET(DREAL_SRCS ${DREAL_SRCS} ${CONTRACTOR_FILES} PARENT_SCOPE)

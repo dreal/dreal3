@@ -37,8 +37,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "contractor/contractor.h"
-#include "contractor/contractor_kind.h"
-#include "contractor/contractor_status.h"
+#include "contractor/extract_bitset.h"
 #include "ibex/ibex.h"
 #include "util/box.h"
 #include "util/logging.h"
@@ -77,16 +76,15 @@ using std::exception;
 namespace dreal {
 
 contractor_pseq::contractor_pseq(initializer_list<contractor> const & l)
-    : contractor_cell(contractor_kind::PSEQ), m_vec(l) {
+    : contractor_cell{contractor_kind::PSEQ, extract_bitset(l)}, m_vec{l} {
     init();
 }
 contractor_pseq::contractor_pseq(vector<contractor> const & v)
-    : contractor_cell(contractor_kind::PSEQ), m_vec(v) {
+    : contractor_cell{contractor_kind::PSEQ, extract_bitset(v)}, m_vec{v} {
     init();
 }
 
 void contractor_pseq::init() {
-    m_input = m_vec[0].get_input();
     DREAL_LOG_DEBUG << "contractor_pseq::prune";
 
     auto const num_thread =
@@ -104,7 +102,6 @@ void contractor_pseq::init() {
     vector<contractor> v(num_thread);
     for (unsigned i = 0; i < m_vec.size(); i++) {
         vv[i % num_thread].push_back(m_vec[i]);
-        m_input.union_with(m_vec[i].get_input());
     }
     for (unsigned i = 0; i < num_thread; i++) {
         cerr << "vv[" << i << "].size() = " << vv[i].size() << endl;

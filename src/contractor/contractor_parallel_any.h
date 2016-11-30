@@ -55,7 +55,6 @@ private:
     std::mutex m_mutex;
     std::condition_variable m_cv;
     int m_index;
-    void setup_input();
 
 public:
     explicit contractor_parallel_any(std::initializer_list<contractor> const & l);

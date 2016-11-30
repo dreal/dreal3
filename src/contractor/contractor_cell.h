@@ -38,25 +38,30 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 namespace dreal {
 // Base Cell
 class contractor_cell {
-protected:
-    contractor_kind m_kind;
+public:
+    explicit contractor_cell(contractor_kind kind) : m_kind{kind} {}
+    contractor_cell(contractor_kind kind, unsigned n)
+        : m_kind{kind}, m_input{ibex::BitSet::empty(n)} {}
+    contractor_cell(contractor_kind kind, ibex::BitSet const & input)
+        : m_kind{kind}, m_input{input} {}
+    contractor_cell(contractor_kind kind, std::initializer_list<ibex::BitSet> const & inputs)
+        : m_kind{kind}, m_input{join_bitsets(inputs)} {}
+    contractor_kind const & get_kind() const { return m_kind; }
+    ibex::BitSet const & get_input() const { return m_input; }
+    virtual void prune(contractor_status & cs) = 0;
+    virtual std::ostream & display(std::ostream & out) const = 0;
+
+private:
+    contractor_kind const m_kind;
     // Static overapproximation of the input vector, which should be
     // computed in construction time.
     //
     // "m_input[i] == 1" means that the i-th varialbe is an input to
     // the contractor. It implies that any changes on i-th variable
-    // should trigger another run of the contractor in the fixpoint
+    // should trigger another run of the contractor in fixed-point
     // computation.
-    ibex::BitSet m_input;
-
-public:
-    explicit contractor_cell(contractor_kind kind) : m_kind(kind) {}
-    contractor_cell(contractor_kind kind, unsigned n)
-        : m_kind(kind), m_input(ibex::BitSet::empty(n)) {}
-    ibex::BitSet get_input() const { return m_input; }
-    virtual void prune(contractor_status & cs) = 0;
-    virtual std::ostream & display(std::ostream & out) const = 0;
+    ibex::BitSet const m_input;
+    static ibex::BitSet join_bitsets(std::initializer_list<ibex::BitSet> const & inputs);
 };
-
 std::ostream & operator<<(std::ostream & out, contractor_cell const & c);
 }  // namespace dreal

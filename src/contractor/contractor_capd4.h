@@ -48,14 +48,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/hash_combine.h"
 #include "util/thread_local.h"
 
-class Enode;
-namespace dreal {
-class box;
-class contractor_status;
-class ode_constraint;
-}  // namespace dreal
-struct SMTConfig;
-
 namespace std {
 template <>
 struct hash<capd::Interval> {
@@ -66,6 +58,7 @@ struct hash<capd::Interval> {
         return seed;
     }
 };
+
 template <>
 struct equal_to<capd::Interval> {
     bool operator()(const capd::Interval & v1, const capd::Interval & v2) const {
@@ -102,18 +95,25 @@ struct equal_to<capd::IVector> {
 
 namespace dreal {
 class contractor_capd_simple : public contractor_cell {
-private:
-    ode_direction const m_dir;
-    std::shared_ptr<ode_constraint> const m_ctr;
-
 public:
     contractor_capd_simple(box const & box, std::shared_ptr<ode_constraint> const ctr,
                            ode_direction const dir);
     void prune(contractor_status & s);
     std::ostream & display(std::ostream & out) const;
+
+private:
+    ode_direction const m_dir;
+    std::shared_ptr<ode_constraint> const m_ctr;
 };
 
 class contractor_capd_point : public contractor_cell {
+public:
+    contractor_capd_point(box const & box, std::shared_ptr<ode_constraint> const ctr,
+                          contractor const & eval_ctc, ode_direction const dir,
+                          SMTConfig const & config, double const timeout = 0.0);
+    void prune(contractor_status & s);
+    std::ostream & display(std::ostream & out) const;
+
 private:
     ode_direction const m_dir;
     std::shared_ptr<ode_constraint> const m_ctr;
@@ -128,20 +128,23 @@ private:
     std::unique_ptr<capd::DOdeSolver> m_solver;
     std::unique_ptr<capd::DTimeMap> m_timeMap;
 
-public:
-    contractor_capd_point(box const & box, std::shared_ptr<ode_constraint> const ctr,
-                          contractor const & eval_ctc, ode_direction const dir,
-                          SMTConfig const & config, double const timeout = 0.0);
-    void prune(contractor_status & s);
-    std::ostream & display(std::ostream & out) const;
+    static ibex::BitSet extract_bitset(box const & box, std::shared_ptr<ode_constraint> const ctr);
 };
 
 class contractor_capd_full : public contractor_cell {
+public:
+    contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr,
+                         ode_direction const dir, SMTConfig const & config,
+                         double const timeout = 0.0);
+    void prune(contractor_status & s);
+    nlohmann::json generate_trace(contractor_status s);
+    std::ostream & display(std::ostream & out) const;
+
 private:
     ode_direction const m_dir;
     std::shared_ptr<ode_constraint> const m_ctr;
-    unsigned const m_taylor_order;
-    unsigned const m_grid_size;
+    unsigned long const m_taylor_order;
+    unsigned long const m_grid_size;
     double const m_timeout;  // unit: msec
     std::vector<Enode *> m_vars_0;
     std::vector<Enode *> m_vars_t;
@@ -166,13 +169,7 @@ private:
                             std::vector<std::pair<capd::interval, capd::IVector>> & enclosures,
                             bool const add_all = false);
 
-public:
-    contractor_capd_full(box const & box, std::shared_ptr<ode_constraint> const ctr,
-                         ode_direction const dir, SMTConfig const & config,
-                         double const timeout = 0.0);
-    void prune(contractor_status & s);
-    nlohmann::json generate_trace(contractor_status s);
-    std::ostream & display(std::ostream & out) const;
+    static ibex::BitSet extract_bitset(box const & box, std::shared_ptr<ode_constraint> const ctr);
 };
 
 }  // namespace dreal

@@ -44,17 +44,17 @@ namespace dreal {
 class contractor_status;
 
 class contractor_pseq : public contractor_cell {
-private:
-    contractor m_ctc;
-    std::vector<contractor> m_vec;
-    bool m_use_threads;
-    void init();
-
 public:
     explicit contractor_pseq(std::initializer_list<contractor> const & l);
     explicit contractor_pseq(std::vector<contractor> const & v);
     void prune(contractor_status & cs);
     std::ostream & display(std::ostream & out) const;
+
+private:
+    contractor m_ctc;
+    std::vector<contractor> m_vec;
+    bool m_use_threads;
+    void init();
 };
 contractor mk_contractor_pseq(std::initializer_list<contractor> const & l);
 contractor mk_contractor_pseq(std::vector<contractor> const & v);

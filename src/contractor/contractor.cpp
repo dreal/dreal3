@@ -127,9 +127,6 @@ contractor mk_contractor_seq(vector<contractor> const & v) {
     }
     return contractor(make_shared<contractor_seq>(v));
 }
-contractor mk_contractor_seq(contractor const & c1, contractor const & c2) {
-    return contractor(make_shared<contractor_seq>(c1, c2));
-}
 contractor mk_contractor_try(contractor const & c) {
     return contractor(make_shared<contractor_try>(c));
 }
@@ -165,13 +162,6 @@ contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard
         return mk_contractor_id();
     }
     return contractor(make_shared<contractor_fixpoint>(guard, cvec));
-}
-contractor mk_contractor_fixpoint(function<bool(box const &, box const &)> guard,
-                                  initializer_list<vector<contractor>> const & cvec_list) {
-    if (cvec_list.size() == 0) {
-        return mk_contractor_id();
-    }
-    return contractor(make_shared<contractor_fixpoint>(guard, cvec_list));
 }
 contractor mk_contractor_int(box const & b) { return contractor(make_shared<contractor_int>(b)); }
 contractor mk_contractor_eval(shared_ptr<nonlinear_constraint> const ctr, bool const use_cache) {

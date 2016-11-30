@@ -44,7 +44,6 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "util/flow.h"
 #include "util/ibex_enode.h"
 #include "util/logging.h"
-#include "util/profiler.h"
 
 using std::cerr;
 using std::copy;

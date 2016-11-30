@@ -162,17 +162,20 @@ ibex::Array<ibex::ExprSymbol const> build_array_of_vars_from_enodes(
 }
 
 contractor_ibex_fwdbwd::contractor_ibex_fwdbwd(shared_ptr<nonlinear_constraint> const ctr)
-    : contractor_cell(contractor_kind::IBEX_FWDBWD, ctr->get_var_array().size()),
-      m_ctr(ctr),
-      m_numctr(ctr->get_numctr()) {
+    : contractor_cell{contractor_kind::IBEX_FWDBWD, extract_bitset(ctr)},
+      m_ctr{ctr},
+      m_numctr{ctr->get_numctr()} {}
+
+ibex::BitSet contractor_ibex_fwdbwd::extract_bitset(shared_ptr<nonlinear_constraint> const ctr) {
+    ibex::BitSet ret{ibex::BitSet::empty(ctr->get_var_array().size())};
     if (!ctr->is_neq()) {
-        auto ctc = get_ctc(std::this_thread::get_id(), false);
-        // m_output will be copied from m_ctc->output, so no need to init here
-        int const * ptr_used_var = ctc->f.used_vars();
-        for (int i = 0; i < ctc->f.nb_used_vars(); ++i) {
-            m_input.add(*ptr_used_var++);
+        ibex::Function & f = ctr->get_numctr()->f;
+        int const * ptr_used_var = f.used_vars();
+        for (int i = 0; i < f.nb_used_vars(); ++i) {
+            ret.add(*ptr_used_var++);
         }
     }
+    return ret;
 }
 
 void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
@@ -210,7 +213,7 @@ void contractor_ibex_fwdbwd::prune(contractor_status & cs) {
     auto & new_iv = cs.m_box.get_values();
     bool changed = false;
     for (unsigned i = 0; i < cs.m_box.size(); ++i) {
-        if (m_input.contain(i) && old_iv[i] != new_iv[i]) {
+        if (get_input().contain(i) && old_iv[i] != new_iv[i]) {
             cs.m_output.add(i);
             changed = true;
         }
@@ -243,7 +246,7 @@ ostream & contractor_ibex_fwdbwd::display(ostream & out) const {
 
 contractor_ibex_newton::contractor_ibex_newton(box const & box,
                                                shared_ptr<nonlinear_constraint> const ctr)
-    : contractor_cell(contractor_kind::IBEX_NEWTON, box.size()),
+    : contractor_cell(contractor_kind::IBEX_NEWTON, extract_bitset(box, ctr)),
       m_ctr(ctr),
       m_numctr(ctr->get_numctr()),
       m_var_array(ctr->get_var_array()) {
@@ -253,14 +256,23 @@ contractor_ibex_newton::contractor_ibex_newton(box const & box,
             return;
         }
         m_ctc.reset(new ibex::CtcNewton(m_numctr->f));
-        // Set up input
-        ibex::BitSet const * const input = m_ctc->input;
-        for (int i = input->min(); i <= input->max(); i++) {
-            if ((*input)[i]) {
-                m_input.add(box.get_index(m_var_array[i].name));
-            }
+    }
+}
+
+ibex::BitSet contractor_ibex_newton::extract_bitset(box const & box,
+                                                    shared_ptr<nonlinear_constraint> const ctr) {
+    ibex::BitSet ret{ibex::BitSet::empty(box.size())};
+    if (!ctr->is_neq()) {
+        auto & f = ctr->get_numctr()->f;
+        if (f.nb_var() != f.image_dim()) {
+            return ret;
+        }
+        int const * ptr_used_var = f.used_vars();
+        for (int i = 0; i < f.nb_used_vars(); ++i) {
+            ret.add(*ptr_used_var++);
         }
     }
+    return ret;
 }
 
 void contractor_ibex_newton::prune(contractor_status & cs) {
@@ -338,40 +350,40 @@ contractor_ibex_hc4::contractor_ibex_hc4(vector<Enode *> const & vars,
         cps.set_ref(index++, *(numctr->get_numctr()));
     }
     m_ctc.reset(new ibex::CtcHC4(cps));
+    unordered_map<Enode *, unsigned> enode_to_id;
+    for (unsigned i = 0; i < vars.size(); ++i) {
+        enode_to_id.emplace(vars[i], i);
+    }
+    for (shared_ptr<nonlinear_constraint> ctr : ctrs) {
+        unordered_set<Enode *> const & vars_in_ctr = ctr->get_enode()->get_vars();
+        m_vars_in_ctrs.insert(vars_in_ctr.begin(), vars_in_ctr.end());
+    }
+    DREAL_LOG_INFO << "contractor_ibex_hc4: DONE" << endl;
+}
 
-    // Setup m_input
-    m_input = ibex::BitSet::empty(vars.size());
+ibex::BitSet contractor_ibex_hc4::extract_bitset(
+    vector<Enode *> const & vars, vector<shared_ptr<nonlinear_constraint>> const & ctrs) {
+    ibex::BitSet ret{ibex::BitSet::empty(vars.size())};
+    if (ctrs.empty()) {
+        return ret;
+    }
     unordered_map<Enode *, unsigned> enode_to_id;
     for (unsigned i = 0; i < vars.size(); ++i) {
         enode_to_id.emplace(vars[i], i);
     }
     for (auto const ctr : ctrs) {
         for (auto const var : ctr->get_occured_vars()) {
-            m_input.add(enode_to_id[var]);
+            ret.add(enode_to_id[var]);
         }
     }
-
-    for (shared_ptr<nonlinear_constraint> ctr : ctrs) {
-        unordered_set<Enode *> const & vars_in_ctr = ctr->get_enode()->get_vars();
-        m_vars_in_ctrs.insert(vars_in_ctr.begin(), vars_in_ctr.end());
-    }
-
-    DREAL_LOG_INFO << "contractor_ibex_hc4: DONE" << endl;
+    return ret;
 }
 
 void contractor_ibex_hc4::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_ibex_hc4::prune";
-
     if (!m_ctc) {
         return;
     }
-
-    // TODO(soonhok): need to remove the following
-    // setup input
-    for (Enode * var : m_vars_in_ctrs) {
-        m_input.add(cs.m_box.get_index(var));
-    }
-
     DREAL_THREAD_LOCAL static box old_box(cs.m_box);
     old_box = cs.m_box;
     m_ctc->contract(cs.m_box.get_values());
@@ -387,7 +399,6 @@ void contractor_ibex_hc4::prune(contractor_status & cs) {
     if (changed) {
         cs.m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
     }
-
     // ======= Proof =======
     if (cs.m_config.nra_proof) {
         DREAL_THREAD_LOCAL static ostringstream ss;
@@ -413,7 +424,9 @@ ostream & contractor_ibex_hc4::display(ostream & out) const {
 contractor_ibex_polytope::contractor_ibex_polytope(
     double const prec, vector<Enode *> const & vars,
     vector<shared_ptr<nonlinear_constraint>> const & ctrs)
-    : contractor_cell(contractor_kind::IBEX_POLYTOPE), m_ctrs(ctrs), m_prec(prec) {
+    : contractor_cell{contractor_kind::IBEX_POLYTOPE, extract_bitset(vars, ctrs)},
+      m_ctrs{ctrs},
+      m_prec{prec} {
     // Trivial Case
     if (m_ctrs.size() == 0) {
         return;
@@ -453,24 +466,28 @@ contractor_ibex_polytope::contractor_ibex_polytope(
     ctc_list.resize(index);
     m_ctc.reset(new ibex::CtcCompo(ctc_list));
 
-    // Setup m_input
-    m_input = ibex::BitSet::empty(vars.size());
-    unordered_map<Enode *, unsigned> enode_to_id;
-    for (unsigned i = 0; i < vars.size(); ++i) {
-        enode_to_id.emplace(vars[i], i);
-    }
-    for (auto const ctr : ctrs) {
-        for (auto const var : ctr->get_occured_vars()) {
-            m_input.add(enode_to_id[var]);
-        }
-    }
-
     for (shared_ptr<nonlinear_constraint> ctr : ctrs) {
         unordered_set<Enode *> const & vars_in_ctr = ctr->get_enode()->get_vars();
         m_vars_in_ctrs.insert(vars_in_ctr.begin(), vars_in_ctr.end());
     }
 
     DREAL_LOG_INFO << "contractor_ibex_polytope: DONE" << endl;
+}
+
+ibex::BitSet contractor_ibex_polytope::extract_bitset(
+    vector<Enode *> const & vars, vector<shared_ptr<nonlinear_constraint>> const & ctrs) {
+    // Setup m_input
+    ibex::BitSet ret{ibex::BitSet::empty(vars.size())};
+    unordered_map<Enode *, unsigned> enode_to_id;
+    for (size_t i = 0; i < vars.size(); ++i) {
+        enode_to_id.emplace(vars[i], i);
+    }
+    for (auto const ctr : ctrs) {
+        for (auto const var : ctr->get_occured_vars()) {
+            ret.add(enode_to_id[var]);
+        }
+    }
+    return ret;
 }
 
 contractor_ibex_polytope::~contractor_ibex_polytope() {
@@ -496,16 +513,9 @@ void contractor_ibex_polytope::prune(contractor_status & cs) {
     if (!m_ctc) {
         return;
     }
-
-    // TODO(soonhok): need to remove the following
-    // setup input
-    for (Enode * var : m_vars_in_ctrs) {
-        m_input.add(cs.m_box.get_index(var));
-    }
     DREAL_THREAD_LOCAL static box old_box(cs.m_box);
     old_box = cs.m_box;
     m_ctc->contract(cs.m_box.get_values());
-
     // setup output
     vector<bool> diff_dims = cs.m_box.diff_dims(old_box);
     for (unsigned i = 0; i < diff_dims.size(); i++) {
@@ -513,7 +523,6 @@ void contractor_ibex_polytope::prune(contractor_status & cs) {
             cs.m_output.add(i);
         }
     }
-
     if (!diff_dims.empty()) {
         cs.m_used_constraints.insert(m_ctrs.begin(), m_ctrs.end());
     }

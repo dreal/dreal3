@@ -39,8 +39,8 @@ public:
                         std::initializer_list<contractor> const & clist);
     contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
                         std::vector<contractor> const & cvec);
-    contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
-                        std::initializer_list<std::vector<contractor>> const & cvec_list);
+    // contractor_fixpoint(std::function<bool(box const &, box const &)> term_cond,
+    //                     std::initializer_list<std::vector<contractor>> const & cvec_list);
     void prune(contractor_status & cs);
     std::ostream & display(std::ostream & out) const;
 

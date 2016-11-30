@@ -1,5 +1,5 @@
 /*********************************************************************
-Author: Soonho Kong <soonhok@cs.cmu.edu>
+nAuthor: Soonho Kong <soonhok@cs.cmu.edu>
 
 dReal -- Copyright (C) 2013 - 2016, the dReal Team
 
@@ -52,6 +52,11 @@ class box;
 class contractor_status;
 
 class contractor_ibex_fwdbwd : public contractor_cell {
+public:
+    explicit contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr);
+    void prune(contractor_status & cs);
+    std::ostream & display(std::ostream & out) const;
+
 private:
     std::shared_ptr<nonlinear_constraint> m_ctr;
     std::shared_ptr<ibex::NumConstraint const> m_numctr;
@@ -93,42 +98,52 @@ private:
         return m_ctc_map.at(tid);
     }
 
-public:
-    explicit contractor_ibex_fwdbwd(std::shared_ptr<nonlinear_constraint> const ctr);
-    void prune(contractor_status & cs);
-    std::ostream & display(std::ostream & out) const;
+    static ibex::BitSet extract_bitset(std::shared_ptr<nonlinear_constraint> const ctr);
 };
 
 class contractor_ibex_newton : public contractor_cell {
+public:
+    contractor_ibex_newton(box const & box, std::shared_ptr<nonlinear_constraint> const ctr);
+    void prune(contractor_status & cs);
+    std::ostream & display(std::ostream & out) const;
+
 private:
     std::shared_ptr<nonlinear_constraint> m_ctr;
     std::shared_ptr<ibex::NumConstraint> m_numctr;
     ibex::Array<ibex::ExprSymbol const> const & m_var_array;
     std::shared_ptr<ibex::CtcNewton> m_ctc;
 
-public:
-    contractor_ibex_newton(box const & box, std::shared_ptr<nonlinear_constraint> const ctr);
-    void prune(contractor_status & cs);
-    std::ostream & display(std::ostream & out) const;
+    static ibex::BitSet extract_bitset(box const & box,
+                                       std::shared_ptr<nonlinear_constraint> const ctr);
 };
 
 // contractor_ibex_hc4 : contractor using IBEX HC4
 class contractor_ibex_hc4 : public contractor_cell {
-private:
-    std::unordered_set<Enode *> m_vars_in_ctrs;
-    std::vector<std::shared_ptr<nonlinear_constraint>> m_ctrs;
-    std::unique_ptr<ibex::Ctc> m_ctc = nullptr;
-
 public:
     contractor_ibex_hc4(std::vector<Enode *> const & vars,
                         std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
     void prune(contractor_status & cs);
     std::ostream & display(std::ostream & out) const;
+
+private:
+    std::unordered_set<Enode *> m_vars_in_ctrs;
+    std::vector<std::shared_ptr<nonlinear_constraint>> m_ctrs;
+    std::unique_ptr<ibex::Ctc> m_ctc{nullptr};
+    static ibex::BitSet extract_bitset(
+        std::vector<Enode *> const & vars,
+        std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
 };
 
 #ifdef USE_CLP
-// contractor_ibex_polytope : contractor using IBEX POLYTOPE
+// contractor_ibex_polytope : contractor using ibex polytope
 class contractor_ibex_polytope : public contractor_cell {
+public:
+    contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars,
+                             std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
+    ~contractor_ibex_polytope();
+    void prune(contractor_status & cs);
+    std::ostream & display(std::ostream & out) const;
+
 private:
     std::unordered_set<Enode *> m_vars_in_ctrs;
     std::vector<std::shared_ptr<nonlinear_constraint>> m_ctrs;
@@ -138,22 +153,19 @@ private:
     std::unordered_map<Enode *, ibex::ExprCtr const *> m_exprctr_cache_neg;
 
     // TODO(soonhok): this is a hack to avoid const problem, we need to fix them
-    std::unique_ptr<ibex::SystemFactory> m_sf = nullptr;
-    std::unique_ptr<ibex::System> m_sys = nullptr;
-    ibex::System * m_sys_eqs = nullptr;
-    std::unique_ptr<ibex::LinearRelaxCombo> m_lrc = nullptr;
+    std::unique_ptr<ibex::SystemFactory> m_sf{nullptr};
+    std::unique_ptr<ibex::System> m_sys{nullptr};
+    ibex::System * m_sys_eqs{nullptr};
+    std::unique_ptr<ibex::LinearRelaxCombo> m_lrc{nullptr};
     std::vector<std::unique_ptr<ibex::Ctc>> m_sub_ctcs;
-    std::unique_ptr<ibex::Ctc> m_ctc = nullptr;
+    std::unique_ptr<ibex::Ctc> m_ctc{nullptr};
     ibex::SystemFactory * build_system_factory(
         std::vector<Enode *> const & vars,
         std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
 
-public:
-    contractor_ibex_polytope(double const prec, std::vector<Enode *> const & vars,
-                             std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
-    ~contractor_ibex_polytope();
-    void prune(contractor_status & cs);
-    std::ostream & display(std::ostream & out) const;
+    static ibex::BitSet extract_bitset(
+        std::vector<Enode *> const & vars,
+        std::vector<std::shared_ptr<nonlinear_constraint>> const & ctrs);
 };
 #endif
 }  // namespace dreal

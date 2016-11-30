@@ -42,14 +42,11 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "contractor/contractor_kind.h"
 #include "contractor/contractor_parallel.h"
 #include "contractor/contractor_status.h"
+#include "contractor/extract_bitset.h"
 #include "ibex/ibex.h"
 #include "util/box.h"
 #include "util/interruptible_thread.h"
 #include "util/logging.h"
-
-namespace dreal {
-class constraint;
-}  // namespace dreal
 
 using std::async;
 using std::back_inserter;
@@ -84,24 +81,12 @@ using std::exception;
 namespace dreal {
 
 contractor_parallel_all::contractor_parallel_all(initializer_list<contractor> const & l)
-    : contractor_cell(contractor_kind::PARALLEL_ALL), m_vec(l) {
-    setup_input();
-}
+    : contractor_cell{contractor_kind::PARALLEL_ALL, extract_bitset(l)}, m_vec{l} {}
 contractor_parallel_all::contractor_parallel_all(vector<contractor> const & v)
-    : contractor_cell(contractor_kind::PARALLEL_ALL), m_vec(v) {
-    setup_input();
-}
+    : contractor_cell{contractor_kind::PARALLEL_ALL, extract_bitset(v)}, m_vec{v} {}
 contractor_parallel_all::contractor_parallel_all(contractor const & c1, contractor const & c2)
-    : contractor_cell(contractor_kind::PARALLEL_ALL), m_vec(1, c1) {
-    m_vec.push_back(c2);
-    setup_input();
-}
-
-void contractor_parallel_all::setup_input() {
-    for (contractor & ctc : m_vec) {
-        m_input.union_with(ctc.get_input());
-    }
-}
+    : contractor_cell{contractor_kind::PARALLEL_ALL, {c1.get_input(), c2.get_input()}},
+      m_vec{c1, c2} {}
 
 void contractor_parallel_all::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_parallel_all::prune";

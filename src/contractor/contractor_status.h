@@ -97,7 +97,7 @@ public:
 
 /// contractor_status_guard provide a way to 'temporarily' clear out a
 /// contractor_status' output and used_constraints members. It works as follows:
-
+///
 /// {
 ///     contractor_status_guard csg(cs);  // save cs' m_output and m_used_constraints;
 ///
@@ -106,8 +106,9 @@ public:
 ///     ...
 ///     ctr.prune(cs);  // pruning update cs' m_output and m_used_constraints
 ///     ...
-/// }  // csg is destroyed and its destruction joins old and new values of m_output and
-///    // m_used_constraints
+/// }
+/// // csg is destroyed and its destruction joins old and new values of m_output and
+/// // m_used_constraints
 class contractor_status_guard {
 private:
     contractor_status & m_cs_ref;

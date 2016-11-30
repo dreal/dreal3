@@ -37,6 +37,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "constraint/constraint.h"
 #include "contractor/contractor_exception.h"
+#include "contractor/extract_bitset.h"
 #include "ibex/ibex.h"
 #include "interval/interval.icc"
 #include "minisat/core/SolverTypes.h"
@@ -90,27 +91,11 @@ ostream & contractor_debug::display(ostream & out) const {
     return out;
 }
 
-void contractor_seq::init() {
-    m_input = m_vec[0].get_input();
-    for (unsigned i = 1; i < m_vec.size(); ++i) {
-        m_input.union_with(m_vec[i].get_input());
-    }
-}
-contractor_seq::contractor_seq(initializer_list<contractor> const & l)
-    : contractor_cell(contractor_kind::SEQ), m_vec(l) {
-    assert(l.size() > 0);
-    init();
-}
 contractor_seq::contractor_seq(vector<contractor> const & v)
-    : contractor_cell(contractor_kind::SEQ), m_vec(v) {
+    : contractor_cell{contractor_kind::SEQ, extract_bitset(v)}, m_vec{v} {
     assert(v.size() > 0);
-    init();
 }
-contractor_seq::contractor_seq(contractor const & c1, contractor const & c2)
-    : contractor_cell(contractor_kind::SEQ), m_vec(1, c1) {
-    m_vec.push_back(c2);
-    init();
-}
+
 void contractor_seq::prune_naive(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_seq::prune";
     for (contractor & c : m_vec) {
@@ -140,9 +125,8 @@ ostream & contractor_seq::display(ostream & out) const {
 }
 
 contractor_try::contractor_try(contractor const & c)
-    : contractor_cell(contractor_kind::TRY), m_c(c) {
-    m_input = m_c.get_input();
-}
+    : contractor_cell{contractor_kind::TRY, c.get_input()}, m_c{c} {}
+
 void contractor_try::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_try::prune: ";
     contractor_status old_cs(cs);
@@ -160,10 +144,10 @@ ostream & contractor_try::display(ostream & out) const {
 }
 
 contractor_try_or::contractor_try_or(contractor const & c1, contractor const & c2)
-    : contractor_cell(contractor_kind::TRY_OR), m_c1(c1), m_c2(c2) {
-    m_input = m_c1.get_input();
-    m_input.union_with(m_c2.get_input());
-}
+    : contractor_cell{contractor_kind::TRY_OR, {c1.get_input(), c2.get_input()}},
+      m_c1(c1),
+      m_c2(c2) {}
+
 void contractor_try_or::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_try_or::prune";
     contractor_status old_cs(cs);
@@ -180,9 +164,8 @@ ostream & contractor_try_or::display(ostream & out) const {
 }
 
 contractor_throw_if_empty::contractor_throw_if_empty(contractor const & c)
-    : contractor_cell(contractor_kind::THROW_IF_EMPTY), m_c(c) {
-    m_input = m_c.get_input();
-}
+    : contractor_cell{contractor_kind::THROW_IF_EMPTY, c.get_input()}, m_c{c} {}
+
 void contractor_throw_if_empty::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_throw_if_empty::prune";
     m_c.prune(cs);
@@ -196,10 +179,10 @@ ostream & contractor_throw_if_empty::display(ostream & out) const {
 }
 
 contractor_join::contractor_join(contractor const & c1, contractor const & c2)
-    : contractor_cell(contractor_kind::JOIN), m_c1(c1), m_c2(c2) {
-    m_input = m_c1.get_input();
-    m_input.union_with(m_c2.get_input());
-}
+    : contractor_cell{contractor_kind::JOIN, {c1.get_input(), c2.get_input()}},
+      m_c1{c1},
+      m_c2{c2} {}
+
 void contractor_join::prune(contractor_status & cs1) {
     DREAL_LOG_DEBUG << "contractor_join::prune";
     // duplicate cs1
@@ -217,10 +200,11 @@ ostream & contractor_join::display(ostream & out) const {
 
 contractor_ite::contractor_ite(function<bool(box const &)> guard, contractor const & c_then,
                                contractor const & c_else)
-    : contractor_cell(contractor_kind::ITE), m_guard(guard), m_c_then(c_then), m_c_else(c_else) {
-    m_input = m_c_then.get_input();
-    m_input.union_with(m_c_else.get_input());
-}
+    : contractor_cell{contractor_kind::ITE, {c_then.get_input(), c_else.get_input()}},
+      m_guard{guard},
+      m_c_then(c_then),
+      m_c_else(c_else) {}
+
 void contractor_ite::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_ite::prune";
     if (m_guard(cs.m_box)) {
@@ -235,20 +219,24 @@ ostream & contractor_ite::display(ostream & out) const {
     return out;
 }
 
-contractor_int::contractor_int(box const & b) : contractor_cell(contractor_kind::INT) {
-    m_input = ibex::BitSet::empty(b.size());
+contractor_int::contractor_int(box const & b)
+    : contractor_cell(contractor_kind::INT, extract_bitset(b)) {}
+
+ibex::BitSet contractor_int::extract_bitset(box const & b) {
+    ibex::BitSet ret{ibex::BitSet::empty(b.size())};
     auto const & vars = b.get_vars();
     for (unsigned i = 0; i < b.size(); ++i) {
         Enode * const e = vars[i];
         if (e->hasSortInt()) {
-            m_input.add(i);
+            ret.add(i);
         }
     }
+    return ret;
 }
 
 void contractor_int::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_int::prune";
-    if (m_input.empty()) {
+    if (get_input().empty()) {
         return;
     }
     // ======= Proof =======
@@ -285,13 +273,16 @@ ostream & contractor_int::display(ostream & out) const {
 }
 
 contractor_eval::contractor_eval(shared_ptr<nonlinear_constraint> const ctr)
-    : contractor_cell(contractor_kind::EVAL), m_nl_ctr(ctr) {
-    auto const sz = m_nl_ctr->get_var_array().size();
-    m_input = ibex::BitSet::empty(sz);
-    int const * ptr_used_var = m_nl_ctr->get_numctr()->f.used_vars();
-    for (int i = 0; i < m_nl_ctr->get_numctr()->f.nb_used_vars(); ++i) {
-        m_input.add(*ptr_used_var++);
+    : contractor_cell{contractor_kind::EVAL, extract_bitset(ctr)}, m_nl_ctr{ctr} {}
+
+ibex::BitSet contractor_eval::extract_bitset(std::shared_ptr<nonlinear_constraint> const ctr) {
+    auto const sz = ctr->get_var_array().size();
+    ibex::BitSet ret{ibex::BitSet::empty(sz)};
+    int const * ptr_used_var = ctr->get_numctr()->f.used_vars();
+    for (int i = 0; i < ctr->get_numctr()->f.nb_used_vars(); ++i) {
+        ret.add(*ptr_used_var++);
     }
+    return ret;
 }
 
 void contractor_eval::prune(contractor_status & cs) {
@@ -320,9 +311,7 @@ ostream & contractor_eval::display(ostream & out) const {
 }
 
 contractor_cache::contractor_cache(contractor const & ctc)
-    : contractor_cell(contractor_kind::CACHE), m_ctc(ctc), m_num_hit(0), m_num_nohit(0) {
-    m_input = m_ctc.get_input();
-}
+    : contractor_cell{contractor_kind::CACHE, ctc.get_input()}, m_ctc{ctc} {}
 
 vector<ibex::Interval> extract_from_box_using_bitset(box const & b, ibex::BitSet const & s) {
     if (s.empty()) {
@@ -355,7 +344,7 @@ void update_box_using_bitset(box & b, vector<ibex::Interval> const & v, ibex::Bi
 
 void contractor_cache::prune(contractor_status & cs) {
     // extract i-th interval where `m_input[i] == 1`
-    vector<ibex::Interval> const in = extract_from_box_using_bitset(cs.m_box, m_input);
+    vector<ibex::Interval> const in = extract_from_box_using_bitset(cs.m_box, get_input());
     auto const it = m_cache.find(in);
     if (it == m_cache.end()) {
         // not found in cache, run m_ctc
@@ -406,9 +395,9 @@ ostream & contractor_cache::display(ostream & out) const {
 
 contractor_sample::contractor_sample(box const & b, unsigned const n,
                                      vector<shared_ptr<constraint>> const & ctrs)
-    : contractor_cell(contractor_kind::SAMPLE), m_num_samples(n), m_ctrs(ctrs) {
-    m_input = ibex::BitSet::all(b.size());
-}
+    : contractor_cell{contractor_kind::SAMPLE, ibex::BitSet::all(b.size())},
+      m_num_samples{n},
+      m_ctrs{ctrs} {}
 
 void contractor_sample::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_sample::prune";
@@ -451,13 +440,12 @@ ostream & contractor_sample::display(ostream & out) const {
 contractor_aggressive::contractor_aggressive(unsigned const n,
                                              vector<shared_ptr<constraint>> const & ctrs)
     : contractor_cell(contractor_kind::SAMPLE), m_num_samples(n), m_ctrs(ctrs) {
-    // TODO(soonhok): set up input
-    // m_input = ibex::BitSet::all(b.size());
+    // TODO(soonhok): still need to set up input correctly
 }
 
 void contractor_aggressive::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_eval::aggressive";
-    // TODO(soonhok): set input & output
+    // TODO(soonhok): set up output
     // Sample n points
     set<box> points = cs.m_box.sample_points(m_num_samples);
     // ∃c. ∀p. eval(c, p) = false   ===>  UNSAT

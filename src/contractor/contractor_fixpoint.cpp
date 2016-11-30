@@ -19,8 +19,9 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "contractor/contractor_fixpoint.h"
 
-#include <assert.h>
 #include <array>
+#include <cassert>
+#include <cstddef>
 #include <exception>
 #include <functional>
 #include <initializer_list>
@@ -37,9 +38,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "contractor/contractor.h"
-#include "contractor/contractor_cell.h"
-#include "contractor/contractor_kind.h"
-#include "contractor/contractor_status.h"
+#include "contractor/extract_bitset.h"
 #include "ibex/ibex.h"
 #include "smtsolvers/SMTConfig.h"
 #include "util/box.h"
@@ -70,25 +69,18 @@ using std::vector;
 
 namespace dreal {
 
-void contractor_fixpoint::init() {
-    m_input = m_clist[0].get_input();
-    for (unsigned i = 1; i < m_clist.size(); ++i) {
-        m_input.union_with(m_clist[i].get_input());
-    }
-}
-
 void contractor_fixpoint::build_deps_map() {
     // set up m_dep_map: m_dep_map[var] includes all contractors which
     // depend on a variable 'var' as an input
     int max_var = -1;
-    for (unsigned i = 0; i < m_clist.size(); ++i) {
+    for (size_t i = 0; i < m_clist.size(); ++i) {
         int const this_max = m_clist[i].get_input().max();
         if (max_var < this_max) {
             max_var = this_max;
         }
     }
     for (int v = 0; v <= max_var; ++v) {
-        for (unsigned i = 0; i < m_clist.size(); ++i) {
+        for (size_t i = 0; i < m_clist.size(); ++i) {
             if (m_clist[i].get_input().contain(v)) {
                 m_dep_map[v].insert(i);
             }
@@ -98,30 +90,34 @@ void contractor_fixpoint::build_deps_map() {
 
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
                                          contractor const & c)
-    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(1, c), m_old_box({}) {
-    init();
-}
+    : contractor_cell{contractor_kind::FP, c.get_input()},
+      m_term_cond{term_cond},
+      m_clist{c},
+      m_old_box{{}} {}
+
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
                                          initializer_list<contractor> const & clist)
-    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(clist), m_old_box({}) {
-    assert(m_clist.size() > 0);
-    init();
-}
+    : contractor_cell{contractor_kind::FP, extract_bitset(clist)},
+      m_term_cond{term_cond},
+      m_clist{clist},
+      m_old_box{{}} {}
+
 contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
                                          vector<contractor> const & cvec)
-    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(cvec), m_old_box({}) {
-    assert(m_clist.size() > 0);
-    init();
-}
-contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
-                                         initializer_list<vector<contractor>> const & cvec_list)
-    : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(), m_old_box({}) {
-    for (auto const & cvec : cvec_list) {
-        m_clist.insert(m_clist.end(), cvec.begin(), cvec.end());
-    }
-    assert(m_clist.size() > 0);
-    init();
-}
+    : contractor_cell{contractor_kind::FP, extract_bitset(cvec)},
+      m_term_cond{term_cond},
+      m_clist{cvec},
+      m_old_box{{}} {}
+
+// contractor_fixpoint::contractor_fixpoint(function<bool(box const &, box const &)> term_cond,
+//                                          initializer_list<vector<contractor>> const & cvec_list)
+//     : contractor_cell(contractor_kind::FP), m_term_cond(term_cond), m_clist(), m_old_box({}) {
+//     for (auto const & cvec : cvec_list) {
+//         m_clist.insert(m_clist.end(), cvec.begin(), cvec.end());
+//     }
+//     assert(m_clist.size() > 0);
+//     init();
+// }
 
 void contractor_fixpoint::prune(contractor_status & cs) {
     DREAL_LOG_DEBUG << "contractor_fix::prune -- begin";
@@ -156,7 +152,7 @@ void contractor_fixpoint::naive_fixpoint_alg(contractor_status & cs) {
             return;
         }
     }
-    unsigned i = 0;
+    int i = 0;
     // Next Iterations: stop when 1) a box is smaller enough or 2) termination condition holds
     do {
         interruption_point();
@@ -176,7 +172,7 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
     queue<int> q;
     ibex::BitSet ctc_bitset(m_clist.size());
     // Add all contractors to the queue.
-    for (unsigned i = 0; i < m_clist.size(); ++i) {
+    for (size_t i = 0; i < m_clist.size(); ++i) {
         contractor & c_i = m_clist[i];
         contractor_status_guard csg(cs);
         c_i.prune(cs);
@@ -197,11 +193,11 @@ void contractor_fixpoint::worklist_fixpoint_alg(contractor_status & cs) {
     // Fixed Point Loop
     do {
         interruption_point();
-        unsigned const idx = q.front();
+        int const idx = q.front();
         q.pop();
         ctc_bitset.remove(idx);
         assert(!ctc_bitset.contain(idx));
-        assert(idx < m_clist.size());
+        assert(idx >= 0 && static_cast<size_t>(idx) < m_clist.size());
         contractor & c = m_clist[idx];
         m_old_box = cs.m_box;
         contractor_status_guard csg(cs);
