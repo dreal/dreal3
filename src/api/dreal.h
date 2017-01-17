@@ -144,6 +144,8 @@ class solver {
 public:
     solver();
     ~solver();
+    expr T();
+    expr F();
     expr var(char const *);
     expr var(char const *, vtype const);
     expr var(char const *, double const, double const);

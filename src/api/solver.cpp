@@ -60,6 +60,18 @@ solver::~solver() {
     delete ctx;
 }
 
+expr solver::T() {
+    assert(cctx);
+    OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
+    return expr(*this, ctx->mkTrue());
+}
+
+expr solver::F() {
+    assert(cctx);
+    OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
+    return expr(*this, ctx->mkFalse());
+}
+
 expr * solver::new_var(char const * s, double const lb, double const ub) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Snode * sort = ctx->mkSortReal();
