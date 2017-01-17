@@ -113,6 +113,11 @@ expr operator==(double const a, expr const & e1) {
     return t == e1;
 }
 
+expr operator!=(expr const & e1, expr const & e2) { return !(e1 == e2); }
+
+expr operator!=(expr const & e, double const a) { return !(e == a); }
+
+expr operator!=(double const a, expr const & e) { return !(a == e); }
 expr operator>=(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
     cexpr const ce1 = e1.get_cexpr();
