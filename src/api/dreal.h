@@ -40,17 +40,17 @@ class expr {
 public:
     expr() = default;
     expr(solver & s, char const *);  // so far it only works for declaring variables
-    explicit expr(solver * s);
-    expr(solver * const s, cexpr const);
-    expr(solver * const s, expr * e);
+    explicit expr(solver & s);
+    expr(solver & s, cexpr const);
+    expr(solver & s, expr * e);
     void set_ub(double const ub);
     void set_lb(double const lb);
     void set_bounds(double const lb, double const ub);
-    void setContent(solver * s, cexpr c);
+    void setContent(solver & s, cexpr c);
     std::string get_name();
     env const & get_ctx() const { return cctx; }
     cexpr const & get_cexpr() const { return ep; }
-    solver * get_solver() const { return m_solver; }
+    solver & get_solver() const { return *m_solver; }
 
 protected:
     solver * m_solver;

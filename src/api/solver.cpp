@@ -69,7 +69,7 @@ expr * solver::new_var(char const * s, double const lb, double const ub) {
     res->setDomainUpperBound(ub);
     res->setValueLowerBound(lb);
     res->setValueUpperBound(ub);
-    expr * v = new expr(this, static_cast<cexpr>(res));
+    expr * v = new expr(*this, static_cast<cexpr>(res));
     vtab.push_back(v);
     return v;
 }
@@ -85,7 +85,7 @@ expr * solver::new_ivar(char const * s, int const lb, int const ub) {
     res->setDomainUpperBound(ub);
     res->setValueLowerBound(lb);
     res->setValueUpperBound(ub);
-    expr * v = new expr(this, static_cast<cexpr>(res));
+    expr * v = new expr(*this, static_cast<cexpr>(res));
     vtab.push_back(v);
     return v;
 }
@@ -102,7 +102,7 @@ expr solver::var(char const * s, vtype const t) {
         Snode * sort = ctx->mkSortBool();
         ctx->DeclareFun(s, sort);
         Enode * res = ctx->mkVar(s, true);
-        return expr(this, static_cast<cexpr>(res));
+        return expr(*this, static_cast<cexpr>(res));
     }
 }
 
@@ -123,19 +123,19 @@ expr solver::num(char const * const s) {
     assert(s);
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Enode * res = ctx->mkNum(s);
-    return expr(this, static_cast<cexpr>(res));
+    return expr(*this, static_cast<cexpr>(res));
 }
 
 expr solver::num(double const v) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Enode * res = ctx->mkNum(v);
-    return expr(this, static_cast<cexpr>(res));
+    return expr(*this, static_cast<cexpr>(res));
 }
 
 expr * solver::new_num(double const v) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Enode * c = ctx->mkNum(v);
-    expr * res = new expr(this, static_cast<cexpr>(c));
+    expr * res = new expr(*this, static_cast<cexpr>(c));
     ntab.push_back(res);
     return res;
 }
@@ -143,7 +143,7 @@ expr * solver::new_num(double const v) {
 expr solver::num(int const v) {
     OpenSMTContext * ctx = static_cast<OpenSMTContext *>(cctx);
     Enode * res = ctx->mkNum(v);
-    return expr(this, static_cast<cexpr>(res));
+    return expr(*this, static_cast<cexpr>(res));
 }
 
 void solver::reset() {
@@ -229,7 +229,7 @@ expr solver::get_value(expr const & e) {
     Enode * var = static_cast<Enode *>(v);
     const double & value = var->getValue();
     Enode * res = context->mkNum(value);
-    return expr(this, static_cast<void *>(res));
+    return expr(*this, static_cast<void *>(res));
 }
 
 double solver::get_lb(expr const & e) const {
