@@ -35,15 +35,15 @@ using std::vector;
 void checkBarrier(vector<expr> & x, vector<expr> & f, expr & B, double const eps) {
     assert(x.size() == f.size());
     unsigned n = x.size();
-    solver * s = x[0].get_solver();
+    solver & s = x[0].get_solver();
     expr condition = (B == -eps);
-    expr LB = s->num("0");
+    expr LB = s.num("0");
     for (unsigned i = 0; i < n; i++) {
         LB = LB + f[i] * der(B, x[i]);
     }
     expr spec = (LB < -eps);
-    s->add(condition && !spec);
-    if (!s->check()) {
+    s.add(condition && !spec);
+    if (!s.check()) {
         cout << "The barrier function\n\tB = " << B << "\nis valid for the system defined by"
              << endl;
         cout << "\tf = [";
@@ -56,7 +56,7 @@ void checkBarrier(vector<expr> & x, vector<expr> & f, expr & B, double const eps
         for (auto e : f) cout << e << ";";
         cout << "]" << endl;
         cout << "because a counterexample has been found. ";
-        s->print_model();
+        s.print_model();
     }
 }
 
@@ -64,16 +64,16 @@ void checkLyapunov(vector<expr> & x, vector<expr> & f, expr & V, double const ep
     assert(x.size() == f.size());
     assert(eps > 0);
     unsigned n = x.size();
-    solver * s = x[0].get_solver();
-    expr ball = s->num("0");
-    expr LV = s->num("0");
+    solver & s = x[0].get_solver();
+    expr ball = s.num("0");
+    expr LV = s.num("0");
     for (unsigned i = 0; i < n; i++) {
         ball = ball + (x[i] ^ 2);
         LV = LV + f[i] * der(V, x[i]);
     }
     expr condition = implies(ball > eps, V > 0) && implies(ball > eps, LV < 0);
-    s->add(!condition);
-    if (!s->check()) {
+    s.add(!condition);
+    if (!s.check()) {
         cout << "The Lyapunov function\n\tV = " << V << "\nis valid for the system defined by"
              << endl;
         cout << "\tf = [";
@@ -86,7 +86,7 @@ void checkLyapunov(vector<expr> & x, vector<expr> & f, expr & V, double const ep
         for (auto e : f) cout << e << ";";
         cout << "]" << endl;
         cout << "because a counterexample has been found. ";
-        s->print_model();
+        s.print_model();
     }
 }
 
@@ -112,14 +112,14 @@ void synthesizeLyapunov(vector<expr *> & x, vector<expr *> & p, vector<expr *> &
     assert(eps > 0);
     // everything happening in the solver. to be extra safe, should check all vars share the same
     // solver.
-    solver * s = x[0]->get_solver();
-    expr zero = s->num("0");
-    expr v = s->var("V");
-    expr lv = s->var("LV");
-    expr bl = s->var("ball_radius");
+    solver & s = x[0]->get_solver();
+    expr zero = s.num("0");
+    expr v = s.var("V");
+    expr lv = s.var("LV");
+    expr bl = s.var("ball_radius");
 // turn on polytope in solver
 #ifdef USE_CLP
-    s->set_polytope();
+    s.set_polytope();
 #endif
     // s -> set_simulation();  // the simulation option gives seg fault as of Jun 23, 2016
     // ball is the epsilon-ball that will be excluded from the checking
@@ -149,52 +149,52 @@ void synthesizeLyapunov(vector<expr *> & x, vector<expr *> & p, vector<expr *> &
     expr search_condition = plugSolutionsIn(base_scondition, x, sol, p);
     // prepare a push point. will first add the formula for searching, then pop, then add formula
     // for verifying
-    s->push();
+    s.push();
     // first round of search for parameters
-    s->add(search_condition);
+    s.add(search_condition);
     // cerr << "Initial Search Condition: " << search_condition << endl;
     // keep round number
     unsigned round = 0;
-    // expr tmp;
+// expr tmp;
 #ifdef USE_GLPK
-    s->set_lp(true);
+    s.set_lp(true);
 #endif
     // the check() solves the search problem and suggest candidate values for parameters
-    while (s->check()) {
+    while (s.check()) {
         // cerr << "=== Search Formula ==="<<endl;
-        // s->dump_formulas(cerr);
+        // s.dump_formulas(cerr);
         // cout << "Search suggested these parameters:" << endl;
         // cerr << "Round " << round << endl;
-        // s->print_model();
+        // s.print_model();
         // will try to find counterexample, thus the negation
         expr verify_condition = base_vcondition;
         // set the parameter variables to the chosen values and assemble the verification condition
         for (auto param : p) {
             verify_condition =
-                verify_condition && ((*param) == ((s->get_lb(*param) + s->get_ub(*param)) / 2));
+                verify_condition && ((*param) == ((s.get_lb(*param) + s.get_ub(*param)) / 2));
         }
         // pop the search formula and add the verification formula
-        s->pop();
-        s->push();
-        s->add(verify_condition);
-        s->add(v == V && lv == LV && bl == ball);
-        // s->set_lp(false);
+        s.pop();
+        s.push();
+        s.add(verify_condition);
+        s.add(v == V && lv == LV && bl == ball);
+        // s.set_lp(false);
         // cerr<< "added verify_condition: "<<verify_condition<<endl;
         // cerr<< "added constraint V = "<<V<<endl;
         // cerr<< "added constraint LV = "<<LV<<endl;
-        if (!s->check()) {
+        if (!s.check()) {
             cout << "Lyapunov function synthesized: " << V << endl;  // TODO(sean): sub in solutions
             return;
         } else {
             // cerr << "=== Falsification Formula ===" << endl;
-            // s->dump_formulas(cerr);
+            // s.dump_formulas(cerr);
             cerr << "Counterexample found:" << endl;
-            s->print_model();
+            s.print_model();
             // clean up previous solution
             sol.clear();
             // add the counterexample
             for (auto state : x) {
-                sol.push_back(s->new_num((s->get_lb(*state) + s->get_ub(*state)) / 2));
+                sol.push_back(s.new_num((s.get_lb(*state) + s.get_ub(*state)) / 2));
             }
             search_condition = search_condition && plugSolutionsIn(base_scondition, x, sol, p);
             // add a bunch of randomly sampled points on x
@@ -205,26 +205,26 @@ void synthesizeLyapunov(vector<expr *> & x, vector<expr *> & p, vector<expr *> &
                 sol.clear();
                 // cerr<<"new sample state: ";
                 for (auto state : x) {
-                    std::uniform_real_distribution<double> unif(s->get_domain_lb(*state),
-                                                                s->get_domain_ub(*state));
+                    std::uniform_real_distribution<double> unif(s.get_domain_lb(*state),
+                                                                s.get_domain_ub(*state));
                     double p = unif(re);
                     // cerr << *state << " :" << p << " ";
-                    sol.push_back(s->new_num(p));
+                    sol.push_back(s.new_num(p));
                 }
                 // cerr<<endl;
                 search_condition = search_condition && plugSolutionsIn(base_scondition, x, sol, p);
                 sample++;
             }
             // TODO(sean): (optional) exclude parameters we have tried
-            s->pop();
-            s->push();
+            s.pop();
+            s.push();
             // cerr<< "Search condition becomes: "<<search_condition<<endl;
-            s->add(search_condition);
+            s.add(search_condition);
         }
         cerr << "========================== Finished Round " << round
              << " =========================" << endl;
         round++;
-        // s->set_lp(true);
+        // s.set_lp(true);
     }
     cout << "No Lypaunov function found." << endl;
     return;
@@ -239,9 +239,9 @@ eps) {
     // everything happening in the solver. to be extra safe, should check all vars share the same
 solver.
     solver * s = x[0]->get_solver();
-    expr zero = s->num("0");
-    expr v = s->var("V");
-    expr lv = s->var("LV");
+    expr zero = s.num("0");
+    expr v = s.var("V");
+    expr lv = s.var("LV");
 #ifdef USE_CLP
     // turn on polytope in solver
 #endif
@@ -266,10 +266,10 @@ solver.
     expr search_condition = scondition;
     // prepare a push point. will first add the formula for searching, then pop, then add formula
 for verifying
-    s->push();
+    s.push();
     // start with the trivial solution
     for (auto param : p) {
-        s->add(*param == zero);
+        s.add(*param == zero);
     }
     // cerr << "Initial Search Condition: " << search_condition << endl;
     unsigned round = 0;
@@ -278,32 +278,32 @@ for verifying
     while (round < 1) {
         // cout << "Trying these parameters:" << endl;
         // cerr << "Round " << round << endl;
-        // s->print_model();
+        // s.print_model();
         // will try to find counterexample, thus the negation
         expr verify_condition = condition;
         // set the parameter variables to the chosen values
         for (auto param : p) {
             verify_condition = verify_condition && ( (*param) ==
-((s->get_lb(*param)+s->get_ub(*param))/2));
+((s.get_lb(*param)+s.get_ub(*param))/2));
         }
         // pop the search formula and add the verification formula
-        s->pop();
-        s->push();
-        s->add(verify_condition);
-        s->add(v == V && lv == LV);
-        if (!s->check()) {
+        s.pop();
+        s.push();
+        s.add(verify_condition);
+        s.add(v == V && lv == LV);
+        if (!s.check()) {
             cout << "Lyapunov function synthesized: " << V << endl;
             // todo: print the L function and system with solved parameters.
             return;
         } else {
             cerr << "=== Falsification Formula ===" << endl;
-            s->dump_formulas(cerr);
+            s.dump_formulas(cerr);
             cout << "Counterexample found:" << endl;
-            s->print_model();
+            s.print_model();
             // sol will store the counterexample
             vector<expr*> sol;
             for (auto state : x) {
-                sol.push_back(s->new_num((s->get_lb(*state)+s->get_ub(*state))/2));
+                sol.push_back(s.new_num((s.get_lb(*state)+s.get_ub(*state))/2));
             }
             unsigned sample = 0;
             // sub in the values of the counterexample, and update the search formula
@@ -334,13 +334,13 @@ for verifying
 //                full_post.clear();
                 // add a new sample point on x
                 for (auto state : x) {
-                    // cout << "lower: " << s->get_domain_lb(*state) << " ";
-                    // cout << "upper: " << s->get_domain_ub(*state) << endl;
-                    std::uniform_real_distribution<double> unif(s->get_domain_lb(*state),
-s->get_domain_ub(*state));
+                    // cout << "lower: " << s.get_domain_lb(*state) << " ";
+                    // cout << "upper: " << s.get_domain_ub(*state) << endl;
+                    std::uniform_real_distribution<double> unif(s.get_domain_lb(*state),
+s.get_domain_ub(*state));
                     double p = unif(re);
                     // cout << *state << " :" << p << " ";
-                    sol.push_back(s->new_num(p));
+                    sol.push_back(s.new_num(p));
                 }
                 sample++;
             }
@@ -348,18 +348,18 @@ s->get_domain_ub(*state));
             // optional: exclude parameters we have tried
               tmp = zero;
                 for (auto param : p) {
-                    tmp = tmp + pow((*param - (s->get_lb(*param)+s->get_ub(*param))/2),2);
+                    tmp = tmp + pow((*param - (s.get_lb(*param)+s.get_ub(*param))/2),2);
                 }
                 search_condition = search_condition && (tmp > 0.0001);
                 delete the verification formula and add the search formula
 
-            s->pop();
-            s->push();
-            s->add(search_condition);
-            s->check();
+            s.pop();
+            s.push();
+            s.add(search_condition);
+            s.check();
             cerr << "=== Search Formula ===" << endl;
-            s->dump_formulas(cerr);
-            // s->add(v == V && lv == LV);
+            s.dump_formulas(cerr);
+            // s.add(v == V && lv == LV);
             // cout << "Search condition: " << search_condition << endl;
         }
         cerr << "Round " << round << endl;

@@ -48,22 +48,22 @@ void check_ctx(expr const & a, expr const & b) {
     assert(a.get_ctx() == b.get_ctx());
 }
 
-expr::expr(solver * const sol, cexpr const e) : m_solver(sol), cctx(sol->get_ctx()), ep(e) {
+expr::expr(solver & sol, char const * name)
+    : m_solver(&sol), cctx(sol.get_ctx()), ep((sol.var(name)).get_cexpr()) {}
+
+expr::expr(solver & sol, cexpr const e) : m_solver(&sol), cctx(sol.get_ctx()), ep(e) {
     assert(m_solver);
     assert(cctx);
     assert(ep);
 }
 
-expr::expr(solver & sol, char const * name)
-    : m_solver(&sol), cctx(sol.get_ctx()), ep((sol.var(name)).get_cexpr()) {}
+expr::expr(solver & s, expr * e) : m_solver(&s), cctx(s.get_ctx()), ep(e->get_cexpr()) {}
 
-expr::expr(solver * const s, expr * e) : m_solver(s), cctx(s->get_ctx()), ep(e->get_cexpr()) {}
+expr::expr(solver & s) : m_solver(&s), cctx(s.get_ctx()) {}
 
-expr::expr(solver * const s) : m_solver(s), cctx(s->get_ctx()) {}
-
-void expr::setContent(solver * s, cexpr c) {
-    m_solver = s;
-    cctx = s->get_ctx();
+void expr::setContent(solver & s, cexpr c) {
+    m_solver = &s;
+    cctx = s.get_ctx();
     ep = c;
 }
 
@@ -102,16 +102,22 @@ expr operator==(expr const & e1, expr const & e2) {
 }
 
 expr operator==(expr const & e1, double const a) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return e1 == t;
 }
 
 expr operator==(double const a, expr const & e1) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return t == e1;
 }
+
+expr operator!=(expr const & e1, expr const & e2) { return !(e1 == e2); }
+
+expr operator!=(expr const & e, double const a) { return !(e == a); }
+
+expr operator!=(double const a, expr const & e) { return !(a == e); }
 
 expr operator>=(expr const & e1, expr const & e2) {
     check_ctx(e1, e2);
@@ -126,14 +132,14 @@ expr operator>=(expr const & e1, expr const & e2) {
 }
 
 expr operator>=(expr const & e1, double const a) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return e1 >= t;
 }
 
 expr operator>=(double const a, expr const & e1) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return t >= e1;
 }
 
@@ -150,14 +156,14 @@ expr operator<=(expr const & e1, expr const & e2) {
 }
 
 expr operator<=(expr const & e1, double const a) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return e1 <= t;
 }
 
 expr operator<=(double const a, expr const & e1) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return t <= e1;
 }
 
@@ -174,14 +180,14 @@ expr operator<(expr const & e1, expr const & e2) {
 }
 
 expr operator<(expr const & e1, double const a) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return e1 < t;
 }
 
 expr operator<(double const a, expr const & e1) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return t < e1;
 }
 
@@ -198,14 +204,14 @@ expr operator>(expr const & e1, expr const & e2) {
 }
 
 expr operator>(expr const & e1, double const a) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return e1 > t;
 }
 
 expr operator>(double const a, expr const & e1) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return t > e1;
 }
 
@@ -222,14 +228,14 @@ expr operator+(expr const & e1, expr const & e2) {
 }
 
 expr operator+(expr const & e1, double const a) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return e1 + t;
 }
 
 expr operator+(double const a, expr const & e1) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return t + e1;
 }
 
@@ -246,14 +252,14 @@ expr operator-(expr const & e1, expr const & e2) {
 }
 
 expr operator-(expr const & e1, double const a) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return e1 - t;
 }
 
 expr operator-(double const a, expr const & e1) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return t - e1;
 }
 
@@ -277,14 +283,14 @@ expr operator*(expr const & e1, expr const & e2) {
 }
 
 expr operator*(expr const & e1, double const a) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return e1 * t;
 }
 
 expr operator*(double const a, expr const & e1) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return t * e1;
 }
 
@@ -302,14 +308,14 @@ expr operator/(expr const & e1, expr const & e2) {
 
 expr operator/(expr const & e1, double const a) {
     assert(a != 0);
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return e1 / t;
 }
 
 expr operator/(double const a, expr const & e1) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return t / e1;
 }
 
@@ -336,14 +342,14 @@ expr pow(expr const & e1, expr const & e2) {
 
 expr pow(expr const & e1, double const a) {
     assert(a != 0);
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return pow(e1, t);
 }
 
 expr pow(double const a, expr const & e1) {
-    solver * const s = e1.get_solver();
-    expr const t = s->num(a);
+    solver & s = e1.get_solver();
+    expr const t = s.num(a);
     return pow(t, e1);
 }
 
@@ -529,15 +535,15 @@ expr der(expr const & e, expr const & v) {
 }
 
 expr upoly(expr const & x, char const * a, unsigned const d) {
-    solver * sol = x.get_solver();
+    solver & sol = x.get_solver();
     string s(a);
     s += std::to_string(0);
-    expr * c_0 = sol->new_var(s.c_str());
+    expr * c_0 = sol.new_var(s.c_str());
     expr result = *c_0;
     for (unsigned i = 1; i < d; ++i) {
         string s(a);
         s += std::to_string(i);
-        expr * c_i = sol->new_var(s.c_str());
+        expr * c_i = sol.new_var(s.c_str());
         result = result + (*c_i) * pow(x, i);
     }
     return result;
@@ -577,8 +583,8 @@ poly::poly(vector<expr *> & x, char const * c_name, unsigned d) : expr(x[0]->get
     cctx = m_solver->get_ctx();
     degree = d;
     ep = buildExpr(c_name, d);
-    m_e = new expr();
-    m_e->setContent(m_solver, ep);
+    m_e = new expr(*m_solver);
+    m_e->setContent(*m_solver, ep);
 }
 
 cexpr poly::buildExpr(char const * c_name, unsigned d) {
