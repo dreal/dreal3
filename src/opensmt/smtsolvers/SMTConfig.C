@@ -151,6 +151,7 @@ SMTConfig::initializeConfig( )
   nra_mcss                     = false;
   nra_local_opt                = false;
   nra_worklist_fp              = false;
+  nra_gac                      = false;
   nra_simulation_thread        = false;
   nra_multiprune               = false;
   nra_multiheuristic           = false;
@@ -426,6 +427,9 @@ SMTConfig::parseCMDLine( int argc
     opt.add("" , false, 1, 0,
             "PDDL+ heuristic",
             "--plan-heuristic", "--plan_heuristic");
+    opt.add("" , false, 1, 0,
+            "Hybrid Scheduling heuristic",
+            "--schedule-heuristic", "--schedule_heuristic");
     opt.add("", false, 0, 0,
             "short cut SAT solver assignments if SAT",
             "--short-sat", "--short_sat");
@@ -551,6 +555,9 @@ SMTConfig::parseCMDLine( int argc
             "use worklist fixpoint algorithm",
             "--worklist-fp");
     opt.add("", false, 0, 0,
+            "use generalized arc consistency algorithm",
+            "--gac");
+    opt.add("", false, 0, 0,
             "use a separate simulation thread in ICP",
             "--simulation");
     opt.add("", false, 0, 0,
@@ -669,6 +676,7 @@ SMTConfig::parseCMDLine( int argc
     }
 #endif
     nra_worklist_fp         = opt.isSet("--worklist-fp");
+    nra_gac                 = opt.isSet("--gac");
     nra_simulation_thread   = opt.isSet("--simulation");
     nra_multiprune          = opt.isSet("--multiprune");
     nra_multiheuristic      = opt.isSet("--multiheuristic");
@@ -751,6 +759,7 @@ SMTConfig::parseCMDLine( int argc
     // Extract String Args
     if (opt.isSet("--bmc-heuristic")) { opt.get("--bmc-heuristic")->getString(nra_bmc_heuristic); }
     if (opt.isSet("--plan-heuristic")) { opt.get("--plan-heuristic")->getString(nra_plan_heuristic); }
+    if (opt.isSet("--schedule-heuristic")) { opt.get("--schedule-heuristic")->getString(nra_schedule_heuristic); }
 
     // Extract ULong Args
     if (opt.isSet("--ode-order")) { opt.get("--ode-order")->getULong(nra_ODE_taylor_order); }

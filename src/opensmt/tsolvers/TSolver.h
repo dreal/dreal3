@@ -200,7 +200,7 @@ public:
   inline  void                setSolver      ( SimpSMTSolver * s ) { assert( s ); assert( solver == NULL ); solver = s; }
   virtual void                splitOnDemand  ( std::vector< Enode * > &
                                                , const int )    = 0; // For splitting on demand
-
+  SimpSMTSolver *             getSolver() const { return solver; }
 protected:
 
   std::vector< OrdinaryTSolver * > tsolvers;            // List of ordinary theory solvers

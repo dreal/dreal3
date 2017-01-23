@@ -79,7 +79,7 @@ public:
         delete t;
       }
     }
-  void initialize(SMTConfig & c, Egraph & egraph, THandler* thandler,
+  bool initialize(SMTConfig & c, Egraph & egraph, THandler* thandler,
                   vec<Lit> *trail, vec<int> *trail_lim);
   void backtrack();
     void resetSuggestions() { m_suggestions.clear(); }
@@ -117,18 +117,19 @@ public:
     std::vector<std::vector<labeled_transition*>*> m_init_mode;
     std::vector<std::vector<labeled_transition*>*> m_goal_modes;
     std::vector<std::pair<int, std::vector<labeled_transition*>*>*> m_decision_stack;
-    int m_depth;
     std::vector<Enode*> default_false_suggestions;
     std::vector<Enode*> default_true_suggestions;
     std::vector<std::map< Enode *, std::pair<int, int>* >*> mode_literals;
     std::vector<std::vector< std::vector< Enode* >* >*> time_mode_enodes;
     std::vector<std::vector< std::vector< Enode* >* >*> time_mode_integral_enodes;
+    std::vector<std::vector<Enode*>* > time_aut_noop_enodes;
     std::vector<std::vector<Enode*>* > time_label_enodes;
     std::map<Enode*, int> label_enode_indices;
     std::vector<std::set<int>*> m_aut_labels;
 
     std::set<Enode*> mode_enodes;
     std::set<Enode*> label_enodes;
+    std::set<Enode*> noop_enodes;
     std::set<const labeled_transition*> noops;
     Egraph * m_egraph;
     // std::vector<int> * last_decision;
@@ -141,10 +142,9 @@ public:
     bool can_synchronize(std::vector<std::pair<int, labeled_transition*>*>& parallel_transitions,
                                          std::pair<int, labeled_transition*> &trans);
     std::string network_to_string();
-    int lastDecisionStackEnd;
 public:
     struct SubgoalCompare {
-    SubgoalCompare(int a, hybrid_heuristic& c) : myHeuristic(c), autom(a) { srand(time(NULL));}
+    SubgoalCompare(int a, hybrid_heuristic& c) : myHeuristic(c), autom(a) { }
         bool operator () (const labeled_transition  *i, const labeled_transition *j) {
     bool noopi = myHeuristic.noops.find(i) != myHeuristic.noops.end();
     bool noopj = myHeuristic.noops.find(j) != myHeuristic.noops.end();

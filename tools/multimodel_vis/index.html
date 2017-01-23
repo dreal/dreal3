@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dReach: Multi-Model Visulization</title>
+    <meta name="description" content="dReach: Multi-Model Visualization" />
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+<link href='http://fonts.googleapis.com/css?family=Lato:300,700' rel='stylesheet' type='text/css' />
+
+<!-- For graph-controls. -->
+<link href="lib/cytoscape.js-panzoom-master/font-awesome-4.0.3/css/font-awesome.min.css" rel="stylesheet">
+<link href="lib/cytoscape.js-panzoom-master/cytoscape.js-panzoom.css" rel="stylesheet">
+
+<!-- And for Vis library (timelines). -->
+<link href="lib/vis/vis.min.css" rel="stylesheet">
+
+<!-- Our style goes last, to take preference. -->
+<link rel="stylesheet" type="text/css" href="css/multi-model.css" />
+
+<!-- Require the code for this page. Config scheme came from option 5 at:
+     https://github.com/requirejs/requirejs/wiki/Patterns-for-separating-config-from-the-main-module
+  -->
+<script>var require = {config: function (c) {require = c}}</script>
+<script src="js/config.js"></script>
+<script src="lib/require.js" data-main="js/index.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1><strong>Multi-Model State Visualization</strong> with dReach</h1>
+      </header>
+
+      <section class="main">
+      <h2>ODE Continuous Variables</h2>
+        <div id="ode-graph-container">
+        </div>
+        <div id="ode-variable-list">
+        </div>
+      </section>
+
+        <section class="main">
+      <h2>Mode Timeline</h2>
+        <div id="timeline-container">
+        </div>
+      </section>
+
+        <section class="main">
+      <h2>Automata</h2>
+        <div id="automata">
+        </div>
+      </section>
+
+        <section class="main">
+      <h2>Options</h2>
+      <table>
+        <tr><td>
+          <strong>Compact</strong>&nbsp;&nbsp;&nbsp;&nbsp;
+        </td>
+        <td>
+      <a id="use-subgroups" href="javascript:;">one mode per line</a> /
+      <a id="not-use-subgroups" href="javascript:;">compact</a> /
+          <a id="toggle-subgroups" href="javascript:;">toggle</a>
+        </td>
+      </tr>
+      <tr><td>
+        <strong>Steps vs. time</strong>&nbsp;&nbsp;&nbsp;&nbsp;
+      </td>
+      <td>
+        <a id="use-steps" href="javascript:;">use steps</a> /
+        <a id="use-times" href="javascript:;">use time</a> /
+        <a id="toggle-steps-times" href="javascript:;">toggle</a>
+      </td>
+      </tr>
+    </table>
+      </section>
+
+    </div>
+  </body>
+</html>

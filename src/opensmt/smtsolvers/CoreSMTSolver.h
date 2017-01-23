@@ -61,6 +61,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "minisat/mtl/Vec.h"
 #include "smtsolvers/SMTSolver.h"
 #include "tsolvers/THandler.h"
+#include "json/json.hpp"
+
+using nlohmann::json;
 
 class Egraph;
 namespace dreal {
@@ -153,9 +156,10 @@ public:
         // Added Code
         //=================================================================================================
 
-  // Heuristics
-  dreal::heuristic *heuristic;
-
+	// Heuristics
+	dreal::heuristic *heuristic;
+	bool heuristic_shows_not_unsat;  //if false, then heuristic proves unsat and can quit early.
+	bool get_heuristic_shows_not_unsat() const { return heuristic_shows_not_unsat; }
         // Extra results: (read-only member variable)
         //
         vec<lbool> model;             // If problem is satisfiable, this vector contains the model (if any).
@@ -335,6 +339,9 @@ public:
         void   printExtModel          ( std::ostream & out ); // Prints SAT model
         void   printCurrentAssignment ( bool withLiterals );             // Wrapper
         void   printCurrentAssignment ( std::ostream &, bool withLiterals = true );   // Prints model
+	// dReal helper method to get modes from Boolean variables
+	json   visualizeModes         () const;
+
 #endif
 #ifdef PRODUCE_PROOF
         void   printProof              ( std::ostream & );

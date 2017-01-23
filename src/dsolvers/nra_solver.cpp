@@ -54,6 +54,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 #include "interval/interval.icc"
 #include "json/json.hpp"
 #include "smtsolvers/SMTConfig.h"
+#include "smtsolvers/SimpSMTSolver.h"
 #include "tsolvers/TSolver.h"
 #include "util/box.h"
 #include "util/logging.h"
@@ -458,6 +459,8 @@ void nra_solver::handle_sat_case(box const & b) const {
     if (config.logic == QF_NRA_ODE && config.nra_json) {
         try {
             json traces = {};
+            json modes = egraph.getSolver()->visualizeModes();
+
             // Need to run ODE pruning operator once again to generate a trace
             for (shared_ptr<constraint> const ctr : m_stack) {
                 if (ctr->get_type() == constraint_type::ODE) {
@@ -469,6 +472,7 @@ void nra_solver::handle_sat_case(box const & b) const {
             }
             json vis_json;
             vis_json["traces"] = traces;
+            vis_json["modes"] = modes;
             config.nra_json_out << vis_json.dump() << endl;
         } catch (contractor_exception const & e) {
             DREAL_LOG_FATAL << "The following exception is generated while computing "
