@@ -37,8 +37,8 @@ class scoped_vec;
 
 class mcts_expander {
 public:
-    virtual void expand(mcts_node * node) = 0;
-    virtual double simulate(mcts_node * node) = 0;
+    virtual void expand(weak_ptr<mcts_node> node) = 0;
+    virtual double simulate(weak_ptr<mcts_node> node) = 0;
 };
 
 class icp_mcts_expander : public mcts_expander {
@@ -47,8 +47,10 @@ public:
                       scoped_vec<std::shared_ptr<constraint>> const & ctrs,
                       BranchHeuristic & brancher)
         : m_ctc(ctc), m_cs(cs), m_ctrs(ctrs), m_brancher(brancher) {}
-    virtual void expand(mcts_node * node);
-    virtual double simulate(mcts_node * node);
+    virtual void expand(weak_ptr<mcts_node> node);
+    virtual double simulate(weak_ptr<mcts_node> node);
+    double simulate_steps(weak_ptr<mcts_node> node);
+    double constraint_error(box b) const;
 
 private:
     contractor & m_ctc;

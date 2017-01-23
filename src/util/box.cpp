@@ -66,6 +66,7 @@ using std::streamsize;
 using std::string;
 using std::tuple;
 using std::uniform_real_distribution;
+using std::uniform_int_distribution;
 using std::unordered_map;
 using std::unordered_set;
 using std::vector;
@@ -204,6 +205,7 @@ ostream & display(ostream & out, box const & b, bool const exact, bool const old
                 out << ";";
             }
         }
+        out << endl;
     } else {
         unsigned const s = b.size();
         for (unsigned i = 0; i < s; i++) {
@@ -439,8 +441,28 @@ box box::sample_dimension(int dim) const {
     double const lb = iv.lb();
     double const ub = iv.ub();
     if (lb != ub) {
-        uniform_real_distribution<double> m_dist(lb, ub);
-        b[dim] = ibex::Interval(m_dist(rg));
+        int exponent = 0;
+        double value = 0;
+        do {
+            double mult = pow(2, exponent);
+            uniform_int_distribution<long> m_dist(((long)(mult * lb)), ((long)(mult * ub)));
+            long rvalue = m_dist(rg);
+            value = ((double)rvalue) / mult;
+            exponent++;
+        } while ((value < lb || ub < value) && exponent <= 64);
+        // std::cout << " " << exponent;
+        if (value < lb || ub < value) {
+            std::cout << setprecision(100) << "Bad Precision " << value << " [" << lb << ", " << ub
+                      << "]" << std::endl;
+            // ostringstream ss;
+            // ss << setprecision(100) << " rvalue = " << rvalue << " mult = " << mult << " value =
+            // " << value;
+            // DREAL_LOG_DEBUG << ss.str();
+            //            exit(0);
+            b.set_empty();
+        }
+
+        b[dim] = ibex::Interval(value);
     }
     return b;
 }
