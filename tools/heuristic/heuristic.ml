@@ -433,7 +433,7 @@ let get_new_adjacent (min_mode : SearchNode.t) (closed : SearchNode.t BatSet.t) 
 			    (List.map (fun x -> (Modemap.find x.init_id x.modemap)) (Network.automata hm))
 	in
 	let () = Printf.fprintf hout "," in
-	let (top_goal_locs, _) = (Network.goals hm) in
+	let top_goal_locs = List.concat (List.map (fun (ms, _) -> ms) (Network.goals hm)) in
 	let indexed_aut = List.mapi (fun i aut -> (i, aut)) (Network.automata hm) in
 	let automata_goals =
 	  (List.mapi

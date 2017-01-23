@@ -3,7 +3,7 @@ open Batteries
 type automaton = Hybrid.t
 type automata = automaton list
 type mapping = (string * ((string * string) list)) list
-type goals = (((string * string) list) * Hybrid.formula) (*((string * string) * Hybrid.formula) list*) (* ((automaton, mode), formula) *)
+type goals = (((string * string) list) * Hybrid.formula) list (*((string * string) * Hybrid.formula) list*) (* ((automaton, mode), formula) *)
 type globalvars = Vardeclmap.t
 
 type modeTupel = (Hybrid.name * Hybrid.modeId)
@@ -528,15 +528,16 @@ let rec sep_goals lst =
 			end
 		| None -> []
 
-let goal_ids (hm: t) : modeIdsMap =
-	let goaltuple = (fun (m, _) -> m) (goals hm) in
-	let goalsepped = sep_goals goaltuple in
-	List.fold_left
-		(fun (map: modeIdsMap) ((a, b): (Hybrid.name * modeIds)) ->
-			Map.add a b map
-		)
-		Map.empty
-		goalsepped
+let goal_ids (hm: t) : modeIdsMap list =
+	let goaltuple = List.map (fun (m, _) -> m) (goals hm) in
+	let goalsepped = List.map (fun g -> sep_goals g) goaltuple in
+	List.map (fun g -> List.fold_left
+			     (fun (map: modeIdsMap) ((a, b): (Hybrid.name * modeIds)) ->
+			      Map.add a b map
+			     )
+			     Map.empty
+			     g)
+		 goalsepped
 
 let rec first_modes_init (m: modecomposition) (initmodemap) =
 	match
@@ -578,6 +579,7 @@ let rec last_modes_goals modecomp mim =
 			end
 		| None -> false
 
+(* 
 let check_path (nw : t) (path : comppath option) (k : int) : unit =
 	let init = init_mode_map nw in
 	let goals = goal_ids nw in
@@ -594,7 +596,7 @@ let check_path (nw : t) (path : comppath option) (k : int) : unit =
 					| (_, _, false) -> raise (Arg.Bad "Path is longer than the unrolling constrain k.")
 			end
 		| None -> ()
-
+ *)
 
 let compose_goals gs1 gs2 =
   List.fold_left
@@ -611,21 +613,24 @@ let compose_goals gs1 gs2 =
 
 let compose_net_goals (net : t) (name : string) =
   let goals = net.goals in
-  let formula = (match goals with | (x, y) -> y) in
-  let aut_modes = (match goals with | (x, y) -> x) in
-  let goal_automata = List.map (fun (a, m) -> a) aut_modes in
+  let formula = List.map (fun g -> (match g with | (x, y) -> y)) goals in
+  let aut_modes = List.map (fun g -> (match g with | (x, y) -> x)) goals in
+  let goal_automata = List.map (fun gm -> List.map (fun (a, m) -> a) gm) aut_modes in
   (*
   let () =  Basic.print_formula IO.stdout formula in
   let () =  List.print ~sep:"," (fun out (aut, mode) -> Printf.fprintf out "@%s.%s" aut mode) IO.stdout aut_modes  in
   let () = print_endline "" in
  *)
-  let mode_lists = List.map
-		     (fun a ->
-		      match List.mem (Hybrid.name a) goal_automata with
-		      | true -> [match (List.find (fun (aname, m) -> (String.compare aname a.name) == 0) aut_modes) with (aut, m) -> m]
-		      | false -> List.map (fun (k, v) -> k) (Map.bindings a.modemap)
-		     )
-		     net.automata in
+  let mode_lists = List.mapi (fun i ga ->
+			     List.map
+			       (fun a ->
+				match List.mem (Hybrid.name a) ga with
+				| true -> [match (List.find (fun (aname, m) -> (String.compare aname a.name) == 0) (List.nth aut_modes i)) with (aut, m) -> m]
+				| false -> List.map (fun (k, v) -> k) (Map.bindings a.modemap)
+			       )
+			       net.automata)
+			    goal_automata
+  in
   (*
 let () =  List.print ~sep:"," (fun out modes -> (List.print ~sep:"," String.print IO.stdout modes)) IO.stdout mode_lists  in
    *)
@@ -665,17 +670,19 @@ let () =  List.print ~sep:"," (fun out modes -> (List.print ~sep:"," String.prin
      *)
     crossed_modes
   in
-  let goal_modes = match List.length mode_lists with
-    | 1 -> List.hd mode_lists
-    | _ -> mode_cross (List.hd mode_lists) (List.tl mode_lists)
+  let goal_modes = List.map (fun ml ->
+			     match List.length ml with
+    | 1 -> List.hd ml
+    | _ -> mode_cross (List.hd ml) (List.tl ml)
+			    ) mode_lists
   in
   (*
   let () = print_endline "Goal modes:" in
   let () =  List.print ~sep:"," String.print IO.stdout goal_modes  in
   let () = print_endline "" in
    *)
-  let goal_aut_and_modes = List.map (fun x -> (name, x)) goal_modes in
-  (goal_aut_and_modes, formula)
+  let goal_aut_and_modes = List.map (fun g -> List.map (fun x -> (name, x)) g) goal_modes in
+  List.combine goal_aut_and_modes formula
 
 (**
 Compute the parallel composition of two hybrid automata
@@ -765,15 +772,19 @@ let print out (nw : t) =
 	end
 	in
   let auta = automata nw in
-  let (locs, e) = goals nw in
-  begin
-	(*network title*)
-	print_header out "Network";
-	(*print automata*)
-	List.iter (fun a -> Hybrid.print out a) auta;
-	(*print goal locations*)
-	print_header out "Goal Locations";
-	List.iter (fun l -> print_str_tuple out l) locs;
-	print_header out "Goal Formula";
-	print_formula out e;
-  end
+  
+  (*network title*)
+  let () = print_header out "Network" in
+  (*print automata*)
+  let () = List.iter (fun a -> Hybrid.print out a) auta in
+  (*print goal locations*)
+  let gls = (goals nw) in
+  List.iter (fun g ->
+	     let (locs, e) = g in
+	     let () = print_header out "Goal Locations" in
+	     let () = List.iter (fun l -> print_str_tuple out l) locs in
+	     let () = print_header out "Goal Formula" in
+	     print_formula out e 
+	    )
+	    gls
+

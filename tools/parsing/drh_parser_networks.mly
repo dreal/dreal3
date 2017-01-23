@@ -20,7 +20,7 @@ let get_hybrid vardecl_list mode_list init goal ginv n label_list =
   
 let get_network time_decl hybrid_list analyze goals_list = 
 	(* analyze :: [string, [(string, string)]]*)
-	let (instances, composition) = analyze in
+  let (instances, composition) = analyze in
     Network.postprocess_network (Network.makep (time_decl, hybrid_list, Vardeclmap.of_list [], goals_list)) analyze
 %}
 
@@ -257,14 +257,14 @@ jump_labels:
 init: INIT COLON mode_formula SEMICOLON { $3 }
 ;
 
-goal_aut: GOAL COLON goal_aut_elem { $3 }
+goal_aut: GOAL COLON goal_aut_elems { $3 }
 ;
 
-goal_aut_elems: { [] }
-	| goal_aut_elem goal_aut_elems { $1::$2 }
+goal_aut_elems: /* */ { [] }
+	| goal_aut_elems goal_aut_elem  { $2::$1 }
 ;
 
-goal_aut_elem: LP loc_list RP COLON formula SEMICOLON { ($2, $5) }
+goal_aut_elem: LP loc_list RP COLON formula SEMICOLON {  ($2, $5)   }
 ;
 
 loc_list: 
