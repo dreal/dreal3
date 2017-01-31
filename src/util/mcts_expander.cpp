@@ -62,12 +62,12 @@ void icp_mcts_expander::expand(weak_ptr<mcts_node> node) {
 
         m_cs.m_box = icp_node->get_box();
 
-        DREAL_LOG_INFO << "icp_mcts_expander::expand(mcts_node) pruning";
-        try {
-            m_ctc.prune(m_cs);
-        } catch (contractor_exception & e) {
-            // Do nothing
-        }
+        // DREAL_LOG_INFO << "icp_mcts_expander::expand(mcts_node) pruning";
+        // try {
+        //     m_ctc.prune(m_cs);
+        // } catch (contractor_exception & e) {
+        //     // Do nothing
+        // }
 
         DREAL_LOG_INFO << "icp_mcts_expander::expand(mcts_node) splitting";
         if (!m_cs.m_box.is_empty()) {
@@ -85,17 +85,35 @@ void icp_mcts_expander::expand(weak_ptr<mcts_node> node) {
                 assert(second.get_idx_last_branched() == i);
 
                 if (!second.is_empty()) {
+		  DREAL_LOG_INFO << "icp_mcts_expander::expand(mcts_node) pruning split 2";
+		  m_cs.m_box = second;
+		  try {
+		    m_ctc.prune(m_cs);
+		  } catch (contractor_exception & e) {
+		    // Do nothing
+		  }
+		  if(!second.is_empty()){
                     shared_ptr<mcts_node> child =
                         shared_ptr<mcts_node>(new icp_mcts_node(second, snode, this));
                     child->set_sp(child);
                     children->push_back(child);
+		  }
                 }
                 if (!first.is_empty()) {
+		  DREAL_LOG_INFO << "icp_mcts_expander::expand(mcts_node) pruning split 1";
+		  m_cs.m_box = first;
+		  try {
+		    m_ctc.prune(m_cs);
+		  } catch (contractor_exception & e) {
+		    // Do nothing
+		  }
+		  if(!first.is_empty()){
                     shared_ptr<mcts_node> child =
-                        shared_ptr<mcts_node>(new icp_mcts_node(first, snode, this));
+		      shared_ptr<mcts_node>(new icp_mcts_node(first, snode, this));
                     child->set_sp(child);
                     children->push_back(child);
-                }
+		  }
+		}
 
                 DREAL_LOG_INFO << "icp_mcts_expander::expand(mcts_node) split";
 
@@ -290,8 +308,8 @@ double icp_mcts_expander::simulate_steps(weak_ptr<mcts_node> node) {
                         int step = get_step(name, at_start);
                         bool is_time =
                             m_cs.m_box.is_time_variable(dim) && name.find("_") == name.rfind("_");
-                        // DREAL_LOG_INFO << "i = " << i << " " << name << " step = " << step << "
-                        // at_start = " << at_start << " width = " << width;
+                         DREAL_LOG_INFO << "i = " << i << " " << name << " step = " << step
+					<< "at_start = " << at_start;// << " width = " << width;
                         if (step < min_step) {
                             min_step = step;
                             // min_at_start = at_start;
@@ -305,7 +323,6 @@ double icp_mcts_expander::simulate_steps(weak_ptr<mcts_node> node) {
                             i = dim;
                         }
                     }
-                    last_non_empty_box = new box(m_cs.m_box);
                     box prev(m_cs.m_box);
                     DREAL_LOG_INFO << "icp_mcts_simulator::simulate() found non-point ";
                     DREAL_LOG_INFO << "icp_mcts_simulator::simulate() setting dimension = "
@@ -314,6 +331,7 @@ double icp_mcts_expander::simulate_steps(weak_ptr<mcts_node> node) {
                     m_cs.m_box = m_cs.m_box =
                         m_cs.m_box.sample_dimension(i);  // m_cs.m_box.set_dimension_ub(i);
                     // DREAL_LOG_INFO << "icp_mcts_simulator::simulate() after\n" << m_cs.m_box;
+                    last_non_empty_box = new box(m_cs.m_box);
 
                     try {
                         DREAL_LOG_INFO << "icp_mcts_simulator::simulate() start pruning";

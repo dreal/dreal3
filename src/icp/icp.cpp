@@ -495,6 +495,9 @@ void mcts_icp::solve(contractor & ctc, contractor_status & cs,
     DREAL_THREAD_LOCAL static vector<box> solns;
     solns.clear();
 
+    ctc.prune(cs);
+    if (cs.m_box.is_empty()) return;
+    
     icp_mcts_expander expander(ctc, cs, ctrs, brancher);
     shared_ptr<icp_mcts_node> root(new icp_mcts_node(cs.m_box, &expander));
     root->set_sp(root);
@@ -514,7 +517,7 @@ void mcts_icp::solve(contractor & ctc, contractor_status & cs,
         shared_ptr<mcts_node> last = current;
 
         // Get expandable node
-        while (!current->has_unexplored_children()) {
+        while (!current->has_unexplored_children() && !current->terminal()) {
             last = current;
             current = current->select();
             // DREAL_LOG_INFO << "mcts_icp::solve() selected node " << current->id();

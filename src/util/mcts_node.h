@@ -42,7 +42,7 @@ struct mcts_node_compare {
     bool operator()(const mcts_node * a, const mcts_node * b) { return &a < &b; }
 };
 
-static const double UCT_COEFFICIENT = 1.0;
+static const double UCT_COEFFICIENT = 5.0;
 static int id_counter = 0;
 
 class mcts_node {
@@ -71,6 +71,7 @@ public:
           m_parent(parent),
           m_visits(0),
           m_terminal(false) {
+      m_children_list.clear();
         if (auto sp = m_parent.lock()) {
             m_id = id_counter++;
         } else {  // root node

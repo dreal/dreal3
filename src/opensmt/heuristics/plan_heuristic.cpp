@@ -306,10 +306,17 @@ void plan_heuristic::backtrack() {
     displayTrail();
     displayStack();
 
-    int bt_point =
-        (trail_lim->size() == 0 ? 0 : (m_stack_lim.size() <= (unsigned int)trail_lim->size()
-                                           ? m_stack.size()
-                                           : m_stack_lim[trail_lim->size()] - 1));
+    // int bt_point =
+    //     (trail_lim->size() == 0 ? 0 : (m_stack_lim.size() <= (unsigned int)trail_lim->size()
+    //                                        ? m_stack.size()
+    //                                        : m_stack_lim[trail_lim->size()] - 1));
+
+   int bt_point =
+        (((unsigned long)trail_lim->size() < m_stack_lim.size()  //&& trail_lim->size() > 0
+          )
+             ? m_stack_lim[trail_lim->size()]
+             : m_stack.size());
+    
     DREAL_LOG_DEBUG << "level = " << trail_lim->size() << " pt = " << bt_point;
 
     while (m_stack_lim.size() > (unsigned int)trail_lim->size() && !m_stack_lim.empty())
@@ -320,7 +327,7 @@ void plan_heuristic::backtrack() {
         m_stack.pop_back();
         stack_literals.erase(s->first);
         delete s;
-        lastTrailEnd--;
+        //lastTrailEnd--;
     }
     displayStack();
     displayDecisionStack();
@@ -580,11 +587,12 @@ bool plan_heuristic::expand_path() {
 
   void plan_heuristic::displayDecisionStack(){
     DREAL_LOG_INFO << "------------- m_decision_stack -------------";
+    int c = 0;
     for (auto decision : m_decision_stack){
       stringstream str;
-      if(decision->first){
-      str << decision->first << ": [";
-      if(decision->second){
+      if(decision && decision->first){
+	str << (c++) << ": " << decision->first << ": [";
+	if(decision->second && !decision->second->empty()){
 	for(auto d : *(decision->second)){
 	  str << d << ", ";
 	}
@@ -635,6 +643,8 @@ bool plan_heuristic::unwind_path() {
 				  << sdecision->first;
                     // found possibly earliest disagreement, clear decision stack to this point
                     for (int k = m_decision_stack.size() - 1; k > i; k--) {
+		      DREAL_LOG_DEBUG << "plan_heuristic::unwind_path() popping " << k;
+		      
                         delete m_decision_stack[k]->second;
                         delete m_decision_stack[k];
                         m_decision_stack.pop_back();
@@ -643,7 +653,12 @@ bool plan_heuristic::unwind_path() {
 		    displayDecisionStack();
 
                     // clear conflicting decision
-                    m_decision_stack[i]->second->pop_back();
+		      if(!m_decision_stack[i]->second->empty()){
+			m_decision_stack[i]->second->pop_back();
+		      }
+		    DREAL_LOG_DEBUG << m_decision_stack.size() << " " << i << " " << m_decision_stack[i]->second->size();
+		    displayDecisionStack();
+
                     if (m_decision_stack[i]->second->empty()) {
                         need_bt_to_decision = true;
                     }
@@ -651,7 +666,7 @@ bool plan_heuristic::unwind_path() {
             }
         }
     }
-
+    DREAL_LOG_DEBUG << "done with stack " << need_bt_to_decision;
     if (need_bt_to_decision) {
         // clean up decision stack so that there are no levels with no decisions
         pbacktrack();
@@ -788,7 +803,9 @@ bool plan_heuristic::unwind_path() {
 }
 
 bool plan_heuristic::pbacktrack() {
-    for (int i = m_decision_stack.size() - 1; i >= 0; i--) {
+  DREAL_LOG_DEBUG << "plan_heuristic::pbacktrack";
+   for (int i = m_decision_stack.size() - 1; i >= 0; i--) {
+      DREAL_LOG_DEBUG << "plan_heuristic::pbacktrack at " << i;
         pair<Enode *, vector<bool> *> * decision = m_decision_stack[i];
         if (decision->second->size() <= 1) {
             delete m_decision_stack[i]->second;
