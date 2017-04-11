@@ -1,0 +1,266 @@
+#define TAU_IN 0.3
+#define TAU_OUT 6
+#define TAU_OPEN 20
+#define TAU_CLOSE 150
+#define V_GATE 0.1
+#define I_stim 0.2
+#define DIFF 0.2
+#define	V_TH	0.2
+#define N_TRANS 2
+// Define vector field
+#define f_v h*v*v*(1-v)/TAU_IN - v/TAU_OUT
+#define f_h_1	  -h/TAU_CLOSE
+#define f_h_2     (1-h)/TAU_OPEN 
+#define r_th	0.01
+[0, 1.8] v;
+[0, 1.2] h;
+[0, 400] tau;
+[0, 800] time;
+[0, 400]  tau1;
+[0, 400]  tau2;
+
+
+// Variable to be varied
+[300, 350] BCL;
+[0, 10] t_c;
+/////////////////// 1ST AP CYCLE /////////////////////////////////
+
+// 1st AP Cycle - Stimulus mode 1 --> entering APD mode
+{mode 1;
+
+invt:
+        (tau <= 1);
+		
+flow:
+		d/dt[tau1] = 0;
+		d/dt[tau2] = 0;
+        d/dt[tau] = 1;
+        d/dt[v] = I_stim + f_v;
+        d/dt[h] = f_h_1;
+		d/dt[BCL] = 0;
+		d/dt[t_c] = 0;
+
+jump:
+        tau >= 1 ==> 
+		@2 (and (tau' = tau) (v' = v) (h' = h) (tau1' = 0) (tau2' = tau2) (t_c' = t_c));
+		
+}
+
+// 1st AP Cycle - APD Mode --> entering resting mode-1
+{mode 2;
+
+invt:
+		(v >= V_TH);
+
+flow:
+        d/dt[tau1] = 1; 
+		d/dt[tau2] = 0;       
+		d/dt[tau] = 1;
+        d/dt[v] = f_v;
+        d/dt[h] = f_h_1;
+	    d/dt[BCL] = 0;
+		d/dt[t_c] = 0;
+
+jump:
+        v <= V_TH ==> 
+		@3 (and (tau' = tau) (v' = v) (h' = h) (tau1' = tau1) (tau2' = tau2) (t_c' = t_c));
+						
+}
+
+// 1st AP Cycle - Resting mode 1 --> entering resting mode 2
+{mode 3;
+
+invt:
+        (v >= V_GATE);
+	    (v <= V_TH);
+
+flow:
+		d/dt[tau1] = 0;
+		d/dt[tau2] = 0;
+        d/dt[tau] = 1;
+        d/dt[v] = f_v;
+        d/dt[h] = f_h_1;
+		d/dt[BCL] = 0;
+		d/dt[t_c] = 0;
+
+jump: 
+	 v <= V_GATE ==> 
+	@4 (and (tau' = tau) (v' = v) (h' = h) (tau1' = tau1) (tau2' = tau2) (t_c' = t_c));
+	
+}
+
+// 1st AP Cycle - Resting mode 2 --> entering stim mode - 2
+{mode 4;
+
+invt:
+        (tau <= BCL);
+		
+flow:
+		d/dt[tau1] = 0;
+		d/dt[tau2] = 0;
+        d/dt[tau] = 1;
+        d/dt[v] = f_v;
+        d/dt[h] = f_h_2;
+		d/dt[BCL] = 0;
+		d/dt[t_c] = 0;
+
+jump: 
+	 tau >= BCL ==> 
+	 @5 (and (tau' = 0) (v' = v) (h' = h) (tau1' = tau1) (tau2' = tau2) (t_c' = t_c+1));
+	
+}
+
+// 1st AP Cycle - Stim mode 2 --> entering stim mode - 1
+{mode 5;
+
+invt:
+        (v <= V_GATE);
+		
+flow:
+		d/dt[tau1] = 0;
+		d/dt[tau2] = 0;
+        d/dt[tau] = 1;
+        d/dt[v] = I_stim + f_v;
+        d/dt[h] = f_h_2;
+		d/dt[BCL] = 0;
+		d/dt[t_c] = 0;
+
+jump: 
+	 	and (v >= V_GATE) (t_c > N_TRANS)==> @6 (and (tau' = tau) (v' = v) (h' = h) (tau1' = tau1) (tau2' = tau2) (t_c' = t_c));
+		and (v >= V_GATE) (t_c <= N_TRANS) ==> @1 (and (tau' = tau) (v' = v) (h' = h) (tau1' = tau1) (tau2' = tau2) (t_c' = t_c));
+	
+}
+
+///////////////////// 2ND AP CYCLE ///////////////////////////////////
+
+// 1st AP Cycle - Stimulus mode 1 --> entering APD mode
+{mode 6;
+
+invt:
+        (tau <= 1);
+		
+flow:
+		d/dt[tau1] = 0;
+        d/dt[tau2] = 0;
+		d/dt[tau] = 1;
+        d/dt[v] = I_stim + f_v;
+        d/dt[h] = f_h_1;
+		d/dt[BCL] = 0;
+		d/dt[t_c] = 0;
+
+jump:
+        tau >= 1 ==> @7 
+		(and (tau' = tau) (v' = v) (h' = h) (tau1' = tau1) (tau2' = 0) (t_c' = t_c));
+
+		tau >= 1 ==> @8
+		(and (tau' = tau) (v' = v) (h' = h) (tau1' = tau1) (tau2' = 0) (t_c' = t_c));
+		
+}
+
+// 1st AP Cycle - Short APD Mode --> entering resting mode-1
+{mode 7;
+
+invt:
+		(v >= V_TH);
+
+flow:
+        d/dt[tau1] = 0;   
+		d/dt[tau2] = 1;     
+		d/dt[tau] = 1;
+        d/dt[v] = f_v;
+        d/dt[h] = f_h_1;
+		d/dt[BCL] = 0;
+		d/dt[t_c] = 0;
+
+jump:
+        and(v <= V_TH)(tau2 <= (1-r_th)*tau1) ==> 
+		@9 (and (tau' = tau) (v' = v) (h' = h) (tau1' = tau1) (tau2' = tau2) (t_c' = t_c));
+}
+
+// 1st AP Cycle - Long APD Mode --> entering resting mode-1
+{mode 8;
+
+invt:
+		(v >= V_TH);
+		//(tau >= (1.05)*d);
+
+flow:
+        d/dt[tau1] = 0;  
+		d/dt[tau2] = 1;      
+		d/dt[tau] = 1;
+        d/dt[v] = f_v;
+        d/dt[h] = f_h_1;
+		d/dt[BCL] = 0;
+		d/dt[t_c] = 0;
+
+jump:
+        and (v <= V_TH) (tau2 >= (1+r_th)*tau1) ==> 
+		@9 (and (tau' = tau) (v' = v) (h' = h) (tau1' = tau1) (tau2' = tau2) (t_c' = t_c));
+}
+
+// 1st AP Cycle - Resting mode 1 --> entering resting mode 2
+{mode 9;
+
+invt:
+        (v >= V_GATE);
+	    (v <= V_TH);
+
+flow:
+		d/dt[tau1] = 0;
+		d/dt[tau2] = 0;
+        d/dt[tau] = 1;
+        d/dt[v] = f_v;
+        d/dt[h] = f_h_1;
+		d/dt[BCL] = 0;
+		d/dt[t_c] = 0;
+
+jump: 
+	 v <= V_GATE ==> 
+	 @10 (and (tau' = tau) (v' = v) (h' = h) (tau1' = tau1) (tau2' = tau2) (t_c' = t_c));
+	
+}
+
+// 1st AP Cycle - Resting mode 2 --> entering stim mode - 2
+{mode 10;
+
+invt:
+        (tau <= BCL);
+		
+flow:
+		d/dt[tau1] = 0;
+		d/dt[tau2] = 0;
+        d/dt[tau] = 1;
+        d/dt[v] = f_v;
+        d/dt[h] = f_h_2;
+		d/dt[BCL] = 0;
+		d/dt[t_c] = 0;
+
+jump: 
+	 tau >= BCL ==> 
+	 @11 (and (tau' = tau) (v' = v) (h' = h) (tau1' = tau1) (tau2' = tau2) (t_c' = t_c));
+	
+}
+
+// 1st AP Cycle - Stim mode 2 --> entering stim mode - 1
+{mode 11;
+
+invt:
+        (v <= V_GATE);
+		
+flow:
+	 	d/dt[tau1] = 0;
+		d/dt[tau2] = 0;
+        d/dt[tau] = 1;
+        d/dt[v] = I_stim + f_v;
+        d/dt[h] = f_h_2;
+	 	d/dt[BCL] = 0;
+		d/dt[t_c] = 0;
+
+jump: 
+	 v >= V_GATE ==> 
+	 @1 (and (tau' = tau) (v' = v) (h' = h) (tau1' = tau1) (tau2' = tau2) (t_c' = t_c));
+	
+}
+
+init: @1 (and (t_c = 0) (tau1 = 0)(tau2 = 0)(tau = 0) (v = 0.2)(h = 1)(BCL >= 300) (BCL <= 300.01));
+goal: @2 and (v >= V_TH);
