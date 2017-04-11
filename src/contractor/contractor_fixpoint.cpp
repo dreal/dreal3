@@ -74,9 +74,17 @@ void contractor_fixpoint::build_deps_map() {
     // depend on a variable 'var' as an input
     int max_var = -1;
     for (size_t i = 0; i < m_clist.size(); ++i) {
-        int const this_max = m_clist[i].get_input().max();
-        if (max_var < this_max) {
-            max_var = this_max;
+        if (m_clist[i].get_input().empty()) {
+            // When it's empty, m_clist[i].get_input().max() returns
+            // ibex::NOVAL which is a large error code. We skip it to
+            // avoid the problem.
+            // See https://github.com/dreal/dreal3/issues/338.
+            continue;
+        } else {
+            int const this_max = m_clist[i].get_input().max();
+            if (max_var < this_max) {
+                max_var = this_max;
+            }
         }
     }
     for (int v = 0; v <= max_var; ++v) {
