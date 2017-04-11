@@ -105,8 +105,8 @@ ibex::SystemFactory * contractor_ibex_polytope::build_system_factory(
         }
         DREAL_LOG_INFO << "build_system_factory: Add Constraint: " << *ctr;
         Enode * e = ctr->get_enode();
-        auto p = e->getPolarity();
-        assert(p == l_True || p == l_False);
+        // If no polarity is assigned, treat it as positive.
+        const lbool p = e->hasPolarity() ? e->getPolarity() : l_True;
         auto & m_exprctr_cache = (p == l_True) ? m_exprctr_cache_pos : m_exprctr_cache_neg;
         auto exprctr_it = m_exprctr_cache.find(e);
         ibex::ExprCtr const * exprctr = nullptr;
