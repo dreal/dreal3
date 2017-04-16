@@ -1,0 +1,98 @@
+
+#define K1 0.015
+#define K2 0.045
+#define h1 100.0
+#define h2 200.0
+#define c  0.01
+
+#define gT 20
+
+[-20, 100] x1;
+[-20, 100] x2;
+
+[0, 1] tau;
+[0, 1] time;
+
+{mode 1;
+
+  invt: (tau >= 0);
+        (tau <= 1);
+  flow:
+        d/dt[x1] = K1 * (h1 - ((1 - c) * x1 + c * x2));
+        d/dt[x2] = K2 * (h2 - ((1 - c) * x2 + c * x1));
+        d/dt[tau]  = 1;
+  jump:
+        (and (tau = 1) (x1 <= gT) (x2 <= gT)) ==> 
+          @1 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 <= gT) (x2 > gT)) ==> 
+          @2 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 > gT) (x2 <= gT)) ==> 
+          @3 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 > gT) (x2 > gT)) ==> 
+          @4 (and (x1' = x1) (x2' = x2) (tau' = 0));
+}
+{mode 2;
+
+  invt: (tau >= 0);
+        (tau <= 1);
+  flow:
+        d/dt[x1] = K1 * (h1 - ((1 - c) * x1 + c * x2));
+        d/dt[x2] = -K2 * ((1 - c) * x2 + c * x1);
+        d/dt[tau]  = 1;
+  jump:
+        (and (tau = 1) (x1 <= gT) (x2 <= gT)) ==> 
+          @1 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 <= gT) (x2 > gT)) ==> 
+          @2 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 > gT) (x2 <= gT)) ==> 
+          @3 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 > gT) (x2 > gT)) ==> 
+          @4 (and (x1' = x1) (x2' = x2) (tau' = 0));
+}
+{mode 3;
+
+  invt: (tau >= 0);
+        (tau <= 1);
+  flow:
+        d/dt[x1] = -K1 * ((1 - c) * x1 + c * x2);
+        d/dt[x2] = K2 * (h2 - ((1 - c) * x2 + c * x1));
+        d/dt[tau]  = 1;
+  jump:
+        (and (tau = 1) (x1 <= gT) (x2 <= gT)) ==> 
+          @1 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 <= gT) (x2 > gT)) ==> 
+          @2 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 > gT) (x2 <= gT)) ==> 
+          @3 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 > gT) (x2 > gT)) ==> 
+          @4 (and (x1' = x1) (x2' = x2) (tau' = 0));
+}
+{mode 4;
+
+  invt: (tau >= 0);
+        (tau <= 1);
+  flow:
+        d/dt[x1] = -K1 * ((1 - c) * x1 + c * x2);
+        d/dt[x2] = -K2 * ((1 - c) * x2 + c * x1);
+        d/dt[tau]  = 1;
+  jump:
+        (and (tau = 1) (x1 <= gT) (x2 <= gT)) ==> 
+          @1 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 <= gT) (x2 > gT)) ==> 
+          @2 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 <= gT) (x2 > gT)) ==> 
+          @3 (and (x1' = x1) (x2' = x2) (tau' = 0));
+        (and (tau = 1) (x1 > gT) (x2 > gT)) ==> 
+          @4 (and (x1' = x1) (x2' = x2) (tau' = 0));
+}
+
+
+init:
+@1  (and (x1 >= gT - 1) (x1 <= gT + 1) (x2 >= gT - 1) (x2 <= gT + 1) (tau = 0));
+
+goal:
+@1  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)));
+@2  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)));
+@3  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)));
+@4  (and (or (x1 < gT - 5) (x1 > gT + 5)) (or (x2 < gT - 5) (x2 > gT + 5)));
+
