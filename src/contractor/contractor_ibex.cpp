@@ -432,10 +432,9 @@ contractor_ibex_polytope::contractor_ibex_polytope(
         return;
     }
     m_sf.reset(build_system_factory(vars, m_ctrs));
-    try {
-        m_sys.reset(new ibex::System(*m_sf));
-    } catch (ibex::EmptySystemException & e) {
-        DREAL_LOG_INFO << "contractor_ibex_polytope::contractor_ibex_polytope: empty ibex::system";
+    m_sys.reset(new ibex::System(*m_sf));
+    if (m_sys->nb_ctr == 0) {
+        m_sys.reset();
         return;
     }
 
