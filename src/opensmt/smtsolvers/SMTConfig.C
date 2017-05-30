@@ -63,7 +63,7 @@ SMTConfig::initializeConfig( )
   produce_inter                = 0;
   dump_formula                 = 0;
   verbosity                    = 0;
-  print_success                = false;
+  print_success                = true;
   certification_level          = 0;
   strcpy( certifying_solver, "tool_wrapper.sh" );
   // Set SAT-Solver Default configuration

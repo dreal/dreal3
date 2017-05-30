@@ -881,23 +881,6 @@ void OpenSMTContext::PrintResult( const lbool & result, const lbool & config_sta
       }
     }
 
-  if ( result == l_True ) {
-      fesetround(FE_TONEAREST);
-      std::streamsize ss = out.precision();
-      out.precision(17);
-      if ( config.nra_precision_output ) {
-          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
-      } else {
-          out << "delta-sat" << endl;
-      }
-      out.precision(ss);
-  } else if ( result == l_False )
-    out << "unsat" << endl;
-  else if ( result == l_Undef )
-    out << "unknown" << endl;
-  else
-    opensmt_error( "unexpected result" );
-
   fflush( stdout );
 
 #ifndef SMTCOMP
