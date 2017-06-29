@@ -635,7 +635,7 @@ else()
     LOG_CONFIGURE 1
     LOG_BUILD 1
     LOG_TEST 1
-    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/mtidd.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp libmtidd.so ${CMAKE_CURRENT_BINARY_DIR}/lib )
+    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/mtidd.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/internalizer.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/interval.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/lattice.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/partition.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/utils.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp libmtidd.so ${CMAKE_CURRENT_BINARY_DIR}/lib )
 endif()
 set(EXTRA_LIBS "mtidd" ${EXTRA_LIBS})
 ################################################################
