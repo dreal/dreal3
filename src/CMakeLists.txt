@@ -616,18 +616,18 @@ if(USE_LOCAL_THIRD_PARTY)
   ExternalProject_Add(MTIDD
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     URL ${CMAKE_SOURCE_DIR}/third_party/mtidd.zip
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CC=${CMAKE_C_COMPILER} sh ./configure.sh
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/external/src/MTIDD/src
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
-    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/mtidd.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp libmtidd.so ${CMAKE_CURRENT_BINARY_DIR}/lib)
+    INSTALL_COMMAND make install)
 else()
   ExternalProject_Add(MTIDD
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external
     GIT_REPOSITORY https://github.com/dzufferey/mtidd.git
     GIT_TAG master
     UPDATE_COMMAND ""
-    # CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CC=${CMAKE_C_COMPILER} sh ./configure.sh
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} ${CMAKE_CURRENT_BINARY_DIR}/external/src/MTIDD/src
+    # CONFIGURE_COMMAND ${CMAKE_COMMAND} ${CMAKE_CURRENT_BINARY_DIR}/external/src/MTIDD/src
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/external/src/MTIDD/src
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1
@@ -635,7 +635,7 @@ else()
     LOG_CONFIGURE 1
     LOG_BUILD 1
     LOG_TEST 1
-    INSTALL_COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/mtidd.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/internalizer.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/interval.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/lattice.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/partition.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp src/utils.h ${CMAKE_CURRENT_BINARY_DIR}/include/mtidd && cp libmtidd.so ${CMAKE_CURRENT_BINARY_DIR}/lib )
+    INSTALL_COMMAND make install)
 endif()
 set(EXTRA_LIBS "mtidd" ${EXTRA_LIBS})
 ################################################################
