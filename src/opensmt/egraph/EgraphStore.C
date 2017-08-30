@@ -665,6 +665,7 @@ Enode * Egraph::mkFun( const char * name, Enode * args )
   //
   ostringstream ss;
   ss << name;
+  std::cout << "[" << name << "]" << std::endl;
   for ( Enode * l = args ; !l->isEnil( ) ; l = l->getCdr( ) )
   {
     ss << " ";
@@ -672,7 +673,7 @@ Enode * Egraph::mkFun( const char * name, Enode * args )
   }
 
   Enode * e = lookupSymbol( ss.str( ).c_str( ) );
-  if ( e == nullptr ) opensmt_error2( "undeclared function symbol ", ss.str( ).c_str( ) );
+  if ( e == nullptr ) opensmt_error2( "undeclared function symbol [", ss.str( ).c_str( ) );
 
   Enode * ret = cons( e, args );
 

@@ -60,8 +60,10 @@ private:
     bool expand_path(bool first_expansion);
     void displayDecisions();
 
-    std::map<std::string, int> at_id; //not used
+    std::map<std::string, int> at_id; 
+    std::map<Enode*, std::string> at_names;
     std::vector<std::vector<Enode*>*> at_time_enodes;
+
     std::set<Enode*> at_enodes;
     std::vector<int>* get_possible_decisions(int act);
     std::pair<Enode*, bool>* on_stack(Enode* act);

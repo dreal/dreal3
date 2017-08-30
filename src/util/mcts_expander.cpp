@@ -257,6 +257,9 @@ int get_step(std::string var, bool & at_start) {
     int last_underscore = var.find_last_of("_");
     // DREAL_LOG_INFO << first_underscore << " " << last_underscore;
     int step = -1;
+
+    try{
+    
     if (first_underscore == last_underscore) {  // is a time_x variable
         step = std::stoi(var.substr(first_underscore + 1));
         at_start = false;
@@ -270,6 +273,9 @@ int get_step(std::string var, bool & at_start) {
             at_start = false;
         else
             at_start = true;
+    }
+    } catch (std::exception e) {
+      return 0;
     }
     return step;
 }
