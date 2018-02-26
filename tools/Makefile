@@ -1,5 +1,5 @@
 all: setup.ml setup.data build
-	@if [ ! -L ../bin/bmc ]; then ln -s ../tools/bmc_main.native ../bin/bmc; fi
+	@if [ ! -L ../bin/bmc ]; then cp _build/bmc/src/bmc_main.native ../bin/bmc; fi
 
 setup.ml: _oasis
 	oasis setup
